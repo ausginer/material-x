@@ -29,6 +29,7 @@ import {
 import { pathOwnsInteraction } from '../kernel/input-policy.ts';
 import { createInvalidator } from '../kernel/invalidation.ts';
 import { ACTIVATING, ACTIVE } from '../kernel/phases.ts';
+import type { PointCache } from '../kernel/point-cache.ts';
 import {
   type BehaviorSpec,
   type PreparedSettlement,
@@ -148,6 +149,14 @@ export function createFreeDragSpec(
    * it has.
    */
   const motion: MotionDraft = { x: 0, y: 0 };
+  /**
+   * **The landing target's return buffer, one per controller** (D-144). Every
+   * `anchorTarget` arm writes these two fields and returns this object; the
+   * kernel reads them immediately and retains nothing, which is the borrow the
+   * seam's own contract states. Never module-level: two controllers on one page
+   * must not share one. Nothing may read it between calls.
+   */
+  const anchor: PointCache = { x: 0, y: 0 };
   /** Built once per operation, in `activation.effect`. */
   let view: ConstraintView | null = null;
 
@@ -863,7 +872,7 @@ export function createFreeDragSpec(
      * `DraggableWarning` carrying `drag: landing/target-unavailable`, and a
      * warning needs no stage to be delivered.
      */
-    anchorTarget(current): Point {
+    anchorTarget(current): PointCache {
       const origin = rt.originRect!;
 
       if (current.domain?.type === 'accepted' || !slots.getHome) {
@@ -872,7 +881,10 @@ export function createFreeDragSpec(
         // read. For the accepted arm that is the visual's current position; for
         // the other it is the grab position, which is the origin rect itself.
         if (current.domain?.type !== 'accepted') {
-          return { x: origin.left, y: origin.top };
+          anchor.x = origin.left;
+          anchor.y = origin.top;
+
+          return anchor;
         }
 
         // **Read, not re-derived** (D-89, CE1-02). This arm must not call
@@ -892,14 +904,20 @@ export function createFreeDragSpec(
         // and `release.effect` wrote, and nothing may change it in between —
         // which is what D-86 guarantees by making both behavior tags
         // deterministic no-ops after `ACTIVE`.
-        return { x: origin.left + motion.x, y: origin.top + motion.y };
+        anchor.x = origin.left + motion.x;
+        anchor.y = origin.top + motion.y;
+
+        return anchor;
       }
 
       // The terminal barrier before the one consumer call (I-36). The kernel
       // revalidates around `anchorTarget` and never starts a landing for a
       // destroyed controller; what this stops is the call itself.
       if (host.closed) {
-        return { x: origin.left, y: origin.top };
+        anchor.x = origin.left;
+        anchor.y = origin.top;
+
+        return anchor;
       }
 
       const home = slots.getHome(subjectOf(current.visual!));
@@ -929,10 +947,19 @@ export function createFreeDragSpec(
       // boundary and pins geometry with — `CODE_OF_SIZE.md` §1.1's explicit
       // carve-out, and a getter-backed `Point` is a legitimate shape rather
       // than misuse.
+      // **Each axis is read exactly once, and the reads precede the writes**
+      // (D-144). The cache removes the allocation and nothing else: reading
+      // `home` twice, or writing `anchor.x = home.x` and then `anchor.y =
+      // home.y`, would still be two reads of a live accessor — the second
+      // separated from the first by a field write. The destructuring below is
+      // the copy this seam already owed.
       const { x } = home;
       const { y } = home;
 
-      return { x, y };
+      anchor.x = x;
+      anchor.y = y;
+
+      return anchor;
     },
 
     /**

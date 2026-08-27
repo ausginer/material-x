@@ -101,7 +101,7 @@ import {
   type SettlementInput,
   type SettlementScope,
 } from './spec.ts';
-import type { OffsetBox, Point } from './types.ts';
+import type { OffsetBox } from './types.ts';
 import { createUnwind } from './unwind.ts';
 
 /** Why an operation was cancelled, when the kernel is the one deciding. */
@@ -166,10 +166,17 @@ type SettlementAttempt = {
    * final before this is taken, so there is no interval in which a target is
    * provisional — which is what deletes the second, advisory `anchorTarget`
    * call, the `retarget()` producer and the readiness-time re-anchor together.
-   * The runner receives it as `LandingContext.target` and the join pins to the
-   * same value.
+   * The runner receives these two numbers as `LandingContext.targetX`/`.targetY`
+   * and the join pins to the same pair.
+   *
+   * **`targeted` is the flag the coordinates cannot carry** (D-145). It is
+   * false when the measurement was skipped, which is what tells the join to
+   * release without pinning; the two scalars are then meaningless rather than
+   * zero-valued.
    */
-  target: Point | null;
+  targeted: boolean;
+  targetX: number;
+  targetY: number;
   /** False once a `destroy()` throw leaves runner control unrelinquished (I-24). */
   relinquished: boolean;
   /** Once-only completion latch: the first `done()`/`fail()` wins. */
@@ -1355,7 +1362,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     start: null,
     landing: null,
     landingHeld: false,
-    target: null,
+    targeted: false,
+    targetX: 0,
+    targetY: 0,
     relinquished: true,
     completed: false,
     failed: false,
@@ -1539,7 +1548,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     if (anchor === undefined) {
       // **Skipped, not faked** (D-49). `onError` has already been delivered by
       // the driver. The hold is rolled back and `start` is skipped entirely, so
-      // there is no runner and no animation; `target` stays `null`, which is
+      // there is no runner and no animation; `targeted` stays false, which is
       // what tells the join to release without pinning. The settlement is
       // **not** failed and the domain result stands — the DOM commit already
       // happened and the reorder is real — so this returns `ARM_ARMED` and the
@@ -1550,18 +1559,24 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // unrepaired position" is a confident twelve-frame animation to `(0,0)`
       // followed by a teleport back.
       rollbackLandingHold(attempt);
-      attempt.target = null;
+      attempt.targeted = false;
       return ARM_ARMED;
     }
 
     const origin = originRect!;
-    // Stored as an **origin-relative delta**, the space `compose` and
+    // Converted to an **origin-relative delta**, the space `compose` and
     // `lift.write` consume. `anchorTarget` produces a viewport point and the
     // kernel converts once, here, because the runner has no other way to reach
     // the grab basis — see README, deliberate differences.
-    const target: Point = { x: anchor.x - origin.x, y: anchor.y - origin.y };
+    // **The borrow ends here** (D-144). Both fields of `anchor` are read on
+    // this line and the object is never referenced again: a behavior is free to
+    // return one reusable buffer per controller, and both first-party ones do.
+    const targetX = anchor.x - origin.x;
+    const targetY = anchor.y - origin.y;
 
-    attempt.target = target;
+    attempt.targeted = true;
+    attempt.targetX = targetX;
+    attempt.targetY = targetY;
 
     const { start } = attempt;
 
@@ -1577,12 +1592,14 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // snaps or externally drives its visual, and for every pointerless
     // operation (D-32), which has no pointer to subtract.
     //
-    // Copied, not aliased. `rendered` is one mutable object written in place on
-    // the hot path; handing it to a consumer's runner would let a late
-    // `lift.write` — outside the contract, but not refused — move a `from` the
-    // runner has already read, and would publish a kernel-mutable object into
-    // consumer code. One allocation per drop, on a path that is already
-    // allocating the context around it.
+    // Read into two fields, not aliased. `rendered` is one mutable object
+    // written in place on the hot path; handing it to a consumer's runner would
+    // let a late `lift.write` — outside the contract, but not refused — move a
+    // `from` the runner has already read, and would publish a kernel-mutable
+    // object into consumer code. Since D-145 the same protection costs nothing:
+    // the two numbers are fields on a context that already allocates, and
+    // `targetX`/`targetY` beside them are protected by the same shape rather
+    // than published as the object the join pin also holds (F-125).
     //
     // **This read is the boundary of I-34's interval.** Behavior rendering goes
     // through `write` up to here; from here the landing runner is the deliberate
@@ -1591,8 +1608,10 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     const context: LandingContext = {
       visual: visual!,
       compose: session.compose,
-      from: { x: rendered.x, y: rendered.y },
-      target,
+      fromX: rendered.x,
+      fromY: rendered.y,
+      targetX,
+      targetY,
       realm,
     };
 
@@ -1685,7 +1704,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // and the pin cannot disagree about where the drop ends. A provisional
       // target measured here instead is survivable for exactly that reason,
       // and wrong for the same one.
-      const { target } = attempt;
+      const { targeted } = attempt;
       const handle = attempt.landing;
 
       if (handle) {
@@ -1711,15 +1730,15 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         }
       }
 
-      // **A null target means the measurement was skipped** (D-49): no pin, no
+      // **An untargeted attempt means the measurement was skipped** (D-49): no pin, no
       // animation, and presentation is released from where the visual stands —
       // the jump cut. Everything after this point still runs, because the
       // settlement was never failed: the release below is unconditional and
       // `finalized` publishes the domain result the frame already holds.
       if (
-        target &&
+        targeted &&
         !driver.runLeaf(() => {
-          session.write(target.x, target.y);
+          session.write(attempt.targetX, attempt.targetY);
         }, FAILURE_RENDERER_WRITE)
       ) {
         failed = true;

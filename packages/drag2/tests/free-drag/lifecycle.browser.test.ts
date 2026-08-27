@@ -78,7 +78,7 @@ function recordingLanding(): Readonly<{
 
   const installer: FreeDragInstaller = () => ({
     startLanding: (context, done) => {
-      origins.push({ x: context.from.x, y: context.from.y });
+      origins.push({ x: context.fromX, y: context.fromY });
       done();
       return { destroy: (): void => {} };
     },

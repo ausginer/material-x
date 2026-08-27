@@ -28,18 +28,24 @@
  * `destroy()`.
  */
 import type { LandingHandle, LandingStart } from '../kernel/spec.ts';
-import type { Point } from '../kernel/types.ts';
 
 /**
  * What a contextual `duration` is handed.
  *
- * `from` and `to` are the landing's origin-relative deltas — the same two
- * points the runner animates between — and `distance` is the straight-line
+ * The four coordinates are the landing's origin-relative deltas — the same two
+ * endpoints the runner animates between — and `distance` is the straight-line
  * magnitude between them.
+ *
+ * They are **scalars rather than two points**: the runner already holds them as
+ * scalars, so nesting them here would allocate two objects for a function that
+ * most often reads only `distance`.
  */
+// The flattening, and the accounting behind it: D-145.
 export type LandingTimingContext = Readonly<{
-  from: Point;
-  to: Point;
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
   distance: number;
 }>;
 
@@ -115,14 +121,16 @@ export function createLandingStart(options: LandingOptions): LandingStart {
     // animation — is not conditional on a media query. Resolving inside the
     // collapse would make a consumer's settle-time side effect, and a thrown
     // result, observable only for users who have not asked for reduced motion.
-    const { from, target } = context;
+    const { fromX, fromY, targetX, targetY } = context;
     const resolved = timing
       ? timing({
-          from,
-          to: target,
-          // `from` and `to` were already computed for `LandingContext`; the
+          fromX,
+          fromY,
+          toX: targetX,
+          toY: targetY,
+          // The endpoints were already computed for `LandingContext`; the
           // distance is the one arithmetic this context adds (D-67).
-          distance: Math.hypot(target.x - from.x, target.y - from.y),
+          distance: Math.hypot(targetX - fromX, targetY - fromY),
         })
       : fixed;
 
@@ -153,7 +161,7 @@ export function createLandingStart(options: LandingOptions): LandingStart {
     // failure for an operation that is landing perfectly well.
     let generation = 0;
 
-    const play = (start: string, to: Point): void => {
+    const play = (start: string, toX: number, toY: number): void => {
       const mine = generation;
       // Local until it is fully subscribed. `animate()` succeeding is not the
       // same as *acquiring* a runner: `finished` is an accessor and `then` is a
@@ -164,7 +172,7 @@ export function createLandingStart(options: LandingOptions): LandingStart {
       // kernel. So acquisition is all-or-nothing: cancel what was started, then
       // let the throw travel, where `FAILURE_LANDING_CREATE` classifies it.
       const started = visual.animate(
-        [{ transform: start }, { transform: compose(to.x, to.y) }],
+        [{ transform: start }, { transform: compose(toX, toY) }],
         animationTiming,
       );
 
@@ -193,7 +201,7 @@ export function createLandingStart(options: LandingOptions): LandingStart {
       animation = started;
     };
 
-    play(compose(from.x, from.y), target);
+    play(compose(fromX, fromY), targetX, targetY);
 
     return {
       destroy(): void {

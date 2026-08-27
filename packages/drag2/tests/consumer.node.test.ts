@@ -129,6 +129,7 @@ import { y } from '@ydinjs/drag2/sortable/y.js';
 import {
   landing,
   type LandingOptions,
+  type LandingTimingContext,
 } from '@ydinjs/drag2/sortable/landing.js';
 // **The three seam types re-homed** (D-63, D-61): they stopped being consumer
 // vocabulary when \`landing({ run })\` went, and stayed authoring vocabulary.
@@ -279,10 +280,18 @@ const run: LandingStart = (
   done: () => void,
 ): LandingHandle => {
   const realm: DOMRealm = context.realm;
-  const from: Point = context.from;
+  // **The landing chain is scalars, and each of the four is named** (D-145).
+  // An annotated \`const\` per coordinate is what pins them: a nested \`from\`
+  // would fail to compile here, and a transposed axis is invisible to a
+  // one-field read.
+  const fromX: number = context.fromX;
+  const fromY: number = context.fromY;
+  const targetX: number = context.targetX;
+  const targetY: number = context.targetY;
 
   void realm.window;
-  void context.compose(from.x, from.y);
+  void context.compose(fromX, fromY);
+  void context.compose(targetX, targetY);
   done();
   return { destroy: (): void => {} };
 };
@@ -295,6 +304,29 @@ const run: LandingStart = (
 // and the build fails.
 // @ts-expect-error: \`run\` is not a landing option (D-63)
 landing({ run });
+
+// **The timing context is four scalars, and all four are read** (D-145). A
+// duration function is the only consumer-facing place the landing's endpoints
+// appear, so this is where the flattening is pinned on the ordinary tier.
+landing({
+  duration: ({ fromX, fromY, toX, toY, distance }): number =>
+    distance + fromX + fromY + toX + toY,
+});
+// @ts-expect-error: the endpoints are not nested points (D-145)
+const retiredTimingFrom = ({} as LandingTimingContext).from;
+// @ts-expect-error: ″
+const retiredTimingTo = ({} as LandingTimingContext).to;
+// @ts-expect-error: and neither are the runner's (D-145)
+const retiredContextFrom = ({} as LandingContext).from;
+// @ts-expect-error: ″
+const retiredContextTarget = ({} as LandingContext).target;
+
+void [
+  retiredTimingFrom,
+  retiredTimingTo,
+  retiredContextFrom,
+  retiredContextTarget,
+];
 
 // ~~Both members of the \`ReorderResolution\` union are nameable, so a consumer
 // can give a helper a return type narrower than the union.~~
@@ -677,9 +709,10 @@ const settlement: SettlementTransition<Part> = {
   },
   effect: (current, _prepared, scope: SettlementScope) => {
     const start: LandingStart = (context: LandingContext, done): LandingHandle => {
-      const from: Point = context.from;
+      const fromX: number = context.fromX;
+      const fromY: number = context.fromY;
 
-      void context.compose(from.x, from.y);
+      void context.compose(fromX, fromY);
       done();
       return { destroy: () => {} };
     };

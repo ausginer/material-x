@@ -275,12 +275,12 @@ export type PreparedSettlement = true;
 /**
  * **One coordinate space, and this is it.**
  *
- * `from` and `target` are both *origin-relative viewport deltas*: CSS pixels to
+ * The four coordinates are all *origin-relative viewport deltas*: CSS pixels to
  * translate the visual by, measured from where its border box sat when the drag
  * was admitted. That is exactly the space `compose()` and the kernel's own
  * `lift.write()` consume, so a runner never converts anything —
- * `compose(from.x, from.y)` reproduces the transform the drag last wrote, and
- * `compose(target.x, target.y)` is where the visual has to end up.
+ * `compose(fromX, fromY)` reproduces the transform the drag last wrote, and
+ * `compose(targetX, targetY)` is where the visual has to end up.
  *
  * It is deliberately **not** a viewport point: a runner's only writer is
  * `compose`, which cannot convert a point, because the context carries no origin
@@ -296,14 +296,16 @@ export type LandingContext = Readonly<{
   /** Full transform string for an origin-relative delta, including the base. */
   compose(x: number, y: number): string;
   /** Where the visual is now, as a delta. Equal to the last drag translation. */
-  from: Point;
+  fromX: number;
+  fromY: number;
   /**
    * Where it should land, as a delta. **Authoritative, and measured once**: the
    * authored DOM is final before `anchorTarget` runs, so this is never
    * provisional and no second measurement supersedes it. The kernel's pin at
-   * the join uses this same value.
+   * the join uses these same two numbers.
    */
-  target: Point;
+  targetX: number;
+  targetY: number;
   realm: DOMRealm;
 }>;
 
@@ -424,7 +426,22 @@ export type BehaviorSpec<
    */
   moved(current: Readonly<Frame<Part>>, lift: BehaviorLiftSession): void;
 
-  /** Produce the viewport point the lifted visual should end at. */
+  // The borrow below, and the per-controller cache it licenses: D-144, F-123.
+  /**
+   * Produce the viewport point the lifted visual should end at.
+   *
+   * **The result is borrowed, and the kernel never retains it.** Both
+   * fields are read immediately on return — converted once into the
+   * origin-relative delta the settlement carries as scalars — and the object
+   * itself is dropped before any further code runs. Nothing stores it, and
+   * nothing hands it to consumer code.
+   *
+   * So an implementation may return **one mutable buffer per controller**,
+   * rewritten on every call, and both first-party behaviors do. What it may
+   * *not* do is write the buffer before its last call into foreign code: an
+   * implementation that measures, writes, and then calls a consumer's handler
+   * has published a value the handler can reach.
+   */
   anchorTarget(current: Readonly<Frame<Part>>): Point;
 
   /** Presentation is released and both gates are complete. Terminal callback. */

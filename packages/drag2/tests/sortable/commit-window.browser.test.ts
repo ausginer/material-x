@@ -259,7 +259,7 @@ function mount(options: Options): Fixture {
   // to, and the only tier that ever needed it.
   const run: LandingStart = (context, done) => {
     observations.landingStart = {
-      target: context.target,
+      target: { x: context.targetX, y: context.targetY },
       placeholder: placementOf(capture()),
     };
 
@@ -815,7 +815,7 @@ describe('the api-1 footprint rule under a live drag', () => {
     const errors: unknown[] = [];
     const landingTargets: Point[] = [];
     const run: LandingStart = (context, done) => {
-      landingTargets.push(context.target);
+      landingTargets.push({ x: context.targetX, y: context.targetY });
 
       const frame = requestAnimationFrame(() => {
         done();

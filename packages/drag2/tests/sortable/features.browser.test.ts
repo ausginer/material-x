@@ -8,11 +8,7 @@
  * `composition.browser.test.ts`; these add the first.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import {
-  DraggableError,
-  type DraggableWarning,
-  type Point,
-} from '../../src/drag.ts';
+import { DraggableError, type DraggableWarning } from '../../src/drag.ts';
 import { FAILURE_LANDING_CREATE } from '../../src/kernel/failures.ts';
 import type { OnReorder } from '../../src/sortable/domain.ts';
 import type {
@@ -21,7 +17,10 @@ import type {
   LandingStart,
   SortableInstaller,
 } from '../../src/sortable/feature.ts';
-import { landing } from '../../src/sortable/landing.ts';
+import {
+  landing,
+  type LandingTimingContext,
+} from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
@@ -697,10 +696,10 @@ describe('visual', () => {
 describe('the contextual landing duration (D-67)', () => {
   it('should invoke duration once per landing, with the trajectory', async () => {
     // **The quantity review 3 §10 said a zero-argument thunk cannot observe.**
-    // `from` and `to` are the landing's origin-relative deltas, `distance` the
+    // The endpoints are the landing's origin-relative deltas, `distance` the
     // straight line between them — and the whole of D-67 is that the function
     // can now see them.
-    const contexts: Array<{ from: Point; to: Point; distance: number }> = [];
+    const contexts: LandingTimingContext[] = [];
     const composed = compose(
       landing({
         duration: (context) => {
@@ -719,7 +718,7 @@ describe('the contextual landing duration (D-67)', () => {
     const [only] = contexts;
 
     expect(only!.distance).toBeCloseTo(
-      Math.hypot(only!.to.x - only!.from.x, only!.to.y - only!.from.y),
+      Math.hypot(only!.toX - only!.fromX, only!.toY - only!.fromY),
       6,
     );
     // A downward drop into the next slot: the trajectory is vertical and real.

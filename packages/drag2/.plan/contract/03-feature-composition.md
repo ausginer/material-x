@@ -954,9 +954,11 @@ type LandingOptions = Readonly<{
 
 type LandingTimingContext = Readonly<{
   /** Origin-relative deltas, the same space `LandingContext` uses. */
-  from: Point;
-  to: Point;
-  /** `Math.hypot(to.x - from.x, to.y - from.y)`. */
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
+  /** `Math.hypot(toX - fromX, toY - fromY)`. */
   distance: number;
 }>;
 ```
@@ -1272,7 +1274,7 @@ Applied to this table: `threshold` is **no longer checked**, because a `NaN` thr
 | --- | --- | --- | --- | --- |
 | `threshold` (config key) | CSS px, straight-line from the press | finite, `>= 0` | `8` | **No.** Out of domain, the drag never activates and no operation starts |
 | ~~`readinessTimeout`~~ | ~~ms~~ | ~~finite, `>= 1`~~ | **deleted (D-41)** | — |
-| `landing({ duration })` | ms | finite, `>= 0`; or `({ distance, from, to }) => number` returning one (D-67) | `200` | **No, since D-124.** ~~`=== Infinity` only, per landing~~ — the last domain test in the package, deleted under the reachability gate: _a duration is finite_ is a published precondition an integrator can meet, so `Infinity` is outside the contract. Every bad value is now `animate()`'s own throw, classified `FAILURE_LANDING_CREATE` → `presentation` — except `Infinity`, which the platform **accepts** and never completes, so the settlement gate is held open and **no terminal is published at all**. A documented boundary on `LandingOptions.duration`, not a guard |
+| `landing({ duration })` | ms | finite, `>= 0`; or `({ distance, fromX, fromY, toX, toY }) => number` returning one (D-67, flattened by D-145) | `200` | **No, since D-124.** ~~`=== Infinity` only, per landing~~ — the last domain test in the package, deleted under the reachability gate: _a duration is finite_ is a published precondition an integrator can meet, so `Infinity` is outside the contract. Every bad value is now `animate()`'s own throw, classified `FAILURE_LANDING_CREATE` → `presentation` — except `Infinity`, which the platform **accepts** and never completes, so the settlement gate is held open and **no terminal is published at all**. A documented boundary on `LandingOptions.duration`, not a guard |
 | `layoutAnimation({ duration })` | ms | finite, `>= 0` | `160` | **No — and the difference from the row above is the rule working rather than an inconsistency.** This animation holds no gate and gates no terminal: it is registered in `running` and cancelled by `retire()`, so an unbounded one leaves displaced rows offset until the controller is destroyed and costs the library nothing. The landing check exists because the landing **holds the settlement gate**; delete the gate and the check goes with it |
 
 - `threshold` at `0` activates on the first move reporting a different point.
@@ -1281,7 +1283,7 @@ Applied to this table: `threshold` is **no longer checked**, because a `NaN` thr
 - ~~`landing({ run })` replaces the default runner entirely, so `duration` and `easing` are not read — and therefore not validated — when it is present.~~ **Deleted with `run` (D-63).** Both options are now always read, which removes a conditional from the rule rather than adding one.
 - `landing({ duration })` as a **contextual function** is the one settle-time domain. It is called once per landing; ~~its result is tested for `Infinity` only~~ **its result is tested for nothing since D-124**, and a throw or a value `animate()` refuses is classified as a landing failure at that moment. This is the parity shape for the shipped `landingTiming()` (ledger §2, L-6), and D-67 is what keeps that parity after D-63 removed the runner it used to be reachable through.
 
-**Resolved by D-67 — the thunk and L-6.** Review 3 §10 removed `run` and, in the same breath, judged the zero-argument thunk unjustified: _"it cannot even observe the distance that motivated dynamic timing."_ It deferred a contextual `duration({ distance, from, to })` to a proven need. D-63 took the first half, which made the thunk the **sole** surviving carrier of shipped parity L-6 — ledger L-6 and its §2 row both record it as such, and the §5 row had additionally called the capability _"reachable through a replacement runner"_, which it no longer is. Of the three ways to close that — keep a thunk the owner had already rejected, delete it and lose L-6, or ship the contextual form — **the owner took the third**, which is the only one that discharges §10's second clause and keeps the parity row. The deferral was conditioned on a proven need, and removing the alternative is what proved it.
+**Resolved by D-67 — the thunk and L-6.** Review 3 §10 removed `run` and, in the same breath, judged the zero-argument thunk unjustified: _"it cannot even observe the distance that motivated dynamic timing."_ It deferred a contextual `duration({ distance, … })` to a proven need. D-63 took the first half, which made the thunk the **sole** surviving carrier of shipped parity L-6 — ledger L-6 and its §2 row both record it as such, and the §5 row had additionally called the capability _"reachable through a replacement runner"_, which it no longer is. Of the three ways to close that — keep a thunk the owner had already rejected, delete it and lose L-6, or ship the contextual form — **the owner took the third**, which is the only one that discharges §10's second clause and keeps the parity row. The deferral was conditioned on a proven need, and removing the alternative is what proved it.
 
 **`ReorderResolution` is a runtime export as well as a type** (review 6, §10). The documented consumer calls `ReorderResolution.accept(…)` and `ReorderResolution.reject(…)`, the shipped package exports the same factory, and listing it under types only would have made every example in these documents fail to run. The name is deliberately both a value and a type, as it is today.
 

@@ -573,7 +573,10 @@ describe('the command destination', () => {
     arrow(fixture.items[1]!, 'ArrowDown');
 
     expect(fixture.contexts).toHaveLength(1);
-    expect(fixture.contexts[0]!.from).toEqual({ x: 0, y: 0 });
+    expect({
+      x: fixture.contexts[0]!.fromX,
+      y: fixture.contexts[0]!.fromY,
+    }).toEqual({ x: 0, y: 0 });
   });
 });
 

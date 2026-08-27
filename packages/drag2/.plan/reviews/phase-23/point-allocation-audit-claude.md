@@ -84,7 +84,7 @@ The kernel never retains `anchor`. Nothing between the call and the reads can re
 The three required properties, if it lands:
 
 1. **The cache is per controller**, held beside the behavior's existing per-controller state (`rt`, alongside `motion`). Never module-level: two controllers on one page must not share one.
-2. **The cache write is the last statement of the arm.** Every arm that calls foreign code — free-drag's `slots.getHome`, the sortable's `item.before()`, `homeGap` and `getBoundingClientRect` — must write after the last such call. **All seven arms already have that shape**, so this preserves a property rather than introducing one, and that is why the change is low-complexity.
+2. **The cache write is the last statement of the arm.** Every arm that calls foreign code — free-drag's `slots.getHome`, the sortable's `item.before()`, `homeGap` and `getBoundingClientRect` — must write after the last such call. **All ~~seven~~ six arms already have that shape**, so this preserves a property rather than introducing one, and that is why the change is low-complexity. **Six, corrected 2026-08-27 in the implementing commit** (F-126): §0's table is the enumeration — four free-drag arms and two sortable — and this sentence asserted a count instead of deriving one. Nothing here depends on which number it is.
 3. **`BehaviorSpec.anchorTarget`'s contract states the borrow**: the result is read immediately by the kernel, never retained, and never handed to consumer code. This is true today and unstated, which is the gap in §9.
 
 ## 6. Where `PointCache` may be declared, and where it may not
@@ -182,3 +182,17 @@ It is outweighed by what the same change fixes. `from` is copied out of `rendere
 **F-124.** An audit answered _can this be cached?_ and its verdict was written as though it also answered _does this need an object at all?_ Escape and lifetime decide the first; an owning object that already allocates decides the second. The conflation is easy because both questions are refused by the same word — _escapes_ — and it cost the audit its two largest items and produced a per-drop figure three times too small. **The general form: a classification is only as wide as the question that produced it, and a verdict phrased as a property of the value rather than as an answer to a question invites exactly this.**
 
 **F-125.** The kernel copies `rendered` into `LandingContext.from` so that no kernel-mutable object is published into consumer code, and then publishes `target` — the object the join pin later reads — into the same context, retained across the whole landing. **Not a defect**: `Point` is `Readonly<>`, so mutation is outside the contract and §1.1's gate closes on it. It is an inconsistency in an applied discipline, visible to anyone who reads the two adjacent lines and asks why one is copied. **Closed by D-145 if it lands**, which removes the aliasing structurally; otherwise it stands as a documented asymmetry.
+
+---
+
+## 11. Landed
+
+**Both decisions landed together on 2026-08-27**, which §9.4 required: the caching axis and the flattening axis meet at the kernel's read of the anchor, and either alone leaves the other's allocation standing.
+
+**The accounting held.** Three point objects per drop before — the arm's literal, the kernel's converted `target`, the copy of `rendered` — and none after. The `LandingTimingContext` wrapper survives, unchanged and only on the `duration`-as-function path, exactly as §9.4 predicted.
+
+**The arm count was six, not seven** (F-126). §0's table was right and §5's sentence was not.
+
+**The cost is bytes, and it is stated rather than apportioned.** Every measured row grew: **+91 to +149 B minified, ~+30 B brotli**, module counts unchanged, all fourteen budgets still green with slack falling from ~0.26 kB to ~0.23 kB. The kernel root alone accounts for +69 B — the settlement attempt's third field and the explicit writes at the pin — and the landing rows carry a further ~+24 B for the runner's flattened endpoints. **This is what §1 said would happen**: no performance claim attaches, the allocation removed is per drop rather than per sample, and a shape change that trades a handful of bytes for three fewer objects per operation is a shape change. Budgets were **not** rebased.
+
+**One instrument moved.** `tests/kernel/vocabulary.node.test.ts` gained a `PointCache` group with its substitute stated, because a behavior importing a kernel name that is neither published nor listed fails that row by design — which is the tier boundary working, not an obstacle to it (F-122).

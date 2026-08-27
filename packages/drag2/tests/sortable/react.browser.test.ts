@@ -289,7 +289,7 @@ function mount(options: Options = {}): Fixture {
     witness.landingStarted();
     // The provisional target is the only public view of what `anchorTarget`
     // measured, and it is what makes the Q-12 fallback observable at all.
-    landingTargets.push(context.target);
+    landingTargets.push({ x: context.targetX, y: context.targetY });
 
     const frame = requestAnimationFrame(() => {
       done();

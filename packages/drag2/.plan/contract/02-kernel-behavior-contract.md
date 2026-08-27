@@ -352,6 +352,12 @@ type BehaviorSpec<
    * Whether to re-anchor still follows the **recovery**, which is the
    * behavior's own committed frame state and always was the clause that
    * decided it.
+   *
+   * **The result is borrowed** (D-144, F-123): both fields are read on return,
+   * converted once into the origin-relative delta the settlement carries, and
+   * the object is dropped. An implementation may therefore return one mutable
+   * buffer per controller, and both first-party behaviors do — what it may not
+   * do is write that buffer before its last call into foreign code.
    */
   anchorTarget(current: Readonly<Frame<Part>>): Point;
 
@@ -1180,8 +1186,14 @@ type SettlementAttempt = {
   /** Retained past its gate release, so the join can `destroy()` it. */
   landing: LandingHandle | null;
   landingHeld: boolean;
-  /** The one authoritative landing target, measured at arm. */
-  target: Point | null;
+  /**
+   * The one authoritative landing target, measured at arm — **two scalars and
+   * a flag** since D-145, because `null` was the flag the coordinates could not
+   * carry. `targeted` false means the measurement was skipped.
+   */
+  targeted: boolean;
+  targetX: number;
+  targetY: number;
   /** False once a `destroy()` throw leaves runner control unrelinquished (I-24). */
   relinquished: boolean;
   /** Once-only completion latch: the first `done()`/`fail()` wins. */
@@ -1226,7 +1238,7 @@ D-33's reasoning is **not** deleted with it. It is kept in full in [00](00-index
 
 **2 — D-7's request-seal-arm survives unchanged, and not by inertia.** It would be easy to read the three-step arm as readiness machinery and delete it alongside; it is not, and the reason is `duration: 0`. A `landing({ duration: 0 })` runner — or any custom runner that finishes synchronously — calls `done()` from **inside `start`**. If the hold were installed after `start` returned, that completion would find no hold and strand the gate. Reserving the hold before calling `start`, sealing the plan before arming it, and publishing the handle only after `start` returns is what makes a synchronous completion safe. **That has nothing to do with readiness**, holds for a single gate exactly as it held for two, and is the reason this document keeps a three-step arm for one hold.
 
-**3 — The landing target is measured once, authoritatively.** The serial order guarantees the authored DOM is final before the measurement is taken, so there is no interval during which a target is provisional. `anchorTarget` is called **once per settlement**, at arm, and the point it returns is recorded on the attempt as `attempt.target`; the runner receives it as `LandingContext.target` and the join pins to the same value. Consequently there is no second, advisory `anchorTarget` call, no `retarget()` producer, and no readiness-time re-anchor. F-16 — the visible step when a short landing completes before readiness — dissolves rather than being accepted, because the completion order it describes no longer exists.
+**3 — The landing target is measured once, authoritatively.** The serial order guarantees the authored DOM is final before the measurement is taken, so there is no interval during which a target is provisional. `anchorTarget` is called **once per settlement**, at arm, and the point it returns is converted once and recorded on the attempt as `attempt.targetX`/`.targetY`; the runner receives the same two numbers as `LandingContext.targetX`/`.targetY` and the join pins to that pair. **The returned point itself is borrowed** (D-144): both fields are read on return and the object is never retained, which is what lets a behavior answer every arm from one reusable buffer. Consequently there is no second, advisory `anchorTarget` call, no `retarget()` producer, and no readiness-time re-anchor. F-16 — the visible step when a short landing completes before readiness — dissolves rather than being accepted, because the completion order it describes no longer exists.
 
 Two clauses of D-16 survive, and they are the ones that were load-bearing: **the kernel performs the final pin at the join**, through the lift session it owns, before releasing presentation; and **whether to re-anchor follows the recovery**, which is committed behavior state.
 
@@ -1294,7 +1306,7 @@ The gate method **records a request; it arms nothing** (review 4, §6, §10). Ar
     arm → ARM_ARMED | ARM_STALE | ARM_FAILED
           precondition (D-42): placeholder still connected, still the item's
                                sibling — two O(1) reads
-          attempt.target = spec.anchorTarget(current)
+          attempt.targetX/targetY = spec.anchorTarget(current) - originRect
                           ── THE authoritative landing measurement, and the only
                              one (D-41). Unconditional: the join pins from this
                              value whether or not a runner exists, so it is not
@@ -1405,14 +1417,20 @@ type LandingContext = Readonly<{
    * Where the visual **is**: the delta the lift session last rendered, read
    * from the session the kernel owns. Not a pointer delta (D-35).
    */
-  from: Point;
+  fromX: number;
+  fromY: number;
   /**
    * **Authoritative** (D-41). Measured once, at arm, from an authored DOM the
    * serial order has already made final. It is not superseded, and the join
-   * pins to this same value — so a runner that lands exactly on it is
+   * pins to this same pair — so a runner that lands exactly on it is
    * indistinguishable from one the kernel had to correct.
+   *
+   * **Scalars since D-145**: every read in the package splits the pair
+   * immediately, `compose` and `write` take scalars, and the context already
+   * allocates.
    */
-  target: Point;
+  targetX: number;
+  targetY: number;
   realm: DOMRealm;
 }>;
 

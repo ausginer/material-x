@@ -21,6 +21,7 @@ import type { Draft, Frame } from '../kernel/frames.ts';
 import { pathOwnsInteraction } from '../kernel/input-policy.ts';
 import { createInvalidator } from '../kernel/invalidation.ts';
 import { ACTIVATING, ACTIVE, IDLE, RELEASING } from '../kernel/phases.ts';
+import type { PointCache } from '../kernel/point-cache.ts';
 import { LIFT_FAITHFUL } from '../kernel/presentation.ts';
 import { KEY_DOWN } from '../kernel/protocol.ts';
 import {
@@ -35,7 +36,6 @@ import {
   SETTLED_SKIPPED,
   type SettlementScope,
 } from '../kernel/spec.ts';
-import type { Point } from '../kernel/types.ts';
 import { createUnwind } from '../kernel/unwind.ts';
 import {
   buildReorderProposal,
@@ -173,6 +173,19 @@ export function createSortableSpec(
    * logical close and none of them may answer a liveness question (I-37).
    */
   const live = (): boolean => !host.closed;
+  /**
+   * **The landing target's return buffer, one per controller** (D-144). Both
+   * `anchorTarget` arms write these two fields and return this object; the
+   * kernel reads them immediately and retains nothing, which is the borrow the
+   * seam's own contract states. Never module-level: two controllers on one page
+   * must not share one.
+   *
+   * **Nothing may read it between calls**, and the closed-controller arm is why
+   * that sentence is here rather than implied: it writes a `(0, 0)` sentinel
+   * the kernel discards, so *the cache holds the last landing target* is false
+   * in exactly that arm.
+   */
+  const anchor: PointCache = { x: 0, y: 0 };
   /**
    * **Minted here and monotonic per controller** (D-44 moved it off the
    * controller with the payload), and deliberately **not** derived from
@@ -1599,7 +1612,7 @@ export function createSortableSpec(
     // Landing target and the terminal callback
     // -----------------------------------------------------------------------
 
-    anchorTarget(current): Point {
+    anchorTarget(current): PointCache {
       const placeholder = rt.placeholder!;
       const item = current.item!;
       const { recovery } = current;
@@ -1650,7 +1663,10 @@ export function createSortableSpec(
       // controller, so the point is discarded either way; what this stops is
       // the read itself.
       if (host.closed) {
-        return { x: 0, y: 0 };
+        anchor.x = 0;
+        anchor.y = 0;
+
+        return anchor;
       }
 
       // **The precondition, two O(1) reads, immediately before the
@@ -1683,7 +1699,10 @@ export function createSortableSpec(
 
       const rect = placeholder.getBoundingClientRect();
 
-      return { x: rect.left, y: rect.top };
+      anchor.x = rect.left;
+      anchor.y = rect.top;
+
+      return anchor;
     },
 
     /**

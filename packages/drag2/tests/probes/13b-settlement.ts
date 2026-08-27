@@ -232,8 +232,8 @@ export const settleTimeRunner: LandingStart = (
 
   const animation = context.visual.animate(
     [
-      { transform: context.compose(context.from.x, context.from.y) },
-      { transform: context.compose(context.target.x, context.target.y) },
+      { transform: context.compose(context.fromX, context.fromY) },
+      { transform: context.compose(context.targetX, context.targetY) },
     ],
     { ...timing, fill: 'forwards' },
   );

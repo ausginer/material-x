@@ -2323,13 +2323,13 @@ describe('the landing origin', () => {
     // recorded delta from the pointer position or from either mistake in
     // between. Grab is `(10, 10)`, so this is `(60, 80)`.
     expect(context).not.toBeNull();
-    expect(context!.from).toEqual({ x: 60, y: 80 });
+    expect({ x: context!.fromX, y: context!.fromY }).toEqual({ x: 60, y: 80 });
     // The end-to-end form of the same claim, and the one a runner depends on:
     // `from` and `compose` are the same coordinate space, so composing the
     // origin the runner is handed reproduces the transform already on the
     // element. A runner that starts by writing `compose(from.x, from.y)`
     // therefore writes exactly what is already there — no first-frame jump.
-    expect(context!.compose(context!.from.x, context!.from.y)).toBe(transform);
+    expect(context!.compose(context!.fromX, context!.fromY)).toBe(transform);
   });
 
   it('should report the constrained delta rather than the pointer delta', () => {
@@ -2351,7 +2351,7 @@ describe('the landing origin', () => {
     // The pointer travelled 50px down. The visual did not, so neither does the
     // landing origin. Under the pointer form this read `{ x: 30, y: 50 }` and
     // the drop opened 50px below the visual.
-    expect(context!.from).toEqual({ x: 30, y: 0 });
+    expect({ x: context!.fromX, y: context!.fromY }).toEqual({ x: 30, y: 0 });
   });
 
   it('should track a write issued from an action effect', () => {
@@ -2388,7 +2388,7 @@ describe('the landing origin', () => {
     harness.host.dispatch(0, null);
     release(40, 60);
 
-    expect(context!.from).toEqual({ x: -5, y: 7 });
+    expect({ x: context!.fromX, y: context!.fromY }).toEqual({ x: -5, y: 7 });
   });
 
   it('should report the origin for an operation that never rendered', () => {
@@ -2398,7 +2398,7 @@ describe('the landing origin', () => {
     // rather than a special case anyone had to write.
     const { context } = sample({}, [[40, 60]]);
 
-    expect(context!.from).toEqual({ x: 0, y: 0 });
+    expect({ x: context!.fromX, y: context!.fromY }).toEqual({ x: 0, y: 0 });
   });
 
   it('should report the origin for a pointerless operation', () => {
@@ -2434,7 +2434,7 @@ describe('the landing origin', () => {
     // across the viewport at the start of its landing. The recorded delta has
     // no such failure mode: nothing wrote, so nothing moved.
     expect(context).not.toBeNull();
-    expect(context!.from).toEqual({ x: 0, y: 0 });
+    expect({ x: context!.fromX, y: context!.fromY }).toEqual({ x: 0, y: 0 });
   });
 
   it('should record nothing for a compose without a write', () => {
@@ -2455,7 +2455,7 @@ describe('the landing origin', () => {
       ],
     );
 
-    expect(context!.from).toEqual({ x: 0, y: 0 });
+    expect({ x: context!.fromX, y: context!.fromY }).toEqual({ x: 0, y: 0 });
   });
 
   it('should leave the recorded delta stale when a behavior writes behind it', () => {
@@ -2485,7 +2485,7 @@ describe('the landing origin', () => {
     );
 
     expect(transform).toBe('translate(30px, 0px)');
-    expect(context!.from).toEqual({ x: 0, y: 0 });
+    expect({ x: context!.fromX, y: context!.fromY }).toEqual({ x: 0, y: 0 });
   });
 
   /**
@@ -2539,6 +2539,80 @@ describe('the join', () => {
     release(80, 10);
 
     expect(phases).toEqual([SETTLING]);
+  });
+
+  it('should read the anchor before any code can rewrite it', () => {
+    // **F-123, and it is D-144's precondition rather than its consequence.**
+    // The seam's contract says the returned point is *borrowed*: both fields
+    // are read on return and the object is never retained, which is what lets
+    // an implementation hand back one reusable buffer per controller — as both
+    // first-party behaviors now do. Nothing asserted it. A kernel that stored
+    // the object on the settlement attempt, or passed it into `LandingContext`
+    // unconverted, would break every cached implementation silently and pass
+    // the whole suite.
+    //
+    // The runner's `start` is the **first** foreign code to run after the read,
+    // so poisoning the buffer there is the earliest a caching behavior could
+    // possibly be betrayed. The two coordinates are deliberately unequal and
+    // non-zero: a transposed axis is the way a flattening fails.
+    const buffer = { x: 0, y: 0 };
+    let seen: LandingContext | null = null;
+    // Assigned below, and read only at settle time. The seam needs the visual's
+    // own rect — the basis the kernel converts against — and the frame's
+    // `originX`/`originY` are the *grab pointer*, which is a different origin.
+    let visual: HTMLElement | null = null;
+    const harness = createHarness({
+      anchorTarget(): { x: number; y: number } {
+        const origin = visual!.getBoundingClientRect();
+
+        buffer.x = origin.x + 60;
+        buffer.y = origin.y + 25;
+
+        return buffer;
+      },
+      startLanding: (context, done): LandingHandle => {
+        seen = context;
+        buffer.x = -999;
+        buffer.y = -777;
+        done();
+
+        return { destroy: (): void => {} };
+      },
+    });
+
+    visual = harness.item;
+
+    activate(harness);
+
+    // The pin is a `write`, and presentation restores the inline style
+    // immediately afterwards — so the final transform is `''` and the only way
+    // to see what was pinned is to record the writes.
+    const writes: string[] = [];
+    let written = '';
+
+    Object.defineProperty(harness.item.style, 'transform', {
+      configurable: true,
+      get: (): string => written,
+      set(value: string): void {
+        written = value;
+        writes.push(value);
+      },
+    });
+
+    release(80, 10);
+
+    const context = seen!;
+
+    expect({ x: context.targetX, y: context.targetY }).toEqual({
+      x: 60,
+      y: 25,
+    });
+    // The join pins to the same pair, and it reads the attempt rather than the
+    // behavior's object — so the poison cannot reach the final write either.
+    // Both halves are asserted: without the positive the negative would pass
+    // against a kernel that never pinned at all.
+    expect(writes).toContain(context.compose(60, 25));
+    expect(writes).not.toContain(context.compose(-999, -777));
   });
 
   it('should skip the landing and still terminate when the measurement throws', () => {

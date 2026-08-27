@@ -177,8 +177,10 @@ export function buildLandingContext(
   return {
     visual: lift.visual,
     compose: lift.compose,
-    from: lift.rendered,
-    target,
+    fromX: lift.rendered.x,
+    fromY: lift.rendered.y,
+    targetX: target.x,
+    targetY: target.y,
     realm,
   };
 }

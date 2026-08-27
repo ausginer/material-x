@@ -136,6 +136,12 @@ const INTERNAL: Readonly<Record<string, readonly string[]>> = {
   ],
   'the ingress protocol': ['POINTER_DOWN', 'KEY_DOWN'],
   'the input policy': ['pathOwnsInteraction'],
+  // **The reusable coordinate buffer** (D-144). It is `Writable<Point>` and
+  // nothing more, so a third-party behavior's substitute is the shape written
+  // out — the alias exists so that `type-fest` is named in a module the
+  // declaration prune removes, and publishing it would put a `devDependency`
+  // into the tarball's type surface (F-122).
+  'the point cache': ['PointCache'],
   // The phase *constants* are published; `NO_STAMP` and the internal frame
   // plumbing are not.
   'kernel-private frame state': ['NO_STAMP'],

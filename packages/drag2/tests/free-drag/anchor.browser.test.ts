@@ -96,7 +96,7 @@ function recordingLanding(): Readonly<{
   const targets: Point[] = [];
   const installer: FreeDragInstaller = () => ({
     startLanding: (context, done) => {
-      targets.push({ x: context.target.x, y: context.target.y });
+      targets.push({ x: context.targetX, y: context.targetY });
       done();
       return { destroy: (): void => {} };
     },

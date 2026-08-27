@@ -1,7 +1,7 @@
 /**
  * The landing coordinate space, pinned to exact values.
  *
- * `LandingContext.from`, `LandingContext.target` and `retarget()`'s argument are
+ * `LandingContext`'s four coordinates and `retarget()`'s argument are
  * **origin-relative viewport deltas**: CSS pixels to translate the visual by,
  * measured from where its border box sat at admission. That is the space
  * `compose()` and the kernel's own `lift.write()` consume, so a runner converts
@@ -195,7 +195,10 @@ describe('the landing coordinate space', () => {
 
     expect(fixture.contexts).toHaveLength(1);
     // Exact, and on both axes: the pointer never moved horizontally.
-    expect(fixture.contexts[0]!.from).toEqual({ x: 0, y: 45 });
+    expect({
+      x: fixture.contexts[0]!.fromX,
+      y: fixture.contexts[0]!.fromY,
+    }).toEqual({ x: 0, y: 45 });
   });
 
   it('should give a from that compose turns back into the live transform', async () => {
@@ -212,7 +215,7 @@ describe('the landing coordinate space', () => {
     const context = fixture.contexts[0]!;
 
     expect(fixture.items[0]!.style.transform).toBe(
-      context.compose(context.from.x, context.from.y),
+      context.compose(context.fromX, context.fromY),
     );
   });
 
@@ -230,7 +233,7 @@ describe('the landing coordinate space', () => {
     // still in the tree to measure.
     const anchor = fixture.placeholder().getBoundingClientRect();
 
-    expect(context.target).toEqual({
+    expect({ x: context.targetX, y: context.targetY }).toEqual({
       x: anchor.left - fixture.origin.left,
       y: anchor.top - fixture.origin.top,
     });
@@ -249,8 +252,8 @@ describe('the landing coordinate space', () => {
     const context = fixture.contexts[0]!;
     const anchor = fixture.placeholder().getBoundingClientRect();
 
-    expect(context.target.x).not.toBe(anchor.left);
-    expect(context.target.y).not.toBe(anchor.top);
+    expect(context.targetX).not.toBe(anchor.left);
+    expect(context.targetY).not.toBe(anchor.top);
     expect(fixture.origin.top).toBe(ROOT_TOP);
     expect(fixture.origin.left).toBe(ROOT_LEFT);
   });
