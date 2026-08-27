@@ -875,18 +875,11 @@ export function createFreeDragSpec(
     anchorTarget(current): PointCache {
       const origin = rt.originRect!;
 
-      if (current.domain?.type === 'accepted' || !slots.getHome) {
-        // The accepted arm, and the unconfigured-home arm, answer from
-        // arithmetic the frame already holds — no consumer call and no DOM
-        // read. For the accepted arm that is the visual's current position; for
-        // the other it is the grab position, which is the origin rect itself.
-        if (current.domain?.type !== 'accepted') {
-          anchor.x = origin.left;
-          anchor.y = origin.top;
-
-          return anchor;
-        }
-
+      if (current.domain?.type === 'accepted') {
+        // The accepted arm answers from arithmetic the frame already holds —
+        // no consumer call and no DOM read. It is the visual's current
+        // position.
+        //
         // **Read, not re-derived** (D-89, CE1-02). This arm must not call
         // `deriveMotion`: its last statement is `constrain.apply`, so the claim
         // above would be false whenever any constraint is installed, and this
@@ -910,54 +903,62 @@ export function createFreeDragSpec(
         return anchor;
       }
 
-      // The terminal barrier before the one consumer call (I-36). The kernel
-      // revalidates around `anchorTarget` and never starts a landing for a
-      // destroyed controller; what this stops is the call itself.
-      if (host.closed) {
-        anchor.x = origin.left;
-        anchor.y = origin.top;
+      // **The terminal barrier before the one consumer call, and it is the
+      // second conjunct** (I-36). `host.closed` is read only when there is a
+      // call to stop: the kernel revalidates around `anchorTarget` and never
+      // starts a landing for a destroyed controller, so what this stops is the
+      // call itself. Both failing conjuncts fall through to the same answer,
+      // which is why they are one branch and not two — an unconfigured home and
+      // a closed controller both land at the grab position, and the two arms
+      // were byte-identical.
+      if (slots.getHome && !host.closed) {
+        const home = slots.getHome(subjectOf(current.visual!));
+        // **Read, checked and copied here, inside the attributed seam** (E-05,
+        // D-49). The kernel's quality wrapper covers *this call* and reads the
+        // point's fields later, outside it — so without the reads here a `null`,
+        // a missing field or a throwing accessor panics outside the seam its own
+        // contract names.
+        //
+        // **The reads happen; finiteness is not checked** (D-124). A `null`, a
+        // missing field or a throwing accessor fails *here*, inside the seam
+        // whose track is already published (07 §Validation): the **quality**
+        // route, so the landing is skipped rather than faked and a drop that
+        // already committed is not re-settled. **No stage rides along** (D-130):
+        // the fault is non-consequential, so it arrives as a `DraggableWarning`
+        // carrying `drag: landing/target-unavailable`.
+        // A non-finite pair is accepted and passes undetected into target
+        // composition or a renderer, and refusing it here is wrong: a landing
+        // target is a point, and a point's coordinates are finite by the same
+        // obvious semantics that makes a duration finite, so that value is
+        // outside the contract and the gate closes on it.
+        //
+        // **The copy is not defensiveness and is not part of that check**: the
+        // returned object is consumer-owned and its accessors may be live, so
+        // composing against it twice could read two different points. That is
+        // the library taking ownership of a value it reads across a seam
+        // boundary and pins geometry with — `CODE_OF_SIZE.md` §1.1's explicit
+        // carve-out, and a getter-backed `Point` is a legitimate shape rather
+        // than misuse.
+        // **Each axis is read exactly once, and the reads precede the writes**
+        // (D-144). The cache removes the allocation and nothing else: reading
+        // `home` twice, or writing `anchor.x = home.x` and then `anchor.y =
+        // home.y`, would still be two reads of a live accessor — the second
+        // separated from the first by a field write. The destructuring below is
+        // the copy this seam already owed.
+        const { x } = home;
+        const { y } = home;
+
+        anchor.x = x;
+        anchor.y = y;
 
         return anchor;
       }
 
-      const home = slots.getHome(subjectOf(current.visual!));
-      // **Read, checked and copied here, inside the attributed seam** (E-05,
-      // D-49). The kernel's quality wrapper covers *this call* and reads the
-      // point's fields later, outside it — so without the reads here a `null`,
-      // a missing field or a throwing accessor panics outside the seam its own
-      // contract names.
-      //
-      // **The reads happen; finiteness is not checked** (D-124). A `null`, a
-      // missing field or a throwing accessor fails *here*, inside the seam
-      // whose track is already published (07 §Validation): the **quality**
-      // route, so the landing is skipped rather than faked and a drop that
-      // already committed is not re-settled. **No stage rides along** (D-130):
-      // the fault is non-consequential, so it arrives as a `DraggableWarning`
-      // carrying `drag: landing/target-unavailable`.
-      // A non-finite pair is accepted and passes undetected into target
-      // composition or a renderer, and refusing it here is wrong: a landing
-      // target is a point, and a point's coordinates are finite by the same
-      // obvious semantics that makes a duration finite, so that value is
-      // outside the contract and the gate closes on it.
-      //
-      // **The copy is not defensiveness and is not part of that check**: the
-      // returned object is consumer-owned and its accessors may be live, so
-      // composing against it twice could read two different points. That is
-      // the library taking ownership of a value it reads across a seam
-      // boundary and pins geometry with — `CODE_OF_SIZE.md` §1.1's explicit
-      // carve-out, and a getter-backed `Point` is a legitimate shape rather
-      // than misuse.
-      // **Each axis is read exactly once, and the reads precede the writes**
-      // (D-144). The cache removes the allocation and nothing else: reading
-      // `home` twice, or writing `anchor.x = home.x` and then `anchor.y =
-      // home.y`, would still be two reads of a live accessor — the second
-      // separated from the first by a field write. The destructuring below is
-      // the copy this seam already owed.
-      const { x } = home;
-      const { y } = home;
-
-      anchor.x = x;
-      anchor.y = y;
+      // The grab position, which is the origin rect itself — the answer for a
+      // rejected or canceled drop with no `home` configured, and for one whose
+      // controller closed before the resolver could be called.
+      anchor.x = origin.left;
+      anchor.y = origin.top;
 
       return anchor;
     },

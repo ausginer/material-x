@@ -1187,12 +1187,11 @@ type SettlementAttempt = {
   landing: LandingHandle | null;
   landingHeld: boolean;
   /**
-   * The one authoritative landing target, measured at arm — **two scalars and
-   * a flag** since D-145, because `null` was the flag the coordinates could not
-   * carry. `targeted` false means the measurement was skipped.
+   * The one authoritative landing target, measured at arm — **two scalars**
+   * since D-145, with the presence sentinel `Point | null` carried on the X. `targetX === null` means the measurement was skipped;
+   * `0` is an ordinary abscissa, so it is never read as truthiness.
    */
-  targeted: boolean;
-  targetX: number;
+  targetX: number | null;
   targetY: number;
   /** False once a `destroy()` throw leaves runner control unrelinquished (I-24). */
   relinquished: boolean;

@@ -169,13 +169,13 @@ type SettlementAttempt = {
    * The runner receives these two numbers as `LandingContext.targetX`/`.targetY`
    * and the join pins to the same pair.
    *
-   * **`targeted` is the flag the coordinates cannot carry** (D-145). It is
-   * false when the measurement was skipped, which is what tells the join to
-   * release without pinning; the two scalars are then meaningless rather than
-   * zero-valued.
+   * **`null` on the X carries the absence, exactly as `Point | null` did.** A
+   * skipped measurement is what tells the join to release without pinning, and
+   * the two coordinates are written and read as one act — so the sentinel sits
+   * on the first of them rather than in a third slot. It is `=== null` and
+   * never truthiness: `0` is an ordinary abscissa.
    */
-  targeted: boolean;
-  targetX: number;
+  targetX: number | null;
   targetY: number;
   /** False once a `destroy()` throw leaves runner control unrelinquished (I-24). */
   relinquished: boolean;
@@ -1362,8 +1362,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     start: null,
     landing: null,
     landingHeld: false,
-    targeted: false,
-    targetX: 0,
+    targetX: null,
     targetY: 0,
     relinquished: true,
     completed: false,
@@ -1559,7 +1558,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // unrepaired position" is a confident twelve-frame animation to `(0,0)`
       // followed by a teleport back.
       rollbackLandingHold(attempt);
-      attempt.targeted = false;
+      attempt.targetX = null;
       return ARM_ARMED;
     }
 
@@ -1574,7 +1573,6 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     const targetX = anchor.x - origin.x;
     const targetY = anchor.y - origin.y;
 
-    attempt.targeted = true;
     attempt.targetX = targetX;
     attempt.targetY = targetY;
 
@@ -1704,7 +1702,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // and the pin cannot disagree about where the drop ends. A provisional
       // target measured here instead is survivable for exactly that reason,
       // and wrong for the same one.
-      const { targeted } = attempt;
+      const { targetX } = attempt;
       const handle = attempt.landing;
 
       if (handle) {
@@ -1730,15 +1728,15 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         }
       }
 
-      // **An untargeted attempt means the measurement was skipped** (D-49): no pin, no
+      // **A null target means the measurement was skipped** (D-49): no pin, no
       // animation, and presentation is released from where the visual stands —
       // the jump cut. Everything after this point still runs, because the
       // settlement was never failed: the release below is unconditional and
       // `finalized` publishes the domain result the frame already holds.
       if (
-        targeted &&
+        targetX !== null &&
         !driver.runLeaf(() => {
-          session.write(attempt.targetX, attempt.targetY);
+          session.write(targetX, attempt.targetY);
         }, FAILURE_RENDERER_WRITE)
       ) {
         failed = true;
