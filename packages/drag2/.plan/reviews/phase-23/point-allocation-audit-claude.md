@@ -6,9 +6,11 @@ The population is small enough to enumerate exhaustively: one declaration, twelv
 
 ## 0. Verdict
 
-**There is no per-sample `Point` allocation left in the library, and there has not been one for some time.** The two hot paths already hold reusable mutable caches, and the pointer sample is not an allocation at all. What remains is per-operation, and the entire audit is worth **at most one object per drop**.
+**Corrected 2026-08-27 by the owner, in §9** (F-124). The verdict below answers _can this be cached?_ and was published as though it also answered _does this need an object at all?_ Escape forbids **sharing a mutable buffer**; it says nothing about whether coordinates need an object of their own, and for the landing chain they do not. **The corrected accounting is three objects per drop, not one**, and the two the original ruled out are the larger pair. §9 carries the second axis and D-145 takes it; §§1–8 are otherwise unchanged and their caching conclusions all stand.
 
-One change is worth making, and it is worth making for its shape rather than for its cost.
+**There is no per-sample `Point` allocation left in the library, and there has not been one for some time.** The two hot paths already hold reusable mutable caches, and the pointer sample is not an allocation at all. What remains is per-operation.
+
+~~The entire audit is worth **at most one object per drop**. One change is worth making, and it is worth making for its shape rather than for its cost.~~
 
 | Site | Role | Verdict |
 | --- | --- | --- |
@@ -31,7 +33,9 @@ One change is worth making, and it is worth making for its shape rather than for
 
 **Both per-frame deltas are already reusable caches**, and both say so in the source. `rendered` is _"one object per operation, written in place: D-35's cost is these two field writes per sample, and re-publishing a fresh `{ x, y }` would put an allocation on the one path F-24 spent a whole measurement keeping allocation-free."_ `motion` is written by `constrain.apply` as an out-parameter for the same reason, recorded on the SPI itself.
 
-So the honest scale: a drag operation allocates a handful of objects at lift and a handful at drop, and **no `Point` per sample**. Under `CODE_OF_SIZE.md` §0 and §15 that means **no performance claim may be attached to anything below**. The case for the one change is that it costs nothing, not that it is measurable — and the record should not pretend otherwise, because the next reader will quote it.
+So the honest scale: a drag operation allocates a handful of objects at lift and a handful at drop, and **no `Point` per sample**. Under `CODE_OF_SIZE.md` §0 and §15 that means **no performance claim may be attached to anything below** — the changes cost nothing rather than being measurable, and the record should not pretend otherwise, because the next reader will quote it.
+
+**The per-drop count is three, and §9 establishes it**: the `anchorTarget` arm's literal, the kernel's converted `target`, and the copied `from`. The caching axis reaches only the first.
 
 ## 2. `moveTo(Point)` is already allocation-optimal, and the mechanism is the queue
 
@@ -114,3 +118,67 @@ So the rule is: **`PointCache` may be named only on declarations that reach no s
 **F-122.** An internal type alias backed by a `devDependency` is publishable by accident. Declaration emit is total per module and `kernel/types.d.ts` ships, so an `export type` there carries its imports into the tarball's type surface — for a dependency consumers do not have. The two existing `Writable` uses avoid it only because both happen to sit on local `const` declarations; **nothing states the rule and nothing checks it.** The narrow consequence is `PointCache`'s home and D-144 takes it. The general one is that _a module's `.d.ts` publishes what the module exports, not what the package intends to publish_, which is the same class as the pruning pass that removed 6.5 kB of unreachable declarations — found again one level down, at the type rather than the file.
 
 **F-123.** `BehaviorSpec.anchorTarget`'s contract does not say what the kernel does with the returned point. The kernel reads it immediately and never retains it, which is what makes a reusable cache safe — but that is a fact about the current implementation with no sentence and no test behind it. A future edit that stored `anchor` on the attempt, or passed it into `LandingContext` unconverted, would break every cached implementation silently and pass the suite. It is the precondition for D-144 rather than a consequence of it.
+---
+
+## 9. The second axis: what needs an object at all
+
+**Added 2026-08-27**, on the owner's observation that §3 answered the wrong question about the landing chain.
+
+### 9.1 The two axes are independent
+
+- **Can it be cached?** — decided by escape and lifetime. If two live values must differ, one mutable buffer cannot serve both.
+- **Does it need an object?** — decided by whether an owning object already allocates, and by whether the nesting is part of a published contract.
+
+`LandingContext.from` and `.target` must have independent lifetimes, so the first answer is no. **The second answer is also no, and they are not the same finding.** §3 gave the first and stopped.
+
+### 9.2 Not one site uses a `Point` as a `Point`
+
+Every read of these four values, in the whole package:
+
+| Site                    | Read                                               |
+| ----------------------- | -------------------------------------------------- |
+| `landing-runner.ts:125` | `Math.hypot(target.x - from.x, target.y - from.y)` |
+| `landing-runner.ts:167` | `compose(to.x, to.y)`                              |
+| `landing-runner.ts:196` | `compose(from.x, from.y)`                          |
+| `kernel.ts:1722`        | `session.write(target.x, target.y)`                |
+
+**Four reads, four scalar-taking calls, zero uses of the pair as a value.** `compose(x, y)` and `write(x, y)` are the only things a runner can do with these numbers and both already take scalars, so each object is built solely to be split back apart on its single use. That is the shape the commissioning question named, and it is here rather than in the consumer-owned sites.
+
+### 9.3 The package's own convention is already scalar
+
+`originX/originY`, `pointerX/pointerY`, `offsetX/offsetY` are how the kernel frame, both behavior frames, the sortable's views and the **public** `DragGeometry` all carry coordinate pairs. The nested `Point` in the landing chain is the exception, not the rule, so flattening it moves the published surface toward consistency rather than away from it.
+
+### 9.4 The chain moves together or not at all
+
+`SettlementAttempt.target` and `LandingContext.target` are **the same object** — `attempt.target = target` and then `target` in the context literal — so flattening either alone removes nothing. `LandingTimingContext` then aliases both (`from, to: target`) and allocates only its own wrapper. So:
+
+- flatten `LandingContext` alone → the runner must re-box two points to build the timing context. **Pure relocation**, which is the failure mode the commission warned about.
+- flatten all three → the objects are gone and nothing is re-boxed.
+
+|  | Today | Flattened |
+| --- | --- | --- |
+| `anchorTarget` arm literal | 1 | 0 — the `PointCache` of §4 |
+| kernel `target` (converted, retained, published) | 1 | 0 — two fields on the attempt and two on the context |
+| kernel `from` (copy of `rendered`) | 1 | 0 — two reads of `rendered` into fields |
+| `LandingTimingContext` wrapper | 1, only when `duration` is a function | 1, unchanged |
+| **Point objects per drop** | **3** | **0** |
+
+The wrapper survives because it is a distinct object with a `distance` field, and it is not what the two nested points cost.
+
+### 9.5 The contract question
+
+`LandingContext` and `LandingStart` are kernel-tier SPI; `LandingTimingContext` is consumer-facing through `landing({ duration })` on both behaviors. **Nothing has shipped** — `private: true`, `0.1.0` — so `CODE_OF_SIZE.md` §8 applies and there is no compatibility cost, the same lever D-132 used.
+
+Ergonomically it is neutral to better. A runner writes `compose(fromX, fromY)` where it wrote `compose(from.x, from.y)`. A duration function that reads only `distance`, which is the common case, is untouched; one that reads the endpoints writes `toY - fromY` instead of `to.y - from.y`.
+
+### 9.6 One property is traded, and it is worth naming
+
+Today the join pin and the published context share one object, so they cannot disagree. Flattened, they hold two pairs of equal numbers assigned in the same statement, and equality is **convention-enforced rather than identity-enforced**. That is a real, small loss.
+
+It is outweighed by what the same change fixes. `from` is copied out of `rendered` precisely so that no kernel-mutable object is published into consumer code — and **`target` is published and retained without that protection**: the runner holds the very object the join pin later reads. `Point` is `Readonly<>`, so writing to it is outside the contract and needs no guard under §1.1; but the discipline is applied to one of the pair and not the other, and flattening removes the asymmetry structurally rather than documenting it (F-125).
+
+## 10. Findings added with §9
+
+**F-124.** An audit answered _can this be cached?_ and its verdict was written as though it also answered _does this need an object at all?_ Escape and lifetime decide the first; an owning object that already allocates decides the second. The conflation is easy because both questions are refused by the same word — _escapes_ — and it cost the audit its two largest items and produced a per-drop figure three times too small. **The general form: a classification is only as wide as the question that produced it, and a verdict phrased as a property of the value rather than as an answer to a question invites exactly this.**
+
+**F-125.** The kernel copies `rendered` into `LandingContext.from` so that no kernel-mutable object is published into consumer code, and then publishes `target` — the object the join pin later reads — into the same context, retained across the whole landing. **Not a defect**: `Point` is `Readonly<>`, so mutation is outside the contract and §1.1's gate closes on it. It is an inconsistency in an applied discipline, visible to anyone who reads the two adjacent lines and asks why one is copied. **Closed by D-145 if it lands**, which removes the aliasing structurally; otherwise it stands as a documented asymmetry.
