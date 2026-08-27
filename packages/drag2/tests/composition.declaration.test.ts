@@ -27,11 +27,22 @@
  * from the alias, and a `unique symbol` cannot be forged by an author who wants
  * to try.
  *
- * **Two things this deliberately does not catch**, both accepted by D-138:
- * a zero-parameter installer declares no context, so `() => ({})` stays
- * assignable to both; and an unannotated hoisted literal is decided by
- * structural assignability on its return type alone. Neither is reachable
- * except by declining the types the API hands you.
+ * **What the boundary states is the identity of an installer, and the scope is
+ * narrower than the mechanism it replaced** (D-138, F-117). A value *typed* for
+ * one behavior is refused where the other's is expected, in both directions,
+ * and that is total. It says nothing about **what a correctly-typed function
+ * returns**: a literal returned from an arrow already contextually typed as a
+ * `FreeDragInstaller` is not excess-property-checked, so one carrying
+ * `insertion` compiles and the assembler ignores the slot. Contributing a slot
+ * the behavior does not implement is unsupported integrator usage — refusing it
+ * would cost exactly what D-138 deleted, each record enumerating the other's
+ * vocabulary — and it is not asserted here in either direction, because a row
+ * pinning what today's compiler happens to do would state a guarantee the
+ * contract does not make.
+ *
+ * **One accepted hole, and it is about whose function it is**: a zero-parameter
+ * installer declares no context, so `() => ({})` stays assignable to both. That
+ * is asserted below, because it is a decision rather than a gap.
  *
  * `@ts-expect-error` is the assertion. It fails the typecheck if the line ever
  * *starts* compiling, which is the direction that matters here.
@@ -196,6 +207,18 @@ describe('third-party authoring', () => {
     void freeDrag(item, config, { plugins: [install] }).destroy();
   });
 
+  it('should accept the same contribution when the context is its own', () => {
+    // **The control F-74 requires**, and it is what makes the row above mean
+    // what it says. The contribution carries only `retire` — a slot both
+    // records genuinely declare — so if this failed too, the negative would be
+    // passing on the contribution's shape rather than on the parameter's brand,
+    // which is precisely the mechanism CE1-01 caught the first probe on.
+    const contribution: SortableContribution = { retire: dispose };
+    const install: FreeDragInstaller = () => contribution;
+
+    void freeDrag(item, config, { plugins: [install] }).destroy();
+  });
+
   it('should still reach free drag plugins carrying only shared slots', () => {
     // **The positive control**, kept from the previous mechanism because it
     // still earns its place: `startLanding` and `retire` are legitimately
@@ -227,5 +250,21 @@ describe('third-party authoring', () => {
 
     void free;
     void sortable;
+  });
+
+  it('should refuse a hoisted contribution typed for the other behavior', () => {
+    // **The direction that does hold, driven through the public slot** — which
+    // is where CE1-01's silent discard was reachable and is therefore the
+    // position worth pinning, rather than only the alias-to-alias rows above.
+    // A `const` typed as the sortable's contribution cannot be returned from a
+    // free-drag installer, because the annotation makes it a typed value and
+    // typed values are exactly what the brand refuses.
+    const contribution: SortableContribution = { retire: dispose };
+    // @ts-expect-error — D-138: the parameter's brand refuses the installer, so
+    // the slot never sees the contribution.
+    const install: FreeDragInstaller = (_context: SortableFeatureContext) =>
+      contribution;
+
+    void freeDrag(item, config, { plugins: [install] }).destroy();
   });
 });

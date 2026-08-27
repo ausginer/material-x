@@ -29,9 +29,14 @@ export type PlaceholderFactory = (context: PlaceholderContext) => HTMLElement;
 // consumer-owned element between two of its own statements a reading to stand
 // behind (I-36).
 /**
- * The **internal** slot shape: the public {@link PlaceholderFactory} a consumer
- * writes, plus the liveness reading the library hands its own placeholder
- * feature.
+ * The **wider** slot shape: everything {@link PlaceholderFactory} is, plus a
+ * liveness reading passed as a second argument.
+ *
+ * A consumer's factory ignores it and satisfies this by having fewer
+ * parameters. It is here for a middle-tier author filling
+ * `SortableContribution.placeholder`, where the placeholder mutates a
+ * consumer-owned element between two of its own statements and needs to know
+ * whether the operation is still live.
  */
 export type PlaceholderSlot = (
   context: PlaceholderContext,

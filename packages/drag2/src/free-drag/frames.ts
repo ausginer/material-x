@@ -7,10 +7,11 @@
  * since D-124 is the whole of the enforcement. Reset is split by author for the
  * same reason.
  *
- * **Five against the sortable's eight, and a different *shape***, which is the
+ * **Five against the sortable's seven, and a different *shape***, which is the
  * point M-1 makes about the 12-to-16-field copy cliff and the reason this
  * part's cost must be measured rather than inherited from the sortable's
- * number.
+ * number. Seven is what that part declares; an eighth was removed and its own
+ * header says why it must not return.
  *
  * **The rendered delta is deliberately not a field.** It is a pure function of
  * the committed sample, the offset and the policy, so `moved`, the request

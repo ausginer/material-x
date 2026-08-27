@@ -30,7 +30,7 @@ import css from './stories.module.css';
  * | --- | --- |
  * | `draggable(box, options)` | `freeDrag(item, config, ...fragments)` — D-69, D-77 |
  * | `bounds: area` / `bounds: 'viewport'` | `bounds(area)` / `bounds()` — a capability, and the sentinel is closed by deletion |
- * | `lift: 'top-layer' \| 'flatten' \| 'none'` | `'faithful' \| 'flat' \| 'in-place'` — D-73 |
+ * | `lift: 'top-layer' \| 'flatten' \| 'none'` | `LIFT_FAITHFUL \| LIFT_FLAT \| LIFT_IN_PLACE` — D-141, and the constants publish from this entry (~~`'faithful' \| 'flat' \| 'in-place'` — D-73~~) |
  * | `onFinish` / `onCancel` | one `onEnd` with three discriminated arms — D-62 |
  * | `FreeDropResolution` | `FreeDragResolution` — D-69, one vocabulary |
  */

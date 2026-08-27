@@ -109,9 +109,12 @@ import {
   type AxisInstaller,
   type CancelStage,
   type CollectionSnapshot,
+  type ItemSource,
   type OnReorder,
   type PlaceholderContext,
   type PlaceholderFactory,
+  type ResolveElement,
+  type ResolveHandle,
   type SortableConfig,
   type ReorderProposal,
   type ReorderRequest,
@@ -337,12 +340,32 @@ const retiredReorderDiscriminant = accepted.type;
 const retiredReorderLiteral: ReorderResolution = { type: 'accepted' };
 // @ts-expect-error: the two resolution arms are not public types (D-143)
 type R8 = import('@ydinjs/drag2/sortable.js').AcceptedReorderResolution;
+// **The internal arms are not public either, and nothing else says so**
+// (F-120). \`AcceptedResolution\` and \`RejectedResolution\` are the names the
+// representation is written in; they are erased, so \`exports.node.test.ts\`
+// compares values and would not see either of them joining a re-export list.
+// @ts-expect-error: the accepted arm is internal to the behavior (D-143)
+type R9 = import('@ydinjs/drag2/sortable.js').AcceptedResolution;
+// @ts-expect-error: and so is the rejected one
+type R10 = import('@ydinjs/drag2/sortable.js').RejectedResolution;
 // The cross-behavior row is asserted in \`tests/composition.declaration.test.ts\`
 // rather than here: this fixture compiles the sortable tier *without* free
 // drag, which is a claim of its own, and importing the other entry to make one
 // negative assertion would quietly retire it.
 
 void [retiredReorderDiscriminant, retiredReorderLiteral];
+
+// **The three hoistable slot aliases, named in a type position** (D-78, F-120).
+// They were reachable only through a JSDoc paragraph, so deleting the
+// \`sortable.js\` re-exports left the suite green — which is exactly the
+// hoistability the re-exports exist to provide. Their free-drag counterparts
+// are \`satisfies\`-pinned in the other fixture; these are annotated, which is
+// the same claim from the other side.
+const hoistedItems: ItemSource = () => [];
+const hoistedHandle: ResolveHandle = () => null;
+const hoistedVisual: ResolveElement = (node) => node;
+
+void [hoistedItems, hoistedHandle, hoistedVisual];
 
 // D-55: a behavior *is* the install function now, so the two opacity rows that
 // stood here have no subject. What is still checked is that a bare literal does
@@ -827,10 +850,22 @@ const controller: FreeDragController = freeDrag(
     // **D-77**: one required config argument. Only \`onDrop\` is required, and
     // omitting it is a compile error rather than a runtime throw.
     onDrop: (request: FreeDragRequest) => {
-      void request.viewportDeltaX;
-      void request.localDeltaY;
       void request.visualRect.width;
-      void request.positionX;
+      // **Every flattened coordinate is read, on both shapes** (D-139, F-120).
+      // A transposition between an X and a Y field is the failure a flattening
+      // most easily produces, and a fixture that reads one field of eight
+      // cannot see it. Reading each by name is what makes a renamed or dropped
+      // field a compile error at the tier the consumer works at.
+      void [
+        request.pointerX,
+        request.pointerY,
+        request.positionX,
+        request.positionY,
+        request.viewportDeltaX,
+        request.viewportDeltaY,
+        request.localDeltaX,
+        request.localDeltaY,
+      ];
       return FreeDragResolution.accept();
     },
     // **D-71**: a source the library re-reads, not a value it is handed.
@@ -843,9 +878,18 @@ const controller: FreeDragController = freeDrag(
     })) satisfies ResolveHome,
     onStart: ((geometry: DragGeometry) => {
       void geometry.originRect.width;
+      void [geometry.originPointerX, geometry.originPointerY];
     }) satisfies FreeDragOnStart,
     onMove: ((geometry: DragGeometry) => {
       void geometry.currentRect.left;
+      void [
+        geometry.pointerX,
+        geometry.pointerY,
+        geometry.viewportDeltaX,
+        geometry.viewportDeltaY,
+        geometry.localDeltaX,
+        geometry.localDeltaY,
+      ];
     }) satisfies OnMove,
     lift: LIFT_FLAT satisfies LiftMode,
     threshold: 4,
@@ -964,8 +1008,25 @@ const retiredLiteral: FreeDragResolution = { type: 'accepted' };
 type R6 = import('@ydinjs/drag2/free-drag.js').AcceptedFreeDragResolution;
 // @ts-expect-error: nor is the string lift union (D-141)
 type R7 = import('@ydinjs/drag2/free-drag.js').FreeDragLift;
-// @ts-expect-error: the geometry's coordinates are scalars (D-139)
+// **Every retired pair, not one of eight** (D-139, F-120). A flattening that
+// left one member behind, or reintroduced one, is caught here rather than by a
+// reader noticing; \`viewportDelta\` alone said nothing about the other three.
+// @ts-expect-error: the request's coordinates are scalars (D-139)
 const retiredPair = ({} as FreeDragRequest).viewportDelta;
+// @ts-expect-error: and its release position is \`positionX\`/\`positionY\`
+const retiredPosition = ({} as FreeDragRequest).viewportPosition;
+// @ts-expect-error: the geometry's are scalars too
+const retiredLocal = ({} as DragGeometry).localDelta;
+// @ts-expect-error: including the two pointer pairs, which a transposition
+// would otherwise reach through
+const retiredPointer = ({} as DragGeometry).pointer;
+// @ts-expect-error: ″
+const retiredOrigin = ({} as DragGeometry).originPointer;
+// **The internal arm names are not published from this entry either** (F-120).
+// @ts-expect-error: the accepted arm is internal to the behavior (D-140)
+type R11 = import('@ydinjs/drag2/free-drag.js').AcceptedResolution;
+// @ts-expect-error: and so is the rejected one
+type R12 = import('@ydinjs/drag2/free-drag.js').RejectedResolution;
 // @ts-expect-error: \`FreeDropResolution\` is renamed to one vocabulary (D-69)
 type R1 = import('@ydinjs/drag2/free-drag.js').FreeDropResolution;
 // @ts-expect-error: \`DragUpdate\` is dissolved (D-71)
@@ -987,6 +1048,10 @@ void [
   retiredDiscriminant,
   retiredLiteral,
   retiredPair,
+  retiredPosition,
+  retiredLocal,
+  retiredPointer,
+  retiredOrigin,
 ];
 
 // ---------------------------------------------------------------------------

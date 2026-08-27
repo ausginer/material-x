@@ -412,10 +412,13 @@ describe('the silent table', () => {
   });
 
   it('should complete a normal drag for an unknown lift string', async () => {
-    // A TS consumer cannot express it — `LIFT_MODES` is a total `Record`, so a
-    // mode without a mapping does not compile. A JS consumer reaches
-    // `undefined` in the map and gets whichever branch `presentation.ts` falls
-    // through to: consumer-owned, and nothing fails.
+    // A TS consumer cannot express it — the slot takes the kernel's own
+    // `LiftMode`, so a string is not one. ~~`LIFT_MODES` is a total `Record`,
+    // so a mode without a mapping does not compile. A JS consumer reaches
+    // `undefined` in the map.~~ There is no map since D-141: a JS consumer's
+    // value reaches `presentation.ts` unchanged and gets whichever branch it
+    // falls through to — consumer-owned, and nothing fails, which is the same
+    // silence one indirection shorter.
     const composed = compose({
       config: { lift: 'top-layer' as unknown as FreeDragConfig['lift'] },
     });
