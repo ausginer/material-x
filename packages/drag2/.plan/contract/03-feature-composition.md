@@ -413,8 +413,8 @@ function assemble(config: SortableConfig, ctx: FeatureContext): SortableSlots {
     onStart: config.onStart ?? NOOP_START, // ← normalized; see below
     onEnd: config.onEnd ?? null, // D-62
     onError: config.onError ?? null,
-    getVisual: config.visual ?? null,
-    getBox: config.box ?? config.visual ?? null, // default: box = visual (D-43)
+    visual: config.visual ?? null,
+    box: config.box ?? config.visual ?? null, // default: box = visual (D-43)
     threshold: config.threshold, // defaulted by the merge
     /* … the remaining optional slots, `null` when unfilled … */
     beforeMove,
@@ -458,10 +458,10 @@ type SortableSlots = Readonly<{
   onStart: (item: HTMLElement) => void; // normalized, never null
 
   /* optional; `null` when nothing filled them */
-  createPlaceholder: PlaceholderFactory | null; // from `config.placeholder` (D-65)
-  getHandle: ((item: HTMLElement) => HTMLElement | null) | null;
-  getVisual: ((item: HTMLElement) => HTMLElement) | null;
-  getBox: ((item: HTMLElement) => HTMLElement) | null; // D-43
+  placeholder: PlaceholderFactory | null; // from `config.placeholder` (D-65)
+  handle: ((item: HTMLElement) => HTMLElement | null) | null;
+  visual: ((item: HTMLElement) => HTMLElement) | null;
+  box: ((item: HTMLElement) => HTMLElement) | null; // D-43
   startLanding: LandingStart | null;
   onEnd: ((result: ReorderTransactionResult) => void) | null; // D-62
   onError: ((error: DraggableError, context: DragErrorContext) => void) | null; // D-64
@@ -570,10 +570,10 @@ Passing the two separately costs nothing and is honest about both:
 | --- | --- | --- |
 | `InsertionFrameView` | `item: HTMLElement \| null` | The destination view is the collection _minus_ the dragged item, and an axis rule that cannot exclude it measures a lifted element whose centre tracks the pointer — so it wins every search and pins the gap to its own slot. Read off the frame, where the item already is committed state, rather than copied onto the runtime view where it could drift. |
 | `DisplacementView` | `insertion: Insertion`, `item: HTMLElement` | `insertion` is M-4's answer made expressible: without the destination gap a displacement feature cannot know which elements a move affects until after the write, so it must measure the whole destination view twice. `item` is ownership: membership in `snapshot` cannot exclude the dragged item, because the dragged item _is_ a member, and nothing else identifies it. |
-| `InsertionRuntimeView` | ~~`getVisual`~~ → `getBox: ((item: HTMLElement) => HTMLElement) \| null` | Parity D2 added it as `getVisual`; **D-58 re-points it at `box`** and the field is renamed rather than joined — the axis rule measures candidate **boxes**, and never needs the visual. Still nullable rather than normalized to identity, so the minimal composition pays no identity call per candidate per rebuild. |
+| `InsertionRuntimeView` | ~~`getVisual`~~ → `box: ((item: HTMLElement) => HTMLElement) \| null` | Parity D2 added it as `getVisual`; **D-58 re-points it at `box`** and the field is renamed rather than joined — the axis rule measures candidate **boxes**, and never needs the visual. Still nullable rather than normalized to identity, so the minimal composition pays no identity call per candidate per rebuild. |
 | `InsertionRuntimeView` | `live: () => boolean` | I-36, **re-grounded on D-37**. The candidate loop invokes `visual()`'s resolver once per candidate; that is a **declared consumer slot**, so it is one of the three acts D-37's finite domain still prohibits after logical closure. The loop is feature-private (D-19, H-4) and cannot reach the behavior's runtime, so the reading has to arrive as data. **Under D-38 the reading is the logical latch and nothing else** — `KernelHost`'s liveness member (D-53), never `presentation.signal.aborted`, which lags logical closure once teardown defers to the transaction boundary (D-36). |
 
-**The per-operation view is the designated channel for per-operation behavior guarantees, and four widenings is enough to say so as a rule.** `InsertionFrameView` and `InsertionRuntimeView` have between them been widened additively four times — Phase 8a `item`, Phase 17 `pointerX`, Checkpoint D `getVisual` (re-pointed at `getBox` by D-58, which is a substitution and not a fifth widening), C2-01 `live` — and in **every** case the behavior's existing per-operation object satisfied the new field structurally, with no wrapper, no per-operation or per-call allocation, and **no import edge appearing from a feature module back to the behavior's runtime**. D-13's mechanism is therefore not merely reusable, it is the default answer: a fifth widening is a routine act rather than a re-litigation of D-13. What the four data points do _not_ license is treating the views as fixed — they are a growing structural contract, and a widening still has to justify its own field.
+**The per-operation view is the designated channel for per-operation behavior guarantees, and four widenings is enough to say so as a rule.** `InsertionFrameView` and `InsertionRuntimeView` have between them been widened additively four times — Phase 8a `item`, Phase 17 `pointerX`, Checkpoint D `getVisual` (re-pointed at `box` by D-58, which is a substitution and not a fifth widening), C2-01 `live` — and in **every** case the behavior's existing per-operation object satisfied the new field structurally, with no wrapper, no per-operation or per-call allocation, and **no import edge appearing from a feature module back to the behavior's runtime**. D-13's mechanism is therefore not merely reusable, it is the default answer: a fifth widening is a routine act rather than a re-litigation of D-13. What the four data points do _not_ license is treating the views as fixed — they are a growing structural contract, and a widening still has to justify its own field.
 
 No view materialization on any path, no `Pick<>` anywhere, and no import edge from a feature to the behavior's runtime type. This is what makes H-6 work at the _runtime_ level, the same way §[04](04-frame-slicing.md) makes it work at the frame level.
 

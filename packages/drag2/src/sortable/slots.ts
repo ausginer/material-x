@@ -77,7 +77,7 @@ export type InsertionRuntimeView = Readonly<{
    * composition names neither slot and would otherwise pay an identity call per
    * candidate per rebuild.
    */
-  getBox: ((item: HTMLElement) => HTMLElement) | null;
+  box: ((item: HTMLElement) => HTMLElement) | null;
   /**
    * Whether the controller is still alive.
    *
@@ -187,17 +187,17 @@ export type SortableSlots = Readonly<{
   onStart(item: HTMLElement): void;
 
   /* optional; `null` when no feature filled them */
-  createPlaceholder: PlaceholderSlot | null;
-  getHandle: ((item: HTMLElement) => HTMLElement | null) | null;
+  placeholder: PlaceholderSlot | null;
+  handle: ((item: HTMLElement) => HTMLElement | null) | null;
   /** The node faithfully lifted (D-43). Resolved once, at admission. */
-  getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  visual: ((item: HTMLElement) => HTMLElement) | null;
   /**
-   * The geometry source (D-43). **Already defaulted to `getVisual` by the
+   * The geometry source (D-43). **Already defaulted to `visual` by the
    * assembler**, so this is `null` only when neither slot was written — which
    * is what lets both the admission path and the candidate loop skip the call
    * entirely rather than pay an identity per item.
    */
-  getBox: ((item: HTMLElement) => HTMLElement) | null;
+  box: ((item: HTMLElement) => HTMLElement) | null;
   startLanding: LandingStart | null;
   /**
    * These stay nullable rather than normalized: their arguments are result

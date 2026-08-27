@@ -114,9 +114,9 @@ export function assemble(
       // `FAILURE_RESOLUTION`, with the drag canceled and the visual restored.
       onDrop: config.onDrop,
 
-      getHandle: config.handle ?? null,
-      getVisual: config.visual ?? null,
-      getHome: config.home ?? null,
+      handle: config.handle ?? null,
+      visual: config.visual ?? null,
+      home: config.home ?? null,
 
       onStart: config.onStart ?? null,
       onMove: config.onMove ?? null,

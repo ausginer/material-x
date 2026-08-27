@@ -685,7 +685,7 @@ function narrow(): AxisInstaller {
     const refresh = (
       snapshot: InsertionRuntimeView['snapshot'],
       dragged: HTMLElement,
-      getBox: InsertionRuntimeView['getBox'],
+      getBox: InsertionRuntimeView['box'],
       live: () => boolean,
     ): boolean => {
       if (!dirty && measured === snapshot.version) {
@@ -751,7 +751,7 @@ function narrow(): AxisInstaller {
 
           const { snapshot, placeholder } = runtime;
 
-          if (!refresh(snapshot, dragged, runtime.getBox, runtime.live)) {
+          if (!refresh(snapshot, dragged, runtime.box, runtime.live)) {
             return null;
           }
 
@@ -792,7 +792,7 @@ function narrow(): AxisInstaller {
           const dragged = frame.item;
 
           if (dragged !== null) {
-            refresh(runtime.snapshot, dragged, runtime.getBox, runtime.live);
+            refresh(runtime.snapshot, dragged, runtime.box, runtime.live);
           }
         },
 

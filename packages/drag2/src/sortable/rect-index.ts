@@ -44,7 +44,7 @@ export type RectIndex = {
    * moved. On a frame where the pointer merely travels inside the same slot this
    * reads no geometry at all and the previous scan stands.
    *
-   * `getBox` is the installed `box` resolver — already defaulted to `visual`
+   * The parameter is the installed `box` slot — already defaulted to `visual`
    * by the assembler (D-43) — or `null` when the config named neither, in which
    * case every candidate *is* its own box and the resolver would be an identity
    * call per item per rebuild.

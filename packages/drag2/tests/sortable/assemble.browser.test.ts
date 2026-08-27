@@ -162,8 +162,8 @@ describe('assemble', () => {
 
   it('should fill the optional single-writer slots from their features', () => {
     const createPlaceholder = (): HTMLElement => document.createElement('div');
-    const getHandle = (): null => null;
-    const getVisual = (item: HTMLElement): HTMLElement => item;
+    const handle = (): null => null;
+    const visual = (item: HTMLElement): HTMLElement => item;
     const startLanding = (): LandingHandle => ({ destroy: (): void => {} });
     // **Three of these four moved from a contribution to a config key**
     // (D-56, D-65): `handle`, `visual` and `placeholder` are things a consumer
@@ -173,26 +173,26 @@ describe('assemble', () => {
       config(
         {
           placeholder: createPlaceholder,
-          handle: getHandle,
-          visual: getVisual,
+          handle,
+          visual,
         },
         feature({ startLanding }),
       ),
       createFixture().context,
     );
 
-    expect(slots.createPlaceholder).not.toBeNull();
-    expect(slots.getHandle).toBe(getHandle);
-    expect(slots.getVisual).toBe(getVisual);
+    expect(slots.placeholder).not.toBeNull();
+    expect(slots.handle).toBe(handle);
+    expect(slots.visual).toBe(visual);
     expect(slots.startLanding).toBe(startLanding);
   });
 
   it('should leave an uninstalled optional slot null', () => {
     const slots = assemble(required(), createFixture().context);
 
-    expect(slots.createPlaceholder).toBeNull();
-    expect(slots.getHandle).toBeNull();
-    expect(slots.getVisual).toBeNull();
+    expect(slots.placeholder).toBeNull();
+    expect(slots.handle).toBeNull();
+    expect(slots.visual).toBeNull();
     expect(slots.startLanding).toBeNull();
   });
 
@@ -267,10 +267,8 @@ describe('assemble', () => {
     expect(Object.keys(slots).toSorted()).toEqual([
       'afterMove',
       'beforeMove',
-      'createPlaceholder',
-      'getBox',
-      'getHandle',
-      'getVisual',
+      'box',
+      'handle',
       'invalidateInsertion',
       'items',
       'measureInsertion',
@@ -278,10 +276,12 @@ describe('assemble', () => {
       'onError',
       'onReorder',
       'onStart',
+      'placeholder',
       'resolveInsertion',
       'retireHooks',
       'startLanding',
       'threshold',
+      'visual',
     ]);
   });
 });

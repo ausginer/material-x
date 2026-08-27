@@ -193,16 +193,16 @@ export function assemble(
       // writing `placeholder` is being explicit about the element; an installer
       // that also names the slot is providing a default for compositions that
       // do not.
-      createPlaceholder: config.placeholder
+      placeholder: config.placeholder
         ? (placeholderContext) => config.placeholder!(placeholderContext)
         : contributedPlaceholder,
-      getHandle: config.handle ?? null,
-      getVisual: config.visual ?? null,
+      handle: config.handle ?? null,
+      visual: config.visual ?? null,
       // **`box(item) = visual(item)` by default** (D-43), applied here so no
       // downstream reader has to know the rule. Falling through to `null` when
       // neither is written keeps the minimal composition free of an identity
       // call per candidate per rebuild.
-      getBox: config.box ?? config.visual ?? null,
+      box: config.box ?? config.visual ?? null,
       startLanding,
 
       beforeMove,

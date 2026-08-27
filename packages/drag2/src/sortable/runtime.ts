@@ -65,7 +65,7 @@ export type PresentationView = {
    * feature keeps naming only fields of this object and never reaches the slot
    * record.
    */
-  readonly getBox: ((item: HTMLElement) => HTMLElement) | null;
+  readonly box: ((item: HTMLElement) => HTMLElement) | null;
   /**
    * The controller's terminal latch, read as a predicate (I-36).
    *
@@ -74,7 +74,7 @@ export type PresentationView = {
    * controller. The loop is feature-private (D-19, H-4) and cannot reach `rt`,
    * so the reading travels through the per-operation view — the **fourth
    * additive widening** of the D-13 consumer-declared view (8a `item`, 17
-   * `pointerX`, D2 `getVisual`, C2-01 `live`), with no import edge and one
+   * `pointerX`, D2 `visual`, C2-01 `live`), with no import edge and one
    * closure per controller copied by reference per operation.
    */
   // eslint-disable-next-line @typescript-eslint/method-signature-style -- `readonly` is not expressible on a method signature

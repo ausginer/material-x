@@ -262,10 +262,10 @@ export function createSortableSpec(
       return null;
     }
 
-    if (slots.getHandle) {
-      const handle = slots.getHandle(item);
+    if (slots.handle) {
+      const handle = slots.handle(item);
 
-      // **The terminal barrier on the admission sequence** (I-36). `getHandle`
+      // **The terminal barrier on the admission sequence** (I-36). `handle`
       // is consumer code, and `seedDraft` calls a *second* consumer resolver
       // right after this returns — so a handle resolver that destroyed the
       // controller would otherwise have `visual()` called after `destroy()`
@@ -325,8 +325,8 @@ export function createSortableSpec(
   ): AdmissionSubject | null => {
     let visual = item;
 
-    if (slots.getVisual) {
-      visual = slots.getVisual(item);
+    if (slots.visual) {
+      visual = slots.visual(item);
 
       // **The terminal barrier on the visual resolver** (I-36 (2) acts 1 and 2,
       // C5-03's stretch sweep), inside the branch because with no resolver
@@ -359,11 +359,11 @@ export function createSortableSpec(
     // (D-43) — and calling it again here would invoke one consumer resolver
     // twice for a single admission, which a stateful resolver can observe and
     // which the candidate-traversal tests caught immediately.
-    if (!slots.getBox || slots.getBox === slots.getVisual) {
+    if (!slots.box || slots.box === slots.visual) {
       return visual;
     }
 
-    const box = slots.getBox(item);
+    const box = slots.box(item);
 
     // The terminal barrier on the box resolver, for the same reason the visual
     // resolver carries one two statements up: it is consumer code, and a
@@ -560,7 +560,6 @@ export function createSortableSpec(
     // allocates a part at its defaults, called with one it returns that part
     // to them. The reset's return is the part it was handed, which the kernel
     // has and ignores.
-    // eslint-disable-next-line @typescript-eslint/strict-void-return
     resetFramePart: sortableFramePart,
 
     config: {
@@ -742,13 +741,13 @@ export function createSortableSpec(
         // discarded preparation drops — so an undo for it would be work with no
         // observer. With a slot composed every write below lands on someone
         // else's node.
-        placeholderUndo = slots.createPlaceholder ? [] : null;
+        placeholderUndo = slots.placeholder ? [] : null;
 
         return createPlaceholder(
           realm,
           { item, visual, box, rect: scope.originRect },
           footprint,
-          slots.createPlaceholder,
+          slots.placeholder,
           live,
           placeholderUndo,
         );
@@ -882,7 +881,7 @@ export function createSortableSpec(
           realm,
           placeholder,
           item,
-          getBox: slots.getBox,
+          box: slots.box,
           live,
           snapshot: current.snapshot!,
           insertion: null,

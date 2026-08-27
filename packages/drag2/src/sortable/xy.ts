@@ -60,7 +60,7 @@ type InsertionRuntimeView = Readonly<{
   snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
   /** The installed `box` resolver, or `null`; see `y.ts` for why. */
-  getBox: ((item: HTMLElement) => HTMLElement) | null;
+  box: ((item: HTMLElement) => HTMLElement) | null;
   /**
    * Whether the controller is still alive (I-36); see `y.ts`. The check itself
    * lives in `RectIndex.refresh`, but the **threading** is per-axis — which is
@@ -95,7 +95,7 @@ export function xy(): AxisInstaller {
 
           const { snapshot, placeholder } = runtime;
 
-          if (!index.refresh(snapshot, dragged, runtime.getBox, runtime.live)) {
+          if (!index.refresh(snapshot, dragged, runtime.box, runtime.live)) {
             // The rebuild crossed the terminal barrier (I-36); see `y.ts`. The
             // placeholder measured below is consumer-owned, so reading it after
             // the close would be an indirect consumer call.
@@ -169,12 +169,7 @@ export function xy(): AxisInstaller {
           const dragged = frame.item;
 
           if (dragged) {
-            index.refresh(
-              runtime.snapshot,
-              dragged,
-              runtime.getBox,
-              runtime.live,
-            );
+            index.refresh(runtime.snapshot, dragged, runtime.box, runtime.live);
           }
         },
 

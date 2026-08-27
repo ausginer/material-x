@@ -37,9 +37,9 @@ export const DEFAULT_AXIS: DragAxis = 'both';
 export type FreeDragSlots = Readonly<{
   onDrop: OnDrop;
 
-  getHandle: ResolveHandle | null;
-  getVisual: ResolveElement | null;
-  getHome: ResolveHome | null;
+  handle: ResolveHandle | null;
+  visual: ResolveElement | null;
+  home: ResolveHome | null;
 
   onStart: FreeDragOnStart | null;
   onMove: OnMove | null;

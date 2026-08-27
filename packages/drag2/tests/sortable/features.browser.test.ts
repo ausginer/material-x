@@ -1559,8 +1559,8 @@ describe('the terminal barrier in a resolver sequence', () => {
   };
 
   it('should not resolve a visual after the handle resolver destroyed', () => {
-    // Site B: `resolveItem` calls `getHandle`, and `seedDraft` calls
-    // `getVisual` immediately after. The kernel's post-`admit` recheck stops the
+    // Site B: `resolveItem` calls the `handle` slot, and `seedDraft` calls
+    // `visual` immediately after. The kernel's post-`admit` recheck stops the
     // operation from being minted, but it runs after the whole callback returns
     // and cannot make the second consumer call un-happen.
     const asked: HTMLElement[] = [];

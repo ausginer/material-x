@@ -80,10 +80,10 @@ type Overrides = Partial<
   Pick<
     SortableSlots,
     | 'onReorder'
-    | 'getHandle'
-    | 'getVisual'
-    | 'getBox'
-    | 'createPlaceholder'
+    | 'handle'
+    | 'visual'
+    | 'box'
+    | 'placeholder'
     | 'invalidateInsertion'
     | 'measureInsertion'
     | 'startLanding'
@@ -212,13 +212,13 @@ function createHarness(overrides: Overrides = {}): Harness {
       started.push(item);
       overrides.onStart?.(harness);
     },
-    createPlaceholder: overrides.createPlaceholder ?? null,
-    getHandle: overrides.getHandle ?? null,
-    getVisual: overrides.getVisual ?? null,
+    placeholder: overrides.placeholder ?? null,
+    handle: overrides.handle ?? null,
+    visual: overrides.visual ?? null,
     // D-43's default applied the way the assembler applies it: `box` falls back
     // to `visual`, so a fixture that overrides only `visual` still measures its
     // candidates on the same element the placeholder is sized from.
-    getBox: overrides.getBox ?? overrides.getVisual ?? null,
+    box: overrides.box ?? overrides.visual ?? null,
     startLanding: overrides.startLanding ?? null,
     onEnd(result): void {
       if (result.type === 'accepted' || result.type === 'noop') {
@@ -401,10 +401,10 @@ const EMPTY_SLOTS: SortableSlots = {
   items: (): readonly HTMLElement[] => [],
   onReorder: () => ReorderResolution.accept(),
   onStart: (): void => {},
-  createPlaceholder: null,
-  getHandle: null,
-  getVisual: null,
-  getBox: null,
+  placeholder: null,
+  handle: null,
+  visual: null,
+  box: null,
   startLanding: null,
   onEnd: (): void => {},
   onError: (): void => {},
@@ -500,7 +500,7 @@ describe('admission', () => {
   it('should narrow admission through the handle slot', () => {
     const handle = document.createElement('span');
     const harness = createHarness({
-      getHandle: (item) => (item.firstElementChild as HTMLElement) ?? null,
+      handle: (item) => (item.firstElementChild as HTMLElement) ?? null,
     });
 
     harness.items[0]!.append(handle);
@@ -518,7 +518,7 @@ describe('admission', () => {
 
   it('should lift the visual without replacing the item', () => {
     const harness = createHarness({
-      getVisual: (item) => item.firstElementChild as HTMLElement,
+      visual: (item) => item.firstElementChild as HTMLElement,
     });
     const visual = document.createElement('div');
 
@@ -539,8 +539,8 @@ describe('admission', () => {
 
 describe('the admission queue boundary', () => {
   /**
-   * A resolver that runs `act` on the first press only. `getHandle` and
-   * `getVisual` are the two consumer callbacks admission invokes, and both run
+   * A resolver that runs `act` on the first press only. `handle` and
+   * `visual` are the two consumer callbacks admission invokes, and both run
    * inside the native `pointerdown` dispatch — before anything is committed.
    */
   const once = (act: () => void): (() => void) => {
@@ -563,7 +563,7 @@ describe('the admission queue boundary', () => {
     });
 
     harness = createHarness({
-      getHandle(item) {
+      handle(item) {
         replace();
         return item;
       },
@@ -587,7 +587,7 @@ describe('the admission queue boundary', () => {
     });
 
     harness = createHarness({
-      getVisual(item) {
+      visual(item) {
         replace();
         return item;
       },
@@ -607,7 +607,7 @@ describe('the admission queue boundary', () => {
     });
 
     harness = createHarness({
-      getHandle(item) {
+      handle(item) {
         replace();
         return item;
       },
@@ -634,7 +634,7 @@ describe('the admission queue boundary', () => {
     });
 
     harness = createHarness({
-      getHandle(item) {
+      handle(item) {
         replace();
         return item;
       },
@@ -663,7 +663,7 @@ describe('the admission queue boundary', () => {
     });
 
     harness = createHarness({
-      getHandle(item) {
+      handle(item) {
         replace();
         return item;
       },
@@ -702,7 +702,7 @@ describe('the admission queue boundary', () => {
     });
 
     harness = createHarness({
-      getHandle(item) {
+      handle(item) {
         nest();
         return item;
       },
@@ -729,7 +729,7 @@ describe('the admission queue boundary', () => {
     });
 
     harness = createHarness({
-      getVisual(item) {
+      visual(item) {
         nest();
         return item;
       },
@@ -752,7 +752,7 @@ describe('the admission queue boundary', () => {
     });
 
     harness = createHarness({
-      getHandle(item) {
+      handle(item) {
         nest();
         return item;
       },
@@ -777,7 +777,7 @@ describe('the admission queue boundary', () => {
     });
 
     harness = createHarness({
-      getHandle(item) {
+      handle(item) {
         terminate();
         return item;
       },
@@ -811,7 +811,7 @@ describe('the admission queue boundary', () => {
     // it**: the error carries `FAILURE_ADMISSION` itself, so the row now
     // asserts the decision's own words rather than the bucket they fell into.
     const harness = createHarness({
-      getVisual(): HTMLElement {
+      visual(): HTMLElement {
         throw new Error('visual: broken');
       },
     });
@@ -843,7 +843,7 @@ describe('the admission queue boundary', () => {
     });
 
     harness = createHarness({
-      getVisual(item) {
+      visual(item) {
         terminate();
         return item;
       },
@@ -864,7 +864,7 @@ describe('activation', () => {
   it('should create the placeholder detached and insert it after the item', () => {
     const created: HTMLElement[] = [];
     const harness = createHarness({
-      createPlaceholder({ item, visual, rect }): HTMLElement {
+      placeholder({ item, visual, rect }): HTMLElement {
         const element = document.createElement('div');
 
         // `prepare` may not touch the DOM: the element it returns is detached,
@@ -887,7 +887,7 @@ describe('activation', () => {
 
   it('should apply the default mechanics to a customised placeholder', () => {
     const harness = createHarness({
-      createPlaceholder: () => document.createElement('section'),
+      placeholder: () => document.createElement('section'),
     });
 
     harness.items[0]!.setAttribute('slot', 'row');
@@ -938,7 +938,7 @@ describe('activation', () => {
     let harness: Harness | null = null;
 
     harness = createHarness({
-      createPlaceholder: (): HTMLElement =>
+      placeholder: (): HTMLElement =>
         document.createElement(REENTRANT_PLACEHOLDER),
     });
 
@@ -960,7 +960,7 @@ describe('activation', () => {
     // reads siblings, the landing measures a rect — so it is checked, not
     // assumed.
     const harness = createHarness({
-      createPlaceholder: (): HTMLElement =>
+      placeholder: (): HTMLElement =>
         document.createElement(REENTRANT_PLACEHOLDER),
     });
 
@@ -985,7 +985,7 @@ describe('activation', () => {
     });
 
     const harness = createHarness({
-      createPlaceholder: (): HTMLElement =>
+      placeholder: (): HTMLElement =>
         document.createElement(REENTRANT_PLACEHOLDER),
     });
 
@@ -1006,7 +1006,7 @@ describe('activation', () => {
     // and only connectivity breaks. A drag against a detached tree measures
     // rects that are all zero, so it is refused rather than started.
     const harness = createHarness({
-      createPlaceholder: (): HTMLElement =>
+      placeholder: (): HTMLElement =>
         document.createElement(REENTRANT_PLACEHOLDER),
     });
 
@@ -1025,7 +1025,7 @@ describe('activation', () => {
     // placeholder stands for *this item's* slot, and at the head of the list it
     // no longer does — every later gap decision is read from its siblings.
     const harness = createHarness({
-      createPlaceholder: (): HTMLElement =>
+      placeholder: (): HTMLElement =>
         document.createElement(REENTRANT_PLACEHOLDER),
     });
 
@@ -1050,7 +1050,7 @@ describe('activation', () => {
     });
 
     const harness = createHarness({
-      createPlaceholder: (): HTMLElement =>
+      placeholder: (): HTMLElement =>
         document.createElement(REENTRANT_PLACEHOLDER),
     });
 
@@ -1069,7 +1069,7 @@ describe('activation', () => {
     // does something harmless on connection.
     const connected: HTMLElement[] = [];
     const harness = createHarness({
-      createPlaceholder: (): HTMLElement =>
+      placeholder: (): HTMLElement =>
         document.createElement(REENTRANT_PLACEHOLDER),
     });
 
@@ -1092,7 +1092,7 @@ describe('activation', () => {
     let harness: Harness | null = null;
 
     harness = createHarness({
-      createPlaceholder: (): HTMLElement =>
+      placeholder: (): HTMLElement =>
         document.createElement(REENTRANT_PLACEHOLDER),
     });
 
@@ -1364,7 +1364,7 @@ describe('the terminal boundary (D-66)', () => {
     // `onStart` never ran, so the consumer has no record of this drag
     // beginning. An end for a beginning it never heard is worse than silence.
     const harness = createHarness({
-      createPlaceholder: (): never => {
+      placeholder: (): never => {
         throw new Error('prepare');
       },
     });
@@ -2574,7 +2574,7 @@ describe('placeholder factory results', () => {
     // inserting a placeholder that *is* the item — leaves the insertion
     // unmade, which `activation.effect` already refuses on its own terms.
     const harness = createHarness({
-      createPlaceholder: ({ item }) => item,
+      placeholder: ({ item }) => item,
     });
 
     activate(harness);
@@ -2589,7 +2589,7 @@ describe('placeholder factory results', () => {
 
   it('should adopt the lifted visual and lose the insertion the same way', () => {
     const harness = createHarness({
-      createPlaceholder: ({ visual }) => visual,
+      placeholder: ({ visual }) => visual,
     });
 
     activate(harness);
@@ -2606,7 +2606,7 @@ describe('placeholder factory results', () => {
     cleanup.push(() => outside.remove());
 
     const harness = createHarness({
-      createPlaceholder: () => outside,
+      placeholder: () => outside,
     });
 
     activate(harness);
@@ -2616,7 +2616,7 @@ describe('placeholder factory results', () => {
 
   it('should fail at the first mechanics write for a result that is not an element', () => {
     const harness = createHarness({
-      createPlaceholder: () => ({}) as unknown as HTMLElement,
+      placeholder: () => ({}) as unknown as HTMLElement,
     });
 
     activate(harness);
@@ -2628,7 +2628,7 @@ describe('placeholder factory results', () => {
 
   it('should clear a stale slot when the item has none', () => {
     const harness = createHarness({
-      createPlaceholder: (): HTMLElement => {
+      placeholder: (): HTMLElement => {
         const element = document.createElement('div');
 
         element.setAttribute('slot', 'stale');
@@ -2643,7 +2643,7 @@ describe('placeholder factory results', () => {
 
   it('should mirror the slot the item does have', () => {
     const harness = createHarness({
-      createPlaceholder: (): HTMLElement => {
+      placeholder: (): HTMLElement => {
         const element = document.createElement('div');
 
         element.setAttribute('slot', 'stale');
@@ -2779,7 +2779,7 @@ describe('the spatial action legality guard', () => {
       realm: rt.host.realm,
       placeholder: item,
       item,
-      getBox: null,
+      box: null,
       live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
@@ -2861,7 +2861,7 @@ describe('a pointerless release with no destination', () => {
       realm: rt.host.realm,
       placeholder: item,
       item,
-      getBox: null,
+      box: null,
       live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
@@ -3124,7 +3124,7 @@ describe('the displacement view lifetime', () => {
       realm: rt.host.realm,
       placeholder,
       item: items[0]!,
-      getBox: null,
+      box: null,
       live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
@@ -3252,7 +3252,7 @@ describe('the displacement view lifetime', () => {
       realm: rt.host.realm,
       placeholder,
       item: items[0]!,
-      getBox: null,
+      box: null,
       live: () => !rt.host.closed,
       snapshot: rt.snapshot,
       insertion: null,
@@ -3362,7 +3362,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
 
   it('should seed no draft when the visual resolver destroys the controller', () => {
     const held = bench({
-      getVisual: (element): HTMLElement => {
+      visual: (element): HTMLElement => {
         held.host.closed = true;
         return element;
       },
@@ -3385,7 +3385,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     // The command path writes a *fourth* field — the destination — so it needs
     // its own decline rather than only the shared seed's.
     const held = bench({
-      getVisual: (element): HTMLElement => {
+      visual: (element): HTMLElement => {
         held.host.closed = true;
         return element;
       },
@@ -3417,7 +3417,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       realm: held.rt.host.realm,
       placeholder: held.item,
       item: held.item,
-      getBox: null,
+      box: null,
       live: () => !held.host.closed,
       snapshot: held.rt.snapshot,
       insertion: null,
@@ -3458,7 +3458,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     let harness: Harness | null = null;
 
     harness = createHarness({
-      createPlaceholder: (): HTMLElement => {
+      placeholder: (): HTMLElement => {
         const element = document.createElement('div');
         let reads = 0;
 
@@ -3466,7 +3466,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
           get: (): boolean => {
             reads += 1;
 
-            // The adoption check inside `createPlaceholder` reads it first and
+            // The adoption check inside `placeholder` reads it first and
             // requires a detached element; the survival test is the second.
             if (reads === 1) {
               return false;
@@ -3506,7 +3506,7 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       realm: held.rt.host.realm,
       placeholder: held.item,
       item: held.item,
-      getBox: null,
+      box: null,
       live: () => !held.host.closed,
       snapshot: held.rt.snapshot,
       insertion: null,

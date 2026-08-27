@@ -64,12 +64,12 @@ export function buildSlots(context, config) {
     // `null` is the default element, which is what the composed side now gets
     // when no `placeholder` slot is written. The key is still filled, which is
     // what `size.node.test.ts` compares.
-    createPlaceholder: null,
-    getHandle: grip,
-    getVisual: box,
+    placeholder: null,
+    handle: grip,
+    visual: box,
     // D-43's default, applied by hand exactly as `assemble()` applies it: with
     // no `box` slot written, the box resolver *is* the visual resolver.
-    getBox: box,
+    box,
     startLanding: land.startLanding,
 
     beforeMove: [displace.beforeInsertionMove],

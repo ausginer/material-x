@@ -60,7 +60,7 @@ type InsertionRuntimeView = Readonly<{
    * already names `placeholder`: the axis rule cannot tell which config slot
    * filled it, and reads one nullable field off the per-operation object.
    */
-  getBox: ((item: HTMLElement) => HTMLElement) | null;
+  box: ((item: HTMLElement) => HTMLElement) | null;
   /**
    * Whether the controller is still alive (I-36), threaded into the candidate
    * loop so a `visual()` resolver that destroys the controller stops the
@@ -127,7 +127,7 @@ export function y(): AxisInstaller {
             !verified.refresh(
               snapshot,
               dragged,
-              runtime.getBox,
+              runtime.box,
               runtime.live,
               // A lazy rebuild has no committed move to attribute itself to.
               -1,
@@ -206,7 +206,7 @@ export function y(): AxisInstaller {
             verified.refresh(
               runtime.snapshot,
               dragged,
-              runtime.getBox,
+              runtime.box,
               runtime.live,
               insertion ? insertion.index : -1,
             );

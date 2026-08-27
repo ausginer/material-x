@@ -218,7 +218,7 @@ function createField(installer: 'y' | 'xy' = 'y', count = COUNT): Field {
         {
           snapshot: snapshot(version),
           placeholder,
-          getBox: options.getBox ?? null,
+          box: options.getBox ?? null,
           live: options.live ?? ALIVE,
           insertion:
             options.insertion === undefined
@@ -252,7 +252,7 @@ function createField(installer: 'y' | 'xy' = 'y', count = COUNT): Field {
           {
             snapshot: snapshot(),
             placeholder,
-            getBox: null,
+            box: null,
             live: ALIVE,
             insertion: null,
           },
@@ -270,7 +270,7 @@ function createField(installer: 'y' | 'xy' = 'y', count = COUNT): Field {
             {
               snapshot: snapshot(),
               placeholder,
-              getBox: null,
+              box: null,
               live: ALIVE,
               insertion: null,
             },
@@ -293,7 +293,7 @@ function createField(installer: 'y' | 'xy' = 'y', count = COUNT): Field {
         {
           snapshot: snapshot(version),
           placeholder,
-          getBox: null,
+          box: null,
           live: ALIVE,
           insertion: null,
         },

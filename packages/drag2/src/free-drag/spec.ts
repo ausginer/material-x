@@ -255,8 +255,8 @@ export function createFreeDragSpec(
         return null;
       }
 
-      if (slots.getHandle) {
-        const handle = slots.getHandle(root);
+      if (slots.handle) {
+        const handle = slots.handle(root);
 
         // **The terminal barrier on the admission sequence** (I-36). `handle`
         // is consumer code and `visual` is called right after it returns, so a
@@ -292,8 +292,8 @@ export function createFreeDragSpec(
 
       let visual = root;
 
-      if (slots.getVisual) {
-        visual = slots.getVisual(root);
+      if (slots.visual) {
+        visual = slots.visual(root);
 
         // The terminal barrier on the visual resolver (I-36). `runAdmission`
         // revalidates after this whole callback and declines the operation, but
@@ -911,8 +911,8 @@ export function createFreeDragSpec(
       // which is why they are one branch and not two — an unconfigured home and
       // a closed controller both land at the grab position, and the two arms
       // were byte-identical.
-      if (slots.getHome && !host.closed) {
-        const home = slots.getHome(subjectOf(current.visual!));
+      if (slots.home && !host.closed) {
+        const home = slots.home(subjectOf(current.visual!));
         // **Read, checked and copied here, inside the attributed seam** (E-05,
         // D-49). The kernel's quality wrapper covers *this call* and reads the
         // point's fields later, outside it — so without the reads here a `null`,

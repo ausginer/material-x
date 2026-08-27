@@ -116,7 +116,7 @@ pointerdown on item 2
       resolve the pressed item from rt.snapshot via composedPath()
       the composed path carries no [data-drag-ignore] between the
       press and the row, so admission does NOT decline       [D-46, D-129]
-      slots.getHandle — not installed, skip
+      slots.handle — not installed, skip
       draft.item = item2                       ← BEHAVIOR state, in the
       draft.snapshot = rt.snapshot               behavior's own frame part
       return item2                             ← the element to lift; `box` is
@@ -225,7 +225,7 @@ pointermove (+11 px)
                                                 : boxPre.height − boxPost
                                              ← what the visual actually
                                                removed from the layout
-              placeholder = slots.createPlaceholder({ item, visual, box, rect })   ← from config.placeholder (D-65)
+              placeholder = slots.placeholder({ item, visual, box, rect })   ← from config.placeholder (D-65)
               size it from the FOOTPRINT, not from the visual's offset box
               copy `item`'s `slot` attribute onto the placeholder
                         ← from the ITEM, not the box: the placeholder stands in
@@ -283,7 +283,7 @@ pointermove (+11 px)
 
 **Consequently `activation.rollback` is required.** ~~It is unnecessary — a discarded prepare leaves only a detached element for the collector.~~ That reading survived into Revision 2 and D-39 reverses it. Detachment is not disposal when the element is not the library's to collect: `prepare` completes, `preparationValid()` then returns `false`, the seam reports `SEAM_INVALIDATED`, and **adoption never happens** — so the disposer `effect` would have registered is never registered and never becomes responsible for the attributes already written. The consumer is handed back its own element carrying the library's marks. Deferring physical teardown (D-36) does not help and was never going to: it changes _when_ teardown runs, not _whether_ adoption occurred, and this is a local acquisition property with a mechanism that already exists. It is **not** a reason to reinstate statement-level liveness. **[D-39]**
 
-Had `createPlaceholder` thrown, the kernel would have released capture and disposed the lift, queued `FAILURE_ACTIVATION`, and published nothing — no element ever came back, so there is nothing to roll back. Had it reentrantly called `destroy()`, `prepare` would still have returned the element and `preparationValid()` would have returned `false`; **that is the case `rollback` now owns.** **[I-16, tier B]**
+Had the `placeholder` slot thrown, the kernel would have released capture and disposed the lift, queued `FAILURE_ACTIVATION`, and published nothing — no element ever came back, so there is nothing to roll back. Had it reentrantly called `destroy()`, `prepare` would still have returned the element and `preparationValid()` would have returned `false`; **that is the case `rollback` now owns.** **[I-16, tier B]**
 
 **An activation discard retires the operation.** Unlike an action discard, it is not "nothing happened and we carry on": there is no such thing as a committed operation with no presentation. The activation driver releases capture, disposes the lift and returns the controller to `IDLE`. The post-effect `preparationValid()` above is likewise activation-specific — the shared core does not have it, which is why each seam has its own wrapper.
 
