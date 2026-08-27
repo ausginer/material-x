@@ -78,6 +78,14 @@ export function buildGeometry(
   space: InheritedSpace,
   realm: DOMRealm,
 ): DragGeometry {
+  let localDeltaX = dx;
+  let localDeltaY = dy;
+
+  if (space) {
+    localDeltaX = space.a * dx + space.c * dy;
+    localDeltaY = space.b * dx + space.d * dy;
+  }
+
   return {
     pointerX,
     pointerY,
@@ -85,8 +93,8 @@ export function buildGeometry(
     originPointerY: originY,
     viewportDeltaX: dx,
     viewportDeltaY: dy,
-    localDeltaX: space ? space.a * dx + space.c * dy : dx,
-    localDeltaY: space ? space.b * dx + space.d * dy : dy,
+    localDeltaX,
+    localDeltaY,
     originRect,
     currentRect: currentRect(originRect, dx, dy, realm),
   };
@@ -105,6 +113,14 @@ export function buildRequest(
 ): FreeDragRequest {
   const visualRect = currentRect(originRect, dx, dy, realm);
 
+  let localDeltaX = dx;
+  let localDeltaY = dy;
+
+  if (space) {
+    localDeltaX = space.a * dx + space.c * dy;
+    localDeltaY = space.b * dx + space.d * dy;
+  }
+
   return {
     item: subject.item,
     visual: subject.visual,
@@ -114,8 +130,8 @@ export function buildRequest(
     positionY: visualRect.top,
     viewportDeltaX: dx,
     viewportDeltaY: dy,
-    localDeltaX: space ? space.a * dx + space.c * dy : dx,
-    localDeltaY: space ? space.b * dx + space.d * dy : dy,
+    localDeltaX,
+    localDeltaY,
     visualRect,
   };
 }
