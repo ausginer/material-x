@@ -11,6 +11,7 @@
 /packages/*/.vitest-attachments
 /packages/*/node_modules
 /packages/*/custom-elements.json
+/packages/*/.codeanalyzer
 
 # `just size --files` writes each measured bundle here for reading. Output of a
 # measurement, never an input to one.

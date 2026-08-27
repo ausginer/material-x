@@ -464,7 +464,7 @@ async function findAnalysis(
     let text: string;
 
     try {
-      // eslint-disable-next-line no-await-in-loop -- first candidate that exists wins; reading them all in parallel would read files this never needs
+      // eslint-disable-next-line no-await-in-loop -- `candidates` is a precedence order, not a set: an explicit CANTS_ANALYSIS has to beat a stale /tmp fallback whichever read would have finished first, so this cannot become a race. Sequential also stops at the first hit rather than parsing megabytes it never needed
       text = await readFile(path, 'utf8');
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -579,7 +579,7 @@ export async function main(argv: readonly string[]): Promise<number> {
     return 0;
   }
 
-  const selector = positionals[0];
+  const [selector] = positionals;
 
   if (!selector) {
     process.stderr.write(USAGE);
