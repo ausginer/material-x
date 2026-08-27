@@ -91,3 +91,7 @@ lint-fix:
 # Migrate oxlint config
 oxlint-migrate:
     node .scripts/oxlint-migrate.ts
+
+# Walk a cants call graph from a root callable — `just calls --help` for options
+calls *ARGS:
+    node .scripts/call-graph.ts {{ ARGS }}

@@ -57,3 +57,7 @@ size *FLAGS: build
 
 diff:
   git show HEAD --format= -- .plan > "/workspaces/material-x/docs-$(date +%Y%m%d-%H%M%S).patch"
+
+# Walk this package's cants call graph — `just calls --help` for options
+calls *ARGS:
+    node ../../.scripts/call-graph.ts {{ ARGS }}
