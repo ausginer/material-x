@@ -339,9 +339,9 @@ export function createFreeDragSpec(
         rt.lift = scope.lift;
         rt.originRect = scope.originRect;
         // **Handed down, not measured** (D-72, D-85). The inverse inherited
-        // linear part is what turns a viewport delta into the local one —
-        // `localDeltaX` and `localDeltaY` since D-139 — with four multiplies
-        // and no coordinate module — and this behavior now
+        // linear part is what turns a viewport delta into the local one, with
+        // four multiplies written out where the two consumer shapes are built
+        // and no coordinate module — and this behavior
         // performs **no** DOM read per activation, because the kernel derived
         // it from the measurement `acquireLift` took before it moved anything.
         // Reading it here would read a different ancestry: under a lifted mode

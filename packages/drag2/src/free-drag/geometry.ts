@@ -13,6 +13,11 @@
  * read and — apart from the two rects a consumer callback is handed —
  * allocates nothing. The coordinates on both consumer shapes are scalars for
  * exactly that reason (D-139).
+ *
+ * The local-space projection is **written out at each of its two sites** rather
+ * than lifted into a helper per axis: it is two multiplies and an add, the two
+ * call sites are the only ones there will be, and a per-axis helper reads the
+ * same `space` twice through a call the inliner has to see through.
  */
 import type { InheritedSpace } from '../kernel/presentation.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
@@ -23,29 +28,6 @@ import type {
   FreeDragSubject,
 } from './domain.ts';
 import type { MotionDraft } from './feature.ts';
-
-/**
- * Two multiplies each, or the delta itself when the ancestry is untransformed.
- *
- * **A function per axis rather than one returning a point** (D-139): the two
- * consumer shapes carry the local delta as scalars, so a point here would be
- * allocated once per sample only to be read twice and dropped.
- */
-export function localDeltaX(
-  space: InheritedSpace,
-  x: number,
-  y: number,
-): number {
-  return space ? space.a * x + space.c * y : x;
-}
-
-export function localDeltaY(
-  space: InheritedSpace,
-  x: number,
-  y: number,
-): number {
-  return space ? space.b * x + space.d * y : y;
-}
 
 /**
  * **Axis projection, in place** (D-70): two comparisons and no state, which is
@@ -103,8 +85,8 @@ export function buildGeometry(
     originPointerY: originY,
     viewportDeltaX: dx,
     viewportDeltaY: dy,
-    localDeltaX: localDeltaX(space, dx, dy),
-    localDeltaY: localDeltaY(space, dx, dy),
+    localDeltaX: space ? space.a * dx + space.c * dy : dx,
+    localDeltaY: space ? space.b * dx + space.d * dy : dy,
     originRect,
     currentRect: currentRect(originRect, dx, dy, realm),
   };
@@ -132,8 +114,8 @@ export function buildRequest(
     positionY: visualRect.top,
     viewportDeltaX: dx,
     viewportDeltaY: dy,
-    localDeltaX: localDeltaX(space, dx, dy),
-    localDeltaY: localDeltaY(space, dx, dy),
+    localDeltaX: space ? space.a * dx + space.c * dy : dx,
+    localDeltaY: space ? space.b * dx + space.d * dy : dy,
     visualRect,
   };
 }
