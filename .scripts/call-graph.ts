@@ -40,9 +40,11 @@
  * indirect call through a slot, a seam or a stored callback — which in a
  * composition-heavy package is the interesting half. Those are marked `~`.
  *
- * Run:
+ * Run — the analysis path is required, so a review session usually exports it
+ * once and then passes only a root:
  *
  * ```
+ * export CANTS_ANALYSIS=/tmp/drag2-cants/analysis.json
  * node .scripts/call-graph.ts src/sortable.ts/sortable
  * node .scripts/call-graph.ts --list sortable
  * node .scripts/call-graph.ts --callers movePlaceholder
@@ -51,19 +53,6 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-
-/**
- * Where to look for an analysis document when `--analysis` is not given, in
- * order. The two `.codeanalyzer` entries cover being run from a package
- * directory and from the repository root; the last is where `cants` has been
- * writing drag2's output by hand.
- */
-const DEFAULT_ANALYSIS: ReadonlyArray<string | undefined> = [
-  process.env['CANTS_ANALYSIS'],
-  '.codeanalyzer/analysis.json',
-  'packages/drag2/.codeanalyzer/analysis.json',
-  '/tmp/drag2-cants/analysis.json',
-];
 
 /** The bags a `cants` node can nest further callables under. */
 const CALLABLE_BAGS = ['functions', 'types', 'callables', 'fields'] as const;
@@ -452,52 +441,41 @@ export function walk(
   };
 }
 
+/**
+ * Read the one analysis document this run was pointed at.
+ *
+ * There is no search and no default. `cants` writes wherever it is told to, so
+ * any list of guesses here would be this tool inventing a convention the
+ * analyzer does not have — and a guess that silently finds a stale document is
+ * worse than an error, because every answer after it is quietly wrong.
+ */
 async function findAnalysis(
   explicit: string | undefined,
 ): Promise<Readonly<{ path: string; document: unknown }>> {
-  const candidates = explicit
-    ? [explicit]
-    : DEFAULT_ANALYSIS.filter((path) => path != null);
+  const named = explicit ?? process.env['CANTS_ANALYSIS'];
 
-  for (const candidate of candidates) {
-    const path = resolve(candidate);
-    let text: string;
-
-    try {
-      // eslint-disable-next-line no-await-in-loop -- `candidates` is a precedence order, not a set: an explicit CANTS_ANALYSIS has to beat a stale /tmp fallback whichever read would have finished first, so this cannot become a race. Sequential also stops at the first hit rather than parsing megabytes it never needed
-      text = await readFile(path, 'utf8');
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        continue;
-      }
-
-      throw error;
-    }
-
-    const document = JSON.parse(text) as Readonly<{
-      application?: RawApplication;
-    }>;
-
-    if (
-      !document.application?.call_graph ||
-      !document.application.symbol_table
-    ) {
-      throw new Error(
-        `${path} is not a cants analysis document. A file whose top level is ` +
-          `\`symbol_table\`/\`call_graph\` is the analyzer's own cache ` +
-          `(\`.codeanalyzer/analysis_cache.json\`) — a different, pre-\`can://\` ` +
-          `format. Point --analysis at the emitted \`analysis.json\`.`,
-      );
-    }
-
-    return { path, document };
+  if (!named) {
+    throw new Error(
+      'No analysis document given. Pass --analysis <path>, or export ' +
+        'CANTS_ANALYSIS=<path> to set it for the shell session.',
+    );
   }
 
-  throw new Error(
-    `No analysis document found. Tried:\n${candidates
-      .map((path) => `  ${resolve(path)}`)
-      .join('\n')}\nPass --analysis <path>, or set CANTS_ANALYSIS.`,
-  );
+  const path = resolve(named);
+  const document = JSON.parse(await readFile(path, 'utf8')) as Readonly<{
+    application?: RawApplication;
+  }>;
+
+  if (!document.application?.call_graph || !document.application.symbol_table) {
+    throw new Error(
+      `${path} is not a cants analysis document. A file whose top level is ` +
+        `\`symbol_table\`/\`call_graph\` is the analyzer's own cache ` +
+        `(\`.codeanalyzer/analysis_cache.json\`) — a different, pre-\`can://\` ` +
+        `format. Point --analysis at the emitted \`analysis.json\`.`,
+    );
+  }
+
+  return { path, document };
 }
 
 const USAGE = `Walk a cants call graph from a chosen root.
@@ -506,10 +484,8 @@ const USAGE = `Walk a cants call graph from a chosen root.
 
   <root>             a can:// id, \`src/sortable.ts/sortable\`, or \`sortable\`
 
-  --analysis <path>  the analysis.json to read. Default, in order:
-                     $CANTS_ANALYSIS, .codeanalyzer/analysis.json,
-                     packages/drag2/.codeanalyzer/analysis.json,
-                     /tmp/drag2-cants/analysis.json
+  --analysis <path>  the analysis.json to read. Required, unless
+                     CANTS_ANALYSIS is exported instead
   --depth <n>        maximum depth (default 6; 0 for unlimited)
   --callers          walk callers instead of callees
   --externals        include imported and builtin callees
