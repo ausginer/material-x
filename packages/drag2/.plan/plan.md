@@ -1934,6 +1934,16 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 **Booked to Remediation, unimplemented.** 03 and 07 keep their present tense and carry a marked forward note; the registry witness is `duplicate-contribution` in `src/sortable/assemble.ts`, which stops holding in the implementing commit.
 
+### Two clarifications on D-146, 2026-08-27 (F-128 amended, F-130 opened)
+
+**The call shape was demonstrational and is withdrawn from the change.** D-146 does not touch D-77's arity: required configuration stays a required first argument, and nothing in per-key installers gives a reason to revisit it — they change what a slot's _value_ is, not which slots are required. The refusal that survives is narrower and is still load-bearing: **enforcing cardinality by folding a tuple of feature return types** fails for D-77's recorded reason, whatever the call shape.
+
+**`placeholder` is deleted rather than relocated, and my relocation was the conflation the owner named.** The axis ↔ placeholder relationship is real and it is **placement**: the factory answers _what element_, the axis answers _where it belongs_, and the behavior joins them through `movePlaceholder` — the single canonical writer of its position since D-27. My motivating case needed the axis to supply _appearance_; a grid rule actually wants the _footprint_, which comes from `box` (D-43) and reaches the factory as `PlaceholderContext.rect`. **D-45's own rule settles it without appeal to the census**: a slot with nothing to construct is a config slot, and making a detached element needs nothing an installer can build that a consumer closure cannot.
+
+**The deletion collapses more than the slot.** `PlaceholderSlot` is `PlaceholderFactory` plus a `live` parameter, widened at I-36/D-65 for the middle-tier author who never arrived. No value reads it — `factory` is always `null` or the assembler's wrapper around a consumer function that drops it — so the widening is paid for by a per-controller adapter closure that exists only to make the narrower function fit the wider type (F-130). The library's own liveness barrier and D-39's undo ledger are untouched.
+
+**The reasoning error is the part to carry forward.** I chose the slot's home by asking which _grouping_ it would make possible rather than which _responsibility_ owns it, and a slot with no producer acquired a plausible owner instead of being recognised as residue. F-128's row now records the reversal beside the original finding, because the census said _unused_ and the argument that followed said _therefore usefully relocatable_ — a step the census does not license.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.

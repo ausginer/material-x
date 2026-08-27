@@ -120,21 +120,46 @@ What it deletes:
 - The `AxisInstaller` intersection (`SortableContribution & { insertion: … }`) — `insertion` is simply required on `AxisContribution`.
 - `SortableContribution` and `FreeDragContribution` as published names.
 
-## 7. Where `placeholder` goes, and the one open choice
+## 7. `placeholder` is residue and is deleted
 
-`SortableContribution.placeholder` needs a home under the one-key rule.
+**Amended 2026-08-27 by owner clarification. The recommendation below reverses; the paragraph it replaces is struck and kept, because the reasoning that failed is the finding.**
 
-**Recommended: `AxisContribution`.** The placeholder's footprint is an axis concern — 03 §The footprint is two windows reasons about it in exactly those terms, and the motivating third-party case (a grid rule that wants a grid-shaped placeholder sharing the axis's rect index) is precisely a feature that wants `insertion` and `placeholder` over one private state. It is the case the bag exists for, and this is where it becomes expressible rather than merely possible.
+> ~~**Recommended: `AxisContribution`.** The placeholder's footprint is an axis concern — 03 §The footprint is two windows reasons about it in exactly those terms, and the motivating third-party case (a grid rule that wants a grid-shaped placeholder sharing the axis's rect index) is precisely a feature that wants `insertion` and `placeholder` over one private state.~~ **This conflates two responsibilities, and the tree already separates them.** The argument needed the axis to supply the placeholder's _appearance_; what a grid rule actually wants is its _footprint_, which comes from `box` — a config key since D-43 — and reaches the factory as `PlaceholderContext.rect`. Having reasoned that a slot's home should follow the grouping it makes possible, I chose a home for a grouping no producer wants.
 
-**Fallback: delete it.** Zero producers, an unreachable diagnostic, and `config.placeholder` already covers every shipped need. `CODE_OF_SIZE.md` §1.3 argues for this reading on the evidence as it stands.
+**The responsibility split, as the code already implements it:**
 
-Recommending the first because it costs nothing at runtime — the slot is optional and the assembler already reads it — and because deleting a middle-tier slot is a breaking change to a published type, while relocating it inside an unreleased package is not (`private: true`, `0.1.0`, §8).
+| Question | Owner | Mechanism |
+| --- | --- | --- |
+| _What element is the placeholder?_ | the consumer | `config.placeholder`, a `PlaceholderFactory` over `{ item, visual, box, rect }` |
+| _What footprint does it hold?_ | the consumer, via `box` | `footprint: OffsetBox`, computed across the lift in `activation.prepare` |
+| _Where does it belong?_ | the axis capability | `Insertion`, resolved by `InsertionGeometry` |
+| _Joining the two_ | the behavior | `createPlaceholder` once, then `movePlaceholder(placeholder, insertion)` per committed move — the single canonical writer of its position (D-27) |
 
-## 8. What must be refused
+The axis ↔ placeholder relationship is real and it is **placement**. Nothing in it is ownership of the factory, and no line of `placement.ts` reads the axis.
 
-**The call shape `sortable(y(), placeholder(), landing())` cannot be adopted.** It has no root, no `items` and no `onReorder`, so required configuration would have to be recovered by folding the argument tuple — the candidate D-77 closed, for the reason restated in §5. D-77's whole payoff is that a missing `items`, `onReorder` or `axis` is an ordinary missing-property error at a required first parameter, and sortable construction diagnostics went 6 → 1 on the strength of it. Trading that for a fold would take the count back up and make the fold report success on the case it exists to catch.
+**D-45's own rule condemns the contribution slot.** _A slot with nothing to install is a config slot; only a slot that must construct private runtime carries an installer and therefore a contribution._ Making a detached element requires nothing an installer can construct that a plain function cannot close over — a consumer pooling placeholders closes over their own pool — which is exactly why `getHandle`, `getVisual` and `callbacks` were deleted at D-45 and `placeholder` became a config key at D-56/D-65. The contribution half was kept beside the config key rather than derived, and it has never had a producer.
 
-**Keep `sortable(root, config, ...fragments)`.** The request's own composition shape — `{ unique1, unique2, multiple: [m1, m2, m3] }` — is that signature's merged config and not an argument list; the two halves of the request disagree, and the object half is the one that works.
+**Deleted, therefore.** `config.placeholder` remains the customization point, the axis remains responsible for insertion geometry, and the behavior keeps joining them.
+
+### What the deletion collapses, which is more than the slot
+
+`PlaceholderSlot` is `PlaceholderFactory` plus a `live` second parameter, widened at I-36/D-65 for "a middle-tier author filling `SortableContribution.placeholder`". That author never arrived, and the consequences are measurable rather than notional (F-130):
+
+- **No value reads the parameter.** `createPlaceholder(…, factory, live, …)` calls `factory(context, live)`, and `factory` is always either `null` — the library's own `<div>` path — or the assembler's wrapper around a `PlaceholderFactory`, which drops it.
+- **The wrapper is an allocation per controller.** `assemble()` builds `(placeholderContext) => config.placeholder!(placeholderContext)` for the sole purpose of adapting a narrower consumer function to a wider slot type that nothing wider ever fills.
+- So deleting the contribution slot lets `SortableSlots.placeholder` become `PlaceholderFactory | null`, deletes the wrapper, deletes the argument at the one call site, and unpublishes `PlaceholderSlot` from the middle tier.
+
+**What survives, and must**: the library's own liveness barrier. `createPlaceholder` calls `live()` itself after the factory returns and passes it into `applyMechanics`; only the handing of `live` _to consumer code_ goes. D-39's undo ledger is likewise untouched — it is gated on `slots.placeholder` being non-null, which after the deletion means exactly what it already means in practice: the consumer supplied a factory.
+
+### The residual question, answered rather than deferred
+
+Is there any middle-tier author who needs `live` around element construction? Only one shape qualifies: a factory that mutates something outside its own return value between two of its statements. A consumer factory that does so has the same need and no route to `live` — so the widening never served _authors_, it served _one audience of one that did not exist_. If that need is ever real it is a change to `PlaceholderFactory`, felt by consumers, and not a second slot beside it.
+
+## 8. The call shape is not at issue, and the fold still is
+
+**Clarified 2026-08-27: `sortable(y(), placeholder(), landing())` was demonstrational — a sketch of the sequential subconstructor model, not a request to revisit D-77.** D-146 therefore leaves the arity untouched: `sortable(root, config, ...fragments)` and `freeDrag(item, config, ...fragments)` stand, required configuration stays a required first argument, and a missing `items`, `onReorder`, `axis` or `onDrop` stays an ordinary missing-property error. **Nothing in the new composition model gives a reason to revisit them** — per-key installers change what a _slot's value_ is, not which slots are required or where they are supplied.
+
+**The fold is refused on its own account and that half stands** (§5). It is not the call shape that raises it: enforcing unique/multi cardinality by folding a tuple of feature return types is the mechanism the request named, and it fails for the reason D-77 recorded — a `Partial`-typed variable erases the key set and the fold reports success in precisely the case it exists to catch. §6's rule is the replacement, and it needs no tuple at either level.
 
 ## 9. What narrows, priced rather than absorbed
 
