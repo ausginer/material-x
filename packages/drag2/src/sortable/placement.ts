@@ -23,26 +23,6 @@ export type PlaceholderContext = Readonly<{
 
 export type PlaceholderFactory = (context: PlaceholderContext) => HTMLElement;
 
-// Widening the contribution rather than `PlaceholderFactory` keeps the shape a
-// consumer implements unchanged — a consumer factory simply ignores the second
-// argument — while giving the one first-party module that mutates a
-// consumer-owned element between two of its own statements a reading to stand
-// behind (I-36).
-/**
- * The **wider** slot shape: everything {@link PlaceholderFactory} is, plus a
- * liveness reading passed as a second argument.
- *
- * A consumer's factory ignores it and satisfies this by having fewer
- * parameters. It is here for a middle-tier author filling
- * `SortableContribution.placeholder`, where the placeholder mutates a
- * consumer-owned element between two of its own statements and needs to know
- * whether the operation is still live.
- */
-export type PlaceholderSlot = (
-  context: PlaceholderContext,
-  live: () => boolean,
-) => HTMLElement;
-
 /**
  * The undo ledger a **consumer-owned** placeholder accumulates while it is
  * being prepared (D-39).
@@ -209,6 +189,11 @@ function applyMechanics(
  * Creates the operation's placeholder, **detached**. The behavior always
  * creates one; the `placeholder` config slot only customises the element.
  *
+ * `live` is the library's own barrier and is **not** handed to the factory
+ * (D-146, F-130): the reading that matters is the one between the factory
+ * returning and the mechanics writing on the element it returned, and that one
+ * is taken here.
+ *
  * `footprint` is what the visual removed from the layout, already computed
  * across the lift by the caller — see `activation.prepare`.
  *
@@ -220,7 +205,7 @@ export function createPlaceholder(
   realm: DOMRealm,
   context: PlaceholderContext,
   footprint: OffsetBox,
-  factory: PlaceholderSlot | null,
+  factory: PlaceholderFactory | null,
   live: () => boolean,
   undo: PlaceholderUndo,
 ): HTMLElement {
@@ -236,7 +221,7 @@ export function createPlaceholder(
     return placeholder;
   }
 
-  const placeholder = factory(context, live);
+  const placeholder = factory(context);
 
   // The terminal barrier on the factory (I-36). The factory is
   // consumer code, and everything below it touches consumer-owned elements:

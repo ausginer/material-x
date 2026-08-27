@@ -53,7 +53,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { SortableConfig } from '../../src/sortable/config.ts';
 import type {
   AxisInstaller,
-  SortableInstaller,
+  SortablePlugin,
 } from '../../src/sortable/feature.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import type { InsertionRuntimeView } from '../../src/sortable/slots.ts';
@@ -279,7 +279,7 @@ const boundary = (
   side: 'head' | 'tail',
   extra?: Readonly<{ before: number; after: number; rows: HTMLElement[] }>,
 ): Pick<SortableConfig, 'plugins'> => {
-  const install: SortableInstaller = () => ({
+  const install: SortablePlugin = () => ({
     beforeInsertionMove: (): void => {
       // The mark comes first on the head hook: it *is* the bracket entry, so a
       // read injected before it would be attributed to nothing. On the tail

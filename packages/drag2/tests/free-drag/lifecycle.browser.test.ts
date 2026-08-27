@@ -23,7 +23,8 @@ import { describe, expect, it } from 'vitest';
 import { bounds } from '../../src/free-drag/bounds.ts';
 import type {
   ConstraintView,
-  FreeDragInstaller,
+  ConstraintInstaller,
+  FreeDragLandingInstaller,
   MotionDraft,
 } from '../../src/free-drag/feature.ts';
 import {
@@ -53,7 +54,7 @@ function recordingConstraint(
   const invalidations: number[] = [];
   let calls = 0;
 
-  const installer: FreeDragInstaller = () => ({
+  const installer: ConstraintInstaller = () => ({
     constrain: {
       apply(motion: MotionDraft, view: ConstraintView): void {
         clamp?.(motion, view);
@@ -66,7 +67,7 @@ function recordingConstraint(
     },
   });
 
-  return { fragment: { plugins: [installer] }, invalidations };
+  return { fragment: { bounds: installer }, invalidations };
 }
 
 /** A third-party landing that records where the trajectory opened. */
@@ -76,7 +77,7 @@ function recordingLanding(): Readonly<{
 }> {
   const origins: Point[] = [];
 
-  const installer: FreeDragInstaller = () => ({
+  const installer: FreeDragLandingInstaller = () => ({
     startLanding: (context, done) => {
       origins.push({ x: context.fromX, y: context.fromY });
       done();
@@ -84,7 +85,7 @@ function recordingLanding(): Readonly<{
     },
   });
 
-  return { fragment: { plugins: [installer] }, origins };
+  return { fragment: { landing: installer }, origins };
 }
 
 describe('the released visual', () => {
@@ -390,7 +391,7 @@ describe('the landing origin', () => {
     // sits at the last move while the request reports the release point, which
     // is D-35's wrong-start signature arriving from the other end.
     const seen: string[] = [];
-    const installer: FreeDragInstaller = () => ({
+    const installer: FreeDragLandingInstaller = () => ({
       startLanding: (context, done) => {
         seen.push(context.visual.style.transform);
         done();
@@ -398,7 +399,7 @@ describe('the landing origin', () => {
       },
     });
     const composed = compose({
-      fragments: [{ plugins: [installer] }],
+      fragments: [{ landing: installer }],
       onDrop: () => FreeDragResolution.reject('nope'),
     });
 

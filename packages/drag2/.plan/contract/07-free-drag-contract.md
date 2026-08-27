@@ -105,9 +105,9 @@ Required in the **first argument**: **`onDrop`** — a **type** requirement, and
 | `onMove` | `OnMove` | consumer function | `(geometry) => void`, once per committed sample, **after** the visual is written |
 | `onEnd` | `FreeDragOnEnd` | consumer function | `(result) => void`, exactly once per started operation (D-62, D-66) |
 | `onError` | `FreeDragOnDragError` | consumer function | `(error) => void`, where `error` is `DraggableError \| DraggableWarning` (D-64, D-130; ~~`(error, context) => void`~~) |
-| `bounds` | `FreeDragInstaller` | **atomic capability** | From `free-drag/bounds.js`. Absent means unconstrained and **no bounds code in the graph** |
-| `landing` | `FreeDragInstaller` | **atomic capability** | From `free-drag/landing.js`. Absent means the visual is released without animating |
-| `plugins` | `readonly FreeDragInstaller[]` | **appending** | The one slot that concatenates rather than last-wins |
+| `bounds` | `ConstraintInstaller` | **atomic capability** | From `free-drag/bounds.js`. Absent means unconstrained and **no bounds code in the graph** |
+| `landing` | `FreeDragLandingInstaller` | **atomic capability** | From `free-drag/landing.js`. Absent means the visual is released without animating |
+| `plugins` | `readonly FreeDragPlugin[]` | **appending** | The one slot that concatenates rather than last-wins, and therefore the one whose group declares no unique slot (D-146) |
 
 Merge semantics are D-45's unchanged: the merge iterates the schema rather than the fragment's keys, scalars and consumer functions last-win, an atomic capability last-wins as one whole slot, `plugins` appends in fragment order, and installers run **after** the merge completes so a capability that loses its slot is never constructed. Installation order is schema order (D-57): `bounds`, `landing`, then plugins; `retire` hooks run in reverse.
 
@@ -282,26 +282,46 @@ declare const FREE_DRAG_FEATURE: unique symbol;
 type FreeDragFeatureContext = FeatureContext &
   Readonly<{ [FREE_DRAG_FEATURE]: never }>;
 
-type FreeDragContribution = Readonly<{
-  constrain?: MotionConstraint;
-  startLanding?: LandingStart;
+// One group per config key that takes an installer (D-146). Which group a slot
+// is declared on IS its cardinality: two writers on `constrain` cannot be
+// written down, so there is nothing to arbitrate at construction time.
+type ConstraintContribution = Readonly<{
+  constrain: MotionConstraint;
   retire?: Disposer;
 }>;
 
-type FreeDragInstaller = (
+// Declared in `shared/composition.ts` — both behaviors' `landing` key produces
+// exactly this, so it is one declaration rather than two structurally equal
+// ones (B-7, F-64).
+type LandingContribution = Readonly<{
+  startLanding: LandingStart;
+  retire?: Disposer;
+}>;
+
+// Free drag has no multi-writer slot, so the one position with unbounded arity
+// contributes a lifetime and nothing else.
+type FreeDragPluginContribution = Readonly<{ retire?: Disposer }>;
+
+type ConstraintInstaller = (
   context: FreeDragFeatureContext,
-) => FreeDragContribution;
+) => ConstraintContribution;
+type FreeDragLandingInstaller = (
+  context: FreeDragFeatureContext,
+) => LandingContribution;
+type FreeDragPlugin = (
+  context: FreeDragFeatureContext,
+) => FreeDragPluginContribution;
 ```
 
-**D-146 splits this record by config key, and is decided but not yet implemented** — the registry in [00](00-index.md) carries its witness. `bounds` will produce a group carrying `constrain` and `retire?`, `landing` a group carrying `startLanding` and `retire?`, and a `plugins` entry a group carrying `retire?` alone, so free drag's two capability keys can no longer reach each other's slot and `claim` is deleted. **Free drag's exposure is the sharper of the two**: `bounds` and `landing` are distinct keys today and both are typed `FreeDragInstaller`, so `bounds()` contributing a `startLanding` is a well-typed composition that throws at construction. Afterwards it does not compile. The brand below is untouched — it separates the two _behaviors_, and D-146 separates the _keys within_ one.
+**D-146 split the record by config key, 2026-08-27.** `bounds` produces a group carrying `constrain` and `retire?`, `landing` one carrying `startLanding` and `retire?`, and a `plugins` entry one carrying `retire?` alone — so **each unique slot has exactly one producing position**, and `claim` with its `free-drag/duplicate-contribution` identity is deleted. That was this behavior's only construction-time throw: assembly now throws only what an installer's own body throws, and the unwind bracket is what covers it. Both unique slots became **required** on their groups, by D-45's rule — a key whose installer constructs nothing is a config key.
 
 **The boundary is nominal and it sits on the context** (D-138, superseding D-88's mechanism). Each middle tier declares a `unique symbol` and hands its installers the shared `FeatureContext` intersected with a brand. An installer's parameter is checked **contravariantly**, so a function written against one behavior's context is refused where the other's is expected — **both directions from one property**, with no twin to keep in step and nothing to add when a slot is added.
 
-**The contribution records are independent, and that is the point rather than a side effect.** ~~Both records declare the same key set; a key a behavior does not implement it declares `?: never`, so free drag excludes `insertion`, `placeholder`, `beforeInsertionMove` and `afterInsertionMove` and the sortable excludes `constrain`.~~ That rule required this type to enumerate the **other behavior's capability vocabulary** and to keep the enumeration current, which is a coupling in the direction the decomposition exists to prevent: free drag knew what a placeholder was in order to refuse one. This type is now exactly free drag's three slots.
+**The contribution groups are independent, and that is the point rather than a side effect.** ~~Both records declare the same key set; a key a behavior does not implement it declares `?: never`, so free drag excludes `insertion`, `placeholder`, `beforeInsertionMove` and `afterInsertionMove` and the sortable excludes `constrain`.~~ That rule required this type to enumerate the **other behavior's capability vocabulary** and to keep the enumeration current, which is a coupling in the direction the decomposition exists to prevent: free drag knew what a placeholder was in order to refuse one. These types are now exactly free drag's own slots, one group per key.
 
 **Nothing is authored and nothing is validated.** The brand is erased — `declare const` emits no JavaScript and no value carries the property — so this costs no byte on the construction path, and a `unique symbol` cannot be forged by an author who wants to try. There is **no runtime discriminator, no registration and no defensive check**: the assembler stamps the brand with an `as` at its one call site, and a caller who escapes the type system is outside the supported surface, which the record states rather than machinery enforcing.
 
-**What the boundary states is the identity of an installer, and that is narrower than CE1-01's subject** (D-138, F-117). A value typed for one behavior is refused where the other's is expected, in both directions, from one contravariant parameter — that is the whole guarantee and it is total over typed values. **It does not extend to what a correctly-typed function happens to return.** A literal returned from an arrow already contextually typed as a `FreeDragInstaller` is not excess-property-checked against its contextual return type, so `(context) => ({ insertion, retire })` compiles and the assembler reads its three slots and ignores the rest.
+**What the boundary states is the identity of an installer, and that is narrower than CE1-01's subject** (D-138, F-117). A value typed for one behavior is refused where the other's is expected, in both directions, from one contravariant parameter — that is the whole guarantee and it is total over typed values. **It does not extend to what a correctly-typed function happens to return.** A literal returned from an arrow already contextually typed as an installer is not excess-property-checked against its contextual return type, so `(context) => ({ insertion, retire })` compiles and the assembler reads the slots its group declares and ignores the rest.
 
 **That is a deliberate boundary rather than a hole left open.** ~~Two holes are accepted and stated.~~ ~~An **unannotated hoisted literal** is decided by structural assignability on its return type alone, so one carrying `{ placeholder, retire }` reaches free drag's `plugins` again and is discarded by an assembler reading three slots. That is CE1-01's residue returning, deliberately: it is the price of record independence.~~ **The owner has narrowed the requirement rather than the record having lost one** (F-117): contributing a slot this behavior does not implement is unsupported integrator usage, and refusing it would cost exactly what D-138 deleted — each record enumerating the other behavior's vocabulary, or an exact-object mechanism over both. Neither is worth buying back to refuse a property nothing reads.
 
@@ -315,7 +335,7 @@ type FreeDragInstaller = (
 
 Every real slot on both contributions is optional, so the two records were mutually assignable and an `AxisInstaller` could be dropped into free drag's `plugins`, whose assembler reads `constrain`, `startLanding` and `retire` and **silently discards `insertion`** — a supported middle-tier API accepting a value and doing nothing with it. ~~One optional `never` in each direction breaks it: `SortableContribution` declares `constrain?: never`, this one declares `insertion?: never`, and each names the **defining capability of the other behavior** rather than an arbitrary marker.~~ **Neither declaration exists** (D-138): the brand refuses the `AxisInstaller` this sentence is about, because that value is typed, and the literal direction is out of scope per the paragraph above.
 
-~~**Two lines, and they are the minimum that works.** No runtime brand, no phantom discriminant, no unified contribution type: a brand costs a field on the hot construction path and states nothing about _why_ the two are incompatible, while `insertion?: never` says exactly the true thing.~~ **Both halves are answered rather than overruled** (D-138). The cost objection assumed a **runtime** brand; a `unique symbol` on a type intersection costs nothing at all, which is a different proposal from the one refused. The expressiveness objection was right about what the exclusion says and wrong about who needs to read it: _a free-drag contribution has no insertion_ is a fact about free drag that only becomes a **boundary** by naming the sortable's vocabulary, and the tier separation is worth more than the sentence. Assignability is still decided on the declared alias rather than on what a particular body returns, which is why the `AxisInstaller → FreeDragInstaller` case — where `insertion` is required — is refused by the brand alone.
+~~**Two lines, and they are the minimum that works.** No runtime brand, no phantom discriminant, no unified contribution type: a brand costs a field on the hot construction path and states nothing about _why_ the two are incompatible, while `insertion?: never` says exactly the true thing.~~ **Both halves are answered rather than overruled** (D-138). The cost objection assumed a **runtime** brand; a `unique symbol` on a type intersection costs nothing at all, which is a different proposal from the one refused. The expressiveness objection was right about what the exclusion says and wrong about who needs to read it: _a free-drag contribution has no insertion_ is a fact about free drag that only becomes a **boundary** by naming the sortable's vocabulary, and the tier separation is worth more than the sentence. Assignability is still decided on the declared alias rather than on what a particular body returns, which is why the `AxisInstaller → FreeDragPlugin` case — where `insertion` is required — is refused by the brand alone.
 
 **What stays assignable is correct.** An installer returning a bare `{}` still satisfies both, because an empty contribution genuinely is valid for either behavior; refusing it would be a boundary drawn for its own sake. **`FeatureContext` identity is untouched, and D-138 is what tests it** (F-64, B-7): the shared context is still one declaration re-exported by both middle tiers, and each branded context is that declaration plus one property — a fix that forked `realm`, `root` and `report` per tier would fail `tests/composition.declaration.test.ts`. ~~The incompatibility is in what an installer **produces**, never in what it is handed.~~ It is now in what an installer is **handed**, which is the sentence D-138 reverses: the shared type is the same and the branded wrapper is not.
 
@@ -341,7 +361,7 @@ type MotionConstraint = Readonly<{
 
 ### The middle tier
 
-`free-drag/feature.js`, mirroring `sortable/feature.js` (D-61): `FreeDragInstaller`, `FreeDragContribution`, `MotionConstraint`, `ConstraintView`, `MotionDraft`, plus `FeatureContext` and the three landing seam types and `Disposer` as re-exports. No runtime exports — every name on it is erased, which is the honest measurement statement for the entry, as it is for the sortable's.
+`free-drag/feature.js`, mirroring `sortable/feature.js` (D-61): the three installer aliases and the three contribution groups, `MotionConstraint`, `ConstraintView`, `MotionDraft`, plus `FeatureContext`, `LandingContribution` and the three landing seam types and `Disposer` as re-exports. No runtime exports — every name on it is erased, which is the honest measurement statement for the entry, as it is for the sortable's.
 
 An installer is **externally inert**: it may allocate and capture, but it may not attach a listener, write the DOM, or acquire anything needing release. Every acquisition happens inside a kernel-owned operation lifetime.
 
@@ -352,7 +372,7 @@ Four entries, taking the package from eight to twelve. Decided in full before mo
 | Subpath | Runtime | Types |
 | --- | --- | --- |
 | `free-drag.js` — the ordinary tier | `freeDrag`, `FreeDragResolution` | the closure of `FreeDragConfig` — §The published names |
-| `free-drag/feature.js` — the middle tier | — | `FreeDragInstaller`, `FreeDragContribution`, `MotionConstraint`, `ConstraintView`, `MotionDraft`, `FeatureContext`, `LandingStart`, `LandingContext`, `LandingHandle`, `Disposer` |
+| `free-drag/feature.js` — the middle tier | — | `ConstraintInstaller`, `FreeDragLandingInstaller`, `FreeDragPlugin`, `ConstraintContribution`, `LandingContribution`, `FreeDragPluginContribution`, `MotionConstraint`, `ConstraintView`, `MotionDraft`, `FeatureContext`, `LandingStart`, `LandingContext`, `LandingHandle`, `Disposer` |
 | `free-drag/bounds.js` | `bounds` | `BoundsSource` |
 | `free-drag/landing.js` | `landing` | `LandingOptions` |
 

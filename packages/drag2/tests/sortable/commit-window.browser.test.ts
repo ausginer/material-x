@@ -27,7 +27,7 @@ import { afterAll, afterEach, describe, expect, it } from 'vitest';
 import type { Point } from '../../src/drag.ts';
 import type {
   LandingStart,
-  SortableInstaller,
+  SortableLandingInstaller,
 } from '../../src/sortable/feature.ts';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
@@ -47,7 +47,9 @@ const ROW_HEIGHT = 40;
  * installer contributing the `startLanding` seam directly. Three lines, and
  * they are the three `landing()` itself writes.
  */
-const probeLanding = (start: LandingStart): { landing: SortableInstaller } => ({
+const probeLanding = (
+  start: LandingStart,
+): { landing: SortableLandingInstaller } => ({
   landing: () => ({ startLanding: start }),
 });
 /** The list is offset so that a detached measurement (0,0) is not the origin. */

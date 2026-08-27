@@ -15,11 +15,14 @@ import {
   type SortableConfig,
 } from '../../src/sortable/config.ts';
 import type {
+  AxisContribution,
   AxisInstaller,
   FeatureContext,
   InsertionGeometry,
-  SortableContribution,
-  SortableInstaller,
+  LandingContribution,
+  SortableLandingInstaller,
+  SortablePlugin,
+  SortablePluginContribution,
 } from '../../src/sortable/feature.ts';
 import {
   DEFAULT_THRESHOLD,
@@ -51,23 +54,31 @@ const createFixture = (): Fixture => {
   };
 };
 
-/** A feature contributing exactly what it is handed. */
+/**
+ * A **plugin** contributing exactly what it is handed, and since D-146 the type
+ * is what says so: the unbounded position declares multi-writer slots and
+ * nothing else, so no fixture here can express the collision `claim` used to
+ * arbitrate.
+ */
 const feature =
-  (contribution: SortableContribution): SortableInstaller =>
+  (contribution: SortablePluginContribution): SortablePlugin =>
   () =>
     contribution;
 
 /**
- * The same, typed as the **axis** slot's installer (D-77). `AxisInstaller`
- * differs from `SortableInstaller` in one place — `insertion` is required — and
- * that difference is what replaced the assembler's construction-time check for
- * an axis that contributed no geometry.
+ * The same, typed as the **axis** key's installer (D-77, D-146). Its group
+ * requires `insertion`, and that requirement is both the replacement for the
+ * assembler's construction-time check and the whole of the slot's cardinality:
+ * no other key's group declares it.
  */
 const axisFeature =
-  (
-    contribution: SortableContribution &
-      Readonly<{ insertion: InsertionGeometry }>,
-  ): AxisInstaller =>
+  (contribution: AxisContribution): AxisInstaller =>
+  () =>
+    contribution;
+
+/** The `landing` key's installer, the one producer of `startLanding`. */
+const landingFeature =
+  (contribution: LandingContribution): SortableLandingInstaller =>
   () =>
     contribution;
 
@@ -92,7 +103,7 @@ const onReorder = (): never => {
  */
 const config = (
   extra: Partial<SortableConfig> = {},
-  ...plugins: readonly SortableInstaller[]
+  ...plugins: readonly SortablePlugin[]
 ): SortableConfig =>
   mergeFragments(
     {
@@ -165,19 +176,19 @@ describe('assemble', () => {
     const handle = (): null => null;
     const visual = (item: HTMLElement): HTMLElement => item;
     const startLanding = (): LandingHandle => ({ destroy: (): void => {} });
-    // **Three of these four moved from a contribution to a config key**
-    // (D-56, D-65): `handle`, `visual` and `placeholder` are things a consumer
-    // writes, not things an installer contributes. `startLanding` stays a
-    // contribution, because only an installer can build a runner.
+    // **Three of these four are config keys, not contributions** (D-56, D-65):
+    // `handle`, `visual` and `placeholder` are things a consumer writes, not
+    // things an installer contributes — and since D-146 `placeholder` is only
+    // that, with no contribution half left to lose a precedence question to.
+    // `startLanding` stays a contribution, because only an installer can build
+    // a runner, and it arrives from the one key that produces it.
     const slots = assemble(
-      config(
-        {
-          placeholder: createPlaceholder,
-          handle,
-          visual,
-        },
-        feature({ startLanding }),
-      ),
+      config({
+        placeholder: createPlaceholder,
+        handle,
+        visual,
+        landing: landingFeature({ startLanding }),
+      }),
       createFixture().context,
     );
 
@@ -346,31 +357,14 @@ describe('assemble validation', () => {
     ).not.toThrow();
   });
 
-  it('should refuse a single-writer slot claimed twice', () => {
-    expect(() =>
-      assemble(
-        config({}, feature({ insertion: geometry() })),
-        createFixture().context,
-      ),
-    ).toThrow(
-      new TypeError('drag: sortable/duplicate-contribution insertion geometry'),
-    );
-  });
-
-  it('should name the slot that was claimed twice', () => {
-    // **Narrowed by the merge** (D-45): named capability slots can no longer
-    // collide, because the merge resolved them before anything ran. What is
-    // left is two *plugins* contributing the same single-writer member, and the
-    // diagnostic still names the slot rather than only the second writer.
-    const startLanding = (): LandingHandle => ({ destroy: (): void => {} });
-
-    expect(() =>
-      assemble(
-        config({}, feature({ startLanding }), feature({ startLanding })),
-        createFixture().context,
-      ),
-    ).toThrow(new TypeError('drag: sortable/duplicate-contribution landing'));
-  });
+  // ~~*should refuse a single-writer slot claimed twice*~~ and ~~*should name
+  // the slot that was claimed twice*~~ — **deleted 2026-08-27 with `claim`
+  // itself** (D-146). Both drove two plugins at one unique slot, and a plugin's
+  // group no longer declares one: the composition they constructed does not
+  // typecheck, so there is no runtime behavior left to assert. What replaced
+  // them is `tests/sortable/feature.declaration.test.ts` — *should refuse a
+  // unique slot from the unbounded position* — which is the same property one
+  // tier earlier.
 });
 
 describe('assemble unwind', () => {
@@ -401,44 +395,13 @@ describe('assemble unwind', () => {
     expect(seen).toEqual(['second', 'first']);
   });
 
-  it('should retire the rejected contribution of a colliding installer', () => {
-    // The plugin has already allocated its rect index by the time `claim`
-    // throws. Recording cleanup after the claim would leak exactly the
-    // contribution whose claim collided.
-    //
-    // **The pair is axis-versus-plugin now, not axis-versus-axis** (D-45): two
-    // `axis` fragments last-win at the merge and the loser is never
-    // constructed, so the only way to reach `claim` on this slot is an
-    // installer that contributes geometry without owning the slot.
-    const seen: string[] = [];
-    const fixture = createFixture();
-
-    expect(() =>
-      assemble(
-        config(
-          {
-            axis: axisFeature({
-              insertion: geometry({
-                retire: (): void => {
-                  seen.push('axis');
-                },
-              }),
-            }),
-          },
-          feature({
-            insertion: geometry({
-              retire: (): void => {
-                seen.push('plugin');
-              },
-            }),
-          }),
-        ),
-        fixture.context,
-      ),
-    ).toThrow(/sortable\/duplicate-contribution insertion geometry/u);
-
-    expect(seen).toEqual(['plugin', 'axis']);
-  });
+  // ~~*should retire the rejected contribution of a colliding installer*~~ —
+  // **deleted 2026-08-27** (D-146). It drove an axis against a plugin
+  // contributing geometry, and a plugin cannot contribute geometry any more.
+  // The property it was really pinning — cleanup recorded before anything
+  // below it can throw, so a later failure unwinds every earlier installer —
+  // is what *should retire the hooks already collected when a factory throws*
+  // asserts, through the only thrower left: an installer body.
 
   it('should let the last axis fragment win, in either order', () => {
     // **Inverted by D-45, and the inversion is the decision.** Two axis

@@ -120,7 +120,8 @@ import {
   type ReorderRequest,
   type ReorderTransactionResult,
   type SortableController,
-  type SortableInstaller,
+  type SortableLandingInstaller,
+  type SortablePlugin,
   type SortableOnDragError,
   type SortableOnEnd,
   type SortableOnStart,
@@ -155,7 +156,7 @@ declare const items: readonly HTMLElement[];
 // own tier plus the tiers below it_, and the two halves are asserted together:
 // the **name** ships from \`sortable.js\`, so this \`const\` compiles with no
 // deeper import — while its closure does **not**, which is what the
-// \`@ts-expect-error\`s on \`SortableContribution\`, \`InsertionGeometry\` and
+// \`@ts-expect-error\`s on \`AxisContribution\`, \`InsertionGeometry\` and
 // \`FeatureContext\` below still say. Without the re-export a consumer could
 // fill the slot and never hoist the installer out of the object literal, which
 // is the surface defect F-51 names.
@@ -176,15 +177,28 @@ const hoistedAxis: AxisInstaller = (context) => {
   };
 };
 
-// **The \`plugins\`/\`landing\` slot's alias is hoistable from the ordinary
-// tier too** (D-110). \`SortableConfig\` names \`SortableInstaller\` at two
-// slots and \`sortable.js\` published it at none, so typing one meant importing
-// the types-only middle tier — the tier inversion the free-drag mirror never
-// forced. This row is what stops it being dropped again.
-const hoistedPlugin: SortableInstaller = (context) => {
+// **The \`plugins\` and \`landing\` aliases are hoistable from the ordinary
+// tier too** (D-110, D-146). \`SortableConfig\` names one at each slot and
+// \`sortable.js\` published neither, so typing one meant importing the
+// types-only middle tier — the tier inversion the free-drag mirror never
+// forced. These rows are what stop them being dropped again, and since D-146
+// they also pin the cardinality: the plugin's group carries multi-writer slots
+// and the landing's carries the slot only it can produce.
+const hoistedPlugin: SortablePlugin = (context) => {
   void context.root;
 
   return {};
+};
+
+const hoistedLanding: SortableLandingInstaller = (context) => {
+  void context.root;
+
+  return {
+    startLanding: (_landing, done) => {
+      done();
+      return { destroy: (): void => {} };
+    },
+  };
 };
 
 const list: SortableController = sortable(
@@ -263,7 +277,7 @@ const list: SortableController = sortable(
   },
   landing({ duration: 120, easing: 'ease-out' }),
   layoutAnimation({ duration: 90 }),
-  { plugins: [hoistedPlugin] },
+  { plugins: [hoistedPlugin], landing: hoistedLanding },
 );
 
 // **D-44**: payload-free. The collection is a pull source, so this says
@@ -449,8 +463,8 @@ type A10 = import('@ydinjs/drag2/drag.js').SeamRejection;
 const A11 = import('@ydinjs/drag2/drag.js').then((m) => m.LIFT_FLAT);
 // @ts-expect-error: the slot record is internal
 type B1 = import('@ydinjs/drag2/sortable.js').SortableSlots;
-// @ts-expect-error: the contribution shape is internal
-type B2 = import('@ydinjs/drag2/sortable.js').SortableContribution;
+// @ts-expect-error: the contribution groups are internal
+type B2 = import('@ydinjs/drag2/sortable.js').AxisContribution;
 // @ts-expect-error: the geometry capability is internal
 type B3 = import('@ydinjs/drag2/sortable.js').InsertionGeometry;
 // @ts-expect-error: the feature context is internal
@@ -497,7 +511,7 @@ type C2 = import('@ydinjs/drag2/src/drag.ts').Point;
 // (D-61): \`sortable/feature.js\` is a declared subpath now — the middle tier
 // where an installer's types live — so this line must *resolve*, which is the
 // opposite of what it asserted before.
-type C3 = import('@ydinjs/drag2/sortable/feature.js').SortableInstaller;
+type C3 = import('@ydinjs/drag2/sortable/feature.js').SortablePlugin;
 // @ts-expect-error: the slot views are not a declared subpath
 type C4 = import('@ydinjs/drag2/sortable/slots.js').DisplacementView;
 
@@ -830,7 +844,8 @@ import {
   type DragGeometry,
   type FreeDragConfig,
   type FreeDragController,
-  type FreeDragInstaller,
+  type ConstraintInstaller,
+  type FreeDragLandingInstaller,
   type FreeDragOnDragError,
   type FreeDragOnEnd,
   type FreeDragOnStart,
@@ -855,14 +870,14 @@ import {
 declare const item: HTMLElement;
 declare const stage: HTMLElement;
 
-// **The capability slot's alias is hoistable from the ordinary tier** (D-78).
-// \`FreeDragConfig\` names \`FreeDragInstaller\`, so a third-party constraint
+// **Each capability slot's alias is hoistable from the ordinary tier** (D-78,
+// D-146). \`FreeDragConfig\` names one per key, so a third-party constraint
 // must be writable as a typed \`const\` rather than only inline — while the
 // names *it* reaches stay at the middle tier, which is what the negative rows
 // at the bottom of this file still assert. \`context\` is deliberately not
 // annotated: its type is \`FeatureContext\`, which this file cannot import, and
 // contextual typing resolves it structurally anyway.
-const hoistedInstaller: FreeDragInstaller = (context) => {
+const hoistedInstaller: ConstraintInstaller = (context) => {
   void context.root;
 
   return {
@@ -1088,13 +1103,13 @@ void [
 ];
 
 // ---------------------------------------------------------------------------
-// **The tier-scoped closure, from the other side** (D-78). \`FreeDragInstaller\`
-// ships from \`free-drag.js\`; every name it reaches stays declared at the
-// middle tier, one import away for an author who wants them.
+// **The tier-scoped closure, from the other side** (D-78). The three installer
+// aliases ship from \`free-drag.js\`; every name they reach stays declared at
+// the middle tier, one import away for an author who wants them.
 // ---------------------------------------------------------------------------
 
-// @ts-expect-error: the contribution shape is middle tier
-type T1 = import('@ydinjs/drag2/free-drag.js').FreeDragContribution;
+// @ts-expect-error: the contribution groups are middle tier
+type T1 = import('@ydinjs/drag2/free-drag.js').ConstraintContribution;
 // @ts-expect-error: the constraint capability is middle tier
 type T2 = import('@ydinjs/drag2/free-drag.js').MotionConstraint;
 // @ts-expect-error: the constraint's view is middle tier
@@ -1107,7 +1122,7 @@ type T5 = import('@ydinjs/drag2/free-drag.js').FreeDragSlots;
 type T6 = import('@ydinjs/drag2/free-drag/spec.js').FreeDragFramePart;
 // The **middle tier is** a declared subpath, so this one must resolve — the
 // opposite assertion, and the reason the two are written together.
-type T7 = import('@ydinjs/drag2/free-drag/feature.js').FreeDragInstaller;
+type T7 = import('@ydinjs/drag2/free-drag/feature.js').ConstraintInstaller;
 
 declare const unreachable: [R1, R2, R3, R4, R5, T1, T2, T3, T4, T5, T6, T7];
 void unreachable;
@@ -1123,11 +1138,11 @@ void unreachable;
  * the packed declarations rather than against `src/`.
  */
 const CONSTRAINT = `import type {
+  ConstraintContribution,
+  ConstraintInstaller,
   ConstraintView,
   Disposer,
   FeatureContext,
-  FreeDragContribution,
-  FreeDragInstaller,
   MotionConstraint,
   MotionDraft,
 } from '@ydinjs/drag2/free-drag/feature.js';
@@ -1135,8 +1150,8 @@ import { FreeDragResolution, freeDrag } from '@ydinjs/drag2/free-drag.js';
 
 /** Snaps the drag to a grid — the third-party capability D-70 exists for. */
 const snapToGrid =
-  (step: number): FreeDragInstaller =>
-  (context: FeatureContext): FreeDragContribution => {
+  (step: number): ConstraintInstaller =>
+  (context: FeatureContext): ConstraintContribution => {
     void context.realm.window;
     void context.root;
 

@@ -38,7 +38,9 @@ import type { DraggableError } from '../../src/drag.ts';
 import { bounds } from '../../src/free-drag/bounds.ts';
 import type {
   ConstraintView,
-  FreeDragInstaller,
+  ConstraintInstaller,
+  FreeDragLandingInstaller,
+  FreeDragPlugin,
   MotionConstraint,
   MotionDraft,
 } from '../../src/free-drag/feature.ts';
@@ -69,7 +71,7 @@ function countingConstraint(
   clamp?: (motion: MotionDraft) => void,
 ): Readonly<{ fragment: Partial<FreeDragConfig>; applies: number }> {
   const record = { applies: 0 };
-  const installer: FreeDragInstaller = () => ({
+  const installer: ConstraintInstaller = () => ({
     constrain: {
       apply(motion: MotionDraft, _view: ConstraintView): void {
         record.applies += 1;
@@ -81,7 +83,7 @@ function countingConstraint(
   });
 
   return {
-    fragment: { plugins: [installer] },
+    fragment: { bounds: installer },
     get applies(): number {
       return record.applies;
     },
@@ -94,7 +96,7 @@ function recordingLanding(): Readonly<{
   targets: Point[];
 }> {
   const targets: Point[] = [];
-  const installer: FreeDragInstaller = () => ({
+  const installer: FreeDragLandingInstaller = () => ({
     startLanding: (context, done) => {
       targets.push({ x: context.targetX, y: context.targetY });
       done();
@@ -102,7 +104,7 @@ function recordingLanding(): Readonly<{
     },
   });
 
-  return { fragment: { plugins: [installer] }, targets };
+  return { fragment: { landing: installer }, targets };
 }
 
 /**
@@ -142,10 +144,10 @@ function receiverRecordingConstraint(): Readonly<{
       receivers.push(['retire', this]);
     },
   };
-  const installer: FreeDragInstaller = () => ({ constrain });
+  const installer: ConstraintInstaller = () => ({ constrain });
 
   return {
-    fragment: { plugins: [installer] },
+    fragment: { bounds: installer },
     receivers,
     own: () => constrain,
   };
@@ -345,7 +347,7 @@ describe('a detached constraint', () => {
 
     document.body.append(item);
 
-    const boom: FreeDragInstaller = () => {
+    const boom: FreeDragPlugin = () => {
       throw new Error('installer');
     };
 
@@ -368,7 +370,7 @@ describe('a detached constraint', () => {
     // count is asserted rather than loosened to *at least one*, because a hook
     // that stopped running at one of the two would otherwise pass.
     let retired = 0;
-    const installer: FreeDragInstaller = () => ({
+    const installer: ConstraintInstaller = () => ({
       constrain: {
         apply: (): void => {},
         invalidate: (): void => {},
@@ -377,7 +379,7 @@ describe('a detached constraint', () => {
         },
       },
     });
-    const composed = compose({ fragments: [{ plugins: [installer] }] });
+    const composed = compose({ fragments: [{ bounds: installer }] });
 
     activate(composed);
     release(30, 10);

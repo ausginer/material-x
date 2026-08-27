@@ -37,7 +37,7 @@ import type {
   InsertionFrameView,
   InsertionGeometry,
   InsertionRuntimeView,
-  SortableInstaller,
+  SortablePlugin,
 } from '../../src/sortable/feature.ts';
 import { xy } from '../../src/sortable/xy.ts';
 import { y } from '../../src/sortable/y.ts';
@@ -297,7 +297,7 @@ describe('a lifted insertion geometry', () => {
     root.append(item);
     document.body.append(root);
 
-    const boom: SortableInstaller = () => {
+    const boom: SortablePlugin = () => {
       throw new Error('installer');
     };
 

@@ -8,50 +8,24 @@
  * makes an installer's private state unreachable from the behavior, the kernel,
  * or a sibling installer.
  *
- * **Zero construction-time throws of its own** (07 §Validation, D-77). The one
- * throw here is `claim`'s single-writer collision, which is an invariant over
- * what installers *contribute* — the only category D-77 leaves at runtime,
- * because no signature can state it.
+ * **Zero construction-time throws of its own** (07 §Validation, D-77, D-146).
+ * The last one was `claim`'s single-writer collision, and it is gone with the
+ * discovery it arbitrated: `constrain` is producible from `bounds` and
+ * `startLanding` from `landing`, so a second writer is a compile error rather
+ * than an invariant no signature could state. Only an installer's own body can
+ * throw here now, and the unwind bracket below is what covers it.
  */
 import type { Disposer } from '../kernel/lifetimes.ts';
 import { LIFT_FAITHFUL } from '../kernel/presentation.ts';
 import type { LandingStart } from '../kernel/spec.ts';
 import type { FeatureContext } from '../shared/composition.ts';
 import type { FreeDragConfig } from './config.ts';
-import type {
-  FreeDragFeatureContext,
-  FreeDragInstaller,
-  MotionConstraint,
-} from './feature.ts';
+import type { FreeDragFeatureContext, MotionConstraint } from './feature.ts';
 import {
   DEFAULT_AXIS,
   DEFAULT_THRESHOLD,
   type FreeDragSlots,
 } from './slots.ts';
-
-/**
- * Single-writer enforcement, checked with the full contribution in hand so the
- * diagnostic can name the slot rather than only the second writer's position.
- *
- * The identity names the duplication rather than a tier, because the pair is
- * not always two plugins — it can be a plugin against `bounds()` — and a
- * diagnostic that guesses wrong is worse than one that does not guess.
- */
-const claim = <T>(
-  current: T | null,
-  next: T | undefined,
-  label: string,
-): T | null => {
-  if (next === undefined) {
-    return current;
-  }
-
-  if (current !== null) {
-    throw new TypeError(`drag: free-drag/duplicate-contribution ${label}`);
-  }
-
-  return next;
-};
 
 export function assemble(
   config: FreeDragConfig,
@@ -61,50 +35,55 @@ export function assemble(
   let startLanding: LandingStart | null = null;
   const retireHooks: Disposer[] = [];
 
-  // **Installation order is schema order** (D-57): named capability slots
-  // first, in the order the schema declares them, then plugins in array order;
-  // `retireHooks` reverses the whole sequence. Fragment order survives only
-  // inside `plugins`, and recovering a first-appearance order would mean
-  // recording which fragment each slot arrived from — exactly the provenance
-  // D-45 deleted.
-  const installers: ReadonlyArray<FreeDragInstaller | undefined> = [
-    config.bounds,
-    config.landing,
-    ...(config.plugins ?? []),
-  ];
+  // The library is the only producer of a context, so it is the only place the
+  // brand is stamped. `as` emits nothing: every call below is `install(context)`
+  // (D-138).
+  const branded = context as FreeDragFeatureContext;
 
   try {
-    for (const install of installers) {
-      if (install === undefined) {
-        continue;
+    // **Installation order is schema order** (D-57), written out rather than
+    // driven by a loop over a heterogeneous array (D-146): named capability
+    // keys first, in the order the schema declares them, then plugins in array
+    // order; `retireHooks` reverses the whole sequence. Fragment order survives
+    // only inside `plugins`, and recovering a first-appearance order would mean
+    // recording which fragment each slot arrived from — exactly the provenance
+    // D-45 deleted.
+    //
+    // Cleanup is recorded as each installer returns, before the next one runs,
+    // so a later installer's throw unwinds every earlier one.
+    if (config.bounds) {
+      const bounds = config.bounds(branded);
+
+      ({ constrain } = bounds);
+      retireHooks.push(constrain.retire);
+
+      if (bounds.retire) {
+        retireHooks.push(bounds.retire);
       }
+    }
 
-      // The library is the only producer of a context, so it is the only place
-      // the brand is stamped. `as` emits nothing: the call is `install(context)`
-      // (D-138).
-      const contribution = install(context as FreeDragFeatureContext);
+    if (config.landing) {
+      const landing = config.landing(branded);
 
-      // Cleanup is recorded **first**, before any claim can throw, and in
-      // installation order. Recording it after the claim would leak the private
-      // state of the very contribution whose claim collided — a second
-      // constraint has already resolved its rect by the time `claim` throws,
-      // and the unwind would only see the earlier contributions.
-      if (contribution.constrain) {
-        retireHooks.push(contribution.constrain.retire);
+      ({ startLanding } = landing);
+
+      if (landing.retire) {
+        retireHooks.push(landing.retire);
       }
+    }
 
-      if (contribution.retire) {
-        retireHooks.push(contribution.retire);
+    for (const install of config.plugins ?? []) {
+      const plugin = install(branded);
+
+      if (plugin.retire) {
+        retireHooks.push(plugin.retire);
       }
-
-      constrain = claim(constrain, contribution.constrain, 'motion constraint');
-      startLanding = claim(startLanding, contribution.startLanding, 'landing');
     }
 
     // **The flat slot record is built inside the unwind bracket** (D-77, D-80,
-    // 03 §Assembly). Nothing in it can throw for this behavior — free drag
-    // has no required contribution and therefore no dereference standing in for
-    // a deleted check — but the placement is normative, and a record built
+    // 03 §Assembly). Nothing in it can throw for this behavior — free drag has
+    // no required slot at the record and therefore no dereference standing in
+    // for a deleted check — but the placement is normative, and a record built
     // after the bracket would silently stop being covered the day a slot here
     // does acquire one.
     const slots: FreeDragSlots = {
@@ -149,8 +128,7 @@ export function assemble(
 
     return slots;
   } catch (error) {
-    // A later installer or a claim collision must not leak an earlier
-    // installer's state. Installers are externally inert, so this is a
+    // A later installer must not leak an earlier installer's state. Installers are externally inert, so this is a
     // retention and diagnostics concern rather than a DOM leak — but the unwind
     // is stated as total, so it is total.
     for (let i = retireHooks.length - 1; i >= 0; i -= 1) {

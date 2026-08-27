@@ -27,7 +27,7 @@ import {
 import type {
   AxisInstaller,
   FeatureContext,
-  SortableInstaller,
+  SortablePlugin,
 } from '../../src/sortable/feature.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
@@ -821,7 +821,7 @@ describe('construction across the whole boundary', () => {
     ran: string[];
     /** Installers whose `retire` ran. */
     retired: string[];
-    plugin: SortableInstaller;
+    plugin: SortablePlugin;
   }>;
 
   const probe = (): Probe => {

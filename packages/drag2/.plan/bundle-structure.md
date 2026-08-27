@@ -172,7 +172,9 @@ So the counts reconcile exactly: 13 source files, one type-only, 12 runtime plus
 
 > Measure the fixed cost too, and compare it against a hand-written, non-composed sortable […] That plumbing may well be entirely acceptable. It has not been weighed.
 
-**It has now been weighed twice and it has not moved**: 289 B at M-3′, 283 B here, across P-06's new module and P-02's new branch. The composition machinery — the optional keys in `SortableContribution`, the assembler property reads and `claim` branches, the nullable slot fields and their null checks, the three always-present pipeline arrays — costs a stable 2.4% and does not grow as features are added to it. **That is the property worth having, more than the number**: an overhead that grew with the feature count would be an argument against the composition model, and this one does not.
+**It has now been weighed twice and it has not moved**: 289 B at M-3′, 283 B here, across P-06's new module and P-02's new branch.
+
+> **Re-taken 2026-08-27, and it moved down for the first time: 221 B, 2.0% of `complete`** — 10,799 B against baseline A's 10,578 B. D-146 replaced the discovered contribution with per-key groups, which deleted `claim`, its five call sites, both `duplicate-contribution` identities and five nullable accumulator locals. **The second and third items in the list below are what shrank**, and the figure is quoted here rather than rewriting the 2026-08-22 measurement above, which was correct when it was taken. The stability claim survives in the form that matters: the overhead has never grown with the feature count, and the one time it moved, it fell. The composition machinery — the optional keys in `SortableContribution`, the assembler property reads and `claim` branches, the nullable slot fields and their null checks, the three always-present pipeline arrays — costs a stable 2.4% and does not grow as features are added to it. **That is the property worth having, more than the number**: an overhead that grew with the feature count would be an argument against the composition model, and this one does not.
 
 ## The declines
 
@@ -186,7 +188,7 @@ So the counts reconcile exactly: 13 source files, one type-only, 12 runtime plus
 | **Split `sortable/spec.js`** | 7,888 B min / **2,585 B brotli**, the largest behavior module | No measured problem attaches. A module boundary under `unbundle` is priced at ~60 B by the Phase 17 precedent, and the split buys nothing a consumer can tree-shake, because every composition that reaches `sortable.js` reaches all of it |
 | **Trim or inline `@ydinjs/box-quad`** | 2,036 B min / **962 B brotli** | Not drag2's to remove, doing work D-72 and D-85 depend on, and its placement is already asserted — `tests/packaging.node.test.ts` holds the geometry package out of every _behavior_ module, and it is reached from `kernel/presentation.ts` by design |
 | **Recover P-02's absorbed +34 B** | 34 B | Immaterial, and recovering it would mean re-opening a landed optimization to save a quarter of one row's remaining slack |
-| **Composition overhead** | 283 B, 2.4% | The price of the architecture, stable across two feature additions, and the thing 03 asked to have weighed rather than removed |
+| **Composition overhead** | 283 B, 2.4% — **221 B, 2.0% since D-146** | The price of the architecture, stable across two feature additions and lower since the per-key groups deleted `claim`, and the thing 03 asked to have weighed rather than removed |
 
 **The subpath set is the right shape.** Ten runtime entries, each carrying runtime machinery a composition either imports or does not; two type-only entries that measure nothing and say so, which D-56's rule admits by name. Two behaviors, two axes, and the union identity holds across all of it. **Nothing here argues for adding a subpath, and nothing argues for removing one.**
 

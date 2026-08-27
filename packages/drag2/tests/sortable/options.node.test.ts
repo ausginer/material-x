@@ -90,13 +90,22 @@ describe('the required slots', () => {
     //
     // **A missing axis still fails, and the distinction is the point rather
     // than a leftover.** What the deleted check supplied was a *message*, not
-    // the failure: a JS consumer reaching here now meets the flat slot
-    // record's dereference of the resolver, which throws by itself. So the
-    // assertion is not "it stops throwing" — it is that the library no longer
-    // spends bytes restating what the type already refuses.
+    // the failure: a JS consumer reaching here meets their own native
+    // `TypeError` out of their own `sortable()` call, with no stage, no
+    // `DraggableError` and no `onError`. So the assertion is not "it stops
+    // throwing" — it is that the library no longer spends bytes restating what
+    // the type already refuses.
+    //
+    // **The site moved with D-146 and the message with it.** The key is called
+    // directly now rather than pushed into a list of installers, so an absent
+    // `axis` fails at the call instead of at the flat record's dereference of a
+    // resolver that never arrived — which names the offending key rather than
+    // reporting a null read three statements later. An axis that *is* a
+    // function and returns no geometry still fails at the dereference, inside
+    // the unwind bracket, which is the case D-77 left runtime.
     expect(() =>
       assemble(mergeFragments({} as unknown as SortableConfig, []), context),
-    ).toThrow(/Cannot read propert/u);
+    ).toThrow(/config\.axis is not a function/u);
 
     expect(() =>
       assemble(mergeFragments({} as unknown as SortableConfig, []), context),

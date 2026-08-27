@@ -40,7 +40,7 @@
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import type { CollectionSnapshot } from '../../src/sortable/domain.ts';
-import type { SortableInstaller } from '../../src/sortable/feature.ts';
+import type { SortablePlugin } from '../../src/sortable/feature.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { createRectIndex, STRIDE } from '../../src/sortable/rect-index.ts';
 import { y } from '../../src/sortable/y.ts';
@@ -705,7 +705,7 @@ function drive(n: number, animate: boolean): Drive {
   let bracket = 0;
   let moves = 0;
 
-  const probe: SortableInstaller = () => ({
+  const probe: SortablePlugin = () => ({
     beforeInsertionMove: (): void => {
       started = performance.now();
     },

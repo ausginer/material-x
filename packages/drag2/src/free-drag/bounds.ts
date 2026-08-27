@@ -12,8 +12,8 @@
 
 import type { FreeDragConfig } from './config.ts';
 import type {
+  ConstraintContribution,
   ConstraintView,
-  FreeDragContribution,
   FreeDragFeatureContext,
   MotionDraft,
 } from './feature.ts';
@@ -29,7 +29,7 @@ export type BoundsSource = HTMLElement | (() => DOMRectReadOnly | null);
 
 export function bounds(source?: BoundsSource): Pick<FreeDragConfig, 'bounds'> {
   return {
-    bounds: (context: FreeDragFeatureContext): FreeDragContribution => {
+    bounds: (context: FreeDragFeatureContext): ConstraintContribution => {
       const { realm } = context;
       /**
        * The resolved rect, and a flag rather than a version counter: there is

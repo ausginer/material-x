@@ -1,20 +1,26 @@
 // Construction-time composition of a closed set of seams, not an open plugin
-// architecture. Every new semantic seam is a coordinated edit to
-// `SortableContribution`, `SortableSlots`, `assemble`, the behavior's call sites
-// and the exports; that closed world is what buys direct slot calls, prebuilt
+// architecture. Every new semantic seam is a coordinated edit to one
+// contribution group, `SortableSlots`, `assemble`, the behavior's call sites and
+// the exports; that closed world is what buys direct slot calls, prebuilt
 // pipelines and no runtime descriptor interpretation.
+//
+// **Which group is the slot's cardinality** (D-146). A unique slot is declared
+// on the group of the one config key that can produce it, so two writers are
+// unrepresentable rather than detected — there is no arbitration, no label
+// string and no construction-time collision left to diagnose.
 import type { Disposer } from '../kernel/lifetimes.ts';
-import type { LandingStart } from '../kernel/spec.ts';
-import type { FeatureContext } from '../shared/composition.ts';
+import type {
+  FeatureContext,
+  LandingContribution,
+} from '../shared/composition.ts';
 import type { Insertion } from './domain.ts';
-import type { PlaceholderSlot } from './placement.ts';
 import type {
   DisplacementHook,
   InsertionFrameView,
   InsertionRuntimeView,
 } from './slots.ts';
 
-// The structural closure of the middle tier. Publishing `SortableContribution`
+// The structural closure of the middle tier. Publishing the contribution groups
 // and `FeatureContext` gives every type they structurally name the same
 // versioning promise, so narrowing the tier means narrowing this list (D-61).
 // `SortableSlots` is not here, and that is where the closure stops: an installer
@@ -29,7 +35,6 @@ export type {
   LandingStart,
 } from '../kernel/spec.ts';
 export type { Insertion } from './domain.ts';
-export type { PlaceholderSlot } from './placement.ts';
 export type {
   DisplacementHook,
   DisplacementView,
@@ -44,9 +49,14 @@ export type {
 export { insertionAt } from './domain.ts';
 
 // Declared in `src/shared/composition.ts` and published here: the free-drag
-// middle tier needs the identical type, so the two tiers share a declaration
-// rather than a structural coincidence (F-64).
-export type { FeatureContext } from '../shared/composition.ts';
+// middle tier needs the identical types, so the two tiers share a declaration
+// rather than a structural coincidence (F-64). `LandingContribution` joins
+// `FeatureContext` there for the same reason — both behaviors' `landing` key
+// produces exactly it (D-146).
+export type {
+  FeatureContext,
+  LandingContribution,
+} from '../shared/composition.ts';
 
 // Erased entirely: `declare const` emits no JavaScript, and the brand is a
 // property no value ever carries. Its only job is to make the two installer
@@ -64,7 +74,7 @@ declare const SORTABLE_FEATURE: unique symbol;
  *
  * **An author never writes it.** Filling `axis`, `landing` or a `plugins` entry
  * types the parameter from the slot, and hoisting into a
- * `const install: SortableInstaller = (context) => …` types it from the alias.
+ * `const install: AxisInstaller = (context) => …` types it from the alias.
  * The brand is reachable only by naming this type, and there is no reason to.
  */
 export type SortableFeatureContext = FeatureContext &
@@ -118,60 +128,71 @@ export type InsertionGeometry = Readonly<{
 // composition model exists to avoid. There is no member for transactional frame
 // state: a frame field is committed state, so only a `prepare` may write it, and
 // both pipelines here run post-commit in `action.effect` (D-10).
+// The cardinality model these groups state, and the arbitration they replace:
+// D-146.
 /**
- * The flat object an installer hands back. Key names are fixed, there is no
- * discriminator field, and no member carries transactional frame state.
+ * What the `axis` key's installer returns.
+ *
+ * **`insertion` is required, and that is the whole of the axis key's
+ * cardinality**. The slot is producible from this key and no other, so a second
+ * writer cannot be expressed rather than being caught by a construction-time
+ * throw.
+ *
+ * The two displacement hooks are here as well as on {@link SortablePluginContribution}:
+ * they are multi-writer, so every group that can reasonably fill them may.
  */
-export type SortableContribution = Readonly<{
-  /* single-writer slots */
-  insertion?: InsertionGeometry;
-  // Named as the config slot is, now that a middle-tier author reads both (D-65).
-  placeholder?: PlaceholderSlot;
-  startLanding?: LandingStart;
+export type AxisContribution = Readonly<{
+  insertion: InsertionGeometry;
 
   /* multi-writer pipelines */
   beforeInsertionMove?: DisplacementHook;
   afterInsertionMove?: DisplacementHook;
   /** Run in **reverse** installation order. */
   retire?: Disposer;
+}>;
 
-  // Six slots and nothing else. The record names no free-drag capability and
-  // owes no twin: separation is the branded context on `SortableInstaller`, so
-  // this type is free to be exactly the sortable's own slots (D-138).
+/**
+ * What a `plugins` entry returns: **multi-writer slots only**.
+ *
+ * A plugin is the one position with unbounded arity, so it is the one group
+ * that may name no unique slot. `layoutAnimation()` is the shape this exists
+ * for — two hooks and a `retire` over one private `Map` and one `Set`.
+ */
+export type SortablePluginContribution = Readonly<{
+  beforeInsertionMove?: DisplacementHook;
+  afterInsertionMove?: DisplacementHook;
+  /** Run in **reverse** installation order. */
+  retire?: Disposer;
 }>;
 
 // Published at the middle tier; a fragment is a plain object literal, and what
-// stays opaque is the installer value rather than the record carrying it (D-61).
+// stays opaque is the installer value rather than the record carrying it
+// (D-61). The shared branded context is D-138's.
 /**
- * A sortable feature installer. It runs **once**, while a concrete behavior
- * instance is being constructed. It may create whatever private runtime it
- * likes, capture that runtime in the callbacks it returns, and hand back a plain
- * object of named contributions.
+ * A sortable feature installer, in the shape every config key that takes one
+ * shares. It runs **once**, while a concrete behavior instance is being
+ * constructed. It may create whatever private runtime it likes, capture that
+ * runtime in the callbacks it returns, and hand back a plain object of named
+ * contributions.
  *
  * **An installer is externally inert.** It may allocate, but it may not attach
  * a listener, write the DOM, or acquire anything needing release: every
  * acquisition happens inside a kernel-owned operation lifetime.
- */
-export type SortableInstaller = (
-  context: SortableFeatureContext,
-) => SortableContribution;
-
-// The required slot replaced a construction-time check that threw after every
-// installer had already run (D-77). The runtime dereference that remains is for
-// a JavaScript author and only checks that the object exists: a malformed
-// `{ insertion: {} }` passes assembly and surfaces at the seam that calls the
-// resolver (D-80).
-/**
- * The `axis` slot's own installer type. It differs from `SortableInstaller` in
- * exactly one place — `insertion` is **required** rather than optional.
  *
- * An installer contributing no `insertion` at all throws during assembly, and
- * every installer that already ran is retired before the throw escapes.
- *
- * **Published from `sortable.js` as well**, because `SortableConfig` names this
- * slot and an ordinary consumer must be able to hoist an installer into a typed
- * `const`.
+ * **Each key names its own alias**, and the group is what differs. The context
+ * is the same branded one throughout, which is what keeps a free-drag installer
+ * out of every one of them.
  */
 export type AxisInstaller = (
   context: SortableFeatureContext,
-) => SortableContribution & Readonly<{ insertion: InsertionGeometry }>;
+) => AxisContribution;
+
+/** The `landing` key's installer. See {@link LandingContribution}. */
+export type SortableLandingInstaller = (
+  context: SortableFeatureContext,
+) => LandingContribution;
+
+/** A `plugins` entry. See {@link SortablePluginContribution}. */
+export type SortablePlugin = (
+  context: SortableFeatureContext,
+) => SortablePluginContribution;

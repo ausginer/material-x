@@ -38,15 +38,21 @@ export type {
   SortableOnStart,
 } from './sortable/config.ts';
 /**
- * **The installer slots' aliases, published here** (D-110). Both are named by
- * `SortableConfig` — `axis` by `AxisInstaller`, `landing?` and `plugins?` by
- * `SortableInstaller` — so a consumer who writes one can hoist it into a typed
- * `const` rather than only fill the slot inline. Their own closure —
- * `FeatureContext`, `SortableContribution`, `InsertionGeometry` — stays declared
- * at `sortable/feature.js`: this publishes the **names**, not the tier. Typing
- * an ordinary-tier config slot must never require importing the middle tier.
+ * **The installer slots' aliases, published here** (D-110). Each is named by
+ * `SortableConfig` — `axis` by `AxisInstaller`, `landing?` by
+ * `SortableLandingInstaller`, `plugins?` by `SortablePlugin` — so a consumer
+ * who writes one can hoist it into a typed `const` rather than only fill the
+ * slot inline. **Three since D-146**, because each key carries its own
+ * installer and therefore its own contribution group. Their own closure —
+ * `FeatureContext`, `AxisContribution`, `InsertionGeometry` — stays declared at
+ * `sortable/feature.js`: this publishes the **names**, not the tier. Typing an
+ * ordinary-tier config slot must never require importing the middle tier.
  */
-export type { AxisInstaller, SortableInstaller } from './sortable/feature.ts';
+export type {
+  AxisInstaller,
+  SortableLandingInstaller,
+  SortablePlugin,
+} from './sortable/feature.ts';
 /**
  * The cancellation stages, as **values as well as a type**, for the same reason
  * as `FailureStage` on `drag.js`: a `CanceledReorderResult` carries one and a

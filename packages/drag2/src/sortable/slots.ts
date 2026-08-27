@@ -19,7 +19,7 @@ import type { DOMRealm } from '../kernel/realm.ts';
 import type { LandingStart } from '../kernel/spec.ts';
 import type { ItemSource, SortableOnEnd } from './config.ts';
 import type { CollectionSnapshot, Insertion, OnReorder } from './domain.ts';
-import type { PlaceholderSlot } from './placement.ts';
+import type { PlaceholderFactory } from './placement.ts';
 
 /**
  * The fields an axis rule may read off the frame. **The behavior passes
@@ -187,7 +187,7 @@ export type SortableSlots = Readonly<{
   onStart(item: HTMLElement): void;
 
   /* optional; `null` when no feature filled them */
-  placeholder: PlaceholderSlot | null;
+  placeholder: PlaceholderFactory | null;
   handle: ((item: HTMLElement) => HTMLElement | null) | null;
   /** The node faithfully lifted (D-43). Resolved once, at admission. */
   visual: ((item: HTMLElement) => HTMLElement) | null;

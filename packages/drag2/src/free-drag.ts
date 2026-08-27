@@ -39,13 +39,19 @@ export type {
   ResolveHandle,
 } from './free-drag/config.ts';
 /**
- * **The two capability slots' alias, published here** (D-78): `FreeDragConfig`
- * names it, so a consumer writing a third-party constraint must be able to
- * hoist the installer into a typed `const` rather than only fill the slot
- * inline. Its own closure — `FeatureContext`, `FreeDragContribution`,
- * `MotionConstraint` — stays declared at `free-drag/feature.js`.
+ * **The three capability slots' aliases, published here** (D-78, D-146):
+ * `FreeDragConfig` names each of them — `bounds?` by `ConstraintInstaller`,
+ * `landing?` by `FreeDragLandingInstaller`, `plugins?` by `FreeDragPlugin` — so
+ * a consumer writing a third-party constraint must be able to hoist the
+ * installer into a typed `const` rather than only fill the slot inline. Their
+ * own closure — `FeatureContext`, `ConstraintContribution`, `MotionConstraint`
+ * — stays declared at `free-drag/feature.js`.
  */
-export type { FreeDragInstaller } from './free-drag/feature.ts';
+export type {
+  ConstraintInstaller,
+  FreeDragLandingInstaller,
+  FreeDragPlugin,
+} from './free-drag/feature.ts';
 export {
   FreeDragResolution,
   type AcceptedFreeDragResult,

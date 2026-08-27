@@ -26,7 +26,11 @@ import type {
   OnDrop,
   ResolveHome,
 } from './domain.ts';
-import type { FreeDragInstaller } from './feature.ts';
+import type {
+  ConstraintInstaller,
+  FreeDragLandingInstaller,
+  FreeDragPlugin,
+} from './feature.ts';
 
 export type FreeDragOnStart = (geometry: DragGeometry) => void;
 export type OnMove = (geometry: DragGeometry) => void;
@@ -86,12 +90,12 @@ export type FreeDragConfig = Readonly<{
 
   /* optional capabilities */
   /** From `free-drag/bounds.js`. Absent means unconstrained, and no bounds code. */
-  bounds?: FreeDragInstaller;
+  bounds?: ConstraintInstaller;
   /** From `free-drag/landing.js`. Absent means the visual is released without animating. */
-  landing?: FreeDragInstaller;
+  landing?: FreeDragLandingInstaller;
 
   /** Appended, never replaced. The one slot that concatenates. */
-  plugins?: readonly FreeDragInstaller[];
+  plugins?: readonly FreeDragPlugin[];
 }>;
 
 /**
@@ -133,7 +137,7 @@ export function mergeFreeFragments(
   fragments: ReadonlyArray<Partial<FreeDragConfig>>,
 ): FreeDragConfig {
   const merged: Partial<Writable<FreeDragConfig>> = {};
-  const plugins: FreeDragInstaller[] = [];
+  const plugins: FreeDragPlugin[] = [];
 
   for (const fragment of [config, ...fragments]) {
     if (fragment.plugins !== undefined) {

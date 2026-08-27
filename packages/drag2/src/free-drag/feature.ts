@@ -4,11 +4,15 @@
  * may create whatever private runtime it likes, captures that runtime in the
  * callbacks it returns, and hands back a flat object of named contributions.
  *
- * **Three slots against the sortable's six, no discriminator, and the same
- * closed-world rule**: a new semantic seam is a coordinated edit to this type,
- * the slot record, the assembler and the behavior's call sites. That closed
- * world is what buys direct slot calls with no runtime descriptor
- * interpretation.
+ * **Three keys against the sortable's three, no discriminator, and the same
+ * closed-world rule**: a new semantic seam is a coordinated edit to one
+ * contribution group, the slot record, the assembler and the behavior's call
+ * sites. That closed world is what buys direct slot calls with no runtime
+ * descriptor interpretation.
+ *
+ * **Which group a slot is declared on is its cardinality** (D-146): `constrain`
+ * is producible from `bounds` and nowhere else, `startLanding` from `landing`
+ * and nowhere else, so a second writer is unrepresentable rather than caught.
  *
  * **No runtime exports.** Every name here is erased, which is the honest
  * measurement statement for the entry, as it is for the sortable's.
@@ -19,22 +23,29 @@
  */
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
-import type { LandingStart } from '../kernel/spec.ts';
-import type { FeatureContext } from '../shared/composition.ts';
+import type {
+  FeatureContext,
+  LandingContribution,
+} from '../shared/composition.ts';
 
 /**
  * **The structural closure of the middle tier, re-exported deliberately**
- * (D-61). Publishing `FreeDragContribution` publishes everything it
- * structurally names, so those types acquire the same versioning promise
+ * (D-61). Publishing the contribution groups publishes everything they
+ * structurally name, so those types acquire the same versioning promise
  * whether or not this file lists them — the only choice is whether an installer
  * author can *write them down*. `tests/docs.node.test.ts` fails on any public
  * type that reaches an unexported one, which keeps the two in step.
  *
- * **`FeatureContext` is the same declaration `sortable/feature.js` publishes**
- * (F-64) — a shared type identity, not a structural coincidence, and
- * deliberately not a shared *vocabulary*.
+ * **`FeatureContext` and `LandingContribution` are the same declarations
+ * `sortable/feature.js` publishes** (F-64) — a shared type identity, not a
+ * structural coincidence, and deliberately not a shared *vocabulary*. The
+ * second joins the first because both behaviors' `landing` key produces exactly
+ * it (D-146).
  */
-export type { FeatureContext } from '../shared/composition.ts';
+export type {
+  FeatureContext,
+  LandingContribution,
+} from '../shared/composition.ts';
 
 // Erased entirely: `declare const` emits no JavaScript, and the brand is a
 // property no value ever carries. Its only job is to make the two installer
@@ -52,7 +63,8 @@ declare const FREE_DRAG_FEATURE: unique symbol;
  *
  * **An author never writes it.** Filling `bounds`, `landing` or a `plugins`
  * entry types the parameter from the slot, and hoisting into a
- * `const install: FreeDragInstaller = (context) => …` types it from the alias.
+ * `const install: ConstraintInstaller = (context) => …` types it from the
+ * alias.
  */
 export type FreeDragFeatureContext = FeatureContext &
   Readonly<{ [FREE_DRAG_FEATURE]: never }>;
@@ -126,27 +138,59 @@ export type MotionConstraint = Readonly<{
   retire(): void;
 }>;
 
+// The cardinality model this group states, and the arbitration it replaces:
+// D-146.
 /**
- * One flat type, fixed key names, **no discriminator**. There is deliberately
- * no `type`, `kind` or `phase` field: a discriminator invites a runtime
- * `switch`, which is exactly what the composition model exists to avoid.
+ * What the `bounds` key's installer returns.
  *
- * There is no member for transactional frame state. The constraint's rect
- * lives in the feature's own closure.
+ * **`constrain` is required, and that is the whole of the key's cardinality**:
+ * the slot is producible here and nowhere else, so a second writer cannot be
+ * expressed rather than being caught by a construction-time throw.
+ *
+ * Fixed key names, **no discriminator**. There is deliberately no `type`, `kind`
+ * or `phase` field: a discriminator invites a runtime `switch`, which is exactly
+ * what the composition model exists to avoid. There is no member for
+ * transactional frame state either — the constraint's rect lives in the
+ * feature's own closure.
  */
-export type FreeDragContribution = Readonly<{
-  /* single-writer slots */
-  constrain?: MotionConstraint;
-  startLanding?: LandingStart;
-
+export type ConstraintContribution = Readonly<{
+  constrain: MotionConstraint;
   /** Run in **reverse** installation order — see `assemble`. */
   retire?: Disposer;
-
-  // Three slots and nothing else. The record names no sortable capability and
-  // owes no twin: separation is the branded context on `FreeDragInstaller`, so
-  // this type is free to be exactly free drag's own slots (D-138).
 }>;
 
-export type FreeDragInstaller = (
+// D-146.
+/**
+ * What a `plugins` entry returns, and free drag has **no multi-writer slot**, so
+ * the group is a lifetime and nothing else.
+ *
+ * A plugin here is an installer that allocates per-instance state and needs it
+ * released: the position exists, its arity is unbounded, and neither of the two
+ * unique slots is reachable from it.
+ */
+export type FreeDragPluginContribution = Readonly<{
+  /** Run in **reverse** installation order — see `assemble`. */
+  retire?: Disposer;
+}>;
+
+/**
+ * The `bounds` key's installer — named for the capability rather than for
+ * `bounds()`, the first-party feature that fills it, because a third party
+ * supplies a constraint **instead of** it.
+ *
+ * It runs **once**, while a concrete behavior instance is being constructed, and
+ * is externally inert.
+ */
+export type ConstraintInstaller = (
   context: FreeDragFeatureContext,
-) => FreeDragContribution;
+) => ConstraintContribution;
+
+/** The `landing` key's installer. See {@link LandingContribution}. */
+export type FreeDragLandingInstaller = (
+  context: FreeDragFeatureContext,
+) => LandingContribution;
+
+/** A `plugins` entry. See {@link FreeDragPluginContribution}. */
+export type FreeDragPlugin = (
+  context: FreeDragFeatureContext,
+) => FreeDragPluginContribution;

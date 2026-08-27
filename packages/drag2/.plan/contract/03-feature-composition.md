@@ -39,7 +39,12 @@ function layoutAnimation(
 The value a capability slot carries is an **installer** — the type this document used to export as `SortableFeature`, and which is **published at the middle tier** (D-61; it read _"now internal and unnameable"_ until Revision 2.1, which is the same drift one section up). An ordinary consumer importing only `sortable.js` still cannot name it; that is now a property of which entry they imported, not of the declaration:
 
 ```ts
-type SortableInstaller = (context: FeatureContext) => SortableContribution;
+// One alias per key since D-146; the context is the same for all three.
+type AxisInstaller = (context: FeatureContext) => AxisContribution;
+type SortableLandingInstaller = (
+  context: FeatureContext,
+) => LandingContribution;
+type SortablePlugin = (context: FeatureContext) => SortablePluginContribution;
 
 type FeatureContext = Readonly<{
   realm: DOMRealm;
@@ -76,7 +81,7 @@ An installer runs **once**, while a concrete behavior instance is being construc
 ```ts
 function installLayoutAnimation(
   options?: LayoutAnimationOptions,
-): SortableInstaller {
+): SortablePlugin {
   return (ctx) => {
     // private runtime — nobody else can name it, reach it, or type it
     const records = new Map<HTMLElement, DisplacementRecord>();
@@ -211,13 +216,26 @@ The alternative was **first-appearance order across the merged fragments**, and 
 **This is what an installer returns, and it is published at the middle tier** (D-61 — it read "and it is internal" until Revision 2.1). One flat type, fixed key names, **no discriminator**. There is deliberately no `type`, `kind` or `phase` field: a discriminator invites a runtime `switch`, and the brief forbids exactly that.
 
 ```ts
-type SortableContribution = Readonly<{
-  /* single-writer slots */
-  insertion?: InsertionGeometry;
-  placeholder?: PlaceholderFactory; // D-65 — named as the config slot is
-  startLanding?: LandingStart; // middle-tier public (D-61, D-63)
+// One group per config key that takes an installer (D-146). Which group a slot
+// is declared on IS its cardinality.
+type AxisContribution = Readonly<{
+  insertion: InsertionGeometry; // required — the axis key's whole reason to be one
+  beforeInsertionMove?: DisplacementHook;
+  afterInsertionMove?: DisplacementHook;
+  retire?: () => void;
+}>;
 
-  /* multi-writer pipelines */
+// Declared once in `shared/composition.ts`: both behaviors' `landing` key
+// produces exactly this, so it is one declaration rather than two structurally
+// equal ones (B-7, F-64).
+type LandingContribution = Readonly<{
+  startLanding: LandingStart; // middle-tier public (D-61, D-63)
+  retire?: () => void;
+}>;
+
+// The one position with unbounded arity, and therefore the one group that
+// declares no unique slot.
+type SortablePluginContribution = Readonly<{
   beforeInsertionMove?: DisplacementHook;
   afterInsertionMove?: DisplacementHook;
   /** Run in **reverse** installation order — see §Assembly. */
@@ -225,13 +243,13 @@ type SortableContribution = Readonly<{
 }>;
 ```
 
-**D-146 replaces this record with per-key contribution groups, and is decided but not yet implemented** — the registry in [00](00-index.md) carries its witness. What it changes: `axis` will produce a group whose `insertion` is required, `landing` a group carrying `startLanding`, and a `plugins` entry a group carrying **multi-writer slots only**, so every unique slot is producible from exactly one config key. **`placeholder` leaves the contribution entirely rather than moving to a key**: the factory answers _what element_, the axis answers _where it belongs_, and the behavior joins them — a placement relationship, not ownership, and D-45's rule makes a slot with nothing to construct a config slot. `claim` and both `duplicate-contribution` identities go with it. **The rule is this section's own, applied one level down**: D-45 deleted `getHandle`, `getVisual` and `callbacks` because a slot with nothing to construct is a config slot; D-146 says a slot with exactly one possible producer _position_ is a keyed installer rather than a discovered contribution. Everything below about grouping, the absent discriminator, the paired capability and the receiver negative survives unchanged — what leaves is the discovery, not the bag.
+**One flat record became three groups at D-146, and every unique slot is now producible from exactly one config key.** `axis` produces a group whose `insertion` is required, `landing` one carrying `startLanding`, and a `plugins` entry one carrying **multi-writer slots only** — so two writers on a unique slot are unrepresentable rather than detected, and `claim` with both `duplicate-contribution` identities is deleted. **`placeholder` left the contribution entirely rather than moving to a key**: the factory answers _what element_, the axis answers _where it belongs_, and the behavior joins them — a placement relationship, not ownership, and D-45's rule makes a slot with nothing to construct a config slot. **The rule is this section's own, applied one level down**: D-45 deleted `getHandle`, `getVisual` and `callbacks` because a slot with nothing to construct is a config slot; D-146 says a slot with exactly one possible producer _position_ is a keyed installer rather than a discovered contribution. Everything below about grouping, the absent discriminator, the paired capability and the receiver negative survives unchanged — what left is the discovery, not the bag.
 
 **Three members left this type at D-45, and the rule that removed them is worth stating**: `getHandle`, `getVisual` and `callbacks` were slots whose value was already the consumer's own function, wrapped in a factory that did nothing but hand it back. A slot with nothing to install is a **config slot**, read straight off the merged record into `SortableSlots`; only a slot that must _construct_ private runtime carries an installer and therefore a contribution. `box` (D-43) joins the first group by the same rule, and is why it needs no factory of its own; the placeholder factory joins it at D-56, as `placeholder` since D-65.
 
-**`placeholder` is the one member on both sides**, because a plugin may legitimately supply a placeholder factory. **It is spelled the same on both sides deliberately** (D-65): the config slot and the contribution slot are now read by the same audience — a middle-tier author writes the second and reads the first — and two names for one factory would be a puzzle rather than a distinction. > ~~The assembler seeds the single-writer local from `config.placeholder` **before** installing anything, so a plugin that contributes one collides with the config key through the same `claim` that catches plugin-versus-plugin — one rule, one diagnostic, and no precedence question to answer.~~ **The assembler does the opposite, and has since D-65 shipped** (F-127). The contributed local starts empty, only contributions claim into it, and the flat record is built with the config key winning outright — so there is **no collision**, and the precedence question this sentence says does not arise is the one that is answered, silently. Both readings are defensible; stating the one the code does not do is not.
+~~**`placeholder` is the one member on both sides**, because a plugin may legitimately supply a placeholder factory.~~ ~~The assembler seeds the single-writer local from `config.placeholder` **before** installing anything, so a plugin that contributes one collides with the config key through the same `claim`…~~ **Deleted 2026-08-27 (D-146), and the whole subject with it** (F-127, F-128). The assembler never implemented that collision — the contributed local started empty and the config key won outright and silently, so the precedence question the passage said did not arise was the one that was answered — and the slot it arbitrated over **had no producer anywhere in the tree**, in `src/` or in `tests/`. `config.placeholder` is the customization point and the only one; the behavior always creates a placeholder and the axis decides only where it goes.
 
-**The config key wins over a contributed placeholder, and nothing diagnoses the pair.** A consumer writing `placeholder` is being explicit about the element; an installer that also names the slot is supplying a default for compositions that do not, and it is discarded without a word. **No producer exists** — the slot is filled by nothing in `src/` and nothing in `tests/` — so the `claim` branch, its label and its diagnostic identity are unreachable (F-128). D-146 removes the subject by deleting the slot: `config.placeholder` is the customization point, and the widening that made `PlaceholderSlot` distinct from `PlaceholderFactory` served an author who never arrived (F-130).
+**The deletion collapses more than the slot** (F-130). `PlaceholderSlot` was `PlaceholderFactory` plus a `live` second argument, widened for a middle-tier author filling the contribution — an author who never arrived, while the audience that did paid an adapter closure per controller to narrow back. The slot's type is `PlaceholderFactory | null` now, the wrapper is gone, and the argument is gone from the one call site. **The library's own liveness barrier survives and is unmoved**: `createPlaceholder` reads `live()` itself after the factory returns and passes it into `applyMechanics`; only the handing of it _to consumer code_ went. D-39's undo ledger is untouched, still gated on the slot being non-null, which after the deletion means what it already meant in practice — the consumer supplied a factory.
 
 There is no `threshold` metadata field, for the same reason there is now no `callbacks` contribution: it is a public config slot the consumer writes directly, and its default is derived after the merge (review 4, §30; D-45). Carrying it in two places invited the question of which one wins.
 
@@ -311,7 +329,7 @@ const mergeFragments = (
   fragments: readonly Partial<SortableConfig>[],
 ): SortableConfig => {
   const merged: MutableSortableConfig = {};
-  const plugins: SortableInstaller[] = [];
+  const plugins: SortablePlugin[] = [];
 
   for (const fragment of [config, ...fragments]) {
     if (fragment.plugins !== undefined) {
@@ -363,37 +381,38 @@ function assemble(config: SortableConfig, ctx: FeatureContext): SortableSlots {
     throw new TypeError('sortable: onReorder must be a function');
   }
 
-  // Named capability slots in schema order, then plugins in array order.
-  const installers = [config.axis, config.landing, ...config.plugins];
-
   try {
-    for (const install of installers) {
-      if (install === undefined) {
-        continue;
-      }
-      const c = install(ctx);
+    // Named capability keys in schema order, then plugins in array order —
+    // written out rather than looped, because since D-146 each key returns its
+    // own group and there is no arbitration between them.
+    const axis = config.axis(ctx);
 
-      // Cleanup is recorded FIRST, before any claim can throw.
-      if (c.insertion) {
-        retireHooks.push(c.insertion.retire);
-      }
-      if (c.retire) {
-        retireHooks.push(c.retire);
-      }
+    // Cleanup is recorded FIRST, before anything below can throw.
+    if (axis.insertion) {
+      retireHooks.push(axis.insertion.retire);
+    }
+    if (axis.retire) {
+      retireHooks.push(axis.retire);
+    }
+    /* … the axis's two optional hooks … */
 
-      insertion = claim(insertion, c.insertion, 'insertion geometry');
-      /* … the remaining single-writer claims … */
-      if (c.beforeInsertionMove) {
-        beforeMove.push(c.beforeInsertionMove);
+    if (config.landing) {
+      const landing = config.landing(ctx);
+      if (landing.retire) {
+        retireHooks.push(landing.retire);
       }
-      if (c.afterInsertionMove) {
-        afterMove.push(c.afterInsertionMove);
-      }
+      ({ startLanding } = landing);
     }
 
-    if (insertion === null) {
-      throw new TypeError('sortable: the axis installed no insertion geometry');
+    for (const install of config.plugins ?? []) {
+      const plugin = install(ctx);
+      /* … retire, then the two multi-writer hooks … */
     }
+
+    /* The flat record is built here, inside the bracket. `axis.insertion!` is
+       the dereference that replaced the deleted check: it is required by the
+       type, so only a JavaScript author reaches it, and it throws where every
+       installer that already ran is still retired. */
   } catch (error) {
     // §13 unwind: a later factory or validation failing must not leak an
     // earlier feature's state.
@@ -601,7 +620,7 @@ Nothing here is reachable from the behavior, the kernel, or another feature.
 
 ## Feature-owned frame state — reserved, not implemented (D-10)
 
-Everything above is _non-transactional_ private state. `SortableContribution` has no member for frame fields, and the kernel has no fold for them: it composes each frame from exactly two sources, its own literal and the behavior's part (§[04](04-frame-slicing.md) §Composition). **A feature cannot contribute transactional state in the first iteration.**
+Everything above is _non-transactional_ private state. No contribution group has a member for frame fields, and the kernel has no fold for them: it composes each frame from exactly two sources, its own literal and the behavior's part (§[04](04-frame-slicing.md) §Composition). **A feature cannot contribute transactional state in the first iteration.**
 
 That is a narrowing, not a prohibition on principle. D-10 originally forbade feature frame parts on the grounds that they would force an aggregate type and break the hidden-class guarantee; both were wrong. The reason none exists is simpler: a frame field is committed state, so only a `prepare` may write it — and both pipelines here (`beforeInsertionMove`, `afterInsertionMove`) run in `action.effect`, post-commit. Admitting feature frame state would mean designing a prepare-phase pipeline as well. Neither is built, because no feature needs either, and building them anyway is the speculative generality the brief forbids.
 
@@ -617,8 +636,8 @@ That is a narrowing, not a prohibition on principle. D-10 originally forbade fea
 type Fragment<K extends keyof SortableConfig> = Pick<SortableConfig, K>;
 
 // D-77: the two required-slot factories return the installer itself.
-y(): SortableInstaller; // written `axis: y()` in the first argument
-xy(): SortableInstaller; // written `axis: xy()`
+y(): AxisInstaller; // written `axis: y()` in the first argument
+xy(): AxisInstaller; // written `axis: xy()`
 landing(options?: LandingOptions): Fragment<'landing'>;
 layoutAnimation(options?: LayoutAnimationOptions): Fragment<'plugins'>;
 ```
@@ -1141,7 +1160,7 @@ The **property** this section asserts is that each optional feature adds only it
 
 The absolute figures moved with D-33's settlement protocol (+70 B), Phase 16's non-tree-shakeable keyboard ingress (~300 B), Phase 17's shared rect index (+60 B), Checkpoint D's fixes (+40 B), C2-01's terminal barrier (+30 B to +90 B, composition-dependent), C3-01's abort return channel (±20 B, inside brotli's noise band) and C4-01's completion of that barrier (+37 B minimal, +70 B with `layoutAnimation()`, +70 B complete); the budgets were re-based with the earlier ones and **were not re-based for C4-01** — every composition stayed inside the budget it already had. ~~**Headroom is now 0.11–0.16 kB against budgets set at ~0.3 kB**, tightest on `+ layoutAnimation` and `complete` at 0.11 kB, which makes the Phase 21 re-base the next size-affecting change has to go through rather than around~~ — **that re-base happened, twice** (M-3′ 2026-08-19, and P-06/D-102 2026-08-21), and the convention it established is **measurement plus ~150 B**, sized to notice a module appearing in a graph and deliberately too small to absorb a feature. **Headroom is 114–154 B as of 2026-08-22**, tightest on baseline A and `+ landing`; the drift below 150 B is one landed change — P-02's shrink branch, +34 B on the `y()` rows and +14 B on `minimal (xy)`, which added no module and was therefore absorbed rather than re-based. **The budgets do not re-base for that**, and the conditions under which they do are stated in [bundle-structure.md](../bundle-structure.md) §Headroom.
 
-The absences below are **asserted against the bundled module graph**, not inferred from the deltas — a module can be pulled in and mostly shaken, which produces a small delta and reads like success. **Composition itself costs 0.28 kB (2.4%)** against a feature-matched build that fills the slot record by hand — 11,849 B against 11,566 B, so **283 B** at 2026-08-22, against 266 B when this sentence was first written and 289 B at M-3′. **It has not grown as features were added to it**, which is the property worth having rather than the number, and it is what §What isolation cannot shake asked to have weighed. **Migrating from the shipped `sortable.js` costs 4.25 kB** — 11,139 B against 6,889 B, so 4,250 B. The two baselines answer different questions and are never substituted for each other. Both are derived from the same `npx just size` run as the table above; every earlier revision of this paragraph published a figure that was stale on arrival, so the exact byte counts are given alongside the rounded ones.
+The absences below are **asserted against the bundled module graph**, not inferred from the deltas — a module can be pulled in and mostly shaken, which produces a small delta and reads like success. **Composition itself costs 0.22 kB (2.0%)** against a feature-matched build that fills the slot record by hand — 10,799 B against 10,578 B, so **221 B** at 2026-08-27, against 283 B before D-146 deleted `claim`, 266 B when this sentence was first written and 289 B at M-3′. **It has not grown as features were added to it**, which is the property worth having rather than the number, and it is what §What isolation cannot shake asked to have weighed. **Migrating from the shipped `sortable.js` costs 4.25 kB** — 11,139 B against 6,889 B, so 4,250 B. The two baselines answer different questions and are never substituted for each other. Both are derived from the same `npx just size` run as the table above; every earlier revision of this paragraph published a figure that was stale on arrival, so the exact byte counts are given alongside the rounded ones.
 
 1. No global registry, no barrel that eagerly references every feature, no default options object naming an optional feature.
 2. Each feature is its own module with no import edge to a sibling feature, and no import edge to the behavior's runtime type (D-13 removes the last one).
@@ -1179,13 +1198,13 @@ A separate subpath entry per optional **capability** is what makes the measureme
 | `drag.js` — **shared vocabulary**, reachable from any tier | **`DraggableError`**, **`DraggableWarning`** (classes — the runtime values here; D-130), the 12 **`FAILURE_*` constants** (D-132) | `Point`, `DOMRealm`, **`FailureStage`** (D-132) — ~~`DraggableErrorCode`~~ |
 | `kernel.js` — `@ydinjs/drag/kernel`, **the kernel tier** (D-48, **rebuilt by D-68**) | **`draggable`**, the 12 **`FAILURE_*` constants** (D-64; a second publication point at `drag.js` since D-132), the 3 **`LIFT_*`**, the 5 **`SETTLED_*`**, **`AT_PROPOSAL`**/**`AT_CONSUMER`**, the 8 **phase constants** — 32 values, ~~**`toDraggableError`**~~ deleted by D-132 | **`BehaviorFactory`**, **`KernelHost`**, **`BehaviorSpec`**, **`FailureStage`**, and the rest of `BehaviorFactory`'s structural closure, enumerated in [02](02-kernel-behavior-contract.md) §The kernel tier's public vocabulary — **35 types** (33 until 2026-08-22; `BehaviorLiftSession` and `InheritedSpace` were each ratified separately, by 07 §K-1 and D-85, and neither updated the total) |
 | `sortable.js` — returns a `SortableController`, takes `root` (D-48) | `sortable`, **`ReorderResolution`**, **`AT_PROPOSAL`**, **`AT_CONSUMER`** | **`SortableConfig`** and every alias it names — `ItemSource`, `OnReorder`, **`SortableOnStart`**, **`SortableOnEnd`**, **`SortableOnDragError`** (qualified by D-109), `ResolveHandle`, `ResolveElement`, `PlaceholderFactory`, **`PlaceholderContext`**, **`AxisInstaller`**, **`SortableInstaller`** (published by D-110) — plus `ReorderRequest`, `ReorderProposal`, `CollectionSnapshot`, `ReorderResolution`, ~~`AcceptedReorderResolution`, `RejectedReorderResolution`~~ (unpublished by D-143 — the resolution is opaque), `AcceptedReorderResult`, `NoopReorderResult`, `RejectedReorderResult`, `CanceledReorderResult`, **`ReorderTransactionResult`**, `CancelStage`, ~~**`SortableErrorContext`**~~ (renamed from `DragErrorContext` by D-75, deleted by D-130), `SortableController` |
-| `sortable/feature.js` — **the middle tier** (D-61) | **`insertionAt`** — one value, added 2026-08-25 (D-123, D-125), which makes this a **runtime** entry | **`SortableInstaller`**, **`FeatureContext`**, **`SortableContribution`**, **`InsertionGeometry`**, **`DisplacementHook`**, the consumer-declared view types an installer reads, and — **as re-exports since D-68, declared at the kernel tier** — `LandingStart`, `LandingContext`, `LandingHandle`, `Disposer` |
+| `sortable/feature.js` — **the middle tier** (D-61) | **`insertionAt`** — one value, added 2026-08-25 (D-123, D-125), which makes this a **runtime** entry | **`AxisInstaller`**, **`SortableLandingInstaller`**, **`SortablePlugin`**, **`FeatureContext`**, **`AxisContribution`**, **`LandingContribution`**, **`SortablePluginContribution`**, **`InsertionGeometry`**, **`DisplacementHook`**, the consumer-declared view types an installer reads, and — **as re-exports since D-68, declared at the kernel tier** — `LandingStart`, `LandingContext`, `LandingHandle`, `Disposer` |
 | `sortable/y.js` | `y` | — |
 | `sortable/xy.js` | `xy` | — |
 | `sortable/landing.js` | `landing` | `LandingOptions` |
 | `sortable/layout-animation.js` | `layoutAnimation` | `LayoutAnimationOptions` |
 | `free-drag.js` — **the second behavior's ordinary tier** (D-69) | `freeDrag`, **`FreeDragResolution`**, `AT_PROPOSAL`, `AT_CONSUMER`, and the three **`LIFT_*`** constants (D-141) | **`FreeDragConfig`** and every alias it names, `FreeDragController`, `FreeDragSubject`, `FreeDragRequest`, `DragGeometry`, `DragAxis`, **`LiftMode`** (~~**`FreeDragLift`**~~ — D-141), `FreeDragTransactionResult` and its three arms, ~~the two resolution members~~ (unpublished by D-140 — the resolution is opaque), ~~**`FreeDragErrorContext`**~~ (deleted by D-130), `CancelStage` |
-| `free-drag/feature.js` — **its middle tier** (D-70) | — | **`FreeDragInstaller`**, **`FreeDragContribution`**, **`MotionConstraint`**, `ConstraintView`, `MotionDraft`, and — as re-exports — `FeatureContext`, `LandingStart`, `LandingContext`, `LandingHandle`, `Disposer` |
+| `free-drag/feature.js` — **its middle tier** (D-70) | — | **`ConstraintInstaller`**, **`FreeDragLandingInstaller`**, **`FreeDragPlugin`**, **`ConstraintContribution`**, **`LandingContribution`**, **`FreeDragPluginContribution`**, **`MotionConstraint`**, `ConstraintView`, `MotionDraft`, and — as re-exports — `FeatureContext`, `LandingStart`, `LandingContext`, `LandingHandle`, `Disposer` |
 | `free-drag/bounds.js` | `bounds` | `BoundsSource` |
 | `free-drag/landing.js` | `landing` | `LandingOptions` — the **same declaration** `sortable/landing.js` publishes |
 
@@ -1326,7 +1345,7 @@ The brief asks for this and the earlier draft did not state it.
 
 **Internal and unstable at every tier** — not exported, and free to change without notice: `SortableSlots`, **`Behavior` and its brander** (D-55), and the outcome/recovery constants. ~~the phase/lift/outcome/recovery constants~~ — **D-68 publishes the phase and lift constants at the kernel tier**; the outcome and recovery constants are the sortable behavior's own and stay here. Also internal, and named because the rule that keeps them here is worth stating once: the seam driver (`SeamOutcome`, `SEAM_*`, `SeamContext`, `SeamDriver`, `ArmOutcome`), the full `Lifetime`, the frame helpers, the lift acquisition, the reporter, the invalidation utilities and the protocol event names — **the kernel never hands one of them to a behavior and never accepts one from it**, which is the discriminating test.
 
-**Published at the middle tier** (D-61): `SortableInstaller`, `FeatureContext`, `SortableContribution`, `InsertionGeometry`, `DisplacementHook`, and the landing seam types D-63 moved here. All five were on the list above until Revision 2.1, and moving them is the whole of D-61's cost: **they acquire a versioning promise.** By this table's closure rule, publishing them publishes what they structurally name, so the minimum middle-tier surface is whatever `SortableContribution` and `FeatureContext` reach — narrowing it means narrowing those declarations, exactly as D-48 records for `BehaviorSpec`. `SortableSlots` stays internal and is the reason the closure stops where it does: an installer _returns_ a contribution and never sees the flattened record the behavior builds from it.
+**Published at the middle tier** (D-61, D-146): the three installer aliases, the three contribution groups, `FeatureContext`, `InsertionGeometry`, `DisplacementHook`, and the landing seam types D-63 moved here. All five were on the list above until Revision 2.1, and moving them is the whole of D-61's cost: **they acquire a versioning promise.** By this table's closure rule, publishing them publishes what they structurally name, so the minimum middle-tier surface is whatever `SortableContribution` and `FeatureContext` reach — narrowing it means narrowing those declarations, exactly as D-48 records for `BehaviorSpec`. `SortableSlots` stays internal and is the reason the closure stops where it does: an installer _returns_ a contribution and never sees the flattened record the behavior builds from it.
 
 **Internal to the ordinary tier, published at the kernel tier** (D-48, **enumerated by D-68**): `BehaviorSpec`, `KernelHost`, `BehaviorFactory`, `BehaviorInstall`, `Transition`, `ReleaseTransition`, `SettlementTransition`, `ActionTransition`, `CommandAdmission`, `AdmissionSubject`, `SettlementInput`, `SeamRejection`, `ActivationScope`, `SettlementScope`, `LifetimeScope`, `Disposer`, `Draft`, `Frame`, `KernelFrame`, `OperationIdentity`, `FramePartOf`, `VisualLiftSession`, `LiftMode`, `Phase`, `OffsetBox`, `PreparedSettlement`, `ResolutionCommand`, `CancelStage`, `LandingStart`, `LandingContext`, `LandingHandle`, `FailureStage`. A `sortable.js` consumer can name none of them; a `@ydinjs/drag/kernel` consumer must be able to name enough of them to return `{ spec, controller }` from D-47's factory. **Two names were on this list and are struck**: `SeamOutcome` and `ArmOutcome` are driver-internal, in no public closure, and were listed by assumption rather than by derivation — which is exactly the failure mode D-68's rule exists to stop. `CancelStage` and the three landing types **are** on it now and are re-exported at the tiers that also need them.
 
@@ -1382,12 +1401,12 @@ The same leakage was fixed in three other places by **exporting what the public 
 
 Measure the fixed cost too, and compare it against a hand-written, non-composed sortable — feature-matched against the composed one, whichever axis it composes — so the bundle claim is evidence rather than import-graph intuition:
 
-- every optional key in `SortableContribution`;
-- every assembler property read and `claim` branch;
+- every optional key in the contribution groups;
+- every assembler property read (~~and `claim` branch~~ — deleted at D-146);
 - the nullable slot fields and their null checks;
 - the three always-present pipeline arrays.
 
-~~That plumbing may well be entirely acceptable. It has not been weighed.~~ **Weighed 2026-08-22, and it is acceptable** — [bundle-structure.md](../bundle-structure.md) §What composition costs. The four items above cost **283 B, 2.4% of `complete`**, against a hand-written feature-matched baseline, and the figure has been taken three times across two feature additions — 266 B, 289 B, 283 B. **The stability is the answer, not the size**: an overhead that grew with the feature count would be an argument against the composition model, and this one does not. This section closes.
+~~That plumbing may well be entirely acceptable. It has not been weighed.~~ **Weighed 2026-08-22, and it is acceptable** — [bundle-structure.md](../bundle-structure.md) §What composition costs. The four items above cost **221 B, 2.0% of `complete`**, against a hand-written feature-matched baseline, and the figure has been taken four times — 266 B, 289 B, 283 B, and 221 B after D-146 removed `claim`, its five call sites and five nullable accumulator locals. **The stability is the answer, not the size**: an overhead that grew with the feature count would be an argument against the composition model, and this one does not. This section closes.
 
 ## Policy updates
 

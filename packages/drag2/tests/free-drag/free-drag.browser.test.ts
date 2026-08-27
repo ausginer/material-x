@@ -540,19 +540,11 @@ describe('construction', () => {
     expect(controller.invalidate).toBeTypeOf('function');
   });
 
-  it('should refuse two installers claiming the motion constraint', () => {
-    // The package's one construction-time throw, in this behavior's spelling:
-    // an invariant over what installers *contribute*, which no signature can
-    // state.
-    const item = document.createElement('div');
-
-    document.body.append(item);
-    own(() => item.remove());
-
-    expect(() =>
-      freeDrag(item, { onDrop: () => FreeDragResolution.accept() }, bounds(), {
-        plugins: [bounds().bounds!],
-      }),
-    ).toThrow(/free-drag\/duplicate-contribution/u);
-  });
+  // ~~*should refuse two installers claiming the motion constraint*~~ —
+  // **deleted 2026-08-27** (D-146). It was the package's one construction-time
+  // throw, and the invariant it enforced — one writer per unique slot — is now
+  // stated by the types: `constrain` is declared on the `bounds` key's group
+  // and on no other, so `plugins: [bounds().bounds!]` does not compile. The
+  // replacement is `tests/free-drag/feature.declaration.test.ts` — *should
+  // refuse a unique slot from the unbounded position*.
 });

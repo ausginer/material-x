@@ -12,11 +12,15 @@
  * than a structural coincidence. B-7 asserts exactly that — same declaration,
  * not same shape.
  *
- * The installer and contribution aliases stay per-behavior, because their
- * bodies genuinely differ: three slots against six, and not one of the six in
- * common beyond `startLanding` and `retire`.
+ * The installer aliases stay per-behavior: their contexts carry different
+ * brands, which is the whole of D-138, so a shared alias would defeat the
+ * separation this module is careful not to invent. What is shared is the one
+ * contribution group both behaviors declare **identically** — the landing key's
+ * — for B-7's reason rather than as a generalization.
  */
+import type { Disposer } from '../kernel/lifetimes.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
+import type { LandingStart } from '../kernel/spec.ts';
 
 export type FeatureContext = Readonly<{
   realm: DOMRealm;
@@ -46,4 +50,22 @@ export type FeatureContext = Readonly<{
    * before `arm()` when no behavior spec exists at all.
    */
   report(error: unknown): void;
+}>;
+
+// One declaration for both behaviors' `landing` key, for B-7's reason: imported
+// from either middle tier it must be the **same** declaration rather than two
+// structurally equal ones, exactly as `LandingOptions` already is. What keeps
+// the two landing installers apart is their branded context and nothing else,
+// which is the separation D-138 designed (D-146).
+/**
+ * What the `landing` key's installer returns.
+ *
+ * `startLanding` is **required**: a landing installer that starts no landing has
+ * nothing to install, and the key would then be a config slot rather than an
+ * installer.
+ */
+export type LandingContribution = Readonly<{
+  startLanding: LandingStart;
+  /** Run in **reverse** installation order — see either `assemble`. */
+  retire?: Disposer;
 }>;

@@ -149,8 +149,9 @@ import type { ReorderProposal } from '../../src/sortable/domain.ts';
 import type {
   AxisInstaller,
   LandingStart,
-  SortableContribution,
-  SortableInstaller,
+  AxisContribution,
+  SortableLandingInstaller,
+  SortablePlugin,
 } from '../../src/sortable/feature.ts';
 // The ordinary tier.
 import { landing, type LandingOptions } from '../../src/sortable/landing.ts';
@@ -248,10 +249,10 @@ type OperationProgress = typeof MINTED | typeof STARTED | typeof RESOLVING;
 /**
  * **The middle tier is imported whole** (D-61). `FeatureContext`,
  * `PlaceholderContext`, `PlaceholderFactory`, `InsertionGeometry`,
- * `DisplacementHook`, `SortableContribution`, `SortableInstaller` and the three
- * landing seam types D-63 re-homed all live on `sortable/feature.js`, and
- * `n14`'s stray-slot assertion now runs against the shipped contribution rather
- * than a local copy of it.
+ * `DisplacementHook`, the contribution groups, the three installer aliases and
+ * the three landing seam types D-63 re-homed all live on `sortable/feature.js`,
+ * and `n14`'s stray-slot assertion now runs against the shipped contribution
+ * rather than a local copy of it.
  */
 
 // ---------------------------------------------------------------------------
@@ -262,17 +263,17 @@ type OperationProgress = typeof MINTED | typeof STARTED | typeof RESOLVING;
  * **Also imported whole.** `SortableConfig` and every alias it names —
  * `ItemSource`, `OnReorder`, `SortableOnStart`, `SortableOnEnd`,
  * `SortableOnDragError`, `ResolveHandle`, `ResolveElement`,
- * `PlaceholderFactory`, `AxisInstaller`, `SortableInstaller` — ship from
- * `sortable.js` for exactly the reason `n12` exists (F-51), so the fixture
- * asserts the *shipped* alias is still an alias.
+ * `PlaceholderFactory`, `AxisInstaller`, `SortableLandingInstaller`,
+ * `SortablePlugin` — ship from `sortable.js` for exactly the reason `n12`
+ * exists (F-51), so the fixture asserts the *shipped* alias is still an alias.
  *
- * **Three of those names are qualified and two are installers** (D-109, D-110).
- * `onStart`, `onEnd` and `onError` exist on both ordinary roots with different
- * structures, so each root publishes its own — `ResolveHandle` and
- * `ResolveElement` collide too and match structurally, which is why they are
- * not. `SortableInstaller` joins `AxisInstaller` because `SortableConfig` names
- * it at `landing?` and `plugins?`, and the rule that published one is the rule
- * that publishes the other.
+ * **Three of those names are qualified and three are installers** (D-109,
+ * D-110, D-146). `onStart`, `onEnd` and `onError` exist on both ordinary roots
+ * with different structures, so each root publishes its own — `ResolveHandle`
+ * and `ResolveElement` collide too and match structurally, which is why they
+ * are not. The landing and plugin aliases join `AxisInstaller` because
+ * `SortableConfig` names one at each of `landing?` and `plugins?`, and the rule
+ * that published one is the rule that publishes the rest.
  *
  * `n12` is the row this rewiring most changes. It checked the fixture's local
  * `SortableConfig['onEnd']`, so a `lint-fix` that rewrote the shipped alias
@@ -394,7 +395,7 @@ function report(error: DraggableError | DraggableWarning): string {
 
 /**
  * D-61 — a middle-tier installer, authored outside the package **against the
- * shipped `SortableInstaller`**.
+ * shipped `AxisInstaller`**.
  *
  * The restated version of this fixture had `resolve(view) => HTMLElement`. The
  * real seam is `resolve(frame, runtime) => Insertion | null`, and the rewiring
@@ -414,21 +415,29 @@ const installMyAxis: AxisInstaller = (ctx) => {
       cache.clear();
       ctx.report(undefined);
     },
-  } satisfies SortableContribution;
+  } satisfies AxisContribution;
 };
 
 /**
- * D-77 — a **plugin-shaped** installer, whose contribution declares no
- * `insertion`. It fills `plugins` and `landing`, and the negative assertion
- * below is that it cannot fill `axis`.
+ * D-77 — a **plugin-shaped** installer, whose group declares no `insertion` and
+ * since D-146 could not declare one. It fills `plugins`, and the negative
+ * assertion below is that it cannot fill `axis`.
  */
-const installMyPlugin: SortableInstaller = (ctx) => ({
+const installMyPlugin: SortablePlugin = (ctx) => ({
   retire: () => ctx.report(undefined),
+});
+
+/** The `landing` key's own installer — the one producer of `startLanding`. */
+const installMyLanding: SortableLandingInstaller = () => ({
+  startLanding: (_context, done) => {
+    done();
+    return { destroy: (): void => {} };
+  },
 });
 
 /** D-45 — a helper may return several slots and a consumer may take one. */
 function weirdThing(): Pick<SortableConfig, 'axis' | 'landing'> {
-  return { axis: installMyAxis, landing: installMyPlugin };
+  return { axis: installMyAxis, landing: installMyLanding };
 }
 
 const controller: SortableController = sortable(
@@ -759,7 +768,7 @@ void boxOnly;
 // closed set of named seams. Filling an existing seam is supported; adding one
 // is the package's alone.
 // @ts-expect-error `whenever` is not a contribution slot (D-61)
-const strayContribution: SortableContribution = { whenever: () => {} };
+const strayContribution: AxisContribution = { whenever: () => {} };
 void strayContribution;
 
 // n15 — **withdrawn, and this one has teeth.** The assertion was that

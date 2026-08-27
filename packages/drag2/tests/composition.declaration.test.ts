@@ -49,62 +49,68 @@
  */
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import type {
-  FreeDragContribution,
+  ConstraintContribution,
+  ConstraintInstaller,
   FreeDragFeatureContext,
-  FreeDragInstaller,
+  FreeDragLandingInstaller,
+  FreeDragPlugin,
+  FreeDragPluginContribution,
   LandingStart,
   FeatureContext as FreeDragSharedContext,
 } from '../src/free-drag/feature.ts';
 import { FreeDragResolution, freeDrag } from '../src/free-drag.ts';
 import type {
   AxisInstaller,
-  SortableContribution,
   SortableFeatureContext,
-  SortableInstaller,
+  SortablePlugin,
+  SortablePluginContribution,
   FeatureContext as SortableSharedContext,
 } from '../src/sortable/feature.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 
 declare const axisInstaller: AxisInstaller;
-declare const sortableInstaller: SortableInstaller;
-declare const freeDragInstaller: FreeDragInstaller;
+declare const sortablePlugin: SortablePlugin;
+declare const freeDragPlugin: FreeDragPlugin;
+declare const constraintInstaller: ConstraintInstaller;
 
 describe('an axis installer', () => {
   it('should not be assignable to a free-drag installer', () => {
     // **The strongest falsifier E-06 names**, and the one reachable through a
     // supported public API: `freeDrag(item, config, { plugins: [y()] })`.
     // @ts-expect-error — D-138: a free-drag context is not a sortable one.
-    const free: FreeDragInstaller = axisInstaller;
+    const free: FreeDragPlugin = axisInstaller;
 
     void free;
   });
 });
 
-describe('a sortable installer', () => {
-  it('should not be assignable to a free-drag installer', () => {
+describe('a sortable plugin', () => {
+  it('should not be assignable to a free-drag plugin', () => {
     // @ts-expect-error — D-138, and it fails for the same reason as the axis
-    // row rather than for a second one: the boundary no longer depends on
-    // which slots the contribution happens to carry.
-    const free: FreeDragInstaller = sortableInstaller;
+    // row rather than for a second one: the boundary does not depend on which
+    // slots the contribution happens to carry. Since D-146 the two plugin
+    // groups do not even share a key set, so the brand is asserted where it is
+    // the *only* thing that could refuse.
+    const free: FreeDragPlugin = sortablePlugin;
 
     void free;
   });
 });
 
 describe('a free-drag installer', () => {
-  it('should not be assignable to a sortable installer', () => {
+  it('should not be assignable to a sortable plugin', () => {
     // **The reverse direction, from the same brand.** The previous mechanism
     // needed a `constrain?: never` on the sortable record to state this; one
     // contravariant parameter states both directions at once.
     // @ts-expect-error — D-138: a sortable context is not a free-drag one.
-    const sortable: SortableInstaller = freeDragInstaller;
+    const sortable: SortablePlugin = freeDragPlugin;
 
     void sortable;
   });
 
   it('should not be assignable to an axis installer', () => {
     // @ts-expect-error — D-138, and the missing required `insertion` besides.
-    const axis: AxisInstaller = freeDragInstaller;
+    const axis: AxisInstaller = constraintInstaller;
 
     void axis;
   });
@@ -148,24 +154,28 @@ describe('the two resolutions', () => {
   });
 });
 
-describe('the two contributions', () => {
+describe('the two behaviors\u2019 groups', () => {
   it('should declare independent key sets', () => {
     // **The property that replaced key-set totality, and it is its opposite.**
-    // Each record is exactly its own behavior's slots: free drag's three and
-    // the sortable's six, sharing only the two that are genuinely shared. A
-    // slot added to either record now needs no twin on the other, and neither
-    // record has to know that the other exists.
-    expectTypeOf<keyof FreeDragContribution>().toEqualTypeOf<
-      'constrain' | 'startLanding' | 'retire'
+    // Each group is exactly its own behavior's slots. A slot added to either
+    // needs no twin on the other, and neither has to know the other exists.
+    expectTypeOf<keyof ConstraintContribution>().toEqualTypeOf<
+      'constrain' | 'retire'
     >();
-    expectTypeOf<keyof SortableContribution>().toEqualTypeOf<
-      | 'insertion'
-      | 'placeholder'
-      | 'startLanding'
-      | 'beforeInsertionMove'
-      | 'afterInsertionMove'
-      | 'retire'
+    expectTypeOf<keyof SortablePluginContribution>().toEqualTypeOf<
+      'beforeInsertionMove' | 'afterInsertionMove' | 'retire'
     >();
+  });
+
+  it('should give the unbounded position no unique slot in either behavior', () => {
+    // **The cardinality rule stated once over both behaviors** (D-146). Neither
+    // plugin group declares a unique slot, which is what makes an unbounded
+    // number of writers safe without arbitration — the property `claim` used to
+    // enforce at construction time, now a fact about two declarations.
+    expectTypeOf<keyof FreeDragPluginContribution>().toEqualTypeOf<'retire'>();
+    expectTypeOf<
+      keyof SortablePluginContribution
+    >().not.toEqualTypeOf<'insertion'>();
   });
 });
 
@@ -198,7 +208,7 @@ describe('third-party authoring', () => {
   it('should type a hoisted installer from its alias', () => {
     // The other supported form (D-78): a `const` an author can name, pass and
     // re-use. The annotation is the alias, never the context.
-    const install: FreeDragInstaller = (context) => {
+    const install: FreeDragPlugin = (context) => {
       expectTypeOf(context).toEqualTypeOf<FreeDragFeatureContext>();
 
       return { retire: dispose };
@@ -213,26 +223,29 @@ describe('third-party authoring', () => {
     // records genuinely declare — so if this failed too, the negative would be
     // passing on the contribution's shape rather than on the parameter's brand,
     // which is precisely the mechanism CE1-01 caught the first probe on.
-    const contribution: SortableContribution = { retire: dispose };
-    const install: FreeDragInstaller = () => contribution;
+    const contribution: SortablePluginContribution = { retire: dispose };
+    const install: FreeDragPlugin = () => contribution;
 
     void freeDrag(item, config, { plugins: [install] }).destroy();
   });
 
-  it('should still reach free drag plugins carrying only shared slots', () => {
-    // **The positive control**, kept from the previous mechanism because it
-    // still earns its place: `startLanding` and `retire` are legitimately
-    // shared, so an installer contributing them is valid free-drag middle-tier
-    // code and must stay so. Without it the boundary could be widened into a
-    // general separation without anything noticing.
-    const sharedPlugin: FreeDragInstaller = () => ({
+  it('should still reach the landing key with only shared vocabulary', () => {
+    // **The positive control**, kept from the previous mechanism and re-pointed
+    // by D-146 at the key that now owns the slot: `startLanding` and `retire`
+    // are legitimately shared between the behaviors, so an installer
+    // contributing them is valid free-drag middle-tier code and must stay so.
+    // Without it the boundary could be widened into a general separation
+    // without anything noticing. It moved off `plugins` because the unbounded
+    // position no longer reaches a unique slot — which is the decision, not a
+    // weakening of this control.
+    const install: FreeDragLandingInstaller = () => ({
       startLanding: ((_context, done) => {
         done();
         return { destroy: dispose };
       }) satisfies LandingStart,
       retire: dispose,
     });
-    const controller = freeDrag(item, config, { plugins: [sharedPlugin] });
+    const controller = freeDrag(item, config, { landing: install });
 
     expect(controller).toBeTypeOf('object');
 
@@ -245,8 +258,8 @@ describe('third-party authoring', () => {
     // parameter, and an empty contribution is genuinely valid for either
     // behavior — so this compiles, contributes nothing, and is the shape the
     // record says is not worth machinery to refuse.
-    const free: FreeDragInstaller = () => ({});
-    const sortable: SortableInstaller = () => ({});
+    const free: FreeDragPlugin = () => ({});
+    const sortable: SortablePlugin = () => ({});
 
     void free;
     void sortable;
@@ -259,10 +272,10 @@ describe('third-party authoring', () => {
     // A `const` typed as the sortable's contribution cannot be returned from a
     // free-drag installer, because the annotation makes it a typed value and
     // typed values are exactly what the brand refuses.
-    const contribution: SortableContribution = { retire: dispose };
+    const contribution: SortablePluginContribution = { retire: dispose };
     // @ts-expect-error — D-138: the parameter's brand refuses the installer, so
     // the slot never sees the contribution.
-    const install: FreeDragInstaller = (_context: SortableFeatureContext) =>
+    const install: FreeDragPlugin = (_context: SortableFeatureContext) =>
       contribution;
 
     void freeDrag(item, config, { plugins: [install] }).destroy();

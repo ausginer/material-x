@@ -15,7 +15,7 @@ import type {
   AxisInstaller,
   LandingHandle,
   LandingStart,
-  SortableInstaller,
+  SortableLandingInstaller,
 } from '../../src/sortable/feature.ts';
 import {
   landing,
@@ -225,7 +225,7 @@ const withReducedMotion = async <T>(body: () => Promise<T>): Promise<T> => {
  */
 const authoredLanding = (
   start: LandingStart,
-): { landing: SortableInstaller } => ({
+): { landing: SortableLandingInstaller } => ({
   landing: () => ({ startLanding: start }),
 });
 

@@ -29,7 +29,8 @@
 import { describe, expect, it } from 'vitest';
 import type {
   ConstraintView,
-  FreeDragInstaller,
+  ConstraintInstaller,
+  FreeDragLandingInstaller,
   MotionDraft,
 } from '../../src/free-drag/feature.ts';
 import { landing } from '../../src/free-drag/landing.ts';
@@ -61,7 +62,7 @@ function recordingConstraint(): Readonly<{
   invalidations: number;
 }> {
   const record = { invalidations: 0 };
-  const installer: FreeDragInstaller = () => ({
+  const installer: ConstraintInstaller = () => ({
     constrain: {
       apply(_motion: MotionDraft, _view: ConstraintView): void {},
       invalidate(): void {
@@ -72,7 +73,7 @@ function recordingConstraint(): Readonly<{
   });
 
   return {
-    fragment: { plugins: [installer] },
+    fragment: { bounds: installer },
     get invalidations(): number {
       return record.invalidations;
     },
@@ -149,16 +150,18 @@ describe('a late moveTo()', () => {
     const composed = compose({
       fragments: [
         {
-          plugins: [
-            ((): ReturnType<FreeDragInstaller> => ({
-              startLanding: (context, done) => {
-                seen.push(context.visual.style.transform);
-                composed.controller.moveTo(FAR);
-                finish = done;
-                return { destroy: (): void => {} };
-              },
-            })) satisfies FreeDragInstaller,
-          ],
+          // **The `landing` key, not a plugin** (D-146): `startLanding` is
+          // producible from this key and no other, so a plugin cannot carry
+          // one — which is the cardinality rule as a compile error rather than
+          // as a construction-time collision.
+          landing: ((): ReturnType<FreeDragLandingInstaller> => ({
+            startLanding: (context, done) => {
+              seen.push(context.visual.style.transform);
+              composed.controller.moveTo(FAR);
+              finish = done;
+              return { destroy: (): void => {} };
+            },
+          })) satisfies FreeDragLandingInstaller,
         },
       ],
       onDrop: () => FreeDragResolution.reject('nope'),

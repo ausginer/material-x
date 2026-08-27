@@ -6,7 +6,11 @@
 import type { Writable } from 'type-fest';
 import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
 import type { OnReorder, ReorderTransactionResult } from './domain.ts';
-import type { AxisInstaller, SortableInstaller } from './feature.ts';
+import type {
+  AxisInstaller,
+  SortableLandingInstaller,
+  SortablePlugin,
+} from './feature.ts';
 
 import type { PlaceholderFactory } from './placement.ts';
 
@@ -72,8 +76,9 @@ export type SortableConfig = Readonly<{
    */
   items: ItemSource;
   onReorder: OnReorder;
-  // An `AxisInstaller` rather than a `SortableInstaller`, so a plugin-shaped
-  // installer is not assignable and the assembler needs no check for one (D-77).
+  // **Each installer key carries its own type** (D-146). A plugin-shaped
+  // installer is not assignable here, and the assembler needs no check for one
+  // (D-77) — nor any arbitration, since no other key can produce `insertion`.
   /**
    * `y()` or `xy()`. An **atomic** capability slot: one installer, one whole.
    * The contribution it returns must carry `insertion`.
@@ -124,10 +129,16 @@ export type SortableConfig = Readonly<{
   placeholder?: PlaceholderFactory;
 
   /* optional capabilities */
-  landing?: SortableInstaller;
+  landing?: SortableLandingInstaller;
 
-  /** Appended, never replaced. */
-  plugins?: readonly SortableInstaller[];
+  // The cardinality rule behind the restriction below: D-146.
+  /**
+   * Appended, never replaced.
+   *
+   * **The one position with unbounded arity, and therefore the one whose
+   * installers reach only multi-writer slots.**
+   */
+  plugins?: readonly SortablePlugin[];
 
   threshold?: number;
 }>;
@@ -176,7 +187,7 @@ export function mergeFragments(
   // required first argument and the optional fragments on the same code path
   // rather than buying a second one to save an assignment.
   const merged: Partial<Writable<SortableConfig>> = {};
-  const plugins: SortableInstaller[] = [];
+  const plugins: SortablePlugin[] = [];
 
   for (const fragment of [config, ...fragments]) {
     if (fragment.plugins !== undefined) {
