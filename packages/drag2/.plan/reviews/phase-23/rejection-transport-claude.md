@@ -82,3 +82,57 @@ Unchanged and already correct. `DraggableError`'s constructor passes `{ cause }`
 **F-153.** _One classified fault has three transports, and the typed one is the only one that is not load-bearing._ `throw`, `host.fail` and `SeamRejection` converge on the same `failOperation`. The type is on two seams out of six, states the exception rather than the rule, and buys a per-operation structural probe.
 
 **F-154.** _A diagnostic identity is stable, namespaced and undocumented, and the record never denies that it is an API._ D-117 states the property internally — nothing observable depends on a message — and publishes no corresponding negative, so a consumer branching on `drag: sortable/release-no-proposal` is not doing anything the contract has told them not to.
+---
+
+# Amendment, 2026-08-28 — the three-way ownership model, and what D-152 got wrong
+
+Owner challenge: a library invariant breach is represented by its `FAILURE_*` and owes no synthetic descriptive cause; a real cause is what an **environment** failure carries; an internal assertion vocabulary does not belong on the public error channel.
+
+**The principle is right and §3 above leaned on the wrong authority.** Two things follow from checking it against the record, and the first one moves the conclusion further than the challenge does.
+
+## 7. The premise is a P-class claim, and the record has already ruled against it — for
+
+four of the six sites
+
+D-117 makes provenance **a reachability claim proved from the call graph**, and 05 adds that _by construction an author cannot trigger a P2 site at all_. Under that definition, `sortable/release-no-proposal` is **not** a library invariant breach, and this was settled by proof eight days ago:
+
+> A third-party `InsertionGeometry.resolve` — a **published** middle-tier surface — can return a version-matching gap with neighbours the snapshot does not support, and that fires the site. An author _can_ trigger it, so it cannot be P2 under 05's own definition. — [`d119-closure-review-claude.md`](d119-closure-review-claude.md) §6.3
+
+The same review filed **F-94** as a tier-B record defect, because the P2 reading had travelled four hops — measurement census → review → plan → ledger — without anyone reading it back against D-117's own row. The class it named is _a citation is not a reading_, and the family it happened in is this one.
+
+So `release-no-presentation`, `release-no-destination`, `release-no-insertion` and `release-no-proposal` are **P1** — the first three by default, the fourth by proof — and the owner's rule does not reach them. They describe a fault the library does not own, to the party who can act on it.
+
+`free-drag/release-no-visual` is the site that plausibly **is** P2: `draft.visual` and the spec-local `originRect` are written together in `activation.effect` ([spec.ts:355](../../src/free-drag/spec.ts#L355)) and cleared together at retire ([spec.ts:990](../../src/free-drag/spec.ts#L990)), and free drag publishes no third-party surface between them. But that is an argument, not the call-graph proof D-117 requires, and F-94 exists because this family accepted an argument once already.
+
+## 8. The three-way model has a missing cell, and most of the identities are in it
+
+The model routes a fault by whether the library **caught** something. There is a fourth shape and it is the common one:
+
+> **A P1 fault the library detects itself, with nothing caught.**
+
+`presentation/visual-no-box-space` (a consumer's visual with no readable box space), `activation/root-disconnected` (a consumer's root), `realm/no-owning-window` (a detached document), `sortable/anchor-outside-container` (a third-party geometry's anchor), and the four release faults above. Nothing threw, so there is no cause to preserve; the fault is not the library's, so `FAILURE_*` is not the whole of what should be said. Under the rule as written these fall through both cells and lose the only description they have — of a fault the consumer owns and can fix.
+
+**So the discriminator is not synthetic-versus-caught. It is whether anything else says what happened.**
+
+|  | payload |
+| --- | --- |
+| Something was caught — a consumer callback, a third-party seam, the platform | the actual cause, verbatim. The constructor already adopts its message |
+| Nothing was caught; the library detected a condition | the identity, because it is the only description that exists |
+
+That rule is provenance-independent, matches what the code does today, and leaves the owner's principle intact wherever it bites.
+
+## 9. Where the challenge lands, and §3's error
+
+For a site that genuinely **is** P2, the question _should the public error channel carry an internal assertion vocabulary_ is narrower than the one D-117 asked. D-117's P2 row — _a consumer can do nothing with a library bug except report it, and a token is a better bug report than a sentence_ — answers **how much text**, having already assumed the message exists; its own framing is _which of forty messages does the contract require_. **§3 cited it as though it had settled the prior question. It had not, and that was the error.**
+
+On the merits, the recommendation is unchanged but the ground is narrower — not "field usability", which is the argument the owner correctly rejects as maintainer-facing:
+
+- **The Hyrum's-law exposure is near zero _because_ P2 means unreachable.** A consumer cannot come to depend on a string that never appears unless the library is broken. That is the whole difference from `DraggableErrorCode`, which was typed, documented, reachable in ordinary operation, and existed to be branched on. Removing that and keeping this are not the same act.
+- **The separate-channel alternative is already priced and blocked.** `__DEV__` is the only one this package has, D-101 puts its binding in one tier and forbids arguing it on bytes, and `kernel/` and `free-drag/` bind nothing — which is where both P2 candidates live.
+- **Mechanically, you cannot throw nothing.** With D-152's transport, a blank sentinel `Error` gives `cause.message === ''`, which `DraggableError` adopts, producing the empty message [05](../contract/05-lifecycle-invariants.md) names as unusable in the field. Suppressing that needs a constructor fallthrough — a new rule written to undo a rule.
+
+**The live choice, stated so it is the owner's.** If a site is _proved_ P2, blanking its identity costs the four-way discrimination at one stage and the constructor fallthrough above, and buys a channel that provably carries no internal vocabulary. That is a coherent position; it is not the one recommended here, and D-152 records it as declined rather than unconsidered.
+
+## 10. The obligation this adds
+
+**No site's P-class may be asserted without a call-graph proof**, and an unsettled site is P1 (D-117; F-94's precedent). The six sites are P1 by default today. If `free-drag/release-no-visual` is proved P2, that proof is what makes the owner's question live for it — and it is one site, not a family.
