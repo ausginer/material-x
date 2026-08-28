@@ -6,7 +6,7 @@ Owner direction of 2026-08-28, three items in the behavior assembly/runtime laye
 | --- | --- | --- |
 | 1 | Store retire hooks in installation order; walk them backwards at retirement | **Accepted.** No semantic constraint. The package already stores its other ledger this way — §1 |
 | 2 | `axis` becomes fixed configuration; `AxisSource` deleted | **Accepted, and D-71's own rule is what condemns the source** — §2 |
-| 3 | Do the `*Runtime` objects still earn their existence? | **Split. Free drag's does not; the sortable's does, for a reason the inventory did not contain** — §3 |
+| 3 | Do the `*Runtime` objects still earn their existence? | **Neither does.** ~~Split; the sortable's does~~ — amended on owner correction 2026-08-28, and the withdrawn half is F-142 — §3 |
 
 ---
 
@@ -145,22 +145,28 @@ That last point is D-126's rule applied one layer down, and it is the same rule 
 
 **Dissolve.** `createFreeDragSpec(host, slots)`; the three fields become spec locals cleared in `retire()`. The action tags are not runtime state and keep a declaration home — the constraint is only that the module carrying them must not keep a doc claiming to enumerate per-operation state.
 
-### Sortable: it does earn its existence, and the reason is not in the field list
+### Sortable: ~~it does earn its existence~~ — amended on owner correction, 2026-08-28
 
-The field inventory says the same thing it says for free drag — `host`/`slots` destructured immediately, everything else consumed only by `createSortableSpec`. On that evidence alone the object would go.
+**The section below is struck and kept.** The owner's rule is stronger than the one I applied, and it is the right one: _a behavior-level invariant is driven from the behavior's real boundary — ultimately from `sortable(root, config)` and the events and controller actions it exposes. A state reachable only by mutating a production-private container is a test-harness problem, not an architecture to preserve._ Both runtimes dissolve.
 
-**It does not, because the object is also a construction seam that five tests drive.** `tests/sortable/sortable.browser.test.ts` builds a runtime over a stub host and then _writes its fields_ to place the spec into mid-operation states — `rt.view`, `rt.placeholder`, `rt.pendingSpatial` — states the seams would otherwise have to be driven into through hand-built drafts and scopes. D-126 already recorded this layer as _emitted, driven by five test sites_ and kept it deliberately.
+**Where the argument went wrong (F-142).** I read D-126 as licensing any seam a test drives, and D-126's own subject is a different kind of seam. `createSortableBehavior` takes an exotic **input** — a slot record the public config cannot express — and then runs the production wiring; that widens the domain the state machine runs over. `createSortableRuntime` hands back a mutable **interior**, and the five sites reach their state by writing `view`, `placeholder` and `pendingSpatial` _after_ construction; that bypasses the state machine. _A test seam exists where a test drives it_ presumes a seam. **A capability that exists only to write private fields is evidence about the harness, and reading it as evidence about the architecture is what preserves the container that made the shortcut available.**
 
-Those instruments are the I-36 terminal-barrier and `PresentationView.insertion` rows — the class this package defends with instruments rather than with prose. Closure-local state is unreachable **by construction**, which is the property that makes it attractive for privacy and the same property that removes this reach. Trading five state-injection instruments for a handful of property reads fails §0 and fails D-126's own rule.
+**The fidelity runs the other way too, which is what I should have noticed.** The bench at `tests/sortable/sortable.browser.test.ts` builds a **stub host with a writable `closed`** — standing in for the latch that D-53 made readonly precisely so a behavior only reads it. So the instrument for the terminal barrier drives a latch no production path sets that way, over a kernel that does not exist. The reentrancy those rows are about is produced by a consumer callback destroying its own controller mid-seam, which is how the rest of the suite already reaches it.
 
-**So: keep the object, and take the two things that are genuinely residue.**
+**The migration target, so the rewrite is not open-ended.** Anything the public surface expresses goes through `sortable(root, config)`. The exotic slot records — a stub `resolveInsertion`, no placeholder factory, hook overrides no `SortableConfig` names — keep their seam: `createSortableBehavior(items, slots)` through `draggable()`, which is a **real kernel and the production wiring** with a widened input. That seam is D-126's and is untouched here.
 
-- **The frame task moves into the spec.** `frame` is read nowhere else; creating it inside `createSortableSpec` is what removes the self-referential `let runtime!: SortableRuntime`, which exists _only_ because the task's callback reads the object that holds the task. M-2's decision is untouched — the spec is created once per controller, in `install`, so the task stays eager-per-controller and the 148 B measurement stands.
+**The obligation the rewrite carries.** A state that genuinely cannot be reached or observed through the behavior's real contract is reported as a **design/testability finding** — it names something the contract cannot exercise, which is worth knowing — and not as a reason to restore the container. Two are worth watching: the frame task's stale-attempt path, which needs a scheduled spatial frame to fire after the operation lost its presentation, and `PresentationView.insertion` outside its bracket, whose contracted observer is a displacement hook rather than a field read.
+
+~~**It does not, because the object is also a construction seam that five tests drive.**~~ The struck argument follows.
+
+> `tests/sortable/sortable.browser.test.ts` builds a runtime over a stub host and then _writes its fields_ to place the spec into mid-operation states — states the seams would otherwise have to be driven into through hand-built drafts and scopes. D-126 already recorded this layer as _emitted, driven by five test sites_. Closure-local state is unreachable **by construction**, which is the property that makes it attractive for privacy and the same property that removes this reach. Trading five state-injection instruments for a handful of property reads fails §0 and fails D-126's own rule.
+
+**What survives unchanged from that section:**
+
+- **The frame task moves into the spec.** `frame` is read nowhere else; creating it inside `createSortableSpec` is what removes the self-referential `let runtime!: SortableRuntime`. M-2 is untouched — the spec is created once per controller, in `install`, so the task stays eager-per-controller and the 148 B measurement stands.
 - **`PresentationView` stays and is unaffected.** It is not aggregate runtime state; it is the per-operation object the feature views bind to, and the one thing here whose cross-closure sharing genuinely needs an object.
 
-**This is not a rule that tests dictate production shape.** It is D-126's rule, applied with its counterweight: the seam costs one small object and some property reads, and what it buys is reach into states the public path cannot construct. If those five sites are ever rewritten to drive the seams — a test-architecture change owing its own argument — the object's last reason goes with them, and it should go then.
-
-**D-149.**
+**D-149**, as amended.
 
 ---
 
@@ -169,6 +175,7 @@ Those instruments are the I-36 terminal-barrier and `PresentationView.insertion`
 - **F-137** — Two ledgers with identical semantics are stored in two representations. Retire hooks are normalized eagerly by a `reverse()` so one consumer can read them forwards; D-39's placeholder undo is recorded in acquisition order and walked backwards. No rule produced the difference, and the general form is worth carrying: _a normalization that exists to make one reader simpler is a second representation of the same fact, and the second representation is what a later reader has to be told about._
 - **F-138** — A decision generalized a rule past its motive. D-71's _every mutable policy slot is a source_ was applied to `axis` by symmetry with `items` and `bounds`, and `axis` is the one slot whose value reinterprets accumulated rather than present state. The record shows the generalization; it does not show the slot being tested against the rule's reason. General form: _a rule stated over a category is applied to members by category membership, and the member that does not satisfy the reason is admitted by the wording._
 - **F-139** — A structure's written justification lapsed and the structure did not. 01 §The privacy boundary still says the runtime object exists because the spec and the controller share it; the controller stopped receiving it, and the sentence was not revisited because the change was reviewed as a controller change. General form: _when a coupling is removed, the things justified by that coupling are not on the reviewer's diff._
+- **F-142** — _A seam that exists to write private state was read as a seam a test legitimately drives, and it decided a production shape._ Opened by the owner's correction; the general form and the D-126 distinction are in §3.
 - **F-140** — Per-operation state lives in two homes in both behaviors — runtime fields and spec locals — with no criterion separating them. The split records the order in which the state was added, and each home has its own clearing site in `retire()`.
 
 ---
