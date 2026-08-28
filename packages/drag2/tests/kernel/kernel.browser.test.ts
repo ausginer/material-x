@@ -32,7 +32,6 @@ import {
   type LandingStart,
   type PreparedSettlement,
   type ResolutionCommand,
-  type SeamRejection,
   SETTLED_CANCELED,
   SETTLED_FAILED,
   SETTLED_FULFILLED,
@@ -1527,14 +1526,18 @@ describe('release', () => {
     expect(seen).toBe(123);
   });
 
-  it('should classify a rejection at the stage it names', () => {
-    const rejection: SeamRejection = {
-      stage: FAILURE_RELEASE,
-      error: new Error('no insertion'),
-    };
+  it('should classify a throwing release prepare at the seam’s own stage', () => {
+    // **The seam owns the stage** (D-152). ~~`should classify a rejection at
+    // the stage it names`~~ handed the stage back through a `SeamRejection`,
+    // and every one of the six sites that did handed back exactly the stage the
+    // seam was already running at. The behavior raises a **cause**; the phase is
+    // open at `FAILURE_RELEASE`, so that is what the failure carries.
+    const cause = new Error('no insertion');
     const harness = createHarness({
       release: {
-        prepare: () => rejection,
+        prepare: (): ResolutionCommand => {
+          throw cause;
+        },
         effect(): void {
           throw new Error('unreachable');
         },
@@ -1545,15 +1548,17 @@ describe('release', () => {
     release(80, 10);
 
     expect(harness.failures[0]!.stage).toBe(FAILURE_RELEASE);
+    // And the cause travels verbatim: what reaches the settlement input is the
+    // object the behavior raised, not a wrapper minted at the failing branch.
+    expect(harness.failures[0]!.error).toBe(cause);
   });
 
-  it('should not run the effect after a rejected prepare', () => {
+  it('should not run the effect after a throwing prepare', () => {
     const harness = createHarness({
       release: {
-        prepare: () => ({
-          stage: FAILURE_RELEASE,
-          error: new Error('no insertion'),
-        }),
+        prepare: (): ResolutionCommand => {
+          throw new Error('no insertion');
+        },
         effect(): void {
           harness.calls.push('release.effect');
         },
@@ -1803,21 +1808,18 @@ describe('the settlement seam', () => {
     expect(harness.phases['settlement.effect']).toBe(SETTLING);
   });
 
-  it('should classify a prepare rejection at the stage it names', () => {
+  it('should classify a throwing prepare at the seam’s own stage', () => {
     const harness = createHarness({
       settlement: {
-        prepare(_draft, input): PreparedSettlement | SeamRejection {
-          // The checkpoint the rejection queues drives this same seam, so the
+        prepare(_draft, input): PreparedSettlement {
+          // The checkpoint the failure queues drives this same seam, so the
           // failed input is what records the classification.
           if (input.type === SETTLED_FAILED) {
             harness.failures.push({ stage: input.stage, error: input.error });
             return true;
           }
 
-          return {
-            stage: FAILURE_RESOLUTION,
-            error: new Error('not a resolution'),
-          };
+          throw new Error('not a resolution');
         },
         effect(): void {},
       },
@@ -1827,10 +1829,12 @@ describe('the settlement seam', () => {
     release(80, 10);
 
     // Acceptance is never inferred: a fulfilled value that is not an explicit
-    // resolution is classified, and nothing below the rejection runs.
+    // resolution is classified at the settlement seam's own stage, which the
+    // behavior no longer names because it never had to (D-152), and nothing
+    // below the throw runs.
     expect(harness.failures[0]!.stage).toBe(FAILURE_RESOLUTION);
     // **And the operation is still disposed of** (D-66). "Nothing below the
-    // rejection runs" is about *continuation* — no gate arming, no consumer
+    // throw runs" is about *continuation* — no gate arming, no consumer
     // invocation, no retirement past the failure. The terminal is disposition,
     // not continuation, and this assertion read `not.toContain` until D-66
     // retracted exactly that clause of D-23.
@@ -2870,18 +2874,21 @@ describe('the failure checkpoint', () => {
     expect(harness.calls).toContain('retire');
   });
 
-  it('should not swallow a rejection of the failed input', () => {
+  it('should not swallow a failure raised over the failed input', () => {
     const harness = createHarness({
       moved(): never {
         throw new Error('cssom');
       },
       settlement: {
-        prepare(_draft, input): SeamRejection {
+        prepare(_draft, input): PreparedSettlement {
           harness.settlements.push(input);
-          return {
-            stage: FAILURE_TERMINAL_CALLBACK,
-            error: new Error('cannot map'),
-          };
+          // **The stage this used to name is gone with the transport** (D-152),
+          // and the row is unaffected: what it pins is that a fault raised
+          // while mapping the *failed* input still surfaces, not which stage it
+          // carried. The seam's own `FAILURE_RESOLUTION` is what classifies it,
+          // and the report transition never publishing is why it arrives as a
+          // warning either way.
+          throw new Error('cannot map');
         },
         effect: (): void => {},
       },
@@ -2892,7 +2899,7 @@ describe('the failure checkpoint', () => {
 
     // The report transition never published, so nothing will drive
     // `ERROR_REPORTED` — but the operation still may not stay live, and the
-    // rejection error still has to surface somewhere.
+    // raised error still has to surface somewhere.
     expect(harness.reports).toHaveLength(1);
     expect(harness.calls).toContain('retire');
   });

@@ -81,7 +81,6 @@ const PUBLISHED_TYPES: readonly string[] = [
   'PreparedSettlement',
   'ReleaseTransition',
   'ResolutionCommand',
-  'SeamRejection',
   'SettlementInput',
   'SettlementScope',
   'SettlementTransition',
@@ -223,18 +222,22 @@ describe('the kernel tier boundary', () => {
     expect(stray).toEqual([]);
   });
 
-  it('should declare the doubly-declared seam types exactly once', async () => {
-    // **F-61.** `ActionTransition` and `SeamRejection` were declared in
+  it('should declare the doubly-declared seam type exactly once', async () => {
+    // **F-61.** `ActionTransition` and ~~`SeamRejection`~~ were declared in
     // `kernel/seams.ts` *and* `kernel/spec.ts`, structurally identical and
     // independently maintained. Harmless while both were internal; publishing
     // one of each makes it the identity hazard 03 §The export topology exists
     // to prevent — a consumer's compiler resolves the published declaration
     // while the driver consumes the other.
+    //
+    // **One of the two is gone with the transport it carried** (D-152), and
+    // the row keeps the other rather than being deleted: the hazard is a
+    // property of re-exporting across the two modules, which `ActionTransition`
+    // still does.
     const dir = join(SRC, 'kernel');
     const files = (await readdir(dir)).filter((name) => name.endsWith('.ts'));
     const declarations: Record<string, string[]> = {
       ActionTransition: [],
-      SeamRejection: [],
     };
 
     const sources = await Promise.all(
@@ -249,10 +252,7 @@ describe('the kernel tier boundary', () => {
       }
     });
 
-    expect(declarations).toEqual({
-      ActionTransition: ['seams.ts'],
-      SeamRejection: ['seams.ts'],
-    });
+    expect(declarations).toEqual({ ActionTransition: ['seams.ts'] });
   });
 
   it('should keep the re-homed cancel stages as one declaration on two entries', () => {

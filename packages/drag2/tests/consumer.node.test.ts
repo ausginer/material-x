@@ -177,6 +177,20 @@ const hoistedAxis: AxisInstaller = (context) => {
   };
 };
 
+// **The composition check's own alias is published, and this is what says so**
+// (F-147). \`sortable()\`'s signature names \`SortableComposition\`, so F-51
+// obliges the entry to export it; the four helpers it reaches resolve at
+// \`sortable/feature.js\`, one tier down, and are not named here. Nothing a
+// consumer writes mentions it — the check applies itself at the call — so what
+// this row pins is publication, not usage.
+type Composition = import('@ydinjs/drag2/sortable.js').SortableComposition<{
+  plugins: readonly SortablePlugin[];
+}>;
+
+declare const composition: Composition;
+
+void composition;
+
 // **The \`plugins\` and \`landing\` aliases are hoistable from the ordinary
 // tier too** (D-110, D-146). \`SortableConfig\` names one at each slot and
 // \`sortable.js\` published neither, so typing one meant importing the
@@ -463,8 +477,10 @@ type A7 = import('@ydinjs/drag2/drag.js').SettlementScope;
 type A8 = import('@ydinjs/drag2/drag.js').SettlementInput;
 // @ts-expect-error: the resolution command is internal
 type A9 = import('@ydinjs/drag2/drag.js').ResolutionCommand;
-// @ts-expect-error: the seam rejection is internal
-type A10 = import('@ydinjs/drag2/drag.js').SeamRejection;
+// @ts-expect-error: the seam rejection is **deleted**, not merely internal
+// (D-152) — a non-discardable seam fails by throwing, like every other seam,
+// so there is no second failure transport for a behavior author to reach for.
+type A10 = import('@ydinjs/drag2/kernel.js').SeamRejection;
 // @ts-expect-error: the lift mode constants are internal
 const A11 = import('@ydinjs/drag2/drag.js').then((m) => m.LIFT_FLAT);
 // @ts-expect-error: the slot record is internal
@@ -589,7 +605,6 @@ import {
   type PreparedSettlement,
   type ReleaseTransition,
   type ResolutionCommand,
-  type SeamRejection,
   type SettlementInput,
   type SettlementScope,
   type SettlementTransition,
@@ -676,9 +691,13 @@ const activation: Transition<Part, HTMLElement, ActivationScope> = {
 };
 
 const release: ReleaseTransition<Part> = {
-  prepare: (draft): ResolutionCommand | SeamRejection => {
+  prepare: (draft): ResolutionCommand => {
+    // **The seam owns its stage, so the behavior raises a cause** (D-152).
+    // This is the out-of-line third-party behavior, so it is where the throw
+    // form has to be writable: \`release.prepare\` is already running at
+    // \`FAILURE_RELEASE\`.
     if (draft.grabbed === null) {
-      return { stage: FAILURE_RELEASE, error: new Error('no subject') };
+      throw new Error('no subject');
     }
 
     return {
@@ -697,13 +716,14 @@ const release: ReleaseTransition<Part> = {
 const settlement: SettlementTransition<Part> = {
   // All five arms, exhaustively — D-24 requires it and the discriminants are
   // values, so an erased surface could not express this switch at all.
-  prepare: (draft, input: SettlementInput): PreparedSettlement | SeamRejection => {
+  prepare: (draft, input: SettlementInput): PreparedSettlement => {
     switch (input.type) {
       case SETTLED_FULFILLED:
         draft.verdict = String(input.value);
         return true;
       case SETTLED_REJECTED:
-        return { stage: FAILURE_ACTIVATION, error: input.error };
+        // The caught cause, re-raised verbatim (D-152).
+        throw input.error;
       case SETTLED_SKIPPED:
         draft.verdict = 'noop';
         return true;
@@ -851,6 +871,7 @@ import {
   type FreeDragController,
   type ConstraintInstaller,
   type FreeDragLandingInstaller,
+  type FreeDragPlugin,
   type FreeDragOnDragError,
   type FreeDragOnEnd,
   type FreeDragOnStart,
@@ -1014,6 +1035,16 @@ controller.invalidate();
 controller.moveTo({ x: 10, y: 20 } satisfies Point);
 controller.cancel('reason');
 void controller.destroy();
+
+// Free drag's twin (F-147): named by \`freeDrag()\`'s signature and therefore
+// exported from this entry, with its own closure one tier down.
+type FreeComposition = import('@ydinjs/drag2/free-drag.js').FreeDragComposition<{
+  plugins: readonly FreeDragPlugin[];
+}>;
+
+declare const freeComposition: FreeComposition;
+
+void freeComposition;
 
 declare const source: BoundsSource;
 declare const options: LandingOptions;

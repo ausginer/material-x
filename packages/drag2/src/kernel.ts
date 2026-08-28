@@ -58,9 +58,12 @@ import type { BehaviorFactory } from './kernel/spec.ts';
  * accept its closure; D-68 accepts it, because every candidate for elimination
  * is a name a behavior of the sortable's size writes out of line.
  *
- * `ActionTransition` and `SeamRejection` are re-exported through this module
- * from **one** declaration each, in `kernel/seams.ts`: publishing one copy
- * while the driver consumes another is an identity hazard (F-61).
+ * `ActionTransition` is re-exported through this module from **one**
+ * declaration, in `kernel/seams.ts`: publishing one copy while the driver
+ * consumes another is an identity hazard (F-61). It is the only type that
+ * needs the treatment: the second failure transport that shared it is deleted
+ * (D-152), because a non-discardable seam fails by throwing, like every other
+ * seam.
  */
 export type {
   ActionTransition,
@@ -78,7 +81,6 @@ export type {
   PreparedSettlement,
   ReleaseTransition,
   ResolutionCommand,
-  SeamRejection,
   SettlementInput,
   SettlementScope,
   SettlementTransition,

@@ -83,7 +83,6 @@ import type {
   LandingStart,
   PreparedSettlement,
   ResolutionCommand,
-  SeamRejection,
   SettlementInput,
   SettlementScope,
   SettlementTransition,
@@ -230,8 +229,27 @@ type RevisedActivationScope = Readonly<{
   presentation: LifetimeScope;
 }>;
 
+/**
+ * **Restated locally, and only the release arm needed it** (D-152). The
+ * revision's release and settlement `prepare` returned `… | SeamRejection`, and
+ * the type is deleted from `src/` — a non-discardable seam now fails by
+ * throwing, like every other seam. A fixture of a past surface keeps the
+ * surface, so the arm is declared here rather than dropped: what this file
+ * pins is that the **revision** compiled as one system, and editing it to
+ * today's shape would erase the evidence rather than update it.
+ *
+ * The **settlement** half needs no restatement, by this file's own rule: it
+ * imports `SettlementTransition` from `src/` because the revision's shape was
+ * implemented, and `src/` still agrees with it — the arm was the only thing
+ * D-152 took, and neither settlement site here returns one.
+ */
+type RevisedSeamRejection = Readonly<{
+  stage: FailureStage;
+  error: unknown;
+}>;
+
 type RevisedReleaseTransition<Part extends object> = Readonly<{
-  prepare(draft: Draft<Part>): ResolutionCommand | SeamRejection;
+  prepare(draft: Draft<Part>): ResolutionCommand | RevisedSeamRejection;
   effect(current: Readonly<Frame<Part>>, prepared: ResolutionCommand): void;
 }>;
 
@@ -445,7 +463,7 @@ declare function classify(
   input: SettlementInput,
 ): void;
 declare const startLanding: LandingStart | null;
-declare const rejection: SeamRejection;
+declare const rejection: RevisedSeamRejection;
 
 /**
  * The sortable stages a detached placeholder, so it names `HTMLElement`
@@ -581,7 +599,7 @@ export function createSortableSpec(
        * "a keyboard and a pointer reorder to the same gap produce identical
        * proposals" a statement about one code path.
        */
-      prepare(draft): ResolutionCommand | SeamRejection {
+      prepare(draft): ResolutionCommand | RevisedSeamRejection {
         if (draft.item === null) {
           return rejection;
         }
@@ -656,7 +674,7 @@ export function createSortableSpec(
     },
 
     settlement: {
-      prepare(draft, input): PreparedSettlement | SeamRejection {
+      prepare(draft, input): PreparedSettlement {
         classify(draft, input);
 
         // **Stale as of D-41, and left in place rather than rewritten.** The
@@ -811,14 +829,14 @@ export const freeDragSpec: RevisedBehaviorSpec<FreeDragPart> = {
   },
 
   release: {
-    prepare(): ResolutionCommand | SeamRejection {
+    prepare(): ResolutionCommand | RevisedSeamRejection {
       return { invoke: (signal): unknown => invokeOnDrop(signal) };
     },
     effect(): void {},
   },
 
   settlement: {
-    prepare(): PreparedSettlement | SeamRejection {
+    prepare(): PreparedSettlement {
       return true;
     },
     effect(_current, _prepared, scope): void {

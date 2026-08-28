@@ -64,7 +64,7 @@ Implemented in Phase 16. The consumer-facing rows are `tests/sortable/keyboard.b
 | the command destination **survives activation** instead of being reseeded to home | `tests/sortable/keyboard.browser.test.ts` — _should survive activation instead of being reseeded to home_ | C4-01 |
 | **and survives release** instead of being re-resolved spatially | `tests/sortable/keyboard.browser.test.ts` — _should survive release instead of being re-resolved spatially_ | C4-01 |
 | `release.effect` moves the placeholder but performs **no lift write**, so the landing origin is `(0, 0)` | `tests/sortable/keyboard.browser.test.ts` — _should build the landing origin from a visual that never moved_ | D-35, C5-03 |
-| a pointerless `release.prepare` reaching a `null` insertion returns a `SeamRejection` and does **not** fall back to home | `tests/sortable/sortable.browser.test.ts` — _should reject rather than fall back to home_ (driven directly; see below) | D-32 |
+| a pointerless `release.prepare` reaching a `null` insertion **throws** and does **not** fall back to home | `tests/sortable/sortable.browser.test.ts` — _should reject rather than fall back to home_ (driven directly; see below) | D-32, D-152 |
 | a command gap invalidated by an `invalidate()` queued from inside the listener is rebased or cancels — **no command-specific revalidation** | `tests/sortable/keyboard.browser.test.ts` — _should enqueue an invalidate() rather than drain it_ | I-1, D-32 |
 | command admission is refused whenever an operation is already live, at `PENDING`, `ACTIVE` and `SETTLING` | `tests/sortable/keyboard.browser.test.ts` — the _a command against a live operation_ group | C4-07 |
 | a `pointerdown` from inside `command.admit`, and a `keydown` from inside `admit`, are both refused by the shared latch | `tests/sortable/keyboard.browser.test.ts` — _should refuse a press dispatched from inside the command listener_, _…from inside the press listener_ | D-32 |
@@ -196,7 +196,7 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | neither gate held finalizes in the resolution drain | `tests/kernel/kernel.browser.test.ts` — _should finalize in the resolution drain when neither gate is held_ | I-9 |
 | a duplicate hold is ignored and reported | `tests/kernel/kernel.browser.test.ts` — _should ignore and report a duplicate hold_ | F-6 |
 | a hold requested after sealing is ignored and reported | `tests/kernel/kernel.browser.test.ts` — _should ignore and report a hold requested after sealing_ | F-6 |
-| `settlement.prepare` returning a `SeamRejection` classifies at the named stage | `tests/kernel/kernel.browser.test.ts` — _should classify a prepare rejection at the stage it names_ | F-20 |
+| a throwing `settlement.prepare` classifies at the **seam's own** stage, and a throwing `release.prepare` likewise — with the raised cause travelling verbatim and no effect run | `tests/kernel/kernel.browser.test.ts` — _should classify a throwing prepare at the seam's own stage_, _should classify a throwing release prepare at the seam's own stage_, _should not run the effect after a throwing prepare_ | F-20, D-152 |
 | an `effect` that throws is classified, not a panic | `tests/kernel/seams.node.test.ts` — _should classify a throwing effect from the committed state_ | F-19 |
 | a `rollback` that throws is reported, not classified | `tests/kernel/seams.node.test.ts` — _should report a throwing rollback without classifying it_ | F-19 |
 | `use()` on a disposed lifetime invokes the disposer immediately | `tests/kernel/lifetimes.node.test.ts` — _should invoke a disposer registered after dispose immediately_ | D-21 |
@@ -469,7 +469,7 @@ The tier published no value at all, so it could **describe** a behavior and not 
 | `kernel.js`'s closure resolves within `kernel.js ∪ drag.js` | `tests/docs.node.test.ts` — _should close the kernel tier over the kernel tier_ | F-60 |
 | `intentionallyNotExported` is empty | `typedoc.json`, enforced by the same run — TypeDoc fails a listed name that becomes exported | D-68 |
 | the behavior reaches nothing unpublished and unenumerated | `tests/kernel/vocabulary.node.test.ts` — _should reach nothing from the behavior that is neither published nor a named internal_ | D-68 |
-| `ActionTransition` and `SeamRejection` resolve to one declaration each | `tests/kernel/vocabulary.node.test.ts` — _should declare the doubly-declared seam types exactly once_ | F-61 |
+| `ActionTransition` resolves to one declaration (~~and `SeamRejection`~~ — deleted by D-152 with the transport it carried) | `tests/kernel/vocabulary.node.test.ts` — _should declare the doubly-declared seam type exactly once_ | F-61 |
 | `KernelFrame.phase` is `Phase` | `tests/kernel/frames.declaration.test.ts` — _should expose the kernel slice for reading_ | D-68 |
 | the re-homed names keep their old specifiers, by identity | `tests/kernel/vocabulary.node.test.ts` — _should keep the re-homed cancel stages as one declaration on two entries_, _…should re-export the middle tier's landing seam types from the kernel's own modules_ | D-68 |
 | the hand-written type allow-list holds no name the entries stopped exporting | `tests/kernel/vocabulary.node.test.ts` — _should list only types the entries still export_ | D-68, review 2 B-6 |
@@ -668,7 +668,7 @@ The precedent for _removing_ an unfalsifiable conjunct rather than recording it 
 | a throwing `onMove` is a **presentation** fault with exactly one terminal | _should classify a throwing onMove as a presentation fault with one terminal_ | B-4 (b) |
 | a throwing `home` is **advisory**: reported as a `DraggableWarning`, landing skipped, drop still standing | _should warn on a throwing home and leave the drop standing_ | B-4 (b), D-49, D-130 |
 | a throwing `onEnd` is a **consumer** fault | _should classify a throwing onEnd as a consumer fault_ | B-4 (b) |
-| a non-function `onDrop` reaches the designed `SeamRejection` rather than a construction throw | _should classify a non-function onDrop as a consumer fault with one terminal_ | B-4 (b), D-77 |
+| a non-function `onDrop` reaches the designed settlement failure rather than a construction throw | _should classify a non-function onDrop as a consumer fault with one terminal_ | B-4 (b), D-77 |
 | a throwing `onError` is **discarded** — the handler is called once and the throw is never notified back | _should discard a throwing onError rather than reporting it back_ | 07 §Validation, D-130 |
 | a garbage `bounds` source surfaces at **all four** seams it can reach, with the two codes they map to | _should surface at activation as an interaction fault on its first resolve_, _should surface from a committed sample as a presentation fault_, _should surface from a moveTo effect as a presentation fault_, _should surface from the release as an interaction fault_ | D-81, F-71, F-73 |
 | and **never** from the action that marks the rect stale — `FAILURE_ACTION_PREPARE` is unreachable from the row | _should never surface from the action that marks it stale_ | D-81 |

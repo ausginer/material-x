@@ -21,8 +21,6 @@ import {
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
-  FAILURE_RELEASE,
-  FAILURE_RESOLUTION,
   FAILURE_TERMINAL_CALLBACK,
   type FailureStage,
 } from '../kernel/failures.ts';
@@ -38,7 +36,6 @@ import {
   type BehaviorSpec,
   type KernelHost,
   type PreparedSettlement,
-  type SeamRejection,
   SETTLED_CANCELED,
   SETTLED_FAILED,
   SETTLED_FULFILLED,
@@ -66,11 +63,6 @@ import type { FreeDragSlots } from './slots.ts';
 const MINTED = 0;
 const STARTED = 1;
 const RESOLVING = 2;
-
-const rejection = (stage: FailureStage, message: string): SeamRejection => ({
-  stage,
-  error: new Error(message),
-});
 
 export function createFreeDragSpec(
   host: KernelHost,
@@ -621,10 +613,7 @@ export function createFreeDragSpec(
         // as a successful no-op drop would tell the consumer the drag completed
         // normally.
         if (!visual || !origin) {
-          return rejection(
-            FAILURE_RELEASE,
-            'drag: free-drag/release-no-visual',
-          );
+          throw new Error('drag: free-drag/release-no-visual');
         }
 
         deriveMotion(
@@ -700,7 +689,7 @@ export function createFreeDragSpec(
 
     settlement: {
       /** The five-case mapping, covered exhaustively (D-24, F-29). */
-      prepare(draft, input): PreparedSettlement | SeamRejection {
+      prepare(draft, input): PreparedSettlement {
         pendingFailure = null;
 
         const { request } = draft;
@@ -715,10 +704,7 @@ export function createFreeDragSpec(
             // have): `release.prepare` never returns `invoke: null`. Reaching
             // it means the kernel skipped a round-trip this behavior never
             // declined, which is a broken invariant rather than a drop.
-            return rejection(
-              FAILURE_RESOLUTION,
-              'drag: free-drag/settled-skipped',
-            );
+            throw new Error('drag: free-drag/settled-skipped');
           }
 
           case SETTLED_FULFILLED: {
@@ -758,7 +744,13 @@ export function createFreeDragSpec(
             // an inferred rejection. It still *ends* the operation — D-66 — but
             // as a fault reported through `onError`, with the terminal saying
             // `canceled` rather than `rejected`.
-            return { stage: FAILURE_RESOLUTION, error: input.error };
+            //
+            // **The caught cause travels verbatim** (D-152). Something *was*
+            // caught here — the consumer's own rejection value — so nothing is
+            // added to it: no identity, no wrapper. The seam is already open at
+            // `FAILURE_RESOLUTION`, which is the stage the deleted return arm
+            // named, so re-raising it classifies exactly where it did.
+            throw input.error;
           }
 
           case SETTLED_CANCELED: {

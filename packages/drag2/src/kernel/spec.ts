@@ -16,11 +16,11 @@ import type {
   LiftMode,
 } from './presentation.ts';
 import type { DOMRealm } from './realm.ts';
-// `ActionTransition` and `SeamRejection` have exactly one declaration each, in
-// `seams.ts`, and are re-exported from here. A second structurally identical
-// declaration at this tier would let a consumer's compiler resolve one while
-// the driver consumes the other (F-61).
-import type { ActionTransition, SeamRejection, Transition } from './seams.ts';
+// `ActionTransition` has exactly one declaration, in `seams.ts`, and is
+// re-exported from here. A second structurally identical declaration at this
+// tier would let a consumer's compiler resolve one while the driver consumes
+// the other (F-61).
+import type { ActionTransition, Transition } from './seams.ts';
 import type { OffsetBox, Point } from './types.ts';
 
 /**
@@ -213,16 +213,18 @@ export type ResolutionCommand = Readonly<{
    *
    * `null` asserts a **proven semantic no-op** and nothing else. A release that
    * finds no view, item, snapshot or insertion has a broken invariant and must
-   * return a {@link SeamRejection} instead; reporting that as a successful
-   * no-op drop would tell the consumer the drag completed normally.
+   * **throw** instead; reporting that as a successful no-op drop would tell the
+   * consumer the drag completed normally. The seam is already running at its
+   * own stage, so a throw is classified there — this seam fails the way every
+   * other seam fails.
    */
   invoke: ((signal: AbortSignal) => unknown) | null;
 }>;
 
-export type { ActionTransition, SeamRejection } from './seams.ts';
+export type { ActionTransition } from './seams.ts';
 
 export type ReleaseTransition<Part extends object> = Readonly<{
-  prepare(draft: Draft<Part>): ResolutionCommand | SeamRejection;
+  prepare(draft: Draft<Part>): ResolutionCommand;
   effect(current: Readonly<Frame<Part>>, prepared: ResolutionCommand): void;
 }>;
 
@@ -341,10 +343,7 @@ export type SettlementScope = Readonly<{
 }>;
 
 export type SettlementTransition<Part extends object> = Readonly<{
-  prepare(
-    draft: Draft<Part>,
-    input: SettlementInput,
-  ): PreparedSettlement | SeamRejection;
+  prepare(draft: Draft<Part>, input: SettlementInput): PreparedSettlement;
   effect(
     current: Readonly<Frame<Part>>,
     prepared: PreparedSettlement,

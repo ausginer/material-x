@@ -19,6 +19,19 @@ import type { FailureStage } from './failures.ts';
  *
  * The classifying error is carried on the native `cause`. `message` is that
  * error's own whenever there is one, so nothing it said is flattened away.
+ *
+ * **`stage` is the classification and the whole of it.** `message` and `cause`
+ * are diagnostics: **nothing may branch on either**, and both may change in a
+ * patch release. Where the library caught something — a callback of yours, a
+ * third-party capability, the platform — `cause` is that value unchanged, and
+ * `message` is its message. Where the library detected a condition and caught
+ * nothing, `message` is a `drag: <area>/<condition>` identity naming it, which
+ * exists so a production bug report says which invariant broke; it is not a
+ * second classification and is not part of the API.
+ *
+ * This is where the two classes differ, and the difference is the reason for
+ * the rule: a {@link DraggableWarning} has no `stage`, so its `message` **is**
+ * the payload.
  */
 export class DraggableError extends Error {
   readonly stage: FailureStage | null;

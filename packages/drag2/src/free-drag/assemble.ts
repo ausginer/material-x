@@ -103,7 +103,7 @@ export function assemble(
     const slots: FreeDragSlots = {
       // **Not validated as a function** (D-77). The type says `OnDrop`; a JS
       // consumer that passes something else meets a designed path — a release
-      // with nothing to ask is a `SeamRejection`, classified
+      // with nothing to ask throws in the settlement seam, classified
       // `FAILURE_RESOLUTION`, with the drag canceled and the visual restored.
       onDrop: config.onDrop,
 

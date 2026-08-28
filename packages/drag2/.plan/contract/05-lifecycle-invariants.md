@@ -243,7 +243,7 @@ Resolved by keeping one **core** and giving each seam its own wrapper with its o
 
 `release.prepare` returning `null` left a truthful but stranded `RELEASING` operation: no resolution, no failure, no retirement. `settlement.prepare` documented `null` as "after queueing a failure", which the kernel could not verify once the resolution payload was consumed.
 
-Both are now non-nullable. Release stages a `ResolutionCommand`; settlement returns `PreparedSettlement | SeamRejection` and the kernel classifies the rejection itself. The `ResolutionGate`'s `open`/`skip` linearity problem disappears with it — the choice became a value.
+Both are now non-nullable. Release stages a `ResolutionCommand`; settlement returns `PreparedSettlement`, and either seam **fails by throwing**, which the kernel classifies at that seam's own stage (D-152 — the `| SeamRejection` arm both once carried is deleted). The `ResolutionGate`'s `open`/`skip` linearity problem disappears with it — the choice became a value.
 
 ### F-21 — synchronous landing completion raced the hold · resolved by contract
 

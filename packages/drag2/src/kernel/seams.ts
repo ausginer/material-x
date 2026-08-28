@@ -72,15 +72,6 @@ export type ActionTransition<Part extends object> = Readonly<{
   rollback?(tag: number, prepared: {}): void;
 }>;
 
-/**
- * Shared by the two non-discardable seams, which still need to say *this is a
- * failure, at this stage*.
- */
-export type SeamRejection = Readonly<{
-  stage: FailureStage;
-  error: unknown;
-}>;
-
 /** `prepare` returned `null` — nothing happened. */
 export const SEAM_DISCARDED = 0;
 /** A reentrant cancel/destroy invalidated an otherwise good prepare. */

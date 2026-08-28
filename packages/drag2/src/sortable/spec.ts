@@ -11,8 +11,6 @@ import {
   AT_CONSUMER,
   AT_PROPOSAL,
   FAILURE_INVALIDATION,
-  FAILURE_RELEASE,
-  FAILURE_RESOLUTION,
   FAILURE_SCHEDULED_FRAME,
   FAILURE_TERMINAL_CALLBACK,
   type FailureStage,
@@ -32,7 +30,6 @@ import {
   type BehaviorSpec,
   type KernelHost,
   type PreparedSettlement,
-  type SeamRejection,
   SETTLED_CANCELED,
   SETTLED_FAILED,
   SETTLED_FULFILLED,
@@ -109,11 +106,6 @@ export const STAGED = true;
 const MINTED = 0;
 const STARTED = 1;
 const RESOLVING = 2;
-
-const rejection = (stage: FailureStage, message: string): SeamRejection => ({
-  stage,
-  error: new Error(message),
-});
 
 /**
  * `source` is the consumer's own array and `items` is the validated copy of it.
@@ -511,7 +503,7 @@ export function createSortableSpec(
    *    whose prepare wrote it — there is no window in which one settlement's
    *    effect could observe another's failure.
    * 2. Every path that abandons a transaction between the two phases —
-   *    `prepare` returning a `SeamRejection`, `SEAM_INVALIDATED` from a held
+   *    `prepare` throwing, `SEAM_INVALIDATED` from a held
    *    cancel latch, a reentrant `destroy()` — skips the effect and therefore
    *    leaves the slot set; the *next* prepare's clear is what collects it.
    *    Staleness is impossible by construction, not by timing.
@@ -1352,10 +1344,7 @@ export function createSortableSpec(
         const { snapshot } = draft;
 
         if (!view || !item || !snapshot) {
-          return rejection(
-            FAILURE_RELEASE,
-            'drag: sortable/release-no-presentation',
-          );
+          throw new Error('drag: sortable/release-no-presentation');
         }
 
         // **The branch is where the insertion comes from, never how the
@@ -1381,10 +1370,7 @@ export function createSortableSpec(
           // Reporting that as a home-gap reorder would tell the consumer a drop
           // completed normally.
           if (!commanded) {
-            return rejection(
-              FAILURE_RELEASE,
-              'drag: sortable/release-no-destination',
-            );
+            throw new Error('drag: sortable/release-no-destination');
           }
 
           insertion = commanded;
@@ -1426,10 +1412,7 @@ export function createSortableSpec(
           }
 
           if (!resolved) {
-            return rejection(
-              FAILURE_RELEASE,
-              'drag: sortable/release-no-insertion',
-            );
+            throw new Error('drag: sortable/release-no-insertion');
           }
 
           draft.insertion = resolved;
@@ -1442,10 +1425,7 @@ export function createSortableSpec(
           // A release that finds no coherent proposal has a broken invariant.
           // Reporting it as a successful no-op drop would tell the consumer the
           // drag completed normally.
-          return rejection(
-            FAILURE_RELEASE,
-            'drag: sortable/release-no-proposal',
-          );
+          throw new Error('drag: sortable/release-no-proposal');
         }
 
         draft.proposal = built.proposal;
@@ -1527,7 +1507,7 @@ export function createSortableSpec(
 
     settlement: {
       /** The five-case mapping, covered exhaustively (D-24, F-29). */
-      prepare(draft, input): PreparedSettlement | SeamRejection {
+      prepare(draft, input): PreparedSettlement {
         pendingFailure = null;
 
         const { proposal } = draft;
@@ -1586,10 +1566,13 @@ export function createSortableSpec(
             // an inferred rejection. It still *ends* the operation — D-66 —
             // but as a fault reported through `onError`, with the terminal
             // saying `canceled` rather than `rejected`.
-            return {
-              stage: FAILURE_RESOLUTION,
-              error: input.error,
-            };
+            //
+            // **The caught cause travels verbatim** (D-152). Something *was*
+            // caught here — the consumer's own rejection value — so nothing is
+            // added to it: no identity, no wrapper. The seam is already open at
+            // `FAILURE_RESOLUTION`, which is the stage the deleted return arm
+            // named, so re-raising it classifies exactly where it did.
+            throw input.error;
           }
 
           case SETTLED_CANCELED: {

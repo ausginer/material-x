@@ -243,6 +243,50 @@ describe('a late resolution', () => {
  * which is F-74's defect written on purpose.
  */
 
+describe('retirement order', () => {
+  it('should run free drag’s retire hooks in reverse installation order', () => {
+    // **The guarantee D-147 moved from representation to execution**, asserted
+    // for the behavior that had no witness for it (F-151): the ledger is stored
+    // in installation order and every reader walks it backwards, so the last
+    // installer releases first. `bounds` is a named key and is installed before
+    // `plugins`, which is schema order (D-57), and the two plugins install in
+    // array order — so this drives the whole sequence rather than one position.
+    //
+    // Discriminating by construction: reversing the loop in
+    // `free-drag/spec.ts`'s `retire()` produces the opposite array.
+    const seen: string[] = [];
+    const record = (name: string) => (): void => {
+      seen.push(name);
+    };
+    const composed = compose({
+      fragments: [
+        {
+          bounds: () => ({
+            constrain: {
+              apply: (): void => {},
+              invalidate: (): void => {},
+              retire: record('bounds-constraint'),
+            },
+            retire: record('bounds-installer'),
+          }),
+        },
+        { plugins: [() => ({ retire: record('plugin-1') })] },
+        { plugins: [() => ({ retire: record('plugin-2') })] },
+      ],
+    });
+
+    activate(composed);
+    composed.controller.cancel('reason');
+
+    expect(seen).toEqual([
+      'plugin-2',
+      'plugin-1',
+      'bounds-installer',
+      'bounds-constraint',
+    ]);
+  });
+});
+
 describe('the landing origin', () => {
   it('should open from the axis-locked delta rather than the pointer', async () => {
     // **L-4**, free drag's half of K-3. The pointer travelled on both axes and

@@ -181,14 +181,16 @@ Per seam:
 | --- | --- | --- |
 | `action` | Normal. Nothing published, operation continues. | Stage per tag (`INSERTION`, `PLACEHOLDER_MOVE`). |
 | `activation` | **Retires the operation** — the kernel releases capture, disposes the lift and returns to `IDLE`; there is no such thing as a pending operation with no presentation. On `SEAM_COMMITTED` the kernel re-checks `preparationValid()` and only then dispatches `START_COMMITTED`. | `ACTIVATION`, and **no retirement** — the queued checkpoint owns it. |
-| `release` | **Not expressible.** `prepare` returns `ResolutionCommand \| SeamRejection` — motion is already closed, so "changed my mind" has no meaning. | `RELEASE`; the staged command is **not** executed. |
-| `settlement` | **Not expressible.** `prepare` returns `PreparedSettlement \| SeamRejection`; the kernel classifies the rejection itself. | The stage the behavior names in the rejection; on an `effect` failure the gate plan is discarded unarmed. |
+| `release` | **Not expressible.** `prepare` returns `ResolutionCommand` — motion is already closed, so "changed my mind" has no meaning. A `prepare` that cannot build one **throws** (D-152). | `RELEASE`, the seam's own stage; the staged command is **not** executed. |
+| `settlement` | **Not expressible.** `prepare` returns `PreparedSettlement`, and **throws** when there is no coherent settlement to prepare (D-152). | `RESOLUTION`, the seam's own stage; on an `effect` failure the gate plan is discarded unarmed. |
 
 The last two close a hole the generic driver had: `release.prepare` returning `null` left a truthful but stranded `RELEASING` operation with no resolution, no failure and no retirement, and `settlement.prepare` returning `null` depended on the behavior having queued a failure first — which the kernel could not check, after the resolution payload was already consumed.
 
-**Unimplemented (D-152): `SeamRejection` is deleted and both seams fail by throwing.** ~~`SeamRejection` is shared by both, because both are non-discardable seams that still need to say _this is a failure, at this stage_:~~ The hole the last two rows close is real and stays closed — `null` from either `prepare` is still not a way to fail — but a **throw** closes it as well as a returned record does, and does so the way the other four seams already do. `runPhase` catches and calls `context.fail(stage, raised)` with the seam's own stage, which is the stage all six sites returned; `host.fail` remains for a behavior that needs a different one; and `requestFailure` already states the equivalence — _a latched failure and a throw are the same event on this path too_ (D-49). What the union expressed was _these two seams may fail in a second way_, not _a seam may fail_. Record [`rejection-transport-claude.md`](../reviews/phase-23/rejection-transport-claude.md).
+**Implemented (D-152): `SeamRejection` is deleted and both seams fail by throwing.** ~~`SeamRejection` is shared by both, because both are non-discardable seams that still need to say _this is a failure, at this stage_:~~ The hole the last two rows close is real and stays closed — `null` from either `prepare` is still not a way to fail — but a **throw** closes it as well as a returned record does, and does so the way the other four seams already do. `runPhase` catches and calls `context.fail(stage, raised)` with the seam's own stage, which is the stage all six sites returned; `host.fail` remains for a behavior that needs a different one; and `requestFailure` already states the equivalence — _a latched failure and a throw are the same event on this path too_ (D-49). What the union expressed was _these two seams may fail in a second way_, not _a seam may fail_. Record [`rejection-transport-claude.md`](../reviews/phase-23/rejection-transport-claude.md).
 
 ```ts
+// Deleted 2026-08-28. Kept as the shape the two arms carried, so the rows above
+// read against something.
 type SeamRejection = Readonly<{ stage: FailureStage; error: unknown }>;
 ```
 
@@ -541,7 +543,7 @@ release.prepare
     pointer     invalidateInsertion(); resolveInsertion(draft, view)
                 fall back: resolved → incumbent → home
     pointerless draft.insertion stands; no invalidation, no spatial resolve
-                null here is a SeamRejection, never a home fallback
+                null here throws, never a home fallback (D-152)
 
 release.effect
     both        movePlaceholder(view, insertion)     ← home becomes destination
@@ -1071,7 +1073,7 @@ type ResolutionCommand = Readonly<{
 }>;
 
 type ReleaseTransition<Part extends object> = Readonly<{
-  prepare(draft: Draft<Part>): ResolutionCommand | SeamRejection;
+  prepare(draft: Draft<Part>): ResolutionCommand; // throws to fail (D-152)
   effect(current: Readonly<Frame<Part>>, prepared: ResolutionCommand): void;
 }>;
 ```
@@ -1096,10 +1098,7 @@ Acceptance is still **never inferred**: `settlement.prepare` is where a fulfille
 type PreparedSettlement = true;
 
 type SettlementTransition<Part extends object> = Readonly<{
-  prepare(
-    draft: Draft<Part>,
-    input: SettlementInput,
-  ): PreparedSettlement | SeamRejection;
+  prepare(draft: Draft<Part>, input: SettlementInput): PreparedSettlement; // throws to fail (D-152)
   effect(
     current: Readonly<Frame<Part>>,
     prepared: PreparedSettlement,
@@ -1283,9 +1282,9 @@ The gate method **records a request; it arms nothing** (review 4, §6, §10). Ar
 > RESOLUTION_SETTLED
     begin()
     spec.settlement.prepare(draft, input)           → outcome, recovery, domain
-                                                    ← a SeamRejection here is
-                                                      classified and nothing
-                                                      below runs
+                                                    ← a throw here is classified
+                                                      at the seam's own stage and
+                                                      nothing below runs
     preparationValid(); draft.phase = SETTLING; commit()
     attempt = { holds: 0, start: null, landing: null, landingHeld: false,
                 target: null, relinquished: true, sealed: false }
@@ -1553,7 +1552,7 @@ The failure checkpoint opens a settlement with that input and runs **the same se
 
 ```ts
 prepare(draft: Draft<Part>, input: SettlementInput):
-  PreparedSettlement | SeamRejection;
+  PreparedSettlement; // throws to fail (D-152)
 effect(current: Readonly<Frame<Part>>, prepared, scope): void;
 ```
 

@@ -2,8 +2,8 @@
  * The consumer-facing controller. **Four members** — the kernel's two, plus one
  * signal and one command (D-71).
  *
- * Every mutable policy slot is a source the library re-reads and `invalidate()`
- * is the only signal; no slot has a setter.
+ * The one mutable policy slot free drag has is the **bounds source**, which the
+ * library re-reads; `invalidate()` is the only signal and no slot has a setter.
  */
 import type { KernelHost } from '../kernel/spec.ts';
 import type { Point } from '../kernel/types.ts';
@@ -11,13 +11,19 @@ import { TAG_POLICY, TAG_POSITION } from './runtime.ts';
 
 export type FreeDragController = Readonly<{
   /**
-   * **A policy source may have changed.** Carries no payload: the library asks
-   * rather than being told, so `axis` and the bounds source are re-read rather
-   * than handed over.
+   * **The bounds source may have changed.** Carries no payload: the library
+   * asks rather than being told, so the source is re-read rather than handed
+   * over.
    *
    * Applied as a **queued action**, so it lands in FIFO order with everything
-   * else the drag is doing, and your sources are read inside the library's own
+   * else the drag is doing, and your source is read inside the library's own
    * transaction rather than on this statement.
+   *
+   * **`axis` is not re-read, because it is not a source**: it is fixed for the
+   * controller's lifetime, since its value applies to travel the drag has
+   * already accumulated rather than to the next position. A composition with no
+   * `bounds` installer has nothing to invalidate, and this is a queued no-op
+   * for it.
    */
   invalidate(): void;
   /**

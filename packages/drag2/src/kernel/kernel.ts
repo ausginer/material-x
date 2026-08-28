@@ -92,7 +92,6 @@ import {
   type LandingStart,
   type PreparedSettlement,
   type ResolutionCommand,
-  type SeamRejection,
   SETTLED_CANCELED,
   SETTLED_FAILED,
   SETTLED_FULFILLED,
@@ -1281,28 +1280,20 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   // Seam adapters, built once per controller
   // -------------------------------------------------------------------------
 
-  // `{}` rather than `object`: since D-41 emptied `PreparedSettlement` it is the
-  // bare `true` sentinel, which satisfies `{}` and is not an `object`.
-  const isRejection = (result: {}): result is SeamRejection =>
-    result !== true && 'stage' in result;
-
   /**
-   * Release cannot discard: `prepare` returns a command or a rejection, and
-   * motion is already closed, so "changed my mind" has no meaning. The
-   * rejection is classified by the kernel, which is what turns it into a
-   * prepare failure — and therefore into "the command is not executed".
+   * Release cannot discard: `prepare` returns a command, and motion is already
+   * closed, so "changed my mind" has no meaning.
+   *
+   * **A release that cannot build one throws** (D-152), like every other seam.
+   * There is no second return arm and no adapter between the two: the phase is
+   * already open at `FAILURE_RELEASE`, so `runPhase` catches the throw, calls
+   * `context.fail` with that stage and returns `SEAM_PREPARE_FAILED` — which is
+   * the same event, by the same route, that the deleted rejection arm reached
+   * through `requestFailure`. A behavior wanting a *different* stage still has
+   * `host.fail`, which latches and is on `KernelHost`.
    */
   const releaseTransition: Transition<Part, ResolutionCommand> = {
-    prepare(target) {
-      const result = spec!.release.prepare(target);
-
-      if (isRejection(result)) {
-        driver.requestFailure(result.stage, result.error);
-        return null;
-      }
-
-      return result;
-    },
+    prepare: (target) => spec!.release.prepare(target),
     effect(committed, prepared) {
       spec!.release.effect(committed, prepared);
     },
@@ -1324,25 +1315,17 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    *
    * The input travels in a slot rather than as the capability, because the two
    * phases take different arguments: `prepare` maps the input, `effect` receives
-   * the gate scope. A `SeamRejection` from `prepare` is classified at the stage
-   * the behavior named — a fulfilled value that is not an explicit resolution
-   * is `FAILURE_RESOLUTION`, and acceptance is never inferred.
+   * the gate scope. A `prepare` that finds no coherent settlement **throws**
+   * (D-152) and is classified at the seam's own `FAILURE_RESOLUTION` — a
+   * fulfilled value that is not an explicit resolution is that failure, and
+   * acceptance is never inferred.
    */
   const settlementTransition: Transition<
     Part,
     PreparedSettlement,
     SettlementScope
   > = {
-    prepare(target) {
-      const result = spec!.settlement.prepare(target, settlementInput!);
-
-      if (isRejection(result)) {
-        driver.requestFailure(result.stage, result.error);
-        return null;
-      }
-
-      return result;
-    },
+    prepare: (target) => spec!.settlement.prepare(target, settlementInput!),
     effect(committed, prepared, scope) {
       // Between the commit and the behavior's effect: the operation is decided,
       // so nothing may still cancel it. Motion is closed here too rather than
@@ -2252,12 +2235,22 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       type: SETTLED_FAILED,
       stage: checkpoint.stage,
       error: checkpoint.error,
-      // **Built here, by the kernel** (D-130 §5). The behavior maps `stage` to
-      // a recovery, which is its own (D-24, F-33), and forwards this untouched.
+      // **Built here, by the kernel, and here is the only place one is built
+      // for an operation** (D-130 §5, D-152). The behavior maps `stage` to a
+      // recovery, which is its own (D-24, F-33), and forwards this untouched.
       // **There is no stage → code mapping for a behavior to re-own** (D-132):
       // the error carries the same `stage` this input does, so the two fields
       // agree by construction rather than by a derivation the kernel would
       // have to keep.
+      //
+      // **A behavior raises a cause; the kernel mints the error.** The stage is
+      // not final at the raise site — a stale checkpoint is demoted to a
+      // `DraggableWarning` above, and a held cancel latch outranks the
+      // checkpoint outright — so an error minted at the failing branch would
+      // already be the wrong object in both cases and would have to be
+      // unwrapped and rebuilt. One mint site is what makes *the stage on the
+      // error is the stage the kernel decided* true by construction rather than
+      // by every behavior agreeing.
       report: new DraggableError(checkpoint.stage, checkpoint.error),
     };
 

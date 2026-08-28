@@ -402,7 +402,7 @@ pointerup
                 spatial resolve: there is no release sample, the pointer
                 scalars are still zero, and resolving would pick a gap from
                 pointerY === 0. A null insertion here is a broken invariant →
-                SeamRejection, never a home fallback.          [D-32, C4-01]
+                a throw, never a home fallback (D-152).        [D-32, C4-01]
               draft.proposal  = buildReorderProposal(snapshot, item2, insertion)
                                                                immutable, frozen
               return { invoke: (signal) =>
@@ -478,11 +478,11 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                       [K] begin()
                       [B] spec.settlement.prepare(draft, { type: FULFILLED, value })
                             validate: is this an explicit ReorderResolution?  ✔
-                                      (a non-resolution, or a REJECTED input,
-                                       returns a SeamRejection at
-                                       FAILURE_RESOLUTION — never a
-                                       silent accept and never an inferred
-                                       onEnd)
+                                      (a non-resolution throws, and a REJECTED
+                                       input re-raises the caught cause — both
+                                       classified at the seam's own
+                                       FAILURE_RESOLUTION, never a silent
+                                       accept and never an inferred onEnd)
                             draft.outcome  = OUTCOME_ACCEPTED
                             draft.recovery = RECOVERY_DESTINATION
                             draft.domain   = { ACCEPTED, proposal }

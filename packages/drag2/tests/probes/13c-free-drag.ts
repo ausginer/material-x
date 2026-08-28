@@ -39,7 +39,6 @@
  * Everything else on the Phase 13c question list **fits** — see the `P-*` rows,
  * which are as much the deliverable as the `N-*` rows.
  */
-import { FAILURE_RELEASE } from '../../src/kernel/failures.ts';
 import type { Draft, Frame, FramePartOf } from '../../src/kernel/frames.ts';
 import type {
   LiftMode,
@@ -52,7 +51,6 @@ import type {
   LandingStart,
   PreparedSettlement,
   ResolutionCommand,
-  SeamRejection,
   SettlementScope,
 } from '../../src/kernel/spec.ts';
 import type { Point } from '../../src/kernel/types.ts';
@@ -311,12 +309,13 @@ export const freeDragSpec: BehaviorSpec<FreeDragPart> = {
   },
 
   release: {
-    prepare(draft): ResolutionCommand | SeamRejection {
+    prepare(draft): ResolutionCommand {
+      // **Updated with the live SPI** (D-152). This file is typed against
+      // `src/kernel/spec.ts` rather than restating it, so the deleted rejection
+      // arm goes here too: the seam is already open at `FAILURE_RELEASE`, so a
+      // throw is classified at exactly the stage this used to name.
       if (draft.visual === null) {
-        return {
-          stage: FAILURE_RELEASE,
-          error: new Error('free drag: no visual at release'),
-        };
+        throw new Error('free drag: no visual at release');
       }
 
       // The consumer round-trip. `null` would assert a proven semantic no-op,
@@ -332,7 +331,7 @@ export const freeDragSpec: BehaviorSpec<FreeDragPart> = {
   },
 
   settlement: {
-    prepare(draft, input): PreparedSettlement | SeamRejection {
+    prepare(draft, input): PreparedSettlement {
       draft.outcome = input.type;
 
       // **Stale as of D-41**: the authored-presentation declaration this used

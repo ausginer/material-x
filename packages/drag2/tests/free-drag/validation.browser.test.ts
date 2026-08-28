@@ -248,7 +248,7 @@ describe('the classified table', () => {
 
   it('should classify a non-function onDrop as a consumer fault with one terminal', async () => {
     // The JS consumer's path: the type says `OnDrop`, and a release with
-    // nothing to ask is a designed `SeamRejection` rather than a construction
+    // nothing to ask is a designed settlement failure rather than a construction
     // throw (D-77).
     const composed = compose({
       onDrop: 42 as unknown as FreeDragConfig['onDrop'],

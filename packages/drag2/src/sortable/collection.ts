@@ -146,8 +146,8 @@ export type ProposalBuild = Readonly<{
  * version fails construction rather than producing a request the consumer
  * would apply to a different ordering.
  *
- * `null` is a broken invariant, not a no-op — the caller turns it into a
- * `SeamRejection`.
+ * `null` is a broken invariant, not a no-op — the caller throws on it, and the
+ * release seam classifies the throw at its own stage.
  *
  * **Neither neighbours nor range are checked here** (D-121, D-123). Both tests
  * would read an `Insertion` the library itself did not build: `InsertionGeometry.resolve`

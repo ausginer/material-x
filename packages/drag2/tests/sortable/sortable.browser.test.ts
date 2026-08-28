@@ -3026,12 +3026,15 @@ describe('a pointerless release with no destination', () => {
       insertion: null,
     } as unknown as Parameters<typeof bench.spec.release.prepare>[0];
 
-    const result = bench.spec.release.prepare(draft);
-
-    expect(result).toMatchObject({ stage: FAILURE_RELEASE });
-    // And specifically **not** a command: a rejection is classified, so the
-    // staged round-trip is never executed.
-    expect(result).not.toHaveProperty('invoke');
+    // **It raises a cause; the seam owns the stage** (D-152). ~~It returned a
+    // `SeamRejection` naming `FAILURE_RELEASE`~~ — which is the stage
+    // `runReleaseSeam` was already running at, so the behavior was handing back
+    // a value the kernel already held. What is asserted is therefore the throw
+    // and its identity, and specifically **not** a returned command: nothing
+    // stages a round-trip out of this branch.
+    expect(() => bench.spec.release.prepare(draft)).toThrow(
+      'drag: sortable/release-no-destination',
+    );
   });
 });
 
