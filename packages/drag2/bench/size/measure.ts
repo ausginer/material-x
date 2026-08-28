@@ -53,6 +53,7 @@ import {
 } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
+import { parseArgs } from 'node:util';
 import { brotliCompressSync } from 'node:zlib';
 import { rolldown } from 'rolldown';
 
@@ -1747,14 +1748,21 @@ export function violations(measurement: Measurement): readonly string[] {
   return [...budgetViolations(measurement), ...graphViolations(measurement)];
 }
 
-const flag = (name: string): boolean =>
-  process.argv.slice(2).includes(`--${name}`);
-
 if (import.meta.main) {
   const kb = (bytes: number): string => `${(bytes / 1000).toFixed(2)} kB`;
-  const unminified = flag('unminified');
+  // Strict, so a misspelt flag stops the run rather than silently measuring
+  // with the flag off — the two flags decide only what is *written*, but a run
+  // that quietly wrote nothing is indistinguishable from one that had nothing
+  // to write.
+  const { values } = parseArgs({
+    options: {
+      files: { type: 'boolean', default: false },
+      unminified: { type: 'boolean', default: false },
+    },
+  });
+  const { unminified } = values;
   // `--unminified` is about *what is written*, so it implies writing.
-  const writing = unminified || flag('files');
+  const writing = unminified || values.files;
   const OUT = join(ROOT, '.measured');
 
   if (writing) {
