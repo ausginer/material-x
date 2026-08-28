@@ -560,6 +560,7 @@ export function createSortableSpec(
     // allocates a part at its defaults, called with one it returns that part
     // to them. The reset's return is the part it was handed, which the kernel
     // has and ignores.
+    // eslint-disable-next-line @typescript-eslint/strict-void-return
     resetFramePart: sortableFramePart,
 
     config: {
