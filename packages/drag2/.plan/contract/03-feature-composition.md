@@ -456,6 +456,8 @@ function assemble(config: SortableConfig, ctx: FeatureContext): SortableSlots {
 
 **Retire hooks run in reverse installation order**, and each is wrapped individually so one throwing hook cannot stop later hooks from restoring their DOM (review 4, §12). Reverse is the natural ownership order when hooks release resources acquired in installation order — schema order, then `plugins` in array order (D-57). The kernel's outer try/catch around `spec.retire()` is a backstop, not a substitute.
 
+**Unimplemented (D-147).** The **execution** order above is the guarantee and does not change; the **storage** order does. `retireHooks.reverse()` is deleted from both assemblers and every reader walks the array backwards — the construction unwind already does, D-39's placeholder undo already does, and the two operation-retirement loops join them. What goes is a second representation of one fact, normalized once per controller so a single consumer could iterate forwards (F-137). The receiver negative is unaffected: both retirement loops pass the hook as an argument to `unwind`, which calls it bare.
+
 **Cleanup is recorded before any claim runs, in installation order, and the list is reversed exactly once.** Two separate bugs made this ordering subtle:
 
 - Appending the axis's `insertion.retire` _after_ the loop put it last in installation order and therefore **first** after the reverse — the opposite of the documented order for the common `[vertical(), layoutAnimation()]` composition (review 5, §10).

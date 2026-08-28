@@ -98,6 +98,7 @@ Required in the **first argument**: **`onDrop`** — a **type** requirement, and
 | `handle` | `ResolveHandle` | consumer function | `(item) => HTMLElement \| null`. **Resolver only** — the shipped element form is withdrawn, see §Parity discharge |
 | `visual` | `ResolveElement` | consumer function | The node lifted. Defaults to the item |
 | `axis` | `DragAxis \| AxisSource` | scalar **or source** | `'both' \| 'x' \| 'y'`, default `'both'`. A function is re-read on `invalidate()` and at activation, never per sample — D-71 |
+| `axis` — **unimplemented (D-148)** | `DragAxis` | scalar | The source form is deleted; the slot is fixed for the controller's lifetime. A consumer wanting another axis destroys the controller and composes again |
 | `lift` | `LiftMode` | scalar | `LIFT_FAITHFUL \| LIFT_FLAT \| LIFT_IN_PLACE`, default `LIFT_FAITHFUL` — D-141. The three constants publish from this entry beside the type (~~`FreeDragLift`, a domain of three strings mapped by the behavior — D-73~~) |
 | `threshold` | `number` | scalar | Activation travel in viewport pixels, default 8. Same default and same domain as the sortable's |
 | `home` | `ResolveHome` | consumer function | `(subject) => Point`, viewport space. Where a rejected or canceled drag returns to. Absent means the grab position |
@@ -549,6 +550,8 @@ The deliverable, discharged. **Not** the stretch decomposition, the provisioning
 **Category 2 — where it admits.** One site: `admit` on `pointerdown`. No `command` member, so no discrete listener is bound at all.
 
 **Category 3 — where it publishes a lifecycle or domain event.** Nowhere. The package dispatches no DOM events and exposes no event target; every publication is a declared slot, which is why category 1 is the whole of the surface.
+
+**Unimplemented (D-148).** This barrier is **deleted with the site it defends**, not ported. With the `axis` source gone, `action.prepare(TAG_POLICY)` makes one consumer-reachable call — `constrain.invalidate()` — and a gate whose whole subject is _the previous consumer call may have destroyed the controller_ has no previous call to gate on. COVERAGE row **L-3** goes with it. What survives is the reason the barrier taught rather than the barrier: where a seam makes two consumer calls, the latch is read between them and not only before the first.
 
 **The one new barrier, and what it tells us.** `invalidate()` re-reads the `axis` source and then re-resolves bounds — two consumer-reachable calls inside one `action.prepare`, with the behavior driving the sequence. That is precisely the shape D-26 never covered and F-47 found: the latch is read **between** them, not only before the first. Every other site in the table is a single call inside a kernel-driven seam.
 

@@ -1964,6 +1964,14 @@ It is deferred to _here_ rather than to Phase 22 because this is the phase that 
 
 **Two instruments moved with the model.** The two `claim`-collision rows in `tests/sortable/assemble.browser.test.ts` and the one in `tests/free-drag/free-drag.browser.test.ts` are deleted — the compositions they constructed do not typecheck — and replaced one tier earlier by _should refuse a unique slot from the unbounded position_ in each behavior's declaration suite, each with the F-74 control beside it.
 
+### Retire order, axis policy and the runtime layer, decided 2026-08-28 (D-147, D-148, D-149, F-137…F-140)
+
+Three owner items in the assembly/runtime layer, evaluated together and answered separately — [`runtime-and-policy-shape-claude.md`](reviews/phase-23/runtime-and-policy-shape-claude.md).
+
+- **D-147** stores the retire-hook ledger in installation order and walks it backwards everywhere. No semantic constraint stood in the way — both retirement loops hand the hook to `unwind` as an argument, so the receiver negative never enters — and the package already stores its other ledger, D-39's placeholder undo, exactly this way (F-137). The cost that is real is a test asserting the storage order by reproducing the reader's loop.
+- **D-148** makes `axis` fixed configuration and deletes `AxisSource`. The criterion is new and is worth more than the slot: **a policy slot may be live only if its value is applied to present state**; `axis` is applied to `pointer − origin`, so re-reading it reinterprets accumulated travel — and the re-basing version that would make that safe is `moveTo`, which D-71 already decided is a command rather than policy (F-138). The `TAG_POLICY` barrier and COVERAGE's L-3 go with the second consumer call they defend.
+- **D-149** answers the runtime question per behavior. Free drag's dissolves — nothing drives it, which is D-126's rule one layer down. The sortable's stays, because five browser-suite sites write its fields to reach mid-operation states, and closure-local state is unreachable by construction. Its written justification was dead either way: 01 has said since D-53 that the object exists because the controller shares it, and no controller has (F-139).
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.

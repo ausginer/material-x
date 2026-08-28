@@ -231,7 +231,11 @@ function sortable(
 
 **The variadic call survives; what it is variadic _over_ changes.** The library keeps the merge rather than asking the consumer to pre-merge one object, because merge semantics belong to the **slot**, not to fragment provenance: a scalar or capability slot is last-wins as one whole slot, and `plugins` **appends in fragment order**. A consumer-merged single object would silently last-wins the one slot that must concatenate. Defaults are derived after the merge, and the library keeps no record of which helper a field came from — `weirdThing()`'s provenance is gone the moment the object exists (D-45).
 
-**One `rt`, created inside the factory, shared by both halves.** That coupling is the whole of H-2 and it is why the factory exists at all: the spec closes over the same runtime object the controller was handed, and neither can be constructed without a `host`.
+~~**One `rt`, created inside the factory, shared by both halves.** That coupling is the whole of H-2 and it is why the factory exists at all: the spec closes over the same runtime object the controller was handed, and neither can be constructed without a `host`.~~
+
+**The sharing ended at D-53 and this sentence did not** (F-139). Both controllers have taken `host` alone since the terminal latch moved onto it, so the coupling that survives is on `host` — which both halves would take whether or not a runtime object existed. What H-2 and D-4 actually require is that the runtime be **captured by closures** and unreachable from the kernel, and closure-local state satisfies that more literally than an object does.
+
+**Unimplemented (D-149).** The layer is therefore decided per behavior rather than by symmetry. `FreeDragRuntime` **dissolves**: its per-operation fields become spec locals beside the ones that already are, and nothing drives `createFreeDragRuntime` — D-126's rule one layer down. `SortableRuntime` **stays**, not for the sentence above but because five sites in the browser suite build one over a stub host and write its fields to reach mid-operation states the seams cannot cheaply be driven into; it loses `frame`, whose relocation into the spec removes the self-referential `let runtime!`. `PresentationView` is untouched: it is the one object here whose cross-closure sharing is genuine.
 
 `rt` is an ordinary object, declared and created in one place, never handed to the kernel and never widened. Its type is not exported. (H-2, D-4)
 
