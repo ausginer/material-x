@@ -290,6 +290,7 @@ Two rows below do **not** discriminate, and each says so in the test rather than
 | --- | --- | --- |
 | a skipped resolution → `OUTCOME_NOOP`, immediate recovery, `onFinish` | `tests/sortable/sortable.browser.test.ts` — _should skip the round-trip for a proven no-op_ | F-29, F-37 |
 | a rejected resolution _promise_ → `FAILURE_RESOLUTION` | `tests/sortable/sortable.browser.test.ts` — _should classify a rejected round-trip promise_ | F-20 |
+| the rejection value reaches `onError` as the **`cause` itself**, by identity — free drag's half of the row above, added because the stage assertion alone passes against a substituted error (D-152, F-162) | `tests/free-drag/validation.browser.test.ts` — _should carry a rejected round-trip promise back as the cause itself_ | F-162 |
 | ~~a fulfilled non-resolution → `FAILURE_RESOLUTION`~~ — **deleted 2026-08-26 by D-143**, which made the resolution opaque: a fulfilled non-resolution is no longer producible through the types, and the duck-type gate the row asserted is gone with the state it detected. What survives of F-20 is the row above it — a _rejected_ round trip is still classified, and that is the arm a real resolver reaches | — | ~~F-20~~ |
 | an accepted resolution → destination recovery | `tests/sortable/sortable.browser.test.ts` — _should map an accepted resolution to a destination recovery_ | D-16 |
 | a rejected `ReorderResolution` value → home recovery and `onCancel` | `tests/sortable/sortable.browser.test.ts` — _should map a rejected resolution to onCancel with its reason_ | F-33 |
@@ -586,7 +587,7 @@ Three things the fixtures made concrete that the decision stated abstractly:
 2. **The bracket guard needs an axis feature with no eager `measure`** to be observable at all. With one installed — and both first-party axes install one — `measureInSeam`'s own `!rt.closed` covers the same continuation, so the two guards are redundant and neither can be seen alone. A lazy axis rule is explicitly supported by the contract, and composing one is what isolates the outer guard.
 3. **One specified guard is genuinely unfalsifiable** and is recorded below rather than removed.
 
-**Non-regression, unchanged and still passing:** D2's call-exactness rows (_should resolve each candidate visual once per rebuild_, and the warm-cache silence beside it) and D3's collection-channel-after-destroy rows. The latch moved from the controller's closure to `SortableRuntime.closed`; its behavior did not.
+**Non-regression, unchanged and still passing:** D2's call-exactness rows (_should resolve each candidate visual once per rebuild_, and the warm-cache silence beside it) and D3's collection-channel-after-destroy rows. The latch moved out of the controller's closure — first to `SortableRuntime.closed`, and since D-149 dissolved that aggregate it is `host.closed`, a live getter over the kernel's own terminal latch; its behavior did not move with either.
 
 ---
 

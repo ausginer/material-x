@@ -263,6 +263,30 @@ describe('the classified table', () => {
     expect(composed.ends[0]!.type).toBe('canceled');
   });
 
+  it('should carry a rejected round-trip promise back as the cause itself', async () => {
+    // **The caught cause travels verbatim** (D-152, F-162). `SETTLED_REJECTED`
+    // re-raises `input.error` rather than describing it, so the value the
+    // consumer's resolver rejected with is the `cause` of the minted
+    // `DraggableError` — by identity, which is the only assertion that
+    // distinguishes re-raising from wrapping a fresh error of the same class.
+    //
+    // The stage alone does not: `FAILURE_RESOLUTION` is the seam's own, so it
+    // is what a substituted error would classify at too. Sortable's half has
+    // been pinned this way since D-64; this is free drag's.
+    const error = new Error('resolver');
+    const composed = compose({
+      onDrop: () => Promise.reject(error),
+    });
+
+    activate(composed);
+    release(30, 10);
+    await settled();
+
+    expect(stages(composed.errors)).toEqual([FAILURE_RESOLUTION]);
+    expect(composed.errors[0]).toBeInstanceOf(DraggableError);
+    expect((composed.errors[0] as DraggableError).cause).toBe(error);
+  });
+
   it('should discard a throwing onError rather than reporting it back', () => {
     // **The terminus** (D-130 §1.3). ~~A failure report leaves through the
     // platform channel, and nothing recurses.~~ There is no second destination

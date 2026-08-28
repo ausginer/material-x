@@ -1,3 +1,4 @@
+/* eslint-disable import-x/no-relative-packages -- the clean pathspecs are a repo script's, and the guard below is only honest against the real one. */
 /**
  * M-3's assertions. `bench/size/measure.ts` declares each composition — its
  * imports, its budget, and the modules its graph must and must not contain —
@@ -22,8 +23,13 @@
  *    it drifts unless something checks.
  */
 import { spawn } from 'node:child_process';
-import { resolve } from 'node:path';
+import { readdir, stat } from 'node:fs/promises';
+import { join, relative, resolve } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
+import {
+  packageFilesToCleanPathspecs,
+  readPackageFiles,
+} from '../../../../.scripts/package-files.ts';
 import {
   budgetViolations,
   COMBINED,
@@ -77,11 +83,18 @@ function build(): Promise<void> {
 
 const measured = new Map<string, Measurement>();
 
+/**
+ * When the build below started. Every generated file must be newer than this;
+ * see the orphaned-output row.
+ */
+let builtAt = 0;
+
 beforeAll(async () => {
   // The fixtures import **built** output — that is the point, since a consumer
   // never sees `src/`. Building here rather than relying on a prior `just
   // build` keeps the suite self-contained, the same way the packed-consumer
   // fixture does.
+  builtAt = Date.now();
   await build();
 
   for (const composition of COMPOSITIONS) {
@@ -131,6 +144,60 @@ describe('the declared module graphs', () => {
     expect(packageModules(measured.get(COMBINED)!)).toHaveLength(
       sortable.length + freeDrag.length - shared.length,
     );
+  });
+
+  it('should measure a graph built from nothing but this build', async () => {
+    // **The instrument's own integrity** (F-157). Every declaration above
+    // scores a graph against what its composition said it would pull, and two
+    // of the fourteen rows — the baselines — declare no topology at all. A
+    // module nobody knew had survived is not something a declaration can name.
+    //
+    // The failure is a build output outliving its entrypoint. The bundler
+    // overwrites what it emits and removes nothing, so a module that stops
+    // being emitted leaves its `.js` on disk, still importable by relative
+    // path. A fixture reaching into the built tree then keeps building against
+    // the deleted shape and keeps reporting a number, and the number prices a
+    // runtime the library does not ship — which is what baseline A did for
+    // four commits after D-149 deleted `createSortableRuntime`.
+    //
+    // Scored by age rather than by name, because naming the modules that may
+    // appear is the declaration this row exists to be independent of. The
+    // pathspecs are `files.json`'s own, so this and `just clean-build` cannot
+    // disagree about what counts as generated. A second of slack absorbs
+    // filesystem timestamp granularity and nothing else: a survivor is a build
+    // older than this one, not a build a millisecond older.
+    const generated = packageFilesToCleanPathspecs(
+      await readPackageFiles(ROOT),
+    );
+    const stale: string[] = [];
+
+    for (const pathspec of generated) {
+      const target = join(ROOT, pathspec);
+      // oxlint-disable-next-line no-await-in-loop
+      const found = await stat(target).catch(() => null);
+
+      if (!found) {
+        continue;
+      }
+
+      const files = found.isDirectory()
+        ? // oxlint-disable-next-line no-await-in-loop
+          (await readdir(target, { recursive: true })).map((entry) =>
+            join(target, entry),
+          )
+        : [target];
+
+      for (const file of files) {
+        // oxlint-disable-next-line no-await-in-loop
+        const entry = await stat(file);
+
+        if (entry.isFile() && entry.mtimeMs + 1000 < builtAt) {
+          stale.push(relative(ROOT, file));
+        }
+      }
+    }
+
+    expect(stale).toEqual([]);
   });
 
   it('should ship no dev-assertion module at all', () => {

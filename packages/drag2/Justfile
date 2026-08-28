@@ -7,8 +7,11 @@ _eslint := "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts"
 default:
     @just --list
 
-# Build core
-build:
+# Build core. Cleans first, so an output whose entrypoint was deleted cannot
+# survive into the next build: `tsdown` overwrites what it emits and removes
+# nothing, so an orphaned module stays importable by relative path and keeps a
+# stale fixture building (F-157).
+build: clean-build
     tsdown --config tsdown.config.ts
 
 # Delete build artefacts
