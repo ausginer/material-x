@@ -2031,6 +2031,16 @@ Owner review of `free-drag/spec.ts`'s release invariant asked two questions that
 - **F-162 is F-151's asymmetry recurring in the pass that closed F-151.** Free drag's `SETTLED_REJECTED` re-raise had no witness; sortable's did. The stage assertion alone does not discriminate — `FAILURE_RESOLUTION` is the seam's own — so the new row pins the cause **by identity**, and substituting a fresh `Error` at the raise site fails it and nothing else.
 - **F-160 narrows a sentence rather than a rule.** `handleFailed` is the only mint site **for an operation**; `panic` and a throwing `admit` mint two more outside the operation channel. The in-source comment carried the qualifier and the record dropped it in transcription.
 
+### The error classes stop labelling themselves, landed 2026-08-28
+
+Owner change. `DraggableWarning` declares **no constructor at all** — `extends Error {}` — and `this.name = …` leaves both classes; seventeen call sites move to the native `new DraggableWarning(reason, { cause })`.
+
+- **`instanceof` was already the whole identity** (D-130 §2.2), so a `name` of its own was a second discriminator saying what the first says exactly — and a weaker one, because a string is copyable and a prototype is not. The published JSDoc now states the consequence rather than leaving it to be discovered: a logged fault heads `Error: drag: …`, and the `drag: <area>/<condition>` identity D-152 defends is on that same line regardless.
+- **Pinned, because it reads like housekeeping.** `tests/kernel/errors.node.test.ts` asserts `name` is `'Error'` on both classes; falsified by re-adding the label. The row exists so the trade is re-taken deliberately if anyone puts it back.
+- **`drag.js` moves — the row built to notice.** 344 → 252 B minified, 159 → **142 B** brotli. The vocabulary root is two modules and one is `errors.ts`.
+- **Minified rises while brotli falls**, on every composition row: +12 to +28 B against −4 to −13 B. `{ cause: error }` is more characters than a positional argument and seventeen near-identical literals compress better than the shapes they replaced. Brotli is the reported figure, so it is a saving — the minified column alone would have called it a cost, which is worth recording as the one case in this package where the two columns disagree in sign.
+- **The premium is 211 B, 1.99%**, up 3 B: baseline A composes the same `errors.ts` by hand and takes the same saving.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.

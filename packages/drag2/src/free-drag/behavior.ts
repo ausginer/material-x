@@ -73,7 +73,9 @@ export function createComposedFreeDragBehavior(
 
           try {
             merged.onError?.(
-              new DraggableWarning('drag: composition/unwind-failed', error),
+              new DraggableWarning('drag: composition/unwind-failed', {
+                cause: error,
+              }),
             );
           } catch {
             // The terminus. A construction unwind that cannot report is still an

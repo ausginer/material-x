@@ -207,6 +207,16 @@ Re-measured at every point in the series, from repaired fixtures at commits that
 
 **The instrument is repaired in two places, and the second is the one that matters.** `just build` now cleans before it builds, so an output whose entrypoint was deleted cannot survive into the next build. And `tests/bench/size.node.test.ts` refuses any generated file older than its own build — scored by age rather than by name, over `files.json`'s own clean pathspecs, so the guard and `just clean-build` cannot disagree about what counts as generated. **The guard the fixture's header used to name did not cover this**: it compares `buildSlots`'s slot keys against `assemble()`, and `mount()` — the half that drifted — is called by no test at all. A fixture that would throw on its first line still bundles and still reports a number, so the drift had to be caught at the module, not at the call.
 
+### The error classes stop labelling themselves, 2026-08-28
+
+`DraggableWarning`'s constructor is deleted outright — `extends Error {}` — and `this.name = …` goes from both classes. Every call site moves to the native `new DraggableWarning(reason, { cause })`.
+
+**`drag.js` moves, and it is the row built to notice.** 344 → **252 B** minified, 159 → **142 B** brotli: the vocabulary root is two modules and one of them is `errors.ts`, so a constructor leaving it is most of what that row measures. `kernel.js` 16,865 → 16,869 / 6,071 → **6,064** — four bytes larger minified and seven smaller compressed, which is the shape of the whole change.
+
+**Minified rises and brotli falls on every composition row**, and the divergence is the point rather than an anomaly: `{ cause: error }` is more source characters than a positional argument, and seventeen near-identical object literals compress better than seventeen distinct call shapes plus two `this.name` assignments. Composition rows are **+12 to +28 B** minified and **−4 to −13 B** brotli. Brotli is the reported figure, so the change is a saving; quoting the minified column alone would have called it a cost.
+
+**The premium is 211 B, 1.99%** — 10,590 against baseline A's 10,379. It rises 3 B because baseline A composes the same `errors.ts` by hand and takes the same saving, minus the composed side's share of the call sites.
+
 ## The declines
 
 **No size candidate is earned.** The test applied is D-99's — a measurement changes a named decision or it is telemetry — and the user's framing of this deliverable: a candidate must be **material and locally removable**. Everything material here is not locally removable, and everything locally removable is either immaterial or refused by a standing decision.

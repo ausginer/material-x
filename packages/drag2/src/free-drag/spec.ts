@@ -380,12 +380,11 @@ export function createFreeDragSpec(
           invalidate(scope.motion.signal, () => {
             try {
               invalidateConstraint!();
-            } catch (error) {
+            } catch (error: unknown) {
               notify(
-                new DraggableWarning(
-                  'drag: constraint/invalidate-failed',
-                  error,
-                ),
+                new DraggableWarning('drag: constraint/invalidate-failed', {
+                  cause: error,
+                }),
               );
             }
           });

@@ -780,7 +780,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // the terminal is already owned by whatever is in flight, so this
       // classification is refused and the fault travels without one. The
       // `stage` in hand is discarded for exactly that reason.
-      notify(new DraggableWarning('drag: failure/not-classified', error));
+      notify(
+        new DraggableWarning('drag: failure/not-classified', { cause: error }),
+      );
       return;
     }
 
@@ -982,7 +984,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // `return false` refuses admission, so the outcome is the same either
       // way.
       retireOperation(null);
-      notify(new DraggableWarning('drag: operation/arming-failed', error));
+      notify(
+        new DraggableWarning('drag: operation/arming-failed', { cause: error }),
+      );
       return false;
     }
 
@@ -1699,7 +1703,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
           // so I-24 is no longer claimed for this operation.
           attempt.relinquished = false;
           notify(
-            new DraggableWarning('drag: landing/runner-destroy-failed', error),
+            new DraggableWarning('drag: landing/runner-destroy-failed', {
+              cause: error,
+            }),
           );
         }
 
@@ -2194,10 +2200,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // discarded with the classification it names (D-130 §3.4).
     if (cancelRequest && current.operation === checkpoint.operation) {
       notify(
-        new DraggableWarning(
-          'drag: failure/superseded-by-cancel',
-          checkpoint.error,
-        ),
+        new DraggableWarning('drag: failure/superseded-by-cancel', {
+          cause: checkpoint.error,
+        }),
       );
       return;
     }
@@ -2219,10 +2224,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // first is being reported — in both cases the terminal is owned and the
       // outcome is not this fault's to change.
       notify(
-        new DraggableWarning(
-          'drag: failure/checkpoint-stale',
-          checkpoint.error,
-        ),
+        new DraggableWarning('drag: failure/checkpoint-stale', {
+          cause: checkpoint.error,
+        }),
       );
       return;
     }

@@ -383,13 +383,17 @@ export function createSeamDriver<Part extends object>(
         // `unclassifiedReason` rather than the sentinel, because the sentinel
         // says how the failure travels and never what it was — the reason the
         // consumer reads is the one the caller named.
-        context.notify(new DraggableWarning(unclassifiedReason, raised));
+        context.notify(
+          new DraggableWarning(unclassifiedReason, { cause: raised }),
+        );
       } else if (failureRequested) {
         // **One phase, one report.** A phase that called `host.fail` and then
         // threw is already classified against its own error; the throw travels
         // as a warning, which is what keeps it from deciding the outcome.
         context.notify(
-          new DraggableWarning('drag: seam/failed-then-threw', raised),
+          new DraggableWarning('drag: seam/failed-then-threw', {
+            cause: raised,
+          }),
         );
       } else {
         context.fail(stage, raised);
@@ -496,7 +500,9 @@ export function createSeamDriver<Part extends object>(
       // so the caller sees no target either way.
       if (openStage === UNCLASSIFIED) {
         failureRequested = true;
-        context.notify(new DraggableWarning(unclassifiedReason, error));
+        context.notify(
+          new DraggableWarning(unclassifiedReason, { cause: error }),
+        );
         return;
       }
 
@@ -512,7 +518,9 @@ export function createSeamDriver<Part extends object>(
         // into the warning would publish a claim about the operation that this
         // branch exists to *not* make.
         context.notify(
-          new DraggableWarning('drag: seam/fail-outside-seam', error),
+          new DraggableWarning('drag: seam/fail-outside-seam', {
+            cause: error,
+          }),
         );
 
         return;

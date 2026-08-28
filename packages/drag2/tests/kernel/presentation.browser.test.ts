@@ -27,7 +27,9 @@ const unwind: Unwind = (step) => {
   try {
     return step();
   } catch (error) {
-    reported.push(new DraggableWarning('drag: unwind/step-failed', error));
+    reported.push(
+      new DraggableWarning('drag: unwind/step-failed', { cause: error }),
+    );
     return undefined;
   }
 };

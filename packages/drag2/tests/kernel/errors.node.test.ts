@@ -117,12 +117,29 @@ describe('DraggableWarning', () => {
 
     expect('code' in warning).toBe(false);
     expect('stage' in warning).toBe(false);
-    expect(warning.name).toBe('DraggableWarning');
+  });
+
+  it('should leave name as the base class label rather than its own', () => {
+    // **`instanceof` is the whole identity** (D-130), so a `name` of its own
+    // would be a second discriminator — weaker than the first, because a string
+    // is copyable and a prototype is not, and shipped in every build to say
+    // what `instanceof` already says exactly.
+    //
+    // Asserted rather than left absent: `this.name = …` reads like housekeeping
+    // and would go back in unnoticed, and the visible consequence — a logged
+    // fault heads `Error:` rather than `DraggableWarning:` — is the kind of
+    // thing that gets "fixed" without the trade being re-taken. What a bug
+    // report needs is on the line either way: the `drag: <area>/<condition>`
+    // identity is the message.
+    expect(new DraggableWarning('drag: test/advisory').name).toBe('Error');
+    expect(new DraggableError(null, null).name).toBe('Error');
   });
 
   it('should carry the caught error as the native cause', () => {
     const caught = new Error('boom');
-    const warning = new DraggableWarning('drag: test/advisory', caught);
+    const warning = new DraggableWarning('drag: test/advisory', {
+      cause: caught,
+    });
 
     expect(warning.message).toBe('drag: test/advisory');
     expect(warning.cause).toBe(caught);

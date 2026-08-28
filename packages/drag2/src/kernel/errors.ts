@@ -32,6 +32,12 @@ import type { FailureStage } from './failures.ts';
  * This is where the two classes differ, and the difference is the reason for
  * the rule: a {@link DraggableWarning} has no `stage`, so its `message` **is**
  * the payload.
+ *
+ * **`name` is `Error`'s**, so a logged fault heads `Error: drag: …` rather than
+ * `DraggableError: …`. The class is identified by `instanceof` and by nothing
+ * else — a `name` of its own would be a second, weaker discriminator, since a
+ * string is copyable and a prototype is not. Everything a bug report needs is
+ * on that line regardless: the `message` above is the cause's, or the identity.
  */
 export class DraggableError extends Error {
   readonly stage: FailureStage | null;
@@ -48,7 +54,6 @@ export class DraggableError extends Error {
           : `drag: failure at stage ${stage}`,
       { cause },
     );
-    this.name = 'DraggableError';
     this.stage = stage;
   }
 }
@@ -67,14 +72,13 @@ export class DraggableError extends Error {
  * of them.
  *
  * There is no discriminator, because by construction nothing follows from a
- * warning. The payload is `message`, which names the reason, and `cause`.
+ * warning. The payload is `message`, which names the reason, and `cause` —
+ * supplied the native way, `new DraggableWarning(reason, { cause })`, because
+ * this **declares no constructor of its own**: there was nothing left for one
+ * to do that `Error`'s does not, and `name` is `Error`'s for the reason
+ * {@link DraggableError} gives.
  */
-export class DraggableWarning extends Error {
-  constructor(message: string, cause?: unknown) {
-    super(message, { cause });
-    this.name = 'DraggableWarning';
-  }
-}
+export class DraggableWarning extends Error {}
 
 // The one channel, as seen by a module that does not own it (D-130).
 // Kernel-internal, and threaded to the four sites that hold no controller

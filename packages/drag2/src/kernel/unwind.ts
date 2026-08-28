@@ -49,7 +49,9 @@ export function createUnwind(notify: Notify): Unwind {
       // sites differ in *which* resource failed to release and not in what the
       // consumer can do about it, which is exactly the case D-130 §2.3 says a
       // code would not serve.
-      notify(new DraggableWarning('drag: unwind/step-failed', error));
+      notify(
+        new DraggableWarning('drag: unwind/step-failed', { cause: error }),
+      );
       return undefined;
     }
   };

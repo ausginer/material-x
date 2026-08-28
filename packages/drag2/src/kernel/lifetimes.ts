@@ -66,7 +66,11 @@ export function createLifetime(notify: Notify): Lifetime {
         try {
           disposer();
         } catch (error) {
-          notify(new DraggableWarning('drag: lifetime/late-disposer', error));
+          notify(
+            new DraggableWarning('drag: lifetime/late-disposer', {
+              cause: error,
+            }),
+          );
         }
 
         return;
@@ -97,7 +101,11 @@ export function createLifetime(notify: Notify): Lifetime {
         try {
           disposers[i]!();
         } catch (error) {
-          notify(new DraggableWarning('drag: lifetime/disposer-failed', error));
+          notify(
+            new DraggableWarning('drag: lifetime/disposer-failed', {
+              cause: error,
+            }),
+          );
         }
       }
 
