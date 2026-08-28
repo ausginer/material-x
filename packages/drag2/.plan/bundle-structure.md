@@ -217,6 +217,12 @@ Re-measured at every point in the series, from repaired fixtures at commits that
 
 **The premium is 211 B, 1.99%** — 10,590 against baseline A's 10,379. It rises 3 B because baseline A composes the same `errors.ts` by hand and takes the same saving, minus the composed side's share of the call sites.
 
+### The re-entry identity is withdrawn, 2026-08-28
+
+`drag: seam/re-entered` leaves `src/kernel/seams.ts` (F-85: the site is P2 and unreachable through the behavior SPI). Minified falls **27–30 B** on every row. **Brotli rises** — `complete` +10, the sortable rows +3 to +10, `both behaviors` −1, the free-drag rows 0 to −10 — because the string shared `drag: ` and its fragments with forty sibling identities and was helping them compress. `kernel.js` falls both ways: 16,869 → **16,839** minified, 6,064 → **6,057** brotli. `drag.js` and baseline B are byte-identical. Premium **216 B, 2.04%**.
+
+**Recorded rather than netted off.** This is D-117's own measurement finding in reverse — _the parts understate the whole by 2–9 %, always in the same direction_ — and it is the second confirmation that an identity's marginal cost is not a property of the identity.
+
 ## The declines
 
 **No size candidate is earned.** The test applied is D-99's — a measurement changes a named decision or it is telemetry — and the user's framing of this deliverable: a candidate must be **material and locally removable**. Everything material here is not locally removable, and everything locally removable is either immaterial or refused by a standing decision.

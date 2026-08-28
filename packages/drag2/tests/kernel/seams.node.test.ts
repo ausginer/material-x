@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { DraggableWarning } from '../../src/kernel/errors.ts';
+import { DraggableError, DraggableWarning } from '../../src/kernel/errors.ts';
 import {
   FAILURE_ACTIVATION,
   FAILURE_RELEASE,
@@ -974,6 +974,45 @@ describe('staged value', () => {
   });
 });
 
+/** Distinguishes *nothing was thrown* from *something falsy was thrown*. */
+const NOTHING_THROWN = Symbol('nothing thrown');
+
+/** Whatever a run raised, or {@link NOTHING_THROWN}. */
+const escapeOf = (run: () => unknown): unknown => {
+  try {
+    run();
+  } catch (error) {
+    return error;
+  }
+
+  return NOTHING_THROWN;
+};
+
+/**
+ * The driver's re-entry escape, asserted **by what it carries — nothing**.
+ *
+ * These thirteen rows read `/re-entered/u` until the identity was withdrawn,
+ * and the replacement is not a weaker spelling of the same assertion. Matching
+ * a message proved a violation was refused *and* that the refusal announced
+ * itself; the announcement is the half that had to go, since the site is P2 on
+ * the call graph and no consumer can reach it (F-85). What is left is the half
+ * that was always the point — **something unwound, and it was not an ordinary
+ * failure**.
+ *
+ * A bare `.toThrow()` would not do: it passes for a behavior's own error
+ * escaping classification, which is precisely the bug the latch exists to
+ * prevent. A symbol is not something behavior code can raise by accident, and
+ * the description assertion is what stops the identity from growing back in a
+ * new spelling.
+ */
+const expectReentryPanic = (run: () => unknown): void => {
+  const thrown = escapeOf(run);
+
+  expect(thrown).not.toBe(NOTHING_THROWN);
+  expect(typeof thrown).toBe('symbol');
+  expect(String(thrown)).toBe('Symbol()');
+};
+
 describe('runCore reentrancy', () => {
   /** Re-enters the driver from whichever phase the override installs. */
   const reenter = (harness: Harness): void => {
@@ -983,7 +1022,7 @@ describe('runCore reentrancy', () => {
   it('should refuse a seam opened from inside a prepare', () => {
     const harness = createHarness();
 
-    expect(() =>
+    expectReentryPanic(() =>
       harness.driver.runCore(
         createTransition({
           prepare(): { staged: number } {
@@ -994,13 +1033,13 @@ describe('runCore reentrancy', () => {
         undefined,
         FAILURE_ACTIVATION,
       ),
-    ).toThrow(/re-entered/u);
+    );
   });
 
   it('should refuse a seam opened from inside an effect', () => {
     const harness = createHarness();
 
-    expect(() =>
+    expectReentryPanic(() =>
       harness.driver.runCore(
         createTransition({
           effect: () => {
@@ -1010,7 +1049,7 @@ describe('runCore reentrancy', () => {
         undefined,
         FAILURE_ACTIVATION,
       ),
-    ).toThrow(/re-entered/u);
+    );
   });
 
   it('should panic rather than classify the refusal as a prepare failure', () => {
@@ -1019,7 +1058,7 @@ describe('runCore reentrancy', () => {
     // The nested call raises from inside the outer `prepare`, so the outer
     // `catch` would otherwise launder an invariant break into an ordinary
     // behavior failure and return `SEAM_PREPARE_FAILED`.
-    expect(() =>
+    expectReentryPanic(() =>
       harness.driver.runCore(
         createTransition({
           prepare(): { staged: number } {
@@ -1030,7 +1069,7 @@ describe('runCore reentrancy', () => {
         undefined,
         FAILURE_ACTIVATION,
       ),
-    ).toThrow(/re-entered/u);
+    );
 
     expect(harness.failures).toHaveLength(0);
   });
@@ -1038,7 +1077,7 @@ describe('runCore reentrancy', () => {
   it('should panic rather than classify the refusal as an effect failure', () => {
     const harness = createHarness();
 
-    expect(() =>
+    expectReentryPanic(() =>
       harness.driver.runCore(
         createTransition({
           effect: () => {
@@ -1048,7 +1087,7 @@ describe('runCore reentrancy', () => {
         undefined,
         FAILURE_ACTIVATION,
       ),
-    ).toThrow(/re-entered/u);
+    );
 
     expect(harness.failures).toHaveLength(0);
   });
@@ -1058,7 +1097,7 @@ describe('runCore reentrancy', () => {
 
     // The latch, not the throw, is what makes the break unhideable: behavior
     // code that catches its own re-entry cannot talk the driver out of it.
-    expect(() =>
+    expectReentryPanic(() =>
       harness.driver.runCore(
         createTransition({
           prepare(): { staged: number } {
@@ -1074,17 +1113,64 @@ describe('runCore reentrancy', () => {
         undefined,
         FAILURE_ACTIVATION,
       ),
-    ).toThrow(/re-entered/u);
+    );
+  });
+
+  it('should reach the consumer as a controller panic carrying no identity', () => {
+    const harness = createHarness();
+
+    // **The two halves the consumer actually meets, composed.** The driver
+    // produces the escape; `panic` in `kernel.ts` is `void destroy(); notify(new
+    // DraggableError(null, error))`, and that second statement is reproduced
+    // here verbatim. Composed rather than driven through the SPI on purpose:
+    // F-85 settled from the call graph that **no behavior-facing entry can open
+    // a nested phase** — every one is inside a queue handler — so a test that
+    // appeared to reach this latch through `KernelHost` would be asserting a
+    // reachability the record has disproved.
+    const thrown = escapeOf(() =>
+      harness.driver.runCore(
+        createTransition({
+          prepare(): { staged: number } {
+            harness.driver.runCore(
+              createTransition(),
+              undefined,
+              FAILURE_ACTIVATION,
+            );
+            return { staged: 1 };
+          },
+        }),
+        undefined,
+        FAILURE_ACTIVATION,
+      ),
+    );
+    const report = new DraggableError(null, thrown);
+
+    // `null` is the classification and it is the right one: the controller is
+    // destroyed, and `FailureStage` classifies faults *within* an operation.
+    expect(report.stage).toBeNull();
+
+    // **The identity is gone from both places it could survive.** The message
+    // is the constructor's own — a non-`Error` cause has none to adopt — and
+    // this is the assertion that fails if `refuseReentry` goes back to throwing
+    // a slugged `Error`, because the constructor would adopt that slug as the
+    // message. The `cause` is the sentinel, and it says nothing either.
+    expect(report.message).toBe('drag: controller destroyed');
+    expect(String(report.cause)).toBe('Symbol()');
+
+    // The withdrawn identity, spelled out so the row states what it forbids.
+    expect(JSON.stringify([report.message, String(report.cause)])).not.toMatch(
+      /re-entered|drag: seam\//u,
+    );
   });
 
   it('should panic on re-entry from inside a leaf', () => {
     const harness = createHarness();
 
-    expect(() =>
+    expectReentryPanic(() =>
       harness.driver.runLeaf(() => {
         reenter(harness);
       }, FAILURE_RENDERER_WRITE),
-    ).toThrow(/re-entered/u);
+    );
 
     expect(harness.failures).toHaveLength(0);
   });
@@ -1092,7 +1178,7 @@ describe('runCore reentrancy', () => {
   it('should not swap the frame pair a second time when re-entry is refused', () => {
     const harness = createHarness();
 
-    expect(() =>
+    expectReentryPanic(() =>
       harness.driver.runCore(
         createTransition({
           effect: () => {
@@ -1102,7 +1188,7 @@ describe('runCore reentrancy', () => {
         undefined,
         FAILURE_ACTIVATION,
       ),
-    ).toThrow(/re-entered/u);
+    );
 
     // The outer seam committed once; a nested commit would have swapped its
     // half-built draft in on top of that.
@@ -1113,7 +1199,7 @@ describe('runCore reentrancy', () => {
   it('should stage nothing when a re-entry panic unwinds the seam', () => {
     const harness = createHarness();
 
-    expect(() =>
+    expectReentryPanic(() =>
       harness.driver.runCore(
         createTransition({
           prepare: () => ({ staged: 5 }),
@@ -1124,7 +1210,7 @@ describe('runCore reentrancy', () => {
         undefined,
         FAILURE_ACTIVATION,
       ),
-    ).toThrow(/re-entered/u);
+    );
 
     // Staging happens after the effect returns, and this one never did.
     expect(harness.driver.consumeStaged()).toBeNull();
@@ -1164,7 +1250,7 @@ describe('runCore reentrancy', () => {
   it('should refuse the nested transaction before it rebuilds the draft', () => {
     const harness = createHarness();
 
-    expect(() =>
+    expectReentryPanic(() =>
       harness.driver.runCore(
         createTransition({
           prepare(): { staged: number } {
@@ -1175,7 +1261,7 @@ describe('runCore reentrancy', () => {
         undefined,
         FAILURE_ACTIVATION,
       ),
-    ).toThrow(/re-entered/u);
+    );
 
     // `begin()` copies the committed frame over the draft. Had the refusal
     // landed one line later, it would have wiped the draft the outer seam was
@@ -1198,7 +1284,7 @@ describe('leaf reentrancy', () => {
   it('should refuse a leaf opened from inside a transactional phase', () => {
     const harness = createHarness();
 
-    expect(() =>
+    expectReentryPanic(() =>
       harness.driver.runCore(
         createTransition({
           prepare(): { staged: number } {
@@ -1209,37 +1295,37 @@ describe('leaf reentrancy', () => {
         undefined,
         FAILURE_ACTIVATION,
       ),
-    ).toThrow(/re-entered/u);
+    );
   });
 
   it('should refuse a leaf opened from inside another leaf', () => {
     const harness = createHarness();
 
-    expect(() =>
+    expectReentryPanic(() =>
       harness.driver.runLeaf(() => {
         harness.driver.runLeaf(() => {}, FAILURE_RENDERER_WRITE);
       }, FAILURE_RENDERER_WRITE),
-    ).toThrow(/re-entered/u);
+    );
   });
 
   it('should refuse a value leaf opened from inside another leaf', () => {
     const harness = createHarness();
 
-    expect(() =>
+    expectReentryPanic(() =>
       harness.driver.runLeaf(() => {
         harness.driver.runLeafValue(() => ({ x: 1 }), FAILURE_RELEASE);
       }, FAILURE_RENDERER_WRITE),
-    ).toThrow(/re-entered/u);
+    );
   });
 
   it('should panic rather than classify a nested leaf as the outer failure', () => {
     const harness = createHarness();
 
-    expect(() =>
+    expectReentryPanic(() =>
       harness.driver.runLeaf(() => {
         harness.driver.runLeaf(() => {}, FAILURE_RENDERER_WRITE);
       }, FAILURE_RENDERER_WRITE),
-    ).toThrow(/re-entered/u);
+    );
 
     expect(harness.failures).toHaveLength(0);
   });

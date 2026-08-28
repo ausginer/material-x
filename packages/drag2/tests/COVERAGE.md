@@ -198,6 +198,7 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | a hold requested after sealing is ignored and reported | `tests/kernel/kernel.browser.test.ts` — _should ignore and report a hold requested after sealing_ | F-6 |
 | a throwing `settlement.prepare` classifies at the **seam's own** stage, and a throwing `release.prepare` likewise — with the raised cause travelling verbatim and no effect run | `tests/kernel/kernel.browser.test.ts` — _should classify a throwing prepare at the seam's own stage_, _should classify a throwing release prepare at the seam's own stage_, _should not run the effect after a throwing prepare_ | F-20, D-152 |
 | an `effect` that throws is classified, not a panic | `tests/kernel/seams.node.test.ts` — _should classify a throwing effect from the committed state_ | F-19 |
+| a refused re-entry unwinds carrying **no identity**, and reaches the consumer as the controller panic — `stage === null`, `drag: controller destroyed`, a cause that says nothing | `tests/kernel/seams.node.test.ts` — _should reach the consumer as a controller panic carrying no identity_ | F-85 |
 | a `rollback` that throws is reported, not classified | `tests/kernel/seams.node.test.ts` — _should report a throwing rollback without classifying it_ | F-19 |
 | `use()` on a disposed lifetime invokes the disposer immediately | `tests/kernel/lifetimes.node.test.ts` — _should invoke a disposer registered after dispose immediately_ | D-21 |
 
