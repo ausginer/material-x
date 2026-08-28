@@ -138,14 +138,14 @@ Every type a public type structurally depends on is exported, rather than left r
 
 > A construction-time throw is permitted only for an invariant over what installers **contribute**. Required configuration is a **type** obligation, discharged by the required first argument. A consumer scalar's domain belongs to the consumer, to the platform, or to the seam that consumes the value.
 
-**Sortable construction diagnostics: six to one** — explicit checks, not failures. What survives is `claim`'s single-writer collision — two installers contributing the same slot, which no signature can state. What goes is the same five the contract enumerates (P18A-10 found this list and 00-index's disagreeing about what they counted): a **missing `axis`**, a non-function **`items`**, a non-function **`onReorder`**, the **axis-installed-no-geometry** check, and **`threshold`**'s domain. `layoutAnimation`'s duration guard goes too and is **not** one of the six — it is not a sortable-construction diagnostic at all. **A missing `items`, `onReorder` or `axis` is now a compile error**, so the library stops paying runtime bytes to restate what the type refuses.
+**Sortable construction diagnostics: six to none** — explicit checks, not failures. ~~What survives is `claim`'s single-writer collision — two installers contributing the same slot, which no signature can state.~~ **A signature can state it** (D-146): each config key carries its own contribution group, a unique slot is declared on exactly one of them, and D-151 refuses an installer at a position its slot is never read from — so the last check went with the discovery it arbitrated. What goes with it is the same five the contract enumerates (P18A-10 found this list and 00-index's disagreeing about what they counted): a **missing `axis`**, a non-function **`items`**, a non-function **`onReorder`**, the **axis-installed-no-geometry** check, and **`threshold`**'s domain. `layoutAnimation`'s duration guard goes too and is **not** one of the six — it is not a sortable-construction diagnostic at all. **A missing `items`, `onReorder` or `axis` is now a compile error**, so the library stops paying runtime bytes to restate what the type refuses.
 
 **What a JS consumer meets instead is not one answer, and the difference is worth knowing before you rely on `onError`:**
 
 | Slot | What a bypassing consumer gets |
 | --- | --- |
 | `onReorder` | The **seam** that consumes it — `FAILURE_RESOLUTION` → `consumer`, an `onError` and one terminal. Being diagnosed at a seam is classification (D-64, D-66), not a defect |
-| `axis` | A native `TypeError` out of your `sortable()` call, from the dereference the deleted check used to stand in front of. No classification, no `onError` |
+| `axis` | A native `TypeError` out of your `sortable()` call — from the key's own call when it is absent, and from the record's dereference when it is a function that returns no geometry. No classification, no `onError` |
 | `items` | A native `TypeError` out of your `sortable()` call too, from the construction-time pull. Only a later throw from a **valid** source — one that is a function and raises during an `invalidate()` — is classified, at `FAILURE_ACTION_PREPARE` → `presentation` |
 | `threshold` | Nothing. The drag never activates, no operation starts, and nothing is reported |
 

@@ -1,13 +1,19 @@
 /**
- * The behavior instance: the one place `rt` is declared and created.
+ * The behavior instance: the one place the spec and the controller are created.
  *
  * ```ts
- * const rt = createSortableRuntime(host, items, slots);
- * return { spec: createSortableSpec(rt), controller: createSortableController(host, rt) };
+ * return {
+ *   spec: createSortableSpec(host, source, items, slots),
+ *   controller: createSortableController(host),
+ * };
  * ```
  *
  * Both halves are returned at once, which is what makes "no input can be
  * admitted before install returns" unexpressible rather than a rule (D-1).
+ *
+ * **Neither half is handed a runtime object** (D-149): what each takes is the
+ * host, and the behavior's own state lives in the spec's closure, where nothing
+ * outside can name it.
  *
  * Assembly happens **inside** the install function, not before it: a feature
  * factory is handed `realm` and `root`, and neither exists until the kernel has
@@ -27,7 +33,6 @@ import {
   type SortableController,
 } from './controller.ts';
 import type { SortableFramePart } from './frames.ts';
-import { createSortableRuntime } from './runtime.ts';
 import type { SortableSlots } from './slots.ts';
 import { createSortableSpec } from './spec.ts';
 
@@ -45,10 +50,8 @@ function install(
   items: readonly HTMLElement[],
   slots: SortableSlots,
 ): BehaviorInstall<SortableController, SortableFramePart, HTMLElement> {
-  const rt = createSortableRuntime(host, source, items, slots);
-
   return {
-    spec: createSortableSpec(rt),
+    spec: createSortableSpec(host, source, items, slots),
     controller: createSortableController(host),
   };
 }

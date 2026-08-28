@@ -232,82 +232,16 @@ describe('a late resolution', () => {
   });
 });
 
-describe('the TAG_POLICY barrier', () => {
-  it('should not reach a third-party invalidate() when the axis source destroys the controller', () => {
-    // **L-3, discriminating** (I-36, F-47, D-81). `TAG_POLICY` reads the `axis`
-    // source, then reads the latch, then calls `constrain.invalidate()` — and
-    // the middle assertion is the whole row: a source that destroyed its own
-    // controller must not have a second consumer-supplied callback run
-    // afterwards.
-    const constraint = recordingConstraint();
-    const composed = compose({
-      fragments: [constraint.fragment],
-      config: {
-        axis: () => {
-          if (composed.starts.length > 0) {
-            void composed.controller.destroy();
-          }
-
-          return 'both';
-        },
-      },
-    });
-
-    activate(composed);
-    composed.controller.invalidate();
-
-    expect(constraint.invalidations).toEqual([]);
-  });
-
-  it('should reach it when the axis source leaves the controller alive', () => {
-    // The positive control, without which the row above passes against a
-    // constraint that is simply never installed.
-    const constraint = recordingConstraint();
-    const composed = compose({
-      fragments: [constraint.fragment],
-      config: { axis: () => 'both' },
-    });
-
-    activate(composed);
-    composed.controller.invalidate();
-
-    expect(constraint.invalidations).toEqual([1]);
-  });
-
-  it('should be non-discriminating with the first-party bounds()', () => {
-    // **The recorded control** (F-74). Under lazy resolution `bounds()`'s
-    // `invalidate()` sets a flag and calls nothing, so an `axis` source that
-    // destroys its controller and one that does not are indistinguishable
-    // through the first-party feature — which is why the two rows above use a
-    // recording installer instead. This row asserts the *sameness*, so that a
-    // later reader does not mistake a `bounds()`-based fixture for coverage.
-    const destroying = compose({
-      fragments: [bounds()],
-      config: {
-        axis: () => {
-          if (destroying.starts.length > 0) {
-            void destroying.controller.destroy();
-          }
-
-          return 'both';
-        },
-      },
-    });
-
-    activate(destroying);
-    destroying.controller.invalidate();
-
-    const surviving = compose({
-      fragments: [bounds()],
-      config: { axis: () => 'both' },
-    });
-
-    activate(surviving);
-    surviving.controller.invalidate();
-
-    expect([destroying.errors, surviving.errors]).toEqual([[], []]);
-  });
-});
+/**
+ * **`the TAG_POLICY barrier` is deleted with the site it defends** (D-148,
+ * COVERAGE L-3). ~~Three rows pinned I-36 inside `TAG_POLICY`: the seam read
+ * the `axis` source, read the latch, then called `constrain.invalidate()`, and
+ * the middle reading was the row.~~ The seam now makes **one**
+ * consumer-reachable call, and a barrier gating the second call on the first's
+ * outcome has no subject. The rows are deleted rather than ported to a site
+ * that cannot fail — a barrier row over a single call passes by construction,
+ * which is F-74's defect written on purpose.
+ */
 
 describe('the landing origin', () => {
   it('should open from the axis-locked delta rather than the pointer', async () => {
@@ -419,7 +353,7 @@ describe('the final activation barrier', () => {
   it('should publish no start when a bounds source destroys the controller', async () => {
     // **E-02, and the row the contract already claimed.** 07's terminal table
     // said the `onStart` latch is read immediately before the call; the
-    // implementation read it only after the optional `axis` source, then ran
+    // implementation read it earlier in the sequence, then ran
     // `deriveMotion` — whose `constrain.apply` reaches a third-party constraint
     // and, with `bounds()` installed, the consumer's own rect source — and
     // called `onStart` with no further reading. The review's probe expected

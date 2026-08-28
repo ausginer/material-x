@@ -19,14 +19,18 @@ import {
 } from '../kernel/failures.ts';
 import type { Draft, Frame } from '../kernel/frames.ts';
 import { pathOwnsInteraction } from '../kernel/input-policy.ts';
-import { createInvalidator } from '../kernel/invalidation.ts';
+import { createFrameTask, createInvalidator } from '../kernel/invalidation.ts';
 import { ACTIVATING, ACTIVE, IDLE, RELEASING } from '../kernel/phases.ts';
 import type { PointCache } from '../kernel/point-cache.ts';
-import { LIFT_FAITHFUL } from '../kernel/presentation.ts';
+import {
+  type BehaviorLiftSession,
+  LIFT_FAITHFUL,
+} from '../kernel/presentation.ts';
 import { KEY_DOWN } from '../kernel/protocol.ts';
 import {
   type AdmissionSubject,
   type BehaviorSpec,
+  type KernelHost,
   type PreparedSettlement,
   type SeamRejection,
   SETTLED_CANCELED,
@@ -66,11 +70,10 @@ import {
 import {
   type PresentationView,
   SORTABLE_ACTION_TAGS,
-  type SortableRuntime,
   TAG_INVALIDATION,
   TAG_SPATIAL,
 } from './runtime.ts';
-import type { DisplacementView } from './slots.ts';
+import type { DisplacementView, SortableSlots } from './slots.ts';
 
 /** What `action.prepare(COLLECTION)` stages. It never discards (D-25). */
 type PreparedCollection = Readonly<{
@@ -112,10 +115,19 @@ const rejection = (stage: FailureStage, message: string): SeamRejection => ({
   error: new Error(message),
 });
 
+/**
+ * `source` is the consumer's own array and `items` is the validated copy of it.
+ * **Both are supplied rather than derived here** (D-80 (b)): the validation
+ * belongs at the construction boundary, ahead of the first installer, because
+ * this function runs inside `install` — after `assemble` has returned — and a
+ * throw from here would leave every recorded `retire` hook unrun (F-68).
+ */
 export function createSortableSpec(
-  rt: SortableRuntime,
+  host: KernelHost,
+  initialSource: readonly HTMLElement[],
+  items: readonly HTMLElement[],
+  slots: SortableSlots,
 ): BehaviorSpec<SortableFramePart, HTMLElement> {
-  const { host, slots } = rt;
   const { realm } = host;
   /**
    * **The one place this behavior invokes the consumer's error callback**
@@ -189,16 +201,16 @@ export function createSortableSpec(
   /**
    * **Minted here and monotonic per controller** (D-44 moved it off the
    * controller with the payload), and deliberately **not** derived from
-   * `rt.snapshot.version`. Two structural invalidations applied inside one
+   * the published `version`. Two structural invalidations applied inside one
    * drain would both read the same *published* version and stamp two distinct
    * collections identically, which destroys version's only job: being the
-   * identity of a snapshot. Seeded from the initial snapshot so the sequence
-   * stays continuous with it.
+   * identity of a snapshot. Seeded from the initial snapshot's own zero, so
+   * the sequence stays continuous with it.
    *
    * It advances on the structural branch only — a geometry-only invalidation
    * produces no collection, so it must not consume an identity.
    */
-  let { version } = rt.snapshot;
+  let version = 0;
 
   /**
    * The rollback ledger for a **prepared but unadopted** placeholder (D-39).
@@ -206,13 +218,85 @@ export function createSortableSpec(
    * Per-operation, and it lives here rather than on the runtime because it is
    * not runtime state: it exists only between `activation.prepare` returning
    * and the seam committing, which is the one window in which the element is
-   * mutated and not yet owned. `rt.placeholder` is written by `effect`, on the
+   * mutated and not yet owned. `activePlaceholder` is written by `effect`, on the
    * far side of that window.
    *
    * `null` whenever there is nothing staged — including for the library's own
    * `<div>`, whose undo is being dropped.
    */
   let placeholderUndo: PlaceholderUndo = null;
+
+  /**
+   * **The behavior's private state, as spec locals** (D-149, H-2, D-4). It was
+   * an object until the coupling that justified one lapsed: the controller
+   * stopped receiving it, so what remained was a container the spec destructured
+   * on its own first line, holding fields whose siblings were already locals
+   * here. Closure-local state satisfies *the kernel can neither name nor type
+   * it* more literally than a named container does — there is nothing to name.
+   *
+   * Everything per-operation below is cleared in `retire()`, which is the one
+   * place I-20 asks about.
+   */
+
+  /** The published collection. Replaced wholesale, never mutated. */
+  let snapshot: CollectionSnapshot = { items, version: 0 };
+  /**
+   * **The last array identity `items()` returned** (D-44), and the whole of the
+   * structural-change test.
+   *
+   * The consumer's *own* array, held by reference and never read from — only
+   * compared. `snapshot.items` cannot stand in for it: that is the library's
+   * shallow copy, so its identity moves on every structural update and never
+   * matches what the consumer hands back. Seeded with the array the caller
+   * pulled, so the precondition holds from construction rather than only from
+   * the first `invalidate()`.
+   */
+  let sourceIdentity = initialSource;
+  /** Null when idle. */
+  let presentation: PresentationView | null = null;
+  let activePlaceholder: HTMLElement | null = null;
+  /**
+   * Handed in at activation, cleared at retire.
+   *
+   * The **projection** (D-35, C5-01): `rendered` is the kernel's own reading
+   * and `dispose` is the kernel's own sequencing, so this behavior can do
+   * neither through the capability it was handed.
+   */
+  let lift: BehaviorLiftSession | null = null;
+  /** Monotonic; the identity of the latest coalesced spatial attempt (D-11). */
+  let spatialSeq = 0;
+  /** The attempt the frame task actually dispatched. Zero when none is live. */
+  let pendingSpatial = 0;
+
+  /**
+   * Created once per **controller**, not per operation, and cancelled at
+   * retirement and at destroy. Created *here* rather than handed in, which is
+   * what removes the self-referential `let runtime!` its body used to need: the
+   * state it reads is in the same closure.
+   *
+   * Per-controller removes both the nullability and an allocation from the
+   * activation path, and costs nothing in staleness handling: the task's
+   * identity is never operation-scoped, because staleness is carried by the
+   * monotonic attempt number it schedules.
+   *
+   * **Measured against both alternatives** (M-2 — `.plan/measurements/m2.md`).
+   * Eager costs 148 B more on a controller that never drags, and wins
+   * everywhere else: an active controller is *cheaper* than under lazy-retained
+   * or per-operation (281 B against 309 B), because their nullable slot and
+   * initialization branch cost more than the task they defer, and `schedule` is
+   * half the price with no null check.
+   */
+  const spatialFrame = createFrameTask<number>(realm, (attempt) => {
+    // The producer-side half of the double validation (I-4): a frame that fires
+    // after the operation lost its presentation has nothing to resolve against.
+    // `action.prepare` validates the attempt again when it applies.
+    if (!presentation) {
+      return;
+    }
+
+    pendingSpatial = attempt;
+    host.dispatch(TAG_SPATIAL, attempt);
+  });
 
   /**
    * **How far the operation got, as one monotone marker** (D-66 §The progress
@@ -407,7 +491,6 @@ export function createSortableSpec(
       return null;
     }
 
-    const { snapshot } = rt;
     const item = resolveItem(event, snapshot);
 
     return item ? seedDraft(item, snapshot, draft) : null;
@@ -550,7 +633,7 @@ export function createSortableSpec(
     const home = homeInsertion(frame.snapshot!, frame.item!);
 
     if (home) {
-      movePlaceholder(rt.placeholder!, home);
+      movePlaceholder(activePlaceholder!, home);
     }
   };
 
@@ -620,7 +703,6 @@ export function createSortableSpec(
           return null;
         }
 
-        const { snapshot } = rt;
         // **Resolved exactly once per keydown** (D1). `resolveItem` invokes the
         // consumer's `handle()` resolver, so the destination and the draft seed
         // are both derived from this one item rather than from two independent
@@ -859,7 +941,7 @@ export function createSortableSpec(
 
         // Listeners bound to the signal are self-releasing, so the signal *is*
         // the registration; the explicit disposer cancels a scheduled frame.
-        scope.motion.use(rt.frame.cancel);
+        scope.motion.use(spatialFrame.cancel);
         invalidate(scope.motion.signal, () => {
           try {
             slots.invalidateInsertion();
@@ -876,9 +958,9 @@ export function createSortableSpec(
         });
 
         // 3 — every resource above is now owned.
-        rt.placeholder = placeholder;
-        rt.lift = scope.lift;
-        rt.view = {
+        activePlaceholder = placeholder;
+        ({ lift } = scope);
+        presentation = {
           realm,
           placeholder,
           item,
@@ -945,10 +1027,10 @@ export function createSortableSpec(
       // failure is reported to the consumer as a render failure and
       // `FAILURE_SCHEDULED_FRAME` has no producer at all (contract 05 §F-40).
       // The spatial search is coalesced to one per frame; pointer input is not.
-      rt.spatialSeq += 1;
+      spatialSeq += 1;
 
       try {
-        rt.frame.schedule(rt.spatialSeq);
+        spatialFrame.schedule(spatialSeq);
       } catch (error) {
         host.fail(FAILURE_SCHEDULED_FRAME, error);
       }
@@ -977,7 +1059,7 @@ export function createSortableSpec(
           // because anything that later queues a spatial action from outside
           // the frame task reopens the window it closes.
           // The legality table declares the spatial action inert outside
-          // `ACTIVE`, and `rt.view` cannot stand in for that: it is cleared
+          // `ACTIVE`, and `presentation` cannot stand in for that: it is cleared
           // only at retirement, so it stays non-null through `RELEASING`,
           // `SETTLING` and `FINALIZING`. No producer can reach those phases
           // today — the frame task is cancelled when motion closes at release,
@@ -987,13 +1069,13 @@ export function createSortableSpec(
           // cannot commit a placeholder move into a decided transaction.
           if (
             draft.phase !== ACTIVE ||
-            argument !== rt.pendingSpatial ||
-            !rt.view
+            argument !== pendingSpatial ||
+            !presentation
           ) {
             return null;
           }
 
-          const resolved = slots.resolveInsertion(draft, rt.view);
+          const resolved = slots.resolveInsertion(draft, presentation);
 
           // `resolved === null`: the incumbent slot still wins — commit
           // nothing. `host.closed`: a candidate `visual()` resolver destroyed the
@@ -1027,7 +1109,7 @@ export function createSortableSpec(
         // identity is a resize, a zoom or a scroll — the warm, common case —
         // and it stages no snapshot, so it never reaches the phase branch
         // below and never pays the copy.
-        if (source === rt.source) {
+        if (source === sourceIdentity) {
           return {
             snapshot: null,
             source,
@@ -1119,7 +1201,7 @@ export function createSortableSpec(
 
       effect(tag, _argument, current, prepared) {
         if (tag === TAG_SPATIAL) {
-          const placeholder = rt.placeholder!;
+          const placeholder = activePlaceholder!;
           const insertion = current.insertion!;
 
           // Decided **before** the hooks run, not by the writer's return value.
@@ -1132,7 +1214,7 @@ export function createSortableSpec(
             return;
           }
 
-          const view = rt.view!;
+          const view = presentation!;
 
           // Published before the bracket, so a hook knows *which* elements the
           // move affects rather than having to measure the whole destination
@@ -1231,15 +1313,15 @@ export function createSortableSpec(
         // Publication is an effect, not a preparation: a reentrant cancel or
         // destroy must not be able to invalidate a preparation whose private
         // runtime has already been replaced.
-        rt.snapshot = next;
+        snapshot = next;
         // The identity the structural test compares against, advanced with the
         // snapshot it produced and never before it — a preparation that was
         // discarded must not move the baseline, or the next invalidation would
         // read the change as already applied.
-        rt.source = staged.source;
+        sourceIdentity = staged.source;
 
-        if (rt.view) {
-          rt.view.snapshot = next;
+        if (presentation) {
+          presentation.snapshot = next;
         }
 
         if (phase === ACTIVATING || phase === ACTIVE) {
@@ -1265,7 +1347,7 @@ export function createSortableSpec(
 
     release: {
       prepare(draft) {
-        const { view } = rt;
+        const view = presentation;
         const { item } = draft;
         const { snapshot } = draft;
 
@@ -1390,15 +1472,15 @@ export function createSortableSpec(
       effect(current) {
         // **Unconditional**: a command reorders too, and its placeholder
         // reaches the same final gap by the same single writer (C4-01).
-        movePlaceholder(rt.placeholder!, current.insertion!);
+        movePlaceholder(activePlaceholder!, current.insertion!);
 
         // **The terminal barrier on the release write** (I-36, C4-01). The
         // move above runs a custom-element placeholder's callbacks, and
-        // `retire()` has then already nulled `rt.lift` — so without this the
+        // `retire()` has then already nulled `lift` — so without this the
         // very next line is `null.write(...)`, a `TypeError` classified as
         // `FAILURE_RELEASE` against a controller that no longer exists.
         //
-        // It covers the `rt.lift!.write` alone: there is no publication below
+        // It covers the `lift!.write` alone: there is no publication below
         // it to guard, because nothing here holds a pending request for the
         // readiness protocol to acknowledge (D-41, review 2, B-5).
         if (host.closed) {
@@ -1411,7 +1493,7 @@ export function createSortableSpec(
           // from the committed release point. Rendering the placeholder alone
           // would leave the visual — and the whole landing trajectory — starting
           // from a stale point (F-39).
-          rt.lift!.write(
+          lift!.write(
             current.pointerX - current.originX,
             current.pointerY - current.originY,
           );
@@ -1613,7 +1695,7 @@ export function createSortableSpec(
     // -----------------------------------------------------------------------
 
     anchorTarget(current): PointCache {
-      const placeholder = rt.placeholder!;
+      const placeholder = activePlaceholder!;
       const item = current.item!;
       const { recovery } = current;
 
@@ -1748,16 +1830,17 @@ export function createSortableSpec(
 
     retire() {
       progress = MINTED;
-      rt.frame.cancel();
-      rt.pendingSpatial = 0;
-      rt.placeholder = null;
-      rt.lift = null;
-      rt.view = null;
+      spatialFrame.cancel();
+      pendingSpatial = 0;
+      activePlaceholder = null;
+      lift = null;
+      presentation = null;
 
-      // Already in reverse installation order. Each is wrapped individually, so
-      // one throwing hook cannot stop a later one from restoring its DOM.
-      for (const hook of slots.retireHooks) {
-        unwind(hook);
+      // **Stored in installation order, walked backwards** (D-147), like the
+      // undo ledger above. Each is wrapped individually, so one throwing hook
+      // cannot stop a later one from restoring its DOM.
+      for (let i = slots.retireHooks.length - 1; i >= 0; i -= 1) {
+        unwind(slots.retireHooks[i]!);
       }
     },
   };

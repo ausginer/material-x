@@ -26,7 +26,7 @@ import type {
   ResolveElement,
   ResolveHandle,
 } from './config.ts';
-import type { AxisSource, DragAxis, OnDrop, ResolveHome } from './domain.ts';
+import type { DragAxis, OnDrop, ResolveHome } from './domain.ts';
 import type { MotionConstraint } from './feature.ts';
 
 /** Parity: the shipped activation travel, and the sortable's own default. */
@@ -47,11 +47,11 @@ export type FreeDragSlots = Readonly<{
   onError: FreeDragOnDragError | null;
 
   /**
-   * The scalar **or** the source, unresolved (D-71). Resolving it here would
-   * make it construction-time policy; the behavior reads it at activation and
-   * on `invalidate()`, which is what makes it live.
+   * Fixed configuration, not a source (D-148). Its value is applied to
+   * accumulated travel rather than to the present position, which is the
+   * property that makes a live one a command rather than policy.
    */
-  axis: DragAxis | AxisSource;
+  axis: DragAxis;
   threshold: number;
   liftMode: LiftMode;
 
@@ -60,6 +60,6 @@ export type FreeDragSlots = Readonly<{
   /** `null` when no landing is installed: the visual is released without animating. */
   startLanding: LandingStart | null;
 
-  /** Reverse installation order, ready to run (D-57). */
+  /** Installation order; every reader walks it backwards (D-57, D-147). */
   retireHooks: readonly Disposer[];
 }>;

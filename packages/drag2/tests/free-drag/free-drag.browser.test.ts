@@ -240,39 +240,17 @@ describe('the axis policy', () => {
     expect(composed.rendered()).toEqual([40, 0]);
   });
 
-  it('should read a source at activation rather than per sample', () => {
-    let reads = 0;
-    const composed = compose({
-      config: {
-        axis: () => {
-          reads += 1;
-          return 'y';
-        },
-      },
-    });
-
-    activate(composed);
-    move(50, 40);
-    move(60, 50);
-
-    expect(reads).toBe(1);
-    expect(composed.rendered()).toEqual([0, 40]);
-  });
-
-  it('should re-read the source on invalidate()', () => {
-    let axis: 'both' | 'x' | 'y' = 'x';
-    const composed = compose({ config: { axis: () => axis } });
-
-    activate(composed);
-    move(50, 40);
-    expect(composed.rendered()).toEqual([40, 0]);
-
-    axis = 'y';
-    composed.controller.invalidate();
-    move(60, 50);
-
-    expect(composed.rendered()).toEqual([0, 40]);
-  });
+  /**
+   * ~~`should read a source at activation rather than per sample`~~ and
+   * ~~`should re-read the source on invalidate()`~~ are **deleted with
+   * `AxisSource`** (D-148). An axis is applied to travel already accumulated,
+   * so a live one reinterprets every pixel since the grab instead of changing
+   * what happens next — which makes the safe version of it a re-basing command,
+   * and D-71 already decided that a controlled position is not policy. The
+   * per-sample case the two rows served — a modifier-key lock — is a `bounds`
+   * installer, whose clamp applies to the present position; `bounds()`'s own
+   * suite below is where that lives.
+   */
 
   it('should complete a normal unconstrained drag for an unknown axis string', async () => {
     // The **silent** table: an unknown value falls through to unconstrained

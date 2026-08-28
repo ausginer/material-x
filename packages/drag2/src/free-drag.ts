@@ -17,13 +17,20 @@
  * because a config slot a consumer can fill but cannot hoist out of the object
  * literal is not a writable surface. **The closure is tier-scoped** (D-78): it
  * resolves within `free-drag.js ∪ drag.js ∪ free-drag/feature.js`, so
- * `FreeDragInstaller` ships from here while the names *it* reaches stay declared
- * at the middle tier, one import away for an author who wants them.
+ * `ConstraintInstaller`, `FreeDragLandingInstaller` and `FreeDragPlugin` ship
+ * from here while the names *they* reach stay declared at the middle tier, one
+ * import away for an author who wants them.
  */
 import { createComposedFreeDragBehavior } from './free-drag/behavior.ts';
 import type { FreeDragConfig } from './free-drag/config.ts';
 import type { FreeDragController } from './free-drag/controller.ts';
+import type {
+  ConstraintContribution,
+  FreeDragPluginContribution,
+  LandingContribution,
+} from './free-drag/feature.ts';
 import { draggable } from './kernel.ts';
+import type { Composed, UniqueSlot } from './shared/composition.ts';
 
 export type { FreeDragController } from './free-drag/controller.ts';
 /**
@@ -55,7 +62,6 @@ export type {
 export {
   FreeDragResolution,
   type AcceptedFreeDragResult,
-  type AxisSource,
   type CanceledFreeDragResult,
   type DragAxis,
   type DragGeometry,
@@ -90,6 +96,37 @@ export {
 } from './kernel/failures.ts';
 
 /**
+ * **The composition check, applied to one config or fragment.**
+ *
+ * An installer may contribute only the slots its position is read for: the
+ * assembler reads `constrain` from `bounds` and `startLanding` from `landing`,
+ * positionally, and the plugin loop reads `retire` and nothing else. So a
+ * constraint installer passed as a plugin is not a second writer — it is one
+ * writer at a position that is never read, and its capability is silently
+ * absent. This intersects a refusal into exactly those entries, and leaves
+ * every legitimate plugin as it is.
+ *
+ * Erased entirely, and named by the signature below rather than by any config
+ * slot, so an ordinary consumer never writes it.
+ */
+export type FreeDragComposition<T> = T extends { plugins?: infer P }
+  ? Readonly<{
+      plugins?: Composed<
+        P,
+        // The unique slots, **derived from the groups themselves** — every key
+        // a sibling group declares and the plugin group does not, so a
+        // capability added later joins the set by being declared. Written here
+        // rather than as its own alias: an intermediate name would be a second
+        // published type whose only role is to be substituted into this one.
+        UniqueSlot<
+          ConstraintContribution | LandingContribution,
+          FreeDragPluginContribution
+        >
+      >;
+    }>
+  : unknown;
+
+/**
  * Makes one element freely draggable.
  *
  * ```ts
@@ -114,10 +151,13 @@ export {
  * neither ever fails. `lift` has no unknown value to be: the slot takes the
  * kernel's own `LiftMode`.
  */
-export function freeDrag(
+export function freeDrag<
+  const C extends FreeDragConfig,
+  const F extends ReadonlyArray<Partial<FreeDragConfig>>,
+>(
   item: HTMLElement,
-  config: FreeDragConfig,
-  ...fragments: ReadonlyArray<Partial<FreeDragConfig>>
+  config: C & FreeDragComposition<C>,
+  ...fragments: { [I in keyof F]: F[I] & FreeDragComposition<F[I]> }
 ): FreeDragController {
   return draggable(item, createComposedFreeDragBehavior(config, fragments));
 }

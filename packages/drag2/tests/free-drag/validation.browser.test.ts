@@ -432,6 +432,38 @@ describe('the silent table', () => {
     expect(composed.ends[0]!.type).toBe('accepted');
     expect(composed.errors).toEqual([]);
   });
+
+  it('should retire a bounds installer that contributed no constraint', async () => {
+    // **F-134.** `ConstraintContribution` requires `constrain`, so only a JS
+    // author reaches this — and what they reach is the same silence a `landing`
+    // installer returning `{}` already produces: the composition has no
+    // constraint and nothing fails. What must *not* happen is the leak, and
+    // that is what the guard buys: the installer's own `retire` was recorded
+    // before anything could throw, so it still runs at teardown.
+    let retired = 0;
+    const composed = compose({
+      config: {
+        bounds: (() => ({
+          retire: (): void => {
+            retired += 1;
+          },
+        })) as unknown as FreeDragConfig['bounds'],
+      },
+    });
+
+    activate(composed);
+    move(500, 500);
+
+    // Unclamped: nothing was installed to clamp with.
+    expect(composed.rendered()).toEqual([490, 490]);
+
+    release(500, 500);
+    await settled();
+
+    // Once, at the operation's retirement — the ledger the guard kept it in.
+    expect(retired).toBe(1);
+    expect(composed.errors).toEqual([]);
+  });
 });
 
 describe('the landing duration domain', () => {

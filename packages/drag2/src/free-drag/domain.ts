@@ -11,12 +11,6 @@ import type { Point } from '../kernel/types.ts';
 /** Which axes the drag may travel on. `'both'` by default. */
 export type DragAxis = 'both' | 'x' | 'y';
 
-/**
- * **A policy source, re-read rather than pushed.** Read at activation and on
- * `invalidate()`, never per sample.
- */
-export type AxisSource = () => DragAxis;
-
 // Published from free drag's own root rather than shared with the kernel: what
 // was refused was the shared name, not the shape (F-66).
 /**

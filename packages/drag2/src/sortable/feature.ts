@@ -53,9 +53,16 @@ export { insertionAt } from './domain.ts';
 // rather than a structural coincidence (F-64). `LandingContribution` joins
 // `FeatureContext` there for the same reason — both behaviors' `landing` key
 // produces exactly it (D-146).
+// The composition check's four helpers travel with them (D-151): the entry
+// signature names `SortableComposition`, whose own closure resolves here, which
+// is the tier-scoped rule D-78 already states. Every one of them is erased.
 export type {
+  Composed,
   FeatureContext,
   LandingContribution,
+  Misplaced,
+  UniqueIn,
+  UniqueSlot,
 } from '../shared/composition.ts';
 
 // Erased entirely: `declare const` emits no JavaScript, and the brand is a

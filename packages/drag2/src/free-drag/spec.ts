@@ -30,8 +30,13 @@ import { pathOwnsInteraction } from '../kernel/input-policy.ts';
 import { createInvalidator } from '../kernel/invalidation.ts';
 import { ACTIVATING, ACTIVE } from '../kernel/phases.ts';
 import type { PointCache } from '../kernel/point-cache.ts';
+import type {
+  BehaviorLiftSession,
+  InheritedSpace,
+} from '../kernel/presentation.ts';
 import {
   type BehaviorSpec,
+  type KernelHost,
   type PreparedSettlement,
   type SeamRejection,
   SETTLED_CANCELED,
@@ -44,19 +49,14 @@ import type { Point } from '../kernel/types.ts';
 import { createUnwind } from '../kernel/unwind.ts';
 import {
   ACCEPTED,
-  type DragAxis,
   type FreeDragSubject,
   type RejectedResolution,
 } from './domain.ts';
 import type { ConstraintView, MotionDraft } from './feature.ts';
 import { type FreeDragFramePart, freeDragFramePart } from './frames.ts';
 import { applyAxis, buildGeometry, buildRequest } from './geometry.ts';
-import {
-  FREE_DRAG_ACTION_TAGS,
-  type FreeDragRuntime,
-  TAG_POLICY,
-  TAG_POSITION,
-} from './runtime.ts';
+import { FREE_DRAG_ACTION_TAGS, TAG_POLICY, TAG_POSITION } from './runtime.ts';
+import type { FreeDragSlots } from './slots.ts';
 
 /**
  * The three states of D-66's progress marker, module-private because they are
@@ -73,10 +73,26 @@ const rejection = (stage: FailureStage, message: string): SeamRejection => ({
 });
 
 export function createFreeDragSpec(
-  rt: FreeDragRuntime,
+  host: KernelHost,
+  slots: FreeDragSlots,
 ): BehaviorSpec<FreeDragFramePart> {
-  const { host, slots } = rt;
   const { realm, root } = host;
+
+  /**
+   * **Per-operation state, as spec locals** (D-149). These three were fields on
+   * a runtime object while `view`, `progress` and `pendingFailure` beside them
+   * were already locals, and no rule separated the two homes. All six are
+   * cleared in `retire()`, which is the one place I-20 asks about.
+   */
+  let lift: BehaviorLiftSession | null = null;
+  /** The visual's viewport rect at grab. The basis of every clamp and rect. */
+  let originRect: DOMRectReadOnly | null = null;
+  /**
+   * The inherited linear part's inverse, **handed down by the kernel** from the
+   * one pre-lift measurement (D-72, D-85). Capturing it here would take a
+   * second traversal, after acquisition has already moved the visual.
+   */
+  let space: InheritedSpace = null;
   /**
    * **The one place this behavior invokes the consumer's error callback**
    * (D-130). Both routes below end here, so there is exactly one statement to
@@ -174,7 +190,7 @@ export function createFreeDragSpec(
    * constraint that records the receiver it is handed, so re-attaching any one
    * of them fails a row.
    */
-  const { constrain } = slots;
+  const { axis, constrain } = slots;
   const applyConstraint = constrain ? constrain.apply : null;
   const invalidateConstraint = constrain ? constrain.invalidate : null;
 
@@ -198,7 +214,7 @@ export function createFreeDragSpec(
     motion.x = pointerX - originX + offsetX;
     motion.y = pointerY - originY + offsetY;
     // **Core, not a capability** (D-70): two comparisons and no state.
-    applyAxis(motion, rt.axis);
+    applyAxis(motion, axis);
     // **One indirect call, only when something filled the slot.** A composition
     // without `bounds()` pays one property read and one predictable branch, and
     // carries no clamp arithmetic and no rect resolver at all (B-2).
@@ -336,8 +352,7 @@ export function createFreeDragSpec(
         const { visual } = scope;
 
         // 1 → 2. Everything the later seams read that no `prepare` decides.
-        rt.lift = scope.lift;
-        rt.originRect = scope.originRect;
+        ({ lift, originRect } = scope);
         // **Handed down, not measured** (D-72, D-85). The inverse inherited
         // linear part is what turns a viewport delta into the local one, with
         // four multiplies written out where the two consumer shapes are built
@@ -348,7 +363,7 @@ export function createFreeDragSpec(
         // the visual is `position: fixed` in the top layer by now, so a second
         // traversal reports the viewport rather than the transformed stage the
         // drag actually began in.
-        rt.space = scope.inheritedSpace;
+        space = scope.inheritedSpace;
         view = { realm, originRect: scope.originRect, visual };
 
         if (constrain) {
@@ -384,19 +399,6 @@ export function createFreeDragSpec(
           });
         }
 
-        // **The policy read** (D-71): the `axis` source is read at activation,
-        // never per sample. Consumer code, inside a seam, so a throw is
-        // classified `FAILURE_ACTIVATION`.
-        if (typeof slots.axis === 'function') {
-          rt.axis = slots.axis();
-
-          // The terminal barrier: a source that destroyed its own controller
-          // must not have `onStart` called after `destroy()` returned.
-          if (host.closed) {
-            return;
-          }
-        }
-
         // 3 — the visual is placed at the delta the pointer has already
         // accumulated. **Parity: no jump on the first move after activation.**
         // The threshold crossing is what activates, so the pointer is already
@@ -412,17 +414,17 @@ export function createFreeDragSpec(
         );
 
         // **The last barrier of the activation sequence** (I-36, E-02), and the
-        // one the terminal table claimed and the code did not have. The check
-        // above covers the `axis` source; `deriveMotion` then calls
-        // `constrain.apply`, which reaches a third-party constraint and — with
-        // `bounds()` installed — the consumer's own rect source. So this is the
-        // reading owed *after the last consumer-reachable call and before the
-        // first thing that survives it*: the lift write, the progress advance
-        // and `onStart` are all on the far side of it.
+        // one the terminal table claimed and the code did not have.
+        // `deriveMotion` calls `constrain.apply`, which reaches a third-party
+        // constraint and — with `bounds()` installed — the consumer's own rect
+        // source. So this is the reading owed *after the last
+        // consumer-reachable call and before the first thing that survives it*:
+        // the lift write, the progress advance and `onStart` are all on the far
+        // side of it.
         //
-        // The two readings are not redundant. Dropping the first would call a
-        // third-party `constrain.apply` after `destroy()`; dropping this one
-        // publishes a start for a controller the consumer already closed.
+        // **It is now the only reading in this seam** (D-148): the one above it
+        // gated an `axis` source that no longer exists, and a fixed `axis` is
+        // read from the slot record without entering consumer code at all.
         if (host.closed) {
           return;
         }
@@ -445,7 +447,7 @@ export function createFreeDragSpec(
               motion.x,
               motion.y,
               scope.originRect,
-              rt.space,
+              space,
               realm,
             ),
           );
@@ -486,8 +488,8 @@ export function createFreeDragSpec(
             current.originY,
             motion.x,
             motion.y,
-            rt.originRect!,
-            rt.space,
+            originRect!,
+            space,
             realm,
           ),
         );
@@ -514,8 +516,8 @@ export function createFreeDragSpec(
         // correctness: from `onEnd` it is FIFO-ahead of `RETIRE`, so it writes
         // through an already-disposed lift and leaves a stray inline transform
         // on a released element. `TAG_POLICY` is refused for hygiene: it writes
-        // no geometry, but it re-enters the `axis` source and a third-party
-        // `constrain.invalidate()` when no later sample exists to be affected.
+        // no geometry, but it re-enters a third-party `constrain.invalidate()`
+        // when no later sample exists to be affected.
         // They coincide today only because free drag takes no sample after
         // release.
         //
@@ -533,22 +535,15 @@ export function createFreeDragSpec(
         }
 
         if (tag === TAG_POLICY) {
-          // **The one site with two consumer-reachable calls in one seam**
-          // (I-36, F-47, L-3), and the whole reason the barrier is read
-          // *between* them rather than only before the first: `invalidate()`
-          // re-reads the `axis` source and then re-resolves bounds, with the
-          // behavior driving the sequence.
-          const next =
-            typeof slots.axis === 'function' ? slots.axis() : slots.axis;
-
-          if (host.closed) {
-            return null;
-          }
-
+          // **One consumer-reachable call, and nothing to publish** (D-148).
+          // `invalidate()` is a staleness flag: the constraint re-resolves on
+          // its own next `apply`, so there is no staged value, no commit and no
+          // `effect` branch. The I-36 barrier that used to be read *between*
+          // two calls here went with the second call — a gate on the outcome of
+          // a call that no longer exists would defend nothing.
           invalidateConstraint?.();
 
-          // Staged rather than written: `prepare` decides, `effect` publishes.
-          return { axis: next };
+          return null;
         }
 
         if (tag === TAG_POSITION) {
@@ -562,7 +557,7 @@ export function createFreeDragSpec(
           //
           // It is an **input**, not a derivation, so it is a frame field and
           // only a `prepare` may write it.
-          const origin = rt.originRect;
+          const origin = originRect;
 
           if (!origin) {
             return null;
@@ -594,12 +589,7 @@ export function createFreeDragSpec(
         return null;
       },
 
-      effect(tag, _argument, current, prepared) {
-        if (tag === TAG_POLICY) {
-          rt.axis = (prepared as Readonly<{ axis: DragAxis }>).axis;
-          return;
-        }
-
+      effect(_tag, _argument, current) {
         // **Rendered from an `action.effect`**, which is 13c N-4's route: there
         // is no way to make the kernel emit a `moved` for a position it did not
         // sample, so the write happens here — after the commit, from the
@@ -612,7 +602,7 @@ export function createFreeDragSpec(
           current.offsetX,
           current.offsetY,
         );
-        rt.lift?.write(motion.x, motion.y);
+        lift?.write(motion.x, motion.y);
       },
     },
 
@@ -623,7 +613,7 @@ export function createFreeDragSpec(
     release: {
       prepare(draft) {
         const { visual } = draft;
-        const origin = rt.originRect;
+        const origin = originRect;
 
         // **Never `invoke: null`** (07): free drag has no proven semantic
         // no-op, so `SETTLED_SKIPPED` has no producer in this behavior. A
@@ -653,7 +643,7 @@ export function createFreeDragSpec(
           motion.x,
           motion.y,
           origin,
-          rt.space,
+          space,
           realm,
         );
 
@@ -693,14 +683,14 @@ export function createFreeDragSpec(
        * between the two phases can have changed it.
        */
       effect() {
-        // The terminal barrier on the write: `retire()` nulls `rt.lift`, so
+        // The terminal barrier on the write: `retire()` nulls `lift`, so
         // without this the next line is `null.write(…)` on a controller that no
         // longer exists.
         if (host.closed) {
           return;
         }
 
-        rt.lift?.write(motion.x, motion.y);
+        lift?.write(motion.x, motion.y);
       },
     },
 
@@ -873,7 +863,7 @@ export function createFreeDragSpec(
      * warning needs no stage to be delivered.
      */
     anchorTarget(current): PointCache {
-      const origin = rt.originRect!;
+      const origin = originRect!;
 
       if (current.domain?.type === 'accepted') {
         // The accepted arm answers from arithmetic the frame already holds —
@@ -996,15 +986,16 @@ export function createFreeDragSpec(
 
     retire() {
       progress = MINTED;
-      rt.lift = null;
-      rt.originRect = null;
-      rt.space = null;
+      lift = null;
+      originRect = null;
+      space = null;
       view = null;
 
-      // Already in reverse installation order. Each is wrapped individually, so
-      // one throwing hook cannot stop a later one from releasing what it holds.
-      for (const hook of slots.retireHooks) {
-        unwind(hook);
+      // **Stored in installation order, walked backwards** (D-147). Each is
+      // wrapped individually, so one throwing hook cannot stop a later one from
+      // releasing what it holds.
+      for (let i = slots.retireHooks.length - 1; i >= 0; i -= 1) {
+        unwind(slots.retireHooks[i]!);
       }
     },
   };

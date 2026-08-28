@@ -425,6 +425,12 @@ const forgedBehavior: BehaviorFactory<SortableController, object> = () => ({});
 // diagnosable at all.
 // @ts-expect-error: \`onReorded\` is not a slot
 const forgedFragment: Partial<SortableConfig> = { onReorded: () => {} };
+// **The composition check, at the published surface** (D-151). \`insertion\`
+// is installable from \`axis\` alone, so an axis installer in \`plugins\` is
+// refused at the call rather than installing geometry nothing resolves
+// against. The positive control is \`{ plugins: [hoistedPlugin] }\` above.
+// @ts-expect-error: an axis installer is not a plugin (D-151)
+sortable(root, { items: () => items, onReorder, axis: hoistedAxis, plugins: [hoistedAxis] });
 // D-55: there is no branded behavior type at all now, so the opacity check has
 // no subject. What replaces it is the reachability check below — the SPI is
 // published at \`kernel.js\` and still unreachable from \`drag.js\`.
@@ -837,7 +843,6 @@ import {
   LIFT_FLAT,
   LIFT_IN_PLACE,
   type AcceptedFreeDragResult,
-  type AxisSource,
   type CancelStage,
   type CanceledFreeDragResult,
   type DragAxis,
@@ -916,8 +921,8 @@ const controller: FreeDragController = freeDrag(
       ];
       return FreeDragResolution.accept();
     },
-    // **D-71**: a source the library re-reads, not a value it is handed.
-    axis: (() => 'x') satisfies AxisSource,
+    // **Fixed configuration** (D-148): a scalar for the controller's lifetime.
+    axis: 'x' satisfies DragAxis,
     handle: ((element: HTMLElement) => element) satisfies ResolveHandle,
     visual: ((element: HTMLElement) => element) satisfies ResolveElement,
     home: ((subject: FreeDragSubject): Point => ({
@@ -995,7 +1000,12 @@ const controller: FreeDragController = freeDrag(
   // closed by deletion.
   bounds(stage),
   landing({ duration: ((): number => 120) satisfies LandingDuration }),
-  { plugins: [hoistedInstaller] },
+  // **In the key it is read from** (D-151). A constraint installer composed
+  // through \`plugins\` is refused at this call: the plugin loop reads a
+  // lifetime and nothing else, so its clamp would never be applied and its
+  // \`retire\` never recorded. Last-wins replaces \`bounds(stage)\` above,
+  // which is the merge rule and not a collision.
+  { bounds: hoistedInstaller },
 );
 
 // **D-71**: payload-free \`invalidate()\`, and \`moveTo\` is a command in
@@ -1027,7 +1037,7 @@ void liftModes;
 // A hoisted installer is only a writable surface if it can go back into the
 // config it was hoisted out of.
 const hoistedFragment: Partial<FreeDragConfig> = {
-  plugins: [hoistedInstaller],
+  bounds: hoistedInstaller,
 };
 
 void hoistedFragment;
@@ -1039,6 +1049,18 @@ void hoistedFragment;
 
 // @ts-expect-error: \`coordinateSpace\` is dropped, not renamed (D-72)
 const retiredSpace: Partial<FreeDragConfig> = { coordinateSpace: 'local' };
+// **The composition check, at the published surface** (D-151). An installer
+// may contribute only the slots its position is read for, and \`constrain\` is
+// installable from \`bounds\` alone — so this is refused at the call rather
+// than silently installing a clamp nothing applies. The positive control is
+// \`{ bounds: hoistedInstaller }\` above, and \`AxisSource\` below is what
+// stops this row being read as a general refusal of the \`plugins\` key.
+// @ts-expect-error: a constraint installer is not a plugin (D-151)
+freeDrag(item, { onDrop: () => FreeDragResolution.accept() }, { plugins: [hoistedInstaller] });
+// @ts-expect-error: \`axis\` is fixed configuration, never a source (D-148)
+const retiredAxisSource: Partial<FreeDragConfig> = { axis: () => 'x' };
+// @ts-expect-error: and the alias is unpublished with it
+type R8 = import('@ydinjs/drag2/free-drag.js').AxisSource;
 // @ts-expect-error: \`update(DragUpdate)\` has no successor (D-71)
 controller.update({ position: { x: 0, y: 0 } });
 // @ts-expect-error: the lift slot takes the kernel's numeric mode (D-141), so
@@ -1182,7 +1204,7 @@ declare const item: HTMLElement;
 const controller = freeDrag(
   item,
   { onDrop: () => FreeDragResolution.accept() },
-  { plugins: [snapToGrid(8)] },
+  { bounds: snapToGrid(8) },
 );
 
 void controller.destroy();

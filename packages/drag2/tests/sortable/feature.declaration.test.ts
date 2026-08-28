@@ -6,7 +6,12 @@
  */
 import { describe, expectTypeOf, it } from 'vitest';
 import type { LandingStart, SettlementScope } from '../../src/kernel/spec.ts';
-import type { LandingContribution } from '../../src/shared/composition.ts';
+import type {
+  LandingContribution,
+  UniqueSlot,
+} from '../../src/shared/composition.ts';
+import type { ItemSource } from '../../src/sortable/config.ts';
+import type { OnReorder } from '../../src/sortable/domain.ts';
 import type {
   AxisContribution,
   AxisInstaller,
@@ -16,10 +21,18 @@ import type {
   SortablePluginContribution,
 } from '../../src/sortable/feature.ts';
 import type { DisplacementView } from '../../src/sortable/slots.ts';
+import { sortable } from '../../src/sortable.ts';
 
 declare const insertion: InsertionGeometry;
 declare const start: LandingStart;
 declare const dispose: () => void;
+declare const axisInstaller: AxisInstaller;
+declare const landingInstaller: SortableLandingInstaller;
+declare const plugin: SortablePlugin;
+declare const otherPlugin: SortablePlugin;
+declare const root: HTMLElement;
+declare const items: ItemSource;
+declare const onReorder: OnReorder;
 
 describe('AxisInstaller', () => {
   it('should accept a function literal authored outside the package', () => {
@@ -74,21 +87,183 @@ describe('SortablePlugin', () => {
     >();
   });
 
-  it('should refuse a unique slot from the unbounded position', () => {
-    // @ts-expect-error — `insertion` is not a member of a plugin's group
-    const installer: SortablePlugin = () => ({ insertion });
+  it('should not refuse a unique slot at the group alone', () => {
+    // **F-132, stated rather than papered over.** ~~`should refuse a unique
+    // slot from the unbounded position`~~ asserted that `() => ({ insertion })`
+    // is rejected here, and it is — by **weak-type detection**, which fires
+    // only because that literal shares *no* member with an all-optional target.
+    // F-74/CE1-01 records that as not a boundary, and this row is the
+    // falsifying control the old one lacked: add the one member the two groups
+    // genuinely share and the same literal compiles.
+    //
+    // The group is not where the property lives. **The position is** (D-151),
+    // and `the composition check` below is where it is asserted.
+    const installer: SortablePlugin = () => ({ insertion, retire: dispose });
 
     void installer;
   });
 
   it('should accept a hook it does declare', () => {
-    // The F-74 control: without it the row above would pass on the literal's
-    // shape rather than on the slot's absence from the group.
+    // The F-74 control for the key-set row above: a group that refused this
+    // would be refusing multi-writer contribution, which is the whole point of
+    // the unbounded position.
     const installer: SortablePlugin = () => ({
       beforeInsertionMove: (): void => {},
     });
 
     void installer;
+  });
+});
+
+describe('the composition check', () => {
+  it('should derive the unique slots from the groups themselves', () => {
+    // **A unique slot is a key a sibling group declares and the plugin group
+    // does not** (D-151) — the definition, not a restatement of it, so a
+    // capability added later joins the set by being declared and no list has to
+    // be kept current.
+    expectTypeOf<
+      UniqueSlot<
+        AxisContribution | LandingContribution,
+        SortablePluginContribution
+      >
+    >().toEqualTypeOf<'insertion' | 'startLanding'>();
+  });
+
+  it('should hold the precondition the positional model rests on', () => {
+    // No two non-plugin groups declare the same unique key. If a later edit
+    // broke it, one slot would have two owning positions and the positional
+    // statement would stop implying the cardinality one — which is the point at
+    // which an accumulated fold becomes the answer.
+    type Disjoint<A, B, Plugin> = [
+      Exclude<keyof A & keyof B, keyof Plugin>,
+    ] extends [never]
+      ? true
+      : never;
+
+    expectTypeOf<
+      Disjoint<
+        AxisContribution,
+        LandingContribution,
+        SortablePluginContribution
+      >
+    >().toEqualTypeOf<true>();
+  });
+
+  it('should refuse an axis installer from the plugins position', () => {
+    // **The refusal the group cannot make**, and the diagnostic names the slot:
+    // _installer contributes 'insertion', which only its own config key may
+    // install_. It is not a second writer — `axis` is atomic and last-wins — it
+    // is one writer at a position the assembler never reads.
+    const refused = (): void => {
+      sortable(root, {
+        items,
+        onReorder,
+        axis: axisInstaller,
+        // @ts-expect-error — D-151: `insertion` is installable from `axis` alone
+        plugins: [axisInstaller],
+      });
+    };
+
+    void refused;
+  });
+
+  it('should refuse a landing installer from the plugins position', () => {
+    const refused = (): void => {
+      sortable(root, {
+        items,
+        onReorder,
+        axis: axisInstaller,
+        // @ts-expect-error — D-151: `startLanding` is installable from `landing`
+        plugins: [landingInstaller],
+      });
+    };
+
+    void refused;
+  });
+
+  it('should refuse one offender among legitimate plugins', () => {
+    // **The case `const` type parameters exist for** (F-145). Without them the
+    // array literal's element type widens to `SortablePlugin` before the check
+    // sees it — every installer is assignable to it — and the offender's
+    // identity is gone.
+    const refused = (): void => {
+      sortable(root, {
+        items,
+        onReorder,
+        axis: axisInstaller,
+        // @ts-expect-error — D-151: the middle element, by name
+        plugins: [plugin, axisInstaller, otherPlugin],
+      });
+    };
+
+    void refused;
+  });
+
+  it('should refuse an offender in a fragment', () => {
+    const refused = (): void => {
+      sortable(
+        root,
+        { items, onReorder, axis: axisInstaller },
+        // @ts-expect-error — D-151: fragments are checked as the config is
+        { plugins: [landingInstaller] },
+      );
+    };
+
+    void refused;
+  });
+
+  it('should accumulate several legitimate plugins', () => {
+    // **The control that keeps the check from becoming shape validation.** A
+    // multi-writer slot is contributed by as many entries as the consumer
+    // likes, in one array and across fragments, and none of them is touched.
+    const accepted = (): void => {
+      sortable(
+        root,
+        {
+          items,
+          onReorder,
+          axis: axisInstaller,
+          plugins: [plugin, otherPlugin],
+        },
+        { plugins: [plugin] },
+      );
+    };
+
+    void accepted;
+  });
+
+  it('should accept an installer the axis key legitimately takes', () => {
+    // The second control: the refusal is about the *position*, so the same
+    // installer in its own key is untouched.
+    const accepted = (): void => {
+      sortable(root, {
+        items,
+        onReorder,
+        axis: axisInstaller,
+        landing: landingInstaller,
+      });
+    };
+
+    void accepted;
+  });
+
+  it('should accept a widened installer, which is the documented residual', () => {
+    // **The accepted boundary** (D-151 §5). An explicit annotation forgets the
+    // provenance the check reads, and the call site cannot recover it. What
+    // survives is a consumer who annotated away their own information and then
+    // finds the capability silently absent, which is a documentation obligation
+    // on the slot rather than a type one.
+    const widened: SortablePlugin = axisInstaller;
+    const accepted = (): void => {
+      sortable(root, {
+        items,
+        onReorder,
+        axis: axisInstaller,
+        plugins: [widened],
+      });
+    };
+
+    void accepted;
   });
 });
 

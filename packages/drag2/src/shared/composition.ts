@@ -22,6 +22,8 @@ import type { Disposer } from '../kernel/lifetimes.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { LandingStart } from '../kernel/spec.ts';
 
+declare const MISPLACED: unique symbol;
+
 export type FeatureContext = Readonly<{
   realm: DOMRealm;
   // No code reads `root`, and the two tiers publish it with different
@@ -69,3 +71,67 @@ export type LandingContribution = Readonly<{
   /** Run in **reverse** installation order — see either `assemble`. */
   retire?: Disposer;
 }>;
+
+// D-151. The clauses D-150 would have written onto each multi-writer group —
+// `insertion?: never` and the rest — must never be written: a group carrying
+// negative knowledge of its siblings encodes an invariant that is not a
+// property of the group.
+/**
+ * The refusal value.
+ *
+ * Never constructed and never present at runtime. Its only job is to carry the
+ * sentence below into the compiler's own diagnostic, which is why the message
+ * is a template-literal type rather than a comment.
+ */
+export type Misplaced<K extends string> = Readonly<{
+  [MISPLACED]: `installer contributes '${K}', which only its own config key may install`;
+}>;
+
+/**
+ * The keys a `plugins` entry may not contribute: **every key a sibling group
+ * declares and the plugin group does not**.
+ *
+ * Derived rather than listed, so a capability added later joins the set by
+ * being declared and no group has to be told about it. The model rests on no
+ * two non-plugin groups declaring the same unique key, which each behavior's
+ * declaration suite asserts.
+ */
+export type UniqueSlot<Groups, PluginGroup> = Exclude<
+  Groups extends unknown ? keyof Groups : never,
+  keyof PluginGroup
+>;
+
+/**
+ * The unique slots one installer contributes, or `never`.
+ *
+ * **Distributive on both unions on purpose**: `keyof` of a union is the
+ * *intersection* of its keys, so the non-distributive spelling would report
+ * only the members every contribution shares — which is exactly the plugin
+ * group's own, and therefore never a violation. A check that cannot fail is
+ * worse than no check.
+ */
+export type UniqueIn<
+  Installer,
+  Unique extends PropertyKey,
+> = Installer extends (context: never) => infer C
+  ? C extends unknown
+    ? Extract<keyof C, Unique>
+    : never
+  : never;
+
+/**
+ * Each `plugins` entry, replaced by a refusal where it contributes a unique
+ * slot — and left exactly as it is where it does not. **Multi-writer slots are
+ * untouched**: an entry naming only members the plugin group declares maps to
+ * itself, so any number of features and plugins keep accumulating into
+ * `beforeInsertionMove`, `afterInsertionMove` and `retire` as before.
+ *
+ * Positional, not arithmetic: it counts nothing and knows nothing about the
+ * merge. A misplaced installer is wrong whether or not it survives last-wins,
+ * because what is wrong with it is its position.
+ */
+export type Composed<Plugins, Unique extends PropertyKey> = {
+  readonly [I in keyof Plugins]: [UniqueIn<Plugins[I], Unique>] extends [never]
+    ? Plugins[I]
+    : Misplaced<Extract<UniqueIn<Plugins[I], Unique>, string>>;
+};

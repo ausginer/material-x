@@ -3,8 +3,13 @@
  *
  * Everything here runs once, before a controller exists — there is no kernel,
  * no operation and no frame in sight. What is being pinned is the composition
- * model: single-writer enforcement, the two normalization rules, the two hook
- * orders, and an unwind that is total rather than nearly total.
+ * model: the two normalization rules, the two hook orders, the ledger's
+ * storage order, and an unwind that is total rather than nearly total.
+ *
+ * ~~single-writer enforcement~~ — deleted with `claim` (D-146). A unique slot
+ * is declared on one contribution group, so a second writer is unrepresentable
+ * rather than arbitrated here; the declaration suites are where that is
+ * asserted now.
  */
 import { describe, expect, it } from 'vitest';
 import { createRealm } from '../../src/kernel/realm.ts';
@@ -234,9 +239,14 @@ describe('assemble', () => {
     expect(seen).toEqual(['before-1', 'before-2', 'after-1', 'after-2']);
   });
 
-  it('should expose retire hooks in reverse installation order', () => {
-    // Reverse is the natural ownership order: hooks release resources acquired
-    // in declaration order. The behavior calls them in the order it is given.
+  it('should expose retire hooks in installation order', () => {
+    // **The array holds installation order and every reader walks it
+    // backwards** (D-147): reverse is the natural ownership order, because
+    // hooks release resources acquired in declaration order, and normalizing
+    // the storage so one reader could iterate forwards left the package holding
+    // two representations of that one fact. The loop below applies the rule it
+    // checks; the guarantee itself is driven at the spec, by
+    // _should run the retire hooks, each wrapped_.
     const seen: string[] = [];
     const push = (name: string) => (): void => {
       seen.push(name);
@@ -254,8 +264,8 @@ describe('assemble', () => {
       createFixture().context,
     );
 
-    for (const hook of slots.retireHooks) {
-      hook();
+    for (let i = slots.retireHooks.length - 1; i >= 0; i -= 1) {
+      slots.retireHooks[i]!();
     }
 
     expect(seen).toEqual(['third', 'second', 'geometry']);

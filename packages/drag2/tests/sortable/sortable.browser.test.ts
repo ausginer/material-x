@@ -23,8 +23,12 @@ import {
   RELEASING,
   SETTLING,
 } from '../../src/kernel/phases.ts';
-import { createRealm } from '../../src/kernel/realm.ts';
-import type { LandingHandle, LandingStart } from '../../src/kernel/spec.ts';
+import type {
+  BehaviorSpec,
+  KernelHost,
+  LandingHandle,
+  LandingStart,
+} from '../../src/kernel/spec.ts';
 import { draggable } from '../../src/kernel.ts';
 import { createSortableBehavior } from '../../src/sortable/behavior.ts';
 import type { SortableController } from '../../src/sortable/controller.ts';
@@ -38,9 +42,12 @@ import {
   type ReorderRequest,
   type ReorderTransactionResult,
 } from '../../src/sortable/domain.ts';
-import { sortableFramePart } from '../../src/sortable/frames.ts';
 import {
-  createSortableRuntime,
+  type SortableFramePart,
+  sortableFramePart,
+} from '../../src/sortable/frames.ts';
+import {
+  type PresentationView,
   TAG_SPATIAL,
 } from '../../src/sortable/runtime.ts';
 import type {
@@ -49,7 +56,7 @@ import type {
   InsertionRuntimeView,
   SortableSlots,
 } from '../../src/sortable/slots.ts';
-import { createSortableSpec, STAGED } from '../../src/sortable/spec.ts';
+import { STAGED } from '../../src/sortable/spec.ts';
 
 const POINTER_ID = 11;
 const ITEM_HEIGHT = 40;
@@ -412,6 +419,131 @@ const EMPTY_SLOTS: SortableSlots = {
   afterMove: [],
   retireHooks: [],
   threshold: 8,
+};
+
+type SpecBench = Readonly<{
+  /** The spec the production wiring installed, captured on its way past. */
+  spec: BehaviorSpec<SortableFramePart, HTMLElement>;
+  controller: SortableController;
+  root: HTMLElement;
+  items: HTMLElement[];
+  /** Every behavior action, as the kernel received it. */
+  dispatched: Array<Readonly<{ tag: number; argument: unknown }>>;
+  /** The published collection, as the behavior copied it at construction. */
+  snapshot: CollectionSnapshot;
+  /**
+   * The per-operation view, as the production path handed it to a slot. Throws
+   * until something has been handed one, so a row cannot assert against a view
+   * no operation produced.
+   */
+  view(): PresentationView;
+  placeholder(): HTMLElement | null;
+}>;
+
+/**
+ * **A real kernel, the production wiring, and one widened input** (D-126,
+ * D-149). The seam is `createSortableBehavior(items, slots)` through
+ * `draggable()` — the same one D-126 decided — and everything this bench adds
+ * to it is **observation**: the install's own `spec`, a `dispatch` decorator
+ * over the host the kernel hands the factory, and the per-operation view as a
+ * declared slot receives it.
+ *
+ * ~~It replaces `createSortableRuntime` plus field writes.~~ Nothing here
+ * writes behavior state: a row that needs a live presentation, an owned
+ * placeholder or a scheduled spatial attempt **drives a drag** to produce it,
+ * and only what no producer can reach — an illegal phase in a draft — is still
+ * fabricated (F-142).
+ */
+function createSpecBench(
+  overrides: Partial<SortableSlots> = {},
+  itemCount = 2,
+): SpecBench {
+  const root = document.createElement('div');
+  const items: HTMLElement[] = [];
+
+  root.style.width = '200px';
+
+  for (let i = 0; i < itemCount; i += 1) {
+    const item = document.createElement('div');
+
+    Object.assign(item.style, {
+      display: 'block',
+      width: '100px',
+      height: `${ITEM_HEIGHT}px`,
+    });
+    root.append(item);
+    items.push(item);
+  }
+
+  document.body.append(root);
+  cleanup.push(() => {
+    root.remove();
+  });
+
+  // Synthetic pointer events have no active pointer, as in `createHarness`.
+  root.setPointerCapture = (): void => {};
+  root.releasePointerCapture = (): void => {};
+
+  let captured: PresentationView | null = null;
+  const base: SortableSlots = {
+    ...EMPTY_SLOTS,
+    items: () => items,
+    ...overrides,
+  };
+  const slots: SortableSlots = {
+    ...base,
+    resolveInsertion(frame, runtime): Insertion | null {
+      captured = runtime as PresentationView;
+      return base.resolveInsertion(frame, runtime);
+    },
+  };
+
+  const dispatched: Array<Readonly<{ tag: number; argument: unknown }>> = [];
+  const behavior = createSortableBehavior(items, slots);
+  let spec!: BehaviorSpec<SortableFramePart, HTMLElement>;
+
+  const controller = draggable(root, (host) => {
+    // Prototype-delegating rather than spread: `closed` is a live getter on the
+    // host and a copy would freeze it at construction, which is the very
+    // stand-in D-149 refuses.
+    const observed: KernelHost = Object.assign(
+      Object.create(host) as KernelHost,
+      {
+        dispatch(tag: number, argument: unknown): void {
+          dispatched.push({ tag, argument });
+          host.dispatch(tag, argument);
+        },
+      },
+    );
+    const install = behavior(observed);
+
+    ({ spec } = install);
+    return install;
+  });
+
+  cleanup.push(() => {
+    void controller.destroy();
+  });
+
+  return {
+    spec,
+    controller,
+    root,
+    items,
+    dispatched,
+    snapshot: { items: [...items], version: 0 },
+    view: (): PresentationView => {
+      expect(captured).not.toBeNull();
+      return captured!;
+    },
+    placeholder: () => root.querySelector('[data-drag-placeholder]'),
+  };
+}
+
+/** Press the first item of a bench, then cross the activation threshold. */
+const activateBench = (bench: SpecBench): void => {
+  press(bench.items[0]!);
+  move(40);
 };
 
 /** The item order in the DOM, placeholder included as `_`. */
@@ -2182,11 +2314,11 @@ describe('retirement', () => {
     const harness = createHarness({
       retireHooks: [
         (): void => {
-          seen.push('outer');
-          throw new Error('hook');
+          seen.push('first-installed');
         },
         (): void => {
-          seen.push('inner');
+          seen.push('last-installed');
+          throw new Error('hook');
         },
       ],
     });
@@ -2194,8 +2326,11 @@ describe('retirement', () => {
     activate(harness);
     harness.controller.cancel('reason');
 
-    // One throwing hook does not stop the rest from restoring their DOM.
-    expect(seen).toEqual(['outer', 'inner']);
+    // **The published guarantee, driven where retirement actually happens**
+    // (D-147): the ledger is stored in installation order and this walk is
+    // backwards, so the last installer releases first. One throwing hook does
+    // not stop the rest from restoring their DOM.
+    expect(seen).toEqual(['last-installed', 'first-installed']);
     expect(reported).toHaveLength(1);
   });
 
@@ -2736,148 +2871,162 @@ describe('inert placeholder movement', () => {
 
 describe('the spatial action legality guard', () => {
   /**
-   * Driven directly, because no producer can reach the illegal phases: the
-   * frame task is cancelled when motion closes at release, and nothing else
-   * dispatches this tag. The guard exists so that a future producer — a
-   * replayed action, a flush from a hook — cannot commit a placeholder move
-   * into a transaction that is already decided.
+   * **Only the phase is fabricated** (D-149). The live presentation and the
+   * matching attempt come from a real drag over a real kernel — the frame task
+   * schedules, dispatches and records its own attempt number — so what the
+   * draft supplies is the one thing no producer can reach: the frame task is
+   * cancelled when motion closes at release, and nothing else dispatches this
+   * tag. The guard exists so that a future producer — a replayed action, a
+   * flush from a hook — cannot commit a placeholder move into a transaction
+   * that is already decided.
    */
-  const prepareSpatialAt = (phase: number): unknown => {
-    const root = document.createElement('div');
-    const item = document.createElement('div');
-
-    root.append(item);
-    document.body.append(root);
-    cleanup.push(() => root.remove());
-
+  const prepareSpatialAt = async (
+    phase: number,
+  ): Promise<Readonly<{ staged: unknown; resolved: number }>> => {
     let resolved = 0;
-    const rt = createSortableRuntime(
-      {
-        realm: createRealm(root),
-        root,
-        dispatch: (): void => {},
-        fail: (): void => {},
-        cancel: (): void => {},
-        closed: false,
+    const bench = createSpecBench({
+      resolveInsertion: (): Insertion => {
+        resolved += 1;
+        return { version: 0, index: 0, before: null, after: null };
+      },
+    });
 
-        destroy: (): Promise<void> => Promise.resolve(),
-      },
-      [item],
-      [item],
-      {
-        ...EMPTY_SLOTS,
-        resolveInsertion: () => {
-          resolved += 1;
-          return { version: 0, index: 0, before: null, after: null };
-        },
-      },
+    activateBench(bench);
+    move(60);
+    await nextFrame();
+
+    // The attempt the production frame task actually dispatched, so the
+    // argument comparison inside the guard is satisfied by the kernel rather
+    // than by a number this file chose.
+    const spatial = bench.dispatched.findLast(
+      (action) => action.tag === TAG_SPATIAL,
     );
 
-    // A live presentation and a matching attempt, so the *only* thing that can
-    // discard the action is the phase.
-    rt.view = {
-      realm: rt.host.realm,
-      placeholder: item,
-      item,
-      box: null,
-      live: () => !rt.host.closed,
-      snapshot: rt.snapshot,
-      insertion: null,
-    };
-    rt.pendingSpatial = 1;
+    expect(spatial).toBeDefined();
+    // The real frame resolved once on its way here; the count below is the
+    // direct call's alone.
+    resolved = 0;
 
-    const spec = createSortableSpec(rt);
     const draft = {
       ...sortableFramePart(),
       phase,
-      snapshot: rt.snapshot,
-      item,
-    } as unknown as Parameters<typeof spec.action.prepare>[2];
+      snapshot: bench.view().snapshot,
+      item: bench.items[0],
+    } as unknown as Parameters<typeof bench.spec.action.prepare>[2];
 
-    return { staged: spec.action.prepare(TAG_SPATIAL, 1, draft), resolved };
+    return {
+      staged: bench.spec.action.prepare(TAG_SPATIAL, spatial!.argument, draft),
+      resolved,
+    };
   };
 
-  it('should stage a spatial action at ACTIVE', () => {
-    expect(prepareSpatialAt(ACTIVE)).toEqual({ staged: STAGED, resolved: 1 });
+  it('should stage a spatial action at ACTIVE', async () => {
+    // The control: it is what proves the attempt and the presentation are both
+    // satisfied, so a discard below is the phase and nothing else.
+    expect(await prepareSpatialAt(ACTIVE)).toEqual({
+      staged: STAGED,
+      resolved: 1,
+    });
   });
 
-  it('should discard a spatial action at RELEASING', () => {
-    expect(prepareSpatialAt(RELEASING)).toEqual({ staged: null, resolved: 0 });
+  it('should discard a spatial action at RELEASING', async () => {
+    expect(await prepareSpatialAt(RELEASING)).toEqual({
+      staged: null,
+      resolved: 0,
+    });
   });
 
-  it('should discard a spatial action at SETTLING', () => {
-    expect(prepareSpatialAt(SETTLING)).toEqual({ staged: null, resolved: 0 });
+  it('should discard a spatial action at SETTLING', async () => {
+    expect(await prepareSpatialAt(SETTLING)).toEqual({
+      staged: null,
+      resolved: 0,
+    });
   });
 
-  it('should discard a spatial action at FINALIZING', () => {
-    expect(prepareSpatialAt(FINALIZING)).toEqual({ staged: null, resolved: 0 });
+  it('should discard a spatial action at FINALIZING', async () => {
+    expect(await prepareSpatialAt(FINALIZING)).toEqual({
+      staged: null,
+      resolved: 0,
+    });
   });
 
-  it('should discard a spatial action at ACTIVATING', () => {
-    expect(prepareSpatialAt(ACTIVATING)).toEqual({ staged: null, resolved: 0 });
+  it('should discard a spatial action at ACTIVATING', async () => {
+    expect(await prepareSpatialAt(ACTIVATING)).toEqual({
+      staged: null,
+      resolved: 0,
+    });
+  });
+
+  it('should discard a spatial action whose attempt is stale', async () => {
+    // The other half of the double validation (I-4), and it costs nothing to
+    // assert now that the live attempt is a value the test holds rather than
+    // one it assumed.
+    let resolved = 0;
+    const bench = createSpecBench({
+      resolveInsertion: (): Insertion => {
+        resolved += 1;
+        return { version: 0, index: 0, before: null, after: null };
+      },
+    });
+
+    activateBench(bench);
+    move(60);
+    await nextFrame();
+
+    const spatial = bench.dispatched.findLast(
+      (action) => action.tag === TAG_SPATIAL,
+    );
+
+    resolved = 0;
+
+    const draft = {
+      ...sortableFramePart(),
+      phase: ACTIVE,
+      snapshot: bench.view().snapshot,
+      item: bench.items[0],
+    } as unknown as Parameters<typeof bench.spec.action.prepare>[2];
+
+    expect(
+      bench.spec.action.prepare(
+        TAG_SPATIAL,
+        (spatial!.argument as number) + 1,
+        draft,
+      ),
+    ).toBeNull();
+    expect(resolved).toBe(0);
   });
 });
 
 describe('a pointerless release with no destination', () => {
-  it('should reject rather than fall back to home', () => {
-    // Driven directly, because **no producer can reach it**: `command.admit`
-    // always writes a gap before returning non-null, and a replacement that
-    // invalidates one cancels the operation instead of nulling it. The guard is
-    // still the contract's (02 §The command destination) and the reason it is
-    // not a home fallback is a correctness one, so it is asserted here rather
-    // than left to read as tested.
+  it('should reject rather than fall back to home', async () => {
+    // **The presentation is a real one**; the draft is not, because no producer
+    // can reach it: `command.admit` always writes a gap before returning
+    // non-null, and a replacement that invalidates one cancels the operation
+    // instead of nulling it. The guard is still the contract's (02 §The command
+    // destination) and the reason it is not a home fallback is a correctness
+    // one, so it is asserted here rather than left to read as tested.
     //
     // The pointer path's home fallback exists because a spatial resolve can
     // legitimately find nothing. A command that reached `RELEASING` with no
     // destination has lost state the kernel guaranteed to carry, and reporting
     // that as a home-gap reorder would tell the consumer a drop completed
     // normally.
-    const root = document.createElement('div');
-    const item = document.createElement('div');
+    const bench = createSpecBench();
 
-    root.append(item);
-    document.body.append(root);
-    cleanup.push(() => {
-      root.remove();
-    });
+    activateBench(bench);
+    move(60);
+    await nextFrame();
 
-    const rt = createSortableRuntime(
-      {
-        realm: createRealm(root),
-        root,
-        dispatch: (): void => {},
-        fail: (): void => {},
-        cancel: (): void => {},
-        closed: false,
-
-        destroy: (): Promise<void> => Promise.resolve(),
-      },
-      [item],
-      [item],
-      { ...EMPTY_SLOTS },
-    );
-
-    rt.view = {
-      realm: rt.host.realm,
-      placeholder: item,
-      item,
-      box: null,
-      live: () => !rt.host.closed,
-      snapshot: rt.snapshot,
-      insertion: null,
-    };
-
-    const spec = createSortableSpec(rt);
     const draft = {
       ...sortableFramePart(),
       phase: RELEASING,
       pointerId: -1,
-      snapshot: rt.snapshot,
-      item,
+      snapshot: bench.view().snapshot,
+      item: bench.items[0],
       insertion: null,
-    } as unknown as Parameters<typeof spec.release.prepare>[0];
+    } as unknown as Parameters<typeof bench.spec.release.prepare>[0];
 
-    const result = spec.release.prepare(draft);
+    const result = bench.spec.release.prepare(draft);
 
     expect(result).toMatchObject({ stage: FAILURE_RELEASE });
     // And specifically **not** a command: a rejection is classified, so the
@@ -3073,27 +3222,21 @@ describe('the displacement view lifetime', () => {
    * it non-null on that basis. A value left behind is a destination gap that
    * outlives the move it described.
    *
-   * Driven directly, because every exit that has to clear it is a failure exit:
-   * through the public surface the operation retires immediately afterwards and
-   * the view is gone before anything could read it.
+   * **Driven as a real committed move** (D-149). ~~Driven directly, because
+   * every exit that has to clear it is a failure exit.~~ The exits *are*
+   * failure exits, and each one is reachable from a declared slot: a throwing
+   * `measureInsertion` or `invalidateInsertion`, a throwing hook, and an
+   * insertion anchored in another container. What the view holds afterwards is
+   * read from the object the production path handed a slot — which is the
+   * contracted observer for it — rather than off a field of a container the
+   * test built.
    */
-  const runBracket = (
+  const runBracket = async (
     overrides: Partial<SortableSlots> = {},
     foreignAnchor = false,
-  ): Readonly<{ left: Insertion | null; threw: boolean }> => {
-    const root = document.createElement('div');
-    const items = [
-      document.createElement('div'),
-      document.createElement('div'),
-    ];
-    const placeholder = document.createElement('div');
-
-    root.append(items[0]!, placeholder, items[1]!);
-    document.body.append(root);
-    cleanup.push(() => {
-      root.remove();
-    });
-
+  ): Promise<
+    Readonly<{ left: Insertion | null; stages: Array<FailureStage | null> }>
+  > => {
     const elsewhere = document.createElement('div');
     const stray = document.createElement('div');
 
@@ -3103,72 +3246,57 @@ describe('the displacement view lifetime', () => {
       elsewhere.remove();
     });
 
-    const rt = createSortableRuntime(
-      {
-        realm: createRealm(root),
-        root,
-        dispatch: (): void => {},
-        fail: (): void => {},
-        cancel: (): void => {},
-        closed: false,
-
-        destroy: (): Promise<void> => Promise.resolve(),
+    const stages: Array<FailureStage | null> = [];
+    let resolved = false;
+    // `bench` is captured by a slot that runs long after this returns, which is
+    // what lets the resolver name the very composition it belongs to.
+    const bench: SpecBench = createSpecBench({
+      onError: (error): void => {
+        if (error instanceof DraggableError) {
+          stages.push(error.stage);
+        }
       },
-      items,
-      [...items],
-      { ...EMPTY_SLOTS, ...overrides },
-    );
-
-    rt.placeholder = placeholder;
-    rt.view = {
-      realm: rt.host.realm,
-      placeholder,
-      item: items[0]!,
-      box: null,
-      live: () => !rt.host.closed,
-      snapshot: rt.snapshot,
-      insertion: null,
-    };
-
-    const spec = createSortableSpec(rt);
-    const current = {
-      ...sortableFramePart(),
-      phase: ACTIVE,
-      snapshot: rt.snapshot,
-      item: items[0],
       // An end gap, so the placeholder genuinely has to move — an inert move
-      // returns before the field is ever written.
-      insertion: {
-        version: 0,
-        index: 1,
-        before: foreignAnchor ? stray : items[1]!,
-        after: null,
+      // returns before the field is ever written. Resolved once: the second
+      // frame would find the gap already correct.
+      resolveInsertion: (_frame, runtime): Insertion | null => {
+        if (resolved) {
+          return null;
+        }
+
+        resolved = true;
+        return {
+          version: runtime.snapshot.version,
+          index: 1,
+          before: foreignAnchor ? stray : bench.items[1]!,
+          after: null,
+        };
       },
-    } as unknown as Parameters<typeof spec.action.effect>[2];
+      ...overrides,
+    });
 
-    let threw = false;
+    activateBench(bench);
+    move(60);
+    await nextFrame();
 
-    try {
-      spec.action.effect(TAG_SPATIAL, 1, current, STAGED);
-    } catch {
-      threw = true;
-    }
-
-    return { left: rt.view.insertion, threw };
+    return { left: bench.view().insertion, stages };
   };
 
-  it('should clear the gap after a successful bracket', () => {
-    expect(runBracket()).toEqual({ left: null, threw: false });
+  it('should clear the gap after a successful bracket', async () => {
+    expect(await runBracket()).toEqual({ left: null, stages: [] });
   });
 
-  it('should clear the gap when the placeholder write is refused', () => {
+  it('should clear the gap when the placeholder write is refused', async () => {
     // A cross-container anchor: the canonical writer throws rather than moving
-    // the placeholder out of the list.
-    expect(runBracket({}, true)).toEqual({ left: null, threw: true });
+    // the placeholder out of the list, and the kernel classifies the throw.
+    expect(await runBracket({}, true)).toEqual({
+      left: null,
+      stages: [FAILURE_ACTION_EFFECT],
+    });
   });
 
-  it('should clear the gap when the eager measurement fails', () => {
-    const result = runBracket({
+  it('should clear the gap when the eager measurement fails', async () => {
+    const result = await runBracket({
       measureInsertion: (): void => {
         throw new Error('measure failed');
       },
@@ -3176,107 +3304,57 @@ describe('the displacement view lifetime', () => {
 
     // Classified rather than thrown — `measureInSeam` narrows it — so this exit
     // is a plain `return` out of the middle of the bracket.
-    expect(result).toEqual({ left: null, threw: false });
+    expect(result).toEqual({ left: null, stages: [FAILURE_INVALIDATION] });
   });
 
-  it('should clear the gap when the lazy invalidation fails', () => {
-    const result = runBracket({
+  it('should clear the gap when the lazy invalidation fails', async () => {
+    // Failing from the *second* call on: activation invalidates too, and an
+    // invalidation that fails there declines the operation before there is a
+    // bracket to open.
+    let calls = 0;
+    const result = await runBracket({
       invalidateInsertion: (): void => {
-        throw new Error('invalidation failed');
+        calls += 1;
+
+        if (calls > 1) {
+          throw new Error('invalidation failed');
+        }
       },
     });
 
-    expect(result).toEqual({ left: null, threw: false });
+    expect(result.left).toBeNull();
+    expect(result.stages).toContain(FAILURE_INVALIDATION);
   });
 
-  it('should clear the gap when a beforeMove hook throws', () => {
+  it('should clear the gap when a beforeMove hook throws', async () => {
     expect(
-      runBracket({
+      await runBracket({
         beforeMove: [
           (): void => {
             throw new Error('hook failed');
           },
         ],
       }),
-    ).toEqual({ left: null, threw: true });
+    ).toEqual({ left: null, stages: [FAILURE_ACTION_EFFECT] });
   });
 
-  it('should clear the gap when an afterMove hook throws', () => {
+  it('should clear the gap when an afterMove hook throws', async () => {
     expect(
-      runBracket({
+      await runBracket({
         afterMove: [
           (): void => {
             throw new Error('hook failed');
           },
         ],
       }),
-    ).toEqual({ left: null, threw: true });
+    ).toEqual({ left: null, stages: [FAILURE_ACTION_EFFECT] });
   });
 
-  it('should clear the gap the release settle published', () => {
-    // Release reuses the `beforeMove` pipeline to make displacement features
-    // hand back their offsets before it measures, so it opens the field too —
-    // and the only reader between that call and retirement is
-    // `resolveInsertion`, one line later, which must not see a gap.
-    const root = document.createElement('div');
-    const items = [
-      document.createElement('div'),
-      document.createElement('div'),
-    ];
-    const placeholder = document.createElement('div');
-
-    root.append(items[0]!, placeholder, items[1]!);
-    document.body.append(root);
-    cleanup.push(() => {
-      root.remove();
-    });
-
-    const rt = createSortableRuntime(
-      {
-        realm: createRealm(root),
-        root,
-        dispatch: (): void => {},
-        fail: (): void => {},
-        cancel: (): void => {},
-        closed: false,
-
-        destroy: (): Promise<void> => Promise.resolve(),
-      },
-      items,
-      [...items],
-      { ...EMPTY_SLOTS, beforeMove: [(): void => {}] },
-    );
-
-    rt.placeholder = placeholder;
-    rt.view = {
-      realm: rt.host.realm,
-      placeholder,
-      item: items[0]!,
-      box: null,
-      live: () => !rt.host.closed,
-      snapshot: rt.snapshot,
-      insertion: null,
-    };
-
-    const spec = createSortableSpec(rt);
-    const draft = {
-      ...sortableFramePart(),
-      phase: RELEASING,
-      snapshot: rt.snapshot,
-      item: items[0],
-      insertion: { version: 0, index: 0, before: null, after: items[1]! },
-    } as unknown as Parameters<typeof spec.release.prepare>[0];
-
-    spec.release.prepare(draft);
-
-    expect(rt.view.insertion).toBeNull();
-  });
-
-  it('should publish the gap to the hooks while the bracket is open', () => {
+  it('should publish the gap to the hooks while the bracket is open', async () => {
     // The counterpart: clearing it must not mean the hooks never see it.
     const seen: Array<Insertion | null> = [];
 
-    runBracket({
+    await runBracket({
       beforeMove: [
         (view): void => {
           seen.push(view.insertion);
@@ -3293,6 +3371,32 @@ describe('the displacement view lifetime', () => {
     expect(seen[0]).not.toBeNull();
     expect(seen[1]).toBe(seen[0]);
   });
+
+  it('should clear the gap the release settle published', async () => {
+    // Release reuses the `beforeMove` pipeline to make displacement features
+    // hand back their offsets before it measures, so it opens the field too —
+    // and the only reader between that call and retirement is
+    // `resolveInsertion`, one line later, which must not see a gap.
+    const opened: Array<Insertion | null> = [];
+    const bench = createSpecBench({
+      beforeMove: [
+        (view): void => {
+          opened.push(view.insertion);
+        },
+      ],
+    });
+
+    activateBench(bench);
+    move(60);
+    await nextFrame();
+    release(60);
+
+    // The control: the release genuinely opened the bracket, so the null below
+    // is the `finally` rather than a pipeline that never ran.
+    expect(opened.length).toBeGreaterThan(0);
+    expect(opened.at(-1)).not.toBeNull();
+    expect(bench.view().insertion).toBeNull();
+  });
 });
 
 /**
@@ -3304,52 +3408,35 @@ describe('the displacement view lifetime', () => {
  * afterwards pins the item and its snapshot in an inactive frame of a
  * destroyed controller (I-36 (2) acts 1 and 2, I-20).
  *
- * Driven directly, because the consequence is kernel-private frame state that a
- * public drag cannot observe: the operation is declined either way, and what
- * these pin is what the *draft* holds when it is.
+ * **The latch is the real one** (D-149). ~~A stub host keeps `closed` writable
+ * and hands it back for the test to drive.~~ D-53 made it readonly precisely so
+ * a behavior only ever reads it, and a stand-in that a test writes is a latch no
+ * production path sets — so each row below closes the controller the way a
+ * consumer does: from inside its own declared callback, which is the reentrancy
+ * these rows are about.
+ *
+ * The draft stays hand-built, because the consequence is kernel-private frame
+ * state that a public drag cannot observe: the operation is declined either
+ * way, and what these pin is what the *draft* holds when it is.
  */
 describe('the terminal barrier on the behavior’s frame writes', () => {
-  const bench = (
-    overrides: Partial<SortableSlots>,
-  ): Readonly<{
-    rt: ReturnType<typeof createSortableRuntime>;
-    /** The kernel stand-in, so a test can drive the latch D-53 made readonly. */
-    host: { closed: boolean };
-    spec: ReturnType<typeof createSortableSpec>;
-    item: HTMLElement;
-    root: HTMLElement;
-  }> => {
-    const root = document.createElement('div');
-    const item = document.createElement('div');
-    // Two, so a downward command is *feasible*: a single-item collection makes
-    // `keyboardInsertion` return null and the command declines before it ever
-    // reaches the seed, which would make the command case vacuous.
-    const sibling = document.createElement('div');
+  /**
+   * Two items, so a downward command is *feasible*: a single-item collection
+   * makes `keyboardInsertion` return null and the command declines before it
+   * ever reaches the seed, which would make the command case vacuous.
+   */
+  const closing = (
+    slot: (close: () => void) => Partial<SortableSlots>,
+  ): SpecBench => {
+    // Captured, not reassigned: the slot below runs inside a seam, by which
+    // time the controller it closes over exists.
+    const bench: SpecBench = createSpecBench(
+      slot(() => {
+        void bench.controller.destroy();
+      }),
+    );
 
-    root.append(item, sibling);
-    document.body.append(root);
-    cleanup.push(() => {
-      root.remove();
-    });
-
-    // `closed` is readonly on the real `KernelHost` (D-53) — a behavior may
-    // consult the latch, never set it. These tests stand in for the kernel, so
-    // the stub keeps it writable and hands it back for the test to drive.
-    const host = {
-      realm: createRealm(root),
-      root,
-      dispatch: (): void => {},
-      fail: (): void => {},
-      cancel: (): void => {},
-      closed: false,
-      destroy: (): Promise<void> => Promise.resolve(),
-    };
-    const rt = createSortableRuntime(host, [item, sibling], [item, sibling], {
-      ...EMPTY_SLOTS,
-      ...overrides,
-    });
-
-    return { rt, host, spec: createSortableSpec(rt), item, root };
+    return bench;
   };
 
   /** An event whose composed path is exactly the item, as a press would be. */
@@ -3361,17 +3448,17 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     }) as unknown as Event;
 
   it('should seed no draft when the visual resolver destroys the controller', () => {
-    const held = bench({
+    const held = closing((close) => ({
       visual: (element): HTMLElement => {
-        held.host.closed = true;
+        close();
         return element;
       },
-    });
+    }));
     const draft = {
       ...sortableFramePart(),
     } as unknown as Parameters<typeof held.spec.admit>[1];
 
-    const admitted = held.spec.admit(pathEvent(held.item) as never, draft);
+    const admitted = held.spec.admit(pathEvent(held.items[0]!) as never, draft);
 
     expect(admitted).toBeNull();
     expect([draft.item, draft.visual, draft.snapshot]).toEqual([
@@ -3384,17 +3471,17 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
   it('should seed no command draft when the visual resolver destroys the controller', () => {
     // The command path writes a *fourth* field — the destination — so it needs
     // its own decline rather than only the shared seed's.
-    const held = bench({
+    const held = closing((close) => ({
       visual: (element): HTMLElement => {
-        held.host.closed = true;
+        close();
         return element;
       },
-    });
+    }));
     const draft = {
       ...sortableFramePart(),
     } as unknown as Parameters<typeof held.spec.admit>[1];
 
-    const admitted = held.spec.command!.admit(pathEvent(held.item), draft);
+    const admitted = held.spec.command!.admit(pathEvent(held.items[0]!), draft);
 
     expect(admitted).toBeNull();
     expect([draft.item, draft.snapshot, draft.insertion]).toEqual([
@@ -3405,23 +3492,17 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
   });
 
   it('should build no proposal when a displacement hook destroys the controller', () => {
-    const held = bench({
+    const held = closing((close) => ({
       beforeMove: [
         (): void => {
-          held.host.closed = true;
+          close();
         },
       ],
-    });
+    }));
 
-    held.rt.view = {
-      realm: held.rt.host.realm,
-      placeholder: held.item,
-      item: held.item,
-      box: null,
-      live: () => !held.host.closed,
-      snapshot: held.rt.snapshot,
-      insertion: null,
-    };
+    // A real activation, so the presentation the release resolves against is
+    // one the production path published rather than one this file wrote.
+    activateBench(held);
 
     const insertion: Insertion = {
       version: 0,
@@ -3433,8 +3514,8 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
       ...sortableFramePart(),
       phase: RELEASING,
       pointerId: POINTER_ID,
-      snapshot: held.rt.snapshot,
-      item: held.item,
+      snapshot: held.snapshot,
+      item: held.items[0],
       insertion,
     } as unknown as Parameters<typeof held.spec.release.prepare>[0];
 
@@ -3495,29 +3576,24 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     // The second stretch that ends at the same reading: the axis measures the
     // consumer-owned placeholder *after* its candidate loop, so a resolution
     // can return a fresh insertion on a controller that no longer exists.
-    const held = bench({
+    const held = closing((close) => ({
       resolveInsertion: (): Insertion => {
-        held.host.closed = true;
+        close();
         return { version: 0, index: 0, before: null, after: null };
       },
-    });
+    }));
 
-    held.rt.view = {
-      realm: held.rt.host.realm,
-      placeholder: held.item,
-      item: held.item,
-      box: null,
-      live: () => !held.host.closed,
-      snapshot: held.rt.snapshot,
-      insertion: null,
-    };
+    // Activated but never given a spatial frame, so the resolver first runs
+    // inside the release below — where its destroy is the reentrancy this row
+    // is about.
+    activateBench(held);
 
     const draft = {
       ...sortableFramePart(),
       phase: RELEASING,
       pointerId: POINTER_ID,
-      snapshot: held.rt.snapshot,
-      item: held.item,
+      snapshot: held.snapshot,
+      item: held.items[0],
       insertion: { version: 0, index: 0, before: null, after: null },
     } as unknown as Parameters<typeof held.spec.release.prepare>[0];
 
@@ -3529,32 +3605,59 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     // Teardown has already removed the placeholder, so `item.before()` after a
     // destroy re-inserts a footprint the operation has finished with — into the
     // consumer's list, where nothing removes it again (I-36 (2) act 3).
-    const held = bench({});
-    const placeholder = document.createElement('div');
+    //
+    // The placeholder is the library's own, owned by a real activation: the
+    // conjuncts compare the item's parent with the placeholder's, so a detached
+    // placeholder would short-circuit and make the case vacuous. In a real
+    // teardown it *is* detached — but a consumer element that proxies
+    // `parentElement` turns that off, which is why the barrier is a reading
+    // rather than a DOM coincidence.
+    let built: HTMLElement | null = null;
+    const held: SpecBench = createSpecBench({
+      // **A consumer element that proxies `parentElement`**, which is what
+      // makes the row about the reading rather than about a DOM coincidence:
+      // teardown detaches the placeholder, so an honest `parentElement` would
+      // short-circuit the conjunct chain one test earlier and the last conjunct
+      // would never be reached.
+      placeholder: (): HTMLElement => {
+        const element = document.createElement('div');
 
-    // In the list, after both items: the conjuncts compare the item's parent
-    // with the placeholder's, so a detached placeholder would short-circuit and
-    // make the case vacuous. In a real teardown it *is* detached — but a
-    // consumer element that proxies `parentElement` turns that off, which is
-    // why the barrier is a reading rather than a DOM coincidence.
-    held.root.append(placeholder);
-    held.rt.placeholder = placeholder;
+        Object.defineProperty(element, 'parentElement', {
+          get: (): HTMLElement => held.root,
+        });
+        built = element;
+        return element;
+      },
+    });
+    activateBench(held);
 
-    Object.defineProperty(held.item, 'isConnected', {
+    const item = held.items[0]!;
+    const placeholder: HTMLElement = built!;
+
+    expect(placeholder).toBeInstanceOf(HTMLElement);
+
+    Object.defineProperty(item, 'isConnected', {
       get: (): boolean => {
-        held.host.closed = true;
+        void held.controller.destroy();
         return true;
       },
     });
 
     const current = {
       ...sortableFramePart(),
-      item: held.item,
+      item,
       recovery: RECOVERY_DESTINATION,
     } as unknown as Parameters<typeof held.spec.anchorTarget>[0];
 
+    expect(placeholder.isConnected).toBe(true);
     expect(held.spec.anchorTarget(current)).toEqual({ x: 0, y: 0 });
-    // Unmoved: the placeholder is still last, not dragged up beside the item.
-    expect(held.root.lastElementChild).toBe(placeholder);
+
+    // **The harm the barrier exists to prevent, stated as the DOM** (I-36 (2)
+    // act 3). The destroy inside the first conjunct tears down synchronously —
+    // no library transaction is open — and teardown removes the placeholder.
+    // `item.before(placeholder)` would put it straight back into the consumer's
+    // list, where nothing removes it again; the last conjunct is what stops it.
+    expect(placeholder.isConnected).toBe(false);
+    expect(held.root.contains(placeholder)).toBe(false);
   });
 });

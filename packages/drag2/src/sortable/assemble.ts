@@ -1,12 +1,12 @@
 /**
- * Construction-time assembly: a list of features in, one `SortableSlots` in
- * flat form out (contract 03 §Assembly).
+ * Construction-time assembly: a merged config in, one `SortableSlots` in flat
+ * form out (contract 03 §Assembly).
  *
  * **The contribution objects are dropped.** After `assemble()` returns, the only
- * things that exist are the slot fields and the closures they hold — the feature
- * array, the contribution objects and every reference to either are garbage.
- * That is what makes the private feature state in contract 03 §Private feature
- * state unreachable from the behavior, the kernel, or a sibling feature.
+ * things that exist are the slot fields and the closures they hold — the
+ * contribution objects and every reference to them are garbage. That is what
+ * makes the private feature state in contract 03 §Private feature state
+ * unreachable from the behavior, the kernel, or a sibling feature.
  *
  * **No single-writer arbitration** (D-146). Each unique slot is produced by one
  * config key and read from that key's contribution directly, so there is no
@@ -61,7 +61,8 @@ export function assemble(
     // **Installation order is schema order** (D-57), and since D-146 it is
     // written out rather than driven by a loop over a heterogeneous array:
     // named capability keys first, in the order the schema declares them, then
-    // plugins in array order; `retireHooks` reverses the whole sequence.
+    // plugins in array order, and every reader of `retireHooks` walks it
+    // backwards.
     // Fragment order survives only inside `plugins`, and recovering a
     // first-appearance order would mean recording which fragment each slot
     // arrived from — exactly the provenance D-45 deleted.
@@ -188,12 +189,10 @@ export function assemble(
       retireHooks,
     };
 
-    // Reversed exactly once, and **after** the record is built rather than
-    // before: the record holds this very array, so the reverse still reaches
-    // it — while the unwind above, which walks backwards, keeps seeing
-    // installation order for as long as anything can still throw.
-    retireHooks.reverse();
-
+    // **Stored in installation order and walked backwards by every reader**
+    // (D-147). The published guarantee is about execution order; a `reverse()`
+    // here would be a second representation of it, with a mutation between the
+    // two — which is the shape D-39's undo ledger next door already avoids.
     return slots;
   } catch (error) {
     // A later installer or the resolver dereference must not leak an earlier

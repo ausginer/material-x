@@ -19,7 +19,6 @@ import type { Writable } from 'type-fest';
 import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
 import type { LiftMode } from '../kernel/presentation.ts';
 import type {
-  AxisSource,
   DragAxis,
   DragGeometry,
   FreeDragTransactionResult,
@@ -74,12 +73,16 @@ export type FreeDragConfig = Readonly<{
   onEnd?: FreeDragOnEnd;
   onError?: FreeDragOnDragError;
 
-  /* scalars, and one scalar-or-source */
+  /* scalars */
   /**
-   * `'both' | 'x' | 'y'`, default `'both'`. A **function is a source** re-read
-   * on `invalidate()` and at activation, never per sample.
+   * `'both' | 'x' | 'y'`, default `'both'`. Fixed for the controller's
+   * lifetime: an axis is applied to travel the operation has already
+   * accumulated, so changing one mid-drag would reinterpret every pixel since
+   * the grab rather than change what happens next. A per-sample lock — a
+   * modifier key, say — is a `bounds` installer, which runs on the present
+   * position.
    */
-  axis?: DragAxis | AxisSource;
+  axis?: DragAxis;
   /**
    * `LIFT_FAITHFUL`, `LIFT_FLAT` or `LIFT_IN_PLACE`, default `LIFT_FAITHFUL`.
    * The three constants publish from this entry beside the type.

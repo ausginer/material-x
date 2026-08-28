@@ -29,7 +29,6 @@ import {
   type FreeDragController,
 } from './controller.ts';
 import type { FreeDragFramePart } from './frames.ts';
-import { createFreeDragRuntime } from './runtime.ts';
 import type { FreeDragSlots } from './slots.ts';
 import { createFreeDragSpec } from './spec.ts';
 
@@ -37,10 +36,8 @@ function install(
   host: KernelHost,
   slots: FreeDragSlots,
 ): BehaviorInstall<FreeDragController, FreeDragFramePart> {
-  const rt = createFreeDragRuntime(host, slots);
-
   return {
-    spec: createFreeDragSpec(rt),
+    spec: createFreeDragSpec(host, slots),
     controller: createFreeDragController(host),
   };
 }

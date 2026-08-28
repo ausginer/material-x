@@ -242,21 +242,19 @@ describe('a late moveTo()', () => {
 });
 
 describe('a late invalidate()', () => {
-  it('should re-enter neither the axis source nor a third-party constraint', async () => {
+  it('should re-enter no third-party constraint', async () => {
     // `TAG_POLICY`'s reason is **hygiene, and it is a different argument** from
-    // `TAG_POSITION`'s: it writes no geometry, but it re-enters a declared
-    // consumer slot and a third-party capability for no observable effect once
-    // no later sample exists. Recording slots are what turn that from a claim
-    // into a measurement.
+    // `TAG_POSITION`'s: it writes no geometry, but it re-enters a third-party
+    // capability for no observable effect once no later sample exists. A
+    // recording constraint is what turns that from a claim into a measurement.
+    //
+    // ~~The `axis` source is the other half of this row.~~ **Deleted with the
+    // source** (D-148): `axis` is fixed configuration, read from the slot
+    // record, so this seam reaches exactly one consumer surface.
     const constraint = recordingConstraint();
-    let axisReads = 0;
     const composed = compose({
       fragments: [constraint.fragment],
       config: {
-        axis: () => {
-          axisReads += 1;
-          return 'both';
-        },
         onEnd: (): void => {
           composed.controller.invalidate();
         },
@@ -265,37 +263,22 @@ describe('a late invalidate()', () => {
 
     activate(composed);
 
-    const readsAtActivation = axisReads;
     const invalidationsAtActivation = constraint.invalidations;
 
     release(30, 10);
     await settled();
 
-    expect(axisReads).toBe(readsAtActivation);
     expect(constraint.invalidations).toBe(invalidationsAtActivation);
   });
 
-  it('should still re-enter both while the operation is active', () => {
+  it('should still re-enter it while the operation is active', () => {
     // The positive control for the tag the row above refuses late.
     const constraint = recordingConstraint();
-    let axisReads = 0;
-    const composed = compose({
-      fragments: [constraint.fragment],
-      config: {
-        axis: () => {
-          axisReads += 1;
-          return 'both';
-        },
-      },
-    });
+    const composed = compose({ fragments: [constraint.fragment] });
 
     activate(composed);
-
-    const readsAtActivation = axisReads;
-
     composed.controller.invalidate();
 
-    expect(axisReads).toBe(readsAtActivation + 1);
     expect(constraint.invalidations).toBe(1);
   });
 });

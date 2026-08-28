@@ -15,20 +15,32 @@
  * no `duplicate-contribution` identity left to assert against.
  */
 import { describe, expectTypeOf, it } from 'vitest';
+import type { OnDrop } from '../../src/free-drag/domain.ts';
 import type {
   ConstraintContribution,
   ConstraintInstaller,
+  FreeDragLandingInstaller,
   FreeDragPlugin,
   FreeDragPluginContribution,
   MotionConstraint,
 } from '../../src/free-drag/feature.ts';
 import type { FreeDragSlots } from '../../src/free-drag/slots.ts';
+import { freeDrag } from '../../src/free-drag.ts';
 import type { LandingStart, SettlementScope } from '../../src/kernel/spec.ts';
-import type { LandingContribution } from '../../src/shared/composition.ts';
+import type {
+  LandingContribution,
+  UniqueSlot,
+} from '../../src/shared/composition.ts';
 
 declare const constraint: MotionConstraint;
 declare const start: LandingStart;
 declare const dispose: () => void;
+declare const constraintInstaller: ConstraintInstaller;
+declare const landingInstaller: FreeDragLandingInstaller;
+declare const plugin: FreeDragPlugin;
+declare const otherPlugin: FreeDragPlugin;
+declare const item: HTMLElement;
+declare const onDrop: OnDrop;
 
 describe('ConstraintInstaller', () => {
   it('should accept a function literal authored outside the package', () => {
@@ -124,19 +136,154 @@ describe('FreeDragPlugin', () => {
     expectTypeOf<keyof FreeDragPluginContribution>().toEqualTypeOf<'retire'>();
   });
 
-  it('should refuse a unique slot from the unbounded position', () => {
-    // @ts-expect-error — neither unique slot is reachable from `plugins`
-    const installer: FreeDragPlugin = () => ({ startLanding: start });
+  it('should not refuse a unique slot at the group alone', () => {
+    // **F-132, stated rather than papered over.** ~~`should refuse a unique
+    // slot from the unbounded position`~~ asserted that
+    // `() => ({ startLanding: start })` is rejected here, and it is — by
+    // **weak-type detection**, which fires only because that literal shares
+    // *no* member with an all-optional target. F-74/CE1-01 records that as not
+    // a boundary, and this row is the falsifying control the old one lacked:
+    // add `retire`, the one member both groups declare, and the same literal
+    // compiles.
+    //
+    // The group is not where the property lives. **The position is** (D-151),
+    // and `the composition check` below is where it is asserted.
+    const installer: FreeDragPlugin = () => ({
+      startLanding: start,
+      retire: dispose,
+    });
 
     void installer;
   });
 
   it('should accept the lifetime it does declare', () => {
-    // The F-74 control: without it the row above would pass on the shape of the
-    // literal rather than on the slot's absence from the group.
+    // The F-74 control for the key-set row above.
     const installer: FreeDragPlugin = () => ({ retire: dispose });
 
     void installer;
+  });
+});
+
+describe('the composition check', () => {
+  it('should derive the unique slots from the groups themselves', () => {
+    // **A unique slot is a key a sibling group declares and the plugin group
+    // does not** (D-151) — derived, so a capability added later joins the set
+    // by being declared.
+    expectTypeOf<
+      UniqueSlot<
+        ConstraintContribution | LandingContribution,
+        FreeDragPluginContribution
+      >
+    >().toEqualTypeOf<'constrain' | 'startLanding'>();
+  });
+
+  it('should hold the precondition the positional model rests on', () => {
+    // No two non-plugin groups declare the same unique key: they intersect in
+    // `retire` alone, which the plugin group also declares.
+    type Disjoint<A, B, Plugin> = [
+      Exclude<keyof A & keyof B, keyof Plugin>,
+    ] extends [never]
+      ? true
+      : never;
+
+    expectTypeOf<
+      Disjoint<
+        ConstraintContribution,
+        LandingContribution,
+        FreeDragPluginContribution
+      >
+    >().toEqualTypeOf<true>();
+  });
+
+  it('should refuse a constraint installer from the plugins position', () => {
+    // **The refusal the group cannot make**, and the diagnostic names the slot:
+    // _installer contributes 'constrain', which only its own config key may
+    // install_. `bounds()` composed as a plugin installed a clamp nothing
+    // applied and a `retire` nothing recorded.
+    const refused = (): void => {
+      // @ts-expect-error — D-151: `constrain` is installable from `bounds` alone
+      freeDrag(item, { onDrop, plugins: [constraintInstaller] });
+    };
+
+    void refused;
+  });
+
+  it('should refuse a landing installer from the plugins position', () => {
+    const refused = (): void => {
+      // @ts-expect-error — D-151: `startLanding` is installable from `landing`
+      freeDrag(item, { onDrop, plugins: [landingInstaller] });
+    };
+
+    void refused;
+  });
+
+  it('should refuse one offender among legitimate plugins', () => {
+    // **The case `const` type parameters exist for** (F-145): without them the
+    // array literal widens to `FreeDragPlugin` before the check sees it.
+    const refused = (): void => {
+      freeDrag(item, {
+        onDrop,
+        // @ts-expect-error — D-151: the middle element, by name
+        plugins: [plugin, constraintInstaller, otherPlugin],
+      });
+    };
+
+    void refused;
+  });
+
+  it('should refuse an offender in a fragment', () => {
+    const refused = (): void => {
+      freeDrag(
+        item,
+        { onDrop },
+        { plugins: [plugin] },
+        // @ts-expect-error — D-151: fragments are checked as the config is
+        { plugins: [constraintInstaller] },
+      );
+    };
+
+    void refused;
+  });
+
+  it('should accumulate several legitimate plugins', () => {
+    // **The control that keeps the check from becoming shape validation.** The
+    // unbounded position stays unbounded: as many entries as the consumer
+    // likes, in one array and across fragments, none of them touched.
+    const accepted = (): void => {
+      freeDrag(
+        item,
+        { onDrop, plugins: [plugin, otherPlugin] },
+        { plugins: [plugin] },
+      );
+    };
+
+    void accepted;
+  });
+
+  it('should accept an installer the bounds key legitimately takes', () => {
+    // The second control: the refusal is about the *position*, so the same
+    // installer in its own key is untouched.
+    const accepted = (): void => {
+      freeDrag(item, {
+        onDrop,
+        bounds: constraintInstaller,
+        landing: landingInstaller,
+      });
+    };
+
+    void accepted;
+  });
+
+  it('should accept a widened installer, which is the documented residual', () => {
+    // **The accepted boundary** (D-151 §5). An explicit annotation forgets the
+    // provenance the check reads; what survives is a consumer who annotated
+    // away their own information and then finds the capability silently absent.
+    const widened: FreeDragPlugin = constraintInstaller;
+    const accepted = (): void => {
+      freeDrag(item, { onDrop, plugins: [widened] });
+    };
+
+    void accepted;
   });
 });
 

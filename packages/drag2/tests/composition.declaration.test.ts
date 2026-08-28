@@ -32,13 +32,20 @@
  * one behavior is refused where the other's is expected, in both directions,
  * and that is total. It says nothing about **what a correctly-typed function
  * returns**: a literal returned from an arrow already contextually typed as a
- * `FreeDragInstaller` is not excess-property-checked, so one carrying
- * `insertion` compiles and the assembler ignores the slot. Contributing a slot
- * the behavior does not implement is unsupported integrator usage — refusing it
- * would cost exactly what D-138 deleted, each record enumerating the other's
- * vocabulary — and it is not asserted here in either direction, because a row
- * pinning what today's compiler happens to do would state a guarantee the
- * contract does not make.
+ * `FreeDragPlugin` is not excess-property-checked, so one carrying `insertion`
+ * compiles and the assembler ignores the slot. Contributing a slot the behavior
+ * does not implement is unsupported integrator usage — refusing it would cost
+ * exactly what D-138 deleted, each record enumerating the other's vocabulary —
+ * and it is not asserted here in either direction, because a row pinning what
+ * today's compiler happens to do would state a guarantee the contract does not
+ * make.
+ *
+ * **What *is* asserted, one tier out, is a different property** (D-151): an
+ * installer may contribute only the slots its position is read for, checked at
+ * `sortable()` and `freeDrag()` where the argument's own type still remembers
+ * which installer it is. That is about position rather than about shape, so it
+ * refuses `plugins: [y()]` without either group naming the other's vocabulary.
+ * Each behavior's `feature.declaration.test.ts` carries those rows.
  *
  * **One accepted hole, and it is about whose function it is**: a zero-parameter
  * installer declares no context, so `() => ({})` stays assignable to both. That
@@ -62,6 +69,7 @@ import { FreeDragResolution, freeDrag } from '../src/free-drag.ts';
 import type {
   AxisInstaller,
   SortableFeatureContext,
+  SortableLandingInstaller,
   SortablePlugin,
   SortablePluginContribution,
   FeatureContext as SortableSharedContext,
@@ -72,6 +80,8 @@ declare const axisInstaller: AxisInstaller;
 declare const sortablePlugin: SortablePlugin;
 declare const freeDragPlugin: FreeDragPlugin;
 declare const constraintInstaller: ConstraintInstaller;
+declare const freeDragLandingInstaller: FreeDragLandingInstaller;
+declare const sortableLandingInstaller: SortableLandingInstaller;
 
 describe('an axis installer', () => {
   it('should not be assignable to a free-drag installer', () => {
@@ -172,10 +182,39 @@ describe('the two behaviors\u2019 groups', () => {
     // plugin group declares a unique slot, which is what makes an unbounded
     // number of writers safe without arbitration — the property `claim` used to
     // enforce at construction time, now a fact about two declarations.
+    //
+    // ~~`.not.toEqualTypeOf<'insertion'>()` for the sortable half.~~ **Vacuous,
+    // and F-133 is the record of it**: `keyof` of a three-member group is not
+    // the single literal `'insertion'` whatever those members are, so the
+    // assertion could not fail for the reason it named. Both halves are exact
+    // now, and the sortable's is exact one `it` above as well.
     expectTypeOf<keyof FreeDragPluginContribution>().toEqualTypeOf<'retire'>();
-    expectTypeOf<
-      keyof SortablePluginContribution
-    >().not.toEqualTypeOf<'insertion'>();
+    expectTypeOf<keyof SortablePluginContribution>().toEqualTypeOf<
+      'beforeInsertionMove' | 'afterInsertionMove' | 'retire'
+    >();
+  });
+
+  it('should still refuse the two landing installers to each other', () => {
+    // **The crossing D-146 created and no suite asserted** (F-133). Both
+    // behaviors' `landing` key returns the *same* declaration — one
+    // `LandingContribution` in `shared/composition.ts` — so the return type
+    // contributes nothing to the separation here and the branded parameter
+    // carries it alone. That makes this the sharpest test of D-138 in the
+    // package, and it was the one crossing left unpinned.
+    // @ts-expect-error — D-138: the context brand, with no help from the return
+    const free: FreeDragLandingInstaller = sortableLandingInstaller;
+    // @ts-expect-error — and it refuses in the other direction too
+    const sorted: SortableLandingInstaller = freeDragLandingInstaller;
+
+    void [free, sorted];
+  });
+
+  it('should return one declaration from both landing installers', () => {
+    // The control for the row above: without it the refusal could be read as
+    // the return types differing, which is exactly what D-146 removed.
+    expectTypeOf<ReturnType<FreeDragLandingInstaller>>().toEqualTypeOf<
+      ReturnType<SortableLandingInstaller>
+    >();
   });
 });
 

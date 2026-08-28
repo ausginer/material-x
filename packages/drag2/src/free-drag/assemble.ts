@@ -8,12 +8,14 @@
  * makes an installer's private state unreachable from the behavior, the kernel,
  * or a sibling installer.
  *
- * **Zero construction-time throws of its own** (07 §Validation, D-77, D-146).
- * The last one was `claim`'s single-writer collision, and it is gone with the
- * discovery it arbitrated: `constrain` is producible from `bounds` and
- * `startLanding` from `landing`, so a second writer is a compile error rather
- * than an invariant no signature could state. Only an installer's own body can
- * throw here now, and the unwind bracket below is what covers it.
+ * **Zero construction-time throws of its own** (07 §Validation, D-77, D-146),
+ * and since F-134 the sentence is exact. The last explicit one was `claim`'s
+ * single-writer collision, and it is gone with the discovery it arbitrated:
+ * `constrain` is producible from `bounds` and `startLanding` from `landing`, so
+ * a second writer is a compile error rather than an invariant no signature could
+ * state. Every slot this behavior reads is nullable, so nothing here
+ * dereferences a required member either: **only an installer's own body can
+ * throw**, and the unwind bracket below is what covers it.
  */
 import type { Disposer } from '../kernel/lifetimes.ts';
 import { LIFT_FAITHFUL } from '../kernel/presentation.ts';
@@ -44,7 +46,7 @@ export function assemble(
     // **Installation order is schema order** (D-57), written out rather than
     // driven by a loop over a heterogeneous array (D-146): named capability
     // keys first, in the order the schema declares them, then plugins in array
-    // order; `retireHooks` reverses the whole sequence. Fragment order survives
+    // order, and every reader of `retireHooks` walks it backwards. Fragment order survives
     // only inside `plugins`, and recovering a first-appearance order would mean
     // recording which fragment each slot arrived from — exactly the provenance
     // D-45 deleted.
@@ -55,7 +57,19 @@ export function assemble(
       const bounds = config.bounds(branded);
 
       ({ constrain } = bounds);
-      retireHooks.push(constrain.retire);
+
+      // **Guarded, though the type declares `constrain` required** (F-134).
+      // The sortable's twin carries the same guard and the same reason: a
+      // JS-authored installer that returns none must not fail *here*, where
+      // the unwind has nothing recorded for this installer yet, so its own
+      // `retire` below would never run. Where the two behaviors then differ is
+      // what the flat record does — the sortable dereferences its insertion
+      // and throws, free drag's slot is nullable and the composition simply
+      // has no constraint, exactly as a `landing` installer that returns no
+      // `startLanding` already does.
+      if (constrain) {
+        retireHooks.push(constrain.retire);
+      }
 
       if (bounds.retire) {
         retireHooks.push(bounds.retire);
@@ -120,12 +134,10 @@ export function assemble(
       retireHooks,
     };
 
-    // Reversed exactly once, and **after** the record is built rather than
-    // before: the record holds this very array, so the reverse still reaches
-    // it — while the unwind above, which walks backwards, keeps seeing
-    // installation order for as long as anything can still throw.
-    retireHooks.reverse();
-
+    // **Stored in installation order and walked backwards by every reader**
+    // (D-147). The published guarantee is about execution order; a `reverse()`
+    // here would be a second representation of it, with a mutation between the
+    // two — which is the shape D-39's undo ledger next door already avoids.
     return slots;
   } catch (error) {
     // A later installer must not leak an earlier installer's state. Installers are externally inert, so this is a

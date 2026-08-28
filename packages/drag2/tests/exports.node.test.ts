@@ -143,7 +143,7 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
   // out of `typeOnly` in the same change.
   'sortable/feature': ['insertionAt'],
   // **Free drag's middle tier still has none, and the asymmetry is the
-  // measurement.** `FreeDragInstaller`, `FreeDragContribution`,
+  // measurement.** `ConstraintInstaller`, `ConstraintContribution`,
   // `MotionConstraint`, `ConstraintView` and `MotionDraft` are all erased, so
   // this entry emits no `.js` at all — which is what `typeOnly` says and what
   // keeps the split above load-bearing rather than vestigial.

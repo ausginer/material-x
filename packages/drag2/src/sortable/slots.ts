@@ -213,7 +213,7 @@ export type SortableSlots = Readonly<{
    */
   beforeMove: readonly DisplacementHook[];
   afterMove: readonly DisplacementHook[];
-  /** Already reversed by the assembler: released in reverse install order. */
+  /** Installation order; every reader walks it backwards (D-57, D-147). */
   retireHooks: readonly Disposer[];
 
   threshold: number;
