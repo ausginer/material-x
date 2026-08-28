@@ -1,10 +1,9 @@
 /**
  * Kernel action tags, and the offset behavior tags are lifted by.
  *
- * There is no `ADMIT` action. The phase table in contract 02 lists one, but
- * admission is **native dispatch, not queued** — the `pointerdown` listener
- * runs `admit`, revalidates, mints identity and commits `PENDING` inline
- * (contract 06 §Admission). Queuing it would put a `preventDefault()` and a
+ * There is no `ADMIT` action. Admission is **native dispatch, not queued** —
+ * the `pointerdown` listener runs `admit`, revalidates, mints identity and
+ * commits `PENDING` inline. Queuing it would put a `preventDefault()` and a
  * `composedPath()` read after the event has finished dispatching.
  *
  * `BEHAVIOR_BASE` is deliberately far above the last kernel tag rather than
@@ -24,9 +23,9 @@ export const CANCEL = 3;
 export const START_COMMITTED = 4;
 /** The consumer round-trip produced a value. */
 export const RESOLUTION_SETTLED = 5;
-// 6 is unused: there is no authored-presentation gate for it to tag (D-41).
-// The number is left unused rather than reclaimed, because the tags below are
-// matched by value in queued actions and renumbering them buys nothing.
+// 6 is unused: there is no authored-presentation gate for it to tag. The number
+// is left unused rather than reclaimed, because the tags below are matched by
+// value in queued actions and renumbering them buys nothing.
 /** The landing runner completed. */
 export const LANDING_SETTLED = 7;
 /** A classified failure checkpoint. */
@@ -36,7 +35,7 @@ export const ERROR_REPORTED = 9;
 /** Return the controller to `IDLE`. */
 export const RETIRE = 10;
 /**
- * Enter the activation seam for a **pointerless** operation (D-32).
+ * Enter the activation seam for a **pointerless** operation.
  *
  * Queued by the command ingress boundary. The pointer path reaches the same
  * seam inline from `MOVE`, because queuing it there would add an entry to every
@@ -44,8 +43,8 @@ export const RETIRE = 10;
  */
 export const ACTIVATE = 11;
 /**
- * Close a **pointerless** operation (D-32), entering the same release
- * transition `UP` enters at `ACTIVE`.
+ * Close a **pointerless** operation, entering the same release transition `UP`
+ * enters at `ACTIVE`.
  *
  * Queued once `START_COMMITTED` has run: a command with no pointer has no other
  * producer of a release, which is what makes it one slot.

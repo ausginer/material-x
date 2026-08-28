@@ -19,7 +19,7 @@ import type { DOMRealm } from './realm.ts';
 // `ActionTransition` has exactly one declaration, in `seams.ts`, and is
 // re-exported from here. A second structurally identical declaration at this
 // tier would let a consumer's compiler resolve one while the driver consumes
-// the other (F-61).
+// the other.
 import type { ActionTransition, Transition } from './seams.ts';
 import type { OffsetBox, Point } from './types.ts';
 
@@ -82,9 +82,9 @@ export type KernelHost = Readonly<{
   destroy(): Promise<void>;
 }>;
 
-// Discrete, pointerless admission is a second ingress, not a second protocol
-// (D-32). A section header rather than a doc block: it documents the group
-// below it and no single declaration, and as JSDoc it shipped orphaned into
+// Discrete, pointerless admission is a second ingress, not a second protocol. A
+// section header rather than a doc block: it documents the group below it and
+// no single declaration, and as JSDoc it would ship orphaned into
 // `kernel/spec.d.ts`.
 //
 // A command's feasibility must be answered synchronously, inside the native
@@ -191,8 +191,8 @@ export type ActivationScope = Readonly<{
   /**
    * The lift capability. The behavior keeps it for `moved`.
    *
-   * **A projection, not the session**: `rendered` and `dispose` are kernel-only.
-   * The same physical object arrives under the narrower type.
+   * **A projection, not the session**: `rendered` and `dispose` are
+   * kernel-only. The same physical object arrives under the narrower type.
    */
   lift: BehaviorLiftSession;
   /** Closed at release, cancel, destroy, panic. */
@@ -285,8 +285,8 @@ export type PreparedSettlement = true;
  * `compose(targetX, targetY)` is where the visual has to end up.
  *
  * It is deliberately **not** a viewport point: a runner's only writer is
- * `compose`, which cannot convert a point, because the context carries no origin
- * rect.
+ * `compose`, which cannot convert a point, because the context carries no
+ * origin rect.
  *
  * The space is unaffected by the lift mode. Both lifted modes translate the
  * delta directly; the in-place mode projects it through the inverse of its
@@ -370,9 +370,9 @@ export type BehaviorConfig = Readonly<{
 /**
  * The behavior's whole SPI.
  *
- * `Activation` is the behavior's choice of what `activation.prepare` stages, and
- * defaults to `true` — a behavior that stages nothing writes nothing. The kernel
- * treats the staged value as opaque and drops it.
+ * `Activation` is the behavior's choice of what `activation.prepare` stages,
+ * and defaults to `true` — a behavior that stages nothing writes nothing. The
+ * kernel treats the staged value as opaque and drops it.
  */
 export type BehaviorSpec<
   Part extends object,
@@ -425,15 +425,14 @@ export type BehaviorSpec<
    */
   moved(current: Readonly<Frame<Part>>, lift: BehaviorLiftSession): void;
 
-  // The borrow below, and the per-controller cache it licenses: D-144, F-123.
   /**
    * Produce the viewport point the lifted visual should end at.
    *
-   * **The result is borrowed, and the kernel never retains it.** Both
-   * fields are read immediately on return — converted once into the
-   * origin-relative delta the settlement carries as scalars — and the object
-   * itself is dropped before any further code runs. Nothing stores it, and
-   * nothing hands it to consumer code.
+   * **The result is borrowed, and the kernel never retains it.** Both fields
+   * are read immediately on return — converted once into the origin-relative
+   * delta the settlement carries as scalars — and the object itself is dropped
+   * before any further code runs. Nothing stores it, and nothing hands it to
+   * consumer code.
    *
    * So an implementation may return **one mutable buffer per controller**,
    * rewritten on every call, and both first-party behaviors do. What it may

@@ -1,13 +1,11 @@
-// The eight-phase vocabulary, kept verbatim from the shipped package
-// (contract D-14). A module header rather than a doc block, for the reason
-// `kernel/types.ts` states (D-113, MNT-02).
+// The eight-phase vocabulary. A module header rather than a doc block, for the
+// reason `kernel/types.ts` states.
 //
 // Two of these are named for a state they describe only *after* their effect
 // runs. `ACTIVATING` is committed **before** `activation.effect` inserts the
 // placeholder, and `FINALIZING` is committed **before** the join measures,
 // destroys the runner, pins and releases presentation. The names describe the
-// phase from its commit, which is when it becomes observable
-// (contract 02 §Phases and legality).
+// phase from its commit, which is when it becomes observable.
 
 /** No operation. The only phase that admits input. */
 export const IDLE = 0;

@@ -3,23 +3,23 @@
  *
  * A consumer that drags one element freely reaches for this entry and, for
  * `instanceof DraggableError`, `drag.js`, and nothing else: `freeDrag()` takes
- * the item, calls `draggable()` internally and returns its controller (D-48), so
+ * the item, calls `draggable()` internally and returns its controller, so
  * neither the kernel tier nor the installer tier is on the ordinary path. The
  * consumer never names `draggable`, never holds a behavior value, and never
  * learns that a kernel tier exists.
  *
- * **One vocabulary — `drag`, not `drop`** (D-69). The drop is an event inside
- * the drag; the drag is the thing being configured, controlled and named, so it
+ * **One vocabulary — `drag`, not `drop`.** The drop is an event inside the
+ * drag; the drag is the thing being configured, controlled and named, so it
  * names the entry, the function, the controller and the type family. `onDrop`
  * keeps its name because it is the one slot that really is about the drop.
  *
- * `FreeDragConfig` and **every alias it names** are exported from here (F-51),
- * because a config slot a consumer can fill but cannot hoist out of the object
- * literal is not a writable surface. **The closure is tier-scoped** (D-78): it
- * resolves within `free-drag.js ∪ drag.js ∪ free-drag/feature.js`, so
- * `ConstraintInstaller`, `FreeDragLandingInstaller` and `FreeDragPlugin` ship
- * from here while the names *they* reach stay declared at the middle tier, one
- * import away for an author who wants them.
+ * `FreeDragConfig` and **every alias it names** are exported from here, because
+ * a config slot a consumer can fill but cannot hoist out of the object literal
+ * is not a writable surface. **The closure is tier-scoped**: it resolves within
+ * `free-drag.js ∪ drag.js ∪ free-drag/feature.js`, so `ConstraintInstaller`,
+ * `FreeDragLandingInstaller` and `FreeDragPlugin` ship from here while the
+ * names *they* reach stay declared at the middle tier, one import away for an
+ * author who wants them.
  */
 import { createComposedFreeDragBehavior } from './free-drag/behavior.ts';
 import type { FreeDragConfig } from './free-drag/config.ts';
@@ -34,7 +34,8 @@ import type { Composed, UniqueSlot } from './shared/composition.ts';
 
 export type { FreeDragController } from './free-drag/controller.ts';
 /**
- * The config schema and every alias it names (F-51).
+ * The config schema and every alias it names: a config slot a consumer can fill
+ * but cannot hoist out of the object literal is not a writable surface.
  */
 export type {
   FreeDragConfig,
@@ -46,13 +47,13 @@ export type {
   ResolveHandle,
 } from './free-drag/config.ts';
 /**
- * **The three capability slots' aliases, published here** (D-78, D-146):
- * `FreeDragConfig` names each of them — `bounds?` by `ConstraintInstaller`,
- * `landing?` by `FreeDragLandingInstaller`, `plugins?` by `FreeDragPlugin` — so
- * a consumer writing a third-party constraint must be able to hoist the
- * installer into a typed `const` rather than only fill the slot inline. Their
- * own closure — `FeatureContext`, `ConstraintContribution`, `MotionConstraint`
- * — stays declared at `free-drag/feature.js`.
+ * **The three capability slots' aliases, published here.** `FreeDragConfig`
+ * names each of them — `bounds?` by `ConstraintInstaller`, `landing?` by
+ * `FreeDragLandingInstaller`, `plugins?` by `FreeDragPlugin` — so a consumer
+ * writing a third-party constraint must be able to hoist the installer into a
+ * typed `const` rather than only fill the slot inline. Their own closure —
+ * `FeatureContext`, `ConstraintContribution`, `MotionConstraint` — stays
+ * declared at `free-drag/feature.js`.
  */
 export type {
   ConstraintInstaller,
@@ -72,7 +73,7 @@ export {
   type RejectedFreeDragResult,
   type ResolveHome,
 } from './free-drag/domain.ts';
-// **The lift vocabulary, published where the slot that takes it is** (D-141).
+// **The lift vocabulary, published where the slot that takes it is.**
 // `config.lift` is a `LiftMode`, and a numeric union whose members are
 // unnameable is not a fillable slot — so the three constants come with it,
 // exactly as the stage constants follow `FailureStage` onto `drag.js`. They are
@@ -87,7 +88,7 @@ export {
 /**
  * The cancellation stages, as **values as well as a type**, for the same reason
  * `sortable.js` re-exports them: a `CanceledFreeDragResult` carries one and an
- * ordinary consumer has to be able to discriminate it (D-68).
+ * ordinary consumer has to be able to discriminate it.
  */
 export {
   AT_CONSUMER,
@@ -142,14 +143,14 @@ export type FreeDragComposition<T> = T extends { plugins?: infer P }
  * error rather than a runtime throw. A later fragment may **replace** the slot
  * and cannot **clear** it — the merge skips `undefined`.
  *
- * **It throws nothing for any config the compiler accepts.** Every option domain
- * the compiler already states is left to the compiler, and a value that breaks
- * only the consumer's own drag is not the library's to police: a bad `handle`,
- * `visual`, `onMove`, `home`, `onEnd` or bounds source surfaces at the seam that
- * uses it, classified, coded and terminating the operation exactly once — while
- * a `NaN` threshold and an unknown `axis` are **silent**, because
- * neither ever fails. `lift` has no unknown value to be: the slot takes the
- * kernel's own `LiftMode`.
+ * **It throws nothing for any config the compiler accepts.** Every option
+ * domain the compiler already states is left to the compiler, and a value that
+ * breaks only the consumer's own drag is not the library's to police: a bad
+ * `handle`, `visual`, `onMove`, `home`, `onEnd` or bounds source surfaces at
+ * the seam that uses it, classified, coded and terminating the operation
+ * exactly once — while a `NaN` threshold and an unknown `axis` are **silent**,
+ * because neither ever fails. `lift` has no unknown value to be: the slot takes
+ * the kernel's own `LiftMode`.
  */
 export function freeDrag<
   const C extends FreeDragConfig,

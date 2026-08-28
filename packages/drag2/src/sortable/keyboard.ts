@@ -1,6 +1,6 @@
 /**
  * The discrete-input adapter: one keyboard command mapped into the shared
- * proposal protocol (D-32).
+ * proposal protocol.
  *
  * A command is a **complete one-slot move**, not an interactive drag. This
  * module is pure — it never touches the DOM, the placeholder or the frame — and
@@ -8,12 +8,12 @@
  * `buildReorderProposal`, which is what makes request semantics unable to
  * diverge between the two input modes rather than merely equal in practice.
  *
- * **It is not axis-specific, and must not become so** (ledger L-4).
- * `ArrowLeft` and `ArrowUp` are one command; `ArrowRight` and `ArrowDown` are
- * the other. A keyboard reorder moves an item one slot through the
- * *collection*, which is one-dimensional whatever the layout does — so this
- * lives in the behavior, beside `homeInsertion`, and not inside `y()` or
- * any successor axis feature, which therefore inherits no keyboard question.
+ * **It is not axis-specific, and must not become so.** `ArrowLeft` and
+ * `ArrowUp` are one command; `ArrowRight` and `ArrowDown` are the other. A
+ * keyboard reorder moves an item one slot through the *collection*, which is
+ * one-dimensional whatever the layout does — so this lives in the behavior,
+ * beside `homeInsertion`, and not inside `y()` or any successor axis feature,
+ * which therefore inherits no keyboard question.
  */
 import {
   type CollectionSnapshot,
@@ -53,13 +53,13 @@ export function directionOf(key: string): KeyboardDirection | null {
  * that edge — which is what makes the command **inert** rather than a no-op
  * reorder, and is the whole reason feasibility has to be answerable inside the
  * native listener: the kernel prevents the default only when this returns a
- * gap, so an arrow key at the edge keeps its native meaning (I-32).
+ * gap, so an arrow key at the edge keeps its native meaning.
  *
  * Indices are computed in the **destination view** — the snapshot with `item`
  * removed — so `index`, `before` and `after` all describe one immutable
  * snapshot, exactly as the spatial path's do. The gap is built by
  * {@link insertionAt}, which is what makes _exactly as the spatial path's do_
- * one shared expression rather than two that happen to agree (F-91, D-119).
+ * one shared expression rather than two that happen to agree.
  */
 export function keyboardInsertion(
   snapshot: CollectionSnapshot,
@@ -80,9 +80,9 @@ export function keyboardInsertion(
   }
 
   // Elements before `from` keep their index; elements after it shift down by
-  // one. Moving up means taking the predecessor's destination slot (`from - 1`);
-  // moving down means passing the successor, which has *already* shifted into
-  // `from`, so the target gap is `from + 1`.
+  // one. Moving up means taking the predecessor's destination slot
+  // (`from - 1`); moving down means passing the successor, which has *already*
+  // shifted into `from`, so the target gap is `from + 1`.
   const destination = items.filter((candidate) => candidate !== item);
 
   return insertionAt(destination, up ? from - 1 : from + 1, snapshot);

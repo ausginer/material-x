@@ -1,17 +1,16 @@
 /**
- * Every free-drag seam, as closures over one private runtime (D-4).
+ * Every free-drag seam, as closures over one private runtime.
  *
  * The kernel drives all three phases of every transaction; this module supplies
  * the two pure-ish halves. Nothing here calls `begin()` or `commit()`, nothing
  * here reads `current` from a `prepare`, and nothing here can close a lifetime
  * the kernel owns — those are properties of the arguments, not of discipline.
  *
- * **`Activation` is `true`** (D-34). Free drag stages nothing at activation — no
- * placeholder, no detached node, no acquired resource — so under the pinned
- * `HTMLElement` its `prepare` would have had to return `scope.visual`, an
- * element the kernel already holds, with `effect` ignoring what it was handed.
- * That is the staged-resource contract inverted, which is F-44 exactly, and it
- * is what D-34 made expressible.
+ * **`Activation` is `true`.** Free drag stages nothing at activation — no
+ * placeholder, no detached node, no acquired resource — so a pinned
+ * `HTMLElement` staging type would force its `prepare` to return
+ * `scope.visual`, an element the kernel already holds, with `effect` ignoring
+ * what it was handed: the staged-resource contract inverted.
  */
 import {
   type DraggableError,
@@ -56,7 +55,7 @@ import { FREE_DRAG_ACTION_TAGS, TAG_POLICY, TAG_POSITION } from './runtime.ts';
 import type { FreeDragSlots } from './slots.ts';
 
 /**
- * The three states of D-66's progress marker, module-private because they are
+ * The three states of the progress marker, module-private because they are
  * behavior-internal: nothing outside this file may read how far an operation
  * got, and nothing in the kernel could interpret it if it did.
  */
@@ -71,35 +70,34 @@ export function createFreeDragSpec(
   const { realm, root } = host;
 
   /**
-   * **Per-operation state, as spec locals** (D-149). These three were fields on
-   * a runtime object while `view`, `progress` and `pendingFailure` beside them
-   * were already locals, and no rule separated the two homes. All six are
-   * cleared in `retire()`, which is the one place I-20 asks about.
+   * **Per-operation state, as spec locals.** These three, plus `view`,
+   * `progress` and `pendingFailure` beside them, are all cleared in `retire()`,
+   * so an idle controller pins nothing from the drag it just finished.
    */
   let lift: BehaviorLiftSession | null = null;
   /** The visual's viewport rect at grab. The basis of every clamp and rect. */
   let originRect: DOMRectReadOnly | null = null;
   /**
    * The inherited linear part's inverse, **handed down by the kernel** from the
-   * one pre-lift measurement (D-72, D-85). Capturing it here would take a
-   * second traversal, after acquisition has already moved the visual.
+   * one pre-lift measurement. Capturing it here would take a second traversal,
+   * after acquisition has already moved the visual.
    */
   let space: InheritedSpace = null;
   /**
-   * **The one place this behavior invokes the consumer's error callback**
-   * (D-130). Both routes below end here, so there is exactly one statement to
-   * find when asking *where does `onError` get called*.
+   * **The one place this behavior invokes the consumer's error callback.** Both
+   * routes below end here, so there is exactly one statement to find when
+   * asking *where does `onError` get called*.
    *
    * Unguarded and ungated on purpose: its two callers apply those rules, and
    * they apply them differently — `panic`'s delivery is a named exception to
-   * the latch (D-131), which is impossible if the latch is read here.
+   * the latch, which is impossible if the latch is read here.
    */
   const deliver: Notify = (error) => {
     slots.onError?.(error);
   };
 
   /**
-   * **The behavior's own route to the one channel** (D-130).
+   * **The behavior's own route to the one channel.**
    *
    * Two callers reach {@link deliver} and they are two entries to one channel
    * rather than two channels: everything that arrives is a `DraggableError` or
@@ -109,8 +107,8 @@ export function createFreeDragSpec(
    * unwind steps, which the kernel cannot see.
    *
    * Both apply the same two rules. The latch refuses a declared consumer slot
-   * after logical closure (E-03, I-31, D-53, D-37), and a throw from the
-   * handler stops here rather than being reported through itself.
+   * after logical closure, and a throw from the handler stops here rather than
+   * being reported through itself.
    */
   const notify: Notify = (error) => {
     if (host.closed) {
@@ -129,11 +127,11 @@ export function createFreeDragSpec(
   const invalidate = createInvalidator(realm);
 
   /**
-   * **How far the operation got, as one monotone marker** (D-66). Per
-   * operation, cleared in `retire()`. It exists because the failure path owes a
-   * terminal and the kernel cannot supply the two facts that decide which one:
-   * *did the consumer hear this drag start*, and *was its resolver actually
-   * invoked*. Both are behavior knowledge.
+   * **How far the operation got, as one monotone marker.** Per operation,
+   * cleared in `retire()`. It exists because the failure path owes a terminal
+   * and the kernel cannot supply the two facts that decide which one: *did the
+   * consumer hear this drag start*, and *was its resolver actually invoked*.
+   * Both are behavior knowledge.
    */
   let progress = MINTED;
 
@@ -150,15 +148,14 @@ export function createFreeDragSpec(
   }> | null = null;
 
   /**
-   * **One scratch draft per controller, written in place** (D-70, 13c P-1 as
-   * corrected at C-07). The constraint writes clamped scalars back into this
-   * object rather than returning a `Point`, so the per-sample path allocates
-   * nothing — which is the whole reason `MotionConstraint.apply` has the shape
-   * it has.
+   * **One scratch draft per controller, written in place.** The constraint
+   * writes clamped scalars back into this object rather than returning a
+   * `Point`, so the per-sample path allocates nothing — which is the whole
+   * reason `MotionConstraint.apply` has the shape it has.
    */
   const motion: MotionDraft = { x: 0, y: 0 };
   /**
-   * **The landing target's return buffer, one per controller** (D-144). Every
+   * **The landing target's return buffer, one per controller.** Every
    * `anchorTarget` arm writes these two fields and returns this object; the
    * kernel reads them immediately and retains nothing, which is the borrow the
    * seam's own contract states. Never module-level: two controllers on one page
@@ -169,8 +166,8 @@ export function createFreeDragSpec(
   let view: ConstraintView | null = null;
 
   /**
-   * **`apply` and `invalidate`, lifted once here** (D-90). `retire` is not one
-   * of them — the assembler lifts that one and owns both its call sites.
+   * **`apply` and `invalidate`, lifted once here.** `retire` is not one of them
+   * — the assembler lifts that one and owns both its call sites.
    *
    * No site below may call these with `constrain` as the receiver: the
    * convention on `MotionConstraint` is that an author may not depend on
@@ -187,13 +184,13 @@ export function createFreeDragSpec(
   const invalidateConstraint = constrain ? constrain.invalidate : null;
 
   /**
-   * The rendered delta, derived rather than stored (07 §The frame part). It is
-   * a pure function of the committed sample, the frame's offset and the policy,
-   * so every reader derives it and none mirrors the kernel's own record.
+   * The rendered delta, derived rather than stored. It is a pure function of
+   * the committed sample, the frame's offset and the policy, so every reader
+   * derives it and none mirrors the kernel's own record.
    *
    * Writes into `motion` and returns nothing: a `Point` return would put an
-   * allocation on the hot path for a value three of the four callers immediately
-   * destructure.
+   * allocation on the hot path for a value three of the four callers
+   * immediately destructure.
    */
   const deriveMotion = (
     pointerX: number,
@@ -205,11 +202,11 @@ export function createFreeDragSpec(
   ): void => {
     motion.x = pointerX - originX + offsetX;
     motion.y = pointerY - originY + offsetY;
-    // **Core, not a capability** (D-70): two comparisons and no state.
+    // **Core, not a capability**: two comparisons and no state.
     applyAxis(motion, axis);
     // **One indirect call, only when something filled the slot.** A composition
     // without `bounds()` pays one property read and one predictable branch, and
-    // carries no clamp arithmetic and no rect resolver at all (B-2).
+    // carries no clamp arithmetic and no rect resolver at all.
     applyConstraint?.(motion, view!);
   };
 
@@ -221,10 +218,10 @@ export function createFreeDragSpec(
 
   return {
     createFramePart: freeDragFramePart,
-    // **One function fills both slots** (D-142): called with no argument it
-    // allocates a part at its defaults, called with one it returns that part
-    // to them. The reset's return is the part it was handed, which the kernel
-    // has and ignores.
+    // **One function fills both slots**: called with no argument it allocates a
+    // part at its defaults, called with one it returns that part to them. The
+    // reset's return is the part it was handed, which the kernel has and
+    // ignores.
     // eslint-disable-next-line @typescript-eslint/strict-void-return
     resetFramePart: freeDragFramePart,
 
@@ -239,19 +236,19 @@ export function createFreeDragSpec(
     // -----------------------------------------------------------------------
 
     /**
-     * D-46's input policy and D-50's handle scoping, then the visual resolver.
-     * Returns **a bare element** — D-59's common form — because free drag has no
-     * separate geometry source: there is no placeholder, so nothing measures a
-     * footprint and `box === visual` is not a choice being repeated.
+     * The input policy and the handle scoping, then the visual resolver.
+     * Returns **a bare element**, because free drag has no separate geometry
+     * source: there is no placeholder, so nothing measures a footprint and
+     * `box === visual` is not a choice being repeated.
      *
-     * **The item is `root`.** `freeDrag(item, …)` passes the item as the ingress
-     * boundary, so the ingress root and the dragged item are the same element by
-     * construction rather than by lookup — which is why there is no composed-path
-     * search here and no collection to search.
+     * **The item is `root`.** `freeDrag(item, …)` passes the item as the
+     * ingress boundary, so the ingress root and the dragged item are the same
+     * element by construction rather than by lookup — which is why there is no
+     * composed-path search here and no collection to search.
      */
     admit(event, draft) {
       // **A modifier requests native text selection; its absence means drag**
-      // (D-46). One branch, no state, no disambiguation window.
+      // One branch, no state, no disambiguation window.
       if (event.altKey) {
         return null;
       }
@@ -266,8 +263,8 @@ export function createFreeDragSpec(
       if (slots.handle) {
         const handle = slots.handle(root);
 
-        // **The terminal barrier on the admission sequence** (I-36). `handle`
-        // is consumer code and `visual` is called right after it returns, so a
+        // **The terminal barrier on the admission sequence.** `handle` is
+        // consumer code and `visual` is called right after it returns, so a
         // handle resolver that destroyed the controller would otherwise have a
         // second consumer resolver called after `destroy()` returned.
         //
@@ -278,10 +275,10 @@ export function createFreeDragSpec(
           return null;
         }
 
-        // **The resolved subject governs** (D-50). A handle inside the item
-        // sits earlier in the composed path, so scoping to it shortens the
-        // segment the opt-out scan walks — and a handle inside a marked region
-        // admits, because the consumer scoped dragging there on purpose.
+        // **The resolved subject governs.** A handle inside the item sits
+        // earlier in the composed path, so scoping to it shortens the segment
+        // the opt-out scan walks — and a handle inside a marked region admits,
+        // because the consumer scoped dragging there on purpose.
         subject = path.indexOf(handle);
 
         if (subject === -1) {
@@ -289,8 +286,8 @@ export function createFreeDragSpec(
         }
       }
 
-      // **What did the event land on** (D-46), asked after the subject is known
-      // and before anything is seeded. A press reaching a `[data-drag-ignore]`
+      // **What did the event land on**, asked after the subject is known and
+      // before anything is seeded. A press reaching a `[data-drag-ignore]`
       // region declines by the ordinary total-decline path: no operation, no
       // phase change, and — since the kernel prevents nothing for a `null` —
       // focus lands and the caret places.
@@ -303,11 +300,10 @@ export function createFreeDragSpec(
       if (slots.visual) {
         visual = slots.visual(root);
 
-        // The terminal barrier on the visual resolver (I-36). `runAdmission`
+        // The terminal barrier on the visual resolver. `runAdmission`
         // revalidates after this whole callback and declines the operation, but
         // it does not scrub the draft it declined — so without this the write
-        // below would pin the visual in an inactive frame nothing clears again
-        // (I-20).
+        // below would pin the visual in an inactive frame nothing clears again.
         if (host.closed) {
           return null;
         }
@@ -319,10 +315,9 @@ export function createFreeDragSpec(
     },
 
     /**
-     * **No `command` member** (07 §What free drag does not have). Free drag has
-     * no discrete ingress: `arm()` binds `pointerdown` and nothing else.
-     * Keyboard free drag has no shipped counterpart and no parity row, so it is
-     * not invented here.
+     * **No `command` member.** Free drag has no discrete ingress: `arm()` binds
+     * `pointerdown` and nothing else. Keyboard free drag has no counterpart in
+     * `@ydinjs/drag`, so it is not invented here.
      */
 
     // -----------------------------------------------------------------------
@@ -331,52 +326,50 @@ export function createFreeDragSpec(
 
     activation: {
       /**
-       * **Stages nothing, and says so** (D-34). There is no placeholder to
-       * create, no node to detach and nothing to acquire, so the honest return
-       * value is "proceed".
+       * **Stages nothing, and says so.** There is no placeholder to create, no
+       * node to detach and nothing to acquire, so the honest return value is
+       * "proceed".
        */
       prepare() {
         return true;
       },
 
-      /** Strict I-30 order: register, make visible, publish, then notify. */
+      /** Strict order: register, make visible, publish, then notify. */
       effect(current, _prepared, scope) {
         const { visual } = scope;
 
         // 1 → 2. Everything the later seams read that no `prepare` decides.
         ({ lift, originRect } = scope);
-        // **Handed down, not measured** (D-72, D-85). The inverse inherited
-        // linear part is what turns a viewport delta into the local one, with
-        // four multiplies written out where the two consumer shapes are built
-        // and no coordinate module — and this behavior
-        // performs **no** DOM read per activation, because the kernel derived
-        // it from the measurement `acquireLift` took before it moved anything.
-        // Reading it here would read a different ancestry: under a lifted mode
-        // the visual is `position: fixed` in the top layer by now, so a second
-        // traversal reports the viewport rather than the transformed stage the
-        // drag actually began in.
+        // **Handed down, not measured.** The inverse inherited linear part is
+        // what turns a viewport delta into the local one, with four multiplies
+        // written out where the two consumer shapes are built and no coordinate
+        // module — and this behavior performs **no** DOM read per activation,
+        // because the kernel derived it from the measurement `acquireLift` took
+        // before it moved anything. Reading it here would read a different
+        // ancestry: under a lifted mode the visual is `position: fixed` in the
+        // top layer by now, so a second traversal reports the viewport rather
+        // than the transformed stage the drag actually began in.
         space = scope.inheritedSpace;
         view = { realm, originRect: scope.originRect, visual };
 
         if (constrain) {
           // **The behavior owns the events that make the rect stale; the
-          // feature owns the rect** (D-70). Scroll and resize fire many times a
+          // feature owns the rect.** Scroll and resize fire many times a
           // second, so this marks staleness and never resolves — the feature
           // re-reads on the next `apply`.
           //
-          // A local `try`/`catch`, not `unwind` and not `host.fail` (D-130
-          // §4). **Nothing is pending**: this is one call at the end of a
-          // native listener, so no later statement is load-bearing and the
-          // shared unwind helper would be naming a rule this site does not
-          // have. It is the only one of the seventeen where that is true.
+          // A local `try`/`catch`, not `unwind` and not `host.fail`. **Nothing
+          // is pending**: this is one call at the end of a native listener, so
+          // no later statement is load-bearing and the shared unwind helper
+          // would be naming a rule this site does not have.
           //
           // Not `host.fail` because a native scroll listener is not a seam, so
           // a classified failure raised here would be refused anyway. Unlike
           // the sortable's equivalent there is no third action tag to re-raise
-          // it through — 07 fixes `actionTags: 2` — and `invalidate()` is
-          // contractually a staleness flag rather than a resolve, so the throw
-          // it would report is a defect in a constraint rather than in
-          // consumer data.
+          // it through — this behavior declares `actionTags: 2` — and
+          // `invalidate()` is contractually a staleness flag rather than a
+          // resolve, so the throw it would report is a defect in a constraint
+          // rather than in consumer data.
           invalidate(scope.motion.signal, () => {
             try {
               invalidateConstraint!();
@@ -404,17 +397,14 @@ export function createFreeDragSpec(
           current.offsetY,
         );
 
-        // **The last barrier of the activation sequence** (I-36, E-02), and the
-        // one the terminal table claimed and the code did not have.
-        // `deriveMotion` calls `constrain.apply`, which reaches a third-party
-        // constraint and — with `bounds()` installed — the consumer's own rect
-        // source. So this is the reading owed *after the last
-        // consumer-reachable call and before the first thing that survives it*:
-        // the lift write, the progress advance and `onStart` are all on the far
-        // side of it.
+        // **The last barrier of the activation sequence.** `deriveMotion` calls
+        // `constrain.apply`, which reaches a third-party constraint and — with
+        // `bounds()` installed — the consumer's own rect source. So this is the
+        // reading owed *after the last consumer-reachable call and before the
+        // first thing that survives it*: the lift write, the progress advance
+        // and `onStart` are all on the far side of it.
         //
-        // **It is now the only reading in this seam** (D-148): the one above it
-        // gated an `axis` source that no longer exists, and a fixed `axis` is
+        // **It is the only reading in this seam**: `axis` is fixed, so it is
         // read from the slot record without entering consumer code at all.
         if (host.closed) {
           return;
@@ -422,9 +412,9 @@ export function createFreeDragSpec(
 
         scope.lift.write(motion.x, motion.y);
 
-        // **The marker advances before the call, not after** (D-66). A throw
-        // from `onStart` is classified, and the consumer has by then been told
-        // the drag began — so it is owed an end.
+        // **The marker advances before the call, not after.** A throw from
+        // `onStart` is classified, and the consumer has by then been told the
+        // drag began — so it is owed an end.
         progress = STARTED;
 
         // 4 — last, because it may reentrantly cancel or destroy.
@@ -452,8 +442,8 @@ export function createFreeDragSpec(
 
     /**
      * Raw delta from the committed sample plus the frame's offset, axis, the
-     * constraint when installed, the write — and **then** `onMove`, which is the
-     * shipped observable and is retained (07 §The seam mapping).
+     * constraint when installed, the write — and **then** `onMove`, so the
+     * callback observes a visual that has already moved.
      */
     moved(current, lift) {
       deriveMotion(
@@ -466,8 +456,8 @@ export function createFreeDragSpec(
       );
       lift.write(motion.x, motion.y);
 
-      // The latch is read **before** the one consumer call in this seam (I-36).
-      // The geometry object is built inside the branch: a composition with no
+      // The latch is read **before** the one consumer call in this seam. The
+      // geometry object is built inside the branch: a composition with no
       // `onMove` pays no allocation and no derived rect per sample, which is
       // what keeping the slot nullable rather than normalizing it buys.
       if (slots.onMove && !host.closed) {
@@ -488,29 +478,27 @@ export function createFreeDragSpec(
     },
 
     // -----------------------------------------------------------------------
-    // Behavior actions — the two D-71 mints
+    // Behavior actions — the two mints
     // -----------------------------------------------------------------------
 
     action: {
       prepare(tag, argument, draft) {
-        // **Per-tag phase legality** (D-86, E-04). Free drag owns writable
-        // geometry in exactly two phases: `ACTIVATING`, so a `moveTo()` from
-        // `onStart` retargets rather than being dropped, and `ACTIVE`. From
-        // `RELEASING` on the kernel's own vocabulary says *input closed,
-        // geometry final* — the request is built, the landing origin is about
-        // to be sampled, and `BehaviorLiftSession` already declares a write
-        // after that point out of contract.
+        // **Per-tag phase legality.** Free drag owns writable geometry in
+        // exactly two phases: `ACTIVATING`, so a `moveTo()` from `onStart`
+        // retargets rather than being dropped, and `ACTIVE`. From `RELEASING`
+        // on the kernel's own vocabulary says *input closed, geometry final* —
+        // the request is built, the landing origin is about to be sampled, and
+        // `BehaviorLiftSession` already declares a write after that point out
+        // of contract.
         //
         // **The two tags share the set and not the reason**, which is why the
-        // comparison is written once here and the reasons are recorded per tag
-        // in 07 §Action phase legality. `TAG_POSITION` is refused for
+        // comparison is written once here. `TAG_POSITION` is refused for
         // correctness: from `onEnd` it is FIFO-ahead of `RETIRE`, so it writes
         // through an already-disposed lift and leaves a stray inline transform
         // on a released element. `TAG_POLICY` is refused for hygiene: it writes
         // no geometry, but it re-enters a third-party `constrain.invalidate()`
-        // when no later sample exists to be affected.
-        // They coincide today only because free drag takes no sample after
-        // release.
+        // when no later sample exists to be affected. They coincide today only
+        // because free drag takes no sample after release.
         //
         // **A no-op, not a rejection.** `null` is this seam's existing discard
         // value, so a late `moveTo()` costs one comparison and produces no
@@ -526,24 +514,20 @@ export function createFreeDragSpec(
         }
 
         if (tag === TAG_POLICY) {
-          // **One consumer-reachable call, and nothing to publish** (D-148).
+          // **One consumer-reachable call, and nothing to publish.**
           // `invalidate()` is a staleness flag: the constraint re-resolves on
           // its own next `apply`, so there is no staged value, no commit and no
-          // `effect` branch. The I-36 barrier that used to be read *between*
-          // two calls here went with the second call — a gate on the outcome of
-          // a call that no longer exists would defend nothing.
+          // `effect` branch. Nothing follows the call in this seam, so there is
+          // no closure barrier to read after it.
           invalidateConstraint?.();
 
           return null;
         }
 
         if (tag === TAG_POSITION) {
-          // **`moveTo` re-bases** (D-71). The offset is chosen so the visual is
-          // at `point` on the next committed frame, and later pointer motion
-          // continues *relative to that* — the shipped `update({ position })`
-          // set an absolute controlled position that later samples did not
-          // disturb, and the two differ only when the pointer keeps moving,
-          // where the re-base is the one that composes with a live pointer
+          // **`moveTo` re-bases.** The offset is chosen so the visual is at
+          // `point` on the next committed frame, and later pointer motion
+          // continues *relative to that*, which composes with a live pointer
           // rather than fighting it.
           //
           // It is an **input**, not a derivation, so it is a frame field and
@@ -555,19 +539,18 @@ export function createFreeDragSpec(
           }
 
           const point = argument as Point;
-          // **Read before anything is written** (D-91). A malformed `point` —
-          // `null`, missing fields, a throwing accessor — throws *here*, at the
-          // read, and is classified `FAILURE_ACTION_PREPARE` naturally. It is
-          // deliberately not checked: that is argument
-          // validation, and the seam already classifies it.
+          // **Read before anything is written.** A malformed `point` — `null`,
+          // missing fields, a throwing accessor — throws *here*, at the read,
+          // and is classified `FAILURE_ACTION_PREPARE` naturally. It is
+          // deliberately not checked: that is argument validation, and the seam
+          // already classifies it.
           const { x, y } = point;
 
-          // **Finiteness is not checked** (D-124, superseding D-91's added
-          // check). `controller.d.ts` publishes _both coordinates must be
-          // finite_ on `moveTo`'s own doc comment, so a non-finite one is
-          // outside the contract and the reachability gate closes before
-          // ownership is asked. What the offsets then poison — `deriveMotion`,
-          // every geometry object, the pinned `anchorTarget`, and through
+          // **Finiteness is not checked.** `moveTo`'s own doc comment publishes
+          // _both coordinates must be finite_, so a non-finite one is outside
+          // the contract and the reachability gate closes before ownership is
+          // asked. What the offsets then poison — `deriveMotion`, every
+          // geometry object, the pinned `anchorTarget`, and through
           // `LandingContext.from` the library-minted `distance` — is the
           // undefined behaviour that misuse buys, not a second harm that makes
           // it the library's.
@@ -581,10 +564,9 @@ export function createFreeDragSpec(
       },
 
       effect(_tag, _argument, current) {
-        // **Rendered from an `action.effect`**, which is 13c N-4's route: there
-        // is no way to make the kernel emit a `moved` for a position it did not
-        // sample, so the write happens here — after the commit, from the
-        // committed offset.
+        // **Rendered from an `action.effect`**: there is no way to make the
+        // kernel emit a `moved` for a position it did not sample, so the write
+        // happens here — after the commit, from the committed offset.
         deriveMotion(
           current.pointerX,
           current.pointerY,
@@ -606,10 +588,10 @@ export function createFreeDragSpec(
         const { visual } = draft;
         const origin = originRect;
 
-        // **Never `invoke: null`** (07): free drag has no proven semantic
-        // no-op, so `SETTLED_SKIPPED` has no producer in this behavior. A
-        // release that finds no visual has a broken invariant, and reporting it
-        // as a successful no-op drop would tell the consumer the drag completed
+        // **Never `invoke: null`**: free drag has no proven semantic no-op, so
+        // `SETTLED_SKIPPED` has no producer in this behavior. A release that
+        // finds no visual has a broken invariant, and reporting it as a
+        // successful no-op drop would tell the consumer the drag completed
         // normally.
         if (!visual || !origin) {
           throw new Error('drag: free-drag/release-no-visual');
@@ -635,7 +617,7 @@ export function createFreeDragSpec(
           realm,
         );
 
-        // **The terminal barrier on the frame write** (I-36, I-20). The only
+        // **The terminal barrier on the frame write.** The only
         // consumer-reachable call above is a `bounds` source inside
         // `constrain.apply`; the request pins the item, the visual and a rect
         // in a frame teardown has already scrubbed and will not scrub again.
@@ -648,10 +630,10 @@ export function createFreeDragSpec(
 
         return {
           invoke: (signal) => {
-            // **First statement of the closure** (D-66). The kernel runs this
-            // only after `release.effect` returns normally, so reaching it is
-            // proof the consumer's resolver is being invoked — which is what
-            // makes a later failure `AT_CONSUMER` rather than `AT_PROPOSAL`.
+            // **First statement of the closure.** The kernel runs this only
+            // after `release.effect` returns normally, so reaching it is proof
+            // the consumer's resolver is being invoked — which is what makes a
+            // later failure `AT_CONSUMER` rather than `AT_PROPOSAL`.
             progress = RESOLVING;
             return slots.onDrop(request, { signal });
           },
@@ -659,13 +641,11 @@ export function createFreeDragSpec(
       },
 
       /**
-       * **There is no placeholder, and there is still one write** (F-39,
-       * applied to this behavior). `pointerup` need not carry the last processed
-       * `pointermove`'s coordinates, and the request above was built from the
-       * *committed release point* — so without this the visual, and therefore
-       * the whole landing trajectory, would start from a stale position while
-       * `anchorTarget` reports the fresh one. That is precisely the wrong-start
-       * signature D-35 exists to prevent, arriving through the other end.
+       * **There is no placeholder, and there is still one write.** `pointerup`
+       * need not carry the last processed `pointermove`'s coordinates, and the
+       * request above was built from the *committed release point* — so without
+       * this the visual, and therefore the whole landing trajectory, would
+       * start from a stale position while `anchorTarget` reports the fresh one.
        *
        * `motion` still holds the release delta `prepare` derived, and nothing
        * between the two phases can have changed it.
@@ -687,7 +667,7 @@ export function createFreeDragSpec(
     // -----------------------------------------------------------------------
 
     settlement: {
-      /** The five-case mapping, covered exhaustively (D-24, F-29). */
+      /** The five-case mapping, covered exhaustively. */
       prepare(draft, input): PreparedSettlement {
         pendingFailure = null;
 
@@ -699,10 +679,10 @@ export function createFreeDragSpec(
         // oxlint-disable-next-line default-case
         switch (input.type) {
           case SETTLED_SKIPPED: {
-            // **No producer in this behavior** (07 §What free drag does not
-            // have): `release.prepare` never returns `invoke: null`. Reaching
-            // it means the kernel skipped a round-trip this behavior never
-            // declined, which is a broken invariant rather than a drop.
+            // **No producer in this behavior**: `release.prepare` never returns
+            // `invoke: null`. Reaching it means the kernel skipped a round-trip
+            // this behavior never declined, which is a broken invariant rather
+            // than a drop.
             throw new Error('drag: free-drag/settled-skipped');
           }
 
@@ -710,18 +690,18 @@ export function createFreeDragSpec(
             const { value } = input;
 
             // **The resolution is the library's own value, not the
-            // consumer's** (D-140): `accept()` returns a shared sentinel and
-            // `reject()` a one-slot carrier, so this is an identity comparison
-            // and a plain data read. There is nothing to validate — a value
-            // that is neither came from outside the types.
+            // consumer's**: `accept()` returns a shared sentinel and `reject()`
+            // a one-slot carrier, so this is an identity comparison and a plain
+            // data read. There is nothing to validate — a value that is neither
+            // came from outside the types.
             const accepted = value === ACCEPTED;
 
-            // **The barrier still stands and its trigger moved** (I-36, I-20).
-            // Nothing between this seam's entry and the write can reach
-            // consumer code any more, but the round trip is a `PromiseLike`:
-            // the consumer may have destroyed the controller while it was
-            // pending, and the request pins the item, the visual and a rect in
-            // a frame teardown has already scrubbed.
+            // **The barrier stands for the round trip, not for this seam.**
+            // Nothing between this seam's entry and the write reaches consumer
+            // code, but the round trip is a `PromiseLike`: the consumer may
+            // have destroyed the controller while it was pending, and the
+            // request pins the item, the visual and a rect in a frame teardown
+            // has already scrubbed.
             if (host.closed) {
               return true;
             }
@@ -740,15 +720,14 @@ export function createFreeDragSpec(
           case SETTLED_REJECTED: {
             // A rejected thenable is a resolver malfunction, not a considered
             // consumer verdict, so it is a named classified failure rather than
-            // an inferred rejection. It still *ends* the operation — D-66 — but
-            // as a fault reported through `onError`, with the terminal saying
+            // an inferred rejection. It still *ends* the operation, but as a
+            // fault reported through `onError`, with the terminal saying
             // `canceled` rather than `rejected`.
             //
-            // **The caught cause travels verbatim** (D-152). Something *was*
-            // caught here — the consumer's own rejection value — so nothing is
-            // added to it: no identity, no wrapper. The seam is already open at
-            // `FAILURE_RESOLUTION`, which is the stage the deleted return arm
-            // named, so re-raising it classifies exactly where it did.
+            // **The caught cause travels verbatim.** Something *was* caught
+            // here — the consumer's own rejection value — so nothing is added
+            // to it: no identity, no wrapper. The seam is already open at
+            // `FAILURE_RESOLUTION`, so re-raising classifies it there.
             throw input.error;
           }
 
@@ -770,11 +749,11 @@ export function createFreeDragSpec(
             // finalized, so rewriting the result now would relabel a drop that
             // has already been reported.
             if (input.stage !== FAILURE_TERMINAL_CALLBACK) {
-              // **Existing result wins, otherwise `canceled`** — the whole of
-              // D-66's carrier, as a lookup on the frame rather than a branch
-              // per stage. A transaction opens with `Object.assign(draft,
-              // current)`, so a settlement that already committed a result
-              // arrives here still carrying it, and `??=` is the tie-break.
+              // **Existing result wins, otherwise `canceled`** — a lookup on
+              // the frame rather than a branch per stage. A transaction opens
+              // with `Object.assign(draft, current)`, so a settlement that
+              // already committed a result arrives here still carrying it, and
+              // `??=` is the tie-break.
               //
               // **The marker decides the stage, and it also decides whether to
               // publish at all.** At `MINTED` the consumer never heard this
@@ -801,15 +780,15 @@ export function createFreeDragSpec(
 
         pendingFailure = null;
 
-        // **The gate is held only when the visual has to travel** (07 §The seam
-        // mapping). An accepted drop stays where it landed — `anchorTarget`
-        // returns the position it is already at — so holding a gate for it
-        // would animate a zero-length trajectory and delay the terminal for
-        // nothing. Rejected and canceled arms return to a home, configured or
-        // the grab spot, and that is a real journey.
+        // **The gate is held only when the visual has to travel.** An accepted
+        // drop stays where it landed — `anchorTarget` returns the position it
+        // is already at — so holding a gate for it would animate a zero-length
+        // trajectory and delay the terminal for nothing. Rejected and canceled
+        // arms return to a home, configured or the grab spot, and that is a
+        // real journey.
         //
-        // A `null` domain is the D-66 no-start case; treated as travelling,
-        // because the visual is somewhere the consumer never sanctioned.
+        // A `null` domain is the no-start case; treated as travelling, because
+        // the visual is somewhere the consumer never sanctioned.
         if (
           !failure &&
           slots.startLanding &&
@@ -820,17 +799,18 @@ export function createFreeDragSpec(
 
         // Consumer callbacks last. A failed settlement reports through
         // `onError` here **and** publishes its terminal from the failure path's
-        // own step (D-66) — the report is orthogonal to the terminal and
-        // neither suppresses the other.
+        // own step — the report is orthogonal to the terminal and neither
+        // suppresses the other.
         if (failure) {
-          // D-132: the error carries the stage the kernel classified with, and
-          // this member neither reads it nor derives anything from it.
-          // D-130: through `notify`, so a throwing handler stops here instead
+          // The error carries the stage the kernel classified with, and this
+          // member neither reads it nor derives anything from it.
+          //
+          // Reported through `notify`, so a throwing handler stops here instead
           // of becoming a fresh library fault that reports itself back. The
           // kernel built the error, and no `domain` rides along with it:
-          // `finalized` publishes that same `current.domain` to `onEnd`,
-          // unconditionally (D-66), so a copy here would be redundant at best
-          // and **stale** at worst, since a second failure arriving between
+          // `finalized` publishes that same `current.domain` to `onEnd`
+          // unconditionally, so a copy here would be redundant at best and
+          // **stale** at worst, since a second failure arriving between
           // `REPORTING` and `FINALIZING` moves it.
           notify(failure.report);
         }
@@ -845,39 +825,35 @@ export function createFreeDragSpec(
      * Accepted → where the visual already is. Rejected or canceled → `home`, or
      * the grab position when none is configured.
      *
-     * **A throwing or non-finite `home` is an error, not a cancel** — the
-     * shipped semantics. The kernel runs this on the *quality* track, so the
-     * landing is skipped rather than faked and a drop that already committed is
-     * not re-settled (D-49). **No stage is attached and none is needed**
-     * (D-130): the fault is non-consequential, so it reaches `onError` as a
-     * `DraggableWarning` carrying `drag: landing/target-unavailable`, and a
-     * warning needs no stage to be delivered.
+     * **A throwing or non-finite `home` is an error, not a cancel.** The kernel
+     * runs this on the *quality* track, so the landing is skipped rather than
+     * faked and a drop that already committed is not re-settled. **No stage is
+     * attached and none is needed**: the fault is non-consequential, so it
+     * reaches `onError` as a `DraggableWarning` carrying
+     * `drag: landing/target-unavailable`, and a warning needs no stage to be
+     * delivered.
      */
     anchorTarget(current): PointCache {
       const origin = originRect!;
 
       if (current.domain?.type === 'accepted') {
-        // The accepted arm answers from arithmetic the frame already holds —
-        // no consumer call and no DOM read. It is the visual's current
-        // position.
+        // The accepted arm answers from arithmetic the frame already holds — no
+        // consumer call and no DOM read. It is the visual's current position.
         //
-        // **Read, not re-derived** (D-89, CE1-02). This arm must not call
-        // `deriveMotion`: its last statement is `constrain.apply`, so the claim
+        // **Read, not re-derived.** This arm must not call `deriveMotion`: its
+        // last statement is `constrain.apply`, so the no-consumer-call claim
         // above would be false whenever any constraint is installed, and this
-        // seam would be a **fifth** `apply` site, absent from I-36's Category-1
-        // table and from D-81's re-derived four-seam enumeration. Such a
-        // derivation also has no barrier of its own: `host.closed` is read
-        // immediately before `home` below and nowhere before a derivation, so
-        // a third-party `apply` would run after logical closure while the
-        // resolver beside it is guarded — E-02's shape, one seam further on.
+        // seam would become a fifth `apply` site. Such a derivation also has no
+        // barrier of its own: `host.closed` is read immediately before `home`
+        // below and nowhere before a derivation, so a third-party `apply` would
+        // run after logical closure while the resolver beside it is guarded.
         //
         // A re-derivation computes the same numbers from the same committed
-        // frame, so the read costs nothing and keeps all three documents true
-        // at once. **The invariant it rests on is stated rather than
-        // assumed**: `motion` still holds the delta `release.prepare` derived
-        // and `release.effect` wrote, and nothing may change it in between —
-        // which is what D-86 guarantees by making both behavior tags
-        // deterministic no-ops after `ACTIVE`.
+        // frame, so the read costs nothing. **The invariant it rests on is
+        // stated rather than assumed**: `motion` still holds the delta
+        // `release.prepare` derived and `release.effect` wrote, and nothing may
+        // change it in between — both behavior tags are deterministic no-ops
+        // after `ACTIVE`.
         anchor.x = origin.left + motion.x;
         anchor.y = origin.top + motion.y;
 
@@ -885,47 +861,47 @@ export function createFreeDragSpec(
       }
 
       // **The terminal barrier before the one consumer call, and it is the
-      // second conjunct** (I-36). `host.closed` is read only when there is a
-      // call to stop: the kernel revalidates around `anchorTarget` and never
-      // starts a landing for a destroyed controller, so what this stops is the
-      // call itself. Both failing conjuncts fall through to the same answer,
-      // which is why they are one branch and not two — an unconfigured home and
-      // a closed controller both land at the grab position, and the two arms
-      // were byte-identical.
+      // second conjunct.** `host.closed` is read only when there is a call to
+      // stop: the kernel revalidates around `anchorTarget` and never starts a
+      // landing for a destroyed controller, so what this stops is the call
+      // itself. Both failing conjuncts fall through to the same answer, which
+      // is why they are one branch and not two — an unconfigured home and a
+      // closed controller both land at the grab position, and the two arms were
+      // byte-identical.
       if (slots.home && !host.closed) {
         const home = slots.home(subjectOf(current.visual!));
-        // **Read, checked and copied here, inside the attributed seam** (E-05,
-        // D-49). The kernel's quality wrapper covers *this call* and reads the
-        // point's fields later, outside it — so without the reads here a `null`,
-        // a missing field or a throwing accessor panics outside the seam its own
+        // **Read, checked and copied here, inside the attributed seam.** The
+        // kernel's quality wrapper covers *this call* and reads the point's
+        // fields later, outside it — so without the reads here a `null`, a
+        // missing field or a throwing accessor panics outside the seam its own
         // contract names.
         //
-        // **The reads happen; finiteness is not checked** (D-124). A `null`, a
-        // missing field or a throwing accessor fails *here*, inside the seam
-        // whose track is already published (07 §Validation): the **quality**
-        // route, so the landing is skipped rather than faked and a drop that
-        // already committed is not re-settled. **No stage rides along** (D-130):
-        // the fault is non-consequential, so it arrives as a `DraggableWarning`
-        // carrying `drag: landing/target-unavailable`.
-        // A non-finite pair is accepted and passes undetected into target
-        // composition or a renderer, and refusing it here is wrong: a landing
-        // target is a point, and a point's coordinates are finite by the same
-        // obvious semantics that makes a duration finite, so that value is
-        // outside the contract and the gate closes on it.
+        // **The reads happen; finiteness is not checked.** A `null`, a missing
+        // field or a throwing accessor fails *here*, inside the seam whose
+        // track is published: the **quality** route, so the landing is skipped
+        // rather than faked and a drop that already committed is not
+        // re-settled. **No stage rides along**: the fault is non-consequential,
+        // so it arrives as a `DraggableWarning` carrying
+        // `drag: landing/target-unavailable`. A non-finite pair is accepted and
+        // passes undetected into target composition or a renderer, and refusing
+        // it here is wrong: a landing target is a point, and a point's
+        // coordinates are finite by the same obvious semantics that makes a
+        // duration finite, so that value is outside the contract and the gate
+        // closes on it.
         //
         // **The copy is not defensiveness and is not part of that check**: the
         // returned object is consumer-owned and its accessors may be live, so
         // composing against it twice could read two different points. That is
         // the library taking ownership of a value it reads across a seam
-        // boundary and pins geometry with — `CODE_OF_SIZE.md` §1.1's explicit
-        // carve-out, and a getter-backed `Point` is a legitimate shape rather
-        // than misuse.
-        // **Each axis is read exactly once, and the reads precede the writes**
-        // (D-144). The cache removes the allocation and nothing else: reading
-        // `home` twice, or writing `anchor.x = home.x` and then `anchor.y =
-        // home.y`, would still be two reads of a live accessor — the second
-        // separated from the first by a field write. The destructuring below is
-        // the copy this seam already owed.
+        // boundary and pins geometry with, and a getter-backed `Point` is a
+        // legitimate shape rather than misuse.
+        //
+        // **Each axis is read exactly once, and the reads precede the writes.**
+        // The cache removes the allocation and nothing else: reading `home`
+        // twice, or writing `anchor.x = home.x` and then `anchor.y = home.y`,
+        // would still be two reads of a live accessor — the second separated
+        // from the first by a field write. The destructuring below is the copy
+        // this seam already owed.
         const { x } = home;
         const { y } = home;
 
@@ -945,8 +921,8 @@ export function createFreeDragSpec(
     },
 
     /**
-     * **It publishes `current.domain` and nothing else** (D-62, D-66). The arms
-     * are the consumer's to discriminate; with one `onEnd` there is no routing
+     * **It publishes `current.domain` and nothing else.** The arms are the
+     * consumer's to discriminate; with one `onEnd` there is no routing
      * predicate to get wrong.
      *
      * `null` means one thing only: the operation failed **before** `onStart`
@@ -961,13 +937,13 @@ export function createFreeDragSpec(
     },
 
     /**
-     * **Forward, and nothing else** (D-130). The kernel builds the public
-     * error, picks its class and owns the latch; this member is the last hop,
-     * and it is {@link deliver} itself.
+     * **Forward, and nothing else.** The kernel builds the public error, picks
+     * its class and owns the latch; this member is the last hop, and it is
+     * {@link deliver} itself.
      *
      * It neither maps nor attaches context: the mapping is kernel-owned, so it
      * cannot mean two things in two behaviors, and a `domain: null` context is
-     * strictly redundant with the terminal (D-130 §6).
+     * strictly redundant with the terminal.
      *
      * Its one caller is the kernel's `notify`, which gates on the latch and
      * discards a throwing handler for every route it owns — including `panic`'s
@@ -982,8 +958,8 @@ export function createFreeDragSpec(
       space = null;
       view = null;
 
-      // **Stored in installation order, walked backwards** (D-147). Each is
-      // wrapped individually, so one throwing hook cannot stop a later one from
+      // **Stored in installation order, walked backwards.** Each is wrapped
+      // individually, so one throwing hook cannot stop a later one from
       // releasing what it holds.
       for (let i = slots.retireHooks.length - 1; i >= 0; i -= 1) {
         unwind(slots.retireHooks[i]!);

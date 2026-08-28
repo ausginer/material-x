@@ -5,7 +5,7 @@
 // A module header rather than a doc block: it documents the module and no
 // single declaration, so as JSDoc it would ship orphaned into
 // `kernel/types.d.ts`, where the orphan detector cannot tell it from an
-// injected one (D-113).
+// injected one.
 
 /** A coordinate pair. The space (viewport vs local) is documented per use. */
 export type Point = Readonly<{

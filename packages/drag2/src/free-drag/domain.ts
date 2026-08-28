@@ -11,8 +11,7 @@ import type { Point } from '../kernel/types.ts';
 /** Which axes the drag may travel on. `'both'` by default. */
 export type DragAxis = 'both' | 'x' | 'y';
 
-// Published from free drag's own root rather than shared with the kernel: what
-// was refused was the shared name, not the shape (F-66).
+// Published from free drag's own root rather than shared with the kernel.
 /**
  * The two elements one operation is about.
  */
@@ -79,8 +78,8 @@ export type FreeDragRequest = FreeDragSubject &
   }>;
 
 /**
- * Where a rejected or canceled drag returns to. Viewport space, and
- * both coordinates finite, as for every point on this surface.
+ * Where a rejected or canceled drag returns to. Viewport space, and both
+ * coordinates finite, as for every point on this surface.
  *
  * Nothing detects a non-finite one: it composes into the landing target and
  * reaches a renderer as a transform nobody can see. A `null`, a missing field
@@ -92,8 +91,8 @@ export type FreeDragRequest = FreeDragSubject &
  */
 export type ResolveHome = (subject: FreeDragSubject) => Point;
 
-// Erased: `declare const` emits no JavaScript, and no value carries the key.
-// It exists to keep the shape below unwritable by anything but the factories.
+// Erased: `declare const` emits no JavaScript, and no value carries the key. It
+// exists to keep the shape below unwritable by anything but the factories.
 declare const RESOLUTION: unique symbol;
 
 /**
@@ -183,8 +182,8 @@ export type CanceledFreeDragResult = Readonly<{
 
 /**
  * **Three arms**, one fewer than the sortable's. A free drag has no
- * identity-preserving success state: `accept()` means *keep it where it
- * landed* whether or not it travelled, and a zero-distance drop is an ordinary
+ * identity-preserving success state: `accept()` means *keep it where it landed*
+ * whether or not it travelled, and a zero-distance drop is an ordinary
  * acceptance.
  */
 export type FreeDragTransactionResult =

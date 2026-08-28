@@ -30,10 +30,11 @@ const SESSION_POINTER_EVENTS = [
  * Arms one operation's document-level pointer samples, on the motion lifetime,
  * which is closed at release.
  *
- * **Not called for a pointerless operation** (D-32). `MOVE`, `UP` and
+ * **Not called for a pointerless operation.** `MOVE`, `UP` and
  * `lostpointercapture` are then structurally unreachable rather than defended
- * by a `pointerId` comparison, which is what makes I-33 a property of the
- * wiring instead of a guard someone has to remember (13a R-4).
+ * by a `pointerId` comparison, so a pointerless operation cannot receive a
+ * pointer sample by construction rather than by a guard someone has to
+ * remember.
  */
 export function armPointerInput(
   realm: DOMRealm,
@@ -81,10 +82,8 @@ export function isPrimaryPress(event: PointerEvent): boolean {
 /**
  * Acquires pointer capture and returns its guarded release.
  *
- * **A capture failure is an activation failure**, not a silently degraded drag
- * (contract D-17), so `setPointerCapture` is allowed to throw here and the
- * caller classifies it. That is the one behavioural difference from the shipped
- * package, which swallowed the throw and fell back to document listeners.
+ * **A capture failure is an activation failure**, not a silently degraded drag,
+ * so `setPointerCapture` is allowed to throw here and the caller classifies it.
  *
  * The release is guarded because releasing capture for a pointer that no longer
  * exists throws `NotFoundError`, and by then the operation is already over.

@@ -11,29 +11,28 @@
  * ```
  *
  * **The rule is one squared-Euclidean search over both centres, with DOM order
- * deciding the gap side** (ledger L-8). There is no axis concept in it: a grid
- * is a list with different CSS. `y()` is this same rule narrowed to a single
- * coordinate, so this module lifts a restriction rather than adding a
- * capability.
+ * deciding the gap side.** There is no axis concept in it: a grid is a list
+ * with different CSS. `y()` is this same rule narrowed to a single coordinate,
+ * so this module lifts a restriction rather than adding a capability.
  *
  * **Two things differ from `y()`, and neither is a switch.**
  *
  * - **The metric is squared Euclidean, and stays squared.** Comparing squared
- *   distances orders identically to comparing distances, so the `sqrt` is pure
- *   cost on a per-frame scan.
+ * distances orders identically to comparing distances, so the `sqrt` is pure
+ * cost on a per-frame scan.
  * - **The gap side is DOM order, not a coordinate comparison.** On one axis
- *   "which side of `nearest` is the placeholder on" *is* "is its centre above or
- *   below", which `y()` reads straight out of the scan it already did. In two
- *   dimensions there is no such reduction — a candidate up and to the right has
- *   no unambiguous side — so the question has to be asked of the document, which
- *   is what `compareDocumentPosition` answers and what the shipped package used.
- *   One DOM call per resolution, and only when a nearest was found.
+ * "which side of `nearest` is the placeholder on" *is* "is its centre above or
+ * below", which `y()` reads straight out of the scan it already did. In two
+ * dimensions there is no such reduction — a candidate up and to the right has
+ * no unambiguous side — so the question has to be asked of the document, which
+ * is what `compareDocumentPosition` answers. One DOM call per resolution, and
+ * only when a nearest was found.
  *
  * **What is shared, and what deliberately is not.** The packed rect index is
  * `rect-index.ts`, held privately per feature instance; the *rule* is here. A
  * parameterized single axis feature would have made every list consumer carry
- * this module's metric and its `compareDocumentPosition` call, which the M-3
- * budget is explicit about not paying for.
+ * this module's metric and its `compareDocumentPosition` call, which a list
+ * consumer must not pay for.
  */
 import {
   type CollectionSnapshot,
@@ -44,8 +43,8 @@ import type { AxisInstaller } from './feature.ts';
 import { CENTRE_X, CENTRE_Y, createRectIndex, STRIDE } from './rect-index.ts';
 
 /**
- * Consumer-declared views (D-13), declared **here** rather than imported from
- * the behavior, exactly as `y()` declares its own: the behavior's frame and its
+ * Consumer-declared views, declared **here** rather than imported from the
+ * behavior, exactly as `y()` declares its own: the behavior's frame and its
  * per-operation view satisfy them structurally, with no wrapper, no allocation
  * and no import edge back to the runtime.
  */
@@ -62,9 +61,9 @@ type InsertionRuntimeView = Readonly<{
   /** The installed `box` resolver, or `null`; see `y.ts` for why. */
   box: ((item: HTMLElement) => HTMLElement) | null;
   /**
-   * Whether the controller is still alive (I-36); see `y.ts`. The check itself
-   * lives in `RectIndex.refresh`, but the **threading** is per-axis — which is
-   * why both sibling modules name it and a future axis has to as well.
+   * Whether the controller is still alive; see `y.ts`. The check itself lives
+   * in `RectIndex.refresh`, but the **threading** is per-axis — which is why
+   * both sibling modules name it and a future axis has to as well.
    */
   live(): boolean;
 }>;
@@ -96,7 +95,7 @@ export function xy(): AxisInstaller {
           const { snapshot, placeholder } = runtime;
 
           if (!index.refresh(snapshot, dragged, runtime.box, runtime.live)) {
-            // The rebuild crossed the terminal barrier (I-36); see `y.ts`. The
+            // The rebuild crossed the terminal barrier; see `y.ts`. The
             // placeholder measured below is consumer-owned, so reading it after
             // the close would be an indirect consumer call.
             return null;
@@ -108,9 +107,9 @@ export function xy(): AxisInstaller {
           const anchorX = (anchor.left + anchor.right) * 0.5;
           const anchorY = (anchor.top + anchor.bottom) * 0.5;
           // The incumbent to beat is the placeholder's own centre — the same
-          // hysteresis `y()` has, and for the same reason: a new gap is proposed
-          // only once another candidate is genuinely closer than the slot the
-          // item already occupies.
+          // hysteresis `y()` has, and for the same reason: a new gap is
+          // proposed only once another candidate is genuinely closer than the
+          // slot the item already occupies.
           const dxAnchor = pointerX - anchorX;
           const dyAnchor = pointerY - anchorY;
           let best = dxAnchor * dxAnchor + dyAnchor * dyAnchor;
@@ -130,15 +129,15 @@ export function xy(): AxisInstaller {
 
           if (nearest === -1) {
             // The placeholder's own slot still wins. The committed insertion
-            // stays authoritative and the frame commits nothing (I-15).
+            // stays authoritative and the frame commits nothing.
             return null;
           }
 
           if (!runtime.live()) {
-            // **The second placeholder barrier** (I-36, C4-01), and `y()` has
-            // no counterpart because it needs no second call: it derives the
-            // side from two centres it has already measured. Here the anchor
-            // read above is a consumer call on a consumer-owned element, and
+            // **The second placeholder barrier**, and `y()` has no counterpart
+            // because it needs no second call: it derives the side from two
+            // centres it has already measured. Here the anchor read above is a
+            // consumer call on a consumer-owned element, and
             // `compareDocumentPosition` below is a second one on the same
             // element. Paid only on a frame that proposes a gap change, not on
             // every spatial frame.

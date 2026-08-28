@@ -3,10 +3,10 @@
  * lift strategies, and the active-movement transform writer.
  *
  * A lift promotes the dragged visual with a manual popover: the top layer
- * escapes any transformed, filtered, or contained ancestor, so a `position:
- * fixed` box placed at the item's viewport rect paints above everything without
- * a `z-index`. The element stays in the DOM — only its rendering moves — so it
- * keeps its own styles and inherited custom properties.
+ * escapes any transformed, filtered, or contained ancestor, so a
+ * `position: fixed` box placed at the item's viewport rect paints above
+ * everything without a `z-index`. The element stays in the DOM — only its
+ * rendering moves — so it keeps its own styles and inherited custom properties.
  */
 import { box, coordinates, type Box } from '@ydinjs/box-quad';
 import type { Disposer } from './lifetimes.ts';
@@ -58,11 +58,11 @@ const UA_PROPS: readonly string[] = [
  *
  * The lift writes shorthands (`inset`, `margin`, `padding`, `border-width`…),
  * but the page authors whatever it likes, and the two do not correspond. A
- * `style="margin-left: 8px"` yields `''` for `getPropertyValue('margin')` —
- * a shorthand only serializes when every longhand is present and consistent —
- * so capturing by shorthand records nothing, and restoring by shorthand then
- * calls `removeProperty('margin')`, which drops the authored `margin-left` for
- * good. The same holds for `inset`, `overflow`, `border-*` and `transition`.
+ * `style="margin-left: 8px"` yields `''` for `getPropertyValue('margin')` — a
+ * shorthand only serializes when every longhand is present and consistent — so
+ * capturing by shorthand records nothing, and restoring by shorthand then calls
+ * `removeProperty('margin')`, which drops the authored `margin-left` for good.
+ * The same holds for `inset`, `overflow`, `border-*` and `transition`.
  *
  * Longhands are also what makes `!important` survive: priority is per
  * declaration, so an authored `padding-top: 4px !important` beside three
@@ -123,9 +123,9 @@ const LIFTED_PROPS: readonly string[] = [
  *
  * Restoration is **per property, never the whole `style` attribute**. A drag is
  * a window in which the consumer's own code runs — `onStart`, the resolver, a
- * readiness promise — and it may legitimately write inline styles the lift never
- * touches. Rewriting the attribute wholesale would silently revert those; this
- * reverts exactly the declarations the lift is responsible for.
+ * readiness promise — and it may legitimately write inline styles the lift
+ * never touches. Rewriting the attribute wholesale would silently revert those;
+ * this reverts exactly the declarations the lift is responsible for.
  */
 export function captureInlineStyles(visual: HTMLElement): Disposer {
   const saved = new Map<string, readonly [string, string]>();
@@ -216,8 +216,7 @@ export function acquireTopLayer(visual: HTMLElement, unwind: Unwind): Disposer {
     // popover API that just failed and can therefore fail again — restoring a
     // previously-open popover is literally the call that threw. **The statement
     // after it is the load-bearing one**: the acquisition error is what
-    // explains why the lift was refused, and it must still reach the caller
-    // (I-29).
+    // explains why the lift was refused, and it must still reach the caller.
     unwind(restore);
     throw error;
   }
@@ -291,9 +290,10 @@ export type VisualLiftSession = Readonly<{
    * Composes a viewport delta and writes it to the visual's inline transform.
    *
    * This is how the kernel performs the **authoritative pin** at the join.
-   * Correctness deliberately does not depend on the landing runner: the runner drives the transform while it is alive, and the
-   * kernel re-measures and writes the final position through the lift session
-   * it already owns, after `LandingHandle.destroy()` has relinquished control.
+   * Correctness deliberately does not depend on the landing runner: the runner
+   * drives the transform while it is alive, and the kernel re-measures and
+   * writes the final position through the lift session it already owns, after
+   * `LandingHandle.destroy()` has relinquished control.
    *
    * A throw here is classified `FAILURE_RENDERER_WRITE` by the caller.
    */
@@ -333,12 +333,12 @@ export type BehaviorLiftSession = Readonly<
  * inverted. It is also what lets `compose` skip the projection entirely on the
  * hot path.
  *
- * **The same shape serves two readers with two different values, deliberately.**
- * `ActivationScope.inheritedSpace` is a fact about the ancestry at grab and is
- * computed for every lift mode; the session's own projection is the space an
- * *in-place* translate acts in and is `null` for both lifted modes, because a
- * lifted visual is repositioned into the viewport. Conflating them would hand a
- * behavior the identity under `LIFT_FLAT`, wrong and silent.
+ * **The same shape serves two readers with two different values,
+ * deliberately.** `ActivationScope.inheritedSpace` is a fact about the ancestry
+ * at grab and is computed for every lift mode; the session's own projection is
+ * the space an *in-place* translate acts in and is `null` for both lifted
+ * modes, because a lifted visual is repositioned into the viewport. Conflating
+ * them would hand a behavior the identity under `LIFT_FLAT`, wrong and silent.
  */
 export type InheritedSpace = Readonly<{
   a: number;
@@ -363,9 +363,9 @@ function makeSession(
     : (x: number, y: number): string => `translate(${x}px, ${y}px)${suffix}`;
 
   // The recorded delta, mutable here and `Point` everywhere else. One object
-  // per operation, written in place: D-35's cost is these two field writes per
-  // sample, and re-publishing a fresh `{ x, y }` would put an allocation on the
-  // one path F-24 spent a whole measurement keeping allocation-free.
+  // per operation, written in place: recording costs these two field writes per
+  // sample, where re-publishing a fresh `{ x, y }` would put an allocation on
+  // the pointer-sample path, which is allocation-free.
   const rendered = { x: 0, y: 0 };
 
   return {
@@ -392,20 +392,19 @@ function makeSession(
  * above it, its own transform and zoom excluded — or `null` when that space is
  * the identity or is unusable.
  *
- * **Two callers, one read** (D-85). It is the space an in-place translate acts
- * in, because an in-place lift *prepends* its translate to the visual's
- * authored transform, so the translate sits outside that transform and is
- * scaled only by what the visual inherits — inverting the visual's own space
- * would divide its scale out twice, and a `scale(2)` visual would move half as
- * far as asked. It is **also** the projection a behavior needs to report a
- * local delta, and that caller wants it under every lift mode rather than only
- * in place. So it is computed once here and published twice: to `compose` for
- * the in-place mode alone, and to `ActivationScope.inheritedSpace` always.
+ * **Two callers, one read.** It is the space an in-place translate acts in,
+ * because an in-place lift *prepends* its translate to the visual's authored
+ * transform, so the translate sits outside that transform and is scaled only by
+ * what the visual inherits — inverting the visual's own space would divide its
+ * scale out twice, and a `scale(2)` visual would move half as far as asked. It
+ * is **also** the projection a behavior needs to report a local delta, and that
+ * caller wants it under every lift mode rather than only in place. So it is
+ * computed once here and published twice: to `compose` for the in-place mode
+ * alone, and to `ActivationScope.inheritedSpace` always.
  *
- * The shipped package made the same distinction by building its mapper from
- * `item.offsetParent`, which stops at a shadow boundary and is `null` for a
- * fixed-position visual. This reads the basis box-quad produced during the one
- * traversal it already performed, so every flat-tree, shadow-root and
+ * The basis comes from the one traversal box-quad already performed, rather
+ * than from `item.offsetParent` — which stops at a shadow boundary and is
+ * `null` for a fixed-position visual — so every flat-tree, shadow-root and
  * `display: contents` rule stays in the package that owns them.
  */
 function inheritedSpaceOf(measured: Box): InheritedSpace {
@@ -436,7 +435,7 @@ function inheritedSpaceOf(measured: Box): InheritedSpace {
 
 /**
  * What one acquisition produces: the session, and the pre-lift ancestry fact
- * derived from the same measurement (D-85).
+ * derived from the same measurement.
  *
  * **Two products rather than one member on the session**, and the reason is
  * lifetime: every member of `VisualLiftSession` describes the state acquisition
@@ -454,25 +453,24 @@ export type LiftAcquisition = Readonly<{
 /**
  * Acquires a lift.
  *
- * The visual's box space is read **once**, here: the composed
- * element→viewport matrix (the faithful mode's base transform), the
- * untransformed border-box size (both lifted modes' fixed box), the inherited
- * zoom (which the top layer does not escape, so a lifted visual divides it back
- * out), the inverse used by the in-place projection, and the inherited space
- * the activation scope publishes all come from that one traversal.
+ * The visual's box space is read **once**, here: the composed element→viewport
+ * matrix (the faithful mode's base transform), the untransformed border-box
+ * size (both lifted modes' fixed box), the inherited zoom (which the top layer
+ * does not escape, so a lifted visual divides it back out), the inverse used by
+ * the in-place projection, and the inherited space the activation scope
+ * publishes all come from that one traversal.
  *
- * **That "once" is now load-bearing rather than merely efficient** (D-85,
- * E-01). Everything below this measurement mutates the visual — positioning,
- * dimensions, top-layer state, transforms — so a second traversal taken
- * afterwards reads a different ancestry, and box-quad's own contract says the
- * two walks may legitimately disagree. A behavior that measured for itself
- * could therefore lift on one coordinate snapshot and report consumer deltas
- * from another.
+ * **That "once" is load-bearing rather than merely efficient.** Everything
+ * below this measurement mutates the visual — positioning, dimensions,
+ * top-layer state, transforms — so a second traversal taken afterwards reads a
+ * different ancestry, and box-quad's own contract says the two walks may
+ * legitimately disagree. A behavior that measured for itself could therefore
+ * lift on one coordinate snapshot and report consumer deltas from another.
  *
  * Throws when the space cannot be read — a disconnected or fragmented visual,
  * or a 3D transform this library does not model. The caller classifies it as
- * `FAILURE_ACTIVATION`. The shipped package silently flattened 3D to its 2D
- * projection instead, which produced a wrong lift rather than a refused one.
+ * `FAILURE_ACTIVATION`; silently flattening 3D to its 2D projection would
+ * produce a wrong lift rather than a refused one.
  *
  * Style capture and top-layer acquisition are composed into the returned
  * `dispose` in reverse acquisition order.
@@ -496,8 +494,7 @@ export function acquireLift(
   // **Read before anything mutates, published for every mode.** The in-place
   // branch below hands the same value to `compose`; the lifted branches hand
   // `compose` the identity, because a lifted visual is repositioned into the
-  // viewport, and still publish this one — which is the divergence D-85 exists
-  // to state.
+  // viewport, and still publish this one.
   const inheritedSpace = inheritedSpaceOf(measured);
   const width = measured[BOX_WIDTH]!;
   const height = measured[BOX_HEIGHT]!;
@@ -508,8 +505,7 @@ export function acquireLift(
   // Everything below mutates the visual. The style lease is already held, but
   // the *caller* only learns about it through the returned session — so a throw
   // from here on would leave the visual promoted and restyled with nothing that
-  // could ever restore it. Acquisition is all-or-nothing (contract 02
-  // §Acquisition is all-or-nothing).
+  // could ever restore it. Acquisition is all-or-nothing.
   try {
     if (mode === LIFT_IN_PLACE) {
       // Stay in the container, ride the authored transform, and suppress
@@ -551,14 +547,14 @@ export function acquireLift(
       visual.style.transformOrigin = '0 0';
       // **Written now, not left to the first `moved()`.** A faithful lift puts
       // the visual at the viewport origin and encodes its entire position in
-      // the matrix, so until something writes a transform the row paints in
-      // the top-left corner at its untransformed size. The kernel activates
-      // *on* a pointer sample and renders only from the next one, so that
-      // window is a real frame whenever the pointer pauses or its samples
-      // coalesce. Promotion has to be visually transparent on its own — the
-      // same reason `neutralizeUA` re-asserts the authored UA properties.
-      // The flat branch below needs no equivalent: it positions from
-      // `originRect` and its base transform is empty.
+      // the matrix, so until something writes a transform the row paints in the
+      // top-left corner at its untransformed size. The kernel activates *on* a
+      // pointer sample and renders only from the next one, so that window is a
+      // real frame whenever the pointer pauses or its samples coalesce.
+      // Promotion has to be visually transparent on its own — the same reason
+      // `neutralizeUA` re-asserts the authored UA properties. The flat branch
+      // below needs no equivalent: it positions from `originRect` and its base
+      // transform is empty.
       visual.style.transform = base;
     } else {
       if (ancestorZoom !== 1) {

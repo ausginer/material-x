@@ -3,16 +3,16 @@
  * into it.
  *
  * **Every slot is a named type alias, and that is normative rather than
- * stylistic** (F-51). Method shorthand is checked bivariantly even under
- * `strict`, so `onEnd?(result): void` would silently accept a handler narrowed
- * to two of the three arms, defeating the compiler-checked exhaustiveness the
- * terminal relies on. The inline property form does not survive this repo
- * either: `method-signature-style` rewrites it back into shorthand on every
- * `lint-fix`. A named alias is immune to both.
+ * stylistic.** Method shorthand is checked bivariantly even under `strict`, so
+ * `onEnd?(result): void` would silently accept a handler narrowed to two of the
+ * three arms, defeating the compiler-checked exhaustiveness the terminal relies
+ * on. The inline property form does not survive this repo either:
+ * `method-signature-style` rewrites it back into shorthand on every `lint-fix`.
+ * A named alias is immune to both.
  *
- * **Three of them are qualified by behavior** (D-109). `onStart`, `onEnd` and
- * `onError` exist on both ordinary configs with **different structures**, and
- * both aliases publish from their own root. `ResolveHandle` and `ResolveElement`
+ * **Three of them are qualified by behavior.** `onStart`, `onEnd` and `onError`
+ * exist on both ordinary configs with **different structures**, and both
+ * aliases publish from their own root. `ResolveHandle` and `ResolveElement`
  * also collide but are structurally identical, so they stay unqualified.
  */
 import type { Writable } from 'type-fest';
@@ -126,14 +126,13 @@ const LAST_WINS_KEYS = [
 ] as const satisfies ReadonlyArray<keyof FreeDragConfig>;
 
 /**
- * **Merge semantics belong to the config slot, not to fragment provenance**
- * (D-45). Scalars and plain consumer
- * functions last-win, an atomic capability installer last-wins as one whole
- * slot, and `plugins` appends in fragment order.
+ * **Merge semantics belong to the config slot, not to fragment provenance.**
+ * Scalars and plain consumer functions last-win, an atomic capability installer
+ * last-wins as one whole slot, and `plugins` appends in fragment order.
  *
  * **Last-wins is safe precisely because installers are invoked after the merge
- * completes** (D-57): a capability that loses its slot is never constructed, so
- * there is no cache to free and no entry in `retireHooks` to retire.
+ * completes**: a capability that loses its slot is never constructed, so there
+ * is no cache to free and no entry in `retireHooks` to retire.
  */
 export function mergeFreeFragments(
   config: FreeDragConfig,
@@ -160,14 +159,14 @@ export function mergeFreeFragments(
 
   merged.plugins = plugins;
 
-  // **The cast is what the required first argument pays for** (D-77): nothing
-  // checks the merged result, because `freeDrag()` takes a complete
-  // `FreeDragConfig` and only the *later* fragments are `Partial`, so `onDrop`
-  // was supplied at a call that could not compile without it.
+  // **The cast is what the required first argument pays for**: nothing checks
+  // the merged result, because `freeDrag()` takes a complete `FreeDragConfig`
+  // and only the *later* fragments are `Partial`, so `onDrop` was supplied at a
+  // call that could not compile without it.
   //
   // **The `undefined` skip above is what closes the remaining hole, and it is
-  // load-bearing rather than a nicety** (B-9): a later fragment may legally
-  // carry `onDrop: undefined`, and skipping it means a fragment that names the
-  // slot and supplies nothing cannot clear it.
+  // load-bearing rather than a nicety**: a later fragment may legally carry
+  // `onDrop: undefined`, and skipping it means a fragment that names the slot
+  // and supplies nothing cannot clear it.
   return merged as FreeDragConfig;
 }

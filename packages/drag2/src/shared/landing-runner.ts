@@ -5,22 +5,21 @@
  * `LandingStart`, `LandingContext` and `LandingHandle` are kernel SPI, so
  * nothing about how a lifted visual travels to its final place is specific to a
  * collection or to a free drag. What the two entries do **not** share is the
- * installer type, because the contribution types differ (F-64) — so
+ * installer type, because the contribution types differ — so
  * `sortable/landing.js` and `free-drag/landing.js` are each a thin factory over
  * this module.
  *
- * `LandingOptions` is declared here for B-7's reason: imported from either
+ * `LandingOptions` is declared here for the same reason: imported from either
  * landing entry it must be the **same declaration**, not two structurally equal
  * ones.
  *
- * Without a landing installed the behavior holds **no** landing gate and none of
- * this module is imported. Installing it holds the gate through a runner — even
- * with `duration: 0`, which is immediate but not the same code path.
+ * Without a landing installed the behavior holds **no** landing gate and none
+ * of this module is imported. Installing it holds the gate through a runner —
+ * even with `duration: 0`, which is immediate but not the same code path.
  *
- * **The library owns the animation at the ordinary tier** (D-63), and **nothing
- * in the contract assumes a CSS timing function or a finite known duration**,
- * which is what keeps a kernel-tier spring authorable and what makes
- * `duration: 0` safe.
+ * **The library owns the animation at the ordinary tier**, and **nothing in the
+ * contract assumes a CSS timing function or a finite known duration**, which is
+ * what keeps a kernel-tier spring authorable and what makes `duration: 0` safe.
  *
  * The runner is never responsible for correctness: the kernel performs the
  * authoritative pin at the join, and the runner's only obligations are to call
@@ -40,7 +39,6 @@ import type { LandingHandle, LandingStart } from '../kernel/spec.ts';
  * scalars, so nesting them here would allocate two objects for a function that
  * most often reads only `distance`.
  */
-// The flattening, and the accounting behind it: D-145.
 export type LandingTimingContext = Readonly<{
   fromX: number;
   fromY: number;
@@ -67,8 +65,8 @@ export type LandingOptions = Readonly<{
    * What the function form costs is one call per landing, at settle time rather
    * than at construction — the value does not exist before then.
    *
-   * **The domain is a finite number of milliseconds, and nothing here detects
-   * a violation.** Either form — the fixed number or the value the function
+   * **The domain is a finite number of milliseconds, and nothing here detects a
+   * violation.** Either form — the fixed number or the value the function
    * returns — is handed to the platform's `animate()` as written. `animate()`
    * refuses `NaN`, a negative, `-Infinity`, a string and an object itself, at
    * that moment, and the failure is classified as an ordinary landing-creation
@@ -82,10 +80,6 @@ export type LandingOptions = Readonly<{
 }>;
 
 const DEFAULT_DURATION = 200;
-// **Parity, not taste** (D6). The shipped package's default landing timing is
-// `{ duration: 200, easing: 'ease' }` and the parity ledger retains it, so a
-// consumer that installs `landing()` with no easing gets the motion it already
-// had.
 const DEFAULT_EASING = 'ease';
 
 /**
@@ -93,16 +87,15 @@ const DEFAULT_EASING = 'ease';
  * closures and reads no DOM, so an installer calling it stays externally inert.
  */
 export function createLandingStart(options: LandingOptions): LandingStart {
-  // **Both options are always read**, unconditionally (D-63).
+  // **Both options are always read**, unconditionally.
   const declared = options.duration ?? DEFAULT_DURATION;
-  // **No domain test survives here**: the whole duration domain is
-  // `animate()`'s, which rejects `NaN`, negatives, `-Infinity`, strings and
-  // objects itself, with one message naming its own domain (D-79).
+  // **No domain test here**: the whole duration domain is `animate()`'s, which
+  // rejects `NaN`, negatives, `-Infinity`, strings and objects itself, with one
+  // message naming its own domain.
   //
   // `Infinity` is the one value `animate()` accepts and never completes, and
   // **nothing detects a violation** — an unbounded duration holds the
-  // settlement gate open with no terminal, which is what that misuse buys
-  // (D-124).
+  // settlement gate open with no terminal, which is what that misuse buys.
   const timing: LandingDuration | null =
     typeof declared === 'function' ? declared : null;
   const fixed = typeof declared === 'function' ? 0 : declared;
@@ -116,8 +109,8 @@ export function createLandingStart(options: LandingOptions): LandingStart {
     // same trajectory budget rather than re-reading a thunk that may have moved
     // on.
     //
-    // **Before the reduced-motion test, never inside it** (D4). The documented
-    // call timing — once per landing, immediately before the runner builds its
+    // **Before the reduced-motion test, never inside it.** The documented call
+    // timing — once per landing, immediately before the runner builds its
     // animation — is not conditional on a media query. Resolving inside the
     // collapse would make a consumer's settle-time side effect, and a thrown
     // result, observable only for users who have not asked for reduced motion.
@@ -129,14 +122,14 @@ export function createLandingStart(options: LandingOptions): LandingStart {
           toX: targetX,
           toY: targetY,
           // The endpoints were already computed for `LandingContext`; the
-          // distance is the one arithmetic this context adds (D-67).
+          // distance is the one arithmetic this context adds.
           distance: Math.hypot(targetX - fromX, targetY - fromY),
         })
       : fixed;
 
     // The reduced-motion collapse is the first thing the resolved value meets,
-    // so under `reduce` an unbounded duration collapses to zero and lands:
-    // that misuse differs by OS setting (D-124).
+    // so under `reduce` an unbounded duration collapses to zero and lands: that
+    // misuse differs by OS setting.
     //
     // Collapsed to zero rather than skipped: the gate is still held and still
     // released through the runner, so the lifecycle is one path whatever the

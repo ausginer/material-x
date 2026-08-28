@@ -2,17 +2,16 @@
  * Free drag's pure geometry: the constrained delta, the local-space projection,
  * and the two consumer-facing shapes derived from committed state.
  *
- * **Nothing here reads the DOM at all** (D-85), and a reader here is wrong: it
- * would be a second box-quad traversal per activation, and E-01 established
- * that such a second read is not merely duplicate work — it runs *after*
- * `acquireLift` has changed positioning, dimensions, top-layer state and
- * transforms, so a lifted visual would report the viewport's ancestry rather
- * than the one the operation began in. The kernel hands the projection down on
- * `ActivationScope`, and every function here is arithmetic
- * over numbers the frame already holds: the per-sample path performs no layout
- * read and — apart from the two rects a consumer callback is handed —
- * allocates nothing. The coordinates on both consumer shapes are scalars for
- * exactly that reason (D-139).
+ * **Nothing here reads the DOM at all**, and a reader here is wrong: it would
+ * be a second box-quad traversal per activation, and such a second read is not
+ * merely duplicate work — it runs *after* `acquireLift` has changed
+ * positioning, dimensions, top-layer state and transforms, so a lifted visual
+ * would report the viewport's ancestry rather than the one the operation began
+ * in. The kernel hands the projection down on `ActivationScope`, and every
+ * function here is arithmetic over numbers the frame already holds: the
+ * per-sample path performs no layout read and — apart from the two rects a
+ * consumer callback is handed — allocates nothing. The coordinates on both
+ * consumer shapes are scalars for exactly that reason.
  *
  * The local-space projection is **written out at each of its two sites** rather
  * than lifted into a helper per axis: it is two multiplies and an add, the two
@@ -30,8 +29,8 @@ import type {
 import type { MotionDraft } from './feature.ts';
 
 /**
- * **Axis projection, in place** (D-70): two comparisons and no state, which is
- * why `axis` is a plain config key and not a capability. A factory for it would
+ * **Axis projection, in place**: two comparisons and no state, which is why
+ * `axis` is a plain config key and not a capability. A factory for it would
  * ship a module, an entry and a closure to save exactly this.
  */
 export function applyAxis(motion: MotionDraft, axis: DragAxis): void {
@@ -63,9 +62,9 @@ export function currentRect(
 }
 
 /**
- * What `onStart` and `onMove` are handed. `dx`/`dy` are the **rendered** delta —
- * axis-projected and clamped — not the raw pointer travel, which is what makes
- * `currentRect` the visual's real box under a lock or a clamp.
+ * What `onStart` and `onMove` are handed. `dx`/`dy` are the **rendered** delta
+ * — axis-projected and clamped — not the raw pointer travel, which is what
+ * makes `currentRect` the visual's real box under a lock or a clamp.
  */
 export function buildGeometry(
   pointerX: number,

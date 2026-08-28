@@ -1,6 +1,6 @@
 /**
  * The consumer-facing controller. **Four members** — the kernel's two, plus one
- * signal and one command (D-71).
+ * signal and one command.
  *
  * The one mutable policy slot free drag has is the **bounds source**, which the
  * library re-reads; `invalidate()` is the only signal and no slot has a setter.
@@ -34,8 +34,8 @@ export type FreeDragController = Readonly<{
    * subsequent pointer motion continues *relative to that*, so the command
    * composes with a live pointer rather than fighting it.
    *
-   * `point` is **viewport** space, like every other point on this
-   * surface, and its coordinates must both be **finite**.
+   * `point` is **viewport** space, like every other point on this surface, and
+   * its coordinates must both be **finite**.
    *
    * **Nothing detects a violation of that.** A non-finite coordinate is
    * accepted and written: it is folded into committed frame state, so it
@@ -55,8 +55,8 @@ export type FreeDragController = Readonly<{
   cancel(reason?: unknown): void;
   /**
    * Closes the controller **logically**, immediately, on this statement — every
-   * guard fails from here, nothing is admitted, and no declared consumer slot is
-   * invoked again. The returned promise settles **once**, after physical
+   * guard fails from here, nothing is admitted, and no declared consumer slot
+   * is invoked again. The returned promise settles **once**, after physical
    * teardown: this call when no library transaction is active, the boundary of
    * the outermost one when there is.
    *
@@ -69,11 +69,11 @@ export type FreeDragController = Readonly<{
 export function createFreeDragController(host: KernelHost): FreeDragController {
   // `cancel` and `destroy` **are** the kernel's own members, spread through
   // unchanged: the kernel's latch already makes both inert and idempotent
-  // before they do any work (D-53).
-  // **Neither member re-reads the latch.** `dispatch`'s first statement is
-  // `if (queue.closed) { return; }` and `host.closed` is a live getter over
-  // that same flag, with nothing observable in between — so a guard here would
-  // only answer the question the callee opens with.
+  // before they do any work. **Neither member re-reads the latch.**
+  // `dispatch`'s first statement is `if (queue.closed) { return; }` and
+  // `host.closed` is a live getter over that same flag, with nothing observable
+  // in between — so a guard here would only answer the question the callee
+  // opens with.
   return {
     invalidate(): void {
       host.dispatch(TAG_POLICY, null);

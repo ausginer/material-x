@@ -37,9 +37,9 @@ export type SortableController = Readonly<{
 }>;
 
 // The controller holds no collection state at all, which is the shape a pull
-// source implies (D-44).
+// source implies.
 export function createSortableController(host: KernelHost): SortableController {
-  // The terminal latch is the kernel's, and it is readable (D-53). `cancel` and
+  // The terminal latch is the kernel's, and it is readable. `cancel` and
   // `destroy` are the kernel's own members, spread through unchanged, and that
   // latch already makes both inert and idempotent before they do any work.
 
@@ -48,19 +48,19 @@ export function createSortableController(host: KernelHost): SortableController {
       // No `host.closed` guard here: `dispatch` opens with the kernel's
       // terminal latch, and `host.closed` is a live getter over it.
       //
-      // Payload-free, and it reads nothing here (D-44). `items()` is consumer
-      // code and this member is reachable from inside a seam — a handle
-      // resolver may call it during admission — so calling it on this statement
-      // would run consumer code at an arbitrary reentrant point.
-      // `action.prepare` calls it instead, where the kernel has a transaction
-      // open, a phase to branch on and a stage to classify a throw against.
+      // Payload-free, and it reads nothing here. `items()` is consumer code and
+      // this member is reachable from inside a seam — a handle resolver may
+      // call it during admission — so calling it on this statement would run
+      // consumer code at an arbitrary reentrant point. `action.prepare` calls
+      // it instead, where the kernel has a transaction open, a phase to branch
+      // on and a stage to classify a throw against.
       host.dispatch(TAG_COLLECTION, null);
     },
     cancel: host.cancel,
 
     // Logical closure is immediate and the promise settles after physical
-    // teardown (D-36). The behavior keeps no latch mirror, so this is the
-    // kernel's member spread through unchanged, as `cancel` already is.
+    // teardown. The behavior keeps no latch mirror, so this is the kernel's
+    // member spread through unchanged, as `cancel` already is.
     destroy: host.destroy,
   };
 }

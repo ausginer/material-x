@@ -1,8 +1,8 @@
 // A fragment is a plain declarative partial config: every argument after `root`
 // is an ordinary object literal carrying no brand, no `kind` tag and no
-// provenance (D-45). The library merges them because one slot must not last-win
-// — `plugins` concatenates, and a consumer writing an object spread has no way
-// to express that.
+// provenance. The library merges them because one slot must not last-win —
+// `plugins` concatenates, and a consumer writing an object spread has no way to
+// express that.
 import type { Writable } from 'type-fest';
 import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
 import type { OnReorder, ReorderTransactionResult } from './domain.ts';
@@ -15,14 +15,14 @@ import type {
 import type { PlaceholderFactory } from './placement.ts';
 
 // Every callback slot is a named type alias, and that is normative rather than
-// stylistic (F-51). Method shorthand is checked bivariantly even under `strict`,
-// so a handler narrowed to a subset of a union's arms is silently accepted; and
-// the inline property form does not survive this repo, because
+// stylistic. Method shorthand is checked bivariantly even under `strict`, so a
+// handler narrowed to a subset of a union's arms is silently accepted; and the
+// inline property form does not survive this repo, because
 // `@typescript-eslint/method-signature-style` is configured to `method` and
 // `just lint-fix` rewrites it back into shorthand. A named alias is immune.
 //
-// `onStart`, `onEnd` and `onError` exist on both ordinary configs with different
-// structures, so those three aliases are qualified by behavior (D-109).
+// `onStart`, `onEnd` and `onError` exist on both ordinary configs with
+// different structures, so those three aliases are qualified by behavior.
 // `ResolveHandle` and `ResolveElement` also collide but are structurally
 // identical, so they stay unqualified.
 export type SortableOnStart = (item: HTMLElement) => void;
@@ -76,9 +76,9 @@ export type SortableConfig = Readonly<{
    */
   items: ItemSource;
   onReorder: OnReorder;
-  // **Each installer key carries its own type** (D-146). A plugin-shaped
-  // installer is not assignable here, and the assembler needs no check for one
-  // (D-77) — nor any arbitration, since no other key can produce `insertion`.
+  // **Each installer key carries its own type.** A plugin-shaped installer is
+  // not assignable here, and the assembler needs no check for one — nor any
+  // arbitration, since no other key can produce `insertion`.
   /**
    * `y()` or `xy()`. An **atomic** capability slot: one installer, one whole.
    * The contribution it returns must carry `insertion`.
@@ -98,8 +98,8 @@ export type SortableConfig = Readonly<{
    */
   visual?: ResolveElement;
   /**
-   * The **geometry source**: the element whose footprint the placeholder
-   * stands in for, and the element every insertion candidate is measured on.
+   * The **geometry source**: the element whose footprint the placeholder stands
+   * in for, and the element every insertion candidate is measured on.
    * `box(item) = visual(item)` by default, which is the common case and costs
    * it nothing.
    *
@@ -115,7 +115,7 @@ export type SortableConfig = Readonly<{
    * guard.
    */
   box?: ResolveElement;
-  // The callback itself, not `createPlaceholder` plus a class name (D-65).
+  // The callback itself, not `createPlaceholder` plus a class name.
   /**
    * Changes which element the placeholder is; the behavior always creates one.
    * Must return a **detached** element that is neither the dragged item nor its
@@ -131,7 +131,6 @@ export type SortableConfig = Readonly<{
   /* optional capabilities */
   landing?: SortableLandingInstaller;
 
-  // The cardinality rule behind the restriction below: D-146.
   /**
    * Appended, never replaced.
    *
@@ -174,9 +173,9 @@ const LAST_WINS_KEYS = [
  * slot, and `plugins` appends in fragment order.
  *
  * Last-wins is safe precisely because installers are invoked after the merge
- * completes (D-45). A capability that loses its slot is never constructed — no
- * cache is allocated, no entry appears in `retireHooks`, and there is nothing
- * to retire.
+ * completes. A capability that loses its slot is never constructed — no cache
+ * is allocated, no entry appears in `retireHooks`, and there is nothing to
+ * retire.
  */
 export function mergeFragments(
   config: SortableConfig,
@@ -209,10 +208,10 @@ export function mergeFragments(
   // Nothing checks the merged result: `sortable()` takes a complete
   // `SortableConfig` and only the later fragments are `Partial`, so `items`,
   // `onReorder` and `axis` were supplied at a call that could not compile
-  // without them (D-77).
+  // without them.
   //
-  // The `undefined` skip above is load-bearing rather than a nicety (B-9). A
-  // later fragment is a legal `Partial` value and may carry `axis: undefined`;
+  // The `undefined` skip above is load-bearing rather than a nicety. A later
+  // fragment is a legal `Partial` value and may carry `axis: undefined`;
   // skipping it means a required slot the first argument filled cannot be
   // cleared by a fragment that names it and supplies nothing.
   return merged as SortableConfig;

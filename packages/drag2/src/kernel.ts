@@ -1,11 +1,11 @@
 /**
- * Public entrypoint for the **kernel tier** (D-48).
+ * Public entrypoint for the **kernel tier**.
  *
  * This is where a behavior is authored. `draggable()` and the classification
  * vocabulary live here because they are what a *behavior author* needs, and an
  * ordinary consumer needs neither: `sortable()` returns its controller
  * directly, and the stage vocabulary an ordinary consumer *does* read reaches
- * it from `drag.js` rather than from here (D-132). What is authored here is the
+ * it from `drag.js` rather than from here. What is authored here is the
  * behavior that *raises* a classified failure; receiving one requires nothing
  * from this tier.
  *
@@ -13,11 +13,11 @@
  * here. It belongs to neither tier, so it has its own root rather than lodging
  * in whichever tier also happens to need it (`drag.js`).
  *
- * ## What this entry publishes (D-68)
+ * ## What this entry publishes
  *
  * > A name is published here **if and only if** it is in the structural closure
- * > of `BehaviorFactory`, or the SPI hands a behavior a value whose domain it
- * > could not otherwise name.
+ * > of `BehaviorFactory`, or the SPI hands a behavior a value whose domain it >
+ * could not otherwise name.
  *
  * The values matter as much as the types: `config.liftMode` needs a `LIFT_*`,
  * `settlement.prepare` needs the `SETTLED_*` arms to discriminate its input,
@@ -35,34 +35,34 @@
  * `Disposer`, `LandingStart`, `LandingContext` and `LandingHandle` are also
  * published at `sortable/feature.js`, and `CancelStage`/`AT_*` at
  * `sortable.js`; all six are declared under `kernel/`, so the tier that owns
- * them is this one. The direction is the point: `SettlementScope.holdForLanding` is kernel SPI, so a kernel-tier
- * author reaching `sortable/feature.js` for `LandingStart` would be importing
- * the sortable behavior in order to author a **non**-sortable one.
+ * them is this one. The direction is the point:
+ * `SettlementScope.holdForLanding` is kernel SPI, so a kernel-tier author
+ * reaching `sortable/feature.js` for `LandingStart` would be importing the
+ * sortable behavior in order to author a **non**-sortable one.
  *
  * **What is deliberately absent** is the other half of the decision: the seam
  * driver and its outcomes, the full `Lifetime`, the frame helpers, the lift
  * acquisition, the reporter, the invalidation utilities and the protocol event
  * names. The rule that excludes them is *the kernel never hands one to a
- * behavior and never accepts one from it*. The one honest gap is D-46's
+ * behavior and never accepts one from it*. The one honest gap is
  * `pathOwnsInteraction`, which a third-party behavior wanting the library's
- * opt-out scan must reimplement; that is a policy helper rather than SPI
- * vocabulary and is a later decision.
+ * opt-out scan must reimplement; it is a policy helper rather than SPI
+ * vocabulary.
  */
 import { createKernel } from './kernel/kernel.ts';
 import type { BehaviorFactory } from './kernel/spec.ts';
 
 /**
- * **The SPI's own types, and the closure of `BehaviorFactory`** (D-68, class
- * A). Publishing a type publishes everything it structurally names, so the only
- * ways to make this list shorter are to make `BehaviorSpec` smaller or to
- * accept its closure; D-68 accepts it, because every candidate for elimination
- * is a name a behavior of the sortable's size writes out of line.
+ * **The SPI's own types, and the closure of `BehaviorFactory`.** Publishing a
+ * type publishes everything it structurally names, so the only ways to make
+ * this list shorter are to make `BehaviorSpec` smaller or to accept its
+ * closure; the closure is accepted, because every candidate for elimination is
+ * a name a behavior of the sortable's size writes out of line.
  *
  * `ActionTransition` is re-exported through this module from **one**
  * declaration, in `kernel/seams.ts`: publishing one copy while the driver
- * consumes another is an identity hazard (F-61). It is the only type that
- * needs the treatment: the second failure transport that shared it is deleted
- * (D-152), because a non-discardable seam fails by throwing, like every other
+ * consumes another is an identity hazard. It is the only type that needs the
+ * treatment, because a non-discardable seam fails by throwing, like every other
  * seam.
  */
 export type {
@@ -95,20 +95,20 @@ export type {
 } from './kernel/frames.ts';
 export type { Disposer, LifetimeScope } from './kernel/lifetimes.ts';
 /**
- * **The lift capability and the session it projects** (D-35, C5-01).
+ * **The lift capability and the session it projects.**
  *
  * `BehaviorLiftSession` is what `ActivationScope.lift` and `moved`'s second
  * argument are typed as, so it is published under the same rule as everything
- * else on this list: 02 §What stays internal's discriminating test is whether
- * *the kernel hands one to a behavior*, and the kernel hands this one to every
- * behavior twice. Its own definition names `VisualLiftSession`, which therefore
- * stays published as well — a `Pick` whose source a consumer cannot name is not
- * a type a consumer can name.
+ * else on this list: the discriminating test is whether *the kernel hands one
+ * to a behavior*, and the kernel hands this one to every behavior twice. Its
+ * own definition names `VisualLiftSession`, which therefore stays published as
+ * well — a `Pick` whose source a consumer cannot name is not a type a consumer
+ * can name.
  *
- * `InheritedSpace` joins them for the same reason and by the same test (D-85):
+ * `InheritedSpace` joins them for the same reason and by the same test:
  * `ActivationScope.inheritedSpace` is typed as it, so the scope's closure runs
- * through it and D-68's rule — a tier publishes every name its own surface
- * reaches — applies unchanged.
+ * through it and the rule — a tier publishes every name its own surface reaches
+ * — applies unchanged.
  */
 export type {
   BehaviorLiftSession,
@@ -118,11 +118,10 @@ export type {
 export type { OffsetBox } from './kernel/types.ts';
 
 /**
- * **The lift modes, as values** (D-68, class P). `BehaviorConfig.liftMode` is
- * mandatory and has no default, so a behavior cannot be *constructed* without
- * one — which is F-59, and the sharpest form of it: an erased type cannot fill
- * a value position, so before this export the tier was authorable in no style
- * at all rather than merely awkward to annotate.
+ * **The lift modes, as values.** `BehaviorConfig.liftMode` is mandatory and has
+ * no default, so a behavior cannot be *constructed* without one — and an erased
+ * type cannot fill a value position, so without this export the tier would be
+ * authorable in no style at all rather than merely awkward to annotate.
  */
 export {
   LIFT_FAITHFUL,
@@ -132,9 +131,9 @@ export {
 } from './kernel/presentation.ts';
 
 /**
- * **The settlement inputs, as values** (D-68, class P). The behavior
- * discriminates its own input and D-24 requires the switch to be exhaustive, so
- * these are produced by the author, not merely read.
+ * **The settlement inputs, as values.** The behavior discriminates its own
+ * input and the switch must be exhaustive, so these are produced by the author,
+ * not merely read.
  */
 export {
   SETTLED_CANCELED,
@@ -145,10 +144,10 @@ export {
 } from './kernel/spec.ts';
 
 /**
- * **The eight phases, as values** (D-68, class I). `Draft` and `Frame` carry
- * `phase` and a behavior reads it — in seams the kernel calls at times the
- * behavior cannot predict, like `command.admit` on any bound event — and
- * `KernelHost.closed` answers liveness, never *where in the operation this is*.
+ * **The eight phases, as values.** `Draft` and `Frame` carry `phase` and a
+ * behavior reads it — in seams the kernel calls at times the behavior cannot
+ * predict, like `command.admit` on any bound event — and `KernelHost.closed`
+ * answers liveness, never *where in the operation this is*.
  *
  * All eight, not a useful subset: a numeric union whose members are unnameable
  * is not a public type, and an ordering test like `phase >= RELEASING` is only
@@ -169,11 +168,10 @@ export {
 /**
  * The stages, as **values as well as a type**. A behavior author calls
  * `host.fail(stage, error)` and cannot do so without naming one, so the tier
- * that depends on the vocabulary publishes it (D-64).
+ * that depends on the vocabulary publishes it.
  *
  * `drag.js` re-exports the same declaration, because `DraggableError.stage`
- * carries a stage to an ordinary consumer — who still never imports this
- * entry.
+ * carries a stage to an ordinary consumer — who still never imports this entry.
  */
 export {
   FAILURE_ACTION_EFFECT,
@@ -192,9 +190,9 @@ export {
 } from './kernel/failures.ts';
 
 /**
- * **The cancellation stages, at the tier that declares them** (D-68, class P).
- * A behavior *reads* one off a `SETTLED_CANCELED` input and **writes** one into
- * D-66's terminal fallback, so this is produced vocabulary, not just consumed.
+ * **The cancellation stages, at the tier that declares them.** A behavior
+ * *reads* one off a `SETTLED_CANCELED` input and **writes** one into the
+ * terminal fallback, so this is produced vocabulary, not just consumed.
  *
  * `sortable.js` keeps publishing the same two constants and the same type — a
  * `CanceledReorderResult` carries one and an ordinary consumer has to

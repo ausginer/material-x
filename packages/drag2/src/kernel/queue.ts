@@ -1,10 +1,10 @@
 /**
  * The FIFO run-to-completion action queue. Entirely kernel-private.
  *
- * Actions are stored as **two parallel arrays** rather than as entry objects, so
- * an enqueue is two pushes with no per-entry allocation. Array capacity growth
- * is amortized, so this is not literally allocation-free and is not claimed to
- * be (contract 02 §Queue semantics).
+ * Actions are stored as **two parallel arrays** rather than as entry objects,
+ * so an enqueue is two pushes with no per-entry allocation. Array capacity
+ * growth is amortized, so this is not literally allocation-free and is not
+ * claimed to be.
  *
  * A nested dispatch appends to the live queue and returns; it never interrupts
  * the action already running. The outermost frame owns the pass and reaches the
@@ -15,9 +15,8 @@
  * recognise in the current phase is ignored, never thrown on.
  *
  * `drain` takes `handle` and `panic` as arguments so the kernel can hoist both
- * to one closure per controller. The shipped package allocated a fresh handler
- * and panic arrow on every outer dispatch; contract 02 §Queue semantics names that
- * as a required change rather than an inherited property.
+ * to one closure per controller, rather than allocating a fresh handler and
+ * panic arrow on every outer dispatch.
  */
 
 export type ActionQueue = {

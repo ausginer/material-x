@@ -2,7 +2,7 @@
  * The sortable domain vocabulary: the collection model, the insertion, the
  * proposal, the consumer resolution, and the terminal results.
  *
- * The public unions here are narrowed, with string discriminants (F-41):
+ * The public unions here are narrowed, with string discriminants:
  * discriminating a result must not require importing an internal outcome
  * constant.
  *
@@ -42,8 +42,8 @@ export type Insertion = Readonly<{
  * that gap sits between, in `snapshot`.
  *
  * **`index` is a gap position in `destination`, `0 .. destination.length`**:
- * `0` is before the first element, `destination.length` is after the last.
- * This **derives and does not validate** — `insertionAt(view, 999, snapshot)`
+ * `0` is before the first element, `destination.length` is after the last. This
+ * **derives and does not validate** — `insertionAt(view, 999, snapshot)`
  * returns an insertion carrying `999` and `null` at both ends, and nothing
  * downstream checks either.
  *
@@ -101,10 +101,10 @@ export type ReorderProposal = Readonly<{
 // The consumer resolution
 // ---------------------------------------------------------------------------
 
-// Erased: `declare const` emits no JavaScript, and no value carries the key.
-// It exists to keep the shape below unwritable by anything but the factories,
-// and distinct from the other behavior's resolution, which is otherwise the
-// same two words and the same representation.
+// Erased: `declare const` emits no JavaScript, and no value carries the key. It
+// exists to keep the shape below unwritable by anything but the factories, and
+// distinct from the other behavior's resolution, which is otherwise the same
+// two words and the same representation.
 declare const RESOLUTION: unique symbol;
 
 /**
@@ -154,8 +154,8 @@ export const ACCEPTED: AcceptedResolution = [] as never;
 /**
  * The two resolutions a consumer returns from `onReorder`. Acceptance declares
  * nothing: a consumer that must render before the drop lands `await`s its own
- * commit inside `onReorder`, which is what a promise-returning resolver
- * already expresses.
+ * commit inside `onReorder`, which is what a promise-returning resolver already
+ * expresses.
  */
 export const ReorderResolution = {
   accept: (): ReorderResolution => ACCEPTED,
@@ -210,9 +210,6 @@ export type ReorderTransactionResult =
 // ---------------------------------------------------------------------------
 // Behavior-private frame state
 // ---------------------------------------------------------------------------
-
-// 80–84 are unused: nothing reads `SortableFramePart.outcome` (D-66). The
-// `RECOVERY_*` numbers below are read.
 
 /**
  * Where the lifted visual goes, which is **not** the same question as whether

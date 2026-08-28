@@ -13,26 +13,12 @@ import {
 import css from './stories.module.css';
 
 /**
- * **The three shipped stories, restored** (Phase 20) — `Interactive`,
- * `AsyncDropConfirmation` and `TransformedStage`.
+ * The three free-drag stories — `Interactive`, `AsyncDropConfirmation` and
+ * `TransformedStage`.
  *
- * They are a deliverable rather than documentation. Phase 11 found a lift-mode
- * regression that 644 tests passed through, because no test compared the lifted
- * visual's on-screen box to where it should be; **it was caught by driving a
- * demo**. `tests/free-drag/geometry.browser.test.ts` now makes those
- * comparisons executable, and these stories are the other half of that lesson:
- * the place where a person looks at the thing.
- *
- * What the restoration had to migrate, and it is the whole parity ledger for
- * this surface in three files:
- *
- * | shipped | here |
- * | --- | --- |
- * | `draggable(box, options)` | `freeDrag(item, config, ...fragments)` — D-69, D-77 |
- * | `bounds: area` / `bounds: 'viewport'` | `bounds(area)` / `bounds()` — a capability, and the sentinel is closed by deletion |
- * | `lift: 'top-layer' \| 'flatten' \| 'none'` | `LIFT_FAITHFUL \| LIFT_FLAT \| LIFT_IN_PLACE` — D-141, and the constants publish from this entry (~~`'faithful' \| 'flat' \| 'in-place'` — D-73~~) |
- * | `onFinish` / `onCancel` | one `onEnd` with three discriminated arms — D-62 |
- * | `FreeDropResolution` | `FreeDragResolution` — D-69, one vocabulary |
+ * They are a deliverable rather than documentation: the place where a person
+ * looks at the thing. `tests/free-drag/geometry.browser.test.ts` is the other
+ * half, comparing the lifted visual's on-screen box to where it should be.
  */
 const meta: Meta = {
   title: 'Drag2/Free drag',
@@ -64,10 +50,10 @@ function Playground({ axis, bounded, tilted }: PlaygroundArgs): JSX.Element {
       return;
     }
 
-    // **One required config, then fragments merged by slot** (D-77, D-45).
-    // `bounds()` is a capability installer rather than a config key (D-70): a
-    // composition without it carries neither the clamp nor the rect resolver,
-    // which `tests/packaging.node.test.ts` asserts over the module graph.
+    // **One required config, then fragments merged by slot.** `bounds()` is a
+    // capability installer rather than a config key: a composition without it
+    // carries neither the clamp nor the rect resolver, which
+    // `tests/packaging.node.test.ts` asserts over the module graph.
     const controller = freeDrag(
       box,
       {
@@ -124,10 +110,8 @@ export const Interactive: StoryObj<PlaygroundArgs> = {
 /**
  * A drop confirmed asynchronously, holding the visual until it resolves.
  *
- * **The terminal is one callback with three arms now** (D-62): the shipped
- * `onFinish`/`onCancel` pair is gone, and the story discriminates on
- * `result.type` instead — which is the migration a consumer performs, written
- * out rather than described.
+ * **The terminal is one callback with three arms**: the story discriminates on
+ * `result.type`.
  */
 function AsyncDrop(): JSX.Element {
   const boxRef = useRef<HTMLDivElement>(null);
@@ -179,11 +163,10 @@ export const AsyncDropConfirmation: StoryObj = {
 type TransformedArgs = Readonly<{ lift: LiftMode }>;
 
 /**
- * **The kernel's own constants, and there is no second vocabulary** (D-141).
- * The shipped strings named one mode after a mechanism it shares with its
- * sibling — both promoted modes use the top layer — and said *no lift* for a
- * mode that lifts, suppresses transitions and projects coordinates; the numeric
- * modes carry no such claim, and the prose below is the story's own.
+ * **The kernel's own constants, and there is no second vocabulary.** The
+ * numeric modes name no mechanism — two of the three use the top layer, and the
+ * third still lifts, suppresses transitions and projects coordinates — so the
+ * prose below is the story's own.
  */
 const LIFT_HINT: Readonly<Record<LiftMode, string>> = {
   [LIFT_FAITHFUL]:
@@ -196,12 +179,11 @@ const LIFT_HINT: Readonly<Record<LiftMode, string>> = {
 /**
  * A drag inside a rotated, scaled stage.
  *
- * **There is no coordinate module behind this any more** (D-72). The shipped
- * package walked `offsetParent` accumulating transforms and zoom; the reported
- * The local delta here is the viewport delta mapped through the inverse of the
- * *inherited* linear part, which falls out of the single box-quad traversal the
- * lift already performs. Every point on the surface is viewport, and the delta
- * is the one quantity a linear part alone can map.
+ * **There is no coordinate module behind this.** The local delta is the
+ * viewport delta mapped through the inverse of the *inherited* linear part,
+ * which falls out of the single box-quad traversal the lift already performs.
+ * Every point on the surface is viewport, and the delta is the one quantity a
+ * linear part alone can map.
  */
 function TransformedContext({ lift }: TransformedArgs): JSX.Element {
   const boxRef = useRef<HTMLDivElement>(null);

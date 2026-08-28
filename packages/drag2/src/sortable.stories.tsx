@@ -48,40 +48,34 @@ type SortableDemoProps = Readonly<{
 
 /**
  * A controlled sortable collection, and the reference React integration of the
- * **serial authored commit** (D-41).
+ * **serial authored commit**.
  *
  * The kernel proposes a reorder through the required, explicit `onReorder`
  * resolution. React owns the order state and commits it *inside that
  * resolution*, through `flushSync`, and only then returns `accept()`. There is
  * no declaration, no acknowledgement and no `useLayoutEffect`: the resolution
- * returning **is** the signal the deleted protocol used to carry, because the
- * commit is serial — release → freeze proposal → `onReorder` → your commit →
- * your resolution → the library restores its presentation invariants → the
- * authoritative landing measurement → landing → terminal.
+ * returning **is** the signal, because the commit is serial — release → freeze
+ * proposal → `onReorder` → your commit → your resolution → the library restores
+ * its presentation invariants → the authoritative landing measurement → landing
+ * → terminal.
  *
  * That ordering is what makes the drop correct rather than merely lucky.
- * `onEnd` is terminal (D-62) — it runs after the kernel has already released
- * the lift and placeholder — so committing there always renders too late and
- * the list visibly snaps back to its pre-drag order first. Committing from
- * `onReorder` *without* a barrier only wins a race: reduced motion collapses
- * the landing to zero, and a busy main thread or a concurrent render can still
- * lose it. `flushSync` removes the race, and it is integration code rather than
- * a drag protocol — a consumer whose commit is asynchronous writes `await`
- * instead, and the library never has a render to wait for either way.
+ * `onEnd` is terminal — it runs after the kernel has already released the lift
+ * and placeholder — so committing there always renders too late and the list
+ * visibly snaps back to its pre-drag order first. Committing from `onReorder`
+ * *without* a barrier only wins a race: reduced motion collapses the landing to
+ * zero, and a busy main thread or a concurrent render can still lose it.
+ * `flushSync` removes the race, and it is integration code rather than a drag
+ * protocol — a consumer whose commit is asynchronous writes `await` instead,
+ * and the library never has a render to wait for either way.
  *
- * **This doc comment described the D-33 readiness protocol until Revision 2**,
- * where the story stored the `request` it was handed and a layout effect called
- * `controller.ready(request)`. D-41 deletes `ready()`, `ResolutionOptions`, the
- * acknowledgement deadline and `readinessTimeout` outright; what a consumer
- * writes instead is the two statements below.
- *
- * The composition is the other half of the demo, and D-56 shrank it: only the
- * capabilities that **install** something are composed — the axis rule, the
- * landing animation and the displacement animation — while the consumer's own
- * slots are plain keys in one config object. Everything is assembled once at
- * construction and immutable for the controller's life. A story that supplies
- * no `placeholder` still gets a placeholder — the mechanics are the behavior's,
- * and the slot only customises the element (D-65).
+ * The composition is the other half of the demo: only the capabilities that
+ * **install** something are composed — the axis rule, the landing animation and
+ * the displacement animation — while the consumer's own slots are plain keys in
+ * one config object. Everything is assembled once at construction and immutable
+ * for the controller's life. A story that supplies no `placeholder` still gets
+ * a placeholder — the mechanics are the behavior's, and the slot only
+ * customises the element.
  */
 function SortableDemo({
   labels,
@@ -93,8 +87,8 @@ function SortableDemo({
 }: SortableDemoProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const [order, setOrder] = useState<readonly string[]>(labels);
-  // The live element list. D-44: the config's `items()` reads it and each
-  // commit signals `controller.invalidate()`.
+  // The live element list: the config's `items()` reads it and each commit
+  // signals `controller.invalidate()`.
   const elements = useRef(new Map<string, HTMLElement>());
   const orderRef = useRef(order);
   orderRef.current = order;
@@ -111,18 +105,18 @@ function SortableDemo({
         .map((label) => elements.current.get(label))
         .filter((el): el is HTMLElement => el != null);
 
-    // **One required config, then fragments merged by the library** (D-45,
-    // D-77). The second argument carries every slot the library requires —
-    // `items`, `onReorder` and `axis` — and each argument after it is a partial
-    // config for a capability that installs something. Nothing is branded and
-    // nothing is installed until the merge has resolved every named slot.
+    // **One required config, then fragments merged by the library.** The second
+    // argument carries every slot the library requires — `items`, `onReorder`
+    // and `axis` — and each argument after it is a partial config for a
+    // capability that installs something. Nothing is branded and nothing is
+    // installed until the merge has resolved every named slot.
     const controller = sortable(
       container,
       {
-        // D-44: a pull source rather than a snapshot.
+        // A pull source rather than a snapshot.
         items,
-        // D-77: `y()` and `xy()` are the installer, written as the slot's
-        // value rather than passed as a one-key fragment.
+        // `y()` and `xy()` are the installer, written as the slot's value
+        // rather than passed as a one-key fragment.
         axis: axis ?? y(),
         ...(createPlaceholder ? { placeholder: createPlaceholder } : null),
         onReorder: (request: ReorderRequest) => {
@@ -137,13 +131,11 @@ function SortableDemo({
             label,
             request.after?.dataset['label'] ?? null,
           );
-          // **The serial authored commit** (D-41). `flushSync` is React's
-          // commit barrier, and awaiting it here is the whole of the
-          // migration from the readiness protocol: the resolution does not
-          // return until the authored DOM is on screen, so the library never
-          // has a render to wait for and the landing measures a final list.
-          // A framework-specific barrier is integration code, not a drag
-          // protocol.
+          // **The serial authored commit.** `flushSync` is React's commit
+          // barrier: the resolution does not return until the authored DOM is
+          // on screen, so the library never has a render to wait for and the
+          // landing measures a final list. A framework-specific barrier is
+          // integration code, not a drag protocol.
           orderRef.current = next;
           flushSync(() => {
             setOrder(next);
@@ -213,11 +205,9 @@ export const List: StoryObj = {
 const TILES = ['1', '2', '3', '4', '5', '6', '7', '8'];
 
 /**
- * The 2-D rule, and the parity row L-8 corrected: the shipped package has no
- * axis concept at all, so its Grid story is its List story with different CSS.
- * drag2's `y()` was a *narrowing* of that, and `xy()` restores the shipped
- * default as an explicitly selected rule — which is what makes the two
- * behaviours visible side by side rather than implied by the layout.
+ * The 2-D rule, selected explicitly. `xy()` measures both axes, which is what
+ * makes the two axis behaviours visible side by side rather than implied by the
+ * layout.
  */
 export const Grid: StoryObj = {
   render: () => (

@@ -2,10 +2,9 @@
  * `bounds()` — the containment capability, and the package's first slot a third
  * party can fill **instead of** the first-party one rather than beside it.
  *
- * **A capability installer rather than a config key** (D-70): it owns a
- * resolved rect, a staleness rule and a source it re-reads, so a composition
- * without it carries neither the resolver nor the clamp. B-2 asserts that over
- * the module graph rather than over bundle bytes.
+ * **A capability installer rather than a config key**: it owns a resolved rect,
+ * a staleness rule and a source it re-reads, so a composition without it
+ * carries neither the resolver nor the clamp.
  *
  * The no-argument form *is* the viewport; there is no sentinel to export.
  */
@@ -46,15 +45,15 @@ export function bounds(source?: BoundsSource): Pick<FreeDragConfig, 'bounds'> {
        * resolving eagerly would put both on the scroll path.
        *
        * **Where a garbage source surfaces is therefore the seam that next
-       * renders, and that is four seams rather than one** (D-81).
-       * The rect starts stale, so the **first** resolve of every operation is at
+       * renders, and that is four seams rather than one.** The rect starts
+       * stale, so the **first** resolve of every operation is at
        * `activation.effect`, which places the visual at the accumulated grab
        * delta — `FAILURE_ACTIVATION`, and the path a bad source almost always
        * takes. After a staleness mark the next `apply` is whichever of `moved`
        * (`FAILURE_RENDERER_WRITE`), a `TAG_POSITION` effect
        * (`FAILURE_ACTION_EFFECT`) or `release.prepare` (`FAILURE_RELEASE`) runs
-       * first. **Four stages for one bad source is the point** (D-81): a stage
-       * says where the library was standing, so the same fault reports four
+       * first. **Four stages for one bad source is the point**: a stage says
+       * where the library was standing, so the same fault reports four
        * different ones and none of them names the consumer.
        *
        * **`FAILURE_ACTION_PREPARE` is not reachable from here at all**:
@@ -108,8 +107,8 @@ export function bounds(source?: BoundsSource): Pick<FreeDragConfig, 'bounds'> {
             const { originRect } = view;
             // **The lower clamp is applied first**, so a bounds box smaller
             // than the visual pins deterministically to the far edge instead of
-            // producing a `NaN`. Parity: the shipped clamp had the same order
-            // for the same reason.
+            // producing a `NaN`. `@ydinjs/drag` clamps in the same order for
+            // the same reason.
             motion.x = Math.min(
               Math.max(motion.x, box.left - originRect.left),
               box.right - originRect.right,

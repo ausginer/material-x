@@ -10,16 +10,15 @@
  * afterMove    re-measure, invert, play
  * ```
  *
- * **It is not a lifecycle gate, and structurally cannot become one** (D-7): it
- * has no access to `SettlementScope`, which is passed only to
- * `settlement.effect`. An in-flight displacement never delays release,
- * settlement or presentation teardown, and a completion carries no operation
- * identity because it can affect nothing outside this feature's own element map.
+ * **It is not a lifecycle gate, and structurally cannot become one**: it has no
+ * access to `SettlementScope`, which is passed only to `settlement.effect`. An
+ * in-flight displacement never delays release, settlement or presentation
+ * teardown, and a completion carries no operation identity because it can
+ * affect nothing outside this feature's own element map.
  *
- * **The affected set is the crossed span, not the destination view** — M-4's
- * answer, measured in `.plan/measurements/q7.md`: 0.16ms against
- * 2.3ms per committed move at 800 rows, and the items outside the span do not
- * move at all, so a full-list pass animates zero deltas for them.
+ * **The affected set is the crossed span, not the destination view**: 0.16ms
+ * against 2.3ms per committed move at 800 rows, and the items outside the span
+ * do not move at all, so a full-list pass animates zero deltas for them.
  */
 import type { SortableConfig } from './config.ts';
 import type { SortablePlugin } from './feature.ts';
@@ -36,9 +35,9 @@ const DEFAULT_EASING = 'ease-out';
 export function layoutAnimation(
   options: LayoutAnimationOptions = {},
 ): Pick<SortableConfig, 'plugins'> {
-  // **Unchecked** (D-77), and the difference from `landing({ duration })` is
-  // the rule working rather than an inconsistency. This animation holds no gate
-  // and gates no terminal: it is registered in `running` and cancelled by
+  // **Unchecked**, and the difference from `landing({ duration })` is the rule
+  // working rather than an inconsistency. This animation holds no gate and
+  // gates no terminal: it is registered in `running` and cancelled by
   // `retire()`, so an unbounded one leaves displaced rows offset until the
   // controller is destroyed and costs the library nothing. The landing's check
   // exists because the landing **holds the settlement gate**; delete the gate
@@ -150,11 +149,11 @@ export function layoutAnimation(
     };
 
     /**
-     * The bracket's own retired state (I-36). `retire()` has already emptied
-     * these two arrays by the time a barrier fires — it runs inside the
-     * reentrant `destroy()` — so this is a restore, not a clear: it undoes
-     * whatever the aborted pass wrote back into them and stops a destroyed
-     * controller pinning the rows it was mid-measurement on (I-20).
+     * The bracket's own retired state. `retire()` has already emptied these two
+     * arrays by the time a barrier fires — it runs inside the reentrant
+     * `destroy()` — so this is a restore, not a clear: it undoes whatever the
+     * aborted pass wrote back into them and stops a destroyed controller
+     * pinning the rows it was mid-measurement on.
      */
     const discard = (): void => {
       affected.length = 0;
@@ -167,8 +166,8 @@ export function layoutAnimation(
         tops.length = 0;
 
         for (const element of affected) {
-          // **The measurement barrier** (I-36, indirect-invocation clause).
-          // The rows are consumer-owned, so the previous iteration's
+          // **The measurement barrier**, and it covers indirect invocation: the
+          // rows are consumer-owned, so the previous iteration's
           // `getBoundingClientRect()` — and `collect`'s own sibling walk — is
           // consumer code that may have destroyed the controller. Read at the
           // head so one reading covers the entry and every predecessor.
@@ -180,8 +179,8 @@ export function layoutAnimation(
           // Deliberately measured **with** this feature's offsets still
           // applied: the rect already includes the current displacement, which
           // is what makes retargeting fall out for free. A displacement
-          // interrupted halfway replays from where the element visually is,
-          // not from where it was authored.
+          // interrupted halfway replays from where the element visually is, not
+          // from where it was authored.
           tops.push(element.getBoundingClientRect().top);
         }
 
@@ -210,10 +209,10 @@ export function layoutAnimation(
 
       afterInsertionMove(view): void {
         for (let i = 0; i < affected.length; i += 1) {
-          // **The measurement barrier** (I-36). Covers the entry — the
-          // behavior's eager axis rebuild ran between the two passes — and the
-          // previous iteration's `getBoundingClientRect()` and `animate()`,
-          // both consumer calls on a consumer-owned row.
+          // **The measurement barrier.** Covers the entry — the behavior's
+          // eager axis rebuild ran between the two passes — and the previous
+          // iteration's `getBoundingClientRect()` and `animate()`, both
+          // consumer calls on a consumer-owned row.
           if (!view.live()) {
             discard();
             return;
@@ -226,10 +225,11 @@ export function layoutAnimation(
             continue;
           }
 
-          // **The barrier the reviewer reproduced** (C4-01): the measurement
-          // one line above destroyed the controller and `animate()` still ran,
-          // starting a WAAPI animation on a retired feature that `retire()` had
-          // already finished cancelling — so nothing would ever release it.
+          // **A second barrier**: the measurement one line above is itself a
+          // consumer call that may destroy the controller, and `animate()`
+          // would then start a WAAPI animation on a retired feature whose
+          // `retire()` has already finished cancelling — so nothing would ever
+          // release it.
           if (!view.live()) {
             discard();
             return;
@@ -288,11 +288,11 @@ export function layoutAnimation(
           }
 
           if (!view.live()) {
-            // **Subscription is part of the acquisition** (C5-01). `finished`
-            // is an overridable accessor and `then` an overridable call, so a
+            // **Subscription is part of the acquisition.** `finished` is an
+            // overridable accessor and `then` an overridable call, so a
             // consumer-instrumented animation can destroy the controller and
             // return normally — no throw, so the `catch` above never sees it.
-            // `retire()` then ran while `running` was still empty, and
+            // `retire()` would then run while `running` was still empty, and
             // publishing below would retain the row and leave a live
             // displacement on it forever.
             animation.cancel();

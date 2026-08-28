@@ -3,16 +3,17 @@
  *
  * A consumer that composes a list reaches for this entry and `drag.js` and
  * nothing else: `sortable()` takes the root, calls `draggable()` internally and
- * returns its controller (D-48), so neither the kernel tier nor the installer
- * tier is on the ordinary path.
+ * returns its controller, so neither the kernel tier nor the installer tier is
+ * on the ordinary path.
  *
- * `SortableConfig` and **every alias it names** are exported from here, resolved
- * within this tier and the tiers below it — `sortable.js ∪ drag.js ∪
- * sortable/feature.js` (D-78). A config slot a consumer can fill but cannot
- * hoist out of the object literal is not a writable surface. What the rule
- * protects is the ability to **hoist**: `AxisInstaller` ships from here because
- * `SortableConfig` names it; the names *it* reaches stay declared at
- * `sortable/feature.js`, one import away for an author who wants them.
+ * `SortableConfig` and **every alias it names** are exported from here,
+ * resolved within this tier and the tiers below it —
+ * `sortable.js ∪ drag.js ∪ sortable/feature.js`. A config slot a consumer can
+ * fill but cannot hoist out of the object literal is not a writable surface.
+ * What the rule protects is the ability to **hoist**: `AxisInstaller` ships
+ * from here because `SortableConfig` names it; the names *it* reaches stay
+ * declared at `sortable/feature.js`, one import away for an author who wants
+ * them.
  */
 import { draggable } from './kernel.ts';
 import type { Composed, UniqueSlot } from './shared/composition.ts';
@@ -27,12 +28,12 @@ import type {
 
 export type { SortableController } from './sortable/controller.ts';
 /**
- * The config schema **and every alias it names** (F-51). A public type that
- * references an unexported one is a surface a consumer cannot fully write down
- * — they could fill the slot but never hoist the handler out of the object
- * literal — so the aliases ship with it. `tests/docs.node.test.ts` enforces the
- * closure **per entry**: the whole-run form cannot see this class of hole in
- * either direction.
+ * The config schema **and every alias it names**. A public type that references
+ * an unexported one is a surface a consumer cannot fully write down — they
+ * could fill the slot but never hoist the handler out of the object literal —
+ * so the aliases ship with it. `tests/docs.node.test.ts` enforces the closure
+ * **per entry**: the whole-run form cannot see this class of hole in either
+ * direction.
  */
 export type {
   ItemSource,
@@ -44,12 +45,12 @@ export type {
   SortableOnStart,
 } from './sortable/config.ts';
 /**
- * **The installer slots' aliases, published here** (D-110). Each is named by
+ * **The installer slots' aliases, published here.** Each is named by
  * `SortableConfig` — `axis` by `AxisInstaller`, `landing?` by
  * `SortableLandingInstaller`, `plugins?` by `SortablePlugin` — so a consumer
  * who writes one can hoist it into a typed `const` rather than only fill the
- * slot inline. **Three since D-146**, because each key carries its own
- * installer and therefore its own contribution group. Their own closure —
+ * slot inline. **Three of them**, because each key carries its own installer
+ * and therefore its own contribution group. Their own closure —
  * `FeatureContext`, `AxisContribution`, `InsertionGeometry` — stays declared at
  * `sortable/feature.js`: this publishes the **names**, not the tier. Typing an
  * ordinary-tier config slot must never require importing the middle tier.

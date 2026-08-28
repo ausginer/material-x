@@ -40,12 +40,11 @@ export type Lifetime = LifetimeScope &
   }>;
 
 /**
- * **`notify` is threaded rather than reached** (D-130). A lifetime holds no
- * controller reference — it closes over its disposers and an `AbortController`
- * and nothing else — so the one place it could have found the channel is the
- * argument list. Three sites here report, and all three are warnings: the
- * resource is released either way, and what failed is the release rather than
- * the operation.
+ * **`notify` is threaded rather than reached.** A lifetime holds no controller
+ * reference — it closes over its disposers and an `AbortController` and nothing
+ * else — so the one place it could have found the channel is the argument list.
+ * Three sites here report, and all three are warnings: the resource is released
+ * either way, and what failed is the release rather than the operation.
  */
 export function createLifetime(notify: Notify): Lifetime {
   const disposers: Disposer[] = [];
@@ -58,8 +57,7 @@ export function createLifetime(notify: Notify): Lifetime {
     use(disposer: Disposer): void {
       // Registration after closure is always a bug, but the resource it names
       // is real: dropping it leaks, and registering it silently guarantees it
-      // never runs. So run it now and report (contract 02 §Registration after
-      // closure).
+      // never runs. So run it now and report.
       if (finalized) {
         notify(new DraggableWarning('drag: lifetime/use-after-dispose'));
 
@@ -95,8 +93,7 @@ export function createLifetime(notify: Notify): Lifetime {
       finalized = true;
       controller.abort();
 
-      // Best-effort LIFO: one failing disposer must not prevent the rest
-      // (I-19).
+      // Best-effort LIFO: one failing disposer must not prevent the rest.
       for (let i = disposers.length - 1; i >= 0; i -= 1) {
         try {
           disposers[i]!();
@@ -115,9 +112,9 @@ export function createLifetime(notify: Notify): Lifetime {
 }
 
 /**
- * Five conceptual resource scopes, **three** physical objects (contract 01
- * §Lifetimes). Controller ingress is the controller's own `AbortController`;
- * async attempts are records, not lifetimes.
+ * Five conceptual resource scopes, **three** physical objects. Controller
+ * ingress is the controller's own `AbortController`; async attempts are
+ * records, not lifetimes.
  */
 export type OperationLifetimes = Readonly<{
   motion: Lifetime;

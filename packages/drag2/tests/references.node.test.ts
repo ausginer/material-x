@@ -580,18 +580,29 @@ const where = (file: string, line: number): string =>
   `${relative(PACKAGE, file)}:${line}`;
 
 /**
- * The history a pattern can see, in a register that may not carry any (D-137).
+ * The history and the ledger addresses a pattern can see, in a register that
+ * may carry neither.
  *
- * `packaging.node.test.ts` holds the same property over the emitted
- * declarations, against eight forms. This is the `src/` half and its list is
- * **three**, because the registers differ rather than because this one is
- * lenient: a decision identifier is forbidden in a published declaration and is
- * a permitted index entry here, and 651 of them carry an argument's address at
- * the point the argument would be needed.
+ * **The same eight forms `packaging.node.test.ts` holds over the emitted
+ * declarations**, and the two lists are one register now rather than two. The
+ * `src/` list used to be three, on the argument that a decision identifier is
+ * an index entry for a maintainer where it is noise for a consumer. What that
+ * argument leaves out is that a reader of this source is not thereby a reader
+ * of `.plan/`: an identifier names a document that answers *why this was
+ * decided*, and a comment's job is *what holds now*. A comment that needs the
+ * ledger to be understood has moved its own content somewhere the code cannot
+ * reach.
  *
- * What is left is history no reading is required to recognise. A struck
- * sentence is a claim the reader must first determine is false; a date and a
- * phase number say when something happened, and nothing about what holds.
+ * So the rule is the tense rule with its corollary attached. A struck sentence
+ * is a claim the reader must first determine is false; a date and a phase
+ * number say when something happened and nothing about what holds; and a
+ * decision number, a section citation or a record path says *the reason lives
+ * elsewhere*, which is the same absence in a different spelling.
+ *
+ * **This forbids the address, not the argument.** Where a citation was carrying
+ * a real constraint, the constraint stays and says itself; where removing the
+ * citation leaves nothing, there was nothing but archaeology. History belongs
+ * in `.plan/`, and it is not copied here in prose to survive the sweep.
  *
  * **Supersession narration is not here, and that is deliberate.** _Restored_,
  * _deleted_ and _no longer_ occur in ordinary present-tense prose, so a pattern
@@ -606,6 +617,14 @@ const HISTORY_FORMS: ReadonlyArray<readonly [string, RegExp]> = [
   ['strikethrough', /~~/u],
   ['date', /\b20\d{2}-\d{2}-\d{2}\b/u],
   ['phase number', /\bphase \d/iu],
+  [
+    'decision, finding or probe number',
+    /\b(?:MNT|CE1|C[2-5]|D|F|I|E|Q|M|K|B|A|H|L|N|P|R|C)-\d+/u,
+  ],
+  ['section citation', /§/u],
+  ['contract document', /\bcontract \d/iu],
+  ['size policy citation', /CODE_OF_SIZE/u],
+  ['record path', /\.plan\//u],
 ];
 
 describe('the source tree', () => {

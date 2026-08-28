@@ -1,17 +1,17 @@
 /**
  * The flat slot record the behavior actually calls, and the consumer-declared
- * views features describe their inputs with (D-13).
+ * views features describe their inputs with.
  *
  * The assembler produces a `SortableSlots` and the behavior takes one as an
- * argument. Nothing here knows what a feature is: by the time the behavior runs,
- * the contribution objects are gone and only these fields and their closures
- * exist.
+ * argument. Nothing here knows what a feature is: by the time the behavior
+ * runs, the contribution objects are gone and only these fields and their
+ * closures exist.
  *
- * The shape is deliberately flat — `slots.resolveInsertion(...)` is one property
- * read and one call. The assembler flattens all four of `InsertionGeometry`'s
- * members — `resolve`, `invalidate`, the optional `measure`, and `retire` into
- * the unwind list — so the pairing is a construction-time claim rather than a
- * hot-path indirection.
+ * The shape is deliberately flat — `slots.resolveInsertion(...)` is one
+ * property read and one call. The assembler flattens all four of
+ * `InsertionGeometry`'s members — `resolve`, `invalidate`, the optional
+ * `measure`, and `retire` into the unwind list — so the pairing is a
+ * construction-time claim rather than a hot-path indirection.
  */
 import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
 import type { Disposer } from '../kernel/lifetimes.ts';
@@ -163,9 +163,8 @@ export type SortableSlots = Readonly<{
    * been written and after every displacement feature has released its visual
    * offsets. That is the only window in an active drag in which a read yields
    * **settled presentation geometry**, and the axis rule is defined against
-   * that. Reading lazily on the next frame instead lands in the
-   * middle of a displacement animation and measures items where they no longer
-   * are.
+   * that. Reading lazily on the next frame instead lands in the middle of a
+   * displacement animation and measures items where they no longer are.
    */
   measureInsertion:
     | ((frame: InsertionFrameView, runtime: InsertionRuntimeView) => void)
@@ -173,29 +172,29 @@ export type SortableSlots = Readonly<{
 
   /* required */
   /**
-   * **The collection as a pull source** (D-44). Called by
-   * `action.prepare(COLLECTION)` on every `controller.invalidate()`, and once
-   * at construction for the initial snapshot — never memoized, because the
-   * whole point is that the library re-reads it.
+   * **The collection as a pull source.** Called by `action.prepare(COLLECTION)`
+   * on every `controller.invalidate()`, and once at construction for the
+   * initial snapshot — never memoized, because the whole point is that the
+   * library re-reads it.
    */
   items: ItemSource;
   onReorder: OnReorder;
   /**
-   * Normalized to a shared no-op, so the call site needs no null check. It takes
-   * an argument the behavior already has.
+   * Normalized to a shared no-op, so the call site needs no null check. It
+   * takes an argument the behavior already has.
    */
   onStart(item: HTMLElement): void;
 
   /* optional; `null` when no feature filled them */
   placeholder: PlaceholderFactory | null;
   handle: ((item: HTMLElement) => HTMLElement | null) | null;
-  /** The node faithfully lifted (D-43). Resolved once, at admission. */
+  /** The node faithfully lifted. Resolved once, at admission. */
   visual: ((item: HTMLElement) => HTMLElement) | null;
   /**
-   * The geometry source (D-43). **Already defaulted to `visual` by the
-   * assembler**, so this is `null` only when neither slot was written — which
-   * is what lets both the admission path and the candidate loop skip the call
-   * entirely rather than pay an identity per item.
+   * The geometry source. **Already defaulted to `visual` by the assembler**, so
+   * this is `null` only when neither slot was written — which is what lets both
+   * the admission path and the candidate loop skip the call entirely rather
+   * than pay an identity per item.
    */
   box: ((item: HTMLElement) => HTMLElement) | null;
   startLanding: LandingStart | null;
@@ -213,7 +212,7 @@ export type SortableSlots = Readonly<{
    */
   beforeMove: readonly DisplacementHook[];
   afterMove: readonly DisplacementHook[];
-  /** Installation order; every reader walks it backwards (D-57, D-147). */
+  /** Installation order; every reader walks it backwards. */
   retireHooks: readonly Disposer[];
 
   threshold: number;

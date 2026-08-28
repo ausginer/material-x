@@ -1,8 +1,8 @@
 /**
- * Free drag's **middle tier** (D-61, D-70), mirroring `sortable/feature.js`: an
- * installer runs once while a concrete behavior instance is being constructed,
- * may create whatever private runtime it likes, captures that runtime in the
- * callbacks it returns, and hands back a flat object of named contributions.
+ * Free drag's **middle tier**, mirroring `sortable/feature.js`: an installer
+ * runs once while a concrete behavior instance is being constructed, may create
+ * whatever private runtime it likes, captures that runtime in the callbacks it
+ * returns, and hands back a flat object of named contributions.
  *
  * **Three keys against the sortable's three, no discriminator, and the same
  * closed-world rule**: a new semantic seam is a coordinated edit to one
@@ -10,12 +10,11 @@
  * sites. That closed world is what buys direct slot calls with no runtime
  * descriptor interpretation.
  *
- * **Which group a slot is declared on is its cardinality** (D-146): `constrain`
- * is producible from `bounds` and nowhere else, `startLanding` from `landing`
- * and nowhere else, so a second writer is unrepresentable rather than caught.
+ * **Which group a slot is declared on is its cardinality**: `constrain` is
+ * producible from `bounds` and nowhere else, `startLanding` from `landing` and
+ * nowhere else, so a second writer is unrepresentable rather than caught.
  *
- * **No runtime exports.** Every name here is erased, which is the honest
- * measurement statement for the entry, as it is for the sortable's.
+ * **No runtime exports.** Every name here is erased.
  *
  * An installer is **externally inert**: it may allocate and capture, but it may
  * not attach a listener, write the DOM, or acquire anything needing release.
@@ -29,22 +28,21 @@ import type {
 } from '../shared/composition.ts';
 
 /**
- * **The structural closure of the middle tier, re-exported deliberately**
- * (D-61). Publishing the contribution groups publishes everything they
- * structurally name, so those types acquire the same versioning promise
- * whether or not this file lists them — the only choice is whether an installer
- * author can *write them down*. `tests/docs.node.test.ts` fails on any public
- * type that reaches an unexported one, which keeps the two in step.
+ * **The structural closure of the middle tier, re-exported deliberately.**
+ * Publishing the contribution groups publishes everything they structurally
+ * name, so those types acquire the same versioning promise whether or not this
+ * file lists them — the only choice is whether an installer author can *write
+ * them down*. `tests/docs.node.test.ts` fails on any public type that reaches
+ * an unexported one, which keeps the two in step.
  *
  * **`FeatureContext` and `LandingContribution` are the same declarations
- * `sortable/feature.js` publishes** (F-64) — a shared type identity, not a
- * structural coincidence, and deliberately not a shared *vocabulary*. The
- * second joins the first because both behaviors' `landing` key produces exactly
- * it (D-146).
+ * `sortable/feature.js` publishes** — a shared type identity, not a structural
+ * coincidence, and deliberately not a shared *vocabulary*. The second joins the
+ * first because both behaviors' `landing` key produces exactly it.
  */
-// The composition check's four helpers travel with them (D-151): the entry
-// signature names `FreeDragComposition`, whose own closure resolves here, which
-// is the tier-scoped rule D-78 already states. Every one of them is erased.
+// The composition check's four helpers travel with them: the entry signature
+// names `FreeDragComposition`, whose own closure resolves here. Every one of
+// them is erased.
 export type {
   Composed,
   FeatureContext,
@@ -56,7 +54,7 @@ export type {
 
 // Erased entirely: `declare const` emits no JavaScript, and the brand is a
 // property no value ever carries. Its only job is to make the two installer
-// types nominal at the parameter position (D-138).
+// types nominal at the parameter position.
 declare const FREE_DRAG_FEATURE: unique symbol;
 
 /**
@@ -109,8 +107,7 @@ export type ConstraintView = Readonly<{
 }>;
 
 // The receiver convention below is stated verbatim on `InsertionGeometry` too:
-// an author writing against both middle tiers must not meet two conventions
-// (D-94).
+// an author writing against both middle tiers must not meet two conventions.
 /**
  * **A paired capability.** The behavior owns the events that make a bounds rect
  * stale — activation, scroll, resize, `invalidate()`, release — and the feature
@@ -145,8 +142,6 @@ export type MotionConstraint = Readonly<{
   retire(): void;
 }>;
 
-// The cardinality model this group states, and the arbitration it replaces:
-// D-146.
 /**
  * What the `bounds` key's installer returns.
  *
@@ -154,9 +149,9 @@ export type MotionConstraint = Readonly<{
  * the slot is producible here and nowhere else, so a second writer cannot be
  * expressed rather than being caught by a construction-time throw.
  *
- * Fixed key names, **no discriminator**. There is deliberately no `type`, `kind`
- * or `phase` field: a discriminator invites a runtime `switch`, which is exactly
- * what the composition model exists to avoid. There is no member for
+ * Fixed key names, **no discriminator**. There is deliberately no `type`,
+ * `kind` or `phase` field: a discriminator invites a runtime `switch`, which is
+ * exactly what the composition model exists to avoid. There is no member for
  * transactional frame state either — the constraint's rect lives in the
  * feature's own closure.
  */
@@ -166,10 +161,9 @@ export type ConstraintContribution = Readonly<{
   retire?: Disposer;
 }>;
 
-// D-146.
 /**
- * What a `plugins` entry returns, and free drag has **no multi-writer slot**, so
- * the group is a lifetime and nothing else.
+ * What a `plugins` entry returns, and free drag has **no multi-writer slot**,
+ * so the group is a lifetime and nothing else.
  *
  * A plugin here is an installer that allocates per-instance state and needs it
  * released: the position exists, its arity is unbounded, and neither of the two
@@ -185,8 +179,8 @@ export type FreeDragPluginContribution = Readonly<{
  * `bounds()`, the first-party feature that fills it, because a third party
  * supplies a constraint **instead of** it.
  *
- * It runs **once**, while a concrete behavior instance is being constructed, and
- * is externally inert.
+ * It runs **once**, while a concrete behavior instance is being constructed,
+ * and is externally inert.
  */
 export type ConstraintInstaller = (
   context: FreeDragFeatureContext,

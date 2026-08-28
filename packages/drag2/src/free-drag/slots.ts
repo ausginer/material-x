@@ -29,9 +29,9 @@ import type {
 import type { DragAxis, OnDrop, ResolveHome } from './domain.ts';
 import type { MotionConstraint } from './feature.ts';
 
-/** Parity: the shipped activation travel, and the sortable's own default. */
+/** `@ydinjs/drag`'s activation travel, and the sortable's own default. */
 export const DEFAULT_THRESHOLD = 8;
-/** Parity: `'both'`. Two comparisons on the hot path and no state (D-70). */
+/** Matches `@ydinjs/drag`. Two comparisons on the hot path, no state. */
 export const DEFAULT_AXIS: DragAxis = 'both';
 
 export type FreeDragSlots = Readonly<{
@@ -47,9 +47,9 @@ export type FreeDragSlots = Readonly<{
   onError: FreeDragOnDragError | null;
 
   /**
-   * Fixed configuration, not a source (D-148). Its value is applied to
-   * accumulated travel rather than to the present position, which is the
-   * property that makes a live one a command rather than policy.
+   * Fixed configuration, not a source. Its value is applied to accumulated
+   * travel rather than to the present position, which is the property that
+   * makes a live one a command rather than policy.
    */
   axis: DragAxis;
   threshold: number;
@@ -60,6 +60,6 @@ export type FreeDragSlots = Readonly<{
   /** `null` when no landing is installed: the visual is released without animating. */
   startLanding: LandingStart | null;
 
-  /** Installation order; every reader walks it backwards (D-57, D-147). */
+  /** Installation order; every reader walks it backwards. */
   retireHooks: readonly Disposer[];
 }>;

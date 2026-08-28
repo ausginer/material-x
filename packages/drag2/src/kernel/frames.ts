@@ -1,9 +1,9 @@
 /**
- * Transactional frame slicing (contract 04).
+ * Transactional frame slicing.
  *
  * There is one physical `current` and one physical `draft`, composed
  * **kernel-first from parts**: the kernel assigns its own slice, then folds the
- * behavior's part over it. Two sources, no fold over feature parts (D-10, D-15). No
+ * behavior's part over it. Two sources, and no fold over feature parts. No
  * participant authors a concrete whole-frame shape — the kernel's own private
  * generic *is* `KernelFrame & Part`, which is the intersection `Object.assign`
  * produces with no cast.
@@ -48,7 +48,7 @@ export const KERNEL_FRAME_KEYS: readonly string[] = [
 
 // The kernel slice's defaults, written once. A create/reset pair cannot hold
 // the invariant that every field is both allocated and cleared; only a shared
-// source can (D-128).
+// source can.
 const DEFAULT_FRAME: KernelFrame = {
   phase: IDLE,
   operation: null,
@@ -65,8 +65,7 @@ const DEFAULT_FRAME: KernelFrame = {
  * **returns that frame to them**.
  *
  * The key order is the allocation order, so a composed frame reads
- * kernel-slice-first (contract 04 §Composition) and a reset preserves the
- * shape it was armed with.
+ * kernel-slice-first and a reset preserves the shape it was armed with.
  */
 export function frame(existing?: KernelFrame): KernelFrame {
   return Object.assign(existing ?? {}, DEFAULT_FRAME);
@@ -76,9 +75,9 @@ export function frame(existing?: KernelFrame): KernelFrame {
  * The composed frame. Exists only inside the kernel.
  *
  * **Every field must be a scalar, immutable, or replace-on-write.** The kernel
- * opens a transaction with
- * `Object.assign(draft, current)`, so the two frames reference the same nested
- * objects afterwards and a field mutated in place is mutated in both.
+ * opens a transaction with `Object.assign(draft, current)`, so the two frames
+ * reference the same nested objects afterwards and a field mutated in place is
+ * mutated in both.
  */
 export type Frame<Part extends object> = KernelFrame & Part;
 
@@ -86,8 +85,8 @@ export type Frame<Part extends object> = KernelFrame & Part;
  * What a `prepare` may write: its own part, plus a read-only kernel slice.
  *
  * The kernel slice stays read-only through a draft: a colliding mutable key
- * declared in `Part` is projected away before the readonly slice is
- * intersected back in, behind {@link FramePartOf}.
+ * declared in `Part` is projected away before the readonly slice is intersected
+ * back in, behind {@link FramePartOf}.
  */
 export type Draft<Part extends object> = Omit<Part, keyof KernelFrame> &
   Readonly<KernelFrame>;
@@ -97,8 +96,8 @@ export type Draft<Part extends object> = Omit<Part, keyof KernelFrame> &
  * intersection naming the offending key when it does.
  *
  * **The frame-part authoring contract.** A behavior frame part is a **plain,
- * own, enumerable, writable, string-keyed data record**. Nothing detects a violation, and the term worth the most to
- * an author is the last one:
+ * own, enumerable, writable, string-keyed data record**. Nothing detects a
+ * violation, and the term worth the most to an author is the last one:
  *
  * **Keys must be strings.** A symbol-keyed field is copied between frames by
  * `Object.assign` like any other, and nothing in the kernel resets or inspects

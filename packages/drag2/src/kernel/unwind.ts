@@ -1,10 +1,10 @@
 /**
- * **The unwind must be total** (D-29, I-19, I-6, D-130 §4).
+ * **The unwind must be total.**
  *
- * **This module is named for the rule it expresses, not for a destination**
- * (D-130). Routing an error to the consumer and letting the caller continue are
- * two separate jobs; only the second one is here, and it is a lifecycle rule
- * rather than a reporting one.
+ * **This module is named for the rule it expresses, not for a destination.**
+ * Routing an error to the consumer and letting the caller continue are two
+ * separate jobs; only the second one is here, and it is a lifecycle rule rather
+ * than a reporting one.
  *
  * The rule at every site is the same sentence: **the statement after this call
  * is load-bearing.** Another resource to release, another teardown step, or the
@@ -47,8 +47,7 @@ export function createUnwind(notify: Notify): Unwind {
     } catch (error) {
       // One message for every site, and `cause` carries what was caught. The
       // sites differ in *which* resource failed to release and not in what the
-      // consumer can do about it, which is exactly the case D-130 §2.3 says a
-      // code would not serve.
+      // consumer can do about it, so a discriminating code would serve nothing.
       notify(
         new DraggableWarning('drag: unwind/step-failed', { cause: error }),
       );

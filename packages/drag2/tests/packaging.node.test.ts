@@ -466,8 +466,16 @@ describe('the published file list', () => {
     // Asserted rather than swept once, because the property regresses with no
     // other failing test: the next JSDoc edit reintroduces a decision number
     // and every other row here still passes.
+    //
+    // The same eight forms hold over `src/` in `references.node.test.ts`. The
+    // two registers are one: a comment that needs the planning ledger to be
+    // understood has moved its content out of reach of the code, and that is
+    // as true of an internal comment as of a published one.
     const FORBIDDEN: ReadonlyArray<readonly [string, RegExp]> = [
-      ['decision, finding or probe number', /\b(?:D|F|I|E|Q|M|K|B|MNT)-\d+/u],
+      [
+        'decision, finding or probe number',
+        /\b(?:MNT|CE1|C[2-5]|D|F|I|E|Q|M|K|B|A|H|L|N|P|R|C)-\d+/u,
+      ],
       ['section citation', /§/u],
       ['contract document', /\bcontract \d/iu],
       ['size policy citation', /CODE_OF_SIZE/u],
