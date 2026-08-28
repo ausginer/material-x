@@ -15,17 +15,23 @@
  * host, and the behavior's own state lives in the spec's closure, where nothing
  * outside can name it.
  *
- * Assembly happens **inside** the install function, not before it: a feature
+ * Assembly happens **inside** the returned factory, not before it: a feature
  * factory is handed `realm` and `root`, and neither exists until the kernel has
  * a host. The public `sortable(items, ...features)` entry lives in `sortable.ts`
  * and is the only caller that assembles.
+ *
+ * **Two factories, and each returns the handshake itself.** There is no shared
+ * `install` between them any more: it was a name for two constructor calls, and
+ * naming those twice is cheaper than a function that exists to be called from
+ * two places. What the seam below protects is unchanged and does not depend on
+ * the indirection — both factories reach the **same two constructors** with the
+ * same arguments, so the browser suite composes spec and controller exactly as
+ * production does. The cost is named rather than absorbed: a third half of the
+ * handshake would have to be written twice, and `BehaviorInstall` is the type
+ * that would catch a factory that forgot one.
  */
 import { DraggableWarning } from '../kernel/errors.ts';
-import type {
-  BehaviorFactory,
-  BehaviorInstall,
-  KernelHost,
-} from '../kernel/spec.ts';
+import type { BehaviorFactory } from '../kernel/spec.ts';
 import { assemble } from './assemble.ts';
 import { mergeFragments, type SortableConfig } from './config.ts';
 import {
@@ -37,34 +43,13 @@ import type { SortableSlots } from './slots.ts';
 import { createSortableSpec } from './spec.ts';
 
 /**
- * `source` is the array the pull returned and `items` is the library's own copy
- * of it (D-80 (b)). They are separate parameters because they are separate
- * facts:
- * `source` is the **identity baseline** a later pull is compared against
- * (D-44), so it must be the consumer's own array, while `items` is what the
- * behavior publishes and must be a copy no consumer can mutate.
- */
-function install(
-  host: KernelHost,
-  source: readonly HTMLElement[],
-  items: readonly HTMLElement[],
-  slots: SortableSlots,
-): BehaviorInstall<SortableController, SortableFramePart, HTMLElement> {
-  return {
-    spec: createSortableSpec(host, source, items, slots),
-    controller: createSortableController(host),
-  };
-}
-
-/**
  * Takes an already-assembled slot record.
  *
  * **An internal test seam, and what it protects is the wiring** (D-126). It is
- * not a construction layer and not a duplicate of the composed path: both
- * factories delegate to the same module-private `install()`, so the browser
- * suite composes runtime, spec and controller exactly as production does
- * rather than beside it, where a test-local equivalent could drift. What it
- * adds is reach — an already-flattened `SortableSlots` carrying states the
+ * not a construction layer and not a duplicate of the composed path: it calls
+ * the same two constructors the composed factory does, so the browser suite
+ * composes spec and controller exactly as production does rather than beside
+ * it, where a test-local equivalent could drift. What it adds is reach — an already-flattened `SortableSlots` carrying states the
  * public config cannot express, such as a stub resolver, no placeholder
  * factory, or the hook overrides no `SortableConfig` names. It cannot become
  * public surface: its parameter type is the one `feature.ts` deliberately
@@ -84,7 +69,15 @@ export function createSortableBehavior(
   // holds. **Both paths copy; neither validates any more** (D-121) — the
   // mirroring is what must not drift, and what is mirrored is now the
   // ownership act rather than a refusal.
-  return (host) => install(host, items, [...items], slots);
+  //
+  // **`source` and the copy are separate arguments because they are separate
+  // facts** (D-44, D-80 (b)): `source` is the identity baseline a later pull is
+  // compared against, so it must be the caller's own array, while the copy is
+  // what the behavior publishes and no caller may mutate.
+  return (host) => ({
+    spec: createSortableSpec(host, items, [...items], slots),
+    controller: createSortableController(host),
+  });
 }
 
 /**
@@ -134,37 +127,40 @@ export function createComposedSortableBehavior(
     // reviewer would flag, and it would strand every hook.
     const items = [...source];
 
-    return install(
-      host,
-      source,
-      items,
-      assemble(merged, {
-        realm: host.realm,
-        root: host.root,
-        // **The composition unwind's only route to the channel** (D-130 §1).
-        // `assemble` runs before `arm()`, so no behavior spec exists yet and the
-        // kernel's own notifier is unreachable — but `merged.onError` is in hand
-        // right here, which makes this the smallest threading available rather
-        // than a new ownership path.
-        //
-        // `report`, not `fail`: a feature closure created here cannot know which
-        // operation is live, so classifying a failure from one would let a late
-        // continuation settle another.
-        report: (error) => {
-          if (host.closed) {
-            return;
-          }
+    return {
+      spec: createSortableSpec(
+        host,
+        source,
+        items,
+        assemble(merged, {
+          realm: host.realm,
+          root: host.root,
+          // **The composition unwind's only route to the channel** (D-130 §1).
+          // `assemble` runs before `arm()`, so no behavior spec exists yet and the
+          // kernel's own notifier is unreachable — but `merged.onError` is in hand
+          // right here, which makes this the smallest threading available rather
+          // than a new ownership path.
+          //
+          // `report`, not `fail`: a feature closure created here cannot know which
+          // operation is live, so classifying a failure from one would let a late
+          // continuation settle another.
+          report: (error) => {
+            if (host.closed) {
+              return;
+            }
 
-          try {
-            merged.onError?.(
-              new DraggableWarning('drag: composition/unwind-failed', error),
-            );
-          } catch {
-            // The terminus. A construction unwind that cannot report is still an
-            // unwind, and its next step matters more than this notification.
-          }
-        },
-      }),
-    );
+            try {
+              merged.onError?.(
+                new DraggableWarning('drag: composition/unwind-failed', error),
+              );
+            } catch {
+              // The terminus. A construction unwind that cannot report is still an
+              // unwind, and its next step matters more than this notification.
+            }
+          },
+        }),
+      ),
+      controller: createSortableController(host),
+    };
   };
 }

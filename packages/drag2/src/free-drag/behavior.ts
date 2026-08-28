@@ -1,27 +1,23 @@
 /**
- * The behavior instance: the one place `rt` is declared and created.
+ * The behavior instance: one factory, and the whole of it is below.
  *
  * Both halves of the two-phase handshake are returned at once, which is what
  * makes "no input can be admitted before install returns" unexpressible rather
  * than a rule (D-1).
  *
- * Assembly happens **inside** the install function, not before it: an installer
+ * Assembly happens **inside** the returned factory, not before it: an installer
  * is handed `realm` and `root`, and neither exists until the kernel has a host.
  *
- * **There is no direct factory over `install`** (D-126). Every free-drag test
- * constructs through the public `freeDrag()` entry, because this behavior has
- * no state a lower seam would reach — nothing here corresponds to the
- * sortable's hand-built slot records. Before release, a seam kept for a use
- * that has not appeared is pure cost (§8), and four such lines are cheaper to
- * write than to carry. The sortable's equivalent exists for the opposite
- * reason and under the same rule: a test seam exists where a test drives it.
+ * **There is no second factory, and no `install` between them.** Every
+ * free-drag test constructs through the public `freeDrag()` entry (D-126),
+ * because this behavior has no state a lower seam would reach — nothing here
+ * corresponds to the sortable's hand-built slot records. With one caller, a
+ * named `install` was a name for the two constructor calls the factory already
+ * is; the sortable's equivalent exists for the opposite reason and under the
+ * same rule: a test seam exists where a test drives it.
  */
 import { DraggableWarning } from '../kernel/errors.ts';
-import type {
-  BehaviorFactory,
-  BehaviorInstall,
-  KernelHost,
-} from '../kernel/spec.ts';
+import type { BehaviorFactory } from '../kernel/spec.ts';
 import { assemble } from './assemble.ts';
 import { type FreeDragConfig, mergeFreeFragments } from './config.ts';
 import {
@@ -29,18 +25,7 @@ import {
   type FreeDragController,
 } from './controller.ts';
 import type { FreeDragFramePart } from './frames.ts';
-import type { FreeDragSlots } from './slots.ts';
 import { createFreeDragSpec } from './spec.ts';
-
-function install(
-  host: KernelHost,
-  slots: FreeDragSlots,
-): BehaviorInstall<FreeDragController, FreeDragFramePart> {
-  return {
-    spec: createFreeDragSpec(host, slots),
-    controller: createFreeDragController(host),
-  };
-}
 
 /**
  * Merges the fragments, then assembles against the host's realm and root.
@@ -66,8 +51,8 @@ export function createComposedFreeDragBehavior(
 ): BehaviorFactory<FreeDragController, FreeDragFramePart> {
   const merged = mergeFreeFragments(config, fragments);
 
-  return (host) =>
-    install(
+  return (host) => ({
+    spec: createFreeDragSpec(
       host,
       assemble(merged, {
         realm: host.realm,
@@ -96,5 +81,7 @@ export function createComposedFreeDragBehavior(
           }
         },
       }),
-    );
+    ),
+    controller: createFreeDragController(host),
+  });
 }
