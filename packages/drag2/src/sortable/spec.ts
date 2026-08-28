@@ -245,9 +245,9 @@ export function createSortableSpec(
   /**
    * Handed in at activation, cleared at retire.
    *
-   * The **projection**: `rendered` is the kernel's own reading and `dispose` is
-   * the kernel's own sequencing, so this behavior can do neither through the
-   * capability it was handed.
+   * The **projection**: `renderedX`/`renderedY` is the kernel's own reading
+   * and `dispose` is the kernel's own sequencing, so this behavior can do
+   * neither through the capability it was handed.
    */
   let lift: BehaviorLiftSession | null = null;
   /** Monotonic; the identity of the latest coalesced spatial attempt. */

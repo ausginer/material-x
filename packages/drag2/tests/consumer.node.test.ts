@@ -674,8 +674,10 @@ const activation: Transition<Part, HTMLElement, ActivationScope> = {
     void lift.compose;
     void lift.visual;
     void lift.baseTransform;
-    // @ts-expect-error — \`rendered\` is the kernel's own reading (D-35).
-    void lift.rendered;
+    // @ts-expect-error — \`renderedX\` is the kernel's own reading (D-35).
+    void lift.renderedX;
+    // @ts-expect-error — and so is \`renderedY\`.
+    void lift.renderedY;
     // @ts-expect-error — \`dispose\` is the kernel's own sequencing (C5-01).
     void lift.dispose;
     void box.height;

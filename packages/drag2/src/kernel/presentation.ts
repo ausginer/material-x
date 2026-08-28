@@ -11,7 +11,6 @@
 import { box, coordinates, type Box } from '@ydinjs/box-quad';
 import type { Disposer } from './lifetimes.ts';
 import type { DOMRealm } from './realm.ts';
-import type { Point } from './types.ts';
 import type { Unwind } from './unwind.ts';
 
 /** Which lift strategy a free/sortable operation uses. */
@@ -268,25 +267,6 @@ export type VisualLiftSession = Readonly<{
    */
   compose(x: number, y: number): string;
   /**
-   * **The delta `write` last composed and assigned** — where the visual *is*,
-   * in the origin-relative viewport space `compose` and `write` consume.
-   * `(0, 0)` until the first `write`, which is the truth for an operation that
-   * never rendered and for a pointerless one.
-   *
-   * `LandingContext.from` is read from here rather than from the pointer: a
-   * behavior that constrains, clamps, snaps or externally drives its visual
-   * writes something other than the raw pointer delta, and a pointerless
-   * operation has no pointer at all, so the pointer form would open the landing
-   * from a position the visual has never been at.
-   *
-   * **Kernel-read.** The behavior is handed a {@link BehaviorLiftSession},
-   * which does not carry this member.
-   *
-   * `compose` records nothing — composing is not rendering, and a landing
-   * runner composes on every frame.
-   */
-  rendered: Point;
-  /**
    * Composes a viewport delta and writes it to the visual's inline transform.
    *
    * This is how the kernel performs the **authoritative pin** at the join.
@@ -299,13 +279,41 @@ export type VisualLiftSession = Readonly<{
    */
   write(x: number, y: number): void;
   dispose: Disposer;
-}>;
+}> & {
+  /**
+   * **The delta `write` last composed and assigned** — where the visual *is*,
+   * in the origin-relative viewport space `compose` and `write` consume.
+   * `(0, 0)` until the first `write`, which is the truth for an operation that
+   * never rendered and for a pointerless one.
+   *
+   * `LandingContext.from` is read from here rather than from the pointer: a
+   * behavior that constrains, clamps, snaps or externally drives its visual
+   * writes something other than the raw pointer delta, and a pointerless
+   * operation has no pointer at all, so the pointer form would open the landing
+   * from a position the visual has never been at.
+   *
+   * **Kernel-read.** The behavior is handed a {@link BehaviorLiftSession},
+   * which does not carry these members.
+   *
+   * `compose` records nothing — composing is not rendering, and a landing
+   * runner composes on every frame.
+   *
+   * **Two scalars on the session, and the only mutable members it has** —
+   * hence the intersection, since everything else here is fixed at
+   * acquisition. `write` assigns them per sample, so a pair would be either a
+   * second object to allocate or a second object to mutate in place, and the
+   * numbers have no reader that wants them together.
+   */
+  renderedX: number;
+  renderedY: number;
+};
 
 /**
  * What a **behavior** is handed: the same physical session, positively
  * projected to the four members it may use.
  *
- * `rendered` and `dispose` are kernel-only. The session's lifetime is the
+ * `renderedX`/`renderedY` and `dispose` are kernel-only. The session's
+ * lifetime is the
  * kernel's: disposing it from `activation.effect` or `moved` would drop the
  * inline-style lease — and, in a lifted mode, the top-layer lease — while the
  * recorded delta still describes the last `write`, so the landing would open
@@ -362,17 +370,15 @@ function makeSession(
         }px)${suffix}`
     : (x: number, y: number): string => `translate(${x}px, ${y}px)${suffix}`;
 
-  // The recorded delta, mutable here and `Point` everywhere else. One object
-  // per operation, written in place: recording costs these two field writes per
-  // sample, where re-publishing a fresh `{ x, y }` would put an allocation on
-  // the pointer-sample path, which is allocation-free.
-  const rendered = { x: 0, y: 0 };
-
-  return {
+  // Written through the session rather than through `this`: `write` is handed
+  // out on a projection a behavior may destructure, so the receiver is not
+  // reliably the session.
+  const session: VisualLiftSession = {
     visual,
     baseTransform,
     compose,
-    rendered,
+    renderedX: 0,
+    renderedY: 0,
     write(x: number, y: number): void {
       // Recorded **after** the assignment, deliberately. A composition or style
       // write that throws is classified `FAILURE_RENDERER_WRITE` by the caller,
@@ -380,11 +386,13 @@ function makeSession(
       // would leave the session claiming a delta the element never took, and
       // the landing would open from a position that only the record believes.
       visual.style.transform = compose(x, y);
-      rendered.x = x;
-      rendered.y = y;
+      session.renderedX = x;
+      session.renderedY = y;
     },
     dispose,
   };
+
+  return session;
 }
 
 /**

@@ -1545,25 +1545,21 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // snaps or externally drives its visual, and for every pointerless
     // operation, which has no pointer to subtract.
     //
-    // Read into two fields, not aliased. `rendered` is one mutable object
-    // written in place on the hot path; handing it to a consumer's runner would
-    // let a late `lift.write` — outside the contract, but not refused — move a
-    // `from` the runner has already read, and would publish a kernel-mutable
-    // object into consumer code. The protection costs nothing: the two numbers
-    // are fields on a context that already allocates, and `targetX`/`targetY`
-    // beside them are protected by the same shape rather than published as the
-    // object the join pin also holds.
+    // Copied into two fields. The session's own pair is mutable and written on
+    // the hot path, so reading it by value here is what stops a late
+    // `lift.write` — outside the contract, but not refused — from moving a
+    // `from` the runner has already read. `targetX`/`targetY` sit beside them
+    // in the same flat shape.
     //
     // **This read is the boundary of the rendering interval.** Behavior
     // rendering goes through `write` up to here; from here the landing runner
     // is the deliberate writer, until its `destroy()` relinquishes the
     // transform for the join pin.
-    const { rendered } = session;
     const context: LandingContext = {
       visual: visual!,
       compose: session.compose,
-      fromX: rendered.x,
-      fromY: rendered.y,
+      fromX: session.renderedX,
+      fromY: session.renderedY,
       targetX,
       targetY,
       realm,
