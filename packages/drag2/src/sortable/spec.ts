@@ -736,8 +736,14 @@ export function createSortableSpec(
     activation: {
       /**
        * Creates the placeholder **detached** and seeds the home insertion. No
-       * DOM insertion, no acquisition, nothing externally visible — which is
-       * why `rollback` is unnecessary here.
+       * DOM insertion, no acquisition, nothing externally visible.
+       *
+       * **Nothing visible is not nothing to undo, and the two cases divide on
+       * ownership.** The library's own `<div>` is created here and discarded
+       * whole with the preparation, so `placeholderUndo` stays `null` for it
+       * and `rollback` has nothing to spend. An element from a `placeholder`
+       * slot is the consumer's and is only *mutated* here, so those writes are
+       * recorded — which is the case `rollback` below is required for.
        */
       prepare(draft, scope) {
         const item = draft.item!;
