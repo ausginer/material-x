@@ -219,9 +219,15 @@ Re-measured at every point in the series, from repaired fixtures at commits that
 
 ### The re-entry identity is withdrawn, 2026-08-28
 
-`drag: seam/re-entered` leaves `src/kernel/seams.ts` (F-85: the site is P2 and unreachable through the behavior SPI). Minified falls **27–30 B** on every row. **Brotli rises** — `complete` +10, the sortable rows +3 to +10, `both behaviors` −1, the free-drag rows 0 to −10 — because the string shared `drag: ` and its fragments with forty sibling identities and was helping them compress. `kernel.js` falls both ways: 16,869 → **16,839** minified, 6,064 → **6,057** brotli. `drag.js` and baseline B are byte-identical. Premium **216 B, 2.04%**.
+`drag: seam/re-entered` leaves `src/kernel/seams.ts` (F-85: the site is P2 and unreachable through the behavior SPI). Minified falls **27–30 B** on every row. **Brotli mostly rises** — `complete` +10, the sortable rows **0 to +10**, the free-drag rows **−10 to +2**, `both behaviors` −1 — because the string shared `drag: ` and its fragments with forty sibling identities and was helping them compress. (~~+3 to +10~~ and ~~0 to −10~~ — **F-165**: both ranges excluded a row of their own, `minimal (xy)` at 0 and `free drag complete` at +2, and the second was wrong in sign as well as in bound. Signed ranges, not magnitudes, because this change moves rows in both directions.) `kernel.js` falls both ways: 16,869 → **16,839** minified, 6,064 → **6,057** brotli. `drag.js` and baseline B are byte-identical. Premium **216 B, 2.04%**.
 
 **Recorded rather than netted off.** This is D-117's own measurement finding in reverse — _the parts understate the whole by 2–9 %, always in the same direction_ — and it is the second confirmation that an identity's marginal cost is not a property of the identity.
+
+### The sentinel becomes `null`, 2026-08-28 (D-153)
+
+`throw REENTERED` becomes `throw null` and the symbol declaration goes. Minified falls **5–8 B** on every composition row; brotli falls on most and rises on two, so the ranges are signed: sortable rows **−17 to −9**, free-drag rows **−9 to +9**, `both behaviors` −17, `kernel.js` −5 / −1, baseline A −6 / −13. Both control rows are byte-identical. Premium **215 B, 2.03%**.
+
+**Recorded with the range convention F-165 forced.** `free drag + landing` moves **+9** against a change that only deletes — one fewer distinct token in that graph leaves the survivors compressing marginally worse, the same dictionary effect the identity withdrawal showed at larger scale. A magnitude range would have hidden it; a range that stops at its own most extreme row would have excluded it.
 
 ## The declines
 

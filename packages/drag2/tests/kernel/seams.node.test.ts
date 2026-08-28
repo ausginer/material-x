@@ -974,7 +974,14 @@ describe('staged value', () => {
   });
 });
 
-/** Distinguishes *nothing was thrown* from *something falsy was thrown*. */
+/**
+ * Distinguishes *nothing was thrown* from *something falsy was thrown*.
+ *
+ * **Load-bearing since the escape became `null`** (D-153): a helper that
+ * returned `null` or `undefined` for a run that completed normally would make
+ * the assertion below pass vacuously on exactly the bug it exists to catch —
+ * a refusal that stopped refusing.
+ */
 const NOTHING_THROWN = Symbol('nothing thrown');
 
 /** Whatever a run raised, or {@link NOTHING_THROWN}. */
@@ -1001,16 +1008,17 @@ const escapeOf = (run: () => unknown): unknown => {
  *
  * A bare `.toThrow()` would not do: it passes for a behavior's own error
  * escaping classification, which is precisely the bug the latch exists to
- * prevent. A symbol is not something behavior code can raise by accident, and
- * the description assertion is what stops the identity from growing back in a
- * new spelling.
+ * prevent. `null` is what the refusal throws and nothing in the driver's own
+ * failure path produces it — a classified fault leaves as a value, not a
+ * throw — so pinning it exactly separates *refused* from *failed* without
+ * pinning any text.
+ *
+ * The `null` half of that is only an assertion because {@link escapeOf}
+ * reports a completed run as {@link NOTHING_THROWN} rather than as a falsy
+ * value of its own.
  */
 const expectReentryPanic = (run: () => unknown): void => {
-  const thrown = escapeOf(run);
-
-  expect(thrown).not.toBe(NOTHING_THROWN);
-  expect(typeof thrown).toBe('symbol');
-  expect(String(thrown)).toBe('Symbol()');
+  expect(escapeOf(run)).toBeNull();
 };
 
 describe('runCore reentrancy', () => {
@@ -1153,9 +1161,17 @@ describe('runCore reentrancy', () => {
     // is the constructor's own — a non-`Error` cause has none to adopt — and
     // this is the assertion that fails if `refuseReentry` goes back to throwing
     // a slugged `Error`, because the constructor would adopt that slug as the
-    // message. The `cause` is the sentinel, and it says nothing either.
+    // message. The `cause` is `null`, which is both the truth on this path and
+    // the one replacement a consumer's ordinary handling survives: a symbol
+    // there throws `TypeError` on interpolation and `notify`'s terminus
+    // swallows the report whole (F-166).
     expect(report.message).toBe('drag: controller destroyed');
-    expect(String(report.cause)).toBe('Symbol()');
+    expect(report.cause).toBeNull();
+    // A real interpolation, not `String(...)`: `String(symbol)` succeeds and
+    // only `${symbol}` throws, so this is the one spelling that discriminates.
+    // The rule is right in general and this row is what it is about.
+    // oxlint-disable-next-line typescript/restrict-template-expressions
+    expect(`${report.cause}`).toBe('null');
 
     // The withdrawn identity, spelled out so the row states what it forbids.
     expect(JSON.stringify([report.message, String(report.cause)])).not.toMatch(

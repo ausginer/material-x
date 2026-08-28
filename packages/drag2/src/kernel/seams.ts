@@ -258,23 +258,6 @@ type PhaseStage = FailureStage | typeof UNCLASSIFIED;
  */
 const FAILED = Symbol();
 
-/**
- * Thrown to unwind a refused re-entry, and **carrying nothing**.
- *
- * The latch beside it is what makes the refusal stick; this is only the value
- * that leaves the stack. It is deliberately not an `Error`: the refusal is a
- * library invariant no consumer can reach (F-85 — the site is P2 from the call
- * graph, every phase-opening site being inside a queue handler), so there is
- * nothing to tell anyone and no identity to tell it with. A symbol has no
- * message to leak, and `DraggableError` reads a non-`Error` cause as *no cause
- * to adopt* and mints `drag: controller destroyed` — which is both true and the
- * whole of what a consumer can act on.
- *
- * One per module rather than one per driver: it is a marker, and the driver's
- * own latch is what distinguishes *this* driver's violation.
- */
-const REENTERED = Symbol();
-
 export function createSeamDriver<Part extends object>(
   context: SeamContext<Part>,
 ): SeamDriver<Part> {
@@ -315,10 +298,12 @@ export function createSeamDriver<Part extends object>(
    * Set when a seam is re-entered, and the reason the refusal is a latch rather
    * than a bare `throw`: the nested call raises from inside the outer seam's
    * `prepare` or `effect`, so the outer `catch` would otherwise classify an
-   * invariant break as an ordinary behavior failure and swallow it. The latch
-   * also survives behavior code that catches the throw itself — **which is what
-   * makes it a latch and not an error code**: catching {@link REENTERED} tells
-   * the driver nothing, because the driver does not consult what was raised.
+   * invariant break as an ordinary behavior failure and swallow it.
+   *
+   * **This, and not what was thrown, is the whole decision** — which is what
+   * makes it a latch rather than an error code. The driver never consults the
+   * raised value, so behavior code that catches the refusal has caught nothing
+   * it can act on and unwinds exactly as one that let it pass.
    */
   let reentry = false;
 
@@ -329,26 +314,48 @@ export function createSeamDriver<Part extends object>(
    * Strictly non-reentrant. Nothing in the kernel runs behavior code from
    * inside other behavior code — the queue is run-to-completion, so a nested
    * `dispatch` from a callback appends and returns, and the appended action
-   * opens its phase only after this one has finished. An open phase is exactly
-   * the right sentinel: it is open only while behavior code is executing, which
-   * is the only place a nested call could originate.
+   * opens its phase only after this one has finished.
    *
-   * A violation is an invariant break, not a recoverable condition: a nested
-   * `begin()`/`commit()` would rebuild the draft underneath the outer seam and
-   * publish its half-built frame. So the refusal **latches** rather than merely
-   * throwing — the nested call raises from inside the outer phase, whose
-   * `catch` would otherwise classify an invariant break as an ordinary behavior
-   * failure and swallow it. `runPhase` rethrows past every classification on
-   * the way out to reach the queue's panic path, which is also what makes
-   * behavior code that catches its own refusal panic anyway.
+   * **What `openStage` covers is the foreign-code window, and that is the
+   * boundary this guard is for** (F-167). It is set as a phase opens and
+   * cleared before `runPhase` classifies, so a phase opened from the
+   * classification path would not be refused — and nothing opens one there,
+   * because `context.fail` enqueues. Read the sentinel as *is foreign code on
+   * the stack*, which is where a nested call can originate; it is not a general
+   * nesting interlock and was never one.
+   *
+   * A violation is an invariant break, not a recoverable condition — and the
+   * break is **a lifecycle the kernel reports as performed and did not
+   * perform** (F-169, measured against a guard-free copy of this driver rather
+   * than described). The frames swap an even number of times, so nested from
+   * `prepare` **neither** transaction lands and `current` is untouched, and
+   * nested from `effect` the outer's committed frame is **replaced wholesale**
+   * by the inner's while the staged command run against it is the outer's. Both
+   * seams then return `SEAM_COMMITTED`, and neither path produces a diagnostic,
+   * which is the worst shape a broken invariant can take: the code succeeds and
+   * does the wrong thing. A nested `begin()` does **not** publish a half-built
+   * frame — the swaps cancel — so that is not the reason to refuse, and the
+   * reason above is stated from a counterfactual that was run rather than from
+   * one that was described.
+   *
+   * So the refusal **latches** rather than merely throwing — the nested call
+   * raises from inside the outer phase, whose `catch` would otherwise classify
+   * an invariant break as an ordinary behavior failure and swallow it.
+   * `runPhase` rethrows past every classification on the way out to reach the
+   * queue's panic path, which is also what makes behavior code that catches its
+   * own refusal panic anyway.
    */
   const refuseReentry = (): void => {
     if (openStage !== NO_STAGE) {
       reentry = true;
-      // Not an `Error` on purpose: an `Error` carries a message, and a message
-      // here would be an identity for a condition no consumer can reach (F-85).
+      // **`null`, and deliberately** (D-153). Not an `Error`, because an
+      // `Error` carries a message and a message here would be an identity for a
+      // condition no consumer can reach (F-85); `null` in particular because
+      // the value lands on `DraggableError.cause`, where a consumer's ordinary
+      // handling meets it — a symbol there throws on interpolation (F-166),
+      // and there genuinely is no cause on this path.
       // oxlint-disable-next-line typescript/only-throw-error
-      throw REENTERED;
+      throw null;
     }
   };
 
@@ -392,7 +399,7 @@ export function createSeamDriver<Part extends object>(
       // the throw unwinds here exactly as one that let it pass.
       reentry = false;
       // oxlint-disable-next-line typescript/only-throw-error
-      throw REENTERED;
+      throw null;
     }
 
     if (value === FAILED) {
