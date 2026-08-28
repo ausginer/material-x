@@ -104,6 +104,10 @@ A shipped message is `drag: <area>/<condition>`, plus any interpolated offending
 
 **The token is derivable from the site**, which is what makes this applicable without editorial judgment: two implementers reading one site produce one token, and neither has to decide how much to say.
 
+**The classification the identity sits below is `FailureStage` since D-132, and that does not move this section** (F-152). D-117's case for the identity was that the classification cannot separate a family — five sortable release faults all classifying as `interaction`. `FAILURE_RELEASE` separates them exactly as badly: four sortable release identities and free drag's one all carry stage 9. The payload became smaller and no more discriminating, so the floor below is unchanged. **The identity is also what survives the build**: names are mangled or dropped in a minified bundle and the failure checkpoint is queued (D-23), so without the token a production bug report is a stage number and a stack pointing at the queue drain.
+
+**Unimplemented (D-152). What a consumer may rely on is stated as a negative, because an internal invariant about a public field is not a promise about it** (F-154): `DraggableError.stage` is the classification and the whole of it; `message` and `cause` are diagnostics, nothing may branch on either, and both may change in a patch. **`DraggableWarning` is the deliberate opposite and the rule is one sentence**: the message is the payload exactly where there is no stage.
+
 **The floor is an identity, not silence.** A `DraggableError` whose `message` is empty and whose `code` is one of four is unusable in the field. Nothing above requires a message to be non-empty — which is precisely why the floor is stated here rather than left to be inferred from what the code happens to do today.
 
 ### Text and machinery are decided separately

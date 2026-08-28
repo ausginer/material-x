@@ -186,7 +186,7 @@ Per seam:
 
 The last two close a hole the generic driver had: `release.prepare` returning `null` left a truthful but stranded `RELEASING` operation with no resolution, no failure and no retirement, and `settlement.prepare` returning `null` depended on the behavior having queued a failure first — which the kernel could not check, after the resolution payload was already consumed.
 
-`SeamRejection` is shared by both, because both are non-discardable seams that still need to say _this is a failure, at this stage_:
+**Unimplemented (D-152): `SeamRejection` is deleted and both seams fail by throwing.** ~~`SeamRejection` is shared by both, because both are non-discardable seams that still need to say _this is a failure, at this stage_:~~ The hole the last two rows close is real and stays closed — `null` from either `prepare` is still not a way to fail — but a **throw** closes it as well as a returned record does, and does so the way the other four seams already do. `runPhase` catches and calls `context.fail(stage, raised)` with the seam's own stage, which is the stage all six sites returned; `host.fail` remains for a behavior that needs a different one; and `requestFailure` already states the equivalence — _a latched failure and a throw are the same event on this path too_ (D-49). What the union expressed was _these two seams may fail in a second way_, not _a seam may fail_. Record [`rejection-transport-claude.md`](../reviews/phase-23/rejection-transport-claude.md).
 
 ```ts
 type SeamRejection = Readonly<{ stage: FailureStage; error: unknown }>;
