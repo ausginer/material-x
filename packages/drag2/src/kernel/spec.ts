@@ -191,9 +191,8 @@ export type ActivationScope = Readonly<{
   /**
    * The lift capability. The behavior keeps it for `moved`.
    *
-   * **A projection, not the session**: `renderedX`/`renderedY` and `dispose`
-   * are kernel-only. The same physical object arrives under the narrower
-   * type.
+   * **A projection, not the session**: `rendered` and `dispose` are
+   * kernel-only. The same physical object arrives under the narrower type.
    */
   lift: BehaviorLiftSession;
   /** Closed at release, cancel, destroy, panic. */

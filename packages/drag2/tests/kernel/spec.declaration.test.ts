@@ -94,10 +94,8 @@ describe('the lift capability', () => {
     // Kernel-read (D-35). A behavior that could sample it could disagree with
     // the kernel about where the visual is, and has nothing correct to do with
     // the disagreement.
-    // @ts-expect-error: `renderedX` is not on `BehaviorLiftSession`
-    void scope.lift.renderedX;
-    // @ts-expect-error: and neither is `renderedY`
-    void scope.lift.renderedY;
+    // @ts-expect-error: `rendered` is not on `BehaviorLiftSession`
+    void scope.lift.rendered;
   });
 
   it('should not expose the disposer on the activation scope', () => {
@@ -119,9 +117,7 @@ describe('the lift capability', () => {
     const lift = null as unknown as Parameters<Moved>[1];
 
     // @ts-expect-error: the hot-path argument is projected too
-    void lift.renderedX;
-    // @ts-expect-error: on both axes
-    void lift.renderedY;
+    void lift.rendered;
     // @ts-expect-error: and so is the disposer
     void lift.dispose;
 
@@ -134,8 +130,9 @@ describe('the lift capability', () => {
     // every `@ts-expect-error` above and prove nothing.
     const session = null as unknown as VisualLiftSession;
 
-    expectTypeOf(session.renderedX).toEqualTypeOf<number>();
-    expectTypeOf(session.renderedY).toEqualTypeOf<number>();
+    expectTypeOf(session.rendered).toEqualTypeOf<
+      Readonly<{ x: number; y: number }>
+    >();
     expectTypeOf(session.dispose).toBeFunction();
   });
 });

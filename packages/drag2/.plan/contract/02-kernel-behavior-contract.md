@@ -898,8 +898,7 @@ type LifetimeScope = Readonly<Pick<Lifetime, 'signal' | 'use' | 'useWhile'>>;
 
 /**
  * The same physical `VisualLiftSession`, **positively projected** to the four
- * members a behavior may use. `renderedX`/`renderedY` and `dispose` are
- * kernel-only.
+ * members a behavior may use. `rendered` and `dispose` are kernel-only.
  */
 type BehaviorLiftSession = Readonly<
   Pick<VisualLiftSession, 'visual' | 'baseTransform' | 'compose' | 'write'>
@@ -992,9 +991,9 @@ The review proposed carrying it "most naturally through `BehaviorLiftSession`". 
 
 **One failure policy, because there is now one read.** `acquireLift` already throws `FAILURE_ACTIVATION` for an unreadable space, and the projection derives from that same successful measurement — so _unreadable_ cannot diverge. Singular and non-finite spaces resolve to `null`, the identity, which the kernel already does for the in-place case. The split policy E-01 found — one read refusing what the other silently substituted — has no second read left to disagree with.
 
-**The lift is projected for the same reason the lifetime is** (Checkpoint C, C5-01). An earlier version of this revision handed the behavior the whole `VisualLiftSession` and asserted in prose that the recorded delta was "kernel-read only" and that the kernel owned disposal. Neither was true of the type. `dispose()` in particular is not a reading hazard but a **sequencing** one: a behavior that calls it from `activation.effect` or `moved` restores the inline-style lease — and, in a lifted mode, the top-layer lease — while the session's recorded delta still describes its last `write`. The landing then samples `from` for a visual that is no longer lifted. That is I-34 broken **through a first-class SPI method**, not through a documented residue, and the difference matters: a residue is a rule the contract states and a participant may break, while this was the API handing out the thing it claims to own.
+**The lift is projected for the same reason the lifetime is** (Checkpoint C, C5-01). An earlier version of this revision handed the behavior the whole `VisualLiftSession` and asserted in prose that `rendered` was "kernel-read only" and that the kernel owned disposal. Neither was true of the type. `dispose()` in particular is not a reading hazard but a **sequencing** one: a behavior that calls it from `activation.effect` or `moved` restores the inline-style lease — and, in a lifted mode, the top-layer lease — while the session's recorded delta still describes its last `write`. The landing then samples `from` for a visual that is no longer lifted. That is I-34 broken **through a first-class SPI method**, not through a documented residue, and the difference matters: a residue is a rule the contract states and a participant may break, while this was the API handing out the thing it claims to own.
 
-The projection removes `renderedX`/`renderedY` and `dispose`. It does **not** remove the two residues that remain, and this section no longer claims a count: writing `visual.style.transform` directly, and calling `write` outside its window (§The temporal rule on `write`).
+The projection removes `rendered` and `dispose`. It does **not** remove the two residues that remain, and this section no longer claims a count: writing `visual.style.transform` directly, and calling `write` outside its window (§The temporal rule on `write`).
 
 The projection is a type-level `Pick`; the kernel passes the _same physical object_ under the narrower type, so it costs no allocation — the identical argument (§What stays internal) already makes for `Lifetime`.
 
@@ -1490,9 +1489,9 @@ arm (after sealing)
                there is no earlier, worse answer for this one to supersede and
                no `authoredReady` to condition it on. Whether to re-anchor
                follows the recovery, which is committed frame state.
-    fromX/Y = lift.renderedX/Y                  ← what the lift last rendered,
+    from    = lift.rendered                     ← what the lift last rendered,
                                                   NOT a pointer delta (D-35)
-    context = { visual, compose, fromX/Y, targetX/Y, realm }
+    context = { visual, compose, from, target: attempt.target, realm }
     handle  = start(context, done, fail)
     attempt.landing = handle
 
@@ -1652,7 +1651,7 @@ The consequence is the signature of this bug class: **the landing opens with a j
 
 **The fix adds no seam.** `VisualLiftSession` is the kernel's own object and `write(x, y)` — compose, then assign — is the library's only rendering entry point during an operation, so the session records the delta it last wrote and the kernel reads it. `compose(x, y)` remains a pure string builder for a runner and records nothing: composing is not rendering.
 
-**And the behavior never holds the whole session.** It is handed a `BehaviorLiftSession` — `visual`, `baseTransform`, `compose`, `write` — so it can neither read `renderedX`/`renderedY` nor call `dispose()`. Both would falsify the recorded delta rather than merely observe it, and the second would do so through a first-class method. See §`ActivationScope`.
+**And the behavior never holds the whole session.** It is handed a `BehaviorLiftSession` — `visual`, `baseTransform`, `compose`, `write` — so it can neither read `rendered` nor call `dispose()`. Both would falsify the recorded delta rather than merely observe it, and the second would do so through a first-class method. See §`ActivationScope`.
 
 #### The temporal rule on `write`
 

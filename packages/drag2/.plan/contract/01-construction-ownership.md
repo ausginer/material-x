@@ -255,8 +255,7 @@ type SortableRuntime = {
   /**
    * The **projected** capability (`visual`, `baseTransform`, `compose`,
    * `write`), handed in at activation and cleared at retire. Never the whole
-   * session: `renderedX`/`renderedY` and `dispose` are kernel-only (D-35,
-   * C5-01).
+   * session: `rendered` and `dispose` are kernel-only (D-35, C5-01).
    */
   lift: BehaviorLiftSession | null;
   spatialSeq: number;
@@ -309,7 +308,7 @@ Note what is _not_ here: `rects`. The geometry cache lives inside the axis featu
 | **Pointer capture** (on `root`, acquired at activation) | kernel (D-17) | nothing |
 | Ingress listeners — `pointerdown`, plus each `command.types` entry | kernel (D-32) | behavior, as the _declaration_ of which types to bind; never as a registration |
 | `preventDefault()` on an admitted ingress event | kernel (D-32, C-03) — **ownership unchanged by D-46; the _policy_ is new** | nothing — the behavior answers feasibility with its return value |
-| Lift session + inline-style snapshot + **the last rendered delta** | kernel (acquires, disposes, records) | behavior, as a **`BehaviorLiftSession`** — `visual`, `baseTransform`, `compose`, `write` and nothing else. `renderedX`/`renderedY` are kernel-read; `dispose` is kernel-sequenced. The behavior can neither sample the delta nor unwind the lift (D-35; Checkpoint C, C5-01) |
+| Lift session + inline-style snapshot + **the last rendered delta** | kernel (acquires, disposes, records) | behavior, as a **`BehaviorLiftSession`** — `visual`, `baseTransform`, `compose`, `write` and nothing else. `rendered` is kernel-read; `dispose` is kernel-sequenced. The behavior can neither sample the delta nor unwind the lift (D-35; Checkpoint C, C5-01) |
 | `originRect` | kernel | behavior, as an activation-scope argument |
 | Resolution attempt; settlement attempt including **the landing gate hold** | kernel (D-7, narrowed to one gate by D-41) | nothing. No settlement object crosses either boundary. ~~Including the **early-acknowledgement latch**, **both gate holds** and the readiness deadline (D-33) — deleted with the acknowledgement protocol~~ |
 | The authoritative final pin | kernel, via the lift it owns (D-16, narrowed by D-41 to _measure once, pin at the join_) | — |

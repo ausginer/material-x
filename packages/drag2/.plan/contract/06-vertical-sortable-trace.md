@@ -423,7 +423,7 @@ pointerup
                                                write at all. No release sample
                                                exists and the visual has not
                                                moved since acquisition, so
-                                               `lift.renderedX`/`Y` stay (0, 0)
+                                               `lift.rendered` stays (0, 0) and
                                                that is the correct landing
                                                origin.           [D-35, C4-01]
               ← nothing is published for a later acknowledgement to match.
@@ -566,11 +566,10 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                               commit strategies, including the two that
                               otherwise hold. 02 owns the surviving signature;
                               this trace follows it.
-                      [K] fromX/Y = lift.renderedX/Y ← the delta the session
+                      [K] from = lift.rendered      ← the delta the session
                                                         last wrote, not a
                                                         pointer delta    [D-35]
-                      [K] context = { visual, compose, fromX/Y, targetX/Y,
-                                      realm }
+                      [K] context = { visual, compose, from, target, realm }
                       [F] WAAPI animation, 200 ms → LandingHandle
                       [K] revalidate: still current, still sealed, still held?
                             ← `start` could have destroyed the controller and
