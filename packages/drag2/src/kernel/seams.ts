@@ -319,10 +319,15 @@ export function createSeamDriver<Part extends object>(
    * **What `openStage` covers is the foreign-code window, and that is the
    * boundary this guard is for** (F-167). It is set as a phase opens and
    * cleared before `runPhase` classifies, so a phase opened from the
-   * classification path would not be refused — and nothing opens one there,
-   * because `context.fail` enqueues. Read the sentinel as *is foreign code on
-   * the stack*, which is where a nested call can originate; it is not a general
-   * nesting interlock and was never one.
+   * classification path would not be refused. Read the sentinel as *is foreign
+   * code on the stack*, which is where a nested call can originate; it is not a
+   * general nesting interlock and was never one.
+   *
+   * **Consumer code still runs past the clear, and the queue is what covers
+   * it** (F-171): `context.notify` reaches the consumer's `onError`, and a
+   * `dispatch` from there appends because `drain` returns while
+   * `queue.running`. `context.fail` enqueuing covers only the classification
+   * this module performs, which is the smaller half.
    *
    * A violation is an invariant break, not a recoverable condition — and the
    * break is **a lifecycle the kernel reports as performed and did not

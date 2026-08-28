@@ -1653,6 +1653,52 @@ describe('settlement mapping', () => {
     });
   });
 
+  it('should classify a null rejection rather than reading it as a re-entry', async () => {
+    // **The seam driver's re-entry escape is `throw null`** (D-153), and the
+    // `SETTLED_REJECTED` arm above re-raises the consumer's rejection value
+    // verbatim — so a consumer can put the driver's own escape value on the
+    // stack, from a supported call, on an ordinary drop. What separates the two
+    // is the `reentry` latch and nothing else: the driver never consults what
+    // was raised.
+    //
+    // **That authority was pinned in one direction only** (F-170). `if (reentry
+    // || raised === null)` — consulting the value *in addition to* the latch —
+    // passed the whole suite, and under it this drop destroys the controller
+    // and reports `stage: null`, `drag: controller destroyed`. This row is the
+    // supported path that says otherwise. It lives here rather than in the
+    // driver harness because the collision is only reachable through a
+    // behavior that re-raises, and both behaviors do.
+    const harness = createHarness({
+      // oxlint-disable-next-line prefer-promise-reject-errors
+      onReorder: () => Promise.reject(null),
+    });
+
+    activate(harness);
+    harness.next(harness.gap(2));
+    release(60);
+    await nextFrame();
+
+    // An ordinary settlement failure, at the seam's own stage, carrying the
+    // consumer's value — which happens to be `null` and means nothing more
+    // than that.
+    expect(harness.errors).toHaveLength(1);
+    expect(harness.errors[0]!.error).toBeInstanceOf(DraggableError);
+    expect((harness.errors[0]!.error as DraggableError).stage).toBe(
+      FAILURE_RESOLUTION,
+    );
+    expect((harness.errors[0]!.error as DraggableError).cause).toBeNull();
+
+    // And the terminal still arrives, which a panic never produces.
+    expect(harness.cancels).toHaveLength(1);
+
+    // **The controller is alive**, asserted the only way the public surface
+    // allows: it still admits. A panicked controller is destroyed, so this
+    // second press reaches no ingress and `started` stays at one.
+    activate(harness);
+
+    expect(harness.started).toHaveLength(2);
+  });
+
   it('should map a cancel at ACTIVE to the proposal stage', () => {
     const harness = createHarness();
 
