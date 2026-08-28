@@ -135,9 +135,11 @@ Three arms, and **the arm set was re-derived rather than inherited** — the led
 | --- | --- | --- |
 | `accepted` | `onDrop` resolving `FreeDragResolution.accept()` — one shared value, allocated once (D-140) | `request` |
 | `rejected` | `onDrop` resolving `FreeDragResolution.reject(reason?)` | `request`, `reason` |
-| `canceled` | `cancel()`, `Escape`, `pointercancel`, a destroyed controller, or **any classified failure of a started operation** (D-66) | `request \| null`, `reason`, `stage: CancelStage` |
+| `canceled` | `cancel()`, `Escape`, `pointercancel`, `lostpointercapture`, or **any classified failure of a started operation** (D-66) | `request \| null`, `reason`, `stage: CancelStage` |
 
 **The resolution the consumer returns is not one of these shapes, and since D-140 it is not a shape at all** — as the sortable's is not, since D-143 extended this to it. `FreeDragResolution` is opaque — a `unique symbol` brand behind two factories — because the consumer's job with it is to build one and hand it back. It is the _result_ that carries fields, and it always was: `AcceptedFreeDragResolution` and `RejectedFreeDragResolution` published a `type` discriminant nothing on the consumer's side ever branched on, and a shape a consumer can read is a shape a consumer can also manufacture, which made a runtime duck-type gate and a second `FAILURE_RESOLUTION` diagnostic look owed. Both are deleted. **Acceptance is one shared value**, so an accepted drop allocates nothing; rejection is a one-slot carrier for the reason; and `settlement.prepare` tells them apart by identity, with no string shipped and none compared.
+
+**~~a destroyed controller~~ is not a producer of this arm, and never was** (F-172, corrected 2026-08-28). `destroy()` closes the queue on the statement and every guard then fails, so **no terminal is published at all** — asserted at [`tests/free-drag/free-drag.browser.test.ts:412`](../../tests/free-drag/free-drag.browser.test.ts) and, for the sortable's mirror, [`tests/sortable/composition.browser.test.ts:642`](../../tests/sortable/composition.browser.test.ts). The row also omitted `lostpointercapture`, which is a fourth kernel-originated path to the same arm.
 
 `FreeDragTransactionResult` is the union; `onEnd` receives it and switches with no `default`, which is what makes exhaustiveness checkable (D-62). `request` is `null` on the canceled arm exactly when the operation was abandoned before release built one — the same shape the sortable's `proposal: null` has, and the reason `AT_PROPOSAL`/`AT_CONSUMER` is carried.
 
