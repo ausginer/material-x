@@ -2206,6 +2206,22 @@ The corrected findings and the measurement evidence are preserved verbatim — t
 
 No production code touched.
 
+### 2026-08-29 — D-155 and D-156 turned into an implementation shape (D-157)
+
+Record [`d155-d156-implementation-shape-claude.md`](reviews/phase-23/d155-d156-implementation-shape-claude.md). Neither decision reopened. **F-191 closed**, **F-198** through **F-200** recorded.
+
+The committed-move bracket becomes **project, write, displace** — one call, one DOM write, one call, with no DOM read. The axis returns a **plan** (a per-controller visitor over affected elements and their vectors); the displacement feature consumes it and starts one additive `translate` each. The prediction needs no terminal barrier and no invalidation, so the witness apparatus, the liveness threading and the in-bracket invalidation all go; the failure paths become load-bearing in exchange.
+
+Three ownership moves. `rect-index.ts` also measures the placeholder, once per rebuild instead of once per spatial frame. `verified-refresh.ts` becomes the linear rule, re-timed ahead of the write and parameterized by the axis's stride offsets, which is what leaves `x()`'s slot obvious without shipping it. `layoutAnimation()` moves from `plugins` to a named `displacement` key, making a second competing displacement mechanism unrepresentable — and `plugins`, whose only producer it was, is deleted.
+
+One refinement to D-156's arithmetic, and it removes machinery rather than adding it: with the placeholder's rect cached, the displacement constant is `cache[g].top - placeholder.top` for any interior or start gap and `placeholder.bottom - cache[count - 1].bottom` at the end — checked against the recorded 40 and 52 — so **the two-slot fallback is not needed and no measured-constant path ships**.
+
+Required evidence is named rather than left to the implementer: a zero-read test, positive and **negative** G3 fixtures, continuity under interruption, release-is-settled, the cross-container failure path, and the two-dimensional displacement case that closes F-191. Size measured jointly with `free drag minimal` as the declared control and no predicted direction for the linear axes; the justifying result is runtime, against the recorded 18/36 and 44/44 forced layouts per animation frame.
+
+No production code touched.
+
+---
+
 ---
 
 ---
