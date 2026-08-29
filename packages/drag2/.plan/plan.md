@@ -2198,6 +2198,16 @@ Two results the correction adds rather than costs. The linear displacement const
 
 No production code touched.
 
+### 2026-08-29 — D-156's index entry restated from the corrected model
+
+The ledger row still opened with the superseded rotation and presented the old common `cell(i)` clause before correcting it much later in the same row, so a reader reached the current contract only by passing through a falsified one. Rewritten to lead with **G3-prime and its two axis-owned instantiations**; the historical false start is now one clause at the end pointing at the two review records, which keep the full tables.
+
+The corrected findings and the measurement evidence are preserved verbatim — the complementarity scores, the four grid span vectors, the derived constant at 40 and 52, the fixed-track and content-sized track results — as is the **two-slot fallback** to the full measured path. The deferred-registry row now names the re-timing and the fallback explicitly, and the Supersedes cell records that `verified-refresh.ts`'s hypothesis is **re-timed rather than superseded**.
+
+No production code touched.
+
+---
+
 ---
 
 ---
