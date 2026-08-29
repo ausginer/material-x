@@ -2176,6 +2176,18 @@ The guard is **not** reopened: D-153 settles that it stays, as the enforcement p
 
 **Two things flagged for implementation rather than assumed**: whether `inheritedSpaceOf` folds ancestor zoom — whatever it folds is already what this package publishes as _local_, so the tail inherits an existing definition and a zoom fixture should pin it either way; and whether the **pin is still load-bearing when a tail is installed**, since pin and release now share one task with no paint between and the style restore undoes the write. The pin is certainly not redundant on the no-tail path, and per the owner's instruction it is **not reopened**.
 
+### 2026-08-29 — Ordinary sortable displacement reassessed under a stable-slot premise (D-156)
+
+An owner-level premise change: the supported layout model for `x()`, `y()` and `xy()` is a **permutation of stable, interchangeable geometry**, not arbitrary CSS layout. Asked whether the current `measure -> release -> mutate -> rebuild -> measure -> FLIP` model is more general than those three rules require. Record [`sortable-slot-geometry-claude.md`](reviews/phase-23/sortable-slot-geometry-claude.md); decision **D-156**, findings **F-191** through **F-195**.
+
+The predictive half is stronger than proposed: **every target position an ordinary move produces is already in the packed cache, one index away**, because `RectIndex` is indexed by destination slot and the destination view's relative order is fixed for the whole operation. Deltas are differences of two cached rects, available in both coordinates before the DOM write; the post-move cache is a rotation. The lagging-placeholder half is **rejected** — it makes the library hold a `translate` on every displaced row for the whole drag, which is D-155's argument run backwards, and what it buys is bought anyway.
+
+Two supporting facts that were not known before the pass: `layoutAnimation()` composed with `xy()` already animates only the vertical component (F-191), so no correct general behaviour is being given up; and the committed semantic result is always measured at release (F-193), which is why a predictive cache is a presentation risk rather than a correctness one. The largest result is runtime rather than size — one derivable forced layout per spatial frame (F-195).
+
+No production code touched.
+
+---
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.
