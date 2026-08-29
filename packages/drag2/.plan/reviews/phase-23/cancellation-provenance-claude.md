@@ -24,9 +24,9 @@ Traced at `fb8bac0b`, not carried forward from the ledger's account.
 | --- | --- | --- |
 | 1 | `controller.cancel(x)` — consumer | `x`, arbitrary |
 | 2 | `controller.cancel()` — consumer | `undefined` |
-| 3 | `host.cancel(x)` — behavior, [`sortable/spec.ts:1315`](../../src/sortable/spec.ts) | `'sortable:item-removed'` or `'sortable:collection-invalidated'` |
-| 4 | the kernel, [`kernel.ts:834,837,845`](../../src/kernel/kernel.ts) | one of the three `drag:` strings |
-| 5 | **a classified failure**, [`sortable/spec.ts:1614`](../../src/sortable/spec.ts) and [`free-drag/spec.ts:767`](../../src/free-drag/spec.ts) | `input.error` — **the caught throw** |
+| 3 | `host.cancel(x)` — behavior, [`sortable/spec.ts:1315`](../../../src/sortable/spec.ts) | `'sortable:item-removed'` or `'sortable:collection-invalidated'` |
+| 4 | the kernel, [`kernel.ts:834,837,845`](../../../src/kernel/kernel.ts) | one of the three `drag:` strings |
+| 5 | **a classified failure**, [`sortable/spec.ts:1614`](../../../src/sortable/spec.ts) and [`free-drag/spec.ts:767`](../../../src/free-drag/spec.ts) | `input.error` — **the caught throw** |
 
 Producers 1–4 were known. **The fifth is the one that decides this.** There is no `failed` arm in either behavior's result union: `SETTLED_FAILED` maps to `{ type: 'canceled', reason: input.error, stage, … }`, and the mapping is deliberate and well-argued at both sites — the `??=` tie-break, the `MINTED` suppression and the `FAILURE_TERMINAL_CALLBACK` exclusion are all reasoned in place. Nothing about that mapping is wrong.
 
@@ -53,7 +53,7 @@ No. At most two, and the third is a DOM spelling.
 - **`pointercancel`** and **`lostpointercapture`** are two platform events for one fact: _the pointer stream ended without a drop_. A consumer cannot act differently on them, and distinguishing them re-exports precisely the platform detail the kernel exists to absorb — the same objection that keeps `PointerEvent` off the behavior surface.
 - **`Escape`** is different in kind. It is a deliberate user decision, and it is the one cancellation cause a consumer plausibly branches on: _the user changed their mind_ is not _the input was taken away_.
 
-A structural asymmetry corroborates the split rather than being argued from taste. A **command (keyboard) operation arms no pointer input at all** — `pointerId === -1` at [`kernel.ts:942`](../../src/kernel/kernel.ts), so `armPointerInput` never runs — while `armCancelInput` runs unconditionally. Two of the three constants are therefore unreachable on the keyboard ingress and the third covers both. They are not siblings.
+A structural asymmetry corroborates the split rather than being argued from taste. A **command (keyboard) operation arms no pointer input at all** — `pointerId === -1` at [`kernel.ts:942`](../../../src/kernel/kernel.ts), so `armPointerInput` never runs — while `armCancelInput` runs unconditionally. Two of the three constants are therefore unreachable on the keyboard ingress and the third covers both. They are not siblings.
 
 ---
 
@@ -61,7 +61,7 @@ A structural asymmetry corroborates the split rather than being argued from tast
 
 Worth stating because the obvious objection to keeping _any_ of this is that `lostpointercapture` fires on every normal drop, when the kernel releases capture itself.
 
-It does not reach the cancel path. `armPointerInput` binds `onPointer` to `lifetimes.motion.signal` ([`kernel.ts:943`](../../src/kernel/kernel.ts)) and the capture disposer is registered on the **same** lifetime ([`kernel.ts:1212`](../../src/kernel/kernel.ts)). `Lifetime.dispose` calls `controller.abort()` **before** it runs its disposers ([`lifetimes.ts`](../../src/kernel/lifetimes.ts)), so the listener is detached and only then is capture released. The library never observes its own release.
+It does not reach the cancel path. `armPointerInput` binds `onPointer` to `lifetimes.motion.signal` ([`kernel.ts:943`](../../../src/kernel/kernel.ts)) and the capture disposer is registered on the **same** lifetime ([`kernel.ts:1212`](../../../src/kernel/kernel.ts)). `Lifetime.dispose` calls `controller.abort()` **before** it runs its disposers ([`lifetimes.ts`](../../../src/kernel/lifetimes.ts)), so the listener is detached and only then is capture released. The library never observes its own release.
 
 **Provenance is accurate wherever it exists.** The defect is entirely in where it is carried.
 
@@ -71,7 +71,7 @@ It does not reach the cancel path. `armPointerInput` binds `onPointer` to `lifet
 
 | Vocabulary | Asserted in the suite? |
 | --- | --- |
-| `sortable:item-removed`, `sortable:collection-invalidated` | **Yes** — [`tests/sortable/composition.browser.test.ts:456,468,594`](../../tests/sortable/composition.browser.test.ts) |
+| `sortable:item-removed`, `sortable:collection-invalidated` | **Yes** — [`tests/sortable/composition.browser.test.ts:456,468,594`](../../../tests/sortable/composition.browser.test.ts) |
 | `drag:escape`, `drag:pointercancel`, `drag:lostpointercapture` | **No** — zero occurrences in `tests/` |
 | free-drag-minted reasons | **None exist** — the behavior mints no reason at all |
 
@@ -108,7 +108,7 @@ Three fields, three orthogonal questions, none of them overloaded:
 
 ### Where it publishes
 
-`CancelOrigin` and its four constants are declared in [`src/kernel/failures.ts`](../../src/kernel/failures.ts) beside `CancelStage`, and re-exported from **`kernel.js`, `sortable.js` and `free-drag.js`** — `CancelStage`'s existing route, verbatim.
+`CancelOrigin` and its four constants are declared in [`src/kernel/failures.ts`](../../../src/kernel/failures.ts) beside `CancelStage`, and re-exported from **`kernel.js`, `sortable.js` and `free-drag.js`** — `CancelStage`'s existing route, verbatim.
 
 **Not `drag.js`, and the standing plan's first bullet is void rather than relocated.** That bullet sited the three sentinels on `drag.js` because `drag.js` is the shared vocabulary root and the sentinels belonged to neither tier. `origin` is not in that position: it is a field of a **behavior-owned result type**, its sibling `stage` is already published on the three behavior-facing entries, and D-48's own note warns against exactly the split this would create — _a vocabulary where the consumer names the type at one entry and the values at another_. Following `CancelStage` costs nothing new and keeps one vocabulary at one set of entries.
 
@@ -131,7 +131,7 @@ Three fields, three orthogonal questions, none of them overloaded:
 
 ## 9. Findings
 
-**F-172 — the canceled arm's documented producer list names one that produces nothing.** Tier C. 07 §The results says `canceled` is produced by _"`cancel()`, `Escape`, `pointercancel`, a destroyed controller, or any classified failure"_. A destroyed controller publishes **no terminal at all** — `destroy()` sets `queue.closed` on the statement ([`kernel.ts:616`](../../src/kernel/kernel.ts)) and every guard then fails — and the suite asserts the absence twice, at [`tests/free-drag/free-drag.browser.test.ts:412`](../../tests/free-drag/free-drag.browser.test.ts) and [`tests/sortable/composition.browser.test.ts:642`](../../tests/sortable/composition.browser.test.ts). The row is a present-tense contract statement that is false, and it is corrected in this pass. Found only because D-154 required the producer set to be enumerated exhaustively rather than cited.
+**F-172 — the canceled arm's documented producer list names one that produces nothing.** Tier C. 07 §The results says `canceled` is produced by _"`cancel()`, `Escape`, `pointercancel`, a destroyed controller, or any classified failure"_. A destroyed controller publishes **no terminal at all** — `destroy()` sets `queue.closed` on the statement ([`kernel.ts:616`](../../../src/kernel/kernel.ts)) and every guard then fails — and the suite asserts the absence twice, at [`tests/free-drag/free-drag.browser.test.ts:412`](../../../tests/free-drag/free-drag.browser.test.ts) and [`tests/sortable/composition.browser.test.ts:642`](../../../tests/sortable/composition.browser.test.ts). The row is a present-tense contract statement that is false, and it is corrected in this pass. Found only because D-154 required the producer set to be enumerated exhaustively rather than cited.
 
 **F-173 — a channel acquired a fifth producer and no document recorded that it had.** Tier B. `SETTLED_FAILED → { type: 'canceled', reason: input.error }` is reasoned carefully at both behavior sites and is described in neither the ledger's L-11 entry, the Checkpoint D resolution, nor `plan.md`'s Phase 23 deliverable — each of which enumerates the `reason` producers and stops at four. The deliverable those documents prescribe is unsound **because** of the producer they omit. The general form is worth more than the instance: **an open channel's producer set is a contract fact and needs an owner**, because a decision about what a channel may carry is made against the set as enumerated, and nothing checks the enumeration. L-11 sat open for weeks against a four-producer census that was already five.
 

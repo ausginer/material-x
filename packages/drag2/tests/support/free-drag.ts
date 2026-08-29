@@ -214,6 +214,15 @@ export const cancelPointer = (x: number, y: number): void => {
   pointerEvent('pointercancel', x, y);
 };
 
+/**
+ * The other DOM spelling of *the pointer stream ended without a drop*, and the
+ * reason it has its own helper: the kernel routes both to one origin, so a
+ * suite that can only dispatch one of them cannot see the two diverge (D-154).
+ */
+export const losePointerCapture = (x: number, y: number): void => {
+  pointerEvent('lostpointercapture', x, y);
+};
+
 export const escape = (): void => {
   document.dispatchEvent(
     new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),

@@ -736,7 +736,7 @@ Three justification classes, and each one answers a different question. They are
 
 ### The vocabulary
 
-**Values — 32, and 33 until D-132 deleted `toDraggableError`.** Erased types cannot carry these, which is the whole of F-59.
+**Values — 35, and the count is derived from the table below rather than carried** (F-174, 2026-08-29). `1 + 12 + 3 + 5 + 2 + 4 + 8`, enumerated at runtime by importing `kernel.js`. ~~32, and 33 until D-132 deleted `toDraggableError`~~: that total was one high before D-154 as well — the table summed to 31 while the sentence said 32 — so the four cancel origins were added to a base nobody had re-derived. **The table has been right throughout; only the sentence drifted**, which is the argument for deriving the total from it rather than incrementing it. Erased types cannot carry any of these, which is the whole of F-59.
 
 | Group | Names | Class |
 | --- | --- | --- |
@@ -745,10 +745,13 @@ Three justification classes, and each one answers a different question. They are
 | Lift modes — 3 | `LIFT_FAITHFUL`, `LIFT_FLAT`, `LIFT_IN_PLACE` | **P** — `config.liftMode` is mandatory and has no default |
 | Settlement inputs — 5 | `SETTLED_FULFILLED`, `SETTLED_REJECTED`, `SETTLED_SKIPPED`, `SETTLED_CANCELED`, `SETTLED_FAILED` | **P** — the behavior discriminates its own input, and D-24 requires the switch to be exhaustive |
 | Cancel stages — 2 | `AT_PROPOSAL`, `AT_CONSUMER` | **P** — read from a `canceled` input, and **written** into D-66's fallback |
+| Cancel origins — 4 | `CANCEL_SUPPLIED`, `CANCEL_ABORTED`, `CANCEL_INTERRUPTED`, `CANCEL_FAILED` | **P** — read from a `canceled` input, and `CANCEL_FAILED` is **written** into D-66's fallback, which is the one origin a behavior mints (D-154) |
 | Phases — 8 | `IDLE`, `PENDING`, `ACTIVATING`, `ACTIVE`, `RELEASING`, `SETTLING`, `REPORTING`, `FINALIZING` | **I** — see §The phase is handed over, below |
 | ~~Classification~~ | ~~`toDraggableError`~~ | **Deleted at D-132** — see §The mapping is library-owned, below |
 
-**Types — 35, and this count was 33 until 2026-08-22** (Phase 22 §API). All erased. ~~Thirteen~~ **Twelve since D-152** are shipped (`ActivationScope`, `AdmissionSubject`, `BehaviorConfig`, `BehaviorFactory`, `BehaviorSpec`, `CommandAdmission`, `FailureStage`, `KernelHost`, `PreparedSettlement`, `ResolutionCommand`, ~~`SeamRejection`~~, `SettlementInput`, `SettlementScope`); **twenty-two** are added.
+**Types — 35, derived as `12 + 23`** (F-174, 2026-08-29). All erased. ~~Thirteen~~ **Twelve since D-152** are shipped (`ActivationScope`, `AdmissionSubject`, `BehaviorConfig`, `BehaviorFactory`, `BehaviorSpec`, `CommandAdmission`, `FailureStage`, `KernelHost`, `PreparedSettlement`, `ResolutionCommand`, ~~`SeamRejection`~~, `SettlementInput`, `SettlementScope`); ~~**twenty-two**~~ **twenty-three since D-154** are added.
+
+**35 was the written total before D-154 too, and it was wrong then** — the two lists summed to 34. `CancelOrigin` makes the sentence true for the first time, and by re-derivation rather than by the addition landing on a correct base. The count is **descriptive, not normative**: the rule above is the contract, and the sentence below said what this correction is.
 
 **The two additions were each ratified and neither updated this number.** `BehaviorLiftSession` is 07 §K-1's — _the type surface gains exactly `BehaviorLiftSession`_ — and `InheritedSpace` is D-85's, which says in as many words that it _publishes at `kernel.js` as part of the scope's closure (D-68)_. **So the rule held and the count did not**: both are reached through `ActivationScope`, which is exactly what the class-A test admits, and D-68's surface has never contained a name its own rule does not derive. What failed is that the rule is executable and the total is prose. `tests/kernel/vocabulary.node.test.ts` checks its list _against the entries_ and so tracked both additions silently; nothing anywhere compares either against a written total. **The count is therefore descriptive, not normative** — the rule above is the contract, and a future addition that satisfies it does not need this sentence's permission, only its correction.
 
@@ -759,9 +762,9 @@ Three justification classes, and each one answers a different question. They are
 | Construction | `BehaviorInstall` | `BehaviorFactory`'s return |
 | Activation capability | `LifetimeScope`, `Disposer`, `VisualLiftSession`, **`BehaviorLiftSession`**, **`InheritedSpace`**, `OffsetBox` | `ActivationScope`; `moved` |
 | Config | `LiftMode`, `Phase` | `BehaviorConfig.liftMode`; `KernelFrame.phase` |
-| Settlement | `CancelStage`, `LandingStart`, `LandingContext`, `LandingHandle` | `SettlementInput`'s canceled arm; `SettlementScope.holdForLanding` |
+| Settlement | `CancelStage`, **`CancelOrigin`**, `LandingStart`, `LandingContext`, `LandingHandle` | `SettlementInput`'s canceled arm; `SettlementScope.holdForLanding` |
 
-**Four of these are re-homed, not added.** `Disposer`, `LandingStart`, `LandingContext` and `LandingHandle` are published at `sortable/feature.js` today, and `CancelStage`/`AT_*` at `sortable.js`. Every one is declared in `src/kernel/`, so the tier that owns them is the kernel; each keeps its existing publication as a **re-export**, so no ordinary or middle-tier consumer loses a specifier. The direction matters and is the point of the correction: `SettlementScope.holdForLanding` is kernel SPI, so a kernel-tier author reaching `sortable/feature.js` for `LandingStart` is importing the sortable behavior in order to author a **non**-sortable behavior — the inversion D-48 and D-64 both exist to prevent, arrived at a third time and by a third route.
+**Four of these are re-homed, not added.** `Disposer`, `LandingStart`, `LandingContext` and `LandingHandle` are published at `sortable/feature.js` today, and `CancelStage`/`AT_*` at `sortable.js` — as `CancelOrigin` and its four values are, from the day they landed. Every one is declared in `src/kernel/`, so the tier that owns them is the kernel; each keeps its existing publication as a **re-export**, so no ordinary or middle-tier consumer loses a specifier. The direction matters and is the point of the correction: `SettlementScope.holdForLanding` is kernel SPI, so a kernel-tier author reaching `sortable/feature.js` for `LandingStart` is importing the sortable behavior in order to author a **non**-sortable behavior — the inversion D-48 and D-64 both exist to prevent, arrived at a third time and by a third route.
 
 ### What stays internal, and what an author does instead
 

@@ -203,7 +203,7 @@ Re-measured at every point in the series, from repaired fixtures at commits that
 
 **What survives the correction, and it is the qualitative half.** `kernel.js` −152 B / −45 B is independently reproduced and unaffected: it is a row with no baseline in it. The D-149 and D-146 per-row deltas are unaffected for the same reason. **What does not survive is any claim that composition overhead has been falling.** It has been stable, which is the property 03 §What isolation cannot shake actually asked about — and the honest answer to that question is better than the one the broken denominator was telling.
 
-**Read the takings as one series, with F-136's correction to the middle one and F-157's to the tail**: 289 B (M-3′) → **289 B** immediately before D-146's arc → 221 B (D-146) → 222 B (D-149) → 206 B (the `install` inline) → 208 B (D-152). The 283 B figure above was a prior taking quoted as the _from_ of a later one, which is the mistake F-136 records; the ~~147 → 131 → 113~~ tail is the mistake F-157 records, and they are the same mistake at two ends — a number carried forward instead of taken.
+**Read the takings as one series, with F-136's correction to the middle one and F-157's to the tail**: 289 B (M-3′) → **289 B** immediately before D-146's arc → 221 B (D-146) → 222 B (D-149) → 206 B (the `install` inline) → 208 B (D-152) → 211 B (the error classes) → 216 B (the re-entry withdrawal) → 215 B (D-153) → **220 B (D-154)**. The 283 B figure above was a prior taking quoted as the _from_ of a later one, which is the mistake F-136 records; the ~~147 → 131 → 113~~ tail is the mistake F-157 records, and they are the same mistake at two ends — a number carried forward instead of taken.
 
 **The instrument is repaired in two places, and the second is the one that matters.** `just build` now cleans before it builds, so an output whose entrypoint was deleted cannot survive into the next build. And `tests/bench/size.node.test.ts` refuses any generated file older than its own build — scored by age rather than by name, over `files.json`'s own clean pathspecs, so the guard and `just clean-build` cannot disagree about what counts as generated. **The guard the fixture's header used to name did not cover this**: it compares `buildSlots`'s slot keys against `assemble()`, and `mount()` — the half that drifted — is called by no test at all. A fixture that would throw on its first line still bundles and still reports a number, so the drift had to be caught at the module, not at the call.
 
@@ -228,6 +228,16 @@ Re-measured at every point in the series, from repaired fixtures at commits that
 `throw REENTERED` becomes `throw null` and the symbol declaration goes. Minified falls **5–8 B** on every composition row; brotli falls on most and rises on two, so the ranges are signed: sortable rows **−17 to −9**, free-drag rows **−9 to +9**, `both behaviors` −17, `kernel.js` −5 / −1, baseline A −6 / −13. Both control rows are byte-identical. Premium **215 B, 2.03%**.
 
 **Recorded with the range convention F-165 forced.** `free drag + landing` moves **+9** against a change that only deletes — one fewer distinct token in that graph leaves the survivors compressing marginally worse, the same dictionary effect the identity withdrawal showed at larger scale. A magnitude range would have hidden it; a range that stops at its own most extreme row would have excluded it.
+
+### Cancellation provenance moves to its own field, 2026-08-29 (D-154)
+
+`origin: CancelOrigin` lands on the canceled arm of both behaviors and the three kernel `drag:` reason strings are deleted. **The premium is 220 B, 2.08%** — 10,595 against baseline A's 10,375, up 5 B from D-153's 215 B / 2.03% (10,586 against 10,371), which this taking reproduces exactly.
+
+**It rises because the plumbing is composed code and the baseline barely carries it.** Composition rows are **+22 to +23 B** minified and **+4 to +19 B** brotli; baseline A is +23 / **+4**, the smallest brotli movement of any row that moved. A field on a result costs a property at every site that builds one, and the composed rows build more of them.
+
+**`kernel.js` is the one row that shrinks in source and grows compressed** — −4 B minified, +7 B brotli — because it is the only row that publishes the four new constants and the only one that loses the three deleted literals; the composition rows import `{ sortable }` / `{ freeDrag }` by name, so the cells tree-shake out of them and their movement is entirely the field plumbing. `drag.js` and baseline B are byte-identical, which is D-154's siting decision — the origins are **not** on the vocabulary root — showing up as a control. Module topology unchanged on all fourteen rows.
+
+**One clause of the landing record does not follow from its own table, and is corrected rather than defended.** _+22 to +23 B minified on every behavior row — twice on `both behaviors`, which carries two_ predicts 44–46 B against a measured **+48**, and the row does not decompose: with `K` the shared kernel plumbing, `K + S = 23` and `K + F = 22` against `K + S + F = 48` gives `K = −3`. At this scale that residue is mangling pressure rather than a mechanism, so **the +48 is measured and not explained** — which is weaker than the sentence claimed and stronger than it needed.
 
 ## The declines
 
@@ -339,7 +349,13 @@ Ranked by own code weight rather than by rendered bytes, **three modules are 47%
 
 ## Headroom: do not re-base, and the condition that changes that
 
-Slack runs **114–154 B** against M-3′'s uniform _measurement plus ~150 B_ rule — tightest at baseline A (114) and `minimal + landing` (117), loosest on the free-drag rows (147–154), which nothing has touched since M-3′.
+~~Slack runs **114–154 B** against M-3′'s uniform _measurement plus ~150 B_ rule — tightest at baseline A (114) and `minimal + landing` (117), loosest on the free-drag rows (147–154), which nothing has touched since M-3′.~~
+
+**Re-taken 2026-08-29 (F-176): slack runs 63–630 B**, and which rows are tight has inverted. The eleven that carry a behavior run **456–630 B**; the three that do not are the tight ones — **`drag.js` 63 B** against a 205 B budget, **baseline B 151 B**, **`kernel.js` 246 B**.
+
+**The behavior rows are loose because they fell faster than their budgets were re-based down.** `minimal` was 10,738 against 10,890 at M-3′ and is 9,913 against 10,439: the ceiling came down 451 B and the row came down 825 B. `complete` is the same shape — 471 B against 852 B. That is the arc from D-146 to D-153 doing what it did, one re-base at a time, none of them wrong on its own. The figures are the fourteen-row table at [`measurements/budget-rebases.md`](measurements/budget-rebases.md) §SC-1 fires, and [SC-1](obligations.md) carries the same numbers, which is the pair this correction exists to keep in step: the register was rewritten on 2026-08-29 and this sentence was not, so for one commit the two live statements of the same quantity disagreed.
+
+**The 114–154 B reading is struck as a live figure and stands as a dated one.** It was correct when taken and it is what the paragraph below reasons from; the paragraphs after it are about the _sensitivity_ of the instrument, and that argument is unaffected — the two modules this headroom exists to catch cost 361–388 B and ~60 B, so at 63 B of slack the vocabulary root still trips on the first and not the second, exactly as it did at 117 B.
 
 **The drift is fully attributable and it is one landed change.** P-02's shrink cost +34 B on the `y()` compositions and +14 B on `minimal (xy)`, absorbed rather than re-based. **That absorption followed M-3′'s rule rather than bending it**: _a change that fits inside it silently is a change that added no module_ — and P-02 added no module. The free-drag rows did not move because P-02 does not reach them, which is itself a small confirmation that the erosion is the change it is claimed to be.
 
@@ -351,7 +367,7 @@ It would also invert the instinct D-102 ratified — _an absorbed number is a nu
 
 - a row goes negative; or
 - erosion stops being attributable to a named landed change — at which point the number to investigate is the attribution, not the budget; or
-- **L-11 lands.** `plan.md` §Phase 23 books five runtime cells onto two frozen entrypoints, and 05 §Measurements owed makes the frozen export map part of M-3 by construction, so that change re-measures M-3 whether or not it moves a byte. It is the next scheduled re-base event and it is not Phase 22's.
+- **L-11 lands.** `plan.md` §Phase 23 books five runtime cells onto two frozen entrypoints, and 05 §Measurements owed makes the frozen export map part of M-3 by construction, so that change re-measures M-3 whether or not it moves a byte. It is the next scheduled re-base event and it is not Phase 22's. **This trigger fired on 2026-08-29** — L-11 landed as D-154, not as the deliverable this bullet describes, and the M-3 re-measurement it obliges is the fourteen-row table cited above. **It re-based nothing**: a re-measurement is what the condition asks for, and a re-base is what the evidence has to earn.
 
 **Carried live as [SC-1](obligations.md) from 2026-08-22 (D-116)**, which is where a later pass reads these three. The register states them in the present tense and re-derives their citations against today's tree: `05 §Measurements owed` was never a heading in 05, so SC-1 cites [`05 §Measurements — landed 2026-08-02`](contract/05-lifecycle-invariants.md), where the frozen export map is one of the six stated reproducibility preconditions. The list above is the wording as decided and stands as it stands.
 

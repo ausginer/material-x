@@ -74,7 +74,9 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
     'FAILURE_SCHEDULED_FRAME',
     'FAILURE_TERMINAL_CALLBACK',
   ],
-  // **The kernel tier, and the whole of D-68's value half — 37 names.** Thirteen
+  // **The kernel tier, and the whole of D-68's value half — 35 names**, which is
+  // `1 + 12 + 3 + 5 + 2 + 4 + 8` and is the length of the array below rather
+  // than a number carried from the last edit (F-174). Thirteen
   // stages, not fourteen: D-41 deleted `FAILURE_PRESENTATION_READY` with the
   // readiness protocol. The other nineteen constants are what F-59 found
   // missing: `config.liftMode` needs a `LIFT_*`, `settlement.prepare` needs the

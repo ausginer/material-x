@@ -1482,7 +1482,9 @@ describe('the packed package', () => {
         'FAILURE_SCHEDULED_FRAME',
         'FAILURE_TERMINAL_CALLBACK',
       ],
-      // **37 values, asserted by value** (D-68, D-154). A type-only assertion
+      // **35 values, asserted by value** (D-68, D-154), and the count is the
+      // length of the list below — F-174 found this written at four sites with
+      // three different numbers, none of them the tree's. A type-only assertion
       // cannot see the hole F-59 names: every missing name was a *constant*,
       // and erased types cannot fill a value position.
       './kernel.js': [

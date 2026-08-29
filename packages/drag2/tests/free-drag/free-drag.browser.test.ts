@@ -32,6 +32,7 @@ import {
   cancelPointer,
   escape,
   freeDragHarness,
+  losePointerCapture,
   move,
   press,
   release,
@@ -580,6 +581,21 @@ describe('cancellation provenance', () => {
 
     activate(composed);
     cancelPointer(30, 10);
+    await settled();
+
+    expect(composed.ends[0]).toMatchObject({ origin: CANCEL_INTERRUPTED });
+  });
+
+  it('should mark lost pointer capture as interrupted', async () => {
+    // **The pair the decision is argued from, pinned in the behavior whose
+    // provenance is entirely `origin`.** The kernel routes both DOM spellings
+    // through one shared `case`; without this row the free-drag suite stays
+    // green against a kernel that splits them, which is the one mutation the
+    // other two suites catch and this one did not.
+    const composed = compose();
+
+    activate(composed);
+    losePointerCapture(30, 10);
     await settled();
 
     expect(composed.ends[0]).toMatchObject({ origin: CANCEL_INTERRUPTED });

@@ -74,6 +74,13 @@ export type CancelStage = typeof AT_PROPOSAL | typeof AT_CONSUMER;
 // different questions: `origin` is *who decided*, `stage` is *when*, `reason`
 // is *what the decider had to say* and stays open.
 //
+// **`origin` names the cancellation that decided the terminal, not every fault
+// the operation met.** A failure raised while a cancellation is already latched
+// is refused its classification and surfaces as a `DraggableWarning` — the
+// cancel owns the terminal — so the origin stays whatever cancelled, typically
+// `CANCEL_SUPPLIED`. `onError` is the channel that answers *did anything go
+// wrong*; this field answers *what ended it*.
+//
 // The numbers are stable on the same terms as the failure stages — a constant
 // is inlined into a consumer's compiled code, so none is ever repointed and
 // none retired is ever reused.
@@ -86,6 +93,11 @@ export const CANCEL_INTERRUPTED = 32;
 /**
  * A classified failure decided the operation. `reason` carries the value that
  * was thrown, and `onError` has already fired.
+ *
+ * **The converse does not hold**: a failure that arrived while a cancellation
+ * was already latched did not decide anything, so it is reported separately and
+ * the origin is the cancellation's. Branching on this value to ask *did
+ * something break* under-reports; `onError` is what answers that.
  */
 export const CANCEL_FAILED = 33;
 

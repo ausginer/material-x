@@ -706,6 +706,11 @@ describe('the composed terminal protocol', () => {
     activate(composed);
 
     expect(composed.cancels).toHaveLength(1);
+    // **The terminal belongs to the cancel, and so does its provenance**
+    // (F-178). The operation both cancelled and threw; `origin` names what
+    // decided it, not everything that happened to it, so a consumer asking
+    // *did something break* has to read `onError` and not this field.
+    expect(composed.cancels[0]).toMatchObject({ origin: CANCEL_SUPPLIED });
     expect(composed.placeholder()).toBeNull();
     expect(composed.errors).toHaveLength(1);
     expect(composed.errors[0]).toBeInstanceOf(DraggableWarning);
