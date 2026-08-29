@@ -2140,6 +2140,28 @@ The guard is **not** reopened: D-153 settles that it stays, as the enforcement p
 
 **Q-L1 is parked behind it, and its contract is not wasted.** Arm A is a closer counterfactual to Q-L2 than to the question it was written for; arm B may be optimizing a thing that should not exist, and building it first is the waste the parking avoids. That Q-L1 took the hold's existence as its premise is the third instance of the pattern **F-168** named.
 
+### Q-L2 settled: the relinquished tail, 2026-08-29 (D-155; F-187, F-188)
+
+**Decided, not implemented** — [`reviews/phase-23/ql2-presentation-tail-claude.md`](reviews/phase-23/ql2-presentation-tail-claude.md).
+
+**The binary hid two objects.** An **exclusive lease on consumer-owned state** — the element `fixed` in the top layer under a style lease, a library placeholder in the consumer's list — is a claim only the library can end, and **keeping the operation alive is the necessary mechanism for holding one past the terminal**. An **interpolation** claims nothing and needs no operation. Both halves of the owner's question are right about different things.
+
+**T1 is rejected and it is what the obvious reading becomes.** Deferring the lease past the terminal fires `onEnd` — the ordinary place a framework re-renders its list — while a library placeholder is still in that list. It keeps every hazard the gate protects against and removes the protection. **T2 is accepted**: release presentation completely at the pin, then interpolate as a **WAAPI effect on the element in flow**. It is sound because **it owns nothing that needs releasing** — no fill, nothing in `style`, self-reverting, one call to cancel, dies with the element. No lease; only a cancel handle.
+
+**Six of the eight cases improve.** Removal, reparenting and replacement need no handling at all, where today a removal mid-landing leaves a lease on a detached node — I-7's own case. `destroy()` cancels and leaves I-7 without a subject. The one new obligation is a **cancel at `acquireLift`**, because an animation outranks inline styles in the cascade. **The release-before-terminal ordering is unchanged, and it is the invariant that decides T1 against T2.**
+
+**Three gains that are not size**: an interrupted interpolation is not a failure, so `FAILURE_LANDING_INTERRUPTED` and `FAILURE_LANDING_CREATE` lose their producers and a cosmetic fault can no longer reach a semantic result; the pin and the animation cannot disagree **by construction**; `destroy()` settles sooner.
+
+**One statement is owed the consumer**, since a WAAPI effect outranks a consumer `transform` write: _the terminal means the semantic transaction is complete and the DOM is the consumer's again; it does not mean every pixel has stopped moving._
+
+**`landing()` survives as a policy object** — duration, easing, reduced-motion collapse — and stops being a lifecycle participant. A CSS-transition variant is **declined on ownership, not rendering**: it leaves residue something must remove, which is the obligation T2 has none of.
+
+**The price, stated rather than buried**: the tail animates **in flow**, so it can be occluded and scrolls with the list. Staying in the top layer means holding the popover, which is T1. **If that is rejected the gate is right — and the recorded reason becomes _the top layer is a lease and a lease needs an operation_**, which is better than the reason recorded today.
+
+**F-187**: an accepted free drag holds the controller inert 200 ms to animate **zero distance** — `anchorTarget` returns the current position, `DEFAULT_DURATION` is flat, nothing short-circuits a zero delta. Dissolved by D-155 as a side effect, recorded separately because it is a defect under any decision that keeps the gate. **F-188**: the sound form was reachable only by naming the unsound one — the check is _what would this hold after the terminal?_, never _how long would this last?_
+
+**Q-L1's contract is repurposed, not resumed.** Arm A becomes **A′**, D-155's removal floor; **A″** adds the tail back so the net is a measured number rather than a subtraction. Arms B and C are withdrawn. **The measurement is not a gate on D-155** — the contract is settled on the lifecycle argument and the numbers inform sequencing.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.
