@@ -449,7 +449,13 @@ function bufferBytes(count: number, thenRetire: boolean): number {
 
   const snapshot: CollectionSnapshot = { items, version: 1 };
 
-  index.refresh(snapshot, items[0]!, null, () => true);
+  // The placeholder is one more detached element, measured into `hole` by the
+  // same scan. It is not a slot, so it moves nothing this arm reads: `hole` is
+  // a fixed `STRIDE` allocated once with the record, and `values` — the only
+  // buffer here — is still sized by the candidate count alone.
+  const placeholder = document.createElement('div');
+
+  index.refresh(snapshot, items[0]!, null, () => true, placeholder, null);
 
   if (thenRetire) {
     index.retire();

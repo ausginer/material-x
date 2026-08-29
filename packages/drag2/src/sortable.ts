@@ -16,15 +16,9 @@
  * them.
  */
 import { draggable } from './kernel.ts';
-import type { Composed, UniqueSlot } from './shared/composition.ts';
 import { createComposedSortableBehavior } from './sortable/behavior.ts';
 import type { SortableConfig } from './sortable/config.ts';
 import type { SortableController } from './sortable/controller.ts';
-import type {
-  AxisContribution,
-  LandingContribution,
-  SortablePluginContribution,
-} from './sortable/feature.ts';
 
 export type { SortableController } from './sortable/controller.ts';
 /**
@@ -47,18 +41,19 @@ export type {
 /**
  * **The installer slots' aliases, published here.** Each is named by
  * `SortableConfig` — `axis` by `AxisInstaller`, `landing?` by
- * `SortableLandingInstaller`, `plugins?` by `SortablePlugin` — so a consumer
- * who writes one can hoist it into a typed `const` rather than only fill the
- * slot inline. **Three of them**, because each key carries its own installer
- * and therefore its own contribution group. Their own closure —
+ * `SortableLandingInstaller`, `displacement?` by
+ * `SortableDisplacementInstaller` — so a consumer who writes one can hoist it
+ * into a typed `const` rather than only fill the slot inline. **Three of them**,
+ * because each key carries its own installer and therefore its own contribution
+ * group. Their own closure —
  * `FeatureContext`, `AxisContribution`, `InsertionGeometry` — stays declared at
  * `sortable/feature.js`: this publishes the **names**, not the tier. Typing an
  * ordinary-tier config slot must never require importing the middle tier.
  */
 export type {
   AxisInstaller,
+  SortableDisplacementInstaller,
   SortableLandingInstaller,
-  SortablePlugin,
 } from './sortable/feature.ts';
 /**
  * The cancellation stages, as **values as well as a type**, for the same reason
@@ -128,37 +123,6 @@ export type {
 export { ReorderResolution } from './sortable/domain.ts';
 
 /**
- * **The composition check, applied to one config or fragment.**
- *
- * An installer may contribute only the slots its position is read for: the
- * assembler reads `insertion` from `axis` and `startLanding` from `landing`,
- * positionally, and the plugin loop reads the multi-writer slots and nothing
- * else. So an axis installer passed as a plugin is not a second writer — it is
- * one writer at a position that is never read, and its capability is silently
- * absent. This intersects a refusal into exactly those entries, and leaves
- * every legitimate multi-writer plugin as it is.
- *
- * Erased entirely, and named by the signature below rather than by any config
- * slot, so an ordinary consumer never writes it.
- */
-export type SortableComposition<T> = T extends { plugins?: infer P }
-  ? Readonly<{
-      plugins?: Composed<
-        P,
-        // The unique slots, **derived from the groups themselves** — every key
-        // a sibling group declares and the plugin group does not, so a
-        // capability added later joins the set by being declared. Written here
-        // rather than as its own alias: an intermediate name would be a second
-        // published type whose only role is to be substituted into this one.
-        UniqueSlot<
-          AxisContribution | LandingContribution,
-          SortablePluginContribution
-        >
-      >;
-    }>
-  : unknown;
-
-/**
  * Composes one sortable behavior **and returns its controller**. It takes the
  * ingress root itself, so an ordinary consumer never names the kernel tier.
  *
@@ -177,6 +141,10 @@ export type SortableComposition<T> = T extends { plugins?: infer P }
  * `undefined`, so `{ axis: undefined }` in a `Partial` leaves the merged slot
  * as the first argument set it.
  *
+ * **Every slot is a named key with one writer**, so there is no positional
+ * composition check left to apply: two producers of a capability are
+ * unrepresentable rather than diagnosed.
+ *
  * The installers run **once**, when the behavior is installed and a realm
  * exists — and their contributions are then dropped. Nothing retains a
  * contribution object afterwards: only the flat slot record and the closures it
@@ -187,13 +155,10 @@ export type SortableComposition<T> = T extends { plugins?: infer P }
  * feature that wants live policy updates has to be given a controller method by
  * the *behavior*; it cannot contribute one.
  */
-export function sortable<
-  const C extends SortableConfig,
-  const F extends ReadonlyArray<Partial<SortableConfig>>,
->(
+export function sortable(
   root: HTMLElement,
-  config: C & SortableComposition<C>,
-  ...fragments: { [I in keyof F]: F[I] & SortableComposition<F[I]> }
+  config: SortableConfig,
+  ...fragments: ReadonlyArray<Partial<SortableConfig>>
 ): SortableController {
   return draggable(root, createComposedSortableBehavior(config, fragments));
 }

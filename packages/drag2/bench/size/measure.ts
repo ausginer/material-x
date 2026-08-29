@@ -204,18 +204,18 @@ const withoutAxis = (kept: 'sortable/y.js' | 'sortable/xy.js'): string =>
   kept === 'sortable/y.js' ? 'sortable/xy.js' : 'sortable/y.js';
 
 /**
- * **The verified incremental refresh, and it is `y()`'s alone.** It is
- * `y()`-only *by contract* — `xy()`'s wrapping flow makes `δ` neither scalar
- * nor uniform — so an `xy()` composition reaching this module would be
- * carrying an optimization it can never execute.
+ * **The linear shift rule, and it is `y()`'s alone.** It is `y()`-only *by
+ * contract* — `xy()` wraps, so the displacement is neither scalar nor uniform
+ * and that axis measures instead — so an `xy()` composition reaching this
+ * module would be carrying a rule it can never execute.
  *
  * A peer of {@link withoutAxis} rather than folded into it, because it is a
  * different claim: the unselected axis is absent because exactly one installs,
- * and this is absent because a feature's private optimization may not travel
- * in the shared cache the two axes are deliberately built to share. Folding it
- * into that cache costs a minimal `xy()` composition 288 B.
+ * and this is absent because a feature's private rule may not travel in the
+ * shared cache the two axes are deliberately built to share. Folding it into
+ * that cache costs a minimal `xy()` composition 288 B.
  */
-const P06 = 'sortable/verified-refresh.js';
+const P06 = 'sortable/linear-shift.js';
 
 const without = (...kept: readonly string[]): readonly string[] =>
   OPTIONAL.filter((module) => !kept.includes(module));

@@ -30,7 +30,7 @@ const config: UserConfig = defineConfig({
   // `__DEV__` folds to `false`, the guarded blocks become dead code and the
   // minifier removes them. Measured in M-3 — 330 bytes of 9.66 kB on the
   // minimal fixture. **One tier reads it** (D-101, D-108):
-  // `src/sortable/verified-refresh.ts`'s per-frame equivalence instrument. The
+  // `src/sortable/linear-shift.ts`'s per-frame equivalence instrument. The
   // kernel's author-facing checks are unconditional and ship.
   define: { __DEV__: 'false' },
   unbundle: true,

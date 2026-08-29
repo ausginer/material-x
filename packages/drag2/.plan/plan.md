@@ -2236,6 +2236,35 @@ Documents only; the implementation WIP was read as evidence and left untouched.
 
 ---
 
+### 2026-08-29 — D-156 and D-157 implemented, as amended
+
+The predictive displacement model as it actually landed. D-155 is untouched and stays deferred; F-203 is not folded in.
+
+**What the runtime is now.** A committed move is `project → write → displace` when the linear constant is known, and `project → write → measure → displace` when it is not. `linear-shift.ts` — the renamed `verified-refresh.ts` — holds the scalar span rule parameterized by the axis's stride offsets and unit vector, and **measures its constant once per operation** as one crossed row's own displacement across one committed move, re-measuring after each invalidation. `xy()` fills `measure` and not `project`: it snapshots the warm cache's origins, rebuilds after the write, and produces the plan from the difference — one list-wide measurement per committed move where the old bracket paid two. `rect-index.ts` caches the placeholder rect per rebuild and subtracts the sink's own contribution per candidate, so a rebuild yields **settled** geometry while animations run. `layout-animation.ts` keeps a `Map` per element, **folds** on retarget, and publishes `contribution` from `getComputedTiming()` with no layout read. `plugins`, `SortablePluginContribution`, `SortablePlugin` and `SortableComposition` are deleted; `displacement` is a named key.
+
+**One thing the amendment did not name and the implementation had to settle.** The hole's own advance was also a cross-element form — `values[gap] - d` — so it is now a **sum over the crossed slots' own extents**, which is the same number in flow and G5-clean. And the equivalence instrument compares **exactly** where no sink is installed and with `1/256 px` of slack where a contribution was subtracted: the subtraction reintroduces float error of order `1e-6 px`, six orders below the smallest disagreement a broken rule produces. The instrument also resolves the **box** rather than the item, without which a composition whose `box` is a descendant fails it correctly but for the wrong reason.
+
+**Evidence.** `zero-read.browser.test.ts` (7 cases) states the amended claim executably: one row on the establishing linear move, **zero** on every later committed move in `minimal` and `+ layoutAnimation`, `COUNT` reads for `xy()`'s single rebuild, **zero** on a warm spatial frame in every composition, and an invalidation control that shows the reads return. `g3-conformance.browser.test.ts` keeps the positive linear fixtures, adds two `xy()` layouts that the cellular rule got wrong and a measured rebuild simply sees, and holds two **negatives** — a two-column grid and a varying-margin column, both driven with `y()` — where the instrument must be caught disagreeing. `displacement.browser.test.ts` pins the fold, the continuity across an interruption, and that a composition which animates reads **exactly what the same drag reads without it**. The authored-`translate` and authored-`rotate` acceptance cases pass unchanged, which was the acceptance criterion.
+
+**Size, joint, `free drag minimal` as the declared control.** Minified → Brotli, before → after:
+
+| Composition | minified | Brotli |
+| --- | --- | --- |
+| minimal | 29,314 → 29,279 (−35) | 9,913 → 10,032 (**+119**) |
+| minimal (xy) | 28,127 → 28,688 (+561) | 9,580 → 9,809 (**+229**) |
+| minimal + layoutAnimation | 30,699 → 30,107 (−592) | 10,353 → 10,340 (**−13**) |
+| minimal + landing | 29,997 → 29,960 (−37) | 10,178 → 10,285 (**+107**) |
+| complete | 31,382 → 30,791 (−591) | 10,595 → 10,570 (**−25**) |
+| **free drag minimal (control)** | 22,174 → 22,174 (0) | 7,750 → 7,750 (**0**) |
+
+The control is byte-identical, as are `free drag + bounds`, `+ landing`, `free drag complete`, `drag.js`, `kernel.js` and baseline B — this pass reaches no free-drag or kernel module and the instrument agrees. Every row is under budget; module counts are unchanged everywhere. **The two directions disagree and the Brotli column governs**: the linear rows grew because a measured constant is machinery a derived one did not need, and `minimal (xy)` grew most because that axis gained a scratch buffer and a post-write rebuild it did not have. `layoutAnimation` and `complete` shrank in both columns — the sink lost its measurement half.
+
+**Runtime, which is the result that justifies the work.** The `complete` profiling fixture, the same scripted 60-frame drag driven against both trees, 118 animation frames in a ~1 s window either way: `UpdateLayoutTree` **114 → 61**, `Layout` **15 → 11**. The mechanism F-195 names is gone — the per-frame placeholder read — and what remains is the establishing row read and `xy()`'s rebuild, neither of which is per frame.
+
+**What could not be proven.** The `18/36` against `44/44` figures in the register were recorded from a different driver, so the absolute per-frame ratio is not comparable; the joint before/after above is measured against the same driver instead and is the honest comparison. `x()` does not ship, as D-157 requires — only the parameterization.
+
+---
+
 ---
 
 ---

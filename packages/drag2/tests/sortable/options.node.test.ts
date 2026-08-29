@@ -169,15 +169,18 @@ describe('the merge', () => {
     ).toMatchObject({ items: config.items, onReorder: config.onReorder });
   });
 
-  it('should append plugins from the required argument and the fragments alike', () => {
-    const first = (): Record<string, never> => ({});
-    const second = (): Record<string, never> => ({});
+  it('should let a later fragment replace the displacement slot', () => {
+    // **There is no appending slot left.** `plugins` was the one position with
+    // unbounded arity and it went with the bracket it existed for, so every
+    // key — displacement included — is one writer and last-wins (D-157).
+    const first = (): never => null as never;
+    const second = (): never => null as never;
 
     expect(
-      mergeFragments({ ...required(), plugins: [first] }, [
-        { plugins: [second] },
-      ]).plugins,
-    ).toEqual([first, second]);
+      mergeFragments({ ...required(), displacement: first }, [
+        { displacement: second },
+      ]).displacement,
+    ).toBe(second);
   });
 });
 

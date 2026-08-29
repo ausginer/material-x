@@ -3,8 +3,8 @@
  *
  * Everything here runs once, before a controller exists — there is no kernel,
  * no operation and no frame in sight. What is being pinned is the composition
- * model: the two normalization rules, the two hook orders, the ledger's
- * storage order, and an unwind that is total rather than nearly total.
+ * model: the two normalization rules, the retire ledger's storage order, and
+ * an unwind that is total rather than nearly total.
  *
  * ~~single-writer enforcement~~ — deleted with `claim` (D-146). A unique slot
  * is declared on one contribution group, so a second writer is unrepresentable
@@ -22,18 +22,15 @@ import {
 import type {
   AxisContribution,
   AxisInstaller,
+  DisplacementContribution,
   FeatureContext,
   InsertionGeometry,
   LandingContribution,
+  SortableDisplacementInstaller,
   SortableLandingInstaller,
-  SortablePlugin,
-  SortablePluginContribution,
 } from '../../src/sortable/feature.ts';
-import {
-  DEFAULT_THRESHOLD,
-  type DisplacementView,
-  NOOP_START,
-} from '../../src/sortable/slots.ts';
+import type { DisplacementPlan } from '../../src/sortable/linear-shift.ts';
+import { DEFAULT_THRESHOLD, NOOP_START } from '../../src/sortable/slots.ts';
 import { xy } from '../../src/sortable/xy.ts';
 import { y } from '../../src/sortable/y.ts';
 
@@ -59,16 +56,11 @@ const createFixture = (): Fixture => {
   };
 };
 
-/**
- * A **plugin** contributing exactly what it is handed, and since D-146 the type
- * is what says so: the unbounded position declares multi-writer slots and
- * nothing else, so no fixture here can express the collision `claim` used to
- * arbitrate.
- */
-const feature =
-  (contribution: SortablePluginContribution): SortablePlugin =>
-  () =>
-    contribution;
+// ~~the unbounded `plugins` position~~ — **deleted with the plugin types
+// themselves** (D-157). The fixture that stood here contributed whatever it was
+// handed from a position no config key declares any more; every installer below
+// arrives through the one named key that produces its slot, which is what makes
+// each slot's cardinality a fact about the schema rather than about arbitration.
 
 /**
  * The same, typed as the **axis** key's installer (D-77, D-146). Its group
@@ -87,11 +79,31 @@ const landingFeature =
   () =>
     contribution;
 
+/**
+ * The `displacement` key's installer, the sole consumer of an axis's plan and
+ * the last of the three groups the assembler visits.
+ */
+const displacementFeature =
+  (contribution: DisplacementContribution): SortableDisplacementInstaller =>
+  () =>
+    contribution;
+
+/** A plan that visits nothing — what an axis with nothing to displace returns. */
+const nothing: DisplacementPlan = (): void => {};
+
+/** A sink holding nothing, which is all the assembly probes need it to say. */
+const noContribution = (_element: HTMLElement, out: Float64Array): void => {
+  out[0] = 0;
+  out[1] = 0;
+};
+
 const geometry = (
   overrides: Partial<InsertionGeometry> = {},
 ): InsertionGeometry => ({
   resolve: () => null,
   invalidate: (): void => {},
+  project: () => nothing,
+  measure: () => nothing,
   retire: (): void => {},
   ...overrides,
 });
@@ -104,43 +116,48 @@ const onReorder = (): never => {
  * A merged config, which is what `assemble` takes since D-45. The axis slot is
  * the one required installer; everything a fragment used to contribute through
  * a `callbacks()` feature is now an ordinary config key, and every other
- * installer is a plugin.
+ * installer arrives through the named key that produces its slot.
  */
-const config = (
-  extra: Partial<SortableConfig> = {},
-  ...plugins: readonly SortablePlugin[]
-): SortableConfig =>
+const config = (extra: Partial<SortableConfig> = {}): SortableConfig =>
   mergeFragments(
     {
       items: (): readonly HTMLElement[] => [],
       onReorder,
       axis: axisFeature({ insertion: geometry() }),
     },
-    [extra, { plugins }],
+    [extra],
   );
 
 /** The bare valid composition. */
 const required = (): SortableConfig => config();
 
-const view = null as unknown as DisplacementView;
+/** A landing runner that does nothing but exist. */
+const landingRunner = (): LandingHandle => ({ destroy: (): void => {} });
 
 describe('assemble', () => {
   it('should flatten the geometry members into slot fields', () => {
     // The pairing is a construction-time claim, so the call sites stay one
     // property read and one call rather than `slots.insertion.resolve(…)`.
-    // All four members are flattened; the two required ones are asserted by
-    // identity here, and `retire` is covered where the unwind drives it.
+    // All four members are flattened; the three unconditional ones are
+    // asserted by identity here, and `retire` is covered where the unwind
+    // drives it. `project` joined them when D-157 made prediction the axis
+    // key's side of the bargain — there is no optional member left, so no slot
+    // here is nullable and the bracket calls it with no branch.
     const resolve = (): null => null;
     const invalidate = (): void => {};
+    const project = (): DisplacementPlan => nothing;
     const slots = assemble(
       config({
-        axis: axisFeature({ insertion: geometry({ resolve, invalidate }) }),
+        axis: axisFeature({
+          insertion: geometry({ resolve, invalidate, project }),
+        }),
       }),
       createFixture().context,
     );
 
     expect(slots.resolveInsertion).toBe(resolve);
     expect(slots.invalidateInsertion).toBe(invalidate);
+    expect(slots.projectInsertion).toBe(project);
   });
 
   it('should normalize onStart to the shared no-op', () => {
@@ -212,31 +229,44 @@ describe('assemble', () => {
     expect(slots.startLanding).toBeNull();
   });
 
-  it('should collect displacement hooks in installation order', () => {
-    const seen: string[] = [];
-    const hook = (name: string) => (): void => {
-      seen.push(name);
-    };
+  it('should flatten the displacement members into slot fields', () => {
+    // ~~*should collect displacement hooks in installation order*~~ — **the
+    // property it drove is unrepresentable since D-157**, not merely untested.
+    // Two plugins accumulating into `beforeMove`/`afterMove` needed both an
+    // unbounded position and a pair of arrays; the sink is one named key now,
+    // so there is no second writer to order against and no array to append to.
+    //
+    // What survives is the lift, which is the same construction-time claim the
+    // geometry's makes: `apply` and `settle` become two flat fields, by
+    // identity, so the committed-move bracket is one property read and one
+    // call.
+    const apply = (): void => {};
+    const settle = (): void => {};
     const slots = assemble(
-      config(
-        {},
-        feature({
-          beforeInsertionMove: hook('before-1'),
-          afterInsertionMove: hook('after-1'),
+      config({
+        displacement: displacementFeature({
+          apply,
+          contribution: noContribution,
+          settle,
         }),
-        feature({
-          beforeInsertionMove: hook('before-2'),
-          afterInsertionMove: hook('after-2'),
-        }),
-      ),
+      }),
       createFixture().context,
     );
 
-    for (const each of [...slots.beforeMove, ...slots.afterMove]) {
-      each(view);
-    }
+    expect(slots.displace).toBe(apply);
+    expect(slots.settleDisplacement).toBe(settle);
+  });
 
-    expect(seen).toEqual(['before-1', 'before-2', 'after-1', 'after-2']);
+  it('should leave the displacement slots null when uninstalled', () => {
+    // Nullable rather than normalized to a no-op pair, and for the opposite
+    // reason to `onStart`'s: the committed-move bracket already branches on
+    // the move having advanced, so the null check costs nothing there, while a
+    // normalized sink would run a call per committed move in every composition
+    // that displaces nothing.
+    const slots = assemble(required(), createFixture().context);
+
+    expect(slots.displace).toBeNull();
+    expect(slots.settleDisplacement).toBeNull();
   });
 
   it('should expose retire hooks in installation order', () => {
@@ -251,16 +281,29 @@ describe('assemble', () => {
     const push = (name: string) => (): void => {
       seen.push(name);
     };
+    // **Installation order is schema order** (D-157): axis, then landing, then
+    // displacement — written out by the assembler rather than driven by a loop
+    // over a heterogeneous array, so the order below is a property of the
+    // schema and not of the order these keys appear in the literal. The axis's
+    // own two hooks bracket that: its geometry's `retire` is recorded before
+    // anything under it can throw, so it is the last to run.
     const slots = assemble(
-      config(
-        {
-          axis: axisFeature({
-            insertion: geometry({ retire: push('geometry') }),
-          }),
-        },
-        feature({ retire: push('second') }),
-        feature({ retire: push('third') }),
-      ),
+      config({
+        axis: axisFeature({
+          insertion: geometry({ retire: push('geometry') }),
+          retire: push('axis'),
+        }),
+        displacement: displacementFeature({
+          apply: (): void => {},
+          contribution: noContribution,
+          settle: (): void => {},
+          retire: push('displacement'),
+        }),
+        landing: landingFeature({
+          startLanding: landingRunner,
+          retire: push('landing'),
+        }),
+      }),
       createFixture().context,
     );
 
@@ -268,27 +311,29 @@ describe('assemble', () => {
       slots.retireHooks[i]!();
     }
 
-    expect(seen).toEqual(['third', 'second', 'geometry']);
+    expect(seen).toEqual(['displacement', 'landing', 'axis', 'geometry']);
   });
 
   it('should return the slot record and nothing else', () => {
     // The contribution objects are dropped: no contribution key — `insertion`,
-    // `retire`, `beforeInsertionMove` — survives onto the slots.
+    // `retire`, `apply` — survives onto the slots, and the members that do
+    // arrive are renamed to what the behavior calls them.
     const slots = assemble(
-      config(
-        {},
-        feature({
+      config({
+        displacement: displacementFeature({
+          apply: (): void => {},
+          contribution: noContribution,
+          settle: (): void => {},
           retire: (): void => {},
-          beforeInsertionMove: (): void => {},
         }),
-      ),
+      }),
       createFixture().context,
     );
 
     expect(Object.keys(slots).toSorted()).toEqual([
-      'afterMove',
-      'beforeMove',
       'box',
+      'contribution',
+      'displace',
       'handle',
       'invalidateInsertion',
       'items',
@@ -298,8 +343,10 @@ describe('assemble', () => {
       'onReorder',
       'onStart',
       'placeholder',
+      'projectInsertion',
       'resolveInsertion',
       'retireHooks',
+      'settleDisplacement',
       'startLanding',
       'threshold',
       'visual',
@@ -385,24 +432,32 @@ describe('assemble unwind', () => {
     };
     const fixture = createFixture();
 
+    // **The thrower is the last key the assembler visits** (D-157). With the
+    // unbounded position gone there is no arbitrary installer slot left to fail
+    // from the middle of; what a later failure has to unwind is every earlier
+    // *key*, and `displacement` is the one with two of them beneath it.
     expect(() =>
       assemble(
-        config(
-          {},
-          feature({ retire: push('first') }),
-          feature({ retire: push('second') }),
-          () => {
+        config({
+          axis: axisFeature({
+            insertion: geometry({ retire: push('geometry') }),
+            retire: push('axis'),
+          }),
+          landing: landingFeature({
+            startLanding: landingRunner,
+            retire: push('landing'),
+          }),
+          displacement: () => {
             throw new Error('factory');
           },
-          feature({ retire: push('never installed') }),
-        ),
+        }),
         fixture.context,
       ),
     ).toThrow(/factory/u);
 
-    // Reverse, and total: a later factory failing must not leak an earlier
+    // Reverse, and total: a later installer failing must not leak an earlier
     // feature's private state.
-    expect(seen).toEqual(['second', 'first']);
+    expect(seen).toEqual(['landing', 'axis', 'geometry']);
   });
 
   // ~~*should retire the rejected contribution of a colliding installer*~~ —
@@ -472,27 +527,32 @@ describe('assemble unwind', () => {
     //
     // What replaced it is the flat slot record's dereference of the resolver,
     // and **where that dereference happens is the whole test**: it is built
-    // inside the unwind bracket, so a plugin that allocated before it fires is
+    // inside the unwind bracket, so a key that installed before it fires is
     // still retired. Building the record after the bracket would still throw
     // and would leak every installer that already ran — which is why asserting
     // the throw alone is not enough, and why this assertion is paired.
+    //
+    // The witness is `landing`, which the assembler visits after `axis` and
+    // before the record: the axis's own guarded hook push records nothing here,
+    // precisely because there is no geometry to take a `retire` off.
     const seen: string[] = [];
 
     expect(() =>
       assemble(
-        config(
-          { axis: (() => ({})) as unknown as SortableConfig['axis'] },
-          feature({
+        config({
+          axis: (() => ({})) as unknown as SortableConfig['axis'],
+          landing: landingFeature({
+            startLanding: landingRunner,
             retire: (): void => {
-              seen.push('plugin');
+              seen.push('landing');
             },
           }),
-        ),
+        }),
         createFixture().context,
       ),
     ).toThrow(TypeError);
 
-    expect(seen).toEqual(['plugin']);
+    expect(seen).toEqual(['landing']);
   });
 
   it('should report a throwing unwind hook and continue', () => {
@@ -502,22 +562,23 @@ describe('assemble unwind', () => {
 
     expect(() =>
       assemble(
-        config(
-          {},
-          feature({
+        config({
+          axis: axisFeature({
+            insertion: geometry(),
             retire: (): void => {
               seen.push('outer');
             },
           }),
-          feature({
+          landing: landingFeature({
+            startLanding: landingRunner,
             retire: (): void => {
               throw nested;
             },
           }),
-          () => {
+          displacement: () => {
             throw new Error('factory');
           },
-        ),
+        }),
         fixture.context,
       ),
     ).toThrow(/factory/u);
@@ -532,14 +593,16 @@ describe('assemble unwind', () => {
     const seen: string[] = [];
 
     assemble(
-      config(
-        {},
-        feature({
+      config({
+        displacement: displacementFeature({
+          apply: (): void => {},
+          contribution: noContribution,
+          settle: (): void => {},
           retire: (): void => {
             seen.push('retire');
           },
         }),
-      ),
+      }),
       createFixture().context,
     );
 

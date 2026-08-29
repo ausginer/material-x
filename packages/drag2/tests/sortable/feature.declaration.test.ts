@@ -6,33 +6,18 @@
  */
 import { describe, expectTypeOf, it } from 'vitest';
 import type { LandingStart, SettlementScope } from '../../src/kernel/spec.ts';
-import type {
-  LandingContribution,
-  UniqueSlot,
-} from '../../src/shared/composition.ts';
-import type { ItemSource } from '../../src/sortable/config.ts';
-import type { OnReorder } from '../../src/sortable/domain.ts';
+import type { LandingContribution } from '../../src/shared/composition.ts';
 import type {
   AxisContribution,
   AxisInstaller,
+  DisplacementContribution,
   InsertionGeometry,
   SortableLandingInstaller,
-  SortablePlugin,
-  SortablePluginContribution,
 } from '../../src/sortable/feature.ts';
-import type { DisplacementView } from '../../src/sortable/slots.ts';
-import { sortable } from '../../src/sortable.ts';
 
 declare const insertion: InsertionGeometry;
 declare const start: LandingStart;
 declare const dispose: () => void;
-declare const axisInstaller: AxisInstaller;
-declare const landingInstaller: SortableLandingInstaller;
-declare const plugin: SortablePlugin;
-declare const otherPlugin: SortablePlugin;
-declare const root: HTMLElement;
-declare const items: ItemSource;
-declare const onReorder: OnReorder;
 
 describe('AxisInstaller', () => {
   it('should accept a function literal authored outside the package', () => {
@@ -67,205 +52,69 @@ describe('AxisInstaller', () => {
     void installer;
   });
 
-  it('should carry the displacement hooks, which are multi-writer', () => {
-    // The half the per-key model deliberately keeps: a multi-writer slot may be
-    // declared on more than one group, because more than one writer is the
-    // point.
+  it('should carry the geometry and its disposer and nothing else', () => {
+    // **D-157 emptied this group of everything but its one slot.**
+    // ~~`beforeInsertionMove` / `afterInsertionMove`~~ were the multi-writer
+    // half the per-key model kept; the displacement feature now consumes a plan
+    // the geometry itself projects, so the axis declares the capability and no
+    // hooks around it. What is left is the cardinality statement and the
+    // installer's own teardown.
     expectTypeOf<keyof AxisContribution>().toEqualTypeOf<
-      'insertion' | 'beforeInsertionMove' | 'afterInsertionMove' | 'retire'
+      'insertion' | 'retire'
     >();
   });
 });
 
-describe('SortablePlugin', () => {
-  it('should carry multi-writer slots only', () => {
-    // **The unbounded position reaches no unique slot** (D-146), and it reaches
-    // none because it declares none — `layoutAnimation()` is the shape this
-    // group exists for.
-    expectTypeOf<keyof SortablePluginContribution>().toEqualTypeOf<
-      'beforeInsertionMove' | 'afterInsertionMove' | 'retire'
+/**
+ * **The sortable's `plugins` position is withdrawn** (D-157). Three rows stood
+ * here — that the group carried multi-writer slots only, that it did not refuse
+ * a unique slot at the group alone, and that it accepted a hook it declared.
+ * All three were properties of an unbounded position, and there is no unbounded
+ * position left to have them: the one feature that used it arrives through the
+ * named `displacement` key below, whose cardinality is the key rather than a
+ * check. The rows are deleted rather than re-pointed, because re-pointing them
+ * would assert of a single-writer key a property only a multi-writer one can
+ * have. Free drag keeps its `plugins`, and
+ * `tests/composition.declaration.test.ts` keeps that half.
+ */
+
+describe('SortableDisplacementInstaller', () => {
+  it('should carry the plan consumer, the probe, the cancel and nothing else', () => {
+    // **The named key's cardinality, stated as its group.** The group is
+    // exactly the three calls the behavior and the axis make — `apply` inside
+    // the committed-move bracket, `contribution` from a rebuild that has to see
+    // through what this sink is currently drawing, `settle` before release
+    // measures — plus the installer's own teardown. It declares no geometry of
+    // its own: it consumes the plan and answers for its own offsets, which is
+    // why two of them would be a collision rather than an accumulation and why
+    // this is a key instead of an array entry.
+    expectTypeOf<keyof DisplacementContribution>().toEqualTypeOf<
+      'apply' | 'contribution' | 'settle' | 'retire'
     >();
   });
-
-  it('should not refuse a unique slot at the group alone', () => {
-    // **F-132, stated rather than papered over.** ~~`should refuse a unique
-    // slot from the unbounded position`~~ asserted that `() => ({ insertion })`
-    // is rejected here, and it is — by **weak-type detection**, which fires
-    // only because that literal shares *no* member with an all-optional target.
-    // F-74/CE1-01 records that as not a boundary, and this row is the
-    // falsifying control the old one lacked: add the one member the two groups
-    // genuinely share and the same literal compiles.
-    //
-    // The group is not where the property lives. **The position is** (D-151),
-    // and `the composition check` below is where it is asserted.
-    const installer: SortablePlugin = () => ({ insertion, retire: dispose });
-
-    void installer;
-  });
-
-  it('should accept a hook it does declare', () => {
-    // The F-74 control for the key-set row above: a group that refused this
-    // would be refusing multi-writer contribution, which is the whole point of
-    // the unbounded position.
-    const installer: SortablePlugin = () => ({
-      beforeInsertionMove: (): void => {},
-    });
-
-    void installer;
-  });
 });
 
-describe('the composition check', () => {
-  it('should derive the unique slots from the groups themselves', () => {
-    // **A unique slot is a key a sibling group declares and the plugin group
-    // does not** (D-151) — the definition, not a restatement of it, so a
-    // capability added later joins the set by being declared and no list has to
-    // be kept current.
-    expectTypeOf<
-      UniqueSlot<
-        AxisContribution | LandingContribution,
-        SortablePluginContribution
-      >
-    >().toEqualTypeOf<'insertion' | 'startLanding'>();
-  });
-
-  it('should hold the precondition the positional model rests on', () => {
-    // No two non-plugin groups declare the same unique key. If a later edit
-    // broke it, one slot would have two owning positions and the positional
-    // statement would stop implying the cardinality one — which is the point at
-    // which an accumulated fold becomes the answer.
-    type Disjoint<A, B, Plugin> = [
-      Exclude<keyof A & keyof B, keyof Plugin>,
-    ] extends [never]
-      ? true
-      : never;
-
-    expectTypeOf<
-      Disjoint<
-        AxisContribution,
-        LandingContribution,
-        SortablePluginContribution
-      >
-    >().toEqualTypeOf<true>();
-  });
-
-  it('should refuse an axis installer from the plugins position', () => {
-    // **The refusal the group cannot make**, and the diagnostic names the slot:
-    // _installer contributes 'insertion', which only its own config key may
-    // install_. It is not a second writer — `axis` is atomic and last-wins — it
-    // is one writer at a position the assembler never reads.
-    const refused = (): void => {
-      sortable(root, {
-        items,
-        onReorder,
-        axis: axisInstaller,
-        // @ts-expect-error — D-151: `insertion` is installable from `axis` alone
-        plugins: [axisInstaller],
-      });
-    };
-
-    void refused;
-  });
-
-  it('should refuse a landing installer from the plugins position', () => {
-    const refused = (): void => {
-      sortable(root, {
-        items,
-        onReorder,
-        axis: axisInstaller,
-        // @ts-expect-error — D-151: `startLanding` is installable from `landing`
-        plugins: [landingInstaller],
-      });
-    };
-
-    void refused;
-  });
-
-  it('should refuse one offender among legitimate plugins', () => {
-    // **The case `const` type parameters exist for** (F-145). Without them the
-    // array literal's element type widens to `SortablePlugin` before the check
-    // sees it — every installer is assignable to it — and the offender's
-    // identity is gone.
-    const refused = (): void => {
-      sortable(root, {
-        items,
-        onReorder,
-        axis: axisInstaller,
-        // @ts-expect-error — D-151: the middle element, by name
-        plugins: [plugin, axisInstaller, otherPlugin],
-      });
-    };
-
-    void refused;
-  });
-
-  it('should refuse an offender in a fragment', () => {
-    const refused = (): void => {
-      sortable(
-        root,
-        { items, onReorder, axis: axisInstaller },
-        // @ts-expect-error — D-151: fragments are checked as the config is
-        { plugins: [landingInstaller] },
-      );
-    };
-
-    void refused;
-  });
-
-  it('should accumulate several legitimate plugins', () => {
-    // **The control that keeps the check from becoming shape validation.** A
-    // multi-writer slot is contributed by as many entries as the consumer
-    // likes, in one array and across fragments, and none of them is touched.
-    const accepted = (): void => {
-      sortable(
-        root,
-        {
-          items,
-          onReorder,
-          axis: axisInstaller,
-          plugins: [plugin, otherPlugin],
-        },
-        { plugins: [plugin] },
-      );
-    };
-
-    void accepted;
-  });
-
-  it('should accept an installer the axis key legitimately takes', () => {
-    // The second control: the refusal is about the *position*, so the same
-    // installer in its own key is untouched.
-    const accepted = (): void => {
-      sortable(root, {
-        items,
-        onReorder,
-        axis: axisInstaller,
-        landing: landingInstaller,
-      });
-    };
-
-    void accepted;
-  });
-
-  it('should accept a widened installer, which is the documented residual', () => {
-    // **The accepted boundary** (D-151 §5). An explicit annotation forgets the
-    // provenance the check reads, and the call site cannot recover it. What
-    // survives is a consumer who annotated away their own information and then
-    // finds the capability silently absent, which is a documentation obligation
-    // on the slot rather than a type one.
-    const widened: SortablePlugin = axisInstaller;
-    const accepted = (): void => {
-      sortable(root, {
-        items,
-        onReorder,
-        axis: axisInstaller,
-        plugins: [widened],
-      });
-    };
-
-    void accepted;
-  });
-});
+/**
+ * **The composition check has no sortable subject** (D-157). Nine rows stood
+ * here: that `UniqueSlot` derived the unique slots from the groups themselves,
+ * that no two non-plugin groups declared the same one, that `plugins: [axis]`
+ * and `plugins: [landing]` were refused by name in a config and in a fragment,
+ * that one offender among legitimate entries kept its identity, and the three
+ * controls that kept the refusal from becoming shape validation.
+ *
+ * Every one of them was about **a position** (D-151) — an installer contributing
+ * a slot the assembler never reads there. Deleting the sortable's `plugins`
+ * deletes the position, and with it the only way to be misplaced: each
+ * remaining slot arrives through the single key that declares it, so a second
+ * writer is unrepresentable and a misplaced one has nowhere to be written. The
+ * rows are deleted rather than migrated, because migrating them would mean
+ * asserting a refusal against a call that can no longer be spelled.
+ *
+ * `Composed`, `Misplaced`, `UniqueIn` and `UniqueSlot` are unchanged in
+ * `shared/composition.ts` and still guard free drag's `plugins`;
+ * `tests/free-drag/feature.declaration.test.ts` is where the equivalent rows
+ * now live in full.
+ */
 
 describe('SortableLandingInstaller', () => {
   it('should return the same declaration free drag returns', () => {
@@ -306,14 +155,16 @@ describe('SortableLandingInstaller', () => {
  * migrating them would mean re-asserting a property the decision removed.
  */
 
-describe('DisplacementView', () => {
+describe('DisplacementContribution', () => {
   it('should not reach the settlement scope', () => {
-    // I-10: a displacement hook structurally cannot become a lifecycle gate.
+    // I-10, re-pointed by D-157 at the group that replaced ~~`DisplacementView`~~:
+    // a displacement feature structurally cannot become a lifecycle gate.
     // `SettlementScope` is passed only to `settlement.effect`, so an in-flight
-    // displacement can never delay release, settlement or teardown.
-    const displacement = null as unknown as DisplacementView;
+    // displacement can never delay release, settlement or teardown — `settle()`
+    // is called *by* release rather than awaited by it.
+    const displacement = null as unknown as DisplacementContribution;
 
-    // @ts-expect-error: no gate is reachable from a displacement hook
+    // @ts-expect-error: no gate is reachable from a displacement contribution
     const scope: SettlementScope = displacement;
 
     void scope;

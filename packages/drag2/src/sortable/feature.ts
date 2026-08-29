@@ -14,11 +14,9 @@ import type {
   LandingContribution,
 } from '../shared/composition.ts';
 import type { Insertion } from './domain.ts';
-import type {
-  DisplacementHook,
-  InsertionFrameView,
-  InsertionRuntimeView,
-} from './slots.ts';
+import type { DisplacementPlan } from './linear-shift.ts';
+import type { DisplacementProbe } from './rect-index.ts';
+import type { InsertionFrameView, InsertionRuntimeView } from './slots.ts';
 
 // The structural closure of the middle tier. Publishing the contribution groups
 // and `FeatureContext` gives every type they structurally name the same
@@ -35,12 +33,9 @@ export type {
   LandingStart,
 } from '../kernel/spec.ts';
 export type { Insertion } from './domain.ts';
-export type {
-  DisplacementHook,
-  DisplacementView,
-  InsertionFrameView,
-  InsertionRuntimeView,
-} from './slots.ts';
+export type { DisplacementPlan } from './linear-shift.ts';
+export type { DisplacementProbe } from './rect-index.ts';
+export type { InsertionFrameView, InsertionRuntimeView } from './slots.ts';
 
 // The one runtime export at this tier, which makes `sortable/feature` a runtime
 // entry in `files.json` rather than a `typeOnly` one. `insertion` is the only
@@ -52,16 +47,13 @@ export { insertionAt } from './domain.ts';
 // middle tier needs the identical types, so the two tiers share a declaration
 // rather than a structural coincidence. `LandingContribution` joins
 // `FeatureContext` there for the same reason — both behaviors' `landing` key
-// produces exactly it. The composition check's four helpers travel with them:
-// the entry signature names `SortableComposition`, whose own closure resolves
-// here. Every one of them is erased.
+// produces exactly it. **The composition check's four helpers no longer travel
+// with them**: they were published because this entry's signature named
+// `SortableComposition`, and with every slot a named key of one writer there is
+// no positional check left for them to serve.
 export type {
-  Composed,
   FeatureContext,
   LandingContribution,
-  Misplaced,
-  UniqueIn,
-  UniqueSlot,
 } from '../shared/composition.ts';
 
 // Erased entirely: `declare const` emits no JavaScript, and the brand is a
@@ -78,7 +70,7 @@ declare const SORTABLE_FEATURE: unique symbol;
  * contravariantly, so a function written against the other behavior's context
  * is refused where this one is expected, and the other way round.
  *
- * **An author never writes it.** Filling `axis`, `landing` or a `plugins` entry
+ * **An author never writes it.** Filling `axis`, `landing` or `displacement`
  * types the parameter from the slot, and hoisting into a
  * `const install: AxisInstaller = (context) => …` types it from the alias. The
  * brand is reachable only by naming this type, and there is no reason to.
@@ -116,17 +108,49 @@ export type InsertionGeometry = Readonly<{
    */
   invalidate(): void;
   /**
-   * Optional: "re-read your geometry **now**."
+   * **Predict the committed move, and say what it displaces** — optional,
+   * because not every rule can.
    *
    * The behavior calls this at exactly one instant — inside the committed-move
-   * bracket, once the placeholder has been written and every displacement
-   * feature has released its visual offsets. That is the only window in an
-   * active drag that yields **settled presentation geometry**, which is what
-   * the insertion rule is defined against. A feature that omits it stays lazy
-   * and measures on its next `resolve`, which is correct only while nothing
-   * displaces items.
+   * bracket, **immediately before the one DOM write** — and it must advance the
+   * rule's own cache, and the placeholder position it holds, to the geometry
+   * that write is about to produce. It performs **no DOM read**: everything it
+   * needs is the cache it already holds plus per-operation constants it has
+   * already established.
+   *
+   * It returns the plan — every element the move displaces and the vector that
+   * element is about to travel, negated — or **`null`, meaning "I cannot
+   * predict this one; measure me"**, which sends the behavior to `measure`
+   * after the write. A rule with no prediction at all simply omits this
+   * member.
+   *
+   * **A prediction may consume only a same-element temporal difference of
+   * presented geometry** (G5). A difference between two *different* elements'
+   * measured rects carries the difference of their authored `translate`,
+   * `rotate` or `scale` and is not a flow quantity, so it must not drive one.
    */
-  measure?(frame: InsertionFrameView, runtime: InsertionRuntimeView): void;
+  project?(
+    frame: InsertionFrameView,
+    runtime: InsertionRuntimeView,
+  ): DisplacementPlan | null;
+  /**
+   * **Say what the committed move displaced**, measured, immediately after the
+   * DOM write.
+   *
+   * Called when `project` is absent or returned `null`. It may read geometry —
+   * it is the one member that may — and it must leave
+   * the rule's cache describing the tree the write produced, either by
+   * advancing it or by rebuilding it.
+   *
+   * **Required, and that is the axis key's side of the bargain.** The behavior
+   * invalidates on every path between the projection and a completed write, so
+   * a rule that can neither predict nor measure returns a plan that visits
+   * nothing and invalidates itself.
+   */
+  measure(
+    frame: InsertionFrameView,
+    runtime: InsertionRuntimeView,
+  ): DisplacementPlan;
   retire(): void;
 }>;
 
@@ -141,31 +165,58 @@ export type InsertionGeometry = Readonly<{
  * cardinality**. The slot is producible from this key and no other, so a second
  * writer cannot be expressed rather than being caught by a construction-time
  * throw.
- *
- * The two displacement hooks are here as well as on
- * {@link SortablePluginContribution}: they are multi-writer, so every group
- * that can reasonably fill them may.
  */
 export type AxisContribution = Readonly<{
   insertion: InsertionGeometry;
-
-  /* multi-writer pipelines */
-  beforeInsertionMove?: DisplacementHook;
-  afterInsertionMove?: DisplacementHook;
   /** Run in **reverse** installation order. */
   retire?: Disposer;
 }>;
 
 /**
- * What a `plugins` entry returns: **multi-writer slots only**.
+ * What the `displacement` key's installer returns: **the consumer of an axis's
+ * plan**, and no geometry of its own.
  *
- * A plugin is the one position with unbounded arity, so it is the one group
- * that may name no unique slot. `layoutAnimation()` is the shape this exists
- * for — two hooks and a `retire` over one private `Map` and one `Set`.
+ * **A named key rather than an unbounded position**, which is the whole of this
+ * slot's cardinality. Two displacement mechanisms writing additive `translate`
+ * on the same rows is exactly the collision the assembler's rule makes
+ * unrepresentable, and a second producer would return as a second named key
+ * rather than as another array entry.
  */
-export type SortablePluginContribution = Readonly<{
-  beforeInsertionMove?: DisplacementHook;
-  afterInsertionMove?: DisplacementHook;
+export type DisplacementContribution = Readonly<{
+  /**
+   * Start one contribution per element the plan visits.
+   *
+   * The vectors are what each element is **about to travel, negated**, so a
+   * contribution that starts there and decays to zero shows the element
+   * moving. Contributions are additive and each ends at zero, so they **sum**:
+   * a second move arriving mid-flight needs no measurement, no release and no
+   * replay, because the element is already exactly where the previous
+   * contribution left it.
+   *
+   * `live` is read between iterations: `animate()` on a consumer-owned row is
+   * a consumer call, and the behavior cannot guard the interior of a loop it
+   * only starts.
+   */
+  apply(plan: DisplacementPlan, live: () => boolean): void;
+  /**
+   * **What this sink is currently holding for one element**, written into `out`
+   * as `[dx, dy]` and zero when it holds nothing.
+   *
+   * It must answer from its own bookkeeping — animation timing, a stored vector
+   * — and **must not read layout**, because an axis calls it once per candidate
+   * inside a rebuild. Subtracting it is what lets a rebuild obtain *settled*
+   * geometry while contributions are still running, which is why nothing here
+   * is ever released merely so that something else can measure.
+   */
+  contribution: DisplacementProbe;
+  /**
+   * Cancel every contribution in flight.
+   *
+   * Called by release **before** it measures. Cancelling an additive
+   * contribution that decays to zero lands the element exactly where it
+   * belongs, so this is a plain cancel and not a release-and-replay.
+   */
+  settle(): void;
   /** Run in **reverse** installation order. */
   retire?: Disposer;
 }>;
@@ -196,7 +247,7 @@ export type SortableLandingInstaller = (
   context: SortableFeatureContext,
 ) => LandingContribution;
 
-/** A `plugins` entry. See {@link SortablePluginContribution}. */
-export type SortablePlugin = (
+/** The `displacement` key's installer. See {@link DisplacementContribution}. */
+export type SortableDisplacementInstaller = (
   context: SortableFeatureContext,
-) => SortablePluginContribution;
+) => DisplacementContribution;

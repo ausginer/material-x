@@ -52,12 +52,13 @@ export function buildSlots(context, config) {
   // slot still needed a fragment position to be written from.
   const { insertion } = y()(context);
   const land = landing().landing(context);
-  const displace = layoutAnimation().plugins[0](context);
+  const displace = layoutAnimation().displacement(context);
 
   return {
     resolveInsertion: insertion.resolve,
     invalidateInsertion: insertion.invalidate,
-    measureInsertion: insertion.measure ?? null,
+    projectInsertion: insertion.project ?? null,
+    measureInsertion: insertion.measure,
 
     items,
     onReorder,
@@ -77,8 +78,9 @@ export function buildSlots(context, config) {
     box,
     startLanding: land.startLanding,
 
-    beforeMove: [displace.beforeInsertionMove],
-    afterMove: [displace.afterInsertionMove],
+    displace: displace.apply,
+    settleDisplacement: displace.settle,
+    contribution: displace.contribution,
     retireHooks: [displace.retire, insertion.retire],
   };
 }

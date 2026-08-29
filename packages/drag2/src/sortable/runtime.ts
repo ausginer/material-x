@@ -11,6 +11,7 @@
  */
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { CollectionSnapshot, Insertion } from './domain.ts';
+import type { DisplacementProbe } from './rect-index.ts';
 
 /** Behavior action tags. Behavior-local: the kernel offsets them. */
 export const TAG_SPATIAL = 0;
@@ -35,11 +36,18 @@ export type PresentationView = {
   readonly realm: DOMRealm;
   readonly placeholder: HTMLElement;
   /**
-   * The dragged item, for the displacement hooks. Committed frame state, so it
-   * cannot change for the life of the view — hence `readonly` and written once
-   * at activation rather than rewritten per move.
+   * The dragged item. Committed frame state, so it cannot change for the life
+   * of the view — hence `readonly` and written once at activation rather than
+   * rewritten per move.
    */
   readonly item: HTMLElement;
+  /**
+   * What the composed displacement sink is currently holding for an element, or
+   * `null` when nothing displaces. Copied off the slots once per operation so
+   * an axis rebuild reads one field of this object rather than reaching the
+   * slot record per candidate.
+   */
+  readonly contribution: DisplacementProbe | null;
   /**
    * The installed `box` resolver, for the axis rule's candidate measurement.
    * Copied off the slots once per operation rather than read through `slots`
@@ -62,13 +70,12 @@ export type PresentationView = {
   /**
    * The destination gap of the placeholder move currently being bracketed.
    *
-   * Written immediately before the `beforeMove` pipeline and read only by the
-   * displacement hooks, which run nowhere else — so it is a field on the shared
-   * per-operation object rather than a fresh view per move. One write per
-   * *committed* move, and none per pointer move.
+   * Written immediately before the projection and read only inside the bracket,
+   * which runs nowhere else — so it is a field on the shared per-operation
+   * object rather than a fresh view per move. One write per *committed* move,
+   * and none per pointer move.
    *
-   * It is `null` outside a bracket, and the hook-facing `DisplacementView`
-   * declares it non-null: nothing but the bracket can observe it.
+   * It is `null` outside a bracket, and nothing but the bracket can observe it.
    */
   insertion: Insertion | null;
 };

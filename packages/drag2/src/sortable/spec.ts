@@ -59,6 +59,7 @@ import {
 } from './domain.ts';
 import { type SortableFramePart, sortableFramePart } from './frames.ts';
 import { directionOf, keyboardInsertion } from './keyboard.ts';
+import type { DisplacementPlan } from './linear-shift.ts';
 import {
   createPlaceholder,
   movePlaceholder,
@@ -71,7 +72,7 @@ import {
   TAG_INVALIDATION,
   TAG_SPATIAL,
 } from './runtime.ts';
-import type { DisplacementView, SortableSlots } from './slots.ts';
+import type { SortableSlots } from './slots.ts';
 
 /** What `action.prepare(COLLECTION)` stages. It never discards. */
 type PreparedCollection = Readonly<{
@@ -535,78 +536,38 @@ export function createSortableSpec(
   };
 
   /**
-   * `measureInsertion()` narrowed to `FAILURE_INVALIDATION`, for the same
-   * reason as {@link invalidateInSeam}: it is geometry-cache maintenance, and
-   * the surrounding phase would otherwise classify a throw as a
-   * placeholder-move failure. It is the eager half of the same concern and
-   * shares the stage — and therefore the recovery — with the lazy half.
+   * Set by {@link planInSeam} when the axis threw, which the bracket treats as
+   * an exit rather than as a plan of nothing. It is read and reset inside one
+   * synchronous stretch of the same call, so there is nothing here to nest.
    */
-  const measureInSeam = (
-    frame: Readonly<Frame<SortableFramePart>>,
-    view: PresentationView,
-  ): boolean => {
-    const measure = slots.measureInsertion;
-
-    if (!measure) {
-      return true;
-    }
-
-    try {
-      measure(frame, view);
-
-      // **The terminal barrier on the eager rebuild.** `measure` walks the
-      // candidate list through the consumer's `visual()` resolver, so a destroy
-      // raised from inside it takes the same exit `action.effect` already has
-      // for a classified measure failure — nothing after it in the bracket
-      // runs, and no `afterMove` hook starts an animation on a torn-down
-      // controller.
-      return !host.closed;
-    } catch (error) {
-      host.fail(FAILURE_INVALIDATION, error);
-      return false;
-    }
-  };
+  let planFailed = false;
 
   /**
-   * Releases every displacement offset before release measures anything.
+   * The axis's two plan-producing members narrowed to `FAILURE_INVALIDATION`,
+   * for the same reason as {@link invalidateInSeam}: they are geometry-cache
+   * maintenance, and the surrounding phase would otherwise classify a throw as
+   * a placeholder-move failure.
    *
-   * Release re-resolves after motion closes, and it does so while the last
-   * committed move's displacement is still in flight — so without this it
-   * measures items mid-animation and can propose a different gap from the one
-   * settled geometry gives. That gap is not an intermediate artefact: it is the
-   * `ReorderRequest` the consumer is asked to apply.
-   *
-   * `beforeMove` is reused rather than given a call site of its own, because it
-   * already means exactly this: *the placeholder is about to move, hand back
-   * what you are holding.* `release.effect` does move it. The gap passed is the
-   * incumbent one — the honest best estimate before resolution supersedes it,
-   * and the only cost of it being superseded is one element measured for
-   * nothing.
-   *
-   * **A deliberate, bounded exception to "prepare performs no DOM writes."**
-   * What it writes is the release of temporary offsets this library itself
-   * applied; it publishes nothing, changes no tree, and leaves every row at the
-   * position it was already animating towards. Release cannot discard, and a
-   * *failed* release retires the operation — where the feature's own `retire`
-   * would cancel these animations anyway. So the side effect is exactly what
-   * teardown would have done, one moment earlier.
+   * **The prediction needs no terminal barrier and the measurement does**, and
+   * that difference is a property of what each one does. A projection reads the
+   * rule's own arrays; it performs no DOM read and calls no consumer code, so
+   * nothing it runs could destroy the controller. A measurement reads
+   * consumer-owned rows, so the bracket takes a reading after it.
    */
-  const settleDisplacement = (
+  const planInSeam = (
+    run: (
+      frame: Readonly<Frame<SortableFramePart>>,
+      view: PresentationView,
+    ) => DisplacementPlan | null,
+    frame: Readonly<Frame<SortableFramePart>>,
     view: PresentationView,
-    insertion: SortableFramePart['insertion'],
-  ): void => {
-    if (!insertion || slots.beforeMove.length === 0) {
-      return;
-    }
-
-    view.insertion = insertion;
-
+  ): DisplacementPlan | null => {
     try {
-      for (const hook of slots.beforeMove) {
-        hook(view as DisplacementView);
-      }
-    } finally {
-      view.insertion = null;
+      return run(frame, view);
+    } catch (error) {
+      planFailed = true;
+      host.fail(FAILURE_INVALIDATION, error);
+      return null;
     }
   };
 
@@ -947,6 +908,7 @@ export function createSortableSpec(
           placeholder,
           item,
           box: slots.box,
+          contribution: slots.contribution,
           live,
           snapshot: current.snapshot!,
           insertion: null,
@@ -1195,49 +1157,53 @@ export function createSortableSpec(
 
           const view = presentation!;
 
-          // Published before the bracket, so a hook knows *which* elements the
-          // move affects rather than having to measure the whole destination
-          // view to find out.
+          // Published before the projection, so the axis is told which gap the
+          // write is about to move the placeholder to.
           //
-          // Cleared in a `finally` covering every exit: the hooks succeeding,
-          // the placeholder write refusing a cross-container anchor, the eager
-          // measurement failing, and a `beforeMove`/`afterMove` hook throwing.
-          // The field is documented as meaningful **only** inside the bracket
-          // and the hook-facing view declares it non-null on that basis, so a
-          // value left behind would be a stale destination gap that outlives
-          // the move it described — readable by the next bracket's `collect`
-          // before it is overwritten, and by anything that reaches the
-          // per-operation view between moves.
+          // Cleared in a `finally` covering every exit, because the field is
+          // meaningful **only** inside the bracket: a value left behind would
+          // be a stale destination gap that outlives the move it described.
           view.insertion = insertion;
 
+          /**
+           * **The cache does not describe the DOM.** Raised before anything can
+           * touch the rule's arrays and lowered only once the cache and the
+           * tree agree again, so every exit in between — a projection that
+           * threw, a placeholder reaction that destroyed the controller, a
+           * measurement that could not complete — leaves it set and invalidates
+           * in the `finally`.
+           *
+           * That invalidation is load-bearing rather than defensive. There is
+           * no invalidation on the happy path at all: the predicted path leaves
+           * the cache current by construction and the measured path rebuilds
+           * it. So the only thing standing between a failed move and a cache
+           * describing a tree that never existed is this flag.
+           */
+          let stale = true;
+
           try {
-            // Three steps, and the order between them is the whole composition
-            // rule. `beforeMove` captures each element where it currently
-            // *looks* — offsets applied, which is what makes an interrupted
-            // displacement replay from where it visually is — and then releases
-            // every offset it owns. So between here and `afterMove` there is
-            // exactly one window in which nothing the library applied is
-            // visible, and the axis rebuild below lands in it. Reading lazily
-            // on the next spatial frame instead measures items mid-animation,
-            // which pits a freshly positioned placeholder against stale item
-            // centres and oscillates.
-            for (const hook of slots.beforeMove) {
-              hook(view as DisplacementView);
+            // 1 — predict, when the rule has a prediction to offer. No DOM
+            // read, no consumer call, so no barrier after it and no
+            // invalidation before it. `null` means "measure me instead", which
+            // is the first committed move of an operation on a linear axis and
+            // every move on `xy()`.
+            let plan = slots.projectInsertion
+              ? planInSeam(slots.projectInsertion, current, view)
+              : null;
+
+            if (planFailed) {
+              planFailed = false;
+              return; // classified; the `finally` invalidates
             }
 
-            // **The terminal barrier on the `beforeMove` pipeline.** A
-            // displacement hook measures consumer-owned rows, and an overridden
-            // `getBoundingClientRect()` is a consumer call — so a hook can
-            // return into this line on a destroyed controller. The hook takes
-            // its own reading for its own interior; this one stops the
-            // **behavior's** next act, which is a DOM mutation on the
-            // consumer's tree that would run a placeholder custom element's
-            // callbacks after `destroy()` returned.
-            if (host.closed) {
-              return;
-            }
-
+            // 2 — the one write.
             movePlaceholder(placeholder, insertion);
+
+            if (plan) {
+              // The prediction already advanced the cache to the tree this
+              // write just produced.
+              stale = false;
+            }
 
             // **The terminal barrier on the placeholder-reaction window** — the
             // same hazard `activation.effect` already guards one line after
@@ -1246,29 +1212,42 @@ export function createSortableSpec(
             // `disconnectedCallback`/`connectedCallback` runs synchronously
             // inside that call; it is consumer code the `placeholder()` factory
             // supplied, and no seam wraps it. If it destroyed the controller,
-            // everything below would run on a torn-down one: the eager rebuild
-            // resolving candidate visuals, and every `afterMove` hook — which
-            // with `layoutAnimation()` composed starts WAAPI animations against
-            // a retired feature.
-            //
-            // Returned from **inside** the `try`, so the `finally` still clears
-            // `view.insertion` and no stale destination gap outlives the move.
+            // the measurement below would read consumer-owned rows and the sink
+            // would start WAAPI animations against a retired feature.
             if (host.closed) {
               return;
             }
 
-            if (!invalidateInSeam()) {
-              return; // classified; the geometry the hooks would read is stale
+            if (!plan) {
+              // 2b — measure. The write has landed, so this is the instant the
+              // moved geometry exists; the rule reads what it needs and leaves
+              // its cache describing the tree.
+              plan = planInSeam(slots.measureInsertion, current, view);
+
+              if (planFailed) {
+                planFailed = false;
+                return; // classified; the `finally` invalidates
+              }
+
+              stale = false;
+
+              // **The terminal barrier on the measurement.** Unlike a
+              // projection this one reads consumer-owned rows, so a
+              // `getBoundingClientRect` the consumer overrode may have
+              // destroyed the controller.
+              if (host.closed) {
+                return;
+              }
             }
 
-            if (!measureInSeam(current, view)) {
-              return; // classified; the axis index is neither old nor new
-            }
-
-            for (const hook of slots.afterMove) {
-              hook(view as DisplacementView);
-            }
+            // 3 — displace. The sink keeps its own reading between iterations,
+            // because `animate()` on a consumer-owned row is a consumer call.
+            slots.displace?.(plan!, view.live);
           } finally {
+            if (stale) {
+              invalidateInSeam();
+            }
+
             view.insertion = null;
           }
 
@@ -1360,11 +1339,20 @@ export function createSortableSpec(
 
           insertion = commanded;
         } else {
-          // Settled first, then measured: motion is already closed, so this
+          // **Settled, then invalidated, then measured**, and the order is
+          // correctness rather than tidiness. Motion is already closed, so this
           // search runs against final geometry — and "final" has to mean
-          // settled presentation geometry, not wherever the last displacement
-          // happens to have reached.
-          settleDisplacement(view, draft.insertion);
+          // settled flow geometry, not rows still carrying a contribution.
+          // Without the settle the rebuild measures rows mid-transit and can
+          // commit a different gap, and that gap is not an intermediate
+          // artefact: it is the `ReorderRequest` the consumer is asked to
+          // apply.
+          //
+          // **A plain cancel is enough**, and that is the whole of what the
+          // additive model buys here: a contribution that decays to zero lands
+          // its element exactly where flow puts it, so there is nothing to
+          // release and nothing to replay.
+          slots.settleDisplacement?.();
 
           if (!invalidateInSeam()) {
             return { invoke: null };

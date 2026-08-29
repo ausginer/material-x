@@ -123,8 +123,8 @@ import {
   type ReorderRequest,
   type ReorderTransactionResult,
   type SortableController,
+  type SortableDisplacementInstaller,
   type SortableLandingInstaller,
-  type SortablePlugin,
   type SortableOnDragError,
   type SortableOnEnd,
   type SortableOnStart,
@@ -175,37 +175,33 @@ const hoistedAxis: AxisInstaller = (context) => {
     insertion: {
       resolve: () => null,
       invalidate: (): void => {},
+      measure: () => () => {},
       retire: (): void => {},
     },
   };
 };
 
-// **The composition check's own alias is published, and this is what says so**
-// (F-147). \`sortable()\`'s signature names \`SortableComposition\`, so F-51
-// obliges the entry to export it; the four helpers it reaches resolve at
-// \`sortable/feature.js\`, one tier down, and are not named here. Nothing a
-// consumer writes mentions it — the check applies itself at the call — so what
-// this row pins is publication, not usage.
-type Composition = import('@ydinjs/drag2/sortable.js').SortableComposition<{
-  plugins: readonly SortablePlugin[];
-}>;
-
-declare const composition: Composition;
-
-void composition;
-
-// **The \`plugins\` and \`landing\` aliases are hoistable from the ordinary
-// tier too** (D-110, D-146). \`SortableConfig\` names one at each slot and
-// \`sortable.js\` published neither, so typing one meant importing the
-// types-only middle tier — the tier inversion the free-drag mirror never
-// forced. These rows are what stop them being dropped again, and since D-146
-// they also pin the cardinality: the plugin's group carries multi-writer slots
-// and the landing's carries the slot only it can produce.
-const hoistedPlugin: SortablePlugin = (context) => {
+// **The \`displacement\` and \`landing\` aliases are hoistable from the
+// ordinary tier too.** \`SortableConfig\` names one at each slot, so typing one
+// without these would mean importing the types-only middle tier — the tier
+// inversion the free-drag mirror never forced. These rows are what stop them
+// being dropped again, and they pin the cardinality with it: each is a named
+// key with exactly one writer, so a second one is unrepresentable rather than
+// detected.
+const hoistedDisplacement: SortableDisplacementInstaller = (context) => {
   void context.root;
 
-  return {};
+  return {
+    apply: () => {},
+    contribution: (_element, out) => {
+      out[0] = 0;
+      out[1] = 0;
+    },
+    settle: () => {},
+  };
 };
+
+void hoistedDisplacement;
 
 const hoistedLanding: SortableLandingInstaller = (context) => {
   void context.root;
@@ -307,7 +303,7 @@ const list: SortableController = sortable(
   },
   landing({ duration: 120, easing: 'ease-out' }),
   layoutAnimation({ duration: 90 }),
-  { plugins: [hoistedPlugin], landing: hoistedLanding },
+  { landing: hoistedLanding },
 );
 
 // **D-44**: payload-free. The collection is a pull source, so this says
@@ -455,12 +451,12 @@ const forgedBehavior: BehaviorFactory<SortableController, object> = () => ({});
 // diagnosable at all.
 // @ts-expect-error: \`onReorded\` is not a slot
 const forgedFragment: Partial<SortableConfig> = { onReorded: () => {} };
-// **The composition check, at the published surface** (D-151). \`insertion\`
-// is installable from \`axis\` alone, so an axis installer in \`plugins\` is
-// refused at the call rather than installing geometry nothing resolves
-// against. The positive control is \`{ plugins: [hoistedPlugin] }\` above.
-// @ts-expect-error: an axis installer is not a plugin (D-151)
-sortable(root, { items: () => items, onReorder, axis: hoistedAxis, plugins: [hoistedAxis] });
+// **The cardinality, at the published surface.** Each slot is a named key with
+// one writer, so an axis installer in \`displacement\` is a type error at the
+// call rather than geometry nothing resolves against. The positive control is
+// \`hoistedDisplacement\` above.
+// @ts-expect-error: an axis installer is not a displacement installer
+sortable(root, { items: () => items, onReorder, axis: hoistedAxis, displacement: hoistedAxis });
 // D-55: there is no branded behavior type at all now, so the opacity check has
 // no subject. What replaces it is the reachability check below — the SPI is
 // published at \`kernel.js\` and still unreachable from \`drag.js\`.
@@ -507,8 +503,8 @@ type B2 = import('@ydinjs/drag2/sortable.js').AxisContribution;
 type B3 = import('@ydinjs/drag2/sortable.js').InsertionGeometry;
 // @ts-expect-error: the feature context is internal
 type B4 = import('@ydinjs/drag2/sortable.js').FeatureContext;
-// @ts-expect-error: the displacement view is internal
-type B5 = import('@ydinjs/drag2/sortable.js').DisplacementView;
+// @ts-expect-error: the contribution group is internal
+type B5 = import('@ydinjs/drag2/sortable.js').DisplacementContribution;
 // @ts-expect-error: the insertion is internal
 type B7 = import('@ydinjs/drag2/sortable.js').Insertion;
 // @ts-expect-error: the outcome constants are internal
@@ -549,9 +545,9 @@ type C2 = import('@ydinjs/drag2/src/drag.ts').Point;
 // (D-61): \`sortable/feature.js\` is a declared subpath now — the middle tier
 // where an installer's types live — so this line must *resolve*, which is the
 // opposite of what it asserted before.
-type C3 = import('@ydinjs/drag2/sortable/feature.js').SortablePlugin;
+type C3 = import('@ydinjs/drag2/sortable/feature.js').SortableDisplacementInstaller;
 // @ts-expect-error: the slot views are not a declared subpath
-type C4 = import('@ydinjs/drag2/sortable/slots.js').DisplacementView;
+type C4 = import('@ydinjs/drag2/sortable/slots.js').InsertionRuntimeView;
 
 void [A11, B8, B9];
 declare const unusedTypes: [A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, B1, B2, B3, B4, B5, B7, C1, C2, C3, C4, D1, D2, D3, D4, D5a, D5b, Part];

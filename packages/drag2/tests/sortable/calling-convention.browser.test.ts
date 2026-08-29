@@ -10,34 +10,44 @@
  * positive evidence of a distinction the package does not make.
  *
  * **What the sortable's lift actually does today — measured code, not the
- * guarantee** (D-94). The assembler lifts four members off the contributed
- * geometry and they are reached at **five** sites, which do not agree on the
- * receiver: `resolve` and `invalidate`
+ * guarantee** (D-94, members restated by D-157). The assembler lifts four
+ * members off the contributed geometry and they are reached at **five** sites,
+ * which do not agree on the receiver: `resolve`, `invalidate` and `project`
  * become fields on the behavior's flat slot record and are called as
- * `slots.resolveInsertion(…)`, so their receiver is that **slot record**;
- * `measure` is read into a local and the normal `retire` is iterated out of
- * `retireHooks`, so theirs is `undefined`; and the **construction-unwind**
- * `retire` is reached by `retireHooks[i]!()`, an indexed call that hands the
- * hook the assembler's internal **array**.
+ * `slots.resolveInsertion(…)`, so their receiver is that **slot record**; the
+ * normal `retire` is handed to `unwind` as a bare value out of `retireHooks`,
+ * so its receiver is `undefined`; and the **construction-unwind** `retire` is
+ * reached by `retireHooks[i]!()`, an indexed call that hands the hook the
+ * assembler's internal **array**.
+ *
+ * **The displacement sink is lifted the same way and is asserted here too.**
+ * `apply` and `settle` become `slots.displace` and `slots.settleDisplacement`,
+ * so a `this`-reading sink breaks against the same convention an axis does; one
+ * tier stating the obligation for its geometry and staying silent about its
+ * other installer group would reintroduce exactly the distinction D-92 refused
+ * to let the package suggest.
  *
  * The rows below therefore assert **the receiver is never the nested
- * `InsertionGeometry` the member is declared on** (D-93, referent corrected by
+ * capability record the member is declared on** (D-93, referent corrected by
  * D-94), which is the invariant the convention promises and the one a
- * `this`-reading author breaks against. The referent is the nested record and
- * not the outer contribution: a fully bound `contribution.insertion.resolve(…)`
- * never uses the contribution object either, so rows written against it would
- * pass on the tree the convention forbids. Asserting `undefined` uniformly
- * would fail the conforming tree at three of the five sites, and would pin the
- * flattening's current shape rather than the obligation.
+ * `this`-reading author breaks against. For an axis the referent is the nested
+ * `InsertionGeometry` and not the outer contribution: a fully bound
+ * `contribution.insertion.resolve(…)` never uses the contribution object
+ * either, so rows written against it would pass on the tree the convention
+ * forbids. Asserting `undefined` uniformly would fail the conforming tree at
+ * four of the five axis sites, and would pin the flattening's current shape
+ * rather than the obligation.
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import type { Insertion } from '../../src/sortable/domain.ts';
 import type {
   AxisInstaller,
+  DisplacementContribution,
+  DisplacementPlan,
   InsertionFrameView,
   InsertionGeometry,
   InsertionRuntimeView,
-  SortablePlugin,
+  SortableDisplacementInstaller,
 } from '../../src/sortable/feature.ts';
 import { xy } from '../../src/sortable/xy.ts';
 import { y } from '../../src/sortable/y.ts';
@@ -100,13 +110,23 @@ function recordingAxis(base: AxisInstaller): Recording {
         receivers.push(['invalidate', this]);
         inner.invalidate();
       },
+      project(
+        this: unknown,
+        frame: InsertionFrameView,
+        runtime: InsertionRuntimeView,
+      ): DisplacementPlan | null {
+        receivers.push(['project', this]);
+
+        return inner.project!(frame, runtime);
+      },
       measure(
         this: unknown,
         frame: InsertionFrameView,
         runtime: InsertionRuntimeView,
-      ): void {
+      ): DisplacementPlan {
         receivers.push(['measure', this]);
-        inner.measure?.(frame, runtime);
+
+        return inner.measure(frame, runtime);
       },
       retire(this: unknown): void {
         receivers.push(['retire', this]);
@@ -122,6 +142,62 @@ function recordingAxis(base: AxisInstaller): Recording {
   return { axis, receivers, own: () => own };
 }
 
+type DisplacementRecording = Readonly<{
+  displacement: SortableDisplacementInstaller;
+  receivers: ReadonlyArray<readonly [string, unknown]>;
+  /**
+   * The **`DisplacementContribution`** the two members are declared on. Here
+   * the contribution *is* the capability record — the sink contributes no
+   * nested one — so unlike the axis's there is no outer object to mistake it
+   * for.
+   */
+  own(): DisplacementContribution | null;
+}>;
+
+/**
+ * A sink that does nothing but record, which is all this suite needs: the
+ * convention is about the receiver each member is handed, and starting real
+ * animations would only add a source of flake to a row that never reads one.
+ *
+ * `function` shorthand for the same reason `recordingAxis` uses it — an arrow
+ * would report the module's `this` from a bound site and a lifted one alike.
+ */
+function recordingDisplacement(): DisplacementRecording {
+  const receivers: Array<readonly [string, unknown]> = [];
+  let own: DisplacementContribution | null = null;
+
+  const displacement: SortableDisplacementInstaller = () => {
+    const contribution: DisplacementContribution = {
+      apply(this: unknown, plan: DisplacementPlan): void {
+        receivers.push(['apply', this]);
+        // Drained rather than dropped: the plan is the axis's, and a sink that
+        // never called the visitor would stay green if the behavior stopped
+        // handing it one.
+        plan(() => {});
+      },
+      contribution(
+        this: unknown,
+        element: HTMLElement,
+        out: Float64Array,
+      ): void {
+        receivers.push(['contribution', this]);
+        void element;
+        out[0] = 0;
+        out[1] = 0;
+      },
+      settle(this: unknown): void {
+        receivers.push(['settle', this]);
+      },
+    };
+
+    own = contribution;
+
+    return contribution;
+  };
+
+  return { displacement, receivers, own: () => own };
+}
+
 type Composed = Readonly<{
   root: HTMLElement;
   items: HTMLElement[];
@@ -129,7 +205,10 @@ type Composed = Readonly<{
   errors: unknown[];
 }>;
 
-function composeWith(axis: AxisInstaller): Composed {
+function composeWith(
+  axis: AxisInstaller,
+  displacement?: SortableDisplacementInstaller,
+): Composed {
   const root = document.createElement('div');
 
   root.style.width = '200px';
@@ -160,6 +239,10 @@ function composeWith(axis: AxisInstaller): Composed {
     onError: (error): void => {
       errors.push(error);
     },
+    // Spread rather than written as `displacement`, so a composition that names
+    // no sink stays the minimal one the other rows drive rather than one
+    // carrying an explicitly `undefined` key.
+    ...(displacement ? { displacement } : {}),
   });
 
   cleanup.push(() => {
@@ -220,7 +303,13 @@ const reorder = async (composed: Composed): Promise<void> => {
  * Without the first half a row passes when its site is never driven, which is
  * the other way a convention test measures nothing.
  */
-function expectDetached(recording: Recording, site: string): void {
+function expectDetached(
+  recording: Readonly<{
+    receivers: ReadonlyArray<readonly [string, unknown]>;
+    own(): object | null;
+  }>,
+  site: string,
+): void {
   const seen = recording.receivers
     .filter(([name]) => name === site)
     .map(([, receiver]) => receiver);
@@ -255,10 +344,22 @@ describe('a lifted insertion geometry', () => {
     expectDetached(recording, 'invalidate');
   });
 
-  it('should hand the optional measure site a foreign receiver', async () => {
-    // `measure` is the one optional member, reached only inside the committed
-    // -move bracket once the placeholder has been written — which is why this
-    // row has to commit a reorder rather than merely activate.
+  it('should hand the project site a foreign receiver', async () => {
+    // Reached only inside the committed-move bracket — immediately before the
+    // one DOM write — which is why this row has to commit a reorder rather than
+    // merely activate.
+    const recording = recordingAxis(y());
+    const composed = composeWith(recording.axis);
+
+    await reorder(composed);
+
+    expectDetached(recording, 'project');
+  });
+
+  it('should hand the measure site a foreign receiver', async () => {
+    // A different call site from `project` with a different caller: it runs
+    // *after* the write, and only on the move that establishes the linear
+    // constant — which is the first committed move of every operation.
     const recording = recordingAxis(y());
     const composed = composeWith(recording.axis);
 
@@ -283,8 +384,9 @@ describe('a lifted insertion geometry', () => {
     // **The fifth site** (D-93). `retire` is reached from the normal
     // retirement *and* from the assembler's unwind, which runs when a later
     // installer throws — the path a third-party author hits most often while
-    // developing. The axis installs before `plugins`, so its hook is already
-    // registered when the throw arrives.
+    // developing. `displacement` is the last key the assembler visits and the
+    // axis is the first, so the axis's hook is already registered when the
+    // throw arrives.
     //
     // It is also the site that decides the assertion's form: `retireHooks[i]!()`
     // is an indexed call, so the hook is handed the assembler's internal array
@@ -297,7 +399,7 @@ describe('a lifted insertion geometry', () => {
     root.append(item);
     document.body.append(root);
 
-    const boom: SortablePlugin = () => {
+    const boom: SortableDisplacementInstaller = () => {
       throw new Error('installer');
     };
 
@@ -306,7 +408,7 @@ describe('a lifted insertion geometry', () => {
         items: () => [item],
         onReorder: () => ReorderResolution.accept(),
         axis: recording.axis,
-        plugins: [boom],
+        displacement: boom,
       }),
     ).toThrow();
     root.remove();
@@ -320,6 +422,68 @@ describe('a lifted insertion geometry', () => {
     // fails on any one of them without naming which.
     const recording = recordingAxis(y());
     const composed = composeWith(recording.axis);
+
+    await reorder(composed);
+    pointer('pointerup', 110, document);
+    await settled();
+    await composed.controller.destroy();
+
+    expect(
+      recording.receivers
+        .filter(([, receiver]) => receiver === recording.own())
+        .map(([name]) => name),
+    ).toEqual([]);
+    expect(composed.errors).toEqual([]);
+  });
+});
+
+describe('a lifted displacement sink', () => {
+  it('should hand the apply site a foreign receiver', async () => {
+    // `apply` is reached at one instant — inside the committed-move bracket,
+    // after the DOM write — so this row has to commit a reorder. Its receiver
+    // is the flat slot record, because the assembler lifted the member onto
+    // `slots.displace`; what the row asserts is only that it is not the
+    // contribution.
+    const recording = recordingDisplacement();
+    const composed = composeWith(y(), recording.displacement);
+
+    await reorder(composed);
+
+    expectDetached(recording, 'apply');
+  });
+
+  it('should hand the contribution site a foreign receiver', async () => {
+    // Reached from inside an axis rebuild that runs while a contribution is in
+    // flight, which is what lets a rebuild see settled geometry without
+    // anything being released first.
+    const recording = recordingDisplacement();
+    const composed = composeWith(xy(), recording.displacement);
+
+    await reorder(composed);
+
+    expectDetached(recording, 'contribution');
+  });
+
+  it('should hand the settle site a foreign receiver', async () => {
+    // `settle` is reached from release, before it measures — a different call
+    // site with a different caller, which is why it is a row of its own rather
+    // than an extra assertion on the one above.
+    const recording = recordingDisplacement();
+    const composed = composeWith(y(), recording.displacement);
+
+    await reorder(composed);
+    pointer('pointerup', 110, document);
+    await settled();
+
+    expectDetached(recording, 'settle');
+  });
+
+  it('should never hand either site the contribution record', async () => {
+    // The sink's aggregate, standing to the two rows above as
+    // *should never hand any site the geometry record* stands to the axis's
+    // four: re-binding both lifts must not leave this suite green.
+    const recording = recordingDisplacement();
+    const composed = composeWith(y(), recording.displacement);
 
     await reorder(composed);
     pointer('pointerup', 110, document);

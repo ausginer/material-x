@@ -75,6 +75,7 @@ const interceptingY =
     return {
       insertion: {
         resolve: insertion.resolve,
+        project: insertion.project,
         measure: insertion.measure,
         retire: insertion.retire,
         invalidate(): void {

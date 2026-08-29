@@ -1,15 +1,15 @@
 // A fragment is a plain declarative partial config: every argument after `root`
 // is an ordinary object literal carrying no brand, no `kind` tag and no
-// provenance. The library merges them because one slot must not last-win —
-// `plugins` concatenates, and a consumer writing an object spread has no way to
-// express that.
+// provenance. **Every slot last-wins**, so the merge is one walk over the
+// schema — there is no appending slot left since `plugins` was deleted with the
+// bracket it existed for.
 import type { Writable } from 'type-fest';
 import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
 import type { OnReorder, ReorderTransactionResult } from './domain.ts';
 import type {
   AxisInstaller,
+  SortableDisplacementInstaller,
   SortableLandingInstaller,
-  SortablePlugin,
 } from './feature.ts';
 
 import type { PlaceholderFactory } from './placement.ts';
@@ -132,12 +132,11 @@ export type SortableConfig = Readonly<{
   landing?: SortableLandingInstaller;
 
   /**
-   * Appended, never replaced.
-   *
-   * **The one position with unbounded arity, and therefore the one whose
-   * installers reach only multi-writer slots.**
+   * The displacement feature — `layoutAnimation()`. **One writer**, because two
+   * mechanisms writing additive `translate` on the same rows is a collision the
+   * key's cardinality makes unrepresentable rather than detectable.
    */
-  plugins?: readonly SortablePlugin[];
+  displacement?: SortableDisplacementInstaller;
 
   threshold?: number;
 }>;
@@ -148,8 +147,7 @@ export type SortableConfig = Readonly<{
  * nothing reads it and nothing complains, while walking a fixed list makes a
  * misspelled slot a diagnosable no-op.
  *
- * `plugins` is absent here because it is the one appending slot and is handled
- * separately.
+ * **Every slot is on it**, which it was not while `plugins` appended.
  */
 const LAST_WINS_KEYS = [
   'items',
@@ -163,14 +161,15 @@ const LAST_WINS_KEYS = [
   'box',
   'placeholder',
   'landing',
+  'displacement',
   'threshold',
 ] as const satisfies ReadonlyArray<keyof SortableConfig>;
 
 /**
  * Merge semantics belong to the config slot, not to fragment provenance: the
  * slot's kind decides and a fragment gets no say. Scalars and plain consumer
- * functions last-win, an atomic capability installer last-wins as one whole
- * slot, and `plugins` appends in fragment order.
+ * functions last-win, and an atomic capability installer last-wins as one whole
+ * slot — which is now every slot there is.
  *
  * Last-wins is safe precisely because installers are invoked after the merge
  * completes. A capability that loses its slot is never constructed — no cache
@@ -186,13 +185,8 @@ export function mergeFragments(
   // required first argument and the optional fragments on the same code path
   // rather than buying a second one to save an assignment.
   const merged: Partial<Writable<SortableConfig>> = {};
-  const plugins: SortablePlugin[] = [];
 
   for (const fragment of [config, ...fragments]) {
-    if (fragment.plugins !== undefined) {
-      plugins.push(...fragment.plugins);
-    }
-
     for (const key of LAST_WINS_KEYS) {
       const value = fragment[key];
 
@@ -204,7 +198,6 @@ export function mergeFragments(
     }
   }
 
-  merged.plugins = plugins;
   // Nothing checks the merged result: `sortable()` takes a complete
   // `SortableConfig` and only the later fragments are `Partial`, so `items`,
   // `onReorder` and `axis` were supplied at a call that could not compile

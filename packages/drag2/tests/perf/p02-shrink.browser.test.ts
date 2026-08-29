@@ -40,7 +40,6 @@
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import type { CollectionSnapshot } from '../../src/sortable/domain.ts';
-import type { SortablePlugin } from '../../src/sortable/feature.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { createRectIndex, STRIDE } from '../../src/sortable/rect-index.ts';
 import { y } from '../../src/sortable/y.ts';
@@ -114,12 +113,23 @@ function shipped(rows: readonly HTMLElement[]): Cache {
   // started from `null` would report one.
   let seen: Float64Array = index.values;
   let allocations = 0;
+  // Detached, like the rows this probe scans: `hole` is a fixed `STRIDE`
+  // allocated once with the record, so the placeholder is not a slot and moves
+  // nothing the buffer arms read.
+  const placeholder = document.createElement('div');
 
   const scan = (n: number): void => {
     const items = n === rows.length ? rows : rows.slice(0, n);
     const snapshot: CollectionSnapshot = { items, version: 1 };
 
-    index.refresh(snapshot, items[0] ?? rows[0]!, null, ALIVE);
+    index.refresh(
+      snapshot,
+      items[0] ?? rows[0]!,
+      null,
+      ALIVE,
+      placeholder,
+      null,
+    );
 
     if (index.values !== seen) {
       seen = index.values;
@@ -610,15 +620,26 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
         const index = createRectIndex();
         const items = rows.slice(0, n);
         const snapshot: CollectionSnapshot = { items, version: 1 };
+        // Attached like the rows, because this is the arm that wants real
+        // layout: the scan measures it exactly once, so it adds one rect read
+        // to a scan of `n` and nothing to the per-row figure.
+        const placeholder = document.createElement('div');
+
+        Object.assign(placeholder.style, {
+          display: 'block',
+          height: '40px',
+          width: '100px',
+        });
+        root.append(placeholder);
 
         // One warm-up, so the first reading is not paying for the layout the
         // rows just added.
-        index.refresh(snapshot, items[0]!, null, ALIVE);
+        index.refresh(snapshot, items[0]!, null, ALIVE, placeholder, null);
         index.retire();
 
         const started = performance.now();
 
-        index.refresh(snapshot, items[0]!, null, ALIVE);
+        index.refresh(snapshot, items[0]!, null, ALIVE, placeholder, null);
 
         const elapsed = performance.now() - started;
 
@@ -646,12 +667,10 @@ const GRAB_ROW = 4;
 const LOW_SLOT = 5;
 const HIGH_SLOT = 6;
 const POINTER_ID = 83;
-const FRAME_MS = 1000 / 60;
 
 type Drive = Readonly<{
-  /** Total bracket time and committed-move count since the last reset. */
+  /** Committed-move count since the last reset. */
   moves(): number;
-  bracket(): number;
   reset(): void;
   /** One pointer sample per **real** frame, so the browser flushes between moves. */
   step(round: number): Promise<void>;
@@ -701,19 +720,7 @@ function drive(n: number, animate: boolean): Drive {
     rows.push(row);
   }
 
-  let started = 0;
-  let bracket = 0;
   let moves = 0;
-
-  const probe: SortablePlugin = () => ({
-    beforeInsertionMove: (): void => {
-      started = performance.now();
-    },
-    afterInsertionMove: (): void => {
-      bracket += performance.now() - started;
-      moves += 1;
-    },
-  });
 
   let current: readonly HTMLElement[] = rows;
   const controller = sortable(
@@ -721,10 +728,16 @@ function drive(n: number, animate: boolean): Drive {
     {
       items: () => current,
       axis: y(),
-      onReorder: () => ReorderResolution.accept(),
+      // The committed-move counter, read off the one hook a committed move
+      // always reaches. It counts accepted proposals rather than bracketing
+      // them: this arm only needs to know that both drags really moved.
+      onReorder: () => {
+        moves += 1;
+
+        return ReorderResolution.accept();
+      },
     },
     ...(animate ? [layoutAnimation()] : []),
-    { plugins: [probe] },
   );
 
   root.setPointerCapture = (): void => {};
@@ -771,10 +784,8 @@ function drive(n: number, animate: boolean): Drive {
 
   const drives: Drive = {
     moves: () => moves,
-    bracket: () => bracket,
 
     reset(): void {
-      bracket = 0;
       moves = 0;
     },
 
@@ -840,16 +851,21 @@ describe('the workload that earns it', () => {
 
     await sequence(6, (round) => arm.step(round));
 
-    const large = arm.moves();
-
     arm.release();
     await sequence(1, () => arm.step(0));
+
+    // Read after the release, because the counter is `onReorder` — the one hook
+    // a completed drag always reaches, and it fires when the drop resolves
+    // rather than once per committed move.
+    const large = arm.moves();
 
     // The collection shrinks below `capacity / 4`, which is what the gate asks.
     arm.replace(100);
     arm.reset();
     arm.grab();
     await sequence(6, (round) => arm.step(round));
+    arm.release();
+    await sequence(1, () => arm.step(0));
 
     // Both operations really committed moves, so both would really have
     // reached `refresh` — the first to grow the buffer, the second to shrink
@@ -916,48 +932,10 @@ describe('the workload that earns it', () => {
 describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
   'P-02 shrink — the capacity-bucket interval',
   () => {
-    // **The interval the first run skipped.** It jumped from 2 000 items
-    // (96 KiB, capacity 2048) to 20 000 (not drivable), and the next bucket
-    // opens at 2 049 — where the buffer is already **192 KiB** and a shrink
-    // would reclaim 186 KiB, comfortably past D-99's ~100 kB threshold. So the
-    // decline rests entirely on whether ~2 100–3 000 rows is drivable.
-    //
-    // **And the bound it rested on was the wrong curve.** That figure came from
-    // M-4′'s *general* rebuild, measured before P-06. On the current tree a
-    // committed move reads five witnesses rather than `n − 1` on seven moves in
-    // eight, so the deployed cost per move is not what it was.
-
-    for (const animate of [false, true]) {
-      for (const n of [2100, 3000]) {
-        it(`should report what one committed move costs at ${n} rows, ${animate ? 'animated' : 'bare'}`, async () => {
-          const FRAMES = 60;
-          const WARM = 10;
-          const arm = drive(n, animate);
-
-          await sequence(WARM, (round) => arm.step(round));
-          arm.reset();
-          await sequence(FRAMES, (round) => arm.step(WARM + round));
-
-          const moves = arm.moves();
-          const per = arm.bracket() / moves;
-
-          // oxlint-disable-next-line no-console -- this suite exists to report
-          console.info(
-            `P-02 interval n=${n} ${animate ? 'animated' : 'bare'} ` +
-              `moves=${moves}/${FRAMES} ` +
-              `bracket=${per.toFixed(3)}ms ` +
-              `frames=${(per / FRAME_MS).toFixed(3)} ` +
-              `buffer=${kb(capacityFor(n) * SLOT_BYTES)}`,
-          );
-
-          expect(moves).toBeGreaterThan(0);
-        }, 600_000);
-      }
-    }
-
     it('should report the reclaim available across the bucket boundary', () => {
-      // The other half, and it is arithmetic on the instrument rather than a
-      // new measurement: the bucket is what it is.
+      // Arithmetic on the instrument rather than a new measurement: the
+      // bucket is what it is, and what this reports is how much a shrink
+      // across each boundary has to give back.
       for (const high of [2000, 2049, 2100, 3000, 4096]) {
         const rows = pool(high);
         const cache = shipped(rows);

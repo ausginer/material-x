@@ -152,8 +152,8 @@ import type {
   AxisInstaller,
   LandingStart,
   AxisContribution,
+  SortableDisplacementInstaller,
   SortableLandingInstaller,
-  SortablePlugin,
 } from '../../src/sortable/feature.ts';
 // The ordinary tier.
 import { landing, type LandingOptions } from '../../src/sortable/landing.ts';
@@ -411,6 +411,17 @@ const installMyAxis: AxisInstaller = (ctx) => {
     insertion: {
       resolve: (frame) => frame.insertion,
       invalidate: () => cache.clear(),
+      // `measure` is required and `project` is not, which is the axis key's
+      // side of the bargain: an installer that cannot predict the committed
+      // move simply omits the prediction and says what it displaced — here, by
+      // invalidating itself and returning a plan that visits nothing. The
+      // escape is in the contract, so a middle-tier author who only resolves
+      // still compiles against it.
+      measure: () => {
+        cache.clear();
+
+        return () => {};
+      },
       retire: () => cache.clear(),
     },
     retire: () => {
@@ -421,11 +432,17 @@ const installMyAxis: AxisInstaller = (ctx) => {
 };
 
 /**
- * D-77 — a **plugin-shaped** installer, whose group declares no `insertion` and
- * since D-146 could not declare one. It fills `plugins`, and the negative
- * assertion below is that it cannot fill `axis`.
+ * D-77 — an installer from **another group**, whose contribution declares no
+ * `insertion` and since D-146 could not declare one. It fills `displacement`,
+ * and the negative assertion below is that it cannot fill `axis`.
  */
-const installMyPlugin: SortablePlugin = (ctx) => ({
+const installMyDisplacement: SortableDisplacementInstaller = (ctx) => ({
+  apply: () => {},
+  contribution: (_element, out) => {
+    out[0] = 0;
+    out[1] = 0;
+  },
+  settle: () => {},
   retire: () => ctx.report(undefined),
 });
 
@@ -479,9 +496,9 @@ sortable(root, {});
 sortable(root, {
   items: () => rows,
   onReorder: () => ReorderResolution.accept(),
-  // @ts-expect-error — a plugin-shaped installer contributes no insertion
+  // @ts-expect-error — a displacement installer contributes no insertion
   // geometry, which is what replaced the assembler's construction-time check.
-  axis: installMyPlugin,
+  axis: installMyDisplacement,
 });
 
 // @ts-expect-error — a complete config minus the axis is still incomplete.

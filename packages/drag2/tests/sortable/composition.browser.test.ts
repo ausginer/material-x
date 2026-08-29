@@ -27,7 +27,7 @@ import {
 import type {
   AxisInstaller,
   FeatureContext,
-  SortablePlugin,
+  SortableDisplacementInstaller,
 } from '../../src/sortable/feature.ts';
 import { y } from '../../src/sortable/y.ts';
 // **The cancellation vocabulary is imported from the public entry**, which is
@@ -839,7 +839,7 @@ describe('construction across the whole boundary', () => {
     ran: string[];
     /** Installers whose `retire` ran. */
     retired: string[];
-    plugin: SortablePlugin;
+    displacement: SortableDisplacementInstaller;
   }>;
 
   const probe = (): Probe => {
@@ -853,11 +853,17 @@ describe('construction across the whole boundary', () => {
         ran.push('axis');
         return y()(context);
       },
-      plugin: () => {
-        ran.push('plugin');
+      displacement: () => {
+        ran.push('displacement');
         return {
+          apply: (): void => {},
+          contribution: (_element, out): void => {
+            out[0] = 0;
+            out[1] = 0;
+          },
+          settle: (): void => {},
           retire: (): void => {
-            retired.push('plugin');
+            retired.push('displacement');
           },
         };
       },
@@ -887,7 +893,7 @@ describe('construction across the whole boundary', () => {
         },
         onReorder: () => ReorderResolution.accept(),
         axis: parts.axis,
-        plugins: [parts.plugin],
+        displacement: parts.displacement,
       }),
     ).toThrow(/consumer pull/u);
 
@@ -908,14 +914,14 @@ describe('construction across the whole boundary', () => {
       items: () => [item],
       onReorder: () => ReorderResolution.accept(),
       axis: parts.axis,
-      plugins: [parts.plugin],
+      displacement: parts.displacement,
     });
 
-    expect(parts.ran).toEqual(['axis', 'plugin']);
+    expect(parts.ran).toEqual(['axis', 'displacement']);
     expect(parts.retired).toEqual([]);
 
     return controller.destroy().then(() => {
-      expect(parts.retired).toEqual(['plugin']);
+      expect(parts.retired).toEqual(['displacement']);
     });
   });
 
@@ -936,7 +942,7 @@ describe('construction across the whole boundary', () => {
       },
       onReorder: () => ReorderResolution.accept(),
       axis: parts.axis,
-      plugins: [parts.plugin],
+      displacement: parts.displacement,
     };
     const sibling = (
       slots: unknown,
@@ -947,7 +953,7 @@ describe('construction across the whole boundary', () => {
       sibling(assemble(mergeFragments(config, []), context), config.items()),
     ).toThrow(/consumer pull/u);
 
-    expect(parts.ran).toEqual(['axis', 'plugin']);
+    expect(parts.ran).toEqual(['axis', 'displacement']);
     expect(parts.retired).toEqual([]);
   });
 });

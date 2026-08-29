@@ -8,18 +8,19 @@
  * closures exist.
  *
  * The shape is deliberately flat — `slots.resolveInsertion(...)` is one
- * property read and one call. The assembler flattens all four of
- * `InsertionGeometry`'s members — `resolve`, `invalidate`, the optional
+ * property read and one call. The assembler flattens every member of
+ * `InsertionGeometry` — `resolve`, `invalidate`, the optional `project`,
  * `measure`, and `retire` into the unwind list — so the pairing is a
  * construction-time claim rather than a hot-path indirection.
  */
 import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
 import type { Disposer } from '../kernel/lifetimes.ts';
-import type { DOMRealm } from '../kernel/realm.ts';
 import type { LandingStart } from '../kernel/spec.ts';
 import type { ItemSource, SortableOnEnd } from './config.ts';
 import type { CollectionSnapshot, Insertion, OnReorder } from './domain.ts';
+import type { DisplacementPlan } from './linear-shift.ts';
 import type { PlaceholderFactory } from './placement.ts';
+import type { DisplacementProbe } from './rect-index.ts';
 
 /**
  * The fields an axis rule may read off the frame. **The behavior passes
@@ -88,59 +89,26 @@ export type InsertionRuntimeView = Readonly<{
    */
   live(): boolean;
   /**
-   * The destination gap of the placeholder move currently being bracketed, or
-   * `null` outside a bracket — the **same field, on the same per-operation
-   * object**, that `DisplacementView.insertion` publishes to the displacement
-   * hooks.
+   * **The gap the placeholder occupies**, or `null` before one exists.
    *
-   * **It is a reason signal, not a convenience.** `measureInsertion` has
-   * exactly one call site, so an axis rule that sees a non-null gap here knows
-   * a committed move just happened. `frame.insertion` cannot say that: the
-   * frame's insertion outlives the bracket, and it is being *inside* the
-   * bracket that a fast path has to establish.
-   *
-   * An axis rule that ignores it is unaffected, which is what `xy()` does.
+   * A rule reads it in two places and means the same thing in both: `resolve`
+   * records which gap the buffer it just measured reflects, and `project` is
+   * told which gap the write about to happen will move it to. It is the frame's
+   * own committed insertion, republished here so a rule needs no second view.
    */
   insertion: Insertion | null;
+  /**
+   * **What the installed displacement sink is currently holding for an
+   * element**, or `null` when no displacement feature is composed.
+   *
+   * An axis subtracts it per candidate so a rebuild yields *settled* geometry
+   * rather than where an animation currently draws a row. It reads no layout,
+   * so a rebuild that runs mid-flight costs one call per candidate and nothing
+   * else — and no contribution ever has to be released so that something can
+   * measure.
+   */
+  contribution: DisplacementProbe | null;
 }>;
-
-export type DisplacementView = Readonly<{
-  realm: DOMRealm;
-  snapshot: CollectionSnapshot;
-  placeholder: HTMLElement;
-  /**
-   * The dragged item, so a displacement feature can exclude it.
-   *
-   * Membership in `snapshot` cannot do it — the dragged item *is* a member —
-   * and nothing else identifies it: the element the lift owns is not reachable
-   * from here. It matters because the placeholder is inserted immediately after
-   * the item, so **the dragged item is the first sibling of every backward
-   * span**; a displacement that animates it fights the lift for the element the
-   * kernel owns. Same reason as `InsertionFrameView.item`.
-   */
-  item: HTMLElement;
-  /**
-   * The gap the placeholder is moving **to**. Meaningful only inside the
-   * bracket — the hooks are the only readers, and they run nowhere else.
-   *
-   * Without it a displacement feature cannot know which elements the move
-   * affects until after the write, so it has to measure the whole destination
-   * view twice. The endpoints are what turn an O(list) bracket into an
-   * O(distance) one.
-   */
-  insertion: Insertion;
-  /**
-   * Whether the controller is still alive.
-   *
-   * A displacement hook measures **consumer-owned rows** in a loop and then
-   * animates them, and `getBoundingClientRect()` and `animate()` on a
-   * consumer's element are consumer calls: the behavior cannot guard the
-   * interior of a hook it only calls, so a hook that loops reads this itself.
-   */
-  live(): boolean;
-}>;
-
-export type DisplacementHook = (view: DisplacementView) => void;
 
 export type SortableSlots = Readonly<{
   /* required, filled by the axis feature */
@@ -155,20 +123,28 @@ export type SortableSlots = Readonly<{
    */
   invalidateInsertion(): void;
   /**
-   * "Re-read your geometry **now**", or `null` when the axis feature offers no
-   * eager path.
+   * **Predict the committed move**, immediately before the one DOM write, and
+   * return what it displaces — or `null` for "measure me instead".
    *
-   * The counterpart to the lazy invalidation above, and it exists for exactly
-   * one instant: inside the committed-move bracket, after the placeholder has
-   * been written and after every displacement feature has released its visual
-   * offsets. That is the only window in an active drag in which a read yields
-   * **settled presentation geometry**, and the axis rule is defined against
-   * that. Reading lazily on the next frame instead lands in the middle of a
-   * displacement animation and measures items where they no longer are.
+   * The slot itself is `null` when the axis contributed no prediction at all,
+   * which is one null test at one call site rather than a required member every
+   * rule has to fill with a refusal.
    */
-  measureInsertion:
-    | ((frame: InsertionFrameView, runtime: InsertionRuntimeView) => void)
+  projectInsertion:
+    | ((
+        frame: InsertionFrameView,
+        runtime: InsertionRuntimeView,
+      ) => DisplacementPlan | null)
     | null;
+  /**
+   * **Say what the committed move displaced**, measured, immediately after the
+   * write, and only when the prediction was absent or declined. Required: an
+   * axis that can do neither still has to leave its cache describing the tree.
+   */
+  measureInsertion(
+    frame: InsertionFrameView,
+    runtime: InsertionRuntimeView,
+  ): DisplacementPlan;
 
   /* required */
   /**
@@ -206,12 +182,22 @@ export type SortableSlots = Readonly<{
   onError: ((error: DraggableError | DraggableWarning) => void) | null;
 
   /**
-   * Prebuilt and fixed-length after assembly, empty in the minimal composition,
-   * and touched only around a committed placeholder move — never per pointer
-   * move.
+   * The displacement sink, or `null` when no displacement feature is composed —
+   * which is a null check at one call site rather than an empty array walked on
+   * every committed move.
    */
-  beforeMove: readonly DisplacementHook[];
-  afterMove: readonly DisplacementHook[];
+  displace: ((plan: DisplacementPlan, live: () => boolean) => void) | null;
+  /**
+   * Cancel every contribution in flight. Called by release **before** it
+   * measures, so the rebuild reads flow positions rather than rows mid-transit.
+   */
+  settleDisplacement: (() => void) | null;
+  /**
+   * The sink's own reading of what it currently holds per element, or `null`
+   * when nothing displaces. Copied onto the per-operation view so an axis reads
+   * one field rather than reaching the slot record.
+   */
+  contribution: DisplacementProbe | null;
   /** Installation order; every reader walks it backwards. */
   retireHooks: readonly Disposer[];
 

@@ -1380,11 +1380,15 @@ describe('layoutAnimation', () => {
     expect(running.length).toBeLessThan(2);
   });
 
-  it('should measure only the span, not the destination view', async () => {
-    // M-4's answer is a *cost* property, not a visible one: a whole-list
-    // bracket produces the same animations, because every row outside the span
-    // has a zero delta and is skipped. So the only honest way to pin it is to
-    // count the layout reads the bracket actually performs.
+  it('should add no layout read to the composition it joins', async () => {
+    // **The cost property, and it is now a zero.** The sink is handed vectors
+    // by the axis and answers for its own offsets from animation timing, so it
+    // touches layout nowhere: a composition that animates reads exactly what
+    // the same drag reads without it.
+    //
+    // Counting is still the only honest way to pin it — a whole-list bracket
+    // would produce the same *animations*, because every row outside the span
+    // has a zero delta and is skipped.
     const rows = 12;
     const native = Element.prototype.getBoundingClientRect;
 
@@ -1423,18 +1427,10 @@ describe('layoutAnimation', () => {
     const baseline = await measure([]);
     const bracketed = await measure([layoutAnimation({ duration: 500 })]);
 
-    // The axis rebuild is in both runs; the difference is the bracket alone.
-    // This fixture's move crosses one row, so the span is that row plus the
-    // anchor it stops at — 2 elements, measured before and after: **4 reads**.
-    // A destination-view bracket would add 2 × 12; a span walked in the wrong
-    // direction collects the rows on the other side instead, which is both
-    // wrong and, here, 6.
+    // **The control**: a run that reads nothing at all would satisfy the
+    // equality without exercising anything.
     expect(baseline).toBeGreaterThan(0);
-    // Bounded on both sides: a bracket that measures nothing is not a cheap
-    // bracket, it is a broken one — a span walked in the wrong direction finds
-    // no anchor and gives up.
-    expect(bracketed - baseline).toBeGreaterThan(0);
-    expect(bracketed - baseline).toBeLessThan(6);
+    expect(bracketed).toBe(baseline);
   });
 
   it('should restore every touched row at teardown', async () => {
@@ -1636,88 +1632,27 @@ describe('the terminal barrier in a resolver sequence', () => {
    * destroyed controller and would report "no animation" whether the barrier
    * exists or not.
    */
-  const bracketRecorder = (
-    befores: number[],
-    afters: number[],
-  ): Pick<SortableConfig, 'plugins'> => ({
-    // A plugin, because it names no capability slot of its own: the schema's
-    // `plugins` array is the only slot that appends rather than last-wins.
-    plugins: [
-      () => ({
-        beforeInsertionMove: (): void => {
-          befores.push(befores.length);
-        },
-        afterInsertionMove: (): void => {
-          afters.push(afters.length);
-        },
-      }),
-    ],
-  });
-
-  it('should not run the eager rebuild past a destroying candidate', async () => {
-    // Site C, first door: the eager rebuild inside the committed-move bracket.
-    // `measureInSeam` walks the candidate list through the same consumer
-    // resolver, so a destroy raised from there must take the exit a classified
-    // measure failure already has — nothing after it in the bracket runs.
-    const asked: HTMLElement[] = [];
-    const befores: number[] = [];
-    const afters: number[] = [];
-    let controller: SortableController | null = null;
-    const composed = composeWith({
-      fragments: [
-        {
-          visual: (item) => {
-            asked.push(item);
-
-            // Armed by the DOM rather than by a call count: the placeholder
-            // only follows `items[1]` once `movePlaceholder` has run, so this
-            // is exactly "inside the bracket, past the write".
-            if (
-              composed.placeholder()?.previousElementSibling ===
-              composed.items[1]
-            ) {
-              void controller!.destroy();
-            }
-
-            return item;
-          },
-        },
-        bracketRecorder(befores, afters),
-      ],
-    });
-
-    ({ controller } = composed);
-
-    activate(composed);
-    await drag(55);
-
-    expect(befores).toHaveLength(1);
-    expect(afters).toEqual([]);
-  });
-
   /**
-   * `y()`'s rule with its **eager** half withheld — a lazy axis feature, which
-   * the contract explicitly supports ("a feature that omits it stays lazy").
+   * A displacement sink that records nothing but the fact of being called.
    *
-   * It is what makes the bracket's own barrier observable. With an eager
-   * `measure` installed, `measureInSeam`'s `!rt.closed` already stops the same
-   * continuation, so the two guards are redundant for both first-party axes and
-   * neither can be seen alone. Defence in depth is the intent; this is the
-   * composition in which the outer guard is the only one there is.
+   * **It replaces a `beforeMove`/`afterMove` pipeline recorder**, because there
+   * is no pipeline left to record: a committed move is one plan, one write and
+   * one `apply`, so what a barrier test observes is whether `apply` ran at all.
    */
-  const lazyY =
-    (): AxisInstaller =>
-    (context): ReturnType<AxisInstaller> => {
-      const { insertion } = y()(context);
-
-      return {
-        insertion: {
-          resolve: insertion.resolve,
-          invalidate: insertion.invalidate,
-          retire: insertion.retire,
-        },
-      };
-    };
+  const displacementRecorder = (
+    applied: number[],
+  ): Pick<SortableConfig, 'displacement'> => ({
+    displacement: () => ({
+      apply: (): void => {
+        applied.push(applied.length);
+      },
+      contribution: (_element, out): void => {
+        out[0] = 0;
+        out[1] = 0;
+      },
+      settle: (): void => {},
+    }),
+  });
 
   it('should not run the bracket past a placeholder reaction that destroyed', async () => {
     // Site C, and the one no other test reaches. `movePlaceholder` moves a
@@ -1727,8 +1662,12 @@ describe('the terminal barrier in a resolver sequence', () => {
     // `activation.effect` already guards the identical hazard one line after
     // `item.after(placeholder)`; this is the same species through the other
     // door, and the `finally` must still clear `view.insertion`.
-    const befores: number[] = [];
-    const afters: number[] = [];
+    //
+    // **One of the three barriers D-157 keeps**, and the only one between the
+    // write and the sink: everything the old bracket guarded after this point
+    // — an invalidation, an eager rebuild, a second hook pipeline — is gone,
+    // so what this barrier now protects is `apply`.
+    const applied: number[] = [];
     let controller: SortableController | null = null;
 
     class ClosingPlaceholder extends HTMLElement {
@@ -1743,10 +1682,9 @@ describe('the terminal barrier in a resolver sequence', () => {
     customElements.define(name, ClosingPlaceholder);
 
     const composed = composeWith({
-      axis: lazyY(),
       fragments: [
         { placeholder: () => document.createElement(name) },
-        bracketRecorder(befores, afters),
+        displacementRecorder(applied),
       ],
     });
 
@@ -1755,109 +1693,8 @@ describe('the terminal barrier in a resolver sequence', () => {
     activate(composed);
     await drag(55);
 
-    // The write happened and the pipeline opened; nothing after the reaction
-    // ran — no invalidation, no measurement, and no `afterMove` hook.
-    expect(befores).toHaveLength(1);
-    expect(afters).toEqual([]);
-  });
-  /** A `beforeMove` hook that destroys the controller from inside the bracket. */
-  const closingBefore = (): Readonly<{
-    fragment: Pick<SortableConfig, 'plugins'>;
-    arm(c: SortableController): void;
-  }> => {
-    let controller: SortableController | null = null;
-
-    return {
-      fragment: {
-        plugins: [
-          () => ({
-            beforeInsertionMove: (): void => {
-              void controller?.destroy();
-            },
-          }),
-        ],
-      },
-      arm(c): void {
-        controller = c;
-      },
-    };
-  };
-
-  it('should not write the placeholder after a beforeMove hook destroyed', async () => {
-    // C4-01. A displacement hook measures consumer-owned rows, so an overridden
-    // `getBoundingClientRect()` can return into this pipeline on a destroyed
-    // controller — and the behavior's very next act is `movePlaceholder`, a DOM
-    // mutation that runs a custom-element placeholder's callbacks. The existing
-    // guard sits one line *after* that write and cannot reach it.
-    //
-    // The observable is the **report**, not the resulting DOM: teardown has
-    // already detached the placeholder, so the write does not silently move a
-    // node — it throws `drag: sortable/anchor-outside-container` and
-    // classifies a `FAILURE_ACTION_EFFECT` against a controller the consumer
-    // destroyed on purpose.
-    const befores: number[] = [];
-    const afters: number[] = [];
-    const armed = closingBefore();
-    const composed = composeWith({
-      fragments: [bracketRecorder(befores, afters), armed.fragment],
-    });
-
-    armed.arm(composed.controller);
-
-    activate(composed);
-    await drag(55);
-
-    expect(befores).toHaveLength(1);
-    expect(afters).toEqual([]);
-    // **One collector since D-130.** `expect(reported).toEqual([])` stood
-    // beside this and observed a `globalThis.reportError` stub; with one
-    // channel this single assertion covers both populations.
-    expect(composed.errors).toEqual([]);
-  });
-
-  it('should start no displacement after an afterMove measurement destroyed', async () => {
-    // The reviewer's reproduction against the real `layoutAnimation()`
-    // composition. `lazyY()` withholds the eager rebuild, so the only rows read
-    // after `movePlaceholder` are the `afterMove` pass's own — which is what
-    // makes "post-move" a sound arming condition for the destroy.
-    const played: HTMLElement[] = [];
-    let controller: SortableController | null = null;
-    const composed = composeWith({
-      axis: lazyY(),
-      fragments: [layoutAnimation({ duration: 500 })],
-    });
-
-    ({ controller } = composed);
-
-    const row = composed.items[1]!;
-    const nativeRect = row.getBoundingClientRect.bind(row);
-    const nativeAnimate = row.animate.bind(row);
-
-    row.getBoundingClientRect = (): DOMRect => {
-      const rect = nativeRect();
-
-      if (composed.placeholder()?.previousElementSibling !== row) {
-        return rect;
-      }
-
-      void controller.destroy();
-
-      // **Shifted deliberately.** Teardown removes the placeholder and drops
-      // the lift, which puts the row back exactly where this pass measured it —
-      // so an honest rect makes `delta === 0`, `animate()` is skipped for a
-      // reason that has nothing to do with the barrier, and the assertion stops
-      // discriminating. The reviewer's own reproduction shifted it too.
-      return new DOMRect(rect.x, rect.y + 20, rect.width, rect.height);
-    };
-    row.animate = (frames, options): Animation => {
-      played.push(row);
-
-      return nativeAnimate(frames, options);
-    };
-
-    activate(composed);
-    await drag(55);
-
-    expect(played).toEqual([]);
+    // The write happened and the reaction destroyed the controller; the sink
+    // never ran, so no contribution was started on a retired feature.
+    expect(applied).toEqual([]);
   });
 });

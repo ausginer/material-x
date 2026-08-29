@@ -17,20 +17,19 @@ import type { Disposer } from '../kernel/lifetimes.ts';
 import type { LandingStart } from '../kernel/spec.ts';
 import type { SortableConfig } from './config.ts';
 import type { FeatureContext, SortableFeatureContext } from './feature.ts';
-import {
-  DEFAULT_THRESHOLD,
-  type DisplacementHook,
-  NOOP_START,
-  type SortableSlots,
-} from './slots.ts';
+import type { DisplacementPlan } from './linear-shift.ts';
+import type { DisplacementProbe } from './rect-index.ts';
+import { DEFAULT_THRESHOLD, NOOP_START, type SortableSlots } from './slots.ts';
 
 export function assemble(
   config: SortableConfig,
   context: FeatureContext,
 ): SortableSlots {
   let startLanding: LandingStart | null = null;
-  const beforeMove: DisplacementHook[] = [];
-  const afterMove: DisplacementHook[] = [];
+  let displace: ((plan: DisplacementPlan, live: () => boolean) => void) | null =
+    null;
+  let settleDisplacement: (() => void) | null = null;
+  let contribution: DisplacementProbe | null = null;
   const retireHooks: Disposer[] = [];
 
   // **There are no required-slot checks.** The required first argument is what
@@ -56,12 +55,10 @@ export function assemble(
 
   try {
     // **Installation order is schema order**, written out rather than driven by
-    // a loop over a heterogeneous array: named capability keys first, in the
-    // order the schema declares them, then plugins in array order, and every
-    // reader of `retireHooks` walks it backwards. Fragment order survives only
-    // inside `plugins`: recovering a first-appearance order would mean
-    // recording which fragment each slot arrived from, and a fragment carries
-    // no provenance.
+    // a loop over a heterogeneous array: the named capability keys, in the
+    // order the schema declares them, and every reader of `retireHooks` walks
+    // it backwards. With no unbounded position left there is no fragment order
+    // to preserve anywhere.
     const axis = config.axis(branded);
 
     // Cleanup is recorded **first**, before anything below can throw, and in
@@ -82,14 +79,6 @@ export function assemble(
       retireHooks.push(axis.retire);
     }
 
-    if (axis.beforeInsertionMove) {
-      beforeMove.push(axis.beforeInsertionMove);
-    }
-
-    if (axis.afterInsertionMove) {
-      afterMove.push(axis.afterInsertionMove);
-    }
-
     if (config.landing) {
       const landing = config.landing(branded);
 
@@ -100,20 +89,18 @@ export function assemble(
       ({ startLanding } = landing);
     }
 
-    for (const install of config.plugins ?? []) {
-      const plugin = install(branded);
+    if (config.displacement) {
+      const displacement = config.displacement(branded);
 
-      if (plugin.retire) {
-        retireHooks.push(plugin.retire);
+      if (displacement.retire) {
+        retireHooks.push(displacement.retire);
       }
 
-      if (plugin.beforeInsertionMove) {
-        beforeMove.push(plugin.beforeInsertionMove);
-      }
-
-      if (plugin.afterInsertionMove) {
-        afterMove.push(plugin.afterInsertionMove);
-      }
+      ({
+        apply: displace,
+        contribution,
+        settle: settleDisplacement,
+      } = displacement);
     }
 
     // **The flat slot record is built inside the unwind bracket, and that
@@ -135,11 +122,12 @@ export function assemble(
       // JS-authored violator throw *here*, inside the bracket.
       resolveInsertion: axis.insertion.resolve,
       invalidateInsertion: axis.insertion.invalidate,
-      // Flattened like the other two, and normalized to `null` rather than to a
-      // no-op: the behavior's call site is already inside a guarded branch, so
-      // a null check costs nothing there and a shared no-op would hide from a
-      // reader that the eager read is optional.
-      measureInsertion: axis.insertion.measure ?? null,
+      // **Nullable, and normalized to `null` here rather than at the call
+      // site.** An axis that cannot predict omits the member entirely — `xy()`
+      // does — so the bracket tests one field instead of every rule having to
+      // supply a refusal.
+      projectInsertion: axis.insertion.project ?? null,
+      measureInsertion: axis.insertion.measure,
 
       // **Not validated as a function.** The type says `ItemSource`; a JS
       // consumer that passes something else has already broken its own code at
@@ -178,8 +166,9 @@ export function assemble(
       box: config.box ?? config.visual ?? null,
       startLanding,
 
-      beforeMove,
-      afterMove,
+      displace,
+      settleDisplacement,
+      contribution,
       retireHooks,
     };
 

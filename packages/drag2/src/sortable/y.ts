@@ -30,8 +30,15 @@ import {
   insertionAt,
 } from './domain.ts';
 import type { AxisInstaller } from './feature.ts';
-import { CENTRE_Y, createRectIndex, STRIDE } from './rect-index.ts';
-import { createVerifiedRefresh } from './verified-refresh.ts';
+import { type DisplacementPlan, createLinearShift } from './linear-shift.ts';
+import {
+  BOTTOM,
+  CENTRE_Y,
+  createRectIndex,
+  type DisplacementProbe,
+  STRIDE,
+  TOP,
+} from './rect-index.ts';
 
 /**
  * Consumer-declared views. Declared **here**, in the feature's own module, so
@@ -44,6 +51,13 @@ import { createVerifiedRefresh } from './verified-refresh.ts';
  */
 type InsertionFrameView = Readonly<{
   pointerY: number;
+  /**
+   * **The committed gap**, and it means two things at two call sites because
+   * the frame does. In `resolve` it is where the placeholder *is*, so the
+   * rebuild records which gap its buffer reflects; in `project` the prepare has
+   * already committed the new one, so it is where the write is about to put it.
+   */
+  insertion: Insertion | null;
   /** The dragged item, excluded from the candidates and from the index. */
   item: HTMLElement | null;
 }>;
@@ -69,24 +83,12 @@ type InsertionRuntimeView = Readonly<{
    */
   live(): boolean;
   /**
-   * The destination gap of the committed move being bracketed, or `null`
-   * outside the bracket.
-   *
-   * `measure` has exactly one call site — the committed-move bracket — so a
-   * non-null value here *is* the reason signal: it says a placeholder move just
-   * happened, without widening `invalidate` and without this module learning
-   * anything about the behavior's phases. `resolve` reads it too, and
-   * deliberately ignores it: a lazy rebuild has no committed move to attribute
-   * itself to.
+   * The installed displacement sink's probe, or `null` when no displacement
+   * feature is composed. Subtracted per candidate so the cache holds settled
+   * geometry while contributions run; see `rect-index.ts`.
    */
-  insertion: Insertion | null;
+  contribution: DisplacementProbe | null;
 }>;
-
-const centreOf = (element: Element): number => {
-  const rect = element.getBoundingClientRect();
-
-  return (rect.top + rect.bottom) * 0.5;
-};
 
 /**
  * The one-dimensional axis rule: the insertion gap follows the item centre
@@ -95,19 +97,58 @@ const centreOf = (element: Element): number => {
  *
  * **It returns the installer itself, not a one-key fragment**, and is written
  * `axis: y()` inside the required first argument of `sortable()`.
+ *
+ * ## The geometry this rule requires
+ *
+ * The rule maintains a cache of destination-slot geometry and moves it forward
+ * without re-reading the DOM. **These are contract terms, not runtime checks.**
+ * A list that breaks one of them is outside the rule's domain, and the library
+ * spends no bytes discovering that.
+ *
+ * - **G1-flow** — a candidate box's **flow** size does not depend on where in
+ *   the collection it sits. A row that grows when it moves is not a sortable
+ *   row.
+ * - **G1-presented** — whatever authored presentation a row wears — a
+ *   `translate`, a `rotate`, a `scale`, an ancestor's transform — **travels
+ *   with the row rather than changing because of where it landed**. Authored
+ *   presentation is fully supported; presentation that is a *function of the
+ *   slot* is not.
+ * - **G2** — a committed move relocates exactly one hole, from one gap to one
+ *   other gap. Nothing else in the destination order changes.
+ * - **G4** — every box occupies one contiguous run of the flow, never two.
+ * - **G5** — a prediction may consume only a **same-element temporal
+ *   difference** of measured geometry. A difference between two *different*
+ *   elements' measured rects carries the difference of their authored
+ *   presentation and is not a flow quantity. This is the library's own
+ *   obligation, stated because it is what decides which of the two axes
+ *   predicts and which measures.
+ *
+ * ## G3-linear
+ *
+ * **This axis predicts**, and this is the rule it predicts by: relocating the
+ * hole from gap `A` to gap `B` displaces the slots in `[min(A,B), max(A,B))` by
+ * **one constant** along the axis and changes nothing else, including both
+ * cross-axis coordinates. A list whose rows do not all shift by the same amount
+ * — one that wraps, or whose flow gap varies from row to row — does not satisfy
+ * it.
+ *
+ * The constant itself is a flow quantity, so under G5 it is **measured once per
+ * operation** — one row, read after the first committed move — and once again
+ * after any invalidation. Every other committed move performs **no layout read
+ * at all**, and neither does any warm spatial frame.
  */
 export function y(): AxisInstaller {
   return () => {
     // Private per-feature state: nobody else can name it, reach it, or type it,
     // so the geometry cache has exactly one owner.
     const index = createRectIndex();
-    // The verified fast path is `y()`-only, and this import is its opt-in: a
-    // module this rule reaches and `xy()` does not, rather than a branch inside
-    // the cache both share. The wrapper owns the span hypothesis and its
-    // counters; `index` stays the dimension-neutral full scan, and every
-    // refresh below goes through the wrapper so the two cannot disagree about
-    // what the buffer holds.
-    const verified = createVerifiedRefresh(index);
+    // **G3-linear, and this import is the axis's opt-in to it**: a module this
+    // rule reaches and `xy()` does not, rather than a branch inside the cache
+    // both share. The five arguments are this axis's instantiation — the three
+    // stride offsets it predicts along, and the unit vector that turns the
+    // scalar displacement into a plan's two components. A future `x()` passes
+    // `LEFT`, `RIGHT`, `CENTRE_X`, `1`, `0` and needs nothing else from here.
+    const shift = createLinearShift(index, TOP, BOTTOM, CENTRE_Y, 0, 1);
 
     return {
       insertion: {
@@ -121,27 +162,32 @@ export function y(): AxisInstaller {
             return null;
           }
 
-          const { snapshot, placeholder } = runtime;
+          const { snapshot } = runtime;
+          const { insertion } = frame;
 
           if (
-            !verified.refresh(
+            !shift.refresh(
               snapshot,
               dragged,
               runtime.box,
               runtime.live,
-              // A lazy rebuild has no committed move to attribute itself to.
-              -1,
+              runtime.placeholder,
+              runtime.contribution,
+              // The gap the buffer this scan produces reflects: where the
+              // placeholder stands right now, which is what a later projection
+              // advances from.
+              insertion ? insertion.index : -1,
             )
           ) {
-            // The rebuild crossed the terminal barrier. Measuring the
-            // placeholder below would be a consumer call — it is the consumer's
-            // element and may override `getBoundingClientRect()` — so the
-            // resolution stops here rather than at the empty scan.
+            // The rebuild crossed the terminal barrier.
             return null;
           }
 
-          const { values, count } = index;
-          const anchor = centreOf(placeholder);
+          const { values, count, hole } = index;
+          // **Read, not measured.** The rebuild above cached the placeholder's
+          // own rect, so a warm spatial frame — the common one — performs no
+          // layout read at all.
+          const anchor = hole[CENTRE_Y]!;
           const { pointerY } = frame;
           // The incumbent to beat is the placeholder's own centre.
           let best = Math.abs(pointerY - anchor);
@@ -176,44 +222,42 @@ export function y(): AxisInstaller {
           return insertionAt(items, gap, snapshot);
         },
 
-        invalidate: verified.invalidate,
+        invalidate: shift.invalidate,
 
         /**
-         * The eager half. The behavior calls it inside the committed-move
-         * bracket, in the one window where no displacement offset is applied,
-         * so the rebuild reads **settled presentation geometry**.
+         * **The prediction**, run by the behavior immediately *before* the one
+         * DOM write of a committed move. It advances the cache and the
+         * placeholder slot to the geometry the write is about to produce and
+         * returns the plan — the elements that move and the vector each is
+         * about to travel, negated.
          *
-         * This is a re-timing, not an extra read: a committed move always
-         * dirties the cache and `resolve` always rebuilds it on the next
-         * spatial frame, which by then is mid-animation. The only case that
-         * pays for a pass it would not otherwise have is the last move before
-         * release — and release invalidates and re-resolves anyway.
+         * It reads no DOM and calls no consumer code, which is what lets the
+         * behavior call it with no terminal barrier and no invalidation.
          *
+         * `null` means the displacement constant is not established yet — the
+         * first committed move of an operation, and the first after any
+         * invalidation — and asks the behavior for the measured path instead.
+         */
+        project(
+          frame: InsertionFrameView,
+          runtime: InsertionRuntimeView,
+        ): DisplacementPlan | null {
+          return shift.project(frame.insertion!.index, frame.item!, runtime);
+        },
+
+        /**
+         * **The establishing move**, run immediately *after* the DOM write, and
+         * only when {@link project} declined. One row is read and the constant
+         * it yields serves every later move on the same geometry.
          */
         measure(
           frame: InsertionFrameView,
           runtime: InsertionRuntimeView,
-        ): void {
-          const dragged = frame.item;
-
-          if (dragged) {
-            const { insertion } = runtime;
-
-            // **The reason signal.** The gap is both "a committed move just
-            // happened" and half the span hypothesis; four reads verify the
-            // other half, and any refutation falls back to the full rebuild, in
-            // the same window.
-            verified.refresh(
-              runtime.snapshot,
-              dragged,
-              runtime.box,
-              runtime.live,
-              insertion ? insertion.index : -1,
-            );
-          }
+        ): DisplacementPlan {
+          return shift.measure(frame.insertion!.index, runtime);
         },
 
-        retire: verified.retire,
+        retire: shift.retire,
       },
     };
   };

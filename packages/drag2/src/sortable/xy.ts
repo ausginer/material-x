@@ -40,7 +40,16 @@ import {
   insertionAt,
 } from './domain.ts';
 import type { AxisInstaller } from './feature.ts';
-import { CENTRE_X, CENTRE_Y, createRectIndex, STRIDE } from './rect-index.ts';
+import type { DisplacementPlan } from './linear-shift.ts';
+import {
+  CENTRE_X,
+  CENTRE_Y,
+  createRectIndex,
+  type DisplacementProbe,
+  LEFT,
+  STRIDE,
+  TOP,
+} from './rect-index.ts';
 
 /**
  * Consumer-declared views, declared **here** rather than imported from the
@@ -51,6 +60,8 @@ import { CENTRE_X, CENTRE_Y, createRectIndex, STRIDE } from './rect-index.ts';
 type InsertionFrameView = Readonly<{
   pointerX: number;
   pointerY: number;
+  /** The committed gap; see `y.ts` for why it is read off the frame. */
+  insertion: Insertion | null;
   /** The dragged item, excluded from the candidates and from the index. */
   item: HTMLElement | null;
 }>;
@@ -66,7 +77,12 @@ type InsertionRuntimeView = Readonly<{
    * both sibling modules name it and a future axis has to as well.
    */
   live(): boolean;
+  /** The installed displacement sink's probe, or `null`; see `rect-index.ts`. */
+  contribution: DisplacementProbe | null;
 }>;
+
+/** The empty plan: nothing moved, so the visitor is never invoked. */
+const NOTHING: DisplacementPlan = (): void => {};
 
 /**
  * The two-dimensional axis rule: the insertion gap follows the item centre
@@ -75,10 +91,64 @@ type InsertionRuntimeView = Readonly<{
  *
  * **It returns the installer itself, not a one-key fragment**, and is written
  * `axis: xy()` inside the required first argument of `sortable()`.
+ *
+ * ## The geometry this rule requires
+ *
+ * The rule maintains a cache of destination-slot geometry and moves it forward
+ * without re-reading the DOM. **These are contract terms, not runtime checks.**
+ * A list that breaks one of them is outside the rule's domain, and the library
+ * spends no bytes discovering that.
+ *
+ * - **G1-flow** — a candidate box's **flow** size does not depend on where in
+ *   the collection it sits. A row that grows when it moves is not a sortable
+ *   row.
+ * - **G1-presented** — whatever authored presentation a row wears — a
+ *   `translate`, a `rotate`, a `scale`, an ancestor's transform — **travels
+ *   with the row rather than changing because of where it landed**. Authored
+ *   presentation is fully supported; presentation that is a *function of the
+ *   slot* is not.
+ * - **G2** — a committed move relocates exactly one hole, from one gap to one
+ *   other gap. Nothing else in the destination order changes.
+ * - **G4** — every box occupies one contiguous run of the flow, never two.
+ * - **G5** — a prediction may consume only a **same-element temporal
+ *   difference** of measured geometry. A difference between two *different*
+ *   elements' measured rects carries the difference of their authored
+ *   presentation and is not a flow quantity. This is the library's own
+ *   obligation, stated because it is what decides which of the two axes
+ *   predicts and which measures.
+ *
+ * ## This axis does not predict
+ *
+ * A cellular move sets a crossed slot to the position **another** slot holds,
+ * which is exactly the cross-element difference G5 refuses, and unlike the
+ * linear constant the error is per element and no single measurement recovers
+ * it. So a committed move here **rebuilds the cache after the write** and takes
+ * its "before" geometry from the cache it already held — one list-wide
+ * measurement per committed move rather than two, and still none on a warm
+ * spatial frame.
+ *
+ * There is therefore no cellular rule for a consumer to satisfy, and in
+ * particular **no requirement that the track geometry be independent of its
+ * occupants**: this axis measures what the browser actually laid out.
  */
 export function xy(): AxisInstaller {
   return () => {
     const index = createRectIndex();
+    /**
+     * The gap the packed buffer reflects, or `-1` when nothing is known.
+     * Recorded by every rebuild, and what tells the measured plan which slots
+     * the move could possibly have touched.
+     */
+    let last = -1;
+    /**
+     * The origins the warm cache held immediately before the write, packed
+     * `[left, top]` per slot.
+     *
+     * **This is what replaces the old before-move measurement.** The cache the
+     * rule already maintains *is* the "before" geometry, so the move costs one
+     * rebuild rather than a list-wide scan on each side of the write.
+     */
+    let before = new Float64Array(0);
 
     return {
       insertion: {
@@ -92,20 +162,30 @@ export function xy(): AxisInstaller {
             return null;
           }
 
-          const { snapshot, placeholder } = runtime;
+          const { snapshot } = runtime;
 
-          if (!index.refresh(snapshot, dragged, runtime.box, runtime.live)) {
-            // The rebuild crossed the terminal barrier; see `y.ts`. The
-            // placeholder measured below is consumer-owned, so reading it after
-            // the close would be an indirect consumer call.
+          if (
+            !index.refresh(
+              snapshot,
+              dragged,
+              runtime.box,
+              runtime.live,
+              runtime.placeholder,
+              runtime.contribution,
+            )
+          ) {
+            // The rebuild crossed the terminal barrier; see `y.ts`.
             return null;
           }
 
-          const { values, count } = index;
+          last = frame.insertion ? frame.insertion.index : -1;
+
+          const { values, count, hole } = index;
           const { pointerX, pointerY } = frame;
-          const anchor = placeholder.getBoundingClientRect();
-          const anchorX = (anchor.left + anchor.right) * 0.5;
-          const anchorY = (anchor.top + anchor.bottom) * 0.5;
+          // **Read, not measured**: the rebuild cached the placeholder's own
+          // rect, so a warm spatial frame performs no layout read.
+          const anchorX = hole[CENTRE_X]!;
+          const anchorY = hole[CENTRE_Y]!;
           // The incumbent to beat is the placeholder's own centre — the same
           // hysteresis `y()` has, and for the same reason: a new gap is
           // proposed only once another candidate is genuinely closer than the
@@ -134,13 +214,12 @@ export function xy(): AxisInstaller {
           }
 
           if (!runtime.live()) {
-            // **The second placeholder barrier**, and `y()` has no counterpart
-            // because it needs no second call: it derives the side from two
-            // centres it has already measured. Here the anchor read above is a
-            // consumer call on a consumer-owned element, and
-            // `compareDocumentPosition` below is a second one on the same
-            // element. Paid only on a frame that proposes a gap change, not on
-            // every spatial frame.
+            // **The placeholder barrier**, and `y()` has no counterpart
+            // because it needs no such call: it derives the side from two
+            // centres the cache already holds. `compareDocumentPosition` below
+            // is a consumer call on a consumer-owned element, and it is the one
+            // read this rule still cannot derive. Paid only on a frame that
+            // proposes a gap change, not on every spatial frame.
             return null;
           }
 
@@ -149,7 +228,9 @@ export function xy(): AxisInstaller {
           // is on its far side. The mask test is what `compareDocumentPosition`
           // is for — it returns a bitfield and several bits can be set at once,
           // which is the one legitimate use of `&` in this package.
-          const position = placeholder.compareDocumentPosition(items[nearest]!);
+          const position = runtime.placeholder.compareDocumentPosition(
+            items[nearest]!,
+          );
 
           // oxlint-disable-next-line no-bitwise -- a documented bitfield
           const follows = (position & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
@@ -158,21 +239,98 @@ export function xy(): AxisInstaller {
           return insertionAt(items, gap, snapshot);
         },
 
-        invalidate: index.invalidate,
+        invalidate(): void {
+          last = -1;
+          index.invalidate();
+        },
 
-        /** The eager half, identical in timing and reason to `y()`'s. */
+        /**
+         * **The measured plan, run immediately *after* the DOM write.**
+         *
+         * **This rule does not predict, and G5 is the reason it cannot.** A
+         * cellular move sets a crossed slot to the position *another* slot
+         * currently holds, which is a difference between two different
+         * elements' presented geometry and therefore carries the difference of
+         * their authored contributions. Unlike the linear case the error is
+         * per-element rather than one scalar, and one measurement cannot
+         * recover it: same-element temporal differences yield only the cell
+         * steps already behind the hole, never the ones ahead of it.
+         *
+         * So the "before" geometry is the warm cache this rule already holds
+         * and the "after" is one rebuild. **That is one list-wide measurement
+         * per committed move rather than two**, and a warm spatial frame still
+         * reads nothing at all.
+         */
         measure(
           frame: InsertionFrameView,
           runtime: InsertionRuntimeView,
-        ): void {
-          const dragged = frame.item;
+        ): DisplacementPlan {
+          const gap = frame.insertion!.index;
+          const from = last;
+          const held = index.count;
 
-          if (dragged) {
-            index.refresh(runtime.snapshot, dragged, runtime.box, runtime.live);
+          if (from < 0 || from === gap || held === 0) {
+            // Nothing to compare against, and the write has already landed.
+            last = -1;
+            index.invalidate();
+
+            return NOTHING;
           }
+
+          if (before.length < held * 2) {
+            before = new Float64Array(held * 2);
+          }
+
+          const stale = index.values;
+
+          for (let i = 0; i < held; i += 1) {
+            before[i * 2] = stale[i * STRIDE + LEFT]!;
+            before[i * 2 + 1] = stale[i * STRIDE + TOP]!;
+          }
+
+          index.invalidate();
+
+          if (
+            !index.refresh(
+              runtime.snapshot,
+              frame.item!,
+              runtime.box,
+              runtime.live,
+              runtime.placeholder,
+              runtime.contribution,
+            )
+          ) {
+            last = -1;
+
+            return NOTHING;
+          }
+
+          last = gap;
+
+          // **The destination order is stable across a placeholder move**: the
+          // view is the collection minus the dragged item, and moving the hole
+          // reorders none of it. So slot `i` is the same element on both sides
+          // and the vector is one subtraction.
+          const { values, items, count } = index;
+          const span = count < held ? count : held;
+
+          return (visit): void => {
+            for (let i = 0; i < span; i += 1) {
+              const offset = i * STRIDE;
+              const dx = before[i * 2]! - values[offset + LEFT]!;
+              const dy = before[i * 2 + 1]! - values[offset + TOP]!;
+
+              if (dx !== 0 || dy !== 0) {
+                visit(items[i]!, dx, dy);
+              }
+            }
+          };
         },
 
-        retire: index.retire,
+        retire(): void {
+          last = -1;
+          index.retire();
+        },
       },
     };
   };

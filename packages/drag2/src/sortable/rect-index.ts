@@ -28,6 +28,23 @@ export const CENTRE_X = 4;
 export const CENTRE_Y = 5;
 
 /**
+ * **What a displacement sink is currently holding for one element**, written
+ * into `out` as `[dx, dy]` and zero when it holds nothing.
+ *
+ * It is answered from animation timing and performs **no layout read**, which
+ * is the whole of why nothing is ever released: a cache rebuilt while
+ * contributions are in flight subtracts this per candidate and obtains settled
+ * geometry, so there is no window in which a row has jumped back.
+ *
+ * An out-parameter rather than a returned pair, because a rebuild asks once per
+ * candidate and a returned object would allocate one per row per rebuild.
+ */
+export type DisplacementProbe = (
+  element: HTMLElement,
+  out: Float64Array,
+) => void;
+
+/**
  * **Fields, not accessors.** Exposing `values()` and `count()` as methods costs
  * 90 B on the minimal composition and two calls per resolution on the hot path
  * — for encapsulation nothing can observe, since the whole record is private to
@@ -36,6 +53,19 @@ export const CENTRE_Y = 5;
 export type RectIndex = {
   /** The packed values. Re-allocated only when the collection outgrows it. */
   values: Float64Array;
+  /**
+   * **The placeholder's own rect, packed in the same six fields as a slot.**
+   *
+   * It is the hole the destination view is arranged around, and both axis rules
+   * need it: both compare candidate centres against it, and the linear rule
+   * advances it alongside the slots it predicts. Measured **once per rebuild**
+   * here rather than once per spatial frame in each rule, so a warm frame
+   * performs no layout read at all.
+   *
+   * Allocated once with the record and never re-allocated: it is one slot, and
+   * one slot does not grow.
+   */
+  hole: Float64Array;
   /** Destination-ordered elements, parallel to the packed slots. */
   items: HTMLElement[];
   /** How many destination slots the last scan produced. */
@@ -58,11 +88,19 @@ export type RectIndex = {
    * item is its own box and the geometry read is the only consumer call in the
    * loop, but it is still one.
    *
+   * `placeholder` is measured into {@link RectIndex.hole} by the same scan, so
+   * the rule that reads it never measures it. It is consumer-owned like every
+   * candidate, so the barrier below covers it too.
+   *
+   * `contribution` is the installed displacement sink's probe, or `null` when
+   * no displacement feature is composed. Subtracting it per candidate is what
+   * makes this scan yield **settled** geometry while contributions are still
+   * running — the cache holds where flow puts a row, never where an animation
+   * currently draws it. The placeholder never carries one: a plan visits the
+   * destination view, which does not contain it.
+   *
    * Returns `false` — and **only** then — when the rebuild aborted on the
-   * terminal barrier. The caller owes the same discipline for its own reads: it
-   * must invoke no further consumer code, which includes measuring the
-   * consumer-owned placeholder, whose `getBoundingClientRect()` a consumer may
-   * have overridden. One shared channel rather than a per-axis `live()`
+   * terminal barrier. One shared channel rather than a per-axis `live()`
    * recheck: the recheck would cost a call per resolution in *every*
    * composition, where this costs one per candidate per **rebuild** only.
    */
@@ -71,6 +109,8 @@ export type RectIndex = {
     dragged: HTMLElement,
     getBox: ((item: HTMLElement) => HTMLElement) | null,
     live: () => boolean,
+    placeholder: HTMLElement,
+    contribution: DisplacementProbe | null,
   ): boolean;
   invalidate(): void;
   retire(): void;
@@ -86,7 +126,195 @@ const capacityFor = (needed: number): number => {
   return capacity;
 };
 
+/**
+ * The development-build flag, read as the **bare global**.
+ *
+ * `__DEV__` is declared in `src/globals.d.ts` at **package** scope, so it is
+ * package vocabulary rather than kernel vocabulary and the behavior tier binds
+ * it directly. The kernel binds the ambient nowhere at all, and importing such
+ * a binding would assert a behavior-tier reach into `kernel/` that must not
+ * exist. `__DEV__` is replaced at build time, `DEV` is a literal, and every
+ * branch guarded by it is dead code the minifier drops.
+ *
+ * **This is the package's one binding**, and
+ * `tests/kernel/vocabulary.node.test.ts` asserts that.
+ */
+export const DEV: boolean = __DEV__;
+
+/**
+ * Whether the equivalence instrument runs. `DEV`-only in every sense: the read
+ * sits inside a `DEV` branch, so the published bundle contains neither it nor
+ * this binding.
+ *
+ * **It is not a measurement flag, and the direction is the whole of why.** The
+ * instrument is on by default and every suite run checks it; this exists for
+ * the opposite case — a performance measurement, which has to measure the code
+ * that *ships*. The instrument performs a full scan, which is precisely the
+ * forced layout this model removes, so leaving it on would time a build no
+ * consumer can install.
+ */
+let verifying = true;
+
+/** @see verifying — used by `tests/perf`, and by nothing in `src`. */
+export function setRefreshVerification(enabled: boolean): void {
+  if (DEV) {
+    verifying = enabled;
+  }
+}
+
+/**
+ * **The equivalence instrument**, and what makes the prediction admissible
+ * rather than merely plausible.
+ *
+ * The buffer the **previous** projection wrote must equal what a full scan of
+ * the tree now produces. That is G3's instantiation for this axis, and it is
+ * checked at the head of the next projection rather than at the foot of the one
+ * that made the claim — a prediction describes the tree *after* a write that
+ * has not happened yet, so the only instant it can be tested against is once
+ * that write has landed. Asserted on every suite run and behind no measurement
+ * flag: `DEV` is `true` in this
+ * repository's vite and vitest configs and folds to `false` in the published
+ * bundle, so every test that drives a real drag through `y()` checks it and no
+ * consumer pays for it.
+ *
+ * **It heals before it throws**, writing the authoritative values back as it
+ * goes, so a mismatch leaves the cache correct and the drag classified rather
+ * than correct in the message and wrong in the buffer.
+ *
+ * **It takes no terminal barrier, and that is what scopes it.** Every call it
+ * makes is a consumer call on a consumer-owned element, so in a shipped build
+ * it would need the same threading the candidate loop has. It is not in a
+ * shipped build: `DEV` folds to `false` and the whole function is dropped. What
+ * remains is an in-repo instrument, and a fixture that destroys its controller
+ * from inside `getBoundingClientRect` is measuring the instrument rather than
+ * the library.
+ *
+ * **It runs in every composition, including one that animates.** A displaced
+ * row carries an additive `translate` and `getBoundingClientRect()` reports
+ * where the row *is*; subtracting the sink's own contribution turns that back
+ * into settled geometry, which is what the cache holds. So there is no
+ * composition the instrument has to be scoped away from, and no settled window
+ * it has to wait for.
+ */
+export const verifyEquivalence = (
+  index: RectIndex,
+  snapshot: CollectionSnapshot,
+  dragged: HTMLElement,
+  getBox: ((item: HTMLElement) => HTMLElement) | null,
+  placeholder: HTMLElement,
+  contribution: DisplacementProbe | null,
+  rule: string,
+): void => {
+  if (!verifying) {
+    return;
+  }
+
+  const { values, items, hole } = index;
+  const held = new Float64Array(2);
+  /**
+   * **Exact where the comparison can be exact, and slack only where it cannot.**
+   * With no sink installed both sides are the same arithmetic on the same
+   * readings, so any difference at all is a real disagreement. Subtracting a
+   * contribution reintroduces floating-point error of order `1e-6` px, which is
+   * six orders of magnitude below the smallest disagreement a broken rule
+   * produces — a rule that is wrong is wrong by a row.
+   */
+  const slack = contribution ? 1 / 256 : 0;
+  const differs = (a: number, b: number): boolean => {
+    const gap = a - b;
+
+    return (gap < 0 ? -gap : gap) > slack;
+  };
+  let n = 0;
+  let mismatch = '';
+
+  for (const item of snapshot.items) {
+    if (item === dragged) {
+      continue;
+    }
+
+    // **The box, exactly as the scan measures it**, because a composition whose
+    // `box` is a descendant of the item would otherwise be compared against a
+    // rect the cache never held. The contribution is still keyed by the item: a
+    // plan visits items, and the offset it writes carries the descendant with
+    // it.
+    const rect = (getBox ? getBox(item) : item).getBoundingClientRect();
+
+    if (contribution) {
+      contribution(item, held);
+    }
+
+    const offset = n * STRIDE;
+    const left = rect.left - held[0]!;
+    const top = rect.top - held[1]!;
+    const right = rect.right - held[0]!;
+    const bottom = rect.bottom - held[1]!;
+    const centreX = (left + right) * 0.5;
+    const centreY = (top + bottom) * 0.5;
+
+    if (
+      mismatch === '' &&
+      (items[n] !== item ||
+        differs(values[offset + LEFT]!, left) ||
+        differs(values[offset + TOP]!, top) ||
+        differs(values[offset + RIGHT]!, right) ||
+        differs(values[offset + BOTTOM]!, bottom) ||
+        differs(values[offset + CENTRE_X]!, centreX) ||
+        differs(values[offset + CENTRE_Y]!, centreY))
+    ) {
+      mismatch = `slot ${n}`;
+    }
+
+    values[offset + LEFT] = left;
+    values[offset + TOP] = top;
+    values[offset + RIGHT] = right;
+    values[offset + BOTTOM] = bottom;
+    values[offset + CENTRE_X] = centreX;
+    values[offset + CENTRE_Y] = centreY;
+    items[n] = item;
+    n += 1;
+  }
+
+  if (mismatch === '' && n !== index.count) {
+    mismatch = `count ${index.count}, full scan ${n}`;
+  }
+
+  index.count = n;
+  items.length = n;
+
+  const rect = placeholder.getBoundingClientRect();
+
+  if (
+    mismatch === '' &&
+    (differs(hole[LEFT]!, rect.left) ||
+      differs(hole[TOP]!, rect.top) ||
+      differs(hole[RIGHT]!, rect.right) ||
+      differs(hole[BOTTOM]!, rect.bottom))
+  ) {
+    mismatch = 'the placeholder';
+  }
+
+  hole[LEFT] = rect.left;
+  hole[TOP] = rect.top;
+  hole[RIGHT] = rect.right;
+  hole[BOTTOM] = rect.bottom;
+  hole[CENTRE_X] = (rect.left + rect.right) * 0.5;
+  hole[CENTRE_Y] = (rect.top + rect.bottom) * 0.5;
+
+  if (mismatch !== '') {
+    throw new Error(
+      `drag: the predicted insertion geometry disagreed with a full scan at ${mismatch}; ${rule} does not hold for this list`,
+    );
+  }
+};
+
 export function createRectIndex(): RectIndex {
+  /**
+   * The scratch the sink's probe writes into, one per cache rather than one per
+   * candidate. Zeroed by the probe itself, which answers for every element
+   * whether or not it is holding anything.
+   */
+  const held = new Float64Array(2);
   let capacity = 0;
   // Starts stale, and at a version no real collection can hold, so the first
   // resolution of every operation measures.
@@ -118,10 +346,18 @@ export function createRectIndex(): RectIndex {
 
   index = {
     values: new Float64Array(0),
+    hole: new Float64Array(STRIDE),
     items: [],
     count: 0,
 
-    refresh(snapshot, dragged, getBox, live): boolean {
+    refresh(
+      snapshot,
+      dragged,
+      getBox,
+      live,
+      placeholder,
+      contribution,
+    ): boolean {
       // A warm cache reads no geometry and calls no resolver, so it needs no
       // barrier — and it cannot be reached on a destroyed controller anyway:
       // `retire()` sets `dirty`, and teardown always runs it.
@@ -220,17 +456,49 @@ export function createRectIndex(): RectIndex {
           return abort();
         }
 
-        const offset = n * STRIDE;
+        // **Settled, not presented.** A row a displacement sink is currently
+        // offsetting reports where the animation draws it; subtracting what the
+        // sink says it is holding recovers the flow position, which is the only
+        // thing an axis rule may reason about. Keyed by the *item*, because
+        // that is what a plan visits.
+        if (contribution) {
+          contribution(item, held);
+        }
 
-        values[offset + LEFT] = rect.left;
-        values[offset + TOP] = rect.top;
-        values[offset + RIGHT] = rect.right;
-        values[offset + BOTTOM] = rect.bottom;
-        values[offset + CENTRE_X] = (rect.left + rect.right) * 0.5;
-        values[offset + CENTRE_Y] = (rect.top + rect.bottom) * 0.5;
+        const offset = n * STRIDE;
+        const left = rect.left - held[0]!;
+        const top = rect.top - held[1]!;
+        const right = rect.right - held[0]!;
+        const bottom = rect.bottom - held[1]!;
+
+        values[offset + LEFT] = left;
+        values[offset + TOP] = top;
+        values[offset + RIGHT] = right;
+        values[offset + BOTTOM] = bottom;
+        values[offset + CENTRE_X] = (left + right) * 0.5;
+        values[offset + CENTRE_Y] = (top + bottom) * 0.5;
         items[n] = item;
         n += 1;
       }
+
+      // **The hole, measured last and inside the same barrier discipline.** The
+      // placeholder is a consumer-owned element and its `getBoundingClientRect`
+      // is overridable, so this is one more consumer call and takes a reading
+      // after it exactly as every candidate does.
+      const rect = placeholder.getBoundingClientRect();
+
+      if (!live()) {
+        return abort();
+      }
+
+      const { hole } = index;
+
+      hole[LEFT] = rect.left;
+      hole[TOP] = rect.top;
+      hole[RIGHT] = rect.right;
+      hole[BOTTOM] = rect.bottom;
+      hole[CENTRE_X] = (rect.left + rect.right) * 0.5;
+      hole[CENTRE_Y] = (rect.top + rect.bottom) * 0.5;
 
       index.count = n;
       // Truncated, so a shrinking collection neither pins the elements a larger
