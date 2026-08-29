@@ -58,6 +58,17 @@ lint-fix *FILES:
 size *FLAGS: build
     node bench/size/measure.ts {{ FLAGS }}
 
+# Build the profiling fixture as a production bundle, with source maps
+# (`bench/profile`). Not a benchmark harness: a page to record in Chrome's
+# performance panel. Output lands in the ignored `.vite/profile`.
+profile-build:
+    vite build -c bench/profile/vite.config.ts
+
+# Build and serve that fixture at http://localhost:4180/ — `vite preview`, so
+# what runs is the production bundle and no dev server is in the recording.
+profile: profile-build
+    vite preview -c bench/profile/vite.config.ts
+
 diff:
   git show HEAD --format= -- .plan > "/workspaces/material-x/docs-$(date +%Y%m%d-%H%M%S).patch"
 

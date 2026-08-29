@@ -83,6 +83,8 @@
     "lint:fix": "just lint-fix",
     "test": "just test",
     "size": "just size",
+    "profile": "just profile",
+    "profile:build": "just profile-build",
     "diff": "just diff"
   },
   "dependencies": {
