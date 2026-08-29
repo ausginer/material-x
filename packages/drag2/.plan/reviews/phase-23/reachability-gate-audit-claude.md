@@ -2,7 +2,7 @@
 
 Review, 2026-08-25. Files read at `85d1d1a2`, with one unrelated uncommitted edit in [`layout-animation.ts`](../../../src/sortable/layout-animation.ts) ignored. No production code changed.
 
-The commissioning question: now that [`CODE_OF_SIZE.md`](../../../../../CODE_OF_SIZE.md) §1.1 makes reachability a **gate** rather than the first of two questions, which shipped runtime guards are still protecting the integrating developer from violating the published contract?
+The commissioning question: now that [`CONTRIBUTING.md`](../../../../../CONTRIBUTING.md) §1.1 makes reachability a **gate** rather than the first of two questions, which shipped runtime guards are still protecting the integrating developer from violating the published contract?
 
 The gate, restated as it was applied here:
 

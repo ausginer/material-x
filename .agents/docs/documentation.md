@@ -7,7 +7,7 @@ Four things go wrong in four different ways, and mixing them is what produced th
 | Kind | Answers | Goes wrong when | Home |
 | --- | --- | --- | --- |
 | **Convention** | What do I write? | someone decides to write it differently | `.agents/docs/` |
-| **Policy** | What may I spend, and what must I prove? | a measurement falsifies it | `CODE_OF_SIZE.md` |
+| **Policy** | What may I spend, and what must I prove? | a measurement falsifies it | `CONTRIBUTING.md` Part II |
 | **Operation** | How do I run things here? | the tooling changes | `AGENTS.md`, `CLAUDE.md` |
 | **Record** | Why is it like this? | never — it is what happened | `packages/*/.plan/` |
 
@@ -41,7 +41,7 @@ One line, and the reader who wants the fourteen compositions follows the link.
 
 ## 2. Citations bind section numbers, not sentences
 
-`CODE_OF_SIZE.md` kept its withdrawn wording inline on the stated ground that _other documents cite it_. They do not. All 55 citations in this repository address a section number — `§1.1`, `§4`, `§13` — and none quotes a struck sentence.
+The size policy kept its withdrawn wording inline on the stated ground that _other documents cite it_. They do not. All 55 citations in this repository address a section number — `§1.1`, `§4`, `§13` — and none quotes a struck sentence.
 
 So the compatibility obligation a current-state document actually carries is **numbering stability**, and struck text does nothing for it:
 
@@ -76,7 +76,7 @@ Imports are resolved relative to the importing file and nest up to four hops, wh
 
 A number has an owner — the instrument that produces it and the pass that re-bases it. A copy of that number in a rulebook has neither, so it goes stale without anything failing.
 
-`CODE_OF_SIZE.md` §18 illustrated tight budgets with _a 121 B vocabulary root with 29 B of slack_. That row has since been re-based twice; the sentence describes no instrument that exists. The rule it illustrates is durable and correct. The illustration was a fact about one file in one package, and facts about files belong to those files.
+`CONTRIBUTING.md` §18 illustrated tight budgets with _a 121 B vocabulary root with 29 B of slack_. That row has since been re-based twice; the sentence describes no instrument that exists. The rule it illustrates is durable and correct. The illustration was a fact about one file in one package, and facts about files belong to those files.
 
 - **State the rule generically.** _A deliberately tight row is tight on purpose_ needs no byte figure.
 - **Where a figure is the evidence, link it** rather than transcribing it.
@@ -94,12 +94,12 @@ The two have different readers, different obligations and different costs, and t
 
 ### 5.1 Published JSDoc
 
-It ships. It is fetched at install, rendered on hover in a consumer's editor, and published by TypeDoc. `CODE_OF_SIZE.md` §4 (c) already priced this class and drew the conclusion in passing — _when a vocabulary looks expensive, check whether you are pricing the values or the prose about them_. This is that observation as a rule.
+It ships. It is fetched at install, rendered on hover in a consumer's editor, and published by TypeDoc. `CONTRIBUTING.md` §4 (c) already priced this class and drew the conclusion in passing — _when a vocabulary looks expensive, check whether you are pricing the values or the prose about them_. This is that observation as a rule.
 
 **It contains only what a reader outside this repository can act on.**
 
 - Present tense, describing what the declaration is and what the caller must guarantee.
-- **Preconditions the compiler cannot state belong here and are load-bearing** — _its coordinates must both be finite_, _a duration is finite_, _the elements are distinct_. `CODE_OF_SIZE.md` §1.1 deletes runtime guards on the strength of these sentences existing, so deleting one silently converts a documented boundary into an undocumented one.
+- **Preconditions the compiler cannot state belong here and are load-bearing** — _its coordinates must both be finite_, _a duration is finite_, _the elements are distinct_. `CONTRIBUTING.md` §1.1 deletes runtime guards on the strength of these sentences existing, so deleting one silently converts a documented boundary into an undocumented one.
 - **No internal identifiers**: no `D-`, `F-`, `I-`, `E-` or `Q-` numbers, no `§` citations of internal documents, no `.plan/` links, no phase numbers, no dates, no commit references.
 - **No strikethrough and no supersession**: not _was X until_, not _corrected_, not _this used to_.
 - **No rejected alternatives, and no defence of the design.** A consumer cannot act on why the other shape lost.
@@ -171,8 +171,7 @@ A convention with no instrument is a convention that decays, and the classes abo
 | --- | --- |
 | `AGENTS.md` | Operation — the durable root, and the only copy |
 | `CLAUDE.md` | Operation — Claude Code overlay, imports the root |
-| `CODE_OF_SIZE.md` | Policy — size and ownership, permanently numbered sections |
-| `.agents/docs/code-style.md` | Convention — source shape, resident |
+| `CONTRIBUTING.md` | Convention and Policy — source shape and the size and ownership policy, resident; Part II's sections are permanently numbered |
 | `.agents/docs/documentation.md` | Convention — this document |
 | `.agents/docs/architecture.md`, `css-inheritance.md`, `accessibility.md`, `attribute-vs-state-styling.md`, `trait-flattener-plugin.md`, `test-architecture.md` | Convention and design reference — consulted, not resident |
 | `.claude/skills/` | Operation — task-scoped procedure |

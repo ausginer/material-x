@@ -1,6 +1,6 @@
 # Size and ownership audit — `src/` against `CODE_OF_SIZE.md`
 
-**An independent audit for the final human ownership pass, 2026-08-22, against `9f3f0428`** on `drag2/fin-review`. The authority is [`CODE_OF_SIZE.md`](../../../../CODE_OF_SIZE.md) at the monorepo root; where a decision in this package's own record appears to contradict it, the contradiction is reported rather than resolved. **Nothing in production was changed.** Every ablation below was applied, built, measured and reverted, and the tree at the end of the pass rebuilds to figures **byte-identical** to the baseline table.
+**An independent audit for the final human ownership pass, 2026-08-22, against `9f3f0428`** on `drag2/fin-review`. The authority is [`CONTRIBUTING.md`](../../../../CONTRIBUTING.md) at the monorepo root; where a decision in this package's own record appears to contradict it, the contradiction is reported rather than resolved. **Nothing in production was changed.** Every ablation below was applied, built, measured and reverted, and the tree at the end of the pass rebuilds to figures **byte-identical** to the baseline table.
 
 **Classification, as requested.** Each finding is **(a)** a clear violation simplifiable with no semantic change, **(b)** a possible optimization needing an owner or architectural decision, or **(c)** expensive-looking but justified by an existing invariant or public contract.
 

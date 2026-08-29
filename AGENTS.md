@@ -2,9 +2,9 @@
 
 The durable instructions for anyone — human or agent — making changes here. Vendor-specific harness instructions live beside this file and import it; they add nothing normative of their own.
 
-Conventions that apply while writing code are resident:
+The rules that apply while writing code — source conventions, and the size and ownership policy — are resident:
 
-@.agents/docs/code-style.md
+@CONTRIBUTING.md
 
 ## How the documentation is organised
 
@@ -15,7 +15,7 @@ The short form:
 | Path | What it is |
 | --- | --- |
 | `AGENTS.md` | This file — how to work here |
-| [`CODE_OF_SIZE.md`](CODE_OF_SIZE.md) | Size and ownership policy. Apply it to everything you write |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | How code is written: source conventions, and the size and ownership policy. Apply it to everything you write |
 | [`.agents/docs/`](.agents/docs/) | Conventions and design references |
 | `.claude/skills/` | Task-scoped procedures |
 | `packages/*/.plan/` | The record: decisions, reviews, measurements, and why anything is the way it is |
@@ -24,7 +24,7 @@ Design references worth knowing exist: [`architecture.md`](.agents/docs/architec
 
 ## Size and ownership
 
-Apply [`CODE_OF_SIZE.md`](CODE_OF_SIZE.md) to the code you write. This is a library, not a user-facing application: write for a truthful fellow developer who would prefer better performance, a cleaner API and a smaller bundle over defensive checks against invalid usage.
+Apply [`CONTRIBUTING.md`](CONTRIBUTING.md) Part II to the code you write. This is a library, not a user-facing application: write for a truthful fellow developer who would prefer better performance, a cleaner API and a smaller bundle over defensive checks against invalid usage.
 
 ## Running things
 
