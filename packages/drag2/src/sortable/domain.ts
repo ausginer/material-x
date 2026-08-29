@@ -9,7 +9,7 @@
  * The numeric `recovery` constants below are the opposite: they are
  * behavior-private frame state, never handed to a consumer.
  */
-import type { CancelStage } from '../kernel/failures.ts';
+import type { CancelOrigin, CancelStage } from '../kernel/failures.ts';
 
 // ---------------------------------------------------------------------------
 // The collection
@@ -195,7 +195,16 @@ export type RejectedReorderResult = Readonly<{
 
 export type CanceledReorderResult = Readonly<{
   type: 'canceled';
+  /**
+   * **What the decider had to say, and nothing more.** An open channel: a value
+   * the consumer passed to `cancel`, one of the two constants this module
+   * publishes, the value a classified failure threw, or `undefined`. Provenance
+   * is `origin`, which the consumer cannot write; comparing `reason` to a
+   * constant answers *what was said*, never *who said it*.
+   */
   reason: unknown;
+  /** Who decided, and of what kind. Written by the library. */
+  origin: CancelOrigin;
   stage: CancelStage;
   /** Null when the operation was abandoned before a proposal existed. */
   proposal: ReorderProposal | null;

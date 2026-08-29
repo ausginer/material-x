@@ -74,19 +74,25 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
     'FAILURE_SCHEDULED_FRAME',
     'FAILURE_TERMINAL_CALLBACK',
   ],
-  // **The kernel tier, and the whole of D-68's value half — 33 names.** Thirteen
+  // **The kernel tier, and the whole of D-68's value half — 37 names.** Thirteen
   // stages, not fourteen: D-41 deleted `FAILURE_PRESENTATION_READY` with the
   // readiness protocol. The other nineteen constants are what F-59 found
   // missing: `config.liftMode` needs a `LIFT_*`, `settlement.prepare` needs the
   // `SETTLED_*` arms to discriminate its input, D-66's fallback needs the two
   // `AT_*`, and a behavior reads `frame.phase`. Erased types cannot fill a
   // value position, which is why a type-only assertion could not have seen the
-  // hole.
+  // hole. **The four `CANCEL_*` origins join them under the same rule** (D-154):
+  // a behavior reads one off a `SETTLED_CANCELED` input and writes
+  // `CANCEL_FAILED` into the terminal fallback.
   kernel: [
     'ACTIVATING',
     'ACTIVE',
     'AT_CONSUMER',
     'AT_PROPOSAL',
+    'CANCEL_ABORTED',
+    'CANCEL_FAILED',
+    'CANCEL_INTERRUPTED',
+    'CANCEL_SUPPLIED',
     'FAILURE_ACTION_EFFECT',
     'FAILURE_ACTION_PREPARE',
     'FAILURE_ACTIVATION',
@@ -115,16 +121,36 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
     'SETTLING',
     'draggable',
   ],
-  sortable: ['AT_CONSUMER', 'AT_PROPOSAL', 'ReorderResolution', 'sortable'],
+  // **Ten since D-154.** The four origins join the two stages — a
+  // `CanceledReorderResult` carries an `origin` and the consumer discriminates
+  // on it — and so do the two reasons the behavior itself supplies, which are
+  // domain vocabulary it owns rather than provenance it claims.
+  sortable: [
+    'AT_CONSUMER',
+    'AT_PROPOSAL',
+    'CANCEL_ABORTED',
+    'CANCEL_COLLECTION_INVALIDATED',
+    'CANCEL_FAILED',
+    'CANCEL_INTERRUPTED',
+    'CANCEL_ITEM_REMOVED',
+    'CANCEL_SUPPLIED',
+    'ReorderResolution',
+    'sortable',
+  ],
   // The second behavior's ordinary tier, and the symmetry is the assertion:
   // one function, one resolution namespace, and the two cancel stages a
   // `CanceledFreeDragResult` obliges the consumer to discriminate (D-68).
-  // **Seven since D-141**: the three lift constants join the two cancel stages
-  // and the resolution namespace, because `config.lift` takes the kernel's
-  // numeric `LiftMode` and an unnameable member cannot fill a slot.
+  // **Eleven since D-154**: the three lift constants joined at D-141, because
+  // `config.lift` takes the kernel's numeric `LiftMode` and an unnameable
+  // member cannot fill a slot, and the four origins join now, because
+  // `CanceledFreeDragResult.origin` is the only field that says who decided.
   'free-drag': [
     'AT_CONSUMER',
     'AT_PROPOSAL',
+    'CANCEL_ABORTED',
+    'CANCEL_FAILED',
+    'CANCEL_INTERRUPTED',
+    'CANCEL_SUPPLIED',
     'FreeDragResolution',
     'LIFT_FAITHFUL',
     'LIFT_FLAT',

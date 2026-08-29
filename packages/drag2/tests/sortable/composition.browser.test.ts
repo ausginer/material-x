@@ -30,7 +30,16 @@ import type {
   SortablePlugin,
 } from '../../src/sortable/feature.ts';
 import { y } from '../../src/sortable/y.ts';
+// **The cancellation vocabulary is imported from the public entry**, which is
+// half of what these rows check: `origin` is only a usable discrimination if a
+// consumer can name its values without reaching past `sortable.js`.
 import {
+  CANCEL_ABORTED,
+  CANCEL_COLLECTION_INVALIDATED,
+  CANCEL_FAILED,
+  CANCEL_INTERRUPTED,
+  CANCEL_ITEM_REMOVED,
+  CANCEL_SUPPLIED,
   ReorderResolution,
   type ReorderRequest,
   type SortableController,
@@ -565,6 +574,7 @@ describe('the composed terminal protocol', () => {
       {
         type: 'canceled',
         reason: 'immediately',
+        origin: CANCEL_SUPPLIED,
         stage: AT_PROPOSAL,
         // Named by the domain type: null when the operation was abandoned
         // before a proposal existed.
@@ -591,7 +601,10 @@ describe('the composed terminal protocol', () => {
     expect(composed.cancels).toEqual([
       {
         type: 'canceled',
+        // **A supplied reason, and the origin says so.** The behavior chose to
+        // say this; it is domain vocabulary the sortable owns, not provenance.
         reason: 'sortable:item-removed',
+        origin: CANCEL_SUPPLIED,
         stage: AT_PROPOSAL,
         proposal: null,
       },
@@ -993,5 +1006,148 @@ describe('the required first argument, through the public entry', () => {
 
     cleanup.push(() => void controller.destroy());
     expect(controller.invalidate).toBeTypeOf('function');
+  });
+});
+
+/**
+ * **Cancellation provenance, through the public surface** (D-154).
+ *
+ * One row per producer. `origin` is the field that answers *who decided*, and
+ * the suite drives each producer the way a page does — a controller call, a key
+ * press, a lost pointer, a resolver that throws — rather than through the
+ * settlement input, because a consumer reads this off `onEnd`.
+ */
+describe('cancellation provenance', () => {
+  it('should mark a consumer cancel as supplied', () => {
+    const composed = compose();
+
+    activate(composed);
+    composed.controller.cancel('gone');
+
+    expect(composed.cancels[0]).toMatchObject({
+      reason: 'gone',
+      origin: CANCEL_SUPPLIED,
+    });
+  });
+
+  it('should mark an invalidated collection as supplied', async () => {
+    // **The behavior's own vocabulary, and it is a supplied value.** The
+    // sortable *chose* to say this; nothing about it is a claim about the
+    // platform, which is why these two constants publish and the kernel's three
+    // did not.
+    const composed = compose();
+
+    activate(composed);
+    await drag(55);
+    composed.replace([composed.items[0]!, composed.items[1]!]);
+
+    expect(composed.cancels[0]).toMatchObject({
+      reason: CANCEL_COLLECTION_INVALIDATED,
+      origin: CANCEL_SUPPLIED,
+    });
+  });
+
+  it('should mark a removed item as supplied', async () => {
+    const composed = compose();
+
+    activate(composed);
+    await drag(55);
+    composed.replace([composed.items[1]!, composed.items[2]!]);
+
+    expect(composed.cancels[0]).toMatchObject({
+      reason: CANCEL_ITEM_REMOVED,
+      origin: CANCEL_SUPPLIED,
+    });
+  });
+
+  it('should mark Escape as aborted', () => {
+    const composed = compose();
+
+    activate(composed);
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    );
+
+    expect(composed.cancels[0]).toMatchObject({ origin: CANCEL_ABORTED });
+  });
+
+  it('should carry no reason for an Escape', () => {
+    const composed = compose();
+
+    activate(composed);
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    );
+
+    expect(composed.cancels[0]).toMatchObject({ reason: undefined });
+  });
+
+  it('should mark a cancelled pointer as interrupted', () => {
+    const composed = compose();
+
+    activate(composed);
+    pointerEvent('pointercancel', 30);
+
+    expect(composed.cancels[0]).toMatchObject({ origin: CANCEL_INTERRUPTED });
+  });
+
+  it('should mark lost pointer capture as interrupted', () => {
+    const composed = compose();
+
+    activate(composed);
+    pointerEvent('lostpointercapture', 30);
+
+    expect(composed.cancels[0]).toMatchObject({ origin: CANCEL_INTERRUPTED });
+  });
+
+  it('should mark a classified failure as failed', async () => {
+    // **The value that pays for the field.** The terminal says `canceled` and
+    // `reason` holds the caught throw, which is indistinguishable from a
+    // consumer who passed an `Error` deliberately — until `origin` says which.
+    const failure = new Error('resolver');
+    const composed = compose({
+      onReorder: () => {
+        throw failure;
+      },
+    });
+
+    activate(composed);
+    await drag(55);
+    release(55);
+    await Promise.resolve();
+
+    expect(composed.cancels[0]).toMatchObject({
+      reason: failure,
+      origin: CANCEL_FAILED,
+    });
+  });
+
+  it('should not let a supplied reason forge an origin', () => {
+    // **`reason` stays open, and that is why it cannot carry provenance.** A
+    // consumer may pass a provenance constant to `cancel` — the channel accepts
+    // anything — and the result still reports the truth about who decided.
+    const composed = compose();
+
+    activate(composed);
+    composed.controller.cancel(CANCEL_ABORTED);
+
+    expect(composed.cancels[0]).toMatchObject({
+      reason: CANCEL_ABORTED,
+      origin: CANCEL_SUPPLIED,
+    });
+  });
+
+  it('should publish no terminal at all when the controller is destroyed', () => {
+    // **F-172.** A destroyed controller is not a producer of the canceled arm:
+    // `destroy()` closes the queue and every guard then fails, so the operation
+    // announces nothing. There is no origin for this case because there is no
+    // result to carry one, which is why the four are exhaustive without it.
+    const composed = compose();
+
+    activate(composed);
+    void composed.controller.destroy();
+
+    expect(composed.cancels).toEqual([]);
+    expect(composed.finishes).toEqual([]);
   });
 });

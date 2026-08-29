@@ -97,6 +97,20 @@ export {
 } from './kernel/failures.ts';
 
 /**
+ * **The cancellation origins**, on the same argument: a
+ * `CanceledFreeDragResult` carries one, and it is the only field that says who
+ * decided. This behavior mints no `reason` of its own, so for a free drag
+ * `origin` is the whole of the provenance.
+ */
+export {
+  CANCEL_ABORTED,
+  CANCEL_FAILED,
+  CANCEL_INTERRUPTED,
+  CANCEL_SUPPLIED,
+  type CancelOrigin,
+} from './kernel/failures.ts';
+
+/**
  * **The composition check, applied to one config or fragment.**
  *
  * An installer may contribute only the slots its position is read for: the

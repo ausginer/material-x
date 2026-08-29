@@ -19,12 +19,17 @@ import { describe, expect, it } from 'vitest';
 import { bounds } from '../../src/free-drag/bounds.ts';
 import { landing } from '../../src/free-drag/landing.ts';
 import {
+  CANCEL_ABORTED,
+  CANCEL_FAILED,
+  CANCEL_INTERRUPTED,
+  CANCEL_SUPPLIED,
   FreeDragResolution,
   freeDrag,
   type FreeDragController,
 } from '../../src/free-drag.ts';
 import {
   activate,
+  cancelPointer,
   escape,
   freeDragHarness,
   move,
@@ -525,4 +530,91 @@ describe('construction', () => {
   // and on no other, so `plugins: [bounds().bounds!]` does not compile. The
   // replacement is `tests/free-drag/feature.declaration.test.ts` — *should
   // refuse a unique slot from the unbounded position*.
+});
+
+/**
+ * **Cancellation provenance, through the public surface** (D-154).
+ *
+ * A free drag mints no `reason` of its own, so `origin` is the whole of what
+ * this behavior can say about who decided — which makes the mapping the entire
+ * contract rather than half of it.
+ */
+describe('cancellation provenance', () => {
+  it('should mark a consumer cancel as supplied', async () => {
+    const composed = compose();
+
+    activate(composed);
+    composed.controller.cancel('by hand');
+    await settled();
+
+    expect(composed.ends[0]).toMatchObject({
+      reason: 'by hand',
+      origin: CANCEL_SUPPLIED,
+    });
+  });
+
+  it('should mark Escape as aborted', async () => {
+    const composed = compose();
+
+    activate(composed);
+    escape();
+    await settled();
+
+    expect(composed.ends[0]).toMatchObject({ origin: CANCEL_ABORTED });
+  });
+
+  it('should carry no reason for an Escape', async () => {
+    // The kernel supplies no value for a cause it decided itself, so there is
+    // nothing here a consumer could compare against.
+    const composed = compose();
+
+    activate(composed);
+    escape();
+    await settled();
+
+    expect(composed.ends[0]).toMatchObject({ reason: undefined });
+  });
+
+  it('should mark a cancelled pointer as interrupted', async () => {
+    const composed = compose();
+
+    activate(composed);
+    cancelPointer(30, 10);
+    await settled();
+
+    expect(composed.ends[0]).toMatchObject({ origin: CANCEL_INTERRUPTED });
+  });
+
+  it('should mark a classified failure as failed', async () => {
+    // The terminal says `canceled` and `reason` holds the caught throw. Without
+    // `origin` that is indistinguishable from a consumer who cancelled with an
+    // `Error` in hand.
+    const failure = new Error('resolver');
+    const composed = compose({
+      onDrop: () => {
+        throw failure;
+      },
+    });
+
+    activate(composed);
+    release(30, 10);
+    await settled();
+
+    expect(composed.ends[0]).toMatchObject({
+      reason: failure,
+      origin: CANCEL_FAILED,
+    });
+  });
+
+  it('should not let a supplied reason forge an origin', () => {
+    const composed = compose();
+
+    activate(composed);
+    composed.controller.cancel(CANCEL_ABORTED);
+
+    expect(composed.ends[0]).toMatchObject({
+      reason: CANCEL_ABORTED,
+      origin: CANCEL_SUPPLIED,
+    });
+  });
 });

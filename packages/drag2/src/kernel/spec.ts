@@ -7,7 +7,7 @@
  * the frozen surface is readable in one place.
  */
 import type { DraggableError, DraggableWarning } from './errors.ts';
-import type { CancelStage, FailureStage } from './failures.ts';
+import type { CancelOrigin, CancelStage, FailureStage } from './failures.ts';
 import type { Draft, Frame, FramePartOf } from './frames.ts';
 import type { LifetimeScope } from './lifetimes.ts';
 import type {
@@ -258,6 +258,13 @@ export type SettlementInput =
       type: typeof SETTLED_CANCELED;
       reason: unknown;
       stage: CancelStage;
+      /**
+       * Who decided, **written by the kernel**. The behavior forwards it to its
+       * own canceled result and never mints one here: the only origin a
+       * behavior produces is `CANCEL_FAILED`, on the fallback that maps a
+       * classified failure to a canceled terminal.
+       */
+      origin: CancelOrigin;
     }>
   | Readonly<{
       type: typeof SETTLED_FAILED;

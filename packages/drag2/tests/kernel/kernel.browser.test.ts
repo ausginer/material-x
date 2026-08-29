@@ -3,6 +3,9 @@ import { DraggableError, DraggableWarning } from '../../src/kernel/errors.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
+  CANCEL_ABORTED,
+  CANCEL_INTERRUPTED,
+  CANCEL_SUPPLIED,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
   FAILURE_RELEASE,
@@ -1743,7 +1746,12 @@ describe('the resolution round-trip', () => {
     // operation; the late rejection added nothing after it, which is the other
     // half of "consumed, not dropped".
     expect(harness.settlements).toEqual([
-      { type: SETTLED_CANCELED, reason: 'abandoned', stage: AT_CONSUMER },
+      {
+        type: SETTLED_CANCELED,
+        reason: 'abandoned',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_CONSUMER,
+      },
     ]);
 
     aborter.abort();
@@ -2952,7 +2960,12 @@ describe('cancellation stages', () => {
     harness.controller.cancel('reason');
 
     expect(harness.settlements).toEqual([
-      { type: SETTLED_CANCELED, reason: 'reason', stage: AT_PROPOSAL },
+      {
+        type: SETTLED_CANCELED,
+        reason: 'reason',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
     ]);
   });
 
@@ -2966,7 +2979,12 @@ describe('cancellation stages', () => {
     harness.controller.cancel('reason');
 
     expect(harness.settlements).toEqual([
-      { type: SETTLED_CANCELED, reason: 'reason', stage: AT_CONSUMER },
+      {
+        type: SETTLED_CANCELED,
+        reason: 'reason',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_CONSUMER,
+      },
     ]);
   });
 
@@ -2996,9 +3014,121 @@ describe('cancellation stages', () => {
     activate(harness);
 
     expect(harness.settlements).toEqual([
-      { type: SETTLED_CANCELED, reason: 'from the effect', stage: AT_PROPOSAL },
+      {
+        type: SETTLED_CANCELED,
+        reason: 'from the effect',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
     ]);
     expect(harness.calls).toContain('finalized');
+  });
+});
+
+/**
+ * **The producer mapping** (D-154). `origin` answers *who decided*, and the
+ * kernel is the only party that writes it — which is the whole reason it is not
+ * carried on `reason`, a channel every party can write.
+ *
+ * One row per producer, because the mapping is the contract: a producer routed
+ * to the wrong origin is a silent relabelling of a cause, and the field exists
+ * to be switched on.
+ */
+describe('cancellation origins', () => {
+  it('should mark a consumer cancel as supplied', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    harness.controller.cancel('reason');
+
+    expect(harness.settlements[0]).toMatchObject({ origin: CANCEL_SUPPLIED });
+  });
+
+  it('should mark a behavior cancel as supplied', () => {
+    // **Not a second origin.** A behavior's controller spreads `host.cancel`
+    // through unchanged, so the kernel has no basis to tell the two callers
+    // apart — and both of them are a party supplying a value.
+    const harness = createHarness({
+      onStart: (host) => {
+        host.cancel('from the behavior');
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.settlements[0]).toMatchObject({ origin: CANCEL_SUPPLIED });
+  });
+
+  it('should mark Escape as aborted', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    );
+
+    expect(harness.settlements[0]).toMatchObject({ origin: CANCEL_ABORTED });
+  });
+
+  it('should carry no reason for an Escape', () => {
+    // The kernel supplies **no** value on a cause it decided itself. What used
+    // to travel here was `'drag:escape'`, and a consumer comparing `reason` to
+    // it was switching on a slot whose other legal occupants include arbitrary
+    // thrown values.
+    const harness = createHarness();
+
+    activate(harness);
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    );
+
+    expect(harness.settlements[0]).toMatchObject({ reason: undefined });
+  });
+
+  it('should mark a cancelled pointer as interrupted', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    document.dispatchEvent(
+      new PointerEvent('pointercancel', { pointerId: POINTER_ID }),
+    );
+
+    expect(harness.settlements[0]).toMatchObject({
+      origin: CANCEL_INTERRUPTED,
+    });
+  });
+
+  it('should not let a supplied reason forge an origin', () => {
+    // **The whole reason provenance is a separate field.** `cancel` accepts
+    // anything, so a consumer can put a provenance constant on `reason` — and
+    // it stays a value they supplied. `origin` is written by the kernel and
+    // says so, which is the discrimination `reason` could never carry.
+    const harness = createHarness();
+
+    activate(harness);
+    harness.controller.cancel(CANCEL_ABORTED);
+
+    expect(harness.settlements[0]).toMatchObject({
+      reason: CANCEL_ABORTED,
+      origin: CANCEL_SUPPLIED,
+    });
+  });
+
+  it('should mark lost pointer capture as interrupted', () => {
+    // **The same origin as `pointercancel`, deliberately.** Two DOM spellings
+    // of one fact — the pointer stream ended without a drop — and a consumer
+    // cannot act differently on them, so telling them apart would re-export the
+    // platform detail the kernel exists to absorb.
+    const harness = createHarness();
+
+    activate(harness);
+    document.dispatchEvent(
+      new PointerEvent('lostpointercapture', { pointerId: POINTER_ID }),
+    );
+
+    expect(harness.settlements[0]).toMatchObject({
+      origin: CANCEL_INTERRUPTED,
+    });
   });
 });
 
@@ -3054,7 +3184,12 @@ describe('the activation checkpoint against a held cancel', () => {
     const { harness } = cancelFromAnActionEffect();
 
     expect(harness.settlements).toEqual([
-      { type: SETTLED_CANCELED, reason: 'invalidated', stage: AT_PROPOSAL },
+      {
+        type: SETTLED_CANCELED,
+        reason: 'invalidated',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
     ]);
   });
 });

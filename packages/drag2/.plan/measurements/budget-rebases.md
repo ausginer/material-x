@@ -457,3 +457,34 @@ this.stage = stage !== null && KNOWN_STAGES.includes(stage) ? stage : null;
 A legitimate change to the class re-bases this number, deliberately and visibly, under the standing rule that a budget re-bases rather than a fix shrinking. That is the intended behaviour and not a cost. **D-132 was such a change and did not re-base it**: `STAGE_NAMES` took the root from 146 to 261 B and 300 absorbed it, which is the loose ceiling doing the harm — a 79% growth passed unremarked. **D-133 withdrew the table and the root fell to 159 B**; D-134 then returned the ceiling to the artifact it guards. **No other row moves**, and the graph half is unchanged.
 
 **One candidate was measured and rejected, 2026-08-28.** Flattening `VisualLiftSession.rendered` to `renderedX`/`renderedY` — D-139's shape rule applied to the kernel's recorded delta — costs **+23 B minified, flat on all twelve rows that carry the kernel**, and −7 to +12 B brotli, both directions on one edit. It buys one object per drag and one indirection at the landing read, which is not a figure any performance claim can rest on, so the pair stays. The source cost is real and the compressed column says nothing either way, which is the case this file exists to distinguish from a change worth landing.
+
+## SC-1 fires, and nothing re-bases — 2026-08-29 (D-154)
+
+**The trigger was not a byte.** SC-1's third condition is _L-11 lands_, and it is a re-**measurement** trigger: the frozen export map is one of M-3's six reproducibility preconditions, so changing it obliges a run whether or not the artifact moves. D-154 changed it on three entries — `CancelOrigin` and its four constants onto `kernel.js`, `sortable.js` and `free-drag.js`, plus the sortable's two supplied reasons onto `sortable.js` — and this is that run, taken against the landed tree with `bench/size/measure.ts` unchanged.
+
+Absolutes are Brotli bytes; the two delta columns are against the tree immediately before the change, measured by the same harness on the same machine.
+
+| Row | Brotli | Δ brotli | Δ minified | Budget | Slack |
+| --- | --: | --: | --: | --: | --: |
+| minimal | 9,913 | +11 | +23 | 10,439 | 526 |
+| minimal (xy) | 9,580 | +16 | +23 | 10,097 | 517 |
+| minimal + layoutAnimation | 10,353 | +6 | +23 | 10,882 | 529 |
+| minimal + landing | 10,178 | +16 | +23 | 10,710 | 532 |
+| complete | 10,595 | +9 | +23 | 11,129 | 534 |
+| free drag minimal | 7,750 | +11 | +22 | 8,253 | 503 |
+| free drag + bounds | 7,897 | +8 | +22 | 8,409 | 512 |
+| free drag + landing | 8,017 | +9 | +22 | 8,519 | 502 |
+| free drag complete | 8,151 | +8 | +22 | 8,674 | 523 |
+| both behaviors | 11,927 | +19 | +48 | 12,557 | 630 |
+| vocabulary root — `drag.js` | 142 | **0** | **0** | 205 | 63 |
+| kernel root — `kernel.js` | 6,063 | +7 | **−4** | 6,309 | 246 |
+| baseline A — feature-matched, non-composed | 10,375 | +4 | +23 | 10,831 | 456 |
+| baseline B — shipped `@ydinjs/drag` sortable.js | 6,889 | **0** | **0** | 7,040 | 151 |
+
+**The decision's own byte prediction was declined rather than made, and the direction it declined to guess is up.** Three string literals leave and four numeric constants arrive, which reads like a trade; it is not one. A field on a result type is a property write at every site that builds one and a property name in every literal, and that costs +22 to +23 B minified on every row that carries a behavior — twice on `both behaviors`, which carries two. The literals only ever existed at three call sites.
+
+**`kernel.js` is the one row that shrinks in source and grows compressed.** −4 B minified, +7 B Brotli: the entry publishes four short numeric constants and loses three long strings, and Brotli charges more for four new export names than it saved on three literals it was already compressing well. Both figures are inside the noise this file's own doctrine names, and neither is evidence of anything.
+
+**The two rows that carry no behavior do not move at all.** `drag.js` is 0/0 — the vocabulary root does not publish `CancelOrigin`, which is D-154's siting decision showing up as a measurement — and baseline B is 0/0 because it is the shipped package and this change cannot reach it. **Those two zeroes are the control**: a change that moved them would mean the harness, not the library, had moved.
+
+**No row re-bases.** Every one is under budget with 456–630 B of slack, the movement is attributable to one named landed change, and nothing goes negative — so SC-1's first two triggers stay unmet and the twelve declared budgets keep the numbers D-106 gave them. A re-measurement is what the condition asks for; a re-base is what evidence has to earn.

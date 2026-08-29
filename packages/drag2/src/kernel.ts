@@ -21,7 +21,8 @@
  *
  * The values matter as much as the types: `config.liftMode` needs a `LIFT_*`,
  * `settlement.prepare` needs the `SETTLED_*` arms to discriminate its input,
- * and the terminal fallback needs `AT_PROPOSAL`/`AT_CONSUMER`. An erased type
+ * and the terminal fallback needs `AT_PROPOSAL`/`AT_CONSUMER` and
+ * `CANCEL_FAILED`. An erased type
  * cannot fill a value position, and no path under `kernel/` is a declared
  * package export, so this entry is the only specifier that reaches them.
  *
@@ -31,11 +32,11 @@
  * closure is published so the second style is *possible*, not so anyone types
  * it.
  *
- * **Six names are published from two entries, from one declaration each.**
+ * **Several names are published from two entries, from one declaration each.**
  * `Disposer`, `LandingStart`, `LandingContext` and `LandingHandle` are also
- * published at `sortable/feature.js`, and `CancelStage`/`AT_*` at
- * `sortable.js`; all six are declared under `kernel/`, so the tier that owns
- * them is this one. The direction is the point:
+ * published at `sortable/feature.js`, and `CancelStage`/`AT_*` — with
+ * `CancelOrigin` and its four constants — at `sortable.js`; all of them are
+ * declared under `kernel/`, so the tier that owns them is this one. The direction is the point:
  * `SettlementScope.holdForLanding` is kernel SPI, so a kernel-tier author
  * reaching `sortable/feature.js` for `LandingStart` would be importing the
  * sortable behavior in order to author a **non**-sortable one.
@@ -204,6 +205,25 @@ export {
   AT_CONSUMER,
   AT_PROPOSAL,
   type CancelStage,
+} from './kernel/failures.ts';
+
+/**
+ * **The cancellation origins, at the tier that declares them.** A behavior
+ * *reads* one off a `SETTLED_CANCELED` input and **writes** `CANCEL_FAILED`
+ * into the terminal fallback that gives a classified failure a result, so this
+ * is produced vocabulary exactly as the stages are.
+ *
+ * `sortable.js` and `free-drag.js` re-export the same declaration, on the route
+ * `CancelStage` already travels: `origin` is a field of a behavior-owned result
+ * and its sibling publishes there, so splitting the two would give the consumer
+ * one vocabulary at two entries.
+ */
+export {
+  CANCEL_ABORTED,
+  CANCEL_FAILED,
+  CANCEL_INTERRUPTED,
+  CANCEL_SUPPLIED,
+  type CancelOrigin,
 } from './kernel/failures.ts';
 
 /**

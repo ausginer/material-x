@@ -70,6 +70,40 @@ export {
   AT_PROPOSAL,
   type CancelStage,
 } from './kernel/failures.ts';
+
+/**
+ * **The cancellation origins, beside the stages and for the same reason.** A
+ * `CanceledReorderResult` carries one, and it is the field a consumer
+ * discriminates on to tell *the user pressed Escape* from *the pointer was
+ * taken away* from *something broke*.
+ *
+ * Not on `drag.js`: `origin` is a field of a behavior-owned result, and its
+ * sibling `stage` already publishes here.
+ */
+export {
+  CANCEL_ABORTED,
+  CANCEL_FAILED,
+  CANCEL_INTERRUPTED,
+  CANCEL_SUPPLIED,
+  type CancelOrigin,
+} from './kernel/failures.ts';
+
+/**
+ * **The two reasons the behavior itself supplies**, as values. Both arrive on
+ * `reason` with `origin: CANCEL_SUPPLIED`, because a behavior calling
+ * `host.cancel` is a party supplying a value exactly as a consumer is — the
+ * sortable *chose* to say `sortable:item-removed`, and that is what `SUPPLIED`
+ * means.
+ *
+ * Sound here for a reason the kernel's deleted three never had: this is
+ * **domain** vocabulary the behavior owns, published beside the result type
+ * that carries it, and a consumer who compares `reason` to one of these is
+ * asking what was said rather than who said it.
+ */
+export {
+  CANCEL_COLLECTION_INVALIDATED,
+  CANCEL_ITEM_REMOVED,
+} from './sortable/domain.ts';
 export type {
   AcceptedReorderResult,
   CanceledReorderResult,

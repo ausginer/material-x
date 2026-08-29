@@ -129,12 +129,14 @@ import {
 // **The kernel tier, from its own entry** — all of it, since D-68. Three
 // imports used to reach *inside* the package from here: `LIFT_FLAT` fills
 // `BehaviorConfig.liftMode`, `SETTLED_FAILED` discriminates the input D-66
-// travels on, and `AT_PROPOSAL`/`AT_CONSUMER` derive its fallback stage. None
+// travels on, `AT_PROPOSAL`/`AT_CONSUMER` derive its fallback stage and
+// `CANCEL_FAILED` is the origin that fallback mints. None
 // was on `kernel.js`, and every one is a **value** — which is F-59, and why a
 // type-closure instrument could not see the hole.
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
+  CANCEL_FAILED,
   LIFT_FLAT,
   SETTLED_FAILED,
   draggable,
@@ -631,6 +633,9 @@ const kernelSide: SortableController = draggable<
           // Derived, never supplied: the input carries a `FailureStage`, and
           // the kernel hands out a `CancelStage` only for `SETTLED_CANCELED`.
           stage: progress === RESOLVING ? AT_CONSUMER : AT_PROPOSAL,
+          // The one origin a behavior mints, for the same reason: this arm is
+          // the fallback that gives a classified failure a terminal.
+          origin: CANCEL_FAILED,
           proposal: draft.proposal,
         };
         return true;

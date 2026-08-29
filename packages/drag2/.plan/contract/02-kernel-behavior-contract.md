@@ -1144,8 +1144,8 @@ The complete mapping, which the behavior must cover exhaustively:
 | `fulfilled`, a rejected `ReorderResolution` | `OUTCOME_REJECTED` | home | `{ type: 'rejected', reason, proposal }` | `onEnd` |
 | `fulfilled`, not a resolution at all | — | — | — | **throws** `drag: <behavior>/settled-skipped`; classified at `FAILURE_RESOLUTION` (D-152) |
 | `rejected` (the thenable rejected or `invoke` threw) | — | — | — | **re-raises `input.error` verbatim**; classified at `FAILURE_RESOLUTION` (D-152) |
-| `canceled` | `OUTCOME_CANCELED` | home | `{ type: 'canceled', reason, stage, proposal }` | `onEnd` |
-| `failed` | `OUTCOME_FAILED` | immediate | **the seam builds one**: `settlement.prepare` stages `{ type: 'canceled', reason: <`input.error`>, stage: <derived, §The join>, proposal }` and `effect` writes it to `domain`, so `finalized` finds a result where it used to find `null` (D-66) | `onError` **and** `onEnd`. It read _"`onError` only; `finalized` is never called"_ until Revision 2.1 |
+| `canceled` | `OUTCOME_CANCELED` | home | `{ type: 'canceled', reason, origin, stage, proposal }` | `onEnd` |
+| `failed` | `OUTCOME_FAILED` | immediate | **the seam builds one**: `settlement.prepare` stages `{ type: 'canceled', reason: <`input.error`>, origin: `CANCEL_FAILED`, stage: <derived, §The join>, proposal }` and `effect` writes it to `domain`, so `finalized` finds a result where it used to find `null` (D-66) | `onError` **and** `onEnd`. It read _"`onError` only; `finalized` is never called"_ until Revision 2.1 |
 
 A rejected thenable is a **resolver malfunction, not a considered consumer verdict**, so it is a named classified failure rather than an inferred `{ type: 'rejected' }`. Acceptance is still never inferred, and now neither is rejection.
 

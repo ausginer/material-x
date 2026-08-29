@@ -10,6 +10,7 @@ import type { DraggableError, Notify } from '../kernel/errors.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
+  CANCEL_FAILED,
   FAILURE_INVALIDATION,
   FAILURE_SCHEDULED_FRAME,
   FAILURE_TERMINAL_CALLBACK,
@@ -1561,6 +1562,7 @@ export function createSortableSpec(
             draft.domain = {
               type: 'canceled',
               reason: input.reason,
+              origin: input.origin,
               stage: input.stage,
               proposal,
             };
@@ -1611,6 +1613,14 @@ export function createSortableSpec(
                   : {
                       type: 'canceled',
                       reason: input.error,
+                      // **The one origin a behavior mints.** The kernel writes
+                      // the other three onto the `SETTLED_CANCELED` input; this
+                      // arm is the fallback that gives a classified failure a
+                      // terminal, so the behavior is the only party that can
+                      // say so. `reason` still carries the caught throw, and
+                      // `origin` is what tells it apart from a consumer who
+                      // passed an `Error` deliberately.
+                      origin: CANCEL_FAILED,
                       stage: progress === RESOLVING ? AT_CONSUMER : AT_PROPOSAL,
                       proposal: draft.proposal,
                     };

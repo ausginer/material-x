@@ -25,6 +25,10 @@ import { DraggableError, DraggableWarning } from './errors.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
+  CANCEL_ABORTED,
+  CANCEL_INTERRUPTED,
+  CANCEL_SUPPLIED,
+  type CancelOrigin,
   type CancelStage,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
@@ -100,11 +104,6 @@ import {
 } from './spec.ts';
 import type { OffsetBox } from './types.ts';
 import { createUnwind } from './unwind.ts';
-
-/** Why an operation was cancelled, when the kernel is the one deciding. */
-export const CANCEL_ESCAPE = 'drag:escape';
-export const CANCEL_POINTER_CANCELED = 'drag:pointercancel';
-export const CANCEL_CAPTURE_LOST = 'drag:lostpointercapture';
 
 /**
  * What the kernel reads off a queued pointer event — and the one thing it calls
@@ -246,7 +245,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * slice stays seven fields.
    */
   let box: HTMLElement | null = null;
-  let cancelRequest: { reason: unknown } | null = null;
+  let cancelRequest: { reason: unknown; origin: CancelOrigin } | null = null;
 
   /* ---- the two kernel attempts, at most one of each per operation ---- */
   let resolution: ResolutionAttempt | null = null;
@@ -707,13 +706,23 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * cancellation raised from inside a seam invalidate that preparation
    * synchronously, which matters most when the caller is `onStart`.
    */
-  const cancel = (reason?: unknown): void => {
+  const cancelWith = (reason: unknown, origin: CancelOrigin): void => {
     if (queue.closed || !current.operation || cancelRequest) {
       return;
     }
 
-    cancelRequest = { reason };
+    cancelRequest = { reason, origin };
     dispatchKernel(CANCEL, current.operation);
+  };
+
+  /**
+   * The host's own cancel, and the only one a consumer or a behavior can reach.
+   * Everything arriving here is `CANCEL_SUPPLIED`: a behavior's controller
+   * spreads this function through unchanged, so the kernel has no basis to tell
+   * the two callers apart — and a supplied value is what both of them are.
+   */
+  const cancel = (reason?: unknown): void => {
+    cancelWith(reason, CANCEL_SUPPLIED);
   };
 
   /**
@@ -830,11 +839,13 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       case POINTER_UP:
         dispatchKernel(UP, event);
         break;
+      // **Two DOM spellings of one fact** — the pointer stream ended without a
+      // drop — so they share an arm rather than being told apart. The platform
+      // detail is what the kernel exists to absorb, and the consumer is handed
+      // the fact instead.
       case POINTER_CANCEL:
-        cancel(CANCEL_POINTER_CANCELED);
-        break;
       case LOST_POINTER_CAPTURE:
-        cancel(CANCEL_CAPTURE_LOST);
+        cancelWith(undefined, CANCEL_INTERRUPTED);
         break;
       default:
         break;
@@ -842,7 +853,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   };
 
   const onEscape = (): void => {
-    cancel(CANCEL_ESCAPE);
+    cancelWith(undefined, CANCEL_ABORTED);
   };
 
   /**
@@ -2023,8 +2034,16 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * requires: `recovery` and `domain` are fields of the behavior's frame part,
    * which the kernel cannot name or write.
    */
-  const settleCancellation = (reason: unknown, stage: CancelStage): void => {
-    openSettlement({ type: SETTLED_CANCELED, reason, stage });
+  const settleCancellation = (
+    request: { reason: unknown; origin: CancelOrigin },
+    stage: CancelStage,
+  ): void => {
+    openSettlement({
+      type: SETTLED_CANCELED,
+      reason: request.reason,
+      origin: request.origin,
+      stage,
+    });
   };
 
   const handleResolutionSettled = (attempt: ResolutionAttempt): void => {
@@ -2099,7 +2118,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         // opened") and the behavior's own result carries a null proposal, which
         // is the case its domain type already names.
         settleCancellation(
-          request.reason,
+          request,
           current.phase === RELEASING ? AT_CONSUMER : AT_PROPOSAL,
         );
         break;

@@ -104,9 +104,12 @@ import {
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
+  CANCEL_ABORTED,
+  CANCEL_FAILED,
   ReorderResolution,
   sortable,
   type AxisInstaller,
+  type CancelOrigin,
   type CancelStage,
   type CollectionSnapshot,
   type ItemSource,
@@ -257,8 +260,21 @@ const list: SortableController = sortable(
 
       if (result.type === 'canceled') {
         const stage: CancelStage = result.stage;
+        // **The discrimination D-154 exists to make writable** — *stay silent
+        // when the user pressed Escape*, which had no correct implementation
+        // before this field.
+        const origin: CancelOrigin = result.origin;
 
         void (stage === AT_PROPOSAL || stage === AT_CONSUMER);
+        void (origin === CANCEL_ABORTED || origin === CANCEL_FAILED);
+
+        // **And \`reason\` stays shut.** It is \`unknown\`, so the consumer's own
+        // compiler refuses every use that would look like a discrimination —
+        // which is what keeps provenance on the field that cannot be forged.
+        // @ts-expect-error: an open channel narrows to nothing
+        const claimed: string = result.reason;
+
+        void claimed;
       }
     }) satisfies SortableOnEnd,
     onError: ((error: DraggableError | DraggableWarning): void => {
@@ -575,6 +591,7 @@ import {
   IDLE,
   LIFT_IN_PLACE,
   RELEASING,
+  CANCEL_FAILED,
   SETTLED_CANCELED,
   SETTLED_FAILED,
   SETTLED_FULFILLED,
@@ -587,6 +604,7 @@ import {
   type BehaviorConfig,
   type BehaviorInstall,
   type BehaviorSpec,
+  type CancelOrigin,
   type CancelStage,
   type CommandAdmission,
   type Disposer,
@@ -729,7 +747,10 @@ const settlement: SettlementTransition<Part> = {
         return true;
       case SETTLED_CANCELED: {
         const stage: CancelStage = input.stage;
+        // Read off the input and forwarded; a behavior mints no origin here.
+        const origin: CancelOrigin = input.origin;
 
+        void origin;
         draft.verdict = stage === AT_CONSUMER ? 'late' : 'early';
         return true;
       }
@@ -737,6 +758,12 @@ const settlement: SettlementTransition<Part> = {
         // D-66's fallback, derived rather than supplied — the input carries a
         // \`FailureStage\`, never a \`CancelStage\`.
         const stage: CancelStage = progress === RESOLVING ? AT_CONSUMER : AT_PROPOSAL;
+        // The one origin a behavior writes: this fallback is what gives a
+        // classified failure a terminal, so the behavior is the only party that
+        // can say so.
+        const origin: CancelOrigin = CANCEL_FAILED;
+
+        void origin;
         // D-130: the input carries the finished error the consumer will
         // receive, beside the \`FailureStage\` this behavior maps to a recovery.
         const error: DraggableError = input.report;
@@ -857,12 +884,15 @@ const FREE_DRAG = `import {
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
+  CANCEL_ABORTED,
+  CANCEL_INTERRUPTED,
   FreeDragResolution,
   freeDrag,
   LIFT_FAITHFUL,
   LIFT_FLAT,
   LIFT_IN_PLACE,
   type AcceptedFreeDragResult,
+  type CancelOrigin,
   type CancelStage,
   type CanceledFreeDragResult,
   type DragAxis,
@@ -989,8 +1019,12 @@ const controller: FreeDragController = freeDrag(
         case 'canceled': {
           const canceled: CanceledFreeDragResult = result;
           const stageTag: CancelStage = canceled.stage;
+          // *The user changed their mind* is not *the input was taken away*,
+          // and this is the field that tells them apart.
+          const originTag: CancelOrigin = canceled.origin;
 
           void (stageTag === AT_PROPOSAL || stageTag === AT_CONSUMER);
+          void (originTag === CANCEL_ABORTED || originTag === CANCEL_INTERRUPTED);
           break;
         }
 
@@ -1448,14 +1482,18 @@ describe('the packed package', () => {
         'FAILURE_SCHEDULED_FRAME',
         'FAILURE_TERMINAL_CALLBACK',
       ],
-      // **33 values, asserted by value** (D-68). A type-only assertion cannot
-      // see the hole F-59 names: every missing name was a *constant*, and
-      // erased types cannot fill a value position.
+      // **37 values, asserted by value** (D-68, D-154). A type-only assertion
+      // cannot see the hole F-59 names: every missing name was a *constant*,
+      // and erased types cannot fill a value position.
       './kernel.js': [
         'ACTIVATING',
         'ACTIVE',
         'AT_CONSUMER',
         'AT_PROPOSAL',
+        'CANCEL_ABORTED',
+        'CANCEL_FAILED',
+        'CANCEL_INTERRUPTED',
+        'CANCEL_SUPPLIED',
         'FAILURE_ACTION_EFFECT',
         'FAILURE_ACTION_PREPARE',
         'FAILURE_ACTIVATION',
@@ -1484,20 +1522,35 @@ describe('the packed package', () => {
         'SETTLING',
         'draggable',
       ],
+      // **Ten since D-154.** The four origins are the closed provenance
+      // vocabulary a `CanceledReorderResult` obliges the consumer to
+      // discriminate; the two `CANCEL_*` reasons are the behavior's own domain
+      // values, sound on `reason` for a reason the deleted kernel strings never
+      // had.
       './sortable.js': [
         'AT_CONSUMER',
         'AT_PROPOSAL',
+        'CANCEL_ABORTED',
+        'CANCEL_COLLECTION_INVALIDATED',
+        'CANCEL_FAILED',
+        'CANCEL_INTERRUPTED',
+        'CANCEL_ITEM_REMOVED',
+        'CANCEL_SUPPLIED',
         'ReorderResolution',
         'sortable',
       ],
-      // **Seven, and the three new ones are the lift vocabulary** (D-141).
-      // `config.lift` takes the kernel's numeric `LiftMode`, and a numeric
-      // union whose members are unnameable is not a fillable slot — so the
-      // constants publish beside the type, exactly as the stages do on
-      // `drag.js`.
+      // **Eleven.** Three are the lift vocabulary (D-141) — `config.lift` takes
+      // the kernel's numeric `LiftMode`, and a numeric union whose members are
+      // unnameable is not a fillable slot — and four are the cancellation
+      // origins (D-154), which publish beside the type they belong to exactly
+      // as the stages do on `drag.js`.
       './free-drag.js': [
         'AT_CONSUMER',
         'AT_PROPOSAL',
+        'CANCEL_ABORTED',
+        'CANCEL_FAILED',
+        'CANCEL_INTERRUPTED',
+        'CANCEL_SUPPLIED',
         'FreeDragResolution',
         'LIFT_FAITHFUL',
         'LIFT_FLAT',

@@ -5,7 +5,7 @@
  * Nothing here reads the DOM or holds state. Every value is a plain immutable
  * object, because every one of them is handed to consumer code.
  */
-import type { CancelStage } from '../kernel/failures.ts';
+import type { CancelOrigin, CancelStage } from '../kernel/failures.ts';
 import type { Point } from '../kernel/types.ts';
 
 /** Which axes the drag may travel on. `'both'` by default. */
@@ -176,7 +176,15 @@ export type CanceledFreeDragResult = Readonly<{
    * `stage` is carried.
    */
   request: FreeDragRequest | null;
+  /**
+   * **What the decider had to say, and nothing more.** An open channel: a value
+   * the consumer passed to `cancel`, the value a classified failure threw, or
+   * `undefined` — this behavior mints none of its own. Provenance is `origin`,
+   * which the consumer cannot write.
+   */
   reason: unknown;
+  /** Who decided, and of what kind. Written by the library. */
+  origin: CancelOrigin;
   stage: CancelStage;
 }>;
 

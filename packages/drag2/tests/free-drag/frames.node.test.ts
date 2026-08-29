@@ -3,7 +3,7 @@ import {
   type FreeDragFramePart,
   freeDragFramePart,
 } from '../../src/free-drag/frames.ts';
-import { AT_CONSUMER } from '../../src/kernel/failures.ts';
+import { AT_CONSUMER, CANCEL_SUPPLIED } from '../../src/kernel/failures.ts';
 
 /**
  * **One function, two operations, and the shared source is the point** (D-142).
@@ -35,6 +35,7 @@ describe('freeDragFramePart', () => {
       type: 'canceled',
       request: null,
       reason: null,
+      origin: CANCEL_SUPPLIED,
       stage: AT_CONSUMER,
     };
 

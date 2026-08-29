@@ -197,8 +197,9 @@ export const n5: unknown = host.activate;
  * **R-1. The kernel registers exactly one ingress listener, and it is
  * `pointerdown` on `root`** — `src/kernel/kernel.ts:1970`, inside `arm()`. The
  * per-operation `keydown` listener (`src/kernel/pointer.ts:48`) exists only
- * while an operation is live and calls exactly one thing, `onEscape` →
- * `cancel(CANCEL_ESCAPE)`. Neither is extensible from a behavior.
+ * while an operation is live and calls exactly one thing, `onEscape` → a
+ * cancellation the kernel marks `CANCEL_ABORTED`. Neither is extensible from a
+ * behavior.
  *
  * **R-2. `admit` is called from one place**, `admitPress`
  * (`src/kernel/kernel.ts:647`), which is reached only from `onPointerDown`. Even

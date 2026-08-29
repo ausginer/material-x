@@ -20,6 +20,7 @@ import {
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
+  CANCEL_FAILED,
   FAILURE_TERMINAL_CALLBACK,
   type FailureStage,
 } from '../kernel/failures.ts';
@@ -736,6 +737,7 @@ export function createFreeDragSpec(
               type: 'canceled',
               request,
               reason: input.reason,
+              origin: input.origin,
               stage: input.stage,
             };
 
@@ -766,6 +768,13 @@ export function createFreeDragSpec(
                       type: 'canceled',
                       request,
                       reason: input.error,
+                      // **The one origin a behavior mints**: the kernel writes
+                      // the other three onto the `SETTLED_CANCELED` input, and
+                      // this arm is the fallback that gives a classified
+                      // failure a terminal. `reason` still carries the caught
+                      // throw; `origin` is what tells it apart from a consumer
+                      // who passed an `Error` deliberately.
+                      origin: CANCEL_FAILED,
                       stage: progress === RESOLVING ? AT_CONSUMER : AT_PROPOSAL,
                     };
             }

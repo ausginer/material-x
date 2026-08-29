@@ -61,6 +61,7 @@ const PUBLISHED_TYPES: readonly string[] = [
   // because this alias's definition names it.
   'BehaviorLiftSession',
   'BehaviorSpec',
+  'CancelOrigin',
   'CancelStage',
   'CommandAdmission',
   'Disposer',
