@@ -36,7 +36,12 @@ const config: UserConfigFnObject = defineConfig(() =>
       emptyOutDir: true,
       sourcemap: true,
     },
-    preview: { port: 4180, strictPort: true },
+    // **`host` is not a convenience here.** Vite's default binds loopback
+    // only, and in this container that resolves to `::1` alone — so the port
+    // is unreachable over IPv4, which is what an editor's port forwarding and
+    // a browser on the host both use. Binding every interface is what makes
+    // the served URL work from outside the container at all.
+    preview: { host: true, port: 4180, strictPort: true },
   }),
 );
 
