@@ -2124,6 +2124,22 @@ The guard is **not** reopened: D-153 settles that it stays, as the enforcement p
 
 **Bookkeeping in the same pass.** The trace note's three findings were renumbered **F-174…F-176 → F-180…F-182**: the D-154 implementation review had already taken F-174…F-179, and those six live in [`d154-cancel-origin-review-claude.md`](reviews/phase-23/d154-cancel-origin-review-claude.md) **without ledger rows**, which is why the collision was invisible at allocation time. The unledgered set is the cause and it is still unledgered.
 
+### Does landing belong to settlement? Q-L1 is parked behind Q-L2, 2026-08-29 (F-184, F-185, F-186)
+
+**Analysis only** — [`reviews/phase-23/landing-ownership-boundary-claude.md`](reviews/phase-23/landing-ownership-boundary-claude.md). The owner asked, before Q-L1's counterfactual, whether landing animation should be part of settlement semantics at all, and asked that if the hold carries a contract beyond visual polish the contract be named precisely. **It does carry one, it is not polish, and the gate is not what satisfies it.**
+
+**The obligation is real and the library made it itself.** `acquireLift` puts the consumer's element into `position: fixed` **and the top layer**, with a placeholder holding its flow slot. Having removed an element from flow, the library must put it back without a discontinuity — a jump at drop is a defect the lift manufactured.
+
+**The decisive fact is that the pin already discharges it, synchronously, with no landing composed.** `armSettlement` measures the anchor before the landing branch and unconditionally; `joinSettlement` writes it to the lift whether or not a runner was installed. `sortable-minimal.json` shows exactly that — `joinSettlement → runLeaf → runPhase → kernel.ts:1706 → presentation.write` — in a graph with no `landing()` in it. **The pin removes the discontinuity; the landing only makes the pin take 200 ms instead of 0.** Five candidate contracts were tested and none needs the gate: two are discharged by the pin and the presentation lifetime, one holds in `minimal`, and two — the landing failure class and I-7 — are **consequences of the window offered as reasons for it** (F-184).
+
+**What the gate costs, as fact.** The controller is inert for the landing's duration: `openIngress` refuses while an operation is live and `RETIRE` waits on the animation — **206 ms measured, against `minimal`'s 2.1 ms** — and no document states this as a guarantee (F-185). The gate is also a two-holder generalization with a population of one since D-41 deleted readiness, and it is **already conditional on semantic state**, since `RECOVERY_IMMEDIATE` skips it with `landing()` composed.
+
+**The two features split differently, and the difference inverts the design.** `layoutAnimation`'s measure/mutate/measure bracket cannot be CSS, and its cancel-before-measure discipline is a **correctness** requirement — the library reads the geometry those animations perturb — yet it owns no lifecycle. `landing`'s animation perturbs nothing the library ever reads again, and it owns the operation's lifecycle (F-186). **The feature that must control its animation owns nothing; the feature that need not owns everything.**
+
+**Q-L2 is named and not settled**: should the settlement gate be replaced by a **presentation lifetime that outlives the operation** — semantic completion ending at the pin, presentation ending when the interpolation does, interpolation delegable? The note states the honest costs rather than gesturing at them, led by the strongest objection — **something must own a transform on an element after the operation ends** — and records that free drag needs its own answer and does not inherit this one.
+
+**Q-L1 is parked behind it, and its contract is not wasted.** Arm A is a closer counterfactual to Q-L2 than to the question it was written for; arm B may be optimizing a thing that should not exist, and building it first is the waste the parking avoids. That Q-L1 took the hold's existence as its premise is the third instance of the pattern **F-168** named.
+
 ## Phase 24 — Self-containment
 
 **The bar, stated concretely.** As genuinely complete and self-contained as `@ydinjs/box-quad`: one coherent surface, no probe framing, no open questions carried in the docs, tests that pin the declared API and not just its behavior, a size budget that fails CI, and nothing a reader has to consult a plan document to understand.

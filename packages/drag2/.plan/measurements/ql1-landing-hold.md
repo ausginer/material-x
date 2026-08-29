@@ -2,6 +2,8 @@
 
 **Architect, 2026-08-29. Phase 23.** A contract for a size probe, not a probe and not a decision. It defines what must be built, what must not move, which numbers answer the question, and — stated in advance, so the answer cannot be argued after the fact — which results settle Q-L1 and which kill it.
 
+> **PARKED 2026-08-29, before any arm was measured.** [`landing-ownership-boundary-claude.md`](../reviews/phase-23/landing-ownership-boundary-claude.md) asks whether the hold should exist at all (**Q-L2**) and finds no contract requiring it — a question Q-L1 takes as its premise. **Q-L2 is prior and must be settled first.** This contract is not withdrawn: arm A is a closer counterfactual to Q-L2 than to Q-L1, arm C's target is explained by D-41's deleted second gate, and arm B may be optimizing a thing that should not exist. Resume only once Q-L2 is decided, and re-read §2 and §6 against that decision before running anything.
+
 Raised by [`trace-execution-topology-claude.md`](../reviews/phase-23/trace-execution-topology-claude.md) §8:
 
 > **Q-L1 — should the settlement's landing-hold be a kernel capability the behavior installs, rather than a fixed part of the settlement protocol?**
