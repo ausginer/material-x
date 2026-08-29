@@ -33,6 +33,8 @@ The model in the tree is more general than `x()/y()/xy()` require — and it is 
 
 ## 3. The derivation: every target position is already in the cache, one index away
 
+**Corrected 2026-08-29 — the rotation in this section is false for a variable-size linear list, and the two-row counterexample is in [`g3-axis-prediction-rules-claude.md`](g3-axis-prediction-rules-claude.md) §2.** `cell(k)` is occupant-independent only when every cell is the same size, which is the 2-D case and not the linear one. The linear axes take a **scalar span displacement** instead; the section's conclusion — that a one-hole relocation is fully determined by state already held, with no DOM read, before the write — stands and is measured there. §1's G3 splits accordingly.
+
 `insertionAt` fixes the index algebra: gap `g` means the placeholder sits between `destination[g − 1]` and `destination[g]`. `RectIndex` is indexed by destination slot and holds, at slot `j`, the rect of the item currently occupying it.
 
 Write `cache[j]` for that rect and `P(j, g)` for slot `j`'s rendered position with the hole at `g`. G3 says `P(j, g) = cell(j)` for `j < g` and `cell(j + 1)` for `j ≥ g`. The placeholder itself occupies `cell(g)`.

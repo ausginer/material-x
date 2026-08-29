@@ -2186,6 +2186,20 @@ Two supporting facts that were not known before the pass: `layoutAnimation()` co
 
 No production code touched.
 
+### 2026-08-29 — G3 corrected: the axis prediction rule is axis-owned (D-156 amended)
+
+The owner challenged G3's fixed-cell rotation with a two-row counterexample, and it is correct. Record [`g3-axis-prediction-rules-claude.md`](reviews/phase-23/g3-axis-prediction-rules-claude.md); **F-194 corrected**, **F-196** and **F-197** recorded.
+
+A browser probe scored both hypotheses over every ordered gap pair in seven fixtures. They are **exactly complementary**: rotation is 30/80 wrong and the scalar span 0/80 on unequal-size linear lists on both axes, with and without `gap`; the scalar span is 54/378 wrong and rotation 0/378 on a fixed-track grid. So the common clause becomes a **derivability requirement** — every post-move position derivable from held state with no DOM read — and the rule becomes axis-owned: scalar span for `x()`/`y()`, slot rotation for `xy()`.
+
+Two results the correction adds rather than costs. The linear displacement constant is **derivable from the cache and invariant across hole positions** (F-197), so the linear axis measures it never. And `xy()`'s precondition is **occupant-independent track sizing**, which is wider than _uniform cells_ — a fixed-track grid with unequal item heights scores 0 wrong.
+
+`verified-refresh.ts` is **not obsolete**: it already held the correct linear rule, and what changes is the **re-timing** of the prediction to before the placeholder write — which is what removes the FLIP bracket — not the formula. One size claim withdrawn accordingly. The predictive conclusion of D-156 is untouched and is now measured on 300+ move-slot pairs.
+
+No production code touched.
+
+---
+
 ---
 
 ## Phase 24 — Self-containment
