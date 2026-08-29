@@ -2220,6 +2220,22 @@ Required evidence is named rather than left to the implementer: a zero-read test
 
 No production code touched.
 
+### 2026-08-29 — Flow geometry against presented geometry (D-156 and D-157 amended)
+
+The implementation pass stopped on a real contradiction: the linear displacement constant is a **cross-element difference of `getBoundingClientRect()` values**, so it carries a destination row's authored presentation. The existing test authoring `translate: 0 7px` and expecting `0px 47px` gets `47` as the constant and `54` as the contribution. Record [`flow-versus-presented-geometry-claude.md`](reviews/phase-23/flow-versus-presented-geometry-claude.md).
+
+**G5 settles it in one line**: with presented equal to flow plus authored, a same-element temporal difference cancels the authored term and a two-element difference does not, so **a prediction may consume only the first**. G1 splits into flow and presented halves, the new clause forbidding authored presentation from _changing because of the move_ rather than forbidding it — so the supported composition boundary does not move.
+
+Three consequences. The linear constant is **measured once per operation**, not derived — **F-197 falsified**, and the two-slot fallback it removed returns as the ordinary path. **`xy()` does not predict**: its rotation is the same forbidden form and needs `count + 1` cell positions that same-element differences never yield ahead of the hole, so it keeps a measured rebuild. And the sink now **publishes what it is holding**, so a measured rebuild subtracts it and yields settled geometry with animations running — which deletes the release-and-replay discipline for both axes and **dissolves F-200**.
+
+**D-155 is not falsified** and the tail introduces nothing: its operands are a library-computed delta and a placeholder-against-origin difference, and the dragged item's authored contribution enters identically with or without a tail. The related question — the lift neutralises `transform` but not `translate`, `rotate` or `scale` — is **F-203**, is present on `main`, and is named with its experiment rather than folded in.
+
+The hot-path claim is restated rather than kept: a warm spatial frame reads nothing in every composition, and a committed move on a linear axis reads nothing once the constant is established. **F-201** and **F-202** record how the conflation survived two decisions.
+
+Documents only; the implementation WIP was read as evidence and left untouched.
+
+---
+
 ---
 
 ---
