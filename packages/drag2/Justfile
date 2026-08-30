@@ -69,6 +69,11 @@ profile-build:
 profile: profile-build
     vite preview -c bench/profile/vite.config.ts
 
+# Project the decision ledger against its status register, as TSV on stdout
+# (`--retired` for the withdrawn content instead). Prints; writes nothing.
+decisions *FLAGS:
+    node .scripts/decision-status.ts {{ FLAGS }}
+
 diff:
   git show HEAD --format= -- .plan > "/workspaces/material-x/docs-$(date +%Y%m%d-%H%M%S).patch"
 

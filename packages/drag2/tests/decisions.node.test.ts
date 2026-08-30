@@ -80,275 +80,61 @@
  * their whole _Supersedes_ column while the rendered table showed the evidence
  * half in its place, and nothing failed anywhere.
  *
+ * ## A decision has exactly one canonical row, and one status (§Decision status)
+ *
+ * The fourth subject, and it is a vocabulary rather than a completeness claim.
+ * A `D-n` opens more rows than there are decisions, because the record also
+ * tabulates decisions it is talking **about** — the precedence table above the
+ * ledger, and the deferred table below it. So the ledger and its subsections,
+ * less §Decisions not yet implemented, define the **canonical** set, and every
+ * other `D-n` is a reference to it. A reference to an id with no canonical row
+ * names nothing, which is the one failure a reader cannot see: the id looks
+ * like every other id on the page.
+ *
+ * The status register is projected against exactly that set — one entry per
+ * canonical decision, no entry without one, `active` or `inactive` and nothing
+ * else, and one entry each. The value vocabulary is enforced as part of the
+ * row's shape rather than downstream, so a third value is an unparseable row
+ * and is refused by this file's standing rule rather than defaulted.
+ *
+ * The reading itself lives in `ledger.ts`, which the projection script imports
+ * too: two readers of one document are two definitions of that document.
+ *
  * Source-level and text-based, necessarily: the subject is a document.
  */
 import { access, readFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
-import MarkdownIt from 'markdown-it';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import {
+  canonical,
+  cited,
+  dangling,
+  embedded,
+  index,
+  ledger,
+  listed,
+  malformed,
+  marked,
+  PACKAGE,
+  projection,
+  registered,
+  retired,
+  section,
+  SECTION,
+  shape,
+  unaccounted,
+  unrecognized,
+} from './ledger.ts';
 
-const PACKAGE = resolve(import.meta.dirname, '..');
-const INDEX = join(PACKAGE, '.plan/contract/00-index.md');
 const REGISTER = join(PACKAGE, '.plan/obligations.md');
-
-/** The heading whose table accounts for every marked decision. */
-const SECTION = '### Decisions not yet implemented';
-
-/**
- * **The closed destination vocabulary** (F-70), read by both halves. Kept as
- * one pattern rather than one per half, because the failure this replaced was
- * exactly the two halves agreeing on a form neither could parse.
- */
-const DESTINATION = /^(?:Phase \d+|Before Phase \d+|Remediation)$/u;
-
-/** The marker a decision row carries while its subject is not in the code. */
-const MARKER = /^\| (D-\d+) \| \*\*Unimplemented \(([^)]*)\)\.\*\*/u;
-
-/**
- * Anything claiming unimplementedness in a decision row, however spelled. A
- * line that is this and not `MARKER` is malformed, not absent.
- */
-const MARKER_SHAPED = /^\| D-\d+ \|[^|]*\bUnimplemented\b/u;
-
-/** A row of §Decisions not yet implemented. */
-const LISTED =
-  /^\| (D-\d+) \| ([^|]+?) \| [^|]+ \| (absent|present): `([^`]+)`(?: :: `([^`]+)`)? \|/u;
-
-/** Anything shaped like one of that table's rows. */
-const ROW_SHAPED = /^\| D-\d+ \|/u;
-
-/**
- * A bold span, paired left to right. Bold is the discriminator because it is
- * already this record's typography for a live clause, while an italic or
- * backticked mention is how it quotes the term.
- */
-const BOLD = /\*\*((?:[^*]|\*(?!\*))+?)\*\*/gu;
-
-/**
- * The four condition lead-ins the record actually uses (D-116 (d)). Three name
- * the clause and are matched whole; the fourth is a sentence about what would
- * reopen a decision, and is matched on the two words that make it one. **The
- * vocabulary is still open** — a fifth spelling escapes this, which is why the
- * register entry is the load-bearing artifact and this is a backstop.
- */
-const LEAD_IN =
-  /^(?:Overturned by|Re-base conditions?|Revisit conditions?)$|\breopening conditions?\b/iu;
 
 /** A row of the register's §Standing conditions table. */
 const DECLARED = /^\| (SC-\d+) \|/u;
 
-/** A reference to one, wherever it is written. */
-const REFERENCE = /SC-\d+/gu;
-
-type Deferred = Readonly<{
-  decision: string;
-  destination: string;
-  form: string;
-  path: string;
-  text: string | undefined;
-}>;
-
-async function index(): Promise<readonly string[]> {
-  return (await readFile(INDEX, 'utf8')).split('\n');
-}
-
-/**
- * The lines of §Decisions not yet implemented. Scoped, because "a row that
- * does not parse is a failure" is only a safe rule where every row is supposed
- * to be one of these — the decision tables above carry rows of another shape.
- */
-function section(lines: readonly string[]): readonly string[] {
-  const start = lines.indexOf(SECTION);
-
-  if (start < 0) {
-    return [];
-  }
-
-  const rest = lines.slice(start + 1);
-  const end = rest.findIndex((line) => line.startsWith('#'));
-
-  return end < 0 ? rest : rest.slice(0, end);
-}
-
-/** Decisions whose own row says they are not implemented yet. */
-function marked(lines: readonly string[]): readonly string[] {
-  return lines.flatMap((line) => {
-    const match = MARKER.exec(line);
-
-    return match === null ? [] : [`${match[1]!} (${match[2]!})`];
-  });
-}
-
-/** The rows of the table that is supposed to account for them. */
-function listed(lines: readonly string[]): readonly Deferred[] {
-  return section(lines).flatMap((line) => {
-    const match = LISTED.exec(line);
-
-    return match === null
-      ? []
-      : [
-          {
-            decision: match[1]!,
-            destination: match[2]!,
-            form: match[3]!,
-            path: match[4]!,
-            text: match[5],
-          },
-        ];
-  });
-}
-
-/**
- * Everything the two readers above would drop on the floor: a marker or a row
- * that does not parse, and a destination outside the closed vocabulary. Each is
- * reported as one line rather than as a boolean, so the failure names the text
- * that has to change.
- */
-function unrecognized(lines: readonly string[]): readonly string[] {
-  const bad: string[] = [];
-
-  for (const line of lines) {
-    const match = MARKER.exec(line);
-
-    if (match === null) {
-      if (MARKER_SHAPED.test(line)) {
-        bad.push(`unparseable marker: ${line.slice(0, 60)}`);
-      }
-
-      continue;
-    }
-
-    if (!DESTINATION.test(match[2]!)) {
-      bad.push(`marker destination: ${match[1]!} → "${match[2]!}"`);
-    }
-  }
-
-  for (const line of section(lines)) {
-    const match = LISTED.exec(line);
-
-    if (match === null) {
-      if (ROW_SHAPED.test(line)) {
-        bad.push(`unparseable row: ${line.slice(0, 60)}`);
-      }
-
-      continue;
-    }
-
-    if (!DESTINATION.test(match[2]!)) {
-      bad.push(`row destination: ${match[1]!} → "${match[2]!}"`);
-    }
-  }
-
-  return bad;
-}
-
-/**
- * Every decision row whose bold condition lead-in names no `SC-n`. The clause
- * runs from its lead-in to the next one or to the end of the row, so a row
- * carrying two conditions is answered twice.
- */
-function embedded(lines: readonly string[]): readonly string[] {
-  const bad: string[] = [];
-
-  for (const line of lines.filter((row) => ROW_SHAPED.test(row))) {
-    const at = [...line.matchAll(BOLD)].filter((bold) =>
-      LEAD_IN.test(bold[1]!.trim()),
-    );
-
-    for (const [ordinal, lead] of at.entries()) {
-      const end = at[ordinal + 1]?.index ?? line.length;
-      const clause = line.slice(lead.index, end);
-
-      if (!REFERENCE.test(clause)) {
-        bad.push(`${/^\| (D-\d+)/u.exec(line)![1]!}: ${lead[0]}`);
-      }
-
-      REFERENCE.lastIndex = 0;
-    }
-  }
-
-  return bad;
-}
-
-/** The ids the register declares, and the ids the ledger cites. */
+/** The ids the register declares. */
 const ids = (lines: readonly string[], row: RegExp): readonly string[] => [
   ...new Set(lines.flatMap((line) => row.exec(line)?.[1] ?? [])),
 ];
-
-function cited(lines: readonly string[]): readonly string[] {
-  return [
-    ...new Set(
-      lines
-        .filter((line) => ROW_SHAPED.test(line))
-        .flatMap((line) => [...line.matchAll(REFERENCE)].map(([id]) => id)),
-    ),
-  ];
-}
-
-const markdown = new MarkdownIt('commonmark').enable(['table']);
-
-/** The delimiter row, which is a table's shape and not one of its rows. */
-const DELIMITER = /^\|(?:\s*:?-{2,}:?\s*\|)+$/u;
-
-/**
- * How many cells a row **authors** — asked of the parser rather than counted.
- *
- * A parsed row is always its header's width, because the parser truncates and
- * pads to it, so comparing parsed lengths would compare one number with
- * itself: the vacuity F-83 is made of, and D-115 forbids. So the row is
- * offered to the parser **as a header** instead, whose width the delimiter row
- * must match for the block to be a table at all. The width the parser accepts
- * is the width the row authored, with escaped pipes and pipes inside code
- * spans resolved by the parser and not by this file.
- */
-function width(row: string): number | undefined {
-  for (let count = 1; count <= 12; count += 1) {
-    const table = `${row}\n|${' --- |'.repeat(count)}\n| x |\n`;
-
-    if (
-      markdown.parse(table, {}).some((token) => token.type === 'table_open')
-    ) {
-      return count;
-    }
-  }
-
-  return undefined;
-}
-
-type Shape = Readonly<{ rows: number; wrong: readonly string[] }>;
-
-/** Every row whose authored width is not the width its own header declares. */
-function shape(lines: readonly string[]): Shape {
-  const wrong: string[] = [];
-  let header = 0;
-  let rows = 0;
-
-  for (const [index, line] of lines.entries()) {
-    if (!line.startsWith('|')) {
-      header = 0;
-      continue;
-    }
-
-    if (DELIMITER.test(line)) {
-      continue;
-    }
-
-    const cells = width(line);
-
-    if (header === 0) {
-      header = cells ?? 0;
-      continue;
-    }
-
-    rows += 1;
-
-    if (cells !== header) {
-      wrong.push(`${index + 1}: ${cells ?? '?'} cells against ${header}`);
-    }
-  }
-
-  return { rows, wrong };
-}
 
 async function exists(path: string): Promise<boolean> {
   try {
@@ -698,5 +484,221 @@ describe('the ledger tables', () => {
     // Non-vacuity: the reader really walked the tables. A file whose tables
     // stopped being recognized would otherwise report nothing wrong.
     expect(rows).toBeGreaterThan(150);
+  });
+});
+
+describe('the canonical occurrence', () => {
+  const LEDGER = '## Decision ledger';
+
+  const document = (...body: readonly string[]): readonly string[] => [
+    '| # | Drift | Restores | Corrects |',
+    '| D-61 | A row about a decision, above the ledger | x | y |',
+    LEDGER,
+    '| ID | Decision | Why | vs probe 1 |',
+    '| --- | --- | --- | --- |',
+    ...body,
+    SECTION,
+    '| D-155 | Phase 24 | Something | absent: `src/nothing.ts` |',
+    '## Decision status',
+    '| Decision | Status |',
+    '| --- | --- |',
+    '| D-1 | active |',
+    '## Findings',
+    '| F-1 | A finding that mentions D-61 | Open |',
+  ];
+
+  it('should read a decision row inside the ledger as canonical', () => {
+    expect(
+      canonical(document('| D-1 | A statement | Why | — |')).map(
+        ({ id }) => id,
+      ),
+    ).toEqual(['D-1']);
+  });
+
+  it('should not read a row above the ledger as canonical', () => {
+    // D-61…D-65 open rows in the precedence table as well as their own, and
+    // the precedence row is the record talking *about* the decision.
+    expect(ledger(document()).some((line) => line.startsWith('| D-61'))).toBe(
+      false,
+    );
+  });
+
+  it('should not read a deferred row as canonical', () => {
+    // D-155's deferred row is the second duplicate shape, and it is nested
+    // inside the ledger rather than above it.
+    expect(ledger(document()).some((line) => line.startsWith('| D-155'))).toBe(
+      false,
+    );
+  });
+
+  it('should not read a status entry as a canonical row', () => {
+    // The trap: a register row is `| D-1 | active |`, which opens exactly like
+    // a decision row. Only the section boundary separates them, so a canonical
+    // set read document-wide would count every decision twice and read
+    // `active` as its statement.
+    expect(
+      canonical(document('| D-1 | A statement | Why | — |')).map(
+        ({ statement }) => statement,
+      ),
+    ).toEqual(['A statement']);
+  });
+
+  it('should take the statement from the second cell', () => {
+    expect(
+      canonical(document('| D-1 | A **bold** `span` and _more_ | Why | — |'))[0]
+        ?.statement,
+    ).toBe('A bold span and more');
+  });
+
+  it('should drop a struck span from the statement', () => {
+    // The one span whose text must not reach the statement: keeping it would
+    // report the retracted half of a decision as what the decision says.
+    expect(
+      canonical(document('| D-1 | ~~Withdrawn~~ **Current** | Why | — |'))[0],
+    ).toEqual({ id: 'D-1', statement: 'Current', struck: ['Withdrawn'] });
+  });
+
+  it('should not miscount a pipe the parser does not read as one', () => {
+    expect(
+      canonical(document('| D-1 | `a \\| b` holds | Why | — |'))[0]?.statement,
+    ).toBe('a | b holds');
+  });
+
+  it('should refuse a reference naming no canonical row', () => {
+    // The failure a reader cannot see: the id looks like every other id.
+    expect(dangling(document('| D-1 | A statement | Why | — |'))).toEqual([
+      'D-61',
+      'D-155',
+    ]);
+  });
+
+  it('should accept a reference whose decision has a canonical row', () => {
+    expect(
+      dangling(
+        document(
+          '| D-1 | A statement | Why | — |',
+          '| D-61 | Its own row | Why | — |',
+          '| D-155 | Its own row | Why | — |',
+        ),
+      ),
+    ).toEqual([]);
+  });
+
+  it('should give the ledger one canonical row per decision', async () => {
+    const rows = canonical(await index()).map(({ id }) => id);
+
+    expect(rows).toEqual([...new Set(rows)]);
+  });
+
+  it('should read a contiguous decision vocabulary', async () => {
+    // The ledger is not in id order, so this is a claim about the set: the
+    // ids run `D-1` to `D-n` with no gap. It is what catches a canonical row
+    // lost to a heading change or counted twice with a reference — a fixed
+    // total would only catch it until the next decision is taken.
+    const rows = canonical(await index()).map(({ id }) => id);
+
+    expect(
+      [...rows].sort((a, b) => Number(a.slice(2)) - Number(b.slice(2))),
+    ).toEqual(Array.from({ length: rows.length }, (_, at) => `D-${at + 1}`));
+    // Non-vacuity: the reader really walked the ledger.
+    expect(rows.length).toBeGreaterThan(150);
+  });
+
+  it('should name no decision the ledger never states', async () => {
+    expect(dangling(await index())).toEqual([]);
+  });
+});
+
+describe('the status register', () => {
+  const register = (...rows: readonly string[]): readonly string[] => [
+    '## Decision ledger',
+    '| ID | Decision | Why | vs probe 1 |',
+    '| --- | --- | --- | --- |',
+    '| D-41 | A statement | Why | — |',
+    '| D-42 | ~~Withdrawn~~ **Current** | Why | — |',
+    '## Decision status',
+    '| Decision | Status |',
+    '| --- | --- |',
+    ...rows,
+    '## Findings',
+  ];
+
+  it('should read both values of the vocabulary', () => {
+    expect(
+      registered(register('| D-41 | active |', '| D-42 | inactive |')),
+    ).toEqual([
+      { decision: 'D-41', status: 'active' },
+      { decision: 'D-42', status: 'inactive' },
+    ]);
+  });
+
+  it('should refuse a value outside the vocabulary', () => {
+    // The vocabulary is part of the row's shape, so a third value is an
+    // unparseable row rather than a status this file has never heard of.
+    expect(registered(register('| D-41 | retired |'))).toEqual([]);
+    expect(malformed(register('| D-41 | retired |'))).toEqual([
+      'unparseable entry: | D-41 | retired |',
+    ]);
+  });
+
+  it('should refuse a duplicate entry', () => {
+    // Two answers to one question is no answer, and the second silently wins
+    // in every map built from the table.
+    expect(
+      malformed(register('| D-41 | active |', '| D-41 | inactive |')),
+    ).toEqual(['duplicate entry: D-41']);
+  });
+
+  it('should refuse a decision the register never answers', () => {
+    expect(unaccounted(register('| D-41 | active |'))).toEqual([
+      'no status: D-42',
+    ]);
+  });
+
+  it('should refuse an entry naming no canonical decision', () => {
+    expect(
+      unaccounted(
+        register('| D-41 | active |', '| D-42 | active |', '| D-99 | active |'),
+      ),
+    ).toEqual(['no decision: D-99']);
+  });
+
+  it('should blank the statement of an inactive decision', () => {
+    // An inactive statement is retired content; the projection reports what
+    // the record says now, and the retired projection is where the rest goes.
+    expect(
+      projection(register('| D-41 | active |', '| D-42 | inactive |')),
+    ).toEqual([
+      { decision: 'D-41', status: 'active', statement: 'A statement' },
+      { decision: 'D-42', status: 'inactive', statement: '' },
+    ]);
+  });
+
+  it('should collect retired content from both its sources', () => {
+    // One shape, two sources: the whole statement of an inactive decision,
+    // and every struck span of any decision.
+    expect(
+      retired(register('| D-41 | active |', '| D-42 | inactive |')),
+    ).toEqual([
+      { decision: 'D-42', status: 'inactive', text: 'Current' },
+      { decision: 'D-42', status: 'inactive', text: 'Withdrawn' },
+    ]);
+  });
+
+  it('should not read a decision row as a status entry', () => {
+    expect(
+      malformed(register('| D-41 | active |', '| D-42 | active |')),
+    ).toEqual([]);
+  });
+
+  it('should give every entry a shape it can read', async () => {
+    // First, for the reason the destination vocabulary is checked first: the
+    // completeness assertion below compares two sets, and an unparsed row is
+    // absent from one of them rather than wrong in it.
+    expect(malformed(await index())).toEqual([]);
+  });
+
+  it('should answer every canonical decision exactly once', async () => {
+    expect(unaccounted(await index())).toEqual([]);
   });
 });
