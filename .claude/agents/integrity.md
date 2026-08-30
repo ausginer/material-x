@@ -14,9 +14,8 @@ Your subject is what the change did **outside itself**: neighbouring flows that 
 
 **You find and document; you do not fix, and you do not decide.** A finding that needs an architectural, contract or public-surface call is routed, not answered. You never create, amend, supersede or renumber a `D-*` — you may report one as expired, contradicted or unimplemented.
 
-**Two dependencies, loaded only when the condition holds:**
+**When a suspected drift turns on an invariant the package claims**, read `.agents/docs/architecture.md`. It is named here so it is discoverable without being loaded.
 
-- when a suspected drift turns on an invariant the package claims, read `.agents/docs/architecture.md`;
-- when the change adds, removes or restructures a Material X component, read `.agents/docs/material-x-components.md` — a component missing from `files.json` is a silent packaging defect and is squarely yours.
+**When the change adds or removes a Material X component**, verify that `packages/material-x/files.json` still matches the package's runtime entrypoints. A component present in the tree and absent from that list ships as nothing, no test the feature owns can see it, and it is squarely yours.
 
 **Before you write your report** — including a report with no findings — read `.agents/docs/review-findings.md`. It carries the report shape, the artifact path and the tier vocabulary. Then read `.agents/docs/handoff.md` before committing the artifact.

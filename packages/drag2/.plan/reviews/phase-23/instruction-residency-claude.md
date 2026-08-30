@@ -29,20 +29,19 @@ Resident: **3,988 chars** for `CLAUDE.md` + `AGENTS.md`, against 46,076 — a **
 
 | Chunk                                            | chars |
 | ------------------------------------------------ | ----- |
-| `review-findings.md`                             | 2,314 |
+| `review-findings.md`                             | 2,686 |
 | `handoff.md`                                     | 2,830 |
-| `material-x-components.md`                       | 567   |
-| `agent-workflow.md` (no longer read by any role) | 4,128 |
+| `agent-workflow.md` (no longer read by any role) | 4,634 |
 
 | Role           | resident | body  | retrieved                                        | total chars | ≈ tokens |
 | -------------- | -------- | ----- | ------------------------------------------------ | ----------- | -------- |
-| `reviewer`     | 3,988    | 1,413 | findings 2,314 + handoff 2,830 (+ a §, ~1,000)   | ~11,545     | ~2,890   |
-| `integrity`    | 3,988    | 1,463 | 2,314 + 2,830                                    | 10,595      | ~2,650   |
-| `der`          | 3,988    | 2,365 | 2,314 + 2,830                                    | 11,497      | ~2,875   |
-| `consolidator` | 3,988    | 2,660 | 2,314 + 2,830 (+ a §, ~1,000)                    | ~12,792     | ~3,200   |
-| `cleanup`      | 3,988    | 1,592 | 38,000 + documentation §5 ~2,000 + 2,314 + 2,830 | ~50,724     | ~12,680  |
+| `reviewer`     | 3,988    | 1,413 | findings 2,686 + handoff 2,830 (+ a §, ~1,000)   | ~11,917     | ~2,980   |
+| `integrity`    | 3,988    | 1,548 | 2,686 + 2,830                                    | 11,052      | ~2,765   |
+| `der`          | 3,988    | 2,365 | 2,686 + 2,830                                    | 11,869      | ~2,965   |
+| `consolidator` | 3,988    | 2,660 | 2,686 + 2,830 (+ a §, ~1,000)                    | ~13,164     | ~3,290   |
+| `cleanup`      | 3,988    | 1,592 | 38,000 + documentation §5 ~2,000 + 2,686 + 2,830 | ~51,096     | ~12,775  |
 
-**Five-lens round: ~66,000 → ~24,300 tokens (−63%). Without `cleanup`: ~53,000 → ~11,600 (−78%).** `cleanup` is 52% of what remains, and that share is irreducible — it is the one lens whose job is applying the whole rulebook.
+**Five-lens round: ~66,000 → ~24,800 tokens (−62%). Without `cleanup`: ~53,000 → ~12,000 (−77%).** `cleanup` is 52% of what remains, and that share is irreducible — it is the one lens whose job is applying the whole rulebook.
 
 **The estimates in the approved plan were optimistic and the measured figures are lower-value.** The plan projected −72% and −87%; the chunks came in larger than estimated, `handoff.md` by 2.4× (2,830 chars against a projected ~1,200). The design is unchanged; the arithmetic is corrected here rather than in the rulebook, which carries no numbers.
 
@@ -63,7 +62,9 @@ Verified on three shapes: `§13` → 992 chars, `§1.1` → 6,135 (stopping corr
 
 The rule that content too small to pay for its own retrieval goes inline in the role is durable. **The threshold behind it is not measured.** The working figure used while sizing this change was ~150 tokens, derived from the framing cost of a tool call and its result, not from an experiment. It is recorded here and deliberately kept out of `documentation.md` so that a later pass measures it rather than inheriting it as a rule.
 
-`material-x-components.md` at 567 chars is the one chunk sitting on that threshold. It earns a file on having two readers that are not the same role — `implementer` writes `files.json`, `integrity` catches it going unupdated — rather than on size.
+The Material X component rules — the `src/button` reference layout, `just debug`, and the obligation to keep `packages/material-x/files.json` matching the runtime entrypoints — were written as a 567-char chunk and are inline in `implementer` and `integrity` instead. That is the threshold case resolving the way the rule says it should.
+
+**The `files.json` rule is stated twice on purpose, and the duplication is not the kind the floor rule warns about.** `implementer` carries it as an obligation; `integrity` carries it as a thing to verify. A shared chunk would have handed both roles the _same sentence_, which makes the check a re-reading of the source of truth rather than an independent one. Two separately worded statements are what independent verification means here, and the cost is two sentences.
 
 ## 5. The condition that would split `handoff.md`
 
@@ -89,6 +90,6 @@ Hygiene (format, lint, typecheck) and commit mechanics have different triggers, 
 
 The static properties — no bare `@CONTRIBUTING.md` in the chain, no role naming `agent-workflow.md`, every chunk reached by at least one role, every named path resolving, each moved rule with exactly one home — are all checkable in place and hold.
 
-**The end-to-end check is not.** Spawning `der` and `cleanup` immediately after the change returned the pre-change state: both reported `CONTRIBUTING.md` inlined in their system prompt, and `cleanup` read `agent-workflow.md`, which is the instruction its previous definition carried. A session caches the resident instruction set and the role definitions at start, and the roster refreshes on its own timetable — the same property already recorded for a newly added role.
+**The end-to-end check is not.** Spawning `der` and `cleanup` immediately after the change returned the pre-change state: both reported `CONTRIBUTING.md` inlined in their system prompt, and `cleanup` read `agent-workflow.md`, which is the instruction its previous definition carried. A session caches the resident instruction set and the role definitions at start, and the stale version persists for minutes rather than resolving on a useful timescale; a freshly started process picks the change up immediately.
 
 So _which chunks a role actually loads_ is verifiable only from a session started after the change. A pass that reports the behavioural check as passing from inside the session that made it has measured the old arrangement.
