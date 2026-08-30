@@ -99,7 +99,7 @@ export type Composition = Readonly<{
    * `absentPrefixes`, `present`, `only`. The budget catches growth; the graph
    * declarations catch a module.
    *
-   * **Twelve of the fourteen rows declare some combination of the four, and
+   * **Thirteen of the fifteen rows declare some combination of the four, and
    * the two baselines declare no topology at all**, so on those two the byte
    * budget is the only instrument. Baseline A is where that has consequence:
    * it reaches thirty modules through relative paths into the built package,
@@ -122,7 +122,7 @@ export type Composition = Readonly<{
    * **The exact Brotli figure this row must reproduce**, when it is a row no
    * change to the behaviors above it may reach.
    *
-   * **A ceiling cannot see a transfer, and that is what this is for.** Fourteen
+   * **A ceiling cannot see a transfer, and that is what this is for.** Fifteen
    * budgets can all be green while bytes move *between* rows — a feature
    * getting cheaper for the compositions that use it and dearer for the ones
    * that do not is under budget on both sides, so nothing reports it. §18 names
@@ -289,6 +289,32 @@ export const COMPOSITIONS: readonly Composition[] = [
     ],
     absentPrefixes: ['free-drag/'],
     present: ['sortable/layout-animation.js', P06],
+  },
+  {
+    // **The composition every displacement decision is about**, and it had no
+    // row for three of them: the cellular axis is the one that measures after
+    // the write, so it is the only one whose displacement production a sink
+    // actually drives, and every earlier reading was taken against the linear
+    // axis plus animation or the cellular axis alone. A row a change cannot
+    // reach reports 0 for it, which is §15's *check that the instrument can
+    // see the change* in its structural form.
+    name: 'xy + layoutAnimation',
+    imports: {
+      'sortable.js': '{ sortable }',
+      'sortable/xy.js': '{ xy }',
+      'sortable/layout-animation.js': '{ layoutAnimation }',
+    },
+    budget: 10_195,
+    absent: [
+      ...without('sortable/layout-animation.js'),
+      withoutAxis('sortable/xy.js'),
+      P06,
+    ],
+    absentPrefixes: ['free-drag/'],
+    // The linear rule stays out even with a sink composed, which is the half
+    // the `minimal (xy)` row cannot state: a displacement feature is not what
+    // pulls `y()`'s prediction into a graph.
+    present: ['sortable/layout-animation.js', 'sortable/rect-index.js'],
   },
   {
     name: 'minimal + landing',

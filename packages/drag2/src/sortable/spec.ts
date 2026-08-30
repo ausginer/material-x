@@ -11,6 +11,7 @@ import {
   AT_CONSUMER,
   AT_PROPOSAL,
   CANCEL_FAILED,
+  FAILURE_ACTION_EFFECT,
   FAILURE_INVALIDATION,
   FAILURE_SCHEDULED_FRAME,
   FAILURE_TERMINAL_CALLBACK,
@@ -1167,16 +1168,25 @@ export function createSortableSpec(
             // what leaves a composition with no displacement feature allocating
             // nothing at all here.
             //
-            // **Narrowed to `FAILURE_INVALIDATION` by its own `try`**, for the
-            // same reason as `invalidateInSeam`: this is geometry-cache
-            // maintenance, and the enclosing phase would otherwise classify a
-            // throw the way it classifies the write above it — which is what
-            // the write's own throw must stay. The `finally` below invalidates
-            // either way, because `stale` is still set.
+            // **A stage says where the library was standing**, and that is
+            // the action seam's effect — the stage this bracket's own write
+            // reports, and the one a throw escaping here would be classified
+            // as anyway. The invalidation stage is raised only on the
+            // invalidation path, so reporting it here would send a consumer to
+            // their `invalidate()` calls and their scroll handling for a fault
+            // that was in a `box` resolver, an overridden
+            // `getBoundingClientRect` or an overridden `animate` reached from a
+            // committed move.
+            //
+            // **What the `catch` still decides is which error is latched.**
+            // The `finally` below invalidates whether or not this threw, and an
+            // invalidation that throws in turn would otherwise be the failure
+            // the consumer sees; reporting here means the hook's own error is
+            // already the one recorded.
             try {
               slots.movedInsertion(current, view, slots.report);
             } catch (error) {
-              host.fail(FAILURE_INVALIDATION, error);
+              host.fail(FAILURE_ACTION_EFFECT, error);
               return;
             }
 

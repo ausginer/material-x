@@ -519,3 +519,31 @@ Measured against `63922766`, the tree D-158 remediates. Every figure is Brotli b
 **The seven zeroes are no longer only a narrative.** Every previous entry here has observed that the rows a change cannot reach report zero, and has had to say so in prose because the instrument could not: a ceiling is satisfied by any number under it, so a transfer _onto_ a control row is green on both sides. That is F-208, and it is what let 119 B and 229 B move onto the two non-animating compositions across a whole pass without a red row anywhere. `Composition.control` is the repair — an exact figure, declared on the seven rows a sortable-side change cannot reach, checked in **both** directions, and enforced whether or not budgets are muted. A control getting cheaper is as much a finding as one getting dearer, because it means a change reached a graph it was declared unable to reach.
 
 **Two rows came in outside their declared band, and the record says so rather than reading the shrink as unqualified success.** `minimal (xy)` was predicted at 200–300 B and delivered **105**: the prediction double-counted the 170 B the same review had just decided to keep in `xy.js` as an accepted residual. The two animating rows were predicted within noise and delivered **144** and **131**, which the review flags as a sign that sink-required machinery was deleted — it was not, and the standing evidence is the equivalence instrument, which runs in the animating compositions and would fail rather than shrink if the settle walk had gone missing. What both rows actually banked is the protocol collapse, which the review's own ablation bounds at ≤156 B and which every row receives, sink or no sink.
+
+## Declared 2026-08-30, D-159 — a fifteenth row, and a stage correction that costs nothing
+
+Two changes with almost nothing to re-base between them. The **`xy + layoutAnimation` composition** joins the matrix permanently (F-210): every displacement decision so far was taken about the cellular axis driving a sink, and no row combined the two, so the instrument reported nothing rather than reporting zero. Its budget is declared from its landed figure under the ordinary rule. And a fault raised inside the post-write hook now reports `FAILURE_ACTION_EFFECT`, which is **one constant token**.
+
+| Row | Brotli | Δ brotli | Δ minified | Budget | Slack |
+| --- | --: | --: | --: | --: | --: |
+| minimal | 9,844 | **0** | **0** | 9,994 | 150 |
+| minimal (xy) | 9,704 | **0** | **0** | 9,854 | 150 |
+| minimal + layoutAnimation | 10,195 | **−1** | **0** | 10,346 | 151 |
+| **xy + layoutAnimation** | **10,045** | — | — | **10,195** | 150 |
+| minimal + landing | 10,105 | **−1** | **0** | 10,256 | 151 |
+| complete | 10,439 | **0** | **0** | 10,589 | 150 |
+| free drag minimal | 7,750 | **0** | **0** | 8,253 | 503 |
+| free drag + bounds | 7,897 | **0** | **0** | 8,409 | 512 |
+| free drag + landing | 8,017 | **0** | **0** | 8,519 | 502 |
+| free drag complete | 8,151 | **0** | **0** | 8,674 | 523 |
+| both behaviors | 11,812 | **0** | **0** | 11,962 | 150 |
+| vocabulary root — `drag.js` | 142 | **0** | **0** | 205 | 63 |
+| kernel root — `kernel.js` | 6,063 | **0** | **0** | 6,309 | 246 |
+| baseline A — feature-matched, non-composed | 10,255 | **0** | **0** | 10,405 | 150 |
+| baseline B — shipped `@ydinjs/drag` sortable.js | 6,889 | **0** | **0** | 7,040 | 151 |
+
+**Nothing re-bases.** The new row is a declaration rather than a re-base — 10045 B at 31 modules, plus the standing ~150 B — and it reproduces the ablation's reading in the review byte-exact, which is the check that the harness and the prototype measured the same tree. Every other budget keeps the number D-158 gave it.
+
+**The minified column is the one that settles the stage question.** It is **identical on all fifteen rows**: both stages are one-digit constants, so the swap is byte-for-byte at the only layer that could have charged for it. Brotli moves −1 B on two rows and 0 B on the other thirteen — a dictionary effect an order of magnitude inside the ±25 B band this file documents, recorded because both columns are always recorded and not because either is a result.
+
+**All seven controls reproduced exactly**, which is the second run of `Composition.control` and the first in which it was expected to be the whole story. The new row carries **no** control: it is a sortable composition, so a sortable-side pass is expected to move it, and a control declared on a row a change can reach is a budget wearing an exact number.

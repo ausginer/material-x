@@ -2655,6 +2655,38 @@ describe('invalidate() after destroy', () => {
   });
 });
 
+describe('committed move failure classification', () => {
+  it('should classify a failing move hook as an action-effect failure', async () => {
+    // **A stage says where the library was standing**, and the post-write hook
+    // runs inside the action seam's effect — the same stage the placeholder
+    // write beside it reports. The invalidation stage belongs to the
+    // invalidation path, and a consumer handed it would go looking at their own
+    // `invalidate()` calls for a fault the hook raised.
+    //
+    // **And nothing displaces**, because the axis is what walks the span: a
+    // hook that threw before reaching its walk has reported nobody.
+    const displaced: string[] = [];
+    const harness = createHarness({
+      movedInsertion: (): void => {
+        throw new Error('move hook failed');
+      },
+      report: (): void => {
+        displaced.push('displace');
+      },
+    });
+
+    activate(harness);
+    harness.next(harness.gap(1));
+    move(90);
+    await nextFrame();
+
+    expect(harness.errors.map((error) => error.stage)).toEqual([
+      FAILURE_ACTION_EFFECT,
+    ]);
+    expect(displaced).toEqual([]);
+  });
+});
+
 describe('invalidation failure classification', () => {
   it('should classify a scroll-time invalidation failure', () => {
     // A native listener is not a seam, so this error used to reach neither
@@ -2675,34 +2707,6 @@ describe('invalidation failure classification', () => {
     expect(harness.errors.map((error) => error.stage)).toEqual([
       FAILURE_INVALIDATION,
     ]);
-  });
-
-  it('should classify a failing move hook as an invalidation failure', async () => {
-    // Geometry-cache maintenance, so it shares the stage — and therefore the
-    // recovery — with the lazy half. The surrounding seam would otherwise
-    // report it as a placeholder-move failure.
-    //
-    // **And nothing displaces**, because the axis is what walks the span: a
-    // hook that threw before reaching its walk has reported nobody.
-    const displaced: string[] = [];
-    const harness = createHarness({
-      movedInsertion: (): void => {
-        throw new Error('move hook failed');
-      },
-      report: (): void => {
-        displaced.push('displace');
-      },
-    });
-
-    activate(harness);
-    harness.next(harness.gap(1));
-    move(90);
-    await nextFrame();
-
-    expect(harness.errors.map((error) => error.stage)).toEqual([
-      FAILURE_INVALIDATION,
-    ]);
-    expect(displaced).toEqual([]);
   });
 
   it('should classify an activation-time invalidation failure as its own stage', () => {
@@ -3374,13 +3378,14 @@ describe('the displacement view lifetime', () => {
       },
     });
 
-    // Classified rather than thrown — `movedInSeam` narrows it — so this exit
-    // is a plain `return` out of the middle of the bracket, and the `finally`
-    // both clears the gap and invalidates the cache the hook may have
-    // half-advanced. **One row where there were two**: the hook runs after the
-    // write on every path now, so there is no second instant at which an axis
-    // can fail.
-    expect(result).toEqual({ left: null, stages: [FAILURE_INVALIDATION] });
+    // Classified rather than thrown, so this exit is a plain `return` out of
+    // the middle of the bracket, and the `finally` both clears the gap and
+    // invalidates the cache the hook may have half-advanced. **One row where
+    // there were two**: the hook runs after the write on every path now, so
+    // there is no second instant at which an axis can fail. The stage is the
+    // one the write above it reports, because it is where the library was
+    // standing.
+    expect(result).toEqual({ left: null, stages: [FAILURE_ACTION_EFFECT] });
   });
 
   it('should clear the gap when the lazy invalidation fails', async () => {
@@ -3411,18 +3416,20 @@ describe('the displacement view lifetime', () => {
     // is classified into a seam that is failing rather than reported twice.
     expect(calls).toBe(2);
     expect(result.left).toBeNull();
-    expect(result.stages).toEqual([FAILURE_INVALIDATION]);
+    expect(result.stages).toEqual([FAILURE_ACTION_EFFECT]);
   });
 
   it('should clear the gap when the sink throws', async () => {
-    // **A sink throw is now an invalidation failure, and the seam is why.**
-    // The visitor is called by the axis, from inside `movedInsertion`, so a
-    // throw escapes through the same wrapper an axis fault does and the
-    // behavior has no instant at which it could tell the two apart. It could
-    // only do so by wrapping each `report` call, which is a `try` per displaced
-    // element on the one path this model exists to keep free of work. The
-    // recovery is the one that matters and it is unchanged: the cache may be
-    // half-advanced, so the `finally` invalidates it.
+    // **A sink throw reports the same stage an axis throw does, and the seam
+    // is why.** The visitor is called by the axis, from inside
+    // `movedInsertion`, so a throw escapes through the same wrapper an axis
+    // fault does and the behavior has no instant at which it could tell the
+    // two apart. It could only do so by wrapping each `report` call, which is a
+    // `try` per displaced element on the one path this model exists to keep
+    // free of work — and the discrimination it would buy is one the published
+    // stage vocabulary does not make. The recovery is the part that matters and
+    // it is unchanged: the cache may be half-advanced, so the `finally`
+    // invalidates it.
     expect(
       await runBracket({
         movedInsertion: REPORTING_MOVE,
@@ -3430,7 +3437,7 @@ describe('the displacement view lifetime', () => {
           throw new Error('sink failed');
         },
       }),
-    ).toEqual({ left: null, stages: [FAILURE_INVALIDATION] });
+    ).toEqual({ left: null, stages: [FAILURE_ACTION_EFFECT] });
   });
 
   it('should invalidate when the move hook fails and not when it succeeds', async () => {
@@ -3445,7 +3452,7 @@ describe('the displacement view lifetime', () => {
       },
     });
 
-    expect(failed.stages).toEqual([FAILURE_INVALIDATION]);
+    expect(failed.stages).toEqual([FAILURE_ACTION_EFFECT]);
   });
 
   it('should invalidate and then resolve at release, cancelling nothing', () => {

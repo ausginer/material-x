@@ -150,7 +150,7 @@ describe('the declared module graphs', () => {
   it('should measure a graph built from nothing but this build', async () => {
     // **The instrument's own integrity** (F-157). Every declaration above
     // scores a graph against what its composition said it would pull, and two
-    // of the fourteen rows — the baselines — declare no topology at all. A
+    // of the fifteen rows — the baselines — declare no topology at all. A
     // module nobody knew had survived is not something a declaration can name.
     //
     // The failure is a build output outliving its entrypoint. The bundler
@@ -249,7 +249,7 @@ describe.skipIf(!ENFORCE_BUDGETS)('the declared budgets', () => {
  * A budget is a moving number while the runtime is being written, which is why
  * the block above can be muted. A control is the opposite kind of claim: it
  * names rows a change to the behavior under edit cannot reach, and its whole
- * value is that it holds while the budgets are in flux. Fourteen green ceilings
+ * value is that it holds while the budgets are in flux. Green ceilings alone
  * could not see bytes moving *between* rows (F-208); an exact figure on a row
  * declared unreachable can.
  */
