@@ -2236,6 +2236,18 @@ Documents only; the implementation WIP was read as evidence and left untouched.
 
 ---
 
+### 2026-08-30 — Displacement ownership: the regression is a misallocation (D-158)
+
+The production diff's size cost re-examined as an ownership question rather than a reason to discard D-156. Record [`displacement-ownership-claude.md`](reviews/phase-23/displacement-ownership-claude.md).
+
+**What the numbers say.** Exact Brotli, parent against landed: the two animating compositions got **cheaper** — 13 B and 25 B — and the two that never animate got dearer by **119 B and 229 B**. A floor ablation keeping only the packed cache and the cached placeholder rect measures 9380 B and 9444 B, so the misallocation is **652 B and 365 B**, of which the landed pass contributed a fifth to a third; the old bracket charged the same consumers 533 B and 136 B. Four candidates priced separately: the cached placeholder rect 41 to 57 B, plan production 32 B on the linear axis and **170 B on the cellular one**, the contribution-aware cache 57 B and 11 B, the protocol bounded at 156 B and 184 B as a residual. Nine builds, six control rows at exactly zero throughout, and the restored tree reproduces the baseline byte-exact.
+
+**What could not be done, and why it is worth writing down.** The strong split — all displacement machinery behind `layoutAnimation()` — is unreachable. Reachability is static and the consumer imports the axis and the sink separately, so no module is reachable from both and only both; and the axis contract is published for third-party authors, so the packed cache cannot become the currency between them. Every arrangement that empties `y.js` either leaks the linear rule into an animating `xy()` composition or adds a third thing the consumer composes.
+
+**What was settled.** One post-write `moved` hook taking the sink's visitor replaces `project` and `measure`; `DisplacementPlan` and `settleDisplacement` are deleted; the contribution walk moves from the cache to the sink and runs once per rebuild rather than once per candidate; five slot members become three; no composition allocates on a committed move. The cached placeholder rect stays and keeps its six slot-shaped fields. The linear rule stays in the axis module at a measured 439 B, recorded as a §0 trade — inlining its single-use factory recovers only 43 B, so there is no packaging to reclaim, and the pass that revisits it is the one that ships `x()`.
+
+**Four findings the pass turned up on the way.** A member the amendment retired still ships and its cancel restores the release pop the amendment removed; the cellular axis forces a synchronous layout inside the write's own task for a composition that consumes nothing; the release path's comments describe a `beforeMove` hook that no longer exists; and fourteen green budgets could not see a transfer between rows, because a transfer is under budget on both sides.
+
 ### 2026-08-29 — D-156 and D-157 implemented, as amended
 
 The predictive displacement model as it actually landed. D-155 is untouched and stays deferred; F-203 is not folded in.
