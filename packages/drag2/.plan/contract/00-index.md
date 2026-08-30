@@ -507,6 +507,8 @@ Phase 21 opened with four standing obligations that cannot change a decision as 
 
 | D-159 | **The cellular axis keeps its own displacement production, and a displacement fault reports the stage it actually occurred in.** Record [`xy-residue-and-failure-stage-claude.md`](../reviews/phase-23/xy-residue-and-failure-stage-claude.md), settling the two questions owner review left open. **The residue is 164 B and it is the whole of the row.** Deleting `xy()`'s displacement production measures −164 B on `minimal (xy)` and **exactly zero on every other row**, so the row's +124 B against the pre-implementation parent decomposes into ownership work that made bare `xy()` 40 B cheaper and a capability that put 164 B back. **The counterfactual was built rather than argued, and it loses five rows of six.** With the axis supplying no post-write member and the sink bracketing the write itself, `minimal (xy)` gains 140 B and `minimal` **loses 32**, `xy + layoutAnimation` **loses 104**, and the two animating rows that use `y()` lose **290 and 262**, putting both back over the old model they had come 156 B under. **Three of those are the finding.** Taxing the bare linear axis to relocate cellular machinery moves the tax rather than removing it; the composition the change was for gets **dearer**; and every animating composition ships a cellular bracket it cannot reach, because a sink cannot know which axis is composed. **The rule behind it**: generalising a specialised routine in order to relocate it costs more than the relocation saves, and charges the difference to a different non-consumer. The axis's diff is small **because** it is specialised — it owns the destination view, so a slot is the same element on both sides, and it owns the cache, so the before geometry is in hand and the after is a rebuild it performs anyway. A sink can assume none of that. **So the leak is symmetric and can only be aimed, not removed**, and it is aimed at the smaller, bounded, single-row side. **A cheaper variant is declined on contract rather than bytes**: the sink already sees the packed buffer at every rebuild and could diff successive ones with no measurement at all, but it needs an arming signal, which makes its behaviour depend on how the axis maintained its cache — an obligation on a published third-party contract that no type states and no failure announces — and it would pin a parallel array of destination elements between moves. **The instrument could not see the composition every displacement decision is about.** No row combined the cellular axis with the displacement feature; it measures 10045 B at 31 modules and is **added permanently**, which is §15's requirement that the instrument be able to see the change, in its structural form. **And the stage.** A fault raised inside the post-write hook now reports `FAILURE_INVALIDATION`, and the vocabulary defines a stage as **where the library was standing**, with no mapping to recovery. The library was standing in the action seam's effect, which is what `FAILURE_ACTION_EFFECT` names and what D-74 renamed from `FAILURE_PLACEHOLDER_MOVE`; the invalidation stage is produced only on the invalidation path, so a consumer handed it goes looking at their own `invalidate` calls and scroll handling for a fault in a resolver or an overridden `animate`. **That is a misdirection rather than a coarseness**, which is worse than what §1.3 warns about, and the discrimination the narrowing reached for is one the published vocabulary does not make. **A new stage is declined** on §4's permanence, and the coarseness is accepted and named. **The premise that preserving the stage was expensive is false**: it takes one token, not a `try` around each report, and deleting the now-redundant catch measures a uniform −32 B minified. **The catch is kept anyway**, because deleting it moves one observable — when the hook throws and the `finally`'s invalidation then throws too, the latch order decides which error the consumer sees — and a §13 observable must not ride along inside a diagnostic correction. **Implemented 2026-08-30, and the byte column is the evidence for both halves.** The stage correction is one token: minified bytes are **identical on all fifteen rows** — both stages are one-digit constants a bundler folds — and Brotli moves **−1 B** on `minimal + layoutAnimation` and `minimal + landing` and **0 B** everywhere else, which is a dictionary effect and not a change. **Every control reproduced exactly**, all seven. The new row landed at **10045 B / 31 modules**, reproducing the ablation's reading byte-exact, and its budget is set from it at 10195 B under the ordinary rule; it declares the linear rule **absent** with a sink composed, which is the half `minimal (xy)` cannot state — a displacement feature is not what pulls `y()`'s prediction into a graph. **The catch was kept and its comment now states what it decides**, which is no longer the stage but which of two simultaneous errors is latched; `should clear the gap when the lazy invalidation fails` is the row that pins it, and it moved from one stage to the other without changing what it asserts. **One thing the record should say about its own instrument**: the deferred row's witness — `host.fail(FAILURE_INVALIDATION, error);` — would not have retired, because `invalidateInSeam` raises the same call three hundred lines above. The row was removed by reading rather than by the witness breaking, so the witness was doing no work; a witness has to be a fact the implementation makes false. | accepts D-158's residue on the cellular axis rather than relocating it; corrects the failure stage the post-write hook reports; adds the `xy + layoutAnimation` composition; records F-209 through F-211 |
 
+| D-160 | **A decision is lifecycle-atomic, and its status is a property of the whole decision.** A **substantive** amendment — one that changes what the decision requires of the code — mints a new decision that supersedes the old one, and the old one goes `inactive`; a **non-substantive** edit — wording, a corrected citation, a re-pointed link — is made in place with no new id. **A status read per sentence is not readable by any instrument**: thirty-four rows carry an amendment inside a still-active decision, so a mechanism resting on a struck fragment is indistinguishable from one resting on live text — precisely the state a decision-elimination pass has to tell apart. Atomicity closes the class going forward; the existing rows are classified where they stand and are **not** re-minted, because the record is append-only. The register in §Decision status carries one status per decision and `tests/decisions.node.test.ts` holds it to the canonical id set. Repository rule: [`documentation.md`](../../../../.agents/docs/documentation.md) §6. | adds a status property to every row; supersedes nothing |
+
 ### Decisions not yet implemented
 
 **The artifact F-63 asked for** (K-5). D-34 and D-35 were stated in the present tense by three contract documents and were not in the code, across a checkpoint and a whole revision, with every suite green — because a green suite is evidence about the _implemented_ contract only, and nothing in the repository compared a decision booked to a later phase against the code that had not implemented it. Phase 18 found them by reading, which is the discovery this table exists to make unnecessary.
@@ -569,6 +571,177 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 **D-104's row was removed on 2026-08-21 as a declined decision, restored the same day, and retired the same day again on landing** — three transitions in one pass, and the middle one is the interesting one. The decline rested on a drivable-size bound extrapolated from a pre-P-06 curve and on an interval the measurement had skipped; both were caught in review, the interval was measured, and the candidate was earned. **The witness held correctly throughout all three**, which is the lesson: a row taken out on a decline is taken out on an _argument_, and an argument that skipped an interval is exactly what a witness cannot catch. On landing it stopped holding for a reason worth recording — the witness named _the growth branch standing alone_, and the branch is not standing alone any more, because growth and shrink shipped as **one** decision rather than as two adjacent ones. The table is empty a tenth time.
 
 **What this table is not.** It carries decisions the contract states in the present tense and a later step — a phase, a pre-phase step or a remediation pass — implements. It does **not** carry D-10, whose mechanism is deliberately _unspecified_ and unbuilt: an unimplemented specification and an unwritten specification are different states, and only the first is a gap between what this contract says and what the code does. It also does not carry findings — F-67 is open, bounded and scheduled in its own row, and a finding is a question rather than a commitment.
+
+## Decision status
+
+**One status per decision, and the only two values are `active` and `inactive`** (D-160). A decision is `inactive` when nothing it decided is still in force; a decision narrowed, amended or partly reversed is `active`, because part of it still binds.
+
+This register is the **status**, not the decision. What each decision says, and what replaced it, is its row in §Decision ledger — the source of truth, which this never restates. `tests/decisions.node.test.ts` holds the two to the same id set: an entry without a canonical row, a canonical row without an entry, a duplicate, or a value outside the vocabulary is a failure rather than a skip.
+
+The four `inactive` rows are the ones whose live residue is empty: **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected) and **D-150** (superseded by D-151, none of it lands).
+
+| Decision | Status |
+| --- | --- |
+| D-1 | active |
+| D-2 | active |
+| D-3 | active |
+| D-4 | active |
+| D-5 | active |
+| D-6 | active |
+| D-7 | active |
+| D-8 | active |
+| D-9 | active |
+| D-10 | active |
+| D-11 | active |
+| D-12 | active |
+| D-13 | active |
+| D-14 | active |
+| D-15 | active |
+| D-16 | active |
+| D-17 | active |
+| D-18 | active |
+| D-19 | active |
+| D-20 | active |
+| D-21 | active |
+| D-22 | active |
+| D-23 | active |
+| D-24 | active |
+| D-25 | active |
+| D-26 | active |
+| D-27 | active |
+| D-28 | active |
+| D-29 | active |
+| D-30 | active |
+| D-31 | active |
+| D-32 | active |
+| D-33 | inactive |
+| D-34 | active |
+| D-35 | active |
+| D-36 | active |
+| D-37 | active |
+| D-38 | active |
+| D-39 | active |
+| D-40 | active |
+| D-41 | active |
+| D-42 | active |
+| D-43 | active |
+| D-44 | active |
+| D-45 | active |
+| D-46 | active |
+| D-59 | active |
+| D-60 | active |
+| D-56 | active |
+| D-57 | active |
+| D-58 | active |
+| D-55 | active |
+| D-51 | active |
+| D-52 | active |
+| D-53 | active |
+| D-54 | active |
+| D-49 | active |
+| D-50 | active |
+| D-48 | active |
+| D-47 | active |
+| D-61 | active |
+| D-62 | active |
+| D-63 | active |
+| D-64 | active |
+| D-65 | active |
+| D-66 | active |
+| D-67 | active |
+| D-68 | active |
+| D-69 | active |
+| D-70 | active |
+| D-71 | active |
+| D-72 | active |
+| D-73 | inactive |
+| D-74 | active |
+| D-75 | active |
+| D-76 | active |
+| D-77 | active |
+| D-78 | active |
+| D-79 | active |
+| D-80 | active |
+| D-81 | active |
+| D-82 | active |
+| D-83 | active |
+| D-84 | active |
+| D-85 | active |
+| D-86 | active |
+| D-87 | active |
+| D-88 | inactive |
+| D-89 | active |
+| D-90 | active |
+| D-91 | active |
+| D-92 | active |
+| D-93 | active |
+| D-94 | active |
+| D-95 | active |
+| D-96 | active |
+| D-97 | active |
+| D-98 | active |
+| D-99 | active |
+| D-100 | active |
+| D-101 | active |
+| D-102 | active |
+| D-103 | active |
+| D-104 | active |
+| D-105 | active |
+| D-106 | active |
+| D-107 | active |
+| D-108 | active |
+| D-109 | active |
+| D-110 | active |
+| D-111 | active |
+| D-112 | active |
+| D-113 | active |
+| D-114 | active |
+| D-115 | active |
+| D-116 | active |
+| D-117 | active |
+| D-118 | active |
+| D-119 | active |
+| D-120 | active |
+| D-121 | active |
+| D-122 | active |
+| D-123 | active |
+| D-124 | active |
+| D-125 | active |
+| D-126 | active |
+| D-127 | active |
+| D-128 | active |
+| D-129 | active |
+| D-130 | active |
+| D-131 | active |
+| D-132 | active |
+| D-133 | active |
+| D-134 | active |
+| D-135 | active |
+| D-136 | active |
+| D-137 | active |
+| D-138 | active |
+| D-139 | active |
+| D-140 | active |
+| D-141 | active |
+| D-142 | active |
+| D-143 | active |
+| D-144 | active |
+| D-145 | active |
+| D-146 | active |
+| D-147 | active |
+| D-148 | active |
+| D-149 | active |
+| D-150 | inactive |
+| D-151 | active |
+| D-152 | active |
+| D-153 | active |
+| D-154 | active |
+| D-155 | active |
+| D-156 | active |
+| D-157 | active |
+| D-158 | active |
+| D-159 | active |
+| D-160 | active |
 
 ## Findings
 

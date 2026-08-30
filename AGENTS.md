@@ -20,7 +20,7 @@ The short form:
 | `.claude/skills/` | Task-scoped procedures |
 | `packages/*/.plan/` | The record: decisions, reviews, measurements, and why anything is the way it is |
 
-Design references worth knowing exist: [`architecture.md`](.agents/docs/architecture.md) for `@ydinjs` architecture, [`css-inheritance.md`](.agents/docs/css-inheritance.md) for the CSS architecture, [`accessibility.md`](.agents/docs/accessibility.md) for the accessibility review, [`test-architecture.md`](.agents/docs/test-architecture.md) for the reasoning behind the test layers.
+Design references worth knowing exist: [`agent-workflow.md`](.agents/docs/agent-workflow.md) for the review, decision and implementation roles, [`architecture.md`](.agents/docs/architecture.md) for `@ydinjs` architecture, [`css-inheritance.md`](.agents/docs/css-inheritance.md) for the CSS architecture, [`accessibility.md`](.agents/docs/accessibility.md) for the accessibility review, [`test-architecture.md`](.agents/docs/test-architecture.md) for the reasoning behind the test layers.
 
 ## Size and ownership
 

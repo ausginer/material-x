@@ -28,4 +28,4 @@ The task-scoped procedures listed in `AGENTS.md` are packaged as skills here: in
 
 Use sub-agents for research and exploration that can run in parallel — investigating separate parts of the codebase at the same time, for instance.
 
-Create an agent team only when the task has genuinely independent parallel work, such as migrating several components at once. Do not create teams for reviews, small changes, or work with sequential dependencies.
+Create an agent team only when the task has genuinely independent parallel work, such as migrating several components at once. Do not create teams for reviews, small changes, or work with sequential dependencies. A multi-lens review round is not an exception: its passes are parallel independent sub-agents that must not message each other, because a pass that sees another's findings stops being a second opinion.

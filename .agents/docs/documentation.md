@@ -146,6 +146,12 @@ Everything the four rules above evict. The record is where a repository's actual
 
 A record entry is **append-only and dated**, and a superseded entry is amended in place with its supersession named rather than rewritten. The obligation runs the other way from the current-state documents: a record that quietly drops what it used to say has destroyed the only copy.
 
+### A decision is atomic
+
+A **substantive** amendment — one that changes what the decision requires of the code — mints a new decision that supersedes the old one, and the old one goes inactive. A **non-substantive** edit — wording, a corrected citation, a re-pointed link — is made in place under the rule above, with no new id.
+
+The distinction is what lets a status be read per decision rather than per sentence. A decision amended in place is partly in force and partly not, and no instrument can tell a reader which half a given mechanism rests on.
+
 **Nothing may be deleted from a current-state document or a source comment into the record unless the record already carries it.** Where it does not, it is written there first, in the same change.
 
 ---
@@ -173,7 +179,7 @@ A convention with no instrument is a convention that decays, and the classes abo
 | `CLAUDE.md` | Operation — Claude Code overlay, imports the root |
 | `CONTRIBUTING.md` | Convention and Policy — source shape and the size and ownership policy, resident; Part II's sections are permanently numbered |
 | `.agents/docs/documentation.md` | Convention — this document |
-| `.agents/docs/architecture.md`, `css-inheritance.md`, `accessibility.md`, `attribute-vs-state-styling.md`, `trait-flattener-plugin.md`, `test-architecture.md` | Convention and design reference — consulted, not resident |
+| `.agents/docs/agent-workflow.md`, `architecture.md`, `css-inheritance.md`, `accessibility.md`, `attribute-vs-state-styling.md`, `trait-flattener-plugin.md`, `test-architecture.md` | Convention and design reference — consulted, not resident |
 | `.claude/skills/` | Operation — task-scoped procedure |
 | `packages/*/.plan/` | Record |
 | `packages/*/README.md` | Consumer documentation for that package |
@@ -189,3 +195,4 @@ What this document used to say, and what changed it. Section numbers are permane
 | Date | Section | Change |
 | --- | --- | --- |
 | 2026-08-26 | §5.2 | **Withdrawn:** _If the comment is longer than the code and is arguing a choice, it is a record entry with a pointer left behind._ It tested length and the presence of an argument, and §5.3's own question contradicts it: an argument for the **present** shape survives that shape's removal by being deleted, so it is a comment however long it is. Replaced by a tense test. Record: [`maintainer-comment-boundary-claude.md`](../../packages/drag2/.plan/reviews/phase-23/maintainer-comment-boundary-claude.md) |
+| 2026-08-30 | §6 | **Added:** a decision is lifecycle-atomic — a substantive amendment mints a new decision rather than being made in place, so a status can be read per decision instead of per sentence. Record: [`00-index.md`](../../packages/drag2/.plan/contract/00-index.md) D-160 |
