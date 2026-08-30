@@ -2250,6 +2250,20 @@ The remediation as it landed. D-155 stays deferred and F-203 is not folded in.
 
 **Evidence added.** Reads counted _inside the write's own task_, separating a forced layout from a later clean one; a release that cancels nothing, driven against a landing composition so teardown's own cancel cannot stand in for it; and a per-composition allocation row asserting no buffer is built per committed move in any of the four sortable compositions. Budgets re-based after the shrink, never during it.
 
+### 2026-08-30 — The two tier-A geometry defects settled, and the contract widened (D-161, D-162, D-163)
+
+The architectural follow-up to the final arc's review round. Record [`geometry-defects-contract-claude.md`](reviews/phase-23/geometry-defects-contract-claude.md).
+
+**F-212 is two defects in one expression, and the owner's question was the right one to ask.** A probe over every ordered gap pair on ten fixtures, judged against Chromium's layout rather than the library's own oracle: the transform limb is G5 — `rotate` fails 12 of 20 pairs at up to 264.74px, `scale` 12 of 20, and an authored `translate` is **clean**, which is why the arc's own composition test never caught it. The margin limb has **no transform anywhere in its fixture**: one scalar taken from the placeholder's footprint is applied to every crossed row, and `placement.ts` sizes the placeholder from `offsetWidth`/`offsetHeight`, which exclude margins. Items with `margin-bottom` fail 20 of 20 at 40px; **give the placeholder the same margin and it is clean at 0 of 20**, which is the control that separates them. A remedy argued from G5 would have closed one limb and left the other at one margin per crossed row. The hypothesised third limb — a gap-dependent constant — **does not exist**: the crossed-row shift is uniform and the constant's spread is zero in every in-contract fixture.
+
+**The remedy is a deletion, and the contract widens.** There is no G5-legal no-read prediction of the hole, so `shiftSpan` loses `width`, `spacing`, `travelled` and the hole write; the hole is marked stale and the next spatial frame reads the placeholder once off a clean tree. Row error then measures **0.0000px** across all four failing fixtures. Probing the instrument's halves separately: a two-column grid fires the slot check 30 of 42 and a wrapping flex 12 of 20, so no detection is lost where a violation lives — but a column whose flow gap varies fires the slot check **0 of 20**. It was never a violation; it failed only the rule that was wrong. So G3-linear loses that clause, D-156's per-item-margin promise is vindicated, and one negative conformance fixture is retired because it tests the defect.
+
+**F-213's conversion was already published by a dependency the package already bundles.** Overshoot is exactly the ancestor scale, and `@ydinjs/box-quad` packs the ancestor linear map with documentation naming this exact inversion. The sink owns it, by D-158's own test.
+
+**Measured jointly**: `minimal` +15 B, `minimal (xy)` +1 B, against +124/+107/+115 on the animating rows — which still land 33 and 41 B **under** the model the arc replaced. Placement was measured too: the same logic in the shared cache rather than the linear module cost `minimal (xy)` 49 B for a branch it can never take.
+
+**Also settled**: G6 publishes the placeholder-stability precondition Q-16 named; the tier vocabulary is defined by consequence; the reference instrument widens mechanically and **refuses** a semantic accuracy check; and the byte budgets stop being opt-in, the gate's assumed cost having measured 0.08 s. One red was found and flagged rather than absorbed — the status register's parser requires unpadded table cells and the repository's formatter pads them, so all 161 decisions read as unregistered.
+
 ### 2026-08-30 — The cellular residue accepted, and the displacement failure stage corrected (D-159)
 
 The two questions owner review left open after the ownership remediation. Record [`xy-residue-and-failure-stage-claude.md`](reviews/phase-23/xy-residue-and-failure-stage-claude.md).

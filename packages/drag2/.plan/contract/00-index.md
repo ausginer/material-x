@@ -509,6 +509,12 @@ Phase 21 opened with four standing obligations that cannot change a decision as 
 
 | D-160 | **A decision is lifecycle-atomic, and its status is a property of the whole decision.** A **substantive** amendment — one that changes what the decision requires of the code — mints a new decision that supersedes the old one, and the old one goes `inactive`; a **non-substantive** edit — wording, a corrected citation, a re-pointed link — is made in place with no new id. **A status read per sentence is not readable by any instrument**: thirty-four rows carry an amendment inside a still-active decision, so a mechanism resting on a struck fragment is indistinguishable from one resting on live text — precisely the state a decision-elimination pass has to tell apart. Atomicity closes the class going forward; the existing rows are classified where they stand and are **not** re-minted, because the record is append-only. The register in §Decision status carries one status per decision and `tests/decisions.node.test.ts` holds it to the canonical id set. Repository rule: [`documentation.md`](../../../../.agents/docs/documentation.md) §6. | adds a status property to every row; supersedes nothing |
 
+| D-161 | **Unimplemented (Remediation).** **The hole is measured, never predicted, and the geometry contract widens rather than narrows.** Record [`geometry-defects-contract-claude.md`](../reviews/phase-23/geometry-defects-contract-claude.md), settling F-212. **It is two defects in one expression, and only one of them is G5.** A probe over every ordered gap pair on ten fixtures, judged against Chromium's own layout: a row wearing `rotate` fails 12 of 20 pairs at up to **264.74px** and `scale` 12 of 20, because `b - a` is a _presented_ extent and those transforms enlarge the bounding rect — while an authored `translate` is clean at 0 of 20, which is why the arc's own composition test never caught it. **The margin limb has no transform in it at all**: `spacing` is one scalar taken from the placeholder's flow footprint and applied to every crossed row, and `src/sortable/placement.ts` writes only `box-sizing`, `width` and `height` from `offsetWidth`/`offsetHeight`, which exclude margins — so the placeholder is systematically margin-less while the rows need not be. Items carrying `margin-bottom` fail **20 of 20** at 40px in both flex and block, and **giving the placeholder the same margin makes it clean at 0 of 20**, which is the control that separates the two mechanisms. **So a G5-shaped remedy would close one limb and leave the other standing** at one margin per crossed row, on a fixture with no transform anywhere to suggest a fault. **A third limb was hypothesised and does not exist**: the crossed-row shift is uniform and the measured constant's spread is zero in every in-contract fixture, so the per-row rule — D-156's valuable half — is sound and untouched. **The remedy is a deletion.** The hole's position is a function of the crossed rows' _flow_ footprints; presented extents are not that quantity, the placeholder's own footprint is not either, and no same-element temporal difference yields it, so there is no G5-legal no-read prediction. `shiftSpan` loses `width`, `spacing`, `travelled` and the hole write; the hole is marked stale and the **next** spatial frame reads the placeholder once, off a tree already laid out, forcing nothing. With the hole measured the worst **row** error is **0.0000px** across all four failing fixtures. The pre-arc code read the placeholder every spatial frame; this reads it once per committed move. **The contract widens.** Probed separately, the slot half of the instrument catches a two-column grid driven as a list at 30 of 42 and a wrapping flex at 12 of 20, so deleting the hole prediction costs no detection where a real violation lives — but a column whose flow gap varies row to row fires the slot half **0 of 20** and the hole half 18 of 20. Its row displacement is uniform and exact; it failed only the rule that was wrong. So `y()`'s G3-linear clause **loses** the disqualification of a list whose flow gap varies from row to row, D-156's per-item-margin clause is **vindicated rather than narrowed**, and the negative conformance fixture for a varying flow gap is **retired**, because it tests the defect and would otherwise go green by accident. **Narrowing was available and is refused**: it would have to exclude per-element `rotate` and `scale`, per-item margins and ancestor scaling, and it would be a precondition invented at fix time to protect an implementation, which §1.1 names and rejects. **Two exclusions are published because they were always true and were never written** (§1.2): position-sensitive **collapsing margins** are out — measured, a block list with a large placeholder margin spreads the constant by **28px** across gap pairs and moves rows _outside_ the crossed span, breaking G2 as well — and the **axis rule requires the flow axis to stay axis-aligned in the viewport**, so ancestor rotation and skew are outside it however well the sink converts. **And G6 is added, which is Q-16 answered**: the placeholder's own geometry is stable between invalidations. The reviewer's growing-placeholder fixture came out clean, so it is an unpublished precondition rather than a defect — but `constant` describes the footprint at the instant it was measured and nothing short of an `invalidate()` revisits it, so a consumer animating their placeholder must call `controller.invalidate()`. Writing it down is what licenses not checking it. | corrects F-212 without narrowing G1-presented; widens G3-linear and vindicates D-156's per-item-margin clause; retires one negative conformance fixture; adds G6 and two always-true exclusions; records F-222 and F-223 |
+
+| D-162 | **Unimplemented (Remediation).** **A displacement vector is a viewport quantity and a `translate` is not; the sink converts, and the dependency already publishes the conversion.** Record [`geometry-defects-contract-claude.md`](../reviews/phase-23/geometry-defects-contract-claude.md), settling F-213. **Measured overshoot is exactly the ancestor scale** — 1.5 renders 90px where 60 was wanted, 2 renders 160 where 80 was wanted, 0.75 renders 22.5 where 30 was wanted. **`@ydinjs/box-quad` already packs the ancestor linear map** with its ancestor zoom, and its own documentation names this exact use: the space a transform authored on the element acts in, so inverting it turns a viewport delta into the translation to write. The package is **already in every sortable composition's graph**, so this is a call and not a module. **The sink owns it, by D-158's own test** — would this code exist if nothing animated — read once per committed move off the placeholder, which shares its container with every item a plan visits, so a composition with no sink pays nothing, and inverting the two-by-two handles rotation and skew rather than only scale. **One thing does not follow and is published rather than assumed**: the axis stays incorrect under a non-axis-aligned ancestor transform, because `y()` orders candidates by viewport `top` and that stops meaning flow order once an ancestor rotates. That predates the arc and is not caused by the fix. **Cost, prototyped jointly with D-161 and measured**: `minimal` +15 B and `minimal (xy)` +1 B, against +124 B on `minimal + layoutAnimation`, +107 B on `xy + layoutAnimation` and +115 B on `complete` — and both animating rows still land **under** the model the arc replaced, at −33 B and −41 B against the pre-arc parent, with `minimal` at −54 B. The compositions that never animate pay essentially nothing and the correction is carried by the ones that consume it. **Placement was measured, not assumed**: putting the stale-hole path in the shared cache rather than the linear module charged `minimal (xy)` **+49 B** for a branch `xy()` can never take, against +1 B when the same logic sits where only its consumer reaches it. | corrects F-213 in the sink rather than the cache; keeps the ancestor read out of every composition that does not animate |
+
+| D-163 | **Unimplemented (Remediation).** **The review vocabulary is defined by consequence, the reference instrument widens mechanically and refuses to read English, and the byte budgets stop being opt-in.** Record [`geometry-defects-contract-claude.md`](../reviews/phase-23/geometry-defects-contract-claude.md). **Tier, defined**, because it was undefined and produced a three-way split on identical evidence in one round. **A** — a correctly integrated consumer observes something different at runtime: rendering, behaviour, timing or a published value. **B** — no program behaviour changes, but a correct integrator can be misled by what the package says, **or** an instrument the repository relies on is unsound. **C** — internal only. Tier is assigned by **consequence**, never by provenance and never by how many lenses reported it; a finding being systematic rather than isolated changes priority _within_ a tier, which is what the round's disagreement was actually about. **F-218 — two gaps taken, one declined.** Package-root files enter scope, since `README.md` alone carries eighteen anchored paths nothing checks; and a backticked string ending in a known extension becomes a candidate without a leading anchor, which is what makes the stale path in `src/globals.d.ts` visible. **Semantic accuracy checking is declined**: an instrument that verifies prose describes a seam that exists is a checker over English, which §2.2 exists to refuse, and the class is caught by review — this round found it nine times across four lenses. **One targeted assertion replaces it**, for the invariant that has now failed twice with two different wrong answers: the package has exactly one `__DEV__` binding, and a comment naming its home must name that file. **F-219 — unmute, because the gate's cost was assumed and is 0.08 s.** The always-on control block covers the seven rows that **cannot move**, leaving the eight that can with no enforced number in a default run, so the mechanism introduced to close F-208 watches only the immovable half. `beforeAll` already builds and measures every composition for the twenty-eight always-on graph assertions, so the fifteen budget assertions are arithmetic over results already in hand: twenty-eight passed with fifteen skipped at 1.42 s, against forty-three passed at 1.50 s. The mute's own comment says to unmute at finalization; the arc is finalizing and the obligation costs eighty milliseconds. | defines the tier vocabulary the round lacked; widens the reference instrument mechanically and refuses a semantic one; makes the byte budgets always-on |
+
 ### Decisions not yet implemented
 
 **The artifact F-63 asked for** (K-5). D-34 and D-35 were stated in the present tense by three contract documents and were not in the code, across a checkpoint and a whole revision, with every suite green — because a green suite is evidence about the _implemented_ contract only, and nothing in the repository compared a decision booked to a later phase against the code that had not implemented it. Phase 18 found them by reading, which is the discovery this table exists to make unnecessary.
@@ -523,6 +529,12 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 | -------- | ----- | --------------- | ------- |
 
 | D-155 | Before Phase 24 | The settlement gate and its SPI deleted; the relinquished tail as an additive `translate` on a controller-scoped slot, with `inheritedSpace` retained to the join and cancel-at-admission; `landing()` reduced to interpolation policy; the narrowed terminal-vs-pixels statement written into contract 02 and 05 | present: `src/kernel/spec.ts` :: `holdForLanding(start: LandingStart): void;` |
+
+| D-161 | Remediation | The hole prediction deleted from `shiftSpan` and the hole re-read once per committed move; G3-linear's varying-flow-gap clause removed; G6 and the two always-true exclusions written into the axis factories' JSDoc; the varying-flow-gap negative fixture retired | present: `src/sortable/linear-shift.ts` :: `travelled += b - a + spacing;` |
+
+| D-162 | Remediation | The viewport delta converted through the inverse ancestor linear map inside the displacement sink, read once per committed move off the placeholder | present: `src/sortable/layout-animation.ts` :: `translate: '0 0'` |
+
+| D-163 | Remediation | The tier vocabulary written where reviewers read it; the reference instrument's roots and path shapes widened with the `__DEV__` home assertion added; the budget gate deleted so those rows always run | present: `tests/bench/size.node.test.ts` :: `DRAG2_SIZE_BUDGETS` |
 
 **The nineteenth cycle opened and closed across 2026-08-28 and 2026-08-29.** D-154's witness — `export const CANCEL_ESCAPE = 'drag:escape';` in `src/kernel/kernel.ts` — retired the ordinary way, by the declaration being deleted. **Worth recording about the row**: it named the deletion as the witness and the _addition_ — `CancelOrigin` and its four constants — as work, which is the right way round. A witness has to be something that goes away; a row whose only content is a name arriving has nothing to retire, and this decision happened to carry both halves.
 
@@ -580,168 +592,171 @@ This register is the **status**, not the decision. What each decision says, and 
 
 The four `inactive` rows are the ones whose live residue is empty: **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected) and **D-150** (superseded by D-151, none of it lands).
 
-| Decision | Status |
-| --- | --- |
-| D-1 | active |
-| D-2 | active |
-| D-3 | active |
-| D-4 | active |
-| D-5 | active |
-| D-6 | active |
-| D-7 | active |
-| D-8 | active |
-| D-9 | active |
-| D-10 | active |
-| D-11 | active |
-| D-12 | active |
-| D-13 | active |
-| D-14 | active |
-| D-15 | active |
-| D-16 | active |
-| D-17 | active |
-| D-18 | active |
-| D-19 | active |
-| D-20 | active |
-| D-21 | active |
-| D-22 | active |
-| D-23 | active |
-| D-24 | active |
-| D-25 | active |
-| D-26 | active |
-| D-27 | active |
-| D-28 | active |
-| D-29 | active |
-| D-30 | active |
-| D-31 | active |
-| D-32 | active |
-| D-33 | inactive |
-| D-34 | active |
-| D-35 | active |
-| D-36 | active |
-| D-37 | active |
-| D-38 | active |
-| D-39 | active |
-| D-40 | active |
-| D-41 | active |
-| D-42 | active |
-| D-43 | active |
-| D-44 | active |
-| D-45 | active |
-| D-46 | active |
-| D-59 | active |
-| D-60 | active |
-| D-56 | active |
-| D-57 | active |
-| D-58 | active |
-| D-55 | active |
-| D-51 | active |
-| D-52 | active |
-| D-53 | active |
-| D-54 | active |
-| D-49 | active |
-| D-50 | active |
-| D-48 | active |
-| D-47 | active |
-| D-61 | active |
-| D-62 | active |
-| D-63 | active |
-| D-64 | active |
-| D-65 | active |
-| D-66 | active |
-| D-67 | active |
-| D-68 | active |
-| D-69 | active |
-| D-70 | active |
-| D-71 | active |
-| D-72 | active |
-| D-73 | inactive |
-| D-74 | active |
-| D-75 | active |
-| D-76 | active |
-| D-77 | active |
-| D-78 | active |
-| D-79 | active |
-| D-80 | active |
-| D-81 | active |
-| D-82 | active |
-| D-83 | active |
-| D-84 | active |
-| D-85 | active |
-| D-86 | active |
-| D-87 | active |
-| D-88 | inactive |
-| D-89 | active |
-| D-90 | active |
-| D-91 | active |
-| D-92 | active |
-| D-93 | active |
-| D-94 | active |
-| D-95 | active |
-| D-96 | active |
-| D-97 | active |
-| D-98 | active |
-| D-99 | active |
-| D-100 | active |
-| D-101 | active |
-| D-102 | active |
-| D-103 | active |
-| D-104 | active |
-| D-105 | active |
-| D-106 | active |
-| D-107 | active |
-| D-108 | active |
-| D-109 | active |
-| D-110 | active |
-| D-111 | active |
-| D-112 | active |
-| D-113 | active |
-| D-114 | active |
-| D-115 | active |
-| D-116 | active |
-| D-117 | active |
-| D-118 | active |
-| D-119 | active |
-| D-120 | active |
-| D-121 | active |
-| D-122 | active |
-| D-123 | active |
-| D-124 | active |
-| D-125 | active |
-| D-126 | active |
-| D-127 | active |
-| D-128 | active |
-| D-129 | active |
-| D-130 | active |
-| D-131 | active |
-| D-132 | active |
-| D-133 | active |
-| D-134 | active |
-| D-135 | active |
-| D-136 | active |
-| D-137 | active |
-| D-138 | active |
-| D-139 | active |
-| D-140 | active |
-| D-141 | active |
-| D-142 | active |
-| D-143 | active |
-| D-144 | active |
-| D-145 | active |
-| D-146 | active |
-| D-147 | active |
-| D-148 | active |
-| D-149 | active |
-| D-150 | inactive |
-| D-151 | active |
-| D-152 | active |
-| D-153 | active |
-| D-154 | active |
-| D-155 | active |
-| D-156 | active |
-| D-157 | active |
-| D-158 | active |
-| D-159 | active |
-| D-160 | active |
+| Decision | Status   |
+| -------- | -------- |
+| D-1      | active   |
+| D-2      | active   |
+| D-3      | active   |
+| D-4      | active   |
+| D-5      | active   |
+| D-6      | active   |
+| D-7      | active   |
+| D-8      | active   |
+| D-9      | active   |
+| D-10     | active   |
+| D-11     | active   |
+| D-12     | active   |
+| D-13     | active   |
+| D-14     | active   |
+| D-15     | active   |
+| D-16     | active   |
+| D-17     | active   |
+| D-18     | active   |
+| D-19     | active   |
+| D-20     | active   |
+| D-21     | active   |
+| D-22     | active   |
+| D-23     | active   |
+| D-24     | active   |
+| D-25     | active   |
+| D-26     | active   |
+| D-27     | active   |
+| D-28     | active   |
+| D-29     | active   |
+| D-30     | active   |
+| D-31     | active   |
+| D-32     | active   |
+| D-33     | inactive |
+| D-34     | active   |
+| D-35     | active   |
+| D-36     | active   |
+| D-37     | active   |
+| D-38     | active   |
+| D-39     | active   |
+| D-40     | active   |
+| D-41     | active   |
+| D-42     | active   |
+| D-43     | active   |
+| D-44     | active   |
+| D-45     | active   |
+| D-46     | active   |
+| D-59     | active   |
+| D-60     | active   |
+| D-56     | active   |
+| D-57     | active   |
+| D-58     | active   |
+| D-55     | active   |
+| D-51     | active   |
+| D-52     | active   |
+| D-53     | active   |
+| D-54     | active   |
+| D-49     | active   |
+| D-50     | active   |
+| D-48     | active   |
+| D-47     | active   |
+| D-61     | active   |
+| D-62     | active   |
+| D-63     | active   |
+| D-64     | active   |
+| D-65     | active   |
+| D-66     | active   |
+| D-67     | active   |
+| D-68     | active   |
+| D-69     | active   |
+| D-70     | active   |
+| D-71     | active   |
+| D-72     | active   |
+| D-73     | inactive |
+| D-74     | active   |
+| D-75     | active   |
+| D-76     | active   |
+| D-77     | active   |
+| D-78     | active   |
+| D-79     | active   |
+| D-80     | active   |
+| D-81     | active   |
+| D-82     | active   |
+| D-83     | active   |
+| D-84     | active   |
+| D-85     | active   |
+| D-86     | active   |
+| D-87     | active   |
+| D-88     | inactive |
+| D-89     | active   |
+| D-90     | active   |
+| D-91     | active   |
+| D-92     | active   |
+| D-93     | active   |
+| D-94     | active   |
+| D-95     | active   |
+| D-96     | active   |
+| D-97     | active   |
+| D-98     | active   |
+| D-99     | active   |
+| D-100    | active   |
+| D-101    | active   |
+| D-102    | active   |
+| D-103    | active   |
+| D-104    | active   |
+| D-105    | active   |
+| D-106    | active   |
+| D-107    | active   |
+| D-108    | active   |
+| D-109    | active   |
+| D-110    | active   |
+| D-111    | active   |
+| D-112    | active   |
+| D-113    | active   |
+| D-114    | active   |
+| D-115    | active   |
+| D-116    | active   |
+| D-117    | active   |
+| D-118    | active   |
+| D-119    | active   |
+| D-120    | active   |
+| D-121    | active   |
+| D-122    | active   |
+| D-123    | active   |
+| D-124    | active   |
+| D-125    | active   |
+| D-126    | active   |
+| D-127    | active   |
+| D-128    | active   |
+| D-129    | active   |
+| D-130    | active   |
+| D-131    | active   |
+| D-132    | active   |
+| D-133    | active   |
+| D-134    | active   |
+| D-135    | active   |
+| D-136    | active   |
+| D-137    | active   |
+| D-138    | active   |
+| D-139    | active   |
+| D-140    | active   |
+| D-141    | active   |
+| D-142    | active   |
+| D-143    | active   |
+| D-144    | active   |
+| D-145    | active   |
+| D-146    | active   |
+| D-147    | active   |
+| D-148    | active   |
+| D-149    | active   |
+| D-150    | inactive |
+| D-151    | active   |
+| D-152    | active   |
+| D-153    | active   |
+| D-154    | active   |
+| D-155    | active   |
+| D-156    | active   |
+| D-157    | active   |
+| D-158    | active   |
+| D-159    | active   |
+| D-160    | active   |
+| D-161    | active   |
+| D-162    | active   |
+| D-163    | active   |
 
 ## Findings
 
@@ -1019,6 +1034,16 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 | F-210 | The composition every displacement decision was taken about had no row | **Resolved 2026-08-30 by D-159's implementation.** `xy + layoutAnimation` is declared in `bench/size/measure.ts` with a graph declaration, a budget set from its landed 10045 B, and a place in every block that iterates the compositions. ~~**Open, tier B.**~~ Fourteen rows, and none combined the cellular axis with the displacement feature — so three passes of displacement architecture were measured entirely against the linear axis plus animation and the bare cellular axis. The row measures 10045 B at 31 modules. **What it would have changed**: the counterfactual's failure on that exact row is the clearest single number against it, and no earlier pass could have produced it |
 
 | F-211 | A silently failed patch step produced a plausible measurement | **Method, 2026-08-30.** The first counterfactual reading was wrong: a deletion had not been applied, so the prototype still carried the machinery it was meant to remove, and the row read +28 where the arithmetic predicted −132. The disagreement is what surfaced it. **A prototype ablation's deletion must be verified in the tree**, not inferred from the script exiting without error, and a measurement whose sign contradicts a prediction is a reason to check the tree before it is a reason to revise the prediction |
+
+| F-212 | The hole advance is two different errors in one expression | **Settled by D-161, 2026-08-30** — record [`geometry-defects-contract-claude.md`](../reviews/phase-23/geometry-defects-contract-claude.md). The transform limb is G5: `b - a` is a presented extent and `rotate`/`scale` enlarge the bounding rect, measured at 12 of 20 gap pairs and up to 264.74px, while an authored `translate` is clean because it moves a box without resizing it. The margin limb has **no transform in it**: one scalar taken from the placeholder's footprint is applied to every crossed row, and the placeholder is margin-less by construction — 20 of 20 at 40px, clean at 0 of 20 once the placeholder carries the same margin |
+
+| F-213 | A viewport delta spent as a local-space `translate` | **Settled by D-162, 2026-08-30** — record [`geometry-defects-contract-claude.md`](../reviews/phase-23/geometry-defects-contract-claude.md). Overshoot is exactly the ancestor scale, measured at 1.5, 2 and 0.75. The dependency already publishes the ancestor linear map and documents this exact inversion, and is already in every sortable graph |
+
+| F-222 | A remedy shaped by the first mechanism would have left the second standing | **Open, tier B — method.** F-212's two limbs share one expression and one symptom, and the second has no transform anywhere in its fixture. A fix argued from G5 closes the transform limb and leaves 40px per crossed row on an ordinary flex list with item margins. **The general shape**: when two mechanisms share an expression, the control that separates them has to be built before the remedy is chosen — here, giving the placeholder the items' own margin, which turns the failure off without touching the code |
+
+| F-223 | A negative conformance fixture was testing the defect rather than a boundary | **Open, tier B.** The fixture for a column whose flow gap varies row to row fires the slot half of the instrument **0 of 20** and the hole half 18 of 20: its row displacement is uniform and exact, and it failed only the rule that was wrong. Once the hole is measured that layout is supported and the fixture goes green **by accident**, which is worse than not having it. **The general shape**: a negative test written against a symptom outlives the symptom and then certifies the fix that removed it |
+
+| F-224 | The formatter aligns the status register and the parser requires it unaligned | **Open, tier B, not introduced by this pass, and diagnosed.** `tests/decisions.node.test.ts` reports **no status** for every canonical decision — 161 of them on `74273b09`, before any change here — including ids the register plainly lists as `active`. The cause is a conflict between two of the repository's own tools: `tests/ledger.ts` matches a register row with a pattern that admits exactly one space around each cell, while `oxfmt` pads the table to align its columns, so a row reads with several. The rows are therefore invisible to the reader rather than malformed — which is why the shape assertion passes and only the completeness one fails, and why the failure is silent about its cause. **The general shape**: an instrument that parses a document the project's formatter also owns has two authors, and the formatter wins on every save. Flagged rather than repaired, because this pass may not quietly absorb a red it did not cause, and because the repair is a choice between loosening the pattern and exempting the table |
 
 ## What would falsify this model
 
