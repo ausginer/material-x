@@ -2262,7 +2262,7 @@ The architectural follow-up to the final arc's review round. Record [`geometry-d
 
 **Measured jointly**: `minimal` +15 B, `minimal (xy)` +1 B, against +124/+107/+115 on the animating rows — which still land 33 and 41 B **under** the model the arc replaced. Placement was measured too: the same logic in the shared cache rather than the linear module cost `minimal (xy)` 49 B for a branch it can never take.
 
-**Also settled**: G6 publishes the placeholder-stability precondition Q-16 named; the tier vocabulary is defined by consequence; the reference instrument widens mechanically and **refuses** a semantic accuracy check; and the byte budgets stop being opt-in, the gate's assumed cost having measured 0.08 s. One red was found and flagged rather than absorbed — the status register's parser requires unpadded table cells and the repository's formatter pads them, so all 161 decisions read as unregistered.
+**Also settled**: G6 publishes the placeholder-stability precondition Q-16 named; the tier vocabulary is defined by consequence; the reference instrument widens mechanically and **refuses** a semantic accuracy check; and the byte budgets stop being opt-in, the gate's assumed cost having measured 0.08 s. One trap was found by walking into it: the status register's parser admits exactly one space per cell and `oxfmt` pads tables to align them, so the first formatting run this file receives unregisters every decision at once — silently, because the rows become invisible rather than malformed. Repaired here by hand, and recorded as F-224, because the file cannot be formatted until the parser and the formatter agree.
 
 ### 2026-08-30 — The cellular residue accepted, and the displacement failure stage corrected (D-159)
 
