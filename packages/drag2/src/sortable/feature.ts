@@ -29,6 +29,11 @@ import type {
 // behavior builds from it. `tests/docs.node.test.ts` fails on any public type
 // that reaches an unexported one.
 export type { Disposer } from '../kernel/lifetimes.ts';
+// `DisplacementReport` names it, so this tier publishes it under the rule the
+// list above states: a type this entry's surface reaches is a type an installer
+// author must be able to name. The declaration is the kernel's own — a sink and
+// a behavior are talking about one projection, not two of the same shape.
+export type { InheritedSpace } from '../kernel/presentation.ts';
 export type { DOMRealm } from '../kernel/realm.ts';
 export type {
   LandingContext,

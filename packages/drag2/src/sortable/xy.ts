@@ -34,6 +34,7 @@
  * this module's metric and its `compareDocumentPosition` call, which a list
  * consumer must not pay for.
  */
+import type { InheritedSpace } from '../kernel/presentation.ts';
 import {
   type CollectionSnapshot,
   type Insertion,
@@ -82,6 +83,12 @@ type InsertionRuntimeView = Readonly<{
    * `rect-index.ts`.
    */
   settle: DisplacementSettle | null;
+  /**
+   * The projection a displaced element's viewport vector is reported in, or
+   * `null` for an untransformed ancestry; see `y.ts`. Passed on to `report` and
+   * never read here.
+   */
+  space: InheritedSpace;
 }>;
 
 /**
@@ -120,6 +127,12 @@ type InsertionRuntimeView = Readonly<{
  *   The hole is the incumbent every candidate is compared against and it is
  *   measured once per rebuild, so a placeholder whose own size animates must be
  *   accompanied by `controller.invalidate()`.
+ * - **G7** — the linear map the collection **inherits** is stable for the
+ *   operation. It is captured once, at the grab, from the measurement the lift
+ *   already took, and nothing revisits it — `controller.invalidate()` included,
+ *   because revisiting it means the layout read the capture exists to avoid. An
+ *   ancestor transform that changes mid-drag is outside the domain; one that is
+ *   constant for the drag is fully supported.
  *
  * ## This axis does not predict
  *
@@ -342,7 +355,7 @@ export function xy(): AxisInstaller {
             const dy = before[i * 2 + 1]! - values[offset + TOP]!;
 
             if (dx !== 0 || dy !== 0) {
-              report(items[i]!, dx, dy, runtime.live);
+              report(items[i]!, dx, dy, runtime.live, runtime.space);
             }
           }
         },

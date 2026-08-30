@@ -55,6 +55,7 @@
  * it, mirrors the two state bits it would otherwise have had to expose, and
  * writes through the fields the record already publishes.
  */
+import type { InheritedSpace } from '../kernel/presentation.ts';
 import type { CollectionSnapshot } from './domain.ts';
 import {
   DEV,
@@ -77,6 +78,11 @@ export type LinearRuntime = Readonly<{
   box: ((item: HTMLElement) => HTMLElement) | null;
   live(): boolean;
   settle: DisplacementSettle | null;
+  /**
+   * The projection the reported vector is expressed in, or `null` for an
+   * untransformed ancestry. Read once per span and passed on unexamined.
+   */
+  space: InheritedSpace;
 }>;
 
 export type LinearShift = Readonly<{
@@ -233,7 +239,7 @@ export function createLinearShift(
       values[offset + centre] = (shiftedA + shiftedB) * 0.5;
 
       if (report) {
-        report(items[i]!, dx, dy, runtime.live);
+        report(items[i]!, dx, dy, runtime.live, runtime.space);
       }
     }
   };

@@ -15,6 +15,7 @@
  */
 import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
 import type { Disposer } from '../kernel/lifetimes.ts';
+import type { InheritedSpace } from '../kernel/presentation.ts';
 import type { LandingStart } from '../kernel/spec.ts';
 import type { ItemSource, SortableOnEnd } from './config.ts';
 import type { CollectionSnapshot, Insertion, OnReorder } from './domain.ts';
@@ -36,12 +37,20 @@ import type { DisplacementSettle } from './rect-index.ts';
  * `animate()` and the `finished` accessor on what it returns are overridable —
  * so a reading taken before the walk says nothing about the calls inside it,
  * and only the party making those calls can take the readings between them.
+ *
+ * **`space` is the units the vector is in, so a report states its own.** The
+ * vector is a viewport quantity and a `translate` is not, so a sink writing one
+ * has to project; `space` is the inverse of the linear part the collection
+ * inherits, or `null` when that is the identity and the two coincide. It rides
+ * with the vector rather than being read once and held, so there is no interval
+ * over which it must stay valid and nothing for the sink to invalidate.
  */
 export type DisplacementReport = (
   element: HTMLElement,
   dx: number,
   dy: number,
   live: () => boolean,
+  space: InheritedSpace,
 ) => void;
 
 /**
@@ -130,6 +139,16 @@ export type InsertionRuntimeView = Readonly<{
    * something can measure.
    */
   settle: DisplacementSettle | null;
+  /**
+   * **The inverse of the linear part the collection inherits**, or `null` for
+   * an untransformed ancestry — the projection that turns a viewport
+   * displacement into the `translate` a sink writes.
+   *
+   * Passed straight on to {@link DisplacementReport}; the axis owns the vector
+   * and never the units. It is a fact about the ancestry at grab, captured once
+   * at activation from the measurement the lift already took.
+   */
+  space: InheritedSpace;
 }>;
 
 export type SortableSlots = Readonly<{

@@ -110,9 +110,15 @@ export type SortableConfig = Readonly<{
    * because the visual's own height is not the height its removal freed.
    *
    * **Scope limits, stated positively**: visual order must follow DOM order,
-   * rule-placed layouts are unsupported, and in grid `box` must equal `visual`.
-   * Nothing detects a violation, so this is a documented boundary rather than a
-   * guard.
+   * rule-placed layouts are unsupported, in grid `box` must equal `visual`,
+   * and where `visual` resolves to a **descendant** of the item, no transform
+   * may sit between the item and its visual. The last one is what displacement
+   * needs: a displaced row's `translate` is projected through the ancestry
+   * measured **at the visual**, so a transform in between is counted twice and
+   * the row travels by the wrong factor. It is met by putting the transform on
+   * the visual itself, which that ancestry excludes by construction, or above
+   * the collection. Nothing detects a violation, so these are documented
+   * boundaries rather than guards.
    */
   box?: ResolveElement;
   // The callback itself, not `createPlaceholder` plus a class name.

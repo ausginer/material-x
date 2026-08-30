@@ -24,6 +24,7 @@
  * near a boundary. Ignoring X is not an optimisation of the 2-D rule; it is a
  * different and better answer for a list.
  */
+import type { InheritedSpace } from '../kernel/presentation.ts';
 import {
   type CollectionSnapshot,
   type Insertion,
@@ -89,6 +90,12 @@ type InsertionRuntimeView = Readonly<{
    * holds settled geometry while contributions run; see `rect-index.ts`.
    */
   settle: DisplacementSettle | null;
+  /**
+   * The projection a displaced element's viewport vector is reported in, or
+   * `null` for an untransformed ancestry. Passed on to `report` and never read
+   * here: the axis owns the vector, the sink owns what it writes.
+   */
+  space: InheritedSpace;
 }>;
 
 /**
@@ -128,6 +135,12 @@ type InsertionRuntimeView = Readonly<{
  *   measured, and nothing short of an invalidation revisits it, so a
  *   placeholder whose own size animates must be accompanied by
  *   `controller.invalidate()`.
+ * - **G7** — the linear map the collection **inherits** is stable for the
+ *   operation. It is captured once, at the grab, from the measurement the lift
+ *   already took, and nothing revisits it — `controller.invalidate()` included,
+ *   because revisiting it means the layout read the capture exists to avoid. An
+ *   ancestor transform that changes mid-drag is outside the domain; one that is
+ *   constant for the drag is fully supported.
  *
  * ## What this rule does not cover
  *

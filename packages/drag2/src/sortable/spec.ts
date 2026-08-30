@@ -873,6 +873,11 @@ export function createSortableSpec(
           item,
           box: slots.box,
           settle: slots.settle,
+          // **Handed down, not measured.** The kernel derived it from the
+          // measurement `acquireLift` took before it mutated anything, so the
+          // projection describes the ancestry the drag began in; a read taken
+          // here would describe a tree activation has already changed.
+          space: scope.inheritedSpace,
           live,
           snapshot: current.snapshot!,
           insertion: null,

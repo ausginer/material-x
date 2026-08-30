@@ -75,7 +75,7 @@ const REPORTING_MOVE = (
   runtime: InsertionRuntimeView,
   report: DisplacementReport | null,
 ): void => {
-  report?.(runtime.placeholder, 0, -1, runtime.live);
+  report?.(runtime.placeholder, 0, -1, runtime.live, runtime.space);
 };
 
 const POINTER_ID = 11;

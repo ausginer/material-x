@@ -2236,6 +2236,34 @@ Documents only; the implementation WIP was read as evidence and left untouched.
 
 ---
 
+### 2026-08-30 — D-162 implemented as amended: the space rides with the vector
+
+The one item the previous remediation held. Record [`displacement-coordinate-space-claude.md`](reviews/phase-23/displacement-coordinate-space-claude.md).
+
+**The shape, and it added no seam.** `report` takes a fifth argument — the space its vector is expressed in — so a report states its own units and the sink caches nothing. The per-operation view gains `space`, written once at activation from `scope.inheritedSpace`; both axes and the linear rule pass it on unexamined; `layout-animation.ts` projects at the single expression that writes a keyframe. The stored contribution, the fold and the settle walk stay in **viewport** space, which is what keeps a local keyframe decaying to zero equal to `sx × remaining` in viewport at every instant. No `@ydinjs/box-quad` import entered a behavior module and D-85 stands unamended.
+
+**One consequence the decision did not name.** `DisplacementReport` now names `InheritedSpace`, so the middle tier publishes it — `sortable/feature.ts` re-exports the kernel's declaration beside `Disposer` and the landing seam types, and `tests/kernel/vocabulary.node.test.ts` gains it as published vocabulary rather than as a named internal. Both were forced by instruments already in place: the tier-boundary test refused the import and the per-entry TypeDoc run refused the closure. This is the rule kernel.ts already states — _a tier publishes every name its own surface reaches_ — applied, not widened.
+
+**Measured against `c168126d`**, built and compressed per composition.
+
+| Composition | brotli before | after | Δ | min before | after | Δ |
+| --- | --: | --: | --: | --: | --: | --: |
+| minimal | 9837 | 9850 | +13 | 28744 | 28775 | +31 |
+| minimal (xy) | 9704 | 9718 | +14 | 28300 | 28331 | +31 |
+| minimal + layoutAnimation | 10186 | 10221 | +35 | 29680 | 29751 | +71 |
+| xy + layoutAnimation | 10045 | 10082 | +37 | 29236 | 29307 | +71 |
+| minimal + landing | 10094 | 10109 | +15 | 29427 | 29458 | +31 |
+| complete | 10427 | 10460 | +33 | 30360 | 30431 | +71 |
+| both behaviors | 11808 | 11841 | +33 | 36055 | 36126 | +71 |
+| baseline A | 10257 | 10290 | +33 | 29655 | 29726 | +71 |
+| free drag ×4 | 7750 / 7897 / 8017 / 8151 | ″ | **0** | ″ | ″ | 0 |
+| `drag.js` / `kernel.js` | 142 / 6063 | ″ | **0** | ″ | ″ | 0 |
+| baseline B | 6889 | 6889 | **0** | 22573 | 22573 | 0 |
+
+**Seven control rows moved zero** — the four free-drag compositions, both vocabulary roots and baseline B — declared before the run, and every budget still holds. The animating rows landed **cheaper than the prototype predicted**, +35/+37/+33 against +47/+48/+39, and about a third of the superseded `coordinates()`-in-the-sink form's +124/+107/+115. **The +13 on `minimal` is not conversion work**: it is one field in the activation-time view literal and one argument at a call site that composition never reaches, and at runtime a non-animating composition performs no conversion, because the argument is pushed inside the `if (report)` a null slot skips.
+
+**Two contract clauses published, and both are covered.** `config.ts` gains the `visual !== item` transform limit beside the three scope limits already governing that pair of slots; G7 joins G6 in both axis modules, stating that the linear map the collection inherits is stable for the operation. **The evidence discriminates, checked by removing the projection**: the ancestor-`scale` case reports 160 where it wants 80 — the overshoot is exactly the stage — and so does the supported descendant-`visual` case, while the `scale: 1` control passes either way, which is what a control is for. The excluded configuration is asserted as the failure the limit names rather than described: a 1.5× wrapper between item and visual travels exactly two thirds of the way.
+
 ### 2026-08-30 — D-158 implemented: one post-write hook, and a control that can see a transfer
 
 The remediation as it landed. D-155 stays deferred and F-203 is not folded in.

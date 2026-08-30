@@ -105,6 +105,7 @@ function createField(count = 3): Field {
           live,
           insertion: null,
           settle: null,
+          space: null,
         },
       ),
   };
@@ -128,6 +129,7 @@ describe('y', () => {
           live: ALIVE,
           insertion: null,
           settle: null,
+          space: null,
         },
       ),
     ).toBeNull();

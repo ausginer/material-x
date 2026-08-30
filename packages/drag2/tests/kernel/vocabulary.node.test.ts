@@ -70,6 +70,10 @@ const PUBLISHED_TYPES: readonly string[] = [
   'FailureStage',
   'Frame',
   'FramePartOf',
+  // The scope's own closure (D-85), and the sortable reaches it for the same
+  // reason free drag does: a behavior reporting a local delta is handed the
+  // projection rather than measuring one.
+  'InheritedSpace',
   'KernelFrame',
   'KernelHost',
   'LandingContext',

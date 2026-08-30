@@ -4,7 +4,7 @@
  *
  * ```text
  * (behavior)   the DOM write
- * (axis)       report(element, dx, dy) -> once per displaced element
+ * (axis)       report(element, dx, dy, space) -> once per displaced element
  * report       one additive `translate` per element, decaying to zero
  * ```
  *
@@ -127,7 +127,7 @@ export function layoutAnimation(
     };
 
     return {
-      report(element, dx, dy, live): void {
+      report(element, dx, dy, live, space): void {
         // **The barrier, and it covers indirect invocation.** `animate()` on a
         // consumer-owned row is a consumer call, so the previous call's may
         // have destroyed the controller. Read at the head so one reading covers
@@ -169,8 +169,26 @@ export function layoutAnimation(
         // the element's own transform and needs no correction; and
         // `composite: 'add'` composes it with an authored `translate` or a
         // consumer animation on the same property instead of clobbering it.
+        //
+        // **The one expression that changes units.** The vector is a viewport
+        // quantity and a `translate` is a local one, so it is projected through
+        // the inverse of the inherited linear part — four multiplies under an
+        // ancestor transform, one null test without one, which is the common
+        // case. Everything the sink *stores* stays in viewport space: the fold
+        // below and the settle walk both work in the units the axis reports,
+        // and a local keyframe decaying to zero is `sx × remaining` in viewport
+        // at every instant, which is what the walk assumes.
         const animation = element.animate(
-          [{ translate: `${sx}px ${sy}px` }, { translate: '0 0' }],
+          [
+            {
+              translate: space
+                ? `${space.a * sx + space.c * sy}px ${
+                    space.b * sx + space.d * sy
+                  }px`
+                : `${sx}px ${sy}px`,
+            },
+            { translate: '0 0' },
+          ],
           { duration, easing, composite: 'add' },
         );
 

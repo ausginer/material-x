@@ -54,6 +54,8 @@ afterEach(() => {
 type Options = Readonly<{
   itemCount?: number;
   fragments?: ReadonlyArray<Partial<SortableConfig>>;
+  /** Merged over the collection root's own style — an ancestor transform. */
+  rootStyle?: Readonly<Record<string, string>>;
   /** Runs on each row before the controller is armed. */
   decorate?(item: HTMLElement, index: number): void;
   /** Extra non-item children appended to the root. */
@@ -63,12 +65,16 @@ type Options = Readonly<{
 function build(options: Options = {}): Composed {
   const root = document.createElement('div');
 
-  Object.assign(root.style, {
-    width: '200px',
-    position: 'absolute',
-    top: '0px',
-    left: '0px',
-  });
+  Object.assign(
+    root.style,
+    {
+      width: '200px',
+      position: 'absolute',
+      top: '0px',
+      left: '0px',
+    },
+    options.rootStyle,
+  );
   document.body.append(root);
 
   const items: HTMLElement[] = [];
@@ -704,6 +710,207 @@ describe('authored presentation survives displacement', () => {
 });
 
 /**
+ * One displaced row, judged by the three positions a FLIP contribution is
+ * defined by: where it stood before the committed move, where the write left
+ * it, and where the contribution draws it at its first instant.
+ *
+ * `hold` is a sample that must commit **nothing** — it crosses the activation
+ * threshold and no candidate centre — so `before` is the pre-move position
+ * rather than one already displaced.
+ */
+const displacementOf = async (
+  composed: Composed,
+  index: number,
+  grab: number,
+  hold: number,
+  to: number,
+): Promise<Readonly<{ travel: number; carried: number; keyframe: string }>> => {
+  const row = composed.items[index]!;
+
+  press(composed.items[0]!, grab);
+  pointerEvent('pointermove', hold);
+  await nextFrame();
+
+  const before = row.getBoundingClientRect().top;
+
+  await drag(to);
+
+  const [animation] = running(row);
+
+  animation!.pause();
+  // Past the active interval the effect applies nothing, so this is the
+  // settled position the write actually produced.
+  animation!.currentTime = DURATION;
+
+  const after = row.getBoundingClientRect().top;
+
+  animation!.currentTime = 0;
+
+  const frames = (animation!.effect as KeyframeEffect).getKeyframes();
+
+  return {
+    travel: after - before,
+    // Negative when the row is drawn back where it came from, which is the
+    // whole of what an inverse-FLIP contribution has to do.
+    carried: row.getBoundingClientRect().top - after,
+    keyframe: String(frames[0]!['translate']),
+  };
+};
+
+/**
+ * **A displacement vector is a viewport quantity and a `translate` is not.**
+ *
+ * The axis reports how far a row travelled on screen; the sink writes
+ * `translate`, which is spent in the space the row's ancestry establishes. Under
+ * a scaled ancestor the two are different numbers, and spending one as the other
+ * overshoots by exactly that scale. So the sink projects through the inverse of
+ * the inherited linear part, which the kernel derived from the measurement the
+ * lift already took.
+ *
+ * Read as **boxes**, not as declarations: `getBoundingClientRect()` is where a
+ * reader sees the row, and the inline string is not evidence about that. The
+ * keyframe is asserted beside it because it is the quantity that changed — the
+ * same `40px` of flow travel under both stages, against a viewport travel that
+ * doubles.
+ */
+describe('displacement under an ancestor transform', () => {
+  it('should render the flow travel under an ancestor scale', async () => {
+    // The stage doubles every screen quantity: a row that must travel one
+    // 40px slot travels 80 viewport pixels, and a `translate` of 80 written
+    // inside the stage would render 160.
+    const composed = build({
+      fragments: withLayout(),
+      rootStyle: { transform: 'scale(2)', transformOrigin: '0 0' },
+    });
+    const { travel, carried, keyframe } = await displacementOf(
+      composed,
+      1,
+      20,
+      60,
+      110,
+    );
+
+    expect(travel).toBeCloseTo(-80, 1);
+    // At its first instant the row is exactly where it was — the contribution
+    // spans the travel and no multiple of it.
+    expect(carried).toBeCloseTo(80, 1);
+    expect(keyframe).toBe('0px 40px');
+  });
+
+  it('should render the same flow travel with no ancestor transform', async () => {
+    // **The control**, and it is the row that must not move: with an identity
+    // ancestry the projection is skipped entirely and the vector reaches the
+    // keyframe as the axis reported it. The flow travel is the same 40px, and
+    // here that is also the viewport travel.
+    const composed = build({ fragments: withLayout() });
+    const { travel, carried, keyframe } = await displacementOf(
+      composed,
+      1,
+      10,
+      30,
+      55,
+    );
+
+    expect(travel).toBeCloseTo(-40, 1);
+    expect(carried).toBeCloseTo(40, 1);
+    expect(keyframe).toBe('0px 40px');
+  });
+});
+
+/**
+ * **The `visual` boundary the config states, from both sides.**
+ *
+ * The projection is the ancestry measured at the **visual**, while the
+ * `translate` is written on the **item**. Those are the same space until a
+ * transform sits between the two, which is exactly what `config.ts` rules out
+ * for a `visual` that resolves to a descendant. Both sides are pinned here: the
+ * supported shape is exact, and the excluded one is wrong by precisely the
+ * intermediate factor — a documented boundary rather than a case nobody tried.
+ */
+describe('a visual that is not the item', () => {
+  /** A card filling its row, so the placeholder stands in for the row's height. */
+  const card = (host: HTMLElement): void => {
+    const inner = document.createElement('div');
+
+    Object.assign(inner.style, {
+      display: 'block',
+      width: '100px',
+      height: `${ITEM_HEIGHT}px`,
+    });
+    host.append(inner);
+  };
+
+  /**
+   * The stage the pair is read under. Both tests share it, so the only
+   * difference between them is the transform between the item and its visual.
+   */
+  const stage = { transform: 'scale(2)', transformOrigin: '0 0' } as const;
+
+  it('should render the flow travel with no transform between item and visual', async () => {
+    const composed = build({
+      fragments: [
+        ...withLayout(),
+        { visual: (item) => item.firstElementChild as HTMLElement },
+      ],
+      rootStyle: stage,
+      decorate: card,
+    });
+    // The lifted card leaves its row in the flow, so the pointer has one more
+    // box to cross than it does when the whole row is promoted.
+    const { travel, carried, keyframe } = await displacementOf(
+      composed,
+      1,
+      20,
+      60,
+      210,
+    );
+
+    // The ancestry above the visual **is** the ancestry above the item: a card
+    // that merely sits inside its row contributes no linear part of its own, so
+    // the supported shape is exact rather than approximately right.
+    expect(travel).toBeCloseTo(-80, 1);
+    expect(carried).toBeCloseTo(80, 1);
+    expect(keyframe).toBe('0px 40px');
+  });
+
+  it('should count an intervening transform twice, which is why one is ruled out', async () => {
+    // A 1.5× wrapper *between* the row and its visual — the one shape
+    // `config.ts` rules out for a descendant `visual`. The projection is then
+    // the stage composed with the wrapper, a third, where the row needs a half,
+    // so the contribution spans two thirds of the travel and the row visibly
+    // jumps the rest. Asserted rather than left implicit: a published limit is
+    // worth only as much as the failure it names.
+    const composed = build({
+      fragments: [
+        ...withLayout(),
+        {
+          visual: (item) =>
+            (item.firstElementChild as HTMLElement)
+              .firstElementChild as HTMLElement,
+        },
+      ],
+      rootStyle: stage,
+      decorate(item): void {
+        const middle = document.createElement('div');
+
+        Object.assign(middle.style, {
+          display: 'block',
+          transform: 'scale(1.5)',
+          transformOrigin: '0 0',
+        });
+        card(middle);
+        item.append(middle);
+      },
+    });
+    const { travel, carried } = await displacementOf(composed, 1, 20, 60, 250);
+
+    expect(travel).toBeLessThan(0);
+    expect(carried).toBeCloseTo((-travel * 2) / 3, 1);
+    expect(carried).not.toBeCloseTo(-travel, 1);
+  });
+});
+
+/**
  * **Continuity under interruption**, and the property that retires
  * measure-and-replay.
  *
@@ -955,7 +1162,7 @@ describe('the terminal barrier in the displacement bracket', () => {
       // the fixture is the axis rather than the plan it used to return.
       apply: (): void => {
         for (const row of rows) {
-          contribution.report(row, 0, -ITEM_HEIGHT, live);
+          contribution.report(row, 0, -ITEM_HEIGHT, live, null);
         }
       },
       move: () => {

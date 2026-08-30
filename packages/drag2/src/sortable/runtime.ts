@@ -9,6 +9,7 @@
  * and {@link PresentationView}, whose role — one object two feature views bind
  * to, with a non-null `placeholder` — is what requires an object.
  */
+import type { InheritedSpace } from '../kernel/presentation.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { CollectionSnapshot, Insertion } from './domain.ts';
 import type { DisplacementSettle } from './rect-index.ts';
@@ -47,6 +48,18 @@ export type PresentationView = {
    * one field of this object rather than reaching the slot record.
    */
   readonly settle: DisplacementSettle | null;
+  /**
+   * **The inverse of the linear part the collection inherits**, or `null` when
+   * that part is the identity — which is the common case, and answers the
+   * projection in one null test.
+   *
+   * A fact about the ancestry at grab: the kernel derives it from the
+   * measurement the lift already took, before it moved anything, so this costs
+   * no DOM read of its own and cannot disagree with the geometry the operation
+   * began in. Carried here so a displaced element's viewport vector can state
+   * its own units when it reaches the sink.
+   */
+  readonly space: InheritedSpace;
   /**
    * The installed `box` resolver, for the axis rule's candidate measurement.
    * Copied off the slots once per operation rather than read through `slots`

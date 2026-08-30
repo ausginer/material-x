@@ -969,3 +969,14 @@ The ownership rule made executable: **nothing that exists because something anim
 | --- | --- | --- |
 | each declared control reproduces its figure exactly — a control getting _cheaper_ is as much a finding as one getting dearer, because it means a change reached a graph it was declared unable to reach. One row per control, named from the composition, under `describe('the declared controls')` in `tests/bench/size.node.test.ts` | D-158, F-208 |
 | **the cellular axis composed with the displacement feature** is a declared composition, so every instrument that iterates the compositions — the graph declaration, the budget, the control block — covers the one arrangement that actually drives an axis's post-write measurement. A composition with no row reports nothing rather than reporting zero | `tests/bench/size.node.test.ts` — the generated rows named _xy + layoutAnimation_ | D-159, F-210 |
+
+## The coordinate space a displacement is spent in — new (2026-08-30, D-162)
+
+**A displacement vector is a viewport quantity and a `translate` is not.** The sink projects at the one expression that writes a keyframe, so the evidence is read as **boxes** — where a reader sees the row — with the keyframe asserted beside them because it is the quantity that changed: the same 40 px of flow travel under both stages, against a viewport travel that doubles. Each row below was checked against the unprojected sink, which reports 160 where it wants 80: the overshoot is exactly the ancestor scale.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| a displaced row under an ancestor `scale(2)` is drawn **exactly where it stood** at the contribution's first instant, and travels the flow distance rather than a multiple of it | `tests/sortable/displacement.browser.test.ts` — _should render the flow travel under an ancestor scale_ | D-162, F-213 |
+| the **control**: the same drag with no ancestor transform, where the projection is skipped and the vector reaches the keyframe as the axis reported it. It passes with and without the projection, which is what makes it a control rather than a second case | _should render the same flow travel with no ancestor transform_ | D-162 |
+| a `visual` resolving to a **descendant** with no transform between it and its item — the supported half of the boundary `config.ts` states, and it is exact, not approximately right | _should render the flow travel with no transform between item and visual_ | D-162, F-225 |
+| the **excluded** configuration, asserted as the failure the limit names: a 1.5× wrapper between item and visual leaves the row travelling exactly two thirds of the way, because the projection is the stage composed with the wrapper | _should count an intervening transform twice, which is why one is ruled out_ | D-162, F-225 |
