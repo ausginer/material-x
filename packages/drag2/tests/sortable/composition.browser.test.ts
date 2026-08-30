@@ -856,11 +856,7 @@ describe('construction across the whole boundary', () => {
       displacement: () => {
         ran.push('displacement');
         return {
-          apply: (): void => {},
-          contribution: (_element, out): void => {
-            out[0] = 0;
-            out[1] = 0;
-          },
+          report: (): void => {},
           settle: (): void => {},
           retire: (): void => {
             retired.push('displacement');

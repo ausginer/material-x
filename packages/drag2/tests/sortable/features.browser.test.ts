@@ -1626,29 +1626,21 @@ describe('the terminal barrier in a resolver sequence', () => {
   });
 
   /**
-   * A displacement feature that records nothing but whether each half of the
-   * bracket pipeline ran. `layoutAnimation()` cannot stand in for it: its own
-   * `retire()` empties the span map, so its `afterMove` is *already* inert on a
-   * destroyed controller and would report "no animation" whether the barrier
-   * exists or not.
-   */
-  /**
    * A displacement sink that records nothing but the fact of being called.
    *
    * **It replaces a `beforeMove`/`afterMove` pipeline recorder**, because there
-   * is no pipeline left to record: a committed move is one plan, one write and
-   * one `apply`, so what a barrier test observes is whether `apply` ran at all.
+   * is no pipeline left to record: a committed move is one write and one call
+   * per displaced element, so what a barrier test observes is whether `report`
+   * ran at all. `layoutAnimation()` cannot stand in for it: its own `retire()`
+   * empties the map, so it is *already* inert on a destroyed controller and
+   * would report "no animation" whether the barrier exists or not.
    */
   const displacementRecorder = (
     applied: number[],
   ): Pick<SortableConfig, 'displacement'> => ({
     displacement: () => ({
-      apply: (): void => {
+      report: (): void => {
         applied.push(applied.length);
-      },
-      contribution: (_element, out): void => {
-        out[0] = 0;
-        out[1] = 0;
       },
       settle: (): void => {},
     }),

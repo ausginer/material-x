@@ -70,6 +70,12 @@ type Field = Readonly<{
   /** Counts every `getBoundingClientRect` on the rows and the placeholder. */
   instrument(): void;
   reads(): number;
+  /**
+   * Reads taken **inside the task that performed the placeholder write** — the
+   * ones that force a synchronous layout, as against the ones a later animation
+   * frame takes against a tree the browser has already laid out.
+   */
+  forced(): number;
 }>;
 
 const press = (target: HTMLElement, y: number): void => {
@@ -146,6 +152,15 @@ function compose(...fragments: ReadonlyArray<Partial<SortableConfig>>): Field {
   root.releasePointerCapture = (): void => {};
 
   let reads = 0;
+  let forced = 0;
+  /**
+   * Whether the placeholder write is still on the stack, in the loose sense
+   * that matters: the write happens inside an animation-frame callback, and a
+   * microtask queued from it runs only once that callback has returned. So a
+   * read counted while this is set is a read the write's own task performed,
+   * and a read counted after it is one a later frame took.
+   */
+  let writing = false;
   const placeholder = (): HTMLElement | null =>
     root.querySelector('[data-drag-placeholder]');
 
@@ -156,8 +171,33 @@ function compose(...fragments: ReadonlyArray<Partial<SortableConfig>>): Field {
     element.getBoundingClientRect = (): DOMRect => {
       reads += 1;
 
+      if (writing) {
+        forced += 1;
+      }
+
       return native();
     };
+  };
+
+  /**
+   * `movePlaceholder` writes through the **anchor row's** `before`/`after`, so
+   * the rows are where the write is observable without patching a prototype
+   * the whole page shares.
+   */
+  const watching =
+    (
+      native: (...nodes: Array<Node | string>) => void,
+    ): ((...nodes: Array<Node | string>) => void) =>
+    (...nodes) => {
+      writing = true;
+      queueMicrotask(() => {
+        writing = false;
+      });
+      native(...nodes);
+    };
+  const watchWrite = (element: HTMLElement): void => {
+    element.before = watching(element.before.bind(element));
+    element.after = watching(element.after.bind(element));
   };
 
   const field: Field = {
@@ -174,8 +214,10 @@ function compose(...fragments: ReadonlyArray<Partial<SortableConfig>>): Field {
       }
 
       counted.forEach(count);
+      items.forEach(watchWrite);
     },
     reads: () => reads,
+    forced: () => forced,
   };
 
   cleanup.push(() => {
@@ -259,9 +301,9 @@ describe('a committed move reads no geometry', () => {
     // **`xy()` does not predict, and this is the amended claim.** A cellular
     // move sets a slot to the position another slot holds, which carries the
     // difference of two elements' authored presentation; no single measurement
-    // recovers that. So a committed move here rebuilds after the write — five
-    // destination rows and the placeholder, **once**, where the old shape paid
-    // a list-wide pass on each side of it.
+    // recovers that. So a committed move here rebuilds — five destination rows
+    // and the placeholder, **once**, where the old shape paid a list-wide pass
+    // on each side of the write.
     const field = compose({ axis: xy() });
 
     await settle(field);
@@ -274,6 +316,55 @@ describe('a committed move reads no geometry', () => {
 
     expect(order(field)).not.toBe(before);
     expect(field.reads()).toBe(COUNT);
+  });
+
+  it('should force no layout in the write’s own task with a bare xy()', async () => {
+    // **The measurement exists to be reported, so with nothing to report it
+    // does not happen here** (F-205). A read taken straight after a DOM write
+    // flushes layout; the same read taken on the following animation frame
+    // finds a tree the browser has already laid out. The rebuild above is that
+    // later pass — the count is unchanged and its instant is not.
+    const field = compose({ axis: xy() });
+
+    await settle(field);
+    await commit(2);
+    field.instrument();
+
+    await commit(4);
+
+    expect(field.forced()).toBe(0);
+    expect(field.reads()).toBe(COUNT);
+  });
+
+  it('should measure inside the write’s own task once xy() has a sink', async () => {
+    // **The other side of the same branch, and it is inherent rather than a
+    // regression.** The vectors have to exist before the animations start, so
+    // with a sink composed the rebuild happens where the write did. This row is
+    // what keeps the one above from being read as "`xy()` never forces layout".
+    const field = compose({ axis: xy() }, layoutAnimation({ duration: 500 }));
+
+    await settle(field);
+    await commit(2);
+    field.instrument();
+
+    await commit(4);
+
+    expect(field.forced()).toBe(COUNT);
+  });
+
+  it('should force no layout in the write’s own task with a settled y()', async () => {
+    // The linear axis's counterpart, and it holds for the stronger reason: it
+    // reads nothing at all once the constant is established, so there is
+    // nothing left that could force a layout.
+    const field = compose();
+
+    await settle(field);
+    await commit(2);
+    field.instrument();
+
+    await commit(4);
+
+    expect(field.forced()).toBe(0);
   });
 
   it('should read nothing with layoutAnimation composed', async () => {
@@ -345,4 +436,75 @@ describe('a committed move reads no geometry', () => {
 
     expect(field.reads()).toBeGreaterThan(0);
   });
+});
+
+/**
+ * **A committed move allocates nothing**, which is the property that replaced
+ * the returned plan.
+ *
+ * The old seam returned a `DisplacementPlan` — a closure per committed move in
+ * *every* composition, including the ones that consume no vectors. The sink's
+ * visitor arrives as an argument now, so there is nothing to construct and
+ * nothing to return: the axis reports inside the walk it was already running.
+ *
+ * **Closures cannot be counted from script, so the checkable half is the
+ * buffers**, and they are the half that was actually there: a scratch pair per
+ * rebuild in the cache, and one more per establishing measurement. Both are
+ * gone with the per-candidate probe.
+ */
+describe('a committed move allocates nothing', () => {
+  const NativeBuffer = Float64Array;
+
+  const buffersDuring = async (run: () => Promise<void>): Promise<number> => {
+    let built = 0;
+
+    // A subclass rather than a proxy, so every construction the library makes
+    // is counted and every instance still behaves as the buffer it is.
+    globalThis.Float64Array = class extends NativeBuffer {
+      constructor(...args: ConstructorParameters<typeof NativeBuffer>) {
+        super(...args);
+        built += 1;
+      }
+    };
+
+    try {
+      await run();
+    } finally {
+      globalThis.Float64Array = NativeBuffer;
+    }
+
+    return built;
+  };
+
+  const compositions: ReadonlyArray<
+    readonly [string, ReadonlyArray<Partial<SortableConfig>>]
+  > = [
+    ['minimal', []],
+    ['minimal (xy)', [{ axis: xy() }]],
+    ['minimal + layoutAnimation', [layoutAnimation({ duration: 500 })]],
+    [
+      'complete',
+      [{ axis: xy() }, layoutAnimation({ duration: 500 }), landing()],
+    ],
+  ];
+
+  for (const [name, fragments] of compositions) {
+    it(`should build no buffer per committed move in ${name}`, async () => {
+      const field = compose(...fragments);
+
+      await settle(field);
+      // Two moves first: the establishing read, and one growth the cellular
+      // rule's own snapshot buffer is entitled to. Everything after them is
+      // steady state, which is what this measures.
+      await commit(2);
+      await commit(4);
+
+      const built = await buffersDuring(async () => {
+        await commit(2);
+        await commit(4);
+      });
+
+      expect(built).toBe(0);
+    });
+  }
 });

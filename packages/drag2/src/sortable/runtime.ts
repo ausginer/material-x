@@ -11,7 +11,7 @@
  */
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { CollectionSnapshot, Insertion } from './domain.ts';
-import type { DisplacementProbe } from './rect-index.ts';
+import type { DisplacementSettle } from './rect-index.ts';
 
 /** Behavior action tags. Behavior-local: the kernel offsets them. */
 export const TAG_SPATIAL = 0;
@@ -42,12 +42,11 @@ export type PresentationView = {
    */
   readonly item: HTMLElement;
   /**
-   * What the composed displacement sink is currently holding for an element, or
-   * `null` when nothing displaces. Copied off the slots once per operation so
-   * an axis rebuild reads one field of this object rather than reaching the
-   * slot record per candidate.
+   * The composed displacement sink's settle walk, or `null` when nothing
+   * displaces. Copied off the slots once per operation so an axis rebuild reads
+   * one field of this object rather than reaching the slot record.
    */
-  readonly contribution: DisplacementProbe | null;
+  readonly settle: DisplacementSettle | null;
   /**
    * The installed `box` resolver, for the axis rule's candidate measurement.
    * Copied off the slots once per operation rather than read through `slots`

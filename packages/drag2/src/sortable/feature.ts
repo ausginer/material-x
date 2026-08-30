@@ -14,9 +14,12 @@ import type {
   LandingContribution,
 } from '../shared/composition.ts';
 import type { Insertion } from './domain.ts';
-import type { DisplacementPlan } from './linear-shift.ts';
-import type { DisplacementProbe } from './rect-index.ts';
-import type { InsertionFrameView, InsertionRuntimeView } from './slots.ts';
+import type { DisplacementSettle } from './rect-index.ts';
+import type {
+  DisplacementReport,
+  InsertionFrameView,
+  InsertionRuntimeView,
+} from './slots.ts';
 
 // The structural closure of the middle tier. Publishing the contribution groups
 // and `FeatureContext` gives every type they structurally name the same
@@ -33,9 +36,12 @@ export type {
   LandingStart,
 } from '../kernel/spec.ts';
 export type { Insertion } from './domain.ts';
-export type { DisplacementPlan } from './linear-shift.ts';
-export type { DisplacementProbe } from './rect-index.ts';
-export type { InsertionFrameView, InsertionRuntimeView } from './slots.ts';
+export type { DisplacementSettle } from './rect-index.ts';
+export type {
+  DisplacementReport,
+  InsertionFrameView,
+  InsertionRuntimeView,
+} from './slots.ts';
 
 // The one runtime export at this tier, which makes `sortable/feature` a runtime
 // entry in `files.json` rather than a `typeOnly` one. `insertion` is the only
@@ -108,49 +114,35 @@ export type InsertionGeometry = Readonly<{
    */
   invalidate(): void;
   /**
-   * **Predict the committed move, and say what it displaces** — optional,
-   * because not every rule can.
+   * **The committed placeholder move has landed** — one hook, called once,
+   * immediately after the one DOM write.
    *
-   * The behavior calls this at exactly one instant — inside the committed-move
-   * bracket, **immediately before the one DOM write** — and it must advance the
-   * rule's own cache, and the placeholder position it holds, to the geometry
-   * that write is about to produce. It performs **no DOM read**: everything it
-   * needs is the cache it already holds plus per-operation constants it has
-   * already established.
+   * Two obligations, and only the first is unconditional. It must leave the
+   * rule's own cache — and the placeholder position it holds — describing the
+   * tree the write produced, either by advancing it arithmetically or by
+   * rebuilding it. And it must hand `report` every element the move displaced,
+   * together with the vector that element travelled, **negated**.
    *
-   * It returns the plan — every element the move displaces and the vector that
-   * element is about to travel, negated — or **`null`, meaning "I cannot
-   * predict this one; measure me"**, which sends the behavior to `measure`
-   * after the write. A rule with no prediction at all simply omits this
-   * member.
+   * **`report` is `null` whenever no displacement feature is composed**, and a
+   * rule that measures only in order to report should then do neither: it is
+   * the argument that says whether anything will consume the answer. Nothing is
+   * returned and nothing need be allocated, so a committed move can cost one
+   * traversal and no object at all.
+   *
+   * It may read geometry — it is the one member that may — and each `report`
+   * call reaches consumer-owned code, so the `live` argument it is handed must
+   * be passed on and is read by the sink between calls.
    *
    * **A prediction may consume only a same-element temporal difference of
    * presented geometry** (G5). A difference between two *different* elements'
    * measured rects carries the difference of their authored `translate`,
    * `rotate` or `scale` and is not a flow quantity, so it must not drive one.
    */
-  project?(
+  moved(
     frame: InsertionFrameView,
     runtime: InsertionRuntimeView,
-  ): DisplacementPlan | null;
-  /**
-   * **Say what the committed move displaced**, measured, immediately after the
-   * DOM write.
-   *
-   * Called when `project` is absent or returned `null`. It may read geometry —
-   * it is the one member that may — and it must leave
-   * the rule's cache describing the tree the write produced, either by
-   * advancing it or by rebuilding it.
-   *
-   * **Required, and that is the axis key's side of the bargain.** The behavior
-   * invalidates on every path between the projection and a completed write, so
-   * a rule that can neither predict nor measure returns a plan that visits
-   * nothing and invalidates itself.
-   */
-  measure(
-    frame: InsertionFrameView,
-    runtime: InsertionRuntimeView,
-  ): DisplacementPlan;
+    report: DisplacementReport | null,
+  ): void;
   retire(): void;
 }>;
 
@@ -184,39 +176,36 @@ export type AxisContribution = Readonly<{
  */
 export type DisplacementContribution = Readonly<{
   /**
-   * Start one contribution per element the plan visits.
+   * Start one contribution for an element a committed move displaced.
    *
-   * The vectors are what each element is **about to travel, negated**, so a
-   * contribution that starts there and decays to zero shows the element
-   * moving. Contributions are additive and each ends at zero, so they **sum**:
-   * a second move arriving mid-flight needs no measurement, no release and no
-   * replay, because the element is already exactly where the previous
-   * contribution left it.
+   * The vector is what the element **travelled, negated**, so a contribution
+   * that starts there and decays to zero shows it moving. Contributions are
+   * additive and each ends at zero, so they **sum**: a second move arriving
+   * mid-flight needs no measurement, no release and no replay, because the
+   * element is already exactly where the previous contribution left it.
    *
-   * `live` is read between iterations: `animate()` on a consumer-owned row is
-   * a consumer call, and the behavior cannot guard the interior of a loop it
-   * only starts.
+   * **The axis calls it, so the axis cannot guard it.** `live` is read at the
+   * head of every call and again after each consumer-reachable step inside one:
+   * `animate()` on a consumer-owned row is a consumer call, as is the
+   * `finished` accessor on what it returns, so a reading taken before the walk
+   * says nothing about the calls inside it.
    */
-  apply(plan: DisplacementPlan, live: () => boolean): void;
+  report: DisplacementReport;
   /**
-   * **What this sink is currently holding for one element**, written into `out`
-   * as `[dx, dy]` and zero when it holds nothing.
+   * **Turn a buffer an axis has just measured into settled geometry**, by
+   * subtracting what this sink is currently holding for each element it names.
    *
    * It must answer from its own bookkeeping — animation timing, a stored vector
-   * — and **must not read layout**, because an axis calls it once per candidate
-   * inside a rebuild. Subtracting it is what lets a rebuild obtain *settled*
-   * geometry while contributions are still running, which is why nothing here
-   * is ever released merely so that something else can measure.
-   */
-  contribution: DisplacementProbe;
-  /**
-   * Cancel every contribution in flight.
+   * — and **must not read layout**. Doing so is what lets a rebuild obtain
+   * *settled* geometry while contributions are still running, which is why
+   * nothing here is ever released merely so that something else can measure.
    *
-   * Called by release **before** it measures. Cancelling an additive
-   * contribution that decays to zero lands the element exactly where it
-   * belongs, so this is a plain cancel and not a release-and-replay.
+   * Called **once per rebuild**, not once per candidate: the walk and the
+   * lookups belong to the party that knows what it holds, and a composition
+   * installing no sink then pays one null test rather than a subtraction per
+   * row.
    */
-  settle(): void;
+  settle: DisplacementSettle;
   /** Run in **reverse** installation order. */
   retire?: Disposer;
 }>;

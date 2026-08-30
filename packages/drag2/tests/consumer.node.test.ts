@@ -175,7 +175,7 @@ const hoistedAxis: AxisInstaller = (context) => {
     insertion: {
       resolve: () => null,
       invalidate: (): void => {},
-      measure: () => () => {},
+      moved: (): void => {},
       retire: (): void => {},
     },
   };
@@ -192,11 +192,7 @@ const hoistedDisplacement: SortableDisplacementInstaller = (context) => {
   void context.root;
 
   return {
-    apply: () => {},
-    contribution: (_element, out) => {
-      out[0] = 0;
-      out[1] = 0;
-    },
+    report: () => {},
     settle: () => {},
   };
 };

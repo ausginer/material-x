@@ -79,17 +79,17 @@ describe('AxisInstaller', () => {
  */
 
 describe('SortableDisplacementInstaller', () => {
-  it('should carry the plan consumer, the probe, the cancel and nothing else', () => {
+  it('should carry the visitor, the settle walk and nothing else', () => {
     // **The named key's cardinality, stated as its group.** The group is
-    // exactly the three calls the behavior and the axis make — `apply` inside
-    // the committed-move bracket, `contribution` from a rebuild that has to see
-    // through what this sink is currently drawing, `settle` before release
-    // measures — plus the installer's own teardown. It declares no geometry of
-    // its own: it consumes the plan and answers for its own offsets, which is
-    // why two of them would be a collision rather than an accumulation and why
-    // this is a key instead of an array entry.
+    // exactly the two calls the axis makes — `report`, once per element a
+    // committed move displaced, and `settle`, once per rebuild that has to see
+    // through what this sink is currently drawing — plus the installer's own
+    // teardown. It declares no geometry of its own: it is handed vectors and
+    // answers for its own offsets, which is why two of them would be a
+    // collision rather than an accumulation and why this is a key instead of an
+    // array entry.
     expectTypeOf<keyof DisplacementContribution>().toEqualTypeOf<
-      'apply' | 'contribution' | 'settle' | 'retire'
+      'report' | 'settle' | 'retire'
     >();
   });
 });

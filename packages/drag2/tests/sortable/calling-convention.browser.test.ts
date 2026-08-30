@@ -43,7 +43,7 @@ import type { Insertion } from '../../src/sortable/domain.ts';
 import type {
   AxisInstaller,
   DisplacementContribution,
-  DisplacementPlan,
+  DisplacementReport,
   InsertionFrameView,
   InsertionGeometry,
   InsertionRuntimeView,
@@ -110,23 +110,14 @@ function recordingAxis(base: AxisInstaller): Recording {
         receivers.push(['invalidate', this]);
         inner.invalidate();
       },
-      project(
+      moved(
         this: unknown,
         frame: InsertionFrameView,
         runtime: InsertionRuntimeView,
-      ): DisplacementPlan | null {
-        receivers.push(['project', this]);
-
-        return inner.project!(frame, runtime);
-      },
-      measure(
-        this: unknown,
-        frame: InsertionFrameView,
-        runtime: InsertionRuntimeView,
-      ): DisplacementPlan {
-        receivers.push(['measure', this]);
-
-        return inner.measure(frame, runtime);
+        report: DisplacementReport | null,
+      ): void {
+        receivers.push(['moved', this]);
+        inner.moved(frame, runtime, report);
       },
       retire(this: unknown): void {
         receivers.push(['retire', this]);
@@ -168,22 +159,8 @@ function recordingDisplacement(): DisplacementRecording {
 
   const displacement: SortableDisplacementInstaller = () => {
     const contribution: DisplacementContribution = {
-      apply(this: unknown, plan: DisplacementPlan): void {
-        receivers.push(['apply', this]);
-        // Drained rather than dropped: the plan is the axis's, and a sink that
-        // never called the visitor would stay green if the behavior stopped
-        // handing it one.
-        plan(() => {});
-      },
-      contribution(
-        this: unknown,
-        element: HTMLElement,
-        out: Float64Array,
-      ): void {
-        receivers.push(['contribution', this]);
-        void element;
-        out[0] = 0;
-        out[1] = 0;
+      report(this: unknown): void {
+        receivers.push(['report', this]);
       },
       settle(this: unknown): void {
         receivers.push(['settle', this]);
@@ -344,8 +321,8 @@ describe('a lifted insertion geometry', () => {
     expectDetached(recording, 'invalidate');
   });
 
-  it('should hand the project site a foreign receiver', async () => {
-    // Reached only inside the committed-move bracket — immediately before the
+  it('should hand the moved site a foreign receiver', async () => {
+    // Reached only inside the committed-move bracket — immediately after the
     // one DOM write — which is why this row has to commit a reorder rather than
     // merely activate.
     const recording = recordingAxis(y());
@@ -353,19 +330,7 @@ describe('a lifted insertion geometry', () => {
 
     await reorder(composed);
 
-    expectDetached(recording, 'project');
-  });
-
-  it('should hand the measure site a foreign receiver', async () => {
-    // A different call site from `project` with a different caller: it runs
-    // *after* the write, and only on the move that establishes the linear
-    // constant — which is the first committed move of every operation.
-    const recording = recordingAxis(y());
-    const composed = composeWith(recording.axis);
-
-    await reorder(composed);
-
-    expectDetached(recording, 'measure');
+    expectDetached(recording, 'moved');
   });
 
   it('should hand the retire site a foreign receiver', async () => {
@@ -438,38 +403,27 @@ describe('a lifted insertion geometry', () => {
 });
 
 describe('a lifted displacement sink', () => {
-  it('should hand the apply site a foreign receiver', async () => {
-    // `apply` is reached at one instant — inside the committed-move bracket,
-    // after the DOM write — so this row has to commit a reorder. Its receiver
-    // is the flat slot record, because the assembler lifted the member onto
-    // `slots.displace`; what the row asserts is only that it is not the
-    // contribution.
+  it('should hand the report site a foreign receiver', async () => {
+    // `report` is reached at one instant — inside the committed-move bracket,
+    // after the DOM write — so this row has to commit a reorder. **Its caller
+    // is the axis**, which was handed the member as an argument; what the row
+    // asserts is that passing it through a call does not bind it to the
+    // contribution it was declared on.
     const recording = recordingDisplacement();
     const composed = composeWith(y(), recording.displacement);
 
     await reorder(composed);
 
-    expectDetached(recording, 'apply');
-  });
-
-  it('should hand the contribution site a foreign receiver', async () => {
-    // Reached from inside an axis rebuild that runs while a contribution is in
-    // flight, which is what lets a rebuild see settled geometry without
-    // anything being released first.
-    const recording = recordingDisplacement();
-    const composed = composeWith(xy(), recording.displacement);
-
-    await reorder(composed);
-
-    expectDetached(recording, 'contribution');
+    expectDetached(recording, 'report');
   });
 
   it('should hand the settle site a foreign receiver', async () => {
-    // `settle` is reached from release, before it measures — a different call
-    // site with a different caller, which is why it is a row of its own rather
-    // than an extra assertion on the one above.
+    // Reached from inside an axis rebuild that runs while a contribution is in
+    // flight, which is what lets a rebuild see settled geometry without
+    // anything being released first — a different call site with a different
+    // caller from `report`.
     const recording = recordingDisplacement();
-    const composed = composeWith(y(), recording.displacement);
+    const composed = composeWith(xy(), recording.displacement);
 
     await reorder(composed);
     pointer('pointerup', 110, document);

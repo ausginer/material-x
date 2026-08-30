@@ -29,7 +29,6 @@ import type {
   SortableDisplacementInstaller,
   SortableLandingInstaller,
 } from '../../src/sortable/feature.ts';
-import type { DisplacementPlan } from '../../src/sortable/linear-shift.ts';
 import { DEFAULT_THRESHOLD, NOOP_START } from '../../src/sortable/slots.ts';
 import { xy } from '../../src/sortable/xy.ts';
 import { y } from '../../src/sortable/y.ts';
@@ -88,22 +87,12 @@ const displacementFeature =
   () =>
     contribution;
 
-/** A plan that visits nothing — what an axis with nothing to displace returns. */
-const nothing: DisplacementPlan = (): void => {};
-
-/** A sink holding nothing, which is all the assembly probes need it to say. */
-const noContribution = (_element: HTMLElement, out: Float64Array): void => {
-  out[0] = 0;
-  out[1] = 0;
-};
-
 const geometry = (
   overrides: Partial<InsertionGeometry> = {},
 ): InsertionGeometry => ({
   resolve: () => null,
   invalidate: (): void => {},
-  project: () => nothing,
-  measure: () => nothing,
+  moved: (): void => {},
   retire: (): void => {},
   ...overrides,
 });
@@ -140,16 +129,15 @@ describe('assemble', () => {
     // property read and one call rather than `slots.insertion.resolve(…)`.
     // All four members are flattened; the three unconditional ones are
     // asserted by identity here, and `retire` is covered where the unwind
-    // drives it. `project` joined them when D-157 made prediction the axis
-    // key's side of the bargain — there is no optional member left, so no slot
-    // here is nullable and the bracket calls it with no branch.
+    // drives it. There is no optional member left on the group, so no slot here
+    // is nullable and the bracket calls each with no branch.
     const resolve = (): null => null;
     const invalidate = (): void => {};
-    const project = (): DisplacementPlan => nothing;
+    const moved = (): void => {};
     const slots = assemble(
       config({
         axis: axisFeature({
-          insertion: geometry({ resolve, invalidate, project }),
+          insertion: geometry({ resolve, invalidate, moved }),
         }),
       }),
       createFixture().context,
@@ -157,7 +145,7 @@ describe('assemble', () => {
 
     expect(slots.resolveInsertion).toBe(resolve);
     expect(slots.invalidateInsertion).toBe(invalidate);
-    expect(slots.projectInsertion).toBe(project);
+    expect(slots.movedInsertion).toBe(moved);
   });
 
   it('should normalize onStart to the shared no-op', () => {
@@ -237,36 +225,32 @@ describe('assemble', () => {
     // so there is no second writer to order against and no array to append to.
     //
     // What survives is the lift, which is the same construction-time claim the
-    // geometry's makes: `apply` and `settle` become two flat fields, by
+    // geometry's makes: `report` and `settle` become two flat fields, by
     // identity, so the committed-move bracket is one property read and one
-    // call.
-    const apply = (): void => {};
+    // argument.
+    const report = (): void => {};
     const settle = (): void => {};
     const slots = assemble(
       config({
-        displacement: displacementFeature({
-          apply,
-          contribution: noContribution,
-          settle,
-        }),
+        displacement: displacementFeature({ report, settle }),
       }),
       createFixture().context,
     );
 
-    expect(slots.displace).toBe(apply);
-    expect(slots.settleDisplacement).toBe(settle);
+    expect(slots.report).toBe(report);
+    expect(slots.settle).toBe(settle);
   });
 
   it('should leave the displacement slots null when uninstalled', () => {
     // Nullable rather than normalized to a no-op pair, and for the opposite
-    // reason to `onStart`'s: the committed-move bracket already branches on
-    // the move having advanced, so the null check costs nothing there, while a
-    // normalized sink would run a call per committed move in every composition
-    // that displaces nothing.
+    // reason to `onStart`'s: `null` is the argument that tells an axis nothing
+    // will consume a measurement, so a normalized sink would not merely cost a
+    // call per committed move — it would make the cellular rule measure for a
+    // composition that displaces nothing.
     const slots = assemble(required(), createFixture().context);
 
-    expect(slots.displace).toBeNull();
-    expect(slots.settleDisplacement).toBeNull();
+    expect(slots.report).toBeNull();
+    expect(slots.settle).toBeNull();
   });
 
   it('should expose retire hooks in installation order', () => {
@@ -294,8 +278,7 @@ describe('assemble', () => {
           retire: push('axis'),
         }),
         displacement: displacementFeature({
-          apply: (): void => {},
-          contribution: noContribution,
+          report: (): void => {},
           settle: (): void => {},
           retire: push('displacement'),
         }),
@@ -321,8 +304,7 @@ describe('assemble', () => {
     const slots = assemble(
       config({
         displacement: displacementFeature({
-          apply: (): void => {},
-          contribution: noContribution,
+          report: (): void => {},
           settle: (): void => {},
           retire: (): void => {},
         }),
@@ -332,21 +314,19 @@ describe('assemble', () => {
 
     expect(Object.keys(slots).toSorted()).toEqual([
       'box',
-      'contribution',
-      'displace',
       'handle',
       'invalidateInsertion',
       'items',
-      'measureInsertion',
+      'movedInsertion',
       'onEnd',
       'onError',
       'onReorder',
       'onStart',
       'placeholder',
-      'projectInsertion',
+      'report',
       'resolveInsertion',
       'retireHooks',
-      'settleDisplacement',
+      'settle',
       'startLanding',
       'threshold',
       'visual',
@@ -595,8 +575,7 @@ describe('assemble unwind', () => {
     assemble(
       config({
         displacement: displacementFeature({
-          apply: (): void => {},
-          contribution: noContribution,
+          report: (): void => {},
           settle: (): void => {},
           retire: (): void => {
             seen.push('retire');

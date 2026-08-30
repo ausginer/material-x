@@ -32,6 +32,7 @@ import {
 } from '../../../../.scripts/package-files.ts';
 import {
   budgetViolations,
+  controlViolations,
   COMBINED,
   COMPOSITIONS,
   FREE_DRAG_PART,
@@ -237,6 +238,29 @@ describe.skipIf(!ENFORCE_BUDGETS)('the declared budgets', () => {
       expect([
         composition.name,
         ...budgetViolations(measured.get(composition.name)!),
+      ]).toEqual([composition.name]);
+    });
+  }
+});
+
+/**
+ * **The control rows, and they are enforced whether budgets are muted or not.**
+ *
+ * A budget is a moving number while the runtime is being written, which is why
+ * the block above can be muted. A control is the opposite kind of claim: it
+ * names rows a change to the behavior under edit cannot reach, and its whole
+ * value is that it holds while the budgets are in flux. Fourteen green ceilings
+ * could not see bytes moving *between* rows (F-208); an exact figure on a row
+ * declared unreachable can.
+ */
+describe('the declared controls', () => {
+  for (const composition of COMPOSITIONS.filter(
+    ({ control }) => control !== undefined,
+  )) {
+    it(`should not move ${composition.name} at all`, () => {
+      expect([
+        composition.name,
+        ...controlViolations(measured.get(composition.name)!),
       ]).toEqual([composition.name]);
     });
   }

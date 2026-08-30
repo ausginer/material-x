@@ -17,19 +17,21 @@ import type { Disposer } from '../kernel/lifetimes.ts';
 import type { LandingStart } from '../kernel/spec.ts';
 import type { SortableConfig } from './config.ts';
 import type { FeatureContext, SortableFeatureContext } from './feature.ts';
-import type { DisplacementPlan } from './linear-shift.ts';
-import type { DisplacementProbe } from './rect-index.ts';
-import { DEFAULT_THRESHOLD, NOOP_START, type SortableSlots } from './slots.ts';
+import type { DisplacementSettle } from './rect-index.ts';
+import {
+  DEFAULT_THRESHOLD,
+  type DisplacementReport,
+  NOOP_START,
+  type SortableSlots,
+} from './slots.ts';
 
 export function assemble(
   config: SortableConfig,
   context: FeatureContext,
 ): SortableSlots {
   let startLanding: LandingStart | null = null;
-  let displace: ((plan: DisplacementPlan, live: () => boolean) => void) | null =
-    null;
-  let settleDisplacement: (() => void) | null = null;
-  let contribution: DisplacementProbe | null = null;
+  let report: DisplacementReport | null = null;
+  let settle: DisplacementSettle | null = null;
   const retireHooks: Disposer[] = [];
 
   // **There are no required-slot checks.** The required first argument is what
@@ -96,11 +98,7 @@ export function assemble(
         retireHooks.push(displacement.retire);
       }
 
-      ({
-        apply: displace,
-        contribution,
-        settle: settleDisplacement,
-      } = displacement);
+      ({ report, settle } = displacement);
     }
 
     // **The flat slot record is built inside the unwind bracket, and that
@@ -122,12 +120,7 @@ export function assemble(
       // JS-authored violator throw *here*, inside the bracket.
       resolveInsertion: axis.insertion.resolve,
       invalidateInsertion: axis.insertion.invalidate,
-      // **Nullable, and normalized to `null` here rather than at the call
-      // site.** An axis that cannot predict omits the member entirely — `xy()`
-      // does — so the bracket tests one field instead of every rule having to
-      // supply a refusal.
-      projectInsertion: axis.insertion.project ?? null,
-      measureInsertion: axis.insertion.measure,
+      movedInsertion: axis.insertion.moved,
 
       // **Not validated as a function.** The type says `ItemSource`; a JS
       // consumer that passes something else has already broken its own code at
@@ -166,9 +159,8 @@ export function assemble(
       box: config.box ?? config.visual ?? null,
       startLanding,
 
-      displace,
-      settleDisplacement,
-      contribution,
+      report,
+      settle,
       retireHooks,
     };
 

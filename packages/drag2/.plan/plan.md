@@ -2236,6 +2236,20 @@ Documents only; the implementation WIP was read as evidence and left untouched.
 
 ---
 
+### 2026-08-30 — D-158 implemented: one post-write hook, and a control that can see a transfer
+
+The remediation as it landed. D-155 stays deferred and F-203 is not folded in.
+
+**The shape.** `project` and `measure` collapse into `moved(frame, runtime, report)` — one call, after the write, taking the sink's visitor as an argument. `DisplacementPlan` is deleted, so no composition allocates on a committed move; the linear rule reports inside the span walk it was already running, and `xy()` takes an early return when the visitor is absent, which is what removes its forced synchronous layout. `RectIndex.refresh` loses the per-candidate probe and gains one nullable `settle(values, items, count)` called once per rebuild, with the walk and the lookups in `layout-animation.ts`. `settleDisplacement` is deleted outright and release now invalidates and resolves with nothing cancelled. Five displacement slot members become three.
+
+**The measurement, joint, against `63922766`.** `minimal` **−188 B** Brotli, `minimal (xy)` **−105**, `minimal + layoutAnimation` **−144**, `minimal + landing` **−179**, `complete` **−131**, `both behaviors` **−155**, `baseline A` **−144**. Module counts unchanged on all fourteen rows. **Every control at exactly 0** — the four free-drag compositions, both roots and baseline B.
+
+**Two rows missed their prediction and neither is a defect.** `minimal (xy)`'s 200–300 B was the review's own accepted 170 B residual counted twice: §7 keeps the cellular differ in `xy.js` and stops it _executing_, so those bytes were never on offer. And the animating rows' 114–123 B is the protocol collapse the review bounds at ≤156 B, which every row banks whether or not a sink is composed — the review's warning is that a large animating move means sink-required machinery was lost, and the standing evidence against that is the equivalence instrument, which runs in the animating compositions and compares a settled cache against a presented scan.
+
+**Three things were settled while implementing.** The development instrument moved to the head of the next **rebuild**: a post-write hook has no earlier instant to check from, because at the moment `moved` runs the animations it started have no resolved timing. A throwing sink is now an **invalidation** failure rather than an action-effect one, the visitor being called by the axis from inside the one wrapped hook — the recovery is unchanged and is the part that matters. And deferring `xy()`'s measurement to a later animation frame was **declined**: the committed move already runs inside one, so a second would paint one frame with the rows jumped and no offset applied.
+
+**Evidence added.** Reads counted _inside the write's own task_, separating a forced layout from a later clean one; a release that cancels nothing, driven against a landing composition so teardown's own cancel cannot stand in for it; and a per-composition allocation row asserting no buffer is built per committed move in any of the four sortable compositions. Budgets re-based after the shrink, never during it.
+
 ### 2026-08-30 — Displacement ownership: the regression is a misallocation (D-158)
 
 The production diff's size cost re-examined as an ownership question rather than a reason to discard D-156. Record [`displacement-ownership-claude.md`](reviews/phase-23/displacement-ownership-claude.md).

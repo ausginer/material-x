@@ -411,17 +411,12 @@ const installMyAxis: AxisInstaller = (ctx) => {
     insertion: {
       resolve: (frame) => frame.insertion,
       invalidate: () => cache.clear(),
-      // `measure` is required and `project` is not, which is the axis key's
-      // side of the bargain: an installer that cannot predict the committed
-      // move simply omits the prediction and says what it displaced — here, by
-      // invalidating itself and returning a plan that visits nothing. The
-      // escape is in the contract, so a middle-tier author who only resolves
-      // still compiles against it.
-      measure: () => {
-        cache.clear();
-
-        return () => {};
-      },
+      // `moved` is the axis key's side of the bargain, and it is one member
+      // rather than a pair: an installer that predicts nothing still has to
+      // leave its cache describing the tree — here by invalidating itself —
+      // and simply reports nothing. The escape is in the contract, so a
+      // middle-tier author who only resolves still compiles against it.
+      moved: () => cache.clear(),
       retire: () => cache.clear(),
     },
     retire: () => {
@@ -437,11 +432,7 @@ const installMyAxis: AxisInstaller = (ctx) => {
  * and the negative assertion below is that it cannot fill `axis`.
  */
 const installMyDisplacement: SortableDisplacementInstaller = (ctx) => ({
-  apply: () => {},
-  contribution: (_element, out) => {
-    out[0] = 0;
-    out[1] = 0;
-  },
+  report: () => {},
   settle: () => {},
   retire: () => ctx.report(undefined),
 });

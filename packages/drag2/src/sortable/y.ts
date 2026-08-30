@@ -30,15 +30,16 @@ import {
   insertionAt,
 } from './domain.ts';
 import type { AxisInstaller } from './feature.ts';
-import { type DisplacementPlan, createLinearShift } from './linear-shift.ts';
+import { createLinearShift } from './linear-shift.ts';
 import {
   BOTTOM,
   CENTRE_Y,
   createRectIndex,
-  type DisplacementProbe,
+  type DisplacementSettle,
   STRIDE,
   TOP,
 } from './rect-index.ts';
+import type { DisplacementReport } from './slots.ts';
 
 /**
  * Consumer-declared views. Declared **here**, in the feature's own module, so
@@ -52,10 +53,10 @@ import {
 type InsertionFrameView = Readonly<{
   pointerY: number;
   /**
-   * **The committed gap**, and it means two things at two call sites because
-   * the frame does. In `resolve` it is where the placeholder *is*, so the
-   * rebuild records which gap its buffer reflects; in `project` the prepare has
-   * already committed the new one, so it is where the write is about to put it.
+   * **The committed gap**, and it means the same thing at both call sites
+   * because the frame does: where the placeholder is. In `resolve` the rebuild
+   * records which gap its buffer reflects; in `moved` the write has just put it
+   * there.
    */
   insertion: Insertion | null;
   /** The dragged item, excluded from the candidates and from the index. */
@@ -83,11 +84,11 @@ type InsertionRuntimeView = Readonly<{
    */
   live(): boolean;
   /**
-   * The installed displacement sink's probe, or `null` when no displacement
-   * feature is composed. Subtracted per candidate so the cache holds settled
-   * geometry while contributions run; see `rect-index.ts`.
+   * The installed displacement sink's settle walk, or `null` when no
+   * displacement feature is composed. Applied once per rebuild so the cache
+   * holds settled geometry while contributions run; see `rect-index.ts`.
    */
-  contribution: DisplacementProbe | null;
+  settle: DisplacementSettle | null;
 }>;
 
 /**
@@ -146,7 +147,7 @@ export function y(): AxisInstaller {
     // rule reaches and `xy()` does not, rather than a branch inside the cache
     // both share. The five arguments are this axis's instantiation — the three
     // stride offsets it predicts along, and the unit vector that turns the
-    // scalar displacement into a plan's two components. A future `x()` passes
+    // scalar displacement into two reported components. A future `x()` passes
     // `LEFT`, `RIGHT`, `CENTRE_X`, `1`, `0` and needs nothing else from here.
     const shift = createLinearShift(index, TOP, BOTTOM, CENTRE_Y, 0, 1);
 
@@ -172,10 +173,10 @@ export function y(): AxisInstaller {
               runtime.box,
               runtime.live,
               runtime.placeholder,
-              runtime.contribution,
+              runtime.settle,
               // The gap the buffer this scan produces reflects: where the
-              // placeholder stands right now, which is what a later projection
-              // advances from.
+              // placeholder stands right now, which is what the next committed
+              // move advances from.
               insertion ? insertion.index : -1,
             )
           ) {
@@ -225,36 +226,25 @@ export function y(): AxisInstaller {
         invalidate: shift.invalidate,
 
         /**
-         * **The prediction**, run by the behavior immediately *before* the one
-         * DOM write of a committed move. It advances the cache and the
-         * placeholder slot to the geometry the write is about to produce and
-         * returns the plan — the elements that move and the vector each is
-         * about to travel, negated.
+         * **The committed move has landed**, and this is the one hook that
+         * follows it. It advances the cache and the placeholder slot to the
+         * geometry the write just produced and reports the span it crossed.
          *
-         * It reads no DOM and calls no consumer code, which is what lets the
-         * behavior call it with no terminal barrier and no invalidation.
+         * `report` is `null` whenever no displacement feature is composed, and
+         * the walk then reports nothing — the advance itself is this axis's own
+         * business, because the cache has to survive the move either way.
          *
-         * `null` means the displacement constant is not established yet — the
-         * first committed move of an operation, and the first after any
-         * invalidation — and asks the behavior for the measured path instead.
+         * The first committed move of an operation, and the first after any
+         * invalidation, reads **one** crossed row to establish the constant.
+         * Every other move reads nothing at all, and neither does any warm
+         * spatial frame.
          */
-        project(
+        moved(
           frame: InsertionFrameView,
           runtime: InsertionRuntimeView,
-        ): DisplacementPlan | null {
-          return shift.project(frame.insertion!.index, frame.item!, runtime);
-        },
-
-        /**
-         * **The establishing move**, run immediately *after* the DOM write, and
-         * only when {@link project} declined. One row is read and the constant
-         * it yields serves every later move on the same geometry.
-         */
-        measure(
-          frame: InsertionFrameView,
-          runtime: InsertionRuntimeView,
-        ): DisplacementPlan {
-          return shift.measure(frame.insertion!.index, runtime);
+          report: DisplacementReport | null,
+        ): void {
+          shift.moved(frame.insertion!.index, runtime, report);
         },
 
         retire: shift.retire,

@@ -8,11 +8,10 @@
  * coordinates.
  *
  * ```text
- * project(B)   the constant is known -> advance the cache, return the plan
- *              the constant is unknown -> `null`, meaning "measure me"
  * (behavior)   one DOM write
- * measure(B)   read one crossed row, establish the constant, return the plan
- * (sink)       one additive `translate` per element
+ * moved(B)     the constant is known -> advance the cache, report the span
+ *              the constant is unknown -> read one crossed row, then the same
+ * (sink)       one additive `translate` per reported element
  * ```
  *
  * **The constant is measured, never derived, and G5 is why.** It is a *flow*
@@ -25,6 +24,12 @@
  * contribution cancels. So the constant is observed as one crossed row's
  * displacement across one committed move, and every later move on the same
  * geometry is predicted from it with no DOM read.
+ *
+ * **The advance happens after the write, not before it.** Advancing a cache
+ * arithmetically does not depend on the DOM, so the projection had no reason to
+ * precede the write it described — and running it afterwards collapses the two
+ * instants into one, which is what lets a single hook carry both the predicted
+ * and the measured path.
  *
  * **Why it is a module and not a branch.** The rule is `y()`-only *by contract*
  * — `xy()` wraps, so the displacement is neither scalar nor uniform — and code
@@ -40,34 +45,13 @@
 import type { CollectionSnapshot } from './domain.ts';
 import {
   DEV,
-  type DisplacementProbe,
+  type DisplacementSettle,
   type RectIndex,
   STRIDE,
   TOP,
   verifyEquivalence,
 } from './rect-index.ts';
-
-/**
- * **The displacement plan**: the elements a committed move moved, and the
- * vector each of them travelled, **negated**.
- *
- * A visitor rather than a packed buffer. For this rule every entry in the span
- * carries the *same* number, so a parallel array would store one derivable
- * value `span` times; and a visitor lets each axis write the loop natural to it
- * while the sink passes one hoisted closure, so a committed move allocates
- * nothing.
- *
- * The vector is negated because that is what an inverse-FLIP contribution
- * starts from: the element jumped by `+v`, so a contribution of `-v` decaying
- * to zero shows it travelling.
- *
- * **A composition with no displacement feature pays one returned reference.**
- * The visitor is simply never called — no flag, no branch, and no arrangement
- * between the axis and a feature that may not be installed.
- */
-export type DisplacementPlan = (
-  visit: (element: HTMLElement, dx: number, dy: number) => void,
-) => void;
+import type { DisplacementReport } from './slots.ts';
 
 /**
  * What the rule reads off the behavior's per-operation view. Declared here, in
@@ -79,15 +63,18 @@ export type LinearRuntime = Readonly<{
   placeholder: HTMLElement;
   box: ((item: HTMLElement) => HTMLElement) | null;
   live(): boolean;
-  contribution: DisplacementProbe | null;
+  settle: DisplacementSettle | null;
 }>;
 
 export type LinearShift = Readonly<{
   /**
    * {@link RectIndex.refresh}, plus the gap the placeholder occupies in the DOM
    * at the moment of the scan. The buffer this produces reflects that gap, and
-   * both {@link LinearShift.project} and {@link LinearShift.measure} advance
-   * from it.
+   * `moved` advances from it.
+   *
+   * It is also where the development instrument runs, on the claim the previous
+   * move made — the first instant at which both the cache and the tree are
+   * answerable, one frame after the animations that move started.
    */
   refresh(
     snapshot: CollectionSnapshot,
@@ -95,41 +82,29 @@ export type LinearShift = Readonly<{
     getBox: ((item: HTMLElement) => HTMLElement) | null,
     live: () => boolean,
     placeholder: HTMLElement,
-    contribution: DisplacementProbe | null,
+    settle: DisplacementSettle | null,
     gap: number,
   ): boolean;
   /**
-   * **The prediction**, run immediately before the one DOM write.
+   * **The committed move has landed.**
    *
-   * Advances the cache to describe the tree as it will be once the placeholder
-   * sits at `gap`, and returns the plan for the elements that move. Performs no
-   * DOM read and calls no consumer code **in a shipped build**, so it takes no
-   * `live()` and has no abort outcome.
+   * Advances the cache and the placeholder slot to the geometry the write just
+   * produced, and reports the span to `report` when a sink is installed.
    *
-   * Returns `null` when the constant is not established — the first committed
-   * move of an operation, and the first after any invalidation. The behavior
-   * then performs the write and calls {@link LinearShift.measure}.
+   * When the constant is not established — the first committed move of an
+   * operation, and the first after any invalidation — one crossed row is read
+   * and the signed difference against the value the cache already held for
+   * **that same row**, the one form G5 admits, establishes it. Every later move
+   * on the same geometry performs no DOM read at all.
    */
-  project(
+  moved(
     gap: number,
-    dragged: HTMLElement,
     runtime: LinearRuntime,
-  ): DisplacementPlan | null;
-  /**
-   * **The establishing move**, run immediately *after* the DOM write.
-   *
-   * Reads one crossed row, takes the signed difference against the value the
-   * cache already held for **that same row** — the one form G5 admits —
-   * advances the whole span by it, and returns the plan from the same reading.
-   * The constant it establishes stands until the next invalidation.
-   */
-  measure(gap: number, runtime: LinearRuntime): DisplacementPlan;
+    report: DisplacementReport | null,
+  ): void;
   invalidate(): void;
   retire(): void;
 }>;
-
-/** The empty plan: nothing moved, so the visitor is never invoked. */
-const NOTHING: DisplacementPlan = (): void => {};
 
 /**
  * Wraps one {@link RectIndex} in the linear shift rule.
@@ -137,9 +112,9 @@ const NOTHING: DisplacementPlan = (): void => {};
  * `start`, `end` and `centre` are **the axis's own stride offsets** — `TOP`,
  * `BOTTOM`, `CENTRE_Y` for `y()`; `LEFT`, `RIGHT`, `CENTRE_X` for a future
  * `x()` — and `ux`/`uy` are the axis unit vector, which turns the scalar
- * displacement into the plan's two components with no branch. Passing them is
- * what makes a second linear axis a rule module and a subpath rather than a
- * rewrite of this one.
+ * displacement into two components with no branch. Passing them is what makes a
+ * second linear axis a rule module and a subpath rather than a rewrite of this
+ * one.
  */
 export function createLinearShift(
   index: RectIndex,
@@ -156,8 +131,8 @@ export function createLinearShift(
   let dirty = true;
   /**
    * The destination gap the packed buffer reflects, or `-1` when nothing is
-   * known. **Authoritative**: every exit between a projection and the completed
-   * write invalidates, so the buffer either describes the tree or is dirty.
+   * known. **Authoritative**: every exit before a completed advance
+   * invalidates, so the buffer either describes the tree or is dirty.
    */
   let last = -1;
   /** The collection version the packed buffer holds, or `-1` for nothing. */
@@ -173,6 +148,11 @@ export function createLinearShift(
    * next committed move.
    */
   let constant = -1;
+  /**
+   * Whether an advance has been made that the instrument has not checked yet.
+   * Written only inside `DEV` branches, so it folds away with them.
+   */
+  let claimed = false;
 
   const forget = (): void => {
     dirty = true;
@@ -181,16 +161,29 @@ export function createLinearShift(
     constant = -1;
   };
 
+  /** Nothing sound to advance, and the write has already landed. */
+  const drop = (): void => {
+    dirty = true;
+    last = -1;
+    index.invalidate();
+  };
+
   /**
-   * Advance the span and the hole by an established `delta`, and return the
-   * plan. Shared by the predicted and the measured path, which differ only in
-   * where `delta` came from.
+   * Advance the span and the hole by an established `delta`, reporting each
+   * element it crosses. Shared by the predicted and the measured path, which
+   * differ only in where `delta` came from.
+   *
+   * **The report shares the walk rather than following it**, so a committed
+   * move costs one traversal and allocates nothing — no plan closure, no
+   * buffer, and nothing at all in a composition that passes `null`.
    */
   const shiftSpan = (
     lo: number,
     hi: number,
     delta: number,
-  ): DisplacementPlan => {
+    runtime: LinearRuntime,
+    report: DisplacementReport | null,
+  ): void => {
     const { values, hole, items } = index;
     // The hole's flow footprint splits into its own extent and the one flow gap
     // it introduces; the slots it crosses close up by the whole footprint,
@@ -198,6 +191,11 @@ export function createLinearShift(
     // gap each.
     const width = hole[end]! - hole[start]!;
     const spacing = (delta < 0 ? -delta : delta) - width;
+    // Hoisted out of the walk: every element in the span carries the same
+    // vector, so the two components are computed once per move rather than
+    // once per element.
+    const dx = -delta * ux;
+    const dy = -delta * uy;
     let travelled = 0;
 
     for (let i = lo; i < hi; i += 1) {
@@ -216,6 +214,10 @@ export function createLinearShift(
       // arithmetic is the one a full scan performs and the instrument compares
       // like with like.
       values[offset + centre] = (shiftedA + shiftedB) * 0.5;
+
+      if (report) {
+        report(items[i]!, dx, dy, runtime.live);
+      }
     }
 
     // **The hole advances by its own displacement**, which is what it crossed —
@@ -226,39 +228,6 @@ export function createLinearShift(
     hole[start] = holeStart;
     hole[end] = holeStart + width;
     hole[centre] = holeStart + width * 0.5;
-
-    // Hoisted out of the walk: every element in the span carries the same
-    // vector, so the two components are computed once per move rather than
-    // once per element.
-    const dx = -delta * ux;
-    const dy = -delta * uy;
-
-    return (visit): void => {
-      for (let i = lo; i < hi; i += 1) {
-        visit(items[i]!, dx, dy);
-      }
-    };
-  };
-
-  /**
-   * Whether the buffer is in a state either path can advance from, and the span
-   * it would advance. Each rejection is a real degenerate case: a dirty buffer
-   * describes a tree that has already changed under it, `count === 0` is a
-   * single-item collection with no destination slot to displace, and an unknown
-   * gap proposes no span at all.
-   */
-  const spanFor = (gap: number, runtime: LinearRuntime): number => {
-    if (
-      dirty ||
-      seen !== runtime.snapshot.version ||
-      index.count === 0 ||
-      last < 0 ||
-      last === gap
-    ) {
-      return -1;
-    }
-
-    return last;
   };
 
   return {
@@ -268,18 +237,30 @@ export function createLinearShift(
       getBox,
       live,
       placeholder,
-      contribution,
+      settle,
       gap,
     ): boolean {
-      if (
-        !index.refresh(
+      // **The instrument, on the claim the previous move made.** It scans,
+      // which is the forced layout this model exists to remove, so it is `DEV`
+      // only. Here rather than inside the move that made the claim: at that
+      // instant the sink has just been handed vectors whose animations have no
+      // resolved timing yet, and a scan would compare a settled cache against a
+      // tree in an indeterminate state. By the next rebuild both answer.
+      if (DEV && claimed && !dirty && seen === snapshot.version) {
+        claimed = false;
+        verifyEquivalence(
+          index,
           snapshot,
           dragged,
           getBox,
-          live,
           placeholder,
-          contribution,
-        )
+          settle,
+          'G3-linear',
+        );
+      }
+
+      if (
+        !index.refresh(snapshot, dragged, getBox, live, placeholder, settle)
       ) {
         forget();
         index.retire();
@@ -299,96 +280,70 @@ export function createLinearShift(
       return true;
     },
 
-    project(gap, dragged, runtime): DisplacementPlan | null {
-      // **The instrument, on the claim the previous projection made.** It scans,
-      // which is the forced layout this model exists to remove, so it is `DEV`
-      // only. It is checked here rather than after the projection that made the
-      // claim, because a prediction describes a tree the write has not produced
-      // yet — this is the first instant at which it has.
-      if (DEV && !dirty && last >= 0) {
-        verifyEquivalence(
-          index,
-          runtime.snapshot,
-          dragged,
-          runtime.box,
-          runtime.placeholder,
-          runtime.contribution,
-          'G3-linear',
-        );
-      }
-
-      if (constant < 0 || spanFor(gap, runtime) < 0) {
-        return null;
-      }
-
+    moved(gap, runtime, report): void {
       const from = last;
-      const delta = from < gap ? -constant : constant;
-      const plan = shiftSpan(
-        from < gap ? from : gap,
-        from < gap ? gap : from,
-        delta,
-      );
 
-      last = gap;
-
-      return plan;
-    },
-
-    measure(gap, runtime): DisplacementPlan {
-      const from = spanFor(gap, runtime);
-
-      if (from < 0) {
-        // Nothing sound to advance, and the write has already landed — so the
-        // buffer now describes a tree that no longer exists.
-        dirty = true;
-        last = -1;
-        index.invalidate();
-
-        return NOTHING;
+      // Each rejection is a real degenerate case: a dirty buffer describes a
+      // tree that has already changed under it, `count === 0` is a single-item
+      // collection with no destination slot to displace, and an unknown or
+      // unchanged gap proposes no span at all.
+      if (
+        dirty ||
+        seen !== runtime.snapshot.version ||
+        index.count === 0 ||
+        from < 0 ||
+        from === gap
+      ) {
+        drop();
+        return;
       }
 
       const lo = from < gap ? from : gap;
       const hi = from < gap ? gap : from;
-      const { values, items } = index;
-      // Any crossed row answers, because they all travelled the same constant.
-      // Measured as its **box**, which is what the cache holds.
-      const probe = items[lo]!;
-      const rect = (
-        runtime.box ? runtime.box(probe) : probe
-      ).getBoundingClientRect();
+      let delta = from < gap ? -constant : constant;
 
-      if (!runtime.live()) {
-        dirty = true;
-        last = -1;
-        index.invalidate();
+      if (constant < 0) {
+        const { values, items } = index;
+        // Any crossed row answers, because they all travelled the same
+        // constant. Measured as its **box**, which is what the cache holds.
+        const probe = items[lo]!;
+        const rect = (
+          runtime.box ? runtime.box(probe) : probe
+        ).getBoundingClientRect();
 
-        return NOTHING;
+        if (!runtime.live()) {
+          drop();
+          return;
+        }
+
+        let observed = start === TOP ? rect.top : rect.left;
+
+        if (runtime.settle) {
+          // The row may be mid-flight from an earlier move. Both sides of the
+          // difference have to be settled geometry, and the cache already is.
+          // Settled through the sink's own walk over a one-slot scratch, so
+          // there is one way to ask and not two.
+          const scratch = new Float64Array(STRIDE);
+
+          scratch[start] = observed;
+          runtime.settle(scratch, [probe], 1);
+          observed = scratch[start]!;
+        }
+
+        // **The one difference G5 admits**: one element, two instants. Whatever
+        // this row wears — an authored `translate`, an ancestor's transform —
+        // sits in both terms identically and cancels.
+        delta = observed - values[lo * STRIDE + start]!;
+        constant = delta < 0 ? -delta : delta;
       }
 
-      let held = 0;
-
-      if (runtime.contribution) {
-        // The row may be mid-flight from an earlier move. Both sides of the
-        // difference have to be settled geometry, and the cache already is.
-        const out = new Float64Array(2);
-
-        runtime.contribution(probe, out);
-        held = start === TOP ? out[1]! : out[0]!;
-      }
-
-      // **The one difference G5 admits**: one element, two instants. Whatever
-      // this row wears — an authored `translate`, an ancestor's transform —
-      // sits in both terms identically and cancels.
-      const observed = (start === TOP ? rect.top : rect.left) - held;
-      const delta = observed - values[lo * STRIDE + start]!;
-
-      constant = delta < 0 ? -delta : delta;
-
-      const plan = shiftSpan(lo, hi, delta);
+      shiftSpan(lo, hi, delta, runtime, report);
 
       last = gap;
 
-      return plan;
+      if (DEV) {
+        claimed = true;
+      }
     },
 
     invalidate(): void {

@@ -40,16 +40,16 @@ import {
   insertionAt,
 } from './domain.ts';
 import type { AxisInstaller } from './feature.ts';
-import type { DisplacementPlan } from './linear-shift.ts';
 import {
   CENTRE_X,
   CENTRE_Y,
   createRectIndex,
-  type DisplacementProbe,
+  type DisplacementSettle,
   LEFT,
   STRIDE,
   TOP,
 } from './rect-index.ts';
+import type { DisplacementReport } from './slots.ts';
 
 /**
  * Consumer-declared views, declared **here** rather than imported from the
@@ -77,12 +77,12 @@ type InsertionRuntimeView = Readonly<{
    * both sibling modules name it and a future axis has to as well.
    */
   live(): boolean;
-  /** The installed displacement sink's probe, or `null`; see `rect-index.ts`. */
-  contribution: DisplacementProbe | null;
+  /**
+   * The installed displacement sink's settle walk, or `null`; see
+   * `rect-index.ts`.
+   */
+  settle: DisplacementSettle | null;
 }>;
-
-/** The empty plan: nothing moved, so the visitor is never invoked. */
-const NOTHING: DisplacementPlan = (): void => {};
 
 /**
  * The two-dimensional axis rule: the insertion gap follows the item centre
@@ -127,6 +127,11 @@ const NOTHING: DisplacementPlan = (): void => {};
  * measurement per committed move rather than two, and still none on a warm
  * spatial frame.
  *
+ * **And only when something consumes it.** Composed without a displacement
+ * feature, a committed move reads nothing at all: it invalidates and lets the
+ * next spatial frame rebuild against a tree the browser has already laid
+ * out.
+ *
  * There is therefore no cellular rule for a consumer to satisfy, and in
  * particular **no requirement that the track geometry be independent of its
  * occupants**: this axis measures what the browser actually laid out.
@@ -136,8 +141,8 @@ export function xy(): AxisInstaller {
     const index = createRectIndex();
     /**
      * The gap the packed buffer reflects, or `-1` when nothing is known.
-     * Recorded by every rebuild, and what tells the measured plan which slots
-     * the move could possibly have touched.
+     * Recorded by every rebuild, and what tells a committed move which slots it
+     * could possibly have touched.
      */
     let last = -1;
     /**
@@ -149,6 +154,10 @@ export function xy(): AxisInstaller {
      * rebuild rather than a list-wide scan on each side of the write.
      */
     let before = new Float64Array(0);
+    const invalidate = (): void => {
+      last = -1;
+      index.invalidate();
+    };
 
     return {
       insertion: {
@@ -171,7 +180,7 @@ export function xy(): AxisInstaller {
               runtime.box,
               runtime.live,
               runtime.placeholder,
-              runtime.contribution,
+              runtime.settle,
             )
           ) {
             // The rebuild crossed the terminal barrier; see `y.ts`.
@@ -239,13 +248,11 @@ export function xy(): AxisInstaller {
           return insertionAt(items, gap, snapshot);
         },
 
-        invalidate(): void {
-          last = -1;
-          index.invalidate();
-        },
+        invalidate,
 
         /**
-         * **The measured plan, run immediately *after* the DOM write.**
+         * **The committed move has landed**, and this is the one hook that
+         * follows it.
          *
          * **This rule does not predict, and G5 is the reason it cannot.** A
          * cellular move sets a crossed slot to the position *another* slot
@@ -256,25 +263,37 @@ export function xy(): AxisInstaller {
          * recover it: same-element temporal differences yield only the cell
          * steps already behind the hole, never the ones ahead of it.
          *
-         * So the "before" geometry is the warm cache this rule already holds
-         * and the "after" is one rebuild. **That is one list-wide measurement
-         * per committed move rather than two**, and a warm spatial frame still
-         * reads nothing at all.
+         * **So it measures, and only when something consumes the measurement.**
+         * With no displacement feature composed there is nothing a rebuild
+         * could tell anyone, so the move invalidates and returns: no read, no
+         * scan, and — because a read straight after a DOM write is what forces
+         * layout — no forced layout either. The next spatial frame rebuilds
+         * against a tree the browser has already laid out.
+         *
+         * With a sink installed the vectors are needed before the animations
+         * start, so the rebuild is inherent and happens here. The "before"
+         * geometry is the warm cache this rule already holds and the "after" is
+         * that one rebuild — **one list-wide measurement per committed move
+         * rather than two**, and a warm spatial frame still reads nothing.
          */
-        measure(
+        moved(
           frame: InsertionFrameView,
           runtime: InsertionRuntimeView,
-        ): DisplacementPlan {
+          report: DisplacementReport | null,
+        ): void {
+          if (!report) {
+            invalidate();
+            return;
+          }
+
           const gap = frame.insertion!.index;
           const from = last;
           const held = index.count;
 
           if (from < 0 || from === gap || held === 0) {
             // Nothing to compare against, and the write has already landed.
-            last = -1;
-            index.invalidate();
-
-            return NOTHING;
+            invalidate();
+            return;
           }
 
           if (before.length < held * 2) {
@@ -297,12 +316,11 @@ export function xy(): AxisInstaller {
               runtime.box,
               runtime.live,
               runtime.placeholder,
-              runtime.contribution,
+              runtime.settle,
             )
           ) {
             last = -1;
-
-            return NOTHING;
+            return;
           }
 
           last = gap;
@@ -314,17 +332,15 @@ export function xy(): AxisInstaller {
           const { values, items, count } = index;
           const span = count < held ? count : held;
 
-          return (visit): void => {
-            for (let i = 0; i < span; i += 1) {
-              const offset = i * STRIDE;
-              const dx = before[i * 2]! - values[offset + LEFT]!;
-              const dy = before[i * 2 + 1]! - values[offset + TOP]!;
+          for (let i = 0; i < span; i += 1) {
+            const offset = i * STRIDE;
+            const dx = before[i * 2]! - values[offset + LEFT]!;
+            const dy = before[i * 2 + 1]! - values[offset + TOP]!;
 
-              if (dx !== 0 || dy !== 0) {
-                visit(items[i]!, dx, dy);
-              }
+            if (dx !== 0 || dy !== 0) {
+              report(items[i]!, dx, dy, runtime.live);
             }
-          };
+          }
         },
 
         retire(): void {

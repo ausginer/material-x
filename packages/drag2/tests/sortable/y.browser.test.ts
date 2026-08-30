@@ -104,7 +104,7 @@ function createField(count = 3): Field {
           box: getBox,
           live,
           insertion: null,
-          contribution: null,
+          settle: null,
         },
       ),
   };
@@ -127,7 +127,7 @@ describe('y', () => {
           box: null,
           live: ALIVE,
           insertion: null,
-          contribution: null,
+          settle: null,
         },
       ),
     ).toBeNull();

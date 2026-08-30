@@ -57,8 +57,7 @@ export function buildSlots(context, config) {
   return {
     resolveInsertion: insertion.resolve,
     invalidateInsertion: insertion.invalidate,
-    projectInsertion: insertion.project ?? null,
-    measureInsertion: insertion.measure,
+    movedInsertion: insertion.moved,
 
     items,
     onReorder,
@@ -78,9 +77,8 @@ export function buildSlots(context, config) {
     box,
     startLanding: land.startLanding,
 
-    displace: displace.apply,
-    settleDisplacement: displace.settle,
-    contribution: displace.contribution,
+    report: displace.report,
+    settle: displace.settle,
     retireHooks: [displace.retire, insertion.retire],
   };
 }

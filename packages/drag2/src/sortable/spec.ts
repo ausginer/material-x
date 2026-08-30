@@ -59,7 +59,6 @@ import {
 } from './domain.ts';
 import { type SortableFramePart, sortableFramePart } from './frames.ts';
 import { directionOf, keyboardInsertion } from './keyboard.ts';
-import type { DisplacementPlan } from './linear-shift.ts';
 import {
   createPlaceholder,
   movePlaceholder,
@@ -535,42 +534,6 @@ export function createSortableSpec(
     }
   };
 
-  /**
-   * Set by {@link planInSeam} when the axis threw, which the bracket treats as
-   * an exit rather than as a plan of nothing. It is read and reset inside one
-   * synchronous stretch of the same call, so there is nothing here to nest.
-   */
-  let planFailed = false;
-
-  /**
-   * The axis's two plan-producing members narrowed to `FAILURE_INVALIDATION`,
-   * for the same reason as {@link invalidateInSeam}: they are geometry-cache
-   * maintenance, and the surrounding phase would otherwise classify a throw as
-   * a placeholder-move failure.
-   *
-   * **The prediction needs no terminal barrier and the measurement does**, and
-   * that difference is a property of what each one does. A projection reads the
-   * rule's own arrays; it performs no DOM read and calls no consumer code, so
-   * nothing it runs could destroy the controller. A measurement reads
-   * consumer-owned rows, so the bracket takes a reading after it.
-   */
-  const planInSeam = (
-    run: (
-      frame: Readonly<Frame<SortableFramePart>>,
-      view: PresentationView,
-    ) => DisplacementPlan | null,
-    frame: Readonly<Frame<SortableFramePart>>,
-    view: PresentationView,
-  ): DisplacementPlan | null => {
-    try {
-      return run(frame, view);
-    } catch (error) {
-      planFailed = true;
-      host.fail(FAILURE_INVALIDATION, error);
-      return null;
-    }
-  };
-
   /** The gap the item came from, recomputed rather than stored. */
   const homeGap = (frame: Readonly<Frame<SortableFramePart>>): void => {
     const home = homeInsertion(frame.snapshot!, frame.item!);
@@ -908,7 +871,7 @@ export function createSortableSpec(
           placeholder,
           item,
           box: slots.box,
-          contribution: slots.contribution,
+          settle: slots.settle,
           live,
           snapshot: current.snapshot!,
           insertion: null,
@@ -1157,8 +1120,8 @@ export function createSortableSpec(
 
           const view = presentation!;
 
-          // Published before the projection, so the axis is told which gap the
-          // write is about to move the placeholder to.
+          // Published before the write, so the axis is told which gap the
+          // placeholder now occupies.
           //
           // Cleared in a `finally` covering every exit, because the field is
           // meaningful **only** inside the bracket: a value left behind would
@@ -1168,42 +1131,21 @@ export function createSortableSpec(
           /**
            * **The cache does not describe the DOM.** Raised before anything can
            * touch the rule's arrays and lowered only once the cache and the
-           * tree agree again, so every exit in between — a projection that
-           * threw, a placeholder reaction that destroyed the controller, a
-           * measurement that could not complete — leaves it set and invalidates
-           * in the `finally`.
+           * tree agree again, so every exit in between — a placeholder
+           * reaction that destroyed the controller, a hook that threw — leaves
+           * it set and invalidates in the `finally`.
            *
            * That invalidation is load-bearing rather than defensive. There is
-           * no invalidation on the happy path at all: the predicted path leaves
-           * the cache current by construction and the measured path rebuilds
-           * it. So the only thing standing between a failed move and a cache
-           * describing a tree that never existed is this flag.
+           * no invalidation on the happy path at all: the axis either advances
+           * its cache arithmetically or rebuilds it. So the only thing standing
+           * between a failed move and a cache describing a tree that never
+           * existed is this flag.
            */
           let stale = true;
 
           try {
-            // 1 — predict, when the rule has a prediction to offer. No DOM
-            // read, no consumer call, so no barrier after it and no
-            // invalidation before it. `null` means "measure me instead", which
-            // is the first committed move of an operation on a linear axis and
-            // every move on `xy()`.
-            let plan = slots.projectInsertion
-              ? planInSeam(slots.projectInsertion, current, view)
-              : null;
-
-            if (planFailed) {
-              planFailed = false;
-              return; // classified; the `finally` invalidates
-            }
-
-            // 2 — the one write.
+            // 1 — the one write.
             movePlaceholder(placeholder, insertion);
-
-            if (plan) {
-              // The prediction already advanced the cache to the tree this
-              // write just produced.
-              stale = false;
-            }
 
             // **The terminal barrier on the placeholder-reaction window** — the
             // same hazard `activation.effect` already guards one line after
@@ -1212,37 +1154,33 @@ export function createSortableSpec(
             // `disconnectedCallback`/`connectedCallback` runs synchronously
             // inside that call; it is consumer code the `placeholder()` factory
             // supplied, and no seam wraps it. If it destroyed the controller,
-            // the measurement below would read consumer-owned rows and the sink
-            // would start WAAPI animations against a retired feature.
+            // the hook below would read consumer-owned rows and the sink would
+            // start WAAPI animations against a retired feature.
             if (host.closed) {
               return;
             }
 
-            if (!plan) {
-              // 2b — measure. The write has landed, so this is the instant the
-              // moved geometry exists; the rule reads what it needs and leaves
-              // its cache describing the tree.
-              plan = planInSeam(slots.measureInsertion, current, view);
-
-              if (planFailed) {
-                planFailed = false;
-                return; // classified; the `finally` invalidates
-              }
-
-              stale = false;
-
-              // **The terminal barrier on the measurement.** Unlike a
-              // projection this one reads consumer-owned rows, so a
-              // `getBoundingClientRect` the consumer overrode may have
-              // destroyed the controller.
-              if (host.closed) {
-                return;
-              }
+            // 2 — tell the axis, and hand it the sink. One call: the cache
+            // advance does not depend on the DOM, so there was never a reason
+            // for it to precede the write it describes, and the sink's visitor
+            // arrives as an argument rather than a plan coming back — which is
+            // what leaves a composition with no displacement feature allocating
+            // nothing at all here.
+            //
+            // **Narrowed to `FAILURE_INVALIDATION` by its own `try`**, for the
+            // same reason as `invalidateInSeam`: this is geometry-cache
+            // maintenance, and the enclosing phase would otherwise classify a
+            // throw the way it classifies the write above it — which is what
+            // the write's own throw must stay. The `finally` below invalidates
+            // either way, because `stale` is still set.
+            try {
+              slots.movedInsertion(current, view, slots.report);
+            } catch (error) {
+              host.fail(FAILURE_INVALIDATION, error);
+              return;
             }
 
-            // 3 — displace. The sink keeps its own reading between iterations,
-            // because `animate()` on a consumer-owned row is a consumer call.
-            slots.displace?.(plan!, view.live);
+            stale = false;
           } finally {
             if (stale) {
               invalidateInSeam();
@@ -1339,21 +1277,19 @@ export function createSortableSpec(
 
           insertion = commanded;
         } else {
-          // **Settled, then invalidated, then measured**, and the order is
-          // correctness rather than tidiness. Motion is already closed, so this
-          // search runs against final geometry — and "final" has to mean
-          // settled flow geometry, not rows still carrying a contribution.
-          // Without the settle the rebuild measures rows mid-transit and can
-          // commit a different gap, and that gap is not an intermediate
-          // artefact: it is the `ReorderRequest` the consumer is asked to
-          // apply.
+          // **Invalidated, then measured**, and nothing is cancelled first.
+          // Motion is already closed, so this search runs against final
+          // geometry — and "final" has to mean settled flow geometry, not rows
+          // still carrying a contribution, because the gap it commits is not an
+          // intermediate artefact: it is the `ReorderRequest` the consumer is
+          // asked to apply.
           //
-          // **A plain cancel is enough**, and that is the whole of what the
-          // additive model buys here: a contribution that decays to zero lands
-          // its element exactly where flow puts it, so there is nothing to
-          // release and nothing to replay.
-          slots.settleDisplacement?.();
-
+          // **The rebuild settles the buffer instead of the rows.** The sink
+          // subtracts what it is holding as part of the scan, so a row still in
+          // transit measures where flow puts it while continuing to travel.
+          // Cancelling here would land the same numbers and snap every
+          // displaced row at the one instant the user is watching the item
+          // land.
           if (!invalidateInSeam()) {
             return { invoke: null };
           }
@@ -1372,13 +1308,13 @@ export function createSortableSpec(
           // **The terminal barrier on the frame writes**, and it is a
           // *different* guard from the one declined above: that one was about
           // `onReorder` firing, which the kernel owns. This one is about what
-          // the **draft** holds. Two consumer-reaching stretches end here — a
-          // `beforeMove` hook measuring consumer-owned rows in
-          // `settleDisplacement`, and the axis's own read of the consumer-owned
-          // placeholder after its candidate loop — and every statement below
-          // writes a frame teardown has already scrubbed and will not scrub
-          // again: `draft.insertion`, then `draft.proposal`, whose request pins
-          // the item and the whole released snapshot in an inactive frame.
+          // the **draft** holds. The consumer-reaching stretch that ends here
+          // is the axis's own rebuild — a `box` resolver and a
+          // `getBoundingClientRect` per candidate, then the consumer-owned
+          // placeholder — and every statement below writes a frame teardown has
+          // already scrubbed and will not scrub again: `draft.insertion`, then
+          // `draft.proposal`, whose request pins the item and the whole
+          // released snapshot in an inactive frame.
           if (host.closed) {
             return { invoke: null };
           }

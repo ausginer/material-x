@@ -181,7 +181,7 @@ describe('the two behaviors\u2019 groups', () => {
       'constrain' | 'retire'
     >();
     expectTypeOf<keyof DisplacementContribution>().toEqualTypeOf<
-      'apply' | 'contribution' | 'settle' | 'retire'
+      'report' | 'settle' | 'retire'
     >();
   });
 
@@ -231,10 +231,7 @@ describe('third-party authoring', () => {
   const config = { onDrop: () => FreeDragResolution.accept() };
   const dispose = (): void => {};
   /** A sink that holds nothing, which is all these declaration probes need. */
-  const noContribution = (_element: HTMLElement, out: Float64Array): void => {
-    out[0] = 0;
-    out[1] = 0;
-  };
+  const noSettle = (): void => {};
 
   it('should type a plugin parameter from the slot it fills', () => {
     // **The authoring shape the brand has to stay out of the way of.** The
@@ -273,14 +270,13 @@ describe('third-party authoring', () => {
     // **The control F-74 requires**, and it is what makes the row above mean
     // what it says. A contribution typed for the sortable is *assignable* to
     // the free-drag group — `retire` is a slot both records genuinely declare,
-    // and `apply`/`settle` are excess members no check looks at on a typed
+    // and `report`/`settle` are excess members no check looks at on a typed
     // value — so if this failed too, the negative would be passing on the
     // contribution's shape rather than on the parameter's brand, which is
     // precisely the mechanism CE1-01 caught the first probe on.
     const contribution: DisplacementContribution = {
-      apply: () => {},
-      contribution: noContribution,
-      settle: () => {},
+      report: () => {},
+      settle: noSettle,
       retire: dispose,
     };
     const install: FreeDragPlugin = () => contribution;
@@ -322,9 +318,8 @@ describe('third-party authoring', () => {
     // contribution is, and free drag's half still states the empty case.
     const free: FreeDragPlugin = () => ({});
     const sorted: SortableDisplacementInstaller = () => ({
-      apply: () => {},
-      contribution: noContribution,
-      settle: () => {},
+      report: () => {},
+      settle: noSettle,
     });
 
     void free;
@@ -339,9 +334,8 @@ describe('third-party authoring', () => {
     // free-drag installer, because the annotation makes it a typed value and
     // typed values are exactly what the brand refuses.
     const contribution: DisplacementContribution = {
-      apply: () => {},
-      contribution: noContribution,
-      settle: () => {},
+      report: () => {},
+      settle: noSettle,
       retire: dispose,
     };
     // @ts-expect-error — D-138: the parameter's brand refuses the installer, so

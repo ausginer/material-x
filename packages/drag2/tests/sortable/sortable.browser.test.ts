@@ -46,12 +46,12 @@ import {
   type SortableFramePart,
   sortableFramePart,
 } from '../../src/sortable/frames.ts';
-import type { DisplacementPlan } from '../../src/sortable/linear-shift.ts';
 import {
   type PresentationView,
   TAG_SPATIAL,
 } from '../../src/sortable/runtime.ts';
 import type {
+  DisplacementReport,
   InsertionFrameView,
   InsertionRuntimeView,
   SortableSlots,
@@ -62,8 +62,21 @@ import { STAGED } from '../../src/sortable/spec.ts';
  * An axis that predicts nothing and displaces nothing — the shape a slot
  * fixture wants when the test is about something other than the geometry.
  */
-const NOTHING: DisplacementPlan = (): void => {};
-const NO_PLAN = (): DisplacementPlan => NOTHING;
+/** An axis that advances nothing and reports nothing. */
+const NO_MOVE = (): void => {};
+
+/**
+ * An axis that reports exactly one element, so a `report` override is actually
+ * reached: the sink's visitor is now called by the axis, not by the behavior,
+ * and a stub axis that never walks would leave every sink row vacuously green.
+ */
+const REPORTING_MOVE = (
+  _frame: InsertionFrameView,
+  runtime: InsertionRuntimeView,
+  report: DisplacementReport | null,
+): void => {
+  report?.(runtime.placeholder, 0, -1, runtime.live);
+};
 
 const POINTER_ID = 11;
 const ITEM_HEIGHT = 40;
@@ -99,11 +112,10 @@ type Overrides = Partial<
     | 'box'
     | 'placeholder'
     | 'invalidateInsertion'
-    | 'projectInsertion'
-    | 'measureInsertion'
+    | 'movedInsertion'
     | 'startLanding'
-    | 'displace'
-    | 'settleDisplacement'
+    | 'report'
+    | 'settle'
     | 'retireHooks'
     | 'threshold'
   >
@@ -194,8 +206,7 @@ function createHarness(overrides: Overrides = {}): Harness {
     items: overrides.pull
       ? (): readonly HTMLElement[] => overrides.pull!(current)
       : () => current,
-    projectInsertion: overrides.projectInsertion ?? NO_PLAN,
-    measureInsertion: overrides.measureInsertion ?? NO_PLAN,
+    movedInsertion: overrides.movedInsertion ?? NO_MOVE,
     resolveInsertion(
       _frame: InsertionFrameView,
       runtime: InsertionRuntimeView,
@@ -262,9 +273,8 @@ function createHarness(overrides: Overrides = {}): Harness {
       // D-64: the consumer sees a coarse fault class, never a pipeline stage.
       errors.push({ stage: error.stage, error });
     },
-    displace: overrides.displace ?? null,
-    settleDisplacement: overrides.settleDisplacement ?? null,
-    contribution: null,
+    report: overrides.report ?? null,
+    settle: overrides.settle ?? null,
     retireHooks: overrides.retireHooks ?? [],
     threshold: overrides.threshold ?? 8,
   };
@@ -414,8 +424,7 @@ afterEach(() => {
 const EMPTY_SLOTS: SortableSlots = {
   resolveInsertion: () => null,
   invalidateInsertion: (): void => {},
-  projectInsertion: NO_PLAN,
-  measureInsertion: NO_PLAN,
+  movedInsertion: NO_MOVE,
   items: (): readonly HTMLElement[] => [],
   onReorder: () => ReorderResolution.accept(),
   onStart: (): void => {},
@@ -426,9 +435,8 @@ const EMPTY_SLOTS: SortableSlots = {
   startLanding: null,
   onEnd: (): void => {},
   onError: (): void => {},
-  displace: null,
-  settleDisplacement: null,
-  contribution: null,
+  report: null,
+  settle: null,
   retireHooks: [],
   threshold: 8,
 };
@@ -1303,18 +1311,19 @@ describe('the hot path', () => {
   });
 
   it('should displace once, after the placeholder write', async () => {
-    // **One call, not a bracket** (D-157). The old pipeline measured before the
+    // **One call, not a bracket** (D-158). The old pipeline measured before the
     // write and animated after it; nothing measures now, so what is left to
     // observe is that the sink runs exactly once, with the placeholder already
     // at its destination.
     //
     // **And that no invalidation follows it**, which is the half worth pinning:
-    // the projection leaves the cache current by construction, so an
+    // the axis leaves the cache current by construction, so an
     // `invalidateInsertion` here would mean the model had quietly reverted to
     // measuring on the next frame.
     const seen: string[] = [];
     const harness = createHarness({
-      displace: (): void => {
+      movedInsertion: REPORTING_MOVE,
+      report: (): void => {
         seen.push('displace');
       },
     });
@@ -2668,19 +2677,19 @@ describe('invalidation failure classification', () => {
     ]);
   });
 
-  it('should classify a failing projection as an invalidation failure', async () => {
+  it('should classify a failing move hook as an invalidation failure', async () => {
     // Geometry-cache maintenance, so it shares the stage — and therefore the
     // recovery — with the lazy half. The surrounding seam would otherwise
     // report it as a placeholder-move failure.
     //
-    // **And nothing displaces**, because the projection is what produces the
-    // plan: a failed prediction has nothing to hand the sink.
+    // **And nothing displaces**, because the axis is what walks the span: a
+    // hook that threw before reaching its walk has reported nobody.
     const displaced: string[] = [];
     const harness = createHarness({
-      projectInsertion: (): DisplacementPlan => {
-        throw new Error('projection failed');
+      movedInsertion: (): void => {
+        throw new Error('move hook failed');
       },
-      displace: (): void => {
+      report: (): void => {
         displaced.push('displace');
       },
     });
@@ -2857,7 +2866,8 @@ describe('inert placeholder movement', () => {
   it('should not displace for an already-correct gap', async () => {
     const seen: string[] = [];
     const harness = createHarness({
-      displace: (): void => void seen.push('displace'),
+      movedInsertion: REPORTING_MOVE,
+      report: (): void => void seen.push('displace'),
     });
 
     activate(harness);
@@ -2911,7 +2921,8 @@ describe('inert placeholder movement', () => {
   it('should still displace for a real move', async () => {
     const seen: string[] = [];
     const harness = createHarness({
-      displace: (): void => void seen.push('displace'),
+      movedInsertion: REPORTING_MOVE,
+      report: (): void => void seen.push('displace'),
     });
 
     activate(harness);
@@ -3286,7 +3297,7 @@ describe('the displacement view lifetime', () => {
    * **Driven as a real committed move** (D-149). ~~Driven directly, because
    * every exit that has to clear it is a failure exit.~~ The exits *are*
    * failure exits, and each one is reachable from a declared slot: a throwing
-   * `measureInsertion` or `invalidateInsertion`, a throwing hook, and an
+   * `movedInsertion` or `invalidateInsertion`, a throwing hook, and an
    * insertion anchored in another container. What the view holds afterwards is
    * read from the object the production path handed a slot — which is the
    * contracted observer for it — rather than off a field of a container the
@@ -3356,37 +3367,25 @@ describe('the displacement view lifetime', () => {
     });
   });
 
-  it('should clear the gap when the projection fails', async () => {
+  it('should clear the gap when the move hook fails', async () => {
     const result = await runBracket({
-      projectInsertion: (): DisplacementPlan => {
-        throw new Error('projection failed');
+      movedInsertion: (): void => {
+        throw new Error('move hook failed');
       },
     });
 
-    // Classified rather than thrown — `projectInSeam` narrows it — so this exit
+    // Classified rather than thrown — `movedInSeam` narrows it — so this exit
     // is a plain `return` out of the middle of the bracket, and the `finally`
-    // both clears the gap and invalidates the cache the projection may have
-    // half-advanced.
-    expect(result).toEqual({ left: null, stages: [FAILURE_INVALIDATION] });
-  });
-
-  it('should clear the gap when the measurement fails', async () => {
-    // The other half of the bracket: an axis that declines to predict is
-    // measured *after* the write, so a throw there leaves the cache describing
-    // a tree the write already replaced. The `finally` is what invalidates it.
-    const result = await runBracket({
-      projectInsertion: () => null,
-      measureInsertion: (): DisplacementPlan => {
-        throw new Error('measurement failed');
-      },
-    });
-
+    // both clears the gap and invalidates the cache the hook may have
+    // half-advanced. **One row where there were two**: the hook runs after the
+    // write on every path now, so there is no second instant at which an axis
+    // can fail.
     expect(result).toEqual({ left: null, stages: [FAILURE_INVALIDATION] });
   });
 
   it('should clear the gap when the lazy invalidation fails', async () => {
     // **Two failures, and the second is raised from inside the `finally` that
-    // handles the first.** The measurement throws, so the bracket owes an
+    // handles the first.** The move hook throws, so the bracket owes an
     // invalidation; that invalidation throws too. It must be classified rather
     // than escaping the `finally` as the seam's own outcome — and the gap must
     // still be cleared.
@@ -3395,9 +3394,8 @@ describe('the displacement view lifetime', () => {
     // a failure there declines the operation before there is a bracket to open.
     let calls = 0;
     const result = await runBracket({
-      projectInsertion: () => null,
-      measureInsertion: (): DisplacementPlan => {
-        throw new Error('measurement failed');
+      movedInsertion: (): void => {
+        throw new Error('move hook failed');
       },
       invalidateInsertion: (): void => {
         calls += 1;
@@ -3417,38 +3415,48 @@ describe('the displacement view lifetime', () => {
   });
 
   it('should clear the gap when the sink throws', async () => {
+    // **A sink throw is now an invalidation failure, and the seam is why.**
+    // The visitor is called by the axis, from inside `movedInsertion`, so a
+    // throw escapes through the same wrapper an axis fault does and the
+    // behavior has no instant at which it could tell the two apart. It could
+    // only do so by wrapping each `report` call, which is a `try` per displaced
+    // element on the one path this model exists to keep free of work. The
+    // recovery is the one that matters and it is unchanged: the cache may be
+    // half-advanced, so the `finally` invalidates it.
     expect(
       await runBracket({
-        displace: (): void => {
+        movedInsertion: REPORTING_MOVE,
+        report: (): void => {
           throw new Error('sink failed');
         },
       }),
-    ).toEqual({ left: null, stages: [FAILURE_ACTION_EFFECT] });
+    ).toEqual({ left: null, stages: [FAILURE_INVALIDATION] });
   });
 
-  it('should invalidate when the projection fails and not when it succeeds', async () => {
-    // **The load-bearing half of the new failure discipline** (D-157 §3.4).
-    // There is no invalidation on the happy path at all — the projection leaves
-    // the cache current by construction — so the only thing standing between a
+  it('should invalidate when the move hook fails and not when it succeeds', async () => {
+    // **The load-bearing half of the failure discipline** (D-157 §3.4, D-158).
+    // There is no invalidation on the happy path at all — the axis leaves the
+    // cache current by construction — so the only thing standing between a
     // failed write and a cache describing a move the DOM never made is the
     // bracket's own `finally`.
     const failed = await runBracket({
-      projectInsertion: (): DisplacementPlan => {
-        throw new Error('projection failed');
+      movedInsertion: (): void => {
+        throw new Error('move hook failed');
       },
     });
 
     expect(failed.stages).toEqual([FAILURE_INVALIDATION]);
   });
 
-  it('should settle displacement before it resolves at release', () => {
-    // **The order is correctness, not tidiness.** Without the
-    // settle the measured rebuild reads rows still carrying a contribution and
-    // can commit a different gap — and that gap is the `ReorderRequest` the
-    // consumer is asked to apply, not an intermediate artefact.
+  it('should invalidate and then resolve at release, cancelling nothing', () => {
+    // **Two steps where there were three** (D-158, F-204). The settle that once
+    // led is deleted: its stated reason — that the measured rebuild would
+    // otherwise read rows mid-transit — dissolved when the sink began settling
+    // the buffer instead, and what it actually did was snap every displaced row
+    // at the one instant the user is watching the item land.
     const sequence: string[] = [];
     const bench = createSpecBench({
-      settleDisplacement: (): void => {
+      settle: (): void => {
         sequence.push('settle');
       },
       invalidateInsertion: (): void => {
@@ -3465,7 +3473,7 @@ describe('the displacement view lifetime', () => {
     sequence.length = 0;
     release(60);
 
-    expect(sequence).toEqual(['settle', 'invalidate', 'resolve']);
+    expect(sequence).toEqual(['invalidate', 'resolve']);
   });
 });
 
@@ -3541,14 +3549,16 @@ describe('the terminal barrier on the behavior’s frame writes', () => {
     ]);
   });
 
-  it('should build no proposal when the release settle destroys the controller', () => {
-    // **The settle is the release's first consumer-reachable call** (D-157
-    // §4.2): it cancels contributions on consumer-owned rows, and `cancel()` is
-    // overridable. So it is the call that can close the controller before the
-    // measured resolve that follows it.
+  it('should build no proposal when the release resolve destroys the controller', () => {
+    // **The measured resolve is the release's consumer-reachable stretch**
+    // (D-158). The settle that used to lead it is gone, so what remains is the
+    // axis's own rebuild — a `box` resolver and a `getBoundingClientRect` per
+    // candidate, then the consumer-owned placeholder — and any of those can
+    // close the controller before the frame writes below it.
     const held = closing((close) => ({
-      settleDisplacement: (): void => {
+      resolveInsertion: (): Insertion | null => {
         close();
+        return null;
       },
     }));
 

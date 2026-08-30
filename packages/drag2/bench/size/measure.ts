@@ -119,6 +119,29 @@ export type Composition = Readonly<{
    */
   budget: number;
   /**
+   * **The exact Brotli figure this row must reproduce**, when it is a row no
+   * change to the behaviors above it may reach.
+   *
+   * **A ceiling cannot see a transfer, and that is what this is for.** Fourteen
+   * budgets can all be green while bytes move *between* rows — a feature
+   * getting cheaper for the compositions that use it and dearer for the ones
+   * that do not is under budget on both sides, so nothing reports it. §18 names
+   * the instrument that would: a row whose expected behaviour is declared
+   * before the pass, and whose *not moving* is the result.
+   *
+   * So a control is exact rather than bounded. The rows that carry it are the
+   * ones no sortable-side or free-drag-side edit can reach from the other side
+   * — plus the two that carry no behavior at all — and a single byte of
+   * movement on one is a finding rather than slack being spent. Re-basing one
+   * means a change deliberately reached it, and is dated and reasoned in
+   * [`budget-rebases.md`](../../.plan/measurements/budget-rebases.md) like any
+   * other.
+   *
+   * Omitted on a row a pass is expected to move, which is every row that
+   * carries the behavior under change.
+   */
+  control?: number;
+  /**
    * Modules that must **not** appear in the bundled graph. Absence is the whole
    * tree-shaking claim (03 §Tree-shaking) and a byte count cannot express it: a
    * module can be pulled in, shaken down to almost nothing, and show up as a
@@ -227,7 +250,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
     },
-    budget: 10_439,
+    budget: 9994,
     absent: [...without(), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: [P06],
@@ -242,7 +265,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/xy.js': '{ xy }',
     },
-    budget: 10_097,
+    budget: 9854,
     absent: [...without(), withoutAxis('sortable/xy.js'), P06],
     absentPrefixes: ['free-drag/'],
     // **Both halves of the sharing rule in one row.** The dimension-neutral
@@ -259,7 +282,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 10_882,
+    budget: 10_346,
     absent: [
       ...without('sortable/layout-animation.js'),
       withoutAxis('sortable/y.js'),
@@ -274,7 +297,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/landing.js': '{ landing }',
     },
-    budget: 10_710,
+    budget: 10_256,
     absent: [...without('sortable/landing.js'), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: ['sortable/landing.js', P06],
@@ -287,7 +310,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/landing.js': '{ landing }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 11_129,
+    budget: 10_589,
     absent: [withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: [...OPTIONAL, P06],
@@ -301,6 +324,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag.js': '{ freeDrag }',
     },
     budget: 8253,
+    control: 7750,
     absent: [...withoutFreeDrag()],
     absentPrefixes: ['sortable/'],
     present: ['free-drag.js', 'kernel/kernel.js'],
@@ -312,6 +336,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
     },
     budget: 8409,
+    control: 7897,
     absent: [...withoutFreeDrag('free-drag/bounds.js')],
     absentPrefixes: ['sortable/'],
     present: ['free-drag/bounds.js'],
@@ -323,6 +348,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/landing.js': '{ landing }',
     },
     budget: 8519,
+    control: 8017,
     absent: [...withoutFreeDrag('free-drag/landing.js')],
     absentPrefixes: ['sortable/'],
     present: ['free-drag/landing.js', 'shared/landing-runner.js'],
@@ -335,6 +361,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/landing.js': '{ landing }',
     },
     budget: 8674,
+    control: 8151,
     absentPrefixes: ['sortable/'],
     present: FREE_DRAG_OPTIONAL,
   },
@@ -357,7 +384,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
       'free-drag/landing.js': '{ landing as freeDragLanding }',
     },
-    budget: 12_557,
+    budget: 11_962,
     absent: [withoutAxis('sortable/y.js')],
     present: [
       ...OPTIONAL,
@@ -443,6 +470,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     // observable while this row declines to import them.
     imports: { 'drag.js': '{ DraggableError, DraggableWarning }' },
     budget: 205,
+    control: 142,
     only: ['kernel/errors.js'],
   },
   {
@@ -472,6 +500,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     name: 'kernel root - kernel.js',
     imports: { 'kernel.js': '{ draggable }' },
     budget: 6309,
+    control: 6063,
     present: ['kernel.js', 'kernel/kernel.js'],
     absentPrefixes: ['sortable/', 'free-drag/'],
   },
@@ -479,7 +508,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     // Answers *what does composition cost*, and nothing else.
     name: 'baseline A - feature-matched, non-composed',
     entry: 'bench/size/noncomposed.js',
-    budget: 10_831,
+    budget: 10_405,
   },
   {
     // Answers *what does migrating cost*, and nothing else. Never substituted
@@ -487,6 +516,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     name: 'baseline B - shipped @ydinjs/drag sortable.js',
     entry: 'bench/size/shipped.js',
     budget: 7040,
+    control: 6889,
   },
 ];
 
@@ -688,6 +718,25 @@ export function budgetViolations(measurement: Measurement): readonly string[] {
 }
 
 /**
+ * The **control** half: a row that should not have moved, and did not.
+ *
+ * Reported in both directions. A control getting *cheaper* is as much a finding
+ * as one getting dearer — it means a change reached a graph it was declared
+ * unable to reach, and the instrument's whole value is that it says so before
+ * the number is read as a win.
+ */
+export function controlViolations(measurement: Measurement): readonly string[] {
+  const { composition, brotli } = measurement;
+
+  return composition.control !== undefined && brotli !== composition.control
+    ? [
+        `control moved by ${brotli - composition.control} B ` +
+          `(${brotli}, declared ${composition.control})`,
+      ]
+    : [];
+}
+
+/**
  * A measurement's graph **as a consumer sees it**: the synthetic entry the
  * harness writes for an `imports` composition is dropped, because its id is a
  * temp path that differs on every run and it is not a module anyone ships.
@@ -862,7 +911,11 @@ export async function declarationWeight(): Promise<DeclarationWeight> {
  * budgets keep living while the suite has them muted.
  */
 export function violations(measurement: Measurement): readonly string[] {
-  return [...budgetViolations(measurement), ...graphViolations(measurement)];
+  return [
+    ...budgetViolations(measurement),
+    ...controlViolations(measurement),
+    ...graphViolations(measurement),
+  ];
 }
 
 if (import.meta.main) {

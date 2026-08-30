@@ -9,18 +9,40 @@
  *
  * The shape is deliberately flat — `slots.resolveInsertion(...)` is one
  * property read and one call. The assembler flattens every member of
- * `InsertionGeometry` — `resolve`, `invalidate`, the optional `project`,
- * `measure`, and `retire` into the unwind list — so the pairing is a
- * construction-time claim rather than a hot-path indirection.
+ * `InsertionGeometry` — `resolve`, `invalidate`, `moved`, and `retire` into the
+ * unwind list — so the pairing is a construction-time claim rather than a
+ * hot-path indirection.
  */
 import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { LandingStart } from '../kernel/spec.ts';
 import type { ItemSource, SortableOnEnd } from './config.ts';
 import type { CollectionSnapshot, Insertion, OnReorder } from './domain.ts';
-import type { DisplacementPlan } from './linear-shift.ts';
 import type { PlaceholderFactory } from './placement.ts';
-import type { DisplacementProbe } from './rect-index.ts';
+import type { DisplacementSettle } from './rect-index.ts';
+
+/**
+ * **One element a committed move displaced, and the vector it travelled,
+ * negated.**
+ *
+ * Passed *into* the axis rather than returned from it, so a composition with no
+ * displacement sink constructs nothing on a committed move: the axis takes
+ * `null` and never enters the walk. The vector is negated because that is what
+ * an inverse-FLIP contribution starts from — the element jumped by `+v`, so a
+ * contribution of `-v` decaying to zero shows it travelling.
+ *
+ * `live` reports whether the controller is still alive, and the sink reads it
+ * at the head of every call. Starting a contribution is a consumer call — both
+ * `animate()` and the `finished` accessor on what it returns are overridable —
+ * so a reading taken before the walk says nothing about the calls inside it,
+ * and only the party making those calls can take the readings between them.
+ */
+export type DisplacementReport = (
+  element: HTMLElement,
+  dx: number,
+  dy: number,
+  live: () => boolean,
+) => void;
 
 /**
  * The fields an axis rule may read off the frame. **The behavior passes
@@ -98,16 +120,16 @@ export type InsertionRuntimeView = Readonly<{
    */
   insertion: Insertion | null;
   /**
-   * **What the installed displacement sink is currently holding for an
-   * element**, or `null` when no displacement feature is composed.
+   * **The installed displacement sink's settle walk**, or `null` when no
+   * displacement feature is composed.
    *
-   * An axis subtracts it per candidate so a rebuild yields *settled* geometry
-   * rather than where an animation currently draws a row. It reads no layout,
-   * so a rebuild that runs mid-flight costs one call per candidate and nothing
-   * else — and no contribution ever has to be released so that something can
-   * measure.
+   * An axis hands it the buffer a rebuild has just measured and gets *settled*
+   * geometry back, rather than where an animation currently draws each row. It
+   * reads no layout, so a rebuild that runs mid-flight costs one call and
+   * nothing per candidate — and no contribution ever has to be released so that
+   * something can measure.
    */
-  contribution: DisplacementProbe | null;
+  settle: DisplacementSettle | null;
 }>;
 
 export type SortableSlots = Readonly<{
@@ -123,28 +145,15 @@ export type SortableSlots = Readonly<{
    */
   invalidateInsertion(): void;
   /**
-   * **Predict the committed move**, immediately before the one DOM write, and
-   * return what it displaces — or `null` for "measure me instead".
-   *
-   * The slot itself is `null` when the axis contributed no prediction at all,
-   * which is one null test at one call site rather than a required member every
-   * rule has to fill with a refusal.
+   * **The committed move has landed**: leave the cache describing the tree, and
+   * tell `report` what moved. Required — an axis that reports nothing still has
+   * to answer for its own cache.
    */
-  projectInsertion:
-    | ((
-        frame: InsertionFrameView,
-        runtime: InsertionRuntimeView,
-      ) => DisplacementPlan | null)
-    | null;
-  /**
-   * **Say what the committed move displaced**, measured, immediately after the
-   * write, and only when the prediction was absent or declined. Required: an
-   * axis that can do neither still has to leave its cache describing the tree.
-   */
-  measureInsertion(
+  movedInsertion(
     frame: InsertionFrameView,
     runtime: InsertionRuntimeView,
-  ): DisplacementPlan;
+    report: DisplacementReport | null,
+  ): void;
 
   /* required */
   /**
@@ -182,22 +191,17 @@ export type SortableSlots = Readonly<{
   onError: ((error: DraggableError | DraggableWarning) => void) | null;
 
   /**
-   * The displacement sink, or `null` when no displacement feature is composed —
-   * which is a null check at one call site rather than an empty array walked on
-   * every committed move.
+   * The displacement sink's visitor, or `null` when no displacement feature is
+   * composed — which is the argument the axis is handed and the whole of what
+   * a non-animating composition pays.
    */
-  displace: ((plan: DisplacementPlan, live: () => boolean) => void) | null;
+  report: DisplacementReport | null;
   /**
-   * Cancel every contribution in flight. Called by release **before** it
-   * measures, so the rebuild reads flow positions rather than rows mid-transit.
+   * The sink's settle walk, or `null` when nothing displaces. Copied onto the
+   * per-operation view so an axis reads one field rather than reaching the slot
+   * record.
    */
-  settleDisplacement: (() => void) | null;
-  /**
-   * The sink's own reading of what it currently holds per element, or `null`
-   * when nothing displaces. Copied onto the per-operation view so an axis reads
-   * one field rather than reaching the slot record.
-   */
-  contribution: DisplacementProbe | null;
+  settle: DisplacementSettle | null;
   /** Installation order; every reader walks it backwards. */
   retireHooks: readonly Disposer[];
 

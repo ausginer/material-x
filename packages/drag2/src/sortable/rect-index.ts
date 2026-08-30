@@ -28,20 +28,30 @@ export const CENTRE_X = 4;
 export const CENTRE_Y = 5;
 
 /**
- * **What a displacement sink is currently holding for one element**, written
- * into `out` as `[dx, dy]` and zero when it holds nothing.
+ * **Turn the buffer an axis has just measured into *settled* geometry**, by
+ * subtracting whatever the displacement sink is currently holding for each of
+ * the elements it names.
+ *
+ * `values` is the axis's packed buffer — six fields per slot, in the order
+ * `left, top, right, bottom, centreX, centreY` — and `items` names the element
+ * occupying each of the first `count` slots. A sink subtracts its own held `dx`
+ * from `left`, `right` and `centreX` and its held `dy` from `top`, `bottom` and
+ * `centreY`, in place.
+ *
+ * **Once per rebuild, not once per candidate**, which is what keeps a
+ * composition that installs no sink from paying anything but one null test:
+ * the walk and the per-element lookups belong to the party that knows what it
+ * is holding.
  *
  * It is answered from animation timing and performs **no layout read**, which
  * is the whole of why nothing is ever released: a cache rebuilt while
- * contributions are in flight subtracts this per candidate and obtains settled
- * geometry, so there is no window in which a row has jumped back.
- *
- * An out-parameter rather than a returned pair, because a rebuild asks once per
- * candidate and a returned object would allocate one per row per rebuild.
+ * contributions are in flight settles this way and obtains flow geometry, so
+ * there is no window in which a row has jumped back.
  */
-export type DisplacementProbe = (
-  element: HTMLElement,
-  out: Float64Array,
+export type DisplacementSettle = (
+  values: Float64Array,
+  items: readonly HTMLElement[],
+  count: number,
 ) => void;
 
 /**
@@ -92,12 +102,12 @@ export type RectIndex = {
    * the rule that reads it never measures it. It is consumer-owned like every
    * candidate, so the barrier below covers it too.
    *
-   * `contribution` is the installed displacement sink's probe, or `null` when
-   * no displacement feature is composed. Subtracting it per candidate is what
-   * makes this scan yield **settled** geometry while contributions are still
-   * running — the cache holds where flow puts a row, never where an animation
-   * currently draws it. The placeholder never carries one: a plan visits the
-   * destination view, which does not contain it.
+   * `settle` is the installed displacement sink's own walk, or `null` when no
+   * displacement feature is composed. Called **once**, on the finished slots,
+   * it is what makes this scan yield **settled** geometry while contributions
+   * are still running — the cache holds where flow puts a row, never where an
+   * animation currently draws it. The placeholder is never passed to it: a
+   * report visits the destination view, which does not contain it.
    *
    * Returns `false` — and **only** then — when the rebuild aborted on the
    * terminal barrier. One shared channel rather than a per-axis `live()`
@@ -110,7 +120,7 @@ export type RectIndex = {
     getBox: ((item: HTMLElement) => HTMLElement) | null,
     live: () => boolean,
     placeholder: HTMLElement,
-    contribution: DisplacementProbe | null,
+    settle: DisplacementSettle | null,
   ): boolean;
   invalidate(): void;
   retire(): void;
@@ -166,16 +176,17 @@ export function setRefreshVerification(enabled: boolean): void {
  * **The equivalence instrument**, and what makes the prediction admissible
  * rather than merely plausible.
  *
- * The buffer the **previous** projection wrote must equal what a full scan of
- * the tree now produces. That is G3's instantiation for this axis, and it is
- * checked at the head of the next projection rather than at the foot of the one
- * that made the claim — a prediction describes the tree *after* a write that
- * has not happened yet, so the only instant it can be tested against is once
- * that write has landed. Asserted on every suite run and behind no measurement
- * flag: `DEV` is `true` in this
- * repository's vite and vitest configs and folds to `false` in the published
- * bundle, so every test that drives a real drag through `y()` checks it and no
- * consumer pays for it.
+ * The buffer the **previous** advance wrote must equal what a full scan of the
+ * tree now produces. That is G3's instantiation for this axis, and it is
+ * checked at the head of the next rebuild rather than inside the move that made
+ * the claim — the move's own instant is the one at which the sink has just been
+ * handed vectors and the animations it started have no resolved timing yet, so
+ * a scan there compares a settled cache against a tree in an indeterminate
+ * state. One frame later both are answerable. Asserted on every suite run and
+ * behind no measurement flag: `DEV` is `true` in this repository's vite and
+ * vitest configs and folds to `false` in the published bundle, so every test
+ * that drives a real drag through `y()` checks it and no consumer pays for
+ * it.
  *
  * **It heals before it throws**, writing the authoritative values back as it
  * goes, so a mismatch leaves the cache correct and the drag classified rather
@@ -191,10 +202,10 @@ export function setRefreshVerification(enabled: boolean): void {
  *
  * **It runs in every composition, including one that animates.** A displaced
  * row carries an additive `translate` and `getBoundingClientRect()` reports
- * where the row *is*; subtracting the sink's own contribution turns that back
- * into settled geometry, which is what the cache holds. So there is no
- * composition the instrument has to be scoped away from, and no settled window
- * it has to wait for.
+ * where the row *is*; the sink's own settle walk turns that back into flow
+ * geometry, which is what the cache holds. So there is no composition the
+ * instrument has to be scoped away from, and no settled window it has to wait
+ * for.
  */
 export const verifyEquivalence = (
   index: RectIndex,
@@ -202,7 +213,7 @@ export const verifyEquivalence = (
   dragged: HTMLElement,
   getBox: ((item: HTMLElement) => HTMLElement) | null,
   placeholder: HTMLElement,
-  contribution: DisplacementProbe | null,
+  settle: DisplacementSettle | null,
   rule: string,
 ): void => {
   if (!verifying) {
@@ -210,69 +221,80 @@ export const verifyEquivalence = (
   }
 
   const { values, items, hole } = index;
-  const held = new Float64Array(2);
+  const scan: HTMLElement[] = [];
+
+  for (const item of snapshot.items) {
+    if (item !== dragged) {
+      scan.push(item);
+    }
+  }
+
+  const n = scan.length;
+  // A second buffer rather than a comparison woven into the scan, because the
+  // sink settles a **finished** buffer and the claim being checked is what the
+  // cache holds *before* any of it is healed. Allocating it is free where it
+  // matters: `DEV` folds to `false` and this function leaves the bundle.
+  const fresh = new Float64Array(n * STRIDE);
+
+  for (let i = 0; i < n; i += 1) {
+    const item = scan[i]!;
+    // **The box, exactly as the scan measures it**, because a composition whose
+    // `box` is a descendant of the item would otherwise be compared against a
+    // rect the cache never held.
+    const rect = (getBox ? getBox(item) : item).getBoundingClientRect();
+    const offset = i * STRIDE;
+
+    fresh[offset + LEFT] = rect.left;
+    fresh[offset + TOP] = rect.top;
+    fresh[offset + RIGHT] = rect.right;
+    fresh[offset + BOTTOM] = rect.bottom;
+    fresh[offset + CENTRE_X] = (rect.left + rect.right) * 0.5;
+    fresh[offset + CENTRE_Y] = (rect.top + rect.bottom) * 0.5;
+  }
+
+  if (settle) {
+    // Keyed by the *item*, because that is what a report visits: the offset the
+    // sink holds carries a descendant box with it.
+    settle(fresh, scan, n);
+  }
+
   /**
    * **Exact where the comparison can be exact, and slack only where it cannot.**
    * With no sink installed both sides are the same arithmetic on the same
-   * readings, so any difference at all is a real disagreement. Subtracting a
-   * contribution reintroduces floating-point error of order `1e-6` px, which is
-   * six orders of magnitude below the smallest disagreement a broken rule
-   * produces — a rule that is wrong is wrong by a row.
+   * readings, so any difference at all is a real disagreement. Settling
+   * reintroduces floating-point error of order `1e-6` px, which is six orders
+   * of magnitude below the smallest disagreement a broken rule produces — a
+   * rule that is wrong is wrong by a row.
    */
-  const slack = contribution ? 1 / 256 : 0;
+  const slack = settle ? 1 / 256 : 0;
   const differs = (a: number, b: number): boolean => {
     const gap = a - b;
 
     return (gap < 0 ? -gap : gap) > slack;
   };
-  let n = 0;
   let mismatch = '';
 
-  for (const item of snapshot.items) {
-    if (item === dragged) {
-      continue;
+  for (let i = 0; i < n; i += 1) {
+    const offset = i * STRIDE;
+
+    if (mismatch === '' && items[i] !== scan[i]) {
+      mismatch = `slot ${i}`;
     }
 
-    // **The box, exactly as the scan measures it**, because a composition whose
-    // `box` is a descendant of the item would otherwise be compared against a
-    // rect the cache never held. The contribution is still keyed by the item: a
-    // plan visits items, and the offset it writes carries the descendant with
-    // it.
-    const rect = (getBox ? getBox(item) : item).getBoundingClientRect();
+    for (let field = 0; field < STRIDE; field += 1) {
+      if (
+        mismatch === '' &&
+        differs(values[offset + field]!, fresh[offset + field]!)
+      ) {
+        mismatch = `slot ${i}`;
+      }
 
-    if (contribution) {
-      contribution(item, held);
+      // Healed as it goes, so a mismatch leaves the cache correct and the drag
+      // classified rather than correct in the message and wrong in the buffer.
+      values[offset + field] = fresh[offset + field]!;
     }
 
-    const offset = n * STRIDE;
-    const left = rect.left - held[0]!;
-    const top = rect.top - held[1]!;
-    const right = rect.right - held[0]!;
-    const bottom = rect.bottom - held[1]!;
-    const centreX = (left + right) * 0.5;
-    const centreY = (top + bottom) * 0.5;
-
-    if (
-      mismatch === '' &&
-      (items[n] !== item ||
-        differs(values[offset + LEFT]!, left) ||
-        differs(values[offset + TOP]!, top) ||
-        differs(values[offset + RIGHT]!, right) ||
-        differs(values[offset + BOTTOM]!, bottom) ||
-        differs(values[offset + CENTRE_X]!, centreX) ||
-        differs(values[offset + CENTRE_Y]!, centreY))
-    ) {
-      mismatch = `slot ${n}`;
-    }
-
-    values[offset + LEFT] = left;
-    values[offset + TOP] = top;
-    values[offset + RIGHT] = right;
-    values[offset + BOTTOM] = bottom;
-    values[offset + CENTRE_X] = centreX;
-    values[offset + CENTRE_Y] = centreY;
-    items[n] = item;
-    n += 1;
+    items[i] = scan[i]!;
   }
 
   if (mismatch === '' && n !== index.count) {
@@ -309,12 +331,6 @@ export const verifyEquivalence = (
 };
 
 export function createRectIndex(): RectIndex {
-  /**
-   * The scratch the sink's probe writes into, one per cache rather than one per
-   * candidate. Zeroed by the probe itself, which answers for every element
-   * whether or not it is holding anything.
-   */
-  const held = new Float64Array(2);
   let capacity = 0;
   // Starts stale, and at a version no real collection can hold, so the first
   // resolution of every operation measures.
@@ -350,14 +366,7 @@ export function createRectIndex(): RectIndex {
     items: [],
     count: 0,
 
-    refresh(
-      snapshot,
-      dragged,
-      getBox,
-      live,
-      placeholder,
-      contribution,
-    ): boolean {
+    refresh(snapshot, dragged, getBox, live, placeholder, settle): boolean {
       // A warm cache reads no geometry and calls no resolver, so it needs no
       // barrier — and it cannot be reached on a destroyed controller anyway:
       // `retire()` sets `dirty`, and teardown always runs it.
@@ -366,10 +375,10 @@ export function createRectIndex(): RectIndex {
       }
 
       // **The entry barrier.** A caller can reach a *dirty* cache with the
-      // controller already closed: `settleDisplacement` runs the `beforeMove`
-      // hooks — which measure consumer-owned rows — and `release.prepare`
-      // resolves straight afterwards. Without this the first `getBox` of that
-      // rebuild would be a consumer call after `destroy()` returned.
+      // controller already closed: a committed move invalidates on every
+      // failing path and `release.prepare` resolves straight afterwards.
+      // Without this the first `getBox` of that rebuild would be a consumer
+      // call after `destroy()` returned.
       if (!live()) {
         return abort();
       }
@@ -456,29 +465,26 @@ export function createRectIndex(): RectIndex {
           return abort();
         }
 
-        // **Settled, not presented.** A row a displacement sink is currently
-        // offsetting reports where the animation draws it; subtracting what the
-        // sink says it is holding recovers the flow position, which is the only
-        // thing an axis rule may reason about. Keyed by the *item*, because
-        // that is what a plan visits.
-        if (contribution) {
-          contribution(item, held);
-        }
-
         const offset = n * STRIDE;
-        const left = rect.left - held[0]!;
-        const top = rect.top - held[1]!;
-        const right = rect.right - held[0]!;
-        const bottom = rect.bottom - held[1]!;
 
-        values[offset + LEFT] = left;
-        values[offset + TOP] = top;
-        values[offset + RIGHT] = right;
-        values[offset + BOTTOM] = bottom;
-        values[offset + CENTRE_X] = (left + right) * 0.5;
-        values[offset + CENTRE_Y] = (top + bottom) * 0.5;
+        values[offset + LEFT] = rect.left;
+        values[offset + TOP] = rect.top;
+        values[offset + RIGHT] = rect.right;
+        values[offset + BOTTOM] = rect.bottom;
+        values[offset + CENTRE_X] = (rect.left + rect.right) * 0.5;
+        values[offset + CENTRE_Y] = (rect.top + rect.bottom) * 0.5;
         items[n] = item;
         n += 1;
+      }
+
+      // **Settled, not presented, and asked once.** A row a displacement sink
+      // is currently offsetting reports where the animation draws it; the
+      // sink's own walk subtracts what it holds and recovers the flow position,
+      // which is the only thing an axis rule may reason about. A composition
+      // with no sink pays this one null test per rebuild and nothing per
+      // candidate.
+      if (settle) {
+        settle(values, items, n);
       }
 
       // **The hole, measured last and inside the same barrier discipline.** The

@@ -14,8 +14,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { SortableConfig } from '../../src/sortable/config.ts';
 import type { SortableFeatureContext } from '../../src/sortable/feature.ts';
+import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
-import type { DisplacementPlan } from '../../src/sortable/linear-shift.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
@@ -784,24 +784,34 @@ describe('continuity under interruption', () => {
     expect(running(composed.items[1]!).length).toBe(1);
   });
 
-  it('should settle every contribution before release resolves', async () => {
-    // **Release is the one place a cancel is owed** (D-157 §4.2): the measured
-    // rebuild must read flow positions, not rows in transit. Cancelling an
-    // additive contribution that decays to zero lands the row exactly where it
-    // belongs, so the settle is a plain cancel.
-    const composed = build({ fragments: withLayout(), itemCount: 5 });
+  it('should cancel nothing when release resolves', async () => {
+    // **Release owes no cancel** (D-158, F-204). Its measured rebuild does have
+    // to read flow positions rather than rows in transit — but the sink settles
+    // the buffer for it, so the rows can keep travelling. Cancelling them
+    // instead would snap every displaced row from its position plus residual to
+    // its position in one frame, at the one instant the user is watching the
+    // item land.
+    //
+    // **Composed with a landing**, so the operation is still alive while the
+    // drop settles. Teardown legitimately cancels what the controller still
+    // owns, and with no tail that teardown follows the release sample too
+    // closely to tell the two apart. What this row pins is that nothing is
+    // cancelled *in order to measure*.
+    const composed = build({
+      fragments: [...withLayout(), landing({ duration: 400 })],
+      itemCount: 5,
+    });
 
     activate(composed);
     await drag(55);
 
-    expect(running(composed.items[1]!).length).toBeGreaterThan(0);
+    const carried = running(composed.items[1]!);
+
+    expect(carried.length).toBeGreaterThan(0);
 
     release(55);
-    await nextFrame();
 
-    for (const item of composed.items) {
-      expect(running(item)).toEqual([]);
-    }
+    expect(running(composed.items[1]!)).toEqual(carried);
   });
 });
 
@@ -936,18 +946,18 @@ describe('the terminal barrier in the displacement bracket', () => {
     const contribution = layoutAnimation({
       duration: DURATION,
     }).displacement!(null as unknown as SortableFeatureContext);
-    // The plan an axis would have handed the sink for a move crossing both
-    // rows: one row-height of travel each, negated.
-    const plan: DisplacementPlan = (visit): void => {
-      for (const row of rows) {
-        visit(row, 0, -ITEM_HEIGHT);
-      }
-    };
 
     return {
       rows,
       placeholder,
-      apply: () => contribution.apply(plan, live),
+      // The walk an axis would have run for a move crossing both rows: one
+      // row-height of travel each, negated. It is the axis that walks now, so
+      // the fixture is the axis rather than the plan it used to return.
+      apply: (): void => {
+        for (const row of rows) {
+          contribution.report(row, 0, -ITEM_HEIGHT, live);
+        }
+      },
       move: () => {
         rows[1]!.after(placeholder);
       },

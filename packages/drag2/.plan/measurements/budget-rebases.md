@@ -492,3 +492,30 @@ Absolutes are Brotli bytes; the two delta columns are against the tree immediate
 **Re-checked 2026-08-29 after the F-174…F-179 remediation**, which touched one `src/` file to add JSDoc: **all fourteen rows are byte-identical**, minified and compressed, since comments do not survive minification. Published declarations move 102.08 → 102.38 kB, which is telemetry and not budgeted. No new measurement event: the numbers below are still this run's.
 
 **No row re-bases.** Every one is under budget, the movement is attributable to one named landed change, and nothing goes negative — so SC-1's first two triggers stay unmet and the twelve declared budgets keep the numbers D-106 gave them. A re-measurement is what the condition asks for; a re-base is what evidence has to earn.
+
+## Re-based 2026-08-30, D-158 — the first shrink, and the first control rows
+
+Measured against `63922766`, the tree D-158 remediates. Every figure is Brotli bytes from `bench/size/measure.ts` on this machine; the module count is unchanged on all fourteen rows.
+
+| Row | Brotli | Δ brotli | Δ minified | Budget | Slack |
+| --- | --: | --: | --: | --: | --: |
+| minimal | 9,844 | **−188** | −616 | 9,994 | 150 |
+| minimal (xy) | 9,704 | **−105** | −388 | 9,854 | 150 |
+| minimal + layoutAnimation | 10,196 | **−144** | −508 | 10,346 | 150 |
+| minimal + landing | 10,106 | **−179** | −614 | 10,256 | 150 |
+| complete | 10,439 | **−131** | −512 | 10,589 | 150 |
+| free drag minimal | 7,750 | **0** | **0** | 8,253 | 503 |
+| free drag + bounds | 7,897 | **0** | **0** | 8,409 | 512 |
+| free drag + landing | 8,017 | **0** | **0** | 8,519 | 502 |
+| free drag complete | 8,151 | **0** | **0** | 8,674 | 523 |
+| both behaviors | 11,812 | **−155** | −513 | 11,962 | 150 |
+| vocabulary root — `drag.js` | 142 | **0** | **0** | 205 | 63 |
+| kernel root — `kernel.js` | 6,063 | **0** | **0** | 6,309 | 246 |
+| baseline A — feature-matched, non-composed | 10,255 | **−144** | −492 | 10,405 | 150 |
+| baseline B — shipped `@ydinjs/drag` sortable.js | 6,889 | **0** | **0** | 7,040 | 151 |
+
+**Re-based after the shrink, not during it** (§18). Seven rows moved, all downward, all attributable to one landed change; each is re-based to its landed figure plus the standing ~150 B, which is the headroom this file has carried since Phase 17. The seven that did not move keep the budgets they had.
+
+**The seven zeroes are no longer only a narrative.** Every previous entry here has observed that the rows a change cannot reach report zero, and has had to say so in prose because the instrument could not: a ceiling is satisfied by any number under it, so a transfer _onto_ a control row is green on both sides. That is F-208, and it is what let 119 B and 229 B move onto the two non-animating compositions across a whole pass without a red row anywhere. `Composition.control` is the repair — an exact figure, declared on the seven rows a sortable-side change cannot reach, checked in **both** directions, and enforced whether or not budgets are muted. A control getting cheaper is as much a finding as one getting dearer, because it means a change reached a graph it was declared unable to reach.
+
+**Two rows came in outside their declared band, and the record says so rather than reading the shrink as unqualified success.** `minimal (xy)` was predicted at 200–300 B and delivered **105**: the prediction double-counted the 170 B the same review had just decided to keep in `xy.js` as an accepted residual. The two animating rows were predicted within noise and delivered **144** and **131**, which the review flags as a sign that sink-required machinery was deleted — it was not, and the standing evidence is the equivalence instrument, which runs in the animating compositions and would fail rather than shrink if the settle walk had gone missing. What both rows actually banked is the protocol collapse, which the review's own ablation bounds at ≤156 B and which every row receives, sink or no sink.
