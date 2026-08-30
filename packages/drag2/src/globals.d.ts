@@ -8,8 +8,8 @@
  * fallback — that guard is exactly what defeats folding, and a missing define
  * should fail loudly at import rather than silently ship the assertions.
  *
- * **The kernel binds it nowhere.** Its four author-facing checks are production
- * checks, so `sortable/verified-refresh.ts` holds this package's one binding,
- * in the one tier with per-frame dev work.
+ * **The kernel binds it nowhere.** Its author-facing checks are production
+ * checks, so `src/sortable/rect-index.ts` holds this package's one binding, in
+ * the one tier with per-frame dev work.
  */
 declare const __DEV__: boolean;

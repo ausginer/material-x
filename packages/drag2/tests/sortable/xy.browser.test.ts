@@ -795,8 +795,8 @@ describe('the terminal barrier on candidate geometry', () => {
   });
 
   it('should call no resolver at all when the controller is already closed', () => {
-    // The entry barrier: a dirty cache can be entered on a controller a
-    // `beforeMove` hook already destroyed.
+    // The entry barrier: a dirty cache can be entered on a controller that
+    // consumer code reached from a committed move already destroyed.
     const field = createField();
     const asked: HTMLElement[] = [];
 

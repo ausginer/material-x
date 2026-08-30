@@ -12,7 +12,7 @@
  * **What the sortable's lift actually does today — measured code, not the
  * guarantee** (D-94, members restated by D-157). The assembler lifts four
  * members off the contributed geometry and they are reached at **five** sites,
- * which do not agree on the receiver: `resolve`, `invalidate` and `project`
+ * which do not agree on the receiver: `resolve`, `invalidate` and `moved`
  * become fields on the behavior's flat slot record and are called as
  * `slots.resolveInsertion(…)`, so their receiver is that **slot record**; the
  * normal `retire` is handed to `unwind` as a bare value out of `retireHooks`,
@@ -21,8 +21,8 @@
  * assembler's internal **array**.
  *
  * **The displacement sink is lifted the same way and is asserted here too.**
- * `apply` and `settle` become `slots.displace` and `slots.settleDisplacement`,
- * so a `this`-reading sink breaks against the same convention an axis does; one
+ * `report` and `settle` become `slots.report` and `slots.settle`, so a
+ * `this`-reading sink breaks against the same convention an axis does; one
  * tier stating the obligation for its geometry and staying silent about its
  * other installer group would reintroduce exactly the distinction D-92 refused
  * to let the package suggest.

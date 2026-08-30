@@ -121,8 +121,8 @@ export type UniqueIn<
  * Each `plugins` entry, replaced by a refusal where it contributes a unique
  * slot — and left exactly as it is where it does not. **Multi-writer slots are
  * untouched**: an entry naming only members the plugin group declares maps to
- * itself, so any number of features and plugins keep accumulating into
- * `beforeInsertionMove`, `afterInsertionMove` and `retire`.
+ * itself, so any number of features and plugins keep accumulating into `retire`
+ * and into whatever else that group declares.
  *
  * Positional, not arithmetic: it counts nothing and knows nothing about the
  * merge. A misplaced installer is wrong whether or not it survives last-wins,

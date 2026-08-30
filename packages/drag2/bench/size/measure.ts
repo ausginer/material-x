@@ -933,8 +933,8 @@ export async function declarationWeight(): Promise<DeclarationWeight> {
 
 /**
  * Both halves, for the CLI. `just size` reports and enforces everything — it is
- * run deliberately, by someone who wants the numbers — which is where the
- * budgets keep living while the suite has them muted.
+ * run deliberately, by someone who wants the numbers printed as well as
+ * checked. The suite enforces the same rows without printing them.
  */
 export function violations(measurement: Measurement): readonly string[] {
   return [

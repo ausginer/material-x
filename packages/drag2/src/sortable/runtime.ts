@@ -69,10 +69,10 @@ export type PresentationView = {
   /**
    * The destination gap of the placeholder move currently being bracketed.
    *
-   * Written immediately before the projection and read only inside the bracket,
-   * which runs nowhere else — so it is a field on the shared per-operation
-   * object rather than a fresh view per move. One write per *committed* move,
-   * and none per pointer move.
+   * Written at the head of the committed-move bracket and read only inside it,
+   * and the bracket runs nowhere else — so it is a field on the shared
+   * per-operation object rather than a fresh view per move. One write per
+   * *committed* move, and none per pointer move.
    *
    * It is `null` outside a bracket, and nothing but the bracket can observe it.
    */

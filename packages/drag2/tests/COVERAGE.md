@@ -949,7 +949,21 @@ The ownership rule made executable: **nothing that exists because something anim
 | the sink's group is exactly the two calls the axis makes plus its own teardown | `tests/sortable/feature.declaration.test.ts` — _should carry the visitor, the settle walk and nothing else_ | D-158 |
 | the five displacement slot members are three, lifted by identity | `tests/sortable/assemble.browser.test.ts` — _should flatten the displacement members into slot fields_, _should leave the displacement slots null when uninstalled_ | D-158 |
 
-**The size instrument gained a second half** (F-208). Every budget could be green while bytes moved _between_ rows, because a transfer is under budget on both sides. `Composition.control` declares an **exact** Brotli figure on the seven rows a sortable-side change cannot reach, checked in both directions and enforced whether or not budgets are muted.
+## What the geometry contract supports — new (2026-08-30, D-161)
+
+**The hole is measured, never predicted**, and the contract widened rather than narrowed. The rule's positive fixtures are the load-bearing half now: each is a layout `y()` already promised to support and did not, and each is a **separate mechanism** rather than another instance of one.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| an authored `rotate` on one row of an otherwise plain column — the **presented-extent** mechanism, and the case an authored `translate` cannot stand in for, because a translate moves a box without resizing it | `tests/sortable/g3-conformance.browser.test.ts` — _should predict every gap with an authored rotate on a row_ | D-161, F-212 |
+| an authored `scale`, the same mechanism through a different transform | _should predict every gap with an authored scale on a row_ | D-161, F-212 |
+| item `margin-bottom` against the margin-less placeholder, in a **flex** column — the **flow-modelling** mechanism, with no transform anywhere in the fixture, which is what makes it a second defect rather than another instance of the first | _should predict every gap with item margins in a flex column_ | D-161, F-212, F-222 |
+| the same in a **block** column, because the two lay margins out differently and the arithmetic was wrong in both | _should predict every gap with item margins in a block column_ | D-161, F-212 |
+| a column whose flow gap **varies row to row** — the layout the retired negative fixture was testing. Its rows displace by one exact constant, so it never violated the rule; it failed only the hole arithmetic | _should predict every gap when the flow gap varies from row to row_ | D-161, F-223 |
+| the instrument can still fail, on **two** layouts that violate the premise for real: a two-column grid, and a **wrapping flex row**, which replaces the retired fixture so the negative half is not shortened by the widening | _should reject a two-column grid driven as a list_, _should reject a wrapping flex row driven as a list_ | D-161, F-223 |
+| **the read a committed move leaves behind is one placeholder, on the next frame** — not per crossed row, and not in the write's own task | `tests/sortable/zero-read.browser.test.ts` — _should read only the stale hole in the minimal composition_, _should read the hole once however many rows the move crosses_ | D-161 |
+
+**The size instrument gained a second half** (F-208). Every budget could be green while bytes moved _between_ rows, because a transfer is under budget on both sides. `Composition.control` declares an **exact** Brotli figure on the seven rows a sortable-side change cannot reach, checked in both directions. Both halves run in every suite run: the fifteen budget rows are no longer gated behind an environment variable, the gate's assumed cost having measured 0.08 s against a `beforeAll` that already builds and measures every composition.
 
 | Row | Test | ID |
 | --- | --- | --- |

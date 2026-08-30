@@ -1109,12 +1109,12 @@ export function createSortableSpec(
           const placeholder = activePlaceholder!;
           const insertion = current.insertion!;
 
-          // Decided **before** the hooks run, not by the writer's return value.
-          // The pipelines bracket the write, so a `beforeMove` hook that
-          // measures the whole list would otherwise be paid in full for a write
-          // that never happens — and with `layoutAnimation()` that is two
-          // list-wide measurements and a cache rebuild per inert frame. An
-          // already-correct gap is the common case, not the rare one.
+          // Decided **before** anything else in the bracket, and by asking the
+          // DOM rather than by acting and reporting back. An already-correct
+          // gap is the common case, not the rare one, and everything below this
+          // line — the write, the axis advance, the sink's contributions and
+          // the invalidation the `finally` owes — exists only for a frame that
+          // actually moves the hole.
           if (placeholderAt(placeholder, insertion)) {
             return;
           }

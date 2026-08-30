@@ -48,6 +48,24 @@ export const SECTION = '### Decisions not yet implemented';
 export const STATUS_SECTION = '## Decision status';
 
 /**
+ * **Every pattern here tolerates the padding a Markdown formatter writes**, and
+ * that is a property of the document rather than a convenience.
+ *
+ * A file this repository parses and `oxfmt` rewrites has two authors, and the
+ * formatter wins on every save: `AGENTS.md` instructs every edited Markdown
+ * file to be formatted, and formatting pads a table's cells to align its
+ * columns. A parser admitting exactly one space around a cell therefore stops
+ * seeing the rows the moment anyone formats the file — and stops seeing them
+ * **silently**, because a row that matches nothing is absent rather than
+ * malformed, so a shape assertion still passes while a completeness one reports
+ * that every decision in the register has no status.
+ *
+ * So `\s*` rather than a literal space wherever a cell boundary meets a capture,
+ * and every capture is trimmed. `tests/decisions.node.test.ts` holds a witness
+ * written in formatter-shaped spacing.
+ */
+
+/**
  * **The closed destination vocabulary** (F-70), read by both halves. Kept as
  * one pattern rather than one per half, because the failure this replaced was
  * exactly the two halves agreeing on a form neither could parse.
@@ -55,23 +73,23 @@ export const STATUS_SECTION = '## Decision status';
 const DESTINATION = /^(?:Phase \d+|Before Phase \d+|Remediation)$/u;
 
 /** The marker a decision row carries while its subject is not in the code. */
-const MARKER = /^\| (D-\d+) \| \*\*Unimplemented \(([^)]*)\)\.\*\*/u;
+const MARKER = /^\|\s*(D-\d+)\s*\|\s*\*\*Unimplemented \(([^)]*)\)\.\*\*/u;
 
 /**
  * Anything claiming unimplementedness in a decision row, however spelled. A
  * line that is this and not `MARKER` is malformed, not absent.
  */
-const MARKER_SHAPED = /^\| D-\d+ \|[^|]*\bUnimplemented\b/u;
+const MARKER_SHAPED = /^\|\s*D-\d+\s*\|[^|]*\bUnimplemented\b/u;
 
 /** A row of §Decisions not yet implemented. */
 const LISTED =
-  /^\| (D-\d+) \| ([^|]+?) \| [^|]+ \| (absent|present): `([^`]+)`(?: :: `([^`]+)`)? \|/u;
+  /^\|\s*(D-\d+)\s*\|\s*([^|]+?)\s*\|[^|]+\|\s*(absent|present):\s*`([^`]+)`(?:\s*::\s*`([^`]+)`)?\s*\|/u;
 
 /** Anything shaped like one of that table's rows. */
-const ROW_SHAPED = /^\| D-\d+ \|/u;
+const ROW_SHAPED = /^\|\s*D-\d+\s*\|/u;
 
 /** The id a decision row opens with. */
-const OPENS = /^\| (D-\d+) \|/u;
+const OPENS = /^\|\s*(D-\d+)\s*\|/u;
 
 /** Strikethrough delimiters, which never survive a span the parser consumed. */
 const MARKUP = '~~';
@@ -84,10 +102,10 @@ const DECISION = /D-\d+/gu;
  * downstream: a third value is an unparseable row, and an unparseable row is a
  * failure by the same rule that governs every other table in this record.
  */
-const REGISTERED = /^\| (D-\d+) \| (active|inactive) \|\s*$/u;
+const REGISTERED = /^\|\s*(D-\d+)\s*\|\s*(active|inactive)\s*\|\s*$/u;
 
 /** Anything shaped like one of that table's rows. */
-const STATUS_SHAPED = /^\| D-\d+ \|/u;
+const STATUS_SHAPED = /^\|\s*D-\d+\s*\|/u;
 
 /**
  * A bold span, paired left to right. Bold is the discriminator because it is

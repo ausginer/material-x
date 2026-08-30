@@ -67,10 +67,13 @@ export type RectIndex = {
    * **The placeholder's own rect, packed in the same six fields as a slot.**
    *
    * It is the hole the destination view is arranged around, and both axis rules
-   * need it: both compare candidate centres against it, and the linear rule
-   * advances it alongside the slots it predicts. Measured **once per rebuild**
-   * here rather than once per spatial frame in each rule, so a warm frame
-   * performs no layout read at all.
+   * compare candidate centres against it. Measured **once per rebuild** here
+   * rather than once per spatial frame in each rule, so a warm frame performs
+   * no layout read at all.
+   *
+   * **Where it lands after a committed move is a flow quantity**, so no rule
+   * predicts it: the linear rule marks it stale and re-reads the placeholder on
+   * the next rebuild, writing through this same record.
    *
    * Allocated once with the record and never re-allocated: it is one slot, and
    * one slot does not grow.
@@ -259,14 +262,17 @@ export const verifyEquivalence = (
   }
 
   /**
-   * **Exact where the comparison can be exact, and slack only where it cannot.**
-   * With no sink installed both sides are the same arithmetic on the same
-   * readings, so any difference at all is a real disagreement. Settling
-   * reintroduces floating-point error of order `1e-6` px, which is six orders
-   * of magnitude below the smallest disagreement a broken rule produces — a
-   * rule that is wrong is wrong by a row.
+   * **One slack, and it is not a concession.** Two things reintroduce
+   * floating-point error of order `1e-5` px on a comparison that is otherwise
+   * the same arithmetic on the same readings: settling subtracts a held vector,
+   * and a row wearing an authored `rotate` has its bounding rect recomputed
+   * through a transform matrix, so translating that rect and re-reading it do
+   * not agree bit for bit. Both are five orders of magnitude below the smallest
+   * disagreement a broken rule produces — a rule that is wrong is wrong by a
+   * row — and authored presentation is supported in every composition, so the
+   * tolerance cannot be conditioned on the sink.
    */
-  const slack = settle ? 1 / 256 : 0;
+  const slack = 1 / 256;
   const differs = (a: number, b: number): boolean => {
     const gap = a - b;
 

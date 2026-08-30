@@ -212,27 +212,28 @@ describe('the declared module graphs', () => {
 });
 
 /**
- * **Muted until the runtime is finalized**, and skipped rather than deleted or
- * loosened.
+ * **Enforced in every run**, on the eight rows that can move as well as the
+ * seven that cannot.
  *
  * The rule the budgets are administered under (`bench/size/measure.ts`, the
  * `budget` field) is that a size budget never defers a correctness fix — the
- * budget re-bases and the fix lands. While a revision is in flight that makes
- * an *enforced* budget a red row that always has the same answer: re-base it.
- * A check whose failure is never a decision stops being read, and it takes the
- * graph assertions above down with it, since a red file is a red file.
+ * budget re-bases and the fix lands. While the runtime was being written that
+ * made an enforced budget a red row with the same answer every time, so these
+ * were gated behind an environment variable and only `just size` read them.
  *
- * Loosening the numbers instead would have been worse: a budget with slack
- * invented to fit is no longer a measurement, and the slack is invisible at the
- * point someone later reads the number as one.
+ * **The gate's cost was assumed and is measured**: `beforeAll` already builds
+ * and measures every composition for the graph assertions above, so these
+ * fifteen are arithmetic over results already in hand — 0.08 s across the
+ * file. What the gate bought was silence on every row a change to the sortable
+ * can actually reach, since the always-on controls below cover only the rows
+ * declared unreachable.
  *
- * So the numbers stay exact and stay measured — `just size` prints and enforces
- * every one of them, and `DRAG2_SIZE_BUDGETS=1` turns these rows back on here.
- * **Unmute at finalization**, which is the same event that re-bases them.
+ * Loosening the numbers would have been worse than gating them: a budget with
+ * slack invented to fit is no longer a measurement, and the slack is invisible
+ * at the point someone later reads the number as one. So the numbers stay
+ * exact and stay measured, and a breach is a decision rather than a skip.
  */
-const ENFORCE_BUDGETS = process.env['DRAG2_SIZE_BUDGETS'] === '1';
-
-describe.skipIf(!ENFORCE_BUDGETS)('the declared budgets', () => {
+describe('the declared budgets', () => {
   for (const composition of COMPOSITIONS) {
     it(`should keep ${composition.name} within its budget`, () => {
       expect([

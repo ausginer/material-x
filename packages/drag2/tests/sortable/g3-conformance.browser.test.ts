@@ -18,8 +18,16 @@
  * **So the instrument is the whole of the enforcement, and an instrument that
  * cannot fail is not evidence.** The negative fixtures below are the
  * load-bearing half of this file: two layouts that genuinely violate the
- * premise, on which the prediction must be *caught* disagreeing with the tree
+ * premise — a grid and a wrapping flex, both of which move a crossed item off
+ * the axis — on which the prediction must be *caught* disagreeing with the tree
  * rather than quietly animating the wrong rows.
+ *
+ * **A negative fixture has to violate the premise rather than the
+ * implementation.** A column whose flow gap varies from row to row sat here and
+ * did not: its rows displace by one exact constant, and it failed only the hole
+ * arithmetic, which was the defect. It is now a positive case, and the two
+ * authored-presentation cases and the two margin cases beside it are the
+ * layouts G1-presented and the per-item-margin clause already promised.
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import type { DraggableError, DraggableWarning } from '../../src/drag.ts';
@@ -202,6 +210,151 @@ describe('G3-linear conformance', () => {
 
     expect(field.errors).toEqual([]);
   });
+
+  /**
+   * **Authored presentation, which G1-presented supports and the hole
+   * arithmetic did not.** A `rotate` or a `scale` makes a row's bounding rect
+   * larger than its border box, so any hole advance summing *presented* extents
+   * over the crossed span drifts by the excess, once per crossed row.
+   *
+   * An authored `translate` is deliberately not the fixture: it moves a box
+   * without resizing it, so it is clean under the broken arithmetic too and
+   * proves nothing.
+   */
+  const presented = (
+    presentation: Readonly<{ rotate?: string; scale?: string }>,
+  ): Shape => ({
+    container: {
+      width: '200px',
+      display: 'flex',
+      flexDirection: 'column',
+    },
+    // One decorated row rather than all four: the rule has to hold for a list
+    // that is *partly* presented, which is the ordinary authoring case.
+    sizes: [70, 55, 30, 90].map((height, at) => ({
+      display: 'block',
+      width: '100px',
+      height: `${height}px`,
+      ...(at === 1 ? presentation : null),
+    })),
+    axis: y(),
+  });
+
+  it('should predict every gap with an authored rotate on a row', async () => {
+    const field = compose(presented({ rotate: '8deg' }));
+
+    await sweep(field, [
+      [10, 40],
+      [10, 120],
+      [10, 200],
+      [10, 245],
+      [10, 120],
+      [10, 20],
+    ]);
+
+    expect(field.errors).toEqual([]);
+  });
+
+  it('should predict every gap with an authored scale on a row', async () => {
+    const field = compose(presented({ scale: '1.2' }));
+
+    await sweep(field, [
+      [10, 40],
+      [10, 120],
+      [10, 200],
+      [10, 245],
+      [10, 120],
+      [10, 20],
+    ]);
+
+    expect(field.errors).toEqual([]);
+  });
+
+  /**
+   * **The second mechanism, and there is no transform anywhere in it.**
+   * `placement.ts` sizes the placeholder from `offsetWidth`/`offsetHeight`,
+   * which exclude margins, so the placeholder is margin-less by construction
+   * while the rows it displaces need not be. Any hole advance derived from the
+   * placeholder's own footprint is then short by one item margin per crossed
+   * row.
+   *
+   * Driven on both flex and block, because the two lay margins out differently
+   * and the arithmetic was wrong in both.
+   */
+  const margins = (display: string): Shape => ({
+    container: {
+      width: '200px',
+      display,
+      ...(display === 'flex' ? { flexDirection: 'column' } : {}),
+    },
+    sizes: [70, 55, 30, 90].map((height) => ({
+      display: 'block',
+      width: '100px',
+      height: `${height}px`,
+      marginBottom: '10px',
+    })),
+    axis: y(),
+  });
+
+  it('should predict every gap with item margins in a flex column', async () => {
+    const field = compose(margins('flex'));
+
+    await sweep(field, [
+      [10, 40],
+      [10, 140],
+      [10, 230],
+      [10, 280],
+      [10, 140],
+      [10, 20],
+    ]);
+
+    expect(field.errors).toEqual([]);
+  });
+
+  it('should predict every gap with item margins in a block column', async () => {
+    const field = compose(margins('block'));
+
+    await sweep(field, [
+      [10, 40],
+      [10, 140],
+      [10, 230],
+      [10, 280],
+      [10, 140],
+      [10, 20],
+    ]);
+
+    expect(field.errors).toEqual([]);
+  });
+
+  it('should predict every gap when the flow gap varies from row to row', async () => {
+    // **The widened case.** Rows still travel one constant when the hole
+    // passes them — what varies is where the hole lands, and the hole is
+    // measured. The slot half of the instrument is silent on this layout
+    // because nothing about it is wrong.
+    const field = compose({
+      container: {
+        width: '200px',
+        display: 'block',
+      },
+      sizes: [0, 30, 4, 40, 0].map((margin) => ({
+        display: 'block',
+        width: '100px',
+        height: '40px',
+        marginBottom: `${margin}px`,
+      })),
+      axis: y(),
+    });
+
+    await sweep(field, [
+      [10, 60],
+      [10, 130],
+      [10, 210],
+      [10, 120],
+      [10, 20],
+    ]);
+
+    expect(field.errors).toEqual([]);
+  });
 });
 
 describe('xy() needs no conformance', () => {
@@ -299,30 +452,30 @@ describe('the instrument can fail', () => {
     expect(disagreed(field)).toBe(true);
   });
 
-  it('should reject a column whose flow gap varies from row to row', async () => {
-    // **One constant is the premise, and this list has three.** Per-row bottom
-    // margins make each crossed slot travel a different distance, so a cache
-    // advanced by the constant one row yielded disagrees with the tree at the
-    // next move.
+  it('should reject a wrapping flex row driven as a list', async () => {
+    // The second violation, and it is a different shape from the grid: the rows
+    // are laid out by content rather than by track, so a crossed item can move
+    // sideways onto the previous line and travel no distance along the axis at
+    // all. Driven with `y()`, whose premise it breaks; `xy()` measures and
+    // would be right about it.
     const field = compose({
       container: {
-        width: '200px',
-        display: 'block',
+        width: '210px',
+        display: 'flex',
+        flexWrap: 'wrap',
       },
-      sizes: [0, 30, 4, 40, 0].map((margin) => ({
-        display: 'block',
+      sizes: [0, 1, 2, 3, 4, 5].map(() => ({
         width: '100px',
         height: '40px',
-        marginBottom: `${margin}px`,
       })),
       axis: y(),
     });
 
     await sweep(field, [
       [10, 60],
-      [10, 130],
-      [10, 210],
-      [10, 120],
+      [10, 100],
+      [10, 140],
+      [10, 60],
       [10, 20],
     ]);
 

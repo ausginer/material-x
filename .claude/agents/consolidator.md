@@ -13,7 +13,7 @@ Then consolidate. Validate evidence, merge findings that describe the same under
 
 Reject a finding only when evidence falsifies it. If rejecting it would require substantial judgement, unresolved semantics or a design choice, preserve or route it instead. State every rejection reason so the reviewer can argue with it.
 
-Do not derive severity by voting across reviewers. Apply the repository's defined tier semantics; if they are absent or insufficient, preserve the disagreement rather than inventing a policy.
+Do not derive severity by voting across reviewers. Apply the tier semantics `agent-workflow.md` §Tier defines — by **consequence**, never by provenance or by how many lenses reported it — and where they are insufficient, preserve the disagreement rather than inventing a policy.
 
 When convergence across independent findings suggests a shared systemic cause or a blind spot in existing verification, you may investigate that hypothesis narrowly. Do not turn consolidation into a fifth general review pass.
 

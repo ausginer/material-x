@@ -509,11 +509,11 @@ Phase 21 opened with four standing obligations that cannot change a decision as 
 
 | D-160 | **A decision is lifecycle-atomic, and its status is a property of the whole decision.** A **substantive** amendment — one that changes what the decision requires of the code — mints a new decision that supersedes the old one, and the old one goes `inactive`; a **non-substantive** edit — wording, a corrected citation, a re-pointed link — is made in place with no new id. **A status read per sentence is not readable by any instrument**: thirty-four rows carry an amendment inside a still-active decision, so a mechanism resting on a struck fragment is indistinguishable from one resting on live text — precisely the state a decision-elimination pass has to tell apart. Atomicity closes the class going forward; the existing rows are classified where they stand and are **not** re-minted, because the record is append-only. The register in §Decision status carries one status per decision and `tests/decisions.node.test.ts` holds it to the canonical id set. Repository rule: [`documentation.md`](../../../../.agents/docs/documentation.md) §6. | adds a status property to every row; supersedes nothing |
 
-| D-161 | **Unimplemented (Remediation).** **The hole is measured, never predicted, and the geometry contract widens rather than narrows.** Record [`geometry-defects-contract-claude.md`](../reviews/phase-23/geometry-defects-contract-claude.md), settling F-212. **It is two defects in one expression, and only one of them is G5.** A probe over every ordered gap pair on ten fixtures, judged against Chromium's own layout: a row wearing `rotate` fails 12 of 20 pairs at up to **264.74px** and `scale` 12 of 20, because `b - a` is a _presented_ extent and those transforms enlarge the bounding rect — while an authored `translate` is clean at 0 of 20, which is why the arc's own composition test never caught it. **The margin limb has no transform in it at all**: `spacing` is one scalar taken from the placeholder's flow footprint and applied to every crossed row, and `src/sortable/placement.ts` writes only `box-sizing`, `width` and `height` from `offsetWidth`/`offsetHeight`, which exclude margins — so the placeholder is systematically margin-less while the rows need not be. Items carrying `margin-bottom` fail **20 of 20** at 40px in both flex and block, and **giving the placeholder the same margin makes it clean at 0 of 20**, which is the control that separates the two mechanisms. **So a G5-shaped remedy would close one limb and leave the other standing** at one margin per crossed row, on a fixture with no transform anywhere to suggest a fault. **A third limb was hypothesised and does not exist**: the crossed-row shift is uniform and the measured constant's spread is zero in every in-contract fixture, so the per-row rule — D-156's valuable half — is sound and untouched. **The remedy is a deletion.** The hole's position is a function of the crossed rows' _flow_ footprints; presented extents are not that quantity, the placeholder's own footprint is not either, and no same-element temporal difference yields it, so there is no G5-legal no-read prediction. `shiftSpan` loses `width`, `spacing`, `travelled` and the hole write; the hole is marked stale and the **next** spatial frame reads the placeholder once, off a tree already laid out, forcing nothing. With the hole measured the worst **row** error is **0.0000px** across all four failing fixtures. The pre-arc code read the placeholder every spatial frame; this reads it once per committed move. **The contract widens.** Probed separately, the slot half of the instrument catches a two-column grid driven as a list at 30 of 42 and a wrapping flex at 12 of 20, so deleting the hole prediction costs no detection where a real violation lives — but a column whose flow gap varies row to row fires the slot half **0 of 20** and the hole half 18 of 20. Its row displacement is uniform and exact; it failed only the rule that was wrong. So `y()`'s G3-linear clause **loses** the disqualification of a list whose flow gap varies from row to row, D-156's per-item-margin clause is **vindicated rather than narrowed**, and the negative conformance fixture for a varying flow gap is **retired**, because it tests the defect and would otherwise go green by accident. **Narrowing was available and is refused**: it would have to exclude per-element `rotate` and `scale`, per-item margins and ancestor scaling, and it would be a precondition invented at fix time to protect an implementation, which §1.1 names and rejects. **Two exclusions are published because they were always true and were never written** (§1.2): position-sensitive **collapsing margins** are out — measured, a block list with a large placeholder margin spreads the constant by **28px** across gap pairs and moves rows _outside_ the crossed span, breaking G2 as well — and the **axis rule requires the flow axis to stay axis-aligned in the viewport**, so ancestor rotation and skew are outside it however well the sink converts. **And G6 is added, which is Q-16 answered**: the placeholder's own geometry is stable between invalidations. The reviewer's growing-placeholder fixture came out clean, so it is an unpublished precondition rather than a defect — but `constant` describes the footprint at the instant it was measured and nothing short of an `invalidate()` revisits it, so a consumer animating their placeholder must call `controller.invalidate()`. Writing it down is what licenses not checking it. | corrects F-212 without narrowing G1-presented; widens G3-linear and vindicates D-156's per-item-margin clause; retires one negative conformance fixture; adds G6 and two always-true exclusions; records F-222 and F-223 |
+| D-161 | **Implemented, 2026-08-30 (Remediation).** **The hole is measured, never predicted, and the geometry contract widens rather than narrows.** Record [`geometry-defects-contract-claude.md`](../reviews/phase-23/geometry-defects-contract-claude.md), settling F-212. **It is two defects in one expression, and only one of them is G5.** A probe over every ordered gap pair on ten fixtures, judged against Chromium's own layout: a row wearing `rotate` fails 12 of 20 pairs at up to **264.74px** and `scale` 12 of 20, because `b - a` is a _presented_ extent and those transforms enlarge the bounding rect — while an authored `translate` is clean at 0 of 20, which is why the arc's own composition test never caught it. **The margin limb has no transform in it at all**: `spacing` is one scalar taken from the placeholder's flow footprint and applied to every crossed row, and `src/sortable/placement.ts` writes only `box-sizing`, `width` and `height` from `offsetWidth`/`offsetHeight`, which exclude margins — so the placeholder is systematically margin-less while the rows need not be. Items carrying `margin-bottom` fail **20 of 20** at 40px in both flex and block, and **giving the placeholder the same margin makes it clean at 0 of 20**, which is the control that separates the two mechanisms. **So a G5-shaped remedy would close one limb and leave the other standing** at one margin per crossed row, on a fixture with no transform anywhere to suggest a fault. **A third limb was hypothesised and does not exist**: the crossed-row shift is uniform and the measured constant's spread is zero in every in-contract fixture, so the per-row rule — D-156's valuable half — is sound and untouched. **The remedy is a deletion.** The hole's position is a function of the crossed rows' _flow_ footprints; presented extents are not that quantity, the placeholder's own footprint is not either, and no same-element temporal difference yields it, so there is no G5-legal no-read prediction. `shiftSpan` loses `width`, `spacing`, `travelled` and the hole write; the hole is marked stale and the **next** spatial frame reads the placeholder once, off a tree already laid out, forcing nothing. With the hole measured the worst **row** error is **0.0000px** across all four failing fixtures. The pre-arc code read the placeholder every spatial frame; this reads it once per committed move. **The contract widens.** Probed separately, the slot half of the instrument catches a two-column grid driven as a list at 30 of 42 and a wrapping flex at 12 of 20, so deleting the hole prediction costs no detection where a real violation lives — but a column whose flow gap varies row to row fires the slot half **0 of 20** and the hole half 18 of 20. Its row displacement is uniform and exact; it failed only the rule that was wrong. So `y()`'s G3-linear clause **loses** the disqualification of a list whose flow gap varies from row to row, D-156's per-item-margin clause is **vindicated rather than narrowed**, and the negative conformance fixture for a varying flow gap is **retired**, because it tests the defect and would otherwise go green by accident. **Narrowing was available and is refused**: it would have to exclude per-element `rotate` and `scale`, per-item margins and ancestor scaling, and it would be a precondition invented at fix time to protect an implementation, which §1.1 names and rejects. **Two exclusions are published because they were always true and were never written** (§1.2): position-sensitive **collapsing margins** are out — measured, a block list with a large placeholder margin spreads the constant by **28px** across gap pairs and moves rows _outside_ the crossed span, breaking G2 as well — and the **axis rule requires the flow axis to stay axis-aligned in the viewport**, so ancestor rotation and skew are outside it however well the sink converts. **And G6 is added, which is Q-16 answered**: the placeholder's own geometry is stable between invalidations. The reviewer's growing-placeholder fixture came out clean, so it is an unpublished precondition rather than a defect — but `constant` describes the footprint at the instant it was measured and nothing short of an `invalidate()` revisits it, so a consumer animating their placeholder must call `controller.invalidate()`. Writing it down is what licenses not checking it. | corrects F-212 without narrowing G1-presented; widens G3-linear and vindicates D-156's per-item-margin clause; retires one negative conformance fixture; adds G6 and two always-true exclusions; records F-222 and F-223 |
 
 | D-162 | **Unimplemented (Remediation).** **A displacement vector is a viewport quantity and a `translate` is not; the sink converts, and the dependency already publishes the conversion.** Record [`geometry-defects-contract-claude.md`](../reviews/phase-23/geometry-defects-contract-claude.md), settling F-213. **Measured overshoot is exactly the ancestor scale** — 1.5 renders 90px where 60 was wanted, 2 renders 160 where 80 was wanted, 0.75 renders 22.5 where 30 was wanted. **`@ydinjs/box-quad` already packs the ancestor linear map** with its ancestor zoom, and its own documentation names this exact use: the space a transform authored on the element acts in, so inverting it turns a viewport delta into the translation to write. The package is **already in every sortable composition's graph**, so this is a call and not a module. **The sink owns it, by D-158's own test** — would this code exist if nothing animated — read once per committed move off the placeholder, which shares its container with every item a plan visits, so a composition with no sink pays nothing, and inverting the two-by-two handles rotation and skew rather than only scale. **One thing does not follow and is published rather than assumed**: the axis stays incorrect under a non-axis-aligned ancestor transform, because `y()` orders candidates by viewport `top` and that stops meaning flow order once an ancestor rotates. That predates the arc and is not caused by the fix. **Cost, prototyped jointly with D-161 and measured**: `minimal` +15 B and `minimal (xy)` +1 B, against +124 B on `minimal + layoutAnimation`, +107 B on `xy + layoutAnimation` and +115 B on `complete` — and both animating rows still land **under** the model the arc replaced, at −33 B and −41 B against the pre-arc parent, with `minimal` at −54 B. The compositions that never animate pay essentially nothing and the correction is carried by the ones that consume it. **Placement was measured, not assumed**: putting the stale-hole path in the shared cache rather than the linear module charged `minimal (xy)` **+49 B** for a branch `xy()` can never take, against +1 B when the same logic sits where only its consumer reaches it. | corrects F-213 in the sink rather than the cache; keeps the ancestor read out of every composition that does not animate |
 
-| D-163 | **Unimplemented (Remediation).** **The review vocabulary is defined by consequence, the reference instrument widens mechanically and refuses to read English, and the byte budgets stop being opt-in.** Record [`geometry-defects-contract-claude.md`](../reviews/phase-23/geometry-defects-contract-claude.md). **Tier, defined**, because it was undefined and produced a three-way split on identical evidence in one round. **A** — a correctly integrated consumer observes something different at runtime: rendering, behaviour, timing or a published value. **B** — no program behaviour changes, but a correct integrator can be misled by what the package says, **or** an instrument the repository relies on is unsound. **C** — internal only. Tier is assigned by **consequence**, never by provenance and never by how many lenses reported it; a finding being systematic rather than isolated changes priority _within_ a tier, which is what the round's disagreement was actually about. **F-218 — two gaps taken, one declined.** Package-root files enter scope, since `README.md` alone carries eighteen anchored paths nothing checks; and a backticked string ending in a known extension becomes a candidate without a leading anchor, which is what makes the stale path in `src/globals.d.ts` visible. **Semantic accuracy checking is declined**: an instrument that verifies prose describes a seam that exists is a checker over English, which §2.2 exists to refuse, and the class is caught by review — this round found it nine times across four lenses. **One targeted assertion replaces it**, for the invariant that has now failed twice with two different wrong answers: the package has exactly one `__DEV__` binding, and a comment naming its home must name that file. **F-219 — unmute, because the gate's cost was assumed and is 0.08 s.** The always-on control block covers the seven rows that **cannot move**, leaving the eight that can with no enforced number in a default run, so the mechanism introduced to close F-208 watches only the immovable half. `beforeAll` already builds and measures every composition for the twenty-eight always-on graph assertions, so the fifteen budget assertions are arithmetic over results already in hand: twenty-eight passed with fifteen skipped at 1.42 s, against forty-three passed at 1.50 s. The mute's own comment says to unmute at finalization; the arc is finalizing and the obligation costs eighty milliseconds. | defines the tier vocabulary the round lacked; widens the reference instrument mechanically and refuses a semantic one; makes the byte budgets always-on |
+| D-163 | **Implemented, 2026-08-30 (Remediation).** **The review vocabulary is defined by consequence, the reference instrument widens mechanically and refuses to read English, and the byte budgets stop being opt-in.** Record [`geometry-defects-contract-claude.md`](../reviews/phase-23/geometry-defects-contract-claude.md). **Tier, defined**, because it was undefined and produced a three-way split on identical evidence in one round. **A** — a correctly integrated consumer observes something different at runtime: rendering, behaviour, timing or a published value. **B** — no program behaviour changes, but a correct integrator can be misled by what the package says, **or** an instrument the repository relies on is unsound. **C** — internal only. Tier is assigned by **consequence**, never by provenance and never by how many lenses reported it; a finding being systematic rather than isolated changes priority _within_ a tier, which is what the round's disagreement was actually about. **F-218 — two gaps taken, one declined.** Package-root files enter scope, since `README.md` alone carries eighteen anchored paths nothing checks; and a backticked string ending in a known extension becomes a candidate without a leading anchor, which is what makes the stale path in `src/globals.d.ts` visible. **Semantic accuracy checking is declined**: an instrument that verifies prose describes a seam that exists is a checker over English, which §2.2 exists to refuse, and the class is caught by review — this round found it nine times across four lenses. **One targeted assertion replaces it**, for the invariant that has now failed twice with two different wrong answers: the package has exactly one `__DEV__` binding, and a comment naming its home must name that file. **F-219 — unmute, because the gate's cost was assumed and is 0.08 s.** The always-on control block covers the seven rows that **cannot move**, leaving the eight that can with no enforced number in a default run, so the mechanism introduced to close F-208 watches only the immovable half. `beforeAll` already builds and measures every composition for the twenty-eight always-on graph assertions, so the fifteen budget assertions are arithmetic over results already in hand: twenty-eight passed with fifteen skipped at 1.42 s, against forty-three passed at 1.50 s. The mute's own comment says to unmute at finalization; the arc is finalizing and the obligation costs eighty milliseconds. | defines the tier vocabulary the round lacked; widens the reference instrument mechanically and refuses a semantic one; makes the byte budgets always-on |
 
 ### Decisions not yet implemented
 
@@ -530,11 +530,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | D-155 | Before Phase 24 | The settlement gate and its SPI deleted; the relinquished tail as an additive `translate` on a controller-scoped slot, with `inheritedSpace` retained to the join and cancel-at-admission; `landing()` reduced to interpolation policy; the narrowed terminal-vs-pixels statement written into contract 02 and 05 | present: `src/kernel/spec.ts` :: `holdForLanding(start: LandingStart): void;` |
 
-| D-161 | Remediation | The hole prediction deleted from `shiftSpan` and the hole re-read once per committed move; G3-linear's varying-flow-gap clause removed; G6 and the two always-true exclusions written into the axis factories' JSDoc; the varying-flow-gap negative fixture retired | present: `src/sortable/linear-shift.ts` :: `travelled += b - a + spacing;` |
-
 | D-162 | Remediation | The viewport delta converted through the inverse ancestor linear map inside the displacement sink, read once per committed move off the placeholder | present: `src/sortable/layout-animation.ts` :: `translate: '0 0'` |
-
-| D-163 | Remediation | The tier vocabulary written where reviewers read it; the reference instrument's roots and path shapes widened with the `__DEV__` home assertion added; the budget gate deleted so those rows always run | present: `tests/bench/size.node.test.ts` :: `DRAG2_SIZE_BUDGETS` |
 
 **The nineteenth cycle opened and closed across 2026-08-28 and 2026-08-29.** D-154's witness — `export const CANCEL_ESCAPE = 'drag:escape';` in `src/kernel/kernel.ts` — retired the ordinary way, by the declaration being deleted. **Worth recording about the row**: it named the deletion as the witness and the _addition_ — `CancelOrigin` and its four constants — as work, which is the right way round. A witness has to be something that goes away; a row whose only content is a name arriving has nothing to retire, and this decision happened to carry both halves.
 
@@ -592,171 +588,171 @@ This register is the **status**, not the decision. What each decision says, and 
 
 The four `inactive` rows are the ones whose live residue is empty: **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected) and **D-150** (superseded by D-151, none of it lands).
 
-| Decision | Status |
-| -------- | ------ |
-| D-1 | active |
-| D-2 | active |
-| D-3 | active |
-| D-4 | active |
-| D-5 | active |
-| D-6 | active |
-| D-7 | active |
-| D-8 | active |
-| D-9 | active |
-| D-10 | active |
-| D-11 | active |
-| D-12 | active |
-| D-13 | active |
-| D-14 | active |
-| D-15 | active |
-| D-16 | active |
-| D-17 | active |
-| D-18 | active |
-| D-19 | active |
-| D-20 | active |
-| D-21 | active |
-| D-22 | active |
-| D-23 | active |
-| D-24 | active |
-| D-25 | active |
-| D-26 | active |
-| D-27 | active |
-| D-28 | active |
-| D-29 | active |
-| D-30 | active |
-| D-31 | active |
-| D-32 | active |
-| D-33 | inactive |
-| D-34 | active |
-| D-35 | active |
-| D-36 | active |
-| D-37 | active |
-| D-38 | active |
-| D-39 | active |
-| D-40 | active |
-| D-41 | active |
-| D-42 | active |
-| D-43 | active |
-| D-44 | active |
-| D-45 | active |
-| D-46 | active |
-| D-59 | active |
-| D-60 | active |
-| D-56 | active |
-| D-57 | active |
-| D-58 | active |
-| D-55 | active |
-| D-51 | active |
-| D-52 | active |
-| D-53 | active |
-| D-54 | active |
-| D-49 | active |
-| D-50 | active |
-| D-48 | active |
-| D-47 | active |
-| D-61 | active |
-| D-62 | active |
-| D-63 | active |
-| D-64 | active |
-| D-65 | active |
-| D-66 | active |
-| D-67 | active |
-| D-68 | active |
-| D-69 | active |
-| D-70 | active |
-| D-71 | active |
-| D-72 | active |
-| D-73 | inactive |
-| D-74 | active |
-| D-75 | active |
-| D-76 | active |
-| D-77 | active |
-| D-78 | active |
-| D-79 | active |
-| D-80 | active |
-| D-81 | active |
-| D-82 | active |
-| D-83 | active |
-| D-84 | active |
-| D-85 | active |
-| D-86 | active |
-| D-87 | active |
-| D-88 | inactive |
-| D-89 | active |
-| D-90 | active |
-| D-91 | active |
-| D-92 | active |
-| D-93 | active |
-| D-94 | active |
-| D-95 | active |
-| D-96 | active |
-| D-97 | active |
-| D-98 | active |
-| D-99 | active |
-| D-100 | active |
-| D-101 | active |
-| D-102 | active |
-| D-103 | active |
-| D-104 | active |
-| D-105 | active |
-| D-106 | active |
-| D-107 | active |
-| D-108 | active |
-| D-109 | active |
-| D-110 | active |
-| D-111 | active |
-| D-112 | active |
-| D-113 | active |
-| D-114 | active |
-| D-115 | active |
-| D-116 | active |
-| D-117 | active |
-| D-118 | active |
-| D-119 | active |
-| D-120 | active |
-| D-121 | active |
-| D-122 | active |
-| D-123 | active |
-| D-124 | active |
-| D-125 | active |
-| D-126 | active |
-| D-127 | active |
-| D-128 | active |
-| D-129 | active |
-| D-130 | active |
-| D-131 | active |
-| D-132 | active |
-| D-133 | active |
-| D-134 | active |
-| D-135 | active |
-| D-136 | active |
-| D-137 | active |
-| D-138 | active |
-| D-139 | active |
-| D-140 | active |
-| D-141 | active |
-| D-142 | active |
-| D-143 | active |
-| D-144 | active |
-| D-145 | active |
-| D-146 | active |
-| D-147 | active |
-| D-148 | active |
-| D-149 | active |
-| D-150 | inactive |
-| D-151 | active |
-| D-152 | active |
-| D-153 | active |
-| D-154 | active |
-| D-155 | active |
-| D-156 | active |
-| D-157 | active |
-| D-158 | active |
-| D-159 | active |
-| D-160 | active |
-| D-161 | active |
-| D-162 | active |
-| D-163 | active |
+| Decision | Status   |
+| -------- | -------- |
+| D-1      | active   |
+| D-2      | active   |
+| D-3      | active   |
+| D-4      | active   |
+| D-5      | active   |
+| D-6      | active   |
+| D-7      | active   |
+| D-8      | active   |
+| D-9      | active   |
+| D-10     | active   |
+| D-11     | active   |
+| D-12     | active   |
+| D-13     | active   |
+| D-14     | active   |
+| D-15     | active   |
+| D-16     | active   |
+| D-17     | active   |
+| D-18     | active   |
+| D-19     | active   |
+| D-20     | active   |
+| D-21     | active   |
+| D-22     | active   |
+| D-23     | active   |
+| D-24     | active   |
+| D-25     | active   |
+| D-26     | active   |
+| D-27     | active   |
+| D-28     | active   |
+| D-29     | active   |
+| D-30     | active   |
+| D-31     | active   |
+| D-32     | active   |
+| D-33     | inactive |
+| D-34     | active   |
+| D-35     | active   |
+| D-36     | active   |
+| D-37     | active   |
+| D-38     | active   |
+| D-39     | active   |
+| D-40     | active   |
+| D-41     | active   |
+| D-42     | active   |
+| D-43     | active   |
+| D-44     | active   |
+| D-45     | active   |
+| D-46     | active   |
+| D-59     | active   |
+| D-60     | active   |
+| D-56     | active   |
+| D-57     | active   |
+| D-58     | active   |
+| D-55     | active   |
+| D-51     | active   |
+| D-52     | active   |
+| D-53     | active   |
+| D-54     | active   |
+| D-49     | active   |
+| D-50     | active   |
+| D-48     | active   |
+| D-47     | active   |
+| D-61     | active   |
+| D-62     | active   |
+| D-63     | active   |
+| D-64     | active   |
+| D-65     | active   |
+| D-66     | active   |
+| D-67     | active   |
+| D-68     | active   |
+| D-69     | active   |
+| D-70     | active   |
+| D-71     | active   |
+| D-72     | active   |
+| D-73     | inactive |
+| D-74     | active   |
+| D-75     | active   |
+| D-76     | active   |
+| D-77     | active   |
+| D-78     | active   |
+| D-79     | active   |
+| D-80     | active   |
+| D-81     | active   |
+| D-82     | active   |
+| D-83     | active   |
+| D-84     | active   |
+| D-85     | active   |
+| D-86     | active   |
+| D-87     | active   |
+| D-88     | inactive |
+| D-89     | active   |
+| D-90     | active   |
+| D-91     | active   |
+| D-92     | active   |
+| D-93     | active   |
+| D-94     | active   |
+| D-95     | active   |
+| D-96     | active   |
+| D-97     | active   |
+| D-98     | active   |
+| D-99     | active   |
+| D-100    | active   |
+| D-101    | active   |
+| D-102    | active   |
+| D-103    | active   |
+| D-104    | active   |
+| D-105    | active   |
+| D-106    | active   |
+| D-107    | active   |
+| D-108    | active   |
+| D-109    | active   |
+| D-110    | active   |
+| D-111    | active   |
+| D-112    | active   |
+| D-113    | active   |
+| D-114    | active   |
+| D-115    | active   |
+| D-116    | active   |
+| D-117    | active   |
+| D-118    | active   |
+| D-119    | active   |
+| D-120    | active   |
+| D-121    | active   |
+| D-122    | active   |
+| D-123    | active   |
+| D-124    | active   |
+| D-125    | active   |
+| D-126    | active   |
+| D-127    | active   |
+| D-128    | active   |
+| D-129    | active   |
+| D-130    | active   |
+| D-131    | active   |
+| D-132    | active   |
+| D-133    | active   |
+| D-134    | active   |
+| D-135    | active   |
+| D-136    | active   |
+| D-137    | active   |
+| D-138    | active   |
+| D-139    | active   |
+| D-140    | active   |
+| D-141    | active   |
+| D-142    | active   |
+| D-143    | active   |
+| D-144    | active   |
+| D-145    | active   |
+| D-146    | active   |
+| D-147    | active   |
+| D-148    | active   |
+| D-149    | active   |
+| D-150    | inactive |
+| D-151    | active   |
+| D-152    | active   |
+| D-153    | active   |
+| D-154    | active   |
+| D-155    | active   |
+| D-156    | active   |
+| D-157    | active   |
+| D-158    | active   |
+| D-159    | active   |
+| D-160    | active   |
+| D-161    | active   |
+| D-162    | active   |
+| D-163    | active   |
 
 ## Findings
 
@@ -841,7 +837,7 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 | F-75 | B-4 (b)'s _exactly one terminal_ is false for the classified rows that surface **before** `onStart` | **Found while writing Phase 20's matrix, and it is a claim-side contradiction with D-66 rather than a defect.** The clause is written over the whole classified table, but three of its rows — `handle`, `visual` and a garbage `bounds` source on its first resolve — surface at admission or activation, i.e. before the behavior's progress marker leaves `MINTED`. D-66 is explicit that at `MINTED` the consumer never heard the drag start and **no terminal is published**, because an end for a beginning it has no record of is worse than no end; Q-15 says the same thing for a press that never activates. The two sentences cannot both hold, and the code follows D-66. **Asserted as observed**: `tests/free-drag/validation.browser.test.ts` publishes the report and asserts the _absence_ of the terminal for the admission and activation rows, and asserts exactly one for every row that fails after `onStart` — including the bounds release path, so the split is executable rather than argued. What is owed is one sentence in B-4 (b) scoping the clause to rows that surface after the drag has started; the sortable's equivalent rows are worth re-reading against it, since the phrasing was inherited. **Resolved by D-83, and the re-reading found the rule intact**: I-31 was already correct and already behavior-neutral, so what is scoped is a restatement, not the invariant — and the durable half is the prohibition on restating I-31 in a per-behavior document, since a copy with no antecedent to carry is how the condition was lost |
 | F-76 | 07 §Validation, under `CODE_OF_SIZE.md`, attributes a throwing `visual` resolver to **activation**, and both behaviors resolve it at **admission** | **Found by driving the row rather than reading it.** The table pairs `visual` with `onStart` at `FAILURE_ACTIVATION` (2) → `interaction`, citing the kernel's activation lines. Neither behavior calls the resolver there: free drag resolves the visual inside `admit` — D-59's common form, since `box === visual` for a behavior with no placeholder — and the sortable resolves it in `seedDraft`, which is admission's second half and split out for D1's reason. A throw is therefore `FAILURE_ADMISSION` (1) → **`consumer`**, one seam earlier and one code away from the row. **The code is right and the row is wrong**: the visual resolver is consumer code called during admission, so `consumer` is the honest attribution and `interaction` would be a worse one. The kernel line numbers in that column are the site that _names_ the stage, and reading them as the site that _calls the resolver_ is how the row was derived. Pinned as observed in `tests/free-drag/validation.browser.test.ts` — _should classify a throwing visual resolver at admission, not at activation_ — so the correction cannot be lost, and the same re-reading is owed for the sortable's copy of the table. **Resolved by D-84, which corrects both behaviors and splits the row** — and the derivation error is a repeat: D-81's `bounds` row went wrong the same way one decision earlier, by reading a stage off the kernel line that names it rather than off the site that calls the resolver. Two instances from different starting points make it a pattern, recorded at D-84 rather than left in this row |
 | F-77 | `drag.js` and `kernel.js` are published runtime entries with an isolation claim and no standing bundled-graph assertion | **Closed 2026-08-22 by the harness change it asked for, plus one it did not.** Both roots are now declared compositions in `bench/size/measure.ts` and are asserted on every `just size`: `vocabulary root - drag.js` at **121 B** with `only: ['kernel/errors.js']`, and `kernel root - kernel.js` at **6,514 B** with `present` and no `sortable/` or `free-drag/`. **The graph half needed a capability the harness did not have**: the invariant is _`drag.js` reaches `kernel/errors.js` and nothing else_, which neither `absent` nor `absentPrefixes` can state, because the one module that must appear lives inside the one subtree that must not — so `Composition` gains **`only`**, the bundled graph exactly, on the same vacuity argument that produced `absentPrefixes`. **And the graph half alone would not have closed it.** The packed `kernel/errors.js` carries a **bare** `import "./failures.js"` — `tsdown` inlines the thirteen `FAILURE_*` constants as literals — so machinery arriving from `failures.ts` lands _inside_ `errors.js` and moves no module count. **Both predicted regressions were injected and each is caught by exactly one half**: a `DraggableError` method returning `STAGE_TO_CODE` leaves the graph at one module and grows the artifact **121 → 190 B**, caught by the budget; a side effect in `failures.ts` adds `kernel/failures.js` while staying **under** budget at 140 B, caught by the graph. Neither trips the other's half, so the two are not redundant. **The budget is 29 B of headroom rather than the standing ~150 B, deliberately** — that convention is sized to roughly one module against 8–13 kB compositions, and on a 121 B root one module's slack is larger than the artifact; under the first regression every other row moved ~10 B and stayed green. `plan.md` §Phase 22 forbids closing this _by widening a budget instead of adding the assertion_: the assertion is added and the budget is **narrowed**. **One fact the rows carry that the pass did not know**: `kernel.js` does not pull `kernel/errors.js` either, so the two roots are **disjoint** rather than nested and D-48's _neither tier should have to import the other_ holds in both directions. Each mutation was built, measured, reverted and rebuilt; **no production code changed** |
-| F-78 | `kernel/dev.ts` strips author-facing assertions on a premise Revision 2.1 voided, and its own stated revisit condition has fired unnoticed | **Closed by D-108, implemented 2026-08-22**: all four checks un-gated, `kernel/dev.ts` deleted, cost 282–305 B against the pre-slice tree and the budgets re-based. The packed tarball now carries the four assertion messages and `consumer.node.test.ts` reads them, which is where the gate was invisible before. **Found in tier B. Found by the D-107 optimization sweep, while testing whether two unguarded validators should be `__DEV__`-gated — the answer came back inverted.** `dev.ts` documents the trade as costless: _these assertions check behavior authoring … and behavior authoring is not on the public surface (contract 03 §The public/internal boundary). **The day it is, this needs revisiting**: either a dual build under an `exports` condition, or an inline `process.env.NODE_ENV` comparison at each site rather than a shared constant._ **Behavior authoring has been on the public surface since Revision 2.1** — D-61 published `sortable/feature.js` as the ladder's second rung, D-70 added `free-drag/feature.js`, and D-68 rebuilt `kernel.js` to publish `BehaviorFactory`'s structural closure (33 values, 35 types) for the express purpose of third-party behavior authoring; 03 §The public/internal boundary now reads _three tiers over three entry roots_. **So a third-party behavior author gets no frame-shape, reset-exhaustiveness or staged-value assertions in any build they can produce**, and cannot turn them on, which is precisely the cost `dev.ts` said would arrive with a public authoring surface. **Two consequences, and the second is why this is not a size finding.** It settles D-107's A1/A2 declines — gating more author-facing validation would deepen the gap rather than close it. And the remedies are `dev.ts`'s own two, both of which **cost the production bundle nothing**; choosing between them is an `exports`-map decision, so it belongs to Phase 22's **API** deliverable rather than to bundle structure. **Not resolved here on purpose**: this pass was scoped to bundle cost, and the fix adds a build condition rather than removing bytes |
+| F-78 | ~~`kernel/dev.ts`~~ strips author-facing assertions on a premise Revision 2.1 voided, and its own stated revisit condition has fired unnoticed | **Closed by D-108, implemented 2026-08-22**: all four checks un-gated, ~~`kernel/dev.ts`~~ deleted, cost 282–305 B against the pre-slice tree and the budgets re-based. The packed tarball now carries the four assertion messages and `consumer.node.test.ts` reads them, which is where the gate was invisible before. **Found in tier B. Found by the D-107 optimization sweep, while testing whether two unguarded validators should be `__DEV__`-gated — the answer came back inverted.** `dev.ts` documents the trade as costless: _these assertions check behavior authoring … and behavior authoring is not on the public surface (contract 03 §The public/internal boundary). **The day it is, this needs revisiting**: either a dual build under an `exports` condition, or an inline `process.env.NODE_ENV` comparison at each site rather than a shared constant._ **Behavior authoring has been on the public surface since Revision 2.1** — D-61 published `sortable/feature.js` as the ladder's second rung, D-70 added `free-drag/feature.js`, and D-68 rebuilt `kernel.js` to publish `BehaviorFactory`'s structural closure (33 values, 35 types) for the express purpose of third-party behavior authoring; 03 §The public/internal boundary now reads _three tiers over three entry roots_. **So a third-party behavior author gets no frame-shape, reset-exhaustiveness or staged-value assertions in any build they can produce**, and cannot turn them on, which is precisely the cost `dev.ts` said would arrive with a public authoring surface. **Two consequences, and the second is why this is not a size finding.** It settles D-107's A1/A2 declines — gating more author-facing validation would deepen the gap rather than close it. And the remedies are `dev.ts`'s own two, both of which **cost the production bundle nothing**; choosing between them is an `exports`-map decision, so it belongs to Phase 22's **API** deliverable rather than to bundle structure. **Not resolved here on purpose**: this pass was scoped to bundle cost, and the fix adds a build condition rather than removing bytes |
 | F-79 | `just clean-build` never cleans two directories the tarball ships, and the failure has already fired once | **Closed by D-111, implemented 2026-08-22**: `files.json`'s `clean.extras` gains `kernel`, `shared` and the two `landing-runner` orphans, and `packaging.node.test.ts` derives the pathspecs and asserts they cover every path `files` ships — held without running `git clean`, so it fails on a tree that was never built. **Recorded because the evidence is a live artifact rather than an argument.** `clean-build` derives its pathspecs from `files.json`, adding a **directory** pathspec only when an entrypoint contains a `/`. `sortable/*` and `free-drag/*` entries exist so those two are cleaned; there is no `kernel/x` entry and `shared` is never named at all, so **`kernel/` (42 files) and `shared/` (4 files) survive a clean-build** — both shipped by `package.json` `files`. Verified by running it: `sortable/` and `free-drag/` are removed and the other two are not. **So a module deleted from `src/kernel/` or `src/shared/` leaves its `.js`, `.js.map` and `.d.ts` on disk inside the allowlist, and the next `npm pack` publishes them.** **The proof it has already happened is sitting in the package**: a root `landing-runner.js` and `.js.map`, orphaned when the source moved from ~~`src/landing-runner.ts`~~ to `src/shared/landing-runner.ts`, with the old path still in the map's `sources`. **They do not reach the tarball — and only because that file fell outside the allowlist.** The same accident one directory over publishes silently. `files.json`'s `clean.extras` currently holds only `_virtual` |
 | F-80 | Four divergences between the two ordinary entries carry no recorded reason, where every other one carries a `D-nn` | **Open, tier B. Not decided here on purpose** — each has a defensible reading, none violates a written rule, and `axis` in particular has a real rename cost. (a) **`axis` names two unrelated things**: `axis: AxisInstaller` is **required** and is an installer (`y()`/`xy()`); `axis?: DragAxis \| AxisSource` is **optional** and is a motion lock. Aggravated by `AxisInstaller` beside `AxisSource` — both `Axis*`, both published, nothing in common — and the free-drag meaning is the conventional one. **D-75's rule does not reach this**, because that rule governs published type names and `axis` is a config key, which is exactly why this is a finding and D-109 is a decision. (b) **`threshold` is documented by deferral to a silent declaration**: free drag says _Same default and domain as the sortable's_ and the sortable's is `threshold?: number` with no comment, unit or default; the unit exists only at `kernel/spec.d.ts`, which the ordinary consumer is told not to import, and **neither ordinary entry states the default at all**. (c) **Two callback asymmetries**: free drag has `onMove` and the sortable has no per-sample callback, and the sortable's `onStart` receives only the item while free drag's receives a full `DragGeometry`, so a sortable consumer cannot observe pointer state at activation. (d) ~~**`FailureStage`'s doc claims a consumer role D-64 removed** — `kernel/failures.ts` still says _It is **public**: a consumer receiving `onError` has to be able to discriminate it (D-30)_, while D-64 took `stage` out of the error context and neither ordinary entry publishes the type. The type's placement is right; **the sentence is what is stale**, which makes (d) an instance of F-81 rather than of this row.~~ **Closed 2026-08-26 by the premise returning (D-132).** `DraggableError.stage` is a `FailureStage` and `drag.js` publishes the type and its twelve constants, so the sentence is true again and is restored unstruck. **This is F-81's third class getting its first disposition that is neither a repair nor a deletion** — a load-bearing argument whose premise expired and then came back — which F-81 records as admitting no mechanical check, and which is worth as much as the closure itself. (a), (b) and (c) remain open |
 | F-81 | A landed decision repeatedly leaves standing the prose that justified its predecessor, and a later reader acts on it | **Open, tier B. The class this API pass actually found, and it is not the one the brief anticipated.** Four live instances: `dev.ts` still says _behavior authoring is not on the public surface_ after D-61, D-68 and D-70 published it (F-78); 02 and 03 still said _33 types_ after D-85 and 07 §K-1 each added one; `failures.ts` still says a consumer must discriminate a `FailureStage` after D-64 stopped handing them one (F-80 (d)); and `kernel.ts:474` justifies using `guarded` rather than throwing on the ground that _`DEV` is true in an ordinary browser … so this is not a test-only path_, which is true in this repository and false in every consumer's. **None is a stale example or a typo. Each is a premise, and F-78 is the proof someone acts on them** — D-107 nearly gated two more validators on `dev.ts`'s four days ago. **The distinguishing feature is that the decisions all landed completely**: this is not deferred work, so the deferred-decision instrument cannot see it, and neither can a green suite. **Not decided here**, because the natural remedy is an instrument and this ledger already has the model — `tests/decisions.node.test.ts` exists because F-63 was this class inside the decision tables. Whether the same treatment is worth extending to justifying prose in source doc blocks is a real question with a real cost, and the API pass was not scoped to settle it. **Note the asymmetry that makes it tractable**: the count instance was caught because `tests/kernel/vocabulary.node.test.ts` checks its list _against the entries_ — the executable half tracked both additions silently and correctly, and only the prose total drifted **Disposition of the four, 2026-08-22 (maintainability entry).** Two closed with D-108 — `dev.ts` was deleted and `kernel.ts:474` now reads _the assertion runs in **every** build since D-108_. The count instance closed with the API entry. **`failures.ts:6` is still live**, still saying _a consumer receiving `onError` has to be able to discriminate it_ while `SortableErrorContext` is one field and `FailureStage` appears in no ordinary-tier declaration — and `src/kernel/errors.ts:3` states the opposite in the same tree. **The instrument question is answered and the answer is no general instrument.** The class splits: **references** — a citation, a path, a symbol — resolve or do not, and D-112 takes them; **prose restating a fact a declarative artifact already owns** needs no instrument but a rule, _cite the artifact rather than copying it_ (the 33-count, `tests/docs.node.test.ts`'s _eight public entries_ against a twelve-entry `typedoc.json` and its _17 known gaps_ against an empty `intentionallyNotExported`, and the figure lists in `bench/size/measure.ts` that produced API-01); and **load-bearing arguments whose premise expired** — `failures.ts` and D-113's orphaned block — admit no mechanical check at all, and their only lever is the landing discipline D-114 (b) states. **The scope that makes any of this affordable is the tense rule**, recorded at D-112. **Disposition, 2026-08-22 (the maintainability slice).** The reference half is **closed and instrumented**: `tests/references.node.test.ts` resolves every citation and every repository path in the normative tree, sixty-seven were repaired, and the class can no longer rot silently. The **published-prose** half is closed by D-113. `src/kernel/failures.ts:6` **is still live** and is F-80's, not this instrument's — it is a load-bearing argument whose premise expired, which admits no mechanical check at all; its only lever is the landing discipline D-114 (b) states, and it needs an owner's call rather than a repair. **The finding stays open on that one instance** |
@@ -1035,15 +1031,16 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 | F-211 | A silently failed patch step produced a plausible measurement | **Method, 2026-08-30.** The first counterfactual reading was wrong: a deletion had not been applied, so the prototype still carried the machinery it was meant to remove, and the row read +28 where the arithmetic predicted −132. The disagreement is what surfaced it. **A prototype ablation's deletion must be verified in the tree**, not inferred from the script exiting without error, and a measurement whose sign contradicts a prediction is a reason to check the tree before it is a reason to revise the prediction |
 
-| F-212 | The hole advance is two different errors in one expression | **Settled by D-161, 2026-08-30** — record [`geometry-defects-contract-claude.md`](../reviews/phase-23/geometry-defects-contract-claude.md). The transform limb is G5: `b - a` is a presented extent and `rotate`/`scale` enlarge the bounding rect, measured at 12 of 20 gap pairs and up to 264.74px, while an authored `translate` is clean because it moves a box without resizing it. The margin limb has **no transform in it**: one scalar taken from the placeholder's footprint is applied to every crossed row, and the placeholder is margin-less by construction — 20 of 20 at 40px, clean at 0 of 20 once the placeholder carries the same margin |
+| F-212 | The hole advance is two different errors in one expression | **Settled by D-161, 2026-08-30** — record [`geometry-defects-contract-claude.md`](../reviews/phase-23/geometry-defects-contract-claude.md). The transform limb is G5: `b - a` is a presented extent and `rotate`/`scale` enlarge the bounding rect, measured at 12 of 20 gap pairs and up to 264.74px, while an authored `translate` is clean because it moves a box without resizing it. The margin limb has **no transform in it**: one scalar taken from the placeholder's footprint is applied to every crossed row, and the placeholder is margin-less by construction — 20 of 20 at 40px, clean at 0 of 20 once the placeholder carries the same margin **Implemented 2026-08-30 (Remediation).** `shiftSpan` lost `width`, `spacing`, `travelled` and the hole write; the hole is marked stale by a committed move and re-read once at the head of the next rebuild, ahead of the `DEV` oracle. Both mechanisms are covered positively and separately — an authored `rotate` and an authored `scale` on one row of a flex column, and item `margin-bottom` against the margin-less placeholder in both a flex and a block column — beside the newly supported varying-gap column. **One consequence the remedy forced**: the oracle compared exactly with no sink installed, and a rotated row's bounding rect is recomputed through its matrix, so translating a cached rect and re-reading it disagree by about `1e-5` px. The `1 / 256` tolerance already used for the settle path is now unconditional, which is what makes the supported presentation cases provable; it is `DEV`-only and ships in nothing |
 
 | F-213 | A viewport delta spent as a local-space `translate` | **Settled by D-162, 2026-08-30** — record [`geometry-defects-contract-claude.md`](../reviews/phase-23/geometry-defects-contract-claude.md). Overshoot is exactly the ancestor scale, measured at 1.5, 2 and 0.75. The dependency already publishes the ancestor linear map and documents this exact inversion, and is already in every sortable graph |
 
 | F-222 | A remedy shaped by the first mechanism would have left the second standing | **Open, tier B — method.** F-212's two limbs share one expression and one symptom, and the second has no transform anywhere in its fixture. A fix argued from G5 closes the transform limb and leaves 40px per crossed row on an ordinary flex list with item margins. **The general shape**: when two mechanisms share an expression, the control that separates them has to be built before the remedy is chosen — here, giving the placeholder the items' own margin, which turns the failure off without touching the code |
 
-| F-223 | A negative conformance fixture was testing the defect rather than a boundary | **Open, tier B.** The fixture for a column whose flow gap varies row to row fires the slot half of the instrument **0 of 20** and the hole half 18 of 20: its row displacement is uniform and exact, and it failed only the rule that was wrong. Once the hole is measured that layout is supported and the fixture goes green **by accident**, which is worse than not having it. **The general shape**: a negative test written against a symptom outlives the symptom and then certifies the fix that removed it |
+| F-223 | A negative conformance fixture was testing the defect rather than a boundary | **Open, tier B.** The fixture for a column whose flow gap varies row to row fires the slot half of the instrument **0 of 20** and the hole half 18 of 20: its row displacement is uniform and exact, and it failed only the rule that was wrong. Once the hole is measured that layout is supported and the fixture goes green **by accident**, which is worse than not having it. **The general shape**: a negative test written against a symptom outlives the symptom and then certifies the fix that removed it **Resolved 2026-08-30 by D-161's implementation.** The fixture is retired and the same layout is now a positive case — _should predict every gap when the flow gap varies from row to row_ — beside four more that G1-presented and the per-item-margin clause already promised. The negative half keeps two layouts that violate the premise for real: a two-column grid, and a wrapping flex row, which replaces the retired fixture so the instrument is still shown to fail |
 
-| F-224 | Running the repository's own formatter on this document silently unregisters every decision | **Open, tier B, and found by causing it.** `tests/ledger.ts` matches a register row with a pattern admitting exactly one space around each cell; `oxfmt` pads Markdown tables to align their columns. `AGENTS.md` instructs every edited Markdown file to be formatted, so the first `npx just fmt` on this file rewrote all 156 register rows into a shape the parser cannot see. The rows become **invisible rather than malformed**, so the shape assertion still passes and only the completeness one fails — reporting *no status* for every canonical decision at once, with nothing in the message pointing at whitespace. Verified in both directions: green at `74273b09` with 52 passing, red immediately after formatting, green again once the table is unpadded by hand. **The general shape**: a document parsed by an instrument and rewritten by a formatter has two authors, and the formatter wins on every save — so the parser must tolerate what the formatter produces, or the table must be exempt from it. Until then this file cannot be formatted, which is a standing trap for the next editor |
+| F-224 | Running the repository's own formatter on this document silently unregisters every decision | **Open, tier B, and found by causing it.** `tests/ledger.ts` matches a register row with a pattern admitting exactly one space around each cell; `oxfmt` pads Markdown tables to align their columns. `AGENTS.md` instructs every edited Markdown file to be formatted, so the first `npx just fmt` on this file rewrote all 156 register rows into a shape the parser cannot see. The rows become **invisible rather than malformed**, so the shape assertion still passes and only the completeness one fails — reporting _no status_ for every canonical decision at once, with nothing in the message pointing at whitespace. Verified in both directions: green at `74273b09` with 52 passing, red immediately after formatting, green again once the table is unpadded by hand. **The general shape**: a document parsed by an instrument and rewritten by a formatter has two authors, and the formatter wins on every save — so the parser must tolerate what the formatter produces, or the table must be exempt from it. Until then this file cannot be formatted, which is a standing trap for the next editor **Resolved 2026-08-30 (Remediation).** The parser tolerates the padding: `\s*` at every cell boundary that meets a capture, in all seven patterns rather than only the register's, so the fix is the class rather than the instance. The document is then **formatted**, so the live register is in the formatter's own shape and the whole suite reads it — the trap is gone by construction rather than guarded against. `tests/decisions.node.test.ts` carries a witness written in formatter-shaped spacing, which fails against the pre-fix patterns |
+
 ## What would falsify this model
 
 - a feature needs a frame part _and_ the prepare-phase pipeline it requires cannot be expressed without giving features a path that both mutates the draft and performs effects;

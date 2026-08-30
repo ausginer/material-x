@@ -82,7 +82,7 @@ export type DragGeometry = Readonly<{
 
 export type FreeHomeTarget = Readonly<{ position: Point; space: 'viewport' }>;
 
-/** A source of bounds, resolved per read, as `draggable/bounds.ts` does. */
+/** A source of bounds, resolved per read, as `free-drag/bounds.ts` does. */
 export type BoundsSource =
   | 'viewport'
   | HTMLElement

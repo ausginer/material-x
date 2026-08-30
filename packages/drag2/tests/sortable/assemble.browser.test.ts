@@ -220,7 +220,7 @@ describe('assemble', () => {
   it('should flatten the displacement members into slot fields', () => {
     // ~~*should collect displacement hooks in installation order*~~ — **the
     // property it drove is unrepresentable since D-157**, not merely untested.
-    // Two plugins accumulating into `beforeMove`/`afterMove` needed both an
+    // Two plugins accumulating into an ordered hook pair needed both an
     // unbounded position and a pair of arrays; the sink is one named key now,
     // so there is no second writer to order against and no array to append to.
     //

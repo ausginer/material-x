@@ -1,14 +1,17 @@
 /**
- * **Zero reads across a committed move**, and none on a warm spatial frame.
+ * **What a committed move reads**, and that a warm spatial frame reads nothing.
  *
  * The claim made executable rather than asserted in prose, and stated at the
  * precision the flow-versus-presented amendment left it:
  *
  * - **a warm spatial frame reads nothing**, in every composition. This is the
  *   read that dominated — it was once per frame — and it is unconditional;
- * - **a committed move on a linear axis reads nothing once the displacement
- *   constant is established**, which costs one row, once per operation and once
- *   more after each invalidation;
+ * - **a committed move on a linear axis reads one row while the displacement
+ *   constant is unestablished** — once per operation, and once more after each
+ *   invalidation — **and one placeholder afterwards**. Where the hole lands is
+ *   a flow quantity that no admissible prediction yields, so it is re-read on
+ *   the spatial frame *after* the move, off a tree already laid out. A frame
+ *   with no committed move before it still reads nothing;
  * - **a committed move on `xy()` performs one measured rebuild**, because a
  *   cellular move cannot be predicted from presented geometry at all. That is
  *   one list-wide pass where the old shape paid two.
@@ -261,12 +264,13 @@ const commit = async (steps: number): Promise<void> => {
   await nextFrame();
 };
 
-describe('a committed move reads no geometry', () => {
+describe('a committed move reads only what it must', () => {
   it('should read one row on the move that establishes the constant', async () => {
-    // **The linear axis's whole measured budget, and it is one row.** The
-    // displacement constant is a flow quantity, so it cannot be derived from a
-    // difference between two elements' measured rects — it is observed once, as
-    // one crossed row's own displacement across one committed move.
+    // **What the move itself costs, and it is one row.** The displacement
+    // constant is a flow quantity, so it cannot be derived from a difference
+    // between two elements' measured rects — it is observed once, as one
+    // crossed row's own displacement across one committed move. The hole the
+    // move left stale is read on the *next* frame, which this row stops before.
     const field = compose();
 
     await settle(field);
@@ -280,12 +284,13 @@ describe('a committed move reads no geometry', () => {
     expect(field.reads()).toBe(1);
   });
 
-  it('should read nothing in the minimal composition', async () => {
+  it('should read only the stale hole in the minimal composition', async () => {
     const field = compose();
 
     await settle(field);
     // The establishing move, which the row above prices. Everything after it is
-    // predicted.
+    // predicted — except the hole, which is measured because no prediction G5
+    // admits reaches it.
     await commit(2);
     field.instrument();
 
@@ -294,7 +299,26 @@ describe('a committed move reads no geometry', () => {
     await commit(4);
 
     expect(order(field)).not.toBe(before);
-    expect(field.reads()).toBe(0);
+    // One: the placeholder, at the head of this frame, left stale by the
+    // preceding move. The crossed rows are predicted and cost nothing.
+    expect(field.reads()).toBe(1);
+  });
+
+  it('should read the hole once however many rows the move crosses', async () => {
+    // **The read is per move, not per crossed row**, which is the property that
+    // separates this from the pre-arc model: that one read the placeholder on
+    // every spatial frame, this reads it on the first frame after a move.
+    const field = compose();
+
+    await settle(field);
+    await commit(2);
+    field.instrument();
+
+    // Two more moves, crossing four rows between them.
+    await commit(4);
+    await commit(1);
+
+    expect(field.reads()).toBe(2);
   });
 
   it('should read one rebuild and no more with xy()', async () => {
@@ -353,9 +377,10 @@ describe('a committed move reads no geometry', () => {
   });
 
   it('should force no layout in the write’s own task with a settled y()', async () => {
-    // The linear axis's counterpart, and it holds for the stronger reason: it
-    // reads nothing at all once the constant is established, so there is
-    // nothing left that could force a layout.
+    // The linear axis's counterpart. The one read a settled `y()` still takes
+    // is the stale hole, and it is taken at the head of the *following* frame
+    // rather than beside the write — so the tree it finds is one the browser
+    // has already laid out and nothing is forced.
     const field = compose();
 
     await settle(field);
@@ -367,7 +392,7 @@ describe('a committed move reads no geometry', () => {
     expect(field.forced()).toBe(0);
   });
 
-  it('should read nothing with layoutAnimation composed', async () => {
+  it('should read only the stale hole with layoutAnimation composed', async () => {
     const field = compose(layoutAnimation({ duration: 500 }));
 
     await settle(field);
@@ -381,15 +406,15 @@ describe('a committed move reads no geometry', () => {
     expect(order(field)).not.toBe(before);
     // The sink is handed vectors and measures nothing, which is what makes the
     // displaced composition read the same as the bare one.
-    expect(field.reads()).toBe(0);
+    expect(field.reads()).toBe(1);
   });
 
   it('should read nothing on a warm spatial frame', async () => {
-    // The other half of the claim, and the one that survived the amendment
+    // The other half of the claim, and the one that survived both amendments
     // untouched: a frame on which the pointer travels inside the same slot
-    // proposes no move, and the cache it resolves against is already current —
-    // including the placeholder's own rect, which used to be measured once per
-    // frame in both rules.
+    // proposes no move, so nothing left the hole stale, and the cache it
+    // resolves against is already current — including the placeholder's own
+    // rect, which a per-frame model measured every time.
     const field = compose(landing(), layoutAnimation({ duration: 500 }));
 
     await settle(field);
@@ -439,18 +464,15 @@ describe('a committed move reads no geometry', () => {
 });
 
 /**
- * **A committed move allocates nothing**, which is the property that replaced
- * the returned plan.
+ * **A committed move allocates nothing.**
  *
- * The old seam returned a `DisplacementPlan` — a closure per committed move in
- * *every* composition, including the ones that consume no vectors. The sink's
- * visitor arrives as an argument now, so there is nothing to construct and
- * nothing to return: the axis reports inside the walk it was already running.
+ * The sink's visitor arrives as an argument rather than as a plan coming back,
+ * so a committed move constructs nothing at all — not even in a composition
+ * that consumes no vectors, which passes `null` and never enters the walk.
  *
  * **Closures cannot be counted from script, so the checkable half is the
- * buffers**, and they are the half that was actually there: a scratch pair per
- * rebuild in the cache, and one more per establishing measurement. Both are
- * gone with the per-candidate probe.
+ * buffers**, and they are the half a per-candidate probe would show: one
+ * scratch buffer per rebuild, and one more per establishing measurement.
  */
 describe('a committed move allocates nothing', () => {
   const NativeBuffer = Float64Array;

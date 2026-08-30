@@ -70,6 +70,18 @@ A report carries three things, because the consolidator decides with each of the
 
 **Canonical ids are assigned at consolidation.** There is no collision-free allocator for `F-`/`Q-`/`I-` — they are hand-numbered — so parallel passes would race. Each pass numbers within itself; the summary assigns canonical ids and carries the mapping.
 
+## Tier
+
+**Tier is assigned by consequence.** Never by provenance, and never by how many lenses reported it.
+
+| Tier | What it means |
+| --- | --- |
+| **A** | A correctly integrated consumer observes something different at runtime: rendering, behaviour, timing, or a published value |
+| **B** | No program behaviour changes, but a correct integrator can be misled by what the package says, **or** an instrument the repository relies on is unsound |
+| **C** | Internal only: no consumer-observable effect, and nothing the repository relies on depends on it |
+
+A finding that is _systematic_ rather than isolated does not change tier — it changes priority **within** one. That distinction is the whole of the vocabulary's job: while it was undefined, one round split three ways on identical evidence, one pass arguing from consequence and another from the fact that a retired mechanism had left its prose behind.
+
 ## Prompts
 
 Keep prompts as short as possible. The documents carry the context; a prompt identifies the task and the role.

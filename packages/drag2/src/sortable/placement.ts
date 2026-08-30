@@ -250,11 +250,11 @@ export function createPlaceholder(
 /**
  * Whether the placeholder already occupies `insertion`.
  *
- * Exported because inertness has to be decidable *before* the move: the move
- * pipeline brackets the write with `beforeMove`/`afterMove` hooks, and a hook
- * that measures the whole list must not be paid for a write that will not
- * happen: the coalesced spatial frame's sole writer reports whether a move
- * occurred.
+ * Exported because inertness has to be decidable *before* the move. The
+ * committed-move bracket opens on the answer: a frame whose gap is already
+ * correct performs no write, advances no cache, starts no contribution and
+ * raises no staleness, so the whole of it is skipped rather than entered and
+ * reported inert.
  */
 export function placeholderAt(
   placeholder: HTMLElement,

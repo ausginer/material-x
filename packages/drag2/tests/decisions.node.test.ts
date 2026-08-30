@@ -49,7 +49,7 @@
  * skips one whole — but three rows also carried a clause a later pass must act
  * on, and a live clause inside a skipped container is the one thing in the tree
  * no instrument can see. F-78 is the proof that this is not hypothetical: a
- * revisit condition embedded in `kernel/dev.ts`'s prose fired unnoticed across
+ * revisit condition embedded in ~~`kernel/dev.ts`~~'s prose fired unnoticed across
  * three revisions.
  *
  * So the clause moves to `.plan/obligations.md` §Standing conditions under an
@@ -709,6 +709,67 @@ describe('the status register', () => {
       { decision: 'D-42', status: 'inactive', text: 'Current' },
       { decision: 'D-42', status: 'inactive', text: 'Withdrawn' },
     ]);
+  });
+
+  it('should read a register the formatter has padded', () => {
+    // **F-224, made a witness.** A document this repository parses and `oxfmt`
+    // rewrites has two authors, and the formatter wins on every save: it pads
+    // a table's cells to align its columns, and `AGENTS.md` instructs every
+    // edited Markdown file to be formatted. A parser admitting exactly one
+    // space around a cell stops seeing these rows the moment anyone runs it.
+    //
+    // **And it stops seeing them silently**, which is why the witness is here
+    // rather than left to the live file: an unpadded pattern makes a padded
+    // row match *nothing*, so it is absent rather than malformed — the shape
+    // assertions stay green and only the completeness one fails, reporting
+    // that every decision in the record has no status, with nothing in the
+    // message pointing at whitespace.
+    //
+    // The rows below are in the formatter's own shape, column-aligned to the
+    // widest cell.
+    const padded = register(
+      '| D-41     | active   |',
+      '| D-42     | inactive |',
+    );
+
+    expect(registered(padded)).toEqual([
+      { decision: 'D-41', status: 'active' },
+      { decision: 'D-42', status: 'inactive' },
+    ]);
+    expect(malformed(padded)).toEqual([]);
+    expect(unaccounted(padded)).toEqual([]);
+  });
+
+  it('should read a padded row of every other table too', () => {
+    // The register is where the trap was sprung; it is not where the trap
+    // lives. Every table in the record is padded by the same run, so the fix
+    // is the class rather than the instance — a marker, a deferred row and a
+    // canonical statement, all in formatter-shaped spacing.
+    const lines = [
+      '## Decision ledger',
+      '| ID       | Decision                                  | Why |',
+      '| -------- | ----------------------------------------- | --- |',
+      '| D-79     | **Unimplemented (Remediation).** Something. | Why |',
+      SECTION,
+      '| Decision | Lands       | What is missing | Witness                 |',
+      '| -------- | ----------- | --------------- | ----------------------- |',
+      '| D-79     | Remediation | Something       | absent: `src/nothing.ts` |',
+      '',
+      '## Findings',
+    ];
+
+    expect(marked(lines)).toEqual(['D-79 (Remediation)']);
+    expect(listed(lines)).toEqual([
+      {
+        decision: 'D-79',
+        destination: 'Remediation',
+        form: 'absent',
+        path: 'src/nothing.ts',
+        text: undefined,
+      },
+    ]);
+    expect(unrecognized(lines)).toEqual([]);
+    expect(canonical(lines).map(({ id }) => id)).toEqual(['D-79']);
   });
 
   it('should not read a decision row as a status entry', () => {

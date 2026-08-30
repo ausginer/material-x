@@ -69,13 +69,20 @@ type Contribution = {
 };
 
 /**
- * How much of a contribution is still applied, in `[0, 1]`.
+ * How much of a contribution is still applied, as a fraction of the vector it
+ * was issued for.
  *
  * **Timing, not layout.** `getComputedTiming().progress` is the *transformed*
  * progress — the effect's easing has already been applied to it — and the
  * keyframes interpolate linearly from the issued vector to zero, so the
  * remaining fraction is one minus it. An unresolved progress means the effect
  * is applying nothing.
+ *
+ * **The fraction is not confined to `[0, 1]`**, and nothing here needs it to
+ * be: an overshooting easing drives the transformed progress outside `[0, 1]`,
+ * and `issued × (1 - progress)` is still exactly what the element is currently
+ * carrying, which is what both callers multiply by. A clamp would make the fold
+ * and the settle walk disagree with the animation they are describing.
  */
 const remainingOf = (animation: Animation): number => {
   const { progress } = animation.effect!.getComputedTiming();

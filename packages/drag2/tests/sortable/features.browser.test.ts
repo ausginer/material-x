@@ -1628,10 +1628,9 @@ describe('the terminal barrier in a resolver sequence', () => {
   /**
    * A displacement sink that records nothing but the fact of being called.
    *
-   * **It replaces a `beforeMove`/`afterMove` pipeline recorder**, because there
-   * is no pipeline left to record: a committed move is one write and one call
-   * per displaced element, so what a barrier test observes is whether `report`
-   * ran at all. `layoutAnimation()` cannot stand in for it: its own `retire()`
+   * **There is no pipeline to record**: a committed move is one write and one
+   * call per displaced element, so what a barrier test observes is whether
+   * `report` ran at all. `layoutAnimation()` cannot stand in for it: its own `retire()`
    * empties the map, so it is *already* inert on a destroyed controller and
    * would report "no animation" whether the barrier exists or not.
    */

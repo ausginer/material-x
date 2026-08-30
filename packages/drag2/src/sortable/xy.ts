@@ -116,6 +116,10 @@ type InsertionRuntimeView = Readonly<{
  *   presentation and is not a flow quantity. This is the library's own
  *   obligation, stated because it is what decides which of the two axes
  *   predicts and which measures.
+ * - **G6** — the placeholder's own geometry is stable between invalidations.
+ *   The hole is the incumbent every candidate is compared against and it is
+ *   measured once per rebuild, so a placeholder whose own size animates must be
+ *   accompanied by `controller.invalidate()`.
  *
  * ## This axis does not predict
  *

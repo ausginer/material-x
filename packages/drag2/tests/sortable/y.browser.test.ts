@@ -540,10 +540,11 @@ describe('the terminal barrier on candidate geometry', () => {
   });
 
   it('should call no resolver at all when the controller is already closed', () => {
-    // The entry barrier. `settleDisplacement` runs the `beforeMove` hooks and
-    // `release.prepare` resolves immediately afterwards, so a rebuild can be
-    // entered on a controller that a hook already destroyed — and the first
-    // `getBox` of that rebuild would be a consumer call after `destroy()`.
+    // The entry barrier. A committed move invalidates on every failing path
+    // and `release.prepare` resolves immediately afterwards, so a rebuild can
+    // be entered on a controller that consumer code already destroyed — and the
+    // first `getBox` of that rebuild would be a consumer call after
+    // `destroy()`.
     const field = createField(4);
     const asked: HTMLElement[] = [];
 

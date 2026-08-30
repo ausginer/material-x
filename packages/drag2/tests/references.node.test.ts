@@ -83,8 +83,15 @@ const REGISTER = join(PACKAGE, '.plan/obligations.md');
  * The normative tree, present tense. `.scripts/` is the monorepo's and is in
  * scope because `packaging.node.test.ts` already imports from it; the rest are
  * this package's.
+ *
+ * **The package root is a scope root and is read flat.** `README.md` is the
+ * package's consumer-facing document and the build and tooling configs beside
+ * it describe the tree as it is now, so both are present tense; recursing from
+ * there would instead pull in `.plan/reviews/**` and `.plan/measurements/**`,
+ * which the tense rule puts out of scope. Flat is therefore the scope
+ * statement, not a shortcut.
  */
-const ROOTS: ReadonlyArray<readonly [string, readonly string[]]> = [
+const ROOTS: ReadonlyArray<readonly [string, readonly string[], boolean?]> = [
   [join(PACKAGE, 'src'), ['.ts']],
   [join(PACKAGE, 'tests'), ['.ts', '.md']],
   [join(PACKAGE, 'bench'), ['.ts', '.js', '.md']],
@@ -94,6 +101,7 @@ const ROOTS: ReadonlyArray<readonly [string, readonly string[]]> = [
   // construction: it carries the live obligations and the standing conditions
   // (D-116 (b)). A file rather than a directory, and `walk` reads it as one.
   [REGISTER, ['.md']],
+  [PACKAGE, ['.ts', '.md'], true],
 ];
 
 /**
@@ -145,15 +153,30 @@ const NAMED = /`([\w./-]+\.(?:md|ts|js))`[^`[\]]{0,3}$/u;
 /** Where a cited title ends. A citation is checkable as far as it is delimited. */
 const TITLE_END = /^(.*?)(?:[()\][|":]|\*\/|,\s|;\s|\.\s|\s—\s|$)/su;
 
+/** Any backticked span, with the strike markers that may bracket it. */
+const QUOTED = /(~~)?`([^`]+)`(~~)?/gu;
+
 /**
- * A backticked **repository** path: one anchored at a known top-level
- * directory, which is the only form that names a file without also naming what
- * it is relative to. Deliberately not every slashed string — `sortable/feature.js`
- * is a package subpath, `lib/tsc.js` is inside a dependency, and `./x.d.ts` is
- * relative to whatever the sentence around it is talking about.
+ * A **repository** path anchored at a known top-level directory — the form that
+ * names a file without also naming what it is relative to.
  */
-const PATH =
-  /(~~)?`((?:src|tests|bench|docs|packages|\.plan|\.scripts|\.agents)\/[\w./-]*[\w-]\.\w{1,5})`(~~)?/gu;
+const ANCHORED =
+  /^(?:src|tests|bench|docs|packages|\.plan|\.scripts|\.agents)\/[\w./-]*[\w-]\.\w{1,5}$/u;
+
+/**
+ * A **repo-relative** path: slashed, unanchored, and ending in one of the two
+ * extensions this tree authors. It is a mechanical shape rather than a guess at
+ * intent, and every clause narrows it against a form that is not a path:
+ * a leading `.` or `@` excludes `./x.ts` and a bare package specifier, at least
+ * one `/` excludes a bare filename, and `.ts`/`.md` alone excludes
+ * `sortable/feature.js` — a package subpath — and `lib/tsc.js`, which is inside
+ * a dependency.
+ *
+ * **It is what makes a wrong path visible where an anchored one already was.**
+ * ~~`sortable/verified-refresh.ts`~~ named a module that does not exist, and
+ * the anchored form could not see it because it carries no anchor.
+ */
+const RELATIVE = /^[\w-][\w.-]*(?:\/[\w.-]+)+\.(?:ts|md)$/u;
 
 type Seg = Readonly<{ words: readonly string[]; heading: boolean }>;
 type Doc = Readonly<{ segs: readonly Seg[]; ids: ReadonlySet<string> }>;
@@ -182,6 +205,7 @@ function segmentsOf(title: string): readonly string[] {
 async function walk(
   dir: string,
   extensions: readonly string[],
+  flat = false,
 ): Promise<readonly string[]> {
   // A root may name one file — the register is a scope root, not a tree.
   if (!(await stat(dir)).isDirectory()) {
@@ -194,9 +218,15 @@ async function walk(
     entries.map(async (entry) => {
       const path = join(dir, entry.name);
       if (entry.isDirectory()) {
-        return await walk(path, extensions);
+        return flat ? [] : await walk(path, extensions);
       }
-      return extensions.some((extension) => entry.name.endsWith(extension))
+      // **Emitted declarations are excluded**, and they are the only files the
+      // flat root would otherwise add that nothing authored: their prose is a
+      // copy of `src/`'s, already in scope and already checked, and their
+      // citations were written relative to the module that emitted them rather
+      // than to where they land.
+      return extensions.some((extension) => entry.name.endsWith(extension)) &&
+        !entry.name.endsWith('.d.ts')
         ? [path]
         : [];
     }),
@@ -401,7 +431,7 @@ function scope(): Promise<Scope> {
   cached ??= (async () => {
     const files = (
       await Promise.all(
-        ROOTS.map(([root, extensions]) => walk(root, extensions)),
+        ROOTS.map(([root, extensions, flat]) => walk(root, extensions, flat)),
       )
     ).flat();
     const sources = new Map(
@@ -730,8 +760,9 @@ describe('the normative tree', () => {
 
   it('should carry repository paths that all resolve on disk', async () => {
     const { files, sources } = await scope();
-    const cited: Array<readonly [string, string]> = [];
+    const cited: Array<readonly [string, string, readonly string[]]> = [];
     let retired = 0;
+    let unanchored = 0;
     for (const file of files) {
       const source = sources.get(file)!;
       const markdown = file.endsWith('.md');
@@ -745,25 +776,51 @@ describe('the normative tree', () => {
         if (prose === undefined || (ledger && LEDGER_ROW.test(prose.trim()))) {
           continue;
         }
-        for (const match of prose.matchAll(PATH)) {
+        for (const match of prose.matchAll(QUOTED)) {
           const [, open, path, close] = match;
+          const anchored = ANCHORED.test(path!);
+          if (!anchored && !RELATIVE.test(path!)) {
+            continue;
+          }
           if (open !== undefined && close !== undefined) {
             // Struck through: a deliberate reference to something retired.
             retired += 1;
             continue;
           }
-          cited.push([`${where(file, index + 1)} :: \`${path!}\``, path!]);
+          // **An anchored path names its own base and a relative one does
+          // not**, so the two resolve against different sets. The relative
+          // bases are the four a writer means, and they are the same four
+          // `linkedDoc` already tries: beside the citing file, at the package
+          // root, in the record, and under `src/`, which is how this tree
+          // spells a module.
+          const bases = anchored
+            ? [PACKAGE, MONOREPO]
+            : [
+                dirname(file),
+                PACKAGE,
+                join(PACKAGE, '.plan'),
+                join(PACKAGE, 'src'),
+                MONOREPO,
+              ];
+          unanchored += anchored ? 0 : 1;
+          cited.push([
+            `${where(file, index + 1)} :: \`${path!}\``,
+            path!,
+            bases,
+          ]);
         }
       }
     }
     // Every candidate is collected first, so the disk reads run as one batch
     // rather than one per citation.
     const found = await Promise.all(
-      cited.map(
-        async ([, path]) =>
-          (await exists(join(PACKAGE, path))) ||
-          (await exists(join(MONOREPO, path))),
-      ),
+      cited.map(async ([, path, bases]) => {
+        const present = await Promise.all(
+          bases.map((base) => exists(join(base, path))),
+        );
+
+        return present.includes(true);
+      }),
     );
 
     expect(
@@ -771,5 +828,10 @@ describe('the normative tree', () => {
     ).toEqual([]);
     expect(cited.length).toBeGreaterThan(100);
     expect(retired).toBeGreaterThan(0);
+    // Non-vacuity for the two widenings, each stated as the thing it enables:
+    // the package root really is read, and the unanchored shape really does
+    // classify candidates the anchored one cannot see.
+    expect(files).toContain(join(PACKAGE, 'README.md'));
+    expect(unanchored).toBeGreaterThan(0);
   });
 });

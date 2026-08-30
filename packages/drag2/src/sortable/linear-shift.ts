@@ -9,25 +9,38 @@
  *
  * ```text
  * (behavior)   one DOM write
- * moved(B)     the constant is known -> advance the cache, report the span
+ * moved(B)     the constant is known -> advance the slots, report the span
  *              the constant is unknown -> read one crossed row, then the same
+ *              either way -> the hole is now stale
+ * refresh      a stale hole -> read the placeholder once, off a clean tree
  * (sink)       one additive `translate` per reported element
  * ```
  *
  * **The constant is measured, never derived, and G5 is why.** It is a *flow*
- * quantity — the hole's own outer footprint along the axis — while the cache
- * holds **presented** geometry, which carries whatever authored `translate`,
- * `rotate` or `scale` a row wears. A difference between two *different*
- * elements' presented positions therefore carries the difference of their
- * authored contributions and is not a flow quantity at all. A difference of one
+ * quantity — the displacement one crossed row takes — while the cache holds
+ * **presented** geometry, which carries whatever authored `translate`, `rotate`
+ * or `scale` a row wears. A difference between two *different* elements'
+ * presented positions therefore carries the difference of their authored
+ * contributions and is not a flow quantity at all. A difference of one
  * element's presented position across two instants **is**: its own authored
  * contribution cancels. So the constant is observed as one crossed row's
  * displacement across one committed move, and every later move on the same
  * geometry is predicted from it with no DOM read.
  *
- * **The advance happens after the write, not before it.** Advancing a cache
- * arithmetically does not depend on the DOM, so the projection had no reason to
- * precede the write it described — and running it afterwards collapses the two
+ * **The hole is measured too, and it cannot be anything else.** Where the hole
+ * lands is a function of the crossed rows' **flow** footprints. The cache holds
+ * presented extents, which are not that quantity — a row wearing `rotate` or
+ * `scale` presents a bounding rect wider than its border box — and the
+ * placeholder's own footprint is not it either, since the placeholder is sized
+ * from `offsetWidth`/`offsetHeight` and carries no margin while the rows it
+ * displaces may. No same-element temporal difference yields it, so under G5
+ * there is no admissible prediction: a committed move marks the hole stale and
+ * the next spatial frame reads the placeholder once. That frame is post-paint,
+ * so the read finds a tree already laid out and forces nothing, and a frame
+ * with no committed move before it still reads nothing at all.
+ *
+ * **The advance happens after the write.** Advancing a cache arithmetically
+ * does not depend on the DOM, so running it afterwards collapses the two
  * instants into one, which is what lets a single hook carry both the predicted
  * and the measured path.
  *
@@ -72,9 +85,11 @@ export type LinearShift = Readonly<{
    * at the moment of the scan. The buffer this produces reflects that gap, and
    * `moved` advances from it.
    *
-   * It is also where the development instrument runs, on the claim the previous
-   * move made — the first instant at which both the cache and the tree are
-   * answerable, one frame after the animations that move started.
+   * It is also where the hole a committed move left stale is re-read, and
+   * where the development instrument runs on the claim the previous move made
+   * — the first instant at which both the cache and the tree are answerable,
+   * one frame after the animations that move started. The re-read precedes the
+   * instrument, because the instrument checks the hole.
    */
   refresh(
     snapshot: CollectionSnapshot,
@@ -88,14 +103,15 @@ export type LinearShift = Readonly<{
   /**
    * **The committed move has landed.**
    *
-   * Advances the cache and the placeholder slot to the geometry the write just
-   * produced, and reports the span to `report` when a sink is installed.
+   * Advances the crossed slots to the geometry the write just produced, marks
+   * the hole stale, and reports the span to `report` when a sink is installed.
    *
    * When the constant is not established — the first committed move of an
    * operation, and the first after any invalidation — one crossed row is read
    * and the signed difference against the value the cache already held for
    * **that same row**, the one form G5 admits, establishes it. Every later move
-   * on the same geometry performs no DOM read at all.
+   * on the same geometry reads nothing here; the stale hole costs one
+   * placeholder read on the next rebuild, off a tree already laid out.
    */
   moved(
     gap: number,
@@ -138,8 +154,9 @@ export function createLinearShift(
   /** The collection version the packed buffer holds, or `-1` for nothing. */
   let seen = -1;
   /**
-   * The hole's own flow footprint along the axis — its extent plus the one flow
-   * gap it introduces — or `-1` while unmeasured.
+   * The distance one crossed row travels along the axis when the hole passes
+   * it, or `-1` while unmeasured. It is the same for every crossed row, which
+   * is what G3-linear says.
    *
    * **Discarded by every invalidation**, because the layout that produced it
    * may not be the layout the next move happens in: a zoom, a resize or a
@@ -148,6 +165,12 @@ export function createLinearShift(
    * next committed move.
    */
   let constant = -1;
+  /**
+   * Whether a committed move has left the cached hole describing where the
+   * placeholder no longer stands. One read clears it, at the head of the next
+   * rebuild.
+   */
+  let hollow = false;
   /**
    * Whether an advance has been made that the instrument has not checked yet.
    * Written only inside `DEV` branches, so it folds away with them.
@@ -159,19 +182,25 @@ export function createLinearShift(
     last = -1;
     seen = -1;
     constant = -1;
+    hollow = false;
   };
 
   /** Nothing sound to advance, and the write has already landed. */
   const drop = (): void => {
     dirty = true;
     last = -1;
+    hollow = false;
     index.invalidate();
   };
 
   /**
-   * Advance the span and the hole by an established `delta`, reporting each
-   * element it crosses. Shared by the predicted and the measured path, which
-   * differ only in where `delta` came from.
+   * Advance the crossed span by an established `delta`, reporting each element
+   * it crosses. Shared by the predicted and the measured path, which differ
+   * only in where `delta` came from.
+   *
+   * **The hole is not advanced here**, and no arithmetic over this span yields
+   * it: these are presented extents and the hole's landing place is a flow
+   * quantity. The caller marks it stale instead.
    *
    * **The report shares the walk rather than following it**, so a committed
    * move costs one traversal and allocates nothing — no plan closure, no
@@ -184,29 +213,17 @@ export function createLinearShift(
     runtime: LinearRuntime,
     report: DisplacementReport | null,
   ): void => {
-    const { values, hole, items } = index;
-    // The hole's flow footprint splits into its own extent and the one flow gap
-    // it introduces; the slots it crosses close up by the whole footprint,
-    // while the hole itself travels the sum of what those slots occupy plus one
-    // gap each.
-    const width = hole[end]! - hole[start]!;
-    const spacing = (delta < 0 ? -delta : delta) - width;
+    const { values, items } = index;
     // Hoisted out of the walk: every element in the span carries the same
     // vector, so the two components are computed once per move rather than
     // once per element.
     const dx = -delta * ux;
     const dy = -delta * uy;
-    let travelled = 0;
 
     for (let i = lo; i < hi; i += 1) {
       const offset = i * STRIDE;
-      const a = values[offset + start]!;
-      const b = values[offset + end]!;
-
-      travelled += b - a + spacing;
-
-      const shiftedA = a + delta;
-      const shiftedB = b + delta;
+      const shiftedA = values[offset + start]! + delta;
+      const shiftedB = values[offset + end]! + delta;
 
       values[offset + start] = shiftedA;
       values[offset + end] = shiftedB;
@@ -219,15 +236,6 @@ export function createLinearShift(
         report(items[i]!, dx, dy, runtime.live);
       }
     }
-
-    // **The hole advances by its own displacement**, which is what it crossed —
-    // a sum over the slots' own extents, never a difference against one of
-    // their positions. It moves against the slots, so the sign is inverted.
-    const holeStart = hole[start]! + (delta < 0 ? travelled : -travelled);
-
-    hole[start] = holeStart;
-    hole[end] = holeStart + width;
-    hole[centre] = holeStart + width * 0.5;
   };
 
   return {
@@ -240,6 +248,45 @@ export function createLinearShift(
       settle,
       gap,
     ): boolean {
+      // **The stale hole, re-read before anything reads it — the instrument
+      // included.** `verifyEquivalence` below compares the cached placeholder
+      // against the tree, so a hole left deliberately stale has to be current
+      // by the time it runs or every correct list reports a mismatch at the
+      // placeholder on every move.
+      //
+      // Only the axis's own three fields are written: a hole relocation moves
+      // the placeholder along this axis and leaves both cross-axis coordinates
+      // where they were, which is the same G2 clause the slot advance rests on.
+      //
+      // Every path that dirties the cache clears this — `retire` included, so
+      // a warm frame still cannot reach a consumer call on a destroyed
+      // controller. What survives is one redundant read when the collection
+      // version moves under a clean cache, inside a frame already paying a
+      // full rebuild.
+      if (hollow) {
+        hollow = false;
+
+        // A consumer-owned element with an overridable `getBoundingClientRect`,
+        // so the reading is taken and then the barrier, exactly as the scan
+        // does it.
+        const rect = placeholder.getBoundingClientRect();
+
+        if (!live()) {
+          forget();
+          index.retire();
+
+          return false;
+        }
+
+        const { hole } = index;
+        const a = start === TOP ? rect.top : rect.left;
+        const b = start === TOP ? rect.bottom : rect.right;
+
+        hole[start] = a;
+        hole[end] = b;
+        hole[centre] = (a + b) * 0.5;
+      }
+
       // **The instrument, on the claim the previous move made.** It scans,
       // which is the forced layout this model exists to remove, so it is `DEV`
       // only. Here rather than inside the move that made the claim: at that
@@ -340,6 +387,7 @@ export function createLinearShift(
       shiftSpan(lo, hi, delta, runtime, report);
 
       last = gap;
+      hollow = true;
 
       if (DEV) {
         claimed = true;
@@ -349,6 +397,7 @@ export function createLinearShift(
     invalidate(): void {
       dirty = true;
       constant = -1;
+      hollow = false;
       index.invalidate();
     },
 

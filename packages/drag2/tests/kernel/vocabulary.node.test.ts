@@ -26,7 +26,7 @@
  * and this file cannot tell the difference between a tier that declined the
  * import and a tier that never considered it.
  */
-import { readdir, readFile } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import * as drag from '../../src/drag.ts';
@@ -34,6 +34,7 @@ import * as kernel from '../../src/kernel.ts';
 import * as sortable from '../../src/sortable.ts';
 
 const SRC = resolve(import.meta.dirname, '../../src');
+const PACKAGE = resolve(import.meta.dirname, '../..');
 
 /**
  * Every name `src/kernel.ts` and `src/drag.ts` publish — values by reflection,
@@ -369,13 +370,67 @@ async function devReaders(): Promise<ReadonlyArray<readonly [string, number]>> {
 }
 
 /**
+ * The files a home claim can be written in: this package's source, tests and
+ * benchmarks, plus its root's own files — where the build define lives, and
+ * where one of the two wrong answers was written.
+ *
+ * **The root is read flat**, because recursing from it would sweep the dated
+ * record in `.plan/`, which states what was true when it was written.
+ */
+async function homeClaimScope(): Promise<readonly string[]> {
+  const walk = async (
+    directory: string,
+    flat: boolean,
+  ): Promise<readonly string[]> => {
+    const entries = await readdir(directory, { withFileTypes: true });
+    const found = await Promise.all(
+      entries.map(async (entry) => {
+        const path = join(directory, entry.name);
+
+        if (entry.isDirectory()) {
+          return entry.name === 'node_modules' ||
+            entry.name.startsWith('.') ||
+            flat
+            ? []
+            : await walk(path, false);
+        }
+
+        // Emitted declarations copy `src/`'s prose, which is already in scope.
+        return /\.(?:ts|md)$/u.test(entry.name) && !entry.name.endsWith('.d.ts')
+          ? [path]
+          : [];
+      }),
+    );
+
+    return found.flat();
+  };
+
+  const roots: ReadonlyArray<readonly [string, boolean]> = [
+    [SRC, false],
+    [join(PACKAGE, 'tests'), false],
+    [join(PACKAGE, 'bench'), false],
+    [PACKAGE, true],
+  ];
+  const walked = await Promise.all(
+    roots.map(async ([root, flat]) =>
+      (await stat(root)).isDirectory() ? await walk(root, flat) : [],
+    ),
+  );
+
+  // `src/globals.d.ts` is the one `.d.ts` that is authored rather than emitted,
+  // and it carried one of the two wrong answers.
+  return [...walked.flat(), join(SRC, 'globals.d.ts')].toSorted();
+}
+
+/**
  * The tier a module belongs to: the **top-level directory under `src/`**, or
  * `.` for the entries at the root.
  *
  * **Not `dirname`** (P06-03). A tier is `kernel`, `sortable`, `free-drag`,
  * `shared` — the units 02 §What stays internal draws its boundary between — and
- * under `dirname` a second binding at `sortable/sub/a.ts` would sit in a tier
- * of its own and satisfy a rule it plainly breaks.
+ * under `dirname` a second binding one directory deeper — in a hypothetical
+ * `sub` folder under `sortable` — would sit in a tier of its own and satisfy a
+ * rule it plainly breaks.
  */
 const tierOf = (file: string): string => file.split('/')[0] ?? '.';
 
@@ -443,5 +498,107 @@ describe('the `__DEV__` binding', () => {
     ];
 
     expect(tiers).toEqual(['sortable']);
+  });
+
+  it('should bind the flag in exactly one module', async () => {
+    // The three rows above bound the *shape* — at most one per tier, read once,
+    // in a declared tier — and every one of them is satisfied by a tree that
+    // binds it nowhere. This is the count itself, and it is what the rule below
+    // needs before it can name a file.
+    expect((await devReaders()).map(([file]) => file)).toEqual([
+      'sortable/rect-index.ts',
+    ]);
+  });
+
+  it('should name that module wherever prose names the binding’s home', async () => {
+    // **The invariant that has now failed twice with two different wrong
+    // answers**, and the reason it is an assertion rather than a review item:
+    // both wrong answers named a file that **exists**, so nothing that resolves
+    // paths on disk can see either.
+    //
+    // **It is mechanical, not semantic.** No attempt is made to decide whether
+    // a sentence is *about* the binding. The rule is positional: a prose
+    // paragraph that mentions the ambient may name the module that declares it
+    // and the module that binds it, and no other module of this source tree. A
+    // paragraph naming `tsdown.config.ts`, `.scripts/vite-config.ts` or a test
+    // file is untouched, because those are not modules of `src/`.
+    //
+    // A struck path is a deliberate reference to something retired, which is
+    // the same convention `tests/references.node.test.ts` counts.
+    const bound = (await devReaders()).map(([file]) => `src/${file}`);
+    const allowed = new Set(['src/globals.d.ts', ...bound]);
+    // The tiers are read off the tree rather than listed, so a new one joins
+    // the rule by existing.
+    const tiers = (await readdir(SRC, { withFileTypes: true }))
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name);
+    const module = new RegExp(
+      `^(?:src/)?(?:${tiers.join('|')})/[\\w./-]+\\.ts$|^src/[\\w./-]+\\.ts$`,
+      'u',
+    );
+    const wrong: string[] = [];
+    const files = await homeClaimScope();
+    // One batch rather than one read per file: the scope is the whole package
+    // and every file is read whatever the previous one said.
+    const sources = await Promise.all(
+      files.map((file) => readFile(file, 'utf8')),
+    );
+
+    for (const [ordinal, file] of files.entries()) {
+      const source = sources[ordinal]!;
+      const markdown = file.endsWith('.md');
+      let paragraph: string[] = [];
+      let opened = 0;
+      const close = (): void => {
+        const text = paragraph.join(' ');
+
+        if (paragraph.length > 0 && text.includes('__DEV__')) {
+          for (const [, struck, path] of text.matchAll(
+            /(~~)?`([^`]+)`(?:~~)?/gu,
+          )) {
+            const named = path!.startsWith('src/') ? path! : `src/${path!}`;
+
+            if (
+              struck === undefined &&
+              module.test(path!) &&
+              !allowed.has(named)
+            ) {
+              wrong.push(
+                `${relative(PACKAGE, file)}:${opened} :: \`${path!}\``,
+              );
+            }
+          }
+        }
+
+        paragraph = [];
+      };
+
+      for (const [index, raw] of source.split('\n').entries()) {
+        const prose = markdown
+          ? raw
+          : /^\s*(?:\/\*\*|\*\/|\*|\/\/)\s?(.*)$/u.exec(raw)?.[1];
+
+        // **The unit differs by file kind, and each is the natural one.** In
+        // markdown a blank line separates two statements. Inside a comment
+        // block it does not — a doc block is one statement about one thing,
+        // and both wrong answers put the ambient in one of its paragraphs and
+        // the file name in another. So a comment run closes on the first line
+        // that is not a comment, and a markdown paragraph on the first blank.
+        if (prose === undefined || (markdown && prose.trim() === '')) {
+          close();
+          continue;
+        }
+
+        if (paragraph.length === 0) {
+          opened = index + 1;
+        }
+
+        paragraph.push(prose.trim());
+      }
+
+      close();
+    }
+
+    expect(wrong).toEqual([]);
   });
 });

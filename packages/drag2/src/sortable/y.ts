@@ -123,6 +123,24 @@ type InsertionRuntimeView = Readonly<{
  *   presentation and is not a flow quantity. This is the library's own
  *   obligation, stated because it is what decides which of the two axes
  *   predicts and which measures.
+ * - **G6** — the placeholder's own geometry is stable between invalidations.
+ *   The rule describes the hole's footprint as it stood when it was last
+ *   measured, and nothing short of an invalidation revisits it, so a
+ *   placeholder whose own size animates must be accompanied by
+ *   `controller.invalidate()`.
+ *
+ * ## What this rule does not cover
+ *
+ * Two layouts sit outside it, and neither is checked at runtime:
+ *
+ * - **position-sensitive collapsing margins.** A block list whose margins
+ *   collapse differently depending on which neighbours a row has does not
+ *   displace by one constant, and rows *outside* the crossed span move as well
+ *   — which breaks G2 before it reaches this rule.
+ * - **a flow axis that is not axis-aligned in the viewport.** Candidates are
+ *   ordered by their viewport y coordinate, which stops meaning flow order once
+ *   an ancestor rotates or skews. Ancestor scaling and CSS `zoom` are fine;
+ *   ancestor rotation and skew are not.
  *
  * ## G3-linear
  *
@@ -130,13 +148,20 @@ type InsertionRuntimeView = Readonly<{
  * hole from gap `A` to gap `B` displaces the slots in `[min(A,B), max(A,B))` by
  * **one constant** along the axis and changes nothing else, including both
  * cross-axis coordinates. A list whose rows do not all shift by the same amount
- * — one that wraps, or whose flow gap varies from row to row — does not satisfy
- * it.
+ * — one that wraps — does not satisfy it. A varying flow gap does: the rows
+ * still travel one constant, and a column whose gaps differ row to row is
+ * supported, as are per-item margins.
  *
  * The constant itself is a flow quantity, so under G5 it is **measured once per
  * operation** — one row, read after the first committed move — and once again
  * after any invalidation. Every other committed move performs **no layout read
- * at all**, and neither does any warm spatial frame.
+ * at all**.
+ *
+ * **The hole is measured rather than predicted**, because where it lands is a
+ * function of the crossed rows' flow footprints and no prediction G5 admits
+ * yields that. A committed move therefore costs one placeholder read on the
+ * **next** spatial frame, taken off a tree the browser has already laid out. A
+ * warm spatial frame with no committed move before it still reads nothing.
  */
 export function y(): AxisInstaller {
   return () => {

@@ -2250,6 +2250,40 @@ The remediation as it landed. D-155 stays deferred and F-203 is not folded in.
 
 **Evidence added.** Reads counted _inside the write's own task_, separating a forced layout from a later clean one; a release that cancels nothing, driven against a landing composition so teardown's own cancel cannot stand in for it; and a per-composition allocation row asserting no buffer is built per committed move in any of the four sortable compositions. Budgets re-based after the shrink, never during it.
 
+### 2026-08-30 — D-161 and D-163 implemented; D-162 held for the architect
+
+The remediation the entry below settled, less one decision that could not be built as written.
+
+**D-161 landed as a deletion and measured as one.** `shiftSpan` lost `width`, `spacing`, `travelled` and the hole write; a committed move now marks the hole stale and the next spatial frame re-reads the placeholder once, at the head of `refresh` and **ahead of the equivalence oracle**, which is the ordering the record flagged — the oracle checks the hole, so a deliberately stale one has to be current before it runs or every correct list reports a mismatch at the placeholder on every move. Row displacement is still predicted from the measured constant. A warm frame with no committed move before it still reads nothing, and the read that was added is taken post-paint, so nothing is forced.
+
+**The widened contract is published and covered.** `y()`'s G3-linear loses the varying-flow-gap disqualification; G6 is written into both axis factories; the two always-true exclusions — position-sensitive collapsing margins, and a flow axis that is not axis-aligned in the viewport — are written into `y()`. The negative fixture for a varying flow gap is **retired** and the same layout is now positive, with a wrapping flex row replacing it so the instrument is still shown to fail. The two F-212 mechanisms are covered **separately**, which is what the record's control established they are: an authored `rotate` and an authored `scale` on one row, and item `margin-bottom` against the margin-less placeholder in a flex and a block column.
+
+**One consequence the remedy forced, and it is worth naming because it was not in the decision.** The oracle compared **exactly** with no sink installed, on the argument that both sides are the same arithmetic on the same readings. That argument fails the moment a supported row wears a `rotate`: the browser recomputes its bounding rect through the matrix, so translating a cached rect and re-reading it disagree by about `1e-5` px — measured at 1.4e-6 and 9e-6 px on a `rotate: 8deg` row against exactly `-70` on its neighbours. The `1 / 256` tolerance the settle path already used is now unconditional. It is `DEV`-only and ships in nothing, and without it the newly supported presentation cases are unprovable.
+
+**D-162 is not implemented, and it is held rather than deferred.** Its stated shape needs two things it does not have. The displacement sink's only entry is `report(element, dx, dy, live)`, called once per displaced element with no committed-move boundary and no placeholder — so _read once per committed move off the placeholder_ is not expressible without either a new member on the published `DisplacementContribution`, a scheduling assumption inside the sink, or an operation-lifetime cache, none of which the decision authorises. And `coordinates()` plus the `BOX_ANCESTOR_*` indices inside `src/sortable/layout-animation.ts` is exactly what D-85's packaging assertion forbids of every behavior module. Both are contract questions; the owner held the decision for the architect rather than let the implementation answer them. F-213 stays open, D-162 keeps its marker and its deferred row, and `layout-animation.ts`'s coordinate space is untouched.
+
+**D-163 landed whole.** The reference instrument gains the package root as a **flat** scope root — recursing from there would sweep the dated record — and an unanchored repo-relative path shape, resolved against the four bases `linkedDoc` already used. Emitted `.d.ts` files are excluded: their prose is a copy of `src/`'s. **The widening immediately found thirteen sites the anchored form was structurally unable to see**, including both of F-216's wrong answers and the four `sortable/verified-refresh.ts` claims left across the contract set. A semantic accuracy check was refused; in its place `tests/kernel/vocabulary.node.test.ts` gains the targeted invariant — exactly one `__DEV__` binding, and a prose unit naming the ambient may name the module that declares it and the module that binds it and no other module of `src/`. It is positional rather than semantic, and it was falsified against **both** historic wrong answers before being left green. The budget gate is deleted: `43 passed` in a default run against `28 passed | 15 skipped`.
+
+**F-224 is fixed in the class rather than the instance.** All seven of `ledger.ts`'s row patterns tolerate the formatter's cell padding, not only the register's, and `00-index.md` is then **formatted** — so the live register is in `oxfmt`'s own shape and the whole suite reads it. Two witnesses in `tests/decisions.node.test.ts` are written in formatter-shaped spacing; both fail against the pre-fix patterns.
+
+**Measured jointly, and the direction is the opposite of the prototype's** — because the prototype measured D-161 and D-162 together, and D-162 is the half that adds bytes. On this tree D-161 alone is a **shrink**, and the two figures disagree in direction, so both are recorded: shipped bytes are compressed bytes, and every row that grew by 81 B minified fell by 7 to 12 B after Brotli. Baseline and result measured from built trees on the same machine, one arm each side of the change.
+
+| Composition | brotli before | after | Δ | min before | after | Δ |
+| --- | --: | --: | --: | --: | --: | --: |
+| minimal | 9844 | 9837 | **−7** | 28663 | 28744 | +81 |
+| minimal (xy) | 9704 | 9704 | **0** | 28300 | 28300 | 0 |
+| minimal + layoutAnimation | 10195 | 10186 | **−9** | 29599 | 29680 | +81 |
+| xy + layoutAnimation | 10045 | 10045 | **0** | 29236 | 29236 | 0 |
+| minimal + landing | 10105 | 10094 | **−11** | 29346 | 29427 | +81 |
+| complete | 10439 | 10427 | **−12** | 30279 | 30360 | +81 |
+| free drag ×4 | 7750 / 7897 / 8017 / 8151 | ″ | **0** | ″ | ″ | 0 |
+| both behaviors | 11812 | 11808 | −4 | 35974 | 36055 | +81 |
+| `drag.js` / `kernel.js` | 142 / 6063 | ″ | **0** | ″ | ″ | 0 |
+| baseline A | 10255 | 10257 | +2 | 29574 | 29655 | +81 |
+| baseline B | 6889 | 6889 | **0** | 22573 | 22573 | 0 |
+
+**The rows that consume no linear rule report exactly 0** — `minimal (xy)`, `xy + layoutAnimation` and all seven declared controls — which is the instrument seeing what it should and nothing it should not, declared before the run rather than read off it. Every delta sits inside the ±25 B band `measure.ts` states is not a signal, so **nothing is re-based**, and every row stays 0.15–0.52 kB under its ceiling with the gate now gone.
+
 ### 2026-08-30 — The two tier-A geometry defects settled, and the contract widened (D-161, D-162, D-163)
 
 The architectural follow-up to the final arc's review round. Record [`geometry-defects-contract-claude.md`](reviews/phase-23/geometry-defects-contract-claude.md).
