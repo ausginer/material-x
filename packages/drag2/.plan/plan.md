@@ -2250,6 +2250,18 @@ The remediation as it landed. D-155 stays deferred and F-203 is not folded in.
 
 **Evidence added.** Reads counted _inside the write's own task_, separating a forced layout from a later clean one; a release that cancels nothing, driven against a landing composition so teardown's own cancel cannot stand in for it; and a per-composition allocation row asserting no buffer is built per committed move in any of the four sortable compositions. Budgets re-based after the shrink, never during it.
 
+### 2026-08-30 — The cellular residue accepted, and the displacement failure stage corrected (D-159)
+
+The two questions owner review left open after the ownership remediation. Record [`xy-residue-and-failure-stage-claude.md`](reviews/phase-23/xy-residue-and-failure-stage-claude.md).
+
+**The residue.** Deleting `xy()`'s displacement production measures **−164 B** on `minimal (xy)` and **exactly zero on every other row**, so the row's +124 B against the parent is ownership work worth −40 B plus a capability worth +164 B, and there is nothing else in it. The counterfactual — the axis supplying no post-write member, the sink bracketing the write itself — was **built and measured** rather than argued, and it **wins one row and loses five**: `minimal (xy)` −140, but `minimal` **+32**, `xy + layoutAnimation` **+104**, `minimal + layoutAnimation` **+290** and `complete` **+262**, putting both animating rows back over the model they had come 156 B under. It taxes the bare linear axis to relocate cellular machinery, it makes the composition it was built for dearer, and it ships a cellular bracket into every animating composition because a sink cannot know which axis is composed.
+
+**Why, as a rule.** Generalising a specialised routine in order to relocate it costs more than the relocation saves. The axis's diff is small **because** it is specialised — it owns the destination view and the cache, so a slot is the same element on both sides and the before geometry is already held. The leak is symmetric and can only be aimed, and it is aimed at the smaller, bounded, single-row side.
+
+**A blind spot the pass had to fix first.** No row combined the cellular axis with the displacement feature, so three passes of displacement architecture were measured without ever seeing the composition they were about. It measures 10045 B at 31 modules and is added permanently.
+
+**The stage.** A stage says where the library was standing, and the library was standing in the action seam's effect — which is what `FAILURE_ACTION_EFFECT` names and what D-74 renamed from `FAILURE_PLACEHOLDER_MOVE`. Reporting the invalidation stage sends a consumer to look at their own `invalidate` calls for a fault in a resolver or an overridden `animate`: a misdirection rather than a coarseness. Preserving the true stage takes **one token**, not a `try` per report; deleting the now-redundant catch measures a uniform −32 B minified and is **declined here**, because it moves which of two simultaneous errors is latched and a §13 observable must not ride along inside a diagnostic correction.
+
 ### 2026-08-30 — Displacement ownership: the regression is a misallocation (D-158)
 
 The production diff's size cost re-examined as an ownership question rather than a reason to discard D-156. Record [`displacement-ownership-claude.md`](reviews/phase-23/displacement-ownership-claude.md).
