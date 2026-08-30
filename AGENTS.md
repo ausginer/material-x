@@ -8,10 +8,10 @@ Resident in every agent's context, so it carries only what applies before a role
 
 - **Tracked changes belong on a non-`main` branch.** Verify the branch first; if it is `main`, stop and ask. Do not create or switch branches implicitly unless asked.
 - **Do not amend, squash, rebase, rewrite or delete an existing commit** unless asked.
-- **Do not push, open or merge a PR, or rename, delete or otherwise move a shared ref** unless asked. A local commit is automatic; publication is not.
+- **Push the current work branch to `origin` once a unit of work is finalized** — after the last commit of the unit, not after each one. **Do not open or merge a PR, force-push, push `main`, or rename, delete or otherwise move any other shared ref** unless asked.
 - **Never bypass branch protection, rulesets or repository policy.** If an operation is rejected, report the blocker rather than force-pushing or changing rules around it.
 
-Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before writing or changing source. Before finalizing a unit of work — formatting, linting, typechecking or committing — read [`.agents/docs/handoff.md`](.agents/docs/handoff.md).
+Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before writing or changing source. Before finalizing a unit of work — formatting, linting, typechecking, committing or pushing — read [`.agents/docs/handoff.md`](.agents/docs/handoff.md).
 
 ## Evidence
 

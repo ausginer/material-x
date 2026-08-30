@@ -31,4 +31,10 @@ Two things that catch people out:
 - Use a **short, subject-only** commit message unless a body is explicitly requested. Never copy completion reports, test output, review summaries or plan prose into it.
 - Describe the substance of the completed unit, not its workflow position: prefer `host: add explicit capability grants and diagnostics` over `host: phase 2`, `address review` or `finalize implementation`. For a review or planning artifact, name what the artifact establishes or evaluates rather than the checkpoint it belongs to.
 
-The restrictions on rewriting history and on moving shared refs are resident in `AGENTS.md` and apply from the start of a session, not only here.
+## Publish the branch
+
+**A finalized handoff is pushed, not only committed.** Once the unit's last commit is in, `git push` the current work branch to `origin`. Where the unit took several commits, push once after all of them rather than after each — the next role needs the finished state, not the intermediate ones.
+
+Push the work branch and nothing else. Opening or merging a PR, force-pushing, pushing `main`, and moving any other shared ref all still require being asked, as do rewriting history and working around branch protection; those restrictions are resident in `AGENTS.md` and apply from the start of a session, not only here.
+
+If the push is rejected — protected branch, non-fast-forward, missing upstream — report the blocker. Do not force, and do not reshape history to make it land.
