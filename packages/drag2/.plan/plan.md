@@ -2284,6 +2284,18 @@ The remediation the entry below settled, less one decision that could not be bui
 
 **The rows that consume no linear rule report exactly 0** — `minimal (xy)`, `xy + layoutAnimation` and all seven declared controls — which is the instrument seeing what it should and nothing it should not, declared before the run rather than read off it. Every delta sits inside the ±25 B band `measure.ts` states is not a signal, so **nothing is re-based**, and every row stays 0.15–0.52 kB under its ceiling with the gate now gone.
 
+### 2026-08-30 — D-162 re-decided: the conversion is routed, not read
+
+Implementation held D-162 on two blockers and both hold. Record [`displacement-coordinate-space-claude.md`](reviews/phase-23/displacement-coordinate-space-claude.md).
+
+**D-85 does not conflict with the fix; it supplies it.** `inheritedSpaceOf` already returns the **inverse** inherited linear part, is **`null` for an untransformed ancestry** so the common case is one null test, and is derived from the measurement `acquireLift` already took — and its own doc block says it is _also the projection a behavior needs to report a local delta_. No `coordinates()` call enters a behavior module and **D-85 stands unamended**.
+
+**The seam did not need adding; it needed removing.** Rather than a committed-move boundary the sink could read once, the space rides with the vector as a fifth argument on `report`, so a report states its own units. No cached state, no lifetime, no interval that has to stay valid — and therefore no temporal protocol to state. A composition with no sink converts nothing, because the argument is pushed inside the `if (report)` a null slot skips. Folding and settle are untouched: the stored contribution stays viewport, and only the keyframe expression converts.
+
+**Both forms built and measured** against `60eb9e50`. Routed: `minimal` +13, `minimal (xy)` +14, animating rows +47/+48/+39. The explicit per-move seam: +40, +27, +75, +74, +68 — worse on every row, and carrying state the routed form does not. The superseded `coordinates()`-in-the-sink form measured +124/+107/+115, so reusing the kernel's derivation is about a third of it. Six control rows at zero; sortable suites unchanged at 505 tests.
+
+**One configuration is not covered and is published rather than absorbed.** The sink writes `translate` on an _item_ so the space that matters is the container's, while `inheritedSpace` is the space above the _visual_ — identical under the default, under `box !== item`, under a transformed container and for a `display: contents` wrapper, and divergent only when `visual` resolves to a descendant with a transform in between. Closing it exactly means a second traversal on the item, which is a style read — and D-85 accepted its own cost precisely because it was not one. So the limit joins the three `config.ts` already states for this pair of slots, and it is named as a narrowing of G1-presented in that one configuration rather than folded in quietly.
+
 ### 2026-08-30 — The two tier-A geometry defects settled, and the contract widened (D-161, D-162, D-163)
 
 The architectural follow-up to the final arc's review round. Record [`geometry-defects-contract-claude.md`](reviews/phase-23/geometry-defects-contract-claude.md).
