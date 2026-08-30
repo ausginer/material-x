@@ -57,18 +57,23 @@ Two files holding the same conventions drift, and the drift is silent because ne
 
 - **`AGENTS.md` is the durable root.** Vendor-neutral name, read by humans and by every agent harness that can be pointed at a file.
 - **`CLAUDE.md` imports it** with a bare `@AGENTS.md` line and adds only what is specific to Claude Code — tool-availability protocol, skills routing, sub-agent policy. It states no convention of its own.
-- **`.agents/docs/` holds the conventions themselves**, one subject per file, imported where they must be resident and referenced where they are looked up.
+- **`.agents/docs/` holds the conventions themselves**, one subject per file, referenced rather than resident and named by the role or reader that needs each one.
 
 ### Residency is a real property and costs real context
 
-An imported file is loaded into every session's prompt whether or not it is needed; a referenced file is read only when someone goes looking. Choose deliberately:
+An imported file is loaded into every agent's prompt whether or not it is needed, and that cost is charged to every role the harness starts — including roles that neither write code nor consult the rule. A referenced file is read only when someone goes looking. So the arrangement is a **routed knowledge base**: a small always-prepended bootstrap, and chunks retrieved by the role that needs them.
 
-- **Import** what is applied without being consulted — the things an author would otherwise violate silently. Code style is the paradigm.
-- **Reference** what is consulted when the relevant work begins — architecture, test layering, a package's contract. These are long, and a reader who needs them knows to open them.
+- **Prepend only what must fire before a routing decision exists** — restrictions on irreversible or outward-facing operations, and enough orientation for a role-less session to find everything else. A resident index of chunks that roles already name is creep, not orientation.
+- **Everything else is a chunk**, named by the role that needs it at the trigger where it becomes relevant: at start, before writing findings, before finalizing, or on a stated condition.
+- **Content too small for a retrieval to pay for itself goes inline** in the role that owns it. A retrieval costs a call and a result as well as the text, so below some size a separate file is more expensive than the duplication it avoids. The threshold is an engineering estimate rather than a measurement; keep it in the record, not here.
+- **A chunk is the smallest unit never partially needed.** If a role routinely wants half a file, the file is too coarse.
+- **The role definition is the only place an edge is stored.** A chunk states its purpose and trigger in a one-line retrieval header; it does not enumerate its readers, because a second copy of the graph is a consistency problem rather than a witness. *Who reads this?* is derived from the role definitions.
 
-Imports are resolved relative to the importing file and nest up to four hops, which is enough for `CLAUDE.md` → `AGENTS.md` → a conventions file.
+A large document with permanent section numbers is addressable without being loaded whole: extraction terminates at the next heading of the same or higher level, so a stable address never requires stable adjacency.
 
-**A path inside backticks is not an import.** That is the mechanism by which this document can name `@AGENTS.md` without loading it, and it is also the trap: un-backticking a path in prose silently adds a file to every session's context. Write bare `@` lines only where residency is the intent, and keep them together so the resident set is readable at a glance.
+Imports are resolved relative to the importing file and nest up to four hops. **A bare `@path` line is expanded only in the resident files** — inside a role definition under `.claude/agents/` it stays literal text, so a role states its dependencies as read instructions.
+
+**A path inside backticks is not an import.** That is the mechanism by which this document can name `@AGENTS.md` without loading it, and it is also the trap: un-backticking a path in prose silently adds a file to every agent's context. Write bare `@` lines only where residency is the intent, and keep them together so the resident set is readable at a glance.
 
 ---
 
@@ -166,6 +171,7 @@ A convention with no instrument is a convention that decays, and the classes abo
 | The published declaration weight is visible | a reported figure in the package's size bench |
 | Cross-document links resolve | the existing reference tests |
 | Section numbers are never reused | none available; held by the rule in §2 |
+| The routing graph closes | none available; every file carrying a retrieval header is named by at least one role definition, and every path a role names resolves |
 
 **Report a figure before budgeting it.** A ceiling whose calibrating injection cannot be re-run is not calibrated, and the published-declaration weight has no measured regression behind it yet.
 
@@ -175,11 +181,14 @@ A convention with no instrument is a convention that decays, and the classes abo
 
 | Path | Kind |
 | --- | --- |
-| `AGENTS.md` | Operation — the durable root, and the only copy |
-| `CLAUDE.md` | Operation — Claude Code overlay, imports the root |
-| `CONTRIBUTING.md` | Convention and Policy — source shape and the size and ownership policy, resident; Part II's sections are permanently numbered |
+| `AGENTS.md` | Operation — the durable root and the only copy; the always-prepended bootstrap |
+| `CLAUDE.md` | Operation — Claude Code overlay, imports the root; also prepended |
+| `CONTRIBUTING.md` | Convention and Policy — source shape and the size and ownership policy. Referenced, not resident: read whole by the roles that apply the whole rulebook and retrieved by section otherwise. Part II's sections are permanently numbered |
 | `.agents/docs/documentation.md` | Convention — this document |
-| `.agents/docs/agent-workflow.md`, `architecture.md`, `css-inheritance.md`, `accessibility.md`, `attribute-vs-state-styling.md`, `trait-flattener-plugin.md`, `test-architecture.md` | Convention and design reference — consulted, not resident |
+| `.agents/docs/review-findings.md`, `handoff.md`, `material-x-components.md` | Convention and Operation — routed chunks; each carries a retrieval header naming its trigger |
+| `.agents/docs/agent-workflow.md` | Operation — how the roles are arranged and a round is run. Coordinator and human documentation; no role reads it at runtime |
+| `.agents/docs/architecture.md`, `css-inheritance.md`, `accessibility.md`, `attribute-vs-state-styling.md`, `trait-flattener-plugin.md`, `test-architecture.md` | Convention and design reference — consulted, not resident |
+| `.claude/agents/` | Operation — the role definitions, and the only store of `role → chunk` edges |
 | `.claude/skills/` | Operation — task-scoped procedure |
 | `packages/*/.plan/` | Record |
 | `packages/*/README.md` | Consumer documentation for that package |
@@ -196,3 +205,6 @@ What this document used to say, and what changed it. Section numbers are permane
 | --- | --- | --- |
 | 2026-08-26 | §5.2 | **Withdrawn:** _If the comment is longer than the code and is arguing a choice, it is a record entry with a pointer left behind._ It tested length and the presence of an argument, and §5.3's own question contradicts it: an argument for the **present** shape survives that shape's removal by being deleted, so it is a comment however long it is. Replaced by a tense test. Record: [`maintainer-comment-boundary-claude.md`](../../packages/drag2/.plan/reviews/phase-23/maintainer-comment-boundary-claude.md) |
 | 2026-08-30 | §6 | **Added:** a decision is lifecycle-atomic — a substantive amendment mints a new decision rather than being made in place, so a status can be read per decision instead of per sentence. Record: [`00-index.md`](../../packages/drag2/.plan/contract/00-index.md) D-160 |
+| 2026-08-30 | §3 | **Withdrawn:** _import what is applied without being consulted; code style is the paradigm._ Residency is charged to every role the harness starts, including roles that write no code, so the rulebook was prepended for lenses that never consulted it. Replaced by a **routed knowledge base**: a bootstrap carrying only what must fire before a routing decision exists, and chunks named by the role that needs them. Record: [`instruction-residency-claude.md`](../../packages/drag2/.plan/reviews/phase-23/instruction-residency-claude.md) |
+| 2026-08-30 | §7 | **Added:** the routing graph as a checkable property — every chunk carrying a retrieval header is named by at least one role, and every path a role names resolves. It replaces the readable-on-the-page safeguard that per-chunk reader lists would have given, and that a single store of edges gives up |
+| 2026-08-30 | §8 | **Changed:** `CONTRIBUTING.md` becomes referenced rather than resident; `agent-workflow.md` becomes coordinator and human documentation that no role reads; the three routed chunks and `.claude/agents/` are named |

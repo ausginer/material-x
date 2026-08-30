@@ -1,6 +1,6 @@
 # Contributing
 
-The single source of truth for **how code is written here**: source conventions in Part I, the size and ownership policy in Part II. How to *run* things — recipes, workspaces, git workflow — is in [`AGENTS.md`](AGENTS.md). Where a document is supposed to live is in [`documentation.md`](.agents/docs/documentation.md).
+The single source of truth for **how code is written here**: source conventions in Part I, the size and ownership policy in Part II. Where a document is supposed to live is in [`documentation.md`](.agents/docs/documentation.md).
 
 **Part II's section numbers are permanent.** Records cite them, so they are never reused and never re-sorted, and a section whose rule is withdrawn keeps its number. This document states the rules in force; what it used to say is in the [Change record](#change-record).
 
