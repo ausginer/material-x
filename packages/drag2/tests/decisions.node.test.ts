@@ -118,6 +118,7 @@ import {
   PACKAGE,
   projection,
   registered,
+  residual,
   retired,
   section,
   SECTION,
@@ -564,6 +565,22 @@ describe('the canonical occurrence', () => {
     ).toBe('a | b holds');
   });
 
+  it('should read a struck span closed inside its own cell', () => {
+    expect(
+      residual(document('| D-1 | ~~Withdrawn~~ **Current** | Why | — |')),
+    ).toEqual([]);
+  });
+
+  it('should refuse a struck span that crosses a cell boundary', () => {
+    // **The whole finding.** A cell is parsed on its own, so this is one stray
+    // delimiter in each of two cells: the row's tilde count is even and every
+    // cell's is odd. GFM strikes neither, so the clause reads as live text in
+    // the record and is absent from the list of what has been withdrawn.
+    expect(
+      residual(document('| D-1 | ~~Withdrawn | Why still~~ | — |')),
+    ).toEqual(['unclosed strikethrough: D-1']);
+  });
+
   it('should refuse a reference naming no canonical row', () => {
     // The failure a reader cannot see: the id looks like every other id.
     expect(dangling(document('| D-1 | A statement | Why | — |'))).toEqual([
@@ -606,6 +623,15 @@ describe('the canonical occurrence', () => {
 
   it('should name no decision the ledger never states', async () => {
     expect(dangling(await index())).toEqual([]);
+  });
+
+  it('should close every struck span inside the cell that opens it', async () => {
+    // Fails on D-73, whose span opens in `Decision` and closes in `Why`. The
+    // repair is in the document — close the span before the cell boundary and
+    // open a second one after it — and not in the flattener: stripping the
+    // stray tildes would print the retracted half of the decision as what the
+    // decision says, and remove the only evidence that anything is wrong.
+    expect(residual(await index())).toEqual([]);
   });
 });
 

@@ -73,6 +73,9 @@ const ROW_SHAPED = /^\| D-\d+ \|/u;
 /** The id a decision row opens with. */
 const OPENS = /^\| (D-\d+) \|/u;
 
+/** Strikethrough delimiters, which never survive a span the parser consumed. */
+const MARKUP = '~~';
+
 /** A decision named anywhere at all, which is what makes it a reference. */
 const DECISION = /D-\d+/gu;
 
@@ -442,6 +445,32 @@ export function referenced(lines: readonly string[]): readonly string[] {
       lines.flatMap((line) => [...line.matchAll(DECISION)].map(([id]) => id)),
     ),
   ];
+}
+
+/**
+ * Every decision whose flattened content still carries strikethrough markup,
+ * which means the parser never saw a span to consume.
+ *
+ * **The cause is always a span that is not inside one cell.** A table cell is
+ * parsed on its own, so a `~~` opened in the `Decision` cell and closed in the
+ * `Why` cell is one stray delimiter in each — the row's tilde count is even and
+ * every cell's is odd. GFM renders both as literal tildes, so the clause is
+ * struck nowhere and the retired projection cannot see it: a withdrawn clause
+ * that reads as live text in the record and is absent from the list of what has
+ * been withdrawn. Silent in both directions, which is why it is a failure here
+ * rather than something the flattener quietly tidies away — stripping the
+ * tildes would print the retracted half of a decision as what the decision
+ * says, and remove the only evidence that anything is wrong.
+ *
+ * The repair is in the document: close the span before the cell boundary and
+ * open a second one after it.
+ */
+export function residual(lines: readonly string[]): readonly string[] {
+  return canonical(lines).flatMap(({ id, statement, struck }) =>
+    statement.includes(MARKUP) || struck.some((span) => span.includes(MARKUP))
+      ? [`unclosed strikethrough: ${id}`]
+      : [],
+  );
 }
 
 /** A reference naming a decision that has no canonical row. */

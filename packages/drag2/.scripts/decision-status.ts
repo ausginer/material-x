@@ -15,13 +15,16 @@
  *
  * **It refuses rather than guesses.** A register that does not reconcile with
  * the canonical set has no status for some decision, and a projection that
- * defaulted it would print a fact nobody recorded. That is the test's failure,
- * reported here as a non-zero exit rather than as a blank column.
+ * defaulted it would print a fact nobody recorded. A cell whose strikethrough
+ * is not closed inside it has a withdrawn clause the parser never saw. Both are
+ * the test's failures, reported here as a non-zero exit rather than as a blank
+ * column or a line of markup.
  */
 import {
   index,
   malformed,
   projection,
+  residual,
   retired,
   unaccounted,
 } from '../tests/ledger.ts';
@@ -41,11 +44,11 @@ if (unknown.length > 0) {
 }
 
 const lines = await index();
-const faults = [...malformed(lines), ...unaccounted(lines)];
+const faults = [...malformed(lines), ...unaccounted(lines), ...residual(lines)];
 
 if (faults.length > 0) {
   process.stderr.write(
-    `§Decision status does not project the ledger:\n${faults.map((fault) => `  ${fault}`).join('\n')}\n`,
+    `the ledger does not project:\n${faults.map((fault) => `  ${fault}`).join('\n')}\n`,
   );
   process.exitCode = 1;
 } else if (flags.includes('--retired')) {
