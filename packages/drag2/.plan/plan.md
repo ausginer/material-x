@@ -2236,6 +2236,28 @@ Documents only; the implementation WIP was read as evidence and left untouched.
 
 ---
 
+### 2026-08-31 — D-165 implemented: which element's ancestry, and what the decomposition costs the consumer
+
+Landed against a rebuilt `@ydinjs/box-quad` carrying **BQ-6** (the cache removed) and **BQ-9** (`Space` first-class, `Box` narrowed to eight slots, the ancestry boundary deleted rather than implemented).
+
+**The shape.** `acquireLift(visual, item, …)` reads the visual's inherited space, the item's when the two differ, and measures the visual **through** the first — so the matrix and the space it is decomposed against are one observation. When the item is the visual there is one buffer, so property 5's _identical under `visual === item`_ is object identity rather than two values that agree. `ActivationScope` publishes `visualSpace` and `itemSpace`; `compose` and free drag read the first, the displacement sink the second. **Nothing is called the inherited space**, which is the name that hid the conflation.
+
+**One consequence the decision did not name.** The item had to reach the kernel, which knew only `visual` and `box` — and `box` is not the item: with `visual` set and `box` defaulted to it, `box` is the inner card, which is precisely the configuration F-227 is about. So `AdmissionSubject`'s pair becomes a triple, and its bare-element form is now the spelling of all three coinciding. The kernel holds `item` beside the other two and reads it in one place.
+
+**The published limit is deleted, not reworded.** `config.ts` keeps three scope limits for the `box`/`visual` pair; what remains on `visual` is the expectation that it resolves inside the item's subtree, which nothing enforces and nothing now depends on for correctness. G1-presented is no longer narrowed. G7's wording follows the code: the map is captured before the lift mutates anything, rather than out of the measurement it took.
+
+**Evidence, and it discriminates.** Two new cases in `displacement.browser.test.ts`, read as boxes: a 1.5× wrapper between item and visual, and a transform authored on the item itself with no ancestor transform at all. Routing the visual's space instead — the value D-162 landed — gives **53.33 against a required 80** and **26.67 against 40**, the second being F-227's recorded regression reproduced by the instrument that closes it. The third case in that describe, a descendant `visual` with nothing in between, passes either way, which is what makes it the control rather than a third case. Upstream, four cases assert the property the decomposition exists for: a `display: contents` element and one fragmented across lines both answer from `ancestry` and refuse from `coordinates`.
+
+**Property 7's figure, owed since D-164, and it is not the saving the upstream numbers predicted.** Measured by composition against `55eaaf1b` with box-quad rebuilt: **+62 B brotli on `minimal`**, +53 on `minimal (xy)`, +71 and +64 on the two animating rows, +75 on `complete`, +77 on `both behaviors`, +58 on baseline A. BQ-6's −46 and BQ-9's +38 were priced with a synthetic consumer arm; through the consumer that exists, with the item plumbing and the second published space included, the pair costs rather than saves. **Where the two disagree the composition figure governs** (§15), and the record says so rather than quoting the upstream pair.
+
+**No budget is re-based and none is breached.** Every row lands under, the tightest — `both behaviors` — with 44 B of slack against 150. §18's rule is that a pass landing over budget ends in a decision and one landing well under ends in a re-base; this pass did neither, so the budgets keep the numbers D-159 gave them and the slack is the finding.
+
+**Five of the seven declared controls moved, and that is the correct reading rather than a breach.** The four free-drag rows and `kernel.js` are +60 to +74: this is a kernel and box-quad change, so free drag pays for both, and the controls are re-declared at their landed figures. **Two held at exactly 0** — `drag.js`, which reaches only the error classes, and baseline B, the shipped legacy package — which is what a control the change genuinely cannot reach reports.
+
+**F-229 and F-230 are untouched.** `xy()` still has no non-null-projection test and both axis suites still pass `space: null`; the two new cases are `y()`, like the ones D-162 landed.
+
+---
+
 ### 2026-08-31 — D-164's encoding challenged, prototyped and upheld; the upstream half settled as box-quad BQ-2
 
 A proposal to obtain D-164's boundary space from a redesigned `@ydinjs/box-quad` cache — caller-owned `WeakMap`, per-element memoized style facts — rather than from an explicit measurement input. Settled in box-quad's own record ([`plan.md`](../../box-quad/.plan/plan.md), BQ-1…BQ-3); only the consequences for drag2 are here. Documents and prototypes only.

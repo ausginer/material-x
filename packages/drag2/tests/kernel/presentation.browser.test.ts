@@ -75,7 +75,8 @@ function createBox(
 function lift(visual: HTMLElement, mode: number): VisualLiftSession {
   const { session } = acquireLift(
     visual,
-    mode as Parameters<typeof acquireLift>[1],
+    visual,
+    mode as Parameters<typeof acquireLift>[2],
     visual.getBoundingClientRect(),
     createRealm(visual),
     unwind,
@@ -316,6 +317,7 @@ describe('acquireLift cleanup', () => {
     expect(() =>
       acquireLift(
         visual,
+        visual,
         LIFT_FLAT,
         visual.getBoundingClientRect(),
         createRealm(visual),
@@ -334,6 +336,7 @@ describe('acquireLift cleanup', () => {
     // permanently.
     const visual = createBox();
     const { session } = acquireLift(
+      visual,
       visual,
       LIFT_FLAT,
       visual.getBoundingClientRect(),

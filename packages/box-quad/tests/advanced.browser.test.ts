@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { cache } from '../src/index.ts';
 import {
   createBox,
   createFrame,
@@ -684,7 +683,7 @@ describe('relative targets, shadow trees, and physical writing modes', () => {
   });
 });
 
-describe('recognized unsupported geometry and cache epochs', () => {
+describe('recognized unsupported geometry', () => {
   it.each([
     // UNSUPPORTED-01
     {
@@ -745,85 +744,5 @@ describe('recognized unsupported geometry and cache epochs', () => {
     expect(target.getClientRects().length).toBeGreaterThan(1);
     expect(readQuad(source, out, target)).toBe(false);
     expectQuad(out, [11, 22, 33, 44, 55, 66, 77, 88]);
-  });
-
-  // CACHE-01
-  it('should return correct unchanged geometry within one measurement epoch', () => {
-    const recache = cache();
-    const source = createBox();
-    const first = new Float64Array(8);
-    const second = new Float64Array(8);
-
-    expect(readQuad(source, first, undefined, recache)).toBe(true);
-    expect(readQuad(source, second, undefined, recache)).toBe(true);
-    expectQuad(first, second);
-  });
-
-  // CACHE-04
-  it('should permit a stale observation while one cache identity is reused', () => {
-    const recache = cache();
-    const source = createBox();
-    const first = readSuccessfulQuad(source, undefined, recache);
-    source.style.left = '30px';
-    const later = readSuccessfulQuad(source, undefined, recache);
-
-    expect([Array.from(first), [30, 0, 50, 0, 50, 10, 30, 10]]).toContainEqual(
-      Array.from(later),
-    );
-  });
-
-  // CACHE-05
-  it('should observe changed geometry when a new cache starts an epoch', () => {
-    const recache = cache();
-    const source = createBox();
-    readSuccessfulQuad(source, undefined, recache);
-    source.style.left = '30px';
-
-    expectQuad(
-      readSuccessfulQuad(source, undefined, cache()),
-      [30, 0, 50, 0, 50, 10, 30, 10],
-    );
-  });
-
-  // CACHE-06
-  it('should perform fresh reads when no cache is supplied', () => {
-    const source = createBox();
-    const first = new Float64Array(8);
-    const second = new Float64Array(8);
-
-    expect(readQuad(source, first)).toBe(true);
-    source.style.left = '30px';
-    expect(readQuad(source, second)).toBe(true);
-    expectQuad(second, [30, 0, 50, 0, 50, 10, 30, 10]);
-  });
-
-  // CACHE-11
-  it('should remeasure cached geometry after cross-document adoption', () => {
-    const firstDocument = createFrame();
-    const secondDocument = createFrame();
-    const source = firstDocument.createElement('div');
-    source.style.cssText =
-      'position:absolute;left:10px;top:20px;width:20px;height:10px;box-sizing:border-box';
-    firstDocument.body.append(source);
-    const recache = cache();
-
-    expectQuad(
-      readSuccessfulQuad(source, undefined, recache),
-      [10, 20, 30, 20, 30, 30, 10, 30],
-    );
-
-    secondDocument.adoptNode(source);
-    source.style.left = '40px';
-    source.style.top = '60px';
-    secondDocument.body.append(source);
-    const target = secondDocument.createElement('div');
-    target.style.cssText =
-      'position:absolute;left:10px;top:20px;width:20px;height:10px;box-sizing:border-box';
-    secondDocument.body.append(target);
-
-    expectQuad(
-      readSuccessfulQuad(source, target, recache),
-      [30, 40, 50, 40, 50, 50, 30, 50],
-    );
   });
 });

@@ -1,31 +1,26 @@
 import {
+  ancestry,
   box,
-  cache,
   coordinates,
   projection,
   quad,
+  space,
   type Box,
-  type BoxCache,
   type Quad,
+  type Space,
 } from '../src/index.ts';
 
-const recache: BoxCache = cache();
 const element = document.createElement('div');
 const measured: Box = box();
 const target: Box = box();
+const above: Space = space();
 const corners: Quad = quad();
 
-coordinates(element, measured, recache);
-coordinates(element, target, recache);
+ancestry(element, above);
+coordinates(element, measured);
+coordinates(element, target, above);
 projection(measured, corners);
 projection(measured, corners, target);
-recache();
-
-// @ts-expect-error The cache is opaque: how a measurement is stored is not public.
-void recache.entries;
-
-// @ts-expect-error A plain object is not a cache.
-const invalidCache: BoxCache = {};
 
 // @ts-expect-error Projection is pure: it takes measured boxes, not elements.
 projection(element, corners);
@@ -33,9 +28,11 @@ projection(element, corners);
 // @ts-expect-error Measurement takes an element, not a measured box.
 coordinates(measured, measured);
 
-void recache;
+// @ts-expect-error An ancestry is read for an element, never for a box.
+ancestry(measured, above);
+
 void element;
 void measured;
 void target;
+void above;
 void corners;
-void invalidCache;

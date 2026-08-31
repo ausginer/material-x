@@ -583,7 +583,11 @@ const kernelSide: SortableController = draggable<
     // D-59 — either form is admissible.
     admit: (event, _draft) =>
       event.target instanceof HTMLElement
-        ? { visual: event.target, box: event.target.parentElement ?? root }
+        ? {
+            visual: event.target,
+            box: event.target.parentElement ?? root,
+            item: event.target,
+          }
         : null,
     // **D-130 — forward, and nothing else.** ~~`reportFailure(stage, error)`,
     // which mapped the stage to a code here.~~ The kernel builds the finished

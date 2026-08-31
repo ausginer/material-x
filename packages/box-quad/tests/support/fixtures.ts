@@ -1,12 +1,14 @@
 import { expect } from 'vitest';
 import {
+  ancestry,
   box,
   coordinates,
   projection,
   quad,
+  space,
   type Box,
-  type BoxCache,
   type Quad,
+  type Space,
 } from '../../src/index.ts';
 
 export const QUAD_TOLERANCE = 0.000001;
@@ -110,11 +112,10 @@ export function readQuad(
   element: HTMLElement,
   out: Quad,
   relativeTo?: HTMLElement,
-  recache?: BoxCache,
 ): boolean {
   const source = box();
 
-  if (!coordinates(element, source, recache)) {
+  if (!coordinates(element, source)) {
     return false;
   }
 
@@ -124,31 +125,33 @@ export function readQuad(
 
   const target = box();
 
-  return (
-    coordinates(relativeTo, target, recache) && projection(source, out, target)
-  );
+  return coordinates(relativeTo, target) && projection(source, out, target);
 }
 
 /** Measures `element`, asserting the measurement succeeded. */
-export function measure(element: HTMLElement, recache?: BoxCache): Box {
+export function measure(element: HTMLElement): Box {
   const out = box();
 
-  expect(coordinates(element, out, recache)).toBe(true);
+  expect(coordinates(element, out)).toBe(true);
   return out;
 }
 
-/**
- * The two-step read: measure, then project. Asserts both steps succeeded, and
- * measures `relativeTo` in the same epoch when one is given.
- */
+/** Reads the space `element` inherits, asserting the read succeeded. */
+export function inherited(element: HTMLElement): Space {
+  const out = space();
+
+  expect(ancestry(element, out)).toBe(true);
+  return out;
+}
+
+/** The two-step read: measure, then project. Asserts both steps succeeded. */
 export function readSuccessfulQuad(
   element: HTMLElement,
   relativeTo?: HTMLElement,
-  recache?: BoxCache,
 ): Quad {
   const out = quad();
-  const source = measure(element, recache);
-  const target = relativeTo ? measure(relativeTo, recache) : undefined;
+  const source = measure(element);
+  const target = relativeTo ? measure(relativeTo) : undefined;
 
   expect(projection(source, out, target)).toBe(true);
   return out;

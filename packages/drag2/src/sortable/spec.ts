@@ -429,7 +429,7 @@ export function createSortableSpec(
     // and calling it again here would invoke one consumer resolver twice for a
     // single admission, which a stateful resolver can observe.
     if (!slots.box || slots.box === slots.visual) {
-      return visual;
+      return visual === item ? item : { visual, box: visual, item };
     }
 
     const box = slots.box(item);
@@ -442,18 +442,18 @@ export function createSortableSpec(
       return null;
     }
 
-    // Returned as a bare element when the two coincide, so the kernel's `box`
-    // and `visual` are the *same reference* and `activation.prepare`'s identity
-    // branch can recognise the default case. There is exactly one encoding of
-    // "the box is the visual", and this is it.
-    return box === visual ? visual : { visual, box };
+    // Returned as a bare element when all three coincide, so the kernel's
+    // `box` and `visual` are the *same reference* and `activation.prepare`'s
+    // identity branch can recognise the default case. There is exactly one
+    // encoding of "the box is the visual is the item", and this is it.
+    return box === visual && visual === item ? item : { visual, box, item };
   };
 
   /**
    * The half of admission both ingresses share: resolve the item, the visual
    * and the box, and seed the draft. Returns the admission subject — a bare
-   * visual, or the `{ visual, box }` pair when the two differ — or `null` to
-   * decline.
+   * element when all three coincide, or the triple when they do not — or
+   * `null` to decline.
    *
    * No `preventDefault()` — the kernel owns that call in both modes. It makes
    * it at the **threshold crossing** on the pointer path and inside the
@@ -873,11 +873,13 @@ export function createSortableSpec(
           item,
           box: slots.box,
           settle: slots.settle,
-          // **Handed down, not measured.** The kernel derived it from the
-          // measurement `acquireLift` took before it mutated anything, so the
-          // projection describes the ancestry the drag began in; a read taken
-          // here would describe a tree activation has already changed.
-          space: scope.inheritedSpace,
+          // **Handed down, not measured, and the item's rather than the
+          // visual's.** A displacement writes its `translate` on an item, so
+          // the space it is spent in is the one above an item. The kernel read
+          // it before `acquireLift` mutated anything, so it describes the
+          // ancestry the drag began in; a read taken here would describe a tree
+          // activation has already changed.
+          space: scope.itemSpace,
           live,
           snapshot: current.snapshot!,
           insertion: null,

@@ -5,7 +5,7 @@
 The package has one public entrypoint:
 
 ```ts
-import { readBoxQuad, type BoxQuadCache, type Quad } from '@ydinjs/box-quad';
+import { readBoxQuad, type Quad } from '@ydinjs/box-quad';
 ```
 
 No subpath entrypoints are part of v1.
@@ -14,17 +14,7 @@ No subpath entrypoints are part of v1.
 
 ```ts
 export type Quad = Float64Array;
-
-export type BoxQuadCache = WeakMap<HTMLElement, unknown>;
 ```
-
-Consumers construct and own the cache identity and lifetime:
-
-```ts
-const cache: BoxQuadCache = new WeakMap();
-```
-
-The package owns every entry it writes. Consumers must not inspect, add, replace or delete entries. The `unknown` value type prevents typed consumers from depending on the private representation, but entry opacity is contractual because native `WeakMap` methods remain available.
 
 A valid `Quad` has eight values:
 
@@ -65,7 +55,6 @@ export function readBoxQuad(
   element: HTMLElement,
   out: Quad,
   relativeTo?: HTMLElement,
-  cache?: BoxQuadCache,
 ): boolean;
 ```
 
@@ -80,7 +69,7 @@ The no-partial-write guarantee applies to the `false` result. Contract-violating
 
 `readBoxQuad` performs no replacement output allocation visible to the caller. Internal implementation choices remain subject to later performance work.
 
-Omitting `cache` performs a fresh uncached read and retains no observations for later public calls. Reusing one cache permits stale observations within that cache's epoch while each cached element retains the same `ownerDocument`. Adoption into another document invalidates reuse of that element's entry. Passing a newly constructed `WeakMap` starts a fresh epoch. See [artifact 5](05-cache-semantics.md).
+Every read is fresh: nothing is retained between public calls, so a caller that repairs geometry observes the repair on its next call.
 
 ## 4. Coordinate spaces
 
@@ -175,9 +164,7 @@ The API does not expose:
 - a requested output box choice other than border-box (distinct from the supported transform reference boxes);
 - fragment lists;
 - point or quad classes;
-- matrices or coordinate-space objects;
-- cache invalidation observers;
-- a cache factory or in-place reset operation;
+- a measurement cache of any kind;
 - an allocating output wrapper;
 - cross-document conversion;
 - native GeometryUtils compatibility.

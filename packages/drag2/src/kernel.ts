@@ -107,9 +107,9 @@ export type { Disposer, LifetimeScope } from './kernel/lifetimes.ts';
  * can name.
  *
  * `InheritedSpace` joins them for the same reason and by the same test:
- * `ActivationScope.inheritedSpace` is typed as it, so the scope's closure runs
- * through it and the rule — a tier publishes every name its own surface reaches
- * — applies unchanged.
+ * `ActivationScope.visualSpace` and `ActivationScope.itemSpace` are both typed
+ * as it, so the scope's closure runs through it and the rule — a tier publishes
+ * every name its own surface reaches — applies unchanged.
  */
 export type {
   BehaviorLiftSession,

@@ -655,7 +655,7 @@ const admit = (event: PointerEvent, draft: Draft<Part>): AdmissionSubject | null
   // A behavior reads the phase, and its domain is published (D-68).
   const phase: Phase = draft.phase;
 
-  return phase === IDLE ? { visual: target, box: target } : null;
+  return phase === IDLE ? { visual: target, box: target, item: target } : null;
 };
 
 const command: CommandAdmission<Part> = {

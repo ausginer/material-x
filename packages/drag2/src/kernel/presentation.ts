@@ -8,7 +8,13 @@
  * everything without a `z-index`. The element stays in the DOM — only its
  * rendering moves — so it keeps its own styles and inherited custom properties.
  */
-import { box, coordinates, type Box } from '@ydinjs/box-quad';
+import {
+  ancestry,
+  box,
+  coordinates,
+  space,
+  type Space,
+} from '@ydinjs/box-quad';
 import type { Disposer } from './lifetimes.ts';
 import type { DOMRealm } from './realm.ts';
 import type { Point } from './types.ts';
@@ -32,11 +38,11 @@ const BOX_E = 4;
 const BOX_F = 5;
 const BOX_WIDTH = 6;
 const BOX_HEIGHT = 7;
-const BOX_ANCESTOR_ZOOM = 8;
-const BOX_ANCESTOR_A = 9;
-const BOX_ANCESTOR_B = 10;
-const BOX_ANCESTOR_C = 11;
-const BOX_ANCESTOR_D = 12;
+const SPACE_A = 0;
+const SPACE_B = 1;
+const SPACE_C = 2;
+const SPACE_D = 3;
+const SPACE_ANCESTOR_ZOOM = 4;
 
 /**
  * UA popover stylesheet properties that would change the visual's box or
@@ -333,12 +339,12 @@ export type BehaviorLiftSession = Readonly<
  * inverted. It is also what lets `compose` skip the projection entirely on the
  * hot path.
  *
- * **The same shape serves two readers with two different values,
- * deliberately.** `ActivationScope.inheritedSpace` is a fact about the ancestry
- * at grab and is computed for every lift mode; the session's own projection is
- * the space an *in-place* translate acts in and is `null` for both lifted
- * modes, because a lifted visual is repositioned into the viewport. Conflating
- * them would hand a behavior the identity under `LIFT_FLAT`, wrong and silent.
+ * **The shape says nothing about which element's ancestry it describes**, and
+ * three values of it are live at once: the space above the visual, the space
+ * above the item, and the session's own projection — which is the space an
+ * *in-place* translate acts in and is `null` for both lifted modes, because a
+ * lifted visual is repositioned into the viewport. Each is named where it is
+ * published; none of them is *the* inherited space.
  */
 export type InheritedSpace = Readonly<{
   a: number;
@@ -388,30 +394,30 @@ function makeSession(
 }
 
 /**
- * The inverse of the linear part the visual **inherits** — everything strictly
- * above it, its own transform and zoom excluded — or `null` when that space is
- * the identity or is unusable.
+ * The inverse of an inherited linear part, ready to turn a viewport delta into
+ * the local translation that produces it, or `null` when that space is the
+ * identity or is unusable.
  *
- * **Two callers, one read.** It is the space an in-place translate acts in,
- * because an in-place lift *prepends* its translate to the visual's authored
- * transform, so the translate sits outside that transform and is scaled only by
- * what the visual inherits — inverting the visual's own space would divide its
- * scale out twice, and a `scale(2)` visual would move half as far as asked. It
- * is **also** the projection a behavior needs to report a local delta, and that
- * caller wants it under every lift mode rather than only in place. So it is
- * computed once here and published twice: to `compose` for the in-place mode
- * alone, and to `ActivationScope.inheritedSpace` always.
+ * **Whose ancestry it is comes from the caller**, and the two are spent in
+ * different places. Above the *visual*, it is the space an in-place translate
+ * acts in, because an in-place lift *prepends* its translate to the visual's
+ * authored transform, so the translate sits outside that transform and is
+ * scaled only by what the visual inherits — inverting the visual's own space
+ * would divide its scale out twice, and a `scale(2)` visual would move half as
+ * far as asked. Above the *item*, it is what a behavior writing a translate on
+ * a sibling of the dragged item needs, which is a different element and
+ * therefore a different space whenever the two do not coincide.
  *
- * The basis comes from the one traversal box-quad already performed, rather
- * than from `item.offsetParent` — which stops at a shadow boundary and is
- * `null` for a fixed-position visual — so every flat-tree, shadow-root and
+ * The basis comes from `ancestry`, which walks the flat tree rather than
+ * `offsetParent` — which stops at a shadow boundary and is `null` for a
+ * fixed-position visual — so every flat-tree, shadow-root and
  * `display: contents` rule stays in the package that owns them.
  */
-function inheritedSpaceOf(measured: Box): InheritedSpace {
-  const a = measured[BOX_ANCESTOR_A]!;
-  const b = measured[BOX_ANCESTOR_B]!;
-  const c = measured[BOX_ANCESTOR_C]!;
-  const d = measured[BOX_ANCESTOR_D]!;
+function inheritedSpaceOf(above: Space): InheritedSpace {
+  const a = above[SPACE_A]!;
+  const b = above[SPACE_B]!;
+  const c = above[SPACE_C]!;
+  const d = above[SPACE_D]!;
 
   if (a === 1 && b === 0 && c === 0 && d === 1) {
     // The common case. A null projection makes `compose` skip the arithmetic
@@ -434,71 +440,96 @@ function inheritedSpaceOf(measured: Box): InheritedSpace {
 }
 
 /**
- * What one acquisition produces: the session, and the pre-lift ancestry fact
- * derived from the same measurement.
+ * What one acquisition produces: the session, and the two pre-lift ancestry
+ * facts read beside the measurement.
  *
- * **Two products rather than one member on the session**, and the reason is
+ * **Separate products rather than members on the session**, and the reason is
  * lifetime: every member of `VisualLiftSession` describes the state acquisition
- * *created*, while `inheritedSpace` describes the state it *destroyed*. Putting
- * it on the session would put a pre-lift fact inside the post-lift write
- * capability, next to a same-shaped projection holding a different value. The
- * kernel copies it onto `ActivationScope`, where the other pre-lift facts —
+ * *created*, while both spaces describe the state it *destroyed*. Putting them
+ * on the session would put pre-lift facts inside the post-lift write
+ * capability, next to a same-shaped projection holding a third value. The
+ * kernel copies them onto `ActivationScope`, where the other pre-lift facts —
  * `originRect`, `boxPre` — already live.
+ *
+ * **The two are the same object whenever the visual is the item**, which is the
+ * common case, so nothing pays for a divergence it does not have.
  */
 export type LiftAcquisition = Readonly<{
   session: VisualLiftSession;
-  inheritedSpace: InheritedSpace;
+  visualSpace: InheritedSpace;
+  itemSpace: InheritedSpace;
 }>;
 
 /**
  * Acquires a lift.
  *
- * The visual's box space is read **once**, here: the composed element→viewport
- * matrix (the faithful mode's base transform), the untransformed border-box
- * size (both lifted modes' fixed box), the inherited zoom (which the top layer
- * does not escape, so a lifted visual divides it back out), the inverse used by
- * the in-place projection, and the inherited space the activation scope
- * publishes all come from that one traversal.
+ * Everything geometric is read **here, before anything is mutated**: the two
+ * ancestries, then the visual's box measured through the first of them. The
+ * composed element→viewport matrix (the faithful mode's base transform), the
+ * untransformed border-box size (both lifted modes' fixed box), the inherited
+ * zoom (which the top layer does not escape, so a lifted visual divides it back
+ * out), the inverse used by the in-place projection, and the two spaces the
+ * activation scope publishes all come from this one sequence.
  *
- * **That "once" is load-bearing rather than merely efficient.** Everything
- * below this measurement mutates the visual — positioning, dimensions,
- * top-layer state, transforms — so a second traversal taken afterwards reads a
- * different ancestry, and box-quad's own contract says the two walks may
+ * **That the reads are all taken here is load-bearing rather than merely
+ * efficient.** Everything below them mutates the visual — positioning,
+ * dimensions, top-layer state, transforms — so a traversal taken afterwards
+ * reads a different ancestry, and box-quad's own contract says two walks may
  * legitimately disagree. A behavior that measured for itself could therefore
  * lift on one coordinate snapshot and report consumer deltas from another.
  *
- * Throws when the space cannot be read — a disconnected or fragmented visual,
- * or a 3D transform this library does not model. The caller classifies it as
- * `FAILURE_ACTIVATION`; silently flattening 3D to its 2D projection would
- * produce a wrong lift rather than a refused one.
+ * **The item's ancestry is a second walk, and it is spent deliberately.** No
+ * layout is read for it and no rect is measured; it is computed style up the
+ * flat tree, once per activation, and only when the item is not the visual. The
+ * alternative — one walk publishing both — needs a designated boundary element
+ * inside the measurement, which is a concept this library would then have to
+ * carry for a consumer that knows both elements before it calls.
+ *
+ * Throws when either space cannot be read, or the visual has no single box — a
+ * disconnected or fragmented visual, or a 3D transform this library does not
+ * model. The caller classifies it as `FAILURE_ACTIVATION`; silently flattening
+ * 3D to its 2D projection would produce a wrong lift rather than a refused one.
  *
  * Style capture and top-layer acquisition are composed into the returned
  * `dispose` in reverse acquisition order.
  */
 export function acquireLift(
   visual: HTMLElement,
+  item: HTMLElement,
   mode: LiftMode,
   originRect: DOMRectReadOnly,
   realm: DOMRealm,
   unwind: Unwind,
 ): LiftAcquisition {
+  const above = space();
+  // One buffer when the two coincide, which is both the common case and the
+  // whole of the identity guarantee: the two published spaces are then the
+  // same value, not two values that happen to agree.
+  const itemAbove = item === visual ? above : space();
   const measured = box();
 
-  if (!coordinates(visual, measured)) {
-    // No readable box space: the visual is disconnected, fragmented across
-    // lines, or inside a 3D-transformed subtree, so there is no single rect to
-    // lift from.
+  if (
+    !ancestry(visual, above) ||
+    (itemAbove !== above && !ancestry(item, itemAbove)) ||
+    // The visual is measured **through** the ancestry just read, so the
+    // matrix and the space it is decomposed against are one observation.
+    !coordinates(visual, measured, above)
+  ) {
+    // No readable space: the visual is disconnected, fragmented across lines,
+    // or something on either chain is not representable in 2D.
     throw new Error('drag: presentation/visual-no-box-space');
   }
 
   // **Read before anything mutates, published for every mode.** The in-place
-  // branch below hands the same value to `compose`; the lifted branches hand
-  // `compose` the identity, because a lifted visual is repositioned into the
-  // viewport, and still publish this one.
-  const inheritedSpace = inheritedSpaceOf(measured);
+  // branch below hands the visual's space to `compose`; the lifted branches
+  // hand `compose` the identity, because a lifted visual is repositioned into
+  // the viewport, and still publish both of these.
+  const visualSpace = inheritedSpaceOf(above);
+  const itemSpace =
+    itemAbove === above ? visualSpace : inheritedSpaceOf(itemAbove);
   const width = measured[BOX_WIDTH]!;
   const height = measured[BOX_HEIGHT]!;
-  const ancestorZoom = measured[BOX_ANCESTOR_ZOOM]!;
+  const ancestorZoom = above[SPACE_ANCESTOR_ZOOM]!;
   const style = realm.window.getComputedStyle(visual);
   const styleLeaseDisposer = captureInlineStyles(visual);
 
@@ -517,10 +548,11 @@ export function acquireLift(
         session: makeSession(
           visual,
           own === 'none' ? '' : own,
-          inheritedSpace,
+          visualSpace,
           styleLeaseDisposer,
         ),
-        inheritedSpace,
+        visualSpace,
+        itemSpace,
       };
     }
 
@@ -579,7 +611,7 @@ export function acquireLift(
       }
     });
 
-    return { session, inheritedSpace };
+    return { session, visualSpace, itemSpace };
   } catch (error) {
     styleLeaseDisposer();
     throw error;

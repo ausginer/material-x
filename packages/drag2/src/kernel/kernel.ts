@@ -245,6 +245,12 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * slice stays seven fields.
    */
   let box: HTMLElement | null = null;
+  /**
+   * The element the operation is about. Written once at admission beside the
+   * visual and the box, and read only by `acquireLift`, which needs the space
+   * above it.
+   */
+  let item: HTMLElement | null = null;
   let cancelRequest: { reason: unknown; origin: CancelOrigin } | null = null;
 
   /* ---- the two kernel attempts, at most one of each per operation ---- */
@@ -497,6 +503,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     originRect = null;
     visual = null;
     box = null;
+    item = null;
     cancelRequest = null;
     pinned = null;
   };
@@ -944,10 +951,11 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // `instanceof` is realm-sensitive, and `DOMRealm` exists precisely
       // because an element may come from another document.
       if ('visual' in subject) {
-        ({ visual, box } = subject);
+        ({ visual, box, item } = subject);
       } else {
         visual = subject;
         box = subject;
+        item = subject;
       }
       lifetimes = createOperationLifetimes(notify);
 
@@ -1196,11 +1204,12 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         width: source.offsetWidth,
         height: source.offsetHeight,
       };
-      // **One traversal, two products.** The inherited space comes out of the
-      // measurement this call already took, before it mutated anything; no
-      // behavior may take a second read for it.
-      const { session, inheritedSpace } = acquireLift(
+      // **One acquisition, three products.** Both inherited spaces are read
+      // before this call mutates anything, from computed style alone; no
+      // behavior may take a later read for either.
+      const { session, visualSpace, itemSpace } = acquireLift(
         target,
+        item!,
         spec!.config.liftMode,
         rect,
         realm,
@@ -1232,7 +1241,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         // field read back.
         box: source,
         boxPre,
-        inheritedSpace,
+        visualSpace,
+        itemSpace,
         lift: session,
         motion: owned.motion,
         presentation: owned.presentation,

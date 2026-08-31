@@ -39,7 +39,7 @@
  * **only the measured fixture may be live.** Every arm builds, measures and
  * disposes before the next is built.
  */
-import { box, coordinates, type Box } from '@ydinjs/box-quad';
+import { ancestry, space, type Space } from '@ydinjs/box-quad';
 import { describe, expect, it } from 'vitest';
 import { FreeDragResolution, freeDrag } from '../../src/free-drag.ts';
 import { LIFT_IN_PLACE, acquireLift } from '../../src/kernel/presentation.ts';
@@ -468,10 +468,10 @@ function paired(
 // Arm B — the derivation, and the proof that the copy is the shipped one
 // ---------------------------------------------------------------------------
 
-const BOX_ANCESTOR_A = 9;
-const BOX_ANCESTOR_B = 10;
-const BOX_ANCESTOR_C = 11;
-const BOX_ANCESTOR_D = 12;
+const SPACE_A = 0;
+const SPACE_B = 1;
+const SPACE_C = 2;
+const SPACE_D = 3;
 
 /**
  * `inheritedSpaceOf`, line for line.
@@ -485,12 +485,12 @@ const BOX_ANCESTOR_D = 12;
  * `compose` encodes, before any figure is quoted from it.
  */
 const derive = (
-  measured: Box,
+  above: Space,
 ): Readonly<{ a: number; b: number; c: number; d: number }> | null => {
-  const a = measured[BOX_ANCESTOR_A]!;
-  const b = measured[BOX_ANCESTOR_B]!;
-  const c = measured[BOX_ANCESTOR_C]!;
-  const d = measured[BOX_ANCESTOR_D]!;
+  const a = above[SPACE_A]!;
+  const b = above[SPACE_B]!;
+  const c = above[SPACE_C]!;
+  const d = above[SPACE_D]!;
 
   if (a === 1 && b === 0 && c === 0 && d === 1) {
     return null;
@@ -518,21 +518,18 @@ const derive = (
  * nothing else. It reads the slots so that the buffer access itself is on both
  * sides and the delta is the arithmetic alone.
  */
-const skip = (measured: Box): number =>
-  measured[BOX_ANCESTOR_A]! +
-  measured[BOX_ANCESTOR_B]! +
-  measured[BOX_ANCESTOR_C]! +
-  measured[BOX_ANCESTOR_D]!;
+const skip = (above: Space): number =>
+  above[SPACE_A]! + above[SPACE_B]! + above[SPACE_C]! + above[SPACE_D]!;
 
-/** A real `Box` for `element`, taken the way `acquireLift` takes it. */
-function measure(element: HTMLElement): Box {
-  const measured = box();
+/** A real `Space` for `element`, taken the way `acquireLift` takes it. */
+function measure(element: HTMLElement): Space {
+  const above = space();
 
-  if (!coordinates(element, measured)) {
-    throw new Error('m5: the fixture has no readable box space');
+  if (!ancestry(element, above)) {
+    throw new Error('m5: the fixture has no readable inherited space');
   }
 
-  return measured;
+  return above;
 }
 
 function timings(iteration: (round: number) => void): number {
@@ -656,6 +653,7 @@ describe('M-5 arm B — the copy is the shipped derivation', () => {
 
     const mine = derive(measure(leaf));
     const { session } = acquireLift(
+      leaf,
       leaf,
       LIFT_IN_PLACE,
       leaf.getBoundingClientRect(),

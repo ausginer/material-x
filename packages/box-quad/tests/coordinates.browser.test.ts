@@ -1,14 +1,16 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { box, cache, coordinates, type Box } from '../src/index.ts';
+import { ancestry, box, coordinates, space, type Box } from '../src/index.ts';
 import {
   createBox,
   createFlowBox,
   createShadowBox,
+  inherited,
   measure,
   resetDocument,
 } from './support/fixtures.ts';
 
-const BOX_LENGTH = 13;
+const BOX_LENGTH = 8;
+const SPACE_LENGTH = 5;
 
 const BOX_A = 0;
 const BOX_B = 1;
@@ -18,11 +20,11 @@ const BOX_E = 4;
 const BOX_F = 5;
 const BOX_WIDTH = 6;
 const BOX_HEIGHT = 7;
-const BOX_ANCESTOR_ZOOM = 8;
-const BOX_ANCESTOR_A = 9;
-const BOX_ANCESTOR_B = 10;
-const BOX_ANCESTOR_C = 11;
-const BOX_ANCESTOR_D = 12;
+const SPACE_A = 0;
+const SPACE_B = 1;
+const SPACE_C = 2;
+const SPACE_D = 3;
+const SPACE_ANCESTOR_ZOOM = 4;
 
 afterEach(resetDocument);
 
@@ -203,8 +205,23 @@ describe('coordinates numeric precision', () => {
 });
 
 describe('coordinates zoom', () => {
+  it('should carry the element own zoom in the matrix', () => {
+    expectNear(measure(createBox({ styles: { zoom: '2' } }))[BOX_A]!, 2);
+  });
+
+  it('should compose an ancestor zoom into the matrix', () => {
+    const parent = createBox({
+      styles: { width: '200px', height: '200px', zoom: '2' },
+    });
+    const measured = measure(createBox({ parent, styles: { zoom: '3' } }));
+
+    expectNear(measured[BOX_A]!, 6);
+  });
+});
+
+describe('ancestry zoom', () => {
   it('should default the ancestor zoom to 1', () => {
-    expectNear(measure(createBox())[BOX_ANCESTOR_ZOOM]!, 1);
+    expectNear(inherited(createBox())[SPACE_ANCESTOR_ZOOM]!, 1);
   });
 
   it('should report an ancestor zoom', () => {
@@ -212,7 +229,7 @@ describe('coordinates zoom', () => {
       styles: { width: '200px', height: '200px', zoom: '2' },
     });
 
-    expectNear(measure(createBox({ parent }))[BOX_ANCESTOR_ZOOM]!, 2);
+    expectNear(inherited(createBox({ parent }))[SPACE_ANCESTOR_ZOOM]!, 2);
   });
 
   it('should multiply nested ancestor zooms', () => {
@@ -224,76 +241,79 @@ describe('coordinates zoom', () => {
       styles: { width: '200px', height: '200px', zoom: '1.5' },
     });
 
-    expectNear(measure(createBox({ parent: inner }))[BOX_ANCESTOR_ZOOM]!, 3);
+    expectNear(
+      inherited(createBox({ parent: inner }))[SPACE_ANCESTOR_ZOOM]!,
+      3,
+    );
   });
 
   it('should exclude the element own zoom from the ancestor zoom', () => {
     // The element's own zoom is already carried by the matrix. Reporting it
     // twice would make a consumer cancelling inherited zoom cancel its own too.
-    const measured = measure(createBox({ styles: { zoom: '2' } }));
+    const source = createBox({ styles: { zoom: '2' } });
 
-    expectNear(measured[BOX_ANCESTOR_ZOOM]!, 1);
-    expectNear(measured[BOX_A]!, 2);
+    expectNear(inherited(source)[SPACE_ANCESTOR_ZOOM]!, 1);
+    expectNear(measure(source)[BOX_A]!, 2);
   });
 
-  it('should carry the own zoom in the matrix and the inherited zoom separately', () => {
+  it('should report the inherited zoom while the matrix carries both', () => {
     const parent = createBox({
       styles: { width: '200px', height: '200px', zoom: '2' },
     });
-    const measured = measure(createBox({ parent, styles: { zoom: '3' } }));
+    const source = createBox({ parent, styles: { zoom: '3' } });
 
-    expectNear(measured[BOX_ANCESTOR_ZOOM]!, 2);
-    expectNear(measured[BOX_A]!, 6);
+    expectNear(inherited(source)[SPACE_ANCESTOR_ZOOM]!, 2);
+    expectNear(measure(source)[BOX_A]!, 6);
   });
 });
 
-describe('coordinates inherited basis', () => {
-  it('should report an identity inherited basis for a plain box', () => {
-    const measured = measure(createBox());
+describe('ancestry', () => {
+  it('should report an identity space for a plain box', () => {
+    const out = inherited(createBox());
 
-    expectNear(measured[BOX_ANCESTOR_A]!, 1);
-    expectNear(measured[BOX_ANCESTOR_B]!, 0);
-    expectNear(measured[BOX_ANCESTOR_C]!, 0);
-    expectNear(measured[BOX_ANCESTOR_D]!, 1);
+    expectNear(out[SPACE_A]!, 1);
+    expectNear(out[SPACE_B]!, 0);
+    expectNear(out[SPACE_C]!, 0);
+    expectNear(out[SPACE_D]!, 1);
   });
 
-  it('should exclude the element own transform from the inherited basis', () => {
+  it('should exclude the element own transform', () => {
     // The distinction that matters to a consumer writing a transform onto the
     // element: its own transform is not part of the space that transform acts
     // in.
-    const measured = measure(createBox({ styles: { transform: 'scale(2)' } }));
+    const source = createBox({ styles: { transform: 'scale(2)' } });
 
-    expectNear(measured[BOX_A]!, 2);
-    expectNear(measured[BOX_ANCESTOR_A]!, 1);
+    expectNear(measure(source)[BOX_A]!, 2);
+    expectNear(inherited(source)[SPACE_A]!, 1);
   });
 
-  it('should exclude the element own zoom from the inherited basis', () => {
-    const measured = measure(createBox({ styles: { zoom: '2' } }));
+  it('should exclude the element own zoom', () => {
+    const source = createBox({ styles: { zoom: '2' } });
 
-    expectNear(measured[BOX_A]!, 2);
-    expectNear(measured[BOX_ANCESTOR_A]!, 1);
+    expectNear(measure(source)[BOX_A]!, 2);
+    expectNear(inherited(source)[SPACE_A]!, 1);
   });
 
   it('should report an ancestor scale', () => {
     const parent = createBox({
       styles: { width: '200px', height: '200px', transform: 'scale(3)' },
     });
-    const measured = measure(createBox({ parent }));
+    const out = inherited(createBox({ parent }));
 
-    expectNear(measured[BOX_ANCESTOR_A]!, 3);
-    expectNear(measured[BOX_ANCESTOR_D]!, 3);
+    expectNear(out[SPACE_A]!, 3);
+    expectNear(out[SPACE_D]!, 3);
   });
 
   it('should report an ancestor rotation', () => {
     const parent = createBox({
       styles: { width: '200px', height: '200px', transform: 'rotate(90deg)' },
     });
-    const measured = measure(createBox({ parent }));
+    const out = inherited(createBox({ parent }));
 
-    expectNear(measured[BOX_ANCESTOR_A]!, 0);
-    expectNear(measured[BOX_ANCESTOR_B]!, 1);
-    expectNear(measured[BOX_ANCESTOR_C]!, -1);
-    expectNear(measured[BOX_ANCESTOR_D]!, 0);
+    expectNear(out[SPACE_A]!, 0);
+    expectNear(out[SPACE_B]!, 1);
+    expectNear(out[SPACE_C]!, -1);
+    expectNear(out[SPACE_D]!, 0);
   });
 
   it('should compose nested ancestor transforms', () => {
@@ -305,17 +325,17 @@ describe('coordinates inherited basis', () => {
       styles: { width: '200px', height: '200px', transform: 'scale(3)' },
     });
 
-    expectNear(measure(createBox({ parent: inner }))[BOX_ANCESTOR_A]!, 6);
+    expectNear(inherited(createBox({ parent: inner }))[SPACE_A]!, 6);
   });
 
   it('should include an ancestor zoom in the inherited basis', () => {
     const parent = createBox({
       styles: { width: '200px', height: '200px', zoom: '2' },
     });
-    const measured = measure(createBox({ parent }));
+    const out = inherited(createBox({ parent }));
 
-    expectNear(measured[BOX_ANCESTOR_A]!, 2);
-    expectNear(measured[BOX_ANCESTOR_ZOOM]!, 2);
+    expectNear(out[SPACE_A]!, 2);
+    expectNear(out[SPACE_ANCESTOR_ZOOM]!, 2);
   });
 
   it('should look through a display-contents wrapper to the scaling ancestor', () => {
@@ -330,14 +350,14 @@ describe('coordinates inherited basis', () => {
       styles: { display: 'contents' },
     });
 
-    expectNear(measure(createBox({ parent: wrapper }))[BOX_ANCESTOR_A]!, 2);
+    expectNear(inherited(createBox({ parent: wrapper }))[SPACE_A]!, 2);
   });
 
   it('should cross a shadow boundary to reach the host transform', () => {
     const { source } = createShadowBox('open');
 
     // `offsetParent` stops at the shadow boundary; the flat-tree walk does not.
-    expectNear(measure(source)[BOX_ANCESTOR_A]!, 1);
+    expectNear(inherited(source)[SPACE_A]!, 1);
     expectNear(measure(source)[BOX_A]!, 1);
   });
 
@@ -356,7 +376,85 @@ describe('coordinates inherited basis', () => {
     });
     root.append(source);
 
-    expectNear(measure(source)[BOX_ANCESTOR_A]!, 2);
+    expectNear(inherited(source)[SPACE_A]!, 2);
+  });
+});
+
+describe('ancestry without a principal box', () => {
+  // The whole reason the space is its own value: an element can inherit a
+  // perfectly well-defined space and have no box of its own to measure.
+  it('should answer for a display-contents element that cannot be measured', () => {
+    const parent = createBox({
+      styles: { width: '400px', height: '400px', transform: 'scale(2)' },
+    });
+    const source = createBox({ parent, styles: { display: 'contents' } });
+
+    expect(coordinates(source, box())).toBe(false);
+    expectNear(inherited(source)[SPACE_A]!, 2);
+  });
+
+  it('should answer for an element fragmented across lines', () => {
+    const parent = createFlowBox({
+      styles: { width: '60px', transform: 'scale(2)', transformOrigin: '0 0' },
+    });
+    const source = createFlowBox({
+      parent,
+      tag: 'span',
+      styles: { display: 'inline', width: 'auto', height: 'auto' },
+    });
+
+    source.textContent = 'aaaa bbbb cccc dddd eeee ffff';
+    expect(source.getClientRects().length).toBeGreaterThan(1);
+    expect(coordinates(source, box())).toBe(false);
+    expectNear(inherited(source)[SPACE_A]!, 2);
+  });
+
+  it('should answer for a disconnected element', () => {
+    const out = space();
+
+    expect(ancestry(document.createElement('div'), out)).toBe(true);
+    expectNear(out[SPACE_A]!, 1);
+  });
+
+  it('should reject an ancestor that is not representable in 2D', () => {
+    const parent = createBox({
+      styles: {
+        width: '200px',
+        height: '200px',
+        transform: 'rotateX(30deg)',
+      },
+    });
+    const out = space();
+
+    expect(ancestry(createBox({ parent }), out)).toBe(false);
+    expect(Array.from(out)).toEqual([0, 0, 0, 0, 0]);
+  });
+});
+
+describe('coordinates with a supplied ancestry', () => {
+  it('should agree with the internally read one', () => {
+    const parent = createBox({
+      styles: { width: '400px', height: '400px', transform: 'scale(2)' },
+    });
+    const source = createBox({
+      parent,
+      styles: { left: '10px', top: '20px', transform: 'rotate(30deg)' },
+    });
+    const supplied = box();
+
+    expect(coordinates(source, supplied, inherited(source))).toBe(true);
+
+    const internal = measure(source);
+
+    for (let index = 0; index < BOX_LENGTH; index += 1) {
+      expectNear(supplied[index]!, internal[index]!);
+    }
+  });
+
+  it('should measure an element whose own transform is not 2D as a failure', () => {
+    const source = createBox({ styles: { transform: 'rotateX(30deg)' } });
+
+    expect(coordinates(source, box(), inherited(source))).toBe(false);
   });
 });
 
@@ -481,91 +579,14 @@ describe('coordinates recognized limits', () => {
   });
 });
 
-describe('coordinates caching', () => {
-  it('should serve a repeated read from one epoch', () => {
-    const recache = cache();
-    const source = createBox();
-    const first = box();
-    const second = box();
-
-    expect(coordinates(source, first, recache)).toBe(true);
-    expect(coordinates(source, second, recache)).toBe(true);
-
-    expect(Array.from(second)).toEqual(Array.from(first));
-  });
-
-  it('should observe changed geometry after the epoch is ended', () => {
-    const recache = cache();
-    const source = createBox();
-    const out = box();
-
-    expect(coordinates(source, out, recache)).toBe(true);
-    source.style.left = '30px';
-    recache();
-    expect(coordinates(source, out, recache)).toBe(true);
-
-    expectNear(out[BOX_E]!, 30);
-  });
-
-  it('should stay usable across repeated epochs', () => {
-    const recache = cache();
-    const source = createBox();
-
-    recache();
-    recache();
-
-    expect(coordinates(source, box(), recache)).toBe(true);
-  });
-
-  it('should keep separate caches independent', () => {
-    const source = createBox();
-    const first = cache();
-    const second = cache();
-    const firstOut = box();
-    const secondOut = box();
-
-    expect(coordinates(source, firstOut, first)).toBe(true);
-    source.style.left = '30px';
-    expect(coordinates(source, secondOut, second)).toBe(true);
-
-    expectNear(secondOut[BOX_E]!, 30);
-  });
-
-  it('should perform a fresh read when no cache is supplied', () => {
-    const source = createBox();
-    const out = box();
-
-    expect(coordinates(source, out)).toBe(true);
-    source.style.left = '30px';
-    expect(coordinates(source, out)).toBe(true);
-
-    expectNear(out[BOX_E]!, 30);
-  });
-
-  it('should remeasure after cross-document adoption', () => {
-    const recache = cache();
-    const source = createBox({ styles: { left: '10px', top: '20px' } });
-    const out = box();
-
-    expect(coordinates(source, out, recache)).toBe(true);
-
-    const frame = document.createElement('iframe');
-    frame.style.border = '0';
-    document.body.append(frame);
-    const frameDocument = frame.contentDocument!;
-    frameDocument.body.style.margin = '0px';
-    frameDocument.adoptNode(source);
-    source.style.left = '40px';
-    frameDocument.body.append(source);
-
-    // The cached entry belongs to the previous document, so it is not reused.
-    expect(coordinates(source, out, recache)).toBe(true);
-    expectNear(out[BOX_E]!, 40);
-  });
-});
-
 describe('box', () => {
   it('should allocate storage of the required length', () => {
     expect(box()).toHaveLength(BOX_LENGTH);
+  });
+});
+
+describe('space', () => {
+  it('should allocate storage of the required length', () => {
+    expect(space()).toHaveLength(SPACE_LENGTH);
   });
 });

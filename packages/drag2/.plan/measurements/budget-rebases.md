@@ -547,3 +547,34 @@ Two changes with almost nothing to re-base between them. The **`xy + layoutAnima
 **The minified column is the one that settles the stage question.** It is **identical on all fifteen rows**: both stages are one-digit constants, so the swap is byte-for-byte at the only layer that could have charged for it. Brotli moves −1 B on two rows and 0 B on the other thirteen — a dictionary effect an order of magnitude inside the ±25 B band this file documents, recorded because both columns are always recorded and not because either is a result.
 
 **All seven controls reproduced exactly**, which is the second run of `Composition.control` and the first in which it was expected to be the whole story. The new row carries **no** control: it is a sortable composition, so a sortable-side pass is expected to move it, and a control declared on a row a change can reach is a budget wearing an exact number.
+## Nothing re-based, five controls re-declared — 2026-08-31, D-165
+
+The first pass in this file that **grows** every row it can reach. `@ydinjs/box-quad` landed BQ-6 (the cache removed) and BQ-9 (`Space` first-class, `Box` narrowed from thirteen slots to eight), and D-165 spent the result: two ancestry readings per activation, two named spaces on `ActivationScope`, and the item carried to the kernel as a third member of the admission subject.
+
+Measured against `55eaaf1b` with box-quad rebuilt in both states — the dependency resolves through its built `index.js`, so a stale build reports a difference of zero and reports it convincingly.
+
+| Row | Brotli | Δ brotli | Δ minified | Budget | Slack |
+| --- | --: | --: | --: | --: | --: |
+| minimal | 9,912 | **+62** | +149 | 9,994 | 82 |
+| minimal (xy) | 9,771 | **+53** | +149 | 9,854 | 83 |
+| minimal + layoutAnimation | 10,292 | **+71** | +146 | 10,346 | 54 |
+| xy + layoutAnimation | 10,146 | **+64** | +147 | 10,195 | 49 |
+| minimal + landing | 10,175 | **+66** | +147 | 10,256 | 81 |
+| complete | 10,535 | **+75** | +150 | 10,589 | 54 |
+| free drag minimal | 7,813 | **+63** | +108 | 8,253 | 440 |
+| free drag + bounds | 7,964 | **+67** | +110 | 8,409 | 445 |
+| free drag + landing | 8,077 | **+60** | +112 | 8,519 | 442 |
+| free drag complete | 8,225 | **+74** | +112 | 8,674 | 449 |
+| both behaviors | 11,918 | **+77** | +149 | 11,962 | 44 |
+| vocabulary root — `drag.js` | 142 | **0** | **0** | 205 | 63 |
+| kernel root — `kernel.js` | 6,123 | **+60** | +100 | 6,309 | 186 |
+| baseline A — feature-matched, non-composed | 10,348 | **+58** | +148 | 10,405 | 57 |
+| baseline B — shipped `@ydinjs/drag` sortable.js | 6,889 | **0** | **0** | 7,040 | 151 |
+
+**No budget moves.** §18 gives a re-base to a pass that lands well under and a decision to one that lands over; this pass does neither, so every ceiling keeps the number D-159 gave it and the slack is what the pass reports. `both behaviors` at 44 B is the tightest this matrix has been, and that is the instrument working rather than a problem to absorb — the next pass to touch the kernel meets a row that will say so.
+
+**The upstream figures do not survive the composition, and that is the finding worth keeping.** BQ-6 measured **−46 B** as drag2 consumes box-quad and BQ-9 **+38**, which predicts roughly −8 for the pair. The consumer pays **+62** on `minimal`. Both upstream numbers were taken with a synthetic consumer arm carrying box-quad's own surface; the rows above are taken through the consumer that exists, and they additionally carry D-165's second ancestry call, the second published space, the item slot and the widened admission subject. Where a package-level figure and a composition-level figure disagree, §15 says which one is about consumers — and it is not the one measured against a fixture.
+
+**Five controls moved and are re-declared; two held at exactly zero.** The four free-drag rows and `kernel.js` are +60 to +74. That is not a transfer the control exists to catch: those rows carry the kernel, this change is in the kernel and in a package both behaviors import, and a control that stayed flat here would mean the free-drag graph had somehow stopped reaching `acquireLift`. They are re-declared at their landed figures under the ordinary rule. The two that held — `drag.js`, whose graph is the two error classes, and baseline B, which is a different package entirely — are the rows this change genuinely cannot reach, and their zeroes are the evidence that the instrument was still looking.
+
+**The minified column is not the brotli column, and it says so loudly here.** Minified growth is +146 to +150 on every sortable row and +100 to +112 on the free-drag and kernel rows, against brotli deltas of +53 to +77. The new tokens compress well because they repeat — `SPACE_A`-style slot reads, a second `inheritedSpaceOf` call, `itemSpace` beside `visualSpace`. Recorded because both columns are always recorded, and because a pass reading only the minified figure would price this change at twice what it ships for.

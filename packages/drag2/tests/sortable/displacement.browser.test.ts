@@ -818,14 +818,15 @@ describe('displacement under an ancestor transform', () => {
 });
 
 /**
- * **The `visual` boundary the config states, from both sides.**
+ * **A `visual` that is not the item, with a transform on the way down.**
  *
- * The projection is the ancestry measured at the **visual**, while the
- * `translate` is written on the **item**. Those are the same space until a
- * transform sits between the two, which is exactly what `config.ts` rules out
- * for a `visual` that resolves to a descendant. Both sides are pinned here: the
- * supported shape is exact, and the excluded one is wrong by precisely the
- * intermediate factor — a documented boundary rather than a case nobody tried.
+ * A displacement `translate` is written on an **item**, so the space it is
+ * spent in is the space above that item — never the space above the visual,
+ * which is a different element whenever `visual` resolves to a descendant.
+ * Every linear contribution between the two, the item's own included, is
+ * outside the quantity, and these three shapes are exactly the ones that tell
+ * the two spaces apart: nothing in between, a transformed wrapper in between,
+ * and a transform authored on the item itself.
  */
 describe('a visual that is not the item', () => {
   /** A card filling its row, so the placeholder stands in for the row's height. */
@@ -841,7 +842,7 @@ describe('a visual that is not the item', () => {
   };
 
   /**
-   * The stage the pair is read under. Both tests share it, so the only
+   * The stage the first two are read under. They share it, so the only
    * difference between them is the transform between the item and its visual.
    */
   const stage = { transform: 'scale(2)', transformOrigin: '0 0' } as const;
@@ -865,21 +866,15 @@ describe('a visual that is not the item', () => {
       210,
     );
 
-    // The ancestry above the visual **is** the ancestry above the item: a card
-    // that merely sits inside its row contributes no linear part of its own, so
-    // the supported shape is exact rather than approximately right.
     expect(travel).toBeCloseTo(-80, 1);
     expect(carried).toBeCloseTo(80, 1);
     expect(keyframe).toBe('0px 40px');
   });
 
-  it('should count an intervening transform twice, which is why one is ruled out', async () => {
-    // A 1.5× wrapper *between* the row and its visual — the one shape
-    // `config.ts` rules out for a descendant `visual`. The projection is then
-    // the stage composed with the wrapper, a third, where the row needs a half,
-    // so the contribution spans two thirds of the travel and the row visibly
-    // jumps the rest. Asserted rather than left implicit: a published limit is
-    // worth only as much as the failure it names.
+  it('should ignore a transformed wrapper between item and visual', async () => {
+    // A 1.5× wrapper *between* the row and its visual. It is on the visual's
+    // chain and not on the item's, so it belongs to neither the delta nor the
+    // projection: the row travels the stage's own factor and no more.
     const composed = build({
       fragments: [
         ...withLayout(),
@@ -902,11 +897,53 @@ describe('a visual that is not the item', () => {
         item.append(middle);
       },
     });
-    const { travel, carried } = await displacementOf(composed, 1, 20, 60, 250);
+    const { travel, carried, keyframe } = await displacementOf(
+      composed,
+      1,
+      20,
+      60,
+      250,
+    );
 
-    expect(travel).toBeLessThan(0);
-    expect(carried).toBeCloseTo((-travel * 2) / 3, 1);
-    expect(carried).not.toBeCloseTo(-travel, 1);
+    expect(travel).toBeCloseTo(-80, 1);
+    expect(carried).toBeCloseTo(80, 1);
+    expect(keyframe).toBe('0px 40px');
+  });
+
+  it('should ignore a transform authored on the item itself', async () => {
+    // The item is the element the `translate` is written on, so its **own**
+    // transform is not part of the space that translate acts in — the same rule
+    // that keeps a lifted visual from having its scale divided out twice. With
+    // no ancestor transform at all the correct keyframe is the raw viewport
+    // vector, and a projection taken at the visual would divide the row's own
+    // 1.5 out of it.
+    const composed = build({
+      fragments: [
+        ...withLayout(),
+        { visual: (item) => item.firstElementChild as HTMLElement },
+      ],
+      decorate(item, index): void {
+        if (index === 0) {
+          Object.assign(item.style, {
+            transform: 'scale(1.5)',
+            transformOrigin: '0 0',
+          });
+        }
+
+        card(item);
+      },
+    });
+    const { travel, carried, keyframe } = await displacementOf(
+      composed,
+      1,
+      10,
+      30,
+      105,
+    );
+
+    expect(travel).toBeCloseTo(-40, 1);
+    expect(carried).toBeCloseTo(40, 1);
+    expect(keyframe).toBe('0px 40px');
   });
 });
 

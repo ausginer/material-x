@@ -111,7 +111,16 @@ export type KernelHost = Readonly<{
  */
 export type AdmissionSubject =
   | HTMLElement
-  | Readonly<{ visual: HTMLElement; box: HTMLElement }>;
+  | Readonly<{
+      visual: HTMLElement;
+      box: HTMLElement;
+      /**
+       * The element the operation is *about* — the one a behavior's own plan
+       * visits and writes on. The visual and the box are both resolved from
+       * it, and a bare element is the spelling of all three coinciding.
+       */
+      item: HTMLElement;
+    }>;
 
 export type CommandAdmission<Part extends object> = Readonly<{
   /**
@@ -170,11 +179,10 @@ export type ActivationScope = Readonly<{
    * strictly above it, its own transform and zoom excluded — or `null` for the
    * identity, which is the common case.
    *
-   * Derived from the measurement `acquireLift` has already taken, before it
-   * mutates anything: one activation snapshot, with no second traversal and no
-   * DOM read. A behavior that needs a local delta multiplies rather than
-   * measures — a second walk would run *after* positioning, dimensions,
-   * top-layer state and transforms have changed.
+   * Read before `acquireLift` mutates anything: one activation snapshot, with
+   * no layout read at all. A behavior that needs a local delta multiplies
+   * rather than measures — a walk taken later would run *after* positioning,
+   * dimensions, top-layer state and transforms have changed.
    *
    * **Not the same value as the lift session's own projection**, and the two
    * must never be conflated: `compose`'s is the space an *in-place* translate
@@ -187,7 +195,21 @@ export type ActivationScope = Readonly<{
    * `acquireLift` throws `FAILURE_ACTIVATION` for an unreadable space; singular
    * and non-finite spaces resolve to `null`, the identity.
    */
-  inheritedSpace: InheritedSpace;
+  visualSpace: InheritedSpace;
+  /**
+   * The same inverse for the space above the **item**, or `null` for the
+   * identity.
+   *
+   * **Which element a translate is written on decides which space it is spent
+   * in**, and a behavior displacing the item's siblings writes on items, not on
+   * visuals. Where `visual` resolves to a descendant of the item the two
+   * differ by every linear contribution between them, the item's own included,
+   * so publishing one value for both would divide a transform out of a delta it
+   * was never in.
+   *
+   * `=== visualSpace` whenever the item is the visual, which is the default.
+   */
+  itemSpace: InheritedSpace;
   /**
    * The lift capability. The behavior keeps it for `moved`.
    *

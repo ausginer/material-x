@@ -136,11 +136,11 @@ type InsertionRuntimeView = Readonly<{
  *   placeholder whose own size animates must be accompanied by
  *   `controller.invalidate()`.
  * - **G7** — the linear map the collection **inherits** is stable for the
- *   operation. It is captured once, at the grab, from the measurement the lift
- *   already took, and nothing revisits it — `controller.invalidate()` included,
- *   because revisiting it means the layout read the capture exists to avoid. An
- *   ancestor transform that changes mid-drag is outside the domain; one that is
- *   constant for the drag is fully supported.
+ *   operation. It is captured once, at the grab, before the lift mutates
+ *   anything, and nothing revisits it — `controller.invalidate()` included,
+ *   because revisiting it would describe a tree the activation has already
+ *   changed. An ancestor transform that changes mid-drag is outside the domain;
+ *   one that is constant for the drag is fully supported.
  *
  * ## What this rule does not cover
  *

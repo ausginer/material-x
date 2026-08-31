@@ -350,7 +350,7 @@ export function createFreeDragSpec(
         // ancestry: under a lifted mode the visual is `position: fixed` in the
         // top layer by now, so a second traversal reports the viewport rather
         // than the transformed stage the drag actually began in.
-        space = scope.inheritedSpace;
+        space = scope.visualSpace;
         view = { realm, originRect: scope.originRect, visual };
 
         if (constrain) {

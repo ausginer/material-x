@@ -978,5 +978,13 @@ The ownership rule made executable: **nothing that exists because something anim
 | --- | --- | --- |
 | a displaced row under an ancestor `scale(2)` is drawn **exactly where it stood** at the contribution's first instant, and travels the flow distance rather than a multiple of it | `tests/sortable/displacement.browser.test.ts` — _should render the flow travel under an ancestor scale_ | D-162, F-213 |
 | the **control**: the same drag with no ancestor transform, where the projection is skipped and the vector reaches the keyframe as the axis reported it. It passes with and without the projection, which is what makes it a control rather than a second case | _should render the same flow travel with no ancestor transform_ | D-162 |
-| a `visual` resolving to a **descendant** with no transform between it and its item — the supported half of the boundary `config.ts` states, and it is exact, not approximately right | _should render the flow travel with no transform between item and visual_ | D-162, F-225 |
-| the **excluded** configuration, asserted as the failure the limit names: a 1.5× wrapper between item and visual leaves the row travelling exactly two thirds of the way, because the projection is the stage composed with the wrapper | _should count an intervening transform twice, which is why one is ruled out_ | D-162, F-225 |
+| a `visual` resolving to a **descendant** with no transform between it and its item, exact rather than approximately right. It passes whichever space is routed, which is what makes it the control for the pair below | _should render the flow travel with no transform between item and visual_ | D-162, F-225 |
+
+## Which element's ancestry a displacement is projected through — new (2026-08-31, D-165)
+
+**The `translate` is written on an item, so the space is the one above that item.** The space above the _visual_ is a different space whenever `visual` resolves to a descendant, and the two rows below are the two ways they diverge — a transformed wrapper between the two, and a transform authored on the item itself. Both were checked against the space above the visual, which is the value D-162 routed: the wrapper case then reports 53.33 where it wants 80, and the item case 26.67 where it wants 40, which is F-227's recorded regression reproduced by the instrument that closes it.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| a transformed wrapper **between** the item and its visual is on the visual's chain and on neither the delta nor the projection, so the row travels the stage's factor and no more | `tests/sortable/displacement.browser.test.ts` — _should ignore a transformed wrapper between item and visual_ | D-165, F-225 |
+| a transform authored **on the item itself**, with no ancestor transform at all: the correct keyframe is the raw viewport vector, and a projection taken at the visual divides the item's own scale out of a quantity it was never in | _should ignore a transform authored on the item itself_ | D-165, F-227 |
