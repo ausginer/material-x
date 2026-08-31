@@ -1,0 +1,135 @@
+# BQ-6 / BQ-9 / D-165 — code-discipline review
+
+Commit range reviewed: `55eaaf1b..90d141e2` (single commit `90d141e2`), read at that
+commit on branch `drag2/fin-review`.
+
+## Scope
+
+Covered the full landed diff under `packages/box-quad/src`, `packages/drag2/src`,
+and every touched test/bench file from `git diff --stat 55eaaf1b 90d141e2`:
+`packages/box-quad/tests/{advanced,coordinates,projection,api}.browser.test.ts`,
+`api.declaration.test.ts`, `support/fixtures.ts`; `packages/drag2/tests/{COVERAGE.md,
+consumer.node.test.ts, revision/revision-2.ts, kernel/presentation.browser.test.ts,
+sortable/displacement.browser.test.ts, perf/m5.browser.test.ts}`;
+`packages/drag2/bench/size/measure.ts`; and the box-quad contract markdown deltas
+(`00-index.md` through `04-support-matrix.md`, `05-cache-semantics.md` deletion).
+Judged against `packages/box-quad/.plan/plan.md`'s BQ-6/BQ-9 rows and
+`packages/drag2/.plan/contract/00-index.md`'s D-164/D-165 rows for what the
+decisions required, and against `CONTRIBUTING.md` and
+`.agents/docs/documentation.md` §5 for the discipline rules.
+
+## Result
+
+**One finding, tier B, no tier A.** The implementation tracks BQ-6/BQ-9/D-165's
+required properties closely: the cache surface (`cache()`, `BoxCache`,
+`InternalCache`, `Space.ownerDocument`, `BOX_ANCESTOR_*`) is deleted from source,
+tests and declaration checks with no stragglers found by grep; `ancestry()`/
+`space()` read no layout and share `composeNode`/`zoomOf` with `coordinates()`
+rather than duplicating the per-node transform-composition logic; the two-ancestry-
+reading path in `acquireLift` reuses one `inheritedSpaceOf` helper and
+short-circuits to one `Space` buffer when `item === visual`, so the "two
+near-identical paths" concern the task flagged does not materialize as
+duplication — it is one buffer, one helper, an `itemAbove !== above` guard. Naming
+(`Space`, `ancestry`, `visualSpace`/`itemSpace`, `SPACE_*` slot constants) follows
+the existing `BOX_*`-constant and doc-block conventions. Test discipline is strong:
+cache tests are deleted outright rather than adapted, and the new box-quad tests
+(`display: contents`, fragmented-line, disconnected, non-2D-ancestor, supplied-vs-
+internal-ancestry agreement) each assert a property the decomposition specifically
+exists for rather than restating an existing case. The two new drag2 displacement
+tests are discriminating: both were run against the pre-D-165 (visual-routed) value
+first and shown to reproduce F-227's exact regression numbers (53.33 against 80,
+26.67 against 40) before being corrected, which is exactly the "would fail if the
+feature didn't work" bar.
+
+### cleanup-1 (tier B) — `perf/m5.browser.test.ts` narrates a mechanism D-165 changed, using an identifier that no longer exists
+
+**Finding.** `packages/drag2/tests/perf/m5.browser.test.ts`'s file-level doc block
+and several inline comments describe `ActivationScope.inheritedSpace` — a single
+value "derived from the measurement `acquireLift` already took" via "one traversal,
+two products" — as the mechanism Arm B measures. D-165 split that one field into
+`visualSpace`/`itemSpace` and, per its own record, spends a **second** flat-tree
+walk at activation whenever the item is not the visual (record
+`11-D-first-class-space-claude.md`, "there are now two flat-tree walks at
+activation rather than one"). `grep -rn '\binheritedSpace\b' packages/drag2/src`
+returns nothing: no identifier by that name exists anywhere in source after this
+commit. The comments still use it in backticks, i.e. as a code reference, in five
+places:
+
+- line 11: `**Arm B — D-85's `inheritedSpace`.**`
+- line 32: `no timing result removes `inheritedSpace``
+- line 639: `LIFT_IN_PLACE hands `inheritedSpace` straight to `compose``
+- line 774: `Arm B's denominator: the behavior that never reads `inheritedSpace``
+- line 857: a console-output label, `` `inheritedSpace=${...}` ``
+
+Line 639 in particular is now factually wrong about what the code does: per the
+landed `presentation.ts` diff, `LIFT_IN_PLACE` hands `compose` the value now named
+`visualSpace`, not `inheritedSpace`, and the same acquisition also produces
+`itemSpace`, which this file's opening doc block does not mention at all — it
+still frames Arm B as measuring one derivation from one traversal.
+
+**Current behavior / contract.** The file *was* mechanically updated for the
+rename: the import switches from `{ box, coordinates, Box }` to `{ ancestry,
+space, Space }`, the `BOX_ANCESTOR_*` slot constants become `SPACE_*`, `derive`/
+`skip`/`measure` are retyped from `Box` to `Space`, and the one `acquireLift(...)`
+call site in this file gains the new `item` argument. Only the prose — the five
+occurrences above — was left describing the pre-rename shape the surrounding code
+was just edited out of.
+
+**Why it is a problem.** `documentation.md` §5.2 and `CONTRIBUTING.md`'s "Comments
+and JSDoc" section require an internal comment to state a constraint that
+currently holds, present tense, describing the code that exists now — not to
+narrate a superseded mechanism under a name the rename retired. `m5.browser.test.ts`
+is explicitly this package's own instrument for revisiting D-85's ground ("Arm B
+cannot reopen D-85... this arm checks the ground it was accepted on"); D-85's
+ground was the one-traversal, one-product model, and D-165 changed exactly that
+premise (two products, and a second traversal in the two-element case) without the
+instrument's own narrative being corrected. A maintainer re-reading this file to
+understand what Arm B currently measures, or to decide whether a future change to
+`acquireLift` reopens the SPI question, is being told about a mechanism and an
+identifier that no longer exist — which is what earns tier B (misled by what the
+package says) rather than tier C: the file's whole role is to be the ground truth
+for a future D-85/D-165 reopening decision, so a wrong premise in it is a load-bearing
+error even though nothing at runtime changes.
+
+**Evidence.** `grep -rn '\binheritedSpace\b' packages/drag2/src` → no matches.
+`git diff 55eaaf1b 90d141e2 -- packages/drag2/tests/perf/m5.browser.test.ts`
+(44 lines changed) shows the file *was* mechanically updated for the rename —
+the import switches from `{ box, coordinates, Box }` to `{ ancestry, space,
+Space }`, the `BOX_ANCESTOR_*` slot constants become `SPACE_*`, `derive`/`skip`/
+`measure` are retyped from `Box` to `Space`, and the one `acquireLift(...)` call
+site in this file gains the new `item` argument — but every one of the five prose
+occurrences of `` `inheritedSpace` `` above is untouched by the diff, so the
+comments still describe the pre-rename shape the surrounding code was just
+edited out of.
+
+**Required property.** The file's doc block and inline comments should describe
+the mechanism `acquireLift`/`ActivationScope` currently expose — `visualSpace`
+and `itemSpace`, and the activation-time walk count D-165 actually spends — rather
+than the pre-D-165 single `inheritedSpace` value and single-traversal claim.
+
+## Scope notes
+
+- No findings against `packages/box-quad/.plan/contract/{00-index,01-public-api,
+  02-behavior-scenarios,03-failure-table,04-support-matrix}.md`. Those documents
+  describe the pre-`162f300fa` `readBoxQuad(element, out, relativeTo?, cache?)`
+  surface and are explicitly self-labeled "Original iteration boundary
+  (historical)... does not describe the current project state" in `00-index.md`.
+  This commit's edits to them are limited to keeping the cache-removal wording
+  internally consistent with that historical surface; the deeper staleness
+  (`readBoxQuad` versus the shipped `coordinates`/`projection`/`box`/`ancestry`
+  split) predates this commit and the documents already disclaim currency, so it
+  is not attributed to `90d141e2`.
+- `packages/drag2/bench/size/measure.ts`: only `control` figures moved (five rows,
+  matching D-165's own "five of the seven declared controls moved and are
+  re-declared"); no stale mechanism or shape referenced.
+- No leftover references to `cache`, `recache`, `BoxCache`, `InternalCache`,
+  `BOX_ANCESTOR_*`, or the deleted `config.ts` boundary sentence found anywhere
+  in `packages/box-quad/{src,tests}` or `packages/drag2/{src,tests,bench}` outside
+  the one finding above.
+- `AdmissionSubject`'s new required `item` field, `createKernel`'s new `item` local
+  (using the same `item!` non-null-assertion idiom already established for
+  `visual!`/`box!` in the same function), and the sortable/free-drag admission
+  sites that populate it were checked for duplication and unjustified generality;
+  none found — `item` is always derivable at the same admission point `visual`/
+  `box` already are, and free drag's bare-element path sets all three to the same
+  reference, matching the "one encoding of all three coinciding" comment.
