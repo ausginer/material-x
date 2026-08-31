@@ -155,7 +155,11 @@ export type CommandAdmission<Part extends object> = Readonly<{
  * opportunity to sequence release incorrectly.
  */
 export type ActivationScope = Readonly<{
-  /** The element the kernel is lifting — the visual half of what `admit` returned. */
+  /**
+   * The element the kernel is lifting — what `admit` returned as the `visual`
+   * member of its subject, or the element itself when it returned a bare one,
+   * which names it as the item and the box as well.
+   */
   visual: HTMLElement;
   /** Its viewport rect at grab. Basis for every landing measurement. */
   originRect: DOMRectReadOnly;

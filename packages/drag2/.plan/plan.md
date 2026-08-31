@@ -2266,6 +2266,22 @@ The remediation consolidation routed two findings to the architect at a decision
 
 ---
 
+### 2026-08-31 — the remediation round's remaining five findings, and the D-85 guard rebuilt as a positive claim
+
+Closes the round: F-236, F-237, F-238, F-241 and F-242 acquire ledger rows and close in the same unit, and F-239's disposition is implemented. Records [`bq6-bq9-d165-remediation-summary.md`](reviews/phase-24/bq6-bq9-d165-remediation-summary.md) and [`f239-f240-disposition-claude.md`](reviews/phase-24/f239-f240-disposition-claude.md). **No production behavior changed and no composition was re-measured**; the one `src/` edit is a doc block.
+
+**F-239 — the guard asserts where box-quad may enter, instead of what a behavior may not spell.** The derived-name clause and its read of `packages/box-quad/src/index.ts` are deleted rather than widened. What stands in their place reads every `.ts` under `src/` and asserts the set of modules containing the bare specifier is exactly `['kernel/presentation.ts']` — one package's own files, one string nothing upstream can move, every directory rather than the two the old loop walked, and an expected site that disappears fails instead of passing. The private-slot anti-pattern survives as prose on the assertion, together with why the import claim already covers it: the kernel seam names no `Box`, `Space` or `Float64Array`, so an index has nothing to address in a module that holds no buffer. The resilience sentence goes with the clause it advertised. Falsified by importing `space` into `sortable/rect-index.ts`, which the assertion names.
+
+**F-236 — the same defect class, one member past where the sweep stopped.** `ActivationScope.visual` still read "the visual **half** of what `admit` returned", six lines above the `box` member the previous unit corrected. It now has the shape `box` already had. A finding's evidence names the sites its reporter read; a remediation scoped to that list passes over identical instances, so a defect that is a class of wording is swept by surface rather than by citation.
+
+**F-237 — a contract that is normative by the absence of a strike has no failing state.** `02-kernel-behavior-contract.md` carried the pre-D-165 two-role `AdmissionSubject`, `admit`'s "optionally paired" return and a single-field `ActivationScope.inheritedSpace`, none struck, on a page whose README says the term in force is the unstruck text. Neither D-165's landing nor the F-232 remediation reached it, and nothing could have gone red when they did not. Closed under the directory's own convention: the retired wording is struck where it stands and the landed shape follows — three roles on the subject and its `admit`, `visualSpace` and `itemSpace` on the scope, and D-165's widening recorded beside D-59's spelling reasons, which it leaves standing. The section arguing the scope placement is D-85's own and is untouched; the seam table's `admit` cell now names the three.
+
+**F-238 and F-241 are one correction read twice.** The F-235 row counted "four inline comments" where the delta is two occurrences in the doc block, two inline comments and one `console.info` label. The label is F-241: it is the file's only non-comment change, it is accurate — `inheritedSpaceOf` is the live private function the figure attributes to — and it moves no measured quantity, threshold or assertion. Both are closed by the row naming the five sites as they are.
+
+**F-242 is closed as recorded and deliberately not fixed.** `COVERAGE.md`'s new heading lost its blank line to a file that has never ended in a newline. Nothing parses the spacing, `prettier --check` already warned before the remediation, and the available fix is running the formatter on a document an instrument reads by shape — the exact act F-231 records as having disarmed the reference instrument. A file the formatter is excluded from accumulates cosmetic drift by design, and each instance is an invitation to run the tool the exclusion exists to prevent.
+
+---
+
 ### 2026-08-31 — D-165 implemented: which element's ancestry, and what the decomposition costs the consumer
 
 Landed against a rebuilt `@ydinjs/box-quad` carrying **BQ-6** (the cache removed) and **BQ-9** (`Space` first-class, `Box` narrowed to eight slots, the ancestry boundary deleted rather than implemented).

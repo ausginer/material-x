@@ -251,17 +251,27 @@ The third and fourth rows of tier C matter. **The kernel revalidates once, after
 
 ```ts
 /**
- * What an admission member returns when it admits. (D-59)
+ * What an admission member returns when it admits. (D-59, widened by D-165)
  *
- * A bare `HTMLElement` is the common form and means `box === visual`, which is
- * `box(item) = visual(item)`'s default (D-43) written as the absence of a
+ * ~~A bare `HTMLElement` is the common form and means `box === visual`, which
+ * is `box(item) = visual(item)`'s default (D-43) written as the absence of a
  * choice rather than as a repeated one. The pair form names a separate
- * geometry source. Both admission members return this type — see §Admission
- * returns a subject for why the shape is settled here and why `box` is
- * required rather than optional inside the pair.
+ * geometry source.~~ **D-165 makes it three roles.** The **item** is what the
+ * operation is about and what a behavior's own plan visits and writes on; the
+ * **visual** is what leaves flow and travels; the **box** is what the layout
+ * loses. A bare `HTMLElement` is the common form and means
+ * `item === box === visual`, which is `box(item) = visual(item)`'s default
+ * (D-43) written as the absence of a choice rather than as a repeated one.
+ * The object form names a separate geometry source and a separate item, and
+ * all three members are required inside it so that *they are one element* has
+ * exactly one encoding. Both admission members return this type — see
+ * §Admission returns a subject for why the shape is settled here and why `box`
+ * is required rather than optional inside the object form.
  */
 type AdmissionSubject =
-  HTMLElement | Readonly<{ visual: HTMLElement; box: HTMLElement }>;
+  // ~~HTMLElement | Readonly<{ visual: HTMLElement; box: HTMLElement }>~~ (D-165)
+  | HTMLElement
+  | Readonly<{ visual: HTMLElement; box: HTMLElement; item: HTMLElement }>;
 
 type BehaviorSpec<
   Part extends object,
@@ -298,9 +308,12 @@ type BehaviorSpec<
   /* ---- admission (native dispatch, not queued) ---- */
   /**
    * Runs synchronously inside `pointerdown`, after the kernel's own guards,
-   * with the draft open. Returns the element the kernel should lift —
+   * with the draft open. ~~Returns the element the kernel should lift —
    * optionally paired with the element the kernel should measure — or `null`
-   * to leave the controller idle. (D-5, widened by D-59)
+   * to leave the controller idle. (D-5, widened by D-59)~~ Returns the element
+   * the kernel should lift when the item, the visual and the box are one
+   * element, the three named separately when they are not, or `null` to leave
+   * the controller idle. (D-5, widened by D-59 and D-165)
    *
    * `composedPath()` is valid here and nowhere else. **`preventDefault()` is
    * the kernel's** and an admission member must not call it itself (D-32,
@@ -425,6 +438,8 @@ Three reasons, in order of weight:
 - **The common case allocates nothing.** `box === visual` is the default and will be the overwhelming majority of admissions. The bare-element form is exactly what the reference behavior returns today, so the widening costs the common path zero allocations and zero edits. An always-object form would allocate on every press to express the absence of a choice.
 - **It is additive.** Every existing `admit` returning an element still typechecks, so the SPI crossing costs no migration for a behavior that does not need a separate box.
 
+**D-165 widens the object form again and leaves every reason above standing.** The item joins as a third **required** member, for the same *one spelling per meaning* reason `box` is required rather than optional: the bare element stays the only way to say *these are one element*, and the object form stays the only way to say they are not. The common case still allocates nothing, and the change is still additive for a behavior that separates none of the three.
+
 **Narrowing is realm-safe and is not `instanceof`.** The kernel discriminates with `'visual' in subject`. `instanceof HTMLElement` would be wrong here for a reason this document already contemplates: it is realm-sensitive, and `DOMRealm` exists in the landing context precisely because an element may come from another document. One property lookup, once per press.
 
 **`null` is still the only way to decline, and that is load-bearing.** The widened admitting form has no falsy member — an `HTMLElement` is always truthy and the pair is an object — so `AdmissionSubject | null` stays unambiguous by type rather than by prose, which is the same property `Prepared extends {}` buys for the discard signal in `Transition`. The kernel's decline test is `subject === null`. Nothing else declines, `undefined` is unexpressible, and **I-32's "a declined admission leaves everything untouched" and the whole of D-46's policy route through that single value** — a second decline spelling would give the input policy two paths to keep total instead of one.
@@ -435,7 +450,7 @@ Three reasons, in order of weight:
 
 | Seam | Phase in | Phase out | What sortable does |
 | --- | --- | --- | --- |
-| `admit` | `IDLE` | `PENDING` | Resolve the pressed item against the published snapshot; **decline** if the composed path reaches a `[data-drag-ignore]` region (§Input policy, D-46, D-129), unless the consumer scoped dragging there (D-50); apply the `handle` slot; write `item`, `visual` and `snapshot` into its part; **return the subject** — the visual (via the `visual` slot or identity), paired with the box (via the `box` slot) when the two differ (D-59). |
+| `admit` | `IDLE` | `PENDING` | Resolve the pressed item against the published snapshot; **decline** if the composed path reaches a `[data-drag-ignore]` region (§Input policy, D-46, D-129), unless the consumer scoped dragging there (D-50); apply the `handle` slot; write `item`, `visual` and `snapshot` into its part; **return the subject** — the bare item when the `visual` and `box` slots resolve to it, and the three named separately when any of them differs (D-59, D-165). |
 | `activation.prepare` | `PENDING` | `ACTIVATING` | **Read `boxPost` first**, off `scope.box`, before anything else in the seam (D-52) — **one extent, `box.offsetHeight`** (F-58), and **skipped entirely when `box === visual`** (F-55). Create the placeholder **detached** (default mechanics or the `placeholder` slot), size it from the **removed footprint** — `width` is `scope.boxPre.width` always, `height` is `box === visual ? scope.boxPre.height : scope.boxPre.height − boxPost` — not the visual's offset box (D-43) — and return the element. No DOM insertion, no acquisition. The sizing writes land on an element the consumer may own, so they are **on D-39's rollback ledger**. **Insertion is branched on `draft.pointerId`**: a pointer operation seeds the home insertion; a pointerless one _preserves_ what `command.admit` wrote. See §The command destination. |
 | `activation.effect` | `ACTIVATING` | — | Register removal on `scope.presentation`, **then** `item.after(placeholder)` — retained by D-43 on measurement, not by default; arm scroll/resize invalidation and the frame-task cancel on `scope.motion`; publish `rt.placeholder`, `rt.lift` and the per-operation `rt.view`; `slots.invalidateInsertion()`; `slots.onStart(item)` last. See §Post-commit ordering. |
 | `activation.rollback` | — | — | Undo everything `prepare` wrote onto the staged placeholder — attributes, styles, sizing, state — and drop it. **Required, not vacuous** (D-39): the element may be consumer-owned and adoption never happened, so nothing else becomes responsible for it. |
@@ -921,12 +936,16 @@ type InheritedSpace = Readonly<{
 }> | null;
 
 type ActivationScope = Readonly<{
-  /** The element the kernel is lifting — what `admit` returned. */
+  /**
+   * The element the kernel is lifting — what `admit` returned as the `visual`
+   * member of its subject, or the element itself when it returned a bare one,
+   * which names it as the item and the box as well (D-59, D-165).
+   */
   visual: HTMLElement;
   /** Its viewport rect at grab. Basis for every landing measurement. */
   originRect: DOMRectReadOnly;
   /**
-   * The geometry source — what `admit` returned as the box half of its
+   * The geometry source — what `admit` returned as the `box` member of its
    * subject, or `visual` when it returned a bare element (D-59). Held by the
    * kernel from admission, never read out of the behavior's frame part.
    */
@@ -958,10 +977,16 @@ type ActivationScope = Readonly<{
    * strictly above it, its own transform and zoom excluded — or `null` for the
    * identity, which is the common case. (D-85)
    *
-   * **Derived from the measurement `acquireLift` has already taken, before it
-   * mutates anything.** No second traversal, no DOM read, no `Box` crossing the
-   * seam: the kernel reads four coefficients out of the buffer it filled, and a
-   * behavior that needs a local delta multiplies rather than measures.
+   * ~~**Derived from the measurement `acquireLift` has already taken, before
+   * it mutates anything.** No second traversal, no DOM read, no `Box` crossing
+   * the seam: the kernel reads four coefficients out of the buffer it filled,
+   * and a behavior that needs a local delta multiplies rather than
+   * measures.~~ **Read before `acquireLift` mutates anything**, from a
+   * first-class ancestry value the kernel takes for this element and no other
+   * (D-165). No layout-facing read and no `Box` crosses the seam; a behavior
+   * that needs a local delta multiplies rather than measures. The walk itself
+   * is no longer shared with the measurement — D-165 spends that property
+   * deliberately, once per lift, to obtain the item's space without a boundary.
    *
    * **Not the same value as the lift session's own projection**, and the two
    * must never be conflated: `compose`'s is the space an *in-place* translate
@@ -972,7 +997,25 @@ type ActivationScope = Readonly<{
    * **A delta, never a point.** The linear part alone maps a delta; a point
    * would additionally need the translation, and box-quad exposes none (D-72).
    */
-  inheritedSpace: InheritedSpace;
+  // ~~inheritedSpace: InheritedSpace;~~ — split by **D-165**, which reads the
+  // ancestry twice at activation because which element a translate is written
+  // on decides which space it is spent in.
+  visualSpace: InheritedSpace;
+  /**
+   * The same inverse for the space above the **item**, or `null` for the
+   * identity. (D-165)
+   *
+   * A behavior displacing the item's siblings writes `translate` on items, not
+   * on visuals. Where `visual` resolves to a descendant of the item the two
+   * spaces differ by every linear contribution between them, the item's own
+   * included, so publishing one value for both would divide a transform out of
+   * a delta it was never in.
+   *
+   * **The same object as `visualSpace` whenever the item is the visual**,
+   * which is the default: the kernel reads one ancestry and shares one buffer,
+   * so the identity is object identity rather than agreement.
+   */
+  itemSpace: InheritedSpace;
   /** The lift capability. The behavior keeps it for `moved`. */
   lift: BehaviorLiftSession;
   /** Closed at release, cancel, destroy, panic. */
