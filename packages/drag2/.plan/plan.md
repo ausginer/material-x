@@ -2236,6 +2236,18 @@ Documents only; the implementation WIP was read as evidence and left untouched.
 
 ---
 
+### 2026-08-31 — D-164's encoding challenged, prototyped and upheld; the upstream half settled as box-quad BQ-2
+
+A proposal to obtain D-164's boundary space from a redesigned `@ydinjs/box-quad` cache — caller-owned `WeakMap`, per-element memoized style facts — rather than from an explicit measurement input. Settled in box-quad's own record ([`plan.md`](../../box-quad/.plan/plan.md), BQ-1…BQ-3); only the consequences for drag2 are here. Documents and prototypes only.
+
+**D-164 stands unchanged in substance.** The boundary is an explicit input to the measurement, not a value read out of an optional cache. Three reasons, and the bytes are the weakest of them: box-quad's accepted contract makes ancestor reuse _explicitly non-observable_ and reserves the reuse strategy as changeable without an API revision, so a value D-164 must read cannot come from there without forfeiting that freedom permanently; the cache is optional, so a correctness guarantee would rest on a performance opt-in; and an epoch promises layout has not changed, while `acquireLift` mutates the visual immediately after measuring it, making any map drag2 held a single-use covert output parameter.
+
+**The byte claim was measured rather than argued, and it inverted.** Priced as drag2 actually consumes box-quad — the figure that counts, since `cache()` is tree-shaken from every shipped graph — the explicit boundary is **+40 B brotli** and the cache-derived alternative **+68 B**, delivering none of the capability; both together are **+130 B**, worse than additive. The alternative also has **no hit rate to improve**: drag2 passes no cache at either of its two `coordinates` call sites, so the repeated style reads it targets are not currently paid by anything.
+
+**What drag2 gains from the round.** D-164's property 7 is half discharged — the widening is measured at the box-quad level and validated at 196 of 197 of that package's browser suite, the one failure being the declared `BOX_LENGTH` 13 → 17. The composition-level figure against D-163's budgets is still owed by the implementing pass, and **box-quad must be rebuilt before any drag2 number moves**, because the bench resolves the dependency through its built `index.js`. One consequence to schedule rather than discover: box-quad BQ-1 returns cache ownership to the consumer, so `coordinates`' third parameter becomes a caller-supplied `WeakMap` — drag2 passes nothing there today, so it is a signature change drag2 does not have to react to.
+
+---
+
 ### 2026-08-30 — D-164 supersedes D-162: the space is the item's, and the walk already knows it
 
 F-227 routed to the architect by the D-162 closure round. Record [`f227-inherited-space-boundary-claude.md`](reviews/phase-23/f227-inherited-space-boundary-claude.md). Contract only; no production code written.

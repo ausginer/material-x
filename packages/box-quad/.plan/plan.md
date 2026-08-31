@@ -1,0 +1,47 @@
+# `@ydinjs/box-quad` — the record
+
+The package's argument, alternatives, measurements and findings. The current-state documents are [`contract/`](contract/) and the package `README.md`; this file carries what they evict, append-only and dated.
+
+**Decision ids are `BQ-n`**, package-qualified rather than the bare `D-n` used in [`packages/drag2/.plan/`](../../drag2/.plan/plan.md). The two namespaces are independent and box-quad's decisions are cited from drag2, so an unambiguous prefix costs one character and removes a real reading hazard.
+
+**A decision is atomic** ([`documentation.md`](../../../.agents/docs/documentation.md) §6): a substantive amendment mints a superseding decision and the old one goes `inactive`; wording and citations are corrected in place.
+
+## Decision ledger
+
+| Decision | Statement | Why |
+| --- | --- | --- |
+| **BQ-1** | **Unimplemented (Iteration D).** **Cache ownership returns to the accepted contract: the caller supplies the `WeakMap`.** Record [`06-D-cache-ownership-and-ancestry-claude.md`](reviews/06-D-cache-ownership-and-ancestry-claude.md). `cache(): BoxCache` — a callable owning an internal map and resetting it in place — is **undocumented drift**, not a decision: [`contract/05-cache-semantics.md`](contract/05-cache-semantics.md) §1 already specifies `export type BoxQuadCache = WeakMap<HTMLElement, unknown>` with consumers constructing and owning it, and §2 already states that _"there is no in-place reset operation."_ `BoxCache` appears in no document in this repository and `BoxQuadCache` in no source file, so nothing was superseded — the source simply left. **Accepted on conformance, not on bytes**: measured as `@ydinjs/drag2` consumes the package it is **−9 B brotli**, because `cache()` is tree-shaken from every shipped graph already; whole-module it is −34 B. The honest benefit is that epoch lifetime returns to the consumer that owns the layout knowledge, and that the type `unknown` restores the entry opacity the contract asks for and the callable could not express. **Cost is test churn**: 42 `cache(` call sites across three browser suites become `new WeakMap()`. | closes the cache half of F-1; restores an accepted expectation the source had left, at no byte cost to the only consumer |
+| **BQ-2** | **Unimplemented (Iteration D).** **The ancestry boundary is an explicit measurement input, never a cache side-channel.** Record [`06-D-cache-ownership-and-ancestry-claude.md`](reviews/06-D-cache-ownership-and-ancestry-claude.md). This is the upstream half of [`drag2`](../../drag2/.plan/contract/00-index.md)'s **D-164**: a caller measuring element `E` may designate an ancestor `B` on `E`'s flat-tree chain and receive the linear space inherited **by `B`**, from the same walk. Today's `ancestorMatrix` is the `B = E` special case, so this parameterizes a constant rather than adding a concept, and the value is not recoverable by `projection` from a measured box — it needs `B`'s own contribution, which is unpublished. **A boundary absent from the chain is a recognized failure**, not an identity: it returns `false` under the same rule as a 3D transform, because answering from the document root would be a silently wrong number. **Measured: +40 B brotli as consumed** (+50 whole-module), and **validated at 196 of 197** against the package's existing browser suite — the single failure is `should allocate storage of the required length`, the declared `BOX_LENGTH` change from 13 to 17, which the implementing pass updates. **The alternative — deriving it from a memoized ancestor entry — was built and declined**, see BQ-3. | supplies drag2 D-164 from the package that owns the flat-tree, shadow-root and `display: contents` rules; keeps a required value out of an optional mechanism |
+| **BQ-3** | **Shared-ancestor memoization stays deferred, and the deferral is now evidenced rather than assumed.** Record [`06-D-cache-ownership-and-ancestry-claude.md`](reviews/06-D-cache-ownership-and-ancestry-claude.md). [`contract/05-cache-semantics.md`](contract/05-cache-semantics.md) §10 already reserved _"shared-ancestor reuse"_ and _"ancestor traversal representation"_ to this iteration; it was proposed, prototyped and **declined on four grounds at once**. **Bytes**: **+68 B brotli as consumed**, against a hoped-for neutral-or-smaller, and against BQ-2's +40 for the capability that was supposed to come free with it — the two are **worse than additive**, +130 together against the 108 a clean split predicts. **It delivers no capability**: memoizing each element's own contribution does not publish the space above another element, so BQ-2's cost is paid on top rather than absorbed. **It has no hit rate to improve**: `@ydinjs/drag2` passes no cache at either of its two `coordinates` call sites, so the repeated-`getComputedStyle` cost this targets is not currently paid by anything. **And the encoding carries a silent-corruption trap**: unless a completed space is a strict superset of the per-element facts, an element measured first and revisited as an ancestor is read as the identity — demonstrated in a real browser as a parent's `transform: scale(2)` vanishing, `a = 1` against a correct `2`, with no exception, no `false` and no type error. **What would reopen it**: a measured traversal cost, on a consumer that actually holds an epoch across a batch of siblings. Not a byte argument, and not this one. | keeps an unobservable optimization unobservable; records the falsified byte claim so it is not re-proposed from hope |
+
+## Decision status
+
+| Decision | Status |
+| -------- | ------ |
+| BQ-1     | active |
+| BQ-2     | active |
+| BQ-3     | active |
+
+## Findings
+
+| ID | Finding | Status |
+| --- | --- | --- |
+| **F-1** | The accepted contract is stale against the source, with no recorded supersession | **Open, partly closed by BQ-1, 2026-08-31.** [`contract/00-index.md`](contract/00-index.md) §Binding decisions binds the package to a single `readBoxQuad` entrypoint; the source exports `coordinates` and `projection` and no `readBoxQuad`. [`contract/01-public-api.md`](contract/01-public-api.md) and [`05-cache-semantics.md`](contract/05-cache-semantics.md) describe a `BoxQuadCache` the source does not have. `Box` — the package's central output type, and the thing BQ-2 widens — is described by no artifact at all. The cache half closes with BQ-1; the entrypoint naming, the `relativeTo`-versus-`projection` split and `Box`'s absence are the package owner's to reconcile. **Why it matters here**: the package is not `private` and carries a version, so it must be treated as published, and a contract describing a different API is worse than no contract — it makes every conformance argument unsound, including the one BQ-2 had to make from first principles because no artifact covers `Box` |
+
+## Record
+
+### 2026-08-31 — Iteration D opened on a challenge to D-164's encoding, and split three ways
+
+The proposal was that box-quad stop owning the cache lifecycle, take a caller-supplied `WeakMap`, and memoize each visited element's style-derived linear facts — satisfying drag2's D-164 from the same traversal, deleting the `BoxCache` machinery, and coming out byte-neutral or smaller.
+
+**It is three independent changes, and they separate cleanly.** Caller-owned map: accepted (BQ-1), and it turns out to be a contract _restoration_ rather than a proposal — the accepted contract has specified exactly that since 2026-07-26, and the shipped callable is undocumented drift. Explicit boundary: accepted (BQ-2), unchanged in substance from D-164, measured and suite-validated. Ancestor memoization: declined (BQ-3).
+
+**The byte claim was measured rather than accepted, and it did not survive.** Five working arms, bundled with the repository's own Rolldown-plus-brotli pipeline, priced both whole-module and as drag2 actually consumes the package — the second figure being the one that counts, because `cache()` is tree-shaken from every shipped graph and its removal is therefore worth −9 B rather than the −34 the whole-module figure suggests. The proposal as put is **+68 B**, delivers no part of D-164, and makes the capability it was supposed to fund **dearer** rather than free.
+
+**The decisive argument is not the bytes.** Artifact 5 §3 makes ancestor reuse explicitly _not observable behavior_ and §10 reserves the reuse strategy as changeable without an API revision. A value D-164 must be able to _read_ cannot come from there without permanently forfeiting that freedom — and the cache is optional, so a correctness guarantee would come to rest on a performance opt-in. Worse, an epoch promises layout has not changed, while `acquireLift` mutates the visual immediately after measuring it; any map drag2 held would be constructed for one call and discarded after reading one value out of it, which is a covert output parameter rather than a cache.
+
+**One question was answered concretely rather than in principle.** One map _can_ hold both partial and complete entries — but only if a completed space is a strict superset of the per-element facts, plus a discriminator read. The naive shape is a silent wrong answer, shown in a real browser rather than argued: a parent's `scale(2)` disappears on the warm path with no exception, no `false` and no type error.
+
+Documents and prototypes only; no production file was modified, and the five arms were built and measured outside the repository.
+
+---
