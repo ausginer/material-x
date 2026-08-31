@@ -98,16 +98,20 @@ export type KernelHost = Readonly<{
 /**
  * What an admission member returns when it admits.
  *
- * A bare `HTMLElement` is the common form and means `box === visual`. The pair
- * form names a separate geometry source: what leaves flow is the **visual**,
- * while what the layout loses is the **box**.
+ * **Three roles, and a bare `HTMLElement` says one element fills all of them**
+ * — `item === box === visual`, which is the common form. The **item** is what
+ * the operation is about and what a behavior's own plan visits; the **visual**
+ * is what leaves flow and travels; the **box** is what the layout loses. They
+ * separate when a row lifts an inner card: the item is the row and the visual
+ * is the card, and the box is named again because what leaves flow is not
+ * always what the layout loses.
  *
  * Discriminated by `'visual' in subject`, never `instanceof HTMLElement`:
  * `instanceof` is realm-sensitive, and {@link DOMRealm} exists precisely
  * because an element may come from another document.
  *
- * `box` is **required** inside the pair, so that *the box is the visual* has
- * exactly one encoding.
+ * All three are **required** inside the object form, so that *they are one
+ * element* has exactly one encoding.
  */
 export type AdmissionSubject =
   | HTMLElement
@@ -156,9 +160,9 @@ export type ActivationScope = Readonly<{
   /** Its viewport rect at grab. Basis for every landing measurement. */
   originRect: DOMRectReadOnly;
   /**
-   * The geometry source — what `admit` returned as the box half of its subject,
-   * or `visual` when it returned a bare element. Held by the kernel from
-   * admission, never read out of the behavior's frame part.
+   * The geometry source — what `admit` returned as the `box` member of its
+   * subject, or the element itself when it returned a bare one. Held by the
+   * kernel from admission, never read out of the behavior's frame part.
    */
   box: HTMLElement;
   /**
@@ -426,8 +430,9 @@ export type BehaviorSpec<
    * path reaches a `[data-drag-ignore]` region declines, unless a `handle`
    * scoped dragging there.
    *
-   * Returns the element the kernel should lift — optionally paired with the
-   * element the kernel should measure — or `null` to leave the controller idle.
+   * Returns the element the kernel should lift when the item, the visual and
+   * the box are one element, the three named separately when they are not, or
+   * `null` to leave the controller idle.
    */
   admit(event: PointerEvent, draft: Draft<Part>): AdmissionSubject | null;
 

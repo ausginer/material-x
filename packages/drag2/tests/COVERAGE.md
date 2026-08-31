@@ -988,3 +988,11 @@ The ownership rule made executable: **nothing that exists because something anim
 | --- | --- | --- |
 | a transformed wrapper **between** the item and its visual is on the visual's chain and on neither the delta nor the projection, so the row travels the stage's factor and no more | `tests/sortable/displacement.browser.test.ts` — _should ignore a transformed wrapper between item and visual_ | D-165, F-225 |
 | a transform authored **on the item itself**, with no ancestor transform at all: the correct keyframe is the raw viewport vector, and a projection taken at the visual divides the item's own scale out of a quantity it was never in | _should ignore a transform authored on the item itself_ | D-165, F-227 |
+## The two published spaces, as objects rather than as values — new (2026-08-31, F-234)
+
+**_The same object_ and _the same value_ are different claims**, and every assertion written in terms of what a space contains checks only the weaker one. D-165 settles the stronger one: under the common configuration the item is the visual, so there is one ancestry, one derivation and one object — which is how a composition avoids paying for a divergence it does not have. Both rows were checked against an `acquireLift` that always allocates a second buffer: the identity row then fails on `Object.is` with two equal spaces, and the divergence row passes either way, which is what makes it the control.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| `visualSpace` and `itemSpace` are **one object** when the item is the visual, under a transformed ancestry so the identity is not the trivial `null === null` | `tests/kernel/presentation.browser.test.ts` — _should publish one object for both spaces when the item is the visual_ | D-165, F-234 |
+| the **control**: with a transform authored on the item and the visual inside it, the two are different objects carrying different inverses — so the row above holds because the two ancestries are one, not because the kernel derives only one | _should publish two different spaces when a transform sits between them_ | D-165, F-234 |

@@ -2236,6 +2236,22 @@ Documents only; the implementation WIP was read as evidence and left untouched.
 
 ---
 
+### 2026-08-31 — the BQ-6/BQ-9/D-165 round's four findings remediated; docs and instruments only
+
+The review round came back clean at tier A — record [`bq6-bq9-d165-summary.md`](reviews/phase-24/bq6-bq9-d165-summary.md) — and left four documentation- and instrument-accuracy defects. **No production file changed**, so no composition was re-measured; the two source edits are a doc block and a return description on `kernel/spec.ts`, which the emitted declarations carry and the runtime does not.
+
+**F-232 — the bare admission subject stopped describing itself.** `AdmissionSubject` gained a required `item` with its own doc comment, and the paragraph above the type kept saying the bare form means `box === visual`. A member arriving is a sentence about the member; what the *other* form now asserts is a second sentence, and nothing type-checks prose. Both it and `BehaviorSpec.admit`'s return description now name three roles and what separates them.
+
+**F-233 — a guard tracked a spelling and outlived it.** The D-85 packaging conformance test matched the literal `BOX_ANCESTOR_`, which BQ-9 deleted. Nothing violated D-85, so the defect was the instrument: the anti-pattern reproduced today would spell `SPACE_*` and pass. **Closed by expressing the invariant rather than re-spelling it** — the forbidden names are read out of `packages/box-quad/src/index.ts`, so a rename in the package that owns them carries the guard along, and an extraction that stops matching fails a vacuity check rather than reporting a pass. Falsified by injecting the current-spelling anti-pattern into `free-drag/geometry.ts`, which the repaired guard names.
+
+**F-234 — a settled property asserted nowhere.** That `visualSpace` and `itemSpace` are one *object* when the item is the visual was stated in the ledger, in this record and in `LiftAcquisition`'s doc block, and checked by nothing; an implementation allocating a second equal buffer passed the whole suite. Two rows in `presentation.browser.test.ts` close it, and removing the shared buffer fails the identity row on `Object.is` with two equal spaces.
+
+**F-235 — a measurement narrating a model its subject had left.** `perf/m5.browser.test.ts` described a single `inheritedSpace` and the one-traversal model, on the file whose stated role is the ground truth for a future D-85 reopening. Its arm-B premise had also expired quietly: the sortable *does* read `itemSpace` now, and what survives is that a sortable **with no displacement sink** derives the value and never spends it — which is exactly what the fixture composes, so the arm keeps its denominator and loses a false sentence. The second `ancestry` walk is named as outside this arm's scope rather than folded into it.
+
+**One observation from F-235 worth keeping separate from the fix.** The premise that expired was not stated as an assertion anywhere — the arm prints numbers whether or not the behavior it names still exists. A measurement's prose carries its premise, and a decision that moves the subject invalidates it silently.
+
+---
+
 ### 2026-08-31 — D-165 implemented: which element's ancestry, and what the decomposition costs the consumer
 
 Landed against a rebuilt `@ydinjs/box-quad` carrying **BQ-6** (the cache removed) and **BQ-9** (`Space` first-class, `Box` narrowed to eight slots, the ancestry boundary deleted rather than implemented).

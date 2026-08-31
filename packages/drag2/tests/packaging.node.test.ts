@@ -40,6 +40,33 @@ async function declarations(dir: string): Promise<readonly string[]> {
 }
 const SRC = join(ROOT, 'src');
 
+/**
+ * Every slot-index constant `@ydinjs/box-quad` declares, read from its source.
+ *
+ * **Derived rather than spelled**, and that is the point. The anti-pattern
+ * D-85 removed is a behavior module re-declaring these privately instead of
+ * taking the named shapes the kernel hands down, and the names belong to the
+ * geometry package — so a guard written against one spelling stops seeing what
+ * it catches the moment that package renames a slot, and reports a pass while
+ * doing it. Reading the real declarations makes a rename carry the guard with
+ * it, which is the same argument the relative import at the top of this file
+ * is disabled for.
+ *
+ * Over-broad by construction: any module-level `const NAME = <integer>` there
+ * qualifies. That is the safe direction — the names are box-quad's private
+ * vocabulary either way, and a behavior has no business restating one.
+ */
+async function slotConstants(): Promise<readonly string[]> {
+  const source = await readFile(
+    resolve(ROOT, '../box-quad/src/index.ts'),
+    'utf8',
+  );
+
+  return [...source.matchAll(/^const ([A-Z][A-Z\d_]*) = \d+;$/gmu)].map(
+    (match) => match[1]!,
+  );
+}
+
 const readJSON = async (path: string): Promise<Record<string, unknown>> =>
   JSON.parse(await readFile(join(ROOT, path), 'utf8')) as Record<
     string,
@@ -295,16 +322,24 @@ describe('the published file list', () => {
   });
 
   it('should keep the geometry package out of every behavior', async () => {
-    // **D-85's source-level half** (E-01). The kernel measures the box space
-    // once, in `acquireLift`, and hands the four coefficients down on
-    // `ActivationScope`. Free drag used to take its own `coordinates()`
-    // traversal — with four private copies of box-quad's index constants — and
-    // that read ran *after* acquisition had already moved the visual.
+    // **D-85's source-level half** (E-01). The kernel reads the geometry once,
+    // in `acquireLift`, and hands named shapes down on `ActivationScope`. Free
+    // drag used to take its own `coordinates()` traversal — with private copies
+    // of box-quad's slot-index constants — and that read ran *after*
+    // acquisition had already moved the visual.
     //
     // Asserted on the source rather than through the import graph, because
     // `@ydinjs/box-quad` is a bare specifier and `reachableFrom` follows only
     // relative ones. The claim is narrow and exact: no behavior module reaches
-    // the traversal, and no behavior module carries a `Box` index of its own.
+    // the traversal, and no behavior module carries a slot index of its own.
+    const forbidden = await slotConstants();
+    // **Vacuity is the failure mode this half actually has.** The names are
+    // derived, so an extraction that stopped matching would leave the guard
+    // green while testing only the import specifier — which is the silence a
+    // hardcoded spelling produced when the slots were renamed.
+    expect(forbidden.length).toBeGreaterThan(0);
+
+    const declaresSlot = new RegExp(`\\b(?:${forbidden.join('|')})\\b`, 'u');
     const files = ['free-drag', 'sortable'];
     const offenders: string[] = [];
 
@@ -320,7 +355,10 @@ describe('the published file list', () => {
       );
 
       for (const [index, source] of sources.entries()) {
-        if (/from '@ydinjs\/box-quad'|BOX_ANCESTOR_/u.test(source)) {
+        if (
+          source.includes("from '@ydinjs/box-quad'") ||
+          declaresSlot.test(source)
+        ) {
           offenders.push(`${directory}/${names[index]!}`);
         }
       }

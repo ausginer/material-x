@@ -302,6 +302,66 @@ describe('in-place projection', () => {
   });
 });
 
+describe('the two published spaces', () => {
+  /** `acquireLift` with the item and the visual named separately. */
+  function acquire(
+    visual: HTMLElement,
+    item: HTMLElement,
+  ): ReturnType<typeof acquireLift> {
+    const acquisition = acquireLift(
+      visual,
+      item,
+      LIFT_IN_PLACE,
+      visual.getBoundingClientRect(),
+      createRealm(visual),
+      unwind,
+    );
+
+    sessions.push(acquisition.session);
+    return acquisition;
+  }
+
+  /** A transformed stage, so neither space collapses to the `null` identity. */
+  function stage(scale: string): HTMLElement {
+    return createBox({
+      position: 'absolute',
+      width: '400px',
+      height: '400px',
+      transform: `scale(${scale})`,
+      transformOrigin: '0 0',
+    });
+  }
+
+  it('should publish one object for both spaces when the item is the visual', () => {
+    // **Reference identity, not agreement.** Two equal-but-distinct buffers
+    // would satisfy every other assertion in the suite and still falsify what
+    // the decision states: under the common configuration a composition does
+    // not pay for a divergence it does not have, and the way that is true is
+    // that there is one derivation and one object.
+    const visual = createBox({}, stage('2'));
+    const { visualSpace, itemSpace } = acquire(visual, visual);
+
+    // Guards the identity against being the trivial `null === null`.
+    expect(visualSpace).not.toBeNull();
+    expect(visualSpace!.a).toBeCloseTo(0.5, 6);
+    expect(itemSpace).toBe(visualSpace);
+  });
+
+  it('should publish two different spaces when a transform sits between them', () => {
+    // The control for the row above: the two are one object because the two
+    // ancestries are one ancestry, not because the kernel only ever derives
+    // one. Here the item carries its own `scale(1.5)`, which is in the space
+    // above the visual and outside the space above the item.
+    const item = createBox({ transform: 'scale(1.5)' }, stage('2'));
+    const visual = createBox({}, item);
+    const { visualSpace, itemSpace } = acquire(visual, item);
+
+    expect(visualSpace!.a).toBeCloseTo(1 / 3, 6);
+    expect(itemSpace!.a).toBeCloseTo(0.5, 6);
+    expect(itemSpace).not.toBe(visualSpace);
+  });
+});
+
 describe('acquireLift cleanup', () => {
   it('should restore the inline styles when top-layer acquisition throws', () => {
     // A lift is all-or-nothing. The style lease is taken before the visual is
