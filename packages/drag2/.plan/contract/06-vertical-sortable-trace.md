@@ -112,18 +112,30 @@ pointerdown on item 2
 
 [K] listener: !closed ✔  current.operation === null ✔  isPrimaryPress ✔
 [K] begin()                                    Object.assign(draft, current)
-[B] spec.admit(event, draft) → { visual, box? }                 [D-5, D-59]
+[B] spec.admit(event, draft) → AdmissionSubject           [D-5, D-59, D-165]
+      ← this line read `{ visual, box? }` until D-165, which was wrong twice
+        over: the optional `box` is a spelling 02 §Admission returns a subject
+        had already REJECTED — one meaning, one encoding — and the shape was
+        a role short of what admission carries.
       resolve the pressed item from rt.snapshot via composedPath()
       the composed path carries no [data-drag-ignore] between the
       press and the row, so admission does NOT decline       [D-46, D-129]
       slots.handle — not installed, skip
       draft.item = item2                       ← BEHAVIOR state, in the
       draft.snapshot = rt.snapshot               behavior's own frame part
-      return item2                             ← the element to lift; `box` is
-                                                 omitted here, so it defaults
-                                                 to the visual        [D-43]
-[K] store visual and box in the KERNEL's OWN frame slice, beside
-    originRect — not read back out of a behavior-authored draft  [D-59]
+      return item2                             ← the BARE form, and it says
+                                                 all THREE roles at once: the
+                                                 item is the visual is the box.
+                                                 The object form is the only
+                                                 way to say they differ, and
+                                                 names all three when they do.
+                                              [D-43, D-59, D-165]
+                                             ← this annotation read "`box` is
+                                               omitted here, so it defaults to
+                                               the visual" while the shape had
+                                               an optional member to omit.
+[K] store visual, box and item in the KERNEL's OWN frame slice, beside
+    originRect — not read back out of a behavior-authored draft [D-59, D-165]
       ← D-52's first form had the behavior stash `box` in the draft for the
         kernel to read before acquireLift. That contradicts H-2 — the kernel
         does not know, store, extend or type the behavior's part — and D-15,
@@ -131,9 +143,12 @@ pointerdown on item 2
         cosmetic exception: "the kernel learns one sortable-shaped thing" is
         the defect Checkpoint C found four times.
       ← D-5's principle is intact. The kernel still gets what it needs from
-        admission and nothing else; it now needs TWO things rather than one,
+        admission and nothing else; it now needs THREE things rather than one,
         which changes the count, not the rule. Admission runs once per press
-        and is not the hot path, so the pair costs nothing measurable.
+        and is not the hot path, so the object costs nothing measurable.
+      ← this read TWO until D-165, which needs the item to read the ancestry
+        a displacement is spent in. The count has moved twice and the rule has
+        not moved once, which is the whole reason it is stated as a rule.
 [K] the default is NOT prevented here            ← it MOVES to activation
       ← this line read `event.preventDefault()` until Revision 2, called
         exactly when an admission member returned non-null [C-03]. The press
@@ -198,20 +213,42 @@ pointermove (+11 px)
                 rect read would carry a transform the footprint must not see.
               ← box defaults to the visual; here they are the same element,
                 which is exactly the case where one window looks sufficient.
-        [K] lift = acquireLift(visual, config.liftMode, …)
+        [K] lift = acquireLift(visual, item, config.liftMode, …)
+              ← `item` since D-165. Before the mutation below, this reads the
+                ancestry above the VISUAL and — only when the two are different
+                elements — the ancestry above the ITEM, then measures the
+                visual THROUGH the first. Computed style up the flat tree; no
+                layout is read for either and no rect is measured for the item.
+                                                             [D-85, D-165]
               ← the visual leaves flow HERE. Everything the footprint rule
-                needs is on opposite sides of this line.
+                needs is on opposite sides of this line — and so is every
+                ancestry read, which is why they are all taken above it. A
+                walk taken later reads a tree the lift has already changed.
+                                                             [D-85]
         [K] root.isConnected ✔ → root.setPointerCapture(pointerId)    [D-17]
               ← validated, not assumed: `admit` may return any element and a
                 consumer resolver can detach things. A capture failure is
                 FAILURE_ACTIVATION, not a silently degraded drag.
         [K] begin()
         [B] spec.activation.prepare(draft, scope) → HTMLElement    [prepare]
-              scope = { visual, box, originRect, boxPre, lift,
+              scope = { visual, box, originRect, boxPre,
+                        visualSpace, itemSpace, lift,
                         motion, presentation }
                       ← the kernel HANDS these down, which is the whole of how
                         the behavior sees them. It does not read them back out
                         of the draft, and the behavior never wrote them. [D-59]
+                      ← this literal carried no space at all until D-85, and
+                        carried ONE, `inheritedSpace`, from D-85 until D-165
+                        split it in two.
+                      ← both are the inverse of an inherited linear part, or
+                        `null` for the identity — which is this trace's case,
+                        an untransformed list, and the case `compose` skips the
+                        arithmetic for. `compose` and free drag spend the
+                        VISUAL's; a displacement sink writes its `translate`
+                        on an ITEM and spends the item's, because which element
+                        a translate is written on decides which space it is
+                        spent in. THE SAME OBJECT whenever the item is the
+                        visual, which is here.               [D-85, D-165]
               boxPost = the BOX's offsetHeight ← WINDOW 2 of 2, and the FIRST
                         thing this seam does. Read after acquireLift, from the
                         same element and in the same units as boxPre.
@@ -268,6 +305,12 @@ pointermove (+11 px)
                           it; it exists because they need a non-null
                           placeholder, which the controller-lifetime runtime
                           cannot promise before now.
+                        ← it also carries `scope.itemSpace` down to whatever
+                          displaces siblings. HANDED DOWN, never measured here:
+                          this seam runs after acquisition, so a walk taken
+                          from it would describe a tree the lift has already
+                          changed — which is the act D-85 exists to forbid.
+                                                             [D-85, D-165]
               slots.invalidateInsertion()
               ── 4. consumer callback last: it may cancel or destroy ──
               slots.onStart(item2)
@@ -278,6 +321,8 @@ pointermove (+11 px)
 ```
 
 **Two windows, because one is wrong in a case that looks like the common one — and the common case takes the first window alone.** ~~Here `box === visual`, so `boxPre − boxPost` is just the visual's own height and a single pre-lift capture would have agreed.~~ **Corrected during implementation (F-55): that subtraction is `0`, not the visual's height.** `boxPre − boxPost` measures the footprint only when the box _stays in flow_ while the visual leaves it, which is what api-1 measured with a nested pair. Under `box === visual` there is no such pair: the one element **is** the thing being lifted, and `LIFT_FAITHFUL` promotes it with `position: fixed` and an explicit width and height, so its offset box is **unchanged** across `acquireLift` and the difference is zero. The rule is therefore stated on the identity: **`box === visual` ⇒ the footprint is `boxPre`; otherwise its height is `boxPre.height − boxPost` and its width is `boxPre.width`** — one-dimensional, because F-58 found the second axis subtracting a collapse that never happened. The identity branch is not an optimisation — it is the second half of the rule, and the pre-lift capture is the whole answer there, which is what the library did before two windows existed. The subtraction earns its place the moment the box keeps a sibling in flow: api-1 measured `boxPre 62 − boxPost 32 = 30`, and the list collapsed by exactly 30 — while the box's own height (62) over-sizes by double-counting the residue and the visual's height (60) over-sizes by 30. Probe C1 then reproduced it inside a live drag with `layoutAnimation()` running: sizing from `visual.offsetHeight` runs the list `180 → 210`, **30 px too tall for the entire drag**, not just at landing. No single-window rule is correct in both nested cases, which is why the rule takes two. The timing costs nothing structurally — `acquireLift` and this seam are forty lines apart — and buys one additional forced layout per activation. **[D-43, F-50]**
+
+**Two spaces, for the same reason there are two windows: what leaves flow and what the layout loses need not be one element, and neither need be the element a behavior writes on.** `visualSpace` and `itemSpace` are both inverses of an inherited linear part — everything strictly above the element, its own transform and zoom excluded — read from computed style before `acquireLift` mutates anything and handed down rather than measured. `compose` spends the visual's, because an in-place translate is prepended to the visual's authored transform and is scaled only by what the visual inherits. A displacement sink spends the item's, because it writes its `translate` on an item; where `visual` resolves to a descendant of the item the two differ by every linear contribution between them, the item's own included, and one value for both would divide a transform out of a delta it was never in. In this trace they are **the same object** — nothing separates the three roles, so the kernel reads one ancestry and shares one buffer — and both are `null`, the identity, because the list carries no transform. **The count of reads is not what makes this safe**: what D-85 forbids is a behavior taking its own traversal *after* acquisition, and neither space here is measured by anything below `acquireLift`. **[D-85, D-165]**
 
 `activation.prepare` performs no mutation the _layout_ can see: it never inserts, it measures, and capture is the kernel's. Insertion, disposer registration and the private-runtime writes are all post-commit. But it does mutate — `createPlaceholder` is a **consumer** slot, the element it returns is **consumer-owned**, and `applyMechanics` writes library-authored attributes, styles and state onto it before `prepare` returns. **[I-17 — not vacuous for this behavior, corrected by D-39]**
 
@@ -734,7 +779,7 @@ What the same trace does under each difficult case, without adding a branch anyw
 | A press that never crosses the threshold | Nothing native is consumed: no `preventDefault()`, no selection cleared, and **no trailing-`click` suppressor armed**, so the click, the `href` and ctrl-click all behave exactly as they would with no library present. The suppressor is armed at activation, so it cannot fire for a press that stayed a press. **[D-54, D-46]** |
 | A drag that **activates** and ends on a link or button | The default was prevented at the threshold crossing, the selection the press began was cleared there, and exactly **one** subsequent `click` is suppressed in the capture phase — so the drop does not also navigate. One click, not a latch: the next genuine click on that element works. **[D-54]** |
 | A touch drag that should not scroll the page | **Not this trace's job, and not `preventDefault()`'s.** Scroll suppression is `touch-action`, which the consumer sets in CSS. Probe E is Chromium and mouse only; touch's long-press context menu and tap highlighting are an **owed measurement**, recorded rather than assumed settled. **[D-54]** |
-| An arrow key on a movable item, from a focusable drag control | `command.admit` writes item, snapshot and destination gap into the draft and returns the visual. It mints a pointerless operation (`pointerId === -1`), commits `PENDING`, queues `ACTIVATE`; `START_COMMITTED` queues `RELEASE`. A command has no threshold to cross, so admission and activation are one turn and the default is prevented at activation exactly as D-54 states. **Three seams branch on `pointerId` and the rest of this trace applies verbatim:** `activation.prepare` preserves the command's gap instead of seeding home, `release.prepare` takes it as committed instead of re-resolving spatially, and `release.effect` moves the placeholder but performs no lift write. An earlier version of this row said the trace applied verbatim _from `release.prepare` on_, which was wrong at both ends — the seed had already overwritten the gap and the re-resolve would have replaced it from `pointerY === 0` — and then said "two seams" while the branch was already three. **[D-32, C4-01, C5-05]** |
+| An arrow key on a movable item, from a focusable drag control | `command.admit` writes item, snapshot and destination gap into the draft and returns the subject — the bare item here, since nothing separates the three roles. It mints a pointerless operation (`pointerId === -1`), commits `PENDING`, queues `ACTIVATE`; `START_COMMITTED` queues `RELEASE`. A command has no threshold to cross, so admission and activation are one turn and the default is prevented at activation exactly as D-54 states. **Three seams branch on `pointerId` and the rest of this trace applies verbatim:** `activation.prepare` preserves the command's gap instead of seeding home, `release.prepare` takes it as committed instead of re-resolving spatially, and `release.effect` moves the placeholder but performs no lift write. An earlier version of this row said the trace applied verbatim _from `release.prepare` on_, which was wrong at both ends — the seed had already overwritten the gap and the re-resolve would have replaced it from `pointerY === 0` — and then said "two seams" while the branch was already three. **[D-32, C4-01, C5-05]** |
 | A handle resolver calls `controller.invalidate()` from inside `command.admit` | Enqueued without draining, exactly as from inside `admit`: the ingress boundary is one shared latch across both listeners, and the queue drains once admission has committed or abandoned. **The phase behavior is unchanged from the `updateItems()` this row named before Revision 2 — only the delivery is.** **[I-1, D-32, D-44]** |
 | A feature retire hook throws | Reported; the remaining hooks still run, in reverse installation order. **[F-22]** |
 | An **installer** throws during materialization | The installers that already ran are retired in reverse, each wrapped, and the error propagates. No controller is returned. This row said "a feature factory throws mid-`assemble()`" before Revision 2; under D-45 constructing a fragment installs nothing, so a throwing _fragment_ is an ordinary expression throwing before the library is ever called, and the case with anything to unwind is a throwing **installer** — which runs after the merge, on the winning slot only. **[F-19, D-45]** |

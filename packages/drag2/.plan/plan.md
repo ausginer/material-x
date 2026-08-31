@@ -2297,6 +2297,21 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 **The recurrence is the finding worth keeping.** Three rounds, three sweeps, each scoped to where the previous finding's evidence happened to point: F-232 named two sites and left F-236 one member away; F-237 named three and left F-244, F-245 and F-246 on the same page; F-236 swept `src/kernel/` and left F-247 in `src/sortable/`. A defect that is a *class of wording* has no failing state and no instrument, so its boundary has to be drawn from where the wording can live — the whole surface, the whole package — rather than from the citations that surfaced it.
 
+
+---
+
+### 2026-08-31 — the D-165 migration reaches the lifecycle trace (F-252)
+
+The fourth surface, and the first one nobody had swept. Record [`f236-f242-final-remediation-summary.md`](reviews/phase-24/f236-f242-final-remediation-summary.md) closed the page-02 arc; `06-vertical-sortable-trace.md` was never in it. Documentation only.
+
+**What it was still walking.** `spec.admit(event, draft) → { visual, box? }` — not a superseded spelling but one 02's own settled-spelling table lists as **rejected**, so the trace reproduced an alternative the contract had refused rather than a term it had replaced. And an `ActivationScope` literal predating D-85 outright: no space on it under any name, and no ancestry read anywhere in the activation trace, so a reader following the page's own "02 wins" pointer would find a member on one page that the other's trace does not know exists.
+
+**Both are fenced traces, and that is why they survived.** Three earlier rounds swept this migration and each was a prose sweep; a `text` block reads as scenery. F-245 already found the same thing one page over, in a verdict table and an ASCII diagram. The lesson has now recurred often enough to state plainly: the forms that state a shape most bindingly — a table, a diagram, a trace — are the forms a prose sweep passes over.
+
+**Swept as a page, not at the two citations.** The subject is an `AdmissionSubject` whose bare form says all three roles coincide; the kernel stores three elements; `acquireLift` takes the item; the scope literal carries `visualSpace` and `itemSpace` with what each is spent on; the behavior is shown handing `itemSpace` down rather than measuring one; the pointerless counterfactual returns a subject rather than "the visual". One prose paragraph states the two-space model, and states it against **D-85's actual ground** — no walk is taken after acquisition — rather than against a walk count, which is the same correction F-244 made in 02.
+
+**Provenance uses the page's own idiom.** 06 already records history inside its fences, as `←` annotations reading "this line read X until Revision 2". Nothing new was minted for it; the retired `{ visual, box? }` and the single `inheritedSpace` are recorded that way, where a markdown strike cannot reach.
+
 ---
 
 ### 2026-08-31 — D-165 implemented: which element's ancestry, and what the decomposition costs the consumer
