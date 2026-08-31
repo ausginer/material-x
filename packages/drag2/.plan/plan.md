@@ -2280,7 +2280,6 @@ Closes the round: F-236, F-237, F-238, F-241 and F-242 acquire ledger rows and c
 
 **F-242 is closed as recorded and deliberately not fixed.** `COVERAGE.md`'s new heading lost its blank line to a file that has never ended in a newline. Nothing parses the spacing, `prettier --check` already warned before the remediation, and the available fix is running the formatter on a document an instrument reads by shape — the exact act F-231 records as having disarmed the reference instrument. A file the formatter is excluded from accumulates cosmetic drift by design, and each instance is an invitation to run the tool the exclusion exists to prevent.
 
-
 ---
 
 ### 2026-08-31 — the D-165 migration finished across `02-kernel-behavior-contract.md` as one surface
@@ -2295,10 +2294,25 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 **F-247 — the wording class one directory over.** `sortable/spec.ts` still said the box travels as the "second half of the admission subject", after F-236's sweep reached `src/kernel/` and stopped.
 
-**The recurrence is the finding worth keeping.** Three rounds, three sweeps, each scoped to where the previous finding's evidence happened to point: F-232 named two sites and left F-236 one member away; F-237 named three and left F-244, F-245 and F-246 on the same page; F-236 swept `src/kernel/` and left F-247 in `src/sortable/`. A defect that is a *class of wording* has no failing state and no instrument, so its boundary has to be drawn from where the wording can live — the whole surface, the whole package — rather than from the citations that surfaced it.
-
+**The recurrence is the finding worth keeping.** Three rounds, three sweeps, each scoped to where the previous finding's evidence happened to point: F-232 named two sites and left F-236 one member away; F-237 named three and left F-244, F-245 and F-246 on the same page; F-236 swept `src/kernel/` and left F-247 in `src/sortable/`. A defect that is a _class of wording_ has no failing state and no instrument, so its boundary has to be drawn from where the wording can live — the whole surface, the whole package — rather than from the citations that surfaced it.
 
 ---
+
+### 2026-08-31 — D-155 checked against the two-space model before handoff (F-253)
+
+Record [`d155-space-model-projection-claude.md`](reviews/phase-24/d155-space-model-projection-claude.md). D-155 is the next deferred implementation, booked Before Phase 24, and it was written against the single `inheritedSpace` model that D-165 has since split. The pre-handoff question was whether the landing-tail contract needs amendment or merely projects.
+
+**It projects, onto `visualSpace`, and the projection is exact.** D-165's own rule settles it without a judgement call — the element a translate is written on decides the space it is spent in — and the tail's element is fixed by the definition D-155 already gives it: the tail is the inverse of the delta the pin applied, the pin is `session.write` on the **visual**, and `originRect` is held as the visual's grab rect for a stated reason. Three independent confirmations agree: `compose`'s in-place branch is handed `visualSpace`, free drag — the arithmetic D-155 points at — reads `scope.visualSpace`, and the sole consumer of `itemSpace` is sortable's displacement sink, which is the other feature.
+
+**So the retention obligation narrows to one value, and that is the part worth writing down.** D-155 says the join must keep the space because it is retained nowhere. Against a scope that now publishes two same-shaped values there are three ways to satisfy that clause and only one is right: retaining both is waste, and retaining `itemSpace` is a silent wrong answer of F-227's shape — the two differ by every linear contribution between item and visual and agree in the common case most tests exercise. The row now says `visualSpace`, and says `itemSpace` is not retained.
+
+**Nothing substantive changed, so nothing was superseded.** The value's meaning is untouched — `{a, b, c, d} | null`, the inverse of the inherited linear part, read before `acquireLift` mutates anything, which is exactly the in-flow space F-189's trap asks for and not the session projection it warns against. BQ-9 changed where the value comes from, not what it means, and inherited zoom is already composed into `a…d`, with `ancestorZoom` reported separately for the top-layer case the tail is not in. F-190's best-effort clause transfers with its reason intact, and already covers the one ancestry D-165 adds.
+
+**T1/T2 was not reopened, and the reason is recorded rather than assumed.** T2 stands on ownership — no fill, self-reverting, one cancel, dies with the element — and every one of those is a property of the animation, not of which element carries it or which space its operand was converted through. A three-role subject cannot reach it.
+
+**F-253**: the defect the check turned up is not in a decision but in the record that turned one into work. `d155-d156-implementation-shape-claude.md` §10 states the tail as an additive `translate` on _the dragged item_ — unambiguous when item and visual were one word, wrong under D-165 whenever they separate, and sitting in the section an implementer reads for module ownership. Corrected in place with the original wording preserved; the disjointness conclusion is unaffected, because a descendant of an element excluded from the destination view is not a member of it either.
+
+**Left open deliberately**: free drag's `accept()` commit obligation, which D-155 explicitly never inherited; whether the pin stays load-bearing under a tail, flagged in phase 23 and kept; and F-203.
 
 ### 2026-08-31 — the D-165 migration reaches the lifecycle trace (F-252)
 

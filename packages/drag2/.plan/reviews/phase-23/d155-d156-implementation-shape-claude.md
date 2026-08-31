@@ -136,7 +136,9 @@ Attribute each delta to a named cause: the bracket and its pipelines, the witnes
 
 ## 10. How the landing tail fits
 
-D-155's tail and this displacement are **disjoint by construction, not by check**. The tail is a controller-scoped additive `translate` on the **dragged item**; displacement animates the **destination view**, which is the collection _minus_ the dragged item. So the dragged item cannot be in a plan, and the placeholder is not in the destination view either — which deletes today's two explicit exclusions in `collect` rather than reproducing them.
+D-155's tail and this displacement are **disjoint by construction, not by check**. The tail is a controller-scoped additive `translate` on the **visual**; displacement animates the **destination view**, which is the collection _minus_ the dragged item. So the dragged item cannot be in a plan, and the placeholder is not in the destination view either
+
+> **Corrected 2026-08-31 (F-253).** This paragraph read _an additive `translate` on the **dragged item**_ until D-165 gave item and visual separate names; the tail's element is the **visual**, which is what the pin writes on. **The disjointness conclusion is unchanged and needs no new check**: the visual is either the dragged item, excluded from the destination view by construction, or a descendant of it, and a descendant of an excluded element is not a member either. Record [`d155-space-model-projection-claude.md`](../phase-24/d155-space-model-projection-claude.md). — which deletes today's two explicit exclusions in `collect` rather than reproducing them.
 
 They are also disjoint in time: displacement is settled at release, in step 1 of §4.2, and the tail is installed at the join that follows. Both are additive `translate` with `composite: 'add'`, so even an overlap would compose rather than clobber — but there is none, and the ownership statement is the structural one.
 
