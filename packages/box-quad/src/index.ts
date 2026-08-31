@@ -154,22 +154,18 @@ function composeNode(
     return false;
   }
 
-  const { rotate } = style;
+  if (style.rotate !== 'none') {
+    const angle = get2DRotation(style.rotate);
 
-  if (rotate !== 'none') {
-    const angle = get2DRotation(rotate);
-
-    if (angle === undefined) {
+    if (angle == null) {
       return false;
     }
 
     (node ??= new Matrix()).rotateSelf(angle);
   }
 
-  const { scale } = style;
-
-  if (scale !== 'none') {
-    const values = scale.split(' ');
+  if (style.scale !== 'none') {
+    const values = style.scale.split(' ');
     const scaleX = parse(values[0]!);
     const scaleY = parse(values[1] ?? values[0]!);
 
@@ -194,10 +190,8 @@ function composeNode(
     }
   }
 
-  const { translate } = style;
-
-  if (translate !== 'none') {
-    const values = translate.split(' ');
+  if (style.translate !== 'none') {
+    const values = style.translate.split(' ');
 
     if (values.length > 2 && parse(values[2]!) !== 0) {
       return false;
