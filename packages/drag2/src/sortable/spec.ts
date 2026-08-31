@@ -421,7 +421,7 @@ export function createSortableSpec(
     // The kernel needs it before `acquireLift` to take window 1, and the only
     // two carriers are this return value and a behavior-authored draft field
     // the kernel reads back — and the kernel reads no behavior-authored field.
-    // So it travels as the second half of the admission subject.
+    // So it travels as a named member of the admission subject.
     //
     // Two ways the box is already known, and neither may call anything. `null`
     // means the config named neither slot, so the item is its own box.

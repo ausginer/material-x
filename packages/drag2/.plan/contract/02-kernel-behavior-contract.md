@@ -267,9 +267,11 @@ The third and fourth rows of tier C matter. **The kernel revalidates once, after
  * exactly one encoding. Both admission members return this type — see
  * §Admission returns a subject for why the shape is settled here and why `box`
  * is required rather than optional inside the object form.
+ *
+ * The type read ~~`HTMLElement | Readonly<{ visual: HTMLElement; box:
+ * HTMLElement }>`~~ until **D-165** added the item as a third required member.
  */
 type AdmissionSubject =
-  // ~~HTMLElement | Readonly<{ visual: HTMLElement; box: HTMLElement }>~~ (D-165)
   | HTMLElement
   | Readonly<{ visual: HTMLElement; box: HTMLElement; item: HTMLElement }>;
 
@@ -428,7 +430,7 @@ The failing executable case is **api-1's**, and D-59 is where it lands. Every st
 
 | Form                                      | Verdict  |
 | ----------------------------------------- | -------- |
-| `HTMLElement \| { visual, box } \| null`  | **this** |
+| ~~`HTMLElement \| { visual, box } \| null`~~ **`HTMLElement \| { visual, box, item } \| null`** (D-165) | **this** |
 | `{ visual, box? } \| null`                | rejected |
 | `HTMLElement \| { visual, box? } \| null` | rejected |
 
@@ -438,7 +440,7 @@ Three reasons, in order of weight:
 - **The common case allocates nothing.** `box === visual` is the default and will be the overwhelming majority of admissions. The bare-element form is exactly what the reference behavior returns today, so the widening costs the common path zero allocations and zero edits. An always-object form would allocate on every press to express the absence of a choice.
 - **It is additive.** Every existing `admit` returning an element still typechecks, so the SPI crossing costs no migration for a behavior that does not need a separate box.
 
-**D-165 widens the object form again and leaves every reason above standing.** The item joins as a third **required** member, for the same *one spelling per meaning* reason `box` is required rather than optional: the bare element stays the only way to say *these are one element*, and the object form stays the only way to say they are not. The common case still allocates nothing, and the change is still additive for a behavior that separates none of the three.
+**D-165 widens the object form again and leaves every reason above standing.** The item joins as a third **required** member, for the same *one spelling per meaning* reason `box` is required rather than optional: the bare element stays the only way to say *these are one element*, and the object form stays the only way to say they are not. The common case still allocates nothing, and the change is still additive for a behavior that separates none of the three. **Read _the pair_ above as _the object form_ from here on**: the reasons are unchanged, the cardinality in the name is not.
 
 **Narrowing is realm-safe and is not `instanceof`.** The kernel discriminates with `'visual' in subject`. `instanceof HTMLElement` would be wrong here for a reason this document already contemplates: it is realm-sensitive, and `DOMRealm` exists in the landing context precisely because an element may come from another document. One property lookup, once per press.
 
@@ -450,7 +452,7 @@ Three reasons, in order of weight:
 
 | Seam | Phase in | Phase out | What sortable does |
 | --- | --- | --- | --- |
-| `admit` | `IDLE` | `PENDING` | Resolve the pressed item against the published snapshot; **decline** if the composed path reaches a `[data-drag-ignore]` region (§Input policy, D-46, D-129), unless the consumer scoped dragging there (D-50); apply the `handle` slot; write `item`, `visual` and `snapshot` into its part; **return the subject** — the bare item when the `visual` and `box` slots resolve to it, and the three named separately when any of them differs (D-59, D-165). |
+| `admit` | `IDLE` | `PENDING` | Resolve the pressed item against the published snapshot; **decline** if the composed path reaches a `[data-drag-ignore]` region (§Input policy, D-46, D-129), unless the consumer scoped dragging there (D-50); apply the `handle` slot; write `item`, `visual` and `snapshot` into its part; ~~**return the subject** — the visual (via the `visual` slot or identity), paired with the box (via the `box` slot) when the two differ (D-59).~~ **return the subject** — the bare item when the `visual` and `box` slots resolve to it, and the three named separately when any of them differs (D-59, D-165). |
 | `activation.prepare` | `PENDING` | `ACTIVATING` | **Read `boxPost` first**, off `scope.box`, before anything else in the seam (D-52) — **one extent, `box.offsetHeight`** (F-58), and **skipped entirely when `box === visual`** (F-55). Create the placeholder **detached** (default mechanics or the `placeholder` slot), size it from the **removed footprint** — `width` is `scope.boxPre.width` always, `height` is `box === visual ? scope.boxPre.height : scope.boxPre.height − boxPost` — not the visual's offset box (D-43) — and return the element. No DOM insertion, no acquisition. The sizing writes land on an element the consumer may own, so they are **on D-39's rollback ledger**. **Insertion is branched on `draft.pointerId`**: a pointer operation seeds the home insertion; a pointerless one _preserves_ what `command.admit` wrote. See §The command destination. |
 | `activation.effect` | `ACTIVATING` | — | Register removal on `scope.presentation`, **then** `item.after(placeholder)` — retained by D-43 on measurement, not by default; arm scroll/resize invalidation and the frame-task cancel on `scope.motion`; publish `rt.placeholder`, `rt.lift` and the per-operation `rt.view`; `slots.invalidateInsertion()`; `slots.onStart(item)` last. See §Post-commit ordering. |
 | `activation.rollback` | — | — | Undo everything `prepare` wrote onto the staged placeholder — attributes, styles, sizing, state — and drop it. **Required, not vacuous** (D-39): the element may be consumer-owned and adoption never happened, so nothing else becomes responsible for it. |
@@ -945,8 +947,9 @@ type ActivationScope = Readonly<{
   /** Its viewport rect at grab. Basis for every landing measurement. */
   originRect: DOMRectReadOnly;
   /**
-   * The geometry source — what `admit` returned as the `box` member of its
-   * subject, or `visual` when it returned a bare element (D-59). Held by the
+   * The geometry source — what `admit` returned as the ~~box half~~ `box`
+   * member of its subject, or `visual` when it returned a bare element (D-59,
+   * renamed with D-165's third member). Held by the
    * kernel from admission, never read out of the behavior's frame part.
    */
   box: HTMLElement;
@@ -996,10 +999,11 @@ type ActivationScope = Readonly<{
    *
    * **A delta, never a point.** The linear part alone maps a delta; a point
    * would additionally need the translation, and box-quad exposes none (D-72).
+   *
+   * The member was one and was named ~~`inheritedSpace`~~ until **D-165** split
+   * it, because which element a `translate` is written on decides which space
+   * it is spent in.
    */
-  // ~~inheritedSpace: InheritedSpace;~~ — split by **D-165**, which reads the
-  // ancestry twice at activation because which element a translate is written
-  // on decides which space it is spent in.
   visualSpace: InheritedSpace;
   /**
    * The same inverse for the space above the **item**, or `null` for the
@@ -1025,7 +1029,9 @@ type ActivationScope = Readonly<{
 }>;
 ```
 
-#### Why `inheritedSpace` is on the scope and not on the session (D-85, E-01)
+#### Why the inherited space is on the scope and not on the session (D-85, D-165, E-01)
+
+~~Why `inheritedSpace` is on the scope and not on the session (D-85, E-01)~~ — the heading named the single field **D-165** split; the placement argument below is unchanged by that split and applies to both members.
 
 The review proposed carrying it "most naturally through `BehaviorLiftSession`". **It is the wrong home, on three counts, and the third is a live trap.**
 
@@ -1033,9 +1039,11 @@ The review proposed carrying it "most naturally through `BehaviorLiftSession`". 
 - **The lifetime is wrong.** Every other member of the session describes the lifted state; this describes the state acquisition destroyed. A behavior reading it off the session would reasonably expect it to track `write`.
 - **The session already holds a projection with the same four fields and the same arithmetic, and a different value** — `compose`'s, which is `null` for both lifted modes by design. Two projections in one object, one mode-dependent and one not, is a defect waiting to be written; and reusing the existing one would hand free drag the identity under `LIFT_FLAT`, which is silently wrong rather than loudly wrong.
 
-`ActivationScope` is where the other pre-lift facts already live — `originRect` and `boxPre` are both measured before acquisition and handed down for exactly this reason. The new member joins them, and the rule the scope already follows extends unchanged: **the kernel measures, the behavior derives.** The four coefficients are a fact about the visual's ancestry, not about any behavior's geometry, which is what keeps this an SPI addition rather than a behavior-specific one.
+`ActivationScope` is where the other pre-lift facts already live — `originRect` and `boxPre` are both measured before acquisition and handed down for exactly this reason. ~~The new member joins them~~ **The two members join them** — `visualSpace` and `itemSpace` since D-165 — and the rule the scope already follows extends unchanged: **the kernel measures, the behavior derives.** ~~The four coefficients are a fact about the visual's ancestry~~ **Each set of four coefficients is a fact about one element's ancestry**, the visual's and the item's, not about any behavior's geometry, which is what keeps this an SPI addition rather than a behavior-specific one. The argument above is indifferent to the count: every count of it holds member by member.
 
-**One failure policy, because there is now one read.** `acquireLift` already throws `FAILURE_ACTIVATION` for an unreadable space, and the projection derives from that same successful measurement — so _unreadable_ cannot diverge. Singular and non-finite spaces resolve to `null`, the identity, which the kernel already does for the in-place case. The split policy E-01 found — one read refusing what the other silently substituted — has no second read left to disagree with.
+~~**One failure policy, because there is now one read.** `acquireLift` already throws `FAILURE_ACTIVATION` for an unreadable space, and the projection derives from that same successful measurement — so _unreadable_ cannot diverge. Singular and non-finite spaces resolve to `null`, the identity, which the kernel already does for the in-place case. The split policy E-01 found — one read refusing what the other silently substituted — has no second read left to disagree with.~~
+
+**One failure policy, and the count of reads was never what secured it.** What E-01 found was two _policies_, not two reads: `acquireLift` refused an unreadable space while the behavior's own `captureLocalSpace` silently substituted the identity. Deleting the behavior's traversal is what closed the split, and no reading outside `acquireLift` has existed since. **D-165 therefore does not reopen it, and it does add a read**: the kernel takes the visual's ancestry, the item's when the two are different elements, and the visual's box measured through the first — three observations, one policy. Any of them failing throws, the caller classifies `FAILURE_ACTIVATION`, and a singular or non-finite space resolves to `null`, the identity, exactly as the in-place case already did. The reads are all taken before anything is mutated, which is D-85's actual acceptance ground and is what a later traversal would break.
 
 **The lift is projected for the same reason the lifetime is** (Checkpoint C, C5-01). An earlier version of this revision handed the behavior the whole `VisualLiftSession` and asserted in prose that `rendered` was "kernel-read only" and that the kernel owned disposal. Neither was true of the type. `dispose()` in particular is not a reading hazard but a **sequencing** one: a behavior that calls it from `activation.effect` or `moved` restores the inline-style lease — and, in a lifted mode, the top-layer lease — while the session's recorded delta still describes its last `write`. The landing then samples `from` for a visual that is no longer lifted. That is I-34 broken **through a first-class SPI method**, not through a documented residue, and the difference matters: a residue is a rule the contract states and a participant may break, while this was the API handing out the thing it claims to own.
 
@@ -1064,7 +1072,7 @@ So the footprint's **height** is `boxPre.height − boxPost` **when the two are 
 **The two windows have different owners, and D-52 assigns them rather than leaving the seam to guess:**
 
 ```text
-admit                    behavior RETURNS { visual, box }      ← D-59; the
+admit                    behavior RETURNS { visual, box, item }← D-59; the
                                                                  kernel's own
                                                                  vocabulary,
                                                                  not a draft
@@ -1080,6 +1088,8 @@ activation.prepare       behavior reads box.offsetHeight off scope.box, first
                                       ? boxPre.height
                                       : boxPre.height − boxPost
 ```
+
+**The admission line is D-165's as well as D-59's.** It read ~~`RETURNS { visual, box }`~~ until the item joined as a third required member. Nothing below it moves: the item is neither window, and the two the diagram assigns are still `boxPre` to the kernel and `boxPost` to the behavior. A fenced block carries no strike, so the retired form is recorded here.
 
 D-39 and D-43 legislate the same code and neither said which seam owns which write, so they could not both be implemented as written. The ordering makes the assignment free rather than arbitrary — `acquireLift` already precedes the activation seam, so `boxPost` is available exactly where `prepare` measures today.
 

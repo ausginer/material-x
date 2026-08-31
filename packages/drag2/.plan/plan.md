@@ -2280,6 +2280,23 @@ Closes the round: F-236, F-237, F-238, F-241 and F-242 acquire ledger rows and c
 
 **F-242 is closed as recorded and deliberately not fixed.** `COVERAGE.md`'s new heading lost its blank line to a file that has never ended in a newline. Nothing parses the spacing, `prettier --check` already warned before the remediation, and the available fix is running the formatter on a document an instrument reads by shape — the exact act F-231 records as having disarmed the reference instrument. A file the formatter is excluded from accumulates cosmetic drift by design, and each instance is an invitation to run the tool the exclusion exists to prevent.
 
+
+---
+
+### 2026-08-31 — the D-165 migration finished across `02-kernel-behavior-contract.md` as one surface
+
+The third round on the same page, and the third time a sweep bounded by a finding's own citations left instances of its own class behind. Record [`f236-f242-final-remediation-summary.md`](reviews/phase-24/f236-f242-final-remediation-summary.md). F-244 through F-248 close together, read as one migration rather than five line edits. **Docs only apart from one source comment**; no runtime behavior and no measurement moved.
+
+**F-244 — the subsection a live citation points at was still arguing the retired model.** D-85's placement reasoning stood entirely unstruck twelve lines below the `ActivationScope` block that had just been corrected, and one of its sentences was not merely stale but false of the tree: _one failure policy, because there is now one read_ … _no second read left to disagree with_, against an `acquireLift` that reads the item's ancestry as a second walk and says so in its own doc. D-85's ledger row cites the subsection by heading, so it is a target a correctly-integrated reader arrives at. **The repair is the sharper statement, not a patch**: what E-01 found was two _policies_, not two reads — the kernel refusing an unreadable space while the behavior's own traversal silently substituted the identity — so deleting the behavior's read is what closed the split, and the kernel's own count never secured it. D-165 adds a read and reopens nothing. The heading is renamed off the retired field and D-85's citation repointed in the same unit.
+
+**F-245 — the page's most authoritative statements of the shape were its least prose-like ones.** D-59's settled-spelling verdict table still marked the two-role union as **this**, and D-52's ownership diagram still spelled `RETURNS { visual, box }` inside a fence. A verdict table and an ASCII diagram are what a prose sweep reads past, and they are exactly where a page states a shape most bindingly. The cell is struck on the file's own precedent; the diagram is corrected with its retired form recorded beneath the fence, since a fence carries no strike.
+
+**F-246 and F-248 are the convention applied unevenly and the convention not applied at all.** Two sites were corrected in place while four beside them were struck — the small ones, a table cell and a clause, because they looked too minor to be history. And two retirements invented a `// ~~declaration~~` syntax the directory has never used, where every existing strike retires prose. Both are now in the established form: the retired declaration is named inside the doc comment that already carries the site's struck prose, and the live declaration stands alone. The convention could express it, so nothing was minted.
+
+**F-247 — the wording class one directory over.** `sortable/spec.ts` still said the box travels as the "second half of the admission subject", after F-236's sweep reached `src/kernel/` and stopped.
+
+**The recurrence is the finding worth keeping.** Three rounds, three sweeps, each scoped to where the previous finding's evidence happened to point: F-232 named two sites and left F-236 one member away; F-237 named three and left F-244, F-245 and F-246 on the same page; F-236 swept `src/kernel/` and left F-247 in `src/sortable/`. A defect that is a *class of wording* has no failing state and no instrument, so its boundary has to be drawn from where the wording can live — the whole surface, the whole package — rather than from the citations that surfaced it.
+
 ---
 
 ### 2026-08-31 — D-165 implemented: which element's ancestry, and what the decomposition costs the consumer
