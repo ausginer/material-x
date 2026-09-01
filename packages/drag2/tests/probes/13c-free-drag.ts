@@ -48,10 +48,8 @@ import type {
   ActivationScope,
   BehaviorSpec,
   KernelHost,
-  LandingStart,
   PreparedSettlement,
   ResolutionCommand,
-  SettlementScope,
 } from '../../src/kernel/spec.ts';
 import type { Point } from '../../src/kernel/types.ts';
 
@@ -137,7 +135,6 @@ declare function resolveFreeHandle(event: PointerEvent): HTMLElement | null;
 
 declare function invokeOnDrop(signal: AbortSignal): unknown;
 declare function declaresPresentation(value: unknown): boolean;
-declare const startFreeLanding: LandingStart;
 declare function reportTerminal(outcome: number, domain: unknown): void;
 declare function reportToConsumer(error: unknown): void;
 
@@ -340,9 +337,10 @@ export const freeDragSpec: BehaviorSpec<FreeDragPart> = {
       return true;
     },
 
-    effect(_current, _prepared, scope: SettlementScope): void {
-      scope.holdForLanding(startFreeLanding);
-    },
+    // **Stale as of D-155**: the landing gate this used to request is deleted
+    // with the protocol, and what replaces it is a timing policy the kernel
+    // asks for at the join rather than a runner the settlement arms.
+    effect(): void {},
   },
 
   action: {

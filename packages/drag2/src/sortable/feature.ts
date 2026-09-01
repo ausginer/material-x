@@ -35,11 +35,8 @@ export type { Disposer } from '../kernel/lifetimes.ts';
 // a behavior are talking about one projection, not two of the same shape.
 export type { InheritedSpace } from '../kernel/presentation.ts';
 export type { DOMRealm } from '../kernel/realm.ts';
-export type {
-  LandingContext,
-  LandingHandle,
-  LandingStart,
-} from '../kernel/spec.ts';
+export type { LandingTail } from '../kernel/spec.ts';
+
 export type { Insertion } from './domain.ts';
 export type { DisplacementSettle } from './rect-index.ts';
 export type {
@@ -65,6 +62,7 @@ export { insertionAt } from './domain.ts';
 export type {
   FeatureContext,
   LandingContribution,
+  LandingTiming,
 } from '../shared/composition.ts';
 
 // Erased entirely: `declare const` emits no JavaScript, and the brand is a

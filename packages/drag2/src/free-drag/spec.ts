@@ -138,8 +138,8 @@ export function createFreeDragSpec(
 
   /**
    * The failure the open settlement seam is reporting, handed from `prepare` to
-   * `effect` because `PreparedSettlement` carries only the gate declaration —
-   * the same accepted out-of-band channel the sortable uses, safe for the same
+   * `effect` because `PreparedSettlement` carries nothing — the same accepted
+   * out-of-band channel the sortable uses, safe for the same
    * reason: `prepare` clears the slot on entry, so a value can only ever be
    * read by the effect of the transaction whose prepare wrote it.
    */
@@ -551,10 +551,10 @@ export function createFreeDragSpec(
           // _both coordinates must be finite_, so a non-finite one is outside
           // the contract and the reachability gate closes before ownership is
           // asked. What the offsets then poison — `deriveMotion`, every
-          // geometry object, the pinned `anchorTarget`, and through
-          // `LandingContext.from` the library-minted `distance` — is the
-          // undefined behaviour that misuse buys, not a second harm that makes
-          // it the library's.
+          // geometry object, the pinned `anchorTarget`, and through the
+          // rendered delta the library-minted `distance` — is the undefined
+          // behaviour that misuse buys, not a second harm that makes it the
+          // library's.
           draft.offsetX = x - origin.left - (draft.pointerX - draft.originX);
           draft.offsetY = y - origin.top - (draft.pointerY - draft.originY);
 
@@ -784,27 +784,10 @@ export function createFreeDragSpec(
         }
       },
 
-      effect(current, _prepared, scope) {
+      effect(_current, _prepared) {
         const failure = pendingFailure;
 
         pendingFailure = null;
-
-        // **The gate is held only when the visual has to travel.** An accepted
-        // drop stays where it landed — `anchorTarget` returns the position it
-        // is already at — so holding a gate for it would animate a zero-length
-        // trajectory and delay the terminal for nothing. Rejected and canceled
-        // arms return to a home, configured or the grab spot, and that is a
-        // real journey.
-        //
-        // A `null` domain is the no-start case; treated as travelling, because
-        // the visual is somewhere the consumer never sanctioned.
-        if (
-          !failure &&
-          slots.startLanding &&
-          current.domain?.type !== 'accepted'
-        ) {
-          scope.holdForLanding(slots.startLanding);
-        }
 
         // Consumer callbacks last. A failed settlement reports through
         // `onError` here **and** publishes its terminal from the failure path's
@@ -927,6 +910,24 @@ export function createFreeDragSpec(
       anchor.y = origin.top;
 
       return anchor;
+    },
+
+    /**
+     * **The tail travels only when the visual has to.** An accepted drop stays
+     * where it landed — `anchorTarget` answers with the position it is already
+     * at — so a tail for it would interpolate a trajectory of no length.
+     * Rejected and canceled arms return to a home, configured or the grab spot,
+     * and that is a real journey.
+     *
+     * A `null` domain is the no-start case, treated as travelling: the visual
+     * is somewhere the consumer never sanctioned.
+     */
+    landingTail(current, fromX, fromY, targetX, targetY) {
+      const { landingTiming } = slots;
+
+      return landingTiming && current.domain?.type !== 'accepted'
+        ? landingTiming(fromX, fromY, targetX, targetY)
+        : null;
     },
 
     /**

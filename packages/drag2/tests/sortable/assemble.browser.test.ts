@@ -13,7 +13,6 @@
  */
 import { describe, expect, it } from 'vitest';
 import { createRealm } from '../../src/kernel/realm.ts';
-import type { LandingHandle } from '../../src/kernel/spec.ts';
 import { assemble } from '../../src/sortable/assemble.ts';
 import {
   mergeFragments,
@@ -26,6 +25,7 @@ import type {
   FeatureContext,
   InsertionGeometry,
   LandingContribution,
+  LandingTiming,
   SortableDisplacementInstaller,
   SortableLandingInstaller,
 } from '../../src/sortable/feature.ts';
@@ -72,7 +72,7 @@ const axisFeature =
   () =>
     contribution;
 
-/** The `landing` key's installer, the one producer of `startLanding`. */
+/** The `landing` key's installer, the one producer of `landingTiming`. */
 const landingFeature =
   (contribution: LandingContribution): SortableLandingInstaller =>
   () =>
@@ -120,8 +120,11 @@ const config = (extra: Partial<SortableConfig> = {}): SortableConfig =>
 /** The bare valid composition. */
 const required = (): SortableConfig => config();
 
-/** A landing runner that does nothing but exist. */
-const landingRunner = (): LandingHandle => ({ destroy: (): void => {} });
+/** A timing policy that answers the same tail for every trajectory. */
+const landingTiming: LandingTiming = () => ({
+  duration: 200,
+  easing: 'linear',
+});
 
 describe('assemble', () => {
   it('should flatten the geometry members into slot fields', () => {
@@ -185,19 +188,19 @@ describe('assemble', () => {
     const createPlaceholder = (): HTMLElement => document.createElement('div');
     const handle = (): null => null;
     const visual = (item: HTMLElement): HTMLElement => item;
-    const startLanding = (): LandingHandle => ({ destroy: (): void => {} });
     // **Three of these four are config keys, not contributions** (D-56, D-65):
     // `handle`, `visual` and `placeholder` are things a consumer writes, not
     // things an installer contributes — and since D-146 `placeholder` is only
     // that, with no contribution half left to lose a precedence question to.
-    // `startLanding` stays a contribution, because only an installer can build
-    // a runner, and it arrives from the one key that produces it.
+    // `landingTiming` stays a contribution, because only an installer can close
+    // over the realm whose reduced-motion answer the policy reads, and it
+    // arrives from the one key that produces it.
     const slots = assemble(
       config({
         placeholder: createPlaceholder,
         handle,
         visual,
-        landing: landingFeature({ startLanding }),
+        landing: landingFeature({ landingTiming }),
       }),
       createFixture().context,
     );
@@ -205,7 +208,7 @@ describe('assemble', () => {
     expect(slots.placeholder).not.toBeNull();
     expect(slots.handle).toBe(handle);
     expect(slots.visual).toBe(visual);
-    expect(slots.startLanding).toBe(startLanding);
+    expect(slots.landingTiming).toBe(landingTiming);
   });
 
   it('should leave an uninstalled optional slot null', () => {
@@ -214,7 +217,7 @@ describe('assemble', () => {
     expect(slots.placeholder).toBeNull();
     expect(slots.handle).toBeNull();
     expect(slots.visual).toBeNull();
-    expect(slots.startLanding).toBeNull();
+    expect(slots.landingTiming).toBeNull();
   });
 
   it('should flatten the displacement members into slot fields', () => {
@@ -283,7 +286,7 @@ describe('assemble', () => {
           retire: push('displacement'),
         }),
         landing: landingFeature({
-          startLanding: landingRunner,
+          landingTiming,
           retire: push('landing'),
         }),
       }),
@@ -317,6 +320,7 @@ describe('assemble', () => {
       'handle',
       'invalidateInsertion',
       'items',
+      'landingTiming',
       'movedInsertion',
       'onEnd',
       'onError',
@@ -327,7 +331,6 @@ describe('assemble', () => {
       'resolveInsertion',
       'retireHooks',
       'settle',
-      'startLanding',
       'threshold',
       'visual',
     ]);
@@ -424,7 +427,7 @@ describe('assemble unwind', () => {
             retire: push('axis'),
           }),
           landing: landingFeature({
-            startLanding: landingRunner,
+            landingTiming,
             retire: push('landing'),
           }),
           displacement: () => {
@@ -522,7 +525,7 @@ describe('assemble unwind', () => {
         config({
           axis: (() => ({})) as unknown as SortableConfig['axis'],
           landing: landingFeature({
-            startLanding: landingRunner,
+            landingTiming,
             retire: (): void => {
               seen.push('landing');
             },
@@ -550,7 +553,7 @@ describe('assemble unwind', () => {
             },
           }),
           landing: landingFeature({
-            startLanding: landingRunner,
+            landingTiming,
             retire: (): void => {
               throw nested;
             },

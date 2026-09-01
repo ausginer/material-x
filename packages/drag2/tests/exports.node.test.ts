@@ -66,19 +66,18 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
     'FAILURE_ACTIVATION',
     'FAILURE_ADMISSION',
     'FAILURE_INVALIDATION',
-    'FAILURE_LANDING_CREATE',
-    'FAILURE_LANDING_INTERRUPTED',
     'FAILURE_RELEASE',
     'FAILURE_RENDERER_WRITE',
     'FAILURE_RESOLUTION',
     'FAILURE_SCHEDULED_FRAME',
     'FAILURE_TERMINAL_CALLBACK',
   ],
-  // **The kernel tier, and the whole of D-68's value half — 35 names**, which is
-  // `1 + 12 + 3 + 5 + 2 + 4 + 8` and is the length of the array below rather
-  // than a number carried from the last edit (F-174). Thirteen
-  // stages, not fourteen: D-41 deleted `FAILURE_PRESENTATION_READY` with the
-  // readiness protocol. The other nineteen constants are what F-59 found
+  // **The kernel tier, and the whole of D-68's value half — 33 names**, which is
+  // `1 + 10 + 3 + 5 + 2 + 4 + 8` and is the length of the array below rather
+  // than a number carried from the last edit (F-174). Ten stages, not fourteen:
+  // D-41 deleted `FAILURE_PRESENTATION_READY` with the readiness protocol,
+  // D-130 `FAILURE_LANDING_TARGET`, and D-155 the two landing stages with the
+  // gate that armed the runner they classified. The other nineteen constants are what F-59 found
   // missing: `config.liftMode` needs a `LIFT_*`, `settlement.prepare` needs the
   // `SETTLED_*` arms to discriminate its input, D-66's fallback needs the two
   // `AT_*`, and a behavior reads `frame.phase`. Erased types cannot fill a
@@ -100,8 +99,6 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
     'FAILURE_ACTIVATION',
     'FAILURE_ADMISSION',
     'FAILURE_INVALIDATION',
-    'FAILURE_LANDING_CREATE',
-    'FAILURE_LANDING_INTERRUPTED',
     'FAILURE_RELEASE',
     'FAILURE_RENDERER_WRITE',
     'FAILURE_RESOLUTION',

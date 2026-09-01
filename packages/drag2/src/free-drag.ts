@@ -114,7 +114,7 @@ export {
  * **The composition check, applied to one config or fragment.**
  *
  * An installer may contribute only the slots its position is read for: the
- * assembler reads `constrain` from `bounds` and `startLanding` from `landing`,
+ * assembler reads `constrain` from `bounds` and `landingTiming` from `landing`,
  * positionally, and the plugin loop reads `retire` and nothing else. So a
  * constraint installer passed as a plugin is not a second writer — it is one
  * writer at a position that is never read, and its capability is silently

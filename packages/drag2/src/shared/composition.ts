@@ -20,7 +20,7 @@
  */
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { DOMRealm } from '../kernel/realm.ts';
-import type { LandingStart } from '../kernel/spec.ts';
+import type { LandingTail } from '../kernel/spec.ts';
 
 declare const MISPLACED: unique symbol;
 
@@ -44,8 +44,7 @@ export type FeatureContext = Readonly<{
    * which operation is live, so letting it classify a failure would let a late
    * continuation from one operation settle another. A synchronous throw inside
    * a seam is caught and classified by the kernel's driver at that seam's
-   * stage; a landing runner that must fail an operation gets an attempt-scoped
-   * `fail` argument.
+   * stage.
    *
    * It reaches the consumer's `onError` as a `DraggableWarning` — the only
    * route a composition-time unwind has, since both `assemble` unwinds run
@@ -54,6 +53,27 @@ export type FeatureContext = Readonly<{
   report(error: unknown): void;
 }>;
 
+/**
+ * **The tail's timing, resolved once per landing**, or `null` for no tail —
+ * which is what a reduced-motion preference answers, and what a policy answers
+ * for a drop it does not want interpolated.
+ *
+ * The four coordinates are the tail's endpoints in the landing space the kernel
+ * publishes: origin-relative viewport deltas, where the visual is and where it
+ * was pinned. A distance-derived duration therefore needs no DOM read of its
+ * own.
+ *
+ * Declared here rather than beside the shipped policy so that a composition
+ * installing no landing still resolves the slot's type without reaching the
+ * feature module for it.
+ */
+export type LandingTiming = (
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+) => LandingTail | null;
+
 // One declaration for both behaviors' `landing` key: imported from either
 // middle tier it must be the **same** declaration rather than two structurally
 // equal ones, exactly as `LandingOptions` is. What keeps the two landing
@@ -61,12 +81,12 @@ export type FeatureContext = Readonly<{
 /**
  * What the `landing` key's installer returns.
  *
- * `startLanding` is **required**: a landing installer that starts no landing
+ * `landingTiming` is **required**: a landing installer that times no landing
  * has nothing to install, and the key would then be a config slot rather than
  * an installer.
  */
 export type LandingContribution = Readonly<{
-  startLanding: LandingStart;
+  landingTiming: LandingTiming;
   /** Run in **reverse** installation order — see either `assemble`. */
   retire?: Disposer;
 }>;

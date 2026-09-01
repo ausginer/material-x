@@ -30,7 +30,6 @@ import { describe, expect, it } from 'vitest';
 import type {
   ConstraintView,
   ConstraintInstaller,
-  FreeDragLandingInstaller,
   MotionDraft,
 } from '../../src/free-drag/feature.ts';
 import { landing } from '../../src/free-drag/landing.ts';
@@ -40,7 +39,6 @@ import {
 } from '../../src/free-drag.ts';
 import {
   activate,
-  frame,
   freeDragHarness,
   move,
   release,
@@ -130,62 +128,6 @@ describe('a late moveTo()', () => {
     await settled();
 
     expect(composed.item.style.transform).toBe('');
-  });
-
-  it('should not move the visual when it comes from a landing runner', async () => {
-    // `SETTLING`, where the runner owns the transform outright. Two writers on
-    // one property is the failure this refuses, and it is invisible to a
-    // callback count because the runner overwrites whatever it finds.
-    //
-    // **The trajectory is held open on purpose.** Calling `done()` immediately
-    // finishes the settlement, and the join then pins and disposes the lift —
-    // so a fixture that only checks the element afterwards passes against a
-    // `moveTo()` that took full effect and was cleaned up behind it. Holding
-    // `done` keeps the operation in the one phase the claim is about, and the
-    // assertion runs **after** the queue has had a frame and a microtask drain
-    // to deliver the late action, which is what makes the reading a fact about
-    // the action rather than about the timing.
-    let finish!: () => void;
-    const seen: string[] = [];
-    const composed = compose({
-      fragments: [
-        {
-          // **The `landing` key, not a plugin** (D-146): `startLanding` is
-          // producible from this key and no other, so a plugin cannot carry
-          // one — which is the cardinality rule as a compile error rather than
-          // as a construction-time collision.
-          landing: ((): ReturnType<FreeDragLandingInstaller> => ({
-            startLanding: (context, done) => {
-              seen.push(context.visual.style.transform);
-              composed.controller.moveTo(FAR);
-              finish = done;
-              return { destroy: (): void => {} };
-            },
-          })) satisfies FreeDragLandingInstaller,
-        },
-      ],
-      onDrop: () => FreeDragResolution.reject('nope'),
-    });
-
-    activate(composed);
-    move(50, 40);
-    release(50, 40);
-    await settled();
-    await frame();
-    await settled();
-
-    // The runner opened at the release delta, and the visual is still there:
-    // nothing the queued `moveTo()` staged reached the lift.
-    expect(seen).toEqual(['translate(40px, 30px) matrix(1, 0, 0, 1, 0, 0)']);
-    expect(composed.rendered()).toEqual([40, 30]);
-
-    finish();
-    await settled();
-
-    // And the ordinary end state, so the row also covers the case where a late
-    // write survives the runner and is only visible once it lets go.
-    expect(composed.item.style.transform).toBe('');
-    expect(composed.ends).toHaveLength(1);
   });
 
   it('should retarget when it comes from onStart', async () => {
@@ -285,9 +227,11 @@ describe('a late invalidate()', () => {
 
 describe('a landing that is still installed', () => {
   it('should complete undisturbed by a late position write', async () => {
-    // The composition E-04 named as the contended one: a landing runner driving
-    // the transform while a queued `moveTo()` sits behind it. The operation
-    // ends once, with a clean element.
+    // The composition E-04 named as the contended one, in the shape it has
+    // now: a tail interpolating the released element while a `moveTo()` queued
+    // from `onEnd` sits behind it. The operation ends once, with a clean
+    // element — the tail claims no inline style, so the late write has nothing
+    // to contend with and nothing to leave behind.
     let ends = 0;
     const composed = compose({
       fragments: [landing({ duration: 1 })],
@@ -304,20 +248,12 @@ describe('a landing that is still installed', () => {
     release(30, 10);
     await settled();
 
-    // A 1 ms trajectory still needs a real frame to start and another to
-    // finish; the loop waits for the terminal rather than guessing a count.
-    for (let i = 0; i < 20; i += 1) {
-      // oxlint-disable-next-line no-await-in-loop
-      await frame();
-      // oxlint-disable-next-line no-await-in-loop
-      await settled();
-
-      if (ends > 0) {
-        break;
-      }
-    }
-
+    // The terminal does not wait for the tail: the drop is decided, pinned and
+    // released before anything interpolates, so one drain is the whole wait.
     expect(ends).toBe(1);
+    // The tail is genuinely in flight, which is what keeps the row about a
+    // landing rather than about an ordinary drop.
+    expect(composed.item.getAnimations()).toHaveLength(1);
     expect(composed.item.style.transform).toBe('');
     expect(composed.errors).toEqual([]);
   });

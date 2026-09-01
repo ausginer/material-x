@@ -138,9 +138,8 @@ import {
 // **The three seam types re-homed** (D-63, D-61): they stopped being consumer
 // vocabulary when \`landing({ run })\` went, and stayed authoring vocabulary.
 import type {
-  LandingContext,
-  LandingHandle,
-  LandingStart,
+  LandingTail,
+  LandingTiming,
 } from '@ydinjs/drag2/sortable/feature.js';
 import {
   layoutAnimation,
@@ -203,10 +202,7 @@ const hoistedLanding: SortableLandingInstaller = (context) => {
   void context.root;
 
   return {
-    startLanding: (_landing, done) => {
-      done();
-      return { destroy: (): void => {} };
-    },
+    landingTiming: () => ({ duration: 200, easing: 'ease' }),
   };
 };
 
@@ -308,28 +304,22 @@ list.invalidate();
 list.cancel('reason');
 list.destroy();
 
-// A custom runner is authorable from the **middle tier** alone (D-63): the
-// consumer surface no longer takes one, and the seam a third-party installer
-// fills is reachable without importing anything else.
-const run: LandingStart = (
-  context: LandingContext,
-  done: () => void,
-): LandingHandle => {
-  const realm: DOMRealm = context.realm;
-  // **The landing chain is scalars, and each of the four is named** (D-145).
-  // An annotated \`const\` per coordinate is what pins them: a nested \`from\`
-  // would fail to compile here, and a transposed axis is invisible to a
-  // one-field read.
-  const fromX: number = context.fromX;
-  const fromY: number = context.fromY;
-  const targetX: number = context.targetX;
-  const targetY: number = context.targetY;
+// A custom timing is authorable from the **middle tier** alone (D-63): the
+// consumer surface takes options rather than a policy, and the seam a
+// third-party installer fills is reachable without importing anything else.
+//
+// **The landing chain is scalars, and each of the four is named** (D-145). An
+// annotated \`const\` per coordinate is what pins them: a nested \`from\` would
+// fail to compile here, and a transposed axis is invisible to a one-field read.
+const run: LandingTiming = (fromX, fromY, toX, toY): LandingTail | null => {
+  const x: number = fromX;
+  const y: number = fromY;
+  const targetX: number = toX;
+  const targetY: number = toY;
 
-  void realm.window;
-  void context.compose(fromX, fromY);
-  void context.compose(targetX, targetY);
-  done();
-  return { destroy: (): void => {} };
+  return x + y + targetX + targetY === 0
+    ? null
+    : { duration: 200, easing: 'ease' };
 };
 
 // **D-63's negative half** (A-7). The positive half is above — a runner is
@@ -352,17 +342,8 @@ landing({
 const retiredTimingFrom = ({} as LandingTimingContext).from;
 // @ts-expect-error: ″
 const retiredTimingTo = ({} as LandingTimingContext).to;
-// @ts-expect-error: and neither are the runner's (D-145)
-const retiredContextFrom = ({} as LandingContext).from;
-// @ts-expect-error: ″
-const retiredContextTarget = ({} as LandingContext).target;
 
-void [
-  retiredTimingFrom,
-  retiredTimingTo,
-  retiredContextFrom,
-  retiredContextTarget,
-];
+void [retiredTimingFrom, retiredTimingTo];
 
 // ~~Both members of the \`ReorderResolution\` union are nameable, so a consumer
 // can give a helper a return type narrower than the union.~~
@@ -605,9 +586,7 @@ import {
   type FramePartOf,
   type KernelFrame,
   type KernelHost,
-  type LandingContext,
-  type LandingHandle,
-  type LandingStart,
+  type LandingTail,
   type LifetimeScope,
   type OffsetBox,
   type OperationIdentity,
@@ -616,7 +595,6 @@ import {
   type ReleaseTransition,
   type ResolutionCommand,
   type SettlementInput,
-  type SettlementScope,
   type SettlementTransition,
   type Transition,
   type VisualLiftSession,
@@ -766,19 +744,8 @@ const settlement: SettlementTransition<Part> = {
       }
     }
   },
-  effect: (current, _prepared, scope: SettlementScope) => {
-    const start: LandingStart = (context: LandingContext, done): LandingHandle => {
-      const fromX: number = context.fromX;
-      const fromY: number = context.fromY;
-
-      void context.compose(fromX, fromY);
-      done();
-      return { destroy: () => {} };
-    };
-
-    if (current.phase >= RELEASING) {
-      scope.holdForLanding(start);
-    }
+  effect: (current) => {
+    void current.phase;
   },
 };
 
@@ -818,6 +785,13 @@ const install = (host: KernelHost): BehaviorInstall<Controller, Part, HTMLElemen
       lift.write(current.pointerX - current.originX, current.pointerY - current.originY);
     },
     anchorTarget: (current): Point => ({ x: current.pointerX, y: current.pointerY }),
+    // **The tail's policy, and the four scalars it is handed** (D-145, D-155).
+    // A kernel-tier behavior decides whether a drop has a journey worth
+    // interpolating; the kernel owns the interpolation itself.
+    landingTail: (current, fromX, fromY, targetX, targetY): LandingTail | null =>
+      current.phase >= RELEASING && (fromX !== targetX || fromY !== targetY)
+        ? { duration: 200, easing: 'ease' }
+        : null,
     finalized: (current) => {
       void current.verdict;
     },
@@ -1466,8 +1440,6 @@ describe('the packed package', () => {
         'FAILURE_ACTIVATION',
         'FAILURE_ADMISSION',
         'FAILURE_INVALIDATION',
-        'FAILURE_LANDING_CREATE',
-        'FAILURE_LANDING_INTERRUPTED',
         'FAILURE_RELEASE',
         'FAILURE_RENDERER_WRITE',
         'FAILURE_RESOLUTION',
@@ -1493,8 +1465,6 @@ describe('the packed package', () => {
         'FAILURE_ACTIVATION',
         'FAILURE_ADMISSION',
         'FAILURE_INVALIDATION',
-        'FAILURE_LANDING_CREATE',
-        'FAILURE_LANDING_INTERRUPTED',
         'FAILURE_RELEASE',
         'FAILURE_RENDERER_WRITE',
         'FAILURE_RESOLUTION',

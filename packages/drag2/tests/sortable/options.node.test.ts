@@ -17,10 +17,12 @@
  * later pass re-adds, so every deletion below is asserted as a deletion *and*
  * paired with whatever answers in its place.
  *
- * The one surviving domain test is `landing({ duration })` against `Infinity`,
- * and it is here for a reason no other option has: the landing **holds the
- * settlement gate**, so an animation that never completes is an operation with
- * no terminal at all.
+ * `landing({ duration })` is the last numeric domain here, and every row it
+ * keeps is a deletion: the tail is an interpolation the kernel starts *after*
+ * the terminal, so no duration a consumer writes can withhold an operation's
+ * end. What judges one is the platform's `animate()`, at landing time, and a
+ * refusal reaches the consumer as a warning that changed nothing about the
+ * drop.
  */
 import { describe, expect, it } from 'vitest';
 import { assemble } from '../../src/sortable/assemble.ts';
@@ -189,15 +191,16 @@ describe('landing duration', () => {
     expect(() => landing()).not.toThrow();
   });
 
-  it('should accept zero, which still holds the gate through the runner', () => {
+  it('should accept zero, which the platform interpolates instantly', () => {
     expect(() => landing({ duration: 0 })).not.toThrow();
   });
 
   it('should no longer refuse a negative duration at construction', () => {
     // **Narrowed, not deleted (D-77).** What answers instead is `animate()`,
-    // which rejects a negative duration itself — measured, Chrome 150 — and
-    // arrives at the same `FAILURE_LANDING_CREATE` stage the library check
-    // would have reached.
+    // which rejects a negative duration itself — measured, Chrome 150. The
+    // refusal is raised where the tail starts, which is after the drop is
+    // decided and reported, so it reaches the consumer as a warning rather than
+    // as a failure of the operation (D-155).
     expect(() => landing({ duration: -1 })).not.toThrow();
   });
 
@@ -207,9 +210,10 @@ describe('landing duration', () => {
   });
 
   it('should not refuse Infinity at construction either', () => {
-    // The one surviving check moved **to the landing**, so both the fixed and
-    // the contextual form are tested at the same instant against the same
-    // value. Construction is no longer where any duration is judged.
+    // Construction judges no duration at all. An unbounded one is a
+    // contribution that never decays, on an element the library released
+    // before it started — the next activation cancels it, and so does
+    // `destroy()`.
     expect(() => landing({ duration: Number.POSITIVE_INFINITY })).not.toThrow();
   });
 
@@ -248,11 +252,9 @@ describe('layoutAnimation duration', () => {
   });
 
   it('should no longer refuse a negative duration', () => {
-    // **Deleted (D-77), and the difference from `landing({ duration })` is the
-    // rule working rather than an inconsistency.** This animation holds no
-    // gate and gates no terminal: it is registered in `running` and cancelled
-    // by `retire()`, so an unbounded one leaves displaced rows offset until
-    // the controller is destroyed and costs the library nothing.
+    // **Deleted (D-77).** This animation is registered in `running` and
+    // cancelled by `retire()`, so an unbounded one leaves displaced rows offset
+    // until the controller is destroyed and costs the library nothing.
     expect(() => layoutAnimation({ duration: -1 })).not.toThrow();
   });
 

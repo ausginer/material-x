@@ -57,7 +57,7 @@ Seven fields, all kernel-written, none behavior-writable. Probe 1's kernel slice
 | `item` | kernel | behavior | The kernel never reads it. It was there because the behavior needed somewhere to put it and the frame was shared. |
 | `visual` | kernel | behavior | `admit` returns the element to lift (D-5), so the kernel receives it as a value and holds the lift privately. |
 | ~~`outcome`~~, `recovery` | kernel | behavior | Only read to choose a landing target and a terminal callback, both of which are behavior work under D-7 and D-16. The kernel no longer knows what a recovery is. **Corrected 2026-08-22: that reader was `outcome`'s only one and D-62/D-66 deleted it** — `finalized()` collapsed to publishing `current.domain` and nothing else — so the field was written four times and read nowhere, and it is removed. This row's reasoning still holds for `recovery`, which has three readers and stays. |
-| `landingDone`, `readyDone` | kernel | _not on the frame at all_ | Gate state is per-settlement, unobservable, and read only by `advanceSettlement`. It lives on the kernel-private settlement attempt (D-7). |
+| `landingDone`, `readyDone` | kernel | _not on the frame at all_ | ~~Gate state is per-settlement, unobservable, and read only by `advanceSettlement`. It lives on the kernel-private settlement attempt (D-7).~~ **There is no gate state (D-155)**, and the row is stronger for it: the settlement attempt carries a measured target and nothing a frame could have been asked to hold. |
 
 ### `pointerId === -1` means pointerless (D-32)
 
@@ -177,7 +177,7 @@ Verified feature by feature — none needs committed transactional state:
 | --- | --- |
 | `y()`, `xy()` | No. `insertion` is behavior-owned; the rect index is a non-transactional private cache, one instance per axis-feature instance. |
 | `layoutAnimation()` | No. Its element map is private, non-transactional, and explicitly not a gate. |
-| `landing()` | No. Gate state is on the settlement attempt; the runner handle is kernel-held. |
+| `landing()` | No. It contributes timing and holds nothing; the tail's handle is kernel-held and controller-scoped. |
 | `placeholder()` | No. The element lives on the behavior's private runtime; the _insertion_ is the committed state. |
 | `handle()`, `visual()` | No. Construction-time resolvers with no state. |
 | `callbacks()` | No. |

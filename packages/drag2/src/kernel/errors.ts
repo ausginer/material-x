@@ -62,7 +62,8 @@ export class DraggableError extends Error {
  * An advisory fault: it must be surfaced, and it did not replace the outcome.
  *
  * A failing disposer, a rollback that threw on its way out, a landing
- * measurement that could not be trusted. The operation terminated exactly as it
+ * measurement that could not be trusted, an interpolation the platform
+ * refused. The operation terminated exactly as it
  * would have — same terminal result, same phase sequence, same settlement. What
  * was lost is trajectory, timing or a released resource, never an answer.
  *

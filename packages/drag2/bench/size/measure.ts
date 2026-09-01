@@ -197,8 +197,8 @@ const OPTIONAL = [
  * Free drag's optional features, and the same rule: a composition that does not
  * install one must not pull it.
  *
- * `free-drag/landing.js` shares `shared/landing-runner.js` with the
- * sortable's, which is the one non-kernel module both behaviors reach — and
+ * `free-drag/landing.js` shares `shared/landing.js` with the sortable's, which
+ * is the one non-kernel module both behaviors reach — and
  * therefore the most interesting single entry in the union identity
  * {@link unionViolations} asserts, since a shared module outside `kernel/` is
  * exactly where a second resolution would be least expected.
@@ -250,7 +250,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
     },
-    budget: 9994,
+    budget: 9825,
     absent: [...without(), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: [P06],
@@ -265,7 +265,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/xy.js': '{ xy }',
     },
-    budget: 9854,
+    budget: 9670,
     absent: [...without(), withoutAxis('sortable/xy.js'), P06],
     absentPrefixes: ['free-drag/'],
     // **Both halves of the sharing rule in one row.** The dimension-neutral
@@ -282,7 +282,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 10_346,
+    budget: 10_155,
     absent: [
       ...without('sortable/layout-animation.js'),
       withoutAxis('sortable/y.js'),
@@ -304,7 +304,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/xy.js': '{ xy }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 10_195,
+    budget: 10_003,
     absent: [
       ...without('sortable/layout-animation.js'),
       withoutAxis('sortable/xy.js'),
@@ -323,7 +323,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/landing.js': '{ landing }',
     },
-    budget: 10_256,
+    budget: 9964,
     absent: [...without('sortable/landing.js'), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: ['sortable/landing.js', P06],
@@ -336,7 +336,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/landing.js': '{ landing }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 10_589,
+    budget: 10_294,
     absent: [withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: [...OPTIONAL, P06],
@@ -349,8 +349,8 @@ export const COMPOSITIONS: readonly Composition[] = [
     imports: {
       'free-drag.js': '{ freeDrag }',
     },
-    budget: 8253,
-    control: 7813,
+    budget: 7707,
+    control: 7557,
     absent: [...withoutFreeDrag()],
     absentPrefixes: ['sortable/'],
     present: ['free-drag.js', 'kernel/kernel.js'],
@@ -361,8 +361,8 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag.js': '{ freeDrag }',
       'free-drag/bounds.js': '{ bounds }',
     },
-    budget: 8409,
-    control: 7964,
+    budget: 7855,
+    control: 7705,
     absent: [...withoutFreeDrag('free-drag/bounds.js')],
     absentPrefixes: ['sortable/'],
     present: ['free-drag/bounds.js'],
@@ -373,11 +373,11 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag.js': '{ freeDrag }',
       'free-drag/landing.js': '{ landing }',
     },
-    budget: 8519,
-    control: 8077,
+    budget: 7861,
+    control: 7711,
     absent: [...withoutFreeDrag('free-drag/landing.js')],
     absentPrefixes: ['sortable/'],
-    present: ['free-drag/landing.js', 'shared/landing-runner.js'],
+    present: ['free-drag/landing.js', 'shared/landing.js'],
   },
   {
     name: FREE_DRAG_PART,
@@ -386,8 +386,8 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
       'free-drag/landing.js': '{ landing }',
     },
-    budget: 8674,
-    control: 8225,
+    budget: 8012,
+    control: 7862,
     absentPrefixes: ['sortable/'],
     present: FREE_DRAG_OPTIONAL,
   },
@@ -410,14 +410,9 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
       'free-drag/landing.js': '{ landing as freeDragLanding }',
     },
-    budget: 11_962,
+    budget: 11_694,
     absent: [withoutAxis('sortable/y.js')],
-    present: [
-      ...OPTIONAL,
-      ...FREE_DRAG_OPTIONAL,
-      'shared/landing-runner.js',
-      P06,
-    ],
+    present: [...OPTIONAL, ...FREE_DRAG_OPTIONAL, 'shared/landing.js', P06],
   },
   {
     /**
@@ -525,8 +520,8 @@ export const COMPOSITIONS: readonly Composition[] = [
      */
     name: 'kernel root - kernel.js',
     imports: { 'kernel.js': '{ draggable }' },
-    budget: 6309,
-    control: 6123,
+    budget: 6008,
+    control: 5858,
     present: ['kernel.js', 'kernel/kernel.js'],
     absentPrefixes: ['sortable/', 'free-drag/'],
   },
@@ -534,7 +529,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     // Answers *what does composition cost*, and nothing else.
     name: 'baseline A - feature-matched, non-composed',
     entry: 'bench/size/noncomposed.js',
-    budget: 10_405,
+    budget: 10_121,
   },
   {
     // Answers *what does migrating cost*, and nothing else. Never substituted

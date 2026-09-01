@@ -1,26 +1,18 @@
 /**
  * The landing coordinate space, pinned to exact values.
  *
- * `LandingContext`'s four coordinates and `retarget()`'s argument are
- * **origin-relative viewport deltas**: CSS pixels to translate the visual by,
- * measured from where its border box sat at admission. That is the space
- * `compose()` and the kernel's own `lift.write()` consume, so a runner converts
- * nothing.
+ * The four coordinates a timing policy is handed are **origin-relative viewport
+ * deltas**: CSS pixels to translate the visual by, measured from where its
+ * border box sat at admission. That is the space the kernel's own
+ * `lift.write()` consumes and the space the tail is spent in, so a policy
+ * converts nothing.
  *
  * The fixture is absolutely positioned at a non-zero offset on both axes, which
  * is what makes the tests discriminating: a viewport point and a delta from the
  * grab rect agree at the origin and nowhere else.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import {
-  DraggableError,
-  type FailureStage,
-  type Point,
-} from '../../src/drag.ts';
-import type {
-  LandingContext,
-  LandingHandle,
-} from '../../src/sortable/feature.ts';
+import { DraggableError, type FailureStage } from '../../src/drag.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   type ReorderRequest,
@@ -38,14 +30,20 @@ const ROOT_LEFT = 40;
 const GRAB_X = 10;
 const GRAB_Y = 10;
 
+/** The four numbers one landing hands its timing policy. */
+type Endpoints = Readonly<{
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
+}>;
+
 type Fixture = Readonly<{
   root: HTMLElement;
   items: HTMLElement[];
-  placeholder(): HTMLElement;
   /** The grabbed row's rect, measured before anything is lifted. */
   origin: DOMRect;
-  contexts: LandingContext[];
-  retargets: Point[];
+  endpoints: Endpoints[];
   errors: Array<Readonly<{ stage: FailureStage | null }>>;
   controller: SortableController;
   /** The request the last `onReorder` was handed, for `controller.ready`. */
@@ -87,9 +85,8 @@ function build(): Fixture {
     items.push(item);
   }
 
-  const contexts: LandingContext[] = [];
+  const endpoints: Endpoints[] = [];
   let pending: ReorderRequest | null = null;
-  const retargets: Point[] = [];
   const errors: Array<Readonly<{ stage: FailureStage | null }>> = [];
 
   const controller = sortable(
@@ -110,16 +107,15 @@ function build(): Fixture {
       },
     },
     {
-      // A runner that records and never completes, so the gate stays open and
-      // the numbers can be read while presentation is still owned. **Authored
-      // at the middle tier** (D-63): the consumer surface no longer takes one,
-      // and this suite is about the landing *space*, which is unchanged.
+      // A timing policy that records the endpoints it is handed and **declines
+      // the tail** (D-155). Declining is what keeps the rest of the suite
+      // readable: with no additive contribution running on the dropped row, a
+      // rect measured after the drop is the element's flow position rather than
+      // that position plus a residual.
       landing: () => ({
-        startLanding(context): LandingHandle {
-          contexts.push(context);
-          return {
-            destroy: (): void => {},
-          };
+        landingTiming: (fromX, fromY, toX, toY): null => {
+          endpoints.push({ fromX, fromY, toX, toY });
+          return null;
         },
       }),
     },
@@ -136,11 +132,8 @@ function build(): Fixture {
   return {
     root,
     items,
-    placeholder: () =>
-      root.querySelector<HTMLElement>('[data-drag-placeholder]')!,
     origin: items[0]!.getBoundingClientRect(),
-    contexts,
-    retargets,
+    endpoints,
     errors,
     controller,
     request: () => pending!,
@@ -193,30 +186,44 @@ describe('the landing coordinate space', () => {
     await nextFrame();
     pointerEvent('pointerup', ROOT_LEFT + GRAB_X, ROOT_TOP + GRAB_Y + 45);
 
-    expect(fixture.contexts).toHaveLength(1);
+    expect(fixture.endpoints).toHaveLength(1);
     // Exact, and on both axes: the pointer never moved horizontally.
     expect({
-      x: fixture.contexts[0]!.fromX,
-      y: fixture.contexts[0]!.fromY,
+      x: fixture.endpoints[0]!.fromX,
+      y: fixture.endpoints[0]!.fromY,
     }).toEqual({ x: 0, y: 45 });
   });
 
-  it('should give a from that compose turns back into the live transform', async () => {
-    // The tightest statement of "one space": the value the runner is handed,
-    // fed to the composer the runner is handed, reproduces the transform the
-    // drag itself last wrote. Nothing here can be off by an origin.
+  it('should give a from that is the transform the drag last wrote', async () => {
+    // The tightest statement of "one space" this suite can make: the number the
+    // policy is handed is the delta the drag itself assigned to the visual,
+    // read back off the element. The composed string is that delta followed by
+    // the lift's own base matrix, which places the element in the viewport and
+    // is not what this row is about — so only the leading term is parsed. An
+    // origin creeping in anywhere between the pointer sample and the join shows
+    // up here as a different number.
     const fixture = build();
 
     press(fixture);
     pointerEvent('pointermove', ROOT_LEFT + GRAB_X, ROOT_TOP + GRAB_Y + 30);
     await nextFrame();
+    pointerEvent('pointermove', ROOT_LEFT + GRAB_X, ROOT_TOP + GRAB_Y + 45);
+    await nextFrame();
+
+    // **Sampled before the drop.** The join releases presentation completely
+    // before the policy runs, restoring the inline styles it captured, so the
+    // composed transform is gone by the time the endpoints are recorded.
+    const written = fixture.items[0]!.style.transform;
+
     pointerEvent('pointerup', ROOT_LEFT + GRAB_X, ROOT_TOP + GRAB_Y + 45);
 
-    const context = fixture.contexts[0]!;
+    const { fromX, fromY } = fixture.endpoints[0]!;
+    const composed = /^translate\((-?[\d.]+)px, (-?[\d.]+)px\)/u.exec(written)!;
 
-    expect(fixture.items[0]!.style.transform).toBe(
-      context.compose(context.fromX, context.fromY),
-    );
+    expect({
+      x: Number.parseFloat(composed[1]!),
+      y: Number.parseFloat(composed[2]!),
+    }).toEqual({ x: fromX, y: fromY });
   });
 
   it('should give target as the landing rect offset from the grab rect', async () => {
@@ -227,13 +234,15 @@ describe('the landing coordinate space', () => {
     await nextFrame();
     pointerEvent('pointerup', ROOT_LEFT + GRAB_X, ROOT_TOP + GRAB_Y + 45);
 
-    const context = fixture.contexts[0]!;
-    // `anchorTarget` has already run, so the placeholder is where the visual
-    // has to land. Presentation is still owned — the gate is open — so it is
-    // still in the tree to measure.
-    const anchor = fixture.placeholder().getBoundingClientRect();
+    // **The dropped row itself is the anchor's witness** (D-155). The
+    // placeholder is what `anchorTarget` measured, and the join removes it with
+    // the rest of presentation before anything can read it — but the row it was
+    // holding a place for takes exactly that place, in flow, on the same
+    // statement. The policy declines a tail, so no residual displaces it.
+    const anchor = fixture.items[0]!.getBoundingClientRect();
+    const { toX, toY } = fixture.endpoints[0]!;
 
-    expect({ x: context.targetX, y: context.targetY }).toEqual({
+    expect({ x: toX, y: toY }).toEqual({
       x: anchor.left - fixture.origin.left,
       y: anchor.top - fixture.origin.top,
     });
@@ -249,11 +258,11 @@ describe('the landing coordinate space', () => {
     await nextFrame();
     pointerEvent('pointerup', ROOT_LEFT + GRAB_X, ROOT_TOP + GRAB_Y + 45);
 
-    const context = fixture.contexts[0]!;
-    const anchor = fixture.placeholder().getBoundingClientRect();
+    const { toX, toY } = fixture.endpoints[0]!;
+    const anchor = fixture.items[0]!.getBoundingClientRect();
 
-    expect(context.targetX).not.toBe(anchor.left);
-    expect(context.targetY).not.toBe(anchor.top);
+    expect(toX).not.toBe(anchor.left);
+    expect(toY).not.toBe(anchor.top);
     expect(fixture.origin.top).toBe(ROOT_TOP);
     expect(fixture.origin.left).toBe(ROOT_LEFT);
   });

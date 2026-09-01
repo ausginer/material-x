@@ -23,12 +23,7 @@ import {
   RELEASING,
   SETTLING,
 } from '../../src/kernel/phases.ts';
-import type {
-  BehaviorSpec,
-  KernelHost,
-  LandingHandle,
-  LandingStart,
-} from '../../src/kernel/spec.ts';
+import type { BehaviorSpec, KernelHost } from '../../src/kernel/spec.ts';
 import { draggable } from '../../src/kernel.ts';
 import { createSortableBehavior } from '../../src/sortable/behavior.ts';
 import type { SortableController } from '../../src/sortable/controller.ts';
@@ -113,7 +108,7 @@ type Overrides = Partial<
     | 'placeholder'
     | 'invalidateInsertion'
     | 'movedInsertion'
-    | 'startLanding'
+    | 'landingTiming'
     | 'report'
     | 'settle'
     | 'retireHooks'
@@ -246,7 +241,7 @@ function createHarness(overrides: Overrides = {}): Harness {
     // to `visual`, so a fixture that overrides only `visual` still measures its
     // candidates on the same element the placeholder is sized from.
     box: overrides.box ?? overrides.visual ?? null,
-    startLanding: overrides.startLanding ?? null,
+    landingTiming: overrides.landingTiming ?? null,
     onEnd(result): void {
       if (result.type === 'accepted' || result.type === 'noop') {
         calls.push('onFinish');
@@ -378,22 +373,47 @@ const nextFrame = (): Promise<void> =>
     });
   });
 
-/**
- * A landing runner that holds the gate open, so a test can observe the DOM
- * while presentation is still owned — the join removes the placeholder and
- * restores the inline styles the moment both gates complete.
- */
-function createRunner(): Readonly<{ start: LandingStart; done(): void }> {
-  let complete: (() => void) | null = null;
+/** Where the placeholder stood when it left, and how often it moved. */
+type PlaceholderExit = Readonly<{
+  previous: Node | null;
+  next: Node | null;
+  /** Removals of this placeholder from the root, the join's own included. */
+  removals: number;
+}>;
 
-  return {
-    start(_context, done): LandingHandle {
-      complete = done;
-      return { destroy: (): void => {} };
-    },
-    done(): void {
-      complete!();
-    },
+/**
+ * Watches the placeholder out of the tree. Call the returned reader after the
+ * drop.
+ *
+ * **This is the reading a landing hold used to keep still for** (D-155).
+ * Nothing suspends a settlement, so the tree `anchorTarget` measured exists
+ * only between that measurement and the release, on the same statement — and a
+ * `MutationObserver` sees exactly that: the placeholder's last removal record
+ * carries the two siblings it was standing between, which is what the anchor
+ * *is*. Every row that used to read `order()` after a frozen release reads
+ * those two nodes instead.
+ */
+function watchPlaceholder(harness: Harness): () => PlaceholderExit {
+  const placeholder = harness.placeholder()!;
+  const observer = new MutationObserver((): void => {});
+
+  observer.observe(harness.root, { childList: true });
+
+  return (): PlaceholderExit => {
+    let previous: Node | null = null;
+    let next: Node | null = null;
+    let removals = 0;
+
+    for (const record of observer.takeRecords()) {
+      if ([...record.removedNodes].includes(placeholder)) {
+        removals += 1;
+        ({ previousSibling: previous, nextSibling: next } = record);
+      }
+    }
+
+    observer.disconnect();
+
+    return { previous, next, removals };
   };
 }
 
@@ -432,7 +452,7 @@ const EMPTY_SLOTS: SortableSlots = {
   handle: null,
   visual: null,
   box: null,
-  startLanding: null,
+  landingTiming: null,
   onEnd: (): void => {},
   onError: (): void => {},
   report: null,
@@ -1801,12 +1821,14 @@ describe('settlement mapping', () => {
  * afterwards went wrong.
  *
  * **Each stage here can only fire after the settlement committed a result**, so
- * they are the whole post-commit failure set rather than a sample of it:
- * `LANDING_CREATE` and `LANDING_INTERRUPTED` both require an armed gate, which
- * arming does after `prepare` returns, and the pin runs at the join. The
- * missing assertion is what let A-1 ship: the nearest kernel row asserts *that*
- * a terminal fired, never *which*, and the sortable rows above all sit before
- * any round-trip.
+ * they are the whole post-commit failure set rather than a sample of it: the
+ * pin runs at the join, with the result already decided, and the terminal
+ * callback runs after it. ~~`LANDING_CREATE` and `LANDING_INTERRUPTED`~~ are
+ * gone with the landing gate (D-155) — a tail is started after the terminal and
+ * a fault in one is a warning that changes nothing about the drop, so neither
+ * can reach a committed result at all. The missing assertion is what let A-1
+ * ship: the nearest kernel row asserts *that* a terminal fired, never *which*,
+ * and the sortable rows above all sit before any round-trip.
  */
 describe('a failure after the authored commit (D-66)', () => {
   /** Accepts a reorder into gap 2, so the frame holds `accepted` at the join. */
@@ -1816,67 +1838,32 @@ describe('a failure after the authored commit (D-66)', () => {
     release(60);
   };
 
-  it('should keep the accepted result when the landing runner fails', () => {
-    // `FAILURE_LANDING_INTERRUPTED` has exactly one producer, and it cannot
-    // fire before a runner is armed — so this stage overwrote a committed
-    // result *every* time it fired, until the `??`.
-    const failure = new Error('interrupted');
-    let fail!: (error: unknown) => void;
-    const harness = createHarness({
-      startLanding: (_context, _done, reject): LandingHandle => {
-        fail = reject;
-        return { destroy: (): void => {} };
+  /**
+   * Poisons the visual's `transform` setter, so the join's pin throws.
+   *
+   * **Armed from inside `onReorder`**, which is the one consumer seam between
+   * the release render and the pin: arming any earlier fails the release render
+   * instead, which is a pre-commit stage and a different row.
+   */
+  const poisonPin = (harness: Harness): void => {
+    Object.defineProperty(harness.items[0]!.style, 'transform', {
+      configurable: true,
+      get: (): string => '',
+      set(): never {
+        throw new Error('pin');
       },
     });
-
-    commit(harness);
-    fail(failure);
-
-    expect(harness.cancels).toEqual([]);
-    expect(harness.finishes).toHaveLength(1);
-    expect(harness.finishes[0]).toMatchObject({ type: 'accepted' });
-    // Orthogonal, not exclusive (D-60): the drop is accepted **and** the fault
-    // is reported.
-    expect(harness.errors).toHaveLength(1);
-    expect(harness.errors[0]!.error).toMatchObject({ cause: failure });
-  });
-
-  it('should keep the accepted result when the runner cannot be created', () => {
-    const harness = createHarness({
-      startLanding: (): never => {
-        throw new Error('start');
-      },
-    });
-
-    commit(harness);
-
-    expect(harness.cancels).toEqual([]);
-    expect(harness.finishes[0]).toMatchObject({ type: 'accepted' });
-    expect(harness.errors).toHaveLength(1);
-  });
+  };
 
   it('should keep the accepted result when the pin throws at the join', () => {
-    let poison!: () => void;
-    const harness = createHarness({
-      // Armed from inside `start`, which runs *after* the settlement committed:
-      // poisoning any earlier would fail the release render instead, which is a
-      // pre-commit stage and a different row.
-      startLanding: (_context, done): LandingHandle => {
-        poison();
-        done();
-        return { destroy: (): void => {} };
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      onReorder(): ReorderResolution {
+        poisonPin(harness!);
+        return ReorderResolution.accept();
       },
     });
-
-    poison = (): void => {
-      Object.defineProperty(harness.items[0]!.style, 'transform', {
-        configurable: true,
-        get: (): string => '',
-        set(): never {
-          throw new Error('pin');
-        },
-      });
-    };
 
     commit(harness);
 
@@ -1887,13 +1874,14 @@ describe('a failure after the authored commit (D-66)', () => {
 
   it('should keep a rejected result too, not just an accepted one', () => {
     // The tie-break is *existing result wins*, not *accepted wins*. A consumer
-    // that rejected the reorder and then hit a landing fault is still owed the
-    // verdict it gave, with its own reason.
-    const harness = createHarness({
-      onReorder: () => ReorderResolution.reject('nope'),
-      startLanding: (_context, _done, reject): LandingHandle => {
-        reject(new Error('interrupted'));
-        return { destroy: (): void => {} };
+    // that rejected the reorder and then hit a fault at the join is still owed
+    // the verdict it gave, with its own reason.
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      onReorder(): ReorderResolution {
+        poisonPin(harness!);
+        return ReorderResolution.reject('nope');
       },
     });
 
@@ -1905,38 +1893,36 @@ describe('a failure after the authored commit (D-66)', () => {
       type: 'rejected',
       reason: 'nope',
     });
+    expect(harness.errors).toHaveLength(1);
   });
 });
 
 describe('the landing target', () => {
   it('should re-anchor to the item for a destination recovery', () => {
-    const runner = createRunner();
-    const harness = createHarness({ startLanding: runner.start });
+    const harness = createHarness();
 
     activate(harness);
     harness.next(harness.gap(2));
+
+    const exit = watchPlaceholder(harness);
+
     release(60);
 
-    // With no readiness promise the consumer asserted its presentation is
-    // final **synchronously**, so `authoredReady` is true from sealing and the
-    // arm-time measurement re-anchors immediately.
-    //
     // This consumer accepted without applying the reorder, so the item is still
     // at its old slot — and the placeholder follows it there. That is the
     // contract, not a defect: the anchor is always the item (I-25), and a
     // consumer that accepts synchronously has asserted the DOM it is showing is
     // the authored final one.
-    expect(order(harness)).toBe('_012');
-
-    runner.done();
+    expect(exit()).toMatchObject({
+      previous: null,
+      next: harness.items[0],
+    });
     expect(harness.finishes).toHaveLength(1);
   });
 
   it('should repair the semantic gap when the item moved', () => {
-    const runner = createRunner();
     let applied: (() => void) | null = null;
     const harness = createHarness({
-      startLanding: runner.start,
       onReorder(): ReorderResolution {
         // The consumer applies the reorder itself and lands the item past the
         // placeholder, leaving the placeholder on the wrong side of it (F-15).
@@ -1951,20 +1937,26 @@ describe('the landing target', () => {
 
     activate(harness);
     harness.next(harness.gap(2));
+
+    const exit = watchPlaceholder(harness);
+
     release(60);
 
     // The item is the anchor, and the repair puts the placeholder back in front
     // of it — the gap the consumer's own commit describes.
-    expect(harness.items[0]!.previousElementSibling).toBe(
-      harness.placeholder(),
-    );
+    expect(exit().next).toBe(harness.items[0]);
   });
 
-  it('should not reinsert the placeholder when it is already anchored', async () => {
-    const runner = createRunner();
+  it('should not reinsert the placeholder when it is already anchored', () => {
+    // **The commit that leaves nothing to repair.** The consumer applies the
+    // reorder by moving the item into the gap the placeholder is already
+    // holding, so `anchorTarget` finds the placeholder immediately before the
+    // item and must leave it alone: `before()` on an already-correct position
+    // is a remove-and-reinsert that resets CSS transitions and forces a reflow,
+    // on every settlement.
     let applied: (() => void) | null = null;
+    let exit: (() => PlaceholderExit) | null = null;
     const harness = createHarness({
-      startLanding: runner.start,
       onReorder(): ReorderResolution {
         applied!();
         return ReorderResolution.accept();
@@ -1972,46 +1964,30 @@ describe('the landing target', () => {
     });
 
     applied = (): void => {
-      harness.root.append(harness.items[0]!);
+      harness.placeholder()!.after(harness.items[0]!);
+      // Watched from **after the authored commit**, which is what makes the
+      // count mean one thing: the release's own `movePlaceholder` has already
+      // run, so every removal from here on is the settlement's.
+      exit = watchPlaceholder(harness);
     };
 
     activate(harness);
     harness.next(harness.gap(2));
     release(60);
 
-    // The arm-time measurement has repaired the gap. The join measures again,
-    // and the placeholder is already adjacent to the item.
-    //
-    // Captured before observing: the join removes the placeholder on its way
-    // out, so looking it up from inside the callback would find nothing.
-    const placeholder = harness.placeholder()!;
-    let removals = 0;
-    const observer = new MutationObserver((records) => {
-      for (const record of records) {
-        if ([...record.removedNodes].includes(placeholder)) {
-          removals += 1;
-        }
-      }
-    });
-
-    observer.observe(harness.root, { childList: true });
-    runner.done();
-    await nextFrame();
-    observer.disconnect();
+    const { removals, next } = exit!();
 
     // Exactly one removal: the join's own, releasing presentation. A second
-    // would mean the repair ran — `before()` on an already-correct position is
-    // a remove-and-reinsert that resets CSS transitions and forces a reflow, on
-    // every settlement.
+    // would mean the repair ran on a placeholder that was already where it
+    // belonged.
     expect(removals).toBe(1);
+    expect(next).toBe(harness.items[0]);
     expect(harness.finishes).toHaveLength(1);
   });
 
   it('should follow the grabbed item when a replacement moves it', () => {
-    const runner = createRunner();
     const harness = createHarness({
       itemCount: 4,
-      startLanding: runner.start,
       onReorder: () => ReorderResolution.reject('no'),
     });
 
@@ -2034,22 +2010,23 @@ describe('the landing target', () => {
     // *start* gap put it.
     expect(order(harness)).toBe('0_123');
 
+    const exit = watchPlaceholder(harness);
+
     release(60);
 
     // Home recovery derives the gap from the **latest committed** collection:
     // item 0 is now last, so its home gap is the end gap. Reusing the gap the
     // drag started against would have left the placeholder at the head.
-    expect(order(harness)).toBe('0123_');
-
-    runner.done();
+    expect(exit()).toMatchObject({
+      previous: harness.items[3],
+      next: null,
+    });
     expect(harness.cancels[0]!.type).toBe('rejected');
   });
 
   it('should recover to the home gap of the frozen transaction', () => {
-    const runner = createRunner();
     const harness = createHarness({
       itemCount: 4,
-      startLanding: runner.start,
       onReorder(): ReorderResolution {
         // Arrives while the operation is resolving. It publishes — the update
         // is never lost — but the transaction's own snapshot is decided.
@@ -2065,23 +2042,26 @@ describe('the landing target', () => {
 
     activate(harness);
     harness.next(harness.gap(2));
+
+    const exit = watchPlaceholder(harness);
+
     release(60);
-    expect(harness.cancels).toEqual([]);
+    expect(harness.cancels).toHaveLength(1);
 
     // Home is the home *of the transaction being recovered*, so it comes from
     // the frozen snapshot: the drag began with item 0 at the head, the consumer
     // rejected, and that is where the item goes back to. Deriving it from the
     // newer published collection would move the placeholder to a gap the
     // transaction never agreed to.
-    expect(order(harness)).toBe('0_123');
-
-    runner.done();
+    expect(exit()).toMatchObject({
+      previous: harness.items[0],
+      next: harness.items[1],
+    });
     expect(harness.cancels[0]!.type).toBe('rejected');
   });
 
   it('should not fabricate a gap for a removed item', async () => {
-    const runner = createRunner();
-    const harness = createHarness({ itemCount: 4, startLanding: runner.start });
+    const harness = createHarness({ itemCount: 4 });
 
     activate(harness);
     // Drag the placeholder away from the head first, so a fabricated home gap
@@ -2091,14 +2071,20 @@ describe('the landing target', () => {
     await nextFrame();
     expect(order(harness)).toBe('0123_');
 
+    const exit = watchPlaceholder(harness);
+
     // The item vanishes mid-drag, so the cancellation's home recovery has no
     // gap to derive.
     harness.replace([harness.items[1]!, harness.items[2]!, harness.items[3]!]);
 
     // `indexOf` is -1 there, and -1 is not a gap: without the guard the
     // arithmetic yields a plausible *start* gap — `before` undefined, `after`
-    // the first item — and silently drags the placeholder across the list.
-    expect(order(harness)).toBe('0123_');
+    // the first item — and silently drags the placeholder across the list. It
+    // is measured where it stands and taken out from there.
+    expect(exit()).toMatchObject({
+      previous: harness.items[3],
+      next: null,
+    });
   });
 
   it('should not derive a home gap for an item the replacement removed', () => {
@@ -2142,34 +2128,44 @@ describe('the landing target', () => {
   });
 
   it('should return the placeholder home for a rejected drop', () => {
-    const runner = createRunner();
     const harness = createHarness({
-      startLanding: runner.start,
       onReorder: () => ReorderResolution.reject('no'),
     });
 
     activate(harness);
     harness.next(harness.gap(2));
+
+    const exit = watchPlaceholder(harness);
+
     release(60);
 
     // Home recovery deliberately returns the placeholder to the grab slot
     // before measuring — recomputed from the committed snapshot, not stored.
-    expect(order(harness)).toBe('0_12');
-
-    runner.done();
+    expect(exit()).toMatchObject({
+      previous: harness.items[0],
+      next: harness.items[1],
+    });
     expect(harness.cancels).toHaveLength(1);
   });
 
-  it('should hold no landing gate for an immediate recovery', () => {
-    const runner = createRunner();
-    const harness = createHarness({ startLanding: runner.start });
+  it('should start no landing tail for an immediate recovery', () => {
+    // A no-op recovers immediately — the placeholder is already where the item
+    // belongs — so the behavior declines the tail even though the feature is
+    // installed: the visual belongs at its home now, not two hundred
+    // milliseconds from now. The drop still finalizes in the same drain (I-9).
+    let asked = 0;
+    const harness = createHarness({
+      landingTiming: () => {
+        asked += 1;
+        return { duration: 200, easing: 'linear' };
+      },
+    });
 
     activate(harness);
     release(40);
 
-    // A no-op recovers immediately — the placeholder is already where the item
-    // belongs — so no landing hold is requested even though the feature is
-    // installed, and the drop finalizes in the same drain (I-9).
+    expect(asked).toBe(0);
+    expect(harness.items[0]!.getAnimations()).toEqual([]);
     expect(harness.finishes[0]!.type).toBe('noop');
     expect(order(harness)).toBe('012');
   });

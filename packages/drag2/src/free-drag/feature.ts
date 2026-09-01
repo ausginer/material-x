@@ -11,7 +11,7 @@
  * descriptor interpretation.
  *
  * **Which group a slot is declared on is its cardinality**: `constrain` is
- * producible from `bounds` and nowhere else, `startLanding` from `landing` and
+ * producible from `bounds` and nowhere else, `landingTiming` from `landing` and
  * nowhere else, so a second writer is unrepresentable rather than caught.
  *
  * **No runtime exports.** Every name here is erased.
@@ -47,6 +47,7 @@ export type {
   Composed,
   FeatureContext,
   LandingContribution,
+  LandingTiming,
   Misplaced,
   UniqueIn,
   UniqueSlot,
@@ -75,11 +76,7 @@ export type FreeDragFeatureContext = FeatureContext &
   Readonly<{ [FREE_DRAG_FEATURE]: never }>;
 export type { Disposer } from '../kernel/lifetimes.ts';
 export type { DOMRealm } from '../kernel/realm.ts';
-export type {
-  LandingContext,
-  LandingHandle,
-  LandingStart,
-} from '../kernel/spec.ts';
+export type { LandingTail } from '../kernel/spec.ts';
 
 /**
  * The scalars a constraint reads and writes, **by reference**.

@@ -66,10 +66,10 @@ import type {
   FreeDragLandingInstaller,
   FreeDragPlugin,
   FreeDragPluginContribution,
-  LandingStart,
   FeatureContext as FreeDragSharedContext,
 } from '../src/free-drag/feature.ts';
 import { FreeDragResolution, freeDrag } from '../src/free-drag.ts';
+import type { LandingTiming } from '../src/shared/composition.ts';
 import type {
   AxisInstaller,
   DisplacementContribution,
@@ -286,7 +286,7 @@ describe('third-party authoring', () => {
 
   it('should still reach the landing key with only shared vocabulary', () => {
     // **The positive control**, kept from the previous mechanism and re-pointed
-    // by D-146 at the key that now owns the slot: `startLanding` and `retire`
+    // by D-146 at the key that now owns the slot: `landingTiming` and `retire`
     // are legitimately shared between the behaviors, so an installer
     // contributing them is valid free-drag middle-tier code and must stay so.
     // Without it the boundary could be widened into a general separation
@@ -294,10 +294,7 @@ describe('third-party authoring', () => {
     // position no longer reaches a unique slot — which is the decision, not a
     // weakening of this control.
     const install: FreeDragLandingInstaller = () => ({
-      startLanding: ((_context, done) => {
-        done();
-        return { destroy: dispose };
-      }) satisfies LandingStart,
+      landingTiming: ((): null => null) satisfies LandingTiming,
       retire: dispose,
     });
     const controller = freeDrag(item, config, { landing: install });

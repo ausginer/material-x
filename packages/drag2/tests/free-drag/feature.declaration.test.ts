@@ -26,14 +26,14 @@ import type {
 } from '../../src/free-drag/feature.ts';
 import type { FreeDragSlots } from '../../src/free-drag/slots.ts';
 import { freeDrag } from '../../src/free-drag.ts';
-import type { LandingStart, SettlementScope } from '../../src/kernel/spec.ts';
 import type {
   LandingContribution,
+  LandingTiming,
   UniqueSlot,
 } from '../../src/shared/composition.ts';
 
 declare const constraint: MotionConstraint;
-declare const start: LandingStart;
+declare const timing: LandingTiming;
 declare const dispose: () => void;
 declare const constraintInstaller: ConstraintInstaller;
 declare const landingInstaller: FreeDragLandingInstaller;
@@ -76,19 +76,11 @@ describe('ConstraintContribution', () => {
     // avoid. Asserting the absence keys off the union of its keys, so adding
     // one fails here rather than being noticed at review.
     //
-    // **Two keys, and the landing is not one of them** (D-146). The record
-    // carried `startLanding` while every position accepted every slot; it is
-    // the `landing` key's group now, which is what makes two writers
-    // unrepresentable.
+    // **Two keys, and the landing is not one of them** (D-146).
+    // `landingTiming` belongs to the `landing` key's group, which is what makes
+    // two writers unrepresentable.
     expectTypeOf<keyof ConstraintContribution>().toEqualTypeOf<
       'constrain' | 'retire'
-    >();
-  });
-
-  it('should not reach the settlement scope', () => {
-    // A middle-tier installer contributes; it does not drive the lifecycle.
-    expectTypeOf<ConstraintContribution>().not.toExtend<
-      Record<string, SettlementScope>
     >();
   });
 });
@@ -96,7 +88,7 @@ describe('ConstraintContribution', () => {
 describe('FreeDragLandingInstaller', () => {
   it('should carry the landing and its lifetime', () => {
     expectTypeOf<keyof LandingContribution>().toEqualTypeOf<
-      'startLanding' | 'retire'
+      'landingTiming' | 'retire'
     >();
   });
 
@@ -111,7 +103,7 @@ describe('FreeDragLandingInstaller', () => {
     // be unused. What the model guarantees is that `constrain` is not a member
     // of this group — which is what this asserts.
     const contribution: LandingContribution = {
-      startLanding: start,
+      landingTiming: timing,
       // @ts-expect-error — `constrain` is not a member of this group
       constrain: constraint,
     };
@@ -121,7 +113,7 @@ describe('FreeDragLandingInstaller', () => {
 
   it('should accept the group without it', () => {
     // The F-74 control for the row above.
-    const contribution: LandingContribution = { startLanding: start };
+    const contribution: LandingContribution = { landingTiming: timing };
 
     void contribution;
   });
@@ -139,7 +131,7 @@ describe('FreeDragPlugin', () => {
   it('should not refuse a unique slot at the group alone', () => {
     // **F-132, stated rather than papered over.** ~~`should refuse a unique
     // slot from the unbounded position`~~ asserted that
-    // `() => ({ startLanding: start })` is rejected here, and it is — by
+    // `() => ({ landingTiming: timing })` is rejected here, and it is — by
     // **weak-type detection**, which fires only because that literal shares
     // *no* member with an all-optional target. F-74/CE1-01 records that as not
     // a boundary, and this row is the falsifying control the old one lacked:
@@ -149,7 +141,7 @@ describe('FreeDragPlugin', () => {
     // The group is not where the property lives. **The position is** (D-151),
     // and `the composition check` below is where it is asserted.
     const installer: FreeDragPlugin = () => ({
-      startLanding: start,
+      landingTiming: timing,
       retire: dispose,
     });
 
@@ -174,7 +166,7 @@ describe('the composition check', () => {
         ConstraintContribution | LandingContribution,
         FreeDragPluginContribution
       >
-    >().toEqualTypeOf<'constrain' | 'startLanding'>();
+    >().toEqualTypeOf<'constrain' | 'landingTiming'>();
   });
 
   it('should hold the precondition the positional model rests on', () => {
@@ -210,7 +202,7 @@ describe('the composition check', () => {
 
   it('should refuse a landing installer from the plugins position', () => {
     const refused = (): void => {
-      // @ts-expect-error — D-151: `startLanding` is installable from `landing`
+      // @ts-expect-error — D-151: `landingTiming` is installable from `landing`
       freeDrag(item, { onDrop, plugins: [landingInstaller] });
     };
 

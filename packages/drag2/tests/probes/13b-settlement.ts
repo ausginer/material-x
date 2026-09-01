@@ -30,14 +30,21 @@
  * because they were about the *absence of a return channel*, which D-33 also
  * declines to add.
  */
-import type {
-  LandingHandle,
-  LandingStart,
-  PreparedSettlement,
-  SettlementScope,
-} from '../../src/kernel/spec.ts';
+import type { LandingTiming } from '../../src/shared/composition.ts';
+import type { PreparedSettlement } from '../../src/kernel/spec.ts';
 
-declare const scope: SettlementScope;
+/**
+ * **The settlement scope is retired outright (D-155)**, and the assertions
+ * below that named it are vacated by deletion rather than falsified. Every gate
+ * this probe reasoned about — the readiness gate D-41 removed and the landing
+ * gate D-155 removed — is gone, so the scope that carried them has no member
+ * left to declare. What the probe still holds is the shape of its own
+ * candidate, kept for the record, and B-2's result, which is now the shipped
+ * design rather than a proposal.
+ */
+type RetiredSettlementScope = Readonly<Record<never, never>>;
+
+declare const scope: RetiredSettlementScope;
 
 /* ================================================================= B-1 ==== */
 
@@ -70,15 +77,16 @@ declare const scope: SettlementScope;
  * it — the two-independent-gates form that contract 05 carried until D-41
  * retired it.
  */
-export function holdBothGates(start: LandingStart): void {
-  // **Stale as of D-41, and kept rather than rewritten.** There is one gate:
-  // the readiness hold had no producer under the serial authored commit, so
-  // P-1's overlap property is *vacated* rather than falsified — the authored
-  // render now happens before the landing starts, so there is nothing left for
-  // it to overlap with. `effect` still returns `void` and still awaits nothing,
-  // which is the half of P-1 that survives.
-  scope.holdForLanding(start);
-}
+// **Vacated twice over, and kept rather than rewritten.** D-41 left one gate:
+// the readiness hold had no producer under the serial authored commit, so
+// P-1's overlap property was already vacated rather than falsified — the
+// authored render happened before the landing started, leaving nothing for it
+// to overlap with. D-155 then removed the landing gate itself, on the ground
+// that an interpolation holding no lease needs no operation. `effect` still
+// returns `void` and still awaits nothing, which is the half of P-1 that
+// survives both.
+// @ts-expect-error — there is no landing gate to hold (D-155).
+export const p1: unknown = scope.holdForLanding;
 
 /**
  * **N-1. Holding a gate yields nothing back.** `holdForReadiness` returns
@@ -93,15 +101,15 @@ export function holdBothGates(start: LandingStart): void {
  * acknowledgement on the request instead, so no settlement machinery crosses the
  * public boundary at all.
  */
-// **Stronger than it was.** The assertion used to be that `holdForReadiness`
-// yields no token; D-41 deletes the member outright, so the gate it planned
-// cannot be requested at all.
+// **Stronger than it was.** The assertion was that `holdForReadiness` yields no
+// token; D-41 deleted the member outright, so the gate it planned cannot be
+// requested at all.
 // @ts-expect-error — there is no readiness gate to hold (D-41).
 export const n1: object = scope.holdForReadiness;
 
 /**
- * **N-2. There is no request channel.** `SettlementScope` has exactly two
- * members. Nothing lets the kernel say *"I am about to reveal the authored DOM;
+ * **N-2. There is no request channel.** The scope carried gate holds and
+ * nothing else, and carries none now. Nothing lets the kernel say *"I am about to reveal the authored DOM;
  * tell me when it exists"*, which is the direction the information naturally
  * flows.
  */
@@ -164,7 +172,7 @@ export type ReadinessToken = Readonly<{
 }>;
 
 /**
- * The candidate scope. Note what changes and what does not: `holdForLanding` is
+ * The candidate scope. Note what changes and what does not: the landing gate is
  * untouched, the two gates stay independent, and `effect` still returns `void`,
  * so the overlap property survives by construction.
  */
@@ -175,7 +183,8 @@ export type CandidateSettlementScope = Readonly<{
    * the deadline; the consumer owns exactly one call.
    */
   holdForReadiness(): ReadinessToken;
-  holdForLanding(start: LandingStart): void;
+  /** The landing gate as it stood. Retired by D-155. */
+  holdForLanding(start: () => void): void;
 }>;
 
 declare const candidateScope: CandidateSettlementScope;
@@ -206,65 +215,35 @@ export function candidateConsumer(): void {
  * drag). `landing({ duration })` fixes timing at construction, which is what
  * ledger L-6 recorded as a gap.
  *
- * It is not an SPI gap. `LandingStart` is a **public, exported type**, and
- * `landing({ run })` already accepts a full replacement runner
- * (`src/sortable/landing.ts:35`, `:44-46`). The kernel invokes it during
- * *arming*, which happens after `settlement.effect` has returned and after
- * `anchorTarget` — `src/kernel/kernel.ts:1208`, the request → seal → arm order.
- * So a runner reads whatever it likes at exactly the moment the shipped package
- * read it.
+ * It is not an SPI gap, and D-155 has since made it the *only* shape: the
+ * timing a landing feature contributes is a function the kernel calls once per
+ * landing, at the join, with the trajectory's four coordinates. A consumer
+ * reads whatever it likes at exactly the moment the shipped package reads it.
  *
- * The function below compiles against the real `LandingStart`. That is the
- * proof.
+ * The function below compiles against the real `LandingTiming`. That is the
+ * proof, and it is now shorter than the probe was.
  */
 declare function consumerTiming(): Readonly<{
   duration: number;
   easing: string;
 }>;
 
-export const settleTimeRunner: LandingStart = (
-  context,
-  done,
-  fail,
-): LandingHandle => {
+export const settleTimeTiming: LandingTiming = () =>
   // Read here, not at construction. This line is the whole finding.
-  const timing = consumerTiming();
-
-  const animation = context.visual.animate(
-    [
-      { transform: context.compose(context.fromX, context.fromY) },
-      { transform: context.compose(context.targetX, context.targetY) },
-    ],
-    { ...timing, fill: 'forwards' },
-  );
-
-  animation.finished.then(() => {
-    done();
-  }, fail);
-
-  return {
-    destroy(): void {
-      animation.cancel();
-    },
-  };
-};
+  consumerTiming();
 
 /**
- * **What remains of B-2, and where it goes.** The capability is reachable; the
- * *ergonomics* are not at parity. A consumer that only wants a distance-scaled
- * duration must currently reimplement the default runner — losing the
- * reduced-motion collapse, the retarget replay and the generation guard that
- * `landing()` provides (`src/sortable/landing.ts:62-146`).
- *
- * That is a public-option question, not a contract question: `landing()` could
- * accept `duration: number | (() => number)`, or a `timing?: () => AnimationTiming`
- * read inside the default runner. It belongs to Phase 15 or the Phase 22
- * refinement pass, and it must **not** consume a slot in the Phase 14 revision.
+ * **What remained of B-2, and where it went.** The capability was reachable but
+ * the *ergonomics* were not at parity: a consumer wanting a distance-scaled
+ * duration had to reimplement the whole runner, losing the reduced-motion
+ * answer with it. That was a public-option question rather than a contract one,
+ * and D-67 answered it — `landing({ duration })` takes the trajectory — while
+ * D-155 removed the runner the ergonomics gap was measured against.
  */
 export type CandidateLandingOptions = Readonly<{
   duration?: number;
   easing?: string;
   /** Read at settle time by the default runner. Wins over `duration`/`easing`. */
   timing?(): Readonly<{ duration: number; easing: string }>;
-  run?: LandingStart;
+  run?: (context: unknown) => void;
 }>;

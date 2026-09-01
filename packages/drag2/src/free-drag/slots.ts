@@ -17,7 +17,7 @@
  */
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { LiftMode } from '../kernel/presentation.ts';
-import type { LandingStart } from '../kernel/spec.ts';
+import type { LandingTiming } from '../shared/composition.ts';
 import type {
   FreeDragOnDragError,
   FreeDragOnEnd,
@@ -58,7 +58,7 @@ export type FreeDragSlots = Readonly<{
   /** `null` when no `bounds()` and no third-party constraint was installed. */
   constrain: MotionConstraint | null;
   /** `null` when no landing is installed: the visual is released without animating. */
-  startLanding: LandingStart | null;
+  landingTiming: LandingTiming | null;
 
   /** Installation order; every reader walks it backwards. */
   retireHooks: readonly Disposer[];

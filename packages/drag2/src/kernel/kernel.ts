@@ -13,7 +13,6 @@ import {
   CANCEL,
   ERROR_REPORTED,
   FAILED,
-  LANDING_SETTLED,
   MOVE,
   RELEASE,
   RESOLUTION_SETTLED,
@@ -33,8 +32,6 @@ import {
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
   FAILURE_ACTION_PREPARE,
-  FAILURE_LANDING_CREATE,
-  FAILURE_LANDING_INTERRUPTED,
   FAILURE_ACTION_EFFECT,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
@@ -64,7 +61,11 @@ import {
   armPointerInput,
   isPrimaryPress,
 } from './pointer.ts';
-import { acquireLift, type VisualLiftSession } from './presentation.ts';
+import {
+  acquireLift,
+  type InheritedSpace,
+  type VisualLiftSession,
+} from './presentation.ts';
 import {
   CLICK,
   LOST_POINTER_CAPTURE,
@@ -89,10 +90,6 @@ import {
   type AdmissionSubject,
   type BehaviorSpec,
   type KernelHost,
-  type LandingContext,
-  type LandingHandle,
-  type LandingStart,
-  type PreparedSettlement,
   type ResolutionCommand,
   SETTLED_CANCELED,
   SETTLED_FAILED,
@@ -100,7 +97,6 @@ import {
   SETTLED_REJECTED,
   SETTLED_SKIPPED,
   type SettlementInput,
-  type SettlementScope,
 } from './spec.ts';
 import type { OffsetBox } from './types.ts';
 import { createUnwind } from './unwind.ts';
@@ -140,26 +136,21 @@ type ResolutionAttempt = {
 };
 
 /**
- * Gate state for one settlement.
+ * The open settlement's identity, and the one measurement it took.
  *
  * It lives here rather than on the transactional frame because nothing outside
  * {@link createKernel}'s settlement helpers reads it, it is unobservable, and
- * it is per-settlement rather than per-operation. **A gate release is therefore
- * not a frame transition** — the only transition in settlement is `FINALIZING`.
+ * it is per-settlement rather than per-operation. **Holding it is what makes
+ * staleness answerable by identity**: everything between the measurement and
+ * the join runs behavior code, and a settlement that has been replaced in the
+ * meantime is a different object rather than a different flag.
  */
 type SettlementAttempt = {
-  holds: number;
-  /** Requested during `effect`, invoked after sealing. */
-  start: LandingStart | null;
-  /** Retained past its gate release, so the join can `destroy()` it. */
-  landing: LandingHandle | null;
-  landingHeld: boolean;
   /**
-   * **The one authoritative landing target, measured once at arm.** The serial
+   * **The one authoritative landing target, measured once.** The serial
    * authored commit guarantees the authored DOM is final before this is taken,
-   * so there is no interval in which a target is provisional. The runner
-   * receives these two numbers as `LandingContext.targetX`/`.targetY` and the
-   * join pins to the same pair.
+   * so there is no interval in which a target is provisional. The join pins to
+   * this pair, and the tail is the inverse of the delta that pin applied.
    *
    * **`null` on the X carries the absence.** A skipped measurement is what
    * tells the join to release without pinning, and the two coordinates are
@@ -169,28 +160,7 @@ type SettlementAttempt = {
    */
   targetX: number | null;
   targetY: number;
-  /** False once a `destroy()` throw leaves runner control unrelinquished. */
-  relinquished: boolean;
-  /** Once-only completion latch: the first `done()`/`fail()` wins. */
-  completed: boolean;
-  /** Set when landing creation or the runner reported a consequential failure. */
-  failed: boolean;
-  sealed: boolean;
 };
-
-/** The gate plan is live. */
-const ARM_ARMED = 0;
-/** The operation went away; nothing armed, nothing failed. */
-const ARM_STALE = 1;
-/**
- * Classified; **the settlement is replaced**. Returning from the arm helper is
- * not sufficient on its own — the outcome has to be visible to the caller, so
- * that no terminal callback of the original accepted/rejected/no-op result can
- * run before the queued checkpoint takes over.
- */
-const ARM_FAILED = 2;
-
-type ArmOutcome = typeof ARM_ARMED | typeof ARM_STALE | typeof ARM_FAILED;
 
 /** The queued classified failure. One object per failure — not a hot path. */
 type FailureCheckpoint = Readonly<{
@@ -240,9 +210,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   let visual: HTMLElement | null = null;
   /**
    * The geometry source. Written once at admission, read before `acquireLift`,
-   * never transactional — the same argument that keeps gate state on the
-   * settlement attempt rather than on the frame, so the kernel's published
-   * slice stays seven fields.
+   * never transactional — the same argument that keeps the measured landing
+   * target on the settlement attempt rather than on the frame, so the kernel's
+   * published slice stays seven fields.
    */
   let box: HTMLElement | null = null;
   /**
@@ -251,6 +221,17 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * above it.
    */
   let item: HTMLElement | null = null;
+  /**
+   * The inverse of the linear part the visual inherited at grab, **retained for
+   * the join**. The tail is written on the visual after it is back in flow, so
+   * the delta it travels is a local one and this is what maps it: four numbers
+   * or `null`, read once at activation and never re-read.
+   *
+   * The item's space is deliberately not retained. Which element a translate is
+   * written on decides which space it is spent in, and the tail's element is
+   * the visual — the same element the pin writes on.
+   */
+  let visualSpace: InheritedSpace = null;
   let cancelRequest: { reason: unknown; origin: CancelOrigin } | null = null;
 
   /* ---- the two kernel attempts, at most one of each per operation ---- */
@@ -464,37 +445,17 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   /**
    * Step 3 of teardown: the kernel's own attempt records.
    *
-   * Also the **settlement replacement** step — a failure checkpoint replaces
-   * whatever settlement was open, and the runner that settlement started is the
-   * kernel's to stop. Dropping the reference without `destroy()` would leave a
-   * WAAPI animation writing the transform through `REPORTING` and beyond.
+   * A late resolution is inert after this: it validates against the slot it was
+   * minted for, which is now empty.
    *
-   * A late `done()` or a late resolution is inert after this: both validate
-   * against the slot they were minted for, which is now empty.
+   * **The landing tail is not one of these.** It is controller-scoped and
+   * outlives the operation deliberately — an interpolation that holds nothing
+   * has no reason to end when the operation does.
    */
   const retireAttempts = (): void => {
     resolution = null;
     settlementInput = null;
-
-    const attempt = settlement;
-
-    if (!attempt) {
-      return;
-    }
-
     settlement = null;
-    attempt.completed = true;
-
-    const handle = attempt.landing;
-
-    attempt.landing = null;
-    attempt.start = null;
-
-    if (handle) {
-      unwind(() => {
-        handle.destroy();
-      });
-    }
   };
 
   const clearOperationState = (): void => {
@@ -504,6 +465,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     visual = null;
     box = null;
     item = null;
+    visualSpace = null;
     cancelRequest = null;
     pinned = null;
   };
@@ -565,6 +527,48 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   };
 
   /**
+   * The landing tail: an additive contribution to the released visual's
+   * `translate`, decaying to zero. `null` when nothing is in flight.
+   *
+   * **Controller-scoped, like the click suppressor, and for the same kind of
+   * reason.** The tail exists *after* the operation it belongs to has ended, so
+   * an operation-scoped slot would be cleared before the only thing that ever
+   * reads it.
+   *
+   * **One slot, not a set.** Two tails can coexist in principle — drop one
+   * item, drag and drop a second, and the first may still be gliding — and
+   * keeping both would cost a keyed map and a removal path to preserve an
+   * animation on an item the user has demonstrably stopped caring about.
+   *
+   * A finished animation is left in the slot rather than cleared through a
+   * subscription: cancelling one is a no-op, and one retained {@link Animation}
+   * on a live element is cheaper than a promise per landing.
+   */
+  let tail: Animation | null = null;
+
+  /**
+   * Ends the tail, if one is in flight.
+   *
+   * **Cancel, not finish.** The contribution decays to zero, so cancelling it
+   * lands the visual exactly where flow puts it — there is no position to
+   * settle and nothing to restore.
+   *
+   * `cancel` is a method on an object reachable from a consumer-owned element,
+   * so it is unwound rather than trusted: this runs inside activation and
+   * inside teardown, and both have a load-bearing next statement.
+   */
+  const cancelTail = (): void => {
+    const running = tail;
+
+    if (running) {
+      tail = null;
+      unwind(() => {
+        running.cancel();
+      });
+    }
+  };
+
+  /**
    * Steps 2–7 of teardown.
    *
    * Totality is a property of the sequence *wherever it runs*, not of the stack
@@ -595,7 +599,10 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       clearOperationState();
     } finally {
       // 7. unconditional: no earlier step can prevent ingress from being
-      //    released.
+      //    released, and none may leave a tail interpolating on an element the
+      //    controller has stopped owning. Both are controller-scoped, and the
+      //    click suppressor is disarmed by the abort's own signal.
+      cancelTail();
       ingress.abort();
 
       const settle = settleDestroyed;
@@ -659,7 +666,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * report the initiating error, **then** tear down.
    *
    * **Delivering that report after logical closure is a named exception**, and
-   * the only one beside `LandingHandle.destroy()`. It belongs there for the
+   * the only one there is. It belongs there for the
    * property that admits that one: a terminal diagnostic *tells* the consumer
    * something and asks nothing of them — it publishes no lifecycle or domain
    * event, ignores its return value, performs no operation work, and is
@@ -782,8 +789,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
     // Dispatched, not merely enqueued. A failure raised inside a seam appends
     // to the drain that is already running, but one raised from an *async*
-    // continuation — a readiness rejection, a landing runner's `fail()` — is
-    // the outermost frame, and nothing else would ever drain it.
+    // continuation is the outermost frame, and nothing else would ever drain
+    // it.
     dispatchKernel(FAILED, {
       stage,
       error,
@@ -808,7 +815,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
      * There is no lifetime guard at this site, and adding one here is wrong:
      * the guard belongs in `notify`, where every route shares it. A quality
      * fault's producer is consumer-reaching — a `home` resolver, a landing
-     * factory — and is equally free to destroy before it throws.
+     * policy — and is equally free to destroy before it throws.
      */
     notify,
   };
@@ -818,8 +825,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   /**
    * Drops whatever a seam staged, for the seams the kernel drives directly.
    *
-   * Settlement stages its gate plan and the failure report stages its own; both
-   * are consumed by the seam's `effect` and have no reader afterwards. Leaving
+   * Both the settlement and the failure report stage a sentinel that the
+   * seam's `effect` consumes and nothing reads afterwards. Leaving
    * them in the driver's slot would let the *next* seam to commit without
    * staging anything hand a caller a plan belonging to a transaction that is
    * over — which is the whole reason the slot is consume-and-clear.
@@ -1189,6 +1196,16 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     const owned = lifetimes!;
 
     try {
+      // **Before the origin measurement, and that ordering is the reason it is
+      // here rather than at admission.** Measuring a visual mid-tail is right —
+      // the drag should start from where the element *looks* — but a running
+      // animation outranks inline styles in the cascade, so the lift's own
+      // writes would compose with a contribution that is still decaying.
+      //
+      // A press that never crosses the threshold keeps whatever is in flight,
+      // which is why this is not at `pointerdown`.
+      cancelTail();
+
       const rect = target.getBoundingClientRect();
       const source = box!;
       // **Window 1 of 2, and its position in this function is the whole
@@ -1207,7 +1224,11 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // **One acquisition, three products.** Both inherited spaces are read
       // before this call mutates anything, from computed style alone; no
       // behavior may take a later read for either.
-      const { session, visualSpace, itemSpace } = acquireLift(
+      const {
+        session,
+        visualSpace: above,
+        itemSpace,
+      } = acquireLift(
         target,
         item!,
         spec!.config.liftMode,
@@ -1218,6 +1239,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
       originRect = rect;
       lift = session;
+      visualSpace = above;
       owned.presentation.use(session.dispose);
 
       // Neither step runs for a pointerless operation: there is no pointer to
@@ -1241,6 +1263,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         // field read back.
         box: source,
         boxPre,
+        // Read back from the field the join reads it from, for the same reason
+        // `originRect` is: the tail is spent in this space and must not be able
+        // to disagree with what the behavior was handed.
         visualSpace,
         itemSpace,
         lift: session,
@@ -1307,20 +1332,19 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   /**
    * The settlement seam.
    *
-   * The input travels in a slot rather than as the capability, because the two
-   * phases take different arguments: `prepare` maps the input, `effect`
-   * receives the gate scope. A `prepare` that finds no coherent settlement
+   * The input travels in a slot rather than as an argument, because only
+   * `prepare` takes it and the seam's envelope hands the same capability to
+   * both phases — and this seam has none. A `prepare` that finds no coherent
+   * settlement
    * **throws** and is classified at the seam's own `FAILURE_RESOLUTION` — a
    * fulfilled value that is not an explicit resolution is that failure, and
    * acceptance is never inferred.
    */
-  const settlementTransition: Transition<
-    Part,
-    PreparedSettlement,
-    SettlementScope
-  > = {
+  // `Prepared` is the `true` sentinel `Transition` defaults to: settlement
+  // stages nothing, and since the gate went it carries no capability either.
+  const settlementTransition: Transition<Part> = {
     prepare: (target) => spec!.settlement.prepare(target, settlementInput!),
-    effect(committed, prepared, scope) {
+    effect(committed, prepared) {
       // Between the commit and the behavior's effect: the operation is decided,
       // so nothing may still cancel it. Motion is closed here too rather than
       // only at release, because a cancel at `ACTIVE` reaches settlement with
@@ -1330,47 +1354,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
       owned.motion.dispose();
       owned.cancellation.dispose();
-      spec!.settlement.effect(committed, prepared, scope);
+      spec!.settlement.effect(committed, prepared);
     },
   };
-
-  const createSettlementAttempt = (): SettlementAttempt => ({
-    holds: 0,
-    start: null,
-    landing: null,
-    landingHeld: false,
-    targetX: null,
-    targetY: 0,
-    relinquished: true,
-    completed: false,
-    failed: false,
-    sealed: false,
-  });
-
-  /**
-   * The gate methods **record a request; they arm nothing**. Arming happens
-   * once, after the scope seals, when the complete gate plan is known.
-   *
-   * A duplicate or post-seal request is ignored and reported through the
-   * platform reporter — the same non-consequential channel as a failing
-   * disposer, not `onError`, which is reserved for classified failures. It
-   * never overwrites a watch, never double-increments and never panics, because
-   * a bookkeeping error must not destroy a live drop.
-   */
-  const createSettlementScope = (
-    attempt: SettlementAttempt,
-  ): SettlementScope => ({
-    holdForLanding(start): void {
-      if (attempt.sealed || attempt.landingHeld) {
-        notify(new DraggableWarning('drag: settlement/hold-unavailable'));
-        return;
-      }
-
-      attempt.holds += 1;
-      attempt.start = start;
-      attempt.landingHeld = true;
-    },
-  });
 
   /**
    * Reads `then` **exactly once** and hands back the callable, or `null`.
@@ -1394,9 +1380,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   };
 
   /**
-   * Whether the attempt still owns a live operation in `SETTLING`. Checked on
-   * both sides of `start`, because either `anchorTarget` or the runner itself
-   * may have destroyed the controller.
+   * Whether the attempt still owns a live operation in `SETTLING`. Checked
+   * after `anchorTarget`, which is behavior code and may have destroyed the
+   * controller.
    */
   const settlementLive = (attempt: SettlementAttempt): boolean =>
     settlement === attempt &&
@@ -1406,251 +1392,190 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     current.phase === SETTLING;
 
   /**
-   * The `FINALIZING` counterpart of `settlementLive`. The join calls into three
-   * pieces of foreign code — `anchorTarget`, the runner's `destroy()`, and the
-   * terminal callback — and each of the first two may destroy the controller
+   * The `FINALIZING` counterpart of `settlementLive`. The join calls into code
+   * the kernel does not own — the presentation disposers, the behavior's tail
+   * policy and the terminal callback — and any of it may destroy the controller
    * synchronously. Everything after such a call is checked against this,
    * because `destroy()` is a synchronous terminal barrier.
    */
   const joinLive = (): boolean =>
     !queue.closed && current.operation !== null && current.phase === FINALIZING;
 
-  const rollbackLandingHold = (attempt: SettlementAttempt): void => {
-    if (attempt.landingHeld) {
-      attempt.landingHeld = false;
-      attempt.holds -= 1;
-    }
-
-    attempt.start = null;
-  };
-
   /**
-   * The once-only landing completion latch. `done()` then `fail()`, `fail()`
-   * then `done()`, and a duplicate `done()` all resolve to the first call.
-   */
-  const completeLanding = (
-    attempt: SettlementAttempt,
-    failure: boolean,
-    error: unknown,
-  ): void => {
-    if (attempt.completed) {
-      return;
-    }
-
-    attempt.completed = true;
-
-    if (failure) {
-      // Recorded before the staleness check, so a `fail()` called from inside
-      // `start` is visible to the post-`start` revalidation — which is what
-      // destroys the returned handle instead of publishing it.
-      attempt.failed = true;
-    }
-
-    if (settlement !== attempt || queue.closed) {
-      return; // inert for a retired attempt, at both validation points
-    }
-
-    if (failure) {
-      // Inside `start` this has to *latch*, so the arm phase returns
-      // `ARM_FAILED` rather than publishing a runner for a settlement that is
-      // already replaced. Asynchronously there is no open phase to latch onto,
-      // and this callback is exactly the operation-scoped exception to "`fail`
-      // only inside a seam": it is minted per attempt and inert once the
-      // attempt is retired.
-      if (driver.isInSeam()) {
-        driver.requestFailure(FAILURE_LANDING_INTERRUPTED, error);
-      } else {
-        failOperation(FAILURE_LANDING_INTERRUPTED, error);
-      }
-
-      return;
-    }
-
-    dispatchKernel(LANDING_SETTLED, attempt);
-  };
-
-  /**
-   * Arms the complete gate plan, once, after the scope sealed.
+   * Takes the one authoritative landing measurement, and reports whether the
+   * settlement survived it.
    *
-   * The landing hold is **reserved before `start` is called** and the handle is
-   * **published only after it returns**. A runner that calls `done()` from
-   * inside `start` — `landing({ duration: 0 })`, or any synchronous runner —
-   * therefore always finds its hold, and its queued completion can never be
-   * applied before the handle exists. Reserve-before-call and
-   * revalidate-after-return are two different fixes: the first makes a
-   * synchronous `done()` safe, the second makes a synchronous `destroy()` safe.
+   * **Called once per settlement.** The serial authored commit guarantees the
+   * authored DOM is final here, so there is no interval in which a target is
+   * provisional. A second, advisory call would read a stale target that the
+   * join's pin then silently corrects, which is this bug class's signature: the
+   * landing opens with a jump and still ends correctly.
+   *
+   * Measured unconditionally, because the join pins to this value whether or
+   * not a tail follows it.
+   *
+   * **Unclassified, not classified.** Failing the settlement for a measurement
+   * throw tells a consumer whose reorder is already committed and accepted that
+   * it failed, over a fault that is entirely presentational. The measurement
+   * includes the behavior's own trustworthiness precondition, which it checks
+   * from the inside and reports through the same throw: a target that cannot be
+   * produced and one that cannot be trusted are the same fault.
+   *
+   * No stage is attached, and none is needed: a dedicated landing-target stage
+   * would exist only so a non-consequential fault could reach `onError` at all,
+   * and a warning reaches it without one. The message carries what such a stage
+   * would have said.
    */
-  const armSettlement = (attempt: SettlementAttempt): ArmOutcome => {
-    // **Called once per settlement, and this is the authoritative
-    // measurement.** The serial authored commit guarantees the authored DOM is
-    // final here, so there is no interval in which a target is provisional. A
-    // second, advisory call here would run before any readiness acknowledgement
-    // could arrive — arm is synchronous at the end of the settlement drain —
-    // and would read a stale target that the join's pin then silently corrects,
-    // which is this bug class's signature: the landing opens with a jump and
-    // still ends correctly.
-    //
-    // Measured unconditionally, before the landing branch, because the join
-    // pins to this value whether or not a runner was installed.
-    //
-    // **Unclassified, not classified.** Returning `ARM_FAILED` from
-    // `runLeafValue` for a measurement throw tells a consumer whose reorder is
-    // already committed and accepted that it failed — over a fault that is
-    // entirely presentational. The measurement includes the behavior's own
-    // trustworthiness precondition, which it checks from the inside and reports
-    // through the same throw: a target that cannot be produced and one that
-    // cannot be trusted are the same fault.
-    //
-    // No stage is attached, and none is needed: a dedicated landing-target
-    // stage would exist only so a non-consequential fault could reach `onError`
-    // at all, and a warning reaches it without one. The message carries what
-    // such a stage would have said.
+  const measureTarget = (attempt: SettlementAttempt): boolean => {
     const anchor = driver.runUnclassifiedValue(
       () => spec!.anchorTarget(current),
       'drag: landing/target-unavailable',
     );
 
-    // `anchorTarget` is behavior code and may have destroyed the controller.
-    // Calling the consumer's runner after that would breach the terminal
-    // barrier `destroy()` establishes. Checked before the skip branch as well
-    // as before `start`, because a destroyed controller must not go on to
-    // advance a settlement either.
+    // `anchorTarget` is behavior code and may have destroyed the controller. A
+    // destroyed controller must not go on to join a settlement, so this is
+    // checked before the skip branch as well as after a successful reading.
     if (!settlementLive(attempt)) {
-      rollbackLandingHold(attempt);
-      return ARM_STALE;
+      return false;
     }
 
     if (anchor === undefined) {
       // **Skipped, not faked.** `onError` has already been delivered by the
-      // driver. The hold is rolled back and `start` is skipped entirely, so
-      // there is no runner and no animation; `targeted` stays false, which is
-      // what tells the join to release without pinning. The settlement is
-      // **not** failed and the domain result stands — the DOM commit already
-      // happened and the reorder is real — so this returns `ARM_ARMED` and the
-      // operation joins immediately and terminates normally.
+      // driver. `targetX` stays null, which is what tells the join to release
+      // without pinning and to install no tail. The settlement is **not**
+      // failed and the domain result stands — the DOM commit already happened
+      // and the reorder is real — so the operation joins immediately and
+      // terminates normally.
       //
       // A jump cut is honest. The alternative is worse: a detached placeholder
       // reads `0×0` at the viewport origin, so "landing from the unrepaired
       // position" is a confident twelve-frame animation to `(0,0)` followed by
       // a teleport back.
-      rollbackLandingHold(attempt);
-      attempt.targetX = null;
-      return ARM_ARMED;
+      return true;
     }
 
     const origin = originRect!;
+
     // Converted to an **origin-relative delta**, the space `compose` and
     // `lift.write` consume. `anchorTarget` produces a viewport point and the
-    // kernel converts once, here, because the runner has no other way to reach
-    // the grab basis — see README, deliberate differences. **The borrow ends
-    // here.** Both fields of `anchor` are read on this line and the object is
-    // never referenced again: a behavior is free to return one reusable buffer
-    // per controller, and both first-party ones do.
-    const targetX = anchor.x - origin.x;
-    const targetY = anchor.y - origin.y;
-
-    attempt.targetX = targetX;
-    attempt.targetY = targetY;
-
-    const { start } = attempt;
-
-    if (!start) {
-      return ARM_ARMED;
-    }
-
-    const session = lift!;
-    // **THE sample of the recorded delta.** Read from the kernel's own session
-    // rather than recomputed from the pointer, because the two agree for
-    // exactly one behavior — one whose `moved` writes the raw pointer delta on
-    // both axes — and disagree for every behavior that constrains, clamps,
-    // snaps or externally drives its visual, and for every pointerless
-    // operation, which has no pointer to subtract.
-    //
-    // Read into two fields, not aliased. `rendered` is one mutable object
-    // written in place on the hot path; handing it to a consumer's runner would
-    // let a late `lift.write` — outside the contract, but not refused — move a
-    // `from` the runner has already read, and would publish a kernel-mutable
-    // object into consumer code. The protection costs nothing: the two numbers
-    // are fields on a context that already allocates, and `targetX`/`targetY`
-    // beside them are protected by the same shape rather than published as the
-    // object the join pin also holds.
-    //
-    // **This read is the boundary of the rendering interval.** Behavior
-    // rendering goes through `write` up to here; from here the landing runner
-    // is the deliberate writer, until its `destroy()` relinquishes the
-    // transform for the join pin.
-    const { rendered } = session;
-    const context: LandingContext = {
-      visual: visual!,
-      compose: session.compose,
-      fromX: rendered.x,
-      fromY: rendered.y,
-      targetX,
-      targetY,
-      realm,
-    };
-
-    let handle: LandingHandle | undefined;
-
-    // `runLeaf`, not `runLeafValue`: a runner that calls `fail()` synchronously
-    // latches a failure *and still returns a handle*, and that handle has to be
-    // destroyed rather than leaked.
-    const started = driver.runLeaf(() => {
-      handle = start(
-        context,
-        () => {
-          completeLanding(attempt, false, null);
-        },
-        (error: unknown) => {
-          completeLanding(attempt, true, error);
-        },
-      );
-    }, FAILURE_LANDING_CREATE);
-
-    // `attempt.failed` is the contract's stated mechanism for a synchronous
-    // `fail()`; `started` catches the same case *today*, because that `fail()`
-    // necessarily latches on the open phase. They are two readings of one fact
-    // and neither is load-bearing alone — a runner that reports failure through
-    // any future channel that does not latch would leave only the flag.
-    if (!started || attempt.failed) {
-      if (handle !== undefined) {
-        const runner = handle;
-
-        unwind(() => {
-          runner.destroy();
-        });
-      }
-
-      rollbackLandingHold(attempt);
-      return ARM_FAILED;
-    }
-
-    // `start` may have destroyed the controller and STILL returned this live
-    // handle. Teardown ran first, saw no published handle and retired the
-    // attempt, so publishing now would leave a runner nothing owns.
-    if (!settlementLive(attempt)) {
-      const runner = handle!;
-
-      unwind(() => {
-        runner.destroy();
-      });
-      rollbackLandingHold(attempt);
-      return ARM_STALE;
-    }
-
-    attempt.landing = handle!;
-    return ARM_ARMED;
+    // kernel converts once, here. **The borrow ends here.** Both fields of
+    // `anchor` are read on this line and the object is never referenced again:
+    // a behavior is free to return one reusable buffer per controller, and both
+    // first-party ones do.
+    attempt.targetX = anchor.x - origin.x;
+    attempt.targetY = anchor.y - origin.y;
+    return true;
   };
 
   /**
-   * The gate is complete: relinquish the runner, pin, release presentation,
-   * then call the terminal callback.
+   * Starts the landing tail on the **released** visual: the residual
+   * displacement, decaying to zero.
    *
-   * **Ordering is normative.** `destroy()` precedes the pin so a running WAAPI
-   * animation cannot override the inline transform. Every step before the
-   * release is individually fallible and the release is in a `finally`: the
-   * join calls into code the kernel does not own, and none of it may strand the
-   * placeholder or the inline styles.
+   * **It claims nothing, which is the whole of why it may outlive the
+   * operation.** The animation has no fill, so it writes no inline style and is
+   * invisible to a consumer reading or setting one; it reverts by itself, so
+   * there is no cleanup obligation to place anywhere; one call cancels it to a
+   * settled state; and it dies with the element, so removal, reparenting and
+   * replacement need no handling.
+   *
+   * **The individual `translate` property, added rather than assigned.**
+   * `transform` would be wrong twice over: it *replaces* an authored
+   * `rotate(4deg)` for the duration, and it overrides a consumer's own running
+   * transform animation. Additive `transform` is wrong too — additive transform
+   * lists concatenate, so the offset would land inside the element's own
+   * `scale()` and move it by a multiple of a delta measured in viewport space.
+   * `translate` applies *before* `transform` in the used-value chain
+   * (`translate → rotate → scale → transform`), so the offset sits outside the
+   * element's own transform and needs no correction; it is also
+   * origin-independent, where an inverse `transform` would have to correct for
+   * whatever `transform-origin` the visual was restored to.
+   *
+   * **The one expression that changes units.** The endpoints are viewport
+   * deltas and a `translate` is a local quantity, so the vector is projected
+   * through the inverse of the space above the visual — captured at activation,
+   * which is the ancestry the released element returns to. It is deliberately
+   * not the session's own projection: that one is `null` for both lifted modes,
+   * correctly, because a `fixed` element's local space is viewport space, while
+   * the released element is in flow in every mode.
+   *
+   * Visual continuity is best-effort and resource safety is not: an ancestry
+   * change during the tail sends it along the wrong path, and it still ends at
+   * a zero contribution, so the element lands exactly where flow puts it.
+   */
+  const startTail = (
+    fromX: number,
+    fromY: number,
+    targetX: number | null,
+    targetY: number,
+  ): void => {
+    // The presentation disposers ran between the pin and here, and they are
+    // consumer-reachable, so the controller may already be closed — in which
+    // case nothing further is asked of the behavior and nothing is written.
+    if (targetX === null || !joinLive()) {
+      return; // no measurement, or no controller left to interpolate for
+    }
+
+    const dx = fromX - targetX;
+    const dy = fromY - targetY;
+
+    if (dx === 0 && dy === 0) {
+      return; // the visual is already where it was pinned
+    }
+
+    // Behavior code, and its own policy: it decides whether this drop has a
+    // journey worth interpolating and how long that takes. Unwound rather than
+    // classified, because a tail is presentation and a presentational fault may
+    // not reach a consumer whose drop has already been decided and reported.
+    const timing = unwind(() =>
+      spec!.landingTail?.(current, fromX, fromY, targetX, targetY),
+    );
+
+    // The policy is consumer-authored through `landing()` and may have
+    // destroyed the controller, and a destroyed controller writes nothing.
+    if (!timing || !joinLive()) {
+      return;
+    }
+
+    const space = visualSpace;
+    const element = visual!;
+
+    // `animate` is itself overridable on a consumer-owned element, and the
+    // duration domain is the platform's — a `NaN` or a negative is refused
+    // here, as a warning that changed nothing.
+    tail =
+      unwind(() =>
+        element.animate(
+          [
+            {
+              translate: space
+                ? `${space.a * dx + space.c * dy}px ${
+                    space.b * dx + space.d * dy
+                  }px`
+                : `${dx}px ${dy}px`,
+            },
+            { translate: '0 0' },
+          ],
+          {
+            duration: timing.duration,
+            easing: timing.easing,
+            composite: 'add',
+          },
+        ),
+      ) ?? null;
+  };
+
+  /**
+   * Pin, release presentation completely, then hand the rest to the tail.
+   *
+   * **Ordering is normative and it is what makes the tail sound.** The pin
+   * writes the authoritative position through the lift session; the release
+   * gives the visual's inline styles, its place in flow and the behavior's own
+   * presentation back to the consumer; only then does anything interpolate. So
+   * the terminal callback runs in a world the library holds no claim on.
+   *
+   * Every step before the release is individually fallible and the release is
+   * in a `finally`: the join calls into code the kernel does not own, and none
+   * of it may strand the placeholder or the inline styles.
    */
   const joinSettlement = (attempt: SettlementAttempt): void => {
     const owned = lifetimes!;
@@ -1661,63 +1586,41 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     commit();
 
     let failed = false;
+    let fromX = 0;
+    let fromY = 0;
 
     try {
       // **The entry revalidation, written out because nothing else performs
-      // it.** With the measurement taken at arm there is no consumer call here
-      // to revalidate as a side effect — and the code between arm and here is
-      // consumer-reachable, because `anchorTarget` and the runner's `start`
-      // both run on the way. Without this check a destroy raised from either
-      // would still reach the pin and the terminal callback.
+      // it.** With the measurement already taken there is no consumer call here
+      // to revalidate as a side effect — and the code between it and here is
+      // consumer-reachable, because `anchorTarget` runs on the way. Without
+      // this check a destroy raised from it would still reach the pin and the
+      // terminal callback.
       if (!joinLive()) {
         return;
       }
 
-      // **No second measurement.** `anchorTarget` runs once, at arm, and the
-      // join pins to the same value the runner was handed — so the animation
-      // and the pin cannot disagree about where the drop ends. A provisional
-      // target measured here instead is survivable for exactly that reason, and
-      // wrong for the same one.
-      const { targetX } = attempt;
-      const handle = attempt.landing;
+      // **No second measurement.** `anchorTarget` runs once, before the join,
+      // and the pin lands on that same value — so where the drop ends is
+      // decided by one reading and the tail is the inverse of the delta this
+      // pin applied, rather than of a second opinion about it.
+      const { targetX, targetY } = attempt;
 
-      if (handle) {
-        attempt.landing = null;
+      if (targetX !== null) {
+        // **Sampled before the pin, because the pin overwrites it.** `rendered`
+        // is where the visual is — the delta the drag last wrote, which is what
+        // the tail has to start from, and which is not the pointer's for any
+        // behavior that constrains, clamps, snaps or drives its visual, nor for
+        // a pointerless operation.
+        ({ x: fromX, y: fromY } = session.rendered);
 
-        try {
-          handle.destroy();
-        } catch (error) {
-          // Best-effort: a custom runner must not be able to strand
-          // presentation. But it may keep writing the transform after the pin,
-          // so this operation no longer claims the runner relinquished it.
-          attempt.relinquished = false;
-          notify(
-            new DraggableWarning('drag: landing/runner-destroy-failed', {
-              cause: error,
-            }),
-          );
+        if (
+          !driver.runLeaf(() => {
+            session.write(targetX, targetY);
+          }, FAILURE_RENDERER_WRITE)
+        ) {
+          failed = true;
         }
-
-        // The runner is the consumer's code and gets the same treatment: a
-        // `destroy()` that destroys the controller already retired this
-        // attempt, so neither the pin nor the terminal callback may run.
-        if (!joinLive()) {
-          return;
-        }
-      }
-
-      // **A null target means the measurement was skipped**: no pin, no
-      // animation, and presentation is released from where the visual stands —
-      // the jump cut. Everything after this point still runs, because the
-      // settlement was never failed: the release below is unconditional and
-      // `finalized` publishes the domain result the frame already holds.
-      if (
-        targetX !== null &&
-        !driver.runLeaf(() => {
-          session.write(targetX, attempt.targetY);
-        }, FAILURE_RENDERER_WRITE)
-      ) {
-        failed = true;
       }
     } finally {
       // Unconditional. Every fallible step above is individually wrapped, so
@@ -1745,6 +1648,21 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       return;
     }
 
+    // **After the release and before the terminal.** After, because a tail
+    // installed while the visual is still lifted would interpolate a fixed,
+    // top-layer element and would then have to be released by something;
+    // before, because the consumer's terminal callback may remove the very
+    // element this is about, and an animation started onto a removed node is a
+    // no-op rather than a fault.
+    startTail(fromX, fromY, attempt.targetX, attempt.targetY);
+
+    // The release and the tail policy are both foreign code, and `destroy()` is
+    // a synchronous terminal barrier: a controller closed by either owes no
+    // terminal callback.
+    if (!joinLive()) {
+      return;
+    }
+
     driver.runLeaf(() => {
       spec!.finalized(current);
     }, FAILURE_TERMINAL_CALLBACK);
@@ -1754,22 +1672,13 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     dispatchKernel(RETIRE, current.operation);
   };
 
-  const advanceSettlement = (attempt: SettlementAttempt): void => {
-    // `failed` is redundant with the hold accounting as things stand — every
-    // consequential failure returns *without* releasing its hold, so the count
-    // can no longer reach zero. It is kept because the contract states the
-    // stopper as the flag, and because "a failed settlement never finalizes"
-    // should not depend on a bookkeeping accident somewhere else.
-    if (settlement !== attempt || attempt.failed || attempt.holds > 0) {
-      return;
-    }
-
-    joinSettlement(attempt);
-  };
-
   /**
-   * Drives one settlement: prepare → stamp `SETTLING` → commit → request → seal
-   * → arm.
+   * Drives one settlement: prepare → stamp `SETTLING` → commit → measure →
+   * join.
+   *
+   * **One synchronous sequence, and nothing suspends it.** Settlement holds no
+   * gate, so the only thing between the seam and the terminal is the behavior's
+   * own measurement.
    */
   const openSettlement = (input: SettlementInput): void => {
     // However the round-trip ended, it is over; a later completion for it is
@@ -1777,7 +1686,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     resolution = null;
     settlementInput = input;
 
-    const attempt = createSettlementAttempt();
+    const attempt: SettlementAttempt = { targetX: null, targetY: 0 };
     let outcome: SeamOutcome | undefined;
 
     settlement = attempt;
@@ -1785,29 +1694,20 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     runStamped(SETTLING, () => {
       outcome = driver.runCore(
         settlementTransition,
-        createSettlementScope(attempt),
+        undefined,
         FAILURE_RESOLUTION,
       );
     });
 
     dropStaged();
     settlementInput = null;
-    attempt.sealed = true;
 
-    if (outcome !== SEAM_COMMITTED) {
-      // Drop every unarmed request and arm **nothing**. Arming a half-requested
-      // plan would start a runner for a settlement that has already failed or
-      // been abandoned; the queued checkpoint decides instead.
-      rollbackLandingHold(attempt);
-      attempt.holds = 0;
-      return;
+    // A settlement that never committed does not land: the queued checkpoint
+    // decides what the operation ends as, and measuring for a pin that will
+    // never happen would call behavior code for nothing.
+    if (outcome === SEAM_COMMITTED && measureTarget(attempt)) {
+      joinSettlement(attempt);
     }
-
-    if (armSettlement(attempt) === ARM_FAILED) {
-      return; // replaced: no advance, and no terminal callback of this outcome
-    }
-
-    advanceSettlement(attempt);
   };
 
   /**
@@ -2076,21 +1976,6 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     openSettlement(input);
   };
 
-  const handleLandingSettled = (attempt: SettlementAttempt): void => {
-    if (
-      settlement !== attempt ||
-      current.phase !== SETTLING ||
-      !attempt.landingHeld
-    ) {
-      return;
-    }
-
-    // The handle itself is retained: the join destroys it before the pin.
-    attempt.landingHeld = false;
-    attempt.holds -= 1;
-    advanceSettlement(attempt);
-  };
-
   const handleCancel = (operation: OperationIdentity): void => {
     if (current.operation !== operation) {
       return;
@@ -2225,8 +2110,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       return;
     }
 
-    // The settlement is **replaced**: whatever the previous attempt armed is
-    // over, and the runner it started is the kernel's to stop.
+    // The settlement is **replaced**: whatever the previous attempt measured
+    // is over, and nothing of it may reach the join.
     retireAttempts();
 
     settlementInput = {
@@ -2251,12 +2136,10 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       report: new DraggableError(checkpoint.stage, checkpoint.error),
     };
 
-    const attempt = createSettlementAttempt();
-
-    // Sealed from the start: a failed settlement holds no gate and lands
-    // nothing. A request is ignored and reported, exactly like a post-seal one.
-    attempt.sealed = true;
-    settlement = attempt;
+    // **The settlement is replaced, and this one never lands.** The report
+    // runs through the same seam and stops there: nothing measures, nothing
+    // pins, and the terminal is published from `ERROR_REPORTED` instead.
+    settlement = { targetX: null, targetY: 0 };
 
     // The same seam as an ordinary settlement, because the behavior owns the
     // terminal classification either way — but stamped `REPORTING`, not
@@ -2274,11 +2157,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
     try {
       runStamped(REPORTING, () => {
-        driver.runCore(
-          settlementTransition,
-          createSettlementScope(attempt),
-          checkpoint.stage,
-        );
+        driver.runCore(settlementTransition, undefined, checkpoint.stage);
       });
     } finally {
       dropStaged();
@@ -2399,9 +2278,6 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         break;
       case RESOLUTION_SETTLED:
         handleResolutionSettled(argument as ResolutionAttempt);
-        break;
-      case LANDING_SETTLED:
-        handleLandingSettled(argument as SettlementAttempt);
         break;
       case FAILED:
         handleFailed(argument as FailureCheckpoint);

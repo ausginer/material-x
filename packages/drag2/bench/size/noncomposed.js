@@ -75,7 +75,7 @@ export function buildSlots(context, config) {
     // D-43's default, applied by hand exactly as `assemble()` applies it: with
     // no `box` slot written, the box resolver *is* the visual resolver.
     box,
-    startLanding: land.startLanding,
+    landingTiming: land.landingTiming,
 
     report: displace.report,
     settle: displace.settle,

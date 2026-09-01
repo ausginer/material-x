@@ -1,22 +1,21 @@
-// oxlint-disable typescript/no-unsafe-type-assertion
 /**
  * The tier-A half of the composition model: properties that are compile errors
  * rather than runtime checks (contract 03 §Fragments are public, installers are
  * opaque; D-30, I-10).
  */
 import { describe, expectTypeOf, it } from 'vitest';
-import type { LandingStart, SettlementScope } from '../../src/kernel/spec.ts';
 import type { LandingContribution } from '../../src/shared/composition.ts';
 import type {
   AxisContribution,
   AxisInstaller,
   DisplacementContribution,
   InsertionGeometry,
+  LandingTiming,
   SortableLandingInstaller,
 } from '../../src/sortable/feature.ts';
 
 declare const insertion: InsertionGeometry;
-declare const start: LandingStart;
+declare const landingTiming: LandingTiming;
 declare const dispose: () => void;
 
 describe('AxisInstaller', () => {
@@ -135,7 +134,7 @@ describe('SortableLandingInstaller', () => {
     // for F-117's reason: a fresh literal in a return position is not
     // excess-property-checked, so the installer-shaped form would compile.
     const contribution: LandingContribution = {
-      startLanding: start,
+      landingTiming,
       // @ts-expect-error — `insertion` is not a member of this group
       insertion,
     };
@@ -155,18 +154,13 @@ describe('SortableLandingInstaller', () => {
  * migrating them would mean re-asserting a property the decision removed.
  */
 
-describe('DisplacementContribution', () => {
-  it('should not reach the settlement scope', () => {
-    // I-10, re-pointed by D-157 at the group that replaced ~~`DisplacementView`~~:
-    // a displacement feature structurally cannot become a lifecycle gate.
-    // `SettlementScope` is passed only to `settlement.effect`, so an in-flight
-    // displacement can never delay release, settlement or teardown — `settle()`
-    // is called *by* release rather than awaited by it.
-    const displacement = null as unknown as DisplacementContribution;
-
-    // @ts-expect-error: no gate is reachable from a displacement contribution
-    const scope: SettlementScope = displacement;
-
-    void scope;
-  });
-});
+/**
+ * **The settlement-gate row has no subject** (D-155). It asserted that a
+ * `DisplacementContribution` was not assignable to `SettlementScope` — that a
+ * displacement feature structurally could not become a lifecycle gate. There is
+ * no `SettlementScope` and no gate of any kind: settlement is one synchronous
+ * sequence that suspends for nothing, and the landing is a tail started after
+ * the terminal rather than a hold before it. The row is deleted rather than
+ * re-pointed, because re-pointing it would mean asserting non-assignability to
+ * a type that no longer exists.
+ */

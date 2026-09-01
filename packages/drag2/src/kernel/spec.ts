@@ -227,7 +227,7 @@ export type ActivationScope = Readonly<{
   lift: BehaviorLiftSession;
   /** Closed at release, cancel, destroy, panic. */
   motion: LifetimeScope;
-  /** Closed at finalization, after both gates. */
+  /** Closed at finalization, immediately after the kernel's final pin. */
   presentation: LifetimeScope;
 }>;
 
@@ -312,80 +312,29 @@ export type SettlementInput =
 export type PreparedSettlement = true;
 
 /**
- * **One coordinate space, and this is it.**
+ * **How the landing tail is timed** — a duration in milliseconds and a CSS
+ * easing function, or `null` from `BehaviorSpec.landingTail` for no tail at
+ * all.
  *
- * The four coordinates are all *origin-relative viewport deltas*: CSS pixels to
- * translate the visual by, measured from where its border box sat when the drag
- * was admitted. That is exactly the space `compose()` and the kernel's own
- * `lift.write()` consume, so a runner never converts anything —
- * `compose(fromX, fromY)` reproduces the transform the drag last wrote, and
- * `compose(targetX, targetY)` is where the visual has to end up.
+ * It carries timing and nothing else. Where the tail travels from is the
+ * kernel's own arithmetic, and what it claims — an additive contribution to
+ * the visual's `translate`, decaying to zero — is fixed by the kernel rather
+ * than chosen here.
  *
- * It is deliberately **not** a viewport point: a runner's only writer is
- * `compose`, which cannot convert a point, because the context carries no
- * origin rect.
- *
- * The space is unaffected by the lift mode. Both lifted modes translate the
- * delta directly; the in-place mode projects it through the inverse of its
- * inherited box space, inside `compose`. A runner sees the same numbers either
- * way.
+ * **The duration domain is `animate()`'s.** Nothing tests it: a `NaN`, a
+ * negative or a string is refused by the platform, and the refusal reaches the
+ * consumer as a warning that changed nothing. `Infinity` is accepted and never
+ * completes, which leaves the visual holding its displacement until the
+ * next drag cancels it — a cosmetic misuse, with no terminal waiting on it.
  */
-export type LandingContext = Readonly<{
-  visual: HTMLElement;
-  /** Full transform string for an origin-relative delta, including the base. */
-  compose(x: number, y: number): string;
-  /** Where the visual is now, as a delta. Equal to the last drag translation. */
-  fromX: number;
-  fromY: number;
-  /**
-   * Where it should land, as a delta. **Authoritative, and measured once**: the
-   * authored DOM is final before `anchorTarget` runs, so this is never
-   * provisional and no second measurement supersedes it. The kernel's pin at
-   * the join uses these same two numbers.
-   */
-  targetX: number;
-  targetY: number;
-  realm: DOMRealm;
-}>;
-
-export type LandingHandle = Readonly<{
-  /**
-   * Stop, and relinquish control of the visual's transform so the kernel's
-   * final pin is not overridden. Never writes a final position, never
-   * dispatches.
-   */
-  destroy(): void;
-}>;
-
-export type LandingStart = (
-  context: LandingContext,
-  done: () => void,
-  fail: (error: unknown) => void,
-) => LandingHandle;
-
-/**
- * The gate method **records a request and arms nothing**. Arming happens once,
- * after the scope seals, when the complete gate plan is known.
- *
- * Reserving the hold before calling `start` is what stops a runner that calls
- * `done()` from inside `start` — `landing({ duration: 0 })`, for instance —
- * finding no hold.
- */
-export type SettlementScope = Readonly<{
-  /**
-   * Hold the landing gate. The kernel builds the context and owns the attempt.
-   * At most once.
-   */
-  holdForLanding(start: LandingStart): void;
+export type LandingTail = Readonly<{
+  duration: number;
+  easing: string;
 }>;
 
 export type SettlementTransition<Part extends object> = Readonly<{
   prepare(draft: Draft<Part>, input: SettlementInput): PreparedSettlement;
-  effect(
-    current: Readonly<Frame<Part>>,
-    prepared: PreparedSettlement,
-    scope: SettlementScope,
-  ): void;
+  effect(current: Readonly<Frame<Part>>, prepared: PreparedSettlement): void;
 }>;
 
 // ---------------------------------------------------------------------------
@@ -480,7 +429,30 @@ export type BehaviorSpec<
    */
   anchorTarget(current: Readonly<Frame<Part>>): Point;
 
-  /** Presentation is released and both gates are complete. Terminal callback. */
+  /**
+   * **The tail's timing for this settlement, or `null` for no tail.** Called at
+   * the join, after presentation has been released and before the terminal
+   * callback, and only when a target was measured.
+   *
+   * The four coordinates are the tail's endpoints in the one landing space —
+   * origin-relative viewport deltas, where the visual is and where it was
+   * pinned — so a behavior offering a distance-derived duration has everything
+   * it needs and reads no DOM to get it.
+   *
+   * **The answer is a policy decision and nothing else.** A behavior returns
+   * `null` where the drop has no journey to interpolate — a visual that stayed
+   * where it landed, a recovery that must be immediate — and a behavior that
+   * omits the member never tails at all.
+   */
+  landingTail?(
+    current: Readonly<Frame<Part>>,
+    fromX: number,
+    fromY: number,
+    targetX: number,
+    targetY: number,
+  ): LandingTail | null;
+
+  /** Presentation is released and the drop is settled. Terminal callback. */
   finalized(current: Readonly<Frame<Part>>): void;
 
   /**
@@ -492,7 +464,7 @@ export type BehaviorSpec<
    * `DraggableError` means the outcome changed: `admit` threw and the drag will
    * not start, or the controller panicked. A `DraggableWarning` means it did
    * not — a landing measurement that could not be trusted, a disposer that
-   * refused, a gate hold that was already taken. A warning is therefore **not
+   * refused, an interpolation the platform declined to start. A warning is therefore **not
    * proof that the operation is over**, and the terminal for that operation
    * still publishes afterwards.
    *

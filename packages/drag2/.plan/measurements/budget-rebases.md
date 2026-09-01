@@ -578,3 +578,31 @@ Measured against `55eaaf1b` with box-quad rebuilt in both states — the depende
 **Five controls moved and are re-declared; two held at exactly zero.** The four free-drag rows and `kernel.js` are +60 to +74. That is not a transfer the control exists to catch: those rows carry the kernel, this change is in the kernel and in a package both behaviors import, and a control that stayed flat here would mean the free-drag graph had somehow stopped reaching `acquireLift`. They are re-declared at their landed figures under the ordinary rule. The two that held — `drag.js`, whose graph is the two error classes, and baseline B, which is a different package entirely — are the rows this change genuinely cannot reach, and their zeroes are the evidence that the instrument was still looking.
 
 **The minified column is not the brotli column, and it says so loudly here.** Minified growth is +146 to +150 on every sortable row and +100 to +112 on the free-drag and kernel rows, against brotli deltas of +53 to +77. The new tokens compress well because they repeat — `SPACE_A`-style slot reads, a second `inheritedSpaceOf` call, `itemSpace` beside `visualSpace`. Recorded because both columns are always recorded, and because a pass reading only the minified figure would price this change at twice what it ships for.
+
+**Re-based again 2026-09-01, D-155, and this is a re-base after a shrink — the direction §18 says ends in one.** Deleting the landing gate takes **226–377 B** off every composition, and the controls move with it because the deletion is in the kernel. Measured against `09f26770`, joint, with the pre-change tree built from a worktree of that commit rather than subtracted from an earlier list.
+
+| Row | pre-slice `09f26770` | landed | D-155 | new budget | slack |
+| --- | --- | --- | --- | --- | --- |
+| minimal | 9,901 | 9,675 | **−226** | 9,825 | 150 |
+| minimal (xy) | 9,781 | 9,520 | **−261** | 9,670 | 150 |
+| minimal + layoutAnimation | 10,286 | 10,005 | **−281** | 10,155 | 150 |
+| xy + layoutAnimation | 10,136 | 9,853 | **−283** | 10,003 | 150 |
+| minimal + landing | 10,161 | 9,814 | **−347** | 9,964 | 150 |
+| complete | 10,521 | 10,144 | **−377** | 10,294 | 150 |
+| free drag minimal | 7,800 | 7,557 | **−243** | 7,707 | 150 |
+| free drag + bounds | 7,951 | 7,705 | **−246** | 7,855 | 150 |
+| free drag + landing | 8,061 | 7,711 | **−350** | 7,861 | 150 |
+| free drag complete | 8,216 | 7,862 | **−354** | 8,012 | 150 |
+| both behaviors | 11,908 | 11,544 | **−364** | 11,694 | 150 |
+| vocabulary root — `drag.js` | 142 | 142 | **0** | 205 | 63 |
+| kernel root — `kernel.js` | 6,116 | 5,858 | **−258** | 6,008 | 150 |
+| baseline A — feature-matched, non-composed | 10,340 | 9,971 | **−369** | 10,121 | 150 |
+| baseline B — shipped `@ydinjs/drag` sortable.js | 6,889 | 6,889 | **0** | 7,040 | 151 |
+
+**Two controls held at exactly zero and five are re-declared.** `drag.js` and baseline B are the rows a kernel change cannot reach, and they did not move. The four free-drag controls and `kernel.js` moved by −243 to −354 and are re-declared at their landed figures, because the deletion is in the kernel and in the settlement both behaviors drive — a control that stayed still there would be measuring nothing.
+
+**The pre-slice controls were already 7–16 B red at `09f26770`**, from the box-quad update that commit carries, and that drift is inside these figures rather than attributed to D-155. It is small enough not to change a conclusion and is stated so the next pass does not subtract it twice.
+
+**No module entered or left any graph.** Every module count is identical on both sides — 31/30/32/31/33/34 and 25/26/27/28/45 — with `shared/landing.js` standing exactly where `shared/landing-runner.js` stood. So the whole of this is machinery rather than topology, which is what makes the **minimal** row the interesting one: a composition that installs no landing was carrying **226 B** of gate. A feature's own module tree-shakes; the lifecycle it participates in does not.
+
+**One number in the table is the implementation choosing the settled reading over the cheaper one.** Answering `prefers-reduced-motion` with *no tail* instead of a zero-length one is **5 B smaller** on the two rows that install a landing, and it was rejected: the published contract reads the `duration` thunk once per landing **before** the media query, so refusing early would make a consumer's settle-time side effect observable only for users who have not asked for reduced motion. The 5 B is recorded rather than netted off.

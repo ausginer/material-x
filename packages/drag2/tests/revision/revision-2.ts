@@ -150,7 +150,7 @@ import {
 import type { ReorderProposal } from '../../src/sortable/domain.ts';
 import type {
   AxisInstaller,
-  LandingStart,
+  LandingTiming,
   AxisContribution,
   SortableDisplacementInstaller,
   SortableLandingInstaller,
@@ -437,12 +437,9 @@ const installMyDisplacement: SortableDisplacementInstaller = (ctx) => ({
   retire: () => ctx.report(undefined),
 });
 
-/** The `landing` key's own installer — the one producer of `startLanding`. */
+/** The `landing` key's own installer — the one producer of `landingTiming`. */
 const installMyLanding: SortableLandingInstaller = () => ({
-  startLanding: (_context, done) => {
-    done();
-    return { destroy: (): void => {} };
-  },
+  landingTiming: () => ({ duration: 200, easing: 'ease' }),
 });
 
 /** D-45 — a helper may return several slots and a consumer may take one. */
@@ -637,8 +634,8 @@ const kernelSide: SortableController = draggable<
         }
         // **Existing result wins; `??=` is the whole of that rule** — and A-1
         // is what it cost to write this line as `=` in `src/`. A stage test
-        // cannot stand in for it: `FAILURE_LANDING_INTERRUPTED` can only fire
-        // after a runner was armed, which is after the settlement committed.
+        // cannot stand in for it: the kernel's own pin is classified as a
+        // renderer write, and it runs after the settlement committed.
         draft.domain ??= {
           type: 'canceled',
           reason: input.error,
@@ -716,10 +713,11 @@ void cfg.createPlaceholder;
 // @ts-expect-error placeholderClassName is not a config key (D-65)
 void cfg.placeholderClassName;
 
-// n5 — D-63: no consumer-supplied runner at the ordinary tier.
-declare const runner: LandingStart;
+// n5 — D-63: no consumer-supplied runner at the ordinary tier, and D-155 left
+// no runner to supply anywhere.
+declare const timing: LandingTiming;
 // @ts-expect-error `run` is not a landing option (D-63)
-landing({ run: runner });
+landing({ run: timing });
 
 // n6 — **withdrawn, and the withdrawal is the finding.** The assertion here
 // was `landing({ duration: () => 200 })` must not compile. It does compile, and

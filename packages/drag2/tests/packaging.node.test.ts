@@ -235,7 +235,7 @@ describe('the published file list', () => {
     );
 
     expect(minimal).not.toContain('free-drag/bounds.ts');
-    expect(minimal).not.toContain('shared/landing-runner.ts');
+    expect(minimal).not.toContain('shared/landing.ts');
 
     const bounded = [
       ...(await reachableFrom(['drag', 'free-drag', 'free-drag/bounds'])),
@@ -244,10 +244,10 @@ describe('the published file list', () => {
     expect(bounded).toContain('free-drag/bounds.ts');
   });
 
-  it('should share the landing runner between the two behaviors', async () => {
-    // The other half of F-64's "one declaration, two publications": the runner
-    // is behavior-neutral, so **both** landing entries reach the same internal
-    // module and neither reaches the other behavior to get there.
+  it('should share the landing timing between the two behaviors', async () => {
+    // The other half of F-64's "one declaration, two publications": the timing
+    // policy is behavior-neutral, so **both** landing entries reach the same
+    // internal module and neither reaches the other behavior to get there.
     const free = [...(await reachableFrom(['free-drag/landing']))].map((file) =>
       relative(SRC, file),
     );
@@ -255,8 +255,8 @@ describe('the published file list', () => {
       (file) => relative(SRC, file),
     );
 
-    expect(free).toContain('shared/landing-runner.ts');
-    expect(sortable).toContain('shared/landing-runner.ts');
+    expect(free).toContain('shared/landing.ts');
+    expect(sortable).toContain('shared/landing.ts');
     expect(free.filter((file) => file.startsWith('sortable/'))).toEqual([]);
     expect(sortable.filter((file) => file.startsWith('free-drag/'))).toEqual(
       [],
@@ -289,7 +289,7 @@ describe('the published file list', () => {
 
     for (const source of [sortableLanding, freeDragLanding]) {
       expect(source).toMatch(
-        /export type \{[^}]*LandingOptions[^}]*\} from '\.\.\/shared\/landing-runner\.ts'/su,
+        /export type \{[^}]*LandingOptions[^}]*\} from '\.\.\/shared\/landing\.ts'/su,
       );
     }
   });

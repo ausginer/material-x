@@ -279,27 +279,25 @@ export type VisualLiftSession = Readonly<{
    * `(0, 0)` until the first `write`, which is the truth for an operation that
    * never rendered and for a pointerless one.
    *
-   * `LandingContext.from` is read from here rather than from the pointer: a
+   * **The landing tail opens from here rather than from the pointer**: a
    * behavior that constrains, clamps, snaps or externally drives its visual
    * writes something other than the raw pointer delta, and a pointerless
-   * operation has no pointer at all, so the pointer form would open the landing
-   * from a position the visual has never been at.
+   * operation has no pointer at all, so the pointer form would interpolate from
+   * a position the visual has never been at.
    *
    * **Kernel-read.** The behavior is handed a {@link BehaviorLiftSession},
    * which does not carry this member.
    *
-   * `compose` records nothing — composing is not rendering, and a landing
-   * runner composes on every frame.
+   * `compose` records nothing: composing is not rendering.
    */
   rendered: Point;
   /**
    * Composes a viewport delta and writes it to the visual's inline transform.
    *
-   * This is how the kernel performs the **authoritative pin** at the join.
-   * Correctness deliberately does not depend on the landing runner: the runner
-   * drives the transform while it is alive, and the kernel re-measures and
-   * writes the final position through the lift session it already owns, after
-   * `LandingHandle.destroy()` has relinquished control.
+   * This is how the kernel performs the **authoritative pin** at the join, and
+   * it is the last write this session makes: whatever interpolation follows the
+   * drop happens on the released element, through a property this session never
+   * writes.
    *
    * A throw here is classified `FAILURE_RENDERER_WRITE` by the caller.
    */
@@ -314,17 +312,18 @@ export type VisualLiftSession = Readonly<{
  * `rendered` and `dispose` are kernel-only. The session's lifetime is the
  * kernel's: disposing it from `activation.effect` or `moved` would drop the
  * inline-style lease — and, in a lifted mode, the top-layer lease — while the
- * recorded delta still describes the last `write`, so the landing would open
- * from a visual that is no longer lifted.
+ * recorded delta still describes the last `write`, so the pin would land on a
+ * visual that is no longer lifted.
  *
  * The projection is type-level. The kernel passes the *same object* under the
  * narrower type, so it costs no allocation.
  *
  * **It does not project away the timing.** `write` stays callable and stays
- * *effective* — no phase test, no operation check — so calling it after
- * `LandingContext.from` has been sampled fights the landing runner for the same
- * property, and calling it after retirement writes onto an element no live
- * operation owns. Both are outside the contract and neither is refused.
+ * *effective* — no phase test, no operation check — so calling it after the
+ * kernel has sampled the delta the drop travels from moves a visual the
+ * settlement has already read, and calling it after retirement writes onto an
+ * element no live operation owns. Both are outside the contract and neither is
+ * refused.
  */
 export type BehaviorLiftSession = Readonly<
   Pick<VisualLiftSession, 'visual' | 'baseTransform' | 'compose' | 'write'>
@@ -384,7 +383,7 @@ function makeSession(
       // write that throws is classified `FAILURE_RENDERER_WRITE` by the caller,
       // and the visual is then wherever it already was — so recording first
       // would leave the session claiming a delta the element never took, and
-      // the landing would open from a position that only the record believes.
+      // the drop would travel from a position that only the record believes.
       visual.style.transform = compose(x, y);
       rendered.x = x;
       rendered.y = y;

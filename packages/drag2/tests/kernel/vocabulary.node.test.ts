@@ -76,9 +76,7 @@ const PUBLISHED_TYPES: readonly string[] = [
   'InheritedSpace',
   'KernelFrame',
   'KernelHost',
-  'LandingContext',
-  'LandingHandle',
-  'LandingStart',
+  'LandingTail',
   'LiftMode',
   'LifetimeScope',
   'OffsetBox',
@@ -88,7 +86,6 @@ const PUBLISHED_TYPES: readonly string[] = [
   'ReleaseTransition',
   'ResolutionCommand',
   'SettlementInput',
-  'SettlementScope',
   'SettlementTransition',
   'Transition',
   'VisualLiftSession',
@@ -273,15 +270,15 @@ describe('the kernel tier boundary', () => {
 
   it('should re-export the middle tier’s landing seam types from the kernel’s own modules', async () => {
     // The type half of the same property, and it has to be source-level: the
-    // four re-homed names erase, so nothing survives to `toBe`. What is
-    // asserted is that `sortable/feature.js` **re-exports** them rather than
-    // declaring its own — the direction D-68 corrects, since
-    // `SettlementScope.holdForLanding` is kernel SPI and a kernel-tier author
-    // reaching the sortable for `LandingStart` would be importing a behavior
-    // in order to author a different one.
+    // re-homed names erase, so nothing survives to `toBe`. What is asserted is
+    // that `sortable/feature.js` **re-exports** them rather than declaring its
+    // own — the direction D-68 corrects, since `BehaviorSpec.landingTail` is
+    // kernel SPI and a kernel-tier author reaching the sortable for
+    // `LandingTail` would be importing a behavior in order to author a
+    // different one.
     const source = await readFile(join(SRC, 'sortable/feature.ts'), 'utf8');
 
-    for (const name of ['LandingContext', 'LandingHandle', 'LandingStart']) {
+    for (const name of ['LandingTail', 'Disposer', 'InheritedSpace']) {
       expect([name, source.includes(`export type ${name} =`)]).toEqual([
         name,
         false,

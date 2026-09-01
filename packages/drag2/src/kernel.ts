@@ -33,13 +33,13 @@
  * it.
  *
  * **Several names are published from two entries, from one declaration each.**
- * `Disposer`, `LandingStart`, `LandingContext` and `LandingHandle` are also
- * published at `sortable/feature.js`, and `CancelStage`/`AT_*` — with
- * `CancelOrigin` and its four constants — at `sortable.js`; all of them are
- * declared under `kernel/`, so the tier that owns them is this one. The direction is the point:
- * `SettlementScope.holdForLanding` is kernel SPI, so a kernel-tier author
- * reaching `sortable/feature.js` for `LandingStart` would be importing the
- * sortable behavior in order to author a **non**-sortable one.
+ * `Disposer` and `LandingTail` are also published at `sortable/feature.js`, and
+ * `CancelStage`/`AT_*` — with `CancelOrigin` and its four constants — at
+ * `sortable.js`; all of them are declared under `kernel/`, so the tier that owns
+ * them is this one. The direction is the point: `BehaviorSpec.landingTail` is
+ * kernel SPI, so a kernel-tier author reaching `sortable/feature.js` for
+ * `LandingTail` would be importing the sortable behavior in order to author a
+ * **non**-sortable one.
  *
  * **What is deliberately absent** is the other half of the decision: the seam
  * driver and its outcomes, the full `Lifetime`, the frame helpers, the lift
@@ -76,14 +76,11 @@ export type {
   BehaviorSpec,
   CommandAdmission,
   KernelHost,
-  LandingContext,
-  LandingHandle,
-  LandingStart,
+  LandingTail,
   PreparedSettlement,
   ReleaseTransition,
   ResolutionCommand,
   SettlementInput,
-  SettlementScope,
   SettlementTransition,
 } from './kernel/spec.ts';
 export type { Transition } from './kernel/seams.ts';
@@ -180,8 +177,6 @@ export {
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
   FAILURE_INVALIDATION,
-  FAILURE_LANDING_CREATE,
-  FAILURE_LANDING_INTERRUPTED,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
   FAILURE_RESOLUTION,

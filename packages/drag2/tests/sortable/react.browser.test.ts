@@ -17,9 +17,9 @@
  * item outright. Those are the three remaining rows, and the last is **Q-12**.
  *
  * Composition: `sortable(root, { items, onReorder, … }, y(), { landing: … })`.
- * The runner is supplied — through a **middle-tier installer**, since D-63
- * withdrew `landing({ run })` — rather than defaulted, so the landing gate is
- * directly observable to the F-6 witness — the default runner is covered by
+ * The timing policy is supplied — through a **middle-tier installer**, since
+ * D-63 withdrew `landing({ run })` — rather than defaulted, so the landing is
+ * directly observable to the F-6 witness; the shipped policy is covered by
  * `landing-space.browser.test.ts` and `features.browser.test.ts`.
  *
  * Layout: the list is absolutely positioned at the viewport origin with 40px
@@ -40,7 +40,7 @@ import {
   DraggableWarning,
   type Point,
 } from '../../src/drag.ts';
-import type { LandingStart } from '../../src/sortable/feature.ts';
+import type { LandingTiming } from '../../src/sortable/feature.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
@@ -96,7 +96,7 @@ type Fixture = Readonly<{
   errors: Array<DraggableError | DraggableWarning>;
   /** One entry per React commit, each the DOM order at that commit. */
   commits: string[];
-  /** The provisional landing target handed to each runner start. */
+  /** The landing target handed to the timing policy, once per landing. */
   landingTargets: Point[];
   /** The detached recycle pool, when `recycle` is on. */
   pool: HTMLElement;
@@ -285,21 +285,13 @@ function mount(options: Options = {}): Fixture {
   const cancels: ReorderTransactionResult[] = [];
   const errors: Array<DraggableError | DraggableWarning> = [];
 
-  const run: LandingStart = (context, done): { destroy(): void } => {
-    witness.landingStarted();
-    // The provisional target is the only public view of what `anchorTarget`
-    // measured, and it is what makes the Q-12 fallback observable at all.
-    landingTargets.push({ x: context.targetX, y: context.targetY });
+  const timing: LandingTiming = (_fromX, _fromY, toX, toY) => {
+    witness.landingTimed();
+    // The policy's arguments are the only public view of what `anchorTarget`
+    // measured, and they are what makes the Q-12 fallback observable at all.
+    landingTargets.push({ x: toX, y: toY });
 
-    const frame = requestAnimationFrame(() => {
-      done();
-    });
-
-    return {
-      destroy(): void {
-        cancelAnimationFrame(frame);
-      },
-    };
+    return { duration: 200, easing: 'linear' };
   };
 
   const { author } = options;
@@ -371,13 +363,13 @@ function mount(options: Options = {}): Fixture {
       },
       onError(error): void {
         // D-49: a reported fault is what exempts the operation from the landing
-        // witness, because a skipped landing starts no runner.
+        // witness, because a skipped landing asks no policy.
         witness.faultReported();
         errors.push(error);
       },
     },
-    // D-63: authored at the middle tier, which is where a runner lives now.
-    { landing: () => ({ startLanding: run }) },
+    // D-63: authored at the middle tier, which is where a landing policy lives.
+    { landing: () => ({ landingTiming: timing }) },
   );
 
   // Synthetic pointer events have no active pointer, so the real
@@ -473,7 +465,7 @@ const release = (y: number): void => {
   pointerEvent('pointerup', y);
 };
 
-/** Drain the microtask queue plus the landing runner's frame. */
+/** Drain the microtask queue plus a couple of frames. */
 const settle = async (): Promise<void> => {
   await nextFrame();
   await nextFrame();
@@ -671,7 +663,7 @@ describe('a React consumer', () => {
       // parked in a recycle pool is disconnected **with** a parent, which is
       // what an unguarded `item.before(placeholder)` would follow. The re-anchor
       // guard still refuses that; the precondition then refuses the measurement
-      // itself, so no target is produced and no runner is started — a jump cut
+      // itself, so no target is produced and no policy is asked — a jump cut
       // rather than a confident animation toward a rect the library does not
       // trust.
       const fixture = mount({ ...unmounting, recycle: true });

@@ -14,7 +14,7 @@
  * `duplicate-contribution` identity. The keys are visited in schema order.
  */
 import type { Disposer } from '../kernel/lifetimes.ts';
-import type { LandingStart } from '../kernel/spec.ts';
+import type { LandingTiming } from '../shared/composition.ts';
 import type { SortableConfig } from './config.ts';
 import type { FeatureContext, SortableFeatureContext } from './feature.ts';
 import type { DisplacementSettle } from './rect-index.ts';
@@ -29,7 +29,7 @@ export function assemble(
   config: SortableConfig,
   context: FeatureContext,
 ): SortableSlots {
-  let startLanding: LandingStart | null = null;
+  let landingTiming: LandingTiming | null = null;
   let report: DisplacementReport | null = null;
   let settle: DisplacementSettle | null = null;
   const retireHooks: Disposer[] = [];
@@ -88,7 +88,7 @@ export function assemble(
         retireHooks.push(landing.retire);
       }
 
-      ({ startLanding } = landing);
+      ({ landingTiming } = landing);
     }
 
     if (config.displacement) {
@@ -157,7 +157,7 @@ export function assemble(
       // neither is written keeps the minimal composition free of an identity
       // call per candidate per rebuild.
       box: config.box ?? config.visual ?? null,
-      startLanding,
+      landingTiming,
 
       report,
       settle,

@@ -37,7 +37,6 @@ import {
   SETTLED_FULFILLED,
   SETTLED_REJECTED,
   SETTLED_SKIPPED,
-  type SettlementScope,
 } from '../kernel/spec.ts';
 import { createUnwind } from '../kernel/unwind.ts';
 import {
@@ -482,7 +481,7 @@ export function createSortableSpec(
 
   /**
    * The failure the open settlement seam is reporting, handed from `prepare` to
-   * `effect` because `PreparedSettlement` carries only the gate declaration.
+   * `effect` because `PreparedSettlement` carries nothing.
    *
    * **This is an accepted out-of-band channel, not an oversight** — deliberate,
    * rather than widening the frozen `PreparedSettlement`. What makes it
@@ -1536,11 +1535,11 @@ export function createSortableSpec(
               // **An unconditional `draft.domain = …` here is wrong.** It rests
               // on a terminal-callback throw being the only failure that
               // arrives after a result exists, and that is false, unavoidably:
-              // `FAILURE_LANDING_INTERRUPTED` has one producer and it can only
-              // fire *after* a runner was armed, which is after the settlement
-              // committed. Such an assignment overwrites a committed result 100
-              // % of the time it fires, and tells a consumer whose data really
-              // was reordered that the drop was `canceled`. The stage exclusion
+              // the kernel's own pin at the join is classified as a renderer
+              // write, and it runs after the settlement committed. Such an
+              // assignment overwrites a committed result 100 % of the time it
+              // fires, and tells a consumer whose data really was reordered
+              // that the drop was `canceled`. The stage exclusion
               // above stands on its own reason — recovery, not the result — and
               // carries no weight in this tie-break.
               //
@@ -1572,19 +1571,10 @@ export function createSortableSpec(
         }
       },
 
-      effect(current, _prepared, scope: SettlementScope) {
+      effect(_current, _prepared) {
         const failure = pendingFailure;
 
         pendingFailure = null;
-
-        if (!failure) {
-          // Requests only — nothing is armed here, and a request is recorded at
-          // most once. **One gate**: the authored-presentation hold has no
-          // producer under the serial commit.
-          if (slots.startLanding && current.recovery !== RECOVERY_IMMEDIATE) {
-            scope.holdForLanding(slots.startLanding);
-          }
-        }
 
         // 4 — consumer callbacks last. A failed settlement reports through
         // `onError` here **and** publishes its terminal from the failure path's
@@ -1654,9 +1644,8 @@ export function createSortableSpec(
       // `disconnectedCallback`/`connectedCallback` runs synchronously inside
       // them, and it is consumer code. The measurement below is a *second*
       // consumer call on the same element. The kernel revalidates around
-      // `anchorTarget` and never starts a landing for a destroyed controller,
-      // so the point is discarded either way; what this stops is the read
-      // itself.
+      // `anchorTarget` and never pins for a destroyed controller, so the
+      // point is discarded either way; what this stops is the read itself.
       if (host.closed) {
         anchor.x = 0;
         anchor.y = 0;
@@ -1698,6 +1687,23 @@ export function createSortableSpec(
       anchor.y = rect.top;
 
       return anchor;
+    },
+
+    /**
+     * **The tail travels only where the drop was a journey.** An immediate
+     * recovery is a failure repair: the visual belongs at its home now, not
+     * two hundred milliseconds from now, and interpolating one would animate
+     * the consequences of a fault the consumer has already been told about.
+     *
+     * Without a `landing()` feature there is no timing and no tail at all, so
+     * the collection pays nothing for the capability it did not install.
+     */
+    landingTail(current, fromX, fromY, targetX, targetY) {
+      const { landingTiming } = slots;
+
+      return landingTiming && current.recovery !== RECOVERY_IMMEDIATE
+        ? landingTiming(fromX, fromY, targetX, targetY)
+        : null;
     },
 
     /**

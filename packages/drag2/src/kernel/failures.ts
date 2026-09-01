@@ -27,17 +27,15 @@ export const FAILURE_SCHEDULED_FRAME = 7;
 /** The settlement seam. */
 export const FAILURE_RESOLUTION = 8;
 export const FAILURE_RELEASE = 9;
-export const FAILURE_LANDING_CREATE = 10;
-export const FAILURE_LANDING_INTERRUPTED = 11;
-// **12 and 13 are holes and neither is ever reused.** A stage constant is a
-// wire value in a consumer's compiled code, so repointing either number at a
+// **10 through 13 are holes and none is ever reused.** A stage constant is a
+// wire value in a consumer's compiled code, so repointing one of them at a
 // different meaning breaks that consumer silently. Adding a stage takes the
 // next free number instead.
 //
 // No positional table is indexed by these numbers anywhere in the library, so
 // nothing pads the gap and nothing would slide if one were filled.
 // `tests/kernel/stages.node.test.ts` is the witness: it reflects over this
-// module's own `FAILURE_*` exports, which a reintroduced 12 or 13 joins whether
+// module's own `FAILURE_*` exports, which a reintroduced number joins whether
 // or not anyone remembers the file, and it asserts every stage as a literal.
 export const FAILURE_TERMINAL_CALLBACK = 14;
 
@@ -52,8 +50,6 @@ export type FailureStage =
   | typeof FAILURE_SCHEDULED_FRAME
   | typeof FAILURE_RESOLUTION
   | typeof FAILURE_RELEASE
-  | typeof FAILURE_LANDING_CREATE
-  | typeof FAILURE_LANDING_INTERRUPTED
   | typeof FAILURE_TERMINAL_CALLBACK;
 
 /**

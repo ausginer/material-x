@@ -69,19 +69,20 @@ describe('DraggableError', () => {
 });
 
 describe('FailureStage', () => {
-  it('should be closed over exactly the twelve published numbers', () => {
+  it('should be closed over exactly the ten published numbers', () => {
     // Written as literals rather than as the union of `typeof FAILURE_*`,
     // which would restate the declaration and pass however it changed. A
     // stage added, removed or repointed fails here, and so does the union
     // widening to `number`.
     expectTypeOf<FailureStage>().toEqualTypeOf<
-      1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 14
+      1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 14
     >();
   });
 
   it('should not admit a retired stage number', () => {
-    // 12 and 13 are holes and neither is ever reused, because a stage constant
-    // is inlined into a consumer's compiled code (D-41, D-130).
+    // 10 through 13 are holes and none is ever reused, because a stage
+    // constant is inlined into a consumer's compiled code (D-41, D-130,
+    // D-155).
     // @ts-expect-error: 12 is a hole
     const retired: FailureStage = 12;
 

@@ -9,7 +9,7 @@
  * or a sibling installer.
  *
  * **Zero construction-time throws of its own.** `constrain` is producible only
- * from `bounds` and `startLanding` only from `landing`, so a second writer is a
+ * from `bounds` and `landingTiming` only from `landing`, so a second writer is a
  * compile error rather than an invariant no signature could state. Every slot
  * this behavior reads is nullable, so nothing here dereferences a required
  * member either: **only an installer's own body can throw**, and the unwind
@@ -17,8 +17,7 @@
  */
 import type { Disposer } from '../kernel/lifetimes.ts';
 import { LIFT_FAITHFUL } from '../kernel/presentation.ts';
-import type { LandingStart } from '../kernel/spec.ts';
-import type { FeatureContext } from '../shared/composition.ts';
+import type { FeatureContext, LandingTiming } from '../shared/composition.ts';
 import type { FreeDragConfig } from './config.ts';
 import type { FreeDragFeatureContext, MotionConstraint } from './feature.ts';
 import {
@@ -32,7 +31,7 @@ export function assemble(
   context: FeatureContext,
 ): FreeDragSlots {
   let constrain: MotionConstraint | null = null;
-  let startLanding: LandingStart | null = null;
+  let landingTiming: LandingTiming | null = null;
   const retireHooks: Disposer[] = [];
 
   // The library is the only producer of a context, so it is the only place the
@@ -64,7 +63,7 @@ export function assemble(
       // flat record does — the sortable dereferences its insertion and throws,
       // free drag's slot is nullable and the composition simply has no
       // constraint, exactly as a `landing` installer that returns no
-      // `startLanding` already does.
+      // `landingTiming` already does.
       if (constrain) {
         retireHooks.push(constrain.retire);
       }
@@ -77,7 +76,7 @@ export function assemble(
     if (config.landing) {
       const landing = config.landing(branded);
 
-      ({ startLanding } = landing);
+      ({ landingTiming } = landing);
 
       if (landing.retire) {
         retireHooks.push(landing.retire);
@@ -127,7 +126,7 @@ export function assemble(
       liftMode: config.lift ?? LIFT_FAITHFUL,
 
       constrain,
-      startLanding,
+      landingTiming,
       retireHooks,
     };
 

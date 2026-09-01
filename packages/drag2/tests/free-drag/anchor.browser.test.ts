@@ -20,12 +20,12 @@
  * **Two things this file records rather than papers over.**
  *
  * The accepted anchor's value has **no public observable**: free drag never
- * arms a landing for an accepted result, so no `LandingContext.target` is ever
- * produced for it, and the kernel's authoritative pin is followed immediately
- * by presentation disposal. 05's requested *the anchor still equals originRect
+ * tails an accepted result, so the landing timing policy is never handed a
+ * target for it, and the kernel's authoritative pin is followed immediately by
+ * presentation disposal. 05's requested *the anchor still equals originRect
  * plus the committed delta* therefore cannot be read through this surface at
  * all; what stands in its place are the two `home` rows, on the arms that do
- * reach a landing.
+ * tail.
  *
  * And the obvious *destroy from the resolver* row is **absent deliberately**:
  * after `destroy()` the kernel's own `settlementLive` check skips the arm, so
@@ -90,17 +90,23 @@ function countingConstraint(
   };
 }
 
-/** Reads where a landing opened and where it was asked to travel to. */
+/**
+ * Reads where the tail was asked to travel to.
+ *
+ * The two coordinates are **origin-relative deltas** — the space the kernel
+ * converts an `anchorTarget` viewport point into before it pins — so every row
+ * below states its expectation against the grab rect rather than against the
+ * viewport.
+ */
 function recordingLanding(): Readonly<{
   fragment: Partial<FreeDragConfig>;
   targets: Point[];
 }> {
   const targets: Point[] = [];
   const installer: FreeDragLandingInstaller = () => ({
-    startLanding: (context, done) => {
-      targets.push({ x: context.targetX, y: context.targetY });
-      done();
-      return { destroy: (): void => {} };
+    landingTiming: (_fromX, _fromY, toX, toY) => {
+      targets.push({ x: toX, y: toY });
+      return { duration: 200, easing: 'linear' };
     },
   });
 
@@ -225,16 +231,16 @@ describe('the accepted anchor', () => {
     // **The value control, and it sits on the arm that has one.**
     //
     // The accepted anchor's value turns out to have **no public observable**:
-    // free drag never arms a landing for an accepted result — it is already at
-    // its destination (E-07) — so `LandingContext.target` is never produced for
+    // free drag never tails an accepted result — it is already at its
+    // destination (E-07) — so the timing policy is never handed a target for
     // it, and the kernel's authoritative pin is immediately followed by
     // presentation disposal, which restores the element. So the arm's value is
     // used once, invisibly, and 05's requested *anchor still equals originRect
     // plus the committed delta* cannot be read through the public surface at
     // all. Raised rather than worked around: the rows above assert the claim
     // D-89 actually makes — the constraint is not re-entered — and this one
-    // asserts that the seam's **other** arms, which do reach a landing, still
-    // answer from the committed geometry.
+    // asserts that the seam's **other** arms, which do tail, still answer from
+    // the committed geometry.
     const recorder = recordingLanding();
     const constraint = countingConstraint((motion) => {
       motion.x = Math.min(motion.x, 25);
@@ -245,13 +251,16 @@ describe('the accepted anchor', () => {
       onDrop: () => FreeDragResolution.reject('nope'),
       config: { home: () => ({ x: 5, y: 7 }) },
     });
+    const origin = composed.item.getBoundingClientRect();
 
     activate(composed);
     move(500, 500);
     release(500, 500);
     await settled();
 
-    expect(recorder.targets).toEqual([{ x: 5, y: 7 }]);
+    expect(recorder.targets).toEqual([
+      { x: 5 - origin.left, y: 7 - origin.top },
+    ]);
   });
 
   it('should leave the unconfigured home anchor at the grab position', async () => {
@@ -263,14 +272,15 @@ describe('the accepted anchor', () => {
       fragments: [recorder.fragment],
       onDrop: () => FreeDragResolution.reject('nope'),
     });
-    const origin = composed.item.getBoundingClientRect();
 
     activate(composed);
     move(50, 40);
     release(50, 40);
     await settled();
 
-    expect(recorder.targets).toEqual([{ x: origin.left, y: origin.top }]);
+    // The grab position, which is a zero delta in the space the tail is issued
+    // in — the answer `originRect` alone produces.
+    expect(recorder.targets).toEqual([{ x: 0, y: 0 }]);
   });
 });
 

@@ -16,7 +16,7 @@
 import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { InheritedSpace } from '../kernel/presentation.ts';
-import type { LandingStart } from '../kernel/spec.ts';
+import type { LandingTiming } from '../shared/composition.ts';
 import type { ItemSource, SortableOnEnd } from './config.ts';
 import type { CollectionSnapshot, Insertion, OnReorder } from './domain.ts';
 import type { PlaceholderFactory } from './placement.ts';
@@ -201,7 +201,11 @@ export type SortableSlots = Readonly<{
    * than pay an identity per item.
    */
   box: ((item: HTMLElement) => HTMLElement) | null;
-  startLanding: LandingStart | null;
+  /**
+   * The tail's timing, or `null` when no landing is installed — in which case
+   * the visual simply stays where the drop put it.
+   */
+  landingTiming: LandingTiming | null;
   /**
    * These stay nullable rather than normalized: their arguments are result
    * objects that would otherwise be constructed only to be discarded.

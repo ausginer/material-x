@@ -30,16 +30,15 @@
  * animation per element, which is what makes the current offset answerable at
  * all.
  *
- * **It is not a lifecycle gate, and structurally cannot become one**: it has no
- * access to `SettlementScope`, which is passed only to `settlement.effect`. An
- * in-flight displacement never delays release, settlement or presentation
- * teardown.
+ * **It is not a lifecycle gate, and structurally cannot become one**: no seam
+ * it can reach suspends anything. An in-flight displacement never delays
+ * release, settlement or presentation teardown.
  *
  * **The dragged item and the placeholder are never reported**, so there is
  * nothing here to exclude them: an axis reports over the destination view,
  * which is the collection *minus* the dragged item, and the placeholder is not
- * in it either. The landing tail on the dragged item is disjoint by
- * construction.
+ * in it either. The landing tail is on the dragged item's visual, which is
+ * that item or a descendant of it, so it is disjoint by construction.
  */
 import type { SortableConfig } from './config.ts';
 import type { SortableDisplacementInstaller } from './feature.ts';
@@ -100,10 +99,9 @@ const remainingOf = (animation: Animation): number => {
 export function layoutAnimation(
   options: LayoutAnimationOptions = {},
 ): Pick<SortableConfig, 'displacement'> {
-  // **Unchecked**, and the difference from `landing({ duration })` is the rule
-  // working rather than an inconsistency. This animation holds no gate and
-  // gates no terminal, so an unbounded one leaves displaced rows offset until
-  // the controller is destroyed and costs the library nothing.
+  // **Unchecked.** This animation gates nothing, so an unbounded one leaves
+  // displaced rows offset until the controller is destroyed and costs the
+  // library nothing.
   const { duration = DEFAULT_DURATION, easing = DEFAULT_EASING } = options;
 
   const install: SortableDisplacementInstaller = () => {

@@ -47,20 +47,27 @@ const PUBLISHED = Object.entries(stageModule)
   .map(([, stage]) => stage as FailureStage);
 
 describe('the failure stage vocabulary', () => {
-  it('should publish exactly twelve stages', () => {
-    // **Twelve, and two numbers that will never come back.**
+  it('should publish exactly ten stages', () => {
+    // **Ten, and four numbers that will never come back.**
     // `FAILURE_PRESENTATION_READY = 13` went with the readiness protocol
     // (D-41); `FAILURE_LANDING_TARGET = 12` went with the `QUALITY` tier
-    // (D-130), which was the only thing that produced it. Neither number is
-    // reused, so the count is one a reader will keep wanting to check.
-    expect(PUBLISHED).toHaveLength(12);
+    // (D-130), which was the only thing that produced it; and
+    // `FAILURE_LANDING_CREATE = 10` and `FAILURE_LANDING_INTERRUPTED = 11`
+    // went with the landing gate (D-155), which was the only thing that armed a
+    // runner for either to classify. No number is reused, so the count is one a
+    // reader will keep wanting to check.
+    expect(PUBLISHED).toHaveLength(10);
   });
 
-  it('should leave 12 and 13 unoccupied', () => {
-    // **A deleted stage's number is not free** (D-41, D-130). Asserted against
-    // the reflection rather than against a hand-written list, so a constant
-    // reintroduced at either number fails here whether or not anyone updates
-    // this file.
+  it('should leave 10 through 13 unoccupied', () => {
+    // **A deleted stage's number is not free** (D-41, D-130, D-155). A stage
+    // constant is inlined into a consumer's compiled code, so repointing one of
+    // these at a new meaning breaks that consumer silently and invisibly.
+    // Asserted against the reflection rather than against a hand-written list,
+    // so a constant reintroduced at any of them fails here whether or not
+    // anyone updates this file.
+    expect(PUBLISHED).not.toContain(10);
+    expect(PUBLISHED).not.toContain(11);
     expect(PUBLISHED).not.toContain(12);
     expect(PUBLISHED).not.toContain(13);
   });
@@ -82,12 +89,12 @@ describe('the failure stage vocabulary', () => {
 
   it('should hold every stage inside the published numeric range', () => {
     // The union is closed and its members are wire values, so a stage arriving
-    // outside 1–14 — the range the two holes sit inside — is a vocabulary
+    // outside 1–14 — the range the four holes sit inside — is a vocabulary
     // change nobody decided. This is the reflection's other direction: the
     // count row catches an addition, this catches an addition that also
     // renumbers.
     expect(PUBLISHED.toSorted((a, b) => a - b)).toEqual([
-      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14,
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 14,
     ]);
   });
 });

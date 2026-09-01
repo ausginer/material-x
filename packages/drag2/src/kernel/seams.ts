@@ -137,9 +137,8 @@ export type SeamDriver<Part extends object> = Readonly<{
    * policy.
    *
    * A committed transition leaves its `Prepared` value in the driver's staging
-   * slot, for the two seams whose staged value the *kernel* needs after the
-   * seam returns — the release seam's `ResolutionCommand`, the settlement
-   * seam's gate plan. Read it with {@link SeamDriver.consumeStaged}.
+   * slot, for the one seam whose staged value the *kernel* needs after the
+   * seam returns — the release seam's `ResolutionCommand`. Read it with {@link SeamDriver.consumeStaged}.
    *
    * `effectStage` defaults to `stage` and exists for the one seam whose two
    * phases fail at different stages: a behavior action resolves an insertion in

@@ -21,7 +21,6 @@
  * an assertion that the gap survived is an assertion that nothing re-resolved.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { LandingContext } from '../../src/kernel/spec.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   type ReorderRequest,
@@ -35,6 +34,14 @@ import {
 const POINTER_ID = 44;
 const ITEM_HEIGHT = 40;
 
+/** The four numbers one landing hands its timing policy. */
+type Endpoints = Readonly<{
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
+}>;
+
 type Fixture = Readonly<{
   root: HTMLElement;
   items: HTMLElement[];
@@ -44,8 +51,8 @@ type Fixture = Readonly<{
   cancels: ReorderTransactionResult[];
   errors: unknown[];
   started: HTMLElement[];
-  /** Landing contexts, when a recording runner is installed. */
-  contexts: LandingContext[];
+  /** Landing endpoints, when a recording timing policy is installed. */
+  endpoints: Endpoints[];
   /** Every item the installed `handle` resolver was asked about, in order. */
   handleCalls: HTMLElement[];
   /** Swap the collection identity and signal it (D-44). */
@@ -59,6 +66,11 @@ type Options = Readonly<{
   itemCount?: number;
   onReorder?(request: ReorderRequest, fixture: Fixture): ReorderResolution;
   onStart?(fixture: Fixture): void;
+  /**
+   * Runs inside the terminal callback, which the join invokes while the
+   * operation is still the kernel's.
+   */
+  onEnd?(fixture: Fixture): void;
   /** Fill the `handle` slot, narrowing admission to the row's first child. */
   useHandle?: boolean;
   /**
@@ -75,7 +87,7 @@ type Options = Readonly<{
    * immediately and proves nothing about re-entry.
    */
   onAdmit?(fixture: Fixture): void;
-  /** Install a landing runner that records its context and never completes. */
+  /** Install a landing timing policy that records the endpoints it is handed. */
   recordLanding?: boolean;
 }>;
 
@@ -117,7 +129,7 @@ function build(options: Options = {}): Fixture {
   const cancels: ReorderTransactionResult[] = [];
   const errors: unknown[] = [];
   const started: HTMLElement[] = [];
-  const contexts: LandingContext[] = [];
+  const endpoints: Endpoints[] = [];
   const handleCalls: HTMLElement[] = [];
 
   let fixture!: Fixture;
@@ -147,12 +159,15 @@ function build(options: Options = {}): Fixture {
   }
 
   if (options.recordLanding === true) {
-    // D-63: a recording runner is authored at the middle tier now.
+    // A recording timing policy, authored at the middle tier (D-63). It
+    // declines the tail (D-155): the endpoints are the subject, and an additive
+    // contribution left running on the dropped row would displace every rect
+    // this suite reads afterwards.
     fragments.push({
       landing: () => ({
-        startLanding(context) {
-          contexts.push(context);
-          return { destroy: (): void => {} };
+        landingTiming: (fromX, fromY, toX, toY): null => {
+          endpoints.push({ fromX, fromY, toX, toY });
+          return null;
         },
       }),
     });
@@ -184,6 +199,8 @@ function build(options: Options = {}): Fixture {
         } else {
           cancels.push(result);
         }
+
+        options.onEnd?.(fixture);
       },
       onError(error): void {
         errors.push(error);
@@ -204,7 +221,7 @@ function build(options: Options = {}): Fixture {
     cancels,
     errors,
     started,
-    contexts,
+    endpoints,
     handleCalls,
     /** New array identity, then the signal — D-44's structural branch. */
     replace: (next: readonly HTMLElement[]): void => {
@@ -567,15 +584,27 @@ describe('the command destination', () => {
     // `release.effect` performs **no** lift write on this path: there is no
     // release sample, and the visual has not moved since acquisition. `(0, 0)`
     // is therefore the correct landing origin rather than a missing one, and
-    // the landing travels from the item's grab box to the anchor of its new gap.
-    const fixture = build({ recordLanding: true });
+    // the tail travels from the item's grab box to the anchor of its new gap.
+    //
+    // **The reorder is applied to the DOM, which is what gives that anchor
+    // somewhere else to be** (D-155). Left where it was, the item has the
+    // placeholder re-anchored onto it, the trajectory is zero-length, and the
+    // kernel asks no policy about a drop with no journey — so there would be
+    // nothing recorded to read.
+    const fixture = build({
+      recordLanding: true,
+      onReorder(_request, self) {
+        self.items[2]!.after(self.items[1]!);
+        return ReorderResolution.accept();
+      },
+    });
 
     arrow(fixture.items[1]!, 'ArrowDown');
 
-    expect(fixture.contexts).toHaveLength(1);
+    expect(fixture.endpoints).toHaveLength(1);
     expect({
-      x: fixture.contexts[0]!.fromX,
-      y: fixture.contexts[0]!.fromY,
+      x: fixture.endpoints[0]!.fromX,
+      y: fixture.endpoints[0]!.fromY,
     }).toEqual({ x: 0, y: 0 });
   });
 });
@@ -662,22 +691,24 @@ describe('a command against a live operation', () => {
     expect(fixture.finishes).toHaveLength(1);
   });
 
-  it('should be refused while an earlier command is settling', () => {
-    let live: Fixture | null = null;
+  it('should be refused from inside an earlier command terminal callback', () => {
+    // **The settled window is re-entrant only** (D-155). Nothing suspends a
+    // settlement, so an earlier command can no longer be parked mid-drop for a
+    // second key to arrive against — the only observer standing inside an
+    // operation the kernel has already committed is a callback the join itself
+    // invokes. `onEnd` is that callback, and the operation is still the
+    // kernel's while it runs: the command must neither mint a second operation
+    // nor consume the key.
+    let survived: boolean | null = null;
     const fixture = build({
-      recordLanding: true,
-      onStart(self) {
-        live = self;
+      onEnd(self) {
+        survived ??= arrow(self.items[2]!, 'ArrowUp');
       },
     });
 
     arrow(fixture.items[0]!, 'ArrowDown');
 
-    // The recording runner never completes, so the first command is parked at
-    // `SETTLING` with its landing gate held.
-    expect(live).not.toBeNull();
-    expect(fixture.finishes).toEqual([]);
-    expect(arrow(fixture.items[2]!, 'ArrowUp')).toBe(true);
+    expect(survived).toBe(true);
     expect(fixture.requests).toHaveLength(1);
   });
 });

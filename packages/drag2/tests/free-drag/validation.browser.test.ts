@@ -38,7 +38,6 @@ import {
   FAILURE_ACTION_EFFECT,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
-  FAILURE_LANDING_CREATE,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
   FAILURE_RESOLUTION,
@@ -502,12 +501,12 @@ describe('the landing duration domain', () => {
     // the size doctrine's own paradigm of a precondition an integrator can
     // meet and find, so the gate closes at reachability.
     //
-    // **What this row pins is acceptance: no failure.** It held the absent
-    // terminal too until the D-124 landing review (§1.1 (C)) — an assertion
-    // that made the negation of D-66's exactly-once promise a regression
-    // contract over input the contract does not admit. What the operation then
-    // does is in D-124's row, and the landing is torn down below because it is
-    // not coming back on its own.
+    // **What this row pins is acceptance: no failure, and a tail that started.**
+    // Nothing waits for it — the drop is decided, pinned and released before
+    // anything interpolates — so the operation terminates exactly once and the
+    // interpolation that never completes is left holding a displacement on an
+    // element the library has let go of. Cosmetic misuse, with no terminal
+    // behind it.
     const composed = compose({
       fragments: [landing({ duration: Number.POSITIVE_INFINITY })],
       onDrop: () => FreeDragResolution.reject('nope'),
@@ -520,18 +519,23 @@ describe('the landing duration domain', () => {
     await settled();
 
     expect(stages(composed.errors)).toEqual([]);
-
-    // The operation is still open, so the harness is torn down explicitly
-    // rather than left to a terminal that is never coming.
-    void composed.controller.destroy();
+    expect(composed.item.getAnimations()).toHaveLength(1);
+    expect(composed.ends).toHaveLength(1);
   });
 
   /**
    * **B-4 (e).** These are not checked by the library at all: `animate()`
-   * refuses them itself, at the same call, at the same stage, with a message
-   * naming its own domain — measured, and the artifact is
+   * refuses them itself, at the same call, with a message naming its own
+   * domain — measured, and the artifact is
    * `.plan/measurements/animate-duration-domain.md` (D-79). Without these rows
    * a later pass re-adds `requireFinite` and nothing notices.
+   *
+   * **The refusal is non-consequential, and the assertions say so** (D-155).
+   * The tail is an interpolation and not a gate: by the time it is started the
+   * drop is decided, pinned and released, so a duration the platform declines
+   * reaches the consumer as a `DraggableWarning` carrying **no stage at all**,
+   * the operation still terminates exactly once, and the visual simply stays
+   * where the pin put it.
    *
    * Written as four `it` calls rather than one `it.each`, because
    * `tests/coverage.node.test.ts` matches cited names against the **first
@@ -549,7 +553,13 @@ describe('the landing duration domain', () => {
     await frame();
     await settled();
 
-    expect(stages(composed.errors)).toEqual([FAILURE_LANDING_CREATE]);
+    expect(composed.errors).toHaveLength(1);
+    expect(composed.errors[0]).toBeInstanceOf(DraggableWarning);
+    expect(composed.errors[0]).not.toBeInstanceOf(DraggableError);
+    // A warning carries no stage, so an error classified at one arriving here
+    // fails the row rather than reading as an absent stage.
+    expect(stages(composed.errors)).toEqual([undefined]);
+    expect(composed.item.getAnimations()).toEqual([]);
     expect(composed.ends).toHaveLength(1);
   };
 
@@ -597,7 +607,7 @@ describe('a non-finite moveTo() reaching the landing distance', () => {
    * writing"_).
    *
    * `moveTo`'s coordinates are committed as `offsetX`/`offsetY`, the kernel
-   * builds `LandingContext.from` from the rendered offsets, and the runner
+   * takes the tail's origin from the rendered offsets, and the timing policy
    * mints `distance: Math.hypot(target - from)` for the `duration` thunk. So a
    * value the contract stopped guarding at one end arrives, **library-minted**,
    * at a conforming author's arithmetic at the other. Both guards were deleted
@@ -634,19 +644,15 @@ describe('a non-finite moveTo() reaching the landing distance', () => {
   };
 
   it('should mint a non-finite distance for a conforming duration thunk', async () => {
-    const { distances, composed } = await dropAfterMoveTo(
-      Number.POSITIVE_INFINITY,
-    );
+    const { distances } = await dropAfterMoveTo(Number.POSITIVE_INFINITY);
 
     expect(distances).toHaveLength(1);
     expect(Number.isFinite(distances[0]!)).toBe(false);
-
-    void composed.controller.destroy();
   });
 
   it('should carry the minted distance into the landing unrefused', async () => {
     // The second half of the coupling: the minted value is not merely handed
-    // to the thunk, it goes on into the landing, and neither end of the path
+    // to the thunk, it goes on into the tail, and neither end of the path
     // refuses it. That is what makes the two deletions one decision.
     //
     // ~~And the operation then has no terminal at all.~~ **That assertion went
@@ -656,8 +662,6 @@ describe('a non-finite moveTo() reaching the landing distance', () => {
     const { composed } = await dropAfterMoveTo(Number.POSITIVE_INFINITY);
 
     expect(stages(composed.errors)).toEqual([]);
-
-    void composed.controller.destroy();
   });
 });
 

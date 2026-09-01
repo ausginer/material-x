@@ -12,7 +12,7 @@ Probe 2 removes that. The kernel is an **internal executor**. Its state is closu
    pointerdown ─▶│   private: queue, current/draft, phase, │
                  │   lifetimes, pointer capture, lift,     │
                  │   resolution + settlement attempts      │
-                 │   (the landing gate hold), cancel latch,│
+                 │   the landing tail, cancel latch,       │
                  │   closed, destroyRequested              │
                  └───────────────┬─────────────────────────┘
                                  │ direct calls, per-seam arguments
@@ -310,7 +310,7 @@ Note what is _not_ here: `rects`. The geometry cache lives inside the axis featu
 | `preventDefault()` on an admitted ingress event | kernel (D-32, C-03) — **ownership unchanged by D-46; the _policy_ is new** | nothing — the behavior answers feasibility with its return value |
 | Lift session + inline-style snapshot + **the last rendered delta** | kernel (acquires, disposes, records) | behavior, as a **`BehaviorLiftSession`** — `visual`, `baseTransform`, `compose`, `write` and nothing else. `rendered` is kernel-read; `dispose` is kernel-sequenced. The behavior can neither sample the delta nor unwind the lift (D-35; Checkpoint C, C5-01) |
 | `originRect` | kernel | behavior, as an activation-scope argument |
-| Resolution attempt; settlement attempt including **the landing gate hold** | kernel (D-7, narrowed to one gate by D-41) | nothing. No settlement object crosses either boundary. ~~Including the **early-acknowledgement latch**, **both gate holds** and the readiness deadline (D-33) — deleted with the acknowledgement protocol~~ |
+| Resolution attempt; settlement attempt ~~including **the landing gate hold**~~, which since D-155 is a measured target and nothing else | kernel (D-7, narrowed to one gate by D-41, and to none by D-155) | nothing. No settlement object crosses either boundary. ~~Including the **early-acknowledgement latch**, **both gate holds** and the readiness deadline (D-33) — deleted with the acknowledgement protocol~~ |
 | The authoritative final pin | kernel, via the lift it owns (D-16, narrowed by D-41 to _measure once, pin at the join_) | — |
 | ~~`readinessTimeout` policy~~ | ~~kernel, configured by spec scalar~~ — the acknowledgement deadline goes with D-33 (D-41) | — |
 | Collection snapshot, insertion, proposal, outcome, recovery, domain result | behavior (runtime + frame part) | features, through declared views |
@@ -321,7 +321,8 @@ Note what is _not_ here: `rects`. The geometry cache lives inside the axis featu
 | Collection pull source and the array-identity test | behavior, from `config.items` (D-44) | the consumer owns the source; the behavior owns the snapshot it derives |
 | Packed rect index and the axis rule | the axis feature — `y()` or `xy()` | nothing |
 | Per-element displacement records | `layoutAnimation()` | nothing |
-| Landing runner mechanics | `landing()` | nothing. **D-63: the consumer supplies timing, never a runner** — the library owns the animation, and a runner is authored at the middle or kernel tier |
+| ~~Landing runner mechanics~~ The tail's mechanics — the vector, the property, the projection, the slot and the cancel | **the kernel** (D-155) | nothing. **D-63: the consumer supplies timing, never a runner** — and since D-155 no tier supplies a runner, because the interpolation the kernel owns holds nothing anyone could be asked to relinquish |
+| Landing timing — duration, easing, the reduced-motion collapse | `landing()` | nothing |
 | Persistent ordered state | consumer | — |
 
 **The `preventDefault()` row changes meaning without changing owner.** The kernel still makes the call, and the behavior still answers only feasibility with its return value — no participant gains or loses reach. What D-46 withdraws is the call being **unconditional at admission**: a press that never crosses the activation threshold must leave native focus, caret, selection and form-control behavior intact, and command ingress must ask what the event landed on. The policy itself — the `[data-drag-ignore]` decline rule (~~the interactive/editable rule and the separate keyboard-command rule~~, both withdrawn by D-129), `event.isComposing`, and the modifier for plain-text selection — belongs to §[02](02-kernel-behavior-contract.md), which states it. This table records only that the act stayed kernel-owned while its trigger condition moved.
@@ -388,12 +389,11 @@ Steps 2–7 are the physical teardown. They run at the transaction boundary when
 ```text
 2. clear the queue, drop every retained argument (kernel)
 3. retire kernel attempts, **each step best-effort and individually wrapped**:
-   abort an uncompleted resolution and clear its settlement; on the settlement
-   attempt, `destroy()` the landing handle, then drop the attempt entirely
-                                                                      (kernel)
-   ── a throwing landing handle here must not prevent steps 4–7. It is the same
-      policy as the join, and for the same reason: the runner is code the kernel
-      did not write. ──
+   abort an uncompleted resolution and clear its settlement; drop the
+   settlement attempt entirely                                        (kernel)
+   ── the landing tail is NOT retired here. It is controller-scoped and
+      outlives the operation deliberately, so it is cancelled at step 7 with
+      the ingress abort, beside the click suppressor.        [D-155] ──
 4. spec.retire()                                 (behavior) wrapped in try/catch
 5. dispose presentation → motion → cancellation lifetimes, LIFO, best-effort
                                                  (kernel)   releases capture
@@ -414,13 +414,13 @@ Steps 2–7 are the physical teardown. They run at the transaction boundary when
 
 **No physical-teardown observation may answer a liveness question** (D-38, I-37). Deferral makes an aborted signal, a disposed session or a detached node **lag** the logical close, so `presentation.signal.aborted` and its relatives stop being valid readings of "is this controller still alive" — they were chosen precisely because they are strictly stronger than the latch, catching a kernel-internal panic as well, and deferral turns that same property into strictly weaker. Liveness is read from the logical latch or from transaction validity, and from nothing else.
 
-**Step 3 drops both attempts outright**, which is what makes every late continuation inert: the kernel finds no attempt to resolve against, so a landing `done()` arriving after teardown is the same non-event a stale one is during normal operation. ~~Dropping both attempts makes a late `controller.ready(request)` inert twice over (D-33): the behavior's published request is cleared by step 4's `retire()`, and the kernel finds no attempt even if a behavior bug let the signal through.~~ D-41 deletes `controller.ready()` and `rt.pendingRequest`, so the second half of that argument has no subject; the attempt-dropping is unchanged and is now justified by the staleness rule alone.
+**Step 3 drops both attempts outright**, which is what makes every late continuation inert: the kernel finds no attempt to resolve against, so a resolution arriving after teardown is the same non-event a stale one is during normal operation. ~~Dropping both attempts makes a late `controller.ready(request)` inert twice over (D-33): the behavior's published request is cleared by step 4's `retire()`, and the kernel finds no attempt even if a behavior bug let the signal through.~~ D-41 deletes `controller.ready()` and `rt.pendingRequest`, so the second half of that argument has no subject; the attempt-dropping is unchanged and is now justified by the staleness rule alone.
 
-**Destroy never pins.** The authoritative pin (D-16) belongs to the normal settlement join; a destroyed controller has no authored DOM to agree with, and `LandingHandle.destroy()` is defined as never writing a final position.
+**Destroy never pins.** The authoritative pin (D-16) belongs to the normal settlement join; a destroyed controller has no authored DOM to agree with. **Cancelling the tail is not a pin either**, and cannot become one: the contribution decays to zero, so ending it at any instant leaves the element exactly where flow puts it.
 
 Two invariants this ordering creates, both of which are new obligations that probe 1's single container did not have (F-12):
 
-- **No behavior callback in the sequence can stop a later step** — wherever the sequence runs. The kernel wraps `spec.retire()`, each attempt's cleanup (including a throwing `LandingHandle.destroy()`), and each frame reset, reporting and continuing. ~~through the platform reporter~~ — since D-130 the report is a `DraggableWarning` on the consumer's `onError`, **and after logical closure it is refused rather than delivered** (D-37): what the sequence guarantees is that the next step runs, never that the consumer hears about the one that did not. A behavior cannot strand the kernel's DOM cleanup, and ingress abort is in a `finally`. Deferral does not touch this: the wrapping travels with the steps, and a throw at the transaction boundary is caught by the same handlers it would have been caught by on the closing stack.
+- **No behavior callback in the sequence can stop a later step** — wherever the sequence runs. The kernel wraps `spec.retire()`, each attempt's cleanup, the tail's own `cancel()` — a method on an object reachable from a consumer-owned element — and each frame reset, reporting and continuing. ~~through the platform reporter~~ — since D-130 the report is a `DraggableWarning` on the consumer's `onError`, **and after logical closure it is refused rather than delivered** (D-37): what the sequence guarantees is that the next step runs, never that the consumer hears about the one that did not. A behavior cannot strand the kernel's DOM cleanup, and ingress abort is in a `finally`. Deferral does not touch this: the wrapping travels with the steps, and a throw at the transaction boundary is caught by the same handlers it would have been caught by on the closing stack.
 
   **The same totality applies to the `arm()` unwind**: a reset that throws while unwinding a failed `arm()` must not replace the original arm failure or skip ingress cleanup.
 
@@ -443,7 +443,7 @@ The same seven steps, minus 1, 2 and 7, are operation retirement.
 The reversal is **safe, not merely permitted**, and the reason is the shape of the window rather than a judgement about what reporting is allowed to see:
 
 - **`panic()` is reached from `drain`'s `catch`, after the loop has already exited.** The deferral window is therefore **one stack frame wide**, and the only statement inside it is `report`.
-- ~~**`report` touches no library state.** It reads the error it was handed and hands it to the platform reporter. It mints nothing, admits nothing, and mutates neither kernel nor behavior state, so there is no state whose teardown it could observe out of order.~~ **False since D-130, and D-131 replaces the clause rather than the ordering.** The statement inside the window is now the consumer's `onError`, which does touch library state and can call back in. The ordering survives on the _next_ bullet alone, and the delivery becomes a **named exception to D-37 (a)** — the second member of D-51's closed list, admitted for the property D-51 used to admit `LandingHandle.destroy()`: a terminal diagnostic tells the consumer something and asks nothing of them, publishing no lifecycle or domain event, ignoring its return value, performing no operation work, and wrapped.
+- ~~**`report` touches no library state.** It reads the error it was handed and hands it to the platform reporter. It mints nothing, admits nothing, and mutates neither kernel nor behavior state, so there is no state whose teardown it could observe out of order.~~ **False since D-130, and D-131 replaces the clause rather than the ordering.** The statement inside the window is now the consumer's `onError`, which does touch library state and can call back in. The ordering survives on the _next_ bullet alone, and the delivery becomes a **named exception to D-37 (a)** — the second member of D-51's closed list, admitted for the property D-51 admitted `LandingHandle.destroy()` for: a terminal diagnostic tells the consumer something and asks nothing of them, publishing no lifecycle or domain event, ignoring its return value, performing no operation work, and wrapped.
 - **The latch is already set before it runs.** Whatever the handler's own code does — including calling back into the controller — meets a closed controller, because step 1 preceded the report. The old ordering bought its safety by finishing teardown first; the new ordering buys the same safety earlier and more cheaply, from the latch. **This is now the whole argument**, and the alternative it beats is stated in D-130 §8: reporting first would run consumer code on a controller whose invariants are already known to be broken, with the added hazard that the consumer may start work the next statement tears down.
 
 The one way to distinguish the two orderings from outside is to observe physical teardown — an aborted signal, a disposed session, a detached node — during the report. D-38 forbids reading any of those as a liveness answer, so the distinction is unobservable by any participant obeying the contract. **No library work continues on the broken stack**: the frame that panicked unwinds, and teardown runs at the boundary below it.

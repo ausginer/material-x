@@ -4,8 +4,9 @@
  *
  * The placeholder is the dragged item's authoritative layout footprint for the
  * whole operation — created detached during `activation.prepare`, inserted as a
- * post-commit effect, never duplicated or lost, valid while the lifted visual
- * is landing, released only when both gates are complete.
+ * post-commit effect, never duplicated or lost, and removed when
+ * presentation is released, which is after the final pin and before the
+ * terminal callback.
  */
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { OffsetBox } from '../kernel/types.ts';

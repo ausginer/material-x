@@ -3,8 +3,8 @@
 //
 // Two of these are named for a state they describe only *after* their effect
 // runs. `ACTIVATING` is committed **before** `activation.effect` inserts the
-// placeholder, and `FINALIZING` is committed **before** the join measures,
-// destroys the runner, pins and releases presentation. The names describe the
+// placeholder, and `FINALIZING` is committed **before** the join pins,
+// releases presentation and starts the tail. The names describe the
 // phase from its commit, which is when it becomes observable.
 
 /** No operation. The only phase that admits input. */
@@ -17,11 +17,11 @@ export const ACTIVATING = 2;
 export const ACTIVE = 3;
 /** Input closed, geometry final, consumer resolving. */
 export const RELEASING = 4;
-/** Outcome committed; awaiting the landing and readiness gates. */
+/** Outcome committed; the landing target not yet measured. */
 export const SETTLING = 5;
 /** `onError` in flight. */
 export const REPORTING = 6;
-/** Finalization in progress: measure, pin, release, report. */
+/** Finalization in progress: pin, release, interpolate, report. */
 export const FINALIZING = 7;
 
 export type Phase =

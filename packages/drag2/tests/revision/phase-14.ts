@@ -75,16 +75,12 @@ import type {
   KernelFrame,
 } from '../../src/kernel/frames.ts';
 import type { LifetimeScope } from '../../src/kernel/lifetimes.ts';
-import type { DOMRealm } from '../../src/kernel/realm.ts';
 import type { Transition } from '../../src/kernel/seams.ts';
 import type {
   KernelHost,
-  LandingContext,
-  LandingStart,
   PreparedSettlement,
   ResolutionCommand,
   SettlementInput,
-  SettlementScope,
   SettlementTransition,
 } from '../../src/kernel/spec.ts';
 import type { Point } from '../../src/kernel/types.ts';
@@ -163,24 +159,26 @@ type BehaviorLiftSession = Readonly<
 
 /**
  * **The source path D-35 depends on, compiled** (C4-06). Declaring both
- * `lift.rendered` and `LandingContext.from` proves two aliases have the same
+ * `lift.rendered` and a published origin proves two aliases have the same
  * shape; it does not prove the kernel builds one from the other. This does, and
- * it is also where the sampling boundary in C4-02's narrowed rule sits: `from`
- * is read **once**, here, before any runner exists.
+ * it is also where the sampling boundary in C4-02's narrowed rule sits: the
+ * origin is read **once**, here, and D-155 moves that read to the join without
+ * moving where it comes from.
  */
-export function buildLandingContext(
+export function sampleLandingOrigin(
   lift: KernelVisualLiftSession,
   target: Point,
-  realm: DOMRealm,
-): LandingContext {
+): Readonly<{
+  fromX: number;
+  fromY: number;
+  targetX: number;
+  targetY: number;
+}> {
   return {
-    visual: lift.visual,
-    compose: lift.compose,
     fromX: lift.rendered.x,
     fromY: lift.rendered.y,
     targetX: target.x,
     targetY: target.y,
-    realm,
   };
 }
 
@@ -462,7 +460,6 @@ declare function classify(
   draft: Draft<SortablePart>,
   input: SettlementInput,
 ): void;
-declare const startLanding: LandingStart | null;
 declare const rejection: RevisedSeamRejection;
 
 /**
@@ -683,11 +680,9 @@ export function createSortableSpec(
         return true;
       },
 
-      effect(_current, _prepared, scope): void {
-        if (startLanding !== null) {
-          scope.holdForLanding(startLanding);
-        }
-      },
+      // **Stale as of D-155**: the landing gate this requested is deleted, and
+      // the timing that replaced it is asked for at the join.
+      effect(): void {},
     },
 
     action: {
@@ -839,11 +834,8 @@ export const freeDragSpec: RevisedBehaviorSpec<FreeDragPart> = {
     prepare(): PreparedSettlement {
       return true;
     },
-    effect(_current, _prepared, scope): void {
-      if (startLanding !== null) {
-        scope.holdForLanding(startLanding);
-      }
-    },
+    // **Stale as of D-155**, exactly as the sortable's above is.
+    effect(): void {},
   },
 
   action: {
@@ -999,8 +991,12 @@ declare const promised: Readonly<{ ready: PromiseLike<void> }>;
 // @ts-expect-error — `PreparedSettlement` carries a boolean, not a thenable.
 export const n9: PreparedSettlement = promised;
 
-/** And no settlement primitive crosses the public surface. */
-declare const scope: SettlementScope;
+/**
+ * And no settlement primitive crosses the public surface. The scope itself is
+ * retired (D-155), so what the assertion once read off a live type it now reads
+ * off the shape that is left: no gates, no members, nothing to hold.
+ */
+declare const scope: Readonly<Record<never, never>>;
 
 // @ts-expect-error — deleted with the readiness protocol (D-41).
 export const n10: object = scope.holdForReadiness;

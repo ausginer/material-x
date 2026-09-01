@@ -8,13 +8,11 @@
  * `composition.browser.test.ts`; these add the first.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { DraggableError, type DraggableWarning } from '../../src/drag.ts';
-import { FAILURE_LANDING_CREATE } from '../../src/kernel/failures.ts';
+import { DraggableError, DraggableWarning } from '../../src/drag.ts';
 import type { OnReorder } from '../../src/sortable/domain.ts';
 import type {
   AxisInstaller,
-  LandingHandle,
-  LandingStart,
+  LandingTiming,
   SortableLandingInstaller,
 } from '../../src/sortable/feature.ts';
 import {
@@ -220,13 +218,14 @@ const withReducedMotion = async <T>(body: () => Promise<T>): Promise<T> => {
 };
 
 /**
- * A landing runner authored at the **middle tier** (D-63): the three lines
- * `landing()` itself writes, which is what a consumer's `run` used to reach.
+ * A landing timing policy authored at the **middle tier** (D-63): the three
+ * lines `landing()` itself writes, which is what a consumer's `run` used to
+ * reach.
  */
 const authoredLanding = (
-  start: LandingStart,
+  timing: LandingTiming,
 ): { landing: SortableLandingInstaller } => ({
-  landing: () => ({ startLanding: start }),
+  landing: () => ({ landingTiming: timing }),
 });
 
 describe('placeholder', () => {
@@ -748,14 +747,16 @@ describe('the contextual landing duration (D-67)', () => {
     expect(reads).toBe(1);
   });
 
-  it('should classify an out-of-domain contextual result at settlement', async () => {
-    // **The thrower is `animate()`, not the library** (D-77, D-79). ~~It throws
-    // from inside `start`, which the kernel classifies as a landing-create
-    // failure.~~ The library stopped judging `-1` when `requireFinite` was
-    // deleted; what this row still pins is that the platform's own refusal
-    // arrives at the **same stage** the deleted check reached, which is the
-    // premise the deletion rests on. Measured in
+  it('should report an out-of-domain contextual result without failing the drop', async () => {
+    // **The thrower is `animate()`, not the library** (D-77, D-79). The library
+    // stopped judging `-1` when `requireFinite` was deleted; the platform
+    // refuses it instead. Measured in
     // `.plan/measurements/animate-duration-domain.md`; asserted here.
+    //
+    // **And the refusal is not consequential** (D-155). The tail is an
+    // interpolation started after the drop was decided, committed and
+    // reported, so a duration the platform will not take costs the consumer a
+    // warning and a jump cut — never the operation.
     const composed = compose(landing({ duration: () => -1 }));
 
     activate(composed);
@@ -763,12 +764,10 @@ describe('the contextual landing duration (D-67)', () => {
     release(55);
 
     expect(composed.errors).toHaveLength(1);
-    // A landing that could not be *created* replaces the settlement, so it is
-    // consequential — unlike the target measurement beside it (D-130).
-    expect(composed.errors[0]).toBeInstanceOf(DraggableError);
-    expect((composed.errors[0] as DraggableError).stage).toBe(
-      FAILURE_LANDING_CREATE,
-    );
+    expect(composed.errors[0]).toBeInstanceOf(DraggableWarning);
+    expect(composed.errors[0]).not.toBeInstanceOf(DraggableError);
+    expect(composed.finishes).toHaveLength(1);
+    expect(composed.items[0]!.getAnimations()).toEqual([]);
   });
 
   /**
@@ -779,10 +778,12 @@ describe('the contextual landing duration (D-67)', () => {
    * exercises is where a later pass re-adds a guard without noticing.
    *
    * `Infinity` is the one duration the platform **accepts** and never
-   * completes, so it is the one value that hangs the settlement gate with no
-   * terminal at all. That outcome is now the documented boundary on
-   * `LandingOptions.duration`, and the terminal is asserted here — as an
-   * absence — for exactly the reason it used to be asserted as a presence.
+   * completes. Nothing waits on it (D-155): the drop is decided, reported and
+   * terminated before the tail starts, so an unbounded duration is a
+   * contribution that never decays on an element the library has already let
+   * go of — the next activation cancels it, and so does `destroy()`. That
+   * outcome is the documented boundary on `LandingOptions.duration`, and what
+   * is asserted here is that neither form is refused.
    */
   const unbounded = { duration: Number.POSITIVE_INFINITY };
 
@@ -813,8 +814,8 @@ describe('the contextual landing duration (D-67)', () => {
   });
 
   it('should resolve the duration before the reduced-motion collapse', async () => {
-    // D4: the call timing is *once per landing, immediately before the runner
-    // builds its animation* and is not conditional on a media query. Resolving
+    // D4: the call timing is *once per landing, immediately before the
+    // interpolation starts* and is not conditional on a media query. Resolving
     // inside the collapse would make a consumer's settle-time side effect — and
     // a thrown or invalid result — observable only for users who have **not**
     // asked for reduced motion.
@@ -838,183 +839,171 @@ describe('the contextual landing duration (D-67)', () => {
   });
 });
 
+/**
+ * The options the tail was started with, captured at the call.
+ *
+ * **A zero-length contribution cannot be read back.** It has already finished
+ * by the statement after the drop and it holds no fill, so the element stops
+ * reporting it — which is precisely the case every reduced-motion row below is
+ * about. Instrumenting the one call the kernel makes is the reading that
+ * survives a collapse.
+ */
+const captureTail = (item: HTMLElement): KeyframeAnimationOptions[] => {
+  const captured: KeyframeAnimationOptions[] = [];
+  const native = item.animate.bind(item);
+
+  item.animate = (keyframes, options): Animation => {
+    captured.push(options as KeyframeAnimationOptions);
+
+    return native(keyframes, options);
+  };
+
+  return captured;
+};
+
 describe('landing', () => {
-  it('should hold settlement open until the animation finishes', async () => {
-    const composed = compose(landing({ duration: 50 }));
+  it('should finalize while the tail is still running', async () => {
+    // **The landing holds nothing open** (D-155). The tail is an additive
+    // contribution to a visual the library has already released, so the
+    // terminal fires, the placeholder leaves and the inline styles come back
+    // on the statement the drop lands on — with half a second of motion still
+    // ahead of the element.
+    const composed = compose(landing({ duration: 500 }));
 
     activate(composed);
     await drag(55);
     release(55);
-    await Promise.resolve();
-    await Promise.resolve();
-
-    // The gate is held: presentation is still owned, so the placeholder is
-    // still standing in for the item.
-    expect(composed.finishes).toEqual([]);
-    expect(composed.placeholder()).not.toBeNull();
-  });
-
-  it('should finalize once the animation completes', async () => {
-    const composed = compose(landing({ duration: 1 }));
-
-    activate(composed);
-    await drag(55);
-    release(55);
-
-    await composed.items[0]!.getAnimations()[0]?.finished;
-    await Promise.resolve();
-    await Promise.resolve();
 
     expect(composed.finishes).toHaveLength(1);
     expect(composed.placeholder()).toBeNull();
+    expect(composed.items[0]!.getAnimations()[0]!.playState).toBe('running');
   });
 
-  it('should hold the gate even with a zero duration', async () => {
-    // `duration: 0` is immediate but still goes through the runner — the same
-    // code path, so there is one lifecycle rather than two.
-    const composed = compose(landing({ duration: 0 }));
+  it('should restore the inline transform before the tail starts', async () => {
+    // The ordering that makes the tail sound: presentation is released
+    // **completely** — the drag's composed `transform` included — and only
+    // then does anything interpolate. The tail contributes through `translate`
+    // and has no fill, so a consumer reading the element's inline styles sees
+    // exactly what it authored itself.
+    const composed = compose(landing({ duration: 500 }));
 
     activate(composed);
     await drag(55);
     release(55);
 
-    expect(composed.items[0]!.getAnimations()).toHaveLength(1);
+    const [animation] = composed.items[0]!.getAnimations();
 
-    await composed.items[0]!.getAnimations()[0]?.finished;
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(composed.finishes).toHaveLength(1);
-  });
-
-  it('should relinquish the transform so the kernel pin wins', async () => {
-    const composed = compose(landing({ duration: 1 }));
-
-    activate(composed);
-    await drag(55);
-    release(55);
-
-    await composed.items[0]!.getAnimations()[0]?.finished;
-    await Promise.resolve();
-    await Promise.resolve();
-
-    // Destroyed before the pin, so nothing of the animation survives the join.
-    expect(composed.items[0]!.getAnimations()).toEqual([]);
     expect(composed.items[0]!.style.transform).toBe('');
+    expect(composed.items[0]!.style.translate).toBe('');
+    expect((animation!.effect as KeyframeEffect).composite).toBe('add');
   });
 
-  it('should let a middle-tier runner replace the default entirely', async () => {
-    // **The capability moved tiers, it was not deleted** (D-63). `landing({ run })`
-    // is gone from the consumer surface — the library owns the animation there
-    // — and an installer contributing `startLanding` is what a spring or an
-    // rAF loop is written as now. The seam is unchanged, which is why this case
-    // reads the same as it did.
-    let complete: (() => void) | null = null;
-    const composed = compose(
-      authoredLanding((_context, done) => {
-        complete = done;
-        return { destroy: (): void => {} };
-      }),
-    );
+  it('should start a zero-length tail for a zero duration', async () => {
+    // `duration: 0` goes through the same one code path as any other duration:
+    // one additive contribution, computed to nothing, rather than a second
+    // lifecycle for the instantaneous case.
+    const composed = compose(landing({ duration: 0 }));
+    const captured = captureTail(composed.items[0]!);
 
     activate(composed);
     await drag(55);
     release(55);
 
-    // No Web Animation at all: the replacement is total, not a wrapper.
-    expect(composed.items[0]!.getAnimations()).toEqual([]);
-    expect(composed.finishes).toEqual([]);
-
-    complete!();
-    await Promise.resolve();
-    await Promise.resolve();
-
+    expect(captured).toEqual([
+      { duration: 0, easing: 'ease', composite: 'add' },
+    ]);
     expect(composed.finishes).toHaveLength(1);
   });
 
-  it('should classify a runner that fails as a landing failure', async () => {
+  it('should take its timing from a middle-tier policy', async () => {
+    // **The capability moved tiers, it was not deleted** (D-63). `landing({ run })`
+    // is gone from the consumer surface — the kernel owns the interpolation —
+    // and an installer contributing `landingTiming` is what a policy is written
+    // as now. What it decides is how long and with what easing, per drop.
     const composed = compose(
-      authoredLanding((_context, _done, fail) => {
-        fail(new Error('spring exploded'));
-        return { destroy: (): void => {} };
+      authoredLanding((_fromX, fromY) => ({
+        // A policy is handed the trajectory, so it can time by it: the drop
+        // below travels 45px down from the grab.
+        duration: Math.abs(fromY) * 10,
+        easing: 'steps(4)',
+      })),
+    );
+
+    activate(composed);
+    await drag(55);
+    release(55);
+
+    const [animation] = composed.items[0]!.getAnimations();
+
+    expect((animation!.effect as KeyframeEffect).getTiming()).toMatchObject({
+      duration: 450,
+      easing: 'steps(4)',
+    });
+  });
+
+  it('should start no tail when the policy declines one', async () => {
+    // `null` is a policy's answer for *this drop does not travel*, and it is
+    // the whole of what declining costs: the visual stays where the drop put
+    // it, on the frame it landed, and the operation ends exactly as it does
+    // with a tail.
+    const composed = compose(authoredLanding(() => null));
+
+    activate(composed);
+    await drag(55);
+    release(55);
+
+    expect(composed.items[0]!.getAnimations()).toEqual([]);
+    expect(composed.finishes).toHaveLength(1);
+    expect(composed.errors).toEqual([]);
+  });
+
+  it('should report a throwing policy without failing the drop', async () => {
+    // A tail is presentation, and a presentational fault may not reach a
+    // consumer whose drop has already been decided and reported. So the throw
+    // is unwound into a warning and changes nothing: no tail, and the same
+    // terminal the drop would have had.
+    const composed = compose(
+      authoredLanding((): never => {
+        throw new Error('spring exploded');
       }),
     );
 
     activate(composed);
     await drag(55);
     release(55);
-    await Promise.resolve();
-    await Promise.resolve();
 
     expect(composed.errors).toHaveLength(1);
-  });
-
-  it('should cancel the animation when subscribing to it throws', async () => {
-    // `animate()` succeeding is not the same as acquiring a runner: `finished`
-    // is an accessor and `then` is a call, and either can throw. An animation
-    // left playing at that point keeps writing the transform with nothing able
-    // to stop it, because the handle being built never reaches the kernel.
-    const composed = compose(landing({ duration: 400 }));
-    const native = Element.prototype.animate;
-    let created: Animation | null = null;
-
-    Element.prototype.animate = function animate(
-      this: Element,
-      ...args: Parameters<Element['animate']>
-    ): Animation {
-      const animation = native.apply(this, args);
-
-      created = animation;
-      Object.defineProperty(animation, 'finished', {
-        configurable: true,
-        get(): never {
-          throw new Error('no finished for you');
-        },
-      });
-
-      return animation;
-    };
-
-    try {
-      activate(composed);
-      await drag(55);
-      release(55);
-    } finally {
-      Element.prototype.animate = native;
-    }
-
-    await Promise.resolve();
-    await Promise.resolve();
-
-    expect(composed.errors).toHaveLength(1);
-    expect((created as Animation | null)?.playState).toBe('idle');
+    expect(composed.errors[0]).toBeInstanceOf(DraggableWarning);
     expect(composed.items[0]!.getAnimations()).toEqual([]);
+    expect(composed.finishes).toHaveLength(1);
   });
 
   it('should collapse the duration under a reduced-motion preference', async () => {
-    // Collapsed, not skipped: the gate is still held and still released through
-    // the runner, so there is one lifecycle whatever the preference is.
+    // Collapsed, not declined: the element arrives on the frame the drop lands
+    // and the two motion preferences differ in duration alone, so there is one
+    // lifecycle whatever the preference is.
     const composed = compose(landing({ duration: 400 }));
+    const captured = captureTail(composed.items[0]!);
 
-    // Read inside the block: a zero duration finishes within the microtasks an
-    // `await` on the wrapper would itself introduce, and the kernel then
-    // destroys the runner.
-    const animation = await withReducedMotion(async () => {
+    // Dropped inside the block, where the stub is installed: the collapse is
+    // decided when the policy runs, which is on the release statement.
+    await withReducedMotion(async () => {
       activate(composed);
       await drag(55);
       release(55);
-      return composed.items[0]!.getAnimations()[0];
     });
 
-    expect(animation!.effect!.getComputedTiming().duration).toBe(0);
+    expect(captured).toEqual([
+      { duration: 0, easing: 'ease', composite: 'add' },
+    ]);
   });
 
   it('should read a duration thunk at settle time, once per landing', async () => {
     // 13b B-2, the ergonomics half of Phase 15. The shipped package read
     // `landingTiming()` after the settlement step that decides where the visual
     // is going; a thunk restores that timing without giving up anything the
-    // default runner provides — the reduced-motion collapse, the retarget
-    // replay and the generation guard all still apply.
+    // shipped policy provides — the reduced-motion collapse still applies, and
+    // the value is still read exactly once per drop.
     const reads: string[] = [];
     const composed = composeWith({
       fragments: [
@@ -1039,11 +1028,11 @@ describe('landing', () => {
   });
 
   it('should read a duration thunk under a reduced-motion preference too', async () => {
-    // D4. The collapse used to *replace* the thunk rather than adjust its
-    // result, so the documented call timing — "once per landing, immediately
-    // before the runner builds its animation" — silently did not hold for
-    // reduced-motion users, and a consumer's settle-time side effect went with
-    // it. Resolve first, then collapse.
+    // D4. A collapse that *replaced* the thunk rather than adjusting its result
+    // would make the documented call timing — once per landing, immediately
+    // before the interpolation starts — silently untrue for reduced-motion
+    // users, and a consumer's settle-time side effect would go with it.
+    // Resolve first, then collapse.
     const reads: string[] = [];
     const composed = composeWith({
       fragments: [
@@ -1056,17 +1045,20 @@ describe('landing', () => {
       ],
     });
 
-    const animation = await withReducedMotion(async () => {
+    const captured = captureTail(composed.items[0]!);
+
+    await withReducedMotion(async () => {
       activate(composed);
       await drag(55);
       release(55);
-      return composed.items[0]!.getAnimations()[0];
     });
 
     expect(reads).toEqual(['read']);
     // Still collapsed: the preference adjusts the resolved value, it does not
     // bypass the resolution.
-    expect(animation!.effect!.getComputedTiming().duration).toBe(0);
+    expect(captured).toEqual([
+      { duration: 0, easing: 'ease', composite: 'add' },
+    ]);
   });
 
   it('should land an unbounded thunk result under a reduced-motion preference', async () => {
@@ -1075,8 +1067,8 @@ describe('landing', () => {
     // preceded the collapse, precisely so a consumer diagnosing a bug did not
     // get a different answer because of the reader's OS setting. With no test
     // left, the collapse is the first thing the resolved value meets: under
-    // `reduce` an unbounded duration becomes zero and the operation lands
-    // normally, while without the preference it hangs the gate.
+    // `reduce` an unbounded duration becomes zero and the element arrives at
+    // once, while without the preference it interpolates forever.
     //
     // **That divergence by OS setting is the price of the deletion**, and it
     // is pinned here rather than left to be rediscovered — this row is the one
@@ -1085,6 +1077,7 @@ describe('landing', () => {
     const composed = composeWith({
       fragments: [landing({ duration: () => Number.POSITIVE_INFINITY })],
     });
+    const captured = captureTail(composed.items[0]!);
 
     await withReducedMotion(async () => {
       activate(composed);
@@ -1097,6 +1090,9 @@ describe('landing', () => {
 
     expect(composed.errors).toEqual([]);
     expect(composed.finishes.length + composed.cancels.length).toBe(1);
+    expect(captured).toEqual([
+      { duration: 0, easing: 'ease', composite: 'add' },
+    ]);
   });
 
   it('should default the easing to the retained shipped value', async () => {
@@ -1133,19 +1129,24 @@ describe('landing', () => {
     });
   });
 
-  it('should not report a cancelled animation as a failure', async () => {
-    // `retarget` and teardown both cancel, and WAAPI rejects `finished` on a
-    // cancel — which would otherwise surface as a landing failure for an
-    // operation that is landing perfectly well.
+  it('should not report a cancelled tail as a failure', async () => {
+    // Teardown cancels what the controller still owns, and so does the next
+    // activation. Cancelling is safe at any moment — the contribution decays to
+    // zero, so the element is left exactly where flow puts it — and it is not a
+    // fault for an operation that landed perfectly well.
     const composed = compose(landing({ duration: 500 }));
 
     activate(composed);
     await drag(55);
     release(55);
+
+    const [animation] = composed.items[0]!.getAnimations();
+
     void composed.controller.destroy();
     await Promise.resolve();
     await Promise.resolve();
 
+    expect(animation!.playState).toBe('idle');
     // **One collector since D-130.** `expect(reported).toEqual([])` stood
     // beside this and observed a `globalThis.reportError` stub; with one
     // channel this single assertion covers both populations.
@@ -1155,23 +1156,18 @@ describe('landing', () => {
   it('should leave nothing behind when the duration thunk destroys the controller', async () => {
     // **A conformance pin, not a regression pin — the bracket-discharge
     // witness** (Checkpoint D review 4, the landing residue; reclassified by
-    // review 5, C5-03). It passes against current source, and the barrier it
-    // witnesses is the **kernel's**, not `landing.ts`'s: the thunk is consumer
-    // code and the next statements inside `start` reach the consumer's own
-    // visual (`realm.window.matchMedia`, then `visual.animate()`) with no
-    // reading between them, so the module holds none. Under I-36 (1) it does
-    // not need one — the whole stretch sits inside the F-30 revalidation, whose
-    // `runner.destroy()` cancels the unpublished handle in the same synchronous
-    // stretch with no paint in between, and `retireSettlement` disposes a
-    // published one the same way. `getAnimations() === []` and
-    // `style.transform === ''` are what witness that the bracket's **undo** is
-    // complete, which is condition (ii) of bracket discharge.
+    // review 5, C5-03). The barrier it witnesses is the **kernel's**: the thunk
+    // is consumer code, reached through the policy the kernel asks for the
+    // tail's timing, and the kernel revalidates the controller between that
+    // answer and the `animate()` call it would otherwise make. So a controller
+    // destroyed from inside the thunk leaves **no residue at all** — not one
+    // animation to cancel, because none is started.
     //
     // What this pins is the blast radius, executably, so the next reviewer
     // reads a measured size rather than a prose claim. It **fails** if the
-    // residue ever acquires a consequence the operation outlives: a second
+    // residue ever acquires a consequence the operation outlives: an
     // `animate()` call, an animation that survives teardown, a transform left
-    // on the visual, a reported failure, or a missing/duplicated `onCancel`.
+    // on the visual, a reported failure, or a terminal that should not fire.
     // Late-bound on purpose: the thunk runs once the drop settles, long after
     // the controller exists.
     let controller: SortableController | null = null;
@@ -1203,13 +1199,12 @@ describe('landing', () => {
     await Promise.resolve();
     await Promise.resolve();
 
-    // The instrumented call list, not the resulting state: exactly one
-    // `animate()`, which is the residue's whole size.
-    expect(calls).toEqual(['animate']);
-    // And nothing of it survives — the handle was destroyed before it was ever
-    // published, so the landing never started.
+    // The instrumented call list, not the resulting state: the destroyed
+    // controller writes nothing, so the residue's size is zero.
+    expect(calls).toEqual([]);
     expect(item.getAnimations()).toEqual([]);
     expect(item.style.transform).toBe('');
+    expect(item.style.translate).toBe('');
     expect(composed.placeholder()).toBeNull();
     // A consumer destroying its own controller is not a library failure.
     // **One collector since D-130.** `expect(reported).toEqual([])` stood
@@ -1221,74 +1216,7 @@ describe('landing', () => {
     // gap: destroy is a teardown, not a settlement, so the operation it was
     // resolving does not get to announce an outcome — see
     // `composition.browser.test.ts` — _should tear down without a terminal
-    // callback when onReorder destroys_. `ARM_STALE` suppresses the settlement
-    // as well, so there is nothing left to announce it with.
-    expect(composed.cancels).toEqual([]);
-    expect(composed.finishes).toEqual([]);
-  });
-
-  it('should destroy a consumer runner’s handle exactly once when the runner destroyed the controller', async () => {
-    // **A conformance pin, not a regression pin** (Checkpoint D review 5,
-    // C5-03 §5). It passes against current source and adds no barrier: what it
-    // pins is the **admitted** form of I-6 clause 3's kernel half. With a
-    // **middle-tier installer** supplying `startLanding` — which is where a
-    // consumer-authored runner lives since D-63 withdrew `landing({ run })`,
-    // and which is why this pin did not become vacuous when that option went —
-    // `start` *is* code the library does not own and the handle it returns
-    // *is* a consumer-authored object — so F-30's
-    // `!settlementLive(attempt)` branch invokes a declared consumer slot member
-    // after `controller.destroy()` returned. The kernel must: not calling it
-    // leaks a runner nothing owns (I-20). That is why the invariant reads
-    // *afterwards no callback fires **that leaves anything behind*** rather
-    // than *no callback fires*.
-    //
-    // It fails if the qualified headline ever acquires a consequence: `destroy`
-    // called twice or not at all (a leaked runner), `retarget` called after the
-    // terminal barrier (a call that is not a relinquishment), or an animation,
-    // transform or placeholder surviving.
-    let controller: SortableController | null = null;
-    const calls: string[] = [];
-    let destroyedFirst = false;
-
-    const composed = composeWith({
-      fragments: [
-        authoredLanding((): LandingHandle => {
-          void controller!.destroy();
-          destroyedFirst = true;
-
-          return {
-            destroy(): void {
-              calls.push('destroy');
-            },
-          };
-        }),
-      ],
-    });
-
-    ({ controller } = composed);
-
-    const item = composed.items[0]!;
-
-    activate(composed);
-    await drag(55);
-    release(55);
-    await Promise.resolve();
-    await Promise.resolve();
-
-    // The instrumented call list on the consumer-authored object, not the
-    // resulting state: exactly one relinquishment and no trajectory call.
-    expect(calls).toEqual(['destroy']);
-    // And it ran after `controller.destroy()` returned, which is the whole
-    // claim — a flag rather than a timer, so nothing here is schedule-coupled.
-    expect(destroyedFirst).toBe(true);
-    // Nothing survives.
-    expect(item.getAnimations()).toEqual([]);
-    expect(item.style.transform).toBe('');
-    expect(composed.placeholder()).toBeNull();
-    // **One collector since D-130.** `expect(reported).toEqual([])` stood
-    // beside this and observed a `globalThis.reportError` stub; with one
-    // channel this single assertion covers both populations.
-    expect(composed.errors).toEqual([]);
+    // callback when onReorder destroys_.
     expect(composed.cancels).toEqual([]);
     expect(composed.finishes).toEqual([]);
   });
@@ -1446,8 +1374,9 @@ describe('layoutAnimation', () => {
   });
 
   it('should not delay settlement while a displacement is running', async () => {
-    // D-7: it has no `SettlementScope`, so it structurally cannot gate. The
-    // drop finishes with the displacement still in flight.
+    // D-7: a displacement contribution reaches no lifecycle seam, so it
+    // structurally cannot delay one. The drop finishes with the displacement
+    // still in flight.
     const composed = compose(layoutAnimation({ duration: 5000 }));
 
     activate(composed);
@@ -1458,24 +1387,27 @@ describe('layoutAnimation', () => {
     expect(composed.placeholder()).toBeNull();
   });
 
-  it('should compose with landing without either gating the other', async () => {
+  it('should compose with landing without either delaying the terminal', async () => {
+    // **Neither one gates the terminal** (D-155), and the two have different
+    // lifetimes, which is what composing them shows: the drop is finished on
+    // the release statement, with five seconds of tail still ahead of the
+    // dropped row and the displacement already retired with the operation.
     const composed = compose(
       layoutAnimation({ duration: 5000 }),
-      landing({ duration: 1 }),
+      landing({ duration: 500 }),
     );
 
     activate(composed);
     await drag(55);
     release(55);
 
-    // Landing holds the gate; the displacement does not.
-    expect(composed.finishes).toEqual([]);
-
-    await composed.items[0]!.getAnimations()[0]?.finished;
-    await Promise.resolve();
-    await Promise.resolve();
-
     expect(composed.finishes).toHaveLength(1);
+    expect(composed.placeholder()).toBeNull();
+    // The tail outlives the operation — it is the kernel's, on the released
+    // visual — where the displacement is the operation's and retires with it,
+    // which is why the row that moved out of the way carries nothing.
+    expect(composed.items[0]!.getAnimations()[0]!.playState).toBe('running');
+    expect(composed.items[1]!.getAnimations()).toEqual([]);
   });
 });
 

@@ -14,7 +14,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { SortableConfig } from '../../src/sortable/config.ts';
 import type { SortableFeatureContext } from '../../src/sortable/feature.ts';
-import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
@@ -565,10 +564,10 @@ describe('displacement ownership', () => {
   });
 
   it('should cancel a displacement it could not track', async () => {
-    // Acquisition is all-or-nothing, exactly as in `landing()`: `finished` is
-    // an accessor and `then` is a call. An animation started but never entered
-    // into the map would survive `retire()` and keep offsetting a row nothing
-    // owns.
+    // Acquisition is all-or-nothing: `finished` is an accessor and `then` is a
+    // call, so either can throw between starting an animation and recording it.
+    // One started but never entered into the map would survive `retire()` and
+    // keep offsetting a row nothing owns.
     const composed = build({ fragments: withLayout() });
     const native = Element.prototype.animate;
     let created: Animation | null = null;
@@ -1036,13 +1035,27 @@ describe('continuity under interruption', () => {
     // its position in one frame, at the one instant the user is watching the
     // item land.
     //
-    // **Composed with a landing**, so the operation is still alive while the
-    // drop settles. Teardown legitimately cancels what the controller still
-    // owns, and with no tail that teardown follows the release sample too
-    // closely to tell the two apart. What this row pins is that nothing is
-    // cancelled *in order to measure*.
+    // **Sampled from inside a recording timing policy** (D-155), because
+    // release no longer leaves an interval to read from the outside: settlement
+    // suspends for nothing, so the operation retires — cancelling everything
+    // the controller still owns, legitimately — on the same statement as the
+    // release. The policy runs at the join, after the settlement rebuild that
+    // did the measuring and before that retire, which is exactly the instant
+    // this row is about. It declines a tail: what is under test is what the
+    // rebuild left running, not what follows it.
+    let sampled: Animation[] | null = null;
     const composed = build({
-      fragments: [...withLayout(), landing({ duration: 400 })],
+      fragments: [
+        ...withLayout(),
+        {
+          landing: () => ({
+            landingTiming: (): null => {
+              sampled = running(composed.items[1]!);
+              return null;
+            },
+          }),
+        },
+      ],
       itemCount: 5,
     });
 
@@ -1055,7 +1068,7 @@ describe('continuity under interruption', () => {
 
     release(55);
 
-    expect(running(composed.items[1]!)).toEqual(carried);
+    expect(sampled).toEqual(carried);
   });
 });
 

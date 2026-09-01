@@ -22,7 +22,7 @@ Two rows were **removed** rather than re-pointed in that pass, both from §The i
 | upward reorder | `tests/sortable/composition.browser.test.ts` — _should return to an earlier gap when the pointer comes back_ | — |
 | release at the current insertion | `tests/sortable/composition.browser.test.ts` — _should propose the gap the pointer settled on_ | I-12 |
 | no-op release | `tests/sortable/composition.browser.test.ts` — _should finish a drop that never left its own gap as a no-op_ | F-29, F-37 |
-| immediate landing | `tests/sortable/features.browser.test.ts` — _should hold the gate even with a zero duration_ | I-9 |
+| immediate landing | `tests/sortable/features.browser.test.ts` — _should start a zero-length tail for a zero duration_ | I-9 |
 
 ## Boundary
 
@@ -43,8 +43,8 @@ Two rows moved rather than went:
 
 | Case | Where it is now |
 | --- | --- |
-| the gate's request/seal/arm bookkeeping — a duplicate or post-seal hold is ignored and reported | `tests/kernel/kernel.browser.test.ts` — _should ignore and report a duplicate hold_, _should ignore and report a hold requested after sealing_, re-pointed at the surviving landing gate |
-| the landing target is measured once, authoritatively | `tests/kernel/kernel.browser.test.ts` — _should measure once, at arm, under SETTLING_; `tests/sortable/commit-window.browser.test.ts` — the two strategies that leave the placeholder in place, which now assert the first target **is** the row's final rect |
+| ~~the gate's request/seal/arm bookkeeping — a duplicate or post-seal hold is ignored and reported~~ | **Retired with the gate (D-155).** Nothing is requested, so there is no duplicate and no seal; what took its place is `tests/kernel/kernel.browser.test.ts` — _should measure nothing when the effect throws_, which is the surviving half: an effect that fails must not send behavior code looking for a target |
+| the landing target is measured once, authoritatively | `tests/kernel/kernel.browser.test.ts` — _should measure once, under SETTLING_; `tests/sortable/commit-window.browser.test.ts` — the two strategies that leave the placeholder in place, which now assert the first target **is** the row's final rect |
 
 ## Discrete input — new (D-32)
 
@@ -132,8 +132,8 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | Row | Test | ID |
 | --- | --- | --- |
 | late reorder resolution after a newer operation | `tests/sortable/composition.browser.test.ts` — _should ignore a resolution that settles after a newer operation began_ | F-25 |
-| late landing completion | `tests/kernel/kernel.browser.test.ts` — _should make a completion for a retired attempt inert_ | I-24 |
-| interrupted landing | `tests/sortable/features.browser.test.ts` — _should not report a cancelled animation as a failure_ | I-24 |
+| ~~late landing completion~~ | **Nothing completes (D-155)**, so a late completion has no producer. The staleness the row pinned is now answered by identity: `tests/kernel/kernel.browser.test.ts` — _should replace an open settlement without disturbing a live tail_ | I-24 |
+| interrupted landing | `tests/sortable/features.browser.test.ts` — _should not report a cancelled tail as a failure_ | I-24 |
 | stale layout-animation completion | `tests/sortable/displacement.browser.test.ts` — _should fold contributions rather than stacking them_ | D-7 |
 
 ## Resource cleanup
@@ -143,10 +143,10 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | partial activation failure | `tests/sortable/sortable.browser.test.ts` — _should stop when the placeholder insertion destroyed the controller_ | I-17, F-22 |
 | placeholder factory throws | `tests/sortable/features.browser.test.ts` — _should classify a factory that throws and leave nothing acquired_ | I-17 |
 | presentation acquisition throws | `tests/kernel/presentation.browser.test.ts` — _should restore the inline styles when top-layer acquisition throws_ | I-17 |
-| animation creation throws | `tests/sortable/features.browser.test.ts` — _should cancel the animation when subscribing to it throws_ | F-22 |
+| animation creation throws | `tests/kernel/kernel.browser.test.ts` — _should report a duration the platform refuses and still terminate_. ~~should cancel the animation when subscribing to it throws~~ — **the subscription is gone with the runner (D-155)**, and it is the one property of this row that could not be re-pointed: nothing reads `finished` any more | F-22 |
 | destroy during active movement | `tests/sortable/composition.browser.test.ts` — _should tear down an in-flight drag on destroy_ | I-6 |
 | destroy during consumer resolution | `tests/kernel/kernel.browser.test.ts` — _should drop a resolution that settles after the controller was destroyed_ | I-6, F-25 |
-| destroy during long landing | `tests/kernel/kernel.browser.test.ts` — _should destroy a live runner when the controller is destroyed_ | I-6, I-24 |
+| destroy during long landing | `tests/kernel/kernel.browser.test.ts` — _should cancel the tail when the controller is destroyed_ | I-6, I-24 |
 | disposer failure does not prevent remaining cleanup | `tests/kernel/lifetimes.node.test.ts` — _should run the remaining disposers when one throws_ | D-21, F-22 |
 
 ## Collection
@@ -168,8 +168,8 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | --- | --- | --- |
 | no-animation default | `tests/sortable/composition.browser.test.ts` — the minimal composition installs neither `landing()` nor `layoutAnimation()` | 03 §The minimal fixture |
 | CSS layout transition | `tests/sortable/composition.browser.test.ts` — _should propose the same gap when the rows carry a CSS transition_ | D-7 |
-| long landing duration | `tests/sortable/features.browser.test.ts` — _should hold settlement open until the animation finishes_ | I-9 |
-| custom animation runner | `tests/sortable/features.browser.test.ts` — _should let a middle-tier runner replace the default entirely_ | I-24, D-63 |
+| long landing duration | `tests/sortable/features.browser.test.ts` — _should finalize while the tail is still running_. ~~should hold settlement open until the animation finishes~~ — **the assertion inverts under D-155**, which is the whole of what the decision changed |
+| ~~custom animation runner~~ the middle tier's timing | `tests/sortable/features.browser.test.ts` — _should take its timing from a middle-tier policy_, _should start no tail when the policy declines one_ | I-24, D-63, D-155 |
 | the default landing timing is the retained shipped `{ duration: 200, easing: 'ease' }` | `tests/sortable/features.browser.test.ts` — _should default the easing to the retained shipped value_, _…the duration…_ | D6, ledger §7 |
 | a `duration` thunk is resolved **once per landing, before** the reduced-motion collapse — and, since D-124 deleted the domain test that also preceded it, the collapse is now the first thing the value meets | `tests/sortable/features.browser.test.ts` — _should read a duration thunk under a reduced-motion preference too_; _should land an unbounded thunk result under a reduced-motion preference_ | D4, L-6, D-77, D-124 |
 | interrupted displacement, folded rather than replayed | `tests/sortable/displacement.browser.test.ts` — _should leave a row exactly where it was across the second write_, _should leave a row offset across the interruption_ | D-7 |
@@ -186,34 +186,35 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 | `arm()` throwing leaves no half-armed controller | `tests/kernel/kernel.browser.test.ts` — _should unwind and rethrow when a frame factory throws_ | F-2 |
 | ~~both frames share a key set~~ / ~~a `resetFramePart` that adds or deletes a key is caught~~ — **the frame-assertion family is deleted** (D-128, discharging O-12). `assertFrameShapesMatch` and `assertFrameScrubbed` were I-27's and I-28's only mechanisms; both invariants keep tier C and lose their enforcement, and what a violation now does is asserted at the production site instead | `tests/kernel/kernel.browser.test.ts` — _should arm with a non-deterministic frame part factory_ | F-2, I-27, I-28, D-128 |
 | ~~a frame part declaring `phase` is rejected in production~~ / ~~a symbol-keyed frame part is rejected~~ — **`validateFramePart` is deleted** (D-124, then D-122 with its last arm). Composition accepts every part a factory returns; the terms are published on `FramePartOf`, and the rows below are acceptance tripwires only — what each misuse then does is in D-121 … D-124, not in an assertion `tests/kernel/kernel.browser.test.ts` — _should arm with a frame part that declares a kernel frame key_, _should arm with a symbol-keyed frame part_. **Re-pointed from `composeFrame` to `arm()` by D-128**: the helper the acceptance rows hung on is deleted, and re-spelling them against `Object.assign` would have been testing the language rather than the library. Five of the seven went with it — an accessor, a non-enumerable key, a non-writable key, a class instance and a prototype-mutating part are each `Object.assign` semantics with no library in them | F-20, D-122, D-124, D-128 |
-| a displacement hook cannot reach `SettlementScope` | `tests/sortable/feature.declaration.test.ts` — _should not reach the settlement scope_ | I-10 |
+| ~~a displacement hook cannot reach `SettlementScope`~~ | **The scope is deleted (D-155)**, so non-assignability to it is unassertable: the settlement seam passes no capability, and no feature installed at any position can suspend anything | I-10 |
 | `arm()` validates the tag count; `dispatch()` rejects a bad tag before enqueue | `tests/kernel/kernel.browser.test.ts` — _should drop a tag outside the declared range_ | 02 §ActionTransition |
 
 ## Gates and drivers — new
 
 | Row | Test | ID |
 | --- | --- | --- |
-| neither gate held finalizes in the resolution drain | `tests/kernel/kernel.browser.test.ts` — _should finalize in the resolution drain when neither gate is held_ | I-9 |
-| a duplicate hold is ignored and reported | `tests/kernel/kernel.browser.test.ts` — _should ignore and report a duplicate hold_ | F-6 |
-| a hold requested after sealing is ignored and reported | `tests/kernel/kernel.browser.test.ts` — _should ignore and report a hold requested after sealing_ | F-6 |
+| every settlement finalizes in the resolution drain | `tests/kernel/kernel.browser.test.ts` — _should finalize in the resolution drain_, _should finalize in the same drain with a tail installed_ | I-9, D-155 |
+| ~~a duplicate hold is ignored and reported~~ / ~~a hold requested after sealing is ignored and reported~~ | **Both retire with the gate (D-155).** Nothing is requested, so a request cannot be duplicated or late; the bookkeeping rule they pinned — a `DraggableWarning`, never a panic — is unchanged wherever a bookkeeping error is still reachable | F-6 |
 | a throwing `settlement.prepare` classifies at the **seam's own** stage, and a throwing `release.prepare` likewise — with the raised cause travelling verbatim and no effect run | `tests/kernel/kernel.browser.test.ts` — _should classify a throwing prepare at the seam's own stage_, _should classify a throwing release prepare at the seam's own stage_, _should not run the effect after a throwing prepare_ | F-20, D-152 |
 | an `effect` that throws is classified, not a panic | `tests/kernel/seams.node.test.ts` — _should classify a throwing effect from the committed state_ | F-19 |
 | a refused re-entry unwinds carrying **no identity**, and reaches the consumer as the controller panic — `stage === null`, `drag: controller destroyed`, a cause that says nothing | `tests/kernel/seams.node.test.ts` — _should reach the consumer as a controller panic carrying no identity_ | F-85 |
 | a `rollback` that throws is reported, not classified | `tests/kernel/seams.node.test.ts` — _should report a throwing rollback without classifying it_ | F-19 |
 | `use()` on a disposed lifetime invokes the disposer immediately | `tests/kernel/lifetimes.node.test.ts` — _should invoke a disposer registered after dispose immediately_ | D-21 |
 
-## Landing completion — new
+## ~~Landing completion~~ The landing tail — new (D-155)
+
+**Six rows of this section pinned a completion protocol and are retired with it.** ~~synchronous `done()` from inside `start`~~, ~~synchronous `fail()` from inside `start`~~, ~~duplicate completion is inert~~, ~~`done()` followed by a throw~~, ~~`start` itself throws~~, ~~`start` calls `destroy()` and returns a live handle~~ and ~~a returned handle whose `destroy()` throws~~ each name a `done`, a `fail`, a hold or a handle, and none of the four exists. What replaces them is not a re-pointing: **the tail reports nothing, so there is no completion to be early, late, duplicated or contradicted**, and what has to be pinned instead is that it holds nothing.
 
 | Row | Test | ID |
 | --- | --- | --- |
-| synchronous `done()` from inside `start` | `tests/kernel/kernel.browser.test.ts` — _should honour a done() called synchronously inside start_ | F-30 |
-| synchronous `fail()` from inside `start` | `tests/kernel/kernel.browser.test.ts` — _should destroy the handle and refuse to finalize after a synchronous fail()_ | F-30 |
-| duplicate completion is inert | `tests/kernel/kernel.browser.test.ts` — _should ignore a duplicate completion_ | I-24 |
-| `done()` followed by a throw — the completion does **not** survive it: `start` threw, so the runner's state is unknown and the classification retires the attempt the queued completion would have joined | `tests/kernel/kernel.browser.test.ts` — _should classify a start that throws after completing rather than joining_ | F-30, I-4 |
-| `start` itself throws | `tests/kernel/kernel.browser.test.ts` — _should roll the hold back and classify when start throws_ | F-27 |
-| `start` calls `destroy()` and returns a live handle | `tests/kernel/kernel.browser.test.ts` — _should destroy a handle returned by a start that destroyed the controller_ | F-30 |
-| `settlement.effect` requests a hold then throws | `tests/kernel/kernel.browser.test.ts` — _should arm nothing when the effect throws after requesting a hold_ | F-27 |
-| a returned handle whose `destroy()` throws | `tests/kernel/kernel.browser.test.ts` — _should report a throwing runner destroy and still pin_ | F-22 |
+| the tail travels the delta the pin removed | `tests/kernel/kernel.browser.test.ts` — _should travel the delta the pin removed_ | D-155, D-35 |
+| it decays to a zero contribution and claims no inline style, which is what makes cancelling it safe at any instant | `tests/kernel/kernel.browser.test.ts` — _should decay to a zero contribution_, _should add to the element rather than claim its transform_ | D-155, I-24 |
+| it starts only after presentation is released — asserted from inside a presentation disposer, which is the last instant the lease exists | `tests/kernel/kernel.browser.test.ts` — _should start only after presentation is released_; `tests/sortable/features.browser.test.ts` — _should restore the inline transform before the tail starts_ | D-155 |
+| a drop with nowhere to travel starts nothing | `tests/kernel/kernel.browser.test.ts` — _should start nothing when the visual is already where it was pinned_, _should start nothing without a landing policy_ | D-155, F-187 |
+| `destroy()` cancels it, and so does the next drag's acquisition — while a press that never activates does not | `tests/kernel/kernel.browser.test.ts` — _should cancel the tail when the controller is destroyed_, _should cancel the tail when the next drag acquires the visual_, _should keep the tail through a press that never activates_ | D-155, I-6 |
+| a policy that destroys the controller starts no tail and publishes no terminal | `tests/kernel/kernel.browser.test.ts` — _should start no tail when the policy destroyed the controller_ | D-155, F-30 |
+| a policy that throws, and a duration the platform refuses, each produce one warning and a terminal | `tests/kernel/kernel.browser.test.ts` — _should report a policy that throws and still terminate_, _should report a duration the platform refuses and still terminate_; `tests/sortable/features.browser.test.ts` — _should report a throwing policy without failing the drop_ | D-155, D-130 |
+| a settlement whose `effect` throws measures nothing and still terminates | `tests/kernel/kernel.browser.test.ts` — _should measure nothing when the effect throws_ | F-27 |
 | the final `lift.write` throws | `tests/kernel/kernel.browser.test.ts` — _should release presentation and still publish a terminal when the pin throws_ | F-22, D-66 |
 | `spec.finalized` throws | `tests/kernel/kernel.browser.test.ts` — _should retire after a throwing terminal callback_ | F-22 |
 
@@ -281,7 +282,7 @@ Two rows below do **not** discriminate, and each says so in the test rather than
 | `activation.prepare` throws → one `onError`, retirement after failure handling | `tests/kernel/kernel.browser.test.ts` — _should not retire a failed activation_ | F-27 |
 | `release.effect` throws → `onReorder` never invoked | `tests/kernel/seams.node.test.ts` — _should never invoke the consumer after a failed release effect_ | F-34 |
 | join **write** failure → presentation releases, one `onError` **and** a terminal. It carried _no terminal_ until D-66 made the terminal total over started operations | `tests/kernel/kernel.browser.test.ts` — _should release presentation and still publish a terminal when the pin throws_ | F-22, D-66 |
-| join **measurement** failure → presentation releases, **one `onError` and one terminal** | `tests/kernel/kernel.browser.test.ts` — _should skip the landing and still terminate when the measurement throws_ | D-49, D-60 |
+| join **measurement** failure → presentation releases, **one `onError` and one terminal** | `tests/kernel/kernel.browser.test.ts` — _should skip the tail and still terminate when the measurement throws_ | D-49, D-60 |
 | `finalized` throws → `FAILURE_TERMINAL_CALLBACK`, still retires | `tests/kernel/kernel.browser.test.ts` — _should retire after a throwing terminal callback_ | F-22 |
 | an admission resolver calls `destroy()` → no operation is minted | `tests/kernel/kernel.browser.test.ts` — _should not mint an operation when admit destroyed the controller_ | F-30 |
 
@@ -311,7 +312,7 @@ Two rows below do **not** discriminate, and each says so in the test rather than
 | Row | Test | ID |
 | --- | --- | --- |
 | a kernel `CANCEL` produces a complete canceled result | `tests/sortable/composition.browser.test.ts` — _should cancel an active drag on demand_ | F-33 |
-| a failure checkpoint produces immediate recovery and **holds no landing gate** — it no longer implies no `finalized` call, which D-66 retracts | `tests/sortable/sortable.browser.test.ts` — _should hold no landing gate for an immediate recovery_ | F-27, D-66 |
+| a failure checkpoint produces immediate recovery and **starts no landing tail** — it no longer implies no `finalized` call, which D-66 retracts | `tests/sortable/sortable.browser.test.ts` — _should start no landing tail for an immediate recovery_ | F-27, D-66 |
 | a no-op settlement reaches `onEnd` with the `noop` arm, never the `canceled` one | `tests/sortable/composition.browser.test.ts` — _should finish a drop that never left its own gap as a no-op_ | F-37, D-62 |
 | a rejected `ReorderResolution` value reaches `onEnd` with the `rejected` arm and its reason | `tests/sortable/composition.browser.test.ts` — _should cancel a rejected reorder_ | F-33, D-62 |
 | a rejected resolution _promise_ is `FAILURE_RESOLUTION` — a fault, not a consumer's chosen rejection; **it now also publishes a `canceled` terminal** (D-66) | `tests/sortable/sortable.browser.test.ts` — _should classify a rejected round-trip promise_ | F-20, D-66 |
@@ -322,10 +323,10 @@ Two rows below do **not** discriminate, and each says so in the test rather than
 | Row | Test | ID |
 | --- | --- | --- |
 | each seam calls `host.fail` and returns normally → no success continuation | `tests/kernel/seams.node.test.ts` — _should treat host.fail in prepare as a prepare failure_, _should not run the effect after a latched prepare failure_, _should never invoke the consumer after a latched release failure_, _should not dispatch the checkpoint on a latched effect failure_ | F-34 |
-| arm-time `anchorTarget` throws → the landing is **skipped** and the settlement still finalizes. It failed the settlement until D-49 put the measurement on the quality track: the reorder was already committed and accepted, so a presentational fault must not tell the consumer it failed | `tests/kernel/kernel.browser.test.ts` — _should skip the landing and still terminate when the measurement throws_, _should skip the runner entirely when the measurement throws_ | F-35, D-49 |
-| `LandingStart` calls `fail()` synchronously and returns a live handle | `tests/kernel/kernel.browser.test.ts` — _should destroy the handle and refuse to finalize after a synchronous fail()_ | F-30 |
-| `fail()` then `done()`, and `done()` then `fail()` | `tests/kernel/kernel.browser.test.ts` — _should let a done() win over a later fail()_, _should let a fail() win over a later done()_ | I-24 |
-| `anchorTarget` destroys before `start` → `start` is never called | `tests/kernel/kernel.browser.test.ts` — _should never call start after anchorTarget destroyed the controller_ | F-38 |
+| arm-time `anchorTarget` throws → the landing is **skipped** and the settlement still finalizes. It failed the settlement until D-49 put the measurement on the quality track: the reorder was already committed and accepted, so a presentational fault must not tell the consumer it failed | `tests/kernel/kernel.browser.test.ts` — _should skip the tail and still terminate when the measurement throws_, ~~should skip the runner entirely when the measurement throws~~ | F-35, D-49 |
+| ~~`LandingStart` calls `fail()` synchronously and returns a live handle~~ | **No runner, no `fail()`, no handle (D-155).** The revalidation it pinned survives with a new subject: `tests/kernel/kernel.browser.test.ts` — _should start no tail when the policy destroyed the controller_ | F-30 |
+| ~~`fail()` then `done()`, and `done()` then `fail()`~~ | **Nothing completes (D-155)**, so there is no first completion to win | I-24 |
+| `anchorTarget` destroys the controller → nothing joins | `tests/kernel/kernel.browser.test.ts` — _should not pin after anchorTarget destroyed the controller_, _should not call the terminal callback after anchorTarget destroyed the controller_ | F-38 |
 | `moved` throws from compose, the style write and `schedule` | `tests/kernel/kernel.browser.test.ts` — _should classify a throwing moved instead of panicking_; `tests/sortable/sortable.browser.test.ts` — _should classify a scheduling failure as SCHEDULED_FRAME_ | F-40 |
 
 ## Teardown totality — new
@@ -344,10 +345,10 @@ Two rows below do **not** discriminate, and each says so in the test rather than
 | Row | Test | ID |
 | --- | --- | --- |
 | a detached placeholder skips the landing rather than measuring `0×0` | `tests/sortable/commit-window.browser.test.ts` — _should skip the landing when replaceChildren detaches the placeholder_ | D-42, D-49 |
-| the row does not travel to the viewport origin | `tests/sortable/commit-window.browser.test.ts` — _should not travel to the viewport origin while the landing runs_ | D-49 |
+| the row does not travel to the viewport origin | `tests/sortable/commit-window.browser.test.ts` — _should not travel to the viewport origin when the landing is skipped_ | D-49 |
 | a replaced container skips the landing | `tests/sortable/commit-window.browser.test.ts` — _should skip the landing when the commit removes the placeholder container_ | D-42 |
 | a commit that leaves the placeholder in place still lands | `tests/sortable/commit-window.browser.test.ts` — _should still land when an append loop pushes the placeholder to index 0_ | D-42 |
-| the runner is never started for a skipped landing | `tests/kernel/kernel.browser.test.ts` — _should skip the runner entirely when the measurement throws_ | D-49 |
+| nothing travels for a skipped landing | `tests/kernel/kernel.browser.test.ts` — _should skip the tail and still terminate when the measurement throws_, which asserts both halves in one row | D-49 |
 | one operation produces `onError` **and** a terminal | `tests/sortable/react.browser.test.ts` — _should finish and report, both_ | D-60 |
 | the same, on the cancel arm | `tests/sortable/sortable.browser.test.ts` — _should refuse a home recovery whose anchor left the container and still cancel_ | D-60 |
 | a consequential failure publishes **both** channels — `onError` and a terminal. It published no terminal until D-66 made the terminal total over started operations | `tests/sortable/sortable.browser.test.ts` — _should publish both channels for a consequential failure_ | D-23, D-66, D-60 |
@@ -409,10 +410,10 @@ The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **i
 | a throwing terminal callback publishes exactly once, not forever | `tests/sortable/sortable.browser.test.ts` — _should publish exactly one terminal when the terminal callback throws_ | D-66 |
 | the kernel side: presentation is released before the terminal on the failure path too | `tests/kernel/kernel.browser.test.ts` — _should release presentation and still publish a terminal when the pin throws_ | D-66, I-14 |
 | …and the operation still retires afterwards | `tests/kernel/kernel.browser.test.ts` — _should retire after a throwing terminal callback_ | D-66 |
-| a skipped landing still terminates normally | `tests/kernel/kernel.browser.test.ts` — _should skip the landing and still terminate when the measurement throws_ | D-49, D-66 |
+| a skipped landing still terminates normally | `tests/kernel/kernel.browser.test.ts` — _should skip the tail and still terminate when the measurement throws_ | D-49, D-66 |
 | **one** `onEnd`, four arms, told apart by the discriminant alone | `tests/consumer.node.test.ts` — the packed-consumer fixture switches on `result.type` | D-62, F-41 |
 | the terminal slot is one slot and defaults to null | `tests/sortable/assemble.browser.test.ts` — _should leave the terminal callbacks null when uninstalled_ | D-62 |
-| a custom runner is authorable from the middle tier, without `landing()` | `tests/sortable/features.browser.test.ts` — _should let a middle-tier runner replace the default entirely_ | D-63, D-61 |
+| a custom **timing** is authorable from the middle tier, without `landing()` | `tests/sortable/features.browser.test.ts` — _should take its timing from a middle-tier policy_. ~~a custom runner is authorable~~ — **D-155 deletes the runner at every tier**, and what a middle-tier author supplies is the same thing an ordinary consumer does | D-63, D-61, D-155 |
 | ~~both `duration` forms are judged at the **same instant**, against the one value that can hang the gate~~ · **the cited tests assert construction non-throwing, which is a deletion assertion, not this one** (P18A-19) — restated as the two rows below | `tests/sortable/options.node.test.ts` — _should not refuse Infinity at construction either_, _should no longer refuse a negative duration at construction_ | D-63, D-77 |
 | ~~the retained `=== Infinity` guard refuses **both** input forms at settlement~~ — **deleted D-124**; both input forms are now accepted, and both are still pinned so that a returning guard has to argue with a row | `tests/sortable/features.browser.test.ts` — _should not refuse an unbounded fixed duration_, _should not refuse an unbounded contextual duration_ | D-77, P18A-19, D-124 |
 | ~~the cost of the boundary is the terminal: an unbounded duration publishes **none at all**~~ — **the assertion is deleted, the fact is not** (D-124 landing review §1.1). It froze the negation of a tier-B invariant over input the contract excludes, and would have failed a later change that published a terminal for a stalled landing. The consequence is recorded in D-124's row | — | D-66, D-77, D-124 |
@@ -431,18 +432,17 @@ The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **i
 | a throwing `items()` is refused before any installer runs, by statement order rather than by argument position | `tests/sortable/composition.browser.test.ts` — _should refuse a throwing pull source before any installer runs_ | D-80 (b), F-69 |
 | installers that **did** run are still retired on `destroy()`, so the guarantee is not met by recording nothing | `tests/sortable/composition.browser.test.ts` — _should retire every installer it ran when the controller is destroyed_ | D-80 (b) |
 | **negative control:** the pre-D-80 argument order is reconstructed and shown stranding every hook. ~~The validation-position control beside it~~ went with the refusal that made it reachable (D-121) | `tests/sortable/composition.browser.test.ts` — _should be discriminated by the pre-D-80 argument order_ | D-80 (b), F-69, D-121 |
-| the platform's refusal of `-1` arrives at the stage the deleted check reached — the premise of the deletion | `tests/sortable/features.browser.test.ts` — _should classify an out-of-domain contextual result at settlement_ | D-79 |
+| the platform's refusal of `-1` arrives where the deleted check reached — ~~at the stage~~ **as a warning, since D-155 retired the stage** — which is the premise of the deletion | `tests/sortable/features.browser.test.ts` — _should report an out-of-domain contextual result without failing the drop_ | D-79 |
 | both axis modules return the **installer**, hoisted into a typed const, and the fixed landing form compiles | `tests/revision/revision-2.ts` (type fixture) | B-9 (b), P18A-14 |
 | `duration` is called once per landing, with the trajectory | `tests/sortable/features.browser.test.ts` — _should invoke duration once per landing, with the trajectory_ | D-67 |
 | a shipped zero-argument thunk still works | `tests/sortable/features.browser.test.ts` — _should keep a zero-argument thunk working_ | D-67, F-52, L-6 |
-| an out-of-domain contextual result classifies at settlement | `tests/sortable/features.browser.test.ts` — _should classify an out-of-domain contextual result at settlement_ | D-67 |
+| an out-of-domain contextual result is reported without failing the drop | `tests/sortable/features.browser.test.ts` — _should report an out-of-domain contextual result without failing the drop_ | D-67 |
 
 **The other line of the lookup, added at application review 1 (A-1, A-2).** Every row above exercises _frame holds none_; these exercise _frame holds a result_, which is the line a defect had been shipping against — `settlement.prepare` overwrote a committed result with the `canceled` fallback, so a drop whose data really was reordered reported `{ type: 'canceled' }` on both channels.
 
 | Row | Test | ID |
 | --- | --- | --- |
-| a landing runner failing after the commit keeps `accepted` | `tests/sortable/sortable.browser.test.ts` — _should keep the accepted result when the landing runner fails_ | D-66, A-1 |
-| …and so does a runner that cannot be created | `tests/sortable/sortable.browser.test.ts` — _should keep the accepted result when the runner cannot be created_ | D-66 |
+| ~~a landing runner failing after the commit keeps `accepted`~~ / ~~…and so does a runner that cannot be created~~ | **Both producers retire with the runner (D-155).** The post-commit failure set is the pin and the terminal callback, and the surviving rows for it are `tests/sortable/sortable.browser.test.ts` — _should keep the accepted result when the pin throws at the join_, _should keep a rejected result too, not just an accepted one_ | D-66, A-1 |
 | …and the pin throwing at the join | `tests/sortable/sortable.browser.test.ts` — _should keep the accepted result when the pin throws at the join_ | D-66 |
 | the tie-break is _existing result wins_, not _accepted wins_ | `tests/sortable/sortable.browser.test.ts` — _should keep a rejected result too, not just an accepted one_ | D-66 |
 | the fallback's `reason` **is** the classifying error, by identity | `tests/sortable/sortable.browser.test.ts` — _should publish both channels for a consequential failure_ | D-66 |
@@ -513,8 +513,8 @@ Named in handoff §3 and absent from the suite until application review 1 found 
 | an abandoned resolver's late rejection never reaches the page | `tests/kernel/kernel.browser.test.ts` — _should not surface an abandoned resolver's late rejection to the page_, with a real `unhandledrejection` listener and a **newer** operation owning the controller | D-40, probe A |
 | a panic closes, then reports, then tears down | `tests/kernel/kernel.browser.test.ts` — _should close, report and only then tear down on a panic_ | D-36, probe A |
 | the error carries the **stage** it was classified with, and no coarse code | `tests/kernel/errors.node.test.ts` — _should carry the stage it was classified with_ | D-132 |
-| the stage list is closed at twelve, and 12 and 13 stay unoccupied | `tests/kernel/stages.node.test.ts` — _should publish exactly twelve stages_, _should leave 12 and 13 unoccupied_, _should hold every stage inside the published numeric range_ | D-41, D-130, D-132 |
-| the removed `code` surface and the closed stage union, at the **type** level | `tests/drag.declaration.test.ts` — _should expose no code property at the type level_, _should carry the stage as a stage or null and nothing wider_, _should be closed over exactly the twelve published numbers_, _should not admit a retired stage number_, _should not admit an arbitrary number_ | D-132 |
+| the stage list is closed at ten, and 10 through 13 stay unoccupied | `tests/kernel/stages.node.test.ts` — _should publish exactly ten stages_, _should leave 10 through 13 unoccupied_, _should hold every stage inside the published numeric range_ | D-41, D-130, D-132 |
+| the removed `code` surface and the closed stage union, at the **type** level | `tests/drag.declaration.test.ts` — _should expose no code property at the type level_, _should carry the stage as a stage or null and nothing wider_, _should be closed over exactly the ten published numbers_, _should not admit a retired stage number_, _should not admit an arbitrary number_ | D-132 |
 | `landing({ run })` does not compile at the ordinary tier | `tests/consumer.node.test.ts` — the `@ts-expect-error` on `landing({ run })`, against the **packed** declarations | D-63 |
 
 **The rejection row asserts the consequence, not the guard.** Every other row about an abandoned resolver asserts the slot comparison `resolution !== attempt`, which is how the library _ignores_ a stale settlement. What a consumer sees if that ignoring is ever done by declining to subscribe is an `unhandledrejection` in their console. Falsified by dropping the rejection handler from the kernel's `then.call`: two rows fail, this one among them.
@@ -563,7 +563,7 @@ Named in handoff §3 and absent from the suite until application review 1 found 
 | a destroy raised from `animate()` **itself** leaves that animation cancelled — it is not in the feature's map, so `retire()` cannot have seen it | `tests/sortable/displacement.browser.test.ts` — _should cancel an animation whose own start closed the controller_ | I-36, I-20 |
 | the behavior's own reading between the placeholder write and the axis hook → `report` never runs and nothing is reported | `tests/sortable/features.browser.test.ts` — _should not run the bracket past a placeholder reaction that destroyed_ | I-36 |
 | **conformance pin, passes against current source — the bracket-discharge witness** — the `landing()` residue's blast radius, not a barrier: a `landing({ duration })` thunk destroys the controller, and `visual.animate()` is called **exactly once**, counted on the element, with no animation, no transform and no placeholder surviving, nothing reported, and **no** terminal callback. `getAnimations() === []` and `style.transform === ''` are what witness the bracket's **undo**, condition (ii) of I-36 (1) | `tests/sortable/features.browser.test.ts` — _should leave nothing behind when the duration thunk destroys the controller_ | I-36 (1), I-6, F-30 |
-| **conformance pin, passes against current source** — the kernel's admitted post-terminal relinquishment: a **middle-tier installer's** runner (D-63 withdrew `landing({ run })`; the fixture supplies `startLanding` through a `SortableLandingInstaller`, which is where a consumer-authored runner lives now) destroys the controller and still returns a handle, and F-30 calls that consumer-authored handle's `destroy` **exactly once**, after `destroy()` returned, with `retarget` never called and nothing surviving. This is what I-6 clause 3's qualified headline admits | `tests/sortable/features.browser.test.ts` — _should destroy a consumer runner's handle exactly once when the runner destroyed the controller_ | I-6, I-20, F-30 |
+| ~~**conformance pin** — the kernel's admitted post-terminal relinquishment of a middle-tier installer's runner~~ | **Retired with the runner (D-155).** There is no consumer-authored handle to relinquish, so the exception D-51 held for it has no member and the pin has no subject. The surviving conformance claim is the opposite one: **the library invokes no consumer code after the terminal barrier at all** |
 | **C5-01** — subscription is part of the acquisition: an `animation.finished` **accessor** that destroys and returns normally leaves no live displacement, and neither does an overridden **thenable** `then`. Both are consumer-reachable through an overridden `animate()`, and neither throws, so the acquisition `catch` never saw them | `tests/sortable/displacement.browser.test.ts` — _should cancel an animation whose `finished` accessor closed the controller_, _…whose `finished` thenable closed the controller_ | I-36 (2), I-20 |
 | **C5-02** — the placeholder mechanics stop at the destroying write: a consumer placeholder whose first `setAttribute` destroys receives **exactly** `['data-drag-placeholder']`, and a `visual.offsetWidth`/`offsetHeight` getter that destroys leaves **no** write at all — on a custom element and on the default composition alike, because every read is taken before any write | `tests/sortable/placement.browser.test.ts` — _should write no further attribute once a mechanics write closes the controller_, _…no attribute at all once a visual offset read closes the controller_, _…no mechanics to the default placeholder…_ | I-36 (2) |
 | **the stretch sweep** — the draft seed: a `visual()` resolver that destroys leaves `item`, `visual` and `snapshot` unwritten on the draft, on the press ingress and on the command ingress, whose destination is the fourth field | `tests/sortable/sortable.browser.test.ts` — _should seed no draft when the visual resolver destroys the controller_, _should seed no command draft when the visual resolver destroys the controller_ | I-36 (2), I-20 |
@@ -649,7 +649,7 @@ The precedent for _removing_ an unfalsifiable conjunct rather than recording it 
 | ~~two installers claiming the motion constraint is the one construction-time throw~~ — **deleted 2026-08-27** (D-146). The throw is gone with the discovery it arbitrated: `constrain` is declared on the `bounds` key's group and nowhere else. The property moved one tier up, and **since D-151 it is stated at the position rather than at the group**: a constraint installer composed as a plugin is refused at the call | `tests/free-drag/feature.declaration.test.ts` — _should refuse a constraint installer from the plugins position_ | ~~D-77~~ D-146, D-151 |
 | the two behaviors reach **no** module of each other, in both directions | `tests/packaging.node.test.ts` — _should keep the two behaviors out of each other_ | B-1 |
 | an unconstrained free drag carries no clamp and no rect resolver | `tests/packaging.node.test.ts` — _should keep an unconstrained free drag out of the clamp_ | B-2 |
-| both landing entries reach the **same** internal runner and neither reaches the other behavior | `tests/packaging.node.test.ts` — _should share the landing runner between the two behaviors_ | F-64, B-7 |
+| both landing entries reach the **same** internal timing policy and neither reaches the other behavior | `tests/packaging.node.test.ts` — _should share the landing timing between the two behaviors_ | F-64, B-7 |
 | the four new entries' runtime surface, by value | `tests/exports.node.test.ts`, `tests/consumer.node.test.ts` | B-3 |
 
 ## Free drag — validation (Phase 20, B-4)
@@ -688,11 +688,11 @@ The reporting destination stopped encoding severity, so **which class arrives** 
 | a warning is **not** a `DraggableError`, in both directions, and neither derives from the other | `tests/kernel/errors.node.test.ts` — _should not be a DraggableError_ | D-130 §2.2 |
 | a warning carries a message and `cause` and **no discriminator** — neither the deleted `code` nor the `stage` that replaced it | _should carry no discriminator_, _should carry the caught error as the native cause_, _should leave cause undefined when the warning is library-authored_ | D-130 §2.3, D-132 §5.4 |
 | **neither class labels itself**: `name` is `Error`'s, so `instanceof` carries the whole identity and a logged fault heads `Error:` | _should leave name as the base class label rather than its own_ | D-130 §2.2 |
-| a deleted stage's number is never reused | `tests/kernel/stages.node.test.ts` — _should leave 12 and 13 unoccupied_, _should hold every stage inside the published numeric range_ | D-41, D-130, D-133 |
+| a deleted stage's number is never reused | `tests/kernel/stages.node.test.ts` — _should leave 10 through 13 unoccupied_, _should hold every stage inside the published numeric range_ | D-41, D-130, D-133 |
 | a failing disposer and a post-closure registration are **warnings** | `tests/kernel/lifetimes.node.test.ts` — _should report a failing disposer as a warning_, _should report a registration made after dispose as a warning_ | D-130 §3 |
 | the driver's non-classifying routes are one collector: a throwing `rollback`, a `host.fail` inside one, a `host.fail` outside a seam, a phase that failed then threw, an unconsumed staged value | `tests/kernel/seams.node.test.ts` — _should report host.fail outside a seam as a warning rather than classifying it_, _should classify only once when a phase latches a failure and then throws_, _should report a throwing rollback without classifying it_, _should report host.fail inside rollback exactly like a throw inside it_ | D-130 §5 |
 | **admission is consequential** and arrives as a `DraggableError` built by the kernel | `tests/kernel/kernel.browser.test.ts` — _should report a throwing command.admit with no operation_, _should report a throwing admit and stay usable_ | D-130 §5 |
-| **the landing measurement is not**, and arrives as a warning with the terminal intact | `tests/kernel/kernel.browser.test.ts` — _should skip the landing and still terminate when the measurement throws_; `tests/sortable/react.browser.test.ts` — _should finish and report, both_ | D-130 §0 rider 1, D-60 |
+| **the landing measurement is not**, and arrives as a warning with the terminal intact | `tests/kernel/kernel.browser.test.ts` — _should skip the tail and still terminate when the measurement throws_; `tests/sortable/react.browser.test.ts` — _should finish and report, both_ | D-130 §0 rider 1, D-60 |
 | `SETTLED_FAILED` carries the kernel-built error beside the stage the behavior maps to a recovery | `tests/kernel/kernel.browser.test.ts` — _should drive the settlement seam with the failed input_ | D-130 §5 |
 | a throwing `onError` **mid-teardown** does not strand a later disposer | _should run every remaining disposer when onError throws mid-teardown_ | D-130 §7 |
 | a throwing `onError` is discarded and **never notified back** | _should discard a throwing onError without notifying it back_ | D-130 §1.3 |
@@ -736,7 +736,7 @@ The reporting destination stopped encoding severity, so **which class arrives** 
 | ~~the `TAG_POLICY` barrier, its positive control and its recorded non-discriminating control~~ — **all three deleted with the site they defend** (D-148, L-3). The barrier existed because the seam made _two_ consumer-reachable calls and the second had to be gated on the first's outcome; with the `axis` source gone it makes one, and a barrier over a single call passes by construction | — | ~~L-3, I-36, F-47, F-74~~ D-148 |
 | the landing opens from the **constrained** delta: under an axis lock, under a clamp, and after a `moveTo()` | _should open from the axis-locked delta rather than the pointer_, _should open from the clamped delta under a bounds constraint_, _should open from the re-based delta after a moveTo()_ | L-4, D-35 |
 | and from the **release point** rather than the last processed move — reported and rendered | _should open from the release point rather than the last processed move_, _should render the release point, not only report it_ | L-4, F-39, D-81 |
-| the middle tier accepts a function literal authored outside the package, carries **no discriminator**, and does not reach the settlement scope | `tests/free-drag/feature.declaration.test.ts` — _should accept a function literal authored outside the package_, _should carry no discriminator_, _should not reach the settlement scope_ | B-6, D-61 |
+| the middle tier accepts a function literal authored outside the package, carries **no discriminator**, and does not reach the settlement scope | `tests/free-drag/feature.declaration.test.ts` — _should accept a function literal authored outside the package_, _should carry no discriminator_, ~~should not reach the settlement scope~~ — **the scope is deleted (D-155)** | B-6, D-61 |
 | a free-drag consumer compiles against the **packed** declarations, with the terminal switch exhaustive and `never` on the fall-through | `tests/consumer.node.test.ts` — _should compile a consumer against the packed declarations_ | B-5 |
 | the two shared declarations are published from **one module each**, which is identity rather than shape | `tests/packaging.node.test.ts` — _should publish the two shared declarations from one module each_ | B-7, F-64 |
 
@@ -772,7 +772,7 @@ The reporting destination stopped encoding severity, so **which class arrives** 
 | an admission resolver that destroys and **then** throws reaches no `onError`; one that only throws still does | `tests/free-drag/lifecycle.browser.test.ts` — _should reach no onError from admission_, _should still report when it throws without destroying_ | E-03, I-31, D-53 |
 | and the **quality** route the same way: a `home` resolver that destroys and then throws reaches no `onError` and no terminal | `tests/free-drag/validation.browser.test.ts` — _should reach no onError when the resolver destroys and then throws_ | E-03, D-49 |
 | a late `moveTo()` from `onEnd` leaves **no inline transform** — the one path that writes through an already-disposed lift | `tests/free-drag/actions.browser.test.ts` — _should leave no inline transform when it comes from onEnd_ | E-04, D-86 |
-| and from `onDrop` and from a landing runner, neither of which moves the visual — **both held open across the queue drain**, so the reading is a fact about the action rather than about the settlement's timing | _should not move the visual when it comes from onDrop_, _should not move the visual when it comes from a landing runner_ | D-86 |
+| and from `onDrop` ~~and from a landing runner~~, neither of which moves the visual — **both held open across the queue drain**, so the reading is a fact about the action rather than about the settlement's timing | _should not move the visual when it comes from onDrop_, ~~should not move the visual when it comes from a landing runner~~ | D-86 |
 | a `moveTo()` from `onStart` **does** retarget — the positive control that stops the fix being written as _refuse everything late_ | _should retarget when it comes from onStart_ | D-86 |
 | a late action is a **no-op, not a rejection**: no `onError`, one terminal, nothing on the platform channel | _should publish no failure for the late calls it discards_ | D-86 |
 | a late `invalidate()` re-enters no third-party `constrain.invalidate()`, and it is re-entered while the operation is live (~~nor the `axis` source~~ — D-148) | _should re-enter no third-party constraint_, _should still re-enter it while the operation is active_ | D-86, D-148 |

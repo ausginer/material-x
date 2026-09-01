@@ -17,16 +17,17 @@
  * bug in the package, and also its most silent.
  *
  * What the repair looks like here: **case 1b's trajectory no longer travels**,
- * `landingStart` is undefined in three of the five strategies because the
- * runner is never started, and every one of those three now reports exactly one
- * error **alongside** its one terminal. Cases 3 and 4 — an append loop and a
+ * `landingTiming` is undefined in three of the five strategies because the
+ * kernel never asks a policy about a drop it could not measure a target for,
+ * and every one of those three now reports exactly one error **alongside** its
+ * one terminal. Cases 3 and 4 — an append loop and a
  * morphdom-style patch — leave the placeholder connected and in place, so they
  * land normally and are the control.
  */
 import { afterAll, afterEach, describe, expect, it } from 'vitest';
 import type { Point } from '../../src/drag.ts';
 import type {
-  LandingStart,
+  LandingTiming,
   SortableLandingInstaller,
 } from '../../src/sortable/feature.ts';
 import { landing } from '../../src/sortable/landing.ts';
@@ -44,13 +45,13 @@ const ROW_HEIGHT = 40;
 
 /**
  * The middle-tier equivalent of the deleted `landing({ run })` (D-63): an
- * installer contributing the `startLanding` seam directly. Three lines, and
+ * installer contributing the `landingTiming` seam directly. Three lines, and
  * they are the three `landing()` itself writes.
  */
 const probeLanding = (
-  start: LandingStart,
+  timing: LandingTiming,
 ): { landing: SortableLandingInstaller } => ({
-  landing: () => ({ startLanding: start }),
+  landing: () => ({ landingTiming: timing }),
 });
 /** The list is offset so that a detached measurement (0,0) is not the origin. */
 const LIST_LEFT = 50;
@@ -127,7 +128,7 @@ type CommitContext = Readonly<{
 /** Applies the authored commit and returns the collection the library must see. */
 type Author = (context: CommitContext) => readonly HTMLElement[];
 
-type Sighting = Readonly<{ target: Point; placeholder: Placement }>;
+type Sighting = Readonly<{ target: Point }>;
 
 type Observations = {
   afterCommit?: Readonly<{
@@ -144,9 +145,8 @@ type Observations = {
       after: Placement | null;
     }>;
   }>;
-  /** The provisional target, measured before readiness settled. */
-  landingStart?: Sighting;
-  /** The corrected target, measured after `ready()` released the gate. */
+  /** The landing target, as the timing policy was handed it. */
+  landingTiming?: Sighting;
 };
 
 type Options = Readonly<{
@@ -154,7 +154,7 @@ type Options = Readonly<{
   /** Put the rows in a nested container inside the drag root. */
   nested?: boolean;
   /**
-   * Install the shipped landing runner instead of the observing one, so the
+   * Install the shipped landing policy instead of the observing one, so the
    * trajectory the user actually sees can be sampled.
    */
   realLanding?: number;
@@ -255,25 +255,15 @@ function mount(options: Options): Fixture {
     return placeholder;
   };
 
-  // **A runner is authoring vocabulary now** (D-63). `landing({ run })` is gone
-  // from the consumer surface, so a fixture that needs to observe the target
-  // the runner is handed writes an installer — the tier the capability moved
-  // to, and the only tier that ever needed it.
-  const run: LandingStart = (context, done) => {
-    observations.landingStart = {
-      target: { x: context.targetX, y: context.targetY },
-      placeholder: placementOf(capture()),
-    };
+  // **A timing policy is authoring vocabulary** (D-63), and it is where the
+  // landing target is observable from: the kernel hands it the four endpoints
+  // it measured, once, at the join. It **declines the tail** (D-155) — every
+  // assertion below is about where the row ends up, and a residual
+  // interpolating on the released row would be inside each of those rects.
+  const timing: LandingTiming = (_fromX, _fromY, toX, toY) => {
+    observations.landingTiming = { target: { x: toX, y: toY } };
 
-    const frame = requestAnimationFrame(() => {
-      done();
-    });
-
-    return {
-      destroy(): void {
-        cancelAnimationFrame(frame);
-      },
-    };
+    return null;
   };
 
   // Referenced from `onReorder`, which cannot run before the assignment lands.
@@ -347,7 +337,7 @@ function mount(options: Options): Fixture {
       },
     },
     options.realLanding === undefined
-      ? probeLanding(run)
+      ? probeLanding(timing)
       : landing({ duration: options.realLanding, easing: 'linear' }),
   );
 
@@ -488,7 +478,7 @@ describe('an imperative commit', () => {
 
     record('1-replaceChildren', fixture, origin);
 
-    const { afterCommit, landingStart } = fixture.observations;
+    const { afterCommit, landingTiming } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // Detached, so `item.parentElement === placeholder.parentElement` fails and
@@ -496,10 +486,10 @@ describe('an imperative commit', () => {
     expect(afterCommit!.placeholder.connected).toBe(false);
     // **The repair, and it is a subtraction** (D-42, D-49). The precondition's
     // first conjunct catches exactly this: no connected placeholder, so no
-    // measurement, so **no runner is started at all** and `landingStart` stays
+    // measurement, so **no policy is asked at all** and `landingTiming` stays
     // undefined. The old target was `{ x: -50, y: -100 }` — origin-relative for
     // the viewport origin, because a detached element measures `0×0` at `(0,0)`.
-    expect(landingStart).toBeUndefined();
+    expect(landingTiming).toBeUndefined();
     // The row still ends where it belongs; what is gone is the journey.
     expect(boxOf(fixture.item())).toEqual({ x: 50, y: 140, w: 100, h: 40 });
     // **And the silence is over** (D-60). The drop is still a success and still
@@ -547,13 +537,13 @@ describe('an imperative commit', () => {
 
     record('2-innerHTML-rebuild', fixture, origin);
 
-    const { afterCommit, landingStart } = fixture.observations;
+    const { afterCommit, landingTiming } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // Both the placeholder and the node the library is dragging are detached.
     expect(afterCommit!.placeholder.connected).toBe(false);
     expect(afterCommit!.libraryItem.connected).toBe(false);
-    expect(landingStart).toBeUndefined();
+    expect(landingTiming).toBeUndefined();
     // The lifted visual is still landed onto a node that is no longer in the
     // page — D-49 does not rescue a rebuild that destroyed item identity, and
     // never claimed to. What it removes is the *confident animation* toward a
@@ -588,7 +578,7 @@ describe('an imperative commit', () => {
 
     record('3-append-loop', fixture, origin);
 
-    const { afterCommit, landingStart } = fixture.observations;
+    const { afterCommit, landingTiming } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // The commit left it at the head of the list.
@@ -599,7 +589,7 @@ describe('an imperative commit', () => {
     // `{ x: 0, y: 0 }` — and only the readiness-time retarget corrected it. The
     // single authoritative measurement lands on the row's final rect the first
     // time: `origin + target` is where the item actually ends up.
-    expect(origin.y + landingStart!.target.y).toBe(boxOf(fixture.item()).y);
+    expect(origin.y + landingTiming!.target.y).toBe(boxOf(fixture.item()).y);
     expect(boxOf(fixture.item())).toEqual({ x: 50, y: 140, w: 100, h: 40 });
     expect(fixture.errors).toEqual([]);
     expect(fixture.finishes).toBe(1);
@@ -629,7 +619,7 @@ describe('an imperative commit', () => {
 
     record('4-morphdom-patch', fixture, origin);
 
-    const { afterCommit, landingStart } = fixture.observations;
+    const { afterCommit, landingTiming } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // The patch stranded it at the tail — two slots below where it belongs.
@@ -639,17 +629,17 @@ describe('an imperative commit', () => {
     // the placeholder back beside the item — so the first and only target is
     // the row's final rect. This used to read `2 * ROW_HEIGHT`, the stranded
     // tail slot, and be corrected by a readiness-time retarget.
-    expect(landingStart!.target).toEqual({ x: 0, y: ROW_HEIGHT });
-    expect(origin.y + landingStart!.target.y).toBe(boxOf(fixture.item()).y);
+    expect(landingTiming!.target).toEqual({ x: 0, y: ROW_HEIGHT });
+    expect(origin.y + landingTiming!.target.y).toBe(boxOf(fixture.item()).y);
     expect(boxOf(fixture.item())).toEqual({ x: 50, y: 140, w: 100, h: 40 });
     expect(fixture.errors).toEqual([]);
     expect(fixture.finishes).toBe(1);
   });
 
-  it('should not travel to the viewport origin while the landing runs', async () => {
-    // Case 1 again, with the shipped runner, sampling the lifted row every
-    // frame between release and the join. This is the visible form of the
-    // number case 1 reports as a target.
+  it('should not travel to the viewport origin when the landing is skipped', async () => {
+    // Case 1 again, with the shipped policy installed, sampling the row every
+    // frame after the drop. This is the visible form of the number case 1
+    // reports as a target — and of its absence.
     const fixture = mount({
       realLanding: 200,
       author: ({ container, rows, next }) => {
@@ -692,7 +682,7 @@ describe('an imperative commit', () => {
     // **The case that decided D-49, inverted.** The row used to travel the
     // whole way to the viewport origin over twelve frames and then teleport
     // into its slot when the join pinned — `min y` under 12, `min x` under 4.
-    // With the landing skipped there is no travel at all: the drop is a jump
+    // With no target to measure there is no tail to start: the drop is a jump
     // cut, and every sample is at or below the row's own slot. A jump cut is
     // honest; a confident animation to `(0,0)` is not.
     //
@@ -728,7 +718,7 @@ describe('an imperative commit', () => {
 
     record('5-container-removed', fixture, origin);
 
-    const { afterCommit, landingStart } = fixture.observations;
+    const { afterCommit, landingTiming } = fixture.observations;
 
     expect(fixture.order()).toBe('bac');
     // Still parented — by the container that left the document.
@@ -738,7 +728,7 @@ describe('an imperative commit', () => {
     // The placeholder is *parented* here, by a container that left the
     // document — which is why the connectivity conjunct and the parentage
     // conjunct are two reads and not one.
-    expect(landingStart).toBeUndefined();
+    expect(landingTiming).toBeUndefined();
     expect(boxOf(fixture.item())).toEqual({ x: 50, y: 140, w: 100, h: 40 });
     expect(fixture.errors).toHaveLength(1);
     expect(fixture.finishes).toBe(1);
@@ -816,18 +806,12 @@ describe('the api-1 footprint rule under a live drag', () => {
 
     const errors: unknown[] = [];
     const landingTargets: Point[] = [];
-    const run: LandingStart = (context, done) => {
-      landingTargets.push({ x: context.targetX, y: context.targetY });
+    // Records the target and declines the tail, so the rects below are the
+    // rows' flow positions rather than those positions plus a residual.
+    const timing: LandingTiming = (_fromX, _fromY, toX, toY) => {
+      landingTargets.push({ x: toX, y: toY });
 
-      const frame = requestAnimationFrame(() => {
-        done();
-      });
-
-      return {
-        destroy(): void {
-          cancelAnimationFrame(frame);
-        },
-      };
+      return null;
     };
 
     const controller = sortable(
@@ -844,7 +828,7 @@ describe('the api-1 footprint rule under a live drag', () => {
       // Long enough that every displacement is still in flight when the
       // measurements below are taken.
       layoutAnimation({ duration: 4000, easing: 'linear' }),
-      probeLanding(run),
+      probeLanding(timing),
     );
 
     root.setPointerCapture = (): void => {};

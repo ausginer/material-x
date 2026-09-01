@@ -12,9 +12,10 @@
  *   supplies a `constrain` installer whose `invalidate()` *records that it ran*,
  *   which is also the honest statement of the contract: the slot admits
  *   arbitrary third-party code, and that is why the barrier is owed.
- * - **L-4** asks where the landing *opens*. `LandingContext.from` is the only
- *   place that answers, and a third-party `startLanding` is how a test reads it
- *   without asserting against an animation's keyframes.
+ * - **L-4** asks where the landing tail *opens*. The tail's own timing policy is
+ *   the only place that answers — the kernel hands it the two endpoints — and a
+ *   third-party `landingTiming` is how a test reads them without asserting
+ *   against an animation's keyframes.
  *
  * Both installers are authored against `free-drag/feature.js` alone, which is
  * B-6's claim exercised rather than merely typed.
@@ -70,7 +71,14 @@ function recordingConstraint(
   return { fragment: { bounds: installer }, invalidations };
 }
 
-/** A third-party landing that records where the trajectory opened. */
+/**
+ * A third-party landing that records where the tail opened.
+ *
+ * The timing policy is the one seam the two origin coordinates are published
+ * through, and it is called for every tail the kernel is about to start — so a
+ * recorder here observes the origin whether or not the interpolation then
+ * survives the platform.
+ */
 function recordingLanding(): Readonly<{
   fragment: Partial<FreeDragConfig>;
   origins: Point[];
@@ -78,10 +86,9 @@ function recordingLanding(): Readonly<{
   const origins: Point[] = [];
 
   const installer: FreeDragLandingInstaller = () => ({
-    startLanding: (context, done) => {
-      origins.push({ x: context.fromX, y: context.fromY });
-      done();
-      return { destroy: (): void => {} };
+    landingTiming: (fromX, fromY) => {
+      origins.push({ x: fromX, y: fromY });
+      return { duration: 200, easing: 'linear' };
     },
   });
 
@@ -364,21 +371,22 @@ describe('the landing origin', () => {
   });
 
   it('should render the release point, not only report it', async () => {
-    // The other half of the same write: the transform on the element at the
-    // moment the landing opens. Without `release.effect`'s write the visual
-    // sits at the last move while the request reports the release point, which
-    // is D-35's wrong-start signature arriving from the other end.
+    // The other half of the same write: the transform standing on the element
+    // while the visual is still lifted. Without `release.effect`'s write the
+    // visual sits at the last move while the request reports the release point,
+    // which is D-35's wrong-start signature arriving from the other end.
+    //
+    // **Read from the resolver**, which the kernel invokes only after
+    // `release.effect` has returned and while presentation is still held. By
+    // the time the tail's timing policy runs the element is released and its
+    // inline transform is restored, so an assertion there compares against an
+    // empty string and passes for the wrong reason.
     const seen: string[] = [];
-    const installer: FreeDragLandingInstaller = () => ({
-      startLanding: (context, done) => {
-        seen.push(context.visual.style.transform);
-        done();
-        return { destroy: (): void => {} };
-      },
-    });
     const composed = compose({
-      fragments: [{ landing: installer }],
-      onDrop: () => FreeDragResolution.reject('nope'),
+      onDrop: () => {
+        seen.push(composed.item.style.transform);
+        return FreeDragResolution.reject('nope');
+      },
     });
 
     activate(composed);

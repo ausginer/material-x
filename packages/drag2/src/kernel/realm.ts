@@ -8,8 +8,8 @@
  * Construction fails explicitly when `defaultView` is `null`; falling back to
  * the ambient `window` would mix realms.
  *
- * `LandingContext` carries this value, so a custom landing runner receives the
- * realm it must schedule and measure in.
+ * The activation scope carries it, so a behavior schedules and measures in the
+ * realm the controller was built on rather than in the ambient one.
  */
 export type DOMRealm = Readonly<{
   document: Document;

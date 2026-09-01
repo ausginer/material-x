@@ -2298,6 +2298,24 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-01 — D-155 implemented: the landing gate is deleted and the tail relinquishes (F-190, F-253)
+
+The last gate the settlement had. What lands is the shape D-155 settled and one narrowing the implementation found: **what crosses the seam is timing and nothing else.**
+
+**The deletion is the substance and the addition is small.** `SettlementScope` and `holdForLanding` go, with `LandingStart`, `LandingContext`, `LandingHandle`, the once-only completion latch, the `LANDING_SETTLED` action, the arm phase and its three outcomes, `advanceSettlement`, and eight of `SettlementAttempt`'s ten fields — the record is now `{ targetX, targetY }`. Two failure stages go with the runner that produced them: `FAILURE_LANDING_CREATE` and `FAILURE_LANDING_INTERRUPTED` lose their only producers, so 10 and 11 join 12 and 13 as numbers nothing reuses. What arrives is a controller-scoped `Animation`, an optional `BehaviorSpec.landingTail`, and `LandingTail` — a duration and an easing.
+
+**The SPI came out smaller than the decision reserved for it, and that is worth recording.** D-155 said `landing()` becomes policy and the inverse-delta and cancel move to the shared tier; read literally, a runner-shaped seam could still have survived at the kernel tier, because D-63 had moved one there rather than deleting it. It cannot: a runner exists to be started, to report that it finished, and to be told to relinquish, and **none of those three acts survives an interpolation nobody waits for**. So no tier publishes a runner, and a kernel-tier author answers the same question an ordinary consumer does — how long, and with what easing.
+
+**Two places where the implementation had to choose, and each chose the settled reading.** The **reduced-motion answer stays a collapse to zero** rather than becoming a refusal: the published timing contract is that a `duration` thunk is read once per landing _before_ the media query, so refusing early would make a consumer's settle-time side effect observable only for users who have not asked for reduced motion. The **cancel is at `acquireLift`**, not at admission — D-155's own case 2 — because a press that never crosses the threshold is not a drag and must not kill a live interpolation.
+
+**F-190 and F-253 close in the tree rather than in the record.** Resource safety and visual continuity are stated apart wherever the tail is documented, and the tail's element and space are named at the site: the visual, and `visualSpace`.
+
+**Measured against `09f26770`, joint, Brotli**: minimal **−226 B**, minimal (xy) **−261**, + layoutAnimation **−281**, xy + layoutAnimation **−283**, + landing **−347**, complete **−377**, free drag minimal **−243**, + bounds **−246**, + landing **−350**, free drag complete **−354**, both behaviors **−364**, kernel root **−258**, baseline A **−369**. `drag.js` and baseline B are the controls and neither moved. **No module entered or left any graph** — every count is identical, `shared/landing.js` standing where `shared/landing-runner.js` stood — so the whole of it is machinery. **The minimal row is the one worth naming**: a composition that installs no landing was paying 226 B for the gate it never used, which is what a lifecycle mechanism costs even when its feature is shaken out.
+
+**What is left open, deliberately and unchanged**: free drag's `accept()` commit obligation, which D-155 never inherited; whether the pin stays load-bearing under a tail; and F-203.
+
+---
+
 ### 2026-08-31 — D-155 checked against the two-space model before handoff (F-253)
 
 Record [`d155-space-model-projection-claude.md`](reviews/phase-24/d155-space-model-projection-claude.md). D-155 is the next deferred implementation, booked Before Phase 24, and it was written against the single `inheritedSpace` model that D-165 has since split. The pre-handoff question was whether the landing-tail contract needs amendment or merely projects.

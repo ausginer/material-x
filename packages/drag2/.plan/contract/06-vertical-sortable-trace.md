@@ -57,7 +57,11 @@ const controller = sortable(
                                                       retire } }   private: RectIndex
               installLayoutAnimation → { beforeInsertionMove,
                                          afterInsertionMove, retire } private: Map
-              installLanding         → { startLanding }             private: timing
+              installLanding         → { landingTiming }            private: timing
+            ← this read `{ startLanding }` until D-155. What a landing feature
+              contributes is TIMING — a duration and an easing, answered once
+              per landing — and never a runner: the interpolation is the
+              kernel's, and there is nothing left for a feature to own.
             ← installation order is SCHEMA order, and `plugins` install in
               array order. D-45 erases provenance, so "declaration order" —
               what retirement used to be defined against — no longer names
@@ -554,21 +558,18 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                               early when nothing arrives separately.   [D-41]
                       [K] lifetimes.cancellation.dispose()
 
-                      ── REQUEST: the scope records, it arms nothing ──
-                      [B] spec.settlement.effect(current, prepared, scope)
-                            slots.startLanding && recovery !== IMMEDIATE →
-                              scope.holdForLanding(slots.startLanding)
-                                [K] holds = 1; start = fn; landingHeld = true
-                            ← ONE gate. `holdForReadiness()` no longer exists.
-                                                                       [D-41]
+                      [B] spec.settlement.effect(current, prepared)
+                            ← this seam took a THIRD argument, a
+                              `SettlementScope`, and requested the landing gate
+                              through it, until D-155. There is no gate and no
+                              capability: the effect closes its lifetimes,
+                              reports a failure if it has one, and returns.
+                                                                 [D-41, D-155]
+                      [K] if settlement.effect THREW, or the operation was
+                          invalidated: measure nothing, join nothing, and let
+                          the queued checkpoint decide.          [F-27, D-155]
 
-                      ── SEAL ──
-                      [K] attempt.sealed = true
-                      [K] if settlement.effect had THROWN, or the operation were
-                          invalidated: drop every unarmed request, arm nothing,
-                          and let the queued checkpoint decide.          [F-27]
-
-                      ── ARM: the complete gate plan is now known ──
+                      ── MEASURE ──
                       ── RESTORE the library's presentation invariants ──
                       [B] the guarded item-relative re-anchor, run ONCE:
                             recovery === DESTINATION ✔
@@ -613,23 +614,20 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                               commit strategies, including the two that
                               otherwise hold. 02 owns the surviving signature;
                               this trace follows it.
-                      [K] from = lift.rendered      ← the delta the session
-                                                        last wrote, not a
-                                                        pointer delta    [D-35]
-                      [K] context = { visual, compose, from, target, realm }
-                      [F] WAAPI animation, 200 ms → LandingHandle
-                      [K] revalidate: still current, still sealed, still held?
-                            ← `start` could have destroyed the controller and
-                              STILL returned this live handle. If stale:
-                              handle.destroy() best-effort, never publish. [F-30]
-                      [K] attempt.landing = handle
-                      [K] arm outcome = ARM_ARMED
-                      [K] advanceSettlement: holds === 1 → return
-                          ← ARM_FAILED would return before this call; the original
-                            settlement would not finalize.
+                      [K] revalidate: still current, still SETTLING?
+                            ← `anchorTarget` is behavior code and may have
+                              destroyed the controller. Nothing joins after
+                              that.                              [F-38, D-155]
+                      [K] join, in this same drain
+                          ← three lines stood here until D-155: the landing
+                            context, `start(context, done, fail)` returning a
+                            `LandingHandle`, and the arm outcome that decided
+                            whether `advanceSettlement` ran at all. A settlement
+                            suspends nothing now, so there is no outcome to
+                            branch on and no drain to wait for.
 ```
 
-The hold is reserved **before** `start` is called and the handle is stored **after** it returns. A `landing({ duration: 0 })` or custom runner that calls `done()` from inside `start` therefore always finds its hold, and its queued completion can never be applied before the handle exists. Had `start` thrown, or had the runner called `fail()` synchronously, the reserved hold would be rolled back and the failure classified `FAILURE_LANDING_CREATE`. Arm would return `ARM_FAILED`: the original settlement would not advance or call its terminal callback; the queued failure checkpoint would take over while presentation remains owned. **[D-28, F-35]**
+~~The hold is reserved **before** `start` is called and the handle is stored **after** it returns.~~ **The whole of that protocol is retired with the gate (D-155)**, and its reason is the clearest statement of why: it existed so that a runner completing _inside_ `start` found a hold to release. Nothing completes now, because nothing is waiting — so there is no early completion, no rollback, and no `FAILURE_LANDING_CREATE` for a runner that could not be created. **What survives is the ordering the protocol was protecting**: one measurement, taken before anything is mutated, and one pin taken from it. **[D-28, F-35, D-155]**
 
 **A failed measurement is not one of those cases, and D-49 is why.** Collapsing two measurement sites into one silently converted a tolerated fault into a fatal one: the old contract survived a failed `anchorTarget` per drop, because F-17 and I-29 make it best-effort and the join's pin decides correctness — with one site, `ARM_FAILED` would tolerate none. So a measurement that throws, or a precondition check that finds the placeholder detached, **reports, skips the landing, and joins immediately**. That restores F-17's tier — the failure is **quality only**, exactly as F-16 classifies a visually abrupt correction — and keeps I-31's single terminal. **It also unifies with D-42**, replacing that decision's weaker "lands from the unrepaired position": the unrepaired position _is_ the viewport origin, and probe C1 shows what animating toward it looks like — twelve frames to `(0,0)` and a teleport back. **A jump cut is honest; a confident animation to `(0,0)` is not.** **[D-49, D-42, F-16, F-17]**
 
@@ -641,37 +639,39 @@ The repair is guarded three ways, and each guard earns its place. The `nextEleme
 
 The item is the anchor because after the commit it is a connected, consumer-owned keyed child the renderer has placed at its authored final slot. **[I-25]** The visual may be a different element; the anchor is always the item.
 
-**With no `landing()` feature installed**, `slots.startLanding` is `null`, so **no landing hold is taken and no animation module is in the bundle** — `holds` is 0 at seal, and the settlement finalizes in this same drain. That is now the whole of the rule, because there is one gate: same-drain finalization needs no landing feature, or an immediate recovery, and nothing else. It used to need _both_ halves — no landing **and** no declared presentation — and the independence of the two was the property that let the render and the animation overlap. **With readiness deleted there is nothing left to be independent of**, and probe 1's underlying requirement is untouched, because it was always the _default-open_ rule rather than the gate count. **[I-9, I-8, D-41, D-7]**
+**With no `landing()` feature installed**, `slots.landingTiming` is `null`, so **nothing travels after the drop and no animation module is in the bundle**. ~~`holds` is 0 at seal, and the settlement finalizes in this same drain.~~ **Every settlement finalizes in this same drain since D-155**, installed landing or not: same-drain finalization is no longer a rule with conditions attached to it. It used to need _both_ halves — no landing **and** no declared presentation — and the independence of the two was the property that let the render and the animation overlap. Readiness left nothing to be independent of; D-155 left nothing to be gated on. Probe 1's underlying requirement is untouched, because it was always the _default-open_ rule rather than the gate count. **[I-9, I-8, D-41, D-7, D-155]**
 
-Note that no gate release will be a frame transition: gate state is on the attempt, not the frame. The only remaining transition is `phase = FINALIZING`.
+Note that no gate release will be a frame transition: ~~gate state is on the attempt, not the frame~~ — there is no gate state anywhere. The only transition in settlement is `phase = FINALIZING`.
 
 **What stood between here and the join, and no longer does.** A `## Readiness — the authoritative re-anchor` section traced `controller.ready(pendingRequest.current)` from a `useLayoutEffect`, compared by object identity against the request `release.prepare` built and `release.effect` published, dispatched `READINESS_SETTLED` with the once-only latch claimed _before_ the dispatch (C4-04, C5-02), released the readiness hold, set `authoredReady`, ran a readiness-time re-anchor and offered the result to `handle.retarget?.()`. **Every mechanism in it was correct for the problem it had** — the identity comparison in particular is the best record of why per-operation identity on a controller method is hard, which is why D-33 is kept in full in the ledger. What it does not have any more is a problem: the authored commit now completes inside `onReorder`, so there is no render to acknowledge after the fact, no interval for a late or duplicate acknowledgement to land in, and no 500 ms deadline to bound the silence. **[D-41, D-33, I-35]**
 
 ## The join
 
 ```text
-landing animation finishes (200 ms)
+immediately, in the settlement's own drain
+    ← this line read `> LANDING_SETTLED  [K] landingHeld ✔ → holds = 0` and
+      waited on a 200 ms animation to say it had finished, until D-155. Nothing
+      reports a completion because nothing is waiting for one.
 
-> LANDING_SETTLED    [K] attempt current ✔  phase SETTLING ✔  no error ✔
-                     [K] landingHeld ✔ → landingHeld = false; holds = 0
-                           the handle itself is retained for the join
-                     [K] advanceSettlement: holds === 0 ✔
                            [K] begin(); draft.phase = FINALIZING; commit()
                            [K] try {
-                           [K]   target = spec.anchorTarget(current)
-                                 [B]   defensive repeat of the guarded repair,
-                                       then measure — covers layout movement
-                                       during a long landing
-                                 ↳ throws → FAILURE_LANDING_TARGET, no target
-                           [K]   attempt.landing.destroy()
-                                 [F]   animation.cancel() — relinquish the
-                                       transform so the pin is not overridden
-                                 ↳ throws → best-effort report; continue, BUT
-                                   attempt.relinquished = false and I-24 no
-                                   longer holds for this operation: the runner
-                                   may keep writing after the pin.        [§8]
-                           [K]   lift.write(target.x - originRect.x,
-                                            target.y - originRect.y)
+                           [K]   if the controller is gone → return
+                                 ← `anchorTarget` ran before this and is
+                                   behavior code                       [F-38]
+                                 ── `target = spec.anchorTarget(current)` and a
+                                    defensive repeat of the guarded repair
+                                    stood here until D-41 moved the measurement
+                                    ahead of the join. There is one measurement
+                                    and the join reads what it recorded.
+                           [K]   from = lift.rendered
+                                 ← sampled BEFORE the pin, which is what
+                                   overwrites it. The delta the session last
+                                   wrote, not a pointer delta            [D-35]
+                                 ── `attempt.landing.destroy()` stood here,
+                                    relinquishing the transform so a running
+                                    animation could not override the pin. There
+                                    is no runner to relinquish.        [D-155]
+                           [K]   lift.write(target.x, target.y)
                                  ← the authoritative pin, kernel-owned    [I-24]
                                  ↳ throws → FAILURE_RENDERER_WRITE, continue
                            [K] } finally {
@@ -689,6 +689,41 @@ landing animation finishes (200 ms)
                                  stale ACCEPTED frame. [F-27, D-66]
                                  ── the terminal is deferred, not skipped:
                                     it was skipped until D-66.
+                           ── THE TAIL, on the RELEASED element ──   [D-155]
+                           [K] dx, dy = from - target, projected through
+                                        scope.visualSpace
+                                 ← a `translate` is a LOCAL quantity and the
+                                   endpoints are viewport deltas. The space
+                                   above the VISUAL, because that is the element
+                                   this is written on — and not the session's
+                                   own projection, which is `null` for a lifted
+                                   mode and would be silently wrong for two of
+                                   the three.                     [D-85, D-165]
+                           [K] if dx or dy is non-zero:
+                           [B]   timing = spec.landingTail(current, from, target)
+                                 [F]   slots.landingTiming(...) → { duration,
+                                                                    easing }
+                                 ← the sortable declines an IMMEDIATE recovery:
+                                   a failure repair belongs at its home now,
+                                   not two hundred milliseconds from now
+                                 ↳ throws, or the controller is gone → nothing
+                                   travels; the drop is already decided
+                           [K]   visual.animate([{ translate: `${dx}px ${dy}px` },
+                                                 { translate: '0 0' }],
+                                                { duration, easing,
+                                                  composite: 'add' })
+                                 ← ADDITIVE, no fill, decaying to zero: it
+                                   writes no inline style, composes with an
+                                   authored `translate` rather than replacing
+                                   it, and cancelling it at any instant leaves
+                                   the row exactly where flow puts it
+                           [K]   tail = animation      ← ONE controller-scoped
+                                                          slot, cancelled at the
+                                                          next acquireLift and
+                                                          on destroy()
+                           [K] if the controller is gone → return
+                                 ← the disposers and the tail policy are both
+                                   foreign code
                            [B] spec.finalized(current)
                                  slots.onEnd({ ACCEPTED, proposal })   ← one terminal (D-62)
                                  ← the consumer observes its own authored DOM,
@@ -698,15 +733,15 @@ landing animation finishes (200 ms)
                            [K] dispatch(RETIRE, operation)
 ```
 
-Ordering is normative: `anchorTarget` → `destroy()` → pin → release. The runner must relinquish the transform before the pin, or a running WAAPI animation overrides the inline style.
+Ordering is normative: ~~`anchorTarget` → `destroy()` → pin → release~~ **measure → pin → release → tail → terminal**. The pin is the last thing written through the lift session, the release gives the element back, and only then does anything interpolate — so the terminal callback runs in a world the library holds no claim on.
 
-**Every call before the release is fallible, and the release is in a `finally`.** Three of the four steps here run code the kernel does not own — a behavior measurement, a possibly-custom runner handle, and a DOM write — and none of them may strand temporary presentation. That is why I-24 is stated _conditionally_ on **three** things: the measurement succeeding, the pin succeeding, **and runner control being successfully relinquished**. A `destroy()` that throws is only reported, so the runner may still be writing the transform after the pin — the pin is performed but is no longer known to be authoritative. When any of the three fails, the placeholder is still removed and the inline styles are still restored. **[F-22]**
+**Every call before the release is fallible, and the release is in a `finally`.** ~~Three of the four steps here run code the kernel does not own~~ — **one does**: the kernel's own DOM write, since the measurement moved ahead of the join and the relinquishment has no subject. That is why I-24 is stated _conditionally_ on ~~**three**~~ **two** things: the measurement succeeding and the pin succeeding. ~~A `destroy()` that throws is only reported, so the runner may still be writing the transform after the pin~~ — **nothing writes the transform after the pin**, because what follows the release claims `translate` and not `transform`, holds no inline style, and is the kernel's own to cancel. When either step fails, the placeholder is still removed and the inline styles are still restored. **[F-22]**
 
 **The pin at the join survives the redesign, and it is now the only correction there is.** This paragraph used to say the gates never awaited each other and that both completion orders produce the same pinned target — true, and no longer the interesting property, because there is one gate and one order. What still matters is the surviving clause of D-16: the kernel performs the final pin **at the join, before releasing presentation**, so layout that moved during a 200 ms landing is absorbed by a measurement taken after it. Correctness was never coming from every runner being retargetable; it came from this pin. **[D-16, D-41]**
 
-Had `anchorTarget` thrown **here**, the kernel would report `FAILURE_LANDING_TARGET`, skip the pin, and **still** release presentation. A measurement failure must not strand the controller.
+Had `anchorTarget` thrown **here**, the kernel would report it, skip the pin, and **still** release presentation. A measurement failure must not strand the controller. (`FAILURE_LANDING_TARGET` was the stage; ~~it is a `DraggableWarning` since D-130~~ and there is no call site here since D-41 moved the measurement.)
 
-Had the **arm-time** measurement thrown instead, the landing is **skipped and the join runs immediately** — not `ARM_FAILED`, and not an animation toward a target the library does not trust. The advisory readiness-time `anchorTarget` that F-17 and I-29 were written against does not exist any more, but D-49 keeps its **tier**: a failed measurement is quality-only, reported through `onError`, and the drop still terminates normally with its domain result. **[D-49, F-17, I-29 — narrowed by D-41]**
+When the measurement throws, the landing is **skipped and the join runs immediately** — not a replaced settlement, and not an animation toward a target the library does not trust. The advisory readiness-time `anchorTarget` that F-17 and I-29 were written against does not exist any more, but D-49 keeps its **tier**: a failed measurement is quality-only, reported through `onError`, and the drop still terminates normally with its domain result. **[D-49, F-17, I-29 — narrowed by D-41]**
 
 ## Retirement
 
@@ -750,11 +785,13 @@ What the same trace does under each difficult case, without adding a branch anyw
 | `onStart` calls `destroy()` | `preparationValid()` after `activation.effect` fails → no `START_COMMITTED`; the drain sees `closed` on its next iteration and stops. |
 | `onReorder` calls `cancel()` | **The cancel wins.** `invoke` must run consumer code before it has a value to settle, and a nested `dispatch` appends in call order — so `CANCEL` is enqueued from inside `onReorder`, and `RESOLUTION_SETTLED` only after it returns. The cancel transition runs first; the completion is then stale for a decided operation and is dropped. This is `CANCEL > FAILURE_CHECKPOINT` and FIFO working as specified. An earlier version of this row asserted the opposite ordering and was simply wrong. **[F-25]** |
 | `onReorder` calls `destroy()` | `closed` is re-read each iteration; the drain stops before `RESOLUTION_SETTLED`. **The controller is closed from that statement onward; physical teardown runs at the boundary of the outermost library transaction, so it has not necessarily completed when `destroy()` returns.** The returned Promise settles once, after it has. **[D-36]** |
-| `destroy()` during the 200 ms landing | `LandingHandle.destroy()` — silent, never dispatches. Presentation disposes. A late `done()` finds no attempt and is inert at both validation points. |
+| `destroy()` during the 200 ms landing | **The tail is cancelled and the row settles instantly** where flow put it, because the contribution decays to zero. ~~`LandingHandle.destroy()` — silent, never dispatches. Presentation disposes. A late `done()` finds no attempt and is inert at both validation points.~~ Presentation was disposed at the pin, before the tail existed: `destroy()` during a landing has no lease to reach. **[D-155]** |
 | The consumer commits **synchronously** — `flushSync`, or a non-React renderer | Nothing special happens. `onReorder` does not await, returns its resolution, and the rest of the trace is byte-identical. The pre-redesign row here described an early `controller.ready(request)` latched on the resolution attempt, copied onto the settlement and dispatched at arm; the synchronous and asynchronous consumers are now one code path, which is the point of awaiting inside `onReorder`. **[D-41]** |
 | The consumer's own commit **never settles** | The library waits, exactly as it waits for any pending resolution: the cancellation lifetime's `useWhile` still aborts the signal handed to `onReorder`, and a cancel or a `destroy()` ends the operation. There is no 500 ms readiness deadline any more, because there is no separate acknowledgement to time out — the bound the consumer has is the one it wrote. **[D-41, F-46]** |
 | The consumer's commit **throws or rejects** | `SETTLED_REJECTED` → the seam **re-raises `input.error` verbatim** and the kernel classifies at `FAILURE_RESOLUTION` (D-152), the same path as any rejected resolver. An `await` that throws is ordinary Promise failure behavior, which is the whole of what replaced four consumer obligations whose only failure signal used to be a 500 ms silence. **[F-46, F-29]** |
 | The user cancels while `onReorder` is outstanding | The operation stops waiting, restores and retires presentation, and reaches **one** terminal, `canceled`. The consumer's already-started work may still commit; the library never promised to undo it. The late settlement or rejection from the abandoned resolver is consumed safely — no unhandled rejection, no second terminal, no revival. **[D-40]** |
+| A second drag begins while a tail is in flight | **The tail is cancelled at `acquireLift`, before the origin measurement.** Measuring mid-flight would be right — the drag should start from where the element looks — but a running animation outranks inline styles in the cascade, so the new lift's own writes would compose with a contribution that is still decaying. A press that never crosses the threshold cancels nothing. **[D-155]** |
+| The consumer removes or reparents the element mid-tail | **Resource safety is unconditional**: no lease survives the terminal, so a removed node stops rendering and takes its animation with it. **Visual continuity is best-effort**: the contribution is a local quantity derived through a space captured at activation, so a new ancestry sends it along the wrong path — and it still ends at zero, so the element lands exactly where flow puts it. **[D-155, F-190]** |
 | The authored commit **detaches or replaces** the placeholder | Out of contract: `replaceChildren`, an `innerHTML` rebuild and container replacement are unsupported during an active operation. The two-read precondition at the authoritative measurement fails, the library **warns through `onError`, skips the landing animation and joins immediately** — a jump cut, not a confident twelve-frame flight to `(0,0)`. The settlement does not fail and the drop terminates normally, because the DOM commit already happened and the reorder is real. **So this operation fires `onError` once _and_ `onEnd` once** (D-60). Nothing is recovered — C1 showed `request.before`/`after` survive in four of five strategies, so a repair is buildable, and buying it would mean relaxing D-27's cross-container refusal for a case that is now outside the contract. **[D-42, D-49, D-60, F-49]** |
 | The authoritative measurement **throws** | Identical treatment, and that is the point of D-49 unifying the two: report, skip the landing, join immediately, **`onError` once and `onEnd` once**. Quality only — the drop is unaffected. **[D-49, D-60]** |
 | Reading `onError` and the terminal as mutually exclusive | **False, and worth stating because probe C1's finding is phrased the other way.** C1's defect was _`onEnd` once, `onError` **zero**_; the fixed behavior is _`onEnd` once, `onError` **once**_. `onError` is orthogonal to the terminal: it reports a fault, not an operation outcome. ~~`FAILURE_LANDING_TARGET` under D-49 is the first stage that is classified, **non-consequential, and has no recovery**.~~ **D-130 deletes that stage and says it with the class instead** — a `DraggableWarning` means the settlement was not failed and the domain result stands, which is what the stage was invented to encode. The contract carried an unstated biconditional, `onError ⇒ consequential`, that nothing had ever tested; D-49 falsifies it and D-130 makes the falsification legible in the type. **[D-60, D-130]** |
@@ -768,11 +805,11 @@ What the same trace does under each difficult case, without adding a branch anyw
 | `controller.invalidate()` at `IDLE` | Published in `effect`; `draft.snapshot` is left alone, so an idle frame retains no item elements. **[I-20]** |
 | The consumer mutates the **same** array in place and calls `invalidate()` | Outside the contract. Array identity is the structural signal, so the library reads no structural change and invalidates geometry only. React, Vue and Svelte all return a new array when order changes, which is why the signal is free. **[D-44]** |
 | The consumer unmounts the dragged item as part of the reorder | ~~`anchorTarget` finds no connected anchor and falls back to the placeholder's rect. Degraded, not stranded.~~ **Superseded by D-42/D-49 at Phase R, and the row was a stale residue: it predates the precondition.** The re-anchor is still skipped, and then the precondition's second conjunct fails — the placeholder is no longer in the item's container, because the item has no container — so the **landing is skipped rather than measured**: one `onError`, no animation, and the drop still terminates with its accepted result. Q-12's answer survives in the half that mattered, "not stranded"; what it got wrong is "with nothing classified or reported", which is the silence D-49 exists to end. **[Q-12, D-42, D-49, D-60]** |
-| `LandingHandle.destroy()` throws at the join | Best-effort report. The pin still happens and presentation is still released — a custom runner cannot strand the controller. **[F-22]** |
+| ~~`LandingHandle.destroy()` throws at the join~~ | **No such call since D-155.** The pin is the first step of the join and nothing has to be relinquished before it. **[F-22]** |
 | `lift.write()` throws at the join | `FAILURE_RENDERER_WRITE`; the visual stays where landing left it; presentation is **still** released. **[F-22]** |
 | `spec.finalized()` throws | `FAILURE_TERMINAL_CALLBACK`; the operation still retires. **[F-22]** |
-| A landing runner calls `done()` synchronously inside `start` | The hold was reserved before `start` was called, so the completion is queued against a real hold; the handle is stored before the queued completion can be applied. **[F-21]** |
-| `startLanding` throws | The reserved hold is rolled back, `FAILURE_LANDING_CREATE` is classified, arm returns `ARM_FAILED`, and the original settlement neither advances nor calls its terminal callback. The failure checkpoint owns recovery while presentation remains held. **[D-28, F-35]** |
+| ~~A landing runner calls `done()` synchronously inside `start`~~ | **Nothing completes since D-155**, so the reserve-before-call ordering this row pinned has no subject. What it protected — a settlement that could not be stranded by its own animation — is now structural. |
+| The tail's timing policy throws | **One `DraggableWarning` and nothing travels.** The drop is already decided, committed, pinned and released by the time the policy is asked, so a presentational fault has nothing left it could change. ~~The reserved hold is rolled back, `FAILURE_LANDING_CREATE` is classified, arm returns `ARM_FAILED`~~ — both the hold and the stage retire with the runner. **[D-155]** |
 | An arrow key on an edge item | `command.admit` computes the destination gap, finds `null`, returns `null`. The kernel does not prevent the default, so no operation is minted, no phase changes, and the key keeps its native meaning. Feasibility was answered inside the listener, which is the whole of what D-32 buys. **[D-32, I-32]** |
 | An arrow key inside a **text input, `contenteditable` or native control** in a row | `command.admit` **declines**, because it now asks what the event landed on: text inputs keep caret arrows, `contenteditable` keeps editing navigation, native controls keep their keys. Declining is total, so the keystroke keeps its native meaning entirely. Probe E measured the alternative — a single `ArrowRight` at caret offset 5 in a nested input froze the caret, reported `defaultPrevented`, and produced `onStart` ×1, `{from:2,to:3}` and `onFinish` ×1 (probe E's own vocabulary; `onEnd` since D-62): **a complete accepted reorder from one keystroke in a form field.** **[D-46, F-48]** |
 | An arrow key during **IME composition** | `event.isComposing === true` never admits. In every CJK IME an arrow navigates the candidate list; probe E observed a real Chromium composition (`"にほ"`, `isComposing: true`) reordering the collection instead, mid-word, with the user not interacting with the list at all. **[D-46, F-48]** |
@@ -788,11 +825,11 @@ What the same trace does under each difficult case, without adding a branch anyw
 | `activation.effect` throws after the placeholder is inserted | The removal disposer was registered first, so the presentation lifetime still owns it. **[I-30, F-18]** |
 | A `beforeMove` hook throws | `FAILURE_ACTION_EFFECT` from the _committed_ state — the insertion stands, the transition is not reverted, recovery is home. **[I-18]** |
 | `spec.retire()` throws | Reported; the remaining teardown steps still run. **[F-12]** |
-| `LandingHandle.destroy()` throws during `controller.destroy()` | Reported; lifetimes, the frame task, ingress and queue state are still released. Per-attempt cleanup is individually wrapped, same policy as the join. |
+| The tail's `cancel()` throws during `controller.destroy()` | Reported; lifetimes, the frame task, ingress and queue state are still released. `Animation.prototype.cancel` is overridable on a consumer-owned element, so the call is unwound like every other teardown step. **[F-22]** |
 | `release.effect` throws | `FAILURE_RELEASE` from the committed state, and the staged command is **not** executed — `onReorder` never runs. **[F-27]** |
 | `activation.prepare` throws | `FAILURE_ACTIVATION` is queued and the operation stays live for its checkpoint. It is **not** retired here; retiring would make the queued entry stale and swallow the `onError`. **[F-27]** |
-| `settlement.effect` requests the landing hold, then throws | The scope seals, the request is dropped unarmed, and no runner starts. The rule is unchanged; there is one request to drop rather than two. **[F-27]** |
-| `startLanding` destroys the controller and returns a live handle | Revalidation after `start` finds the attempt stale, destroys the handle once, best-effort, and never publishes it. **[F-30]** |
+| `settlement.effect` throws | ~~The scope seals, the request is dropped unarmed, and no runner starts.~~ **Nothing is measured and nothing joins** (D-155): measuring for a pin that will never happen would call behavior code for nothing, and the queued checkpoint decides the operation. **[F-27]** |
+| The tail's timing policy destroys the controller | **No animation is started and no terminal is published.** `destroy()` is a synchronous terminal barrier, so the join re-reads it after the policy returns — the same revalidation ~~that used to destroy a handle a stale `start` returned~~ was for. **[F-30, D-155]** |
 | The consumer resolution is a no-op proposal | `{ invoke: null }` → `SETTLED_SKIPPED` → `OUTCOME_NOOP` with **immediate** recovery and `onEnd({ type: 'noop' })`. It read `onFinish`. Not a rejection, and not a home recovery. **[F-29]** |
 | The `onReorder` promise rejects | `SETTLED_REJECTED` → the seam **re-raises the rejection value verbatim** and the kernel classifies at `FAILURE_RESOLUTION` (D-152), so what the consumer's `onError` sees as `cause` is the value they rejected with. A resolver malfunction is never reported as `onEnd({ type: 'canceled' })`. It read `onCancel`. **[F-29]** |
 | The insertion is a **start** gap | `movePlaceholder` anchors on `insertion.after`, so the placeholder reaches the head of the list. The old `before?.after(…)` writer was a silent no-op here. **[F-31]** |
