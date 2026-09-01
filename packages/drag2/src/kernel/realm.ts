@@ -8,8 +8,9 @@
  * Construction fails explicitly when `defaultView` is `null`; falling back to
  * the ambient `window` would mix realms.
  *
- * The activation scope carries it, so a behavior schedules and measures in the
- * realm the controller was built on rather than in the ambient one.
+ * The construction-time host carries it — `KernelHost` at the kernel tier, the
+ * feature context at the middle tier — so a behavior schedules and measures in
+ * the realm the controller was built on rather than in the ambient one.
  */
 export type DOMRealm = Readonly<{
   document: Document;

@@ -24,8 +24,8 @@ import type { LandingTiming } from './composition.ts';
  * What a contextual `duration` is handed.
  *
  * The four coordinates are the tail's endpoints — origin-relative viewport
- * deltas, where the visual was and where it was pinned — and `distance` is the
- * straight-line magnitude between them.
+ * deltas, where the visual was and where the drop decided it belongs — and
+ * `distance` is the straight-line magnitude between them.
  *
  * They are **scalars rather than two points**: the kernel already holds them as
  * scalars, so nesting them here would allocate two objects for a function that

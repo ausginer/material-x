@@ -40,7 +40,7 @@ export type FreeDragController = Readonly<{
    * **Nothing detects a violation of that.** A non-finite coordinate is
    * accepted and written: it is folded into committed frame state, so it
    * reaches every later derivation, every geometry object you are handed, and
-   * the target the kernel pins the drop with — including the `distance` a
+   * the target the drop lands on — including the `distance` a
    * `landing({ duration })` function is called with. No failure is classified,
    * no `onError` fires, and the drag continues on a poisoned offset. This is a
    * documented boundary rather than a guarded one, in the same form the

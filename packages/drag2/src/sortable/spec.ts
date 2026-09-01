@@ -1532,16 +1532,17 @@ export function createSortableSpec(
               // committed a result arrives here still carrying it, and `??` is
               // the whole tie-break.
               //
-              // **An unconditional `draft.domain = …` here is wrong.** It rests
-              // on a terminal-callback throw being the only failure that
-              // arrives after a result exists, and that is false, unavoidably:
-              // the kernel's own pin at the join is classified as a renderer
-              // write, and it runs after the settlement committed. Such an
-              // assignment overwrites a committed result 100 % of the time it
-              // fires, and tells a consumer whose data really was reordered
-              // that the drop was `canceled`. The stage exclusion
-              // above stands on its own reason — recovery, not the result — and
-              // carries no weight in this tie-break.
+              // **An unconditional `draft.domain = …` here is wrong.** It
+              // rests on a terminal-callback throw being the only failure that
+              // can arrive after a result exists, and nothing enforces that:
+              // every phase that runs after the join classifies against this
+              // operation, so an action dispatched by the terminal callback, or
+              // an explicit `host.fail` from inside one, arrives here with the
+              // result already committed. Such an assignment overwrites it
+              // 100 % of the time it fires, and tells a consumer whose data
+              // really was reordered that the drop was `canceled`. The stage
+              // exclusion above stands on its own reason — recovery, not the
+              // result — and carries no weight in this tie-break.
               //
               // **The marker decides the stage, and it also decides whether to
               // publish at all.** At `MINTED` the consumer never heard this
@@ -1644,7 +1645,7 @@ export function createSortableSpec(
       // `disconnectedCallback`/`connectedCallback` runs synchronously inside
       // them, and it is consumer code. The measurement below is a *second*
       // consumer call on the same element. The kernel revalidates around
-      // `anchorTarget` and never pins for a destroyed controller, so the
+      // `anchorTarget` and never joins for a destroyed controller, so the
       // point is discarded either way; what this stops is the read itself.
       if (host.closed) {
         anchor.x = 0;

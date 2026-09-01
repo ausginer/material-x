@@ -95,8 +95,8 @@ const seamFailed = (o: SeamOutcome): boolean =>
 | --- | --- | --- |
 | activation | A classified `prepare` failure returned `false`, which the wrapper read as an ordinary discard and retired the operation — making the queued `FAILED` entry stale, so `onError` might never fire | Retire on `SEAM_DISCARDED`/`SEAM_INVALIDATED` **only**. On a failure the operation stays live for its checkpoint. |
 | release | `openResolution(command)` ran unconditionally, so the consumer could receive `onReorder` for a release whose committed presentation effect had thrown, racing the failure through the same queue | Execute the command **only** on `SEAM_COMMITTED`. |
-| settlement | A `effect` that requested a hold and then threw still got sealed and armed, starting a runner for an already-failed settlement | On `SEAM_EFFECT_FAILED`, ~~seal, then **discard every unarmed request** and arm nothing~~ — **measure nothing and join nothing** (D-155): with no gate to request, what an effect failure must prevent is a measurement taken for a pin that will never happen. |
-| join | `spec.finalized(current)` ran after a classified target or renderer failure, and the committed frame still said `OUTCOME_ACCEPTED` — so `onFinish` fired for a drop about to be reported through `onError` | Always release presentation; **skip the terminal callback** after a consequential failure. |
+| settlement | A `effect` that requested a hold and then threw still got sealed and armed, starting a runner for an already-failed settlement | On `SEAM_EFFECT_FAILED`, ~~seal, then **discard every unarmed request** and arm nothing~~ — **measure nothing and join nothing** (D-155): with no gate to request, what an effect failure must prevent is a measurement taken for a join that will never happen. |
+| join | `spec.finalized(current)` ran after a classified target or renderer failure, and the committed frame still said `OUTCOME_ACCEPTED` — so `onFinish` fired for a drop about to be reported through `onError` | Always release presentation; **skip the terminal callback** after a consequential failure. **Neither producer survives**: the target failure is a warning (D-49) and the renderer failure was the join's own write (D-166), so nothing between the commit and the terminal classifies and the rule now governs an empty set. |
 
 That last row is a direct contradiction of the rule that a failed operation reports through `onError` only, and it is the reason **F-19 was not actually resolved** by catching throws. **The rule it contradicts is itself retracted by D-66**, and the row is a defect anyway for the reason that outlives it: the frame said `OUTCOME_ACCEPTED` for a drop the checkpoint was about to report as failed. Under D-66 that state is still wrong — what changed is that the answer is to make the frame tell the truth, not to publish nothing.
 
@@ -766,7 +766,7 @@ Three justification classes, and each one answers a different question. They are
 | Phases — 8 | `IDLE`, `PENDING`, `ACTIVATING`, `ACTIVE`, `RELEASING`, `SETTLING`, `REPORTING`, `FINALIZING` | **I** — see §The phase is handed over, below |
 | ~~Classification~~ | ~~`toDraggableError`~~ | **Deleted at D-132** — see §The mapping is library-owned, below |
 
-**Types — 35, derived as `12 + 23`** (F-174, 2026-08-29). All erased. ~~Thirteen~~ **Twelve since D-152** are shipped (`ActivationScope`, `AdmissionSubject`, `BehaviorConfig`, `BehaviorFactory`, `BehaviorSpec`, `CommandAdmission`, `FailureStage`, `KernelHost`, `PreparedSettlement`, `ResolutionCommand`, ~~`SeamRejection`~~, `SettlementInput`, `SettlementScope`); ~~**twenty-two**~~ **twenty-three since D-154** are added.
+~~**Types — 35, derived as `12 + 23`**~~ **Types — 32, derived as `11 + 21`** (F-174, 2026-08-29; re-derived for D-155). All erased. ~~Thirteen~~ ~~**Twelve since D-152**~~ **Eleven since D-155** are shipped (`ActivationScope`, `AdmissionSubject`, `BehaviorConfig`, `BehaviorFactory`, `BehaviorSpec`, `CommandAdmission`, `FailureStage`, `KernelHost`, `PreparedSettlement`, `ResolutionCommand`, ~~`SeamRejection`~~, `SettlementInput`, ~~`SettlementScope`~~); ~~**twenty-two**~~ ~~**twenty-three since D-154**~~ **twenty-one since D-155** are added — the settlement group traded three landing seam types for one. **Re-derived from the table below rather than decremented**, and the result agrees name-for-name with the executable list in `tests/kernel/vocabulary.node.test.ts`, which is what the paragraph after this one says nothing compares a written total against.
 
 **35 was the written total before D-154 too, and it was wrong then** — the two lists summed to 34. `CancelOrigin` makes the sentence true for the first time, and by re-derivation rather than by the addition landing on a correct base. The count is **descriptive, not normative**: the rule above is the contract, and the sentence below said what this correction is.
 
@@ -904,7 +904,7 @@ An earlier draft abandoned `ACTIVATING` cancels with no callbacks, on the ground
 
 ## Capabilities passed at call time
 
-The kernel grants exactly what a seam needs, as arguments. Behavior code _can_ stash one — nothing stops it retaining an `ActivationScope` — so the guarantee is not "it cannot be kept" but that a retained capability is **inert or self-reporting** once its operation ends. That holds for the two lifetime-shaped ones: a `LifetimeScope` whose lifetime has disposed invokes a late `use()` disposer immediately, and a `SettlementScope` past sealing ignores and reports a late hold.
+The kernel grants exactly what a seam needs, as arguments. Behavior code _can_ stash one — nothing stops it retaining an `ActivationScope` — so the guarantee is not "it cannot be kept" but that a retained capability is **inert or self-reporting** once its operation ends. That holds for the lifetime-shaped one: a `LifetimeScope` whose lifetime has disposed invokes a late `use()` disposer immediately. ~~and a `SettlementScope` past sealing ignores and reports a late hold~~ — **there is no second such capability** (D-155): the settlement seam passes none, so the only retainable capabilities are the activation scope's.
 
 **It does not hold for `BehaviorLiftSession.write`, and this document previously implied it did** (Checkpoint C, C6-01). A retained `write` stays callable and stays effective: it composes against the session's base transform and assigns, with no phase test and no operation check. Calling it after the settlement has sampled the delta the drop travels from moves a visual the kernel has already read; calling it after retirement writes a transform onto an element the kernel no longer manages. Neither is refused, and **the kernel will not refuse them** — see §The temporal rule on `write` under §The landing origin for why a guard is the wrong instrument here.
 
@@ -1024,7 +1024,7 @@ type ActivationScope = Readonly<{
   lift: BehaviorLiftSession;
   /** Closed at release, cancel, destroy, panic. */
   motion: LifetimeScope;
-  /** Closed at finalization, immediately after the kernel's final pin. */
+  /** Closed at finalization, before the landing tail and the terminal. */
   presentation: LifetimeScope;
 }>;
 ```
@@ -1163,11 +1163,7 @@ type PreparedSettlement = true;
 
 type SettlementTransition<Part extends object> = Readonly<{
   prepare(draft: Draft<Part>, input: SettlementInput): PreparedSettlement; // throws to fail (D-152)
-  effect(
-    current: Readonly<Frame<Part>>,
-    prepared: PreparedSettlement,
-    scope: SettlementScope,
-  ): void;
+  effect(current: Readonly<Frame<Part>>, prepared: PreparedSettlement): void;
 }>;
 ```
 
@@ -1236,7 +1232,7 @@ This **extends** §The settlement input is discriminated and exhaustive — _a r
 
 ## ~~The settlement gate (D-7, narrowed by D-41)~~ The settlement holds no gate (D-155)
 
-~~The gate starts **complete**. The behavior _holds_ it if it needs it, and only during `settlement.effect`.~~ **There is nothing left to hold.** D-41 left one gate, the landing, and D-155 removed it: what outlives the operation is an interpolation that claims nothing, and an interpolation needs no operation to keep it alive. So a settlement is one synchronous sequence — commit, measure, pin, release, interpolate, publish the terminal — and the only state it carries between those steps is the target it measured.
+~~The gate starts **complete**. The behavior _holds_ it if it needs it, and only during `settlement.effect`.~~ **There is nothing left to hold.** D-41 left one gate, the landing, and D-155 removed it: what outlives the operation is an interpolation that claims nothing, and an interpolation needs no operation to keep it alive. So a settlement is one synchronous sequence — commit, measure, ~~pin,~~ release, interpolate, publish the terminal — and the only state it carries between those steps is the target it measured.
 
 ~~This section said "both gates" until Revision 2. There is one.~~ **It said one until D-155. There are none**, and §The serial authored commit, immediately below, is why the second one had no producer before the first one had no lease.
 
@@ -1270,13 +1266,12 @@ release
   → consumer resolution
   → restore library presentation invariants
   → authoritative landing measurement
-  → pin
   → release presentation
   → landing
   → terminal
 ```
 
-**The last three steps read in that order since D-155**, where they read ~~`→ landing → terminal`~~ with the pin and the release buried inside the join between them. The order is not a rearrangement: the landing is the same interpolation it always was, and what moved is that it now happens on an element the library has already given back, which is why it can be listed after the release rather than around it.
+**The last three steps read in that order since D-155**, where they read ~~`→ landing → terminal`~~ with the pin and the release buried inside the join between them. **And `→ pin` has left the list since D-166**: the join writes no position, so the step between the measurement and the release is gone rather than moved — the visual reaches the measured position by being released into it. The order is not a rearrangement: the landing is the same interpolation it always was, and what moved is that it now happens on an element the library has already given back, which is why it can be listed after the release rather than around it.
 
 Everything below follows from reading that list once. **The readiness gate has no producer in it.** There is no point between `onReorder` and the landing measurement at which the library is waiting for a render it has not already been handed: the resolution does not return until the commit is done, because a consumer that must render first `await`s its own commit inside `onReorder`, which is what a Promise-returning resolver already expresses. A gate with no producer is not a gate that is rarely used — it is a gate nothing can ever release, kept alive by a deadline.
 
@@ -1290,9 +1285,9 @@ D-33's reasoning is **not** deleted with it. It is kept in full in [00](00-index
 
 ~~**2 — D-7's request-seal-arm survives unchanged, and not by inertia.** It would be easy to read the three-step arm as readiness machinery and delete it alongside; it is not, and the reason is `duration: 0`.~~ **D-155 removes it, and the reason it survived D-41 is the reason it does not survive this.** Request-seal-arm existed so that a runner completing synchronously — `landing({ duration: 0 })`, or any custom one — found a hold to release rather than stranding the gate. **A completion is what no longer exists**: nothing reports that an interpolation finished, because nothing is waiting for one. So the sequence collapses to _commit, measure, join_, and the property the three steps bought is not lost but unreachable.
 
-**3 — The landing target is measured once, authoritatively.** The serial order guarantees the authored DOM is final before the measurement is taken, so there is no interval during which a target is provisional. `anchorTarget` is called **once per settlement** and the point it returns is converted once and recorded on the attempt as `attempt.targetX`/`.targetY`; the join pins to that pair, and the tail travels the inverse of the delta that pin applied. **The returned point itself is borrowed** (D-144): both fields are read on return and the object is never retained, which is what lets a behavior answer every arm from one reusable buffer. Consequently there is no second, advisory `anchorTarget` call, no `retarget()` producer, and no readiness-time re-anchor. F-16 — the visible step when a short landing completes before readiness — dissolves rather than being accepted, because the completion order it describes no longer exists.
+**3 — The landing target is measured once, authoritatively.** The serial order guarantees the authored DOM is final before the measurement is taken, so there is no interval during which a target is provisional. `anchorTarget` is called **once per settlement** and the point it returns is converted once and recorded on the attempt as `attempt.targetX`/`.targetY`; ~~the join pins to that pair, and the tail travels the inverse of the delta that pin applied~~ — **the join writes nothing** (D-166): that pair is where releasing presentation puts the visual, and the tail travels from the residue the release removed, `rendered - target`, to zero. **The returned point itself is borrowed** (D-144): both fields are read on return and the object is never retained, which is what lets a behavior answer every arm from one reusable buffer. Consequently there is no second, advisory `anchorTarget` call, no `retarget()` producer, and no readiness-time re-anchor. F-16 — the visible step when a short landing completes before readiness — dissolves rather than being accepted, because the completion order it describes no longer exists.
 
-Two clauses of D-16 survive, and they are the ones that were load-bearing: **the kernel performs the final pin at the join**, through the lift session it owns, before releasing presentation; and **whether to re-anchor follows the recovery**, which is committed behavior state.
+Two clauses of D-16 survive, and they are the ones that were load-bearing: ~~**the kernel performs the final pin at the join**, through the lift session it owns, before releasing presentation~~ — **the kernel decides the final position once, at the join, and releases presentation before anything interpolates** (D-166 deletes the write; the decision and the ordering are what the clause was for); and **whether to re-anchor follows the recovery**, which is committed behavior state.
 
 The measurement's own precondition is checked there rather than assumed — an authored commit that detached the placeholder or moved it away from its item makes the measurement meaningless, and D-42 requires the two `O(1)` reads that catch it. ~~Landing from the unrepaired position~~ — **D-49 supersedes that clause**: the unrepaired position is the viewport origin, so the landing is **skipped** and the drop joins immediately with its domain result intact. That is the only thing the "restore library presentation invariants" step in the order above defends.
 
@@ -1348,7 +1343,7 @@ A "provisional" value that is wrong on 5 of 5 paths is not a useful approximatio
 
     ── if `settlement.effect` threw, or the operation was invalidated:
        measure NOTHING and join NOTHING, and let the queued failure checkpoint
-       decide. Measuring for a pin that will never happen calls behavior code
+       decide. Measuring for a join that will never happen calls behavior code
        for nothing.                                       [review 5 §1, D-155]
 
     measure → still live?
@@ -1356,13 +1351,13 @@ A "provisional" value that is wrong on 5 of 5 paths is not a useful approximatio
                                sibling — two O(1) reads
           attempt.targetX/targetY = spec.anchorTarget(current) - originRect
                           ── THE authoritative landing measurement, and the only
-                             one (D-41). Unconditional: the join pins from this
-                             value whether or not a tail follows it. The authored
+                             one (D-41). Unconditional: this value is where the
+                             drop ends whether or not a tail follows it. The authored
                              DOM is final here by the serial order, which is what
                              makes one measurement sufficient.                ──
                           ↳ the precondition fails, or anchorTarget throws or
                              latches → report through onError as a WARNING;
-                             attempt.targetX stays null; no pin and no tail
+                             attempt.targetX stays null; no tail
                           ── D-49: a landing that cannot be measured is SKIPPED,
                              not faked. The settlement is NOT failed and the
                              domain result stands — the DOM commit already
@@ -1419,8 +1414,9 @@ type LandingTail = Readonly<{
  * measured and the visual has somewhere to travel.
  *
  * The four coordinates are the tail's endpoints in the one landing space —
- * origin-relative viewport deltas, where the visual is and where it was pinned
- * — so a behavior offering a distance-derived duration reads no DOM to get it.
+ * origin-relative viewport deltas, where the visual is and where the drop
+ * decided it belongs — so a behavior offering a distance-derived duration
+ * reads no DOM to get it.
  *
  * `null` declines: the drop had no journey worth interpolating, which is what
  * the sortable answers for an immediate recovery and free drag for a drop that
@@ -1442,27 +1438,20 @@ landingTail?(
 ```text
 join
     begin(); draft.phase = FINALIZING; commit()
-    failed = false
     try {
       if (!joinLive()) return                  ← anchorTarget is behavior code
-      targetX = attempt.targetX
-      if (targetX !== null) {
-        from = lift.rendered                   ← sampled BEFORE the pin, which
-                                                 is what overwrites it (D-35)
-        lift.write(targetX, attempt.targetY)   ← THE pin, the same pair the
-                                                 measurement recorded
-              ↳ throws → FAILURE_RENDERER_WRITE; failed = true
-      }
-              ── a null target means the measurement was skipped (D-49): no pin,
-                 no tail, and the `finally` below produces the jump cut.
-                 `finalized` still runs. ──
+      from = lift.rendered                     ← the delta the drag last wrote,
+                                                 which nothing overwrites (D-35)
     } finally {
       lifetimes.presentation.dispose()         ← placeholder removed, inline
-                                                 styles restored once
+                                                 styles restored once; THIS is
+                                                 what puts the visual at the
+                                                 measured position (D-166)
     }
-    if (failed) return                         ← the queued checkpoint drives
-                                                 REPORTING, then retirement
     startTail(from, target)                    ← on the RELEASED element
+              ── a null target means the measurement was skipped (D-49): no
+                 tail, and the release above is the jump cut. `finalized`
+                 still runs. ──
               ↳ dx, dy = from - target, projected through scope.visualSpace
               ↳ spec.landingTail(...) → null   → nothing travels
               ↳ visual.animate([{ translate: `${dx}px ${dy}px` },
@@ -1476,7 +1465,7 @@ join
     dispatch(RETIRE, operation)
 ```
 
-**Ordering is normative, and it is what makes the tail sound.** The pin writes the authoritative position through the session the kernel owns; the release gives back the inline styles, the place in flow and the behavior's own presentation; only then does anything interpolate. So the terminal callback runs in a world the library holds no claim on, and **that is the invariant that decides against the deferred lease**: firing the terminal while the element is still `fixed` in the top layer with a library placeholder in the consumer's list would hand `onEnd` — the ordinary place a framework re-renders its list — a tree it did not author.
+**Ordering is normative, and it is what makes the tail sound.** ~~The pin writes the authoritative position through the session the kernel owns;~~ **the join writes nothing** (D-166): the release gives back the inline styles, the place in flow and the behavior's own presentation, which is itself what puts the visual at the position the measurement decided; only then does anything interpolate. So the terminal callback runs in a world the library holds no claim on, and **that is the invariant that decides against the deferred lease**: firing the terminal while the element is still `fixed` in the top layer with a library placeholder in the consumer's list would hand `onEnd` — the ordinary place a framework re-renders its list — a tree it did not author.
 
 **The tail holds no lease, only a cancel handle**, and every clause of that is a property of the animation rather than a discipline anyone must keep:
 
@@ -1583,11 +1572,11 @@ A failure in `activation.effect` **at or after** the `onStart` call publishes a 
 
 **Ordering, where both channels fire.** `onError` reports a fault when it is **classified**; the terminal is published at the operation's **disposition**. Classification precedes disposition for every stage except one, so `onError` precedes `onEnd` in every case a consumer will meet — and the exception is unavoidable rather than chosen: a fault raised **by the terminal callback itself** (`FAILURE_TERMINAL_CALLBACK`) is necessarily reported after it. Stating it this way avoids a rule that would have to be broken; stating it as _"`onError` always comes first"_ would not survive its own first counterexample.
 
-Ordering is normative, and D-41 and D-155 each shorten the join without weakening it. ~~`destroy()` precedes the pin so a running WAAPI animation cannot override the inline transform~~ — **there is nothing to relinquish**: the pin is the first fallible step, and the interpolation that follows it starts on an element the library has already released. The measurement does not happen here either: it happened before the join, while presentation was owned and the authored DOM was final, and the join reads the value it recorded. **This is what "the kernel performs the authoritative pin at the join" always meant** — the pin is the join's, the measurement never had to be, and separating them is what makes one target the only target there is.
+Ordering is normative, and D-41 and D-155 each shorten the join without weakening it. ~~`destroy()` precedes the pin so a running WAAPI animation cannot override the inline transform~~ — **there is nothing to relinquish**, ~~the pin is the first fallible step~~ **and since D-166 there is no fallible step at all before the release**: the interpolation that follows starts on an element the library has already released. The measurement does not happen here either: it happened before the join, while presentation was owned and the authored DOM was final, and the join reads the value it recorded. **This is what "the kernel performs the authoritative pin at the join" always meant** — ~~the pin is the join's~~ **the position is the join's**, the measurement never had to be, and separating them is what makes one target the only target there is.
 
 The rule that `anchorTarget` may never be called after `presentation.dispose()` still holds and is structural rather than a warning: there is no call site after the measurement.
 
-**Presentation release is in a `finally`, and every step before it is individually fallible** (review 4, §12). ~~The join calls into two pieces of code the kernel does not own — a possibly-custom runner handle and a lift write~~ — **the only fallible step ahead of the release is the pin**, and a failed final write costs a classified failure without preventing the placeholder from being removed and the inline styles from being restored. A terminal-callback throw still leads to retirement. The behavior measurement moved ahead of the join with D-41, and D-49 governs it there: it neither fails the settlement nor strands presentation, because the join runs regardless and its `finally` is what releases. **What the join calls after the release is foreign code too** — the presentation disposers, then the behavior's tail policy — so the terminal is checked against the operation once more before it publishes.
+**Presentation release is in a `finally`, and every step before it is individually fallible** (review 4, §12). ~~The join calls into two pieces of code the kernel does not own — a possibly-custom runner handle and a lift write~~ ~~— **the only fallible step ahead of the release is the pin**, and a failed final write costs a classified failure without preventing the placeholder from being removed and the inline styles from being restored.~~ **Nothing ahead of the release is fallible since D-166**: the guard and the `rendered` sample are both kernel-private reads, and the `finally` is kept for the sequence's own rule rather than because something in front of it can throw. A terminal-callback throw still leads to retirement. The behavior measurement moved ahead of the join with D-41, and D-49 governs it there: it neither fails the settlement nor strands presentation, because the join runs regardless and its `finally` is what releases. **What the join calls after the release is foreign code too** — the presentation disposers, then the behavior's tail policy — so the terminal is checked against the operation once more before it publishes.
 
 ### A landing that cannot be measured is skipped, not faked (D-49)
 
@@ -1620,7 +1609,7 @@ The owner had already decided this in the API review's §4 — _diagnostics rema
 
 Probe [13c](../probes/13c-free-drag.md) N-2 found the landing origin computed as `pointerX - originX` and documented as _"where the visual is now"_. Those are the same number for **one** behavior: the sortable behavior's `moved` writes the raw pointer delta, on either axis. They are different numbers for any behavior that constrains its visual — an axis lock, a bounds clamp, a snap, an externally controlled position — and a command operation has no pointer at all, so the pointer form would compute a landing origin from a `-1` sentinel and two zeroes.
 
-The consequence is the signature of this bug class: **the landing opens with a jump and still ends correctly**, because the _target_ is behavior-supplied through `anchorTarget` and the kernel re-pins at the join. Phase 11 found the same shape in the lift geometry, where every test passed throughout.
+The consequence is the signature of this bug class: **the landing opens with a jump and still ends correctly**, because the _target_ is behavior-supplied through `anchorTarget` and the kernel releases the visual into it at the join. Phase 11 found the same shape in the lift geometry, where every test passed throughout.
 
 **The fix adds no seam.** `VisualLiftSession` is the kernel's own object and `write(x, y)` — compose, then assign — is the library's only rendering entry point during an operation, so the session records the delta it last wrote and the kernel reads it. `compose(x, y)` remains a pure string builder and records nothing: composing is not rendering.
 
@@ -1630,7 +1619,7 @@ The consequence is the signature of this bug class: **the landing opens with a j
 
 `write` is the one granted capability whose correctness depends on **when** it is called, not only on who holds it. Structural projection cannot express that: the member has to exist, because rendering is what a behavior is for. A retained `BehaviorLiftSession` therefore stays callable and stays _effective_ — `write` composes against the base transform and assigns, with no phase test and no operation check.
 
-> **A behavior may call `lift.write` only before the settlement samples the delta the drop travels from.** After that sample the kernel is the only writer — the pin, and then a contribution on the released element; after retirement, the session belongs to no live operation. A `write` in either window is **outside the contract**, and the origin, the trajectory and the join pin are not defined for it.
+> **A behavior may call `lift.write` only before the settlement samples the delta the drop travels from.** After that sample ~~the kernel is the only writer — the pin, and then a contribution on the released element~~ **nothing writes the visual's inline transform at all** (D-166): the release restores it, and what follows contributes to `translate` on the released element. After retirement, the session belongs to no live operation. A `write` in either window is **outside the contract**, and the origin and the trajectory are not defined for it.
 
 This is **tier C**, and it is a _second_ tier-C rule rather than a restatement of the first. The two are different mistakes: a direct `style.transform` write is _rendering by another route_; a late `write` is _rendering at the wrong time_ through the sanctioned route. Both leave the visual and the kernel's model of it disagreeing, and neither is prevented.
 
@@ -1642,9 +1631,9 @@ Earlier drafts of this document and of [06](06-vertical-sortable-trace.md) showe
 
 This is stated as a rule rather than an implementation note, because it is what makes the recorded value _mean_ anything. **The rule is scoped to the interval the value is needed for, and no further** (Checkpoint C, C4-02):
 
-> **From acquisition until the settlement samples it, conforming behavior rendering goes through `lift.write`, and the session records that delta.** After the sample the kernel writes the pin through the same session, and what follows the release writes no inline style at all.
+> **From acquisition until the settlement samples it, conforming behavior rendering goes through `lift.write`, and the session records that delta.** After the sample ~~the kernel writes the pin through the same session~~ **nothing writes through the session at all** (D-166) — the kernel is a reader of `rendered`, never a writer — and what follows the release writes no inline style either.
 
-An earlier wording said the session was the sole writer "between acquisition and the join". ~~That is both wider than the property needed and **false against this document's own landing contract**, which requires the runner to drive the transform before the join.~~ **It is true again since D-155**, and is still not what correctness depends on: that is one sample, taken once, before the pin overwrites what it describes.
+An earlier wording said the session was the sole writer "between acquisition and the join". ~~That is both wider than the property needed and **false against this document's own landing contract**, which requires the runner to drive the transform before the join.~~ **It is true again since D-155**, and **unconditionally so since D-166**, when the last kernel write went. It is still not what correctness depends on: that is one sample, taken once, of a value nothing afterwards overwrites.
 
 **What the behavior can still do, stated plainly.** It receives the real element through `ActivationScope.visual` and again through the lift session, so it can write `visual.style.transform` itself. Doing so leaves the recorded delta stale and the landing opens from the wrong place. That is **tier-C discipline the API permits, not a tier-B property the kernel enforces** — the same shape as "a `prepare` performs no externally visible mutation". Rating it B would repeat the mistake I-32 made in the first draft of this revision: claiming enforcement for a prohibition that a member holding the real object can trivially violate.
 
@@ -1658,7 +1647,7 @@ Three properties follow, and they are why this beats the `renderedDelta(current)
 
 13c N-2's compile assertion — that no `BehaviorSpec` member reports the rendered delta — therefore **stays failing to compile after the revision**, and that is the intended outcome rather than an oversight: no seam reports it because no seam needs to.
 
-**One coordinate space, frozen at phase 9.** The tail's two endpoints — where the visual is, and where it was pinned — are both **origin-relative viewport deltas**: CSS pixels to translate the visual by, measured from where its border box sat at admission. That is exactly the space `compose(x, y)` and the kernel's own `lift.write(x, y)` consume, so nothing converts between them, and the four scalars a `landingTail` policy is handed are the same four the pin used. (`LandingHandle.retarget()`'s argument was a third member of this list until D-41 deleted it, and the other two were `LandingContext`'s until D-155; the space is unchanged by any of it.)
+**One coordinate space, frozen at phase 9.** The tail's two endpoints — where the visual is, and where the drop decided it belongs — are both **origin-relative viewport deltas**: CSS pixels to translate the visual by, measured from where its border box sat at admission. That is exactly the space `compose(x, y)` and the kernel's own `lift.write(x, y)` consume, so nothing converts between them, and the four scalars a `landingTail` policy is handed are the same four the measurement recorded. (`LandingHandle.retarget()`'s argument was a third member of this list until D-41 deleted it, and the other two were `LandingContext`'s until D-155; the space is unchanged by any of it.)
 
 Earlier listings in this document show `anchorTarget`'s raw viewport point being handed on. It is not: the kernel converts once, on return, and the borrowed object is never referenced again. **The one place the space changes is the tail's own keyframe**, where the viewport delta is projected through the inverse of the space above the visual, because a `translate` is a local quantity — see §The tail, and why it may outlive the operation.
 
@@ -1681,7 +1670,7 @@ The earlier reading — "no readiness declaration means the authored DOM never c
 
 The `immediate` row lost one member: **readiness failure**, which was the deadline expiring. There is no deadline.
 
-**Correctness vs quality, and the quality problem is gone.** Correctness is _the final pin agrees with the authored DOM before presentation is released_, and it holds unconditionally. The quality caveat this paragraph carried — F-16, a visible step at the join when a short landing completed before readiness — described a completion order that no longer exists, and since D-155 there is no completion at all: the pin lands before anything interpolates, and what interpolates starts from the delta that pin removed. **F-16 is resolved by deletion, not accepted.**
+**Correctness vs quality, and the quality problem is gone.** Correctness is ~~_the final pin agrees with the authored DOM before presentation is released_~~ **_the position the join decided agrees with the authored DOM, and presentation is released before anything interpolates_** (D-166 deletes the write, not the agreement), and it holds unconditionally. The quality caveat this paragraph carried — F-16, a visible step at the join when a short landing completed before readiness — described a completion order that no longer exists, and since D-155 there is no completion at all: the release lands before anything interpolates, and what interpolates starts from the delta the release removed. **F-16 is resolved by deletion, not accepted.**
 
 ### Failure on the quality track versus the correctness track
 
@@ -1690,17 +1679,17 @@ The `immediate` row lost one member: **readiness failure**, which was the deadli
 | Call site | The result is | On throw |
 | --- | --- | --- |
 | measure, D-42's precondition check | whether the measurement is meaningful at all | **a `DraggableWarning` on `onError`, not classified** (D-49, D-130); skip the landing, join immediately, domain result stands |
-| measure, `anchorTarget(current)` | **authoritative** — it feeds both the pin and the tail | **the same warning** (D-49, D-130); identical treatment — a target that cannot be produced and one that cannot be trusted are the same fault |
-| join, `lift.write(...)` | the pin itself | classified `FAILURE_RENDERER_WRITE`; **still** release presentation; **skip** `finalized` |
+| measure, `anchorTarget(current)` | **authoritative** — it decides where the drop ends and it feeds the tail | **the same warning** (D-49, D-130); identical treatment — a target that cannot be produced and one that cannot be trusted are the same fault |
+| ~~join, `lift.write(...)`~~ | ~~the pin itself~~ | ~~classified `FAILURE_RENDERER_WRITE`; **still** release presentation; **skip** `finalized`~~ — **the row is deleted with the write** (D-166). `FAILURE_RENDERER_WRITE` keeps its producer on the move path, where a visual that stops tracking the pointer is a fault the user sees |
 | join, `spec.landingTail(...)` | the tail's timing, or `null` | **a `DraggableWarning`**; nothing travels. The drop is already decided, committed and released, so a presentational fault has nothing left it could change |
 | join, `visual.animate(...)` | the tail itself | **a `DraggableWarning`**; the duration domain is the platform's and the refusal lands where the platform states it |
 | join, `spec.finalized(current)` | the terminal callback | classified `FAILURE_TERMINAL_CALLBACK`; the operation still retires |
 
 **Two rows left with D-41 and one arrived with D-42.** The readiness-time `anchorTarget(current, true)` and the `landing.retarget?.()` it fed were the only two "best-effort report; not classified" measurement rows; the precondition check takes their place on the same tier, which is why D-49 can be read as _restoring_ the quality track rather than inventing one.
 
-~~**`start` is the one arm-time call that still replaces the settlement, and the asymmetry is deliberate.**~~ **No call on this path replaces a settlement any more, and the asymmetry it explained is what D-155 removes.** A measurement that fails leaves the library with no target and a perfectly good drop, which D-49 lands as a jump cut. A `start` that threw left the library with a **runner it may not own**, which is a live resource in an unknown state and a different kind of fault. The kernel now starts the animation itself: there is no half-acquired resource to be in an unknown state, so every row of the table above is on the quality tier except the two the kernel is answerable for — its own pin and the consumer's terminal.
+~~**`start` is the one arm-time call that still replaces the settlement, and the asymmetry is deliberate.**~~ **No call on this path replaces a settlement any more, and the asymmetry it explained is what D-155 removes.** A measurement that fails leaves the library with no target and a perfectly good drop, which D-49 lands as a jump cut. A `start` that threw left the library with a **runner it may not own**, which is a live resource in an unknown state and a different kind of fault. The kernel now starts the animation itself: there is no half-acquired resource to be in an unknown state, so every row of the table above is on the quality tier except ~~the two the kernel is answerable for — its own pin and the consumer's terminal~~ **the one the kernel is answerable for — the consumer's terminal** (D-166). **That is a property of the whole window, not of this table**: nothing between the settlement's commit and the terminal callback classifies, so `FAILURE_TERMINAL_CALLBACK` is the only stage a consumer can meet after a result is committed.
 
-~~**A thrown `destroy()` costs the final-position guarantee, not just tidiness.**~~ **I-24 is conditional on two things again**: an authoritative measurement and a successful pin. The third condition — successful relinquishment of runner control — existed because a `destroy()` that threw before cancelling its own animation could keep writing the transform after `lift.write`, and the kernel could not independently detach a runner it did not create. It holds unconditionally now, and by construction rather than by policy: **the only thing writing after the pin is an additive contribution the kernel started, holds the handle to, and can cancel** — and which claims no inline style even while it runs.
+~~**A thrown `destroy()` costs the final-position guarantee, not just tidiness.**~~ ~~**I-24 is conditional on two things again**: an authoritative measurement and a successful pin.~~ **It is conditional on one thing since D-166**: an authoritative measurement. The second condition went with the write it named — the visual reaches the measured position by being released into it, and a release that throws is a warning rather than a missed position. The third condition — successful relinquishment of runner control — existed because a `destroy()` that threw before cancelling its own animation could keep writing the transform after `lift.write`, and the kernel could not independently detach a runner it did not create. It holds unconditionally now, and by construction rather than by policy: **the only thing writing after the release is an additive contribution the kernel started, holds the handle to, and can cancel** — and which claims no inline style even while it runs.
 
 "Best-effort report" was the channel used for a failing disposer: ~~the platform reporter, no `REPORTING` phase, no `onError`, no `pendingContinuation`~~. **There is one destination since D-130**, so the phrase now names a _tier_ and nothing else: no `REPORTING` phase, no `pendingContinuation`, and a `DraggableWarning` on the consumer's `onError`. It is deliberately not a classified failure, because every classified failure in this model is consequential — it settles the operation with `OUTCOME_FAILED` or retires it.
 
@@ -1772,10 +1761,10 @@ const ACTIVE = 3; // Live, tracking input.
 const RELEASING = 4; // Input closed, geometry final, consumer resolving.
 const SETTLING = 5; // Outcome committed; awaiting the landing gate.
 const REPORTING = 6; // onError in flight.
-const FINALIZING = 7; // Finalization in progress: measure, pin, release, report.
+const FINALIZING = 7; // Finalization in progress: release, interpolate, report.
 ```
 
-Two of these were named for a state they describe only _after_ their effect runs. `ACTIVATING` is committed **before** `activation.effect` inserts the placeholder, and `FINALIZING` is committed **before** the join pins, releases presentation and starts the tail. The names above describe the phase from its commit, which is when it becomes observable.
+Two of these were named for a state they describe only _after_ their effect runs. `ACTIVATING` is committed **before** `activation.effect` inserts the placeholder, and `FINALIZING` is committed **before** the join releases presentation and starts the tail. The names above describe the phase from its commit, which is when it becomes observable.
 
 **`PENDING` was redefined by D-32**, from _below the activation threshold_ to _activation not yet committed_. The threshold is a property of the pointer path, not of the phase: a command reaches `PENDING` with no travel to measure and leaves it on the next drain.
 

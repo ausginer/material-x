@@ -119,11 +119,13 @@ type Overrides = Partial<
     /** Runs inside `onStart`, so a test can cancel, destroy or update. */
     onStart?(harness: Harness): void;
     /**
-     * Runs inside `onFinish`, for the one case that needs a **throwing**
-     * terminal callback: D-66's exclusion of `FAILURE_TERMINAL_CALLBACK` from
-     * the failure path's publish.
+     * Runs inside `onFinish`, for the cases that need a **throwing** terminal
+     * callback: D-66's exclusion of `FAILURE_TERMINAL_CALLBACK` from the
+     * failure path's publish, and the accepted half of its result lookup.
      */
     onFinish?(): void;
+    /** The same, for the arm a rejected or cancelled result is published on. */
+    onCancel?(): void;
     itemCount?: number;
     /**
      * Wraps the pull source, for the one case that needs a **throwing**
@@ -250,6 +252,7 @@ function createHarness(overrides: Overrides = {}): Harness {
       } else {
         calls.push('onCancel');
         cancels.push(result);
+        overrides.onCancel?.();
       }
     },
     onError(error): void {
@@ -1820,15 +1823,20 @@ describe('settlement mapping', () => {
  * what a consumer is told when its data really was reordered and something
  * afterwards went wrong.
  *
- * **Each stage here can only fire after the settlement committed a result**, so
- * they are the whole post-commit failure set rather than a sample of it: the
- * pin runs at the join, with the result already decided, and the terminal
- * callback runs after it. ~~`LANDING_CREATE` and `LANDING_INTERRUPTED`~~ are
- * gone with the landing gate (D-155) — a tail is started after the terminal and
- * a fault in one is a warning that changes nothing about the drop, so neither
- * can reach a committed result at all. The missing assertion is what let A-1
- * ship: the nearest kernel row asserts *that* a terminal fired, never *which*,
- * and the sortable rows above all sit before any round-trip.
+ * **The post-commit failure set has one member, and these are it.**
+ * `FAILURE_TERMINAL_CALLBACK` is the only stage that can be classified after
+ * the settlement committed a result: the landing measurement is unclassified,
+ * the presentation release reports warnings, the tail is unwound, and the join
+ * itself writes nothing and so raises nothing. ~~`LANDING_CREATE`,
+ * `LANDING_INTERRUPTED`~~ and ~~the join's own renderer write~~ are gone with
+ * the landing gate and the pin (D-155, D-166).
+ *
+ * **So the surviving mechanism is the stage exclusion, not the `??=` lookup**,
+ * and what the rows below assert is the property rather than the branch: a
+ * committed result is what the consumer keeps, and the failure path publishes
+ * no second terminal to replace it. Remove the exclusion and both rows fail —
+ * the frame's result is rewritten to `canceled` and `ERROR_REPORTED` delivers
+ * it as a second end for one operation.
  */
 describe('a failure after the authored commit (D-66)', () => {
   /** Accepts a reorder into gap 2, so the frame holds `accepted` at the join. */
@@ -1838,50 +1846,29 @@ describe('a failure after the authored commit (D-66)', () => {
     release(60);
   };
 
-  /**
-   * Poisons the visual's `transform` setter, so the join's pin throws.
-   *
-   * **Armed from inside `onReorder`**, which is the one consumer seam between
-   * the release render and the pin: arming any earlier fails the release render
-   * instead, which is a pre-commit stage and a different row.
-   */
-  const poisonPin = (harness: Harness): void => {
-    Object.defineProperty(harness.items[0]!.style, 'transform', {
-      configurable: true,
-      get: (): string => '',
-      set(): never {
-        throw new Error('pin');
-      },
-    });
-  };
-
-  it('should keep the accepted result when the pin throws at the join', () => {
-    let harness: Harness | null = null;
-
-    harness = createHarness({
-      onReorder(): ReorderResolution {
-        poisonPin(harness!);
-        return ReorderResolution.accept();
+  it('should keep the accepted result when the terminal callback throws', () => {
+    const harness = createHarness({
+      onFinish(): never {
+        throw new Error('onEnd');
       },
     });
 
     commit(harness);
 
-    expect(harness.cancels).toEqual([]);
+    expect(harness.finishes).toHaveLength(1);
     expect(harness.finishes[0]).toMatchObject({ type: 'accepted' });
+    expect(harness.cancels).toEqual([]);
     expect(harness.errors).toHaveLength(1);
   });
 
   it('should keep a rejected result too, not just an accepted one', () => {
     // The tie-break is *existing result wins*, not *accepted wins*. A consumer
-    // that rejected the reorder and then hit a fault at the join is still owed
-    // the verdict it gave, with its own reason.
-    let harness: Harness | null = null;
-
-    harness = createHarness({
-      onReorder(): ReorderResolution {
-        poisonPin(harness!);
-        return ReorderResolution.reject('nope');
+    // that rejected the reorder and then threw from its own terminal callback
+    // is still owed the verdict it gave, with its own reason, and owed it once.
+    const harness = createHarness({
+      onReorder: () => ReorderResolution.reject('nope'),
+      onCancel(): never {
+        throw new Error('onEnd');
       },
     });
 

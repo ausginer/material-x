@@ -606,3 +606,29 @@ Measured against `55eaaf1b` with box-quad rebuilt in both states — the depende
 **No module entered or left any graph.** Every module count is identical on both sides — 31/30/32/31/33/34 and 25/26/27/28/45 — with `shared/landing.js` standing exactly where `shared/landing-runner.js` stood. So the whole of this is machinery rather than topology, which is what makes the **minimal** row the interesting one: a composition that installs no landing was carrying **226 B** of gate. A feature's own module tree-shakes; the lifecycle it participates in does not.
 
 **One number in the table is the implementation choosing the settled reading over the cheaper one.** Answering `prefers-reduced-motion` with *no tail* instead of a zero-length one is **5 B smaller** on the two rows that install a landing, and it was rejected: the published contract reads the `duration` thunk once per landing **before** the media query, so refusing early would make a consumer's settle-time side effect observable only for users who have not asked for reduced motion. The 5 B is recorded rather than netted off.
+
+**Re-based again 2026-09-01, D-166 — a shrink again, and the smallest one this file records.** Deleting the join's pin write, its `runLeaf` wrapper and the `failed` deferred-terminal flag takes **14–40 B** off every composition. Measured against `b91ce5c6`, joint, with the pre-change tree built from a worktree of that commit.
+
+| Row | pre-slice `b91ce5c6` | landed | D-166 | new budget | slack |
+| --- | --- | --- | --- | --- | --- |
+| minimal | 9,675 | 9,644 | **−31** | 9,794 | 150 |
+| minimal (xy) | 9,520 | 9,485 | **−35** | 9,635 | 150 |
+| minimal + layoutAnimation | 10,005 | 9,973 | **−32** | 10,123 | 150 |
+| xy + layoutAnimation | 9,853 | 9,819 | **−34** | 9,969 | 150 |
+| minimal + landing | 9,814 | 9,775 | **−39** | 9,925 | 150 |
+| complete | 10,144 | 10,130 | **−14** | 10,280 | 150 |
+| free drag minimal | 7,557 | 7,522 | **−35** | 7,672 | 150 |
+| free drag + bounds | 7,705 | 7,673 | **−32** | 7,823 | 150 |
+| free drag + landing | 7,711 | 7,676 | **−35** | 7,826 | 150 |
+| free drag complete | 7,862 | 7,826 | **−36** | 7,976 | 150 |
+| both behaviors | 11,544 | 11,504 | **−40** | 11,654 | 150 |
+| vocabulary root — `drag.js` | 142 | 142 | **0** | 205 | 63 |
+| kernel root — `kernel.js` | 5,858 | 5,827 | **−31** | 5,977 | 150 |
+| baseline A — feature-matched, non-composed | 9,971 | 9,937 | **−34** | 10,087 | 150 |
+| baseline B — shipped `@ydinjs/drag` sortable.js | 6,889 | 6,889 | **0** | 7,040 | 151 |
+
+**The same two controls held at exactly zero and the same five are re-declared.** `drag.js` and baseline B are the rows a kernel change cannot reach; the four free-drag rows and `kernel.js` moved with the kernel and are re-declared at their landed figures.
+
+**`complete` is the row to read twice.** It moves **−14** where `minimal` moves −31 and `minimal + landing` −39, for the same deleted statements. Nothing here is composition-specific — the code is in the kernel every row carries — so the spread is the compressor: the sortable's complete graph already repeats the tokens the deleted statements were made of (`lift`, `write`, `runLeaf`, `FAILURE_RENDERER_WRITE`, every one of which survives on the move path), so removing one instance of a repeated token is worth less than removing one of a rarer one. It is the effect §15 records in the other direction for a padded lookup table, and it is why the parts of a deletion cannot be added up.
+
+**No module entered or left any graph.** Every module count is identical on both sides. The whole of this is one statement, one wrapper and one flag, in a function every composition carries — which is what makes a ~30 B figure the right size for it, and what makes the two zeroes worth as much as the thirteen negatives.

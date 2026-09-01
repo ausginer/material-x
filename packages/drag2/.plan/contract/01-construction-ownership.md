@@ -311,7 +311,7 @@ Note what is _not_ here: `rects`. The geometry cache lives inside the axis featu
 | Lift session + inline-style snapshot + **the last rendered delta** | kernel (acquires, disposes, records) | behavior, as a **`BehaviorLiftSession`** — `visual`, `baseTransform`, `compose`, `write` and nothing else. `rendered` is kernel-read; `dispose` is kernel-sequenced. The behavior can neither sample the delta nor unwind the lift (D-35; Checkpoint C, C5-01) |
 | `originRect` | kernel | behavior, as an activation-scope argument |
 | Resolution attempt; settlement attempt ~~including **the landing gate hold**~~, which since D-155 is a measured target and nothing else | kernel (D-7, narrowed to one gate by D-41, and to none by D-155) | nothing. No settlement object crosses either boundary. ~~Including the **early-acknowledgement latch**, **both gate holds** and the readiness deadline (D-33) — deleted with the acknowledgement protocol~~ |
-| The authoritative final pin | kernel, via the lift it owns (D-16, narrowed by D-41 to _measure once, pin at the join_) | — |
+| The decided final position | kernel, from the one authoritative measurement (D-16, narrowed by D-41 to _measure once_, and by D-166 to a decision the join never writes: the visual reaches it by being released into flow) | — |
 | ~~`readinessTimeout` policy~~ | ~~kernel, configured by spec scalar~~ — the acknowledgement deadline goes with D-33 (D-41) | — |
 | Collection snapshot, insertion, proposal, outcome, recovery, domain result | behavior (runtime + frame part) | features, through declared views |
 | The landing target, and re-anchoring presentation to the semantic item | behavior, via `anchorTarget` (D-16) | — |
@@ -416,7 +416,7 @@ Steps 2–7 are the physical teardown. They run at the transaction boundary when
 
 **Step 3 drops both attempts outright**, which is what makes every late continuation inert: the kernel finds no attempt to resolve against, so a resolution arriving after teardown is the same non-event a stale one is during normal operation. ~~Dropping both attempts makes a late `controller.ready(request)` inert twice over (D-33): the behavior's published request is cleared by step 4's `retire()`, and the kernel finds no attempt even if a behavior bug let the signal through.~~ D-41 deletes `controller.ready()` and `rt.pendingRequest`, so the second half of that argument has no subject; the attempt-dropping is unchanged and is now justified by the staleness rule alone.
 
-**Destroy never pins.** The authoritative pin (D-16) belongs to the normal settlement join; a destroyed controller has no authored DOM to agree with. **Cancelling the tail is not a pin either**, and cannot become one: the contribution decays to zero, so ending it at any instant leaves the element exactly where flow puts it.
+**Destroy never lands a drop.** The authoritative measurement and the release that spends it (D-16, D-166) belong to the normal settlement join; a destroyed controller has no authored DOM to agree with, so it restores and stops. **Cancelling the tail is not a landing either**, and cannot become one: the contribution decays to zero, so ending it at any instant leaves the element exactly where flow puts it.
 
 Two invariants this ordering creates, both of which are new obligations that probe 1's single container did not have (F-12):
 

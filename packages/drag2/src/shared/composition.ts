@@ -55,13 +55,15 @@ export type FeatureContext = Readonly<{
 
 /**
  * **The tail's timing, resolved once per landing**, or `null` for no tail —
- * which is what a reduced-motion preference answers, and what a policy answers
- * for a drop it does not want interpolated.
+ * what a policy answers for a drop it does not want interpolated. A
+ * reduced-motion preference is **not** this answer: it collapses the duration
+ * to zero, so a policy that reads the duration still runs exactly once per
+ * landing either way.
  *
  * The four coordinates are the tail's endpoints in the landing space the kernel
- * publishes: origin-relative viewport deltas, where the visual is and where it
- * was pinned. A distance-derived duration therefore needs no DOM read of its
- * own.
+ * publishes: origin-relative viewport deltas, where the visual is and where the
+ * drop decided it belongs. A distance-derived duration therefore needs no DOM
+ * read of its own.
  *
  * Declared here rather than beside the shipped policy so that a composition
  * installing no landing still resolves the slot's type without reaching the

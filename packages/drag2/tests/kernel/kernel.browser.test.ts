@@ -1865,7 +1865,7 @@ describe('the settlement seam', () => {
     activate(harness);
     release(80, 10);
 
-    // A settlement that never committed does not land: measuring for a pin
+    // A settlement that never committed does not land: measuring for a join
     // that will never happen would call behavior code for nothing, and the
     // queued checkpoint decides the operation instead. What the checkpoint
     // decides includes the terminal.
@@ -1877,7 +1877,7 @@ describe('the settlement seam', () => {
 describe('the settlement drain', () => {
   it('should finalize in the resolution drain', () => {
     // **Nothing suspends a settlement.** The seam commits, the target is
-    // measured, the join pins and releases, and the terminal publishes — one
+    // measured, the join releases, and the terminal publishes — one
     // synchronous sequence with no gate in it and nothing to wait for.
     const harness = createHarness();
 
@@ -1904,7 +1904,7 @@ describe('the settlement drain', () => {
 /**
  * **The landing tail.**
  *
- * Presentation is released *completely* at the pin — inline styles restored,
+ * Presentation is released *completely* at the join — inline styles restored,
  * top layer exited, the behavior's own presentation disposed — and only then
  * does anything interpolate. What is left travelling is an additive
  * contribution to the released element's `translate`, decaying to zero: it
@@ -1915,7 +1915,8 @@ describe('the settlement drain', () => {
 describe('the landing tail', () => {
   it('should start nothing without a landing policy', () => {
     // A behavior that declares no policy pays for no capability: there is no
-    // animation, and the visual is simply where the pin put it.
+    // animation, and the visual is simply where flow puts it once the release
+    // restores its inline styles. Nothing wrote it there.
     const harness = createHarness();
 
     activate(harness);
@@ -1924,8 +1925,8 @@ describe('the landing tail', () => {
     expect(harness.item.getAnimations()).toEqual([]);
   });
 
-  it('should travel the delta the pin removed', () => {
-    // The visual was rendered at `(70, 0)` and pinned to the anchor's
+  it('should travel the delta the release removed', () => {
+    // The visual was rendered at `(70, 0)` and the drop decided the anchor's
     // origin-relative `(20, 0)`, so releasing it into flow moves it 50px left
     // in one frame. The tail contributes exactly that back and decays it away.
     //
@@ -2033,10 +2034,10 @@ describe('the landing tail', () => {
     expect(tailVector(harness.item)).not.toBeNull();
   });
 
-  it('should start nothing when the visual is already where it was pinned', () => {
+  it('should start nothing when the visual is already where it lands', () => {
     // A drop with no journey is not interpolated. The default `moved` writes
-    // nothing and the default anchor is the grab point, so the pin removes a
-    // delta of zero and there is nothing to travel.
+    // nothing and the default anchor is the grab point, so the release removes
+    // a delta of zero and there is nothing to travel.
     const harness = createHarness({
       anchorTarget: (): { x: number; y: number } => {
         const rect = harness.item.getBoundingClientRect();
@@ -2193,12 +2194,13 @@ describe('the landing tail', () => {
  *
  * **Why the whole suite could stay green through it** is the part worth
  * repeating: the drop travels with a jump and still *ends* correctly, because
- * the target is behavior-supplied and the kernel pins to it. Phase 11 met the
- * same shape in the lift geometry and only a demo exposed it. So every row here
- * reads the origin at the one instant it is published — the tail policy — and
- * checks it against the transform standing on the element immediately before
- * the pin, rather than inferring it from where the drop ended, which is the
- * assertion that cannot tell the defect from the fix.
+ * the release is what puts the visual in its place and the tail only decays a
+ * contribution to zero. Phase 11 met the same shape in the lift geometry and
+ * only a demo exposed it. So every row here reads the origin at the one instant
+ * it is published — the tail policy — and checks it against the transform
+ * standing on the element while it is still lifted, rather than inferring it
+ * from where the drop ended, which is the assertion that cannot tell the defect
+ * from the fix.
  */
 describe('the landing origin', () => {
   type Sampled = Readonly<{ x: number; y: number }>;
@@ -2216,7 +2218,7 @@ describe('the landing origin', () => {
     harness: Harness;
     origin: Sampled | null;
     /**
-     * The visual's inline transform **immediately before the pin**, read from
+     * The visual's inline transform **while it is still lifted**, read from
      * inside `anchorTarget`. Read there rather than after the drop, because
      * teardown restores the inline-style lease: an assertion against the
      * element afterwards compares the composition to an empty string and passes
@@ -2370,8 +2372,8 @@ describe('the landing origin', () => {
     // here — it is the true answer, and it is the initial value of the record
     // rather than a special case anyone had to write.
     //
-    // **The anchor is `(10, 10)`, the grab point**, so the pin removes nothing
-    // and no tail is issued: the origin is read from the policy call, which
+    // **The anchor is `(10, 10)`, the grab point**, so the release removes
+    // nothing and no tail is issued: the origin is read from the policy call, which
     // happens whether or not anything travels.
     const { origin } = sample({}, [[40, 60]]);
 
@@ -2479,11 +2481,11 @@ describe('the landing origin', () => {
 });
 
 describe('the join', () => {
-  it('should pin before releasing presentation and finalize last', () => {
-    // Ordering is normative: measure → pin → release → tail → finalize. The
-    // pin is the last write the lift session makes, the release hands the
-    // element back to the consumer, and the terminal callback runs in a world
-    // the library holds no claim on.
+  it('should release presentation before finalizing, and tail between', () => {
+    // Ordering is normative: measure → release → tail → finalize. The kernel
+    // writes nothing here — the release hands the element back to the consumer
+    // and flow puts it where the drop decided — and the terminal callback runs
+    // in a world the library holds no claim on.
     const harness = createHarness({
       moved(current, lift): void {
         lift.write(current.pointerX - current.originX, 0);
@@ -2504,11 +2506,11 @@ describe('the join', () => {
   });
 
   it('should measure once, under SETTLING', () => {
-    // **The measurement is the settlement's, not the join's.** The join used to
-    // measure a second time, authoritatively, after committing `FINALIZING` —
-    // with a provisional measurement before it. There is one measurement and it
-    // runs under `SETTLING`; the join pins to the value it recorded, and the
-    // tail is the inverse of the delta that pin applied.
+    // **The measurement is the settlement's, not the join's.** There is one
+    // measurement and it runs under `SETTLING`; the join reads the value it
+    // recorded, and the tail travels the inverse of the delta between where the
+    // visual was and that value. A second, advisory reading would give the tail
+    // an endpoint nothing else agrees with.
     const phases: number[] = [];
     const harness = createHarness({
       anchorTarget(current): { x: number; y: number } {
@@ -2533,11 +2535,11 @@ describe('the join', () => {
     // caching implementation silently and pass the whole suite.
     //
     // **The window is narrow and the poison sits at the front of it.** Nothing
-    // foreign runs between the read and the pin, so the earliest a caching
+    // foreign runs between the read and the release, so the earliest a caching
     // behavior could be betrayed is the presentation disposers — which run
-    // after the pin and before the tail is issued. The two coordinates are
-    // deliberately unequal and non-zero: a transposed axis is the way a
-    // flattening fails.
+    // before the tail is issued, and the tail's endpoint is the only thing the
+    // borrowed point still reaches. The two coordinates are deliberately
+    // unequal and non-zero: a transposed axis is the way a flattening fails.
     const buffer = { x: 0, y: 0 };
     // Published by the activation scope and read at settle time. The seam needs
     // the visual's rect **at grab** — the basis the kernel converts against —
@@ -2568,33 +2570,15 @@ describe('the join', () => {
     });
 
     activate(harness);
-
-    // The pin is a `write`, and presentation restores the inline style
-    // immediately afterwards — so the final transform is `''` and the only way
-    // to see what was pinned is to record the writes.
-    const writes: string[] = [];
-    let written = '';
-
-    Object.defineProperty(harness.item.style, 'transform', {
-      configurable: true,
-      get: (): string => written,
-      set(value: string): void {
-        written = value;
-        writes.push(value);
-      },
-    });
-
     move(80, 10);
     release(80, 10);
 
-    // The pin lands on the converted pair, and it reads the attempt rather than
-    // the behavior's object — so the poison reaches neither the final write nor
-    // the contribution the tail was issued for. Both halves are asserted:
-    // without the positive the negative would pass against a kernel that never
-    // pinned at all.
-    expect(writes).toContain('translate(60px, 25px)');
-    expect(writes).not.toContain('translate(-999px, -777px)');
-    // The drag rendered `(70, 0)` and the pin removed it to `(60, 25)`.
+    // **The tail's contribution is the whole assertion, because it is the only
+    // thing downstream of the borrow.** The drag rendered `(70, 0)` and the
+    // measurement converted the anchor to `(60, 25)`, so the residual is
+    // `(10, -25)`. A kernel that stored the object and converted it later would
+    // read `(-999, -777)` — poisoned by a disposer that has already run — and
+    // no arithmetic over that pair produces this one.
     expect(tailVector(harness.item)).toEqual({ x: 10, y: -25 });
   });
 
@@ -2636,19 +2620,34 @@ describe('the join', () => {
     // **The terminal now runs** (D-60): the settlement was not failed, so the
     // operation joins immediately and terminates normally.
     expect(harness.calls).toContain('finalized');
-    // **Nothing travels, and not merely "no target to pin to".** A measurement
+    // **Nothing travels, and not merely "no target to travel to".** A measurement
     // that failed is not a target to interpolate toward, so there is no
     // animation to `(0, 0)` and no policy call at all — the visual is released
     // from where it stands, which is an honest jump cut.
     expect(harness.item.getAnimations()).toEqual([]);
   });
 
-  it('should release presentation and still publish a terminal when the pin throws', () => {
-    const harness = createHarness();
+  it('should raise no classified failure of its own', () => {
+    // **The join is infallible, and that is a property rather than an
+    // accident.** It reads a recorded pair, releases presentation and asks a
+    // policy; the release reports through the warning channel, the policy is
+    // unwound, and the one classified call it makes is the terminal callback
+    // itself. So no fault of the join's can reach a consumer whose drop is
+    // already decided and committed — the whole reason the kernel writes
+    // nothing here.
+    //
+    // Poisoning the visual's inline `transform` is what used to fail it: the
+    // setter throws on every write, and the drag has already made several.
+    const harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: tailOf(),
+    });
 
     activate(harness);
-    // The pin is the one join step the kernel itself performs. Poisoning the
-    // inline transform is the only way to make a CSSOM write fail on demand.
+    move(80, 10);
+
     Object.defineProperty(harness.item.style, 'transform', {
       configurable: true,
       get: (): string => '',
@@ -2656,24 +2655,14 @@ describe('the join', () => {
         throw new Error('cssom');
       },
     });
+
     release(80, 10);
 
-    expect(harness.failures[0]!.stage).toBe(FAILURE_RENDERER_WRITE);
+    // The restore is a `removeProperty`, not a write, so the poisoned setter is
+    // never called again after the last `moved`.
+    expect(harness.failures).toEqual([]);
     expect(harness.calls).toContain('presentation.released');
-    // **The join still skips it, and the checkpoint still pays it** (D-66). The
-    // old assertion was `not.toContain`, reasoning that the committed frame
-    // still carried the accepted outcome so publishing would announce a
-    // successful drop. It would — and that is now the *point*: the pin failed,
-    // but the reorder is real and the consumer's data is committed, so what the
-    // consumer needs is one `onError` **and** the domain result. The publish
-    // moved one action later, from the join to `ERROR_REPORTED`, rather than
-    // being reinstated in the join.
     expect(harness.calls).toContain('finalized');
-    // Ordering is not incidental: the terminal sees presentation released, as
-    // it does on the success path.
-    expect(harness.calls.indexOf('presentation.released')).toBeLessThan(
-      harness.calls.indexOf('finalized'),
-    );
   });
 
   it('should retire after a throwing terminal callback', () => {
@@ -2735,10 +2724,38 @@ describe('the failure checkpoint', () => {
     activate(harness);
     move(60, 10);
 
-    // A failed settlement measures nothing and pins nothing, so there is no
+    // A failed settlement measures nothing and never joins, so there is no
     // delta to interpolate and the policy is never consulted.
     expect(harness.item.getAnimations()).toEqual([]);
     expect(harness.calls).toContain('retire');
+  });
+
+  it('should publish the terminal from the error route, after the release', () => {
+    // **The two routes end in the same order, and that is the promise** (D-66).
+    // A consequential failure of a started operation still owes exactly one
+    // end: the checkpoint drives `onError`, releases presentation and publishes
+    // the terminal from `ERROR_REPORTED` — so a consumer never has to know
+    // which route its drag took to know the element is its own again.
+    //
+    // **This is the route's producer, and it is a pre-commit one.** Nothing
+    // between the settlement's commit and the terminal callback classifies:
+    // the measurement is unclassified, the release reports warnings, and the
+    // tail is unwound. A fault that is going to defer the terminal has to be
+    // raised before the drop is decided.
+    const harness = createHarness({
+      moved(): never {
+        throw new Error('cssom');
+      },
+    });
+
+    activate(harness);
+    move(60, 10);
+
+    expect(harness.failures[0]!.stage).toBe(FAILURE_RENDERER_WRITE);
+    expect(harness.calls).toContain('finalized');
+    expect(harness.calls.indexOf('presentation.released')).toBeLessThan(
+      harness.calls.indexOf('finalized'),
+    );
   });
 
   it('should retire the operation after reporting', () => {
@@ -3362,14 +3379,19 @@ describe('destroy', () => {
 });
 
 describe('terminal destruction during the join', () => {
-  it('should not pin after anchorTarget destroyed the controller', () => {
-    // The join captures `lift` in a local before it commits `FINALIZING`, so
-    // teardown clearing the kernel's slot does not stop it writing. Without a
-    // revalidation the pin stamps a transform back onto an element whose
-    // authored styles `destroy()` already restored (I-6).
+  it('should start no tail after anchorTarget destroyed the controller', () => {
+    // The join captures its locals before it commits `FINALIZING`, so teardown
+    // clearing the kernel's slots does not stop it proceeding. Without the
+    // entry revalidation it would interpolate an element whose authored styles
+    // `destroy()` has already restored, and leave the animation running past
+    // the controller's life (I-6).
     let harness: Harness | null = null;
 
     harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: tailOf(),
       anchorTarget: () => {
         void harness!.controller.destroy();
         return { x: 300, y: 300 };
@@ -3377,8 +3399,10 @@ describe('terminal destruction during the join', () => {
     });
 
     activate(harness);
+    move(40, 10);
     release(40, 10);
 
+    expect(harness.item.getAnimations()).toEqual([]);
     expect(harness.item.style.transform).toBe('');
   });
 
@@ -3398,7 +3422,7 @@ describe('terminal destruction during the join', () => {
     expect(harness.calls).not.toContain('finalized');
   });
 
-  it('should not pin after a presentation disposer destroyed the controller', () => {
+  it('should start no tail after a presentation disposer destroyed the controller', () => {
     let harness: Harness | null = null;
 
     harness = createHarness({
@@ -3419,9 +3443,9 @@ describe('terminal destruction during the join', () => {
     activate(harness);
     release(40, 10);
 
-    // The disposer runs after the pin and before the tail, so what a destroy
-    // there must stop is the interpolation and the terminal — never the pin,
-    // which has already landed and been restored over.
+    // The disposer runs after the release and before the tail, so what a
+    // destroy there must stop is the interpolation and the terminal. The
+    // element is left exactly as `destroy()` restored it.
     expect(harness.item.style.transform).toBe('');
     expect(harness.item.getAnimations()).toEqual([]);
     expect(harness.calls).not.toContain('finalized');

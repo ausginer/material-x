@@ -294,12 +294,15 @@ export type VisualLiftSession = Readonly<{
   /**
    * Composes a viewport delta and writes it to the visual's inline transform.
    *
-   * This is how the kernel performs the **authoritative pin** at the join, and
-   * it is the last write this session makes: whatever interpolation follows the
-   * drop happens on the released element, through a property this session never
-   * writes.
+   * **The behavior is the only caller.** The kernel writes nothing at the join:
+   * the visual reaches its decided position by being released into flow, and
+   * whatever interpolation follows the drop happens on the released element,
+   * through a property this session never writes.
    *
-   * A throw here is classified `FAILURE_RENDERER_WRITE` by the caller.
+   * A throw here is classified `FAILURE_RENDERER_WRITE` by the caller, which is
+   * a semantic classification for a load-bearing write — a visual that stops
+   * tracking the pointer is a fault the user sees, and the drop lands where the
+   * visual is.
    */
   write(x: number, y: number): void;
   dispose: Disposer;
@@ -312,8 +315,8 @@ export type VisualLiftSession = Readonly<{
  * `rendered` and `dispose` are kernel-only. The session's lifetime is the
  * kernel's: disposing it from `activation.effect` or `moved` would drop the
  * inline-style lease — and, in a lifted mode, the top-layer lease — while the
- * recorded delta still describes the last `write`, so the pin would land on a
- * visual that is no longer lifted.
+ * recorded delta still describes the last `write`, so the tail would start
+ * from a visual that is no longer lifted.
  *
  * The projection is type-level. The kernel passes the *same object* under the
  * narrower type, so it costs no allocation.

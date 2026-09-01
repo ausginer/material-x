@@ -227,7 +227,7 @@ export type ActivationScope = Readonly<{
   lift: BehaviorLiftSession;
   /** Closed at release, cancel, destroy, panic. */
   motion: LifetimeScope;
-  /** Closed at finalization, immediately after the kernel's final pin. */
+  /** Closed at finalization, before the landing tail and the terminal. */
   presentation: LifetimeScope;
 }>;
 
@@ -435,9 +435,9 @@ export type BehaviorSpec<
    * callback, and only when a target was measured.
    *
    * The four coordinates are the tail's endpoints in the one landing space —
-   * origin-relative viewport deltas, where the visual is and where it was
-   * pinned — so a behavior offering a distance-derived duration has everything
-   * it needs and reads no DOM to get it.
+   * origin-relative viewport deltas, where the visual is and where the drop
+   * decided it belongs — so a behavior offering a distance-derived duration has
+   * everything it needs and reads no DOM to get it.
    *
    * **The answer is a policy decision and nothing else.** A behavior returns
    * `null` where the drop has no journey to interpolate — a visual that stayed

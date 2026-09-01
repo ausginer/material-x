@@ -460,7 +460,10 @@ type A4 = import('@ydinjs/drag2/drag.js').KernelHost;
 type A5 = import('@ydinjs/drag2/drag.js').Transition<object>;
 // @ts-expect-error: the activation scope is internal
 type A6 = import('@ydinjs/drag2/drag.js').ActivationScope;
-// @ts-expect-error: the settlement scope is internal
+// @ts-expect-error: the settlement scope is **deleted**, not merely internal
+// (D-155) — it existed for \`holdForLanding\` and nothing else, so the settlement
+// seam now hands the behavior no capability at all and there is nothing for a
+// displacement feature to be kept away from.
 type A7 = import('@ydinjs/drag2/drag.js').SettlementScope;
 // @ts-expect-error: the settlement input is internal
 type A8 = import('@ydinjs/drag2/drag.js').SettlementInput;

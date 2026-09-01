@@ -2298,6 +2298,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-01 — D-166 implemented: the join decides a position and writes nothing (F-254…F-264, F-267)
+
+The join's `session.write(targetX, targetY)` is deleted, with the `runLeaf`/`FAILURE_RENDERER_WRITE` wrapper that existed only for it and the `failed` flag that deferred the terminal to `ERROR_REPORTED`. What is left is *revalidate → sample `rendered` → release presentation in the unconditional `finally` → tail → revalidate → `finalized` → `RETIRE`*. The measurement, the decided position and the release-before-terminal ordering are all untouched, and no SPI member moved: `lift.write` keeps its behavior callers and its classification on the move path, where the fault is one the user sees.
+
+**Both required properties resolved positively, and neither by deletion.** The `ERROR_REPORTED` route keeps producers — every classified failure of a started operation still drives *`onError` → release → terminal* — so the route stays and only the dead branch went; the kernel row that used to poison the pin now drives the route from a `moved` write, which is where the ordering promise is actually testable. What the route *lost* is narrower than the route and is worth stating: **nothing between the settlement's commit and the terminal callback classifies any more**, so `FAILURE_TERMINAL_CALLBACK` is the only stage that can arrive after a result exists, and D-66's *existing committed result wins* is re-anchored to it in both sortable rows — discriminating, because a removed stage exclusion publishes a second terminal carrying `canceled` for a drop the consumer was already told was accepted.
+
+**One consequence is recorded rather than acted on** (F-268). Both behaviors' `??=` tie-break kept reachable producers — a classified fault from any phase running after the join, an action dispatched by the terminal callback, a `host.fail` from inside one — but lost the kernel's own, which is the one its comment cited. The comment is corrected to argue from what remains; whether the lookup earns its place, and whether the second terminal such a fault publishes is wanted at all, is a decision rather than a remediation, and this pass did not take it.
+
+**The vocabulary migration is the bulk of the diff.** "The pin" was a time landmark in a few dozen normative sentences across `src/`, both browser suites, `COVERAGE.md`, contracts 01, 02, 03 and 05 and the index; most of them stay true with the write removed and were rewritten to say what still happens — the join decides a position and releases presentation — rather than being struck. The F-123 borrowed-anchor row keeps its property and loses its instrument for the second time in two days: with no write to inspect, the tail's own endpoint is the only thing downstream of the borrow, and it discriminates on its own.
+
+**Eleven documentation findings from the D-155 review closed with it** (F-254 through F-264), plus F-267. They are one shape — a corrected hub sentence beside an uncorrected neighbour on the same page — and closing them in the pass that creates the next round of the same pressure is the point. F-260's disposition came from the owner: the landing seam exposes a duration and a CSS/WAAPI easing string deliberately, and a spring is a feature of its own rather than a widening of a two-scalar seam, so the kernel-tier-spring claim retires. F-264 was arithmetic that had been recomputed rather than re-derived through two decisions, and the enumeration now writes its addends out. F-265 stays open and untouched; F-249 through F-251 are unrelated backlog and were left alone.
+
+**−14 to −40 B on every composition, no module in or out of any graph**, and the two controls a kernel change cannot reach held at exactly zero. `complete` moves −14 where `minimal` moves −31 for the same deleted statements, which is the compressor rather than the code: the tokens deleted here all survive on the move path, so removing one instance of a repeated token is worth less than removing a rarer one. Budgets and the five moved controls re-based against a worktree of `b91ce5c6`; table in [`budget-rebases.md`](measurements/budget-rebases.md).
+
+---
+
 ### 2026-09-01 — the join's pin write settled as the landing runner's machinery (D-166, F-266, F-267)
 
 The last question D-155 left open about its own join, routed here as F-266 by the implementation review. Record [`f266-pin-disposition-claude.md`](reviews/phase-24/f266-pin-disposition-claude.md).

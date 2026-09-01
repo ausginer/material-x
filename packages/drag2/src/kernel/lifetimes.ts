@@ -8,8 +8,8 @@
  *
  * Cancellation outlives it, because `Escape` and `controller.cancel()` stay
  * valid while a consumer resolver is in flight. Presentation outlives both: the
- * lift stays acquired until the kernel's final pin, and is released
- * immediately before the terminal callback.
+ * lift stays acquired until the join, and is released immediately before the
+ * terminal callback.
  *
  * Every close is latched, so teardown paths may run unconditionally and in any
  * order.

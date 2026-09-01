@@ -207,20 +207,21 @@ The direct-drive fixtures position cells absolutely so the geometry is exact —
 
 | Row | Test | ID |
 | --- | --- | --- |
-| the tail travels the delta the pin removed | `tests/kernel/kernel.browser.test.ts` — _should travel the delta the pin removed_ | D-155, D-35 |
+| the tail travels the delta the release removed | `tests/kernel/kernel.browser.test.ts` — _should travel the delta the release removed_ | D-155, D-35, D-166 |
 | it decays to a zero contribution and claims no inline style, which is what makes cancelling it safe at any instant | `tests/kernel/kernel.browser.test.ts` — _should decay to a zero contribution_, _should add to the element rather than claim its transform_ | D-155, I-24 |
 | it starts only after presentation is released — asserted from inside a presentation disposer, which is the last instant the lease exists | `tests/kernel/kernel.browser.test.ts` — _should start only after presentation is released_; `tests/sortable/features.browser.test.ts` — _should restore the inline transform before the tail starts_ | D-155 |
-| a drop with nowhere to travel starts nothing | `tests/kernel/kernel.browser.test.ts` — _should start nothing when the visual is already where it was pinned_, _should start nothing without a landing policy_ | D-155, F-187 |
+| a drop with nowhere to travel starts nothing | `tests/kernel/kernel.browser.test.ts` — _should start nothing when the visual is already where it lands_, _should start nothing without a landing policy_ | D-155, F-187 |
 | `destroy()` cancels it, and so does the next drag's acquisition — while a press that never activates does not | `tests/kernel/kernel.browser.test.ts` — _should cancel the tail when the controller is destroyed_, _should cancel the tail when the next drag acquires the visual_, _should keep the tail through a press that never activates_ | D-155, I-6 |
 | a policy that destroys the controller starts no tail and publishes no terminal | `tests/kernel/kernel.browser.test.ts` — _should start no tail when the policy destroyed the controller_ | D-155, F-30 |
 | a policy that throws, and a duration the platform refuses, each produce one warning and a terminal | `tests/kernel/kernel.browser.test.ts` — _should report a policy that throws and still terminate_, _should report a duration the platform refuses and still terminate_; `tests/sortable/features.browser.test.ts` — _should report a throwing policy without failing the drop_ | D-155, D-130 |
 | a settlement whose `effect` throws measures nothing and still terminates | `tests/kernel/kernel.browser.test.ts` — _should measure nothing when the effect throws_ | F-27 |
-| the final `lift.write` throws | `tests/kernel/kernel.browser.test.ts` — _should release presentation and still publish a terminal when the pin throws_ | F-22, D-66 |
+| ~~the final `lift.write` throws~~ | **The join makes no write since D-166**, and nothing it does classifies: `tests/kernel/kernel.browser.test.ts` — _should raise no classified failure of its own_ | F-22, D-66, D-166 |
+| the join is infallible in the classified sense, so no fault of its own can reach a consumer whose drop is already committed | `tests/kernel/kernel.browser.test.ts` — _should raise no classified failure of its own_ | D-166 |
 | `spec.finalized` throws | `tests/kernel/kernel.browser.test.ts` — _should retire after a throwing terminal callback_ | F-22 |
 
 ## Landing origin — new (D-35)
 
-**The kernel step before Phase 19 (D-76), landed against the sortable alone.** `LandingContext.from` was `pointerX - originX` and documented as _where the visual is now_. Those are the same number for exactly one behavior — one whose `moved` writes the raw pointer delta on both axes, which is what this package's only shipping behavior does. That is why every suite was green through it: the defect's whole signature is that **the landing jumps at its start and still ends correctly**, because the target is behavior-supplied and the kernel re-pins at the join. Phase 11 met the same shape in the lift geometry and only a demo exposed it.
+**The kernel step before Phase 19 (D-76), landed against the sortable alone.** `LandingContext.from` was `pointerX - originX` and documented as _where the visual is now_. Those are the same number for exactly one behavior — one whose `moved` writes the raw pointer delta on both axes, which is what this package's only shipping behavior does. That is why every suite was green through it: the defect's whole signature is that **the landing jumps at its start and still ends correctly**, because the target is behavior-supplied and the release is what puts the visual in its place. Phase 11 met the same shape in the lift geometry and only a demo exposed it.
 
 Two rows below do **not** discriminate, and each says so in the test rather than being quietly counted: the pointer-following fixture is the agreement case by construction, and a pointerless operation mints at `(0, 0)`, so the subtracted form arrives at the right answer by coincidence. The other five fail against the pre-D-35 kernel; verified by reverting the computation and re-running.
 
@@ -281,7 +282,7 @@ Two rows below do **not** discriminate, and each says so in the test rather than
 | --- | --- | --- |
 | `activation.prepare` throws → one `onError`, retirement after failure handling | `tests/kernel/kernel.browser.test.ts` — _should not retire a failed activation_ | F-27 |
 | `release.effect` throws → `onReorder` never invoked | `tests/kernel/seams.node.test.ts` — _should never invoke the consumer after a failed release effect_ | F-34 |
-| join **write** failure → presentation releases, one `onError` **and** a terminal. It carried _no terminal_ until D-66 made the terminal total over started operations | `tests/kernel/kernel.browser.test.ts` — _should release presentation and still publish a terminal when the pin throws_ | F-22, D-66 |
+| ~~join **write** failure → presentation releases, one `onError` **and** a terminal~~. **There is no join write since D-166**, and the ordering it carried — presentation released before the terminal, on the failure route as on the success route — is asserted from the route's surviving producer: `tests/kernel/kernel.browser.test.ts` — _should publish the terminal from the error route, after the release_ | F-22, D-66, D-166 |
 | join **measurement** failure → presentation releases, **one `onError` and one terminal** | `tests/kernel/kernel.browser.test.ts` — _should skip the tail and still terminate when the measurement throws_ | D-49, D-60 |
 | `finalized` throws → `FAILURE_TERMINAL_CALLBACK`, still retires | `tests/kernel/kernel.browser.test.ts` — _should retire after a throwing terminal callback_ | F-22 |
 | an admission resolver calls `destroy()` → no operation is minted | `tests/kernel/kernel.browser.test.ts` — _should not mint an operation when admit destroyed the controller_ | F-30 |
@@ -326,7 +327,7 @@ Two rows below do **not** discriminate, and each says so in the test rather than
 | arm-time `anchorTarget` throws → the landing is **skipped** and the settlement still finalizes. It failed the settlement until D-49 put the measurement on the quality track: the reorder was already committed and accepted, so a presentational fault must not tell the consumer it failed | `tests/kernel/kernel.browser.test.ts` — _should skip the tail and still terminate when the measurement throws_, ~~should skip the runner entirely when the measurement throws~~ | F-35, D-49 |
 | ~~`LandingStart` calls `fail()` synchronously and returns a live handle~~ | **No runner, no `fail()`, no handle (D-155).** The revalidation it pinned survives with a new subject: `tests/kernel/kernel.browser.test.ts` — _should start no tail when the policy destroyed the controller_ | F-30 |
 | ~~`fail()` then `done()`, and `done()` then `fail()`~~ | **Nothing completes (D-155)**, so there is no first completion to win | I-24 |
-| `anchorTarget` destroys the controller → nothing joins | `tests/kernel/kernel.browser.test.ts` — _should not pin after anchorTarget destroyed the controller_, _should not call the terminal callback after anchorTarget destroyed the controller_ | F-38 |
+| `anchorTarget` destroys the controller → nothing joins | `tests/kernel/kernel.browser.test.ts` — _should start no tail after anchorTarget destroyed the controller_, _should not call the terminal callback after anchorTarget destroyed the controller_ | F-38 |
 | `moved` throws from compose, the style write and `schedule` | `tests/kernel/kernel.browser.test.ts` — _should classify a throwing moved instead of panicking_; `tests/sortable/sortable.browser.test.ts` — _should classify a scheduling failure as SCHEDULED_FRAME_ | F-40 |
 
 ## Teardown totality — new
@@ -408,7 +409,7 @@ The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **i
 | a failure during the round-trip carries `AT_CONSUMER` | `tests/sortable/sortable.browser.test.ts` — _should map a cancel during the round-trip to the consumer stage_ | D-66 |
 | a consequential failure publishes the terminal **and** reports | `tests/sortable/sortable.browser.test.ts` — _should publish both channels for a consequential failure_ | D-66, D-60 |
 | a throwing terminal callback publishes exactly once, not forever | `tests/sortable/sortable.browser.test.ts` — _should publish exactly one terminal when the terminal callback throws_ | D-66 |
-| the kernel side: presentation is released before the terminal on the failure path too | `tests/kernel/kernel.browser.test.ts` — _should release presentation and still publish a terminal when the pin throws_ | D-66, I-14 |
+| the kernel side: presentation is released before the terminal on the failure path too | `tests/kernel/kernel.browser.test.ts` — _should publish the terminal from the error route, after the release_ | D-66, I-14 |
 | …and the operation still retires afterwards | `tests/kernel/kernel.browser.test.ts` — _should retire after a throwing terminal callback_ | D-66 |
 | a skipped landing still terminates normally | `tests/kernel/kernel.browser.test.ts` — _should skip the tail and still terminate when the measurement throws_ | D-49, D-66 |
 | **one** `onEnd`, four arms, told apart by the discriminant alone | `tests/consumer.node.test.ts` — the packed-consumer fixture switches on `result.type` | D-62, F-41 |
@@ -442,14 +443,14 @@ The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **i
 
 | Row | Test | ID |
 | --- | --- | --- |
-| ~~a landing runner failing after the commit keeps `accepted`~~ / ~~…and so does a runner that cannot be created~~ | **Both producers retire with the runner (D-155).** The post-commit failure set is the pin and the terminal callback, and the surviving rows for it are `tests/sortable/sortable.browser.test.ts` — _should keep the accepted result when the pin throws at the join_, _should keep a rejected result too, not just an accepted one_ | D-66, A-1 |
-| …and the pin throwing at the join | `tests/sortable/sortable.browser.test.ts` — _should keep the accepted result when the pin throws at the join_ | D-66 |
+| ~~a landing runner failing after the commit keeps `accepted`~~ / ~~…and so does a runner that cannot be created~~ | **Both producers retire with the runner (D-155)**, and the pin with D-166. The post-commit failure set is now **one stage**, the terminal callback, and the surviving rows for it are `tests/sortable/sortable.browser.test.ts` — _should keep the accepted result when the terminal callback throws_, _should keep a rejected result too, not just an accepted one_ | D-66, A-1 |
+| …and a terminal callback throwing after the result is committed | `tests/sortable/sortable.browser.test.ts` — _should keep the accepted result when the terminal callback throws_ | D-66, D-166 |
 | the tie-break is _existing result wins_, not _accepted wins_ | `tests/sortable/sortable.browser.test.ts` — _should keep a rejected result too, not just an accepted one_ | D-66 |
 | the fallback's `reason` **is** the classifying error, by identity | `tests/sortable/sortable.browser.test.ts` — _should publish both channels for a consequential failure_ | D-66 |
 
-**Three post-commit stages, which is the whole set rather than a sample.** `LANDING_CREATE` and `LANDING_INTERRUPTED` both require an armed gate and arming happens after `prepare` returns; the pin runs at the join. Handoff §3 asked for the failure-stage set to be covered rather than sampled, and this is the half that was missing: the stages the sortable suite already drove — `RENDERER_WRITE` on the hot path, `REORDER_RESOLUTION`, `TERMINAL_CALLBACK` — are all pre-commit, so every one of them was a _frame holds none_ case.
+**~~Three post-commit stages~~ one post-commit stage, which is the whole set rather than a sample.** `LANDING_CREATE` and `LANDING_INTERRUPTED` both required an armed gate and retired with it (D-155); the pin retired with D-166, and nothing else between the settlement's commit and the terminal callback classifies. Handoff §3 asked for the failure-stage set to be covered rather than sampled, and this is the half that was missing: the stages the sortable suite already drove — `RENDERER_WRITE` on the hot path, `REORDER_RESOLUTION`, `TERMINAL_CALLBACK` — are all pre-commit, so every one of them was a _frame holds none_ case.
 
-**Why the gap was invisible.** The nearest existing row, `tests/kernel/kernel.browser.test.ts` — _should release presentation and still publish a terminal when the pin throws_ — is driven by the kernel harness's stub behavior, so it never reaches `settlement.prepare` and asserts only _that_ a terminal fired, never _which_. A row that asserts a callback happened is not a row that asserts what it was handed.
+**Why the gap was invisible.** The nearest existing row, `tests/kernel/kernel.browser.test.ts` — _should publish the terminal from the error route, after the release_ — is driven by the kernel harness's stub behavior, so it never reaches `settlement.prepare` and asserts only _that_ a terminal fired, never _which_. A row that asserts a callback happened is not a row that asserts what it was handed.
 
 **Three things these rows made concrete.**
 
@@ -886,7 +887,7 @@ Three instruments whose subject is the record rather than the runtime, indexed h
 
 | Row | Test | ID |
 | --- | --- | --- |
-| the returned anchor is **borrowed**: a behavior may answer every arm from one buffer, and poisoning that buffer from the landing runner's `start` — the first foreign code after the read — moves neither the context the runner holds nor the join's pin | `tests/kernel/kernel.browser.test.ts` — _should read the anchor before any code can rewrite it_ | D-144, F-123 |
+| the returned anchor is **borrowed**: a behavior may answer every drop from one buffer, and poisoning that buffer from a presentation disposer — the first foreign code after the read — moves neither endpoint of the tail the join then issues | `tests/kernel/kernel.browser.test.ts` — _should read the anchor before any code can rewrite it_ | D-144, F-123 |
 | the landing context's endpoints are four scalars a runner reads and composes with, out of line against the packed declarations, and the two nested members are refused | `tests/consumer.node.test.ts` — _should compile a consumer against the packed declarations_ | D-145 |
 | a contextual `duration` is handed the four scalars, and `LandingTimingContext.from`/`.to` are refused beside it — the consumer-facing half of the same flattening | ″ | D-145 |
 | the minted `distance` still matches `Math.hypot` over the endpoints the thunk was handed, which is what a transposed axis would break | `tests/sortable/features.browser.test.ts` — _should invoke duration once per landing, with the trajectory_ | D-67, D-145 |

@@ -149,11 +149,12 @@ type SettlementAttempt = {
   /**
    * **The one authoritative landing target, measured once.** The serial
    * authored commit guarantees the authored DOM is final before this is taken,
-   * so there is no interval in which a target is provisional. The join pins to
-   * this pair, and the tail is the inverse of the delta that pin applied.
+   * so there is no interval in which a target is provisional. This pair is
+   * where the drop ends, and the tail is the inverse of the delta between it
+   * and where the visual was.
    *
    * **`null` on the X carries the absence.** A skipped measurement is what
-   * tells the join to release without pinning, and the two coordinates are
+   * tells the join to release without a tail, and the two coordinates are
    * written and read as one act — so the sentinel sits on the first of them
    * rather than in a third slot. It is `=== null` and never truthiness: `0` is
    * an ordinary abscissa.
@@ -229,7 +230,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    *
    * The item's space is deliberately not retained. Which element a translate is
    * written on decides which space it is spent in, and the tail's element is
-   * the visual — the same element the pin writes on.
+   * the visual.
    */
   let visualSpace: InheritedSpace = null;
   let cancelRequest: { reason: unknown; origin: CancelOrigin } | null = null;
@@ -1256,8 +1257,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
       return {
         visual: target,
-        // Read back from the field the join reads it from, so the scope and the
-        // pin can never disagree about the grab basis.
+        // Read back from the field the join reads it from, so the scope and
+        // the landing measurement can never disagree about the grab basis.
         originRect,
         // The kernel's own admission-time state, not a behavior-authored draft
         // field read back.
@@ -1407,12 +1408,14 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    *
    * **Called once per settlement.** The serial authored commit guarantees the
    * authored DOM is final here, so there is no interval in which a target is
-   * provisional. A second, advisory call would read a stale target that the
-   * join's pin then silently corrects, which is this bug class's signature: the
-   * landing opens with a jump and still ends correctly.
+   * provisional. A second, advisory call would read a stale target and the tail
+   * would travel the inverse of a delta nothing else agrees with, which is this
+   * bug class's signature: the landing opens with a jump and still ends
+   * correctly, because the release is what puts the visual in its place.
    *
-   * Measured unconditionally, because the join pins to this value whether or
-   * not a tail follows it.
+   * Called unconditionally, and it cannot be conditional: whether a tail
+   * follows is the behavior's own policy, and that policy is asked with the
+   * delta this measurement produces.
    *
    * **Unclassified, not classified.** Failing the settlement for a measurement
    * throw tells a consumer whose reorder is already committed and accepted that
@@ -1442,10 +1445,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     if (anchor === undefined) {
       // **Skipped, not faked.** `onError` has already been delivered by the
       // driver. `targetX` stays null, which is what tells the join to release
-      // without pinning and to install no tail. The settlement is **not**
-      // failed and the domain result stands — the DOM commit already happened
-      // and the reorder is real — so the operation joins immediately and
-      // terminates normally.
+      // without installing a tail. The settlement is **not** failed and the
+      // domain result stands — the DOM commit already happened and the reorder
+      // is real — so the operation joins immediately and terminates normally.
       //
       // A jump cut is honest. The alternative is worse: a detached placeholder
       // reads `0×0` at the viewport origin, so "landing from the unrepaired
@@ -1508,9 +1510,10 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     targetX: number | null,
     targetY: number,
   ): void => {
-    // The presentation disposers ran between the pin and here, and they are
-    // consumer-reachable, so the controller may already be closed — in which
-    // case nothing further is asked of the behavior and nothing is written.
+    // The presentation disposers ran between the release and here, and they
+    // are consumer-reachable, so the controller may already be closed — in
+    // which case nothing further is asked of the behavior and nothing is
+    // written.
     if (targetX === null || !joinLive()) {
       return; // no measurement, or no controller left to interpolate for
     }
@@ -1519,7 +1522,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     const dy = fromY - targetY;
 
     if (dx === 0 && dy === 0) {
-      return; // the visual is already where it was pinned
+      return; // the visual is already where the drop decided
     }
 
     // Behavior code, and its own policy: it decides whether this drop has a
@@ -1565,17 +1568,22 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   };
 
   /**
-   * Pin, release presentation completely, then hand the rest to the tail.
+   * Release presentation completely, then hand the rest to the tail.
    *
-   * **Ordering is normative and it is what makes the tail sound.** The pin
-   * writes the authoritative position through the lift session; the release
+   * **The position is already decided and the join writes nothing.** Where the
+   * drop ends is `attempt.targetX`/`.targetY`, measured once before the join;
+   * the visual reaches it by being **released into it**, in flow, and the tail
+   * carries the residual displacement to zero. A write here could only restate
+   * the position the release is about to produce, on an element whose inline
+   * `transform` the very next statement restores.
+   *
+   * **Ordering is normative and it is what makes the tail sound.** The release
    * gives the visual's inline styles, its place in flow and the behavior's own
    * presentation back to the consumer; only then does anything interpolate. So
    * the terminal callback runs in a world the library holds no claim on.
    *
-   * Every step before the release is individually fallible and the release is
-   * in a `finally`: the join calls into code the kernel does not own, and none
-   * of it may strand the placeholder or the inline styles.
+   * The release is in a `finally`: the join calls into code the kernel does not
+   * own, and none of it may strand the placeholder or the inline styles.
    */
   const joinSettlement = (attempt: SettlementAttempt): void => {
     const owned = lifetimes!;
@@ -1585,7 +1593,6 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     draft.phase = FINALIZING;
     commit();
 
-    let failed = false;
     let fromX = 0;
     let fromY = 0;
 
@@ -1594,58 +1601,25 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // it.** With the measurement already taken there is no consumer call here
       // to revalidate as a side effect — and the code between it and here is
       // consumer-reachable, because `anchorTarget` runs on the way. Without
-      // this check a destroy raised from it would still reach the pin and the
-      // terminal callback.
+      // this check a destroy raised from it would still reach the terminal
+      // callback.
       if (!joinLive()) {
         return;
       }
 
-      // **No second measurement.** `anchorTarget` runs once, before the join,
-      // and the pin lands on that same value — so where the drop ends is
-      // decided by one reading and the tail is the inverse of the delta this
-      // pin applied, rather than of a second opinion about it.
-      const { targetX, targetY } = attempt;
-
-      if (targetX !== null) {
-        // **Sampled before the pin, because the pin overwrites it.** `rendered`
-        // is where the visual is — the delta the drag last wrote, which is what
-        // the tail has to start from, and which is not the pointer's for any
-        // behavior that constrains, clamps, snaps or drives its visual, nor for
-        // a pointerless operation.
-        ({ x: fromX, y: fromY } = session.rendered);
-
-        if (
-          !driver.runLeaf(() => {
-            session.write(targetX, targetY);
-          }, FAILURE_RENDERER_WRITE)
-        ) {
-          failed = true;
-        }
-      }
+      // `rendered` is where the visual is — the delta the drag last wrote,
+      // which is what the tail has to start from, and which is not the
+      // pointer's for any behavior that constrains, clamps, snaps or drives its
+      // visual, nor for a pointerless operation. Nothing here overwrites it, so
+      // the read is free of ordering constraints.
+      ({ x: fromX, y: fromY } = session.rendered);
     } finally {
-      // Unconditional. Every fallible step above is individually wrapped, so
-      // the only thing that reaches this `finally` today is a re-entry panic —
-      // but the rule is the sequence's own, not an artifact of which steps
-      // happen to catch: no failure between `FINALIZING` and here may leave the
-      // placeholder inserted or the inline styles overwritten.
+      // Unconditional. Nothing above it can throw today — the guard and the
+      // sample are both kernel-private reads — but the rule is the sequence's
+      // own rather than an artifact of what happens to be fallible: no failure
+      // between `FINALIZING` and here may leave the placeholder inserted or the
+      // inline styles overwritten.
       owned.presentation.dispose();
-    }
-
-    if (failed) {
-      // **The terminal is not skipped — it moves one action later.** This
-      // `return` hands the operation to the queued checkpoint, which drives
-      // `REPORTING` and then publishes the terminal from `ERROR_REPORTED`,
-      // after presentation is released.
-      //
-      // Publishing it here instead would fire `onFinish` for a drop the
-      // checkpoint is about to report through `onError`, which reads a failure
-      // and a terminal as alternatives. They are orthogonal: a consequential
-      // failure of a started operation still owes the consumer exactly one end,
-      // and the frame's committed result is what it publishes. Skipping it here
-      // and publishing there is what keeps the two routes' *ordering* identical
-      // — presentation released first, terminal second — so a consumer never
-      // has to know which route its drag took.
-      return;
     }
 
     // **After the release and before the terminal.** After, because a tail
@@ -1703,7 +1677,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     settlementInput = null;
 
     // A settlement that never committed does not land: the queued checkpoint
-    // decides what the operation ends as, and measuring for a pin that will
+    // decides what the operation ends as, and measuring for a join that will
     // never happen would call behavior code for nothing.
     if (outcome === SEAM_COMMITTED && measureTarget(attempt)) {
       joinSettlement(attempt);
@@ -2137,8 +2111,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     };
 
     // **The settlement is replaced, and this one never lands.** The report
-    // runs through the same seam and stops there: nothing measures, nothing
-    // pins, and the terminal is published from `ERROR_REPORTED` instead.
+    // runs through the same seam and stops there: nothing measures and nothing
+    // joins, and the terminal is published from `ERROR_REPORTED` instead.
     settlement = { targetX: null, targetY: 0 };
 
     // The same seam as an ordinary settlement, because the behavior owns the
