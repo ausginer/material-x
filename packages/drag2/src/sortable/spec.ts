@@ -1532,17 +1532,30 @@ export function createSortableSpec(
               // committed a result arrives here still carrying it, and `??` is
               // the whole tie-break.
               //
-              // **An unconditional `draft.domain = …` here is wrong.** It
-              // rests on a terminal-callback throw being the only failure that
-              // can arrive after a result exists, and nothing enforces that:
-              // every phase that runs after the join classifies against this
-              // operation, so an action dispatched by the terminal callback, or
-              // an explicit `host.fail` from inside one, arrives here with the
-              // result already committed. Such an assignment overwrites it
-              // 100 % of the time it fires, and tells a consumer whose data
-              // really was reordered that the drop was `canceled`. The stage
-              // exclusion above stands on its own reason — recovery, not the
-              // result — and carries no weight in this tie-break.
+              // **An unconditional `draft.domain = …` here is wrong, and the
+              // reason is the mapping rather than any one producer.** *Existing
+              // result wins, otherwise `canceled`* is what makes the terminal
+              // total: it collapses a failure arriving before any result and
+              // one arriving after the authored commit into a single lookup, so
+              // no stage carries a terminal policy of its own. An assignment
+              // reinstates exactly that per-stage policy — a total mapping
+              // stops being total when the lookup becomes a branch, never when
+              // one of its inputs grows rare.
+              //
+              // **And the input is not rare on the path where the value
+              // decides.** The settlement seam commits between `prepare` and
+              // `effect`, so an `effect` that throws is classified *from the
+              // committed state*: it arrives here with a result present and
+              // before any terminal has been published, and what this lookup
+              // keeps is the operation's only terminal. An assignment would
+              // overwrite it every time that path fires and tell a consumer
+              // whose list really was reordered that the drop was `canceled`. A
+              // `host.fail` raised from inside the terminal callback reaches
+              // this line too, though by then the terminal is published and the
+              // value is no longer observed.
+              //
+              // The stage exclusion above stands on its own reason — recovery,
+              // not the result — and carries no weight in this tie-break.
               //
               // **The marker decides the stage, and it also decides whether to
               // publish at all.** At `MINTED` the consumer never heard this

@@ -755,7 +755,12 @@ export function createFreeDragSpec(
               // the frame rather than a branch per stage. A transaction opens
               // with `Object.assign(draft, current)`, so a settlement that
               // already committed a result arrives here still carrying it, and
-              // `??=` is the tie-break.
+              // `??=` is the tie-break. It is the lookup that makes the
+              // terminal total, so it stays whatever the producer set looks
+              // like: a `settlement.effect` that throws is classified from the
+              // committed state, which reaches this line with a result present
+              // and before any terminal has been published, and the value kept
+              // here is then the operation's only terminal.
               //
               // **The marker decides the stage, and it also decides whether to
               // publish at all.** At `MINTED` the consumer never heard this

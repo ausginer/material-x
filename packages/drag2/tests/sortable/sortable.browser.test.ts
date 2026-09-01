@@ -1823,20 +1823,24 @@ describe('settlement mapping', () => {
  * what a consumer is told when its data really was reordered and something
  * afterwards went wrong.
  *
- * **The post-commit failure set has one member, and these are it.**
- * `FAILURE_TERMINAL_CALLBACK` is the only stage that can be classified after
- * the settlement committed a result: the landing measurement is unclassified,
- * the presentation release reports warnings, the tail is unwound, and the join
- * itself writes nothing and so raises nothing. ~~`LANDING_CREATE`,
- * `LANDING_INTERRUPTED`~~ and ~~the join's own renderer write~~ are gone with
- * the landing gate and the pin (D-155, D-166).
+ * **The join no longer contributes a post-commit stage**:
+ * ~~`LANDING_CREATE`, `LANDING_INTERRUPTED`~~ and ~~the join's own renderer
+ * write~~ went with the landing gate and the pin (D-155, D-166), the landing
+ * measurement is unclassified, the presentation release reports warnings and
+ * the tail is unwound. What remains are the two the behavior tier owns — a
+ * `settlement.effect` classified from the committed state, which is the one
+ * where this lookup decides the operation's *only* terminal, and a throwing
+ * terminal callback, which is what the rows below drive.
  *
- * **So the surviving mechanism is the stage exclusion, not the `??=` lookup**,
- * and what the rows below assert is the property rather than the branch: a
- * committed result is what the consumer keeps, and the failure path publishes
- * no second terminal to replace it. Remove the exclusion and both rows fail —
- * the frame's result is rewritten to `canceled` and `ERROR_REPORTED` delivers
- * it as a second end for one operation.
+ * **These rows witness the property, and they do not discriminate a
+ * mechanism.** I-31 is total because the mapping is a lookup rather than a
+ * branch per stage (D-66, Q-14), and totality is not a claim about which
+ * producer is live; a row driven from the terminal callback passes whether the
+ * `??=` or the stage exclusion is doing the keeping, because both preserve the
+ * committed result and the second terminal is refused by the retirement that
+ * precedes it either way. So what is asserted here is the consumer-visible
+ * fact: a committed result is what the consumer keeps, accepted or rejected,
+ * and exactly one terminal carries it.
  */
 describe('a failure after the authored commit (D-66)', () => {
   /** Accepts a reorder into gap 2, so the frame holds `accepted` at the join. */

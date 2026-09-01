@@ -1640,9 +1640,12 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     driver.runLeaf(() => {
       spec!.finalized(current);
     }, FAILURE_TERMINAL_CALLBACK);
-    // Queued unconditionally: a terminal-callback failure still retires. The
-    // checkpoint it queued is ahead of this entry, so if it retires the
-    // operation first, this one is stale and ignored.
+    // Queued unconditionally, and this entry is what retires: a
+    // terminal-callback failure queues its checkpoint ahead of this one, but
+    // the checkpoint only delivers `onError` — the terminal it then owes is
+    // dispatched from inside it and so lands *behind* this entry. The
+    // retirement therefore always intervenes, and it is that second terminal
+    // which arrives stale. Exactly one `onEnd` on this path is that ordering.
     dispatchKernel(RETIRE, current.operation);
   };
 
@@ -2174,12 +2177,26 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * `finalized`, and a consumer must not have to know which route its drag took
    * to know whether the placeholder is still in the list.
    *
-   * **One stage is excluded, and it is the one that cannot be
-   * double-published.** `FAILURE_TERMINAL_CALLBACK` means `finalized` already
-   * ran and threw; calling it again would deliver a second `onEnd` for one
-   * operation and, since it would throw again, do so forever. The behavior's
-   * settlement `prepare` makes the same exclusion from the other side, where it
-   * declines to rewrite an outcome that has already been reported.
+   * **Exactly one `onEnd` per operation rests on two things here, and only one
+   * of them is a test in this function.**
+   *
+   * The one written here is the stage exclusion: `FAILURE_TERMINAL_CALLBACK` means
+   * `finalized` already ran and threw, so calling it again would deliver a
+   * second `onEnd` for one operation and, since it would throw again, do so
+   * forever. The behavior's settlement `prepare` makes the same exclusion from
+   * the other side, where it declines to rewrite an outcome that has already
+   * been reported.
+   *
+   * **The other is the queue order, and it covers what the stage cannot.** A
+   * behavior calling `host.fail` from inside `finalized` classifies with a
+   * stage of its own — a phase is open there, so the classification takes the
+   * caller's — and a checkpoint raised inside the terminal callback therefore
+   * need not carry `FAILURE_TERMINAL_CALLBACK` at all. What refuses that one is
+   * the guard below: the checkpoint is queued ahead of the join's retirement
+   * and the `ERROR_REPORTED` it goes on to dispatch is appended behind it, so
+   * the operation is already retired and the phase no longer says `REPORTING`.
+   * **A change that makes `ERROR_REPORTED` asynchronous is changing that**, not
+   * only when this runs.
    */
   const handleErrorReported = (checkpoint: FailureCheckpoint): void => {
     const { operation, stage } = checkpoint;

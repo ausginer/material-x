@@ -2298,6 +2298,25 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-01 — the tie-break's argument, the exactly-once mechanism and the vertical trace corrected (F-269, F-270, F-271 closed; F-272)
+
+Documentation and comments only; no runtime change, and none opened. Records [`f268-result-tiebreak-disposition-claude.md`](reviews/phase-24/f268-result-tiebreak-disposition-claude.md) and [`d166-relinquish-write-summary.md`](reviews/phase-24/d166-relinquish-write-summary.md).
+
+**The tie-break now argues from the mapping instead of from a census** (F-269). Both behaviors' comments defended `draft.domain ??= …` by naming the producers that could reach it, which is what made the argument age faster than the line: the shape they named — an action dispatched by the terminal callback — cannot arrive, and the one that decides a terminal was missing. They now say what the lookup *is*: *existing result wins, otherwise `canceled`* collapses failure-before-a-result and failure-after-the-authored-commit into one lookup, so no stage carries a terminal policy of its own, and an unconditional assignment reinstates exactly that policy. The producer that survives in the argument is the one where the kept value decides the operation's **only** terminal — a `settlement.effect` classified from the committed state, before the join.
+
+**The identifiers stayed out of `src/`, deliberately.** The disposition asks the comments to *cite* the invariant and the decision rather than restate them; the source tree's own instrument forbids a decision number in a comment, on the ground that an address says *the reason lives elsewhere*. Its own rule resolves the tension — **it forbids the address, not the argument** — so the constraint is stated where the code is and the identifiers stay in the register and the coverage table, which is where a reader following the argument already is.
+
+**The kernel now states both halves of its exactly-once terminal** (F-270). `handleErrorReported` explained the property by its stage exclusion alone, which does not cover a `host.fail` raised inside `finalized` — a phase is open there, so the classification takes the caller's stage. The docblock names the queue order that does cover it, and says that rescheduling `ERROR_REPORTED` is what would change it. The join's retirement comment had the ordering backwards and now reads forwards: the checkpoint is queued ahead of the retirement and delivers only `onError`; the terminal it goes on to owe is dispatched from inside it and lands behind the retirement, so the retirement always runs and it is the second terminal that arrives stale.
+
+**The rows stopped claiming a discrimination they do not make.** D-166's ledger row, the sortable docblock and `COVERAGE.md` all said that removing a post-commit exclusion fails the two D-66 rows. It does not: a committed result survives whichever of the lookup and the stage test does the keeping, and the second terminal is refused by the retirement either way. The rows are real witnesses for the consumer-visible fact — a committed result is what the consumer keeps, accepted or rejected, once — and they now say that instead.
+
+**The vertical trace is swept rather than patched** (F-271). `06-vertical-sortable-trace.md` still walked the join through `lift.write(target.x, target.y)`, its renderer-failure arm and the deferred terminal's `STOP *here*`, with `[I-24]` attached to the write. The whole D-166 shape went, not only the cited lines: the marker moves to the release, the ordering sentence reads *measure → release → tail → terminal*, I-24 is stated unconditionally with the `finally` resting on the sequence's own rule, the failure table's join-write row is struck and points at the move path that keeps the classification, and the pin stops being a landmark in four other rows. The `RETIRE` step gains the ordering F-270 fixed.
+
+**One thing found and left** (F-272). The same page prints an eight-field settlement attempt record; `SettlementAttempt` is `{ targetX, targetY }`. That drift is D-155's and D-41's, not D-166's, and repairing it under a decision that did not cause it is how a sweep stops being reviewable. Recorded open, on the same page and in the same class as F-271 — which is the argument for the instrument F-271 leaves open, and not a reason to improvise one here.
+
+---
+
+
 ### 2026-09-01 — D-166 implemented: the join decides a position and writes nothing (F-254…F-264, F-267)
 
 The join's `session.write(targetX, targetY)` is deleted, with the `runLeaf`/`FAILURE_RENDERER_WRITE` wrapper that existed only for it and the `failed` flag that deferred the terminal to `ERROR_REPORTED`. What is left is _revalidate → sample `rendered` → release presentation in the unconditional `finally` → tail → revalidate → `finalized` → `RETIRE`_. The measurement, the decided position and the release-before-terminal ordering are all untouched, and no SPI member moved: `lift.write` keeps its behavior callers and its classification on the move path, where the fault is one the user sees.
