@@ -53,7 +53,7 @@ The disjointness argument in the implementation-shape record survives with a cor
 - **Clauses 2 and 3 are name corrections only.**
 - **F-253 is recorded** against `d155-d156-implementation-shape-claude.md` §139, which names the tail's element as "the dragged item" — a phrase that was unambiguous when it was written and names the wrong element under D-165's vocabulary whenever the two separate. Corrected in place with the original wording preserved, since the implementer reads that section for module ownership.
 
-**Not decided here**, and still outside this pass: free drag's `accept()` commit obligation, which D-155 explicitly left open and un-inherited; whether the pin remains load-bearing under a tail, which `ql2-tail-additive-translate-claude.md` §flagged and D-155 keeps; and F-203.
+**Not decided here**, and still outside this pass: free drag's `accept()` commit obligation, which D-155 explicitly left open and un-inherited; whether the pin remains load-bearing under a tail, which `ql2-tail-additive-translate-claude.md` §flagged and D-155 keeps — **settled 2026-09-01 by D-166**, on F-266's evidence from the landed tree: the decided position and the release ordering are load-bearing, the DOM write is not and is deleted; record [`f266-pin-disposition-claude.md`](f266-pin-disposition-claude.md); and F-203.
 
 ## 6. Method
 

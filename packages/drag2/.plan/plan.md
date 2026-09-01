@@ -2298,6 +2298,24 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-01 — the join's pin write settled as the landing runner's machinery (D-166, F-266, F-267)
+
+The last question D-155 left open about its own join, routed here as F-266 by the implementation review. Record [`f266-pin-disposition-claude.md`](reviews/phase-24/f266-pin-disposition-claude.md).
+
+**"The pin" names three things and only one of them is a write.** The **decided position** — measured once, converted once, the terminus the tail travels the inverse of — is D-41's clause and is untouched. The **ordering landmark** — presentation released before the terminal, which is the invariant deciding T1 against T2 — is carried by the release in the unconditional `finally`, and the write was never part of it. What is left is `session.write(targetX, targetY)`, and **D-166 deletes it**.
+
+**It cannot paint, by construction rather than by luck.** `transform` is in `LIFTED_PROPS`, `session.dispose` is registered on the presentation lifetime first so its restore runs last under best-effort LIFO, and a behavior holds a `LifetimeScope` with no `dispose` — so nothing outside the kernel can release the lease early and the write is undone on every path, panic and teardown included. The record update is dead too: `rendered`'s only reader is the sample taken before it.
+
+**So the write's one surviving effect is a hazard rather than a role.** It turns a CSSOM fault on a write with no visual consequence into a semantic `onError` for a drop whose data is already committed — where the two neighbouring post-commit faults at the same join are treated as presentation, `anchorTarget` reporting and terminating normally and the tail unwound to a warning that changed nothing. That is D-155's own first gain, one instance short: the harshest treatment applied to the only fault a user could not see.
+
+**What actually went is D-16's justification.** _Correctness comes from the final pin_ held because a runner animated the lifted visual and ended there, which is what corrected a stale provisional target; D-155's release-then-interpolate order deleted the runner, and the clause outlived its ground. The move path keeps its classification, and the distinction is the argument — a `moved` write that throws is semantic because the user watches the visual stop tracking.
+
+**Two properties the implementation must establish rather than assume**, neither satisfiable by deletion: the `ERROR_REPORTED` terminal route must not be orphaned, and if the deleted branch was its only producer that is a separate elimination question this decision does not settle; and D-66's _existing committed result wins over a later fault_ must keep executable coverage, the two rows that poison the visual's `transform` setter having lost their subject.
+
+**The current-state documents are deliberately not amended ahead of the code.** They say the join pins, and until D-166 lands it does. F-267 is separate and is wrong today: the tail suite's docblock explains its no-policy row with _the visual is simply where the pin put it_, when presentation is released before that row's frame and the visual is where flow puts it — the pre-D-155 model stated inside the suite that documents the inversion.
+
+---
+
 ### 2026-09-01 — D-155 implemented: the landing gate is deleted and the tail relinquishes (F-190, F-253)
 
 The last gate the settlement had. What lands is the shape D-155 settled and one narrowing the implementation found: **what crosses the seam is timing and nothing else.**
