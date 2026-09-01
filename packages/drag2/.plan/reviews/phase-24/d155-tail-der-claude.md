@@ -1,0 +1,70 @@
+# D-155 — decision elimination review
+
+**Files read at `37ae30e6`** (the sole commit in `09f26770..37ae30e6`, "drag2: replace the landing gate with a relinquished tail"). Pre-images read at `09f26770` where cited.
+
+## Scope
+
+Read first: `.plan/contract/00-index.md`'s D-155/D-156/D-165 ledger rows, `.plan/reviews/phase-23/d155-d156-implementation-shape-claude.md`, `.plan/reviews/phase-24/d155-space-model-projection-claude.md`. Ran `npx just decisions` / `--retired` and traced both directions: forward from D-7 (retired, superseded by D-155) and from D-155/D-156's own retired clauses (the gate, the runner protocol, `beforeInsertionMove`/`afterInsertionMove`, `plugins`), and backward from the surviving guards in `src/kernel/kernel.ts` (`joinLive`, `settlementLive`, `cancelTail`) to the hazards that still justify them.
+
+Covered: `src/kernel/{kernel,failures,errors,actions,phases,lifetimes,spec,seams}.ts`, `src/kernel.ts`, `src/shared/{landing-runner→landing}.ts`, `src/{free-drag,sortable}/{spec,feature,landing,assemble,slots}.ts`, `tests/consumer.node.test.ts`, `tests/kernel/vocabulary.node.test.ts`, `tests/sortable/feature.declaration.test.ts`, `tests/COVERAGE.md`, `README.md`, `.plan/measurements/budget-rebases.md`, `.plan/contract/02-kernel-behavior-contract.md`. Not covered in depth: `03`–`07` contract files beyond spot greps, the browser test bodies (only their COVERAGE.md index and declared names), `bench/size/measure.ts`.
+
+## Findings
+
+### der-1 (Tier B) — `02-kernel-behavior-contract.md` still asserts `SettlementScope` as live kernel machinery in three places the commit didn't reach
+
+**Current behavior.** The commit correctly deletes `SettlementScope` from the shipped kernel: `src/kernel/spec.ts`'s `SettlementTransition.effect` is now `effect(current, prepared): void` — two parameters, no capability — and `grep -rn SettlementScope src/` returns nothing. The commit also correctly updates most of the contract document to match: the SPI table (`02-kernel-behavior-contract.md` — diff line "`SettlementInput`'s canceled arm; ~~`SettlementScope.holdForLanding`~~ `BehaviorSpec.landingTail`"), the "Four of these are re-homed" paragraph, and the type's own declaration site (all struck and replaced, per the diff).
+
+But three passages in the same document still state or imply `SettlementScope` exists and is shipped, none of them touched by this diff:
+
+1. **Line 769** — the type-count derivation: `**Types — 35, derived as `12 + 23`**... **Twelve since D-152** are shipped (`ActivationScope`, ..., `PreparedSettlement`, `ResolutionCommand`, ~~`SeamRejection`~~, `SettlementInput`, `SettlementScope`)`. `SettlementScope` is listed, unstruck, as one of the twelve currently-shipped kernel types.
+2. **Line 907** — "That holds for the two lifetime-shaped ones: a `LifetimeScope` whose lifetime has disposed invokes a late `use()` disposer immediately, and a `SettlementScope` past sealing ignores and reports a late hold." This is a present-tense factual claim about current behavior of an object that no longer exists — no sealing, no late hold, no `SettlementScope` at all. Sharpest evidence for staleness: this diff's own hunk (`@@ -906,7 +906,7 @@`) edits the very next sentence in the same paragraph (replacing a `LandingContext.from`/"fights the landing runner" reference with settlement-sampled-delta language) and leaves the `SettlementScope` clause one line above it untouched.
+3. **Lines ~1157–1170** — the `SettlementTransition` code sample. This diff's own hunk (`@@ -1153,12 +1153,11 @@`) rewrites the JSDoc immediately above the type to read "Settlement stages nothing, **and carries no capability either**: the gate plan went with D-41's protocol and **the last gate with D-155**, so both phases hand the behavior committed state and nothing else." The `SettlementTransition` declaration a few lines below that corrected comment, inside the same fenced code block, still reads:
+   ```ts
+   type SettlementTransition<Part extends object> = Readonly<{
+     prepare(draft: Draft<Part>, input: SettlementInput): PreparedSettlement;
+     effect(
+       current: Readonly<Frame<Part>>,
+       prepared: PreparedSettlement,
+       scope: SettlementScope,
+     ): void;
+   }>;
+   ```
+   a three-parameter `effect` taking a `SettlementScope`, directly contradicting the sentence immediately above it ("carries no capability either") and the actual shipped type in `src/kernel/spec.ts`.
+
+**Why it's a problem.** `SettlementScope` existed to satisfy D-7/D-41's landing gate; D-155 deletes the gate, and the type has no remaining reason to exist — that is settled, not in question. What survives past the deletion is the document's own claim to the contrary in three spots, one of them a code sample bracketed on both sides (docblock above, in the same hunk; struck occurrence a few paragraphs later at line 1259) by text this same commit corrected. This document's own F-174 annotation (line 756, 769) exists specifically because a _carried_ total silently drifted from the _derived_ one twice before ("that total was one high before D-154 as well... only the sentence drifted, which is the argument for deriving the total from it rather than incrementing it") — the type count at line 769 has now drifted the same way a third time, for the same reason (a deletion not propagated to the carried number), in the document that diagnosed the pattern.
+
+**Evidence.** `git diff 09f26770..37ae30e6 -- .plan/contract/02-kernel-behavior-contract.md` (hunks at `@@ -906,7 +906,7 @@` and `@@ -1153,12 +1153,11 @@` show the adjacent lines edited, the cited lines not); `grep -n SettlementScope .plan/contract/02-kernel-behavior-contract.md` (lines 769, 782, 907, 1169, 1259, 1283 — 782/1259/1283 correctly struck, 769/907/1169 not); `grep -rn SettlementScope src/` (empty — confirms full deletion in the shipped tree); `src/kernel/spec.ts`'s `SettlementTransition` (two-parameter `effect`, no `scope`).
+
+**Required property.** Every present-tense or shipped-type-count claim about `SettlementScope` in `02-kernel-behavior-contract.md` should read as struck/deleted, consistent with the document's own already-corrected occurrences at lines 782, 1259 and 1283, and the type count at line 769 (and its companion at line 756/`Types — 35`) should be re-derived rather than carried, per the document's own F-174 rule.
+
+---
+
+### der-2 (Tier B) — `tests/consumer.node.test.ts`'s `A7` row calls `SettlementScope` "internal" rather than acknowledging it is deleted
+
+**Current behavior.** The "every internal SPI name is unreachable" list in `tests/consumer.node.test.ts` (around line 464) still contains:
+
+```ts
+// @ts-expect-error: the settlement scope is internal
+type A7 = import('@ydinjs/drag2/drag.js').SettlementScope;
+```
+
+This diff extensively edited this file — the landing-runner import block, the `hoistedLanding` fixture, the `run: LandingStart` example, the retired-field assertions — and even in this same "unreachable SPI" list correctly distinguishes the two cases: `A10`'s comment reads `// @ts-expect-error: the seam rejection is **deleted**, not merely internal (D-152) — a non-discardable seam fails by throwing...`. `A7`'s comment was left as "internal" and was not touched by the diff (confirmed: `git diff` for this file's hunks does not include the A1–A11 block; the only nearby `SettlementScope` edits are a different import block around line 590–720, where `type SettlementScope,` and an `effect: (current, _prepared, scope: SettlementScope) => {` example were removed).
+
+**Why it's a problem.** "Internal" and "deleted" are two different claims this file already distinguishes on purpose (`A10` vs. the rest of the `A1`–`A9` list), and the distinction is meaningful to a reader: "internal" says the SPI still exists and a consumer is merely blocked from reaching it; "deleted" says there is nothing to reach. `SettlementScope` is now in the second class — confirmed absent from `src/` entirely — but its row still asserts the first. `@ts-expect-error` fires either way (`Cannot find name` is still a type error), so this does not break the test mechanically, but it misdescribes the SPI to anyone reading the file as documentation of what's internal-but-present versus gone outright — exactly the risk `README.md`'s own kernel.js table and `tests/COVERAGE.md` both avoid for the same deletion (`~~`SettlementScope`~~ (deleted by D-155 — the settlement hands the behavior no capability)` in README; `**The scope is deleted (D-155)**, so non-assignability to it is unassertable` in COVERAGE.md).
+
+**Evidence.** `tests/consumer.node.test.ts:463-464`; `git diff 09f26770..37ae30e6 -- tests/consumer.node.test.ts | grep -n SettlementScope` (shows only the unrelated import-block edit, not the A7 row); `A10`'s comment at the same list, one entry below, showing the file's own established "deleted, not merely internal" phrasing; `README.md` and `tests/COVERAGE.md` diffs, both correctly phrased for the same deletion.
+
+**Required property.** `A7`'s comment (and, if the convention that motivated `A10`'s wording is to be followed, its classification) should match the deleted-not-internal phrasing the file already uses for `SeamRejection`, or the row should be removed the way the `Behavior`-withdrawal rows were (per `tests/sortable/feature.declaration.test.ts`'s own precedent for a decision that removes an asserted type's subject entirely, deleting rather than re-pointing the row).
+
+## Checked and found sound (null results)
+
+- **The runner and its two failure-stage producers are gone, not renamed-and-kept.** `git show 09f26770:src/shared/landing-runner.ts` (the pre-image) contains `LandingHandle`, `LandingStart`, `done()`/`fail()`, `generation`, `destroy()`-as-relinquish. `src/shared/landing.ts` (post-image) contains none of it — only `createLandingTiming`, a pure policy factory with no completion callbacks. `FAILURE_LANDING_CREATE`/`FAILURE_LANDING_INTERRUPTED` are confirmed holes in `src/kernel/failures.ts` (10, 11 — "10 through 13 are holes and none is ever reused"), matching D-155's own accounting exactly. `LANDING_SETTLED` (action 7) is confirmed unused in `src/kernel/actions.ts`. Nothing downstream branches on the old two-stage distinction; `src/kernel/kernel.ts`'s `joinSettlement` now has one measurement-throw path (`FAILURE_RESOLUTION`-adjacent, unclassified) and the runner-destroy-failure path (`attempt.relinquished`, `'drag: landing/runner-destroy-failed'`) is gone with the runner it protected — confirmed absent from `src/` and `tests/` by grep.
+- **No still-alive guard defends an unreachable hazard.** `joinLive()` (checked after `startTail`'s call into `spec!.landingTail?.()`, and after `anchorTarget` inside `measureTarget`/`settlementLive`) still guards a live hazard: both are consumer/behavior code that can call `destroy()` synchronously, and the check is what stops the pin or the terminal callback from running past that. `cancelTail()` at `acquireLift` (case 2's own reading — "a press that never crosses the threshold keeps whatever is in flight") and at teardown are both reachable, documented hazards (a same-element re-grab; controller destruction with a tail in flight), not residue from the deleted gate.
+- **The `AxisContribution`/`plugins` seam is not newly left dangling by this commit.** `plugins`, `SortablePluginContribution`, `beforeInsertionMove`/`afterInsertionMove` are already absent from `src/sortable/*` at the `09f26770` baseline (D-156/D-157, implemented in an earlier phase per the shape record's §5 and §11/F-199) — this diff does not touch that seam. Free drag's `plugins` is a different, still-live multi-writer slot (unrelated to D-155/D-156) and is untouched. No `LandingHandle`/`LandingStart`/`LandingContext`/`SettlementScope`/`holdForLanding` reference remains in `src/free-drag/` or `src/sortable/` outside the (correct) `PreparedSettlement` retention in both `spec.ts` files.
+- **The disjointness argument between the tail and displacement.** Confirmed current per the phase-24 architect disposition already on file (`d155-space-model-projection-claude.md` §4): the T1/T2 decision is untouched by the D-165 space split, and the tail writes on `visualSpace`, not `itemSpace` — `src/kernel/kernel.ts`'s `visualSpace` field and `startTail`'s projection match this exactly (`itemSpace` is read once at `acquireLift` and handed only to the ActivationScope for the displacement sink; the tail never touches it).
+- **The size/causal attribution in `budget-rebases.md` and `README.md`.** Both attribute the negative deltas to the gate's removal specifically (not to D-156's earlier, already-landed displacement work, which the pre-slice baseline `09f26770` already contains): "No module entered or left any graph... `shared/landing.js` standing exactly where `shared/landing-runner.js` stood... a composition that installs no landing was carrying 226 B of gate." The control rows (`drag.js`, baseline B held at 0; the four free-drag rows and `kernel.js` moved, correctly attributed to touching `acquireLift`/the kernel) are consistent with the diff's actual file list. No mis-attributed mechanism found.
+- **`.plan/contract/02-kernel-behavior-contract.md`'s substantive gate-removal narrative** (§The settlement gate, §Landing completion, the action/phase tables) is internally consistent and matches the code — only the three passages in der-1 above are stale.
+
+## Method
+
+`npx just decisions` / `--retired` from the package directory; `git show 09f26770:<path>` for pre-images; `git diff 09f26770..37ae30e6 -- <path>` per file rather than the whole tree, to keep each hunk attributable; `grep -rn` across `src/` and `tests/` for every deleted name (`SettlementScope`, `holdForLanding`, `LandingHandle`, `LandingStart`, `LandingContext`, `PreparedSettlement` retention check, `FAILURE_LANDING_*`, `LANDING_SETTLED`) to confirm each is either fully absent or correctly retained. LSP plugin — unavailable (not probed via ToolSearch for this pass; all traversal was import-graph and text-based grep/diff across a bounded, already-enumerated file set, which does not need symbol-level tooling).
