@@ -20,7 +20,9 @@
 
 **The row recording this decision could not be written as a table row.** Its witness cell named the findings table's own header, `| ID | Finding | Status |`, inside a code span — and `shape()` counted the pipes and failed the deferred table's width, because a code span does not hide a pipe from the row's own cell split. The witness was changed to a heading with no pipes in it. That is the argument in one line: **the record cannot cite its own structure.**
 
-**And once more, mid-session.** Between `9694adaf` and this record the working copy of `00-index.md` was rejoined again — two rows over twenty thousand characters, sixty-four lines gone — by an invocation this pass could not identify from its own history. It was restored from the commit and the instruments are 58 of 58. The point is not which command did it: **the file cannot be defended by knowing which commands are safe.**
+**And once more, mid-session** — with the cause now known. Between `9694adaf` and this record the working copy of `00-index.md` was rejoined again: two rows over twenty thousand characters, sixty-four lines gone. It was **format-on-save in the owner's editor**, firing on a file opened to read it. It was restored from the commit and the instruments are 58 of 58.
+
+**That is the finding, not the anecdote.** F-231's remedy was a convention — _this file is never formatted_ — addressed to a person choosing to run a command. The actual formatter runs **on save, without being chosen**, on any developer's machine, configured nowhere in the repository and therefore invisible to anyone reading it. A repository-level ignore entry would have to be honoured by every editor integration as well as by the CLI, and nothing here can check that it is. **A form that does not need protecting is the only remedy that holds**, and the exposure is not one person's setting: it is the default posture of a modern editor.
 
 ---
 
@@ -42,7 +44,7 @@
 4. **The status marker keeps its own sentence**, first in the body: `**Implemented, <date> (<destination>).**`, `**Unimplemented (<destination>).**`, `**Superseded by D-<n>, <date>.**`.
 5. **The last column becomes a trailing `**Touches:**` line** where the table had one.
 
-**Verified against the repository formatter**: a document in this form is byte-identical after `oxfmt` and stable on a second pass, with the repo's `proseWrap: never` in force. The only delta is oxfmt dropping the file's trailing newline, which it does to every markdown file and which is not this form's problem.
+**Verified against the repository formatter**: a document in this form is byte-identical after `oxfmt` and stable on a second pass, with the repo's `proseWrap: never` in force. The only delta is the absent final newline, which is [`.editorconfig`](../../../../.editorconfig)'s `[*.md] insert_final_newline = false` being honoured rather than a defect — thirty-nine of forty tracked markdown files end that way, and F-242 already records it.
 
 ---
 
@@ -121,13 +123,15 @@ Per file, and each is independent once the reader is re-anchored.
 
 Step 1 before step 2 because the gate in §4 is what makes step 2 safe. Step 3 after step 2 because it reads that shape.
 
+**Migrate a whole table in one sitting, and run the gate before leaving it.** A half-migrated document still has an exposed half, and with format-on-save the exposure needs no command — reopening the file is enough. This is the one operational constraint the migration carries, and it disappears per table as each one lands.
+
 ---
 
 ## 7. What this settles and what it leaves
 
 **F-282 is closed by this decision**, on the second of the two properties it stated — the instrument stops depending on line structure. The first, a mechanical ignore entry, is no longer needed for this package.
 
-**What it leaves is not this package's**: the root `proseWrap: never` still exposes every other package's records, and `oxfmt` drops the trailing newline of every markdown file it writes, on both 0.58.0 and 0.66.0. Both stay recorded on F-282's row as residue rather than being carried here.
+**What it leaves is not this package's**: the root `proseWrap: never` still exposes every other package's prose-bearing records, and reaches them through format-on-save rather than through a command anyone runs deliberately. It stays recorded on F-282's row as residue rather than being carried here.
 
 **F-231 is not reopened.** Its convention is superseded by a form that does not need one.
 
