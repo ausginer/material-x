@@ -2333,6 +2333,22 @@ Comments only. No runtime statement moved, no instrument was added, no size was 
 
 ---
 
+### 2026-09-02 — the factories re-audited, and the entity two of them hide is a lifetime (D-169, D-167 amended, F-278…F-281)
+
+Twenty-one factories in `src/**`. **Nine hold no mutable state at all and are under thirty lines**, so a package-wide verdict was never available in either direction; six hold real state, and they do not fail in the same way.
+
+**The banner is the finding.** Both behavior specs carry a comment assigning lifetimes to their per-operation state, and **both are false.** `sortable/spec.ts` says _everything per-operation below is cleared in `retire()`, and that is the only place it is cleared_, over eleven bindings of which `retire()` clears five — two are controller-scoped and must survive, two are seam-scoped with their own clear sites, and **`spatialSeq` is never reset anywhere**. `free-drag/spec.ts` names six and clears five. So the two files D-167 extended its rule to are the pre-D-168 kernel, unchanged, and the sentence that was supposed to hold the invariant is the thing that is wrong.
+
+**A class is declined for them, and the reason is sharper than D-167's.** The defect is _lifetime opacity_, and a class has exactly one namespace for instance state: behind `this.`, the per-sample scratch `motion` and the per-operation `lift` read identically, which is the defect verbatim. **D-168 already ran the experiment on the harder case** — the kernel's twelve nullables became `operation.visual` and `activation.lift`, not `this.visual`, and the gain was that the type says which lifetime a value belongs to. A class was available then and would not have produced it. It does fix the six shadowing sites, but a record fixes those _and_ the lifetimes, so it dominates with no residue.
+
+**The shadowing was measured rather than illustrated: six sites in 14 463 lines, every one in a behavior spec.** The two `lift` cases are the instructive ones — the parameter and the shadowed binding hold the same object, so the shadow changes nothing and is caught by nothing, and it leaves a reader deciding whether one unqualified `lift.write` beside two `lift?.write` is a bug. It is not. Establishing that took reading three scopes, which is the cost the audit exists to name.
+
+**D-167's `RectIndex` line is corrected and the inversion is the result.** Its objection — a class's members here are the detached ones — is false of that one candidate: all fourteen call sites invoke through the receiver, and the factory already declares `let index: RectIndex` before its literal purely so a member can call another member, with seven reads and writes through that simulated `this`. The objection retires; the conversion becomes available and stays unrequired. **But `RectIndex` has no lifetime confusion at all**, so the one factory that would be more honest as a class is the one with no ambient-namespace problem, and the two with the problem are the two a class would serve worst.
+
+**And the instrument for half of it is switched off.** `@typescript-eslint/no-shadow` and `@typescript-eslint/unbound-method` are both disabled repo-wide in a block of three overrides with no comment and no reason; `oxlint` implements neither. The first is F-279 exactly; the second is the detached-member hazard both decisions turn on, and the one F-274 already records as having reached a published surface unnoticed. Recorded as F-280 and routed to repository scope rather than decided here — a rule that is enforced is worth more than a representation that merely makes the defect less likely.
+
+---
+
 ### 2026-09-02 — D-168's retirement ordering split into an observable half and a proof obligation (F-275 closed, F-276, F-277)
 
 The implementation review's `fp-1` was right and its consequence is narrower and stranger than either proposed fix. The witness for D-168's most load-bearing property re-enters through `spec.retire`, three steps before the statement it claims to pin — and **no test can pin that statement**, because between `lifetimes.dispose` returning and the frame identity being nulled the code makes exactly two calls, `unwind`, which calls nothing before its callback, and `frame`, an `Object.assign` over a plain literal. The window D-168 named as _the one place a guard passes and the state it authorises is gone_ is zero-width. The mutation that moves the drop into it is green because there is nothing there.
