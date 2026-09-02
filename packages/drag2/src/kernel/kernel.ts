@@ -208,13 +208,19 @@ type OperationRecord = {
  * Activation runs in a later transaction than admission and may fail with the
  * operation still alive, so folding these in would mean a record built partial
  * in one function and completed in another. Apart, each record is complete
- * where it is constructed, and `activation === null` *names* the state an
- * operation sits in before it activates — a state the flat set can only spell
- * as "the visual is set and the lift is not".
+ * where it is constructed.
  *
- * Nullable rather than discriminated: `phase` on the frame is the lifecycle
- * discriminant, it is published to behaviors, and one authority for a
- * lifecycle position is the whole point.
+ * **Complete-or-absent, and that is the whole of the invariant.** Presence
+ * means the activation transaction acquired these resources — not that the
+ * operation reached a lifecycle state. `acquireActivation` can throw after
+ * this record is assigned, and `activation.effect` runs later still and may
+ * fail in its turn, so a live operation can hold a complete record whose
+ * effect never ran, and hold it until retirement.
+ *
+ * Nullable rather than discriminated, and never a second lifecycle authority:
+ * `phase` on the frame is the sole lifecycle discriminant and it is the one
+ * published to behaviors. Read this record for what activation acquired,
+ * never for where the operation is.
  *
  * **`Record` in both names** because `Activation` is the behavior's activation
  * payload, the type parameter this kernel is generic in.
@@ -558,11 +564,26 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     scrub(current);
     scrub(draft);
 
-    // **The last statement, and that is normative.** `scrub` resets the
-    // frame's `operation` to null, so up to this line `current.operation`
-    // still names a live operation and the state it authorises is still
-    // readable. Dropping the records earlier would open the one window in
-    // which a guard passes and what it admits work to is already gone.
+    // **Last, and for a proof reason rather than a runtime one.** The two
+    // halves are not the same claim.
+    //
+    // *Observable*: the records must survive steps 4 and 5. Behavior and
+    // consumer code runs inside `spec.retire` and inside the disposal, and
+    // `current.operation` still names the operation throughout, so every
+    // guard those callbacks reach still authorises work. A drop above step 4
+    // leaves such a guard reading a null record; a drop between 4 and 5 skips
+    // disposal outright, because `if (operation)` is the whole test for
+    // whether there is anything to dispose.
+    //
+    // *Structural*: past step 5 there is nothing left to observe. `scrub`
+    // nulls the frame's identity before it runs anything, and the two calls
+    // in between — `unwind`, which calls nothing ahead of its callback, and
+    // `frame`, an `Object.assign` over a plain literal — cannot reenter. The
+    // records are dropped here anyway so that
+    // `current.operation !== null` ⟹ `operation !== null` holds directly
+    // from statement order at every program point, which is the unchecked
+    // premise of every `operation!` in this file. That is a proof and
+    // maintenance property, not a window a guard could catch.
     operation = null;
     activation = null;
     pinned = null;
@@ -638,7 +659,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         scrub(draft);
       }
 
-      // Last, for the reason `retireOperation` states.
+      // Last, for both reasons `retireOperation` states: the records have to
+      // outlive steps 4 and 5, and dropping them after the scrubs rather than
+      // before is what keeps the frame-identity implication true by order.
       operation = null;
       activation = null;
       pinned = null;

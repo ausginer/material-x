@@ -3678,8 +3678,11 @@ describe('the operation record', () => {
     activate(harness);
     release(40, 10);
 
-    // A record dropped before the scrubs would fail this re-entry outright,
-    // and `unwind` would turn that into a report rather than a throw.
+    // This pins step 4, and only step 4: a drop above `unwind(spec.retire)`
+    // leaves the reentrant guard reading a null record, and `unwind` turns
+    // that throw into a report. It does not pin the drop's final placement —
+    // moving the records to just before the scrubs is unobservable, because
+    // nothing between the disposal and the scrubs can reenter.
     expect(harness.reports).toEqual([]);
     expect(harness.calls).toContain('finalized');
   });

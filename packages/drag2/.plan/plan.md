@@ -2298,6 +2298,23 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-02 — the F-275 remediation, and the mutation that came back green on one path of two
+
+Comments only. No runtime statement moved, no instrument was added, no size was remeasured. Both retirement points now separate the **observable** boundary — the records must survive `unwind(spec.retire)` and `unwind(operation.lifetimes.dispose)`, because behavior and consumer code runs inside both while the frame still names the operation — from the **structural** one, which is that dropping them only after both scrubs keeps `current.operation !== null` ⟹ `operation !== null` true from statement order at every program point. The second is written as what it is: a proof and maintenance property over eleven unchecked assertions, not a runtime window. The witness keeps every assertion and loses only its false inline claim; it says it pins step 4, and says the final placement is deliberately unobservable.
+
+**The mutation the adjudication named was run on each path independently, and the two paths do not agree.** Dropping the records between `unwind(spec.retire)` and the `if (operation)` disposal step turns that guard false and skips disposal entirely.
+
+- **`runPhysicalTeardown`: red**, on ten assertions in three suites, every one for a disposal reason. The sharpest is `destroy > should release pointer capture`, which reports `['acquire']` against `['acquire', 'release']` — capture acquired and never released, named directly. Beside it: `should release presentation and motion synchronously`, `should complete every later step after spec.retire throws`, `should start no tail after anchorTarget destroyed the controller`, and six destroy-path tests across `sortable/composition` and `sortable`.
+- **`retireOperation`: green.** The full suite moves only its five size controls and the four documented-surface checks, both of which measure text rather than behavior. Nothing observes the skipped disposal on the ordinary retirement path.
+
+**The green one is not vacuous, and that is the part worth recording.** Replacing the disposal call with a throw fails 148 tests across the same three suites, so the step runs, and runs constantly — it is skipping it that nothing checks. The inference §5 offered, that the sortable suite's placeholder, capture and style-restoration assertions would catch a skipped disposal broadly, holds for teardown and **fails for retirement**. Those assertions observe the destroy path; the ordinary retirement path reaches them differently, and on it the disposal is unwitnessed.
+
+**No test was added for it.** The remediation was bounded to comments, and choosing a witness for an uncovered boundary is specifying the boundary — which this pass has no authority to do, and which is exactly the mistake F-275 was raised about: a witness written to make a claim look covered, rather than because it discriminates. Reported for routing instead.
+
+**F-276 is the docblock and nothing else.** `ActivationRecord` no longer says `activation === null` _names_ the state before activation. It says the record is complete-or-absent, that presence means the activation transaction acquired these resources rather than that the operation reached a lifecycle state, and that a throw after assignment or a failed `activation.effect` can leave a live operation holding a complete record until retirement, with `phase` the sole discriminant. It deliberately does **not** claim that retaining the record is what keeps cleanup reachable: `presentation.use(session.dispose)` registers the disposer against the operation's lifetimes, and that retention is independent of whether anything still points at the record.
+
+---
+
 ### 2026-09-02 — D-168's retirement ordering split into an observable half and a proof obligation (F-275 closed, F-276, F-277)
 
 The implementation review's `fp-1` was right and its consequence is narrower and stranger than either proposed fix. The witness for D-168's most load-bearing property re-enters through `spec.retire`, three steps before the statement it claims to pin — and **no test can pin that statement**, because between `lifetimes.dispose` returning and the frame identity being nulled the code makes exactly two calls, `unwind`, which calls nothing before its callback, and `frame`, an `Object.assign` over a plain literal. The window D-168 named as _the one place a guard passes and the state it authorises is gone_ is zero-width. The mutation that moves the drop into it is green because there is nothing there.
