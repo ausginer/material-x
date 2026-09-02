@@ -2298,6 +2298,24 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-02 — fourteen entries were in the file and not in the record (D-172, D-171 amended, F-283…F-285)
+
+**D-171's implementation stopped because `00-index.md` does not say what it appears to say.** Thirteen physical rows author more cells than their table has columns, and GFM discards the surplus with no diagnostic. Record [`d172-hidden-fragment-recovery-claude.md`](reviews/phase-24/d172-hidden-fragment-recovery-claude.md); the verbatim corpus is [`recovered-fragments.md`](reviews/phase-24/recovered-fragments.md). No production code, test or migration was written.
+
+**Two failures, and one count cannot hold both.** Three rows hide **whole entries** behind the third cell — eleven cells is two entries, twenty-seven is six — and ten rows lose **one truncated clause**. The discriminator is whether the fourth cell opens with an identifier; a row-length arithmetic cannot see it. Fourteen entries, ten clauses, thirteen rows.
+
+**No formatter did this.** At the commit that introduced each fragment, the fragment's own row start does not exist — `grep -c` returns 0 for F-128 at `65a9f382`, F-132 at `cdc83990`, F-147 at `dc2a1d4c`. They were authored already joined. **And `shape()` is blind by construction**: its header resets on any non-pipe line, every findings row is blank-line separated, so each host row is treated as a header and compared against nothing. The instrument is strongest where the document is contiguous and absent where it is not.
+
+**The map.** F-128, F-129 and F-132 through F-136 hold identifiers no rendered row uses, and whose gaps in the sequence are exactly their own absence, so they keep them — **five of the seven are cited from `tests/`**, which is the rest of the record treating them as real while only the index could not show them. **F-283** is minted for the fragment at line 942 cell 25, a different finding from the rendered F-146, with `F-146` kept as recovery provenance. **The six at line 964 are the same six findings as their rendered namesakes** — authored at 10:46 and re-entered at 11:30 the same morning by a pass that could not see them — so they are merged, with a direction: the hidden text is fuller, the rendered text carries later amendments the hidden cannot.
+
+**The truncated cells are not one column.** Seven are a `Supersedes` clause dropped off a four-column row under a three-column header. D-162's is not — its third cell is the supersession and its fourth a later amendment, so filing by position would put an argument about routing a coordinate space into the column that names replaced decisions. F-130's is neither: an unescaped pipe inside a code span severed one sentence mid-word, and escaping it restores the sentence. F-198's is an appended amendment.
+
+**D-171 is amended on three points.** The rule is the **identifier**, not the row length — every canonical `D-*` and `F-*` entry becomes a `####` heading without exception, and the median scoping is demoted to the diagnostic that found the problem, having failed on its own terms at `Revision 2.2` where D-68 would have stayed in a table. The register and the deferred table stay tables because their rows are **projections** of entries. §Findings needs **no invented group** — it has zero headings and every grouping invents a fact, so it goes `## Findings` to `#### F-1`, since the requirement was only ever uniform `####` depth. And the corpus is step 2's **second input**, because re-reading the index is what loses the fourteen.
+
+**Nothing was written back as a table row.** The recovered text carries the pipes that truncated it; re-inserting it would reproduce the defect in the form being abandoned. It lands as headings, once, in D-171's step 2.
+
+---
+
 ### 2026-09-02 — the record's entries become headings, and the table keeps the values (D-171, F-282 closed)
 
 **The formatter was the symptom.** Three defect classes exist only because prose sits in table cells, and `tests/ledger.ts` carries an instrument for each. A cell cannot hold a pipe, so `width()` offers every row to markdown-it _as its own header_ to count the cells it authored — **200 rows carry a pipe inside a code span**. A strikethrough span cannot cross a cell boundary, so `residual()` exists to catch a clause struck nowhere and invisible to the retired projection — **67 rows carry strikethrough**. And a row is a line, which is F-231 and F-282, ten days apart — and F-282 twice in one day, the second time with no command run at all. **That is why the convention could not hold**: the formatter that breaks this document fires on save, configured on a developer's machine rather than in the repository, so no ignore entry can be checked to cover it and no rule can be addressed to the person choosing to run it. Record [`d171-entry-headings-claude.md`](reviews/phase-24/d171-entry-headings-claude.md). No production code or test changed.
