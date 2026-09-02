@@ -2298,6 +2298,26 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-02 — the class migration scoped: three grades, six steps, one gate (D-170 supersedes D-167 and D-169; F-282)
+
+**The representation question was already the owner's and is closed**: complex, long-lived entities with owned mutable state and lifecycle are classes, and bundle size is not a criterion. What was open was scope. Record [`d170-class-migration-scope-claude.md`](reviews/phase-24/d170-class-migration-scope-claude.md). No production code or test changed.
+
+**D-169 graded factories by whether they had a defect; the rule grades them by what they are.** The two questions separate cleanly on one entry, which is why the conclusion could not simply be amended: `createSeamDriver` has no defect — one lifetime, reset systematically by `runPhase`, no banner doing any work — and is still a long-lived entity owning a reentrancy latch and a staged value across calls. D-169 retained it; D-170 converts it.
+
+**Three grades over twenty-one factories.** Convert: `createRectIndex`, `createLinearShift`, `createSeamDriver`, `createKernel`. Keep as functions: the nine holding no mutable state, five per-call construction helpers, and three that hold state and are still _handles rather than entities_ — `createLifetime`, `createFrameTask`, `createActionQueue`, each under seventy lines with no invariant spanning two fields. Extract before judging: both behavior specs.
+
+**The specs are third-graded structurally, not stylistically.** `BehaviorSpec` is a protocol record with nested namespaces, so a class instance cannot _be_ one; what becomes a class is the entity behind the spec, with the spec as its adapter. Drawing that boundary means knowing which of three lifetimes each binding has, and `sortable/spec.ts` currently asserts the wrong one for at least four: nine bindings sit under its per-operation banner, `retire()` reaches six, `snapshot` and `sourceIdentity` are controller-lifetime by design, `spatialSeq` is controller-monotonic and correct as written, and `spatialFrame` needs its own doc block to contradict the sentence directly above it. **Converting first would freeze that misfiling into a field list.**
+
+**The record and the class compose; D-169 argued them as alternatives and that was the error.** The extraction removes the banner, both `lift` shadows and the `scope.motion` collision, and leaves exactly the controller-lifetime residue — which _is_ the class's field list, arrived at by subtraction rather than transcription.
+
+**Step 0 is a gate.** `cancel: host.cancel` and `destroy: host.destroy` are spread into the returned controller in both features; those are the library's published `controller.cancel()` and `controller.destroy()`. A member that stops working when it becomes a prototype method, at a site the conversion never touches, is this migration's characteristic failure — and `@typescript-eslint/unbound-method`, the one instrument for it, is switched off with no recorded reason while `oxlint` implements neither it nor `no-shadow`. F-280 is promoted from an observation to a precondition.
+
+**`createRectIndex` opens and `createKernel` closes, for opposite reasons.** The first is the only candidate with no detached member at all — fourteen external sites, every one through the receiver — and a hand-rolled `this` to delete. The last is the only one whose members are published detached to consumers.
+
+**F-282 — the contract index was disarmed again, by a repo-wide format run.** `791a340b` joined the ledger's one consecutive row run into a single 5 121-character line, and D-165 through D-169 stopped being addressable; two decision assertions went red. Reproduced with `npx oxfmt` on a copy, restored from `daf0592f`, 58 of 58 green. **F-231 closed this same failure on 2026-08-31 with a convention**, and neither ignore list names the path. Routed to repository scope beside F-280.
+
+---
+
 ### 2026-09-02 — D-168's implementation review closes, and the one claim that had to be declined
 
 Bounded closure review over `3c50a194..14b1743c`, the F-275/F-276 remediation and nothing else — record [`f275-f276-closure-claude.md`](reviews/phase-24/f275-f276-closure-claude.md). **No findings.** F-275 and F-276 are closed, D-168's implementation review is complete, and F-277 stands untouched.
