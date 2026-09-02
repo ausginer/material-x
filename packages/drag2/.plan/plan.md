@@ -2298,6 +2298,20 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-02 — D-168's implementation review closes, and the one claim that had to be declined
+
+Bounded closure review over `3c50a194..14b1743c`, the F-275/F-276 remediation and nothing else — record [`f275-f276-closure-claude.md`](reviews/phase-24/f275-f276-closure-claude.md). **No findings.** F-275 and F-276 are closed, D-168's implementation review is complete, and F-277 stands untouched.
+
+**"No runtime statement moved" was checked, not read off the diff.** Strip line comments, block comments and blank lines from `src/kernel/kernel.ts` at both ends of the range and the two hash identically. That is the whole of the claim, and it is worth doing that way: a comment-only remediation is exactly the shape where a diff skimmed for prose can carry a statement across a boundary unnoticed.
+
+**Every comment claim was re-derived rather than trusted.** `unwind` is `try { return step() }`; `frame` is an `Object.assign` over a plain literal; `scrub` nulls the frame identity before `resetFramePart` can run; `if (operation)` is the whole disposal test, which `OperationRecord.lifetimes` being non-nullable is documented to make true. The census the structural half rests on is **eleven** `operation!` sites — twelve textual matches, the twelfth being the comment's own reference to the other eleven. The comment says "every `operation!` in this file" and the records say eleven; both hold, and they hold for the same reason.
+
+**The mutation reproduced exactly.** Records dropped between `unwind(spec.retire)` and the `if (operation)` step, in a throwaway worktree at the tip: one failure, on the new assertion, `['acquire']` against `['acquire', 'release']`, against a green 171-test baseline in the same worktree. Restored, hash-checked, worktree removed; nothing was mutated in the live tree. The failure is also what settles that the discarded-activation row reaches retirement through `retireOperation` rather than teardown — the mutation touched only that path, and only that row moved.
+
+**The one thing worth recording is a declined clause.** F-276's required property, taking §6 of the adjudication at its word, asked the docblock to say a failed activation retains the record _so the lift session stays reachable for the disposal already registered_. The remediation did not write it, and should not have: `acquireActivation` registers the disposer as `live.lifetimes.presentation.use(session.dispose)`, so the lifetimes list holds the closure and the retention has nothing to do with whether anything still points at the record. Writing the clause would have swapped one false claim about the record for another — which is the same defect F-276 was raised about, one sentence over. The remediation deviated from its instruction, said so in both the row and the plan, and gave the reason. **That is the right handling of an adjudication that overreached slightly, and it is why this review has no finding to report:** the deviation was already documented before anyone came to check it.
+
+---
+
 ### 2026-09-02 — the F-275 remediation, and the mutation that came back green on one path of two
 
 Comments only. No runtime statement moved, no instrument was added, no size was remeasured. Both retirement points now separate the **observable** boundary — the records must survive `unwind(spec.retire)` and `unwind(operation.lifetimes.dispose)`, because behavior and consumer code runs inside both while the frame still names the operation — from the **structural** one, which is that dropping them only after both scrubs keeps `current.operation !== null` ⟹ `operation !== null` true from statement order at every program point. The second is written as what it is: a proof and maintenance property over eleven unchecked assertions, not a runtime window. The witness keeps every assertion and loses only its false inline claim; it says it pins step 4, and says the final placement is deliberately unobservable.
