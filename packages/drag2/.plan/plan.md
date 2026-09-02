@@ -2298,6 +2298,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-02 — the record's entries become headings, and the table keeps the values (D-171, F-282 closed)
+
+**The formatter was the symptom.** Three defect classes exist only because prose sits in table cells, and `tests/ledger.ts` carries an instrument for each. A cell cannot hold a pipe, so `width()` offers every row to markdown-it _as its own header_ to count the cells it authored — **200 rows carry a pipe inside a code span**. A strikethrough span cannot cross a cell boundary, so `residual()` exists to catch a clause struck nowhere and invisible to the retired projection — **67 rows carry strikethrough**. And a row is a line, which is F-231 and F-282, ten days apart. Record [`d171-entry-headings-claude.md`](reviews/phase-24/d171-entry-headings-claude.md). No production code or test changed.
+
+**The form is hostile to writing it, and this pass kept proving it.** Two of the four ledger edits behind D-170 failed their pipe-count guard on the first attempt; marking D-167 and D-169 superseded needed the closing tildes placed before a cell boundary rather than at the end of the clause; the working copy was rejoined once more mid-session by an invocation this pass could not identify, and was restored from the commit. **And D-171's own deferred-table row could not name the findings table's header as its witness** — pipes in a code span still failed `shape()` — so the witness became a heading instead. The record cannot cite its own structure.
+
+**The form.** An entry is a `####` heading, its text the identifier alone or the identifier, an em dash and a title. Every entry sits under a `###` group so depth is uniform. `#####` and deeper belong to the entry and are never one — the four `#### D-66 §…` headings move there, which is what they always were. Verified byte-identical after `oxfmt` and stable on a second pass with `proseWrap: never` in force.
+
+**Scope is by what the cells hold.** A median row width above roughly 400 characters is the diagnostic, not the definition: **392 rows of `00-index.md` migrate and 225 stay**, the Decision status register among them at a median of 23 characters. About 556 rows across eight current-state documents. **Dated provenance is excluded** — reviews, `plan.md` and measurements are history a later record supersedes rather than edits, which is where the reference instrument's current-state boundary already falls. **The rule limits itself**: box-quad's index is eighteen rows at a median of 78 and needs no exemption.
+
+**The instrument gets smaller and stronger.** `DELIMITER`, `width()`, `shape()` and `residual()` are deleted with their tests; eight regexes and seven readers re-anchor to headings; the unimplemented marker becomes line-anchored where today it must reach past a cell boundary. **`canonical()`, `registered()` and `marked()` are the migration's gate** — the same maps before and after — which turns 556 transcriptions into a checked transformation.
+
+**Reading an entry back is `.scripts/entry.ts`**, beside `decision-status.ts` and reading through `tests/ledger.ts`, so the reader and the assertion cannot drift. The no-dependency fallback is an `awk` range with two checked guards: an em-dash-or-end suffix, so `D-16` cannot answer for `D-163` nor a `§` sub-clause for its parent, and a one-to-four-hash terminator, which cannot match five and so keeps an entry's sub-headings inside the extraction.
+
+---
+
 ### 2026-09-02 — the class migration scoped: three grades, six steps, one gate (D-170 supersedes D-167 and D-169; F-282)
 
 **The representation question was already the owner's and is closed**: complex, long-lived entities with owned mutable state and lifecycle are classes, and bundle size is not a criterion. What was open was scope. Record [`d170-class-migration-scope-claude.md`](reviews/phase-24/d170-class-migration-scope-claude.md). No production code or test changed.
