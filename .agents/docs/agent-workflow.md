@@ -4,15 +4,15 @@ How the multi-agent system is arranged: which roles exist, how a review round is
 
 ## Roles
 
-| Role           | Owns                                                                                          |
-| -------------- | --------------------------------------------------------------------------------------------- |
-| `reviewer`     | Feature proof — implementation against the plan, contracts, tests and parity requirements     |
-| `integrity`    | Package coherence — neighbouring flows, public surface, invariants, drift outside the change  |
-| `cleanup`      | Code discipline — machinery the code's responsibility does not require                        |
-| `der`          | Surviving justification — machinery resting on a decision or assumption that may have expired |
-| `consolidator` | Synthesis — validates, deduplicates, merges, rejects, routes. The root console                |
-| `architect`    | Decisions that need architectural, contract, parity or public-surface authority               |
-| `implementer`  | Implementation within settled constraints                                                     |
+| Role | Owns |
+| --- | --- |
+| `reviewer` | Feature proof — implementation against the plan, contracts, tests and parity requirements |
+| `integrity` | Package coherence — neighbouring flows, public surface, invariants, drift outside the change |
+| `cleanup` | Code discipline — machinery the code's responsibility does not require |
+| `der` | Surviving justification — machinery resting on a decision or assumption that may have expired |
+| `consolidator` | Synthesis — validates, deduplicates, merges, rejects, routes. The root console |
+| `architect` | Decisions that need architectural, contract, parity or public-surface authority |
+| `implementer` | Implementation within settled constraints |
 
 For important checkpoints, an independent model may be used instead of the Claude `reviewer` role.
 

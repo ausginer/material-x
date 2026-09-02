@@ -19,12 +19,12 @@ Exact equality, not agreement to a tolerance: the second walk composes the same 
 
 Consumer arms carrying the full drag2 shape — allocate, measure, derive both `InheritedSpace` inverses with `inheritedSpaceOf`'s exact null and singularity tests — bundled through the repository's own Rolldown-plus-brotli pipeline, box-quad and consumer together:
 
-| Consumer arm                                                 | brotli | Δ       |
-| ------------------------------------------------------------ | ------ | ------- |
-| **c-zero** — today, one measurement, one space               | 1287   | —       |
-| **c-two** — two measurements, unguarded                      | 1296   | **+9**  |
-| **c-two-guard** — second call skipped when `visual === item` | 1310   | +23     |
-| **c-one** — BQ-7's boundary (arm M2)                         | 1347   | **+60** |
+| Consumer arm | brotli | Δ |
+| --- | --- | --- |
+| **c-zero** — today, one measurement, one space | 1287 | — |
+| **c-two** — two measurements, unguarded | 1296 | **+9** |
+| **c-two-guard** — second call skipped when `visual === item` | 1310 | +23 |
+| **c-one** — BQ-7's boundary (arm M2) | 1347 | **+60** |
 
 **The alternative is 51 B cheaper than the capability it replaces**, and it deletes a public parameter, a variable-capacity allocator, four slot constants and a failure mode rather than adding them. That is the real strength of the proposal and it is recorded before the refusal, not after it.
 
@@ -33,10 +33,10 @@ Consumer arms carrying the full drag2 shape — allocate, measure, derive both `
 2000 measurements per cell after a 200-iteration warm-up, item three levels above the visual:
 
 | depth | single `coordinates(visual)` | two, back to back | BQ-7 one walk | **second call** | **BQ-7 overhead** |
-| ----- | ---------------------------- | ----------------- | ------------- | --------------- | ----------------- |
-| 5     | 38.9 µs                      | 54.8 µs           | 35.4 µs       | **+15.8 µs**    | −3.6 µs (noise)   |
-| 15    | 78.4 µs                      | 147.7 µs          | 99.1 µs       | **+69.3 µs**    | +20.8 µs          |
-| 30    | 162.1 µs                     | 306.8 µs          | 185.3 µs      | **+144.7 µs**   | +23.2 µs          |
+| --- | --- | --- | --- | --- | --- |
+| 5 | 38.9 µs | 54.8 µs | 35.4 µs | **+15.8 µs** | −3.6 µs (noise) |
+| 15 | 78.4 µs | 147.7 µs | 99.1 µs | **+69.3 µs** | +20.8 µs |
+| 30 | 162.1 µs | 306.8 µs | 185.3 µs | **+144.7 µs** | +23.2 µs |
 
 The second call costs a second walk — 89% of the first at depth 30, scaling linearly with depth, which is the signature of style traversal and not of a layout flush. **No additional flush is taken**: the first read flushes, nothing writes between the two, and a probe that deliberately writes between them showed no measurable difference on this tree (0.95×) — that probe fails to discriminate rather than proving the point, so the claim rests on the mechanism and on the linear-in-depth scaling, which a flush would not produce.
 
@@ -74,6 +74,6 @@ Four consumer arms built and measured through `packages/drag2/bench/size/measure
 
 ## 8. Findings
 
-| ID      | Finding                                                                                                                                                                                                                                                                                                                                                                          |
-| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ID | Finding |
+| --- | --- |
 | **F-4** | A derived fact about an element's ancestry and that element's own measurability are independent conditions, and an encoding that obtains the first by measuring the element silently couples them. The test is cheap and should be run against any "the caller can already compute this" argument: name a configuration in which the value is defined and the measurement is not |

@@ -8,13 +8,13 @@ BQ-8 kept the ancestry boundary on one fact: an element can have a well-defined 
 
 `Space` is caller-owned storage in the package's existing idiom — `Float64Array(5)`, `[a, b, c, d, ancestorZoom]`, the linear part of everything strictly above an element plus the zoom of the same nodes. `Box` drops `ancestorZoom` and `ancestorA…D` and becomes **8 slots**, exactly what `projection` reads.
 
-| Arm     | Shape                                                                    | brotli, whole | brotli, **as consumed** | Δ vs K  |
-| ------- | ------------------------------------------------------------------------ | ------------- | ----------------------- | ------- |
-| **K**   | cacheless baseline (BQ-6)                                                | 1150          | 1147                    | —       |
-| **M2**  | BQ-8's boundary                                                          | 1206          | 1202                    | +55     |
-| **P1a** | `ancestry(el, out)`; `coordinates(el, out, above)` **required**; `Box` 8 | 1172          | **1163**                | **+16** |
-| **P1b** | as P1a, `above?` optional with an internal fallback                      | 1192          | **1185**                | **+38** |
-| **P2**  | one walk publishing the element's space **and** a boundary's             | 1232          | 1224                    | +77     |
+| Arm | Shape | brotli, whole | brotli, **as consumed** | Δ vs K |
+| --- | --- | --- | --- | --- |
+| **K** | cacheless baseline (BQ-6) | 1150 | 1147 | — |
+| **M2** | BQ-8's boundary | 1206 | 1202 | +55 |
+| **P1a** | `ancestry(el, out)`; `coordinates(el, out, above)` **required**; `Box` 8 | 1172 | **1163** | **+16** |
+| **P1b** | as P1a, `above?` optional with an internal fallback | 1192 | **1185** | **+38** |
+| **P2** | one walk publishing the element's space **and** a boundary's | 1232 | 1224 | +77 |
 
 End to end, with drag2's actual shape bundled in — allocate, measure, derive both `InheritedSpace` inverses and read the inherited zoom:
 
@@ -55,10 +55,10 @@ Two consequences follow immediately. There is **no boundary**, so there is no ch
 
 **P2 is the better runtime and the worse purchase.** Depth 30, 1500 iterations:
 
-|          | monolith | P1 (two ancestries + coordinates) | P2 (one ancestry, two outputs + coordinates) |
-| -------- | -------- | --------------------------------- | -------------------------------------------- |
-| depth 15 | 0.134 ms | 0.153 ms                          | **0.100 ms**                                 |
-| depth 30 | 0.199 ms | 0.378 ms                          | **0.208 ms**                                 |
+|  | monolith | P1 (two ancestries + coordinates) | P2 (one ancestry, two outputs + coordinates) |
+| --- | --- | --- | --- |
+| depth 15 | 0.134 ms | 0.153 ms | **0.100 ms** |
+| depth 30 | 0.199 ms | 0.378 ms | **0.208 ms** |
 
 P1's second walk nearly doubles the activation cost at depth 30 — **+180 µs, once per lift**, which record 10 §3 already established as affordable at 145 µs and which is +19 µs at depth 15. P2 removes it for **+22 B** over P1b, and the two forms' item spaces agree **bit for bit**.
 
@@ -117,6 +117,6 @@ Three new arms built on the cacheless baseline, typechecked `--strict`, and meas
 
 ## 9. Findings
 
-| ID      | Finding                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ID | Finding |
+| --- | --- |
 | **F-5** | BQ-8's sole surviving ground was a limitation of the decomposition, not of the problem: the item's ancestry was unobtainable only because ancestry computation was welded to box measurement. **The rule**: when a decision's last remaining ground is a coupling in the current design, test the decoupling before freezing — a capability justified by an internal coupling is a capability justified by a choice, and F-4's own test (name a configuration where the value is defined and the measurement is not) is the signal that the coupling is the thing to attack |

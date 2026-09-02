@@ -67,7 +67,7 @@ An imported file is loaded into every agent's prompt whether or not it is needed
 - **Everything else is a chunk**, named by the role that needs it at the trigger where it becomes relevant: at start, before writing findings, before finalizing, or on a stated condition.
 - **Content too small for a retrieval to pay for itself goes inline** in the role that owns it. A retrieval costs a call and a result as well as the text, so below some size a separate file is more expensive than the duplication it avoids. The threshold is an engineering estimate rather than a measurement; keep it in the record, not here.
 - **A chunk is the smallest unit never partially needed.** If a role routinely wants half a file, the file is too coarse.
-- **The role definition is the only place an edge is stored.** A chunk states its purpose and trigger in a one-line retrieval header; it does not enumerate its readers, because a second copy of the graph is a consistency problem rather than a witness. *Who reads this?* is derived from the role definitions.
+- **The role definition is the only place an edge is stored.** A chunk states its purpose and trigger in a one-line retrieval header; it does not enumerate its readers, because a second copy of the graph is a consistency problem rather than a witness. _Who reads this?_ is derived from the role definitions.
 
 A large document with permanent section numbers is addressable without being loaded whole: extraction terminates at the next heading of the same or higher level, so a stable address never requires stable adjacency.
 

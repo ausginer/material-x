@@ -12,14 +12,14 @@ The replacement is a **manually-routed knowledge base**: a small always-prepende
 
 ## 1. What a role paid before
 
-| File                | chars       | How it arrived                                               |
-| ------------------- | ----------- | ------------------------------------------------------------ |
-| `CLAUDE.md`         | 1,739       | resident                                                     |
-| `AGENTS.md`         | 6,243       | resident, via `@AGENTS.md`                                   |
-| `CONTRIBUTING.md`   | 38,094      | resident, via `@CONTRIBUTING.md` from `AGENTS.md`            |
-| `agent-workflow.md` | 6,611       | read by all seven roles on the first line of every role body |
-| role body           | ~300        | the role definition itself                                   |
-| **per role**        | **~52,990** | ≈ 13,250 tokens                                              |
+| File | chars | How it arrived |
+| --- | --- | --- |
+| `CLAUDE.md` | 1,739 | resident |
+| `AGENTS.md` | 6,243 | resident, via `@AGENTS.md` |
+| `CONTRIBUTING.md` | 38,094 | resident, via `@CONTRIBUTING.md` from `AGENTS.md` |
+| `agent-workflow.md` | 6,611 | read by all seven roles on the first line of every role body |
+| role body | ~300 | the role definition itself |
+| **per role** | **~52,990** | ≈ 13,250 tokens |
 
 A five-lens round paid it five times, as a fresh cache write each time: **~66,000 tokens before any pass read a line of code.**
 
@@ -33,13 +33,13 @@ Resident: **3,988 chars** for `CLAUDE.md` + `AGENTS.md`, against 46,076 — a **
 | `handoff.md`                                     | 2,830 |
 | `agent-workflow.md` (no longer read by any role) | 4,634 |
 
-| Role           | resident | body  | retrieved                                        | total chars | ≈ tokens |
-| -------------- | -------- | ----- | ------------------------------------------------ | ----------- | -------- |
-| `reviewer`     | 3,988    | 1,413 | findings 2,686 + handoff 2,830 (+ a §, ~1,000)   | ~11,917     | ~2,980   |
-| `integrity`    | 3,988    | 1,548 | 2,686 + 2,830                                    | 11,052      | ~2,765   |
-| `der`          | 3,988    | 2,365 | 2,686 + 2,830                                    | 11,869      | ~2,965   |
-| `consolidator` | 3,988    | 2,660 | 2,686 + 2,830 (+ a §, ~1,000)                    | ~13,164     | ~3,290   |
-| `cleanup`      | 3,988    | 1,592 | 38,000 + documentation §5 ~2,000 + 2,686 + 2,830 | ~51,096     | ~12,775  |
+| Role | resident | body | retrieved | total chars | ≈ tokens |
+| --- | --- | --- | --- | --- | --- |
+| `reviewer` | 3,988 | 1,413 | findings 2,686 + handoff 2,830 (+ a §, ~1,000) | ~11,917 | ~2,980 |
+| `integrity` | 3,988 | 1,548 | 2,686 + 2,830 | 11,052 | ~2,765 |
+| `der` | 3,988 | 2,365 | 2,686 + 2,830 | 11,869 | ~2,965 |
+| `consolidator` | 3,988 | 2,660 | 2,686 + 2,830 (+ a §, ~1,000) | ~13,164 | ~3,290 |
+| `cleanup` | 3,988 | 1,592 | 38,000 + documentation §5 ~2,000 + 2,686 + 2,830 | ~51,096 | ~12,775 |
 
 **Five-lens round: ~66,000 → ~24,800 tokens (−62%). Without `cleanup`: ~53,000 → ~12,000 (−77%).** `cleanup` is 52% of what remains, and that share is irreducible — it is the one lens whose job is applying the whole rulebook.
 

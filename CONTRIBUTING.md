@@ -33,11 +33,11 @@ Part II is senior to Part I wherever the two meet.
 
 ## Nullish checks
 
-The check states what the value's absence *means*. The fourth case is the one a mechanical sweep breaks.
+The check states what the value's absence _means_. The fourth case is the one a mechanical sweep breaks.
 
-- **Truthiness for reference-or-null values.** Where the non-null side is an object, array, function, DOM node or class instance, no valid value is falsy, so `if (handle)` says everything `!== null` said and reads as *is there one*. This is the common case.
+- **Truthiness for reference-or-null values.** Where the non-null side is an object, array, function, DOM node or class instance, no valid value is falsy, so `if (handle)` says everything `!== null` said and reads as _is there one_. This is the common case.
 - **`== null` where `null` and `undefined` are deliberately the same answer.** An absent property and an explicitly cleared one are the same absence. `eqeqeq` is configured with `"null": "ignore"`, and this is the only loose equality the repository permits.
-- **`=== null` / `!== null` only where the distinction carries information** — `null` and `undefined` are different answers, or `null` is a named sentinel the surrounding code reasons about: a documented *there is no such thing* against a value that merely has not arrived.
+- **`=== null` / `!== null` only where the distinction carries information** — `null` and `undefined` are different answers, or `null` is a named sentinel the surrounding code reasons about: a documented _there is no such thing_ against a value that merely has not arrived.
 - **Never convert an exact check to truthiness over a domain with a meaningful falsy value.** `number | null` is the trap: `0` is an ordinary member and `if (count)` silently drops it. Likewise `string | null` where `''` is reachable, `boolean | null`, and any union containing a literal `0`, `''` or `false`. **A domain that happens to exclude its falsy values today is still an exact check** — a numeric union starting at 1 is one edit from starting at 0.
 
 The rule is about meaning, not byte count. Where both spellings are correct, the shorter one wins on §Priorities; where they are not, the correct one wins.
@@ -60,8 +60,12 @@ The rule is about meaning, not byte count. Where both spellings are correct, the
 
 ```ts
 describe('buildSelector', () => {
-  it('should build scoped selector', () => { /* one behaviour */ });
-  it('should build built-in state selector', () => { /* one behaviour */ });
+  it('should build scoped selector', () => {
+    /* one behaviour */
+  });
+  it('should build built-in state selector', () => {
+    /* one behaviour */
+  });
 });
 ```
 
@@ -89,7 +93,7 @@ How we reduce bundle size. The goal is **not code golf**: it is to remove runtim
 
 Bundle size is a secondary performance goal. If reducing it would make runtime behaviour meaningfully slower, more allocation-heavy, more layout-heavy or algorithmically worse, **runtime performance wins by default**. Do not trade bytes for extra work on hot paths, forced layout or DOM measurement, allocation in pointer-move or animation paths, worse asymptotic complexity, recomputation that was intentionally cached, or slower admission, movement, settlement or teardown. Such a trade-off is not an automatic optimization: measure it and report it for owner review.
 
-**A byte figure cannot answer a runtime question, and it will look like it did.** Measured in one package: a re-entry latch on a per-sample path cost **~1 ns** — two predictable branches and an assignment — while a shape assertion sitting cold at once per operation cost **~0.5 µs per call and allocated one descriptor object per key**, scaling with the data's width. A size ablation ranks those together and tells you nothing about either. If a candidate's real cost is *when it runs* or *what it allocates*, measure that.
+**A byte figure cannot answer a runtime question, and it will look like it did.** Measured in one package: a re-entry latch on a per-sample path cost **~1 ns** — two predictable branches and an assignment — while a shape assertion sitting cold at once per operation cost **~0.5 µs per call and allocated one descriptor object per key**, scaling with the data's width. A size ablation ranks those together and tells you nothing about either. If a candidate's real cost is _when it runs_ or _what it allocates_, measure that.
 
 ## 1. Delete runtime policy before compressing code
 
@@ -99,20 +103,20 @@ Do not protect consumers from mistakes that are already their responsibility.
 
 **Correctness has a domain, and the domain is correct use.** The library must be correct under valid use of its public API; under anything the **end user** does — input, timing, ordering, abandonment; under anything the **platform** does — reentrancy, event ordering, scroll, resize, visibility, deferred work; and under any state **the library itself** creates, owns or hands out and later reads back. None of that is negotiable and no size pass touches it (§13). **Outside that domain the library owes nothing at runtime**; it is not a second type-and-semantics checker running in every consumer's bundle, forever.
 
-**The contract does not have to be unconstructible in JavaScript.** It may be stated by TypeScript, by documentation, or by an obvious semantic precondition — *a duration is finite*, *`resolve` returns a position in the list you were handed*, *do not call this after you destroyed it*. An integrator reaching an invalid state through `any`, a cast, a `@ts-expect-error` or plain JavaScript has **left** the contract, not found a hole in it.
+**The contract does not have to be unconstructible in JavaScript.** It may be stated by TypeScript, by documentation, or by an obvious semantic precondition — _a duration is finite_, _`resolve` returns a position in the list you were handed_, _do not call this after you destroyed it_. An integrator reaching an invalid state through `any`, a cast, a `@ts-expect-error` or plain JavaScript has **left** the contract, not found a hole in it.
 
 **So reachability is a gate, not the first of two questions.**
 
 - **(a) the gate — can the invalid state arise despite correct integration?** The platform did it, a race did it, a reentrant callback did it, the end user did it, or the library minted the value itself and must read it back later. **If none of those: stop.** Nothing considered later reopens the question.
 - **(b) the only justification, asked only of what survives (a)** — the library would itself violate an invariant it owns: corrupt its own state and keep operating on it, or publish under its own name a value its contract promises is well-formed.
 
-**Fail (a) and there is nothing further to argue.** *Bad input could make our internals incoherent* is not a justification: the internals are incoherent **because** something invalid was fed to them. **What happens after invalid input is not a justification for refusing the input** — silent nonsense downstream is *part of* that undefined behaviour, not a separate harm that converts misuse into the library's responsibility. Ownership is the right second question and the wrong first one; asked first it justifies almost any check, because almost any bad value eventually touches something the library owns.
+**Fail (a) and there is nothing further to argue.** _Bad input could make our internals incoherent_ is not a justification: the internals are incoherent **because** something invalid was fed to them. **What happens after invalid input is not a justification for refusing the input** — silent nonsense downstream is _part of_ that undefined behaviour, not a separate harm that converts misuse into the library's responsibility. Ownership is the right second question and the wrong first one; asked first it justifies almost any check, because almost any bad value eventually touches something the library owns.
 
-**Clause (b) is what stops the rule collapsing into *delete every check*** across the states the contract does admit, and its real work is on surfaces with more than two parties. *Let it fail naturally* assumes the failure lands on whoever caused it, which stops being true the moment the library re-publishes someone else's value to a **third** party under its own name — a plugin's output folded into an application callback, an authoring API's return value handed on as library-computed data. That is what (b) is for, and it is not a way past (a): a check on an authoring API's return value must still establish that a *conforming* author can produce the state. Multi-party structure decides *who is harmed*; it never decides *whether the input was admitted*. Nor does quietness: a check whose absence leaves a third-party author with a listener that binds and never fires is invisible and still theirs.
+**Clause (b) is what stops the rule collapsing into _delete every check_** across the states the contract does admit, and its real work is on surfaces with more than two parties. _Let it fail naturally_ assumes the failure lands on whoever caused it, which stops being true the moment the library re-publishes someone else's value to a **third** party under its own name — a plugin's output folded into an application callback, an authoring API's return value handed on as library-computed data. That is what (b) is for, and it is not a way past (a): a check on an authoring API's return value must still establish that a _conforming_ author can produce the state. Multi-party structure decides _who is harmed_; it never decides _whether the input was admitted_. Nor does quietness: a check whose absence leaves a third-party author with a listener that binds and never fires is invisible and still theirs.
 
-***Naturally* also assumes there is a failure at all.** It has to mean the existing lifecycle or error path actually runs — a non-function throws where it is called, a `NaN` threshold arms a press that never activates. Where it does not, the code **succeeds and does the wrong thing**: an unbounded animation duration hangs a gate nothing can classify. Run the counterfactual to the end and ask what the library is left *doing*, not only what it stops throwing — then ask (a) about it.
+**_Naturally_ also assumes there is a failure at all.** It has to mean the existing lifecycle or error path actually runs — a non-function throws where it is called, a `NaN` threshold arms a press that never activates. Where it does not, the code **succeeds and does the wrong thing**: an unbounded animation duration hangs a gate nothing can classify. Run the counterfactual to the end and ask what the library is left _doing_, not only what it stops throwing — then ask (a) about it.
 
-**The gate moves the argument out of the runtime and into the contract, which is the point: you cannot both accept an input in your contract and refuse it at runtime as *not our problem*.** Either the precondition is published and the input is outside the contract, or it is not published, the input is valid, and (b) is live. Which is why the gate is not a rubber stamp — a precondition invented at deletion time to disqualify an inconvenient input is not a contract term, it is the deletion wearing one. A term counts when an integrator can **meet** it and can **find** it: expressed by the type, written where the integrator reads, or genuinely obvious from the operation's own semantics. Where that takes an argument, the argument belongs in the record beside the deletion. Deciding what the contract says is a contract decision with a contract's consequences, not a size finding.
+**The gate moves the argument out of the runtime and into the contract, which is the point: you cannot both accept an input in your contract and refuse it at runtime as _not our problem_.** Either the precondition is published and the input is outside the contract, or it is not published, the input is valid, and (b) is live. Which is why the gate is not a rubber stamp — a precondition invented at deletion time to disqualify an inconvenient input is not a contract term, it is the deletion wearing one. A term counts when an integrator can **meet** it and can **find** it: expressed by the type, written where the integrator reads, or genuinely obvious from the operation's own semantics. Where that takes an argument, the argument belongs in the record beside the deletion. Deciding what the contract says is a contract decision with a contract's consequences, not a size finding.
 
 **Verify the failure before you argue about it**, whether deleting a check or defending one — the justification is a claim about what happens without it, and that claim is executable. One audit found a check describing a failure that **cannot occur at all**: it rejected a non-writable key because the composed record "would throw on write", while the composition used `[[Set]]` on a fresh extensible object and produced an ordinary writable property. Only running it finds that.
 
@@ -124,7 +128,7 @@ In particular:
 - do not normalize consumer data defensively unless the library must take ownership of it;
 - do not add checks for unsupported use that would naturally fail through the existing lifecycle/error path.
 
-**This section decides whether a check exists; §1.3 decides whether its message ships.** A check can survive here on (b) and still be gated under §1.3, because the party who can trigger it is outside the library. *Whose state breaks* selects the check; *who can reach the condition* selects the payload.
+**This section decides whether a check exists; §1.3 decides whether its message ships.** A check can survive here on (b) and still be gated under §1.3, because the party who can trigger it is outside the library. _Whose state breaks_ selects the check; _who can reach the condition_ selects the payload.
 
 If consumer misuse causes an operation to fail, prefer the normal `onError` path over a synchronous `throw`. Ideally, public runtime code contains very few explicit `throw` statements.
 
@@ -132,22 +136,22 @@ If consumer misuse causes an operation to fail, prefer the normal `onError` path
 
 If a constraint can be made impossible or visible at compile time, prefer that over a runtime check — reserved kernel keys, callback shapes, discriminated unions, construction-time slot ownership, impossible combinations of public configuration. Do not pay runtime bytes to enforce a rule the compiler already enforces.
 
-**A constraint the compiler cannot state is still a constraint.** The absence of a type-level expression is not an argument for a runtime one. *No duplicates in this array*, *finite*, *still open*, *one of the elements I gave you* are contract terms whether or not TypeScript can spell them. Write them where the integrator will meet them — and note that under §1.1 writing one down is what puts the input **outside** the contract, so the statement is the alternative to the runtime check, not a companion to it. The compiler is the cheapest place to put a rule, not the only legitimate one.
+**A constraint the compiler cannot state is still a constraint.** The absence of a type-level expression is not an argument for a runtime one. _No duplicates in this array_, _finite_, _still open_, _one of the elements I gave you_ are contract terms whether or not TypeScript can spell them. Write them where the integrator will meet them — and note that under §1.1 writing one down is what puts the input **outside** the contract, so the statement is the alternative to the runtime check, not a companion to it. The compiler is the cheapest place to put a rule, not the only legitimate one.
 
 ### 1.3 Do not ship verbose diagnostics by default
 
 Long diagnostic strings are runtime payload, and they are easy to under-rate: in one measured package the diagnostic text was the **single largest attributable class of shipped bytes**, larger than any optional feature the package had.
 
-**Classification is contract; prose is not.** If a failure is already classified by a stable error code, a large explanatory string needs a strong justification — and *the code alone does not say which failure it was* is not one; that is a fault in the classification. When a sentence is the only thing telling apart several distinct faults sharing one code, the published vocabulary is doing less work than the design claims. Fix the vocabulary, or accept the coarseness deliberately; do not let English carry a discrimination the API refuses to make.
+**Classification is contract; prose is not.** If a failure is already classified by a stable error code, a large explanatory string needs a strong justification — and _the code alone does not say which failure it was_ is not one; that is a fault in the classification. When a sentence is the only thing telling apart several distinct faults sharing one code, the published vocabulary is doing less work than the design claims. Fix the vocabulary, or accept the coarseness deliberately; do not let English carry a discrimination the API refuses to make.
 
-**A shipped message is an identity, not a narrative.** It names the fault and interpolates the offending value. Explanation, remedy, reassurance and restatement of the rule belong in the source and the contract — and where the build ships source maps carrying `sourcesContent`, they are *already* in the tarball beside the site, in a file a bundling consumer never fetches.
+**A shipped message is an identity, not a narrative.** It names the fault and interpolates the offending value. Explanation, remedy, reassurance and restatement of the rule belong in the source and the contract — and where the build ships source maps carrying `sourcesContent`, they are _already_ in the tarball beside the site, in a file a bundling consumer never fetches.
 
 **A development-only diagnostic is not automatically preferable to none.** Gate by **provenance** — what must be true for it to fire — never by who happens to receive it:
 
 - **only this package's own defect can produce it** → gate it. Nobody outside can reach the condition, so nobody outside loses anything;
-- **someone outside can trigger it** — a consumer, a third-party author of a *published* authoring API, or the environment → **ship it**. A gate strips it from precisely the build the person who needs it installs, and hands them an empty stub they cannot fill.
+- **someone outside can trigger it** — a consumer, a third-party author of a _published_ authoring API, or the environment → **ship it**. A gate strips it from precisely the build the person who needs it installs, and hands them an empty stub they cannot fill.
 
-The failure mode is slow and quiet: one package kept its gate for three revisions after publishing its authoring API, because the justification — *authoring is not on the public surface* — had expired at a named release and nobody noticed.
+The failure mode is slow and quiet: one package kept its gate for three revisions after publishing its authoring API, because the justification — _authoring is not on the public surface_ — had expired at a named release and nobody noticed.
 
 **And a gate is a boundary decision, not a size one.** Giving a module or tier a build-time flag it does not already have changes what that tier depends on and what its authors must know. A rule that lets bytes buy a new dependency edge will eventually buy one that matters.
 
@@ -175,13 +179,13 @@ A public type graph must not accidentally force an equivalent runtime graph.
 
 Do not export numbered implementation constants merely to give internal values names. Public runtime values should exist only when consumers genuinely need to use them.
 
-**The bundle is not the cost, and that was measured.** Thirteen public numeric failure-stage constants, exported from a package root, cost a bundling consumer **0 minified, 0 Brotli, 0 modules** — byte-identical across fourteen compositions and across a fixture naming all thirteen reachably. A bundler that folds cross-module constants inlines every small-integer `const` at its use site and drops the module: **the symbolic name *is* the number by the time the minifier finishes.** Record: [`failure-vocabulary-cost-claude.md`](packages/drag2/.plan/reviews/phase-23/failure-vocabulary-cost-claude.md).
+**The bundle is not the cost, and that was measured.** Thirteen public numeric failure-stage constants, exported from a package root, cost a bundling consumer **0 minified, 0 Brotli, 0 modules** — byte-identical across fourteen compositions and across a fixture naming all thirteen reachably. A bundler that folds cross-module constants inlines every small-integer `const` at its use site and drops the module: **the symbolic name _is_ the number by the time the minifier finishes.** Record: [`failure-vocabulary-cost-claude.md`](packages/drag2/.plan/reviews/phase-23/failure-vocabulary-cost-claude.md).
 
-So there is **no prohibition on exported numeric phase, state or failure constants, and there is a condition**: they must be *part of the supported consumer contract*. Three costs survive, and none is the bundle.
+So there is **no prohibition on exported numeric phase, state or failure constants, and there is a condition**: they must be _part of the supported consumer contract_. Three costs survive, and none is the bundle.
 
 - **(a) Surface.** Every exported value is one more thing a reader of the API may believe they must understand. Paid in documentation, review and consumer questions; invisible to every instrument here, and it does not shrink when the bytes do.
-- **(b) Permanence — the sharp one.** *The same inlining that makes the export free makes the value permanent.* A folded constant is copied into consumers' compiled output, so repointing it later changes nothing in their build and everything in yours: their already-compiled `2` keeps arriving, now meaning something else. **An exported number is a wire value from the day it ships**, and unpublishing the name does not retire the number.
-- **(c) Install weight, and consumers who do not bundle.** The zero above is a *bundled* zero. The same publication cost several thousand raw tarball bytes and about a kilobyte of Brotli across one entry's fetch closure, which a native-ESM or CDN consumer fetches and every consumer downloads at install. Most of it was the **doc comment about** the constants: when a vocabulary looks expensive, check whether you are pricing the values or the prose about them.
+- **(b) Permanence — the sharp one.** _The same inlining that makes the export free makes the value permanent._ A folded constant is copied into consumers' compiled output, so repointing it later changes nothing in their build and everything in yours: their already-compiled `2` keeps arriving, now meaning something else. **An exported number is a wire value from the day it ships**, and unpublishing the name does not retire the number.
+- **(c) Install weight, and consumers who do not bundle.** The zero above is a _bundled_ zero. The same publication cost several thousand raw tarball bytes and about a kilobyte of Brotli across one entry's fetch closure, which a native-ESM or CDN consumer fetches and every consumer downloads at install. Most of it was the **doc comment about** the constants: when a vocabulary looks expensive, check whether you are pricing the values or the prose about them.
 
 **The test:**
 
@@ -245,7 +249,7 @@ The implementation is the thing being optimized.
 
 A size optimization must preserve the accepted contract. If it requires changing lifecycle ordering, failure semantics, public API, ownership, supported composition behaviour or observable timing, it is no longer a size optimization: stop and report it as a separate design finding. Do not silently trade correctness for bytes.
 
-**This fixes the contract, and behaviour outside the contract is not part of it.** Deleting a nannying check changes what happens on input the contract already forbids, which is not a failure-semantics change here. The exception is where the contract **fixed** the outcome — a documented *this call is ignored* is a promise, and the check and discard implementing it are contract. Say which of the two you have before deleting: a specified no-op stays; an incidental *we happen to throw here* was never promised. If you cannot tell, you have found a contract gap — stop and report it.
+**This fixes the contract, and behaviour outside the contract is not part of it.** Deleting a nannying check changes what happens on input the contract already forbids, which is not a failure-semantics change here. The exception is where the contract **fixed** the outcome — a documented _this call is ignored_ is a promise, and the check and discard implementing it are contract. Say which of the two you have before deleting: a specified no-op stays; an incidental _we happen to throw here_ was never promised. If you cannot tell, you have found a contract gap — stop and report it.
 
 ## 14. Do not trade runtime performance for bundle size
 
@@ -266,7 +270,7 @@ Do not introduce new O(n) work on a hot path, additional layout reads, avoidable
 
 The highest-value reductions usually come from removing validation, duplicate state, compatibility, wrappers, runtime indirection, shipped diagnostic payload, unnecessary exports, optional feature leakage, and abstractions existing only for internal neatness. Do those before syntax-level micro-optimization.
 
-**Two entries need calibrating, and the measurement is the reason.** **Diagnostic payload belongs here rather than among the syntax work**: where it was measured, the text class outweighed the whole clean-deletion set — dead members, duplicate state, inert checks and unreachable vocabulary together — by roughly two to one. **Removing an unnecessary export usually buys surface, not bytes**: a tree-shaken export costs zero shipped bytes, and two were measured at exactly zero. Still worth doing (§4), but book it as hygiene. An export a consumer *can* reach is §7's case.
+**Two entries need calibrating, and the measurement is the reason.** **Diagnostic payload belongs here rather than among the syntax work**: where it was measured, the text class outweighed the whole clean-deletion set — dead members, duplicate state, inert checks and unreachable vocabulary together — by roughly two to one. **Removing an unnecessary export usually buys surface, not bytes**: a tree-shaken export costs zero shipped bytes, and two were measured at exactly zero. Still worth doing (§4), but book it as hygiene. An export a consumer _can_ reach is §7's case.
 
 ## 17. Questionable optimizations go into the report
 
@@ -279,7 +283,7 @@ A per-composition budget exists to make a change visible. Read as a target inste
 - **A deliberately tight row is tight on purpose.** Absorbing a small regression into it by re-basing is the single thing it exists to prevent. Where a row's ceiling was sized against a regression it once suffered, a two-byte move is a finding rather than noise.
 - **A row that does not move is a result.** When a change should touch nothing in a composition, that unchanged number is the evidence it behaved. Design at least one control row into every pass and say beforehand what it should do.
 - **Re-base after a shrink, never during one.** A pass landing well under budget ends in a re-base; a pass landing over it ends in a decision. Re-basing mid-pass turns the instrument into a record of what happened rather than a check on it.
-- **State the re-base trigger before you need it**, and prefer a condition an observer meets — *a row goes negative*, *the drift stops being attributable to a named landed change* — over a schedule. An absorbed number is a number nobody reads again.
+- **State the re-base trigger before you need it**, and prefer a condition an observer meets — _a row goes negative_, _the drift stops being attributable to a named landed change_ — over a schedule. An absorbed number is a number nobody reads again.
 
 ---
 
@@ -293,11 +297,11 @@ For every suspicious piece of runtime code, ask the gate first:
 
 > **What library-owned invariant requires this code to exist at runtime?**
 
-Neither of them is *what bad thing could a consumer theoretically do?* nor *what would we go on to compute if they did?*
+Neither of them is _what bad thing could a consumer theoretically do?_ nor _what would we go on to compute if they did?_
 
 The code is a strong deletion candidate if the answer is any of: "the type system already prevents it"; "only an integrator ignoring the documented contract can get here, and the library is left holding nothing"; "the consumer would only break their own code"; "the failure it describes cannot actually happen"; "this was added for a nicer error"; "this string is the only thing telling two same-coded failures apart"; "this mirrors state we already have"; "this supports an API we deleted"; "this only makes the implementation more generic".
 
-**One answer looks like a rebuttal and is not one**: *"an integrator could only reach this by ignoring the contract — but the library would then keep operating on state it owns, or hand a third party a value its own contract calls well-formed."* The first half has already ended the matter. Clause (b) speaks only about input the contract **admits**. If you want that check, the argument to make is that the input is admitted — and that argument is made in the contract, not here.
+**One answer looks like a rebuttal and is not one**: _"an integrator could only reach this by ignoring the contract — but the library would then keep operating on state it owns, or hand a third party a value its own contract calls well-formed."_ The first half has already ended the matter. Clause (b) speaks only about input the contract **admits**. If you want that check, the argument to make is that the input is admitted — and that argument is made in the contract, not here.
 
 # Order of attack
 
@@ -323,7 +327,7 @@ A successful size pass leaves the library:
 - **no slower in latency-sensitive runtime paths unless an explicit measured trade-off was accepted**;
 - easier or no harder to understand;
 - at least as type-safe;
-- **defensive only where the state is reachable through correct use of the contract *and* the library would otherwise corrupt state it owns or publish a malformed value under its own name** — both, never either;
+- **defensive only where the state is reachable through correct use of the contract _and_ the library would otherwise corrupt state it owns or publish a malformed value under its own name** — both, never either;
 - with every shipped diagnostic attributable to something outside the library, and every gated one to something inside it;
 - no more coupled across optional features;
 - smaller in the compositions that actually pay for the removed machinery;
@@ -339,10 +343,10 @@ What this document used to say, and what changed it, so a measurement already ma
 
 | Date | Section | Change |
 | --- | --- | --- |
-| 2026-08-24 | §1.3 | **Withdrawn:** *development-only diagnostics are preferable when they can be removed from production output.* False whenever the trigger is outside the library. Replaced by gating on **provenance** rather than audience |
-| 2026-08-24 | §4 | **Withdrawn:** *avoid exported numeric phase/state/failure constants **unless** they are part of the supported consumer contract.* The rule was argued on bundle size and the premise was measured false; the `unless` clause becomes the rule, now resting on surface, permanence and install weight. Record: [`failure-vocabulary-cost-claude.md`](packages/drag2/.plan/reviews/phase-23/failure-vocabulary-cost-claude.md) |
+| 2026-08-24 | §1.3 | **Withdrawn:** _development-only diagnostics are preferable when they can be removed from production output._ False whenever the trigger is outside the library. Replaced by gating on **provenance** rather than audience |
+| 2026-08-24 | §4 | **Withdrawn:** _avoid exported numeric phase/state/failure constants **unless** they are part of the supported consumer contract._ The rule was argued on bundle size and the premise was measured false; the `unless` clause becomes the rule, now resting on surface, permanence and install weight. Record: [`failure-vocabulary-cost-claude.md`](packages/drag2/.plan/reviews/phase-23/failure-vocabulary-cost-claude.md) |
 | 2026-08-24 | §16 | **Added:** diagnostic payload as a removal class in its own right, ranked ahead of syntax work |
-| 2026-08-25 | §1.1 | **Withdrawn:** *runtime validation is justified only when it protects a library-owned invariant that cannot reasonably be expressed or enforced elsewhere.* Ownership is the right second question and the wrong first one. Replaced by **reachability**, and then by reachability as a **gate**, because merely ordering the two lets ownership rescue a check reachability already rejected |
+| 2026-08-25 | §1.1 | **Withdrawn:** _runtime validation is justified only when it protects a library-owned invariant that cannot reasonably be expressed or enforced elsewhere._ Ownership is the right second question and the wrong first one. Replaced by **reachability**, and then by reachability as a **gate**, because merely ordering the two lets ownership rescue a check reachability already rejected |
 | 2026-08-25 | §1.2 | **Added:** a constraint the compiler cannot state is still a constraint, and writing it down is what puts the input outside the contract |
 | 2026-08-25 | §13 | **Clarified:** deleting a nannying check is not a failure-semantics change; a **documented** no-op is the exception and stays |
 | 2026-08-26 | §18 | **Removed** the live byte figures from the worked example; the rule they illustrated is unchanged |

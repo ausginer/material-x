@@ -428,10 +428,10 @@ The failing executable case is **api-1's**, and D-59 is where it lands. Every st
 
 **The spelling, settled here so 06 can follow it.**
 
-| Form                                      | Verdict  |
-| ----------------------------------------- | -------- |
+| Form | Verdict |
+| --- | --- |
 | ~~`HTMLElement \| { visual, box } \| null`~~ **`HTMLElement \| { visual, box, item } \| null`** (D-165) | **this** |
-| `{ visual, box? } \| null`                | rejected |
+| `{ visual, box? } \| null` | rejected |
 | `HTMLElement \| { visual, box? } \| null` | rejected |
 
 Three reasons, in order of weight:
@@ -440,7 +440,7 @@ Three reasons, in order of weight:
 - **The common case allocates nothing.** `box === visual` is the default and will be the overwhelming majority of admissions. The bare-element form is exactly what the reference behavior returns today, so the widening costs the common path zero allocations and zero edits. An always-object form would allocate on every press to express the absence of a choice.
 - **It is additive.** Every existing `admit` returning an element still typechecks, so the SPI crossing costs no migration for a behavior that does not need a separate box.
 
-**D-165 widens the object form again and leaves every reason above standing.** The item joins as a third **required** member, for the same *one spelling per meaning* reason `box` is required rather than optional: the bare element stays the only way to say *these are one element*, and the object form stays the only way to say they are not. The common case still allocates nothing, and the change is still additive for a behavior that separates none of the three. **Read _the pair_ above as _the object form_ from here on**: the reasons are unchanged, the cardinality in the name is not.
+**D-165 widens the object form again and leaves every reason above standing.** The item joins as a third **required** member, for the same _one spelling per meaning_ reason `box` is required rather than optional: the bare element stays the only way to say _these are one element_, and the object form stays the only way to say they are not. The common case still allocates nothing, and the change is still additive for a behavior that separates none of the three. **Read _the pair_ above as _the object form_ from here on**: the reasons are unchanged, the cardinality in the name is not.
 
 **Narrowing is realm-safe and is not `instanceof`.** The kernel discriminates with `'visual' in subject`. `instanceof HTMLElement` would be wrong here for a reason this document already contemplates: it is realm-sensitive, and `DOMRealm` exists in the landing context precisely because an element may come from another document. One property lookup, once per press.
 
@@ -1393,7 +1393,7 @@ Consequences:
 3. **Staleness is answered by identity.** A settlement replaced between the measurement and the join is a different object, which is the check `settlementLive` performs.
 4. ~~**The hold may be requested at most once, and only before sealing.**~~ **Nothing is requested**, so the duplicate-and-late-request rule — a `DraggableWarning`, never a panic, because a bookkeeping error must not destroy a live drop — has no subject. The rule itself is unchanged wherever a bookkeeping error is still reachable.
 5. **With no `landing()` feature the behavior holds nothing and finalizes in the same drain.** True since D-41 and unconditional since D-155: every settlement finalizes in its own drain, and installing a landing changes what the element does afterwards rather than when the operation ends.
-6. ~~**One gate is v1 product vocabulary, not a generic mechanism.**~~ **Zero gates is the same claim, arrived at from the other side**: removing the last one touched the attempt record, the scope API, the arm step, the action vocabulary, two failure stages, teardown, diagnostics and tests — which is exactly the cost this row predicted a *second* gate would have, and is the measurement of how specific the mechanism was.
+6. ~~**One gate is v1 product vocabulary, not a generic mechanism.**~~ **Zero gates is the same claim, arrived at from the other side**: removing the last one touched the attempt record, the scope API, the arm step, the action vocabulary, two failure stages, teardown, diagnostics and tests — which is exactly the cost this row predicted a _second_ gate would have, and is the measurement of how specific the mechanism was.
 
 ## Landing (D-16)
 
@@ -1478,13 +1478,13 @@ join
 
 **The one expression that changes units.** The endpoints are viewport deltas and a `translate` is a local quantity, so the vector is projected through the inverse of the space above the **visual**, captured at activation. It is deliberately **not** the session's own projection: that one is `null` for both lifted modes, correctly, because a `fixed` element's local space is viewport space — while the **released** element is in flow in every mode. Reusing it would be right for one mode and silently wrong for two, by an ancestor scale, so it would disappear entirely on an untransformed page.
 
-**One tail per controller, in one slot.** Two can coexist in principle — drop one item, drag and drop a second, and the first may still be gliding — and keeping both would cost a keyed map and a removal path to preserve an animation on an item the user has demonstrably stopped caring about. The slot is **controller-scoped rather than operation-scoped**, for the same reason the click suppressor is: the thing it holds exists *after* the operation that created it, so an operation-scoped slot would be cleared before the only code that reads it. It is cancelled **at `acquireLift`, before the origin measurement**, and on `destroy()`. Measuring a visual mid-tail is right — the drag should start from where the element looks — and the cancel is about the cascade instead: a running animation outranks inline styles, so the new lift's own writes would compose with a contribution that is still decaying. A press that never crosses the threshold cancels nothing.
+**One tail per controller, in one slot.** Two can coexist in principle — drop one item, drag and drop a second, and the first may still be gliding — and keeping both would cost a keyed map and a removal path to preserve an animation on an item the user has demonstrably stopped caring about. The slot is **controller-scoped rather than operation-scoped**, for the same reason the click suppressor is: the thing it holds exists _after_ the operation that created it, so an operation-scoped slot would be cleared before the only code that reads it. It is cancelled **at `acquireLift`, before the origin measurement**, and on `destroy()`. Measuring a visual mid-tail is right — the drag should start from where the element looks — and the cancel is about the cascade instead: a running animation outranks inline styles, so the new lift's own writes would compose with a contribution that is still decaying. A press that never crosses the threshold cancels nothing.
 
 #### The statement this owes the consumer
 
 > **The terminal means the semantic transaction is complete and the DOM is the consumer's again. It does not mean every pixel has stopped moving.** For a bounded interval afterwards the library may still contribute an **additive `translate`** to the dropped element. It claims no inline style and does not touch the element's `transform`; it **composes with** an authored `translate` or a consumer animation on the same property rather than replacing either; it ends at a zero contribution; and it is abandoned the moment the element is removed or replaced, or another drag begins.
 
-**Resource safety is unconditional and visual continuity is best-effort**, and the two are stated apart because a lifecycle argument and a rendering argument reach different answers about the same event. No lease survives the terminal, so a reparented, detached or replaced element leaks nothing whatever its ancestry does. The `translate` value, though, is *local* — derived through a space captured at activation — so reparenting the element under a different linear part mid-tail sends it along the wrong path. **The failure is bounded and self-correcting**: the tail ends at a zero contribution, so however wrong the transit, the element lands exactly where flow puts it. Detecting it would cost a `MutationObserver` to buy a better-looking transit in a case the consumer created, which `layoutAnimation` already declines for itself.
+**Resource safety is unconditional and visual continuity is best-effort**, and the two are stated apart because a lifecycle argument and a rendering argument reach different answers about the same event. No lease survives the terminal, so a reparented, detached or replaced element leaks nothing whatever its ancestry does. The `translate` value, though, is _local_ — derived through a space captured at activation — so reparenting the element under a different linear part mid-tail sends it along the wrong path. **The failure is bounded and self-correcting**: the tail ends at a zero contribution, so however wrong the transit, the element lands exactly where flow puts it. Detecting it would cost a `MutationObserver` to buy a better-looking transit in a case the consumer created, which `layoutAnimation` already declines for itself.
 
 #### The price, stated rather than buried
 

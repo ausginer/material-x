@@ -14,17 +14,17 @@ The challenge to record 11: **P2's +22 B may have been the cost of encoding one-
 
 Seven encodings, all on the cacheless baseline, measured through the repository's Rolldown-plus-brotli pipeline. `Δ` is against **K** (1147) for the package and against **c-zero** (1294) for the consumer arm carrying drag2's full shape.
 
-| Arm     | Encoding                                               | package | Δ       | consumer | Δ       |
-| ------- | ------------------------------------------------------ | ------- | ------- | -------- | ------- |
-| **P1a** | `ancestry(el, out)`, measurement's argument required   | 1163    | +16     | 1328     | +34     |
-| **P1b** | as P1a, argument optional — **BQ-9**                   | 1185    | **+38** | 1350     | **+56** |
-| **P2**  | one walk, element space + one boundary space           | 1224    | +77     | 1372     | +78     |
-| **Q4**  | batch, **no capacity check, no clear**                 | 1256    | +109    | 1433     | +139    |
-| **Q5**  | batch, capacity check, no clear                        | 1267    | +120    | 1440     | +146    |
-| **Q3**  | batch, capacity check **and** clear                    | 1277    | +130    | 1449     | +155    |
-| **Q1**  | as Q3, plus a segment offset on the measurement        | 1288    | +141    | 1458     | +164    |
-| **Q2**  | as Q1, rest parameter instead of an array              | 1294    | +147    | 1455     | +161    |
-| **Q6**  | as Q3, node components hoisted, unconditional multiply | 1286    | +139    | 1458     | +164    |
+| Arm | Encoding | package | Δ | consumer | Δ |
+| --- | --- | --- | --- | --- | --- |
+| **P1a** | `ancestry(el, out)`, measurement's argument required | 1163 | +16 | 1328 | +34 |
+| **P1b** | as P1a, argument optional — **BQ-9** | 1185 | **+38** | 1350 | **+56** |
+| **P2** | one walk, element space + one boundary space | 1224 | +77 | 1372 | +78 |
+| **Q4** | batch, **no capacity check, no clear** | 1256 | +109 | 1433 | +139 |
+| **Q5** | batch, capacity check, no clear | 1267 | +120 | 1440 | +146 |
+| **Q3** | batch, capacity check **and** clear | 1277 | +130 | 1449 | +155 |
+| **Q1** | as Q3, plus a segment offset on the measurement | 1288 | +141 | 1458 | +164 |
+| **Q2** | as Q1, rest parameter instead of an array | 1294 | +147 | 1455 | +161 |
+| **Q6** | as Q3, node components hoisted, unconditional multiply | 1286 | +139 | 1458 | +164 |
 
 **The answer to the question as put: no.** P2's +22 B was not mostly the boundary encoding — **P2 is the cheapest one-walk multi-`Space` form measured**, and the boundary-free generic query costs **+77 B more than P2** and **+99 B more than BQ-9** at its safest, +83 at its leanest.
 
@@ -85,6 +85,6 @@ Six batch encodings built on the cacheless baseline, typechecked `--strict`, mea
 
 ## 8. Findings
 
-| ID      | Finding                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ID | Finding |
+| --- | --- |
 | **F-6** | Four generalization proposals in this iteration — multi-boundary (BQ-7), the one-walk boundary (P2), the generic batch query, and every leaner dispatch tried inside each — found the per-node **arithmetic free** and the **bytes 3× to 5× the singular form**, and in three separate cases the tidier-looking dispatch measured _larger_. **The rule**: in this package a generality argument is priced on dispatch — the per-node test, the loop over started accumulators, the argument shape — never on storage or on the mathematics, both of which are genuinely free. A proposal that argues from either is arguing from the wrong column |
