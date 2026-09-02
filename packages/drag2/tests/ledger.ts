@@ -17,12 +17,18 @@
  * `D-n` is a reference. The canonical set is the vocabulary: a reference to an
  * id with no canonical row names nothing.
  *
- * ## Statements are flattened, not stripped
+ * ## An entry is a heading, not a row
  *
- * A row's cells are asked of the parser rather than split on `|`, for the
- * reason `width` states, and each cell's inline markup is flattened by parsing
- * it — so an escaped pipe, a pipe inside a code span and a nested emphasis are
- * resolved by markdown-it and not by a regular expression here.
+ * D-171 moved every canonical entry out of a table cell and onto a `####`
+ * heading, so nothing here counts cells any more. An entry owns every line
+ * down to the next heading of rank four or shallower, which is what keeps its
+ * own `#####` sub-clauses inside it — see {@link entries}.
+ *
+ * The tables that remain are the ones whose rows are *projections*: one
+ * derived fact per identifier, which is what a table is for. Those are still
+ * read as rows, and still tolerate the padding a formatter writes.
+ *
+ * ## Statements are flattened, not stripped
  *
  * **Strikethrough is content, not formatting.** A struck span in this record is
  * a clause that has been withdrawn, and it is the one span whose text must not
@@ -31,12 +37,48 @@
  * than strips — the surviving text is the statement, and the struck spans are
  * kept beside it in document order.
  */
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import MarkdownIt from 'markdown-it';
 
 export const PACKAGE: string = resolve(import.meta.dirname, '..');
 export const INDEX: string = join(PACKAGE, '.plan/contract/00-index.md');
+
+/**
+ * Where a current-state entry can live, relative to the package.
+ *
+ * **The same boundary `references.node.test.ts` draws**, and drawn once: these
+ * describe the tree as it is now, while `.plan/reviews/`, `.plan/plan.md` and
+ * `.plan/measurements/` are dated provenance that a later record supersedes
+ * rather than edits. An entry read out of history would answer with a fact
+ * that was true.
+ */
+export const CURRENT_STATE: readonly string[] = [
+  '.plan/contract',
+  '.plan/obligations.md',
+];
+
+/** Every current-state Markdown document, as absolute paths. */
+export async function documents(): Promise<readonly string[]> {
+  const found = await Promise.all(
+    CURRENT_STATE.map(async (relative) => {
+      const path = join(PACKAGE, relative);
+
+      if (!(await stat(path)).isDirectory()) {
+        return [path];
+      }
+
+      const listing = await readdir(path);
+
+      return listing
+        .filter((name) => name.endsWith('.md'))
+        .sort()
+        .map((name) => join(path, name));
+    }),
+  );
+
+  return found.flat();
+}
 
 /** The heading whose subsections hold every canonical decision row. */
 export const LEDGER = '## Decision ledger';
@@ -72,14 +114,29 @@ export const STATUS_SECTION = '## Decision status';
  */
 const DESTINATION = /^(?:Phase \d+|Before Phase \d+|Remediation)$/u;
 
-/** The marker a decision row carries while its subject is not in the code. */
-const MARKER = /^\|\s*(D-\d+)\s*\|\s*\*\*Unimplemented \(([^)]*)\)\.\*\*/u;
+/**
+ * An entry heading: the identifier alone, or the identifier, an em dash and a
+ * title. **The identifier is matched whole**, which is the property a prefix
+ * match does not have — `D-16` must not answer for `D-163`, and a `§`
+ * sub-clause at `#####` must not answer for its parent.
+ */
+const ENTRY = /^#### ([A-Za-z]{1,3}-\d+)(?: — (.+))?$/u;
+
+/** A heading that closes an entry. Four hashes or fewer; `#####` is inside. */
+const CLOSES = /^#{1,4} /u;
 
 /**
- * Anything claiming unimplementedness in a decision row, however spelled. A
- * line that is this and not `MARKER` is malformed, not absent.
+ * The marker an entry carries while its subject is not in the code. **Anchored
+ * to a line**, where the table form had to reach past a cell boundary from the
+ * row start.
  */
-const MARKER_SHAPED = /^\|\s*D-\d+\s*\|[^|]*\bUnimplemented\b/u;
+const MARKER = /^\*\*Unimplemented \(([^)]*)\)\.\*\*/u;
+
+/**
+ * Anything claiming unimplementedness in an entry's first sentence, however
+ * spelled. A body that is this and not `MARKER` is malformed, not absent.
+ */
+const MARKER_SHAPED = /^\*\*[^*]*\bUnimplemented\b/u;
 
 /** A row of §Decisions not yet implemented. */
 const LISTED =
@@ -87,12 +144,6 @@ const LISTED =
 
 /** Anything shaped like one of that table's rows. */
 const ROW_SHAPED = /^\|\s*D-\d+\s*\|/u;
-
-/** The id a decision row opens with. */
-const OPENS = /^\|\s*(D-\d+)\s*\|/u;
-
-/** Strikethrough delimiters, which never survive a span the parser consumed. */
-const MARKUP = '~~';
 
 /** A decision named anywhere at all, which is what makes it a reference. */
 const DECISION = /D-\d+/gu;
@@ -144,8 +195,20 @@ export type Decision = Readonly<{
   struck: readonly string[];
 }>;
 
-/** A row of the status register. */
-export type Entry = Readonly<{ decision: string; status: Status }>;
+/** A row of the status register — a projection, so still a row. */
+export type Registration = Readonly<{ decision: string; status: Status }>;
+
+/**
+ * An entry: a `####` heading and every line down to the next heading of rank
+ * four or shallower. Its own `#####` sub-clauses are part of `body`, which is
+ * the whole reason the terminator stops at four hashes rather than at any.
+ */
+export type Entry = Readonly<{
+  id: string;
+  title: string | undefined;
+  body: string;
+  at: number;
+}>;
 
 export async function index(): Promise<readonly string[]> {
   return (await readFile(INDEX, 'utf8')).split('\n');
@@ -207,12 +270,44 @@ export function ledger(lines: readonly string[]): readonly string[] {
     .filter((_, offset) => open + offset < from || open + offset >= to);
 }
 
-/** Decisions whose own row says they are not implemented yet. */
-export function marked(lines: readonly string[]): readonly string[] {
-  return lines.flatMap((line) => {
-    const match = MARKER.exec(line);
+/**
+ * Every entry in the given lines, in document order.
+ *
+ * **The terminator is the whole of the reading.** An entry ends at the next
+ * heading of rank four or shallower, so a `#####` sub-clause — D-66's progress
+ * marker, D-68's two — stays inside the entry that owns it rather than becoming
+ * an entry of its own. Nothing else at `####` may open with an identifier, so
+ * the heading pattern is both the recogniser and the boundary.
+ */
+export function entries(lines: readonly string[]): readonly Entry[] {
+  const out: Entry[] = [];
 
-    return match === null ? [] : [`${match[1]!} (${match[2]!})`];
+  for (const [at, line] of lines.entries()) {
+    const match = ENTRY.exec(line);
+
+    if (match === null) {
+      continue;
+    }
+
+    const rest = lines.slice(at + 1);
+    const stop = rest.findIndex((next) => CLOSES.test(next));
+    const body = (stop < 0 ? rest : rest.slice(0, stop)).join('\n').trim();
+
+    out.push({ id: match[1]!, title: match[2], body, at });
+  }
+
+  return out;
+}
+
+/** The first sentence of an entry's body, where the status marker lives. */
+const opening = (body: string): string => body.split('\n')[0] ?? '';
+
+/** Decisions whose own entry says they are not implemented yet. */
+export function marked(lines: readonly string[]): readonly string[] {
+  return entries(lines).flatMap(({ id, body }) => {
+    const match = MARKER.exec(opening(body));
+
+    return match === null ? [] : [`${id} (${match[1]!})`];
   });
 }
 
@@ -244,7 +339,8 @@ export function listed(lines: readonly string[]): readonly Deferred[] {
 export function unrecognized(lines: readonly string[]): readonly string[] {
   const bad: string[] = [];
 
-  for (const line of lines) {
+  for (const { id, body } of entries(lines)) {
+    const line = opening(body);
     const match = MARKER.exec(line);
 
     if (match === null) {
@@ -255,8 +351,8 @@ export function unrecognized(lines: readonly string[]): readonly string[] {
       continue;
     }
 
-    if (!DESTINATION.test(match[2]!)) {
-      bad.push(`marker destination: ${match[1]!} → "${match[2]!}"`);
+    if (!DESTINATION.test(match[1]!)) {
+      bad.push(`marker destination: ${id} → "${match[1]!}"`);
     }
   }
 
@@ -287,17 +383,17 @@ export function unrecognized(lines: readonly string[]): readonly string[] {
 export function embedded(lines: readonly string[]): readonly string[] {
   const bad: string[] = [];
 
-  for (const line of lines.filter((row) => ROW_SHAPED.test(row))) {
-    const at = [...line.matchAll(BOLD)].filter((bold) =>
+  for (const { id, body } of entries(lines)) {
+    const at = [...body.matchAll(BOLD)].filter((bold) =>
       LEAD_IN.test(bold[1]!.trim()),
     );
 
     for (const [ordinal, lead] of at.entries()) {
-      const end = at[ordinal + 1]?.index ?? line.length;
-      const clause = line.slice(lead.index, end);
+      const end = at[ordinal + 1]?.index ?? body.length;
+      const clause = body.slice(lead.index, end);
 
       if (!REFERENCE.test(clause)) {
-        bad.push(`${OPENS.exec(line)![1]!}: ${lead[0]}`);
+        bad.push(`${id}: ${lead[0]}`);
       }
 
       REFERENCE.lastIndex = 0;
@@ -310,82 +406,20 @@ export function embedded(lines: readonly string[]): readonly string[] {
 export function cited(lines: readonly string[]): readonly string[] {
   return [
     ...new Set(
-      lines
-        .filter((line) => ROW_SHAPED.test(line))
-        .flatMap((line) => [...line.matchAll(REFERENCE)].map(([id]) => id)),
+      entries(lines).flatMap(({ body }) =>
+        [...body.matchAll(REFERENCE)].map(([id]) => id),
+      ),
     ),
   ];
 }
 
-const markdown = new MarkdownIt('commonmark').enable(['table']);
-
 /**
- * A second reader, for cell content rather than for table shape. It differs
- * from `markdown` in one rule, and that rule is the reason it exists: commonmark
- * has no strikethrough, so a struck clause would arrive as ordinary text with
- * four stray tildes in it.
+ * The reader for an entry's prose. Commonmark alone has no strikethrough, so a
+ * struck clause would arrive as ordinary text with four stray tildes in it —
+ * and a struck clause is a withdrawn one, which {@link flatten} has to be able
+ * to lift out rather than print.
  */
 const inline = new MarkdownIt('commonmark').enable(['strikethrough']);
-
-/** The delimiter row, which is a table's shape and not one of its rows. */
-const DELIMITER = /^\|(?:\s*:?-{2,}:?\s*\|)+$/u;
-
-/**
- * How many cells a row **authors** — asked of the parser rather than counted.
- *
- * A parsed row is always its header's width, because the parser truncates and
- * pads to it, so comparing parsed lengths would compare one number with
- * itself: the vacuity F-83 is made of, and D-115 forbids. So the row is
- * offered to the parser **as a header** instead, whose width the delimiter row
- * must match for the block to be a table at all. The width the parser accepts
- * is the width the row authored, with escaped pipes and pipes inside code
- * spans resolved by the parser and not by this file.
- */
-export function width(row: string): number | undefined {
-  for (let count = 1; count <= 12; count += 1) {
-    const table = `${row}\n|${' --- |'.repeat(count)}\n| x |\n`;
-
-    if (
-      markdown.parse(table, {}).some((token) => token.type === 'table_open')
-    ) {
-      return count;
-    }
-  }
-
-  return undefined;
-}
-
-/**
- * A row's cells, as the markdown source each one holds. Read from the row
- * offered as its own header, for `width`'s reason: a row parsed as a body row
- * is padded and truncated to a width chosen elsewhere.
- */
-function cells(row: string): readonly string[] {
-  const count = width(row);
-
-  if (count === undefined) {
-    return [];
-  }
-
-  const tokens = markdown.parse(
-    `${row}\n|${' --- |'.repeat(count)}\n| x |\n`,
-    {},
-  );
-  const content: string[] = [];
-  let head = false;
-
-  for (const token of tokens) {
-    if (token.type === 'thead_open') {
-      head = true;
-    } else if (token.type === 'thead_close') {
-      break;
-    } else if (head && token.type === 'inline') {
-      content.push(token.content);
-    }
-  }
-
-  return content;
-}
 
 const tidy = (text: string): string => text.replaceAll(/\s+/gu, ' ').trim();
 
@@ -439,21 +473,18 @@ function flatten(source: string): Readonly<{
 
 /**
  * Every decision at its canonical occurrence, in document order. The statement
- * is the `Decision` cell — the second one in every table the ledger uses —
- * which is why the cell is taken by position rather than by header name.
+ * is the entry's whole body, sub-clauses included: since D-171 there is no
+ * second cell to take it from, and no cell boundary for a struck span to fall
+ * across.
  */
 export function canonical(lines: readonly string[]): readonly Decision[] {
-  return ledger(lines).flatMap((line) => {
-    const match = OPENS.exec(line);
+  return entries(ledger(lines))
+    .filter(({ id }) => id.startsWith('D-'))
+    .map(({ id, body }) => {
+      const { text, struck } = flatten(body);
 
-    if (match === null) {
-      return [];
-    }
-
-    const { text, struck } = flatten(cells(line)[1] ?? '');
-
-    return [{ id: match[1]!, statement: text, struck }];
-  });
+      return { id, statement: text, struck };
+    });
 }
 
 /** Every decision the document names anywhere, canonically or not. */
@@ -465,32 +496,6 @@ export function referenced(lines: readonly string[]): readonly string[] {
   ];
 }
 
-/**
- * Every decision whose flattened content still carries strikethrough markup,
- * which means the parser never saw a span to consume.
- *
- * **The cause is always a span that is not inside one cell.** A table cell is
- * parsed on its own, so a `~~` opened in the `Decision` cell and closed in the
- * `Why` cell is one stray delimiter in each — the row's tilde count is even and
- * every cell's is odd. GFM renders both as literal tildes, so the clause is
- * struck nowhere and the retired projection cannot see it: a withdrawn clause
- * that reads as live text in the record and is absent from the list of what has
- * been withdrawn. Silent in both directions, which is why it is a failure here
- * rather than something the flattener quietly tidies away — stripping the
- * tildes would print the retracted half of a decision as what the decision
- * says, and remove the only evidence that anything is wrong.
- *
- * The repair is in the document: close the span before the cell boundary and
- * open a second one after it.
- */
-export function residual(lines: readonly string[]): readonly string[] {
-  return canonical(lines).flatMap(({ id, statement, struck }) =>
-    statement.includes(MARKUP) || struck.some((span) => span.includes(MARKUP))
-      ? [`unclosed strikethrough: ${id}`]
-      : [],
-  );
-}
-
 /** A reference naming a decision that has no canonical row. */
 export function dangling(lines: readonly string[]): readonly string[] {
   const known = new Set(canonical(lines).map(({ id }) => id));
@@ -499,7 +504,7 @@ export function dangling(lines: readonly string[]): readonly string[] {
 }
 
 /** The rows of §Decision status, in document order. */
-export function registered(lines: readonly string[]): readonly Entry[] {
+export function registered(lines: readonly string[]): readonly Registration[] {
   return statusSection(lines).flatMap((line) => {
     const match = REGISTERED.exec(line);
 
@@ -613,37 +618,118 @@ export function retired(
   });
 }
 
-export type Shape = Readonly<{ rows: number; wrong: readonly string[] }>;
+/* ---- the defect class D-172 recorded as F-284 ---- */
 
-/** Every row whose authored width is not the width its own header declares. */
-export function shape(lines: readonly string[]): Shape {
-  const wrong: string[] = [];
-  let header = 0;
-  let rows = 0;
+/**
+ * A parser for tables, and the *only* thing left here that counts cells.
+ *
+ * `shape()` also counted cells and was blind to F-284 by construction: it
+ * reset its header on any non-pipe line, and every row of the record's long
+ * tables is surrounded by blank lines, so each row became its own header and
+ * was compared against nothing. **The header is carried across blank lines
+ * here**, which is the whole difference between an instrument that finds this
+ * and one that cannot.
+ */
+const TABLE = new MarkdownIt('commonmark').enable(['table']);
+
+/** The delimiter row, which is a table's shape and not one of its rows. */
+const DELIMITER = /^\|(?:\s*:?-{2,}:?\s*\|)+$/u;
+
+/** An identifier opening a cell, which is what makes a surplus cell an entry. */
+const OPENS_ENTRY = /^(?:\*\*)?[A-Za-z]{1,3}-\d+(?:\*\*)?$/u;
+
+/**
+ * How many cells a row **authors**, asked of the parser rather than counted.
+ *
+ * A parsed body row is always its header's width, because the parser truncates
+ * and pads to it — comparing parsed lengths would compare one number with
+ * itself. So the row is offered as a *header*, whose width the delimiter must
+ * match for the block to be a table at all, and escaped pipes and pipes inside
+ * code spans are resolved by the parser and not by a pattern here.
+ */
+function authored(row: string, cap = 60): readonly string[] {
+  for (let count = 1; count <= cap; count += 1) {
+    const tokens = TABLE.parse(
+      `${row}\n|${' --- |'.repeat(count)}\n| x |\n`,
+      {},
+    );
+
+    if (!tokens.some((token) => token.type === 'table_open')) {
+      continue;
+    }
+
+    const cells: string[] = [];
+    let head = false;
+
+    for (const token of tokens) {
+      if (token.type === 'thead_open') {
+        head = true;
+      } else if (token.type === 'thead_close') {
+        break;
+      } else if (head && token.type === 'inline') {
+        cells.push(token.content);
+      }
+    }
+
+    return cells;
+  }
+
+  return [];
+}
+
+/**
+ * Every row authoring more cells than its own table declares — the defect
+ * class F-284 names, where GFM discards the surplus and the record loses text
+ * nobody can see is missing.
+ *
+ * **The two failures are reported apart**, because a count conflates them and
+ * the repairs differ: a surplus cell that opens with an identifier is a whole
+ * **entry** hidden behind the third cell, and one that does not is a
+ * **clause** truncated off the end of a row. That discriminator is D-172's,
+ * and it is why fourteen entries and ten clauses came out of thirteen rows.
+ */
+export function surplus(lines: readonly string[]): readonly string[] {
+  const bad: string[] = [];
+  let header: string | null = null;
+  let width = 0;
 
   for (const [at, line] of lines.entries()) {
     if (!line.startsWith('|')) {
-      header = 0;
-      continue;
+      continue; // **not** a header reset: that is the bug this replaces
     }
 
     if (DELIMITER.test(line)) {
+      header = lines[at - 1] ?? null;
+      width = authored(header ?? '').length;
       continue;
     }
 
-    const count = width(line);
-
-    if (header === 0) {
-      header = count ?? 0;
+    // A line the next one delimits is the header of a *new* table, not a row
+    // of the one before it. Header inheritance is what finds F-284; inheriting
+    // one across a table boundary would invent the defect instead.
+    if (DELIMITER.test(lines[at + 1] ?? '')) {
       continue;
     }
 
-    rows += 1;
-
-    if (count !== header) {
-      wrong.push(`${at + 1}: ${count ?? '?'} cells against ${header}`);
+    if (header === null || width === 0) {
+      continue;
     }
+
+    const cells = authored(line);
+
+    if (cells.length <= width) {
+      continue;
+    }
+
+    const extra = cells.slice(width);
+    const hidden = extra.filter((cell) => OPENS_ENTRY.test(cell.trim()));
+
+    bad.push(
+      hidden.length > 0
+        ? `hidden entries at line ${at + 1}, in the row of ${cells[0]!.trim()}: ${hidden.map((cell) => cell.trim()).join(', ')}`
+        : `truncated clause at line ${at + 1}, in the row of ${cells[0]!.trim()}: ${extra.length} cell(s) past ${width}`,
+    );
   }
 
-  return { rows, wrong };
+  return bad;
 }

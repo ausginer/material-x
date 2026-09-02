@@ -15,17 +15,17 @@
  *
  * **It refuses rather than guesses.** A register that does not reconcile with
  * the canonical set has no status for some decision, and a projection that
- * defaulted it would print a fact nobody recorded. A cell whose strikethrough
- * is not closed inside it has a withdrawn clause the parser never saw. Both are
- * the test's failures, reported here as a non-zero exit rather than as a blank
- * column or a line of markup.
+ * defaulted it would print a fact nobody recorded. A surviving table row that
+ * authors more cells than its header has content the renderer discards, which
+ * is F-284. Both are the test's failures, reported here as a non-zero exit
+ * rather than as a blank column or a silently short answer.
  */
 import {
   index,
   malformed,
   projection,
-  residual,
   retired,
+  surplus,
   unaccounted,
 } from '../tests/ledger.ts';
 
@@ -44,7 +44,7 @@ if (unknown.length > 0) {
 }
 
 const lines = await index();
-const faults = [...malformed(lines), ...unaccounted(lines), ...residual(lines)];
+const faults = [...malformed(lines), ...unaccounted(lines), ...surplus(lines)];
 
 if (faults.length > 0) {
   process.stderr.write(

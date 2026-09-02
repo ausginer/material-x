@@ -1921,13 +1921,28 @@ D-41's serial order is the third answer to that question and the only one that d
 
 An unchanged seam that a second behavior exercised is a stronger claim than an unexamined one, and 13c is the first time the behavior-agnosticism claim had any evidence at all. These six rows are that evidence, and they are normative in the same sense the rest of this document is: a later change that breaks one of them owes a case.
 
-| # | Question | Result |
-| --- | --- | --- |
-| P-1 | Clamp to `bounds` before writing — does "P-2 resolved at no hot-path cost" survive? | **Fits as a shape.** The constraint is arithmetic over fields the frame already holds; a bounds rect caches in the behavior's part with a version, so a thunk source resolves on invalidation rather than per sample. Whether it is _affordable_ is Phase 21's number. |
-| P-2 | Where does a consumer coordinate space live? | **Behavior-private.** A `CoordinateMapper` is pure and lives in the behavior runtime; the kernel commits viewport coordinates and is never told. No seam changes. |
-| P-3 | A per-sample consumer callback (`onMove`) | **Fits.** One call at the end of `moved`. Affordability is an M-1 question. |
-| P-4 | Three lift modes as a public option | **A surface decision.** `config.liftMode` is static spec data the behavior chooses at install, so a feature can supply it; whether a kernel-internal enum becomes public is Phase 18's. |
-| P-5 | Does `anchorTarget` cover a synchronous `resolveHomeTarget`? | **Yes, and more cleanly after D-41.** It returns a viewport point. The `authoredReady` argument this row cited as the match for the shipped synchronous home-target contract is deleted — under the serial order the presentation is always final when `anchorTarget` runs, so the synchronous case is no longer a special value of a parameter, it is the only case. |
-| P-6 | `controller.update()` with live policy | **Fits.** An ordinary behavior action: `update` dispatches, `action.prepare` writes the new policy into the draft. The _controlled position_ half is D-35's, not this row's. |
+#### P-1 — Clamp to `bounds` before writing — does "P-2 resolved at no hot-path cost" survive?
+
+**Fits as a shape.** The constraint is arithmetic over fields the frame already holds; a bounds rect caches in the behavior's part with a version, so a thunk source resolves on invalidation rather than per sample. Whether it is _affordable_ is Phase 21's number.
+
+#### P-2 — Where does a consumer coordinate space live?
+
+**Behavior-private.** A `CoordinateMapper` is pure and lives in the behavior runtime; the kernel commits viewport coordinates and is never told. No seam changes.
+
+#### P-3 — A per-sample consumer callback (`onMove`)
+
+**Fits.** One call at the end of `moved`. Affordability is an M-1 question.
+
+#### P-4 — Three lift modes as a public option
+
+**A surface decision.** `config.liftMode` is static spec data the behavior chooses at install, so a feature can supply it; whether a kernel-internal enum becomes public is Phase 18's.
+
+#### P-5 — Does `anchorTarget` cover a synchronous `resolveHomeTarget`?
+
+**Yes, and more cleanly after D-41.** It returns a viewport point. The `authoredReady` argument this row cited as the match for the shipped synchronous home-target contract is deleted — under the serial order the presentation is always final when `anchorTarget` runs, so the synchronous case is no longer a special value of a parameter, it is the only case.
+
+#### P-6 — `controller.update()` with live policy
+
+**Fits.** An ordinary behavior action: `update` dispatches, `action.prepare` writes the new policy into the draft. The _controlled position_ half is D-35's, not this row's.
 
 The honest summary of 13c is that the kernel **is** behavior-agnostic except in two named places, both now fixed: activation staged an `HTMLElement` because the sortable stages a placeholder (D-34), and the landing origin was a pointer delta because the sortable's visual tracks the pointer (D-35). That is a claim Checkpoint E can evaluate; "the kernel is behavior-agnostic" was not.

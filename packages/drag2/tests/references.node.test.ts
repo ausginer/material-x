@@ -108,7 +108,57 @@ const ROOTS: ReadonlyArray<readonly [string, readonly string[], boolean?]> = [
  * A decision-ledger row: a dated act, and out of scope because D-116 (a) keeps
  * every live clause out of one — the register carries those, and it is in scope.
  */
-const LEDGER_ROW = /^\| D-\d+ \|/u;
+/** A surviving row of a table that talks *about* a decision. */
+const ABOUT_DECISION = /^\| D-\d+ \|/u;
+
+/**
+ * The lines a canonical decision entry occupies in `00-index.md`.
+ *
+ * **Why the exemption is by position rather than by shape.** It used to be
+ * `/^\| D-\d+ \|/` — a decision was one physical row, so a row prefix named
+ * it exactly. Since D-171 an entry is a `####` heading and a run of ordinary
+ * paragraphs, and no prefix distinguishes those paragraphs from any other
+ * prose. The exemption itself is unchanged in kind: a decision states its own
+ * reasoning in running prose, and a `§` inside it is argument rather than a
+ * delimited citation this resolver can check.
+ *
+ * {@link ABOUT_DECISION} keeps the other half the row prefix used to cover:
+ * the tables above the ledger that talk *about* a decision — the drift table,
+ * the deferred table — are still tables, and their rows still run on.
+ */
+function ledgerEntries(source: string): ReadonlySet<number> {
+  const lines = source.split('\n');
+  const open = lines.indexOf('## Decision ledger');
+  const covered = new Set<number>();
+
+  if (open < 0) {
+    return covered;
+  }
+
+  let close = lines.length;
+
+  for (let at = open + 1; at < lines.length; at += 1) {
+    if (/^#{1,2} /u.test(lines[at]!)) {
+      close = at;
+      break;
+    }
+  }
+
+  for (let at = open; at < close; at += 1) {
+    if (!/^#### D-\d+(?: — |$)/u.test(lines[at]!)) {
+      continue;
+    }
+
+    let end = at + 1;
+
+    while (end < close && !/^#{1,4} /u.test(lines[end]!)) {
+      covered.add(end + 1);
+      end += 1;
+    }
+  }
+
+  return covered;
+}
 
 /**
  * A citation into a dated artifact — a review, a handoff, a synthesis, a
@@ -716,9 +766,15 @@ describe('the normative tree', () => {
       if (!source.includes('§')) {
         continue;
       }
-      const ledger = file === join(CONTRACT, '00-index.md');
+      const ledger =
+        file === join(CONTRACT, '00-index.md')
+          ? ledgerEntries(source)
+          : new Set<number>();
       for (const paragraph of paragraphs(source, file.endsWith('.md'))) {
-        if (ledger && LEDGER_ROW.test(paragraph.text)) {
+        if (
+          ledger.has(paragraph.marks[0]?.line ?? 0) ||
+          (ledger.size > 0 && ABOUT_DECISION.test(paragraph.text))
+        ) {
           continue;
         }
         const quoted = codeSpans(paragraph.text);
@@ -766,14 +822,21 @@ describe('the normative tree', () => {
     for (const file of files) {
       const source = sources.get(file)!;
       const markdown = file.endsWith('.md');
-      const ledger = file === join(CONTRACT, '00-index.md');
+      const ledger =
+        file === join(CONTRACT, '00-index.md')
+          ? ledgerEntries(source)
+          : new Set<number>();
       for (const [index, raw] of source.split('\n').entries()) {
         // Prose only. A specifier in code is resolved by the module loader and
         // by `packaging.node.test.ts`; a path in a fixture string is data.
         const prose = markdown
           ? raw
           : /^\s*(?:\/\*\*|\*|\/\/)\s?(.*)$/u.exec(raw)?.[1];
-        if (prose === undefined || (ledger && LEDGER_ROW.test(prose.trim()))) {
+        if (
+          prose === undefined ||
+          ledger.has(index + 1) ||
+          (ledger.size > 0 && ABOUT_DECISION.test(prose.trim()))
+        ) {
           continue;
         }
         for (const match of prose.matchAll(QUOTED)) {

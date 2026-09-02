@@ -2298,6 +2298,24 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-02 — the record's entries become headings, and fourteen of them are rendered for the first time
+
+D-171 and D-172 landed in one pass, because they are one change: the migration is what makes the recovery expressible, and the recovery is what the migration would otherwise have carried forward invisibly.
+
+**441 entries, in five documents.** 172 decisions and 268 findings in `00-index.md`, and 52 in the satellites — `SC-*` and `O-*` in `obligations.md`, `Q-*` in 05, `P-*` in 02, `B-*` and `K-*` in 07. The status register, the deferred table and every value-keyed table stayed tables, on the amendment's own ground: their rows are projections, one derived fact per identifier, which is what a table is for.
+
+**The recovery is the part worth reading.** Eight findings — F-128, F-129, F-132 through F-136 — had never appeared in any rendered version of this document, in any commit. They were authored inside another row's line and GFM discarded them on arrival, so the gaps at those numbers were their own absence and are now their place. Six more at line 964 were the same findings as their rendered namesakes, authored at 10:46 and re-entered at 11:30 by a pass that could not see the first copy; they are merged in D-172's recorded direction — the rendered entry keeps its identifier and status, the fuller hidden statement is appended and marked as recovered. One, at line 942, was a genuinely different finding wearing `F-146`, and is minted as **F-283** with the old identifier kept only as provenance. Ten truncated clauses went back to the entries that own them, D-162's fourth cell filed as the amendment it is rather than as a supersession, and F-130's `PlaceholderFactory | null` rejoined into one code span.
+
+**The gate is `.scripts/corpus-equivalence.ts`, and it is kept runnable.** It reads the pre-migration state out of git rather than a fixture — a transcription being exactly what the gate exists to distrust — and checks 432 rendered entries plus 24 fragments against 441 entries, clause by clause, with markup delimiters normalized on both sides because the formatter rewrites `*x*` as `_x_` and a code span pairs differently inside a cell than inside a body. Two identifiers are **classified rather than skipped**: D-171, which the pass marks implemented in the same breath as migrating it, and F-286, which the pass raises. An unnamed exemption is where a real loss would sit.
+
+**`shape()` was not deleted but replaced, and the difference is one line.** It reset its header on every non-pipe line; every findings row is blank-line separated; so each host row became its own header and was compared against nothing. `surplus()` carries the header across blank lines, and reports a surplus cell opening with an identifier as a _hidden entry_ apart from one that does not as a _truncated clause_ — D-172's discriminator, and the reason thirteen rows are fourteen entries and ten clauses rather than one number. It is falsified on planted instances of both halves and on the blank-line case by name, so F-284 rests on an instrument rather than on the malformed table having gone.
+
+**Reading one entry back is `entry.sh drag2:D-171`.** The address is qualified from the first release: a bare identifier is refused rather than resolved, because a convenience form is what every caller ends up written against and it cannot answer once a second scope exists. Unknown scope, unknown local id and a duplicated local id are three distinct failures. The local id is an opaque exact key, so `SC-7` needs no vocabulary and `box-quad:BQ-9` needs no syntax.
+
+**Three satellite tables in the settled scope did not migrate**, and are recorded as F-286 rather than absorbed: `I-*`, whose thirty-seventh row keys on `~~I-35~~` and where the two available readings are different rules; the paired `M-*` tables, which both key on `M-1`…`M-4` and would mint four duplicates; and `L-*`, structurally identical to the `B-*` and `K-*` tables migrated beside it and absent from the enumerated scope.
+
+---
+
 ### 2026-09-02 — fourteen entries were in the file and not in the record (D-172, D-171 amended, F-283…F-285)
 
 **D-171's implementation stopped because `00-index.md` does not say what it appears to say.** Thirteen physical rows author more cells than their table has columns, and GFM discards the surplus with no diagnostic. Record [`d172-hidden-fragment-recovery-claude.md`](reviews/phase-24/d172-hidden-fragment-recovery-claude.md); the verbatim corpus is [`recovered-fragments.md`](reviews/phase-24/recovered-fragments.md). No production code, test or migration was written.

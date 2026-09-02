@@ -6,6 +6,26 @@ The single source of truth for **how code is written here**: source conventions 
 
 **Some rules were measured and some are priors.** Where a rule was tested, this document says so and links the record. A rule with no measurement beside it is a default to be argued with, not a finding.
 
+## Reading one entry of a record
+
+A record under `packages/*/.plan/` states each decision, finding, standing condition and obligation as a `####` entry (D-171). To read one back:
+
+```sh
+packages/drag2/.scripts/entry.sh drag2:D-171
+```
+
+**The address is qualified** — `<scope>:<local-id>` — and a bare identifier is refused rather than resolved. A convenience form is what every caller ends up written against, and it cannot answer once a second scope exists, so it would break exactly when it was most used. `drag2` is the only scope this build resolves; a future `box-quad:BQ-9` is a row in the script's scope map and not a change to the syntax. Unknown scope, unknown local identifier and a local identifier the record defines twice are three **distinct** failures, because the repairs differ: an address for a package this build cannot see, a citation of something the record never states, and a defect in the record.
+
+The headings themselves stay local, so with no toolchain to hand one entry of one known file extracts standalone:
+
+```sh
+awk -v re="^#### D-171( —|$)" \
+  '$0 ~ re {f=1;print;next} f && /^#{1,4} /{exit} f' \
+  packages/drag2/.plan/contract/00-index.md
+```
+
+Both guards carry weight. `( —|$)` stops `D-16` answering for `D-163`, and the `#{1,4}` terminator cannot match `#####`, so an entry's own sub-clauses stay inside the extraction. This is an idiom for one file you already know, not a second implementation behind the wrapper: `entry.sh` is what finds the file across the current-state documents and refuses an ambiguous answer.
+
 ---
 
 # Part I — Code style
@@ -341,14 +361,14 @@ The target is not the smallest code we can write. The target is the **smallest r
 
 What this document used to say, and what changed it, so a measurement already made is not commissioned twice. Evidence lives in the package records. Section numbers are permanent, so every entry names one.
 
-| Date | Section | Change |
-| --- | --- | --- |
-| 2026-08-24 | §1.3 | **Withdrawn:** _development-only diagnostics are preferable when they can be removed from production output._ False whenever the trigger is outside the library. Replaced by gating on **provenance** rather than audience |
-| 2026-08-24 | §4 | **Withdrawn:** _avoid exported numeric phase/state/failure constants **unless** they are part of the supported consumer contract._ The rule was argued on bundle size and the premise was measured false; the `unless` clause becomes the rule, now resting on surface, permanence and install weight. Record: [`failure-vocabulary-cost-claude.md`](packages/drag2/.plan/reviews/phase-23/failure-vocabulary-cost-claude.md) |
-| 2026-08-24 | §16 | **Added:** diagnostic payload as a removal class in its own right, ranked ahead of syntax work |
-| 2026-08-25 | §1.1 | **Withdrawn:** _runtime validation is justified only when it protects a library-owned invariant that cannot reasonably be expressed or enforced elsewhere._ Ownership is the right second question and the wrong first one. Replaced by **reachability**, and then by reachability as a **gate**, because merely ordering the two lets ownership rescue a check reachability already rejected |
-| 2026-08-25 | §1.2 | **Added:** a constraint the compiler cannot state is still a constraint, and writing it down is what puts the input outside the contract |
-| 2026-08-25 | §13 | **Clarified:** deleting a nannying check is not a failure-semantics change; a **documented** no-op is the exception and stays |
-| 2026-08-26 | §18 | **Removed** the live byte figures from the worked example; the rule they illustrated is unchanged |
-| 2026-08-26 | — | Amendment narrative, dates and struck wording moved into this section; section numbers declared permanent |
-| 2026-08-29 | — | `CODE_OF_SIZE.md` and `.agents/docs/code-style.md` merged here as Part II and Part I. Section numbers carried over unchanged; §1.1's worked audit narratives dropped to the records that already hold them |
+| Date       | Section | Change                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ---------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-08-24 | §1.3    | **Withdrawn:** _development-only diagnostics are preferable when they can be removed from production output._ False whenever the trigger is outside the library. Replaced by gating on **provenance** rather than audience                                                                                                                                                                                                    |
+| 2026-08-24 | §4      | **Withdrawn:** _avoid exported numeric phase/state/failure constants **unless** they are part of the supported consumer contract._ The rule was argued on bundle size and the premise was measured false; the `unless` clause becomes the rule, now resting on surface, permanence and install weight. Record: [`failure-vocabulary-cost-claude.md`](packages/drag2/.plan/reviews/phase-23/failure-vocabulary-cost-claude.md) |
+| 2026-08-24 | §16     | **Added:** diagnostic payload as a removal class in its own right, ranked ahead of syntax work                                                                                                                                                                                                                                                                                                                                |
+| 2026-08-25 | §1.1    | **Withdrawn:** _runtime validation is justified only when it protects a library-owned invariant that cannot reasonably be expressed or enforced elsewhere._ Ownership is the right second question and the wrong first one. Replaced by **reachability**, and then by reachability as a **gate**, because merely ordering the two lets ownership rescue a check reachability already rejected                                 |
+| 2026-08-25 | §1.2    | **Added:** a constraint the compiler cannot state is still a constraint, and writing it down is what puts the input outside the contract                                                                                                                                                                                                                                                                                      |
+| 2026-08-25 | §13     | **Clarified:** deleting a nannying check is not a failure-semantics change; a **documented** no-op is the exception and stays                                                                                                                                                                                                                                                                                                 |
+| 2026-08-26 | §18     | **Removed** the live byte figures from the worked example; the rule they illustrated is unchanged                                                                                                                                                                                                                                                                                                                             |
+| 2026-08-26 | —       | Amendment narrative, dates and struck wording moved into this section; section numbers declared permanent                                                                                                                                                                                                                                                                                                                     |
+| 2026-08-29 | —       | `CODE_OF_SIZE.md` and `.agents/docs/code-style.md` merged here as Part II and Part I. Section numbers carried over unchanged; §1.1's worked audit narratives dropped to the records that already hold them                                                                                                                                                                                                                    |

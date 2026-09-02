@@ -26,51 +26,167 @@
 
 Nothing below is decided by this register. Each row states what is owed and what it is waiting for.
 
-| # | Obligation | Owed by | Waiting for |
-| --- | --- | --- | --- |
-| O-2 | **Whether a stage is a promise or a description** — the general question, of which D-81's `action.prepare` correction was one instance | D-81 | **A destination.** Routed to Checkpoint E, which ran eight passes and closed on a different seam. The phrase occurs once in the whole record, in D-81's own row |
-| O-3 | **The touch measurement**: long-press context menus and tap highlighting, whose suppression cost was recorded as owed rather than assumed away. **Unaffected by D-129**, which supersedes D-46's element-type decline and nothing else — this obligation is D-54's half, the relocated `preventDefault()`, and probe E's Chromium-and-mouse limit is the same limit it was | D-46 / D-54 | **A destination that can hold a measurement.** The deferred-decision vocabulary has no form for one, which is why nothing tracked it; D-95's Phase 21 obligation sweep scoped itself to 05's M-1…M-4 and did not reach it |
-| O-4 | **A second engine.** Probe A's cases are Chromium only, and so is every browser suite that inherited them — `.scripts/vitest-config.ts` configures one browser | 05 §Test matrix | **A decision to pay for it.** Unchanged since it was written; stated here so it is visible rather than buried in a paragraph about probe carry-over |
-| O-5 | **Is `RECOVERY_HOME` right for a rejected reorder?** With a placeholder-based sortable the home slot may have moved under an accepted concurrent update, and _the test matrix should include a rejection after a collection change_ — no such row exists | 05 §Q-6 | **An owner's answer, not a repair.** Re-read here rather than closed: the missing matrix row is bookkeeping, but what the row would assert is not settled, and choosing a recovery for a reorder rejected against a moved home is a semantic decision this pass declines to make locally |
-| O-6 | **Whether `kernel/kernel.ts` should be split.** 2 468 lines against the 1 971 that prompted M-02; its duplicated-SPI half is closed | M-02 | **A judgment, and the human owner's.** M-02's own disposition was that _mechanical splitting before those decisions is not warranted_, and the decisions it named have all since been taken — so splitting is now live, buys navigation and risks nothing else. Not made on the last day of agent ownership |
-| O-7 | **F-80's four API divergences** between the contract and the shipped surface | F-80 | **An owner's call on each.** Unchanged since the API entry; kept as one row here so the register is the whole list rather than most of it |
+#### O-2
+
+**Whether a stage is a promise or a description** — the general question, of which D-81's `action.prepare` correction was one instance
+
+**Owed by:** D-81
+
+**Waiting for:** **A destination.** Routed to Checkpoint E, which ran eight passes and closed on a different seam. The phrase occurs once in the whole record, in D-81's own row
+
+#### O-3
+
+**The touch measurement**: long-press context menus and tap highlighting, whose suppression cost was recorded as owed rather than assumed away. **Unaffected by D-129**, which supersedes D-46's element-type decline and nothing else — this obligation is D-54's half, the relocated `preventDefault()`, and probe E's Chromium-and-mouse limit is the same limit it was
+
+**Owed by:** D-46 / D-54
+
+**Waiting for:** **A destination that can hold a measurement.** The deferred-decision vocabulary has no form for one, which is why nothing tracked it; D-95's Phase 21 obligation sweep scoped itself to 05's M-1…M-4 and did not reach it
+
+#### O-4
+
+**A second engine.** Probe A's cases are Chromium only, and so is every browser suite that inherited them — `.scripts/vitest-config.ts` configures one browser
+
+**Owed by:** 05 §Test matrix
+
+**Waiting for:** **A decision to pay for it.** Unchanged since it was written; stated here so it is visible rather than buried in a paragraph about probe carry-over
+
+#### O-5
+
+**Is `RECOVERY_HOME` right for a rejected reorder?** With a placeholder-based sortable the home slot may have moved under an accepted concurrent update, and _the test matrix should include a rejection after a collection change_ — no such row exists
+
+**Owed by:** 05 §Q-6
+
+**Waiting for:** **An owner's answer, not a repair.** Re-read here rather than closed: the missing matrix row is bookkeeping, but what the row would assert is not settled, and choosing a recovery for a reorder rejected against a moved home is a semantic decision this pass declines to make locally
+
+#### O-6
+
+**Whether `kernel/kernel.ts` should be split.** 2 468 lines against the 1 971 that prompted M-02; its duplicated-SPI half is closed
+
+**Owed by:** M-02
+
+**Waiting for:** **A judgment, and the human owner's.** M-02's own disposition was that _mechanical splitting before those decisions is not warranted_, and the decisions it named have all since been taken — so splitting is now live, buys navigation and risks nothing else. Not made on the last day of agent ownership
+
+#### O-7
+
+**F-80's four API divergences** between the contract and the shipped surface
+
+**Owed by:** F-80
+
+**Waiting for:** **An owner's call on each.** Unchanged since the API entry; kept as one row here so the register is the whole list rather than most of it
 
 ## Standing conditions
 
 **A standing condition is recognised, not discharged.** Nobody is assigned one; an observer meets the stated circumstance and the named decision reopens. Each row is present tense and its citations resolve today (D-116 (c)) — **and they are checked**: a citation here is written as a citation rather than quoted inside a code span, so `tests/references.node.test.ts` resolves it instead of reading it as a specimen (C-01); the deciding row in [`00-index.md`](contract/00-index.md) keeps its own wording as it stood and cites the id here.
 
-| # | Condition | Reopens | Where it was decided | Today |
-| --- | --- | --- | --- | --- |
-| SC-1 | **A bundle-budget row goes negative**, or **erosion stops being attributable to a named landed change**, or **L-11 lands** — ~~`plan.md` §Phase 23's five runtime cells onto two frozen entrypoints~~ **D-154's `CancelOrigin` and its four constants onto three frozen entrypoints, with the sortable's two supplied reasons onto one of them** (rewritten 2026-08-29, as D-154 requires: the trigger named the deliverable that decision declines). The third is not a size trigger: the frozen export map is one of the six reproducibility preconditions stated at [05 §Measurements — landed 2026-08-02](contract/05-lifecycle-invariants.md), so changing it re-measures M-3 whether or not it moves a byte | D-106 — the twelve declared rows re-base | D-106, and [`bundle-structure.md`](bundle-structure.md) §Headroom | **Met 2026-08-29 by its third trigger, and the re-base it schedules does not follow.** L-11 landed as D-154, the export map changed on three entries, and M-3 was re-measured for that reason rather than for a byte: [`budget-rebases.md`](measurements/budget-rebases.md) §SC-1 fires carries the fourteen rows. **Every row is under budget**, the movement is +4 to +19 B Brotli and attributable to one named landed change, and no row goes negative. **Slack runs 63–630 B**: 456–630 B on the eleven rows that carry a behavior, and 63 B (`drag.js`), 151 B (baseline B) and 246 B (`kernel.js`) on the three that do not — ~~456–630 B~~ over all fourteen is **corrected 2026-08-29 (F-175)**, having replaced the previously-live _114–154 B_ with a range that excluded the register's own tightest rows — so the first two triggers are still not met and the twelve rows keep the budgets they had. **A re-measurement is what this condition asks for; a re-base is what the evidence has to earn**, and it does not |
-| SC-3 | **A call graph that makes one of the four un-gated assertions hot** — a `scrub()` or a frame-shape assertion reachable per frame rather than once per operation, most plausibly `assertFrameScrubbed`. Per-site: it does not require all four to be alike | D-108 — the author-facing assertions stay unconditional in every build | D-108, as rewritten by D-114 (a) | **Not met, and settled structurally rather than by a run**: `arm()` runs once per controller and all three `scrub()` sites are terminal. That is the whole of what API-03 asked for; **no measurement is owed** **Sharpened 2026-08-23 by D-117 (d)**, which does not reopen it: this condition is written as a binary — per frame, or once per operation — and the Phase 23 audit found a third reading it cannot express. `assertFrameScrubbed` runs twice per operation and allocates a key array, an `.every` closure and **one descriptor object per frame key** on each run, which is neither hot nor free. Frequency is the axis D-117 (d) assigns to machinery, so a site can be cold by this row's test and still owe a runtime figure. **No measurement is owed here either** — the figure belongs to D-117's measurement pass, on the machinery axis, and this row stays exactly as narrow as it was |
-| SC-4 | **A behavior writes more than once per sample**, or **a device is materially above M-6's ~129 /s primary pace**. Both are measured quantities, which is what makes them recognisable rather than owed: an observer meets the number, nobody is assigned it | D-105 — the P-01 write-gate decline stands, and `moveTo()` traffic stays classified rather than gated | D-105 | **Not met on the evidence D-105 records**, and the decision is not re-opened or re-decided here. **Registered 2026-08-22 (C-02)**: D-116's census found three live clauses because it looked for the three lead-ins that _name_ a clause, and this one is a sentence about what would reopen a decision — the open premise D-116 (d) stated prospectively, with an instance already in the row above D-106's. The backstop's vocabulary now carries this fourth form |
-| SC-5 | **A supported deployment in which a consumer's handler must branch on the reason programmatically**, rather than read it, log it or group by it. An identity string serves reading, logging and grouping; it does not serve a `switch`, and nobody should be asked to match on `err.message` | D-117's identity floor — the message names the fault and a typed `reason` on `DraggableError` is not added | D-117, inheriting the live half of the retired SC-2 and the API half of **O-1** | **Not met.** No such deployment is on record, and the two halves of the old condition have separated: the bundle-constrained half is answered by D-117 shrinking the text rather than by anyone waiting for evidence, and the machine-readable half is delivered as an identity. What is left is genuinely an API question and is deliberately small — D-117 gives every site a stable identity **first**, so adding `reason` later is one line in `DraggableError` and no site changes, which is the whole reason this is a condition and not an obligation |
-| SC-6 | **A kernel-tier or free-drag-tier dev instrument whose gating is worth a `__DEV__` binding on grounds other than bytes** — D-101's own asymmetry, a check that is genuinely hot rather than merely present | D-117's rule that a P2 diagnostic gates only in a tier that already binds the flag, and D-101's boundary, which the kernel would then re-cross | D-117, declining the one candidate the measurement produced — the unconsumed-staged-value report in `kernel/seams.ts` | **Not met.** That report is the package's only P2 site whose check is not load-bearing, and gating it buys a branch, an `Error` construction and a token's difference. D-101 says the boundary _must not be argued on bytes_ and that is the whole of the argument available for it, so the site ships. **This is a decline with a live condition, not a closed door**: the declared tier set in `tests/kernel/vocabulary.node.test.ts` is a declaration rule and would accept a kernel binding that was declared, which is what D-101 built it to make visible |
-| SC-7 | **A class arm measured at controller scale on real controllers**, in the harness M-2 used rather than in a model — or a **per-operation object grown enough state to make the predecessor package's per-gesture finding transfer**, which today it does not. Both are recognitions, not assignments: an observer meets the figure | D-167 — the closure-factory representation is retained for the kernel and the specs, and D-4's evidence base, which compares the factory against a static spec plus a state record and never against a class | D-167, extending D-4 to territory M-2 did not measure | **Not met.** D-167 declines the class on a generated sketch bundled with this repository's toolchain — +102 B Brotli, ~2.8× faster construction — and says so as a model rather than as a measurement: the construction advantage lands on a workload that does not exist here, one controller per list and one operation per gesture, and is cancelled where it would be paid by the receiver-free disposer protocol. **What would change the answer is a real figure, not a stronger argument.** The predecessor's measured class win, at [`packages/drag/.plan/experiments/02-classes.md`](../../drag/.plan/experiments/02-classes.md), is for a **per-gesture** object; drag2's factories are per-controller, which is why two honest records reach opposite conclusions. This row fires when that difference stops holding. **Re-checked 2026-09-02 under D-169 and still not met**: all six stateful factories in `src/**` are per-controller, and the per-operation objects are three-field resource handles rather than the 540-line, seven-field, fourteen-method gesture class the predecessor measured. **One thing moved toward the trigger and is recorded rather than counted**: the per-operation path now allocates roughly ten to fourteen closures, the same order as the arm that experiment rejected — an observation, not the figure this row asks for. **Discharged 2026-09-02 by D-170**, and by the owner decision it records rather than by this row's own trigger being met. The condition asks _when should the class decline be reopened_; the decline is gone — D-167 and D-169 are superseded and the class is adopted — so there is nothing left for an observer to reopen. **The trigger was never met and that is worth keeping**: no figure arrived, and none was needed, because the question was answered on representation rather than on cost. A row that fires on a measurement cannot survive the deletion of the decision it points at, and re-aiming it at D-170 would invent a condition nobody stated. |
+#### SC-1
+
+**A bundle-budget row goes negative**, or **erosion stops being attributable to a named landed change**, or **L-11 lands** — ~~`plan.md` §Phase 23's five runtime cells onto two frozen entrypoints~~ **D-154's `CancelOrigin` and its four constants onto three frozen entrypoints, with the sortable's two supplied reasons onto one of them** (rewritten 2026-08-29, as D-154 requires: the trigger named the deliverable that decision declines). The third is not a size trigger: the frozen export map is one of the six reproducibility preconditions stated at [05 §Measurements — landed 2026-08-02](contract/05-lifecycle-invariants.md), so changing it re-measures M-3 whether or not it moves a byte
+
+**Reopens:** D-106 — the twelve declared rows re-base
+
+**Where it was decided:** D-106, and [`bundle-structure.md`](bundle-structure.md) §Headroom
+
+**Today:** **Met 2026-08-29 by its third trigger, and the re-base it schedules does not follow.** L-11 landed as D-154, the export map changed on three entries, and M-3 was re-measured for that reason rather than for a byte: [`budget-rebases.md`](measurements/budget-rebases.md) §SC-1 fires carries the fourteen rows. **Every row is under budget**, the movement is +4 to +19 B Brotli and attributable to one named landed change, and no row goes negative. **Slack runs 63–630 B**: 456–630 B on the eleven rows that carry a behavior, and 63 B (`drag.js`), 151 B (baseline B) and 246 B (`kernel.js`) on the three that do not — ~~456–630 B~~ over all fourteen is **corrected 2026-08-29 (F-175)**, having replaced the previously-live _114–154 B_ with a range that excluded the register's own tightest rows — so the first two triggers are still not met and the twelve rows keep the budgets they had. **A re-measurement is what this condition asks for; a re-base is what the evidence has to earn**, and it does not
+
+#### SC-3
+
+**A call graph that makes one of the four un-gated assertions hot** — a `scrub()` or a frame-shape assertion reachable per frame rather than once per operation, most plausibly `assertFrameScrubbed`. Per-site: it does not require all four to be alike
+
+**Reopens:** D-108 — the author-facing assertions stay unconditional in every build
+
+**Where it was decided:** D-108, as rewritten by D-114 (a)
+
+**Today:** **Not met, and settled structurally rather than by a run**: `arm()` runs once per controller and all three `scrub()` sites are terminal. That is the whole of what API-03 asked for; **no measurement is owed** **Sharpened 2026-08-23 by D-117 (d)**, which does not reopen it: this condition is written as a binary — per frame, or once per operation — and the Phase 23 audit found a third reading it cannot express. `assertFrameScrubbed` runs twice per operation and allocates a key array, an `.every` closure and **one descriptor object per frame key** on each run, which is neither hot nor free. Frequency is the axis D-117 (d) assigns to machinery, so a site can be cold by this row's test and still owe a runtime figure. **No measurement is owed here either** — the figure belongs to D-117's measurement pass, on the machinery axis, and this row stays exactly as narrow as it was
+
+#### SC-4
+
+**A behavior writes more than once per sample**, or **a device is materially above M-6's ~129 /s primary pace**. Both are measured quantities, which is what makes them recognisable rather than owed: an observer meets the number, nobody is assigned it
+
+**Reopens:** D-105 — the P-01 write-gate decline stands, and `moveTo()` traffic stays classified rather than gated
+
+**Where it was decided:** D-105
+
+**Today:** **Not met on the evidence D-105 records**, and the decision is not re-opened or re-decided here. **Registered 2026-08-22 (C-02)**: D-116's census found three live clauses because it looked for the three lead-ins that _name_ a clause, and this one is a sentence about what would reopen a decision — the open premise D-116 (d) stated prospectively, with an instance already in the row above D-106's. The backstop's vocabulary now carries this fourth form
+
+#### SC-5
+
+**A supported deployment in which a consumer's handler must branch on the reason programmatically**, rather than read it, log it or group by it. An identity string serves reading, logging and grouping; it does not serve a `switch`, and nobody should be asked to match on `err.message`
+
+**Reopens:** D-117's identity floor — the message names the fault and a typed `reason` on `DraggableError` is not added
+
+**Where it was decided:** D-117, inheriting the live half of the retired SC-2 and the API half of **O-1**
+
+**Today:** **Not met.** No such deployment is on record, and the two halves of the old condition have separated: the bundle-constrained half is answered by D-117 shrinking the text rather than by anyone waiting for evidence, and the machine-readable half is delivered as an identity. What is left is genuinely an API question and is deliberately small — D-117 gives every site a stable identity **first**, so adding `reason` later is one line in `DraggableError` and no site changes, which is the whole reason this is a condition and not an obligation
+
+#### SC-6
+
+**A kernel-tier or free-drag-tier dev instrument whose gating is worth a `__DEV__` binding on grounds other than bytes** — D-101's own asymmetry, a check that is genuinely hot rather than merely present
+
+**Reopens:** D-117's rule that a P2 diagnostic gates only in a tier that already binds the flag, and D-101's boundary, which the kernel would then re-cross
+
+**Where it was decided:** D-117, declining the one candidate the measurement produced — the unconsumed-staged-value report in `kernel/seams.ts`
+
+**Today:** **Not met.** That report is the package's only P2 site whose check is not load-bearing, and gating it buys a branch, an `Error` construction and a token's difference. D-101 says the boundary _must not be argued on bytes_ and that is the whole of the argument available for it, so the site ships. **This is a decline with a live condition, not a closed door**: the declared tier set in `tests/kernel/vocabulary.node.test.ts` is a declaration rule and would accept a kernel binding that was declared, which is what D-101 built it to make visible
+
+#### SC-7
+
+**A class arm measured at controller scale on real controllers**, in the harness M-2 used rather than in a model — or a **per-operation object grown enough state to make the predecessor package's per-gesture finding transfer**, which today it does not. Both are recognitions, not assignments: an observer meets the figure
+
+**Reopens:** D-167 — the closure-factory representation is retained for the kernel and the specs, and D-4's evidence base, which compares the factory against a static spec plus a state record and never against a class
+
+**Where it was decided:** D-167, extending D-4 to territory M-2 did not measure
+
+**Today:** **Not met.** D-167 declines the class on a generated sketch bundled with this repository's toolchain — +102 B Brotli, ~2.8× faster construction — and says so as a model rather than as a measurement: the construction advantage lands on a workload that does not exist here, one controller per list and one operation per gesture, and is cancelled where it would be paid by the receiver-free disposer protocol. **What would change the answer is a real figure, not a stronger argument.** The predecessor's measured class win, at [`packages/drag/.plan/experiments/02-classes.md`](../../drag/.plan/experiments/02-classes.md), is for a **per-gesture** object; drag2's factories are per-controller, which is why two honest records reach opposite conclusions. This row fires when that difference stops holding. **Re-checked 2026-09-02 under D-169 and still not met**: all six stateful factories in `src/**` are per-controller, and the per-operation objects are three-field resource handles rather than the 540-line, seven-field, fourteen-method gesture class the predecessor measured. **One thing moved toward the trigger and is recorded rather than counted**: the per-operation path now allocates roughly ten to fourteen closures, the same order as the arm that experiment rejected — an observation, not the figure this row asks for. **Discharged 2026-09-02 by D-170**, and by the owner decision it records rather than by this row's own trigger being met. The condition asks _when should the class decline be reopened_; the decline is gone — D-167 and D-169 are superseded and the class is adopted — so there is nothing left for an observer to reopen. **The trigger was never met and that is worth keeping**: no figure arrived, and none was needed, because the question was answered on representation rather than on cost. A row that fires on a measurement cannot survive the deletion of the decision it points at, and re-aiming it at D-170 would invent a condition nobody stated.
 
 ## Retired conditions
 
 **A condition retired under rule (e) is not a condition that was met.** It stays here because a ledger row cites it and that citation must keep resolving, and because _the decision moved_ is the one disposition a reader cannot reconstruct from the ledger alone.
 
-| # | Condition | Disposition |
-| --- | --- | --- |
-| SC-2 | **Evidence of a bundle-constrained supported deployment**, or **a machine-readable reason replacing the prose** | **Retired 2026-08-23 by D-117**, which supersedes its subject rather than meeting its trigger. The condition guarded _D-107's Class B as a unit_, and D-117 dissolves the unit: those sites are now classified one at a time by provenance, and they no longer share a fate, a cost or a reopening condition. **Neither trigger fired.** The first is moot — D-117 shrinks the text on the argument that prose was never contract, so no deployment has to prove it. The second is delivered, as an identity rather than as a new public value, which is what makes it a repartition and not a surrender. Its live residue is **SC-5**. D-107's row keeps the wording it was decided in and keeps citing this id (D-116 (a)) |
+#### SC-2
+
+**Evidence of a bundle-constrained supported deployment**, or **a machine-readable reason replacing the prose**
+
+**Disposition:** **Retired 2026-08-23 by D-117**, which supersedes its subject rather than meeting its trigger. The condition guarded _D-107's Class B as a unit_, and D-117 dissolves the unit: those sites are now classified one at a time by provenance, and they no longer share a fate, a cost or a reopening condition. **Neither trigger fired.** The first is moot — D-117 shrinks the text on the argument that prose was never contract, so no deployment has to prove it. The second is delivered, as an identity rather than as a new public value, which is what makes it a repartition and not a surrender. Its live residue is **SC-5**. D-107's row keeps the wording it was decided in and keeps citing this id (D-116 (a))
 
 ## Withdrawn
 
-| # | Obligation | Disposition |
-| --- | --- | --- |
-| O-8 | **Check D-56** — _run `bench/size` immediately before and after the three subpath deletions land_, predicting zero byte movement, with the check's own wording forbidding a later phase from recording it satisfied without the two numbers | **Withdrawn unsatisfied, 2026-08-22, by the owner.** The required before/after measurement belonged to the deletion's landing window, and that window was missed: Phase R landed the deletion and nobody took the numbers. **The check is not satisfied and must not be described as satisfied**, and no later measurement substitutes for it — a figure taken against any subsequent tree answers a different question, which is precisely what the check's own wording forbids. What is withdrawn is the **lost historical falsifier**; **D-56 itself remains accepted**, on its argument. Four records — `phase-21.md`, `m3-prime.md`, `m2-prime.md`, `m5.md` — each handed this back rather than take it, and this row is where it stops being handed on |
+#### O-8
+
+**Check D-56** — _run `bench/size` immediately before and after the three subpath deletions land_, predicting zero byte movement, with the check's own wording forbidding a later phase from recording it satisfied without the two numbers
+
+**Disposition:** **Withdrawn unsatisfied, 2026-08-22, by the owner.** The required before/after measurement belonged to the deletion's landing window, and that window was missed: Phase R landed the deletion and nobody took the numbers. **The check is not satisfied and must not be described as satisfied**, and no later measurement substitutes for it — a figure taken against any subsequent tree answers a different question, which is precisely what the check's own wording forbids. What is withdrawn is the **lost historical falsifier**; **D-56 itself remains accepted**, on its argument. Four records — `phase-21.md`, `m3-prime.md`, `m2-prime.md`, `m5.md` — each handed this back rather than take it, and this row is where it stops being handed on
 
 ## Discharged here
 
-| # | Obligation | Disposition |
-| --- | --- | --- |
-| O-12 | **Whether `assertFrameScrubbed`'s per-retirement allocation is worth its invariant** — 32 transient objects per retirement, one descriptor object per frame key, scaling with the behavior's part width | **Discharged 2026-08-25 by D-128, and the owner answered it by deleting the machinery rather than by narrowing it.** `assertFrameScrubbed`, `assertFrameShapesMatch`, `validateFrameDescriptors` and `captureFrameKeys` are gone, so the per-retirement allocation is gone with them and neither frequency-first remedy — scrub the first retirement only, narrow the descriptor walk — was needed. **What this row insisted on is what makes the discharge legitimate**: it refused to treat the removal as a size edit, because those four are I-27's and I-28's only mechanisms and touching them is a contract change under `CODE_OF_SIZE.md` §13. That change is recorded rather than absorbed — I-27 and I-28 keep tier C and lose their mechanism cells, [04 §Dev-only invariants](contract/04-frame-slicing.md) says the section has no subject left, and D-108 is narrowed from four checks to two rather than retracted. The ablation-D **rank** of −240…−266 B is replaced by the landed figure in [`bench/size/measure.ts`](../bench/size/measure.ts) |
-| O-9 | `bundle-structure.md` §Corrections to the record, item 3 — _recorded so the next pass over 05 either writes the section or re-points both_ | **Closed by D-112.** _The next pass over 05_ was never a destination, which is the (b) failure in its purest form. Both citations are re-pointed at `05 §Measurements — landed 2026-08-02`, and `tests/references.node.test.ts` now fails on the next one |
-| O-10 | **API-03** — D-108's _Overturned by_ clause naming a runtime measurement nobody took | **Closed by D-114 (a).** The clause is rewritten as the standing condition it always was, and now says what already discharges it: the coldness of all four sites is settled by the call graph — `arm()` runs once per controller, all three `scrub()` sites are terminal — rather than by a run |
-| O-11 | **Q-4's narrow half** — _whether a fourth action tag on one behavior indicates something is a question a second implemented behavior answers, not this one_ | **Closed as bookkeeping.** The answering event occurred: free drag landed at Phase 19 declaring **two** action tags against the sortable's three. The fourth tag never arrived, the count did not accumulate across behaviors, and the boundary Q-4 watches held. Nothing was decided here that the event had not already decided |
-| O-1 | **A machine-readable reason replacing the prose** for D-107's Class B | **Discharged 2026-08-23 by D-117, in the form this register recorded it.** The reason is delivered as a **stable identity on every fault** — `drag: <area>/<condition>`, specified at [05 §Diagnostics, by provenance and audience](contract/05-lifecycle-invariants.md) — which is machine-readable for every use this obligation was written for: reading it, logging it, grouping by it, quoting it in a report. **The premise that stranded it was that _machine-readable_ implies a new public value**, hence an API deliverable, hence an owner's call on reopening a door that had closed. It does not, and that conflation is why the item outlived two passes that could each have taken it. What genuinely needs the owner's call is narrower and is now **SC-5** — whether the identity is _also_ a typed `reason` a handler can `switch` on. Nobody owes that, and D-117 makes it cheap by giving every site its identity first |
+#### O-12
+
+**Whether `assertFrameScrubbed`'s per-retirement allocation is worth its invariant** — 32 transient objects per retirement, one descriptor object per frame key, scaling with the behavior's part width
+
+**Disposition:** **Discharged 2026-08-25 by D-128, and the owner answered it by deleting the machinery rather than by narrowing it.** `assertFrameScrubbed`, `assertFrameShapesMatch`, `validateFrameDescriptors` and `captureFrameKeys` are gone, so the per-retirement allocation is gone with them and neither frequency-first remedy — scrub the first retirement only, narrow the descriptor walk — was needed. **What this row insisted on is what makes the discharge legitimate**: it refused to treat the removal as a size edit, because those four are I-27's and I-28's only mechanisms and touching them is a contract change under `CODE_OF_SIZE.md` §13. That change is recorded rather than absorbed — I-27 and I-28 keep tier C and lose their mechanism cells, [04 §Dev-only invariants](contract/04-frame-slicing.md) says the section has no subject left, and D-108 is narrowed from four checks to two rather than retracted. The ablation-D **rank** of −240…−266 B is replaced by the landed figure in [`bench/size/measure.ts`](../bench/size/measure.ts)
+
+#### O-9
+
+`bundle-structure.md` §Corrections to the record, item 3 — _recorded so the next pass over 05 either writes the section or re-points both_
+
+**Disposition:** **Closed by D-112.** _The next pass over 05_ was never a destination, which is the (b) failure in its purest form. Both citations are re-pointed at `05 §Measurements — landed 2026-08-02`, and `tests/references.node.test.ts` now fails on the next one
+
+#### O-10
+
+**API-03** — D-108's _Overturned by_ clause naming a runtime measurement nobody took
+
+**Disposition:** **Closed by D-114 (a).** The clause is rewritten as the standing condition it always was, and now says what already discharges it: the coldness of all four sites is settled by the call graph — `arm()` runs once per controller, all three `scrub()` sites are terminal — rather than by a run
+
+#### O-11
+
+**Q-4's narrow half** — _whether a fourth action tag on one behavior indicates something is a question a second implemented behavior answers, not this one_
+
+**Disposition:** **Closed as bookkeeping.** The answering event occurred: free drag landed at Phase 19 declaring **two** action tags against the sortable's three. The fourth tag never arrived, the count did not accumulate across behaviors, and the boundary Q-4 watches held. Nothing was decided here that the event had not already decided
+
+#### O-1
+
+**A machine-readable reason replacing the prose** for D-107's Class B
+
+**Disposition:** **Discharged 2026-08-23 by D-117, in the form this register recorded it.** The reason is delivered as a **stable identity on every fault** — `drag: <area>/<condition>`, specified at [05 §Diagnostics, by provenance and audience](contract/05-lifecycle-invariants.md) — which is machine-readable for every use this obligation was written for: reading it, logging it, grouping by it, quoting it in a report. **The premise that stranded it was that _machine-readable_ implies a new public value**, hence an API deliverable, hence an owner's call on reopening a door that had closed. It does not, and that conflation is why the item outlived two passes that could each have taken it. What genuinely needs the owner's call is narrower and is now **SC-5** — whether the identity is _also_ a typed `reason` a handler can `switch` on. Nobody owes that, and D-117 makes it cheap by giving every site its identity first
 
 ## What a pass that closes a destination must do
 
