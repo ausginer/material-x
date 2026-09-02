@@ -1263,6 +1263,12 @@ describe('activation', () => {
 
     activate(harness);
 
+    // The discard retires through the ordinary path, so the operation's
+    // lifetimes are disposed there rather than at teardown. The released
+    // capture is the executable half of that: `acquireActivation` took it and
+    // registered the release, and only step 5 of retirement can run it.
+    expect(harness.captures).toEqual(['acquire', 'release']);
+
     // There is no such thing as a committed operation with no presentation, so
     // a discard returns the controller to IDLE — and a new press is admitted.
     expect(harness.calls).toContain('retire');
