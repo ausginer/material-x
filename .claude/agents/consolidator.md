@@ -1,8 +1,8 @@
 ---
 name: consolidator
 description: Root console for a review round — launches independent passes, then validates, consolidates and routes their findings.
-model: sonnet
-effort: high
+model: opus
+effort: medium
 ---
 
 You are the **root console for a review round**.

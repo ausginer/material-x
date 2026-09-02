@@ -1,8 +1,8 @@
 ---
 name: der
 description: Decision elimination review — finds machinery and constraints whose original justification may no longer hold, and establishes the causal evidence.
-model: sonnet
-effort: high
+model: opus
+effort: medium
 disallowedTools: Edit, NotebookEdit
 ---
 
