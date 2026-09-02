@@ -2298,6 +2298,20 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-02 — D-168's retirement ordering split into an observable half and a proof obligation (F-275 closed, F-276, F-277)
+
+The implementation review's `fp-1` was right and its consequence is narrower and stranger than either proposed fix. The witness for D-168's most load-bearing property re-enters through `spec.retire`, three steps before the statement it claims to pin — and **no test can pin that statement**, because between `lifetimes.dispose` returning and the frame identity being nulled the code makes exactly two calls, `unwind`, which calls nothing before its callback, and `frame`, an `Object.assign` over a plain literal. The window D-168 named as _the one place a guard passes and the state it authorises is gone_ is zero-width. The mutation that moves the drop into it is green because there is nothing there.
+
+**So neither alternative was taken.** Strengthening the test would require giving production source a reentrancy point purely so an instrument could observe it, which inverts what an instrument is for. Restating the property at the observable boundary alone would license moving the drop into the gap — and that is not free, because it changes what keeps **eleven unchecked `operation!` assertions** sound. `operation` has four writes in the file, and both nulls sitting after the scrubs makes `current.operation !== null` ⇒ `operation !== null` a fact about **statement order**. In the gap it becomes a fact about the _absence of calls in a window_, re-derived on every edit by proving a negative, with nothing marking the window as load-bearing.
+
+**The property therefore splits.** The observable half — survive `spec.retire` and `lifetimes.dispose` — is real, consumer-visible in both directions, and witnessed; a drop between steps 4 and 5 would skip disposal outright, because the record's own design makes `if (operation)` the whole test for whether there is anything to dispose. The structural half — drop last — is a reading obligation and is now stated as one. **The placement does not move; the register it is justified in does**, and that is not cosmetic: a claim stated as a runtime necessity invites the next pass to test it, fail, and conclude the placement is arbitrary. This round caught that failure mode in progress.
+
+**One gap is real and is not F-275's.** The observable half's step-5 side has no isolating mutation — the red one went red for a step-4 reason — so a single mutation is named for the bounded delta review rather than inferred from the guard.
+
+**F-276's relocation alternative was declined rather than left open**: moving the `activation` assignment past pointer capture would not make record presence a lifecycle discriminant, because `activation.effect` runs later and may fail in its turn. The docblock states the invariant that holds instead — complete-or-absent, retained across a failed activation so the lift session stays reachable for its registered disposal. F-277 is recorded and untouched.
+
+---
+
 ### 2026-09-02 — D-168 implemented: the operation is an object, and so is its activation
 
 Eight kernel bindings become `operation: OperationRecord | null` and `activation: ActivationRecord | null`, built in one literal each — `mintOperation` before `commit()`, `acquireActivation` in place of the three consecutive assignments — and dropped whole at the two retirement points. `clearOperationState` is deleted. `pinned`, `resolution`, `settlement`, `settlementInput` and `retireAttempts` are untouched, exactly as the decision required: the attempts keep their own identity checks and `retireAttempts` keeps its mid-operation caller.
