@@ -209,6 +209,11 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     'F-286',
     'raised by the migration: three satellite tables it could not migrate',
   ],
+  ['D-173', 'settles F-286: the three deferred tables, one answer each'],
+  [
+    'F-287',
+    "raised by D-173: 47 finding identifiers have an entry in two documents, masked by 05's heading depth",
+  ],
 ]);
 
 const say = (text: string): void => {

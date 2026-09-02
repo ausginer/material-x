@@ -2298,6 +2298,20 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-02 — the three deferred satellite tables settled, and a masked collision found (D-173, F-286 closed, F-287)
+
+F-286 named three tables and said each is blocked by a different thing. That is right, and the answers are not variants of one answer. Record [`d173-satellite-table-shapes-claude.md`](reviews/phase-24/d173-satellite-table-shapes-claude.md). No migration implemented, no reader changed, no value-keyed table reopened.
+
+**`I-*` — a canonical identifier is an address, and the rule is already compiled in.** `tests/ledger.ts` recognises an entry by `/^#### ([A-Za-z]{1,3}-\d+)(?: — (.+))?$/`: the identifier position admits letters and digits, the title after the em dash admits anything. Sixteen struck headings the migration produced already put strikethrough in the **title**, and every superseded decision has a clean heading with the supersession as its body's first sentence. So `~~I-35~~` becomes `#### I-35 — ~~…~~ · deleted by D-41`, its retracted **Tier** keeps its tildes because a struck value is content, and nothing is lost: the retirement is stated three times before and three times after.
+
+**`M-*` — one subject with two authored facets.** Not a projection — a projection is one fact _derived_ from an entry, and neither a specification nor a result is computable from the other; the document keeps the second table precisely _because they are the specification the harnesses are checked against_. Not two families either — a second identifier space would give one subject two addresses, a worse failure of uniqueness than the duplicate it cures. The two tables are **four columns of one entry set** split for presentation, and an entry has no width.
+
+**`L-*` — an enumeration slip, and the evidence is the table it shares.** 07's §Acceptance criteria has three sibling `###` groups; the landing note named two. B and L share one `Discharged by` table whose rows run B-1…B-9 and L-1…L-5, so the current state has one projection table whose subjects are half headings and half rows. That is where an enumeration stopped, not a boundary.
+
+**F-287 — forty-seven finding identifiers have an entry in two documents, and the duplication is masked.** 05 carries 43 `F-*` headings and 07 carries 4, all also in the index. `entry.sh drag2:F-2` answers cleanly today only because the reader recognises `####` and 05's findings sit at `###`. **Correcting 05 to the uniform depth D-171 requires would, by itself, make the reader refuse 47 identifiers at once.** Recorded rather than settled: it is a question about document ownership, not table shape.
+
+---
+
 ### 2026-09-02 — the record's entries become headings, and fourteen of them are rendered for the first time
 
 D-171 and D-172 landed in one pass, because they are one change: the migration is what makes the recovery expressible, and the recovery is what the migration would otherwise have carried forward invisibly.
