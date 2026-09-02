@@ -2298,6 +2298,24 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-02 — the operation named, and a third of its proposed membership rejected (D-168, F-273 closed)
+
+No production source written. Record [`f273-operation-record-claude.md`](reviews/phase-24/f273-operation-record-claude.md); **D-168 lands `Unimplemented (Remediation)`** with six required properties and a size gate.
+
+**The membership was challenged and did not survive intact.** F-273 named twelve fields because two functions clear them. **Four have shorter lifetimes that are real**: `pinned` is written by every `begin()` and exists to be compared against the operation identity; `resolution` and `settlement` are attempt-scoped, and `retireAttempts` has a **mid-operation caller** — `handleFailed` replaces the settlement with the operation alive; `settlementInput` is scoped to one seam run. **So the row's own _two clears become one transition_ is withdrawn**, and `retireAttempts` keeps its name and its callers.
+
+**Two records, not one, and the reason is a write point rather than taste.** `Operation` is built at admission, `Activation` at activation — a later transaction that may fail with the operation still alive. A single record would be constructed partial and completed 250 lines away, which is the split write the finding objects to, relocated. Under the pair every field is assigned in its constructor literal and never again, one latch excepted.
+
+**Nothing queued holds a record**, and nothing needs to: `OperationIdentity` is already a one-field frozen object on the frame, and it is what a queued cancel, a `FailureCheckpoint` and a narrowed retirement carry.
+
+**Reuse rejected twice, one of them measured.** Allocating a fresh pair is **14× cheaper than a hand-written reset and 200× cheaper than the `Object.assign` idiom `frame()` uses** — allocation is not the expensive half — and a reused record would let `joinSettlement`'s pre-reentrancy snapshots and the hoisted `runMoved` closure address the next operation's fields.
+
+**Allocation at gesture scale**: 64 B + 48 B, at most one pair live per controller, **+7 to +27 ns** against the 179–199 ns a gesture already spends allocating. The one hot path gains a single property load, at most 2.5 ns per sample at M-6's ~129/s.
+
+**The size figure is the gate and does not exist yet.** Two sketches put qualification at +212 B and +516 B Brotli against `kernel.js`'s 246 B of slack and disagree by more than the quantity they measure. A breach changes the decision's shape, not the budget.
+
+---
+
 ### 2026-09-02 — the inherited factory representation reassessed and retained (D-167, F-273, F-274, SC-7)
 
 No production change, and none proposed. Record [`factory-representation-reassessment-claude.md`](reviews/phase-24/factory-representation-reassessment-claude.md), asking whether the closure factory is still right for the system drag2 has become rather than whether a past decision should be reversed.
