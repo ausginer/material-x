@@ -3661,6 +3661,30 @@ describe('teardown totality', () => {
   });
 });
 
+describe('the operation record', () => {
+  it('should still hold the operation while retirement runs', () => {
+    let live: KernelHost | null = null;
+    const harness = createHarness({
+      retire(): void {
+        // Step 4 of retirement, before either frame is scrubbed. The frame
+        // still publishes the identity, so every guard here still authorises
+        // work — and the state that authorises it has to still be readable.
+        live!.cancel('from retire');
+      },
+    });
+
+    live = harness.host;
+
+    activate(harness);
+    release(40, 10);
+
+    // A record dropped before the scrubs would fail this re-entry outright,
+    // and `unwind` would turn that into a report rather than a throw.
+    expect(harness.reports).toEqual([]);
+    expect(harness.calls).toContain('finalized');
+  });
+});
+
 describe('arm unwind of a partial frame pair', () => {
   const armWith = (
     root: HTMLElement,

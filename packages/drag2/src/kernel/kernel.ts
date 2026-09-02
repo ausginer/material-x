@@ -163,6 +163,79 @@ type SettlementAttempt = {
   targetY: number;
 };
 
+/**
+ * Everything one operation owns, from admission to retirement.
+ *
+ * **Complete at construction.** Every ordinary field is filled in the literal
+ * `mintOperation` builds and is never assigned again, so retirement drops the
+ * record rather than remembering which slots to clear — a field added here is
+ * cleared by construction. `cancelRequest` is the single exception and it is a
+ * latch: the first valid cancel per operation wins, and it may not outlive the
+ * operation it latched.
+ *
+ * **Kernel-local.** It appears in no signature, no queue argument and no
+ * captured callback. {@link OperationIdentity} travels instead, and every
+ * guard authorises work by comparing that one-field object against the frame's
+ * — so stale work never has to hold this.
+ */
+type OperationRecord = {
+  readonly visual: HTMLElement;
+  /**
+   * The geometry source. Read before `acquireLift`, never transactional — the
+   * same argument that keeps the measured landing target on the settlement
+   * attempt rather than on the frame, so the kernel's published slice stays
+   * seven fields.
+   */
+  readonly box: HTMLElement;
+  /**
+   * The element the operation is about. Read only by `acquireLift`, which
+   * needs the space above it.
+   */
+  readonly item: HTMLElement;
+  /**
+   * Non-nullable, which fixes the construction order — the lifetimes exist
+   * before the record does — and makes `if (operation)` the whole test for
+   * whether there is anything to dispose.
+   */
+  readonly lifetimes: OperationLifetimes;
+  cancelRequest: { reason: unknown; origin: CancelOrigin } | null;
+};
+
+/**
+ * What the successful activation transaction adds, as a record of its own.
+ *
+ * **A second lifetime, not three fields left null until activation.**
+ * Activation runs in a later transaction than admission and may fail with the
+ * operation still alive, so folding these in would mean a record built partial
+ * in one function and completed in another. Apart, each record is complete
+ * where it is constructed, and `activation === null` *names* the state an
+ * operation sits in before it activates — a state the flat set can only spell
+ * as "the visual is set and the lift is not".
+ *
+ * Nullable rather than discriminated: `phase` on the frame is the lifecycle
+ * discriminant, it is published to behaviors, and one authority for a
+ * lifecycle position is the whole point.
+ *
+ * **`Record` in both names** because `Activation` is the behavior's activation
+ * payload, the type parameter this kernel is generic in.
+ */
+type ActivationRecord = Readonly<{
+  /** The visual's viewport rect at grab. The basis every clamp is relative to. */
+  originRect: DOMRectReadOnly;
+  lift: VisualLiftSession;
+  /**
+   * The inverse of the linear part the visual inherited at grab, **retained
+   * for the join**. The tail is written on the visual after it is back in
+   * flow, so the delta it travels is a local one and this is what maps it:
+   * four numbers or `null`, read once at activation and never re-read.
+   *
+   * The item's space is deliberately not retained. Which element a translate
+   * is written on decides which space it is spent in, and the tail's element
+   * is the visual.
+   */
+  visualSpace: InheritedSpace;
+}>;
+
 /** The queued classified failure. One object per failure — not a hot path. */
 type FailureCheckpoint = Readonly<{
   stage: FailureStage;
@@ -204,36 +277,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   let draft!: Frame<Part>;
   let nextOperationId = 0;
 
-  /* ---- per-operation state, all cleared by retirement ---- */
-  let lifetimes: OperationLifetimes | null = null;
-  let lift: VisualLiftSession | null = null;
-  let originRect: DOMRectReadOnly | null = null;
-  let visual: HTMLElement | null = null;
-  /**
-   * The geometry source. Written once at admission, read before `acquireLift`,
-   * never transactional — the same argument that keeps the measured landing
-   * target on the settlement attempt rather than on the frame, so the kernel's
-   * published slice stays seven fields.
-   */
-  let box: HTMLElement | null = null;
-  /**
-   * The element the operation is about. Written once at admission beside the
-   * visual and the box, and read only by `acquireLift`, which needs the space
-   * above it.
-   */
-  let item: HTMLElement | null = null;
-  /**
-   * The inverse of the linear part the visual inherited at grab, **retained for
-   * the join**. The tail is written on the visual after it is back in flow, so
-   * the delta it travels is a local one and this is what maps it: four numbers
-   * or `null`, read once at activation and never re-read.
-   *
-   * The item's space is deliberately not retained. Which element a translate is
-   * written on decides which space it is spent in, and the tail's element is
-   * the visual.
-   */
-  let visualSpace: InheritedSpace = null;
-  let cancelRequest: { reason: unknown; origin: CancelOrigin } | null = null;
+  /* ---- per-operation state, two records dropped whole at retirement ---- */
+  let operation: OperationRecord | null = null;
+  let activation: ActivationRecord | null = null;
 
   /* ---- the two kernel attempts, at most one of each per operation ---- */
   let resolution: ResolutionAttempt | null = null;
@@ -437,7 +483,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // `queue.closed` alone: a separate `destroyRequested` flag is a second name
     // for it — set on the statement after it and never cleared either — so the
     // extra conjunct is unconditionally true beside it.
-    !queue.closed && !cancelRequest && current.operation === pinned;
+    !queue.closed && !operation?.cancelRequest && current.operation === pinned;
 
   // -------------------------------------------------------------------------
   // Teardown
@@ -457,18 +503,6 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     resolution = null;
     settlementInput = null;
     settlement = null;
-  };
-
-  const clearOperationState = (): void => {
-    lifetimes = null;
-    lift = null;
-    originRect = null;
-    visual = null;
-    box = null;
-    item = null;
-    visualSpace = null;
-    cancelRequest = null;
-    pinned = null;
   };
 
   const scrub = (target: Frame<Part>): void => {
@@ -499,12 +533,12 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * the kernel currently holds", used by paths that retire before the operation
    * was ever committed.
    */
-  const retireOperation = (operation: OperationIdentity | null): void => {
+  const retireOperation = (identity: OperationIdentity | null): void => {
     if (!spec) {
       return;
     }
 
-    if (operation && current.operation !== operation) {
+    if (identity && current.operation !== identity) {
       return; // a stale retirement for an operation that is already gone
     }
 
@@ -516,15 +550,22 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
     // 5. presentation → motion → cancellation, LIFO, best-effort. Releases
     //    pointer capture, removes the placeholder and restores inline styles.
-    if (lifetimes) {
-      unwind(lifetimes.dispose);
+    if (operation) {
+      unwind(operation.lifetimes.dispose);
     }
 
     // 6. both frames, each reset individually wrapped.
     scrub(current);
     scrub(draft);
 
-    clearOperationState();
+    // **The last statement, and that is normative.** `scrub` resets the
+    // frame's `operation` to null, so up to this line `current.operation`
+    // still names a live operation and the state it authorises is still
+    // readable. Dropping the records earlier would open the one window in
+    // which a guard passes and what it admits work to is already gone.
+    operation = null;
+    activation = null;
+    pinned = null;
   };
 
   /**
@@ -589,15 +630,18 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         retireAttempts();
         unwind(spec.retire);
 
-        if (lifetimes) {
-          unwind(lifetimes.dispose);
+        if (operation) {
+          unwind(operation.lifetimes.dispose);
         }
 
         scrub(current);
         scrub(draft);
       }
 
-      clearOperationState();
+      // Last, for the reason `retireOperation` states.
+      operation = null;
+      activation = null;
+      pinned = null;
     } finally {
       // 7. unconditional: no earlier step can prevent ingress from being
       //    released, and none may leave a tail interpolating on an element the
@@ -722,11 +766,11 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * synchronously, which matters most when the caller is `onStart`.
    */
   const cancelWith = (reason: unknown, origin: CancelOrigin): void => {
-    if (queue.closed || !current.operation || cancelRequest) {
+    if (queue.closed || !current.operation || operation!.cancelRequest) {
       return;
     }
 
-    cancelRequest = { reason, origin };
+    operation!.cancelRequest = { reason, origin };
     dispatchKernel(CANCEL, current.operation);
   };
 
@@ -746,7 +790,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * itself — has no checkpoint to run and degrades to a platform report.
    */
   const failOperation = (stage: FailureStage, error: unknown): void => {
-    const { operation } = current;
+    const identity = current.operation;
 
     // A checkpoint queued while a report is in flight could only be dropped by
     // `handleFailed`'s own `REPORTING` guard, which would swallow the error
@@ -773,8 +817,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // consumer gets both `onCancel` and `onError` for one operation.
     if (
       queue.closed ||
-      !operation ||
-      cancelRequest ||
+      !identity ||
+      operation!.cancelRequest ||
       reporting ||
       current.phase === REPORTING
     ) {
@@ -795,7 +839,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     dispatchKernel(FAILED, {
       stage,
       error,
-      operation,
+      operation: identity,
     } satisfies FailureCheckpoint);
   };
 
@@ -952,32 +996,37 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     x: number,
     y: number,
   ): boolean => {
-    const operation: OperationIdentity = { id: (nextOperationId += 1) };
+    const identity: OperationIdentity = { id: (nextOperationId += 1) };
 
     try {
       // Discriminated by `'visual' in subject` rather than `instanceof`:
       // `instanceof` is realm-sensitive, and `DOMRealm` exists precisely
-      // because an element may come from another document.
-      if ('visual' in subject) {
-        ({ visual, box, item } = subject);
-      } else {
-        visual = subject;
-        box = subject;
-        item = subject;
-      }
-      lifetimes = createOperationLifetimes(notify);
+      // because an element may come from another document. A bare element is
+      // the spelling of all three coinciding.
+      const parts = 'visual' in subject;
+
+      // **One literal, and the record is complete when it exists.** The
+      // lifetimes are constructed inside it rather than assigned afterwards,
+      // which is what makes the field non-nullable.
+      operation = {
+        visual: parts ? subject.visual : subject,
+        box: parts ? subject.box : subject,
+        item: parts ? subject.item : subject,
+        lifetimes: createOperationLifetimes(notify),
+        cancelRequest: null,
+      };
 
       if (pointerId !== -1) {
-        armPointerInput(realm, lifetimes.motion.signal, onPointer);
+        armPointerInput(realm, operation.lifetimes.motion.signal, onPointer);
       }
 
-      armCancelInput(realm, lifetimes.cancellation.signal, onEscape);
+      armCancelInput(realm, operation.lifetimes.cancellation.signal, onEscape);
     } catch (error) {
       // Nothing is committed yet, so this retires an operation the frames never
       // saw: it disposes whatever was armed and drops the references.
       //
       // **This site is not forced onto a second channel.** It reads like the
-      // one place a platform report is unavoidable — `operation` is a local
+      // one place a platform report is unavoidable — the identity is a local
       // never published to the frames, so `failOperation` would degrade anyway
       // — but the channel is operation-independent, so that reason does not
       // hold: a warning needs no operation and no stage, and `return false`
@@ -990,7 +1039,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     }
 
     draft.phase = PENDING;
-    draft.operation = operation;
+    draft.operation = identity;
     draft.pointerId = pointerId;
     draft.originX = x;
     draft.originY = y;
@@ -1193,8 +1242,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * `FAILURE_ACTIVATION` rather than a silently degraded drag.
    */
   const acquireActivation = (): ActivationScope | null => {
-    const target = visual!;
-    const owned = lifetimes!;
+    const live = operation!;
 
     try {
       // **Before the origin measurement, and that ordering is the reason it is
@@ -1207,8 +1255,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // which is why this is not at `pointerdown`.
       cancelTail();
 
-      const rect = target.getBoundingClientRect();
-      const source = box!;
+      const rect = live.visual.getBoundingClientRect();
       // **Window 1 of 2, and its position in this function is the whole
       // point.** It has to be read *before* `acquireLift`, because that is the
       // line the visual leaves flow on — everything the footprint rule needs
@@ -1219,29 +1266,23 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // transform, which moves a rect's top by the full travel and leaves its
       // height alone. See `OffsetBox`.
       const boxPre: OffsetBox = {
-        width: source.offsetWidth,
-        height: source.offsetHeight,
+        width: live.box.offsetWidth,
+        height: live.box.offsetHeight,
       };
       // **One acquisition, three products.** Both inherited spaces are read
       // before this call mutates anything, from computed style alone; no
       // behavior may take a later read for either.
-      const {
-        session,
-        visualSpace: above,
-        itemSpace,
-      } = acquireLift(
-        target,
-        item!,
+      const { session, visualSpace, itemSpace } = acquireLift(
+        live.visual,
+        live.item,
         spec!.config.liftMode,
         rect,
         realm,
         unwind,
       );
 
-      originRect = rect;
-      lift = session;
-      visualSpace = above;
-      owned.presentation.use(session.dispose);
+      activation = { originRect: rect, lift: session, visualSpace };
+      live.lifetimes.presentation.use(session.dispose);
 
       // Neither step runs for a pointerless operation: there is no pointer to
       // capture, so the connectivity precondition capture needs has nothing to
@@ -1252,26 +1293,28 @@ export function createKernel<Part extends object, Activation extends {} = true>(
           throw new Error('drag: activation/root-disconnected');
         }
 
-        owned.motion.use(acquirePointerCapture(root, current.pointerId));
+        live.lifetimes.motion.use(
+          acquirePointerCapture(root, current.pointerId),
+        );
       }
 
       return {
-        visual: target,
-        // Read back from the field the join reads it from, so the scope and
+        visual: live.visual,
+        // Read back from the record the join reads it from, so the scope and
         // the landing measurement can never disagree about the grab basis.
-        originRect,
+        originRect: activation.originRect,
         // The kernel's own admission-time state, not a behavior-authored draft
         // field read back.
-        box: source,
+        box: live.box,
         boxPre,
-        // Read back from the field the join reads it from, for the same reason
-        // `originRect` is: the tail is spent in this space and must not be able
-        // to disagree with what the behavior was handed.
-        visualSpace,
+        // Read back from the record the join reads it from, for the same
+        // reason `originRect` is: the tail is spent in this space and must not
+        // be able to disagree with what the behavior was handed.
+        visualSpace: activation.visualSpace,
         itemSpace,
         lift: session,
-        motion: owned.motion,
-        presentation: owned.presentation,
+        motion: live.lifetimes.motion,
+        presentation: live.lifetimes.presentation,
       };
     } catch (error) {
       failOperation(FAILURE_ACTIVATION, error);
@@ -1351,7 +1394,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // only at release, because a cancel at `ACTIVE` reaches settlement with
       // input still open. Both closes are latched, so a release that already
       // closed motion pays nothing.
-      const owned = lifetimes!;
+      const owned = operation!.lifetimes;
 
       owned.motion.dispose();
       owned.cancellation.dispose();
@@ -1388,7 +1431,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
   const settlementLive = (attempt: SettlementAttempt): boolean =>
     settlement === attempt &&
     !queue.closed &&
-    !cancelRequest &&
+    !operation?.cancelRequest &&
     current.operation !== null &&
     current.phase === SETTLING;
 
@@ -1456,7 +1499,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       return true;
     }
 
-    const origin = originRect!;
+    const origin = activation!.originRect;
 
     // Converted to an **origin-relative delta**, the space `compose` and
     // `lift.write` consume. `anchorTarget` produces a viewport point and the
@@ -1539,8 +1582,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       return;
     }
 
-    const space = visualSpace;
-    const element = visual!;
+    const space = activation!.visualSpace;
+    const element = operation!.visual;
 
     // `animate` is itself overridable on a consumer-owned element, and the
     // duration domain is the platform's — a `NaN` or a negative is refused
@@ -1586,8 +1629,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * own, and none of it may strand the placeholder or the inline styles.
    */
   const joinSettlement = (attempt: SettlementAttempt): void => {
-    const owned = lifetimes!;
-    const session = lift!;
+    const owned = operation!.lifetimes;
+    const session = activation!.lift;
 
     begin();
     draft.phase = FINALIZING;
@@ -1732,7 +1775,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
     // Keyed off `completed`, not off the payload: keying it off the payload
     // would abort a finished resolver's own signal.
-    lifetimes!.cancellation.useWhile(
+    operation!.lifetimes.cancellation.useWhile(
       () => !attempt.completed,
       () => {
         aborter.abort();
@@ -1789,11 +1832,11 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * Inlining it as an arrow at the call site allocates a fresh closure on every
    * active pointer sample — the one path whose allocations count — and the
    * emitted bundle keeps the arrow rather than folding it away. Reading the
-   * swappable `current` and `lift` slots at call time is what makes hoisting
-   * sound: neither is captured by value.
+   * swappable `current` frame and `activation` record at call time is what
+   * makes hoisting sound: neither is captured by value.
    */
   const runMoved = (): void => {
-    spec!.moved(current, lift!);
+    spec!.moved(current, activation!.lift);
   };
 
   const handleMove = (sample: PointerCoordinates): void => {
@@ -1866,7 +1909,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // Motion closes *between* the two commits: capture released, listeners and
     // invalidation removed, the behavior's frame task cancelled. Nothing
     // pending can alter the proposal from here.
-    lifetimes!.motion.dispose();
+    operation!.lifetimes.motion.dispose();
 
     runReleaseSeam(driver, releaseTransition, FAILURE_RELEASE, openResolution);
   };
@@ -1895,8 +1938,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * at `ACTIVE`. Unreachable for a pointer operation and unreachable from a
    * behavior: `KernelHost` still has no lifecycle entry.
    */
-  const handleRelease = (operation: OperationIdentity): void => {
-    if (current.operation !== operation || current.phase !== ACTIVE) {
+  const handleRelease = (identity: OperationIdentity): void => {
+    if (current.operation !== identity || current.phase !== ACTIVE) {
       return;
     }
 
@@ -1907,8 +1950,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * The pointerless activation, which enters the **same** seam the threshold
    * crossing enters inline from `MOVE`.
    */
-  const handleActivate = (operation: OperationIdentity): void => {
-    if (current.operation !== operation || current.phase !== PENDING) {
+  const handleActivate = (identity: OperationIdentity): void => {
+    if (current.operation !== identity || current.phase !== PENDING) {
       return;
     }
 
@@ -1953,17 +1996,18 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     openSettlement(input);
   };
 
-  const handleCancel = (operation: OperationIdentity): void => {
-    if (current.operation !== operation) {
+  const handleCancel = (identity: OperationIdentity): void => {
+    if (current.operation !== identity) {
       return;
     }
 
-    const request = cancelRequest;
+    const live = operation!;
+    const request = live.cancelRequest;
 
     // Consumed before anything else runs: the latch invalidates every
     // preparation while it is held, including the settlement transition this
     // cancellation is about to open.
-    cancelRequest = null;
+    live.cancelRequest = null;
 
     if (!request) {
       return;
@@ -1973,7 +2017,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       case PENDING:
         // Abandoned before there was anything to tell the consumer about:
         // `admit` is not a start notification, and no presentation exists.
-        retireOperation(operation);
+        retireOperation(identity);
         break;
       case ACTIVATING:
       case ACTIVE:
@@ -2010,8 +2054,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     }
   };
 
-  const handleStartCommitted = (operation: OperationIdentity): void => {
-    if (current.phase !== ACTIVATING || current.operation !== operation) {
+  const handleStartCommitted = (identity: OperationIdentity): void => {
+    if (current.phase !== ACTIVATING || current.operation !== identity) {
       return;
     }
 
@@ -2023,7 +2067,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // for exactly one drain and the cancellation would be reported at the wrong
     // stage. Leaving the phase untouched is enough: the queued `CANCEL` finds
     // `ACTIVATING` and settles it.
-    if (cancelRequest) {
+    if (operation!.cancelRequest) {
       return;
     }
 
@@ -2054,7 +2098,10 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // The error is not lost; it arrives as a warning, because the `return` here
     // is what decides and the cancel owns the terminal. `checkpoint.stage` is
     // discarded with the classification it names.
-    if (cancelRequest && current.operation === checkpoint.operation) {
+    if (
+      operation?.cancelRequest &&
+      current.operation === checkpoint.operation
+    ) {
       notify(
         new DraggableWarning('drag: failure/superseded-by-cancel', {
           cause: checkpoint.error,
@@ -2199,14 +2246,14 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * only when this runs.
    */
   const handleErrorReported = (checkpoint: FailureCheckpoint): void => {
-    const { operation, stage } = checkpoint;
+    const { operation: identity, stage } = checkpoint;
 
-    if (current.phase !== REPORTING || current.operation !== operation) {
+    if (current.phase !== REPORTING || current.operation !== identity) {
       return;
     }
 
-    if (stage !== FAILURE_TERMINAL_CALLBACK && lifetimes) {
-      unwind(lifetimes.presentation.dispose);
+    if (stage !== FAILURE_TERMINAL_CALLBACK && operation) {
+      unwind(operation.lifetimes.presentation.dispose);
 
       // A throw here reaches `failOperation`, which sees `REPORTING` and takes
       // the non-consequential channel — so a terminal that fails on the failure
@@ -2217,7 +2264,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       }, FAILURE_TERMINAL_CALLBACK);
     }
 
-    retireOperation(operation);
+    retireOperation(identity);
   };
 
   const handleBehaviorAction = (tag: number, argument: unknown): void => {

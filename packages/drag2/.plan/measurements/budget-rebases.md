@@ -547,6 +547,7 @@ Two changes with almost nothing to re-base between them. The **`xy + layoutAnima
 **The minified column is the one that settles the stage question.** It is **identical on all fifteen rows**: both stages are one-digit constants, so the swap is byte-for-byte at the only layer that could have charged for it. Brotli moves −1 B on two rows and 0 B on the other thirteen — a dictionary effect an order of magnitude inside the ±25 B band this file documents, recorded because both columns are always recorded and not because either is a result.
 
 **All seven controls reproduced exactly**, which is the second run of `Composition.control` and the first in which it was expected to be the whole story. The new row carries **no** control: it is a sortable composition, so a sortable-side pass is expected to move it, and a control declared on a row a change can reach is a budget wearing an exact number.
+
 ## Nothing re-based, five controls re-declared — 2026-08-31, D-165
 
 The first pass in this file that **grows** every row it can reach. `@ydinjs/box-quad` landed BQ-6 (the cache removed) and BQ-9 (`Space` first-class, `Box` narrowed from thirteen slots to eight), and D-165 spent the result: two ancestry readings per activation, two named spaces on `ActivationScope`, and the item carried to the kernel as a third member of the admission subject.
@@ -632,3 +633,31 @@ Measured against `55eaaf1b` with box-quad rebuilt in both states — the depende
 **`complete` is the row to read twice.** It moves **−14** where `minimal` moves −31 and `minimal + landing` −39, for the same deleted statements. Nothing here is composition-specific — the code is in the kernel every row carries — so the spread is the compressor: the sortable's complete graph already repeats the tokens the deleted statements were made of (`lift`, `write`, `runLeaf`, `FAILURE_RENDERER_WRITE`, every one of which survives on the move path), so removing one instance of a repeated token is worth less than removing one of a rarer one. It is the effect §15 records in the other direction for a padded lookup table, and it is why the parts of a deletion cannot be added up.
 
 **No module entered or left any graph.** Every module count is identical on both sides. The whole of this is one statement, one wrapper and one flag, in a function every composition carries — which is what makes a ~30 B figure the right size for it, and what makes the two zeroes worth as much as the thirteen negatives.
+
+**Not a re-base, 2026-09-02, D-168 — a growth pass that stayed inside every ceiling.** Naming the kernel's per-operation state as an `OperationRecord` and an `ActivationRecord` costs **+13 to +57 B** Brotli on every composition that carries the kernel. **No budget moves.** The tightest row lands 93 B under its ceiling, and the rule reads one way: a pass landing _above_ a ceiling raises it, and slack under one is the instrument's sensitivity rather than an allowance to spend. **Five controls are re-declared**, because a kernel change reaches every row that carries the kernel and a control held still there would be measuring nothing. Measured against `7f6d1851`, joint.
+
+| Row | pre-change `7f6d1851` | landed | D-168 | budget | slack |
+| --- | --- | --- | --- | --- | --- |
+| minimal | 9,644 | 9,657 | **+13** | 9,794 | 137 |
+| minimal (xy) | 9,485 | 9,534 | **+49** | 9,635 | 101 |
+| minimal + layoutAnimation | 9,973 | 10,003 | **+30** | 10,123 | 120 |
+| xy + layoutAnimation | 9,819 | 9,862 | **+43** | 9,969 | 107 |
+| minimal + landing | 9,775 | 9,832 | **+57** | 9,925 | 93 |
+| complete | 10,130 | 10,149 | **+19** | 10,280 | 131 |
+| free drag minimal | 7,522 | 7,554 | **+32** | 7,672 | 118 |
+| free drag + bounds | 7,673 | 7,708 | **+35** | 7,823 | 115 |
+| free drag + landing | 7,676 | 7,706 | **+30** | 7,826 | 120 |
+| free drag complete | 7,826 | 7,858 | **+32** | 7,976 | 118 |
+| both behaviors | 11,504 | 11,539 | **+35** | 11,654 | 115 |
+| vocabulary root — `drag.js` | 142 | 142 | **0** | 205 | 63 |
+| kernel root — `kernel.js` | 5,827 | 5,861 | **+34** | 5,977 | 116 |
+| baseline A — feature-matched, non-composed | 9,937 | 9,968 | **+31** | 10,087 | 119 |
+| baseline B — shipped `@ydinjs/drag` sortable.js | 6,889 | 6,889 | **0** | 7,040 | 151 |
+
+**The same two rows a kernel change cannot reach held at exactly zero**, which is what says the change is where it claims to be: `drag.js` reaches `kernel/errors.js` and nothing else, and baseline B is not built here.
+
+**Minified and compressed disagree by an order of magnitude, and that is the whole shape of this change.** Every kernel-carrying row grew **+318 to +323 B** minified against **+13 to +57 B** Brotli. What was written is 64 bare identifiers becoming qualified property reads: a local mangles to one character and a property key does not mangle at all, so the minified figure is close to the literal cost of the qualification — and Brotli then recovers 82–96% of it, because `operation.` and `activation.` are the most repeated strings in the file by the time it is done. The pre-change sketches put this at +212 B and +516 B and were right to be reported as unusable; the answer is under both, and neither bracketed it.
+
+**The gate was tighter than the decision that set it, and it still passed.** D-168 was written against `kernel.js` carrying 246 B of slack, re-measured 2026-08-29. The D-166 re-base of 2026-09-01 lowered every budget after a shrink, so the slack the implementation actually had was **150 B**. It spent 34.
+
+**No module entered or left any graph.** 31/30/32/31/33/34, 25/26/27/28/45, 2/14/29/26 — identical on both sides. Two objects per gesture are allocated where eight closure slots were assigned, and nothing on the sample path allocates at all.
