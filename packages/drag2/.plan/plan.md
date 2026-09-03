@@ -2344,6 +2344,26 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 **F-280 stays open for `no-shadow`**, which is still off with no recorded reason. It is the instrument for F-279 and the migration does not depend on it, which is why the halves separate.
 
+### 2026-09-04 — the gate is actually armed (F-291…F-295)
+
+**The entry above was wrong in its headline and in two of its supporting claims**, and the corrections are kept beside it rather than folded into it, because the sequence is the argument: a gate can be enabled, reported as enforced, and run by nothing.
+
+**F-291 — the severity depended on the shell's directory.** `buildFromOxlintConfigFile('./.oxlintrc.json')` resolves against `process.cwd()` and was spread _after_ the override block, so it won. From the root it derived 267 disables and the rule survived; from `packages/drag2` — which is where the package's own `Justfile` and its nx `lint` target both run — it derived **356**, this rule among them. The same config object, the same file, severity `2` or `0` decided by the working directory. Repaired by setting the rule in a final block after the spread: `[2, {"ignoreStatic": true}]` from both directories now.
+
+**F-292 — the one invocation that had the rule on skipped the package.** The root `Justfile`'s `lint` and `lint:fix` selectors named eight of nine projects and omitted `@ydinjs/drag2`; both now name it. The same omission is in `typecheck`, `fmt` and `fmt-check` and is **not** repaired here — it is the same shape but a different concern, and this pass was bounded to the lint selection.
+
+**F-293 — thirteen was never the count.** The instrument reports **10**, in exactly the seven files already named, matched one-to-one by the ten disable directives the delta added. The sub-counts are **8 + 1 + 1**: eight re-supply the receiver at the call, one is a membership test that never invokes, one is `q7`'s array of restore slots. No site was omitted; the record simply counted wrong.
+
+**F-294 — the reason given for the silence at `createRectIndex` was false.** The first pass justified it with a hand-written stand-in whose members were arrow-function properties, and concluded that the instrument "arms itself the moment step 1 converts the first factory". The real `RectIndex` is a plain, unwrapped `export type RectIndex = { … }` whose `invalidate` and `retire` are **method shorthand**, and a detached read of the real type **reports today, with no conversion at all** — measured. Their absence from the census is that nothing reads them detached. Step 1 is not what makes that surface visible, and a record saying otherwise would have told the next reader the gate covers something it already covered, and for the wrong reason.
+
+**F-295 — `ignoreStatic: true` is inherited, not chosen.** It comes from the preset; the configuration comment now says so, so a `static` member a converted class acquires is visibly outside the gate rather than silently outside a rule described as unqualified.
+
+**What the gate actually depends on**, which the corrected record now states: the **declared type at the read site**. `KernelHost` is `Readonly<{ … }>` today and a `Readonly<…>` mapped alias erases method-ness — identical members report unwrapped and do not report wrapped. Probed against the intended shape, with `KernelHost` itself the class, all four load-bearing reads report. That residue is Q-17, routed to the architect as non-blocking and not acted on here.
+
+**Verified through the real paths, from both directories, because the directory is the defect.** Effective config from the root and from `packages/drag2` both `[2, {"ignoreStatic": true}]`; the package's own `just lint` rejects a deliberate detached read; the root selector resolves to nine projects including drag2; the tracked-tree census is 10 reports against 10 suppressions; the `KernelHost` class probe reports four; the real unconverted `RectIndex` reports two. Probes were written under `src/`, run from both directories, and deleted — `git status --porcelain` clean either side.
+
+**One pre-existing blocker is reported and not repaired.** `just lint` with no arguments runs `oxlint .` first and aborts the recipe before ESLint, and drag2 carries four pre-existing oxlint errors, so a whole-package no-argument run never reaches the gate. The root `lint` recipe was **already failing** before this pass, on `@ydinjs/drag`'s `src/draggable/options.ts`, so adding drag2 regresses nothing. Clearing lint debt in two packages is not this unit's, and the failure is loud rather than silent — which is the difference between it and F-291.
+
 ### 2026-09-03 — the satellites cite, they do not restate (D-174, F-287 closed, D-173 boundary amended)
 
 **Forty-eight identifier-shaped headings sit at `###`** — 43 `F-*` in 05, 4 in 07, and `I-31` in 02 — carrying **71,238 characters**. Record [`d174-satellite-finding-ownership-claude.md`](reviews/phase-24/d174-satellite-finding-ownership-claude.md). Nothing migrated, no reader redesigned, F-285 untouched.

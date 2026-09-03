@@ -28,13 +28,8 @@ const config: readonly Config[] = defineConfig(
   {
     files: ['**/*.{ts,tsx,mts,cts}'],
     rules: {
-      // `unbound-method` is deliberately absent from this list and enforced.
-      // It is the only instrument in the pipeline — oxlint implements none —
-      // for a method read without a receiver, which is the characteristic
-      // failure of converting a factory to a class: a member that stops
-      // working at a call site the conversion never touches. Where a platform
-      // method is captured to delegate to it, the site carries a disable and
-      // says where the receiver comes from (D-170).
+      // `unbound-method` is not in this block. It is enforced at the end of
+      // this file instead, after Oxlint's derived disables — see there.
       '@typescript-eslint/no-use-before-define': 'off',
       '@typescript-eslint/no-shadow': 'off',
       'import-x/no-unresolved': [
@@ -59,6 +54,34 @@ const config: readonly Config[] = defineConfig(
       '@typescript-eslint/promise-function-async': 'off',
       '@typescript-eslint/consistent-type-assertions': 'off',
       '@typescript-eslint/max-params': 'off',
+    },
+  },
+  {
+    // **Last, and the position is the rule.** `buildFromOxlintConfigFile`
+    // resolves its argument against `process.cwd()`, so linting a package from
+    // its own directory loads that package's `.oxlintrc.json` and derives a
+    // wider disable set than the root's — 356 rules against 267, this one
+    // among them. The same config object and the same file therefore produced
+    // two severities depending only on the shell's directory, which is how a
+    // rule can be switched off in the one place it is meant to guard while
+    // reading as enforced from the root. Sitting after the spread is what
+    // makes the severity the same from every working directory; stating it
+    // above the spread does not.
+    //
+    // It is the only instrument in the pipeline for a method read without a
+    // receiver — Oxlint implements it in neither derived set — and that is the
+    // characteristic failure of converting a factory to a class: a member that
+    // stops working at a call site the conversion never touches (D-170). Where
+    // a platform method is captured to delegate to it, the site carries a
+    // narrow disable naming where its receiver comes from.
+    //
+    // **`ignoreStatic: true` is inherited from the preset rather than chosen
+    // here**, so a `static` member a converted class acquires is outside what
+    // this reports. Only the severity is set, which is what leaves that option
+    // where it is instead of silently re-deciding it.
+    files: ['**/*.{ts,tsx,mts,cts}'],
+    rules: {
+      '@typescript-eslint/unbound-method': 'error',
     },
   },
 );

@@ -78,11 +78,11 @@ fmt-check:
 
 # Lint all packages
 lint:
-    nx run-many -t lint --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t lint --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
 
 # Lint and auto-fix all packages
 lint-fix:
-    nx run-many -t lint:fix --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t lint:fix --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Misc
