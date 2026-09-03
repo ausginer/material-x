@@ -1441,6 +1441,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * that path reads `then` at all.
    */
   const thenOf = (value: unknown): PromiseLike<unknown>['then'] | null => {
+    // Detached deliberately, and read exactly once for the reason above. The
+    // receiver is re-supplied at the only call: `then.call(value, …)`.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const then = (value as PromiseLike<unknown> | null | undefined)?.then;
 
     return typeof then === 'function' ? then : null;

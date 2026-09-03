@@ -164,6 +164,8 @@ describe('createPlaceholder', () => {
     // instrument records every `getAttribute` and its receiver and filters
     // afterwards.
     const calls: Array<Readonly<{ element: Element; name: string }>> = [];
+    // Captured to delegate to from the patch below: `native.call(this, name)`.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const native = Element.prototype.getAttribute;
     const item = detached();
     let placeholder: HTMLElement;

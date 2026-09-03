@@ -1318,6 +1318,8 @@ describe('layoutAnimation', () => {
     // would produce the same *animations*, because every row outside the span
     // has a zero delta and is skipped.
     const rows = 12;
+    // Captured to delegate to from the patch below: `native.call(this)`.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const native = Element.prototype.getBoundingClientRect;
 
     // One list at a time, each torn down before the next is built: two live

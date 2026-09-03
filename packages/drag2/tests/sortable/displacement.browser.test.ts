@@ -474,6 +474,8 @@ describe('displacement ownership', () => {
     // count across a committed move is zero.
     const composed = build({ fragments: withLayout(), itemCount: 4 });
     const dragged = composed.items[2]!;
+    // Captured to delegate to from the patch below: `native.call(this)`.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const native = Element.prototype.getBoundingClientRect;
     let reads = 0;
 
@@ -569,6 +571,8 @@ describe('displacement ownership', () => {
     // One started but never entered into the map would survive `retire()` and
     // keep offsetting a row nothing owns.
     const composed = build({ fragments: withLayout() });
+    // Captured to delegate to from the patch below: `native.apply(this, args)`.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const native = Element.prototype.animate;
     let created: Animation | null = null;
 
@@ -1083,6 +1087,8 @@ describe('the composed bracket cost', () => {
     // The old shape paid two list-wide measurements per committed move here,
     // one on each side of the write.
     const rows = 12;
+    // Captured to delegate to from the patch below: `native.call(this)`.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const native = Element.prototype.getBoundingClientRect;
 
     const measure = async (

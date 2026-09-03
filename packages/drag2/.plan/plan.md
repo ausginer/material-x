@@ -2332,6 +2332,18 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 **No count is maintained by hand any more.** Three prose totals in this record went stale within one pass each, and the last correction was itself taken from a run made before the entry it was counting existed. `corpus-equivalence.ts` now prints the live per-document census; D-171's landing note states its figures as of its date, and the standing figures are gone. The census after this pass: **546 entries across five documents** — 175 `D-*` and 273 `F-*` in `00-index.md`, 37 `I-*`, 12 `Q-*` and 4 `M-*` in 05, 6 `K-*`, 9 `B-*` and 5 `L-*` in 07, 6 `P-*` in 02, 12 `O-*` and 7 `SC-*` in the register — and it is quoted here as a dated observation, not as a claim anything reads back.
 
+### 2026-09-03 — the migration's gate is armed (D-170 step 0, F-280 half)
+
+**`@typescript-eslint/unbound-method` is enforced at repository scope**, which is the scope D-170's record decided and routed rather than made. No class migration begun; step 0 is a precondition and nothing after it ran.
+
+**Thirteen sites in seven tracked files, and none of them a defect.** Every one captures a _platform_ prototype method — `Element.getBoundingClientRect`, `Element.animate`, `Element.getAttribute`, `HTMLElement.hidePopover`, `CustomElementRegistry.define`, `PromiseLike.then` — to delegate to it, and each was read to the call site before being accepted: eleven re-supply the receiver explicitly (`native.call(this)`, `native.apply(this, args)`, `then.call(value, …)`), one is a membership test that never calls, and `q7`'s array holds restore slots assigned straight back onto their own elements, its called copy being `.bind(element)`. Each carries a disable stating where its receiver comes from, because a disable with no recorded reason is the defect F-280 is about.
+
+**The gate was checked in both directions, since a rule that reports nothing is indistinguishable from one that is off.** A probe converting `createRectIndex`'s `invalidate`/`retire` and `host.cancel`/`destroy` into class members reports all four; the same members in today's closure form report none. So the silence at the two sites D-170 calls riskiest is a true result — a property holding an arrow function has no receiver to lose — and the instrument arms itself the moment step 1 converts the first factory. Steps 2 and 3 are its first real exercise, exactly as the order predicts.
+
+**Baseline held.** The tracked tree's other lint errors are identical in kind and count before and after — 7 parse errors in `vite-traits-plugin` fixtures outside the TS project service, 3 `strict-void-return`, 2 `prettier/prettier`, 2 `prefer-destructuring`, 2 `import-x/order`, 1 `method-signature-style`. None is in this diff and none was hand-fixed. The stale agent worktree under `.claude/worktrees/` is untracked and was already being linted before this change; its copies are excluded from every count here.
+
+**F-280 stays open for `no-shadow`**, which is still off with no recorded reason. It is the instrument for F-279 and the migration does not depend on it, which is why the halves separate.
+
 ### 2026-09-03 — the satellites cite, they do not restate (D-174, F-287 closed, D-173 boundary amended)
 
 **Forty-eight identifier-shaped headings sit at `###`** — 43 `F-*` in 05, 4 in 07, and `I-31` in 02 — carrying **71,238 characters**. Record [`d174-satellite-finding-ownership-claude.md`](reviews/phase-24/d174-satellite-finding-ownership-claude.md). Nothing migrated, no reader redesigned, F-285 untouched.

@@ -28,9 +28,15 @@ const config: readonly Config[] = defineConfig(
   {
     files: ['**/*.{ts,tsx,mts,cts}'],
     rules: {
+      // `unbound-method` is deliberately absent from this list and enforced.
+      // It is the only instrument in the pipeline — oxlint implements none —
+      // for a method read without a receiver, which is the characteristic
+      // failure of converting a factory to a class: a member that stops
+      // working at a call site the conversion never touches. Where a platform
+      // method is captured to delegate to it, the site carries a disable and
+      // says where the receiver comes from (D-170).
       '@typescript-eslint/no-use-before-define': 'off',
       '@typescript-eslint/no-shadow': 'off',
-      '@typescript-eslint/unbound-method': 'off',
       'import-x/no-unresolved': [
         'error',
         {

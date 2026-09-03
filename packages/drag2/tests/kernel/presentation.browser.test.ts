@@ -518,6 +518,8 @@ describe('acquireTopLayer release', () => {
     visual.showPopover();
 
     const dispose = acquireTopLayer(visual, unwind);
+    // Captured to delegate to from the patch below: `nativeHide.call(this)`.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const nativeHide = HTMLElement.prototype.hidePopover;
     let hides = 0;
 
