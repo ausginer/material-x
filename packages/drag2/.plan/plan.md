@@ -2298,6 +2298,24 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-03 — the satellites cite, they do not restate (D-174, F-287 closed, D-173 boundary amended)
+
+**Forty-eight identifier-shaped headings sit at `###`** — 43 `F-*` in 05, 4 in 07, and `I-31` in 02 — carrying **71,238 characters**. Record [`d174-satellite-finding-ownership-claude.md`](reviews/phase-24/d174-satellite-finding-ownership-claude.md). Nothing migrated, no reader redesigned, F-285 untouched.
+
+**The four shapes, measured: 0 exact restatements, 48 complementary, 0 projections, 0 genuinely different findings.** No exact restatement is the load-bearing result, because it forbids resolving this by deletion — the closest pair, F-65 at 0.72 containment, still carries twenty words the index lacks, and **all forty-seven satellite bodies are longer than their index body**. No different findings either: the five lowest title-agreement pairs were read rather than scored, and F-2 scores 0.00 only because the satellite titles are terse labels where the index titles are full statements.
+
+**So it is D-173's `M-*` relationship, in two documents.** The index is the register — title is the statement, body is severity and status, which is what §Findings says of itself — and the satellite is where the finding was raised and analysed. Neither derives from the other; collapsing them would empty one of the two.
+
+**And the rule was already written.** 05's `I-31` row reads _a per-behavior document may cite this row but must not restate it_ (D-83, F-75). **F-75 is why it is not tidiness**: 07's B-4 (b) restated I-31 as a table property, _a table has no antecedent to carry_, the clause _and the controller remains alive_ was lost in the copy, and three rows asserted a terminal D-66 forbids — arriving as a **passing test**. F-287 is that rule applied to one identifier instead of to the class.
+
+**The disposition moves nothing.** The identifier leaves the heading-key position and becomes a citation in it: `### F-2 — part factory determinism · open, tier C` becomes `### Part factory determinism (F-2)`, the analysis stays verbatim in place, the subsection opens with a canonical pointer and the canonical entry gains the reciprocal. **A heading whose first token is an identifier is an ownership claim at any depth; one that mentions it in a parenthesis is prose** — which is why a depth change can no longer undo it.
+
+**The invariant reads claims at every depth while the extractor stays at `####`.** `ENTRY` answers _what can I address_; `CLAIM` — `/^#{1,6} ([A-Za-z]{1,3}-\d+)(?: — |$)/` — answers _what claims to be addressable_. F-287 exists because those had one answer, so a heading the extractor ignored was read as absent rather than as wrong: **a reader's blind spot had become the record's invariant.**
+
+**D-173 and D-174 land in one unit, and `I-31` is why.** It is not a duplicate today, because a row is not a claim — but D-173's migration turns 05's `I-31` row into `#### I-31` and collides with 02's existing `### I-31` **on the day it lands**. The `CLAIM` check goes last, as the gate on both.
+
+---
+
 ### 2026-09-02 — the three deferred satellite tables settled, and a masked collision found (D-173, F-286 closed, F-287)
 
 F-286 named three tables and said each is blocked by a different thing. That is right, and the answers are not variants of one answer. Record [`d173-satellite-table-shapes-claude.md`](reviews/phase-24/d173-satellite-table-shapes-claude.md). No migration implemented, no reader changed, no value-keyed table reopened.

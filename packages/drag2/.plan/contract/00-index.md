@@ -1534,7 +1534,25 @@ Phase 21 opened with four standing obligations that cannot change a decision as 
 
 **`L-*` — an enumeration slip, not a judgment.** `07-free-drag-contract.md` §Acceptance criteria has **three** sibling `###` groups and D-171's landing note named two. All three have the same two-part shape: a criterion table, then a `Discharged by` table that stays a table as a projection. **The decisive evidence is that B and L share one discharge table** — it is headed *What discharged the behavior and lifecycle criteria* and its rows run `B-1` through `B-9` and `L-1` through `L-5` — so the current state has one projection table whose subjects are half headings and half rows. That is where an enumeration stopped, not a boundary. `L-1`…`L-5` migrate in the same unit; the shared table is untouched and projects fourteen entries instead of nine.
 
+**Amended by D-174, 2026-09-03**: D-173's migration is what creates the forty-eighth duplicate claim — turning 05's `I-31` row into `#### I-31` collides with `02`'s existing `### I-31` — so the two land in one unit, with D-174's `CLAIM` check last as the gate on both.
+
 **Touches:** amends D-171's scope sentence and adds its identifier rule; closes F-286; mints F-287; does not touch the `Discharged by` tables, the `Write-up` links or any value-keyed table.
+
+#### D-174
+
+**Unimplemented (Remediation).** **A satellite cites a canonical identifier; it does not claim one — and the rule for that was written in August.** Record [`d174-satellite-finding-ownership-claude.md`](../reviews/phase-24/d174-satellite-finding-ownership-claude.md), closing F-287. **48 claims**: 43 `F-*` in 05, 4 in 07, and `I-31` in 02.
+
+**The four shapes, measured: 0 exact restatements, 48 complementary, 0 projections, 0 different findings.** **No pair is an exact restatement, and that is what forbids resolving this by deletion** — the closest, F-65 at 0.72 containment, still carries twenty substantive words the index lacks, and **all forty-seven satellite bodies are longer than their index body**, 71,238 characters in total. **No pair is a different finding**: the five lowest title-agreement pairs were read rather than scored, and F-2 scores 0.00 only because the satellite's title is the label *part factory determinism* while the index's is the full statement. **The relationship is D-173's `M-*` relationship in two documents**: the index is the register — title is the statement, body is severity and status, as §Findings says of itself — and the satellite is where the finding was raised and analysed. Neither derives from the other and neither is complete alone; collapsing them would empty one of the two.
+
+**The rule already exists and one claim is already forbidden by it.** 05's `I-31` row reads **a per-behavior document may cite this row but must not restate it** (D-83, F-75), and D-83's own words are *the durable half of this row is the prohibition on restating I-31 at all*. **F-75 is why it is not tidiness**: 07's B-4 (b) restated I-31 as a table property, *a table has no antecedent to carry*, the clause **and the controller remains alive** was lost in the copy, and three rows asserted a terminal D-66 forbids — arriving as a **passing test** against a contract that says otherwise. F-287 is that rule applied to one identifier instead of to the class, and `02-kernel-behavior-contract.md:882` still opens `### I-31 — once a start is notified…`.
+
+**Canonical ownership is the register that holds the family** — this file for `F-*`, 05 for `I-*` — which is where each family's complete ordered set already lives. **Nothing moves.** All 71,238 characters stay in the document whose argument they belong to; what changes is a claim, not a location.
+
+**What remains in the satellite.** The identifier leaves the heading-key position and becomes a citation inside it — `### F-2 — part factory determinism · open, tier C` becomes `### Part factory determinism (F-2)`. **That is what makes the fix structural**: a heading whose first token is an identifier is an ownership claim at any depth, a heading that mentions it in a parenthesis is prose, and the distinction cannot be undone by a depth change. The analysis stays verbatim, in place, with its retracted clauses struck; the subsection opens with **Canonical entry: [F-2](00-index.md#f-2)**; and the canonical entry gains the reciprocal line naming where the analysis lives.
+
+**The structural invariant.** An identifier may open a heading only in the document that owns it, and only at `####`. The integrity layer reads claims at **every** depth — `/^#{1,6} ([A-Za-z]{1,3}-\d+)(?: — |$)/` — and asserts that every claim is at `####` and that no identifier is claimed twice. **The extractor is unchanged**, and the separation is the point: `ENTRY` answers *what can I address* and `CLAIM` answers *what claims to be addressable*. F-287 exists because those had one answer, so a heading the extractor ignored was read as absent rather than as wrong — **a reader's blind spot became the record's invariant**. Run today the check reports 47 duplicates and 48 off-depth claims.
+
+**Touches:** closes F-287; states the boundary that lands with D-173; adds no reader change and moves no text.
 
 ### Decisions not yet implemented
 
@@ -1550,6 +1568,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 | --- | --- | --- | --- |
 | D-170 | Remediation | Six factories still construct their entity in a closure. The witness retires at step 6, the last of them. | present: `src/kernel/kernel.ts` :: `export function createKernel<` |
 | D-173 | Remediation | Three satellite tables still key their entries in rows: 37 `I-*` and 4 `M-*` in 05, 5 `L-*` in 07. The witness is the one struck identifier, which retires with the first of the three. | present: `.plan/contract/05-lifecycle-invariants.md` :: `~~I-35~~` |
+| D-174 | Remediation | Forty-eight identifier-shaped headings still claim an identifier they do not own: 43 in 05, 4 in 07, and `I-31` in 02. | present: `.plan/contract/02-kernel-behavior-contract.md` :: `### I-31 — once a start is notified, exactly one terminal callback follows` |
 
 **The twenty-fifth cycle opened on 2026-09-02 and is open.** D-170's witness — `export function createKernel<` in `src/kernel/kernel.ts` — is the _last_ of the six conversions the decision orders, not the first, and that placement is deliberate. **A witness is one source fact and this decision is a sequence**, so it can only hold the endpoint: it retires when step 6 lands, and stays put through steps 0 to 5 while five other factories change form. The alternative — witnessing step 1, `createRectIndex`'s factory — would retire the row after the cheapest conversion and leave the kernel's, the riskiest, unwatched by the instrument that exists to notice a decision quietly not landing. **The intermediate steps are carried by the record and by `.plan/plan.md`, which is where a sequence belongs**; this table holds the one fact that is false while any of it is outstanding. **D-171 joined the same open cycle**, and its witness is deliberately _mid_-migration rather than terminal: the four `#### D-66 §…` sub-clause headings it moves down a level. Nothing the decision touches at its end is pipe-free, and a witness carrying a pipe cannot be written into this table at all — which is the decision's own argument, arriving as a constraint on stating it.
 
@@ -1794,6 +1813,7 @@ The four `inactive` rows are the ones whose live residue is empty: **D-33** (ret
 | D-171    | active   |
 | D-172    | active   |
 | D-173    | active   |
+| D-174    | active   |
 
 ## Findings
 
@@ -2913,9 +2933,9 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 **Not blocking.** The three tables render correctly, carry no hidden or truncated cell — `surplus()` is clean over every current-state document — and are addressable by reading the file. What they are not is addressable by `entry.sh`.
 
-#### F-287 — Forty-seven finding identifiers have an entry in two documents
+#### F-287 — Forty-seven finding identifiers have an entry in two documents · closed by D-174
 
-**Open, tier B, 2026-09-02** — raised by D-173's pass, and deliberately not settled by it. `05-lifecycle-invariants.md` carries 43 `F-*` headings and `07-free-drag-contract.md` carries 4, and **every one of those 47 identifiers also has an entry here**. `F-2` is `### F-2 — part factory determinism · open, tier C` in 05 and `#### F-2 — Part factories must be deterministic…` in this file: the same finding, stated twice, at two depths.
+**Closed by D-174, 2026-09-03.** Measured: **0 exact restatements, 48 complementary, 0 projections, 0 different findings** — so it is resolved by neither deletion nor renumbering, and the count is 48 rather than 47 because `02`'s `### I-31` is the same defect in another family. **Raised 2026-09-02, tier B** — raised by D-173's pass, and deliberately not settled by it. `05-lifecycle-invariants.md` carries 43 `F-*` headings and `07-free-drag-contract.md` carries 4, and **every one of those 47 identifiers also has an entry here**. `F-2` is `### F-2 — part factory determinism · open, tier C` in 05 and `#### F-2 — Part factories must be deterministic…` in this file: the same finding, stated twice, at two depths.
 
 **This is the inter-document form of the `M-*` question, and D-173 §2 does not answer it.** There the two texts were complementary facets of one subject in one document — a specification and a result — and collapsing them into one entry lost nothing. Here they are two *statements* of one subject in two documents, one canonical and one local, and which is which cannot be read off the files.
 

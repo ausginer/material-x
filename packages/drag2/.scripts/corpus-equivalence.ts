@@ -211,6 +211,10 @@ const MINTED: ReadonlyMap<string, string> = new Map([
   ],
   ['D-173', 'settles F-286: the three deferred tables, one answer each'],
   [
+    'D-174',
+    'settles F-287: satellites cite a canonical identifier, they do not claim one',
+  ],
+  [
     'F-287',
     "raised by D-173: 47 finding identifiers have an entry in two documents, masked by 05's heading depth",
   ],
