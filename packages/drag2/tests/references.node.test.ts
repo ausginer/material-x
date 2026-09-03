@@ -203,6 +203,14 @@ const NAMED = /`([\w./-]+\.(?:md|ts|js))`[^`[\]]{0,3}$/u;
 /** Where a cited title ends. A citation is checkable as far as it is delimited. */
 const TITLE_END = /^(.*?)(?:[()\][|":]|\*\/|,\s|;\s|\.\s|\s—\s|$)/su;
 
+/**
+ * The line a dispositioned satellite subsection opens with (D-174, D-175): the
+ * canonical entry it defers to. One per analysis, in exactly the document
+ * holding that analysis, which is what makes it a sound declaration of *this
+ * document analyses that identifier* — the fact `§F-46` is a citation of.
+ */
+const ANALYSIS = /^\*\*Canonical entry: `([A-Za-z][A-Za-z0-9]*-\d+)`/u;
+
 /** Any backticked span, with the strike markers that may bracket it. */
 const QUOTED = /(~~)?`([^`]+)`(~~)?/gu;
 
@@ -355,6 +363,16 @@ function analyse(markdown: string): Doc {
     const bold = /^\*\*(.+?)\*\*/u.exec(line);
     if (bold !== null) {
       add(bold[1]!, false);
+    }
+    // A satellite analysis declares the identifier it analyses on its pointer
+    // line rather than in its heading (D-174), so `05 §F-46` still resolves
+    // while the heading no longer *claims* `F-46`. Read from the pointer and
+    // not from a trailing `(F-46)`, which every prose heading mentioning a
+    // decision also has — `### Pointer capture is not here (D-17)` would
+    // otherwise start declaring an identifier it only refers to.
+    const analysis = ANALYSIS.exec(line);
+    if (analysis !== null) {
+      ids.add(analysis[1]!);
     }
     for (const row of line.matchAll(
       /(?:^|\|\s*|#{1,6}\s+|\*\*)([A-Z]{1,3}\d?-\d+)(?:['’]s)?\b/gu,

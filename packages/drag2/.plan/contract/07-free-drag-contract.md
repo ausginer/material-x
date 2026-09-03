@@ -20,7 +20,9 @@ It sits below 00 and above 06 in the precedence order of [00 §Normative precede
 
 ## Conflicts with the existing kernel, raised rather than worked around
 
-### F-63 — two Phase 14 decisions were normative and unimplemented · **resolved 2026-08-15**
+### Two Phase 14 decisions were normative and unimplemented · **resolved 2026-08-15** (F-63)
+
+**Canonical entry: `F-63` — [`00-index.md`](00-index.md) §Findings**
 
 `plan.md` §Phase 14 booked both for "Phases 19–20", so this was a scheduling fact rather than a drift. What made it a **finding** is that free drag is not merely their first consumer — it is incorrect without them, and nothing in the toolchain said so.
 
@@ -37,7 +39,9 @@ Free drag **constrains** its visual — an axis lock, a bounds clamp and a re-ba
 
 **The instrument gap is the reusable part, and it is the half that outlives the fix.** `tests/docs.node.test.ts` closes the documented surface over types, `tests/packaging.node.test.ts` asserts the entry table, the compiled fixtures assert the shapes that exist — and **nothing checked a decision booked to a later phase against the code that did not yet implement it**. Two contract-normative decisions sat unimplemented across a checkpoint and a whole revision with every suite green, because a green suite is evidence about the implemented contract only. See §Acceptance criteria, row K-5. **Closed by [00](00-index.md) §Decisions not yet implemented and `tests/decisions.node.test.ts`**: the ledger now marks a deferred decision in its own row, the table accounts for every marked row in both directions, and each entry carries a witness that stops holding when the decision lands — so a listed decision cannot be forgotten either.
 
-### F-62 — the kernel classified two behavior-generic seams with sortable vocabulary · **resolved 2026-08-15 (D-74)**
+### The kernel classified two behavior-generic seams with sortable vocabulary · **resolved 2026-08-15 (D-74)** (F-62)
+
+**Canonical entry: `F-62` — [`00-index.md`](00-index.md) §Findings**
 
 Three of the thirteen published failure stages named sortable concepts, and two of them were not behavior-chosen at all. As found:
 
@@ -47,13 +51,17 @@ Three of the thirteen published failure stages named sortable concepts, and two 
 
 Checkpoint E asks whether anything in `kernel/` knows a collection, a placeholder or an insertion. It did: three published constants, two of them as the kernel's own defaults. D-68 published all thirteen one revision ago, so the window in which a rename was free was the window before the kernel tier has a consumer — and the rename was taken inside it. **The three are now `FAILURE_ACTION_PREPARE` (4), `FAILURE_ACTION_EFFECT` (5) and `FAILURE_RESOLUTION` (8)**; the old names survive in this section because it is the record of what was found, and in `src/kernel/failures.ts`, which says what each constant used to be called. No numeric value moved, and `tests/kernel/errors.node.test.ts` asserts 4, 5 and 8 as literals.
 
-### F-65 — the kernel performs a sortable-shaped measurement for every behavior
+### The kernel performs a sortable-shaped measurement for every behavior (F-65)
+
+**Canonical entry: `F-65` — [`00-index.md`](00-index.md) §Findings**
 
 D-52's **window 1** — the box's offset box, read by the kernel immediately before `acquireLift` and handed down as `ActivationScope.boxPre` — exists so a behavior can compute a placeholder footprint from the difference between two reads straddling acquisition. Free drag has no footprint, takes no second read, and never names `boxPre`; the read happens anyway, once per activation, because it is unconditional kernel work.
 
 **Not a defect and not free.** It is one `getBoundingClientRect`-class read on a path that is already doing layout work, at a moment that is not the hot path. It is recorded because Checkpoint E's question is whether the kernel does work only one behavior needs, and this is the clearest instance — sharper than the failure-stage names, because renaming cannot fix it: removing it means making window 1 conditional on something the behavior declares, which is an SPI change with no evidence behind it yet. **Phase 21 measures it; Checkpoint E decides.** Free drag pays it and says so.
 
-### F-64 — three composition types are structurally identical across two middle tiers
+### Three composition types are structurally identical across two middle tiers (F-64)
+
+**Canonical entry: `F-64` — [`00-index.md`](00-index.md) §Findings**
 
 `FeatureContext` (`{ realm, root, report }`), the installer shape (`(context) => contribution`) and two contribution slots (`landingTiming`, `retire`) are behavior-neutral, and both middle tiers need all of them.
 
@@ -665,13 +673,25 @@ The frame part is five fields and `FramePartOf` rejects a kernel key in it. ~~`v
 
 ### The lifecycle
 
-| # | Criterion |
-| --- | --- |
-| **L-1** | Every shipped observable in ledger §6.2 has a row: threshold disarm, lift on activation, no jump on the first move, the accumulated grab delta in `onStart`, the visual released **before** the terminal, async acceptance awaited, ~~an invalid resolution as an error~~ (withdrawn by D-140 — the resolution is opaque, so the state has no producer through the types and `COVERAGE.md` struck the row), animate home on rejection, `pointercancel`/`Escape` disarming a pending press with no terminal, ingress closed after `destroy()`, no retained document listeners, a late acceptance after cancel or destroy ignored, and `moveTo()` retargeting mid-flight |
-| **L-2** | **Exactly one terminal per started operation** on a live controller, on the failure path as well (D-66) — and **none** for an operation that never started (Q-15) |
-| **L-3** | The barrier inside `TAG_POLICY`: an `axis` source that calls `destroy()` from inside itself does not reach `constrain.invalidate()`, and no declared slot fires afterwards. ~~The two-consumer-call barrier … does not reach the bounds re-resolve~~ — **corrected (D-81, F-74), and the correction is what makes the row testable**: under lazy resolution `invalidate()` marks staleness and calls nothing, so with the first-party `bounds()` the second call reaches no consumer code and a `bounds()`-based fixture is a **non-discriminating control** that passes against a missing barrier. The discriminating fixture needs a **middle-tier `constrain` installer whose `invalidate()` records that it ran** — which is also the honest statement of the contract, since that slot admits arbitrary third-party code and is why the barrier is owed at all |
-| **L-4** | The landing opens from the **constrained** delta under an axis lock, under a bounds clamp, and after a `moveTo()` — the free-drag half of K-3, and the case the shipped kernel gets wrong. **Plus the release write it depends on** (D-81, F-39): a `pointerup` at coordinates newer than the last processed `pointermove` renders the final sample, and the landing opens from **that** position rather than from the stale one — the negative control is a fixture whose release point differs from the last move, since one where they agree passes with `release.effect` doing nothing |
-| **L-5** | A geometry fixture per lift mode under an ancestor transform and under zoom, comparing the lifted visual's on-screen box to its expected box. Phase 11's lesson: 644 tests passed through a lift-mode regression because none compared the boxes |
+#### L-1
+
+Every shipped observable in ledger §6.2 has a row: threshold disarm, lift on activation, no jump on the first move, the accumulated grab delta in `onStart`, the visual released **before** the terminal, async acceptance awaited, ~~an invalid resolution as an error~~ (withdrawn by D-140 — the resolution is opaque, so the state has no producer through the types and `COVERAGE.md` struck the row), animate home on rejection, `pointercancel`/`Escape` disarming a pending press with no terminal, ingress closed after `destroy()`, no retained document listeners, a late acceptance after cancel or destroy ignored, and `moveTo()` retargeting mid-flight
+
+#### L-2
+
+**Exactly one terminal per started operation** on a live controller, on the failure path as well (D-66) — and **none** for an operation that never started (Q-15)
+
+#### L-3
+
+The barrier inside `TAG_POLICY`: an `axis` source that calls `destroy()` from inside itself does not reach `constrain.invalidate()`, and no declared slot fires afterwards. ~~The two-consumer-call barrier … does not reach the bounds re-resolve~~ — **corrected (D-81, F-74), and the correction is what makes the row testable**: under lazy resolution `invalidate()` marks staleness and calls nothing, so with the first-party `bounds()` the second call reaches no consumer code and a `bounds()`-based fixture is a **non-discriminating control** that passes against a missing barrier. The discriminating fixture needs a **middle-tier `constrain` installer whose `invalidate()` records that it ran** — which is also the honest statement of the contract, since that slot admits arbitrary third-party code and is why the barrier is owed at all
+
+#### L-4
+
+The landing opens from the **constrained** delta under an axis lock, under a bounds clamp, and after a `moveTo()` — the free-drag half of K-3, and the case the shipped kernel gets wrong. **Plus the release write it depends on** (D-81, F-39): a `pointerup` at coordinates newer than the last processed `pointermove` renders the final sample, and the landing opens from **that** position rather than from the stale one — the negative control is a fixture whose release point differs from the last move, since one where they agree passes with `release.effect` doing nothing
+
+#### L-5
+
+A geometry fixture per lift mode under an ancestor transform and under zoom, comparing the lifted visual's on-screen box to its expected box. Phase 11's lesson: 644 tests passed through a lift-mode regression because none compared the boxes
 
 **What discharged the behavior and lifecycle criteria** (Phase 19 for the behavior, Phase 20 for the matrix). The table records where each row is asserted; it does not restate the rows, and it does not amend them.
 

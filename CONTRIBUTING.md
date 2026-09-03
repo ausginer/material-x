@@ -8,7 +8,7 @@ The single source of truth for **how code is written here**: source conventions 
 
 ## Reading one entry of a record
 
-A record under `packages/*/.plan/` states each decision, finding, standing condition and obligation as a `####` entry (D-171). To read one back:
+A record under `packages/*/.plan/` states each decision, finding, invariant, measurement, criterion, standing condition and obligation as a `####` entry (D-171, D-173). To read one back:
 
 ```sh
 packages/drag2/.scripts/entry.sh drag2:D-171
@@ -25,6 +25,14 @@ awk -v re="^#### D-171( —|$)" \
 ```
 
 Both guards carry weight. `( —|$)` stops `D-16` answering for `D-163`, and the `#{1,4}` terminator cannot match `#####`, so an entry's own sub-clauses stay inside the extraction. This is an idiom for one file you already know, not a second implementation behind the wrapper: `entry.sh` is what finds the file across the current-state documents and refuses an ambiguous answer.
+
+**Writing one, and the three rules that keep it addressable** (D-174, D-175). A local identifier is `[A-Za-z][A-Za-z0-9]*-\d+` — no letter budget, so `SC-7` and a future `BQ-9` are the same kind of thing.
+
+- A heading **opening** with an identifier claims it: `#### F-2` or `#### F-2 — …`. It sits at `####`, and no identifier is claimed twice anywhere in the tree.
+- `##### F-2 §Specification` is a named **sub-clause** of that entry. It goes below `####` and under the entry claiming the same identifier.
+- A heading that _mentions_ an identifier does not claim it. A document analysing an entry it does not own names it in a parenthesis — `### Part factory determinism (F-2)` — and opens with **Canonical entry: `F-2` — …**.
+
+**An entry's stable anchor is its qualified address, never a heading fragment.** A GitHub anchor is the slug of the whole rendered heading, so `00-index.md#f-2` addresses nothing on `#### F-2 — Part factories must be…` and breaks again on the next retitling. Link the document, or a section heading carrying no identifier; write `drag2:F-2` for the entry.
 
 ---
 

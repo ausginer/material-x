@@ -1512,7 +1512,7 @@ Phase 21 opened with four standing obligations that cannot change a decision as 
 
 **Implemented, 2026-09-02 (Remediation).** **Amended by D-172, 2026-09-02, on three points.** **(a) The rule is the identifier, not the row length** — every canonical `D-*` and `F-*` entry becomes a `####` heading without exception, and the median-width scoping below is demoted to the diagnostic that found the problem. It failed on its own terms: `Revision 2.2` has a median of 170 because two short rows sit beside D-68's long one, so a canonical decision would have stayed in a table and been the only one no `#### D-68` could address. **The exception is principled rather than measured**: the Decision status register and the deferred table stay tables because their rows are _projections_ of entries — one derived fact per identifier — which is what a table is for. Corrected counts: **442 entries** (176 decisions, 258 findings, 7 recovered, 1 renumbered) and **203 rows staying in tables**. **(b) §Findings needs no invented group.** It contains zero headings, and every available grouping invents a fact — by phase assigns 258 findings to phases the rows do not state, by status is unstable, by identifier block is arbitrary. The requirement was only ever uniform `####` depth, so §Findings goes `## Findings` to `#### F-1`, skipping a level, which the extractor does not care about. **(c) [`recovered-fragments.md`](../reviews/phase-24/recovered-fragments.md) is step 2's second input**, because re-reading `00-index.md` is what loses the fourteen entries; the gate extends to `canonical()` before, plus the corpus, equals the entries after. **An entry in a current-state record is a `####` heading, and the table form is kept for values.** Record [`d171-entry-headings-claude.md`](../reviews/phase-24/d171-entry-headings-claude.md), closing F-282. **The formatter is the symptom, not the reason.** Three defect classes exist only because prose sits in table cells, and each has an instrument built to catch it: a cell cannot hold a pipe, so `width()` offers every row to a markdown parser as its own header to count the cells it authored — **200 rows carry a pipe inside a code span** and 22 carry an escaped one; a strikethrough span cannot cross a cell boundary, so `residual()` exists to catch a clause struck nowhere and invisible to the retired projection — **67 rows carry strikethrough**; and a row is a line, which is F-231 and F-282, the same failure ten days apart. **The form is hostile to writing it too**: two of the four ledger edits behind D-170 failed their pipe-count guard on the first attempt, and marking D-167 and D-169 superseded needed the closing tildes placed before the cell boundary rather than at the end of the clause. **The form.** An entry is a `####` heading whose text is the identifier alone or the identifier, an em dash and a title; nothing else at `####` may begin with an identifier. Every entry sits under a `###` group, so depth is uniform across sections. `#####` and deeper belong to the entry and are never an entry — the four `#### D-66 §…`, `#### D-62 §…` and `#### D-68 §…` headings move there, which is what they always were. The status marker keeps its own opening sentence, and the last column becomes a trailing **Touches** line. **Verified against the repository's own formatter**: byte-identical after one pass and stable on a second, with `proseWrap: never` in force. **Which matters more than it first reads** — the formatter that breaks the table form runs on save, not on a command, so it is configured on developers' machines rather than in the repository and no ignore entry can be checked to cover it. **Scope is by what the cells hold, not by a list of files.** A table row that carries prose is not a table row; the table is right when every cell is a value, and a median row width above roughly 400 characters is the diagnostic that finds them rather than the definition. In this document **392 rows migrate and 225 stay** — the **Decision status** register is a table at a median of 23 characters and remains one, and so do the deferred table and five short ones. About 556 rows across eight current-state documents. **Dated provenance is excluded**: reviews, `plan.md` and measurements are history that a later record supersedes rather than edits, which is where the reference instrument's own current-state boundary already falls. **The rule limits itself** — box-quad's index is eighteen rows at a median of 78 and needs no exemption. **The instrument gets smaller and stronger.** `DELIMITER`, `width()`, `shape()` and `residual()` are deleted with their tests, not migrated; eight regexes and seven readers re-anchor from a row prefix to a heading; `references.node.test.ts` is untouched. The unimplemented marker becomes line-anchored, where today it must reach past a cell boundary. **And the migration is verified by the instrument that already exists**: `canonical()`, `registered()` and `marked()` must return the same maps before and after, which turns 556 transcriptions into a checked transformation. **Reading one entry back is `.scripts/entry.ts`, beside `decision-status.ts` and reading through `tests/ledger.ts`** — not a shell script and not a skill, because the reader and the assertion must not drift. It finds the file over the current-state roots, and it refuses rather than guesses on an unknown or duplicated identifier. The documented no-dependency fallback is an `awk` range whose anchor carries two load-bearing guards: an em-dash-or-end suffix, so `D-16` cannot answer for `D-163` and a `§` sub-clause heading cannot answer for its parent, and a one-to-four-hash terminator, which cannot match five hashes and so keeps an entry's own sub-headings inside the extraction.
 
-**Landed 2026-09-02, in one pass with D-172's recovery.** **493 entries across five documents** — 172 decisions and 269 findings in this file, and 52 in the satellites: `SC-*` and `O-*` in `obligations.md`, `Q-*` in 05, `P-*` in 02, `B-*` and `K-*` in 07. **Amended by D-173, 2026-09-02**: `L-*` in 07 belongs to that enumeration and was missed — it is the third sibling group of the same section, sharing one `Discharged by` table with `B-*` — and the three deferred tables add **46 entries** (37 `I-*`, 4 `M-*`, 5 `L-*`). **D-173 also states the rule this pass already followed**: a canonical identifier is an address and is never marked up, while strikethrough on a title, a value or a clause is content and is preserved. The status register, the deferred table and every value-keyed table stay tables, on the amendment's own ground that a projection is one derived fact per identifier. The four `#### D-66 §…`, `#### D-62 §…` and `#### D-68 §…` clauses are `#####` **and were moved beneath the entries that own them**, which a depth change alone would not have done: D-66's marker sat after D-67's row and would have become D-67's. **The gate is `.scripts/corpus-equivalence.ts`**, kept runnable: it reads the pre-migration state out of git rather than a fixture — a transcription being the thing the gate exists to distrust — and checks that 432 rendered entries plus D-172's 24 fragments equal the 441 entries here, clause by clause. **The reader is `.scripts/entry.ts` behind `.scripts/entry.sh`**, sharing `tests/ledger.ts`. **`shape()` is not merely deleted but replaced**: `surplus()` carries a table's header across blank lines, which is the single property `shape()` lacked and the reason F-284 went five days unseen. **Three satellite tables are deferred rather than migrated** and are named on F-286.
+**Landed 2026-09-02, in one pass with D-172's recovery.** **493 entries across five documents at that date** — 172 decisions and 269 findings in this file, and 52 in the satellites: `SC-*` and `O-*` in `obligations.md`, `Q-*` in 05, `P-*` in 02, `B-*` and `K-*` in 07. **Amended by D-173, 2026-09-02**: `L-*` in 07 belongs to that enumeration and was missed — it is the third sibling group of the same section, sharing one `Discharged by` table with `B-*` — and the three deferred tables add **46 entries** (37 `I-*`, 4 `M-*`, 5 `L-*`). **D-173 also states the rule this pass already followed**: a canonical identifier is an address and is never marked up, while strikethrough on a title, a value or a clause is content and is preserved. The status register, the deferred table and every value-keyed table stay tables, on the amendment's own ground that a projection is one derived fact per identifier. The four `#### D-66 §…`, `#### D-62 §…` and `#### D-68 §…` clauses are `#####` **and were moved beneath the entries that own them**, which a depth change alone would not have done: D-66's marker sat after D-67's row and would have become D-67's. **The gate is `.scripts/corpus-equivalence.ts`**, kept runnable: it reads the pre-migration state out of git rather than a fixture — a transcription being the thing the gate exists to distrust — and checks that 432 rendered entries plus D-172's 24 fragments are all carried by the entries here, clause by clause. **The reader is `.scripts/entry.ts` behind `.scripts/entry.sh`**, sharing `tests/ledger.ts`. **`shape()` is not merely deleted but replaced**: `surplus()` carries a table's header across blank lines, which is the single property `shape()` lacked and the reason F-284 went five days unseen. **Three satellite tables are deferred rather than migrated** and are named on F-286.
 
 **Touches:** supersedes F-231's convention with a form that needs none; closes F-282 and F-284, leaving the root `proseWrap` setting and its reach through format-on-save recorded there as residue; deletes `DELIMITER`, `width`, `shape` and `residual` from `tests/ledger.ts` and adds `entries`, `documents` and `surplus`
 
@@ -1526,7 +1526,7 @@ Phase 21 opened with four standing obligations that cannot change a decision as 
 
 #### D-173
 
-**Unimplemented (Remediation).** **The three tables F-286 deferred are settled, and the three answers are not variants of one answer.** Record [`d173-satellite-table-shapes-claude.md`](../reviews/phase-24/d173-satellite-table-shapes-claude.md), closing F-286 and minting F-287. **46 entries**: 37 `I-*`, 4 `M-*`, 5 `L-*`.
+**Implemented, 2026-09-03 (Remediation).** **The three tables F-286 deferred are settled, and the three answers are not variants of one answer.** Record [`d173-satellite-table-shapes-claude.md`](../reviews/phase-24/d173-satellite-table-shapes-claude.md), closing F-286 and minting F-287. **46 entries**: 37 `I-*`, 4 `M-*`, 5 `L-*`.
 
 **`I-*` — a canonical identifier is an address, and an address is literal.** The question is real but was answered sixteen times by D-171's own pass: every struck heading in the current-state documents puts the strikethrough in the **title**, never in the identifier, and every superseded decision — D-88, D-150, D-162, D-164, D-167, D-169 — has a clean heading with the supersession as its body's first sentence. **The distinction the rule turns on**: strikethrough on a title, a value or a clause is _content_ and is preserved exactly, which is what `tests/ledger.ts` means and why I-35's retracted **Tier** keeps its tildes; strikethrough on the identifier is _presentation of a fact stated in prose beside it_, and I-35's very next words are **Deleted by D-41 (Revision 2), together with the protocol it described**. The retirement is stated three times before the change and three times after, so removing the tildes discards nothing — and it is what lets `entry.sh I-35` match by exact identifier instead of by a pattern, which is how `D-16` starts answering for `D-163`. **And the rule is already compiled in**: `tests/ledger.ts` recognises an entry by `/^#### ([A-Za-z]{1,3}-\d+)(?: — (.+))?$/`, so the identifier position admits letters and digits and nothing else, while the title after the em dash admits anything. D-173 does not add a rule; it names the one the landed reader enforces, and `.scripts/entry.sh drag2:I-35` answers **unknown local id** today for exactly that reason.
 
@@ -1538,9 +1538,11 @@ Phase 21 opened with four standing obligations that cannot change a decision as 
 
 **Touches:** amends D-171's scope sentence and adds its identifier rule; closes F-286; mints F-287; does not touch the `Discharged by` tables, the `Write-up` links or any value-keyed table.
 
+**Landed 2026-09-03**, in one unit with D-174 and D-175. The three tables are gone. The 37 `I-*` entries carry the invariant as their title, with `**Tier:**` and the mechanism as body; the 4 `M-*` entries carry the answer and `**Write-up:**`, with the specification verbatim beneath as a `##### M-n §Specification` clause and the `Replaced` citation travelling with it; the 5 `L-*` entries join `B-*` and `K-*` in the same section, and the `Discharged by` table they share with `B-*` is untouched and now projects fourteen entries. `~~I-35~~` loses its tildes and keeps every retirement clause in its title and body, and `.scripts/entry.sh drag2:I-35` answers where it reported an unknown local id. **The prose naming the retired columns is repointed, not dropped**: five sentences in 05 and one each in 01, 04 and the register named an Invariant, Tier or Mechanism column, and each now names the entry's own part with its claim unchanged.
+
 #### D-174
 
-**Unimplemented (Remediation).** **A satellite cites a canonical identifier; it does not claim one — and the rule for that was written in August.** Record [`d174-satellite-finding-ownership-claude.md`](../reviews/phase-24/d174-satellite-finding-ownership-claude.md), closing F-287. **48 claims**: 43 `F-*` in 05, 4 in 07, and `I-31` in 02.
+**Implemented, 2026-09-03 (Remediation).** **A satellite cites a canonical identifier; it does not claim one — and the rule for that was written in August.** Record [`d174-satellite-finding-ownership-claude.md`](../reviews/phase-24/d174-satellite-finding-ownership-claude.md), closing F-287. **48 claims**: 43 `F-*` in 05, 4 in 07, and `I-31` in 02.
 
 **The four shapes, measured: 0 exact restatements, 48 complementary, 0 projections, 0 different findings.** **No pair is an exact restatement, and that is what forbids resolving this by deletion** — the closest, F-65 at 0.72 containment, still carries twenty substantive words the index lacks, and **all forty-seven satellite bodies are longer than their index body**, 71,238 characters in total. **No pair is a different finding**: the five lowest title-agreement pairs were read rather than scored, and F-2 scores 0.00 only because the satellite's title is the label _part factory determinism_ while the index's is the full statement. **The relationship is D-173's `M-*` relationship in two documents**: the index is the register — title is the statement, body is severity and status, as §Findings says of itself — and the satellite is where the finding was raised and analysed. Neither derives from the other and neither is complete alone; collapsing them would empty one of the two.
 
@@ -1556,9 +1558,11 @@ Phase 21 opened with four standing obligations that cannot change a decision as 
 
 **Touches:** closes F-287; states the boundary that lands with D-173; adds no reader change and moves no text.
 
+**Landed 2026-09-03.** All forty-eight claims are dispositioned and nothing moved: 43 in 05, 4 in 07, `I-31` in 02. Each heading keeps its authored text and gives up only the key position — `### F-2 — part factory determinism · open, tier C` is now `### Part factory determinism · open, tier C (F-2)` — opens with **Canonical entry: `F-2` — [`00-index.md`](00-index.md) §Findings**, and the canonical entry gains the reciprocal **Satellite analysis** line. **The status suffix is retained rather than dropped, and the specimen above does not show that.** It restates the register for forty-six of the forty-eight and does not for two: F-1's _not a finding_ and F-16's _scenario superseded by D-41, classification inherited by D-49_ appear nowhere else, so dropping the suffix uniformly would have lost an amendment to buy a duplicated word. **The check is `violations` in `tests/ledger.ts`**, read at every depth over every current-state document, and it is calibrated rather than merely green: run against the tree this pass started from it reported 47 duplicate and 48 off-depth claims, the two counts this entry predicted, and after D-173's `I-31` migration 48 of each — the forty-eighth duplicate that entry's amendment said the migration would create. It reports none now.
+
 #### D-175
 
-**Unimplemented (Remediation).** **An entry's anchor is its address, not a heading fragment — and an identifier has no letter budget.** Record [`d175-stable-anchor-and-shared-identifier-claude.md`](../reviews/phase-24/d175-stable-anchor-and-shared-identifier-claude.md). Two details of D-174's mechanism, both raised by the owner and both real; the ownership disposition itself is not revisited and nothing is moved.
+**Implemented, 2026-09-03 (Remediation).** **An entry's anchor is its address, not a heading fragment — and an identifier has no letter budget.** Record [`d175-stable-anchor-and-shared-identifier-claude.md`](../reviews/phase-24/d175-stable-anchor-and-shared-identifier-claude.md). Two details of D-174's mechanism, both raised by the owner and both real; the ownership disposition itself is not revisited and nothing is moved.
 
 **The link was dangling, and the repository proves the rule against itself.** A GFM anchor is derived from the heading's whole rendered text, so `#### F-2 — Part factories must be deterministic…` answers to `#f-2--part-factories-must-be-deterministic-and-folded-in-a-fixed-order-for-both-frames-typescript-proves-neither` and **`#f-2` addresses nothing**. The evidence is authored in this repository: `drag2-review-B-claude-2.md` links `#n-3--the-fix-passes-cost-04-05-kb-brotli` to `### N-3 — The fix passes cost 0.4–0.5 kB brotli`. The broken form existed twice and was about to be authored forty-eight more times.
 
@@ -1571,6 +1575,8 @@ Phase 21 opened with four standing obligations that cannot change a decision as 
 **The three refusals stay distinguishable.** `entry.ts` needs no grammar change and keeps unknown scope, unknown local id and duplicated local id as three failures with three repairs. The `CLAIM` check adds a second producer of a duplicate report and the two are not merged: `entry.ts` reports a duplicate among entries it can **extract**, the integrity check among everything that **claims** an identifier at any depth — which is what finds F-287's forty-seven.
 
 **Touches:** amends D-174's reciprocal-link form and its invariant; closes F-288 and F-289; mints F-290; leaves the migration boundary — D-173's three tables, the forty-eight claims, the `CLAIM` check last — exactly as D-174 set it, with the same expected counts of 47 duplicate and 48 off-depth claims.
+
+**Landed 2026-09-03.** `LOCAL_ID` is exported from `tests/ledger.ts` and `ENTRY`, `OPENS_ENTRY`, `CLAIM` and the sub-clause form are all built from it, so the three-letter cap is gone from every expression that recognises an identifier. The two deliberate exclusions hold: `corpus-equivalence.ts`'s `ID` still reads the frozen ref under the old grammar, and the citation scanner in `references.node.test.ts` stays capped pending F-290. **No link in a current-state document targets a canonical entry by fragment** — the only `.md#` fragments in the tree are 07's `#normative-precedence-and-freeze`, which this entry permits, and the backticked specimen inside F-288, which is a code span rather than a link — and `tests/decisions.node.test.ts` now falsifies that rather than leaving it observed. The four `§` sub-clauses are asserted to sit below `####` and to nest inside the entry claiming their own identifier. **The per-entry anchor is not added**: the owner deferred that half of this entry, so the qualified address is the only anchor, which is what the rule already said.
 
 ### Decisions not yet implemented
 
@@ -1585,9 +1591,6 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
 | D-170 | Remediation | Six factories still construct their entity in a closure. The witness retires at step 6, the last of them. | present: `src/kernel/kernel.ts` :: `export function createKernel<` |
-| D-173 | Remediation | Three satellite tables still key their entries in rows: 37 `I-*` and 4 `M-*` in 05, 5 `L-*` in 07. The witness is the one struck identifier, which retires with the first of the three. | present: `.plan/contract/05-lifecycle-invariants.md` :: `~~I-35~~` |
-| D-174 | Remediation | Forty-eight identifier-shaped headings still claim an identifier they do not own: 43 in 05, 4 in 07, and `I-31` in 02. | present: `.plan/contract/02-kernel-behavior-contract.md` :: `### I-31 — once a start is notified, exactly one terminal callback follows` |
-| D-175 | Remediation | The identifier grammar is still capped at three letters in `ENTRY` and `OPENS_ENTRY`, so a future `BQ-9` or `SPACE-01` would be invisible rather than unresolved. The witness retires when both are built from one exported `LOCAL_ID`. | present: `tests/ledger.ts` :: `[A-Za-z]{1,3}-\d+` |
 
 **The twenty-fifth cycle opened on 2026-09-02 and is open.** D-170's witness — `export function createKernel<` in `src/kernel/kernel.ts` — is the _last_ of the six conversions the decision orders, not the first, and that placement is deliberate. **A witness is one source fact and this decision is a sequence**, so it can only hold the endpoint: it retires when step 6 lands, and stays put through steps 0 to 5 while five other factories change form. The alternative — witnessing step 1, `createRectIndex`'s factory — would retire the row after the cheapest conversion and leave the kernel's, the riskiest, unwatched by the instrument that exists to notice a decision quietly not landing. **The intermediate steps are carried by the record and by `.plan/plan.md`, which is where a sequence belongs**; this table holds the one fact that is false while any of it is outstanding. **D-171 joined the same open cycle**, and its witness is deliberately _mid_-migration rather than terminal: the four `#### D-66 §…` sub-clause headings it moves down a level. Nothing the decision touches at its end is pipe-free, and a witness carrying a pipe cannot be written into this table at all — which is the decision's own argument, arriving as a constraint on stating it.
 
@@ -1843,9 +1846,13 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 **Downgraded to a note.** Thirteen top-level `BehaviorSpec` members plus one optional, ~18 functions, against probe 1's fifteen. A wash, not a cost — and the Phase 14 revision added one optional member, not a protocol.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-2 — Part factories must be deterministic and folded in a fixed order for both frames; TypeScript proves neither
 
 **Open, tier C.** ~~`__DEV__` shape assertion.~~ **Unconditional since D-108** — the key-set assertion is a production check in every build, so the mitigation is stronger than this row claimed until 2026-08-22 (corrected here; it was an instance of F-81 created by the decision that closed F-81's first). Much narrower than before D-15, which removed the kernel-slice half.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-3 — "No aggregate type" is conditional on features abstaining
 
@@ -1855,9 +1862,13 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 **Measured and accepted (M-2, 2026-08-02 — [measurements/m2.md](../measurements/m2.md)).** The closure model costs **3.6× the heap per controller — 506 B against 141 B, stable from 100 to 1000 controllers**. It also **calls at least 2.9× faster** (0.0013 µs against 0.0038 µs), because a captured closure is a direct call while the static-spec form is a property load plus an indirect call. So the trade is not "pay heap for simplicity" as this entry assumed — it is pay heap for speed on the one path that runs every frame. Kept.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-5 — `admit` runs inside native dispatch and can throw into the event loop
 
 **Resolved by Q-1's answer, and this row said "Open" until Checkpoint D review 4 (C4-03).** Inherited from probe 1's Q-1. The wrap is three lines and is in place; the observable question Q-1 held open is answered in §[05](05-lifecycle-invariants.md)'s resolved table — a throwing `admit` becomes a **controller-level report**, not a classified failure, because admission runs before operation identity is minted. The kernel catches the throw, leaves the controller idle and usable, and reports through `onError` with `FAILURE_ADMISSION` and no operation, via `BehaviorSpec.reportFailure` (Phase 4).
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-6 — A forgotten gate hold silently finalizes early
 
@@ -1867,6 +1878,8 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 **Accepted, minor.** Export it as a pure helper, never a seam.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-8 — D-8 adds an indirect call to the move path
 
 **Withdrawn — it never did.** Probe 1 and this model spend the same three post-`MOVE` calls (`spec.moved`, `lift.write`, `frame.schedule`); only which party makes the middle one changed. Kept as a number only so the review record reads continuously.
@@ -1875,33 +1888,49 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 **Neutral.** Validation was always the behavior's.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-10 — Contribution objects are structurally polymorphic at the assembler
 
 **Non-issue.** Construction-time, once per feature. Recorded so it is not rediscovered.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-11 — `resetFramePart` exhaustiveness is unprovable
 
 **Open, tier C, inherited.** ~~`__DEV__` heuristic~~ **unconditional since D-108** — it catches retained objects, not stale scalars, and now does so in every build (corrected 2026-08-22; F-81's class, in the findings register). Identical in probe 1.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-12 — Teardown crosses two owners: `spec.retire()` may throw, and runs while the behavior's DOM is still attached
 
 **Resolved by contract.** The seven-step order in [01](01-construction-ownership.md) is normative; the kernel wraps `retire()`.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-13 — The landing target goes stale when the authored commit inserts, removes or resizes content above the placeholder
 
 **Confirmed by the probe, resolved by D-16.**
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-14 — React repositions or detaches the injected placeholder
 
 **Disproved.** The probe establishes that React does neither.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-15 — A new keyed item inserted into the destination gap leaves the placeholder in the wrong **semantic** gap
 
 **Confirmed by the probe, resolved by D-16**'s re-anchor.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-16 — When a short landing completes before readiness, the authoritative correction at the join is visually abrupt
 
 **Accepted, quality only.** Correctness is unaffected. A retargetable runner improves it; the kernel guarantee does not depend on one.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-17 — `anchorTarget()` and `retarget()` on the readiness path are fallible, with no defined failure response
 
@@ -1911,121 +1940,181 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 **Resolved by contract.** Register each release before making the resource visible; publish private references only once every resource is owned; consumer callbacks last (I-30).
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-19 — The generic transition driver was not total: an `effect` throw escaped to panic, `rollback` failure had no policy, and activation's discard and post-effect checkpoint were missing
 
 **Resolved by contract.** One shared core, per-seam wrappers with their own discard and failure policies.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-20 — Legal `null` returns from `release.prepare` and `settlement.prepare` could strand an operation; `ResolutionGate` had no linearity
 
 **Resolved by types.** Release stages a non-nullable `ResolutionCommand` (D-18); settlement returns `PreparedSettlement | SeamRejection`.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-21 — A synchronous landing completion raced the hold that was installed after `start` returned
 
 **Resolved by contract.** Request → seal → arm (D-7).
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-22 — The join and feature retirement were not robust across code the kernel does not own
 
 **Resolved by contract.** Presentation release in a `finally`; runner destruction best-effort; per-hook wrapping in reverse installation order.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-23 — `host.fail` targets the current operation, so a late continuation could fail the wrong one
 
 **Resolved by contract.** Driver classification, the kernel's `inSeam` latch, `FeatureContext.report` instead of `fail`, and a closed `FailureStage` union.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-24 — The hot-path accounting contradicted itself: "zero allocations, two indirect calls" versus a transform string and three calls
 
 **Withdrawn, restated, then measured (M-1, 2026-08-02 — [measurements/m1.md](../measurements/m1.md)).** Three indirect calls, one string, plus a `{ x, y }` in the in-place lift mode. The generic frame copy this entry queried is **0.098 µs of a 2.64 µs sample (3.7%)** and is kept — with the bound M-1 found: its cost jumps 10× between 12 and 16 behavior-part fields, and this frame sits 4 below that cliff.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-25 — The reentrant-cancel counterfactual reversed FIFO
 
 **Corrected.** `cancel()` from inside `onReorder` enqueues first and wins; the completion is stale. Now a test, not a counterfactual.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-26 — The tree-shaking criterion named an impossible minimal build
 
 **Corrected.** A minimal one-dimensional sortable contains one-dimensional axis geometry; what must be absent is _unselected_ geometry, free drag, landing and layout animation. The subpath/export table is now written down.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-27 — Classification did not stop incompatible continuation: activation retired past its own failure, release invoked `onReorder` after a failed effect, settlement armed a half-requested plan, the join emitted `onFinish` for a failed drop
 
 **Resolved by D-23.** F-19 was not actually resolved before this.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-28 — An invalidating collection replacement was discarded along with the consumer's update
 
 **Resolved by D-25.**
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-29 — The five settlement statuses had no total mapping, and the reference turned a skipped/no-op resolution into a rejected, home-recovering drop
 
 **Resolved by D-24.**
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-30 — A resource _returned_ from a reentrancy-capable callback could leak — a `LandingStart` handle, or a whole operation minted after `admit` destroyed the controller
 
 **Resolved by D-26.**
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-31 — The reference placeholder writer could not express a start gap, and `homeInsertion` carried no real neighbours
 
 **Resolved by D-27.**
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-32 — The `ACTIVATING` collection deferral contradicted FIFO — `onStart` runs before `START_COMMITTED`, so an `updateItems()` from it is appended first
 
 **Resolved by deletion.** I-30 already publishes the runtime before `onStart`, so `ACTIVATING` reconciles exactly like `ACTIVE`. The invalidating case is resolved by `host.cancel` latching synchronously, so `START_COMMITTED` cannot activate a cancelled operation.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-33 — Kernel-owned cancel/failure could not construct behavior-owned terminal state — `outcome`/`recovery`/`domain` live in the behavior's part and no seam could write them
 
 **Resolved by D-24.** All five settlement cases return to the behavior.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-34 — `host.fail()` bypassed `SeamOutcome`, so an explicit classification still allowed every forbidden continuation
 
 **Resolved by D-28's latch.**
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-35 — A landing-create failure rolled back its hold and let the _original_ accepted settlement finalize before the queued checkpoint
 
 **Resolved by `ArmOutcome`** (D-28).
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-36 — A throwing `resetFramePart` could skip the second scrub and the ingress abort, making `destroy()` non-terminal
 
 **Resolved by D-29.**
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-37 — `finalized` used a binary accepted-vs-everything predicate, sending the no-op result to `onCancel`
 
 **Resolved by an exhaustive switch** on the domain discriminant.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-38 — Revalidation existed after `LandingStart` but not after the `anchorTarget` before it, so `start` could run after a synchronous `destroy()`
 
 **Resolved.** Revalidate on both sides.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-39 — The final pointerup render existed only in the trace, not in the normative seam
 
 **Resolved.** It is part of `release.effect`.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-40 — `moved()` had no wrapper, so a render or schedule throw became a panic
 
 **Resolved.** Kernel-wrapped; scheduling narrowed from inside via the latch.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-41 — The public proposal and result types regressed probe 1's preserved contract
 
 **Resolved by D-31.**
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-42 — "Public stable feature type, internal unstable shape" was not a coherent boundary
 
 **Resolved by D-30's brand, then resolved differently by D-45 (Revision 2).** The incoherence was in trying to make one _value_ both. D-45 splits it across two levels instead: the config record is public and stable in full, and the installer it names is opaque in full. Neither half is the third state this finding rejected.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-43 — The SPI had no route for discrete input: `admit` takes a `PointerEvent`, `KernelHost` owns no extensible ingress, `dispatch` returns `void`, and nothing mints an operation without a press
 
 **Resolved by D-32.** Probe 13a, four compile-proved negatives. The load-bearing one is `dispatch` returning `void`: the information flowed the wrong way through the only behavior-initiated entry that existed.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-44 — `BehaviorSpec.activation` pinned its staged type to `HTMLElement`, so a behavior that stages nothing had to return an element it does not own and an `effect` that must ignore it
 
 **Resolved by D-34.** Probe 13c N-1 — the sortable's shape written into the kernel rather than into the sortable.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-45 — `LandingContext.from` was derived from pointer displacement, so a constrained, snapped or externally driven visual lands from a position it is not at
 
 **Resolved by D-35.** Probe 13c N-2. The signature is a landing that _opens with a jump and ends correctly_, because the target is behavior-supplied and the kernel re-pins at the join — the same shape Phase 11 found in the lift geometry, with every test passing throughout.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-46 — The authored-presentation protocol put four obligations on the consumer, whose only failure signals were a 500 ms silence and, for a hold never taken, nothing at all
 
 **Resolved by deletion (D-41, Revision 2).** All four obligations go with the protocol: a consumer that renders asynchronously awaits its own commit inside `onReorder`, which is an ordinary `await` with ordinary failure behavior, and there is nothing left to declare, acknowledge, mismatch or forget. This is the stronger resolution the row below was reaching for — including obligation 3, which it called irreducible, because it was irreducible _given a protocol_. Original text follows. ~~**Largely resolved by D-33.**~~ Probe 13b B-1. **Inherited from the shipped package, not introduced by the rewrite** — the identical `createCommitTracker` is in both packages' stories. Not a correctness defect: every shipped and ported story works. Obligations 1 and 2 are gone; 3 is irreducible; 4 **splits** — losing an acknowledgement you declared is bounded by the deadline, while never declaring at all stays undetectable at tier C, because the declaration is opt-in and flipping its default would break the legitimate synchronous consumer. I-35 and 05 §F-46 are worded against that split and claim nothing more.
 
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
+
 #### F-47 — The terminal barrier stopped at the seam boundary: a behavior invoking consumer code more than once inside one seam had no obligation between invocations
 
 **Resolved by I-36, then re-scoped by D-37 (Revision 2).** Back-filled into this table at Revision 2 — it was recorded in [05](05-lifecycle-invariants.md) §F-47 and `ledger.md` L-12 and never carried here, which is exactly how a finding gets rediscovered. The defect was real and its fix is retained at the **floor**: a sequence that calls consumer code repeatedly reads the latch between calls. What is withdrawn is the **ceiling register** the fix grew afterwards — the promise of no geometry read at all — and the stretch table that tried to discharge it whole-program.
+
+**Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
 #### F-48 — Admission calls `preventDefault()` before the activation threshold, so a press that never becomes a drag still consumes native focus, caret, selection and form-control behavior — and command admission never asks what the event landed on
 
@@ -2083,17 +2172,25 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 **Found by Phase 18, resolved by D-74, landed with D-76's kernel step.** As found: the settlement seam ran under `FAILURE_REORDER_RESOLUTION` (`src/kernel/kernel.ts:1676`) and the action seam under `FAILURE_INSERTION`/`FAILURE_PLACEHOLDER_MOVE` (`:2209`) for **every** behavior — the behavior may narrow from the inside with `host.fail`, but an uncaught throw takes the kernel's name. So free drag's failing `onDrop` reports a _reorder resolution_ failure and a throwing `moveTo()` reports an _insertion_ one, which D-64 maps to a **presentation** fault for library arithmetic. **This is the sharpest available answer to Checkpoint E's first question** — does anything in `kernel/` know a collection, a placeholder or an insertion — and the answer was three of the thirteen constants D-68 published as permanent surface one revision ago. Renaming is free **only** while the kernel tier has no consumer, which is why it was taken now. The three are `FAILURE_RESOLUTION` (8), `FAILURE_ACTION_PREPARE` (4) and `FAILURE_ACTION_EFFECT` (5); the old names in this cell are the record of what was found, and no value moved
 
+**Satellite analysis: [`07-free-drag-contract.md`](07-free-drag-contract.md) §Conflicts with the existing kernel, raised rather than worked around**
+
 #### F-63 — ~~**D-34 and D-35 are contract-normative and unimplemented**, and no instrument says so~~ · **resolved 2026-08-15 by D-76's kernel step**; the instrument is §Decisions not yet implemented above, held by `tests/decisions.node.test.ts`
 
 **Found by Phase 18, scheduled by D-76, landed 2026-08-15.** As found: `BehaviorSpec.activation` was `Transition<Part, HTMLElement, ActivationScope>`, `LandingContext.from` was `pointerX - originX`, and `VisualLiftSession.write` composed and wrote and recorded nothing. All three are now what the contract says — the parameter is threaded to the construction types, `write` records, and `from` is sampled from the session. `plan.md` §Phase 14 books both for "Phases 19–20", so this is a **scheduling fact, not a drift** — what makes it a finding is that two decisions the contract states in the present tense sat unimplemented across a checkpoint and a whole revision with every suite green. **The instrument gap is the reusable part, and it is the half that outlives the fix**: `docs.node.test.ts` closes the documented surface, `packaging.node.test.ts` asserts the entry table, the fixtures assert the shapes that exist, and **nothing checked a decision booked to a later phase against the code that had not implemented it**. A green suite is evidence about the implemented contract only. Acceptance criterion K-5 in [07](07-free-drag-contract.md), discharged by §Decisions not yet implemented and `tests/decisions.node.test.ts`
+
+**Satellite analysis: [`07-free-drag-contract.md`](07-free-drag-contract.md) §Conflicts with the existing kernel, raised rather than worked around**
 
 #### F-64 — Three composition types are structurally identical across the two middle tiers
 
 **Found by Phase 18, deliberately not resolved.** `FeatureContext`, the installer shape and two contribution slots (`startLanding`, `retire`) are behavior-neutral and both tiers need all of them. Inventing a cross-behavior composition vocabulary — a generic `Installer<C>`, a shared contribution base — **is the generalization Checkpoint E exists to evidence**, and building it in Phase 18 would consume the evidence it is meant to produce. What lands instead is the narrower thing that costs nothing: **one declaration, two publications** — the D-68 re-home pattern applied to `FeatureContext` and `LandingOptions`, so the two tiers share a type **identity** rather than a structural coincidence, pinned by acceptance criterion B-7. **Falsifier:** a third behavior, or a first-party capability installable into both compositions without a per-behavior wrapper
 
+**Satellite analysis: [`07-free-drag-contract.md`](07-free-drag-contract.md) §Conflicts with the existing kernel, raised rather than worked around**
+
 #### F-65 — ~~The kernel performs a sortable-shaped measurement at every activation, for every behavior~~ · **closed 2026-08-20 as an accepted, named cost** — M-5 arm A ([`measurements/m5.md`](../measurements/m5.md)). **Window 1 is 0.8–1.6 µs per activation**, bounded in situ at **≤ 0.0125 ms** and **≤ 2.7%** of measured activation at a 32-level transformed ancestry — both legs of the pre-declared rule satisfied by two orders of magnitude, so **the `ActivationScope` SPI does not move again for this reason and a later phase may not reopen it without a new workload showing a different number**. The mechanism is in the source: `acquireActivation` reads `getBoundingClientRect()` on the statement **before** window 1, so the two offset reads are served from a layout that has just been flushed, which is why the cost stays flat while measured activation grows six-fold from shallow to deep ancestry.
 
 **Found by Phase 18, carried to Checkpoint E, measured at Phase 21.** D-52's **window 1** — the box's offset box, read by the kernel immediately before `acquireLift` and handed down as `ActivationScope.boxPre` — exists so a behavior can derive a placeholder footprint from two reads straddling acquisition. Free drag has no footprint, takes no second read and never names `boxPre`; the read happens anyway, because it is unconditional kernel work. **Not a defect and not free**, and sharper than F-62 because renaming cannot fix it: removing it means making window 1 conditional on something the behavior declares, which is an SPI change with no evidence behind it yet. Phase 21 measures it; Checkpoint E decides
+
+**Satellite analysis: [`07-free-drag-contract.md`](07-free-drag-contract.md) §Conflicts with the existing kernel, raised rather than worked around**
 
 #### F-66 — `FreeHomeRequest`'s drop rationale was voided by the `DragSubject` drop, and the ledger asked Phase 18 to re-derive it
 

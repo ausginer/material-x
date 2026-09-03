@@ -115,12 +115,65 @@ export const STATUS_SECTION = '## Decision status';
 const DESTINATION = /^(?:Phase \d+|Before Phase \d+|Remediation)$/u;
 
 /**
+ * **One identifier grammar, shared by everything that recognises one** (D-175).
+ *
+ * A letter, then letters and digits, then a hyphen and a number. There is no
+ * letter budget: `D`, `SC` and a future `BQ` are the same kind of thing, and a
+ * cap is a rule about spelling masquerading as a rule about meaning. It was
+ * already losing citations — `P18A-04` is four characters — and the widening
+ * was measured to add nothing: 544 claim-shaped headings under the capped
+ * grammar and 544 under this one.
+ *
+ * **Where it is deliberately not used**: `.scripts/corpus-equivalence.ts`
+ * reads a frozen pre-migration ref, and a historical reader that grew with the
+ * grammar would describe a document that cannot change; and
+ * `references.node.test.ts`'s citation scanner stays capped, because widening
+ * it is a separate question about review-scope identifiers (F-290).
+ */
+export const LOCAL_ID = '[A-Za-z][A-Za-z0-9]*-\\d+';
+
+/**
  * An entry heading: the identifier alone, or the identifier, an em dash and a
  * title. **The identifier is matched whole**, which is the property a prefix
  * match does not have — `D-16` must not answer for `D-163`, and a `§`
  * sub-clause at `#####` must not answer for its parent.
  */
-const ENTRY = /^#### ([A-Za-z]{1,3}-\d+)(?: — (.+))?$/u;
+const ENTRY = new RegExp(`^#### (${LOCAL_ID})(?: — (.+))?$`, 'u');
+
+/**
+ * A heading that **claims** an identifier: one that opens with it, at any
+ * depth. `ENTRY` answers *what can I address*; this answers *what claims to be
+ * addressable*, and the two are separate on purpose — F-287 exists because
+ * they had one answer, so forty-seven headings the extractor stepped over were
+ * read as absent rather than as wrong. A reader's blind spot had become the
+ * record's invariant.
+ *
+ * A heading merely *mentioning* an identifier — `### Pointer capture is not
+ * here (D-17)` — is prose, and that is what makes the fix structural: the
+ * distinction is the opening token, which a depth change cannot undo.
+ */
+const CLAIM = new RegExp(`^(#+) (${LOCAL_ID})(?: — (.+))?$`, 'u');
+
+/**
+ * A named **sub-clause** of an entry: `ID §…`. Legal below `####`, and
+ * required to nest inside the entry claiming that same identifier — the form
+ * `##### D-66 §The progress marker` already uses. The delimiter after the
+ * identifier is therefore load-bearing: without this clause `### F-2 §analysis`
+ * would claim an identifier at the wrong depth and pass a check that only
+ * looked for an em dash.
+ */
+const SUB_CLAUSE = new RegExp(`^(#+) (${LOCAL_ID}) §(.*)$`, 'u');
+
+/**
+ * A heading **opening** with an identifier, whatever follows it. The two forms
+ * above are the legal readings of this; anything else matching here and
+ * neither of them is the third state the invariant names — an identifier in
+ * heading-key position that is neither a claim nor a sub-clause.
+ *
+ * The trailing guard is what keeps the identifier whole: without it
+ * `#### D-171: a note` would go unread rather than be reported.
+ */
+const IDENTIFIED = new RegExp(`^(#+) (${LOCAL_ID})(?![\\w-])`, 'u');
 
 /** A heading that closes an entry. Four hashes or fewer; `#####` is inside. */
 const CLOSES = /^#{1,4} /u;
@@ -618,6 +671,157 @@ export function retired(
   });
 }
 
+/* ---- the heading invariant D-174 states and D-175 completes ---- */
+
+/**
+ * A heading that puts an identifier in key position, classified.
+ *
+ * `kind` is the whole of the reading: `claim` is `ID` or `ID — title`, and it
+ * is an assertion that this document owns that identifier; `sub` is `ID §…`,
+ * a named part of the entry that owns it; `malformed` is neither, which the
+ * invariant makes a defect rather than a third convention.
+ */
+export type Claim = Readonly<{
+  id: string;
+  kind: 'claim' | 'sub' | 'malformed';
+  depth: number;
+  title: string | undefined;
+  at: number;
+  text: string;
+}>;
+
+/** A document under the invariant: where it lives, and what it says. */
+export type Document = Readonly<{ path: string; lines: readonly string[] }>;
+
+/**
+ * Every identifier-keyed heading in one document, at **every** depth.
+ *
+ * Depth is what the extractor cannot see. {@link entries} reads `####` and
+ * steps over everything else, so a claim at `###` is invisible to it — absent
+ * rather than wrong. This reads the claim regardless of depth, which is what
+ * turns forty-eight silent restatements into forty-eight reportable ones.
+ */
+export function claims(lines: readonly string[]): readonly Claim[] {
+  const out: Claim[] = [];
+
+  for (const [at, text] of lines.entries()) {
+    const identified = IDENTIFIED.exec(text);
+
+    if (identified === null) {
+      continue;
+    }
+
+    // `§` first: `##### D-62 §The unresolved arm — resolved by D-66` carries an
+    // em dash too, and reading it as a claim is exactly the misreading the
+    // second clause of the invariant exists to prevent.
+    const sub = SUB_CLAUSE.exec(text);
+    const claim = sub === null ? CLAIM.exec(text) : null;
+    const match = sub ?? claim;
+
+    out.push({
+      id: identified[2]!,
+      kind: sub !== null ? 'sub' : claim !== null ? 'claim' : 'malformed',
+      depth: identified[1]!.length,
+      title: match?.[3],
+      at,
+      text,
+    });
+  }
+
+  return out;
+}
+
+/** How a defect names its site, so the failure says where to go. */
+const site = ({ path }: Document, claim: Claim): string =>
+  `${path}:${claim.at + 1}`;
+
+/**
+ * Every way the record can break the heading invariant, as one list.
+ *
+ * **Four clauses, and each is a different repair.** A claim below or above
+ * `####` is a restatement that has to become a citation — that is F-287's
+ * forty-eight. A second claim of one identifier is two documents asserting
+ * ownership of one address, which is what makes an entry unaddressable. A
+ * sub-clause outside the entry claiming its identifier is a clause filed under
+ * the wrong owner. A heading opening with an identifier in neither form is a
+ * shape nothing in the record reads.
+ *
+ * **Duplication is reported here and in `.scripts/entry.ts`, and the two are
+ * not merged.** That reader reports a duplicate among the entries it can
+ * *extract*; this reports one among everything that *claims* an identifier at
+ * any depth. Only the second finds a `###` restatement — which is the whole of
+ * F-287 — so collapsing them would restore the blind spot the invariant is for.
+ */
+export function violations(docs: readonly Document[]): readonly string[] {
+  const bad: string[] = [];
+  const owners = new Map<string, Array<readonly [Document, Claim]>>();
+
+  for (const doc of docs) {
+    for (const claim of claims(doc.lines)) {
+      if (claim.kind === 'malformed') {
+        bad.push(
+          `identifier heading in neither form: ${site(doc, claim)} — ${claim.text}`,
+        );
+        continue;
+      }
+
+      if (claim.kind === 'claim') {
+        if (claim.depth !== 4) {
+          bad.push(
+            `off-depth claim: ${site(doc, claim)} — ${'#'.repeat(claim.depth)} ${claim.id} claims an identifier outside ####`,
+          );
+        }
+
+        owners.set(claim.id, [...(owners.get(claim.id) ?? []), [doc, claim]]);
+        continue;
+      }
+
+      if (claim.depth <= 4) {
+        bad.push(
+          `sub-clause at claim depth: ${site(doc, claim)} — ${claim.id} §… must sit below ####`,
+        );
+      }
+    }
+  }
+
+  for (const [id, held] of owners) {
+    if (held.length > 1) {
+      bad.push(
+        `duplicate claim: ${id} — ${held.map(([doc, claim]) => site(doc, claim)).join(', ')}`,
+      );
+    }
+  }
+
+  // Nesting is checked after ownership, because "inside the entry that claims
+  // this identifier" has no answer until every claim is known.
+  for (const doc of docs) {
+    const owned = new Map(
+      claims(doc.lines)
+        .filter(({ kind }) => kind === 'claim')
+        .map((claim) => [claim.id, claim.at]),
+    );
+
+    for (const claim of claims(doc.lines)) {
+      if (claim.kind !== 'sub' || claim.depth <= 4) {
+        continue;
+      }
+
+      const opened = owned.get(claim.id);
+      const enclosing = doc.lines
+        .slice(0, claim.at)
+        .findLastIndex((line) => CLOSES.test(line));
+
+      if (opened === undefined || opened !== enclosing) {
+        bad.push(
+          `sub-clause outside its entry: ${site(doc, claim)} — ${claim.id} §… does not nest under the entry claiming ${claim.id}`,
+        );
+      }
+    }
+  }
+
+  return bad;
+}
+
 /* ---- the defect class D-172 recorded as F-284 ---- */
 
 /**
@@ -636,7 +840,7 @@ const TABLE = new MarkdownIt('commonmark').enable(['table']);
 const DELIMITER = /^\|(?:\s*:?-{2,}:?\s*\|)+$/u;
 
 /** An identifier opening a cell, which is what makes a surplus cell an entry. */
-const OPENS_ENTRY = /^(?:\*\*)?[A-Za-z]{1,3}-\d+(?:\*\*)?$/u;
+const OPENS_ENTRY = new RegExp(`^(?:\\*\\*)?${LOCAL_ID}(?:\\*\\*)?$`, 'u');
 
 /**
  * How many cells a row **authors**, asked of the parser rather than counted.

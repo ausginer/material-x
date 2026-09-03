@@ -15,7 +15,7 @@ import { execFile } from 'node:child_process';
 import { readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { documents, entries, PACKAGE } from './ledger.ts';
+import { documents, entries, PACKAGE, violations } from './ledger.ts';
 
 type Result = Readonly<{ code: number; out: string; err: string }>;
 
@@ -150,6 +150,73 @@ describe('reading one entry back', () => {
       expect(err).toContain('duplicated local id in drag2: D-171');
       expect(err).toContain('.plan/contract/00-index.md');
       expect(err).toContain('.plan/contract/zz-duplicate-probe.md');
+    } finally {
+      await rm(planted, { force: true });
+    }
+  });
+
+  it('should resolve an address in every family the record defines', async () => {
+    // The families D-173 migrated are the ones this had never been asked for:
+    // `I-35` answered *unknown local id* until its identifier stopped being
+    // struck, and `M-1`, `L-3` did not exist as entries at all. One address per
+    // family, so a migration that landed a heading the reader cannot parse
+    // fails here rather than at the next person who cites it.
+    const opened = await Promise.all(
+      [
+        'D-175',
+        'F-290',
+        'I-35',
+        'M-1',
+        'L-3',
+        'B-4',
+        'K-1',
+        'P-3',
+        'Q-5',
+        'O-1',
+        'SC-7',
+      ].map(async (local) => [local, await read(`drag2:${local}`)] as const),
+    );
+
+    expect(
+      opened.map(([local, { code, out }]) => [
+        local,
+        code,
+        out.split('\n')[0]!.startsWith(`#### ${local}`),
+      ]),
+    ).toEqual(opened.map(([local]) => [local, 0, true]));
+  });
+
+  it('should keep answering where only the integrity layer sees a duplicate', async () => {
+    // **Two duplicate reports, deliberately not merged** (D-175). This reader
+    // refuses a duplicate among the entries it can *extract* — `####`; the
+    // integrity layer refuses one among everything that *claims* an identifier
+    // at any depth. Only the second sees a `###` restatement, which is the
+    // whole of F-287: for as long as the record has existed the reader
+    // answered `drag2:F-2` perfectly while forty-seven identifiers were
+    // claimed twice, because the second claim sat at a depth it never read.
+    const planted = join(PACKAGE, '.plan/contract/zz-shadow-probe.md');
+
+    try {
+      await writeFile(
+        planted,
+        '### D-171 — a claim the extractor never reads\n',
+      );
+
+      const { code, out } = await read('drag2:D-171');
+
+      expect(code).toBe(0);
+      expect(out.split('\n')[0]).toBe('#### D-171');
+
+      const lines = (await readFile(planted, 'utf8')).split('\n');
+
+      expect(
+        violations([
+          { path: '00-index.md', lines: ['#### D-171'] },
+          { path: 'zz-shadow-probe.md', lines },
+        ]).filter((line) => line.startsWith('duplicate claim')),
+      ).toEqual([
+        'duplicate claim: D-171 — 00-index.md:1, zz-shadow-probe.md:1',
+      ]);
     } finally {
       await rm(planted, { force: true });
     }

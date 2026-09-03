@@ -879,7 +879,9 @@ Why each step sits where it does:
 
 This is **I-29's sibling, I-30**, and it is tier C — the API does not enforce ordering inside an effect. It is stated here because it is the one place where post-commit failure has a non-obvious correct answer.
 
-### I-31 — once a start is notified, exactly one terminal callback follows
+### Once a start is notified, exactly one terminal callback follows (I-31)
+
+**Canonical entry: `I-31` — [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Invariants, by enforcement tier**
 
 **D-40 qualifies the heading, and the qualification is a clause, not a caveat.** The invariant reads:
 

@@ -26,11 +26,10 @@
  */
 import { execFileSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import MarkdownIt from 'markdown-it';
-import { entries, index } from '../tests/ledger.ts';
+import { documents, entries, index, PACKAGE } from '../tests/ledger.ts';
 
-const PACKAGE = resolve(import.meta.dirname, '..');
 const REF = process.argv[2] ?? 'ea798134';
 const FRAGMENTS = join(
   PACKAGE,
@@ -289,9 +288,60 @@ for (const id of after.keys()) {
   }
 }
 
+/**
+ * The live census, printed rather than written down anywhere.
+ *
+ * Every count this record used to state in prose was stale within one pass —
+ * three of them were, and the last correction was itself taken from a run made
+ * before the entry it was counting existed. A number a person maintains by
+ * hand is a claim no instrument reads, which is the defect class this whole
+ * phase has been about, one level up. So the record names this command and
+ * states no total.
+ */
+async function census(): Promise<readonly string[]> {
+  const rows: string[] = [];
+  let total = 0;
+
+  const counted = await Promise.all(
+    (await documents()).map(async (path) => {
+      const found = entries((await readFile(path, 'utf8')).split('\n'));
+      const families = new Map<string, number>();
+
+      for (const { id } of found) {
+        const family = id.slice(0, id.lastIndexOf('-'));
+
+        families.set(family, (families.get(family) ?? 0) + 1);
+      }
+
+      return { path: relative(PACKAGE, path), found, families };
+    }),
+  );
+
+  for (const { path, found, families } of counted) {
+    if (found.length === 0) {
+      continue;
+    }
+
+    total += found.length;
+    rows.push(
+      `  ${String(found.length).padStart(4)}  ${path.padEnd(46)}${[...families]
+        .map(([family, n]) => `${family}:${n}`)
+        .join(' ')}`,
+    );
+  }
+
+  return [
+    ...rows,
+    `  ${String(total).padStart(4)}  every current-state document`,
+  ];
+}
+
 say(
   `before ${before.size} entries + recovered ${recovered.size} → after ${after.size}`,
 );
+say('');
+for (const row of await census()) say(row);
+say('');
 for (const line of [...new Set(amended)]) say(`  ${line}`);
 for (const line of [...orphan, ...missing]) console.error(line);
 if (orphan.length + missing.length > 0) {

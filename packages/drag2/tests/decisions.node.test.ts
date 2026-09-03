@@ -103,12 +103,15 @@
  * Source-level and text-based, necessarily: the subject is a document.
  */
 import { access, readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
+import MarkdownIt from 'markdown-it';
 import { describe, expect, it } from 'vitest';
 import {
   canonical,
   cited,
+  claims,
   dangling,
+  documents,
   embedded,
   entries,
   index,
@@ -125,6 +128,7 @@ import {
   surplus,
   unaccounted,
   unrecognized,
+  violations,
 } from './ledger.ts';
 
 const REGISTER = join(PACKAGE, '.plan/obligations.md');
@@ -516,6 +520,223 @@ describe('the surviving tables', () => {
     // The state D-172's recovery left. This is not evidence that the reader
     // works — the cases above are — but it is what makes the class stay closed.
     expect(surplus(await index())).toEqual([]);
+  });
+});
+
+describe('the heading invariant', () => {
+  const doc = (
+    path: string,
+    ...lines: readonly string[]
+  ): Readonly<{ path: string; lines: readonly string[] }> => ({ path, lines });
+
+  /** Every current-state document, as the invariant reads them. */
+  const tree = async (): Promise<
+    ReadonlyArray<Readonly<{ path: string; lines: readonly string[] }>>
+  > =>
+    await Promise.all(
+      (await documents()).map(async (path) => ({
+        path: relative(PACKAGE, path),
+        lines: (await readFile(path, 'utf8')).split('\n'),
+      })),
+    );
+
+  it('should read a claim at any depth, not only at the entry depth', () => {
+    // The whole of F-287. `entries()` reads `####` and steps over everything
+    // else, so a `###` claim was *absent* to every instrument rather than
+    // wrong — forty-seven of them, for as long as the record has existed.
+    expect(
+      claims(['### F-2 — part factory determinism']).map((c) => c.kind),
+    ).toEqual(['claim']);
+  });
+
+  it('should report a claim that sits off the entry depth', () => {
+    expect(
+      violations([doc('05.md', '### F-2 — part factory determinism')]),
+    ).toEqual([
+      'off-depth claim: 05.md:1 — ### F-2 claims an identifier outside ####',
+    ]);
+  });
+
+  it('should accept a claim at the entry depth', () => {
+    // The control for the row above: same heading, legal depth, no report. A
+    // check that fired on the text rather than on the depth would fail here.
+    expect(
+      violations([doc('00.md', '#### F-2 — part factory determinism')]),
+    ).toEqual([]);
+  });
+
+  it('should report one identifier claimed by two documents', () => {
+    // Two documents asserting ownership of one address, which is what makes
+    // the entry unaddressable rather than merely duplicated.
+    expect(
+      violations([
+        doc('00.md', '#### F-2 — the register statement'),
+        doc('05.md', '#### F-2 — the analysis'),
+      ]),
+    ).toEqual(['duplicate claim: F-2 — 00.md:1, 05.md:1']);
+  });
+
+  it('should not read a heading that merely mentions an identifier as a claim', () => {
+    // `### Pointer capture is not here (D-17)` is prose, and D-174's whole
+    // structural argument is that the distinction is the opening token — which
+    // is why a depth change cannot undo it and this pass could be mechanical.
+    expect(
+      violations([
+        doc(
+          '02.md',
+          '### Pointer capture is not here (D-17)',
+          '### Part factory determinism (F-2)',
+        ),
+      ]),
+    ).toEqual([]);
+  });
+
+  it('should accept a sub-clause nested under the entry claiming it', () => {
+    expect(
+      violations([
+        doc(
+          '00.md',
+          '#### D-66 — no start, no terminal',
+          '',
+          '##### D-66 §The progress marker',
+        ),
+      ]),
+    ).toEqual([]);
+  });
+
+  it('should report a sub-clause filed under another entry', () => {
+    // D-171's own near-miss, made executable: D-66's marker sat after D-67's
+    // row, so a depth change alone would have made it D-67's clause. Nothing
+    // about the heading itself is wrong — only where it landed.
+    expect(
+      violations([
+        doc(
+          '00.md',
+          '#### D-66 — no start, no terminal',
+          '',
+          '#### D-67 — contextual landing',
+          '',
+          '##### D-66 §The progress marker',
+        ),
+      ]),
+    ).toEqual([
+      'sub-clause outside its entry: 00.md:5 — D-66 §… does not nest under the entry claiming D-66',
+    ]);
+  });
+
+  it('should report a sub-clause that sits at claim depth', () => {
+    // `### F-2 §analysis` is the heading the second clause of the invariant
+    // exists for: it claims nothing, so a check looking only for an em dash
+    // passes it, and it is still an identifier owning a section at `###`.
+    expect(violations([doc('05.md', '### F-2 §analysis')])).toEqual([
+      'sub-clause at claim depth: 05.md:1 — F-2 §… must sit below ####',
+    ]);
+  });
+
+  it('should report an identifier heading in neither form', () => {
+    expect(
+      violations([doc('05.md', '#### F-2: part factory determinism')]),
+    ).toEqual([
+      'identifier heading in neither form: 05.md:1 — #### F-2: part factory determinism',
+    ]);
+  });
+
+  it('should read an identifier of more than three prefix characters', () => {
+    // The cap D-175 removed. Under `[A-Za-z]{1,3}-\d+` this heading matched
+    // nothing at all, so a `P18A-04` or `SPACE-01` claiming an identifier at
+    // the wrong depth was invisible rather than reported — a widening that
+    // makes the check see *more*, which is why it is not a formality.
+    expect(
+      claims(['### P18A-04 — a review-scope claim']).map((c) => c.id),
+    ).toEqual(['P18A-04']);
+  });
+
+  it('should hold the invariant across every current-state document', async () => {
+    expect(violations(await tree())).toEqual([]);
+  });
+
+  it('should read enough of the tree for that to mean something', async () => {
+    // Non-vacuity: an empty scan satisfies the row above and proves nothing.
+    const found = (await tree()).flatMap(({ lines }) => claims(lines));
+
+    expect(found.length).toBeGreaterThan(500);
+    expect(found.filter(({ kind }) => kind === 'sub')).toHaveLength(8);
+  });
+});
+
+describe('the stable link rule', () => {
+  /**
+   * An identifier's own slug, at the head of a fragment.
+   *
+   * D-175 permits a fragment only against a section heading carrying no
+   * identifier, because a GFM anchor is the slug of the *whole* rendered
+   * heading — so `#f-2` addresses nothing on `#### F-2 — Part factories must
+   * be…`, and the entry's stable address is `drag2:F-2` instead.
+   */
+  const SLUG = /^[a-z][a-z0-9]*-\d+/u;
+
+  /**
+   * Every link a document actually makes, **asked of the parser**.
+   *
+   * A pattern over the raw text cannot tell a link from a specimen of one, and
+   * this record quotes the broken form on purpose: F-288's entry contains
+   * `` `[F-2](00-index.md#f-2)` `` as the subject of its own finding. Reading
+   * that as a defect would make the rule unstatable in the record that states
+   * it — so the code span has to be a code span, which only a parser knows.
+   */
+  const links = (source: string): readonly string[] =>
+    new MarkdownIt('commonmark')
+      .parse(source, {})
+      .flatMap((token) => token.children ?? [])
+      .filter((token) => token.type === 'link_open')
+      .map((token) => token.attrGet('href') ?? '');
+
+  const fragment = (href: string): string | undefined =>
+    /\.md#(.+)$/u.exec(href)?.[1];
+
+  it('should target no canonical entry through a heading fragment', async () => {
+    const paths = await documents();
+    const sources = await Promise.all(
+      paths.map(async (path) => await readFile(path, 'utf8')),
+    );
+
+    expect(
+      paths.flatMap((path, at) =>
+        links(sources[at]!)
+          .filter((href) => {
+            const anchor = fragment(href);
+
+            return anchor !== undefined && SLUG.test(anchor);
+          })
+          .map((href) => `${relative(PACKAGE, path)}: ${href}`),
+      ),
+    ).toEqual([]);
+  });
+
+  it('should still permit a fragment against an identifier-free section', () => {
+    // 07's `00-index.md#normative-precedence-and-freeze`, which the rule keeps
+    // valid — the prohibition is on addressing an *entry* by slug, not on
+    // fragments. Without this the rule would read as "no fragments", which is
+    // a different and wrong rule.
+    const anchor = fragment(
+      links('[x](00-index.md#normative-precedence-and-freeze)')[0]!,
+    );
+
+    expect(SLUG.test(anchor!)).toBe(false);
+  });
+
+  it('should catch the form F-288 records', () => {
+    // The specimen, so the row above is discriminating rather than merely
+    // green: this is the link D-174 specified before D-175 corrected it.
+    expect(SLUG.test(fragment(links('[F-2](00-index.md#f-2)')[0]!)!)).toBe(
+      true,
+    );
+  });
+
+  it('should not read a quoted specimen as a link', () => {
+    // Which is what F-288's own entry is made of, and the reason the scan asks
+    // the parser rather than the text.
+    expect(links('`[F-2](00-index.md#f-2)` addresses nothing')).toEqual([]);
   });
 });
 
