@@ -2364,6 +2364,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 **One pre-existing blocker is reported and not repaired.** `just lint` with no arguments runs `oxlint .` first and aborts the recipe before ESLint, and drag2 carries four pre-existing oxlint errors, so a whole-package no-argument run never reaches the gate. The root `lint` recipe was **already failing** before this pass, on `@ydinjs/drag`'s `src/draggable/options.ts`, so adding drag2 regresses nothing. Clearing lint debt in two packages is not this unit's, and the failure is loud rather than silent — which is the difference between it and F-291.
 
+### 2026-09-04 — the gate is armed on the path that matters, and the count of a gate is not the same as its reach
+
+Bounded re-review of `3eb605be..89844a1b` — record [`d170-step0-gate-rereview-claude.md`](reviews/phase-24/d170-step0-gate-rereview-claude.md). **D-170 step 0's implementation review is complete.** F-291 … F-295 all satisfied, verified from both working directories because the directory was the defect.
+
+**The repair is correct for a reason worth writing down.** Setting the rule with a bare `'error'` after Oxlint's spread does two things at once: position fixes the severity, and severity-only preserves the preset's options. So `ignoreStatic: true` survives instead of being silently reset to the rule's own default — the disclosure in the comment and the measured `[2, {"ignoreStatic": true}]` say the same thing, from the root and from `packages/drag2` alike. A repair that had written the options out would have read as more explicit and been a quiet re-decision.
+
+**The one question the count could not answer.** Ten reports against ten directives is a matching, not a reach: it says the tree is clean, and says nothing about whether any command a person runs would have noticed. The reach question is `handoff.md`'s, and it is file-scoped — _lint and autofix with `npx just lint-fix <changed files>`_. Exercised with a deliberate detached method read, Oxlint passes the changed file, **ESLint runs**, and this rule fails the recipe by name. That is the demonstration; a red exit code alone would not have been one, because Oxlint can produce a red exit without ESLint ever starting — which is exactly what the argument-less run does.
+
+**So the pre-existing debt is context, and its boundary is stated rather than assumed.** `just lint` with no arguments aborts in Oxlint on four errors, in `tests/sortable/g3-conformance.browser.test.ts`, `tests/packaging.node.test.ts` and `bench/size/noncomposed.js`. **None is in `src/`**, where the conversions land, so the mandated path is unobstructed for the migration's own files. The caveat that follows from the same fact: a commit that also edited one of those three files would abort before ESLint — loudly, with the rule named, which is the whole difference between this and F-291. And F-292's selector repair, necessary and correct, does not yet make the **aggregate** path exercise the gate, because that path runs each package's argument-less recipe.
+
+**Both correction claims were checked against the real thing rather than a stand-in**, since using a stand-in is the error F-294 records. The `RectIndex` probe imports the package's own type and reports two detached reads with no conversion; the `KernelHost` probe uses the intended class shape and reports all four.
+
+**One record-keeping finding, raised and not fixed.** `F-291` … `F-295` and `Q-17` are canonical ids — allocated from the canonical sequence, cited by name in the D-170 entry that they justify — and none is minted as an entry. `node .scripts/entry.ts drag2:F-293` answers _unknown local id_. `references.node.test.ts` cannot catch it: it extracts identifiers from headings, so an unresolvable citation inside an entry body is invisible to it, and all three record instruments pass green. **It is not F-290**, which asks whether _review-scope_ ids should be citable at all; these are canonical ids, which are supposed to have an entry. The corrections themselves are complete — this is about where the findings live, not whether they were addressed.
+
+---
+
 ### 2026-09-03 — the satellites cite, they do not restate (D-174, F-287 closed, D-173 boundary amended)
 
 **Forty-eight identifier-shaped headings sit at `###`** — 43 `F-*` in 05, 4 in 07, and `I-31` in 02 — carrying **71,238 characters**. Record [`d174-satellite-finding-ownership-claude.md`](reviews/phase-24/d174-satellite-finding-ownership-claude.md). Nothing migrated, no reader redesigned, F-285 untouched.
