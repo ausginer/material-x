@@ -18,14 +18,14 @@
 
 **Current behavior.** [`eslint.config.ts`](../../../../../eslint.config.ts) removes `'@typescript-eslint/unbound-method': 'off'` from its override block, then — **later in the same config array (line 52 against the override block's line 39), and therefore winning** — spreads `...oxlint.buildFromOxlintConfigFile('./.oxlintrc.json')`. That path is resolved against `process.cwd()`. Every package lints from its own directory: `packages/drag2/Justfile` line 4 defines `_eslint := "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts"` and `lint` runs it from the package root. From there the plugin loads `packages/drag2/.oxlintrc.json` — a 152-byte file that only `extends` the root one — and emits a **broader** disable set that contains `@typescript-eslint/unbound-method: "off"`.
 
-**Why it is a problem.** The delta's central claim, in both records and in the configuration comment, is that the rule is *enforced*. It is not. The step-0 precondition D-170 makes steps 1–3 depend on is unmet, and the migration would proceed under an instrument that reports nothing.
+**Why it is a problem.** The delta's central claim, in both records and in the configuration comment, is that the rule is _enforced_. It is not. The step-0 precondition D-170 makes steps 1–3 depend on is unmet, and the migration would proceed under an instrument that reports nothing.
 
 **Evidence.** The effective severity differs by working directory, for the same config object and the same file:
 
-| cwd | `--print-config` → `@typescript-eslint/unbound-method` |
-| --- | --- |
-| repository root | `[2, {"ignoreStatic": true}]` — error |
-| `packages/drag2` | `[0, {"ignoreStatic": true}]` — **off** |
+| cwd              | `--print-config` → `@typescript-eslint/unbound-method` |
+| ---------------- | ------------------------------------------------------ |
+| repository root  | `[2, {"ignoreStatic": true}]` — error                  |
+| `packages/drag2` | `[0, {"ignoreStatic": true}]` — **off**                |
 
 Mechanism, from `eslint-plugin-oxlint` directly: from the root it disables 267 rules and `unbound-method` is **not among them**; from `packages/drag2` it disables 356, **including** `@typescript-eslint/unbound-method: "off"`.
 
@@ -58,15 +58,15 @@ End to end, on a deliberate violation (`class Probe { method() { return this.n; 
 
 **Evidence.** Full tracked-tree run from the root (where the rule is on), with `--no-inline-config` so suppressions do not hide anything, excluding `.claude/**`: **10 reports**, in exactly the seven named files.
 
-| file | sites |
-| --- | --- |
-| `.scripts/ce-hmr.ts` | 2 |
-| `packages/drag2/src/kernel/kernel.ts` | 1 |
-| `packages/drag2/tests/kernel/presentation.browser.test.ts` | 1 |
-| `packages/drag2/tests/perf/q7.browser.test.ts` | 1 |
-| `packages/drag2/tests/sortable/displacement.browser.test.ts` | 3 |
-| `packages/drag2/tests/sortable/features.browser.test.ts` | 1 |
-| `packages/drag2/tests/sortable/placement.browser.test.ts` | 1 |
+| file                                                         | sites |
+| ------------------------------------------------------------ | ----- |
+| `.scripts/ce-hmr.ts`                                         | 2     |
+| `packages/drag2/src/kernel/kernel.ts`                        | 1     |
+| `packages/drag2/tests/kernel/presentation.browser.test.ts`   | 1     |
+| `packages/drag2/tests/perf/q7.browser.test.ts`               | 1     |
+| `packages/drag2/tests/sortable/displacement.browser.test.ts` | 3     |
+| `packages/drag2/tests/sortable/features.browser.test.ts`     | 1     |
+| `packages/drag2/tests/sortable/placement.browser.test.ts`    | 1     |
 
 Ten sites, and the delta adds exactly **ten** `eslint-disable-next-line @typescript-eslint/unbound-method` directives — one per site, one-to-one.
 
@@ -78,18 +78,18 @@ Ten sites, and the delta adds exactly **ten** `eslint-disable-next-line @typescr
 
 ### gate-4 — Tier B — The probe's stated discriminator is wrong, and two of the four load-bearing cases cannot report even after the migration
 
-**Current behavior.** The records justify the silence at the riskiest sites as follows: *"the same members in today's closure form report none, because a property holding an arrow function has no receiver to lose"*, and *"the instrument arms itself the moment step 1 converts the first factory"*.
+**Current behavior.** The records justify the silence at the riskiest sites as follows: _"the same members in today's closure form report none, because a property holding an arrow function has no receiver to lose"_, and _"the instrument arms itself the moment step 1 converts the first factory"_.
 
 **Why it is a problem.** Both halves are wrong, in opposite directions, and the second means the gate stays blind at two of the four cases D-170 names — not until step 1, but permanently, unless the published types change.
 
 **Evidence.** The rule's actual discriminator is the **declared type at the read site**, and `Readonly<…>` erases it. Measured on three shapes:
 
-| shape at the read site | reported? |
-| --- | --- |
-| `{ invalidate(): void }` — bare method signature | **yes** |
-| `Readonly<{ invalidate(): void }>` — mapped type | no |
-| class instance | **yes** |
-| `Readonly<{ invalidate(): void }>` over a class implementation | **no** |
+| shape at the read site                                         | reported? |
+| -------------------------------------------------------------- | --------- |
+| `{ invalidate(): void }` — bare method signature               | **yes**   |
+| `Readonly<{ invalidate(): void }>` — mapped type               | no        |
+| class instance                                                 | **yes**   |
+| `Readonly<{ invalidate(): void }>` over a class implementation | **no**    |
 
 Applied to the four load-bearing members, using the package's own types:
 
