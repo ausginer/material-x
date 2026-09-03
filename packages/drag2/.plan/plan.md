@@ -2298,6 +2298,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-03 — an entry's anchor is its address, and an identifier has no letter budget (D-175, F-288/F-289 closed, F-290)
+
+**Two details of D-174's mechanism, both raised by the owner, both real.** Record [`d175-stable-anchor-and-shared-identifier-claude.md`](reviews/phase-24/d175-stable-anchor-and-shared-identifier-claude.md). The ownership disposition is untouched, nothing is moved, D-173/D-174 are not implemented.
+
+**F-288 — the link was dangling.** A GFM anchor is the slug of the heading's whole rendered text, so `#### F-2 — Part factories must be deterministic…` answers to `#f-2--part-factories-…-proves-neither` and `#f-2` addresses nothing. Proved against the repository's own working instance: `drag2-review-B-claude-2.md:14` links `#n-3--the-fix-passes-cost-04-05-kb-brotli` at `### N-3 — The fix passes cost 0.4–0.5 kB brotli`. The broken form was authored twice and specified for forty-eight more.
+
+**The anchor is the qualified address, for all 505 entries.** `drag2:F-2`, resolved by `.scripts/entry.sh`; a link names the document, and a fragment may target only a section heading carrying no identifier. Stable under retitling because the identifier is the key, plain text so the formatter cannot touch it, no per-entry artifact, and already instrumented by `references.node.test.ts`. Rejected: freezing 505 titles; dropping titles from headings; a per-entry `<a id>`, which survives `oxfmt` — verified — but is a second addressing mechanism whose `id` GitHub rewrites, and which is available only on the condition F-231 failed, its own assertion.
+
+**F-289 — the three-letter cap already bites.** `ENTRY`, `OPENS_ENTRY` and `CLAIM` share one exported `LOCAL_ID` = `[A-Za-z][A-Za-z0-9]*-\d+`, which is what the reader contract already says. Widening is free and measured: **544 claim-shaped headings under either grammar, zero new matches**. And `P18A-04`, `P18A-08` and `P18A-12` are cited inside canonical entries at lines 861, 869 and 877 and are already invisible to the citation scanner.
+
+**F-290 minted, open.** The citation scanner is not widened: the same measurement surfaces `ORDINAL-0`, a literal in a perf test's table string, so whether a review-scope identifier is citable is its own adjudication. `corpus-equivalence.ts`'s historical `ID` is deliberately not unified.
+
+**The invariant gains a second clause.** Four `#####` headings — `D-62 §The unresolved arm`, `D-66 §The progress marker`, two `D-68 §…` — open with an identifier and are legitimate named sub-clauses, each verified to nest inside the entry of its own identifier. A claim is `ID — …` or `ID` at end of line at `####`, once; a sub-clause is `ID §…` below `####`, nested in its entry; anything else is a defect. Without it, `### F-2 §analysis` would hide a claim from a check that only looked for `—`.
+
+**Migration boundary unchanged**: D-173's three tables, the forty-eight claims, the `CLAIM` check last, with the same expected 47 duplicate and 48 off-depth claims.
+
 ### 2026-09-03 — the satellites cite, they do not restate (D-174, F-287 closed, D-173 boundary amended)
 
 **Forty-eight identifier-shaped headings sit at `###`** — 43 `F-*` in 05, 4 in 07, and `I-31` in 02 — carrying **71,238 characters**. Record [`d174-satellite-finding-ownership-claude.md`](reviews/phase-24/d174-satellite-finding-ownership-claude.md). Nothing migrated, no reader redesigned, F-285 untouched.

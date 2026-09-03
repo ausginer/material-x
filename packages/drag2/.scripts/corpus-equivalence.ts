@@ -218,6 +218,22 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     'F-287',
     "raised by D-173: 47 finding identifiers have an entry in two documents, masked by 05's heading depth",
   ],
+  [
+    'D-175',
+    "settles F-288 and F-289: an entry's anchor is its address, and one identifier grammar is shared",
+  ],
+  [
+    'F-288',
+    "raised by the owner against D-174: `#f-2` addresses nothing, because a GFM anchor carries the heading's title",
+  ],
+  [
+    'F-289',
+    'raised by the owner against D-174: three expressions cap an opaque local identifier at three letters',
+  ],
+  [
+    'F-290',
+    'raised by D-175: whether a review-scope identifier such as `P18A-04` is citable is unsettled',
+  ],
 ]);
 
 const say = (text: string): void => {

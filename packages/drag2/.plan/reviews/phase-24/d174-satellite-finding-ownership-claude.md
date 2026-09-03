@@ -60,7 +60,7 @@ That is the same relationship D-173 settled for `M-*` a day earlier: **one subje
 
 1. **The whole analysis, verbatim** — the evidence, the reasoning, the local consequences, the retracted clauses with their strikethrough intact.
 2. **Its place in the document's argument.** `05`'s findings are interleaved with the invariants they bear on; `07`'s four are the conflicts that document raised against the kernel. Moving them into the register would strip both documents of their own reasoning and would put 20,697 characters of F-47 into a register whose job is one statement and one status.
-3. **A canonical pointer, first line of the subsection**: `**Canonical entry: [F-2](00-index.md#f-2).**` A local reader following the document's argument reaches the analysis where it belongs and reaches the status in one hop.
+3. **A canonical pointer, first line of the subsection**: `**Canonical entry: `F-2` — [`00-index.md`](00-index.md) §Findings.**` A local reader following the document's argument reaches the analysis where it belongs and reaches the status in one hop.
 
 **And the register gains the reciprocal**, one line in the canonical entry naming where the analysis lives. The register keeps its job — statement, severity, status — and stops being the only place a reader can find out that a longer treatment exists.
 
@@ -108,3 +108,14 @@ Run against the tree today it reports 47 duplicates and 48 off-depth claims — 
 The pair census is a scope-walk over `.plan/contract/*.md`, `.plan/obligations.md` and `.plan/ledger.md`, matching `/^(#{1,6}) ([A-Za-z]{1,3}-\d+)(?: — |$)/` and grouping by identifier: 496 identifiers claimed, 47 claimed twice, 48 claimed off-depth. Similarity is word-set containment over the satellite's title-plus-body against the index's title-plus-body, on words of five characters or more — **the first run compared bodies only and understated every pair**, because the index puts its statement in the title, and that error is corrected here. The shape classification was not left to the scores: the five lowest title-agreement pairs and the highest-containment pair were read in full. The D-83 and F-75 texts were read through `.scripts/entry.sh`.
 
 **LSP plugin — available; not used**: nothing here turns on a code symbol. The subjects are markdown heading structure, two regexes and a text census.
+
+---
+
+## Amended by D-175, 2026-09-03
+
+Two details of the mechanism above are superseded by [`d175-stable-anchor-and-shared-identifier-claude.md`](d175-stable-anchor-and-shared-identifier-claude.md), and the ownership disposition is not.
+
+1. **The reciprocal pointer is the qualified address, not a heading fragment.** `00-index.md#f-2` addresses nothing — a GFM anchor is the slug of the heading's whole title (F-288) — and the pointer form above has been corrected in place.
+2. **`CLAIM` and `ENTRY` share one exported `LOCAL_ID` = `[A-Za-z][A-Za-z0-9]*-\d+`** rather than capping the prefix at three letters (F-289), and the invariant gains a second clause: a heading whose identifier is followed by ` §` is a named sub-clause, legal below `####` and required to nest inside the entry claiming that identifier. Four such headings exist today and are legitimate.
+
+The measured failure counts — 47 duplicate claims, 48 off-depth claims — and the migration boundary are unchanged.
