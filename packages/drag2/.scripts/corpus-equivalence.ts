@@ -431,6 +431,18 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     "raised by F-333's repair: three record entries carry future dates against commits made on 2026-09-04",
   ],
   [
+    'F-336',
+    "raised by the Stage 0 closure proof: the re-taken census's kernel citations name lines its own commit moved",
+  ],
+  [
+    'F-337',
+    "raised by the Stage 0 closure proof: D-179's retirement property was booked to an assertion that cannot fail",
+  ],
+  [
+    'F-338',
+    'raised by the Stage 0 closure proof: the recorded falsification count for the `#joinLive()` substitution does not reproduce',
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],

@@ -2810,10 +2810,28 @@ describe('the failure checkpoint', () => {
     expect(harness.calls).toContain('presentation.released');
     expect(harness.calls).not.toContain('finalized');
 
-    // **Skipping the terminal does not skip the retirement.** A closed
-    // controller still owes the kernel's own cleanup, and physical teardown
-    // defers to the transaction boundary rather than being cancelled by it.
-    expect(harness.calls).toContain('retire');
+    // **Skipping the terminal does not skip the retirement, and this is what
+    // says so rather than a `toContain('retire')` that cannot fail.** A closed
+    // controller still owes the kernel's own cleanup: `#retireOperation` sits
+    // outside the guard, so the route retires its own operation, and physical
+    // teardown then runs at the transaction boundary because `destroy()` was
+    // raised inside one.
+    //
+    // **Two retirements, and the second is why counting is the only reading
+    // available here.** The lifetimes are self-guarding, so disposing them
+    // twice is invisible; `BehaviorSpec.retire` is *idempotent, best-effort*
+    // by contract and the kernel keeps no flag for it, so it is the one step
+    // that runs once per retirement rather than once per controller. Moving
+    // `#retireOperation` inside the guard leaves exactly one — the boundary's —
+    // and every other observable on this route unchanged, which is why nothing
+    // weaker than this discriminates.
+    //
+    // Sliced from the release rather than asserted whole: what this row owns is
+    // the tail after the consumer's disposer ran, and a `finalized` smuggled
+    // into it fails here as well as above.
+    expect(
+      harness.calls.slice(harness.calls.indexOf('presentation.released')),
+    ).toEqual(['presentation.released', 'retire', 'retire']);
   });
 
   it('should retire the operation after reporting', () => {

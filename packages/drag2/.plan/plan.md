@@ -2298,13 +2298,29 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-04 — Stage 0's closure proof answered: the citations re-derived, the retirement instrumented, the count re-measured (F-336, F-337, F-338)
+
+**Three repairs, no design reopened.** The closure proof confirmed the F-328 route repair and the re-taken census, and found three defects in how they are recorded and instrumented. F-335 and F-323 are untouched, as are Stage 1 and the C1–C5 arcs.
+
+**F-336 — the citation class survives inside the entry that closes it.** `c4fa883c`'s own docblock edit shifted `kernel.ts` by three lines below `:810`, so the census's four kernel citations — written before the commit that carries them — named a closing brace, a comment line and two lines of the comment the repair itself added. Re-derived to `:1858`/`:1863` and `:2469`/`:2498`, with each site saying which tree it numbers. **The general lesson is the ordering**: a census re-taken before the commit that carries it is stale by construction whenever that commit touches the cited file, which is why this pass's own source edits are test-only.
+
+**F-337 — the retirement half was booked to an assertion that cannot fail.** `toContain('retire')` reads the destroy path's own `spec.retire`, so moving `#retireOperation` inside the guard left the file green at 172 passed. The row now asserts the ordered tail, `presentation.released, retire, retire`, and the mutation turns exactly that one row red.
+
+**Counting is the only reading available, and the record says why rather than leaving it to be rediscovered.** The guarded branch is reachable only once `destroy()` has set the latch, so teardown repeats steps 3–6 at the boundary; the lifetimes self-guard and the scrubs are kernel-private. `BehaviorSpec.retire` is the one step that runs once per _retirement_ rather than once per _controller_, so the route's own retirement is observable as a second call and as nothing else. The doubled call is contract-conformant — _idempotent, best-effort_ — and is what makes the property instrumentable at all rather than a defect.
+
+**F-338 — the falsification count was measured over one file and stated over the suite.** _Three rows red_ is **fifteen** behavioural rows across five files. F-328 now carries a three-row table of what `npx vitest run` produces, with the size-control rows each mutation moves named rather than netted out, because a reproducing figure has to account for what the command prints.
+
+**All three mutations were re-run at this tip and each is isolated by a different instrument** — which is the argument for keeping all three rather than the strongest one.
+
+---
+
 ### 2026-09-04 — the terminal's second route reads for itself, and the census is re-taken with the route as its unit (Stage 0 closed: F-327…F-334, F-335)
 
 **The whole of Stage 0's remainder.** D-179's repair, six findings from the Stage 0 feature proof, F-327, and the census re-taken from scratch. Nothing from Stage 1 or the C1–C5 arcs is started; F-323 is still untouched.
 
 **F-328 — the reporting route reads the latch for itself.** `#handleErrorReported` runs a consumer-reachable presentation dispose and then published the consumer's terminal with no reading between, so a disposer that destroyed the controller still received `onEnd`. The repair is one bare `!this.#queue.closed` around the `finalized` call. **Bare rather than a `#reportLive()`**, on D-179's argument: a named predicate shaped like `#joinLive()` reads as slot-wide coverage, and that appearance is exactly what made this route look guarded in the census.
 
-**The obvious wrong repair is the one the instruments had to catch, and they do.** Reusing `#joinLive()` here is silently wrong in the worse direction — its `FINALIZING` conjunct is false on this route by construction, so _every_ classified failure would lose its terminal and D-66 would be retracted without a red row. Substituting it turns **three** rows red, including the positive control D-179 names; removing the guard altogether turns **one** red, the new negative. Neither instrument alone pins the line and both were already required.
+**The obvious wrong repair is the one the instruments had to catch, and they do.** Reusing `#joinLive()` here is silently wrong in the worse direction — its `FINALIZING` conjunct is false on this route by construction, so _every_ classified failure would lose its terminal and D-66 would be retracted without a red row. Substituting it turns **fifteen** behavioural rows red across five files, including the positive control D-179 names; removing the guard altogether turns **one** red, the new negative. Neither instrument alone pins the line and both were already required. (~~three~~ — the figure was taken over one file rather than over the suite the sentence describes, and is corrected with `s0c-3`.)
 
 **F-324's census is re-taken rather than corrected, because it was wrong in four independent ways.** Its totals did not match its own enumeration (F-330); six citations named lines its own commit had moved (F-331); three members of its declared candidate set appeared in none of its groups (F-332); and its unit was the slot where D-179 makes it the route. A count produced by the wrong unit is not repaired by adjusting it.
 
