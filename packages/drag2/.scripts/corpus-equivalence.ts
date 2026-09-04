@@ -210,6 +210,10 @@ const AMENDED: ReadonlyMap<string, string> = new Map([
  */
 const MINTED: ReadonlyMap<string, string> = new Map([
   [
+    'D-180',
+    "settles Arc A: the execution bracket owns the latch, the queue's semantics and the deferral",
+  ],
+  [
     'F-286',
     'raised by the migration: three satellite tables it could not migrate',
   ],

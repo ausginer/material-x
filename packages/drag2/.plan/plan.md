@@ -2298,6 +2298,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-04 — Arc A decided: the execution bracket, the queue's grading confirmed, and the recomposition that would have broken ingress (D-180)
+
+**A decision and nothing else.** No production source, no test and no measurement; Stage 0 and Stage 1 are closed, the C1–C5 arcs are still unstarted, and F-323 and F-335 are untouched. Record [`arc-a-execution-bracket-claude.md`](reviews/d170-arc/arc-a-execution-bracket-claude.md).
+
+**The boundary re-derived, and two of the adjudication's counts have moved.** `#queue.closed` is read at **15 sites in 14 members** and written at one; F-328's repair added the fourteenth member. Only **four** readers are about admitting or draining — ten answer a liveness question, and the eleventh is the latch's own idempotence. The field is declared under `ActionQueue`'s _the queue owns no semantics_ while D-176, D-178 and D-179 each index a rule on it, and the tree already names the missing entity twice: a section comment at `kernel.ts:434` and a `describe` title at `kernel.browser.test.ts:4062`.
+
+**The mismatch the sketch would have walked into.** D-170 examined this module and graded it _the deliberate outlier_, and C1 as accepted absorbs it into a class. The grading is confirmed rather than overturned: it is about the **representation**, and its own test — an invariant spanning two fields — is met by the latch and not by the parallel arrays. `ActionQueue` keeps `actions` and `args`; `closed`, `running` and the drain loop leave. **What was misfiled was never the queue's representation.**
+
+**And the correction that would have cost the most to find during the arc.** _`#openIngress`'s `begin()` stays on the kernel side of the call_ is not implementable: today the refusal precedes it, and run the other way a nested press rebuilds the draft from the committed frame, discards what the outer `admit` staged and commits its own origin — the corruption the re-entry latch exists to prevent, reintroduced by the extraction meant to localize it. The kernel keeps only the `current.operation` guard; `beginPass` is a construction callback the bracket invokes after its own two guards, typed so Arc B satisfies it with the transaction's `begin`. [`kernel.browser.test.ts:1058`](../tests/kernel/kernel.browser.test.ts) already pins it.
+
+**Two smaller ledger corrections.** `drain`'s callback parameters become constructor parameters rather than disappearing. And the deferral's coverage gap is specific rather than general: all six existing rows drive through `onStart`, which is a drain, so **no row asserts that a close raised inside an ingress pass defers its teardown** — deleting `#openIngress`'s depth increment is silent today, and that is the most valuable of the seven rows the arc owes.
+
+**Stated before the run, because that is the obligation.** `#dispatchKernel` is deleted rather than forwarded at all eleven sites, so the arc costs **one property load and zero call frames per sample**; the per-sample `kernel.closed` read count is stated ahead of M-1; Brotli is measured on all ten compositions and **the control rows are expected to move**, since `kernel.js` carries the bracket. The byte direction is not predicted.
+
+---
+
 ### 2026-09-04 — The Stage 1 null result recounts its own instruments: thirteen rows, not eleven (F-342)
 
 **One count, corrected where it lives.** The three instruments carry **thirteen** rows — eight rect-index, three context, one wrapper row in each of the two browser files — and the entry below recorded the proof's non-vacuity result over _eleven_. **The origin is the proof document, not the repair it reviews**: its own null result said eleven while enumerating 8 + 3 + 2 in the same sentence, and the entry carried the figure across faithfully. Every one of the thirteen rows was in fact reddened, so what was wrong is the arithmetic of a result that holds.
