@@ -395,6 +395,14 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     'raised by D-178: the panic docblock claims its exception is the only one, which D-176 made false',
   ],
   [
+    'D-179',
+    "settles s0-1: the liveness obligation's unit is the invoking party's call site, and a route predicate discharges act (a) for its own route only",
+  ],
+  [
+    'F-328',
+    'raised by the Stage 0 feature proof: `onEnd` is invoked after logical closure on the `ERROR_REPORTED` route',
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],
