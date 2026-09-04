@@ -660,7 +660,12 @@ describe('the heading invariant', () => {
     const found = (await tree()).flatMap(({ lines }) => claims(lines));
 
     expect(found.length).toBeGreaterThan(500);
-    expect(found.filter(({ kind }) => kind === 'sub')).toHaveLength(8);
+    // Four `M-n §Specification`, `D-62 §The unresolved arm`, `D-66 §The
+    // progress marker`, two `D-68 §…`, and `D-170 §The ownership boundary`.
+    // A count rather than a floor: the sub-clause form is rare enough that a
+    // new one should be a deliberate edit here, not an accident that widens a
+    // range nobody re-reads.
+    expect(found.filter(({ kind }) => kind === 'sub')).toHaveLength(9);
   });
 });
 

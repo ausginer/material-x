@@ -234,6 +234,22 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     'raised by D-175: whether a review-scope identifier such as `P18A-04` is citable is unsettled',
   ],
   [
+    'F-297',
+    'raised by the owner against D-170 step 1: the landed `RectIndex` publishes writable state',
+  ],
+  [
+    'F-298',
+    'raised by D-170 §The ownership boundary: the `Fields, not accessors` rationale prices a design that no longer exists',
+  ],
+  [
+    'F-299',
+    'raised by D-170 §The ownership boundary: the equivalence instrument re-implements the scan it checks',
+  ],
+  [
+    'F-300',
+    'raised by D-170 §The ownership boundary: whether the entity-ownership rule belongs in CONTRIBUTING §10 is deferred to step 6',
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],

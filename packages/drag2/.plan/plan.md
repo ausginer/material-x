@@ -2298,6 +2298,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-04 — an entity owns what it mutates, and the alias it is published behind is the class (D-170 §The ownership boundary, Q-17 resolved, F-297…F-299 closed, F-300)
+
+**Architect. Record [`d170-entity-ownership-boundary-claude.md`](reviews/phase-24/d170-entity-ownership-boundary-claude.md).** Nothing implemented; steps 2 to 6 unstarted; the lint gate untouched.
+
+**The owner's ownership constraint and Q-17 turn out to be one question.** The boundary needs a read view, a read view is a type, and the type chosen decides whether `unbound-method` still sees a method. Measured here against one class published four ways: the class instance type reports a detached read, a hand-written interface with method syntax reports it, and `Readonly<E>`, `Pick<E, …>` and a record of function-typed properties are all **silent**. F-294 found that for `Readonly<…>`; the property is _mapped type_. So the obvious façade would have bought encapsulation with the instrument the migration runs behind.
+
+**Four clauses, stated once for all six conversions.** No mutable state is a public field, and `readonly` is not the boundary — it protects the reference, so `hole[0] = 1` and `items.length = 0` compile today; a read view is declared, never derived; every external write is an operation the class names, parameterized by the caller's **rule** rather than its **access**, which is how `linear-shift` keeps G3-linear by passing stride offsets to `advance(…)` and `remeasureHole(…)` while the cache stays dimension-neutral; and the published alias is the class instance type, with a falsifier per conversion so clause 4 is demonstrated rather than promised.
+
+**The constraint paid for itself once.** Asking where `verifyEquivalence`'s healing belongs surfaced that the instrument hand-rolls the scan it checks — a transcription of `refresh` maintained inside the function whose job is to distrust a transcription (F-299). Inverting it — snapshot, force an authoritative rebuild through the class's own operations, compare — uses the real scan, costs one scan rather than two, writes nothing from outside, and leaves nothing to heal. It does **not** become a method: a `DEV`-only prototype body ships, where the export tree-shakes today.
+
+**Step 1a lands before step 2, for a measurement reason.** `linear-shift` is the cache's largest external mutator and step 2 converts it, so folding the two would produce one set of size figures answering to two changes. **The hot path was counted, not forecast**: `y.ts` reads no field, so the minimal composition performs **zero** accessor calls per resolution; `xy.resolve` performs three before its candidate loop and a fourth only on a gap-change frame; neither adds a call inside a candidate loop. The 90 B of `Fields, not accessors` does not carry over (F-298) — it priced methods on a record literal, in the factory step 1 replaced. A call inside a candidate loop is refused outright rather than measured; per-resolution calls are evidenced by an exact count plus `just size` by composition; and a duration is offered only where the instrument can resolve it above its own noise floor, which three property reads cannot.
+
+**The rule is not written into CONTRIBUTING §10 today** (F-300). Three other packages are unaudited against it and nothing checks it — a repository rule with unknown violators and no instrument is F-231's shape. Step 6 is the event that settles it, or one line from the owner.
+
+---
+
 ### 2026-09-04 — the first factory becomes a class, and six cited identifiers get entries (D-170 step 1, F-296 closed)
 
 **Two results in one pass, and they are not one unit.** `createRectIndex` → `class RectIndex` is D-170's step 1. Minting `F-291`…`F-296` and `Q-17` is clerical remediation of F-296. They travel together because the second is what makes the first's own record readable, and they are recorded apart because a migration step and a bookkeeping repair are answerable to different things.
