@@ -2298,6 +2298,20 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-04 — both caller readings retire, and settling them widens the test boundary by one case (F-304 closed, F-303 amended)
+
+**Architect. Record [`f304-caller-liveness-readings-claude.md`](reviews/phase-24/f304-caller-liveness-readings-claude.md).** Nothing implemented; the settled `RectIndex.refresh` placement is not revisited; the lint gate is untouched and F-300 is not decided.
+
+**The two answers coincide for different reasons, which is why neither was taken by analogy.** `linear-shift.moved`'s reading is discharged **upstream**: it sits _after_ `runtime.box(probe)`, so it never protected that call, and everything after it is the sink's library-owned settle walk, buffer and `last`/`hollow` writes the `retire` hook undoes, or `report` — feature-filled, invoking only `animate()` and `cancel()` on consumer-owned rows, and reading the latch at its own head by design. The genuine obligation is that `box` **is** invoked more than once inside one tri-phase seam, per candidate in `action.prepare` and once in `action.effect`, and `spec.ts:1164` already sits between them, immediately before `movedInsertion` — the exact placement the `refresh` disposition requires, already correct in the tree.
+
+**`xy.resolve`'s is discharged downstream.** `compareDocumentPosition` is a platform query on a consumer-owned node, not a declared slot; the forbidden act after it is the **publication** of the returned `Insertion`, and `spec.ts:999` refuses it in the same statement sequence with `preparationValid()` behind that. Retiring it makes both axes take zero readings after `refresh`, which is the confirming signal — under I-36 the domain is a set of acts, so an obligation present in one axis and absent in the other, for two paths publishing the same thing, is guarding the DOM touch rather than the publication.
+
+**Settling it widened F-303 by one case**, found by tracing rather than by the finding that owns the list: `xy.browser.test.ts`'s "should not compare document position once the anchor read closed the controller" pins the withdrawn ceiling verbatim and fails too. It would have surfaced as an unexplained red inside step 1a. Checked in the other direction as well — both "call no resolver at all when the controller is already closed" cases still pass, and **no test anywhere pins the `linear-shift.moved` reading**, so that one retires unpinned.
+
+**Reconciled with the conversion, so nothing stale is transcribed.** No step 1a signature changes; both deletions land in step 1a, which already edits both files; `drop()` keeps its degenerate-case arm. After this **`linear-shift` reads the latch nowhere** — it forwards `live` into `RectIndex.refresh` and `runtime.live` into `report` — so the `LinearShift` class must acquire no `#live` field and no liveness member. Final budget: `N` readings per resolution inside `refresh` with a resolver composed, zero without, zero in either axis outside it, and zero per committed move in `linear-shift`.
+
+---
+
 ### 2026-09-04 — the reading goes before the consumer call, and `#abort()` is the stop rather than the cleanup (D-170 §The ownership boundary amended, F-301/F-302 closed, F-303/F-304)
 
 **Architect. Record [`d170-refresh-liveness-placement-claude.md`](reviews/phase-24/d170-refresh-liveness-placement-claude.md).** Nothing implemented; step 1a and step 2 unstarted; the ownership rules are not revisited and the lint gate is untouched.
@@ -2312,7 +2326,7 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 **`#abort()` survives with its rationale inverted** (F-301). It claims teardown has already run `retire()`; D-36 defers teardown to the outermost transaction boundary, so it has not. The property still holds for the reason underneath: the warm return is taken **before any reading**, and inside the deferral window a further `refresh` at the same version is reachable — so the warm path is safe because `#abort()` never leaves a closed rebuild clean. What it must restore is the staleness pair; its terminal `false` is the stop rather than the cleanup, because for a call the consequence _is_ the call. With one reading it has one call site, so the shared-exit justification goes.
 
-**Two landed browser cases fail under this, and that is the measurement** (F-303). Both drive the no-resolver composition, where nothing is owed, and pin the geometry ceiling and an I-20 retention the bracket discharges. They are retargeted rather than deleted silently; two more pass for a reason their prose does not state. Two sites of the same class in immediate callers are named and left open (F-304) rather than settled by extension, which is how the pre-D-37 ceiling grew.
+**Landed browser cases fail under this, and that is the measurement** (F-303) — two here, and a third in `xy.browser.test.ts` once F-304 settled. Both of these drive the no-resolver composition, where nothing is owed, and pin the geometry ceiling and an I-20 retention the bracket discharges. They are retargeted rather than deleted silently; two more pass for a reason their prose does not state. Two sites of the same class in immediate callers are named and left open (F-304) rather than settled by extension, which is how the pre-D-37 ceiling grew.
 
 ---
 
