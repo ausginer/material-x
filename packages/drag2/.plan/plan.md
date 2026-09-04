@@ -2298,9 +2298,17 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-04 — The Stage 1 null result recounts its own instruments: thirteen rows, not eleven (F-342)
+
+**One count, corrected where it lives.** The three instruments carry **thirteen** rows — eight rect-index, three context, one wrapper row in each of the two browser files — and the entry below recorded the proof's non-vacuity result over _eleven_. **The origin is the proof document, not the repair it reviews**: its own null result said eleven while enumerating 8 + 3 + 2 in the same sentence, and the entry carried the figure across faithfully. Every one of the thirteen rows was in fact reddened, so what was wrong is the arithmetic of a result that holds.
+
+**Two different elevens one paragraph apart is how it survived a read.** The neighbouring _all eleven_ counts **mutations** — six, four and one — and is right; it now says `mutations` for the same reason the row count now enumerates. Tier C, record-only: no instrument, no production source, and no C1–C5, F-335 or F-323 work.
+
+---
+
 ### 2026-09-04 — Stage 1's instrument proof answered: a membership claim restated, the eighth row reached, the denominator recounted (F-339, F-340, F-341)
 
-**Three record repairs, no instrument and no production source touched.** The proof re-ran every recorded mutation in a detached worktree and reproduced all eleven, row for row, and confirmed that nothing but tests and record entered `a571576f`. What it found wrong was the evidence three entries cite for themselves. C1–C5, F-335 and F-323 are untouched.
+**Three record repairs, no instrument and no production source touched.** The proof re-ran every recorded mutation in a detached worktree and reproduced all eleven **mutations**, row for row, and confirmed that nothing but tests and record entered `a571576f`. What it found wrong was the evidence three entries cite for themselves. C1–C5, F-335 and F-323 are untouched.
 
 **F-339 — the confirmation stated a textual measurement where the claim is about membership.** _`addIngress`, `activate` and `move` occur **zero** times in `kernel.ts`_ is false of two of the three: `activate` occurs on four lines and `move` on two. **The claim the finding actually rests on is that none of the three is a member of `Kernel` or `BehaviorContext`** — `#activate` is `#private`, so it is absent from `keyof Kernel` while occurring perfectly well in the file, and both `move` sightings are prose. The two are not the same claim, and only the membership one is what the new instrument replaces. It is also the form the arc's own feature proof had already used, so the repair had swapped a correct claim for a false one rather than inventing either. **Tier B, and in the worse direction**: the sentence is the one a reader is invited to re-derive by grep, and re-deriving it made the finding look over-claimed.
 
@@ -2308,7 +2316,7 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 **F-341 — the denominator was one row out.** The suite executes **1280**, not 1281: 1340 declared, 60 skipped. Recorded with the arithmetic that produces it, because the sentence before it reads _that number is the finding_ — the numerator reproduces and takes its force from what it is two out of.
 
-**The proof's own null results are worth keeping.** No `D-*` on an added line was minted, amended or superseded; every one of the eleven rows across the three instruments was reddened by at least one mutation of shipped source; and the two new browser rows destroy their own controllers and moved no neighbour. One residue is noted and not raised: two raised paragraphs carry line citations that `c4fa883c` moved, and whether a dated raised paragraph owes a resolving citation after a later commit is a record-policy question rather than a defect of this pass.
+**The proof's own null results are worth keeping.** No `D-*` on an added line was minted, amended or superseded; every one of the ~~eleven~~ **thirteen** rows across the three instruments — eight rect-index rows, three context rows, and one wrapper row in each of the two browser files — was reddened by at least one mutation of shipped source (**corrected 2026-09-04**, F-342); and the two new browser rows destroy their own controllers and moved no neighbour. One residue is noted and not raised: two raised paragraphs carry line citations that `c4fa883c` moved, and whether a dated raised paragraph owes a resolving citation after a later commit is a record-policy question rather than a defect of this pass.
 
 ---
 

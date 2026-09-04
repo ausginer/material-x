@@ -455,6 +455,10 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     "raised by the Stage 1 instrument proof: F-318's executed-suite denominator is off by one",
   ],
   [
+    'F-342',
+    'raised by the Stage 1 instrument proof: the Stage 1 plan entry counts thirteen instrument rows as eleven',
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],

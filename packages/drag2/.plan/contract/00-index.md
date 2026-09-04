@@ -3664,6 +3664,12 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Open, tier C. Raised by the Stage 1 feature proof as `s1-3`, 2026-09-04**, same record. Both entries said _1281 rows_ where the suite executes 1280. **The denominator is load-bearing here in a way most figures are not**: the sentence before it reads _that number is the finding_, and the numerator — exactly two — takes its force from what it is two out of. The numerator reproduces; only the denominator was wrong.
 
+#### F-342 — The Stage 1 plan entry counts thirteen instrument rows as eleven · repaired 2026-09-04
+
+**Repaired 2026-09-04.** `plan.md`'s null-result sentence says **thirteen** and enumerates them — eight rect-index rows, three context rows, one wrapper row in each of the two browser files. The neighbouring _all eleven_ in the same entry is a count of **mutations**, not rows, and is correct; it now says so, because two different elevens one paragraph apart is how this one propagated.
+
+**Open, tier C. Raised by the Stage 1 feature proof as `s1r-1`, 2026-09-04**, record [`stage1-instrument-proof-claude.md`](../reviews/d170-arc/stage1-instrument-proof-claude.md). **The origin is the proof, not the repair it reviews**: that document's own null result said _eleven_ while enumerating 8 + 3 + 2 in its second clause, and the plan entry carried the figure across faithfully. It is F-340's defect class one entry later, in the paragraph recording F-340's own pass — a stated count that does not match the file it counts. Tier C: every one of the thirteen rows was in fact reddened, so the null result holds and only its arithmetic was wrong.
+
 ## What would falsify this model
 
 - a feature needs a frame part _and_ the prepare-phase pipeline it requires cannot be expressed without giving features a path that both mutates the draft and performs effects;
