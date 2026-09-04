@@ -1665,6 +1665,22 @@ Phase 21 opened with four standing obligations that cannot change a decision as 
 
 **Touches:** corrects F-304's rationale and reinstates the reading it retired; supersedes D-51's ownership-indexed membership test and replaces its list with a predicate; amends I-36's act-(a) definition, its exception clause and its tier; qualifies D-37's _finite list the export table already enumerates_; settles Q-19, Q-20 and Q-21; decides F-312 and F-322; mints F-324
 
+#### D-177
+
+**Committed frame state is read off the frame. A per-operation runtime view carries only what the frame cannot.** Record [`entity-model-adjudication-claude.md`](../reviews/architecture/entity-model-adjudication-claude.md). The rule is already in force and already authored twice, in two modules, by two different arguments — and violated twice in a third, which is why it becomes an entry rather than staying a docblock.
+
+**Where it is already stated.** [`free-drag/frames.ts`](../../src/free-drag/frames.ts) states it as the reason a derived quantity is not stored — _the behavior derives, the kernel records its own writes, and **neither reads the other's copy**_ — and [`sortable/slots.ts`](../../src/sortable/slots.ts) states it as the reason `item` sits on `InsertionFrameView` rather than on `InsertionRuntimeView`: _the item is already committed frame state, and duplicating it onto the per-operation view would create a second copy that could drift_. Two independent authorings of one rule, neither citing the other, is what a rule in force looks like before anyone writes it down.
+
+**The rule, stated so it decides cases.** A behavior's per-operation runtime view exists for what the frame **cannot** carry — a value with no committed representation, or one whose non-nullness the frame cannot promise. `PresentationView` earns its existence on exactly that ground and says so: the feature views _need a **non-null** `placeholder`, which no controller-lifetime state can promise before activation_. **Anything the frame already commits is read off the frame**, at every tier, including through the published narrow views: a field that appears on both a frame view and a runtime view is a mirror, and the mirror is the defect whether or not any reader has yet observed the divergence. **The test is not whether a divergence is currently observable.** `PresentationView.snapshot` diverges from `frame.snapshot` after release and nothing reads the difference, because the spatial action is refused outside `ACTIVE` — and the write is maintained on every collection replacement anyway. A mirror whose only defence is that no reader has found it is a mirror.
+
+**Two instances, minted separately because they repair differently** — F-325 removes a published field with no reader in the package, and F-326 moves one between two published views. Repairing either leaves the other standing.
+
+**What this does not say.** It does not forbid a per-operation copy of a value the frame never held: `box`, `settle`, `space` and `live` are copied off the slot record and off the activation measurement once per operation, and the docblocks give the reason — _so an axis rebuild reads one field of this object rather than reaching the slot record_. None of the four is frame state, so none is a mirror. It also does not reach the kernel's own `OperationRecord`/`ActivationRecord`, whose fields are not published frame state either.
+
+**The relationship to the frame views is the mechanism, not an aside.** `InsertionFrameView` is documented as _the widest view, not the required one_ — the ceiling the behavior guarantees to supply, from which each feature declares its own narrower view in its own module. So relocating a committed field onto it costs a feature nothing it does not already do: `LinearRuntime` is declared in [`sortable/linear-shift.ts`](../../src/sortable/linear-shift.ts), and a field moving between the two arguments moves between two declarations that module already owns.
+
+**Touches:** promotes a rule authored in `free-drag/frames.ts` and `sortable/slots.ts` to an entry; mints F-325 and F-326; constrains the sortable per-operation consolidation adjudicated as C5; does not amend D-12, whose installer-type surface is what F-326 changes
+
 ### Decisions not yet implemented
 
 **The artifact F-63 asked for** (K-5). D-34 and D-35 were stated in the present tense by three contract documents and were not in the code, across a checkpoint and a whole revision, with every suite green — because a green suite is evidence about the _implemented_ contract only, and nothing in the repository compared a decision booked to a later phase against the code that had not implemented it. Phase 18 found them by reading, which is the discovery this table exists to make unnecessary.
@@ -1924,6 +1940,7 @@ The four `inactive` rows are the ones whose live residue is empty: **D-33** (ret
 | D-174    | active   |
 | D-175    | active   |
 | D-176    | active   |
+| D-177    | active   |
 
 ## Findings
 
@@ -3307,13 +3324,19 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 **Open, tier B. Raised by the D-170 arc feature proof (`rr-2`), 2026-09-07.** Zero occurrences of `RectIndexView` anywhere under `tests/`. D-170's F-309 reversal rests on a measured property — `count = 0`, `values[0] = 1` and `items.length = 0` are each refused through a reader binding — established on a probe that was deleted. Second-limb Tier B: the narrowing is the whole justification for deleting four accessors, and a widening of any of the four members would restore the accessors' job silently.
 
+**Blocks an arc, recorded 2026-09-08.** Record [`entity-model-adjudication-claude.md`](../reviews/architecture/entity-model-adjudication-claude.md). This guards the declared-reader-view pattern, which the adjudicated entity model applies again twice — to the sortable's activation record and to the kernel's frame pair. **It is the falsifier for those arcs, not an incidental defect to sweep up after them**, and migrating a second time on an unpinned guarantee is the shape the D-170 arc found in the first place.
+
 #### F-317 — Three of the four narrowing assertions the entry cites do not discriminate
 
 **Open, tier B. Raised by the D-170 arc feature proof (`rr-3`), 2026-09-07.** D-170 §The behavior-facing interface names probe 13a's N-2, N-3, N-5 and probe 13c's N-4 as the instrument proving the projection survived becoming an interface. `addIngress`, `activate` and `move` are on **neither** `Kernel` nor `BehaviorContext`, so those four assertions fail for a reason unrelated to the narrowing. **Only `arm` discriminates** — present on the class at `kernel.ts:2593`, absent from the interface. Second-limb Tier B, and the case the tier exists to name: a proof that passes for the wrong reason.
 
+**Blocks an arc, recorded 2026-09-08.** Same record. The transaction arc reshapes `Kernel`'s surface, and an arc that changes a class's surface must not run behind an instrument that tests one member of it. Repaired before that arc, not with it.
+
 #### F-318 — Nothing pins the memoized `destroy()` identity through the shipped controller wrappers
 
 **Open, tier B. Raised by the D-170 arc feature proof (`rr-4`), 2026-09-07.** D-170 requires `destroy`'s controller wrapper to be a plain arrow rather than an `async` one, so the memoized promise is returned by identity. `kernel.browser.test.ts:4100` does assert `expect(harness.controller.destroy()).toBe(first)`, but `createHarness` builds its controller from `draggable<…>`: the identity is pinned one tier **above** the sortable and free-drag wrappers this arc added, which is what makes the gap easy to miss. Second-limb Tier B.
+
+**Blocks an arc, recorded 2026-09-08.** Same record. The execution-bracket arc **relocates that promise and its resolver** into a new entity, which is precisely the machinery this finding says nothing pins. Repaired before that arc.
 
 #### F-319 — Step 5's rename corrupted comment prose in two spec files
 
@@ -3338,6 +3361,14 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 #### F-324 — The irreducible-reading census was taken under the membership test D-176 supersedes
 
 **Open, tier B. Raised by D-176, 2026-09-08**, same record. I-36 states its residue as a measurement — _four are irreducible — all four act (a)_, being `resolveItem`'s `getHandle`→`getVisual` pair, `RectIndex.refresh`'s entry, `refresh`'s per-candidate resolver, and `action.effect`'s `measureInSeam` walk after `movePlaceholder`. That census was taken while membership in act (a) was read as _who filled the slot_, under which every slot a shipped feature fills is outside; `settle` is one such slot and is absent from the list, which is how F-312 became reachable. **Under D-176 the census is a mechanical question over a static candidate set** — every invocable member of `SortableSlots` and `FreeDragSlots` — and the answer is not known to be four. `landingTiming` is the clearest candidate the census must answer for: it is a published function slot on both behaviors, `free-drag/spec.ts:1013` invokes it with no reading of its own, and whether one is owed there is a question about the kernel's surrounding revalidation rather than about that line. **The finding is the census, not a site**: F-312 names the two sites the arc established, and this asks whether the list of irreducible readings is complete. Second-limb Tier B — the number is quoted by I-36 as the measurement that justifies D-37's narrowing.
+
+#### F-325 — `PresentationView.insertion` is a published field with no reader in the package
+
+**Open, tier B. Raised by D-177, 2026-09-08**, record [`entity-model-adjudication-claude.md`](../reviews/architecture/entity-model-adjudication-claude.md), from the independent entity-model reading at [`entity-model-b73b6779-claude.md`](../reviews/architecture/entity-model-b73b6779-claude.md). [`sortable/spec.ts:1201`](../../src/sortable/spec.ts) reads `current.insertion!` and `:1221` copies it into `view.insertion` twenty lines later, cleared at `:1290` in a `finally`; both objects are then passed to the same call, `movedInsertion(current, view, report)`. **Neither shipped axis reads it**: `y.ts:298` and `xy.ts:215,310` all read `frame.insertion`, and `LinearRuntime` — the axis's own declared view of the runtime argument — does not name the field at all. So the write, the `finally` clear and the published declaration on `InsertionRuntimeView` are maintained for no reader in this package. **Tier B on the first limb**: `InsertionRuntimeView` is published at `sortable/feature.js` under D-12, and its docblock instructs a third-party axis author that a rule _reads it in two places and means the same thing in both_, which the tree does not do. **Required property**: committed frame state is read off the frame (D-177). The repair is a narrowing with no compensating widening, because `insertion` is already declared on `InsertionFrameView`.
+
+#### F-326 — `PresentationView.snapshot` mirrors committed frame state on a published view
+
+**Open, tier B. Raised by D-177, 2026-09-08**, same records. `view.snapshot` is written at activation and rewritten at [`sortable/spec.ts:1321`](../../src/sortable/spec.ts) on every collection replacement, and it diverges from the frozen `frame.snapshot` after release. **Nothing reads the divergence** — the spatial action is refused outside `ACTIVE` — which is the defence D-177 refuses to accept. **This one costs a published move rather than a published removal**, and that is why it is not merged with F-325: `snapshot` is read off the runtime view by `linear-shift.ts` and is **not** declared on `InsertionFrameView`, so the repair removes it from `InsertionRuntimeView` **and** adds it to `InsertionFrameView` — the ceiling the behavior already guarantees. **The precedent is in the same file**: `item` was placed on the frame view for this exact reason, with the reason written down. A middle-tier contract change under D-12; admissible without an alias because `CONTRIBUTING.md` §8 governs an unreleased API, and the owner's call is recorded in the adjudication rather than deferred.
 
 ## What would falsify this model
 

@@ -371,6 +371,18 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     "raised by the D-170 arc der pass: whether `LinearShift` should own a stop on `refresh`'s failure path at all",
   ],
   [
+    'D-177',
+    'raised by the entity-model adjudication: committed frame state is read off the frame, not mirrored onto a runtime view',
+  ],
+  [
+    'F-325',
+    'raised by D-177: `PresentationView.insertion` is a published field with no reader in the package',
+  ],
+  [
+    'F-326',
+    'raised by D-177: `PresentationView.snapshot` mirrors committed frame state on a published view',
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],
