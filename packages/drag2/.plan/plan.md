@@ -2298,6 +2298,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-04 — Stage 1: the three unfalsifiable guarantees get instruments that discriminate (F-316, F-317, F-318 repaired)
+
+**The instruments come before the arcs, which is the adjudication's own ordering correction.** Each of these three is the falsifier for one of C1, C2 and C5, and migrating on top of an unpinned guarantee is the shape the D-170 arc found in the first place. Nothing from C1–C5 is started; F-335 and F-323 are untouched, and no source file changed — the whole pass is tests and record.
+
+**What the three have in common is why none of them could fail.** Every one is a property of a _type declaration_ or of a _closure's syntax_, so the retraction is silent by construction: a widened reader view, a member added beside `arm`, an `async` wrapper. Each mutation below leaves the entire suite green except at the row written for it, and that is the finding as much as the repair is.
+
+**F-316 — the reader view is asserted as a boundary, not as a list.** `RectIndexView` occurred zero times under `tests/`; the measurement that justified deleting four accessors lived on a deleted probe. Seven rows now: five refusals through a reader binding — including `items[0] = el`, because `readonly T[]` refuses an element write separately from a length write — and two that supply what a refusal set cannot. **The owner's row is the load-bearing one**: a view narrowed to nothing satisfies every refusal and justifies deleting no accessor, so the class must still write all four through its own declarations with no cast and no second field. Six mutations, six distinct rows red.
+
+**F-317 — the narrowing is stated as a difference between two key sets.** The finding's claim is confirmed before it is repaired: `addIngress`, `activate` and `move` occur **zero** times in `kernel.ts`, so three of the four cited probe assertions are satisfied by names on neither declaration, and promoting `arm` onto `BehaviorContext` leaves all four consumed and green. What replaces them is `keyof BehaviorContext` pinned at seven and `Exclude<keyof Kernel, keyof BehaviorContext>` pinned at `'arm'`. **The row the arc needs is the second**: a public member added to the class is exactly what C2 does, and an instrument naming one member reports nothing when a member is added beside it.
+
+**F-318 — the identity is pinned on the object a consumer is handed.** It was pinned one tier above the shipped wrappers. One row per behavior now, each also awaiting the promise so the guarantee is stated whole rather than in its identity half. Rewriting both wrappers `async` turns **exactly two** behavioural rows red over the whole suite — and that number is the point: an `async` wrapper still settles once per call and still settles correctly, so nothing else in 1281 rows can see it.
+
+**Collateral is named rather than netted out**, on F-328's terms: the `async` mutation moves four size-control rows, because the wrapper is real bytes; the packed-package rows are excluded, one having reddened in a whole-suite run and passed under the same mutation in isolation.
+
+---
+
 ### 2026-09-04 — Stage 0's closure proof answered: the citations re-derived, the retirement instrumented, the count re-measured (F-336, F-337, F-338)
 
 **Three repairs, no design reopened.** The closure proof confirmed the F-328 route repair and the re-taken census, and found three defects in how they are recorded and instrumented. F-335 and F-323 are untouched, as are Stage 1 and the C1–C5 arcs.

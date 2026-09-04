@@ -250,6 +250,22 @@ describe('a late resolution', () => {
  * which is F-74's defect written on purpose.
  */
 
+describe('the destroy promise', () => {
+  it('should return one promise by identity through the free-drag wrapper', async () => {
+    // The kernel memoizes it and the identity is pinned at the kernel's own
+    // member; what free drag publishes is a closure over that call. An `async`
+    // closure would still settle once per call and still settle correctly, so
+    // no other row in the suite can see the difference — and the published
+    // guarantee is about the object handed back, so it is asserted there.
+    const composed = compose();
+    const first = composed.controller.destroy();
+
+    expect(composed.controller.destroy()).toBe(first);
+
+    await expect(first).resolves.toBeUndefined();
+  });
+});
+
 describe('retirement order', () => {
   it('should run free drag’s retire hooks in reverse installation order', () => {
     // **The guarantee D-147 moved from representation to execution**, asserted

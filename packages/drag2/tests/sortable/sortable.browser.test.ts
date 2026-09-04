@@ -2576,6 +2576,24 @@ describe('collection identity', () => {
   });
 });
 
+describe('the destroy promise', () => {
+  it('should return one promise by identity through the sortable wrapper', async () => {
+    // **The wrapper is what this row owns.** The kernel memoizes the promise
+    // and the identity is already pinned at the kernel's own member; what the
+    // behavior tier publishes is a closure over that call, and a closure is
+    // free to be `async` — at which point every call mints a fresh promise
+    // that settles correctly, so nothing else in the suite moves. The
+    // published guarantee is that the returned object *is* the one that
+    // settles once, so it is asserted on the object a consumer is handed.
+    const harness = createHarness();
+    const first = harness.controller.destroy();
+
+    expect(harness.controller.destroy()).toBe(first);
+
+    await expect(first).resolves.toBeUndefined();
+  });
+});
+
 describe('invalidate() after destroy', () => {
   let destroyed = false;
 

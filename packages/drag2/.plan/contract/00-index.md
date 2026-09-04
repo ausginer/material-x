@@ -3381,19 +3381,55 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 **Open, tier B. Raised by the D-170 arc `der` pass, 2026-09-07.** `01-construction-ownership.md:93` states in the present tense that `BehaviorFactory`, `BehaviorInstall`, `BehaviorSpec` and `KernelHost` **are** the kernel-tier vocabulary; `03:598`, `03:705` and `05:981` state normative rules over `KernelHost`'s members. **Not merged into F-313** despite the shared cause: source identifiers and contract prose are different defect kinds with different required properties, and repairing either leaves the other standing. The two historical occurrences at `README.md:100` and `tests/COVERAGE.md:38` are explicitly marked as history and are not part of this.
 
-#### F-316 — `RectIndexView` has no falsifier: its refusals hold, but nothing keeps them true
+#### F-316 — `RectIndexView` has no falsifier: its refusals hold, but nothing keeps them true · repaired 2026-09-04
+
+**Repaired 2026-09-04.** [`tests/sortable/rect-index.declaration.test.ts`](../../tests/sortable/rect-index.declaration.test.ts) states the view as a boundary rather than as a list of refusals. Four rows refuse the writes the entry measured on the deleted probe — `count = 0`, `values[0] = 1`, `hole[0] = 1` and `items.length = 0` — with a fifth for `items[0] = el`, because emptying the array and replacing an entry are two writes and `readonly T[]` is what refuses both. **Two rows carry the half a refusal set cannot supply.** The owner still writes all four through the class's own declarations, with no cast and through no second field, which is the whole justification for deleting the four accessors; and `keyof RectIndexView` is pinned in both directions, so a fifth member cannot arrive unnamed. Without the owner's row a view that had narrowed to nothing satisfies every refusal.
+
+**Falsified in six directions.** Each mutation of [`rect-index.ts`](../../src/sortable/rect-index.ts) turns a distinct row red under `npx vitest run --project declaration`, and no mutation turns two of the same kind red by accident.
+
+| Mutation | Rows red |
+| --- | --- |
+| `values` widened to `Float64Array` on the view | 1 — the packed-buffer write |
+| `hole` widened to `Float64Array` on the view | 1 — the hole write |
+| `items` widened to `HTMLElement[]` on the view | 2 — the length write and the element write |
+| `count` made writable on the view | 1 — the count assignment |
+| a fifth member added to the view | 1 — the member-set equality |
+| the **class's** own `count` made `readonly` | 1 — the owner's write |
+
+**The mechanism is the type checker's unused-directive report, not an assertion that happens to hold.** A widening does not make a row silently vacuous here: it makes the `@ts-expect-error` unused, which is a compile error at the row. That is the property the entry says the view lacked, and it is why the reader-view pattern can now be applied a second and third time — to the sortable's activation record and to the kernel's frame pair — against an instrument rather than against a docblock.
 
 **Open, tier B. Raised by the D-170 arc feature proof (`rr-2`), 2026-09-07.** Zero occurrences of `RectIndexView` anywhere under `tests/`. D-170's F-309 reversal rests on a measured property — `count = 0`, `values[0] = 1` and `items.length = 0` are each refused through a reader binding — established on a probe that was deleted. Second-limb Tier B: the narrowing is the whole justification for deleting four accessors, and a widening of any of the four members would restore the accessors' job silently.
 
 **Blocks an arc, recorded 2026-09-04.** Record [`entity-model-adjudication-claude.md`](../reviews/architecture/entity-model-adjudication-claude.md). This guards the declared-reader-view pattern, which the adjudicated entity model applies again twice — to the sortable's activation record and to the kernel's frame pair. **It is the falsifier for those arcs, not an incidental defect to sweep up after them**, and migrating a second time on an unpinned guarantee is the shape the D-170 arc found in the first place.
 
-#### F-317 — Three of the four narrowing assertions the entry cites do not discriminate
+#### F-317 — Three of the four narrowing assertions the entry cites do not discriminate · repaired 2026-09-04
+
+**The finding's claim is confirmed mechanically before it is repaired.** `addIngress`, `activate` and `move` occur **zero** times in [`kernel.ts`](../../src/kernel/kernel.ts): the three probe assertions are satisfied by names that exist on neither declaration, so they report the narrowing while measuring the spelling. Promoting `arm` onto `BehaviorContext` — the widening that would retract the boundary outright — leaves all four probe directives consumed and green.
+
+**Repaired 2026-09-04.** [`tests/kernel/context.declaration.test.ts`](../../tests/kernel/context.declaration.test.ts) states the narrowing as a **difference between two key sets** rather than as absences. `keyof BehaviorContext` is pinned to its seven members in both directions, and `Exclude<keyof Kernel, keyof BehaviorContext>` is pinned to `'arm'` — so a public member added to the class lands in the difference and fails until it is classified, and one promoted onto the interface leaves the difference and fails too. A third row keeps `arm` on the class, so an interface narrowed to nothing cannot satisfy the first two. **The direct read is not restated here**: `void kernel.arm` under `@ts-expect-error` already runs against the **shipped** declarations in [`consumer.node.test.ts`](../../tests/consumer.node.test.ts), which is the stronger site for it.
+
+| Mutation | Rows red |
+| --- | --- |
+| `arm` promoted onto `BehaviorContext` | 2 — the member set and the difference |
+| a public member added to the `Kernel` class | 1 — the difference |
+| a member dropped from `BehaviorContext` | 2 — the member set and the difference |
+| `arm` made `#private` on the class | 2 — the difference and the class row |
+
+**The second row is the one the arc needs and the one no existing assertion could make.** C2 reshapes `Kernel`'s surface; an instrument written against one member's name reports nothing when a member is added beside it, and a member added to the class is precisely what an arc that reshapes the class does.
 
 **Open, tier B. Raised by the D-170 arc feature proof (`rr-3`), 2026-09-07.** D-170 §The behavior-facing interface names probe 13a's N-2, N-3, N-5 and probe 13c's N-4 as the instrument proving the projection survived becoming an interface. `addIngress`, `activate` and `move` are on **neither** `Kernel` nor `BehaviorContext`, so those four assertions fail for a reason unrelated to the narrowing. **Only `arm` discriminates** — present on the class at `kernel.ts:2593`, absent from the interface. Second-limb Tier B, and the case the tier exists to name: a proof that passes for the wrong reason.
 
 **Blocks an arc, recorded 2026-09-04.** Same record. The transaction arc reshapes `Kernel`'s surface, and an arc that changes a class's surface must not run behind an instrument that tests one member of it. Repaired before that arc, not with it.
 
-#### F-318 — Nothing pins the memoized `destroy()` identity through the shipped controller wrappers
+#### F-318 — Nothing pins the memoized `destroy()` identity through the shipped controller wrappers · repaired 2026-09-04
+
+**Repaired 2026-09-04.** One row per shipped wrapper, each asserting the identity on the object a consumer is actually handed: _should return one promise by identity through the sortable wrapper_ in [`sortable.browser.test.ts`](../../tests/sortable/sortable.browser.test.ts) and _…through the free-drag wrapper_ in [`tests/free-drag/lifecycle.browser.test.ts`](../../tests/free-drag/lifecycle.browser.test.ts). Each also awaits the promise, so the row states the published guarantee whole — _the returned object is the one that settles once_ — rather than only its identity half.
+
+**Falsified by the exact regression D-170 forbids.** Rewriting both wrappers as `destroy: async (): Promise<void> => { await kernel.destroy(); }` turns **exactly two** behavioural rows red over `npx vitest run`, and they are these two. **That number is the finding**: an `async` wrapper still settles once per call and still settles correctly, so nothing else in 1281 rows can see the difference — which is why the guarantee was unpinned rather than merely under-tested.
+
+**Four size-control rows are collateral and are named rather than netted out**: the `async` wrapper is real bytes, so `free drag minimal`, `+ bounds`, `+ landing` and `complete` move off their declared figures. They carry no information about the property. **`consumer.node.test.ts`'s packed-package rows are excluded**, on the same terms as F-328: one reddened in the mutated whole-suite run and passed under the same mutation in isolation, which is the pack step's known intermittency and not signal.
+
+**The kernel-tier row is kept rather than re-pointed.** `kernel.browser.test.ts` — _should return one promise from every destroy call_ — pins the memoization itself, which is a different property from the wrapper forwarding it by identity; the mutation above leaves that row green, which is what says so.
 
 **Open, tier B. Raised by the D-170 arc feature proof (`rr-4`), 2026-09-07.** D-170 requires `destroy`'s controller wrapper to be a plain arrow rather than an `async` one, so the memoized promise is returned by identity. `kernel.browser.test.ts:4100` does assert `expect(harness.controller.destroy()).toBe(first)`, but `createHarness` builds its controller from `draggable<…>`: the identity is pinned one tier **above** the sortable and free-drag wrappers this arc added, which is what makes the gap easy to miss. Second-limb Tier B.
 
