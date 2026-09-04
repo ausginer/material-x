@@ -270,6 +270,14 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     "raised by D-170's implementation: two clauses disagree about whether `KernelHost` becomes the class",
   ],
   [
+    'F-306',
+    'raised by the F-305 adjudication: `method-signature-style` forbids the function-property declaration the residue reads as available',
+  ],
+  [
+    'F-307',
+    'raised by the F-305 adjudication: the residue census says fourteen and it is twenty-two',
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],

@@ -2346,6 +2346,24 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-05 — the gate fires where a receiver is lost, not where one is missing (F-305 closed, D-170 §The step-6 boundary)
+
+**F-305 dissolves rather than being decided by weighing the two clauses.** They disagreed about a fact only because both assumed the gate has to fire at `cancel: host.cancel`. It does not, and it should not. `@typescript-eslint/unbound-method` reports a detached prototype method at the site that **produces** it, and production reads the member off the object that owns it — `this` inside the class, or the class instance type at an external supply site. Six rows on the repository's own configuration: `{ a: this.proto }` inside the class reports, `{ p: k.proto }` through the instance type reports, an unwrapped type literal reports; the mapped alias and arrow-valued fields are silent either way. So the four-owner composition and the covered hazard were never in competition.
+
+**The tree had already answered it, twice, and neither is a probe.** Step 2 met this exact situation when `LinearShift` became a class: `y.ts:269,295` publishes `invalidate: () => { shift.invalidate(); }` under the comment _the lint gate is what would have caught the bare read_, and `kernel.ts:2402` carries the identical wrap for `fail`. Linting the axis modules today reports nothing and holds no disable directive — the silence is compliance. An adjudication that had ignored the landed code would have prescribed the practice the landed code already follows, under a different name.
+
+**So the acceptance criterion is corrected rather than preserved.** `cancel: host.cancel` and `destroy: host.destroy` must stay **silent**: at those two sites the value is contractually a plain function, and a report would be a permanent false positive at the library's most-read boundary. §3.4's hazard — making a detach-by-contract member receiver-sensitive — is caught in `kernel.ts`, on the composition statement, one file from the mistake rather than three. Step 6's falsifier is that mutation, in the form step 2 established.
+
+**Three reasons `KernelHost` stays a record, and the third was not in the finding.** It is assembled from four owners; it withholds deliberately, where clause 4 exists to stop an alias being narrower than its entity; and it is **published authoring vocabulary on a surface §01 already decided is structural** (D-47/D-48). Converting it would have published an implementation where a protocol was decided — a conflict with the tier decision, not only with §3.4.
+
+**Clause 4 gained the subject it was missing, and it reclassifies exactly one alias.** Entity alias when one object implements every member and owns the state they touch; capability record when it is assembled from more than one owner, so no single receiver exists for it to be the type of. Applied to the census, `KernelHost` moves and nothing else does. **A one-alias result is the confirming signal**: the tree's classification was right everywhere except at the alias the finding is about.
+
+**Two corrections fell out of running the census rather than trusting it** — F-306, that `method-signature-style: [2, "method"]` forbids the function-typed-property declaration the amendment listed as measured, so the mapped alias is the only mechanism available and the residue is structural rather than tolerated; and F-307, that the stated residue count of fourteen is twenty-two. Neither changes an argument, and the second is the kind of number a later reader trusts instead of re-running.
+
+**Nothing implemented, and step 6 is unblocked rather than started.** Steps 1a to 5 stand untouched, the liveness disposition and the ownership clauses are not reopened, and F-300 is still deferred.
+
+---
+
 ### 2026-09-05 — five factories become entities, and step 6 stops on a contradiction (D-170 steps 1a…5, F-303 closed, F-305)
 
 **One continuous unit, six measured trees, and the row that did not move is the result in each.** `RectIndex` gains its ownership boundary, `LinearShift`, `SeamDriver` and both behavior entities become classes, and each spec's three lifetimes are named before any field list is written. Step 6 is not started: D-170 contains two clauses about `KernelHost` that cannot both hold, and which governs decides whether the migration's own stated sharpest hazard is covered. That is F-305 and it goes back to the owner.
