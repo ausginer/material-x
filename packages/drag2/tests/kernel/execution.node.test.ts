@@ -166,4 +166,87 @@ describe('the execution bracket', () => {
 
     expect(harness.seen).toEqual([1, 2]);
   });
+
+  it('should defer teardown to the outermost boundary', () => {
+    let duringPass = -1;
+    const harness = createHarness((bracket) => {
+      void bracket.close();
+      duringPass = harness.teardowns;
+    });
+
+    harness.bracket.dispatch(1, null);
+
+    expect([duringPass, harness.teardowns]).toEqual([0, 1]);
+  });
+
+  it('should defer teardown raised inside an ingress pass', () => {
+    let duringPass = -1;
+    const harness = createHarness();
+
+    harness.bracket.runIngress(() => {
+      void harness.bracket.close();
+      duringPass = harness.teardowns;
+    });
+
+    expect([duringPass, harness.teardowns]).toEqual([0, 1]);
+  });
+
+  it('should tear down once however often it is closed', () => {
+    const harness = createHarness();
+
+    void harness.bracket.close();
+    void harness.bracket.close();
+
+    expect(harness.teardowns).toBe(1);
+  });
+
+  it('should enqueue without draining while an ingress pass is running', () => {
+    let duringPass: readonly number[] = [-1];
+    const harness = createHarness();
+
+    harness.bracket.runIngress(() => {
+      harness.bracket.dispatch(1, null);
+      duringPass = [...harness.seen];
+    });
+
+    expect([duringPass, harness.seen]).toEqual([[], [1]]);
+  });
+
+  it('should refuse a nested pass before the caller prepares one', () => {
+    const harness = createHarness();
+    let nested = 0;
+
+    harness.bracket.runIngress(() => {
+      harness.bracket.runIngress(() => {
+        nested += 1;
+      });
+    });
+
+    expect([harness.passes, nested]).toEqual([1, 0]);
+  });
+
+  it('should settle its promise only after the teardown callback has run', async () => {
+    const OUTSTANDING = 'outstanding';
+    let closing!: Promise<void>;
+    let probe!: Promise<unknown>;
+    const bracket = new ExecutionBracket(
+      NOOP,
+      NOOP,
+      () => {
+        // An already-settled promise wins this race, because its reaction is
+        // queued before the sentinel's; one still outstanding loses it. That is
+        // the only synchronous reading of "has it settled yet" there is.
+        probe = Promise.race([closing, Promise.resolve(OUTSTANDING)]);
+      },
+      NOOP,
+    );
+
+    // Closed from inside a pass, so the promise exists before the callback the
+    // ordering is about runs.
+    bracket.runIngress(() => {
+      closing = bracket.close();
+    });
+
+    await expect(probe).resolves.toBe(OUTSTANDING);
+  });
 });
