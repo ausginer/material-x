@@ -85,6 +85,36 @@ No mutation reddened a row belonging to another, and none reddened a row outside
 ## Null results
 
 - **No C1–C5 work slipped in.** `src/` is unchanged across `c2a1d273..a571576f`, and no added line mints, amends, supersedes or renumbers a `D-*`.
-- **No instrument in this pass is vacuous.** Every one of the eleven rows across the three files was reddened by at least one mutation of shipped source — the eight rect-index rows by the six recorded mutations plus the one this pass added, the three context rows by the four recorded mutations, and the two wrapper rows by the `async` rewrite.
+- **No instrument in this pass is vacuous.** Every one of the **thirteen** rows across the three files was reddened by at least one mutation of shipped source — the eight rect-index rows by the six recorded mutations plus the one this pass added, the three context rows by the four recorded mutations, and the two wrapper rows by the `async` rewrite. ~~eleven rows~~ — **corrected 2026-09-04**: this line said _eleven_ at `b2093941` while enumerating 8 + 3 + 2 in its own second clause, and `plan.md:2311` carries the wrong figure from here. Raised against the repair as `s1r-1` below.
 - **The two new browser rows do not leak.** Both destroy their own controller, and no neighbouring row moved in either the baseline or the mutated whole-suite run.
 - **Stale line citations in the two raised paragraphs are noted and not raised as a finding.** F-317's raised paragraph cites `kernel.ts:2593` for `arm`, which is at `:2620` at `a571576f`; F-318's cites `kernel.browser.test.ts:4100` for an assertion now at `:4162`. Both were accurate when written at `9bbd9942` and were not touched by this commit — the drift is `c4fa883c`'s. F-336's quality gate, _each citation resolves in the tree this entry is committed with_, is recorded there as **the entry's own** gate over F-324's census rather than as an index-wide rule, and `00-index.md` carries 98 distinct `<file>.ts:<line>` citations whose ages nothing checks. Whether a dated raised paragraph owes a resolving citation after a later commit moves the line is a record-policy question for the architect, not a defect of this pass.
+
+## Re-check at `d692262a`
+
+**Re-read at `d692262a`**, against `b2093941` and `a571576f`. The repair is record-only: `git diff --name-only b2093941 d692262a` touches `00-index.md`, `plan.md` and `.scripts/corpus-equivalence.ts` and nothing under `src/` or `tests/`, so **all four instruments are byte-identical to the tree this pass measured** and every measurement above stands without re-running. The record instruments are green (81 rows over `references`, `docs`, `coverage`, `decisions`), and `F-339`, `F-340` and `F-341` are minted in the `MINTED` registry with the claims they carry.
+
+**All three defects hold as repaired.**
+
+| Defect | Required property | Measured at `d692262a` |
+| --- | --- | --- |
+| `s1-1` → F-339 | the confirmation states a measurement that re-derives | The paragraph states **membership** — the three names are members of neither `Kernel` nor `BehaviorContext` — and says why the textual reading fails: `#activate` is `#private`, absent from `keyof Kernel` by construction, and both `move` sightings are prose. The false form survives only struck through and marked corrected. `plan.md:2305` and `:2307` carry the same correction. Both figures it now cites re-derive: `activate` on four lines, `move` on two |
+| `s1-2` → F-340 | every row is reached by the table, or its non-vacuity is stated | The table gains a seventh mutation — the class's own `values` declared `number[]` → **2, the buffers row and the owner's write** — which is exactly what I measured. Eight rows and seven mutations are stated in both `00-index.md` and `plan.md`, the `items` widening is no longer netted to one, and the eighth row's justification is recorded: `ignoreSourceErrors: true` means the broken `implements` clause is invisible in `src/`, so the row is what carries it into the test file |
+| `s1-3` → F-341 | the suite figure is the one the tree produces | **1280**, stated with its arithmetic — 1340 declared, 60 skipped — in `00-index.md`'s F-318 and `plan.md:2311`. No `1281` survives outside the two entries quoting the retracted figure |
+
+**Stage 1 is not yet closed**, on one remaining defect, and its origin is this document.
+
+## Finding against the repair
+
+### s1r-1 — The Stage 1 plan entry counts thirteen instrument rows as eleven · Tier C
+
+**Finding.** `plan.md:2311` records the proof's null result as _every one of the eleven rows across the three instruments was reddened by at least one mutation of shipped source_. The three instruments carry **thirteen** rows: eight `it` rows in `tests/sortable/rect-index.declaration.test.ts`, three in `tests/kernel/context.declaration.test.ts`, and one wrapper row in each of `tests/sortable/sortable.browser.test.ts` and `tests/free-drag/lifecycle.browser.test.ts`.
+
+**Why it is a problem.** It is the same defect class as F-340, one entry later and in the paragraph that records F-340's own pass — a stated count that does not match the file it counts. The substance is unaffected: all thirteen rows were reddened, and the enumeration this pass measured is the one recorded everywhere else. Tier C: no instrument is unsound, nothing consumer-visible moves, and the sentence's own second clause names 8 + 3 + 2.
+
+**Evidence.** `grep -c '^  it(' tests/sortable/rect-index.declaration.test.ts` → 8; the same over `tests/kernel/context.declaration.test.ts` → 3; `should return one promise by identity` occurs once in each wrapper file. 8 + 3 + 2 = 13.
+
+**The origin is this document, not the repair.** `stage1-instrument-proof-claude.md` said _eleven_ at `b2093941` while enumerating 8 + 3 + 2 in the same sentence, and the plan entry carried the figure across faithfully. This document is corrected above; the plan entry is the implementer's to correct, which is why it is raised rather than fixed here.
+
+**Required property.** The recorded row count matches the instruments it counts, in `plan.md` as in the three entries.
+
+**One secondary imprecision, noted and not raised.** F-316's rewritten sentence now reads _no mutation reddens a row belonging to another_, and the seventh mutation reddens the owner's write, which the sixth also reddens. The table one line below names both reds against both mutations, so the overlap is declared rather than hidden and the independence the sentence is defending — every row reachable, no row a duplicate — still holds. It is a phrasing that overstates a true property in the presence of its own table, not a claim that fails.
