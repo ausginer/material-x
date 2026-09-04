@@ -4,12 +4,12 @@
 
 Four passes ran in parallel on one tree, none holding another's prompt, findings or artifact. Only the feature proof received the owner's six falsification targets.
 
-| Pass | Artifact | Commit |
-| --- | --- | --- |
-| feature proof | [`d170-arc-feature-proof-claude.md`](d170-arc-feature-proof-claude.md) | `3f0b8252` |
-| integrity | [`d170-arc-integrity-claude.md`](d170-arc-integrity-claude.md) | `55ef8488` |
-| cleanup | [`d170-arc-cleanup-claude.md`](d170-arc-cleanup-claude.md) | `e4379bf9` |
-| DER | [`../phase-24/d170-arc-der-claude.md`](../phase-24/d170-arc-der-claude.md) | `410b256f` |
+| Pass          | Artifact                                                                   | Commit     |
+| ------------- | -------------------------------------------------------------------------- | ---------- |
+| feature proof | [`d170-arc-feature-proof-claude.md`](d170-arc-feature-proof-claude.md)     | `3f0b8252` |
+| integrity     | [`d170-arc-integrity-claude.md`](d170-arc-integrity-claude.md)             | `55ef8488` |
+| cleanup       | [`d170-arc-cleanup-claude.md`](d170-arc-cleanup-claude.md)                 | `e4379bf9` |
+| DER           | [`../phase-24/d170-arc-der-claude.md`](../phase-24/d170-arc-der-claude.md) | `410b256f` |
 
 The DER artifact landed under `phase-24/` rather than this round's directory. Left where its own commit put it and linked from here rather than moved.
 
@@ -17,34 +17,34 @@ The DER artifact landed under `phase-24/` rather than this round's directory. Le
 
 Allocated from independently read high-water marks at `b73b6779`: `F-311`, `Q-18`, `I-37`. Nothing in this round mints an `I-`, and nothing mints a `D-`.
 
-| Canonical | Tier | Local | Claim |
-| --- | --- | --- | --- |
-| **F-312** | **A** | `rr-1` | The liveness reduction leaves a declared consumer slot (`settle`) invoked after logical closure |
-| **F-313** | B | `ir-1` + `dr-1` + `rr-6` | The `host` → `kernel` rename is incomplete against the entry's "wherever it is threaded", and reaches shipped `kernel.d.ts` |
-| **F-314** | B | `dr-2` | `tests/revision/phase-14.ts` states the D-41-deleted readiness API as shipped, under the new name |
-| **F-315** | B | `dr-3` | Live contract sections still state normative constraints over `KernelHost` |
-| **F-316** | B | `rr-2` | `RectIndexView` has no falsifier — its refusals hold but nothing keeps them true |
-| **F-317** | B | `rr-3` | Three of the four narrowing assertions the entry cites do not discriminate |
-| **F-318** | B | `rr-4` | Nothing pins the memoized `destroy()` identity through the shipped controller wrappers |
-| **F-319** | C | `rr-5` | Step 5's rename corrupted comment prose in two spec files |
-| **F-320** | C | `cr-1` | Two adjacent JSDoc blocks on `#movedLeaf` |
-| **F-321** | C | `cr-2` | Duplicate JSDoc block on `#resolveItem`, one copy corrupted |
-| **F-322** | C | `dr-4` | `LinearShift.refresh`'s stop arm re-retires a cache the callee already retired |
-| **F-323** | B | — | `npx just lint` is red at the tip, in files the range does not touch |
-| **Q-19** | — | `cr-3` | `#homeGap`, a single-call private method → Architect |
-| **Q-20** | — | `rr-1` | Is a feature-supplied `settle` a declared consumer slot under I-36? → Architect |
-| **Q-21** | — | `dr-4` | Should `LinearShift` own a stop on this path at all? → Architect |
+| Canonical | Tier  | Local                    | Claim                                                                                                                       |
+| --------- | ----- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| **F-312** | **A** | `rr-1`                   | The liveness reduction leaves a declared consumer slot (`settle`) invoked after logical closure                             |
+| **F-313** | B     | `ir-1` + `dr-1` + `rr-6` | The `host` → `kernel` rename is incomplete against the entry's "wherever it is threaded", and reaches shipped `kernel.d.ts` |
+| **F-314** | B     | `dr-2`                   | `tests/revision/phase-14.ts` states the D-41-deleted readiness API as shipped, under the new name                           |
+| **F-315** | B     | `dr-3`                   | Live contract sections still state normative constraints over `KernelHost`                                                  |
+| **F-316** | B     | `rr-2`                   | `RectIndexView` has no falsifier — its refusals hold but nothing keeps them true                                            |
+| **F-317** | B     | `rr-3`                   | Three of the four narrowing assertions the entry cites do not discriminate                                                  |
+| **F-318** | B     | `rr-4`                   | Nothing pins the memoized `destroy()` identity through the shipped controller wrappers                                      |
+| **F-319** | C     | `rr-5`                   | Step 5's rename corrupted comment prose in two spec files                                                                   |
+| **F-320** | C     | `cr-1`                   | Two adjacent JSDoc blocks on `#movedLeaf`                                                                                   |
+| **F-321** | C     | `cr-2`                   | Duplicate JSDoc block on `#resolveItem`, one copy corrupted                                                                 |
+| **F-322** | C     | `dr-4`                   | `LinearShift.refresh`'s stop arm re-retires a cache the callee already retired                                              |
+| **F-323** | B     | —                        | `npx just lint` is red at the tip, in files the range does not touch                                                        |
+| **Q-19**  | —     | `cr-3`                   | `#homeGap`, a single-call private method → Architect                                                                        |
+| **Q-20**  | —     | `rr-1`                   | Is a feature-supplied `settle` a declared consumer slot under I-36? → Architect                                             |
+| **Q-21**  | —     | `dr-4`                   | Should `LinearShift` own a stop on this path at all? → Architect                                                            |
 
 ## What was merged, and what was not
 
 **`F-313` merges three lenses** — integrity, DER and the feature proof each found the same incomplete rename and each saw a different fragment of it. They are one remediation unit: finish the rename. Consolidating their censuses, and extending it, gives the true size:
 
-| Where | Sites | Found by |
-| --- | --- | --- |
-| `sortable/behavior.ts`, `free-drag/behavior.ts` — the binding itself | 2 files, 15 code sites | integrity, DER, feature proof |
-| `src/kernel.ts`, `drag.ts`, `sortable.ts` — published authoring docblocks | 4 | DER |
-| `kernel.d.ts:13` — **shipped** | 1 | DER, feature proof |
-| `src/kernel/seams.ts` — live internal docblocks | 7 | **no pass; found at consolidation** |
+| Where                                                                     | Sites                  | Found by                            |
+| ------------------------------------------------------------------------- | ---------------------- | ----------------------------------- |
+| `sortable/behavior.ts`, `free-drag/behavior.ts` — the binding itself      | 2 files, 15 code sites | integrity, DER, feature proof       |
+| `src/kernel.ts`, `drag.ts`, `sortable.ts` — published authoring docblocks | 4                      | DER                                 |
+| `kernel.d.ts:13` — **shipped**                                            | 1                      | DER, feature proof                  |
+| `src/kernel/seams.ts` — live internal docblocks                           | 7                      | **no pass; found at consolidation** |
 
 The systemic cause the convergence points at: the rename was applied to the files the arc edited, and every site in a file the arc did not touch survived. That is why three lenses each saw a fragment and none saw all of it, and it is the reason the `seams.ts` sites were missed by every pass.
 

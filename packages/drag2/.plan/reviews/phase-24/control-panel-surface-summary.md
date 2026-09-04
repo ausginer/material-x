@@ -20,13 +20,13 @@ The passes are not in error and are not reopened. Each was asked about current r
 
 Allocated from the high-water marks in the **current** tree at `31ac5204` — `F-309`, `Q-17`, `I-37` — read per prefix and independently.
 
-| Local | Canonical | Tier | Routing |
-| --- | --- | --- | --- |
-| `cleanup` (whole pass) | — | — | null result, accepted; candidate 1 superseded as above |
-| `der-1` | **F-310** | C | implementer, non-blocking |
-| `der-2` | **F-311** | C | implementer, non-blocking |
-| `der` (cleared table) | — | — | null result, accepted |
-| `der`'s `ConstraintView` note | **Q-18** | — | Architect |
+| Local                         | Canonical | Tier | Routing                                                |
+| ----------------------------- | --------- | ---- | ------------------------------------------------------ |
+| `cleanup` (whole pass)        | —         | —    | null result, accepted; candidate 1 superseded as above |
+| `der-1`                       | **F-310** | C    | implementer, non-blocking                              |
+| `der-2`                       | **F-311** | C    | implementer, non-blocking                              |
+| `der` (cleared table)         | —         | —    | null result, accepted                                  |
+| `der`'s `ConstraintView` note | **Q-18**  | —    | Architect                                              |
 
 **The frozen branch's allocation is withdrawn.** It read `F-307` as the high-water mark and assigned `F-308` and `F-309`; the concurrent Architect line has since minted both for different findings — `F-308`, the contract stating a type-level narrowing as a runtime impossibility, and `F-309`, `RectIndex`'s ownership docblock justifying its accessors as protection against mutation. Neither is this round's. The two surviving findings are `F-310` and `F-311`, and no earlier document should be read as assigning them anything else.
 
