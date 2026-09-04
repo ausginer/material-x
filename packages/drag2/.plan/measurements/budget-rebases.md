@@ -734,3 +734,17 @@ Measured against `55eaaf1b` with box-quad rebuilt in both states — the depende
 **The five re-based rows are the ones this pass deliberately reached, and the rows that stayed are the result.** Both edits are kernel-tier or free-drag-tier, so all four free-drag compositions and `kernel root` are inside the change and are re-declared at the landed figure; §18 asks for exactly that rather than for a control to be defended. **The six sortable-side rows and both baselines did not move at all**, and neither did `vocabulary root`, `both behaviors` or baseline A — a `kernel.js` that grew by 2 B while `both behaviors` and every sortable composition stayed put is the compressor absorbing one branch into structure those graphs already carry.
 
 **The signs are not noise and they are not interesting.** A guard costs two bytes in the one graph small enough to show it and nothing where more context is available to the compressor; a six-character literal shrinks the graph that carries it by five and grows two others by one and two, which is Brotli's window shifting rather than anything entering or leaving. **No module entered or left any graph**: 31/30/32/31/33/34, 25/26/27/28/45, 2/14/29/26 — identical to `a92d46ba`.
+
+**Re-based 2026-09-04, D-180's Arc A — the execution bracket's extraction.** Measured against `2e485eb4`, full table and the move-path null result in [`arc-a.md`](arc-a.md). One module enters every graph that carries the kernel, at **+270 B minified** on each of them; no budget moved and every row is 0.07 to 0.11 kB under its ceiling.
+
+| Row | `2e485eb4` | landed | Δ | budget |
+| --- | --- | --- | --- | --- |
+| free drag minimal | 8,111 | 8,166 | **+55** | 8,266 |
+| free drag + bounds | 8,274 | 8,327 | **+53** | 8,423 |
+| free drag + landing | 8,277 | 8,338 | **+61** | 8,425 |
+| free drag complete | 8,423 | 8,479 | **+56** | 8,576 |
+| kernel root — `kernel.js` | 6,164 | 6,218 | **+54** | 6,312 |
+
+**These five were declared in advance as rows this pass would reach, which is the only thing that makes re-declaring them legitimate.** They carry controls set by passes on the free-drag and sortable sides; the bracket is kernel-tier, and every one of them carries `kernel/kernel.js`, so for this pass they are inside the change rather than outside it. **The rows that stayed are the result**: `vocabulary root — drag.js` and baseline B are byte-identical, and they are the two rows carrying no kernel.
+
+**A growing pass does not re-base its ceilings**, and none moved here. Slack narrowed from 0.12–0.17 kB to 0.07–0.11 kB, which is the instrument keeping its sensitivity rather than losing it.
