@@ -286,6 +286,18 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     "raised by the owner's correction to F-305: the cache's accessors are justified as protection against mutation",
   ],
   [
+    'F-310',
+    "raised by the control-panel der pass: `thenOf`'s one-caller clause grounds itself in a gate D-41 deleted",
+  ],
+  [
+    'F-311',
+    'raised by the control-panel der pass: two release-path comments justify a shape by an absent protocol',
+  ],
+  [
+    'Q-18',
+    'raised by the control-panel der pass: whether `ConstraintView` is a context or a materialized projection',
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],

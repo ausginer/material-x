@@ -1,5 +1,7 @@
 # The kernel implements the behavior-facing interface, and the façade object goes
 
+**The interface is named `BehaviorContext`, not `BehaviorKernel`** — owner correction, 2026-09-07, settled in [`f309-q18-context-and-view-claude.md`](f309-q18-context-and-view-claude.md) §1. Every substantive conclusion below stands; read `BehaviorKernel` as `BehaviorContext` throughout. This record is dated provenance and is not rewritten.
+
 **Owner correction to F-305 and to D-170 §The ownership boundary**, against `f375e6b1`. The governing policy is the owner's and is not re-argued here:
 
 > The project does not treat deliberate JavaScript access, casts or reflection around a TypeScript boundary as a threat that runtime machinery must prevent. Receiving an object through a narrower TypeScript interface is an accepted boundary; deliberately escaping it is governed by "do not do that".
