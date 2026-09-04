@@ -2298,6 +2298,24 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-04 — the reading goes before the consumer call, and `#abort()` is the stop rather than the cleanup (D-170 §The ownership boundary amended, F-301/F-302 closed, F-303/F-304)
+
+**Architect. Record [`d170-refresh-liveness-placement-claude.md`](reviews/phase-24/d170-refresh-liveness-placement-claude.md).** Nothing implemented; step 1a and step 2 unstarted; the ownership rules are not revisited and the lint gate is untouched.
+
+**Four readings, one obligation.** `refresh` reads the latch at entry, after `getBox`, after the candidate's `getBoundingClientRect` and after the placeholder's — `2N + 2` with a resolver composed, `N + 2` without. Under D-37 and I-36 the forbidden acts are declared-slot invocation, admission and publication; a geometry read on a consumer-owned node is none of them. **The minimum is one reading immediately before each `getBox`**: `N` with a resolver and **zero** in a composition naming neither `box` nor `visual`, which invokes no declared slot in this loop at all.
+
+**Placement, not count, is the substance** (F-302). A reading _after_ a slot call cannot see a close raised _after_ it, so the post-`getBox` reading does not cover an overridden `getBoundingClientRect` between two candidates; the post-geometry reading does, but only because nothing that can close currently follows it — correct by ordering rather than by rule. Before each declared-slot invocation is the placement under which the entry reading and the per-candidate reading are the same rule, and under which the rule survives an inserted statement.
+
+**The two that retire are the withdrawn ceiling**, and their internal residue is discharged by the bracket — checked rather than assumed: `spec.ts`'s `retire()` walks `slots.retireHooks`, and `assemble.ts` pushes `axis.insertion.retire` into it, so teardown reaches this cache. Publication is kernel-owned and discharged by `preparationValid`, `runAdmission`'s post-callback recheck, `settlementLive` and `joinLive`.
+
+**`remeasureHole` takes no `live` and cannot fail** — it reads a consumer-owned node's overridable member, which is not a declared slot, and writes three internal fields — so the API published in §The ownership boundary is corrected to `remeasureHole(placeholder, start, end, centre): void` and `linear-shift.refresh` loses the abort arm in its `hollow` branch.
+
+**`#abort()` survives with its rationale inverted** (F-301). It claims teardown has already run `retire()`; D-36 defers teardown to the outermost transaction boundary, so it has not. The property still holds for the reason underneath: the warm return is taken **before any reading**, and inside the deferral window a further `refresh` at the same version is reachable — so the warm path is safe because `#abort()` never leaves a closed rebuild clean. What it must restore is the staleness pair; its terminal `false` is the stop rather than the cleanup, because for a call the consequence _is_ the call. With one reading it has one call site, so the shared-exit justification goes.
+
+**Two landed browser cases fail under this, and that is the measurement** (F-303). Both drive the no-resolver composition, where nothing is owed, and pin the geometry ceiling and an I-20 retention the bracket discharges. They are retargeted rather than deleted silently; two more pass for a reason their prose does not state. Two sites of the same class in immediate callers are named and left open (F-304) rather than settled by extension, which is how the pre-D-37 ceiling grew.
+
+---
+
 ### 2026-09-04 — an entity owns what it mutates, and the alias it is published behind is the class (D-170 §The ownership boundary, Q-17 resolved, F-297…F-299 closed, F-300)
 
 **Architect. Record [`d170-entity-ownership-boundary-claude.md`](reviews/phase-24/d170-entity-ownership-boundary-claude.md).** Nothing implemented; steps 2 to 6 unstarted; the lint gate untouched.

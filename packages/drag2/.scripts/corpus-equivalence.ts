@@ -250,6 +250,22 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     'raised by D-170 §The ownership boundary: whether the entity-ownership rule belongs in CONTRIBUTING §10 is deferred to step 6',
   ],
   [
+    'F-301',
+    'raised by the owner against D-170 §The ownership boundary: `#abort()` justifies itself with a teardown D-36 defers',
+  ],
+  [
+    'F-302',
+    'raised by the owner against D-170 §The ownership boundary: four liveness readings where the contract owes one placement',
+  ],
+  [
+    'F-303',
+    'raised by D-170 §The ownership boundary: two browser cases pin the whole-program ceiling D-37 withdrew',
+  ],
+  [
+    'F-304',
+    "raised by D-170 §The ownership boundary: two readings in the cache's immediate callers are unadjudicated",
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],
