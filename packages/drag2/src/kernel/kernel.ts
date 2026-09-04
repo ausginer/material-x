@@ -21,6 +21,7 @@ import {
   UP,
 } from './actions.ts';
 import { DraggableError, DraggableWarning, type Notify } from './errors.ts';
+import { ExecutionBracket } from './execution.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -74,7 +75,6 @@ import {
   POINTER_MOVE,
   POINTER_UP,
 } from './protocol.ts';
-import { clearQueue, createActionQueue, drain, enqueue } from './queue.ts';
 import { createRealm, type DOMRealm } from './realm.ts';
 import {
   SeamDriver,
@@ -328,7 +328,32 @@ export class Kernel<
   /** The ingress boundary passed to `draggable()`. */
   readonly root: HTMLElement;
 
-  readonly #queue = createActionQueue();
+  /* ---- the execution bracket ---- */
+
+  /**
+   * The terminal latch, the queue and its semantics, and deferred teardown, in
+   * the one entity that states their invariants. `#private`, so the kernel's
+   * public surface is unchanged by holding it.
+   *
+   * Its four callbacks are the only edges back into the kernel, and each is
+   * allocated once per controller: the per-action and per-sample paths through
+   * the bracket allocate nothing.
+   */
+  readonly #bracket = new ExecutionBracket(
+    (action, argument) => {
+      this.#handle(action, argument);
+    },
+    (error) => {
+      this.#panic(error);
+    },
+    () => {
+      this.#runPhysicalTeardown();
+    },
+    () => {
+      this.#begin();
+    },
+  );
+
   readonly #ingress = new AbortController();
 
   #spec: BehaviorSpec<Part, Activation> | null = null;
@@ -397,7 +422,7 @@ export class Kernel<
    * the code refused to make.
    */
   #notify(error: DraggableError | DraggableWarning, afterClose = false): void {
-    if (this.#queue.closed && !afterClose) {
+    if (this.#bracket.closed && !afterClose) {
       return;
     }
 
@@ -431,29 +456,6 @@ export class Kernel<
    */
   readonly #unwind = createUnwind(this.#report);
 
-  /* ---- the transaction bracket ---- */
-
-  /**
-   * How many library transactions are open on the stack.
-   *
-   * A *library transaction* is one synchronous entry into kernel code from
-   * outside it: a native ingress pass, a drain, an async continuation that
-   * dispatches. Nesting is real — a consumer callback inside a drain can
-   * dispatch again, and an admission resolver can open a second ingress — so
-   * the boundary that owns deferred teardown is the **outermost** one, which is
-   * what a depth counter names and a boolean cannot.
-   */
-  #transactionDepth = 0;
-  /** A logical close is done and its physical teardown is owed to the boundary. */
-  #teardownPending = false;
-  /**
-   * The promise `destroy()` hands back, allocated on the first call and
-   * returned by every later one, so repeated destruction is idempotent and
-   * every returned promise still settles exactly once.
-   */
-  #destroyed: Promise<void> | null = null;
-  #settleDestroyed: (() => void) | null = null;
-
   /**
    * True while a checkpoint's report transition is running — including its
    * `prepare`, which is *before* `REPORTING` is committed and therefore before
@@ -482,25 +484,6 @@ export class Kernel<
    */
   #armedStamp: ArmedStamp = NO_STAMP;
   #stamp: ArmedStamp = NO_STAMP;
-
-  /**
-   * True for the whole of native admission — `admit`, its consumer-supplied
-   * handle and visual resolvers, and the frame write that publishes `PENDING`.
-   *
-   * **Admission is a queue boundary.** It is the one transaction the kernel
-   * drives outside the seam driver: it mutates the draft directly and commits
-   * at the end, so the driver's re-entry refusal cannot see it. A resolver that
-   * calls `invalidate()` reaches `dispatchKernel`, and draining there would run
-   * a behavior action — `begin()`, `commit()`, a frame swap — *underneath* a
-   * half-written admission, publishing the action's frame and then having
-   * admission commit the stale one over it.
-   *
-   * So dispatch enqueues and returns while this is set, and the boundary drains
-   * once, after admission has either committed or abandoned. `destroy()` is
-   * unaffected: it is not queued, so it stays a synchronous terminal barrier,
-   * and the queue it closes drops everything a resolver appended.
-   */
-  #admitting = false;
 
   /** The behavior action being run. Safe as a slot: seams are non-reentrant. */
   #actionTag = 0;
@@ -562,7 +545,7 @@ export class Kernel<
     // for it — set on the statement after it and never cleared either — so the
     // extra conjunct is unconditionally true beside it.
     return (
-      !this.#queue.closed &&
+      !this.#bracket.closed &&
       !this.#operation?.cancelRequest &&
       this.#current.operation === this.#pinned
     );
@@ -709,20 +692,17 @@ export class Kernel<
   }
 
   /**
-   * Steps 2–7 of teardown.
+   * Steps 3–7 of teardown, invoked by the bracket once it has released its own
+   * storage in step 2.
    *
    * Totality is a property of the sequence *wherever it runs*, not of the stack
-   * that called `destroy()`: each attempt cleanup is individually wrapped in
+   * that requested closure: each attempt cleanup is individually wrapped in
    * step 3, each frame reset in step 6, and ingress abort is in a `finally` at
    * step 7, so no behavior callback can stop a later step at the boundary any
    * more than it could on the closing stack.
    */
   #runPhysicalTeardown(): void {
     try {
-      // 2. drop every retained argument, so a queued element cannot outlive the
-      //    drain that abandoned it.
-      clearQueue(this.#queue);
-
       // 3–6.
       if (this.#spec) {
         this.#retireAttempts();
@@ -749,61 +729,20 @@ export class Kernel<
       //    click suppressor is disarmed by the abort's own signal.
       this.#cancelTail();
       this.#ingress.abort();
-
-      const settle = this.#settleDestroyed;
-
-      if (settle) {
-        this.#settleDestroyed = null;
-        settle();
-      }
     }
   }
 
   /**
-   * Logical closure is **immediate**; physical teardown is **deferrable**.
+   * Step 1 of teardown: the latch, which the bracket sets on the closing
+   * statement itself. Steps 3–7 come back through the teardown callback, either
+   * immediately or at the outermost transaction boundary.
    *
-   * The latch is set on this statement, not at the end of a seven-step
-   * sequence, so from here on every guard fails, nothing is admitted, and no
-   * declared consumer slot is invoked. `destroy()` does not promise that
-   * physical release completes before it returns — only that the latch is set,
-   * and the resource release may be one transaction late.
-   *
-   * Outside a reentrant transaction the two events coincide, which makes
-   * immediate physical release the common case rather than the guarantee.
+   * This call does not promise that physical release completes before it
+   * returns — only that the latch is set, and the resource release may be one
+   * transaction late.
    */
   destroy(): Promise<void> {
-    this.#destroyed ??= new Promise<void>((resolve) => {
-      this.#settleDestroyed = resolve;
-    });
-
-    if (!this.#queue.closed) {
-      // 1. every guard now fails, on the closing statement itself.
-      this.#queue.closed = true;
-
-      if (this.#transactionDepth === 0) {
-        this.#runPhysicalTeardown();
-      } else {
-        this.#teardownPending = true;
-      }
-    }
-
-    return this.#destroyed;
-  }
-
-  /**
-   * Runs deferred teardown when the **outermost** transaction closes.
-   *
-   * Read at the boundary rather than latched at entry: a `destroy()` raised
-   * from anywhere inside the transaction — including one nested many frames
-   * deep — is owed teardown by this frame and no other.
-   */
-  #leaveTransaction(): void {
-    this.#transactionDepth -= 1;
-
-    if (this.#transactionDepth === 0 && this.#teardownPending) {
-      this.#teardownPending = false;
-      this.#runPhysicalTeardown();
-    }
+    return this.#bracket.close();
   }
 
   /**
@@ -835,47 +774,9 @@ export class Kernel<
    * controller and a failed `requestAnimationFrame` would become
    * indistinguishable to a consumer.
    */
-  /**
-   * The drain's two arguments, bound once per kernel.
-   *
-   * **Wrapped, not detached.** {@link drain} calls both with no receiver, and
-   * it runs once per queued action — so the closures are fields rather than
-   * expressions at the two call sites, and the per-action path allocates
-   * nothing.
-   */
-  readonly #drainStep = (action: number, argument: unknown): void => {
-    this.#handle(action, argument);
-  };
-
-  readonly #drainPanic = (error: unknown): void => {
-    this.#panic(error);
-  };
-
   #panic(error: unknown): void {
     void this.destroy();
     this.#notify(new DraggableError(null, error), true);
-  }
-
-  #dispatchKernel(action: number, argument: unknown): void {
-    if (this.#queue.closed) {
-      return;
-    }
-
-    enqueue(this.#queue, action, argument);
-
-    if (this.#admitting) {
-      return; // the admission boundary owns the drain
-    }
-
-    this.#transactionDepth += 1;
-
-    try {
-      // Re-entrant calls return immediately: the outermost frame owns the drain
-      // and reaches the newly appended work in the same pass.
-      drain(this.#queue, this.#drainStep, this.#drainPanic);
-    } finally {
-      this.#leaveTransaction();
-    }
   }
 
   /**
@@ -886,7 +787,7 @@ export class Kernel<
    */
   #cancelWith(reason: unknown, origin: CancelOrigin): void {
     if (
-      this.#queue.closed ||
+      this.#bracket.closed ||
       !this.#current.operation ||
       this.#operation!.cancelRequest
     ) {
@@ -894,7 +795,7 @@ export class Kernel<
     }
 
     this.#operation!.cancelRequest = { reason, origin };
-    this.#dispatchKernel(CANCEL, this.#current.operation);
+    this.#bracket.dispatch(CANCEL, this.#current.operation);
   }
 
   /**
@@ -940,7 +841,7 @@ export class Kernel<
     // and the checkpoint still runs ahead of it at `FINALIZING`, so the
     // consumer gets both `onCancel` and `onError` for one operation.
     if (
-      this.#queue.closed ||
+      this.#bracket.closed ||
       !identity ||
       this.#operation!.cancelRequest ||
       this.#reporting ||
@@ -960,7 +861,7 @@ export class Kernel<
     // to the drain that is already running, but one raised from an *async*
     // continuation is the outermost frame, and nothing else would ever drain
     // it.
-    this.#dispatchKernel(FAILED, {
+    this.#bracket.dispatch(FAILED, {
       stage,
       error,
       operation: identity,
@@ -1031,10 +932,10 @@ export class Kernel<
 
     switch (event.type) {
       case POINTER_MOVE:
-        this.#dispatchKernel(MOVE, event);
+        this.#bracket.dispatch(MOVE, event);
         break;
       case POINTER_UP:
-        this.#dispatchKernel(UP, event);
+        this.#bracket.dispatch(UP, event);
         break;
       // **Two DOM spellings of one fact** — the pointer stream ended without a
       // drop — so they share an arm rather than being told apart. The platform
@@ -1131,7 +1032,7 @@ export class Kernel<
     // handle and visual resolvers during native dispatch, and a resolver can
     // close over the already-returned controller and synchronously destroy it.
     // Without this recheck a terminal controller publishes a new operation.
-    return this.#queue.closed || this.#current.operation ? null : admitted;
+    return this.#bracket.closed || this.#current.operation ? null : admitted;
   }
 
   /**
@@ -1239,70 +1140,41 @@ export class Kernel<
     );
 
     if (admitted && this.#mintOperation(admitted, -1, 0, 0)) {
-      this.#dispatchKernel(ACTIVATE, this.#current.operation);
+      this.#bracket.dispatch(ACTIVATE, this.#current.operation);
     }
   }
 
   /**
-   * The ingress queue boundary, shared by **both** listeners.
+   * The kernel's half of the ingress boundary, shared by **both** listeners.
    *
-   * `admitting` is checked **first and here**, not one line later, because
-   * everything below this guard is already too late. A handle or visual
-   * resolver runs inside an admission member, and a resolver that dispatches a
-   * second ingress event re-enters this function synchronously with the outer
-   * transaction half-written — and `current.operation` is still `null`, because
-   * the outer admission has not committed, so the ordinary guard waves it
-   * straight through.
+   * **The operation guard is a precondition of the call, and it is the only
+   * check that may stand here.** The re-entry refusal is the bracket's, and it
+   * has to be, because everything below it is already too late: a handle or
+   * visual resolver runs inside an admission member, and a resolver that
+   * dispatches a second ingress event re-enters this function synchronously
+   * with the outer transaction half-written — while `current.operation` is
+   * still `null`, because the outer admission has not committed, so the
+   * ordinary guard waves it straight through.
    *
    * The nested pass would then `begin()` (rebuilding the draft the outer member
    * was handed by reference), run the member a second time, mint an identity,
    * arm ingress, and commit its own origin. Control returns to the outer
    * member, which finishes writing *its* item and visual into the object that
    * is now `current` — publishing an operation with one press's coordinates and
-   * the other's behavior state.
+   * the other's behavior state. So `begin` is handed to the bracket and runs
+   * only on a pass the bracket did not refuse; nothing consumer-reachable sits
+   * between the guard here and the guards there.
    *
-   * The latch is **one across both listeners**, which is what makes a
+   * The bracket's latch is **one across both listeners**, which is what makes a
    * `pointerdown` dispatched from inside `command.admit`, and a `keydown`
    * dispatched from inside `admit`, refused by the same rule.
-   *
-   * Refusing before any of that keeps the boundary's ownership intact too: the
-   * nested call never reaches the `finally` that clears `admitting`. Behavior
-   * actions are unaffected — they are still deferred and drained by the
-   * boundary — and `destroy()` is not queued at all, so it remains a
-   * synchronous terminal barrier.
    */
   #openIngress(admit: () => void): void {
-    if (this.#queue.closed || this.#admitting || this.#current.operation) {
+    if (this.#current.operation) {
       return;
     }
 
-    // A native ingress pass is a library transaction in its own right, and it
-    // is one the queue cannot see: this function runs *outside* the drain, so a
-    // `destroy()` raised by an admission resolver would otherwise tear down
-    // physically with the outer admission still half-written.
-    this.#transactionDepth += 1;
-    this.#begin();
-    this.#admitting = true;
-
-    try {
-      try {
-        admit();
-      } finally {
-        // Cleared in a `finally` so a throw escaping admission — a panicking
-        // resolver, a re-entry refusal — cannot leave every later dispatch
-        // silently queued with nothing to drain it.
-        this.#admitting = false;
-      }
-
-      // Whatever a resolver dispatched now runs against the committed outcome
-      // of admission: `PENDING` when it was admitted, `IDLE` when it was
-      // refused, nothing at all when the resolver destroyed the controller.
-      if (!this.#queue.closed) {
-        drain(this.#queue, this.#drainStep, this.#drainPanic);
-      }
-    } finally {
-      this.#leaveTransaction();
-    }
+    this.#bracket.runIngress(admit);
   }
 
   /**
@@ -1414,7 +1286,7 @@ export class Kernel<
       // `activation.effect` invokes the consumer's `onStart` last, and that
       // callback may cancel or destroy.
       if (this.#preparationValid()) {
-        this.#dispatchKernel(START_COMMITTED, this.#current.operation);
+        this.#bracket.dispatch(START_COMMITTED, this.#current.operation);
       }
     },
   };
@@ -1602,7 +1474,7 @@ export class Kernel<
   #settlementLive(attempt: SettlementAttempt): boolean {
     return (
       this.#attempts.settlement === attempt &&
-      !this.#queue.closed &&
+      !this.#bracket.closed &&
       !this.#operation?.cancelRequest &&
       this.#current.operation !== null &&
       this.#current.phase === SETTLING
@@ -1618,7 +1490,7 @@ export class Kernel<
    */
   #joinLive(): boolean {
     return (
-      !this.#queue.closed &&
+      !this.#bracket.closed &&
       this.#current.operation !== null &&
       this.#current.phase === FINALIZING
     );
@@ -1868,7 +1740,7 @@ export class Kernel<
     // dispatched from inside it and so lands *behind* this entry. The
     // retirement therefore always intervenes, and it is that second terminal
     // which arrives stale. Exactly one `onEnd` on this path is that ordering.
-    this.#dispatchKernel(RETIRE, this.#current.operation);
+    this.#bracket.dispatch(RETIRE, this.#current.operation);
   }
 
   /**
@@ -1918,14 +1790,14 @@ export class Kernel<
     if (
       attempt.completed ||
       this.#attempts.resolution !== attempt ||
-      this.#queue.closed
+      this.#bracket.closed
     ) {
       return;
     }
 
     attempt.completed = true;
     attempt.settlement = input;
-    this.#dispatchKernel(RESOLUTION_SETTLED, attempt);
+    this.#bracket.dispatch(RESOLUTION_SETTLED, attempt);
   }
 
   /**
@@ -2287,7 +2159,7 @@ export class Kernel<
     // `onStart` and anything it dispatched drain first, exactly as they would
     // before a press's own release.
     if (this.#current.pointerId === -1) {
-      this.#dispatchKernel(RELEASE, this.#current.operation);
+      this.#bracket.dispatch(RELEASE, this.#current.operation);
     }
   }
 
@@ -2403,7 +2275,7 @@ export class Kernel<
       // The **whole checkpoint**, not just its operation: the terminal this
       // path now owes is skipped for exactly one stage, and the reader of that
       // rule needs the stage to apply it.
-      this.#dispatchKernel(ERROR_REPORTED, checkpoint);
+      this.#bracket.dispatch(ERROR_REPORTED, checkpoint);
       return;
     }
 
@@ -2489,7 +2361,7 @@ export class Kernel<
       // is false on this route by construction, so reusing it would skip the
       // terminal for *every* classified failure, retracting the rule that a
       // consequential failure of a started operation still publishes one end.
-      if (!this.#queue.closed) {
+      if (!this.#bracket.closed) {
         // A throw here reaches `failOperation`, which sees `REPORTING` and
         // takes the non-consequential channel — so a terminal that fails on the
         // failure path is reported without queueing a second checkpoint for an
@@ -2582,11 +2454,11 @@ export class Kernel<
    * liveness answer, which is the failure mode the whole invariant is about.
    */
   get closed(): boolean {
-    return this.#queue.closed;
+    return this.#bracket.closed;
   }
 
   dispatch(tag: number, argument: unknown): void {
-    if (this.#queue.closed) {
+    if (this.#bracket.closed) {
       return;
     }
 
@@ -2605,7 +2477,7 @@ export class Kernel<
       return;
     }
 
-    this.#dispatchKernel(BEHAVIOR_BASE + tag, argument);
+    this.#bracket.dispatch(BEHAVIOR_BASE + tag, argument);
   }
 
   fail(stage: FailureStage, error: unknown): void {

@@ -4050,7 +4050,7 @@ describe('arbitrary thenables', () => {
 });
 
 /**
- * **The transaction bracket** (D-36, D-38, D-53; probe A).
+ * **The execution bracket** (D-36, D-38, D-53; probe A).
  *
  * Logical closure and physical teardown were one event until Revision 2, and
  * separating them is the change every other liveness rule in the contract now
@@ -4059,7 +4059,7 @@ describe('arbitrary thenables', () => {
  * library transaction ends, and that the two are observably different from
  * inside a reentrant destroy — which is the only place the difference exists.
  */
-describe('the transaction bracket', () => {
+describe('the execution bracket', () => {
   it('should run physical teardown immediately outside a transaction', () => {
     const harness = createHarness();
 

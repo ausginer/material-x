@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { DraggableError, DraggableWarning } from '../../src/kernel/errors.ts';
+import { ExecutionBracket } from '../../src/kernel/execution.ts';
 import {
   FAILURE_ACTIVATION,
   FAILURE_RELEASE,
@@ -8,7 +9,6 @@ import {
 } from '../../src/kernel/failures.ts';
 import { frame, type Draft, type Frame } from '../../src/kernel/frames.ts';
 import { ACTIVE, IDLE } from '../../src/kernel/phases.ts';
-import { createActionQueue, drain, enqueue } from '../../src/kernel/queue.ts';
 import {
   SeamDriver,
   runActivationSeam,
@@ -1368,14 +1368,13 @@ describe('seams driven through the action queue', () => {
     panics: readonly unknown[];
   }> {
     const harness = createHarness();
-    const queue = createActionQueue();
     const order: string[] = [];
     const staged: unknown[] = [];
     const panics: unknown[] = [];
 
-    // `handle` and `dispatch` are mutually recursive: that is the point — a
-    // seam reaches back into the kernel, and the kernel must queue it.
-    let dispatch: (action: number, argument: unknown) => void;
+    // `handle` and the bracket are mutually recursive: that is the point — a
+    // seam reaches back into the kernel, and the bracket must queue it.
+    let bracket: ExecutionBracket;
 
     const handle = (action: number, argument: unknown): void => {
       order.push(`enter:${action}`);
@@ -1385,7 +1384,7 @@ describe('seams driven through the action queue', () => {
           effect(): void {
             // Behavior code reaching back into the kernel mid-seam.
             if (typeof argument === 'number') {
-              dispatch(argument, null);
+              bracket.dispatch(argument, null);
             }
           },
         }),
@@ -1400,12 +1399,22 @@ describe('seams driven through the action queue', () => {
       panics.push(error);
     };
 
-    dispatch = (action: number, argument: unknown): void => {
-      enqueue(queue, action, argument);
-      drain(queue, handle, panic);
-    };
+    bracket = new ExecutionBracket(
+      handle,
+      panic,
+      () => {},
+      () => {},
+    );
 
-    return { dispatch, driver: harness.driver, order, staged, panics };
+    return {
+      dispatch: (action: number, argument: unknown): void => {
+        bracket.dispatch(action, argument);
+      },
+      driver: harness.driver,
+      order,
+      staged,
+      panics,
+    };
   }
 
   it('should queue a dispatch raised inside a seam rather than nesting it', () => {
