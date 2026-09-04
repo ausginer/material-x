@@ -77,7 +77,7 @@ import {
 import { clearQueue, createActionQueue, drain, enqueue } from './queue.ts';
 import { createRealm } from './realm.ts';
 import {
-  createSeamDriver,
+  SeamDriver,
   runActivationSeam,
   runReleaseSeam,
   SEAM_COMMITTED,
@@ -888,7 +888,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     notify,
   };
 
-  const driver = createSeamDriver<Part>(context);
+  const driver = new SeamDriver<Part>(context);
 
   /**
    * Drops whatever a seam staged, for the seams the kernel drives directly.
@@ -2396,7 +2396,12 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
       dispatchKernel(BEHAVIOR_BASE + tag, argument);
     },
-    fail: driver.requestFailure,
+    // **Wrapped, not detached.** `host` is a capability façade composed from
+    // four owners and handed to behavior code, which calls this member with no
+    // receiver of its own; a bare prototype read would arrive without one.
+    fail: (stage, error) => {
+      driver.requestFailure(stage, error);
+    },
 
     cancel,
     destroy,

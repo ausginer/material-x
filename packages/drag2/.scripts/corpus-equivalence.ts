@@ -266,6 +266,10 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     "raised by D-170 §The ownership boundary: two readings in the cache's immediate callers are unadjudicated",
   ],
   [
+    'F-305',
+    "raised by D-170's implementation: two clauses disagree about whether `KernelHost` becomes the class",
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],

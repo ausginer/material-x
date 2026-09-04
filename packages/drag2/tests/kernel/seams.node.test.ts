@@ -10,7 +10,7 @@ import { frame, type Draft, type Frame } from '../../src/kernel/frames.ts';
 import { ACTIVE, IDLE } from '../../src/kernel/phases.ts';
 import { createActionQueue, drain, enqueue } from '../../src/kernel/queue.ts';
 import {
-  createSeamDriver,
+  SeamDriver,
   runActivationSeam,
   runReleaseSeam,
   SEAM_COMMITTED,
@@ -19,7 +19,6 @@ import {
   SEAM_INVALIDATED,
   SEAM_PREPARE_FAILED,
   type SeamContext,
-  type SeamDriver,
   type Transition,
 } from '../../src/kernel/seams.ts';
 
@@ -87,7 +86,7 @@ function createHarness(): Harness {
   };
 
   return {
-    driver: createSeamDriver(context),
+    driver: new SeamDriver(context),
     context,
     failures,
     warnings,

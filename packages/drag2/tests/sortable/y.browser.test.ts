@@ -359,11 +359,15 @@ describe('the terminal barrier in the candidate loop', () => {
   });
 
   it('should read no placeholder geometry once the controller closes', () => {
-    // The half a stopped resolver list does not prove. The placeholder is the
-    // **consumer's** element and may override `getBoundingClientRect()`, so
-    // measuring the incumbent after the close is an indirect consumer call
-    // (I-36), not merely wasted layout work. `refresh` reports the abort and
-    // the axis returns before it measures.
+    // **It passes because a candidate remained**, and the reading before that
+    // candidate's `visual()` is what stops the rebuild — not because measuring
+    // the placeholder is itself forbidden after a close. Measuring a
+    // consumer-owned node is a platform read rather than a declared-slot
+    // invocation, so the property this pins is the *shortest* stop: a close
+    // raised inside the loop is caught before the next declared call, and the
+    // trailing placeholder read is never reached because the loop never
+    // finishes. Close on the **last** candidate and the rebuild completes, by
+    // design; that case is below.
     const field = createField(4);
     const asked: HTMLElement[] = [];
     let alive = true;
@@ -392,11 +396,11 @@ describe('the terminal barrier in the candidate loop', () => {
   });
 
   it('should leave the cache retired rather than clean and partial', () => {
-    // The half a `break` gets wrong. `destroy()` has already run `retire()` on
-    // this cache; falling through to the trailing bookkeeping would mark a
-    // half-filled index clean at the snapshot's own version, so the **same**
-    // version below would find it warm, skip the rebuild and keep pinning the
-    // rows of a destroyed controller (I-20).
+    // The half a `break` gets wrong. Teardown is deferred to the outermost
+    // transaction boundary, so at this instant the retire hooks have **not**
+    // run; falling through to the trailing bookkeeping would mark a half-filled
+    // index clean at the snapshot's own version, and the **same** version below
+    // would then find it warm, skip the rebuild and serve a partial buffer.
     const field = createField(4);
     const asked: HTMLElement[] = [];
     let alive = true;
@@ -424,20 +428,21 @@ describe('the terminal barrier in the candidate loop', () => {
 });
 
 /**
- * I-36's **indirect-invocation clause** (contract 05 I-36, C3-03 §3.2), on the
- * call the first two barrier passes stopped one step short of (C4-01).
+ * **A close raised from a candidate's own geometry read**, and what the rule is
+ * — and is not — obliged to do about it.
  *
- * The pre-C4-01 barrier stood between the `visual()` resolver and the
- * candidate's `getBoundingClientRect()`. That read is itself a consumer call —
- * the candidate is the consumer's element, and with no `visual()` composed it
- * is also its own visual — so a destroy raised from it fell through to the
- * write, to the next candidate's resolver, and, on the **last** candidate, to
- * the trailing bookkeeping that marks a retired cache clean and measured.
+ * The obligation is over **declared consumer slots**: `visual()` must not be
+ * invoked once the controller has closed. A candidate's
+ * `getBoundingClientRect()` is a platform member on a consumer-owned node, so a
+ * close raised from inside one is caught by the reading before the **next**
+ * `visual()` — which is the discriminating case, and the only one.
  *
- * The last candidate is therefore the discriminating one, and the cases below
- * use it: an earlier candidate's destroy was already caught by the next
- * iteration's reading. Every assertion is a call list on the instrumented
- * element; the frame is discarded upstream regardless.
+ * On the **last** candidate there is no next invocation, so nothing is owed and
+ * the rebuild completes: the buffer is whole, the placeholder is read once, and
+ * the cache is clean at a version whose data is right. The cases below pin that
+ * as the outcome. They previously pinned its opposite, against a whole-program
+ * ceiling on consumer calls that has since been withdrawn, and they are
+ * retargeted here rather than deleted so the reversal stays visible.
  */
 describe('the terminal barrier on candidate geometry', () => {
   /**
@@ -465,11 +470,11 @@ describe('the terminal barrier on candidate geometry', () => {
     }
   };
 
-  it('should read no placeholder geometry once the last candidate closed the controller', () => {
-    // No `visual()` composed — the composition the review named, and the one
-    // that could not abort at all before C4-01. The placeholder is
-    // consumer-owned, so measuring the incumbent after the close is a second
-    // indirect consumer call.
+  it('should still read the placeholder once the last candidate closed the controller', () => {
+    // No `visual()` composed, so this loop invokes **no** declared slot at all
+    // and takes no reading. The close arrives from the last candidate's own
+    // geometry read, nothing is owed after it, and the placeholder read that
+    // finishes the rebuild happens exactly once.
     const field = createField(4);
     const measured: HTMLElement[] = [];
     let alive = true;
@@ -486,16 +491,19 @@ describe('the terminal barrier on candidate geometry', () => {
       alive = false;
     });
 
-    expect(field.resolve(55, field.snapshot(), null, () => alive)).toBeNull();
+    expect(
+      field.resolve(55, field.snapshot(), null, () => alive),
+    ).not.toBeNull();
 
-    expect(anchorReads).toBe(0);
+    expect(anchorReads).toBe(1);
   });
 
-  it('should leave the cache retired after the last candidate closed the controller', () => {
-    // The trailing-bookkeeping half. Falling through would set
-    // `measured = version` and `dirty = false` on a cache `retire()` had just
-    // emptied, so the **same** version below would find it warm, ask for
-    // nothing, and keep pinning a destroyed controller's rows (I-20).
+  it('should leave the cache clean after the last candidate closed the controller', () => {
+    // The trailing-bookkeeping half, and it is now the completion that is
+    // pinned: the buffer is whole and correct, so marking it clean at this
+    // version is right, and the **same** version below finds it warm and asks
+    // for nothing. The rows it holds are released by the transaction boundary
+    // that runs the retire hooks, not by this loop.
     const field = createField(4);
     const measured: HTMLElement[] = [];
     let alive = true;
@@ -512,7 +520,7 @@ describe('the terminal barrier on candidate geometry', () => {
       return item;
     });
 
-    expect(asked).toEqual([field.items[1], field.items[2], field.items[3]]);
+    expect(asked).toEqual([]);
   });
 
   it('should resolve no further visual once a candidate closed the controller', () => {

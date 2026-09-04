@@ -54,6 +54,28 @@ export type DisplacementSettle = (
   count: number,
 ) => void;
 
+/**
+ * **What a caller may do to the packed buffer: read it.**
+ *
+ * Declared by hand rather than derived, and the reason is the lint gate the
+ * class migration runs behind: `Readonly<E>`, `Pick<E, …>` and a record of
+ * function-typed properties are all **mapped types**, and a mapped type erases
+ * method-ness — `@typescript-eslint/unbound-method` reports a detached read
+ * through a class instance type or a hand-written interface and is silent
+ * through any of those. A view built the obvious way would buy encapsulation
+ * with the instrument that guards the migration.
+ *
+ * `Float64Array` is assignable to this, `view[0] = 1` is a type error, and
+ * `set` and `buffer` are not members. It costs **nothing at runtime**: the
+ * value handed back is the same `Float64Array` the class holds.
+ */
+export interface ReadonlyFloat64Array {
+  readonly [index: number]: number;
+  readonly length: number;
+  readonly byteLength: number;
+  subarray(begin?: number, end?: number): ReadonlyFloat64Array;
+}
+
 const capacityFor = (needed: number): number => {
   let capacity = 1;
 
@@ -65,14 +87,56 @@ const capacityFor = (needed: number): number => {
 };
 
 /**
- * **Fields, not accessors.** Exposing `values()` and `count()` as methods costs
- * 90 B on the minimal composition and two calls per resolution on the hot path
- * — for encapsulation nothing can observe, since the whole record is private to
- * one feature instance.
+ * The rect edge a stride offset names.
+ *
+ * The first four packed fields are the rect's own edges in the rect's own
+ * order, so an offset selects one without this module learning which axis the
+ * caller meant by it — the same neutrality `STRIDE` and `CENTRE_Y` already
+ * have.
+ */
+const edge = (rect: DOMRect, offset: number): number => {
+  if (offset === LEFT) {
+    return rect.left;
+  }
+
+  if (offset === TOP) {
+    return rect.top;
+  }
+
+  return offset === RIGHT ? rect.right : rect.bottom;
+};
+
+/**
+ * **The cache owns every field it mutates.** What crosses this boundary is a
+ * read through an accessor whose type forbids content mutation, and a write
+ * through an operation declared here. No collaborator holds a reference it can
+ * write through.
+ *
+ * `readonly` on a field would protect the reference only — `hole[0] = 1` and
+ * `items.length = 0` both compile against one — so it is the exposed **type**
+ * that forbids content mutation: `readonly HTMLElement[]` for the element
+ * array and {@link ReadonlyFloat64Array} for the packed buffers. Both are free
+ * at runtime, and the four accessors are property reads on a prototype rather
+ * than the calls an earlier record priced.
+ *
+ * **The hot path is counted rather than forecast.** `xy()` reads three of them
+ * once per resolution and a fourth only on a frame proposing a gap change;
+ * `y()` reads none, and every remaining read in the linear rule is on the
+ * committed-move path. So the minimal composition performs **zero** accessor
+ * reads per resolution, and **no read is added inside the candidate loop** —
+ * which is refused outright rather than measured.
+ *
+ * **What the boundary costs, measured jointly with the operations it needed**:
+ * +39 to +51 B Brotli on the `y()` compositions and +103 to +116 B on the two
+ * `xy()` ones, with every composition carrying no axis unmoved. The `xy()`
+ * rows pay the difference because {@link RectIndex.advance} and
+ * {@link RectIndex.remeasureHole} are prototype members every axis carries and
+ * only the linear rule calls — the price of the writes coming home, and the
+ * one part of this a shared cache cannot tree-shake.
  */
 export class RectIndex {
   /** The packed values. Re-allocated only when the collection outgrows it. */
-  values: Float64Array = new Float64Array(0);
+  #values = new Float64Array(0);
 
   /**
    * **The placeholder's own rect, packed in the same six fields as a slot.**
@@ -83,19 +147,19 @@ export class RectIndex {
    * no layout read at all.
    *
    * **Where it lands after a committed move is a flow quantity**, so no rule
-   * predicts it: the linear rule marks it stale and re-reads the placeholder on
-   * the next rebuild, writing through this same record.
+   * predicts it: the linear rule marks it stale and asks
+   * {@link RectIndex.remeasureHole} for a fresh reading on the next rebuild.
    *
-   * Allocated once with the record and never re-allocated: it is one slot, and
-   * one slot does not grow.
+   * Allocated once with the instance and never re-allocated: it is one slot,
+   * and one slot does not grow.
    */
-  readonly hole: Float64Array = new Float64Array(STRIDE);
+  readonly #hole = new Float64Array(STRIDE);
 
   /** Destination-ordered elements, parallel to the packed slots. */
-  readonly items: HTMLElement[] = [];
+  readonly #items: HTMLElement[] = [];
 
   /** How many destination slots the last scan produced. */
-  count: number = 0;
+  #count = 0;
 
   /** Slots the packed buffer can hold, always a power of two once fitted. */
   #capacity = 0;
@@ -108,6 +172,22 @@ export class RectIndex {
 
   #measured = -1;
 
+  get values(): ReadonlyFloat64Array {
+    return this.#values;
+  }
+
+  get hole(): ReadonlyFloat64Array {
+    return this.#hole;
+  }
+
+  get items(): readonly HTMLElement[] {
+    return this.#items;
+  }
+
+  get count(): number {
+    return this.#count;
+  }
+
   /**
    * Re-measures only when something dirtied the cache or the collection version
    * moved. On a frame where the pointer merely travels inside the same slot
@@ -118,17 +198,18 @@ export class RectIndex {
    * every candidate *is* its own box and the resolver would be an identity call
    * per item per rebuild.
    *
-   * `live` reports whether the controller is still alive. It is read **between
-   * every consumer-reachable call in the traversal**, including the candidate's
-   * own `getBoundingClientRect()`: the candidate is a consumer-owned element
-   * and an overridden `getBoundingClientRect()` is a consumer call, not a
-   * layout read. So a composition with **no** resolver reads it too — there the
-   * item is its own box and the geometry read is the only consumer call in the
-   * loop, but it is still one.
+   * `live` reports whether the controller is still alive, and it is read
+   * **immediately before each `getBox` invocation and nowhere else**. That is
+   * the whole obligation: a declared consumer slot must not be invoked after
+   * the controller closed, and a reading taken *after* a call cannot see a
+   * close the call itself raised. So a composition naming neither `box` nor
+   * `visual` invokes no declared slot in this loop and takes **no** reading —
+   * `getBoundingClientRect` on a consumer-owned node is a platform member, not
+   * a declared slot, and what follows a candidate's own geometry read is either
+   * internal or the next iteration's guarded invocation.
    *
-   * `placeholder` is measured into {@link RectIndex.hole} by the same scan, so
-   * the rule that reads it never measures it. It is consumer-owned like every
-   * candidate, so the barrier below covers it too.
+   * `placeholder` is measured into the hole by the same scan, so the rule that
+   * reads it never measures it.
    *
    * `settle` is the installed displacement sink's own walk, or `null` when no
    * displacement feature is composed. Called **once**, on the finished slots,
@@ -137,10 +218,8 @@ export class RectIndex {
    * animation currently draws it. The placeholder is never passed to it: a
    * report visits the destination view, which does not contain it.
    *
-   * Returns `false` — and **only** then — when the rebuild aborted on the
-   * terminal barrier. One shared channel rather than a per-axis `live()`
-   * recheck: the recheck would cost a call per resolution in *every*
-   * composition, where this costs one per candidate per **rebuild** only.
+   * Returns `false` — and **only** then — when the rebuild stopped at that
+   * reading.
    */
   refresh(
     snapshot: CollectionSnapshot,
@@ -150,20 +229,15 @@ export class RectIndex {
     placeholder: HTMLElement,
     settle: DisplacementSettle | null,
   ): boolean {
-    // A warm cache reads no geometry and calls no resolver, so it needs no
-    // barrier — and it cannot be reached on a destroyed controller anyway:
-    // `retire()` sets `#dirty`, and teardown always runs it.
+    // **A warm cache is safe because a closed rebuild never leaves one.**
+    // Teardown is deferred to the outermost transaction boundary, so a
+    // `refresh` at the same version is reachable inside that window with the
+    // controller already closed — and it reads no geometry and invokes no
+    // slot, so it owes nothing. What it must not be able to serve is a
+    // half-written buffer marked clean, and it cannot: the stop below restores
+    // the staleness pair before returning.
     if (!this.#dirty && this.#measured === snapshot.version) {
       return true;
-    }
-
-    // **The entry barrier.** A caller can reach a *dirty* cache with the
-    // controller already closed: a committed move invalidates on every
-    // failing path and `release.prepare` resolves straight afterwards.
-    // Without this the first `getBox` of that rebuild would be a consumer
-    // call after `destroy()` returned.
-    if (!live()) {
-      return this.#abort();
     }
 
     const list = snapshot.items;
@@ -171,10 +245,10 @@ export class RectIndex {
     // **One decision about one resource, driven by one number.** Growth and
     // shrink are the same question — is this buffer the right size for the
     // collection about to be scanned — so they are one branch rather than
-    // two. It sits here, after the warm return and the entry barrier, because
-    // `refresh` holds the real `list.length`: `retire()` would have to
-    // **predict** the next operation's need from the last one's, and a policy
-    // that needs no prediction needs no state that can go stale.
+    // two. It sits here, after the warm return, because `refresh` holds the
+    // real `list.length`: `retire()` would have to **predict** the next
+    // operation's need from the last one's, and a policy that needs no
+    // prediction needs no state that can go stale.
     //
     // **Nothing in the buffer is live at this instant.** The warm path
     // returned above, so the cache is dirty, and the scan below rewrites
@@ -204,11 +278,12 @@ export class RectIndex {
       // reallocates 48 B on every scan instead of settling.
       if (fitted !== this.#capacity) {
         this.#capacity = fitted;
-        this.values = new Float64Array(fitted * STRIDE);
+        this.#values = new Float64Array(fitted * STRIDE);
       }
     }
 
-    const { values, items } = this;
+    const values = this.#values;
+    const items = this.#items;
     let n = 0;
 
     for (const item of list) {
@@ -226,28 +301,29 @@ export class RectIndex {
       let box = item;
 
       if (getBox) {
-        box = getBox(item);
-
-        // **The resolver barrier**, inside the branch because with no
-        // resolver composed there is no call here for it to stand behind.
+        // **The one barrier, immediately before the declared slot it
+        // protects.** It covers the first invocation of the rebuild as well as
+        // every later one — a committed move invalidates and `release.prepare`
+        // resolves inside the same seam, so a dirty cache is reachable with the
+        // controller already closed — and it covers a close raised from the
+        // previous candidate's overridden `getBoundingClientRect`, which no
+        // reading placed after a call can see.
         if (!live()) {
-          return this.#abort();
+          // **The stop, not a `break`.** The consequence of a call is the call,
+          // so the exit is what prevents the next `getBox`; and falling through
+          // to the trailing bookkeeping would mark a partially written buffer
+          // clean at this version, which every warm return afterwards would
+          // then serve. `retire()` is this class's one definition of *stop*
+          // and restores the staleness pair, so it is what runs here.
+          this.retire();
+
+          return false;
         }
+
+        box = getBox(item);
       }
 
-      // **The geometry barrier**, covering indirect invocation, and it is
-      // *outside* the branch: `box` is a consumer-owned element in every
-      // composition — with no resolver composed the candidate item is its own
-      // box — so an overridden `getBoundingClientRect()` is consumer code the
-      // loop just ran. Everything after this line is a publication into the
-      // cache, and the next iteration is another consumer call, so the
-      // reading is taken before either.
       const rect = box.getBoundingClientRect();
-
-      if (!live()) {
-        return this.#abort();
-      }
-
       const offset = n * STRIDE;
 
       values[offset + LEFT] = rect.left;
@@ -266,21 +342,18 @@ export class RectIndex {
     // which is the only thing an axis rule may reason about. A composition
     // with no sink pays this one null test per rebuild and nothing per
     // candidate.
+    //
+    // **The buffer is lent, and that is not a hole in the boundary**: the
+    // class hands the sink a real `Float64Array` inside its own operation and
+    // for that call's duration, which is what an owned operation means. A
+    // collaborator holding a handle it may write through whenever it likes is
+    // the different thing this boundary forbids.
     if (settle) {
       settle(values, items, n);
     }
 
-    // **The hole, measured last and inside the same barrier discipline.** The
-    // placeholder is a consumer-owned element and its `getBoundingClientRect`
-    // is overridable, so this is one more consumer call and takes a reading
-    // after it exactly as every candidate does.
     const rect = placeholder.getBoundingClientRect();
-
-    if (!live()) {
-      return this.#abort();
-    }
-
-    const { hole } = this;
+    const hole = this.#hole;
 
     hole[LEFT] = rect.left;
     hole[TOP] = rect.top;
@@ -289,7 +362,7 @@ export class RectIndex {
     hole[CENTRE_X] = (rect.left + rect.right) * 0.5;
     hole[CENTRE_Y] = (rect.top + rect.bottom) * 0.5;
 
-    this.count = n;
+    this.#count = n;
     // Truncated, so a shrinking collection neither pins the elements a larger
     // previous rebuild saw nor leaks one into a neighbour lookup.
     items.length = n;
@@ -297,6 +370,76 @@ export class RectIndex {
     this.#dirty = false;
 
     return true;
+  }
+
+  /**
+   * **Advance a span of slots by an established constant**, moving the three
+   * fields the caller names and leaving the other three where they are.
+   *
+   * The caller passes **stride offsets and a scalar**, never access: this is
+   * what lets an axis rule keep G3-linear while the cache stays
+   * dimension-neutral, because it interprets none of the three offsets. The
+   * rule about when to advance, over what span, by what delta, and whether a
+   * delta may be predicted at all belongs to the axis.
+   *
+   * The centre is recomputed from the shifted edges rather than shifted
+   * itself, so the arithmetic is the one a full scan performs and the
+   * instrument compares like with like.
+   */
+  advance(
+    lo: number,
+    hi: number,
+    delta: number,
+    start: number,
+    end: number,
+    centre: number,
+  ): void {
+    const values = this.#values;
+
+    for (let i = lo; i < hi; i += 1) {
+      const offset = i * STRIDE;
+      const shiftedA = values[offset + start]! + delta;
+      const shiftedB = values[offset + end]! + delta;
+
+      values[offset + start] = shiftedA;
+      values[offset + end] = shiftedB;
+      values[offset + centre] = (shiftedA + shiftedB) * 0.5;
+    }
+  }
+
+  /**
+   * **Re-read the placeholder into the hole**, for an axis that marked it
+   * stale after a committed move.
+   *
+   * The measurement moves in with the write because measuring is the owner's
+   * act: every consumer call this cache makes then sits in one file under one
+   * discipline, which is what the axis tests already say the arrangement is.
+   *
+   * Only the three fields the caller names are written — a hole relocation
+   * moves the placeholder along one axis and leaves both cross-axis
+   * coordinates where they were, which is the same G2 clause the slot advance
+   * rests on.
+   *
+   * **It takes no liveness capability and cannot fail.** `getBoundingClientRect`
+   * on a consumer-owned node is a platform member rather than a declared slot;
+   * this writes three internal fields, admits nothing and publishes nothing. A
+   * close raised from inside that read is caught where it matters, by the
+   * reading before the next `getBox`.
+   */
+  remeasureHole(
+    placeholder: HTMLElement,
+    start: number,
+    end: number,
+    centre: number,
+  ): void {
+    const rect = placeholder.getBoundingClientRect();
+    const hole = this.#hole;
+    const a = edge(rect, start);
+    const b = edge(rect, end);
+
+    hole[start] = a;
+    hole[end] = b;
+    hole[centre] = (a + b) * 0.5;
   }
 
   /**
@@ -311,35 +454,15 @@ export class RectIndex {
 
   /**
    * The element array is what pins DOM between operations, so it is emptied;
-   * the numeric buffer is kept and reused. Also what {@link RectIndex.refresh}
-   * runs on its terminal exit.
+   * the numeric buffer is kept and reused. **The staleness pair is the part a
+   * stopped rebuild needs**, and emptying travels with it because this is the
+   * class's one definition of *stop*.
    */
   retire(): void {
-    this.items.length = 0;
-    this.count = 0;
+    this.#items.length = 0;
+    this.#count = 0;
     this.#dirty = true;
     this.#measured = -1;
-  }
-
-  /**
-   * The one terminal exit `refresh`'s four barriers share, so that a single
-   * definition of *stop* keeps them from drifting apart.
-   *
-   * **Not a `break`.** `destroy()` has already run `retire()` on this very
-   * cache through the assembler's retire hooks, and falling through to
-   * `refresh`'s trailing bookkeeping would write `count = n`,
-   * `items.length = n`, `#measured = version`, `#dirty = false` — resurrecting
-   * a retired cache, marking it clean, and pinning every row of the list in a
-   * destroyed controller.
-   *
-   * **And the abort is reported**, because emptying the cache is not enough on
-   * its own: `count === 0` makes the candidate scan find nothing, but both axes
-   * measure the consumer-owned *placeholder* before that scan.
-   */
-  #abort(): boolean {
-    this.retire();
-
-    return false;
   }
 }
 
@@ -395,17 +518,32 @@ export function setRefreshVerification(enabled: boolean): void {
  * that drives a real drag through `y()` checks it and no consumer pays for
  * it.
  *
- * **It heals before it throws**, writing the authoritative values back as it
- * goes, so a mismatch leaves the cache correct and the drag classified rather
- * than correct in the message and wrong in the buffer.
+ * **It snapshots and then forces the rebuild, rather than scanning by hand.**
+ * The predicted contents are copied out through the read view, the cache is
+ * invalidated and refreshed, and the copy is compared against the result. Two
+ * things follow. There is **nothing left to heal** — the cache ends
+ * authoritative by construction, so a mismatch leaves it correct and the drag
+ * classified rather than correct in the message and wrong in the buffer. And
+ * **a second definition of the scan disappears**: box resolution, the six-field
+ * pack and the settle call were transcribed here by hand, inside the one
+ * function whose whole job is to distrust a transcription.
+ *
+ * It costs one scan rather than two, because the forced rebuild replaces the
+ * hand-rolled one instead of joining it, and the caller's own `refresh`
+ * immediately afterwards finds the cache warm.
+ *
+ * **It is a free function and must stay one.** A `DEV`-only prototype body
+ * ships; this export tree-shakes, and `bench/size` asserts what the module
+ * contains.
  *
  * **It takes no terminal barrier, and that is what scopes it.** Every call it
  * makes is a consumer call on a consumer-owned element, so in a shipped build
  * it would need the same threading the candidate loop has. It is not in a
- * shipped build: `DEV` folds to `false` and the whole function is dropped. What
- * remains is an in-repo instrument, and a fixture that destroys its controller
- * from inside `getBoundingClientRect` is measuring the instrument rather than
- * the library.
+ * shipped build: `DEV` folds to `false` and the whole function is dropped. The
+ * scoping survives the inversion because the rebuild is driven with a
+ * constant-true `live`, so a fixture that destroys its controller from inside
+ * `getBoundingClientRect` is still measuring the instrument rather than the
+ * library.
  *
  * **It runs in every composition, including one that animates.** A displaced
  * row carries an additive `translate` and `getBoundingClientRect()` reports
@@ -427,43 +565,27 @@ export const verifyEquivalence = (
     return;
   }
 
-  const { values, items, hole } = index;
-  const scan: HTMLElement[] = [];
+  const held = index.count;
+  const predicted = new Float64Array(held * STRIDE);
+  const predictedHole = new Float64Array(STRIDE);
+  const predictedItems = [...index.items];
+  const claimed = index.values;
+  const claimedHole = index.hole;
 
-  for (const item of snapshot.items) {
-    if (item !== dragged) {
-      scan.push(item);
-    }
+  for (let i = 0; i < predicted.length; i += 1) {
+    predicted[i] = claimed[i]!;
   }
 
-  const n = scan.length;
-  // A second buffer rather than a comparison woven into the scan, because the
-  // sink settles a **finished** buffer and the claim being checked is what the
-  // cache holds *before* any of it is healed. Allocating it is free where it
-  // matters: `DEV` folds to `false` and this function leaves the bundle.
-  const fresh = new Float64Array(n * STRIDE);
-
-  for (let i = 0; i < n; i += 1) {
-    const item = scan[i]!;
-    // **The box, exactly as the scan measures it**, because a composition whose
-    // `box` is a descendant of the item would otherwise be compared against a
-    // rect the cache never held.
-    const rect = (getBox ? getBox(item) : item).getBoundingClientRect();
-    const offset = i * STRIDE;
-
-    fresh[offset + LEFT] = rect.left;
-    fresh[offset + TOP] = rect.top;
-    fresh[offset + RIGHT] = rect.right;
-    fresh[offset + BOTTOM] = rect.bottom;
-    fresh[offset + CENTRE_X] = (rect.left + rect.right) * 0.5;
-    fresh[offset + CENTRE_Y] = (rect.top + rect.bottom) * 0.5;
+  for (let field = 0; field < STRIDE; field += 1) {
+    predictedHole[field] = claimedHole[field]!;
   }
 
-  if (settle) {
-    // Keyed by the *item*, because that is what a report visits: the offset the
-    // sink holds carries a descendant box with it.
-    settle(fresh, scan, n);
-  }
+  // The authoritative rebuild. `live` is constant-true rather than threaded:
+  // the instrument is scoped out of shipped builds entirely, so a fixture that
+  // closes its controller from inside a geometry read must not be able to stop
+  // the scan it is being measured by.
+  index.invalidate();
+  index.refresh(snapshot, dragged, getBox, () => true, placeholder, settle);
 
   /**
    * **One slack, and it is not a concession.** Two things reintroduce
@@ -482,56 +604,42 @@ export const verifyEquivalence = (
 
     return (gap < 0 ? -gap : gap) > slack;
   };
+  const scanned = index.count;
+  const { values } = index;
+  const { hole } = index;
+  const { items } = index;
+  const span = scanned < held ? scanned : held;
   let mismatch = '';
 
-  for (let i = 0; i < n; i += 1) {
+  for (let i = 0; mismatch === '' && i < span; i += 1) {
     const offset = i * STRIDE;
 
-    if (mismatch === '' && items[i] !== scan[i]) {
+    if (predictedItems[i] !== items[i]) {
       mismatch = `slot ${i}`;
+      break;
     }
 
     for (let field = 0; field < STRIDE; field += 1) {
-      if (
-        mismatch === '' &&
-        differs(values[offset + field]!, fresh[offset + field]!)
-      ) {
+      if (differs(predicted[offset + field]!, values[offset + field]!)) {
         mismatch = `slot ${i}`;
+        break;
       }
-
-      // Healed as it goes, so a mismatch leaves the cache correct and the drag
-      // classified rather than correct in the message and wrong in the buffer.
-      values[offset + field] = fresh[offset + field]!;
     }
-
-    items[i] = scan[i]!;
   }
 
-  if (mismatch === '' && n !== index.count) {
-    mismatch = `count ${index.count}, full scan ${n}`;
+  if (mismatch === '' && scanned !== held) {
+    mismatch = `count ${held}, full scan ${scanned}`;
   }
-
-  index.count = n;
-  items.length = n;
-
-  const rect = placeholder.getBoundingClientRect();
 
   if (
     mismatch === '' &&
-    (differs(hole[LEFT]!, rect.left) ||
-      differs(hole[TOP]!, rect.top) ||
-      differs(hole[RIGHT]!, rect.right) ||
-      differs(hole[BOTTOM]!, rect.bottom))
+    (differs(predictedHole[LEFT]!, hole[LEFT]!) ||
+      differs(predictedHole[TOP]!, hole[TOP]!) ||
+      differs(predictedHole[RIGHT]!, hole[RIGHT]!) ||
+      differs(predictedHole[BOTTOM]!, hole[BOTTOM]!))
   ) {
     mismatch = 'the placeholder';
   }
-
-  hole[LEFT] = rect.left;
-  hole[TOP] = rect.top;
-  hole[RIGHT] = rect.right;
-  hole[BOTTOM] = rect.bottom;
-  hole[CENTRE_X] = (rect.left + rect.right) * 0.5;
-  hole[CENTRE_Y] = (rect.top + rect.bottom) * 0.5;
 
   if (mismatch !== '') {
     throw new Error(

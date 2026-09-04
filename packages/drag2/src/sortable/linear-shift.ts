@@ -50,10 +50,12 @@
  * into the shared cache it would cost an `xy()` composition machinery that
  * composition can never reach, and `bench/size` asserts the absence.
  *
- * **`RectIndex` is untouched by this file's existence.** It stays
- * dimension-neutral, keeps the full scan, and gained no hook: this module wraps
- * it, mirrors the two state bits it would otherwise have had to expose, and
- * writes through the fields the record already publishes.
+ * **`RectIndex` stays dimension-neutral, and this module is why it can.** It
+ * keeps the full scan and gained no rule: what it gained is two operations that
+ * interpret nothing — a span advance and a hole re-read, each told which three
+ * packed fields to move. The rule about when, over what span and by how much
+ * lives here, and this module holds no writable handle into the cache's
+ * storage.
  */
 import type { InheritedSpace } from '../kernel/presentation.ts';
 import type { CollectionSnapshot } from './domain.ts';
@@ -85,11 +87,101 @@ export type LinearRuntime = Readonly<{
   space: InheritedSpace;
 }>;
 
-export type LinearShift = Readonly<{
+/**
+ * **One {@link RectIndex} under the linear shift rule.**
+ *
+ * `start`, `end` and `centre` are **the axis's own stride offsets** — `TOP`,
+ * `BOTTOM`, `CENTRE_Y` for `y()`; `LEFT`, `RIGHT`, `CENTRE_X` for a future
+ * `x()` — and `ux`/`uy` are the axis unit vector, which turns the scalar
+ * displacement into two components with no branch. Passing them is what makes a
+ * second linear axis a rule module and a subpath rather than a rewrite of this
+ * one.
+ *
+ * **It reads no liveness latch anywhere**, and that is a property rather than
+ * an omission: `live` is forwarded into the cache's rebuild and `runtime.live`
+ * is forwarded into `report`, because the party that must take the reading is
+ * the one performing the act, and in this module that party is never this
+ * class. So there is no `#live` field and no liveness member to acquire.
+ *
+ * **Every field is private and nothing outside writes one.** The cache it
+ * holds is reached through the operations that cache declares, never through
+ * its storage.
+ */
+export class LinearShift {
+  readonly #index: RectIndex;
+
+  readonly #start: number;
+
+  readonly #end: number;
+
+  readonly #centre: number;
+
+  readonly #ux: number;
+
+  readonly #uy: number;
+
+  /**
+   * Whether an invalidation is outstanding. The prediction is licensed only
+   * against a buffer that currently describes the DOM.
+   */
+  #dirty = true;
+
+  /**
+   * The destination gap the packed buffer reflects, or `-1` when nothing is
+   * known. **Authoritative**: every exit before a completed advance
+   * invalidates, so the buffer either describes the tree or is dirty.
+   */
+  #last = -1;
+
+  /** The collection version the packed buffer holds, or `-1` for nothing. */
+  #seen = -1;
+
+  /**
+   * The distance one crossed row travels along the axis when the hole passes
+   * it, or `-1` while unmeasured. It is the same for every crossed row, which
+   * is what G3-linear says.
+   *
+   * **Discarded by every invalidation**, because the layout that produced it
+   * may not be the layout the next move happens in: a zoom, a resize or a
+   * replaced collection all change it, and the cache has one staleness flag
+   * with no reason attached. The cost of that bluntness is one row read on the
+   * next committed move.
+   */
+  #constant = -1;
+
+  /**
+   * Whether a committed move has left the cached hole describing where the
+   * placeholder no longer stands. One read clears it, at the head of the next
+   * rebuild.
+   */
+  #hollow = false;
+
+  /**
+   * Whether an advance has been made that the instrument has not checked yet.
+   * Written only inside `DEV` branches, so it folds away with them.
+   */
+  #claimed = false;
+
+  constructor(
+    index: RectIndex,
+    start: number,
+    end: number,
+    centre: number,
+    ux: number,
+    uy: number,
+  ) {
+    this.#index = index;
+    this.#start = start;
+    this.#end = end;
+    this.#centre = centre;
+    this.#ux = ux;
+    this.#uy = uy;
+  }
+
   /**
    * {@link RectIndex.refresh}, plus the gap the placeholder occupies in the DOM
    * at the moment of the scan. The buffer this produces reflects that gap, and
-   * `moved` advances from it.
+   * {@link LinearShift.moved} advances from it.
    *
    * It is also where the hole a committed move left stale is re-read, and
    * where the development instrument runs on the claim the previous move made
@@ -105,7 +197,76 @@ export type LinearShift = Readonly<{
     placeholder: HTMLElement,
     settle: DisplacementSettle | null,
     gap: number,
-  ): boolean;
+  ): boolean {
+    const index = this.#index;
+
+    // **The stale hole, re-read before anything reads it — the instrument
+    // included.** `verifyEquivalence` below rebuilds and compares the cached
+    // placeholder against the tree, so a hole left deliberately stale has to be
+    // current by the time it runs or every correct list reports a mismatch at
+    // the placeholder on every move.
+    //
+    // Only the axis's own three fields are written: a hole relocation moves
+    // the placeholder along this axis and leaves both cross-axis coordinates
+    // where they were, which is the same G2 clause the slot advance rests on.
+    //
+    // Every path that dirties the cache clears this — `retire` included. What
+    // survives is one redundant read when the collection version moves under a
+    // clean cache, inside a frame already paying a full rebuild.
+    if (this.#hollow) {
+      this.#hollow = false;
+      // The read moves in with the write, because measuring is the cache's own
+      // act: the operation takes the placeholder and the three offsets this
+      // axis moves, and cannot fail — a consumer-owned node's
+      // `getBoundingClientRect` is a platform member rather than a declared
+      // slot, and a close raised from inside it is caught by the reading
+      // before the next `getBox`.
+      index.remeasureHole(placeholder, this.#start, this.#end, this.#centre);
+    }
+
+    // **The instrument, on the claim the previous move made.** It scans,
+    // which is the forced layout this model exists to remove, so it is `DEV`
+    // only. Here rather than inside the move that made the claim: at that
+    // instant the sink has just been handed vectors whose animations have no
+    // resolved timing yet, and a scan would compare a settled cache against a
+    // tree in an indeterminate state. By the next rebuild both answer.
+    if (
+      DEV &&
+      this.#claimed &&
+      !this.#dirty &&
+      this.#seen === snapshot.version
+    ) {
+      this.#claimed = false;
+      verifyEquivalence(
+        index,
+        snapshot,
+        dragged,
+        getBox,
+        placeholder,
+        settle,
+        'G3-linear',
+      );
+    }
+
+    if (!index.refresh(snapshot, dragged, getBox, live, placeholder, settle)) {
+      this.#forget();
+      index.retire();
+
+      return false;
+    }
+
+    this.#seen = snapshot.version;
+    this.#dirty = false;
+
+    // The buffer this scan produced reflects the placeholder where it stands,
+    // which the caller is the one that knows.
+    if (gap >= 0) {
+      this.#last = gap;
+    }
+
+    return true;
+  }
+
   /**
    * **The committed move has landed.**
    *
@@ -123,81 +284,100 @@ export type LinearShift = Readonly<{
     gap: number,
     runtime: LinearRuntime,
     report: DisplacementReport | null,
-  ): void;
-  invalidate(): void;
-  retire(): void;
-}>;
+  ): void {
+    const index = this.#index;
+    const from = this.#last;
 
-/**
- * Wraps one {@link RectIndex} in the linear shift rule.
- *
- * `start`, `end` and `centre` are **the axis's own stride offsets** — `TOP`,
- * `BOTTOM`, `CENTRE_Y` for `y()`; `LEFT`, `RIGHT`, `CENTRE_X` for a future
- * `x()` — and `ux`/`uy` are the axis unit vector, which turns the scalar
- * displacement into two components with no branch. Passing them is what makes a
- * second linear axis a rule module and a subpath rather than a rewrite of this
- * one.
- */
-export function createLinearShift(
-  index: RectIndex,
-  start: number,
-  end: number,
-  centre: number,
-  ux: number,
-  uy: number,
-): LinearShift {
-  /**
-   * Whether an invalidation is outstanding. The prediction is licensed only
-   * against a buffer that currently describes the DOM.
-   */
-  let dirty = true;
-  /**
-   * The destination gap the packed buffer reflects, or `-1` when nothing is
-   * known. **Authoritative**: every exit before a completed advance
-   * invalidates, so the buffer either describes the tree or is dirty.
-   */
-  let last = -1;
-  /** The collection version the packed buffer holds, or `-1` for nothing. */
-  let seen = -1;
-  /**
-   * The distance one crossed row travels along the axis when the hole passes
-   * it, or `-1` while unmeasured. It is the same for every crossed row, which
-   * is what G3-linear says.
-   *
-   * **Discarded by every invalidation**, because the layout that produced it
-   * may not be the layout the next move happens in: a zoom, a resize or a
-   * replaced collection all change it, and the cache has one staleness flag
-   * with no reason attached. The cost of that bluntness is one row read on the
-   * next committed move.
-   */
-  let constant = -1;
-  /**
-   * Whether a committed move has left the cached hole describing where the
-   * placeholder no longer stands. One read clears it, at the head of the next
-   * rebuild.
-   */
-  let hollow = false;
-  /**
-   * Whether an advance has been made that the instrument has not checked yet.
-   * Written only inside `DEV` branches, so it folds away with them.
-   */
-  let claimed = false;
+    // Each rejection is a real degenerate case: a dirty buffer describes a
+    // tree that has already changed under it, `count === 0` is a single-item
+    // collection with no destination slot to displace, and an unknown or
+    // unchanged gap proposes no span at all.
+    if (
+      this.#dirty ||
+      this.#seen !== runtime.snapshot.version ||
+      index.count === 0 ||
+      from < 0 ||
+      from === gap
+    ) {
+      this.#drop();
+      return;
+    }
 
-  const forget = (): void => {
-    dirty = true;
-    last = -1;
-    seen = -1;
-    constant = -1;
-    hollow = false;
-  };
+    const lo = from < gap ? from : gap;
+    const hi = from < gap ? gap : from;
+    let delta = from < gap ? -this.#constant : this.#constant;
+
+    if (this.#constant < 0) {
+      const { values, items } = index;
+      // Any crossed row answers, because they all travelled the same
+      // constant. Measured as its **box**, which is what the cache holds.
+      const probe = items[lo]!;
+      // **No liveness reading here**, and its absence is the placement rule
+      // rather than an omission: one would sit *after* the slot call it could
+      // never have protected. The genuine obligation — `box` invoked per
+      // candidate in one seam's prepare and once more in its effect — is
+      // carried upstream, immediately before the call that follows.
+      const rect = (
+        runtime.box ? runtime.box(probe) : probe
+      ).getBoundingClientRect();
+      let observed = this.#start === TOP ? rect.top : rect.left;
+
+      if (runtime.settle) {
+        // The row may be mid-flight from an earlier move. Both sides of the
+        // difference have to be settled geometry, and the cache already is.
+        // Settled through the sink's own walk over a one-slot scratch, so
+        // there is one way to ask and not two.
+        const scratch = new Float64Array(STRIDE);
+
+        scratch[this.#start] = observed;
+        runtime.settle(scratch, [probe], 1);
+        observed = scratch[this.#start]!;
+      }
+
+      // **The one difference G5 admits**: one element, two instants. Whatever
+      // this row wears — an authored `translate`, an ancestor's transform —
+      // sits in both terms identically and cancels.
+      delta = observed - values[lo * STRIDE + this.#start]!;
+      this.#constant = delta < 0 ? -delta : delta;
+    }
+
+    this.#shiftSpan(lo, hi, delta, runtime, report);
+
+    this.#last = gap;
+    this.#hollow = true;
+
+    if (DEV) {
+      this.#claimed = true;
+    }
+  }
+
+  invalidate(): void {
+    this.#dirty = true;
+    this.#constant = -1;
+    this.#hollow = false;
+    this.#index.invalidate();
+  }
+
+  retire(): void {
+    this.#forget();
+    this.#index.retire();
+  }
+
+  #forget(): void {
+    this.#dirty = true;
+    this.#last = -1;
+    this.#seen = -1;
+    this.#constant = -1;
+    this.#hollow = false;
+  }
 
   /** Nothing sound to advance, and the write has already landed. */
-  const drop = (): void => {
-    dirty = true;
-    last = -1;
-    hollow = false;
-    index.invalidate();
-  };
+  #drop(): void {
+    this.#dirty = true;
+    this.#last = -1;
+    this.#hollow = false;
+    this.#index.invalidate();
+  }
 
   /**
    * Advance the crossed span by an established `delta`, reporting each element
@@ -207,209 +387,41 @@ export function createLinearShift(
    * **The hole is not advanced here**, and no arithmetic over this span yields
    * it: these are presented extents and the hole's landing place is a flow
    * quantity. The caller marks it stale instead.
-   *
-   * **The report shares the walk rather than following it**, so a committed
-   * move costs one traversal and allocates nothing — no plan closure, no
-   * buffer, and nothing at all in a composition that passes `null`.
    */
-  const shiftSpan = (
+  #shiftSpan(
     lo: number,
     hi: number,
     delta: number,
     runtime: LinearRuntime,
     report: DisplacementReport | null,
-  ): void => {
-    const { values, items } = index;
+  ): void {
+    const index = this.#index;
+
+    // **The axis passes offsets and a scalar, never access.** The cache owns
+    // its buffer and interprets none of the three fields it is told to move,
+    // which is what keeps it dimension-neutral while G3-linear and G5 stay
+    // here.
+    index.advance(lo, hi, delta, this.#start, this.#end, this.#centre);
+
+    if (!report) {
+      return;
+    }
+
+    // **A second walk rather than a shared one**, because sharing would put
+    // displacement vocabulary into a dimension-neutral cache or add an
+    // indirect call per element inside its operation. This adds no call at
+    // all and allocates nothing, and it walks the span one hole crossing
+    // passes on a gesture-rate event rather than a frame-rate one.
+    //
     // Hoisted out of the walk: every element in the span carries the same
     // vector, so the two components are computed once per move rather than
     // once per element.
-    const dx = -delta * ux;
-    const dy = -delta * uy;
+    const { items } = index;
+    const dx = -delta * this.#ux;
+    const dy = -delta * this.#uy;
 
     for (let i = lo; i < hi; i += 1) {
-      const offset = i * STRIDE;
-      const shiftedA = values[offset + start]! + delta;
-      const shiftedB = values[offset + end]! + delta;
-
-      values[offset + start] = shiftedA;
-      values[offset + end] = shiftedB;
-      // Recomputed from the shifted edges rather than shifted itself, so the
-      // arithmetic is the one a full scan performs and the instrument compares
-      // like with like.
-      values[offset + centre] = (shiftedA + shiftedB) * 0.5;
-
-      if (report) {
-        report(items[i]!, dx, dy, runtime.live, runtime.space);
-      }
+      report(items[i]!, dx, dy, runtime.live, runtime.space);
     }
-  };
-
-  return {
-    refresh(
-      snapshot,
-      dragged,
-      getBox,
-      live,
-      placeholder,
-      settle,
-      gap,
-    ): boolean {
-      // **The stale hole, re-read before anything reads it — the instrument
-      // included.** `verifyEquivalence` below compares the cached placeholder
-      // against the tree, so a hole left deliberately stale has to be current
-      // by the time it runs or every correct list reports a mismatch at the
-      // placeholder on every move.
-      //
-      // Only the axis's own three fields are written: a hole relocation moves
-      // the placeholder along this axis and leaves both cross-axis coordinates
-      // where they were, which is the same G2 clause the slot advance rests on.
-      //
-      // Every path that dirties the cache clears this — `retire` included, so
-      // a warm frame still cannot reach a consumer call on a destroyed
-      // controller. What survives is one redundant read when the collection
-      // version moves under a clean cache, inside a frame already paying a
-      // full rebuild.
-      if (hollow) {
-        hollow = false;
-
-        // A consumer-owned element with an overridable `getBoundingClientRect`,
-        // so the reading is taken and then the barrier, exactly as the scan
-        // does it.
-        const rect = placeholder.getBoundingClientRect();
-
-        if (!live()) {
-          forget();
-          index.retire();
-
-          return false;
-        }
-
-        const { hole } = index;
-        const a = start === TOP ? rect.top : rect.left;
-        const b = start === TOP ? rect.bottom : rect.right;
-
-        hole[start] = a;
-        hole[end] = b;
-        hole[centre] = (a + b) * 0.5;
-      }
-
-      // **The instrument, on the claim the previous move made.** It scans,
-      // which is the forced layout this model exists to remove, so it is `DEV`
-      // only. Here rather than inside the move that made the claim: at that
-      // instant the sink has just been handed vectors whose animations have no
-      // resolved timing yet, and a scan would compare a settled cache against a
-      // tree in an indeterminate state. By the next rebuild both answer.
-      if (DEV && claimed && !dirty && seen === snapshot.version) {
-        claimed = false;
-        verifyEquivalence(
-          index,
-          snapshot,
-          dragged,
-          getBox,
-          placeholder,
-          settle,
-          'G3-linear',
-        );
-      }
-
-      if (
-        !index.refresh(snapshot, dragged, getBox, live, placeholder, settle)
-      ) {
-        forget();
-        index.retire();
-
-        return false;
-      }
-
-      seen = snapshot.version;
-      dirty = false;
-
-      // The buffer this scan produced reflects the placeholder where it stands,
-      // which the caller is the one that knows.
-      if (gap >= 0) {
-        last = gap;
-      }
-
-      return true;
-    },
-
-    moved(gap, runtime, report): void {
-      const from = last;
-
-      // Each rejection is a real degenerate case: a dirty buffer describes a
-      // tree that has already changed under it, `count === 0` is a single-item
-      // collection with no destination slot to displace, and an unknown or
-      // unchanged gap proposes no span at all.
-      if (
-        dirty ||
-        seen !== runtime.snapshot.version ||
-        index.count === 0 ||
-        from < 0 ||
-        from === gap
-      ) {
-        drop();
-        return;
-      }
-
-      const lo = from < gap ? from : gap;
-      const hi = from < gap ? gap : from;
-      let delta = from < gap ? -constant : constant;
-
-      if (constant < 0) {
-        const { values, items } = index;
-        // Any crossed row answers, because they all travelled the same
-        // constant. Measured as its **box**, which is what the cache holds.
-        const probe = items[lo]!;
-        const rect = (
-          runtime.box ? runtime.box(probe) : probe
-        ).getBoundingClientRect();
-
-        if (!runtime.live()) {
-          drop();
-          return;
-        }
-
-        let observed = start === TOP ? rect.top : rect.left;
-
-        if (runtime.settle) {
-          // The row may be mid-flight from an earlier move. Both sides of the
-          // difference have to be settled geometry, and the cache already is.
-          // Settled through the sink's own walk over a one-slot scratch, so
-          // there is one way to ask and not two.
-          const scratch = new Float64Array(STRIDE);
-
-          scratch[start] = observed;
-          runtime.settle(scratch, [probe], 1);
-          observed = scratch[start]!;
-        }
-
-        // **The one difference G5 admits**: one element, two instants. Whatever
-        // this row wears — an authored `translate`, an ancestor's transform —
-        // sits in both terms identically and cancels.
-        delta = observed - values[lo * STRIDE + start]!;
-        constant = delta < 0 ? -delta : delta;
-      }
-
-      shiftSpan(lo, hi, delta, runtime, report);
-
-      last = gap;
-      hollow = true;
-
-      if (DEV) {
-        claimed = true;
-      }
-    },
-
-    invalidate(): void {
-      dirty = true;
-      constant = -1;
-      hollow = false;
-      index.invalidate();
-    },
-
-    retire(): void {
-      forget();
-      index.retire();
-    },
-  };
+  }
 }

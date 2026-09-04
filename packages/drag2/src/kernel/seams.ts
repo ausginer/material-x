@@ -130,100 +130,6 @@ export type SeamContext<Part extends object> = Readonly<{
   notify: Notify;
 }>;
 
-export type SeamDriver<Part extends object> = Readonly<{
-  /**
-   * The shared core: begin → prepare → revalidate → rollback-or-commit →
-   * effect. Returns the outcome; the caller applies its own seam's continuation
-   * policy.
-   *
-   * A committed transition leaves its `Prepared` value in the driver's staging
-   * slot, for the one seam whose staged value the *kernel* needs after the
-   * seam returns — the release seam's `ResolutionCommand`. Read it with {@link SeamDriver.consumeStaged}.
-   *
-   * `effectStage` defaults to `stage` and exists for the one seam whose two
-   * phases fail at different stages: a behavior action resolves an insertion in
-   * `prepare` and moves the placeholder in `effect`, and a throw in each is
-   * classified at its own stage. An explicit `host.fail` narrows further from
-   * the inside; this is only the default a raw throw lands on.
-   */
-  runCore<Prepared extends {}, Capability>(
-    transition: Transition<Part, Prepared, Capability>,
-    capability: Capability,
-    stage: FailureStage,
-    effectStage?: FailureStage,
-  ): SeamOutcome;
-
-  /**
-   * Takes the staged value of the last committed transition, clearing the slot.
-   *
-   * **Consume-and-clear, and cleared again as every seam opens.** Both halves
-   * are load-bearing: a staged value must never outlive the one transition that
-   * produced it. Without the clear-on-read, a seam that commits without staging
-   * anything would let a caller read the *previous* seam's command; without the
-   * clear-on-open, so would a seam that discarded or failed. Either would
-   * execute a resolution belonging to a transaction that is over.
-   *
-   * Returns `null` when the last seam staged nothing, discarded, was
-   * invalidated, failed, or committed an effect that then abandoned the
-   * operation.
-   *
-   * **Every seam either consumes its staged value or drops it.** The two seam
-   * policies below drop it for their callers; the seams the kernel drives
-   * directly drop it themselves. A value left behind is reported.
-   */
-  consumeStaged(): unknown;
-
-  /**
-   * A non-transactional seam returning nothing — `moved`, `finalized`. Returns
-   * `false` when it threw or latched a failure.
-   *
-   * This exists so those seams behave **identically** whether the behavior
-   * throws or calls `host.fail`. Without it a `moved` throw would escape the
-   * handler and become a *panic* that destroyed the controller, contradicting
-   * the existence of `FAILURE_RENDERER_WRITE`.
-   */
-  runLeaf(run: () => void, stage: FailureStage): boolean;
-
-  /**
-   * A non-transactional seam returning a value — `anchorTarget`. Returns
-   * `undefined` when it threw or latched a failure, which is why `Value` is
-   * constrained to exclude `undefined`.
-   */
-  runLeafValue<Value extends {}>(
-    run: () => Value,
-    stage: FailureStage,
-  ): Value | undefined;
-
-  /**
-   * {@link SeamDriver.runLeafValue} on the **unclassified track**: the seam
-   * still runs inside a phase — re-entry refused, `host.fail` latched, one
-   * report per phase — but a failure reaches the consumer as a warning instead
-   * of settling the operation.
-   *
-   * One caller: the arm-time landing measurement. A target that cannot be
-   * produced and one that cannot be trusted are the same fault, and neither is
-   * a reason to tell a consumer whose reorder succeeded that it did not.
-   *
-   * There is no stage argument: an unclassified failure names no stage, only a
-   * `reason` the report carries.
-   */
-  runUnclassifiedValue<Value extends {}>(
-    run: () => Value,
-    reason: string,
-  ): Value | undefined;
-
-  /**
-   * `host.fail`. Valid **only inside a kernel-driven seam of the current
-   * operation**: a call outside one is reported as a warning instead, because a
-   * late continuation from operation A could otherwise classify a failure
-   * against operation B.
-   */
-  requestFailure(stage: FailureStage, error: unknown): void;
-
-  /** Whether a seam phase is currently open. Diagnostics and tests. */
-  isInSeam(): boolean;
-}>;
-
 /**
  * No phase is open. `FailureStage` starts at 1, so `0` and `-1` are free to
  * carry the two readings a stage alone cannot.
@@ -257,17 +163,30 @@ type PhaseStage = FailureStage | typeof UNCLASSIFIED;
  */
 const FAILED = Symbol();
 
-export function createSeamDriver<Part extends object>(
-  context: SeamContext<Part>,
-): SeamDriver<Part> {
+/**
+ * **The phase machine behind one controller's seams.**
+ *
+ * It enforces _exactly one phase open at a time_ across calls, which is an
+ * invariant over the whole object rather than a property of any field: the open
+ * stage, the latched failure, the unclassified reason, the staged value and the
+ * re-entry latch are one state, reset together as each phase opens.
+ *
+ * **Every field is private and nothing outside reads or writes one.** What
+ * crosses the boundary is the four run operations, the staged-value consumer,
+ * `requestFailure` and one diagnostic predicate.
+ */
+export class SeamDriver<Part extends object> {
+  readonly #context: SeamContext<Part>;
+
   /**
    * The stage the open phase classifies against, or `NO_STAGE` between phases.
-   * One variable rather than a set of booleans: *whether* behavior code is
+   * One field rather than a set of booleans: *whether* behavior code is
    * running, *which* operation stage owns its failures, and *whether* they are
    * classified at all are three readings of the same fact, and splitting them
    * let them drift apart.
    */
-  let openStage: PhaseStage | typeof NO_STAGE = NO_STAGE;
+  #openStage: PhaseStage | typeof NO_STAGE = NO_STAGE;
+
   /**
    * Set by `requestFailure`, cleared as each phase opens. **A latched failure
    * is indistinguishable from a throw at the driver boundary** — which is the
@@ -275,24 +194,27 @@ export function createSeamDriver<Part extends object>(
    * checkpoint is queued and the window before it applies is exactly what the
    * latch closes.
    */
-  let failureRequested = false;
+  #failureRequested = false;
+
   /**
    * The message an `UNCLASSIFIED` phase reports under. Set as that phase opens
    * and read only while it is open, which is the same lifetime
-   * `failureRequested` has and for the same reason: the driver runs exactly one
-   * phase at a time (`refuseReentry`).
+   * `#failureRequested` has and for the same reason: the driver runs exactly
+   * one phase at a time.
    *
    * A string rather than a `FailureStage`: the warning names its reason in its
    * message, so the driver carries the reason rather than a classification it
    * is about to refuse to apply.
    */
-  let unclassifiedReason = 'drag: seam/rollback-failed';
+  #unclassifiedReason = 'drag: seam/rollback-failed';
+
   /**
-   * The staged value of the last committed transition. Owned by the driver
-   * rather than passed in, so no call path can skip the reset: passed in, a
-   * `runCore` handed no slot would leave the previous seam's value readable.
+   * The staged value of the last committed transition. Owned here rather than
+   * passed in, so no call path can skip the reset: passed in, a `runCore`
+   * handed no slot would leave the previous seam's value readable.
    */
-  let staged: unknown = null;
+  #staged: unknown = null;
+
   /**
    * Set when a seam is re-entered, and the reason the refusal is a latch rather
    * than a bare `throw`: the nested call raises from inside the outer seam's
@@ -304,7 +226,223 @@ export function createSeamDriver<Part extends object>(
    * raised value, so behavior code that catches the refusal has caught nothing
    * it can act on and unwinds exactly as one that let it pass.
    */
-  let reentry = false;
+  #reentry = false;
+
+  constructor(context: SeamContext<Part>) {
+    this.#context = context;
+  }
+
+  /**
+   * The shared core: begin → prepare → revalidate → rollback-or-commit →
+   * effect. Returns the outcome; the caller applies its own seam's continuation
+   * policy.
+   *
+   * A committed transition leaves its `Prepared` value in the staging slot, for
+   * the one seam whose staged value the *kernel* needs after the seam returns —
+   * the release seam's `ResolutionCommand`. Read it with
+   * {@link SeamDriver.consumeStaged}.
+   *
+   * `effectStage` defaults to `stage` and exists for the one seam whose two
+   * phases fail at different stages: a behavior action resolves an insertion in
+   * `prepare` and moves the placeholder in `effect`, and a throw in each is
+   * classified at its own stage. An explicit `host.fail` narrows further from
+   * the inside; this is only the default a raw throw lands on.
+   */
+  runCore<Prepared extends {}, Capability>(
+    transition: Transition<Part, Prepared, Capability>,
+    capability: Capability,
+    stage: FailureStage,
+    effectStage: FailureStage = stage,
+  ): SeamOutcome {
+    const context = this.#context;
+
+    // Not the same call as the one inside `#runPhase`, and not redundant with
+    // it: a transaction mutates kernel state *before* its first phase opens,
+    // and `begin()` would rebuild the draft the outer seam is still building.
+    // The refusal has to land before that, not one line later.
+    this.#refuseReentry();
+
+    if (this.#staged !== null) {
+      // The clear below already makes this harmless; the report is what stops
+      // it from being *invisible*. A staged value still sitting here means
+      // the previous seam neither consumed nor dropped it, which is the one
+      // way a command can outlive its transaction.
+      context.notify(new DraggableWarning('drag: seam/staged-unconsumed'));
+    }
+
+    this.#staged = null;
+    context.begin();
+
+    const prepared = this.#runPhase(stage, () =>
+      transition.prepare(context.readDraft(), capability),
+    );
+
+    if (prepared === FAILED) {
+      return SEAM_PREPARE_FAILED; // nothing staged escaped
+    }
+
+    if (prepared === null) {
+      return SEAM_DISCARDED; // the draft is abandoned
+    }
+
+    if (!context.preparationValid()) {
+      this.#unclassifiedReason = 'drag: seam/rollback-failed';
+      this.#runPhase(UNCLASSIFIED, () => transition.rollback?.(prepared));
+      return SEAM_INVALIDATED;
+    }
+
+    context.commit();
+
+    const effected = this.#runPhase(effectStage, () =>
+      transition.effect(context.readCurrent(), prepared, capability),
+    );
+
+    if (effected === FAILED) {
+      return SEAM_EFFECT_FAILED; // classified, from the committed state
+    }
+
+    // Staged **after** the effect, deliberately. Anything the effect triggers
+    // — a queued action, a consumer callback — therefore cannot observe or
+    // clear this transition's staged value, and the assignment lands last
+    // regardless of what ran in between.
+    //
+    // Which is exactly why it is conditional. Staging last means staging
+    // *after* an effect that reentrantly destroyed the controller or
+    // abandoned the operation, and the caller would then execute a command
+    // belonging to a transaction that no longer has anything to execute
+    // against — the release seam invoking the consumer's resolver for an
+    // operation `destroy()` already retired. A preparation that is no longer
+    // valid stages nothing, and the caller reads `null`.
+    this.#staged = context.preparationValid() ? prepared : null;
+    return SEAM_COMMITTED;
+  }
+
+  /**
+   * A non-transactional seam returning nothing — `moved`, `finalized`. Returns
+   * `false` when it threw or latched a failure.
+   *
+   * This exists so those seams behave **identically** whether the behavior
+   * throws or calls `host.fail`. Without it a `moved` throw would escape the
+   * handler and become a *panic* that destroyed the controller, contradicting
+   * the existence of `FAILURE_RENDERER_WRITE`.
+   */
+  runLeaf(run: () => void, stage: FailureStage): boolean {
+    return this.#runPhase(stage, run) !== FAILED;
+  }
+
+  /**
+   * A non-transactional seam returning a value — `anchorTarget`. Returns
+   * `undefined` when it threw or latched a failure, which is why `Value` is
+   * constrained to exclude `undefined`.
+   */
+  runLeafValue<Value extends {}>(
+    run: () => Value,
+    stage: FailureStage,
+  ): Value | undefined {
+    const value = this.#runPhase(stage, run);
+
+    return value === FAILED ? undefined : value;
+  }
+
+  /**
+   * {@link SeamDriver.runLeafValue} on the **unclassified track**: the seam
+   * still runs inside a phase — re-entry refused, `host.fail` latched, one
+   * report per phase — but a failure reaches the consumer as a warning instead
+   * of settling the operation.
+   *
+   * One caller: the arm-time landing measurement. A target that cannot be
+   * produced and one that cannot be trusted are the same fault, and neither is
+   * a reason to tell a consumer whose reorder succeeded that it did not.
+   *
+   * There is no stage argument: an unclassified failure names no stage, only a
+   * `reason` the report carries.
+   */
+  runUnclassifiedValue<Value extends {}>(
+    run: () => Value,
+    reason: string,
+  ): Value | undefined {
+    this.#unclassifiedReason = reason;
+
+    const value = this.#runPhase(UNCLASSIFIED, run);
+
+    return value === FAILED ? undefined : value;
+  }
+
+  /**
+   * Takes the staged value of the last committed transition, clearing the slot.
+   *
+   * **Consume-and-clear, and cleared again as every seam opens.** Both halves
+   * are load-bearing: a staged value must never outlive the one transition that
+   * produced it. Without the clear-on-read, a seam that commits without staging
+   * anything would let a caller read the *previous* seam's command; without the
+   * clear-on-open, so would a seam that discarded or failed. Either would
+   * execute a resolution belonging to a transaction that is over.
+   *
+   * Returns `null` when the last seam staged nothing, discarded, was
+   * invalidated, failed, or committed an effect that then abandoned the
+   * operation.
+   *
+   * **Every seam either consumes its staged value or drops it.** The two seam
+   * policies drop it for their callers; the seams the kernel drives directly
+   * drop it themselves. A value left behind is reported.
+   */
+  consumeStaged(): unknown {
+    const value = this.#staged;
+
+    this.#staged = null;
+    return value;
+  }
+
+  /**
+   * `host.fail`. Valid **only inside a kernel-driven seam of the current
+   * operation**: a call outside one is reported as a warning instead, because a
+   * late continuation from operation A could otherwise classify a failure
+   * against operation B.
+   */
+  requestFailure(stage: FailureStage, error: unknown): void {
+    const context = this.#context;
+
+    // **A latched failure and a throw are the same event on this path too.**
+    // The flag is what makes `#runPhase` return `FAILED` for a phase that
+    // latched without throwing, so the caller sees no target either way.
+    if (this.#openStage === UNCLASSIFIED) {
+      this.#failureRequested = true;
+      context.notify(
+        new DraggableWarning(this.#unclassifiedReason, { cause: error }),
+      );
+      return;
+    }
+
+    if (this.#openStage === NO_STAGE) {
+      // **One warning, not two reports.** A caught error and a
+      // library-authored companion naming why the classification was denied
+      // are one fault said twice: the message names the reason and `cause`
+      // carries the caller's error, which is what a discriminating code would
+      // otherwise be for.
+      //
+      // The caller's `stage` is deliberately discarded. It describes a
+      // classification the kernel has just refused to apply, and carrying it
+      // into the warning would publish a claim about the operation that this
+      // branch exists to *not* make.
+      context.notify(
+        new DraggableWarning('drag: seam/fail-outside-seam', {
+          cause: error,
+        }),
+      );
+
+      return;
+    }
+
+    // The stage is the caller's, not the open phase's: a leaf narrows its own
+    // stage from the inside (`moved` renders and schedules in one callback).
+    this.#failureRequested = true;
+    context.fail(stage, error);
+  }
+
+  /** Whether a seam phase is currently open. Diagnostics and tests. */
+  isInSeam(): boolean {
+    return this.#openStage !== NO_STAGE;
+  }
 
   /**
    * Refuses to open anything while a phase is already open, **before the caller
@@ -315,11 +453,11 @@ export function createSeamDriver<Part extends object>(
    * `dispatch` from a callback appends and returns, and the appended action
    * opens its phase only after this one has finished.
    *
-   * **What `openStage` covers is the foreign-code window, and that is the
+   * **What `#openStage` covers is the foreign-code window, and that is the
    * boundary this guard is for.** It is set as a phase opens and cleared before
-   * `runPhase` classifies, so a phase opened from the classification path would
-   * not be refused. Read the sentinel as *is foreign code on the stack*, which
-   * is where a nested call can originate; it is not a general nesting
+   * `#runPhase` classifies, so a phase opened from the classification path
+   * would not be refused. Read the sentinel as *is foreign code on the stack*,
+   * which is where a nested call can originate; it is not a general nesting
    * interlock.
    *
    * **Consumer code still runs past the clear, and the queue is what covers
@@ -342,13 +480,13 @@ export function createSeamDriver<Part extends object>(
    * So the refusal **latches** rather than merely throwing — the nested call
    * raises from inside the outer phase, whose `catch` would otherwise classify
    * an invariant break as an ordinary behavior failure and swallow it.
-   * `runPhase` rethrows past every classification on the way out to reach the
+   * `#runPhase` rethrows past every classification on the way out to reach the
    * queue's panic path, which is also what makes behavior code that catches its
    * own refusal panic anyway.
    */
-  const refuseReentry = (): void => {
-    if (openStage !== NO_STAGE) {
-      reentry = true;
+  #refuseReentry(): void {
+    if (this.#openStage !== NO_STAGE) {
+      this.#reentry = true;
       // **`null`, and deliberately.** Not an `Error`, because an `Error`
       // carries a message and a message here would be an identity for a
       // condition no consumer can reach; `null` in particular because the value
@@ -358,7 +496,7 @@ export function createSeamDriver<Part extends object>(
       // oxlint-disable-next-line typescript/only-throw-error
       throw null;
     }
-  };
+  }
 
   /**
    * One behavior callback, start to finish — **the only place this module runs
@@ -373,13 +511,12 @@ export function createSeamDriver<Part extends object>(
    * that classifies — a `throw` there would be caught by that very handler.
    * Hence the caught error is carried out as a value and re-examined below.
    */
-  const runPhase = <Value>(
-    stage: PhaseStage,
-    run: () => Value,
-  ): Value | typeof FAILED => {
-    refuseReentry();
-    failureRequested = false;
-    openStage = stage;
+  #runPhase<Value>(stage: PhaseStage, run: () => Value): Value | typeof FAILED {
+    const context = this.#context;
+
+    this.#refuseReentry();
+    this.#failureRequested = false;
+    this.#openStage = stage;
 
     let value: Value | typeof FAILED;
     let raised: unknown;
@@ -391,14 +528,14 @@ export function createSeamDriver<Part extends object>(
       raised = error;
     }
 
-    openStage = NO_STAGE;
+    this.#openStage = NO_STAGE;
 
-    if (reentry) {
+    if (this.#reentry) {
       // Cleared on the way out: exactly one `runCore` on the stack got past the
       // guard, and it is the one that unlatches. The raised value is not
-      // consulted — `reentry` is the whole decision, so a phase that swallowed
+      // consulted — `#reentry` is the whole decision, so a phase that swallowed
       // the throw unwinds here exactly as one that let it pass.
-      reentry = false;
+      this.#reentry = false;
       // oxlint-disable-next-line typescript/only-throw-error
       throw null;
     }
@@ -411,13 +548,13 @@ export function createSeamDriver<Part extends object>(
       // decide the operation's outcome. Nothing is lost either way: both arms
       // reach the same consumer the classified one does.
       if (stage === UNCLASSIFIED) {
-        // `unclassifiedReason` rather than the sentinel, because the sentinel
+        // `#unclassifiedReason` rather than the sentinel, because the sentinel
         // says how the failure travels and never what it was — the reason the
         // consumer reads is the one the caller named.
         context.notify(
-          new DraggableWarning(unclassifiedReason, { cause: raised }),
+          new DraggableWarning(this.#unclassifiedReason, { cause: raised }),
         );
-      } else if (failureRequested) {
+      } else if (this.#failureRequested) {
         // **One phase, one report.** A phase that called `host.fail` and then
         // threw is already classified against its own error; the throw travels
         // as a warning, which is what keeps it from deciding the outcome.
@@ -433,137 +570,8 @@ export function createSeamDriver<Part extends object>(
       return FAILED;
     }
 
-    return failureRequested ? FAILED : value;
-  };
-
-  return {
-    runCore(transition, capability, stage, effectStage = stage) {
-      // Not the same call as the one inside `runPhase`, and not redundant with
-      // it: a transaction mutates kernel state *before* its first phase opens,
-      // and `begin()` would rebuild the draft the outer seam is still building.
-      // The refusal has to land before that, not one line later.
-      refuseReentry();
-
-      if (staged !== null) {
-        // The clear below already makes this harmless; the report is what stops
-        // it from being *invisible*. A staged value still sitting here means
-        // the previous seam neither consumed nor dropped it, which is the one
-        // way a command can outlive its transaction.
-        context.notify(new DraggableWarning('drag: seam/staged-unconsumed'));
-      }
-
-      staged = null;
-      context.begin();
-
-      const prepared = runPhase(stage, () =>
-        transition.prepare(context.readDraft(), capability),
-      );
-
-      if (prepared === FAILED) {
-        return SEAM_PREPARE_FAILED; // nothing staged escaped
-      }
-
-      if (prepared === null) {
-        return SEAM_DISCARDED; // the draft is abandoned
-      }
-
-      if (!context.preparationValid()) {
-        unclassifiedReason = 'drag: seam/rollback-failed';
-        runPhase(UNCLASSIFIED, () => transition.rollback?.(prepared));
-        return SEAM_INVALIDATED;
-      }
-
-      context.commit();
-
-      const effected = runPhase(effectStage, () =>
-        transition.effect(context.readCurrent(), prepared, capability),
-      );
-
-      if (effected === FAILED) {
-        return SEAM_EFFECT_FAILED; // classified, from the committed state
-      }
-
-      // Staged **after** the effect, deliberately. Anything the effect triggers
-      // — a queued action, a consumer callback — therefore cannot observe or
-      // clear this transition's staged value, and the assignment lands last
-      // regardless of what ran in between.
-      //
-      // Which is exactly why it is conditional. Staging last means staging
-      // *after* an effect that reentrantly destroyed the controller or
-      // abandoned the operation, and the caller would then execute a command
-      // belonging to a transaction that no longer has anything to execute
-      // against — the release seam invoking the consumer's resolver for an
-      // operation `destroy()` already retired. A preparation that is no longer
-      // valid stages nothing, and the caller reads `null`.
-      staged = context.preparationValid() ? prepared : null;
-      return SEAM_COMMITTED;
-    },
-
-    runLeaf(run, stage) {
-      return runPhase(stage, run) !== FAILED;
-    },
-
-    runLeafValue(run, stage) {
-      const value = runPhase(stage, run);
-
-      return value === FAILED ? undefined : value;
-    },
-
-    runUnclassifiedValue(run, reason) {
-      unclassifiedReason = reason;
-
-      const value = runPhase(UNCLASSIFIED, run);
-
-      return value === FAILED ? undefined : value;
-    },
-
-    consumeStaged() {
-      const value = staged;
-
-      staged = null;
-      return value;
-    },
-
-    requestFailure(stage, error) {
-      // **A latched failure and a throw are the same event on this path too.**
-      // The flag is what makes `runPhase` return `FAILED` for a phase that
-      // latched without throwing, so the caller sees no target either way.
-      if (openStage === UNCLASSIFIED) {
-        failureRequested = true;
-        context.notify(
-          new DraggableWarning(unclassifiedReason, { cause: error }),
-        );
-        return;
-      }
-
-      if (openStage === NO_STAGE) {
-        // **One warning, not two reports.** A caught error and a
-        // library-authored companion naming why the classification was denied
-        // are one fault said twice: the message names the reason and `cause`
-        // carries the caller's error, which is what a discriminating code would
-        // otherwise be for.
-        //
-        // The caller's `stage` is deliberately discarded. It describes a
-        // classification the kernel has just refused to apply, and carrying it
-        // into the warning would publish a claim about the operation that this
-        // branch exists to *not* make.
-        context.notify(
-          new DraggableWarning('drag: seam/fail-outside-seam', {
-            cause: error,
-          }),
-        );
-
-        return;
-      }
-
-      // The stage is the caller's, not the open phase's: a leaf narrows its own
-      // stage from the inside (`moved` renders and schedules in one callback).
-      failureRequested = true;
-      context.fail(stage, error);
-    },
-
-    isInSeam: () => openStage !== NO_STAGE,
-  };
+    return this.#failureRequested ? FAILED : value;
+  }
 }
 
 /**

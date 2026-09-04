@@ -660,4 +660,39 @@ Measured against `55eaaf1b` with box-quad rebuilt in both states — the depende
 
 **The gate was tighter than the decision that set it, and it still passed.** D-168 was written against `kernel.js` carrying 246 B of slack, re-measured 2026-08-29. The D-166 re-base of 2026-09-01 lowered every budget after a shrink, so the slack the implementation actually had was **150 B**. It spent 34.
 
-**No module entered or left any graph.** 31/30/32/31/33/34, 25/26/27/28/45, 2/14/29/26 — identical on both sides. Two objects per gesture are allocated where eight closure slots were assigned, and nothing on the sample path allocates at all.
+**No module entered or left any graph.** 31/30/32/31/33/34, 25/26/27/28/45, 2/14/29/26 — identical on both sides. Two objects per gesture are allocated where eight closure slots were assigned, and nothing on the sample path allocates at all. **Re-based 2026-09-05, D-170 steps 1a to 5 — every row a class conversion reached, and the reason is the representation and not the bytes.** Measured against `77274a82`, joint. The decision that owns this settled that bundle size is not a criterion for whether an owned entity gets the correct representation, and that a breached budget re-bases deliberately with its reason recorded. Six ceilings on the sortable side, four on the free-drag side, `both behaviors`, `kernel.js` and baseline A move; every ceiling is set at the landed figure plus the standing ~150 B margin, so the instrument keeps the sensitivity it was calibrated for.
+
+| Row | `77274a82` | landed | Δ | budget |
+| --- | --- | --- | --- | --- |
+| minimal | 9,684 | 10,162 | **+478** | 10,312 |
+| minimal (xy) | 9,542 | 10,026 | **+484** | 10,176 |
+| minimal + layoutAnimation | 10,018 | 10,514 | **+496** | 10,664 |
+| xy + layoutAnimation | 9,878 | 10,363 | **+485** | 10,513 |
+| minimal + landing | 9,833 | 10,312 | **+479** | 10,462 |
+| complete | 10,170 | 10,651 | **+481** | 10,801 |
+| free drag minimal | 7,554 | 7,893 | **+339** | 8,043 |
+| free drag + bounds | 7,708 | 8,053 | **+345** | 8,203 |
+| free drag + landing | 7,706 | 8,047 | **+341** | 8,197 |
+| free drag complete | 7,858 | 8,197 | **+339** | 8,347 |
+| both behaviors | 11,565 | 12,127 | **+562** | 12,277 |
+| vocabulary root — `drag.js` | 142 | 142 | **0** | 205 |
+| kernel root — `kernel.js` | 5,861 | 5,910 | **+49** | 6,060 |
+| baseline A — feature-matched, non-composed | 9,984 | 10,463 | **+479** | 10,613 |
+| baseline B — shipped `@ydinjs/drag` sortable.js | 6,889 | 6,889 | **0** | 7,040 |
+
+**No module entered or left any graph.** 31/30/32/31/33/34, 25/26/27/28/45, 2/14/29/26 — identical on both sides, which is what says five conversions changed representation and not topology.
+
+**The per-step attribution is the part worth keeping, because each step's rows say where it landed.** Every step was measured on its own tree, and the row that did **not** move is the result in each case.
+
+| step | what moved | what held at exactly 0 |
+| --- | --- | --- |
+| 1a — the cache's ownership boundary | sortable rows +39 to +51, the two `xy` rows **+116 / +103** | every free-drag row, `drag.js`, `kernel.js`, baseline B |
+| 2 — `LinearShift` | sortable `y` rows +63 to +80 | **both `xy` rows**, every free-drag row, `drag.js`, `kernel.js` |
+| 3 — `SeamDriver` | every kernel-carrying row, +39 to +49 | `drag.js`, baseline B — the only two that carry no kernel |
+| 4 — the spec lifetime records | sortable +90 to +98, free drag +50 to +57 | `drag.js`, **`kernel.js`** — a behavior-tier change |
+| 5a — the free-drag entity | free drag +236 to +246 | **every sortable row**, `kernel.js`, `drag.js` |
+| 5b — the sortable entity | sortable +217 to +243 | **every free-drag row**, `kernel.js`, `drag.js` |
+
+**Two figures are worth stating rather than leaving in the arithmetic.** The `xy` rows paid **2.7×** the `y` rows at step 1a, and the reason is structural: the two write operations the boundary required — the span advance and the hole re-read — are prototype members every axis carries and only the linear rule calls, so a shared cache cannot tree-shake them. And `both behaviors` came in at **−34 B** at step 5b while the sortable rows each grew ~230 B: the two adapters share enough token structure that the compressor recovers more from the second than the second adds.
+
+**The adapters are where the two largest steps went.** Each spec's fourteen-odd forwarding members plus a class's field and prototype machinery is ~240 B per behavior. That is the price of the entity being an entity while `BehaviorSpec` stays a protocol record with nested namespaces, which is a shape question the decision settled and not one the budget re-opens.

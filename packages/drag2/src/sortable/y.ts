@@ -31,7 +31,7 @@ import {
   insertionAt,
 } from './domain.ts';
 import type { AxisInstaller } from './feature.ts';
-import { createLinearShift } from './linear-shift.ts';
+import { LinearShift } from './linear-shift.ts';
 import {
   BOTTOM,
   CENTRE_Y,
@@ -187,7 +187,7 @@ export function y(): AxisInstaller {
     // stride offsets it predicts along, and the unit vector that turns the
     // scalar displacement into two reported components. A future `x()` passes
     // `LEFT`, `RIGHT`, `CENTRE_X`, `1`, `0` and needs nothing else from here.
-    const shift = createLinearShift(index, TOP, BOTTOM, CENTRE_Y, 0, 1);
+    const shift = new LinearShift(index, TOP, BOTTOM, CENTRE_Y, 0, 1);
 
     return {
       insertion: {
@@ -261,7 +261,14 @@ export function y(): AxisInstaller {
           return insertionAt(items, gap, snapshot);
         },
 
-        invalidate: shift.invalidate,
+        // **Wrapped, not detached.** These two are published into a record the
+        // assembler pushes into `retireHooks` and calls with no owner, so a
+        // bare prototype read would arrive with no receiver. The closure is
+        // what carries it, and the lint gate is what would have caught the
+        // bare read.
+        invalidate: () => {
+          shift.invalidate();
+        },
 
         /**
          * **The committed move has landed**, and this is the one hook that
@@ -285,7 +292,9 @@ export function y(): AxisInstaller {
           shift.moved(frame.insertion!.index, runtime, report);
         },
 
-        retire: shift.retire,
+        retire: () => {
+          shift.retire();
+        },
       },
     };
   };

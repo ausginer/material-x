@@ -239,21 +239,17 @@ export function xy(): AxisInstaller {
             return null;
           }
 
-          if (!runtime.live()) {
-            // **The placeholder barrier**, and `y()` has no counterpart
-            // because it needs no such call: it derives the side from two
-            // centres the cache already holds. `compareDocumentPosition` below
-            // is a consumer call on a consumer-owned element, and it is the one
-            // read this rule still cannot derive. Paid only on a frame that
-            // proposes a gap change, not on every spatial frame.
-            return null;
-          }
-
           const { items } = index;
           // `nearest` comes after the placeholder in document order, so the gap
           // is on its far side. The mask test is what `compareDocumentPosition`
           // is for — it returns a bitfield and several bits can be set at once,
           // which is the one legitimate use of `&` in this package.
+          //
+          // **No liveness reading precedes this**, and `y()` has no counterpart
+          // to it either. `compareDocumentPosition` is a platform query on a
+          // consumer-owned node rather than a declared slot, and the only act
+          // that follows is a publication — which the behavior refuses at its
+          // own head and the kernel refuses again before anything acts on it.
           const position = runtime.placeholder.compareDocumentPosition(
             items[nearest]!,
           );
