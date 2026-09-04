@@ -385,16 +385,16 @@ Inertness alone is not quite enough, so two unwinds are also normative:
 
 What was `destroy()`'s guarantee — _physical release completes before it returns_ — is therefore withdrawn. What replaces it is stronger where it matters and weaker only where it did not: the **latch** is now set earlier than it ever was, and only the resource release is late.
 
-It still spans two private state spaces, in a fixed order. Step 1 is the logical close and runs on the calling statement, always:
+It still spans two private state spaces, in a fixed order. **Steps 1 and 2 are the execution bracket's** (D-180): it owns the latch and the queue, so it sets the one and clears the other, and it invokes the kernel's steps 3 to 7 as a callback. The observable sequence is unchanged by that ownership. Step 1 is the logical close and runs on the calling statement, always:
 
 ```text
-1. closed = true; destroyRequested = true        (kernel)   every guard now fails
+1. closed = true; destroyRequested = true       (bracket)   every guard now fails
 ```
 
 Steps 2–7 are the physical teardown. They run at the transaction boundary when one is active, and immediately after step 1 when none is:
 
 ```text
-2. clear the queue, drop every retained argument (kernel)
+2. clear the queue, drop every retained argument (bracket)
 3. retire kernel attempts, **each step best-effort and individually wrapped**:
    abort an uncompleted resolution and clear its settlement; drop the
    settlement attempt entirely                                        (kernel)
@@ -437,7 +437,7 @@ Two invariants this ordering creates, both of which are new obligations that pro
 
   **Every ceiling above that floor is withdrawn** (D-37). The promises that the library reads no further geometry, and that no further consumer-reachable read occurs anywhere in the remainder of the current call graph, are retracted; the **ceiling register** of stronger site-specific promises is retracted with them; and the **consumer reach/stretch analysis is retired as a proof domain**. The replacement is finite and API-shaped: after logical closure the library must not invoke a declared consumer slot, admit another operation, or publish another lifecycle or domain event. Internal work already inside the current transaction may finish, provided it survives the boundary in no observable form. Probe A is the measurement, not the argument: 27 of its 33 statement-level liveness readings retire under the bracket, because a guard exists to stop work that would outlive the close, and work the boundary undoes has no consequence to stop.
 
-  Two things the retraction does **not** reach. The kernel's own `queue.closed` boundary guards are a different category from the statement-level I-36 guards and are untouched. And restoring state still matters as much as stopping calls where a participant does resume — a sequence that resumes and marks its cache clean re-pins DOM `retire()` had released, against I-20 — with the difference that under deferral `retire()` may not have run yet, so the correct reading is the latch and never the cache's own disposal state (D-38).
+  Two things the retraction does **not** reach. The kernel's own terminal-latch boundary guards are a different category from the statement-level I-36 guards and are untouched. And restoring state still matters as much as stopping calls where a participant does resume — a sequence that resumes and marks its cache clean re-pins DOM `retire()` had released, against I-20 — with the difference that under deferral `retire()` may not have run yet, so the correct reading is the latch and never the cache's own disposal state (D-38).
 
   The mechanism is behavior-owned and not promotable, so this half of the terminal guarantee is **tier C** while everything above it is tier B — §[05](05-lifecycle-invariants.md) I-6 carries that split in its own entry, and I-36 and F-47 state it. Original text follows. ~~Every barrier the kernel owns is complete at the kernel's granularity of one callback … **The obligation is provisioning in two forms — a participant's own reading, or a named kernel bracket that revalidates and undoes — over a floor of consequences, plus a register of stronger site-specific promises; it is not a quantifier over call sites** — §05 I-36 (1), (2) and (3) state why the quantifier form is not dischargeable and why provisioning alone does not discharge it either.~~ The retracted sentence was already reaching for D-37's answer and stopped one step short: having found that the quantifier form is not dischargeable, it kept a register of promises quantified the same way.
 
