@@ -39,7 +39,7 @@ export { DraggableError, DraggableWarning } from './kernel/errors.ts';
  *
  * **One declaration, two publication points.** `kernel/failures.ts` is the
  * single declaration and `kernel.js` keeps its own export for the behavior
- * author who calls `host.fail`; this is a re-export of that same one, the
+ * author who calls `kernel.fail`; this is a re-export of that same one, the
  * pattern already running between `kernel.js` and `sortable.js` for
  * `AT_PROPOSAL`/`AT_CONSUMER`/`CancelStage`. Not on the behavior entries: that
  * would split a vocabulary so the consumer named the type at one entry and the

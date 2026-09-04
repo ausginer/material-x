@@ -2346,6 +2346,30 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-08 — the census the new membership test makes mechanical, and one site it found (Stage 0: F-312…F-315, F-319…F-322, F-324)
+
+**The whole of Stage 0 except F-323**, which is out of range and untouched. Two lifecycle repairs, the finished rename, four prose repairs, and the census — plus one act-(a) breach the census reached and one question it cannot answer.
+
+**F-324's census is mechanical now, which is the point of D-176.** The candidate set is every invocable member of the two slot records plus the two `MotionConstraint` members and each `retireHooks` entry; data members are outside. Twenty-three invocation sites, every one accounted for: twelve where the invoker takes the reading, ten where nothing precedes it that could have closed the controller, six where the kernel reads the latch on the statement before, and the two `retireHooks` walks as the relinquishment set. `landingTiming` — the finding's own named candidate — falls in the third group, and its answer really did turn on the surrounding revalidation rather than on the line.
+
+**The census found one breach, and it is F-312's class exactly.** The committed-move bracket raises a staleness flag before the placeholder write and invalidates the axis in a `finally` on every failing exit — and one of those exits arrives _immediately after a reading that already saw the controller closed_. `invalidateInsertion` is a declared slot because a published axis installer fills it, and the ownership reading hid it for the same reason it hid `settle`: every shipped axis is library-supplied, so the whole class looked internal. The repair is the required property and nothing else, and it costs nothing, because teardown retires the axis's cache through `retireHooks` anyway.
+
+**One site is recorded and not repaired**, because the answer is not the implementer's. `onError` after logical closure at `#panic` satisfies neither the relinquishment predicate's purpose clause nor its publishes-nothing clause, while D-51's list had it as an explicit member with an argument written out in §01. D-176 replaced the list and did not carry that member across. Routed as **Q-22** with the three shapes an answer could take.
+
+**F-312's two readings are restored where D-176 places them**, and the last candidate is what makes the fixtures discriminate: close on any earlier one and the reading before the next `box` already stops the rebuild, so a barrier-free tree would pass. Four rows — two negative, two controls — and removing either reading turns exactly the two negative rows red.
+
+**F-313's census was one place short, and the shortfall is the finding's own systemic cause.** The four places it names are done, and a fifth existed: four `it` names and seven comments under `tests/` still described `host.fail`, `host.cancel` and `host.closed`, with three `COVERAGE.md` rows citing them. A site in a file the pass did not touch surviving is exactly what F-313 says goes wrong; recorded rather than absorbed.
+
+**F-319's census is now exact rather than a range.** Diffing every comment line of both spec files against `261a3a16` and discarding deliberate rewrites gives **31 corrupted lines, all in `free-drag/spec.ts`** — the sortable's only instance was the stale half of F-321's duplicated block. Two kinds and two repairs: a swallowed ordinary word comes back as the word; a backticked identifier reads as the member it names, matching what the sortable's comments already do.
+
+**F-315 stops at the boundary the finding drew.** The four live sites read `BehaviorContext`, and two adjacent live sites in `05` went with them; the dated entries narrating what D-32, D-41 and D-53 did to `KernelHost` stay, because they are provenance and the finding excludes the historical occurrences for that reason.
+
+**Measured, and no budget moved.** Three latch readings arrive, one `index.retire()` leaves, and the sortable rows land between **−14 and +21 B** Brotli — the ceilings absorb it, so nothing is re-based. **Six rows sit at exactly 0**, and they are this pass's controls in the strict sense: all four free-drag compositions, `kernel.js` and `drag.js`. Free drag's comment repairs are the larger half of the diff by line count and cost nothing, which is the number saying so.
+
+**Nothing from Stage 1 or the C1–C5 arcs is started**, and F-323 is untouched.
+
+---
+
 ### 2026-09-07 — the last factory becomes the class it hands out, and the façade goes with it (D-170 step 6, F-308…F-311 closed)
 
 **The migration is complete.** `createKernel` is `class Kernel<Part, Activation> implements BehaviorContext`; the `host` literal and the two-member `Kernel` handle are deleted, `KernelHost` is renamed outright with no alias, and `draggable()` hands the behavior the kernel itself under the narrower type. Twenty-nine `let` bindings became fields, fifty closures became prototype methods, the attempt trio became one `AttemptSlots` record, and `thenOf` left the class entirely because it reads no kernel state.

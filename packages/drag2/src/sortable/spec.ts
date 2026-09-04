@@ -421,14 +421,6 @@ class SortableBehavior {
   /**
    * The admitted item, from the event's **composed path** rather than
    * `event.target`: the press may land inside a shadow root, and the item is
-   * whichever ancestor the this.#snapshot knows.
-   *
-   * Shared by both ingresses so that "a handle gates the keyboard path too" is
-   * one rule in one place rather than two implementations that agree.
-   */
-  /**
-   * The admitted item, from the event's **composed path** rather than
-   * `event.target`: the press may land inside a shadow root, and the item is
    * whichever ancestor the snapshot knows.
    *
    * Shared by both ingresses so that "a handle gates the keyboard path too" is
@@ -1283,7 +1275,18 @@ class SortableBehavior {
 
         stale = false;
       } finally {
-        if (stale) {
+        // **Not on a closed controller**, and the second conjunct is the
+        // reading this site owes. `invalidateInsertion` is a declared
+        // consumer slot — a published axis installer fills it — and every
+        // exit that leaves `stale` set arrives here from a consumer-reachable
+        // step: the placeholder's own reactions, or the hook itself. One of
+        // those exits has already read the latch as closed two statements up.
+        //
+        // Skipping it loses nothing the boundary does not already do: the
+        // assembler pushes the axis's `retire` into `retireHooks`, and
+        // teardown walks them, so a closed controller's cache is emptied and
+        // marked stale rather than left describing a tree that never existed.
+        if (stale && !this.#kernel.closed) {
           this.#invalidateInSeam();
         }
 

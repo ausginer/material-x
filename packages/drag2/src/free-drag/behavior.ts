@@ -6,7 +6,7 @@
  * than a rule.
  *
  * Assembly happens **inside** the returned factory, not before it: an installer
- * is handed `realm` and `root`, and neither exists until the kernel has a host.
+ * is handed `realm` and `root`, and neither exists until the kernel does.
  *
  * **There is no second factory, and no `install` between them.** Every
  * free-drag test constructs through the public `freeDrag()` entry, because this
@@ -28,7 +28,7 @@ import type { FreeDragFramePart } from './frames.ts';
 import { createFreeDragSpec } from './spec.ts';
 
 /**
- * Merges the fragments, then assembles against the host's realm and root.
+ * Merges the fragments, then assembles against the kernel's realm and root.
  *
  * **Two stages, and the split is deliberate**: the merge resolves every named
  * slot before a single installer runs, which is what makes last-wins a merge
@@ -51,12 +51,12 @@ export function createComposedFreeDragBehavior(
 ): BehaviorFactory<FreeDragController, FreeDragFramePart> {
   const merged = mergeFreeFragments(config, fragments);
 
-  return (host) => ({
+  return (kernel) => ({
     spec: createFreeDragSpec(
-      host,
+      kernel,
       assemble(merged, {
-        realm: host.realm,
-        root: host.root,
+        realm: kernel.realm,
+        root: kernel.root,
         // **The composition unwind's only route to the channel.** `assemble`
         // runs before `arm()`, so no behavior spec exists yet and the kernel's
         // own notifier is unreachable — but `merged.onError` is in hand right
@@ -67,7 +67,7 @@ export function createComposedFreeDragBehavior(
         // which operation is live, so classifying a failure from one would let
         // a late continuation settle another.
         report: (error) => {
-          if (host.closed) {
+          if (kernel.closed) {
             return;
           }
 
@@ -84,6 +84,6 @@ export function createComposedFreeDragBehavior(
         },
       }),
     ),
-    controller: createFreeDragController(host),
+    controller: createFreeDragController(kernel),
   });
 }

@@ -308,8 +308,8 @@ class FreeDragBehavior {
    * source: there is no placeholder, so nothing measures a footprint and
    * `box === visual` is not a choice being repeated.
    *
-   * **The item is `this.#root`.** `freeDrag(item, …)` passes the item as the
-   * ingress boundary, so the ingress this.#root and the dragged item are the same
+   * **The item is the root.** `freeDrag(item, …)` passes the item as the
+   * ingress boundary, so the ingress root and the dragged item are the same
    * element by construction rather than by lookup — which is why there is no
    * composed-path search here and no collection to search.
    */
@@ -358,7 +358,7 @@ class FreeDragBehavior {
 
     // **What did the event land on**, asked after the subject is known and
     // before anything is seeded. A press reaching a `[data-drag-ignore]`
-    // region declines by the ordinary total-decline path: no this.#operation, no
+    // region declines by the ordinary total-decline path: no operation, no
     // phase change, and — since the kernel prevents nothing for a `null` —
     // focus lands and the caret places.
     if (pathOwnsInteraction(path, subject)) {
@@ -371,7 +371,7 @@ class FreeDragBehavior {
       visual = this.#slots.visual(this.#root);
 
       // The terminal barrier on the visual resolver. `runAdmission`
-      // revalidates after this whole callback and declines the this.#operation, but
+      // revalidates after this whole callback and declines the operation, but
       // it does not scrub the draft it declined — so without this the write
       // below would pin the visual in an inactive frame nothing clears again.
       if (this.#kernel.closed) {
@@ -388,7 +388,7 @@ class FreeDragBehavior {
   // Activation
   // -----------------------------------------------------------------------
 
-  /** Strict order: register, make visible, publish, then this.#notify. */
+  /** Strict order: register, make visible, publish, then notify. */
   effectActivation(
     current: Readonly<Frame<FreeDragFramePart>>,
     _prepared: true,
@@ -421,16 +421,16 @@ class FreeDragBehavior {
       // second, so this marks staleness and never resolves — the feature
       // re-reads on the next `apply`.
       //
-      // A local `try`/`catch`, not `this.#unwind` and not `this.#kernel.fail`. **Nothing
+      // A local `try`/`catch`, not `#unwind` and not `kernel.fail`. **Nothing
       // is pending**: this is one call at the end of a native listener, so
-      // no later statement is load-bearing and the shared this.#unwind helper
+      // no later statement is load-bearing and the shared unwind helper
       // would be naming a rule this site does not have.
       //
-      // Not `this.#kernel.fail` because a native scroll listener is not a seam, so
+      // Not `kernel.fail` because a native scroll listener is not a seam, so
       // a classified failure raised here would be refused anyway. Unlike
       // the sortable's equivalent there is no third action tag to re-raise
       // it through — this behavior declares `actionTags: 2` — and
-      // `this.#invalidate()` is contractually a staleness flag rather than a
+      // `#invalidate()` is contractually a staleness flag rather than a
       // resolve, so the throw it would report is a defect in a constraint
       // rather than in consumer data.
       this.#invalidate(scope.motion.signal, () => {
@@ -461,13 +461,13 @@ class FreeDragBehavior {
     );
 
     // **The last barrier of the activation sequence.** `deriveMotion` calls
-    // `this.#slots.constrain.apply`, which reaches a third-party constraint and — with
+    // `constrain.apply`, which reaches a third-party constraint and — with
     // `bounds()` installed — the consumer's own rect source. So this is the
     // reading owed *after the last consumer-reachable call and before the
     // first thing that survives it*: the lift write, the progress advance
     // and `onStart` are all on the far side of it.
     //
-    // **It is the only reading in this seam**: `this.#axis` is fixed, so it is
+    // **It is the only reading in this seam**: `#axis` is fixed, so it is
     // read from the slot record without entering consumer code at all.
     if (this.#kernel.closed) {
       return;
@@ -503,7 +503,7 @@ class FreeDragBehavior {
   // -----------------------------------------------------------------------
 
   /**
-   * Raw delta from the committed sample plus the frame's offset, this.#axis, the
+   * Raw delta from the committed sample plus the frame's offset, the axis, the
    * constraint when installed, the write — and **then** `onMove`, so the
    * callback observes a visual that has already moved.
    */
@@ -563,7 +563,7 @@ class FreeDragBehavior {
     // correctness: from `onEnd` it is FIFO-ahead of `RETIRE`, so it writes
     // through an already-disposed lift and leaves a stray inline transform
     // on a released element. `TAG_POLICY` is refused for hygiene: it writes
-    // no geometry, but it re-enters a third-party `this.#slots.constrain.invalidate()`
+    // no geometry, but it re-enters a third-party `constrain.invalidate()`
     // when no later sample exists to be affected. They coincide today only
     // because free drag takes no sample after release.
     //
@@ -573,7 +573,7 @@ class FreeDragBehavior {
     // `onEnd` has not made an error the library should classify.
     //
     // **Not in the kernel**, deliberately: the sortable *intentionally*
-    // accepts a collection `this.#invalidate()` in these same phases, because a
+    // accepts a collection `invalidate()` in these same phases, because a
     // collection change during settlement is real information and a
     // position write is not. Action legality is behavior knowledge.
     if (draft.phase !== ACTIVATING && draft.phase !== ACTIVE) {
@@ -582,7 +582,7 @@ class FreeDragBehavior {
 
     if (tag === TAG_POLICY) {
       // **One consumer-reachable call, and nothing to publish.**
-      // `this.#invalidate()` is a staleness flag: the constraint re-resolves on
+      // `#invalidate()` is a staleness flag: the constraint re-resolves on
       // its own next `apply`, so there is no staged value, no commit and no
       // `effect` branch. Nothing follows the call in this seam, so there is
       // no closure barrier to read after it.
@@ -593,7 +593,7 @@ class FreeDragBehavior {
 
     if (tag === TAG_POSITION) {
       // **`moveTo` re-bases.** The offset is chosen so the visual is at
-      // `point` on the next committed frame, and later pointer this.#motion
+      // `point` on the next committed frame, and later pointer motion
       // continues *relative to that*, which composes with a live pointer
       // rather than fighting it.
       //
@@ -686,7 +686,7 @@ class FreeDragBehavior {
 
     // **The terminal barrier on the frame write.** The only
     // consumer-reachable call above is a `bounds` source inside
-    // `this.#slots.constrain.apply`; the request pins the item, the visual and a rect
+    // `constrain.apply`; the request pins the item, the visual and a rect
     // in a frame teardown has already scrubbed and will not scrub again.
     // The command is still returned rather than nulled — `invoke: null`
     // asserts a proven no-op, and the kernel already refuses to run a
@@ -714,7 +714,7 @@ class FreeDragBehavior {
    * this the visual, and therefore the whole landing trajectory, would
    * start from a stale position while `anchorTarget` reports the fresh one.
    *
-   * `this.#motion` still holds the release delta `prepare` derived, and nothing
+   * `#motion` still holds the release delta `prepare` derived, and nothing
    * between the two phases can have changed it.
    */
   effectRelease(): void {
@@ -786,7 +786,7 @@ class FreeDragBehavior {
       case SETTLED_REJECTED: {
         // A rejected thenable is a resolver malfunction, not a considered
         // consumer verdict, so it is a named classified failure rather than
-        // an inferred rejection. It still *ends* the this.#operation, but as a
+        // an inferred rejection. It still *ends* the operation, but as a
         // fault reported through `onError`, with the terminal saying
         // `canceled` rather than `rejected`.
         //
@@ -815,12 +815,12 @@ class FreeDragBehavior {
           report: input.report,
         };
 
-        // A terminal-callback failure arrives *after* the this.#operation
+        // A terminal-callback failure arrives *after* the operation
         // finalized, so rewriting the result now would relabel a drop that
         // has already been reported.
         if (input.stage !== FAILURE_TERMINAL_CALLBACK) {
           // **Existing result wins, otherwise `canceled`** — a lookup on
-          // the frame rather than a branch per stage. A this.#transaction opens
+          // the frame rather than a branch per stage. A transaction opens
           // with `Object.assign(draft, current)`, so a settlement that
           // already committed a result arrives here still carrying it, and
           // `??=` is the tie-break. It is the lookup that makes the
@@ -828,7 +828,7 @@ class FreeDragBehavior {
           // like: a `settlement.effect` that throws is classified from the
           // committed state, which reaches this line with a result present
           // and before any terminal has been published, and the value kept
-          // here is then the this.#operation's only terminal.
+          // here is then the operation's only terminal.
           //
           // **The marker decides the stage, and it also decides whether to
           // publish at all.** At `MINTED` the consumer never heard this
@@ -876,7 +876,7 @@ class FreeDragBehavior {
       // The error carries the stage the kernel classified with, and this
       // member neither reads it nor derives anything from it.
       //
-      // Reported through `this.#notify`, so a throwing handler stops here instead
+      // Reported through `#notify`, so a throwing handler stops here instead
       // of becoming a fresh library fault that reports itself back. The
       // kernel built the error, and no `domain` rides along with it:
       // `finalized` publishes that same `current.domain` to `onEnd`
@@ -911,16 +911,16 @@ class FreeDragBehavior {
       // consumer call and no DOM read. It is the visual's current position.
       //
       // **Read, not re-derived.** This arm must not call `deriveMotion`: its
-      // last statement is `this.#slots.constrain.apply`, so the no-consumer-call claim
+      // last statement is `constrain.apply`, so the no-consumer-call claim
       // above would be false whenever any constraint is installed, and this
       // seam would become a fifth `apply` site. Such a derivation also has no
-      // barrier of its own: `this.#kernel.closed` is read immediately before `home`
+      // barrier of its own: `kernel.closed` is read immediately before `home`
       // below and nowhere before a derivation, so a third-party `apply` would
       // run after logical closure while the resolver beside it is guarded.
       //
       // A re-derivation computes the same numbers from the same committed
       // frame, so the read costs nothing. **The invariant it rests on is
-      // stated rather than assumed**: `this.#motion` still holds the delta
+      // stated rather than assumed**: `#motion` still holds the delta
       // `release.prepare` derived and `release.effect` wrote, and nothing may
       // change it in between — both behavior tags are deterministic no-ops
       // after `ACTIVE`.
@@ -931,7 +931,7 @@ class FreeDragBehavior {
     }
 
     // **The terminal barrier before the one consumer call, and it is the
-    // second conjunct.** `this.#kernel.closed` is read only when there is a call to
+    // second conjunct.** `kernel.closed` is read only when there is a call to
     // stop: the kernel revalidates around `anchorTarget` and never starts a
     // landing for a destroyed controller, so what this stops is the call
     // itself. Both failing conjuncts fall through to the same answer, which
@@ -966,9 +966,9 @@ class FreeDragBehavior {
       // boundary and pins geometry with, and a getter-backed `Point` is a
       // legitimate shape rather than misuse.
       //
-      // **Each this.#axis is read exactly once, and the reads precede the writes.**
+      // **Each axis is read exactly once, and the reads precede the writes.**
       // The cache removes the allocation and nothing else: reading `home`
-      // twice, or writing `this.#anchor.x = home.x` and then `this.#anchor.y = home.y`,
+      // twice, or writing `#anchor.x = home.x` and then `#anchor.y = home.y`,
       // would still be two reads of a live accessor — the second separated
       // from the first by a field write. The destructuring below is the copy
       // this seam already owed.
@@ -1019,7 +1019,7 @@ class FreeDragBehavior {
    * consumer's to discriminate; with one `onEnd` there is no routing
    * predicate to get wrong.
    *
-   * `null` means one thing only: the this.#operation failed **before** `onStart`
+   * `null` means one thing only: the operation failed **before** `onStart`
    * ran, so the consumer has no record of it beginning.
    */
   finalized(current: Readonly<Frame<FreeDragFramePart>>): void {
@@ -1033,13 +1033,13 @@ class FreeDragBehavior {
   /**
    * **Forward, and nothing else.** The kernel builds the public error, picks
    * its class and owns the latch; this member is the last hop, and it is
-   * {@link this.#deliver} itself.
+   * the channel itself.
    *
    * It neither maps nor attaches context: the mapping is kernel-owned, so it
    * cannot mean two things in two behaviors, and a `domain: null` context is
    * strictly redundant with the terminal.
    *
-   * Its one caller is the kernel's `this.#notify`, which gates on the latch and
+   * Its one caller is the kernel's own channel, which gates on the latch and
    * discards a throwing handler for every route it owns — including `panic`'s
    * post-closure delivery, which is exactly why neither rule can live here.
    */

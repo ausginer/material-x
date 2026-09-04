@@ -165,7 +165,7 @@ export {
 
 /**
  * The stages, as **values as well as a type**. A behavior author calls
- * `host.fail(stage, error)` and cannot do so without naming one, so the tier
+ * `kernel.fail(stage, error)` and cannot do so without naming one, so the tier
  * that depends on the vocabulary publishes it.
  *
  * `drag.js` re-exports the same declaration, because `DraggableError.stage`
@@ -224,7 +224,8 @@ export {
 /**
  * Creates one controller.
  *
- * The factory is called with the kernel host and returns both halves at once:
+ * The factory is called with the kernel, narrowed to {@link BehaviorContext},
+ * and returns both halves at once:
  * the behavior needs `cancel`/`destroy` to build its controller, and the kernel
  * needs the spec before it can arm ingress. Ingress is armed exactly once,
  * after the factory has returned, so no input can be admitted before then.

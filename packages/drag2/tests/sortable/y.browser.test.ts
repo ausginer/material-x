@@ -16,6 +16,7 @@ import type {
   SortableFeatureContext,
   InsertionGeometry,
 } from '../../src/sortable/feature.ts';
+import type { DisplacementSettle } from '../../src/sortable/rect-index.ts';
 import { y } from '../../src/sortable/y.ts';
 
 const ITEM_HEIGHT = 40;
@@ -42,11 +43,35 @@ type Field = Readonly<{
     snapshot?: CollectionSnapshot,
     getBox?: ((item: HTMLElement) => HTMLElement) | null,
     live?: () => boolean,
+    settle?: DisplacementSettle | null,
+    insertion?: Insertion | null,
   ): Insertion | null;
+  /**
+   * One committed move, as `action.effect` drives it: the gap the write just
+   * landed on, and the runtime the axis reads its slots off.
+   */
+  move(
+    gap: number,
+    snapshot?: CollectionSnapshot,
+    getBox?: ((item: HTMLElement) => HTMLElement) | null,
+    live?: () => boolean,
+    settle?: DisplacementSettle | null,
+  ): void;
 }>;
 
 /** The default liveness: a controller nobody destroyed. */
 const ALIVE = (): boolean => true;
+
+/**
+ * A gap the axis is told a committed move landed on. Only `index` is read on
+ * this path, so the two anchors carry the end-gap shape rather than a lookup.
+ */
+const gapAt = (index: number): Insertion => ({
+  version: 0,
+  index,
+  before: null,
+  after: null,
+});
 
 /**
  * Three 40px boxes from y=0. The dragged item is `items[0]`, out of flow the way
@@ -95,19 +120,47 @@ function createField(count = 3): Field {
       snapshot = field.snapshot(),
       getBox = null,
       live = ALIVE,
+      settle = null,
+      insertion = null,
     ) =>
       geometry.resolve(
-        { pointerX: 0, pointerY, insertion: null, item: items[0]! },
+        { pointerX: 0, pointerY, insertion, item: items[0]! },
         {
           snapshot,
           placeholder,
           box: getBox,
           live,
-          insertion: null,
-          settle: null,
+          insertion,
+          settle,
           space: null,
         },
       ),
+    move: (
+      gap,
+      snapshot = field.snapshot(),
+      getBox = null,
+      live = ALIVE,
+      settle = null,
+    ) => {
+      geometry.moved(
+        {
+          pointerX: 0,
+          pointerY: 0,
+          insertion: gapAt(gap),
+          item: items[0]!,
+        },
+        {
+          snapshot,
+          placeholder,
+          box: getBox,
+          live,
+          insertion: gapAt(gap),
+          settle,
+          space: null,
+        },
+        null,
+      );
+    },
   };
 
   return field;
@@ -571,5 +624,134 @@ describe('the terminal barrier on candidate geometry', () => {
     ).toBeNull();
 
     expect(asked).toEqual([]);
+  });
+});
+
+/**
+ * **`settle` is a declared consumer slot**, and the two sites that invoke it are
+ * pinned here.
+ *
+ * Membership is fillability rather than authorship: `SortableDisplacementInstaller`
+ * is published, so a third party can supply the sink, and neither the axis nor
+ * the cache can read which value a given composition passed. A shipped
+ * `layoutAnimation()` walk and a third-party one are indistinguishable at the
+ * call, so the invoker takes the reading either way.
+ *
+ * **The last candidate is what discriminates.** With a later candidate
+ * remaining, the reading before the next `box` already stops the rebuild and
+ * the sink is never reached; a fixture that closes early would pass with no
+ * barrier here at all.
+ */
+describe('the terminal barrier before the displacement sink', () => {
+  const closingOn =
+    (
+      target: HTMLElement,
+      close: () => void,
+    ): ((item: HTMLElement) => HTMLElement) =>
+    (item) => {
+      if (item === target) {
+        close();
+      }
+
+      return item;
+    };
+
+  it('should invoke no settle once the last candidate closed the controller', () => {
+    const field = createField(4);
+    let alive = true;
+    const settled: number[] = [];
+    const settle: DisplacementSettle = (_values, _items, count): void => {
+      settled.push(count);
+    };
+
+    // The scan itself completes — the close is raised on the last candidate, so
+    // no further `box` invocation is owed a reading — and what stops the sink
+    // is the reading taken immediately before it.
+    expect(
+      field.resolve(
+        55,
+        field.snapshot(),
+        closingOn(field.items[3]!, () => {
+          alive = false;
+        }),
+        () => alive,
+        settle,
+      ),
+    ).toBeNull();
+
+    expect(settled).toEqual([]);
+  });
+
+  it('should invoke settle once on a rebuild the controller survived', () => {
+    // The other direction, because a barrier that never lets the sink run is
+    // indistinguishable from one that works.
+    const field = createField(4);
+    const settled: number[] = [];
+    const settle: DisplacementSettle = (_values, _items, count): void => {
+      settled.push(count);
+    };
+
+    field.resolve(55, field.snapshot(), null, ALIVE, settle);
+
+    expect(settled).toEqual([3]);
+  });
+
+  it('should invoke no settle from a committed move once the probe read closed the controller', () => {
+    // The second site: the linear rule measures **one** crossed row to
+    // establish its constant, and settles that one-slot scratch through the
+    // sink. `box` runs on the probe first, so a resolver that destroys there
+    // must not be followed by a call into the sink.
+    const field = createField(4);
+    let alive = true;
+    const settled: number[] = [];
+    const settle: DisplacementSettle = (_values, _items, count): void => {
+      settled.push(count);
+    };
+
+    // Warm the cache and record the gap the buffer reflects, so the move below
+    // proposes a real span rather than being dropped as degenerate.
+    field.resolve(15, field.snapshot(), null, ALIVE, settle, gapAt(0));
+    settled.length = 0;
+
+    field.move(
+      2,
+      field.snapshot(),
+      closingOn(field.items[1]!, () => {
+        alive = false;
+      }),
+      () => alive,
+      settle,
+    );
+
+    expect(settled).toEqual([]);
+  });
+
+  it('should forget the prediction when the probe read closed the controller', () => {
+    // The stop is `#drop()`, not a bare `return`: a move that measured no
+    // constant has claimed nothing, and the cache it would have advanced is
+    // marked stale so the next rebuild measures instead of trusting it.
+    const field = createField(4);
+    let alive = true;
+    const asked: HTMLElement[] = [];
+
+    field.resolve(15, field.snapshot(), null, ALIVE, null, gapAt(0));
+    field.move(
+      2,
+      field.snapshot(),
+      closingOn(field.items[1]!, () => {
+        alive = false;
+      }),
+      () => alive,
+      (_values, _items, _count): void => {},
+    );
+
+    // Same version and nothing else invalidated: only a dropped prediction
+    // makes this rebuild rather than serve the warm buffer.
+    field.resolve(15, field.snapshot(), (item) => {
+      asked.push(item);
+      return item;
+    });
+
+    expect(asked).toEqual([field.items[1], field.items[2], field.items[3]]);
   });
 });

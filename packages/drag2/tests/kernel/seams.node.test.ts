@@ -473,7 +473,7 @@ describe('runCore failure', () => {
 });
 
 describe('explicit failure latching', () => {
-  it('should treat host.fail in prepare as a prepare failure', () => {
+  it('should treat kernel.fail in prepare as a prepare failure', () => {
     const harness = createHarness();
     const error = new Error('explicit');
 
@@ -488,7 +488,7 @@ describe('explicit failure latching', () => {
       FAILURE_ACTIVATION,
     );
 
-    // Returning normally after `host.fail` must be indistinguishable from a
+    // Returning normally after `kernel.fail` must be indistinguishable from a
     // throw at the driver boundary (D-28, F-34).
     expect(outcome).toBe(SEAM_PREPARE_FAILED);
     expect(harness.commits()).toBe(0);
@@ -509,7 +509,7 @@ describe('explicit failure latching', () => {
     expect(transition.calls).toEqual(['prepare']);
   });
 
-  it('should treat host.fail in an effect as an effect failure', () => {
+  it('should treat kernel.fail in an effect as an effect failure', () => {
     const harness = createHarness();
 
     const outcome = harness.driver.runCore(
@@ -550,7 +550,7 @@ describe('explicit failure latching', () => {
     ).toBe(SEAM_COMMITTED);
   });
 
-  it('should report host.fail outside a seam as a warning rather than classifying it', () => {
+  it('should report kernel.fail outside a seam as a warning rather than classifying it', () => {
     const harness = createHarness();
     const error = new Error('late');
 
@@ -631,7 +631,7 @@ describe('explicit failure latching', () => {
     expect(harness.commits()).toBe(0);
   });
 
-  it('should report host.fail inside rollback exactly like a throw inside it', () => {
+  it('should report kernel.fail inside rollback exactly like a throw inside it', () => {
     const harness = createHarness();
     const error = new Error('during rollback');
 
@@ -652,7 +652,7 @@ describe('explicit failure latching', () => {
     expect(outcome).toBe(SEAM_INVALIDATED);
     expect(harness.failures).toHaveLength(0);
 
-    // **`host.fail` inside `rollback` is now literally the same event as a
+    // **`kernel.fail` inside `rollback` is now literally the same event as a
     // throw inside it** (D-130). It used to report a distinct
     // `seam/fail-during-rollback`; applying one sentinel to the whole phase is
     // what makes the equivalence the comment always claimed hold in the output.

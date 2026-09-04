@@ -98,11 +98,14 @@ export type LinearRuntime = Readonly<{
  * second linear axis a rule module and a subpath rather than a rewrite of this
  * one.
  *
- * **It reads no liveness latch anywhere**, and that is a property rather than
- * an omission: `live` is forwarded into the cache's rebuild and `runtime.live`
- * is forwarded into `report`, because the party that must take the reading is
- * the one performing the act, and in this module that party is never this
- * class. So there is no `#live` field and no liveness member to acquire.
+ * **It holds no latch and reads one where it invokes a consumer slot.** `live`
+ * is forwarded into the cache's rebuild and `runtime.live` into `report`,
+ * whose contract obliges the reading at its own head; and where this class
+ * invokes a slot itself — `settle`, inside {@link LinearShift.moved} — it
+ * takes the reading immediately before the call, because the party that must
+ * read is the one performing the act. The latch always arrives as data the
+ * caller already passes, so there is no `#live` field and no liveness member
+ * to acquire.
  *
  * **Every field is private and nothing outside writes one.** The cache it
  * holds is reached through the operations that cache declares, never through
@@ -259,8 +262,13 @@ export class LinearShift {
     }
 
     if (!index.refresh(snapshot, dragged, getBox, live, placeholder, settle)) {
+      // **This module forgets its own prediction and nothing else.** The cache
+      // documents its `false` as *the rebuild stopped at that reading*, and its
+      // one stop runs `retire()` first, because that is its single definition
+      // of stop. Retiring it again here would be a guard against a collaborator
+      // breaking its own documented return contract, which is not a state
+      // correct use of the contract can reach.
       this.#forget();
-      index.retire();
 
       return false;
     }
@@ -321,17 +329,31 @@ export class LinearShift {
       // Any crossed row answers, because they all travelled the same
       // constant. Measured as its **box**, which is what the cache holds.
       const probe = items[lo]!;
-      // **No liveness reading here**, and its absence is the placement rule
-      // rather than an omission: one would sit *after* the slot call it could
-      // never have protected. The genuine obligation — `box` invoked per
+      // **No reading before `box`, and that is placement rather than
+      // omission.** The obligation for this invocation — `box` is called per
       // candidate in one seam's prepare and once more in its effect — is
-      // carried upstream, immediately before the call that follows.
+      // discharged upstream, immediately before the call that reaches here,
+      // with no consumer-reachable step in between.
       const rect = (
         runtime.box ? runtime.box(probe) : probe
       ).getBoundingClientRect();
       let observed = this.#start === TOP ? rect.top : rect.left;
 
       if (runtime.settle) {
+        // **The reading this module owes, immediately before the slot it
+        // protects.** `settle` is a declared consumer slot — a published
+        // installer fills it, and which value a composition passed is not
+        // readable here — so it must not be invoked after the controller
+        // closed. The two steps above are consumer-reachable and either could
+        // have closed it: `box` is the consumer's own resolver, and the
+        // geometry read is overridable on a consumer-owned row. Stopping
+        // through `#drop()` forgets the prediction this move would otherwise
+        // have claimed, which is what the caller's next rebuild relies on.
+        if (!runtime.live()) {
+          this.#drop();
+          return;
+        }
+
         // The row may be mid-flight from an earlier move. Both sides of the
         // difference have to be settled geometry, and the cache already is.
         // Settled through the sink's own walk over a one-slot scratch, so

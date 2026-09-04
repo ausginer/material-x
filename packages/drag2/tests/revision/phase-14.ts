@@ -185,20 +185,18 @@ export function sampleLandingOrigin(
 /* ========================================================== D-33 ========== */
 
 /**
- * **Implemented in Phase 15, so the restatement is gone.**
+ * **Retracted with the protocol, so the restatement is gone.**
  *
- * `SettlementScope`, `PreparedSettlement` and `SettlementTransition` are now
- * imported from `src/` rather than restated here: `holdForReadiness()` takes
- * nothing, the gate plan is `{ presentation: boolean }`, and the
- * acknowledgement arrives through `BehaviorContext.presentationCommitted()`. A
- * restatement that outlives its implementation is how a fixture starts lying,
- * which is why each half is deleted the moment `src/` agrees with it rather
- * than at the end of the roadmap.
+ * D-33's readiness and acknowledgement path does not exist: D-41 deleted
+ * `holdForReadiness()`, the `{ presentation: boolean }` gate plan,
+ * `ResolutionOptions`, `SortableController.ready(request)` and the host member
+ * that carried the acknowledgement, and `n10` and `n11` below are what hold
+ * that. Nothing here restates a surface `src/` no longer has — a restatement
+ * that outlives its implementation is how a fixture starts lying, which is why
+ * each half is deleted the moment it stops being true rather than at the end of
+ * the roadmap.
  *
- * The same is true of the public half below — `ResolutionOptions`,
- * `ReorderResolution` and `SortableController.ready(request)` are the shipped
- * ones. What is still restated in this file is D-32, D-34 and D-35, which land
- * with Phases 16 and 19–20.
+ * What is still restated in this file is D-32, D-34 and D-35.
  */
 
 /* ========================================================== D-32 ========== */
@@ -209,14 +207,17 @@ type CommandAdmission<Part extends object> = Readonly<{
   admit(event: Event, draft: Draft<Part>): HTMLElement | null;
 }>;
 
-/* ===================================================== host and spec ====== */
+/* ================================================== context and spec ====== */
 
 /**
- * **`BehaviorContext` is imported.** Seven members: six unchanged — D-32 added none,
- * which is the result it claims — and `presentationCommitted`, which is D-33's
- * and shipped with Phase 15. The kernel-side contradiction rule it carries is
- * kernel-private and therefore not expressible in this fixture; the behavior
- * half of the same rule *is*, in `createSortableController` below.
+ * **`BehaviorContext` is imported.** D-32 added no member to it, which is the
+ * result D-32 claims, and this fixture holds that by importing the type rather
+ * than restating it: a member added to the kernel's behavior-facing surface
+ * would appear here without anyone editing the file.
+ *
+ * The one member D-33 proposed to add went with D-41, so the kernel-side
+ * contradiction rule that would have carried it is not expressible here; the
+ * behavior half of that rule *is*, in `createSortableController` below.
  */
 
 type RevisedActivationScope = Readonly<{

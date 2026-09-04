@@ -8,7 +8,7 @@
  * statement is `constrain.apply`. Three documents said otherwise at once: the
  * seam's own comment claimed *no consumer call and no DOM read*, I-36's
  * Category-1 table omitted the slot entirely, and D-81's deliberately
- * re-derived four-seam enumeration missed it — while `host.closed` was read
+ * re-derived four-seam enumeration missed it — while `kernel.closed` was read
  * immediately before `home` and nowhere before the derivation, so a third-party
  * `apply` ran after logical closure with the resolver beside it guarded.
  *

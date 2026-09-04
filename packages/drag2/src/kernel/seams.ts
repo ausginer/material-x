@@ -147,7 +147,7 @@ const NO_STAGE = 0;
  * operation the kernel has just decided to abandon. The arm-time landing
  * measurement runs when the operation is already **committed**, so classifying
  * there would settle a drop that really happened. Applying the sentinel to the
- * whole phase is what makes an explicit `host.fail` inside either behave
+ * whole phase is what makes an explicit `kernel.fail` inside either behave
  * exactly like a throw inside it.
  */
 const UNCLASSIFIED = -1;
@@ -245,7 +245,7 @@ export class SeamDriver<Part extends object> {
    * `effectStage` defaults to `stage` and exists for the one seam whose two
    * phases fail at different stages: a behavior action resolves an insertion in
    * `prepare` and moves the placeholder in `effect`, and a throw in each is
-   * classified at its own stage. An explicit `host.fail` narrows further from
+   * classified at its own stage. An explicit `kernel.fail` narrows further from
    * the inside; this is only the default a raw throw lands on.
    */
   runCore<Prepared extends {}, Capability>(
@@ -322,7 +322,7 @@ export class SeamDriver<Part extends object> {
    * `false` when it threw or latched a failure.
    *
    * This exists so those seams behave **identically** whether the behavior
-   * throws or calls `host.fail`. Without it a `moved` throw would escape the
+   * throws or calls `kernel.fail`. Without it a `moved` throw would escape the
    * handler and become a *panic* that destroyed the controller, contradicting
    * the existence of `FAILURE_RENDERER_WRITE`.
    */
@@ -346,7 +346,7 @@ export class SeamDriver<Part extends object> {
 
   /**
    * {@link SeamDriver.runLeafValue} on the **unclassified track**: the seam
-   * still runs inside a phase — re-entry refused, `host.fail` latched, one
+   * still runs inside a phase — re-entry refused, `kernel.fail` latched, one
    * report per phase — but a failure reaches the consumer as a warning instead
    * of settling the operation.
    *
@@ -394,7 +394,7 @@ export class SeamDriver<Part extends object> {
   }
 
   /**
-   * `host.fail`. Valid **only inside a kernel-driven seam of the current
+   * `kernel.fail`. Valid **only inside a kernel-driven seam of the current
    * operation**: a call outside one is reported as a warning instead, because a
    * late continuation from operation A could otherwise classify a failure
    * against operation B.
@@ -502,7 +502,7 @@ export class SeamDriver<Part extends object> {
    * One behavior callback, start to finish — **the only place this module runs
    * foreign code**, and therefore the one boundary the re-entry guard has to
    * cover. Refuses a nested phase, opens the phase, runs `run`, closes it,
-   * panics on a latched re-entry, and reduces a throw or a latched `host.fail`
+   * panics on a latched re-entry, and reduces a throw or a latched `kernel.fail`
    * to {@link FAILED}. Returns whatever `run` returned otherwise.
    *
    * The order is the contract, and having it in one place is why it holds for
@@ -555,7 +555,7 @@ export class SeamDriver<Part extends object> {
           new DraggableWarning(this.#unclassifiedReason, { cause: raised }),
         );
       } else if (this.#failureRequested) {
-        // **One phase, one report.** A phase that called `host.fail` and then
+        // **One phase, one report.** A phase that called `kernel.fail` and then
         // threw is already classified against its own error; the throw travels
         // as a warning, which is what keeps it from deciding the outcome.
         context.notify(

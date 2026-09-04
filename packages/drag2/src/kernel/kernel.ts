@@ -2006,16 +2006,13 @@ export class Kernel<
   /**
    * The active-movement leaf, hoisted to **one** controller-stable closure.
    *
-   * Inlining it as an arrow at the call site allocates a fresh closure on every
+   * **Wrapped, not detached**: the seam calls it with no receiver of its own,
+   * so a bare prototype read would arrive without one. A field rather than an
+   * arrow at the call site because inlining allocates a fresh closure on every
    * active pointer sample — the one path whose allocations count — and the
    * emitted bundle keeps the arrow rather than folding it away. Reading the
    * swappable `current` frame and `activation` record at call time is what
    * makes hoisting sound: neither is captured by value.
-   */
-  /**
-   * The move leaf as a value. **Wrapped, not detached**, and a field rather
-   * than an expression at the call: the seam runs it once per accepted pointer
-   * sample, so the closure is allocated with the kernel and not with the move.
    */
   readonly #movedLeaf = (): void => {
     this.#runMoved();

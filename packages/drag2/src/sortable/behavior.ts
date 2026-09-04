@@ -3,21 +3,22 @@
  *
  * ```ts
  * return {
- *   spec: createSortableSpec(host, source, items, slots),
- *   controller: createSortableController(host),
+ *   spec: createSortableSpec(kernel, source, items, slots),
+ *   controller: createSortableController(kernel),
  * };
  * ```
  *
  * Both halves are returned at once, which is what makes "no input can be
  * admitted before install returns" unexpressible rather than a rule.
  *
- * **Neither half is handed a runtime object**: what each takes is the host, and
+ * **Neither half is handed a runtime object**: what each takes is the kernel,
+ * narrowed to {@link BehaviorContext}, and
  * the behavior's own state lives in the spec's closure, where nothing outside
  * can name it.
  *
  * Assembly happens **inside** the returned factory, not before it: a feature
- * factory is handed `realm` and `root`, and neither exists until the kernel has
- * a host. The public `sortable(items, ...features)` entry lives in
+ * factory is handed `realm` and `root`, and neither exists until the kernel
+ * does. The public `sortable(items, ...features)` entry lives in
  * `sortable.ts` and is the only caller that assembles.
  *
  * **Two factories, and each returns the handshake itself.** There is no shared
@@ -74,14 +75,14 @@ export function createSortableBehavior(
   // facts**: `source` is the identity baseline a later pull is compared
   // against, so it must be the caller's own array, while the copy is what the
   // behavior publishes and no caller may mutate.
-  return (host) => ({
-    spec: createSortableSpec(host, items, [...items], slots),
-    controller: createSortableController(host),
+  return (kernel) => ({
+    spec: createSortableSpec(kernel, items, [...items], slots),
+    controller: createSortableController(kernel),
   });
 }
 
 /**
- * Merges the fragments, then assembles against the host's realm and root.
+ * Merges the fragments, then assembles against the kernel's realm and root.
  *
  * **Two stages, and the split is the decision**: the merge resolves every named
  * slot before a single installer runs, which is what makes last-wins a merge
@@ -98,7 +99,7 @@ export function createComposedSortableBehavior(
 ): BehaviorFactory<SortableController, SortableFramePart, HTMLElement> {
   const merged = mergeFragments(config, fragments);
 
-  return (host) => {
+  return (kernel) => {
     // **The first pull.** Every later one goes through
     // `action.prepare(COLLECTION)`; this is the initial snapshot and the
     // initial structural baseline, and it is the only `items()` call that
@@ -125,12 +126,12 @@ export function createComposedSortableBehavior(
 
     return {
       spec: createSortableSpec(
-        host,
+        kernel,
         source,
         items,
         assemble(merged, {
-          realm: host.realm,
-          root: host.root,
+          realm: kernel.realm,
+          root: kernel.root,
           // **The composition unwind's only route to the channel.** `assemble`
           // runs before `arm()`, so no behavior spec exists yet and the
           // kernel's own notifier is unreachable — but `merged.onError` is in
@@ -141,7 +142,7 @@ export function createComposedSortableBehavior(
           // which operation is live, so classifying a failure from one would
           // let a late continuation settle another.
           report: (error) => {
-            if (host.closed) {
+            if (kernel.closed) {
               return;
             }
 
@@ -159,7 +160,7 @@ export function createComposedSortableBehavior(
           },
         }),
       ),
-      controller: createSortableController(host),
+      controller: createSortableController(kernel),
     };
   };
 }

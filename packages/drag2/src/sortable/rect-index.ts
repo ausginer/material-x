@@ -203,14 +203,16 @@ export class RectIndex implements RectIndexView {
    * per item per rebuild.
    *
    * `live` reports whether the controller is still alive, and it is read
-   * **immediately before each `getBox` invocation and nowhere else**. That is
-   * the whole obligation: a declared consumer slot must not be invoked after
-   * the controller closed, and a reading taken *after* a call cannot see a
-   * close the call itself raised. So a composition naming neither `box` nor
-   * `visual` invokes no declared slot in this loop and takes **no** reading —
-   * `getBoundingClientRect` on a consumer-owned node is a platform member, not
-   * a declared slot, and what follows a candidate's own geometry read is either
-   * internal or the next iteration's guarded invocation.
+   * **immediately before each declared-slot invocation and nowhere else**: the
+   * per-candidate `getBox`, and `settle` once after the scan. That is the whole
+   * obligation — a slot the consumer may fill must not be invoked after the
+   * controller closed, and a reading taken *after* a call cannot see a close
+   * the call itself raised. So the count is exactly the number of slot
+   * invocations a composition actually makes: `N + 1` with a resolver and a
+   * sink, `N` with a resolver alone, one with a sink alone, and **none** with
+   * neither. `getBoundingClientRect` on a consumer-owned node is a platform
+   * member rather than a slot, and what follows a candidate's own geometry read
+   * is either internal or the next guarded invocation.
    *
    * `placeholder` is measured into the hole by the same scan, so the rule that
    * reads it never measures it.
@@ -222,8 +224,8 @@ export class RectIndex implements RectIndexView {
    * animation currently draws it. The placeholder is never passed to it: a
    * report visits the destination view, which does not contain it.
    *
-   * Returns `false` — and **only** then — when the rebuild stopped at that
-   * reading.
+   * Returns `false` — and **only** then — when the rebuild stopped at one of
+   * those readings.
    */
   refresh(
     snapshot: CollectionSnapshot,
@@ -305,7 +307,7 @@ export class RectIndex implements RectIndexView {
       let box = item;
 
       if (getBox) {
-        // **The one barrier, immediately before the declared slot it
+        // **The per-candidate barrier, immediately before the declared slot it
         // protects.** It covers the first invocation of the rebuild as well as
         // every later one — a committed move invalidates and `release.prepare`
         // resolves inside the same seam, so a dirty cache is reachable with the
@@ -353,6 +355,19 @@ export class RectIndex implements RectIndexView {
     // collaborator holding a handle it may write through whenever it likes is
     // the different thing this boundary forbids.
     if (settle) {
+      // **The second barrier, immediately before the second declared slot.**
+      // `settle` is one — a published installer fills it, and this class
+      // cannot read which value a composition passed — so it must not be
+      // invoked after the controller closed. The scan above ends with a
+      // candidate's own `getBoundingClientRect`, which is overridable on a
+      // consumer-owned row, so no earlier reading covers this call. A
+      // composition with no sink invokes no slot here and owes nothing.
+      if (!live()) {
+        this.retire();
+
+        return false;
+      }
+
       settle(values, items, n);
     }
 

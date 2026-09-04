@@ -86,7 +86,7 @@ export {
 /**
  * **The two reasons the behavior itself supplies**, as values. Both arrive on
  * `reason` with `origin: CANCEL_SUPPLIED`, because a behavior calling
- * `host.cancel` is a party supplying a value exactly as a consumer is — the
+ * `kernel.cancel` is a party supplying a value exactly as a consumer is — the
  * sortable *chose* to say `sortable:item-removed`, and that is what `SUPPLIED`
  * means.
  *

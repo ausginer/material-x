@@ -264,3 +264,106 @@ describe('a late collection invalidate()', () => {
     await Promise.resolve();
   });
 });
+
+/**
+ * **The committed-move bracket's own barrier**, and the site the declared-slot
+ * census reached that the older membership test hid.
+ *
+ * `invalidateInsertion` is a declared consumer slot: the axis rule is a
+ * published middle-tier installer, so a third party can supply one and no call
+ * site can read which value a composition passed. The bracket raises a
+ * staleness flag before the placeholder write and lowers it only once the cache
+ * and the tree agree, so every failing exit invalidates in a `finally` — and
+ * two of those exits arrive from consumer-reachable code that may have closed
+ * the controller on the way, one of them immediately after a reading that
+ * already saw it closed.
+ *
+ * **Skipping the invalidation there loses nothing**: the assembler pushes the
+ * axis's own `retire` into `retireHooks`, and teardown walks them at the
+ * transaction boundary, so a closed controller's cache is emptied rather than
+ * left describing a tree that never existed.
+ */
+describe('the terminal barrier in the committed-move bracket', () => {
+  /** `y()`'s rule with `moved` made hostile and `invalidate` counted. */
+  const movedDestroys =
+    (onInvalidate: () => void, destroy: () => void): AxisInstaller =>
+    (context): ReturnType<AxisInstaller> => {
+      const { insertion } = y()(context);
+
+      return {
+        insertion: {
+          resolve: insertion.resolve,
+          retire: insertion.retire,
+          invalidate(): void {
+            onInvalidate();
+            insertion.invalidate();
+          },
+          moved(): void {
+            // Middle-tier code destroying its own controller and then failing,
+            // which is the exit that leaves the staleness flag raised.
+            destroy();
+            throw new Error('drag: test/moved-failed');
+          },
+        },
+      };
+    };
+
+  it('should not invalidate the axis once the committed move destroyed the controller', async () => {
+    let afterClose = 0;
+    let closed = false;
+    const composed: Composed = build(
+      movedDestroys(
+        () => {
+          if (closed) {
+            afterClose += 1;
+          }
+        },
+        () => {
+          closed = true;
+          void composed.controller.destroy();
+        },
+      ),
+    );
+
+    activate(composed);
+    // Past the second row's midpoint, so a gap change is proposed and the
+    // committed-move bracket actually opens.
+    pointerEvent('pointermove', 75);
+    await new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        resolve(null);
+      });
+    });
+
+    expect(closed).toBe(true);
+    expect(afterClose).toBe(0);
+  });
+
+  it('should invalidate the axis when the committed move failed without closing', async () => {
+    // The positive control: the same hostile `moved`, minus the destroy. The
+    // staleness flag is the reason the invalidation exists at all, and a
+    // barrier that swallowed it unconditionally would pass the row above.
+    let invalidations = 0;
+    const composed = build(
+      movedDestroys(
+        () => {
+          invalidations += 1;
+        },
+        () => {},
+      ),
+    );
+
+    activate(composed);
+
+    const before = invalidations;
+
+    pointerEvent('pointermove', 75);
+    await new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        resolve(null);
+      });
+    });
+
+    expect(invalidations).toBeGreaterThan(before);
+  });
+});

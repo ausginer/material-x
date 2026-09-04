@@ -2812,7 +2812,7 @@ describe('the failure checkpoint', () => {
     activate(harness);
     move(60, 10);
 
-    // An explicit `host.fail` from inside the report reaches the same latch a
+    // An explicit `kernel.fail` from inside the report reaches the same latch a
     // throw does: one settlement, no second turn at deciding the operation, and
     // the error surfaced rather than queued into a checkpoint that would be
     // dropped.
@@ -3017,7 +3017,7 @@ describe('cancellation origins', () => {
   });
 
   it('should mark a behavior cancel as supplied', () => {
-    // **Not a second origin.** A behavior's controller spreads `host.cancel`
+    // **Not a second origin.** A behavior's controller publishes `kernel.cancel`
     // through unchanged, so the kernel has no basis to tell the two callers
     // apart — and both of them are a party supplying a value.
     const harness = createHarness({
@@ -3850,7 +3850,7 @@ describe('cancellation against a failure checkpoint', () => {
   });
 
   it('should drop a checkpoint classified before the cancel latch was set', () => {
-    // `host.fail()` classifies *immediately*, inside the open phase, so this
+    // `kernel.fail()` classifies *immediately*, inside the open phase, so this
     // ordering queues `[FAILED, CANCEL]` — the latch does not exist when the
     // checkpoint is queued, only when it is applied.
     let harness: Harness | null = null;
@@ -4029,7 +4029,7 @@ describe('the transaction bracket', () => {
     const order: string[] = [];
     const broken = new Error('platform');
     const delivered: unknown[] = [];
-    // The handler reads `harness.host.closed` from inside the report, which is
+    // The handler reads `harness.kernel.closed` from inside the report, which is
     // the assertion this row exists for.
     const harness: Harness = createHarness({
       retire: (): void => {
