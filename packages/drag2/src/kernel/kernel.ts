@@ -1,11 +1,11 @@
 /**
  * The kernel executor: admission → activation → move → release → teardown.
  *
- * Every field below is closure-private. There is no `KernelRuntime` type, no
- * exported container, and nothing a behavior can read that the kernel did not
- * deliberately pass as an argument. What the kernel holds of the behavior is
- * **one `spec` reference**; what the behavior holds of the kernel is one `host`
- * with six members, none of which drives a transition.
+ * Every field below is `#private`. There is no exported container and nothing a
+ * behavior can read that the kernel did not deliberately grant it. What the
+ * kernel holds of the behavior is **one `spec` reference**; what the behavior
+ * holds is this kernel under {@link BehaviorContext}, whose seven members
+ * include none that drives a transition.
  */
 import {
   ACTIVATE,
@@ -20,7 +20,7 @@ import {
   START_COMMITTED,
   UP,
 } from './actions.ts';
-import { DraggableError, DraggableWarning } from './errors.ts';
+import { DraggableError, DraggableWarning, type Notify } from './errors.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -75,7 +75,7 @@ import {
   POINTER_UP,
 } from './protocol.ts';
 import { clearQueue, createActionQueue, drain, enqueue } from './queue.ts';
-import { createRealm } from './realm.ts';
+import { createRealm, type DOMRealm } from './realm.ts';
 import {
   SeamDriver,
   runActivationSeam,
@@ -88,8 +88,8 @@ import {
 import {
   type ActivationScope,
   type AdmissionSubject,
+  type BehaviorContext,
   type BehaviorSpec,
-  type KernelHost,
   type ResolutionCommand,
   SETTLED_CANCELED,
   SETTLED_FAILED,
@@ -139,7 +139,7 @@ type ResolutionAttempt = {
  * The open settlement's identity, and the one measurement it took.
  *
  * It lives here rather than on the transactional frame because nothing outside
- * {@link createKernel}'s settlement helpers reads it, it is unobservable, and
+ * {@link Kernel}'s settlement helpers reads it, it is unobservable, and
  * it is per-settlement rather than per-operation. **Holding it is what makes
  * staleness answerable by identity**: everything between the measurement and
  * the join runs behavior code, and a settlement that has been replaced in the
@@ -250,16 +250,20 @@ type FailureCheckpoint = Readonly<{
 }>;
 
 /**
- * The kernel handle. Only `draggable()` holds one, and it calls `arm()` exactly
- * once — a behavior cannot arm itself, re-arm, or observe the kernel object.
+ * **The attempt lifetime, as a record.**
+ *
+ * Three correlated slots, minted per round-trip and cleared together. They are
+ * grouped because a class has one flat namespace for instance state: on `this`
+ * a slot that lives for one settlement and a slot that lives for the
+ * controller read identically, and the record is what keeps the difference
+ * legible where a field list could not.
  */
-export type Kernel<
-  Part extends object,
-  Activation extends {} = true,
-> = Readonly<{
-  host: KernelHost;
-  arm(spec: BehaviorSpec<Part, Activation>): void;
-}>;
+type AttemptSlots = {
+  resolution: ResolutionAttempt | null;
+  settlement: SettlementAttempt | null;
+  /** The input the open settlement seam is driving. Seams are non-reentrant. */
+  settlementInput: SettlementInput | null;
+};
 
 /** No phase stamp is pending. Phases are non-negative. */
 const NO_STAMP = -1;
@@ -271,27 +275,84 @@ const NO_STAMP = -1;
  */
 type ArmedStamp = Phase | typeof NO_STAMP;
 
-export function createKernel<Part extends object, Activation extends {} = true>(
-  root: HTMLElement,
-): Kernel<Part, Activation> {
-  const realm = createRealm(root);
-  const queue = createActionQueue();
-  const ingress = new AbortController();
+/**
+ * Reads `then` **exactly once** and hands back the callable, or `null`.
+ *
+ * The resolution round-trip may answer with any `PromiseLike`, not only a
+ * native `Promise`, so `then` may be an accessor — one that throws, or one that
+ * answers differently on a second read. Reading it twice (once to classify,
+ * once to subscribe) would let a value be classified as thenable and then
+ * subscribed to as something else. A throw is the *caller's* to classify as a
+ * semantic failure; it is not a kernel invariant violation and must never reach
+ * the panic path.
+ *
+ * **One caller**, and the property is what makes the single read sufficient:
+ * the resolution round-trip is the only place a consumer-supplied value is
+ * accepted as a thenable, so this is the only `then` the kernel ever reads.
+ * Every other continuation the kernel awaits is a promise it allocated itself.
+ *
+ * A module function rather than a member: it reads no kernel state, so binding
+ * it to an instance would say it did.
+ */
+const thenOf = (value: unknown): PromiseLike<unknown>['then'] | null => {
+  // Detached deliberately, and read exactly once for the reason above. The
+  // receiver is re-supplied at the only call: `then.call(value, …)`.
+  // eslint-disable-next-line @typescript-eslint/unbound-method
+  const then = (value as PromiseLike<unknown> | null | undefined)?.then;
 
-  let spec: BehaviorSpec<Part, Activation> | null = null;
-  let current!: Frame<Part>;
-  let draft!: Frame<Part>;
-  let nextOperationId = 0;
+  return typeof then === 'function' ? then : null;
+};
+
+/**
+ * **The kernel controller.** It owns the frame pair, ingress, the action queue,
+ * the seam driver, the operation and activation records, the attempt slots,
+ * teardown and the destroy promise.
+ *
+ * **A behavior receives this object under {@link BehaviorContext}**, which is
+ * the whole of what the tier is granted: `arm` is on the class and off the
+ * interface, so a behavior reaches it only by deliberately leaving the type it
+ * was handed. That is a contract term rather than a runtime property, and it
+ * is stated the way the neighbouring one is — *no input can be admitted before
+ * `install()` returns* is unenforceable too, and is written down rather than
+ * guarded.
+ *
+ * Only `draggable()` holds it wide, and it calls `arm()` exactly once.
+ */
+export class Kernel<
+  Part extends object,
+  Activation extends {} = true,
+> implements BehaviorContext {
+  /** The owning document/window. Every DOM access goes through it. */
+  readonly realm: DOMRealm;
+
+  /** The ingress boundary passed to `draggable()`. */
+  readonly root: HTMLElement;
+
+  readonly #queue = createActionQueue();
+  readonly #ingress = new AbortController();
+
+  #spec: BehaviorSpec<Part, Activation> | null = null;
+  #current!: Frame<Part>;
+  #draft!: Frame<Part>;
+  #nextOperationId = 0;
 
   /* ---- per-operation state, two records dropped whole at retirement ---- */
-  let operation: OperationRecord | null = null;
-  let activation: ActivationRecord | null = null;
+  #operation: OperationRecord | null = null;
+  #activation: ActivationRecord | null = null;
 
-  /* ---- the two kernel attempts, at most one of each per operation ---- */
-  let resolution: ResolutionAttempt | null = null;
-  let settlement: SettlementAttempt | null = null;
-  /** The input the open settlement seam is driving. Seams are non-reentrant. */
-  let settlementInput: SettlementInput | null = null;
+  /**
+   * **The attempt lifetime, named rather than spread across three fields.**
+   *
+   * `this` is one flat namespace, so a slot that lives for one round-trip and
+   * a slot that lives for the controller read identically once both are on it.
+   * These three do not: they are minted per attempt, correlated, and cleared
+   * together, and the record is what says so where a field list could not.
+   */
+  readonly #attempts: AttemptSlots = {
+    resolution: null,
+    settlement: null,
+    settlementInput: null,
+  };
 
   /**
    * The operation the open transaction belongs to, captured at `begin()`.
@@ -299,7 +360,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * "current operation" field, so a reentrant retirement between `begin` and
    * `commit` is visible as an identity change.
    */
-  let pinned: OperationIdentity | null = null;
+  #pinned: OperationIdentity | null = null;
 
   /* ---- the one channel ---- */
 
@@ -330,26 +391,34 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    *
    * **The stage is deliberately absent.** Three sites reach this holding a real
    * `FailureStage` and discard it — the demoted checkpoint, `failOperation`'s
-   * five-guard demotion, and a `host.fail` outside a seam. In each the stage
+   * five-guard demotion, and a {@link Kernel.fail} outside a seam. In each the stage
    * describes a classification the kernel has just decided **not** to apply, so
    * carrying it into a warning would publish a claim about the operation that
    * the code refused to make.
    */
-  const notify = (
-    error: DraggableError | DraggableWarning,
-    afterClose = false,
-  ): void => {
-    if (queue.closed && !afterClose) {
+  #notify(error: DraggableError | DraggableWarning, afterClose = false): void {
+    if (this.#queue.closed && !afterClose) {
       return;
     }
 
     try {
-      spec?.reportError(error);
+      this.#spec?.reportError(error);
     } catch {
       // The terminus. Reporting a reporting failure is the one recursion this
       // model has to be incapable of, and being incapable is stronger than
       // being careful.
     }
+  }
+
+  /**
+   * The channel as a value, for the two collaborators that take one.
+   *
+   * **Wrapped, not detached**: both keep it for the controller's life and call
+   * it with no receiver of their own, so a bare prototype read would arrive
+   * without one. One closure per kernel, shared, rather than one per call.
+   */
+  readonly #report: Notify = (error): void => {
+    this.#notify(error);
   };
 
   /**
@@ -360,7 +429,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * each of them would put reporting at every site that merely wants the next
    * statement to run.
    */
-  const unwind = createUnwind(notify);
+  readonly #unwind = createUnwind(this.#report);
 
   /* ---- the transaction bracket ---- */
 
@@ -374,23 +443,23 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * the boundary that owns deferred teardown is the **outermost** one, which is
    * what a depth counter names and a boolean cannot.
    */
-  let transactionDepth = 0;
+  #transactionDepth = 0;
   /** A logical close is done and its physical teardown is owed to the boundary. */
-  let teardownPending = false;
+  #teardownPending = false;
   /**
    * The promise `destroy()` hands back, allocated on the first call and
    * returned by every later one, so repeated destruction is idempotent and
    * every returned promise still settles exactly once.
    */
-  let destroyed: Promise<void> | null = null;
-  let settleDestroyed: (() => void) | null = null;
+  #destroyed: Promise<void> | null = null;
+  #settleDestroyed: (() => void) | null = null;
 
   /**
    * True while a checkpoint's report transition is running — including its
    * `prepare`, which is *before* `REPORTING` is committed and therefore before
    * the phase alone can say so.
    */
-  let reporting = false;
+  #reporting = false;
 
   /**
    * The phase the kernel stamps onto the draft between `prepare` and `commit`.
@@ -411,8 +480,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * transaction starts with exactly the stamp armed for it and no other, and
    * {@link commit} consumes it.
    */
-  let armedStamp: ArmedStamp = NO_STAMP;
-  let stamp: ArmedStamp = NO_STAMP;
+  #armedStamp: ArmedStamp = NO_STAMP;
+  #stamp: ArmedStamp = NO_STAMP;
 
   /**
    * True for the whole of native admission — `admit`, its consumer-supplied
@@ -431,35 +500,38 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * unaffected: it is not queued, so it stays a synchronous terminal barrier,
    * and the queue it closes drops everything a resolver appended.
    */
-  let admitting = false;
+  #admitting = false;
 
   /** The behavior action being run. Safe as a slot: seams are non-reentrant. */
-  let actionTag = 0;
-  let actionArgument: unknown = null;
+  #actionTag = 0;
+  #actionArgument: unknown = null;
 
-  let handle!: (action: number, argument: unknown) => void;
+  constructor(root: HTMLElement) {
+    this.root = root;
+    this.realm = createRealm(root);
+  }
 
-  const begin = (): void => {
+  #begin(): void {
     // Reset before every transaction, armed or not.
-    stamp = armedStamp;
-    armedStamp = NO_STAMP;
-    pinned = current.operation;
+    this.#stamp = this.#armedStamp;
+    this.#armedStamp = NO_STAMP;
+    this.#pinned = this.#current.operation;
     // The shallow copy that opens the transaction. Every frame field is a
     // scalar, immutable or replace-on-write precisely so this is enough.
-    Object.assign(draft, current);
-  };
+    Object.assign(this.#draft, this.#current);
+  }
 
-  const commit = (): void => {
-    if (stamp !== NO_STAMP) {
-      draft.phase = stamp;
-      stamp = NO_STAMP; // consume-and-clear
+  #commit(): void {
+    if (this.#stamp !== NO_STAMP) {
+      this.#draft.phase = this.#stamp;
+      this.#stamp = NO_STAMP; // consume-and-clear
     }
 
-    const previous = current;
+    const previous = this.#current;
 
-    current = draft;
-    draft = previous;
-  };
+    this.#current = this.#draft;
+    this.#draft = previous;
+  }
 
   /**
    * Runs a seam whose commit changes phase.
@@ -469,15 +541,15 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * only the driver's re-entry refusal — would otherwise leave the stamp armed
    * for whatever begins next.
    */
-  const runStamped = (phase: Phase, run: () => void): void => {
-    armedStamp = phase;
+  #runStamped(phase: Phase, run: () => void): void {
+    this.#armedStamp = phase;
 
     try {
       run();
     } finally {
-      armedStamp = NO_STAMP;
+      this.#armedStamp = NO_STAMP;
     }
-  };
+  }
 
   /**
    * False once a reentrant `cancel()` or `destroy()` invalidated the open
@@ -485,11 +557,16 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * `prepare` has already decided the operation, so publishing the preparation
    * would commit state the very next action abandons.
    */
-  const preparationValid = (): boolean =>
+  #preparationValid(): boolean {
     // `queue.closed` alone: a separate `destroyRequested` flag is a second name
     // for it — set on the statement after it and never cleared either — so the
     // extra conjunct is unconditionally true beside it.
-    !queue.closed && !operation?.cancelRequest && current.operation === pinned;
+    return (
+      !this.#queue.closed &&
+      !this.#operation?.cancelRequest &&
+      this.#current.operation === this.#pinned
+    );
+  }
 
   // -------------------------------------------------------------------------
   // Teardown
@@ -505,14 +582,14 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * outlives the operation deliberately — an interpolation that holds nothing
    * has no reason to end when the operation does.
    */
-  const retireAttempts = (): void => {
-    resolution = null;
-    settlementInput = null;
-    settlement = null;
-  };
+  #retireAttempts(): void {
+    this.#attempts.resolution = null;
+    this.#attempts.settlementInput = null;
+    this.#attempts.settlement = null;
+  }
 
-  const scrub = (target: Frame<Part>): void => {
-    const active = spec;
+  #scrub(target: Frame<Part>): void {
+    const active = this.#spec;
 
     if (!active) {
       return;
@@ -525,11 +602,11 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // ingress abort, making `destroy()` non-terminal. The kernel's own reset
     // cannot throw, so it is inside the same `unwind` with nothing to lose by
     // it.
-    unwind(() => {
+    this.#unwind(() => {
       frame(target);
       active.resetFramePart(target);
     });
-  };
+  }
 
   /**
    * The seven-step teardown, minus steps 1, 2 and 7 — which is exactly
@@ -539,30 +616,30 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * the kernel currently holds", used by paths that retire before the operation
    * was ever committed.
    */
-  const retireOperation = (identity: OperationIdentity | null): void => {
-    if (!spec) {
+  #retireOperation(identity: OperationIdentity | null): void {
+    if (!this.#spec) {
       return;
     }
 
-    if (identity && current.operation !== identity) {
+    if (identity && this.#current.operation !== identity) {
       return; // a stale retirement for an operation that is already gone
     }
 
     // 3. kernel attempts.
-    retireAttempts();
+    this.#retireAttempts();
 
     // 4. behavior references.
-    unwind(spec.retire);
+    this.#unwind(this.#spec.retire);
 
     // 5. presentation → motion → cancellation, LIFO, best-effort. Releases
     //    pointer capture, removes the placeholder and restores inline styles.
-    if (operation) {
-      unwind(operation.lifetimes.dispose);
+    if (this.#operation) {
+      this.#unwind(this.#operation.lifetimes.dispose);
     }
 
     // 6. both frames, each reset individually wrapped.
-    scrub(current);
-    scrub(draft);
+    this.#scrub(this.#current);
+    this.#scrub(this.#draft);
 
     // **Last, and for a proof reason rather than a runtime one.** The two
     // halves are not the same claim.
@@ -584,10 +661,10 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // from statement order at every program point, which is the unchecked
     // premise of every `operation!` in this file. That is a proof and
     // maintenance property, not a window a guard could catch.
-    operation = null;
-    activation = null;
-    pinned = null;
-  };
+    this.#operation = null;
+    this.#activation = null;
+    this.#pinned = null;
+  }
 
   /**
    * The landing tail: an additive contribution to the released visual's
@@ -607,7 +684,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * subscription: cancelling one is a no-op, and one retained {@link Animation}
    * on a live element is cheaper than a promise per landing.
    */
-  let tail: Animation | null = null;
+  #tail: Animation | null = null;
 
   /**
    * Ends the tail, if one is in flight.
@@ -620,16 +697,16 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * so it is unwound rather than trusted: this runs inside activation and
    * inside teardown, and both have a load-bearing next statement.
    */
-  const cancelTail = (): void => {
-    const running = tail;
+  #cancelTail(): void {
+    const running = this.#tail;
 
     if (running) {
-      tail = null;
-      unwind(() => {
+      this.#tail = null;
+      this.#unwind(() => {
         running.cancel();
       });
     }
-  };
+  }
 
   /**
    * Steps 2–7 of teardown.
@@ -640,47 +717,47 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * step 7, so no behavior callback can stop a later step at the boundary any
    * more than it could on the closing stack.
    */
-  const runPhysicalTeardown = (): void => {
+  #runPhysicalTeardown(): void {
     try {
       // 2. drop every retained argument, so a queued element cannot outlive the
       //    drain that abandoned it.
-      clearQueue(queue);
+      clearQueue(this.#queue);
 
       // 3–6.
-      if (spec) {
-        retireAttempts();
-        unwind(spec.retire);
+      if (this.#spec) {
+        this.#retireAttempts();
+        this.#unwind(this.#spec.retire);
 
-        if (operation) {
-          unwind(operation.lifetimes.dispose);
+        if (this.#operation) {
+          this.#unwind(this.#operation.lifetimes.dispose);
         }
 
-        scrub(current);
-        scrub(draft);
+        this.#scrub(this.#current);
+        this.#scrub(this.#draft);
       }
 
       // Last, for both reasons `retireOperation` states: the records have to
       // outlive steps 4 and 5, and dropping them after the scrubs rather than
       // before is what keeps the frame-identity implication true by order.
-      operation = null;
-      activation = null;
-      pinned = null;
+      this.#operation = null;
+      this.#activation = null;
+      this.#pinned = null;
     } finally {
       // 7. unconditional: no earlier step can prevent ingress from being
       //    released, and none may leave a tail interpolating on an element the
       //    controller has stopped owning. Both are controller-scoped, and the
       //    click suppressor is disarmed by the abort's own signal.
-      cancelTail();
-      ingress.abort();
+      this.#cancelTail();
+      this.#ingress.abort();
 
-      const settle = settleDestroyed;
+      const settle = this.#settleDestroyed;
 
       if (settle) {
-        settleDestroyed = null;
+        this.#settleDestroyed = null;
         settle();
       }
     }
-  };
+  }
 
   /**
    * Logical closure is **immediate**; physical teardown is **deferrable**.
@@ -694,24 +771,24 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * Outside a reentrant transaction the two events coincide, which makes
    * immediate physical release the common case rather than the guarantee.
    */
-  const destroy = (): Promise<void> => {
-    destroyed ??= new Promise<void>((resolve) => {
-      settleDestroyed = resolve;
+  destroy(): Promise<void> {
+    this.#destroyed ??= new Promise<void>((resolve) => {
+      this.#settleDestroyed = resolve;
     });
 
-    if (!queue.closed) {
+    if (!this.#queue.closed) {
       // 1. every guard now fails, on the closing statement itself.
-      queue.closed = true;
+      this.#queue.closed = true;
 
-      if (transactionDepth === 0) {
-        runPhysicalTeardown();
+      if (this.#transactionDepth === 0) {
+        this.#runPhysicalTeardown();
       } else {
-        teardownPending = true;
+        this.#teardownPending = true;
       }
     }
 
-    return destroyed;
-  };
+    return this.#destroyed;
+  }
 
   /**
    * Runs deferred teardown when the **outermost** transaction closes.
@@ -720,14 +797,14 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * from anywhere inside the transaction — including one nested many frames
    * deep — is owed teardown by this frame and no other.
    */
-  const leaveTransaction = (): void => {
-    transactionDepth -= 1;
+  #leaveTransaction(): void {
+    this.#transactionDepth -= 1;
 
-    if (transactionDepth === 0 && teardownPending) {
-      teardownPending = false;
-      runPhysicalTeardown();
+    if (this.#transactionDepth === 0 && this.#teardownPending) {
+      this.#teardownPending = false;
+      this.#runPhysicalTeardown();
     }
-  };
+  }
 
   /**
    * A throw escaping a handler is an invariant violation: close, **then**
@@ -755,32 +832,48 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * controller and a failed `requestAnimationFrame` would become
    * indistinguishable to a consumer.
    */
-  const panic = (error: unknown): void => {
-    void destroy();
-    notify(new DraggableError(null, error), true);
+  /**
+   * The drain's two arguments, bound once per kernel.
+   *
+   * **Wrapped, not detached.** {@link drain} calls both with no receiver, and
+   * it runs once per queued action — so the closures are fields rather than
+   * expressions at the two call sites, and the per-action path allocates
+   * nothing.
+   */
+  readonly #drainStep = (action: number, argument: unknown): void => {
+    this.#handle(action, argument);
   };
 
-  const dispatchKernel = (action: number, argument: unknown): void => {
-    if (queue.closed) {
+  readonly #drainPanic = (error: unknown): void => {
+    this.#panic(error);
+  };
+
+  #panic(error: unknown): void {
+    void this.destroy();
+    this.#notify(new DraggableError(null, error), true);
+  }
+
+  #dispatchKernel(action: number, argument: unknown): void {
+    if (this.#queue.closed) {
       return;
     }
 
-    enqueue(queue, action, argument);
+    enqueue(this.#queue, action, argument);
 
-    if (admitting) {
+    if (this.#admitting) {
       return; // the admission boundary owns the drain
     }
 
-    transactionDepth += 1;
+    this.#transactionDepth += 1;
 
     try {
       // Re-entrant calls return immediately: the outermost frame owns the drain
       // and reaches the newly appended work in the same pass.
-      drain(queue, handle, panic);
+      drain(this.#queue, this.#drainStep, this.#drainPanic);
     } finally {
-      leaveTransaction();
+      this.#leaveTransaction();
     }
-  };
+  }
 
   /**
    * Latched cancellation. The first valid cancel per operation wins, and an
@@ -788,32 +881,37 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * cancellation raised from inside a seam invalidate that preparation
    * synchronously, which matters most when the caller is `onStart`.
    */
-  const cancelWith = (reason: unknown, origin: CancelOrigin): void => {
-    if (queue.closed || !current.operation || operation!.cancelRequest) {
+  #cancelWith(reason: unknown, origin: CancelOrigin): void {
+    if (
+      this.#queue.closed ||
+      !this.#current.operation ||
+      this.#operation!.cancelRequest
+    ) {
       return;
     }
 
-    operation!.cancelRequest = { reason, origin };
-    dispatchKernel(CANCEL, current.operation);
-  };
+    this.#operation!.cancelRequest = { reason, origin };
+    this.#dispatchKernel(CANCEL, this.#current.operation);
+  }
 
   /**
-   * The host's own cancel, and the only one a consumer or a behavior can reach.
-   * Everything arriving here is `CANCEL_SUPPLIED`: a behavior's controller
-   * spreads this function through unchanged, so the kernel has no basis to tell
-   * the two callers apart — and a supplied value is what both of them are.
+   * The kernel's own cancel, and the only one a consumer or a behavior can
+   * reach. Everything arriving here is `CANCEL_SUPPLIED`: a behavior's
+   * controller publishes a closure over this call, so the kernel has no basis
+   * to tell the two callers apart — and a supplied value is what both of them
+   * are.
    */
-  const cancel = (reason?: unknown): void => {
-    cancelWith(reason, CANCEL_SUPPLIED);
-  };
+  cancel(reason?: unknown): void {
+    this.#cancelWith(reason, CANCEL_SUPPLIED);
+  }
 
   /**
    * Queues a classified failure against the operation the kernel currently
    * holds. A failure with no live operation — and a failure of the report
    * itself — has no checkpoint to run and degrades to a platform report.
    */
-  const failOperation = (stage: FailureStage, error: unknown): void => {
-    const identity = current.operation;
+  #failOperation(stage: FailureStage, error: unknown): void {
+    const identity = this.#current.operation;
 
     // A checkpoint queued while a report is in flight could only be dropped by
     // `handleFailed`'s own `REPORTING` guard, which would swallow the error
@@ -839,17 +937,17 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // and the checkpoint still runs ahead of it at `FINALIZING`, so the
     // consumer gets both `onCancel` and `onError` for one operation.
     if (
-      queue.closed ||
+      this.#queue.closed ||
       !identity ||
-      operation!.cancelRequest ||
-      reporting ||
-      current.phase === REPORTING
+      this.#operation!.cancelRequest ||
+      this.#reporting ||
+      this.#current.phase === REPORTING
     ) {
       // **Demoted rather than dropped.** The `return` is what decides: the
       // terminal is already owned by whatever is in flight, so this
       // classification is refused and the fault travels without one. The
       // `stage` in hand is discarded for exactly that reason.
-      notify(
+      this.#notify(
         new DraggableWarning('drag: failure/not-classified', { cause: error }),
       );
       return;
@@ -859,20 +957,32 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // to the drain that is already running, but one raised from an *async*
     // continuation is the outermost frame, and nothing else would ever drain
     // it.
-    dispatchKernel(FAILED, {
+    this.#dispatchKernel(FAILED, {
       stage,
       error,
       operation: identity,
     } satisfies FailureCheckpoint);
-  };
+  }
 
-  const context: SeamContext<Part> = {
-    begin,
-    commit,
-    preparationValid,
-    readCurrent: () => current,
-    readDraft: () => draft,
-    fail: failOperation,
+  /**
+   * **Wrapped, not detached.** The driver holds this record for the
+   * controller's life and calls each member with no receiver of its own, so a
+   * bare prototype read would arrive without one. The closures are what carry
+   * it, and the lint gate is what would have caught the bare reads.
+   */
+  readonly #context: SeamContext<Part> = {
+    begin: () => {
+      this.#begin();
+    },
+    commit: () => {
+      this.#commit();
+    },
+    preparationValid: () => this.#preparationValid(),
+    readCurrent: () => this.#current,
+    readDraft: () => this.#draft,
+    fail: (stage, error) => {
+      this.#failOperation(stage, error);
+    },
     /**
      * **The driver reports without classifying.** Not `failOperation`, which
      * would settle a drop whose reorder already happened; and there is no
@@ -885,10 +995,12 @@ export function createKernel<Part extends object, Activation extends {} = true>(
      * fault's producer is consumer-reaching — a `home` resolver, a landing
      * policy — and is equally free to destroy before it throws.
      */
-    notify,
+    notify: (error) => {
+      this.#notify(error);
+    },
   };
 
-  const driver = new SeamDriver<Part>(context);
+  readonly #driver = new SeamDriver<Part>(this.#context);
 
   /**
    * Drops whatever a seam staged, for the seams the kernel drives directly.
@@ -899,27 +1011,27 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * staging anything hand a caller a plan belonging to a transaction that is
    * over — which is the whole reason the slot is consume-and-clear.
    */
-  const dropStaged = (): void => {
-    driver.consumeStaged();
-  };
+  #dropStaged(): void {
+    this.#driver.consumeStaged();
+  }
 
   // -------------------------------------------------------------------------
   // Admission — native dispatch, not queued
   // -------------------------------------------------------------------------
 
-  const onPointer = (event: PointerEvent): void => {
+  #onPointer(event: PointerEvent): void {
     // The producer-side half of the double validation; the handler checks the
     // pointer identity again against the committed frame.
-    if (event.pointerId !== current.pointerId) {
+    if (event.pointerId !== this.#current.pointerId) {
       return;
     }
 
     switch (event.type) {
       case POINTER_MOVE:
-        dispatchKernel(MOVE, event);
+        this.#dispatchKernel(MOVE, event);
         break;
       case POINTER_UP:
-        dispatchKernel(UP, event);
+        this.#dispatchKernel(UP, event);
         break;
       // **Two DOM spellings of one fact** — the pointer stream ended without a
       // drop — so they share an arm rather than being told apart. The platform
@@ -927,16 +1039,30 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // the fact instead.
       case POINTER_CANCEL:
       case LOST_POINTER_CAPTURE:
-        cancelWith(undefined, CANCEL_INTERRUPTED);
+        this.#cancelWith(undefined, CANCEL_INTERRUPTED);
         break;
       default:
         break;
     }
+  }
+
+  /**
+   * The two input handlers as values, bound once per kernel rather than once
+   * per operation. **Wrapped, not detached**: `armPointerInput` and
+   * `armCancelInput` install them as listeners, which call with the event
+   * target as the receiver.
+   */
+  readonly #pointerHandler = (event: PointerEvent): void => {
+    this.#onPointer(event);
   };
 
-  const onEscape = (): void => {
-    cancelWith(undefined, CANCEL_ABORTED);
+  readonly #escapeHandler = (): void => {
+    this.#onEscape();
   };
+
+  #onEscape(): void {
+    this.#cancelWith(undefined, CANCEL_ABORTED);
+  }
 
   /**
    * Runs one admission member and returns the subject it admitted, or `null`.
@@ -960,15 +1086,15 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * command's admission *is* the intent question, so a non-null return already
    * means the key was meant for the drag.
    */
-  const runAdmission = (
+  #runAdmission(
     event: Event,
     admit: (event: never, draft: Frame<Part>) => AdmissionSubject | null,
     prevents: boolean,
-  ): AdmissionSubject | null => {
+  ): AdmissionSubject | null {
     let admitted: AdmissionSubject | null;
 
     try {
-      admitted = admit(event as never, draft);
+      admitted = admit(event as never, this.#draft);
     } catch (error) {
       // Identity was never minted, so there is no operation for a checkpoint to
       // settle and no `REPORTING` phase to enter. The controller stays idle and
@@ -982,7 +1108,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // throwing `onError` is handled here. **Both readings live in `notify`**,
       // which refuses after logical closure and swallows a throwing handler for
       // every route rather than for this one.
-      notify(new DraggableError(FAILURE_ADMISSION, error));
+      this.#notify(new DraggableError(FAILURE_ADMISSION, error));
 
       return null;
     }
@@ -1002,8 +1128,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // handle and visual resolvers during native dispatch, and a resolver can
     // close over the already-returned controller and synchronously destroy it.
     // Without this recheck a terminal controller publishes a new operation.
-    return queue.closed || current.operation ? null : admitted;
-  };
+    return this.#queue.closed || this.#current.operation ? null : admitted;
+  }
 
   /**
    * Mints identity, arms this operation's input, and commits `PENDING`.
@@ -1013,13 +1139,13 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * reads the pointer fields, which stay at their admission values on that
    * path.
    */
-  const mintOperation = (
+  #mintOperation(
     subject: AdmissionSubject,
     pointerId: number,
     x: number,
     y: number,
-  ): boolean => {
-    const identity: OperationIdentity = { id: (nextOperationId += 1) };
+  ): boolean {
+    const identity: OperationIdentity = { id: (this.#nextOperationId += 1) };
 
     try {
       // Discriminated by `'visual' in subject` rather than `instanceof`:
@@ -1031,19 +1157,27 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // **One literal, and the record is complete when it exists.** The
       // lifetimes are constructed inside it rather than assigned afterwards,
       // which is what makes the field non-nullable.
-      operation = {
+      this.#operation = {
         visual: parts ? subject.visual : subject,
         box: parts ? subject.box : subject,
         item: parts ? subject.item : subject,
-        lifetimes: createOperationLifetimes(notify),
+        lifetimes: createOperationLifetimes(this.#report),
         cancelRequest: null,
       };
 
       if (pointerId !== -1) {
-        armPointerInput(realm, operation.lifetimes.motion.signal, onPointer);
+        armPointerInput(
+          this.realm,
+          this.#operation.lifetimes.motion.signal,
+          this.#pointerHandler,
+        );
       }
 
-      armCancelInput(realm, operation.lifetimes.cancellation.signal, onEscape);
+      armCancelInput(
+        this.realm,
+        this.#operation.lifetimes.cancellation.signal,
+        this.#escapeHandler,
+      );
     } catch (error) {
       // Nothing is committed yet, so this retires an operation the frames never
       // saw: it disposes whatever was armed and drops the references.
@@ -1054,32 +1188,37 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // — but the channel is operation-independent, so that reason does not
       // hold: a warning needs no operation and no stage, and `return false`
       // refuses admission, so the outcome is the same either way.
-      retireOperation(null);
-      notify(
+      this.#retireOperation(null);
+      this.#notify(
         new DraggableWarning('drag: operation/arming-failed', { cause: error }),
       );
       return false;
     }
 
-    draft.phase = PENDING;
-    draft.operation = identity;
-    draft.pointerId = pointerId;
-    draft.originX = x;
-    draft.originY = y;
-    draft.pointerX = x;
-    draft.pointerY = y;
-    commit();
+    this.#draft.phase = PENDING;
+    this.#draft.operation = identity;
+    this.#draft.pointerId = pointerId;
+    this.#draft.originX = x;
+    this.#draft.originY = y;
+    this.#draft.pointerX = x;
+    this.#draft.pointerY = y;
+    this.#commit();
     return true;
-  };
+  }
 
-  const admitPress = (event: PointerEvent): void => {
+  #admitPress(event: PointerEvent): void {
     // `false`: the pointer path prevents at the threshold crossing.
-    const admitted = runAdmission(event, spec!.admit, false);
+    const admitted = this.#runAdmission(event, this.#spec!.admit, false);
 
     if (admitted) {
-      mintOperation(admitted, event.pointerId, event.clientX, event.clientY);
+      this.#mintOperation(
+        admitted,
+        event.pointerId,
+        event.clientX,
+        event.clientY,
+      );
     }
-  };
+  }
 
   /**
    * The discrete admission. Identical to the pointer path up to two
@@ -1089,13 +1228,17 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * The pointer scalars stay at zero and nothing reads them: `originRect` is
    * measured from the visual and is pointer-independent already.
    */
-  const admitCommand = (event: Event): void => {
-    const admitted = runAdmission(event, spec!.command!.admit, true);
+  #admitCommand(event: Event): void {
+    const admitted = this.#runAdmission(
+      event,
+      this.#spec!.command!.admit,
+      true,
+    );
 
-    if (admitted && mintOperation(admitted, -1, 0, 0)) {
-      dispatchKernel(ACTIVATE, current.operation);
+    if (admitted && this.#mintOperation(admitted, -1, 0, 0)) {
+      this.#dispatchKernel(ACTIVATE, this.#current.operation);
     }
-  };
+  }
 
   /**
    * The ingress queue boundary, shared by **both** listeners.
@@ -1125,8 +1268,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * boundary — and `destroy()` is not queued at all, so it remains a
    * synchronous terminal barrier.
    */
-  const openIngress = (admit: () => void): void => {
-    if (queue.closed || admitting || current.operation) {
+  #openIngress(admit: () => void): void {
+    if (this.#queue.closed || this.#admitting || this.#current.operation) {
       return;
     }
 
@@ -1134,9 +1277,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // is one the queue cannot see: this function runs *outside* the drain, so a
     // `destroy()` raised by an admission resolver would otherwise tear down
     // physically with the outer admission still half-written.
-    transactionDepth += 1;
-    begin();
-    admitting = true;
+    this.#transactionDepth += 1;
+    this.#begin();
+    this.#admitting = true;
 
     try {
       try {
@@ -1145,19 +1288,19 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         // Cleared in a `finally` so a throw escaping admission — a panicking
         // resolver, a re-entry refusal — cannot leave every later dispatch
         // silently queued with nothing to drain it.
-        admitting = false;
+        this.#admitting = false;
       }
 
       // Whatever a resolver dispatched now runs against the committed outcome
       // of admission: `PENDING` when it was admitted, `IDLE` when it was
       // refused, nothing at all when the resolver destroyed the controller.
-      if (!queue.closed) {
-        drain(queue, handle, panic);
+      if (!this.#queue.closed) {
+        drain(this.#queue, this.#drainStep, this.#drainPanic);
       }
     } finally {
-      leaveTransaction();
+      this.#leaveTransaction();
     }
-  };
+  }
 
   /**
    * Disarms the one-shot `click` suppressor, or `null` when none is armed.
@@ -1169,7 +1312,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * only lifetime that outlives the operation and still dies with the
    * controller.
    */
-  let disarmClick: (() => void) | null = null;
+  #disarmClick: (() => void) | null = null;
 
   /**
    * Arms it, at the threshold crossing, for the reason `click` survives at all:
@@ -1181,21 +1324,21 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * click, and a pointerless operation is never armed at all, because a command
    * produces no `click`.
    */
-  const armClickSuppressor = (): void => {
-    disarmClick?.();
+  #armClickSuppressor(): void {
+    this.#disarmClick?.();
 
     const aborter = new AbortController();
     const disarm = (): void => {
-      if (disarmClick === disarm) {
-        disarmClick = null;
+      if (this.#disarmClick === disarm) {
+        this.#disarmClick = null;
       }
 
       aborter.abort();
     };
 
-    disarmClick = disarm;
+    this.#disarmClick = disarm;
 
-    realm.document.addEventListener(
+    this.realm.document.addEventListener(
       CLICK,
       (event) => {
         disarm();
@@ -1208,50 +1351,67 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         // Composed with the ingress signal rather than aborted by hand in
         // teardown: "disarmed by teardown" then holds structurally, and the
         // step-7 abort needs no clause about a listener it does not know.
-        signal: AbortSignal.any([aborter.signal, ingress.signal]),
+        signal: AbortSignal.any([aborter.signal, this.#ingress.signal]),
       },
     );
-  };
+  }
 
-  const onPointerDown = (event: PointerEvent): void => {
+  #onPointerDown(event: PointerEvent): void {
     // **The second of the three disarm conditions**, and it runs before the
     // primary-press test rather than inside it: a one-shot that never fired
     // must not survive to eat an unrelated click, and a press that begins a
     // *new* interaction is as good a signal that the old one is over as the
     // click itself — whichever button it used.
-    disarmClick?.();
+    this.#disarmClick?.();
 
     // The primary-press test is the pointer ingress's own and stays outside the
     // shared boundary: a secondary button must not open a transaction at all.
     if (isPrimaryPress(event)) {
-      openIngress(() => {
-        admitPress(event);
+      this.#openIngress(() => {
+        this.#admitPress(event);
       });
     }
+  }
+
+  /**
+   * The two ingress listeners as values, bound once per kernel. **Wrapped, not
+   * detached**: a listener is called with the event target as its receiver.
+   *
+   * **Stable identities, and the discrete one has to be.** `addEventListener`
+   * de-duplicates on (type, callback, capture), which is what lets a repeated
+   * entry in `command.types` be a no-op rather than a refusal — a closure
+   * minted per entry would bind twice.
+   */
+  readonly #pointerDownHandler = (event: PointerEvent): void => {
+    this.#onPointerDown(event);
   };
 
-  const onCommand = (event: Event): void => {
-    openIngress(() => {
-      admitCommand(event);
-    });
+  readonly #commandHandler = (event: Event): void => {
+    this.#onCommand(event);
   };
+
+  #onCommand(event: Event): void {
+    this.#openIngress(() => {
+      this.#admitCommand(event);
+    });
+  }
 
   // -------------------------------------------------------------------------
   // Activation
   // -------------------------------------------------------------------------
 
-  const activationPolicy = {
+  readonly #activationPolicy = {
     // A discard retires: there is no such thing as a committed operation with
     // no presentation. A *failure* does not — the queued checkpoint owns it,
     // and retiring here would make that entry stale.
-    retire(): void {
-      retireOperation(null);
+    retire: (): void => {
+      this.#retireOperation(null);
     },
-    committed(): void {
+    committed: (): void => {
       // `activation.effect` invokes the consumer's `onStart` last, and that
       // callback may cancel or destroy.
-      if (preparationValid()) {
-        dispatchKernel(START_COMMITTED, current.operation);
+      if (this.#preparationValid()) {
+        this.#dispatchKernel(START_COMMITTED, this.#current.operation);
       }
     },
   };
@@ -1264,8 +1424,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * and a consumer resolver can detach things — and a capture failure is
    * `FAILURE_ACTIVATION` rather than a silently degraded drag.
    */
-  const acquireActivation = (): ActivationScope | null => {
-    const live = operation!;
+  #acquireActivation(): ActivationScope | null {
+    const live = this.#operation!;
 
     try {
       // **Before the origin measurement, and that ordering is the reason it is
@@ -1276,7 +1436,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       //
       // A press that never crosses the threshold keeps whatever is in flight,
       // which is why this is not at `pointerdown`.
-      cancelTail();
+      this.#cancelTail();
 
       const rect = live.visual.getBoundingClientRect();
       // **Window 1 of 2, and its position in this function is the whole
@@ -1298,26 +1458,26 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       const { session, visualSpace, itemSpace } = acquireLift(
         live.visual,
         live.item,
-        spec!.config.liftMode,
+        this.#spec!.config.liftMode,
         rect,
-        realm,
-        unwind,
+        this.realm,
+        this.#unwind,
       );
 
-      activation = { originRect: rect, lift: session, visualSpace };
+      this.#activation = { originRect: rect, lift: session, visualSpace };
       live.lifetimes.presentation.use(session.dispose);
 
       // Neither step runs for a pointerless operation: there is no pointer to
       // capture, so the connectivity precondition capture needs has nothing to
       // guard either. `originRect` above is measured from the *visual* and was
       // already pointer-independent.
-      if (current.pointerId !== -1) {
-        if (!root.isConnected) {
+      if (this.#current.pointerId !== -1) {
+        if (!this.root.isConnected) {
           throw new Error('drag: activation/root-disconnected');
         }
 
         live.lifetimes.motion.use(
-          acquirePointerCapture(root, current.pointerId),
+          acquirePointerCapture(this.root, this.#current.pointerId),
         );
       }
 
@@ -1325,7 +1485,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         visual: live.visual,
         // Read back from the record the join reads it from, so the scope and
         // the landing measurement can never disagree about the grab basis.
-        originRect: activation.originRect,
+        originRect: this.#activation.originRect,
         // The kernel's own admission-time state, not a behavior-authored draft
         // field read back.
         box: live.box,
@@ -1333,35 +1493,35 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         // Read back from the record the join reads it from, for the same
         // reason `originRect` is: the tail is spent in this space and must not
         // be able to disagree with what the behavior was handed.
-        visualSpace: activation.visualSpace,
+        visualSpace: this.#activation.visualSpace,
         itemSpace,
         lift: session,
         motion: live.lifetimes.motion,
         presentation: live.lifetimes.presentation,
       };
     } catch (error) {
-      failOperation(FAILURE_ACTIVATION, error);
+      this.#failOperation(FAILURE_ACTIVATION, error);
       return null;
     }
-  };
+  }
 
-  const activate = (): void => {
-    const scope = acquireActivation();
+  #activate(): void {
+    const scope = this.#acquireActivation();
 
     if (!scope) {
       return;
     }
 
-    runStamped(ACTIVATING, () => {
+    this.#runStamped(ACTIVATING, () => {
       runActivationSeam(
-        driver,
-        spec!.activation,
+        this.#driver,
+        this.#spec!.activation,
         scope,
         FAILURE_ACTIVATION,
-        activationPolicy,
+        this.#activationPolicy,
       );
     });
-  };
+  }
 
   // -------------------------------------------------------------------------
   // Seam adapters, built once per controller
@@ -1375,24 +1535,29 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * no second return arm and no adapter between the two: the phase is already
    * open at `FAILURE_RELEASE`, so `runPhase` catches the throw, calls
    * `context.fail` with that stage and returns `SEAM_PREPARE_FAILED`. A
-   * behavior wanting a *different* stage still has `host.fail`, which latches
-   * and is on `KernelHost`.
+   * behavior wanting a *different* stage still has `fail`, which latches and
+   * is on `BehaviorContext`.
    */
-  const releaseTransition: Transition<Part, ResolutionCommand> = {
-    prepare: (target) => spec!.release.prepare(target),
-    effect(committed, prepared) {
-      spec!.release.effect(committed, prepared);
+  readonly #releaseTransition: Transition<Part, ResolutionCommand> = {
+    prepare: (target) => this.#spec!.release.prepare(target),
+    effect: (committed, prepared) => {
+      this.#spec!.release.effect(committed, prepared);
     },
   };
 
-  const actionTransition: Transition<Part, {}> = {
+  readonly #actionTransition: Transition<Part, {}> = {
     prepare: (target) =>
-      spec!.action.prepare(actionTag, actionArgument, target),
-    effect(committed, prepared) {
-      spec!.action.effect(actionTag, actionArgument, committed, prepared);
+      this.#spec!.action.prepare(this.#actionTag, this.#actionArgument, target),
+    effect: (committed, prepared) => {
+      this.#spec!.action.effect(
+        this.#actionTag,
+        this.#actionArgument,
+        committed,
+        prepared,
+      );
     },
-    rollback(prepared) {
-      spec!.action.rollback?.(actionTag, prepared);
+    rollback: (prepared) => {
+      this.#spec!.action.rollback?.(this.#actionTag, prepared);
     },
   };
 
@@ -1409,44 +1574,21 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    */
   // `Prepared` is the `true` sentinel `Transition` defaults to: settlement
   // stages nothing, and since the gate went it carries no capability either.
-  const settlementTransition: Transition<Part> = {
-    prepare: (target) => spec!.settlement.prepare(target, settlementInput!),
-    effect(committed, prepared) {
+  readonly #settlementTransition: Transition<Part> = {
+    prepare: (target) =>
+      this.#spec!.settlement.prepare(target, this.#attempts.settlementInput!),
+    effect: (committed, prepared) => {
       // Between the commit and the behavior's effect: the operation is decided,
       // so nothing may still cancel it. Motion is closed here too rather than
       // only at release, because a cancel at `ACTIVE` reaches settlement with
       // input still open. Both closes are latched, so a release that already
       // closed motion pays nothing.
-      const owned = operation!.lifetimes;
+      const owned = this.#operation!.lifetimes;
 
       owned.motion.dispose();
       owned.cancellation.dispose();
-      spec!.settlement.effect(committed, prepared);
+      this.#spec!.settlement.effect(committed, prepared);
     },
-  };
-
-  /**
-   * Reads `then` **exactly once** and hands back the callable, or `null`.
-   *
-   * The resolution round-trip may answer with any `PromiseLike`, not only a
-   * native `Promise`, so `then` may be an accessor — one that throws, or one
-   * that answers differently on a second read. Reading it twice (once to
-   * classify, once to subscribe) would let a value be classified as thenable
-   * and then subscribed to as something else. A throw is the *caller's* to
-   * classify as a semantic failure; it is not a kernel invariant violation and
-   * must never reach the panic path.
-   *
-   * **One caller.** The readiness gate is a declaration and a host signal
-   * rather than a second consumer thenable with the same hazards, so nothing on
-   * that path reads `then` at all.
-   */
-  const thenOf = (value: unknown): PromiseLike<unknown>['then'] | null => {
-    // Detached deliberately, and read exactly once for the reason above. The
-    // receiver is re-supplied at the only call: `then.call(value, …)`.
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    const then = (value as PromiseLike<unknown> | null | undefined)?.then;
-
-    return typeof then === 'function' ? then : null;
   };
 
   /**
@@ -1454,12 +1596,15 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * after `anchorTarget`, which is behavior code and may have destroyed the
    * controller.
    */
-  const settlementLive = (attempt: SettlementAttempt): boolean =>
-    settlement === attempt &&
-    !queue.closed &&
-    !operation?.cancelRequest &&
-    current.operation !== null &&
-    current.phase === SETTLING;
+  #settlementLive(attempt: SettlementAttempt): boolean {
+    return (
+      this.#attempts.settlement === attempt &&
+      !this.#queue.closed &&
+      !this.#operation?.cancelRequest &&
+      this.#current.operation !== null &&
+      this.#current.phase === SETTLING
+    );
+  }
 
   /**
    * The `FINALIZING` counterpart of `settlementLive`. The join calls into code
@@ -1468,8 +1613,13 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * synchronously. Everything after such a call is checked against this,
    * because `destroy()` is a synchronous terminal barrier.
    */
-  const joinLive = (): boolean =>
-    !queue.closed && current.operation !== null && current.phase === FINALIZING;
+  #joinLive(): boolean {
+    return (
+      !this.#queue.closed &&
+      this.#current.operation !== null &&
+      this.#current.phase === FINALIZING
+    );
+  }
 
   /**
    * Takes the one authoritative landing measurement, and reports whether the
@@ -1498,16 +1648,16 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * and a warning reaches it without one. The message carries what such a stage
    * would have said.
    */
-  const measureTarget = (attempt: SettlementAttempt): boolean => {
-    const anchor = driver.runUnclassifiedValue(
-      () => spec!.anchorTarget(current),
+  #measureTarget(attempt: SettlementAttempt): boolean {
+    const anchor = this.#driver.runUnclassifiedValue(
+      () => this.#spec!.anchorTarget(this.#current),
       'drag: landing/target-unavailable',
     );
 
     // `anchorTarget` is behavior code and may have destroyed the controller. A
     // destroyed controller must not go on to join a settlement, so this is
     // checked before the skip branch as well as after a successful reading.
-    if (!settlementLive(attempt)) {
+    if (!this.#settlementLive(attempt)) {
       return false;
     }
 
@@ -1525,7 +1675,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       return true;
     }
 
-    const origin = activation!.originRect;
+    const origin = this.#activation!.originRect;
 
     // Converted to an **origin-relative delta**, the space `compose` and
     // `lift.write` consume. `anchorTarget` produces a viewport point and the
@@ -1536,7 +1686,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     attempt.targetX = anchor.x - origin.x;
     attempt.targetY = anchor.y - origin.y;
     return true;
-  };
+  }
 
   /**
    * Starts the landing tail on the **released** visual: the residual
@@ -1573,17 +1723,17 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * change during the tail sends it along the wrong path, and it still ends at
    * a zero contribution, so the element lands exactly where flow puts it.
    */
-  const startTail = (
+  #startTail(
     fromX: number,
     fromY: number,
     targetX: number | null,
     targetY: number,
-  ): void => {
+  ): void {
     // The presentation disposers ran between the release and here, and they
     // are consumer-reachable, so the controller may already be closed — in
     // which case nothing further is asked of the behavior and nothing is
     // written.
-    if (targetX === null || !joinLive()) {
+    if (targetX === null || !this.#joinLive()) {
       return; // no measurement, or no controller left to interpolate for
     }
 
@@ -1598,24 +1748,24 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // journey worth interpolating and how long that takes. Unwound rather than
     // classified, because a tail is presentation and a presentational fault may
     // not reach a consumer whose drop has already been decided and reported.
-    const timing = unwind(() =>
-      spec!.landingTail?.(current, fromX, fromY, targetX, targetY),
+    const timing = this.#unwind(() =>
+      this.#spec!.landingTail?.(this.#current, fromX, fromY, targetX, targetY),
     );
 
     // The policy is consumer-authored through `landing()` and may have
     // destroyed the controller, and a destroyed controller writes nothing.
-    if (!timing || !joinLive()) {
+    if (!timing || !this.#joinLive()) {
       return;
     }
 
-    const space = activation!.visualSpace;
-    const element = operation!.visual;
+    const space = this.#activation!.visualSpace;
+    const element = this.#operation!.visual;
 
     // `animate` is itself overridable on a consumer-owned element, and the
     // duration domain is the platform's — a `NaN` or a negative is refused
     // here, as a warning that changed nothing.
-    tail =
-      unwind(() =>
+    this.#tail =
+      this.#unwind(() =>
         element.animate(
           [
             {
@@ -1634,7 +1784,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
           },
         ),
       ) ?? null;
-  };
+  }
 
   /**
    * Release presentation completely, then hand the rest to the tail.
@@ -1654,13 +1804,13 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * The release is in a `finally`: the join calls into code the kernel does not
    * own, and none of it may strand the placeholder or the inline styles.
    */
-  const joinSettlement = (attempt: SettlementAttempt): void => {
-    const owned = operation!.lifetimes;
-    const session = activation!.lift;
+  #joinSettlement(attempt: SettlementAttempt): void {
+    const owned = this.#operation!.lifetimes;
+    const session = this.#activation!.lift;
 
-    begin();
-    draft.phase = FINALIZING;
-    commit();
+    this.#begin();
+    this.#draft.phase = FINALIZING;
+    this.#commit();
 
     let fromX = 0;
     let fromY = 0;
@@ -1672,7 +1822,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // consumer-reachable, because `anchorTarget` runs on the way. Without
       // this check a destroy raised from it would still reach the terminal
       // callback.
-      if (!joinLive()) {
+      if (!this.#joinLive()) {
         return;
       }
 
@@ -1697,17 +1847,17 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // before, because the consumer's terminal callback may remove the very
     // element this is about, and an animation started onto a removed node is a
     // no-op rather than a fault.
-    startTail(fromX, fromY, attempt.targetX, attempt.targetY);
+    this.#startTail(fromX, fromY, attempt.targetX, attempt.targetY);
 
     // The release and the tail policy are both foreign code, and `destroy()` is
     // a synchronous terminal barrier: a controller closed by either owes no
     // terminal callback.
-    if (!joinLive()) {
+    if (!this.#joinLive()) {
       return;
     }
 
-    driver.runLeaf(() => {
-      spec!.finalized(current);
+    this.#driver.runLeaf(() => {
+      this.#spec!.finalized(this.#current);
     }, FAILURE_TERMINAL_CALLBACK);
     // Queued unconditionally, and this entry is what retires: a
     // terminal-callback failure queues its checkpoint ahead of this one, but
@@ -1715,8 +1865,8 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // dispatched from inside it and so lands *behind* this entry. The
     // retirement therefore always intervenes, and it is that second terminal
     // which arrives stale. Exactly one `onEnd` on this path is that ordering.
-    dispatchKernel(RETIRE, current.operation);
-  };
+    this.#dispatchKernel(RETIRE, this.#current.operation);
+  }
 
   /**
    * Drives one settlement: prepare → stamp `SETTLING` → commit → measure →
@@ -1726,53 +1876,54 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * gate, so the only thing between the seam and the terminal is the behavior's
    * own measurement.
    */
-  const openSettlement = (input: SettlementInput): void => {
+  #openSettlement(input: SettlementInput): void {
     // However the round-trip ended, it is over; a later completion for it is
     // inert at both validation points.
-    resolution = null;
-    settlementInput = input;
+    this.#attempts.resolution = null;
+    this.#attempts.settlementInput = input;
 
     const attempt: SettlementAttempt = { targetX: null, targetY: 0 };
     let outcome: SeamOutcome | undefined;
 
-    settlement = attempt;
+    this.#attempts.settlement = attempt;
 
-    runStamped(SETTLING, () => {
-      outcome = driver.runCore(
-        settlementTransition,
+    this.#runStamped(SETTLING, () => {
+      outcome = this.#driver.runCore(
+        this.#settlementTransition,
         undefined,
         FAILURE_RESOLUTION,
       );
     });
 
-    dropStaged();
-    settlementInput = null;
+    this.#dropStaged();
+    this.#attempts.settlementInput = null;
 
     // A settlement that never committed does not land: the queued checkpoint
     // decides what the operation ends as, and measuring for a join that will
     // never happen would call behavior code for nothing.
-    if (outcome === SEAM_COMMITTED && measureTarget(attempt)) {
-      joinSettlement(attempt);
+    if (outcome === SEAM_COMMITTED && this.#measureTarget(attempt)) {
+      this.#joinSettlement(attempt);
     }
-  };
+  }
 
   /**
    * The producer-side half of the double validation. The queued action
    * revalidates when it is applied, because the attempt slot and the committed
    * phase change at different moments.
    */
-  const settleResolution = (
-    attempt: ResolutionAttempt,
-    input: SettlementInput,
-  ): void => {
-    if (attempt.completed || resolution !== attempt || queue.closed) {
+  #settleResolution(attempt: ResolutionAttempt, input: SettlementInput): void {
+    if (
+      attempt.completed ||
+      this.#attempts.resolution !== attempt ||
+      this.#queue.closed
+    ) {
       return;
     }
 
     attempt.completed = true;
     attempt.settlement = input;
-    dispatchKernel(RESOLUTION_SETTLED, attempt);
-  };
+    this.#dispatchKernel(RESOLUTION_SETTLED, attempt);
+  }
 
   /**
    * The consumer round-trip, executed by the kernel after `release.effect`
@@ -1782,18 +1933,18 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * kernel never names a resolution type, an accept or a reject: it hands the
    * value to `settlement.prepare` with a status and lets the behavior classify.
    */
-  const openResolution = (command: ResolutionCommand): void => {
+  #openResolution(command: ResolutionCommand): void {
     const attempt: ResolutionAttempt = {
       completed: false,
       settlement: null,
     };
     const { invoke } = command;
 
-    resolution = attempt;
+    this.#attempts.resolution = attempt;
 
     if (!invoke) {
       // A proven semantic no-op — no round-trip, no abort guard, no thenable.
-      settleResolution(attempt, { type: SETTLED_SKIPPED });
+      this.#settleResolution(attempt, { type: SETTLED_SKIPPED });
       return;
     }
 
@@ -1801,7 +1952,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
     // Keyed off `completed`, not off the payload: keying it off the payload
     // would abort a finished resolver's own signal.
-    operation!.lifetimes.cancellation.useWhile(
+    this.#operation!.lifetimes.cancellation.useWhile(
       () => !attempt.completed,
       () => {
         aborter.abort();
@@ -1813,7 +1964,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     try {
       value = invoke(aborter.signal);
     } catch (error) {
-      settleResolution(attempt, { type: SETTLED_REJECTED, error });
+      this.#settleResolution(attempt, { type: SETTLED_REJECTED, error });
       return;
     }
 
@@ -1828,24 +1979,24 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         then.call(
           value as PromiseLike<unknown>,
           (settled: unknown) => {
-            settleResolution(attempt, {
+            this.#settleResolution(attempt, {
               type: SETTLED_FULFILLED,
               value: settled,
             });
           },
           (error: unknown) => {
-            settleResolution(attempt, { type: SETTLED_REJECTED, error });
+            this.#settleResolution(attempt, { type: SETTLED_REJECTED, error });
           },
         );
         return;
       }
     } catch (error) {
-      settleResolution(attempt, { type: SETTLED_REJECTED, error });
+      this.#settleResolution(attempt, { type: SETTLED_REJECTED, error });
       return;
     }
 
-    settleResolution(attempt, { type: SETTLED_FULFILLED, value });
-  };
+    this.#settleResolution(attempt, { type: SETTLED_FULFILLED, value });
+  }
 
   // -------------------------------------------------------------------------
   // Handlers. Every one is total: an action it does not recognise in the
@@ -1861,34 +2012,43 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * swappable `current` frame and `activation` record at call time is what
    * makes hoisting sound: neither is captured by value.
    */
-  const runMoved = (): void => {
-    spec!.moved(current, activation!.lift);
+  /**
+   * The move leaf as a value. **Wrapped, not detached**, and a field rather
+   * than an expression at the call: the seam runs it once per accepted pointer
+   * sample, so the closure is allocated with the kernel and not with the move.
+   */
+  readonly #movedLeaf = (): void => {
+    this.#runMoved();
   };
 
-  const handleMove = (sample: PointerCoordinates): void => {
-    const { phase } = current;
+  #runMoved(): void {
+    this.#spec!.moved(this.#current, this.#activation!.lift);
+  }
+
+  #handleMove(sample: PointerCoordinates): void {
+    const { phase } = this.#current;
 
     if (phase !== PENDING && phase !== ACTIVE) {
       return;
     }
 
-    if (sample.pointerId !== current.pointerId) {
+    if (sample.pointerId !== this.#current.pointerId) {
       return;
     }
 
-    begin();
-    draft.pointerX = sample.clientX;
-    draft.pointerY = sample.clientY;
-    commit();
+    this.#begin();
+    this.#draft.pointerX = sample.clientX;
+    this.#draft.pointerY = sample.clientY;
+    this.#commit();
 
     if (phase === ACTIVE) {
-      driver.runLeaf(runMoved, FAILURE_RENDERER_WRITE);
+      this.#driver.runLeaf(this.#movedLeaf, FAILURE_RENDERER_WRITE);
       return;
     }
 
-    const { threshold } = spec!.config;
-    const dx = current.pointerX - current.originX;
-    const dy = current.pointerY - current.originY;
+    const { threshold } = this.#spec!.config;
+    const dx = this.#current.pointerX - this.#current.originX;
+    const dy = this.#current.pointerY - this.#current.originY;
 
     if (dx * dx + dy * dy >= threshold * threshold) {
       // **The pointer path's `preventDefault()`.** What it prevents is *this*
@@ -1907,48 +2067,56 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // the event that began it has returned. Clearing is the only instrument
       // left, and what is cleared is the half-made selection the press made on
       // its way to becoming a drag.
-      realm.window.getSelection()?.removeAllRanges();
-      armClickSuppressor();
-      activate();
+      this.realm.window.getSelection()?.removeAllRanges();
+      this.#armClickSuppressor();
+      this.#activate();
     }
-  };
+  }
 
   /**
    * The release, from `ACTIVE`, in the fixed two-commit order the kernel owns.
    * `sample` is `null` for a pointerless release: there is nothing to commit,
    * and the pointer fields stay as admission left them.
    */
-  const closeOperation = (sample: PointerCoordinates | null): void => {
+  #closeOperation(sample: PointerCoordinates | null): void {
     // Commit 1: the committed frame matches what is about to be true, so a
     // `release.prepare` that throws or reentrantly destroys never leaves a
     // committed `ACTIVE` operation with no ingress and no path forward.
-    begin();
-    draft.phase = RELEASING;
+    this.#begin();
+    this.#draft.phase = RELEASING;
 
     if (sample) {
-      draft.pointerX = sample.clientX;
-      draft.pointerY = sample.clientY;
+      this.#draft.pointerX = sample.clientX;
+      this.#draft.pointerY = sample.clientY;
     }
 
-    commit();
+    this.#commit();
 
     // Motion closes *between* the two commits: capture released, listeners and
     // invalidation removed, the behavior's frame task cancelled. Nothing
     // pending can alter the proposal from here.
-    operation!.lifetimes.motion.dispose();
+    this.#operation!.lifetimes.motion.dispose();
 
-    runReleaseSeam(driver, releaseTransition, FAILURE_RELEASE, openResolution);
-  };
+    runReleaseSeam(
+      this.#driver,
+      this.#releaseTransition,
+      FAILURE_RELEASE,
+      // Wrapped, not detached: the seam calls it with no receiver.
+      (command) => {
+        this.#openResolution(command);
+      },
+    );
+  }
 
-  const handleUp = (sample: PointerCoordinates): void => {
-    const { phase } = current;
+  #handleUp(sample: PointerCoordinates): void {
+    const { phase } = this.#current;
 
-    if (sample.pointerId !== current.pointerId) {
+    if (sample.pointerId !== this.#current.pointerId) {
       return;
     }
 
     if (phase === PENDING) {
-      retireOperation(current.operation);
+      this.#retireOperation(this.#current.operation);
       return;
     }
 
@@ -1956,33 +2124,39 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       return;
     }
 
-    closeOperation(sample);
-  };
+    this.#closeOperation(sample);
+  }
 
   /**
    * The pointerless release, which enters the **same** transition `UP` enters
    * at `ACTIVE`. Unreachable for a pointer operation and unreachable from a
-   * behavior: `KernelHost` still has no lifecycle entry.
+   * behavior: {@link BehaviorContext} still has no lifecycle entry.
    */
-  const handleRelease = (identity: OperationIdentity): void => {
-    if (current.operation !== identity || current.phase !== ACTIVE) {
+  #handleRelease(identity: OperationIdentity): void {
+    if (
+      this.#current.operation !== identity ||
+      this.#current.phase !== ACTIVE
+    ) {
       return;
     }
 
-    closeOperation(null);
-  };
+    this.#closeOperation(null);
+  }
 
   /**
    * The pointerless activation, which enters the **same** seam the threshold
    * crossing enters inline from `MOVE`.
    */
-  const handleActivate = (identity: OperationIdentity): void => {
-    if (current.operation !== identity || current.phase !== PENDING) {
+  #handleActivate(identity: OperationIdentity): void {
+    if (
+      this.#current.operation !== identity ||
+      this.#current.phase !== PENDING
+    ) {
       return;
     }
 
-    activate();
-  };
+    this.#activate();
+  }
 
   /**
    * A cancellation at `ACTIVE` or `RELEASING` enters the settlement seam, which
@@ -1990,24 +2164,27 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * requires: `recovery` and `domain` are fields of the behavior's frame part,
    * which the kernel cannot name or write.
    */
-  const settleCancellation = (
+  #settleCancellation(
     request: { reason: unknown; origin: CancelOrigin },
     stage: CancelStage,
-  ): void => {
-    openSettlement({
+  ): void {
+    this.#openSettlement({
       type: SETTLED_CANCELED,
       reason: request.reason,
       origin: request.origin,
       stage,
     });
-  };
+  }
 
-  const handleResolutionSettled = (attempt: ResolutionAttempt): void => {
+  #handleResolutionSettled(attempt: ResolutionAttempt): void {
     // The applied half of the double validation. The slot check alone covers
     // every path that exists today, because everything that decides the
     // operation also clears the slot; the phase check is the second layer the
     // contract requires, guarding the window where the two disagree.
-    if (resolution !== attempt || current.phase !== RELEASING) {
+    if (
+      this.#attempts.resolution !== attempt ||
+      this.#current.phase !== RELEASING
+    ) {
       return; // a late completion for an operation that is already decided
     }
 
@@ -2019,15 +2196,15 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
     // Consumed once and the payload cleared, so it can never be applied twice.
     attempt.settlement = null;
-    openSettlement(input);
-  };
+    this.#openSettlement(input);
+  }
 
-  const handleCancel = (identity: OperationIdentity): void => {
-    if (current.operation !== identity) {
+  #handleCancel(identity: OperationIdentity): void {
+    if (this.#current.operation !== identity) {
       return;
     }
 
-    const live = operation!;
+    const live = this.#operation!;
     const request = live.cancelRequest;
 
     // Consumed before anything else runs: the latch invalidates every
@@ -2039,11 +2216,11 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       return;
     }
 
-    switch (current.phase) {
+    switch (this.#current.phase) {
       case PENDING:
         // Abandoned before there was anything to tell the consumer about:
         // `admit` is not a start notification, and no presentation exists.
-        retireOperation(identity);
+        this.#retireOperation(identity);
         break;
       case ACTIVATING:
       case ACTIVE:
@@ -2059,9 +2236,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
         // The stage is `AT_PROPOSAL` ("abandoned before the consumer round-trip
         // opened") and the behavior's own result carries a null proposal, which
         // is the case its domain type already names.
-        settleCancellation(
+        this.#settleCancellation(
           request,
-          current.phase === RELEASING ? AT_CONSUMER : AT_PROPOSAL,
+          this.#current.phase === RELEASING ? AT_CONSUMER : AT_PROPOSAL,
         );
         break;
       // **Written out rather than left to a bare `default`.** The handler is
@@ -2078,10 +2255,13 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
       // no default
     }
-  };
+  }
 
-  const handleStartCommitted = (identity: OperationIdentity): void => {
-    if (current.phase !== ACTIVATING || current.operation !== identity) {
+  #handleStartCommitted(identity: OperationIdentity): void {
+    if (
+      this.#current.phase !== ACTIVATING ||
+      this.#current.operation !== identity
+    ) {
       return;
     }
 
@@ -2093,29 +2273,29 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // for exactly one drain and the cancellation would be reported at the wrong
     // stage. Leaving the phase untouched is enough: the queued `CANCEL` finds
     // `ACTIVATING` and settles it.
-    if (operation!.cancelRequest) {
+    if (this.#operation!.cancelRequest) {
       return;
     }
 
-    begin();
-    draft.phase = ACTIVE;
-    commit();
+    this.#begin();
+    this.#draft.phase = ACTIVE;
+    this.#commit();
 
     // **A command is one slot.** A pointerless operation has no other producer
     // of a release — no `pointerup` will ever arrive — so the kernel is the
     // producer, once, here. Queued rather than run inline so the consumer's
     // `onStart` and anything it dispatched drain first, exactly as they would
     // before a press's own release.
-    if (current.pointerId === -1) {
-      dispatchKernel(RELEASE, current.operation);
+    if (this.#current.pointerId === -1) {
+      this.#dispatchKernel(RELEASE, this.#current.operation);
     }
-  };
+  }
 
-  const handleFailed = (checkpoint: FailureCheckpoint): void => {
-    const { phase } = current;
+  #handleFailed(checkpoint: FailureCheckpoint): void {
+    const { phase } = this.#current;
 
     // The applied half of the precedence check, and not redundant with the one
-    // in `failOperation`: `host.fail()` classifies **immediately**, inside the
+    // in `failOperation`: `fail()` classifies **immediately**, inside the
     // open phase, so a seam that fails and *then* cancels queues
     // `[FAILED, CANCEL]` — the latch does not exist yet when the checkpoint is
     // queued, only when it is applied. Dropping it here leaves the phase
@@ -2125,10 +2305,10 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // is what decides and the cancel owns the terminal. `checkpoint.stage` is
     // discarded with the classification it names.
     if (
-      operation?.cancelRequest &&
-      current.operation === checkpoint.operation
+      this.#operation?.cancelRequest &&
+      this.#current.operation === checkpoint.operation
     ) {
-      notify(
+      this.#notify(
         new DraggableWarning('drag: failure/superseded-by-cancel', {
           cause: checkpoint.error,
         }),
@@ -2137,7 +2317,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     }
 
     if (
-      current.operation !== checkpoint.operation ||
+      this.#current.operation !== checkpoint.operation ||
       phase === IDLE ||
       phase === REPORTING
     ) {
@@ -2152,7 +2332,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
       // an operation that is already over, and a second one arrives while the
       // first is being reported — in both cases the terminal is owned and the
       // outcome is not this fault's to change.
-      notify(
+      this.#notify(
         new DraggableWarning('drag: failure/checkpoint-stale', {
           cause: checkpoint.error,
         }),
@@ -2162,9 +2342,9 @@ export function createKernel<Part extends object, Activation extends {} = true>(
 
     // The settlement is **replaced**: whatever the previous attempt measured
     // is over, and nothing of it may reach the join.
-    retireAttempts();
+    this.#retireAttempts();
 
-    settlementInput = {
+    this.#attempts.settlementInput = {
       type: SETTLED_FAILED,
       stage: checkpoint.stage,
       error: checkpoint.error,
@@ -2189,7 +2369,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // **The settlement is replaced, and this one never lands.** The report
     // runs through the same seam and stops there: nothing measures and nothing
     // joins, and the terminal is published from `ERROR_REPORTED` instead.
-    settlement = { targetX: null, targetY: 0 };
+    this.#attempts.settlement = { targetX: null, targetY: 0 };
 
     // The same seam as an ordinary settlement, because the behavior owns the
     // terminal classification either way — but stamped `REPORTING`, not
@@ -2203,31 +2383,35 @@ export function createKernel<Part extends object, Activation extends {} = true>(
     // *classifies* — the latched failure is what stops the continuation below —
     // but the error takes the non-consequential channel, because a queued
     // checkpoint would be dropped by the guard above and lost.
-    reporting = true;
+    this.#reporting = true;
 
     try {
-      runStamped(REPORTING, () => {
-        driver.runCore(settlementTransition, undefined, checkpoint.stage);
+      this.#runStamped(REPORTING, () => {
+        this.#driver.runCore(
+          this.#settlementTransition,
+          undefined,
+          checkpoint.stage,
+        );
       });
     } finally {
-      dropStaged();
-      reporting = false;
-      settlementInput = null;
+      this.#dropStaged();
+      this.#reporting = false;
+      this.#attempts.settlementInput = null;
     }
 
-    if (current.phase === REPORTING) {
+    if (this.#current.phase === REPORTING) {
       // The **whole checkpoint**, not just its operation: the terminal this
       // path now owes is skipped for exactly one stage, and the reader of that
       // rule needs the stage to apply it.
-      dispatchKernel(ERROR_REPORTED, checkpoint);
+      this.#dispatchKernel(ERROR_REPORTED, checkpoint);
       return;
     }
 
     // The report transition never published — a rejection from `prepare`, or a
     // reentrant destroy. Nothing will drive `ERROR_REPORTED`, and the operation
     // may not stay live.
-    retireOperation(checkpoint.operation);
-  };
+    this.#retireOperation(checkpoint.operation);
+  }
 
   /**
    * `onError` is done. **The operation still owes a terminal**, and this is
@@ -2261,7 +2445,7 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * been reported.
    *
    * **The other is the queue order, and it covers what the stage cannot.** A
-   * behavior calling `host.fail` from inside `finalized` classifies with a
+   * behavior calling `fail` from inside `finalized` classifies with a
    * stage of its own — a phase is open there, so the classification takes the
    * caller's — and a checkpoint raised inside the terminal callback therefore
    * need not carry `FAILURE_TERMINAL_CALLBACK` at all. What refuses that one is
@@ -2271,240 +2455,232 @@ export function createKernel<Part extends object, Activation extends {} = true>(
    * **A change that makes `ERROR_REPORTED` asynchronous is changing that**, not
    * only when this runs.
    */
-  const handleErrorReported = (checkpoint: FailureCheckpoint): void => {
+  #handleErrorReported(checkpoint: FailureCheckpoint): void {
     const { operation: identity, stage } = checkpoint;
 
-    if (current.phase !== REPORTING || current.operation !== identity) {
+    if (
+      this.#current.phase !== REPORTING ||
+      this.#current.operation !== identity
+    ) {
       return;
     }
 
-    if (stage !== FAILURE_TERMINAL_CALLBACK && operation) {
-      unwind(operation.lifetimes.presentation.dispose);
+    if (stage !== FAILURE_TERMINAL_CALLBACK && this.#operation) {
+      this.#unwind(this.#operation.lifetimes.presentation.dispose);
 
       // A throw here reaches `failOperation`, which sees `REPORTING` and takes
       // the non-consequential channel — so a terminal that fails on the failure
       // path is reported without queueing a second checkpoint for an operation
       // that is one statement from retirement.
-      driver.runLeaf(() => {
-        spec!.finalized(current);
+      this.#driver.runLeaf(() => {
+        this.#spec!.finalized(this.#current);
       }, FAILURE_TERMINAL_CALLBACK);
     }
 
-    retireOperation(identity);
-  };
+    this.#retireOperation(identity);
+  }
 
-  const handleBehaviorAction = (tag: number, argument: unknown): void => {
-    actionTag = tag;
-    actionArgument = argument;
+  #handleBehaviorAction(tag: number, argument: unknown): void {
+    this.#actionTag = tag;
+    this.#actionArgument = argument;
 
     try {
       // Two stages, because the seam's phases fail differently: resolving an
       // insertion and moving the placeholder are not the same failure. An
-      // explicit `host.fail` narrows further from the inside.
-      driver.runCore(
-        actionTransition,
+      // explicit `fail` narrows further from the inside.
+      this.#driver.runCore(
+        this.#actionTransition,
         undefined,
         FAILURE_ACTION_PREPARE,
         FAILURE_ACTION_EFFECT,
       );
     } finally {
-      dropStaged();
+      this.#dropStaged();
       // Drop the retained argument: it may be a DOM element or a consumer
       // value, and nothing may keep it alive past its action.
-      actionArgument = null;
+      this.#actionArgument = null;
     }
-  };
+  }
 
-  handle = (action, argument): void => {
+  /** The queue's one drain step, dispatching a kernel or behavior action. */
+  #handle(action: number, argument: unknown): void {
     if (action >= BEHAVIOR_BASE) {
-      handleBehaviorAction(action - BEHAVIOR_BASE, argument);
+      this.#handleBehaviorAction(action - BEHAVIOR_BASE, argument);
       return;
     }
 
     switch (action) {
       case MOVE:
-        handleMove(argument as PointerCoordinates);
+        this.#handleMove(argument as PointerCoordinates);
         break;
       case UP:
-        handleUp(argument as PointerCoordinates);
+        this.#handleUp(argument as PointerCoordinates);
         break;
       case ACTIVATE:
-        handleActivate(argument as OperationIdentity);
+        this.#handleActivate(argument as OperationIdentity);
         break;
       case RELEASE:
-        handleRelease(argument as OperationIdentity);
+        this.#handleRelease(argument as OperationIdentity);
         break;
       case CANCEL:
-        handleCancel(argument as OperationIdentity);
+        this.#handleCancel(argument as OperationIdentity);
         break;
       case START_COMMITTED:
-        handleStartCommitted(argument as OperationIdentity);
+        this.#handleStartCommitted(argument as OperationIdentity);
         break;
       case RESOLUTION_SETTLED:
-        handleResolutionSettled(argument as ResolutionAttempt);
+        this.#handleResolutionSettled(argument as ResolutionAttempt);
         break;
       case FAILED:
-        handleFailed(argument as FailureCheckpoint);
+        this.#handleFailed(argument as FailureCheckpoint);
         break;
       case ERROR_REPORTED:
-        handleErrorReported(argument as FailureCheckpoint);
+        this.#handleErrorReported(argument as FailureCheckpoint);
         break;
       case RETIRE:
-        retireOperation(argument as OperationIdentity);
+        this.#retireOperation(argument as OperationIdentity);
         break;
       default:
         // Total: an unrecognised tag is ignored, never thrown on.
         break;
     }
-  };
+  }
 
   // -------------------------------------------------------------------------
-  // The host, and arming
+  // The behavior-facing surface, and arming
   // -------------------------------------------------------------------------
 
-  const host: KernelHost = {
-    realm,
-    root,
-    /**
-     * The latch itself, read live — a captured boolean would be a copy of a
-     * liveness answer, which is the failure mode the whole invariant is about.
-     */
-    get closed(): boolean {
-      return queue.closed;
-    },
-    dispatch(tag, argument) {
-      if (queue.closed) {
-        return;
-      }
+  /**
+   * The latch itself, read live — a captured boolean would be a copy of a
+   * liveness answer, which is the failure mode the whole invariant is about.
+   */
+  get closed(): boolean {
+    return this.#queue.closed;
+  }
 
+  dispatch(tag: number, argument: unknown): void {
+    if (this.#queue.closed) {
+      return;
+    }
+
+    if (
+      !this.#spec ||
+      !Number.isInteger(tag) ||
+      tag < 0 ||
+      tag >= this.#spec.config.actionTags
+    ) {
+      // Reported and dropped, never enqueued: the kernel computes
+      // `BEHAVIOR_BASE + tag`, so a negative or fractional tag would alias a
+      // kernel action.
+      this.#notify(
+        new DraggableWarning(`drag: dispatch/tag-out-of-range ${String(tag)}`),
+      );
+      return;
+    }
+
+    this.#dispatchKernel(BEHAVIOR_BASE + tag, argument);
+  }
+
+  fail(stage: FailureStage, error: unknown): void {
+    this.#driver.requestFailure(stage, error);
+  }
+
+  /**
+   * Composes both frames and attaches ingress. **Unwinds on any failure**:
+   * `spec.retire()` best-effort, scrub whichever frame exists, abort ingress,
+   * rethrow. A controller is never returned half-armed.
+   */
+  arm(next: BehaviorSpec<Part, Activation>): void {
+    this.#spec = next;
+
+    // How many frames physically exist, which is what the unwind scrubs.
+    let composed = 0;
+
+    try {
       if (
-        !spec ||
-        !Number.isInteger(tag) ||
-        tag < 0 ||
-        tag >= spec.config.actionTags
+        !Number.isInteger(next.config.actionTags) ||
+        next.config.actionTags < 0
       ) {
-        // Reported and dropped, never enqueued: the kernel computes
-        // `BEHAVIOR_BASE + tag`, so a negative or fractional tag would alias a
-        // kernel action.
-        notify(
-          new DraggableWarning(
-            `drag: dispatch/tag-out-of-range ${String(tag)}`,
-          ),
-        );
-        return;
+        throw new TypeError('drag: spec/action-tags-invalid');
       }
 
-      dispatchKernel(BEHAVIOR_BASE + tag, argument);
-    },
-    // **Wrapped, not detached.** `host` is a capability façade composed from
-    // four owners and handed to behavior code, which calls this member with no
-    // receiver of its own; a bare prototype read would arrive without one.
-    fail: (stage, error) => {
-      driver.requestFailure(stage, error);
-    },
-
-    cancel,
-    destroy,
-  };
-
-  return {
-    host,
-
-    /**
-     * Composes both frames and attaches ingress. **Unwinds on any failure**:
-     * `spec.retire()` best-effort, scrub whichever frame exists, abort ingress,
-     * rethrow. A controller is never returned half-armed.
-     */
-    arm(next): void {
-      spec = next;
-
-      // How many frames physically exist, which is what the unwind scrubs.
-      let composed = 0;
-
-      try {
-        if (
-          !Number.isInteger(next.config.actionTags) ||
-          next.config.actionTags < 0
-        ) {
-          throw new TypeError('drag: spec/action-tags-invalid');
-        }
-
-        // Static spec data, validated once, exactly as `actionTags` is. **One
-        // check, and it is the only one here the library owns.** The
-        // `pointerdown` collision is refused rather than tolerated: two
-        // listeners for one type would run two admission members for one event,
-        // and the second would find the first's operation already committed —
-        // silently, and only sometimes. That corrupted operation is the
-        // kernel's own state, which is what makes this the library's invariant
-        // to hold rather than the author's.
-        //
-        // **Four checks that look like they belong in this loop do not, and the
-        // last two are why the rule is worth restating.**
-        // `typeof type !== 'string'` re-states what `readonly string[]` already
-        // guarantees. A duplicate entry needs no refusal, because the platform
-        // ignores it: `addEventListener` dedups on (type, callback, capture)
-        // and all three are identical for every entry here, so a second binding
-        // is already a no-op — and `indexOf` inside the loop would make
-        // refusing it quadratic. The array-shape pair is verified by
-        // construction rather than argued: an **empty array** binds no discrete
-        // listener, which is the state a behavior omitting `command` entirely
-        // already reaches, so refusing it would refuse a supported
-        // configuration under a different spelling; an **empty-string entry**
-        // binds an ordinary, distinct listener for a type nothing dispatches,
-        // leaving the author's discrete ingress inert while the kernel's is
-        // untouched. Both would cost the author their own feature and cost the
-        // library nothing, and the library declines that trade however plainly
-        // the value looks like a mistake.
-        if (next.command !== undefined) {
-          for (const type of next.command.types) {
-            if (type === POINTER_DOWN) {
-              throw new TypeError('drag: spec/command-type-pointerdown');
-            }
+      // Static spec data, validated once, exactly as `actionTags` is. **One
+      // check, and it is the only one here the library owns.** The
+      // `pointerdown` collision is refused rather than tolerated: two
+      // listeners for one type would run two admission members for one event,
+      // and the second would find the first's operation already committed —
+      // silently, and only sometimes. That corrupted operation is the
+      // kernel's own state, which is what makes this the library's invariant
+      // to hold rather than the author's.
+      //
+      // **Four checks that look like they belong in this loop do not, and the
+      // last two are why the rule is worth restating.**
+      // `typeof type !== 'string'` re-states what `readonly string[]` already
+      // guarantees. A duplicate entry needs no refusal, because the platform
+      // ignores it: `addEventListener` dedups on (type, callback, capture)
+      // and all three are identical for every entry here, so a second binding
+      // is already a no-op — and `indexOf` inside the loop would make
+      // refusing it quadratic. The array-shape pair is verified by
+      // construction rather than argued: an **empty array** binds no discrete
+      // listener, which is the state a behavior omitting `command` entirely
+      // already reaches, so refusing it would refuse a supported
+      // configuration under a different spelling; an **empty-string entry**
+      // binds an ordinary, distinct listener for a type nothing dispatches,
+      // leaving the author's discrete ingress inert while the kernel's is
+      // untouched. Both would cost the author their own feature and cost the
+      // library nothing, and the library declines that trade however plainly
+      // the value looks like a mistake.
+      if (next.command !== undefined) {
+        for (const type of next.command.types) {
+          if (type === POINTER_DOWN) {
+            throw new TypeError('drag: spec/command-type-pointerdown');
           }
         }
-
-        // The same code path twice, so both frames get one hidden class. The
-        // part factory is not proven deterministic, so the two results are not
-        // assumed identical — they are simply both composed, and `composed`
-        // records how many exist for the unwind below.
-        current = Object.assign(frame(), next.createFramePart());
-        composed = 1;
-        draft = Object.assign(frame(), next.createFramePart());
-        composed = 2;
-
-        root.addEventListener(POINTER_DOWN, onPointerDown, {
-          signal: ingress.signal,
-        });
-
-        // Inside the **same** ingress abort that owns `pointerdown`, so
-        // `destroy()` releases every listener including the discrete ones, and
-        // a behavior with no `command` member binds nothing at all.
-        if (next.command !== undefined) {
-          for (const type of next.command.types) {
-            root.addEventListener(type, onCommand, { signal: ingress.signal });
-          }
-        }
-      } catch (error) {
-        unwind(next.retire);
-
-        // Totality applies to the unwind too: a reset that throws here must not
-        // replace the original arm failure or skip the ingress cleanup. Scrub
-        // **whichever frame exists** — a second factory that throws leaves a
-        // constructed frame the failure path is still responsible for, and a
-        // part that already holds a DOM reference would otherwise be retained
-        // by the controller for good.
-        if (composed > 0) {
-          scrub(current);
-        }
-
-        if (composed > 1) {
-          scrub(draft);
-        }
-
-        ingress.abort();
-        spec = null;
-        throw error;
       }
-    },
-  };
+
+      // The same code path twice, so both frames get one hidden class. The
+      // part factory is not proven deterministic, so the two results are not
+      // assumed identical — they are simply both composed, and `composed`
+      // records how many exist for the unwind below.
+      this.#current = Object.assign(frame(), next.createFramePart());
+      composed = 1;
+      this.#draft = Object.assign(frame(), next.createFramePart());
+      composed = 2;
+
+      this.root.addEventListener(POINTER_DOWN, this.#pointerDownHandler, {
+        signal: this.#ingress.signal,
+      });
+
+      // Inside the **same** ingress abort that owns `pointerdown`, so
+      // `destroy()` releases every listener including the discrete ones, and
+      // a behavior with no `command` member binds nothing at all.
+      if (next.command !== undefined) {
+        for (const type of next.command.types) {
+          this.root.addEventListener(type, this.#commandHandler, {
+            signal: this.#ingress.signal,
+          });
+        }
+      }
+    } catch (error) {
+      this.#unwind(next.retire);
+
+      // Totality applies to the unwind too: a reset that throws here must not
+      // replace the original arm failure or skip the ingress cleanup. Scrub
+      // **whichever frame exists** — a second factory that throws leaves a
+      // constructed frame the failure path is still responsible for, and a
+      // part that already holds a DOM reference would otherwise be retained
+      // by the controller for good.
+      if (composed > 0) {
+        this.#scrub(this.#current);
+      }
+
+      if (composed > 1) {
+        this.#scrub(this.#draft);
+      }
+
+      this.#ingress.abort();
+      this.#spec = null;
+      throw error;
+    }
+  }
 }

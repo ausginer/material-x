@@ -52,10 +52,10 @@ type BehaviorInstall<
  * The install function itself — and, since D-48, the **kernel tier's public
  * authoring type**. It is what a custom behavior author writes, so it is
  * exported from `@ydinjs/drag/kernel` together with `BehaviorInstall`,
- * `BehaviorSpec` and `KernelHost`.
+ * `BehaviorSpec` and `BehaviorContext`.
  */
 type BehaviorFactory<Controller, Part extends object, Activation extends {}> = (
-  host: KernelHost,
+  kernel: BehaviorContext,
 ) => BehaviorInstall<Controller, Part, Activation>;
 
 /**
@@ -105,13 +105,13 @@ BehaviorSpec<FreeDragPart>; // stages nothing; Activation = true
 
 `kernel.arm(spec)` carries `Activation` as well, and the seam driver erases it to `{}` — the kernel threads the staged value and drops it, so nothing inside the executor is generic over what a behavior staged.
 
-**`Behavior<Controller>` erases both `Part` and `Activation`** at the opaque brand (D-30's behavior half, kept by D-45). That was already true of `Part` and is right for the same reason: nobody outside the factory names either, and carrying them would make a behavior's private frame shape part of the value's type. **Opacity survives D-48 by splitting rather than weakening.** At the ordinary tier it is total and free — nothing there names a behavior at all, because the entry point returns a controller. At the kernel tier the authoring surface is deliberately **structural**: an author writes a factory literal and reads `KernelHost`, which is what authoring means. The brand and `brandBehavior` survive as the library's own construction vocabulary and as a kernel-tier type a helper can name when it wants to _package_ a behavior without installing it. **No `defineBehavior`-style brander is exported**, because with `draggable()` accepting the factory there is nothing an author must brand — and, correspondingly, no call site in this document produces a `Behavior<Controller>` any more: `sortable()` installs directly.
+**`Behavior<Controller>` erases both `Part` and `Activation`** at the opaque brand (D-30's behavior half, kept by D-45). That was already true of `Part` and is right for the same reason: nobody outside the factory names either, and carrying them would make a behavior's private frame shape part of the value's type. **Opacity survives D-48 by splitting rather than weakening.** At the ordinary tier it is total and free — nothing there names a behavior at all, because the entry point returns a controller. At the kernel tier the authoring surface is deliberately **structural**: an author writes a factory literal and reads `BehaviorContext`, which is what authoring means. The brand and `brandBehavior` survive as the library's own construction vocabulary and as a kernel-tier type a helper can name when it wants to _package_ a behavior without installing it. **No `defineBehavior`-style brander is exported**, because with `draggable()` accepting the factory there is nothing an author must brand — and, correspondingly, no call site in this document produces a `Behavior<Controller>` any more: `sortable()` installs directly.
 
 What D-45 withdraws is one level down again and is a different value: the `SortableFeature` brand on a _fragment_, which is now a plain object literal (§The behavior instance).
 
-`arm()` is not on `KernelHost`; only `draggable()` holds the kernel handle, and it calls `arm()` exactly once. A behavior cannot arm itself, re-arm, or observe the kernel object.
+`arm()` is not on `BehaviorContext`; only `draggable()` holds the kernel wide, and it calls `arm()` exactly once. **A behavior may not arm itself or re-arm**, and the interface is where that is expressed: the kernel implements `BehaviorContext` directly, so the object a behavior holds _is_ the kernel under a type that does not name `arm`. Reaching it means leaving the declared type deliberately, which is the same kind of term as the sentence two paragraphs below — _"No input can be admitted before `install()` returns" stays unexpressible rather than enforced_ — and it gains no runtime guard for the same reason.
 
-**D-1's two-phase handshake is untouched by D-48, and that is why the move is safe.** Whichever tier the call sits at, the ordering is the one probe 1 needed a rule for: the host exists before the factory runs, so a behavior can build host-backed runtime and controller state; the factory returns `{ spec, controller }` complete; and only then does `arm()` compose the frames and attach ingress. "No input can be admitted before `install()` returns" stays unexpressible rather than enforced. §11's progressive-disclosure requirement is a requirement about _that_ ordering, and relocating the function preserves it exactly.
+**D-1's two-phase handshake is untouched by D-48, and that is why the move is safe.** Whichever tier the call sits at, the ordering is the one probe 1 needed a rule for: the kernel exists before the factory runs, so a behavior can build kernel-backed runtime and controller state; the factory returns `{ spec, controller }` complete; and only then does `arm()` compose the frames and attach ingress. "No input can be admitted before `install()` returns" stays unexpressible rather than enforced. §11's progressive-disclosure requirement is a requirement about _that_ ordering, and relocating the function preserves it exactly.
 
 ~~Consumer-facing shape is unchanged from probe 1:~~ **Revision 2 changes it** (D-44, D-45, D-48). The previous form was `draggable(list, sortable(items, y(), placeholder({ className: 'ghost' }), callbacks({ onReorder })))` — an eager array, a variadic list of branded feature values, and a two-call composition. D-48 makes `sortable()` the ordinary entry point: it takes `root` first, returns a `SortableController`, and calls `draggable()` itself. D-45's argument list is variadic _config fragments_, and D-44 makes the collection a pull source inside the config:
 
@@ -129,12 +129,14 @@ const controller = sortable(
 
 **This is closer to the shipped package than the pre-revision contract was**, which is worth stating because Revision 2 is otherwise a list of departures. The shipped call is `sortable(container, options)` — one call, element first. The pre-revision contract replaced it with a two-call composition and moved the element onto the outer call; D-48 restores the one-call shape and only generalises `options` into `config, …fragments`. A consumer migrating from the shipped package changes what they pass, not how many calls they make.
 
-## `KernelHost`
+## `BehaviorContext`
 
-The whole construction-time surface. **Six** members, none of which lets the behavior drive a transition. (D-2) It said _seven_ between Phase 14 and Revision 2; D-41 deletes the one Phase 14 added.
+The whole construction-time surface. **Seven** members, none of which lets the behavior drive a transition. (D-2) It said _six_ from Revision 2 until D-170 step 6, which counts `closed` — a member D-53 added and this section's own list has always carried.
+
+**It is an interface the kernel implements, and the object a behavior holds is the kernel itself under this type** (D-170 §The behavior-facing interface). There is no second runtime object: the same arrangement `LifetimeScope`/`Lifetime` and `BehaviorLiftSession`/`VisualLiftSession` already use one and two tiers down, where one physical object arrives under the type its recipient is granted. Members are **positively selected**, so a member added to the kernel later is kernel-only until this interface names it.
 
 ```ts
-type KernelHost = Readonly<{
+interface BehaviorContext {
   /** The owning document/window. Every DOM access goes through it. */
   realm: DOMRealm;
 
@@ -167,7 +169,12 @@ type KernelHost = Readonly<{
    */
   fail(stage: FailureStage, error: unknown): void; // `FailureStage` is kernel-tier vocabulary (D-64)
 
-  /** Base controller methods, for the behavior to spread into its controller. */
+  /**
+   * Base controller methods, for the behavior to publish on its controller.
+   * They are prototype methods here and **detach-by-contract there**, so a
+   * behavior publishes a closure over the call rather than the member itself
+   * (D-170 §The behavior-facing interface).
+   */
   cancel(reason?: unknown): void;
 
   /**
@@ -180,20 +187,20 @@ type KernelHost = Readonly<{
    * promise still settles exactly once.
    */
   destroy(): Promise<void>;
-}>;
+}
 ```
 
 **`destroy()` returning a promise costs the consumer real ergonomics, and the cost is not hypothetical.** Probe A converted the surface and found **46 first-party call sites** turning into `no-floating-promises` violations — every one of them a plain `controller.destroy();` that never wanted a completion signal, including a React `useEffect` cleanup in this package's own demo, where returning the promise would change the cleanup's contract. The remedy is `void controller.destroy();` at each site that does not care, and `await controller.destroy();` at the few that do. D-36 accepts that in preference to a second public concept — no `destroyed` property, no completion method, no token — because the completion is only observable in the deferred reentrant case, and a rarely-useful promise is cheaper than a permanently-visible API surface.
 
 Compare probe 1's `Kernel`: `runtime`, `install`, `begin`, `commit`, `preparationValid`, `isCurrent`, `resolve` are all gone. `resolve` moved into a per-seam argument (§[02](02-kernel-behavior-contract.md) §Release); the rest have no counterpart because the behavior no longer transitions anything.
 
-`host` is created once and is stable for the controller's life, so a behavior that captures it captures one object.
+The context is stable for the controller's life, so a behavior that captures it captures one object — and since D-170 step 6 that object **is** the kernel, narrowed by the interface it implements rather than mirrored by a second record.
 
-**All six are unchanged by the Phase 14 revision, and the attribution matters.** Probe 13a's negatives are that the host owns no extensible ingress (N-2), no way to mint an operation (N-5) and no return channel from `dispatch` (N-3); probe 13c's is that there is no motion entry (N-4). **D-32 answers all four without adding a member**, because a behavior that declares which events it wants to be asked about is not a behavior that drives the kernel — a second input mode cost this surface nothing. Each of those four assertions still fails to compile, which is the property the probes exist to keep.
+**All six are unchanged by the Phase 14 revision, and the attribution matters.** Probe 13a's negatives are that the context owns no extensible ingress (N-2), no way to mint an operation (N-5) and no return channel from `dispatch` (N-3); probe 13c's is that there is no motion entry (N-4). **D-32 answers all four without adding a member**, because a behavior that declares which events it wants to be asked about is not a behavior that drives the kernel — a second input mode cost this surface nothing. Each of those four assertions still fails to compile, which is the property the probes exist to keep.
 
-**The seventh member is withdrawn (D-41), and the host is back to six.** Original text follows. ~~The seventh member is **D-33's** `presentationCommitted`. It is the one addition this revision makes to the host, and it is the same kind of thing `cancel` is: an operation-scoped signal, latched by the kernel, that does not transition a frame. Reporting a single total would have hidden which decision paid for it.~~
+**The member Phase 14 added is withdrawn (D-41).** Original text follows. ~~The seventh member is **D-33's** `presentationCommitted`. It is the one addition this revision makes to the host, and it is the same kind of thing `cancel` is: an operation-scoped signal, latched by the kernel, that does not transition a frame. Reporting a single total would have hidden which decision paid for it.~~
 
-D-41 deletes the authored-presentation acknowledgement whole — `controller.ready(request)`, `ResolutionOptions`, `rt.pendingRequest`, the acknowledgement deadline and this host member with them — because the serial commit order leaves the readiness hold **no producer**: a consumer that must render before the landing measurement awaits its own commit inside `onReorder`. The attribution the original paragraph insisted on survives its own deletion, and reads better now than it did then: **D-32 answered four probe negatives without adding a member, and the one member Phase 14 did add is the one Revision 2 removes.**
+D-41 deletes the authored-presentation acknowledgement whole — `controller.ready(request)`, `ResolutionOptions`, `rt.pendingRequest`, the acknowledgement deadline and this member with them — because the serial commit order leaves the readiness hold **no producer**: a consumer that must render before the landing measurement awaits its own commit inside `onReorder`. The attribution the original paragraph insisted on survives its own deletion, and reads better now than it did then: **D-32 answered four probe negatives without adding a member, and the one member Phase 14 did add is the one Revision 2 removes.**
 
 ## The behavior instance
 
@@ -237,14 +244,14 @@ function sortable(
 
 **Implemented (D-149, amended 2026-08-28).** **Both runtime aggregates dissolve.** Each spec takes what it needs — `createFreeDragSpec(host, slots)`, `createSortableSpec(host, source, items, slots)` — and every remaining field becomes a spec local cleared in `retire()`, beside the per-operation locals that already are. The sortable's `frame` is created inside the spec, which is what removes the self-referential `let runtime!`. `PresentationView` is untouched: it is a genuine runtime value, the per-operation object the feature views bind to, and its role is what requires an object.
 
-~~`SortableRuntime` stays, because five browser-suite sites build one over a stub host and write its fields to reach mid-operation states.~~ **Withdrawn** (F-142). A behavior-level invariant is driven from the behavior's **real boundary**; a seam whose only capability is writing private fields after construction is a harness shortcut rather than the seam D-126 licensed, which widens the **input** domain and then runs the production wiring. Those five sites move onto `sortable(root, config)` and, for the slot records the public config cannot express, onto `createSortableBehavior` through `draggable()` — a real kernel instead of a stub host. A state that cannot be reached or observed from there is a **testability finding**, not a reason to keep an access path.
+~~`SortableRuntime` stays, because five browser-suite sites build one over a stub host and write its fields to reach mid-operation states.~~ **Withdrawn** (F-142). A behavior-level invariant is driven from the behavior's **real boundary**; a seam whose only capability is writing private fields after construction is a harness shortcut rather than the seam D-126 licensed, which widens the **input** domain and then runs the production wiring. Those five sites move onto `sortable(root, config)` and, for the slot records the public config cannot express, onto `createSortableBehavior` through `draggable()` — a real kernel instead of a stub context. A state that cannot be reached or observed from there is a **testability finding**, not a reason to keep an access path.
 
 ~~`rt` is an ordinary object, declared and created in one place, never handed to the kernel and never widened. Its type is not exported.~~ **There is no object** (D-149). The state below is the field list as it stood; every entry is now a `let` in `createSortableSpec`'s closure, which is unreachable, unnameable and untestable from outside **by construction** rather than by an unexported type. H-2 and D-4 are satisfied at least as strongly. Read the block as an inventory of what the behavior keeps, not as a declaration that exists. (H-2, D-4)
 
 ```ts
 type SortableRuntime = {
   // ← dissolved by D-149; the fields are spec locals
-  readonly host: KernelHost;
+  readonly kernel: BehaviorContext;
   readonly slots: SortableSlots;
   /** Created once per controller; cancelled at retire and destroy. */
   readonly frame: FrameTask<number>;
@@ -267,7 +274,7 @@ type SortableRuntime = {
 
 **This moves an allocation rather than removing one, and which policy is cheaper is not decided** (review 5, §19). Eager-per-controller gives every controller an object, method and closure graph even if it never activates; the shipped package creates the task during activation instead, paying nothing for cold controllers and paying again on every drag. The functional fix — the task must exist before the first move — is settled; the allocation policy is part of M-2.
 
-**Seven mutable fields** — six, plus `closed` from C2-01 — beside three readonly ones (`host`, `slots`, `frame`). Since D-149 `host` and `slots` are the spec's own parameters and `frame` is a `const` beside the rest, so the readonly/mutable split is now the ordinary `const`/`let` one. ~~**Eight** — six, plus `pendingRequest` from D-33 and `closed` from C2-01.~~ D-41 deletes `pendingRequest` with the acknowledgement protocol that was its only reader, and the count returns to the number it held before Phase 14. The `closed` half of that history is untouched and is the half that carries an argument: the count was _six_ until Checkpoint D review 2 moved the controller's terminal latch onto the runtime, so that D3's one reader and I-36's readers read **one** latch rather than two that can disagree — which D-37 leaves standing at the floor, since a floor reading is still a latch reading. The document said _eight_ before Checkpoint C, C4-08, which was the different error of counting the readonly three among them. Probe 1's shared runtime had those _plus_ fourteen kernel fields (`actions`, `args`, `running`, `closed`, `current`, `draft`, `ingress`, `spec`, `lifetimes`, `originRect`, three attempt slots, `cancelRequest`, `pendingContinuation`, `destroyRequested`). Those fourteen are now unreachable, unnameable and untestable-from-outside — which is correct: none of them is a behavior concern, and probe 1 exported them only because the container was shared.
+**Seven mutable fields** — six, plus `closed` from C2-01 — beside three readonly ones (`kernel`, `slots`, `frame`). Since D-149 `kernel` and `slots` are the spec's own parameters and `frame` is a `const` beside the rest, so the readonly/mutable split is now the ordinary `const`/`let` one. ~~**Eight** — six, plus `pendingRequest` from D-33 and `closed` from C2-01.~~ D-41 deletes `pendingRequest` with the acknowledgement protocol that was its only reader, and the count returns to the number it held before Phase 14. The `closed` half of that history is untouched and is the half that carries an argument: the count was _six_ until Checkpoint D review 2 moved the controller's terminal latch onto the runtime, so that D3's one reader and I-36's readers read **one** latch rather than two that can disagree — which D-37 leaves standing at the floor, since a floor reading is still a latch reading. The document said _eight_ before Checkpoint C, C4-08, which was the different error of counting the readonly three among them. Probe 1's shared runtime had those _plus_ fourteen kernel fields (`actions`, `args`, `running`, `closed`, `current`, `draft`, `ingress`, `spec`, `lifetimes`, `originRect`, three attempt slots, `cancelRequest`, `pendingContinuation`, `destroyRequested`). Those fourteen are now unreachable, unnameable and untestable-from-outside — which is correct: none of them is a behavior concern, and probe 1 exported them only because the container was shared.
 
 ### `snapshot` is fed by a pull source, not by a construction-time capture
 

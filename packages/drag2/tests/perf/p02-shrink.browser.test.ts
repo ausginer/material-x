@@ -41,11 +41,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import type { CollectionSnapshot } from '../../src/sortable/domain.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
-import {
-  type ReadonlyFloat64Array,
-  RectIndex,
-  STRIDE,
-} from '../../src/sortable/rect-index.ts';
+import { RectIndex, STRIDE } from '../../src/sortable/rect-index.ts';
 import { y } from '../../src/sortable/y.ts';
 import { ReorderResolution, sortable } from '../../src/sortable.ts';
 
@@ -115,7 +111,7 @@ function shipped(rows: readonly HTMLElement[]): Cache {
   // reports **allocations** rather than "the buffer is not null yet": a cache
   // asked only for an empty collection allocates nothing, and a probe that
   // started from `null` would report one.
-  let seen: ReadonlyFloat64Array = index.values;
+  let seen: Float64Array = index.values;
   let allocations = 0;
   // Detached, like the rows this probe scans: `hole` is a fixed `STRIDE`
   // allocated once with the record, so the placeholder is not a slot and moves
@@ -143,15 +139,14 @@ function shipped(rows: readonly HTMLElement[]): Cache {
 
   return {
     bytes: () => index.values.byteLength,
-    // **The one widening, and it is at the instrument rather than in the
-    // boundary.** The cache publishes a read view carrying `byteLength` and
-    // deliberately not `buffer`, because measuring an allocation is not
-    // mutating it — shipping an accessor no consumer path uses so that a probe
-    // can read a number would be the worse trade. This probe is not a
-    // collaborator, and it writes nothing through either handle.
-    retained: () => (index.values as Float64Array).buffer.byteLength,
+    // **This probe holds the owner's type, not the reader's.** It measures the
+    // buffer the cache allocated — `buffer.byteLength` is what separates a
+    // reclaim from a `subarray`, and the reader interface deliberately does
+    // not carry it. Measuring an allocation is not mutating it, and nothing
+    // here writes through either handle.
+    retained: () => index.values.buffer.byteLength,
     allocations: () => allocations,
-    values: () => index.values as Float64Array,
+    values: () => index.values,
     count: () => index.count,
     scan,
 

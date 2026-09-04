@@ -23,7 +23,7 @@ import {
   RELEASING,
   SETTLING,
 } from '../../src/kernel/phases.ts';
-import type { BehaviorSpec, KernelHost } from '../../src/kernel/spec.ts';
+import type { BehaviorSpec, BehaviorContext } from '../../src/kernel/spec.ts';
 import { draggable } from '../../src/kernel.ts';
 import { createSortableBehavior } from '../../src/sortable/behavior.ts';
 import type { SortableController } from '../../src/sortable/controller.ts';
@@ -488,7 +488,7 @@ type SpecBench = Readonly<{
  * D-149). The seam is `createSortableBehavior(items, slots)` through
  * `draggable()` — the same one D-126 decided — and everything this bench adds
  * to it is **observation**: the install's own `spec`, a `dispatch` decorator
- * over the host the kernel hands the factory, and the per-operation view as a
+ * over the context the kernel hands the factory, and the per-operation view as a
  * declared slot receives it.
  *
  * ~~It replaces `createSortableRuntime` plus field writes.~~ Nothing here
@@ -545,19 +545,36 @@ function createSpecBench(
   const behavior = createSortableBehavior(items, slots);
   let spec!: BehaviorSpec<SortableFramePart, HTMLElement>;
 
-  const controller = draggable(root, (host) => {
-    // Prototype-delegating rather than spread: `closed` is a live getter on the
-    // host and a copy would freeze it at construction, which is the very
-    // stand-in D-149 refuses.
-    const observed: KernelHost = Object.assign(
-      Object.create(host) as KernelHost,
-      {
-        dispatch(tag: number, argument: unknown): void {
-          dispatched.push({ tag, argument });
-          host.dispatch(tag, argument);
-        },
+  const controller = draggable(root, (kernel) => {
+    // **Forwarding rather than copying, and `closed` is why.** It is a live
+    // getter on the kernel, so a spread would freeze one liveness answer at
+    // construction — the stand-in D-149 refuses. Every member below reaches
+    // the real kernel on every call, and `dispatch` is the only one that adds
+    // anything.
+    //
+    // Prototype delegation is not available: the kernel's state is in
+    // `#private` fields, which a delegate does not carry, so a method reached
+    // through one would run against an object that has none.
+    const observed: BehaviorContext = {
+      realm: kernel.realm,
+      root: kernel.root,
+      get closed(): boolean {
+        return kernel.closed;
       },
-    );
+      dispatch(tag: number, argument: unknown): void {
+        dispatched.push({ tag, argument });
+        kernel.dispatch(tag, argument);
+      },
+      fail(stage, error): void {
+        kernel.fail(stage, error);
+      },
+      cancel(reason?: unknown): void {
+        kernel.cancel(reason);
+      },
+      destroy(): Promise<void> {
+        return kernel.destroy();
+      },
+    };
     const install = behavior(observed);
 
     ({ spec } = install);

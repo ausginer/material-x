@@ -37,6 +37,7 @@ import {
   CENTRE_Y,
   type DisplacementSettle,
   RectIndex,
+  type RectIndexView,
   STRIDE,
   TOP,
 } from './rect-index.ts';
@@ -181,6 +182,11 @@ export function y(): AxisInstaller {
     // Private per-feature state: nobody else can name it, reach it, or type it,
     // so the geometry cache has exactly one owner.
     const index = new RectIndex();
+    // **The binding the reading code names is the reader.** `index` exists
+    // here only to construct the cache and hand it to its operator; every
+    // read below goes through the collaborator's type, which is where the
+    // cache's contents stop being writable.
+    const view: RectIndexView = index;
     // **G3-linear, and this import is the axis's opt-in to it**: a module this
     // rule reaches and `xy()` does not, rather than a branch inside the cache
     // both share. The five arguments are this axis's instantiation — the three
@@ -222,7 +228,7 @@ export function y(): AxisInstaller {
             return null;
           }
 
-          const { values, count, hole } = index;
+          const { values, count, hole } = view;
           // **Read, not measured.** The rebuild above cached the placeholder's
           // own rect, so a warm spatial frame — the common one — performs no
           // layout read at all.
@@ -256,7 +262,7 @@ export function y(): AxisInstaller {
             values[nearest * STRIDE + CENTRE_Y]! > anchor
               ? nearest + 1
               : nearest;
-          const { items } = index;
+          const { items } = view;
 
           return insertionAt(items, gap, snapshot);
         },

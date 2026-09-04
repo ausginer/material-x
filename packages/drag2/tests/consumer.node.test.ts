@@ -454,8 +454,8 @@ type A1 = import('@ydinjs/drag2/drag.js').BehaviorFactory<SortableController, ob
 type A2 = import('@ydinjs/drag2/drag.js').BehaviorSpec<object>;
 // @ts-expect-error: the install result is internal
 type A3 = import('@ydinjs/drag2/drag.js').BehaviorInstall<SortableController, object>;
-// @ts-expect-error: the host is internal
-type A4 = import('@ydinjs/drag2/drag.js').KernelHost;
+// @ts-expect-error: the behavior-facing context is internal
+type A4 = import('@ydinjs/drag2/drag.js').BehaviorContext;
 // @ts-expect-error: the seam transition is internal
 type A5 = import('@ydinjs/drag2/drag.js').Transition<object>;
 // @ts-expect-error: the activation scope is internal
@@ -518,7 +518,7 @@ type D5b = import('@ydinjs/drag2/sortable/layout-animation.js').AnimationTiming;
 // Deep imports are not declared in \`exports\`, so the module graph itself is
 // closed — not merely the names each entry chooses to re-export.
 // @ts-expect-error: the kernel is not a declared subpath
-type C1 = import('@ydinjs/drag2/kernel/spec.js').KernelHost;
+type C1 = import('@ydinjs/drag2/kernel/spec.js').BehaviorContext;
 // @ts-expect-error: source is not a declared subpath
 type C2 = import('@ydinjs/drag2/src/drag.ts').Point;
 // The slot views are still internal. The **feature authoring module is not**
@@ -576,8 +576,9 @@ import {
   type ActionTransition,
   type ActivationScope,
   type AdmissionSubject,
-  type BehaviorLiftSession,
   type BehaviorConfig,
+  type BehaviorContext,
+  type BehaviorLiftSession,
   type BehaviorInstall,
   type BehaviorSpec,
   type CancelOrigin,
@@ -588,7 +589,6 @@ import {
   type Frame,
   type FramePartOf,
   type KernelFrame,
-  type KernelHost,
   type LandingTail,
   type LifetimeScope,
   type OffsetBox,
@@ -771,7 +771,17 @@ const resetFramePart = (part: Part): void => {
 // correction that the parameter has to reach them). This behavior stages the
 // element its \`activation.prepare\` returns; one that stages nothing writes
 // neither argument and gets \`true\`.
-const install = (host: KernelHost): BehaviorInstall<Controller, Part, HTMLElement> => {
+const install = (
+  kernel: BehaviorContext,
+): BehaviorInstall<Controller, Part, HTMLElement> => {
+  // **The narrowing, pinned at the only place it is real.** The value below
+  // *is* the kernel controller, handed over under the interface it implements
+  // — so nothing but this declaration keeps \`arm\` out of a behavior's reach,
+  // and a member added to the class does not appear here unless the interface
+  // names it.
+  // @ts-expect-error: \`arm\` is on the class and off the behavior-facing interface
+  void kernel.arm;
+
   const spec: BehaviorSpec<Part, HTMLElement> = {
     config,
     admit,
@@ -815,7 +825,15 @@ const install = (host: KernelHost): BehaviorInstall<Controller, Part, HTMLElemen
 
   return {
     spec,
-    controller: { cancel: host.cancel, destroy: host.destroy },
+    // Wrapped, not detached: both are published members a consumer may pull
+    // off the controller, so what is published is a closure over the call
+    // rather than the kernel's prototype method.
+    controller: {
+      cancel: (reason?: unknown): void => {
+        kernel.cancel(reason);
+      },
+      destroy: (): Promise<void> => kernel.destroy(),
+    },
   };
 };
 

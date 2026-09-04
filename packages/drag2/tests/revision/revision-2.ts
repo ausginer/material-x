@@ -143,7 +143,7 @@ import {
   type CancelStage,
   type AdmissionSubject,
   type BehaviorSpec,
-  type KernelHost,
+  type BehaviorContext,
   type SettlementInput,
 } from '../../src/kernel.ts';
 // The middle tier (D-61).
@@ -212,7 +212,7 @@ import {
  */
 
 /**
- * `KernelHost`, `AdmissionSubject`, `BehaviorFactory`, `SettlementInput`,
+ * `BehaviorContext`, `AdmissionSubject`, `BehaviorFactory`, `SettlementInput`,
  * `PreparedSettlement`, `SeamRejection` and `BehaviorSpec` were all restated
  * here and are all **imported from `kernel.js`** now. The spec below is typed
  * as the shipped `BehaviorSpec`, so every seam signature it fills is checked
@@ -570,7 +570,7 @@ const kernelSide: SortableController = draggable<
   SortableController,
   SortableFramePart,
   HTMLElement
->(root, (host) => {
+>(root, (kernel) => {
   // **`HTMLElement` is written out, and D-34 is why it can be** (K-1). The
   // staged activation type is the behavior's choice now; this one stages an
   // element, so it says so. Omitting the argument here would not be shorter by
@@ -669,7 +669,7 @@ const kernelSide: SortableController = draggable<
     // fallback has already been written into the same field a successful drop
     // writes.
     finalized: (current) => {
-      if (!host.closed && current.domain !== null) {
+      if (!kernel.closed && current.domain !== null) {
         globalThis.console.log(disposition(current.domain));
       }
     },
@@ -833,9 +833,9 @@ settledFrame.domain = null;
 
 // n16 — D-53: the liveness reader is readonly. A behavior may consult the
 // latch; it may not set it, which is what keeps closure the kernel's to decide.
-declare const host: KernelHost;
+declare const kernel: BehaviorContext;
 // @ts-expect-error `closed` is readonly (D-53)
-host.closed = true;
+kernel.closed = true;
 
 export type { DraggableError, FailureStage, SortableConfig };
 export { AT_CONSUMER, report };

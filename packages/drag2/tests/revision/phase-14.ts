@@ -77,7 +77,7 @@ import type {
 import type { LifetimeScope } from '../../src/kernel/lifetimes.ts';
 import type { Transition } from '../../src/kernel/seams.ts';
 import type {
-  KernelHost,
+  BehaviorContext,
   PreparedSettlement,
   ResolutionCommand,
   SettlementInput,
@@ -190,7 +190,7 @@ export function sampleLandingOrigin(
  * `SettlementScope`, `PreparedSettlement` and `SettlementTransition` are now
  * imported from `src/` rather than restated here: `holdForReadiness()` takes
  * nothing, the gate plan is `{ presentation: boolean }`, and the
- * acknowledgement arrives through `KernelHost.presentationCommitted()`. A
+ * acknowledgement arrives through `BehaviorContext.presentationCommitted()`. A
  * restatement that outlives its implementation is how a fixture starts lying,
  * which is why each half is deleted the moment `src/` agrees with it rather
  * than at the end of the roadmap.
@@ -212,7 +212,7 @@ type CommandAdmission<Part extends object> = Readonly<{
 /* ===================================================== host and spec ====== */
 
 /**
- * **`KernelHost` is imported.** Seven members: six unchanged — D-32 added none,
+ * **`BehaviorContext` is imported.** Seven members: six unchanged — D-32 added none,
  * which is the result it claims — and `presentationCommitted`, which is D-33's
  * and shipped with Phase 15. The kernel-side contradiction rule it carries is
  * kernel-private and therefore not expressible in this fixture; the behavior
@@ -314,7 +314,9 @@ type RevisedBehaviorFactory<
   Controller,
   Part extends object,
   Activation extends {},
-> = (host: KernelHost) => RevisedBehaviorInstall<Controller, Part, Activation>;
+> = (
+  kernel: BehaviorContext,
+) => RevisedBehaviorInstall<Controller, Part, Activation>;
 
 declare const BEHAVIOR_BRAND: unique symbol;
 
@@ -341,12 +343,14 @@ declare function unbrandBehavior<Controller>(
   behavior: RevisedBehavior<Controller>,
 ): RevisedBehaviorFactory<Controller, object, {}>;
 
+/**
+ * The kernel controller, as `draggable()` holds it: the behavior-facing
+ * interface plus the arming member the interface does not carry.
+ */
 declare function createKernel<Part extends object>(
   root: HTMLElement,
-): Readonly<{
-  host: KernelHost;
-  arm(spec: RevisedBehaviorSpec<Part, {}>): void;
-}>;
+): BehaviorContext &
+  Readonly<{ arm(spec: RevisedBehaviorSpec<Part, {}>): void }>;
 
 /**
  * **The construction bridge, compiled** (C4-03).
@@ -369,7 +373,7 @@ function draggable<Controller>(
 ): Controller {
   const factory = unbrandBehavior(behavior);
   const kernel = createKernel<object>(root);
-  const { spec, controller } = factory(kernel.host);
+  const { spec, controller } = factory(kernel);
 
   kernel.arm(spec);
   return controller;
@@ -421,7 +425,7 @@ type SortablePart = {
  * round-trip, compared by identity in `controller.ready`, cleared by `retire()`.
  */
 type SortableRuntime = {
-  readonly host: KernelHost;
+  readonly kernel: BehaviorContext;
   placeholder: HTMLElement | null;
   lift: BehaviorLiftSession | null;
   pendingRequest: ReorderRequest | null;
@@ -434,7 +438,9 @@ type SortableRuntime = {
  * normative coupling: `createSortableSpec(rt)` and `createSortableController(host,
  * rt)` must receive the **same** object, and neither can exist before a `host`.
  */
-declare function createSortableRuntime(host: KernelHost): SortableRuntime;
+declare function createSortableRuntime(
+  kernel: BehaviorContext,
+): SortableRuntime;
 declare function createPlaceholder(item: HTMLElement): HTMLElement;
 /** `item.after(placeholder)` — the home slot, at activation, on both paths. */
 declare function insertAtHome(
@@ -734,21 +740,25 @@ export function createSortableSpec(
  * show that the path exists and composes, not to prove the comparison.
  */
 function createSortableController(
-  host: KernelHost,
+  kernel: BehaviorContext,
   _runtime: SortableRuntime,
 ): SortableController {
   return {
     invalidate(): void {},
 
-    cancel: host.cancel,
-    destroy: host.destroy,
+    // Wrapped, not detached: the kernel's members are prototype methods, and
+    // what a controller publishes is a closure over the call.
+    cancel: (reason?: unknown): void => {
+      kernel.cancel(reason);
+    },
+    destroy: (): Promise<void> => kernel.destroy(),
   };
 }
 
 export const sortableBehavior: RevisedBehavior<SortableController> =
   brandBehavior(
     (
-      host,
+      kernel,
     ): RevisedBehaviorInstall<
       SortableController,
       SortablePart,
@@ -756,11 +766,11 @@ export const sortableBehavior: RevisedBehavior<SortableController> =
     > => {
       // One `rt`, here, shared by both halves — the coupling 01 §The behavior
       // instance states and the previous fixture's ambient declaration hid.
-      const rt = createSortableRuntime(host);
+      const rt = createSortableRuntime(kernel);
 
       return {
         spec: createSortableSpec(rt),
-        controller: createSortableController(host, rt),
+        controller: createSortableController(kernel, rt),
       };
     },
   );
@@ -867,12 +877,12 @@ export const freeDragSpec: RevisedBehaviorSpec<FreeDragPart> = {
   retire(): void {},
 };
 
-declare function createFreeController(host: KernelHost): FreeController;
+declare function createFreeController(kernel: BehaviorContext): FreeController;
 
 export const freeBehavior: RevisedBehavior<FreeController> = brandBehavior(
-  (host): RevisedBehaviorInstall<FreeController, FreeDragPart, true> => ({
+  (kernel): RevisedBehaviorInstall<FreeController, FreeDragPart, true> => ({
     spec: freeDragSpec,
-    controller: createFreeController(host),
+    controller: createFreeController(kernel),
   }),
 );
 
@@ -923,24 +933,24 @@ export function referenceIntegration(
 
 /* ================================================= negative assertions ==== */
 
-declare const host: KernelHost;
+declare const kernel: BehaviorContext;
 declare const spec: RevisedBehaviorSpec<SortablePart, HTMLElement>;
 
 /** The behavior still cannot mint an operation (13a N-5 survives D-32). */
 // @ts-expect-error — no `activate` on the revised host.
-export const n1: unknown = host.activate;
+export const n1: unknown = kernel.activate;
 
 /** Nor drive motion (13c N-4 survives D-35). */
 // @ts-expect-error — no `move` on the revised host.
-export const n2: unknown = host.move;
+export const n2: unknown = kernel.move;
 
 /** Nor read a decision back out of the queue (13a N-3 survives D-32). */
 // @ts-expect-error — `dispatch` returns void.
-export const n3: boolean = host.dispatch(0, null);
+export const n3: boolean = kernel.dispatch(0, null);
 
 /** Nor register ingress itself: `types` is a declaration, not a listener. */
 // @ts-expect-error — no ingress registration on the revised host.
-export const n4: unknown = host.addIngress;
+export const n4: unknown = kernel.addIngress;
 
 /** D-35 adds no behavior member; nothing reports the rendered delta. */
 // @ts-expect-error — the delta is the session's, not the spec's.

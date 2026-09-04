@@ -36,7 +36,7 @@ import type { Draft, FramePartOf } from '../../src/kernel/frames.ts';
 import type {
   ActionTransition,
   BehaviorSpec,
-  KernelHost,
+  BehaviorContext,
 } from '../../src/kernel/spec.ts';
 
 /* ------------------------------------------------------- the reference rule */
@@ -77,7 +77,7 @@ type CommandPart = {
   insertion: Insertion | null;
 };
 
-declare const host: KernelHost;
+declare const kernel: BehaviorContext;
 declare const snapshot: Snapshot;
 declare const item: HTMLElement;
 declare const keyEvent: KeyboardEvent;
@@ -135,15 +135,15 @@ declare const commandAdmit: (
 export const n1: BehaviorSpec<CommandPart>['admit'] = commandAdmit;
 
 /**
- * **N-2. The host owns no ingress the behavior can extend.** `KernelHost` has
- * six members — `realm`, `root`, `dispatch`, `fail`, `cancel`, `destroy` — and
- * none of them registers a listener or hands the behavior an event the kernel
+ * **N-2. The context owns no ingress the behavior can extend.**
+ * `BehaviorContext` has seven members — `realm`, `root`, `dispatch`, `fail`,
+ * `closed`, `cancel`, `destroy` — and none of them registers a listener or hands the behavior an event the kernel
  * did not already classify. A behavior that wants `keydown` has to reach past
- * the SPI to `host.root` and attach its own, which puts the listener's lifetime
+ * the SPI to `kernel.root` and attach its own, which puts the listener's lifetime
  * outside the kernel's ingress abort and outside I-6's terminal barrier.
  */
-// @ts-expect-error — no ingress member exists on the frozen host.
-export const n2: unknown = host.addIngress;
+// @ts-expect-error — no ingress member exists on the frozen context.
+export const n2: unknown = kernel.addIngress;
 
 /**
  * **N-3. `dispatch` cannot answer its caller.** It returns `void`. The listener
@@ -156,7 +156,7 @@ export const n2: unknown = host.addIngress;
  * way through the only behavior-initiated entry point in the SPI.
  */
 // @ts-expect-error — `dispatch` returns void; there is no decision to read.
-export const n3: boolean = host.dispatch(0, keyEvent);
+export const n3: boolean = kernel.dispatch(0, keyEvent);
 
 /**
  * **N-4. An action's decision is structurally reachable and directionally
@@ -186,10 +186,10 @@ export const n4: ActionTransition<CommandPart> = {
  * activation capability, `ActivationScope`, is *granted*, never requested: it
  * carries the lift session and the grab rect the kernel acquired for itself
  * during `pointerdown`. `BehaviorSpec` has no member that asks for one, and
- * `KernelHost` has no `activate`.
+ * `BehaviorContext` has no `activate`.
  */
 // @ts-expect-error — the behavior cannot start an operation.
-export const n5: unknown = host.activate;
+export const n5: unknown = kernel.activate;
 
 /* ------------------------------------------- R — runtime facts, not typed -- */
 

@@ -1,7 +1,7 @@
 // The consumer-facing controller. Three members, two of which are the kernel's
 // own — the behavior adds the one thing the kernel cannot know about: what a
 // collection is.
-import type { KernelHost } from '../kernel/spec.ts';
+import type { BehaviorContext } from '../kernel/spec.ts';
 import { TAG_COLLECTION } from './runtime.ts';
 
 export type SortableController = Readonly<{
@@ -38,15 +38,17 @@ export type SortableController = Readonly<{
 
 // The controller holds no collection state at all, which is the shape a pull
 // source implies.
-export function createSortableController(host: KernelHost): SortableController {
+export function createSortableController(
+  kernel: BehaviorContext,
+): SortableController {
   // The terminal latch is the kernel's, and it is readable. `cancel` and
-  // `destroy` are the kernel's own members, spread through unchanged, and that
-  // latch already makes both inert and idempotent before they do any work.
+  // `destroy` forward to the kernel's own members, and that latch already
+  // makes both inert and idempotent before they do any work.
 
   return {
     invalidate(): void {
-      // No `host.closed` guard here: `dispatch` opens with the kernel's
-      // terminal latch, and `host.closed` is a live getter over it.
+      // No `kernel.closed` guard here: `dispatch` opens with the kernel's
+      // terminal latch, and `kernel.closed` is a live getter over it.
       //
       // Payload-free, and it reads nothing here. `items()` is consumer code and
       // this member is reachable from inside a seam — a handle resolver may
@@ -54,13 +56,22 @@ export function createSortableController(host: KernelHost): SortableController {
       // consumer code at an arbitrary reentrant point. `action.prepare` calls
       // it instead, where the kernel has a transaction open, a phase to branch
       // on and a stage to classify a throw against.
-      host.dispatch(TAG_COLLECTION, null);
+      kernel.dispatch(TAG_COLLECTION, null);
     },
-    cancel: host.cancel,
+
+    // **Wrapped, not detached.** These two are published members a consumer
+    // may pull off the controller and pass on, so what is published is a
+    // closure over the call rather than the kernel's prototype method, which
+    // would arrive with no receiver.
+    cancel: (reason?: unknown): void => {
+      kernel.cancel(reason);
+    },
 
     // Logical closure is immediate and the promise settles after physical
-    // teardown. The behavior keeps no latch mirror, so this is the kernel's
-    // member spread through unchanged, as `cancel` already is.
-    destroy: host.destroy,
+    // teardown. The behavior keeps no latch mirror, so this forwards to the
+    // kernel's member, as `cancel` already does. A plain arrow rather than an
+    // `async` one, so the memoized promise is returned **by identity** — the
+    // *settles once* the kernel documents is a statement about that object.
+    destroy: (): Promise<void> => kernel.destroy(),
   };
 }

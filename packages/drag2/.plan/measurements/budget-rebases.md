@@ -695,4 +695,30 @@ Measured against `55eaaf1b` with box-quad rebuilt in both states — the depende
 
 **Two figures are worth stating rather than leaving in the arithmetic.** The `xy` rows paid **2.7×** the `y` rows at step 1a, and the reason is structural: the two write operations the boundary required — the span advance and the hole re-read — are prototype members every axis carries and only the linear rule calls, so a shared cache cannot tree-shake them. And `both behaviors` came in at **−34 B** at step 5b while the sortable rows each grew ~230 B: the two adapters share enough token structure that the compressor recovers more from the second than the second adds.
 
-**The adapters are where the two largest steps went.** Each spec's fourteen-odd forwarding members plus a class's field and prototype machinery is ~240 B per behavior. That is the price of the entity being an entity while `BehaviorSpec` stays a protocol record with nested namespaces, which is a shape question the decision settled and not one the budget re-opens.
+**The adapters are where the two largest steps went.** Each spec's fourteen-odd forwarding members plus a class's field and prototype machinery is ~240 B per behavior. That is the price of the entity being an entity while `BehaviorSpec` stays a protocol record with nested namespaces, which is a shape question the decision settled and not one the budget re-opens. **Re-based 2026-09-07, D-170 step 6 and F-309 — the last conversion, plus the accessor removal that runs beside it.** Measured against `a0160ce5`, and the two changes are **ablated apart** because F-309 owes a figure the previous joint measurement could not give it. They touch disjoint files, so each was measured on a tree carrying only itself. Every ceiling is set at the landed figure plus the standing ~150 B margin.
+
+| Row | `a0160ce5` | F-309 alone | step 6 | landed | budget |
+| --- | --- | --- | --- | --- | --- |
+| minimal | 10,162 | **−9** | **+246** | 10,399 | 10,549 |
+| minimal (xy) | 10,026 | **+2** | **+243** | 10,271 | 10,421 |
+| minimal + layoutAnimation | 10,514 | **−12** | **+235** | 10,737 | 10,887 |
+| xy + layoutAnimation | 10,363 | **+3** | **+260** | 10,626 | 10,776 |
+| minimal + landing | 10,312 | **−4** | **+237** | 10,545 | 10,695 |
+| complete | 10,651 | **−10** | **+242** | 10,883 | 11,033 |
+| free drag minimal | 7,893 | **0** | **+223** | 8,116 | 8,266 |
+| free drag + bounds | 8,053 | **0** | **+220** | 8,273 | 8,423 |
+| free drag + landing | 8,047 | **0** | **+228** | 8,275 | 8,425 |
+| free drag complete | 8,197 | **0** | **+229** | 8,426 | 8,576 |
+| both behaviors | 12,127 | **+8** | **+208** | 12,343 | 12,493 |
+| vocabulary root — `drag.js` | 142 | **0** | **0** | 142 | 205 |
+| kernel root — `kernel.js` | 5,910 | **0** | **+252** | 6,162 | 6,312 |
+| baseline A — feature-matched, non-composed | 10,463 | **−3** | **+245** | 10,705 | 10,855 |
+| baseline B — shipped `@ydinjs/drag` sortable.js | 6,889 | **0** | **0** | 6,889 | 7,040 |
+
+**No module entered or left any graph.** 31/30/32/31/33/34, 25/26/27/28/45, 2/14/29/26 — identical to `a0160ce5`.
+
+**F-309's own column is the point of splitting them, and it reverses a figure the tree carried.** `RectIndex`'s docblock priced the accessors at +39 to +51 B on the `y()` rows and +103 to +116 B on the `xy()` ones. Those were the two **operations**, measured jointly with them. Isolated, deleting the four accessors **shrinks** every `y()` composition by 4 to 12 B and **grows** the `xy()` ones by 2 to 3 B: four prototype getters and their call sites leave, while four `#private` names that mangle to one character become public names that do not, and `xy()` names them more often. The four free-drag rows sit at exactly 0 — the control that says the instrument is scoped, since no free-drag composition reaches this module at all.
+
+**Two controls held and five were re-based, and the difference is not slack being spent.** `vocabulary root — drag.js` and baseline B are the rows carrying no kernel, and both moved **0** — this pass's declared controls, and the result. The four free-drag rows and `kernel root` carried `control:` values set by the step-5 pass, when the pass under measurement was a sortable-side one they could not be reached by. Step 6 changes the kernel, which every composition carries, so for this pass they are not controls at all: they are re-declared at the landed figure, which is what §18 asks for when a change deliberately reaches a control row.
+
+**The kernel's own row is the cheapest place to read what step 6 cost**, because it carries the class and no behavior: **+252 B** on 5,910. What was added is a `constructor`, an `implements` clause, one `AttemptSlots` literal, and eleven wrapper closures over methods that cross into a receiverless position — seven of them fields, four of those on paths where a per-call closure would have been allocation rather than bytes. What was removed is the seven-member `host` literal and the two-member `Kernel` handle. Every other row lands within 25 B of it, which is what says the change is the kernel's alone and nothing leaked into a behavior.

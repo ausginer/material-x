@@ -469,6 +469,7 @@ The tier published no value at all, so it could **describe** a behavior and not 
 | Row | Test | ID |
 | --- | --- | --- |
 | a behavior compiles from `kernel.js` + `drag.js` alone, every seam **out of line** | `tests/consumer.node.test.ts` — the `BEHAVIOR` fixture, compiled against the packed declarations | D-68, F-59 |
+| `arm` is on the kernel class and off `BehaviorContext`, so the object a behavior is handed cannot re-arm it — a `@ts-expect-error` on the shipped declarations, which is the only thing holding the narrowing now that there is no second object | `tests/consumer.node.test.ts` — the `BEHAVIOR` fixture, compiled against the packed declarations | D-170 §The behavior-facing interface, F-308 |
 | the 33 values, asserted **by value** | `tests/exports.node.test.ts` — _should export exactly the frozen runtime surface_; `tests/consumer.node.test.ts` — _should expose exactly the intended runtime surface, per subpath_ | D-68 |
 | `kernel.js`'s closure resolves within `kernel.js ∪ drag.js` | `tests/docs.node.test.ts` — _should close the kernel tier over the kernel tier_ | F-60 |
 | `intentionallyNotExported` is empty | `typedoc.json`, enforced by the same run — TypeDoc fails a listed name that becomes exported | D-68 |

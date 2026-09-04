@@ -29,7 +29,7 @@ import {
   type ActivationScope,
   type BehaviorSpec,
   type CommandAdmission,
-  type KernelHost,
+  type BehaviorContext,
   type LandingTail,
   type PreparedSettlement,
   type ResolutionCommand,
@@ -52,7 +52,7 @@ const POINTER_ID = 7;
 type Harness = Readonly<{
   root: HTMLElement;
   item: HTMLElement;
-  host: KernelHost;
+  kernel: BehaviorContext;
   controller: { cancel(reason?: unknown): void; destroy(): Promise<void> };
   /** Every seam the kernel drove, in order. */
   calls: string[];
@@ -99,8 +99,8 @@ type SpecOverrides = Partial<
 > &
   Readonly<{
     threshold?: number;
-    /** Called with the host, so a test can cancel or destroy from a seam. */
-    onStart?(host: KernelHost): void;
+    /** Called with the kernel, so a test can cancel or destroy from a seam. */
+    onStart?(kernel: BehaviorContext): void;
     capture?(): void;
     /** Declared by the default `settlement.prepare`, when set. */
     presentation?: boolean;
@@ -158,14 +158,14 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
     }
   };
 
-  let host!: KernelHost;
+  let kernel!: BehaviorContext;
 
   const controller = draggable<
     { cancel(reason?: unknown): void; destroy(): Promise<void> },
     ExamplePart,
     HTMLElement
   >(root, (kernelHost) => {
-    host = kernelHost;
+    kernel = kernelHost;
 
     // **The harness stages an `HTMLElement`, and now says so** (D-34, K-1).
     // The parameter defaults to `true`; a behavior that stages a real resource
@@ -209,7 +209,7 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
           scope.motion.use(() => {
             calls.push('motion.released');
           });
-          overrides.onStart?.(host);
+          overrides.onStart?.(kernel);
         },
       },
       release: overrides.release ?? {
@@ -281,7 +281,15 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
 
     return {
       spec,
-      controller: { cancel: host.cancel, destroy: host.destroy },
+      // Wrapped, not detached, exactly as a shipped controller publishes
+      // them: the kernel's members are prototype methods and a bare read
+      // would arrive with no receiver.
+      controller: {
+        cancel: (reason?: unknown): void => {
+          kernel.cancel(reason);
+        },
+        destroy: (): Promise<void> => kernel.destroy(),
+      },
     };
   });
 
@@ -293,7 +301,7 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
   return {
     root,
     item,
-    host,
+    kernel,
     controller,
     calls,
     phases,
@@ -416,11 +424,11 @@ describe('draggable', () => {
   it('should hand the behavior a host whose root is the ingress boundary', () => {
     const harness = createHarness();
 
-    expect(harness.host.root).toBe(harness.root);
+    expect(harness.kernel.root).toBe(harness.root);
   });
 
   it('should arm ingress only after the behavior returned', () => {
-    // `arm()` is not on `KernelHost`, so the behavior cannot admit input
+    // `arm()` is not on `BehaviorContext`, so the behavior cannot admit input
     // before its own construction finished. The press below is the first one
     // the listener can see.
     const harness = createHarness();
@@ -1137,7 +1145,7 @@ describe('admission', () => {
     const harness = createHarness({
       admit(_event, draft): HTMLElement {
         draft.item = null;
-        void harness.host.destroy();
+        void harness.kernel.destroy();
         return harness.item;
       },
     });
@@ -1300,8 +1308,8 @@ describe('activation', () => {
 
   it('should not dispatch START_COMMITTED when onStart cancelled', () => {
     const harness = createHarness({
-      onStart(host): void {
-        host.cancel('from onStart');
+      onStart(kernel): void {
+        kernel.cancel('from onStart');
       },
     });
 
@@ -1317,8 +1325,8 @@ describe('activation', () => {
 
   it('should not dispatch START_COMMITTED when onStart destroyed', () => {
     const harness = createHarness({
-      onStart(host): void {
-        void host.destroy();
+      onStart(kernel): void {
+        void kernel.destroy();
       },
     });
 
@@ -1760,7 +1768,7 @@ describe('the resolution round-trip', () => {
   it('should let a cancel raised from inside invoke win', () => {
     const harness = createHarness({
       release: releaseWith((): string => {
-        harness.host.cancel('from onReorder');
+        harness.kernel.cancel('from onReorder');
         return 'verdict';
       }),
     });
@@ -2242,13 +2250,13 @@ describe('the landing origin', () => {
       activation: {
         prepare: (): HTMLElement => document.createElement('div'),
         effect(_current, _prepared, scope: ActivationScope): void {
-          lift = scope.lift;
+          ({ lift } = scope);
         },
       },
       anchorTarget(): { x: number; y: number } {
         const rect = harness.item.getBoundingClientRect();
 
-        transform = harness.item.style.transform;
+        ({ transform } = harness.item.style);
 
         // **A hundred pixels below the visual's own box**, so that every row
         // travels — including the three whose visual never moved at all, whose
@@ -2366,7 +2374,7 @@ describe('the landing origin', () => {
 
     press(harness.item);
     move(40, 60);
-    harness.host.dispatch(0, null);
+    harness.kernel.dispatch(0, null);
     release(40, 60);
 
     expect(origin).toEqual({ x: -5, y: 7 });
@@ -2792,7 +2800,7 @@ describe('the failure checkpoint', () => {
 
           if (!reporting) {
             reporting = true;
-            harness.host.fail(FAILURE_RENDERER_WRITE, new Error('again'));
+            harness.kernel.fail(FAILURE_RENDERER_WRITE, new Error('again'));
           }
 
           return true;
@@ -2970,8 +2978,8 @@ describe('cancellation stages', () => {
     // presentation exists and the behavior has notified its consumer. Retiring
     // instead would leave that notification with no terminal callback.
     const harness = createHarness({
-      onStart: (host) => {
-        host.cancel('from the effect');
+      onStart: (kernel) => {
+        kernel.cancel('from the effect');
       },
     });
 
@@ -3013,8 +3021,8 @@ describe('cancellation origins', () => {
     // through unchanged, so the kernel has no basis to tell the two callers
     // apart — and both of them are a party supplying a value.
     const harness = createHarness({
-      onStart: (host) => {
-        host.cancel('from the behavior');
+      onStart: (kernel) => {
+        kernel.cancel('from the behavior');
       },
     });
 
@@ -3110,11 +3118,11 @@ describe('the activation checkpoint against a held cancel', () => {
     seen: number[];
   }> => {
     const seen: number[] = [];
-    let host!: KernelHost;
+    let kernel!: BehaviorContext;
     const harness = createHarness({
       onStart: (kernelHost) => {
-        host = kernelHost;
-        host.dispatch(0, null);
+        kernel = kernelHost;
+        kernel.dispatch(0, null);
       },
       action: {
         prepare(_tag, _argument, draft): {} | null {
@@ -3128,8 +3136,8 @@ describe('the activation checkpoint against a held cancel', () => {
 
           // Queued first, so it sits between `START_COMMITTED` and the
           // cancellation and can observe which phase won.
-          host.dispatch(1, null);
-          host.cancel('invalidated');
+          kernel.dispatch(1, null);
+          kernel.cancel('invalidated');
         },
       },
     });
@@ -3163,7 +3171,7 @@ describe('behavior actions', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.host.dispatch(1, 'payload');
+    harness.kernel.dispatch(1, 'payload');
 
     expect(harness.calls).toContain('action.prepare:1');
     expect(harness.calls).toContain('action.effect:1');
@@ -3184,7 +3192,7 @@ describe('behavior actions', () => {
     });
 
     activate(harness);
-    harness.host.dispatch(0, 'payload');
+    harness.kernel.dispatch(0, 'payload');
 
     expect(seen).toEqual(['payload', 'payload']);
   });
@@ -3193,9 +3201,9 @@ describe('behavior actions', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.host.dispatch(2, null);
-    harness.host.dispatch(-1, null);
-    harness.host.dispatch(1.5, null);
+    harness.kernel.dispatch(2, null);
+    harness.kernel.dispatch(-1, null);
+    harness.kernel.dispatch(1.5, null);
 
     // Reported and dropped, never enqueued: the kernel computes
     // `BEHAVIOR_BASE + tag`, so a negative or fractional tag would otherwise
@@ -3218,7 +3226,7 @@ describe('behavior actions', () => {
           order.push(`enter-effect:${tag}`);
 
           if (tag === 0) {
-            harness.host.dispatch(1, null);
+            harness.kernel.dispatch(1, null);
           }
 
           order.push(`exit-effect:${tag}`);
@@ -3227,7 +3235,7 @@ describe('behavior actions', () => {
     });
 
     activate(harness);
-    harness.host.dispatch(0, null);
+    harness.kernel.dispatch(0, null);
 
     expect(order).toEqual([
       'prepare:0',
@@ -3367,7 +3375,7 @@ describe('destroy', () => {
 
     activate(harness);
     // A behavior callback cannot strand the kernel's DOM cleanup (F-12).
-    void harness.host.destroy();
+    void harness.kernel.destroy();
 
     expect(harness.calls).toContain('presentation.released');
   });
@@ -3377,7 +3385,7 @@ describe('destroy', () => {
 
     activate(harness);
     void harness.controller.destroy();
-    harness.host.dispatch(0, null);
+    harness.kernel.dispatch(0, null);
     move(200, 10);
 
     expect(harness.calls).not.toContain('action.prepare:0');
@@ -3562,9 +3570,9 @@ describe('the one channel', () => {
     // `FAILED`; the first opens `REPORTING`, and the second then arrives for a
     // report already in flight, which is the arm that used to be silent.
     const harness = createHarness({
-      onStart: (host): void => {
-        host.dispatch(0, 'first');
-        host.dispatch(0, 'second');
+      onStart: (kernel): void => {
+        kernel.dispatch(0, 'first');
+        kernel.dispatch(0, 'second');
       },
       action: {
         prepare(_tag, argument): never {
@@ -3669,7 +3677,7 @@ describe('teardown totality', () => {
 
 describe('the operation record', () => {
   it('should still hold the operation while retirement runs', () => {
-    let live: KernelHost | null = null;
+    let live: BehaviorContext | null = null;
     const harness = createHarness({
       retire(): void {
         // Step 4 of retirement, before either frame is scrubbed. The frame
@@ -3679,7 +3687,7 @@ describe('the operation record', () => {
       },
     });
 
-    live = harness.host;
+    live = harness.kernel;
 
     activate(harness);
     release(40, 10);
@@ -3812,7 +3820,7 @@ describe('cancellation against a failure checkpoint', () => {
 
     harness = createHarness({
       moved: (): void => {
-        harness!.host.cancel('gone');
+        harness!.kernel.cancel('gone');
         throw new Error('write failed');
       },
     });
@@ -3829,7 +3837,7 @@ describe('cancellation against a failure checkpoint', () => {
 
     harness = createHarness({
       moved: (): void => {
-        harness!.host.cancel('gone');
+        harness!.kernel.cancel('gone');
         throw error;
       },
     });
@@ -3849,8 +3857,8 @@ describe('cancellation against a failure checkpoint', () => {
 
     harness = createHarness({
       moved: (): void => {
-        harness!.host.fail(FAILURE_RENDERER_WRITE, new Error('write failed'));
-        harness!.host.cancel('gone');
+        harness!.kernel.fail(FAILURE_RENDERER_WRITE, new Error('write failed'));
+        harness!.kernel.cancel('gone');
       },
     });
 
@@ -3865,8 +3873,8 @@ describe('cancellation against a failure checkpoint', () => {
 
     harness = createHarness({
       moved: (): void => {
-        harness!.host.fail(FAILURE_RENDERER_WRITE, new Error('write failed'));
-        harness!.host.cancel('gone');
+        harness!.kernel.fail(FAILURE_RENDERER_WRITE, new Error('write failed'));
+        harness!.kernel.cancel('gone');
       },
     });
 
@@ -4038,7 +4046,7 @@ describe('the transaction bracket', () => {
         // Read from *inside* the report, which is the assertion the ordering
         // exists for: a handler that calls back into the controller must find
         // it already closed.
-        order.push(`closed:${String(harness.host.closed)}`);
+        order.push(`closed:${String(harness.kernel.closed)}`);
       },
     });
 
@@ -4100,11 +4108,11 @@ describe('the transaction bracket', () => {
   it('should close logically on the calling statement', () => {
     let closedInside: boolean | null = null;
     const harness = createHarness({
-      onStart(host): void {
-        void host.destroy();
+      onStart(kernel): void {
+        void kernel.destroy();
         // The latch is set by the closing statement itself, not at the end of a
         // seven-step sequence.
-        closedInside = host.closed;
+        closedInside = kernel.closed;
       },
     });
 
@@ -4116,8 +4124,8 @@ describe('the transaction bracket', () => {
   it('should defer physical teardown to the outermost transaction boundary', () => {
     let calledInside: readonly string[] = [];
     const harness = createHarness({
-      onStart(host): void {
-        void host.destroy();
+      onStart(kernel): void {
+        void kernel.destroy();
         calledInside = [...harness.calls];
       },
     });
@@ -4134,8 +4142,8 @@ describe('the transaction bracket', () => {
     let pending!: Promise<void>;
     let settled = false;
     const harness = createHarness({
-      onStart(host): void {
-        pending = host.destroy();
+      onStart(kernel): void {
+        pending = kernel.destroy();
         void pending.then(() => {
           settled = true;
         });
@@ -4151,9 +4159,9 @@ describe('the transaction bracket', () => {
 
   it('should tear down once when destroy is called twice inside one transaction', () => {
     const harness = createHarness({
-      onStart(host): void {
-        void host.destroy();
-        void host.destroy();
+      onStart(kernel): void {
+        void kernel.destroy();
+        void kernel.destroy();
       },
     });
 
@@ -4178,12 +4186,12 @@ describe('the transaction bracket', () => {
       activation: {
         prepare: (): HTMLElement => document.createElement('div'),
         effect(_current, _prepared, scope: ActivationScope): void {
-          void harness.host.destroy();
+          void harness.kernel.destroy();
 
           // Both read at this instant, on purpose: the point of the row is
           // that the logical latch is already set here while the physical
           // signal is not (D-36, D-38).
-          const { closed } = harness.host;
+          const { closed } = harness.kernel;
           const { aborted: signalAborted } = scope.presentation.signal;
 
           latch = closed;
@@ -4202,8 +4210,8 @@ describe('the transaction bracket', () => {
 
   it('should keep the ingress released once the boundary runs', () => {
     const harness = createHarness({
-      onStart(host): void {
-        void host.destroy();
+      onStart(kernel): void {
+        void kernel.destroy();
       },
     });
 

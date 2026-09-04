@@ -37,8 +37,8 @@ import type { DOMRealm } from '../kernel/realm.ts';
 import {
   type ActivationScope,
   type AdmissionSubject,
+  type BehaviorContext,
   type BehaviorSpec,
-  type KernelHost,
   type LandingTail,
   type PreparedSettlement,
   type ResolutionCommand,
@@ -92,7 +92,7 @@ const RESOLVING = 2;
  * Every field is private. Nothing outside reads or writes one.
  */
 class FreeDragBehavior {
-  readonly #host: KernelHost;
+  readonly #kernel: BehaviorContext;
 
   readonly #slots: FreeDragSlots;
 
@@ -222,7 +222,7 @@ class FreeDragBehavior {
    * being reported through itself.
    */
   readonly #notify: Notify = (error) => {
-    if (this.#host.closed) {
+    if (this.#kernel.closed) {
       return;
     }
 
@@ -238,17 +238,17 @@ class FreeDragBehavior {
   /** One per controller. Arming is per operation, on the motion signal. */
   readonly #invalidate: ReturnType<typeof createInvalidator>;
 
-  constructor(host: KernelHost, slots: FreeDragSlots) {
-    this.#host = host;
+  constructor(kernel: BehaviorContext, slots: FreeDragSlots) {
+    this.#kernel = kernel;
     this.#slots = slots;
-    this.#realm = host.realm;
-    this.#root = host.root;
+    this.#realm = kernel.realm;
+    this.#root = kernel.root;
     this.#axis = slots.axis;
     this.#applyConstraint = slots.constrain ? slots.constrain.apply : null;
     this.#invalidateConstraint = slots.constrain
       ? slots.constrain.invalidate
       : null;
-    this.#invalidate = createInvalidator(host.realm);
+    this.#invalidate = createInvalidator(kernel.realm);
   }
 
   /** The channel the spec publishes as `reportError`. */
@@ -341,7 +341,7 @@ class FreeDragBehavior {
       // It **declines**, it does not throw: a throw reaches
       // `reportFailure(FAILURE_ADMISSION)` and would tell the consumer that
       // its own `destroy()` was a library failure.
-      if (this.#host.closed || !handle) {
+      if (this.#kernel.closed || !handle) {
         return null;
       }
 
@@ -374,7 +374,7 @@ class FreeDragBehavior {
       // revalidates after this whole callback and declines the this.#operation, but
       // it does not scrub the draft it declined — so without this the write
       // below would pin the visual in an inactive frame nothing clears again.
-      if (this.#host.closed) {
+      if (this.#kernel.closed) {
         return null;
       }
     }
@@ -421,12 +421,12 @@ class FreeDragBehavior {
       // second, so this marks staleness and never resolves — the feature
       // re-reads on the next `apply`.
       //
-      // A local `try`/`catch`, not `this.#unwind` and not `this.#host.fail`. **Nothing
+      // A local `try`/`catch`, not `this.#unwind` and not `this.#kernel.fail`. **Nothing
       // is pending**: this is one call at the end of a native listener, so
       // no later statement is load-bearing and the shared this.#unwind helper
       // would be naming a rule this site does not have.
       //
-      // Not `this.#host.fail` because a native scroll listener is not a seam, so
+      // Not `this.#kernel.fail` because a native scroll listener is not a seam, so
       // a classified failure raised here would be refused anyway. Unlike
       // the sortable's equivalent there is no third action tag to re-raise
       // it through — this behavior declares `actionTags: 2` — and
@@ -469,7 +469,7 @@ class FreeDragBehavior {
     //
     // **It is the only reading in this seam**: `this.#axis` is fixed, so it is
     // read from the slot record without entering consumer code at all.
-    if (this.#host.closed) {
+    if (this.#kernel.closed) {
       return;
     }
 
@@ -525,7 +525,7 @@ class FreeDragBehavior {
     // geometry object is built inside the branch: a composition with no
     // `onMove` pays no allocation and no derived rect per sample, which is
     // what keeping the slot nullable rather than normalizing it buys.
-    if (this.#slots.onMove && !this.#host.closed) {
+    if (this.#slots.onMove && !this.#kernel.closed) {
       this.#slots.onMove(
         buildGeometry(
           current.pointerX,
@@ -691,7 +691,7 @@ class FreeDragBehavior {
     // The command is still returned rather than nulled — `invoke: null`
     // asserts a proven no-op, and the kernel already refuses to run a
     // staged command for an invalidated preparation.
-    if (!this.#host.closed) {
+    if (!this.#kernel.closed) {
       draft.request = request;
     }
 
@@ -721,7 +721,7 @@ class FreeDragBehavior {
     // The terminal barrier on the write: `retire()` nulls the session, so
     // without this the next line is `null.write(…)` on a controller that no
     // longer exists.
-    if (this.#host.closed) {
+    if (this.#kernel.closed) {
       return;
     }
 
@@ -768,7 +768,7 @@ class FreeDragBehavior {
         // have destroyed the controller while it was pending, and the
         // request pins the item, the visual and a rect in a frame teardown
         // has already scrubbed.
-        if (this.#host.closed) {
+        if (this.#kernel.closed) {
           return true;
         }
 
@@ -914,7 +914,7 @@ class FreeDragBehavior {
       // last statement is `this.#slots.constrain.apply`, so the no-consumer-call claim
       // above would be false whenever any constraint is installed, and this
       // seam would become a fifth `apply` site. Such a derivation also has no
-      // barrier of its own: `this.#host.closed` is read immediately before `home`
+      // barrier of its own: `this.#kernel.closed` is read immediately before `home`
       // below and nowhere before a derivation, so a third-party `apply` would
       // run after logical closure while the resolver beside it is guarded.
       //
@@ -931,14 +931,14 @@ class FreeDragBehavior {
     }
 
     // **The terminal barrier before the one consumer call, and it is the
-    // second conjunct.** `this.#host.closed` is read only when there is a call to
+    // second conjunct.** `this.#kernel.closed` is read only when there is a call to
     // stop: the kernel revalidates around `anchorTarget` and never starts a
     // landing for a destroyed controller, so what this stops is the call
     // itself. Both failing conjuncts fall through to the same answer, which
     // is why they are one branch and not two — an unconfigured home and a
     // closed controller both land at the grab position, and the two arms were
     // byte-identical.
-    if (this.#slots.home && !this.#host.closed) {
+    if (this.#slots.home && !this.#kernel.closed) {
       const home = this.#slots.home(this.#subjectOf(current.visual!));
       // **Read, checked and copied here, inside the attributed seam.** The
       // kernel's quality wrapper covers *this call* and reads the point's
@@ -1067,10 +1067,10 @@ class FreeDragBehavior {
  * the entity be a flat class without the kernel learning a second shape.
  */
 export function createFreeDragSpec(
-  host: KernelHost,
+  kernel: BehaviorContext,
   slots: FreeDragSlots,
 ): BehaviorSpec<FreeDragFramePart> {
-  const behavior = new FreeDragBehavior(host, slots);
+  const behavior = new FreeDragBehavior(kernel, slots);
 
   return {
     createFramePart: freeDragFramePart,

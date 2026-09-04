@@ -24,18 +24,25 @@ import type { ActionTransition, Transition } from './seams.ts';
 import type { OffsetBox, Point } from './types.ts';
 
 /**
- * The whole construction-time surface. No member lets the behavior drive a
- * transition.
+ * **What a behavior factory is handed to act with**, and the whole of its
+ * construction-time surface. No member lets the behavior drive a transition.
  *
- * Created once and stable for the controller's life, so a behavior that
- * captures it captures one object.
+ * The kernel implements this directly, so the object a behavior holds is the
+ * kernel itself under a narrower type — the same arrangement
+ * {@link LifetimeScope} and {@link BehaviorLiftSession} already use, where one
+ * physical object arrives under the type its recipient is granted. Members are
+ * **positively selected**, so one added to the kernel later is kernel-only
+ * until this interface names it.
+ *
+ * Stable for the controller's life, so a behavior that captures it captures
+ * one object.
  */
-export type KernelHost = Readonly<{
+export interface BehaviorContext {
   /** The owning document/window. Every DOM access goes through it. */
-  realm: DOMRealm;
+  readonly realm: DOMRealm;
 
   /** The ingress boundary passed to `draggable()`. */
-  root: HTMLElement;
+  readonly root: HTMLElement;
 
   /**
    * Enqueue one behavior action. `tag` is behavior-local and must be an integer
@@ -67,7 +74,13 @@ export type KernelHost = Readonly<{
    */
   readonly closed: boolean;
 
-  /** Base controller methods, for the behavior to spread into its controller. */
+  /**
+   * Base controller methods, for the behavior to publish on its controller.
+   *
+   * They are **called with a receiver here and detached by contract there**: a
+   * consumer's `controller.cancel` may be pulled off and passed on, so the
+   * behavior publishes a closure over this call rather than the member itself.
+   */
   cancel(reason?: unknown): void;
 
   /**
@@ -80,7 +93,7 @@ export type KernelHost = Readonly<{
    * promise still settles exactly once.
    */
   destroy(): Promise<void>;
-}>;
+}
 
 // Discrete, pointerless admission is a second ingress, not a second protocol. A
 // section header rather than a doc block: it documents the group below it and
@@ -408,7 +421,7 @@ export type BehaviorSpec<
    * **The kernel wraps this call** and classifies a throw as
    * `FAILURE_RENDERER_WRITE`. Rendering and scheduling stay one callback with
    * two stages, narrowed from the inside via
-   * `host.fail(FAILURE_SCHEDULED_FRAME, …)`.
+   * `kernel.fail(FAILURE_SCHEDULED_FRAME, …)`.
    */
   moved(current: Readonly<Frame<Part>>, lift: BehaviorLiftSession): void;
 
@@ -505,4 +518,4 @@ export type BehaviorFactory<
   Controller,
   Part extends object = object,
   Activation extends {} = true,
-> = (host: KernelHost) => BehaviorInstall<Controller, Part, Activation>;
+> = (kernel: BehaviorContext) => BehaviorInstall<Controller, Part, Activation>;

@@ -5,7 +5,7 @@
  * The one mutable policy slot free drag has is the **bounds source**, which the
  * library re-reads; `invalidate()` is the only signal and no slot has a setter.
  */
-import type { KernelHost } from '../kernel/spec.ts';
+import type { BehaviorContext } from '../kernel/spec.ts';
 import type { Point } from '../kernel/types.ts';
 import { TAG_POLICY, TAG_POSITION } from './runtime.ts';
 
@@ -66,27 +66,35 @@ export type FreeDragController = Readonly<{
   destroy(): Promise<void>;
 }>;
 
-export function createFreeDragController(host: KernelHost): FreeDragController {
-  // `cancel` and `destroy` **are** the kernel's own members, spread through
-  // unchanged: the kernel's latch already makes both inert and idempotent
-  // before they do any work. **Neither member re-reads the latch.**
-  // `dispatch`'s first statement is `if (queue.closed) { return; }` and
-  // `host.closed` is a live getter over that same flag, with nothing observable
-  // in between — so a guard here would only answer the question the callee
-  // opens with.
+export function createFreeDragController(
+  kernel: BehaviorContext,
+): FreeDragController {
+  // `cancel` and `destroy` forward to the kernel's own members: the kernel's
+  // latch already makes both inert and idempotent before they do any work.
+  // **Neither member re-reads the latch.** `dispatch`'s first statement is
+  // `if (queue.closed) { return; }` and `kernel.closed` is a live getter over
+  // that same flag, with nothing observable in between — so a guard here would
+  // only answer the question the callee opens with.
   return {
     invalidate(): void {
-      host.dispatch(TAG_POLICY, null);
+      kernel.dispatch(TAG_POLICY, null);
     },
 
     moveTo(point: Point): void {
       // The point travels as the action's argument rather than being applied
       // here: the offset it becomes is committed frame state, and only a
       // `prepare` may write one.
-      host.dispatch(TAG_POSITION, point);
+      kernel.dispatch(TAG_POSITION, point);
     },
 
-    cancel: host.cancel,
-    destroy: host.destroy,
+    // **Wrapped, not detached.** Both are published members a consumer may
+    // pull off the controller and pass on, so what is published is a closure
+    // over the call rather than the kernel's prototype method, which would
+    // arrive with no receiver. `destroy`'s wrapper is a plain arrow rather
+    // than an `async` one, so the memoized promise is returned by identity.
+    cancel: (reason?: unknown): void => {
+      kernel.cancel(reason);
+    },
+    destroy: (): Promise<void> => kernel.destroy(),
   };
 }

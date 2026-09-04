@@ -2346,6 +2346,28 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-07 — the last factory becomes the class it hands out, and the façade goes with it (D-170 step 6, F-308…F-311 closed)
+
+**The migration is complete.** `createKernel` is `class Kernel<Part, Activation> implements BehaviorContext`; the `host` literal and the two-member `Kernel` handle are deleted, `KernelHost` is renamed outright with no alias, and `draggable()` hands the behavior the kernel itself under the narrower type. Twenty-nine `let` bindings became fields, fifty closures became prototype methods, the attempt trio became one `AttemptSlots` record, and `thenOf` left the class entirely because it reads no kernel state.
+
+**The compiler did the census, which is the only reason a rename of this size is safe.** Every closure binding was checked for a shadow first — there were none — and then every reference was rewritten mechanically. After that a missed rename is not a subtle behavior change but a hard error: the binding no longer exists at function scope, so `tsc` names the line. The two things that needed judgement rather than mechanism were object literals using **method shorthand**, where `this` silently means the literal, and the eleven detached reads the gate caught.
+
+**Eleven reports, eleven wraps, no disable.** Four are `SeamContext` members, two the drain's arguments, two the per-operation input handlers, one the move leaf, two the ingress listeners. **Seven became fields rather than expressions at the call**, and two of those for a property rather than for taste: the drain's pair and the move leaf run per action and per pointer sample, where a closure minted at the call is allocation on a hot path; and the discrete-ingress listener has to be **one identity**, because `addEventListener` de-duplicates on (type, callback, capture) — which is exactly what `arm()`'s own comment relies on to let a repeated `command.types` entry be a no-op rather than a refusal. A per-entry closure would have bound twice and quietly falsified that paragraph.
+
+**One harness could not survive the conversion and says so now.** `sortable.browser.test.ts` decorated the context with `Object.create(host)`, which works for a record of closures and cannot work for a class instance: a prototype delegate carries no `#private` fields, so a method reached through one runs against an object that has none. It forwards member by member instead, with `closed` a getter — which is what D-149 wanted from it in the first place, and the delegation was only ever a shortcut to it.
+
+**Both falsifiers are the shipped files.** `void kernel.arm` through `BehaviorContext` is a type error and probe 13a's N-2, N-3, N-5 and 13c's N-4 still fail to compile, all four directives consumed — the narrowing survived becoming an interface. Writing `cancel: kernel.cancel` in `sortable/controller.ts` fails the package-local `lint-fix` recipe on the file as shipped, and so does detaching `kernel.arm` at its real read site.
+
+**F-309 is landed and its figure reverses the docblock's.** The four accessors are gone and `RectIndexView` is the reader every collaborator binds. Ablated alone, deleting the accessors **shrinks** each `y()` composition by 4 to 12 B and **grows** each `xy()` one by 2 to 3 B — four prototype getters leave, four one-character `#private` names become public names that do not mangle, and `xy()` names them more often. The +39…+51 / +103…+116 B the docblock carried were the two operations measured jointly with them, which is precisely the ablation error §15 warns about, caught here by splitting the measurement the record asked for.
+
+**Step 6 cost +208 to +260 B on every kernel-carrying row and 0 on the two that carry no kernel** — `drag.js` and baseline B, this pass's controls, both exact. The four free-drag rows and `kernel root` held `control:` values from the step-5 pass and are re-based rather than defended: a change to the kernel reaches every composition, so for this pass they were never controls. Module counts are identical to `a0160ce5` everywhere.
+
+**F-308, F-310 and F-311 are comment-only and are repaired to state properties instead of absences.** §01 and the `Kernel` docblock stop calling a type-level narrowing a runtime impossibility and state the contract, with no guard added. `thenOf`'s "one caller" clause now names why one read suffices — the resolution round-trip is the only place a consumer-supplied thenable is accepted — instead of citing a readiness gate D-41 deleted. The two release-path comments ground the barrier by what `retire()` nulls and the ordering by its own effect.
+
+**F-300 stays deferred**, and the ownership rule is still recorded at package scope rather than in `CONTRIBUTING.md`.
+
+---
+
 ### 2026-09-07 — the name, the cache's read view, and what makes an object a context (F-309 reversed, Q-18 closed)
 
 **The interface is `BehaviorContext`, and the name is better for a checkable reason.** The package already publishes `FeatureContext` — what a _feature installer_ is handed to act with — so the two authoring tiers now meet one vocabulary, and the name lands on the right side of a distinction this package already keeps: a **Context** is what you are given to act, a **View** is what you may read. `BehaviorKernel` named the implementation behind the parameter. No alias survives, because `CONTRIBUTING.md` §8 deletes an obsolete shape outright before release.

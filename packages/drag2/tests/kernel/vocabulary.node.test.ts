@@ -53,6 +53,7 @@ const PUBLISHED_TYPES: readonly string[] = [
   'ActivationScope',
   'AdmissionSubject',
   'BehaviorConfig',
+  'BehaviorContext',
   'BehaviorFactory',
   'BehaviorInstall',
   // Published rather than internal, and the move is D-35's (C5-01). 02 §What
@@ -75,7 +76,6 @@ const PUBLISHED_TYPES: readonly string[] = [
   // projection rather than measuring one.
   'InheritedSpace',
   'KernelFrame',
-  'KernelHost',
   'LandingTail',
   'LiftMode',
   'LifetimeScope',

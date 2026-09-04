@@ -196,6 +196,11 @@ const after = new Map(
  */
 const AMENDED: ReadonlyMap<string, string> = new Map([
   ['D-171', 'marks its own decision implemented and restates what it touches'],
+  [
+    'D-2',
+    'D-170 step 6 deletes the façade the sentence described: the kernel implements `BehaviorContext` and hands itself out narrowed',
+  ],
+  ['D-170', 'marks its own decision implemented, its six steps having landed'],
 ]);
 
 /**

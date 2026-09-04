@@ -133,7 +133,7 @@ type FreeDragController = Readonly<{
 }>;
 ```
 
-`cancel` and `destroy` are `KernelHost`'s own members spread through unchanged, exactly as the sortable's are. `destroy()` closes the controller logically on the statement and returns a promise that settles after physical teardown (D-36). The other two are D-71.
+`cancel` and `destroy` forward to `BehaviorContext`'s own members, exactly as the sortable's do — a closure over the call rather than the member itself, because after D-170 step 6 they are the kernel's prototype methods and a detached read would arrive with no receiver. `destroy()` closes the controller logically on the statement and returns a promise that settles after physical teardown (D-36). The other two are D-71.
 
 ### The results
 

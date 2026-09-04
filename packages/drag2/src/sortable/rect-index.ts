@@ -76,6 +76,30 @@ export interface ReadonlyFloat64Array {
   subarray(begin?: number, end?: number): ReadonlyFloat64Array;
 }
 
+/**
+ * **What a collaborator may read off the cache**, and the whole of it.
+ *
+ * One field carries two types: the class declares its own, and this
+ * re-declares the same four members with the reader's. So the owner writes
+ * elements, reallocates the buffer, empties the element array and assigns the
+ * count through its own declarations with no cast and no second field, while
+ * through a binding declared here `count = 0`, `values[0] = 1` and
+ * `items.length = 0` are each refused.
+ *
+ * Declared rather than derived, for the reason
+ * {@link ReadonlyFloat64Array} gives: a mapped type over the class would erase
+ * method-ness from the lint gate this migration runs behind. It carries **no
+ * method members**, so it moves nothing out of that gate's reach — the
+ * operations stay on {@link RectIndex} itself, which is the type a module
+ * driving the cache also holds.
+ */
+export interface RectIndexView {
+  readonly values: ReadonlyFloat64Array;
+  readonly hole: ReadonlyFloat64Array;
+  readonly items: readonly HTMLElement[];
+  readonly count: number;
+}
+
 const capacityFor = (needed: number): number => {
   let capacity = 1;
 
@@ -107,36 +131,32 @@ const edge = (rect: DOMRect, offset: number): number => {
 };
 
 /**
- * **The cache owns every field it mutates.** What crosses this boundary is a
- * read through an accessor whose type forbids content mutation, and a write
- * through an operation declared here. No collaborator holds a reference it can
- * write through.
+ * **The cache owns every field it mutates**, and every write from outside is an
+ * operation declared here — {@link RectIndex.refresh},
+ * {@link RectIndex.advance}, {@link RectIndex.remeasureHole},
+ * {@link RectIndex.invalidate} and {@link RectIndex.retire} — each
+ * parameterized by the caller's rule rather than by its access.
  *
- * `readonly` on a field would protect the reference only — `hole[0] = 1` and
- * `items.length = 0` both compile against one — so it is the exposed **type**
- * that forbids content mutation: `readonly HTMLElement[]` for the element
- * array and {@link ReadonlyFloat64Array} for the packed buffers. Both are free
- * at runtime, and the four accessors are property reads on a prototype rather
- * than the calls an earlier record priced.
+ * **The four data members are one field carrying two types.** The class
+ * declares the mutable one it needs to write through; {@link RectIndexView}
+ * re-declares the same four with the reader's, and that interface is the type
+ * every collaborator binds. `readonly` on the field would protect the
+ * reference only — `hole[0] = 1` and `items.length = 0` both compile against
+ * one — so it is the reader's **type** that forbids content mutation:
+ * `readonly HTMLElement[]` for the element array and
+ * {@link ReadonlyFloat64Array} for the packed buffers. Both are free at
+ * runtime, and no accessor stands between a read and the field, because an
+ * accessor here would be a runtime construct doing a compile-time job.
  *
- * **The hot path is counted rather than forecast.** `xy()` reads three of them
+ * **The hot path is counted rather than forecast.** `xy()` reads three members
  * once per resolution and a fourth only on a frame proposing a gap change;
- * `y()` reads none, and every remaining read in the linear rule is on the
- * committed-move path. So the minimal composition performs **zero** accessor
- * reads per resolution, and **no read is added inside the candidate loop** —
- * which is refused outright rather than measured.
- *
- * **What the boundary costs, measured jointly with the operations it needed**:
- * +39 to +51 B Brotli on the `y()` compositions and +103 to +116 B on the two
- * `xy()` ones, with every composition carrying no axis unmoved. The `xy()`
- * rows pay the difference because {@link RectIndex.advance} and
- * {@link RectIndex.remeasureHole} are prototype members every axis carries and
- * only the linear rule calls — the price of the writes coming home, and the
- * one part of this a shared cache cannot tree-shake.
+ * `y()` reads two once per resolution, and every remaining read in the linear
+ * rule is on the committed-move path. **No read is added inside the candidate
+ * loop** — which is refused outright rather than measured.
  */
-export class RectIndex {
+export class RectIndex implements RectIndexView {
   /** The packed values. Re-allocated only when the collection outgrows it. */
-  #values = new Float64Array(0);
+  values: Float64Array = new Float64Array(0);
 
   /**
    * **The placeholder's own rect, packed in the same six fields as a slot.**
@@ -153,13 +173,13 @@ export class RectIndex {
    * Allocated once with the instance and never re-allocated: it is one slot,
    * and one slot does not grow.
    */
-  readonly #hole = new Float64Array(STRIDE);
+  readonly hole: Float64Array = new Float64Array(STRIDE);
 
   /** Destination-ordered elements, parallel to the packed slots. */
-  readonly #items: HTMLElement[] = [];
+  readonly items: HTMLElement[] = [];
 
   /** How many destination slots the last scan produced. */
-  #count = 0;
+  count = 0;
 
   /** Slots the packed buffer can hold, always a power of two once fitted. */
   #capacity = 0;
@@ -171,22 +191,6 @@ export class RectIndex {
   #dirty = true;
 
   #measured = -1;
-
-  get values(): ReadonlyFloat64Array {
-    return this.#values;
-  }
-
-  get hole(): ReadonlyFloat64Array {
-    return this.#hole;
-  }
-
-  get items(): readonly HTMLElement[] {
-    return this.#items;
-  }
-
-  get count(): number {
-    return this.#count;
-  }
 
   /**
    * Re-measures only when something dirtied the cache or the collection version
@@ -278,12 +282,12 @@ export class RectIndex {
       // reallocates 48 B on every scan instead of settling.
       if (fitted !== this.#capacity) {
         this.#capacity = fitted;
-        this.#values = new Float64Array(fitted * STRIDE);
+        this.values = new Float64Array(fitted * STRIDE);
       }
     }
 
-    const values = this.#values;
-    const items = this.#items;
+    const { values } = this;
+    const { items } = this;
     let n = 0;
 
     for (const item of list) {
@@ -353,7 +357,7 @@ export class RectIndex {
     }
 
     const rect = placeholder.getBoundingClientRect();
-    const hole = this.#hole;
+    const { hole } = this;
 
     hole[LEFT] = rect.left;
     hole[TOP] = rect.top;
@@ -362,7 +366,7 @@ export class RectIndex {
     hole[CENTRE_X] = (rect.left + rect.right) * 0.5;
     hole[CENTRE_Y] = (rect.top + rect.bottom) * 0.5;
 
-    this.#count = n;
+    this.count = n;
     // Truncated, so a shrinking collection neither pins the elements a larger
     // previous rebuild saw nor leaks one into a neighbour lookup.
     items.length = n;
@@ -394,7 +398,7 @@ export class RectIndex {
     end: number,
     centre: number,
   ): void {
-    const values = this.#values;
+    const { values } = this;
 
     for (let i = lo; i < hi; i += 1) {
       const offset = i * STRIDE;
@@ -433,7 +437,7 @@ export class RectIndex {
     centre: number,
   ): void {
     const rect = placeholder.getBoundingClientRect();
-    const hole = this.#hole;
+    const { hole } = this;
     const a = edge(rect, start);
     const b = edge(rect, end);
 
@@ -459,8 +463,8 @@ export class RectIndex {
    * class's one definition of *stop*.
    */
   retire(): void {
-    this.#items.length = 0;
-    this.#count = 0;
+    this.items.length = 0;
+    this.count = 0;
     this.#dirty = true;
     this.#measured = -1;
   }
@@ -565,12 +569,17 @@ export const verifyEquivalence = (
     return;
   }
 
-  const held = index.count;
+  // **The instrument distrusts the cache**, so it reads it under the
+  // collaborator's type rather than the owner's: nothing here may repair what
+  // it is checking, and the rebuild below is what makes the cache
+  // authoritative again.
+  const view: RectIndexView = index;
+  const held = view.count;
   const predicted = new Float64Array(held * STRIDE);
   const predictedHole = new Float64Array(STRIDE);
-  const predictedItems = [...index.items];
-  const claimed = index.values;
-  const claimedHole = index.hole;
+  const predictedItems = [...view.items];
+  const claimed = view.values;
+  const claimedHole = view.hole;
 
   for (let i = 0; i < predicted.length; i += 1) {
     predicted[i] = claimed[i]!;
@@ -604,10 +613,8 @@ export const verifyEquivalence = (
 
     return (gap < 0 ? -gap : gap) > slack;
   };
-  const scanned = index.count;
-  const { values } = index;
-  const { hole } = index;
-  const { items } = index;
+  const scanned = view.count;
+  const { values, hole, items } = view;
   const span = scanned < held ? scanned : held;
   let mismatch = '';
 

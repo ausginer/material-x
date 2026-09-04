@@ -1132,7 +1132,7 @@ describe('runCore reentrancy', () => {
     // here verbatim. Composed rather than driven through the SPI on purpose:
     // F-85 settled from the call graph that **no behavior-facing entry can open
     // a nested phase** — every one is inside a queue handler — so a test that
-    // appeared to reach this latch through `KernelHost` would be asserting a
+    // appeared to reach this latch through `BehaviorContext` would be asserting a
     // reachability the record has disproved.
     const thrown = escapeOf(() =>
       harness.driver.runCore(

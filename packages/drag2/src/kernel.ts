@@ -50,7 +50,7 @@
  * opt-out scan must reimplement; it is a policy helper rather than SPI
  * vocabulary.
  */
-import { createKernel } from './kernel/kernel.ts';
+import { Kernel } from './kernel/kernel.ts';
 import type { BehaviorFactory } from './kernel/spec.ts';
 
 /**
@@ -71,11 +71,11 @@ export type {
   ActivationScope,
   AdmissionSubject,
   BehaviorConfig,
+  BehaviorContext,
   BehaviorFactory,
   BehaviorInstall,
   BehaviorSpec,
   CommandAdmission,
-  KernelHost,
   LandingTail,
   PreparedSettlement,
   ReleaseTransition,
@@ -144,7 +144,7 @@ export {
 /**
  * **The eight phases, as values.** `Draft` and `Frame` carry `phase` and a
  * behavior reads it — in seams the kernel calls at times the behavior cannot
- * predict, like `command.admit` on any bound event — and `KernelHost.closed`
+ * predict, like `command.admit` on any bound event — and `BehaviorContext.closed`
  * answers liveness, never *where in the operation this is*.
  *
  * All eight, not a useful subset: a numeric union whose members are unnameable
@@ -242,8 +242,12 @@ export function draggable<
   root: HTMLElement,
   behavior: BehaviorFactory<Controller, Part, Activation>,
 ): Controller {
-  const kernel = createKernel<Part, Activation>(root);
-  const { spec, controller } = behavior(kernel.host);
+  const kernel = new Kernel<Part, Activation>(root);
+  // **The narrowing happens structurally, at this call.** `behavior` declares
+  // `BehaviorContext`, so what a behavior holds is this kernel under the
+  // narrower type and `arm` is not on it — the same arrangement `LifetimeScope`
+  // already uses one tier down.
+  const { spec, controller } = behavior(kernel);
 
   kernel.arm(spec);
   return controller;

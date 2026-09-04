@@ -47,6 +47,7 @@ import {
   type DisplacementSettle,
   LEFT,
   RectIndex,
+  type RectIndexView,
   STRIDE,
   TOP,
 } from './rect-index.ts';
@@ -157,6 +158,13 @@ export function xy(): AxisInstaller {
   return () => {
     const index = new RectIndex();
     /**
+     * **The binding the reading code names is the reader.** This module drives
+     * the cache's operations as well, so it holds both types; `index` is the
+     * operator's and this is every read's, which is where the packed contents
+     * stop being writable from outside the cache.
+     */
+    const view: RectIndexView = index;
+    /**
      * The gap the packed buffer reflects, or `-1` when nothing is known.
      * Recorded by every rebuild, and what tells a committed move which slots it
      * could possibly have touched.
@@ -206,7 +214,7 @@ export function xy(): AxisInstaller {
 
           last = frame.insertion ? frame.insertion.index : -1;
 
-          const { values, count, hole } = index;
+          const { values, count, hole } = view;
           const { pointerX, pointerY } = frame;
           // **Read, not measured**: the rebuild cached the placeholder's own
           // rect, so a warm spatial frame performs no layout read.
@@ -239,7 +247,7 @@ export function xy(): AxisInstaller {
             return null;
           }
 
-          const { items } = index;
+          const { items } = view;
           // `nearest` comes after the placeholder in document order, so the gap
           // is on its far side. The mask test is what `compareDocumentPosition`
           // is for — it returns a bitfield and several bits can be set at once,
@@ -301,7 +309,7 @@ export function xy(): AxisInstaller {
 
           const gap = frame.insertion!.index;
           const from = last;
-          const held = index.count;
+          const held = view.count;
 
           if (from < 0 || from === gap || held === 0) {
             // Nothing to compare against, and the write has already landed.
@@ -313,7 +321,7 @@ export function xy(): AxisInstaller {
             before = new Float64Array(held * 2);
           }
 
-          const stale = index.values;
+          const stale = view.values;
 
           for (let i = 0; i < held; i += 1) {
             before[i * 2] = stale[i * STRIDE + LEFT]!;
@@ -342,7 +350,7 @@ export function xy(): AxisInstaller {
           // view is the collection minus the dragged item, and moving the hole
           // reorders none of it. So slot `i` is the same element on both sides
           // and the vector is one subtraction.
-          const { values, items, count } = index;
+          const { values, items, count } = view;
           const span = count < held ? count : held;
 
           for (let i = 0; i < span; i += 1) {

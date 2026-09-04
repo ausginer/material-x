@@ -31,8 +31,8 @@ import type { DOMRealm } from '../kernel/realm.ts';
 import {
   type ActivationScope,
   type AdmissionSubject,
+  type BehaviorContext,
   type BehaviorSpec,
-  type KernelHost,
   type LandingTail,
   type PreparedSettlement,
   type ResolutionCommand,
@@ -135,7 +135,7 @@ const RESOLVING = 2;
  * Every field is private. Nothing outside reads or writes one.
  */
 class SortableBehavior {
-  readonly #host: KernelHost;
+  readonly #kernel: BehaviorContext;
 
   readonly #slots: SortableSlots;
 
@@ -323,7 +323,7 @@ class SortableBehavior {
    * through itself.
    */
   readonly #notify: Notify = (error) => {
-    if (this.#host.closed) {
+    if (this.#kernel.closed) {
       return;
     }
 
@@ -338,35 +338,35 @@ class SortableBehavior {
 
   /**
    * The terminal latch as a predicate, for the barriers that cannot reach
-   * `host`: the candidate loop inside the feature's private `RectIndex`, the
+   * the kernel: the candidate loop inside the feature's private `RectIndex`, the
    * displacement hooks' own measurement loops, and `createPlaceholder`'s
    * post-factory mechanics. Every barrier written *in this file* reads
-   * `host.closed` directly instead; this closure is created once per controller
+   * `kernel.closed` directly instead; this closure is created once per controller
    * and copied by reference onto each per-operation view.
    *
-   * **`host.closed` is the reading, and nothing else may stand in for it.**
+   * **`kernel.closed` is the reading, and nothing else may stand in for it.**
    * Physical teardown is deferred to the transaction boundary, so a disposed
    * lifetime, an aborted signal, a nulled slot and a detached node all lag the
    * logical close and none of them may answer a liveness question.
    */
-  readonly #live = (): boolean => !this.#host.closed;
+  readonly #live = (): boolean => !this.#kernel.closed;
 
   readonly #invalidate: ReturnType<typeof createInvalidator>;
 
   readonly #spatialFrame: ReturnType<typeof createFrameTask<number>>;
 
   constructor(
-    host: KernelHost,
+    kernel: BehaviorContext,
     initialSource: readonly HTMLElement[],
     items: readonly HTMLElement[],
     slots: SortableSlots,
   ) {
-    this.#host = host;
+    this.#kernel = kernel;
     this.#slots = slots;
-    this.#realm = host.realm;
+    this.#realm = kernel.realm;
     this.#snapshot = { items, version: 0 };
     this.#sourceIdentity = initialSource;
-    this.#invalidate = createInvalidator(host.realm);
+    this.#invalidate = createInvalidator(kernel.realm);
     /**
      * Created once per **controller**, not per operation, and cancelled at
      * retirement and at destroy.
@@ -383,7 +383,7 @@ class SortableBehavior {
      * cost more than the task they defer, and `schedule` is half the price with
      * no null check.
      */
-    this.#spatialFrame = createFrameTask<number>(host.realm, (attempt) => {
+    this.#spatialFrame = createFrameTask<number>(kernel.realm, (attempt) => {
       // The producer-side half of the double validation: a frame that fires
       // after the operation lost its presentation has nothing to resolve
       // against. `action.prepare` validates the attempt again when it applies.
@@ -392,7 +392,7 @@ class SortableBehavior {
       }
 
       this.#operation.pendingSpatial = attempt;
-      host.dispatch(TAG_SPATIAL, attempt);
+      this.#kernel.dispatch(TAG_SPATIAL, attempt);
     });
   }
 
@@ -472,7 +472,7 @@ class SortableBehavior {
       // exists.
       //
       // A handle *narrows* admission; it never replaces the item.
-      if (this.#host.closed || !handle) {
+      if (this.#kernel.closed || !handle) {
         return null;
       }
 
@@ -528,7 +528,7 @@ class SortableBehavior {
       // snapshot in an inactive frame nothing will clear again. It **declines**
       // for the same reason `resolveItem` does: destroying your own controller
       // is not a library failure.
-      if (this.#host.closed) {
+      if (this.#kernel.closed) {
         return null;
       }
     }
@@ -558,7 +558,7 @@ class SortableBehavior {
     // resolver carries one two statements up: it is consumer code, and a
     // resolver that destroys its own controller must not have its result minted
     // into an operation.
-    if (this.#host.closed) {
+    if (this.#kernel.closed) {
       return null;
     }
 
@@ -606,7 +606,7 @@ class SortableBehavior {
    * Every call site below is inside a kernel-driven seam, so the surrounding
    * phase would otherwise classify a throw as *its* stage — an activation
    * failure, a placeholder-move failure — and `SortableErrorContext.stage`
-   * would name the wrong thing. `host.fail` narrows from the inside, which is
+   * would name the wrong thing. `kernel.fail` narrows from the inside, which is
    * the mechanism for exactly this.
    *
    * Returns whether it succeeded, because the latched failure already decides
@@ -618,7 +618,7 @@ class SortableBehavior {
       this.#slots.invalidateInsertion();
       return true;
     } catch (error) {
-      this.#host.fail(FAILURE_INVALIDATION, error);
+      this.#kernel.fail(FAILURE_INVALIDATION, error);
       return false;
     }
   }
@@ -904,14 +904,14 @@ class SortableBehavior {
     // That property inverts here: physical teardown runs at the transaction
     // boundary, so the signal **lags** the close it would stand in for, and
     // the stronger reading is the wrong one for exactly the reason that
-    // made it attractive. `host.closed` is the latch itself, and since a
+    // made it attractive. `kernel.closed` is the latch itself, and since a
     // panic closes logically first it sees that too, so one reading placed
     // immediately before the publication block loses nothing. Every
     // consumer-reachable accessor in the stretch — `connectedCallback`,
     // `isConnected`, `nextElementSibling` on a consumer-owned placeholder —
     // is covered by it, because everything below is the publication and
     // nothing above it is consequential.
-    if (this.#host.closed) {
+    if (this.#kernel.closed) {
       return;
     }
 
@@ -922,14 +922,14 @@ class SortableBehavior {
       try {
         this.#slots.invalidateInsertion();
       } catch (error) {
-        // A native scroll/resize listener is **not** a seam, so `host.fail`
+        // A native scroll/resize listener is **not** a seam, so `kernel.fail`
         // here would be downgraded to a platform report and the stage would
         // never reach `onError` — one input path silently bypassing the
         // classified-failure mechanism entirely. Queuing it as a behavior
         // action gives it a seam: the action's own `prepare` runs against
         // the live operation, which is where `FAILURE_INVALIDATION` can be
         // classified with the recovery the contract gives it.
-        this.#host.dispatch(TAG_INVALIDATION, error);
+        this.#kernel.dispatch(TAG_INVALIDATION, error);
       }
     });
 
@@ -979,7 +979,7 @@ class SortableBehavior {
     // the two barriers guard different calls in different sequences, and
     // extracting them would build a common activation runtime out of a
     // coincidence of shape.
-    if (this.#host.closed) {
+    if (this.#kernel.closed) {
       return;
     }
 
@@ -1017,7 +1017,7 @@ class SortableBehavior {
     try {
       this.#spatialFrame.schedule(this.#spatialSeq);
     } catch (error) {
-      this.#host.fail(FAILURE_SCHEDULED_FRAME, error);
+      this.#kernel.fail(FAILURE_SCHEDULED_FRAME, error);
     }
   }
 
@@ -1031,9 +1031,9 @@ class SortableBehavior {
   ): {} | null {
     if (tag === TAG_INVALIDATION) {
       // Re-raised where it can be classified; see the listener in
-      // `activation.effect`. `host.fail` latches, so the seam ends as a
+      // `activation.effect`. `kernel.fail` latches, so the seam ends as a
       // failure and the `null` below is never the deciding value.
-      this.#host.fail(FAILURE_INVALIDATION, argument);
+      this.#kernel.fail(FAILURE_INVALIDATION, argument);
       return null;
     }
 
@@ -1068,12 +1068,12 @@ class SortableBehavior {
       );
 
       // `resolved === null`: the incumbent slot still wins — commit
-      // nothing. `host.closed`: a candidate `visual()` resolver destroyed
+      // nothing. `kernel.closed`: a candidate `visual()` resolver destroyed
       // the controller during the rebuild. The kernel would discard the
       // transition anyway — `preparationValid()` no longer holds — but
       // stopping one branch earlier means the behavior never writes
       // `draft.insertion` for an operation that no longer exists.
-      if (resolved === null || this.#host.closed) {
+      if (resolved === null || this.#kernel.closed) {
         return null;
       }
 
@@ -1091,7 +1091,7 @@ class SortableBehavior {
     // The terminal barrier on the pull. `items()` may destroy the
     // controller; discarding here means the behavior neither copies nor
     // publishes for an operation that no longer exists.
-    if (this.#host.closed) {
+    if (this.#kernel.closed) {
       return null;
     }
 
@@ -1248,7 +1248,7 @@ class SortableBehavior {
         // supplied, and no seam wraps it. If it destroyed the controller,
         // the hook below would read consumer-owned rows and the sink would
         // start WAAPI animations against a retired feature.
-        if (this.#host.closed) {
+        if (this.#kernel.closed) {
           return;
         }
 
@@ -1277,7 +1277,7 @@ class SortableBehavior {
         try {
           this.#slots.movedInsertion(current, view, this.#slots.report);
         } catch (error) {
-          this.#host.fail(FAILURE_ACTION_EFFECT, error);
+          this.#kernel.fail(FAILURE_ACTION_EFFECT, error);
           return;
         }
 
@@ -1331,7 +1331,7 @@ class SortableBehavior {
     // Last, and only after publication: an invalid collection ends the
     // current drag, but it must never throw away the consumer's update.
     if (staged.cancelReason !== null) {
-      this.#host.cancel(staged.cancelReason);
+      this.#kernel.cancel(staged.cancelReason);
     }
   }
 
@@ -1413,7 +1413,7 @@ class SortableBehavior {
       // already scrubbed and will not scrub again: `draft.insertion`, then
       // `draft.proposal`, whose request pins the item and the whole
       // released snapshot in an inactive frame.
-      if (this.#host.closed) {
+      if (this.#kernel.closed) {
         return { invoke: null };
       }
 
@@ -1466,10 +1466,12 @@ class SortableBehavior {
     // `null.write(...)`, a `TypeError` classified as `FAILURE_RELEASE`
     // against a controller that no longer exists.
     //
-    // It covers the `lift!.write` alone: there is no publication below it
-    // to guard, because nothing here holds a pending request for the
-    // readiness protocol to acknowledge.
-    if (this.#host.closed) {
+    // **It covers the `lift!.write` alone**, and the scope is a property of
+    // what follows it: that write is the only statement below reading a
+    // member of the operation record `retire()` nulls. Everything else in
+    // this effect reads committed frame scalars, which survive retirement
+    // and mean the same thing after it.
+    if (this.#kernel.closed) {
       return;
     }
 
@@ -1492,11 +1494,9 @@ class SortableBehavior {
     // is defined not to read. The landing then opens from `(0, 0)`, which
     // is correct because the visual has not moved since acquisition.
 
-    // **Nothing is published here.** There is no acknowledgement protocol
-    // to publish a request for — no `ready()` to check an object's identity
-    // against, and so no reason to publish last and inside this effect. The
-    // ordering that does bind is the kernel's: the staged command runs
-    // *after* this returns, so a throw from the write above classifies
+    // **Nothing is published here**, and the effect ends at the write. The
+    // ordering that binds is the kernel's: the staged command runs *after*
+    // this returns, so a throw from the write above classifies
     // `FAILURE_RELEASE` and the round-trip never opens.
     //
     // **The render is a consumer-reachable call**, which is what makes that
@@ -1547,7 +1547,7 @@ class SortableBehavior {
         // while it was pending, and publishing into a frame teardown has
         // already scrubbed would pin the whole proposal in an inactive
         // frame nothing clears again.
-        if (this.#host.closed) {
+        if (this.#kernel.closed) {
           return true;
         }
 
@@ -1635,7 +1635,7 @@ class SortableBehavior {
           // keeps is the operation's only terminal. An assignment would
           // overwrite it every time that path fires and tell a consumer
           // whose list really was reordered that the drop was `canceled`. A
-          // `host.fail` raised from inside the terminal callback reaches
+          // `kernel.fail` raised from inside the terminal callback reaches
           // this line too, though by then the terminal is published and the
           // value is no longer observed.
           //
@@ -1731,7 +1731,7 @@ class SortableBehavior {
         // would re-insert a footprint the operation has finished with — back
         // into the consumer's list, where nothing will remove it again. Last
         // conjunct, so it is read only on the frame that would mutate.
-        !this.#host.closed
+        !this.#kernel.closed
       ) {
         item.before(placeholder);
       }
@@ -1750,7 +1750,7 @@ class SortableBehavior {
     // consumer call on the same element. The kernel revalidates around
     // `anchorTarget` and never joins for a destroyed controller, so the
     // point is discarded either way; what this stops is the read itself.
-    if (this.#host.closed) {
+    if (this.#kernel.closed) {
       this.#anchor.x = 0;
       this.#anchor.y = 0;
 
@@ -1877,12 +1877,12 @@ class SortableBehavior {
  * entity and adds nothing.
  */
 export function createSortableSpec(
-  host: KernelHost,
+  kernel: BehaviorContext,
   initialSource: readonly HTMLElement[],
   items: readonly HTMLElement[],
   slots: SortableSlots,
 ): BehaviorSpec<SortableFramePart, HTMLElement> {
-  const behavior = new SortableBehavior(host, initialSource, items, slots);
+  const behavior = new SortableBehavior(kernel, initialSource, items, slots);
 
   return {
     createFramePart: sortableFramePart,

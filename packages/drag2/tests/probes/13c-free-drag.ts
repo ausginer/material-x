@@ -47,7 +47,7 @@ import type {
 import type {
   ActivationScope,
   BehaviorSpec,
-  KernelHost,
+  BehaviorContext,
   PreparedSettlement,
   ResolutionCommand,
 } from '../../src/kernel/spec.ts';
@@ -107,7 +107,7 @@ type FreeDragPart = {
 
 /** The behavior's private runtime — H-2: the kernel cannot name or type it. */
 type FreeDragRuntime = Readonly<{
-  host: KernelHost;
+  kernel: BehaviorContext;
   mapper: CoordinateMapper;
   boundsSource: BoundsSource | null;
   liftMode: LiftMode;
@@ -118,7 +118,7 @@ type FreeDragRuntime = Readonly<{
 }>;
 
 declare const rt: FreeDragRuntime;
-declare const host: KernelHost;
+declare const kernel: BehaviorContext;
 
 /* ------------------------------------------------------- pure helpers ----- */
 
@@ -497,11 +497,12 @@ export const n3: typeof writeThroughDraft = (draft): void => {
 };
 
 /**
- * **N-4. There is no host route to a synthetic motion commit either.** The six
- * `KernelHost` members are `realm`, `root`, `dispatch`, `fail`, `cancel`,
- * `destroy`. A controlled position therefore has exactly two options today:
+ * **N-4. There is no context route to a synthetic motion commit either.** The
+ * seven `BehaviorContext` members are `realm`, `root`, `dispatch`, `fail`,
+ * `closed`, `cancel`, `destroy`. A controlled position therefore has exactly
+ * two options today:
  * write the lift directly from an action effect, outside the kernel's renderer
  * wrapper (what this probe does, and what makes N-2 visible), or nothing.
  */
-// @ts-expect-error — no motion entry on the frozen host.
-export const n4: unknown = host.move;
+// @ts-expect-error — no motion entry on the frozen context.
+export const n4: unknown = kernel.move;

@@ -63,6 +63,7 @@ import {
   DEV,
   type DisplacementSettle,
   type RectIndex,
+  type RectIndexView,
   STRIDE,
   TOP,
   verifyEquivalence,
@@ -109,6 +110,14 @@ export type LinearRuntime = Readonly<{
  */
 export class LinearShift {
   readonly #index: RectIndex;
+
+  /**
+   * The same cache under the reader's type. This module drives the cache's
+   * operations and also reads its contents, so it holds both — and the binding
+   * the reading code names is this one, where the packed slots and the element
+   * array stop being writable from outside their owner.
+   */
+  readonly #view: RectIndexView;
 
   readonly #start: number;
 
@@ -171,6 +180,7 @@ export class LinearShift {
     uy: number,
   ) {
     this.#index = index;
+    this.#view = index;
     this.#start = start;
     this.#end = end;
     this.#centre = centre;
@@ -285,7 +295,6 @@ export class LinearShift {
     runtime: LinearRuntime,
     report: DisplacementReport | null,
   ): void {
-    const index = this.#index;
     const from = this.#last;
 
     // Each rejection is a real degenerate case: a dirty buffer describes a
@@ -295,7 +304,7 @@ export class LinearShift {
     if (
       this.#dirty ||
       this.#seen !== runtime.snapshot.version ||
-      index.count === 0 ||
+      this.#view.count === 0 ||
       from < 0 ||
       from === gap
     ) {
@@ -308,7 +317,7 @@ export class LinearShift {
     let delta = from < gap ? -this.#constant : this.#constant;
 
     if (this.#constant < 0) {
-      const { values, items } = index;
+      const { values, items } = this.#view;
       // Any crossed row answers, because they all travelled the same
       // constant. Measured as its **box**, which is what the cache holds.
       const probe = items[lo]!;
@@ -416,7 +425,7 @@ export class LinearShift {
     // Hoisted out of the walk: every element in the span carries the same
     // vector, so the two components are computed once per move rather than
     // once per element.
-    const { items } = index;
+    const { items } = this.#view;
     const dx = -delta * this.#ux;
     const dy = -delta * this.#uy;
 
