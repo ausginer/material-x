@@ -71,3 +71,25 @@ Each mutation isolates the line: the negative row alone does not catch the `#joi
 - No further route into `spec.finalized` exists; no `#slots` member invocation in either behavior is absent from the table.
 - The `!this.#queue.closed` read was checked against D-38's requirement that `Kernel.closed` be the sole logical-liveness latch: `get closed()` returns that field, so the bare read and the published latch are the same value.
 - No regression was found in the seven mechanical repairs re-checked at this tip (F-313, F-314, F-315, F-319, F-320, F-321, F-322).
+
+## Closure verification — re-read at `1ca8041e`
+
+The Implementer's repair is record- and test-only; `src/` is byte-identical to `c4fa883c`, so the substance verified above stands unre-examined and the three findings are re-checked on their own terms. **All three hold, and Stage 0 is closed.**
+
+**`s0c-1` closed (F-336).** The four numbers resolve in the tree that now carries them: `kernel.ts:1858` is `if (!this.#joinLive()) {`, `:1863` the join's `finalized`, `:2469` the reporting route's presentation unwind, `:2498` its `finalized`. F-324's table, D-179's body and F-328's statement paragraph all carry the re-derived pair. `kernel.ts:1739` was correct and is unchanged. The two places where the pre-repair numbers survive — F-328's statement paragraph and F-336's own — each say which tree they number, which is the required property's second clause rather than a residue of the first: `grep` for `:1860`, `:1855`, `:2473` and `:2467` across `.plan/contract/`, `.plan/plan.md` and `COVERAGE.md` returns those two lines and nothing else.
+
+**`s0c-2` closed (F-337).** The row now asserts the ordered tail from the consumer's disposer onward rather than the presence of `retire`. Re-running the mutation that defeated the old assertion — `#retireOperation(identity)` and its comment moved inside the guard — turns **exactly one** behavioural row red, and it is that row. `COVERAGE.md` is split into a terminal half and a retirement half, each naming the assertion that discriminates it, and the entry states why counting is the only reading available on this route instead of leaving it to be rediscovered.
+
+**`s0c-3` closed (F-338).** F-328's three-row table reproduces exactly, measured against a baseline of the same worktree rather than of the main tree:
+
+| Mutation of `kernel.ts:2492` | Recorded | Measured |
+| --- | --- | --- |
+| → `if (true)` | 1 behavioural, 4 size | 1 behavioural, 4 size — `complete` stays on its figure, as the entry says |
+| → `if (this.#joinLive())` | 15 behavioural over five files, 5 size | 15 behavioural over `kernel.browser`, `sortable.browser`, `composition.browser`, `free-drag.browser`, `validation.browser`, 5 size |
+| retirement conditioned | 1 behavioural, 5 size | 1 behavioural, 5 size |
+
+The exclusion note is accurate: `consumer.node.test.ts`'s three packed-package rows fail at the unmutated worktree baseline, as do two `packaging.node.test.ts` rows and one `references.node.test.ts` row, all six from the absent build artefact rather than from any mutation. One further row, `perf/m5.browser.test.ts` — _should report a difference that tracks a cost injected into window 1_ — failed once under the `#joinLive()` substitution and passed on a second whole-suite run and on three isolated runs; it is load-sensitive timing flake, not a sixteenth row, and the recorded fifteen is right.
+
+**Suite at `1ca8041e` in the main tree: 66 files, 1267 passed, 60 skipped, no type errors.**
+
+**Stage 0 is closed.** Every finding this pass and its predecessor raised — `s0-1`…`s0-7` as F-327…F-334, and `s0c-1`…`s0c-3` as F-336…F-338 — is repaired or closed with an instrument that discriminates it, and the lifecycle guarantee the stage exists for is falsified in three independent directions. F-335 remains intentionally open, F-323 untouched, and nothing in Stage 1 or the C1–C5 arcs was entered.
