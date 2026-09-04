@@ -303,6 +303,74 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     'raised by the control-panel der pass: whether `ConstraintView` is a context or a materialized projection',
   ],
   [
+    'F-312',
+    'raised by the D-170 arc feature proof: the liveness reduction leaves a declared slot invoked after logical closure',
+  ],
+  [
+    'F-313',
+    'raised by the D-170 arc, three lenses merged: the `host` to `kernel` rename is incomplete and reaches shipped `kernel.d.ts`',
+  ],
+  [
+    'F-314',
+    'raised by the D-170 arc der pass: a revision fixture states the D-41-deleted readiness API as shipped',
+  ],
+  [
+    'F-315',
+    'raised by the D-170 arc der pass: live contract sections still state normative constraints over `KernelHost`',
+  ],
+  [
+    'F-316',
+    'raised by the D-170 arc feature proof: `RectIndexView` has no falsifier under `tests/`',
+  ],
+  [
+    'F-317',
+    'raised by the D-170 arc feature proof: three of the four narrowing assertions do not discriminate',
+  ],
+  [
+    'F-318',
+    'raised by the D-170 arc feature proof: nothing pins the memoized `destroy()` identity through the controller wrappers',
+  ],
+  [
+    'F-319',
+    "raised by the D-170 arc feature proof: step 5's rename corrupted comment prose in two spec files",
+  ],
+  [
+    'F-320',
+    'raised by the D-170 arc cleanup pass: two adjacent JSDoc blocks on `#movedLeaf`',
+  ],
+  [
+    'F-321',
+    'raised by the D-170 arc cleanup pass: a duplicate JSDoc block on `#resolveItem`, one copy corrupted',
+  ],
+  [
+    'F-322',
+    "raised by the D-170 arc der pass: `LinearShift.refresh`'s stop arm re-retires a cache the callee already retired",
+  ],
+  [
+    'F-323',
+    'raised at the D-170 arc consolidation: `just lint` is red at the tip, in files the range does not touch',
+  ],
+  [
+    'F-324',
+    'raised by D-176: the irreducible-reading census was measured under the membership test D-176 supersedes',
+  ],
+  [
+    'D-176',
+    'settles Q-19, Q-20 and Q-21: declared-slot membership is a property of the declaration, and the exception is a predicate',
+  ],
+  [
+    'Q-19',
+    'raised by the D-170 arc cleanup pass: whether `#homeGap`, a single-call private method, is inlined',
+  ],
+  [
+    'Q-20',
+    'raised by the D-170 arc feature proof: whether a feature-supplied `settle` is a declared consumer slot under I-36',
+  ],
+  [
+    'Q-21',
+    "raised by the D-170 arc der pass: whether `LinearShift` should own a stop on `refresh`'s failure path at all",
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],
