@@ -233,6 +233,30 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     'F-290',
     'raised by D-175: whether a review-scope identifier such as `P18A-04` is citable is unsettled',
   ],
+  [
+    'F-291',
+    "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
+  ],
+  [
+    'F-292',
+    'raised by the D-170 step-0 consolidation: the root lint selection omitted the package the gate guards',
+  ],
+  [
+    'F-293',
+    'raised by the D-170 step-0 consolidation: the census recorded thirteen detached reads where the instrument reports ten',
+  ],
+  [
+    'F-294',
+    "raised by the D-170 step-0 consolidation: the recorded reason for `createRectIndex`'s silence was false",
+  ],
+  [
+    'F-295',
+    'raised by the D-170 step-0 consolidation: `ignoreStatic: true` was in force and unrecorded',
+  ],
+  [
+    'F-296',
+    'raised by the re-review of the repaired gate: six canonical ids were cited by an entry and minted nowhere',
+  ],
 ]);
 
 const say = (text: string): void => {

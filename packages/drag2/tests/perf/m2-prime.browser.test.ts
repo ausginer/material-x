@@ -39,7 +39,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { FreeDragResolution, freeDrag } from '../../src/free-drag.ts';
 import type { CollectionSnapshot } from '../../src/sortable/domain.ts';
-import { createRectIndex } from '../../src/sortable/rect-index.ts';
+import { RectIndex } from '../../src/sortable/rect-index.ts';
 import { y } from '../../src/sortable/y.ts';
 import { ReorderResolution, sortable } from '../../src/sortable.ts';
 
@@ -436,7 +436,7 @@ const capacityFor = (needed: number): number => {
  * property with an exact answer at every collection size.
  */
 function bufferBytes(count: number, thenRetire: boolean): number {
-  const index = createRectIndex();
+  const index = new RectIndex();
   const items: HTMLElement[] = [];
 
   // Detached: the rebuild reads geometry and a detached element answers with

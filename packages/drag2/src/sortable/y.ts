@@ -35,8 +35,8 @@ import { createLinearShift } from './linear-shift.ts';
 import {
   BOTTOM,
   CENTRE_Y,
-  createRectIndex,
   type DisplacementSettle,
+  RectIndex,
   STRIDE,
   TOP,
 } from './rect-index.ts';
@@ -180,7 +180,7 @@ export function y(): AxisInstaller {
   return () => {
     // Private per-feature state: nobody else can name it, reach it, or type it,
     // so the geometry cache has exactly one owner.
-    const index = createRectIndex();
+    const index = new RectIndex();
     // **G3-linear, and this import is the axis's opt-in to it**: a module this
     // rule reaches and `xy()` does not, rather than a branch inside the cache
     // both share. The five arguments are this axis's instantiation — the three

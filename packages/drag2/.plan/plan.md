@@ -2298,6 +2298,26 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-04 — the first factory becomes a class, and six cited identifiers get entries (D-170 step 1, F-296 closed)
+
+**Two results in one pass, and they are not one unit.** `createRectIndex` → `class RectIndex` is D-170's step 1. Minting `F-291`…`F-296` and `Q-17` is clerical remediation of F-296. They travel together because the second is what makes the first's own record readable, and they are recorded apart because a migration step and a bookkeeping repair are answerable to different things.
+
+**The conversion is representational and nothing else.** Four data fields, three members, every body and every barrier ordering unchanged, the same `false` on the terminal exit. What it deletes is the hand-rolled receiver: the factory declared `let index: RectIndex` before the object literal so one member could reach another, and every read and write through that binding is now `this`. The three closure bindings become `#capacity`, `#dirty` and `#measured`; the shared abort becomes the private method `#abort()`. `capacityFor` moves above the class — `no-use-before-define` reads a method body as a reference — and stays a module function rather than becoming a `static`, since `ignoreStatic: true` puts a static outside the gate (F-295) and nothing here needs one.
+
+**The zero from the gate is demonstrated, not assumed.** `npx just lint-fix` on the six changed files from the package directory reports nothing, and a probe reading `new RectIndex().retire` detached through that same recipe fails it. That is the difference between _no detached reads exist_ and _the rule is not running_, and it is the distinction the whole of step 0 turned out to be about.
+
+**What D-170 predicted about this step held.** Fourteen external sites, all through the receiver; two call sites (`y.ts`, `xy.ts`) plus two perf harnesses move to `new RectIndex()`; `linear-shift.ts` keeps `RectIndex` as a type-only import, so no module gains a runtime edge. No cross-file protocol type changed. 1259 tests pass, typecheck clean.
+
+**One convention was applied rather than carried across.** `hole` and `items` are never reassigned, so they are `readonly` on the class where the type alias left them mutable. It narrows a package-private type that nothing violates, and the typechecker is the evidence; it is noted because it is the one line of the conversion that is not a transcription.
+
+**F-296 is repaired by minting, not by deleting the addresses.** D-170's step-0 note cited six identifiers that no entry claimed, and it is the only current-state account of those corrections — removing the addresses would have left them unattributed. `F-291`…`F-296` land in `00-index.md` §Findings, `Q-17` in `05` §Open before implementation, each from the text the consolidation had already written. All seven resolve through `entry.sh`, and corpus equivalence classifies the six new `F-` entries as minted with a reason each.
+
+**The instrument stayed green while the record was wrong, and that is the finding's substance.** A bare parenthesized `(F-291, F-292)` is not a citation `references.node.test.ts` scans: it checks `§`-qualified citations, and decision-entry bodies are exempt by position on the recorded ground that a decision states its reasoning in running prose. Widening the scanner would have caught this and is F-290's open question, deliberately not decided here.
+
+**Steps 2 to 6 are unstarted**, and Q-17 — whether each conversion brings its published alias with it — remains with the architect, non-blocking. `LinearShift` is `Readonly<{ … }>` today, which is exactly the shape that erases method-ness from the rule, so step 2 is where that question stops being hypothetical.
+
+---
+
 ### 2026-09-03 — an entry's anchor is its address, and an identifier has no letter budget (D-175, F-288/F-289 closed, F-290)
 
 **Two details of D-174's mechanism, both raised by the owner, both real.** Record [`d175-stable-anchor-and-shared-identifier-claude.md`](reviews/phase-24/d175-stable-anchor-and-shared-identifier-claude.md). The ownership disposition is untouched, nothing is moved, D-173/D-174 are not implemented.

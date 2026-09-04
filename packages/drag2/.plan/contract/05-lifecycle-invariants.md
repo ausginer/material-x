@@ -832,6 +832,10 @@ Investigated, per the question's own terms, the answer is favourable. The third 
 
 Its historical "**blocking before implementation sign-off**" status is **discharged**, and is recorded as discharged rather than deleted because two records carried it forward after it was answered (Checkpoint D review 4, C4-03). Nothing in this document is waiting on Q-7.
 
+#### Q-17 — Does each class conversion bring its published alias with it, and is the residue's coverage acceptable?
+
+**Open, non-blocking, with the architect.** Raised by the D-170 step-0 consolidation, record [`d170-step0-summary.md`](../reviews/phase-24/d170-step0-summary.md). **`@typescript-eslint/unbound-method` reads the declared type at the read site, not the implementation**, and a `Readonly<…>` mapped alias erases method-ness: identical members report unwrapped and are silent wrapped, with the wrapper the only variable. So the gate's coverage after a conversion depends on the converted entity's _published alias_ becoming the class instance type. `KernelHost` is stated to do that, and probed against that shape all four of its load-bearing detached reads report. **What is unsettled is the residue.** `LinearShift` is `Readonly<{ … }>`, and `sortable/assemble.ts` pushes four `retire` members into `retireHooks`, every one of them called detached — precisely the defect class F-274 records, and silent to the gate today. Whether each of D-170's conversions carries its alias across, and whether whatever coverage remains uncovered is acceptable for steps 1 to 6, is a decision about D-170's own scope. **This is not a reason to reopen D-170 as a whole**, and it was not a blocker on repairing the gate.
+
 ## Measurements — landed 2026-08-02
 
 Not open design questions — open _numbers_. Each replaced a claim that rested on intuition; each now has a checked-in harness, a dated write-up and a result the contract quotes in place.

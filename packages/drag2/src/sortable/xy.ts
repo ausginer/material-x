@@ -44,9 +44,9 @@ import type { AxisInstaller } from './feature.ts';
 import {
   CENTRE_X,
   CENTRE_Y,
-  createRectIndex,
   type DisplacementSettle,
   LEFT,
+  RectIndex,
   STRIDE,
   TOP,
 } from './rect-index.ts';
@@ -155,7 +155,7 @@ type InsertionRuntimeView = Readonly<{
  */
 export function xy(): AxisInstaller {
   return () => {
-    const index = createRectIndex();
+    const index = new RectIndex();
     /**
      * The gap the packed buffer reflects, or `-1` when nothing is known.
      * Recorded by every rebuild, and what tells a committed move which slots it

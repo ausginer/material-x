@@ -41,7 +41,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import type { CollectionSnapshot } from '../../src/sortable/domain.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
-import { createRectIndex, STRIDE } from '../../src/sortable/rect-index.ts';
+import { RectIndex, STRIDE } from '../../src/sortable/rect-index.ts';
 import { y } from '../../src/sortable/y.ts';
 import { ReorderResolution, sortable } from '../../src/sortable.ts';
 
@@ -106,7 +106,7 @@ function pool(size: number): HTMLElement[] {
 
 /** The shipped cache, watched for buffer identity. */
 function shipped(rows: readonly HTMLElement[]): Cache {
-  const index = createRectIndex();
+  const index = new RectIndex();
   // Seeded with the empty buffer the cache is born holding, so the counter
   // reports **allocations** rather than "the buffer is not null yet": a cache
   // asked only for an empty collection allocates nothing, and a probe that
@@ -617,7 +617,7 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
           rows.push(row);
         }
 
-        const index = createRectIndex();
+        const index = new RectIndex();
         const items = rows.slice(0, n);
         const snapshot: CollectionSnapshot = { items, version: 1 };
         // Attached like the rows, because this is the arm that wants real
