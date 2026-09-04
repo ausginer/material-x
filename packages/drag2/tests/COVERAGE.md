@@ -410,6 +410,7 @@ The 05 row is closed by `tests/sortable/input-policy.browser.test.ts`, which **i
 | a consequential failure publishes the terminal **and** reports | `tests/sortable/sortable.browser.test.ts` — _should publish both channels for a consequential failure_ | D-66, D-60 |
 | a throwing terminal callback publishes exactly once, not forever | `tests/sortable/sortable.browser.test.ts` — _should publish exactly one terminal when the terminal callback throws_ | D-66 |
 | the kernel side: presentation is released before the terminal on the failure path too | `tests/kernel/kernel.browser.test.ts` — _should publish the terminal from the error route, after the release_ | D-66, I-14 |
+| …but **not** when a presentation disposer destroyed the controller on the way: the reporting route reads the latch between the dispose and the terminal, and the retirement still runs | `tests/kernel/kernel.browser.test.ts` — _should publish no terminal once a presentation disposer destroyed the controller on the error route_ | I-36, D-179, F-328 |
 | …and the operation still retires afterwards | `tests/kernel/kernel.browser.test.ts` — _should retire after a throwing terminal callback_ | D-66 |
 | a skipped landing still terminates normally | `tests/kernel/kernel.browser.test.ts` — _should skip the tail and still terminate when the measurement throws_ | D-49, D-66 |
 | **one** `onEnd`, four arms, told apart by the discriminant alone | `tests/consumer.node.test.ts` — the packed-consumer fixture switches on `result.type` | D-62, F-41 |
@@ -478,6 +479,7 @@ The tier published no value at all, so it could **describe** a behavior and not 
 | `KernelFrame.phase` is `Phase` | `tests/kernel/frames.declaration.test.ts` — _should expose the kernel slice for reading_ | D-68 |
 | the re-homed names keep their old specifiers, by identity | `tests/kernel/vocabulary.node.test.ts` — _should keep the re-homed cancel stages as one declaration on two entries_, _…should re-export the middle tier's landing seam types from the kernel's own modules_ | D-68 |
 | the hand-written type allow-list holds no name the entries stopped exporting | `tests/kernel/vocabulary.node.test.ts` — _should list only types the entries still export_ | D-68, review 2 B-6 |
+| every published diagnostic message is prose rather than source syntax, so a mechanical rename over these files cannot reach one silently | `tests/kernel/vocabulary.node.test.ts` — _should name every fault in prose rather than in source syntax_ | F-329, F-319 |
 
 **Out of line is the whole assertion in the first row.** An inline factory is contextually typed throughout, so it names three to eight things and would have compiled against the pre-D-68 surface — `tests/revision/revision-2.ts` is exactly that shape and is why it could not be the acceptance case. Hoisting each seam into its own `const` forces the closure to be nameable, and filling `config.liftMode` forces a value that no type can supply. Falsified by removing one value (`LIFT_IN_PLACE`) and one type (`BehaviorInstall`) from the entry: the packed compile fails on both, at the fixture.
 

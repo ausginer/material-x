@@ -403,6 +403,34 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     'raised by the Stage 0 feature proof: `onEnd` is invoked after logical closure on the `ERROR_REPORTED` route',
   ],
   [
+    'F-329',
+    'raised by the Stage 0 feature proof: a published warning message carries the step-5 rename corruption',
+  ],
+  [
+    'F-330',
+    "raised by the Stage 0 feature proof: the census's stated totals cannot be reconciled with its own enumeration",
+  ],
+  [
+    'F-331',
+    'raised by the Stage 0 feature proof: six census citations name lines the same commit moved',
+  ],
+  [
+    'F-332',
+    "raised by the Stage 0 feature proof: `report` is in the census's candidate set and in none of its groups",
+  ],
+  [
+    'F-333',
+    "raised by the Stage 0 feature proof: D-178's amendment is dated before the D-176 amendment it supersedes",
+  ],
+  [
+    'F-334',
+    'raised by the Stage 0 feature proof: a live test name still calls the kernel a host',
+  ],
+  [
+    'F-335',
+    "raised by F-333's repair: three record entries carry future dates against commits made on 2026-09-04",
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],

@@ -371,6 +371,55 @@ async function devReaders(): Promise<ReadonlyArray<readonly [string, number]>> {
 }
 
 /**
+ * Every `drag: …` message constructed anywhere in `src/`, with its file and
+ * line — comments stripped first, because a docblock quoting a message is prose
+ * about it rather than a construction of it.
+ */
+async function diagnosticMessages(): Promise<
+  ReadonlyArray<readonly [string, string]>
+> {
+  const found: Array<readonly [string, string]> = [];
+
+  const walk = async (directory: string): Promise<void> => {
+    const entries = await readdir(directory, { withFileTypes: true });
+
+    await Promise.all(
+      entries.map(async (entry) => {
+        const path = join(directory, entry.name);
+
+        if (entry.isDirectory()) {
+          return await walk(path);
+        }
+
+        if (!entry.name.endsWith('.ts')) {
+          return;
+        }
+
+        const source = await readFile(path, 'utf8');
+        const code = source
+          .replaceAll(/\/\*[\s\S]*?\*\//gu, (block) =>
+            block.replaceAll(/[^\n]/gu, ' '),
+          )
+          .replaceAll(/\/\/[^\n]*/gu, '');
+
+        for (const [index, line] of code.split('\n').entries()) {
+          for (const match of line.matchAll(/'(drag: [^']*)'/gu)) {
+            found.push([
+              `${relative(SRC, path).replaceAll('\\', '/')}:${index + 1}`,
+              match[1]!,
+            ]);
+          }
+        }
+      }),
+    );
+  };
+
+  await walk(SRC);
+
+  return found.toSorted(([a], [b]) => a.localeCompare(b));
+}
+
+/**
  * The files a home claim can be written in: this package's source, tests and
  * benchmarks, plus its root's own files — where the build define lives, and
  * where one of the two wrong answers was written.
@@ -601,5 +650,36 @@ describe('the `__DEV__` binding', () => {
     }
 
     expect(wrong).toEqual([]);
+  });
+});
+
+describe('the diagnostic vocabulary', () => {
+  /**
+   * **What this pins is the text a consumer reads, and nothing else did.**
+   * `error.message` is published surface — it reaches a correctly integrated
+   * consumer through `onError` — and it is the one published surface with no
+   * type behind it, so a compiler cannot notice when one stops being a
+   * sentence. Step 5's rename reached one of these and survived three passes
+   * over the file, because every sweep that looked for the corruption looked
+   * for it in comments.
+   *
+   * **A shape rather than a list.** An enumeration would have to be edited by
+   * whoever adds a message, which makes it a second place to be wrong; the
+   * shape is a property every message already had, and the one the corruption
+   * broke — a member expression carries a `.` and a `#`, and neither belongs in
+   * a sentence addressed to a consumer.
+   */
+  it('should name every fault in prose rather than in source syntax', async () => {
+    const messages = await diagnosticMessages();
+
+    expect(messages.length).toBeGreaterThan(20);
+    expect(
+      messages.filter(
+        ([, message]) =>
+          !/^drag: [a-z\d]+(?:-[a-z\d]+)*(?:\/[a-z\d]+(?:-[a-z\d]+)*)?(?: [a-z\d]+)*$/u.test(
+            message,
+          ),
+      ),
+    ).toEqual([]);
   });
 });

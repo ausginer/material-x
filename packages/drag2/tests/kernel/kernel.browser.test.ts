@@ -421,7 +421,7 @@ describe('draggable', () => {
     expect(typeof harness.controller.destroy).toBe('function');
   });
 
-  it('should hand the behavior a host whose root is the ingress boundary', () => {
+  it('should hand the behavior a kernel whose root is the ingress boundary', () => {
     const harness = createHarness();
 
     expect(harness.kernel.root).toBe(harness.root);
@@ -2770,6 +2770,50 @@ describe('the failure checkpoint', () => {
     expect(harness.calls.indexOf('presentation.released')).toBeLessThan(
       harness.calls.indexOf('finalized'),
     );
+  });
+
+  it('should publish no terminal once a presentation disposer destroyed the controller on the error route', () => {
+    // **The negative beside the row above, and they pin opposite halves of one
+    // line** (F-328, D-179). The release the error route performs is the same
+    // consumer-reachable step the join's is, so the terminal it pays afterwards
+    // owes the same latch reading — and this route reaches `finalized` through
+    // its own path, which is why the join's guard says nothing about it.
+    //
+    // **The row above is what stops the obvious wrong repair.** Reusing
+    // `#joinLive()` here would satisfy this case and turn that one red, because
+    // its `FINALIZING` conjunct is false on this route by construction: every
+    // classified failure would silently lose its terminal, retracting D-66.
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      activation: {
+        prepare: (): HTMLElement => document.createElement('div'),
+        effect(_current, _prepared, scope: ActivationScope): void {
+          scope.presentation.use(() => {
+            harness!.calls.push('presentation.released');
+            void harness!.controller.destroy();
+          });
+        },
+      },
+      moved(): never {
+        throw new Error('cssom');
+      },
+    });
+
+    activate(harness);
+    move(60, 10);
+
+    // The failure is classified and reported, the release still runs — and the
+    // terminal does not, because the consumer destroyed the controller from
+    // inside that release.
+    expect(harness.failures[0]!.stage).toBe(FAILURE_RENDERER_WRITE);
+    expect(harness.calls).toContain('presentation.released');
+    expect(harness.calls).not.toContain('finalized');
+
+    // **Skipping the terminal does not skip the retirement.** A closed
+    // controller still owes the kernel's own cleanup, and physical teardown
+    // defers to the transaction boundary rather than being cancelled by it.
+    expect(harness.calls).toContain('retire');
   });
 
   it('should retire the operation after reporting', () => {

@@ -2298,6 +2298,30 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-04 — the terminal's second route reads for itself, and the census is re-taken with the route as its unit (Stage 0 closed: F-327…F-334, F-335)
+
+**The whole of Stage 0's remainder.** D-179's repair, six findings from the Stage 0 feature proof, F-327, and the census re-taken from scratch. Nothing from Stage 1 or the C1–C5 arcs is started; F-323 is still untouched.
+
+**F-328 — the reporting route reads the latch for itself.** `#handleErrorReported` runs a consumer-reachable presentation dispose and then published the consumer's terminal with no reading between, so a disposer that destroyed the controller still received `onEnd`. The repair is one bare `!this.#queue.closed` around the `finalized` call. **Bare rather than a `#reportLive()`**, on D-179's argument: a named predicate shaped like `#joinLive()` reads as slot-wide coverage, and that appearance is exactly what made this route look guarded in the census.
+
+**The obvious wrong repair is the one the instruments had to catch, and they do.** Reusing `#joinLive()` here is silently wrong in the worse direction — its `FINALIZING` conjunct is false on this route by construction, so _every_ classified failure would lose its terminal and D-66 would be retracted without a red row. Substituting it turns **three** rows red, including the positive control D-179 names; removing the guard altogether turns **one** red, the new negative. Neither instrument alone pins the line and both were already required.
+
+**F-324's census is re-taken rather than corrected, because it was wrong in four independent ways.** Its totals did not match its own enumeration (F-330); six citations named lines its own commit had moved (F-331); three members of its declared candidate set appeared in none of its groups (F-332); and its unit was the slot where D-179 makes it the route. A count produced by the wrong unit is not repaired by adjusting it.
+
+**Fifty-one routes, listed rather than counted, in five discharge classes.** Seventeen where the invoker reads and must — the irreducible residue; eighteen where nothing consumer-reachable precedes the call; ten where the kernel reads on the route; two where the callee reads at its own head, which is the second discharge D-176 names and the first take had no group for; and two outside act (a) as relinquishment. **The distinction that makes the re-take tractable**: where the reading sits _inside_ the indirection — `#resolveItem` for `handle`/`visual`/`box`, `RectIndex.refresh` for the per-candidate resolver — one placement covers every route through it, and only where it sits _outside_ does each route owe its own. That second shape is what produced F-328.
+
+**F-329 — the rename corruption survived in a published string.** `'drag: constraint/this.#invalidate-failed'` reached a consumer as `error.message`. F-319's sweep was comment-scoped by construction, so a string was out of its reach. Re-sweeping the whole text of all eight files against `261a3a16` finds exactly one, and it is now pinned by a shape rather than a list: every `drag: …` constructed in `src/` must be prose — lowercase words and kebab segments, no `.` and no `#`. **A list would be a second place to be wrong**; the shape is a property every message already had and the only one the corruption broke.
+
+**F-333 — the dates.** Twenty-eight `2026-09-08` occurrences normalize to `2026-09-04`, which is the date every commit in this arc actually carries. I-36's three amendments now resolve by commit order, which is the order they apply in. The three occurrences inside the feature-proof record stay as authored: a review record describes the tree it read, and its account is this entry's evidence.
+
+**One residue is raised rather than decided (F-335).** Three plan entries in this same arc are dated `2026-09-05`…`2026-09-07` against commits also made on `2026-09-04`. Retro-dating entries that have already landed changes what an existing entry claims about when it was true, which is a provenance call rather than a normalization — so the inversion it leaves in this log is priced and named instead of quietly fixed.
+
+**F-327, F-332 and F-334 are the small ones and they are still the same class.** The panic docblock stops counting the exception's members and states why _its own_ site qualifies; `report` and `onError` join the census; one test name stops calling the kernel a host, while `phase-14.ts`'s use of the word stays, because naming a deleted member by the name it had is provenance.
+
+**Measured.** Two guard reads and one message repair; every size row within its budget and no re-base.
+
+---
+
 ### 2026-09-04 — both caller readings retire, and settling them widens the test boundary by one case (F-304 closed, F-303 amended)
 
 **Architect. Record [`f304-caller-liveness-readings-claude.md`](reviews/phase-24/f304-caller-liveness-readings-claude.md).** Nothing implemented; the settled `RectIndex.refresh` placement is not revisited; the lint gate is untouched and F-300 is not decided.
@@ -2346,11 +2370,11 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
-### 2026-09-08 — the census the new membership test makes mechanical, and one site it found (Stage 0: F-312…F-315, F-319…F-322, F-324)
+### 2026-09-04 — the census the new membership test makes mechanical, and one site it found (Stage 0: F-312…F-315, F-319…F-322, F-324)
 
 **The whole of Stage 0 except F-323**, which is out of range and untouched. Two lifecycle repairs, the finished rename, four prose repairs, and the census — plus one act-(a) breach the census reached and one question it cannot answer.
 
-**F-324's census is mechanical now, which is the point of D-176.** The candidate set is every invocable member of the two slot records plus the two `MotionConstraint` members and each `retireHooks` entry; data members are outside. Twenty-three invocation sites, every one accounted for: twelve where the invoker takes the reading, ten where nothing precedes it that could have closed the controller, six where the kernel reads the latch on the statement before, and the two `retireHooks` walks as the relinquishment set. `landingTiming` — the finding's own named candidate — falls in the third group, and its answer really did turn on the surrounding revalidation rather than on the line.
+**F-324's census is mechanical now, which is the point of D-176.** The candidate set is every invocable member of the two slot records plus the two `MotionConstraint` members and each `retireHooks` entry; data members are outside. ~~Twenty-three invocation sites, every one accounted for: twelve where the invoker takes the reading, ten where nothing precedes it that could have closed the controller, six where the kernel reads the latch on the statement before, and the two `retireHooks` walks as the relinquishment set.~~ **Superseded 2026-09-04**: this take's totals did not match its own enumeration, six of its citations were stale, three members of its candidate set were missing and its unit was the slot rather than the route. Re-taken in the entry above. `landingTiming` — the finding's own named candidate — falls in the third group, and its answer really did turn on the surrounding revalidation rather than on the line.
 
 **The census found one breach, and it is F-312's class exactly.** The committed-move bracket raises a staleness flag before the placeholder write and invalidates the axis in a `finally` on every failing exit — and one of those exits arrives _immediately after a reading that already saw the controller closed_. `invalidateInsertion` is a declared slot because a published axis installer fills it, and the ownership reading hid it for the same reason it hid `settle`: every shipped axis is library-supplied, so the whole class looked internal. The repair is the required property and nothing else, and it costs nothing, because teardown retires the axis's cache through `retireHooks` anyway.
 

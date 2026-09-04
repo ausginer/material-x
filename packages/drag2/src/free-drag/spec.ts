@@ -438,7 +438,7 @@ class FreeDragBehavior {
           this.#invalidateConstraint!();
         } catch (error: unknown) {
           this.#notify(
-            new DraggableWarning('drag: constraint/this.#invalidate-failed', {
+            new DraggableWarning('drag: constraint/invalidate-failed', {
               cause: error,
             }),
           );

@@ -810,13 +810,16 @@ export class Kernel<
    * A throw escaping a handler is an invariant violation: close, **then**
    * report the initiating error, **then** tear down.
    *
-   * **Delivering that report after logical closure is a named exception**, and
-   * the only one there is. It belongs there for the
-   * property that admits that one: a terminal diagnostic *tells* the consumer
-   * something and asks nothing of them — it publishes no lifecycle or domain
-   * event, ignores its return value, performs no operation work, and is
-   * guarded. Nothing else may run after logical closure, and `notify` enforces
-   * that for every other site.
+   * **Delivering that report after logical closure is non-soliciting**, which
+   * is the property that admits it: a terminal diagnostic *tells* the consumer
+   * something and asks nothing of them. It discharges an obligation that
+   * predates the close rather than one the close created — the fault escaped
+   * `handle`, so it is the *reason* for the closure and not its product, and
+   * there is no other route left to account for it; nothing the kernel does
+   * next is conditioned on the call; it publishes no lifecycle or domain event
+   * and ignores its return; and it is wrapped. Which sites share that property
+   * is not this comment's to count — that list is maintained where the
+   * exception is stated, and `notify` refuses every site that fails it.
    *
    * Reporting first and destroying second would run consumer code on a
    * controller whose invariants are *already known to be broken*, with the
@@ -2465,15 +2468,42 @@ export class Kernel<
     if (stage !== FAILURE_TERMINAL_CALLBACK && this.#operation) {
       this.#unwind(this.#operation.lifetimes.presentation.dispose);
 
-      // A throw here reaches `failOperation`, which sees `REPORTING` and takes
-      // the non-consequential channel — so a terminal that fails on the failure
-      // path is reported without queueing a second checkpoint for an operation
-      // that is one statement from retirement.
-      this.#driver.runLeaf(() => {
-        this.#spec!.finalized(this.#current);
-      }, FAILURE_TERMINAL_CALLBACK);
+      // **The second route into `onEnd`, and it owes its own reading.** The
+      // obligation is per route into a slot, never per slot: one delivery
+      // statement with two callers is two sites, and the join's guard says
+      // nothing about this one.
+      // The disposers above are consumer-reachable — `#startTail` says so for
+      // the join's copy of the same call — and `finalized`'s whole body is the
+      // consumer's terminal slot, which correctly reads no latch of its own
+      // because the reading is the caller's. The entry check fourteen lines up
+      // established the phase and the identity, and neither can change under a
+      // disposer: a nested dispatch inside a running drain appends and returns,
+      // and nothing reachable from one retires an operation. **The latch is the
+      // one conjunct a consumer-reachable step can flip**, so the latch is the
+      // whole reading.
+      //
+      // **Bare, and not a `#reportLive()` beside `#joinLive()`.** A named
+      // predicate of that shape reads as slot-wide coverage, which is exactly
+      // how the route this line repairs came to be counted as guarded; and
+      // `#joinLive()` itself is not available here — its `FINALIZING` conjunct
+      // is false on this route by construction, so reusing it would skip the
+      // terminal for *every* classified failure, retracting the rule that a
+      // consequential failure of a started operation still publishes one end.
+      if (!this.#queue.closed) {
+        // A throw here reaches `failOperation`, which sees `REPORTING` and
+        // takes the non-consequential channel — so a terminal that fails on the
+        // failure path is reported without queueing a second checkpoint for an
+        // operation that is one statement from retirement.
+        this.#driver.runLeaf(() => {
+          this.#spec!.finalized(this.#current);
+        }, FAILURE_TERMINAL_CALLBACK);
+      }
     }
 
+    // **Unconditional, and deliberately outside the guard above.** A closed
+    // controller still owes the kernel's own retirement; physical teardown
+    // defers to the transaction boundary rather than being cancelled by
+    // the close, so skipping the terminal must not skip this.
     this.#retireOperation(identity);
   }
 
