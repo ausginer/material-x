@@ -443,6 +443,18 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     'raised by the Stage 0 closure proof: the recorded falsification count for the `#joinLive()` substitution does not reproduce',
   ],
   [
+    'F-339',
+    "raised by the Stage 1 instrument proof: F-317's mechanical confirmation states a textual measurement that is false",
+  ],
+  [
+    'F-340',
+    "raised by the Stage 1 instrument proof: F-316's recorded row and mutation counts are each short by one",
+  ],
+  [
+    'F-341',
+    "raised by the Stage 1 instrument proof: F-318's executed-suite denominator is off by one",
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],
