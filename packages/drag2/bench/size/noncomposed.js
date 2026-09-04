@@ -1,3 +1,4 @@
+// oxlint-disable typescript/no-unsafe-call max-params
 /**
  * M-3 baseline A — **feature-matched, non-composed**. Answers *what does
  * composition cost*, and nothing else.

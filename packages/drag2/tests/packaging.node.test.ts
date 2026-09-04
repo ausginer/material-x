@@ -318,9 +318,7 @@ describe('the published file list', () => {
     // relative ones.
     const importers = (
       await Promise.all(
-        (
-          await sources(SRC)
-        ).map(async (file) =>
+        (await sources(SRC)).map(async (file) =>
           (await readFile(file, 'utf8')).includes("from '@ydinjs/box-quad'")
             ? [relative(SRC, file)]
             : [],

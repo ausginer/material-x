@@ -154,6 +154,7 @@ const sweep = async (
   for (const [x, y2] of steps) {
     pointerEvent('pointermove', x!, y2!);
 
+    // oxlint-disable-next-line no-await-in-loop
     await nextFrame();
   }
 };
