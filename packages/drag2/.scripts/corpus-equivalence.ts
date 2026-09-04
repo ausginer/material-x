@@ -383,6 +383,18 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     'raised by D-177: `PresentationView.snapshot` mirrors committed frame state on a published view',
   ],
   [
+    'Q-22',
+    'raised by the F-324 census: whether the terminal diagnostic keeps an exemption the relinquishment predicate does not grant',
+  ],
+  [
+    'D-178',
+    'settles Q-22: the exception to act (a) is non-solicitation, and relinquishment is one of its two species',
+  ],
+  [
+    'F-327',
+    'raised by D-178: the panic docblock claims its exception is the only one, which D-176 made false',
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],
