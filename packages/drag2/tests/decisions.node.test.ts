@@ -661,11 +661,11 @@ describe('the heading invariant', () => {
 
     expect(found.length).toBeGreaterThan(500);
     // Four `M-n §Specification`, `D-62 §The unresolved arm`, `D-66 §The
-    // progress marker`, two `D-68 §…`, and two `D-170 §…`. A count rather than
-    // a floor: the sub-clause form is rare enough that a new one should be a
-    // deliberate edit here, not an accident that widens a range nobody
+    // progress marker`, two `D-68 §…`, and three `D-170 §…`. A count rather
+    // than a floor: the sub-clause form is rare enough that a new one should be
+    // a deliberate edit here, not an accident that widens a range nobody
     // re-reads.
-    expect(found.filter(({ kind }) => kind === 'sub')).toHaveLength(10);
+    expect(found.filter(({ kind }) => kind === 'sub')).toHaveLength(11);
   });
 });
 

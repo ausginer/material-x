@@ -278,6 +278,14 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     'raised by the F-305 adjudication: the residue census says fourteen and it is twenty-two',
   ],
   [
+    'F-308',
+    "raised by the owner's correction to F-305: the contract states a type-level narrowing as a runtime impossibility",
+  ],
+  [
+    'F-309',
+    "raised by the owner's correction to F-305: the cache's accessors are justified as protection against mutation",
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],
