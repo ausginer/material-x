@@ -2298,6 +2298,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-05 — Arc B re-derived at higher effort: the entity was one member too wide, and four things it left to the implementer were decisions (D-181 amended)
+
+**A second architecture pass over Arc B before implementation, treating D-181 and its record as a candidate.** Record [`arc-b-second-pass-claude.md`](reviews/d170-arc/arc-b-second-pass-claude.md). **Both load-bearing claims survive** — the seam driver holds the transaction rather than becoming it, and the phase becomes an argument of the call that commits — and the merge refusal, the three kernel-side classifications and the sequence's shape are ratified. **Six things are amended, and one of them is the entity's boundary.**
+
+**`preparationValid` does not move.** Two of its three conjuncts are owned elsewhere — the terminal latch by the execution bracket, the cancel request by the operation record — so an entity fed both composes a predicate it does not own. That is the rule D-181 applies to `settlementInput`, `#reporting` and the action slots and then exempts itself from. The entity answers **`operationUnchanged()`**, an invariant spanning exactly `#pinned` and `#current`; `Kernel` keeps the conjunction; `SeamDriver` takes four arguments and `SeamContext` still dissolves. The entity now holds **no reference to anything**, which is the reason-to-change story D-181 told about it and, in D-181's shape, would not have been true.
+
+**The identity conjunct is a fork, not a prerequisite.** `#retireOperation` nulls `current.operation` and `#pinned` together; `cancel()` is caught by the second conjunct and `destroy()` by the first; the only other writer of `current.operation` is an admission that `runIngress` refuses reentrantly. No reachable path was found that the third conjunct catches alone, and nothing asserts one — [`seams.node.test.ts`](../tests/kernel/seams.node.test.ts) fakes the whole predicate with a flag. **If no row can be written, `#pinned` does not move**, because relocating a guard in the commit that would justify deleting it makes the deletion unreviewable.
+
+**Three things the tree decided rather than the record.** `#scrub` writes a _committed_ frame in place at three call pairs, so the entity needs a `retire(reset)` no read-only reader can substitute for — and that supersedes the `#pinned`-clear argument outright, since both clears sit at sites that already scrub both frames, so the member D-181 rejects for existing only to hold them exists anyway. `arm()`'s unwind resets whichever frame exists, and the second `createFramePart()` can throw, so installing a composed pair once installs nothing in exactly the state the unwind is for; the entity is **constructed from locals** instead, and `#spec !== null` must be made to imply both frames exist. And `commit` takes the phase at **all seven** phase-changing sites rather than the three seams', so `draft.phase` is assigned nowhere and D-170's _nothing is converted twice_ is honoured on a signature that changes once.
+
+**Two record defects worth naming as a pair.** D-181 requires F-345's sweep over the whole contract tree and then supplies its own list of sites, which was missing half of them — `02` §1339 and `06` §286 write the same shape, and [`vocabulary.node.test.ts`](../tests/kernel/vocabulary.node.test.ts) reddens on the type deletion without being listed. **The rule a document states about itself is not self-applying**, which is what F-345 already said and this is the second instance of.
+
+**Nothing is implemented and no decision is minted.** D-181 is amended in place, being unimplemented; the arc's blockers, ordering and effect on Arc C are unchanged.
+
+---
+
 ### 2026-09-05 — Arc B decided: the driver holds the transaction rather than becoming it, and the phase becomes an argument (D-181)
 
 **A decision and nothing else.** No production source, no test and no measurement; Arc A is closed at `46b85d92` and nothing of C2–C5 is started. Record [`arc-b-frame-transaction-claude.md`](reviews/d170-arc/arc-b-frame-transaction-claude.md).
