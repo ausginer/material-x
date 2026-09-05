@@ -3869,6 +3869,59 @@ describe('arm unwind of a partial frame pair', () => {
     expect(resets).toBe(1);
   });
 
+  it('should tear down without reaching a frame when a factory destroys', () => {
+    // **`#spec` names the behavior only once the pair it owns is composed**,
+    // and this is the window that makes the ordering load-bearing rather than
+    // tidy: teardown's frame resets are guarded by that field alone, so a
+    // `destroy()` raised from inside the first factory would otherwise reach a
+    // retirement over a pair that does not exist yet — and the throw would
+    // escape the factory, unwind the arm and leave `draggable()` itself
+    // raising a TypeError at the consumer.
+    const root = document.createElement('div');
+
+    document.body.append(root);
+    cleanup.push(() => root.remove());
+
+    let resets = 0;
+
+    expect(() => {
+      draggable(root, (kernel) => ({
+        controller: {},
+        spec: {
+          createFramePart: (): ExamplePart => {
+            void kernel.destroy();
+
+            return { item: null, note: '' };
+          },
+          resetFramePart: (): void => {
+            resets += 1;
+          },
+          config: { threshold: 8, liftMode: LIFT_FLAT, actionTags: 0 },
+          admit: () => null,
+          activation: {
+            prepare: () => document.createElement('div'),
+            effect: (): void => {},
+          },
+          release: {
+            prepare: () => ({ invoke: null }),
+            effect: (): void => {},
+          },
+          settlement: { prepare: () => true, effect: (): void => {} },
+          action: { prepare: () => null, effect: (): void => {} },
+          moved: (): void => {},
+          anchorTarget: () => ({ x: 0, y: 0 }),
+          finalized: (): void => {},
+          reportError: (): void => {},
+          retire: (): void => {},
+        },
+      }));
+    }).not.toThrow();
+
+    // Nothing was armed at the moment of the close, so nothing behavior-owned
+    // is reset: what teardown owes there is the ingress, and it is released.
+    expect(resets).toBe(0);
+  });
+
   it('should scrub both frames when arming fails after both were composed', () => {
     // The `composed > 1` arm of the unwind. **Its trigger changed** (D-128):
     // this used to be `assertFrameShapesMatch` throwing on a non-deterministic

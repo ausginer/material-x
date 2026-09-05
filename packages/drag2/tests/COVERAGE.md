@@ -1086,3 +1086,52 @@ The ownership rule made executable: **nothing that exists because something anim
 **The settle-ordering row reads a thing there is only one synchronous way to read.** A promise that has already settled wins a race against an already-resolved sentinel, because its reaction is queued first; one still outstanding loses. Without that, _settled before the callback_ and _settled after it_ are indistinguishable to an awaiting test, since both resume in a later microtask. The row closes from inside a pass so the promise exists before the callback runs — which is why the two mutations that remove deferral take it with them, and the table says so rather than netting it out.
 
 **The queued-argument row is the only row in the package that forces a collection**, and it does so because the invariant is about retention. `v8.setFlagsFromString('--expose-gc')` plus `vm.runInNewContext('gc')` gives the node project a real collector; the alternative — spying on the `clearQueue` import — would assert the mechanism the row exists to be independent of.
+
+## The frame transaction, and the revalidation that stayed behind — new (2026-09-05, D-181)
+
+**The pair, the copy that opens a transaction and the swap that publishes it moved out of `Kernel` into `FrameTransaction`, and the phase stopped being state.** The entity gets its own rows because the protocol is now something a test can drive directly; what did **not** move gets rows for the same reason it did not move — `preparationValid()` composes three conjuncts owned in three places, and B-0 found that only one of the three had a failure of its own.
+
+**Eleven rows, and the standard is F-346's**: each has a mutation that reddens it and no other row written for this entity. Where a mutation is type-level the qualification is worth stating rather than netting out — any type error in the package also reddens the four declaration rows that read the whole public graph, which is a fact about those rows.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| opening a transaction rebuilds the draft from the committed frame, so nothing an abandoned draft holds survives into the next one | `tests/kernel/transaction.node.test.ts` — _should rebuild the draft from the committed frame_ | D-181 |
+| committing publishes the draft, and hands the retired frame back as the next draft rather than copying — two frames per controller, not two per transaction | _should publish the draft as the committed frame_, _should reuse the retired frame as the next draft_ | D-181, D-170 |
+| **the phase a commit publishes is that commit's argument**, written onto the frame it is about to publish; a commit carrying none publishes the phase the draft already holds | _should write the phase onto the frame the commit publishes_, _should publish the phase its draft holds when a commit carries none_ | D-181 |
+| retirement writes **both** frames in place, which is the one act no reader of the committed frame can serve | _should reset the committed frame at retirement_, _should reset the draft at retirement_ | D-181, F-322 |
+| the committed frame is not writable and neither reference is replaceable from outside, while the draft is writable because its owner writes it | `tests/kernel/transaction.declaration.test.ts` — _should refuse a write through the committed-frame reader_, _should refuse a replacement of the pair from outside_, _should hand the draft back writable, because its owner writes it_ | D-181, F-316 |
+| **the member set is the claim**: the pair, the copy, the swap and the reset over both, and nothing else — every other fact a transaction is judged against is owned elsewhere | _should declare exactly the protocol and no more_ | D-181, F-316 |
+| `#spec` names the behavior only once the pair it owns is composed, so a `destroy()` raised from inside a frame factory tears down without reaching a frame | `tests/kernel/kernel.browser.test.ts` — _should tear down without reaching a frame when a factory destroys_ | D-181 |
+| a preparation invalidated by a reentrant `destroy()` rolls back instead of publishing — the terminal latch's conjunct, which had no row of its own before this arc | _should discard a preparation whose prepare destroyed the controller_ | D-181, D-180 |
+
+**The mutations, fifteen of them.** Nine of `src/kernel/transaction.ts`, two of `arm()`, and the four type-level ones; each was run against the whole suite, and the **bold** rows are the witnesses that give a row its own failure. Every mutation of the pair also reddens hundreds of kernel rows, because the pair is on every path — which is why the count in the right-hand column is over the rows written for this entity and says so.
+
+| Mutation | Rows red, of this entity's |
+| --- | --- |
+| **`begin`'s copy dropped** | **1 — rebuild the draft** |
+| **`begin`'s copy reversed onto the committed frame** | **1 — rebuild the draft** |
+| **the publish dropped, the draft still handed back** | **1 — publish the draft** |
+| **the retired frame not handed back as the next draft** | **1 — reuse the retired frame** |
+| **the phase ignored** | **1 — write the phase** |
+| the phase written after the swap | 2 — write the phase, publish the phase it holds |
+| **the phase written unconditionally** | **1 — publish the phase it holds** |
+| **`retire` applied to the draft only** | **1 — reset the committed frame** |
+| **`retire` applied to the committed frame only** | **1 — reset the draft** |
+| **the committed-frame reader widened to `Frame<Part>`** | **1 — refuse a write** |
+| **a setter added for the committed frame** | **1 — refuse a replacement** |
+| **the draft reader narrowed to `Readonly`** | **1 — hand the draft back writable** |
+| **a member added to the entity** | **1 — declare exactly the protocol** |
+| **`#spec` published before the pair is composed** | **1 — tear down without reaching a frame** |
+| `arm()`'s unwind reads the field instead of its locals | 3 — the partial-pair scrub and two arm-failure rows |
+
+**B-0's own table, because a fork was decided on it.** Before anything moved, the three seam phases and the three conjuncts of `preparationValid()` were dropped in turn against the tree at `185fb371`. The phase mutations are abundantly covered — swapping activation's, settlement's and the report's phases reddens 408, 202 and 21 rows. The conjuncts are not.
+
+| Mutation | Rows red |
+| --- | --- |
+| `!bracket.closed` dropped | **none** — the row now covering it was written first, against that tree |
+| `!operation.cancelRequest` dropped | 3 — the enqueued `invalidate()`, the rolled-back element, the cancelling factory |
+| `current.operation === pinned` dropped | **none, and none could be written** |
+
+**The third conjunct has no reachable falsifier, so `#pinned` did not move.** `#retireOperation` nulls `current.operation` and clears `#pinned` with nothing between them, `cancel()` is caught by the second conjunct and `destroy()` by the first, and the only other writer of `current.operation` is an admission the execution bracket refuses reentrantly. Relocating a guard into a new entity in the same commit that would justify deleting it makes the deletion unreviewable afterwards, so the field stayed where it is and the arc records the finding instead.
+
+**The first conjunct's row is the one B-0 was for.** Every `destroy()`-during-a-seam test in the tree asserted what the controller looked like afterwards, and a transaction that published anyway was invisible to all of them — the teardown that follows erases the difference. The row asserts the seam's own outcome instead: `rollback` ran and `effect` did not.
