@@ -737,14 +737,28 @@ Measured against `55eaaf1b` with box-quad rebuilt in both states — the depende
 
 **Re-based 2026-09-04, D-180's Arc A — the execution bracket's extraction.** Measured against `2e485eb4`, full table and the move-path null result in [`arc-a.md`](arc-a.md). One module enters every graph that carries the kernel, at **+270 B minified** on each of them bar `both behaviors`, which pays +268; no budget moved and every row is 0.07 to 0.11 kB under its ceiling.
 
-| Row | `2e485eb4` | landed | Δ | budget |
-| --- | --- | --- | --- | --- |
-| free drag minimal | 8,111 | 8,166 | **+55** | 8,266 |
-| free drag + bounds | 8,274 | 8,327 | **+53** | 8,423 |
-| free drag + landing | 8,277 | 8,338 | **+61** | 8,425 |
-| free drag complete | 8,423 | 8,479 | **+56** | 8,576 |
-| kernel root — `kernel.js` | 6,164 | 6,218 | **+54** | 6,312 |
+| Row                       | `2e485eb4` | landed | Δ       | budget |
+| ------------------------- | ---------- | ------ | ------- | ------ |
+| free drag minimal         | 8,111      | 8,166  | **+55** | 8,266  |
+| free drag + bounds        | 8,274      | 8,327  | **+53** | 8,423  |
+| free drag + landing       | 8,277      | 8,338  | **+61** | 8,425  |
+| free drag complete        | 8,423      | 8,479  | **+56** | 8,576  |
+| kernel root — `kernel.js` | 6,164      | 6,218  | **+54** | 6,312  |
 
 **These five were declared in advance as rows this pass would reach, which is the only thing that makes re-declaring them legitimate.** They carry controls set by passes on the free-drag and sortable sides; the bracket is kernel-tier, and every one of them carries `kernel/kernel.js`, so for this pass they are inside the change rather than outside it. **The rows that stayed are the result**: `vocabulary root — drag.js` and baseline B are byte-identical, and they are the two rows carrying no kernel.
 
 **A growing pass does not re-base its ceilings**, and none moved here. Slack narrowed from 0.12–0.17 kB to 0.07–0.11 kB, which is the instrument keeping its sensitivity rather than losing it.
+
+**Re-based 2026-09-05, D-181's Arc B — the frame transaction's extraction and the stamp's deletion.** Measured against `185fb371`, full table and the move-path null result in [`arc-b.md`](arc-b.md). One module enters every graph that carries the kernel at **+359 B minified**, and the compressed bundle **shrinks** on thirteen of the fifteen rows; no budget moved and every row is 0.09 to 0.13 kB under its ceiling.
+
+| Row                       | `185fb371` | landed | Δ       | budget |
+| ------------------------- | ---------- | ------ | ------- | ------ |
+| free drag minimal         | 8,166      | 8,159  | **−7**  | 8,266  |
+| free drag + bounds        | 8,327      | 8,293  | **−34** | 8,423  |
+| free drag + landing       | 8,338      | 8,293  | **−45** | 8,425  |
+| free drag complete        | 8,479      | 8,448  | **−31** | 8,576  |
+| kernel root — `kernel.js` | 6,218      | 6,210  | **−8**  | 6,312  |
+
+**The same five as Arc A, and for the same reason rather than by habit.** They carry controls set by free-drag-side and sortable-side passes; this arc is kernel-tier and every one of them carries `kernel/kernel.js`, so for this pass they are inside the change. The two rows that carry no kernel — `vocabulary root — drag.js` and baseline B — are byte-identical on both figures and gained no module, which is the declared control result.
+
+**A shrinking pass may re-base its ceilings and this one does not.** §18's trigger is met on the letter — every row landed under budget and the slack widened from 0.06–0.11 kB to 0.09–0.13 kB — and the shrink is 7 to 49 B on rows whose ceilings sit 90 to 130 B above them. Following an arc down by forty bytes buys no sensitivity the rows do not already have, and a ceiling that moves after every pass records what happened instead of checking it. The `control:` rows are the instrument that had to move, and they are equality assertions rather than ceilings.
