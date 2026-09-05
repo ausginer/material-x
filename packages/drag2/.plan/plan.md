@@ -2298,6 +2298,24 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-05 — Arc B decided: the driver holds the transaction rather than becoming it, and the phase becomes an argument (D-181)
+
+**A decision and nothing else.** No production source, no test and no measurement; Arc A is closed at `46b85d92` and nothing of C2–C5 is started. Record [`arc-b-frame-transaction-claude.md`](reviews/d170-arc/arc-b-frame-transaction-claude.md).
+
+**The merge is refused by the test the adjudication used against the bracket.** Five of `SeamContext`'s seven members are the frame pair, and `runCore`'s body is a transaction over it — but the pair reads none of the driver's phase, staging or re-entry state. One direction, not disjointness, which is the bracket relationship exactly, and the answer there was a held reference. Two reasons to change in two contract documents, and `#begin` reached from five places including **Arc A's `beginPass`**, close it: under a merge the execution bracket's ingress callback would reach into the seam driver to open a frame transaction.
+
+**The stamp deletion survives the refusal**, because what deletes it is the phase becoming an argument of the call that commits — which a driver holding a pair passes exactly as a merged entity would. `#armedStamp`, `#stamp`, `#runStamped`, `NO_STAMP`, `ArmedStamp`, the two-half handover, three call-site wrappers and ~60 lines of prose go. **[`02`](contract/02-kernel-behavior-contract.md) §240's list of four state slots written against the non-reentrancy guarantee becomes three**, and the amendment has to say the list shrank because a dependant stopped being a slot.
+
+**Three classifications the tree does not support, under one rule.** `#reporting` does not move — its span is wider than any transaction's and it names which seam is running. `settlementInput` does not move, against the direction's §4: its only reader is a kernel adapter, and the real symmetry with the driver's staging slot loses on typing. `#actionTag`/`#actionArgument` are not a measurement question, because the alternative is a frozen-SPI change. **Coincident lifetime is not ownership** — D-179's unit error, one layer down. Arc C changes with it.
+
+**`SeamContext` shrinks to two and then to none, and my adjudication was wrong here.** It insisted on three against the original subject's two because the cancel-latch reading remains; where that closure lives is free, and on the transaction it makes the context exactly the channel. Two unrelated callbacks are a parameter list, not a type — and one of them is the closure `#report` already is.
+
+**`#pinned`'s two clears are deleted rather than relocated.** After the move they are a collaborator retiring another entity's state (Q-21/F-322); a `release()` would preserve a behaviour no contract states and owe a `WeakRef` row for one two-word object. `#pinned` is read at one site and all three callers of that read run after a `begin()` in the same call chain, so no read can see a stale value.
+
+**Stated before the run.** Six accessor invocations arrive per `ACTIVE` sample and three private-field accesses leave with the stamp; `begin()` returning the draft removes two of the six. The direction is not predicted. **The sequence converts nothing twice**: B-1 deletes the stamp in place, preceded by mutation checks that the three seams' phases are pinned at all; B-2 is purely relocational.
+
+---
+
 ### 2026-09-04 — Arc A decided: the execution bracket, the queue's grading confirmed, and the recomposition that would have broken ingress (D-180)
 
 **A decision and nothing else.** No production source, no test and no measurement; Stage 0 and Stage 1 are closed, the C1–C5 arcs are still unstarted, and F-323 and F-335 are untouched. Record [`arc-a-execution-bracket-claude.md`](reviews/d170-arc/arc-a-execution-bracket-claude.md).

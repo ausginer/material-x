@@ -210,6 +210,10 @@ const AMENDED: ReadonlyMap<string, string> = new Map([
  */
 const MINTED: ReadonlyMap<string, string> = new Map([
   [
+    'D-181',
+    'settles Arc B: the seam driver holds the frame transaction, and the phase becomes an argument',
+  ],
+  [
     'D-180',
     "settles Arc A: the execution bracket owns the latch, the queue's semantics and the deferral",
   ],
