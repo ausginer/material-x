@@ -3442,6 +3442,36 @@ describe('destroy', () => {
     expect(harness.calls).toContain('presentation.released');
   });
 
+  it('should discard a preparation whose prepare destroyed the controller', () => {
+    const harness = createHarness({
+      activation: {
+        prepare(): HTMLElement {
+          harness.calls.push('activation.prepare');
+          void harness.kernel.destroy();
+
+          return document.createElement('div');
+        },
+        effect(): void {
+          harness.calls.push('activation.effect');
+        },
+        rollback(): void {
+          harness.calls.push('activation.rollback');
+        },
+      },
+    });
+
+    activate(harness);
+
+    // The latch is set on the closing statement, so the revalidation between
+    // `prepare` and the swap is what stops this transaction publishing: the
+    // staged placeholder is released through `rollback` and the effect — which
+    // would deliver a start notification for a destroyed controller — never
+    // runs.
+    expect(
+      harness.calls.filter((name) => name.startsWith('activation.')),
+    ).toEqual(['activation.prepare', 'activation.rollback']);
+  });
+
   it('should ignore work dispatched after destroy', () => {
     const harness = createHarness();
 
