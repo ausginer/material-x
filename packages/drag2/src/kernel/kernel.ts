@@ -541,9 +541,9 @@ export class Kernel<
    * would commit state the very next action abandons.
    */
   #preparationValid(): boolean {
-    // `queue.closed` alone: a separate `destroyRequested` flag is a second name
-    // for it — set on the statement after it and never cleared either — so the
-    // extra conjunct is unconditionally true beside it.
+    // The terminal latch alone: a separate `destroyRequested` flag is a second
+    // name for it — set on the statement after it and never cleared either — so
+    // the extra conjunct is unconditionally true beside it.
     return (
       !this.#bracket.closed &&
       !this.#operation?.cancelRequest &&

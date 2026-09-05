@@ -735,7 +735,7 @@ Measured against `55eaaf1b` with box-quad rebuilt in both states — the depende
 
 **The signs are not noise and they are not interesting.** A guard costs two bytes in the one graph small enough to show it and nothing where more context is available to the compressor; a six-character literal shrinks the graph that carries it by five and grows two others by one and two, which is Brotli's window shifting rather than anything entering or leaving. **No module entered or left any graph**: 31/30/32/31/33/34, 25/26/27/28/45, 2/14/29/26 — identical to `a92d46ba`.
 
-**Re-based 2026-09-04, D-180's Arc A — the execution bracket's extraction.** Measured against `2e485eb4`, full table and the move-path null result in [`arc-a.md`](arc-a.md). One module enters every graph that carries the kernel, at **+270 B minified** on each of them; no budget moved and every row is 0.07 to 0.11 kB under its ceiling.
+**Re-based 2026-09-04, D-180's Arc A — the execution bracket's extraction.** Measured against `2e485eb4`, full table and the move-path null result in [`arc-a.md`](arc-a.md). One module enters every graph that carries the kernel, at **+270 B minified** on each of them bar `both behaviors`, which pays +268; no budget moved and every row is 0.07 to 0.11 kB under its ceiling.
 
 | Row | `2e485eb4` | landed | Δ | budget |
 | --- | --- | --- | --- | --- |

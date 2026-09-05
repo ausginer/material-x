@@ -1033,43 +1033,56 @@ The ownership rule made executable: **nothing that exists because something anim
 
 ---
 
-## The execution bracket, as its own entity — new (2026-09-04, D-180)
+## The execution bracket, as its own entity — new (2026-09-04, D-180; repaired 2026-09-05, F-343…F-346)
 
-**The latch, the drain, the admission boundary and deferred teardown moved out of `Kernel` and `ActionQueue` into one entity that states their invariants.** The eight rows that used to drive `drain` directly drive `ExecutionBracket` instead — the semantics are the bracket's now, so the rows are — and six rows land beside them for properties nothing reached while the same facts were spread across two files. `clearQueue`'s row stays with the storage, which is all `queue.ts` still owns.
+**The latch, the drain, the admission boundary and deferred teardown moved out of `Kernel` and `ActionQueue` into one entity that states their invariants.** The rows that used to drive `drain` directly drive `ExecutionBracket` instead — the semantics are the bracket's now, so the rows are — and eight rows land beside them for properties nothing reached while the same facts were spread across two files. `clearQueue`'s row stays with the storage, which is all `queue.ts` still owns.
 
-**Every one of the fourteen rows is reddened by at least one mutation of the shipped entity**, and the two the arc was written for are the last two below: no row anywhere asserted that a close raised inside an ingress pass defers its teardown, or that a refused nested pass prepares nothing.
+**Fifteen rows, and the standard every one of them meets is that some mutation reddens it and no other row.** That is §8's _each mutation reddens the row written for it and no other_, read as the per-row existence claim it is: a row earns its place by having a failure of its own. Other mutations moving two or three rows at once is a fact about the rows, not a breach of it — and a row for which **no** such mutation exists is not a row, which is why one migrated row was deleted rather than kept (below).
 
 | Row | Test | ID |
 | --- | --- | --- |
-| the drain's order and pairing: FIFO over what a pass queued, each entry with its own argument, an entry appended mid-drain reached in the same pass, and a nested dispatch that appends rather than interrupting | `tests/kernel/execution.node.test.ts` — _should process entries in FIFO order_, _should pair each entry with its own argument_, _should reach an entry appended during the same drain_, _should not interrupt the running action when dispatch nests_ | D-180, D-36 |
+| the drain's order and pairing: FIFO over what a pass queued, each entry with its own argument, and a nested dispatch that appends and runs after the action that raised it rather than interrupting it | `tests/kernel/execution.node.test.ts` — _should process entries in FIFO order_, _should pair each entry with its own argument_, _should not interrupt the running action when dispatch nests_ | D-180, D-36 |
 | the latch is re-read every iteration, so a handler that closes stops the pass on the statement that closed it | _should stop immediately when the terminal latch is set mid-drain_ | D-180, D-38 |
 | a throw escaping the handler reaches panic, and the run latch is released afterwards, so the bracket is not left believing a pass is still on the stack | _should route an escaping throw to panic_, _should release the run latch after a panic_ | D-180 |
-| a completed drain drops what it drained, so a later pass replays nothing and no queued argument outlives the drain that abandoned it | _should drop every drained entry so a later pass replays nothing_ | D-180 |
+| a completed drain drops what it drained, so a later pass replays nothing | _should drop every drained entry so a later pass replays nothing_ | D-180 |
+| **teardown's step 2 releases the arguments a pass left queued.** A resolver that dispatches and then closes leaves entries the post-admission drain never reaches, so the teardown's own release is the only thing that can drop them — asserted through a `WeakRef` and a real collection, because whether the queue still holds a value is not a question the entity's surface can answer | _should release the arguments a refused pass left queued_ | D-180, F-343 |
 | teardown is deferred to the **outermost** boundary and runs once, however often closure is requested | _should defer teardown to the outermost boundary_, _should tear down once however often it is closed_ | D-180, D-36 |
 | dispatch during an ingress pass enqueues and does not drain — the boundary drains once, after admission has committed or abandoned | _should enqueue without draining while an ingress pass is running_ | D-180 |
 | **a close raised inside an ingress pass defers too.** Every deferral row that existed drove through `onStart`, which is a drain; the ingress increment is the other arm and deleting it was silent | _should defer teardown raised inside an ingress pass_ | D-180 |
 | **a nested pass is refused before the caller prepares anything.** The refusal precedes `beginPass`, so a nested press cannot rebuild the draft the outer admission is still writing | _should refuse a nested pass before the caller prepares one_ | D-180 |
-| the closure promise settles after the teardown callback has run, not before it | _should settle its promise only after the teardown callback has run_ | D-180 |
+| the closure promise settles after the teardown callback has run, **and settles whether that callback returns or throws** — the one arm where the arc changed behaviour rather than relocating it, since the pre-arc shape left the promise pending forever when the last step threw | _should settle its promise only after the teardown callback has run_, _should settle its promise when the teardown callback throws_ | D-180, F-344 |
 | the storage keeps its own row, and nothing else | `tests/kernel/queue.node.test.ts` — _should drop every pending action and argument_ | D-180, D-170 |
 
-**The mutations, thirteen of them, and what each reddens.** Each was applied to `src/kernel/execution.ts` and run against the file above; the table records every red, rather than the one the mutation was written for, because a mutation that moves two rows is a fact about the rows.
+**The mutations, twenty-one of them, and what each reddens.** Each was applied to `src/kernel/execution.ts` and run against the file above; the table records every red, not the one the mutation was written for, and the **bold** ones are the fifteen that redden exactly one row — the witness that gives that row its own failure.
 
 | Mutation | Rows red |
 | --- | --- |
 | the drained order reversed | 3 — FIFO, pairing, the mid-drain latch |
-| every entry handed the first argument | 1 — pairing |
-| the re-entrant drain guard dropped | 2 — the appended entry, the nested dispatch |
-| the latch read hoisted out of the loop | 1 — the mid-drain latch |
-| the escaping throw swallowed instead of routed | 1 — panic |
+| only the action tags reversed | 2 — FIFO, the mid-drain latch |
+| **the queue's tail reordered behind its first entry** | **1 — FIFO** |
+| **every entry handed the first argument** | **1 — pairing** |
+| **the re-entrant drain guard dropped** | **1 — the nested dispatch** |
+| **a nested dispatch handled inline instead of appended** | **1 — the nested dispatch** |
+| **the latch read hoisted out of the loop** | **1 — the mid-drain latch** |
+| **the escaping throw swallowed instead of routed** | **1 — panic** |
 | the drain's `clearQueue` dropped | 2 — the replay row, the run latch |
 | the run latch left set | 2 — the replay row, the run latch |
-| `close()` tears down unconditionally | 3 — both deferral rows, the settle ordering |
-| `runIngress` does not open a transaction | 2 — the ingress deferral, the settle ordering |
-| `close()`'s already-closed guard dropped | 1 — tear down once |
-| the `admitting` early return dropped | 1 — enqueue without draining |
-| `beginPass()` moved above the guards | 1 — the nested-pass refusal |
-| the promise settled before the callback | 1 — the settle ordering |
+| **the run latch cleared on the panic path instead of the drain's `finally`** | **1 — the replay row** |
+| **the run latch cleared on the success path only** | **1 — the run latch** |
+| **teardown's `clearQueue` dropped** | **1 — the queued-argument release** |
+| `close()` tears down unconditionally | 4 — both deferral rows, both settle rows |
+| `runIngress` does not open a transaction | 3 — the ingress deferral, both settle rows |
+| **`dispatch` does not open a transaction** | **1 — the outermost-boundary deferral** |
+| **`close()`'s already-closed guard dropped** | **1 — tear down once** |
+| **the `admitting` early return dropped** | **1 — enqueue without draining** |
+| **`beginPass()` moved above the guards** | **1 — the nested-pass refusal** |
+| **the promise settled before the callback** | **1 — the settle ordering** |
+| **the settle moved out of the teardown's `finally`** | **1 — the settle on a throwing teardown** |
 
-**The latch's per-iteration read needed no new row, and that is a result rather than an omission.** Hoisting the read reddens the migrated mid-drain row and nothing else, so the row the arc would have written for it already exists; writing a second one would have been an assertion with no failure of its own.
+**One migrated row was deleted, and the reason is the standard rather than the count.** _Should reach an entry appended during the same drain_ asserted that the appended entry runs; _should not interrupt the running action when dispatch nests_ asserts that it runs **and** runs after the action that queued it, recording `'appended'` in the same order array. So every mutation that reddens the first reddens the second, and no mutation can redden the first alone — the subsumption is by construction, not an accident of which mutations were tried. Keeping it while the seventh planned falsifier was dropped for being "an assertion with no failure of its own" was one standard applied twice with two answers.
+
+**The latch's per-iteration read still needs no row of its own beyond the mid-drain one**, and that remains a result: hoisting the read reddens that row and nothing else.
 
 **The settle-ordering row reads a thing there is only one synchronous way to read.** A promise that has already settled wins a race against an already-resolved sentinel, because its reaction is queued first; one still outstanding loses. Without that, _settled before the callback_ and _settled after it_ are indistinguishable to an awaiting test, since both resume in a later microtask. The row closes from inside a pass so the promise exists before the callback runs — which is why the two mutations that remove deferral take it with them, and the table says so rather than netting it out.
+
+**The queued-argument row is the only row in the package that forces a collection**, and it does so because the invariant is about retention. `v8.setFlagsFromString('--expose-gc')` plus `vm.runInNewContext('gc')` gives the node project a real collector; the alternative — spying on the `clearQueue` import — would assert the mechanism the row exists to be independent of.

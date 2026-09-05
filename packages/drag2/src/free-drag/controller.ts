@@ -71,10 +71,10 @@ export function createFreeDragController(
 ): FreeDragController {
   // `cancel` and `destroy` forward to the kernel's own members: the kernel's
   // latch already makes both inert and idempotent before they do any work.
-  // **Neither member re-reads the latch.** `dispatch`'s first statement is
-  // `if (queue.closed) { return; }` and `kernel.closed` is a live getter over
-  // that same flag, with nothing observable in between — so a guard here would
-  // only answer the question the callee opens with.
+  // **Neither member re-reads the latch.** `dispatch` opens with the execution
+  // bracket's terminal latch, and `kernel.closed` is a live getter over that
+  // same latch, with nothing observable in between — so a guard here would only
+  // answer the question the callee opens with.
   return {
     invalidate(): void {
       kernel.dispatch(TAG_POLICY, null);

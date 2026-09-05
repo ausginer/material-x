@@ -462,7 +462,8 @@ export class SeamDriver<Part extends object> {
    *
    * **Consumer code still runs past the clear, and the queue is what covers
    * it**: `context.notify` reaches the consumer's `onError`, and a `dispatch`
-   * from there appends because `drain` returns while `queue.running`.
+   * from there appends because the execution bracket's drain returns while a
+   * pass is already running.
    * `context.fail` enqueuing covers only the classification this module
    * performs, which is the smaller half.
    *

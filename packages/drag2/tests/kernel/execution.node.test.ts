@@ -1,5 +1,30 @@
+import v8 from 'node:v8';
+import vm from 'node:vm';
 import { describe, expect, it, vi } from 'vitest';
 import { ExecutionBracket } from '../../src/kernel/execution.ts';
+
+/**
+ * A real collection, which is the only way to read an argument-release
+ * invariant: the queue is the bracket's own field, so *whether it still holds
+ * the value* is not a question the entity's surface can answer, and asserting
+ * on the call that clears it would assert the mechanism instead of the
+ * property.
+ */
+v8.setFlagsFromString('--expose-gc');
+const collect = vm.runInNewContext('gc') as () => void;
+
+const settledWithin = async (
+  promise: Promise<void>,
+  ms: number,
+): Promise<string> =>
+  await Promise.race([
+    promise.then(() => 'settled'),
+    new Promise<string>((resolve) => {
+      setTimeout(() => {
+        resolve('outstanding');
+      }, ms);
+    }),
+  ]);
 
 const NOOP = (): void => {};
 
@@ -78,18 +103,6 @@ describe('the execution bracket', () => {
     });
 
     expect(harness.args).toEqual(['a', 'b']);
-  });
-
-  it('should reach an entry appended during the same drain', () => {
-    const harness = createHarness((bracket, action) => {
-      if (action === 1) {
-        bracket.dispatch(2, null);
-      }
-    });
-
-    harness.bracket.dispatch(1, null);
-
-    expect(harness.seen).toEqual([1, 2]);
   });
 
   it('should not interrupt the running action when dispatch nests', () => {
@@ -248,5 +261,50 @@ describe('the execution bracket', () => {
     });
 
     await expect(probe).resolves.toBe(OUTSTANDING);
+  });
+
+  it('should release the arguments a refused pass left queued', async () => {
+    let queued!: WeakRef<object>;
+    const bracket = new ExecutionBracket(NOOP, NOOP, NOOP, NOOP);
+
+    bracket.runIngress(() => {
+      const argument = { retained: true };
+
+      queued = new WeakRef(argument);
+      // Queued rather than drained, because the pass owns the drain — and then
+      // never drained at all, because the resolver closed the controller. The
+      // teardown's own release is the only thing that can drop it.
+      bracket.dispatch(1, argument);
+      void bracket.close();
+    });
+
+    await new Promise((resolve) => {
+      setTimeout(resolve, 0);
+    });
+    collect();
+
+    expect(queued.deref()).toBeUndefined();
+  });
+
+  it('should settle its promise when the teardown callback throws', async () => {
+    let closing!: Promise<void>;
+    const throwing = new ExecutionBracket(
+      NOOP,
+      NOOP,
+      () => {
+        throw new Error('teardown');
+      },
+      NOOP,
+    );
+
+    expect(() => {
+      throwing.runIngress(() => {
+        closing = throwing.close();
+      });
+    }).toThrow('teardown');
+
+    // The pre-arc shape left this promise pending for the life of the page
+    // whenever the last teardown step threw.
+    await expect(settledWithin(closing, 50)).resolves.toBe('settled');
   });
 });

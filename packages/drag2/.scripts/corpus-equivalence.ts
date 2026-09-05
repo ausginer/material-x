@@ -463,6 +463,26 @@ const MINTED: ReadonlyMap<string, string> = new Map([
     'raised by the Stage 1 instrument proof: the Stage 1 plan entry counts thirteen instrument rows as eleven',
   ],
   [
+    'F-343',
+    "raised by the Arc A feature proof: teardown's step 2 is reddened by nothing",
+  ],
+  [
+    'F-344',
+    'raised by the Arc A feature proof: the settle-on-a-throwing-teardown arm is unwitnessed',
+  ],
+  [
+    'F-345',
+    'raised by the Arc A feature proof: present-tense sites name identifiers Arc A deleted',
+  ],
+  [
+    'F-346',
+    'raised by the Arc A feature proof: the instrument met a weaker standard than the one it was written to, and one row is subsumed',
+  ],
+  [
+    'F-347',
+    "raised by the Arc A feature proof: the +270 B summary is contradicted by the pass's own table",
+  ],
+  [
     'F-291',
     "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
   ],

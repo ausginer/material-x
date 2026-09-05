@@ -2,7 +2,7 @@
 
 **Measured 2026-09-04**, arc tree `dd2cdb70` against baseline `2e485eb4` — the commit that decided the arc and changed no source. The baseline ran in a detached worktree with `node_modules` symlinked from the repository root, on the same machine in the same session as the arc runs. Instruments: [`m1.browser.test.ts`](../../tests/perf/m1.browser.test.ts) and [`m1-prime.browser.test.ts`](../../tests/perf/m1-prime.browser.test.ts) under `VITE_DRAG_MEASURE=1`, one file at a time; `bench/size/measure.ts` for bytes.
 
-**The result in one line.** Nothing on the move path is measurable at either harness's resolution, and every composition that carries the kernel pays **+270 B minified, +28 to +70 B Brotli and exactly one module**. The two compositions that carry no kernel pay **0**.
+**The result in one line.** Nothing on the move path is measurable at either harness's resolution, and every composition that carries the kernel pays **+270 B minified — +268 on `both behaviors`, the one row that carries two of them — with +28 to +70 B Brotli and exactly one module**. The two compositions that carry no kernel pay **0**.
 
 ## The per-sample reading count, stated before the timings
 
@@ -66,7 +66,7 @@ Exact bytes from `measureAll()`, minified and Brotli, with the bundled module co
 | baseline A — feature-matched, non-composed | 10,703 | 10,749 | **+46** | +270 | 29 → 30 |
 | baseline B — shipped `@ydinjs/drag` sortable.js | 6,889 | 6,889 | **0** | 0 | 26 → 26 |
 
-**+270 B minified on every kernel-carrying row is the whole finding, and the Brotli spread under it is the compressor rather than the change.** The same bytes cost 28 B in `minimal + layoutAnimation` and 70 B in `complete`; a graph with more context to match against absorbs more of them. `kernel root` is where the change is read cleanly, at +270 minified on 19,354: a class declaration, four callback fields with their constructor assignments, four arrow closures at the construction site, and a second module's boundary — against five comment blocks, two three-argument call sites and `#dispatchKernel` going away.
+**+270 B minified on twelve of the thirteen kernel-carrying rows is the whole finding, and the Brotli spread under it is the compressor rather than the change.** The thirteenth is `both behaviors` at **+268**, and the two bytes are not accounted for here: it is the one row where two behaviors reach the new module through one kernel, and no attempt was made to attribute the difference to a particular token. It is recorded because the summary sentence has to be true of every row it quantifies over, not because two bytes matter. The same bytes cost 28 B in `minimal + layoutAnimation` and 70 B in `complete`; a graph with more context to match against absorbs more of them. `kernel root` is where the change is read cleanly, at +270 minified on 19,354: a class declaration, four callback fields with their constructor assignments, four arrow closures at the construction site, and a second module's boundary — against five comment blocks, two three-argument call sites and `#dispatchKernel` going away.
 
 **The two zero rows are the pass's declared controls, and they are the result rather than the absence of one.** `drag.js` carries the failure vocabulary and no kernel; baseline B is the shipped `@ydinjs/drag`, which this tree does not compile. Both are byte-identical, which is what says the instrument is scoped to the change.
 
