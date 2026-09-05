@@ -2298,6 +2298,20 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-05 — Arc B lands: the phase stops being state, the pair becomes an entity, and B-0 decides the fork against moving the pin (D-181 implemented, F-348…F-352)
+
+**Six stages, each its own commit, in the amended order.** The phase is now an argument of the call that commits at all seven phase-changing commits, `draft.phase` is assigned at no site in the package, and the stamp's two slots, its sentinel, its type alias, `runStamped` and three call-site wrappers are gone. `FrameTransaction` is `src/kernel/transaction.ts` — the pair, the copy, the swap and `retire` over both — and it holds a reference to nothing. `SeamContext` is deleted; the driver takes its collaborators directly. `arm()` composes into locals, constructs the entity once and publishes `#spec` **last**, so `#spec !== null` implies both frames exist.
+
+**B-0 was a real gate and it changed the arc twice.** Dropping the identity conjunct `current.operation === pinned` reddens no behavioural row, and no reachable path was constructed that it catches and the other two do not — so the fork's third arm applies and `#pinned` did **not** move (F-349). Dropping the terminal latch's conjunct reddened nothing either, which the pass had not predicted: every `destroy()`-inside-a-callback row in the tree asserts what the controller looks like afterwards, where the teardown erases the difference between a transaction that published and one that did not. The owed row was written first, against `185fb371`, and asserts the seam's own outcome instead — rollback ran, effect did not (F-348).
+
+**The pin staying behind is what gives the driver a fifth collaborator** (F-350). D-181's four-argument shape assumes `frames.begin()` takes the copy _and_ the pin; under this arm it takes only the copy, and every transaction the driver opened would revalidate against a stale pin — invisible to the suite, because F-349 is exactly the finding that nothing observes that conjunct. So the driver keeps the begin closure it had, and the four-argument shape returns if the conjunct is ever deleted.
+
+**Two instrument findings and one sweep finding.** `vocabulary.node.test.ts`'s internal list was expected to redden when `SeamContext` went and did not, because it is an allow-list rather than an inventory (F-351). And F-345's own sweep, re-run over the whole tree, finds thirteen lines in `00-index.md` still spelling `queue.closed` and `queue.running` and none anywhere else — F-345's failure mode one document over, left for a pass that will read each of the thirteen deliberately (F-352).
+
+**The measurement is the one where the two figures disagree in direction**, which `CONTRIBUTING.md` §15 names and this is the first pass here to hit as a headline. Minified grows **+359 B** on every kernel-carrying row — +357 on `kernel root`, unattributed — and Brotli **falls by 7 to 49 B** on thirteen of fifteen, because what leaves is repetition the compressor was already cheap on and what arrives is one class. The move path is null at both harnesses' resolution. The per-sample accessor count is **9.12** for the sortable and **7** for free drag against a prediction of six, and three private-field reads left with the stamp; the run prices D-170's ownership boundary rather than choosing between designs, which was said before the numbers arrived.
+
+---
+
 ### 2026-09-05 — Arc B re-derived at higher effort: the entity was one member too wide, and four things it left to the implementer were decisions (D-181 amended)
 
 **A second architecture pass over Arc B before implementation, treating D-181 and its record as a candidate.** Record [`arc-b-second-pass-claude.md`](reviews/d170-arc/arc-b-second-pass-claude.md). **Both load-bearing claims survive** — the seam driver holds the transaction rather than becoming it, and the phase becomes an argument of the call that commits — and the merge refusal, the three kernel-side classifications and the sequence's shape are ratified. **Six things are amended, and one of them is the entity's boundary.**

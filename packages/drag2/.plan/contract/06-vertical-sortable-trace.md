@@ -165,11 +165,11 @@ pointerdown on item 2
       recheck the listener would mint an operation on a terminal controller.
 [K] mint OperationIdentity
 [K] create the three lifetimes; arm motion + cancellation ingress
-[K] draft.phase = PENDING; pointerId, originX/Y, pointerX/Y = the press
-[K] commit()                                   swap two references
+[K] pointerId, originX/Y, pointerX/Y = the press
+[K] commit(PENDING)                            write the phase, then swap
 ```
 
-`draft.phase` is written by the kernel, after `admit` returned. The behavior could not have written it: it saw `Draft<Part>`, where the kernel slice is `Readonly`. **[I-5, tier A]**
+The phase is written by the kernel, inside the call that commits, after `admit` returned. The behavior could not have written it: it saw `Draft<Part>`, where the kernel slice is `Readonly`. **[I-5, tier A]**
 
 No pointer capture yet — capture is acquired at activation, so a below-threshold press never captures and never retargets later pointer events to `root`. **[D-17]**
 
@@ -283,7 +283,7 @@ pointermove (+11 px)
               return placeholder            ← DETACHED. no DOM insertion,
                                               no acquisition, no rt write
         [K] preparationValid() ✔        ← nothing reentrant happened  [I-3, tier B]
-        [K] draft.phase = ACTIVATING; commit()
+        [K] commit(ACTIVATING)
         [B] spec.activation.effect(current, placeholder, scope)  [post-commit]
               ── 1. register the release, THEN make it visible ──      [I-30]
               scope.presentation.use(() => placeholder.remove())
@@ -321,7 +321,7 @@ pointermove (+11 px)
         [K] preparationValid() ✔ → dispatch(START_COMMITTED, operation)
 
 > START_COMMITTED  [K] phase ACTIVATING ✔  operation current ✔
-                   [K] begin(); draft.phase = ACTIVE; commit()
+                   [K] begin(); commit(ACTIVE)
 ```
 
 **Two windows, because one is wrong in a case that looks like the common one — and the common case takes the first window alone.** ~~Here `box === visual`, so `boxPre − boxPost` is just the visual's own height and a single pre-lift capture would have agreed.~~ **Corrected during implementation (F-55): that subtraction is `0`, not the visual's height.** `boxPre − boxPost` measures the footprint only when the box _stays in flow_ while the visual leaves it, which is what api-1 measured with a nested pair. Under `box === visual` there is no such pair: the one element **is** the thing being lifted, and `LIFT_FAITHFUL` promotes it with `position: fixed` and an explicit width and height, so its offset box is **unchanged** across `acquireLift` and the difference is zero. The rule is therefore stated on the identity: **`box === visual` ⇒ the footprint is `boxPre`; otherwise its height is `boxPre.height − boxPost` and its width is `boxPre.width`** — one-dimensional, because F-58 found the second axis subtracting a collapse that never happened. The identity branch is not an optimisation — it is the second half of the rule, and the pre-lift capture is the whole answer there, which is what the library did before two windows existed. The subtraction earns its place the moment the box keeps a sibling in flow: api-1 measured `boxPre 62 − boxPost 32 = 30`, and the list collapsed by exactly 30 — while the box's own height (62) over-sizes by double-counting the residue and the visual's height (60) over-sizes by 30. Probe C1 then reproduced it inside a live drag with `layoutAnimation()` running: sizing from `visual.offsetHeight` runs the list `180 → 210`, **30 px too tall for the entire drag**, not just at landing. No single-window rule is correct in both nested cases, which is why the rule takes two. The timing costs nothing structurally — `acquireLift` and this seam are forty lines apart — and buys one additional forced layout per activation. **[D-43, F-50]**
@@ -428,8 +428,8 @@ pointerup
 
 > UP    [K] phase ACTIVE ✔  pointerId matches ✔
         [K] begin()
-        [K] draft.phase = RELEASING; pointerX/Y = the release point
-        [K] commit()                                   ← commit 1        [D-6]
+        [K] pointerX/Y = the release point
+        [K] commit(RELEASING)                          ← commit 1        [D-6]
               ── the committed frame now matches what is about to be true ──
         [K] lifetimes.motion.dispose()                                   [I-11]
               → root.releasePointerCapture(pointerId)   (guarded)
@@ -543,7 +543,7 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                                      presentation expected? There is no such
                                      question now: the authored DOM is already
                                      final when this seam runs.        [D-41]
-                      [K] preparationValid(); draft.phase = SETTLING; commit()
+                      [K] preparationValid(); commit(SETTLING)
                       [K] attempt = { holds: 0,
                                       start: null, landing: null,
                                       landingHeld: false,
@@ -653,7 +653,7 @@ immediately, in the settlement's own drain
       waited on a 200 ms animation to say it had finished, until D-155. Nothing
       reports a completion because nothing is waiting for one.
 
-                           [K] begin(); draft.phase = FINALIZING; commit()
+                           [K] begin(); commit(FINALIZING)
                            [K] try {
                            [K]   if the controller is gone → return
                                  ← `anchorTarget` ran before this and is

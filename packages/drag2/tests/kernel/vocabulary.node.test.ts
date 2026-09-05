@@ -106,7 +106,6 @@ const PUBLISHED_TYPES: readonly string[] = [
 const INTERNAL: Readonly<Record<string, readonly string[]>> = {
   'the seam driver': [
     'SeamOutcome',
-    'SeamContext',
     'SeamDriver',
     'ArmOutcome',
     'SEAM_COMMITTED',
@@ -144,9 +143,11 @@ const INTERNAL: Readonly<Record<string, readonly string[]>> = {
   // declaration prune removes, and publishing it would put a `devDependency`
   // into the tarball's type surface (F-122).
   'the point cache': ['PointCache'],
-  // The phase *constants* are published; `NO_STAMP` and the internal frame
-  // plumbing are not.
-  'kernel-private frame state': ['NO_STAMP'],
+  // The phase *constants* are published; the entity the kernel keeps them in
+  // is not. ~~`NO_STAMP`~~ went with the slot it named a gap in (D-181): the
+  // phase reaches a commit as an argument, so there is no absent-phase
+  // sentinel left to keep out of the published vocabulary.
+  'kernel-private frame state': ['FrameTransaction'],
   // `DraggableError` is a runtime value on `drag.js`; the sortable imports the
   // class from its declaration site, which is the same declaration.
   // ~~`toDraggableError`~~ deleted at D-132 with the mapping it applied.

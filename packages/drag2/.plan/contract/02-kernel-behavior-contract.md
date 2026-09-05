@@ -237,7 +237,7 @@ The same shape applies to any future seam that returns a resource from a callbac
 
 **Consumer code does run past the clear, and the other enforcement point is what covers it** (F-171). `context.notify` reaches the kernel's `notify`, then `spec.reportError`, then the consumer's `onError` — foreign code, outside the window, on the classification path. What stops a `dispatch` from there opening a nested phase is **the execution bracket's drain returning while a pass is already running**, not `context.fail` enqueuing: `context.fail` covers only the classification the driver itself performs. Of the five `context.notify` sites in `seams.ts` exactly **one** is inside the window — `requestFailure`'s `UNCLASSIFIED` arm; `runPhase`'s two classification arms follow the clear, `runCore`'s `staged-unconsumed` precedes the assignment, and `requestFailure`'s second arm is guarded on `openStage === NO_STAGE`. ~~The two `context.notify` arms that D-152 routed onto that path are still inside the window~~ asserted the opposite of the paragraph's own point, and is withdrawn.
 
-**The runtime is not widened for this**: the two points together already cover both halves — the window for the stack, the queue for anything the reporting path provokes — so a wider `openStage` would be machinery for a state nothing produces. The claim is a property of a call graph that no test holds; the guard fails loudly at the first edit that breaks it, where the alternative is silent. **What a nested phase actually does, measured rather than reasoned** (F-169): `begin()` refills the draft in place and `commit()` swaps, so the swaps cancel — nested from `prepare` **neither** transaction lands and the published frame is untouched; nested from `effect` the outer's committed frame is replaced wholesale by the inner's, while the staged command executed against it belongs to the outer. Both seams return `SEAM_COMMITTED` and neither path reports anything. Four other pieces of kernel state are written against this guarantee — the single `actionTag`/`actionArgument` slots, the phase-scoped `failureRequested` and `unclassifiedReason`, `runStamped`'s stamp-clearing `finally`, and `consumeStaged`'s clear-on-open — which is why it is a stated guarantee rather than an incidental property.
+**The runtime is not widened for this**: the two points together already cover both halves — the window for the stack, the queue for anything the reporting path provokes — so a wider `openStage` would be machinery for a state nothing produces. The claim is a property of a call graph that no test holds; the guard fails loudly at the first edit that breaks it, where the alternative is silent. **What a nested phase actually does, measured rather than reasoned** (F-169): `begin()` refills the draft in place and `commit()` swaps, so the swaps cancel — nested from `prepare` **neither** transaction lands and the published frame is untouched; nested from `effect` the outer's committed frame is replaced wholesale by the inner's, while the staged command executed against it belongs to the outer. Both seams return `SEAM_COMMITTED` and neither path reports anything. Three other pieces of kernel state are written against this guarantee — the single `actionTag`/`actionArgument` slots, the phase-scoped `failureRequested` and `unclassifiedReason`, and `consumeStaged`'s clear-on-open — which is why it is a stated guarantee rather than an incidental property. **The list was four and lost one because a dependant stopped being a slot, not because the guarantee weakened** (D-181): the phase a transaction publishes is an argument of `commit` rather than state armed around a seam, so there is nothing left there for non-reentrancy to protect. The guarantee is untouched and has one fewer dependant.
 
 **`Readonly<Frame<Part>>` is shallow.** It prevents `current.insertion = x`; it does not prevent `current.insertion.index = 4`. Since `begin()` shallow-copies, both frames reference the same nested objects, so mutating a referent mutates committed state. That is why the shallow-copy contract exists, and why it is tier C for every part author including a custom behavior the kernel cannot inspect.
 
@@ -526,8 +526,8 @@ native listener (a declared type)
                                                   path's"
                 revalidate (D-26: a resolver may have destroyed the controller)
                 mint identity; arm the cancellation channel only
-                draft.phase = PENDING; draft.pointerId = -1
-                commit()
+                draft.pointerId = -1
+                commit(PENDING)
                 dispatch(ACTIVATE)
     close the boundary in a `finally`; drain once
 ```
@@ -789,7 +789,7 @@ The other half of the decision, and the half that keeps it from being a mechanic
 
 | Not published | Substitute |
 | --- | --- |
-| `SeamOutcome`, `SEAM_*`, `SeamContext`, `SeamDriver`, `ArmOutcome` | none needed — the driver's own vocabulary. A behavior returns `Prepared \| null` — or, on a non-discardable seam, throws (D-152) — and never sees an outcome. **03 §Internal to the ordinary tier lists `SeamOutcome` and `ArmOutcome` as kernel-tier published; that is wrong and D-68 corrects it** — neither is in the closure |
+| `SeamOutcome`, `SEAM_*`, `SeamDriver`, `FrameTransaction`, `ArmOutcome` | none needed — the driver's own vocabulary. A behavior returns `Prepared \| null` — or, on a non-discardable seam, throws (D-152) — and never sees an outcome. **03 §Internal to the ordinary tier lists `SeamOutcome` and `ArmOutcome` as kernel-tier published; that is wrong and D-68 corrects it** — neither is in the closure |
 | `Lifetime` (the full type), `createLifetime` | `LifetimeScope`, which is D-21's projection and exists precisely so `dispose` is unreachable |
 | `composeFrame`, `beginFrame`, `scrubFrame`, `KERNEL_FRAME_KEYS` | none — the kernel composes the frame (D-15). A behavior authors its part and nothing else |
 | `acquireLift`, `captureInlineStyles`, `acquireTopLayer` | the kernel acquires the lift; the behavior receives a **`BehaviorLiftSession`**, which is published for the same reason everything else on this list is not — the kernel hands one to every behavior twice, as `ActivationScope.lift` and as `moved`'s second argument. `VisualLiftSession` stays published because that alias's definition names it. (This row read _the behavior receives `VisualLiftSession`_ until D-35's projection landed; §`ActivationScope`, below, had been the correct spelling since C5-01.) |
@@ -810,7 +810,7 @@ The other half of the decision, and the half that keeps it from being a mechanic
 
 So the constants ship, all eight. A partial export would reintroduce the defect 03 §The export topology names in as many words — **a numeric union whose members are unnameable is not a public type** — and ordering tests like `phase >= RELEASING` are only meaningful over the whole vocabulary.
 
-**And `KernelFrame.phase` narrows from `number` to `Phase`.** Same argument that made `FailureStage` a closed union rather than a bare `number`: a participant should not be able to forge an invalid or kernel-private value, and the behavior only ever reads this one. The kernel's internal `stamp` becomes `Phase | typeof NO_STAMP`, which narrows correctly at the one write site through the sentinel test already there. **Cost:** the eight-phase vocabulary acquires a versioning promise. D-14 has carried it verbatim since probe 1 and through two revisions, which is as much evidence of stability as anything in this contract has.
+**And `KernelFrame.phase` narrows from `number` to `Phase`.** Same argument that made `FailureStage` a closed union rather than a bare `number`: a participant should not be able to forge an invalid or kernel-private value, and the behavior only ever reads this one. The kernel's own phase parameter is `Phase | null`, which narrows correctly at the one write site through the null test already there. **Cost:** the eight-phase vocabulary acquires a versioning promise. D-14 has carried it verbatim since probe 1 and through two revisions, which is as much evidence of stability as anything in this contract has.
 
 ### ~~The mapping is library-owned, so the library publishes it~~ There is no mapping
 
@@ -1336,7 +1336,7 @@ A "provisional" value that is wrong on 5 of 5 paths is not a useful approximatio
                                                     ← a throw here is classified
                                                       at the seam's own stage and
                                                       nothing below runs
-    preparationValid(); draft.phase = SETTLING; commit()
+    preparationValid(); commit(SETTLING)
     attempt = { targetX: null, targetY: 0 }
     lifetimes.cancellation.dispose()
 
@@ -1439,7 +1439,7 @@ landingTail?(
 
 ```text
 join
-    begin(); draft.phase = FINALIZING; commit()
+    begin(); commit(FINALIZING)
     try {
       if (!joinLive()) return                  ← anchorTarget is behavior code
       from = lift.rendered                     ← the delta the drag last wrote,
@@ -1798,8 +1798,8 @@ Two of these were named for a state they describe only _after_ their effect runs
 Two commits, in a fixed order the kernel owns:
 
 ```text
-> UP  begin(); draft.phase = RELEASING; draft.pointerX/Y = release point
-      commit()                                  ← commit 1: state matches reality
+> UP  begin(); draft.pointerX/Y = release point
+      commit(RELEASING)                         ← commit 1: state matches reality
       lifetimes.motion.dispose()                ← capture released, listeners
                                                    removed, invalidation removed,
                                                    the behavior's frame task

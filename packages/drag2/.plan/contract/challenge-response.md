@@ -269,8 +269,8 @@ The review's reading is correct and I did not think it through. The sequence clo
 ### Corrected sequence
 
 ```text
-> UP  begin(); draft.phase = RELEASING; draft.pointerX/Y = release point
-      commit()                                     ← commit 1: state matches reality
+> UP  begin(); draft.pointerX/Y = release point
+      commit(RELEASING)                            ← commit 1: state matches reality
       lifetimes.motion.dispose()                   ← now consistent
       begin(); release.prepare(draft) → insertion + proposal
       preparationValid(); commit()                 ← commit 2
@@ -323,7 +323,7 @@ type SettlementAttempt = {
 > RESOLUTION_SETTLED
     begin()
     spec.settlement.prepare(draft, value, status)   → outcome, recovery, domain
-    preparationValid(); draft.phase = SETTLING; commit()
+    preparationValid(); commit(SETTLING)
     attempt = createSettlementAttempt()             holds = 0, sealed = false
     lifetimes.cancellation.dispose()
     spec.settlement.effect(current, prepared, scope)

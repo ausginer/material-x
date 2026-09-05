@@ -201,6 +201,10 @@ const AMENDED: ReadonlyMap<string, string> = new Map([
     'D-170 step 6 deletes the façade the sentence described: the kernel implements `BehaviorContext` and hands itself out narrowed',
   ],
   ['D-170', 'marks its own decision implemented, its six steps having landed'],
+  [
+    'D-153',
+    "D-181 deletes the stamp, so the ground loses the fourth dependant it counted and the price loses `runStamped`'s `finally`",
+  ],
 ]);
 
 /**
@@ -485,6 +489,26 @@ const MINTED: ReadonlyMap<string, string> = new Map([
   [
     'F-347',
     "raised by the Arc A feature proof: the +270 B summary is contradicted by the pass's own table",
+  ],
+  [
+    'F-348',
+    "raised by Arc B's B-0 gate: the terminal latch's conjunct in preparationValid had no falsifier",
+  ],
+  [
+    'F-349',
+    "raised by Arc B's B-0 gate: the identity conjunct has no reachable falsifier, so the pin did not move",
+  ],
+  [
+    'F-350',
+    "raised during Arc B's extraction: the seam driver takes a fifth collaborator because the pin stayed behind",
+  ],
+  [
+    'F-351',
+    "raised during Arc B's extraction: the kernel tier's internal list is an allow-list, so a deleted name does not redden it",
+  ],
+  [
+    'F-352',
+    "raised during Arc B's sweep: F-345's own sweep did not reach the ledger",
   ],
   [
     'F-291',
