@@ -82,7 +82,6 @@ import {
   runReleaseSeam,
   SEAM_COMMITTED,
   type SeamContext,
-  type SeamOutcome,
   type Transition,
 } from './seams.ts';
 import {
@@ -264,16 +263,6 @@ type AttemptSlots = {
   /** The input the open settlement seam is driving. Seams are non-reentrant. */
   settlementInput: SettlementInput | null;
 };
-
-/** No phase stamp is pending. Phases are non-negative. */
-const NO_STAMP = -1;
-
-/**
- * The armed-stamp slot's type. The sentinel is outside the union deliberately —
- * it is the *absence* of a phase, not a ninth one — and the `!== NO_STAMP` test
- * already at the one write site is what narrows it away.
- */
-type ArmedStamp = Phase | typeof NO_STAMP;
 
 /**
  * Reads `then` **exactly once** and hands back the callable, or `null`.
@@ -463,28 +452,6 @@ export class Kernel<
    */
   #reporting = false;
 
-  /**
-   * The phase the kernel stamps onto the draft between `prepare` and `commit`.
-   *
-   * Two seams change phase as part of their transaction — activation to
-   * `ACTIVATING`, settlement to `SETTLING` — and the write is the *kernel's*,
-   * made after `preparationValid()` and before the swap. The behavior cannot
-   * make it: it sees `Draft<Part>`, where the kernel slice is `readonly`. A
-   * private slot consumed by `commit()` keeps that ordering without widening
-   * the seam driver's signature with a kernel concern.
-   *
-   * The slot is **armed before the seam and owned by the transaction**, which
-   * is what stops a stamp outliving the transition that armed it. A discarded
-   * or failed seam never reaches `commit()`, so its stamp is still set when it
-   * returns; without the handover below, the next transaction to commit — an
-   * admission, a pointer sample — would silently take that phase. Hence both
-   * halves: {@link begin} takes the armed value and clears it, so every
-   * transaction starts with exactly the stamp armed for it and no other, and
-   * {@link commit} consumes it.
-   */
-  #armedStamp: ArmedStamp = NO_STAMP;
-  #stamp: ArmedStamp = NO_STAMP;
-
   /** The behavior action being run. Safe as a slot: seams are non-reentrant. */
   #actionTag = 0;
   #actionArgument: unknown = null;
@@ -495,43 +462,37 @@ export class Kernel<
   }
 
   #begin(): void {
-    // Reset before every transaction, armed or not.
-    this.#stamp = this.#armedStamp;
-    this.#armedStamp = NO_STAMP;
     this.#pinned = this.#current.operation;
     // The shallow copy that opens the transaction. Every frame field is a
     // scalar, immutable or replace-on-write precisely so this is enough.
     Object.assign(this.#draft, this.#current);
   }
 
-  #commit(): void {
-    if (this.#stamp !== NO_STAMP) {
-      this.#draft.phase = this.#stamp;
-      this.#stamp = NO_STAMP; // consume-and-clear
+  /**
+   * Publishes the open transaction, writing `phase` onto the draft first when
+   * this transaction changes phase.
+   *
+   * **The phase is an argument rather than kernel state**, which is what makes
+   * it impossible for one to outlive the transaction that decided it: a
+   * transition that discards, fails or is invalidated never reaches this call,
+   * so the phase it would have published goes with the stack frame. Two commits
+   * change no phase — the pointer sample and the behavior action — and pass
+   * nothing.
+   *
+   * The write lands here rather than in the transition because the behavior
+   * cannot make it: it sees `Draft<Part>`, where the kernel slice is
+   * `readonly`. Ordering is the other half — after `preparationValid()` and
+   * before the swap — and this call is the only statement between them.
+   */
+  #commit(phase: Phase | null = null): void {
+    if (phase !== null) {
+      this.#draft.phase = phase;
     }
 
     const previous = this.#current;
 
     this.#current = this.#draft;
     this.#draft = previous;
-  }
-
-  /**
-   * Runs a seam whose commit changes phase.
-   *
-   * The arming is cleared in a `finally` as well, for the one window `begin()`
-   * cannot cover: a seam that throws *before* opening its transaction — today
-   * only the driver's re-entry refusal — would otherwise leave the stamp armed
-   * for whatever begins next.
-   */
-  #runStamped(phase: Phase, run: () => void): void {
-    this.#armedStamp = phase;
-
-    try {
-      run();
-    } finally {
-      this.#armedStamp = NO_STAMP;
-    }
   }
 
   /**
@@ -878,8 +839,8 @@ export class Kernel<
     begin: () => {
       this.#begin();
     },
-    commit: () => {
-      this.#commit();
+    commit: (phase) => {
+      this.#commit(phase);
     },
     preparationValid: () => this.#preparationValid(),
     readCurrent: () => this.#current,
@@ -1099,14 +1060,13 @@ export class Kernel<
       return false;
     }
 
-    this.#draft.phase = PENDING;
     this.#draft.operation = identity;
     this.#draft.pointerId = pointerId;
     this.#draft.originX = x;
     this.#draft.originY = y;
     this.#draft.pointerX = x;
     this.#draft.pointerY = y;
-    this.#commit();
+    this.#commit(PENDING);
     return true;
   }
 
@@ -1387,15 +1347,14 @@ export class Kernel<
       return;
     }
 
-    this.#runStamped(ACTIVATING, () => {
-      runActivationSeam(
-        this.#driver,
-        this.#spec!.activation,
-        scope,
-        FAILURE_ACTIVATION,
-        this.#activationPolicy,
-      );
-    });
+    runActivationSeam(
+      this.#driver,
+      this.#spec!.activation,
+      scope,
+      FAILURE_ACTIVATION,
+      ACTIVATING,
+      this.#activationPolicy,
+    );
   }
 
   // -------------------------------------------------------------------------
@@ -1684,8 +1643,7 @@ export class Kernel<
     const session = this.#activation!.lift;
 
     this.#begin();
-    this.#draft.phase = FINALIZING;
-    this.#commit();
+    this.#commit(FINALIZING);
 
     let fromX = 0;
     let fromY = 0;
@@ -1744,8 +1702,7 @@ export class Kernel<
   }
 
   /**
-   * Drives one settlement: prepare → stamp `SETTLING` → commit → measure →
-   * join.
+   * Drives one settlement: prepare → commit `SETTLING` → measure → join.
    *
    * **One synchronous sequence, and nothing suspends it.** Settlement holds no
    * gate, so the only thing between the seam and the terminal is the behavior's
@@ -1758,17 +1715,15 @@ export class Kernel<
     this.#attempts.settlementInput = input;
 
     const attempt: SettlementAttempt = { targetX: null, targetY: 0 };
-    let outcome: SeamOutcome | undefined;
 
     this.#attempts.settlement = attempt;
 
-    this.#runStamped(SETTLING, () => {
-      outcome = this.#driver.runCore(
-        this.#settlementTransition,
-        undefined,
-        FAILURE_RESOLUTION,
-      );
-    });
+    const outcome = this.#driver.runCore(
+      this.#settlementTransition,
+      undefined,
+      FAILURE_RESOLUTION,
+      SETTLING,
+    );
 
     this.#dropStaged();
     this.#attempts.settlementInput = null;
@@ -1955,14 +1910,13 @@ export class Kernel<
     // `release.prepare` that throws or reentrantly destroys never leaves a
     // committed `ACTIVE` operation with no ingress and no path forward.
     this.#begin();
-    this.#draft.phase = RELEASING;
 
     if (sample) {
       this.#draft.pointerX = sample.clientX;
       this.#draft.pointerY = sample.clientY;
     }
 
-    this.#commit();
+    this.#commit(RELEASING);
 
     // Motion closes *between* the two commits: capture released, listeners and
     // invalidation removed, the behavior's frame task cancelled. Nothing
@@ -2150,8 +2104,7 @@ export class Kernel<
     }
 
     this.#begin();
-    this.#draft.phase = ACTIVE;
-    this.#commit();
+    this.#commit(ACTIVE);
 
     // **A command is one slot.** A pointerless operation has no other producer
     // of a release — no `pointerup` will ever arrive — so the kernel is the
@@ -2244,7 +2197,7 @@ export class Kernel<
     this.#attempts.settlement = { targetX: null, targetY: 0 };
 
     // The same seam as an ordinary settlement, because the behavior owns the
-    // terminal classification either way — but stamped `REPORTING`, not
+    // terminal classification either way — but committing `REPORTING`, not
     // `SETTLING`: `onError` runs in its own phase, exactly once per failure.
     // The input carries the stage, which is what lets the behavior distinguish
     // the recoveries the stage table separates (`TERMINAL_CALLBACK` is "none",
@@ -2258,13 +2211,12 @@ export class Kernel<
     this.#reporting = true;
 
     try {
-      this.#runStamped(REPORTING, () => {
-        this.#driver.runCore(
-          this.#settlementTransition,
-          undefined,
-          checkpoint.stage,
-        );
-      });
+      this.#driver.runCore(
+        this.#settlementTransition,
+        undefined,
+        checkpoint.stage,
+        REPORTING,
+      );
     } finally {
       this.#dropStaged();
       this.#reporting = false;
@@ -2391,6 +2343,7 @@ export class Kernel<
         this.#actionTransition,
         undefined,
         FAILURE_ACTION_PREPARE,
+        null,
         FAILURE_ACTION_EFFECT,
       );
     } finally {

@@ -8,7 +8,7 @@ import {
   type FailureStage,
 } from '../../src/kernel/failures.ts';
 import { frame, type Draft, type Frame } from '../../src/kernel/frames.ts';
-import { ACTIVE, IDLE } from '../../src/kernel/phases.ts';
+import { ACTIVATING, ACTIVE, IDLE } from '../../src/kernel/phases.ts';
 import {
   SeamDriver,
   runActivationSeam,
@@ -68,8 +68,13 @@ function createHarness(): Harness {
       begins += 1;
       Object.assign(draft, current);
     },
-    commit(): void {
+    commit(phase): void {
       commits += 1;
+
+      if (phase !== null) {
+        draft.phase = phase;
+      }
+
       const previous = current;
       current = draft;
       draft = previous;
@@ -1482,6 +1487,7 @@ describe('runActivationSeam', () => {
       activation(),
       scope,
       FAILURE_ACTIVATION,
+      ACTIVATING,
       policy,
     );
 
@@ -1493,10 +1499,17 @@ describe('runActivationSeam', () => {
   it('should leave nothing staged behind after a committed activation', () => {
     const harness = createHarness();
 
-    runActivationSeam(harness.driver, activation(), scope, FAILURE_ACTIVATION, {
-      retire: (): void => {},
-      committed: (): void => {},
-    });
+    runActivationSeam(
+      harness.driver,
+      activation(),
+      scope,
+      FAILURE_ACTIVATION,
+      ACTIVATING,
+      {
+        retire: (): void => {},
+        committed: (): void => {},
+      },
+    );
 
     // Activation's staged value is the placeholder, consumed by its own effect.
     // Nothing reads it afterwards, so nothing may still hold it.
@@ -1507,12 +1520,19 @@ describe('runActivationSeam', () => {
     const harness = createHarness();
     let observed: unknown = 'unset';
 
-    runActivationSeam(harness.driver, activation(), scope, FAILURE_ACTIVATION, {
-      retire: (): void => {},
-      committed(): void {
-        observed = harness.driver.consumeStaged();
+    runActivationSeam(
+      harness.driver,
+      activation(),
+      scope,
+      FAILURE_ACTIVATION,
+      ACTIVATING,
+      {
+        retire: (): void => {},
+        committed(): void {
+          observed = harness.driver.consumeStaged();
+        },
       },
-    });
+    );
 
     expect(observed).toBeNull();
   });
@@ -1527,6 +1547,7 @@ describe('runActivationSeam', () => {
       activation({ prepare: () => null }),
       scope,
       FAILURE_ACTIVATION,
+      ACTIVATING,
       policy,
     );
 
@@ -1548,6 +1569,7 @@ describe('runActivationSeam', () => {
       }),
       scope,
       FAILURE_ACTIVATION,
+      ACTIVATING,
       policy,
     );
 
@@ -1569,6 +1591,7 @@ describe('runActivationSeam', () => {
       }),
       scope,
       FAILURE_ACTIVATION,
+      ACTIVATING,
       policy,
     );
 
@@ -1589,6 +1612,7 @@ describe('runActivationSeam', () => {
       }),
       scope,
       FAILURE_ACTIVATION,
+      ACTIVATING,
       policy,
     );
 
@@ -1609,6 +1633,7 @@ describe('runActivationSeam', () => {
       }),
       scope,
       FAILURE_ACTIVATION,
+      ACTIVATING,
       policy,
     );
 

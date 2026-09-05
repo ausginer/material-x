@@ -1337,18 +1337,18 @@ describe('activation', () => {
   });
 });
 
-describe('the phase stamp', () => {
+describe('the phase a commit publishes', () => {
   /**
    * `ACTIVATING` is written by the kernel between `preparationValid()` and the
-   * swap, so it is armed before the seam opens. A seam that discards or fails
-   * never reaches `commit()`, and the stamp it armed must die with it — the
-   * next transaction to commit is an ordinary admission or pointer sample, and
-   * stamping *that* would publish a phase no transition ever prepared.
+   * swap, and it reaches that write as an argument of the commit. A seam that
+   * discards or fails never reaches `commit()`, so its phase goes with the
+   * stack frame — the next transaction to commit is an ordinary admission or
+   * pointer sample, and it publishes the phase *it* carries and no other.
    */
   const countActivations = (harness: Harness): number =>
     harness.calls.filter((name) => name === 'activation.prepare').length;
 
-  it('should not carry a discarded activation stamp into the next operation', () => {
+  it('should not carry a discarded activation phase into the next operation', () => {
     let discard = true;
     const harness = createHarness({
       activation: {
@@ -1367,13 +1367,14 @@ describe('the phase stamp', () => {
     discard = false;
     activate(harness);
 
-    // A leaked stamp would have committed the second admission as `ACTIVATING`,
-    // and the sample that follows it would then be ignored as illegal.
+    // A phase surviving its own transaction would have committed the second
+    // admission as `ACTIVATING`, and the sample that follows it would then be
+    // ignored as illegal.
     expect(countActivations(harness)).toBe(2);
     expect(harness.phases['activation.effect']).toBe(ACTIVATING);
   });
 
-  it('should not carry a failed activation stamp into the next operation', () => {
+  it('should not carry a failed activation phase into the next operation', () => {
     let fail = true;
     const harness = createHarness({
       activation: {
@@ -1400,7 +1401,7 @@ describe('the phase stamp', () => {
     expect(harness.calls).toContain('activation.effect');
   });
 
-  it('should admit the next operation at PENDING after an abandoned stamp', () => {
+  it('should admit the next operation at PENDING after an abandoned activation', () => {
     let discard = true;
     let seen = -1;
     const harness = createHarness({
@@ -1419,8 +1420,8 @@ describe('the phase stamp', () => {
     activate(harness);
     move(60, 10);
 
-    // Reaching `ACTIVE` at all proves the admission published `PENDING`: a
-    // stamped `ACTIVATING` would have made the sample that crosses the
+    // Reaching `ACTIVE` at all proves the admission published `PENDING`: an
+    // inherited `ACTIVATING` would have made the sample that crosses the
     // threshold illegal, and the drag would never have started.
     expect(seen).toBe(ACTIVE);
   });

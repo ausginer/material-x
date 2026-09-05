@@ -15,6 +15,7 @@
 import { DraggableWarning, type Notify } from './errors.ts';
 import type { FailureStage } from './failures.ts';
 import type { Draft, Frame } from './frames.ts';
+import type { Phase } from './phases.ts';
 
 /**
  * A seam that stages nothing uses `Prepared = true` and returns the literal.
@@ -114,8 +115,11 @@ export type SeamOutcome =
 export type SeamContext<Part extends object> = Readonly<{
   /** `Object.assign(draft, current)`. */
   begin(): void;
-  /** Swap the two frame references. */
-  commit(): void;
+  /**
+   * Swap the two frame references, writing `phase` onto the draft first when
+   * this transaction changes phase.
+   */
+  commit(phase: Phase | null): void;
   /** False once a reentrant cancel or destroy invalidated the preparation. */
   preparationValid(): boolean;
   readCurrent(): Readonly<Frame<Part>>;
@@ -252,6 +256,7 @@ export class SeamDriver<Part extends object> {
     transition: Transition<Part, Prepared, Capability>,
     capability: Capability,
     stage: FailureStage,
+    phase: Phase | null = null,
     effectStage: FailureStage = stage,
   ): SeamOutcome {
     const context = this.#context;
@@ -291,7 +296,7 @@ export class SeamDriver<Part extends object> {
       return SEAM_INVALIDATED;
     }
 
-    context.commit();
+    context.commit(phase);
 
     const effected = this.#runPhase(effectStage, () =>
       transition.effect(context.readCurrent(), prepared, capability),
@@ -597,9 +602,10 @@ export function runActivationSeam<
   transition: Transition<Part, Prepared, Capability>,
   capability: Capability,
   stage: FailureStage,
+  phase: Phase,
   policy: Readonly<{ retire(): void; committed(): void }>,
 ): SeamOutcome {
-  const outcome = driver.runCore(transition, capability, stage);
+  const outcome = driver.runCore(transition, capability, stage, phase);
 
   // Dropped **before** the policy runs, so nothing this seam triggers can read
   // the placeholder it staged. Activation's staged value is consumed by its own
