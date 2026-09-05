@@ -16,6 +16,7 @@ import { DraggableWarning, type Notify } from './errors.ts';
 import type { FailureStage } from './failures.ts';
 import type { Draft, Frame } from './frames.ts';
 import type { Phase } from './phases.ts';
+import type { FrameTransaction } from './transaction.ts';
 
 /**
  * A seam that stages nothing uses `Prepared = true` and returns the literal.
@@ -106,35 +107,6 @@ export type SeamOutcome =
   | typeof SEAM_EFFECT_FAILED;
 
 /**
- * The kernel-private state the driver operates on. Supplied by `createKernel`,
- * which owns the frame pair, the operation identity and the queue.
- *
- * The frames are read through accessors because the kernel *swaps* the two
- * references at commit, so no stable reference can be captured here.
- */
-export type SeamContext<Part extends object> = Readonly<{
-  /** `Object.assign(draft, current)`. */
-  begin(): void;
-  /**
-   * Swap the two frame references, writing `phase` onto the draft first when
-   * this transaction changes phase.
-   */
-  commit(phase: Phase | null): void;
-  /** False once a reentrant cancel or destroy invalidated the preparation. */
-  preparationValid(): boolean;
-  readCurrent(): Readonly<Frame<Part>>;
-  readDraft(): Draft<Part>;
-  /** Queue a classified failure against the operation the kernel holds. */
-  fail(stage: FailureStage, error: unknown): void;
-  /**
-   * The controller's one channel. No checkpoint is queued, no recovery is
-   * selected, and the operation's own outcome is untouched — which is what
-   * makes everything the driver sends here a {@link DraggableWarning}.
-   */
-  notify: Notify;
-}>;
-
-/**
  * No phase is open. `FailureStage` starts at 1, so `0` and `-1` are free to
  * carry the two readings a stage alone cannot.
  */
@@ -180,7 +152,31 @@ const FAILED = Symbol();
  * `requestFailure` and one diagnostic predicate.
  */
 export class SeamDriver<Part extends object> {
-  readonly #context: SeamContext<Part>;
+  /** The pair every transactional seam publishes and reads. */
+  readonly #frames: FrameTransaction<Part>;
+
+  /**
+   * Opens a transaction over that pair.
+   *
+   * Separate from the pair itself because opening one does more than rebuild
+   * the draft: the kernel pins the operation the transaction belongs to at the
+   * same instant, and that pin is half of the revalidation below. A driver that
+   * opened the pair directly would take the copy and leave the pin behind.
+   */
+  readonly #begin: () => void;
+
+  /** False once a reentrant cancel or destroy invalidated the preparation. */
+  readonly #preparationValid: () => boolean;
+
+  /** Queues a classified failure against the operation the kernel holds. */
+  readonly #fail: (stage: FailureStage, error: unknown) => void;
+
+  /**
+   * The controller's one channel. No checkpoint is queued, no recovery is
+   * selected, and the operation's own outcome is untouched — which is what
+   * makes everything the driver sends here a {@link DraggableWarning}.
+   */
+  readonly #notify: Notify;
 
   /**
    * The stage the open phase classifies against, or `NO_STAGE` between phases.
@@ -232,8 +228,27 @@ export class SeamDriver<Part extends object> {
    */
   #reentry = false;
 
-  constructor(context: SeamContext<Part>) {
-    this.#context = context;
+  /**
+   * Collaborators rather than one record of them: they answer to three
+   * different owners — the frame pair, the kernel's transaction protocol over
+   * it, and the controller's failure channel — and callbacks with no
+   * relationship to each other are a parameter list, not a type.
+   *
+   * All of them are controller-invariant and held for its life, so no seam
+   * allocates to reach one.
+   */
+  constructor(
+    frames: FrameTransaction<Part>,
+    begin: () => void,
+    preparationValid: () => boolean,
+    fail: (stage: FailureStage, error: unknown) => void,
+    notify: Notify,
+  ) {
+    this.#frames = frames;
+    this.#begin = begin;
+    this.#preparationValid = preparationValid;
+    this.#fail = fail;
+    this.#notify = notify;
   }
 
   /**
@@ -259,8 +274,6 @@ export class SeamDriver<Part extends object> {
     phase: Phase | null = null,
     effectStage: FailureStage = stage,
   ): SeamOutcome {
-    const context = this.#context;
-
     // Not the same call as the one inside `#runPhase`, and not redundant with
     // it: a transaction mutates kernel state *before* its first phase opens,
     // and `begin()` would rebuild the draft the outer seam is still building.
@@ -272,14 +285,14 @@ export class SeamDriver<Part extends object> {
       // it from being *invisible*. A staged value still sitting here means
       // the previous seam neither consumed nor dropped it, which is the one
       // way a command can outlive its transaction.
-      context.notify(new DraggableWarning('drag: seam/staged-unconsumed'));
+      this.#notify(new DraggableWarning('drag: seam/staged-unconsumed'));
     }
 
     this.#staged = null;
-    context.begin();
+    this.#begin();
 
     const prepared = this.#runPhase(stage, () =>
-      transition.prepare(context.readDraft(), capability),
+      transition.prepare(this.#frames.draft, capability),
     );
 
     if (prepared === FAILED) {
@@ -290,16 +303,16 @@ export class SeamDriver<Part extends object> {
       return SEAM_DISCARDED; // the draft is abandoned
     }
 
-    if (!context.preparationValid()) {
+    if (!this.#preparationValid()) {
       this.#unclassifiedReason = 'drag: seam/rollback-failed';
       this.#runPhase(UNCLASSIFIED, () => transition.rollback?.(prepared));
       return SEAM_INVALIDATED;
     }
 
-    context.commit(phase);
+    this.#frames.commit(phase);
 
     const effected = this.#runPhase(effectStage, () =>
-      transition.effect(context.readCurrent(), prepared, capability),
+      transition.effect(this.#frames.current, prepared, capability),
     );
 
     if (effected === FAILED) {
@@ -318,7 +331,7 @@ export class SeamDriver<Part extends object> {
     // against — the release seam invoking the consumer's resolver for an
     // operation `destroy()` already retired. A preparation that is no longer
     // valid stages nothing, and the caller reads `null`.
-    this.#staged = context.preparationValid() ? prepared : null;
+    this.#staged = this.#preparationValid() ? prepared : null;
     return SEAM_COMMITTED;
   }
 
@@ -405,14 +418,12 @@ export class SeamDriver<Part extends object> {
    * against operation B.
    */
   requestFailure(stage: FailureStage, error: unknown): void {
-    const context = this.#context;
-
     // **A latched failure and a throw are the same event on this path too.**
     // The flag is what makes `#runPhase` return `FAILED` for a phase that
     // latched without throwing, so the caller sees no target either way.
     if (this.#openStage === UNCLASSIFIED) {
       this.#failureRequested = true;
-      context.notify(
+      this.#notify(
         new DraggableWarning(this.#unclassifiedReason, { cause: error }),
       );
       return;
@@ -429,7 +440,7 @@ export class SeamDriver<Part extends object> {
       // classification the kernel has just refused to apply, and carrying it
       // into the warning would publish a claim about the operation that this
       // branch exists to *not* make.
-      context.notify(
+      this.#notify(
         new DraggableWarning('drag: seam/fail-outside-seam', {
           cause: error,
         }),
@@ -441,7 +452,7 @@ export class SeamDriver<Part extends object> {
     // The stage is the caller's, not the open phase's: a leaf narrows its own
     // stage from the inside (`moved` renders and schedules in one callback).
     this.#failureRequested = true;
-    context.fail(stage, error);
+    this.#fail(stage, error);
   }
 
   /** Whether a seam phase is currently open. Diagnostics and tests. */
@@ -466,11 +477,10 @@ export class SeamDriver<Part extends object> {
    * interlock.
    *
    * **Consumer code still runs past the clear, and the queue is what covers
-   * it**: `context.notify` reaches the consumer's `onError`, and a `dispatch`
+   * it**: the notify channel reaches the consumer's `onError`, and a `dispatch`
    * from there appends because the execution bracket's drain returns while a
-   * pass is already running.
-   * `context.fail` enqueuing covers only the classification this module
-   * performs, which is the smaller half.
+   * pass is already running. The fail channel's enqueuing covers only the
+   * classification this module performs, which is the smaller half.
    *
    * A violation is an invariant break, not a recoverable condition — and the
    * break is **a lifecycle the kernel reports as performed and did not
@@ -518,8 +528,6 @@ export class SeamDriver<Part extends object> {
    * Hence the caught error is carried out as a value and re-examined below.
    */
   #runPhase<Value>(stage: PhaseStage, run: () => Value): Value | typeof FAILED {
-    const context = this.#context;
-
     this.#refuseReentry();
     this.#failureRequested = false;
     this.#openStage = stage;
@@ -557,20 +565,20 @@ export class SeamDriver<Part extends object> {
         // `#unclassifiedReason` rather than the sentinel, because the sentinel
         // says how the failure travels and never what it was — the reason the
         // consumer reads is the one the caller named.
-        context.notify(
+        this.#notify(
           new DraggableWarning(this.#unclassifiedReason, { cause: raised }),
         );
       } else if (this.#failureRequested) {
         // **One phase, one report.** A phase that called `kernel.fail` and then
         // threw is already classified against its own error; the throw travels
         // as a warning, which is what keeps it from deciding the outcome.
-        context.notify(
+        this.#notify(
           new DraggableWarning('drag: seam/failed-then-threw', {
             cause: raised,
           }),
         );
       } else {
-        context.fail(stage, raised);
+        this.#fail(stage, raised);
       }
 
       return FAILED;

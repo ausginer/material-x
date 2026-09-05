@@ -18,9 +18,9 @@ import {
   SEAM_EFFECT_FAILED,
   SEAM_INVALIDATED,
   SEAM_PREPARE_FAILED,
-  type SeamContext,
   type Transition,
 } from '../../src/kernel/seams.ts';
+import { FrameTransaction } from '../../src/kernel/transaction.ts';
 
 type ExamplePart = {
   item: string | null;
@@ -31,7 +31,6 @@ const createExamplePart = (): ExamplePart => ({ item: null, published: 0 });
 
 type Harness = Readonly<{
   driver: SeamDriver<ExamplePart>;
-  context: SeamContext<ExamplePart>;
   /** Classified failures, in the order the kernel queued them. */
   failures: ReadonlyArray<Readonly<{ stage: FailureStage; error: unknown }>>;
   /**
@@ -44,62 +43,62 @@ type Harness = Readonly<{
   current(): Readonly<Frame<ExamplePart>>;
   /** Simulates a reentrant cancel or destroy invalidating the preparation. */
   invalidate(): void;
-  commits(): number;
+  /**
+   * Whether the pair is swapped from the way it was built.
+   *
+   * **A commit is a swap and nothing else swaps the pair**, so this reads *an
+   * odd number of transactions landed* — which is the whole question at every
+   * row below: none against one, or one against a nested second that would
+   * have published a half-built draft on top of it.
+   */
+  committed(): boolean;
   /** How many times a transaction rebuilt the draft from the committed frame. */
   begins(): number;
 }>;
 
 /**
- * A fake kernel: two real frames, a real commit swap, and a validity flag a
- * test flips to stand in for a reentrant cancel. No queue, no lifecycle — the
- * driver is what is under test.
+ * A real frame transaction — two composed frames, the real copy and the real
+ * swap — and a validity flag a test flips to stand in for a reentrant cancel.
+ * No queue, no lifecycle: the driver is what is under test, and the pair it
+ * drives is the shipped one rather than a description of it.
+ *
+ * The kernel's three remaining edges stay closures, which is what they are on
+ * the kernel too: the revalidation composes three conjuncts owned in three
+ * places, and the two channels are the controller's.
  */
 function createHarness(): Harness {
-  let current = Object.assign(frame(), createExamplePart());
-  let draft = Object.assign(frame(), createExamplePart());
+  const first = Object.assign(frame(), createExamplePart());
+  const frames = new FrameTransaction<ExamplePart>(
+    first,
+    Object.assign(frame(), createExamplePart()),
+  );
   let valid = true;
-  let commits = 0;
   let begins = 0;
   const failures: Array<{ stage: FailureStage; error: unknown }> = [];
   const warnings: DraggableWarning[] = [];
 
-  const context: SeamContext<ExamplePart> = {
-    begin(): void {
-      begins += 1;
-      Object.assign(draft, current);
-    },
-    commit(phase): void {
-      commits += 1;
-
-      if (phase !== null) {
-        draft.phase = phase;
-      }
-
-      const previous = current;
-      current = draft;
-      draft = previous;
-    },
-    preparationValid: () => valid,
-    readCurrent: () => current,
-    readDraft: () => draft,
-    fail(stage, error): void {
-      failures.push({ stage, error });
-    },
-    notify(error): void {
-      warnings.push(error);
-    },
-  };
-
   return {
-    driver: new SeamDriver(context),
-    context,
+    driver: new SeamDriver<ExamplePart>(
+      frames,
+      (): void => {
+        begins += 1;
+        frames.begin();
+      },
+      () => valid,
+      (stage, error): void => {
+        failures.push({ stage, error });
+      },
+      (error): void => {
+        warnings.push(error);
+      },
+    ),
     failures,
     warnings,
-    current: () => current,
+    current: () => frames.current,
     invalidate(): void {
       valid = false;
     },
-    commits: () => commits,
+    committed: () => frames.current !== first,
     begins: () => begins,
   };
 }
@@ -259,7 +258,7 @@ describe('runCore discard', () => {
       FAILURE_ACTIVATION,
     );
 
-    expect(harness.commits()).toBe(0);
+    expect(harness.committed()).toBe(false);
   });
 
   it('should leave the committed frame untouched by a discarded prepare', () => {
@@ -307,7 +306,7 @@ describe('runCore invalidation', () => {
     );
 
     expect(outcome).toBe(SEAM_INVALIDATED);
-    expect(harness.commits()).toBe(0);
+    expect(harness.committed()).toBe(false);
   });
 
   it('should roll back instead of running the effect', () => {
@@ -408,7 +407,7 @@ describe('runCore failure', () => {
     );
 
     expect(outcome).toBe(SEAM_PREPARE_FAILED);
-    expect(harness.commits()).toBe(0);
+    expect(harness.committed()).toBe(false);
     expect(harness.failures).toEqual([{ stage: FAILURE_ACTIVATION, error }]);
   });
 
@@ -442,7 +441,7 @@ describe('runCore failure', () => {
     // An `effect` throw is a classified failure, never a panic (F-19) — and the
     // transition is **not** reverted (I-18).
     expect(outcome).toBe(SEAM_EFFECT_FAILED);
-    expect(harness.commits()).toBe(1);
+    expect(harness.committed()).toBe(true);
     expect(harness.current().item).toBe('staged');
     expect(harness.failures).toEqual([{ stage: FAILURE_ACTIVATION, error }]);
   });
@@ -496,7 +495,7 @@ describe('explicit failure latching', () => {
     // Returning normally after `kernel.fail` must be indistinguishable from a
     // throw at the driver boundary (D-28, F-34).
     expect(outcome).toBe(SEAM_PREPARE_FAILED);
-    expect(harness.commits()).toBe(0);
+    expect(harness.committed()).toBe(false);
     expect(harness.failures).toEqual([{ stage: FAILURE_ACTIVATION, error }]);
   });
 
@@ -633,7 +632,7 @@ describe('explicit failure latching', () => {
     );
 
     expect(outcome).toBe(SEAM_PREPARE_FAILED);
-    expect(harness.commits()).toBe(0);
+    expect(harness.committed()).toBe(false);
   });
 
   it('should report kernel.fail inside rollback exactly like a throw inside it', () => {
@@ -1212,7 +1211,7 @@ describe('runCore reentrancy', () => {
 
     // The outer seam committed once; a nested commit would have swapped its
     // half-built draft in on top of that.
-    expect(harness.commits()).toBe(1);
+    expect(harness.committed()).toBe(true);
     expect(harness.current().item).toBe('staged');
   });
 

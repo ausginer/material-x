@@ -54,7 +54,6 @@ import {
   RELEASING,
   REPORTING,
   SETTLING,
-  type Phase,
 } from './phases.ts';
 import {
   acquirePointerCapture,
@@ -81,7 +80,6 @@ import {
   runActivationSeam,
   runReleaseSeam,
   SEAM_COMMITTED,
-  type SeamContext,
   type Transition,
 } from './seams.ts';
 import {
@@ -97,6 +95,7 @@ import {
   SETTLED_SKIPPED,
   type SettlementInput,
 } from './spec.ts';
+import { FrameTransaction } from './transaction.ts';
 import type { OffsetBox } from './types.ts';
 import { createUnwind } from './unwind.ts';
 
@@ -346,8 +345,18 @@ export class Kernel<
   readonly #ingress = new AbortController();
 
   #spec: BehaviorSpec<Part, Activation> | null = null;
-  #current!: Frame<Part>;
-  #draft!: Frame<Part>;
+
+  /**
+   * The frame pair and the protocol over it, composed by {@link arm}.
+   *
+   * Definite assignment rather than a nullable field, on the same premise every
+   * `#spec!` in this file rests on: nothing reaches a frame before a behavior
+   * is armed, and `arm()` publishes `#spec` only once both frames exist.
+   */
+  #frames!: FrameTransaction<Part>;
+
+  /** The phase machine over that pair, held for the controller's life. */
+  #driver!: SeamDriver<Part>;
   #nextOperationId = 0;
 
   /* ---- per-operation state, two records dropped whole at retirement ---- */
@@ -461,38 +470,17 @@ export class Kernel<
     this.realm = createRealm(root);
   }
 
-  #begin(): void {
-    this.#pinned = this.#current.operation;
-    // The shallow copy that opens the transaction. Every frame field is a
-    // scalar, immutable or replace-on-write precisely so this is enough.
-    Object.assign(this.#draft, this.#current);
-  }
-
   /**
-   * Publishes the open transaction, writing `phase` onto the draft first when
-   * this transaction changes phase.
+   * Opens a transaction and pins the operation it belongs to.
    *
-   * **The phase is an argument rather than kernel state**, which is what makes
-   * it impossible for one to outlive the transaction that decided it: a
-   * transition that discards, fails or is invalidated never reaches this call,
-   * so the phase it would have published goes with the stack frame. Two commits
-   * change no phase — the pointer sample and the behavior action — and pass
-   * nothing.
-   *
-   * The write lands here rather than in the transition because the behavior
-   * cannot make it: it sees `Draft<Part>`, where the kernel slice is
-   * `readonly`. Ordering is the other half — after `preparationValid()` and
-   * before the swap — and this call is the only statement between them.
+   * The pin is the kernel's rather than the pair's because the question it
+   * serves is: `preparationValid()` composes it with the terminal latch and the
+   * operation's cancel request, and two of those three facts are owned
+   * elsewhere. What the pair owns is the copy.
    */
-  #commit(phase: Phase | null = null): void {
-    if (phase !== null) {
-      this.#draft.phase = phase;
-    }
-
-    const previous = this.#current;
-
-    this.#current = this.#draft;
-    this.#draft = previous;
+  #begin(): void {
+    this.#pinned = this.#frames.current.operation;
+    this.#frames.begin();
   }
 
   /**
@@ -508,7 +496,7 @@ export class Kernel<
     return (
       !this.#bracket.closed &&
       !this.#operation?.cancelRequest &&
-      this.#current.operation === this.#pinned
+      this.#frames.current.operation === this.#pinned
     );
   }
 
@@ -532,25 +520,41 @@ export class Kernel<
     this.#attempts.settlement = null;
   }
 
-  #scrub(target: Frame<Part>): void {
-    const active = this.#spec;
-
-    if (!active) {
-      return;
-    }
-
-    // **Wrapped as one unit, and the kernel's own half goes first.** The kernel
-    // returns its slice to its defaults and the behavior returns its part;
-    // `resetFramePart` is behavior code the API permits to throw, and an
-    // unwrapped throw on the first frame would skip the second scrub *and* the
-    // ingress abort, making `destroy()` non-terminal. The kernel's own reset
-    // cannot throw, so it is inside the same `unwind` with nothing to lose by
-    // it.
+  /**
+   * Returns one frame to its defaults.
+   *
+   * **Wrapped as one unit, and the kernel's own half goes first.** The kernel
+   * returns its slice to its defaults and the behavior returns its part;
+   * `resetFramePart` is behavior code the API permits to throw, and an
+   * unwrapped throw on the first frame would skip the second scrub *and* the
+   * ingress abort, making `destroy()` non-terminal. The kernel's own reset
+   * cannot throw, so it is inside the same `unwind` with nothing to lose by it.
+   *
+   * The behavior is a parameter rather than a field read, for the one caller
+   * that has a spec in hand and no armed controller yet: `arm()`'s unwind is
+   * resetting frames composed by a behavior this kernel has not published.
+   */
+  #resetFrame(
+    active: BehaviorSpec<Part, Activation>,
+    target: Frame<Part>,
+  ): void {
     this.#unwind(() => {
       frame(target);
       active.resetFramePart(target);
     });
   }
+
+  /**
+   * The reset retirement applies to **both** frames.
+   *
+   * One closure per controller rather than one per retirement, and a value
+   * rather than a method because the pair is what walks it over its two frames:
+   * the committed frame is written in place here, which is the one act no
+   * reader of it can serve.
+   */
+  readonly #scrub = (target: Frame<Part>): void => {
+    this.#resetFrame(this.#spec!, target);
+  };
 
   /**
    * The seven-step teardown, minus steps 1, 2 and 7 — which is exactly
@@ -565,7 +569,7 @@ export class Kernel<
       return;
     }
 
-    if (identity && this.#current.operation !== identity) {
+    if (identity && this.#frames.current.operation !== identity) {
       return; // a stale retirement for an operation that is already gone
     }
 
@@ -582,8 +586,7 @@ export class Kernel<
     }
 
     // 6. both frames, each reset individually wrapped.
-    this.#scrub(this.#current);
-    this.#scrub(this.#draft);
+    this.#frames.retire(this.#scrub);
 
     // **Last, and for a proof reason rather than a runtime one.** The two
     // halves are not the same claim.
@@ -673,8 +676,7 @@ export class Kernel<
           this.#unwind(this.#operation.lifetimes.dispose);
         }
 
-        this.#scrub(this.#current);
-        this.#scrub(this.#draft);
+        this.#frames.retire(this.#scrub);
       }
 
       // Last, for both reasons `retireOperation` states: the records have to
@@ -749,14 +751,14 @@ export class Kernel<
   #cancelWith(reason: unknown, origin: CancelOrigin): void {
     if (
       this.#bracket.closed ||
-      !this.#current.operation ||
+      !this.#frames.current.operation ||
       this.#operation!.cancelRequest
     ) {
       return;
     }
 
     this.#operation!.cancelRequest = { reason, origin };
-    this.#bracket.dispatch(CANCEL, this.#current.operation);
+    this.#bracket.dispatch(CANCEL, this.#frames.current.operation);
   }
 
   /**
@@ -776,7 +778,7 @@ export class Kernel<
    * itself — has no checkpoint to run and degrades to a platform report.
    */
   #failOperation(stage: FailureStage, error: unknown): void {
-    const identity = this.#current.operation;
+    const identity = this.#frames.current.operation;
 
     // A checkpoint queued while a report is in flight could only be dropped by
     // `handleFailed`'s own `REPORTING` guard, which would swallow the error
@@ -806,7 +808,7 @@ export class Kernel<
       !identity ||
       this.#operation!.cancelRequest ||
       this.#reporting ||
-      this.#current.phase === REPORTING
+      this.#frames.current.phase === REPORTING
     ) {
       // **Demoted rather than dropped.** The `return` is what decides: the
       // terminal is already owned by whatever is in flight, so this
@@ -830,44 +832,6 @@ export class Kernel<
   }
 
   /**
-   * **Wrapped, not detached.** The driver holds this record for the
-   * controller's life and calls each member with no receiver of its own, so a
-   * bare prototype read would arrive without one. The closures are what carry
-   * it, and the lint gate is what would have caught the bare reads.
-   */
-  readonly #context: SeamContext<Part> = {
-    begin: () => {
-      this.#begin();
-    },
-    commit: (phase) => {
-      this.#commit(phase);
-    },
-    preparationValid: () => this.#preparationValid(),
-    readCurrent: () => this.#current,
-    readDraft: () => this.#draft,
-    fail: (stage, error) => {
-      this.#failOperation(stage, error);
-    },
-    /**
-     * **The driver reports without classifying.** Not `failOperation`, which
-     * would settle a drop whose reorder already happened; and there is no
-     * second destination to choose between — a separate platform reporter would
-     * receive a consumer's own destructive rerender — which is what lets the
-     * `QUALITY` and `BEST_EFFORT` tiers collapse into one sentinel.
-     *
-     * There is no lifetime guard at this site, and adding one here is wrong:
-     * the guard belongs in `notify`, where every route shares it. A quality
-     * fault's producer is consumer-reaching — a `home` resolver, a landing
-     * policy — and is equally free to destroy before it throws.
-     */
-    notify: (error) => {
-      this.#notify(error);
-    },
-  };
-
-  readonly #driver = new SeamDriver<Part>(this.#context);
-
-  /**
    * Drops whatever a seam staged, for the seams the kernel drives directly.
    *
    * Both the settlement and the failure report stage a sentinel that the
@@ -887,7 +851,7 @@ export class Kernel<
   #onPointer(event: PointerEvent): void {
     // The producer-side half of the double validation; the handler checks the
     // pointer identity again against the committed frame.
-    if (event.pointerId !== this.#current.pointerId) {
+    if (event.pointerId !== this.#frames.current.pointerId) {
       return;
     }
 
@@ -959,7 +923,7 @@ export class Kernel<
     let admitted: AdmissionSubject | null;
 
     try {
-      admitted = admit(event as never, this.#draft);
+      admitted = admit(event as never, this.#frames.draft);
     } catch (error) {
       // Identity was never minted, so there is no operation for a checkpoint to
       // settle and no `REPORTING` phase to enter. The controller stays idle and
@@ -993,7 +957,9 @@ export class Kernel<
     // handle and visual resolvers during native dispatch, and a resolver can
     // close over the already-returned controller and synchronously destroy it.
     // Without this recheck a terminal controller publishes a new operation.
-    return this.#bracket.closed || this.#current.operation ? null : admitted;
+    return this.#bracket.closed || this.#frames.current.operation
+      ? null
+      : admitted;
   }
 
   /**
@@ -1060,13 +1026,13 @@ export class Kernel<
       return false;
     }
 
-    this.#draft.operation = identity;
-    this.#draft.pointerId = pointerId;
-    this.#draft.originX = x;
-    this.#draft.originY = y;
-    this.#draft.pointerX = x;
-    this.#draft.pointerY = y;
-    this.#commit(PENDING);
+    this.#frames.draft.operation = identity;
+    this.#frames.draft.pointerId = pointerId;
+    this.#frames.draft.originX = x;
+    this.#frames.draft.originY = y;
+    this.#frames.draft.pointerX = x;
+    this.#frames.draft.pointerY = y;
+    this.#frames.commit(PENDING);
     return true;
   }
 
@@ -1100,7 +1066,7 @@ export class Kernel<
     );
 
     if (admitted && this.#mintOperation(admitted, -1, 0, 0)) {
-      this.#bracket.dispatch(ACTIVATE, this.#current.operation);
+      this.#bracket.dispatch(ACTIVATE, this.#frames.current.operation);
     }
   }
 
@@ -1130,7 +1096,7 @@ export class Kernel<
    * dispatched from inside `admit`, refused by the same rule.
    */
   #openIngress(admit: () => void): void {
-    if (this.#current.operation) {
+    if (this.#frames.current.operation) {
       return;
     }
 
@@ -1246,7 +1212,7 @@ export class Kernel<
       // `activation.effect` invokes the consumer's `onStart` last, and that
       // callback may cancel or destroy.
       if (this.#preparationValid()) {
-        this.#bracket.dispatch(START_COMMITTED, this.#current.operation);
+        this.#bracket.dispatch(START_COMMITTED, this.#frames.current.operation);
       }
     },
   };
@@ -1306,13 +1272,13 @@ export class Kernel<
       // capture, so the connectivity precondition capture needs has nothing to
       // guard either. `originRect` above is measured from the *visual* and was
       // already pointer-independent.
-      if (this.#current.pointerId !== -1) {
+      if (this.#frames.current.pointerId !== -1) {
         if (!this.root.isConnected) {
           throw new Error('drag: activation/root-disconnected');
         }
 
         live.lifetimes.motion.use(
-          acquirePointerCapture(this.root, this.#current.pointerId),
+          acquirePointerCapture(this.root, this.#frames.current.pointerId),
         );
       }
 
@@ -1435,8 +1401,8 @@ export class Kernel<
       this.#attempts.settlement === attempt &&
       !this.#bracket.closed &&
       !this.#operation?.cancelRequest &&
-      this.#current.operation !== null &&
-      this.#current.phase === SETTLING
+      this.#frames.current.operation !== null &&
+      this.#frames.current.phase === SETTLING
     );
   }
 
@@ -1450,8 +1416,8 @@ export class Kernel<
   #joinLive(): boolean {
     return (
       !this.#bracket.closed &&
-      this.#current.operation !== null &&
-      this.#current.phase === FINALIZING
+      this.#frames.current.operation !== null &&
+      this.#frames.current.phase === FINALIZING
     );
   }
 
@@ -1484,7 +1450,7 @@ export class Kernel<
    */
   #measureTarget(attempt: SettlementAttempt): boolean {
     const anchor = this.#driver.runUnclassifiedValue(
-      () => this.#spec!.anchorTarget(this.#current),
+      () => this.#spec!.anchorTarget(this.#frames.current),
       'drag: landing/target-unavailable',
     );
 
@@ -1583,7 +1549,13 @@ export class Kernel<
     // classified, because a tail is presentation and a presentational fault may
     // not reach a consumer whose drop has already been decided and reported.
     const timing = this.#unwind(() =>
-      this.#spec!.landingTail?.(this.#current, fromX, fromY, targetX, targetY),
+      this.#spec!.landingTail?.(
+        this.#frames.current,
+        fromX,
+        fromY,
+        targetX,
+        targetY,
+      ),
     );
 
     // The policy is consumer-authored through `landing()` and may have
@@ -1643,7 +1615,7 @@ export class Kernel<
     const session = this.#activation!.lift;
 
     this.#begin();
-    this.#commit(FINALIZING);
+    this.#frames.commit(FINALIZING);
 
     let fromX = 0;
     let fromY = 0;
@@ -1690,7 +1662,7 @@ export class Kernel<
     }
 
     this.#driver.runLeaf(() => {
-      this.#spec!.finalized(this.#current);
+      this.#spec!.finalized(this.#frames.current);
     }, FAILURE_TERMINAL_CALLBACK);
     // Queued unconditionally, and this entry is what retires: a
     // terminal-callback failure queues its checkpoint ahead of this one, but
@@ -1698,7 +1670,7 @@ export class Kernel<
     // dispatched from inside it and so lands *behind* this entry. The
     // retirement therefore always intervenes, and it is that second terminal
     // which arrives stale. Exactly one `onEnd` on this path is that ordering.
-    this.#bracket.dispatch(RETIRE, this.#current.operation);
+    this.#bracket.dispatch(RETIRE, this.#frames.current.operation);
   }
 
   /**
@@ -1849,24 +1821,24 @@ export class Kernel<
   };
 
   #runMoved(): void {
-    this.#spec!.moved(this.#current, this.#activation!.lift);
+    this.#spec!.moved(this.#frames.current, this.#activation!.lift);
   }
 
   #handleMove(sample: PointerCoordinates): void {
-    const { phase } = this.#current;
+    const { phase } = this.#frames.current;
 
     if (phase !== PENDING && phase !== ACTIVE) {
       return;
     }
 
-    if (sample.pointerId !== this.#current.pointerId) {
+    if (sample.pointerId !== this.#frames.current.pointerId) {
       return;
     }
 
     this.#begin();
-    this.#draft.pointerX = sample.clientX;
-    this.#draft.pointerY = sample.clientY;
-    this.#commit();
+    this.#frames.draft.pointerX = sample.clientX;
+    this.#frames.draft.pointerY = sample.clientY;
+    this.#frames.commit(null);
 
     if (phase === ACTIVE) {
       this.#driver.runLeaf(this.#movedLeaf, FAILURE_RENDERER_WRITE);
@@ -1874,8 +1846,8 @@ export class Kernel<
     }
 
     const { threshold } = this.#spec!.config;
-    const dx = this.#current.pointerX - this.#current.originX;
-    const dy = this.#current.pointerY - this.#current.originY;
+    const dx = this.#frames.current.pointerX - this.#frames.current.originX;
+    const dy = this.#frames.current.pointerY - this.#frames.current.originY;
 
     if (dx * dx + dy * dy >= threshold * threshold) {
       // **The pointer path's `preventDefault()`.** What it prevents is *this*
@@ -1912,11 +1884,11 @@ export class Kernel<
     this.#begin();
 
     if (sample) {
-      this.#draft.pointerX = sample.clientX;
-      this.#draft.pointerY = sample.clientY;
+      this.#frames.draft.pointerX = sample.clientX;
+      this.#frames.draft.pointerY = sample.clientY;
     }
 
-    this.#commit(RELEASING);
+    this.#frames.commit(RELEASING);
 
     // Motion closes *between* the two commits: capture released, listeners and
     // invalidation removed, the behavior's frame task cancelled. Nothing
@@ -1935,14 +1907,14 @@ export class Kernel<
   }
 
   #handleUp(sample: PointerCoordinates): void {
-    const { phase } = this.#current;
+    const { phase } = this.#frames.current;
 
-    if (sample.pointerId !== this.#current.pointerId) {
+    if (sample.pointerId !== this.#frames.current.pointerId) {
       return;
     }
 
     if (phase === PENDING) {
-      this.#retireOperation(this.#current.operation);
+      this.#retireOperation(this.#frames.current.operation);
       return;
     }
 
@@ -1960,8 +1932,8 @@ export class Kernel<
    */
   #handleRelease(identity: OperationIdentity): void {
     if (
-      this.#current.operation !== identity ||
-      this.#current.phase !== ACTIVE
+      this.#frames.current.operation !== identity ||
+      this.#frames.current.phase !== ACTIVE
     ) {
       return;
     }
@@ -1975,8 +1947,8 @@ export class Kernel<
    */
   #handleActivate(identity: OperationIdentity): void {
     if (
-      this.#current.operation !== identity ||
-      this.#current.phase !== PENDING
+      this.#frames.current.operation !== identity ||
+      this.#frames.current.phase !== PENDING
     ) {
       return;
     }
@@ -2009,7 +1981,7 @@ export class Kernel<
     // contract requires, guarding the window where the two disagree.
     if (
       this.#attempts.resolution !== attempt ||
-      this.#current.phase !== RELEASING
+      this.#frames.current.phase !== RELEASING
     ) {
       return; // a late completion for an operation that is already decided
     }
@@ -2026,7 +1998,7 @@ export class Kernel<
   }
 
   #handleCancel(identity: OperationIdentity): void {
-    if (this.#current.operation !== identity) {
+    if (this.#frames.current.operation !== identity) {
       return;
     }
 
@@ -2042,7 +2014,7 @@ export class Kernel<
       return;
     }
 
-    switch (this.#current.phase) {
+    switch (this.#frames.current.phase) {
       case PENDING:
         // Abandoned before there was anything to tell the consumer about:
         // `admit` is not a start notification, and no presentation exists.
@@ -2064,7 +2036,7 @@ export class Kernel<
         // is the case its domain type already names.
         this.#settleCancellation(
           request,
-          this.#current.phase === RELEASING ? AT_CONSUMER : AT_PROPOSAL,
+          this.#frames.current.phase === RELEASING ? AT_CONSUMER : AT_PROPOSAL,
         );
         break;
       // **Written out rather than left to a bare `default`.** The handler is
@@ -2085,8 +2057,8 @@ export class Kernel<
 
   #handleStartCommitted(identity: OperationIdentity): void {
     if (
-      this.#current.phase !== ACTIVATING ||
-      this.#current.operation !== identity
+      this.#frames.current.phase !== ACTIVATING ||
+      this.#frames.current.operation !== identity
     ) {
       return;
     }
@@ -2104,20 +2076,20 @@ export class Kernel<
     }
 
     this.#begin();
-    this.#commit(ACTIVE);
+    this.#frames.commit(ACTIVE);
 
     // **A command is one slot.** A pointerless operation has no other producer
     // of a release — no `pointerup` will ever arrive — so the kernel is the
     // producer, once, here. Queued rather than run inline so the consumer's
     // `onStart` and anything it dispatched drain first, exactly as they would
     // before a press's own release.
-    if (this.#current.pointerId === -1) {
-      this.#bracket.dispatch(RELEASE, this.#current.operation);
+    if (this.#frames.current.pointerId === -1) {
+      this.#bracket.dispatch(RELEASE, this.#frames.current.operation);
     }
   }
 
   #handleFailed(checkpoint: FailureCheckpoint): void {
-    const { phase } = this.#current;
+    const { phase } = this.#frames.current;
 
     // The applied half of the precedence check, and not redundant with the one
     // in `failOperation`: `fail()` classifies **immediately**, inside the
@@ -2131,7 +2103,7 @@ export class Kernel<
     // discarded with the classification it names.
     if (
       this.#operation?.cancelRequest &&
-      this.#current.operation === checkpoint.operation
+      this.#frames.current.operation === checkpoint.operation
     ) {
       this.#notify(
         new DraggableWarning('drag: failure/superseded-by-cancel', {
@@ -2142,7 +2114,7 @@ export class Kernel<
     }
 
     if (
-      this.#current.operation !== checkpoint.operation ||
+      this.#frames.current.operation !== checkpoint.operation ||
       phase === IDLE ||
       phase === REPORTING
     ) {
@@ -2223,7 +2195,7 @@ export class Kernel<
       this.#attempts.settlementInput = null;
     }
 
-    if (this.#current.phase === REPORTING) {
+    if (this.#frames.current.phase === REPORTING) {
       // The **whole checkpoint**, not just its operation: the terminal this
       // path now owes is skipped for exactly one stage, and the reader of that
       // rule needs the stage to apply it.
@@ -2283,8 +2255,8 @@ export class Kernel<
     const { operation: identity, stage } = checkpoint;
 
     if (
-      this.#current.phase !== REPORTING ||
-      this.#current.operation !== identity
+      this.#frames.current.phase !== REPORTING ||
+      this.#frames.current.operation !== identity
     ) {
       return;
     }
@@ -2319,7 +2291,7 @@ export class Kernel<
         // failure path is reported without queueing a second checkpoint for an
         // operation that is one statement from retirement.
         this.#driver.runLeaf(() => {
-          this.#spec!.finalized(this.#current);
+          this.#spec!.finalized(this.#frames.current);
         }, FAILURE_TERMINAL_CALLBACK);
       }
     }
@@ -2443,10 +2415,15 @@ export class Kernel<
    * rethrow. A controller is never returned half-armed.
    */
   arm(next: BehaviorSpec<Part, Activation>): void {
-    this.#spec = next;
-
-    // How many frames physically exist, which is what the unwind scrubs.
-    let composed = 0;
+    // **The frames the unwind is responsible for, and no field read finds
+    // them.** The second composition runs behavior code that may throw, so
+    // there is a real state in which one frame physically exists and the other
+    // does not — and that is exactly the state the unwind exists for. A design
+    // that published the pair once would have published nothing there, and a
+    // part already holding a DOM reference would be retained by the controller
+    // for good.
+    let current: Frame<Part> | null = null;
+    let draft: Frame<Part> | null = null;
 
     try {
       if (
@@ -2492,12 +2469,40 @@ export class Kernel<
 
       // The same code path twice, so both frames get one hidden class. The
       // part factory is not proven deterministic, so the two results are not
-      // assumed identical — they are simply both composed, and `composed`
-      // records how many exist for the unwind below.
-      this.#current = Object.assign(frame(), next.createFramePart());
-      composed = 1;
-      this.#draft = Object.assign(frame(), next.createFramePart());
-      composed = 2;
+      // assumed identical — they are simply both composed.
+      current = Object.assign(frame(), next.createFramePart());
+      draft = Object.assign(frame(), next.createFramePart());
+
+      this.#frames = new FrameTransaction(current, draft);
+      this.#driver = new SeamDriver<Part>(
+        this.#frames,
+        () => {
+          this.#begin();
+        },
+        () => this.#preparationValid(),
+        (stage, error) => {
+          this.#failOperation(stage, error);
+        },
+        // **The driver reports without classifying.** Not `failOperation`,
+        // which would settle a drop whose reorder already happened; and there
+        // is no second destination to choose between — a separate platform
+        // reporter would receive a consumer's own destructive rerender — which
+        // is what lets the `QUALITY` and `BEST_EFFORT` tiers collapse into one
+        // sentinel.
+        //
+        // There is no lifetime guard at this site, and adding one here is
+        // wrong: the guard belongs in `notify`, where every route shares it. A
+        // quality fault's producer is consumer-reaching — a `home` resolver, a
+        // landing policy — and is equally free to destroy before it throws.
+        this.#report,
+      );
+
+      // **Published last of the three, and the frames are why.** Every
+      // `#spec!` in this file reads as *a behavior is armed*, and teardown's
+      // frame resets are guarded by this field alone: published before the pair
+      // exists, a `destroy()` raised from inside `createFramePart` would reach
+      // a retirement over frames that were never composed.
+      this.#spec = next;
 
       this.root.addEventListener(POINTER_DOWN, this.#pointerDownHandler, {
         signal: this.#ingress.signal,
@@ -2517,17 +2522,15 @@ export class Kernel<
       this.#unwind(next.retire);
 
       // Totality applies to the unwind too: a reset that throws here must not
-      // replace the original arm failure or skip the ingress cleanup. Scrub
-      // **whichever frame exists** — a second factory that throws leaves a
-      // constructed frame the failure path is still responsible for, and a
-      // part that already holds a DOM reference would otherwise be retained
-      // by the controller for good.
-      if (composed > 0) {
-        this.#scrub(this.#current);
+      // replace the original arm failure or skip the ingress cleanup. Reset
+      // **whichever frame exists**: a second factory that throws leaves a
+      // constructed frame this path is still responsible for.
+      if (current) {
+        this.#resetFrame(next, current);
       }
 
-      if (composed > 1) {
-        this.#scrub(this.#draft);
+      if (draft) {
+        this.#resetFrame(next, draft);
       }
 
       this.#ingress.abort();
