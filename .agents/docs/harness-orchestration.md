@@ -103,12 +103,13 @@ returned `subtype: success` with an empty `result`, and the transcript grew by
 compaction records. It is usable; it returns no output, so a caller must not
 expect any.
 
-**10. The CLI bills the subscription; an SDK boundary would not.** These runs
-authenticated as `claude.ai` / Max with no API key present, so print mode uses
-the subscription exactly as interactive use does. The Agent SDK is the opposite:
-its documentation states that third-party developers are not permitted to use
-claude.ai login or subscription rate limits, so it wants `ANTHROPIC_API_KEY` and
-bills pay-as-you-go. `--bare` likewise never reads OAuth.
+**10. Print-mode traffic draws on the ordinary subscription allowance.** The
+authentication path is not by itself proof of this, so it was measured against a
+product-visible counter rather than inferred from `authMethod`, `subscriptionType`
+or `total_cost_usd` — see [Accounting](#accounting). An Agent SDK boundary is a
+different matter: its documentation states that third-party developers are not
+permitted to use claude.ai login or subscription rate limits, so it wants
+`ANTHROPIC_API_KEY` and bills pay-as-you-go. `--bare` likewise never reads OAuth.
 
 ## What this changes
 
@@ -177,6 +178,80 @@ and neither is answered here: whether a coordinator-spawned session is a context
 in which `CLAUDE_CODE_EFFORT_LEVEL` should still deny outright, and what the log
 should say when one role's session is resumed hundreds of times — the trust
 question becomes per-turn rather than per-run.
+
+## Accounting
+
+Topology A routes every role turn through `claude -p`, so a separate
+programmatic allowance would sink it even though the calls authenticate through
+Max. Authenticating as `claude.ai` proves the credential, not the bucket, and the
+two were measured apart.
+
+**The counter.** `/usage` works as a print-mode prompt and reports the
+subscription counters — a five-hour session window, a weekly all-models window,
+and a weekly model-specific one. Two consecutive readings agreed, so the reading
+itself is stable.
+
+It is a server reading, not a local tally, which is what makes it usable as
+evidence here: the binary carries an `/api/oauth/usage` endpoint and a family of
+`anthropic-ratelimit-unified-*` response headers. The window figures come back
+from the service. Only the _contributing factors_ the command also prints are
+local, and the command says so itself.
+
+**The buckets.** The installed binary contains exactly six rate-limit
+identifiers: `five_hour`, `seven_day`, `seven_day_opus`, `seven_day_sonnet`,
+`seven_day_overage_included` and `seven_day_oauth_apps`. They are scoped by time,
+by model, and in one case by caller class. **None is scoped by entrypoint**: there
+is no print, headless, programmatic or SDK bucket for print-mode traffic to fall
+into. A search for one returned nothing.
+
+**The burn.** Two controlled burns through `-p` alone, with the counter read
+before and after each:
+
+|                      | tokens via `-p` | session window |
+| -------------------- | --------------: | -------------: |
+| baseline, read twice |               — |            20% |
+| after burn 1         |         444 373 |            21% |
+| after burn 2         |         859 328 |            22% |
+
+The five-hour window moved on print-mode traffic, and moved again on more of it.
+Request and session counts rose by exactly the number of calls made.
+
+**The control.** The readings above were taken through `-p`, so a separate
+print-mode bucket would have looked the same — the counter would move, and the
+reading would report the bucket it moved. So the converse was measured: an
+interval of interactive work only, with no print-mode burn in it. The session
+window went 22% to 23% while the session count did not move at all. Interactive
+and print-mode traffic move the same counter, in both directions.
+
+**`seven_day_oauth_apps` is the bucket to know about.** It is the one caller-class
+allowance in the enum, and it is what a separate programmatic quota would look
+like. It did not appear in the counter this account reports, and no print-mode
+burn moved anything but the ordinary windows. It is also undocumented: nothing
+published says who falls into it.
+
+**What the documentation says, and does not.** The subscription allowance for
+Claude Code is documented as a rolling five-hour window plus a weekly window,
+with per-model weekly limits, and **no distinction is drawn anywhere between
+interactive and print-mode usage** — print mode is documented as a supported way
+to run Claude Code, not as a separately metered one. No published terms restrict
+driving it programmatically on a subscription. So the documentation is consistent
+with the measurement, by saying nothing that contradicts it.
+
+**This is a current-behaviour result, not a permanent property.** A change giving
+subscriptions a separate budget for programmatic use, billed at API prices, was
+announced and then paused. That report is press rather than Anthropic
+documentation and is not treated as fact here, but it names precisely the risk
+this section set out to test, which means the answer is one policy decision away
+from reversing. The measurement settles today's behaviour and cannot settle
+tomorrow's.
+
+**Standing on this.** Print-mode accounting is resolved for the purposes of
+choosing a topology: it is the ordinary subscription allowance, established by a
+server-side counter, a dose-response, and a converse control, not by the
+credential. It stays a **watch item rather than a closed question** — the counter
+is a one-line check, so re-run it before deployment and after any billing
+announcement, and treat a print-mode burn that stops moving the five-hour window
+as the signal that the topology's economics have changed.
 
 ## Topology B — resumable named subagents
 
