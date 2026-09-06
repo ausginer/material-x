@@ -76,15 +76,18 @@ function poisonMessage(role: string): string {
  * so a normal `SessionStart` cannot be mistaken for a failed check.
  */
 export function judge(check: Check): Verdict {
+  // Asked before the guard's own failures: with no role acting there is nothing
+  // to hold to a level, whatever went wrong while looking for one. Every
+  // remaining branch can therefore name the acting role.
+  if (check.role == null) {
+    return { decision: 'allow', reason: 'no-role' };
+  }
+
   if (check.error != null) {
     return deny(
       'guard-error',
       `The effort guard could not resolve the acting role.\n\n${check.error}`,
     );
-  }
-
-  if (check.role == null) {
-    return { decision: 'allow', reason: 'no-role' };
   }
 
   if (check.resolution == null) {

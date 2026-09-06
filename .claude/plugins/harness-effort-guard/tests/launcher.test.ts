@@ -34,12 +34,48 @@ const ROLES = {
   'cleanup.md': definition('name: cleanup\nmodel: sonnet'),
 };
 
+/**
+ * The exact command line the launcher would exec, so a case can assert the
+ * boundary between the two resolver fields rather than that a substring
+ * survived somewhere in it.
+ */
+function argv(root: string, stdout: string): string {
+  const [directory, command] = stdout.split('\n');
+
+  strictEqual(directory, `cwd=${root}`);
+
+  return command ?? '';
+}
+
 describe('claude-role.sh', () => {
   it('should pin the declared effort of a governed role', async () => {
-    const { code, stdout } = await launch(await project(ROLES), 'architect');
+    const root = await project(ROLES);
+    const { code, stdout } = await launch(root, 'architect');
 
     strictEqual(code, 0);
-    strictEqual(stdout.includes('--effort high'), true);
+    strictEqual(
+      argv(root, stdout).endsWith(' --agent architect --effort high'),
+      true,
+    );
+  });
+
+  // The resolver's two fields are separated by a tab, and nothing else about
+  // the line marks the boundary. A split on any other character would still
+  // produce a plausible-looking argv — a truncated root, or a level built from
+  // the tail of a path — so these two cases pin the separator itself.
+  it('should read the level from beyond the separator, not from the root', async () => {
+    const root = await project(ROLES, 'harness-effort-guard-letter-t-');
+    const { stdout } = await launch(root, 'architect');
+
+    strictEqual(argv(root, stdout).endsWith('--effort high'), true);
+  });
+
+  it('should cut at the last separator when the root holds one', async () => {
+    const root = await project(ROLES, 'harness-effort-guard-\tseparator-');
+    const { code, stdout } = await launch(root, 'architect');
+
+    strictEqual(code, 0);
+    strictEqual(argv(root, stdout).endsWith('--effort high'), true);
   });
 
   it('should omit the effort flag for a role outside the invariant', async () => {

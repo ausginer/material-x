@@ -40,11 +40,34 @@ const AGENTS_DIR = join('.claude', 'agents');
  */
 const EFFORTLESS_MODEL = 'haiku';
 
+/**
+ * Whether a filesystem rejection means *there is nothing here*, rather than *I
+ * cannot tell you*.
+ *
+ * That difference is the difference between an empty domain and an unchecked
+ * one, and only the first is safe to answer with `out-of-domain`. A tree
+ * holding no `.claude/agents/` declares no roles, so `ENOENT` and `ENOTDIR` are
+ * ordinary absence. Anything else — a permission denied, a symlink loop, an I/O
+ * error — is the guard failing to read a domain that may well exist and may
+ * well declare the acting role; reporting that as absence would convert a
+ * governed role into an unguarded one without a word in the log. Those
+ * propagate, and the caller fails closed.
+ */
+function isAbsence(cause: unknown): boolean {
+  const code = (cause as Readonly<{ code?: string }> | null)?.code;
+
+  return code === 'ENOENT' || code === 'ENOTDIR';
+}
+
 async function isDirectory(path: string): Promise<boolean> {
   try {
     return (await stat(path)).isDirectory();
-  } catch {
-    return false;
+  } catch (cause) {
+    if (isAbsence(cause)) {
+      return false;
+    }
+
+    throw cause;
   }
 }
 
@@ -110,8 +133,12 @@ async function readDefinitions(
 
   try {
     names = await readdir(dir);
-  } catch {
-    return [];
+  } catch (cause) {
+    if (isAbsence(cause)) {
+      return [];
+    }
+
+    throw cause;
   }
 
   return await Promise.all(
@@ -127,6 +154,10 @@ async function readDefinitions(
  *
  * The single root-finding rule, shared by both callers so that the launcher's
  * pre-session answer and the hook's in-session answer cannot diverge.
+ *
+ * Throws when a candidate cannot be inspected at all. `null` states that no
+ * ancestor holds a domain, which is a reading of the tree; a candidate the
+ * filesystem refuses to describe supports no such reading.
  */
 export async function findProjectRoot(
   startDir: string,
@@ -155,7 +186,8 @@ export async function findProjectRoot(
  * `effort:`: that file promises a level the runtime will never report, so
  * honouring the effort would enforce an unreachable number while honouring the
  * model would discard a field its author wrote on purpose. Both are raised
- * rather than resolved.
+ * rather than resolved, as is a filesystem that cannot produce the definitions
+ * to judge.
  */
 export async function resolveRole(
   projectRoot: string,

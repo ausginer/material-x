@@ -68,21 +68,30 @@ never reached `PreToolUse`; `Stop` reported the wrong effort once the inference
 had already happened. Tool actions fail closed; text-only turns can only be
 invalidated retrospectively.
 
-**No lifecycle event has reported the acting model.** `SessionStart` and
-`SubagentStart` ask for it explicitly and no record carries one.
+**No event reports the acting model, the decision point included.** The earlier
+reading of this row was taken with an instrument that could not have produced
+one: `model` was recorded on announcements only, so `PreToolUse`, `Stop` and
+`SubagentStop` discarded a reported model rather than writing it down, and their
+silence was the log's shape rather than the runtime's.
 
-**The decision point had not been measured at all**, and the earlier reading of
-this row overstated what it covered. The guard recorded `model` on announcements
-only: `PreToolUse`, `Stop` and `SubagentStop` discarded a reported model instead
-of writing it down, so their silence was the instrument's rather than the
-runtime's. Verdict records now carry the field, and whether the runtime supplies
-one there is an open observation rather than a settled negative.
+Verdict records now carry the field and the observation was retaken on 2.1.263.
+Across a `SessionStart`, four `PreToolUse`, a `SubagentStart`, a `SubagentStop`
+and a `Stop`, spanning an `opus` role and a `haiku` one, **no record carries a
+model**. The negative stands, and now rests on the events that decide rather than
+on the two that never could.
 
-It does not move the exception, which is keyed to a declaration for a reason no
-observation can change: the launcher decides whether to pass `--effort` before
-the session exists, so it has no event to read and only the definition's own
-`model:` field to go on. What the answer would bear on is
-[Known limits](#known-limits-of-the-exception).
+It does not bear on how the exception is keyed. The launcher decides whether to
+pass `--effort` before the session exists, so it has no event to read and only
+the definition's own `model:` field to go on, whatever the runtime reports later.
+What the answer bears on is [Known limits](#known-limits-of-the-exception).
+
+**An enforcing session runs clean, including a haiku subagent.** With
+`HARNESS_EFFORT_GUARD_MODE=enforce`, an `architect` parent spawning `Explore`
+produced seven records and no denial: `architect` matched `high` at every
+`PreToolUse` and at `Stop`, and `Explore` resolved `exempt` and allowed at both
+its `PreToolUse` and its `SubagentStop`, reporting no effort at either. That is
+the expected observation for a role outside the invariant, arriving from the
+runtime rather than from a fixture.
 
 **Lifecycle events produce no verdicts.** Across every run above, no
 `SessionStart` or `SubagentStart` emitted a verdict record. They carry no effort
@@ -115,11 +124,10 @@ observed reaching it.
 The verdict, resolver, CLI and launcher paths carry `node:test` cases; run them
 from the plugin directory with `node --test 'tests/*.test.ts'`.
 
-**Enforcement is still a deliberate flip, not a consequence of this.** The guard
-has been exercised against fixtures rather than a live enforcing session, and
-`/effort` mid-session, `/compact` and resume remain unobserved. Turn it on and
-read the log; what a mistake there produces is a denied tool call, which is
-loud.
+**Enforcement has been run once, and is still a deliberate flip.** The enforcing
+session above completed without a denial, but `/effort` mid-session, `/compact`
+and resume remain unobserved. Turn it on and read the log; what a mistake there
+produces is a denied tool call, which is loud.
 
 ## Known limits of the exception
 
@@ -127,9 +135,10 @@ Both follow from keying the exception to a declaration, which the launcher
 leaves no choice about: it decides before the session exists, so a declaration is
 the only thing there is to read.
 
-- **An invocation that overrides a role's model is invisible.** This is the limit
-  a reported model at the decision point would speak to, and the measurement
-  above is now capable of answering it. A `model: haiku`
+- **An invocation that overrides a role's model is invisible.** The retaken
+  measurement above closes the door it might have opened: no event names the
+  acting model, at the decision point or anywhere else, so there is nothing to
+  hold a declaration against. A `model: haiku`
   role spawned onto a model that does carry effort stays exempt and runs
   ungoverned; a role declaring an effort spawned onto `haiku` reports none and
   denies, and its fix is the invocation rather than the file — which is why the
@@ -149,6 +158,7 @@ What this document used to say, and what changed it.
 
 | Date       | Section            | Change                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | ---------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-09-06 | Measurements       | **Retaken:** the model observation, on verdict records that now retain the field, across an `opus` role and a `haiku` one. The result is unchanged and the negative now covers the effort-bearing events. **Added:** one enforcing session, clean, with an exempt subagent inside it                                                                                                                                                                                                                                                                                                  |
 | 2026-09-06 | Measurements       | **Corrected:** _the guard reads a `model` field on every event and records it whenever it is present, so the acting model is not observable at the decision point._ Only announcements recorded it; the effort-bearing events dropped a reported model, so the negative result was the instrument's shape and not the runtime's. Verdict records now carry the field and the question is open. The exception's keying is untouched — the launcher reads a declaration because it runs before any event exists                                                                         |
 | 2026-09-06 | Before enforcement | **Superseded:** _the model exception is designed and not yet implemented, and enforcement waits on the resolver, the decision and the launcher matching the decision table._ All four now match it                                                                                                                                                                                                                                                                                                                                                                                    |
 | 2026-09-06 | Before enforcement | **Withdrawn:** _every project-defined role must declare `effort:`, and `explore.md` cannot satisfy the invariant — either it moves to a model with effort support or it is retired in favour of the built-in `Explore`._ Both branches treated a missing declaration as a configuration mistake. Haiku falsifies the premise: it does not participate in the effort mechanism, so an effort contract there is one the runtime cannot satisfy, and the role needed no change. Replaced by a model-level exception — `model: haiku` roles are governed but outside the effort invariant |

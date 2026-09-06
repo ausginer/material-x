@@ -1,9 +1,16 @@
 import { rejects, strictEqual } from 'node:assert/strict';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, mkdtemp, symlink } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { findProjectRoot, resolveRole } from '../scripts/resolve-role.ts';
-import { definition, project, run, SCRIPTS } from './support.ts';
+import {
+  definition,
+  project,
+  run,
+  SCRIPTS,
+  unreadableDomain,
+} from './support.ts';
 
 const RESOLVER = join(SCRIPTS, 'resolve-role.ts');
 
@@ -97,6 +104,29 @@ describe('resolveRole', () => {
   });
 });
 
+describe('resolveRole against a domain it cannot read', () => {
+  it('should read a missing definitions directory as an empty domain', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'harness-effort-guard-bare-'));
+
+    strictEqual((await resolveRole(root, 'architect')).kind, 'out-of-domain');
+  });
+
+  it('should refuse to read an unreadable directory as an empty domain', async () => {
+    const root = await unreadableDomain();
+
+    await rejects(resolveRole(root, 'architect'), { code: 'ELOOP' });
+  });
+
+  it('should propagate a definition file it cannot read', async () => {
+    const root = await project({});
+    const dir = join(root, '.claude', 'agents');
+
+    await symlink('architect.md', join(dir, 'architect.md'));
+
+    await rejects(resolveRole(root, 'architect'), { code: 'ELOOP' });
+  });
+});
+
 describe('findProjectRoot', () => {
   it('should find the nearest ancestor holding a definitions directory', async () => {
     const root = await project({
@@ -111,6 +141,10 @@ describe('findProjectRoot', () => {
 
   it('should return null when no ancestor holds one', async () => {
     strictEqual(await findProjectRoot('/'), null);
+  });
+
+  it('should refuse to report a candidate it cannot inspect as absent', async () => {
+    await rejects(findProjectRoot(await unreadableDomain()), { code: 'ELOOP' });
   });
 });
 

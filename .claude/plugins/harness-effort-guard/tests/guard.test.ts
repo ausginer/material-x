@@ -2,7 +2,13 @@ import { strictEqual } from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
-import { definition, project, run, SCRIPTS } from './support.ts';
+import {
+  definition,
+  project,
+  run,
+  SCRIPTS,
+  unreadableDomain,
+} from './support.ts';
 
 const GUARD = join(SCRIPTS, 'guard.ts');
 
@@ -61,6 +67,60 @@ function call(agent: string, level?: string): Event {
     ...(level != null && { effort: { level } }),
   };
 }
+
+describe('guard against a domain it cannot read', () => {
+  it('should deny rather than read the failure as an empty domain', async () => {
+    const root = await unreadableDomain();
+    const { record } = await observed(root, call('architect', 'high'));
+
+    strictEqual(record.decision, 'deny');
+  });
+
+  it('should record the failure as a guard error', async () => {
+    const root = await unreadableDomain();
+    const { record } = await observed(root, call('architect', 'high'));
+
+    strictEqual(record.cause, 'guard-error');
+  });
+
+  it('should block the tool call while enforcing', async () => {
+    const root = await unreadableDomain();
+    const { stdout } = await observed(root, call('architect', 'high'), {
+      HARNESS_EFFORT_GUARD_MODE: 'enforce',
+    });
+
+    const emitted = JSON.parse(stdout) as Readonly<{
+      hookSpecificOutput: Readonly<{ permissionDecision: string }>;
+    }>;
+
+    strictEqual(emitted.hookSpecificOutput.permissionDecision, 'deny');
+  });
+
+  // Root discovery reads the filesystem too. Left outside the guard's own error
+  // handling it ends the hook process instead of producing a verdict, and a
+  // PreToolUse that never answers is a tool call that proceeds unchecked.
+  it('should deny when discovering the root is what fails', async () => {
+    const root = await unreadableDomain();
+    const { record } = await observed(
+      root,
+      { ...call('architect', 'high'), cwd: root },
+      { CLAUDE_PROJECT_DIR: undefined },
+    );
+
+    strictEqual(record.cause, 'guard-error');
+  });
+
+  it('should allow when no role is acting', async () => {
+    const root = await unreadableDomain();
+    const { record } = await observed(root, {
+      hook_event_name: 'PreToolUse',
+      session_id: 's1',
+      cwd: root,
+    });
+
+    strictEqual(record.decision, 'allow');
+  });
+});
 
 describe('guard', () => {
   it('should allow an exempt role that reports no effort', async () => {

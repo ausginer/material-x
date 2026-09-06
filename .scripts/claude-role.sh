@@ -32,8 +32,15 @@ plugin=$(CDPATH= cd -- "$(dirname -- "$0")/../.claude/plugins/harness-effort-gua
 # say why — an undeclared, duplicated or unknown role, or no project root.
 # A success with an empty effort field is a role outside the effort invariant.
 resolved=$(node "$plugin/scripts/resolve-role.ts" "$role" "$PWD")
-root=${resolved%	*}
-effort=${resolved#*	}
+
+# The two fields are tab-separated, and the tab is built rather than typed: a
+# bare one here is invisible to review and one whitespace-normalising edit away
+# from splitting on nothing at all, which would put a whole path where the level
+# belongs. Both expansions cut at the *last* tab, so a project path containing
+# one cannot make the two halves disagree about where the boundary was.
+separator=$(printf '\t')
+root=${resolved%"$separator"*}
+effort=${resolved##*"$separator"}
 
 # Starting from the resolved root is load-bearing: it makes the session's
 # CLAUDE_PROJECT_DIR the directory the effort was just read from, so the

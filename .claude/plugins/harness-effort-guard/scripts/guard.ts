@@ -36,7 +36,7 @@ function announcement(
   const lines = [];
 
   if (error != null) {
-    lines.push(`Effort guard could not resolve the acting role: ${error}`);
+    lines.push(`Effort guard could not resolve the role definitions: ${error}`);
   } else if (role != null && declared != null) {
     lines.push(
       `Effort guard active. Role ${role} declares effort ${declared}.`,
@@ -88,26 +88,31 @@ const main = async (): Promise<void> => {
   const poisoned = process.env.CLAUDE_CODE_EFFORT_LEVEL != null;
   const role = input.agent_type;
 
-  // CLAUDE_PROJECT_DIR is the root Claude Code established and is stable across
-  // cwd changes within the session; the fallback shares the launcher's rule
-  // rather than reimplementing it.
-  const root =
-    process.env.CLAUDE_PROJECT_DIR ?? (await findProjectRoot(input.cwd));
-
+  let root: string | null = null;
   let resolution: Resolution | undefined;
   let error: string | undefined;
 
-  if (role != null) {
-    try {
+  // Finding the root is inside the same catch as resolving against it: both
+  // read the filesystem, both can fail for the same reasons, and an escaping
+  // rejection would end the hook process without a verdict — which a
+  // PreToolUse cannot turn into a denial, so the call would proceed unchecked.
+  try {
+    // CLAUDE_PROJECT_DIR is the root Claude Code established and is stable
+    // across cwd changes within the session; the fallback shares the launcher's
+    // rule rather than reimplementing it.
+    root = process.env.CLAUDE_PROJECT_DIR ?? (await findProjectRoot(input.cwd));
+
+    if (role != null) {
       // No root is an empty domain, not a failure: a tree that declares no
-      // roles has nothing to hold this one to.
+      // roles has nothing to hold this one to. Being unable to look is a
+      // different answer, and it arrives here as a rejection.
       resolution =
         root == null
           ? { kind: 'out-of-domain', role }
           : await resolveRole(root, role);
-    } catch (cause) {
-      error = cause instanceof Error ? cause.message : String(cause);
     }
+  } catch (cause) {
+    error = cause instanceof Error ? cause.message : String(cause);
   }
 
   const declared = resolution?.kind === 'declared' ? resolution.effort : null;
