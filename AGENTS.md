@@ -13,6 +13,28 @@ Resident in every agent's context, so it carries only what applies before a role
 
 Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before writing or changing source. Before finalizing a unit of work — formatting, linting, typechecking, committing or pushing — read [`.agents/docs/handoff.md`](.agents/docs/handoff.md).
 
+## Before dispatching a governed worker
+
+The effort guard loads from project settings, and **a fresh checkout's first
+session runs before it is loadable**: registering the repository marketplace and
+loading its plugin happen on successive starts. A worker dispatched in that
+window is unchecked, and an unchecked session is indistinguishable from a clean
+one, because nothing is watching.
+
+A guarded session says so. `Effort guard active` arrives as startup context in
+every session the guard is loaded into, the roleless coordinator included.
+
+- **Seen it — dispatch normally.**
+- **Not seen it — run `claude plugin marketplace add ./` and start a new
+  session before spawning any role worker.** A restart is required either way: a
+  plugin does not become loaded in a session already running.
+
+This binds the dispatch of `architect`, `implementer`, `reviewer`, `integrity`,
+`cleanup` and `der`. It does not bind the coordinator's own work, which carries
+no role and is outside the invariant. [`agent-workflow.md`](.agents/docs/agent-workflow.md)
+§Dispatch is the model; [`harness-effort-guard.md`](.agents/docs/harness-effort-guard.md)
+§How it loads is the mechanism.
+
 ## Evidence
 
 Verify cheap mechanical claims yourself, in the agent that cites them. **Delegate discovery, never verification** — a sub-agent returns candidates; the citing agent confirms the ones it reports. Delegate only when the search justifies a separate context.

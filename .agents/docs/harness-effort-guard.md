@@ -38,12 +38,29 @@ all — only user or managed settings can vouch for one. The
 disagreement between them does not fail loudly. The session simply starts
 without the guard.
 
-**The first session in a fresh clone is unguarded.** Registering the marketplace
-and loading its plugins happen in that order across two starts: the first
-session records the marketplace, and the next one loads the guard. `claude
-plugin marketplace add ./`, run once, collapses that to zero — after it the very
-next session is guarded. Either way the gap is one coordinator start, and a
-coordinator is `no-role`.
+**The first session in a fresh clone is unguarded, and that is a bootstrap
+prerequisite rather than a harmless window.** Registering the marketplace and
+loading its plugins happen in that order across two starts: the first session
+records the marketplace, and the next one loads the guard. Nothing stops an
+owner dispatching `architect` or `implementer` in the first one — measured, and
+the worker ran a tool call with no record at all — so the gap is not
+self-limiting and must not be described as if it were.
+
+`claude plugin marketplace add ./`, run once per machine, closes it: after it
+the very next session is guarded. It records the marketplace in user settings as
+an absolute path, leaving the checked-in project declaration untouched — so the
+two coexist, and re-running the command is what fixes the user-scope entry if
+the checkout ever moves. [`AGENTS.md`](../../AGENTS.md) §Before
+dispatching a governed worker carries the rule as a resident instruction, and
+[`README.md`](../../README.md) carries the command where a fresh checkout meets
+it.
+
+**A guarded session says so.** `Effort guard active` is startup context in every
+session the guard loads into, including a roleless coordinator that has no level
+to report. That line is what makes the prerequisite checkable rather than
+remembered: its absence is the signal not to dispatch. The declaration form
+cannot close the gap on its own — an inline manifest in settings reconciles over
+two starts exactly as a directory source does, and normalises back to one.
 
 **Loading is scoped to the repository root.** A session started in a
 subdirectory does not read the project settings at all, so it loads no guard —

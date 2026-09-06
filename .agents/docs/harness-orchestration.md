@@ -544,8 +544,11 @@ having here, because they were not obvious and had to be measured:
   repository could not have installed itself from one.
 - **Registration and loading happen on successive starts.** The first session in
   a fresh clone registers the marketplace and runs unguarded; the next one loads
-  the guard. `claude plugin marketplace add ./` closes that gap, and the gap only
-  ever contains a coordinator, which is `no-role` anyway.
+  the guard. Declaring the manifest inline in settings does not help — it
+  reconciles over the same two starts and normalises back to a directory source.
+  `claude plugin marketplace add ./` is therefore a **required one-time
+  bootstrap**, not a convenience: a governed worker dispatched from that first
+  session runs with no record, which was measured rather than assumed.
 
 **The guard's rules survive intact, and one becomes more important.** Workers are
 subagents, so `CLAUDE_CODE_EFFORT_LEVEL` — which flattens subagents to one level —

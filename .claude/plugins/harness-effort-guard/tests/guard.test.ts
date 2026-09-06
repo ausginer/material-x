@@ -51,6 +51,15 @@ async function observed(
   return { record: JSON.parse(log.trim().split('\n').at(-1)!), stdout };
 }
 
+/** The startup context a lifecycle event hands back to the host. */
+function context(stdout: string): string {
+  const emitted = JSON.parse(stdout) as Readonly<{
+    hookSpecificOutput?: Readonly<{ additionalContext?: string }>;
+  }>;
+
+  return emitted.hookSpecificOutput?.additionalContext ?? '';
+}
+
 async function exemptProject(): Promise<string> {
   return await project({
     'explore.md': definition('name: Explore\nmodel: haiku'),
@@ -67,6 +76,67 @@ function call(agent: string, level?: string): Event {
     ...(level != null && { effort: { level } }),
   };
 }
+
+/**
+ * `AGENTS.md` §Before dispatching a governed worker turns "is the guard
+ * loaded?" into a decision the coordinator makes from startup context, because
+ * a fresh checkout's first session runs before the plugin is loadable. That
+ * rule is only as good as the signal: a session the guard is loaded into must
+ * say so, and a coordinator carries no role to say it about.
+ */
+describe('guard announcement', () => {
+  it('should announce itself to a session carrying no role', async () => {
+    const root = await exemptProject();
+    const { stdout } = await observed(root, {
+      hook_event_name: 'SessionStart',
+      session_id: 's1',
+      cwd: '/workspaces',
+    });
+
+    strictEqual(context(stdout).includes('Effort guard active'), true);
+  });
+
+  it('should announce itself to a governed worker, naming its level', async () => {
+    const root = await exemptProject();
+    const { stdout } = await observed(root, {
+      hook_event_name: 'SubagentStart',
+      session_id: 's1',
+      cwd: '/workspaces',
+      agent_type: 'architect',
+    });
+
+    strictEqual(
+      context(stdout).includes('Role architect declares effort high'),
+      true,
+    );
+  });
+
+  it('should announce itself to a worker outside the effort invariant', async () => {
+    const root = await exemptProject();
+    const { stdout } = await observed(root, {
+      hook_event_name: 'SubagentStart',
+      session_id: 's1',
+      cwd: '/workspaces',
+      agent_type: 'Explore',
+    });
+
+    strictEqual(context(stdout).includes('Effort guard active'), true);
+  });
+
+  it('should still report a contaminated environment alongside it', async () => {
+    const root = await exemptProject();
+    const { stdout } = await observed(
+      root,
+      { hook_event_name: 'SessionStart', session_id: 's1', cwd: '/workspaces' },
+      { CLAUDE_CODE_EFFORT_LEVEL: 'medium' },
+    );
+
+    strictEqual(
+      context(stdout).includes('CLAUDE_CODE_EFFORT_LEVEL is set'),
+      true,
+    );
+  });
+});
 
 describe('guard against a domain it cannot read', () => {
   it('should deny rather than read the failure as an empty domain', async () => {

@@ -41,6 +41,12 @@ function announcement(
     lines.push(
       `Effort guard active. Role ${role} declares effort ${declared}.`,
     );
+  } else {
+    // Every session says so, the roleless coordinator included. Announcing only
+    // when there is a level to report leaves the guard silent in exactly the
+    // session that dispatches workers, so "loaded" and "not installed yet" look
+    // identical at the moment that difference decides whether dispatch is safe.
+    lines.push('Effort guard active.');
   }
 
   if (poisoned) {
@@ -50,14 +56,12 @@ function announcement(
     );
   }
 
-  return lines.length === 0
-    ? {}
-    : {
-        hookSpecificOutput: {
-          hookEventName: event,
-          additionalContext: lines.join(' '),
-        },
-      };
+  return {
+    hookSpecificOutput: {
+      hookEventName: event,
+      additionalContext: lines.join(' '),
+    },
+  };
 }
 
 function argument(flag: string): string | undefined {
