@@ -295,7 +295,8 @@ stored under the parent session's own directory.
 `/compact` to a worker delivers the text, not the command; the worker replied
 that no compact action is available to it. Its context climbed monotonically
 across seven turns — 34 906, 34 101, 52 054, 59 714, 64 982, 66 158, 67 777
-tokens sent — with nothing able to reduce it.
+tokens sent — with nothing able to reduce it. Whether that is a defect depends
+on the lifetime model; see [Generational lifetime](#generational-lifetime).
 
 **18. The coordinator burns context and money per routing turn.** The
 coordinator's own turns sent 76 495, then 44 831 after its compaction, then
@@ -310,9 +311,94 @@ subagent JSONL, whose format the documentation warns changes between releases;
 the `subagent_tokens` figure in a completion notice is cumulative spend, not
 context pressure.
 
+**21. Generational replacement is native and clean.** Spawning a new worker
+under a name already in use rebinds the name — the fresh worker reported no
+memory of the previous generation's codeword, took a new `agentId`, and the
+older generation stayed on disk under the same name. Retire-and-replace is one
+tool call, and both generations remain readable.
+
+**22. Generations spend a shared, capped budget.** A session carries
+`CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` and
+`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` limits — raisable by environment variable,
+but per coordinator session and shared across every role in it. Deliberate
+churn spends that budget faster than long-lived workers would.
+
 **20. A role worker reasserts its role.** `cleanup` refused an off-role question
 twice and spent tokens on its own startup reading instead. Correct behaviour, and
 a reminder that a worker is a role rather than a callable function.
+
+## Generational lifetime
+
+Finding 17 read the absence of worker compaction as fatal. That was wrong, and
+the argument against it is sound: compaction is itself lossy, and it preserves
+assumptions and intermediate state that have since stopped being true. A worker
+that is retired and replaced at a sensible boundary — with the repository,
+commits, plans, decisions and handoffs carrying continuity, and conversation
+treated as disposable working memory — is often in cleaner state than one
+compacted repeatedly. Finding 17 is withdrawn as a reason to prefer A.
+
+**It does not, however, separate the two topologies, because replacement is
+equally available to both.** Retiring an A worker is deriving the next uuid and
+omitting `--resume`; retiring a B worker is spawning the same name again
+(finding 21). Both are one step, and both cost one cold start. What the
+generational model actually does is remove one of B's disadvantages, not create
+an advantage — and then three differences remain, all of them about lifetime.
+
+**A keeps both instruments; B has only one.** A can retire a session _or_ extend
+it by compacting, and choose per role. B can only retire. That matters exactly
+where continuity is worth most: an architect whose accumulated reasoning is the
+asset can be carried past a context boundary in A and cannot in B.
+
+**A's generation boundaries are independent; B's are coupled.** Each A session
+has its own lifetime, and retiring the implementer does not touch the architect.
+Every B worker lives inside one coordinator session id and draws on one shared
+spawn budget (finding 22), so the coordinator's lifetime is a ceiling on every
+role's at once, and deliberate churn brings that ceiling closer.
+
+**A's retired generations stay addressable.** A superseded A session keeps its
+uuid and can be resumed later to ask what that generation concluded. A retired B
+worker's transcript is on disk but reachable only through a living parent session
+(finding 16) — which is precisely the archive the generational model relies on
+for anything the repository did not capture.
+
+### Roles have different lifetimes, and that shrinks the problem
+
+Taking the role differences seriously changes the size of the system more than it
+changes the choice.
+
+- **`reviewer`, `integrity`, `cleanup`, `der`** benefit from a fresh context —
+  independence is the point of a second opinion, and finding 20 shows a role
+  worker reasserting its role rather than drifting. These roles want maximum
+  freshness, which is a **one-shot subagent**: what the repository already does.
+  They need no persistent worker in either topology.
+- **`implementer`** wants frequent retirement, and either topology serves it. A
+  adds durable, addressable archives of superseded generations.
+- **`architect`** wants the longest continuity, and is the one role where A's
+  second instrument is decisive.
+
+So the persistent-worker apparatus is worth building for about two roles, not
+seven. That is the most useful consequence of the generational argument, and it
+argues for a smaller system than either topology as originally framed.
+
+### What decides it now
+
+Not compaction. The coordinator does. An automated B has to drive its coordinator
+session non-interactively, and the only measured way to do that is
+`-p --resume` — so an automated B is A's machinery **plus** a reasoning hop that
+restates worker output as prose (finding 19) and bills 45–76 k context per route
+(finding 18).
+
+B’ is genuinely attractive in one shape: when the coordinator is a **person in an
+interactive session**, dispatching to long-lived named role workers. That needs no
+orchestration code at all, and it is the honest recommendation for interactive
+work. It is not an orchestration system, which is what was asked for.
+
+**If B’ were chosen anyway**, the minimum is small and worth recording: one name
+per role; a task counter per role; retirement at a coarse boundary — N tasks, or
+a phase ending — rather than a token threshold; and respawn by the same name. No
+uuids, no locks, no process management. Worker pressure would come from the
+subagent transcript if it were ever wanted, and finding 22 would need the
+per-session cap raised.
 
 ## Choosing
 
@@ -325,26 +411,33 @@ a reminder that a worker is a role rather than a callable function.
 | Effort correctness            | persists; guard confirms `match`                                     | persists; guard confirms `match`                                                                           |
 | Guard observability           | per session                                                          | per worker, with `agent_id` — finer                                                                        |
 | Concurrency                   | **silently forks**; needs a lock                                     | **serializes**; nothing to build                                                                           |
-| Worker compaction             | `/compact` works                                                     | **none possible**; context grows unbounded                                                                 |
+| Worker lifetime               | retire, or extend by compacting                                      | retire only                                                                                                |
+| Generation boundaries         | independent per role; superseded sessions stay addressable           | coupled to one coordinator session and one spawn budget                                                    |
 | Context pressure              | supported `--output-format json`                                     | internal transcript parsing                                                                                |
 | Output                        | structured result plus usage                                         | model-relayed prose                                                                                        |
 | Quota                         | subscription                                                         | subscription                                                                                               |
 | Build cost                    | uuid, spawn, lock, stdin redirect                                    | almost nothing                                                                                             |
 
-**A remains the choice**, for three reasons that B cannot answer.
+**A remains the choice**, though not for the reason first given. Worker
+compaction is no longer the argument — see
+[Generational lifetime](#generational-lifetime), where finding 17 is withdrawn.
+Three things decide it instead.
 
-Finding 17 is the decisive one. The stated purpose of persistent workers is long
-workloads, and B gives a worker a context that only grows with no mechanism to
-reduce it; the topology fails hardest exactly where it is supposed to pay off. A
-compacts a worker with a command already measured to work (finding 9).
+The coordinator decides most of it. An automated B must drive its coordinator
+session non-interactively, and the measured way to do that is `-p --resume`; an
+automated B is therefore A's machinery plus a reasoning hop that costs 45-76 k
+context per route (finding 18) and restates worker output as prose rather than
+returning it (finding 19). A's coordinator holds no context and reads a JSON
+field.
 
-Findings 18 and 19 undo the rest. B's coordinator is a reasoning session with its
-own growing context and per-turn cost, which is the hierarchy the design set out
-to remove, and worker output reaches it as prose a model restated rather than a
-result. A's coordinator holds no context at all and reads a JSON field.
+Lifetime control decides the rest. A can retire a worker _or_ compact it and
+choose per role, where B can only retire; that is the difference between the
+roles' needs being expressible and being approximated. And A's generations are
+independent and durably addressable, where B's share one coordinator lifetime and
+one spawn budget (findings 16 and 22).
 
-Finding 16 bounds B's persistence to one parent session id, where A's workers are
-independent sessions that any process can address later.
+Neither reason is large. If the coordinator is a person rather than a program,
+B' wins on simplicity and should be used.
 
 **What A must borrow.** Finding 14 shows B solving A's one serious defect for
 free. That does not rescue B, but it does say the per-role lock in A is not
