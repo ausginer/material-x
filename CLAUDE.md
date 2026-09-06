@@ -28,12 +28,19 @@ Use sub-agents for research and exploration that can run in parallel — investi
 
 Create an agent team only when the task has genuinely independent parallel work, such as migrating several components at once. Do not create teams for reviews, small changes, or work with sequential dependencies.
 
-## Starting a managed role
+## Dispatching roles
 
-```sh
-.scripts/claude-role.sh <role>
-```
+This session is the coordinator: a plain session with no `--agent`, which is
+outside the effort invariant and recorded as `no-role`. Roles are subagents of
+it. `architect` and `implementer` are spawned with a `name` equal to the role
+and resumed by that name; `reviewer`, `integrity`, `cleanup` and `der` are
+spawned fresh every time. A worker's conversation is disposable — the repository
+is what carries continuity — so retire and respawn at a commit or a closing
+phase rather than compacting. [`agent-workflow.md`](.agents/docs/agent-workflow.md)
+§Dispatch is the full model.
 
-It pins the role's declared `effort:` — which `--agent` alone can drop — and
-loads the guard that checks it on every tool call. A session started any other
-way is unguarded. See [`harness-effort-guard.md`](.agents/docs/harness-effort-guard.md).
+The effort guard loads automatically from project settings when the session
+starts at the checkout root; it needs no flags, and
+[`.scripts/claude-role.sh`](.scripts/claude-role.sh) is now only a diagnostic
+for reproducing one role in isolation. See
+[`harness-effort-guard.md`](.agents/docs/harness-effort-guard.md).

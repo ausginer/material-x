@@ -9,8 +9,18 @@ export type Run = Readonly<{
   stderr: string;
 }>;
 
+/** The plugin's own root, so tests address the real entrypoints and manifests. */
+export const PLUGIN_ROOT = join(import.meta.dirname, '..');
+
 /** The plugin's own `scripts/` directory, so tests address the real entrypoints. */
-export const SCRIPTS = join(import.meta.dirname, '..', 'scripts');
+export const SCRIPTS = join(PLUGIN_ROOT, 'scripts');
+
+/**
+ * The checkout holding the plugin, its marketplace manifest and the project
+ * settings that enable it — the three files whose agreement is what makes an
+ * ordinary session load the guard.
+ */
+export const REPO_ROOT = join(PLUGIN_ROOT, '..', '..', '..');
 
 /**
  * A throwaway project root holding `.claude/agents/<name>` for each entry.

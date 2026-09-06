@@ -62,6 +62,14 @@ Both kinds carry `model` whenever the event reports one, and omit the field when
 
 A run is trusted only when every governed role that acted appears with `declared == actual`, **and appears at all**: an absent role was not checked, which means unguarded rather than clean.
 
+## Installation
+
+The repository that owns this plugin declares it in a local marketplace
+(`.claude-plugin/marketplace.json`) and enables it from project settings
+(`.claude/settings.json`), so an ordinary session started at the checkout root
+loads it with no command-line flags. `--plugin-dir` still works and is what the
+tests use, but nothing about the plugin depends on it.
+
 ## Requirements
 
 Node with type stripping (24+); the scripts run as `.ts` with no build step. `tsconfig.json` is for typechecking and editors only.

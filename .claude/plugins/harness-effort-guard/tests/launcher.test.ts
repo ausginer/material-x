@@ -1,17 +1,9 @@
 import { strictEqual } from 'node:assert/strict';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
-import { definition, project, run } from './support.ts';
+import { definition, project, REPO_ROOT, run } from './support.ts';
 
-const LAUNCHER = join(
-  import.meta.dirname,
-  '..',
-  '..',
-  '..',
-  '..',
-  '.scripts',
-  'claude-role.sh',
-);
+const LAUNCHER = join(REPO_ROOT, '.scripts', 'claude-role.sh');
 
 async function launch(
   root: string,

@@ -4,19 +4,64 @@ How the multi-agent system is arranged: which roles exist, how a review round is
 
 ## Roles
 
-| Role | Owns |
-| --- | --- |
-| `reviewer` | Feature proof — implementation against the plan, contracts, tests and parity requirements |
-| `integrity` | Package coherence — neighbouring flows, public surface, invariants, drift outside the change |
-| `cleanup` | Code discipline — machinery the code's responsibility does not require |
-| `der` | Surviving justification — machinery resting on a decision or assumption that may have expired |
-| `consolidator` | Synthesis — validates, deduplicates, merges, rejects, routes. The root console |
-| `architect` | Decisions that need architectural, contract, parity or public-surface authority |
-| `implementer` | Implementation within settled constraints |
+| Role           | Owns                                                                                          |
+| -------------- | --------------------------------------------------------------------------------------------- |
+| `reviewer`     | Feature proof — implementation against the plan, contracts, tests and parity requirements     |
+| `integrity`    | Package coherence — neighbouring flows, public surface, invariants, drift outside the change  |
+| `cleanup`      | Code discipline — machinery the code's responsibility does not require                        |
+| `der`          | Surviving justification — machinery resting on a decision or assumption that may have expired |
+| `consolidator` | Synthesis — validates, deduplicates, merges, rejects, routes. The root console                |
+| `architect`    | Decisions that need architectural, contract, parity or public-surface authority               |
+| `implementer`  | Implementation within settled constraints                                                     |
 
 For important checkpoints, an independent model may be used instead of the Claude `reviewer` role.
 
 Two boundaries hold across the whole system and are stated in each role that they bind: **reviewers find and document rather than fix or decide**, and **only the architect creates, amends, supersedes or renumbers a `D-*`.** Any role may report one as expired, contradicted or unimplemented.
+
+## Dispatch
+
+**The coordinator is a plain interactive session** — the VS Code window, started
+with no `--agent`. It holds no role, does no repository work itself, and exists
+to dispatch and relay. A session with no `agent_type` is outside the effort
+invariant and allowed as `no-role`, and it never meets the interactive `--agent`
+effort bug, because it names no agent. The effort guard loads into it
+automatically; [`harness-effort-guard.md`](harness-effort-guard.md) §How it
+loads is the mechanism, and the checkout root is where the session must start.
+
+**`architect` and `implementer` are named workers.** Spawn each with a `name`
+equal to its role, and afterwards address it by that name: a message resumes a
+finished worker with its context intact, keeping its role, model and declared
+effort. One name per role, so a second spawn under the same name replaces the
+generation rather than running beside it.
+
+**Review passes stay one-shot.** `reviewer`, `integrity`, `cleanup` and `der`
+are spawned fresh every time and never named or resumed. Independence is the
+point of a second opinion, and a disposable subagent is exactly maximum
+freshness. The consolidator launches them as it always has.
+
+**Retirement is a repository event, not a token threshold.**
+
+| Worker          | Retire when                                                             |
+| --------------- | ----------------------------------------------------------------------- |
+| `implementer`   | the unit of work is committed and pushed                                |
+| `architect`     | the contract, plan or phase it was reasoning about closes               |
+| review passes   | always — every invocation is a new worker                               |
+| the coordinator | the conversation stops being useful, which retires every worker at once |
+
+Replacement is spawning the same name again. Nothing needs measuring to decide
+it, which is the reason the boundaries are events.
+
+**What makes retirement safe.** A worker's conversation is disposable working
+memory. Durable state is the repository — commits, contracts, `D-*` records,
+plans, review artifacts and handoffs, as [`AGENTS.md`](../../AGENTS.md),
+[`review-findings.md`](review-findings.md) and [`handoff.md`](handoff.md)
+already define. **Anything a worker knows that is not in the repository is lost
+when it is retired, by design**, so a worker records or commits before that
+point — which the boundaries above are chosen to coincide with.
+
+Why this arrangement rather than persistent standalone role sessions, and what
+was measured to choose it, is in
+[`harness-orchestration.md`](harness-orchestration.md).
 
 ## Handoff
 

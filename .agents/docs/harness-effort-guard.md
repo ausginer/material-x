@@ -1,6 +1,6 @@
 # Harness effort guard
 
-> Retrieved when starting a managed role, or when changing a role's `model:` or `effort:`.
+> Retrieved when dispatching a role, or when changing a role's `model:` or `effort:`.
 
 **Status: built, running in observe mode.** Enforcement is not switched on. The
 prerequisite that held it back is met — see
@@ -18,31 +18,55 @@ its own [`README.md`](../../.claude/plugins/harness-effort-guard/README.md) is
 the reference for the domain it governs, the decision table, the modes and the
 log. What follows is how it is run here and what has been measured.
 
-## Starting a managed role
+## How it loads
 
-```sh
-.scripts/claude-role.sh architect
-```
+Nothing is passed on a command line. Three checked-in files make an ordinary
+session load the guard, and they have to agree:
 
-The launcher reads the role's declared effort from its definition, refuses if
-`CLAUDE_CODE_EFFORT_LEVEL` is set, and starts Claude with `--agent`, a matching
-`--effort`, and the `--plugin-dir` that loads the guard.
+- [`.claude-plugin/marketplace.json`](../../.claude-plugin/marketplace.json) — a
+  repository-local marketplace named `material-x`, declaring the plugin's
+  directory in this checkout;
+- [`.claude/settings.json`](../../.claude/settings.json) — registers that
+  marketplace under `extraKnownMarketplaces` with a **relative** `directory`
+  source, and enables `harness-effort-guard@material-x`;
+- the plugin's own manifest, claiming the name the other two use.
 
-A role outside the effort invariant — one whose definition declares
-`model: haiku` — starts the same way without `--effort`. The resolver reports it
-as a role it resolved and no level to pin, which is a success rather than the
-refusal an undeclared role gets: there is no level to pass, and passing one would
-manufacture the very mismatch the guard exists to catch.
+A relative path is what makes the file portable: an absolute one is true of a
+single machine, and a network source cannot be declared from project scope at
+all — only user or managed settings can vouch for one. The
+`installation.test.ts` cases hold the three files to each other, because a
+disagreement between them does not fail loudly. The session simply starts
+without the guard.
 
-`--effort` rather than the environment variable: it sets the parent session's
-effort while leaving each subagent's frontmatter free to override it.
-`CLAUDE_CODE_EFFORT_LEVEL` flattens the whole tree to one level — measured
-below.
+**The first session in a fresh clone is unguarded.** Registering the marketplace
+and loading its plugins happen in that order across two starts: the first
+session records the marketplace, and the next one loads the guard. `claude
+plugin marketplace add ./`, run once, collapses that to zero — after it the very
+next session is guarded. Either way the gap is one coordinator start, and a
+coordinator is `no-role`.
 
-**A session started any other way is unguarded**, and an unguarded session is
-indistinguishable from a clean one in the transcript, because nothing is
+**Loading is scoped to the repository root.** A session started in a
+subdirectory does not read the project settings at all, so it loads no guard —
+measured below. The coordinator opens the checkout root, which is what VS Code
+does.
+
+**A session that loads it any other way is unguarded**, and an unguarded session
+is indistinguishable from a clean one in the transcript, because nothing is
 watching. The log is what tells them apart: a role that acted and left no record
 was not checked.
+
+## The launcher is a diagnostic
+
+[`.scripts/claude-role.sh`](../../.scripts/claude-role.sh) exists to work around
+the interactive `--agent` effort bug by pinning `--effort` on a main thread, and
+it also loaded the guard through `--plugin-dir`. Under the dispatch model in
+[`agent-workflow.md`](agent-workflow.md) §Dispatch no role runs on a main
+thread — roles are subagents of a plain coordinator, and their frontmatter
+effort is honoured — so neither job is on the normal path.
+
+It stays for reproducing one role in isolation, and it refuses to start when
+`CLAUDE_CODE_EFFORT_LEVEL` is set. It is no longer how the guard is loaded, and
+nothing about loading may depend on it.
 
 ## Measurements
 
@@ -93,6 +117,42 @@ its `PreToolUse` and its `SubagentStop`, reporting no effort at either. That is
 the expected observation for a role outside the invariant, arriving from the
 runtime rather than from a fixture.
 
+### Loaded as an installed plugin
+
+Taken on 2.1.263 with the plugin loaded from project settings and **no
+`--plugin-dir` anywhere** — the acceptance set for the dispatch model in
+[`agent-workflow.md`](agent-workflow.md) §Dispatch.
+
+**An ordinary session loads it, and the coordinator is not governed.** A session
+started in the checkout root with no `--agent` wrote `SessionStart` and `Stop`
+records carrying no `agent_type`, `resolution: no-role`, `allow`. The plain
+coordinator is outside the invariant, as intended, and is still recorded.
+
+**A governed worker is checked, and a resumed one is checked again.** A
+coordinator spawned a named `cleanup` worker and then resumed it with a second
+instruction. The guard recorded `declared=medium, actual=medium, match` at the
+worker's `PreToolUse` and at both its `SubagentStop` events — **under one
+`agent_id` across the resume**, so the second generation of records belongs to
+the same worker rather than a fresh one. Every coordinator turn in the same run
+stayed `no-role`.
+
+**The haiku exemption holds through the normal path.** An `Explore` worker
+resolved `exempt` and allowed at both its `PreToolUse` events and its
+`SubagentStop`, reporting no effort at any of them.
+
+**A contaminated environment stops a governed worker acting.** With
+`CLAUDE_CODE_EFFORT_LEVEL=low` and enforcement on, `cleanup` — which declares
+`medium` — was reported by the runtime at `low`: the flattening is real and
+observable. Its `PreToolUse` denied with `poisoned-env` and **the tool never
+ran**; the worker reported the denial instead of output. The coordinator's own
+turns were allowed as `no-role` throughout, so the denial lands on the role that
+bears the invariant and not on the session.
+
+**Subdirectory sessions load nothing.** The same settings that register the
+marketplace from the checkout root register nothing from `packages/core`, with
+an absolute path as well as a relative one. Project settings are not read from
+below the root, so a session started there is unguarded.
+
 **Lifecycle events produce no verdicts.** Across every run above, no
 `SessionStart` or `SubagentStart` emitted a verdict record. They carry no effort
 by contract, and a path that cannot reach the decision table cannot fail it.
@@ -121,19 +181,21 @@ Every other project role — `architect`, `consolidator`, `implementer`,
 `reviewer`, `integrity`, `cleanup`, `der` — declares an effort and has been
 observed reaching it.
 
-The verdict, resolver, CLI and launcher paths carry `node:test` cases; run them
-from the plugin directory with `node --test 'tests/*.test.ts'`.
+The verdict, resolver, CLI, launcher and installation paths carry `node:test`
+cases; run them from the plugin directory with `node --test 'tests/*.test.ts'`.
 
-**Enforcement has been run once, and is still a deliberate flip.** The enforcing
-session above completed without a denial, but `/effort` mid-session, `/compact`
-and resume remain unobserved. Turn it on and read the log; what a mistake there
-produces is a denied tool call, which is loud.
+**Enforcement is still a deliberate flip, and it now has both results.** One
+enforcing session ran clean, and one denied exactly what it should: a
+contaminated environment stopped a governed worker's tool call while leaving the
+coordinator alone. `/effort` mid-session, `/compact` and resume remain
+unobserved. Turn it on and read the log; what a mistake there produces is a
+denied tool call, which is loud.
 
 ## Known limits of the exception
 
-Both follow from keying the exception to a declaration, which the launcher
-leaves no choice about: it decides before the session exists, so a declaration is
-the only thing there is to read.
+Both follow from keying the exception to a declaration, which is the only thing
+the guard can read: no event names the acting model, so a definition's `model:`
+field is the whole of the available evidence.
 
 - **An invocation that overrides a role's model is invisible.** The retaken
   measurement above closes the door it might have opened: no event names the
@@ -158,6 +220,8 @@ What this document used to say, and what changed it.
 
 | Date       | Section            | Change                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | ---------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-09-06 | How it loads       | **Replaced:** _the launcher starts a managed role, pinning `--effort` and loading the guard through `--plugin-dir`._ Under the dispatch model no role runs on a main thread, and a VS Code coordinator passes no flags, so loading moved to a repository-local marketplace registered in project settings. The launcher is demoted to a diagnostic                                                                                                                                                                                                                                    |
+| 2026-09-06 | Measurements       | **Added:** the acceptance set for the installed plugin — ordinary session loads it, coordinator stays `no-role`, a governed worker matches and keeps matching across a resume under one `agent_id`, the haiku exemption holds, a contaminated environment blocks a governed worker's tool call, and subdirectory sessions load nothing                                                                                                                                                                                                                                                |
 | 2026-09-06 | Measurements       | **Retaken:** the model observation, on verdict records that now retain the field, across an `opus` role and a `haiku` one. The result is unchanged and the negative now covers the effort-bearing events. **Added:** one enforcing session, clean, with an exempt subagent inside it                                                                                                                                                                                                                                                                                                  |
 | 2026-09-06 | Measurements       | **Corrected:** _the guard reads a `model` field on every event and records it whenever it is present, so the acting model is not observable at the decision point._ Only announcements recorded it; the effort-bearing events dropped a reported model, so the negative result was the instrument's shape and not the runtime's. Verdict records now carry the field and the question is open. The exception's keying is untouched — the launcher reads a declaration because it runs before any event exists                                                                         |
 | 2026-09-06 | Before enforcement | **Superseded:** _the model exception is designed and not yet implemented, and enforcement waits on the resolver, the decision and the launcher matching the decision table._ All four now match it                                                                                                                                                                                                                                                                                                                                                                                    |

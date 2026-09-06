@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "material-x",
+  "description": "Repository-local plugins for this checkout.",
+  "owner": {
+    "name": "material-x"
+  },
+  "plugins": [
+    {
+      "name": "harness-effort-guard",
+      "description": "Treats the effort declared by a project agent definition as a runtime invariant.",
+      "source": "./.claude/plugins/harness-effort-guard"
+    }
+  ]
+}

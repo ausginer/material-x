@@ -1,5 +1,14 @@
 {
+  "extraKnownMarketplaces": {
+    "material-x": {
+      "source": {
+        "source": "directory",
+        "path": "."
+      }
+    }
+  },
   "enabledPlugins": {
-    "typescript-lsp@claude-plugins-official": true
+    "typescript-lsp@claude-plugins-official": true,
+    "harness-effort-guard@material-x": true
   }
 }

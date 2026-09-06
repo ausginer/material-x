@@ -2,9 +2,12 @@
 
 > Retrieved when changing how roles are dispatched, or before extending the effort guard.
 
-**Status: brief.** Nothing here is built. This records what the runtime actually
-does, which premises of the proposed topologies it changes, and the smallest
-arrangement the measurements support.
+**Status: B′ is chosen and built.** The workflow it describes is now the normal
+one, written up for use in [`agent-workflow.md`](agent-workflow.md) §Dispatch;
+this document stays the record of what was measured and why the choice went the
+way it did. The one thing B′ required building — loading the effort guard
+without the launcher — is done and documented in
+[`harness-effort-guard.md`](harness-effort-guard.md) §How it loads.
 
 Two topologies were measured against the live runtime: **A**, persistent
 standalone role sessions driven by `claude -p --resume`, and **B**, persistent
@@ -520,12 +523,29 @@ path.** Its purpose is pinning a role's effort on a main thread started with
 `--agent`, and B′ runs no role on a main thread. It stays useful for reproducing
 one role in isolation, so it is **demoted to diagnostics** rather than deleted.
 
-**The guard has to be installed rather than launched.** This is the one new
-requirement and it is not optional: the launcher was also what loaded the plugin,
-via `--plugin-dir`, and a VS Code session gets no such flag — the session that
-produced this document was itself unguarded. Under B′ the plugin must be
-installed so that every interactive coordinator loads it, or no worker is checked
-at all.
+**The guard has to be installed rather than launched.** This was the one new
+requirement and it was not optional: the launcher was also what loaded the
+plugin, via `--plugin-dir`, and a VS Code session gets no such flag — the session
+that produced this document was itself unguarded.
+
+**Built.** A repository-local marketplace declared in `.claude/settings.json`
+under `extraKnownMarketplaces` loads the plugin into any ordinary session started
+at the checkout root, with no flags;
+[`harness-effort-guard.md`](harness-effort-guard.md) §How it loads carries the
+mechanism and the acceptance measurements. Three properties of it are worth
+having here, because they were not obvious and had to be measured:
+
+- **A relative source path is required and sufficient.** It resolves against the
+  checkout, which is what lets the file be committed; an absolute path would be
+  true of one machine. `${CLAUDE_PROJECT_DIR}` is **not** expanded in that field
+  and silently registers nothing.
+- **Project scope can vouch for a local marketplace but not a network one.** A
+  network source has to be declared in user or managed settings, so the
+  repository could not have installed itself from one.
+- **Registration and loading happen on successive starts.** The first session in
+  a fresh clone registers the marketplace and runs unguarded; the next one loads
+  the guard. `claude plugin marketplace add ./` closes that gap, and the gap only
+  ever contains a coordinator, which is `no-role` anyway.
 
 **The guard's rules survive intact, and one becomes more important.** Workers are
 subagents, so `CLAUDE_CODE_EFFORT_LEVEL` — which flattens subagents to one level —
