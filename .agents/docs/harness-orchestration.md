@@ -8,10 +8,14 @@ arrangement the measurements support.
 
 Two topologies were measured against the live runtime: **A**, persistent
 standalone role sessions driven by `claude -p --resume`, and **B**, persistent
-resumable named subagents under a lightweight coordinator session. A is
-recommended; the comparison and the one thing it must borrow from B are in
-[Topology B](#topology-b--resumable-named-subagents) and
-[Choosing](#choosing).
+resumable named subagents under a coordinator session. **B is recommended**, in
+the generational form B′, because the coordinator is a person in an interactive
+session rather than a program — see [The workflow](#the-workflow). A stays
+measured and documented; it is the answer if unattended operation is ever wanted,
+and nothing else.
+
+The findings below are recorded in the order they were established, so the
+sections on A precede the choice that did not go its way.
 
 ## The proposal
 
@@ -113,6 +117,10 @@ permitted to use claude.ai login or subscription rate limits, so it wants
 
 ## What this changes
 
+Everything in this section is about topology A, and was written before the choice
+went to B′. It stands as the analysis of A — read it for the reasoning, not as
+instructions to follow.
+
 **Effort must not be supplied per invocation.** The owner's intent was that
 effort be _supplied and checkable_ on every worker call. Finding 5 prices the
 supplying at roughly 19× per call, and findings 4 and 6 remove the reason for
@@ -149,6 +157,9 @@ between agents, not a request/response with captured output.
 
 ## The arrangement the measurements support
 
+Topology A's arrangement, kept as the record of what A would take. B′ was chosen;
+[The workflow](#the-workflow) is the one to build.
+
 - A stable uuid per role, derived from the role name.
 - First call per role: `-p --session-id <uuid> --agent <role>`, no `--effort`,
   no `--model`; `.claude/agents/*.md` stays the only source of truth and is
@@ -162,6 +173,10 @@ between agents, not a request/response with captured output.
   optimisation.
 
 ## What the effort guard becomes
+
+Written against topology A. The conclusion that the guard grows more important
+survives the change of topology; what happens to the launcher under B′ is in
+[What this removes or demotes](#what-this-removes-or-demotes).
 
 Smaller in one part and load-bearing in another.
 
@@ -323,6 +338,14 @@ tool call, and both generations remain readable.
 but per coordinator session and shared across every role in it. Deliberate
 churn spends that budget faster than long-lived workers would.
 
+**23. Workers do not compact, and in practice do not need to.** Across 217
+subagent transcripts on this machine — including 1.2 MB ones from real review
+rounds — not one carries a compaction boundary, while 18 main-session transcripts
+do. Subagents neither auto-compact nor accept the command. But real workers have
+run to 255 k, 251 k and 310 k tokens of context across 264, 184 and 152 turns
+without incident, against windows measured at 200 000 for haiku and 1 000 000 for
+sonnet-5. The ceiling is the model's window, and it is far away.
+
 **20. A role worker reasserts its role.** `cleanup` refused an off-role question
 twice and spent tokens on its own startup reading instead. Correct behaviour, and
 a reminder that a worker is a role rather than a callable function.
@@ -388,12 +411,12 @@ session non-interactively, and the only measured way to do that is
 restates worker output as prose (finding 19) and bills 45–76 k context per route
 (finding 18).
 
-B’ is genuinely attractive in one shape: when the coordinator is a **person in an
+B′ is genuinely attractive in one shape: when the coordinator is a **person in an
 interactive session**, dispatching to long-lived named role workers. That needs no
-orchestration code at all, and it is the honest recommendation for interactive
-work. It is not an orchestration system, which is what was asked for.
+orchestration code at all. **That shape is the actual operating model**, which is
+what settles the choice — see [Choosing](#choosing).
 
-**If B’ were chosen anyway**, the minimum is small and worth recording: one name
+**B′'s minimum**, which is what gets built: one name
 per role; a task counter per role; retirement at a coarse boundary — N tasks, or
 a phase ending — rather than a token threshold; and respawn by the same name. No
 uuids, no locks, no process management. Worker pressure would come from the
@@ -418,38 +441,103 @@ per-session cap raised.
 | Quota                         | subscription                                                         | subscription                                                                                               |
 | Build cost                    | uuid, spawn, lock, stdin redirect                                    | almost nothing                                                                                             |
 
-**A remains the choice**, though not for the reason first given. Worker
-compaction is no longer the argument — see
-[Generational lifetime](#generational-lifetime), where finding 17 is withdrawn.
-Three things decide it instead.
+**B′ is the choice**, because the coordinator is a person.
 
-The coordinator decides most of it. An automated B must drive its coordinator
-session non-interactively, and the measured way to do that is `-p --resume`; an
-automated B is therefore A's machinery plus a reasoning hop that costs 45-76 k
-context per route (finding 18) and restates worker output as prose rather than
-returning it (finding 19). A's coordinator holds no context and reads a JSON
-field.
+Every argument that carried A rested on the coordinator being a program. An
+automated B needs `-p --resume` to drive its coordinator, making it A's machinery
+plus a reasoning hop (findings 18 and 19) — but there is no program. The owner
+sits in an interactive VS Code session and says _send this to architect_. That
+session is the coordinator, its context is the ordinary cost of working
+interactively, and its "relay as prose" is the conversation itself rather than a
+lossy hop between machines.
 
-Lifetime control decides the rest. A can retire a worker _or_ compact it and
-choose per role, where B can only retire; that is the difference between the
-roles' needs being expressible and being approximated. And A's generations are
-independent and durably addressable, where B's share one coordinator lifetime and
-one spawn budget (findings 16 and 22).
+With that premise corrected, what is left favours B′:
 
-Neither reason is large. If the coordinator is a person rather than a program,
-B' wins on simplicity and should be used.
+- **Concurrency is solved rather than built.** Messages to one worker serialize
+  into a linear transcript (finding 14). A's silent fork (finding 7) and the
+  per-role lock it demands both disappear, and that lock was A's one piece of
+  genuinely load-bearing new code.
+- **Retirement is enough, and the wall is far.** Finding 23 removes the last of
+  finding 17: workers do not compact, but real ones reach 255-310 k against
+  windows up to 1 M, so a coarse retirement policy has enormous headroom.
+- **Coupled lifetimes become a feature.** Retiring the coordinator retires every
+  worker at once, which is exactly the coarse global generation boundary wanted.
+- **Nothing needs building.** Spawn by name, message by name, respawn by name to
+  replace a generation (finding 21). No uuids, no locks, no process management, no
+  JSON parsing, no stdin redirection.
+- **The guard gets better evidence.** Workers are checked individually with their
+  own `agent_id` (finding 13), rather than one verdict per whole session.
 
-**What A must borrow.** Finding 14 shows B solving A's one serious defect for
-free. That does not rescue B, but it does say the per-role lock in A is not
-optional bookkeeping — it is the thing B gets natively and A must build, and
-finding 7 makes its absence silent. It is the first thing to implement and the
-first thing to test.
+**Where A would still be right:** unattended operation — CI, a scheduled run, any
+dispatch that happens while nobody is in the session. Everything measured for A
+holds and stays recorded for that case. It is not this case.
 
-Nothing in this document becomes unnecessary, and neither does any part of the
-guard. B strengthens one guard result rather than replacing it: finding 13 shows
-the same invariant checked per worker with a distinct `agent_id`, so if a
-coordinator-of-subagents is ever wanted for something else, the guard already
-covers it.
+## The workflow
+
+**The coordinator is a plain interactive session.** Not a role, and started with
+no `--agent`: a session with no `agent_type` is out of the invariant entirely and
+allowed as `no-role`, and it also never meets the interactive `--agent` effort bug
+that the launcher exists to work around (finding 6 shows print mode is clean;
+interactive is not). Its job is to hold the worker names, dispatch, and relay. It
+does no repository work itself.
+
+**Two persistent workers, spawned by name.** `architect` and `implementer` are
+spawned with a name equal to the role, and afterwards addressed by that name;
+a send resumes a finished worker with its context intact (finding 11), keeping
+its role, model and declared effort (finding 12).
+
+**Review passes stay one-shot.** `reviewer`, `integrity`, `cleanup` and `der` are
+spawned fresh each time and never named or resumed. Independence is the point of
+a second opinion, and maximum freshness is exactly a disposable subagent — which
+is what the repository already does. This half of the design needs no change at
+all.
+
+**Retirement is coarse and event-shaped, not a token threshold.**
+
+| Worker          | Retire when                                                            |
+| --------------- | ---------------------------------------------------------------------- |
+| `implementer`   | the unit of work is committed and pushed                               |
+| `architect`     | the contract, plan or phase it was reasoning about closes              |
+| review passes   | always — every invocation is a new worker                              |
+| the coordinator | the conversation stops being useful; this retires every worker at once |
+
+Replacement is spawning the same name again (finding 21). No pressure reading is
+required for any of these, which is the point of choosing event boundaries.
+
+**The rule that makes retirement safe.** A worker's conversation is disposable
+working memory; durable state is the repository — commits, contracts, `D-*`
+records, plans, review artifacts and handoffs, which
+[`AGENTS.md`](../../AGENTS.md), [`review-findings.md`](review-findings.md) and
+[`handoff.md`](handoff.md) already define. **Anything a worker knows that is not
+in the repository is lost at retirement, by design.** So a worker records or
+commits before it is retired, and the retirement boundaries above are the points
+at which it already has.
+
+## What this removes or demotes
+
+**[`.scripts/claude-role.sh`](../../.scripts/claude-role.sh) leaves the normal
+path.** Its purpose is pinning a role's effort on a main thread started with
+`--agent`, and B′ runs no role on a main thread. It stays useful for reproducing
+one role in isolation, so it is **demoted to diagnostics** rather than deleted.
+
+**The guard has to be installed rather than launched.** This is the one new
+requirement and it is not optional: the launcher was also what loaded the plugin,
+via `--plugin-dir`, and a VS Code session gets no such flag — the session that
+produced this document was itself unguarded. Under B′ the plugin must be
+installed so that every interactive coordinator loads it, or no worker is checked
+at all.
+
+**The guard's rules survive intact, and one becomes more important.** Workers are
+subagents, so `CLAUDE_CODE_EFFORT_LEVEL` — which flattens subagents to one level —
+would now silently flatten _every_ role at once; its deny is the rule that
+matters most under B′. The launcher's pre-flight refusal of that variable is lost
+with the launcher, and is replaced by a runtime denial at the first tool call:
+later, still fail-closed. The `haiku` exemption stays needed for `Explore`, and
+the requirement that every other role declare an effort stays as written.
+
+**A's machinery is not built.** Stable uuids per role, the per-role lock, the
+`< /dev/null` redirection and result parsing are all unnecessary. The
+measurements that produced them stay, because they are why.
 
 ## Open questions
 
