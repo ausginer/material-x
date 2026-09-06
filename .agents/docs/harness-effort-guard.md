@@ -2,8 +2,10 @@
 
 > Retrieved when starting a managed role, or when changing a role's `model:` or `effort:`.
 
-**Status: built, running in observe mode.** Enforcement is not switched on; one
-prerequisite is outstanding, in [Before enforcement](#before-enforcement).
+**Status: built, running in observe mode.** Enforcement is not switched on. The
+prerequisite that held it back is met — see
+[Before enforcement](#before-enforcement) — so what remains is the mode flip
+itself.
 
 A role's frontmatter declares the reasoning effort it must run at, and
 [`agent-workflow.md`](agent-workflow.md) §Agent configuration treats that as the
@@ -66,12 +68,21 @@ never reached `PreToolUse`; `Stop` reported the wrong effort once the inference
 had already happened. Tool actions fail closed; text-only turns can only be
 invalidated retrospectively.
 
-**Hooks do not report the acting model.** The guard reads a `model` field on
-every event and records it whenever it is present; across every observation so
-far, no record carries one — not even `SessionStart` and `SubagentStart`, which
-ask for it explicitly. The model a role is running under is therefore not
-observable at the decision point, and only the definition's own `model:` field
-can be read.
+**No lifecycle event has reported the acting model.** `SessionStart` and
+`SubagentStart` ask for it explicitly and no record carries one.
+
+**The decision point had not been measured at all**, and the earlier reading of
+this row overstated what it covered. The guard recorded `model` on announcements
+only: `PreToolUse`, `Stop` and `SubagentStop` discarded a reported model instead
+of writing it down, so their silence was the instrument's rather than the
+runtime's. Verdict records now carry the field, and whether the runtime supplies
+one there is an open observation rather than a settled negative.
+
+It does not move the exception, which is keyed to a declaration for a reason no
+observation can change: the launcher decides whether to pass `--effort` before
+the session exists, so it has no event to read and only the definition's own
+`model:` field to go on. What the answer would bear on is
+[Known limits](#known-limits-of-the-exception).
 
 **Lifecycle events produce no verdicts.** Across every run above, no
 `SessionStart` or `SubagentStart` emitted a verdict record. They carry no effort
@@ -83,41 +94,42 @@ state, but none has been observed.
 
 ## Before enforcement
 
-Setting `HARNESS_EFFORT_GUARD_MODE=enforce` starts denying. One thing has to be
-built first.
+Setting `HARNESS_EFFORT_GUARD_MODE=enforce` starts denying. Nothing outstanding
+blocks it.
 
-**The model exception is designed and not yet implemented.** The guard as built
-denies [`explore.md`](../../.claude/agents/explore.md) on both available paths —
-it declares no `effort:`, and being `model: haiku` it reports none either — so
-switching enforcement on today blocks a role that is behaving correctly. The
-decision table in the plugin's [`README.md`](../../.claude/plugins/harness-effort-guard/README.md)
-now places `model: haiku` roles outside the effort invariant while keeping them
-inside the domain; enforcement waits on the resolver, the decision and the
-launcher matching it.
+**The model exception is implemented.** The guard previously denied
+[`explore.md`](../../.claude/agents/explore.md) on both available paths — it
+declares no `effort:`, and being `model: haiku` it reports none either — which
+would have blocked a role behaving exactly as designed. It now resolves as
+`exempt`: a governed role the effort invariant does not reach, allowed on its own
+row of the decision table in the plugin's
+[`README.md`](../../.claude/plugins/harness-effort-guard/README.md), and recorded
+as `exempt` rather than passed off as out-of-domain. A `model: haiku` definition
+that also declares an `effort:` raises, and so denies — the file states a level
+the runtime will never report.
 
 Every other project role — `architect`, `consolidator`, `implementer`,
 `reviewer`, `integrity`, `cleanup`, `der` — declares an effort and has been
 observed reaching it.
 
-Four things move, and the decision table is the specification for the first two:
+The verdict, resolver, CLI and launcher paths carry `node:test` cases; run them
+from the plugin directory with `node --test 'tests/*.test.ts'`.
 
-- the resolver gains a fourth outcome for a definition declaring `model: haiku`,
-  distinct from both `declared` and `undeclared`, and reports the
-  `model: haiku`-plus-`effort:` combination as the configuration defect it is;
-- the decision reads that outcome before the process-wide override check, and
-  allows;
-- the resolver's CLI reports an exempt role as a success carrying no level,
-  keeping its existing non-zero exits for an unknown, duplicated or undeclared
-  role — so the launcher still refuses the cases it refuses today;
-- the launcher omits `--effort` for exactly that success, and passes it
-  otherwise.
+**Enforcement is still a deliberate flip, not a consequence of this.** The guard
+has been exercised against fixtures rather than a live enforcing session, and
+`/effort` mid-session, `/compact` and resume remain unobserved. Turn it on and
+read the log; what a mistake there produces is a denied tool call, which is
+loud.
 
 ## Known limits of the exception
 
-Both follow from the measurement above: the exception is keyed to a declaration,
-because a declaration is the only thing the guard can read.
+Both follow from keying the exception to a declaration, which the launcher
+leaves no choice about: it decides before the session exists, so a declaration is
+the only thing there is to read.
 
-- **An invocation that overrides a role's model is invisible.** A `model: haiku`
+- **An invocation that overrides a role's model is invisible.** This is the limit
+  a reported model at the decision point would speak to, and the measurement
+  above is now capable of answering it. A `model: haiku`
   role spawned onto a model that does carry effort stays exempt and runs
   ungoverned; a role declaring an effort spawned onto `haiku` reports none and
   denies, and its fix is the invocation rather than the file — which is why the
@@ -137,4 +149,6 @@ What this document used to say, and what changed it.
 
 | Date       | Section            | Change                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | ---------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-09-06 | Measurements       | **Corrected:** _the guard reads a `model` field on every event and records it whenever it is present, so the acting model is not observable at the decision point._ Only announcements recorded it; the effort-bearing events dropped a reported model, so the negative result was the instrument's shape and not the runtime's. Verdict records now carry the field and the question is open. The exception's keying is untouched — the launcher reads a declaration because it runs before any event exists                                                                         |
+| 2026-09-06 | Before enforcement | **Superseded:** _the model exception is designed and not yet implemented, and enforcement waits on the resolver, the decision and the launcher matching the decision table._ All four now match it                                                                                                                                                                                                                                                                                                                                                                                    |
 | 2026-09-06 | Before enforcement | **Withdrawn:** _every project-defined role must declare `effort:`, and `explore.md` cannot satisfy the invariant — either it moves to a model with effort support or it is retired in favour of the built-in `Explore`._ Both branches treated a missing declaration as a configuration mistake. Haiku falsifies the premise: it does not participate in the effort mechanism, so an effort contract there is one the runtime cannot satisfy, and the role needed no change. Replaced by a model-level exception — `model: haiku` roles are governed but outside the effort invariant |

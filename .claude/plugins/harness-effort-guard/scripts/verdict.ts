@@ -12,7 +12,7 @@ export type Verdict =
   | Readonly<{ decision: 'allow'; reason: AllowReason }>
   | Readonly<{ decision: 'deny'; cause: DenyCause; message: string }>;
 
-export type AllowReason = 'no-role' | 'out-of-domain' | 'match';
+export type AllowReason = 'no-role' | 'out-of-domain' | 'exempt' | 'match';
 export type DenyCause =
   | 'undeclared'
   | 'no-runtime-effort'
@@ -28,7 +28,9 @@ export type Check = Readonly<{
   /**
    * The effective effort the runtime reported for this turn, after any silent
    * downgrade for the selected model. Absent is a violation, not an excuse:
-   * a model that cannot reach a declared level has not reached it.
+   * a model that cannot reach a declared level has not reached it. The one
+   * exception is a role outside the effort invariant, for which absent is the
+   * expected observation and nothing here is read at all.
    */
   actual: string | undefined;
   /** Whether `CLAUDE_CODE_EFFORT_LEVEL` is set in the guard's environment. */
@@ -97,6 +99,14 @@ export function judge(check: Check): Verdict {
 
   if (check.resolution.kind === 'out-of-domain') {
     return { decision: 'allow', reason: 'out-of-domain' };
+  }
+
+  // Read ahead of the override check, and of the reported effort, because
+  // nothing about the turn can move it: this role has no declared level to
+  // dishonour, and denying it would report a session-wide fault at the one role
+  // that can neither cause nor fix it.
+  if (check.resolution.kind === 'exempt') {
+    return { decision: 'allow', reason: 'exempt' };
   }
 
   // A process-wide override outranks /effort, settings and frontmatter alike,

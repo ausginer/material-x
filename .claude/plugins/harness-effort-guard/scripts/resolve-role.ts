@@ -8,19 +8,37 @@ import { dirname, join, parse, resolve } from 'node:path';
  * definitions under `<projectRoot>/.claude/agents/`, and deliberately models
  * neither user-scope agents, plugin agents, built-ins, nor the precedence
  * order between them. A name it does not own is a name it does not judge.
+ *
+ * `exempt` is not a failure either, and is distinct from `undeclared`: the
+ * definition names a model that does not participate in the effort mechanism,
+ * so it is governed — owned, resolved and logged — while carrying no effort
+ * obligation. `undeclared` is a definition that owes a level and omits it;
+ * `exempt` is one that owes none.
  */
 export type Resolution =
   | Readonly<{ kind: 'declared'; role: string; effort: string; file: string }>
   | Readonly<{ kind: 'undeclared'; role: string; file: string }>
+  | Readonly<{ kind: 'exempt'; role: string; file: string }>
   | Readonly<{ kind: 'out-of-domain'; role: string }>;
 
 type Definition = Readonly<{
   name: string;
+  model: string | null;
   effort: string | null;
   file: string;
 }>;
 
 const AGENTS_DIR = join('.claude', 'agents');
+
+/**
+ * The one `model:` value outside the effort invariant, matched literally.
+ *
+ * Not a prefix, an alias, a family or a capability lookup: deciding which
+ * models bear effort would mean keeping a second, silently drifting copy of the
+ * runtime's capability matrix, and the runtime exposes no basis for one. A
+ * model gaining or losing effort support is an edit to this line.
+ */
+const EFFORTLESS_MODEL = 'haiku';
 
 async function isDirectory(path: string): Promise<boolean> {
   try {
@@ -78,6 +96,7 @@ async function readDefinition(file: string): Promise<Definition> {
     // The frontmatter name is what reaches a hook as `agent_type`, and it need
     // not match the filename — `explore.md` declares `Explore`.
     name: field(block, 'name') ?? parse(file).name,
+    model: field(block, 'model'),
     effort: field(block, 'effort'),
     file,
   };
@@ -129,10 +148,14 @@ export async function findProjectRoot(
  * and resolve against nothing for the launcher — an empty domain that silently
  * allows every role.
  *
- * Throws when two definitions claim the same name. Choosing one arbitrarily
- * would enforce a declaration the acting role never made, which is strict
- * enforcement of the wrong number; this is a defect in the one namespace the
- * guard owns, so it is raised rather than resolved.
+ * Throws on a defect in the one namespace the guard owns, of which there are
+ * two. Two definitions claiming the same name: choosing one arbitrarily would
+ * enforce a declaration the acting role never made, which is strict enforcement
+ * of the wrong number. And a definition pairing `model: haiku` with an
+ * `effort:`: that file promises a level the runtime will never report, so
+ * honouring the effort would enforce an unreachable number while honouring the
+ * model would discard a field its author wrote on purpose. Both are raised
+ * rather than resolved.
  */
 export async function resolveRole(
   projectRoot: string,
@@ -156,6 +179,18 @@ export async function resolveRole(
     return { kind: 'out-of-domain', role };
   }
 
+  if (entry.model === EFFORTLESS_MODEL) {
+    if (entry.effort != null) {
+      throw new Error(
+        `Role "${role}" declares both model: ${EFFORTLESS_MODEL} and effort: ${entry.effort} in ${entry.file}. ` +
+          `${EFFORTLESS_MODEL} does not participate in the effort mechanism, so that level can never be reported; ` +
+          'remove one of the two fields.',
+      );
+    }
+
+    return { kind: 'exempt', role, file: entry.file };
+  }
+
   return entry.effort == null
     ? { kind: 'undeclared', role, file: entry.file }
     : { kind: 'declared', role, effort: entry.effort, file: entry.file };
@@ -164,9 +199,13 @@ export async function resolveRole(
 /**
  * CLI for callers that cannot import: `resolve-role.ts <role> [startDir]`.
  *
- * Prints `<projectRoot>\t<declared effort>` and exits 0 only when the role is
- * governed and declares one. Every other outcome is a message on stderr and a
- * distinct non-zero exit, so the launcher can refuse without interpreting.
+ * Prints `<projectRoot>\t<declared effort>` and exits 0 for a governed role, the
+ * effort field being empty for one outside the effort invariant — a success
+ * carrying no level to pin, not a refusal. The separator is written either way,
+ * so a caller splitting on it cannot read the root as a level.
+ *
+ * Every other outcome is a message on stderr and a distinct non-zero exit, so
+ * the launcher can refuse without interpreting.
  */
 if (import.meta.main) {
   const [role, startDir = process.cwd()] = process.argv.slice(2);
@@ -199,5 +238,7 @@ if (import.meta.main) {
     process.exit(68);
   }
 
-  process.stdout.write(`${root}\t${resolution.effort}\n`);
+  process.stdout.write(
+    `${root}\t${resolution.kind === 'exempt' ? '' : resolution.effort}\n`,
+  );
 }

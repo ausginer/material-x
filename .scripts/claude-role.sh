@@ -30,6 +30,7 @@ plugin=$(CDPATH= cd -- "$(dirname -- "$0")/../.claude/plugins/harness-effort-gua
 
 # One resolver, given an explicit start directory. Its non-zero exits already
 # say why — an undeclared, duplicated or unknown role, or no project root.
+# A success with an empty effort field is a role outside the effort invariant.
 resolved=$(node "$plugin/scripts/resolve-role.ts" "$role" "$PWD")
 root=${resolved%	*}
 effort=${resolved#*	}
@@ -39,7 +40,13 @@ effort=${resolved#*	}
 # launcher's lookup and the hook's cannot disagree.
 cd "$root"
 
-set -- --plugin-dir "$plugin" --agent "$role" --effort "$effort" "$@"
+# A role outside the effort invariant has no level to pin, and passing one would
+# manufacture the very mismatch the guard exists to catch.
+if [ -n "$effort" ]; then
+  set -- --effort "$effort" "$@"
+fi
+
+set -- --plugin-dir "$plugin" --agent "$role" "$@"
 
 if [ -n "${CLAUDE_ROLE_PRINT_ARGV-}" ]; then
   echo "cwd=$root"

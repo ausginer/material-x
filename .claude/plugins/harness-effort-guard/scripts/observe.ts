@@ -35,6 +35,7 @@ export type Record =
       session_id: string;
       agent_id?: string;
       agent_type?: string;
+      model?: string;
       project_root: string | null;
       declared: string | null;
       resolution: string;

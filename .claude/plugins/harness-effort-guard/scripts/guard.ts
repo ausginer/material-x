@@ -117,6 +117,12 @@ const main = async (): Promise<void> => {
     session_id: input.session_id,
     ...(input.agent_id != null && { agent_id: input.agent_id }),
     ...(role != null && { agent_type: role }),
+    // Recorded on every kind of record, not lifecycle announcements alone.
+    // Whether the runtime names the acting model at the decision point is what
+    // decides whether the invariant can key on anything but a declaration, and
+    // a log that carries the field on only some events cannot answer that: an
+    // absent model would be indistinguishable from an unrecorded one.
+    ...(input.model != null && { model: input.model }),
     project_root: root,
     declared,
     resolution: error != null ? 'error' : (resolution?.kind ?? 'no-role'),
@@ -124,11 +130,7 @@ const main = async (): Promise<void> => {
   };
 
   if (!EFFORT_BEARING.has(input.hook_event_name)) {
-    await observe(dataDir, {
-      kind: 'announcement',
-      ...shared,
-      ...(input.model != null && { model: input.model }),
-    });
+    await observe(dataDir, { kind: 'announcement', ...shared });
 
     emit(announcement(input.hook_event_name, role, declared, poisoned, error));
 

@@ -58,8 +58,18 @@ So the invariant is _no wrong-effort role takes an action_, plus _no wrong-effor
 
 A record's `resolution` field carries `exempt` for a role outside the effort invariant, with `declared` null. Exempt roles appear in the log like any other governed role: the trust question — did this role act unchecked, or was it checked — is answered for them too.
 
+Both kinds carry `model` whenever the event reports one, and omit the field when it does not. It is on the verdict kinds as well as the announcements deliberately: whether the runtime names the acting model _at the decision point_ is what decides whether the invariant could ever key on anything but a declaration, and a log recording the field on only some events answers that question with its own shape rather than the runtime's.
+
 A run is trusted only when every governed role that acted appears with `declared == actual`, **and appears at all**: an absent role was not checked, which means unguarded rather than clean.
 
 ## Requirements
 
 Node with type stripping (24+); the scripts run as `.ts` with no build step. `tsconfig.json` is for typechecking and editors only.
+
+The tests take no dependency either — they are `node:test` files run on the same runtime, from this directory:
+
+```sh
+node --test 'tests/*.test.ts'
+```
+
+They resolve fixture definitions written into a throwaway project root rather than the repository's own roles, so a case stating what `model: haiku` resolves to keeps stating it after the tree's roles change.
