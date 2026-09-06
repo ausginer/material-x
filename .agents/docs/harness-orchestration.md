@@ -1,0 +1,182 @@
+# Harness orchestration — persistent role sessions
+
+> Retrieved when changing how roles are dispatched, or before extending the effort guard.
+
+**Status: brief.** Nothing here is built. This records what the runtime actually
+does, which premises of the proposed topology it changes, and the smallest
+arrangement the measurements support.
+
+## The proposal
+
+A tiny coordinator routes work to long-lived role sessions instead of making
+each role a main-thread persona or a disposable subagent. Each role owns one
+session; the coordinator resumes it with the next prompt, waits, and returns
+only that output to the owner. The role keeps its full history; the coordinator
+never ingests it.
+
+**The topology holds.** Every mechanism it needs exists, and the two premises
+that fail both fail in the direction that makes it cheaper and smaller.
+
+## Method
+
+Claude Code 2.1.263, `authMethod: claude.ai`, `subscriptionType: max`, no
+`ANTHROPIC_API_KEY` in the environment. Every claim below was produced by
+running the CLI from inside a Claude Code session and reading back the
+`--output-format json` result, the session transcript, or the effort guard's own
+observation log. The guard is the instrument for anything about role identity:
+it already records `agent_type`, the declared effort and the effort the runtime
+reported, per turn.
+
+## Findings
+
+**1. Nested invocation is unguarded and works.** `claude -p` spawned from a Bash
+tool inside a session that has `CLAUDECODE=1`, `CLAUDE_CODE_ENTRYPOINT` and
+`CLAUDE_CODE_CHILD_SESSION=1` runs normally — no refusal, no warning, ~4 s for a
+trivial turn. There is no nested-session protection to design around. The one
+operational catch is stdin: a spawned `claude` waits 3 s for it and warns, so
+every invocation needs `< /dev/null`.
+
+**2. Session identity can be assigned, not merely captured.** `--session-id
+<uuid>` sets the id, and the result's `session_id` comes back equal to it. The
+coordinator can derive a stable uuid per role and address it forever; it never
+has to parse an id out of a first run and store it.
+
+**3. Resume is same-id and history-preserving.** `-p --resume <id>` appends to
+the same session — the returned id is unchanged, and the session correctly
+recalled a word from an earlier invocation. `--fork-session` is what creates a
+new id; without it there is no fork.
+
+**4. Role identity, model and effort all survive resume.** A session created
+with `--agent integrity` and resumed with _no_ flags still reported
+`agent_type: integrity`, still ran `claude-sonnet-5`, and still ran at `high` —
+integrity's declared level — while the ambient `CLAUDE_EFFORT` was `medium`.
+Effort is session state, not a per-invocation argument.
+
+This contradicts the documentation, which says effort is not a session property.
+The measurement stands: the guard observed `declared=high, actual=high,
+cause=match` on a resume that passed no `--effort`.
+
+**5. Re-supplying `--effort` on every call costs about 19×.** Passing the flag
+invalidates the prompt cache; omitting it hits the cache. Four omissions and
+three passes, alternating, with no other change:
+
+| Invocation                         | cache read | cache created |    cost |
+| ---------------------------------- | ---------: | ------------: | ------: |
+| cold start, new session            |          0 |        49 515 | $0.1981 |
+| resume, no `--effort`              |     49 515 |            76 | $0.0103 |
+| resume, no `--effort`              |     49 591 |            60 | $0.0102 |
+| resume, `--effort low` (a change)  |          0 |        49 711 | $0.1989 |
+| resume, `--effort low` (unchanged) |          0 |        48 303 | $0.1933 |
+| resume, no `--effort`              |     49 651 |           589 | $0.0124 |
+| resume, no `--effort`              |     50 240 |            61 | $0.0104 |
+
+Passing the flag misses even when the value is identical to the one already in
+force, so this is the flag's presence and not a change of level. One earlier
+haiku resume also missed with no flag; it followed a malformed invocation and is
+unexplained, but the correlation is otherwise clean at 7/7.
+
+**6. The `--agent` effort bug does not reproduce in print mode.** A fresh
+`-p --agent integrity` with no `--effort`, under an ambient `medium`, ran at
+`high`. The interactive main-thread defect that `.scripts/claude-role.sh` exists
+to work around does not apply to the interface this topology would use.
+
+**7. Concurrent resume of one session silently forks it.** Two simultaneous
+resumes of the same id both succeeded, both returned that id, and both reported
+no error — and left the transcript with one parent holding two children and two
+leaf tips. A later resume follows one tip; the other turn's work is still on
+disk and no longer in the conversation. Nothing locks, and nothing complains.
+
+**8. Context usage is observable per invocation.** The result's `modelUsage`
+carries `contextWindow` (200 000 for haiku, 1 000 000 for sonnet-5 here), and
+`usage` carries the input, cache-read and cache-creation counts whose sum is the
+context actually sent. No transcript parsing, no inference from cost.
+
+**9. `/compact` works as a print-mode prompt.** Sent as the prompt on a resume it
+returned `subtype: success` with an empty `result`, and the transcript grew by
+compaction records. It is usable; it returns no output, so a caller must not
+expect any.
+
+**10. The CLI bills the subscription; an SDK boundary would not.** These runs
+authenticated as `claude.ai` / Max with no API key present, so print mode uses
+the subscription exactly as interactive use does. The Agent SDK is the opposite:
+its documentation states that third-party developers are not permitted to use
+claude.ai login or subscription rate limits, so it wants `ANTHROPIC_API_KEY` and
+bills pay-as-you-go. `--bare` likewise never reads OAuth.
+
+## What this changes
+
+**Effort must not be supplied per invocation.** The owner's intent was that
+effort be _supplied and checkable_ on every worker call. Finding 5 prices the
+supplying at roughly 19× per call, and findings 4 and 6 remove the reason for
+it: the frontmatter level is honoured at session creation and persists across
+every resume. The requirement worth keeping is the second half. **Checkable is
+not supplied** — and checking is what the effort guard already does, for free,
+on every turn, from inside the session.
+
+**One in-flight call per role session.** Finding 7 makes serialization a
+correctness requirement rather than an efficiency one, because the failure is
+silent. The coordinator's own shape — send, wait, return — satisfies it for a
+single caller; what it must add is a lock per role, so that two tasks routed to
+one role queue instead of forking it.
+
+**The coordinator does not need to be a Claude session.** Nothing in findings 1
+to 3 requires the router to reason. Deriving a uuid, spawning a process, waiting,
+and reading one JSON field is a shell or Node program. A Haiku session could do
+it, but then the router is itself an agent with a context that grows, which is
+the hierarchy the proposal set out to remove.
+
+**Direct CLI invocation, not the SDK.** Finding 10 is decisive: adopting the SDK
+as the boundary would move all worker traffic from the subscription onto
+pay-as-you-go API billing. That is the accounting trap, and it argues for the
+plainer interface rather than against it.
+
+**`--bg` is not the primitive it looks like.** Background sessions are real and
+addressable — `claude --bg`, `agents`, `attach`, `logs`, `stop`, `respawn`, and
+`claude agents --json` lists them without a TTY — but output comes back through
+`logs`, described as recent terminal output rather than a structured result.
+`-p --resume` returns a parsed result with usage and identity in one call, and
+holds no process open between calls. The same is true of the session-messaging
+surface: it addresses live sessions conversationally, which is a chat channel
+between agents, not a request/response with captured output.
+
+## The arrangement the measurements support
+
+- A stable uuid per role, derived from the role name.
+- First call per role: `-p --session-id <uuid> --agent <role>`, no `--effort`,
+  no `--model`; `.claude/agents/*.md` stays the only source of truth and is
+  honoured.
+- Every later call: `-p --resume <uuid>`, prompt, `< /dev/null`,
+  `--output-format json`. No identity flags — they are already session state, and
+  `--effort` in particular would cost the cache.
+- A per-role lock the coordinator holds for the duration of a call.
+- Read `result` for the output; `usage` and `modelUsage.contextWindow` for
+  pressure. Compact by sending `/compact` when pressure warrants, as an
+  optimisation.
+
+## What the effort guard becomes
+
+Smaller in one part and load-bearing in another.
+
+The launcher's reason to exist is the interactive `--agent` bug (finding 6),
+which this topology does not touch; a coordinator that never starts an
+interactive session does not need `.scripts/claude-role.sh`. What survives is the
+guard itself, and it survives _because_ effort is no longer passed per call: the
+whole saving in finding 5 rests on trusting that frontmatter was honoured, and
+the guard is the only thing that observes whether it was. It is what makes not
+supplying effort safe rather than merely cheap.
+
+Two of its rules also need re-examining against this topology before enforcement,
+and neither is answered here: whether a coordinator-spawned session is a context
+in which `CLAUDE_CODE_EFFORT_LEVEL` should still deny outright, and what the log
+should say when one role's session is resumed hundreds of times — the trust
+question becomes per-turn rather than per-run.
+
+## Open questions
+
+- Whether a compacted session still reports its role and effort. Compaction
+  starts a `SessionStart(source=compact)`, and finding 4 was measured on an
+  uncompacted session.
+- Whether the unexplained haiku cache miss in finding 5 has a cause that also
+  applies to warm role sessions.
+- What a role session's practical lifetime is before compaction dominates, which
+  needs a real workload rather than one-word probes.
