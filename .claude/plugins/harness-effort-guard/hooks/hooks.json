@@ -1,0 +1,80 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/guard.ts",
+              "--data-dir",
+              "${CLAUDE_PLUGIN_DATA}"
+            ]
+          }
+        ],
+        "matcher": "*"
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/guard.ts",
+              "--data-dir",
+              "${CLAUDE_PLUGIN_DATA}"
+            ]
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/guard.ts",
+              "--data-dir",
+              "${CLAUDE_PLUGIN_DATA}"
+            ]
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/guard.ts",
+              "--data-dir",
+              "${CLAUDE_PLUGIN_DATA}"
+            ]
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/guard.ts",
+              "--data-dir",
+              "${CLAUDE_PLUGIN_DATA}"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

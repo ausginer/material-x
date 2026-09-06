@@ -1,0 +1,62 @@
+import { appendFile, mkdir } from 'node:fs/promises';
+import { join } from 'node:path';
+
+/**
+ * One line of the observation log.
+ *
+ * The two kinds are not interchangeable, and the difference is structural
+ * rather than conventional: an `announcement` comes from a lifecycle event,
+ * which by contract carries no effort, and therefore has no `actual` and no
+ * `verdict` field at all — not null ones. Nothing reading the log can count a
+ * normal session start as a failed check.
+ *
+ * `verdict` records establish the invariant. `announcement` records answer the
+ * separate question of which sessions and subagents were guarded at all, which
+ * is why an absent role means unguarded rather than clean.
+ */
+export type Record =
+  | Readonly<{
+      kind: 'announcement';
+      at: string;
+      event: string;
+      session_id: string;
+      agent_id?: string;
+      agent_type?: string;
+      model?: string;
+      project_root: string | null;
+      declared: string | null;
+      resolution: string;
+      poisoned: boolean;
+    }>
+  | Readonly<{
+      kind: 'verdict';
+      at: string;
+      event: string;
+      session_id: string;
+      agent_id?: string;
+      agent_type?: string;
+      project_root: string | null;
+      declared: string | null;
+      resolution: string;
+      poisoned: boolean;
+      actual: string | null;
+      decision: 'allow' | 'deny';
+      cause: string;
+      enforced: boolean;
+    }>;
+
+/**
+ * Append one record. Never throws: a guard that fails because it could not
+ * write its own diary would deny every tool call in the session.
+ */
+export async function observe(dataDir: string, record: Record): Promise<void> {
+  try {
+    await mkdir(dataDir, { recursive: true });
+    await appendFile(
+      join(dataDir, 'observations.jsonl'),
+      `${JSON.stringify(record)}\n`,
+    );
+  } catch {
+    // Recording is evidence, not enforcement. Enforcement stands without it.
+  }
+}

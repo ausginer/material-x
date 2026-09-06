@@ -1,0 +1,203 @@
+import { readdir, readFile, stat } from 'node:fs/promises';
+import { dirname, join, parse, resolve } from 'node:path';
+
+/**
+ * A role's declared effort, resolved from a project agent definition.
+ *
+ * `out-of-domain` is not a failure: the guard governs only markdown role
+ * definitions under `<projectRoot>/.claude/agents/`, and deliberately models
+ * neither user-scope agents, plugin agents, built-ins, nor the precedence
+ * order between them. A name it does not own is a name it does not judge.
+ */
+export type Resolution =
+  | Readonly<{ kind: 'declared'; role: string; effort: string; file: string }>
+  | Readonly<{ kind: 'undeclared'; role: string; file: string }>
+  | Readonly<{ kind: 'out-of-domain'; role: string }>;
+
+type Definition = Readonly<{
+  name: string;
+  effort: string | null;
+  file: string;
+}>;
+
+const AGENTS_DIR = join('.claude', 'agents');
+
+async function isDirectory(path: string): Promise<boolean> {
+  try {
+    return (await stat(path)).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+function ancestors(startDir: string): readonly string[] {
+  const first = resolve(startDir);
+  const chain = [first];
+
+  for (let dir = dirname(first); dir !== chain.at(-1); dir = dirname(dir)) {
+    chain.push(dir);
+  }
+
+  return chain;
+}
+
+function frontmatter(source: string): string {
+  if (!source.startsWith('---')) {
+    return '';
+  }
+
+  const body = source.slice(source.indexOf('\n') + 1);
+  const end = body.indexOf('\n---');
+
+  return end < 0 ? '' : body.slice(0, end);
+}
+
+function field(block: string, key: string): string | null {
+  for (const line of block.split('\n')) {
+    const separator = line.indexOf(':');
+
+    if (separator < 0 || line.slice(0, separator).trim() !== key) {
+      continue;
+    }
+
+    const value = line
+      .slice(separator + 1)
+      .trim()
+      .replace(/^['"]|['"]$/gu, '');
+
+    return value === '' ? null : value;
+  }
+
+  return null;
+}
+
+async function readDefinition(file: string): Promise<Definition> {
+  const block = frontmatter(await readFile(file, 'utf8'));
+
+  return {
+    // The frontmatter name is what reaches a hook as `agent_type`, and it need
+    // not match the filename — `explore.md` declares `Explore`.
+    name: field(block, 'name') ?? parse(file).name,
+    effort: field(block, 'effort'),
+    file,
+  };
+}
+
+async function readDefinitions(
+  projectRoot: string,
+): Promise<readonly Definition[]> {
+  const dir = join(projectRoot, AGENTS_DIR);
+  let names: readonly string[];
+
+  try {
+    names = await readdir(dir);
+  } catch {
+    return [];
+  }
+
+  return await Promise.all(
+    names
+      .filter((name) => name.endsWith('.md'))
+      .map((name) => readDefinition(join(dir, name))),
+  );
+}
+
+/**
+ * The nearest ancestor of `startDir` — itself included — holding a
+ * `.claude/agents/` directory, or `null` when no ancestor does.
+ *
+ * The single root-finding rule, shared by both callers so that the launcher's
+ * pre-session answer and the hook's in-session answer cannot diverge.
+ */
+export async function findProjectRoot(
+  startDir: string,
+): Promise<string | null> {
+  const chain = ancestors(startDir);
+  const holds = await Promise.all(
+    chain.map((dir) => isDirectory(join(dir, AGENTS_DIR))),
+  );
+
+  return chain.find((_, index) => holds[index]) ?? null;
+}
+
+/**
+ * Resolve `role` against the definitions in `projectRoot`.
+ *
+ * `projectRoot` is required and the function reads no environment: its two
+ * callers stand on opposite sides of session startup, and a resolver that
+ * reached for `CLAUDE_PROJECT_DIR` itself would answer correctly for the hook
+ * and resolve against nothing for the launcher — an empty domain that silently
+ * allows every role.
+ *
+ * Throws when two definitions claim the same name. Choosing one arbitrarily
+ * would enforce a declaration the acting role never made, which is strict
+ * enforcement of the wrong number; this is a defect in the one namespace the
+ * guard owns, so it is raised rather than resolved.
+ */
+export async function resolveRole(
+  projectRoot: string,
+  role: string,
+): Promise<Resolution> {
+  const found = (await readDefinitions(projectRoot)).filter(
+    (entry) => entry.name === role,
+  );
+
+  if (found.length > 1) {
+    const files = found.map((entry) => entry.file).join(', ');
+
+    throw new Error(
+      `Role "${role}" is declared by more than one definition: ${files}`,
+    );
+  }
+
+  const [entry] = found;
+
+  if (!entry) {
+    return { kind: 'out-of-domain', role };
+  }
+
+  return entry.effort == null
+    ? { kind: 'undeclared', role, file: entry.file }
+    : { kind: 'declared', role, effort: entry.effort, file: entry.file };
+}
+
+/**
+ * CLI for callers that cannot import: `resolve-role.ts <role> [startDir]`.
+ *
+ * Prints `<projectRoot>\t<declared effort>` and exits 0 only when the role is
+ * governed and declares one. Every other outcome is a message on stderr and a
+ * distinct non-zero exit, so the launcher can refuse without interpreting.
+ */
+if (import.meta.main) {
+  const [role, startDir = process.cwd()] = process.argv.slice(2);
+
+  if (role == null) {
+    process.stderr.write('usage: resolve-role.ts <role> [startDir]\n');
+    process.exit(64);
+  }
+
+  const root = await findProjectRoot(startDir);
+
+  if (root == null) {
+    process.stderr.write(`No .claude/agents/ directory above ${startDir}.\n`);
+    process.exit(66);
+  }
+
+  const resolution = await resolveRole(root, role);
+
+  if (resolution.kind === 'out-of-domain') {
+    process.stderr.write(
+      `Role "${role}" is not defined in ${join(root, AGENTS_DIR)}.\n`,
+    );
+    process.exit(67);
+  }
+
+  if (resolution.kind === 'undeclared') {
+    process.stderr.write(
+      `Role "${role}" declares no effort: in ${resolution.file}.\n`,
+    );
+    process.exit(68);
+  }
+
+  process.stdout.write(`${root}\t${resolution.effort}\n`);
+}

@@ -1,0 +1,8 @@
+{
+  "name": "harness-effort-guard",
+  "description": "Treats the effort declared by a project agent definition as a runtime invariant: compares each acting role's declared effort against the effective effort the runtime reports, and fails closed on any disagreement.",
+  "version": "0.1.0",
+  "author": {
+    "name": "material-x"
+  }
+}

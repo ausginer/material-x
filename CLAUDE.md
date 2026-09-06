@@ -27,3 +27,13 @@ The task-scoped procedures `AGENTS.md` names are packaged as skills here: invoke
 Use sub-agents for research and exploration that can run in parallel — investigating separate parts of the codebase at the same time, for instance.
 
 Create an agent team only when the task has genuinely independent parallel work, such as migrating several components at once. Do not create teams for reviews, small changes, or work with sequential dependencies.
+
+## Starting a managed role
+
+```sh
+.scripts/claude-role.sh <role>
+```
+
+It pins the role's declared `effort:` — which `--agent` alone can drop — and
+loads the guard that checks it on every tool call. A session started any other
+way is unguarded. See [`harness-effort-guard.md`](.agents/docs/harness-effort-guard.md).
