@@ -3,8 +3,15 @@
 > Retrieved when changing how roles are dispatched, or before extending the effort guard.
 
 **Status: brief.** Nothing here is built. This records what the runtime actually
-does, which premises of the proposed topology it changes, and the smallest
+does, which premises of the proposed topologies it changes, and the smallest
 arrangement the measurements support.
+
+Two topologies were measured against the live runtime: **A**, persistent
+standalone role sessions driven by `claude -p --resume`, and **B**, persistent
+resumable named subagents under a lightweight coordinator session. A is
+recommended; the comparison and the one thing it must borrow from B are in
+[Topology B](#topology-b--resumable-named-subagents) and
+[Choosing](#choosing).
 
 ## The proposal
 
@@ -171,6 +178,111 @@ in which `CLAUDE_CODE_EFFORT_LEVEL` should still deny outright, and what the log
 should say when one role's session is resumed hundreds of times — the trust
 question becomes per-turn rather than per-run.
 
+## Topology B — resumable named subagents
+
+One coordinator session spawns each role as a named subagent and resumes it with
+`SendMessage`. Measured the same way: the guard's log, the subagent transcripts
+under `projects/<cwd>/<parent-session-id>/subagents/agent-<id>.jsonl`, and the
+coordinator's own `--output-format json`.
+
+**11. Workers are resumable and keep their full context.** A named worker
+answered, after finishing, both what codeword it had been given and which
+command it had run. `SendMessage` reports `Resuming agent <name>`, and the name
+keeps resolving after completion.
+
+**12. Role identity, model and effort hold.** Every assistant row in a worker's
+transcript carries `effort: medium` — the level `cleanup` declares — including
+rows written by resumed turns, and the model stayed `claude-sonnet-5`.
+
+**13. The guard sees workers at finer granularity than in A.** A coordinator
+with the plugin loaded produced `SubagentStart`, `PreToolUse` and `SubagentStop`
+records carrying `agent_type: cleanup`, a distinct `agent_id`, and
+`declared=medium, actual=medium, match`. In A a worker is a whole session; in B
+it is separately identified inside one.
+
+**14. Concurrent messages to one worker serialize.** Two `SendMessage` calls
+issued together both returned their own correct answer, and the worker's
+transcript held **zero branch points and one leaf tip**. This is exactly the
+case that silently forks in A (finding 7).
+
+**15. Workers survive coordinator restart and coordinator `/compact`.** The
+coordinator was a `-p` session, so its process exited between every turn, and one
+of those turns was a `/compact`. The worker stayed resumable across all of it,
+with one transcript file and a cache that kept reading forward. Persistence is
+tied to the parent **session id**, not to the parent process.
+
+**16. Workers are invisible outside that session id.** A different session
+called `ListAgents` and found neither worker: _"NOT LISTED. In-process subagents
+I own: 0."_ Nothing addresses another session's workers, and the transcripts are
+stored under the parent session's own directory.
+
+**17. A worker cannot be compacted, and its context only grows.** Sending
+`/compact` to a worker delivers the text, not the command; the worker replied
+that no compact action is available to it. Its context climbed monotonically
+across seven turns — 34 906, 34 101, 52 054, 59 714, 64 982, 66 158, 67 777
+tokens sent — with nothing able to reduce it.
+
+**18. The coordinator burns context and money per routing turn.** The
+coordinator's own turns sent 76 495, then 44 831 after its compaction, then
+47 739 tokens, at $0.25, $0.53 and $0.14. It is a reasoning session with a
+growing context that needs its own compaction, not a router.
+
+**19. Worker output is relayed by a model, and worker pressure needs transcript
+parsing.** What reaches the coordinator is the worker's final report, restated in
+the coordinator's words — in one probe the coordinator's account of a reply was
+its own interpretation of it. Worker context is available only from the internal
+subagent JSONL, whose format the documentation warns changes between releases;
+the `subagent_tokens` figure in a completion notice is cumulative spend, not
+context pressure.
+
+**20. A role worker reasserts its role.** `cleanup` refused an off-role question
+twice and spent tokens on its own startup reading instead. Correct behaviour, and
+a reminder that a worker is a role rather than a callable function.
+
+## Choosing
+
+|                               | A — `-p --resume` sessions                                           | B — named subagents                                                                                        |
+| ----------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Worker persistence            | own session file; addressable by uuid from any process, indefinitely | tied to parent **session id**; survives coordinator restart and compaction; invisible to any other session |
+| Coordinator                   | a script; no context, no tokens                                      | must be a reasoning session; 45–76 k context per turn, $0.14–0.53                                          |
+| Worker context in coordinator | none                                                                 | final report only                                                                                          |
+| Prompt cache on resume        | warm when `--effort` is omitted ($0.010 vs $0.195)                   | warm (37 481 → 96 read/create)                                                                             |
+| Effort correctness            | persists; guard confirms `match`                                     | persists; guard confirms `match`                                                                           |
+| Guard observability           | per session                                                          | per worker, with `agent_id` — finer                                                                        |
+| Concurrency                   | **silently forks**; needs a lock                                     | **serializes**; nothing to build                                                                           |
+| Worker compaction             | `/compact` works                                                     | **none possible**; context grows unbounded                                                                 |
+| Context pressure              | supported `--output-format json`                                     | internal transcript parsing                                                                                |
+| Output                        | structured result plus usage                                         | model-relayed prose                                                                                        |
+| Quota                         | subscription                                                         | subscription                                                                                               |
+| Build cost                    | uuid, spawn, lock, stdin redirect                                    | almost nothing                                                                                             |
+
+**A remains the choice**, for three reasons that B cannot answer.
+
+Finding 17 is the decisive one. The stated purpose of persistent workers is long
+workloads, and B gives a worker a context that only grows with no mechanism to
+reduce it; the topology fails hardest exactly where it is supposed to pay off. A
+compacts a worker with a command already measured to work (finding 9).
+
+Findings 18 and 19 undo the rest. B's coordinator is a reasoning session with its
+own growing context and per-turn cost, which is the hierarchy the design set out
+to remove, and worker output reaches it as prose a model restated rather than a
+result. A's coordinator holds no context at all and reads a JSON field.
+
+Finding 16 bounds B's persistence to one parent session id, where A's workers are
+independent sessions that any process can address later.
+
+**What A must borrow.** Finding 14 shows B solving A's one serious defect for
+free. That does not rescue B, but it does say the per-role lock in A is not
+optional bookkeeping — it is the thing B gets natively and A must build, and
+finding 7 makes its absence silent. It is the first thing to implement and the
+first thing to test.
+
+Nothing in this document becomes unnecessary, and neither does any part of the
+guard. B strengthens one guard result rather than replacing it: finding 13 shows
+the same invariant checked per worker with a distinct `agent_id`, so if a
+coordinator-of-subagents is ever wanted for something else, the guard already
+covers it.
+
 ## Open questions
 
 - Whether a compacted session still reports its role and effort. Compaction
@@ -180,3 +292,8 @@ question becomes per-turn rather than per-run.
   applies to warm role sessions.
 - What a role session's practical lifetime is before compaction dominates, which
   needs a real workload rather than one-word probes.
+- Whether a compacted worker session in A keeps its role and effort, which
+  finding 15 establishes for B's workers but not for A's sessions.
+- Whether B's workers survive a VS Code window reload. They survive the
+  coordinator process exiting (finding 15), so this reduces to whether the
+  editor resumes the same session id; not measured.
