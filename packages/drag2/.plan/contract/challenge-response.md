@@ -273,7 +273,7 @@ The review's reading is correct and I did not think it through. The sequence clo
       commit(RELEASING)                            ← commit 1: state matches reality
       lifetimes.motion.dispose()                   ← now consistent
       begin(); release.prepare(draft) → insertion + proposal
-      preparationValid(); commit()                 ← commit 2
+      preparationValid(); commit(null)             ← commit 2
       release.effect(current, prepared, gate)
 ```
 

@@ -63,8 +63,12 @@ type Harness = Readonly<{
  * drives is the shipped one rather than a description of it.
  *
  * The kernel's three remaining edges stay closures, which is what they are on
- * the kernel too: the revalidation composes three conjuncts owned in three
- * places, and the two channels are the controller's.
+ * the kernel too: the revalidation composes two conjuncts owned elsewhere, and
+ * the two channels are the controller's.
+ *
+ * **The transaction count is taken at `FrameTransaction.begin` itself**, which
+ * is where the driver opens one. Counting it through a collaborator would
+ * describe the harness's own wiring rather than the driver's.
  */
 function createHarness(): Harness {
   const first = Object.assign(frame(), createExamplePart());
@@ -72,18 +76,14 @@ function createHarness(): Harness {
     first,
     Object.assign(frame(), createExamplePart()),
   );
+  const begins = vi.spyOn(frames, 'begin');
   let valid = true;
-  let begins = 0;
   const failures: Array<{ stage: FailureStage; error: unknown }> = [];
   const warnings: DraggableWarning[] = [];
 
   return {
     driver: new SeamDriver<ExamplePart>(
       frames,
-      (): void => {
-        begins += 1;
-        frames.begin();
-      },
       () => valid,
       (stage, error): void => {
         failures.push({ stage, error });
@@ -99,7 +99,7 @@ function createHarness(): Harness {
       valid = false;
     },
     committed: () => frames.current !== first,
-    begins: () => begins,
+    begins: () => begins.mock.calls.length,
   };
 }
 

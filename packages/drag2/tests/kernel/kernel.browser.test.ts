@@ -3869,14 +3869,17 @@ describe('arm unwind of a partial frame pair', () => {
     expect(resets).toBe(1);
   });
 
-  it('should tear down without reaching a frame when a factory destroys', () => {
+  it('should reset only the composed frame when a factory destroys', () => {
     // **`#spec` names the behavior only once the pair it owns is composed**,
     // and this is the window that makes the ordering load-bearing rather than
     // tidy: teardown's frame resets are guarded by that field alone, so a
-    // `destroy()` raised from inside the first factory would otherwise reach a
-    // retirement over a pair that does not exist yet — and the throw would
-    // escape the factory, unwind the arm and leave `draggable()` itself
+    // `destroy()` raised from inside the first factory published earlier would
+    // reach a retirement over a pair that does not exist yet — and the throw
+    // would escape the factory, unwind the arm and leave `draggable()` itself
     // raising a TypeError at the consumer.
+    //
+    // What resets the one frame that does exist is `arm()`'s own unwind, which
+    // holds the spec as an argument for exactly this window.
     const root = document.createElement('div');
 
     document.body.append(root);
@@ -3917,9 +3920,10 @@ describe('arm unwind of a partial frame pair', () => {
       }));
     }).not.toThrow();
 
-    // Nothing was armed at the moment of the close, so nothing behavior-owned
-    // is reset: what teardown owes there is the ingress, and it is released.
-    expect(resets).toBe(0);
+    // One frame part was composed before the close and no second one is, so
+    // exactly one reset is owed. A second would be `resetFramePart` handed a
+    // frame the factory never produced.
+    expect(resets).toBe(1);
   });
 
   it('should scrub both frames when arming fails after both were composed', () => {

@@ -155,16 +155,6 @@ export class SeamDriver<Part extends object> {
   /** The pair every transactional seam publishes and reads. */
   readonly #frames: FrameTransaction<Part>;
 
-  /**
-   * Opens a transaction over that pair.
-   *
-   * Separate from the pair itself because opening one does more than rebuild
-   * the draft: the kernel pins the operation the transaction belongs to at the
-   * same instant, and that pin is half of the revalidation below. A driver that
-   * opened the pair directly would take the copy and leave the pin behind.
-   */
-  readonly #begin: () => void;
-
   /** False once a reentrant cancel or destroy invalidated the preparation. */
   readonly #preparationValid: () => boolean;
 
@@ -229,23 +219,16 @@ export class SeamDriver<Part extends object> {
   #reentry = false;
 
   /**
-   * Collaborators rather than one record of them: they answer to three
-   * different owners — the frame pair, the kernel's transaction protocol over
-   * it, and the controller's failure channel — and callbacks with no
-   * relationship to each other are a parameter list, not a type.
-   *
    * All of them are controller-invariant and held for its life, so no seam
    * allocates to reach one.
    */
   constructor(
     frames: FrameTransaction<Part>,
-    begin: () => void,
     preparationValid: () => boolean,
     fail: (stage: FailureStage, error: unknown) => void,
     notify: Notify,
   ) {
     this.#frames = frames;
-    this.#begin = begin;
     this.#preparationValid = preparationValid;
     this.#fail = fail;
     this.#notify = notify;
@@ -289,7 +272,7 @@ export class SeamDriver<Part extends object> {
     }
 
     this.#staged = null;
-    this.#begin();
+    this.#frames.begin();
 
     const prepared = this.#runPhase(stage, () =>
       transition.prepare(this.#frames.draft, capability),

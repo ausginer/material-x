@@ -184,7 +184,7 @@ No pointer capture yet — capture is acquired at activation, so a below-thresho
 ```text
 pointermove (+3 px)
 > MOVE  [K] phase PENDING ✔  pointerId matches ✔
-        [K] begin(); pointerX/Y = sample; commit()
+        [K] begin(); pointerX/Y = sample; commit(null)
         [K] |Δ| < config.threshold (8) → nothing further
 ```
 
@@ -192,7 +192,7 @@ pointermove (+3 px)
 
 ```text
 pointermove (+11 px)
-> MOVE  [K] begin(); pointerX/Y = sample; commit()
+> MOVE  [K] begin(); pointerX/Y = sample; commit(null)
         [K] |Δ| ≥ threshold → open the activation transition
         [K] event.preventDefault()          ← HERE, not at admission  [D-54]
         [K] clear any selection the pre-threshold press began
@@ -344,7 +344,7 @@ pointermove × N
 > MOVE  [K] phase ACTIVE ✔  pointerId matches ✔
         [K] begin()                     Object.assign, 15 fields, monomorphic
         [K] draft.pointerX = e.clientX; draft.pointerY = e.clientY
-        [K] commit()                    two reference assignments
+        [K] commit(null)                two reference assignments
         [B] spec.moved(current, lift)                                  [D-8]
               dx = current.pointerX - current.originX
               dy = current.pointerY - current.originY
@@ -398,7 +398,7 @@ rAF fires → dispatch(behavior tag 0, attempt)
                       [F] → Insertion { version, index: 4, before, after }
                     draft.insertion = gap 4
                     return true
-              [K] preparationValid() ✔; commit()
+              [K] preparationValid() ✔; commit(null)
               [B] spec.action.effect(0, attempt, current, true)
                     for slots.beforeMove   → [F] measure neighbour rects
                     movePlaceholder(view, insertion)  ← the SOLE writer of the
@@ -459,7 +459,7 @@ pointerup
               ← the resolution CHOICE is the staged value. A no-op proposal
                 returns { invoke: null }. There is no `null` return and no
                 gate to call zero or twice.                            [F-20]
-        [K] preparationValid() ✔; commit()             ← commit 2
+        [K] preparationValid() ✔; commit(null)         ← commit 2
         [B] spec.release.effect(current, command)      [post-commit]
               movePlaceholder(view, insertion)    ← the same single writer,
                                                     inert when already correct.

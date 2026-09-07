@@ -107,7 +107,6 @@ const INTERNAL: Readonly<Record<string, readonly string[]>> = {
   'the seam driver': [
     'SeamOutcome',
     'SeamDriver',
-    'ArmOutcome',
     'SEAM_COMMITTED',
     'SEAM_DISCARDED',
     'SEAM_EFFECT_FAILED',
@@ -144,9 +143,8 @@ const INTERNAL: Readonly<Record<string, readonly string[]>> = {
   // into the tarball's type surface (F-122).
   'the point cache': ['PointCache'],
   // The phase *constants* are published; the entity the kernel keeps them in
-  // is not. ~~`NO_STAMP`~~ went with the slot it named a gap in (D-181): the
-  // phase reaches a commit as an argument, so there is no absent-phase
-  // sentinel left to keep out of the published vocabulary.
+  // is not. There is no absent-phase sentinel to keep out of the published
+  // vocabulary either: the phase reaches a commit as an argument (D-181).
   'kernel-private frame state': ['FrameTransaction'],
   // `DraggableError` is a runtime value on `drag.js`; the sortable imports the
   // class from its declaration site, which is the same declaration.

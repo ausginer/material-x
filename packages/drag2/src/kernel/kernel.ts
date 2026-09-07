@@ -338,7 +338,7 @@ export class Kernel<
       this.#runPhysicalTeardown();
     },
     () => {
-      this.#begin();
+      this.#frames.begin();
     },
   );
 
@@ -376,14 +376,6 @@ export class Kernel<
     settlement: null,
     settlementInput: null,
   };
-
-  /**
-   * The operation the open transaction belongs to, captured at `begin()`.
-   * `preparationValid()` compares against it rather than against a mutable
-   * "current operation" field, so a reentrant retirement between `begin` and
-   * `commit` is visible as an identity change.
-   */
-  #pinned: OperationIdentity | null = null;
 
   /* ---- the one channel ---- */
 
@@ -471,19 +463,6 @@ export class Kernel<
   }
 
   /**
-   * Opens a transaction and pins the operation it belongs to.
-   *
-   * The pin is the kernel's rather than the pair's because the question it
-   * serves is: `preparationValid()` composes it with the terminal latch and the
-   * operation's cancel request, and two of those three facts are owned
-   * elsewhere. What the pair owns is the copy.
-   */
-  #begin(): void {
-    this.#pinned = this.#frames.current.operation;
-    this.#frames.begin();
-  }
-
-  /**
    * False once a reentrant `cancel()` or `destroy()` invalidated the open
    * preparation. The cancel latch counts: a cancellation raised from inside a
    * `prepare` has already decided the operation, so publishing the preparation
@@ -493,11 +472,7 @@ export class Kernel<
     // The terminal latch alone: a separate `destroyRequested` flag is a second
     // name for it — set on the statement after it and never cleared either — so
     // the extra conjunct is unconditionally true beside it.
-    return (
-      !this.#bracket.closed &&
-      !this.#operation?.cancelRequest &&
-      this.#frames.current.operation === this.#pinned
-    );
+    return !this.#bracket.closed && !this.#operation?.cancelRequest;
   }
 
   // -------------------------------------------------------------------------
@@ -610,7 +585,6 @@ export class Kernel<
     // maintenance property, not a window a guard could catch.
     this.#operation = null;
     this.#activation = null;
-    this.#pinned = null;
   }
 
   /**
@@ -684,7 +658,6 @@ export class Kernel<
       // before is what keeps the frame-identity implication true by order.
       this.#operation = null;
       this.#activation = null;
-      this.#pinned = null;
     } finally {
       // 7. unconditional: no earlier step can prevent ingress from being
       //    released, and none may leave a tail interpolating on an element the
@@ -747,10 +720,16 @@ export class Kernel<
    * idle cancel is a no-op that leaves no latch. The latch is what makes a
    * cancellation raised from inside a seam invalidate that preparation
    * synchronously, which matters most when the caller is `onStart`.
+   *
+   * **`#spec` guards the pair for the same reason `fail()` guards the driver.**
+   * A cancel from the construction window has no operation to latch — there is
+   * none anywhere in that window — so it is the idle no-op, reached without
+   * dereferencing a pair `arm()` has not composed yet.
    */
   #cancelWith(reason: unknown, origin: CancelOrigin): void {
     if (
       this.#bracket.closed ||
+      !this.#spec ||
       !this.#frames.current.operation ||
       this.#operation!.cancelRequest
     ) {
@@ -1614,7 +1593,7 @@ export class Kernel<
     const owned = this.#operation!.lifetimes;
     const session = this.#activation!.lift;
 
-    this.#begin();
+    this.#frames.begin();
     this.#frames.commit(FINALIZING);
 
     let fromX = 0;
@@ -1835,7 +1814,7 @@ export class Kernel<
       return;
     }
 
-    this.#begin();
+    this.#frames.begin();
     this.#frames.draft.pointerX = sample.clientX;
     this.#frames.draft.pointerY = sample.clientY;
     this.#frames.commit(null);
@@ -1881,7 +1860,7 @@ export class Kernel<
     // Commit 1: the committed frame matches what is about to be true, so a
     // `release.prepare` that throws or reentrantly destroys never leaves a
     // committed `ACTIVE` operation with no ingress and no path forward.
-    this.#begin();
+    this.#frames.begin();
 
     if (sample) {
       this.#frames.draft.pointerX = sample.clientX;
@@ -2075,7 +2054,7 @@ export class Kernel<
       return;
     }
 
-    this.#begin();
+    this.#frames.begin();
     this.#frames.commit(ACTIVE);
 
     // **A command is one slot.** A pointerless operation has no other producer
@@ -2405,14 +2384,41 @@ export class Kernel<
     this.#bracket.dispatch(BEHAVIOR_BASE + tag, argument);
   }
 
+  /**
+   * **`#spec` is the liveness test for `#driver`, not a second field.** `arm()`
+   * assigns the driver before it publishes the spec, so a published spec
+   * implies an assigned driver by statement order.
+   *
+   * A call from the construction window — the factory body or a frame-part
+   * factory — is outside every seam, so it takes the demotion this member's
+   * own contract states. The demotion is silent there because `#notify`
+   * reports through the spec, which is the same place a platform report has no
+   * destination on any other pre-arm route.
+   */
   fail(stage: FailureStage, error: unknown): void {
-    this.#driver.requestFailure(stage, error);
+    if (this.#spec) {
+      this.#driver.requestFailure(stage, error);
+    }
   }
 
   /**
-   * Composes both frames and attaches ingress. **Unwinds on any failure**:
-   * `spec.retire()` best-effort, scrub whichever frame exists, abort ingress,
-   * rethrow. A controller is never returned half-armed.
+   * Composes both frames and attaches ingress.
+   *
+   * **Every exit that does not arm the controller unwinds**, and there are two
+   * of them. A failure — of the static configuration validation, of a frame
+   * part factory, of ingress attachment — unwinds and rethrows. A `destroy()`
+   * raised anywhere in the window is the same situation without the throw: no
+   * further frame part is composed once the latch is closed, the same unwind
+   * runs over whichever frames it has, and the call returns, because a
+   * consumer asking to be destroyed is not an error. A controller is never
+   * returned half-armed, and never returned holding a behavior that was never
+   * retired.
+   *
+   * **Static configuration validation runs before the first latch test.** The
+   * `actionTags` range and the `command.types` collision are facts about the
+   * spec rather than about the controller's liveness, and a `TypeError` that
+   * appeared or vanished depending on whether the behavior destroyed itself
+   * would be a configuration error its author cannot reproduce.
    */
   arm(next: BehaviorSpec<Part, Activation>): void {
     // **The frames the unwind is responsible for, and no field read finds
@@ -2470,72 +2476,112 @@ export class Kernel<
       // The same code path twice, so both frames get one hidden class. The
       // part factory is not proven deterministic, so the two results are not
       // assumed identical — they are simply both composed.
-      current = Object.assign(frame(), next.createFramePart());
-      draft = Object.assign(frame(), next.createFramePart());
+      //
+      // **The latch is tested before each of them.** A part factory may
+      // `destroy()` the controller, and a frame part minted afterwards is
+      // per-controller state nothing will ever release.
+      if (!this.#bracket.closed) {
+        current = Object.assign(frame(), next.createFramePart());
+      }
 
-      this.#frames = new FrameTransaction(current, draft);
-      this.#driver = new SeamDriver<Part>(
-        this.#frames,
-        () => {
-          this.#begin();
-        },
-        () => this.#preparationValid(),
-        (stage, error) => {
-          this.#failOperation(stage, error);
-        },
-        // **The driver reports without classifying.** Not `failOperation`,
-        // which would settle a drop whose reorder already happened; and there
-        // is no second destination to choose between — a separate platform
-        // reporter would receive a consumer's own destructive rerender — which
-        // is what lets the `QUALITY` and `BEST_EFFORT` tiers collapse into one
-        // sentinel.
-        //
-        // There is no lifetime guard at this site, and adding one here is
-        // wrong: the guard belongs in `notify`, where every route shares it. A
-        // quality fault's producer is consumer-reaching — a `home` resolver, a
-        // landing policy — and is equally free to destroy before it throws.
-        this.#report,
-      );
+      if (!this.#bracket.closed) {
+        draft = Object.assign(frame(), next.createFramePart());
+      }
 
-      // **Published last of the three, and the frames are why.** Every
-      // `#spec!` in this file reads as *a behavior is armed*, and teardown's
-      // frame resets are guarded by this field alone: published before the pair
-      // exists, a `destroy()` raised from inside `createFramePart` would reach
-      // a retirement over frames that were never composed.
-      this.#spec = next;
+      // **Both frames exist and the latch is open**, which the tests above
+      // already decide; naming the pair is what lets the compiler see it too.
+      if (current && draft && !this.#bracket.closed) {
+        this.#frames = new FrameTransaction(current, draft);
+        this.#driver = new SeamDriver<Part>(
+          this.#frames,
+          () => this.#preparationValid(),
+          (stage, error) => {
+            this.#failOperation(stage, error);
+          },
+          // **The driver reports without classifying.** Not `failOperation`,
+          // which would settle a drop whose reorder already happened; and
+          // there is no second destination to choose between — a separate
+          // platform reporter would receive a consumer's own destructive
+          // rerender — which is what lets the `QUALITY` and `BEST_EFFORT`
+          // tiers collapse into one sentinel.
+          //
+          // There is no lifetime guard at this site, and adding one here is
+          // wrong: the guard belongs in `notify`, where every route shares
+          // it. A quality fault's producer is consumer-reaching — a `home`
+          // resolver, a landing policy — and is equally free to destroy
+          // before it throws.
+          this.#report,
+        );
 
-      this.root.addEventListener(POINTER_DOWN, this.#pointerDownHandler, {
-        signal: this.#ingress.signal,
-      });
+        // **Published last of the three, and the frames are why.** Every
+        // `#spec!` in this file reads as *a behavior is armed*, and teardown's
+        // frame resets are guarded by this field alone: published before the
+        // pair exists, a `destroy()` raised from inside `createFramePart`
+        // would reach a retirement over frames that were never composed. The
+        // same order is what makes `#spec !== null` a sound answer to *is
+        // `#driver` assigned*, which `fail()` and `#cancelWith` read.
+        this.#spec = next;
 
-      // Inside the **same** ingress abort that owns `pointerdown`, so
-      // `destroy()` releases every listener including the discrete ones, and
-      // a behavior with no `command` member binds nothing at all.
-      if (next.command !== undefined) {
-        for (const type of next.command.types) {
-          this.root.addEventListener(type, this.#commandHandler, {
-            signal: this.#ingress.signal,
-          });
+        this.root.addEventListener(POINTER_DOWN, this.#pointerDownHandler, {
+          signal: this.#ingress.signal,
+        });
+
+        // Inside the **same** ingress abort that owns `pointerdown`, so
+        // `destroy()` releases every listener including the discrete ones, and
+        // a behavior with no `command` member binds nothing at all.
+        if (next.command !== undefined) {
+          for (const type of next.command.types) {
+            this.root.addEventListener(type, this.#commandHandler, {
+              signal: this.#ingress.signal,
+            });
+          }
         }
+
+        return;
       }
     } catch (error) {
-      this.#unwind(next.retire);
-
-      // Totality applies to the unwind too: a reset that throws here must not
-      // replace the original arm failure or skip the ingress cleanup. Reset
-      // **whichever frame exists**: a second factory that throws leaves a
-      // constructed frame this path is still responsible for.
-      if (current) {
-        this.#resetFrame(next, current);
-      }
-
-      if (draft) {
-        this.#resetFrame(next, draft);
-      }
-
-      this.#ingress.abort();
-      this.#spec = null;
+      this.#unwindArm(next, current, draft);
       throw error;
     }
+
+    // The controller closed inside the window and is never returned armed.
+    // Outside the `try`, so the unwind's own ingress abort cannot be caught by
+    // the handler above and run a second time.
+    this.#unwindArm(next, current, draft);
+  }
+
+  /**
+   * `arm()`'s unwind, reached by every exit that leaves the controller
+   * unarmed: a throw from validation, from a frame-part factory or from
+   * ingress attachment, and a `destroy()` raised anywhere in the construction
+   * window.
+   *
+   * The behavior is a parameter for the reason {@link resetFrame} takes one —
+   * `#spec` is published last, so it is not yet a name for the behavior being
+   * unwound.
+   *
+   * **Totality applies here too**: a reset that throws must not replace the
+   * initiating failure or skip the ingress cleanup. Each reset covers
+   * **whichever frame exists** — a second factory that throws or destroys
+   * leaves a constructed frame this path is still responsible for, and one
+   * that never ran leaves nothing `resetFramePart` could be handed.
+   */
+  #unwindArm(
+    next: BehaviorSpec<Part, Activation>,
+    current: Frame<Part> | null,
+    draft: Frame<Part> | null,
+  ): void {
+    this.#unwind(next.retire);
+
+    if (current) {
+      this.#resetFrame(next, current);
+    }
+
+    if (draft) {
+      this.#resetFrame(next, draft);
+    }
+
+    this.#ingress.abort();
+    this.#spec = null;
   }
 }

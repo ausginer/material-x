@@ -139,6 +139,15 @@ export type Composition = Readonly<{
    *
    * Omitted on a row a pass is expected to move, which is every row that
    * carries the behavior under change.
+   *
+   * **That is why only two rows declare one at present.** Every kernel-tier
+   * pass is expected to move all five kernel-carrying rows, so re-declaring
+   * them after each one produces a figure read off the result rather than a
+   * prediction the next pass can fail. The five are suspended for the whole
+   * kernel arc series and restored with fresh exact figures when the last arc
+   * lands (`obligations.md` O-13). The two that remain carry no kernel, and
+   * they are what still detects a kernel symbol reaching a composition that
+   * should not have one.
    */
   control?: number;
   /**
@@ -350,7 +359,6 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag.js': '{ freeDrag }',
     },
     budget: 8266,
-    control: 8159,
     absent: [...withoutFreeDrag()],
     absentPrefixes: ['sortable/'],
     present: ['free-drag.js', 'kernel/kernel.js'],
@@ -362,7 +370,6 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
     },
     budget: 8423,
-    control: 8293,
     absent: [...withoutFreeDrag('free-drag/bounds.js')],
     absentPrefixes: ['sortable/'],
     present: ['free-drag/bounds.js'],
@@ -374,7 +381,6 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/landing.js': '{ landing }',
     },
     budget: 8425,
-    control: 8293,
     absent: [...withoutFreeDrag('free-drag/landing.js')],
     absentPrefixes: ['sortable/'],
     present: ['free-drag/landing.js', 'shared/landing.js'],
@@ -387,7 +393,6 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/landing.js': '{ landing }',
     },
     budget: 8576,
-    control: 8448,
     absentPrefixes: ['sortable/'],
     present: FREE_DRAG_OPTIONAL,
   },
@@ -521,7 +526,6 @@ export const COMPOSITIONS: readonly Composition[] = [
     name: 'kernel root - kernel.js',
     imports: { 'kernel.js': '{ draggable }' },
     budget: 6312,
-    control: 6210,
     present: ['kernel.js', 'kernel/kernel.js'],
     absentPrefixes: ['sortable/', 'free-drag/'],
   },

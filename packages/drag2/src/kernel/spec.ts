@@ -36,6 +36,13 @@ import type { OffsetBox, Point } from './types.ts';
  *
  * Stable for the controller's life, so a behavior that captures it captures
  * one object.
+ *
+ * **Construction is not a state this interface distinguishes.** The window from
+ * the factory's invocation to the moment arming completes — the factory body
+ * and the frame-part factories alike — is a supported position for every member
+ * below, and each behaves there as its own entry states. Where that cannot be
+ * delivered the limitation is written into the member's own entry;
+ * {@link BehaviorContext.dispatch} is the one member in that position.
  */
 export interface BehaviorContext {
   /** The owning document/window. Every DOM access goes through it. */
@@ -48,6 +55,12 @@ export interface BehaviorContext {
    * Enqueue one behavior action. `tag` is behavior-local and must be an integer
    * in `0 .. config.actionTags - 1`. An out-of-range tag is reported and
    * dropped, never enqueued.
+   *
+   * **An action dispatched before the behavior is armed is dropped, without a
+   * report.** Its handler would run the behavior's own transition through
+   * machinery construction has not built yet, so there is nothing to enqueue
+   * into that could run it and no reporter to say so. Dispatch after
+   * construction.
    */
   dispatch(tag: number, argument: unknown): void;
 
@@ -58,6 +71,11 @@ export interface BehaviorContext {
    * Valid **only inside a kernel-driven seam of the current operation**; a call
    * outside one is downgraded to a platform report, because a late continuation
    * from operation A could otherwise classify a failure against operation B.
+   *
+   * **Outside one includes the whole of construction.** The factory body and
+   * the frame-part factories are outside every seam, so a call from either
+   * takes the same demotion — silently, because the report travels through the
+   * behavior's own `reportError`, which is not published yet.
    */
   fail(stage: FailureStage, error: unknown): void;
 
@@ -80,6 +98,9 @@ export interface BehaviorContext {
    * They are **called with a receiver here and detached by contract there**: a
    * consumer's `controller.cancel` may be pulled off and passed on, so the
    * behavior publishes a closure over this call rather than the member itself.
+   *
+   * An idle cancel is a no-op that leaves no latch, and there is no operation
+   * anywhere in construction, so a call from there is that no-op.
    */
   cancel(reason?: unknown): void;
 
@@ -91,6 +112,11 @@ export interface BehaviorContext {
    *
    * Idempotent: repeated destruction closes nothing further and every returned
    * promise still settles exactly once.
+   *
+   * **A call during construction closes on the statement like any other**, and
+   * the teardown it owes runs whether or not the controller was ever armed: a
+   * behavior that reached this point is retired exactly once, and no further
+   * frame part is composed.
    */
   destroy(): Promise<void>;
 }
