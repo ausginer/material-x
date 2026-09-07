@@ -166,6 +166,13 @@ interface BehaviorContext {
    * continuation from
    * operation A could classify a failure against operation B
    * (§[02](02-kernel-behavior-contract.md) §Failure classification).
+   *
+   * **Outside one includes before ingress is armed.** The factory body and the
+   * frame-part factories are outside every seam, so a call from either is the
+   * same demotion — which reaches no reporter while no spec is published, and
+   * is silent rather than absent for that reason. **No member of this
+   * interface throws a platform error from a position this document says is
+   * supported**; that is the property, and the demotion is one instance of it.
    */
   fail(stage: FailureStage, error: unknown): void; // `FailureStage` is kernel-tier vocabulary (D-64)
 
@@ -371,7 +378,11 @@ Inertness alone is not quite enough, so two unwinds are also normative:
 
   **D-45 adds an ordering rule that shrinks what can need unwinding: installers are invoked _after_ the merge completes.** The assembler collects fragments, merges by slot, derives defaults, and only then materializes. So a capability that loses a last-wins slot — a second `y()` overriding the first, a preset's `axis` overridden by the call site's — is **never constructed**, and there is nothing to unwind for it. Unwinding covers the installers that actually ran, which after the merge is at most one per capability slot plus the whole `plugins` array. Merge-first is also what makes the losing installer's absence observable as a non-event rather than as an acquire/release pair.
 
-- **`arm()` unwinds.** If either frame factory, the frame-part validation, the shape assertion, the static-configuration validation or any ingress attachment throws, `arm()` calls `spec.retire()` best-effort, scrubs whichever frame exists, aborts ingress, and rethrows. A controller is never returned half-armed.
+- **`arm()` unwinds, and both of its exits reach the unwind.** If either frame factory, the frame-part validation, the shape assertion, the static-configuration validation or any ingress attachment throws, `arm()` calls `spec.retire()` best-effort, scrubs whichever frame exists, aborts ingress, and rethrows. **A `destroy()` raised from inside a frame-part factory is the same situation without the throw**: `arm()` composes no further frame part once the terminal latch is closed, runs the same unwind over whichever frames it has composed, and returns instead of rethrowing, because a consumer asking to be destroyed is not an error. A controller is never returned half-armed, and never returned holding a behavior that was never retired.
+
+  **The window belongs to `arm()` because the spec does.** `#spec` is published last, after both frames exist, so that a teardown reaching a frame reset always finds a composed pair; it is therefore not yet a name for the behavior while the frames are being composed, and teardown's steps 3 to 6 cannot see one there. The spec is an argument of `arm()` for the whole of that window, which is why the frame reset takes the behavior as a parameter instead of reading the field.
+
+  **A frame reset is never handed anything but a composed frame.** _Whichever frame exists_ is the whole rule: resetting a frame the factory has not produced would call `resetFramePart` with a value its own declaration says is a `Frame<Part>`, which is a fault the library would be committing against the behavior rather than one it is unwinding for it.
 
   **Ingress is `pointerdown` plus each type a `command` member declares** (D-32). Every listener is bound on `root` against the one controller-lifetime ingress signal, so the unwind and the teardown abort in step 7 below release all of them together and a discrete listener can never outlive I-6's terminal barrier. Under D-36 a deferred step 7 leaves those listeners physically **attached** until the transaction boundary; the barrier is unaffected, because admission is refused from the logical latch onward (D-37) and an attached listener that admits nothing is a non-event. This is the reading D-38 makes normative: `ingress.signal.aborted` answers "has teardown run", never "is this controller alive". `arm()` validates `command.types` here, with the same construction-time `TypeError` policy as every other static option, and since D-118 it validates one thing: no type the kernel binds for its own pointer ingress. An empty array binds no discrete listener and is a supported spelling of that, and the other four shapes this sentence once listed are accepted.
 
@@ -416,6 +427,8 @@ Steps 2–7 are the physical teardown. They run at the transaction boundary when
       listener**, `pointerdown` and each declared command type alike (D-32),
       because they share the controller-lifetime signal. ──
 ```
+
+**Steps 3 to 6 require a published behavior, and there is one window in which a behavior exists and is not published yet.** Between the factory's return and `arm()`'s publication of the spec, a `destroy()` finds no armed behavior. Steps 3 and 5 have nothing to do there and could not — no attempt is minted and no operation admitted before ingress is armed — and step 6 has no frames to scrub. **Step 4 does have a behavior, and `arm()`'s own unwind is what runs it**, on the spec it holds as an argument. Ingress abort therefore precedes step 4 in that one window rather than following it, and no participant can observe the difference: no ingress listener is bound until after both frames exist, so the abort releases nothing.
 
 **The sequence and its order survive D-36 intact; only its start time moves.** D-29's totality is rescoped, not retracted: totality is a property of the teardown _sequence, wherever it runs_, not of the stack that called `destroy()`. When teardown defers, the same six physical steps run at the boundary with the same wrapping — each attempt cleanup individually wrapped in step 3, each frame reset individually wrapped in step 6, ingress abort from a `finally` in step 7. What no longer holds is that they have run by the time `destroy()` returns; that is what the returned promise is for.
 
