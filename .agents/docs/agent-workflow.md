@@ -34,6 +34,13 @@ obligation because haiku does not participate in the mechanism. It is not
 roleless: it appears in the log like any other role, so the trust claim that
 every governed role which acted must appear covers the main thread too.
 
+**It is selected by the tracked `agent` setting in `.claude/settings.json`, not
+by a flag an owner remembers to pass.** That line is load-bearing twice over:
+without it an ordinary session is roleless, which hands the main thread the full
+tool surface and routes it to the guard's `no-role` branch — and that branch
+allows before the contaminated-environment gate, so both the capability boundary
+below and the session-level refusal would be optional.
+
 **Its surface is `Agent`, `SendMessage` and `ListAgents`, and nothing else.**
 The rule that the router does no repository work is that allowlist rather than
 prose. This is stronger than the `disallowedTools` precedent §Agent configuration

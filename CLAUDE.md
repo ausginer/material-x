@@ -30,9 +30,10 @@ Create an agent team only when the task has genuinely independent parallel work,
 
 ## Dispatching roles
 
-The main session is `agent-router`: a project role declaring `model: haiku` and
-no `effort:`, whose whole tool surface is `Agent`, `SendMessage` and
-`ListAgents`. It dispatches and relays; it holds no opinion about the work and
+The main session is `agent-router` — selected by the tracked `agent` setting in
+`.claude/settings.json`, so an ordinary session is it by default. A project role
+declaring `model: haiku` and no `effort:`, whose whole tool surface is `Agent`,
+`SendMessage` and `ListAgents`. It dispatches and relays; it holds no opinion about the work and
 cannot read the repository. `architect` and `implementer` are spawned with a
 `name` equal to the role and resumed by that name; `consolidator`, `reviewer`,
 `integrity`, `cleanup` and `der` are spawned fresh every time. A worker's

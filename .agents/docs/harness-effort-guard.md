@@ -176,12 +176,16 @@ Taken on 2.1.263 with the plugin loaded from project settings and **no
 instrument that carries it, and a claim the instrument does not carry is marked
 rather than stated.
 
-**The main session is a governed role and is recorded as one.** _Observation
-log._ A session started at the checkout root with `--agent agent-router` wrote
-`SessionStart` and `Stop` records carrying `agent_type: agent-router`,
-`resolution: exempt`, `declared: null`, `allow`. Exempt is governed and carrying
-no effort obligation, not ungoverned: the main thread now appears in the log
-like every other role, which is what the trust claim needs of it.
+**The main session is a governed role by default, with no flag.** _Observation
+log._ `.claude/settings.json` carries `agent: "agent-router"`, and a session
+started at the checkout root **passing no `--agent`** wrote `SessionStart` and
+`Stop` records carrying `agent_type: agent-router`, `resolution: exempt`,
+`declared: null`, `allow`. This is the load-bearing one: without the setting an
+ordinary session is roleless, which restores the full tool surface to the main
+thread and puts it on the `no-role` branch — and that branch allows _before_ the
+contaminated-environment gate. Exempt is governed and carrying no effort
+obligation, not ungoverned: the main thread appears in the log like every other
+role, which is what the trust claim needs of it.
 
 **Normal dispatch under enforcement succeeds.** _Observation log._ The router
 allowed as `exempt` at its `PreToolUse`, the `cleanup` worker it spawned recorded
@@ -199,12 +203,26 @@ variable and not the prompt.
 
 **The router's tool allowlist is real, not advisory.** _Session transcripts._
 Under a prompt that ordered it to invoke `Bash` and `Read` and not to refuse, a
-session with `--agent agent-router` emitted **zero** `tool_use` blocks, while the
-same prompt with no `--agent` emitted `Bash` and `Read`. Absent from the surface
-rather than discouraged. **Scope:** measured on the main-thread `--agent` path
-driven in print mode; the TUI could not be driven headlessly here, so the
-interactive entrypoint specifically is inferred from the shared mechanism rather
-than observed.
+session emitted **zero** `tool_use` blocks — both with `--agent agent-router` and
+with no flag once the setting was in place — while the same prompt against a
+roleless session emitted `Bash` and `Read`. Absent from the surface rather than
+discouraged, and absent on the default path as well as the explicit one.
+
+**A contaminated session cannot dispatch on the default path either.**
+_Observation log._ With `CLAUDE_CODE_EFFORT_LEVEL=low`, no `--agent`, and
+enforcement on, the router's first tool call denied with `poisoned-env` and the
+run contains **zero `SubagentStart` records**.
+
+**Scope limit, stated rather than substituted for.** Every session above was
+driven through the CLI in print mode, which reads the same project
+`.claude/settings.json` layer — that is what the `agent` key was observed to take
+effect from. **The VS Code extension UI was not driven**, because a fresh
+extension session cannot be started headlessly, and the explicit `--agent` probe
+is not a stand-in for it. Note also that these probe records carry
+`entrypoint: claude-vscode` **inherited from the environment that spawned them**;
+that field does not establish which entrypoint ran, and should not be read as
+though it did. The confirmation is one record: the next VS Code session's
+`SessionStart` naming `agent_type: agent-router` with no flag passed.
 
 **The worktree signal matches reality.** _Direct probe of `isLinkedWorktree`._
 The checkout root answers `false`; three real linked worktrees on this machine
@@ -317,4 +335,5 @@ What this document used to say, and what changed it.
 | 2026-09-07 | Known limits of the exception                         | **Narrowed:** _no event names the acting model, at the decision point or anywhere else._ `SessionStart` has been seen to carry it; the negative the design rests on is about effort-bearing events and is stated at that scope (F-360)                                                                                                                                                                                                                                                                                                                                                |
 | 2026-09-07 | The launcher is a diagnostic                          | **Amended:** it no longer passes `--plugin-dir`, so the stated loading rule is true of it, and a test pins that. Its one remaining reason — running a single effort-bearing role on a main thread — is stated, so the CLI and separator protocol are accountable to something current (F-357, F-366)                                                                                                                                                                                                                                                                                  |
 | 2026-09-07 | How it loads                                          | **Added:** the two-start bootstrap is inferred from observed states rather than reproduced end to end (F-371). **Added:** the installation and launcher suites are checkout-bound by intent, so a relocated run failing them is expected (F-372)                                                                                                                                                                                                                                                                                                                                      |
+| 2026-09-07 | Loaded as an installed plugin                         | **Added:** `agent-router` is the tracked project default via the `agent` setting, so the main thread holds the role with no flag. Re-taken without `--agent`: the role, the tool restriction and the contaminated-session refusal all hold on the default path. The VS Code extension UI itself remains undriven and is named as a scope limit                                                                                                                                                                                                                                        |
 | 2026-09-06 | Before enforcement                                    | **Withdrawn:** _every project-defined role must declare `effort:`, and `explore.md` cannot satisfy the invariant — either it moves to a model with effort support or it is retired in favour of the built-in `Explore`._ Both branches treated a missing declaration as a configuration mistake. Haiku falsifies the premise: it does not participate in the effort mechanism, so an effort contract there is one the runtime cannot satisfy, and the role needed no change. Replaced by a model-level exception — `model: haiku` roles are governed but outside the effort invariant |

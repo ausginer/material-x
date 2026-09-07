@@ -1,4 +1,5 @@
 {
+  "agent": "agent-router",
   "env": {
     "HARNESS_EFFORT_GUARD_MODE": "enforce"
   },

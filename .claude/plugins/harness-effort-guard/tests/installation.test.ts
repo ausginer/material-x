@@ -2,6 +2,7 @@ import { strictEqual } from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { isAbsolute, join, resolve } from 'node:path';
 import { describe, it } from 'node:test';
+import { resolveRole } from '../scripts/resolve-role.ts';
 import { PLUGIN_ROOT, REPO_ROOT } from './support.ts';
 
 /**
@@ -18,6 +19,7 @@ const MARKETPLACE = 'material-x';
 const PLUGIN = 'harness-effort-guard';
 
 type Settings = Readonly<{
+  agent?: string;
   env?: Readonly<Record<string, string>>;
   enabledPlugins?: Readonly<Record<string, boolean>>;
   extraKnownMarketplaces?: Readonly<
@@ -226,5 +228,56 @@ describe('tracked guard mode', () => {
       typeof settings.env?.HARNESS_EFFORT_GUARD_MODE === 'string',
       true,
     );
+  });
+});
+
+/**
+ * The main session's role is a tracked setting, not something an owner
+ * remembers to pass. Without it an ordinary session is roleless, which restores
+ * the full tool surface to the main thread and puts it on the guard's `no-role`
+ * branch — and that branch allows *before* the contaminated-environment gate.
+ * Both the capability boundary and the session-level refusal rest on this one
+ * line, so it is pinned to the definition it names rather than to a spelling.
+ */
+describe('main-thread role', () => {
+  const settings = async (): Promise<Settings> =>
+    await json<Settings>(REPO_ROOT, '.claude', 'settings.json');
+
+  it('should select a main-thread agent in the tracked settings', async () => {
+    strictEqual(typeof (await settings()).agent === 'string', true);
+  });
+
+  it('should name a role the guard resolves', async () => {
+    const { agent } = await settings();
+    const resolution = await resolveRole(REPO_ROOT, agent ?? '');
+
+    strictEqual(resolution.kind === 'out-of-domain', false);
+  });
+
+  // Exempt is what lets the main thread hold a role without an effort
+  // obligation. A declared or undeclared default would deny every turn of the
+  // session that dispatches, which is every session.
+  it('should name a role that resolves as exempt', async () => {
+    const { agent } = await settings();
+
+    strictEqual((await resolveRole(REPO_ROOT, agent ?? '')).kind, 'exempt');
+  });
+
+  // The guard allows an exempt role unconditionally once the environment is
+  // clean, so what the router may *do* is bounded by this list and nothing
+  // else. A tool added here is a tool the main thread may use unchecked.
+  it('should restrict the main-thread role to dispatch tools', async () => {
+    const { agent } = await settings();
+    const definition = await readFile(
+      join(REPO_ROOT, '.claude', 'agents', `${agent}.md`),
+      'utf8',
+    );
+    const tools = /^tools:(?<list>.*)$/mu
+      .exec(definition)
+      ?.groups?.list?.split(',')
+      .map((one) => one.trim())
+      .sort();
+
+    strictEqual(tools?.join(), 'Agent,ListAgents,SendMessage');
   });
 });
