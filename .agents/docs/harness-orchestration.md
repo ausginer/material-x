@@ -463,7 +463,7 @@ With that premise corrected, what is left favours B′:
 - **Retirement is enough, and the wall is far.** Finding 23 removes the last of
   finding 17: workers do not compact, but real ones reach 255-310 k against
   windows up to 1 M, so a coarse retirement policy has enormous headroom.
-- **Coupled lifetimes become a feature.** Retiring the coordinator retires every
+- **Coupled lifetimes become a feature.** Retiring `agent-router` retires every
   worker at once, which is exactly the coarse global generation boundary wanted.
 - **Nothing needs building.** Spawn by name, message by name, respawn by name to
   replace a generation (finding 21). No uuids, no locks, no process management, no
@@ -477,32 +477,52 @@ holds and stays recorded for that case. It is not this case.
 
 ## The workflow
 
-**The coordinator is a plain interactive session.** Not a role, and started with
-no `--agent`: a session with no `agent_type` is out of the invariant entirely and
-allowed as `no-role`, and it also never meets the interactive `--agent` effort bug
-that the launcher exists to work around (finding 6 shows print mode is clean;
-interactive is not). Its job is to hold the worker names, dispatch, and relay. It
-does no repository work itself.
+**Three layers, named separately.** The **owner-side coordinator** is the person
+and is outside the system. **`agent-router`** is the Claude Code main session.
+**Workers** are `architect`, `implementer`, `consolidator` and the review lenses.
+
+**`agent-router` is a project role, not a roleless session.** It declares literal
+`model: haiku` and no `effort:`, so it is governed — resolved and logged like any
+role — while carrying no effort invariant, exactly as `Explore` does. The
+interactive `--agent` effort defect cannot bite it for that reason: there is no
+declared level for the main thread to drop. Its job is to dispatch, resume and
+relay, and its `tools:` allowlist is what keeps it to that:
+
+```yaml
+name: agent-router
+model: haiku
+tools: Agent, SendMessage, ListAgents
+```
+
+No `Bash`, `Read`, `Write`, `Edit`, `Grep` or `Glob`. Excluding read access is
+deliberate: a router that reads the repository grows context and starts forming
+opinions about the work. When a task concerns a file, the router names the path in
+the worker's prompt and the worker opens it. It relays the owner's prompt rather
+than authoring one, which is what keeps output quality independent of the router's
+model.
 
 **Two persistent workers, spawned by name.** `architect` and `implementer` are
 spawned with a name equal to the role, and afterwards addressed by that name;
 a send resumes a finished worker with its context intact (finding 11), keeping
 its role, model and declared effort (finding 12).
 
-**Review passes stay one-shot.** `reviewer`, `integrity`, `cleanup` and `der` are
-spawned fresh each time and never named or resumed. Independence is the point of
+**Review passes and `consolidator` stay one-shot.** `reviewer`, `integrity`,
+`cleanup`, `der` and `consolidator` are spawned fresh each time and never named or
+resumed. A `consolidator` worker spawns the four passes itself, at spawn depth 2,
+which is measured to work and is recorded in the log on the same terms as depth 1. Independence is the point of
 a second opinion, and maximum freshness is exactly a disposable subagent — which
 is what the repository already does. This half of the design needs no change at
 all.
 
 **Retirement is coarse and event-shaped, not a token threshold.**
 
-| Worker          | Retire when                                                            |
-| --------------- | ---------------------------------------------------------------------- |
-| `implementer`   | the unit of work is committed and pushed                               |
-| `architect`     | the contract, plan or phase it was reasoning about closes              |
-| review passes   | always — every invocation is a new worker                              |
-| the coordinator | the conversation stops being useful; this retires every worker at once |
+| Worker         | Retire when                                                            |
+| -------------- | ---------------------------------------------------------------------- |
+| `implementer`  | the unit of work is committed and pushed                               |
+| `architect`    | the contract, plan or phase it was reasoning about closes              |
+| review passes  | always — every invocation is a new worker                              |
+| `consolidator` | always — one per round                                                 |
+| `agent-router` | the conversation stops being useful; this retires every worker at once |
 
 Replacement is spawning the same name again (finding 21). No pressure reading is
 required for any of these, which is the point of choosing event boundaries.
@@ -522,6 +542,12 @@ at which it already has.
 path.** Its purpose is pinning a role's effort on a main thread started with
 `--agent`, and B′ runs no role on a main thread. It stays useful for reproducing
 one role in isolation, so it is **demoted to diagnostics** rather than deleted.
+
+**Two things now come from settings rather than a flag.** `agent-router` is
+selected by the `agent` setting (or `--agent`), and the guard plugin must be
+installed rather than passed with `--plugin-dir`. Both are the same mechanism and
+the same prerequisite: a VS Code session is not started from a command line the
+repository controls.
 
 **The guard has to be installed rather than launched.** This was the one new
 requirement and it was not optional: the launcher was also what loaded the
