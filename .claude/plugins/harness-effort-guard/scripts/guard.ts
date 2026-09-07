@@ -24,6 +24,26 @@ const EFFORT_BEARING = new Set(['PreToolUse', 'Stop', 'SubagentStop']);
  */
 const DISPATCH_TOOLS = new Set(['Agent', 'Task', 'SendMessage']);
 
+/**
+ * The dispatch tools that bring a *new* worker into being, and so choose its
+ * role.
+ *
+ * `SendMessage` is dispatch and is not here: it reaches a worker that already
+ * exists, whose role was fixed when it was spawned. A resume selects nothing,
+ * so there is nothing for the topology to assert about it.
+ */
+const SPAWN_TOOLS = new Set(['Agent', 'Task']);
+
+/**
+ * The role a spawning call selects when it names none.
+ *
+ * Observed in the tool's own contract: `subagent_type` is optional and its
+ * absence resolves to the general-purpose agent. Reading absence as "no role
+ * selected" would leave the plainest escape open — a call that simply omits the
+ * field gets exactly the out-of-domain worker the assertion exists to refuse.
+ */
+const DEFAULT_SUBAGENT = 'general-purpose';
+
 type HookInput = Readonly<{
   hook_event_name: string;
   session_id: string;
@@ -32,6 +52,7 @@ type HookInput = Readonly<{
   agent_type?: string;
   model?: string;
   tool_name?: string;
+  tool_input?: Readonly<{ subagent_type?: string; name?: string }>;
   effort?: Readonly<{ level: string }>;
 }>;
 
@@ -186,12 +207,17 @@ const main = async (): Promise<void> => {
     return;
   }
 
+  const spawning = input.tool_name != null && SPAWN_TOOLS.has(input.tool_name);
   const check: Check = {
     role,
     resolution,
     actual: input.effort?.level,
     poisoned,
     dispatching: input.tool_name != null && DISPATCH_TOOLS.has(input.tool_name),
+    target: spawning
+      ? (input.tool_input?.subagent_type ?? DEFAULT_SUBAGENT)
+      : undefined,
+    identity: spawning ? input.tool_input?.name : undefined,
     worktree,
     root,
     error,
@@ -201,6 +227,11 @@ const main = async (): Promise<void> => {
   await observe(dataDir, {
     kind: 'verdict',
     ...shared,
+    // Which role a spawning call selected, so the log can answer the question
+    // the topology assertion exists for. A child that never started leaves no
+    // SubagentStart, so without this the denied dispatch would record only that
+    // something was refused, and a permitted one would not say what it chose.
+    ...(check.target != null && { dispatch_target: check.target }),
     actual: input.effort?.level ?? null,
     decision: verdict.decision,
     cause: verdict.decision === 'allow' ? verdict.reason : verdict.cause,

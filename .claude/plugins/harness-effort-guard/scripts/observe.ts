@@ -53,6 +53,13 @@ export type Record =
       declared: string | null;
       resolution: string;
       poisoned: boolean;
+      /**
+       * The role a spawning call selected, absent on every event that selects
+       * none. Present or absent rather than nullable, on the same reasoning as
+       * `model`: a null would claim the call chose nothing, where the truth is
+       * that it was not a call that chooses.
+       */
+      dispatch_target?: string;
       actual: string | null;
       decision: 'allow' | 'deny';
       cause: string;

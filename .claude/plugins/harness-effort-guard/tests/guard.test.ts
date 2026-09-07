@@ -20,6 +20,7 @@ type Event = Readonly<{
   agent_type?: string;
   model?: string;
   tool_name?: string;
+  tool_input?: Readonly<{ subagent_type?: string; name?: string }>;
   effort?: Readonly<{ level: string }>;
 }>;
 
@@ -496,6 +497,151 @@ describe('guard worktree refusal', () => {
     });
 
     strictEqual(record.worktree, true);
+  });
+});
+
+/**
+ * The end-to-end half of the topology assertion: `judge` decides it, but only
+ * the guard reads a hook payload, and reading `tool_input.subagent_type` is
+ * where the observed failure was invisible. These cases feed the real field
+ * shape — confirmed against a live `PreToolUse` payload for the `Agent` tool —
+ * rather than a `Check` a test constructed.
+ */
+describe('guard governed dispatch topology', () => {
+  async function dispatchProject(): Promise<string> {
+    return await project({
+      'agent-router.md': definition('name: agent-router\nmodel: haiku'),
+      'architect.md': definition('name: architect\nmodel: opus\neffort: high'),
+      'consolidator.md': definition(
+        'name: consolidator\nmodel: opus\neffort: medium',
+      ),
+    });
+  }
+
+  function spawn(
+    agent: string,
+    level: string | undefined,
+    tool_input: Readonly<{ subagent_type?: string; name?: string }>,
+  ): Event {
+    return { ...call(agent, level), tool_name: 'Agent', tool_input };
+  }
+
+  it('should deny a router selecting a general-purpose worker', async () => {
+    const { record } = await observed(
+      await dispatchProject(),
+      spawn('agent-router', undefined, { subagent_type: 'general-purpose' }),
+    );
+
+    strictEqual(record.cause, 'topology-escape');
+  });
+
+  it('should block that call under enforcement', async () => {
+    const { stdout } = await observed(
+      await dispatchProject(),
+      spawn('agent-router', undefined, {
+        subagent_type: 'general-purpose',
+        name: 'architect',
+      }),
+      { HARNESS_EFFORT_GUARD_MODE: 'enforce' },
+    );
+
+    strictEqual(blocked(stdout), true);
+  });
+
+  it('should allow the router selecting the architect role', async () => {
+    const { record } = await observed(
+      await dispatchProject(),
+      spawn('agent-router', undefined, {
+        subagent_type: 'architect',
+        name: 'architect',
+      }),
+    );
+
+    strictEqual(record.decision, 'allow');
+  });
+
+  it('should record which role a permitted dispatch selected', async () => {
+    const { record } = await observed(
+      await dispatchProject(),
+      spawn('agent-router', undefined, {
+        subagent_type: 'architect',
+        name: 'architect',
+      }),
+    );
+
+    strictEqual(record.dispatch_target, 'architect');
+  });
+
+  it('should deny the right name under the wrong role', async () => {
+    const { record } = await observed(
+      await dispatchProject(),
+      spawn('agent-router', undefined, {
+        subagent_type: 'implementer',
+        name: 'architect',
+      }),
+    );
+
+    strictEqual(record.cause, 'topology-identity');
+  });
+
+  // The tool defaults `subagent_type` to the general-purpose agent, so an
+  // omitted field is a selection rather than an abstention. Reading it as "no
+  // role chosen" would leave the plainest escape open.
+  it('should deny a dispatch that names no role at all', async () => {
+    const { record } = await observed(
+      await dispatchProject(),
+      spawn('agent-router', undefined, { name: 'architect' }),
+    );
+
+    strictEqual(record.cause, 'topology-escape');
+  });
+
+  it('should deny a consolidator substituting a generic lens', async () => {
+    const { record } = await observed(
+      await dispatchProject(),
+      spawn('consolidator', 'medium', { subagent_type: 'general-purpose' }),
+    );
+
+    strictEqual(record.cause, 'topology-escape');
+  });
+
+  it('should allow a consolidator launching a governed lens', async () => {
+    const { record } = await observed(
+      await dispatchProject(),
+      spawn('consolidator', 'medium', { subagent_type: 'reviewer' }),
+    );
+
+    strictEqual(record.decision, 'allow');
+  });
+
+  it('should allow an ordinary worker delegating a search', async () => {
+    const { record } = await observed(
+      await dispatchProject(),
+      spawn('architect', 'high', { subagent_type: 'general-purpose' }),
+    );
+
+    strictEqual(record.decision, 'allow');
+  });
+
+  // A resume reaches a worker whose role was fixed when it was spawned, so the
+  // call selects nothing and there is nothing to assert about it.
+  it('should allow the router resuming a named worker', async () => {
+    const { record } = await observed(await dispatchProject(), {
+      ...call('agent-router'),
+      tool_name: 'SendMessage',
+      tool_input: { name: 'architect' },
+    });
+
+    strictEqual(record.decision, 'allow');
+  });
+
+  it('should leave an ordinary tool call unjudged by topology', async () => {
+    const { record } = await observed(await dispatchProject(), {
+      ...call('consolidator', 'medium'),
+      tool_name: 'Bash',
+    });
+
+    strictEqual(record.decision, 'allow');
   });
 });
 

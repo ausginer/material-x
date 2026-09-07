@@ -1,6 +1,7 @@
 # harness-effort-guard
 
-Treats the `effort:` declared by an agent definition as a runtime invariant.
+Treats the `effort:` declared by an agent definition as a runtime invariant, and the
+dispatch topology of the governed dispatchers as a second one.
 
 A role's frontmatter says what reasoning effort it must run at. Nothing enforces that: a main-thread `--agent` session can apply the role's `model:` and drop its `effort:`, and `/effort`, `/compact`, resume and a `CLAUDE_CODE_EFFORT_LEVEL` in the environment can each move effective effort away from the declaration. A run then looks like it happened as designed while some role reasoned cheaper than its definition requires, and nothing in the transcript says so.
 
@@ -42,6 +43,37 @@ Denying the exempt main-session role is the point rather than a side effect. Tha
 
 Where the guard is not loaded in the worktree at all, it cannot refuse anything; that case is covered by the startup gate the host repository documents, not by this plugin.
 
+## Governed dispatch topology
+
+A second assertion, sharing the decision path and nothing else. It answers a failure the effort table cannot see: a governed dispatcher spawning an **out-of-domain** worker where the topology requires a governed one. The child resolves `out-of-domain`, which is an allow — so the substitution is invisible to the invariant precisely because it left the domain the invariant governs. Observed: a router asked for `architect` spawned `general-purpose`, and every record in the run says `allow`.
+
+Two dispatchers are constrained, and nothing else is:
+
+| Dispatcher     | May spawn                                                                             |
+| -------------- | ------------------------------------------------------------------------------------- |
+| `agent-router` | `architect`, `implementer`, `consolidator`, `reviewer`, `integrity`, `cleanup`, `der` |
+| `consolidator` | `reviewer`, `integrity`, `cleanup`, `der`                                             |
+
+**A dispatcher the table does not name is unconstrained.** An architect delegating a search to a general-purpose agent, or an implementer spawning `Explore`, is legitimate and stays legitimate. The assertion is narrow by construction: out-of-domain agents are not an error anywhere else, and making them one would refuse work the topology never had an opinion about.
+
+The subject is the `subagent_type` of a **spawning** call — `Agent` or `Task`. `SendMessage` is dispatch for the worktree row and selects no role here: it reaches a worker whose type was fixed when it was spawned. An `Agent` call omitting `subagent_type` is read as selecting `general-purpose`, because that is what the tool does with it; reading absence as _no role chosen_ would leave the plainest escape open.
+
+`name` is checked against `subagent_type`, and only where the name claims a governed role. The two fields are independent — one addresses a worker for a later resume, the other decides what it is — so `name: architect` alongside `subagent_type: general-purpose` is a coherent call that produces a general-purpose worker answering to the word `architect`. A descriptive name is the caller's business and is not judged.
+
+| Dispatcher   | `subagent_type` | `name`      | Outcome                                 |
+| ------------ | --------------- | ----------- | --------------------------------------- |
+| not in table | anything        | anything    | allow                                   |
+| in table     | permitted       | absent      | allow                                   |
+| in table     | permitted       | descriptive | allow                                   |
+| in table     | permitted       | that role   | allow                                   |
+| in table     | not permitted   | anything    | **deny** — `topology-escape`            |
+| in table     | absent          | anything    | **deny** — `topology-escape`, defaulted |
+| in table     | permitted       | other role  | **deny** — `topology-identity`          |
+
+The rows are read **before** everything about effort, including the resolver's own failures, because the escape is what those rows cannot see. They are read **after** the worktree refusal, which is about the checkout rather than the call.
+
+The topology is written in [`verdict.ts`](scripts/verdict.ts) rather than derived: no role definition states who may spawn whom. It duplicates a rule that also appears in `agent-router.md` and `consolidator.md`, deliberately — a prompt is advice to a model, and this is a refusal. `installation.test.ts` holds every role the table names to a definition in the checkout, so a renamed role fails a test rather than denying every dispatch at runtime.
+
 Missing reported effort, a model-capped downgrade and a plain mismatch are all violations. The plugin reports expected against actual and stops there — it does not classify the cause or repair session state.
 
 ## What it can and cannot prevent
@@ -50,6 +82,8 @@ Missing reported effort, a model-capped downgrade and a plain mismatch are all v
 - **`Stop` and `SubagentStop` observe; they do not enforce.** They are wired because a turn that calls no tool reaches no other effort-bearing event, and the trust claim needs such a turn to appear in the log at all. They cannot block: by the time either fires the inference is paid for and no tool call exists to refuse, and a `Stop`-triggered retry would re-run at the same wrong effort and loop. Their denial notice says so rather than claiming a block.
 
 So the invariant is _no wrong-effort role takes an action_, plus _no wrong-effort turn goes unrecorded_. It is not _no wrong-effort inference happens_.
+
+The topology assertion has no such gap. It is only ever reached at `PreToolUse`, because a spawn is a tool call and nothing else is; a denied dispatch means the substitute worker never existed.
 
 ## Modes
 
@@ -62,7 +96,7 @@ The plugin reads the variable and takes no view on where it is set. A host repos
 `${CLAUDE_PLUGIN_DATA}/observations.jsonl`, one JSON object per line, in three kinds that are not interchangeable:
 
 - `announcement` — from `SessionStart` or `SubagentStart`. These carry no effort, so the record has no `actual` and no `verdict` field at all rather than null ones. Nothing reading the log can count a normal session start as a failed check.
-- `verdict` — from an effort-bearing event, adding `actual`, `decision` and `cause`.
+- `verdict` — from an effort-bearing event, adding `actual`, `decision` and `cause`, plus `dispatch_target` on a spawning call. That field is present or absent rather than nullable, on the same reasoning as `model`: a null would claim the call chose no role, where the truth is that it was not a call that chooses. It is what lets the log answer _which role did this dispatcher select_ — a denied dispatch leaves no `SubagentStart` to read it from.
 - `unreadable` — the hook could not parse its own input, so it carries the error and nothing else, not even which event it was. It exists because the alternative is a gap, and a gap reads as a call that never happened rather than one that went unchecked.
 
 `announcement` and `verdict` both carry `worktree`, which says whether the root the guard judged was a linked worktree.

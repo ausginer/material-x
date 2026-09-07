@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { isAbsolute, join, resolve } from 'node:path';
 import { describe, it } from 'node:test';
 import { resolveRole } from '../scripts/resolve-role.ts';
+import { DISPATCH_TOPOLOGY } from '../scripts/verdict.ts';
 import { PLUGIN_ROOT, REPO_ROOT } from './support.ts';
 
 /**
@@ -279,5 +280,33 @@ describe('main-thread role', () => {
       .sort();
 
     strictEqual(tools?.join(), 'Agent,ListAgents,SendMessage');
+  });
+});
+
+/**
+ * The dispatch topology is written in the plugin and the roles it names live in
+ * the checkout, so the two can drift: renaming or retiring a role leaves the map
+ * permitting a `subagent_type` that selects nothing.
+ *
+ * Only this direction is checkable. A role no dispatcher may select is ordinary
+ * — `Explore` is one — so the reverse is not a defect.
+ */
+describe('dispatch topology', () => {
+  const defines = async (roles: readonly string[]): Promise<void> => {
+    const resolved = await Promise.all(
+      roles.map((role) => resolveRole(REPO_ROOT, role)),
+    );
+
+    resolved.forEach((resolution, index) => {
+      strictEqual(resolution.kind === 'out-of-domain', false, roles[index]);
+    });
+  };
+
+  it('should permit only roles this checkout defines', async () => {
+    await defines([...DISPATCH_TOPOLOGY.values()].flatMap((set) => [...set]));
+  });
+
+  it('should constrain only roles this checkout defines', async () => {
+    await defines([...DISPATCH_TOPOLOGY.keys()]);
   });
 });

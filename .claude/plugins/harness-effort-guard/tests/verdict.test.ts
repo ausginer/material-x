@@ -27,6 +27,8 @@ function check(overrides: Partial<Check> = {}): Check {
     actual: 'high',
     poisoned: false,
     dispatching: false,
+    target: undefined,
+    identity: undefined,
     worktree: false,
     root: '/checkout',
     error: undefined,
@@ -116,5 +118,163 @@ describe('judge', () => {
     const verdict = judge(check({ resolution: EXEMPT, actual: undefined }));
 
     strictEqual(verdict.decision, 'allow');
+  });
+});
+
+const ROUTER: Resolution = {
+  kind: 'exempt',
+  role: 'agent-router',
+  file: '/agents/agent-router.md',
+};
+const CONSOLIDATOR: Resolution = {
+  kind: 'declared',
+  role: 'consolidator',
+  effort: 'medium',
+  file: '/agents/consolidator.md',
+};
+
+/** A router spawning `target`, optionally under the worker `name` given. */
+function routes(target: string, identity?: string): Check {
+  return check({
+    role: 'agent-router',
+    resolution: ROUTER,
+    actual: undefined,
+    dispatching: true,
+    target,
+    identity,
+  });
+}
+
+/** A consolidator launching one review lens. */
+function launches(target: string, identity?: string): Check {
+  return check({
+    role: 'consolidator',
+    resolution: CONSOLIDATOR,
+    actual: 'medium',
+    dispatching: true,
+    target,
+    identity,
+  });
+}
+
+/**
+ * The observed failure: the router spawned `general-purpose` where the owner
+ * addressed `architect`, the child resolved `out-of-domain`, and every row of
+ * the effort table allowed it — the substitution was invisible to the invariant
+ * precisely because it left the domain the invariant governs.
+ *
+ * So these cases are about the target role, not about the prose that asks for
+ * it. `subagent_type` reaches the hook, so it is what they assert on.
+ */
+describe('judge governed dispatch topology', () => {
+  it('should deny a router substituting a general-purpose worker', () => {
+    strictEqual(judge(routes('general-purpose')).decision, 'deny');
+  });
+
+  it('should name the escape as the cause', () => {
+    const verdict = judge(routes('general-purpose'));
+
+    strictEqual(
+      verdict.decision === 'deny' && verdict.cause,
+      'topology-escape',
+    );
+  });
+
+  it('should deny a substitution carrying the governed worker name', () => {
+    strictEqual(judge(routes('general-purpose', 'architect')).decision, 'deny');
+  });
+
+  it('should deny a router spawning a role no dispatcher may select', () => {
+    strictEqual(judge(routes('Explore')).decision, 'deny');
+  });
+
+  it('should allow a router spawning a resumable named worker', () => {
+    strictEqual(judge(routes('architect', 'architect')).decision, 'allow');
+  });
+
+  it('should allow a router spawning a one-shot worker', () => {
+    strictEqual(judge(routes('consolidator')).decision, 'allow');
+  });
+
+  it('should allow a router spawning a review lens directly', () => {
+    strictEqual(judge(routes('cleanup')).decision, 'allow');
+  });
+
+  // `name` addresses a worker for a later resume; `subagent_type` chooses the
+  // role it runs as. A call can carry one and not the other, which is the
+  // ambiguity the router definition used to leave open.
+  it('should deny a worker named for a role its type does not select', () => {
+    strictEqual(judge(routes('implementer', 'architect')).decision, 'deny');
+  });
+
+  it('should name the identity claim as the cause', () => {
+    const verdict = judge(routes('implementer', 'architect'));
+
+    strictEqual(
+      verdict.decision === 'deny' && verdict.cause,
+      'topology-identity',
+    );
+  });
+
+  it('should allow a descriptive name alongside a governed type', () => {
+    strictEqual(judge(routes('reviewer', 'arc-b-pass')).decision, 'allow');
+  });
+
+  it('should deny a consolidator substituting a generic worker for a lens', () => {
+    strictEqual(judge(launches('general-purpose')).decision, 'deny');
+  });
+
+  it('should deny a consolidator spawning outside its four lenses', () => {
+    strictEqual(judge(launches('architect')).decision, 'deny');
+  });
+
+  it('should allow a consolidator launching each of its lenses', () => {
+    for (const lens of ['reviewer', 'integrity', 'cleanup', 'der']) {
+      strictEqual(judge(launches(lens)).decision, 'allow', lens);
+    }
+  });
+
+  // The assertion is scoped to the two dispatchers the topology constrains.
+  // An ordinary worker delegating a search is legitimate and stays so.
+  it('should allow an ordinary worker spawning a general-purpose agent', () => {
+    const verdict = judge(
+      check({ dispatching: true, target: 'general-purpose' }),
+    );
+
+    strictEqual(verdict.decision, 'allow');
+  });
+
+  it('should allow a resume, which selects no role', () => {
+    const verdict = judge(
+      check({
+        role: 'agent-router',
+        resolution: ROUTER,
+        actual: undefined,
+        dispatching: true,
+        target: undefined,
+        identity: 'architect',
+      }),
+    );
+
+    strictEqual(verdict.decision, 'allow');
+  });
+
+  // Read before the effort machinery: the escape is what the effort rows cannot
+  // see, so a dispatcher whose own resolution failed must still be refused.
+  it('should deny an escape even when the resolver failed', () => {
+    const verdict = judge(
+      check({
+        role: 'agent-router',
+        resolution: undefined,
+        error: 'two files',
+        dispatching: true,
+        target: 'general-purpose',
+      }),
+    );
+
+    strictEqual(
+      verdict.decision === 'deny' && verdict.cause,
+      'topology-escape',
+    );
   });
 });

@@ -55,10 +55,22 @@ being rewritten, which is what keeps output quality independent of the router's
 model: haiku is enough to address an envelope and is never asked to compose the
 letter.
 
-**`architect` and `implementer` are resumable named workers.** Spawn each with a
-`name` equal to its role and afterwards reach it by that name; a message resumes
-a finished worker with its context, role, model and declared effort intact. One
-name per role, so spawning the same name again replaces the generation.
+**`architect` and `implementer` are resumable named workers.** The `Agent` tool's
+`subagent_type` selects the role; its `name` is only the address a later
+`SendMessage` resumes, and for these two the name equals the role. The fields are
+independent, so a call can carry a governed role's name while selecting some
+other type — which is exactly how a router request for `architect` once produced
+a `general-purpose` worker instead. A resume brings back a finished worker with
+its context, role, model and declared effort intact. One name per role, so
+spawning the same name again replaces the generation.
+
+**The topology is enforced, not only written down.** The guard refuses a
+dispatch in which `agent-router` or `consolidator` selects a role its topology
+does not allow, `general-purpose` included, before the child starts. The effort
+invariant cannot catch that on its own: a generic child resolves out-of-domain,
+which allows. See
+[`harness-effort-guard.md`](harness-effort-guard.md) §Governed dispatch
+topology.
 
 **`consolidator` and the review lenses are one-shot.** `consolidator`,
 `reviewer`, `integrity`, `cleanup` and `der` are spawned fresh every time and

@@ -13,6 +13,11 @@ executable truth. The guard makes it one: it compares each acting role's
 declared effort against the effective effort the runtime reports, and fails
 closed when they disagree.
 
+It also asserts the **dispatch topology**: `agent-router` and `consolidator` may
+bring into being only the governed roles their topology allows, and an
+out-of-domain substitute is refused before the child starts. That assertion is
+described in [Governed dispatch topology](#governed-dispatch-topology) below.
+
 The plugin is [`.claude/plugins/harness-effort-guard/`](../../.claude/plugins/harness-effort-guard/);
 its own [`README.md`](../../.claude/plugins/harness-effort-guard/README.md) is
 the reference for the domain it governs, the decision table, the modes and the
@@ -247,9 +252,37 @@ settings that register from the checkout root register nothing from
 `SubagentStart` has emitted a verdict record. They carry no effort by contract,
 and a path that cannot reach the decision table cannot fail it.
 
-**Not observed, and not claimed:** `/effort` mid-session, manual and auto
-`/compact`, whether a compacted session still reports its role and effort, and
-dispatch refusal from a worktree in a live session.
+**Governed dispatch selects the governed role.** _Observation log, 2.1.263,
+enforcement on, two fresh CLI processes — the running session that edited the
+definitions is not evidence, since a changed role definition does not take effect
+in a session already running._
+
+A minimal owner request addressed to `architect` produced, in order and with
+nothing between them: `SessionStart agent-router`; `PreToolUse agent-router,
+dispatch_target: architect, allow exempt`; `SubagentStart agent_type: architect,
+declared: high`; `SubagentStop architect, declared=high actual=high, allow
+match`. **No `general-purpose` record appears in the run at all** — which is the
+claim, since the earlier failure was legible only as such a record existing.
+
+The consolidator path was taken the same way and reaches depth 2:
+`PreToolUse agent-router, dispatch_target: consolidator`; `SubagentStart
+consolidator, declared: medium`; `PreToolUse consolidator, dispatch_target:
+cleanup, declared=medium actual=medium, allow match`; `SubagentStart cleanup`;
+`SubagentStop cleanup, declared=medium actual=medium, allow match`. The lens was
+selected as the governed `cleanup` role rather than by name or by prose.
+
+`dispatch_target` is what carries both claims. A denied dispatch leaves no
+`SubagentStart` to read the chosen role from, so the field is recorded on the
+verdict that decides rather than inferred from the child that followed.
+
+**Not observed, and not claimed:** a live refusal of a topology escape — the
+router did not attempt one, and no prompt was written to make it, since a fixture
+that instructs a model to misbehave establishes the model's compliance rather
+than the guard's refusal. That refusal is covered by unit and end-to-end cases
+over the real payload shape, on the same footing as the worktree row. Also
+unobserved: `/effort` mid-session, manual and auto `/compact`, whether a
+compacted session still reports its role and effort, and dispatch refusal from a
+worktree in a live session.
 
 ## Enforcement is on
 
@@ -283,14 +316,50 @@ loaded from project settings and no `--plugin-dir` anywhere:
 have been observed reaching it. `Explore` and `agent-router` declare
 `model: haiku` and resolve `exempt`.
 
-The verdict, resolver, CLI, launcher and installation paths carry `node:test`
-cases; run them from the plugin directory with `node --test 'tests/*.test.ts'`.
+The verdict, resolver, CLI, launcher, topology and installation paths carry
+`node:test` cases; run them from the plugin directory with
+`node --test 'tests/*.test.ts'`.
 
 **Still unobserved, and named rather than implied:** `/effort` mid-session,
 manual and auto `/compact`, and whether a compacted session still reports its
 role and effort. Each re-checks on the next tool call like any other, since the
 guard holds no state, but none has been watched. A mistake here produces a
 denied tool call, which is loud.
+
+## Governed dispatch topology
+
+**The failure this answers was observed, not anticipated.** An owner prompt
+addressed to `architect` produced a `general-purpose` child carrying a rewritten
+investigation prompt. The dispatching `PreToolUse` came from `agent-router`; the
+`SubagentStart` that followed was `general-purpose`; there was no
+`SubagentStart: architect` anywhere in the run. The generic child resolved
+`out-of-domain`, which is an **allow**, so no effort invariant applied to it and
+every record in the run says the session was clean.
+
+That is the structure of the defect rather than an accident of it: **the effort
+table cannot see a substitution that leaves the domain the table governs.** A
+role prompt is the only other protection, and a prompt is advice to a model.
+
+So the guard now refuses it. Two dispatchers are constrained and nothing else
+is — `agent-router` to the seven repository worker roles, `consolidator` to its
+four lenses. The plugin's own
+[`README.md`](../../.claude/plugins/harness-effort-guard/README.md)
+§Governed dispatch topology carries the decision table, the `name`-versus-
+`subagent_type` distinction and the reasoning about defaulted and absent fields.
+
+**Narrow by construction.** Out-of-domain agents remain legitimate everywhere
+else: an architect delegating a search, an implementer spawning `Explore`. The
+assertion is about the two places where the topology requires a governed worker,
+and it is a topology assertion only — it repairs no state and manages no session,
+exactly as the effort behaviour beside it does not.
+
+**The prose was ambiguous and is now mechanical.** The router definition said
+`architect` and `implementer` are spawned with a `name` equal to the role, and
+said nothing about the field that actually selects the role. `name` addresses a
+worker for a later resume; `subagent_type` decides what it is. Both role
+definitions now name the argument, and `agent-router.md` carries the wrong shape
+explicitly, because the two fields are independent and a call can carry one
+without the other.
 
 ## Known limits of the exception
 
@@ -336,4 +405,6 @@ What this document used to say, and what changed it.
 | 2026-09-07 | The launcher is a diagnostic                          | **Amended:** it no longer passes `--plugin-dir`, so the stated loading rule is true of it, and a test pins that. Its one remaining reason — running a single effort-bearing role on a main thread — is stated, so the CLI and separator protocol are accountable to something current (F-357, F-366)                                                                                                                                                                                                                                                                                  |
 | 2026-09-07 | How it loads                                          | **Added:** the two-start bootstrap is inferred from observed states rather than reproduced end to end (F-371). **Added:** the installation and launcher suites are checkout-bound by intent, so a relocated run failing them is expected (F-372)                                                                                                                                                                                                                                                                                                                                      |
 | 2026-09-07 | Loaded as an installed plugin                         | **Added:** `agent-router` is the tracked project default via the `agent` setting, so the main thread holds the role with no flag. Re-taken without `--agent`: the role, the tool restriction and the contaminated-session refusal all hold on the default path. The VS Code extension UI itself remains undriven and is named as a scope limit                                                                                                                                                                                                                                        |
+| 2026-09-07 | Governed dispatch topology                            | **Added:** the guard asserts which roles `agent-router` and `consolidator` may spawn, and refuses an out-of-domain substitute before the child starts. Added because the effort table structurally cannot see that substitution — the generic child resolves `out-of-domain`, which allows. Record: [`owner-amendment-dispatch-topology.md`](../../.plan/reviews/harness-guard-1/owner-amendment-dispatch-topology.md)                                                                                                                                                                |
+| 2026-09-07 | Loaded as an installed plugin                         | **Added:** the dispatch-selection acceptance set, taken from fresh processes — router → `architect` and router → `consolidator` → `cleanup`, each with `dispatch_target` on the deciding verdict and no `general-purpose` record in the run                                                                                                                                                                                                                                                                                                                                           |
 | 2026-09-06 | Before enforcement                                    | **Withdrawn:** _every project-defined role must declare `effort:`, and `explore.md` cannot satisfy the invariant — either it moves to a model with effort support or it is retired in favour of the built-in `Explore`._ Both branches treated a missing declaration as a configuration mistake. Haiku falsifies the premise: it does not participate in the effort mechanism, so an effort contract there is one the runtime cannot satisfy, and the role needed no change. Replaced by a model-level exception — `model: haiku` roles are governed but outside the effort invariant |
