@@ -510,7 +510,6 @@ describe('guard worktree refusal', () => {
 describe('guard governed dispatch topology', () => {
   async function dispatchProject(): Promise<string> {
     return await project({
-      'agent-router.md': definition('name: agent-router\nmodel: haiku'),
       'architect.md': definition('name: architect\nmodel: opus\neffort: high'),
       'consolidator.md': definition(
         'name: consolidator\nmodel: opus\neffort: medium',
@@ -526,10 +525,10 @@ describe('guard governed dispatch topology', () => {
     return { ...call(agent, level), tool_name: 'Agent', tool_input };
   }
 
-  it('should deny a router selecting a general-purpose worker', async () => {
+  it('should deny a consolidator selecting a general-purpose worker', async () => {
     const { record } = await observed(
       await dispatchProject(),
-      spawn('agent-router', undefined, { subagent_type: 'general-purpose' }),
+      spawn('consolidator', 'medium', { subagent_type: 'general-purpose' }),
     );
 
     strictEqual(record.cause, 'topology-escape');
@@ -538,9 +537,9 @@ describe('guard governed dispatch topology', () => {
   it('should block that call under enforcement', async () => {
     const { stdout } = await observed(
       await dispatchProject(),
-      spawn('agent-router', undefined, {
+      spawn('consolidator', 'medium', {
         subagent_type: 'general-purpose',
-        name: 'architect',
+        name: 'reviewer',
       }),
       { HARNESS_EFFORT_GUARD_MODE: 'enforce' },
     );
@@ -548,13 +547,10 @@ describe('guard governed dispatch topology', () => {
     strictEqual(blocked(stdout), true);
   });
 
-  it('should allow the router selecting the architect role', async () => {
+  it('should allow a consolidator launching a governed lens', async () => {
     const { record } = await observed(
       await dispatchProject(),
-      spawn('agent-router', undefined, {
-        subagent_type: 'architect',
-        name: 'architect',
-      }),
+      spawn('consolidator', 'medium', { subagent_type: 'reviewer' }),
     );
 
     strictEqual(record.decision, 'allow');
@@ -563,21 +559,21 @@ describe('guard governed dispatch topology', () => {
   it('should record which role a permitted dispatch selected', async () => {
     const { record } = await observed(
       await dispatchProject(),
-      spawn('agent-router', undefined, {
-        subagent_type: 'architect',
-        name: 'architect',
+      spawn('consolidator', 'medium', {
+        subagent_type: 'reviewer',
+        name: 'reviewer',
       }),
     );
 
-    strictEqual(record.dispatch_target, 'architect');
+    strictEqual(record.dispatch_target, 'reviewer');
   });
 
   it('should deny the right name under the wrong role', async () => {
     const { record } = await observed(
       await dispatchProject(),
-      spawn('agent-router', undefined, {
-        subagent_type: 'implementer',
-        name: 'architect',
+      spawn('consolidator', 'medium', {
+        subagent_type: 'cleanup',
+        name: 'reviewer',
       }),
     );
 
@@ -590,28 +586,19 @@ describe('guard governed dispatch topology', () => {
   it('should deny a dispatch that names no role at all', async () => {
     const { record } = await observed(
       await dispatchProject(),
-      spawn('agent-router', undefined, { name: 'architect' }),
+      spawn('consolidator', 'medium', { name: 'reviewer' }),
     );
 
     strictEqual(record.cause, 'topology-escape');
   });
 
-  it('should deny a consolidator substituting a generic lens', async () => {
+  it('should deny a consolidator spawning outside its four lenses', async () => {
     const { record } = await observed(
       await dispatchProject(),
-      spawn('consolidator', 'medium', { subagent_type: 'general-purpose' }),
+      spawn('consolidator', 'medium', { subagent_type: 'architect' }),
     );
 
     strictEqual(record.cause, 'topology-escape');
-  });
-
-  it('should allow a consolidator launching a governed lens', async () => {
-    const { record } = await observed(
-      await dispatchProject(),
-      spawn('consolidator', 'medium', { subagent_type: 'reviewer' }),
-    );
-
-    strictEqual(record.decision, 'allow');
   });
 
   it('should allow an ordinary worker delegating a search', async () => {
@@ -625,11 +612,11 @@ describe('guard governed dispatch topology', () => {
 
   // A resume reaches a worker whose role was fixed when it was spawned, so the
   // call selects nothing and there is nothing to assert about it.
-  it('should allow the router resuming a named worker', async () => {
+  it('should allow a dispatcher resuming a named worker', async () => {
     const { record } = await observed(await dispatchProject(), {
-      ...call('agent-router'),
+      ...call('consolidator', 'medium'),
       tool_name: 'SendMessage',
-      tool_input: { name: 'architect' },
+      tool_input: { name: 'reviewer' },
     });
 
     strictEqual(record.decision, 'allow');

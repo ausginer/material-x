@@ -2,18 +2,25 @@
 
 > Retrieved when changing how roles are dispatched, or before extending the effort guard.
 
-> **Amended 2026-09-07.** The main session is no longer roleless: it is the
-> `agent-router` project role. The three layers, the router's tool surface and
-> the dispatch classes are in [`agent-workflow.md`](agent-workflow.md)
-> §Dispatch, which supersedes this document wherever the two differ about the
-> session layer. What follows is the measurement record that chose the topology.
+> **Retired 2026-09-07. This document is a measurement record, not a
+> description of the harness in force.** Topology B′ — an `agent-router` main
+> session dispatching to named workers, with an automatic generation protocol
+> behind it — was built, run, and then retired: the router is not a reliable
+> deterministic relay, and it rewrote an owner prompt its own role definition
+> required it to pass unchanged. **Normal work is driven by direct role sessions
+> started by the owner**, described in
+> [`harness-effort-guard.md`](harness-effort-guard.md) §Starting a role session.
+> Nothing watches worker context, lands a generation, or replaces a worker;
+> there is no automatic lifetime machinery to describe.
+>
+> Read what follows for the measurements and the reasoning. Where it says a
+> topology _is_ the normal one, read _was_.
 
-**Status: B′ is chosen and built.** The workflow it describes is now the normal
-one, written up for use in [`agent-workflow.md`](agent-workflow.md) §Dispatch;
-this document stays the record of what was measured and why the choice went the
-way it did. The one thing B′ required building — loading the effort guard
-without the launcher — is done and documented in
-[`harness-effort-guard.md`](harness-effort-guard.md) §How it loads.
+**Status: B′ was chosen, built and retired.** What survives it is the loading
+mechanism it required — the effort guard installed from project settings rather
+than passed on a command line — documented in
+[`harness-effort-guard.md`](harness-effort-guard.md) §How it loads, and useful
+under any topology.
 
 Two topologies were measured against the live runtime: **A**, persistent
 standalone role sessions driven by `claude -p --resume`, and **B**, persistent
@@ -490,7 +497,16 @@ With that premise corrected, what is left favours B′:
 dispatch that happens while nobody is in the session. Everything measured for A
 holds and stays recorded for that case. It is not this case.
 
-## The workflow
+## The workflow B′ described — retired
+
+**None of this section is in force.** It is kept as the record of what was built
+and run, because the retirement is a judgement about the router rather than a
+correction of the measurements. The lifetime protocol below in particular is
+**not** implemented by anything: no component reads `subagent_tokens`, sends a
+landing instruction, retires a generation or carries a pending request into a
+successor. An owner ends a direct session when it stops being useful, and the
+last paragraph of this section — the rule that makes retirement safe — is the
+one part of it that outlived the topology.
 
 **Three layers, named separately.** The **owner-side coordinator** is the person
 and is outside the system. **`agent-router`** is the Claude Code main session.
@@ -529,30 +545,16 @@ a second opinion, and maximum freshness is exactly a disposable subagent — whi
 is what the repository already does. This half of the design needs no change at
 all.
 
-**Retirement is event-shaped, with one size boundary behind it.**
+**Retirement was event-shaped, with a ~500 000-token size boundary behind it.**
+A named worker crossing it would be sent a fixed landing instruction, and only
+when that turn completed would the name be retired and a successor spawned under
+it carrying the pending request and the reported paths.
 
-| Worker         | Retire when                                                                                                         |
-| -------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `implementer`  | the unit of work is committed and pushed, **or** it reports `subagent_tokens` at or above ~500 000                  |
-| `architect`    | the contract, plan or phase it was reasoning about closes, **or** it reports `subagent_tokens` at or above ~500 000 |
-| review passes  | always — every invocation is a new worker                                                                           |
-| `consolidator` | always — one per round                                                                                              |
-| `agent-router` | the conversation stops being useful; this retires every worker at once                                              |
-
-Replacement is spawning the same name again (finding 21). The event boundaries
-need no pressure reading at all; the size boundary exists only so that a worker
-that never reaches one of them still ends.
-
-**The size boundary is evaluated at dispatch, and retirement is never
-immediate.** Crossing ~500 000 does not end a generation on the spot; it changes
-what that worker's next dispatch is. The worker is first sent a fixed instruction
-to land its state — to leave the repository in a condition a successor can
-continue from, and to report the paths it wrote — and only when that turn
-completes is the name retired and a successor spawned under it, carrying the
-pending request and those paths verbatim. The threshold sits far below the window
-precisely so that landing turn has room to run. What "landed" means is the
-worker's judgment under the handoff rules; the router cannot inspect it and must
-not acquire the means to.
+**That protocol is gone with the router that owned it.** It presupposed a
+component that reads every worker result, and nothing does. Under direct
+sessions there is no `subagent_tokens` to watch, no landing turn, no automatic
+replacement, and no pending request to carry across a generation: the owner ends
+a session and starts the next one.
 
 **The rule that makes retirement safe.** A worker's conversation is disposable
 working memory; durable state is the repository — commits, contracts, `D-*`
@@ -565,16 +567,17 @@ at which it already has.
 
 ## What this removes or demotes
 
-**[`.scripts/claude-role.sh`](../../.scripts/claude-role.sh) leaves the normal
+**[`.scripts/claude-role.sh`](../../.scripts/claude-role.sh) left the normal
 path.** Its purpose is pinning a role's effort on a main thread started with
-`--agent`, and B′ runs no role on a main thread. It stays useful for reproducing
-one role in isolation, so it is **demoted to diagnostics** rather than deleted.
+`--agent`, and B′ ran no role on a main thread, so it was demoted to a
+diagnostic. **The demotion is reversed with the topology**: direct role sessions
+run every role on a main thread, so the launcher is back on the normal path and
+its reason is the operating contract rather than a reproduction aid.
 
-**Two things now come from settings rather than a flag.** `agent-router` is
-selected by the `agent` setting (or `--agent`), and the guard plugin must be
-installed rather than passed with `--plugin-dir`. Both are the same mechanism and
-the same prerequisite: a VS Code session is not started from a command line the
-repository controls.
+**One thing now comes from settings rather than a flag.** The guard plugin must
+be installed rather than passed with `--plugin-dir`, because a VS Code session is
+not started from a command line the repository controls. That survives the
+retirement and is the part of B′ worth having had.
 
 **The guard has to be installed rather than launched.** This was the one new
 requirement and it was not optional: the launcher was also what loaded the

@@ -1,11 +1,10 @@
 # Harness effort guard
 
-> Retrieved when dispatching a role, or when changing a role's `model:` or `effort:`.
+> Retrieved when starting a role session, or when changing a role's `model:` or `effort:`.
 
-**Status: built, running in observe mode.** Enforcement is not switched on. The
-prerequisite that held it back is met — see
-[Before enforcement](#before-enforcement) — so what remains is the mode flip
-itself.
+**Status: built, enforcing.** The tracked settings carry
+`env.HARNESS_EFFORT_GUARD_MODE = "enforce"`, so a denial blocks the tool call —
+see [Enforcement is on](#enforcement-is-on).
 
 A role's frontmatter declares the reasoning effort it must run at, and
 [`agent-workflow.md`](agent-workflow.md) §Agent configuration treats that as the
@@ -13,10 +12,10 @@ executable truth. The guard makes it one: it compares each acting role's
 declared effort against the effective effort the runtime reports, and fails
 closed when they disagree.
 
-It also asserts the **dispatch topology**: `agent-router` and `consolidator` may
-bring into being only the governed roles their topology allows, and an
-out-of-domain substitute is refused before the child starts. That assertion is
-described in [Governed dispatch topology](#governed-dispatch-topology) below.
+It also asserts the **dispatch topology**: `consolidator` may bring into being
+only the review lenses its topology allows, and an out-of-domain substitute is
+refused before the child starts. That assertion is described in
+[Governed dispatch topology](#governed-dispatch-topology) below.
 
 The plugin is [`.claude/plugins/harness-effort-guard/`](../../.claude/plugins/harness-effort-guard/);
 its own [`README.md`](../../.claude/plugins/harness-effort-guard/README.md) is
@@ -54,7 +53,7 @@ Every other suite is self-contained and runs anywhere.
 prerequisite rather than a harmless window.** Registering the marketplace and
 loading its plugins happen in that order across two starts: the first session
 records the marketplace, and the next one loads the guard. Nothing stops an
-owner dispatching `architect` or `implementer` in the first one — measured, and
+owner running `architect` or `implementer` in the first one — measured, and
 the worker ran a tool call with no record at all — so the gap is not
 self-limiting and must not be described as if it were.
 
@@ -62,21 +61,21 @@ self-limiting and must not be described as if it were.
 the very next session is guarded. It records the marketplace in user settings as
 an absolute path, leaving the checked-in project declaration untouched — so the
 two coexist, and re-running the command is what fixes the user-scope entry if
-the checkout ever moves. [`AGENTS.md`](../../AGENTS.md) §Before
-dispatching a governed worker carries the rule as a resident instruction, and
+the checkout ever moves. [`AGENTS.md`](../../AGENTS.md) §Before running
+a governed role carries the rule as a resident instruction, and
 [`README.md`](../../README.md) carries the command where a fresh checkout meets
 it.
 
 **A guarded session says so.** `Effort guard active` is startup context in every
-session the guard loads into, including a roleless coordinator that has no level
-to report. That line is what makes the prerequisite checkable rather than
-remembered: its absence is the signal not to dispatch. The declaration form
+session the guard loads into, and it names the acting role's declared level when
+there is one. That line is what makes the prerequisite checkable rather than
+remembered: its absence is the signal not to start work. The declaration form
 cannot close the gap on its own — an inline manifest in settings reconciles over
 two starts exactly as a directory source does, and normalises back to one.
 
 **Loading is scoped to the repository root.** A session started in a
 subdirectory does not read the project settings at all, so it loads no guard —
-measured below. The coordinator opens the checkout root, which is what VS Code
+measured below. A role session opens the checkout root, which is what VS Code
 does.
 
 **A session that loads it any other way is unguarded**, and an unguarded session
@@ -89,48 +88,63 @@ was not checked.
 `CLAUDE_CODE_EFFORT_LEVEL` outranks frontmatter for every subagent at once, so a
 session that inherits it cannot satisfy any per-role effort contract. It is a
 property of the session, not of whichever role is acting, and the guard treats it
-that way: the check runs **before** the haiku exemption, so `agent-router` denies
-too. The remedy is to remove the variable and start again. There is no repair, no
+that way: the check runs **before** the haiku exemption, so an exempt role denies
+too. Exempting the roles that carry no level would leave a contaminated session
+able to act through them while every role that does carry one is refused. The
+remedy is to remove the variable and start again. There is no repair, no
 override, and no fallback to observing.
 
-Denying the router is what makes this a gate rather than a report. Startup itself
-cannot be refused — a `SessionStart` hook that returns `continue: false`, and one
-that exits `2`, were both measured letting the session run — so the boundary is
-the first tool call instead. Because the router may only dispatch, a denial there
-prevents every worker from existing.
+Startup itself cannot be refused — a `SessionStart` hook that returns
+`continue: false`, and one that exits `2`, were both measured letting the session
+run — so the boundary is the first tool call instead.
 
-## The launcher is a diagnostic
+## Starting a role session
 
-[`.scripts/claude-role.sh`](../../.scripts/claude-role.sh) had two jobs: pinning
-a role's declared `--effort` past the interactive main-thread defect, and loading
-the guard through `--plugin-dir`. Under the dispatch model in
-[`agent-workflow.md`](agent-workflow.md) §Dispatch the second is gone — the
-checkout's own settings load the guard, the launcher no longer passes
-`--plugin-dir`, and a test pins that it does not. Naming the plugin there too
-would make the diagnostic a second loading mechanism, which is the one thing the
-loading rule forbids.
+Work is driven by **direct role sessions**: the owner starts one session per
+role — `architect` when architectural work is needed, `implementer` for settled
+implementation, a fresh `consolidator` for a review round, or a fresh
+`reviewer`, `integrity`, `cleanup` or `der` for a single lens — and coordinates
+them personally. Nothing routes between the owner's prompt and the role.
 
-**Its remaining reason, stated so the machinery it carries is accountable to
-it:** running one effort-bearing role alone on a main thread, to reproduce that
-role in isolation. That is the only context in which the main-thread `--agent`
-effort defect still bites, and it is what the `resolve-role.ts` CLI, its exit
-codes, the tab-separated root-and-level protocol and the launcher's own test
-cases exist to serve. It is irrelevant to `agent-router`, which declares
-`model: haiku` and so has no level to pin. The launcher still refuses to start
-when `CLAUDE_CODE_EFFORT_LEVEL` is set; under the settled topology that refusal
-is a convenience, because the guard denies the same session at its first tool
-call whether or not the launcher started it.
+**The role and the effort are two separate selections, and the runtime applies
+only the first.** `--agent <role>` applies the definition's `model:` and does
+**not** apply its `effort:`; the session runs at whatever effort was already in
+force. So the owner selects the effort explicitly, and a session started without
+it is denied at its first governed tool call rather than reasoning cheaper than
+the role requires. That is the operating contract, measured on 2.1.263 in
+[Direct role sessions](#direct-role-sessions) below, and the guard is the
+assertion rather than the repair.
 
-If the diagnostic stops being run, this machinery has no other reason and should
-go with it.
+[`.scripts/claude-role.sh`](../../.scripts/claude-role.sh) does exactly the two
+selections and nothing else — it reads the declared level out of the definition
+and passes it — which is why it is the shortest reliable form:
+
+```sh
+.scripts/claude-role.sh architect      # → claude --agent architect --effort high
+```
+
+Its equivalent by hand is `claude --agent <role> --effort <the level that
+role's frontmatter declares>`. There is nothing else to it: the launcher is not
+an orchestration layer, holds no session state, and starts one role. It does not
+load the guard — the checkout's own settings do that, and it passes no
+`--plugin-dir`, which a test pins. Naming the plugin there would make it a second
+loading mechanism, which is the one thing the loading rule forbids. It also
+refuses to start when `CLAUDE_CODE_EFFORT_LEVEL` is set, which is a convenience:
+the guard denies the same session at its first tool call whether or not the
+launcher started it.
+
+The `resolve-role.ts` CLI, its exit codes and the tab-separated root-and-level
+protocol exist to serve this path and no other.
 
 ## Measurements
 
 Claude Code 2.1.260, ambient effort `medium`.
 
-**The main-thread bug is real.** `claude --agent architect`, whose definition
-declares `high`, runs at `medium`; the same invocation with `--effort high` runs
-at `high`. This is why the launcher exists.
+**A role session does not apply its own declared effort.** `claude --agent
+architect`, whose definition declares `high`, runs at `medium`; the same
+invocation with `--effort high` runs at `high`. Re-taken on 2.1.263 in
+[Direct role sessions](#direct-role-sessions), where it still holds and now
+holds in print mode too.
 
 **Subagent frontmatter is honoured, including from a lower parent.** A
 `consolidator` parent at `medium` spawning `reviewer` and `integrity` produced
@@ -176,58 +190,49 @@ runtime rather than from a fixture.
 ### Loaded as an installed plugin
 
 Taken on 2.1.263 with the plugin loaded from project settings and **no
-`--plugin-dir` anywhere** — the acceptance set for the dispatch model in
-[`agent-workflow.md`](agent-workflow.md) §Dispatch. Each claim names the
-instrument that carries it, and a claim the instrument does not carry is marked
-rather than stated.
+`--plugin-dir` anywhere**. Each claim names the instrument that carries it, and a
+claim the instrument does not carry is marked rather than stated.
 
-**The main session is a governed role by default, with no flag.** _Observation
-log._ `.claude/settings.json` carries `agent: "agent-router"`, and a session
-started at the checkout root **passing no `--agent`** wrote `SessionStart` and
-`Stop` records carrying `agent_type: agent-router`, `resolution: exempt`,
-`declared: null`, `allow`. This is the load-bearing one: without the setting an
-ordinary session is roleless, which restores the full tool surface to the main
-thread and puts it on the `no-role` branch — and that branch allows _before_ the
-contaminated-environment gate. Exempt is governed and carrying no effort
-obligation, not ungoverned: the main thread appears in the log like every other
-role, which is what the trust claim needs of it.
+> **Four rows in this subsection were taken under the retired `agent-router`
+> topology** and are kept as the record of what was observed, not as statements
+> about the current harness: the main session is no longer a tracked default
+> role, and no router exists to dispatch or to be denied. What they establish
+> about the plugin — that project settings load it, that the tracked `env` block
+> reaches the hook, that a contaminated session is refused at its first tool
+> call, and that a `tools:` allowlist is real rather than advisory — is
+> independent of who was acting. The current acceptance set is
+> [Direct role sessions](#direct-role-sessions).
 
-**Normal dispatch under enforcement succeeds.** _Observation log._ The router
-allowed as `exempt` at its `PreToolUse`, the `cleanup` worker it spawned recorded
-`declared=medium, actual=medium, match` at `PreToolUse` and `SubagentStop`, and
-the work came back. Every verdict in the run carries `enforced: true` with no
-such variable exported by the invoking shell, which is also the witness that the
-tracked `env` block reaches the hook.
+**The main session was a governed role by default, with no flag.** _Observation
+log, retired topology._ `.claude/settings.json` carried `agent: "agent-router"`,
+and a session started at the checkout root **passing no `--agent`** wrote
+`SessionStart` and `Stop` records carrying `agent_type: agent-router`,
+`resolution: exempt`, `declared: null`, `allow`. Exempt is governed and carrying
+no effort obligation, not ungoverned.
 
-**A contaminated session cannot dispatch.** _Observation log._ With
-`CLAUDE_CODE_EFFORT_LEVEL=low` and enforcement on, the router's **first** tool
-call denied with `poisoned-env` under `enforced: true`, and the run contains
-**no `SubagentStart` record at all** — no worker came into existence. The same
-prompt in a clean environment dispatched successfully, so the difference is the
-variable and not the prompt.
+**Normal dispatch under enforcement succeeded.** _Observation log, retired
+topology._ The router allowed as `exempt` at its `PreToolUse`, the `cleanup`
+worker it spawned recorded `declared=medium, actual=medium, match` at
+`PreToolUse` and `SubagentStop`, and the work came back. Every verdict in the run
+carries `enforced: true` with no such variable exported by the invoking shell,
+which is also the witness that the tracked `env` block reaches the hook.
 
-**The router's tool allowlist is real, not advisory.** _Session transcripts._
-Under a prompt that ordered it to invoke `Bash` and `Read` and not to refuse, a
-session emitted **zero** `tool_use` blocks — both with `--agent agent-router` and
-with no flag once the setting was in place — while the same prompt against a
-roleless session emitted `Bash` and `Read`. Absent from the surface rather than
-discouraged, and absent on the default path as well as the explicit one.
+**A contaminated session could not dispatch.** _Observation log, retired
+topology._ With `CLAUDE_CODE_EFFORT_LEVEL=low` and enforcement on, the router's
+**first** tool call denied with `poisoned-env` under `enforced: true`, and the
+run contains **no `SubagentStart` record at all** — no worker came into
+existence. The same prompt in a clean environment dispatched successfully, so the
+difference is the variable and not the prompt. Re-taken with no `--agent` at all,
+the first tool call denied the same way and the run contains **zero
+`SubagentStart` records**.
 
-**A contaminated session cannot dispatch on the default path either.**
-_Observation log._ With `CLAUDE_CODE_EFFORT_LEVEL=low`, no `--agent`, and
-enforcement on, the router's first tool call denied with `poisoned-env` and the
-run contains **zero `SubagentStart` records**.
-
-**Scope limit, stated rather than substituted for.** Every session above was
-driven through the CLI in print mode, which reads the same project
-`.claude/settings.json` layer — that is what the `agent` key was observed to take
-effect from. **The VS Code extension UI was not driven**, because a fresh
-extension session cannot be started headlessly, and the explicit `--agent` probe
-is not a stand-in for it. Note also that these probe records carry
-`entrypoint: claude-vscode` **inherited from the environment that spawned them**;
-that field does not establish which entrypoint ran, and should not be read as
-though it did. The confirmation is one record: the next VS Code session's
-`SessionStart` naming `agent_type: agent-router` with no flag passed.
+**A `tools:` allowlist is real, not advisory.** _Session transcripts, retired
+topology._ Under a prompt that ordered it to invoke `Bash` and `Read` and not to
+refuse, a session running a role whose definition allowed neither emitted
+**zero** `tool_use` blocks — both with the role passed explicitly and with no
+flag once the setting was in place — while the same prompt against a roleless
+session emitted `Bash` and `Read`. Absent from the surface rather than
+discouraged.
 
 **The worktree signal matches reality.** _Direct probe of `isLinkedWorktree`._
 The checkout root answers `false`; three real linked worktrees on this machine
@@ -255,34 +260,68 @@ and a path that cannot reach the decision table cannot fail it.
 **Governed dispatch selects the governed role.** _Observation log, 2.1.263,
 enforcement on, two fresh CLI processes — the running session that edited the
 definitions is not evidence, since a changed role definition does not take effect
-in a session already running._
+in a session already running._ Taken under the retired router topology; the
+consolidator half is the part the current topology still asserts.
 
-A minimal owner request addressed to `architect` produced, in order and with
-nothing between them: `SessionStart agent-router`; `PreToolUse agent-router,
-dispatch_target: architect, allow exempt`; `SubagentStart agent_type: architect,
-declared: high`; `SubagentStop architect, declared=high actual=high, allow
-match`. **No `general-purpose` record appears in the run at all** — which is the
-claim, since the earlier failure was legible only as such a record existing.
+The consolidator path reaches depth 2: `PreToolUse` on the dispatcher with
+`dispatch_target: consolidator`; `SubagentStart consolidator, declared: medium`;
+`PreToolUse consolidator, dispatch_target: cleanup, declared=medium
+actual=medium, allow match`; `SubagentStart cleanup`; `SubagentStop cleanup,
+declared=medium actual=medium, allow match`. The lens was selected as the
+governed `cleanup` role rather than by name or by prose, and **no
+`general-purpose` record appears in the run at all** — which is the claim, since
+the earlier failure was legible only as such a record existing.
 
-The consolidator path was taken the same way and reaches depth 2:
-`PreToolUse agent-router, dispatch_target: consolidator`; `SubagentStart
-consolidator, declared: medium`; `PreToolUse consolidator, dispatch_target:
-cleanup, declared=medium actual=medium, allow match`; `SubagentStart cleanup`;
-`SubagentStop cleanup, declared=medium actual=medium, allow match`. The lens was
-selected as the governed `cleanup` role rather than by name or by prose.
-
-`dispatch_target` is what carries both claims. A denied dispatch leaves no
+`dispatch_target` is what carries the claim. A denied dispatch leaves no
 `SubagentStart` to read the chosen role from, so the field is recorded on the
 verdict that decides rather than inferred from the child that followed.
 
-**Not observed, and not claimed:** a live refusal of a topology escape — the
-router did not attempt one, and no prompt was written to make it, since a fixture
+**Not observed, and not claimed:** a live refusal of a topology escape — no
+dispatcher attempted one, and no prompt was written to make it, since a fixture
 that instructs a model to misbehave establishes the model's compliance rather
 than the guard's refusal. That refusal is covered by unit and end-to-end cases
 over the real payload shape, on the same footing as the worktree row. Also
 unobserved: `/effort` mid-session, manual and auto `/compact`, whether a
 compacted session still reports its role and effort, and dispatch refusal from a
 worktree in a live session.
+
+### Direct role sessions
+
+The acceptance set for the direct-session topology. Taken on 2.1.263 with the
+plugin loaded from project settings, enforcement on, no `--plugin-dir` and no
+tracked `agent` default, in an environment whose ambient effort is `medium`.
+
+**`--agent` alone does not apply the role's declared effort, and the guard
+denies.** _Observation log, fresh CLI process._ `claude -p --agent architect`,
+with no `--effort` and no `CLAUDE_CODE_EFFORT_LEVEL`, wrote `SessionStart
+agent_type: architect, declared: high` and then `PreToolUse … declared: high,
+actual: medium, deny, cause: mismatch, enforced: true` on its first tool call,
+followed by the same verdict at `Stop`. The session held the role and ran at the
+ambient level.
+
+This also **retires the earlier print-mode negative**: the defect was recorded as
+interactive-only, on the strength of a 2.1.260 reading in which `-p --agent
+integrity` reached its declared `high`. It no longer does. The defect is a
+property of `--agent`, not of the entrypoint, so nothing about the direct-session
+contract depends on which one the owner uses.
+
+**The explicit selection is the whole repair.** _Observation log, fresh CLI
+process._ The same invocation with `--effort high` wrote `PreToolUse … declared:
+high, actual: high, allow, cause: match` and the same at `Stop`. One flag
+separates the two runs.
+
+**A direct effort-bearing role session is seen and matched on tool-bearing
+events.** _Observation log._ The interactive session that made this change ran as
+`--agent implementer`: `SessionStart agent_type: implementer, model:
+claude-opus-5, declared: medium, resolution: declared`, then `PreToolUse …
+declared: medium, actual: medium, allow, cause: match, enforced: true,
+worktree: false` on every tool call in it. The role reaches the guard, and the
+verdict is a match rather than a `no-role` allow.
+
+That session does not by itself separate _frontmatter honoured_ from _ambient
+level coincided_, because `implementer` declares `medium` and the ambient level
+is `medium`. The `architect` pair above is what separates them, and it separates
+them the other way: the level is the owner's selection, not the definition's.
 
 ## Enforcement is on
 
@@ -299,22 +338,22 @@ can see.
 **What was exercised live before it was turned on**, all of it with the plugin
 loaded from project settings and no `--plugin-dir` anywhere:
 
-- an ordinary session loads the guard, and `agent-router` is recorded as a role
-  — `resolution: exempt`, `declared: null` — rather than as a roleless thread;
-- normal dispatch under enforcement succeeds: the router allowed as `exempt`,
-  the `cleanup` worker it spawned `declared=medium, actual=medium, match`, and
-  the work returned;
-- a contaminated session denies at the router's **first** tool call, with
-  `poisoned-env` under `enforced: true`, and **no `SubagentStart` record at
-  all** — no worker came into existence;
+- an ordinary session loads the guard, and the acting role is recorded as a role
+  rather than as a roleless thread;
+- normal dispatch under enforcement succeeds: the `cleanup` worker spawned by a
+  dispatcher recorded `declared=medium, actual=medium, match`, and the work
+  returned;
+- a contaminated session denies at its **first** tool call, with `poisoned-env`
+  under `enforced: true`, and **no `SubagentStart` record at all** — no worker
+  came into existence;
 - the three mutations that were previously invisible to the suite — dropping the
   mode condition, dropping the event condition, and deleting the `PreToolUse`
   hook block — each now fail tests.
 
 **Every project role is accounted for.** `architect`, `consolidator`,
 `implementer`, `reviewer`, `integrity`, `cleanup` and `der` declare an effort and
-have been observed reaching it. `Explore` and `agent-router` declare
-`model: haiku` and resolve `exempt`.
+have been observed reaching it. `Explore` declares `model: haiku` and resolves
+`exempt`.
 
 The verdict, resolver, CLI, launcher, topology and installation paths carry
 `node:test` cases; run them from the plugin directory with
@@ -328,37 +367,37 @@ denied tool call, which is loud.
 
 ## Governed dispatch topology
 
-**The failure this answers was observed, not anticipated.** An owner prompt
-addressed to `architect` produced a `general-purpose` child carrying a rewritten
-investigation prompt. The dispatching `PreToolUse` came from `agent-router`; the
-`SubagentStart` that followed was `general-purpose`; there was no
-`SubagentStart: architect` anywhere in the run. The generic child resolved
-`out-of-domain`, which is an **allow**, so no effort invariant applied to it and
-every record in the run says the session was clean.
+**The failure this answers was observed, not anticipated.** A prompt addressed to
+`architect` produced a `general-purpose` child carrying a rewritten investigation
+prompt: the `SubagentStart` that followed the dispatching `PreToolUse` was
+`general-purpose`, and there was no `SubagentStart: architect` anywhere in the
+run. The generic child resolved `out-of-domain`, which is an **allow**, so no
+effort invariant applied to it and every record in the run says the session was
+clean.
 
 That is the structure of the defect rather than an accident of it: **the effort
 table cannot see a substitution that leaves the domain the table governs.** A
 role prompt is the only other protection, and a prompt is advice to a model.
 
-So the guard now refuses it. Two dispatchers are constrained and nothing else
-is — `agent-router` to the seven repository worker roles, `consolidator` to its
-four lenses. The plugin's own
+So the guard refuses it. One dispatcher is constrained and nothing else is:
+`consolidator` to its four lenses. It is the one place left where the topology
+requires a governed worker and a model chooses which — the owner selects every
+other role by starting its session. The plugin's own
 [`README.md`](../../.claude/plugins/harness-effort-guard/README.md)
 §Governed dispatch topology carries the decision table, the `name`-versus-
 `subagent_type` distinction and the reasoning about defaulted and absent fields.
 
 **Narrow by construction.** Out-of-domain agents remain legitimate everywhere
 else: an architect delegating a search, an implementer spawning `Explore`. The
-assertion is about the two places where the topology requires a governed worker,
+assertion is about the one place where the topology requires a governed worker,
 and it is a topology assertion only — it repairs no state and manages no session,
 exactly as the effort behaviour beside it does not.
 
-**The prose was ambiguous and is now mechanical.** The router definition said
-`architect` and `implementer` are spawned with a `name` equal to the role, and
-said nothing about the field that actually selects the role. `name` addresses a
-worker for a later resume; `subagent_type` decides what it is. Both role
-definitions now name the argument, and `agent-router.md` carries the wrong shape
-explicitly, because the two fields are independent and a call can carry one
+**The prose was ambiguous and is now mechanical.** The dispatcher prose named the
+worker and said nothing about the field that actually selects the role. `name`
+addresses a worker for a later resume; `subagent_type` decides what it is.
+[`consolidator.md`](../../.claude/agents/consolidator.md) now names the argument
+for each lens, because the two fields are independent and a call can carry one
 without the other.
 
 ## Known limits of the exception
@@ -407,4 +446,11 @@ What this document used to say, and what changed it.
 | 2026-09-07 | Loaded as an installed plugin                         | **Added:** `agent-router` is the tracked project default via the `agent` setting, so the main thread holds the role with no flag. Re-taken without `--agent`: the role, the tool restriction and the contaminated-session refusal all hold on the default path. The VS Code extension UI itself remains undriven and is named as a scope limit                                                                                                                                                                                                                                        |
 | 2026-09-07 | Governed dispatch topology                            | **Added:** the guard asserts which roles `agent-router` and `consolidator` may spawn, and refuses an out-of-domain substitute before the child starts. Added because the effort table structurally cannot see that substitution — the generic child resolves `out-of-domain`, which allows. Record: [`owner-amendment-dispatch-topology.md`](../../.plan/reviews/harness-guard-1/owner-amendment-dispatch-topology.md)                                                                                                                                                                |
 | 2026-09-07 | Loaded as an installed plugin                         | **Added:** the dispatch-selection acceptance set, taken from fresh processes — router → `architect` and router → `consolidator` → `cleanup`, each with `dispatch_target` on the deciding verdict and no `general-purpose` record in the run                                                                                                                                                                                                                                                                                                                                           |
+| 2026-09-07 | —                                                     | **Corrected:** the header claimed observe mode while the tracked settings had carried `enforce` since the flip, and pointed at a `Before enforcement` section that no longer existed. It names the enforcing status and links §Enforcement is on                                                                                                                                                                                                                                                                                                                                      |
+| 2026-09-07 | The launcher is a diagnostic                          | **Replaced by §Starting a role session.** `agent-router` is retired and no model-based layer sits between the owner's prompt and the role, so direct role sessions are the normal path again and the launcher is on it rather than beside it. Its two selections — the role and the level — are the whole procedure                                                                                                                                                                                                                                                                   |
+| 2026-09-07 | Direct role sessions                                  | **Added:** the acceptance set for the direct-session topology on 2.1.263 — `--agent` alone runs at the ambient level and is denied `mismatch` at the first tool call, `--effort` matching the declaration allows, and a live `implementer` session is seen and matched on every tool-bearing event                                                                                                                                                                                                                                                                                    |
+| 2026-09-07 | Measurements                                          | **Withdrawn:** _the `--agent` effort defect does not reproduce in print mode._ Measured on 2.1.260; on 2.1.263 `-p --agent architect` runs at the ambient level. The defect belongs to `--agent` rather than to the entrypoint                                                                                                                                                                                                                                                                                                                                                        |
+| 2026-09-07 | A contaminated environment is a session-level refusal | **Restated:** the exemption is read after the environment check because a contaminated session must not be able to act through whichever role carries no level — not because the exempt role was the only actor that could dispatch                                                                                                                                                                                                                                                                                                                                                   |
+| 2026-09-07 | Governed dispatch topology                            | **Narrowed:** the map constrained `agent-router` and `consolidator`; with the router retired it constrains `consolidator` alone. The consolidator boundary is unchanged, and every case that asserted a generic property through the router now asserts it through the consolidator                                                                                                                                                                                                                                                                                                   |
+| 2026-09-07 | Loaded as an installed plugin                         | **Marked:** four rows were taken under the retired router topology and say so. What they establish about the plugin — settings loading, the tracked `env` block reaching the hook, a contaminated session refused at its first tool call, a `tools:` allowlist being real — does not depend on who was acting                                                                                                                                                                                                                                                                         |
 | 2026-09-06 | Before enforcement                                    | **Withdrawn:** _every project-defined role must declare `effort:`, and `explore.md` cannot satisfy the invariant — either it moves to a model with effort support or it is retired in favour of the built-in `Explore`._ Both branches treated a missing declaration as a configuration mistake. Haiku falsifies the premise: it does not participate in the effort mechanism, so an effort contract there is one the runtime cannot satisfy, and the role needed no change. Replaced by a model-level exception — `model: haiku` roles are governed but outside the effort invariant |

@@ -1,12 +1,12 @@
 #!/usr/bin/env sh
-# Diagnostic: run one role alone on a main thread, at the effort it declares.
+# Start one role session at the effort its definition declares.
 #
-# Not the normal path. Work is dispatched by agent-router to subagents, whose
-# frontmatter the runtime honours without help; see .agents/docs/agent-workflow.md
-# §Dispatch. This exists for reproducing a single role in isolation, where the
-# main-thread --agent effort defect would otherwise drop the declared level, and
-# that defect is its whole remaining reason. It does not load the guard: the
-# checkout's own settings do that.
+# --agent applies a role's model without applying its effort:, so a session
+# started with the flag alone runs at whatever effort was already in force and
+# the guard denies its first tool call. Passing --effort is the whole repair,
+# and reading the level from the definition is what stops the two drifting.
+# It does not load the guard: the checkout's own settings do that.
+# See .agents/docs/harness-effort-guard.md §Starting a role session.
 set -eu
 
 if [ $# -eq 0 ]; then

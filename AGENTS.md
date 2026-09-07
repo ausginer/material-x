@@ -13,29 +13,34 @@ Resident in every agent's context, so it carries only what applies before a role
 
 Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before writing or changing source. Before finalizing a unit of work — formatting, linting, typechecking, committing or pushing — read [`.agents/docs/handoff.md`](.agents/docs/handoff.md).
 
-## Before dispatching a governed worker
+## Before running a governed role
 
 The effort guard loads from project settings, and **a fresh checkout's first
 session runs before it is loadable**: registering the repository marketplace and
-loading its plugin happen on successive starts. A worker dispatched in that
-window is unchecked, and an unchecked session is indistinguishable from a clean
-one, because nothing is watching.
+loading its plugin happen on successive starts. A role acting in that window is
+unchecked, and an unchecked session is indistinguishable from a clean one,
+because nothing is watching.
 
 A guarded session says so. `Effort guard active` arrives as startup context in
-every session the guard is loaded into, `agent-router` included, and it says so
-whether or not the role definitions resolved — the string answers _is the guard
-loaded_, and a resolution failure is reported as a separate sentence beside it.
+every session the guard is loaded into, and it says so whether or not the role
+definitions resolved — the string answers _is the guard loaded_, and a resolution
+failure is reported as a separate sentence beside it.
 
-- **Seen it — dispatch normally.**
+- **Seen it — work normally.**
 - **Not seen it — run `claude plugin marketplace add ./` and start a new
-  session before spawning any worker.** A restart is required either way: a
-  plugin does not become loaded in a session already running.
+  session before doing governed work or spawning any worker.** A restart is
+  required either way: a plugin does not become loaded in a session already
+  running.
 
-**This binds every governed worker**: `architect`, `implementer`, `consolidator`,
+**This binds every governed role**: `architect`, `implementer`, `consolidator`,
 `reviewer`, `integrity`, `cleanup` and `der` — the set the guard governs, not a
-subset of it. It does not bind `agent-router`'s own turns; the router carries a
-role and is governed, but declares `model: haiku` and so bears no effort
-obligation.
+subset of it.
+
+**A role session selects its effort as well as its role.** `--agent` applies the
+definition's model and not its `effort:`, so the level is the starter's to pass;
+the guard denies the first tool call of a session that got it wrong, and repairs
+nothing. [`.scripts/claude-role.sh`](.scripts/claude-role.sh) reads the declared
+level out of the definition and passes it.
 
 **Dispatch only from the main checkout.** A linked worktree carries its own
 `.claude/` at its own commit, so it can govern part of the role set and allow
@@ -43,11 +48,10 @@ the rest, or govern all of it at a superseded generation. Where the guard is
 loaded there it refuses dispatch outright; where it is not loaded there is no
 gate string to see, and this rule is the whole of the protection. A
 worktree-rooted session may still run as a single worker — that is what worktree
-isolation is for — but it is not the router and dispatches nothing.
+isolation is for — but it dispatches nothing.
 
-[`agent-workflow.md`](.agents/docs/agent-workflow.md) §Dispatch is the model;
-[`harness-effort-guard.md`](.agents/docs/harness-effort-guard.md) §How it loads
-is the mechanism.
+[`harness-effort-guard.md`](.agents/docs/harness-effort-guard.md) §Starting a
+role session is the procedure; §How it loads is the mechanism.
 
 ## Evidence
 

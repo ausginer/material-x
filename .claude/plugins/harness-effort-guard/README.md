@@ -37,7 +37,7 @@ A `model: haiku` definition that also declares `effort:` is the one way such a r
 
 `CLAUDE_CODE_EFFORT_LEVEL` being set denies for **every** governed role, exempt ones included, and that check is made before the exemption. It is a process-wide hard override: no per-role effort can be honoured anywhere in the session while it is present, so the condition is a property of the session rather than of the role that happens to be acting. The remedy is to remove the variable and start again; the guard offers no other, and does not fall back to observing.
 
-Denying the exempt main-session role is the point rather than a side effect. That role's surface is dispatch, so a denial there stops every worker from coming into existence — which is as close to refusing the session as a hook can get, startup itself being unrefusable.
+Denying the exempt roles is the point rather than a side effect. Exempting them would leave a contaminated session able to act through whichever role happens to carry no level, while every role that does carry one is refused — which reports a session-wide fault as if it were a property of the actor. Refusing at the first tool call is as close to refusing the session as a hook can get, startup itself being unrefusable.
 
 **Dispatch from a linked worktree is refused, whoever asks.** A tool call that would bring another worker into being — `Agent`, `Task`, `SendMessage` — denies when the project root holds `.git` as a regular file rather than a directory. A worktree carries its own `.claude/` at its own commit, so it can govern part of the role set and silently allow the rest, or govern all of it at a superseded generation and enforce the wrong contract while looking guarded. No per-worktree configuration fixes the second shape, because the defect is the commit rather than the settings. This row is read before any question about the role, and it refuses the act rather than the caller: a worktree session that dispatches nothing is untouched, which is what lets an isolated single worker run there.
 
@@ -45,14 +45,13 @@ Where the guard is not loaded in the worktree at all, it cannot refuse anything;
 
 ## Governed dispatch topology
 
-A second assertion, sharing the decision path and nothing else. It answers a failure the effort table cannot see: a governed dispatcher spawning an **out-of-domain** worker where the topology requires a governed one. The child resolves `out-of-domain`, which is an allow — so the substitution is invisible to the invariant precisely because it left the domain the invariant governs. Observed: a router asked for `architect` spawned `general-purpose`, and every record in the run says `allow`.
+A second assertion, sharing the decision path and nothing else. It answers a failure the effort table cannot see: a governed dispatcher spawning an **out-of-domain** worker where the topology requires a governed one. The child resolves `out-of-domain`, which is an allow — so the substitution is invisible to the invariant precisely because it left the domain the invariant governs. Observed: a dispatcher asked for `architect` spawned `general-purpose`, and every record in the run says `allow`.
 
-Two dispatchers are constrained, and nothing else is:
+One dispatcher is constrained, and nothing else is:
 
-| Dispatcher     | May spawn                                                                             |
-| -------------- | ------------------------------------------------------------------------------------- |
-| `agent-router` | `architect`, `implementer`, `consolidator`, `reviewer`, `integrity`, `cleanup`, `der` |
-| `consolidator` | `reviewer`, `integrity`, `cleanup`, `der`                                             |
+| Dispatcher     | May spawn                                 |
+| -------------- | ----------------------------------------- |
+| `consolidator` | `reviewer`, `integrity`, `cleanup`, `der` |
 
 **A dispatcher the table does not name is unconstrained.** An architect delegating a search to a general-purpose agent, or an implementer spawning `Explore`, is legitimate and stays legitimate. The assertion is narrow by construction: out-of-domain agents are not an error anywhere else, and making them one would refuse work the topology never had an opinion about.
 
@@ -72,7 +71,7 @@ The subject is the `subagent_type` of a **spawning** call — `Agent` or `Task`.
 
 The rows are read **before** everything about effort, including the resolver's own failures, because the escape is what those rows cannot see. They are read **after** the worktree refusal, which is about the checkout rather than the call.
 
-The topology is written in [`verdict.ts`](scripts/verdict.ts) rather than derived: no role definition states who may spawn whom. It duplicates a rule that also appears in `agent-router.md` and `consolidator.md`, deliberately — a prompt is advice to a model, and this is a refusal. `installation.test.ts` holds every role the table names to a definition in the checkout, so a renamed role fails a test rather than denying every dispatch at runtime.
+The topology is written in [`verdict.ts`](scripts/verdict.ts) rather than derived: no role definition states who may spawn whom. It duplicates a rule that also appears in `consolidator.md`, deliberately — a prompt is advice to a model, and this is a refusal. `installation.test.ts` holds every role the table names to a definition in the checkout, so a renamed role fails a test rather than denying every dispatch at runtime.
 
 Missing reported effort, a model-capped downgrade and a plain mismatch are all violations. The plugin reports expected against actual and stops there — it does not classify the cause or repair session state.
 

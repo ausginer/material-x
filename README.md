@@ -15,14 +15,14 @@ This repository contains four packages:
 Node.js `>=24` is required.
 
 One extra step registers this repository's own Claude Code plugins, and is
-needed once per machine before any agent role is dispatched:
+needed once per machine before any agent role is started:
 
 ```bash
 claude plugin marketplace add ./
 ```
 
 Without it the first session in a fresh clone runs before the effort guard is
-loadable. See [`AGENTS.md`](AGENTS.md) §Before dispatching a governed worker.
+loadable. See [`AGENTS.md`](AGENTS.md) §Before running a governed role.
 
 ```bash
 npm install

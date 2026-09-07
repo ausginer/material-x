@@ -28,15 +28,13 @@ export type DenyCause =
  *
  * The topology is a property of the harness, not of any role definition:
  * nothing in `.claude/agents/` states who may spawn whom, so it is written here
- * and a change to the dispatch model is an edit to this map. Both entries
- * mirror a role that already carries the rule in prose —
- * [`agent-router.md`](../../../agents/agent-router.md) and
- * [`consolidator.md`](../../../agents/consolidator.md) — because a prompt is
- * advice to a model and this is a refusal.
+ * and a change to the dispatch model is an edit to this map. The entry mirrors
+ * a rule [`consolidator.md`](../../../agents/consolidator.md) already carries in
+ * prose, because a prompt is advice to a model and this is a refusal.
  *
  * **A dispatcher absent from the map is unconstrained.** An ordinary worker
  * spawning `Explore` or a general-purpose searcher is legitimate and stays
- * legitimate; the assertion is about the two places where the topology requires
+ * legitimate; the assertion is about the one place where the topology requires
  * a governed worker and an out-of-domain substitute would be allowed by every
  * other row of the decision table.
  */
@@ -44,18 +42,6 @@ export const DISPATCH_TOPOLOGY: ReadonlyMap<
   string,
   ReadonlySet<string>
 > = new Map([
-  [
-    'agent-router',
-    new Set([
-      'architect',
-      'implementer',
-      'consolidator',
-      'reviewer',
-      'integrity',
-      'cleanup',
-      'der',
-    ]),
-  ],
   ['consolidator', new Set(['reviewer', 'integrity', 'cleanup', 'der'])],
 ]);
 
@@ -297,10 +283,11 @@ export function judge(check: Check): Verdict {
 
   // Before the exemption, and this ordering is the session gate. The override
   // outranks frontmatter for every subagent at once, so it is a property of the
-  // session rather than a per-role mismatch — and the exempt role is the session
-  // here, and the only actor that can dispatch. Denying it stops the fault at
-  // its source instead of reporting it at a bystander; startup itself cannot be
-  // refused, so the first tool call is the earliest boundary available.
+  // session rather than a per-role mismatch, and no role in that session can
+  // reach its declared level. Exempting the roles that carry no level would let
+  // such a session act through them while the fault stands; startup itself
+  // cannot be refused, so the first tool call is the earliest boundary
+  // available.
   if (check.poisoned) {
     return deny('poisoned-env', poisonMessage(check.role));
   }

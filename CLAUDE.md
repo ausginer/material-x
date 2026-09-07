@@ -28,22 +28,26 @@ Use sub-agents for research and exploration that can run in parallel — investi
 
 Create an agent team only when the task has genuinely independent parallel work, such as migrating several components at once. Do not create teams for reviews, small changes, or work with sequential dependencies.
 
-## Dispatching roles
+## Running a role
 
-The main session is `agent-router` — selected by the tracked `agent` setting in
-`.claude/settings.json`, so an ordinary session is it by default. A project role
-declaring `model: haiku` and no `effort:`, whose whole tool surface is `Agent`,
-`SendMessage` and `ListAgents`. It dispatches and relays; it holds no opinion about the work and
-cannot read the repository. `architect` and `implementer` are spawned with a
-`name` equal to the role and resumed by that name; `consolidator`, `reviewer`,
-`integrity`, `cleanup` and `der` are spawned fresh every time. A worker's
-conversation is disposable — the repository carries continuity — so retire and
-respawn at a commit or a closing phase rather than compacting.
-[`agent-workflow.md`](.agents/docs/agent-workflow.md) §Dispatch is the full
-model.
+**Each role is its own session, started by the owner.** There is no routing layer
+and no tracked main-thread default: one `architect` session when architectural
+work is needed, one `implementer` for settled implementation, a fresh
+`consolidator` for a review round, or a fresh `reviewer`, `integrity`, `cleanup`
+or `der` for a single lens. The owner coordinates them.
+
+**The role and the effort are selected separately.** `--agent` applies the
+definition's model and not its `effort:`, so a session started with the flag
+alone runs at whatever effort was in force and the guard denies its first tool
+call. [`.scripts/claude-role.sh`](.scripts/claude-role.sh) makes both selections
+from the definition — `.scripts/claude-role.sh architect` — and by hand it is
+`claude --agent <role> --effort <the level that role declares>`.
+
+Nothing watches a session's size or replaces it. A conversation is disposable and
+the repository carries continuity, so an owner ends a session at a commit or a
+closing phase and starts the next one.
 
 The effort guard loads automatically from project settings when the session
-starts at the checkout root; it needs no flags, and
-[`.scripts/claude-role.sh`](.scripts/claude-role.sh) is now only a diagnostic
-for reproducing one role in isolation. See
-[`harness-effort-guard.md`](.agents/docs/harness-effort-guard.md).
+starts at the checkout root; it needs no flags. See
+[`harness-effort-guard.md`](.agents/docs/harness-effort-guard.md) §Starting a
+role session.
