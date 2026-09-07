@@ -152,6 +152,13 @@ interface BehaviorContext {
    * `0 .. config.actionTags - 1`; the kernel offsets it internally and
    * bounds-checks it here. Two array pushes: **no per-entry wrapper, and
    * capacity growth is amortized.**
+   *
+   * **An action dispatched before the behavior is armed is dropped**, without
+   * a report, and this is the one member the construction window narrows. It
+   * is not a policy choice: the action's handler runs the behavior's own
+   * transition through machinery `arm()` has not built yet, so there is
+   * nothing to enqueue into that could run it, and no reporter to say so.
+   * Dispatch after construction.
    */
   dispatch(tag: number, argument: unknown): void;
 
@@ -169,10 +176,8 @@ interface BehaviorContext {
    *
    * **Outside one includes before ingress is armed.** The factory body and the
    * frame-part factories are outside every seam, so a call from either is the
-   * same demotion — which reaches no reporter while no spec is published, and
-   * is silent rather than absent for that reason. **No member of this
-   * interface throws a platform error from a position this document says is
-   * supported**; that is the property, and the demotion is one instance of it.
+   * same demotion — silent while no spec is published, because that is where
+   * the reporter lives.
    */
   fail(stage: FailureStage, error: unknown): void; // `FailureStage` is kernel-tier vocabulary (D-64)
 
@@ -181,6 +186,12 @@ interface BehaviorContext {
    * They are prototype methods here and **detach-by-contract there**, so a
    * behavior publishes a closure over the call rather than the member itself
    * (D-170 §The behavior-facing interface).
+   *
+   * **An idle cancel is a no-op that leaves no latch**, and there is no
+   * operation anywhere in the construction window, so a call from there is
+   * that no-op. `destroy()` beside it is the window's other live member and
+   * is not a no-op: it closes on the statement, and the teardown it owes runs
+   * whether or not the controller was ever armed.
    */
   cancel(reason?: unknown): void;
 
@@ -196,6 +207,8 @@ interface BehaviorContext {
   destroy(): Promise<void>;
 }
 ```
+
+**The construction window is not a state this interface distinguishes, and every member behaves there as its own entry above states.** The window runs from the factory's invocation to the moment `arm()` finishes composing, and it is the library's own: the behavior is holding the interface it was handed, from the position that interface exists for, and `arm()`'s field order is not a fact it can observe or a rule it can break. **So the discriminator is deliverability, not availability.** Where the stated behaviour can be delivered in the window it is delivered — `fail` demotes, `cancel` is the idle no-op, `closed` is the latch, `destroy` closes and still owes its teardown. Where it cannot be, the limitation is **written into the member's own entry** so that an author meets a documented term instead of a platform error: `dispatch` is that member and the only one. **A precondition invented to excuse a failure the library caused is not a contract term**, and the failure mode it excuses — a `TypeError` naming a private field, escaping `draggable()` — is the one this rule exists to keep out of the surface.
 
 **`destroy()` returning a promise costs the consumer real ergonomics, and the cost is not hypothetical.** Probe A converted the surface and found **46 first-party call sites** turning into `no-floating-promises` violations — every one of them a plain `controller.destroy();` that never wanted a completion signal, including a React `useEffect` cleanup in this package's own demo, where returning the promise would change the cleanup's contract. The remedy is `void controller.destroy();` at each site that does not care, and `await controller.destroy();` at the few that do. D-36 accepts that in preference to a second public concept — no `destroyed` property, no completion method, no token — because the completion is only observable in the deferred reentrant case, and a rarely-useful promise is cheaper than a permanently-visible API surface.
 
