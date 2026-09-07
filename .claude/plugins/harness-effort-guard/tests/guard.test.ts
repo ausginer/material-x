@@ -8,6 +8,7 @@ import {
   run,
   SCRIPTS,
   unreadableDomain,
+  worktreeProject,
 } from './support.ts';
 
 const GUARD = join(SCRIPTS, 'guard.ts');
@@ -18,6 +19,7 @@ type Event = Readonly<{
   cwd: string;
   agent_type?: string;
   model?: string;
+  tool_name?: string;
   effort?: Readonly<{ level: string }>;
 }>;
 
@@ -49,6 +51,36 @@ async function observed(
   const log = await readFile(join(dataDir, 'observations.jsonl'), 'utf8');
 
   return { record: JSON.parse(log.trim().split('\n').at(-1)!), stdout };
+}
+
+/** Drive the hook and return its streams, for cases that assert on stderr. */
+async function raw(
+  root: string,
+  event: Event,
+  env: Readonly<Record<string, string | undefined>> = {},
+): Promise<Readonly<{ code: number; stdout: string; stderr: string }>> {
+  return await run('node', [GUARD, '--data-dir', join(root, 'data')], {
+    env: {
+      CLAUDE_PROJECT_DIR: root,
+      CLAUDE_CODE_EFFORT_LEVEL: undefined,
+      HARNESS_EFFORT_GUARD_MODE: undefined,
+      ...env,
+    },
+    input: JSON.stringify(event),
+  });
+}
+
+/** Whether the hook told the host to refuse the call. */
+function blocked(stdout: string): boolean {
+  if (stdout === '') {
+    return false;
+  }
+
+  const emitted = JSON.parse(stdout) as Readonly<{
+    hookSpecificOutput?: Readonly<{ permissionDecision?: string }>;
+  }>;
+
+  return emitted.hookSpecificOutput?.permissionDecision === 'deny';
 }
 
 /** The startup context a lifecycle event hands back to the host. */
@@ -225,13 +257,13 @@ describe('guard', () => {
     strictEqual(stdout, '');
   });
 
-  it('should allow an exempt role under a process-wide override', async () => {
+  it('should deny an exempt role under a process-wide override', async () => {
     const { record } = await observed(await exemptProject(), call('Explore'), {
       CLAUDE_CODE_EFFORT_LEVEL: 'medium',
       HARNESS_EFFORT_GUARD_MODE: 'enforce',
     });
 
-    strictEqual(record.decision, 'allow');
+    strictEqual(record.cause, 'poisoned-env');
   });
 
   it('should record the override an exempt role ran under', async () => {
@@ -286,5 +318,224 @@ describe('guard', () => {
     const { record } = await observed(root, call('architect', 'high'));
 
     strictEqual('model' in record, false);
+  });
+});
+
+/**
+ * Whether a denial is *applied* is decided by two conditions, and each was a
+ * single token whose removal changed what the guard enforces while leaving
+ * every record, announcement and exit code identical. These cases are the two
+ * negatives and the positive that separate them.
+ */
+describe('guard enforcement gating', () => {
+  const mismatch = (): Event => call('architect', 'medium');
+
+  it('should block a violation while enforcing at PreToolUse', async () => {
+    const root = await exemptProject();
+    const { stdout } = await observed(root, mismatch(), {
+      HARNESS_EFFORT_GUARD_MODE: 'enforce',
+    });
+
+    strictEqual(blocked(stdout), true);
+  });
+
+  it('should block nothing while observing, whatever the verdict', async () => {
+    const root = await exemptProject();
+    const { record, stdout } = await observed(root, mismatch());
+
+    strictEqual(record.decision, 'deny');
+    strictEqual(blocked(stdout), false);
+  });
+
+  it('should block nothing at Stop even while enforcing', async () => {
+    const root = await exemptProject();
+    const { record, stdout } = await observed(
+      root,
+      { ...mismatch(), hook_event_name: 'Stop' },
+      { HARNESS_EFFORT_GUARD_MODE: 'enforce' },
+    );
+
+    strictEqual(record.decision, 'deny');
+    strictEqual(blocked(stdout), false);
+  });
+
+  it('should block nothing at SubagentStop even while enforcing', async () => {
+    const root = await exemptProject();
+    const { stdout } = await observed(
+      root,
+      { ...mismatch(), hook_event_name: 'SubagentStop' },
+      { HARNESS_EFFORT_GUARD_MODE: 'enforce' },
+    );
+
+    strictEqual(blocked(stdout), false);
+  });
+
+  it('should record the mode it ran in', async () => {
+    const root = await exemptProject();
+    const { record } = await observed(root, mismatch(), {
+      HARNESS_EFFORT_GUARD_MODE: 'enforce',
+    });
+
+    strictEqual(record.enforced, true);
+  });
+});
+
+/**
+ * The notice has to describe what happened on this event in this mode. Claiming
+ * a block where nothing was blocked is the instrument misreporting itself, and
+ * `Stop` is the case where no tool call exists to block at all.
+ */
+describe('guard reporting', () => {
+  const mismatch = (): Event => call('architect', 'medium');
+
+  it('should say a call was blocked only when one was', async () => {
+    const root = await exemptProject();
+    const { stdout } = await observed(root, mismatch(), {
+      HARNESS_EFFORT_GUARD_MODE: 'enforce',
+    });
+    const emitted = JSON.parse(stdout) as Readonly<{
+      hookSpecificOutput: Readonly<{ permissionDecisionReason: string }>;
+    }>;
+
+    strictEqual(
+      emitted.hookSpecificOutput.permissionDecisionReason.includes(
+        'The tool call was blocked.',
+      ),
+      true,
+    );
+  });
+
+  it('should not claim a block while observing', async () => {
+    const root = await exemptProject();
+    const { stderr } = await raw(root, mismatch());
+
+    strictEqual(stderr.includes('The tool call was blocked.'), false);
+  });
+
+  it('should say it is observing rather than enforcing', async () => {
+    const root = await exemptProject();
+    const { stderr } = await raw(root, mismatch());
+
+    strictEqual(stderr.includes('observing, not enforcing'), true);
+  });
+
+  it('should say no call was in flight at Stop', async () => {
+    const root = await exemptProject();
+    const { stderr } = await raw(
+      root,
+      { ...mismatch(), hook_event_name: 'Stop' },
+      { HARNESS_EFFORT_GUARD_MODE: 'enforce' },
+    );
+
+    strictEqual(stderr.includes('No tool call was in flight at Stop'), true);
+  });
+});
+
+/**
+ * A worktree carries its own `.claude/` at its own commit, so it can govern
+ * part of the role set and allow the rest, or govern all of it at a superseded
+ * generation. The refusal is of dispatch, which is what leaves an isolated
+ * single worker able to run there.
+ */
+describe('guard worktree refusal', () => {
+  it('should refuse dispatch from a linked worktree', async () => {
+    const root = await worktreeProject();
+    const { record } = await observed(root, {
+      ...call('architect', 'high'),
+      tool_name: 'Agent',
+    });
+
+    strictEqual(record.cause, 'worktree-dispatch');
+  });
+
+  it('should refuse a resume from a linked worktree', async () => {
+    const root = await worktreeProject();
+    const { record } = await observed(root, {
+      ...call('architect', 'high'),
+      tool_name: 'SendMessage',
+    });
+
+    strictEqual(record.cause, 'worktree-dispatch');
+  });
+
+  it('should refuse dispatch by a role the worktree does not declare', async () => {
+    const root = await worktreeProject();
+    const { record } = await observed(root, {
+      ...call('implementer', 'medium'),
+      tool_name: 'Agent',
+    });
+
+    strictEqual(record.cause, 'worktree-dispatch');
+  });
+
+  it('should let a single worker act in a worktree', async () => {
+    const root = await worktreeProject();
+    const { record } = await observed(root, {
+      ...call('architect', 'high'),
+      tool_name: 'Bash',
+    });
+
+    strictEqual(record.decision, 'allow');
+  });
+
+  it('should allow dispatch from the main checkout', async () => {
+    const root = await exemptProject();
+    const { record } = await observed(root, {
+      ...call('architect', 'high'),
+      tool_name: 'Agent',
+    });
+
+    strictEqual(record.decision, 'allow');
+  });
+
+  it('should record which root it judged', async () => {
+    const root = await worktreeProject();
+    const { record } = await observed(root, {
+      ...call('architect', 'high'),
+      tool_name: 'Agent',
+    });
+
+    strictEqual(record.worktree, true);
+  });
+});
+
+/**
+ * An invocation that cannot produce a verdict has to leave a record saying so.
+ * A hook that dies silently is indistinguishable from one that never ran, which
+ * is the state the log exists to rule out.
+ */
+describe('guard invocation failures', () => {
+  it('should record hook input it cannot read', async () => {
+    const root = await exemptProject();
+    const dataDir = join(root, 'data');
+
+    await run('node', [GUARD, '--data-dir', dataDir], { input: 'not json' });
+
+    const log = await readFile(join(dataDir, 'observations.jsonl'), 'utf8');
+    const record = JSON.parse(log.trim().split('\n').at(-1)!) as Observation;
+
+    strictEqual(record.kind, 'unreadable');
+  });
+
+  it('should exit non-zero on hook input it cannot read', async () => {
+    const root = await exemptProject();
+    const { code } = await run(
+      'node',
+      [GUARD, '--data-dir', join(root, 'data')],
+      {
+        input: 'not json',
+      },
+    );
+
+    strictEqual(code, 1);
+  });
+
+  it('should report a missing data directory rather than inventing one', async () => {
+    const { code, stderr } = await run('node', [GUARD], {
+      input: JSON.stringify(call('architect', 'high')),
+    });
+
+    strictEqual(code, 1);
+    strictEqual(stderr.includes('--data-dir is required'), true);
   });
 });

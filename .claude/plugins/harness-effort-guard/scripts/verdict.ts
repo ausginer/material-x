@@ -18,6 +18,7 @@ export type DenyCause =
   | 'no-runtime-effort'
   | 'mismatch'
   | 'poisoned-env'
+  | 'worktree-dispatch'
   | 'guard-error';
 
 export type Check = Readonly<{
@@ -35,6 +36,12 @@ export type Check = Readonly<{
   actual: string | undefined;
   /** Whether `CLAUDE_CODE_EFFORT_LEVEL` is set in the guard's environment. */
   poisoned: boolean;
+  /** Whether this event is a tool call that would bring another worker into being. */
+  dispatching: boolean;
+  /** Whether the resolved project root is a linked worktree rather than the main checkout. */
+  worktree: boolean;
+  /** The resolved project root, named by the worktree refusal so the reader can see which one. */
+  root: string | null;
   error: string | undefined;
 }>;
 
@@ -52,9 +59,38 @@ function violationMessage(
     `Role:     ${role}\n` +
     `Expected: ${expected}\n` +
     `Actual:   ${actual}\n\n` +
-    'The tool call was blocked because this role is running at the wrong effort.\n' +
     'Fix the role configuration or the invocation; the guard does not repair session state.'
   );
+}
+
+function worktreeMessage(root: string): string {
+  return (
+    'Dispatch from a linked worktree is refused.\n\n' +
+    `Root:     ${root}\n\n` +
+    'A worktree carries its own .claude/ at its own commit, so it can govern part of the\n' +
+    'role set and silently allow the rest, or govern all of it at a superseded generation.\n' +
+    'Neither is fixable by configuring the worktree. Dispatch from the main checkout;\n' +
+    'a worktree session may still run as a single worker.'
+  );
+}
+
+/**
+ * What the guard did about a denial on this event, in this mode.
+ *
+ * Separate from the violation because it is not a property of the violation:
+ * the same fault is blocked at an enforcing `PreToolUse`, recorded and no more
+ * while observing, and — at `Stop` or `SubagentStop` — reaches the guard when
+ * there is no tool call in existence to block. A denial notice that claims a
+ * block in the latter two cases is the instrument misreporting itself.
+ */
+export function appliedNotice(applied: boolean, event: string): string {
+  if (applied) {
+    return 'The tool call was blocked.';
+  }
+
+  return event === 'PreToolUse'
+    ? 'Nothing was blocked: the guard is observing, not enforcing.'
+    : `No tool call was in flight at ${event}. This turn is recorded; it cannot be blocked.`;
 }
 
 function poisonMessage(role: string): string {
@@ -76,6 +112,17 @@ function poisonMessage(role: string): string {
  * so a normal `SessionStart` cannot be mistaken for a failed check.
  */
 export function judge(check: Check): Verdict {
+  // Asked of every actor, governed or not, and before anything about the role:
+  // a worktree cannot answer for the generation of the contract the workers it
+  // spawns would run under, so the refusal is of the act rather than of the
+  // caller. A worktree session that dispatches nothing is untouched.
+  if (check.dispatching && check.worktree) {
+    return deny(
+      'worktree-dispatch',
+      worktreeMessage(check.root ?? '(unknown)'),
+    );
+  }
+
   // Asked before the guard's own failures: with no role acting there is nothing
   // to hold to a level, whatever went wrong while looking for one. Every
   // remaining branch can therefore name the acting role.
@@ -104,19 +151,21 @@ export function judge(check: Check): Verdict {
     return { decision: 'allow', reason: 'out-of-domain' };
   }
 
-  // Read ahead of the override check, and of the reported effort, because
-  // nothing about the turn can move it: this role has no declared level to
-  // dishonour, and denying it would report a session-wide fault at the one role
-  // that can neither cause nor fix it.
-  if (check.resolution.kind === 'exempt') {
-    return { decision: 'allow', reason: 'exempt' };
-  }
-
-  // A process-wide override outranks /effort, settings and frontmatter alike,
-  // so a parent launching subagents at differing levels cannot be honest while
-  // it is set — whatever this particular turn happens to report.
+  // Before the exemption, and this ordering is the session gate. The override
+  // outranks frontmatter for every subagent at once, so it is a property of the
+  // session rather than a per-role mismatch — and the exempt role is the session
+  // here, and the only actor that can dispatch. Denying it stops the fault at
+  // its source instead of reporting it at a bystander; startup itself cannot be
+  // refused, so the first tool call is the earliest boundary available.
   if (check.poisoned) {
     return deny('poisoned-env', poisonMessage(check.role));
+  }
+
+  // A role carrying no effort obligation, so nothing after this point applies:
+  // there is no declared level to hold it to, and absent reported effort is the
+  // expected observation rather than a violation.
+  if (check.resolution.kind === 'exempt') {
+    return { decision: 'allow', reason: 'exempt' };
   }
 
   if (check.resolution.kind === 'undeclared') {

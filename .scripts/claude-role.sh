@@ -1,9 +1,12 @@
 #!/usr/bin/env sh
-# Start a managed role: pin its declared effort, and load the guard that checks it.
+# Diagnostic: run one role alone on a main thread, at the effort it declares.
 #
-# Both jobs have to happen before Claude starts, which is why this is repository
-# tooling rather than part of the plugin — the artifact that starts the session
-# cannot be reachable only through the session it is starting.
+# Not the normal path. Work is dispatched by agent-router to subagents, whose
+# frontmatter the runtime honours without help; see .agents/docs/agent-workflow.md
+# §Dispatch. This exists for reproducing a single role in isolation, where the
+# main-thread --agent effort defect would otherwise drop the declared level, and
+# that defect is its whole remaining reason. It does not load the guard: the
+# checkout's own settings do that.
 set -eu
 
 if [ $# -eq 0 ]; then
@@ -53,7 +56,10 @@ if [ -n "$effort" ]; then
   set -- --effort "$effort" "$@"
 fi
 
-set -- --plugin-dir "$plugin" --agent "$role" "$@"
+# No --plugin-dir. The checkout this cd'd into enables the guard from its own
+# project settings, so naming the plugin here would load it by a second
+# mechanism — and the rule is that nothing about loading depends on this script.
+set -- --agent "$role" "$@"
 
 if [ -n "${CLAUDE_ROLE_PRINT_ARGV-}" ]; then
   echo "cwd=$root"

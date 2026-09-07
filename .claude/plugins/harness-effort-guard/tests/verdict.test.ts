@@ -26,6 +26,9 @@ function check(overrides: Partial<Check> = {}): Check {
     resolution: DECLARED,
     actual: 'high',
     poisoned: false,
+    dispatching: false,
+    worktree: false,
+    root: '/checkout',
     error: undefined,
     ...overrides,
   };
@@ -90,10 +93,27 @@ describe('judge', () => {
     strictEqual(verdict.decision, 'allow');
   });
 
-  it('should allow an exempt role under a process-wide override', () => {
+  // The environment check precedes the exemption. The exempt role is the
+  // session's own router and the only actor that can dispatch, so denying it
+  // stops the fault at its source rather than reporting it at a bystander.
+  it('should deny an exempt role under a process-wide override', () => {
     const verdict = judge(
       check({ resolution: EXEMPT, actual: undefined, poisoned: true }),
     );
+
+    strictEqual(verdict.decision, 'deny');
+  });
+
+  it('should name the environment as the cause for an exempt role', () => {
+    const verdict = judge(
+      check({ resolution: EXEMPT, actual: undefined, poisoned: true }),
+    );
+
+    strictEqual(verdict.decision === 'deny' && verdict.cause, 'poisoned-env');
+  });
+
+  it('should still allow an exempt role in a clean environment', () => {
+    const verdict = judge(check({ resolution: EXEMPT, actual: undefined }));
 
     strictEqual(verdict.decision, 'allow');
   });

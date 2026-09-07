@@ -38,25 +38,34 @@ A `model: haiku` definition that also declares `effort:` is the one way such a r
 
 Denying the exempt main-session role is the point rather than a side effect. That role's surface is dispatch, so a denial there stops every worker from coming into existence — which is as close to refusing the session as a hook can get, startup itself being unrefusable.
 
+**Dispatch from a linked worktree is refused, whoever asks.** A tool call that would bring another worker into being — `Agent`, `Task`, `SendMessage` — denies when the project root holds `.git` as a regular file rather than a directory. A worktree carries its own `.claude/` at its own commit, so it can govern part of the role set and silently allow the rest, or govern all of it at a superseded generation and enforce the wrong contract while looking guarded. No per-worktree configuration fixes the second shape, because the defect is the commit rather than the settings. This row is read before any question about the role, and it refuses the act rather than the caller: a worktree session that dispatches nothing is untouched, which is what lets an isolated single worker run there.
+
+Where the guard is not loaded in the worktree at all, it cannot refuse anything; that case is covered by the startup gate the host repository documents, not by this plugin.
+
 Missing reported effort, a model-capped downgrade and a plain mismatch are all violations. The plugin reports expected against actual and stops there — it does not classify the cause or repair session state.
 
 ## What it can and cannot prevent
 
 - **Tool actions fail closed.** `PreToolUse` runs before the tool, so a denied call never executes.
-- **A text-only turn can only be invalidated afterwards.** A turn that calls no tool reaches no enforcement point; by the time `Stop` observes the effort the inference is already paid for. Those events report and never block — a `Stop`-triggered retry would re-run at the same wrong effort and loop.
+- **`Stop` and `SubagentStop` observe; they do not enforce.** They are wired because a turn that calls no tool reaches no other effort-bearing event, and the trust claim needs such a turn to appear in the log at all. They cannot block: by the time either fires the inference is paid for and no tool call exists to refuse, and a `Stop`-triggered retry would re-run at the same wrong effort and loop. Their denial notice says so rather than claiming a block.
 
 So the invariant is _no wrong-effort role takes an action_, plus _no wrong-effort turn goes unrecorded_. It is not _no wrong-effort inference happens_.
 
 ## Modes
 
-`HARNESS_EFFORT_GUARD_MODE=enforce` applies denials. Anything else — including unset — observes: the same verdict is computed and recorded, and nothing is blocked.
+`HARNESS_EFFORT_GUARD_MODE=enforce` applies denials. Anything else — including unset — observes: the same verdict is computed and recorded, and nothing is blocked. A denial notice states which of the two happened on this event, because the same fault is blocked at an enforcing `PreToolUse` and merely recorded everywhere else.
+
+The plugin reads the variable and takes no view on where it is set. A host repository that wants enforcement to be a property of its checkout rather than of an operator's shell sets it in the `env` block of the same `.claude/settings.json` that enables the plugin; that block reaches the hook and outranks the invoking shell.
 
 ## The log
 
-`${CLAUDE_PLUGIN_DATA}/observations.jsonl`, one JSON object per line, in two kinds that are not interchangeable:
+`${CLAUDE_PLUGIN_DATA}/observations.jsonl`, one JSON object per line, in three kinds that are not interchangeable:
 
 - `announcement` — from `SessionStart` or `SubagentStart`. These carry no effort, so the record has no `actual` and no `verdict` field at all rather than null ones. Nothing reading the log can count a normal session start as a failed check.
 - `verdict` — from an effort-bearing event, adding `actual`, `decision` and `cause`.
+- `unreadable` — the hook could not parse its own input, so it carries the error and nothing else, not even which event it was. It exists because the alternative is a gap, and a gap reads as a call that never happened rather than one that went unchecked.
+
+`announcement` and `verdict` both carry `worktree`, which says whether the root the guard judged was a linked worktree.
 
 A record's `resolution` field carries `exempt` for a role outside the effort invariant, with `declared` null. Exempt roles appear in the log like any other governed role: the trust question — did this role act unchecked, or was it checked — is answered for them too.
 
@@ -69,8 +78,13 @@ A run is trusted only when every governed role that acted appears with `declared
 The repository that owns this plugin declares it in a local marketplace
 (`.claude-plugin/marketplace.json`) and enables it from project settings
 (`.claude/settings.json`), so an ordinary session started at the checkout root
-loads it with no command-line flags. `--plugin-dir` still works and is what the
-tests use, but nothing about the plugin depends on it.
+loads it with no command-line flags, and nothing about the plugin depends on
+`--plugin-dir`.
+
+The tests load nothing. They run `scripts/guard.ts` directly, feeding it hook
+payloads on stdin and reading back its stdout and its log, so no case here
+exercises a plugin load at all — that is established by live sessions and
+recorded in the host repository's own document.
 
 ## Requirements
 

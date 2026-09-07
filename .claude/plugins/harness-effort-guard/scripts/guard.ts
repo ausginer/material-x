@@ -1,12 +1,11 @@
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import {
   findProjectRoot,
+  isLinkedWorktree,
   resolveRole,
   type Resolution,
 } from './resolve-role.ts';
 import { observe } from './observe.ts';
-import { judge, type Check } from './verdict.ts';
+import { appliedNotice, judge, type Check } from './verdict.ts';
 
 /**
  * Events that carry `effort` by contract, and so may produce a verdict.
@@ -16,6 +15,15 @@ import { judge, type Check } from './verdict.ts';
  */
 const EFFORT_BEARING = new Set(['PreToolUse', 'Stop', 'SubagentStop']);
 
+/**
+ * Tool calls that bring another worker into being.
+ *
+ * The worktree refusal is of dispatch rather than of work, so it needs the act
+ * named. A tool absent from this set is ordinary work and is never refused for
+ * being in a worktree, which is what lets an isolated single worker run there.
+ */
+const DISPATCH_TOOLS = new Set(['Agent', 'Task', 'SendMessage']);
+
 type HookInput = Readonly<{
   hook_event_name: string;
   session_id: string;
@@ -23,6 +31,7 @@ type HookInput = Readonly<{
   agent_id?: string;
   agent_type?: string;
   model?: string;
+  tool_name?: string;
   effort?: Readonly<{ level: string }>;
 }>;
 
@@ -33,20 +42,17 @@ function announcement(
   poisoned: boolean,
   error: string | undefined,
 ): unknown {
-  const lines = [];
+  // Unconditional, and first. The dispatch gate in AGENTS.md is keyed on this
+  // string, and it asks one question — is the guard loaded — which is answered
+  // the same way whether or not the role set resolved. Folding a resolution
+  // failure into this sentence would drop the string in the one case a reader
+  // most needs to tell "loaded but broken" from "not installed yet".
+  const lines = ['Effort guard active.'];
 
   if (error != null) {
-    lines.push(`Effort guard could not resolve the role definitions: ${error}`);
+    lines.push(`Role definitions could not be resolved: ${error}`);
   } else if (role != null && declared != null) {
-    lines.push(
-      `Effort guard active. Role ${role} declares effort ${declared}.`,
-    );
-  } else {
-    // Every session says so, the roleless coordinator included. Announcing only
-    // when there is a level to report leaves the guard silent in exactly the
-    // session that dispatches workers, so "loaded" and "not installed yet" look
-    // identical at the moment that difference decides whether dispatch is safe.
-    lines.push('Effort guard active.');
+    lines.push(`Role ${role} declares effort ${declared}.`);
   }
 
   if (poisoned) {
@@ -85,14 +91,46 @@ async function readStdin(): Promise<string> {
 }
 
 const main = async (): Promise<void> => {
-  const input: HookInput = JSON.parse(await readStdin());
-  const dataDir =
-    argument('--data-dir') ?? join(tmpdir(), 'harness-effort-guard');
+  // Every wired hook passes --data-dir, and installation.test.ts pins that for
+  // each event. Its absence is a wiring defect rather than a mode, so it is
+  // reported instead of being absorbed by a temp-directory fallback that no
+  // caller reaches and nothing would ever read.
+  const dataDir = argument('--data-dir');
+
+  if (dataDir == null) {
+    process.stderr.write('Effort guard: --data-dir is required.\n');
+    process.exitCode = 1;
+
+    return;
+  }
+
+  let input: HookInput;
+
+  try {
+    input = JSON.parse(await readStdin()) as HookInput;
+  } catch (cause) {
+    // Ahead of the guard's own error handling, so it has to leave the same
+    // evidence that handling does: a hook that dies silently is indistinguishable
+    // from one that never ran, which is the state the log exists to rule out.
+    const detail = cause instanceof Error ? cause.message : String(cause);
+
+    await observe(dataDir, {
+      kind: 'unreadable',
+      at: new Date().toISOString(),
+      error: detail,
+    });
+    process.stderr.write(`Effort guard: unreadable hook input. ${detail}\n`);
+    process.exitCode = 1;
+
+    return;
+  }
+
   const enforcing = process.env.HARNESS_EFFORT_GUARD_MODE === 'enforce';
   const poisoned = process.env.CLAUDE_CODE_EFFORT_LEVEL != null;
   const role = input.agent_type;
 
   let root: string | null = null;
+  let worktree = false;
   let resolution: Resolution | undefined;
   let error: string | undefined;
 
@@ -105,6 +143,7 @@ const main = async (): Promise<void> => {
     // across cwd changes within the session; the fallback shares the launcher's
     // rule rather than reimplementing it.
     root = process.env.CLAUDE_PROJECT_DIR ?? (await findProjectRoot(input.cwd));
+    worktree = root != null && (await isLinkedWorktree(root));
 
     if (role != null) {
       // No root is an empty domain, not a failure: a tree that declares no
@@ -133,6 +172,7 @@ const main = async (): Promise<void> => {
     // absent model would be indistinguishable from an unrecorded one.
     ...(input.model != null && { model: input.model }),
     project_root: root,
+    worktree,
     declared,
     resolution: error != null ? 'error' : (resolution?.kind ?? 'no-role'),
     poisoned,
@@ -151,6 +191,9 @@ const main = async (): Promise<void> => {
     resolution,
     actual: input.effort?.level,
     poisoned,
+    dispatching: input.tool_name != null && DISPATCH_TOOLS.has(input.tool_name),
+    worktree,
+    root,
     error,
   };
   const verdict = judge(check);
@@ -164,28 +207,32 @@ const main = async (): Promise<void> => {
     enforced: enforcing,
   });
 
-  if (
-    verdict.decision === 'deny' &&
-    enforcing &&
-    input.hook_event_name === 'PreToolUse'
-  ) {
+  if (verdict.decision !== 'deny') {
+    return;
+  }
+
+  const applied = enforcing && input.hook_event_name === 'PreToolUse';
+
+  if (applied) {
     emit({
       hookSpecificOutput: {
         hookEventName: 'PreToolUse',
         permissionDecision: 'deny',
-        permissionDecisionReason: verdict.message,
+        permissionDecisionReason: `${verdict.message}\n\n${appliedNotice(true, input.hook_event_name)}`,
       },
     });
 
     return;
   }
 
-  // Stop and SubagentStop report without blocking: a Stop-triggered retry would
-  // re-run inference at the same wrong effort and loop. An observe-mode
-  // PreToolUse denial is likewise reported rather than applied.
-  if (verdict.decision === 'deny') {
-    process.stderr.write(`${verdict.message}\n`);
-  }
+  // Stop and SubagentStop are observation points and cannot block: by the time
+  // either fires the turn's inference is already paid for, and there is no tool
+  // call in existence to refuse. They are wired because a turn that dispatches
+  // without calling a tool reaches no other effort-bearing event, and the trust
+  // claim needs such a turn to appear in the log at all.
+  process.stderr.write(
+    `${verdict.message}\n\n${appliedNotice(false, input.hook_event_name)}\n`,
+  );
 };
 
 await main();

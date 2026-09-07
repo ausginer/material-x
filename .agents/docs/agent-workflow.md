@@ -20,33 +20,53 @@ Two boundaries hold across the whole system and are stated in each role that the
 
 ## Dispatch
 
-**The coordinator is a plain interactive session** — the VS Code window, started
-with no `--agent`. It holds no role, does no repository work itself, and exists
-to dispatch and relay. A session with no `agent_type` is outside the effort
-invariant and allowed as `no-role`, and it never meets the interactive `--agent`
-effort bug, because it names no agent. The effort guard loads into it
-automatically; [`harness-effort-guard.md`](harness-effort-guard.md) §How it
-loads is the mechanism, and the checkout root is where the session must start.
+Three layers, named separately because one word was doing two jobs.
 
-**`architect` and `implementer` are named workers.** Spawn each with a `name`
-equal to its role, and afterwards address it by that name: a message resumes a
-finished worker with its context intact, keeping its role, model and declared
-effort. One name per role, so a second spawn under the same name replaces the
-generation rather than running beside it.
+| Layer                  | What it is                                         | Governed                          |
+| ---------------------- | -------------------------------------------------- | --------------------------------- |
+| Owner-side coordinator | the person, and whatever they think with           | outside the system                |
+| `agent-router`         | the Claude Code main session                       | a role, exempt from the invariant |
+| Workers                | `architect`, `implementer`, `consolidator`, lenses | governed, effort-bearing          |
 
-**Review passes stay one-shot.** `reviewer`, `integrity`, `cleanup` and `der`
-are spawned fresh every time and never named or resumed. Independence is the
-point of a second opinion, and a disposable subagent is exactly maximum
-freshness. The consolidator launches them as it always has.
+**The main session is `agent-router`**, a project role declaring `model: haiku`
+and no `effort:` — governed, resolved and logged, and carrying no effort
+obligation because haiku does not participate in the mechanism. It is not
+roleless: it appears in the log like any other role, so the trust claim that
+every governed role which acted must appear covers the main thread too.
+
+**Its surface is `Agent`, `SendMessage` and `ListAgents`, and nothing else.**
+The rule that the router does no repository work is that allowlist rather than
+prose. This is stronger than the `disallowedTools` precedent §Agent configuration
+warns about: an allowlist that never names `Bash` or `Write` removes the vector
+instead of the obvious path to it. Read access is excluded deliberately — a
+router that reads the repository grows context, forms opinions about the work,
+and becomes the developer role the boundary exists to prevent. When a task
+concerns a file, the router names the path and the worker opens it.
+
+**It relays; it does not author.** The owner's prompt passes through rather than
+being rewritten, which is what keeps output quality independent of the router's
+model: haiku is enough to address an envelope and is never asked to compose the
+letter.
+
+**`architect` and `implementer` are resumable named workers.** Spawn each with a
+`name` equal to its role and afterwards reach it by that name; a message resumes
+a finished worker with its context, role, model and declared effort intact. One
+name per role, so spawning the same name again replaces the generation.
+
+**`consolidator` and the review lenses are one-shot.** `consolidator`,
+`reviewer`, `integrity`, `cleanup` and `der` are spawned fresh every time and
+never resumed. A round is the unit, and the next round wants a clean lens rather
+than the previous round's conclusions. A consolidator spawns the four passes
+itself, which is depth 2 and observed on the same terms as depth 1.
 
 **Retirement is a repository event, not a token threshold.**
 
-| Worker          | Retire when                                                             |
-| --------------- | ----------------------------------------------------------------------- |
-| `implementer`   | the unit of work is committed and pushed                                |
-| `architect`     | the contract, plan or phase it was reasoning about closes               |
-| review passes   | always — every invocation is a new worker                               |
-| the coordinator | the conversation stops being useful, which retires every worker at once |
+| Worker                        | Retire when                                                |
+| ----------------------------- | ---------------------------------------------------------- |
+| `implementer`                 | the unit of work is committed and pushed                   |
+| `architect`                   | the contract, plan or phase it was reasoning about closes  |
+| `consolidator`, review passes | always — every invocation is a new worker                  |
+| `agent-router`                | the conversation stops being useful, retiring every worker |
 
 Replacement is spawning the same name again. Nothing needs measuring to decide
 it, which is the reason the boundaries are events.
@@ -58,6 +78,12 @@ plans, review artifacts and handoffs, as [`AGENTS.md`](../../AGENTS.md),
 already define. **Anything a worker knows that is not in the repository is lost
 when it is retired, by design**, so a worker records or commits before that
 point — which the boundaries above are chosen to coincide with.
+
+**Dispatch happens from the main checkout only**, and a session carrying
+`CLAUDE_CODE_EFFORT_LEVEL` cannot dispatch at all: the guard denies the router's
+first tool call, whose surface is dispatch, so no worker comes into existence.
+The remedy is to remove the variable and restart. Both gates are in
+[`AGENTS.md`](../../AGENTS.md) §Before dispatching a governed worker.
 
 Why this arrangement rather than persistent standalone role sessions, and what
 was measured to choose it, is in

@@ -1,4 +1,7 @@
 {
+  "env": {
+    "HARNESS_EFFORT_GUARD_MODE": "enforce"
+  },
   "extraKnownMarketplaces": {
     "material-x": {
       "source": {

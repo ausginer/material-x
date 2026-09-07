@@ -22,18 +22,32 @@ window is unchecked, and an unchecked session is indistinguishable from a clean
 one, because nothing is watching.
 
 A guarded session says so. `Effort guard active` arrives as startup context in
-every session the guard is loaded into, the roleless coordinator included.
+every session the guard is loaded into, `agent-router` included, and it says so
+whether or not the role definitions resolved — the string answers _is the guard
+loaded_, and a resolution failure is reported as a separate sentence beside it.
 
 - **Seen it — dispatch normally.**
 - **Not seen it — run `claude plugin marketplace add ./` and start a new
-  session before spawning any role worker.** A restart is required either way: a
+  session before spawning any worker.** A restart is required either way: a
   plugin does not become loaded in a session already running.
 
-This binds the dispatch of `architect`, `implementer`, `reviewer`, `integrity`,
-`cleanup` and `der`. It does not bind the coordinator's own work, which carries
-no role and is outside the invariant. [`agent-workflow.md`](.agents/docs/agent-workflow.md)
-§Dispatch is the model; [`harness-effort-guard.md`](.agents/docs/harness-effort-guard.md)
-§How it loads is the mechanism.
+**This binds every governed worker**: `architect`, `implementer`, `consolidator`,
+`reviewer`, `integrity`, `cleanup` and `der` — the set the guard governs, not a
+subset of it. It does not bind `agent-router`'s own turns; the router carries a
+role and is governed, but declares `model: haiku` and so bears no effort
+obligation.
+
+**Dispatch only from the main checkout.** A linked worktree carries its own
+`.claude/` at its own commit, so it can govern part of the role set and allow
+the rest, or govern all of it at a superseded generation. Where the guard is
+loaded there it refuses dispatch outright; where it is not loaded there is no
+gate string to see, and this rule is the whole of the protection. A
+worktree-rooted session may still run as a single worker — that is what worktree
+isolation is for — but it is not the router and dispatches nothing.
+
+[`agent-workflow.md`](.agents/docs/agent-workflow.md) §Dispatch is the model;
+[`harness-effort-guard.md`](.agents/docs/harness-effort-guard.md) §How it loads
+is the mechanism.
 
 ## Evidence
 

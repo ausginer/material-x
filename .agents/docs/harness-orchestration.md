@@ -1,6 +1,12 @@
-# Harness orchestration — persistent role sessions
+# Harness orchestration — how role work is dispatched
 
 > Retrieved when changing how roles are dispatched, or before extending the effort guard.
+
+> **Amended 2026-09-07.** The main session is no longer roleless: it is the
+> `agent-router` project role. The three layers, the router's tool surface and
+> the dispatch classes are in [`agent-workflow.md`](agent-workflow.md)
+> §Dispatch, which supersedes this document wherever the two differ about the
+> session layer. What follows is the measurement record that chose the topology.
 
 **Status: B′ is chosen and built.** The workflow it describes is now the normal
 one, written up for use in [`agent-workflow.md`](agent-workflow.md) §Dispatch;
@@ -590,15 +596,16 @@ measurements that produced them stay, because they are why.
 
 ## Open questions
 
+Carried only where they remain askable on the settled path. Three items retired
+with topology A and are recorded in the change record rather than here: the
+haiku cache miss on `-p --resume`, a role session's lifetime before compaction
+dominates, and whether a compacted A worker keeps its role and effort. None has
+a subject any more — no role runs as a standalone resumable session, and
+subagents neither auto-compact nor accept the command.
+
 - Whether a compacted session still reports its role and effort. Compaction
   starts a `SessionStart(source=compact)`, and finding 4 was measured on an
-  uncompacted session.
-- Whether the unexplained haiku cache miss in finding 5 has a cause that also
-  applies to warm role sessions.
-- What a role session's practical lifetime is before compaction dominates, which
-  needs a real workload rather than one-word probes.
-- Whether a compacted worker session in A keeps its role and effort, which
-  finding 15 establishes for B's workers but not for A's sessions.
+  uncompacted session. This one survives: the router's own session compacts.
 - Whether B's workers survive a VS Code window reload. They survive the
-  coordinator process exiting (finding 15), so this reduces to whether the
-  editor resumes the same session id; not measured.
+  coordinator process exiting (finding 15), so this reduces to whether the editor
+  resumes the same session id; not measured.

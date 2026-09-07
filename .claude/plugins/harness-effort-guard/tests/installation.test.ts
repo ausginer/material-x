@@ -18,6 +18,7 @@ const MARKETPLACE = 'material-x';
 const PLUGIN = 'harness-effort-guard';
 
 type Settings = Readonly<{
+  env?: Readonly<Record<string, string>>;
   enabledPlugins?: Readonly<Record<string, boolean>>;
   extraKnownMarketplaces?: Readonly<
     Record<string, Readonly<{ source: Readonly<Record<string, string>> }>>
@@ -125,20 +126,78 @@ describe('marketplace manifest', () => {
     strictEqual(plugin.name, PLUGIN);
   });
 });
+type Hooks = Readonly<{
+  hooks: Readonly<
+    Record<
+      string,
+      ReadonlyArray<
+        Readonly<{
+          hooks: ReadonlyArray<
+            Readonly<{ command: string; args?: readonly string[] }>
+          >;
+        }>
+      >
+    >
+  >;
+}>;
+
+/**
+ * The events the guard is wired to, and what each invocation passes.
+ *
+ * Named event by event rather than matched as a substring of the file. A
+ * substring assertion survives the deletion of a whole event block, and
+ * deleting the `PreToolUse` block is the one edit that turns the guard from
+ * something that blocks into something that only watches.
+ */
+async function wiring(): Promise<Hooks['hooks']> {
+  return (
+    JSON.parse(
+      await readFile(join(PLUGIN_ROOT, 'hooks', 'hooks.json'), 'utf8'),
+    ) as Hooks
+  ).hooks;
+}
+
+function invocations(wired: Hooks['hooks']): readonly string[] {
+  return Object.values(wired).flatMap((matchers) =>
+    matchers.flatMap((matcher) =>
+      matcher.hooks.map((hook) => (hook.args ?? []).join(' ')),
+    ),
+  );
+}
 
 describe('hook wiring', () => {
-  // The launcher is a diagnostic now, and nothing about loading may depend on
-  // it. `${CLAUDE_PLUGIN_ROOT}` is what makes the hook addressable from a
-  // marketplace install; a path relative to the repository would resolve
-  // against whatever directory the session happened to start in.
-  it('should address its scripts through the plugin root', async () => {
-    const hooks = await readFile(
-      join(PLUGIN_ROOT, 'hooks', 'hooks.json'),
-      'utf8',
-    );
-
+  it('should wire exactly the five events the guard reasons about', async () => {
     strictEqual(
-      hooks.includes(`\${CLAUDE_PLUGIN_ROOT}/scripts/guard.ts`),
+      Object.keys(await wiring())
+        .sort()
+        .join(),
+      'PreToolUse,SessionStart,Stop,SubagentStart,SubagentStop',
+    );
+  });
+
+  // The only event at which a denial can be applied. Losing this block leaves
+  // the guard loaded, announcing and logging, and enforcing nothing.
+  it('should wire PreToolUse, which is where enforcement happens', async () => {
+    strictEqual('PreToolUse' in (await wiring()), true);
+  });
+
+  it('should run the guard on every wired event', async () => {
+    const args = invocations(await wiring());
+
+    strictEqual(args.length, 5);
+    strictEqual(
+      args.every((one) =>
+        one.includes(`\${CLAUDE_PLUGIN_ROOT}/scripts/guard.ts`),
+      ),
+      true,
+    );
+  });
+
+  // The fallback that absorbed a missing --data-dir is gone, so an event that
+  // does not name one records nothing at all.
+  it('should pass a data directory on every wired event', async () => {
+    strictEqual(
+      invocations(await wiring()).every((one) => one.includes('--data-dir')),
       true,
     );
   });
@@ -150,5 +209,22 @@ describe('hook wiring', () => {
     );
 
     strictEqual(hooks.includes('claude-role'), false);
+  });
+});
+
+describe('tracked guard mode', () => {
+  // Whether the invariant is enforced is a property of the checkout. A tracked
+  // env block is what stops two sessions on one commit disagreeing about it.
+  it('should declare the guard mode in the tracked settings file', async () => {
+    const settings = await json<Settings>(
+      REPO_ROOT,
+      '.claude',
+      'settings.json',
+    );
+
+    strictEqual(
+      typeof settings.env?.HARNESS_EFFORT_GUARD_MODE === 'string',
+      true,
+    );
   });
 });

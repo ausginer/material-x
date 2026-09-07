@@ -80,6 +80,33 @@ export type Options = Readonly<{
 }>;
 
 /**
+ * A project root that looks like a linked worktree: `.git` is a regular file
+ * pointing at the real repository, where a main checkout holds a directory.
+ *
+ * It carries the full role set, so the fixture stands for the worse of the two
+ * shapes — a complete but possibly superseded domain, which resolves every role
+ * successfully and looks exactly like a guarded checkout.
+ */
+export async function worktreeProject(): Promise<string> {
+  const root = await project(
+    {
+      'architect.md': definition('name: architect\nmodel: opus\neffort: high'),
+      'implementer.md': definition(
+        'name: implementer\nmodel: opus\neffort: medium',
+      ),
+    },
+    'harness-effort-guard-worktree-',
+  );
+
+  await writeFile(
+    join(root, '.git'),
+    'gitdir: /elsewhere/.git/worktrees/one\n',
+  );
+
+  return root;
+}
+
+/**
  * Run a command to completion, reporting its exit status rather than throwing.
  *
  * A non-zero exit is the subject of several cases here, so it is a value the

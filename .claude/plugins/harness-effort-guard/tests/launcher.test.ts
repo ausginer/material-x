@@ -77,11 +77,19 @@ describe('claude-role.sh', () => {
     strictEqual(stdout.includes('--effort'), false);
   });
 
-  it('should still pass the role and the plugin for an exempt role', async () => {
+  it('should still pass the role for an exempt role', async () => {
     const { stdout } = await launch(await project(ROLES), 'Explore');
 
     strictEqual(stdout.includes('--agent Explore'), true);
-    strictEqual(stdout.includes('--plugin-dir'), true);
+  });
+
+  // The checkout it starts in already enables the guard from project settings.
+  // Naming the plugin here too would make the diagnostic a second loading
+  // mechanism, which is the one thing the loading rule forbids.
+  it('should not load the plugin itself', async () => {
+    const { stdout } = await launch(await project(ROLES), 'architect');
+
+    strictEqual(stdout.includes('--plugin-dir'), false);
   });
 
   it('should start an exempt role from the resolved project root', async () => {

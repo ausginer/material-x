@@ -30,14 +30,16 @@ Create an agent team only when the task has genuinely independent parallel work,
 
 ## Dispatching roles
 
-This session is the coordinator: a plain session with no `--agent`, which is
-outside the effort invariant and recorded as `no-role`. Roles are subagents of
-it. `architect` and `implementer` are spawned with a `name` equal to the role
-and resumed by that name; `reviewer`, `integrity`, `cleanup` and `der` are
-spawned fresh every time. A worker's conversation is disposable — the repository
-is what carries continuity — so retire and respawn at a commit or a closing
-phase rather than compacting. [`agent-workflow.md`](.agents/docs/agent-workflow.md)
-§Dispatch is the full model.
+The main session is `agent-router`: a project role declaring `model: haiku` and
+no `effort:`, whose whole tool surface is `Agent`, `SendMessage` and
+`ListAgents`. It dispatches and relays; it holds no opinion about the work and
+cannot read the repository. `architect` and `implementer` are spawned with a
+`name` equal to the role and resumed by that name; `consolidator`, `reviewer`,
+`integrity`, `cleanup` and `der` are spawned fresh every time. A worker's
+conversation is disposable — the repository carries continuity — so retire and
+respawn at a commit or a closing phase rather than compacting.
+[`agent-workflow.md`](.agents/docs/agent-workflow.md) §Dispatch is the full
+model.
 
 The effort guard loads automatically from project settings when the session
 starts at the checkout root; it needs no flags, and

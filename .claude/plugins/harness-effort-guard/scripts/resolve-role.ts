@@ -31,12 +31,11 @@ type Definition = Readonly<{
 const AGENTS_DIR = join('.claude', 'agents');
 
 /**
- * The one `model:` value outside the effort invariant, matched literally.
+ * The one `model:` value outside the effort invariant, compared literally.
  *
- * Not a prefix, an alias, a family or a capability lookup: deciding which
- * models bear effort would mean keeping a second, silently drifting copy of the
- * runtime's capability matrix, and the runtime exposes no basis for one. A
- * model gaining or losing effort support is an edit to this line.
+ * Widening this to a prefix, alias or family match makes the guard a second
+ * copy of the runtime's capability matrix, which drifts silently. A model
+ * gaining or losing effort support is an edit to this line.
  */
 const EFFORTLESS_MODEL = 'haiku';
 
@@ -159,6 +158,31 @@ async function readDefinitions(
  * ancestor holds a domain, which is a reading of the tree; a candidate the
  * filesystem refuses to describe supports no such reading.
  */
+/**
+ * Whether `root` is a linked worktree rather than the main checkout.
+ *
+ * A linked worktree holds `.git` as a regular file pointing at the real
+ * repository; the main checkout holds a directory. The distinction matters
+ * because a worktree carries its own `.claude/` at its own commit: it can hold
+ * part of the role set, which resolves the rest as out-of-domain and allows it,
+ * or all of it at a superseded generation, which enforces the wrong contract
+ * while looking guarded. Neither is fixable by configuring the worktree.
+ *
+ * Absence is answered `false`; a filesystem that cannot answer propagates, on
+ * the same reasoning as `isAbsence`.
+ */
+export async function isLinkedWorktree(root: string): Promise<boolean> {
+  try {
+    return (await stat(join(root, '.git'))).isFile();
+  } catch (cause) {
+    if (isAbsence(cause)) {
+      return false;
+    }
+
+    throw cause;
+  }
+}
+
 export async function findProjectRoot(
   startDir: string,
 ): Promise<string | null> {

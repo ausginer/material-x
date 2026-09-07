@@ -16,6 +16,17 @@ import { join } from 'node:path';
  */
 export type Record =
   | Readonly<{
+      /**
+       * The hook could not read its own input, so nothing else about the event
+       * is known — not the role, not even which event it was. It is recorded
+       * because the alternative is a gap, and a gap reads as a call that never
+       * happened rather than one that went unchecked.
+       */
+      kind: 'unreadable';
+      at: string;
+      error: string;
+    }>
+  | Readonly<{
       kind: 'announcement';
       at: string;
       event: string;
@@ -24,6 +35,7 @@ export type Record =
       agent_type?: string;
       model?: string;
       project_root: string | null;
+      worktree: boolean;
       declared: string | null;
       resolution: string;
       poisoned: boolean;
@@ -37,6 +49,7 @@ export type Record =
       agent_type?: string;
       model?: string;
       project_root: string | null;
+      worktree: boolean;
       declared: string | null;
       resolution: string;
       poisoned: boolean;
