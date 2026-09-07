@@ -30,11 +30,13 @@ Applied to `PreToolUse`, `Stop` and `SubagentStop` — the events that carry `ef
 | governed                     | `X`      | `X`      | allow                                       |
 | governed                     | `X`      | `Y`      | **deny**                                    |
 
-The exempt rows are read first, so a `model: haiku` role reaches no other row. Nothing about the turn can move it: absent reported effort is the expected observation for it, not a violation.
+The exempt rows are read before every row that concerns effort, so a `model: haiku` role reaches none of them: absent reported effort is the expected observation for it, not a violation. The environment check below is the one thing read ahead of them.
 
 A `model: haiku` definition that also declares `effort:` is the one way such a role denies. That file promises a level the runtime will never report, and the guard treats it as a defect in the one namespace it owns — the same standing as two definitions claiming a single name. Choosing silently between the two fields would either enforce a number that cannot be reached or discard a declaration the author wrote on purpose.
 
-`CLAUDE_CODE_EFFORT_LEVEL` being set denies for any governed role bearing the invariant: it is a process-wide hard override, so per-role effort cannot be honoured while it is present. An exempt role still allows and is still recorded with `poisoned: true` — it has no declared level to dishonour, and blocking it would report a session-wide fault at the one role that cannot cause or fix it. The launcher refuses such a session outright, and every role bearing the invariant denies within it.
+`CLAUDE_CODE_EFFORT_LEVEL` being set denies for **every** governed role, exempt ones included, and that check is made before the exemption. It is a process-wide hard override: no per-role effort can be honoured anywhere in the session while it is present, so the condition is a property of the session rather than of the role that happens to be acting. The remedy is to remove the variable and start again; the guard offers no other, and does not fall back to observing.
+
+Denying the exempt main-session role is the point rather than a side effect. That role's surface is dispatch, so a denial there stops every worker from coming into existence — which is as close to refusing the session as a hook can get, startup itself being unrefusable.
 
 Missing reported effort, a model-capped downgrade and a plain mismatch are all violations. The plugin reports expected against actual and stops there — it does not classify the cause or repair session state.
 
