@@ -44,13 +44,13 @@ deliberately far below the window rather than near it — see the margin below.
 **This is not a case for reviving worker compaction.** Nothing compacts; the
 generation ends and a fresh one begins, which is the settled model.
 
-**Unverified quantity, and the one thing to confirm.** Sonnet-5 reports a
-1 000 000-token window and haiku 200 000. Opus, which both named workers run on,
-was never read directly; real opus workers have been observed at 255 752 tokens
-without incident, so its window exceeds that, but the exact figure is not
-established here. The required property is that 500 000 leave room for at least
-one more full turn before the window; confirming opus's window is a single
-`--output-format json` call and belongs to implementation.
+**The window is 1 000 000, and the margin is half of it.** Opus reports a
+1 000 000-token context window in the harness's own model indicator, matching
+sonnet-5; haiku reports 200 000. Both named workers run on opus, so a boundary at
+~500 000 retires a generation at half its window and leaves the landing turn
+roughly 500 000 tokens of headroom — far more than any worker turn observed here,
+the largest of which was 310 252 in total. The required property, that the
+boundary leave room for at least one more full turn, is met with a wide margin.
 
 ## Reaching the boundary mid-phase
 

@@ -107,7 +107,8 @@ leaf tips. A later resume follows one tip; the other turn's work is still on
 disk and no longer in the conversation. Nothing locks, and nothing complains.
 
 **8. Context usage is observable per invocation.** The result's `modelUsage`
-carries `contextWindow` (200 000 for haiku, 1 000 000 for sonnet-5 here), and
+carries `contextWindow` (200 000 for haiku, 1 000 000 for sonnet-5 here, and
+1 000 000 for opus per the harness's model indicator), and
 `usage` carries the input, cache-read and cache-creation counts whose sum is the
 context actually sent. No transcript parsing, no inference from cost.
 
