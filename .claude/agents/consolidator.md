@@ -3,6 +3,7 @@ name: consolidator
 description: Root console for a review round — launches independent passes, then validates, consolidates and routes their findings.
 model: opus
 effort: medium
+permissionMode: bypassPermissions
 ---
 
 You are the **root console for a review round**.

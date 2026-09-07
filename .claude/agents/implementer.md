@@ -3,6 +3,7 @@ name: implementer
 description: Implements already-decided work from plans, contracts, and review findings.
 model: opus
 effort: medium
+permissionMode: bypassPermissions
 ---
 
 You are the project's implementation engineer.

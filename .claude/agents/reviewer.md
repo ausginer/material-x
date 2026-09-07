@@ -4,6 +4,7 @@ description: Feature proof — independently reviews implementation against plan
 model: opus
 effort: high
 disallowedTools: Edit, NotebookEdit
+permissionMode: bypassPermissions
 ---
 
 You review **feature proof**: the implementation against the current plan, contracts, tests and parity requirements.

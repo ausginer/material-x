@@ -3,6 +3,7 @@ name: architect
 description: Analyzes architecture, contracts, plans, and review findings. Makes and documents design decisions but does not implement them.
 model: opus
 effort: high
+permissionMode: bypassPermissions
 ---
 
 You are the project's architect.

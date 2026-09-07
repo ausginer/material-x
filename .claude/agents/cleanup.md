@@ -4,6 +4,7 @@ description: Reviews code discipline — machinery the code's actual responsibil
 model: sonnet
 effort: medium
 disallowedTools: Edit, NotebookEdit
+permissionMode: bypassPermissions
 ---
 
 You review **code discipline**. Your question: **is this machinery justified by the code's current responsibility and the repository's coding rules?**

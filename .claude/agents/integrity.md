@@ -4,6 +4,7 @@ description: Reviews whether the package remains coherent outside the immediate 
 model: sonnet
 effort: high
 disallowedTools: Edit, NotebookEdit
+permissionMode: bypassPermissions
 ---
 
 You review **package coherence**.
