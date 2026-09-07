@@ -327,13 +327,12 @@ coordinator's own turns sent 76 495, then 44 831 after its compaction, then
 47 739 tokens, at $0.25, $0.53 and $0.14. It is a reasoning session with a
 growing context that needs its own compaction, not a router.
 
-**19. Worker output is relayed by a model, and worker pressure needs transcript
-parsing.** What reaches the coordinator is the worker's final report, restated in
-the coordinator's words — in one probe the coordinator's account of a reply was
-its own interpretation of it. Worker context is available only from the internal
-subagent JSONL, whose format the documentation warns changes between releases;
-the `subagent_tokens` figure in a completion notice is cumulative spend, not
-context pressure.
+**19. Worker output is relayed by a model.** What reaches the coordinator is the
+worker's final report, restated in the coordinator's words — in one probe the
+coordinator's account of a reply was its own interpretation of it. This finding
+also claimed worker pressure needed transcript parsing, and that
+`subagent_tokens` was cumulative spend; **measurement falsified both** — see
+finding 24.
 
 **21. Generational replacement is native and clean.** Spawning a new worker
 under a name already in use rebinds the name — the fresh worker reported no
@@ -358,6 +357,15 @@ sonnet-5. The ceiling is the model's window, and it is far away.
 **20. A role worker reasserts its role.** `cleanup` refused an off-role question
 twice and spent tokens on its own startup reading instead. Correct behaviour, and
 a reminder that a worker is a role rather than a callable function.
+
+**24. Worker context pressure is observable from the dispatch surface.**
+`subagent_tokens`, reported in the `Agent` result and in every completion notice,
+is the worker's **current context size**. Measured against the same worker's
+transcript: 47 051 reported against 47 049 actual on spawn, and 59 755 against
+59 738 after a resume — within about twenty tokens both times. It needs no file
+access and no transcript parsing. `SendMessage` returns no usage of its own, so
+the figure arrives when a turn completes, which is when a dispatcher needs it.
+`ListAgents` does not carry it.
 
 ## Generational lifetime
 
@@ -520,18 +528,30 @@ a second opinion, and maximum freshness is exactly a disposable subagent — whi
 is what the repository already does. This half of the design needs no change at
 all.
 
-**Retirement is coarse and event-shaped, not a token threshold.**
+**Retirement is event-shaped, with one size boundary behind it.**
 
-| Worker         | Retire when                                                            |
-| -------------- | ---------------------------------------------------------------------- |
-| `implementer`  | the unit of work is committed and pushed                               |
-| `architect`    | the contract, plan or phase it was reasoning about closes              |
-| review passes  | always — every invocation is a new worker                              |
-| `consolidator` | always — one per round                                                 |
-| `agent-router` | the conversation stops being useful; this retires every worker at once |
+| Worker         | Retire when                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `implementer`  | the unit of work is committed and pushed, **or** it reports `subagent_tokens` at or above ~500 000                  |
+| `architect`    | the contract, plan or phase it was reasoning about closes, **or** it reports `subagent_tokens` at or above ~500 000 |
+| review passes  | always — every invocation is a new worker                                                                           |
+| `consolidator` | always — one per round                                                                                              |
+| `agent-router` | the conversation stops being useful; this retires every worker at once                                              |
 
-Replacement is spawning the same name again (finding 21). No pressure reading is
-required for any of these, which is the point of choosing event boundaries.
+Replacement is spawning the same name again (finding 21). The event boundaries
+need no pressure reading at all; the size boundary exists only so that a worker
+that never reaches one of them still ends.
+
+**The size boundary is evaluated at dispatch, and retirement is never
+immediate.** Crossing ~500 000 does not end a generation on the spot; it changes
+what that worker's next dispatch is. The worker is first sent a fixed instruction
+to land its state — to leave the repository in a condition a successor can
+continue from, and to report the paths it wrote — and only when that turn
+completes is the name retired and a successor spawned under it, carrying the
+pending request and those paths verbatim. The threshold sits far below the window
+precisely so that landing turn has room to run. What "landed" means is the
+worker's judgment under the handoff rules; the router cannot inspect it and must
+not acquire the means to.
 
 **The rule that makes retirement safe.** A worker's conversation is disposable
 working memory; durable state is the repository — commits, contracts, `D-*`
