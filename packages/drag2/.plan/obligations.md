@@ -78,7 +78,7 @@ Nothing below is decided by this register. Each row states what is owed and what
 
 **The five kernel-carrying `control:` byte equalities, suspended for the D-170 arc series and owed back at its close** — `free drag minimal`, `free drag + bounds`, `free drag + landing`, `free drag complete` and `kernel root - kernel.js` in [`bench/size/measure.ts`](../bench/size/measure.ts)
 
-**Owed by:** F-385, adjudicated with D-185
+**Owed by:** F-385, adjudicated with D-186
 
 **Waiting for:** **The close of the D-170 arc series** — Arc D, the last of the four. A control is _omitted on a row a pass is expected to move_ by the instrument's own rule, and every kernel-tier pass is expected to move all five; re-declaring them after each arc produces a number read off the result, which is the failure [`budget-rebases.md`](measurements/budget-rebases.md) names as _a budget wearing an exact number_. They are therefore omitted for the series rather than re-based through it, and restored with fresh exact figures when the last arc lands. **`vocabulary root - drag.js` and `baseline B` keep theirs throughout** — they carry no kernel, and they are what still detects a kernel symbol reaching a composition that should not have one. **This row is the whole of the protection**: with the five omitted, nothing else in the tree would notice that they never came back
 

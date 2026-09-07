@@ -4,74 +4,68 @@
 
 **Method.** The load-bearing constraints behind both decisions were re-derived from the source rather than from the record, and every claim this artifact makes about behaviour was **executed** — in a worktree detached at `ea6e400e3`, with `node_modules` linked and the main checkout verified clean throughout. Two probe files were written, run and deleted; no source edit outside the worktree, and the one source mutation below was reverted and verified.
 
-**Result in one line.** D-182's central rule survives and its required properties do not cover the whole window they name; **D-183's load-bearing ground is refuted by execution** — the identity conjunct has a reachable falsifier, and deleting it silently loses an operation's entire lifecycle.
+**Result in one line.** D-182's central rule survives and its required properties do not cover the whole window they name; **D-183's conclusion survives and its stated ground does not** — the identity conjunct's only falsifier is reachable solely from a `prepare` that performs a DOM write, which the tri-phase contract forbids, so the guard is hardening against documented misuse and the deletion lands on a repaired ground.
+
+**Amended 2026-09-07, second pass.** The first pass of this artifact filed the falsifier as refuting D-183 and routed a question (Q-27) on it. **That was wrong, and the owner's test is what it failed**: mechanical reachability is not the standard — reachability through reasonable, contract-compliant use is. The witness performed `item.focus()` from an `action.prepare`, and `prepare`'s contract says _must not perform DOM writes_ in three places. §1 below is rewritten to the corrected classification; the executed evidence is unchanged and is what settles it, now including the contract-legal positions the first pass did not run.
 
 ---
 
-## 1. D-183's ground is false, and the conjunct is falsifiable
+## 1. The conjunct is hardening only, and D-183's ground needs repair rather than reversal
 
-### The premise
+### The classification, stated first
 
-D-183 rests on F-349's unreachability claim, which it calls _the best-established claim of the round, derived four times independently and never falsified_. That claim is one sentence, carried verbatim in three places — F-349, [`COVERAGE.md`](../../../tests/COVERAGE.md) §B-0 and D-183 itself:
+**HARDENING ONLY.** Reaching `preparationValid()`'s identity conjunct requires a behavior to perform a DOM write from inside a `prepare`. That is excluded by the tri-phase contract in three places — the prose rule in [`02`](../../contract/02-kernel-behavior-contract.md) §The tri-phase transition, the compiled type fixture in the same section, and the shipped docblock on `Transition.prepare` in [`seams.ts`](../../../src/kernel/seams.ts):
+
+> **Prepare** — validation, pure calculation, DOM reads, _local_ acquisition; must not mutate `current`.
+
+> Returns the staged value, or `null` to discard. Must not touch `current`, **must not perform DOM writes**, and must keep every acquisition local.
+
+Neither shipped behavior can reach it at all, and no custom behavior can reach it without breaking that rule.
+
+### Where the conjunct is load-bearing, and it is one window
+
+It is consulted at three points, and only one of them can be reached with the pin stale:
+
+- **W1** — `runCore:306`, between `#begin()` and `commit()`. The only foreign code in between is `transition.prepare`. **This is the window the conjunct exists for.**
+- **W2** — `runCore:334`, after `effect`, gating `#staged` only.
+- **W3** — `#activationPolicy.committed()`, after `runCore` has returned.
+
+The four direct `#begin()` sites — `#handleMove`, `#closeOperation`, `#joinSettlement`, `#handleStartCommitted` — run `#begin()`, write the draft and `commit()` with no foreign code between, so no window opens there.
+
+### Executed: the two trees are indistinguishable from every contract-legal position
+
+The same composition — `command.types: ['focusin']`, an idle behavior action, `item.focus()` as the reentrant DOM write — with the write moved between positions, run against the tree and against the tree with the conjunct deleted:
+
+| Position of the DOM write | Contract status | Control | Conjunct deleted |
+| --- | --- | --- | --- |
+| `action.effect` | **legal** — post-commit effects are the DOM-write phase | nested pass admitted; nested operation activates and retires normally | **identical** |
+| `activation.effect` (inside `onStart`) | **legal**, and an operation is live | nested pass **refused** by `#openIngress`'s `current.operation` guard | **identical** |
+| `action.prepare` | **out of contract** — `prepare` must not perform DOM writes | outer seam rolls back; nested operation completes | outer seam commits over the nested operation's frame; that operation is minted, armed, never activated, never retired |
+
+**The conjunct's only observable effect is on the row that violates the contract.** In W2 it gates `#staged`, which `#handleBehaviorAction` drops in its `finally` regardless; the outer transaction has already committed, so the nested pass rebuilds the draft from a published frame, which is what the next transaction would have done anyway. W3 is closed by the operation guard, confirmed by execution rather than by reading.
+
+### Why no environmental route exists
+
+A nested ingress pass needs a **synchronous** dispatch on `root` of a declared `command.types` type. A real user gesture cannot interleave with synchronous JavaScript, and every synchronous-dispatch mechanism the platform offers is a DOM write — `focus()`, `blur()`, `click()`, `dispatchEvent()`, removing the focused node, `dialog.showModal()`, `form.requestSubmit()`. What `prepare` _is_ permitted to do dispatches nothing: layout reads and `getBoundingClientRect()` force reflow and fire no events, and `ResizeObserver`, `IntersectionObserver`, `MutationObserver` and `scroll` all deliver asynchronously.
+
+### The shipped behaviors close it twice over
+
+- **Free drag** declares **no `command` member** — _free drag has no discrete ingress_ — so it binds no listener a DOM write could reach, and its `prepareAction` returns `null` for every tag outside `ACTIVATING` and `ACTIVE` **before** touching anything, so its two consumer-facing idle dispatches (`invalidate()`, `moveTo()`) never reach `preparationValid()` at all.
+- **The sortable** does run an action at `IDLE` — `controller.invalidate()` → `action.prepare(TAG_COLLECTION)` — and it does call consumer code there, `slots.items()`, deliberately: _`items()` is consumer code, and this is the one place that has a transaction open, a phase to branch on, and a stage to classify a throw against._ **But its only command type is `keydown`**, and no DOM write produces a synchronous `keydown`. The path is open and the event that would travel it does not exist.
+
+So the witness requires a **custom** behavior that declares a focus- or click-family command type, dispatches an action at idle, and writes to the DOM from `prepare`. The third is the disqualifier on its own.
+
+### What is wrong, and it is the sentence rather than the conclusion
+
+**F-349's conclusion stands: the conjunct has no falsifier reachable through correct use of the contract.** Its stated reasoning does not, and the same sentence is carried by [`COVERAGE.md`](../../../tests/COVERAGE.md)'s B-0 table and by D-183:
 
 > the only other writer of `current.operation` is an admission the execution bracket refuses reentrantly.
 
-`COVERAGE.md`'s B-0 table states the same conclusion as an evidence claim: `current.operation === pinned` dropped reddens **_none, and none could be written_**.
+The bracket refuses on `#closed` and `#admitting`, which spans an **admission** — that is the refusal [`kernel.ts`](../../../src/kernel/kernel.ts) §`#openIngress` claims for it, and the docblock is accurate about its own scope. It is not what excludes a pass raised from inside a **seam phase**. Two other things do, and they should be what the record says: `#openIngress`'s `current.operation` guard closes every seam that runs with a live operation, which is all of them but the idle behavior action; and `prepare`'s no-DOM-writes rule closes that one. **The repaired ground is stronger than the original**, because it names a contract boundary rather than a mechanism that does not cover the case.
 
-### Why it is false
+### On the guard's quality, which is now moot
 
-The bracket refuses a nested ingress pass on two conditions and no others (`src/kernel/execution.ts` `runIngress`): `#closed` and `#admitting`. `#admitting` is set only for the duration of an admission, so it refuses a second ingress raised from inside `admit` — which is exactly what `#openIngress`'s own docblock claims for it — and refuses nothing raised from inside a **seam phase**. There is no `#running` guard.
-
-The kernel's own guard, `#openIngress`, admits whenever `current.operation` is `null`. **One seam runs with no live operation**: `#handleBehaviorAction`, which carries no phase and no operation guard, and which `BehaviorContext.dispatch` will enqueue at any time — it tests `closed`, `#spec` and the tag range and nothing else.
-
-So the reachable shape is: **a behavior action dispatched while idle, whose `prepare` synchronously causes one of the behavior's own declared `command.types` to fire on `root`.** The nested pass runs `beginPass` → `Kernel.#begin()`, which re-pins and **rebuilds the draft the outer `prepare` is still writing into**, then admits, mints an identity and commits `PENDING`. Control returns to the outer `prepare`; `runCore` then revalidates against a pin captured before the nested operation existed.
-
-That is the corruption `#openIngress`'s docblock describes in full — _publishing an operation with one press's coordinates and the other's behavior state_ — arriving through the one window the guard it names does not cover.
-
-### Executed, at `ea6e400e3`, on an idiomatic composition
-
-`command.types: ['focusin']` — a keyboard-accessible discrete ingress, which is what `command` exists for — and an idle behavior action whose `prepare` calls `item.focus()`.
-
-**Control, the tree as it stands:**
-
-```
-action.prepare#0 op=null phase=0 → action.effect            (baseline: an ordinary idle action commits)
-action.prepare#0 op=null phase=0 → command.admit(op=null) → back-in-outer-prepare
-  → action.rollback                                        ← SEAM_INVALIDATED: the conjunct fired
-  → activation.prepare → activation.effect → spec.retire    ← the nested operation runs and retires normally
---- second press ---
-  → command.admit → activation.prepare → activation.effect → spec.retire
-```
-
-**With D-183 applied** — the identity conjunct deleted from `#preparationValid()`, one line, nothing else:
-
-```
-action.prepare#0 op=null phase=0 → action.effect            (baseline unchanged)
-action.prepare#0 op=null phase=0 → command.admit(op=null) → back-in-outer-prepare
-  → action.effect op=null phase=0                          ← SEAM_COMMITTED, over the new operation's frame
-  (no activation.prepare, no activation.effect, no spec.retire)
---- second press ---
-  → command.admit → activation.prepare → activation.effect → spec.retire
-```
-
-`reportError` collected **nothing** on either tree.
-
-### What the deletion costs
-
-The outer transaction publishes a frame whose `operation` is `null` and whose `phase` is `IDLE`, on top of the frame the nested admission had just committed as `PENDING`. The consequences follow from statement order and are all in the trace:
-
-- **The operation is minted, its lifetimes armed, and then lost.** `activation.prepare` never runs, `spec.retire` is never called for it, and `#retireOperation(identity)` would take its staleness return — `current.operation !== identity` — so **teardown steps 3 to 6 never run for that operation at all**. Its `motion`, `presentation` and `cancellation` scopes and the input listeners armed on the realm are orphaned, and the next `#mintOperation` overwrites the `#operation` record that held them.
-- **Nothing is reported.** The seam returns `SEAM_COMMITTED`; there is no warning, no error and no phase anomaly a consumer or a test could read.
-- **The controller stays usable**, which is what makes it silent rather than fatal: the second press behaves normally.
-
-That is `CONTRIBUTING.md` §Definition of success's second limb met — the library corrupts state it owns — and the first limb met on a composition that uses two documented features correctly and violates no stated rule.
-
-### What this does and does not settle
-
-- **F-349's unreachability claim is refuted**, and with it D-183's first limb, which was the whole of the argument. D-153's exception and `COVERAGE.md`'s register were only ever reached _after_ that limb; they are not independent grounds and do not survive it.
-- **F-384's premise fails too.** The identity conjunct is not a confirmed equivalent mutant, so the question of which register should hold it does not arise.
-- **`COVERAGE.md`'s _none, and none could be written_ is refuted in its second half.** The first half reproduces — no _existing_ row reddens — and that is consistent: the suite has no row for a nested ingress pass raised from inside a seam.
-- **This is not an argument that the conjunct is a good guard.** It fires silently, through a `rollback` under `UNCLASSIFIED` that reports nothing, so the tree's present behaviour on this path is an invariant break discarded without a diagnostic. D-183's reading of D-153 — that a guard whose failure is a silent discard pins nothing — is correct, and it now applies to a guard that is _reachable_. **The subject is the missing ingress refusal, not the conjunct**, and that is routed rather than decided here.
+D-183's reading of D-153 was right — a guard whose failure is a silent `rollback` under `UNCLASSIFIED` pins nothing — and it applies here to a guard that catches only out-of-contract behavior. **That is exactly the machinery `CONTRIBUTING.md` §Definition of success refuses**: the state is not reachable through correct use, so the first limb fails and the second is never reached. **Q-27 is withdrawn.** The nested ingress it named is benign from every legal position, executed, and out of contract from the only position where it is not.
 
 ---
 
@@ -109,8 +103,10 @@ Independent of the pin, and no defect found. `bench/size/measure.ts` declares se
 
 ## Scope
 
-**Covered, executed:** the pre-`arm` window for all five `BehaviorContext` members at `ea6e400e3`; the destroy-during-`createFramePart` and destroy-from-factory-body paths; the nested-ingress falsifier on two compositions (a custom command type and `focusin`), against both the tree and the D-183 mutant; `#spec`'s five assignment sites and the publication order behind D-182 (4); the control instrument's iteration and the obligations register's numbering and rule (b); `decisions.node.test.ts`'s witness matcher.
+**Covered, executed:** the pre-`arm` window for all five `BehaviorContext` members at `ea6e400e3`; the destroy-during-`createFramePart` and destroy-from-factory-body paths; the nested-ingress path from all three candidate positions — `action.prepare`, `action.effect` and `activation.effect` — on two compositions, against both the tree and the conjunct-deleted mutant; `#spec`'s five assignment sites and the publication order behind D-182 (4); the control instrument's iteration and the obligations register's numbering and rule (b); `decisions.node.test.ts`'s witness matcher.
 
 **Covered, read:** every `#begin()`, `#preparationValid()`, `#retireOperation` and `#runPhysicalTeardown` call site; `ExecutionBracket` in full; `FrameTransaction` in full; `arm()` and its unwind.
 
-**Not covered:** the fifteen tabulated instrument mutations, the byte table and the timing medians, all of which the final round executed and none of which this artifact reopens; `retire(reset)`'s ownership half, which is argued and not mutated here either; whether the missing ingress refusal has a cheap shape — routed, not designed.
+**Covered, read:** the tri-phase contract in `02` and in `seams.ts`; both shipped behaviors' `prepareAction` phase legality, their consumer-reachable idle dispatch sites and their declared `command.types`; `ItemSource`'s contract.
+
+**Not covered:** the fifteen tabulated instrument mutations, the byte table and the timing medians, all of which the final round executed and none of which this artifact reopens; `retire(reset)`'s ownership half, which is argued and not mutated here either; whether a third-party `constrain.invalidate()` or a consumer `items()` carries an explicit no-DOM-writes obligation of its own — neither can reach an ingress event in the shipped compositions, so it did not need answering here.
