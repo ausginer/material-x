@@ -2298,6 +2298,26 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-08 — Arc C withdrawn as an entity extraction: the attempts were already adjudicated, and what is left is that one of them is not state (D-188, F-400)
+
+**The inherited candidate is refused, and by decisions its own proposals read past.** _The operation owns its attempts_ proposed two moves and both were already closed: `settlementInput` → the transaction by **D-181**, in Arc B, on typing; `resolution` and `settlement` → the operation record by **D-168**, which examined that exact membership and excluded those exact fields because `#handleFailed` turns the settlement over with the operation fully alive. D-168 landed two days before the snapshot the independent model read. **The merge would also falsify the sentence that makes the record cheap** — _complete at construction… retirement drops the record rather than remembering which slots to clear_ — which the subject quotes approvingly one paragraph before proposing the fields that break it, while conceding the identity check _moves one property deeper_ and is otherwise unchanged. No proof responsibility discharged, one invariant lost.
+
+**Q-21 does not apply**, because nothing reaches into anything: `#attempts` is the kernel's own field cleared by the kernel's own method, and `operation.release()` would have to create the ownership it then satisfies. D-181 refused the same move for `#pinned` in the same terms.
+
+**What the tree offers instead is not an entity.** `#attempts.settlement` is read at exactly one site — the first conjunct of `#settlementLive` — and exists only so staleness can be answered by identity. The window that claim is about is synchronous, and every writer of the slot is a queue handler the drain refuses re-entrantly while `#running`; a `destroy()` raised inside it defers teardown at non-zero depth. **The conjunct is also subsumed**: `#retireOperation` scrubs the frames, teardown runs behind a closed bracket, and `#handleFailed` commits `REPORTING` — so the other four conjuncts already answer every writer. The only state the identity would uniquely discriminate is a nested settlement, which is what the bracket refuses.
+
+**And the failure path's `SettlementAttempt` is dead by census, not by argument** — its only reader is unreachable from that path, and `#retireAttempts()` two statements earlier has already nulled the slot, so the dummy adds nothing a `null` did not. The input beside it is intrinsic and stays; the attempt is adapter residue.
+
+**F-400 is the blocker and it is the pass's real discovery.** Deleting **both** `resolution !== attempt` conjuncts together leaves the browser project at 860 passed, while `COVERAGE.md` states every abandoned-resolver row asserts that comparison. The guards are right and reachable — the round-trip is a consumer thenable — so the repair is two kernel-harness rows, not a deletion. Single-conjunct runs could not have shown this: each half is caught by its sibling.
+
+**Sequence: F-400's rows, then the deletion, then the measurement.** The arc is a pure deletion and is expected to shrink, and **this is D-187's first exercise** — if the kernel-carrying rows land well under budget the ceilings re-base here, not at the series close, which is exactly the coupling D-187 severed. The five suspended controls stay suspended.
+
+**Withdrawing an arc is an act and it is performed here** (register rule (b), as D-187 amended it). The series is three arcs rather than four, **Arc D is still its last member, so O-13's boundary does not move**, and nothing booked to it is re-booked. The letter is retired rather than reassigned.
+
+**No production code, no test and no measurement.** Every mutation ran in a detached worktree that was byte-clean before removal.
+
+---
+
 ### 2026-09-08 — Q-28 settled: a boundary may restore an instrument and may never spend one, and a suspension states what it withdraws (D-187)
 
 **One routed question, and the answer is not the one the routing expected.** Q-28 asked whether O-13's _at the close of the arc series_ is acceptable against §18's preference for an observer-met condition over a schedule. **The trigger stands.** §18's reason is that a schedule discharges itself with nobody standing at it, and a close is performed — the register's own rule (b) already says the pass that performs a close is what observes it. The discriminator is that the boundary's **abandonment** is an act too: Arc D landing is a pass, Arc D being given up is a decision, and neither arrives unattended. Rule (b) gains that half, so no row can be left pointing at a destination that will never come.
