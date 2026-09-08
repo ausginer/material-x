@@ -140,14 +140,13 @@ export type Composition = Readonly<{
    * Omitted on a row a pass is expected to move, which is every row that
    * carries the behavior under change.
    *
-   * **That is why only two rows declare one at present.** Every kernel-tier
-   * pass is expected to move all five kernel-carrying rows, so re-declaring
-   * them after each one produces a figure read off the result rather than a
-   * prediction the next pass can fail. The five are suspended for the whole
-   * kernel arc series and restored with fresh exact figures when the last arc
-   * lands (`obligations.md` O-13). The two that remain carry no kernel, and
-   * they are what still detects a kernel symbol reaching a composition that
-   * should not have one.
+   * **Five rows have theirs suspended**, the kernel-carrying ones. Every
+   * kernel-tier pass is expected to move all five, so re-declaring them after
+   * each one produces a figure read off the result rather than a prediction
+   * the next pass can fail; they are omitted for the whole kernel arc series
+   * and restored with fresh exact figures when the last arc lands. What the
+   * suspension withdraws, and the boundary that returns it, are stated at
+   * `obligations.md` O-13.
    */
   control?: number;
   /**

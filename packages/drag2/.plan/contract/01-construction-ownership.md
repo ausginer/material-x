@@ -131,7 +131,7 @@ const controller = sortable(
 
 ## `BehaviorContext`
 
-The whole construction-time surface. **Seven** members, none of which lets the behavior drive a transition. (D-2) It said _six_ from Revision 2 until D-170 step 6, which counts `closed` — a member D-53 added and this section's own list has always carried.
+The whole construction-time surface. **Seven** members, none of which lets the behavior drive a transition. (D-2) It said _six_ from Revision 2 until D-170 step 6, which counts `closed` — a member D-53 added and the list below carries.
 
 **It is an interface the kernel implements, and the object a behavior holds is the kernel itself under this type** (D-170 §The behavior-facing interface). There is no second runtime object: the same arrangement `LifetimeScope`/`Lifetime` and `BehaviorLiftSession`/`VisualLiftSession` already use one and two tiers down, where one physical object arrives under the type its recipient is granted. Members are **positively selected**, so a member added to the kernel later is kernel-only until this interface names it.
 
@@ -180,6 +180,18 @@ interface BehaviorContext {
    * the reporter lives.
    */
   fail(stage: FailureStage, error: unknown): void; // `FailureStage` is kernel-tier vocabulary (D-64)
+
+  /**
+   * **Is this controller logically closed?** The only sanctioned liveness
+   * reading, and the latch itself rather than a proxy for it (D-53): physical
+   * teardown is deferred to the transaction boundary, so
+   * `presentation.signal.aborted`, a disposed session and a detached node all
+   * **lag** the logical close.
+   *
+   * Readonly by construction — a behavior may consult the latch, never set
+   * it.
+   */
+  readonly closed: boolean;
 
   /**
    * Base controller methods, for the behavior to publish on its controller.
@@ -391,7 +403,7 @@ Inertness alone is not quite enough, so two unwinds are also normative:
 
   **D-45 adds an ordering rule that shrinks what can need unwinding: installers are invoked _after_ the merge completes.** The assembler collects fragments, merges by slot, derives defaults, and only then materializes. So a capability that loses a last-wins slot — a second `y()` overriding the first, a preset's `axis` overridden by the call site's — is **never constructed**, and there is nothing to unwind for it. Unwinding covers the installers that actually ran, which after the merge is at most one per capability slot plus the whole `plugins` array. Merge-first is also what makes the losing installer's absence observable as a non-event rather than as an acquire/release pair.
 
-- **`arm()` unwinds, and both of its exits reach the unwind.** If either frame factory, the frame-part validation, the shape assertion, the static-configuration validation or any ingress attachment throws, `arm()` calls `spec.retire()` best-effort, scrubs whichever frame exists, aborts ingress, and rethrows. **A `destroy()` raised from inside a frame-part factory is the same situation without the throw**: `arm()` composes no further frame part once the terminal latch is closed, runs the same unwind over whichever frames it has composed, and returns instead of rethrowing, because a consumer asking to be destroyed is not an error. A controller is never returned half-armed, and never returned holding a behavior that was never retired.
+- **`arm()` unwinds, and both of its exits reach the unwind.** If either frame factory, the static-configuration validation or any ingress attachment throws, `arm()` calls `spec.retire()` best-effort, scrubs whichever frame exists, aborts ingress, and rethrows. **A `destroy()` raised from inside a frame-part factory is the same situation without the throw**: `arm()` composes no further frame part once the terminal latch is closed, runs the same unwind over whichever frames it has composed, and returns instead of rethrowing, because a consumer asking to be destroyed is not an error. A controller is never returned half-armed, and never returned holding a behavior that was never retired.
 
   **The window belongs to `arm()` because the spec does.** `#spec` is published last, after both frames exist, so that a teardown reaching a frame reset always finds a composed pair; it is therefore not yet a name for the behavior while the frames are being composed, and teardown's steps 3 to 6 cannot see one there. The spec is an argument of `arm()` for the whole of that window, which is why the frame reset takes the behavior as a parameter instead of reading the field.
 

@@ -5,6 +5,7 @@ import type {
 } from '../../src/kernel/errors.ts';
 import { FAILURE_RENDERER_WRITE } from '../../src/kernel/failures.ts';
 import { LIFT_FLAT } from '../../src/kernel/presentation.ts';
+import { POINTER_DOWN } from '../../src/kernel/protocol.ts';
 import type {
   BehaviorContext,
   BehaviorSpec,
@@ -176,12 +177,41 @@ describe('the construction window', () => {
     ]);
   });
 
+  it('should unwind both frames when the second frame-part factory destroys the controller', () => {
+    // The terminal latch is what decides this branch. Both compositions
+    // completed, so both frames physically exist and neither guard on the
+    // unwind is what stops the controller arming over a closed latch — the
+    // latch test itself is, and it is the only conjunct that can be false
+    // here.
+    const recorder = arm(
+      () => {},
+      (kernel, call) => {
+        if (call === 2) {
+          void kernel.destroy();
+        }
+      },
+    );
+
+    expect([recorder.resetFramePart(), recorder.retire()]).toEqual([2, 1]);
+  });
+
   it('should compose no frame part and still retire when the factory body destroys the controller', () => {
     const recorder = arm((kernel) => {
       void kernel.destroy();
     });
 
     expect([recorder.createFramePart(), recorder.retire()]).toEqual([0, 1]);
+  });
+
+  it('should reset no frame part when the factory body destroys the controller', () => {
+    // Nothing was composed, so nothing may be handed to `resetFramePart`: a
+    // reset of the frame the unwind does not hold would call the behavior's
+    // own member with a value its declaration says is a `Frame<Part>`.
+    const recorder = arm((kernel) => {
+      void kernel.destroy();
+    });
+
+    expect(recorder.resetFramePart()).toBe(0);
   });
 
   it('should demote a fail() raised from the factory body instead of throwing', () => {
@@ -224,6 +254,25 @@ describe('the construction window', () => {
         (spec) => ({
           ...spec,
           config: { ...spec.config, actionTags: -1 },
+        }),
+      ),
+    ).toThrow(TypeError);
+  });
+
+  it('should refuse a colliding command type even when the factory destroyed the controller', () => {
+    // The second half of the static validation, and it is refused on the same
+    // terms as `actionTags`: a `command` type colliding with the kernel's own
+    // pointer ingress is a fact about the spec, and the controller's liveness
+    // does not decide whether the author is told about it.
+    expect(() =>
+      arm(
+        (kernel) => {
+          void kernel.destroy();
+        },
+        undefined,
+        (spec) => ({
+          ...spec,
+          command: { types: [POINTER_DOWN], admit: () => null },
         }),
       ),
     ).toThrow(TypeError);

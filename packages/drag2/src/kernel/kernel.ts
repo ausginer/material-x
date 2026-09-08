@@ -2488,10 +2488,14 @@ export class Kernel<
         draft = Object.assign(frame(), next.createFramePart());
       }
 
-      // **Both frames exist and the latch is open**, which the tests above
-      // already decide; naming the pair is what lets the compiler see it too.
-      if (current && draft && !this.#bracket.closed) {
-        this.#frames = new FrameTransaction(current, draft);
+      // **The latch decides this branch alone, and the pair is not named
+      // beside it.** `ExecutionBracket` closes at one site and never reopens,
+      // so an open latch here is an open latch at both tests above, and both
+      // compositions ran: the assertions below are what the monotonic latch
+      // already establishes, and testing the frames again would only pay
+      // runtime for a narrowing the compiler is the one party needing.
+      if (!this.#bracket.closed) {
+        this.#frames = new FrameTransaction(current!, draft!);
         this.#driver = new SeamDriver<Part>(
           this.#frames,
           () => this.#preparationValid(),

@@ -72,10 +72,9 @@ export interface BehaviorContext {
    * outside one is downgraded to a platform report, because a late continuation
    * from operation A could otherwise classify a failure against operation B.
    *
-   * **Outside one includes the whole of construction.** The factory body and
-   * the frame-part factories are outside every seam, so a call from either
-   * takes the same demotion — silently, because the report travels through the
-   * behavior's own `reportError`, which is not published yet.
+   * **The demotion is silent until the behavior is armed**: the report travels
+   * through the behavior's own `reportError`, which the kernel does not hold
+   * until arming completes.
    */
   fail(stage: FailureStage, error: unknown): void;
 
@@ -99,8 +98,7 @@ export interface BehaviorContext {
    * consumer's `controller.cancel` may be pulled off and passed on, so the
    * behavior publishes a closure over this call rather than the member itself.
    *
-   * An idle cancel is a no-op that leaves no latch, and there is no operation
-   * anywhere in construction, so a call from there is that no-op.
+   * An idle cancel is a no-op that leaves no latch.
    */
   cancel(reason?: unknown): void;
 
@@ -113,10 +111,9 @@ export interface BehaviorContext {
    * Idempotent: repeated destruction closes nothing further and every returned
    * promise still settles exactly once.
    *
-   * **A call during construction closes on the statement like any other**, and
-   * the teardown it owes runs whether or not the controller was ever armed: a
-   * behavior that reached this point is retired exactly once, and no further
-   * frame part is composed.
+   * **The teardown it owes runs whether or not the controller was ever armed**:
+   * a behavior the kernel has taken is retired exactly once, and no frame part
+   * is composed after the latch closes.
    */
   destroy(): Promise<void>;
 }
