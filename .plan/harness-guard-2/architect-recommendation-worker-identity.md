@@ -95,6 +95,17 @@ No `subagent_type`, no `customAgentType`, no parent agent id, no model, and no
 identifier shared with the dispatching call. Two carriers therefore exist, and
 only two.
 
+**The observed `agent_type` also contradicts the documented one.** The hooks
+reference defines `agent_type` as "Agent name (for example, `"Explore"` or
+`"security-reviewer"`)", and the sub-agents reference attaches that to the
+**definition's** frontmatter `name` — "Unique identifier using lowercase letters
+and hyphens. Hooks receive this value as `agent_type`." Nothing documents the
+Agent tool's runtime `name` parameter displacing it, and nothing documents the
+de-duplication that rewrites a requested name. So the teammate path is not
+merely undocumented: it reports a value the documentation says that field does
+not hold. That is worth reporting upstream on its own, independently of what is
+built here, and it is why the documented field cannot be trusted as it stands.
+
 ### Carrier A — a guard-owned ledger written at the dispatching `PreToolUse`
 
 Trustworthy provenance: the guard writes it itself, at an event it already
@@ -164,10 +175,12 @@ dissolves rather than being answered.
   exists.
 - **Worker completion** — the record persists. Nothing is consumed, so nothing
   can be consumed twice or too early.
-- **Resume** — verified stable: the arcb `reviewer` resumed via `SendMessage`
-  kept `agent_id` `aarcb-rem-reviewer-a649572ecba89ff0` and re-fired
-  `SubagentStart`. Resumed and newly created workers need no separate treatment,
-  because `agent_id` is the key in both cases and a resume selects no role.
+- **Resume** — verified stable, and documented: the arcb `reviewer` resumed via
+  `SendMessage` kept `agent_id` `aarcb-rem-reviewer-a649572ecba89ff0` and
+  re-fired `SubagentStart`, and the sub-agents documentation states that
+  "Resuming starts a new run of the agent under the same ID". Resumed and newly
+  created workers need no separate treatment, because `agent_id` is the key in
+  both cases and a resume selects no role.
 - **Name reuse** — irrelevant. Two workers that requested the same name have
   different `agent_id`s and different records.
 - **Session boundary** — the record lives under the session's own directory, so
@@ -307,19 +320,31 @@ property.
 
 ## Open questions for the owner
 
-1. **The per-agent record is undocumented.** Its layout was established
-   empirically here, and it has already changed shape once within this
-   repository's own history — the subagent form carries `toolUseId` and no
-   `customAgentType`, the teammate form the reverse. Depending on it is a
-   deliberate acceptance of an unstable interface in exchange for the only exact
-   join available. The durable fix is upstream: a first-class `subagent_type` on
-   `SubagentStart` and on child `PreToolUse`. Worth requesting regardless of
-   what is built here.
-2. **Whether a worker spawned outside a model tool call** — a UI-initiated
+1. **The per-agent record is undocumented.** Confirmed against the published
+   documentation, which does not mention these files at all and describes only
+   the `.jsonl` transcripts beside them. Its layout was established empirically
+   here, and it has already changed shape once within this repository's own
+   history — the subagent form carries `toolUseId` and no `customAgentType`, the
+   teammate form the reverse. Depending on it is a deliberate acceptance of an
+   unstable interface in exchange for the only exact join available. The durable
+   fix is upstream: a first-class `subagent_type` on `SubagentStart` and on child
+   `PreToolUse`. Worth requesting regardless of what is built here, and now with
+   a sharper case, since the field that exists reports something the
+   documentation says it does not.
+2. **A possible first-class carrier that may already be coming.** A secondary
+   search suggested the documentation lists an `agent_config` object on
+   `SubagentStart`. It could not be confirmed — the page truncated before the
+   event's own section — and **no such field is present in `2.1.263`**: the raw
+   `SubagentStart` payload captured here carries eight fields and `agent_config`
+   is not among them, nor is the `permission_mode` the same search reported.
+   Whoever implements this should re-check that field on the next runtime
+   upgrade. If it lands and names the selected role, it supersedes the per-agent
+   record entirely and this design should be withdrawn in its favour.
+3. **Whether a worker spawned outside a model tool call** — a UI-initiated
    teammate, for instance — produces the same record. Unprobed. If it does not,
    such workers deny under this design. That is the correct direction, but the
    owner should decide whether it is an acceptable cost.
-3. **Where this artifact belongs.** It is placed in a new `.plan/harness-guard-2/`
+4. **Where this artifact belongs.** It is placed in a new `.plan/harness-guard-2/`
    alongside the existing `.plan/reviews/harness-guard-1/`, on the grounds that
    it is a record of a second harness episode rather than a review round or an
    owner amendment. Cheap to move.
