@@ -134,14 +134,13 @@ type ResolutionAttempt = {
 };
 
 /**
- * The open settlement's identity, and the one measurement it took.
+ * The one measurement a settlement takes, carried from where it is read to
+ * where it is spent.
  *
- * It lives here rather than on the transactional frame because nothing outside
- * {@link Kernel}'s settlement helpers reads it, it is unobservable, and
- * it is per-settlement rather than per-operation. **Holding it is what makes
- * staleness answerable by identity**: everything between the measurement and
- * the join runs behavior code, and a settlement that has been replaced in the
- * meantime is a different object rather than a different flag.
+ * It travels as an argument rather than on the transactional frame or in a
+ * slot: nothing outside {@link Kernel}'s settlement helpers reads it, it is
+ * unobservable, and its whole life is the synchronous span from the
+ * measurement to the join.
  */
 type SettlementAttempt = {
   /**
@@ -250,7 +249,7 @@ type FailureCheckpoint = Readonly<{
 /**
  * **The attempt lifetime, as a record.**
  *
- * Three correlated slots, minted per round-trip and cleared together. They are
+ * Two correlated slots, minted per round-trip and cleared together. They are
  * grouped because a class has one flat namespace for instance state: on `this`
  * a slot that lives for one settlement and a slot that lives for the
  * controller read identically, and the record is what keeps the difference
@@ -258,7 +257,6 @@ type FailureCheckpoint = Readonly<{
  */
 type AttemptSlots = {
   resolution: ResolutionAttempt | null;
-  settlement: SettlementAttempt | null;
   /** The input the open settlement seam is driving. Seams are non-reentrant. */
   settlementInput: SettlementInput | null;
 };
@@ -364,16 +362,15 @@ export class Kernel<
   #activation: ActivationRecord | null = null;
 
   /**
-   * **The attempt lifetime, named rather than spread across three fields.**
+   * **The attempt lifetime, named rather than spread across two fields.**
    *
    * `this` is one flat namespace, so a slot that lives for one round-trip and
    * a slot that lives for the controller read identically once both are on it.
-   * These three do not: they are minted per attempt, correlated, and cleared
+   * These two do not: they are minted per attempt, correlated, and cleared
    * together, and the record is what says so where a field list could not.
    */
   readonly #attempts: AttemptSlots = {
     resolution: null,
-    settlement: null,
     settlementInput: null,
   };
 
@@ -492,7 +489,6 @@ export class Kernel<
   #retireAttempts(): void {
     this.#attempts.resolution = null;
     this.#attempts.settlementInput = null;
-    this.#attempts.settlement = null;
   }
 
   /**
@@ -1371,13 +1367,12 @@ export class Kernel<
   };
 
   /**
-   * Whether the attempt still owns a live operation in `SETTLING`. Checked
-   * after `anchorTarget`, which is behavior code and may have destroyed the
+   * Whether a live operation is still in `SETTLING`. Checked after
+   * `anchorTarget`, which is behavior code and may have destroyed the
    * controller.
    */
-  #settlementLive(attempt: SettlementAttempt): boolean {
+  #settlementLive(): boolean {
     return (
-      this.#attempts.settlement === attempt &&
       !this.#bracket.closed &&
       !this.#operation?.cancelRequest &&
       this.#frames.current.operation !== null &&
@@ -1436,7 +1431,7 @@ export class Kernel<
     // `anchorTarget` is behavior code and may have destroyed the controller. A
     // destroyed controller must not go on to join a settlement, so this is
     // checked before the skip branch as well as after a successful reading.
-    if (!this.#settlementLive(attempt)) {
+    if (!this.#settlementLive()) {
       return false;
     }
 
@@ -1666,8 +1661,6 @@ export class Kernel<
     this.#attempts.settlementInput = input;
 
     const attempt: SettlementAttempt = { targetX: null, targetY: 0 };
-
-    this.#attempts.settlement = attempt;
 
     const outcome = this.#driver.runCore(
       this.#settlementTransition,
@@ -2116,8 +2109,9 @@ export class Kernel<
       return;
     }
 
-    // The settlement is **replaced**: whatever the previous attempt measured
-    // is over, and nothing of it may reach the join.
+    // The open round-trip is **abandoned**: a resolution that settles after
+    // this validates against an empty slot, and the input the seam below drives
+    // is this failure's rather than whatever preceded it.
     this.#retireAttempts();
 
     this.#attempts.settlementInput = {
@@ -2142,17 +2136,14 @@ export class Kernel<
       report: new DraggableError(checkpoint.stage, checkpoint.error),
     };
 
-    // **The settlement is replaced, and this one never lands.** The report
-    // runs through the same seam and stops there: nothing measures and nothing
-    // joins, and the terminal is published from `ERROR_REPORTED` instead.
-    this.#attempts.settlement = { targetX: null, targetY: 0 };
-
     // The same seam as an ordinary settlement, because the behavior owns the
     // terminal classification either way — but committing `REPORTING`, not
     // `SETTLING`: `onError` runs in its own phase, exactly once per failure.
     // The input carries the stage, which is what lets the behavior distinguish
     // the recoveries the stage table separates (`TERMINAL_CALLBACK` is "none",
-    // the rest immediate).
+    // the rest immediate). **This report never lands**: nothing measures and
+    // nothing joins here, and the terminal is published from `ERROR_REPORTED`
+    // below.
     //
     // A throw or a rejection inside this seam cannot become another checkpoint:
     // `failOperation` sees the latch and reports instead. The seam still

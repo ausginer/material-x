@@ -432,8 +432,9 @@ Steps 2–7 are the physical teardown. They run at the transaction boundary when
 ```text
 2. clear the queue, drop every retained argument (bracket)
 3. retire kernel attempts, **each step best-effort and individually wrapped**:
-   abort an uncompleted resolution and clear its settlement; drop the
-   settlement attempt entirely                                        (kernel)
+   drop the resolution attempt, so a completion arriving after this
+   validates against an empty slot, and clear the input the settlement
+   seam was driving                                                   (kernel)
    ── the landing tail is NOT retired here. It is controller-scoped and
       outlives the operation deliberately, so it is cancelled at step 7 with
       the ingress abort, beside the click suppressor.        [D-155] ──

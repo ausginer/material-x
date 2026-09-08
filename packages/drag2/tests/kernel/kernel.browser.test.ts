@@ -1687,8 +1687,8 @@ describe('the resolution round-trip', () => {
   });
 
   it('should not surface an abandoned resolver’s late rejection to the page', async () => {
-    // **The observable, not the mechanism** (probe A). Every other row here
-    // asserts the slot comparison `resolution !== attempt`, which is how the
+    // **The observable, not the mechanism** (probe A). The two rows below
+    // assert the slot comparison `resolution !== attempt`, which is how the
     // library ignores a stale settlement. What a consumer actually *sees* if
     // that ignoring is done by dropping the subscription is an
     // `unhandledrejection` in their console, from a promise they handed the
@@ -1795,6 +1795,87 @@ describe('the resolution round-trip', () => {
     await flush();
 
     expect(harness.settlements).toEqual([]);
+  });
+
+  it('should refuse a completion whose slot turned over before it settled', () => {
+    let signal!: AbortSignal;
+    let complete!: (value: unknown) => void;
+    const harness = createHarness({
+      release: releaseWith((given) => {
+        signal = given;
+
+        // Subscribed to, and completed from inside the settlement below —
+        // where the slot `openSettlement` cleared on its way in is already
+        // empty and this resolver's signal is still open.
+        return {
+          then(onFulfilled: (value: unknown) => void): void {
+            complete = onFulfilled;
+          },
+        };
+      }),
+      settlement: {
+        prepare: (_draft, input): PreparedSettlement => {
+          if (input.type === SETTLED_CANCELED) {
+            complete('verdict');
+            // A settlement the behavior finds no coherent answer for throws,
+            // and a preparation that failed commits nothing: the effect that
+            // releases the operation's lifetimes never runs, so the abort is
+            // still owed when the report below closes them.
+            throw new Error('no coherent settlement');
+          }
+
+          return true;
+        },
+        effect: (): void => {},
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+    harness.controller.cancel('abandoned');
+
+    // **The producer half of the double validation, alone.** The completion
+    // named an attempt the slot no longer held, so it was refused where it
+    // settled and never latched `completed` — which is what leaves the
+    // resolver's own abort to fire (I-4).
+    expect(signal.aborted).toBe(true);
+  });
+
+  it('should refuse a completion whose slot turned over before it was applied', () => {
+    const harness = createHarness({
+      release: releaseWith((): string => {
+        // Queued ahead of the completion this release settles, so the slot
+        // turns over between the settle and the application of it.
+        harness.kernel.cancel('abandoned');
+        return 'verdict';
+      }),
+      settlement: {
+        prepare: (_draft, input): PreparedSettlement => {
+          harness.settlements.push(input);
+
+          if (input.type === SETTLED_CANCELED) {
+            // Nothing commits, so the phase is still `RELEASING` when the
+            // completion behind this is applied — the window in which the
+            // slot comparison is the only thing that answers.
+            throw new Error('no coherent settlement');
+          }
+
+          return true;
+        },
+        effect: (): void => {},
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    // **The applied half of the double validation, alone.** The completion
+    // owned the slot when it settled and lost it to the cancel's settlement
+    // before it was applied; the phase check sees `RELEASING` and passes it.
+    expect(harness.settlements.map((input) => input.type)).toEqual([
+      SETTLED_CANCELED,
+      SETTLED_FAILED,
+    ]);
   });
 });
 
