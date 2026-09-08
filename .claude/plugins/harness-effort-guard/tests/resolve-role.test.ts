@@ -31,6 +31,35 @@ describe('resolveRole', () => {
     strictEqual((await resolveRole(root, 'architect')).kind, 'undeclared');
   });
 
+  // The declared model is part of the role contract the guard asserts, so the
+  // resolution carries it beside the level rather than leaving a second read of
+  // the same file to whoever needs it.
+  it('should carry the declared model beside the declared effort', async () => {
+    const root = await project({
+      'integrity.md': definition(
+        'name: integrity\nmodel: sonnet\neffort: high',
+      ),
+    });
+    const resolution = await resolveRole(root, 'integrity');
+
+    strictEqual(
+      resolution.kind !== 'out-of-domain' ? resolution.model : null,
+      'sonnet',
+    );
+  });
+
+  it('should carry no model for a definition that declares none', async () => {
+    const root = await project({
+      'cleanup.md': definition('name: cleanup\neffort: medium'),
+    });
+    const resolution = await resolveRole(root, 'cleanup');
+
+    strictEqual(
+      resolution.kind !== 'out-of-domain' ? resolution.model : 'unset',
+      null,
+    );
+  });
+
   it('should report a name it does not own as out-of-domain', async () => {
     const root = await project({
       'architect.md': definition('name: architect\neffort: high'),

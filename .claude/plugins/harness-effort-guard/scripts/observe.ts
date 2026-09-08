@@ -1,5 +1,7 @@
 import { appendFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import type { IdentitySource } from './identity.ts';
+import type { ModelCheck } from './verdict.ts';
 
 /**
  * One line of the observation log.
@@ -32,7 +34,15 @@ export type Record =
       event: string;
       session_id: string;
       agent_id?: string;
+      /** What the runtime called this actor, kept verbatim beside the resolved role. */
       agent_type?: string;
+      /**
+       * The role the harness holds this actor to. Absent where none was
+       * established — a session carrying no role, or a child whose identity is
+       * deferred to its first enforceable event.
+       */
+      governed_role?: string;
+      identity_source: IdentitySource;
       model?: string;
       project_root: string | null;
       worktree: boolean;
@@ -47,6 +57,8 @@ export type Record =
       session_id: string;
       agent_id?: string;
       agent_type?: string;
+      governed_role?: string;
+      identity_source: IdentitySource;
       model?: string;
       project_root: string | null;
       worktree: boolean;
@@ -60,6 +72,18 @@ export type Record =
        * that it was not a call that chooses.
        */
       dispatch_target?: string;
+      /** The address a spawning call assigned, absent where it assigned none. */
+      dispatch_name?: string;
+      /** The model a spawning call explicitly asked for, absent where it asked for none. */
+      dispatch_model?: string;
+      /** The model the acting role's definition declares, null where it declares none. */
+      declared_model: string | null;
+      /**
+       * The model the runtime recorded for this actor, absent where the record
+       * shape carries none. Absent is why `model_check` can say `unverified`.
+       */
+      runtime_model?: string;
+      model_check: ModelCheck;
       actual: string | null;
       decision: 'allow' | 'deny';
       cause: string;

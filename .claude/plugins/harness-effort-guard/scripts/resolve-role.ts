@@ -16,9 +16,20 @@ import { dirname, join, parse, resolve } from 'node:path';
  * `exempt` is one that owes none.
  */
 export type Resolution =
-  | Readonly<{ kind: 'declared'; role: string; effort: string; file: string }>
-  | Readonly<{ kind: 'undeclared'; role: string; file: string }>
-  | Readonly<{ kind: 'exempt'; role: string; file: string }>
+  | Readonly<{
+      kind: 'declared';
+      role: string;
+      model: string | null;
+      effort: string;
+      file: string;
+    }>
+  | Readonly<{
+      kind: 'undeclared';
+      role: string;
+      model: string | null;
+      file: string;
+    }>
+  | Readonly<{ kind: 'exempt'; role: string; model: string; file: string }>
   | Readonly<{ kind: 'out-of-domain'; role: string }>;
 
 type Definition = Readonly<{
@@ -244,12 +255,18 @@ export async function resolveRole(
       );
     }
 
-    return { kind: 'exempt', role, file: entry.file };
+    return { kind: 'exempt', role, model: EFFORTLESS_MODEL, file: entry.file };
   }
 
   return entry.effort == null
-    ? { kind: 'undeclared', role, file: entry.file }
-    : { kind: 'declared', role, effort: entry.effort, file: entry.file };
+    ? { kind: 'undeclared', role, model: entry.model, file: entry.file }
+    : {
+        kind: 'declared',
+        role,
+        model: entry.model,
+        effort: entry.effort,
+        file: entry.file,
+      };
 }
 
 /**

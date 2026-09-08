@@ -139,3 +139,31 @@ export async function run(
     stderr: Buffer.concat(err).toString('utf8'),
   };
 }
+
+/**
+ * The runtime's per-agent record for one child worker, written where the guard
+ * derives its location from: beside the session transcript, under a directory
+ * named for the transcript itself.
+ *
+ * Returns the `transcript_path` a hook payload would carry, which is the only
+ * path the guard is given and the only one it may locate the record from.
+ * `record` is written verbatim so a case can state a malformed shape as easily
+ * as a well-formed one.
+ */
+export async function childRecord(
+  root: string,
+  agentId: string,
+  record: string | null,
+  session = 'session-1',
+): Promise<string> {
+  const transcripts = join(root, 'transcripts');
+  const dir = join(transcripts, session, 'subagents');
+
+  await mkdir(dir, { recursive: true });
+
+  if (record != null) {
+    await writeFile(join(dir, `agent-${agentId}.meta.json`), record);
+  }
+
+  return join(transcripts, `${session}.jsonl`);
+}

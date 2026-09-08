@@ -4,8 +4,9 @@ import {
   resolveRole,
   type Resolution,
 } from './resolve-role.ts';
+import { readChildIdentity, type IdentitySource } from './identity.ts';
 import { observe } from './observe.ts';
-import { appliedNotice, judge, type Check } from './verdict.ts';
+import { appliedNotice, checkModel, judge, type Check } from './verdict.ts';
 
 /**
  * Events that carry `effort` by contract, and so may produce a verdict.
@@ -48,11 +49,30 @@ type HookInput = Readonly<{
   hook_event_name: string;
   session_id: string;
   cwd: string;
+  /**
+   * The session transcript, and the only path the per-agent records are located
+   * from: the session's workers are recorded beside it, under a directory named
+   * for the transcript itself.
+   */
+  transcript_path?: string;
+  /**
+   * Present on every event of a child worker and on no main-thread event, which
+   * is what separates the two identity rules.
+   */
   agent_id?: string;
+  /**
+   * What the runtime calls this actor. The acting role for a main thread, and
+   * on one spawn path the worker's assigned address rather than its role, which
+   * is why a child's role is read from its per-agent record instead.
+   */
   agent_type?: string;
   model?: string;
   tool_name?: string;
-  tool_input?: Readonly<{ subagent_type?: string; name?: string }>;
+  tool_input?: Readonly<{
+    subagent_type?: string;
+    name?: string;
+    model?: string;
+  }>;
   effort?: Readonly<{ level: string }>;
 }>;
 
@@ -148,10 +168,36 @@ const main = async (): Promise<void> => {
 
   const enforcing = process.env.HARNESS_EFFORT_GUARD_MODE === 'enforce';
   const poisoned = process.env.CLAUDE_CODE_EFFORT_LEVEL != null;
-  const role = input.agent_type;
+  const reported = input.agent_type;
+  const agentId = input.agent_id;
+  const effortBearing = EFFORT_BEARING.has(input.hook_event_name);
+  const spawning = input.tool_name != null && SPAWN_TOOLS.has(input.tool_name);
+  const assignedName = spawning ? input.tool_input?.name : undefined;
+  const target = spawning
+    ? (input.tool_input?.subagent_type ?? DEFAULT_SUBAGENT)
+    : undefined;
+  // Decided by the payload alone, so it is recorded even when reading the
+  // record fails: which rule was meant to govern this event is evidence in its
+  // own right, and a failure to apply it must not also erase it.
+  const source: IdentitySource =
+    agentId == null
+      ? 'agent-type'
+      : effortBearing
+        ? 'agent-record'
+        : 'deferred';
 
   let root: string | null = null;
   let worktree = false;
+  // A main thread was started with --agent, so what the runtime reports is the
+  // role it was given, and reading it depends on no filesystem. Assigned here
+  // rather than beside the child rule so that a root discovery that fails still
+  // leaves an acting role to deny — with no role, the verdict is the `no-role`
+  // allow, and the guard's own failure would pass unremarked.
+  let role: string | undefined = agentId == null ? reported : undefined;
+  let runtimeModel: string | undefined;
+  let identityError: string | undefined;
+  let targetModel: string | undefined;
+  let nameClaimsRole = false;
   let resolution: Resolution | undefined;
   let error: string | undefined;
 
@@ -166,6 +212,23 @@ const main = async (): Promise<void> => {
     root = process.env.CLAUDE_PROJECT_DIR ?? (await findProjectRoot(input.cwd));
     worktree = root != null && (await isLinkedWorktree(root));
 
+    // A child's role is never the reported `agent_type`: on one spawn path that
+    // field holds the worker's address. At SubagentStart the record does not
+    // exist yet, and that event cannot deny, so identity is simply deferred to
+    // the first enforceable event — resolving the address as an out-of-domain
+    // role instead would make the log assert a falsehood about a worker that is
+    // in fact governed.
+    if (agentId != null && effortBearing) {
+      try {
+        const child = await readChildIdentity(input.transcript_path, agentId);
+
+        role = child.role;
+        runtimeModel = child.model;
+      } catch (cause) {
+        identityError = cause instanceof Error ? cause.message : String(cause);
+      }
+    }
+
     if (role != null) {
       // No root is an empty domain, not a failure: a tree that declares no
       // roles has nothing to hold this one to. Being unable to look is a
@@ -175,17 +238,44 @@ const main = async (): Promise<void> => {
           ? { kind: 'out-of-domain', role }
           : await resolveRole(root, role);
     }
+
+    if (spawning && root != null && target != null) {
+      // The selected role's own declaration, so an override that contradicts it
+      // is refusable before the worker exists — the one point at which the
+      // model contract needs nothing observed about a running child.
+      const selected = await resolveRole(root, target);
+
+      targetModel =
+        selected.kind === 'out-of-domain'
+          ? undefined
+          : (selected.model ?? undefined);
+
+      nameClaimsRole =
+        assignedName != null &&
+        (await resolveRole(root, assignedName)).kind !== 'out-of-domain';
+    }
   } catch (cause) {
     error = cause instanceof Error ? cause.message : String(cause);
   }
 
   const declared = resolution?.kind === 'declared' ? resolution.effort : null;
+  const declaredModel =
+    resolution != null && resolution.kind !== 'out-of-domain'
+      ? resolution.model
+      : null;
   const shared = {
     at: new Date().toISOString(),
     event: input.hook_event_name,
     session_id: input.session_id,
-    ...(input.agent_id != null && { agent_id: input.agent_id }),
-    ...(role != null && { agent_type: role }),
+    ...(agentId != null && { agent_id: agentId }),
+    // What the runtime called this actor, kept as it arrived. The resolved role
+    // goes in its own field rather than over the top of this one: the whole
+    // failure that motivated the second field was invisible because nothing
+    // recorded a second opinion beside the first, and a log that overwrites the
+    // raw value cannot answer what the runtime said after it changes again.
+    ...(reported != null && { agent_type: reported }),
+    ...(role != null && { governed_role: role }),
+    identity_source: source,
     // Recorded on every kind of record, not lifecycle announcements alone.
     // Whether the runtime names the acting model at the decision point is what
     // decides whether the invariant can key on anything but a declaration, and
@@ -207,17 +297,19 @@ const main = async (): Promise<void> => {
     return;
   }
 
-  const spawning = input.tool_name != null && SPAWN_TOOLS.has(input.tool_name);
   const check: Check = {
     role,
+    identityError,
     resolution,
     actual: input.effort?.level,
     poisoned,
     dispatching: input.tool_name != null && DISPATCH_TOOLS.has(input.tool_name),
-    target: spawning
-      ? (input.tool_input?.subagent_type ?? DEFAULT_SUBAGENT)
-      : undefined,
-    identity: spawning ? input.tool_input?.name : undefined,
+    target,
+    assignedName,
+    nameClaimsRole,
+    requestedModel: spawning ? input.tool_input?.model : undefined,
+    targetModel,
+    runtimeModel,
     worktree,
     root,
     error,
@@ -232,6 +324,17 @@ const main = async (): Promise<void> => {
     // SubagentStart, so without this the denied dispatch would record only that
     // something was refused, and a permitted one would not say what it chose.
     ...(check.target != null && { dispatch_target: check.target }),
+    ...(check.assignedName != null && { dispatch_name: check.assignedName }),
+    ...(check.requestedModel != null && {
+      dispatch_model: check.requestedModel,
+    }),
+    declared_model: declaredModel,
+    ...(runtimeModel != null && { runtime_model: runtimeModel }),
+    // Which of the four answers the model question got, so an unverifiable
+    // check is legible as unverified rather than as a pass. Recorded on every
+    // verdict for the same reason `model` is: a field present only where it
+    // succeeds answers with the log's shape instead of the runtime's.
+    model_check: checkModel(declaredModel, runtimeModel),
     actual: input.effort?.level ?? null,
     decision: verdict.decision,
     cause: verdict.decision === 'allow' ? verdict.reason : verdict.cause,

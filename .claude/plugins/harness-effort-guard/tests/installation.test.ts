@@ -292,6 +292,22 @@ describe('direct role resolution', () => {
     strictEqual((await resolveRole(REPO_ROOT, 'Explore')).kind, 'exempt');
   });
 
+  // The model invariant is only executable where the definitions state a model,
+  // and a role that states none is outside it without saying so.
+  it('should resolve every effort-bearing role to a declared model', async () => {
+    const resolved = await Promise.all(
+      EFFORT_BEARING.map((role) => resolveRole(REPO_ROOT, role)),
+    );
+
+    resolved.forEach((resolution, index) => {
+      strictEqual(
+        resolution.kind !== 'out-of-domain' && resolution.model != null,
+        true,
+        EFFORT_BEARING[index],
+      );
+    });
+  });
+
   it('should own no role definition for the retired router', async () => {
     strictEqual(
       (await resolveRole(REPO_ROOT, 'agent-router')).kind,

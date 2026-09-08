@@ -12,6 +12,14 @@ executable truth. The guard makes it one: it compares each acting role's
 declared effort against the effective effort the runtime reports, and fails
 closed when they disagree.
 
+**It asserts three properties of the role contract, and repairs none of them** —
+the governed identity a dispatch selected, the model the selected role declares
+where the runtime lets that be observed, and the effort it declares. Model and
+effort are independent, so a worker matching one and violating the other is still
+invalid. What identity means here, and why a child's is not simply the field the
+runtime reports, is [The role-contract trust
+boundary](#the-role-contract-trust-boundary) below.
+
 It also asserts the **dispatch topology**: `consolidator` may bring into being
 only the review lenses its topology allows, and an out-of-domain substitute is
 refused before the child starts. That assertion is described in
@@ -323,6 +331,76 @@ level coincided_, because `implementer` declares `medium` and the ambient level
 is `medium`. The `architect` pair above is what separates them, and it separates
 them the other way: the level is the owner's selection, not the definition's.
 
+### Governed worker identity
+
+Taken on 2.1.263 with the plugin loaded from project settings, enforcement on,
+no `--plugin-dir`, in an interactive `implementer` session at ambient `medium`.
+The acceptance set for the role-contract repair. Each row names its instrument.
+
+**A named child resolves its governed role from its own record.** _Observation
+log._ An `Explore` worker spawned with `name: identity-probe-one` produced
+`PreToolUse agent_type: identity-probe-one, governed_role: Explore,
+identity_source: agent-record, resolution: exempt, allow`. Before the repair the
+same worker resolved `out-of-domain`, which is an allow that asserts no
+invariant. The raw address and the resolved role appear as **separate fields** in
+every record, which is the second claim.
+
+**Its announcement defers rather than guessing.** _Observation log._ The
+`SubagentStart` for that worker carries `identity_source: deferred`, no
+`governed_role`, and `resolution: no-role` — not the `out-of-domain` the address
+would have produced.
+
+**An unnamed governed lens stays on the subagent path and is checked.** _
+Observation log._ A `cleanup` worker spawned with no `name` produced
+`SubagentStart agent_type: cleanup`, then `PreToolUse governed_role: cleanup,
+identity_source: agent-record, declared: medium, actual: medium, allow, match`
+and the same at `SubagentStop`. Its record carries no model, and the verdict says
+`model_check: unverified` rather than claiming a pass.
+
+**A wrong explicit model override is refused before the child starts.**
+_Interactive denial and observation log._ An `Agent` call with
+`subagent_type: cleanup, model: opus` was blocked at the dispatcher's
+`PreToolUse` with `deny, cause: dispatch-model`, naming the declared `sonnet`
+against the requested `opus`. The run contains **no `SubagentStart` for it** — no
+worker came into existence.
+
+**A named lens reproduces the original failure, and is now refused.**
+_Observation log._ An `integrity` worker spawned with a `name` resolved
+`governed_role: integrity` from its record and produced `declared: high,
+actual: medium, deny, cause: mismatch` at its first tool call. That is the arcb
+defect reproduced live under this build — a lens declaring `high` running at the
+parent's `medium` — and it is the measurement the Review Swarm containment rests
+on. It denied rather than allowing, which is the acceptance result; nothing was
+retried or repaired.
+
+**The teammate path honours the declared model and not the declared effort.**
+_Observation log, same run._ That `integrity` worker's record reported
+`model: sonnet`, matching its declaration, so `model_check: match` while the
+effort mismatched. The arcb round's four opus lenses are therefore attributable
+to the explicit `model: opus` on those dispatches — which is now refused — rather
+than to the spawn path. A runtime-model **mismatch** was consequently not
+reproducible live without an override the guard no longer permits, so that
+denial path rests on fixtures and on the arcb records rather than on a live
+observation, and is marked as such.
+
+**`name` is not by itself the discriminator between the two spawn paths.**
+_Raw payload capture, fresh CLI process._ `claude -p` spawning `Explore` **with**
+`name: probe-carrier-one` produced a **subagent**-path worker: `agent_id`
+`ab9ce48a690e55328` with no address embedded, `agent_type: Explore`, and a record
+carrying `toolUseId` and no `customAgentType`. The architect's table reads `name`
+as selecting the teammate path; on this evidence print mode takes the subagent
+path regardless, and the interactive session above takes the teammate path with
+the same argument. The design does not depend on which trigger applies — it keys
+on `agent_id` and reads `customAgentType ?? agentType`, correct on both shapes —
+so nothing was adapted to this, and it is recorded because the trigger is not
+what the artifact says it is.
+
+**No first-class role carrier exists in 2.1.263.** _Raw payload capture._ Across
+`PreToolUse`, `SubagentStart` and `SubagentStop`, the complete field sets are as
+the architect measured: no `subagent_type`, no `customAgentType`, no
+`agent_config`. This was re-checked rather than assumed, because such a field
+arriving would supersede the private record entirely.
+
 ## Enforcement is on
 
 `.claude/settings.json` carries `env.HARNESS_EFFORT_GUARD_MODE = "enforce"`.
@@ -398,7 +476,62 @@ worker and said nothing about the field that actually selects the role. `name`
 addresses a worker for a later resume; `subagent_type` decides what it is.
 [`consolidator.md`](../../.claude/agents/consolidator.md) now names the argument
 for each lens, because the two fields are independent and a call can carry one
-without the other.
+without the other. It also states what a lens launch must **not** carry — a
+`name`, whose spawn path the runtime does not yet govern, and a `model`, which
+the role declares for itself — and the guard refuses both at that boundary.
+
+## The role-contract trust boundary
+
+**A child worker's role identity currently rests on an undocumented Claude Code
+artifact, because the documented one stops carrying it.** The hooks reference
+defines `agent_type` as the agent's name and the sub-agents reference attaches
+that to the definition's frontmatter `name`. On the in-process teammate spawn
+path the field holds the worker's assigned runtime address instead — a value the
+documentation says it does not hold, and one the runtime silently rewrites when
+it collides. No hook payload carries `subagent_type`, `customAgentType`,
+`agent_config`, a parent agent id, or any identifier that joins a dispatching
+call to the child it produced. Re-checked against 2.1.263 by capturing raw
+payloads: `SubagentStart` carries eight fields, child `PreToolUse` eleven, and
+none of them is a role carrier.
+
+So the governed role of a child is read from the runtime's per-agent record,
+keyed on the exact `agent_id` and located from the transcript path the payload
+supplies. **Main-thread roles are untouched** and continue to resolve directly
+from `agent_type`, which is what `--agent` gave them.
+
+**The dependency is fail-closed, and that is the whole of what makes it
+acceptable.** A record that is missing, unreadable, malformed or names no role
+denies with `unresolved-identity`. There is no fallback to the reported
+`agent_type`: that fallback is the defect being closed, since an address resolves
+out-of-domain and out-of-domain is an allow. If Anthropic moves, renames or
+reshapes the record, governed child work stops immediately and one grep of the
+log says why — rather than silently returning to the ungoverned state.
+
+**A child's identity may be deferred.** At `SubagentStart` the record does not
+exist yet; that event cannot deny, so identity is recorded as `deferred` rather
+than resolved from the address. The previous log asserted `out-of-domain` about
+workers that were in fact governed, which is the instrument stating a falsehood
+about the thing it exists to witness.
+
+**Review Swarm workers must currently be unnamed.** A named spawn takes the
+teammate path, and that path has been observed not to honour the selected role's
+declared configuration — lenses declaring `high` running at the parent's
+`medium`, live and under this build. The guard understands named workers; the
+runtime does not yet run them as the role that was selected. The containment is
+enforced at the consolidator boundary and stated in
+[`consolidator.md`](../../.claude/agents/consolidator.md), and it is a
+compatibility measure with an expiry rather than a property of the design: named
+workers stay legitimate elsewhere, and a named governed _dispatcher_ must still
+resolve correctly, which is why child record resolution stands independently of
+it.
+
+**The upstream defect has been reported** — that `agent_type` carries something
+the documentation says it does not, and that no hook carries the selected role.
+**A future first-class documented carrier should replace this compatibility
+layer.** Whoever next upgrades the runtime should re-check whether
+`subagent_type`, `customAgentType` or a verified `agent_config` field has arrived
+in the hook payloads; if one has and it names the selected role, it supersedes
+the private record and this layer should be withdrawn in its favour.
 
 ## Known limits of the exception
 
@@ -408,13 +541,16 @@ carry `model`; no effort-bearing event has. The narrow negative is what the
 design needs and what the evidence supports — a fact unavailable at `PreToolUse`
 is a fact no verdict can rest on.
 
-- **An invocation that overrides a role's model is invisible.** No effort-bearing
-  event names the acting model, so at the moment a verdict is reached there is
-  nothing to hold a declaration against. A `model: haiku`
-  role spawned onto a model that does carry effort stays exempt and runs
-  ungoverned; a role declaring an effort spawned onto `haiku` reports none and
-  denies, and its fix is the invocation rather than the file — which is why the
-  denial message names both.
+- **An invocation that overrides a role's model is invisible to the _event_, and
+  is now partly visible elsewhere.** No effort-bearing event names the acting
+  model, so nothing at the moment of the verdict holds a declaration against a
+  payload field. Two other points do. A spawning call's explicit `model` is
+  refused at the parent's `PreToolUse` when it contradicts the selected role's
+  declaration, before the worker exists. And a child's per-agent record exposes
+  the effective model on the teammate shape, where it is compared and a
+  disagreement denies. The subagent shape carries no model, and there the check
+  is recorded as `unverified` rather than claimed — a main-thread session's model
+  likewise remains unchecked at the decision point.
 - **A model gaining or losing effort support is a manual edit.** Nothing detects
   it. This is deliberate: inferring which models bear effort would mean keeping a
   second, silently drifting copy of the runtime's capability matrix, and the
@@ -453,4 +589,8 @@ What this document used to say, and what changed it.
 | 2026-09-07 | A contaminated environment is a session-level refusal | **Restated:** the exemption is read after the environment check because a contaminated session must not be able to act through whichever role carries no level — not because the exempt role was the only actor that could dispatch                                                                                                                                                                                                                                                                                                                                                   |
 | 2026-09-07 | Governed dispatch topology                            | **Narrowed:** the map constrained `agent-router` and `consolidator`; with the router retired it constrains `consolidator` alone. The consolidator boundary is unchanged, and every case that asserted a generic property through the router now asserts it through the consolidator                                                                                                                                                                                                                                                                                                   |
 | 2026-09-07 | Loaded as an installed plugin                         | **Marked:** four rows were taken under the retired router topology and say so. What they establish about the plugin — settings loading, the tracked `env` block reaching the hook, a contaminated session refused at its first tool call, a `tools:` allowlist being real — does not depend on who was acting                                                                                                                                                                                                                                                                         |
+| 2026-09-08 | The role-contract trust boundary                      | **Added:** the harness asserts governed identity and model as well as effort. A child's role is read from Claude Code's undocumented per-agent record because hooks lose the selected role on the named teammate path; the dependency is fail-closed, main-thread roles are unchanged, and a documented carrier should supersede it. Evidence: [`architect-recommendation-worker-identity.md`](../../.plan/harness-guard-2/architect-recommendation-worker-identity.md)                                                                                                               |
+| 2026-09-08 | Governed worker identity                              | **Added:** the acceptance set for the repair — a named child resolved from its record, deferred `SubagentStart` identity, an unnamed lens checked on the subagent path, a wrong model override refused before the child starts, and a named lens reproducing the `high`-declared-at-`medium` failure and denying                                                                                                                                                                                                                                                                      |
+| 2026-09-08 | Governed worker identity                              | **Corrected against the architect artifact:** `name` alone does not select the teammate spawn path — a named print-mode spawn took the subagent path. The design keys on `agent_id` and the record's own shape, so it is unaffected; the trigger is recorded as measured rather than as described                                                                                                                                                                                                                                                                                     |
+| 2026-09-08 | Known limits of the exception                         | **Narrowed:** _an invocation that overrides a role's model is invisible._ It is refused at dispatch when explicit, and checked at the child's events wherever the per-agent record exposes an effective model. What remains invisible is a main-thread session's model and the subagent record shape, which carries none                                                                                                                                                                                                                                                              |
 | 2026-09-06 | Before enforcement                                    | **Withdrawn:** _every project-defined role must declare `effort:`, and `explore.md` cannot satisfy the invariant — either it moves to a model with effort support or it is retired in favour of the built-in `Explore`._ Both branches treated a missing declaration as a configuration mistake. Haiku falsifies the premise: it does not participate in the effort mechanism, so an effort contract there is one the runtime cannot satisfy, and the role needed no change. Replaced by a model-level exception — `model: haiku` roles are governed but outside the effort invariant |
