@@ -113,6 +113,8 @@ Each pass's unreached areas are justified from **its own lens**, never by anothe
 
 ## Round hygiene
 
-A mutation probe was left in `packages/drag2/src/kernel/kernel.ts` during the round — the `actionTags` validation block relocated below the frame-part compositions. It was **uncommitted throughout**; all four report commits are report-only, and the working tree was clean with `src/` byte-identical to `8c1b20042` before this summary was written. No production code was repaired during the review.
+A mutant was observed in `packages/drag2/src/kernel/kernel.ts` during the round — the `actionTags` validation block relocated below the frame-part compositions. It is the feature-proof pass's `m8`, transient rather than a kept probe, visible on disk only for the duration of its own run, and recorded as a non-finding in that pass's report. It was **uncommitted throughout**; all four report commits are report-only, and the working tree was clean with `src/` byte-identical to `8c1b20042` before this summary was written. No production code was repaired during the review.
+
+**One inference made during consolidation was withdrawn.** A green suite was briefly treated as evidence that no mutant was present during the cleanup and integrity runs. That does not follow: `m8` reddens zero rows by construction, so no green run can exclude it. The soundness of this round rests instead on the verified byte-identity of `src/` with `8c1b20042`, and on the consolidator's own re-verification of the load-bearing mechanisms behind F-387, F-388, F-390, F-391 and F-394 against that tree.
 
 One pass's description of that probe (as a removed `!this.#bracket.closed` guard) did not match the actual diff, and is recorded here as corrected. It was outside that pass's lens and does not bear on its findings.
