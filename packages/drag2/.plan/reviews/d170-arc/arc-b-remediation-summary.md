@@ -73,6 +73,16 @@ The browser row _should reset only the composed frame when a factory destroys_ a
 
 **Recorded as incomplete, not as false.** The claim its evidence supports is the textual identity of trigger and assertion. `COVERAGE.md` assigns the two rows different witnesses, which is a live counterclaim, and the reporting pass states it did not execute the mutations that would discriminate them. The **Evidence / reproduction** field is therefore not satisfied, and no property is invented to fill it. The gap is left visible: discriminating the rows requires executing the two mutations, which no pass did.
 
+**Completed 2026-09-08 by the hygiene recovery round**, record [`arc-b-recovery-summary.md`](arc-b-recovery-summary.md) §F-396. Both mutations were executed by the second feature proof and **re-executed independently at consolidation** in a detached worktree at `8c1b20042`. **Neither witness discriminates**: each reddens _both_ rows (and a third besides). The counterclaim does not survive — the assignment is different, and the discrimination it implies does not exist. The claim is now the sharper one: the register assigns distinct witnesses to two rows that **no mutation in it separates**, the browser row's `resets === 1` being a strict weakening of the node row's `[creates, resets] === [1, 1]` under an identical trigger. **Required property:** where two rows in different layers are booked against different witnesses, at least one witness must redden one and not the other. Tier stays C.
+
+### F-397 · tier C · `arc-b.md`'s accessor derivation names a site the same range deletes
+
+**Added 2026-09-08 by the hygiene recovery round** from the second feature proof (`reviewer2-1`); full statement and evidence in [`arc-b-recovery-summary.md`](arc-b-recovery-summary.md) §F-397. `measurements/arc-b.md`'s F-381 correction names `#begin`'s `current.operation` as the single uncounted per-sample accessor site — `1 + 2 + 1 + 2 + 1 = 7` — and this range deletes `Kernel.#begin()`. Verified at both trees during consolidation: the read did not relocate, because `FrameTransaction.begin()` is only `Object.assign(this.#draft, this.#current)` and reads no accessor. No record books the change. **Required property:** a measurement record may state a per-sample derivation in the present tense only where the site it names still exists.
+
+### F-398 · tier C · the six-row table's counts hold only under a scoping convention it does not restate
+
+**Added 2026-09-08 by the hygiene recovery round** from the second feature proof (`reviewer2-3`); full statement in [`arc-b-recovery-summary.md`](arc-b-recovery-summary.md) §F-398. `COVERAGE.md`'s D-181 table states its population convention explicitly; the new six-row construction table does not, and two of its entries — one of them an _enumeration_ of which rows redden — are understated when read suite-wide. One entry's understatement was independently re-executed at consolidation; the other is carried as the pass's evidence. **Required property:** a register's counts must state the population they range over wherever it is not the whole suite, and an entry that enumerates which rows redden must enumerate all of them. The reporting pass's conditional — B under the suite-wide reading — is preserved rather than resolved, since it turns on which reading the register intends.
+
 ## Routed
 
 ### Q-28 · does O-13's restoration trigger meet §18's condition?
@@ -99,8 +109,12 @@ What is routed is a residue the pass reported as a soft point and explicitly dec
 | `cleanup-3`                 | F-396     | C (incomplete)          |
 | `der`                       | —         | null result             |
 | —                           | Q-28      | routed                  |
+| `reviewer2-1` (recovery)    | F-397     | C (added 2026-09-08)    |
+| `reviewer2-2` (recovery)    | F-396     | C (completes it)        |
+| `reviewer2-3` (recovery)    | F-398     | C (added 2026-09-08)    |
+| `der-1` (recovery)          | F-387     | B (merged; no new id)   |
 
-Ids allocated against a repo-wide scan of `*.md` and `*.ts`, **per prefix independently**: `F-` high-water 386, `Q-` 27, `I-` 37. **No `I-` was minted** — `I-` denotes an invariant, and no finding in this round establishes one; the `I-` mark was computed and left unused. The scan establishes the highest id _mentioned_, which is sufficient to guarantee a fresh id and is not used here as a census of allocated findings.
+Ids allocated against a repo-wide scan of `*.md` and `*.ts`, **per prefix independently**: `F-` high-water 386, `Q-` 27, `I-` 37. **Re-scanned 2026-09-08 for the recovery round**, again per prefix: `F-` 396, `Q-` 28, `I-` 37, from which F-397 and F-398 were minted and no `Q-` or `I-` was. **No `I-` was minted** — `I-` denotes an invariant, and no finding in this round establishes one; the `I-` mark was computed and left unused. The scan establishes the highest id _mentioned_, which is sufficient to guarantee a fresh id and is not used here as a census of allocated findings.
 
 ## Scope and silence
 
@@ -118,3 +132,13 @@ A mutant was observed in `packages/drag2/src/kernel/kernel.ts` during the round 
 **One inference made during consolidation was withdrawn.** A green suite was briefly treated as evidence that no mutant was present during the cleanup and integrity runs. That does not follow: `m8` reddens zero rows by construction, so no green run can exclude it. The soundness of this round rests instead on the verified byte-identity of `src/` with `8c1b20042`, and on the consolidator's own re-verification of the load-bearing mechanisms behind F-387, F-388, F-390, F-391 and F-394 against that tree.
 
 One pass's description of that probe (as a removed `!this.#bracket.closed` guard) did not match the actual diff, and is recorded here as corrected. It was outside that pass's lens and does not bear on its findings.
+
+### Resolved 2026-09-08 by a hygiene recovery round
+
+Record: [`arc-b-recovery-summary.md`](arc-b-recovery-summary.md). `integrity`, `cleanup` and `der` were re-run independently over this same range from the verified-clean `8c1b20042` snapshot; the second High-effort feature proof served as the Reviewer input and was not relaunched.
+
+**What the recovery establishes.** Byte identity at the end of a round proves what the final tree was, not what each parallel pass read while it ran. A finding can be re-derived because it names its own subject; **a null result cannot**, having none. The recovery round therefore does not validate the original passes' null results — **it replaces them** with a negative space derived from a snapshot verified clean before reading and re-verified after every probe.
+
+**The findings survive.** No recovery null retracts any canonical finding. Where a recovery pass cleared text a canonical finding also names, it was answering a different question, and each such silence is explained from that pass's own lens in the recovery summary. F-387 gained an independent third confirmation (`der-1`, merged); F-388, F-390, F-391, F-392, F-393 and F-394 were re-established at the mechanism during recovery consolidation; F-396 is now complete. **F-389 and F-395 were reached by no recovery lens and stand on this round's evidence alone** — recorded so they are not read as re-confirmed.
+
+**F-393 in particular is re-confirmed**, and it falsifies the `.plan/` half of one recovery clean result that searched for `#pinned` where the record writes `pinned`.
