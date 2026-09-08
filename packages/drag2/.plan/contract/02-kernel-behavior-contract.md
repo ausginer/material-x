@@ -789,7 +789,7 @@ The other half of the decision, and the half that keeps it from being a mechanic
 
 | Not published | Substitute |
 | --- | --- |
-| `SeamOutcome`, `SEAM_*`, `SeamDriver`, `FrameTransaction` | none needed — the driver's own vocabulary. A behavior returns `Prepared \| null` — or, on a non-discardable seam, throws (D-152) — and never sees an outcome. **03 §Internal to the ordinary tier lists `SeamOutcome` and `ArmOutcome` as kernel-tier published; that is wrong and D-68 corrects it** — neither is in the closure |
+| `SeamOutcome`, `SEAM_*`, `SeamDriver`, `FrameTransaction` | none needed — the driver's own vocabulary. A behavior returns `Prepared \| null` — or, on a non-discardable seam, throws (D-152) — and never sees an outcome. **03 §Internal to the ordinary tier listed `SeamOutcome` and `ArmOutcome` as kernel-tier published; that was wrong and D-68 corrected it** — neither is in the closure |
 | `Lifetime` (the full type), `createLifetime` | `LifetimeScope`, which is D-21's projection and exists precisely so `dispose` is unreachable |
 | `composeFrame`, `beginFrame`, `scrubFrame`, `KERNEL_FRAME_KEYS` | none — the kernel composes the frame (D-15). A behavior authors its part and nothing else |
 | `acquireLift`, `captureInlineStyles`, `acquireTopLayer` | the kernel acquires the lift; the behavior receives a **`BehaviorLiftSession`**, which is published for the same reason everything else on this list is not — the kernel hands one to every behavior twice, as `ActivationScope.lift` and as `moved`'s second argument. `VisualLiftSession` stays published because that alias's definition names it. (This row read _the behavior receives `VisualLiftSession`_ until D-35's projection landed; §`ActivationScope`, below, had been the correct spelling since C5-01.) |
