@@ -123,6 +123,21 @@ The first two are Arc-D-local and the third tests the instrument rather than the
 
 ---
 
+## 7a. The severance had a prior exercise, and D-187 dismissed it in one line
+
+Found by the trigger census taken behind this pass and confirmed in both files. **Both halves of D-187's second clause were already in the record, and one of them had already been exercised.**
+
+- **The distinction, 2026-08-22 — sixteen days early.** [`bundle-structure.md`](../../bundle-structure.md) §Headroom, declining a re-base: re-basing on a timetable _would **invert the instinct D-102 ratified** — an absorbed number is a number nobody reads again — by establishing that headroom is restored **on a schedule rather than on an event**._
+- **The severance, 2026-08-29 — ten days early, and executed.** SC-1's third trigger is _L-11 lands_ — a landing, not a reading. It fired. `bundle-structure.md:370`: _**It re-based nothing**: a re-measurement is what the condition asks for, and **a re-base is what the evidence has to earn**._ [`obligations.md`](../../obligations.md) SC-1 §Today says the same from the register: _a re-measurement is what this condition asks for; a re-base is what the evidence has to earn, and it does not._
+
+**This is a better corroboration than D-187 gives itself.** Its only cited support is a contradiction it found in `arc-b-remediation.md`; the actual support is a precedent that ran correctly, unprompted, before the rule existed. A codification with a prior successful exercise is a much stronger thing than a rule invented at the site of a defect.
+
+**And it falsifies one line of D-187's own Touches**: _requires no change to D-106 or SC-1, **whose re-base trigger is already a reading**_. SC-1 has three triggers and the third is a landing. SC-1 is not a counterexample — its own text routes that event to a re-measurement and its 2026-08-29 disposition left the re-base to the evidence — but the sentence describes the package's clearest precedent for the rule as a row that needed no attention. Corrected in D-192; D-187 keeps its wording as provenance.
+
+**One item checked and cleared.** `bundle-structure.md:370` calls L-11 _the next **scheduled** re-base event_ — the one place in the live record spelling a re-base trigger with the word §18 now rejects. Not a defect: D-116 (d) keeps that list as the wording as decided, the same bullet defuses it with _it re-based nothing_, and SC-1 carries the live form. **Nor is SC-1's own headline**, which lists a landing among three re-base triggers under _Reopens: D-106 — the twelve declared rows re-base_: a reader stopping at the headline gets what §18 forbids, but the row disambiguates itself two clauses later and again in §Today, so it carries its own correction rather than substituting for the instrument.
+
+---
+
 ## 8. What I tried to break and could not
 
 - **Restore is a re-base under another name.** Refuted structurally in §2: one admissible value against two.
@@ -130,6 +145,7 @@ The first two are Arc-D-local and the third tests the instrument rather than the
 - **The one-directional ban is incoherent.** Refuted in §3: the default needs no trigger.
 - **§18's third bullet is dead letter, declined four times running.** It is not. It was followed at D-155, D-158 and D-166 and declined at Arcs B, C and D, and the declines are reading-grounded. On the two occasions the reclaimable slack was tested it was 23–66 B against 150 B of design headroom, which is a §18 judgment and not a §18 violation.
 - **The close failed rule (b)'s _asking_.** It did not. O-13 is the only row booked to that destination in the whole register.
+- **D-187 invented the boundary/schedule distinction.** It did not — §7a. That strengthens it.
 - **The suspension's rules apply beyond this package.** They are stated repo-wide and exercised in one package; `drag2` is the only package carrying `bench/`. Prospective reach without a second application is worth knowing and is not a defect.
 
 ---
