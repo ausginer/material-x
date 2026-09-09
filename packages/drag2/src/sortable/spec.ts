@@ -201,14 +201,15 @@ class SortableBehavior {
 
   /**
    * **One operation's state, named as one.** Every field here lives exactly as
-   * long as the operation and is cleared together in `retire()`. Membership is
-   * the claim: `snapshot` and `sourceIdentity` must survive an operation by
-   * design, `spatialSeq` is controller-monotonic, and the frame task below is
-   * created once per controller — all four sat under a banner that said
-   * otherwise.
+   * long as the operation and is cleared together in `retire()`, and
+   * membership is the claim the name makes: `snapshot`, `sourceIdentity` and
+   * the frame task sit outside it because they outlive an operation by design.
    *
-   * It also removes the shadow: `moved(current, lift)` takes the kernel's own
-   * session as a parameter, and there is no longer an outer `lift` to hide.
+   * **Three fields, and only one of them is a record.** What activation
+   * acquires is complete or absent; the two scalars beside it are markers this
+   * behavior owns and writes per operation, which is why they are here and not
+   * inside the record — a record admitting a mutable member cannot promise
+   * completeness to the sites that read it.
    */
   readonly #operation: {
     /**

@@ -2298,6 +2298,20 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-09 — Arc D landed, and the four-arc series closes on it (D-191; F-325, F-326, F-403, F-404, F-408)
+
+**The membership is the whole of the arc, and it landed as written.** The sortable's activation record now carries `placeholder`, `lift`, `box`, `live`, `settle` and `space` — six members, every one `readonly`, complete at construction and dropped whole — under the name `SortableActivation`, in `#operation.activation`. `realm` and `item` are deleted with the docblock that argued the mirror rule against D-177 at that decision's own example (F-403); the cached `activePlaceholder` alias is gone, and with it two of the six `!` assertions, because `effectAction` and `effectRelease` each read one record instead of asserting two fields of it. **Nothing was extracted and no entity was created**, which is what D-191 said the arc was not.
+
+**The two published views moved in opposite directions, and one instrument checks both.** `insertion` left `InsertionRuntimeView` with no compensating widening (F-325); `snapshot` left it for `InsertionFrameView`, where the frame already commits it (F-326). Three rows in `feature.declaration.test.ts` assert the two key sets **disjoint**, with the behavior's frame and its activation record as the owner's rows so neither side can pass by narrowing to nothing (F-404). **The disjointness row is a falsifier and was probed as one**: red at the baseline, green after F-325, and red again if `snapshot` is re-declared on the side it left.
+
+**The five-row prediction held exactly, and it was the entailed kind.** The four free-drag rows and `kernel root - kernel.js` are byte-identical across the arc on both columns with no module gained; the eight sortable-carrying rows fall **−264 B minified** (−268 on the two `xy` rows) and **45 to 65 B Brotli**, with no module entering or leaving any graph. Published declarations went the other way by about 40 B raw, which is `snapshot`'s docblock arriving on a published type; the trade is recorded rather than inferred. Record [`arc-d.md`](measurements/arc-d.md).
+
+**The close performed the one act it authorises.** O-13's five suspended `control:` equalities are restored at 8,116 / 8,274 / 8,276 / 8,426 / 6,185 — figures the arc did not move, which is the condition a returning equality wants — and the suspension paragraph leaves `measure.ts`, retiring D-191's witness at the arc's last step exactly as F-407 required. **No ceiling moved.** The eight rows that fell sit 173 to 216 B under budgets whose standing headroom is ~150 B, and the re-base is declined **at the reading**: the shrink is inside the band Arc B and Arc C both declined, SC-1's triggers are unmet, and this being the fourth consecutive arc to move the same rows the same way is the strongest instance of _a ceiling following every arc down stops being a ceiling_ rather than an exception to it. That the series ended is not admissible as a trigger and was not used as one.
+
+**F-408 was repaired against the tree as it stood**, not as part of the arc: the coverage row now states what the row it names asserts, and the second clause is deleted rather than re-pointed.
+
+---
+
 ### 2026-09-09 — Arc D challenged: the premise and every disposition stand, the rule justifying them does not (D-191 supersedes D-190; F-406, F-407, F-408)
 
 **The boundary survives, and on better evidence than the decision offered.** `PresentationView` is the sortable's activation record already — written whole in three consecutive statements at `spec.ts:929-931`, cleared whole in three at `:1864-1866`, with no code between either group, so the partial states the type permits are unreachable. The invariant the completion buys is already law one tier down and D-190 stopped short of it: the kernel's own `ActivationRecord` docblock says _complete-or-absent, and that is the whole of the invariant_, says _never a second lifecycle authority_, and carries `lift`. That paragraph settles `lift`'s admission, `progress`'s refusal and the completeness property in one place.

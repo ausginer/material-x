@@ -74,6 +74,10 @@ import type { DisplacementReport } from './slots.ts';
  * What the rule reads off the behavior's per-operation view. Declared here, in
  * the module that consumes it, so the dependency points the right way: the
  * behavior's view satisfies it structurally with no wrapper and no allocation.
+ *
+ * **The collection is not here**, and that is the boundary rather than an
+ * omission: the frame commits it, so both entry points take it as an argument
+ * off the frame they were handed rather than reading a second copy of it.
  */
 export type LinearRuntime = Readonly<{
   placeholder: HTMLElement;
