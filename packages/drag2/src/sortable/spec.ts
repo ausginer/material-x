@@ -71,8 +71,8 @@ import {
   type PlaceholderUndo,
 } from './placement.ts';
 import {
-  type PresentationView,
   SORTABLE_ACTION_TAGS,
+  type SortableActivation,
   TAG_INVALIDATION,
   TAG_SPATIAL,
 } from './runtime.ts';
@@ -211,17 +211,12 @@ class SortableBehavior {
    * session as a parameter, and there is no longer an outer `lift` to hide.
    */
   readonly #operation: {
-    /** Null when idle. */
-    presentation: PresentationView | null;
-    activePlaceholder: HTMLElement | null;
     /**
-     * Handed in at activation, cleared at retire.
-     *
-     * The **projection**: `rendered` is the kernel's own reading and `dispose`
-     * is the kernel's own sequencing, so this behavior can do neither through
-     * the capability it was handed.
+     * **What activation acquired, complete or absent.** Null when idle, and
+     * every member present the moment it is not — so a site reading one member
+     * is reading a record whose other members are there too.
      */
-    lift: BehaviorLiftSession | null;
+    activation: SortableActivation | null;
     /** The attempt the frame task actually dispatched. Zero when none is live. */
     pendingSpatial: number;
     /**
@@ -241,9 +236,7 @@ class SortableBehavior {
      */
     progress: number;
   } = {
-    presentation: null,
-    activePlaceholder: null,
-    lift: null,
+    activation: null,
     pendingSpatial: 0,
     progress: MINTED,
   };
@@ -261,8 +254,8 @@ class SortableBehavior {
      * It lives here rather than on the runtime because it is not runtime state:
      * it exists only between `activation.prepare` returning and the seam
      * committing, which is the one window in which the element is mutated and
-     * not yet owned. `operation.activePlaceholder` is written by `effect`, on
-     * the far side of that window.
+     * not yet owned. The activation record is written by `effect`, on the far
+     * side of that window.
      *
      * `null` whenever there is nothing staged — including for the library's own
      * `<div>`, whose undo is being dropped.
@@ -385,9 +378,10 @@ class SortableBehavior {
      */
     this.#spatialFrame = createFrameTask<number>(kernel.realm, (attempt) => {
       // The producer-side half of the double validation: a frame that fires
-      // after the operation lost its presentation has nothing to resolve
-      // against. `action.prepare` validates the attempt again when it applies.
-      if (!this.#operation.presentation) {
+      // after the operation lost its activation record has nothing to
+      // resolve against. `action.prepare` validates the attempt again when it
+      // applies.
+      if (!this.#operation.activation) {
         return;
       }
 
@@ -620,7 +614,7 @@ class SortableBehavior {
     const home = homeInsertion(frame.snapshot!, frame.item!);
 
     if (home) {
-      movePlaceholder(this.#operation.activePlaceholder!, home);
+      movePlaceholder(this.#operation.activation!.placeholder, home);
     }
   }
 
@@ -926,12 +920,9 @@ class SortableBehavior {
     });
 
     // 3 — every resource above is now owned.
-    this.#operation.activePlaceholder = placeholder;
-    this.#operation.lift = scope.lift;
-    this.#operation.presentation = {
-      realm: this.#realm,
+    this.#operation.activation = {
       placeholder,
-      item,
+      lift: scope.lift,
       box: this.#slots.box,
       settle: this.#slots.settle,
       // **Handed down, not measured, and the item's rather than the
@@ -1037,7 +1028,7 @@ class SortableBehavior {
       // applies. It is kept because the contract states the check, and
       // because anything that later queues a spatial action from outside
       // the frame task reopens the window it closes. The spatial action is
-      // inert outside `ACTIVE`, and `presentation` cannot stand in for
+      // inert outside `ACTIVE`, and the activation record cannot stand in for
       // that: it is cleared only at retirement, so it stays non-null
       // through `RELEASING`, `SETTLING` and `FINALIZING`. No producer can
       // reach those phases today — the frame task is cancelled when motion
@@ -1049,14 +1040,14 @@ class SortableBehavior {
       if (
         draft.phase !== ACTIVE ||
         argument !== this.#operation.pendingSpatial ||
-        !this.#operation.presentation
+        !this.#operation.activation
       ) {
         return null;
       }
 
       const resolved = this.#slots.resolveInsertion(
         draft,
-        this.#operation.presentation,
+        this.#operation.activation,
       );
 
       // `resolved === null`: the incumbent slot still wins — commit
@@ -1189,7 +1180,7 @@ class SortableBehavior {
     prepared: {},
   ): void {
     if (tag === TAG_SPATIAL) {
-      const placeholder = this.#operation.activePlaceholder!;
+      const view = this.#operation.activation!;
       const insertion = current.insertion!;
 
       // Decided **before** anything else in the bracket, and by asking the
@@ -1198,11 +1189,9 @@ class SortableBehavior {
       // line — the write, the axis advance, the sink's contributions and
       // the invalidation the `finally` owes — exists only for a frame that
       // actually moves the hole.
-      if (placeholderAt(placeholder, insertion)) {
+      if (placeholderAt(view.placeholder, insertion)) {
         return;
       }
-
-      const view = this.#operation.presentation!;
 
       // Published before the write, so the axis is told which gap the
       // placeholder now occupies.
@@ -1229,7 +1218,7 @@ class SortableBehavior {
 
       try {
         // 1 — the one write.
-        movePlaceholder(placeholder, insertion);
+        movePlaceholder(view.placeholder, insertion);
 
         // **The terminal barrier on the placeholder-reaction window** — the
         // same hazard `activation.effect` already guards one line after
@@ -1320,8 +1309,8 @@ class SortableBehavior {
     // read the change as already applied.
     this.#sourceIdentity = staged.source;
 
-    if (this.#operation.presentation) {
-      this.#operation.presentation.snapshot = next;
+    if (this.#operation.activation) {
+      this.#operation.activation.snapshot = next;
     }
 
     if (phase === ACTIVATING || phase === ACTIVE) {
@@ -1342,7 +1331,7 @@ class SortableBehavior {
   // Release
   // -----------------------------------------------------------------------
   prepareRelease(draft: Draft<SortableFramePart>): ResolutionCommand {
-    const view = this.#operation.presentation;
+    const view = this.#operation.activation;
     const { item } = draft;
     const { snapshot } = draft;
 
@@ -1459,21 +1448,25 @@ class SortableBehavior {
   }
 
   effectRelease(current: Readonly<Frame<SortableFramePart>>): void {
+    const activation = this.#operation.activation!;
+
     // **Unconditional**: a command reorders too, and its placeholder
     // reaches the same final gap by the same single writer.
-    movePlaceholder(this.#operation.activePlaceholder!, current.insertion!);
+    movePlaceholder(activation.placeholder, current.insertion!);
 
     // **The terminal barrier on the release write.** The move above runs a
-    // custom-element placeholder's callbacks, and `retire()` has then
-    // already nulled `lift` — so without this the very next line is
-    // `null.write(...)`, a `TypeError` classified as `FAILURE_RELEASE`
-    // against a controller that no longer exists.
+    // custom-element placeholder's callbacks, and a reentrant `retire()` has
+    // then already dropped the record this effect is holding — so without
+    // this the write below reaches a **disposed** lift session, rendering
+    // into an operation that no longer exists. The record is read once at
+    // the head, so the failure is a quiet write rather than a `TypeError`,
+    // and this barrier is the whole of what stops it.
     //
-    // **It covers the `lift!.write` alone**, and the scope is a property of
-    // what follows it: that write is the only statement below reading a
-    // member of the operation record `retire()` nulls. Everything else in
-    // this effect reads committed frame scalars, which survive retirement
-    // and mean the same thing after it.
+    // **It covers the `lift.write` alone**, and the scope is a property of
+    // what follows it: that write is the only statement below reading the
+    // activation record at all. Everything else in this effect reads
+    // committed frame scalars, which survive retirement and mean the same
+    // thing after it.
     if (this.#kernel.closed) {
       return;
     }
@@ -1484,7 +1477,7 @@ class SortableBehavior {
       // computed from the committed release point. Rendering the
       // placeholder alone would leave the visual — and the whole landing
       // trajectory — starting from a stale point.
-      this.#operation.lift!.write(
+      activation.lift.write(
         current.pointerX - current.originX,
         current.pointerY - current.originY,
       );
@@ -1707,7 +1700,7 @@ class SortableBehavior {
   // -----------------------------------------------------------------------
 
   anchorTarget(current: Readonly<Frame<SortableFramePart>>): PointCache {
-    const placeholder = this.#operation.activePlaceholder!;
+    const { placeholder } = this.#operation.activation!;
     const item = current.item!;
     const { recovery } = current;
 
@@ -1861,9 +1854,7 @@ class SortableBehavior {
     this.#operation.progress = MINTED;
     this.#spatialFrame.cancel();
     this.#operation.pendingSpatial = 0;
-    this.#operation.activePlaceholder = null;
-    this.#operation.lift = null;
-    this.#operation.presentation = null;
+    this.#operation.activation = null;
 
     // **Stored in installation order, walked backwards**, like the undo
     // ledger above. Each is wrapped individually, so one throwing hook cannot

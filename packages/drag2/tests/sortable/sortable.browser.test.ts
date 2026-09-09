@@ -42,7 +42,7 @@ import {
   sortableFramePart,
 } from '../../src/sortable/frames.ts';
 import {
-  type PresentationView,
+  type SortableActivation,
   TAG_SPATIAL,
 } from '../../src/sortable/runtime.ts';
 import type {
@@ -479,7 +479,7 @@ type SpecBench = Readonly<{
    * until something has been handed one, so a row cannot assert against a view
    * no operation produced.
    */
-  view(): PresentationView;
+  view(): SortableActivation;
   placeholder(): HTMLElement | null;
 }>;
 
@@ -527,7 +527,7 @@ function createSpecBench(
   root.setPointerCapture = (): void => {};
   root.releasePointerCapture = (): void => {};
 
-  let captured: PresentationView | null = null;
+  let captured: SortableActivation | null = null;
   const base: SortableSlots = {
     ...EMPTY_SLOTS,
     items: () => items,
@@ -536,7 +536,7 @@ function createSpecBench(
   const slots: SortableSlots = {
     ...base,
     resolveInsertion(frame, runtime): Insertion | null {
-      captured = runtime as PresentationView;
+      captured = runtime as SortableActivation;
       return base.resolveInsertion(frame, runtime);
     },
   };
@@ -592,7 +592,7 @@ function createSpecBench(
     items,
     dispatched,
     snapshot: { items: [...items], version: 0 },
-    view: (): PresentationView => {
+    view: (): SortableActivation => {
       expect(captured).not.toBeNull();
       return captured!;
     },
@@ -3315,7 +3315,7 @@ describe('seam staging across whole operations', () => {
 
 describe('the displacement view lifetime', () => {
   /**
-   * `PresentationView.insertion` is documented as meaningful **only** inside
+   * `SortableActivation.insertion` is documented as meaningful **only** inside
    * the committed-move bracket, and the hook-facing `DisplacementView` declares
    * it non-null on that basis. A value left behind is a destination gap that
    * outlives the move it described.

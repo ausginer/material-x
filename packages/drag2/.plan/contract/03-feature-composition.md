@@ -586,7 +586,7 @@ An earlier draft declared a single `InsertionView` carrying a `current` frame pr
 Passing the two separately costs nothing and is honest about both:
 
 - **The frame argument is the frame the kernel already handed the seam.** `Draft<Part>` and `Readonly<Frame<Part>>` both satisfy `InsertionFrameView` structurally, with no wrapper. A `prepare` passes its `draft`; nothing has to reach for `current`.
-- **The runtime argument is one small `PresentationView` per operation**, created in `activation.effect` and cleared at retire. It exists because both feature views need a **non-null** `placeholder`, which a controller-lifetime runtime cannot promise before activation. Its `snapshot` is rewritten by `action.effect(COLLECTION)`. Two writes per operation, none per call, and no feature has to guard a null it can never see.
+- **The runtime argument is one small `SortableActivation` per operation**, created in `activation.effect` and cleared at retire. It exists because both feature views need a **non-null** `placeholder`, which a controller-lifetime runtime cannot promise before activation. Its `snapshot` is rewritten by `action.effect(COLLECTION)`. Two writes per operation, none per call, and no feature has to guard a null it can never see.
 
 **Both views were widened during implementation, for the same reason.** The sketches above are the shapes the design started from; each was one field short of expressing the rule stated for it in this document. Both are behavior-internal and unstable by the boundary this document draws, so neither is a kernel-SPI change:
 

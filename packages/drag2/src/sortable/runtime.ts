@@ -6,11 +6,13 @@
  * closure-local, which is what keeps the kernel unable to name or type it. What
  * lives here is what is not per-operation state at all — the tags, which
  * `arm()` validates through `config.actionTags` and `dispatch` bounds-checks;
- * and {@link PresentationView}, whose role — one object two feature views bind
- * to, with a non-null `placeholder` — is what requires an object.
+ * and {@link SortableActivation}, whose role — one object two feature views
+ * bind to, with a non-null `placeholder` — is what requires an object.
  */
-import type { InheritedSpace } from '../kernel/presentation.ts';
-import type { DOMRealm } from '../kernel/realm.ts';
+import type {
+  BehaviorLiftSession,
+  InheritedSpace,
+} from '../kernel/presentation.ts';
 import type { CollectionSnapshot, Insertion } from './domain.ts';
 import type { DisplacementSettle } from './rect-index.ts';
 
@@ -26,22 +28,31 @@ export const TAG_INVALIDATION = 2;
 export const SORTABLE_ACTION_TAGS = 3;
 
 /**
- * The one per-operation object both feature views bind to. It exists because
- * they need a **non-null** `placeholder`, which no controller-lifetime state
+ * **What activation acquired, as one record.** It exists because both feature
+ * views need a **non-null** `placeholder`, which no controller-lifetime state
  * can promise before activation.
  *
- * Two writes per operation — created in `activation.effect`, `snapshot`
- * rewritten by a collection replacement — and none per call.
+ * **Complete-or-absent**: every member is written in the one statement that
+ * builds it and the whole record is dropped at retirement, so a partial state
+ * is unrepresentable rather than asserted away per site. A member belongs here
+ * when its lifetime is the activation's, or when a published view this record
+ * must satisfy names it — and never when the frame commits it, which is where
+ * committed state is read from.
+ *
+ * **Not a second lifecycle authority**: `phase` on the frame is the sole
+ * lifecycle discriminant, and this record is read for what activation
+ * acquired, never for where the operation is.
+ *
+ * Created in `activation.effect`, with `snapshot` rewritten by a collection
+ * replacement — and nothing written per call.
  */
-export type PresentationView = {
-  readonly realm: DOMRealm;
+export type SortableActivation = {
   readonly placeholder: HTMLElement;
   /**
-   * The dragged item. Committed frame state, so it cannot change for the life
-   * of the view — hence `readonly` and written once at activation rather than
-   * rewritten per move.
+   * The **projection**: the lift session the kernel handed activation, whose
+   * `rendered` reading and `dispose` sequencing stay the kernel's own.
    */
-  readonly item: HTMLElement;
+  readonly lift: BehaviorLiftSession;
   /**
    * The composed displacement sink's settle walk, or `null` when nothing
    * displaces. Copied off the slots once per operation so an axis rebuild reads
