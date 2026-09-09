@@ -101,7 +101,11 @@ What was taken instead, three times over:
 - O-13's disposition: _all five read byte-identical **across the arc**._
 - The swarm summary: the restored equalities _fire when perturbed by one byte_.
 
-The first two are Arc-D-local and the third tests the instrument rather than the figure. **None of them is the condition a returning equality wants**, and `arc-d.md` says of the weakest that it is. Arc-D-local inertness would hold identically if Arc C had moved the rows 500 B for reasons nobody could name.
+- [`budget-rebases.md:774`](../../measurements/budget-rebases.md): _fresh exact figures for rows **this arc** did not move, which is **the reading a returning equality wants**._
+
+The first three are Arc-D-local and the fourth tests the instrument rather than the figure.
+
+**And the write half fails too, in the clause's own terms.** §18 asks the suspension for _the last **figure** it produced_. O-13 delegates that to `arc-b-remediation.md` §The controls; §The controls records _their movement — **−23, +5, +2, −1, 0 B** — … as the last reading before the suspension_; `budget-rebases.md:768` records the same five numbers the same way. **All three record deltas, and a delta is not a figure.** The five figures are stated nowhere — recoverable by adding each delta to the baseline column above it, which is how the table below recovered them, and never written. The rule has a write and no read, and the write was a _reading_ rather than a _figure_: nothing noticed, because nothing reads it. **None of them is the condition a returning equality wants**, and `arc-d.md` says of the weakest that it is. Arc-D-local inertness would hold identically if Arc C had moved the rows 500 B for reasons nobody could name.
 
 **So I took the read.** Last declared figures at Arc B ([`budget-rebases.md`](../../measurements/budget-rebases.md) `:756`–`:760`), then every measured delta on those rows through to the restored literals in [`measure.ts`](../../../bench/size/measure.ts):
 
