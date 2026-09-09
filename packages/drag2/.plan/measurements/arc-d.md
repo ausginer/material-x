@@ -40,7 +40,21 @@
 
 **The two standing controls held exactly**: `vocabulary root — drag.js` at 142 B and `baseline B` at 6,889 B, byte-identical on both figures with no module gained.
 
-**The five suspended controls are restored here, which is the act O-13 waits on.** Arc D's landing is the close of the D-170 arc series, so the four free-drag rows and `kernel root — kernel.js` take fresh exact `control:` figures — **8,116**, **8,274**, **8,276**, **8,426** and **6,185** — and the suspension paragraph leaves `measure.ts`. **The restoration re-declares figures this arc did not move**, which is the condition a returning equality wants: all five read byte-identical across the pass, on both columns, with no module gained.
+**The five suspended controls are restored here, which is the act O-13 waits on.** Arc D's landing is the close of the D-170 arc series, so the four free-drag rows and `kernel root — kernel.js` take fresh exact `control:` figures — **8,116**, **8,274**, **8,276**, **8,426** and **6,185** — and the suspension paragraph leaves `measure.ts`.
+
+**The restoration is read against the figures the suspension recorded, and the interval reconciles to the byte** (§18, D-192). ~~The restoration re-declares figures this arc did not move, which is the condition a returning equality wants~~ — **struck**: arc-local inertness would hold identically had the preceding arc moved those rows by any amount for reasons nobody could name, and would fail on a restoration that was otherwise perfectly accounted for. It is neither necessary nor sufficient for what it was offered as.
+
+The last figures the five produced while they were still declared, at Arc B's remediation ([`arc-b-remediation.md`](arc-b-remediation.md) §The controls), are **8,136**, **8,298**, **8,295**, **8,447** and **6,210** Brotli. Against the figures restored here the suspension interval is **−20, −24, −19, −21 and −25 B**, and every byte of it is attributable to a named landed change:
+
+| Row | at suspension | F-394's deletion | Arc C (D-189) | Arc D | restored | interval |
+| --- | --: | --: | --: | --: | --: | --: |
+| free drag minimal | 8,136 | −4 | −16 | 0 | 8,116 | **−20** |
+| free drag + bounds | 8,298 | −3 | −21 | 0 | 8,274 | **−24** |
+| free drag + landing | 8,295 | +11 | −30 | 0 | 8,276 | **−19** |
+| free drag complete | 8,447 | +12 | −33 | 0 | 8,426 | **−21** |
+| kernel root — `kernel.js` | 6,210 | −2 | −23 | 0 | 6,185 | **−25** |
+
+The chain is continuous at each seam — `arc-b-remediation.md`'s second landed column is [`arc-c.md`](arc-c.md)'s baseline column exactly, and `arc-c.md`'s landed column is this document's baseline column exactly — so nothing in the interval is unaccounted for. **An unattributable interval would have been a finding before it was a declaration**, and this is the read that decides which. D-192 books the same reconciliation over the longer span, from the `control:` values declared at Arc B — 8,159, 8,293, 8,293, 8,448, 6,210 — at **−43, −19, −17, −22 and −25 B**; the two agree at the same endpoint and differ only in where they start. That all five also read byte-identical **across this arc** is true and is a scope tripwire, not the reading.
 
 **The prediction those five carried was entailed rather than independent**, and O-13 says so. Each already declares `absentPrefixes: ['sortable/']`, so no `sortable/` module is in any of their graphs and identical module sets compress identically; a non-zero delta would have meant an edit outside `src/sortable/` — which `git diff --stat` reports more directly — or a non-deterministic build. It is a scope tripwire that was worth reading and is not evidence of its own. **What the restored equalities buy from here is what the suspension withdrew**: a byte _transfer_ between rows, which every ceiling can stay green through and which no `budget:` can see.
 
@@ -56,8 +70,6 @@
 
 **And the instrument's own stated trigger is not met.** [SC-1](../obligations.md) fires on a row going negative, on erosion that stops being attributable to a named landed change, or on L-11; no row is negative, every byte that moved is attributable to this landing, and L-11 landed as D-154 and was answered at that reading. Re-basing outside the condition that governs these ceilings would be a schedule wearing a boundary's clothes, which is what §18's fourth bullet refuses.
 
-## The one edge this arc creates, booked so it is not re-derived
+## ~~The one edge this arc creates, booked so it is not re-derived~~
 
-**F-326 changes which side of a disagreement the release resolve is on.** `presentation.snapshot` and `frame.snapshot` were written from the same `next` and diverged only after the frame froze: `prepareAction` returns without writing `draft.snapshot` at `IDLE` and at `phase >= RELEASING`, while the collection effect wrote the record's copy under a null test alone. Today the release resolve and `buildReorderProposal` both read the live snapshot and agree; after the move the resolve reads the frozen `frame.snapshot` while the proposal is still built from the behavior's own `#snapshot`.
-
-**The interval is one statement wide and nothing inside it can produce a collection commit.** `#closeOperation` commits `RELEASING` before `runReleaseSeam`, and between them there is only `lifetimes.motion.dispose()`, whose disposers are a `cancelAnimationFrame`, two `AbortController` aborts and a `releasePointerCapture`; `controller.invalidate()` only ever `dispatch`es, so a call from inside the seam queues behind it. **The falsifiable edge is therefore a producer of a collection commit at `phase >= RELEASING` ahead of the release resolve.** If one appears, the two reads part company and this move is what decides which one the axis follows — and the answer it gives is the one `#homeGap` already gives, which recomputes the home gap from the **committed** snapshot against the same release.
+**Struck 2026-09-09 (F-416). The edge does not exist.** It was booked as a divergence between the frame's committed `snapshot` and the behavior's own `#snapshot` across the resolve→build interval, and its two statements were both wrong: the consequence of a mixed pair is a **thrown release** rather than two reads parting company — `buildReorderProposal` answers `null` on a version mismatch and `spec.ts` raises `drag: sortable/release-no-proposal` — and the interval proved clean was narrower than the one that mattered. `prepareRelease` already destructures the committed `snapshot` off the draft and guards it non-null one screen above, so the proposal is now built from that value rather than from `#snapshot`. With one value on both sides there is no pair to diverge and nothing to re-derive.

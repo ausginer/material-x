@@ -1402,7 +1402,12 @@ class SortableBehavior {
       insertion = resolved;
     }
 
-    const built = buildReorderProposal(this.#snapshot, item, insertion);
+    // The frame's own committed snapshot, not `#snapshot`: the insertion
+    // carries the version it was resolved against, and the resolve one screen
+    // above used this same value. `buildReorderProposal` answers `null` on a
+    // version mismatch, so a behavior-private snapshot republished since the
+    // resolve is the one input that turns a coherent release into a throw.
+    const built = buildReorderProposal(snapshot, item, insertion);
 
     if (!built) {
       // A release that finds no coherent proposal has a broken invariant.

@@ -262,10 +262,38 @@ describe('the destination vocabulary', () => {
     expect(unrecognized(lines)).toHaveLength(1);
   });
 
+  it('should refuse a row of prose that carries no decision at all', () => {
+    // The shape that fell through: a one-cell narrative row inside the table,
+    // where the twenty-five before it are prose below it. A recogniser keyed
+    // to `D-nn` is a proxy for *this table contains only its own rows* and is
+    // narrower than it (F-414).
+    const lines = fixture(MARKED_79, LISTED_79).toSpliced(
+      9,
+      0,
+      '| **The twenty-sixth cycle opened and closed**, and here is why. |',
+    );
+
+    expect(listed(lines)).toHaveLength(1);
+    expect(unrecognized(lines)).toHaveLength(1);
+  });
+
   it('should not read the decision tables as deferred rows', () => {
-    // `ROW_SHAPED` is only a defect outside the section, and the decision
+    // An unparseable row is only a defect inside the section, and the decision
     // tables above are full of `| D-nn |` lines that are not this table's.
     expect(unrecognized(fixture(MARKED_79, LISTED_79))).toEqual([]);
+  });
+
+  it('should read the header off the delimiter rather than off its text', () => {
+    // The structure the widened reader steps over. Recognising the header by
+    // the delimiter beneath it rather than by its own text is what stops a
+    // renamed column reading as an unparseable row.
+    const lines = fixture(MARKED_79, LISTED_79).toSpliced(
+      7,
+      1,
+      '| Decision | Lands | What is outstanding | Witness |',
+    );
+
+    expect(unrecognized(lines)).toEqual([]);
   });
 });
 
@@ -574,6 +602,25 @@ describe('the heading invariant', () => {
         doc('05.md', '#### F-2 — the analysis'),
       ]),
     ).toEqual(['duplicate claim: F-2 — 00.md:1, 05.md:1']);
+  });
+
+  it('should report one identifier claimed twice in the same document', () => {
+    // **The collision D-193 adjudicates, and the shape of it that matters**:
+    // two passes an hour apart allocated `F-409` to different subjects, and
+    // the register's findings all live in one document, so the cross-document
+    // row above would not have fired. The register is the allocation
+    // authority, which is only worth anything if a second claim on one of its
+    // own addresses is refused.
+    expect(
+      violations([
+        doc(
+          '00-index.md',
+          '#### F-409 — the restoration has a write and no read',
+          '',
+          '#### F-409 — the pairing rows bound the opposite end',
+        ),
+      ]),
+    ).toEqual(['duplicate claim: F-409 — 00-index.md:1, 00-index.md:3']);
   });
 
   it('should not read a heading that merely mentions an identifier as a claim', () => {

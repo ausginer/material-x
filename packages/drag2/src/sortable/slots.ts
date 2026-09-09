@@ -69,11 +69,9 @@ export type InsertionFrameView = Readonly<{
   /**
    * **The collection the gap indexes into**, or `null` before a lift.
    *
-   * It is the frame's own committed snapshot, which is what a rule needs it to
-   * be: the release resolve runs after the frame has frozen, and a gap
-   * resolved against a collection the frame has already stopped agreeing with
-   * would name a slot in a list nothing else is reading. The behavior
-   * recomputes the home gap from the same committed value for the same reason.
+   * It is the frame's own committed snapshot: a value a gap may be resolved
+   * and version-stamped against, and one that does not move underneath a rule
+   * holding it.
    */
   snapshot: CollectionSnapshot | null;
   /** Read by the two-dimensional rule; `y()` ignores it. */

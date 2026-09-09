@@ -195,8 +195,28 @@ const MARKER_SHAPED = /^\*\*[^*]*\bUnimplemented\b/u;
 const LISTED =
   /^\|\s*(D-\d+)\s*\|\s*([^|]+?)\s*\|[^|]+\|\s*(absent|present):\s*`([^`]+)`(?:\s*::\s*`([^`]+)`)?\s*\|/u;
 
-/** Anything shaped like one of that table's rows. */
-const ROW_SHAPED = /^\|\s*D-\d+\s*\|/u;
+/**
+ * A table's delimiter row, which is what makes the line above it a header.
+ * Recognised by shape rather than by its columns' text, so a renamed column
+ * does not turn its header into a row.
+ */
+const DELIMITER = /^\|(?:\s*:?-{2,}:?\s*\|)+$/u;
+
+/**
+ * The table's own structure: its delimiter, and the header the delimiter
+ * follows. Everything else in the section beginning with `|` is a row, and a
+ * row `LISTED` cannot parse is a failure rather than a skip.
+ *
+ * **The property is about the table, not about the shape of a row** (F-70,
+ * F-414). A recogniser keyed to `D-\d+` is a proxy for it and is narrower: a
+ * one-cell row of prose is a row of this table that `LISTED` cannot parse, and
+ * it fell through silently while the proxy stood in for the rule.
+ */
+const structural = (
+  lines: readonly string[],
+  at: number,
+  line: string,
+): boolean => DELIMITER.test(line) || DELIMITER.test(lines[at + 1] ?? '');
 
 /** A decision named anywhere at all, which is what makes it a reference. */
 const DECISION = /D-\d+/gu;
@@ -409,11 +429,13 @@ export function unrecognized(lines: readonly string[]): readonly string[] {
     }
   }
 
-  for (const line of section(lines)) {
+  const rows = section(lines);
+
+  for (const [at, line] of rows.entries()) {
     const match = LISTED.exec(line);
 
     if (match === null) {
-      if (ROW_SHAPED.test(line)) {
+      if (line.startsWith('|') && !structural(rows, at, line)) {
         bad.push(`unparseable row: ${line.slice(0, 60)}`);
       }
 
@@ -837,8 +859,6 @@ export function violations(docs: readonly Document[]): readonly string[] {
 const TABLE = new MarkdownIt('commonmark').enable(['table']);
 
 /** The delimiter row, which is a table's shape and not one of its rows. */
-const DELIMITER = /^\|(?:\s*:?-{2,}:?\s*\|)+$/u;
-
 /** An identifier opening a cell, which is what makes a surplus cell an entry. */
 const OPENS_ENTRY = new RegExp(`^(?:\\*\\*)?${LOCAL_ID}(?:\\*\\*)?$`, 'u');
 

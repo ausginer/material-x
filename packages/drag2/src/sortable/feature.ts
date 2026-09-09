@@ -87,6 +87,49 @@ declare const SORTABLE_FEATURE: unique symbol;
 export type SortableFeatureContext = FeatureContext &
   Readonly<{ [SORTABLE_FEATURE]: never }>;
 
+// A declared slot whose parameter is a published view is a named function
+// alias, and that is a variance obligation rather than a style. Method
+// shorthand is checked bivariantly even under `strict`, so an axis whose own
+// narrower view demands a member the published view does not carry is silently
+// accepted, and the boundary this tier exists to check goes unchecked. A named
+// alias is checked contravariantly in the parameter and refuses it. The two
+// names are exported because declaration emit reaches them; `sortable/config.ts`
+// and `free-drag/config.ts` state the same rule for their own callback slots.
+export type ResolveInsertion = (
+  frame: InsertionFrameView,
+  runtime: InsertionRuntimeView,
+) => Insertion | null;
+/**
+ * **The committed placeholder move has landed** — one hook, called once,
+ * immediately after the one DOM write.
+ *
+ * Two obligations, and only the first is unconditional. It must leave the
+ * rule's own cache — and the placeholder position it holds — describing the
+ * tree the write produced, either by advancing it arithmetically or by
+ * rebuilding it. And it must hand `report` every element the move displaced,
+ * together with the vector that element travelled, **negated**.
+ *
+ * **`report` is `null` whenever no displacement feature is composed**, and a
+ * rule that measures only in order to report should then do neither: it is the
+ * argument that says whether anything will consume the answer. Nothing is
+ * returned and nothing need be allocated, so a committed move can cost one
+ * traversal and no object at all.
+ *
+ * It may read geometry — it is the one member that may — and each `report` call
+ * reaches consumer-owned code, so the `live` argument it is handed must be
+ * passed on and is read by the sink between calls.
+ *
+ * **A prediction may consume only a same-element temporal difference of
+ * presented geometry** (G5). A difference between two *different* elements'
+ * measured rects carries the difference of their authored `translate`, `rotate`
+ * or `scale` and is not a flow quantity, so it must not drive one.
+ */
+export type MovedInsertion = (
+  frame: InsertionFrameView,
+  runtime: InsertionRuntimeView,
+  report: DisplacementReport | null,
+) => void;
+
 // The forbidden receiver is this record — the one the members are declared on —
 // and not the contribution object carrying it. The assembler's lift of these
 // members into flat slot fields is mechanism, not promise. `MotionConstraint`
@@ -107,45 +150,13 @@ export type SortableFeatureContext = FeatureContext &
  * outside contract; it must close over its state.
  */
 export type InsertionGeometry = Readonly<{
-  resolve(
-    frame: InsertionFrameView,
-    runtime: InsertionRuntimeView,
-  ): Insertion | null;
+  resolve: ResolveInsertion;
   /**
    * "The geometry you cached is stale." **Lazy by contract** — scroll and
    * resize raise it many times a second, so it must not read geometry.
    */
   invalidate(): void;
-  /**
-   * **The committed placeholder move has landed** — one hook, called once,
-   * immediately after the one DOM write.
-   *
-   * Two obligations, and only the first is unconditional. It must leave the
-   * rule's own cache — and the placeholder position it holds — describing the
-   * tree the write produced, either by advancing it arithmetically or by
-   * rebuilding it. And it must hand `report` every element the move displaced,
-   * together with the vector that element travelled, **negated**.
-   *
-   * **`report` is `null` whenever no displacement feature is composed**, and a
-   * rule that measures only in order to report should then do neither: it is
-   * the argument that says whether anything will consume the answer. Nothing is
-   * returned and nothing need be allocated, so a committed move can cost one
-   * traversal and no object at all.
-   *
-   * It may read geometry — it is the one member that may — and each `report`
-   * call reaches consumer-owned code, so the `live` argument it is handed must
-   * be passed on and is read by the sink between calls.
-   *
-   * **A prediction may consume only a same-element temporal difference of
-   * presented geometry** (G5). A difference between two *different* elements'
-   * measured rects carries the difference of their authored `translate`,
-   * `rotate` or `scale` and is not a flow quantity, so it must not drive one.
-   */
-  moved(
-    frame: InsertionFrameView,
-    runtime: InsertionRuntimeView,
-    report: DisplacementReport | null,
-  ): void;
+  moved: MovedInsertion;
   retire(): void;
 }>;
 

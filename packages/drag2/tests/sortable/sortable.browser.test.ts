@@ -479,8 +479,8 @@ type SpecBench = Readonly<{
  * D-149). The seam is `createSortableBehavior(items, slots)` through
  * `draggable()` — the same one D-126 decided — and everything this bench adds
  * to it is **observation**: the install's own `spec`, a `dispatch` decorator
- * over the context the kernel hands the factory, and the per-operation view as a
- * declared slot receives it.
+ * over the context the kernel hands the factory, and the collection and
+ * placeholder the behavior publishes.
  *
  * ~~It replaces `createSortableRuntime` plus field writes.~~ Nothing here
  * writes behavior state: a row that needs a live presentation, an owned
@@ -2466,8 +2466,8 @@ describe('collection identity', () => {
           harness.calls.filter((call) => call === 'invalidateInsertion'),
         ).toHaveLength(before + 1);
 
-        // Resolve again, so `snapshot()` reads what the runtime actually
-        // holds. Asserting the version straight after the signal would pass
+        // Resolve again, so `snapshot()` reads the committed frame state the
+        // rule was handed. Asserting the version straight after the signal would pass
         // whether or not the branch exists — the harness only refreshes its
         // copy when the axis rule resolves.
         harness.next(null);
@@ -3329,9 +3329,9 @@ describe('the committed-move bracket’s exits', () => {
           stages.push(error.stage);
         }
       },
-      // An end gap, so the placeholder genuinely has to move — an inert move
-      // returns before the field is ever written. Resolved once: the second
-      // frame would find the gap already correct.
+      // An end gap, so the placeholder genuinely has to move — an
+      // already-correct gap returns before the move hook is ever called.
+      // Resolved once: the second frame would find the gap already correct.
       resolveInsertion: (frame): Insertion | null => {
         if (resolved) {
           return null;

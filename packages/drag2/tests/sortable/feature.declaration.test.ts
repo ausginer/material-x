@@ -87,11 +87,15 @@ describe('AxisInstaller', () => {
  * checked is that a field moving between the two **left** the one it moved
  * from.
  *
- * **Both halves are asserted.** Disjointness alone is satisfied by a view that
- * had narrowed to nothing, so each side is paired with its owner's row — the
- * behavior's own frame satisfies the frame view, its activation record
- * satisfies the runtime view — and a narrowing that emptied either would fail
- * there.
+ * **Disjointness is bounded from both ends, and the two bounds sit in
+ * different instruments.** The owner's rows below are the **upper** bound: each
+ * view is capped at what its owner actually supplies, so a view that declared a
+ * member the behavior does not guarantee fails there. They do not bound it from
+ * below — `toExtend` gets monotonically easier as the view narrows and is
+ * vacuous at `Readonly<{}>`. The lower bound is the axis assignment itself:
+ * `InsertionGeometry`'s two slots are named aliases, so their parameters are
+ * checked contravariantly, and emptying either view reddens `y.ts` and `xy.ts`
+ * under `just typecheck` rather than any row here.
  */
 describe('the two axis views', () => {
   it('should declare no member on both', () => {
@@ -104,19 +108,19 @@ describe('the two axis views', () => {
   });
 
   it('should be satisfied by the behavior’s own frame', () => {
-    // The lower bound on the frame view. Without it the row above is satisfied
-    // by narrowing this type to nothing, and the ceiling the behavior
-    // guarantees to supply would stop being a ceiling.
+    // The ceiling on the frame view: it may declare fewer members than the
+    // behavior's frame carries and may not declare more. Narrowing is not what
+    // this refuses — `toExtend` only gets easier as the view shrinks — and the
+    // shipped axes are what refuse that.
     expectTypeOf<
       Readonly<Frame<SortableFramePart>>
     >().toExtend<InsertionFrameView>();
   });
 
   it('should be satisfied by the behavior’s own activation record', () => {
-    // The lower bound on the runtime view, and the same argument on the other
+    // The ceiling on the runtime view, and the same argument on the other
     // side: the record is what the behavior actually passes, with no wrapper
-    // and no per-call allocation, so it is what the view has to stay
-    // satisfiable by.
+    // and no per-call allocation, so it is what the view may not out-declare.
     expectTypeOf<SortableActivation>().toExtend<InsertionRuntimeView>();
   });
 });
