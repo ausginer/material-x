@@ -1,7 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "unicorn", "import"],
-  "jsPlugins": ["eslint-plugin-prettier"],
   "categories": {
     "correctness": "off"
   },
@@ -82,7 +81,6 @@
     "packages/ydin/**/*.d.ts.map"
   ],
   "rules": {
-    "prettier/prettier": "error",
     "typescript/consistent-return": "error",
     "typescript/no-implied-eval": "error",
     "typescript/only-throw-error": "error",

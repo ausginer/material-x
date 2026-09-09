@@ -32,14 +32,14 @@ The publication-path rows (`part=3` … `part=28`, polymorphic) are a micro-benc
 
 ## M-1′ — the constrained compositions, the churn and the retained heap
 
-| Row | `2e485eb4` | Arc A |
-| --- | --- | --- |
-| C bare | 2.9297 – 3.1250 | 3.0273 – 3.1250 |
-| C axis, delta vs bare | −0.0977 – +0.0977 | 0.0000 – +0.0977 |
-| C bounds(element), delta vs bare | +0.0977 | +0.0977 – +0.1953 |
-| C bounds(thunk), delta vs bare | −0.0977 – 0.0000 | −0.1953 – −0.0977 |
-| E churn, `onMove` installed, median | 3.1250 – 3.6133 | 3.2227 |
-| E churn, slot null, median | 2.9297 | 2.9297 – 3.0273 |
+| Row                                 | `2e485eb4`        | Arc A             |
+| ----------------------------------- | ----------------- | ----------------- |
+| C bare                              | 2.9297 – 3.1250   | 3.0273 – 3.1250   |
+| C axis, delta vs bare               | −0.0977 – +0.0977 | 0.0000 – +0.0977  |
+| C bounds(element), delta vs bare    | +0.0977           | +0.0977 – +0.1953 |
+| C bounds(thunk), delta vs bare      | −0.0977 – 0.0000  | −0.1953 – −0.0977 |
+| E churn, `onMove` installed, median | 3.1250 – 3.6133   | 3.2227            |
+| E churn, slot null, median          | 2.9297            | 2.9297 – 3.0273   |
 | E retained heap over 20 000 samples | 0.00 B per sample | 0.00 B per sample |
 
 **Every row moves by at most one quantum and in both directions across repeats, which is the shape of a null result rather than of a small cost.** The retained-heap arm is the one that could have shown a real regression — four callbacks per controller instead of two, and one more object — and it is flat at the arm's own resolution because those allocations are per controller, not per sample.

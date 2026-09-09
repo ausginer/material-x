@@ -605,12 +605,12 @@ describe('the heading invariant', () => {
   });
 
   it('should report one identifier claimed twice in the same document', () => {
-    // **The collision D-193 adjudicates, and the shape of it that matters**:
-    // two passes an hour apart allocated `F-409` to different subjects, and
-    // the register's findings all live in one document, so the cross-document
-    // row above would not have fired. The register is the allocation
-    // authority, which is only worth anything if a second claim on one of its
-    // own addresses is refused.
+    // **The shape a collision in one register actually takes**: two passes an
+    // hour apart allocated `F-409` to different subjects, and a register's
+    // findings all live in one document, so the cross-document row above would
+    // not have fired. `owners` is keyed by identifier across documents rather
+    // than within one, and this is the row that says so — scoping it per
+    // document would leave the row above green and lose exactly this case.
     expect(
       violations([
         doc(

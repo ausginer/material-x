@@ -38,6 +38,8 @@
 
 **The published declarations went from 116,432 B to 116,295 B raw**, of which comment fell from 85,343 B to 85,086 B, across the same 33 files. Two effects, in opposite directions and unequal: D-194 adds two exported aliases and F-415 deletes a design-defence clause from a block that reaches a consumer's `.d.ts`. Net **−137 B** of tarball, of which −257 B is comment and +120 B is declaration text — the same reading [`CONTRIBUTING.md`](../../../../CONTRIBUTING.md) §4 (c) makes about pricing the prose rather than the values.
 
+**The figure is in bytes because the obligation has to be falsifiable** (D-197, F-425). A two-alias conversion moves the published declarations by tens of bytes, which two-decimal kB cannot see — an obligation to record a figure that the change cannot move is discharged by writing the same number. It is booked here, in the measurement that owns the change, rather than appended to [`arc-d.md`](arc-d.md)'s install-weight sentence, which prices Arc D's own docblock movement and is scoped to it.
+
 ## D-194's own scope claim, read rather than asserted
 
 **D-194 predicts fifteen unchanged rows, and it is the falsifier of its own scope rather than a formality.** Taken alone in the detached worktree — `feature.ts`'s two members converted and nothing else — **all fifteen compositions are byte-identical to the baseline on both columns, with no module gained.** A named type alias is `declare`-only, so the conversion emits no JavaScript and cannot reach a graph.

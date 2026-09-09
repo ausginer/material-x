@@ -1,6 +1,15 @@
 import { defineConfig, globalIgnores, type Config } from 'eslint/config';
 import tsImports from 'eslint-config-vaadin/imports-typescript';
-import prettier from 'eslint-config-vaadin/prettier';
+// `eslint-config-prettier` alone, and the omission is the rule.
+// `eslint-config-vaadin/prettier` is that config **plus**
+// `'prettier/prettier': 'error'`, which makes the linter a second formatter:
+// `oxfmt` writes the tree through `just fmt` and Prettier's opinion would then
+// check it, and where two formatters disagree there is no state the handoff
+// sequence can reach. The half taken here only *disables* stylistic rules, so
+// it removes opinions rather than imposing one. Root-level Markdown is
+// formatted by Prettier directly and is unaffected: no lint rule is involved
+// in that path.
+import prettierDisables from 'eslint-config-prettier';
 import testing from 'eslint-config-vaadin/testing';
 import tsRequireTypeChecking from 'eslint-config-vaadin/typescript-requiring-type-checking';
 import oxlint from 'eslint-plugin-oxlint';
@@ -24,7 +33,8 @@ const config: readonly Config[] = defineConfig(
   ...tsRequireTypeChecking,
   ...tsImports,
   ...testing,
-  ...prettier,
+  // A single flat-config object rather than an array, so it is not spread.
+  prettierDisables,
   {
     files: ['**/*.{ts,tsx,mts,cts}'],
     rules: {
