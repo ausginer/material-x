@@ -2298,6 +2298,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-09 — D-187 challenged after its only exercise: all five claims stand, three of the rules have a write and no read (D-192 supersedes D-187; F-409, F-410, F-411)
+
+**The process debt is closed and the decision survives it.** D-187 amended a repository-wide document and the register's rule (b) without an independent architecture pass. Challenged here against the completed act rather than the intention — O-13's discharge at Arc D's close — **all five load-bearing claims stand and none is reversed**. Record [`d187-challenge-claude.md`](reviews/architecture/d187-challenge-claude.md).
+
+**The landed behaviour needed no special pleading, and the check that would have shown it was never run.** §18 requires a suspension to record _the last figure it produced_ and requires nothing of the restoration, so the rule has a write and no read; O-13 preserved the figures for exactly that comparison and at the discharge it was replaced by arc-local inertness, which [`arc-d.md`](measurements/arc-d.md) calls _the condition a returning equality wants_ while it is neither necessary nor sufficient for it. **The comparison was performed in this pass and it reconciles to the byte** — −43, −19, −17, −22 and −25 B net across the suspension, every byte attributable to a named landed change, with the three measurement records' columns meeting exactly at each seam. The close spent nothing, and that is now demonstrated rather than asserted (F-409).
+
+**The boundary test screens a boundary that dissolves and not one that blurs.** Between D-188 and D-190 the register held both _three arcs_ and _Arc D, the last of the four_, so at the moment Arc C landed the boundary had arrived under one live reading with nobody deciding anything — §18's own failure condition, on a boundary that passed §18's stated test at minting time. The abandonment clause fires when a destination is given up, and nobody was giving Arc D up; what broke was identity, not attendance. F-405's own paragraph attributes its shape to that clause, which is a rule credited with a detection it cannot perform (F-410).
+
+**And the withdrawal statement rule guards one direction, against an instrument that describes itself twice** — the `control?` docblock's _transfer_ and `controlViolations()`'s _a change reached a graph it was declared unable to reach_, of which the second matches what the code compares. Two suspended rows moved +11 and +12 B one commit into the suspension and were explained in prose (F-411).
+
+**The restore/spend asymmetry is carried forward on a better ground**: a restored `control:` has exactly one admissible value and a re-based `budget:` has two, so the boundary chooses only the moment. The one-directional ban is correct — a default needs no trigger — and Arc D's decline stands on its two reading-grounded arguments without the two series-grounded ones.
+
+**No repair was implemented.** The three §18 and rule (b) edits, and F-405's correction, are filed for the post-Arc-D remediation round, which is where D-187 itself put F-390.
+
+---
+
 ### 2026-09-09 — Arc D landed, and the four-arc series closes on it (D-191; F-325, F-326, F-403, F-404, F-408)
 
 **The membership is the whole of the arc, and it landed as written.** The sortable's activation record now carries `placeholder`, `lift`, `box`, `live`, `settle` and `space` — six members, every one `readonly`, complete at construction and dropped whole — under the name `SortableActivation`, in `#operation.activation`. `realm` and `item` are deleted with the docblock that argued the mirror rule against D-177 at that decision's own example (F-403); the cached `activePlaceholder` alias is gone, and with it two of the six `!` assertions, because `effectAction` and `effectRelease` each read one record instead of asserting two fields of it. **Nothing was extracted and no entity was created**, which is what D-191 said the arc was not.
