@@ -147,9 +147,14 @@ function createField(slot = 0): Field {
     snapshot: (version = 0, list = collection) => ({ items: list, version }),
     resolve: (x, y, snapshot = field.snapshot(), getBox = null, live = ALIVE) =>
       geometry.resolve(
-        { pointerX: x, pointerY: y, insertion: null, item: dragged },
         {
+          pointerX: x,
+          pointerY: y,
           snapshot,
+          insertion: null,
+          item: dragged,
+        },
+        {
           placeholder,
           box: getBox,
           live,
@@ -168,9 +173,14 @@ describe('xy', () => {
 
     expect(
       field.geometry.resolve(
-        { pointerX: 50, pointerY: 20, insertion: null, item: null },
         {
+          pointerX: 50,
+          pointerY: 20,
           snapshot: field.snapshot(),
+          insertion: null,
+          item: null,
+        },
+        {
           placeholder: field.placeholder,
           box: null,
           live: ALIVE,

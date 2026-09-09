@@ -62,6 +62,13 @@ import type { DisplacementReport } from './slots.ts';
 type InsertionFrameView = Readonly<{
   pointerX: number;
   pointerY: number;
+  /**
+   * **The collection the gap indexes into**, or `null` before a lift. Read off
+   * the frame for the same reason `item` is: it is committed state, and the
+   * release resolve runs after the frame has frozen.
+   */
+  snapshot: CollectionSnapshot | null;
+
   /** The committed gap; see `y.ts` for why it is read off the frame. */
   insertion: Insertion | null;
   /** The dragged item, excluded from the candidates and from the index. */
@@ -69,7 +76,6 @@ type InsertionFrameView = Readonly<{
 }>;
 
 type InsertionRuntimeView = Readonly<{
-  snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
   /** The installed `box` resolver, or `null`; see `y.ts` for why. */
   box: ((item: HTMLElement) => HTMLElement) | null;
@@ -196,7 +202,7 @@ export function xy(): AxisInstaller {
             return null;
           }
 
-          const { snapshot } = runtime;
+          const snapshot = frame.snapshot!;
 
           if (
             !index.refresh(
@@ -332,7 +338,7 @@ export function xy(): AxisInstaller {
 
           if (
             !index.refresh(
-              runtime.snapshot,
+              frame.snapshot!,
               frame.item!,
               runtime.box,
               runtime.live,

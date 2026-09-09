@@ -124,9 +124,8 @@ function createField(count = 3): Field {
       insertion = null,
     ) =>
       geometry.resolve(
-        { pointerX: 0, pointerY, insertion, item: items[0]! },
+        { pointerX: 0, pointerY, snapshot, insertion, item: items[0]! },
         {
-          snapshot,
           placeholder,
           box: getBox,
           live,
@@ -145,11 +144,11 @@ function createField(count = 3): Field {
         {
           pointerX: 0,
           pointerY: 0,
+          snapshot,
           insertion: gapAt(gap),
           item: items[0]!,
         },
         {
-          snapshot,
           placeholder,
           box: getBox,
           live,
@@ -172,9 +171,14 @@ describe('y', () => {
 
     expect(
       field.geometry.resolve(
-        { pointerX: 0, pointerY: 60, insertion: null, item: null },
         {
+          pointerX: 0,
+          pointerY: 60,
           snapshot: field.snapshot(),
+          insertion: null,
+          item: null,
+        },
+        {
           placeholder: field.placeholder,
           box: null,
           live: ALIVE,

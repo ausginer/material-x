@@ -66,6 +66,16 @@ export type DisplacementReport = (
  */
 export type InsertionFrameView = Readonly<{
   insertion: Insertion | null;
+  /**
+   * **The collection the gap indexes into**, or `null` before a lift.
+   *
+   * It is the frame's own committed snapshot, which is what a rule needs it to
+   * be: the release resolve runs after the frame has frozen, and a gap
+   * resolved against a collection the frame has already stopped agreeing with
+   * would name a slot in a list nothing else is reading. The behavior
+   * recomputes the home gap from the same committed value for the same reason.
+   */
+  snapshot: CollectionSnapshot | null;
   /** Read by the two-dimensional rule; `y()` ignores it. */
   pointerX: number;
   pointerY: number;
@@ -89,7 +99,6 @@ export type InsertionFrameView = Readonly<{
  * per-controller is `placeholder`, which cannot be non-null before activation.
  */
 export type InsertionRuntimeView = Readonly<{
-  snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
   /**
    * The installed `box` resolver, or `null` when the config names neither `box`

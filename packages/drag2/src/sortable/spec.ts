@@ -933,7 +933,6 @@ class SortableBehavior {
       // activation has already changed.
       space: scope.itemSpace,
       live: this.#live,
-      snapshot: current.snapshot!,
     };
 
     if (!this.#invalidateInSeam()) {
@@ -1297,10 +1296,6 @@ class SortableBehavior {
     // discarded must not move the baseline, or the next invalidation would
     // read the change as already applied.
     this.#sourceIdentity = staged.source;
-
-    if (this.#operation.activation) {
-      this.#operation.activation.snapshot = next;
-    }
 
     if (phase === ACTIVATING || phase === ACTIVE) {
       // Not gated on success: publication already happened above, and the

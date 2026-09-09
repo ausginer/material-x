@@ -265,7 +265,7 @@ Two rows below do **not** discriminate, and each says so in the test rather than
 
 | Row | Test | ID |
 | --- | --- | --- |
-| a reentrant `cancel()` during `action.prepare(COLLECTION)` leaves `rt.snapshot` unchanged | `tests/sortable/sortable.browser.test.ts` — _should publish and then cancel when the gap cannot survive_ | F-19, F-28 |
+| the cancel a broken gap raises does not throw away the replacement that raised it: the collection is published first, so the item that replacement dropped is no longer admissible on the next press | `tests/sortable/sortable.browser.test.ts` — _should publish and then cancel when the gap cannot survive_ | F-19, F-28 |
 | a discarded collection action is not observable by a later one: each accepted update takes its own version, and a refused one consumes none | `tests/sortable/sortable.browser.test.ts` — _should keep versions increasing across separate drains_, _should not consume a version for a pull that produced no collection_ | D-25 |
 | a duplicated collection is **published**, not refused — the term is on `items` and nothing detects a violation | `tests/sortable/sortable.browser.test.ts` — _should publish a duplicated collection the pull source returned_ | D-121 |
 | a collection replacement at `SETTLING` publishes in `effect`, not `prepare` | `tests/sortable/sortable.browser.test.ts` — _should not rewrite the frozen snapshot after release_ | I-12 |

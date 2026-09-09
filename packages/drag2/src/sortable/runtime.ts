@@ -13,7 +13,6 @@ import type {
   BehaviorLiftSession,
   InheritedSpace,
 } from '../kernel/presentation.ts';
-import type { CollectionSnapshot } from './domain.ts';
 import type { DisplacementSettle } from './rect-index.ts';
 
 /** Behavior action tags. Behavior-local: the kernel offsets them. */
@@ -43,8 +42,8 @@ export const SORTABLE_ACTION_TAGS = 3;
  * lifecycle discriminant, and this record is read for what activation
  * acquired, never for where the operation is.
  *
- * Created in `activation.effect`, with `snapshot` rewritten by a collection
- * replacement — and nothing written per call.
+ * Created whole in `activation.effect`, dropped whole at retirement, and
+ * never written again in between — one write per operation and none per call.
  */
 export type SortableActivation = {
   readonly placeholder: HTMLElement;
@@ -89,5 +88,4 @@ export type SortableActivation = {
    */
   // eslint-disable-next-line @typescript-eslint/method-signature-style -- `readonly` is not expressible on a method signature
   readonly live: () => boolean;
-  snapshot: CollectionSnapshot;
 };

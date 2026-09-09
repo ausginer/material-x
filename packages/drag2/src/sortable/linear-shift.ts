@@ -76,7 +76,6 @@ import type { DisplacementReport } from './slots.ts';
  * behavior's view satisfies it structurally with no wrapper and no allocation.
  */
 export type LinearRuntime = Readonly<{
-  snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
   box: ((item: HTMLElement) => HTMLElement) | null;
   live(): boolean;
@@ -300,6 +299,7 @@ export class LinearShift {
    */
   moved(
     gap: number,
+    snapshot: CollectionSnapshot,
     runtime: LinearRuntime,
     report: DisplacementReport | null,
   ): void {
@@ -311,7 +311,7 @@ export class LinearShift {
     // unchanged gap proposes no span at all.
     if (
       this.#dirty ||
-      this.#seen !== runtime.snapshot.version ||
+      this.#seen !== snapshot.version ||
       this.#view.count === 0 ||
       from < 0 ||
       from === gap

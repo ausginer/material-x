@@ -55,6 +55,13 @@ import type { DisplacementReport } from './slots.ts';
 type InsertionFrameView = Readonly<{
   pointerY: number;
   /**
+   * **The collection the gap indexes into**, or `null` before a lift. Read off
+   * the frame for the same reason `item` is: it is committed state, and the
+   * release resolve runs after the frame has frozen.
+   */
+  snapshot: CollectionSnapshot | null;
+
+  /**
    * **The committed gap**, and it means the same thing at both call sites
    * because the frame does: where the placeholder is. In `resolve` the rebuild
    * records which gap its buffer reflects; in `moved` the write has just put it
@@ -66,7 +73,6 @@ type InsertionFrameView = Readonly<{
 }>;
 
 type InsertionRuntimeView = Readonly<{
-  snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
   /**
    * The installed `box` resolver, or `null` when the config named neither `box`
@@ -207,7 +213,7 @@ export function y(): AxisInstaller {
             return null;
           }
 
-          const { snapshot } = runtime;
+          const snapshot = frame.snapshot!;
           const { insertion } = frame;
 
           if (
@@ -295,7 +301,7 @@ export function y(): AxisInstaller {
           runtime: InsertionRuntimeView,
           report: DisplacementReport | null,
         ): void {
-          shift.moved(frame.insertion!.index, runtime, report);
+          shift.moved(frame.insertion!.index, frame.snapshot!, runtime, report);
         },
 
         retire: () => {

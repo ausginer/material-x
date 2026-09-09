@@ -41,10 +41,7 @@ import {
   type SortableFramePart,
   sortableFramePart,
 } from '../../src/sortable/frames.ts';
-import {
-  type SortableActivation,
-  TAG_SPATIAL,
-} from '../../src/sortable/runtime.ts';
+import { TAG_SPATIAL } from '../../src/sortable/runtime.ts';
 import type {
   DisplacementReport,
   InsertionFrameView,
@@ -205,14 +202,14 @@ function createHarness(overrides: Overrides = {}): Harness {
       : () => current,
     movedInsertion: overrides.movedInsertion ?? NO_MOVE,
     resolveInsertion(
-      _frame: InsertionFrameView,
+      frame: InsertionFrameView,
       runtime: InsertionRuntimeView,
     ): Insertion | null {
       calls.push('resolveInsertion');
       // Recorded so a test can prove the per-operation view is published with a
       // non-null placeholder before anything resolves against it.
       expect(runtime.placeholder).toBeInstanceOf(HTMLElement);
-      published = runtime.snapshot;
+      published = frame.snapshot!;
 
       const insertion = queued;
 
@@ -474,12 +471,6 @@ type SpecBench = Readonly<{
   dispatched: Array<Readonly<{ tag: number; argument: unknown }>>;
   /** The published collection, as the behavior copied it at construction. */
   snapshot: CollectionSnapshot;
-  /**
-   * The per-operation view, as the production path handed it to a slot. Throws
-   * until something has been handed one, so a row cannot assert against a view
-   * no operation produced.
-   */
-  view(): SortableActivation;
   placeholder(): HTMLElement | null;
 }>;
 
@@ -527,18 +518,10 @@ function createSpecBench(
   root.setPointerCapture = (): void => {};
   root.releasePointerCapture = (): void => {};
 
-  let captured: SortableActivation | null = null;
-  const base: SortableSlots = {
+  const slots: SortableSlots = {
     ...EMPTY_SLOTS,
     items: () => items,
     ...overrides,
-  };
-  const slots: SortableSlots = {
-    ...base,
-    resolveInsertion(frame, runtime): Insertion | null {
-      captured = runtime as SortableActivation;
-      return base.resolveInsertion(frame, runtime);
-    },
   };
 
   const dispatched: Array<Readonly<{ tag: number; argument: unknown }>> = [];
@@ -592,10 +575,6 @@ function createSpecBench(
     items,
     dispatched,
     snapshot: { items: [...items], version: 0 },
-    view: (): SortableActivation => {
-      expect(captured).not.toBeNull();
-      return captured!;
-    },
     placeholder: () => root.querySelector('[data-drag-placeholder]'),
   };
 }
@@ -3005,7 +2984,7 @@ describe('the spatial action legality guard', () => {
     const draft = {
       ...sortableFramePart(),
       phase,
-      snapshot: bench.view().snapshot,
+      snapshot: bench.snapshot,
       item: bench.items[0],
     } as unknown as Parameters<typeof bench.spec.action.prepare>[2];
 
@@ -3077,7 +3056,7 @@ describe('the spatial action legality guard', () => {
     const draft = {
       ...sortableFramePart(),
       phase: ACTIVE,
-      snapshot: bench.view().snapshot,
+      snapshot: bench.snapshot,
       item: bench.items[0],
     } as unknown as Parameters<typeof bench.spec.action.prepare>[2];
 
@@ -3116,7 +3095,7 @@ describe('a pointerless release with no destination', () => {
       ...sortableFramePart(),
       phase: RELEASING,
       pointerId: -1,
-      snapshot: bench.view().snapshot,
+      snapshot: bench.snapshot,
       item: bench.items[0],
       insertion: null,
     } as unknown as Parameters<typeof bench.spec.release.prepare>[0];
@@ -3353,14 +3332,14 @@ describe('the committed-move bracket’s exits', () => {
       // An end gap, so the placeholder genuinely has to move — an inert move
       // returns before the field is ever written. Resolved once: the second
       // frame would find the gap already correct.
-      resolveInsertion: (_frame, runtime): Insertion | null => {
+      resolveInsertion: (frame): Insertion | null => {
         if (resolved) {
           return null;
         }
 
         resolved = true;
         return {
-          version: runtime.snapshot.version,
+          version: frame.snapshot!.version,
           index: 1,
           before: foreignAnchor ? stray : bench.items[1]!,
           after: null,
