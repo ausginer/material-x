@@ -96,10 +96,12 @@ Neither shipped axis reads it: `y.ts`'s and `xy.ts`'s local `InsertionRuntimeVie
 | `:3396` move hook fails | yes | yes |
 | `:3413` lazy invalidation fails | yes | yes |
 | `:3444` sink throws | yes | yes |
-| `:3465` invalidate on failure | **no** | yes |
+| `:3465` invalidate on failure | **no** | yes — over an override byte-identical to `:3396`'s |
 | `:3480` invalidate then resolve at release | **no** | **no** — a call-order sequence, and it reads no view |
 
-So the migration is five rows losing a half, one row already pure classification, and one row untouched. The decision's _six rows … each assert two things_ is wrong on both numbers. The disposition — keep them as classification coverage of six bracket exits, including the one where a second failure is raised inside the `finally` handling the first (`:3413`, confirmed) — is right.
+So the migration is five rows losing a half, one row already pure classification, and one row untouched. The decision's _six rows … each assert two things_ is wrong on both numbers — **and the surviving classification coverage is five distinct exits, not six**: `:3465`'s `runBracket` override is character-for-character `:3396`'s and its assertion is a strict subset of `:3396`'s, so it buys no exit. The five kept are the successful bracket, the refused write, the throwing move hook, the throwing lazy invalidation (`:3413`, where a second failure is raised inside the `finally` handling the first) and the throwing sink. The disposition is right; the count is not.
+
+**And the sweep has three sites the decision does not name**, which F-402's standing property already requires: `COVERAGE.md:554` is keyed on _the `finally` still clears `view.insertion`_, `:268` on _leaves `rt.snapshot` unchanged_, and `features.browser.test.ts:1589` repeats the first in a comment. **`:554` is wrong before Arc D reaches it** — the row it names asserts `expect(applied).toEqual([])` at `:1623` and nothing about the view — so it is filed as **F-408**, F-401's shape a third time and in the same register file.
 
 `bench.view()` is read at four sites: `:3380` (`.insertion`) and `:3008`, `:3080`, `:3119` (`.snapshot`, each fabricating a draft). With both migrations landed those four go, and with them `captured` at `:530-539` and the `PresentationView` import. **Confirmed.** The three snapshot rows do need another handle, as the decision says.
 
@@ -129,7 +131,7 @@ So the migration is five rows losing a half, one row already pure classification
 
 > _**Nothing pins either membership.** … a field added to, removed from or silently widened on either view reddens nothing._
 
-**Falsified by execution.** All four mutations Arc D would make are already red under `just typecheck` (`tsc -p tsconfig.json --noEmit`, whose `include` covers `tests/**`):
+**Falsified by execution.** All four mutations Arc D would make are already red under `just typecheck` (`tsc -p tsconfig.json --noEmit`, whose `include` covers `tests/**`). **And the finding's one cited instrument does not exist either**: `consumer.node.test.ts:530` does not import `InsertionRuntimeView` out of the shipped declarations — it sits under a `@ts-expect-error` at `:529` whose subject is the **subpath** `sortable/slots.js` being undeclared, so the type name is inert and the row survives that type being renamed or deleted.
 
 | Mutation | Result |
 | --- | --- |
@@ -170,9 +172,9 @@ What F-404 should ask for, restated: the **disjointness** of the two key sets; *
 
 ---
 
-## 9. One register defect found in passing
+## 9. Two register defects found in passing
 
-§Decision status opens _The **eight** `inactive` rows are the ones whose live residue is empty_ and enumerates eight. The table three lines below carries **thirteen**: the five omitted are **D-7** (superseded by D-155), **D-162** (superseded by D-164), **D-164** (superseded by D-165), **D-167** and **D-169** (both superseded by D-170), each explained in its own entry and none in the paragraph that exists to explain them. The count is a checkable falsehood against the table it introduces. Filed as F-406 and repaired in place; it is the same class as F-405, one document over.
+§Decision status opens _The **eight** `inactive` rows are the ones whose live residue is empty_ and enumerates eight. The table three lines below carries **thirteen**: the five omitted are **D-7** (superseded by D-155), **D-162** (superseded by D-164), **D-164** (superseded by D-165), **D-167** and **D-169** (both superseded by D-170), each explained in its own entry and none in the paragraph that exists to explain them. The count is a checkable falsehood against the table it introduces. Filed as F-406 and repaired in place; it is the same class as F-405, one document over. **The second is F-408**, above: `COVERAGE.md:554` names a guard the row it cites is the one thing that does not assert — F-401's shape a third time, in the same file, about the field F-325 deletes.
 
 ---
 
@@ -184,4 +186,4 @@ What F-404 should ask for, restated: the **disjointness** of the two key sets; *
 
 **Probes.** One worktree detached at `e60e0c7d9`, `node_modules` symlinked, five mutations run and reverted; removed before recording. Main checkout verified clean at start and end.
 
-**LSP plugin - available; not used**: the load-bearing questions were statement ordering, phase reachability and type-checker behaviour under mutation, none of which a symbol index answers. Call chains were read directly and every claim was executed; the symbol censuses were delegated to two agents and are not cited — each was re-derived by hand.
+**LSP plugin - available; not used**: the load-bearing questions were statement ordering, phase reachability and type-checker behaviour under mutation, none of which a symbol index answers. Call chains were read directly and every claim was executed; the symbol censuses were delegated to two agents and nothing from them is cited unverified — the three items they returned that this record did not already hold (`:3465`'s duplication of `:3396`, `consumer.node.test.ts:530`'s inert type name, and `COVERAGE.md:554`/`:268`) were each read back against the tree before being written down.
