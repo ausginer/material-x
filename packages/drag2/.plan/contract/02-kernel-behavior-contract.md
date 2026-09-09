@@ -1252,7 +1252,9 @@ type SettlementAttempt = {
 };
 ```
 
-**Two numbers, and the record itself is the identity.** Everything else the attempt carried — `holds`, `start`, `landing`, `landingHeld`, `relinquished`, `completed`, `failed`, `sealed` — was gate bookkeeping, and every one of them goes with the gate. What the object still earns is staleness by identity: the code between the measurement and the join runs behavior and consumer code, and a settlement that has been replaced in the meantime is a **different object** rather than a different flag.
+**Two numbers, and nothing else survives the gate.** Everything else the attempt carried — `holds`, `start`, `landing`, `landingHeld`, `relinquished`, `completed`, `failed`, `sealed` — was gate bookkeeping, and every one of them goes with the gate.
+
+~~What the object still earns is staleness by identity: the code between the measurement and the join runs behavior and consumer code, and a settlement that has been replaced in the meantime is a **different object** rather than a different flag.~~ **Retired 2026-09-09 (D-189): the object earns no staleness, and no slot holds it to be compared against.** The attempt is a **local** of `openSettlement`, handed to the measurement and to the join as an argument; the kernel keeps no settlement slot, so there is nothing an identity comparison could read. **The replacement that sentence describes cannot occur**: `openSettlement` runs with a drain already on the stack in both of its callers, a dispatch raised from behavior or consumer code inside that span appends and returns instead of re-entering, a `close()` at non-zero depth defers its teardown, and the one retirement path that is not a queue handler sits behind an ingress refusal that holds for the whole of `SETTLING`. What the span needs is **liveness rather than identity**, and that is what `settlementLive()` reads: the terminal latch, the cancel latch, a live operation and the `SETTLING` phase — four conjuncts, none of them naming an attempt.
 
 ~~`SettlementScope`~~ **is deleted outright.** It existed for `holdForLanding` and nothing else, so `settlement.effect(current, prepared)` now takes no capability at all, and the seam's envelope hands it none. **A displacement feature could never reach it and now cannot reach anything**, which is the same claim I-10 made, held structurally rather than by the scope's distribution.
 
@@ -1392,7 +1394,7 @@ Consequences:
 
 1. **A settlement makes one frame transition.** Probe 1 ran `begin(); flag = true; commit()` per gate. The only transition in settlement is `phase = FINALIZING`.
 2. ~~**A hold count is still the right shape for one hold.**~~ **There is no count and no handle to outlive it.** The join reads two numbers off the attempt and calls nothing back.
-3. **Staleness is answered by identity.** A settlement replaced between the measurement and the join is a different object, which is the check `settlementLive` performs.
+3. ~~**Staleness is answered by identity.** A settlement replaced between the measurement and the join is a different object, which is the check `settlementLive` performs.~~ **Retired 2026-09-09 (D-189): the settlement carries no identity, and `settlementLive()` takes no attempt.** The measurement and the join are one synchronous span no legal writer can enter, so both checks around it read **liveness** — `settlementLive()` before the join is opened and `joinLive()` inside it, neither carrying an identity conjunct. **Staleness by identity is the resolution's rule and is unchanged**: §Attempts and stale continuation rejection.
 4. ~~**The hold may be requested at most once, and only before sealing.**~~ **Nothing is requested**, so the duplicate-and-late-request rule — a `DraggableWarning`, never a panic, because a bookkeeping error must not destroy a live drop — has no subject. The rule itself is unchanged wherever a bookkeeping error is still reachable.
 5. **With no `landing()` feature the behavior holds nothing and finalizes in the same drain.** True since D-41 and unconditional since D-155: every settlement finalizes in its own drain, and installing a landing changes what the element does afterwards rather than when the operation ends.
 6. ~~**One gate is v1 product vocabulary, not a generic mechanism.**~~ **Zero gates is the same claim, arrived at from the other side**: removing the last one touched the attempt record, the scope API, the arm step, the action vocabulary, two failure stages, teardown, diagnostics and tests — which is exactly the cost this row predicted a _second_ gate would have, and is the measurement of how specific the mechanism was.
@@ -1855,10 +1857,12 @@ Only two things coalesce: the behavior's rAF frame task and, inside it, the sing
 | Attempt | Owner | Identity | Validated |
 | --- | --- | --- | --- |
 | Resolution | kernel | object | producer boundary + on `RESOLUTION_SETTLED` |
-| Settlement (the landing gate) | kernel | object | producer boundary + on gate release |
+| ~~Settlement (the landing gate)~~ **Settlement measurement** | kernel | ~~object~~ **none (D-189)** | ~~producer boundary + on gate release~~ **liveness before the join and again inside it** |
 | Spatial frame | behavior | monotonic `number` (D-11) | producer boundary + in `action.prepare` |
 
-Identity is validated **twice** in every case: once before dispatching and again when the queued action is applied. The two layers guard different windows — an attempt slot may be reset at a different moment than the frame phase changes — so both are required.
+Identity is validated **twice wherever an attempt is dispatched**: once before dispatching and again when the queued action is applied. The two layers guard different windows — an attempt slot may be reset at a different moment than the frame phase changes — so both are required. **The two resolution checks are instrumented since 2026-09-08**, one row per half, each reddened by the deletion of its own comparison and by no other (F-400).
+
+**The settlement measurement is neither dispatched nor identified** (D-189), which is why its row above carries no identity and no second validation. It travels as an argument across one synchronous span that no legal writer can enter, so what the kernel checks on both sides of it is whether the operation is still live rather than which attempt it is. **The two rules differ because the windows do**: a resolution completion arrives from consumer code at an arbitrary later turn and must prove which attempt it belongs to; a settlement measurement never leaves the call that took it.
 
 A resolution attempt still distinguishes `completed` from `settlement`: `settlement` is the discriminated payload, cleared once consumed, so a fulfilled `undefined` and a rejected `undefined` stay distinguishable; `completed` records that the resolver produced a result at all. The abort guard keys off `completed`, because keying it off the payload aborts a finished resolver's own signal.
 
