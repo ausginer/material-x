@@ -26,7 +26,7 @@ A report carries three things, because the consolidator decides with each of the
 
 A null result is a result and is stated explicitly. _The forward pass found no surviving machinery_ is an outcome; silence is not.
 
-**Canonical ids are assigned at consolidation.** There is no collision-free allocator for `F-`/`Q-`/`I-` — they are hand-numbered — so parallel passes would race. Each pass numbers within itself; the summary assigns canonical ids and carries the local→canonical mapping.
+**A summary proposes canonical ids; the register that owns the family assigns them.** There is no collision-free allocator for `F-`/`Q-`/`I-` — they are hand-numbered — so parallel passes would race. Each pass numbers within itself, and the summary resolves that race by carrying a `Local → canonical` mapping. **That mapping is a proposal until the register carries the rows**, and the registered id wins a collision: a summary that mints canonical ids and writes them nowhere else creates a second allocation surface, which is how two rounds an hour apart once gave one id to six defects. So a pass that mints an id writes its entry into the owning register — `00-index.md` for `D-`/`F-`, the document holding the family for the rest — **in the same commit that first uses it**.
 
 ## Tier
 

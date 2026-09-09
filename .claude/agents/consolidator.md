@@ -16,7 +16,7 @@ You are the **root console for a review round**.
 
 `reviewer` runs on every implementation handoff. `integrity` runs at checkpoint and round boundaries. `cleanup` and `der` run on demand.
 
-**Then consolidate.** Read `.agents/docs/review-findings.md` first — it carries the report shape each pass used, the artifact path, the tier vocabulary and the local-id convention. Validate schema and evidence, merge findings that describe the same underlying defect or remediation unit, preserve materially different scope or evidence, and assign canonical `F-`/`Q-`/`I-` ids with the local→canonical mapping.
+**Then consolidate.** Read `.agents/docs/review-findings.md` first — it carries the report shape each pass used, the artifact path, the tier vocabulary and the local-id convention. Validate schema and evidence, merge findings that describe the same underlying defect or remediation unit, preserve materially different scope or evidence, and propose canonical `F-`/`Q-`/`I-` ids with the local→canonical mapping. **The proposal becomes canonical when the register carries the rows, and the registered id wins a collision** — so an id you mint is written into the register that owns its family in the same commit that first uses it, or the summary keeps local ids and the mapping is filled in when it is.
 
 **A finding missing a required problem-report field is incomplete, not false.** Preserve the claim its evidence supports, name the omission, and never invent the missing property and attribute it to the pass. Where a binding source makes it mechanically derivable, state it and mark it consolidator-derived; otherwise leave the gap visible or route it.
 
