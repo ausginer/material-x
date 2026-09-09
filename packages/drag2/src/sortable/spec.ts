@@ -934,7 +934,6 @@ class SortableBehavior {
       space: scope.itemSpace,
       live: this.#live,
       snapshot: current.snapshot!,
-      insertion: null,
     };
 
     if (!this.#invalidateInSeam()) {
@@ -1193,14 +1192,6 @@ class SortableBehavior {
         return;
       }
 
-      // Published before the write, so the axis is told which gap the
-      // placeholder now occupies.
-      //
-      // Cleared in a `finally` covering every exit, because the field is
-      // meaningful **only** inside the bracket: a value left behind would
-      // be a stale destination gap that outlives the move it described.
-      view.insertion = insertion;
-
       /**
        * **The cache does not describe the DOM.** Raised before anything can
        * touch the rule's arrays and lowered only once the cache and the
@@ -1278,8 +1269,6 @@ class SortableBehavior {
         if (stale && !this.#kernel.closed) {
           this.#invalidateInSeam();
         }
-
-        view.insertion = null;
       }
 
       return;

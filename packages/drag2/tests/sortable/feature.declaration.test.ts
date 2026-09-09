@@ -4,15 +4,20 @@
  * opaque; D-30, I-10).
  */
 import { describe, expectTypeOf, it } from 'vitest';
+import type { Frame } from '../../src/kernel/frames.ts';
 import type { LandingContribution } from '../../src/shared/composition.ts';
 import type {
   AxisContribution,
   AxisInstaller,
   DisplacementContribution,
+  InsertionFrameView,
   InsertionGeometry,
+  InsertionRuntimeView,
   LandingTiming,
   SortableLandingInstaller,
 } from '../../src/sortable/feature.ts';
+import type { SortableFramePart } from '../../src/sortable/frames.ts';
+import type { SortableActivation } from '../../src/sortable/runtime.ts';
 
 declare const insertion: InsertionGeometry;
 declare const landingTiming: LandingTiming;
@@ -61,6 +66,58 @@ describe('AxisInstaller', () => {
     expectTypeOf<keyof AxisContribution>().toEqualTypeOf<
       'insertion' | 'retire'
     >();
+  });
+});
+
+/**
+ * **The two published axis views, and the one property the pair exists to
+ * carry.** A rule is handed frame state and runtime state as separate
+ * arguments because they have separate owners and separate lifetimes, and the
+ * mechanism that keeps them apart is a field being declared on **one** of the
+ * two rather than appearing on both. A field on both is a mirror: two copies
+ * of one fact, kept in step by nothing, and the divergence is a defect whether
+ * or not a reader has yet observed it.
+ *
+ * The property is therefore **disjointness**, not a key set. Key sets are
+ * already pinned incidentally, in both directions, by the object-literal
+ * fixtures in `y.browser.test.ts` and `xy.browser.test.ts`: they build a frame
+ * and a runtime and pass them positionally to `geometry.resolve`/`moved`,
+ * whose parameters are these two types, so missing-property checking pins each
+ * membership from below and excess-property checking from above. What nothing
+ * checked is that a field moving between the two **left** the one it moved
+ * from.
+ *
+ * **Both halves are asserted.** Disjointness alone is satisfied by a view that
+ * had narrowed to nothing, so each side is paired with its owner's row — the
+ * behavior's own frame satisfies the frame view, its activation record
+ * satisfies the runtime view — and a narrowing that emptied either would fail
+ * there.
+ */
+describe('the two axis views', () => {
+  it('should declare no member on both', () => {
+    // The intersection is the whole of the mirror test: a field declared on
+    // the frame view and again on the runtime view is one fact with two
+    // representations, and this is what refuses it.
+    expectTypeOf<
+      keyof InsertionFrameView & keyof InsertionRuntimeView
+    >().toEqualTypeOf<never>();
+  });
+
+  it('should be satisfied by the behavior’s own frame', () => {
+    // The lower bound on the frame view. Without it the row above is satisfied
+    // by narrowing this type to nothing, and the ceiling the behavior
+    // guarantees to supply would stop being a ceiling.
+    expectTypeOf<
+      Readonly<Frame<SortableFramePart>>
+    >().toExtend<InsertionFrameView>();
+  });
+
+  it('should be satisfied by the behavior’s own activation record', () => {
+    // The lower bound on the runtime view, and the same argument on the other
+    // side: the record is what the behavior actually passes, with no wrapper
+    // and no per-call allocation, so it is what the view has to stay
+    // satisfiable by.
+    expectTypeOf<SortableActivation>().toExtend<InsertionRuntimeView>();
   });
 });
 

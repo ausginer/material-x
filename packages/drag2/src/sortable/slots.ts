@@ -120,15 +120,6 @@ export type InsertionRuntimeView = Readonly<{
    */
   live(): boolean;
   /**
-   * **The gap the placeholder occupies**, or `null` before one exists.
-   *
-   * A rule reads it in two places and means the same thing in both: `resolve`
-   * records which gap the buffer it just measured reflects, and `moved` is told
-   * which gap the write that just happened moved it to. It is the frame's own
-   * committed insertion, republished here so a rule needs no second view.
-   */
-  insertion: Insertion | null;
-  /**
    * **The installed displacement sink's settle walk**, or `null` when no
    * displacement feature is composed.
    *

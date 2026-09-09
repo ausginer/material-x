@@ -3313,28 +3313,24 @@ describe('seam staging across whole operations', () => {
   });
 });
 
-describe('the displacement view lifetime', () => {
+describe('the committed-move bracket’s exits', () => {
   /**
-   * `SortableActivation.insertion` is documented as meaningful **only** inside
-   * the committed-move bracket, and the hook-facing `DisplacementView` declares
-   * it non-null on that basis. A value left behind is a destination gap that
-   * outlives the move it described.
+   * **Every way out of the committed-move bracket, and the stage each one
+   * reports.** The bracket owes a classified failure and an invalidated cache
+   * on every exit that is not the successful one, and the exits are distinct
+   * consumer-reachable steps rather than variations of a single throw: a
+   * placeholder write the canonical writer refuses, a throwing
+   * `movedInsertion`, a `invalidateInsertion` that throws from inside the
+   * `finally` already handling the hook's failure, and a throwing sink reached
+   * through the axis.
    *
-   * **Driven as a real committed move** (D-149). ~~Driven directly, because
-   * every exit that has to clear it is a failure exit.~~ The exits *are*
-   * failure exits, and each one is reachable from a declared slot: a throwing
-   * `movedInsertion` or `invalidateInsertion`, a throwing hook, and an
-   * insertion anchored in another container. What the view holds afterwards is
-   * read from the object the production path handed a slot — which is the
-   * contracted observer for it — rather than off a field of a container the
-   * test built.
+   * **Driven as a real committed move** (D-149), so each exit is reached from
+   * a declared slot rather than by calling the bracket directly.
    */
   const runBracket = async (
     overrides: Partial<SortableSlots> = {},
     foreignAnchor = false,
-  ): Promise<
-    Readonly<{ left: Insertion | null; stages: Array<FailureStage | null> }>
-  > => {
+  ): Promise<Array<FailureStage | null>> => {
     const elsewhere = document.createElement('div');
     const stray = document.createElement('div');
 
@@ -3377,50 +3373,49 @@ describe('the displacement view lifetime', () => {
     move(60);
     await nextFrame();
 
-    return { left: bench.view().insertion, stages };
+    return stages;
   };
 
-  it('should clear the gap after a successful bracket', async () => {
-    expect(await runBracket()).toEqual({ left: null, stages: [] });
+  it('should report no failure from a successful bracket', async () => {
+    // The control. Without it every row below would be satisfied by a bracket
+    // that classified a failure on the happy path too.
+    expect(await runBracket()).toEqual([]);
   });
 
-  it('should clear the gap when the placeholder write is refused', async () => {
+  it('should classify a refused placeholder write', async () => {
     // A cross-container anchor: the canonical writer throws rather than moving
     // the placeholder out of the list, and the kernel classifies the throw.
-    expect(await runBracket({}, true)).toEqual({
-      left: null,
-      stages: [FAILURE_ACTION_EFFECT],
-    });
+    expect(await runBracket({}, true)).toEqual([FAILURE_ACTION_EFFECT]);
   });
 
-  it('should clear the gap when the move hook fails', async () => {
-    const result = await runBracket({
+  it('should classify a throwing move hook', async () => {
+    const stages = await runBracket({
       movedInsertion: (): void => {
         throw new Error('move hook failed');
       },
     });
 
     // Classified rather than thrown, so this exit is a plain `return` out of
-    // the middle of the bracket, and the `finally` both clears the gap and
-    // invalidates the cache the hook may have half-advanced. **One row where
-    // there were two**: the hook runs after the write on every path now, so
-    // there is no second instant at which an axis can fail. The stage is the
-    // one the write above it reports, because it is where the library was
-    // standing.
-    expect(result).toEqual({ left: null, stages: [FAILURE_ACTION_EFFECT] });
+    // the middle of the bracket, and the `finally` still invalidates the cache
+    // the hook may have half-advanced — the load-bearing half of the failure
+    // discipline (D-157 §3.4, D-158), because there is no invalidation on the
+    // happy path at all. **One row where there were two**: the hook runs after
+    // the write on every path now, so there is no second instant at which an
+    // axis can fail. The stage is the one the write above it reports, because
+    // it is where the library was standing.
+    expect(stages).toEqual([FAILURE_ACTION_EFFECT]);
   });
 
-  it('should clear the gap when the lazy invalidation fails', async () => {
+  it('should classify a throwing lazy invalidation into the failing seam', async () => {
     // **Two failures, and the second is raised from inside the `finally` that
     // handles the first.** The move hook throws, so the bracket owes an
     // invalidation; that invalidation throws too. It must be classified rather
-    // than escaping the `finally` as the seam's own outcome — and the gap must
-    // still be cleared.
+    // than escaping the `finally` as the seam's own outcome.
     //
     // Failing from the *second* call on, because activation invalidates too and
     // a failure there declines the operation before there is a bracket to open.
     let calls = 0;
-    const result = await runBracket({
+    const stages = await runBracket({
       movedInsertion: (): void => {
         throw new Error('move hook failed');
       },
@@ -3437,11 +3432,10 @@ describe('the displacement view lifetime', () => {
     // a latched operation has already decided its outcome, so the invalidation
     // is classified into a seam that is failing rather than reported twice.
     expect(calls).toBe(2);
-    expect(result.left).toBeNull();
-    expect(result.stages).toEqual([FAILURE_ACTION_EFFECT]);
+    expect(stages).toEqual([FAILURE_ACTION_EFFECT]);
   });
 
-  it('should clear the gap when the sink throws', async () => {
+  it('should classify a throwing sink', async () => {
     // **A sink throw reports the same stage an axis throw does, and the seam
     // is why.** The visitor is called by the axis, from inside
     // `movedInsertion`, so a throw escapes through the same wrapper an axis
@@ -3459,22 +3453,7 @@ describe('the displacement view lifetime', () => {
           throw new Error('sink failed');
         },
       }),
-    ).toEqual({ left: null, stages: [FAILURE_ACTION_EFFECT] });
-  });
-
-  it('should invalidate when the move hook fails and not when it succeeds', async () => {
-    // **The load-bearing half of the failure discipline** (D-157 §3.4, D-158).
-    // There is no invalidation on the happy path at all — the axis leaves the
-    // cache current by construction — so the only thing standing between a
-    // failed write and a cache describing a move the DOM never made is the
-    // bracket's own `finally`.
-    const failed = await runBracket({
-      movedInsertion: (): void => {
-        throw new Error('move hook failed');
-      },
-    });
-
-    expect(failed.stages).toEqual([FAILURE_ACTION_EFFECT]);
+    ).toEqual([FAILURE_ACTION_EFFECT]);
   });
 
   it('should invalidate and then resolve at release, cancelling nothing', () => {

@@ -13,7 +13,7 @@ import type {
   BehaviorLiftSession,
   InheritedSpace,
 } from '../kernel/presentation.ts';
-import type { CollectionSnapshot, Insertion } from './domain.ts';
+import type { CollectionSnapshot } from './domain.ts';
 import type { DisplacementSettle } from './rect-index.ts';
 
 /** Behavior action tags. Behavior-local: the kernel offsets them. */
@@ -90,15 +90,4 @@ export type SortableActivation = {
   // eslint-disable-next-line @typescript-eslint/method-signature-style -- `readonly` is not expressible on a method signature
   readonly live: () => boolean;
   snapshot: CollectionSnapshot;
-  /**
-   * The destination gap of the placeholder move currently being bracketed.
-   *
-   * Written at the head of the committed-move bracket and read only inside it,
-   * and the bracket runs nowhere else — so it is a field on the shared
-   * per-operation object rather than a fresh view per move. One write per
-   * *committed* move, and none per pointer move.
-   *
-   * It is `null` outside a bracket, and nothing but the bracket can observe it.
-   */
-  insertion: Insertion | null;
 };

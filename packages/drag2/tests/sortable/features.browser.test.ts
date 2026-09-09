@@ -1586,7 +1586,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     // factory, reached from a plain DOM write, with no seam around it.
     // `activation.effect` already guards the identical hazard one line after
     // `item.after(placeholder)`; this is the same species through the other
-    // door, and the `finally` must still clear `view.insertion`.
+    // door.
     //
     // **One of the three barriers D-157 keeps**, and the only one between the
     // write and the sink: everything the old bracket guarded after this point
