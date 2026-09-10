@@ -221,8 +221,26 @@ fragmentation, which is why `MALLOC_ARENA_MAX=2` did nothing; and the cost is
 constant in test-file count because the `.css.ts` set is fixed by the source
 tree, not by which tests run (1 file 5935 MiB, 8 files 5034 MiB).
 
-**It is specific to material-x only because material-x is the package with
-`.css.ts` files.** The plugin is shared, and the defect travels with it.
+**It is specific to material-x only because material-x is the only package with
+`.css.ts` files** — 35 of them, against none anywhere else. The plugin is
+shared, so the defect travels to whichever package adopts the pattern next, and
+its cost is linear in the number of `.css.ts` modules a package holds.
+
+**And it is not confined to the test run.** `constructCSSTokens` is also on the
+build path — `.scripts/tsdown-component.ts:15`, with `isProd: true` — where the
+same `load` handler spawns the same unbounded workers. Measured on a clean
+`just build-lib` for material-x, the single `tsdown` process reaches
+**12 063 MiB `VmRSS` at 89 threads**, taking `memory.current` to 16 383 MiB —
+the cap — with the same signature as the test run:
+
+```
+t=3s   RSS=1434 MiB    Threads=66
+t=7s   RSS=10576 MiB   Threads=88
+```
+
+Rolldown flags it unprompted in the build output: _"Your build spent significant
+time in plugin `vite-construct-css-tokens`"_. The build survives today because
+it is short, not because it is within budget.
 
 | Package              | Main process | Chromium total | Files |
 | -------------------- | ------------ | -------------- | ----- |
@@ -363,8 +381,10 @@ preferring it is the 290 MiB-per-worker slope: that is import cost, not work.
 main process near 2 GiB with no measurable duration cost, where a bound of 1
 costs 5–10 s and buys 1 GiB that D-199's budget does not need.
 
-This is not scoped to material-x. The plugin is shared; the defect is the
-plugin's.
+**Fixing it in the plugin fixes the build as well as the tests.** That is an
+independent reason the correction belongs here and not in test scheduling: the
+build path reaches the cap on its own (F-434), and no amount of test-runner
+configuration would have touched it.
 
 #### D-201 — `maxWorkers` is not lowered repository-wide, and the CLI flag is never used
 
@@ -508,29 +528,33 @@ the devcontainer and reported with the change (I-38).
    removed — asserting the observed concurrent worker count, not the presence of
    a constant — is required, because F-434's failure mode is silent and grows
    with the source tree.
-2. **Package-level, every package.** Each of the seven packages run in turn,
+2. **The build is bounded too.** Peak `VmRSS` of the `tsdown` process and peak
+   `memory.current` for a clean `just build-lib` of material-x, against the
+   12 063 MiB / 16 383 MiB measured today. The build path uses the same handler
+   and must show the same improvement.
+3. **Package-level, every package.** Each of the seven packages run in turn,
    each reporting peak `memory.current` and an `oom_kill` delta of **zero**,
    with every peak below 13.1 GiB (D-199).
-3. **Package-level, material-x specifically.** All 19 files and 263 tests pass
+4. **Package-level, material-x specifically.** All 19 files and 263 tests pass
    in one invocation of the package's `test` target — 8 `browser`, 6 `spec`,
    4 `visual`, 1 `node` — with peak and `oom_kill` delta reported. This is the
    run that is killed today; the target from the measured arrangement is
    ≈9.9 GiB peak in ≈60 s.
-4. **Repository-level.** The full repository run completes with an `oom_kill`
+5. **Repository-level.** The full repository run completes with an `oom_kill`
    delta of zero and a peak below 13.1 GiB, with wall-clock duration stated. The
    duration is a reported figure rather than a target, but a repository run
    materially longer than the sum of its package runs means the sequencing is
    wrong.
-5. **F-438 is closed, not assumed away.** The visual project passes on three
+6. **F-438 is closed, not assumed away.** The visual project passes on three
    consecutive runs on a container carrying its normal background load, with no
    baseline re-recorded and no tolerance widened. If the disposition is that
    relieving memory pressure was the whole fix, those three runs are the
    evidence for it.
-6. **The inert control is documented as inert.** Wherever the repository tells a
+7. **The inert control is documented as inert.** Wherever the repository tells a
    contributor how to bound test memory, it does not say `--maxWorkers`
    (F-432, D-201).
 
-Items 2–4 discharge the brief. Items 1, 5 and 6 are what stop the defects
+Items 3–5 discharge the brief. Items 1, 2, 6 and 7 are what stop the defects
 returning silently.
 
 ## Owner choices
