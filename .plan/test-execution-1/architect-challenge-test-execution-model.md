@@ -421,7 +421,11 @@ root configuration's fate. The root-configuration disposition is the owner's.
   (`.scripts/vitest-config.ts:390–445`), its `WorkspaceTestConfigOptions` type,
   and the two cross-package relative imports the root config carries for
   `dragBrowserCommands` and `materialXBrowserCommands`. Deleting them is part of
-  the change; the record does not say so.
+  the change; the record does not say so. One small thing it would also buy:
+  `box-quad` is the one package whose configuration does not share a code path
+  with the root — `createBoxQuadTestConfig` (`:293`) beside
+  `createBoxQuadTestProjects` (`:308`), two definitions that today must be
+  edited together. Removing the root config collapses them to one.
 
 **F-436's conclusion does not depend on its contaminated series, and the record
 should lean on that instead.** The seven-browser-project fan-out is established
@@ -443,7 +447,7 @@ The live map, `packages/drag2/.plan/contract/README.md:28`:
 > `I-`, `Q-` and `M-` are `05`; `P-` is `02`; `B-`, `K-` and `L-` are `07`;
 > `O-` and `SC-` are `obligations.md`.
 
-Measured against that, four things are wrong and one is right.
+Measured against that, the numbering is the only thing that is right.
 
 **Nothing is registered.** All fourteen ids are claimed **only** by `####`
 headings inside `.plan/test-execution-1/architect-test-execution-model.md`; no
@@ -456,11 +460,19 @@ the surface D-196 exists to close.
 `packages/drag2/tests/ledger.ts:56–59` fixes the scan set as
 `CURRENT_STATE = ['.plan/contract', '.plan/obligations.md']`, resolved against
 `PACKAGE = packages/drag2`. The repository-root `.plan/` is outside it entirely.
-So the tree-wide uniqueness rule is unenforced for exactly these ids, and the
-next drag2 pass will read F-431 as the highest claimed and allocate **F-432**
-again — the D-193/D-196 collision class, recurring against the rule written to
-prevent it. `packages/drag2/.scripts/entry.sh drag2:D-200` will not resolve
-either.
+So the tree-wide uniqueness rule is unenforced for exactly these ids.
+`packages/drag2/.scripts/entry.sh drag2:D-200` will not resolve either.
+
+**D-196 names this failure in its own text**, which is what makes it the live
+rule rather than an inference — `00-index.md:2286`, restated at `:4751`:
+
+> the recurrence is certain and **no register-scoped instrument can see it,
+> since colliding ids that never reach a register produce no duplicate claim**.
+
+D-196 withdrew D-193's owed uniqueness check on the ground that `violations()`
+is "already shipped and broader … across every current-state document". That is
+true **inside `packages/drag2` and nowhere else**, and the gap is exactly the one
+D-196's own sentence describes.
 
 **I-38 is in the wrong family.** `05-lifecycle-invariants.md` is `@ydinjs/drag2`'s
 kernel and lifecycle register: I-1 is FIFO run-to-completion, I-2 is frame-slot
@@ -476,30 +488,65 @@ section. The history goes in the `.plan/` record. Do not mint it into `05`.
 **The numbering itself is correct.** Highest claimed: D-198, F-431, I-37, all in
 `packages/drag2`. D-199…D-204 and F-432…F-438 are the next free ids.
 
-**The precedent is drift, not licence.** The root `.plan/` harness-guard
-documents use `##`/`###` headings for F-352…F-372 and Q-22…Q-24 — not `####` —
-and none of those `F-` ids has a canonical entry anywhere in the tree. F-431, a
-repository-level `oxfmt` defect, _was_ written into `00-index.md`. So the live
-practice absorbs repository-level findings into one package's contract register,
-and this pass is the first to claim at claiming level from outside a register
-altogether. `documentation.md` §8 lists `packages/*/.plan/` as the Record and
-does not list a repository-root `.plan/` at all — including the one this
+**The precedent is not drift — it is one round of the same failure, and it cost
+twenty-two ids.** `.plan/reviews/harness-guard-1/harness-guard-1-summary.md`
+minted `F-353`…`F-372` and `Q-23`…`Q-24` from the repository-root `.plan/`, with
+a `Local → canonical` table. **The registers never took the rows.**
+`00-index.md` runs `#### F-352` at `:4353` straight to `#### F-373` at `:4359`,
+and no heading anywhere under `packages/` claims any id in F-353…F-372;
+`05-lifecycle-invariants.md` carries `#### Q-22` at `:835` and next claims
+`#### Q-25` at `:827`, with no Q-23 and no Q-24. Twenty-two identifiers are
+burned — allocated in a document no register can see, then skipped by the
+registers to avoid a collision they could not detect.
+
+So the failure mode is not hypothetical and it is not only re-allocation: the
+observed shape is a register **stepping over** a range it cannot verify. It has
+already happened once, in this exact location, one round before this one.
+
+**And this document's claim is the stronger violation of the two.** D-174 fixes
+the depth (`00-index.md:1614`):
+
+> An identifier may open a heading only in the document that owns it, and only
+> at `####`.
+
+The harness-guard artifacts claim at `##`/`###` — off-depth, but recognisable as
+a proposal. `architect-test-execution-model.md` claims at `####`, the depth
+reserved for the owning register, from a document that owns no family. It does
+not propose ids; it asserts register-level ownership of them.
+
+F-431, a repository-level `oxfmt` defect, _was_ written into `00-index.md`, so
+the practice that does work absorbs repository-level findings into one package's
+contract register. `documentation.md` §8 lists `packages/*/.plan/` as the Record
+and does not list a repository-root `.plan/` at all — including the one this
 document is in.
 
-**Two admissible repairs, and the choice is the owner's because they cost
-differently.**
+**Three admissible repairs. The first needs no owner.**
 
-1. **Cheap, and continues the drift.** Write D-199…D-204 and F-432…F-438 into
-   `packages/drag2/.plan/contract/00-index.md` in the commit that first uses
-   them (D-196), demote the pass document's headings to the mention form, and
-   re-home I-38's content to `.agents/docs/test-architecture.md`. Repository-scope
-   decisions then live in one package's contract register, which is what has
-   been happening.
-2. **Correct, and larger.** Open a repository-scope register as a current-state
+1. **Immediate, sanctioned, and already written down.** `consolidator.md:19`
+   carries the escape hatch verbatim: an id a pass mints is written into its
+   owning register in the same commit, **"or the summary keeps local ids and the
+   mapping is filled in when it is."** Demote the pass document's fourteen
+   headings to local ids with a `Local → canonical` table, and nothing is
+   claimed, nothing is burned, and no register is touched until the entries are
+   ready. This is what harness-guard-1 should have done, and it is available
+   today at the cost of a rename.
+2. **Register into the owning file, and continue the drift.** Write D-199…D-204
+   and F-432…F-438 into `packages/drag2/.plan/contract/00-index.md` in the commit
+   that first uses them (D-196), demote the pass document's headings to the
+   mention form, and re-home I-38's content to
+   `.agents/docs/test-architecture.md`. Repository-scope decisions then live in
+   one package's contract register, which is what has been happening.
+3. **Correct, and larger.** Open a repository-scope register as a current-state
    document, extend `documentation.md` §8 with its row, give a claim reader a
    root that covers it so uniqueness is enforced there, and give `entry.sh` a
    second scope. This is the structural answer to a repository that has outgrown
    a package-owned `D-`/`F-` family, and it is where D-196's own holding points.
+   It is also the only one of the three that stops the twenty-two-id hole
+   recurring.
+
+**The choice between 2 and 3 is the owner's**; 1 is available regardless and
+should be taken now, because it is what stops these fourteen ids joining the
+twenty-two.
 
 **Because none of the ids is registered, none of D-199…D-204 is yet in force.**
 Amending them now is a correction before first use, not a supersession: no new
