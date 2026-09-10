@@ -12,6 +12,17 @@ The local register continues revision 2's `TE-` series under the sanctioned
 entries are written into a register. No repository register is opened and no
 repository rule is placed in `@ydinjs/drag2`'s lifecycle family.
 
+**Superseded in part by revision 4.**
+[`architect-test-execution-model-r4.md`](architect-test-execution-model-r4.md)
+reconciles this revision with its challenge and the owner's freshness boundary.
+**TE-D9**, **TE-D10** and **TE-D11** are superseded there, and so is the
+10 384 MiB whole-repository figure — its arms used a teardown trigger revision 4
+refutes and an acceptance check that could not have detected the failure.
+**TE-D8** stands, with its claimed loss of test build ordering deleted: Nx never
+supplied it. **TE-F15**'s byte-identical output claim stands; its speed and
+applicability claims are withdrawn. **TE-F11**, **TE-F12**, **TE-F13** and
+**TE-F14** stand, TE-F12 refined by TE-F21.
+
 **No later challenge exists.** The brief refers to "subsequent challenge
 findings"; the tree at `dfa7e1d05` carries only the revision-1 challenge, which
 revision 2 already reconciled. Nothing has been read into this pass beyond it.
