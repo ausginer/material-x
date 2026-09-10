@@ -131,7 +131,19 @@ about the caller, and it is false.
 
 On an instance created with `watch: false`, `vitest.runTestSpecifications()`
 runs again without complaint — four modules, four fresh `onTestModuleEnd`
-events. Nothing in the node API gates a second run on `watch`.
+events.
+
+The negative holds by exhaustion, not just by one probe. `Vitest.runFiles`
+(`cli-api.BK8pd4xc.js:13570–13619`) — the single path every run entry point
+funnels into — contains **no read of `config.watch` at all**; its only guards
+are the awaited prior cancellation and `if (!this.pool) this.pool = createPool(this)`.
+Every `config.watch` read on the run path is elsewhere and decides something
+else: `:13470` (the empty-filter error), `:13481` and `:13507` (emitting
+`onWatcherStart`), `:13997` (`shouldKeepServer`). Four public entry points reach
+`runFiles` — `runTestSpecifications` (`:13541`), `rerunTestSpecifications`
+(`:13563`), `rerunFiles` (`:13748`) and `rerunTask` (`:13761`) — and the last
+two are also exposed over the API server's RPC (`:8980`, `:8985`), gated on
+`api.allowExec` and, again, not on `watch`.
 
 Composed with TE-F11, that produces the falsifier the brief requires be
 preserved. Same instance, `watch: false`, one browser project whose suite
@@ -401,9 +413,13 @@ whose lifecycle is provably one-shot.
 
 **Not established by me, and marked as such**: no observation of the running
 editor was taken. The above is source reading plus API-level simulation. The
-extension's per-config queue serializing runs, and the absence of any limiter
-across configs, are read from `enqueue`/`pendingQueue` in the same file and are
-consistent with revision 2's measurements; I did not re-derive them.
+extension's per-config queue serializing runs is read from `enqueue`/`pendingQueue`
+in the same file and is consistent with revision 2's measurements; I did not
+re-derive its behaviour. The absence of a limiter **across** configs I did
+check: `maximumConfigs` occurs nowhere in the extension or its `package.json`,
+and there is no other cross-config limiter. That is the mechanical ground under
+revision 2's TE-D6 — remove the root config and nothing bounds seven concurrent
+Vitest processes — and it is unaffected by anything in this revision.
 
 **The IDE whole-repository budget remains unresolved**, and revision 3 is right
 to record it rather than paper over it. What changes is the shape of the
@@ -452,6 +468,13 @@ if (process.env.VITEST_MAX_WORKERS)
   resolved.maxWorkers = Number.parseInt(process.env.VITEST_MAX_WORKERS);
 ```
 
+The route to it under the extension survives: `vitest.nodeEnv` is spread into
+the spawned child's environment as `env: { ...process.env, ...a, … }`, and the
+keys the extension then fixes for itself are `VITEST_VSCODE_LOG`,
+`VITEST_VSCODE`, `TEST`, `VITEST_WS_ADDRESS`, `VITEST`, `NODE_ENV` and
+`FORCE_COLOR` — `VITEST_MAX_WORKERS` is not among them, so a value set there
+reaches the child intact. TE-D11's precedence rests on this and it holds.
+
 **It does not accept the percentage form.** The inline option does
 (`:152`, `resolveInlineWorkerOption`); the environment variable is a bare
 `parseInt`, so `VITEST_MAX_WORKERS=50%` yields **50 workers**. Since the
@@ -492,8 +515,16 @@ entirely when `headless` is false or the provider does not support parallelism.
 
 - Retries do not re-emit a module's end event. With `retry: 2` and a
   permanently failing test, every module reported `onTestModuleEnd` exactly once.
-  Last-module counting is not broken by retries — it is broken by the RPC
-  boundary above.
+  The source agrees: in `@vitest/runner`'s `chunk-artifact.js` both the repeat
+  and retry loops close at `:3036–3037`, before `updateTask("test-finished", …)`
+  at `:3053`, and a retry emits `test-retried` — never a module-level event, and
+  the only two `onTestModuleEnd` emission sites are module-scoped
+  (`cli-api.BK8pd4xc.js:12649`, `:12661`). Last-module counting is not broken by
+  retries — it is broken by the RPC boundary above.
+- Bail is cancellation, not a separate path: a bailing test calls
+  `rpc().onCancel("test-failure")`, which reaches `Vitest.cancelCurrentRun`
+  (`cli-api.BK8pd4xc.js:13731`). It therefore inherits the cancellation
+  behaviour above and strands nothing that matters.
 - Cancellation cannot strand a provider in a way that matters: cancelled
   specifications never reach module end, so a counter simply never completes,
   and the process is ending anyway.
