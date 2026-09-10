@@ -19,6 +19,13 @@ because canonical registration is unresolved and is not this pass's to settle.
 No repository register is opened, and no repository rule is written into
 `@ydinjs/drag2`'s lifecycle family.
 
+> **Revision note, 2026-09-10.** Settled owner direction — remove Nx from test
+> orchestration, one root Vitest invocation, and reconsider why the CSS workers
+> exist — supersedes **TE-D2**, **TE-D4** and **TE-D5** below. See
+> [`architect-test-execution-model-r3.md`](architect-test-execution-model-r3.md).
+> **TE-D1, TE-D3, TE-D6, TE-D7 and TE-I1 stand**, and every finding here stands;
+> TE-F4 is refined by TE-F12.
+
 ## The local register
 
 | Local  | Canonical  | Subject                                                                   | Status against revision 1                                         |
