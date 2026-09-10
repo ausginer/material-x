@@ -14,6 +14,14 @@ they could not claim a repository identifier even at `####`. No repository
 register is opened and no repository rule is placed in `@ydinjs/drag2`'s
 lifecycle family.
 
+**Amended 2026-09-10 from settled owner direction**, against this document at
+`a8cd06441`. The lifecycle question revision 4 left open is closed: browser
+teardown is performed for editor runs as well, the repository's test execution
+model is one-shot everywhere, and test watch and VS Code Continuous Run are
+retired along with the machinery that exists only to serve them. The amendment
+is carried by TE-D15 and TE-D16 and by the corrections marked against TE-D12
+and TE-F21; nothing else in this record changes.
+
 **Instruction boundaries.** The pre-existing `node/tproc TokenPackageProcessor`
 failure and F-412 stay outside this work. Nothing is implemented. Every probe
 below is a scratchpad fixture or a reverted patch to an untracked build
@@ -25,15 +33,17 @@ The challenge was right on both mechanisms, and the owner's freshness boundary
 settles the one question the challenge left as a fork. Revision 3's two central
 mechanisms are replaced; its two other decisions survive with corrections.
 
-| Ground                             | Revision 3                                      | Revision 4                                                                                       |
-| ---------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Nx out of test orchestration       | Adopted, with a claimed loss of build ordering  | **Adopted; the claimed loss is deleted** — Nx never supplied it                                  |
-| Browser serialization              | `sequence.groupOrder`, contiguous **from zero** | **Kept, assigned from 1** — zero is a sentinel that destroys the ordering it was meant to create |
-| Browser teardown trigger           | Last `onTestModuleEnd` of a project             | **Replaced by the group boundary** — the last-module trigger fails deterministically             |
-| Teardown safety                    | Gated on `config.watch === false`               | **Marked project plus a pre-execution guard**, contributed by a one-shot entry point             |
-| CSS evaluation                     | Persistent Vite environment with invalidation   | **One fresh isolate per build generation**, discarded on any tracked change                      |
-| Worker limit                       | `VITEST_MAX_WORKERS` > `parseArgs` > default    | **Kept, with three interactions the order did not account for**                                  |
-| Whole-repository resource evidence | 10 384 MiB, semaphore standing in for CSS       | **Re-measured with the real mechanisms** — see below                                             |
+| Ground                             | Revision 3                                      | Revision 4                                                                                        |
+| ---------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Nx out of test orchestration       | Adopted, with a claimed loss of build ordering  | **Adopted; the claimed loss is deleted** — Nx never supplied it                                   |
+| Browser serialization              | `sequence.groupOrder`, contiguous **from zero** | **Kept, assigned from 1** — zero is a sentinel that destroys the ordering it was meant to create  |
+| Browser teardown trigger           | Last `onTestModuleEnd` of a project             | **Replaced by the group boundary** — the last-module trigger fails deterministically              |
+| Teardown safety                    | Gated on `config.watch === false`               | **Marked project plus a pre-execution guard**, installed in every configuration by a plugin       |
+| Where teardown applies             | CLI only; the editor was an open owner choice   | **Everywhere, the editor included** — the model is one-shot and the contract is enforced (TE-D15) |
+| Test watch and Continuous Run      | Watch retained, teardown withheld from it       | **Retired**, together with the machinery that served only them (TE-D16)                           |
+| CSS evaluation                     | Persistent Vite environment with invalidation   | **One fresh isolate per build generation**, discarded on any tracked change                       |
+| Worker limit                       | `VITEST_MAX_WORKERS` > `parseArgs` > default    | **Kept, with three interactions the order did not account for**                                   |
+| Whole-repository resource evidence | 10 384 MiB, semaphore standing in for CSS       | **Re-measured with the real mechanisms** — see below                                              |
 
 **The headline: the whole repository runs in one Vitest process at 7570 MiB
 peak over a 2015 MiB baseline — Δ 5554 MiB — in 63.6 s, with the real
@@ -85,19 +95,26 @@ revision 3.
 Continuing the series. `TE-D1`…`TE-D11`, `TE-I1`, `TE-F1`…`TE-F15` are defined
 in revisions 2 and 3.
 
-| Local  | Canonical  | Subject                                                                                | Status                                      |
-| ------ | ---------- | -------------------------------------------------------------------------------------- | ------------------------------------------- |
-| TE-D12 | unassigned | Browser projects serialized from group 1 and released at group boundaries              | New — supersedes TE-D9                      |
-| TE-D13 | unassigned | CSS evaluated by one fresh isolate per build generation                                | New — supersedes TE-D10                     |
-| TE-D14 | unassigned | The requested worker limit, and the three interactions that constrain it               | New — supersedes TE-D11                     |
-| TE-F16 | unassigned | The last-module teardown trigger fails deterministically at the RPC boundary           | New — refutes part of TE-D9                 |
-| TE-F17 | unassigned | `sequence.groupOrder: 0` is a sentinel that demotes or interleaves the project         | New                                         |
-| TE-F18 | unassigned | Resolved-URL discovery sees the whole graph, `@ydinjs/tproc` and the token DB included | New — supersedes the tracker half of TE-D10 |
-| TE-F19 | unassigned | Per-entry dependency attribution collapses inside a shared generation                  | New                                         |
-| TE-F20 | unassigned | Node caches an evaluation failure permanently in the isolate that produced it          | New                                         |
-| TE-F21 | unassigned | No in-process signal distinguishes an ordinary VS Code run from a continuous one       | New — refines TE-F12                        |
-| TE-F22 | unassigned | A retained generation worker prevents the Vitest process from closing cleanly          | New                                         |
-| TE-F23 | unassigned | The whole-repository run with both real mechanisms measures Δ 5554 MiB in 63.6 s       | New — supersedes the 10 384 MiB figure      |
+| Local  | Canonical  | Subject                                                                                  | Status                                      |
+| ------ | ---------- | ---------------------------------------------------------------------------------------- | ------------------------------------------- |
+| TE-D12 | unassigned | Browser projects serialized from group 1 and released at group boundaries                | New — supersedes TE-D9                      |
+| TE-D13 | unassigned | CSS evaluated by one fresh isolate per build generation                                  | New — supersedes TE-D10                     |
+| TE-D14 | unassigned | The requested worker limit, and the three interactions that constrain it                 | New — supersedes TE-D11                     |
+| TE-D15 | unassigned | Every Vitest process executes at most one test run, enforced from an unremovable carrier | New — closes revision 4's owner choice      |
+| TE-D16 | unassigned | Test watch and Continuous Run are retired, with the machinery serving only them          | New                                         |
+| TE-F16 | unassigned | The last-module teardown trigger fails deterministically at the RPC boundary             | New — refutes part of TE-D9                 |
+| TE-F17 | unassigned | `sequence.groupOrder: 0` is a sentinel that demotes or interleaves the project           | New                                         |
+| TE-F18 | unassigned | Resolved-URL discovery sees the whole graph, `@ydinjs/tproc` and the token DB included   | New — supersedes the tracker half of TE-D10 |
+| TE-F19 | unassigned | Per-entry dependency attribution collapses inside a shared generation                    | New                                         |
+| TE-F20 | unassigned | Node caches an evaluation failure permanently in the isolate that produced it            | New                                         |
+| TE-F21 | unassigned | No in-process signal distinguishes an ordinary VS Code run from a continuous one         | New — refines TE-F12                        |
+| TE-F22 | unassigned | A retained generation worker prevents the Vitest process from closing cleanly            | New                                         |
+| TE-F23 | unassigned | The whole-repository run with both real mechanisms measures Δ 5554 MiB in 63.6 s         | New — supersedes the 10 384 MiB figure      |
+| TE-F24 | unassigned | A plugin's `configureVitest` installs a reporter that no CLI flag can remove             | New                                         |
+| TE-F25 | unassigned | `Vitest.report` does not catch reporter errors, so `onTestRunStart` can abort a run      | New                                         |
+| TE-F26 | unassigned | The extension appends to configured reporters rather than replacing them                 | New                                         |
+| TE-F27 | unassigned | An empty specification list emits a run start without executing anything                 | New                                         |
+| TE-F28 | unassigned | `browser.api.allowExec` gates only reruns and snapshot updates, and denial is silent     | New                                         |
 
 Superseded by this pass: **TE-D9**, **TE-D10**, **TE-D11**. **TE-D8** stands,
 amended. **TE-D1**, **TE-D3**, **TE-D6**, **TE-D7**, **TE-I1** stand.
@@ -155,11 +172,14 @@ after every other (TE-F17). Holes are irrelevant — `:3632` is
 
 - **Teardown is triggered by an event that provably follows the completion of
   the group the project ran in.** Module counting cannot express that.
-- **Teardown is contributed by an entry point that owns a one-shot lifecycle**,
-  never by the shared factory every consumer loads. `just test` adds the
-  teardown reporter; the root `vitest.config.ts` that the VS Code extension
-  loads does not carry it. This is the whole of the ownership claim — `watch`
-  is not evidence of it (TE-F21), and is not used.
+- **Teardown is installed by the shared factory into every configuration the
+  repository ships**, root and per-package alike, through the carrier TE-D15
+  specifies. Revision 4 originally required the opposite — that a one-shot entry
+  point contribute it, and that the root configuration the extension loads not
+  carry it — because the editor's lifecycle was an open question then. It is not
+  open now: the model is one-shot everywhere, so the contract belongs where no
+  consumer can fail to get it. `watch` is still not evidence of anything
+  (TE-F21) and is still not used.
 - **A project that has been torn down is marked, and a run that would execute a
   specification belonging to a marked project fails loudly before executing
   anything.** Verified: the guard throws
@@ -180,6 +200,139 @@ after every other (TE-F17). Holes are irrelevant — `:3632` is
   greps for `provider was closed` reads clean while the mechanism is failing.
 - **The generation worker and the browser providers are both released before
   the process closes** (TE-F22).
+
+### Every Vitest process executes at most one test run (TE-D15)
+
+The repository's test execution model is one-shot. A root CLI run, a per-package
+CLI run and an ordinary run started from the VS Code Vitest UI each start a
+Vitest process, execute one test run, release the browser providers at the group
+boundaries TE-D12 establishes, and end. **Browser teardown applies to editor
+runs as well** — the owner choice revision 4 recorded is closed in favour of
+always tearing down.
+
+Watch and Continuous Run rerun inside a process that has already torn down its
+browsers, so they are not supported. TE-D16 retires them.
+
+**The invariant, stated so it can be observed:** at most one _consuming_
+execution per Vitest process. A run whose specification list is non-empty
+consumes the process's single execution. A run with an empty list does not,
+because Vitest emits a run start for it and executes nothing
+(`cli-api.BK8pd4xc.js:13463`); a filter that matches no files must not spend the
+lifecycle (TE-F27).
+
+**The carrier — a plugin, not a configured reporter.** The mechanism is a
+reporter, because teardown needs `onTestModuleStart` and the runtime project
+object. But `test.reporters` is removable: when `--reporter` is present on the
+command line, Vitest **replaces** the resolved reporter list wholesale
+(`coverage.DM_a_rWm.js:437–452`), so a configured reporter is one flag away from
+silently vanishing along with the contract it enforces. The reporter is
+therefore installed by a **plugin** carried in the shared factory, from the
+`configureVitest` hook, which runs at `cli-api.BK8pd4xc.js:13152` — after CLI
+reporter replacement and before `createReporters` reads `resolved.reporters` at
+`:13177`. Measured: with `--reporter=dot` on the command line, the plugin's push
+survives and the reporter is constructed and driven (TE-F24).
+
+Required properties of the carrier:
+
+- **It is installed by the shared factory into every configuration**, so root
+  and per-package runs and the editor all get it without an entry point opting
+  in.
+- **Installation is idempotent.** `configureVitest` is invoked once per project
+  (`projects.flatMap`), so an unguarded push installs one reporter per project —
+  fifteen in a root run.
+- **It survives the editor.** The extension's own plugin appends its reporter to
+  the configured list rather than replacing it, and passes `reporter: void 0`,
+  so the CLI replacement branch is not taken (TE-F26).
+
+**The enforcement point — `onTestRunStart`.** It is the earliest per-run hook:
+`Vitest.runFiles` awaits `this._testRun.start(specs)` before it creates the
+pool, before `initializeGlobalSetup` and before `pool.runTests`. `Vitest.report`
+is `await Promise.all(this.reporters.map(...))` with no `try`/`catch`
+(`:13983`), so a throw there rejects the run before any module executes
+(TE-F25). Verified end to end on an instance created with `watch: true` — the
+extension's own configuration: run 1 executed 8 modules and released both
+providers; run 2 threw
+`this Vitest process has already executed a test run` and executed nothing.
+
+Three checks live at that point, and all three fail loudly:
+
+- a **second consuming execution**, which names the contract and says that watch
+  and continuous reruns are retired;
+- a specification belonging to a **torn-down project**, which holds even if it
+  were the first execution — TE-D12's marking, kept as defence in depth against
+  the silent zero-module success TE-F11 produces;
+- the **serialization invariant**, every browser project carrying a distinct
+  non-zero `groupOrder`, which is what makes TE-D14's `--sequence.*` erasure
+  loud.
+
+**The boundary of "before test reporting", stated honestly.** `Promise.all`
+invokes every reporter's `onTestRunStart`, so on a rejected second attempt the
+other reporters do see a run start. No test executes and no test result is
+reported. That is the strongest position available from a public hook.
+
+**Why not prevent it at entry.** `Vitest.runFiles` is the single funnel — four
+public entry points (`runTestSpecifications`, `rerunTestSpecifications`,
+`rerunFiles`, `rerunTask`) and two of those also exposed over the API server —
+so wrapping it would refuse the second execution before anything at all was
+reported. It is rejected: `runFiles` is internal and unmarked, and a monkey
+patch over it disappears without a word when the name changes in a Vitest
+upgrade. A contract whose whole purpose is to make a silent failure loud must
+not be enforced by a mechanism that can go silent. The reporter hook is public
+API, and if it were ever removed the run would fail rather than proceed
+unguarded.
+
+**Discovery is unaffected.** The extension collects tests through
+`experimental_parseSpecifications` — AST-based, never reaching `runFiles` — so
+listing tests neither consumes the lifecycle nor trips the guard, and root-config
+discovery is preserved exactly as revision 2 established it.
+
+### Test watch and Continuous Run are retired, with the machinery that served them (TE-D16)
+
+TE-D15 makes a second execution in one process a loud failure. The modes that
+depend on one are therefore withdrawn, and the machinery whose only
+responsibility was supporting them is removed rather than left to fail.
+
+**Retired.** `vitest --watch` in any form for tests; VS Code Continuous Run (the
+"eye" gesture), which has no setting to disable and so is retired by
+documentation plus the loud failure; and any rerun issued into a process that has
+already run.
+
+**The inventory, and what happens to each.**
+
+| Item                                                                    | Responsibility                                                                   | Disposition                                                                             |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| root `package.json` `"test": "vitest"`                                  | bare `vitest` is watch mode — the only watch entry point in the repository       | becomes the one-shot root run TE-D8 already requires                                    |
+| `.scripts/zed-test.sh`, `--watch` in `run-vitest-debug` (both branches) | the only `--watch` in the tree                                                   | **removed**                                                                             |
+| `.scripts/zed-test.sh`, `pkill -f 'vitest.*browser'`                    | kills a surviving watch runner so it cannot respawn Chrome — its comment says so | **removed**; the sibling `pkill` on the CDP port keeps its own justification            |
+| `.scripts/vitest-config.ts`, `browser.api.allowExec: true`              | grants the API server `rerun`, `rerunTask` and `updateSnapshot` (TE-F28)         | becomes an explicit `false`                                                             |
+| `.agents/docs/test-architecture.md` and the `test-component` skill      | say nothing about run lifecycle today                                            | **gain** the one-shot statement, the retirement, and what a second execution looks like |
+
+Two of those need their reasoning on the record.
+
+**The debug task keeps working without `--watch`.** `.zed/tasks.json`'s
+`vitest:debug` invokes `.scripts/zed-test.sh … debug`, whose `run-vitest-debug`
+runs `DEBUG=1 vitest --no-file-parallelism --test-timeout=0 --watch <file>`. It
+is worth being precise about what `--watch` was buying
+there: it is not what holds the session open — `--test-timeout=0` and a test
+paused on a breakpoint are — so what is lost is re-running on save, which is
+exactly what has been retired. The task, its terminal and the CDP port survive
+unchanged.
+
+**`allowExec` is not neutral.** It gates only the API server's `rerun`,
+`rerunTask` and `updateSnapshot` — the browser UI's re-run buttons — and when it
+is false those calls **return silently** (`cli-api.BK8pd4xc.js:8982`, `:8987`,
+`:9036`). Leaving it true grants precisely the capability the model no longer
+supports; setting it false makes the capability absent rather than silently
+ignored at the moment of use, and stating it explicitly also keeps Vitest's
+"API server is exposed to network" warning quiet, which the factory needs
+because it binds `host: '0.0.0.0'`.
+
+**The boundary, precisely.** Only _test_ watch is retired. Build and development
+watch are untouched and remain valid: `just docs-dev`, Vite's and tsdown's own
+watchers, the CSS plugin's `handleHotUpdate` and `addWatchFile`, and every
+consequence of TE-D13 — repeated CSS generation still happens on every rebuild
+and still requires a fresh disposable isolate per generation. Nothing in this
+decision touches them.
 
 ### CSS is evaluated by one fresh isolate per build generation (TE-D13)
 
@@ -438,8 +591,11 @@ to a Vitest reporter or plugin, so it cannot gate anything in this design.
 
 **Consequence.** `watch === false` is not merely a weak proxy — it is the wrong
 question, because the one editor path whose lifecycle is provably one-shot is
-marked `watch: true`. Ownership of a one-shot lifecycle can only be **declared
-by the entry point**, which is what TE-D12 requires.
+marked `watch: true`. A one-shot lifecycle cannot be _detected_; it can only be
+**declared**. Revision 4 read that as "declared by the entry point"; the owner
+has since declared it for the repository, so TE-D15 states it as a property of
+every Vitest process this repository starts, and TE-D16 retires the modes that
+would contradict it.
 
 ### A retained generation worker prevents a clean process close (TE-F22)
 
@@ -454,6 +610,57 @@ The same single-project command, with and without the converted plugin:
 alive. The whole-repository run completed and reported correctly and then paid
 the 10 s close timeout. Teardown is not the cause — with the pristine plugin the
 fixture's `vitest.close()` took 339 ms without teardown and **4 ms with it**.
+
+### A plugin can install a reporter that no flag can remove (TE-F24)
+
+`configureVitest` is a plugin hook invoked at `cli-api.BK8pd4xc.js:13152` with
+`{ project, vitest, injectTestProjects, … }`, awaited in `Promise.all`, and
+`vitest.config` there is the same object `createReporters(resolved.reporters, …)`
+reads at `:13177`. Measured with `--reporter=dot` on the command line, which had
+already replaced the configured reporters:
+
+```
+[oneshot] configureVitest: same object as resolved? true  reporters before: [["dot",{}]]
+[oneshot] reporters after: 2
+[oneshot] reporter constructed and initialised
+[oneshot] onTestRunStart #1 specs=1
+```
+
+### Reporter errors are not caught, so a reporter can abort a run (TE-F25)
+
+`Vitest.report` is `await Promise.all(this.reporters.map((r) => r[name]?.(…)))`
+with no `try`/`catch` (`:13983`), and `runFiles` awaits `_testRun.start(specs)`
+before `createPool`, before `initializeGlobalSetup` and before `pool.runTests`.
+Measured on an instance created with `watch: true`:
+
+| Run | Modules executed | Outcome                                                            |
+| --- | ---------------- | ------------------------------------------------------------------ |
+| 1   | 8                | passed, 0 errors, both providers released, Chrome back to baseline |
+| 2   | **0**            | **threw** `this Vitest process has already executed a test run`    |
+
+### The extension appends to configured reporters (TE-F26)
+
+`workerNew.js`'s own plugin: `let t = o(e.test.reporters); t.length ||
+t.push(['default', {isTTY:!1}]); t.push(s); e.test.reporters = t`. It passes
+`reporter: void 0` into `createVitest`, so Vitest's CLI-replacement branch —
+guarded by `if (cliReporters.length)` — is not taken. A reporter declared or
+installed by the repository's configuration therefore runs inside the
+extension's child process.
+
+### An empty specification list emits a run start without executing (TE-F27)
+
+`cli-api.BK8pd4xc.js:13463` calls `_testRun.start([])` and `_testRun.end([], [])`
+when no specification matched, then throws `FilesNotFoundError` only when not in
+watch mode. Under the extension, which always sets `watch: true`, a filter that
+matches nothing therefore produces a run start and no error. This is why TE-D15
+counts only non-empty executions.
+
+### `allowExec` gates reruns and snapshot updates, and denial is silent (TE-F28)
+
+`cli-api.BK8pd4xc.js:8982`, `:8987` and `:9036` gate `rerun`, `rerunTask` and
+`updateSnapshot` on `config.api.allowExec`, each with the comment "silently
+ignore exec attempts if not allowed" and a bare `return`. It gates nothing else
+— in particular not `browser.commands`, which the factory also configures.
 
 ## Corrections to earlier revisions
 
@@ -473,6 +680,12 @@ Stated rather than quietly dropped.
   stands.
 - **The 10 384 MiB figure is superseded.** It measured the revision-2 semaphore
   standing in for CSS and a teardown trigger this revision refutes.
+- **Revision 4's own teardown-ownership property is corrected by TE-D15.** It
+  required the teardown carrier to sit in a one-shot entry point and to stay out
+  of the configuration the extension loads. That followed from the editor's
+  lifecycle being unsettled; with the model declared one-shot everywhere, the
+  carrier belongs in the shared factory, and revision 4's open owner choice is
+  closed.
 - **The VS Code extension is not installed in this container.** The editor
   server present is Zed. All extension findings in every revision are source
   reading — here, of the marketplace artefact self-reporting
@@ -512,9 +725,10 @@ The obligation is on the shipped implementation, not on this pass's probes.
    rebuilt artefact, without restarting the dev server.
 9. **A corrected file recovers.** Break a `.css.ts`, observe the error, correct
    it, and observe the next request succeed without a restart.
-10. **Watch invalidation is wired to the discovered set.** Editing a shared
-    token file re-evaluates every entry that reaches it, not only the entry that
-    happened to be evaluated first.
+10. **Dev-watch invalidation is wired to the discovered set** — development
+    watch, which TE-D16 keeps. Editing a shared token file re-evaluates every
+    entry that reaches it, not only the entry that happened to be evaluated
+    first.
 11. **Both consumer classes pass**: the root test run, `just build`,
     `just docs-build` and `just docs-dev`. Revision 3's tsdown evidence was one
     hook in a minimal build and does not carry.
@@ -523,6 +737,26 @@ The obligation is on the shipped implementation, not on this pass's probes.
 13. **The editor path still discovers and runs tests.** Discovery lists every
     project, a single test runs, and a project-scoped run runs, against the
     unchanged root `vitest.config.ts`.
+14. **The editor tears down too.** An ordinary arrow-triggered run of a browser
+    project releases its provider, and a whole-repository run from the editor
+    releases every browser project it visited, with Chrome returning to
+    baseline.
+15. **Each editor gesture issues exactly one consuming execution.** Run a single
+    test, a file, a project, "Run All Tests" and "Update snapshots", and confirm
+    that none of them trips the one-shot guard. A gesture that does trip it is a
+    defect to resolve before shipping, not an accepted cost.
+16. **The carrier cannot be removed.** `vitest run --reporter=dot` still tears
+    down and still enforces the contract; the reporter is installed exactly once
+    in a 15-project root run.
+17. **The second execution fails loudly and reports no tests.** A rerun issued
+    into a process that has already run raises before any module executes, the
+    message names the retired mode, and no test result is reported.
+18. **An empty run does not spend the lifecycle.** A filter matching no files,
+    followed by a real run, succeeds.
+19. **The retired machinery is gone and the debug task still works.** No
+    `--watch` remains in the tree, `browser.api.allowExec` is explicitly false
+    with no "exposed to network" warning, and `.zed/tasks.json`'s `vitest:debug`
+    still stops at a breakpoint with the CDP port attached.
 
 ## Evidence limits
 
@@ -549,37 +783,45 @@ The obligation is on the shipped implementation, not on this pass's probes.
 - **The editor was read, not run**, and is not installed here.
 - **The shared-state result is a property of the current tree**, not a guarantee
   of the mechanism.
+- **The one-shot contract was verified programmatically**, against a fixture
+  with `watch: true`, and through a real `vitest run` for the carrier. No editor
+  gesture was exercised: that ordinary VS Code runs, "Run All Tests" and
+  "Update snapshots" each issue exactly one consuming execution per process is
+  read from the extension's source and from TE-F12, not observed.
+- **`updateSnapshots` exists on the extension's runner** and was not traced to
+  its spawn path. If it reuses a process that has already run, it is a second
+  execution and will fail loudly rather than silently; the demonstration list
+  carries it.
 
-## The owner choice
+## The lifecycle policy, settled
 
-One, and it is real because TE-F21 closes the alternative.
+Revision 4 recorded one owner choice — whether the VS Code extension's runs get
+teardown. It is closed: **they do.** Nothing in this record now presents editor
+teardown as open.
 
-**Whether the VS Code extension's runs get teardown.** As designed, they do not:
-teardown is contributed by `just test`, and the editor loads a root
-configuration that does not carry it. The editor therefore keeps serialization
-and the worker bound but not release, and whole-repository runs from the editor
-stay where revision 2 left them, above the working ceiling.
+What the owner settled, and what follows from it:
 
-Turning it on there is possible — an environment key the owner sets in
-`vitest.nodeEnv` would declare the lifecycle the extension itself does not — and
-it is now _safe_ rather than merely tempting, because a torn-down project that
-is reused fails loudly before reporting anything. But it is not free: an
-ordinary editor run is a fresh one-shot process and would benefit, while a
-**continuous run would fail on its second run**, loudly, saying so. The choice
-is between the editor's heaviest operation fitting the budget and continuous run
-remaining available, and it turns on whether the owner uses continuous run at
-all.
+- Root and per-package CLI runs are one-shot. Ordinary VS Code Vitest runs
+  started from the UI are one-shot. Browser providers are released at the group
+  boundaries TE-D12 establishes, in every one of them.
+- Watch and continuous reruns inside one Vitest process are unsupported, by
+  intent rather than by limitation.
+- Reuse after teardown fails loudly before executing or reporting tests, and
+  never succeeds silently with zero modules.
 
-The challenge held that this opt-in should not be offered, on the ground that
-the loud-failure property removes the need for the setting. That reasoning does
-not hold: the property makes the setting _safe_, but it does not make teardown
-_reachable_ in the editor, because the extension declares nothing about its own
-lifecycle. Something must declare it, and only the owner can.
+The reasoning revision 4 used to keep the question open no longer applies. It
+turned on the absence of an in-process signal separating an ordinary editor run
+from a continuous one (TE-F21), which made an opt-in the only way to declare a
+one-shot lifecycle and left the owner carrying that declaration per run. With
+the whole model declared one-shot, nothing needs detecting: the contract is
+uniform, the carrier is uniform, and the case the missing signal endangered —
+continuous run — is retired rather than protected.
 
-A cheaper lever exists and is unmeasured: `VITEST_MAX_WORKERS=1` through
-`vitest.nodeEnv` bounds pages per project without touching retention. Whether
-that alone brings editor "Run All Tests" inside the ceiling is in the
-demonstration list, not claimed here.
+**No owner choice remains open in this record.** Two questions belong to
+implementation rather than to the owner: whether the debug task wants anything
+back after `--watch` is removed, which the demonstration list settles by
+exercising it; and whether any editor gesture issues more than one consuming
+execution per process, which the same list settles by exercising each one.
 
 ## Grounds a focused challenge should attack
 
@@ -600,4 +842,14 @@ demonstration list, not claimed here.
   edited a shared token file and observed all dependent entries re-evaluate
   through the real watcher.
 - **The editor is still the weakest evidence in the design**, three revisions
-  in, and it is the workflow the owner named as non-negotiable.
+  in, and it is the workflow the owner named as non-negotiable. TE-D15 now rests
+  on it in a new way: if any editor gesture issues two consuming executions in
+  one process, the contract turns a working gesture into a loud failure.
+- **The one-shot counter's exemption for empty runs is a hole by construction.**
+  A run that matches nothing does not consume the lifecycle, so a mistaken
+  filter followed by a real run is allowed — correct, but it means the invariant
+  is "at most one execution that executed", not "at most one call".
+- **The carrier depends on `configureVitest` and on `vitest.config` being the
+  object `createReporters` reads.** Both are internal arrangements verified at
+  one version; unlike a monkey patch they fail loudly if they change, but that
+  claim is reasoned, not measured.
