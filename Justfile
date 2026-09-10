@@ -40,9 +40,9 @@ debug FILE:
 # Tests
 # ---------------------------------------------------------------------------
 
-# Run all tests across all packages
+# Run all tests across all packages declaring the target
 test:
-    nx run-many -t test --projects=box-quad,core,tproc,material-x --skipNxCache
+    nx run-many -t test --projects=box-quad,core,tproc,drag,drag2,vite-traits-plugin,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Bundle size
@@ -50,7 +50,7 @@ test:
 
 # Check bundle-size budgets for all measured packages
 size:
-    nx run-many -t size --projects=core,drag --skipNxCache
+    nx run-many -t size --projects=box-quad,core,drag,drag2 --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Type checking
@@ -64,25 +64,36 @@ typecheck:
 # Formatting
 # ---------------------------------------------------------------------------
 
-# Format all packages
+# Format every package, then the repository-level files no package owns.
+# Two authorities over disjoint sets: `oxfmt` writes what a package's `fmt`
+# writes and everything outside `packages/` that is not Markdown; Prettier
+# writes the Markdown outside `packages/`, which no `oxfmt` invocation reaches.
 fmt:
     nx run-many -t fmt --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    oxfmt . '!packages/**' '!**/*.md'
+    prettier --write '**/*.md' '!packages/**'
 
-# Check formatting for all packages without writing
+# Check formatting everywhere without writing — the same two authorities
 fmt-check:
     nx run-many -t fmt:check --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    oxfmt --check . '!packages/**' '!**/*.md'
+    prettier --check '**/*.md' '!packages/**'
 
 # ---------------------------------------------------------------------------
 # Linting
 # ---------------------------------------------------------------------------
 
-# Lint all packages
+# Lint every package, then the repository-level files no package owns
 lint:
     nx run-many -t lint --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    oxlint --ignore-pattern 'packages/**' .
+    eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --ignore-pattern 'packages/**' .
 
-# Lint and auto-fix all packages
+# Lint and auto-fix everywhere
 lint-fix:
     nx run-many -t lint:fix --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    oxlint --fix --ignore-pattern 'packages/**' .
+    eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --ignore-pattern 'packages/**' --fix .
 
 # ---------------------------------------------------------------------------
 # Misc

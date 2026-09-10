@@ -15,7 +15,7 @@ Every edited `.ts`, `.tsx`, `.css` or `.html` file, and every created or updated
 Two things that catch people out:
 
 - **Rebuild `@ydinjs/core` (`npx just build` from `packages/core`) before typechecking `@ydinjs/material-x`** when you have changed a core source file it consumes. Material X resolves `@ydinjs/core` through its built `.d.ts` at the package root rather than through `src`, so type changes are invisible until core is rebuilt.
-- The **root** `Justfile`'s `fmt` and `lint-fix` take no file arguments — they run every package. Root-level Markdown is not in any package, so format it with `npx prettier --write <files>`.
+- The **root** `Justfile`'s `fmt`, `fmt-check`, `lint` and `lint-fix` take no file arguments. They run every package and then the repository-level files no package owns — everything outside `packages/`. Formatting there is split by file type: `oxfmt` writes the non-Markdown files, Prettier writes the Markdown named as the exception above, and the two sets are disjoint, so each file still has exactly one writer. To format one root-level Markdown file on its own, that writer is `npx prettier --write <files>`.
 
 ## Commit the finalized state
 

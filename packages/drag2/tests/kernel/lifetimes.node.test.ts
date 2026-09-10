@@ -3,6 +3,7 @@ import { DraggableError, DraggableWarning } from '../../src/kernel/errors.ts';
 import {
   createLifetime,
   createOperationLifetimes,
+  type Disposer,
 } from '../../src/kernel/lifetimes.ts';
 
 /**
@@ -159,7 +160,7 @@ describe('createLifetime', () => {
     // What ~~`finalized`~~ was read for before it was removed (2026-08-22):
     // the latch is still there, and this is the observable half of it.
     const lifetime = createLifetime(notify);
-    const disposer = vi.fn();
+    const disposer = vi.fn<Disposer>();
 
     lifetime.use(disposer);
     lifetime.dispose();
@@ -190,7 +191,7 @@ describe('createOperationLifetimes', () => {
 
   it('should keep cancellation open when motion closes', () => {
     const lifetimes = createOperationLifetimes(notify);
-    const later = vi.fn();
+    const later = vi.fn<Disposer>();
 
     lifetimes.motion.dispose();
     // Read through what the scopes do rather than through a flag: a scope that

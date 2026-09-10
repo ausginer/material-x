@@ -114,7 +114,7 @@ Public but marked advanced. A feature author needs the installer, the runtime pr
 ```ts
 type SortableFeature = (install: SortableInstall) => void;
 
-type SortableInstall = Readonly<{ /* artifact 3 */ }>;
+type SortableInstall = Readonly<{/* artifact 3 */}>;
 
 type InsertionRule = (
   runtime: InsertionRuntime,
@@ -142,12 +142,10 @@ Public but marked experimental — the boundary was derived from one behavior an
 
 ```ts
 type DraggableBehavior<Controller> = (kernel: Kernel) => Controller;
-type Kernel = Readonly<{ /* artifact 1 */ }>;
-type KernelSpec<Frame extends KernelStateFrame> = Readonly<
-  { /* artifact 1 */ }
->;
-type KernelStateFrame = { /* artifact 1 */ };
-type KernelRuntime = { /* artifact 4 */ };
+type Kernel = Readonly<{/* artifact 1 */}>;
+type KernelSpec<Frame extends KernelStateFrame> = Readonly<{/* artifact 1 */}>;
+type KernelStateFrame = {/* artifact 1 */};
+type KernelRuntime = {/* artifact 4 */};
 type OperationIdentity = object;
 type Disposer = () => void;
 type Lifetime = Readonly<{ signal; finalized; use; useWhile; dispose }>;

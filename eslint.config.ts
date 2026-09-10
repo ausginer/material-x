@@ -1,5 +1,4 @@
 import { defineConfig, globalIgnores, type Config } from 'eslint/config';
-import tsImports from 'eslint-config-vaadin/imports-typescript';
 // `eslint-config-prettier` alone, and the omission is the rule.
 // `eslint-config-vaadin/prettier` is that config **plus**
 // `'prettier/prettier': 'error'`, which makes the linter a second formatter:
@@ -10,12 +9,17 @@ import tsImports from 'eslint-config-vaadin/imports-typescript';
 // formatted by Prettier directly and is unaffected: no lint rule is involved
 // in that path.
 import prettierDisables from 'eslint-config-prettier';
+import tsImports from 'eslint-config-vaadin/imports-typescript';
 import testing from 'eslint-config-vaadin/testing';
 import tsRequireTypeChecking from 'eslint-config-vaadin/typescript-requiring-type-checking';
 import oxlint from 'eslint-plugin-oxlint';
 
 const config: readonly Config[] = defineConfig(
   globalIgnores([
+    // A harness worktree is a second checkout of this repository living inside
+    // it, so every source file under here is a duplicate of one already linted
+    // at its own path. Git ignores the directory; ESLint's file walk does not.
+    '.claude/worktrees/**/*',
     '.nx/**/*',
     '.vite/**/*',
     '.vite-inspect/**/*',

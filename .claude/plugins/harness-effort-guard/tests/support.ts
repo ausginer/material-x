@@ -125,8 +125,12 @@ export async function run(
   const out: Buffer[] = [];
   const err: Buffer[] = [];
 
-  child.stdout.on('data', (chunk: Buffer) => out.push(chunk));
-  child.stderr.on('data', (chunk: Buffer) => err.push(chunk));
+  child.stdout.on('data', (chunk: Buffer) => {
+    out.push(chunk);
+  });
+  child.stderr.on('data', (chunk: Buffer) => {
+    err.push(chunk);
+  });
   child.stdin.end(input);
 
   const code = await new Promise<number>((resolve) => {

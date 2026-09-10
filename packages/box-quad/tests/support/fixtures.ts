@@ -14,11 +14,13 @@ import {
 export const QUAD_TOLERANCE = 0.000001;
 
 export type Styles = Readonly<{
-  [K in keyof CSSStyleDeclaration as K extends string
-    ? CSSStyleDeclaration[K] extends string
-      ? K
+  [
+    K in keyof CSSStyleDeclaration as K extends string
+      ? CSSStyleDeclaration[K] extends string
+        ? K
+        : never
       : never
-    : never]?: string;
+  ]?: string;
 }>;
 
 export type BoxOptions = Readonly<{

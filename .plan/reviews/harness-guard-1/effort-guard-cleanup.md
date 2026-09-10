@@ -7,6 +7,7 @@
 ## Scope
 
 Covered, read in full at the target commit:
+
 - `.claude/plugins/harness-effort-guard/scripts/{guard,observe,resolve-role,verdict}.ts` and all four `tests/*.test.ts` files plus `tests/support.ts`
 - `.claude/plugins/harness-effort-guard/README.md`, `hooks/hooks.json`, `.claude-plugin/plugin.json`, `tsconfig.json`
 - `.claude-plugin/marketplace.json`, `.claude/settings.json`, `.oxlintrc.json` (diff only)
@@ -24,6 +25,7 @@ Not covered: I did not review `.claude/agents/*.md` role definitions themselves,
 **Finding.** The rationale for matching `model: haiku` literally (no prefix/alias/family/capability inference) is written out in full, independently, in two places that will drift if one is edited without the other.
 
 **Current behavior.** `scripts/resolve-role.ts`:
+
 ```
 /**
  * The one `model:` value outside the effort invariant, matched literally.
@@ -35,7 +37,9 @@ Not covered: I did not review `.claude/agents/*.md` role definitions themselves,
  */
 const EFFORTLESS_MODEL = 'haiku';
 ```
+
 `README.md` (published, consumer-facing):
+
 > The test is the literal `model:` field of the definition, matched exactly against `haiku`. Not a prefix, not an alias, not a family, and not a capability lookup: the guard would have to infer which models carry effort, and it has no reliable source for that. A model that later gains or loses effort support changes one word in one file.
 
 **Why it is a problem.** The two statements carry the identical argument in near-identical wording. `.agents/docs/documentation.md` §"One copy" is written about `AGENTS.md`/`CLAUDE.md`/`.agents/docs` specifically, but the review brief for this round names "the code itself" as one of the places to check for the same rule stated twice, and this is exactly that case: a future change to the exemption rule (e.g. adding a second effortless model, or changing the matching strategy) has two independent proses to update, and nothing ties them together. One is a maintainer note (internal, per `documentation.md` §5.2's mechanical split — `EFFORTLESS_MODEL` does not appear in any shipped `.d.ts`), the other is the shipped operator-facing explanation; they answer to different readers, but they assert the same fact for the same reason in the same words, which is the drift risk `documentation.md`'s "one copy" principle is written to avoid.
@@ -51,10 +55,12 @@ const EFFORTLESS_MODEL = 'haiku';
 **Finding.** `guard.ts`'s `main()` falls back to a synthesized data directory when `--data-dir` is absent, but every actual caller of `guard.ts` always supplies `--data-dir`.
 
 **Current behavior.**
+
 ```ts
 const dataDir =
   argument('--data-dir') ?? join(tmpdir(), 'harness-effort-guard');
 ```
+
 The plugin's only production entrypoint is `hooks/hooks.json`, which invokes `guard.ts` for all five wired events (`PreToolUse`, `Stop`, `SubagentStop`, `SessionStart`, `SubagentStart`) and always passes `--data-dir "${CLAUDE_PLUGIN_DATA}"` (verified: `grep -c data-dir hooks/hooks.json` = 5, one per hook, none omitting the flag). Every test in `tests/guard.test.ts` also calls the script through `support.ts`'s `run()` with `--data-dir` explicit. No test exercises the `?? join(tmpdir(), …)` branch, and no documentation (the plugin's own README, or `harness-effort-guard.md`) describes a supported manual invocation of `guard.ts` without the flag — contrast `resolve-role.ts`, whose CLI mode is documented in its own JSDoc block as an explicit, intentional second interface ("CLI for callers that cannot import").
 
 **Why it is a problem.** `CONTRIBUTING.md` §1.1's litmus test asks "is this state reachable through correct use of the public contract?" For `guard.ts`, the only contract that exists is "invoked by the hook wiring, or by the test harness" — both always pass `--data-dir`. The fallback is a default for an input nothing that runs it ever omits: untested, undocumented, and not load-bearing for the guard's stated job of asserting and denying. It is exactly the class of unreachable defensive code Part II asks to be removed rather than the class of legitimate contract term (there is no documented case where an integrator is expected to invoke `guard.ts` bare).

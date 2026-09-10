@@ -211,9 +211,8 @@ describe('sortable', () => {
   it('should propose a reorder and finish accepted when dropping over a neighbour', async () => {
     const container = createList(3);
     const items = rows(container);
-    const onReorder = vi.fn(
-      (_request: ReorderRequest): ReorderResolution =>
-        ReorderResolution.accept(),
+    const onReorder = vi.fn((_request: ReorderRequest): ReorderResolution =>
+      ReorderResolution.accept(),
     );
     const onFinish = vi.fn<(r: SortableFinishResult) => void>();
     sort(container, { items: () => rows(container), onReorder, onFinish });
@@ -407,9 +406,8 @@ describe('sortable', () => {
   it('should reorder through an arrow-key command and finish accepted', async () => {
     const container = createList(3);
     const items = rows(container);
-    const onReorder = vi.fn(
-      (_request: ReorderRequest): ReorderResolution =>
-        ReorderResolution.accept(),
+    const onReorder = vi.fn((_request: ReorderRequest): ReorderResolution =>
+      ReorderResolution.accept(),
     );
     const onFinish = vi.fn<(r: SortableFinishResult) => void>();
     sort(container, { items: () => rows(container), onReorder, onFinish });

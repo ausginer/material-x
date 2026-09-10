@@ -30,8 +30,8 @@
  * because they were about the *absence of a return channel*, which D-33 also
  * declines to add.
  */
-import type { LandingTiming } from '../../src/shared/composition.ts';
 import type { PreparedSettlement } from '../../src/kernel/spec.ts';
+import type { LandingTiming } from '../../src/shared/composition.ts';
 
 /**
  * **The settlement scope is retired outright (D-155)**, and the assertions
@@ -245,5 +245,5 @@ export type CandidateLandingOptions = Readonly<{
   easing?: string;
   /** Read at settle time by the default runner. Wins over `duration`/`easing`. */
   timing?(): Readonly<{ duration: number; easing: string }>;
-  run?: (context: unknown) => void;
+  run?(context: unknown): void;
 }>;

@@ -58,15 +58,15 @@ Assert token values and discrete state exactly, after canonical normalization. T
 
 Expected values come from different authorities depending on the contract.
 
-| Contract | Primary oracle | Notes |
-| --- | --- | --- |
-| Tokenized Material value | tproc with the active tag profile | Do not duplicate the value in a fixture. |
-| Token selection and processing | tproc node tests | Covers tag selection, normalization, grouping, inheritance, and rendering. |
-| Browser behavior | HTML, DOM, ARIA, and form platform contracts | Prefer native behavior over reimplemented expectations. |
-| Material behavior not encoded as a token | Material documentation or an approved design reference | Record source and review date. |
-| Derived layout | Named formula over token inputs | Record the formula and why it is valid. |
-| Composed appearance | Reviewed screenshot baseline | A regression oracle, not a Material source. |
-| Accessibility support | Platform assertions plus targeted manual/browser-AT evidence | Automated rule engines are supplementary. |
+| Contract                                 | Primary oracle                                               | Notes                                                                      |
+| ---------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| Tokenized Material value                 | tproc with the active tag profile                            | Do not duplicate the value in a fixture.                                   |
+| Token selection and processing           | tproc node tests                                             | Covers tag selection, normalization, grouping, inheritance, and rendering. |
+| Browser behavior                         | HTML, DOM, ARIA, and form platform contracts                 | Prefer native behavior over reimplemented expectations.                    |
+| Material behavior not encoded as a token | Material documentation or an approved design reference       | Record source and review date.                                             |
+| Derived layout                           | Named formula over token inputs                              | Record the formula and why it is valid.                                    |
+| Composed appearance                      | Reviewed screenshot baseline                                 | A regression oracle, not a Material source.                                |
+| Accessibility support                    | Platform assertions plus targeted manual/browser-AT evidence | Automated rule engines are supplementary.                                  |
 
 **tproc is the tokenized visual source of truth.** The pipeline loads Material token tables, selects contextual values, normalizes them for CSS, groups them into component states, applies component-specific filtering and inheritance, and renders the token packages used by production CSS. The active profile is **Material Expressive + Web** (`DB.load()` uses tags `expressive` and `web`). The exported `t` API does not accept a tag profile, so tests cannot claim coverage of alternative profiles until profile selection becomes an explicit, unit-covered tproc API. Tag selection currently uses intersection semantics with first-match-in-source-order fallback; tproc node tests pin this until it changes intentionally.
 
@@ -101,15 +101,15 @@ A tproc-backed contract proves the component selected the intended production pa
 
 ## Failure interpretation
 
-| Failing layer | Likely fault |
-| --- | --- |
-| Behavior only | Runtime controller, platform semantics, lifecycle, events, forms, or ARIA |
-| tproc node only | Source/tag selection, normalization, grouping, inheritance, adjustment, or rendering |
-| Spec contract only | Package choice, runtime state, selector mapping, CSS consumption, or derived layout |
-| Screenshot only | Composition, clipping, raster detail, font/environment drift, or an uncovered visual property |
-| Spec contract and screenshot | Likely real visual conformance regression |
-| Behavior and screenshot | Interaction/state transition changed visible output |
-| All layers | Broad source, build, theme, or component regression |
+| Failing layer                | Likely fault                                                                                  |
+| ---------------------------- | --------------------------------------------------------------------------------------------- |
+| Behavior only                | Runtime controller, platform semantics, lifecycle, events, forms, or ARIA                     |
+| tproc node only              | Source/tag selection, normalization, grouping, inheritance, adjustment, or rendering          |
+| Spec contract only           | Package choice, runtime state, selector mapping, CSS consumption, or derived layout           |
+| Screenshot only              | Composition, clipping, raster detail, font/environment drift, or an uncovered visual property |
+| Spec contract and screenshot | Likely real visual conformance regression                                                     |
+| Behavior and screenshot      | Interaction/state transition changed visible output                                           |
+| All layers                   | Broad source, build, theme, or component regression                                           |
 
 Before updating a screenshot, inspect: the active tproc profile; contract ID and effective state path; expected token name and resolved value; actual public inputs and custom states; actual computed property or geometry; environment and font versions.
 

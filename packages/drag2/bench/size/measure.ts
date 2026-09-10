@@ -1013,8 +1013,12 @@ if (import.meta.main) {
 
   // oxlint-disable-next-line no-console
   console.log(
+    // Bytes rather than kB. This figure is transcribed into the measurement
+    // records, and at two-decimal kB a change of a few dozen bytes cannot move
+    // it — an obligation to record the new figure is then discharged by
+    // writing the same number.
     `\npublished declarations: ${declarations.files} files,` +
-      ` ${kb(declarations.bytes)}, of which ${kb(declarations.comment)} is` +
+      ` ${declarations.bytes} B, of which ${declarations.comment} B is` +
       ` comment (${Math.round(
         (declarations.comment / declarations.bytes) * 100,
       )} %)  (telemetry: not budgeted)`,

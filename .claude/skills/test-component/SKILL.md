@@ -23,12 +23,12 @@ Migration is in progress: some tests are still colocated under `src` and the Vit
 
 ## File suffix → what it tests → which project
 
-| Suffix | Tests | Project | Recipe |
-| --- | --- | --- | --- |
-| `*.browser.test.ts` | public behavior + platform/a11y semantics | `browser` | `just test-behavior` |
-| `*.spec.browser.test.ts` | tproc-backed visual contracts | `spec` | `just test-spec` |
-| `*.visual.browser.test.ts` | reviewed screenshots | `visual` | `just test-visual` |
-| `*.node.test.ts` | tproc/compiler + Node-only | `node` | `just test` |
+| Suffix                     | Tests                                     | Project   | Recipe               |
+| -------------------------- | ----------------------------------------- | --------- | -------------------- |
+| `*.browser.test.ts`        | public behavior + platform/a11y semantics | `browser` | `just test-behavior` |
+| `*.spec.browser.test.ts`   | tproc-backed visual contracts             | `spec`    | `just test-spec`     |
+| `*.visual.browser.test.ts` | reviewed screenshots                      | `visual`  | `just test-visual`   |
+| `*.node.test.ts`           | tproc/compiler + Node-only                | `node`    | `just test`          |
 
 The `browser` project **excludes** the `.spec.browser` and `.visual.browser` patterns, so a misnamed file lands in the wrong suffix bucket silently — name it precisely. Project globs live in `.scripts/vitest-config.ts`; that config is the source of truth, not this table. Every workflow selects a named project (`--project browser|spec|visual|node`), never a shell glob. Update baselines only via `just test-visual-update` — never automatically, never in CI.
 

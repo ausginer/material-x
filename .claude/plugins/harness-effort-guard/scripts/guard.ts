@@ -1,11 +1,11 @@
+import { readChildIdentity, type IdentitySource } from './identity.ts';
+import { observe } from './observe.ts';
 import {
   findProjectRoot,
   isLinkedWorktree,
   resolveRole,
   type Resolution,
 } from './resolve-role.ts';
-import { readChildIdentity, type IdentitySource } from './identity.ts';
-import { observe } from './observe.ts';
 import { appliedNotice, checkModel, judge, type Check } from './verdict.ts';
 
 /**
@@ -220,10 +220,13 @@ const main = async (): Promise<void> => {
     // in fact governed.
     if (agentId != null && effortBearing) {
       try {
-        const child = await readChildIdentity(input.transcript_path, agentId);
+        const { role: childRole, model } = await readChildIdentity(
+          input.transcript_path,
+          agentId,
+        );
 
-        role = child.role;
-        runtimeModel = child.model;
+        role = childRole;
+        runtimeModel = model;
       } catch (cause) {
         identityError = cause instanceof Error ? cause.message : String(cause);
       }

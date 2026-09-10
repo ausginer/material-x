@@ -25,7 +25,7 @@ That is why the boundary between record and contract does not run between files 
 ## How things are addressed
 
 - A contract citation is `NN §Heading`, with `NN` from `00` to `07`. `tests/references.node.test.ts` resolves every one of them against a real heading or a declared row id.
-- Decision, finding and invariant ids — `D-`, `F-`, `I-`, `E-`, `Q-` — are declared in **the register that owns the family** (D-174) and cited from anywhere in the package, including from `src/` and `bench/`. `D-` and `F-` are `00-index.md`; `I-`, `Q-` and `M-` are `05`; `P-` is `02`; `B-`, `K-` and `L-` are `07`; `O-` and `SC-` are `obligations.md`.
+- Every id family is declared in **the register that owns the family** (D-174) and cited from anywhere in the package, including from `src/` and `bench/`. `D-` and `F-` are `00-index.md`; `I-`, `Q-` and `M-` are `05`; `P-` is `02`; `B-`, `K-` and `L-` are `07`; `O-` and `SC-` are `obligations.md`.
 - A backticked repository path is resolved on disk by the same instrument. A path or symbol that is deliberately gone is written struck, which is how the instrument tells a retired reference from a broken one.
 
 ## What is not here

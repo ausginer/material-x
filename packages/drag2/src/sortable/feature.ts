@@ -93,7 +93,9 @@ export type SortableFeatureContext = FeatureContext &
 // narrower view demands a member the published view does not carry is silently
 // accepted, and the boundary this tier exists to check goes unchecked. A named
 // alias is checked contravariantly in the parameter and refuses it. The two
-// names are exported because declaration emit reaches them; `sortable/config.ts`
+// names are exported so an axis author filling `InsertionGeometry` can hoist a
+// slot into a typed `const`; that type already names both signatures
+// structurally, so the exports add no structural surface. `sortable/config.ts`
 // and `free-drag/config.ts` state the same rule for their own callback slots.
 export type ResolveInsertion = (
   frame: InsertionFrameView,

@@ -126,9 +126,8 @@ describe('draggable', () => {
     const item = createItem();
     const onFinish: Mock<NonNullable<DraggableOptions['onFinish']>> =
       vi.fn<(r: FreeDragFinishResult) => void>();
-    const onDrop = vi.fn(
-      (_request: FreeDropRequest): FreeDropResolution =>
-        FreeDropResolution.accept(),
+    const onDrop = vi.fn((_request: FreeDropRequest): FreeDropResolution =>
+      FreeDropResolution.accept(),
     );
     drag(item, { onDrop, onFinish });
 

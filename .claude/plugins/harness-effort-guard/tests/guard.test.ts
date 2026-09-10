@@ -1104,14 +1104,21 @@ describe('guard review swarm containment', () => {
   });
 
   it('should deny it for every lens the topology permits', async () => {
-    for (const lens of ['reviewer', 'integrity', 'cleanup', 'der']) {
-      const record = await launches('consolidator', 'medium', {
-        subagent_type: lens,
-        name: `pass-${lens}`,
-      });
+    // Each launch builds its own temporary project root, so the four are
+    // independent and run together.
+    const lenses = ['reviewer', 'integrity', 'cleanup', 'der'];
+    const records = await Promise.all(
+      lenses.map((lens) =>
+        launches('consolidator', 'medium', {
+          subagent_type: lens,
+          name: `pass-${lens}`,
+        }),
+      ),
+    );
 
-      strictEqual(record.cause, 'topology-name', lens);
-    }
+    records.forEach((record, index) => {
+      strictEqual(record.cause, 'topology-name', lenses[index]);
+    });
   });
 
   it('should allow the ordinary unnamed lens dispatch', async () => {

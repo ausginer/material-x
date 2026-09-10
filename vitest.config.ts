@@ -1,11 +1,12 @@
 import type { UserConfigFnObject } from 'vite';
 import { defineConfig } from 'vitest/config';
 import { createWorkspaceTestConfig } from './.scripts/vitest-config.ts';
-// Test-only infrastructure is deliberately not a package runtime export.
-// eslint-disable-next-line import-x/no-relative-packages
-import { materialXBrowserCommands } from './packages/material-x/tests/support/visual-contracts.node.ts';
+// Test-only infrastructure is deliberately not a package runtime export, so
+// both of these are reached by path rather than by specifier.
 // eslint-disable-next-line import-x/no-relative-packages
 import { dragBrowserCommands } from './packages/drag2/tests/support/pointer-commands.node.ts';
+// eslint-disable-next-line import-x/no-relative-packages
+import { materialXBrowserCommands } from './packages/material-x/tests/support/visual-contracts.node.ts';
 
 const config: UserConfigFnObject = defineConfig((env) =>
   createWorkspaceTestConfig(env, {
