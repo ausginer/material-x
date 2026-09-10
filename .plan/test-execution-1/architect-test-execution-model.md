@@ -18,6 +18,17 @@ nothing in Vitest bounds browser concurrency _across_ projects, and the flag
 that looks like it should is inert in the installed version (F-432, F-436).
 Neither is fixed by the other, and the reported symptom needs both.
 
+> **Revision note, 2026-09-10.** This document claimed fourteen identifiers at
+> `####` — register depth — from a document that owns no id family. Under the
+> sanctioned route in `consolidator.md` those claims are withdrawn: the headings
+> below now carry **local** ids in mention form, nothing is claimed, and the
+> canonical mapping is filled in when the entries are written into a register.
+> The local register and the amended design are in
+> [`architect-test-execution-model-reconciled.md`](architect-test-execution-model-reconciled.md),
+> which supersedes the decisions here. **The measurements below stand**, with two
+> exceptions it records: the visual-failure diagnosis (TE-F7) is reversed, and
+> the CLI allow-list is 20 names, not 21.
+
 ## Scope
 
 In: the shared factory `.scripts/vitest-config.ts`, the package test
@@ -113,7 +124,7 @@ which **seven are browser projects** (material-x `browser`, `spec`, `visual`;
 
 ## Findings
 
-#### F-432 — CLI `--maxWorkers` cannot reach a browser project in `vitest@4.1.10`
+### CLI `--maxWorkers` cannot reach a browser project in `vitest@4.1.10` (TE-F1)
 
 Upstream #11051 is **confirmed**, at source and by measurement, in the installed
 version. The mechanism is two-layered.
@@ -160,7 +171,7 @@ problem, and it failed silently.
 `resolveConfig`), but it is an environment variable rather than a repository
 rule, and it is not the chosen control.
 
-#### F-433 — the container misreports its budget to every process in it
+### the container misreports its budget to every process in it (TE-F2)
 
 `--memory=16g` constrains the cgroup and nothing else. `/proc/meminfo`, and so
 `os.totalmem()`, still report the host's 46.74 GiB; `cpu.max` carries no quota,
@@ -169,7 +180,7 @@ ceiling to 4192 MiB and Vitest sizes its browser page count to
 `min(12, cpus - 1)` — both from figures unrelated to the 16 GiB actually
 available. No self-sizing default in this toolchain can be trusted here.
 
-#### F-434 — `constructCSSTokens` spawns one unbounded worker isolate per `.css.ts`, each loading its own token DB
+### `constructCSSTokens` spawns one unbounded worker isolate per `.css.ts`, each loading its own token DB (TE-F3)
 
 This is the proximate cause of "material-x alone is killed", and it is a real
 unbounded resource in repository-owned code rather than a scheduling artefact.
@@ -254,7 +265,7 @@ it is short, not because it is within budget.
 Every other package's main process is a normal few hundred megabytes and
 Chromium dominates, as it should. material-x inverts that.
 
-#### F-435 — a Vitest process does not release a finished browser project
+### a Vitest process does not release a finished browser project (TE-F4)
 
 Serializing material-x's projects with distinct `sequence.groupOrder` bounds the
 _concurrent_ page count but not the peak, because nothing is torn down when a
@@ -267,7 +278,7 @@ over browser projects, however they are scheduled.** Only a process boundary
 returns the memory. Measured directly — with F-434 capped, the same four
 projects cost 14 061 MiB in one process and 9908 MiB as separate processes.
 
-#### F-436 — the root combined run is not merely killed, it is unusable for an hour first
+### the root combined run is not merely killed, it is unusable for an hour first (TE-F5)
 
 The root `vitest.config.ts` schedules all 15 projects, 7 of them browser
 projects, concurrently. `npm test` is bare `vitest`, so it resolves this
@@ -285,7 +296,7 @@ the tail of the series is contaminated. The decisive part is not — the cap was
 reached at t = 56 s with 181 Chrome processes already present, before the probe
 had started a browser.
 
-#### F-437 — background load is part of the run's budget and is not reclaimed
+### background load is part of the run's budget and is not reclaimed (TE-F6)
 
 4.1–5.4 GiB resident before any test starts, of which 1192 MiB is **26**
 `chrome-devtools` MCP server processes in a container up for 2 d 16 h. A run
@@ -293,7 +304,7 @@ designed against "16 GiB" is really offered 10–12 GiB, and the figure moves
 between sessions. This is a constraint on the design, not a tidiness
 observation.
 
-#### F-438 — the visual matcher times out when the container is loaded
+### the visual matcher times out when the container is loaded (TE-F7)
 
 The reported "intermittent visual failures" under reduced parallelism are
 reproduced, and they are **not** pixel mismatches. The failure is
@@ -339,7 +350,7 @@ Three things fall out of the table and they drive every decision below.
 
 ## Decisions
 
-#### D-199 — a test run's resource use is bounded by construction, and the budget is stated
+### a test run's resource use is bounded by construction, and the budget is stated (TE-D1)
 
 The repository does not rely on a self-sizing default anywhere in the test
 toolchain. F-433 is the standing reason: the container's declared budget is
@@ -355,7 +366,7 @@ Against that budget the levels are settled as: L1 by D-203, L2 by D-202 and
 D-203, L5 by D-202, L6 by D-200. L3 and L4 are left at their defaults by D-201,
 on measurement.
 
-#### D-200 — the CSS token plugin bounds its worker concurrency
+### the CSS token plugin bounds its worker concurrency (TE-D2)
 
 `constructCSSTokens` gains a bounded worker pool. This is the primary fix and
 the smallest one: it is a defect in repository-owned code — an unbounded
@@ -386,7 +397,7 @@ independent reason the correction belongs here and not in test scheduling: the
 build path reaches the cap on its own (F-434), and no amount of test-runner
 configuration would have touched it.
 
-#### D-201 — `maxWorkers` is not lowered repository-wide, and the CLI flag is never used
+### `maxWorkers` is not lowered repository-wide, and the CLI flag is never used (TE-D3)
 
 No repository-wide reduction of the browser page bound is imposed. Measured, it
 buys nothing once D-200 and D-202 are in place — 9908 MiB against 10 025 MiB —
@@ -406,7 +417,7 @@ What **is** decided is the knowledge, because F-432's failure mode is silent:
 If a future package needs the bound, it is set there and measured then. This
 decision records that today's evidence does not call for it.
 
-#### D-202 — a package run holds at most one browser project's footprint at a time
+### a package run holds at most one browser project's footprint at a time (TE-D4)
 
 Because a Vitest process never returns a finished browser project's memory
 (F-435), the only bound on L5 is a process boundary. A package with more than
@@ -425,7 +436,7 @@ first.
 browser project's resources, the property is satisfiable in one process and this
 decision is met by the simpler arrangement. The property is the budget.
 
-#### D-203 — the repository run is a sequence of package runs, and the root workspace config stops being an all-projects browser runner
+### the repository run is a sequence of package runs, and the root workspace config stops being an all-projects browser runner (TE-D5)
 
 The root `vitest.config.ts` cannot complete in this container and takes an hour
 to fail (F-436). A configuration known to be fatal is not left in place as a
@@ -445,7 +456,7 @@ form would remain a second, differently-scoped definition of what the
 repository's tests are, and two such definitions drift. §Owner choices states
 the cost, which is not this decision's to absorb.
 
-#### D-204 — the visual matcher's settle budget is sized for a loaded container
+### the visual matcher's settle budget is sized for a loaded container (TE-D6)
 
 F-438 must be closed as part of this work rather than inherited as flake. The
 settle budget for `toMatchScreenshot` is sized to hold on a container carrying
@@ -458,7 +469,7 @@ If the failure proves unreproducible once D-200 and D-202 land, that is a
 sufficient disposition provided it is demonstrated rather than assumed — see
 §How implementation demonstrates the required behaviour, item 5.
 
-#### I-38 — a change to test scheduling or runner configuration carries a measured peak
+### a change to test scheduling or runner configuration carries a measured peak (TE-I1)
 
 Any change to `.scripts/vitest-config.ts`, to a package's test configuration, to
 the Nx `test` target, to `constructCSSTokens`' worker bound, or to the
