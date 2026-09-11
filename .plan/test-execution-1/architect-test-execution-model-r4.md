@@ -51,8 +51,8 @@ accepted: the shipped behaviour holds, and its teardown mutation probe makes
 TE-F33 **stronger** than this record states. Five questions were routed here and
 all five are settled below — the in-flight invalidation race (TE-D17, the
 round's one tier A), the falsified explanations for the memory delta (TE-F37),
-the browser page bound (TE-F39), the CI-policy statement (TE-F40, which carries
-the one genuine owner choice this amendment does not close), and where
+the browser page bound (TE-F39), the CI-policy statement (TE-F40, settled by
+owner disposition as accepted policy with a deferred implementation), and where
 repository-level findings are registered (settled as `repo:RD-1` in the new
 [repository register](../00-index.md)). **One consolidated finding is resolved
 against the round's own reading**: F-440's headroom comparison is a category
@@ -1422,8 +1422,15 @@ This is pre-existing and outside the implemented range. It is live in this
 record because revision 2 recorded it as an owner call for the implementing
 pass, the implementing pass edited that file without resolving it, and revision
 4 did not carry the question forward — so the decision to leave it was made
-inside this work's own record and has never been taken. The owner choice is
-stated below rather than settled here.
+inside this work's own record and had never been taken.
+
+**It is taken now, and the finding's own framing was too narrow.** The document
+was read as describing a mechanism, and the two repairs that follow from that
+reading — correct the prose, or build the mechanism — both treat the gap as a
+decision about whether the repository wants a gate. It is not: the gate is
+accepted and unbuilt. The policy stands, the tense and status are corrected, and
+the work is registered as `repo:RD-2`. **The finding stays open**, because
+nothing about the repository's actual enforcement has changed.
 
 ## Corrections to earlier revisions
 
@@ -1501,6 +1508,11 @@ Stated rather than quietly dropped.
 - **The `$close()` citation was off by one line.** `orchestrator.$close()` is
   `cli-api.BK8pd4xc.js:2493`; `:2492` is the `forEach` enclosing it. Both sites
   corrected. The sibling `provider.close()` citation at `:2488` was exact.
+- **This record's own A-versus-B framing of the CI policy is withdrawn.** Both
+  options read an accepted-but-unbuilt gate as an open decision about whether
+  the repository wants one. The owner's disposition is that the policy is the
+  target and the automation is deferred; the policy is preserved, its tense and
+  status are corrected, and the work is registered as `repo:RD-2`.
 - **The VS Code extension is not installed in this container.** The editor
   server present is Zed. All extension findings in every revision are source
   reading — here, of the marketplace artefact self-reporting
@@ -1708,42 +1720,66 @@ anything back after `--watch` is removed, which the demonstration list settles
 by exercising it; and whether any editor gesture issues more than one consuming
 execution per process, which the same list settles by exercising each one.
 
-**One owner choice was opened by the review round and is not about this model.**
-It is the CI policy, stated below; it is presented rather than taken.
+**The review round opened one question that is not about this model** — the
+repository's CI policy — and the owner has settled it. It is recorded below and
+carries no remaining choice.
 
-## The one open owner choice — the pull-request gate
+## The pull-request gate is accepted policy with its implementation deferred
 
-The repository's test-architecture document describes a pull-request gate that
-does not exist (TE-F40). Two ways out, and the consequences differ enough that
-choosing on convenience would be choosing blind.
+The review round found that `.agents/docs/test-architecture.md` describes a
+pull-request gate the repository does not have (TE-F40), and this record
+previously put two options to the owner: correct the document to describe
+reality, or build the gate. **Both were wrong, because both read a deferral as a
+decision.** The owner's disposition is neither: the policy is the accepted
+target and is not weakened, and the missing automation is unimplemented
+repository work.
 
-**Option A — correct the document to describe reality.** Cost: an edit. The
-consequence is that the repository then states, in the document every role is
-pointed at for test policy, that **it has no automated pre-merge verification**
-— correctness rests entirely on contributor discipline and the `handoff.md`
-sequence, and every "verified" in a review is a local claim on one container.
-The second sentence goes with it: the visual-baseline policy's "one pinned
-Chromium environment" loses its stated enforcement point, so the pinning rule
-has to be restated as a local obligation or it becomes advice.
+**What that changes.** A repository that had decided to operate without
+pre-merge verification would say so in its policy. This one has accepted the
+gate and not yet built it, so the policy stays authoritative and the build
+becomes owed work with a home, an identifier and an acceptance test. The
+correction to the policy document is therefore in **tense and status only** —
+`gates on` becomes `must be gated on`, `the ordinary PR gate uses one pinned
+Chromium environment` becomes `must use`, and one status line names the entry
+that owns the deferral. No requirement is removed, softened or scoped down.
 
-**Option B — introduce the gate the document describes.** Cost: a project, not a
-workflow file. The root run needs ~7.4 GiB and 66 s plus build time; the browser
-tests need Chromium in the runner; and the curated visual suite needs a
-**pinned** image, which is precisely why the document specifies one — an
-unpinned runner produces false diffs and the suite becomes noise that gets
-disabled. So Option B is a pinned container image plus a workflow plus a
-baseline-maintenance policy, and its first deliverable is not the gate but the
-image.
+**Where each half lives**, which is the part this pass had to decide:
 
-**Recommendation: A now, B as its own work.** A document that promises a safety
-net which will not run is actively harmful today, and it is harmful in the
-direction that matters — a contributor relies on it and does not run the checks
-locally. Correcting it is cheap and reversible: when B lands, the document is
-corrected again, in the commit that makes it true. Taking B as a doc fix is how
-a pinned-image project gets smuggled in as a sentence.
+| Half                                    | Home                                                       | Why                                                                            |
+| --------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| The requirement                         | `test-architecture.md` §CI policy, §What screenshots prove | Current-state policy: the document a role reads to learn what must hold        |
+| The status, deliverables and acceptance | `repo:RD-2` in [`.plan/00-index.md`](../00-index.md)       | Record: what is owed and why, cited by the rule rather than copied into it     |
+| The finding                             | TE-F40, here, **open**                                     | It is answered by making the status explicit, not by asserting the gate exists |
 
-**What is not optional either way**: the document must not continue to assert a
-gate that does not exist. Only which correction to make is the owner's.
+That split is the documentation model's own — a durable rule cites a record and
+does not carry the record's numbers, and a current-state document carries no
+amendment narrative — and the test-architecture document already used it: its
+§Implementation roadmap exists precisely to say what is adopted incrementally.
+Roadmap item 4 read "extend the curated visual matrix and CI gating", which
+implies a gate to extend; it now says the gate and its environment are new work
+and names `repo:RD-2`.
+
+**What `repo:RD-2` fixes, so the next unit does not re-derive it.** Four
+deliverables in dependency order, and the first is not the workflow: the pinned
+image, then the workflow running the enumerated suite, then the branch rule that
+makes it a gate rather than a report, then a baseline-maintenance policy for
+image upgrades. The ordering is load-bearing — the curated visual suite inside
+an unpinned runner produces false diffs, and a visual gate that produces false
+diffs is disabled within a week, which is worse than not having one. It also
+carries the resource facts this work measured, so a runner is not sized by
+guesswork: one whole-repository run needs roughly 6.6–7.4 GiB and 66–86 s plus
+build time, peaking near 10.4 GiB anonymous.
+
+**TE-F40 is not closed.** Its required property was that the document states the
+gate that exists or states that none does; the second branch is taken, and the
+statement now sits in the policy document with the detail in the register.
+Nothing here claims enforcement exists, and the finding stays open until the
+four deliverables do.
+
+**This unit does not build any of it.** No workflow, no image, no branch rule,
+and no plan directory for them — `repo:RD-2` names that directory as the home
+for the unit that takes the work, and designing the mechanism is that unit's job
+rather than this one's.
 
 ## Implementation readiness
 
@@ -1854,7 +1890,11 @@ record correction, a dead-code removal or a C-tier tidy.
    not absorb: the orphaned build chunks, the copied dependency set (read
    TE-D17's interaction note first), the process-scoped request counter, the
    `sh` shebang on a `bash` script.
-5. **The document correction the owner selects** for the pull-request gate.
+5. **Nothing for the pull-request gate.** The policy document's tense and
+   status correction is made in this pass, and the gate, the pinned image and
+   the branch rule are a separate unit of repository work registered as
+   `repo:RD-2`. This remediation does not expand into it, and a reviewer should
+   not read TE-F40's open status as work owed by this one.
 6. **`SCOPES` in `packages/drag2/.scripts/entry.ts`** gains a `repo` row, so
    `repo:RD-1` resolves. The register is readable without it.
 
