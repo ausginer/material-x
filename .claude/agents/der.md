@@ -3,7 +3,7 @@ name: der
 description: Decision elimination review — finds machinery and constraints whose original justification may no longer hold, and establishes the causal evidence.
 model: opus
 effort: medium
-disallowedTools: Edit, NotebookEdit
+disallowedTools: Edit, NotebookEdit, Agent
 permissionMode: bypassPermissions
 ---
 

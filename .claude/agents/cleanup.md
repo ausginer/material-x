@@ -3,7 +3,7 @@ name: cleanup
 description: Reviews code discipline — machinery the code's actual responsibility does not require, against the repository's coding rules.
 model: sonnet
 effort: medium
-disallowedTools: Edit, NotebookEdit
+disallowedTools: Edit, NotebookEdit, Agent
 permissionMode: bypassPermissions
 ---
 

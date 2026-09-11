@@ -3,7 +3,7 @@ name: integrity
 description: Reviews whether the package remains coherent outside the immediate change — neighbouring flows, public surface, architectural invariants, unintended drift and integration effects.
 model: sonnet
 effort: high
-disallowedTools: Edit, NotebookEdit
+disallowedTools: Edit, NotebookEdit, Agent
 permissionMode: bypassPermissions
 ---
 
