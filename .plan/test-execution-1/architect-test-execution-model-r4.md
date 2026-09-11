@@ -44,6 +44,22 @@ violates a contract of this record**, so no remediation is routed. Every claim
 this amendment rests on was verified here at source or on a fixture, not taken
 on report.
 
+**Reconciled with the review round, 2026-09-11**, against
+[`test-execution-1-summary.md`](../reviews/test-execution-1/test-execution-1-summary.md)
+and its four pass artefacts at `e618e5677`. The round's load-bearing verdict is
+accepted: the shipped behaviour holds, and its teardown mutation probe makes
+TE-F33 **stronger** than this record states. Five questions were routed here and
+all five are settled below — the in-flight invalidation race (TE-D17, the
+round's one tier A), the falsified explanations for the memory delta (TE-F37),
+the browser page bound (TE-F39), the CI-policy statement (TE-F40, which carries
+the one genuine owner choice this amendment does not close), and where
+repository-level findings are registered (settled as `repo:RD-1` in the new
+[repository register](../00-index.md)). **One consolidated finding is resolved
+against the round's own reading**: F-440's headroom comparison is a category
+error, and the record's claim it disputes is confirmed by the round's own
+numbers. The straightforward B and C findings are left to implementation and are
+not absorbed here.
+
 **Instruction boundaries.** The pre-existing `node/tproc TokenPackageProcessor`
 failure and F-412 stay outside this work. Nothing is implemented. Every probe
 below is a scratchpad fixture or a reverted patch to an untracked build
@@ -152,14 +168,14 @@ anonymous peak, which is what an OOM actually reads, is Δ 6685 MiB against a
 `memory.current` delta of Δ 7412 MiB, so the page-cache component is real and
 measurable.
 
-**A quiet-container remeasurement is owed, and it does not block closure.** It
-is owed because the gap is large enough that "the container was busy" is a
-hypothesis rather than a finding, and this record should not carry an
-unexplained 20–50 % overshoot as settled. It does not block because the binding
-requirement is met with roughly 11 % headroom on `memory.current` and far more
-on anonymous memory, and because both candidate explanations point away from the
-implementation. It is scheduled as an implementation-review obligation, not as a
-design defect.
+**The remeasurement was taken, and it falsified both explanations.** The
+paragraph this replaces offered container load and page cache as the two
+candidates and scheduled the run; the review round ran it. Neither survives, the
+delta is real and reproducible, and the correction is carried in full by TE-F37
+below. What is retained from the reasoning here is only the axis argument, and
+that one holds: anonymous memory is the figure to require, and it carries
+substantially more headroom than `memory.current` in every run that measured
+both.
 
 **The comparison itself is weaker than it looks**, and the remeasurement should
 fix that rather than repeat it. This pass measured only `memory.current`; the
@@ -201,6 +217,12 @@ in revisions 2 and 3.
 | TE-F33 | unassigned | The release primitive is `provider.close()` plus `$close()`; `ProjectBrowser.close()` releases no browser | New — names what TE-D12 left unnamed              |
 | TE-F34 | unassigned | The shared non-browser group needs a bound below the CPU default, or it times out tests                   | New — constrains TE-D14                           |
 | TE-F35 | unassigned | The Δ 5554 MiB whole-repository figure is evidence, not an acceptance threshold                           | New — reclassifies TE-F23                         |
+| TE-D17 | unassigned | An invalidation arriving during evaluation supersedes the request rather than failing it                  | New — completes TE-D13                            |
+| TE-F36 | unassigned | A discard landing inside an evaluation rejects that request with an error naming no file                  | New — the gap TE-D17 closes                       |
+| TE-F37 | unassigned | Both explanations for the memory delta are falsified; the anonymous axis carries 2.3× the headroom        | New — corrects TE-F35                             |
+| TE-F38 | unassigned | The torn-down marking cannot fire while TE-D15 holds                                                      | New — corrects TE-D12 and TE-D15                  |
+| TE-F39 | unassigned | The browser page bound's stated ground was retired by this same design                                    | New — re-derives TE-D3's value                    |
+| TE-F40 | unassigned | The repository documents a pull-request gate that does not exist                                          | New — carries an owner choice                     |
 
 Superseded by this pass: **TE-D9**, **TE-D10**, **TE-D11**. **TE-D8** stands,
 amended. **TE-D1**, **TE-D3**, **TE-D6**, **TE-D7**, **TE-I1** stand.
@@ -241,7 +263,7 @@ a later group starts, every browser project in an earlier group has its provider
 closed and its Chromium exits. **The closing call is
 `project.browser.provider.close()` followed by `$close()` on that project's
 orchestrators** — what the browser pool itself does when it releases the same
-resources (`cli-api.BK8pd4xc.js:2488`, `:2492`). Revision 4 left the call
+resources (`cli-api.BK8pd4xc.js:2488`, `:2493`). Revision 4 left the call
 unnamed and the obvious reading of "the provider is closed" is the wrong one
 (TE-F33), so it is named here rather than left to be rediscovered.
 
@@ -271,11 +293,15 @@ after every other (TE-F17). Holes are irrelevant — `:3632` is
   open now: the model is one-shot everywhere, so the contract belongs where no
   consumer can fail to get it. `watch` is still not evidence of anything
   (TE-F21) and is still not used.
-- **A project that has been torn down is marked, and a run that would execute a
-  specification belonging to a marked project fails loudly before executing
-  anything.** Verified: the guard throws
-  `project "b1 (chromium)" was torn down and cannot run again` before any module
-  runs, in place of the silent zero-module green run TE-F11 produces.
+- **A run that would execute a specification belonging to a torn-down project
+  fails loudly before executing anything.** This holds, and it is satisfied by
+  **one** check rather than two: a project can only be torn down inside a
+  process that has already consumed its execution, so TE-D15's counter always
+  throws first and the marking's own check can never fire (TE-F38). Revision 4
+  described the marking as independent defence in depth; that was never true of
+  any implementation satisfying TE-D15, and the claim is withdrawn rather than
+  the property. The loud failure the contract asks for is the one the counter
+  produces, in place of the silent zero-module green run TE-F11 produces.
 - **Identity comes from the runtime project object, never a configured-name
   string.** A project configured as `b1` is reported throughout as
   `b1 (chromium)`; one configured project expands to one runtime project per
@@ -405,9 +431,12 @@ Three checks live at that point, and all three fail loudly:
   for such a run and could refuse a filtered empty execution; that is recorded
   as an available strengthening rather than a requirement, because its blast
   radius on legitimate editor gestures cannot be measured without an editor;
-- a specification belonging to a **torn-down project**, which holds even if it
-  were the first execution — TE-D12's marking, kept as defence in depth against
-  the silent zero-module success TE-F11 produces;
+- a specification belonging to a **torn-down project** — TE-D12's marking. It
+  is subsumed: a torn-down project implies a consumed process, so the check
+  above always throws first and this one is unreachable (TE-F38). It is kept in
+  the record as the property it guarantees and **not** as a second enforcement
+  point; the unreachable branch and the set feeding it are dead machinery, and
+  their removal is routed to implementation;
 - the **serialization invariant**, every browser project carrying a distinct
   non-zero `groupOrder`, which is what makes TE-D14's `--sequence.*` erasure
   loud.
@@ -601,11 +630,15 @@ port with request identifiers; concurrent `load` calls are served by one
 isolate. Verified against the real plugin, converted: six concurrent `load`
 calls returned correct output in 582.9 ms and registered 31 watch files. A
 request arriving while a generation is being discarded is served by the next
-generation, never by the dying one.
+generation, never by the dying one. What happens to a request **already in
+flight** when the discard lands is a separate question this paragraph does not
+answer, and TE-D17 answers it.
 
 **Failure cleanup.** A worker `error` or non-zero `exit` drops the generation
 and rejects every pending request with the underlying error; the next request
-starts a new generation. **An evaluation failure also discards the generation**,
+starts a new generation. **This is the failure path and nothing else reaches
+it** — an ordinary watch invalidation is not a failure and must not reject a
+pending request (TE-D17). **An evaluation failure also discards the generation**,
 because Node caches a module's evaluation failure permanently: measured, a
 module that throws keeps throwing the original error in the same isolate after
 the file is corrected, and a fresh isolate returns the corrected value (TE-F20).
@@ -630,6 +663,88 @@ mechanism that created them.
 a plain `node:worker_threads` worker with two `--import` preloads, so the tsdown
 build path needs nothing new.
 
+### An invalidation arriving during evaluation supersedes the request (TE-D17)
+
+TE-D13 covers a request that **arrives** during a discard and a request pending
+when the worker **fails**. It does not cover the request already in flight when
+an ordinary save lands, and the shipped code reaches that case through the
+failure path: `watchChange` calls `discardGeneration()`, which calls `fail()`,
+which rejects every pending request with `CSS evaluation generation was
+discarded` (TE-F36). A developer saving a token file while a `.css.ts` graph is
+being evaluated gets a transform error naming a file they did not touch.
+
+**The decision: supersede, never fail.** The owner's standing requirement has
+two halves, and both are decided by it — a changed input must eventually produce
+fresh CSS without restarting the dev server, and a stale or failed generation
+must never publish output.
+
+**Why not the obvious alternative.** Letting an in-flight request settle against
+the generation it started in looks safer and is not. The change landed
+mid-evaluation, so modules already loaded hold pre-change content and modules
+not yet loaded hold post-change content: the result is not merely stale, it is
+**torn**, and no consumer can tell. In the dev-server path `handleHotUpdate`
+would re-request the entry moments later and paper over it; in the build path
+there is no re-request at all, and a Rolldown rebuild would bake a torn
+stylesheet into the artefact. "Never publish output from a superseded
+generation" is what rules this out, and it rules it out in the path where the
+consequence is permanent.
+
+**Required properties.**
+
+- **A discard is not a failure.** It rejects no pending request. Rejection stays
+  reserved for what TE-D13 names: a worker `error`, a non-zero `exit`, and the
+  entry's own evaluation throw — which rejects only the request that threw, with
+  that entry's own error and stack.
+- **Every request in flight when its generation is discarded is re-issued
+  against the generation that succeeds the discard**, and resolves with the code
+  **and the dependency set of the generation that actually produced it**. The
+  caller sees one promise that settles once, against one generation's view of
+  the files.
+- **No response from a discarded generation is published.** The dying worker may
+  still answer a request that has been re-issued; that answer is dropped, not
+  resolved. Without this the supersession leaks exactly the torn output it
+  exists to prevent.
+- **Re-issue is bounded, and exhausting the bound is loud.** Writes can arrive
+  faster than a generation completes — a `@ydinjs/tproc` rebuild writes 29
+  tracked artefacts, and a full 35-entry generation measures 1.2–2.7 s — so an
+  unbounded retry is a livelock. The bound is at least 2, so that a single
+  supersession is always survivable, and exhausting it rejects with an error
+  naming **concurrent invalidation** as the cause: not a file, and not a stack
+  pointing into a `.css.ts` the developer did not edit.
+- **The dying generation is disposed once its last pending request has been
+  re-issued or settled.** This is the existing drain rule in `settle()`,
+  unchanged; the review's `cleanup` pass established that branch is reachable,
+  and supersession gives it a second way to be reached.
+
+**Ownership: the generation module, not the caller and not Vite.** Three
+reasons, and the third is the one that decides it.
+
+1. The module is the only place that knows a discard landed while a request was
+   in flight. A caller sees a rejection and cannot distinguish a discard from a
+   genuine failure without a sentinel error it must agree to recognize.
+2. Three plugin instances share one generation in a root run. Caller-side retry
+   is three implementations of one rule.
+3. **This record has rejected caller-dependent correctness every time it has
+   met it** — the reporter that must be an instance rather than a name, the
+   carrier that must be in every configuration rather than opted into. An
+   invariant enforced by the least careful consumer is not enforced. The same
+   reasoning applies here and reaches the same answer.
+
+**What the caller observes, stated so it can be tested.** `evaluate(path)`
+resolves with CSS evaluated wholly against one generation's files, or rejects
+with the entry's own error, a worker crash, or the bounded-supersession error.
+**It never rejects because of an ordinary save.** Latency under invalidation is
+the duration of the generation that finally completed, not of the first one
+started.
+
+**One interaction to carry into implementation.** `evaluate` currently closes
+over the generation it started in and returns `new Set(generation.deps)` from
+it. Under supersession that lexical capture is the **wrong** generation, and the
+returned set must come from the one that produced the code. The review's
+`cleanup` pass separately found the copy itself unjustified; both are true, and
+fixing the copy without fixing the source would silently register the wrong
+watch set.
+
 ### The requested worker limit, and what constrains it (TE-D14)
 
 The precedence order stands; three interactions the order did not account for
@@ -648,8 +763,41 @@ Precedence, highest first:
 2. **`parseArgs(process.argv)`** in the shared factory, applied as each project's
    `maxWorkers`, so that `vitest run --maxWorkers=N` behaves as its own
    documentation says despite TE-F1.
-3. **The factory default**, TE-D3's explicit value. This, not the flag, is what
-   bounds the editor.
+3. **The factory default**, TE-D3's explicit value — two pages per browser
+   project. This, not the flag, is what bounds the editor, and the ground it is
+   carried on has been re-derived: see below.
+
+**The browser page bound stays at two, on a ground this design can still
+state.** The comment the factory carries is revision 2's — "the editor cannot
+separate processes and the root configuration is what it loads" — and half of it
+expired inside this same design. That half was about **retention**: revision 2
+chose two because TE-F4 held seven browser projects at ≈1.26 GiB each
+simultaneously, making four "strictly worse" against an ≈8.8 GiB floor. TE-D12
+and TE-F33 release each provider at its group boundary, so seven are never held
+at once and that comparison has lost its subject (TE-F39). The surviving half is
+still true and still load-bearing: the root configuration is what the editor
+loads, so the factory default is what bounds an editor run, and no flag reaches
+it.
+
+**The ground that justifies two at head is headroom, measured.** Groups are
+serialized, so within the browser phase concurrent Chromium pages are exactly
+this bound; it is the most direct multiplier of that phase's memory. The shipped
+root run clears the 13 107 MiB ceiling by **951 MiB on `memory.current` and
+2712 MiB on anonymous memory** (TE-F37). A change that multiplies the browser
+phase's page count against a margin that size is not free, and no arm has
+measured it.
+
+**Two is kept, not preserved.** The duration evidence for four is real —
+`browser/drag2` at 12.3 s and 11.9 s against 15.3 s and 17.0 s, identical
+results in all four arms — and it is an argument to take the measurement, not an
+argument to make the change without it. **The demonstration that settles it** is
+one whole-repository run at bound 4, on a container at a baseline comparable to
+this record's, reporting anonymous peak and `memory.current` peak against
+13 107 MiB together with the run duration. Four wins if it clears the ceiling on
+**both** axes with no less margin than two shows today and the whole-run
+duration improves; two stands otherwise. The value may not move on per-project
+timings alone: the browser groups are serialized, so a per-project gain is not a
+root-run gain until a root run says so.
 
 **The environment variable does not accept the percentage form.** It is a bare
 `Number.parseInt`, and `resolveInlineWorkerOption` — which does understand `N%`
@@ -1061,7 +1209,7 @@ Chromium is not owned there. It is owned by the provider, which each
 `ProjectBrowser` creates for itself in `initBrowserProvider` (`:2575–2579`) and
 which the pool releases with `provider.close()` at `cli-api.BK8pd4xc.js:2488`,
 followed by `orchestrator.$close()` for every project's orchestrators at
-`:2492`. Those two calls, scoped to one project, are the boundary primitive.
+`:2493`. Those two calls, scoped to one project, are the boundary primitive.
 
 Measured here on a three-browser-project fixture — one instance each, trivial
 modules, the same boundary reporter driving both arms and differing only in the
@@ -1133,6 +1281,150 @@ resolved group bound is 6, matching the implementation's reported assignment.
 **Five seconds bought three failures back.** The 40 s arm is faster and wrong;
 duration is not the quantity under optimization here.
 
+### A discard landing inside an evaluation rejects that request (TE-F36)
+
+`watchChange` (`src/index.ts`) calls `discardGeneration()` for any tracked file
+or any `.css.ts`; `discardGeneration()` calls `fail()`, which rejects every
+pending request with `CSS evaluation generation was discarded` before disposing
+(`src/css/generation.ts`). `load` awaits `evaluate()`, so the rejection surfaces
+as that module's transform failure.
+
+Reproduced here against the shipped built artefact, on one real entry:
+
+| Arms                               | Outcome                                   |
+| ---------------------------------- | ----------------------------------------- |
+| baseline                           | ok, 14 744 bytes, 40 deps                 |
+| a discard 5 ms into the evaluation | **rejected — `generation was discarded`** |
+| the next request afterwards        | ok, 14 744 bytes — byte-identical         |
+
+**Eventual freshness already holds; the in-flight request is the whole of the
+defect.** The third arm is what the owner's requirement asks for and it works.
+The round additionally reproduced the second arm end to end through a real Vite
+dev server, where it appears as a load failure for a module the developer did
+not touch. TE-D17 decides what replaces it.
+
+### Both explanations for the memory delta are falsified (TE-F37)
+
+The remeasurement TE-F35 scheduled was taken by the review round on a container
+at a **4800 MiB** baseline:
+
+| Quantity              | Design (this record) | Implementation | Remeasurement |
+| --------------------- | -------------------- | -------------- | ------------- |
+| Duration              | 63.56 s              | 71 s (71–86)   | **66.20 s**   |
+| Δ `memory.current`    | 5554                 | 7412           | **7356**      |
+| Δ anonymous           | not measured         | 6685           | **6618**      |
+| Peak `memory.current` | 7570                 | 11 671         | **12 156**    |
+| Peak anonymous        | not measured         | 9843           | **10 395**    |
+| `oom_kill`            | 0                    | 0              | **0**         |
+
+- **Container load is ruled out by duration.** The remeasurement ran at +4 %
+  against this record's 63.56 s, where the implementation ran at +12–35 %, and
+  its delta still landed within 0.8 % of the implementation's.
+- **Page cache cannot account for it either.** Page cache is counted in
+  `memory.current` and not in `anon`. The remeasured **anonymous** delta, 6618
+  MiB, already exceeds this record's **total** `memory.current` delta of 5554
+  MiB by over 1000 MiB. Whatever the extra is, it is anonymous memory.
+
+**Both explanations are withdrawn, and none replaces them.** The most
+parsimonious remaining reading is that this record's single sample — taken on a
+probe configuration wrapping the real root config, with the evaluator applied as
+a reverted patch to an untracked artefact, as its own Evidence limits state — is
+not representative of the shipped mechanism. **That is not established and is
+not promoted here.** It is recorded as the open reading and nothing rests on it.
+
+**What changes: Δ 5554 MiB is withdrawn as the expectation.** Two independent
+runs of the shipped tree agree within 0.8 % on `memory.current` and 1 % on
+anonymous memory. The transferable quantity is the reproduced pair — **Δ anon
+6618–6685 MiB, Δ `memory.current` 7356–7412 MiB** — and a future run is compared
+against those. The design figure keeps standing only as evidence about the pass
+that produced it.
+
+**What does not change: the 13 107 MiB ceiling.** It is unchanged, it is met,
+and the acceptance signals are unchanged.
+
+**The round's headroom comparison is a category error, and the claim it disputes
+is confirmed by its own numbers.** The consolidated finding reads the
+remeasurement's 7.3 % `memory.current` headroom against the implementation's
+~11 % `memory.current` headroom and concludes this record's "far more headroom
+on anonymous" is false. Those are two runs on one axis; the record's claim is
+two axes in one run. Computed from the round's own figures against 13 107 MiB:
+
+| Run            | `memory.current` headroom | Anonymous headroom | Ratio     |
+| -------------- | ------------------------- | ------------------ | --------- |
+| implementation | 1436 MiB (11.0 %)         | 3264 MiB (24.9 %)  | **2.27×** |
+| remeasurement  | 951 MiB (7.3 %)           | 2712 MiB (20.7 %)  | **2.85×** |
+
+Anonymous headroom is 2.3–2.9× the `memory.current` headroom in both runs. **The
+claim stands**, and the axis argument behind it stands with it: the kernel
+reclaims page cache under pressure and OOM-kills on what it cannot reclaim, so
+`memory.current` at 12 156 MiB with `oom_kill` at 0 is the expected reading and
+not a near miss. The tightening the finding correctly identifies is real and
+belongs on the other axis — 951 MiB of `memory.current` margin means a
+concurrent second workload of any size in the same cgroup will not fit, which is
+a statement about scheduling runs, not about the run.
+
+**No further measurement blocks closure.** The requirement is met on both axes
+by two independent runs, and the one remaining arm — bound 4, TE-D14 — is the
+precondition for changing a value, not for closing this design.
+
+### The torn-down marking cannot fire while the one-shot counter holds (TE-F38)
+
+`#released` is written only inside `#release`, which is called only from
+`onTestModuleStart`; a module start implies the run passed `onTestRunStart` and
+set `#consumed`. The `#consumed` throw precedes the `#released` check in the
+same hook. Verified here against the shipped file by enumerating the writers:
+`#consumed` set after the invariant checks, `#released` added inside `#release`,
+`#release` called from `onTestModuleStart` alone. **`#released` non-empty implies
+`#consumed`, so the second check is unreachable** — and the round drove the
+reporter through a second run and observed the one-shot message, never the
+torn-down one.
+
+The consequence is for this record, not the tree: revision 4 credited two
+independent defences where one is reachable, and no implementation satisfying
+TE-D15 could have provided two. **The contract statement is the origin of the
+defect and the code faithfully implements it**, which is why the correction runs
+to TE-D12 and TE-D15 and the dead branch's removal is a consequence rather than
+the finding.
+
+### The browser page bound's stated ground was retired by this design (TE-F39)
+
+The shipped comment gives one reason for two rather than four, and it is
+revision 2's, resting on TE-F4 retention — seven browser projects held at
+≈1.26 GiB each. TE-D12 and TE-F33, inside this same range, release each provider
+at its group boundary, so the premise does not obtain at head. Revision 4 carried
+the value forward without re-deriving it, and revision 2 had already named the
+choice as its own weakest point with the test that would settle it never run.
+
+Measured by the round on `browser/drag2` — 39 files, 861 passed, 60 skipped,
+identical in all four arms — through the factory's own CLI route:
+
+| Bound       | Run 1   | Run 2   |
+| ----------- | ------- | ------- |
+| 2 (shipped) | 15.26 s | 17.01 s |
+| 4           | 12.33 s | 11.89 s |
+
+cgroup deltas were sampled and are not reported: sibling sessions moved the
+baseline across the arms, so only the duration column is sound. **The finding is
+that the record carried an expired reason and said nothing about it.** TE-D14
+now carries the current one and the demonstration that would move the value.
+
+### The repository documents a pull-request gate that does not exist (TE-F40)
+
+`.agents/docs/test-architecture.md` states that "every pull request gates on"
+formatting, linting, typechecking, tproc node tests, behaviour and accessibility
+browser tests, spec-contract browser tests and the curated Chromium visual
+suite, and a second sentence rests the visual-baseline policy on it: "The
+ordinary PR gate uses one pinned Chromium environment." Verified here:
+`.github/workflows/` contains `docs.yml` alone, triggered on `push` to `main`
+and `workflow_dispatch`. **There is no pull-request workflow at all.**
+
+This is pre-existing and outside the implemented range. It is live in this
+record because revision 2 recorded it as an owner call for the implementing
+pass, the implementing pass edited that file without resolving it, and revision
+4 did not carry the question forward — so the decision to leave it was made
+inside this work's own record and has never been taken. The owner choice is
+stated below rather than settled here.
+
 ## Corrections to earlier revisions
 
 Stated rather than quietly dropped.
@@ -1185,6 +1477,30 @@ Stated rather than quietly dropped.
   withdrawn.** It needs `changed` or `related` as well, and only the extension's
   "run related tests" gesture supplies one (TE-F27). The exemption TE-D15 rests
   on is unaffected, because the empty run start precedes the throw.
+- **TE-D13 left the in-flight invalidation race undecided**, and the shipped
+  code resolved it through the failure path. The contract now decides it
+  (TE-D17): a discard supersedes, never rejects.
+- **Revision 4's "defence in depth" for the torn-down marking is withdrawn.**
+  One check is reachable, not two, and no implementation satisfying TE-D15 could
+  have provided two (TE-F38). The property survives; the redundancy claim does
+  not.
+- **TE-F35's two explanations for the memory delta are withdrawn**, both
+  falsified by the remeasurement it scheduled, and Δ 5554 MiB is withdrawn as
+  the expectation in favour of the reproduced pair (TE-F37). The ceiling and the
+  acceptance signals are unchanged.
+- **The consolidated round's refutation of the anonymous-headroom claim is
+  declined**, on its own numbers: it compares two runs on one axis where the
+  record compares two axes in one run, and anonymous headroom is 2.3–2.9× the
+  `memory.current` headroom in both runs (TE-F37).
+- **TE-D14 carried an expired reason for the browser page bound.** The retention
+  premise that chose two over four was retired by TE-D12 inside this same design
+  (TE-F39). Two stands on measured headroom instead, and the demonstration that
+  would move it is stated.
+- **Demonstration 20 is un-discharged**, because its evidence cannot distinguish
+  the behaviour from its failure and the failure is what occurs.
+- **The `$close()` citation was off by one line.** `orchestrator.$close()` is
+  `cli-api.BK8pd4xc.js:2493`; `:2492` is the `forEach` enclosing it. Both sites
+  corrected. The sibling `provider.close()` citation at `:2488` was exact.
 - **The VS Code extension is not installed in this container.** The editor
   server present is Zed. All extension findings in every revision are source
   reading — here, of the marketplace artefact self-reporting
@@ -1277,7 +1593,17 @@ changed what the item should say; the rest stand as written and are evidenced in
     `.vscode/settings.json` sets `vitest.watchOnStartup` explicitly false.
 20. **The debug task is run mode.** `.zed/tasks.json`'s `vitest:debug` reaches a
     breakpoint with the CDP port attached, and saving the file while paused does
-    **not** start a second execution.
+    **not** start a second execution. **Not discharged.** The implementation
+    evidence — the process exits on its own — is satisfied equally by the
+    behaviour and by its failure, and the round established the failure: on a
+    **browser** test the task aborts before opening a page, because `DEBUG=1`
+    sets `browser.ui`, the UI nulls the viewport, and the factory's unconditional
+    `contextOptions: { deviceScaleFactor: 1 }` is then rejected by Playwright.
+    The defect is **pre-existing and outside the implemented range** — the range
+    touches no browser option, and the same error reproduces under the pre-range
+    command form — so it is raised here rather than absorbed, and it blocks this
+    demonstration until it is repaired. A discharge must show the breakpoint and
+    the attached port, not the exit code.
 21. **The carrier is present in a plugin-less project.**
     `vitest run --project=node/tproc` enforces the contract.
 22. **The carrier is an instance, not a name.** A root run with `--reporter=dot`
@@ -1376,11 +1702,48 @@ the whole model declared one-shot, nothing needs detecting: the contract is
 uniform, the carrier is uniform, and the case the missing signal endangered —
 continuous run — is retired rather than protected.
 
-**No owner choice remains open in this record.** Two questions belong to
-implementation rather than to the owner: whether the debug task wants anything
-back after `--watch` is removed, which the demonstration list settles by
-exercising it; and whether any editor gesture issues more than one consuming
+**No owner choice about the test execution model remains open.** Two questions
+belong to implementation rather than to the owner: whether the debug task wants
+anything back after `--watch` is removed, which the demonstration list settles
+by exercising it; and whether any editor gesture issues more than one consuming
 execution per process, which the same list settles by exercising each one.
+
+**One owner choice was opened by the review round and is not about this model.**
+It is the CI policy, stated below; it is presented rather than taken.
+
+## The one open owner choice — the pull-request gate
+
+The repository's test-architecture document describes a pull-request gate that
+does not exist (TE-F40). Two ways out, and the consequences differ enough that
+choosing on convenience would be choosing blind.
+
+**Option A — correct the document to describe reality.** Cost: an edit. The
+consequence is that the repository then states, in the document every role is
+pointed at for test policy, that **it has no automated pre-merge verification**
+— correctness rests entirely on contributor discipline and the `handoff.md`
+sequence, and every "verified" in a review is a local claim on one container.
+The second sentence goes with it: the visual-baseline policy's "one pinned
+Chromium environment" loses its stated enforcement point, so the pinning rule
+has to be restated as a local obligation or it becomes advice.
+
+**Option B — introduce the gate the document describes.** Cost: a project, not a
+workflow file. The root run needs ~7.4 GiB and 66 s plus build time; the browser
+tests need Chromium in the runner; and the curated visual suite needs a
+**pinned** image, which is precisely why the document specifies one — an
+unpinned runner produces false diffs and the suite becomes noise that gets
+disabled. So Option B is a pinned container image plus a workflow plus a
+baseline-maintenance policy, and its first deliverable is not the gate but the
+image.
+
+**Recommendation: A now, B as its own work.** A document that promises a safety
+net which will not run is actively harmful today, and it is harmful in the
+direction that matters — a contributor relies on it and does not run the checks
+locally. Correcting it is cheap and reversible: when B lands, the document is
+corrected again, in the commit that makes it true. Taking B as a doc fix is how
+a pinned-image project gets smuggled in as a sentence.
+
+**What is not optional either way**: the document must not continue to assert a
+gate that does not exist. Only which correction to make is the owner's.
 
 ## Implementation readiness
 
@@ -1441,14 +1804,15 @@ teardown primitive nor the worker derivation violates a deeper contract here.
   derivation recorded beside it (TE-F34). Plan and implementation no longer
   disagree, and neither is silent.
 
-Three obligations remain, and none of them blocks the review round.
+Three obligations remained at the time of writing, and the review round has
+since discharged the first, opened one contract change and left the other two
+standing — see the handoff boundary below, which supersedes this list where they
+differ.
 
-1. **A quiet-container remeasurement of the root run** (TE-F35), reporting
-   anonymous peak and `memory.current` peak against the 13 107 MiB ceiling at a
-   baseline comparable to this pass's. It settles whether the Δ 6723–8442 MiB
-   overshoot is the container or the implementation. The binding requirement is
-   already met, so this closes an explanation rather than a defect — but it must
-   be closed rather than left as a hypothesis in the record.
+1. **A quiet-container remeasurement of the root run** (TE-F35). **Taken**, by
+   the review round, and it falsified both explanations rather than confirming
+   one (TE-F37). The binding requirement is met on both axes; no further
+   measurement blocks closure.
 2. **The editor, demonstrations 13–15**, which stay exactly as written and stay
    **owner-executed**. No VS Code behaviour has been observed in any pass of
    this work, design or implementation; the container has no VS Code
@@ -1464,14 +1828,74 @@ Three obligations remain, and none of them blocks the review round.
 The review round should attack the grounds below, to which implementation has
 added three.
 
+## The handoff boundary after the review round
+
+**The design is not implementation-ready in the sense it was at `7aeaff260`**:
+one contract changed. TE-D17 is new behaviour that the tree does not have, so
+implementation resumes before review does. Everything else in the round is a
+record correction, a dead-code removal or a C-tier tidy.
+
+**Implementation owns, in this order.**
+
+1. **TE-D17 — supersession.** The one contract change. It needs the request's
+   path retained, responses from a discarded generation dropped, a bounded
+   re-issue, and the returned dependency set read from the producing generation.
+   It is not a refactor of the generation state machine: the drain rule, the
+   failure paths and the discard trigger are all unchanged.
+2. **The dead one-shot branch** (TE-F38): the unreachable `#released` check and
+   the set feeding it. A removal, not a repair — the property it was credited
+   with is satisfied by the check above it.
+3. **The `browser.ui` / `deviceScaleFactor` conflict** behind demonstration 20.
+   Pre-existing and outside the implemented range, raised rather than absorbed;
+   it blocks the demonstration and it blocks the round's one genuinely
+   unestablished item, whether the debug recipe's surviving CDP-port `pkill`
+   still has a cause.
+4. **The round's remaining B and C findings**, which this pass deliberately did
+   not absorb: the orphaned build chunks, the copied dependency set (read
+   TE-D17's interaction note first), the process-scoped request counter, the
+   `sh` shebang on a `bash` script.
+5. **The document correction the owner selects** for the pull-request gate.
+6. **`SCOPES` in `packages/drag2/.scripts/entry.ts`** gains a `repo` row, so
+   `repo:RD-1` resolves. The register is readable without it.
+
+**Implementation does not own** the value of `BROWSER_WORKERS`. It stays at two
+until the bound-4 whole-repository arm is taken and reported on both axes; the
+measurement is an experiment, and changing the constant is a decision that
+follows it.
+
+**The consolidator owns registration**, and only after the ownership rule it was
+waiting on: repository-level findings are registered in
+[`.plan/00-index.md`](../00-index.md) under `repo:RD-1`, as `RF-` numbered from
+1, never as `F-` in a package's register. Two obligations come with it — the
+round's headings must stop claiming identifiers they were not given, and each
+minted id is written into the register in the commit that first uses it.
+
+**The owner owns** the pull-request gate choice, and the editor confirmation.
+
+**Re-review after implementation is warranted and is narrow**: TE-D17's
+observable semantics under a real dev server and a real Rolldown rebuild. The
+rest of the round's verdict stands and does not need re-establishing.
+
 ## Grounds a focused challenge should attack
 
-- **The whole-repository figure is one run.** Δ 5554 MiB, 63.6 s and 32 Chrome
-  processes are a single sample at an unusually low baseline — and the shipped
-  run did not reproduce it (TE-F35). Both candidate explanations, container load
-  and page cache, are plausible and neither is established. If a quiet-container
-  run still overshoots, the implementation holds memory this design did not
-  predict, and the per-generation isolate is the first place to look.
+- **The delta is reproduced and unexplained.** Three runs, two of them
+  independent and agreeing within 1 %, against one design sample 32 % lower
+  (TE-F37). Both offered explanations are falsified and the replacement — that
+  the design's probe arm was unrepresentative — is a reading nobody has tested.
+  Attack it by re-running the design's own probe arrangement on the shipped
+  tree: if it still measures Δ 5554, the difference is the probe and not the
+  mechanism, and this record's most-cited number was never a measurement of what
+  it claimed.
+- **TE-D17 is decided from source and one race probe**, not from a dev server
+  under a real invalidation storm. The bounded re-issue is the part to attack:
+  a bound that is too low turns a `@ydinjs/tproc` rebuild into a loud failure,
+  and one that is too high turns it into a stall nobody can attribute. No arm
+  has measured how many supersessions a real rebuild produces.
+- **Supersession is specified as a property and not as a mechanism**, and the
+  drop rule is the subtle half: a response from a discarded generation must be
+  dropped, and the code path that would publish it is the same one that
+  correctly publishes a normal answer. That is the shape of defect this design
+  has met twice — a mechanism that reports success while doing the wrong thing.
 - **The primitive was found by executing the design, not by reviewing it.**
   Three revisions and two challenges read "the provider is closed" without
   noticing that the obvious call does not close a provider (TE-F33). Ask what
