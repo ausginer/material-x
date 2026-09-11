@@ -198,7 +198,11 @@ rather than merely untested.
 **Inventory defect 1 — `vitest.watchOnStartup`.** The extension reads this
 setting per workspace folder and, when true, issues
 `vscode.commands.executeCommand('testing.startContinuousRun', profile)` for
-**every** config at activation. A user or a committed `.vscode/settings.json`
+**every** config at activation. Its own manifest names what it is: _"Watch every
+test file after the extension is loaded. This is the same as enabling continuous
+run."_ The default is `false`, so this is a latent rather than an active
+hazard — but it is the one setting that turns the retired mode on without a
+gesture, and a retirement inventory that does not name it is incomplete. A user or a committed `.vscode/settings.json`
 with that setting enabled would start the retired mode automatically on every
 editor start and receive an unprompted loud failure. Revision 4's inventory
 says Continuous Run "has no setting to disable and so is retired by
@@ -211,8 +215,11 @@ belongs beside TE-D7, which already edits that file: set
 
 **Traced end to end. It does not reuse a consumed process.**
 
-`vitest.updateSnapshot` is a **command**, not a profile. It resolves the test
-item's API, takes the **`:run` profile** — the same profile as an ordinary run —
+`vitest.updateSnapshot` is a **command**, not a profile, and its manifest
+exposes it only on `testing/item/context` and `testing/item/gutter`, with
+`commandPalette` gated `when: "false"` — so it is reachable only against a
+single test item. It resolves that item's API, takes the **`:run` profile** —
+the same profile as an ordinary run —
 builds `new TestRunRequest([item], undefined, profile, false)`, sets
 `updateSnapshots: true` on the request object, and calls the profile's
 `runHandler`. That handler is `(e, t) => i.enqueue(e, t, false)`; `enqueue`
@@ -243,10 +250,22 @@ The rest of the inventory, from the same reading:
 | a gesture queued behind another        | `pendingQueue` → `executeRun` again → **a new `bt`**, a new process                            | 1 each     |
 | Continuous Run                         | `spawnForContinuesRun` → `this.api.spawnForRun` → **reuse**                                    | 2nd fails  |
 
-Three run profiles exist in total (`Run`, `Debug`, `Coverage`); there is no
-fourth. Revision 4's demonstration 15 can therefore be narrowed from "confirm
-that none of them trips the guard" to a confirmation in a real editor, which is
-still owed — but it is no longer an open question about the code.
+Three run profiles exist in total (`Run`, `Debug`, `Coverage`), created together
+in `setupProcessAPI`; there is no fourth.
+
+**The one-run-per-process property is exhaustive, not per-gesture.** The bundle
+contains exactly **one** `rpc.runTests(` site and exactly **one**
+`rpc.updateSnapshots(` site, and they are the two arms of a single ternary
+called once — `await l(files, request)` or `await l()`, mutually exclusive, no
+loop. `Nt.runTests` itself has two call sites: `executeRun`, whose handle is the
+fresh `bt`, and the debug flow, once per websocket connection. The queue does
+not weaken it either: a gesture arriving mid-run stores a thunk that calls
+`executeRun` again, which spawns again. So no gesture can issue two runs against
+one process, by enumeration rather than by inspection of each gesture.
+
+Revision 4's demonstration 15 can therefore be narrowed from "confirm that none
+of them trips the guard" to a confirmation in a real editor, which is still
+owed — but it is no longer an open question about the code.
 
 ## The retirement inventory (TE-D16)
 
@@ -429,8 +448,9 @@ and these added.
   enforces the contract.
 - **The carrier is an instance.** A root run with `--reporter=dot` shows the
   enforcement reporter's hooks actually firing, not merely present in the list.
-- **`watchOnStartup` is off**, and enabling it produces the loud failure rather
-  than a hang or a silent pass.
+- **`watchOnStartup` is off** — it defaults to `false`, so this confirms nothing
+  in the repository has set it — and enabling it produces the loud failure
+  rather than a hang or a silent pass.
 - **The three editor gestures that pass a project filter** release their
   provider at process close, with Chrome back to baseline.
 - **The generation worker's port is released**, evidenced by the absence of
