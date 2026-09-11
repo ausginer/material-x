@@ -3,6 +3,7 @@
     "index",
     "css/css-worker",
     "css/deps-tracker",
+    "css/generation",
     "css/format",
     "css/styles-import",
     "css/transform"

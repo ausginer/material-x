@@ -56,9 +56,6 @@ cleanup-debug-processes() {
   # Previous Playwright/Chrome instance that owns the CDP port.
   pkill -f 'chrome.*--remote-debugging-port=9222' 2>/dev/null || true
 
-  # Previous Vitest browser/watch runner. Otherwise it may respawn Chrome again.
-  pkill -f 'vitest.*browser' 2>/dev/null || true
-
   sleep 0.3
 }
 
@@ -76,10 +73,14 @@ run-vitest() {
 run-vitest-debug() {
   vitest_bin="../../node_modules/.bin/vitest"
 
+  # `run`, not a bare invocation. Watch mode is the default whenever stdin is a
+  # TTY, and this task opens its own terminal, so dropping the flag would leave
+  # the session watching. What holds the session open is `--test-timeout=0` and
+  # a test paused on a breakpoint.
   if [ -n "$symbol" ]; then
-    DEBUG=1 "$vitest_bin" -c vitest.config.ts --no-file-parallelism --test-timeout=0 --watch "$test_file" --testNamePattern="$symbol"
+    DEBUG=1 "$vitest_bin" run -c vitest.config.ts --no-file-parallelism --test-timeout=0 "$test_file" --testNamePattern="$symbol"
   else
-    DEBUG=1 "$vitest_bin" -c vitest.config.ts --no-file-parallelism --test-timeout=0 --watch "$test_file"
+    DEBUG=1 "$vitest_bin" run -c vitest.config.ts --no-file-parallelism --test-timeout=0 "$test_file"
   fi
 }
 

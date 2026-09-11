@@ -30,6 +30,8 @@ Migration is in progress: some tests are still colocated under `src` and the Vit
 | `*.visual.browser.test.ts` | reviewed screenshots                      | `visual`  | `just test-visual`   |
 | `*.node.test.ts`           | tproc/compiler + Node-only                | `node`    | `just test`          |
 
+**One Vitest process runs one test run.** Every recipe here starts a process, runs once, releases its browser providers and ends; test watch and VS Code Continuous Run are retired, and a second run in one process raises before any module executes. Re-run by invoking the recipe again. Reasoning: [`test-architecture.md`](../../../.agents/docs/test-architecture.md) §Run lifecycle.
+
 The `browser` project **excludes** the `.spec.browser` and `.visual.browser` patterns, so a misnamed file lands in the wrong suffix bucket silently — name it precisely. Project globs live in `.scripts/vitest-config.ts`; that config is the source of truth, not this table. Every workflow selects a named project (`--project browser|spec|visual|node`), never a shell glob. Update baselines only via `just test-visual-update` — never automatically, never in CI.
 
 ## Behavior tests (`*.browser.test.ts`)

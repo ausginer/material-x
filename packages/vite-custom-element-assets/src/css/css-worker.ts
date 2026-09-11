@@ -1,8 +1,23 @@
-import { parentPort, workerData } from 'node:worker_threads';
+import { parentPort } from 'node:worker_threads';
 import type { JSModule } from '../utils.ts';
 
-const { id } = workerData as Readonly<{ id: string }>;
+type Request = Readonly<{
+  id: number;
+  path: string;
+}>;
 
-const mod: JSModule<string> = await import(id);
-
-parentPort?.postMessage(mod.default);
+// The listener is what holds the isolate open across a generation's requests.
+parentPort?.on('message', ({ id, path }: Request) => {
+  import(path).then(
+    (mod: JSModule<string>) => {
+      parentPort?.postMessage({ id, code: mod.default });
+    },
+    (error: unknown) => {
+      parentPort?.postMessage(
+        error instanceof Error
+          ? { id, message: error.message, stack: error.stack }
+          : { id, message: String(error) },
+      );
+    },
+  );
+});

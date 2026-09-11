@@ -10,7 +10,7 @@
     "build": "nx run-many -t build --all --skipNxCache",
     "clean:build": "nx run-many -t clean:build --all --skipNxCache",
     "check": "concurrently npm:fmt:check npm:lint npm:typecheck",
-    "test": "vitest",
+    "test": "vitest run",
     "docs": "just docs-build",
     "docs:dev": "just docs-dev",
     "fmt": "just fmt",

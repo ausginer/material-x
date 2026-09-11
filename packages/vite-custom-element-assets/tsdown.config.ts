@@ -5,6 +5,7 @@ const config: UserConfig = defineConfig({
     index: 'src/index.ts',
     'css/css-worker': 'src/css/css-worker.ts',
     'css/deps-tracker': 'src/css/deps-tracker.ts',
+    'css/generation': 'src/css/generation.ts',
     'css/format': 'src/css/format.ts',
     'css/styles-import': 'src/css/styles-import.ts',
     'css/transform': 'src/css/transform.ts',

@@ -1,9 +1,13 @@
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { MessageChannel, Worker } from 'node:worker_threads';
-import { computed, signal } from '@preact/signals-core';
 import { RolldownMagicString } from 'rolldown';
 import type { Plugin } from 'vite';
 import { compileCSS } from './css/css.ts';
+import {
+  acquireGeneration,
+  discardGeneration,
+  evaluate,
+  releaseGeneration,
+} from './css/generation.ts';
 import { compileHTML } from './html.ts';
 import { cssCache, type JSONModule } from './utils.ts';
 
@@ -141,20 +145,15 @@ function normalizeOxcSetting(
 export function constructCSSTokens(
   options?: ConstructCSSTokensOptions,
 ): Plugin {
-  const trackedFiles = signal<Record<string, Set<string>>>({});
-  const dependencies = computed(() =>
-    Object.entries(trackedFiles.value).reduce<Record<string, Set<string>>>(
-      (acc, [id, dependencies]) => {
-        for (const d of dependencies) {
-          acc[d] ??= new Set();
-          acc[d].add(id);
-        }
-
-        return acc;
-      },
-      {},
-    ),
-  );
+  // Every entry this instance evaluated, and every file the generation
+  // resolved while doing so. The pair is deliberately not a per-entry map: in
+  // a shared generation a module already loaded for an earlier entry resolves
+  // none of its own imports again, so an entry-scoped set names a median of
+  // three files and leaves the rest of the graph unwatched. Every entry
+  // depends on the generation's whole set.
+  const entries = new Set<string>();
+  const tracked = new Set<string>();
+  let acquired = false;
 
   const replaceList = Object.entries(propList).map(
     ([name, value]) => [new RegExp(`['"]${name}['"]`, 'gu'), value] as const,
@@ -200,52 +199,24 @@ export function constructCSSTokens(
       },
       async handler(id) {
         const cleanId = normalizePath(id);
-        const { port1, port2 } = new MessageChannel();
-        const deps = new Set<string>();
 
-        port1.on('message', (module: string) => {
-          deps.add(module);
-          this.addWatchFile(module);
-        });
+        if (!acquired) {
+          acquired = true;
+          acquireGeneration();
+        }
 
-        const result = await new Promise<string>((resolve, reject) => {
-          const worker = new Worker(
-            new URL('./css/css-worker.js', import.meta.url),
-            {
-              execArgv: [
-                '--import',
-                fileURLToPath(
-                  new URL('./css/deps-tracker.js', import.meta.url),
-                ),
-                '--import',
-                fileURLToPath(
-                  new URL('./css/styles-import.js', import.meta.url),
-                ),
-              ],
-              workerData: {
-                id: cleanId,
-                monitorPort: port2,
-              },
-              transferList: [port2],
-            },
-          );
+        const { code: source, deps } = await evaluate(cleanId);
 
-          worker.on('message', resolve);
-          worker.on('error', reject);
-          worker.on('exit', (code) => {
-            if (code !== 0)
-              reject(new Error(`Worker stopped with exit code ${code}`));
-          });
-        });
+        entries.add(cleanId);
 
-        trackedFiles.value = {
-          ...trackedFiles.peek(),
-          [cleanId]: deps,
-        };
+        for (const dep of deps) {
+          tracked.add(dep);
+          this.addWatchFile(dep);
+        }
 
         const { code, map } = await compileCSS(
           pathToFileURL(cleanId),
-          result,
+          source,
           options,
         );
 
@@ -281,27 +252,52 @@ export function constructCSSTokens(
           },
         }
       : {}),
+    // Discards the generation so the next request evaluates the whole graph
+    // against current files. Vite calls this for the client environment on
+    // every watched change, and Rolldown calls it on a build rebuild, which is
+    // the pair of paths a `.css.ts` graph is generated from.
+    watchChange(id) {
+      if (tracked.has(id) || id.endsWith('.css.ts')) {
+        discardGeneration();
+      }
+    },
+    // The generation belongs to the process, so the last consumer to leave
+    // terminates it. Vite's plugin container calls this unconditionally when a
+    // dev server closes, and Rolldown calls it from the `finally` that closes
+    // a build — including a failing one.
+    closeBundle() {
+      if (acquired) {
+        acquired = false;
+        releaseGeneration();
+      }
+    },
     handleHotUpdate: {
       handler({ file, server, timestamp }) {
-        if (file in dependencies.value) {
-          return dependencies.value[file]
-            ?.values()
-            .flatMap((file) => [
-              ...(server.moduleGraph.getModulesByFile(file) ?? []),
-            ])
-            .map((mod) => {
-              server.moduleGraph.invalidateModule(
-                mod,
-                undefined,
-                timestamp,
-                true,
-              );
-              return mod;
-            })
-            .toArray();
+        // A shared input rather than an entry: inside one generation every
+        // entry reaches the whole dependency set, so a change to any member
+        // invalidates all of them and not merely the entry that happened to
+        // resolve it first. An entry's own edit is left to Vite, which already
+        // holds it in the module graph.
+        if (!tracked.has(file) || entries.has(file)) {
+          return undefined;
         }
 
-        return undefined;
+        return entries
+          .values()
+          .flatMap((entry) => [
+            ...(server.moduleGraph.getModulesByFile(entry) ?? []),
+          ])
+          .map((mod) => {
+            server.moduleGraph.invalidateModule(
+              mod,
+              undefined,
+              timestamp,
+              true,
+            );
+
+            return mod;
+          })
+          .toArray();
       },
     },
   };
