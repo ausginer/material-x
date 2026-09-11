@@ -16,7 +16,7 @@ One mechanical claim I chased down and found **wrong** before writing it up, rec
 
 ## Findings
 
-### cleanup-1 — `evaluate()`'s returned `deps` set is copied on every call with no ownership reason (Tier C)
+### Item cleanup-1 — `evaluate()`'s returned `deps` set is copied on every call with no ownership reason (Tier C)
 
 **Current behavior.** `packages/vite-custom-element-assets/src/css/generation.ts:181-192`:
 
@@ -55,7 +55,7 @@ iterates the returned set exactly once, synchronously, immediately after the `aw
 
 **Required property.** A value returned from an internal function with one immediate, non-retaining consumer should not be defensively copied absent a stated ownership, snapshot, or lifecycle reason (§9). Either state the reason (if one exists that I have not found) or return the set by reference.
 
-### cleanup-2 — the per-request id counter is scoped wider than anything reads its uniqueness (Tier C, minor)
+### Item cleanup-2 — the per-request id counter is scoped wider than anything reads its uniqueness (Tier C, minor)
 
 **Current behavior.** `generation.ts:47` declares `let requests = 0;` at module (process) scope, and `evaluate()` (`:185`) does `const id = (requests += 1);` to key `generation.pending`. Every `Generation` object carries its **own** `pending: Map<number, Pending>` (`:20`, `:85`), and each generation's `worker.on('message')` handler (`:102-137`) only ever calls `pending.get(response.id)` against _that_ generation's own map — confirmed by reading `create()` in full: the closures over `pending` and `deps` are per-generation, never shared or compared across generation instances.
 

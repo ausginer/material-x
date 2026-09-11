@@ -10,39 +10,38 @@
 
 **Result.** Thirteen local findings — twelve from the passes, one consolidator-derived — consolidating to **eleven**, via two merges. **One tier A, three tier B, seven tier C.** The tier A is a contract gap, not a regression, and is routed rather than resolved here.
 
-## Id allocation — deliberately not assigned
+## Id allocation — none taken, and the series has since been settled
 
-High-water marks were read independently per prefix, and the register and the tree disagree:
+**This round assigns no canonical ids.** Its eleven results are held as pass-local names only.
 
-| Prefix | `00-index.md` assigns to | Highest sighting anywhere |
-| ------ | ------------------------ | ------------------------- |
-| `F-`   | 431                      | 438                       |
-| `Q-`   | 28                       | 28                        |
-| `I-`   | 37                       | 38                        |
-| `D-`   | 198                      | 204                       |
+At consolidation the register and the tree disagreed: `packages/drag2/.plan/contract/00-index.md` assigned `F-` to 431, `Q-` to 28, `I-` to 37 and `D-` to 198, while the tree sighted `F-432`…`F-438`, `I-38` and `D-199`…`D-204`. Those were not drift — they are canonical ids proposed by revision 1 of this series and then **withdrawn**, r4 re-expressing them as document-local `TE-` rows marked `Canonical: unassigned`.
 
-The gap is not drift. `F-432`…`F-438`, `I-38` and `D-199`…`D-204` appear only in `.plan/test-execution-1/architect-test-execution-model.md` and its challenge — canonical ids proposed by revision 1 of this series and then **withdrawn**, r4 re-expressing them as local `TE-` rows marked `Canonical: unassigned`.
+Allocating over that would have re-opened a question the series had deliberately parked, in a register belonging to `@ydinjs/drag2` rather than to the repository — the objection the `test-execution-1` challenge had already made in those words about a proposed `I-38`. Choosing the home is an ownership decision, and consolidation does not make one, so the question was routed instead.
 
-**This round therefore assigns no canonical ids.** It proposes the reserved block `F-439`…`F-449` and `Q-29`…`Q-30`, above the highest sighting rather than above the register, and leaves the mapping to be filled in when the family's home is settled. Two reasons:
+**It has since been answered, by `repo:RD-1` at `0136aa67b`.** Repository-level records now have their own register (`.plan/00-index.md`) and their own series — `RD-`/`RF-`/`RQ-`/`RI-`, numbering from 1 — and the bare `D-`/`F-`/`Q-`/`I-` series are closed to every scope but drag2. Allocation for this round is therefore satisfiable for the first time, as `RF-`, and is **not taken here**: `.plan/00-index.md` §Findings records these eleven as pending registration, and writing eleven rows into a register authored in another session minutes earlier is the second-writer hazard RD-1 exists to foreclose.
 
-- The workflow requires a minted id to be written into the owning register in the same commit that first uses it. The precedent round did not do this — `00-index.md` runs `F-352 → F-373`, reserving `F-353`…`F-372` without ever carrying the rows. It survived, but on care rather than on the rule.
-- `00-index.md` is `@ydinjs/drag2`'s register, and these are repository-level findings. The challenge document already objected to exactly this for `I-38`: _"a repository verification rule, not a drag2 lifecycle invariant… wrong family and wrong home."_ Choosing the home is an ownership decision, and consolidation does not make it. **Routed as Q-29.**
+**This summary was revised after RD-1 landed, to conform to RD-1**, which the round predates. Two corrections, both to this round's own records rather than to any finding:
 
-## Local → proposed canonical
+- The proposed block and two routed question ids were **withdrawn**. They allocated from series now closed to this scope, and a proposal that claims an id it was not given is precisely how `F-432`…`F-438` became sightings.
+- Every finding heading in this summary and in the four pass artefacts opened with an identifier, which RD-1 rules is a claim at any depth. Summary headings now open with the claim itself; pass-artefact headings are prefixed so they no longer open with the identifier, and every local id is preserved verbatim.
 
-| Local                  | Proposed | Tier | Verification                 |
-| ---------------------- | -------- | ---- | ---------------------------- |
-| reviewer-1             | F-439    | A    | **verified here**            |
-| reviewer-2             | F-440    | B    | reviewer-attested            |
-| reviewer-3 + der-2     | F-441    | B    | **verified here**            |
-| der-5                  | F-442    | B    | **verified here**, re-scoped |
-| reviewer-4 + der-3     | F-443    | C    | **verified here**            |
-| der-4                  | F-444    | C    | **verified here**, bounded   |
-| der-1                  | F-445    | C    | der-attested (measurement)   |
-| integrity-1            | F-446    | C    | **verified here**            |
-| cleanup-1              | F-447    | C    | **verified here**            |
-| cleanup-2              | F-448    | C    | **verified here**            |
-| (consolidator-derived) | F-449    | C    | **verified here**            |
+No finding, tier, merge or evidence changed.
+
+## Results, and how far consolidation confirmed each
+
+| Local                  | Tier | Verification                 |
+| ---------------------- | ---- | ---------------------------- |
+| reviewer-1             | A    | **verified here**            |
+| reviewer-2             | B    | reviewer-attested            |
+| reviewer-3 + der-2     | B    | **verified here**            |
+| der-5                  | B    | **verified here**, re-scoped |
+| reviewer-4 + der-3     | C    | **verified here**            |
+| der-4                  | C    | **verified here**, bounded   |
+| der-1                  | C    | der-attested (measurement)   |
+| integrity-1            | C    | **verified here**            |
+| cleanup-1              | C    | **verified here**            |
+| cleanup-2              | C    | **verified here**            |
+| (consolidator-derived) | C    | **verified here**            |
 
 Two merges. No finding rejected. One pass null falsified (below).
 
@@ -52,7 +51,9 @@ Two merges. No finding rejected. One pass null falsified (below).
 
 ## Tier A
 
-### F-439 — a watched change during an in-flight `.css.ts` evaluation fails that module's request
+### A watched change during an in-flight `.css.ts` evaluation fails that module's request
+
+**reviewer-1.**
 
 **Current behaviour.** `watchChange` (`src/index.ts:258`) calls `discardGeneration()`, which calls `fail(current, …)` (`src/css/generation.ts:177`), which rejects **every pending request** with `CSS evaluation generation was discarded` before disposing.
 
@@ -73,7 +74,9 @@ concurrent-discard: REJECTED: CSS evaluation generation was discarded
 
 ## Tier B
 
-### F-440 — the remeasurement TE-F35 owed falsifies both explanations TE-F35 offers
+### The remeasurement TE-F35 owed falsifies both explanations TE-F35 offers
+
+**reviewer-2.**
 
 **Current behaviour.** TE-F35 keeps the design's Δ 5554 MiB as "an expectation", and puts two unestablished explanations on the table for the shipped run's larger figure: container load, and reclaimable page cache. It also states there is "far more" headroom on anonymous memory than the ~11 % on `memory.current`.
 
@@ -85,7 +88,9 @@ concurrent-discard: REJECTED: CSS evaluation generation was discarded
 
 **Not promoted for moving.** The binding acceptance signals are met. This is a finding about what the record asserts, not about the number.
 
-### F-441 — the Zed debug task runs zero tests, and demonstration 20 is discharged on evidence that cannot tell success from failure
+### The Zed debug task runs zero tests, and demonstration 20 is discharged on evidence that cannot tell success from failure
+
+**reviewer-3 + der-2.**
 
 **Current behaviour.** `DEBUG=1` sets `ui: isDebug` (`.scripts/vitest-config.ts:181`) while `headless: true` (`:176`) and `contextOptions: { deviceScaleFactor: 1 }` (`:189`) are unconditional.
 
@@ -110,7 +115,9 @@ and with a single option changed:
 
 **Found independently by `reviewer` and `der`, blind to each other.**
 
-### F-442 — `test-architecture.md` §CI policy describes a pull-request gate that does not exist
+### `test-architecture.md` §CI policy describes a pull-request gate that does not exist
+
+**der-5.**
 
 **Current behaviour.** "Every pull request gates on: formatting, linting, typechecking; tproc node tests; behavior and accessibility browser tests…". The repository's only workflow is `.github/workflows/docs.yml`, on `push` to `main` plus `workflow_dispatch`.
 
@@ -122,7 +129,9 @@ and with a single option changed:
 
 ## Tier C
 
-### F-443 — the torn-down-project guard is unreachable, and one pass's null says otherwise
+### The torn-down-project guard is unreachable, and one pass's null says otherwise
+
+**reviewer-4 + der-3.**
 
 **Current behaviour.** `#released` is written only in `#release`, called only from `onTestModuleStart`, reachable only after `#consumed = true` (`vitest-one-shot.ts:100`). The `#consumed` throw (`:49`) precedes the reuse check (`:62`).
 
@@ -132,7 +141,9 @@ and with a single option changed:
 
 **Pass disagreement resolved on evidence.** `cleanup` returned an explicit null on this same file — "the reporter's defensive checks, all reachability-justified". That null is falsified for this check and narrows to the others. Two lenses reached opposite conclusions on one file while blind to each other; the evidence separates them, so this is reconciled rather than routed.
 
-### F-444 — `clean.extras` does not cover the chunk the new entry point creates
+### `clean.extras` does not cover the chunk the new entry point creates
+
+**der-4.**
 
 **Current behaviour.** `files.json` gained `css/generation` as a runtime entry; `clean.extras` lists `format-*`, `transform-*`, `utils-*` and not `generation-*`. Three orphaned `generation-*.js` chunks (plus maps) are in the tree now.
 
@@ -140,27 +151,37 @@ and with a single option changed:
 
 **Required property.** Every hoisted chunk a declared entry point produces is removed by `clean:build`.
 
-### F-445 — `BROWSER_WORKERS = 2` states a ground this range retired
+### `BROWSER_WORKERS = 2` states a ground this range retired
+
+**der-1.**
 
 **Current behaviour.** `.scripts/vitest-config.ts:20-22` carries revision 2's justification verbatim. That ground rests on TE-F4 retention — seven browser projects held at ≈1.26 GiB each — which TE-D12/TE-F33 retire inside this same range by releasing each provider at its group boundary.
 
 **Evidence.** Comment text verified here. `der` measured `browser/drag2` at 15.26 s / 17.01 s (bound 2) against 12.33 s / 11.89 s (bound 4), identical results in all arms. **Der-attested** — the measurement was not re-run at consolidation.
 
-**Routed.** Choosing a value needs the whole-repository run at bound 4 against the ceiling, which is F-440's remeasurement plus one arm. **Q-30.**
+**Routed.** Choosing a value needs the whole-repository run at bound 4 against the ceiling, which is reviewer-2's remeasurement plus one arm. **the worker-bound question.**
 
-### F-446 — the `$close()` citation points one line above the call
+### The `$close()` citation points one line above the call
+
+**integrity-1.**
 
 `architect-test-execution-model-r4.md:244` cites `cli-api.BK8pd4xc.js:2492`. Verified against the installed bundle: `:2492` is the `forEach` that encloses the call; `orchestrator.$close()` is `:2493`. The sibling `provider.close()` citation at `:2488` is exact, and the mechanism as described is correct.
 
-### F-447 — `evaluate()` snapshots a dependency set nothing can observe changing
+### `evaluate()` snapshots a dependency set nothing can observe changing
+
+**cleanup-1.**
 
 `generation.ts:191` returns `deps: new Set(generation.deps)`. Its sole caller (`index.ts:208`) destructures, iterates synchronously with no intervening `await`, and drops the reference. Verified here.
 
-### F-448 — the request counter is process-scoped for a per-generation use
+### The request counter is process-scoped for a per-generation use
+
+**cleanup-2.**
 
 `requests` is module-scope (`generation.ts:47`), but `pending` and the worker are both per-`Generation`, so an id is only ever resolved within the generation that issued it. Verified here.
 
-### F-449 — `zed-test.sh` declares `sh` and is not `sh`-compatible _(consolidator-derived)_
+### `zed-test.sh` declares `sh` and is not `sh`-compatible _(consolidator-derived)_
+
+**consolidator-derived.**
 
 **Current behaviour.** The shebang is `#!/usr/bin/env sh`. The script defines `cleanup-debug-processes()`, `run-vitest()` and `run-vitest-debug()` — hyphenated names bash accepts and POSIX `sh` does not.
 
@@ -172,13 +193,21 @@ and with a single option changed:
 
 ---
 
-## Routed
+## Routed — and since answered
 
-- **Q-29 — where repository-level `F-`/`I-` findings are registered.** `00-index.md` is drag2's. This series already withdrew one proposed block and marked its successors `Canonical: unassigned`; the challenge document names the family question directly. Until it is answered, this round's ids stay local.
-- **Q-30 — the browser worker bound** (F-445), needing a whole-repository arm at bound 4 against the ceiling.
-- **F-439's contract choice** — supersede or abort an in-flight evaluation on watch invalidation. TE-D13 does not cover it.
-- **F-440's consequence for TE-F35's status** — with both explanations falsified, whether the design figure keeps "expectation" standing is the architect's call, not consolidation's.
-- **F-442's scope** — whether an owner call recorded only in a superseded revision remains live.
+Consolidation routed five items rather than deciding them. All five were answered by the architect at `0136aa67b` and `375a9c00e`, recorded here so the round closes against its own dispositions.
+
+| Routed                                                          | Disposition                                                                                                                            |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Where repository-level findings are registered                  | **`repo:RD-1`** — repository records get their own register and their own `RD-`/`RF-`/`RQ-`/`RI-` series; the bare series stay drag2's |
+| Supersede or abort an in-flight evaluation (reviewer-1)         | **TE-D17** — an invalidation arriving during evaluation supersedes the request; **TE-F36** records the current reject                  |
+| TE-F35's standing with both explanations falsified (reviewer-2) | **TE-F37** — both explanations falsified; the memory expectation withdrawn                                                             |
+| The browser page bound (der-1)                                  | **TE-F39** — the stated ground was retired by this design                                                                              |
+| Whether der-5's owner call remains live                         | **`repo:RD-2`** — the pull-request gate is accepted policy whose implementation is owed, and stays open; **TE-F40** records the gap    |
+
+The tier A was routed as a contract choice and came back as one: TE-D17 decides supersession, which is the property the finding required without naming the remedy. The torn-down guard became **TE-F38**.
+
+None of these were settled inside review, and none are settled here.
 
 ## What the round establishes
 
@@ -199,11 +228,11 @@ Each pass's silence is justified from its own lens question, not from what anoth
 - **reviewer** — falsification of the nine named properties by execution. Did not audit code discipline or record coherence outside the properties.
 - **integrity** — coherence outside the change: entry-point manifest, public surface, retired-machinery references, group/one-shot conformance. Five explicit nulls. Separated a `@preact/signals-core` gap as out of range and unaffected rather than attaching it to this work.
 - **cleanup** — machinery unjustified by responsibility, against `CONTRIBUTING.md` and `documentation.md` §5. Nulls on the generation state machine, `vitest-config.ts` group/worker machinery, the worker/deps-tracker rewrite, and comments across the diff.
-- **der** — causal elimination. Two items explicitly unsettled with what would settle them: whether the surviving CDP-port `pkill` still has a cause (void until F-441 is fixed), and whether bound 4 fits the ceiling.
+- **der** — causal elimination. Two items explicitly unsettled with what would settle them: whether the surviving CDP-port `pkill` still has a cause (void until reviewer-3 + der-2 is fixed), and whether bound 4 fits the ceiling.
 
 ## The verification boundary
 
-**Preserved by every pass.** No editor gesture was performed or simulated; demonstrations 13–15 are not reported as verified by anyone in this round. `reviewer` asked the adjacent question — whether the record states the boundary honestly — and found it stated in four places in r4 and unsoftened in the implementation record. The one adjacency is F-441: demonstration 20 is a _Zed_ task, inside the verifiable region, verified only in the half that cannot distinguish success from failure.
+**Preserved by every pass.** No editor gesture was performed or simulated; demonstrations 13–15 are not reported as verified by anyone in this round. `reviewer` asked the adjacent question — whether the record states the boundary honestly — and found it stated in four places in r4 and unsoftened in the implementation record. The one adjacency is reviewer-3 + der-2: demonstration 20 is a _Zed_ task, inside the verifiable region, verified only in the half that cannot distinguish success from failure.
 
 ## Round hygiene
 

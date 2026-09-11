@@ -36,7 +36,7 @@ a plain test invocation, not a write. See **Checkout state** at the end for the
 
 ## Findings
 
-### integrity-1 — Tier C: a contract citation is off by one source line (evidentiary only, not behavioral)
+### Item integrity-1 — Tier C: a contract citation is off by one source line (evidentiary only, not behavioral)
 
 **Current behavior / contract.** TE-D12 in
 `.plan/test-execution-1/architect-test-execution-model-r4.md` cites the
@@ -71,7 +71,7 @@ off-by-one line number.
 it means. Not required to be fixed as a condition of anything; recorded because
 it was checked.
 
-### integrity-2 — null result: `files.json` / `tsdown.config.ts` / `package.json` for the touched build-time package stay coherent
+### Item integrity-2 — null result: `files.json` / `tsdown.config.ts` / `package.json` for the touched build-time package stay coherent
 
 **Lens.** The task calls out `packages/material-x/files.json` by name for
 Material-X components; this range adds no material-x component, but it does add
@@ -91,7 +91,7 @@ no longer exists. `@preact/signals-core` was removed from this package's
 by grep that no file under `packages/vite-custom-element-assets/src` still
 imports it. **No drift found.**
 
-### integrity-3 — null result: `@preact/signals-core`'s removal from `vite-custom-element-assets` does not orphan anything, in or out of scope
+### Item integrity-3 — null result: `@preact/signals-core`'s removal from `vite-custom-element-assets` does not orphan anything, in or out of scope
 
 **Lens.** `packages/material-x/src/**/tokens.ts` (many files, all outside this
 range) import `@preact/signals-core` directly at the source level, but
@@ -115,7 +115,7 @@ dependency) is **not new, not touched, and not worsened by this range** — it i
 out of scope for an integrity pass scoped to `67af05288..7aeaff260`. **No drift
 attributable to this range.**
 
-### integrity-4 — null result: no stale reference to the retired Nx test-orchestration or watch-mode machinery survives elsewhere in the tree
+### Item integrity-4 — null result: no stale reference to the retired Nx test-orchestration or watch-mode machinery survives elsewhere in the tree
 
 **Lens.** "Instruments that no longer instrument what they claim, scripts or
 editor integrations left pointing at a retired path."
@@ -146,7 +146,7 @@ editor integrations left pointing at a retired path."
 
 **No drift found.**
 
-### integrity-5 — null result: the group-assignment and one-shot-guard code satisfies the contract's required properties, traced structurally
+### Item integrity-5 — null result: the group-assignment and one-shot-guard code satisfies the contract's required properties, traced structurally
 
 **Lens.** "Architectural invariants the repository relies on... silently
 redefined."
@@ -174,7 +174,7 @@ a plugin-less node project (`packages/vite-traits-plugin`) and it passed
 cleanly with no behavioral surprise. **No drift found; the shipped mechanism
 matches the contract at the sites I checked.**
 
-### integrity-6 — null result: the VS Code verification boundary is stated honestly and matches the actual environment
+### Item integrity-6 — null result: the VS Code verification boundary is stated honestly and matches the actual environment
 
 **Lens.** The binding instruction to preserve the boundary and assess whether
 the record states it honestly, without substituting a simulation for it.

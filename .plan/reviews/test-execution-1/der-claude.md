@@ -51,7 +51,7 @@ owner-executed, as the record requires.
 
 ## Findings
 
-### der-1 — the browser page bound of 2 rests on a premise this range retired (Tier C)
+### Item der-1 — the browser page bound of 2 rests on a premise this range retired (Tier C)
 
 **Finding.** `.scripts/vitest-config.ts:22`, `const BROWSER_WORKERS = 2`, new in
 `c1cab3031`. The _existence_ of an explicit project-level bound is justified and
@@ -117,7 +117,7 @@ leaves ~11 % headroom, so a larger page count is not obviously free). The
 finding is that the record currently carries a value whose only stated reason is
 expired, and says nothing about that.
 
-### der-2 — the Zed debug recipe cannot run a browser test, and demonstration 20 is claimed on it (Tier B)
+### Item der-2 — the Zed debug recipe cannot run a browser test, and demonstration 20 is claimed on it (Tier B)
 
 **Finding.** `.scripts/zed-test.sh`'s `run-vitest-debug` — rewritten by this
 range under TE-D16 — fails before any test executes, at head and at
@@ -160,7 +160,7 @@ breakpoint half as discharged. Under `headless: true` — unconditional at head 
 `ui: true` shows nobody a user interface, so its justification is the one to
 examine first.
 
-### der-3 — the torn-down-project guard is unreachable at head (Tier C)
+### Item der-3 — the torn-down-project guard is unreachable at head (Tier C)
 
 **Finding.** `.scripts/vitest-one-shot.ts:55–69`, the `#released` set and the
 `reused` check that raises `project "…" was torn down and cannot run again`,
@@ -194,7 +194,7 @@ message. This agrees with the record's own fixture result at TE-D15 ("run 2 thre
 **Required property.** Machinery kept as defence in depth is either reachable, or
 the record states that it is not and why it is retained anyway.
 
-### der-4 — the new shared CSS chunk escapes `clean:build` (Tier C)
+### Item der-4 — the new shared CSS chunk escapes `clean:build` (Tier C)
 
 **Finding.** `c1cab3031` added `css/generation` to
 `packages/vite-custom-element-assets/{files.json,tsdown.config.ts}` but did not
@@ -219,7 +219,7 @@ to `git clean -fx` is computed and printed directly:
 **Required property.** Every artefact a package's build emits is reachable by
 that package's clean.
 
-### der-5 — §CI policy still describes a gate that does not exist (Tier B)
+### Item der-5 — §CI policy still describes a gate that does not exist (Tier B)
 
 **Finding.** `.agents/docs/test-architecture.md:148`: _"Every pull request gates
 on: formatting, linting, typechecking; tproc node tests; behavior and

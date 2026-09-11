@@ -33,7 +33,7 @@ Chromium is counted at the process level as **live browser instances**: processe
 
 ## Findings
 
-### reviewer-1 — A watched change landing during a `.css.ts` evaluation fails that module's dev-server request with an error naming no file the developer touched (Tier A)
+### Item reviewer-1 — A watched change landing during a `.css.ts` evaluation fails that module's dev-server request with an error naming no file the developer touched (Tier A)
 
 **Current behavior.** `discardGeneration()` calls `fail(current, …)`, which rejects **every pending request** with `CSS evaluation generation was discarded` (`packages/vite-custom-element-assets/src/css/generation.ts:66-77, 160-164`). The plugin's `watchChange` calls it for any tracked file or any `.css.ts` (`src/index.ts:256-260`), and `load` awaits `evaluate()` (`src/index.ts:208`), so the rejection surfaces as that module's load failure.
 
@@ -57,7 +57,7 @@ The window is the real evaluation time, not an artefact of the probe: the first 
 
 **Required property.** A watch invalidation is not an evaluation failure. Either a request in flight when its generation is discarded must be re-served by the next generation, or the record must state that it is failed and say what a dev-server consumer sees. **Routed** — which of the two holds is a contract decision (TE-D13's failure semantics), not a defect I can resolve.
 
-### reviewer-2 — The whole-repository memory divergence reproduces independently at near-design duration, so the record's container-load explanation does not hold, and the headroom is ~7 % (Tier B)
+### Item reviewer-2 — The whole-repository memory divergence reproduces independently at near-design duration, so the record's container-load explanation does not hold, and the headroom is ~7 % (Tier B)
 
 **Current behavior / contract.** TE-F35 reclassifies Δ 5554 MiB as an _expectation_: "A later run is compared against it, and a divergence must be explained rather than absorbed." Two explanations are offered — container load (the shipped runs carried a higher baseline "inside a cgroup also holding an agent session and thirteen background Chrome processes") and reclaimable page cache — and a quiet-container remeasurement is scheduled as an implementation-review obligation.
 
@@ -88,7 +88,7 @@ The binding requirement is met, but narrowly: peak `memory.current` 12 156 MiB a
 
 **Required property.** The record must not carry an unexplained divergence as a scheduled hypothesis once the hypothesis is falsified: TE-F35's expectation figure and its two candidate explanations need restating against a reproduced delta, and the transferable quantity should be the anonymous delta (~6618–6685 MiB) rather than Δ 5554. **Routed** — amending TE-F35 is the architect's call, not a code defect. Nothing in the shipped implementation fails an acceptance signal.
 
-### reviewer-3 — Demonstration 20 is recorded as discharged, but the Zed debug task runs no browser test at all (Tier B)
+### Item reviewer-3 — Demonstration 20 is recorded as discharged, but the Zed debug task runs no browser test at all (Tier B)
 
 **Current behavior.** r4 demonstration 20 reads: "**The debug task is run mode.** `.zed/tasks.json`'s `vitest:debug` reaches a breakpoint with the CDP port attached, and saving the file while paused does **not** start a second execution." r4's implementation section records 16–25 as evidenced, unannotated. The implementation record's evidence for it is: "**The debug task is run mode.** `.scripts/zed-test.sh <file> "" debug` runs the file and **exits on its own**, which a watch session would not do."
 
@@ -119,7 +119,7 @@ Error: browser.newContext: "deviceScaleFactor" option is not supported with null
 
 **Required property.** A demonstration is discharged by evidence that distinguishes it from its failure mode. Demonstration 20's distinguishing half — reaching a breakpoint with the CDP port attached — is not established and cannot be on this tree. **Routed**: the demonstration's status is the architect's to set, and the underlying `ui: true` / `deviceScaleFactor` conflict is a pre-existing defect outside this range that should be raised rather than absorbed into it.
 
-### reviewer-4 — The torn-down-project marking check can never fire; the one-shot counter always throws first (Tier C)
+### Item reviewer-4 — The torn-down-project marking check can never fire; the one-shot counter always throws first (Tier C)
 
 **Current behavior.** TE-D12 requires "A project that has been torn down is marked, and a run that would execute a specification belonging to a marked project fails loudly", and TE-D15 keeps it "as defence in depth against the silent zero-module success TE-F11 produces" — i.e. as a second, independent check. `OneShotTestExecution.onTestRunStart` (`.scripts/vitest-one-shot.ts:42-70`) orders them: empty-list exemption, then `#consumed`, then `#released`.
 
