@@ -31,6 +31,19 @@ of them is applied against the challenge's own disposition on evidence the
 challenge did not have. The design is implementation-ready; what remains is
 listed under implementation verification obligations.
 
+**Reconciled with the implementation, 2026-09-11**, against
+[`implementer-test-execution-model.md`](implementer-test-execution-model.md) and
+the shipped tree at `c1cab3031`. Executing the design produced evidence no
+design pass had, and four statements are amended by it: the teardown primitive
+is now named rather than left to the implementer (TE-F33); the non-browser
+group's worker bound becomes a required property with a measured derivation
+(TE-F34); the Δ 5554 MiB figure is reclassified as evidence rather than an
+acceptance threshold (TE-F35); and TE-F27's reading of `FilesNotFoundError` is
+corrected. **No chosen mechanism changed, and nothing the implementation did
+violates a contract of this record**, so no remediation is routed. Every claim
+this amendment rests on was verified here at source or on a fixture, not taken
+on report.
+
 **Instruction boundaries.** The pre-existing `node/tproc TokenPackageProcessor`
 failure and F-412 stay outside this work. Nothing is implemented. Every probe
 below is a scratchpad fixture or a reverted patch to an untracked build
@@ -59,6 +72,9 @@ peak over a 2015 MiB baseline — Δ 5554 MiB — in 63.6 s, with the real
 per-generation CSS evaluator and real group-boundary teardown, 0 unhandled
 errors, and all seven browser providers released.** Revision 3's best arm was
 Δ 6181 MiB in 96 s, and it was measured on a mechanism this revision discards.
+The shipped implementation reproduces every acceptance signal of that run and
+not its delta — Δ 6723–8442 MiB across three runs on a loaded container. What
+that figure is, and is not, is settled below.
 
 ## The whole-repository run, re-measured
 
@@ -102,35 +118,89 @@ never released by a boundary, because the boundary is another group starting
 (TE-F29). And `errors=0` is now a meaningful acceptance signal, which it was not
 in revision 3.
 
+### What the delta is, and what the requirement is (TE-F35)
+
+The shipped root run at `c1cab3031` measured Δ 6723–8442 MiB and 71–86 s across
+three bounded runs, against Δ 5554 MiB and 63.6 s here. **The design's figure is
+evidence, not a requirement, and demonstration 1 was wrong to state it as
+one.** A single sample, taken at a 2015 MiB baseline this record already flags
+as unusually low, cannot be a threshold that a later run must clear; promoting
+it to one silently converts an observation into a budget nobody derived.
+
+The requirement is the ceiling and the acceptance signals, and the
+implementation meets all of them:
+
+| Signal                           | Required                     | Shipped run                                        |
+| -------------------------------- | ---------------------------- | -------------------------------------------------- |
+| Peak `memory.current`            | ≤ 13 107 MiB (80 % of cap)   | **11 671 MiB**                                     |
+| `memory.events.oom_kill`         | 0                            | **0**                                              |
+| Unhandled errors                 | 0                            | **0**                                              |
+| `Failed to run the test`         | 0                            | **0**                                              |
+| `close timed out`                | 0                            | **0**                                              |
+| Providers released at a boundary | every group with a successor | **7 of 7**                                         |
+| Chrome at end                    | run baseline                 | **back to 13**                                     |
+| Files / tests                    | unchanged                    | **157 / 2467, 60 skipped, 1 pre-existing failure** |
+
+**The delta keeps a weaker status: an expectation.** A later run is compared
+against it, and a divergence must be explained rather than absorbed. Two
+explanations are on the table and neither is established. The shipped runs
+carried a 3158–3538 MiB baseline against this pass's 2015 MiB, inside a cgroup
+also holding an agent session and thirteen background Chrome processes — load
+this pass did not carry. And `memory.current` counts reclaimable page cache,
+which a run doing this much build and raster I/O grows; the implementation's
+anonymous peak, which is what an OOM actually reads, is Δ 6685 MiB against a
+`memory.current` delta of Δ 7412 MiB, so the page-cache component is real and
+measurable.
+
+**A quiet-container remeasurement is owed, and it does not block closure.** It
+is owed because the gap is large enough that "the container was busy" is a
+hypothesis rather than a finding, and this record should not carry an
+unexplained 20–50 % overshoot as settled. It does not block because the binding
+requirement is met with roughly 11 % headroom on `memory.current` and far more
+on anonymous memory, and because both candidate explanations point away from the
+implementation. It is scheduled as an implementation-review obligation, not as a
+design defect.
+
+**The comparison itself is weaker than it looks**, and the remeasurement should
+fix that rather than repeat it. This pass measured only `memory.current`; the
+implementation measured anonymous memory as well. Comparing two
+`memory.current` deltas compares two unknown page-cache components. **Anonymous
+peak against the working ceiling is the figure this record should have required
+from the start**, with `memory.current` reported beside it; the remeasurement
+reports both, and subsequent passes compare the anonymous number.
+
 ## The local register
 
 Continuing the series. `TE-D1`…`TE-D11`, `TE-I1`, `TE-F1`…`TE-F15` are defined
 in revisions 2 and 3.
 
-| Local  | Canonical  | Subject                                                                                                  | Status                                      |
-| ------ | ---------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| TE-D12 | unassigned | Browser projects serialized from group 1 and released at group boundaries                                | New — supersedes TE-D9                      |
-| TE-D13 | unassigned | CSS evaluated by one fresh isolate per build generation                                                  | New — supersedes TE-D10                     |
-| TE-D14 | unassigned | The requested worker limit, and the three interactions that constrain it                                 | New — supersedes TE-D11                     |
-| TE-D15 | unassigned | Every Vitest process executes at most one test run, enforced from an unremovable carrier                 | New — closes revision 4's owner choice      |
-| TE-D16 | unassigned | Test watch and Continuous Run are retired, with the machinery serving only them                          | New                                         |
-| TE-F16 | unassigned | The last-module teardown trigger fails deterministically at the RPC boundary                             | New — refutes part of TE-D9                 |
-| TE-F17 | unassigned | `sequence.groupOrder: 0` is a sentinel that demotes or interleaves the project                           | New                                         |
-| TE-F18 | unassigned | Resolved-URL discovery sees the whole graph, `@ydinjs/tproc` and the token DB included                   | New — supersedes the tracker half of TE-D10 |
-| TE-F19 | unassigned | Per-entry dependency attribution collapses inside a shared generation                                    | New                                         |
-| TE-F20 | unassigned | Node caches an evaluation failure permanently in the isolate that produced it                            | New                                         |
-| TE-F21 | unassigned | No in-process signal distinguishes an ordinary VS Code run from a continuous one                         | New — refines TE-F12                        |
-| TE-F22 | unassigned | A retained generation worker prevents the Vitest process from closing cleanly                            | New                                         |
-| TE-F23 | unassigned | The whole-repository run with both real mechanisms measures Δ 5554 MiB in 63.6 s                         | New — supersedes the 10 384 MiB figure      |
-| TE-F24 | unassigned | A plugin's `configureVitest` installs a reporter that no CLI flag can remove                             | New                                         |
-| TE-F25 | unassigned | `Vitest.report` does not catch reporter errors, so `onTestRunStart` can abort a run                      | New                                         |
-| TE-F26 | unassigned | The extension appends to configured reporters rather than replacing them                                 | New                                         |
-| TE-F27 | unassigned | An empty specification list emits a run start without executing anything                                 | New                                         |
-| TE-F28 | unassigned | `browser.api.allowExec` gates reruns, snapshot updates and the in-test `cdp()` API, and denial is silent | New — scope corrected at reconciliation     |
-| TE-F29 | unassigned | A boundary never releases the project in the final group; process close does                             | New — falsifies part of TE-D12              |
-| TE-F30 | unassigned | One consuming execution per extension-created process, by call-site enumeration                          | New — strengthens TE-F12                    |
-| TE-F31 | unassigned | The extension's child has a noop watcher; continuous changes arrive over `onFilesChanged`                | New — refines TE-F21                        |
-| TE-F32 | unassigned | The retained handle is the parent-side `MessagePort` with a live listener                                | New — identifies TE-F22's handle            |
+| Local  | Canonical  | Subject                                                                                                   | Status                                            |
+| ------ | ---------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| TE-D12 | unassigned | Browser projects serialized from group 1 and released at group boundaries                                 | New — supersedes TE-D9; primitive named by TE-F33 |
+| TE-D13 | unassigned | CSS evaluated by one fresh isolate per build generation                                                   | New — supersedes TE-D10                           |
+| TE-D14 | unassigned | The requested worker limit, and the three interactions that constrain it                                  | New — supersedes TE-D11; bound added by TE-F34    |
+| TE-D15 | unassigned | Every Vitest process executes at most one test run, enforced from an unremovable carrier                  | New — closes revision 4's owner choice            |
+| TE-D16 | unassigned | Test watch and Continuous Run are retired, with the machinery serving only them                           | New                                               |
+| TE-F16 | unassigned | The last-module teardown trigger fails deterministically at the RPC boundary                              | New — refutes part of TE-D9                       |
+| TE-F17 | unassigned | `sequence.groupOrder: 0` is a sentinel that demotes or interleaves the project                            | New                                               |
+| TE-F18 | unassigned | Resolved-URL discovery sees the whole graph, `@ydinjs/tproc` and the token DB included                    | New — supersedes the tracker half of TE-D10       |
+| TE-F19 | unassigned | Per-entry dependency attribution collapses inside a shared generation                                     | New                                               |
+| TE-F20 | unassigned | Node caches an evaluation failure permanently in the isolate that produced it                             | New                                               |
+| TE-F21 | unassigned | No in-process signal distinguishes an ordinary VS Code run from a continuous one                          | New — refines TE-F12                              |
+| TE-F22 | unassigned | A retained generation worker prevents the Vitest process from closing cleanly                             | New                                               |
+| TE-F23 | unassigned | The whole-repository run with both real mechanisms measures Δ 5554 MiB in 63.6 s                          | New — reclassified as evidence by TE-F35          |
+| TE-F24 | unassigned | A plugin's `configureVitest` installs a reporter that no CLI flag can remove                              | New                                               |
+| TE-F25 | unassigned | `Vitest.report` does not catch reporter errors, so `onTestRunStart` can abort a run                       | New                                               |
+| TE-F26 | unassigned | The extension appends to configured reporters rather than replacing them                                  | New                                               |
+| TE-F27 | unassigned | An empty specification list emits a run start without executing anything                                  | New — reading corrected at implementation         |
+| TE-F28 | unassigned | `browser.api.allowExec` gates reruns, snapshot updates and the in-test `cdp()` API, and denial is silent  | New — scope corrected at reconciliation           |
+| TE-F29 | unassigned | A boundary never releases the project in the final group; process close does                              | New — falsifies part of TE-D12                    |
+| TE-F30 | unassigned | One consuming execution per extension-created process, by call-site enumeration                           | New — strengthens TE-F12                          |
+| TE-F31 | unassigned | The extension's child has a noop watcher; continuous changes arrive over `onFilesChanged`                 | New — refines TE-F21                              |
+| TE-F32 | unassigned | The retained handle is the parent-side `MessagePort` with a live listener                                 | New — identifies TE-F22's handle                  |
+| TE-F33 | unassigned | The release primitive is `provider.close()` plus `$close()`; `ProjectBrowser.close()` releases no browser | New — names what TE-D12 left unnamed              |
+| TE-F34 | unassigned | The shared non-browser group needs a bound below the CPU default, or it times out tests                   | New — constrains TE-D14                           |
+| TE-F35 | unassigned | The Δ 5554 MiB whole-repository figure is evidence, not an acceptance threshold                           | New — reclassifies TE-F23                         |
 
 Superseded by this pass: **TE-D9**, **TE-D10**, **TE-D11**. **TE-D8** stands,
 amended. **TE-D1**, **TE-D3**, **TE-D6**, **TE-D7**, **TE-I1** stand.
@@ -168,7 +238,12 @@ on Nx.
 Each browser project gets its own `sequence.groupOrder`, **assigned from 1**;
 the non-browser projects share the highest group. When the first test module of
 a later group starts, every browser project in an earlier group has its provider
-closed and its Chromium exits.
+closed and its Chromium exits. **The closing call is
+`project.browser.provider.close()` followed by `$close()` on that project's
+orchestrators** — what the browser pool itself does when it releases the same
+resources (`cli-api.BK8pd4xc.js:2488`, `:2492`). Revision 4 left the call
+unnamed and the obvious reading of "the provider is closed" is the wrong one
+(TE-F33), so it is named here rather than left to be rediscovered.
 
 **Why the boundary and not the last module.** `groupSpecs` awaits
 `Promise.allSettled(promises)` for a whole group before the next group begins
@@ -219,6 +294,21 @@ after every other (TE-F17). Holes are irrelevant — `:3632` is
   close, which is safe but is not this mechanism. The property to assert is
   therefore Chrome returning to baseline before the process exits — which
   holds in both cases — and boundary closures only where a later group exists.
+  **A run that takes zero boundary closures therefore conforms**: a
+  project-filtered IDE gesture instantiates one browser project, which sits in
+  the final group and is released by `vitest.close()`. Reading that as a failure
+  to release every provider mid-run inverts the property. What would be a
+  failure is a boundary that exists and is not taken, or Chromium still running
+  when the process exits.
+- **The release primitive is the provider, never the browser project.**
+  `ProjectBrowser.close()` is `await this.vite.close()` on the parent browser
+  project's dev server (`@vitest/browser/dist/index.js:2543`, `:2597`); it
+  touches no provider and releases no browser, so a mechanism built on it
+  reports every boundary closure it was asked for while Chromium accumulates
+  behind it (TE-F33) — the exact failure shape the acceptance property below
+  exists to catch. Closing the provider and then the orchestrators leaves the
+  project's Vite server open until process close, which is correct: the pool
+  does the same, and nothing runs against that server again.
 - **A teardown failure is distinguishable**, not merely present. The failure
   this mechanism produces when mistriggered is `Failed to run the test …`, which
   is indistinguishable from a genuine test failure; an acceptance check that
@@ -306,10 +396,12 @@ Three checks live at that point, and all three fail loudly:
 - a **second consuming execution**, which names the contract and says that watch
   and continuous reruns are retired. This is what "never silently succeeds with
   zero modules" covers: **reuse**. The neighbouring case is not ours to claim —
-  a run whose filter matches nothing reports a successful run of nothing, and
-  under the extension's unconditional `watch: true` it does not even raise
-  `FilesNotFoundError` (TE-F27). That route predates every revision and
-  survives. The carrier does see `specs.length === 0` at the one hook that runs
+  a run whose filter matches nothing reports a successful run of nothing when
+  `changed` or `related` is set, and raises `FilesNotFoundError` when neither is
+  — `watch: true` alone does not suppress the throw, and revision 4's
+  parenthetical saying it did is withdrawn (TE-F27). Either way the empty run
+  start reaches the carrier first, which is all the exemption depends on. That
+  route predates every revision and survives. The carrier does see `specs.length === 0` at the one hook that runs
   for such a run and could refuse a filtered empty execution; that is recorded
   as an available strengthening rather than a requirement, because its blast
   radius on legitimate editor gestures cannot be measured without an editor;
@@ -582,6 +674,42 @@ flag and the default. The constraint is loud rather than silent, but neither
 revision 3 nor its predecessors recorded that the two decisions are jointly
 constrained.
 
+**That single value must be set by the factory, and it must be below Vitest's
+CPU default.** This record required equality across the group and said nothing
+about magnitude, and equality alone is satisfied by leaving every non-browser
+project at Vitest's own `cores - 1`. Executing it showed that is the wrong
+value: several files in that group spawn a build of their own — tsdown,
+Rolldown, Brotli — so a worker counted as one core demands several, and at
+`cores - 1` the group oversubscribes badly enough to time out three tests that
+do no more than read what they just built (TE-F34). A root run that fails three
+tests is a failed root run, so this is a correctness property and not a
+performance preference.
+
+Stated as the contract:
+
+- **The factory sets the non-browser group's `maxWorkers` explicitly.** Falling
+  through to Vitest's default is a defect, not a default.
+- **The value is one number shared by every project in the group**, which is
+  what `groupSpecs` already requires (`:3826`).
+- **It is below `cores - 1`**, and the justification is intra-worker
+  parallelism: the group's unit of work is not a single-core test file.
+- **The root run is green at the chosen value.** That is the acceptance test for
+  any future change to it.
+
+**The derivation is implementation tuning inside that contract, and it is
+recorded here so the two do not disagree silently.** The shipped value is
+`Math.max(Math.floor(availableParallelism() / 2), 1)` — six on this twelve-core
+container. It is not an invented constant: it is character-for-character
+Vitest's own bound for a run that expects other work on the machine
+(`resolveMaxWorkers`, `cli-api.BK8pd4xc.js:3768–3770`, which returns
+`Math.max(Math.floor(numCpus / 2), 1)` under `watch` and `Math.max(numCpus - 1, 1)`
+otherwise). The repository adopts the watch-mode bound for a non-watch run for a
+different reason than Vitest's — competing builds inside the run rather than an
+editor outside it — and arrives at the same number. A future pass may change the
+derivation without amending this decision, provided the four properties above
+still hold and the root run is re-measured; it may not return the group to the
+default.
+
 **The CLI contract, stated exactly.** `parseArgs` runs with `strict: false`,
 because Vitest passes many flags it does not declare. The accepted forms are a
 positive integer and `N%`, matching Vitest's own inline semantics; anything else
@@ -811,10 +939,31 @@ extension's child process.
 ### An empty specification list emits a run start without executing (TE-F27)
 
 `cli-api.BK8pd4xc.js:13463` calls `_testRun.start([])` and `_testRun.end([], [])`
-when no specification matched, then throws `FilesNotFoundError` only when not in
-watch mode. Under the extension, which always sets `watch: true`, a filter that
-matches nothing therefore produces a run start and no error. This is why TE-D15
-counts only non-empty executions.
+when no specification matched, and only then evaluates
+`if (!this.config.watch || !(this.config.changed || this.config.related?.length)) throw new FilesNotFoundError(this.mode);`
+at `:13470`. **The run start precedes the throw**, which is the whole of what
+TE-D15 needs: the carrier's `onTestRunStart` sees an empty list and declines to
+spend the lifecycle before any of this is decided. This is why TE-D15 counts
+only non-empty executions, and it holds whichever way the condition goes.
+
+**Revision 4's second sentence was wrong and is withdrawn.** `watch: true` alone
+does not suppress `FilesNotFoundError` — the condition needs `changed` or
+`related` as well. Measured here on a `createVitest` instance with an
+impossible filter:
+
+| Arms                             | Reporter saw | Outcome                          |
+| -------------------------------- | ------------ | -------------------------------- |
+| `watch: true`                    | `specs=0`    | **throws `No test files found`** |
+| `watch: true` + `related: [...]` | `specs=0`    | returns without throwing         |
+
+The extension reaches both arms. `spawnForRun` passes
+`related: 'related' in e ? e.related : void 0`, set only by the "run related
+tests" gesture on a source file — the one that warns "Pick a source file to run
+related tests" when given a test file. Every ordinary gesture leaves `related`
+undefined, so an editor filter that matches nothing raises rather than reporting
+a silent success. That is **louder** than revision 4 claimed, not quieter, and
+it is Vitest's own behaviour either way: this design neither creates it nor
+claims it.
 
 ### `allowExec` gates reruns and snapshot updates, and denial is silent (TE-F28)
 
@@ -903,6 +1052,87 @@ This is source-derived. No editor gesture has been exercised in any pass, so the
 demonstration that remains is a confirmation in a real editor, not an open
 question about the code.
 
+### Closing the browser project releases no browser (TE-F33)
+
+`ProjectBrowser.close()` is one line — `await this.vite.close()` — and
+`this.vite` is assigned in the constructor as `parent.vite`, the **parent
+browser project's dev server** (`@vitest/browser/dist/index.js:2543`, `:2597`).
+Chromium is not owned there. It is owned by the provider, which each
+`ProjectBrowser` creates for itself in `initBrowserProvider` (`:2575–2579`) and
+which the pool releases with `provider.close()` at `cli-api.BK8pd4xc.js:2488`,
+followed by `orchestrator.$close()` for every project's orchestrators at
+`:2492`. Those two calls, scoped to one project, are the boundary primitive.
+
+Measured here on a three-browser-project fixture — one instance each, trivial
+modules, the same boundary reporter driving both arms and differing only in the
+call it makes — with Chromium process counts sampled at 4 Hz:
+
+| Primitive                       | Chrome across the run               | Peak   | At exit |
+| ------------------------------- | ----------------------------------- | ------ | ------- |
+| `browser.close()`               | 17 → 28 → 39 → **50**               | **50** | 27      |
+| `provider.close()` + `$close()` | 17 → 28 → 39 → **28** → 39 → **28** | **39** | 26      |
+
+Both arms pass 17 tests and both log three boundary closures. **The log is
+identical and the behaviour is not.** The first arm accumulates one browser per
+group and releases nothing until the process ends; the second gives a browser
+back at each boundary, which is why it oscillates instead of climbing and why
+its peak is one browser lower. This is precisely the failure mode TE-D12's
+distinguishability property anticipated: a teardown that reports success while
+doing nothing.
+
+**The hang the implementation reports is not reproduced here, and does not need
+to be.** On the real tree, `ProjectBrowser.close()` wedged the run after the
+second close on two different three-project arms; on this fixture the same call
+completes and the run passes. Trivial modules with one worker apparently do not
+hold whatever the real suites hold against a closed dev server. The falsification
+that carries into the contract is the one measured above and readable in the
+source — the call releases no browser — and it is sufficient on its own. The
+hang is recorded as the implementation's observation, not as a property
+established here.
+
+**The provider tolerates the second close it will receive.** A boundary release
+does not remove the provider from the pool's `providers` set, so
+`Vitest.close()` closes it again. That is a no-op: `close()` nulls
+`browserPromise` and `browser` before awaiting, clears `pages` and `contexts`,
+and ends at `await browser?.close()` on a null
+(`@vitest/browser-playwright/dist/index.js:1187–1206`). Both fixture arms closed
+cleanly with no `close timed out`.
+
+**`$close()` is symmetry with the pool rather than a separately isolated
+necessity.** This pass's own whole-repository probe called `provider.close()`
+alone and completed all 15 projects with `errors=0`. Doing both is still the
+right contract — the pool does both, and the orchestrator holds a live RPC
+channel that TE-F22 gives independent reason to release — but no arm has
+isolated a failure that `$close()` alone prevents, and this record does not
+claim one.
+
+### The shared non-browser group needs a bound below the CPU default (TE-F34)
+
+Measured by the implementation on all five node projects together, twelve cores,
+one group:
+
+| Group bound      | Duration | Failures                                    |
+| ---------------- | -------- | ------------------------------------------- |
+| `cores - 1` (11) | 40 s     | **4** — three timeouts plus the `tproc` one |
+| 6                | 45 s     | 1 — the pre-existing `tproc` failure        |
+| 4                | 45 s     | 1 — the same                                |
+
+The three extra failures are `drag2`'s `size.node.test.ts` and
+`consumer.node.test.ts` at 5003–5008 ms against the 5 s default, doing no more
+than reading output they had just built, and they pass when `node/drag2` runs
+alone from the same root configuration. The cause is contention, not the
+migration.
+
+Verified here at source: `resolveMaxWorkers` (`cli-api.BK8pd4xc.js:3768`)
+returns `Math.max(Math.floor(numCpus / 2), 1)` when `config.watch` is set and
+`Math.max(numCpus - 1, 1)` otherwise, so a one-shot run takes `cores - 1` unless
+a project sets its own value, and the shipped value is the other branch of that
+same expression. `availableParallelism()` is 12 on this container and the
+resolved group bound is 6, matching the implementation's reported assignment.
+
+**Five seconds bought three failures back.** The 40 s arm is faster and wrong;
+duration is not the quantity under optimization here.
+
 ## Corrections to earlier revisions
 
 Stated rather than quietly dropped.
@@ -938,6 +1168,23 @@ Stated rather than quietly dropped.
   lifecycle being unsettled; with the model declared one-shot everywhere, the
   carrier belongs in the shared factory, and revision 4's open owner choice is
   closed.
+- **Revision 4 left the teardown call unnamed, and the obvious reading is
+  wrong.** "The provider is closed" reads as `project.browser.close()`, which
+  closes a Vite dev server and releases no browser (TE-F33). The primitive is
+  now named in TE-D12. This pass's own whole-repository probe happened to call
+  `provider.close()`, so the measurement it produced stands; the record simply
+  never said so.
+- **Revision 4's worker contract required equality across the non-browser group
+  and not a magnitude.** Equality alone is met by Vitest's `cores - 1`, which
+  times out three tests (TE-F34). TE-D14 now requires an explicit bound below
+  the CPU default and records the shipped derivation.
+- **Demonstration 1 stated a single measurement as an acceptance threshold.**
+  Δ 5554 MiB is evidence; the requirement is the 13 107 MiB working ceiling and
+  the acceptance signals (TE-F35). The demonstration is restated below.
+- **Revision 4's claim that `watch: true` suppresses `FilesNotFoundError` is
+  withdrawn.** It needs `changed` or `related` as well, and only the extension's
+  "run related tests" gesture supplies one (TE-F27). The exemption TE-D15 rests
+  on is unaffected, because the empty run start precedes the throw.
 - **The VS Code extension is not installed in this container.** The editor
   server present is Zed. All extension findings in every revision are source
   reading — here, of the marketplace artefact self-reporting
@@ -949,18 +1196,35 @@ Stated rather than quietly dropped.
 
 The obligation is on the shipped implementation, not on this pass's probes.
 
+**Discharged at `c1cab3031`, except where marked.** The implementation record
+reports evidence for 1–12 and 16–25; 1's requirement is met and its expectation
+is not yet explained; 13–15 are untouched, because no VS Code installation
+exists in that container either. Items are annotated where the implementation
+changed what the item should say; the rest stand as written and are evidenced in
+[`implementer-test-execution-model.md`](implementer-test-execution-model.md).
+
 1. **The root run reproduces the resource result with the real mechanisms.** One
    `vitest run` over all 15 projects, with the converted plugin and the teardown
-   reporter as shipped: peak `memory.current` at or below the Δ 5554 MiB
-   measured here over the run's own baseline, no `oom_kill`, and duration within
-   the 63.6 s measured here plus a stated margin. The semaphore figure is not
-   inherited.
+   reporter as shipped. **Required**: peak anonymous memory and peak
+   `memory.current` both at or below the 13 107 MiB working ceiling,
+   `oom_kill` at 0, and the acceptance signals of demonstrations 2–4.
+   **Expected, not required**: a delta near the Δ 5554 MiB measured here, and a
+   duration near 63.6 s — a divergence must be explained, and one is
+   outstanding (TE-F35). Neither the semaphore figure nor this pass's delta is
+   inherited as a threshold. **Done** at `c1cab3031`, requirement met with
+   11 671 MiB against the ceiling; the expectation diverged and the
+   quiet-container remeasurement that settles it is owed.
 2. **The run is clean by the right signal.** Zero unhandled errors, and zero
    occurrences of `Failed to run the test` — not the absence of
    `provider was closed`, which this mechanism never emits.
 3. **Every browser provider is released, and the count is asserted**: seven of
    seven closed, each at a group boundary, with Chrome processes returning to
-   the run's baseline before the process exits.
+   the run's baseline before the process exits. Seven of seven is a property of
+   the root configuration. In a project-filtered run the correct count is zero
+   boundary closures and a release at process close (TE-F29), and asserting
+   seven there would be asserting the wrong thing. **Done** at `c1cab3031` for
+   the root configuration, with the boundary log reproducing this record's
+   order exactly and Chrome returning to 13.
 4. **The process closes cleanly.** No `close timed out` line; the generation
    worker is terminated when its last consumer releases it.
 5. **The serialization invariant fails loudly when broken.** A run with
@@ -1067,6 +1331,20 @@ The obligation is on the shipped implementation, not on this pass's probes.
   other handle.
 - **The `--project` falsification uses a fixture**, two trivial browser modules
   and one typecheck module, not the real suites.
+- **The primitive comparison is a fixture too** — three browser projects, one
+  instance each, trivial modules (TE-F33). It establishes that
+  `ProjectBrowser.close()` releases no browser and that the provider call does.
+  It does **not** reproduce the hang the implementation saw on the real tree,
+  and this record does not claim that property.
+- **No resource figure in this record was measured on a quiet container.** This
+  pass ran at a 2015 MiB baseline and the implementation at 3158–3538 MiB, both
+  inside a cgroup carrying an agent session; at the time of this amendment the
+  same cgroup reads 4363 MiB at rest. A remeasurement performed here would be
+  noisier than either and would settle nothing, which is why TE-F35 schedules it
+  rather than attempting it.
+- **The non-browser worker measurement is the implementation's, not this
+  pass's** (TE-F34). What was verified here is the source it rests on —
+  `resolveMaxWorkers`'s two branches — and the resolved value on this container.
 
 ## The lifecycle policy, settled
 
@@ -1085,9 +1363,10 @@ What the owner settled, and what follows from it:
   intent rather than by limitation.
 - **Reuse after teardown** fails loudly before executing or reporting tests, and
   never succeeds silently with zero modules. The claim is scoped to reuse: a run
-  whose filter matches nothing still reports a successful run of nothing, which
-  is Vitest's own pre-existing behaviour under `watch: true` and is not created,
-  closed or claimed by this design (TE-F27).
+  whose filter matches nothing either reports a successful run of nothing or
+  raises `FilesNotFoundError`, depending on `changed`/`related` and not on
+  `watch` alone. Both are Vitest's own pre-existing behaviour, and neither is
+  created, closed or claimed by this design (TE-F27).
 
 The reasoning revision 4 used to keep the question open no longer applies. It
 turned on the absence of an in-process signal separating an ordinary editor run
@@ -1104,6 +1383,9 @@ exercising it; and whether any editor gesture issues more than one consuming
 execution per process, which the same list settles by exercising each one.
 
 ## Implementation readiness
+
+Written before implementation and kept as written; the verdict after
+implementation is the section that follows.
 
 **The design is implementation-ready.** Every mechanism it selects has survived a
 focused challenge without contradictory evidence: the one-shot enforcement, the
@@ -1139,10 +1421,66 @@ one obligation whose failure would be a design defect rather than an
 implementation defect, because the contract would then turn a working gesture
 into a loud failure.
 
+## Readiness after implementation
+
+**The implementation at `c1cab3031` conforms, and the record is ready for the
+implementation review round.** Every mechanism this design selects is present in
+the shipped tree in the shape specified, and the two places where execution
+diverged from the record are places the record was underspecified, not places
+the implementation departed from it. **No remediation is routed**: neither the
+teardown primitive nor the worker derivation violates a deeper contract here.
+
+- The teardown primitive is a detail this record declined to name and should
+  have; the required property — released at an event that provably follows the
+  group's completion — is untouched, the trigger is still the boundary, and the
+  implementation's choice is the pool's own lifecycle (TE-F33). The correction
+  runs from record to implementation, not the other way.
+- The worker bound is a value this record left to derivation and should have
+  constrained; the constraint it did state — one value shared across the group —
+  is satisfied, and the magnitude is now a stated property with the shipped
+  derivation recorded beside it (TE-F34). Plan and implementation no longer
+  disagree, and neither is silent.
+
+Three obligations remain, and none of them blocks the review round.
+
+1. **A quiet-container remeasurement of the root run** (TE-F35), reporting
+   anonymous peak and `memory.current` peak against the 13 107 MiB ceiling at a
+   baseline comparable to this pass's. It settles whether the Δ 6723–8442 MiB
+   overshoot is the container or the implementation. The binding requirement is
+   already met, so this closes an explanation rather than a defect — but it must
+   be closed rather than left as a hypothesis in the record.
+2. **The editor, demonstrations 13–15**, which stay exactly as written and stay
+   **owner-executed**. No VS Code behaviour has been observed in any pass of
+   this work, design or implementation; the container has no VS Code
+   installation and `.vscode-server` is absent. Every extension conclusion in
+   this record remains source-derived. What is owed is unchanged: a single test,
+   a file, a project, "Run All Tests" and "Update snapshots", none tripping the
+   guard, against the unchanged root `vitest.config.ts`.
+3. **The pre-existing `node/tproc` failure and F-412** stay outside this work by
+   instruction, in the review round as in every pass before it. A review that
+   counts the root run's one failure against this design is counting the wrong
+   thing.
+
+The review round should attack the grounds below, to which implementation has
+added three.
+
 ## Grounds a focused challenge should attack
 
 - **The whole-repository figure is one run.** Δ 5554 MiB, 63.6 s and 32 Chrome
-  processes are a single sample at an unusually low baseline.
+  processes are a single sample at an unusually low baseline — and the shipped
+  run did not reproduce it (TE-F35). Both candidate explanations, container load
+  and page cache, are plausible and neither is established. If a quiet-container
+  run still overshoots, the implementation holds memory this design did not
+  predict, and the per-generation isolate is the first place to look.
+- **The primitive was found by executing the design, not by reviewing it.**
+  Three revisions and two challenges read "the provider is closed" without
+  noticing that the obvious call does not close a provider (TE-F33). Ask what
+  else in this record names an outcome where it should name a mechanism.
+- **The non-browser bound is tuned to one container.** Twelve cores, this
+  workload, this timeout. `availableParallelism() / 2` scales the number and not
+  the reasoning behind it; a machine where the group's builds are cheaper or the
+  cores fewer may want a different rule, and nothing here measures that
+  (TE-F34).
 - **Process-wide generation sharing is asserted from the shape of the code**,
   not from a case where two consumers disagree. If any consumer's options could
   reach evaluation rather than `compileCSS`, one generation is wrong.
