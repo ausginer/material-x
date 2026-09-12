@@ -60,6 +60,24 @@ error, and the record's claim it disputes is confirmed by the round's own
 numbers. The straightforward B and C findings are left to implementation and are
 not absorbed here.
 
+**Reconciled with the remediation review, 2026-09-12**, against
+[`remediation-proof-claude.md`](../reviews/test-execution-1/remediation-proof-claude.md)
+at `c63269e5a` and the TE-D17 implementation at `783c97665`. The review attacked
+every observable property TE-D17 states, by execution, under both real
+consumers, and **every one of them held**; it routes two tier A findings here,
+and both are defects in **this record** rather than departures from it. The
+generation lifecycle has a state that TE-D13 and TE-D17 between them never named,
+so a generation demoted by an entry's throw is unreachable by invalidation and a
+real Vite dev server publishes a torn stylesheet (TE-F41). And TE-D17's bound is
+denominated in a unit that does not match the thing it constrains, so two
+concurrently written tracked files exhaust it (TE-F42). Three decisions settle
+them — the lifecycle states and their ownership (TE-D18), the stability budget
+that replaces the attempt cap (TE-D19), and the coalescing that an uncapped
+re-issue now requires (TE-D20) — and TE-D13 and TE-D17 are amended at the
+statements that own them. **Implementation resumes again before review does**,
+and the handoff boundary below is rewritten. The review's three tier C findings
+are not absorbed here; they stay in the work order.
+
 **Instruction boundaries.** The pre-existing `node/tproc TokenPackageProcessor`
 failure and F-412 stay outside this work. Nothing is implemented. Every probe
 below is a scratchpad fixture or a reverted patch to an untracked build
@@ -190,39 +208,44 @@ reports both, and subsequent passes compare the anonymous number.
 Continuing the series. `TE-D1`…`TE-D11`, `TE-I1`, `TE-F1`…`TE-F15` are defined
 in revisions 2 and 3.
 
-| Local  | Canonical  | Subject                                                                                                   | Status                                            |
-| ------ | ---------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| TE-D12 | unassigned | Browser projects serialized from group 1 and released at group boundaries                                 | New — supersedes TE-D9; primitive named by TE-F33 |
-| TE-D13 | unassigned | CSS evaluated by one fresh isolate per build generation                                                   | New — supersedes TE-D10                           |
-| TE-D14 | unassigned | The requested worker limit, and the three interactions that constrain it                                  | New — supersedes TE-D11; bound added by TE-F34    |
-| TE-D15 | unassigned | Every Vitest process executes at most one test run, enforced from an unremovable carrier                  | New — closes revision 4's owner choice            |
-| TE-D16 | unassigned | Test watch and Continuous Run are retired, with the machinery serving only them                           | New                                               |
-| TE-F16 | unassigned | The last-module teardown trigger fails deterministically at the RPC boundary                              | New — refutes part of TE-D9                       |
-| TE-F17 | unassigned | `sequence.groupOrder: 0` is a sentinel that demotes or interleaves the project                            | New                                               |
-| TE-F18 | unassigned | Resolved-URL discovery sees the whole graph, `@ydinjs/tproc` and the token DB included                    | New — supersedes the tracker half of TE-D10       |
-| TE-F19 | unassigned | Per-entry dependency attribution collapses inside a shared generation                                     | New                                               |
-| TE-F20 | unassigned | Node caches an evaluation failure permanently in the isolate that produced it                             | New                                               |
-| TE-F21 | unassigned | No in-process signal distinguishes an ordinary VS Code run from a continuous one                          | New — refines TE-F12                              |
-| TE-F22 | unassigned | A retained generation worker prevents the Vitest process from closing cleanly                             | New                                               |
-| TE-F23 | unassigned | The whole-repository run with both real mechanisms measures Δ 5554 MiB in 63.6 s                          | New — reclassified as evidence by TE-F35          |
-| TE-F24 | unassigned | A plugin's `configureVitest` installs a reporter that no CLI flag can remove                              | New                                               |
-| TE-F25 | unassigned | `Vitest.report` does not catch reporter errors, so `onTestRunStart` can abort a run                       | New                                               |
-| TE-F26 | unassigned | The extension appends to configured reporters rather than replacing them                                  | New                                               |
-| TE-F27 | unassigned | An empty specification list emits a run start without executing anything                                  | New — reading corrected at implementation         |
-| TE-F28 | unassigned | `browser.api.allowExec` gates reruns, snapshot updates and the in-test `cdp()` API, and denial is silent  | New — scope corrected at reconciliation           |
-| TE-F29 | unassigned | A boundary never releases the project in the final group; process close does                              | New — falsifies part of TE-D12                    |
-| TE-F30 | unassigned | One consuming execution per extension-created process, by call-site enumeration                           | New — strengthens TE-F12                          |
-| TE-F31 | unassigned | The extension's child has a noop watcher; continuous changes arrive over `onFilesChanged`                 | New — refines TE-F21                              |
-| TE-F32 | unassigned | The retained handle is the parent-side `MessagePort` with a live listener                                 | New — identifies TE-F22's handle                  |
-| TE-F33 | unassigned | The release primitive is `provider.close()` plus `$close()`; `ProjectBrowser.close()` releases no browser | New — names what TE-D12 left unnamed              |
-| TE-F34 | unassigned | The shared non-browser group needs a bound below the CPU default, or it times out tests                   | New — constrains TE-D14                           |
-| TE-F35 | unassigned | The Δ 5554 MiB whole-repository figure is evidence, not an acceptance threshold                           | New — reclassifies TE-F23                         |
-| TE-D17 | unassigned | An invalidation arriving during evaluation supersedes the request rather than failing it                  | New — completes TE-D13                            |
-| TE-F36 | unassigned | A discard landing inside an evaluation rejects that request with an error naming no file                  | New — the gap TE-D17 closes                       |
-| TE-F37 | unassigned | Both explanations for the memory delta are falsified; the anonymous axis carries 2.3× the headroom        | New — corrects TE-F35                             |
-| TE-F38 | unassigned | The torn-down marking cannot fire while TE-D15 holds                                                      | New — corrects TE-D12 and TE-D15                  |
-| TE-F39 | unassigned | The browser page bound's stated ground was retired by this same design                                    | New — re-derives TE-D3's value                    |
-| TE-F40 | unassigned | The repository documents a pull-request gate that does not exist                                          | New — carries an owner choice                     |
+| Local  | Canonical  | Subject                                                                                                   | Status                                                 |
+| ------ | ---------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| TE-D12 | unassigned | Browser projects serialized from group 1 and released at group boundaries                                 | New — supersedes TE-D9; primitive named by TE-F33      |
+| TE-D13 | unassigned | CSS evaluated by one fresh isolate per build generation                                                   | New — supersedes TE-D10; lifecycle completed by TE-D18 |
+| TE-D14 | unassigned | The requested worker limit, and the three interactions that constrain it                                  | New — supersedes TE-D11; bound added by TE-F34         |
+| TE-D15 | unassigned | Every Vitest process executes at most one test run, enforced from an unremovable carrier                  | New — closes revision 4's owner choice                 |
+| TE-D16 | unassigned | Test watch and Continuous Run are retired, with the machinery serving only them                           | New                                                    |
+| TE-F16 | unassigned | The last-module teardown trigger fails deterministically at the RPC boundary                              | New — refutes part of TE-D9                            |
+| TE-F17 | unassigned | `sequence.groupOrder: 0` is a sentinel that demotes or interleaves the project                            | New                                                    |
+| TE-F18 | unassigned | Resolved-URL discovery sees the whole graph, `@ydinjs/tproc` and the token DB included                    | New — supersedes the tracker half of TE-D10            |
+| TE-F19 | unassigned | Per-entry dependency attribution collapses inside a shared generation                                     | New                                                    |
+| TE-F20 | unassigned | Node caches an evaluation failure permanently in the isolate that produced it                             | New                                                    |
+| TE-F21 | unassigned | No in-process signal distinguishes an ordinary VS Code run from a continuous one                          | New — refines TE-F12                                   |
+| TE-F22 | unassigned | A retained generation worker prevents the Vitest process from closing cleanly                             | New                                                    |
+| TE-F23 | unassigned | The whole-repository run with both real mechanisms measures Δ 5554 MiB in 63.6 s                          | New — reclassified as evidence by TE-F35               |
+| TE-F24 | unassigned | A plugin's `configureVitest` installs a reporter that no CLI flag can remove                              | New                                                    |
+| TE-F25 | unassigned | `Vitest.report` does not catch reporter errors, so `onTestRunStart` can abort a run                       | New                                                    |
+| TE-F26 | unassigned | The extension appends to configured reporters rather than replacing them                                  | New                                                    |
+| TE-F27 | unassigned | An empty specification list emits a run start without executing anything                                  | New — reading corrected at implementation              |
+| TE-F28 | unassigned | `browser.api.allowExec` gates reruns, snapshot updates and the in-test `cdp()` API, and denial is silent  | New — scope corrected at reconciliation                |
+| TE-F29 | unassigned | A boundary never releases the project in the final group; process close does                              | New — falsifies part of TE-D12                         |
+| TE-F30 | unassigned | One consuming execution per extension-created process, by call-site enumeration                           | New — strengthens TE-F12                               |
+| TE-F31 | unassigned | The extension's child has a noop watcher; continuous changes arrive over `onFilesChanged`                 | New — refines TE-F21                                   |
+| TE-F32 | unassigned | The retained handle is the parent-side `MessagePort` with a live listener                                 | New — identifies TE-F22's handle                       |
+| TE-F33 | unassigned | The release primitive is `provider.close()` plus `$close()`; `ProjectBrowser.close()` releases no browser | New — names what TE-D12 left unnamed                   |
+| TE-F34 | unassigned | The shared non-browser group needs a bound below the CPU default, or it times out tests                   | New — constrains TE-D14                                |
+| TE-F35 | unassigned | The Δ 5554 MiB whole-repository figure is evidence, not an acceptance threshold                           | New — reclassifies TE-F23                              |
+| TE-D17 | unassigned | An invalidation arriving during evaluation supersedes the request rather than failing it                  | New — completes TE-D13; bound replaced by TE-D19       |
+| TE-F36 | unassigned | A discard landing inside an evaluation rejects that request with an error naming no file                  | New — the gap TE-D17 closes                            |
+| TE-F37 | unassigned | Both explanations for the memory delta are falsified; the anonymous axis carries 2.3× the headroom        | New — corrects TE-F35                                  |
+| TE-F38 | unassigned | The torn-down marking cannot fire while TE-D15 holds                                                      | New — corrects TE-D12 and TE-D15                       |
+| TE-F39 | unassigned | The browser page bound's stated ground was retired by this same design                                    | New — re-derives TE-D3's value                         |
+| TE-F40 | unassigned | The repository documents a pull-request gate that does not exist                                          | New — carries an owner choice                          |
+| TE-D18 | unassigned | A generation is accepting, draining or abandoned, and the module owns the set of all three                | New — completes TE-D13 and TE-D17                      |
+| TE-D19 | unassigned | Supersession is bounded by a stability budget in time with a floor of two, not by an attempt count        | New — supersedes TE-D17's bound                        |
+| TE-D20 | unassigned | Invalidation is coalesced: a successor generation per quiet window, not per change event                  | New — required by TE-D19                               |
+| TE-F41 | unassigned | A generation demoted by an entry's throw is unreachable by invalidation and publishes a torn stylesheet   | New — the gap TE-D18 closes                            |
+| TE-F42 | unassigned | The attempt cap is denominated in watcher events, so two concurrently written files exhaust it            | New — the gap TE-D19 closes                            |
 
 Superseded by this pass: **TE-D9**, **TE-D10**, **TE-D11**. **TE-D8** stands,
 amended. **TE-D1**, **TE-D3**, **TE-D6**, **TE-D7**, **TE-I1** stand.
@@ -645,6 +668,15 @@ the file is corrected, and a fresh isolate returns the corrected value (TE-F20).
 Without this rule, fixing a broken `.css.ts` in watch mode would appear not to
 work until the dev server restarted.
 
+**Corrected 2026-09-12: "discards" was the wrong word for the evaluation-failure
+case, and the imprecision was load-bearing.** An evaluation failure stops the
+generation taking new requests; it does not void the snapshot its siblings are
+evaluating against, because nothing on disk changed — only one module's registry
+entry is poisoned. The generation therefore **drains**, and while it drains it
+must stay reachable by invalidation, which a single current-generation slot
+cannot express (TE-F41). The states this sentence needs, and who owns them, are
+TE-D18.
+
 **Shared-state protection.** The required property is that output must not
 depend on evaluation order, nor on which entries share a generation. Held today
 and measured in both directions: shared generation against one fresh isolate per
@@ -704,13 +736,21 @@ consequence is permanent.
   still answer a request that has been re-issued; that answer is dropped, not
   resolved. Without this the supersession leaks exactly the torn output it
   exists to prevent.
+- **Every generation that still holds pending work is reachable by
+  invalidation**, whether or not it is the one taking new requests. _Added
+  2026-09-12._ This record said "the generation" throughout and the
+  implementation read it as "the current generation", which is the whole of
+  TE-F41; TE-D18 states the states the sentence needs.
 - **Re-issue is bounded, and exhausting the bound is loud.** Writes can arrive
   faster than a generation completes — a `@ydinjs/tproc` rebuild writes 29
   tracked artefacts, and a full 35-entry generation measures 1.2–2.7 s — so an
-  unbounded retry is a livelock. The bound is at least 2, so that a single
-  supersession is always survivable, and exhausting it rejects with an error
+  unbounded retry is a livelock. Exhausting the bound rejects with an error
   naming **concurrent invalidation** as the cause: not a file, and not a stack
-  pointing into a `.css.ts` the developer did not edit.
+  pointing into a `.css.ts` the developer did not edit. _Corrected 2026-09-12._
+  "The bound is at least 2" was read as an attempt count and shipped as one, and
+  a count of generations is a count of watcher events (TE-F42). The floor of two
+  survives as a floor — a single supersession is always survivable — and the cap
+  is re-expressed in time by TE-D19.
 - **The dying generation is disposed once its last pending request has been
   re-issued or settled.** This is the existing drain rule in `settle()`,
   unchanged; the review's `cleanup` pass established that branch is reachable,
@@ -744,6 +784,202 @@ returned set must come from the one that produced the code. The review's
 `cleanup` pass separately found the copy itself unjustified; both are true, and
 fixing the copy without fixing the source would silently register the wrong
 watch set.
+
+### The generation lifecycle has three states, and the module owns all of them (TE-D18)
+
+TE-D13 and TE-D17 both speak of "the generation" and of discarding it. The
+implementation holds exactly one slot — `current` — and makes it carry two
+different facts: _which generation new requests are issued to_, and _which
+generation exists at all_. The two come apart the moment an entry throws, and
+TE-F41 is the consequence: a generation demoted by a throw is invisible to
+`discardGeneration`, its siblings go on evaluating across a change the module
+was told about, and a real Vite dev server publishes a torn stylesheet.
+
+**A generation is in exactly one of three states.**
+
+- **Accepting.** New requests are issued to it. At most one generation is
+  accepting, and there may be none.
+- **Draining.** It takes no new requests, and **its snapshot is still valid**, so
+  the requests still attached to it may settle and publish. This is the state an
+  entry's own evaluation failure produces: Node poisons that module's registry
+  entry permanently (TE-F20), which is a fact about the isolate and not about the
+  files, so a sibling's answer is neither stale nor torn.
+- **Abandoned.** An invalidation has landed, so its snapshot is void. **No answer
+  of its may be published**, it holds no requests, and its worker is terminated
+  at once rather than left to finish work whose result cannot be used.
+
+**The transitions, and the one that was missing.**
+
+| From                  | To            | Trigger                                                                                                              |
+| --------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------- |
+| —                     | Accepting     | the first request arriving with no accepting generation                                                              |
+| Accepting             | Draining      | an entry's own evaluation throw — which rejects that request with that entry's error and stack, and nothing else     |
+| Accepting             | Abandoned     | an invalidation                                                                                                      |
+| **Draining**          | **Abandoned** | **an invalidation** — the transition one slot cannot express, and the whole of TE-F41                                |
+| Draining              | disposed      | its last attached request settles                                                                                    |
+| Accepting or Draining | failed        | a worker `error`, a non-zero `exit`, or the last consumer releasing — every attached request rejects with that error |
+
+**Ownership: the module owns the set of undisposed generations, and `current`
+names at most one member of it.** Every operation whose subject is _the world
+changed_ or _the process is going away_ ranges over the set and never over
+`current`. The module exports exactly two — invalidation and the last consumer's
+release, which is also how a harness teardown reaches a generation — and **both
+are wrong today in the same way**, because both begin by returning when the slot
+is empty. TE-F41 reports the first; the second is the same defect on the release
+path, where a generation draining when the last consumer leaves is neither
+rejected nor disposed. This is the reasoning
+TE-D17 used to place supersession in the module rather than in the caller,
+applied one level down: an invariant enforced by whichever slot happened to be
+set is not enforced.
+
+**Required invariants.**
+
+1. At most one generation is accepting.
+2. A request is attached to at most one generation, and never to an abandoned one.
+3. **Detachment precedes termination, and only an attached request can be
+   resolved.** This is what makes a dying worker's answer unpublishable, and it
+   must now hold on the draining→abandoned path as well as on the
+   accepting→abandoned one. The mechanism already exists — the pending map is
+   emptied before disposal, and the review verified that a dropped response finds
+   no request — and what is missing is only the path that reaches it.
+4. After the last consumer releases, no generation is undisposed, no request is
+   attached or parked, and nothing armed keeps the event loop alive.
+
+**Why the set, and not a validity stamp compared when a response arrives.** A
+per-generation epoch checked at settle time would make the reachability problem
+disappear without introducing a set, and it is the wrong trade three times over.
+TE-D17 requires latency under invalidation to be the duration of the generation
+that _finally completed_, which means the re-issue starts when the invalidation
+lands and not when the dead worker gets round to answering. A torn evaluation in
+flight is doing no useful work, and the moment it must stop occupying a core is
+exactly the rebuild storm that produced it. And invariant 4 needs the set
+regardless, because a release arriving while a generation drains has to reach it
+— so the stamp would be a second mechanism deciding what the set already decides.
+
+**A cost this makes visible and does not change.** After a `.css.ts` throws, the
+next request creates a second generation against the same files, so an authoring
+error costs one extra worker until the draining one finishes. That is TE-D13's
+existing price for TE-F20 and it is not reopened here; what changes is only that
+the draining generation stops being invisible.
+
+### Supersession is bounded by a stability budget, not by an attempt count (TE-D19)
+
+**What the shipped bound counts.** A request records the generations it has been
+issued to and rejects at the second. Each tracked change is its own `watchChange`
+call and therefore its own discard, so the counter is denominated in **watcher
+events**. Two tracked files written while one evaluation is in flight exhaust it,
+in both real consumers (TE-F42) — which is a `git checkout`, an editor's
+save-all, a formatter pass, or any build emitting more than one artefact.
+
+**Why no other constant is the answer.** Two reasons, and the second decides it.
+
+1. **The event count is a property of the watcher, not of the change.** The
+   review measured two events for two files and also two events for twenty-nine,
+   because the watcher batches on this filesystem. A constant chosen against that
+   number is calibrated against a batching behaviour that a network mount, a
+   polling watcher or another platform does not share, and it would transfer
+   nowhere.
+2. **The hazard is a rate, and a count cannot bound a rate.** What makes retry a
+   livelock is not that many events arrived; it is that changes keep arriving
+   faster than a generation completes. Every terminating rebuild — which is every
+   real one — produces a burst of unbounded size and bounded duration, so every
+   count-based bound mistakes some burst for a storm, and raising the count only
+   moves which burst it mistakes.
+
+**The bound. A request is abandoned when it has been superseded at least twice
+and the first of those supersessions is longer ago than the stability budget.**
+
+- **A supersession is counted when the request is detached from a generation** —
+  one per generation destroyed under it. An invalidation arriving while the
+  request is parked and attached to nothing counts nothing, which is what makes
+  the unit a _logical_ supersession rather than an event (TE-D20).
+- **The floor of two is a floor and not a cap.** It carries TE-D17's guarantee
+  that a single supersession is always survivable, and it keeps a legitimately
+  long evaluation followed by one late save from being abandoned on the clock
+  alone.
+- **The clock runs from the request's first supersession and never resets.** Only
+  a request that never completes accumulates time, and a request fails to
+  complete for this reason only while invalidation keeps arriving.
+- **It is evaluated when an invalidation arrives, and at no other time** — the
+  only moment at which the budget can be exceeded and the only moment at which
+  the request's fate can change. The budget therefore arms **no timer of its
+  own**, and the four exit arms the review measured with
+  `process.getActiveResourcesInfo()` are untouched by it.
+- **The diagnostic names the fault and interpolates the offending values**, which
+  is what CONTRIBUTING §1.3 asks of a message — here the supersession count and
+  the elapsed span, in the shape of
+  `CSS evaluation abandoned: superseded 37 times over 10.4s of continuous invalidation`.
+  It names no file, enumerates no path, and its stack points into the generation
+  module: the properties TE-D17 already required and the review verified,
+  unchanged.
+- **Nothing in the policy reads which consumer delivered the invalidation.**
+  Vite's watcher and Rolldown's co-tenant path both arrive at `watchChange`, and
+  the module neither can nor may distinguish them. TE-D17's ownership argument
+  settles that and is not reopened.
+
+**The budget's value is ten seconds, and the derivation rather than the number is
+the contract.** The budget must exceed the wall-clock span over which any
+terminating rebuild writes tracked files. The measured ground is a full 35-entry
+generation at 1.2–2.7 s (TE-D13) and a largest tracked burst of `@ydinjs/tproc`'s
+29 artefacts inside its own build step. Ten seconds is more than three times the
+worst measured generation and an order of magnitude beyond the burst, and still
+short enough that a runaway writer surfaces inside one developer's attention span
+rather than hanging a build indefinitely.
+
+**And the value is a threshold on patience, not on correctness** — which is the
+whole of what re-uniting the bound buys. At any budget no output is torn, none is
+stale, and none from an abandoned generation is published; the budget decides only
+when the module stops waiting. The shipped constant did not have that property:
+its value decided whether an ordinary two-file save succeeded or failed, so it
+was a correctness parameter wearing a tuning parameter's clothes. A later pass
+may move ten seconds by re-deriving nothing but its own patience.
+
+### Invalidation is coalesced before a successor generation is created (TE-D20)
+
+A separate decision with a separate justification, required by the one above
+rather than by anything in TE-D17.
+
+**What removing the cap uncaps.** The discard path re-issues eagerly, and
+re-issue creates a generation on demand. With the attempt cap gone, a storm
+delivering a change every few milliseconds spawns a worker per event for as long
+as the budget lasts — thousands of `Worker` constructions before the budget
+fires. The count-based cap was preventing that by accident, and removing it
+without replacing the effect trades one loud failure for a worse quiet one.
+
+**Required property: the number of generations created is bounded by the number
+of times the tracked set goes quiet, not by the number of change events.**
+
+- An invalidation detaches and **parks** the requests it affects; it does not
+  create a successor.
+- A successor is created once the tracked set has been quiet for a coalescing
+  window, and every invalidation arriving inside the window re-arms it.
+- **While a window is open, a newly arriving request parks too.** One rule and no
+  bypass: a request allowed to create a generation mid-storm defeats the
+  property, and it is in any case a request evaluating against files that are
+  still moving.
+- **A parked request's budget is evaluated on every invalidation that reaches
+  it**, in flight or parked. Without this, a storm severe enough that no
+  generation ever exists would never consult the budget at all.
+- **The window must not keep the process alive.** An `unref`'d timer satisfies
+  this — `process.getActiveResourcesInfo()` reports nothing for one, verified in
+  this pass — and the last consumer's release cancels it (TE-D18, invariant 4).
+
+**The window is a performance parameter, not a correctness parameter.** At a
+window of zero the design is still correct and merely wasteful; at a large one it
+merely adds latency. **Fifty milliseconds**, against a generation of 1.2–2.7 s:
+under four per cent of one evaluation, and long enough for one process's
+multi-file write to be delivered as a single wave on this filesystem.
+
+**The window is armed unconditionally, and it earns the 50 ms.** Arming even when
+nothing is pending costs the next dev-server or rebuild request one window and
+removes the special case that would otherwise let that request create a
+generation in the middle of a burst. An evaluation started inside a multi-file
+write is a guaranteed supersession; waiting the window out is cheaper than the
+generation it avoids.
+
+**One consequence worth stating.** Under this rule the 29-artefact rebuild is
+**one** supersession rather than two, so TE-D19's floor of two is not reached by
+ordinary work at all and the budget is consulted only under genuine churn.
 
 ### The requested worker limit, and what constrains it (TE-D14)
 
@@ -1432,6 +1668,85 @@ accepted and unbuilt. The policy stands, the tense and status are corrected, and
 the work is registered as `repo:RD-2`. **The finding stays open**, because
 nothing about the repository's actual enforcement has changed.
 
+### A generation demoted by an entry's throw is unreachable by invalidation (TE-F41)
+
+An entry's evaluation failure clears the single current-generation slot and
+leaves its siblings to drain, which is TE-D13's rule and is not changed by the
+range that implemented TE-D17. `discardGeneration()` then begins by returning
+when that slot is empty, and `findReferences` puts its only call site outside the
+module at the `watchChange` hook, so **every invalidation arriving in that window
+is a silent no-op** and the draining siblings settle against a snapshot the
+module has been told is void.
+
+The review reproduced the published tear on a real Vite dev server, every file
+created before the server started so the watcher saw changes only, and no event
+injected. One entry throws 150 ms in; a second reads `early.ts` at link time and
+`late.ts` 800 ms later; both token files are saved at 300 ms:
+
+```
+boom              : REJECTED: the entry threw
+watcher events    : 2
+slow published    : A/B
+torn (A/B)        : true
+superseded (B/B)  : false
+```
+
+`--early: A` is the pre-change module the entry had already loaded and
+`--late: B` the post-change one it loaded afterwards — precisely the mixture
+TE-D17 exists to make impossible. Both watcher events were delivered and both did
+nothing. Reproduced independently at the module boundary against the built
+artefact, in the same shape.
+
+**Pre-existing, and a defect in this record rather than in the range that
+implemented TE-D17.** The early return stands unchanged at `375a9c00e`. What the
+range changed is that TE-D17 now states the property this window violates, so the
+two rules meet here and disagree: TE-D13 says a failed generation drains, TE-D17
+says a generation told about a change publishes nothing. Both are right, and
+neither had a state to say so in. **TE-D18 settles it**, and the settlement is a
+state model rather than a repair to either sentence.
+
+**Bounded, and the bound is worth recording.** The demoted generation is disposed
+once it drains, so no handle leaks and the next request recovers immediately. In
+the dev-server path `handleHotUpdate` returns every entry for a tracked file and
+should re-request the torn one, which no arm drove end to end through a browser:
+the tear is established, its lifetime in the browser is not. In the build path a
+throwing entry fails its own build, so a torn artefact needs the throw and the
+publish in different builds sharing one process generation — reachable under the
+co-tenancy this repository runs, and not reached without staging.
+
+### The attempt cap is denominated in watcher events (TE-F42)
+
+`ATTEMPTS = 2` is TE-D17's floor read as its cap, and a request is issued to at
+most two generations. Each tracked change is its own `watchChange` call and
+therefore its own discard, so **two** tracked files written during one evaluation
+exhaust it. Measured on a real Vite dev server — one plugin instance, a warm
+entry tracking the token files, one request in flight while _N_ tracked files are
+rewritten at once:
+
+```
+N=1 : watcher events 1  → resolved
+N=2 : watcher events 2  → REJECTED: CSS evaluation superseded by concurrent invalidation 2 times
+N=3 : watcher events 2  → REJECTED: …
+N=29: watcher events 2  → REJECTED: …
+      next request      → resolved: BB
+```
+
+And through a real Rolldown build with the change delivered by a co-tenant Vite
+dev server's own watcher, which is the co-tenancy this repository actually runs:
+
+```
+one tracked file saved mid-evaluation  → artefact B/A          (correct, not torn)
+two tracked files saved mid-evaluation → BUILD FAILED: CSS evaluation superseded …
+```
+
+**Two readings of that table matter more than the rejection.** The first is that
+`N=1` holds and no arm published torn output, so TE-D17's central guarantee is
+intact and it is only the bound that is wrong. The second is the second column:
+**29 files produce the same two events as 2 files.** The counter is measuring the
+watcher's batching on this filesystem, which is why no constant chosen against a
+file count transfers to another platform, and why TE-D19 changes the unit rather
+than the number.
+
 ## Corrections to earlier revisions
 
 Stated rather than quietly dropped.
@@ -1628,6 +1943,74 @@ changed what the item should say; the rest stand as written and are evidenced in
     `close timed out` under the real plugin in the root run.
 25. **`cdp()` still works.** drag2's input-policy suite passes, which is the
     check that `browser.api.allowExec` was not turned off (TE-F28).
+
+**Items 26–32 were added 2026-09-12 and are the acceptance surface for TE-D18,
+TE-D19 and TE-D20.** They are written to discriminate: each names what the
+shipped tree at `783c97665` does, so an arm that passes for the wrong reason is
+visible. Items 1–25 are unaffected, and the eight properties of TE-D17 the
+remediation review established do not need re-establishing — what needs
+establishing is that they survive the new state model.
+
+26. **An entry failure followed by an invalidation while a sibling is pending
+    publishes no tear.** A real Vite dev server, every file created before the
+    server starts so the watcher sees changes only and no event is injected. One
+    entry throws early; a sibling reads one token module at link time and a
+    second several hundred milliseconds later; both token files are saved between
+    the two reads. **Required**: the throwing request rejects with its own
+    message and its own stack; the sibling publishes one generation's view of
+    both modules and never the pre-change/post-change mixture; and the arm
+    asserts that a watcher event **detached** the sibling, not merely that the
+    output happened to come out untorn. Repeated at the module boundary against
+    the built artefact, where the timing is controlled rather than observed.
+    **Discriminating**: at `783c97665` this emits `A/B` with `superseded: false`,
+    and an implementation that restores reachability while losing TE-D18's
+    invariant 3 publishes the successor's answer _and_ the dying worker's.
+27. **One logical rebuild delivered as many file events costs one supersession.**
+    Both consumers. A dev server with a warm entry and one request in flight
+    while _N_ ∈ {1, 2, 3, 29} tracked files are rewritten at once; a real
+    Rolldown build with the change delivered by a co-tenant dev server's watcher
+    at _N_ ∈ {1, 2, 29}. **Required**: every arm resolves — the build succeeds and
+    its artefact is one generation's view of every module — and the number of
+    generations created is counted and is at most the number of quiet windows
+    observed. The generation count is the discriminating half: "it resolved" is
+    satisfied equally by coalescing and by a spawn per event, and only one of
+    those is TE-D20.
+28. **Repeated invalidation exhausts the budget, and says so.** A writer
+    rewriting one tracked file at an interval shorter than a generation, running
+    from before the request is issued until after the budget elapses. **Required**:
+    the request rejects no earlier than the budget; the message names continuous
+    invalidation and interpolates the supersession count and the elapsed span,
+    names no file, and carries a stack inside the generation module; the process
+    still exits naturally with no live handle; and the first request issued after
+    the writer stops resolves. **Discriminating**: the shipped bound rejects
+    within tens of milliseconds with a message naming a count of two, so _not_
+    rejecting early is as much of the assertion as rejecting eventually. This is
+    a recorded probe rather than a suite test — it costs the budget in wall-clock
+    and TE-D14 already constrains the shared non-browser group's margin.
+29. **A discarded generation's answer cannot win.** Three arms at the module
+    boundary, where the dying worker's reply can be forced to arrive after the
+    successor's: the caller settles exactly once and with the successor's code;
+    the resolved dependency set is the producing generation's own object and
+    carries a module only the successor ever resolved; and a generation abandoned
+    **while draining** answers into an empty attachment and resolves nothing. The
+    third arm is new, and it is the one TE-F41 reaches.
+30. **The new states leave no handle.** The review's four exit arms — success,
+    failure, supersession, and an exhausted bound with no release — extended by
+    two: a generation abandoned while draining, and a request parked with a
+    coalescing window armed. **Required**: `process.getActiveResourcesInfo()`
+    empty at exit, and the process exiting on its own, in every arm.
+31. **Release reaches everything.** The last consumer releases while one
+    generation drains, another is accepting, a request is parked and a window is
+    armed. **Required**: every attached and parked request rejects, every
+    generation is disposed, the window is cancelled, and nothing keeps the loop
+    alive. **Discriminating**: the shipped `releaseGeneration` returns early when
+    the slot is empty, so a release arriving during a drain currently reaches
+    nothing.
+32. **No ordinary save rejects a request, in either consumer.** TE-D17's headline,
+    re-asserted because TE-D19 and TE-D20 both move machinery underneath it: a
+    single save during an evaluation resolves in the dev server and emits a
+    correct artefact from a Rolldown build, and a genuine entry throw still
+    rejects only the request that threw, with that entry's own error and stack.
 
 ## Evidence limits
 
@@ -1864,57 +2247,81 @@ differ.
 The review round should attack the grounds below, to which implementation has
 added three.
 
-## The handoff boundary after the review round
+## The handoff boundary after the remediation review
 
-**The design is not implementation-ready in the sense it was at `7aeaff260`**:
-one contract changed. TE-D17 is new behaviour that the tree does not have, so
-implementation resumes before review does. Everything else in the round is a
-record correction, a dead-code removal or a C-tier tidy.
+_Rewritten 2026-09-12. This supersedes the boundary drawn after the review round;
+items it does not restate are discharged or carried below, and nothing is
+silently dropped._
+
+**The design is again not implementation-ready**, and for the same kind of reason
+as last time: TE-D18, TE-D19 and TE-D20 are behaviour the tree does not have.
+What is different is what is _not_ in question. TE-D17's eight observable
+properties were attacked by execution under both real consumers and every one of
+them held, so supersession itself is settled and is not re-opened. The state
+model underneath it, and the unit its bound is denominated in, are what change.
 
 **Implementation owns, in this order.**
 
-1. **TE-D17 — supersession.** The one contract change. It needs the request's
-   path retained, responses from a discarded generation dropped, a bounded
-   re-issue, and the returned dependency set read from the producing generation.
-   It is not a refactor of the generation state machine: the drain rule, the
-   failure paths and the discard trigger are all unchanged.
-2. **The dead one-shot branch** (TE-F38): the unreachable `#released` check and
-   the set feeding it. A removal, not a repair — the property it was credited
-   with is satisfied by the check above it.
-3. **The `browser.ui` / `deviceScaleFactor` conflict** behind demonstration 20.
-   Pre-existing and outside the implemented range, raised rather than absorbed;
-   it blocks the demonstration and it blocks the round's one genuinely
-   unestablished item, whether the debug recipe's surviving CDP-port `pkill`
-   still has a cause.
-4. **The round's remaining B and C findings**, which this pass deliberately did
-   not absorb: the orphaned build chunks, the copied dependency set (read
-   TE-D17's interaction note first), the process-scoped request counter, the
-   `sh` shebang on a `bash` script.
-5. **Nothing for the pull-request gate.** The policy document's tense and
-   status correction is made in this pass, and the gate, the pinned image and
-   the branch rule are a separate unit of repository work registered as
-   `repo:RD-2`. This remediation does not expand into it, and a reviewer should
-   not read TE-F40's open status as work owed by this one.
-6. **`SCOPES` in `packages/drag2/.scripts/entry.ts`** gains a `repo` row, so
-   `repo:RD-1` resolves. The register is readable without it.
+1. **TE-D18 — the lifecycle states.** The module gains a set of undisposed
+   generations beside the current-generation slot, and both invalidation and the
+   last consumer's release range over the set rather than over the slot. The
+   draining→abandoned transition is what the tree is missing; invariant 3 —
+   detachment before termination — is what must not be lost while adding it.
+2. **TE-D19 — the stability budget.** The attempt counter becomes a supersession
+   count with a floor of two and a clock running from the first supersession,
+   evaluated only when an invalidation arrives, with the message CONTRIBUTING
+   §1.3 asks for.
+3. **TE-D20 — coalescing.** Parking, the re-armed `unref`'d window, and the rule
+   that a newly arriving request parks while a window is open. Land it with 2
+   rather than after it: 2 without 3 uncaps worker creation under a storm, which
+   is a worse failure than the one being removed.
+4. **Demonstrations 26–32**, the acceptance surface for all three. 28 is a
+   recorded probe, not a suite test.
+5. **The remediation review's three tier C findings**, which this pass
+   deliberately does not absorb. The comment at `.scripts/vitest-config.ts`
+   directing the reader below for a CDP port declared above is a repair. The
+   other two are record work owed by the pass that made the record: demonstration
+   20 is recorded discharged with its second clause unevidenced, and it is
+   corrected either by evidencing that clause or by narrowing the demonstration
+   explicitly; and the debug recipe's surviving CDP-port `pkill`, parked on the
+   `browser.ui` conflict that has since been repaired, is discharged or restated
+   as owed rather than left invisible.
+6. **Still standing from the previous boundary**: `SCOPES` in
+   `packages/drag2/.scripts/entry.ts` gains a `repo` row, and **nothing** is owed
+   for the pull-request gate — the pinned image, the workflow and the branch rule
+   are `repo:RD-2`'s unit and this remediation does not expand into them.
 
-**Implementation does not own** the value of `BROWSER_WORKERS`. It stays at two
-until the bound-4 whole-repository arm is taken and reported on both axes; the
-measurement is an experiment, and changing the constant is a decision that
-follows it.
+**Discharged by the remediation and not carried forward**: the dead one-shot
+`#released` branch, the orphaned build chunks, the copied dependency set, the
+process-scoped request counter, the `sh` shebang, the `browser.ui` /
+`deviceScaleFactor` conflict, and `repo` scope resolution. Each was verified in
+the review rather than taken on report.
 
-**The consolidator owns registration**, and only after the ownership rule it was
-waiting on: repository-level findings are registered in
-[`.plan/00-index.md`](../00-index.md) under `repo:RD-1`, as `RF-` numbered from
-1, never as `F-` in a package's register. Two obligations come with it — the
-round's headings must stop claiming identifiers they were not given, and each
-minted id is written into the register in the commit that first uses it.
+**Implementation does not own** the value of `BROWSER_WORKERS`, unchanged — it
+stays at two until the bound-4 whole-repository arm is taken and reported on both
+axes. It also does not own the budget or the window as numbers: both are stated
+above with their derivations, and a later pass may move either against
+measurement rather than against preference.
 
-**The owner owns** the pull-request gate choice, and the editor confirmation.
+**Two failures the review attributed away stay attributed away.** `node/drag2`'s
+`size.node.test.ts` timeout is a contention artefact of the shared non-browser
+group, reproduced at the pre-remediation parent and produced on demand at an
+oversubscribed bound; `node/tproc`'s failure reproduces in isolation at the
+branch point. Neither is owed by this work. What the first one leaves behind is a
+standing observation rather than a task: TE-D14 asks the shared group to stay
+green and it is not reliably green at either commit.
 
-**Re-review after implementation is warranted and is narrow**: TE-D17's
-observable semantics under a real dev server and a real Rolldown rebuild. The
-rest of the round's verdict stands and does not need re-establishing.
+**The consolidator owns registration**, unchanged and still owed: repository
+findings as `repo:RF-`, numbered from 1, each written into
+[`.plan/00-index.md`](../00-index.md) in the commit that first uses it, and no
+heading claiming an identifier it was not given.
+
+**The owner owns** the pull-request gate choice and the editor confirmation
+(demonstrations 13–15), both unchanged.
+
+**Re-review after implementation is narrow, and it is not the previous review
+again**: the three decisions above, under both real consumers, by demonstrations
+26–32.
 
 ## Grounds a focused challenge should attack
 
@@ -1926,11 +2333,39 @@ rest of the round's verdict stands and does not need re-establishing.
   tree: if it still measures Δ 5554, the difference is the probe and not the
   mechanism, and this record's most-cited number was never a measurement of what
   it claimed.
-- **TE-D17 is decided from source and one race probe**, not from a dev server
-  under a real invalidation storm. The bounded re-issue is the part to attack:
-  a bound that is too low turns a `@ydinjs/tproc` rebuild into a loud failure,
-  and one that is too high turns it into a stall nobody can attribute. No arm
-  has measured how many supersessions a real rebuild produces.
+- ~~TE-D17 is decided from source and one race probe~~ — **attacked and
+  answered.** The remediation review drove a real dev server and a real Rolldown
+  build under watcher-delivered saves; the bound was too low exactly as this
+  ground predicted, and the measurement it asked for — how many supersessions a
+  real rebuild produces — is TE-F42. The successor grounds are below.
+- **The stability budget's value is derived from one filesystem's timings.** Ten
+  seconds is three times the worst generation measured on this container, and
+  nothing has measured a generation on a slower disk, a network mount, or a
+  machine where the 35-entry graph costs more. The derivation is stated so the
+  number can be re-derived; it has not been re-derived anywhere else.
+- **Coalescing assumes a rebuild's writes are delivered inside one window.** Two
+  files written 60 ms apart are two waves under a 50 ms window, and a build that
+  emits in stages — sources, then declarations — may be several. The design
+  survives that, because a handful of waves is nowhere near the budget; what it
+  would not survive is a window so short that the property TE-D20 claims is
+  nominal. Attack it by counting generations created against waves observed for a
+  real `@ydinjs/tproc` rebuild, which is demonstration 27's discriminating half
+  and has not been measured.
+- **The budget is consulted only when an invalidation arrives, and that is load
+  bearing.** It buys the absence of a timer, and it means a request starved by a
+  storm that _stops_ is never abandoned — correct, and it also means no arm can
+  observe the budget without keeping a writer running. If a future change moves
+  the check anywhere else, the handle-freedom demonstrations stop covering it.
+- **Detachment before termination is now required on two paths and implemented on
+  one.** TE-D18's invariant 3 is the subtle half of this design for the second
+  time: the code path that would publish a dying generation's answer is the same
+  one that correctly publishes a normal answer, and the draining→abandoned path
+  reaches it by a route no arm has exercised.
+- **The draining state is a cost nobody has priced.** Every authoring error now
+  leaves a second worker evaluating the same files until it finishes. It is
+  bounded and it is TE-D13's existing price, but no arm has measured what a
+  `.css.ts` throw costs in memory during a root run, and TE-F37 says this
+  record's memory numbers are not well understood.
 - **Supersession is specified as a property and not as a mechanism**, and the
   drop rule is the subtle half: a response from a discarded generation must be
   dropped, and the code path that would publish it is the same one that
