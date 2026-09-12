@@ -6,6 +6,7 @@
  * .scripts/entry.sh drag2:D-171
  * .scripts/entry.sh drag2:F-283
  * .scripts/entry.sh drag2:SC-7
+ * .scripts/entry.sh repo:RD-1
  * ```
  *
  * **The reading is `tests/ledger.ts`**, which `tests/decisions.node.test.ts`
@@ -45,11 +46,30 @@
  * vocabulary it would then have to be taught.
  */
 import { readFile } from 'node:fs/promises';
-import { relative } from 'node:path';
-import { documents, entries, PACKAGE } from '../tests/ledger.ts';
+import { relative, resolve } from 'node:path';
+import { CURRENT_STATE, documents, entries, PACKAGE } from '../tests/ledger.ts';
 
-/** The scopes this build can resolve. A second package is a row here. */
-const SCOPES: ReadonlyMap<string, string> = new Map([['drag2', PACKAGE]]);
+/** Where one scope's record lives, and where inside it an entry can sit. */
+type Scope = Readonly<{
+  root: string;
+  currentState: readonly string[];
+}>;
+
+/**
+ * The scopes this build can resolve. A second package is a row here.
+ *
+ * `repo` is the repository's own record, whose series are `RD-`/`RF-`/`RQ-`/
+ * `RI-`: the bare families belong to `drag2` alone, so a scope marker is what
+ * keeps a bare identifier unique across the tree. `drag2` stays first, because
+ * the unqualified-address hint offers the first row as the example.
+ */
+const SCOPES: ReadonlyMap<string, Scope> = new Map([
+  ['drag2', { root: PACKAGE, currentState: CURRENT_STATE }],
+  [
+    'repo',
+    { root: resolve(PACKAGE, '../..'), currentState: ['.plan/00-index.md'] },
+  ],
+]);
 
 const ADDRESS = /^([a-z][a-z0-9-]*):(.+)$/u;
 
@@ -82,7 +102,8 @@ if (!SCOPES.has(scope!)) {
   );
 }
 
-const paths = await documents();
+const { root, currentState } = SCOPES.get(scope!)!;
+const paths = await documents(root, currentState);
 const sources = await Promise.all(
   paths.map(async (path) => await readFile(path, 'utf8')),
 );
@@ -108,7 +129,7 @@ if (found.length === 0) {
 if (found.length > 1) {
   fail(
     `duplicated local id in ${scope!}: ${local!}\n${found
-      .map(({ path }) => `  ${relative(PACKAGE, path)}`)
+      .map(({ path }) => `  ${relative(root, path)}`)
       .join(
         '\n',
       )}\nthe record defines it more than once, which is a defect in the record rather than in this address`,

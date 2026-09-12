@@ -178,7 +178,6 @@ function createBrowserTestConfig(
         // rasters for failed/expected-fail assertions in the behavior/spec
         // projects, which would otherwise litter __screenshots__.
         screenshotFailures: false,
-        ui: isDebug,
         api: {
           host: '0.0.0.0',
           port: 9876,
@@ -203,7 +202,12 @@ function createBrowserTestConfig(
         }),
         // Pin the viewport and device scale so raster output is reproducible
         // across machines and CI. Screenshots are only valid for a fixed
-        // environment (see .agents/docs/test-architecture.md).
+        // environment (see .agents/docs/test-architecture.md). The pin is also
+        // why the browser UI stays off under `DEBUG`: the UI nulls the
+        // viewport, and Playwright rejects a device scale against a null one,
+        // so the context is never created and the debug run executes nothing.
+        // The UI is unreachable behind the unconditional headless mode in any
+        // case; debugging attaches to the CDP port below.
         instances: [
           {
             browser: 'chromium',

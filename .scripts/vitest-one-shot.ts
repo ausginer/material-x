@@ -16,6 +16,37 @@ function isBrowserProject(project: TestProject): boolean {
 }
 
 /**
+ * Releases one browser project's provider.
+ *
+ * The provider is what owns Chromium. `ProjectBrowser.close()` closes the
+ * parent Vite dev server instead, which releases no browser and wedges the run
+ * from the second call onward. The orchestrators go with it, as they do when
+ * the pool releases the same provider at the end of a run.
+ */
+async function release(
+  project: TestProject,
+  group: number,
+  boundary: string,
+): Promise<void> {
+  const { browser } = project;
+
+  if (browser) {
+    await browser.provider.close();
+
+    for (const orchestrator of browser.state.orchestrators.values()) {
+      orchestrator.$close();
+    }
+  }
+
+  if (logging) {
+    // oxlint-disable-next-line no-console
+    console.error(
+      `closed ${project.name} (group ${group}) at boundary ${boundary}`,
+    );
+  }
+}
+
+/**
  * One test run per Vitest process, and one browser provider released per group
  * boundary.
  *
@@ -36,11 +67,6 @@ class OneShotTestExecution implements Reporter {
   /** Browser projects still holding a provider, by their group. */
   readonly #holding = new Map<number, TestProject[]>();
 
-  /** Projects whose provider has been released. Keyed by object identity: one
-   * configured browser project expands to one runtime project per instance,
-   * and only the runtime object identifies which. */
-  readonly #released = new Set<TestProject>();
-
   onTestRunStart(specifications: readonly TestSpecification[]): void {
     if (specifications.length === 0) {
       return;
@@ -56,18 +82,6 @@ class OneShotTestExecution implements Reporter {
     }
 
     const projects = new Set(specifications.map(({ project }) => project));
-    const reused = [...projects].filter((project) =>
-      this.#released.has(project),
-    );
-
-    if (reused.length) {
-      throw new Error(
-        `${reused
-          .map((project) => `project "${project.name}"`)
-          .join(', ')} was torn down and cannot run again`,
-      );
-    }
-
     const browsers = [...projects].filter(isBrowserProject);
     const byOrder = Map.groupBy(
       browsers,
@@ -138,42 +152,13 @@ class OneShotTestExecution implements Reporter {
       this.#holding.delete(group);
 
       for (const project of projects) {
-        releasing.push(this.#release(project, group, boundary));
+        releasing.push(release(project, group, boundary));
       }
     }
 
     // Together rather than in sequence: every group being released has already
     // completed, so no two of these releases can observe each other.
     await Promise.all(releasing);
-  }
-
-  async #release(
-    project: TestProject,
-    group: number,
-    boundary: string,
-  ): Promise<void> {
-    const { browser } = project;
-
-    if (browser) {
-      // The provider is what owns Chromium. `ProjectBrowser.close()` closes the
-      // parent Vite dev server instead, which releases no browser and wedges
-      // the run from the second call onward. The orchestrators go with it, as
-      // they do when the pool releases the same provider at the end of a run.
-      await browser.provider.close();
-
-      for (const orchestrator of browser.state.orchestrators.values()) {
-        orchestrator.$close();
-      }
-    }
-
-    this.#released.add(project);
-
-    if (logging) {
-      // oxlint-disable-next-line no-console
-      console.error(
-        `closed ${project.name} (group ${group}) at boundary ${boundary}`,
-      );
-    }
   }
 }
 

@@ -92,6 +92,18 @@ describe('reading one entry back', () => {
     expect(out).toContain('#### Q-5 — ');
   });
 
+  it('should resolve an entry of the repository record', async () => {
+    // A second scope, and the one the qualified address existed for: the
+    // repository's record is a different root with a different series, reached
+    // through the same syntax and the same reading.
+    const { code, out } = await read('repo:RD-1');
+
+    expect(code).toBe(0);
+    expect(out.split('\n')[0]).toBe(
+      '#### RD-1 — Repository-level records have their own scope and their own series',
+    );
+  });
+
   it('should refuse an unknown scope', async () => {
     const { code, err } = await read('boxquad:D-1');
 

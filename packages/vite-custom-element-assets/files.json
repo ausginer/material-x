@@ -12,6 +12,8 @@
     "extras": [
       "format-*.js",
       "format-*.js.map",
+      "generation-*.js",
+      "generation-*.js.map",
       "transform-*.js",
       "transform-*.js.map",
       "utils-*.js",

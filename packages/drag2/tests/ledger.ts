@@ -58,11 +58,21 @@ export const CURRENT_STATE: readonly string[] = [
   '.plan/obligations.md',
 ];
 
-/** Every current-state Markdown document, as absolute paths. */
-export async function documents(): Promise<readonly string[]> {
+/**
+ * Every current-state Markdown document of one record, as absolute paths.
+ *
+ * Parameterised on the record's root and its current-state roots, because the
+ * repository's own record is a second one — a reader that could only reach this
+ * package would be a second reading of what an entry is for every scope but
+ * `drag2`.
+ */
+export async function documents(
+  root: string = PACKAGE,
+  currentState: readonly string[] = CURRENT_STATE,
+): Promise<readonly string[]> {
   const found = await Promise.all(
-    CURRENT_STATE.map(async (relative) => {
-      const path = join(PACKAGE, relative);
+    currentState.map(async (relative) => {
+      const path = join(root, relative);
 
       if (!(await stat(path)).isDirectory()) {
         return [path];
