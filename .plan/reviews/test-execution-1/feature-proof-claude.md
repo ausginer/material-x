@@ -1,8 +1,6 @@
 # Feature proof — test-execution redesign
 
-**Read at commit:** `7aeaff260` (`drag2/fin-review`). The checkout advanced to `28e2066c8` during the pass; `git diff --name-only 7aeaff260 28e2066c8` is `.claude/agents/{cleanup,der,integrity}.md` only, so every file read and every command executed below is byte-identical to `7aeaff260`.
-**Range under review:** `67af05288..7aeaff260` — `c1cab3031` (implementation) and `7aeaff260` (doc-only reconciliation of `architect-test-execution-model-r4.md`).
-**Canonical contract read:** `.plan/test-execution-1/architect-test-execution-model-r4.md` in full at `7aeaff260`, plus `.plan/test-execution-1/implementer-test-execution-model.md`. Earlier revisions and the challenge documents were read only where r4 cites them.
+**Read at commit:** `7aeaff260` (`drag2/fin-review`). The checkout advanced to `28e2066c8` during the pass; `git diff --name-only 7aeaff260 28e2066c8` is `.claude/agents/{cleanup,der,integrity}.md` only, so every file read and every command executed below is byte-identical to `7aeaff260`. **Range under review:** `67af05288..7aeaff260` — `c1cab3031` (implementation) and `7aeaff260` (doc-only reconciliation of `architect-test-execution-model-r4.md`). **Canonical contract read:** `.plan/test-execution-1/architect-test-execution-model-r4.md` in full at `7aeaff260`, plus `.plan/test-execution-1/implementer-test-execution-model.md`. Earlier revisions and the challenge documents were read only where r4 cites them.
 
 ## Lens
 
@@ -65,17 +63,17 @@ The window is the real evaluation time, not an artefact of the probe: the first 
 
 **Evidence.** One `npx just test` at `7aeaff260`, 0.5 Hz sampling of `memory.stat`'s `anon` and `memory.current`, `memory.max` 17 179 869 184 B:
 
-| Quantity                                                 | Design (r4)  | Implementation | **This pass**              |
-| -------------------------------------------------------- | ------------ | -------------- | -------------------------- |
-| Duration                                                 | 63.56 s      | 71 s (71–86)   | **66.20 s**                |
-| Baseline `memory.current`                                | 2015 MiB     | 3158–3538 MiB  | **4800 MiB**               |
-| Peak `memory.current`                                    | 7570 MiB     | 11 671 MiB     | **12 156 MiB**             |
-| Δ `memory.current`                                       | **5554**     | **7412**       | **7356**                   |
-| Peak anonymous / Δ                                       | not measured | 9843 / 6685    | **10 395 / 6618**          |
-| `memory.events.oom_kill`                                 | 0            | 0              | **0**                      |
-| Files / tests                                            | 157 / 2467   | 157 / 2467     | **157 / 2467, 60 sk, 1 f** |
-| Providers released at a boundary                         | 7 of 7       | 7 of 7         | **7 of 7**                 |
-| `Failed to run the test` / `close timed out` / unhandled | —            | 0/0/0          | **0 / 0 / 0**              |
+| Quantity | Design (r4) | Implementation | **This pass** |
+| --- | --- | --- | --- |
+| Duration | 63.56 s | 71 s (71–86) | **66.20 s** |
+| Baseline `memory.current` | 2015 MiB | 3158–3538 MiB | **4800 MiB** |
+| Peak `memory.current` | 7570 MiB | 11 671 MiB | **12 156 MiB** |
+| Δ `memory.current` | **5554** | **7412** | **7356** |
+| Peak anonymous / Δ | not measured | 9843 / 6685 | **10 395 / 6618** |
+| `memory.events.oom_kill` | 0 | 0 | **0** |
+| Files / tests | 157 / 2467 | 157 / 2467 | **157 / 2467, 60 sk, 1 f** |
+| Providers released at a boundary | 7 of 7 | 7 of 7 | **7 of 7** |
+| `Failed to run the test` / `close timed out` / unhandled | — | 0/0/0 | **0 / 0 / 0** |
 
 Two things follow that the record does not have:
 

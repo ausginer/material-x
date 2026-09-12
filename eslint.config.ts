@@ -5,9 +5,7 @@ import { defineConfig, globalIgnores, type Config } from 'eslint/config';
 // `oxfmt` writes the tree through `just fmt` and Prettier's opinion would then
 // check it, and where two formatters disagree there is no state the handoff
 // sequence can reach. The half taken here only *disables* stylistic rules, so
-// it removes opinions rather than imposing one. Root-level Markdown is
-// formatted by Prettier directly and is unaffected: no lint rule is involved
-// in that path.
+// it removes opinions rather than imposing one.
 import prettierDisables from 'eslint-config-prettier';
 import tsImports from 'eslint-config-vaadin/imports-typescript';
 import testing from 'eslint-config-vaadin/testing';

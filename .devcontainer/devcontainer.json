@@ -76,7 +76,6 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
         "EditorConfig.EditorConfig",
         "runem.lit-plugin",

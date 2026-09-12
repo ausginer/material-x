@@ -197,13 +197,13 @@ and with a single option changed:
 
 Consolidation routed five items rather than deciding them. All five were answered by the architect at `0136aa67b` and `375a9c00e`, recorded here so the round closes against its own dispositions.
 
-| Routed                                                          | Disposition                                                                                                                            |
-| --------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Where repository-level findings are registered                  | **`repo:RD-1`** — repository records get their own register and their own `RD-`/`RF-`/`RQ-`/`RI-` series; the bare series stay drag2's |
-| Supersede or abort an in-flight evaluation (reviewer-1)         | **TE-D17** — an invalidation arriving during evaluation supersedes the request; **TE-F36** records the current reject                  |
-| TE-F35's standing with both explanations falsified (reviewer-2) | **TE-F37** — both explanations falsified; the memory expectation withdrawn                                                             |
-| The browser page bound (der-1)                                  | **TE-F39** — the stated ground was retired by this design                                                                              |
-| Whether der-5's owner call remains live                         | **`repo:RD-2`** — the pull-request gate is accepted policy whose implementation is owed, and stays open; **TE-F40** records the gap    |
+| Routed | Disposition |
+| --- | --- |
+| Where repository-level findings are registered | **`repo:RD-1`** — repository records get their own register and their own `RD-`/`RF-`/`RQ-`/`RI-` series; the bare series stay drag2's |
+| Supersede or abort an in-flight evaluation (reviewer-1) | **TE-D17** — an invalidation arriving during evaluation supersedes the request; **TE-F36** records the current reject |
+| TE-F35's standing with both explanations falsified (reviewer-2) | **TE-F37** — both explanations falsified; the memory expectation withdrawn |
+| The browser page bound (der-1) | **TE-F39** — the stated ground was retired by this design |
+| Whether der-5's owner call remains live | **`repo:RD-2`** — the pull-request gate is accepted policy whose implementation is owed, and stays open; **TE-F40** records the gap |
 
 The tier A was routed as a contract choice and came back as one: TE-D17 decides supersession, which is the property the finding required without naming the remedy. The torn-down guard became **TE-F38**.
 

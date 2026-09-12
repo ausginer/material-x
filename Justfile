@@ -72,19 +72,16 @@ typecheck:
 # ---------------------------------------------------------------------------
 
 # Format every package, then the repository-level files no package owns.
-# Two authorities over disjoint sets: `oxfmt` writes what a package's `fmt`
-# writes and everything outside `packages/` that is not Markdown; Prettier
-# writes the Markdown outside `packages/`, which no `oxfmt` invocation reaches.
+# One authority over the whole tree: `oxfmt` writes every file type it
+# supports, Markdown included, so no file is offered to a second formatter.
 fmt:
     nx run-many -t fmt --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
-    oxfmt . '!packages/**' '!**/*.md'
-    prettier --write '**/*.md' '!packages/**'
+    oxfmt . '!packages/**'
 
-# Check formatting everywhere without writing — the same two authorities
+# Check formatting everywhere without writing — the same single authority
 fmt-check:
     nx run-many -t fmt:check --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
-    oxfmt --check . '!packages/**' '!**/*.md'
-    prettier --check '**/*.md' '!packages/**'
+    oxfmt --check . '!packages/**'
 
 # ---------------------------------------------------------------------------
 # Linting

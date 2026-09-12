@@ -9,13 +9,13 @@ The `fmt`, `lint-fix`, `typecheck` and other recipes live in each package's own 
 Every edited `.ts`, `.tsx`, `.css` or `.html` file, and every created or updated Markdown file:
 
 - format with `npx just fmt <changed files>`;
-- lint and autofix with `npx just lint-fix <changed files>`. If autofix fails for a file, list it — do not resolve lint errors by hand; report them and continue. **One tool decides formatting for the files a package's `fmt` owns, and a lint rule may not re-decide it.** `just fmt` is the authority there; a lint rule that reports formatting is a second formatter, and where two formatters disagree there is no state this sequence can reach. Root-level Markdown, which no package's `fmt` reaches, is the one exception and has its own writer — see below. A formatting diagnostic surviving `lint-fix` on a file `fmt` calls correct is therefore a defect in the gate rather than in the file — report it as one, and do not hand-edit the file to satisfy the linter against the formatter.
+- lint and autofix with `npx just lint-fix <changed files>`. If autofix fails for a file, list it — do not resolve lint errors by hand; report them and continue. **One tool decides formatting, and a lint rule may not re-decide it.** `just fmt` is the authority; a lint rule that reports formatting is a second formatter, and where two formatters disagree there is no state this sequence can reach. A formatting diagnostic surviving `lint-fix` on a file `fmt` calls correct is therefore a defect in the gate rather than in the file — report it as one, and do not hand-edit the file to satisfy the linter against the formatter.
 - typecheck with `npx just typecheck`. This checks all packages. Ignore errors in files you did not touch, unless your change caused them.
 
 Two things that catch people out:
 
 - **Rebuild `@ydinjs/core` (`npx just build` from `packages/core`) before typechecking `@ydinjs/material-x`** when you have changed a core source file it consumes. Material X resolves `@ydinjs/core` through its built `.d.ts` at the package root rather than through `src`, so type changes are invisible until core is rebuilt.
-- The **root** `Justfile`'s `fmt`, `fmt-check`, `lint` and `lint-fix` take no file arguments. They run every package and then the repository-level files no package owns — everything outside `packages/`. Formatting there is split by file type: `oxfmt` writes the non-Markdown files, Prettier writes the Markdown named as the exception above, and the two sets are disjoint, so each file still has exactly one writer. To format one root-level Markdown file on its own, that writer is `npx prettier --write <files>`.
+- The **root** `Justfile`'s `fmt`, `fmt-check`, `lint` and `lint-fix` take no file arguments. They run every package and then the repository-level files no package owns — everything outside `packages/`. `oxfmt` writes all of them, Markdown included, so every file in the tree has exactly one formatter and none is offered to two. To format one root-level file on its own, that writer is `npx oxfmt <files>`.
 
 ## Commit the finalized state
 

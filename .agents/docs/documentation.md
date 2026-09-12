@@ -4,12 +4,12 @@ A document's home is decided by **what makes it wrong**, not by what it is about
 
 Four things go wrong in four different ways, and mixing them is what produced the state this model replaces: a size policy that a reader must diff against itself to extract the current rule, a coding convention living in a vendor's agent file in two drifted copies, and a published type surface in which decision narrative outweighs the library it describes by seven to one.
 
-| Kind           | Answers                                  | Goes wrong when                         | Home                      |
-| -------------- | ---------------------------------------- | --------------------------------------- | ------------------------- |
-| **Convention** | What do I write?                         | someone decides to write it differently | `.agents/docs/`           |
-| **Policy**     | What may I spend, and what must I prove? | a measurement falsifies it              | `CONTRIBUTING.md` Part II |
-| **Operation**  | How do I run things here?                | the tooling changes                     | `AGENTS.md`, `CLAUDE.md`  |
-| **Record**     | Why is it like this?                     | never — it is what happened             | `packages/*/.plan/`       |
+| Kind | Answers | Goes wrong when | Home |
+| --- | --- | --- | --- |
+| **Convention** | What do I write? | someone decides to write it differently | `.agents/docs/` |
+| **Policy** | What may I spend, and what must I prove? | a measurement falsifies it | `CONTRIBUTING.md` Part II |
+| **Operation** | How do I run things here? | the tooling changes | `AGENTS.md`, `CLAUDE.md` |
+| **Record** | Why is it like this? | never — it is what happened | `packages/*/.plan/` |
 
 The record is the only one of the four that is **append-only**. The other three are **current-state**: they are rewritten in place, and what they used to say is not their business.
 
@@ -165,13 +165,13 @@ The distinction is what lets a status be read per decision rather than per sente
 
 A convention with no instrument is a convention that decays, and the classes above differ in how checkable they are.
 
-| Property                                           | Instrument                                                                                                                            |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| No internal identifier reaches a published `.d.ts` | a pattern assertion over the built declaration set, in the package's node suite                                                       |
-| The published declaration weight is visible        | a reported figure in the package's size bench                                                                                         |
-| Cross-document links resolve                       | the existing reference tests                                                                                                          |
-| Section numbers are never reused                   | none available; held by the rule in §2                                                                                                |
-| The routing graph closes                           | none available; every file carrying a retrieval header is named by at least one role definition, and every path a role names resolves |
+| Property | Instrument |
+| --- | --- |
+| No internal identifier reaches a published `.d.ts` | a pattern assertion over the built declaration set, in the package's node suite |
+| The published declaration weight is visible | a reported figure in the package's size bench |
+| Cross-document links resolve | the existing reference tests |
+| Section numbers are never reused | none available; held by the rule in §2 |
+| The routing graph closes | none available; every file carrying a retrieval header is named by at least one role definition, and every path a role names resolves |
 
 **Report a figure before budgeting it.** A ceiling whose calibrating injection cannot be re-run is not calibrated, and the published-declaration weight has no measured regression behind it yet.
 
@@ -179,20 +179,20 @@ A convention with no instrument is a convention that decays, and the classes abo
 
 ## 8. Where things are
 
-| Path                                                                                                                                                           | Kind                                                                                                                                                                                                                                    |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `AGENTS.md`                                                                                                                                                    | Operation — the durable root and the only copy; the always-prepended bootstrap                                                                                                                                                          |
-| `CLAUDE.md`                                                                                                                                                    | Operation — Claude Code overlay, imports the root; also prepended                                                                                                                                                                       |
-| `CONTRIBUTING.md`                                                                                                                                              | Convention and Policy — source shape and the size and ownership policy. Referenced, not resident: read whole by the roles that apply the whole rulebook and retrieved by section otherwise. Part II's sections are permanently numbered |
-| `.agents/docs/documentation.md`                                                                                                                                | Convention — this document                                                                                                                                                                                                              |
-| `.agents/docs/review-findings.md`, `handoff.md`                                                                                                                | Convention and Operation — routed chunks; each carries a retrieval header naming its trigger                                                                                                                                            |
-| `.agents/docs/agent-workflow.md`                                                                                                                               | Operation — how the roles are arranged and a round is run. Coordinator and human documentation; no role reads it at runtime                                                                                                             |
-| `.agents/docs/architecture.md`, `css-inheritance.md`, `accessibility.md`, `attribute-vs-state-styling.md`, `trait-flattener-plugin.md`, `test-architecture.md` | Convention and design reference — consulted, not resident                                                                                                                                                                               |
-| `.claude/agents/`                                                                                                                                              | Operation — the role definitions, and the only store of `role → chunk` edges                                                                                                                                                            |
-| `.claude/skills/`                                                                                                                                              | Operation — task-scoped procedure                                                                                                                                                                                                       |
-| `packages/*/.plan/`                                                                                                                                            | Record — that package's                                                                                                                                                                                                                 |
-| `.plan/`                                                                                                                                                       | Record — the repository's, registered in `.plan/00-index.md` under the `repo` scope (`repo:RD-1`)                                                                                                                                       |
-| `packages/*/README.md`                                                                                                                                         | Consumer documentation for that package                                                                                                                                                                                                 |
+| Path | Kind |
+| --- | --- |
+| `AGENTS.md` | Operation — the durable root and the only copy; the always-prepended bootstrap |
+| `CLAUDE.md` | Operation — Claude Code overlay, imports the root; also prepended |
+| `CONTRIBUTING.md` | Convention and Policy — source shape and the size and ownership policy. Referenced, not resident: read whole by the roles that apply the whole rulebook and retrieved by section otherwise. Part II's sections are permanently numbered |
+| `.agents/docs/documentation.md` | Convention — this document |
+| `.agents/docs/review-findings.md`, `handoff.md` | Convention and Operation — routed chunks; each carries a retrieval header naming its trigger |
+| `.agents/docs/agent-workflow.md` | Operation — how the roles are arranged and a round is run. Coordinator and human documentation; no role reads it at runtime |
+| `.agents/docs/architecture.md`, `css-inheritance.md`, `accessibility.md`, `attribute-vs-state-styling.md`, `trait-flattener-plugin.md`, `test-architecture.md` | Convention and design reference — consulted, not resident |
+| `.claude/agents/` | Operation — the role definitions, and the only store of `role → chunk` edges |
+| `.claude/skills/` | Operation — task-scoped procedure |
+| `packages/*/.plan/` | Record — that package's |
+| `.plan/` | Record — the repository's, registered in `.plan/00-index.md` under the `repo` scope (`repo:RD-1`) |
+| `packages/*/README.md` | Consumer documentation for that package |
 
 This document is itself governed by the model it describes: it states the rules in force and carries no history of its own.
 
@@ -202,11 +202,11 @@ This document is itself governed by the model it describes: it states the rules 
 
 What this document used to say, and what changed it. Section numbers are permanent, so every entry names one.
 
-| Date       | Section | Change                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| ---------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-08-26 | §5.2    | **Withdrawn:** _If the comment is longer than the code and is arguing a choice, it is a record entry with a pointer left behind._ It tested length and the presence of an argument, and §5.3's own question contradicts it: an argument for the **present** shape survives that shape's removal by being deleted, so it is a comment however long it is. Replaced by a tense test. Record: [`maintainer-comment-boundary-claude.md`](../../packages/drag2/.plan/reviews/phase-23/maintainer-comment-boundary-claude.md)                              |
-| 2026-08-30 | §6      | **Added:** a decision is lifecycle-atomic — a substantive amendment mints a new decision rather than being made in place, so a status can be read per decision instead of per sentence. Record: [`00-index.md`](../../packages/drag2/.plan/contract/00-index.md) D-160                                                                                                                                                                                                                                                                               |
-| 2026-08-30 | §3      | **Withdrawn:** _import what is applied without being consulted; code style is the paradigm._ Residency is charged to every role the harness starts, including roles that write no code, so the rulebook was prepended for lenses that never consulted it. Replaced by a **routed knowledge base**: a bootstrap carrying only what must fire before a routing decision exists, and chunks named by the role that needs them. Record: [`instruction-residency-claude.md`](../../packages/drag2/.plan/reviews/phase-23/instruction-residency-claude.md) |
-| 2026-08-30 | §7      | **Added:** the routing graph as a checkable property — every chunk carrying a retrieval header is named by at least one role, and every path a role names resolves. It replaces the readable-on-the-page safeguard that per-chunk reader lists would have given, and that a single store of edges gives up                                                                                                                                                                                                                                           |
-| 2026-08-30 | §8      | **Changed:** `CONTRIBUTING.md` becomes referenced rather than resident; `agent-workflow.md` becomes coordinator and human documentation that no role reads; the routed chunks and `.claude/agents/` are named                                                                                                                                                                                                                                                                                                                                        |
-| 2026-09-11 | §8      | **Added:** the repository's own record at `.plan/`. The table named `packages/*/.plan/` alone while three repository-level work directories already sat at the root, so repository findings had no home and were twice proposed into a package's register. Record: [`00-index.md`](../../.plan/00-index.md) RD-1                                                                                                                                                                                                                                     |
+| Date | Section | Change |
+| --- | --- | --- |
+| 2026-08-26 | §5.2 | **Withdrawn:** _If the comment is longer than the code and is arguing a choice, it is a record entry with a pointer left behind._ It tested length and the presence of an argument, and §5.3's own question contradicts it: an argument for the **present** shape survives that shape's removal by being deleted, so it is a comment however long it is. Replaced by a tense test. Record: [`maintainer-comment-boundary-claude.md`](../../packages/drag2/.plan/reviews/phase-23/maintainer-comment-boundary-claude.md) |
+| 2026-08-30 | §6 | **Added:** a decision is lifecycle-atomic — a substantive amendment mints a new decision rather than being made in place, so a status can be read per decision instead of per sentence. Record: [`00-index.md`](../../packages/drag2/.plan/contract/00-index.md) D-160 |
+| 2026-08-30 | §3 | **Withdrawn:** _import what is applied without being consulted; code style is the paradigm._ Residency is charged to every role the harness starts, including roles that write no code, so the rulebook was prepended for lenses that never consulted it. Replaced by a **routed knowledge base**: a bootstrap carrying only what must fire before a routing decision exists, and chunks named by the role that needs them. Record: [`instruction-residency-claude.md`](../../packages/drag2/.plan/reviews/phase-23/instruction-residency-claude.md) |
+| 2026-08-30 | §7 | **Added:** the routing graph as a checkable property — every chunk carrying a retrieval header is named by at least one role, and every path a role names resolves. It replaces the readable-on-the-page safeguard that per-chunk reader lists would have given, and that a single store of edges gives up |
+| 2026-08-30 | §8 | **Changed:** `CONTRIBUTING.md` becomes referenced rather than resident; `agent-workflow.md` becomes coordinator and human documentation that no role reads; the routed chunks and `.claude/agents/` are named |
+| 2026-09-11 | §8 | **Added:** the repository's own record at `.plan/`. The table named `packages/*/.plan/` alone while three repository-level work directories already sat at the root, so repository findings had no home and were twice proposed into a package's register. Record: [`00-index.md`](../../.plan/00-index.md) RD-1 |

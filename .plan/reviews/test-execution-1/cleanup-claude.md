@@ -1,8 +1,6 @@
 # Code-discipline review — test-execution redesign
 
-**Read at commit:** `7aeaff260` (head of `drag2/fin-review`).
-**Range under review:** `67af05288..7aeaff260` (`c1cab3031` implementation, `7aeaff260` doc-only reconciliation — confirmed by `git show --stat 7aeaff260`: one file, the r4 record, touched; no source changed in the second commit).
-**Canonical contract read:** `.plan/test-execution-1/architect-test-execution-model-r4.md` at `7aeaff260`, and `.plan/test-execution-1/implementer-test-execution-model.md`.
+**Read at commit:** `7aeaff260` (head of `drag2/fin-review`). **Range under review:** `67af05288..7aeaff260` (`c1cab3031` implementation, `7aeaff260` doc-only reconciliation — confirmed by `git show --stat 7aeaff260`: one file, the r4 record, touched; no source changed in the second commit). **Canonical contract read:** `.plan/test-execution-1/architect-test-execution-model-r4.md` at `7aeaff260`, and `.plan/test-execution-1/implementer-test-execution-model.md`.
 
 ## Lens
 

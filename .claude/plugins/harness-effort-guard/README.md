@@ -1,22 +1,18 @@
 # harness-effort-guard
 
-Treats what an agent definition declares as a runtime invariant — the role that
-is acting, the `model:` it declares and the `effort:` it declares — and the
-dispatch topology of the governed dispatchers as a second one.
+Treats what an agent definition declares as a runtime invariant — the role that is acting, the `model:` it declares and the `effort:` it declares — and the dispatch topology of the governed dispatchers as a second one.
 
 A role's frontmatter says what reasoning effort it must run at. Nothing enforces that: a main-thread `--agent` session can apply the role's `model:` and drop its `effort:`, and `/effort`, `/compact`, resume and a `CLAUDE_CODE_EFFORT_LEVEL` in the environment can each move effective effort away from the declaration. A run then looks like it happened as designed while some role reasoned cheaper than its definition requires, and nothing in the transcript says so.
 
 This plugin compares them on every tool call and fails closed when they disagree.
 
-**The role contract it asserts** has three executable properties, and it asserts
-them rather than repairing them:
+**The role contract it asserts** has three executable properties, and it asserts them rather than repairing them:
 
     governed identity = the role `subagent_type` selected
     model             = that role's frontmatter `model:`
     effort            = that role's frontmatter `effort:`
 
-Model and effort are independent. A worker matching one and violating the other
-is still invalid.
+Model and effort are independent. A worker matching one and violating the other is still invalid.
 
 ## What it governs
 
@@ -32,76 +28,41 @@ The project root is the nearest ancestor of the starting directory holding a `.c
 
 Three things the runtime collapses into one field, which must be kept apart:
 
-- **address** — the `name` a spawning call assigns. Caller-owned, arbitrary, and
-  not authoritative even as an address: the runtime silently rewrites a name
-  already used in the session, so `x` becomes `x-2`. Never an input to a verdict.
-- **reported actor** — the payload's `agent_type`. On the ordinary subagent path
-  it is the selected role; on the in-process teammate path it is the assigned
-  address. Evidence about what the runtime called this worker, and nothing more.
-- **governed role** — the role `subagent_type` selected. The only identity the
-  effort invariant, the model invariant and the dispatch topology may key on.
+- **address** — the `name` a spawning call assigns. Caller-owned, arbitrary, and not authoritative even as an address: the runtime silently rewrites a name already used in the session, so `x` becomes `x-2`. Never an input to a verdict.
+- **reported actor** — the payload's `agent_type`. On the ordinary subagent path it is the selected role; on the in-process teammate path it is the assigned address. Evidence about what the runtime called this worker, and nothing more.
+- **governed role** — the role `subagent_type` selected. The only identity the effort invariant, the model invariant and the dispatch topology may key on.
 
-`agent_id` is the discriminator, present on every child event and absent on every
-main-thread one.
+`agent_id` is the discriminator, present on every child event and absent on every main-thread one.
 
-| `agent_id` | Event          | Governed role comes from                                        |
-| ---------- | -------------- | --------------------------------------------------------------- |
-| absent     | any            | `agent_type` — a main thread carries the role `--agent` gave it |
-| present    | effort-bearing | the runtime's per-agent record, keyed by that exact `agent_id`  |
-| present    | lifecycle      | nothing — identity is **deferred**                              |
+| `agent_id` | Event | Governed role comes from |
+| --- | --- | --- |
+| absent | any | `agent_type` — a main thread carries the role `--agent` gave it |
+| present | effort-bearing | the runtime's per-agent record, keyed by that exact `agent_id` |
+| present | lifecycle | nothing — identity is **deferred** |
 
-**The record is keyed on `agent_id` and located from a path the payload
-supplies.** The session transcript is `<dir>/<session>.jsonl`, and the session's
-workers are recorded beside it at
-`<dir>/<session>/subagents/agent-<agent_id>.meta.json`. No home directory, no
-assumed projects root, and nothing parsed out of `agent_id` — which embeds the
-address on one path and must not be read for it. The role is
-`customAgentType ?? agentType`, correct on both observed shapes: the teammate
-record puts the selected role in `customAgentType` and the address in
-`agentType`; the subagent record omits `customAgentType` and puts the role in
-`agentType`.
+**The record is keyed on `agent_id` and located from a path the payload supplies.** The session transcript is `<dir>/<session>.jsonl`, and the session's workers are recorded beside it at `<dir>/<session>/subagents/agent-<agent_id>.meta.json`. No home directory, no assumed projects root, and nothing parsed out of `agent_id` — which embeds the address on one path and must not be read for it. The role is `customAgentType ?? agentType`, correct on both observed shapes: the teammate record puts the selected role in `customAgentType` and the address in `agentType`; the subagent record omits `customAgentType` and puts the role in `agentType`.
 
-**Nothing else is an input to identity.** Not the runtime `name`, not a suffix
-of it, not text embedded in `agent_id`, not the prompt, not dispatch order, and
-not positional matching between spawn calls and starts. The guard owns no
-identity state at all: no ledger, no correlation table, no pending-name store,
-nothing to prune and nothing to go stale. A resume keeps the same `agent_id`, so
-the same record answers for it.
+**Nothing else is an input to identity.** Not the runtime `name`, not a suffix of it, not text embedded in `agent_id`, not the prompt, not dispatch order, and not positional matching between spawn calls and starts. The guard owns no identity state at all: no ledger, no correlation table, no pending-name store, nothing to prune and nothing to go stale. A resume keeps the same `agent_id`, so the same record answers for it.
 
-**Every way of failing to establish a child's role denies**, under
-`unresolved-identity`: no usable path in the payload, no record, an unreadable
-or malformed one, or a shape naming no role. There is no fallback to the
-reported `agent_type` — that fallback _is_ the defect this closes, since the
-address resolves out-of-domain and out-of-domain is an allow. The record is an
-undocumented artifact of a private layout, and this is the whole of what makes
-depending on it acceptable: if the runtime moves, renames or reshapes it,
-governed child work stops at once and one grep of the log says why.
+**Every way of failing to establish a child's role denies**, under `unresolved-identity`: no usable path in the payload, no record, an unreadable or malformed one, or a shape naming no role. There is no fallback to the reported `agent_type` — that fallback _is_ the defect this closes, since the address resolves out-of-domain and out-of-domain is an allow. The record is an undocumented artifact of a private layout, and this is the whole of what makes depending on it acceptable: if the runtime moves, renames or reshapes it, governed child work stops at once and one grep of the log says why.
 
-**`SubagentStart` defers rather than guessing.** The record does not exist yet at
-that event, and that event cannot deny, so nothing is lost. Resolving the address
-there instead would make the log assert `out-of-domain` about workers that are in
-fact governed, which is the instrument stating a falsehood about the very thing
-it exists to witness.
+**`SubagentStart` defers rather than guessing.** The record does not exist yet at that event, and that event cannot deny, so nothing is lost. Resolving the address there instead would make the log assert `out-of-domain` about workers that are in fact governed, which is the instrument stating a falsehood about the very thing it exists to witness.
 
-**Legitimate delegation is not narrowed.** Once the true selected role is
-recovered it goes through the ordinary resolver, so an architect spawning
-`general-purpose` and an implementer spawning `Explore` resolve `out-of-domain`
-and `exempt` and are allowed exactly as before. The repair changes which name the
-resolver is given, not which names it governs.
+**Legitimate delegation is not narrowed.** Once the true selected role is recovered it goes through the ordinary resolver, so an architect spawning `general-purpose` and an implementer spawning `Explore` resolve `out-of-domain` and `exempt` and are allowed exactly as before. The repair changes which name the resolver is given, not which names it governs.
 
 ## Decision
 
 Applied to `PreToolUse`, `Stop` and `SubagentStop` — the events that carry `effort` by contract:
 
-| Role                         | Declared | Reported | Outcome                                     |
-| ---------------------------- | -------- | -------- | ------------------------------------------- |
-| not acting, or out of domain | —        | —        | allow                                       |
-| governed, `model: haiku`     | none     | any      | allow — outside the effort invariant        |
-| governed, `model: haiku`     | `X`      | any      | **deny** — the declaration is unsatisfiable |
-| governed                     | none     | any      | **deny** — the role declares no `effort:`   |
-| governed                     | `X`      | none     | **deny**                                    |
-| governed                     | `X`      | `X`      | allow                                       |
-| governed                     | `X`      | `Y`      | **deny**                                    |
+| Role | Declared | Reported | Outcome |
+| --- | --- | --- | --- |
+| not acting, or out of domain | — | — | allow |
+| governed, `model: haiku` | none | any | allow — outside the effort invariant |
+| governed, `model: haiku` | `X` | any | **deny** — the declaration is unsatisfiable |
+| governed | none | any | **deny** — the role declares no `effort:` |
+| governed | `X` | none | **deny** |
+| governed | `X` | `X` | allow |
+| governed | `X` | `Y` | **deny** |
 
 The exempt rows are read before every row that concerns effort, so a `model: haiku` role reaches none of them: absent reported effort is the expected observation for it, not a violation. The environment check below is the one thing read ahead of them.
 
@@ -117,15 +78,9 @@ Where the guard is not loaded in the worktree at all, it cannot refuse anything;
 
 ## Governed model
 
-The model a role declares is executable in the same sense as the effort it
-declares, and the two are checked independently. It is asserted at two points,
-for two different reasons.
+The model a role declares is executable in the same sense as the effort it declares, and the two are checked independently. It is asserted at two points, for two different reasons.
 
-**At dispatch, before the worker exists.** When a spawning call selects a
-governed `subagent_type`, that role's declared model is resolved and compared
-against any `model` the call explicitly supplies. A conflict denies at the
-parent's `PreToolUse` under `dispatch-model`, so no worker of the wrong class is
-ever created.
+**At dispatch, before the worker exists.** When a spawning call selects a governed `subagent_type`, that role's declared model is resolved and compared against any `model` the call explicitly supplies. A conflict denies at the parent's `PreToolUse` under `dispatch-model`, so no worker of the wrong class is ever created.
 
 | `subagent_type` | Declares | Call supplies | Outcome                     |
 | --------------- | -------- | ------------- | --------------------------- |
@@ -135,28 +90,13 @@ ever created.
 | `reviewer`      | opus     | `opus`        | allow                       |
 | out of domain   | —        | anything      | allow                       |
 
-An omitted override is not a conflict: naming a role is how a caller asks for
-that role's own declaration, and requiring the declaration to be restated would
-make the definition advisory.
+An omitted override is not a conflict: naming a role is how a caller asks for that role's own declaration, and requiring the declaration to be restated would make the definition advisory.
 
-**At the child's own events, where the runtime records a model.** The per-agent
-record exposes the effective model on the teammate shape and carries no such
-field on the subagent shape. Where the evidence exists it is compared against the
-resolved role's declaration and a disagreement denies under `model-mismatch`,
-parallel to an effort mismatch. Where it does not, the check is recorded as
-`unverified` and nothing is claimed: a record shape carrying no model supports no
-verdict about one, and a log that reported silence as a pass would be inventing
-evidence.
+**At the child's own events, where the runtime records a model.** The per-agent record exposes the effective model on the teammate shape and carries no such field on the subagent shape. Where the evidence exists it is compared against the resolved role's declaration and a disagreement denies under `model-mismatch`, parallel to an effort mismatch. Where it does not, the check is recorded as `unverified` and nothing is claimed: a record shape carrying no model supports no verdict about one, and a log that reported silence as a pass would be inventing evidence.
 
-A runtime value matches a declaration when the two are equal, or when the
-declared alias is one of the dash-separated segments of the runtime identifier —
-`opus` and `claude-opus-5`. Both forms were observed in the runtime's own
-records. It is segment membership rather than a prefix or substring test, and a
-third form is an edit to that one function.
+A runtime value matches a declaration when the two are equal, or when the declared alias is one of the dash-separated segments of the runtime identifier — `opus` and `claude-opus-5`. Both forms were observed in the runtime's own records. It is segment membership rather than a prefix or substring test, and a third form is an edit to that one function.
 
-Out-of-domain workers are outside this invariant as they are outside the effort
-one. Exempt roles are not: a role declaring `model: haiku` is governed, and the
-model it declares is the model it must run on.
+Out-of-domain workers are outside this invariant as they are outside the effort one. Exempt roles are not: a role declaring `model: haiku` is governed, and the model it declares is the model it must run on.
 
 ## Governed dispatch topology
 
@@ -172,41 +112,23 @@ One dispatcher is constrained, and nothing else is:
 
 The subject is the `subagent_type` of a **spawning** call — `Agent` or `Task`. `SendMessage` is dispatch for the worktree row and selects no role here: it reaches a worker whose type was fixed when it was spawned. An `Agent` call omitting `subagent_type` is read as selecting `general-purpose`, because that is what the tool does with it; reading absence as _no role chosen_ would leave the plainest escape open.
 
-**The dispatcher's identity is its resolved governed role**, not its reported
-`agent_type`. A consolidator running as a named teammate reports its address
-there, and a topology keyed on that field would find no entry for it — leaving
-the one dispatcher the harness constrains free to spawn whatever it liked.
+**The dispatcher's identity is its resolved governed role**, not its reported `agent_type`. A consolidator running as a named teammate reports its address there, and a topology keyed on that field would find no entry for it — leaving the one dispatcher the harness constrains free to spawn whatever it liked.
 
-**A governed role name may not be used as an address, whoever dispatches.** A
-call whose `name` is the exact name of a role the guard governs, while
-`subagent_type` selects a different one, is refused everywhere and not only under
-a constrained dispatcher. The reason is mechanical rather than stylistic: on the
-subagent path the runtime records the assigned name as the worker's own
-`agentType`, so such a call would resolve a general-purpose worker as the
-governed role it was merely named after. A descriptive name remains the caller's
-business and is not judged.
+**A governed role name may not be used as an address, whoever dispatches.** A call whose `name` is the exact name of a role the guard governs, while `subagent_type` selects a different one, is refused everywhere and not only under a constrained dispatcher. The reason is mechanical rather than stylistic: on the subagent path the runtime records the assigned name as the worker's own `agentType`, so such a call would resolve a general-purpose worker as the governed role it was merely named after. A descriptive name remains the caller's business and is not judged.
 
-**A governed review lens may not be spawned under a runtime `name` at all.** This
-is a compatibility containment, not part of the identity mechanism: the guard
-understands named workers perfectly well, but the runtime does not yet run one as
-the role that was selected. Named lenses declaring `high` were observed running
-at the parent's `medium`, live and under this build. Until that changes the
-Review Swarm stays on the ordinary unnamed subagent path, which is governed
-correctly. Named workers stay legitimate everywhere the topology has no opinion,
-and this row retires when the runtime honours the selection — it is not a reason
-to drop child record resolution, which named governed dispatchers still need.
+**A governed review lens may not be spawned under a runtime `name` at all.** This is a compatibility containment, not part of the identity mechanism: the guard understands named workers perfectly well, but the runtime does not yet run one as the role that was selected. Named lenses declaring `high` were observed running at the parent's `medium`, live and under this build. Until that changes the Review Swarm stays on the ordinary unnamed subagent path, which is governed correctly. Named workers stay legitimate everywhere the topology has no opinion, and this row retires when the runtime honours the selection — it is not a reason to drop child record resolution, which named governed dispatchers still need.
 
-| Dispatcher   | `subagent_type` | `name`      | Outcome                                 |
-| ------------ | --------------- | ----------- | --------------------------------------- |
-| not in table | anything        | absent      | allow                                   |
-| not in table | anything        | descriptive | allow                                   |
-| not in table | anything        | that role   | allow                                   |
-| not in table | anything        | other role  | **deny** — `topology-identity`          |
-| in table     | permitted       | absent      | allow                                   |
-| in table     | not permitted   | anything    | **deny** — `topology-escape`            |
-| in table     | absent          | anything    | **deny** — `topology-escape`, defaulted |
-| in table     | permitted       | other role  | **deny** — `topology-identity`          |
-| in table     | permitted       | any name    | **deny** — `topology-name`              |
+| Dispatcher | `subagent_type` | `name` | Outcome |
+| --- | --- | --- | --- |
+| not in table | anything | absent | allow |
+| not in table | anything | descriptive | allow |
+| not in table | anything | that role | allow |
+| not in table | anything | other role | **deny** — `topology-identity` |
+| in table | permitted | absent | allow |
+| in table | not permitted | anything | **deny** — `topology-escape` |
+| in table | absent | anything | **deny** — `topology-escape`, defaulted |
+| in table | permitted | other role | **deny** — `topology-identity` |
+| in table | permitted | any name | **deny** — `topology-name` |
 
 The rows are read **before** everything about effort, including the resolver's own failures, because the escape is what those rows cannot see. They are read **after** the worktree refusal, which is about the checkout rather than the call.
 
@@ -259,16 +181,9 @@ A run is trusted only when every governed role that acted appears with `declared
 
 ## Installation
 
-The repository that owns this plugin declares it in a local marketplace
-(`.claude-plugin/marketplace.json`) and enables it from project settings
-(`.claude/settings.json`), so an ordinary session started at the checkout root
-loads it with no command-line flags, and nothing about the plugin depends on
-`--plugin-dir`.
+The repository that owns this plugin declares it in a local marketplace (`.claude-plugin/marketplace.json`) and enables it from project settings (`.claude/settings.json`), so an ordinary session started at the checkout root loads it with no command-line flags, and nothing about the plugin depends on `--plugin-dir`.
 
-The tests load nothing. They run `scripts/guard.ts` directly, feeding it hook
-payloads on stdin and reading back its stdout and its log, so no case here
-exercises a plugin load at all — that is established by live sessions and
-recorded in the host repository's own document.
+The tests load nothing. They run `scripts/guard.ts` directly, feeding it hook payloads on stdin and reading back its stdout and its log, so no case here exercises a plugin load at all — that is established by live sessions and recorded in the host repository's own document.
 
 ## Requirements
 

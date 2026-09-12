@@ -53,7 +53,10 @@ test_file="${file#"$package_root"/}"
 cleanup-debug-processes() {
   echo "Stopping previous Vitest browser debug processes..." >&2
 
-  # Previous Playwright/Chrome instance that owns the CDP port.
+  # A previous Playwright Chrome that still owns the CDP port. Stopping a debug
+  # task kills the Vitest process alone and orphans its browser, which goes on
+  # holding port 9222 and answering on it, so without this the next debug run
+  # finds the port taken.
   pkill -f 'chrome.*--remote-debugging-port=9222' 2>/dev/null || true
 
   sleep 0.3

@@ -4,11 +4,16 @@ import { MessageChannel, Worker, type MessagePort } from 'node:worker_threads';
 type Pending = {
   readonly path: string;
   /**
-   * Generations this request has been issued to. An invalidation supersedes the
-   * request instead of failing it, and writes can arrive faster than a
-   * generation completes, so the re-issue is bounded rather than a livelock.
+   * Generations destroyed under this request. An invalidation reaching a
+   * request attached to nothing counts nothing, so the unit is a logical
+   * supersession rather than a watcher event: one multi-file write is one.
    */
-  attempts: number;
+  supersessions: number;
+  /**
+   * When the first supersession happened. The clock never resets, so only a
+   * request that never completes accumulates time.
+   */
+  supersededAt: number;
   resolve(result: EvaluationResult): void;
   reject(error: Error): void;
 };
@@ -55,20 +60,69 @@ const assets = new URL(
 );
 
 /**
- * One generation per process, shared by every plugin instance that wants one.
- * Sharing is sound because evaluation depends only on file contents: the
- * consumer's options reach `compileCSS`, which is downstream of this.
+ * Every generation the module has created and not yet disposed, in exactly one
+ * of two live states: **accepting** — `current`, the one new requests are
+ * issued to — and **draining**, which takes no new requests and whose snapshot
+ * is still valid, so the requests left on it may settle and publish. An entry's
+ * own evaluation failure produces the second: Node poisons that module's
+ * registry entry permanently, which is a fact about the isolate and not about
+ * the files.
+ *
+ * **Everything whose subject is _the world changed_ or _the process is going
+ * away_ ranges over this set and never over `current` alone.** A generation
+ * reachable only through the slot is invisible to invalidation the moment a
+ * throw demotes it, and its siblings then publish an answer evaluated across a
+ * change the module was told about.
+ *
+ * One set per process, shared by every plugin instance that wants one. Sharing
+ * is sound because evaluation depends only on file contents: the consumer's
+ * options reach `compileCSS`, which is downstream of this.
  */
+const generations = new Set<Generation>();
+
 let current: Generation | undefined;
 let consumers = 0;
 
 /**
- * Generations one request may be issued to. Two is the smallest bound that
- * survives a single supersession, which is the case an ordinary save produces;
- * beyond it the invalidation is faster than evaluation and retrying is a
- * livelock rather than a recovery.
+ * Requests waiting for a successor. A request parks when an invalidation
+ * detaches it and when it arrives while the coalescing window is open; one rule
+ * and no bypass, because a request allowed to create a generation mid-storm
+ * defeats the coalescing and is in any case evaluating against files that are
+ * still moving.
  */
-const ATTEMPTS = 2;
+const parked = new Set<Pending>();
+
+let coalescing: NodeJS.Timeout | undefined;
+
+/**
+ * Quiet time the tracked set must show before a successor is created. A
+ * performance parameter and not a correctness one: at zero the design is still
+ * correct and merely wasteful, and a larger value merely adds latency. Fifty
+ * milliseconds is under four per cent of one 1.2–2.7 s generation, and long
+ * enough for one process's multi-file write to arrive as a single wave.
+ */
+const COALESCING_WINDOW = 50;
+
+/**
+ * Supersessions a request must have taken before the budget can abandon it.
+ * A floor rather than a cap: a single supersession is always survivable, and a
+ * long evaluation followed by one late save is never abandoned on the clock
+ * alone.
+ */
+const SUPERSESSION_FLOOR = 2;
+
+/**
+ * How long continuous invalidation may keep one request from completing. The
+ * budget must exceed the span over which any terminating rebuild writes tracked
+ * files: three times the worst measured generation and an order of magnitude
+ * beyond the largest tracked burst, and still short enough that a runaway
+ * writer surfaces inside one developer's attention span.
+ *
+ * **A threshold on patience, not on correctness.** At any value no output is
+ * torn, none is stale and none from an abandoned generation is published; the
+ * value decides only when the module stops waiting.
+ */
+const STABILITY_BUDGET = 10_000;
 
 /**
  * Releases the handles. The parent-side `MessagePort` with a live `message`
@@ -77,8 +131,31 @@ const ATTEMPTS = 2;
  * only makes the ownership explicit.
  */
 function dispose(generation: Generation): void {
+  generations.delete(generation);
+
+  if (current === generation) {
+    current = undefined;
+  }
+
   generation.monitor.close();
   void generation.worker.terminate();
+}
+
+/**
+ * Empties a generation's attachment and disposes it, returning the requests
+ * that were on it.
+ *
+ * **Detachment precedes termination**, which is what makes a dying worker's
+ * answer unpublishable: its reply arrives to an attachment that no longer holds
+ * the id, and only an attached request can be resolved.
+ */
+function detach(generation: Generation): Pending[] {
+  const requests = [...generation.pending.values()];
+
+  generation.pending.clear();
+  dispose(generation);
+
+  return requests;
 }
 
 function settle(generation: Generation, id: number, apply: () => void): void {
@@ -91,16 +168,9 @@ function settle(generation: Generation, id: number, apply: () => void): void {
 }
 
 function fail(generation: Generation, error: Error): void {
-  if (current === generation) {
-    current = undefined;
-  }
-
-  for (const request of generation.pending.values()) {
+  for (const request of detach(generation)) {
     request.reject(error);
   }
-
-  generation.pending.clear();
-  dispose(generation);
 }
 
 function create(): Generation {
@@ -146,9 +216,9 @@ function create(): Generation {
 
     // Node caches a module's evaluation failure permanently in the isolate that
     // produced it, so the corrected file would keep throwing the original error
-    // until the process restarted. The generation goes with the failure; the
-    // requests already in flight finish on it, because only the module that
-    // threw is poisoned.
+    // until the process restarted. The generation stops accepting and goes on
+    // draining: only the module that threw is poisoned, so the requests already
+    // in flight finish on a snapshot that is still valid.
     if (current === generation) {
       current = undefined;
     }
@@ -176,21 +246,59 @@ function create(): Generation {
     }
   });
 
+  generations.add(generation);
+
   return generation;
 }
 
-/**
- * Issues a request to the current generation, creating one when the last was
- * discarded. This is the only writer of `current`'s request ids, so an id is
- * unique within the generation holding it and means nothing outside it.
- */
-function issue(request: Pending): void {
+/** Attaches a request to the accepting generation, creating one if there is none. */
+function attach(request: Pending): void {
   const generation = (current ??= create());
   const id = (generation.requests += 1);
 
-  request.attempts += 1;
   generation.pending.set(id, request);
   generation.worker.postMessage({ id, path: request.path });
+}
+
+/**
+ * Issues every parked request against the successor. Arriving here is what
+ * "the tracked set went quiet" means, so the generations created are bounded by
+ * the number of quiet windows rather than by the number of change events.
+ */
+function resume(): void {
+  coalescing = undefined;
+
+  const waiting = [...parked];
+
+  parked.clear();
+
+  for (const request of waiting) {
+    attach(request);
+  }
+}
+
+/**
+ * Opens the coalescing window, or re-arms one already open.
+ *
+ * **Unconditional**, even with nothing parked: arming costs the next request one
+ * window and removes the special case that would let a request arriving in the
+ * middle of a burst create a generation. **Unref'd**, so it never keeps the
+ * process alive.
+ */
+function arm(): void {
+  clearTimeout(coalescing);
+  coalescing = setTimeout(resume, COALESCING_WINDOW);
+  coalescing.unref();
+}
+
+function issue(request: Pending): void {
+  if (coalescing) {
+    parked.add(request);
+
+    return;
+  }
+
+  attach(request);
 }
 
 /** Registers a plugin instance as a consumer of the process's generation. */
@@ -198,64 +306,102 @@ export function acquireGeneration(): void {
   consumers += 1;
 }
 
-/** Drops a consumer, terminating the generation when the last one leaves. */
+/**
+ * Drops a consumer, terminating everything the module holds when the last one
+ * leaves: every generation, whether accepting or draining, every attached and
+ * parked request, and the coalescing window. Nothing here reads `current`,
+ * because a release arriving while a generation drains must still reach it.
+ */
 export function releaseGeneration(): void {
   consumers -= 1;
 
-  if (consumers > 0 || !current) {
+  if (consumers > 0) {
     return;
   }
 
-  fail(current, new Error('CSS evaluation generation was released'));
+  clearTimeout(coalescing);
+  coalescing = undefined;
+
+  const error = new Error('CSS evaluation generation was released');
+  const waiting = [...parked];
+
+  parked.clear();
+
+  for (const generation of [...generations]) {
+    fail(generation, error);
+  }
+
+  for (const request of waiting) {
+    request.reject(error);
+  }
 }
 
 /**
- * Discards the generation so that the next request evaluates the complete graph
- * against current file contents. Invalidation is generation-scoped rather than
- * entry-scoped: inside one generation a module already loaded for an earlier
- * entry resolves none of its own imports again, so per-entry attribution is
- * incomplete by construction.
+ * Abandons every live generation so that the next one evaluates the complete
+ * graph against current file contents. Invalidation is generation-scoped rather
+ * than entry-scoped: inside one generation a module already loaded for an
+ * earlier entry resolves none of its own imports again, so per-entry
+ * attribution is incomplete by construction.
  *
- * **A discard is not a failure and rejects nothing.** A change landing
- * mid-evaluation leaves the loaded modules holding pre-change content and the
- * rest post-change, so the answer in flight is torn rather than merely stale
- * and cannot be published; it is re-issued against the generation succeeding
- * this one instead. Rejection stays reserved for a worker error, a non-zero
- * exit, and the entry's own evaluation throw.
+ * **A discard is not a failure and rejects nothing on its own.** A change
+ * landing mid-evaluation leaves the loaded modules holding pre-change content
+ * and the rest post-change, so the answer in flight is torn rather than merely
+ * stale and cannot be published; the requests are parked and re-issued against
+ * the generation that succeeds the quiet window. Rejection stays reserved for a
+ * worker error, a non-zero exit, the entry's own evaluation throw, and the
+ * stability budget below.
+ *
+ * **It ranges over every live generation**, accepting or draining. A generation
+ * whose snapshot the module has been told is void may publish nothing, however
+ * it stopped accepting.
  */
 export function discardGeneration(): void {
-  if (!current) {
-    return;
+  const at = performance.now();
+
+  for (const generation of [...generations]) {
+    for (const request of detach(generation)) {
+      request.supersessions += 1;
+
+      if (request.supersessions === 1) {
+        request.supersededAt = at;
+      }
+
+      parked.add(request);
+    }
   }
 
-  const discarded = current;
+  arm();
 
-  // Cleared first: `issue` reads `current`, and a superseded request belongs to
-  // the successor rather than to the generation it started in.
-  current = undefined;
+  // The budget is evaluated here and nowhere else: an invalidation is the only
+  // moment at which it can be exceeded and the only moment at which a request's
+  // fate can change, which is why the policy arms no timer of its own. Parked
+  // requests are included, so a storm severe enough that no generation ever
+  // exists still consults it.
+  for (const request of parked) {
+    const elapsed = at - request.supersededAt;
 
-  for (const [id, request] of discarded.pending) {
-    discarded.pending.delete(id);
-
-    if (request.attempts < ATTEMPTS) {
-      issue(request);
-    } else {
+    if (
+      request.supersessions >= SUPERSESSION_FLOOR &&
+      elapsed >= STABILITY_BUDGET
+    ) {
+      parked.delete(request);
       request.reject(
         new Error(
-          `CSS evaluation superseded by concurrent invalidation ${ATTEMPTS} times`,
+          `CSS evaluation abandoned: superseded ${request.supersessions} times over ${(elapsed / 1000).toFixed(1)}s of continuous invalidation`,
         ),
       );
     }
   }
-
-  // Nothing is left to drain: every request has moved or failed. The dying
-  // worker may still answer one of them, and the answer is dropped by the id
-  // lookup that no longer finds it.
-  dispose(discarded);
 }
 
 export async function evaluate(path: string): Promise<EvaluationResult> {
   return await new Promise<EvaluationResult>((resolve, reject) => {
-    issue({ path, attempts: 0, resolve, reject });
+    issue({
+      path,
+      supersessions: 0,
+      supersededAt: 0,
+      resolve,
+      reject,
+    });
   });
 }

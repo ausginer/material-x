@@ -207,7 +207,8 @@ function createBrowserTestConfig(
         // viewport, and Playwright rejects a device scale against a null one,
         // so the context is never created and the debug run executes nothing.
         // The UI is unreachable behind the unconditional headless mode in any
-        // case; debugging attaches to the CDP port below.
+        // case; debugging attaches to the CDP port opened by the launch
+        // arguments above.
         instances: [
           {
             browser: 'chromium',
