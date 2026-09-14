@@ -92,5 +92,6 @@
     }
   },
   "postCreateCommand": "bash .devcontainer/post-create.sh \"${containerWorkspaceFolder}\"",
-  "postStartCommand": "bash .devcontainer/on-start.sh \"${containerWorkspaceFolder}\""
+  "postStartCommand": "bash .devcontainer/on-start.sh \"${containerWorkspaceFolder}\"",
+  "shutdownAction": "none"
 }
