@@ -10,9 +10,11 @@
 
 **Result.** Thirteen local findings — twelve from the passes, one consolidator-derived — consolidating to **eleven**, via two merges. **One tier A, three tier B, seven tier C.** The tier A is a contract gap, not a regression, and is routed rather than resolved here.
 
-## Id allocation — none taken, and the series has since been settled
+## Id allocation — taken at closure
 
-**This round assigns no canonical ids.** Its eleven results are held as pass-local names only.
+**This round assigned no canonical ids, and the closure consolidation at `f3455c027` has since taken them.** Its eleven results are registered as `repo:RF-1`, `RF-5`, `RF-7`, `RF-8` and `RF-10`…`RF-16` — not a contiguous block, because the twenty-two rows are ordered by tier and subject across the whole chain rather than by which round found them — in [`.plan/00-index.md`](../../00-index.md), with the full mapping and each row's final status in [`test-execution-1-closure.md`](test-execution-1-closure.md). The section below records why allocation was correctly deferred at the time, and is kept rather than rewritten.
+
+**This round assigned no canonical ids.** Its eleven results were held as pass-local names only.
 
 At consolidation the register and the tree disagreed: `packages/drag2/.plan/contract/00-index.md` assigned `F-` to 431, `Q-` to 28, `I-` to 37 and `D-` to 198, while the tree sighted `F-432`…`F-438`, `I-38` and `D-199`…`D-204`. Those were not drift — they are canonical ids proposed by revision 1 of this series and then **withdrawn**, r4 re-expressing them as document-local `TE-` rows marked `Canonical: unassigned`.
 

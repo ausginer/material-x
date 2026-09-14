@@ -88,7 +88,7 @@ Three readings. **The breach is not this range's**: `ab174b894` breaches the sam
 
 **Routed.** Re-expressing the ceiling on the anonymous axis, as a delta budget, or with a stated precondition is a contract change.
 
-### D-198 still states the scoping its own correction retracts, and the register's projection reports both
+### The formatter decision still states the scoping its own correction retracts, and the register's projection reports both
 
 **lb-3.**
 
