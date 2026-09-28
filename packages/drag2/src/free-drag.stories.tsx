@@ -176,6 +176,13 @@ const LIFT_HINT: Readonly<Record<LiftMode, string>> = {
   [LIFT_IN_PLACE]: 'in place — keeps the transform but is clipped by the stage',
 };
 
+/** The radio's visible option names; the numeric modes stay the arg values. */
+const LIFT_LABEL: Readonly<Record<LiftMode, string>> = {
+  [LIFT_FAITHFUL]: 'faithful',
+  [LIFT_FLAT]: 'flat',
+  [LIFT_IN_PLACE]: 'in place',
+};
+
 /**
  * A drag inside a rotated, scaled stage.
  *
@@ -232,9 +239,8 @@ export const TransformedStage: StoryObj<TransformedArgs> = {
   },
   argTypes: {
     lift: {
-      control: 'inline-radio',
+      control: { type: 'inline-radio', labels: LIFT_LABEL },
       options: [LIFT_FAITHFUL, LIFT_FLAT, LIFT_IN_PLACE],
-      labels: LIFT_HINT,
       description: 'How the visual is promoted during the drag.',
     },
   },
