@@ -48,32 +48,39 @@ const build = (
   );
 
 describe('createPlaceholder', () => {
-  it('should refuse the dragged item even when it is detached', () => {
-    // Kept as its own conjunct rather than leaning on `isConnected`: the
-    // refusal should not depend on the item happening to be in the document.
+  // **The adoption refusal went 2026-08-25 (D-124), and its three arms are
+  // asserted outcomes now.** `config.d.ts` publishes the precondition on the
+  // slot the author reads — _must return a **detached** element that is
+  // neither the dragged item nor its visual_ — and the type says `HTMLElement`,
+  // so every arm tested a state a conforming author cannot reach. What each
+  // violation now does is pinned here, in the form this package already uses
+  // for a removed check, so a returning guard argues with a test.
+
+  it('should mechanize the dragged item when the factory returns it', () => {
     const item = detached();
 
-    expect(() => build(() => item, item)).toThrow(
-      /must return a detached element/u,
-    );
+    expect(build(() => item, item)).toBe(item);
+    // The damage the arm named: the item is now carrying the placeholder's own
+    // attributes, and teardown will remove it as if the library owned it.
+    expect(item.hasAttribute('data-drag-placeholder')).toBe(true);
   });
 
-  it('should refuse the lifted visual even when it is detached', () => {
+  it('should mechanize the lifted visual when the factory returns it', () => {
     const item = detached();
     const visual = detached();
 
-    expect(() => build(() => visual, item, visual)).toThrow(
-      /must return a detached element/u,
-    );
+    expect(build(() => visual, item, visual)).toBe(visual);
+    expect(visual.hasAttribute('data-drag-placeholder')).toBe(true);
   });
 
-  it('should refuse a result that is not an element', () => {
-    // Named by the placeholder contract, not by whatever `applyMechanics`
-    // would have thrown a line later.
+  it('should fail at the first mechanics write for a result that is not an element', () => {
+    // No longer named by the placeholder contract: the first `setAttribute`
+    // is what fails, which is the ordinary lifecycle path this input was
+    // always going to reach one line later.
     const item = detached();
 
     expect(() => build(() => ({}) as unknown as HTMLElement, item)).toThrow(
-      /must return a detached element/u,
+      TypeError,
     );
   });
 
@@ -146,6 +153,48 @@ describe('createPlaceholder', () => {
     );
 
     expect(writes).toEqual([]);
+  });
+
+  it('should take no rollback snapshot for the default placeholder', () => {
+    // **D-127 (b).** The rollback ledger is `null` for the library's own
+    // `<div>` — dropping the element *is* the undo — and the snapshot each
+    // write would be reversed from used to be built in argument position, so
+    // it was taken and thrown away four times per activation. The reads are on
+    // the **placeholder**, which does not exist until the call returns, so the
+    // instrument records every `getAttribute` and its receiver and filters
+    // afterwards.
+    const calls: Array<Readonly<{ element: Element; name: string }>> = [];
+    // Captured to delegate to from the patch below: `native.call(this, name)`.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    const native = Element.prototype.getAttribute;
+    const item = detached();
+    let placeholder: HTMLElement;
+
+    Element.prototype.getAttribute = function patched(
+      this: Element,
+      name: string,
+    ): string | null {
+      calls.push({ element: this, name });
+      return native.call(this, name);
+    };
+
+    try {
+      placeholder = build(null, item);
+    } finally {
+      Element.prototype.getAttribute = native;
+    }
+
+    expect(
+      calls
+        .filter((call) => call.element === placeholder)
+        .map(({ name }) => name),
+    ).toEqual([]);
+    // Not vacuous: the mechanics did run, and the one read they are *supposed*
+    // to make — the item's `slot`, which the placeholder mirrors — happened.
+    expect(
+      calls.filter((call) => call.element === item).map(({ name }) => name),
+    ).toEqual(['slot']);
+    expect(placeholder.getAttributeNames()).toContain('data-drag-placeholder');
   });
 
   it('should apply no mechanics to the default placeholder once the slot read closes the controller', () => {
@@ -262,7 +311,7 @@ describe('movePlaceholder', () => {
 
     expect(() =>
       movePlaceholder(placeholder, gapBefore(foreign[0]!, null)),
-    ).toThrow(/not in the placeholder/u);
+    ).toThrow(/sortable\/anchor-outside-container/u);
   });
 
   it('should refuse a foreign anchor used as an end gap', () => {
@@ -272,7 +321,7 @@ describe('movePlaceholder', () => {
 
     expect(() =>
       movePlaceholder(placeholder, gapBefore(null, foreign[1]!)),
-    ).toThrow(/not in the placeholder/u);
+    ).toThrow(/sortable\/anchor-outside-container/u);
   });
 
   it('should leave the placeholder where it was when it refuses', () => {
@@ -298,7 +347,7 @@ describe('movePlaceholder', () => {
 
     expect(() =>
       movePlaceholder(placeholder, gapBefore(items[0]!, null)),
-    ).toThrow(/not in the placeholder/u);
+    ).toThrow(/sortable\/anchor-outside-container/u);
   });
 
   it('should report no move for an empty destination view', () => {

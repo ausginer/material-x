@@ -4,6 +4,7 @@ description: Broad read-only codebase exploration when a targeted Grep/Glob/Read
 tools: Read, Grep, Glob
 model: haiku
 maxTurns: 8
+permissionMode: bypassPermissions
 ---
 
 Explore the requested area and return a concise conclusion with relevant file paths.

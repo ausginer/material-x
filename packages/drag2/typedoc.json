@@ -21,8 +21,6 @@
   "excludePrivate": true,
   "excludeProtected": true,
   "excludeInternal": true,
-  "sort": [
-    "source-order"
-  ],
+  "sort": ["source-order"],
   "intentionallyNotExported": []
 }

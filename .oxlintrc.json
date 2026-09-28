@@ -1,7 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "unicorn", "import"],
-  "jsPlugins": ["eslint-plugin-prettier"],
   "categories": {
     "correctness": "off"
   },
@@ -82,7 +81,6 @@
     "packages/ydin/**/*.d.ts.map"
   ],
   "rules": {
-    "prettier/prettier": "error",
     "typescript/consistent-return": "error",
     "typescript/no-implied-eval": "error",
     "typescript/only-throw-error": "error",
@@ -692,6 +690,27 @@
         "import/unambiguous": "allow",
         // Broken. Many false positives
         "typescript/no-unnecessary-condition": "allow"
+      }
+    },
+    {
+      // The harness guard plugin is dependency-free by design, so its suites
+      // run on node:test rather than the workspace's vitest. Its `describe` and
+      // `it` return the promise the runner itself awaits; every other test file
+      // here keeps the rule, because vitest's return void and never trip it.
+      "files": [".claude/plugins/*/tests/*.test.ts"],
+      "rules": {
+        "typescript/no-floating-promises": [
+          "error",
+          {
+            "allowForKnownSafeCalls": [
+              {
+                "from": "package",
+                "package": "node:test",
+                "name": ["describe", "it"]
+              }
+            ]
+          }
+        ]
       }
     }
   ]

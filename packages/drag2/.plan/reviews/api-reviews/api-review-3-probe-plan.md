@@ -262,7 +262,7 @@ Include the L-1 residue: does `boxPre − boxPost` still hold with `layoutAnimat
 
 **Question.** Does §1's factory shape work at runtime, and how much kernel vocabulary must be public?
 
-Existing evidence is strong but has a specific hole: `kernel.browser.test.ts` authors non-sortable behaviors, but synthetically, from inside the package; `docs/probes/13c-free-drag.ts` writes a complete second behavior at **type** level and its own write-up says it is not lifecycle validation. It found two structural gaps (activation typed for an `HTMLElement`; landing origin derived from the pointer) that a runtime probe would have exercised.
+Existing evidence is strong but has a specific hole: `kernel.browser.test.ts` authors non-sortable behaviors, but synthetically, from inside the package; `tests/probes/13c-free-drag.ts` writes a complete second behavior at **type** level and its own write-up says it is not lifecycle validation. It found two structural gaps (activation typed for an `HTMLElement`; landing origin derived from the pointer) that a runtime probe would have exercised.
 
 **Falsifiers:** implement free drag as a **runtime** behavior through the §1 factory. Does the factory receive everything it needs before it must return `{ spec, controller }`? Do 13c's two gaps reproduce? Is any part of the minimum surface expressible only by exporting internals the kernel must stay free to change?
 

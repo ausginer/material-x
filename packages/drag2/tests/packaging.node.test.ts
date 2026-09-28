@@ -235,7 +235,7 @@ describe('the published file list', () => {
     );
 
     expect(minimal).not.toContain('free-drag/bounds.ts');
-    expect(minimal).not.toContain('shared/landing-runner.ts');
+    expect(minimal).not.toContain('shared/landing.ts');
 
     const bounded = [
       ...(await reachableFrom(['drag', 'free-drag', 'free-drag/bounds'])),
@@ -244,10 +244,10 @@ describe('the published file list', () => {
     expect(bounded).toContain('free-drag/bounds.ts');
   });
 
-  it('should share the landing runner between the two behaviors', async () => {
-    // The other half of F-64's "one declaration, two publications": the runner
-    // is behavior-neutral, so **both** landing entries reach the same internal
-    // module and neither reaches the other behavior to get there.
+  it('should share the landing timing between the two behaviors', async () => {
+    // The other half of F-64's "one declaration, two publications": the timing
+    // policy is behavior-neutral, so **both** landing entries reach the same
+    // internal module and neither reaches the other behavior to get there.
     const free = [...(await reachableFrom(['free-drag/landing']))].map((file) =>
       relative(SRC, file),
     );
@@ -255,8 +255,8 @@ describe('the published file list', () => {
       (file) => relative(SRC, file),
     );
 
-    expect(free).toContain('shared/landing-runner.ts');
-    expect(sortable).toContain('shared/landing-runner.ts');
+    expect(free).toContain('shared/landing.ts');
+    expect(sortable).toContain('shared/landing.ts');
     expect(free.filter((file) => file.startsWith('sortable/'))).toEqual([]);
     expect(sortable.filter((file) => file.startsWith('free-drag/'))).toEqual(
       [],
@@ -289,44 +289,44 @@ describe('the published file list', () => {
 
     for (const source of [sortableLanding, freeDragLanding]) {
       expect(source).toMatch(
-        /export type \{[^}]*LandingOptions[^}]*\} from '\.\.\/shared\/landing-runner\.ts'/su,
+        /export type \{[^}]*LandingOptions[^}]*\} from '\.\.\/shared\/landing\.ts'/su,
       );
     }
   });
 
-  it('should keep the geometry package out of every behavior', async () => {
-    // **D-85's source-level half** (E-01). The kernel measures the box space
-    // once, in `acquireLift`, and hands the four coefficients down on
-    // `ActivationScope`. Free drag used to take its own `coordinates()`
-    // traversal — with four private copies of box-quad's index constants — and
-    // that read ran *after* acquisition had already moved the visual.
+  it('should import the geometry package in exactly one module', async () => {
+    // **D-85's source-level half** (E-01). The kernel reads the geometry once,
+    // in `acquireLift`, and hands named shapes down on `ActivationScope`. Free
+    // drag used to take its own `coordinates()` traversal — with private copies
+    // of box-quad's slot-index constants — and that read ran *after*
+    // acquisition had already moved the visual.
+    //
+    // **Positive and exhaustive, not a blacklist of the behavior directories.**
+    // The specifier is one bare string, so naming every module allowed to hold
+    // it states where the traversal may live, covers `shared/` and any
+    // directory added later, and fails closed: the expected site disappearing
+    // is a failure rather than an empty pass.
+    //
+    // A private slot index — the anti-pattern this rule exists against — is
+    // unreachable behind the same claim. The kernel seam names no `Box`, no
+    // `Space` and no `Float64Array`; a behavior receives four named fields, so
+    // an index has nothing to address, and re-declaring box-quad's vocabulary
+    // is only usable in a module that also holds one of its buffers.
     //
     // Asserted on the source rather than through the import graph, because
     // `@ydinjs/box-quad` is a bare specifier and `reachableFrom` follows only
-    // relative ones. The claim is narrow and exact: no behavior module reaches
-    // the traversal, and no behavior module carries a `Box` index of its own.
-    const files = ['free-drag', 'sortable'];
-    const offenders: string[] = [];
+    // relative ones.
+    const importers = (
+      await Promise.all(
+        (await sources(SRC)).map(async (file) =>
+          (await readFile(file, 'utf8')).includes("from '@ydinjs/box-quad'")
+            ? [relative(SRC, file)]
+            : [],
+        ),
+      )
+    ).flat();
 
-    for (const directory of files) {
-      const dir = join(SRC, directory);
-      // The two directories are read in sequence; each directory's own files
-      // are read in parallel below.
-      // oxlint-disable-next-line no-await-in-loop
-      const names = await readdir(dir);
-      // oxlint-disable-next-line no-await-in-loop
-      const sources = await Promise.all(
-        names.map((name) => readFile(join(dir, name), 'utf8')),
-      );
-
-      for (const [index, source] of sources.entries()) {
-        if (/from '@ydinjs\/box-quad'|BOX_ANCESTOR_/u.test(source)) {
-          offenders.push(`${directory}/${names[index]!}`);
-        }
-      }
-    }
-
-    expect(offenders).toEqual([]);
+    expect(importers).toEqual(['kernel/presentation.ts']);
   });
 
   it('should not ship a directory nothing emits into', async () => {
@@ -394,12 +394,14 @@ describe('the published file list', () => {
     // ever tell it that it is wrong. It is invisible by construction, and it is
     // copied into the artifact a consumer installs.
     //
-    // **One orphan is legitimate and it is recognizable rather than listed.** A
-    // **marked** block opens by naming something deleted — `~~SortableCallbacks~~`
-    // _is deleted_ — which is the retirement marker D-112 uses for a reference,
-    // here for a declaration: the block's subject is gone and saying so is its
-    // whole point. Anything else orphaned is prose that outlived what it
-    // described.
+    // **No orphan is legitimate any more.** One used to be: a block opening by
+    // naming something deleted — `~~SortableCallbacks~~` _is deleted_ — was the
+    // retirement marker applied to a declaration rather than to a reference,
+    // and its subject being gone was its whole point. D-135 removed the class:
+    // a retirement note is the record's voice, it is not something a consumer
+    // outside this repository can act on, and the row below forbids `~~` in a
+    // published declaration outright. So the exemption is deleted rather than
+    // left standing over an empty population.
     //
     // **Three escapes were closed 2026-08-22 (MNT-02), and one of them by
     // deleting the rule rather than tightening it.** A single-line `/** … */`
@@ -420,7 +422,6 @@ describe('the published file list', () => {
       emitted.map((file) => readFile(file, 'utf8')),
     );
     let blocks = 0;
-    let marked = 0;
     for (const [ordinal, file] of emitted.entries()) {
       const lines = read[ordinal]!.split('\n');
       let start = -1;
@@ -440,17 +441,7 @@ describe('the published file list', () => {
         while (next < lines.length && lines[next]!.trim() === '') {
           next += 1;
         }
-        const orphaned = lines[next]?.trim().startsWith('/**') ?? true;
-        // The subject, not the prose: a deletion note opens with the struck
-        // name of the thing it is about.
-        const subject = (
-          start === index
-            ? text.slice(3)
-            : (lines[start + 1] ?? '').trim().replace(/^\*\s?/u, '')
-        ).trim();
-        const retired = subject.startsWith('~~');
-        marked += retired ? 1 : 0;
-        if (orphaned && !retired) {
+        if (lines[next]?.trim().startsWith('/**') ?? true) {
           orphans.push(`${relative(ROOT, file)}:${start + 1}`);
         }
         start = -1;
@@ -460,12 +451,65 @@ describe('the published file list', () => {
     expect(orphans).toEqual([]);
     // **Non-vacuity, and it is the reason MNT-01 was a finding** (D-115). The
     // emitted tree is untracked, so a fresh clone before `just build` has none
-    // of it and this row read one file and passed. Both floors are well under
-    // the 33 declarations and 200 blocks the built tree carries, and the third
-    // asserts the one exemption is exercised rather than merely available.
+    // of it and this row read one file and passed. Both floors sit under what
+    // the built tree carries.
     expect(emitted.length).toBeGreaterThan(25);
-    expect(blocks).toBeGreaterThan(150);
-    expect(marked).toBeGreaterThan(0);
+    expect(blocks).toBeGreaterThan(100);
+  });
+
+  it('should publish no declaration carrying an internal reference', async () => {
+    // A JSDoc block on a declaration that survives the prune is consumer
+    // documentation: it is fetched at every install, rendered on hover and
+    // published by TypeDoc. A reader outside this repository can act on none of
+    // the forms below, so none of them may reach a `.d.ts` (D-135).
+    //
+    // Asserted rather than swept once, because the property regresses with no
+    // other failing test: the next JSDoc edit reintroduces a decision number
+    // and every other row here still passes.
+    //
+    // The same eight forms hold over `src/` in `references.node.test.ts`. The
+    // two registers are one: a comment that needs the planning ledger to be
+    // understood has moved its content out of reach of the code, and that is
+    // as true of an internal comment as of a published one.
+    const FORBIDDEN: ReadonlyArray<readonly [string, RegExp]> = [
+      [
+        'decision, finding or probe number',
+        /\b(?:MNT|CE1|C[2-5]|D|F|I|E|Q|M|K|B|A|H|L|N|P|R|C)-\d+/u,
+      ],
+      ['section citation', /§/u],
+      ['contract document', /\bcontract \d/iu],
+      ['size policy citation', /CODE_OF_SIZE/u],
+      ['record path', /\.plan\//u],
+      ['phase number', /\bphase \d/iu],
+      ['date', /\b20\d{2}-\d{2}-\d{2}\b/u],
+      ['strikethrough', /~~/u],
+    ];
+    // `bench/` holds declarations emitted for the size harness's own fixtures.
+    // They are build output of an instrument and reach no tarball, so the
+    // published set is what remains once they are dropped.
+    const emitted = (await declarations(ROOT)).filter(
+      (file) => !relative(ROOT, file).startsWith('bench/'),
+    );
+    const read = await Promise.all(
+      emitted.map((file) => readFile(file, 'utf8')),
+    );
+    const offences: string[] = [];
+
+    for (const [ordinal, file] of emitted.entries()) {
+      for (const [index, line] of read[ordinal]!.split('\n').entries()) {
+        for (const [what, pattern] of FORBIDDEN) {
+          if (pattern.test(line)) {
+            offences.push(`${relative(ROOT, file)}:${index + 1} ${what}`);
+          }
+        }
+      }
+    }
+
+    expect(offences).toEqual([]);
+    // Non-vacuity: the emitted tree is untracked, so a fresh clone before
+    // `just build` has none of it and this row would read nothing and pass.
+    expect(emitted.length).toBeGreaterThan(25);
+    expect(read.join('').length).toBeGreaterThan(20_000);
   });
 
   it('should publish no declaration the entries cannot reach', async () => {

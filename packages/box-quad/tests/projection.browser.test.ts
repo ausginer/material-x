@@ -7,7 +7,7 @@ import {
   resetDocument,
 } from './support/fixtures.ts';
 
-const BOX_LENGTH = 13;
+const BOX_LENGTH = 8;
 const QUAD_LENGTH = 8;
 
 const BOX_A = 0;
@@ -24,9 +24,8 @@ function sentinels(): Box {
 }
 
 /**
- * A measured box built from numbers alone, with no DOM involved. The trailing
- * inherited-basis slots are irrelevant to projection and are left at zero
- * unless a case sets them.
+ * A measured box built from numbers alone, with no DOM involved. Slots a case
+ * does not set are left at zero.
  */
 function syntheticBox(values: readonly number[]): Box {
   const out = new Float64Array(BOX_LENGTH);
@@ -90,7 +89,7 @@ describe('projection into the viewport', () => {
   it('should project from synthetic numbers with no DOM at all', () => {
     const out = quad();
 
-    expect(projection(syntheticBox([1, 0, 0, 1, 5, 7, 20, 10, 1]), out)).toBe(
+    expect(projection(syntheticBox([1, 0, 0, 1, 5, 7, 20, 10]), out)).toBe(
       true,
     );
     expectQuad(out, [5, 7, 25, 7, 25, 17, 5, 17]);
@@ -247,7 +246,7 @@ describe('projection relative to another box', () => {
     const source = measure(
       createBox({ styles: { left: '40px', top: '25px' } }),
     );
-    const identity = syntheticBox([1, 0, 0, 1, 0, 0, 0, 0, 1]);
+    const identity = syntheticBox([1, 0, 0, 1, 0, 0, 0, 0]);
     const viewport = quad();
     const relative = quad();
 
@@ -260,7 +259,7 @@ describe('projection relative to another box', () => {
 describe('projection failure', () => {
   it('should preserve every output sentinel when the target is singular', () => {
     const source = measure(createBox());
-    const singular = syntheticBox([0, 0, 0, 0, 0, 0, 20, 10, 1]);
+    const singular = syntheticBox([0, 0, 0, 0, 0, 0, 20, 10]);
     const out = sentinels();
 
     expect(projection(source, out, singular)).toBe(false);
@@ -278,7 +277,7 @@ describe('projection failure', () => {
     const out = sentinels();
 
     expect(
-      projection(syntheticBox([1, 0, 0, 1, Number.NaN, 0, 20, 10, 1]), out),
+      projection(syntheticBox([1, 0, 0, 1, Number.NaN, 0, 20, 10]), out),
     ).toBe(false);
     expectQuad(out, [11, 22, 33, 44, 55, 66, 77, 88]);
   });
@@ -286,7 +285,7 @@ describe('projection failure', () => {
   it('should reject an infinite source dimension', () => {
     expect(
       projection(
-        syntheticBox([1, 0, 0, 1, 0, 0, Number.POSITIVE_INFINITY, 10, 1]),
+        syntheticBox([1, 0, 0, 1, 0, 0, Number.POSITIVE_INFINITY, 10]),
         quad(),
       ),
     ).toBe(false);
@@ -341,18 +340,6 @@ describe('projection purity', () => {
 
     expect(Array.from(source)).toEqual(sourceBefore);
     expect(Array.from(target)).toEqual(targetBefore);
-  });
-
-  it('should ignore ancestorZoom, which the matrices already carry', () => {
-    const base = [1, 0, 0, 1, 10, 20, 20, 10] as const;
-    const withoutZoom = syntheticBox([...base, 1]);
-    const withZoom = syntheticBox([...base, 4]);
-    const first = quad();
-    const second = quad();
-
-    expect(projection(withoutZoom, first)).toBe(true);
-    expect(projection(withZoom, second)).toBe(true);
-    expectQuad(second, first);
   });
 });
 

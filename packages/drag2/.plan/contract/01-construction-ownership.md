@@ -12,7 +12,7 @@ Probe 2 removes that. The kernel is an **internal executor**. Its state is closu
    pointerdown ─▶│   private: queue, current/draft, phase, │
                  │   lifetimes, pointer capture, lift,     │
                  │   resolution + settlement attempts      │
-                 │   (the landing gate hold), cancel latch,│
+                 │   the landing tail, cancel latch,       │
                  │   closed, destroyRequested              │
                  └───────────────┬─────────────────────────┘
                                  │ direct calls, per-seam arguments
@@ -52,10 +52,10 @@ type BehaviorInstall<
  * The install function itself — and, since D-48, the **kernel tier's public
  * authoring type**. It is what a custom behavior author writes, so it is
  * exported from `@ydinjs/drag/kernel` together with `BehaviorInstall`,
- * `BehaviorSpec` and `KernelHost`.
+ * `BehaviorSpec` and `BehaviorContext`.
  */
 type BehaviorFactory<Controller, Part extends object, Activation extends {}> = (
-  host: KernelHost,
+  kernel: BehaviorContext,
 ) => BehaviorInstall<Controller, Part, Activation>;
 
 /**
@@ -90,13 +90,13 @@ function draggable<Controller, Part extends object, Activation extends {}>(
 
 **C4-03's argument is intact; D-48 moves the boundary it applies to.** The reasoning is worth keeping in front of the reader, because it is what makes D-48 safe rather than what D-48 overrules. It ran: _the public parameter is the opaque `Behavior<Controller>`, not the factory_ — an earlier version of this section declared `draggable()` against `BehaviorFactory<Controller, Part, Activation>` and had `sortable()` return one, and because this document is normative that was not a stale example. It published the internal factory type _and_ both private generic parameters **at the ordinary public boundary**, and it contradicted 03 §The public/internal boundary.
 
-Every word of that still holds of the ordinary boundary — and the ordinary boundary no longer runs through here. **`sortable()` and `freeDrag()` return controllers and publish neither type** (D-48), so the surface C4-03 was protecting is now protected by construction rather than by a brand: there is nothing at that tier for a factory to leak into. What remains at `@ydinjs/drag/kernel` is the authoring surface for custom behaviors, where `BehaviorFactory`, `BehaviorInstall`, `BehaviorSpec` and `KernelHost` **are** the vocabulary. Publishing them there is D-47's entire purpose, not a leak; the same names that would be a leak one tier up are the deliverable one tier down.
+Every word of that still holds of the ordinary boundary — and the ordinary boundary no longer runs through here. **`sortable()` and `freeDrag()` return controllers and publish neither type** (D-48), so the surface C4-03 was protecting is now protected by construction rather than by a brand: there is nothing at that tier for a factory to leak into. What remains at `@ydinjs/drag/kernel` is the authoring surface for custom behaviors, where `BehaviorFactory`, `BehaviorInstall`, `BehaviorSpec` and `BehaviorContext` **are** the vocabulary. Publishing them there is D-47's entire purpose, not a leak; the same names that would be a leak one tier up are the deliverable one tier down.
 
 Inference still costs the author nothing, and now does the work the brand used to: `Controller`, `Part` and `Activation` are all inferred from the factory, and a kernel-tier author names none of them. ~~`Part` and `Activation` are not inferred at all at this boundary — they were fixed inside the factory before the brand was applied, and `unbrandBehavior` widens them to `object` and `{}` for the driver.~~ The erase-then-widen step had exactly one job — to get a `Behavior<Controller>` back to a callable factory across an opaque boundary — and with no opaque boundary at this call there is nothing to undo. **The Phase 14 fixture is therefore owed a recompile**: it compiles `unbrand → factory → arm`, and what D-48 asks it to compile is `factory → arm`. The widening inside the executor is untouched — the seam driver still erases `Activation` to `{}` — so only the first arrow changes.
 
 `Part` is the behavior's **frame part**, not the composed frame — the composed type exists only inside the kernel, where `Object.assign`'s `T & U` typing produces it without a cast (D-9, D-15). (An earlier sketch wrote `<F extends KernelFrame>` on the _return_ side, which is unsatisfiable: it would require a behavior to produce a valid install for any frame the caller chose.)
 
-**`Activation` threads all the way through, and an earlier draft of the Phase 14 revision did not thread it.** It added the parameter to `BehaviorInstall` and left `BehaviorFactory` and `draggable` at two, which does not compile and cannot infer `HTMLElement` for the sortable while defaulting to `true` for a behavior that stages nothing (Checkpoint C, C-04). The default lives on `BehaviorSpec` alone; every type above it _carries_ the parameter and defaults nothing, because a default here would silently pin a behavior's staged type to `true` instead of inferring it. Both of these are now compiled, in `packages/drag2/docs/revision/phase-14.ts`:
+**`Activation` threads all the way through, and an earlier draft of the Phase 14 revision did not thread it.** It added the parameter to `BehaviorInstall` and left `BehaviorFactory` and `draggable` at two, which does not compile and cannot infer `HTMLElement` for the sortable while defaulting to `true` for a behavior that stages nothing (Checkpoint C, C-04). The default lives on `BehaviorSpec` alone; every type above it _carries_ the parameter and defaults nothing, because a default here would silently pin a behavior's staged type to `true` instead of inferring it. Both of these are now compiled, in `packages/drag2/tests/revision/phase-14.ts`:
 
 ```ts
 BehaviorSpec<SortableFramePart, HTMLElement>; // stages a detached placeholder
@@ -105,13 +105,13 @@ BehaviorSpec<FreeDragPart>; // stages nothing; Activation = true
 
 `kernel.arm(spec)` carries `Activation` as well, and the seam driver erases it to `{}` — the kernel threads the staged value and drops it, so nothing inside the executor is generic over what a behavior staged.
 
-**`Behavior<Controller>` erases both `Part` and `Activation`** at the opaque brand (D-30's behavior half, kept by D-45). That was already true of `Part` and is right for the same reason: nobody outside the factory names either, and carrying them would make a behavior's private frame shape part of the value's type. **Opacity survives D-48 by splitting rather than weakening.** At the ordinary tier it is total and free — nothing there names a behavior at all, because the entry point returns a controller. At the kernel tier the authoring surface is deliberately **structural**: an author writes a factory literal and reads `KernelHost`, which is what authoring means. The brand and `brandBehavior` survive as the library's own construction vocabulary and as a kernel-tier type a helper can name when it wants to _package_ a behavior without installing it. **No `defineBehavior`-style brander is exported**, because with `draggable()` accepting the factory there is nothing an author must brand — and, correspondingly, no call site in this document produces a `Behavior<Controller>` any more: `sortable()` installs directly.
+**`Behavior<Controller>` erases both `Part` and `Activation`** at the opaque brand (D-30's behavior half, kept by D-45). That was already true of `Part` and is right for the same reason: nobody outside the factory names either, and carrying them would make a behavior's private frame shape part of the value's type. **Opacity survives D-48 by splitting rather than weakening.** At the ordinary tier it is total and free — nothing there names a behavior at all, because the entry point returns a controller. At the kernel tier the authoring surface is deliberately **structural**: an author writes a factory literal and reads `BehaviorContext`, which is what authoring means. The brand and `brandBehavior` survive as the library's own construction vocabulary and as a kernel-tier type a helper can name when it wants to _package_ a behavior without installing it. **No `defineBehavior`-style brander is exported**, because with `draggable()` accepting the factory there is nothing an author must brand — and, correspondingly, no call site in this document produces a `Behavior<Controller>` any more: `sortable()` installs directly.
 
 What D-45 withdraws is one level down again and is a different value: the `SortableFeature` brand on a _fragment_, which is now a plain object literal (§The behavior instance).
 
-`arm()` is not on `KernelHost`; only `draggable()` holds the kernel handle, and it calls `arm()` exactly once. A behavior cannot arm itself, re-arm, or observe the kernel object.
+`arm()` is not on `BehaviorContext`; only `draggable()` holds the kernel wide, and it calls `arm()` exactly once. **A behavior may not arm itself or re-arm**, and the interface is where that is expressed: the kernel implements `BehaviorContext` directly, so the object a behavior holds _is_ the kernel under a type that does not name `arm`. Reaching it means leaving the declared type deliberately, which is the same kind of term as the sentence two paragraphs below — _"No input can be admitted before `install()` returns" stays unexpressible rather than enforced_ — and it gains no runtime guard for the same reason.
 
-**D-1's two-phase handshake is untouched by D-48, and that is why the move is safe.** Whichever tier the call sits at, the ordering is the one probe 1 needed a rule for: the host exists before the factory runs, so a behavior can build host-backed runtime and controller state; the factory returns `{ spec, controller }` complete; and only then does `arm()` compose the frames and attach ingress. "No input can be admitted before `install()` returns" stays unexpressible rather than enforced. §11's progressive-disclosure requirement is a requirement about _that_ ordering, and relocating the function preserves it exactly.
+**D-1's two-phase handshake is untouched by D-48, and that is why the move is safe.** Whichever tier the call sits at, the ordering is the one probe 1 needed a rule for: the kernel exists before the factory runs, so a behavior can build kernel-backed runtime and controller state; the factory returns `{ spec, controller }` complete; and only then does `arm()` compose the frames and attach ingress. "No input can be admitted before `install()` returns" stays unexpressible rather than enforced. §11's progressive-disclosure requirement is a requirement about _that_ ordering, and relocating the function preserves it exactly.
 
 ~~Consumer-facing shape is unchanged from probe 1:~~ **Revision 2 changes it** (D-44, D-45, D-48). The previous form was `draggable(list, sortable(items, y(), placeholder({ className: 'ghost' }), callbacks({ onReorder })))` — an eager array, a variadic list of branded feature values, and a two-call composition. D-48 makes `sortable()` the ordinary entry point: it takes `root` first, returns a `SortableController`, and calls `draggable()` itself. D-45's argument list is variadic _config fragments_, and D-44 makes the collection a pull source inside the config:
 
@@ -129,12 +129,14 @@ const controller = sortable(
 
 **This is closer to the shipped package than the pre-revision contract was**, which is worth stating because Revision 2 is otherwise a list of departures. The shipped call is `sortable(container, options)` — one call, element first. The pre-revision contract replaced it with a two-call composition and moved the element onto the outer call; D-48 restores the one-call shape and only generalises `options` into `config, …fragments`. A consumer migrating from the shipped package changes what they pass, not how many calls they make.
 
-## `KernelHost`
+## `BehaviorContext`
 
-The whole construction-time surface. **Six** members, none of which lets the behavior drive a transition. (D-2) It said _seven_ between Phase 14 and Revision 2; D-41 deletes the one Phase 14 added.
+The whole construction-time surface. **Seven** members, none of which lets the behavior drive a transition. (D-2) It said _six_ from Revision 2 until D-170 step 6, which counts `closed` — a member D-53 added and the list below carries.
+
+**It is an interface the kernel implements, and the object a behavior holds is the kernel itself under this type** (D-170 §The behavior-facing interface). There is no second runtime object: the same arrangement `LifetimeScope`/`Lifetime` and `BehaviorLiftSession`/`VisualLiftSession` already use one and two tiers down, where one physical object arrives under the type its recipient is granted. Members are **positively selected**, so a member added to the kernel later is kernel-only until this interface names it.
 
 ```ts
-type KernelHost = Readonly<{
+interface BehaviorContext {
   /** The owning document/window. Every DOM access goes through it. */
   realm: DOMRealm;
 
@@ -150,6 +152,13 @@ type KernelHost = Readonly<{
    * `0 .. config.actionTags - 1`; the kernel offsets it internally and
    * bounds-checks it here. Two array pushes: **no per-entry wrapper, and
    * capacity growth is amortized.**
+   *
+   * **An action dispatched before the behavior is armed is dropped**, without
+   * a report, and this is the one member the construction window narrows. It
+   * is not a policy choice: the action's handler runs the behavior's own
+   * transition through machinery `arm()` has not built yet, so there is
+   * nothing to enqueue into that could run it, and no reporter to say so.
+   * Dispatch after construction.
    */
   dispatch(tag: number, argument: unknown): void;
 
@@ -160,13 +169,42 @@ type KernelHost = Readonly<{
    *
    * Valid **only inside a kernel-driven seam of the current operation**: the
    * kernel latches `inSeam` around every `prepare`/`effect`, and a call outside
-   * one is downgraded to a platform report. Otherwise a late continuation from
+   * one is reported as a `DraggableWarning` instead. Otherwise a late
+   * continuation from
    * operation A could classify a failure against operation B
    * (§[02](02-kernel-behavior-contract.md) §Failure classification).
+   *
+   * **Outside one includes before ingress is armed.** The factory body and the
+   * frame-part factories are outside every seam, so a call from either is the
+   * same demotion — silent while no spec is published, because that is where
+   * the reporter lives.
    */
   fail(stage: FailureStage, error: unknown): void; // `FailureStage` is kernel-tier vocabulary (D-64)
 
-  /** Base controller methods, for the behavior to spread into its controller. */
+  /**
+   * **Is this controller logically closed?** The only sanctioned liveness
+   * reading, and the latch itself rather than a proxy for it (D-53): physical
+   * teardown is deferred to the transaction boundary, so
+   * `presentation.signal.aborted`, a disposed session and a detached node all
+   * **lag** the logical close.
+   *
+   * Readonly by construction — a behavior may consult the latch, never set
+   * it.
+   */
+  readonly closed: boolean;
+
+  /**
+   * Base controller methods, for the behavior to publish on its controller.
+   * They are prototype methods here and **detach-by-contract there**, so a
+   * behavior publishes a closure over the call rather than the member itself
+   * (D-170 §The behavior-facing interface).
+   *
+   * **An idle cancel is a no-op that leaves no latch**, and there is no
+   * operation anywhere in the construction window, so a call from there is
+   * that no-op. `destroy()` beside it is the window's other live member and
+   * is not a no-op: it closes on the statement, and the teardown it owes runs
+   * whether or not the controller was ever armed.
+   */
   cancel(reason?: unknown): void;
 
   /**
@@ -179,20 +217,22 @@ type KernelHost = Readonly<{
    * promise still settles exactly once.
    */
   destroy(): Promise<void>;
-}>;
+}
 ```
+
+**The construction window is not a state this interface distinguishes, and every member behaves there as its own entry above states.** The window runs from the factory's invocation to the moment `arm()` finishes composing, and it is the library's own: the behavior is holding the interface it was handed, from the position that interface exists for, and `arm()`'s field order is not a fact it can observe or a rule it can break. **So the discriminator is deliverability, not availability.** Where the stated behaviour can be delivered in the window it is delivered — `fail` demotes, `cancel` is the idle no-op, `closed` is the latch, `destroy` closes and still owes its teardown. Where it cannot be, the limitation is **written into the member's own entry** so that an author meets a documented term instead of a platform error: `dispatch` is that member and the only one. **A precondition invented to excuse a failure the library caused is not a contract term**, and the failure mode it excuses — a `TypeError` naming a private field, escaping `draggable()` — is the one this rule exists to keep out of the surface.
 
 **`destroy()` returning a promise costs the consumer real ergonomics, and the cost is not hypothetical.** Probe A converted the surface and found **46 first-party call sites** turning into `no-floating-promises` violations — every one of them a plain `controller.destroy();` that never wanted a completion signal, including a React `useEffect` cleanup in this package's own demo, where returning the promise would change the cleanup's contract. The remedy is `void controller.destroy();` at each site that does not care, and `await controller.destroy();` at the few that do. D-36 accepts that in preference to a second public concept — no `destroyed` property, no completion method, no token — because the completion is only observable in the deferred reentrant case, and a rarely-useful promise is cheaper than a permanently-visible API surface.
 
 Compare probe 1's `Kernel`: `runtime`, `install`, `begin`, `commit`, `preparationValid`, `isCurrent`, `resolve` are all gone. `resolve` moved into a per-seam argument (§[02](02-kernel-behavior-contract.md) §Release); the rest have no counterpart because the behavior no longer transitions anything.
 
-`host` is created once and is stable for the controller's life, so a behavior that captures it captures one object.
+The context is stable for the controller's life, so a behavior that captures it captures one object — and since D-170 step 6 that object **is** the kernel, narrowed by the interface it implements rather than mirrored by a second record.
 
-**All six are unchanged by the Phase 14 revision, and the attribution matters.** Probe 13a's negatives are that the host owns no extensible ingress (N-2), no way to mint an operation (N-5) and no return channel from `dispatch` (N-3); probe 13c's is that there is no motion entry (N-4). **D-32 answers all four without adding a member**, because a behavior that declares which events it wants to be asked about is not a behavior that drives the kernel — a second input mode cost this surface nothing. Each of those four assertions still fails to compile, which is the property the probes exist to keep.
+**All six are unchanged by the Phase 14 revision, and the attribution matters.** Probe 13a's negatives are that the context owns no extensible ingress (N-2), no way to mint an operation (N-5) and no return channel from `dispatch` (N-3); probe 13c's is that there is no motion entry (N-4). **D-32 answers all four without adding a member**, because a behavior that declares which events it wants to be asked about is not a behavior that drives the kernel — a second input mode cost this surface nothing. Each of those four assertions still fails to compile, which is the property the probes exist to keep.
 
-**The seventh member is withdrawn (D-41), and the host is back to six.** Original text follows. ~~The seventh member is **D-33's** `presentationCommitted`. It is the one addition this revision makes to the host, and it is the same kind of thing `cancel` is: an operation-scoped signal, latched by the kernel, that does not transition a frame. Reporting a single total would have hidden which decision paid for it.~~
+**The member Phase 14 added is withdrawn (D-41).** Original text follows. ~~The seventh member is **D-33's** `presentationCommitted`. It is the one addition this revision makes to the host, and it is the same kind of thing `cancel` is: an operation-scoped signal, latched by the kernel, that does not transition a frame. Reporting a single total would have hidden which decision paid for it.~~
 
-D-41 deletes the authored-presentation acknowledgement whole — `controller.ready(request)`, `ResolutionOptions`, `rt.pendingRequest`, the acknowledgement deadline and this host member with them — because the serial commit order leaves the readiness hold **no producer**: a consumer that must render before the landing measurement awaits its own commit inside `onReorder`. The attribution the original paragraph insisted on survives its own deletion, and reads better now than it did then: **D-32 answered four probe negatives without adding a member, and the one member Phase 14 did add is the one Revision 2 removes.**
+D-41 deletes the authored-presentation acknowledgement whole — `controller.ready(request)`, `ResolutionOptions`, `rt.pendingRequest`, the acknowledgement deadline and this member with them — because the serial commit order leaves the readiness hold **no producer**: a consumer that must render before the landing measurement awaits its own commit inside `onReorder`. The attribution the original paragraph insisted on survives its own deletion, and reads better now than it did then: **D-32 answered four probe negatives without adding a member, and the one member Phase 14 did add is the one Revision 2 removes.**
 
 ## The behavior instance
 
@@ -230,13 +270,20 @@ function sortable(
 
 **The variadic call survives; what it is variadic _over_ changes.** The library keeps the merge rather than asking the consumer to pre-merge one object, because merge semantics belong to the **slot**, not to fragment provenance: a scalar or capability slot is last-wins as one whole slot, and `plugins` **appends in fragment order**. A consumer-merged single object would silently last-wins the one slot that must concatenate. Defaults are derived after the merge, and the library keeps no record of which helper a field came from — `weirdThing()`'s provenance is gone the moment the object exists (D-45).
 
-**One `rt`, created inside the factory, shared by both halves.** That coupling is the whole of H-2 and it is why the factory exists at all: the spec closes over the same runtime object the controller was handed, and neither can be constructed without a `host`.
+~~**One `rt`, created inside the factory, shared by both halves.** That coupling is the whole of H-2 and it is why the factory exists at all: the spec closes over the same runtime object the controller was handed, and neither can be constructed without a `host`.~~
 
-`rt` is an ordinary object, declared and created in one place, never handed to the kernel and never widened. Its type is not exported. (H-2, D-4)
+**The sharing ended at D-53 and this sentence did not** (F-139). Both controllers have taken `host` alone since the terminal latch moved onto it, so the coupling that survives is on `host` — which both halves would take whether or not a runtime object existed. What H-2 and D-4 actually require is that the runtime be **captured by closures** and unreachable from the kernel, and closure-local state satisfies that more literally than an object does.
+
+**Implemented (D-149, amended 2026-08-28).** **Both runtime aggregates dissolve.** Each spec takes what it needs — `createFreeDragSpec(host, slots)`, `createSortableSpec(host, source, items, slots)` — and every remaining field becomes a spec local cleared in `retire()`, beside the per-operation locals that already are. The sortable's `frame` is created inside the spec, which is what removes the self-referential `let runtime!`. `PresentationView` is untouched: it is a genuine runtime value, the per-operation object the feature views bind to, and its role is what requires an object.
+
+~~`SortableRuntime` stays, because five browser-suite sites build one over a stub host and write its fields to reach mid-operation states.~~ **Withdrawn** (F-142). A behavior-level invariant is driven from the behavior's **real boundary**; a seam whose only capability is writing private fields after construction is a harness shortcut rather than the seam D-126 licensed, which widens the **input** domain and then runs the production wiring. Those five sites move onto `sortable(root, config)` and, for the slot records the public config cannot express, onto `createSortableBehavior` through `draggable()` — a real kernel instead of a stub context. A state that cannot be reached or observed from there is a **testability finding**, not a reason to keep an access path.
+
+~~`rt` is an ordinary object, declared and created in one place, never handed to the kernel and never widened. Its type is not exported.~~ **There is no object** (D-149). The state below is the field list as it stood; every entry is now a `let` in `createSortableSpec`'s closure, which is unreachable, unnameable and untestable from outside **by construction** rather than by an unexported type. H-2 and D-4 are satisfied at least as strongly. Read the block as an inventory of what the behavior keeps, not as a declaration that exists. (H-2, D-4)
 
 ```ts
 type SortableRuntime = {
-  readonly host: KernelHost;
+  // ← dissolved by D-149; the fields are spec locals
+  readonly kernel: BehaviorContext;
   readonly slots: SortableSlots;
   /** Created once per controller; cancelled at retire and destroy. */
   readonly frame: FrameTask<number>;
@@ -255,11 +302,11 @@ type SortableRuntime = {
 };
 ```
 
-`frame` is **not** nullable and is **not** created per operation. An earlier draft initialised it to `null` and never assigned it anywhere, which made the first active pointer move a null dereference (review 4, §3). Creating it once per controller removes the null, removes an allocation from the activation path, and costs nothing in staleness handling — the task's identity is never operation-scoped, because staleness is carried by the monotonic spatial attempt number it schedules. It is cancelled by the motion lifetime at release, by `retire()`, and by teardown.
+`frame` is **not** nullable and is **not** created per operation, and since D-149 it is created **inside the spec** — which is what removed the self-referential `let runtime!` its body needed to read the state it schedules against. An earlier draft initialised it to `null` and never assigned it anywhere, which made the first active pointer move a null dereference (review 4, §3). Creating it once per controller removes the null, removes an allocation from the activation path, and costs nothing in staleness handling — the task's identity is never operation-scoped, because staleness is carried by the monotonic spatial attempt number it schedules. It is cancelled by the motion lifetime at release, by `retire()`, and by teardown.
 
 **This moves an allocation rather than removing one, and which policy is cheaper is not decided** (review 5, §19). Eager-per-controller gives every controller an object, method and closure graph even if it never activates; the shipped package creates the task during activation instead, paying nothing for cold controllers and paying again on every drag. The functional fix — the task must exist before the first move — is settled; the allocation policy is part of M-2.
 
-**Seven mutable fields** — six, plus `closed` from C2-01 — beside three readonly ones (`host`, `slots`, `frame`). ~~**Eight** — six, plus `pendingRequest` from D-33 and `closed` from C2-01.~~ D-41 deletes `pendingRequest` with the acknowledgement protocol that was its only reader, and the count returns to the number it held before Phase 14. The `closed` half of that history is untouched and is the half that carries an argument: the count was _six_ until Checkpoint D review 2 moved the controller's terminal latch onto the runtime, so that D3's one reader and I-36's readers read **one** latch rather than two that can disagree — which D-37 leaves standing at the floor, since a floor reading is still a latch reading. The document said _eight_ before Checkpoint C, C4-08, which was the different error of counting the readonly three among them. Probe 1's shared runtime had those _plus_ fourteen kernel fields (`actions`, `args`, `running`, `closed`, `current`, `draft`, `ingress`, `spec`, `lifetimes`, `originRect`, three attempt slots, `cancelRequest`, `pendingContinuation`, `destroyRequested`). Those fourteen are now unreachable, unnameable and untestable-from-outside — which is correct: none of them is a behavior concern, and probe 1 exported them only because the container was shared.
+**Seven mutable fields** — six, plus `closed` from C2-01 — beside three readonly ones (`kernel`, `slots`, `frame`). Since D-149 `kernel` and `slots` are the spec's own parameters and `frame` is a `const` beside the rest, so the readonly/mutable split is now the ordinary `const`/`let` one. ~~**Eight** — six, plus `pendingRequest` from D-33 and `closed` from C2-01.~~ D-41 deletes `pendingRequest` with the acknowledgement protocol that was its only reader, and the count returns to the number it held before Phase 14. The `closed` half of that history is untouched and is the half that carries an argument: the count was _six_ until Checkpoint D review 2 moved the controller's terminal latch onto the runtime, so that D3's one reader and I-36's readers read **one** latch rather than two that can disagree — which D-37 leaves standing at the floor, since a floor reading is still a latch reading. The document said _eight_ before Checkpoint C, C4-08, which was the different error of counting the readonly three among them. Probe 1's shared runtime had those _plus_ fourteen kernel fields (`actions`, `args`, `running`, `closed`, `current`, `draft`, `ingress`, `spec`, `lifetimes`, `originRect`, three attempt slots, `cancelRequest`, `pendingContinuation`, `destroyRequested`). Those fourteen are now unreachable, unnameable and untestable-from-outside — which is correct: none of them is a behavior concern, and probe 1 exported them only because the container was shared.
 
 ### `snapshot` is fed by a pull source, not by a construction-time capture
 
@@ -302,8 +349,8 @@ Note what is _not_ here: `rects`. The geometry cache lives inside the axis featu
 | `preventDefault()` on an admitted ingress event | kernel (D-32, C-03) — **ownership unchanged by D-46; the _policy_ is new** | nothing — the behavior answers feasibility with its return value |
 | Lift session + inline-style snapshot + **the last rendered delta** | kernel (acquires, disposes, records) | behavior, as a **`BehaviorLiftSession`** — `visual`, `baseTransform`, `compose`, `write` and nothing else. `rendered` is kernel-read; `dispose` is kernel-sequenced. The behavior can neither sample the delta nor unwind the lift (D-35; Checkpoint C, C5-01) |
 | `originRect` | kernel | behavior, as an activation-scope argument |
-| Resolution attempt; settlement attempt including **the landing gate hold** | kernel (D-7, narrowed to one gate by D-41) | nothing. No settlement object crosses either boundary. ~~Including the **early-acknowledgement latch**, **both gate holds** and the readiness deadline (D-33) — deleted with the acknowledgement protocol~~ |
-| The authoritative final pin | kernel, via the lift it owns (D-16, narrowed by D-41 to _measure once, pin at the join_) | — |
+| Resolution attempt; settlement attempt ~~including **the landing gate hold**~~, which since D-155 is a measured target and nothing else | kernel (D-7, narrowed to one gate by D-41, and to none by D-155) | nothing. No settlement object crosses either boundary. ~~Including the **early-acknowledgement latch**, **both gate holds** and the readiness deadline (D-33) — deleted with the acknowledgement protocol~~ |
+| The decided final position | kernel, from the one authoritative measurement (D-16, narrowed by D-41 to _measure once_, and by D-166 to a decision the join never writes: the visual reaches it by being released into flow) | — |
 | ~~`readinessTimeout` policy~~ | ~~kernel, configured by spec scalar~~ — the acknowledgement deadline goes with D-33 (D-41) | — |
 | Collection snapshot, insertion, proposal, outcome, recovery, domain result | behavior (runtime + frame part) | features, through declared views |
 | The landing target, and re-anchoring presentation to the semantic item | behavior, via `anchorTarget` (D-16) | — |
@@ -313,10 +360,11 @@ Note what is _not_ here: `rects`. The geometry cache lives inside the axis featu
 | Collection pull source and the array-identity test | behavior, from `config.items` (D-44) | the consumer owns the source; the behavior owns the snapshot it derives |
 | Packed rect index and the axis rule | the axis feature — `y()` or `xy()` | nothing |
 | Per-element displacement records | `layoutAnimation()` | nothing |
-| Landing runner mechanics | `landing()` | nothing. **D-63: the consumer supplies timing, never a runner** — the library owns the animation, and a runner is authored at the middle or kernel tier |
+| ~~Landing runner mechanics~~ The tail's mechanics — the vector, the property, the projection, the slot and the cancel | **the kernel** (D-155) | nothing. **D-63: the consumer supplies timing, never a runner** — and since D-155 no tier supplies a runner, because the interpolation the kernel owns holds nothing anyone could be asked to relinquish |
+| Landing timing — duration, easing, the reduced-motion collapse | `landing()` | nothing |
 | Persistent ordered state | consumer | — |
 
-**The `preventDefault()` row changes meaning without changing owner.** The kernel still makes the call, and the behavior still answers only feasibility with its return value — no participant gains or loses reach. What D-46 withdraws is the call being **unconditional at admission**: a press that never crosses the activation threshold must leave native focus, caret, selection and form-control behavior intact, and command ingress must ask what the event landed on. The policy itself — the interactive/editable decline rule, the keyboard-command rule, `event.isComposing`, and the modifier for plain-text selection — belongs to §[02](02-kernel-behavior-contract.md), which states it. This table records only that the act stayed kernel-owned while its trigger condition moved.
+**The `preventDefault()` row changes meaning without changing owner.** The kernel still makes the call, and the behavior still answers only feasibility with its return value — no participant gains or loses reach. What D-46 withdraws is the call being **unconditional at admission**: a press that never crosses the activation threshold must leave native focus, caret, selection and form-control behavior intact, and command ingress must ask what the event landed on. The policy itself — the `[data-drag-ignore]` decline rule (~~the interactive/editable rule and the separate keyboard-command rule~~, both withdrawn by D-129), `event.isComposing`, and the modifier for plain-text selection — belongs to §[02](02-kernel-behavior-contract.md), which states it. This table records only that the act stayed kernel-owned while its trigger condition moved.
 
 The row that matters: **no participant can reach another's mutable state except through an argument that participant was deliberately given.** Probe 1 had one container everybody could reach and relied on `Pick<>` types to discourage it.
 
@@ -355,9 +403,13 @@ Inertness alone is not quite enough, so two unwinds are also normative:
 
   **D-45 adds an ordering rule that shrinks what can need unwinding: installers are invoked _after_ the merge completes.** The assembler collects fragments, merges by slot, derives defaults, and only then materializes. So a capability that loses a last-wins slot — a second `y()` overriding the first, a preset's `axis` overridden by the call site's — is **never constructed**, and there is nothing to unwind for it. Unwinding covers the installers that actually ran, which after the merge is at most one per capability slot plus the whole `plugins` array. Merge-first is also what makes the losing installer's absence observable as a non-event rather than as an acquire/release pair.
 
-- **`arm()` unwinds.** If either frame factory, the frame-part validation, the shape assertion, the static-configuration validation or any ingress attachment throws, `arm()` calls `spec.retire()` best-effort, scrubs whichever frame exists, aborts ingress, and rethrows. A controller is never returned half-armed.
+- **`arm()` unwinds, and both of its exits reach the unwind.** If either frame factory, the static-configuration validation or any ingress attachment throws, `arm()` calls `spec.retire()` best-effort, scrubs whichever frame exists, aborts ingress, and rethrows. **A `destroy()` raised from inside a frame-part factory is the same situation without the throw**: `arm()` composes no further frame part once the terminal latch is closed, runs the same unwind over whichever frames it has composed, and returns instead of rethrowing, because a consumer asking to be destroyed is not an error. A controller is never returned half-armed, and never returned holding a behavior that was never retired.
 
-  **Ingress is `pointerdown` plus each type a `command` member declares** (D-32). Every listener is bound on `root` against the one controller-lifetime ingress signal, so the unwind and the teardown abort in step 7 below release all of them together and a discrete listener can never outlive I-6's terminal barrier. Under D-36 a deferred step 7 leaves those listeners physically **attached** until the transaction boundary; the barrier is unaffected, because admission is refused from the logical latch onward (D-37) and an attached listener that admits nothing is a non-event. This is the reading D-38 makes normative: `ingress.signal.aborted` answers "has teardown run", never "is this controller alive". `arm()` validates `command.types` here, with the same construction-time `TypeError` policy as every other static option: non-empty, strings, no empty string, no duplicates, and no type the kernel binds for its own pointer ingress.
+  **The window belongs to `arm()` because the spec does.** `#spec` is published last, after both frames exist, so that a teardown reaching a frame reset always finds a composed pair; it is therefore not yet a name for the behavior while the frames are being composed, and teardown's steps 3 to 6 cannot see one there. The spec is an argument of `arm()` for the whole of that window, which is why the frame reset takes the behavior as a parameter instead of reading the field.
+
+  **A frame reset is never handed anything but a composed frame.** _Whichever frame exists_ is the whole rule: resetting a frame the factory has not produced would call `resetFramePart` with a value its own declaration says is a `Frame<Part>`, which is a fault the library would be committing against the behavior rather than one it is unwinding for it.
+
+  **Ingress is `pointerdown` plus each type a `command` member declares** (D-32). Every listener is bound on `root` against the one controller-lifetime ingress signal, so the unwind and the teardown abort in step 7 below release all of them together and a discrete listener can never outlive I-6's terminal barrier. Under D-36 a deferred step 7 leaves those listeners physically **attached** until the transaction boundary; the barrier is unaffected, because admission is refused from the logical latch onward (D-37) and an attached listener that admits nothing is a non-event. This is the reading D-38 makes normative: `ingress.signal.aborted` answers "has teardown run", never "is this controller alive". `arm()` validates `command.types` here, with the same construction-time `TypeError` policy as every other static option, and since D-118 it validates one thing: no type the kernel binds for its own pointer ingress. An empty array binds no discrete listener and is a supported spelling of that, and the other four shapes this sentence once listed are accepted.
 
 ## Teardown across two owners
 
@@ -369,23 +421,23 @@ Inertness alone is not quite enough, so two unwinds are also normative:
 
 What was `destroy()`'s guarantee — _physical release completes before it returns_ — is therefore withdrawn. What replaces it is stronger where it matters and weaker only where it did not: the **latch** is now set earlier than it ever was, and only the resource release is late.
 
-It still spans two private state spaces, in a fixed order. Step 1 is the logical close and runs on the calling statement, always:
+It still spans two private state spaces, in a fixed order. **Steps 1 and 2 are the execution bracket's** (D-180): it owns the latch and the queue, so it sets the one and clears the other, and it invokes the kernel's steps 3 to 7 as a callback. The observable sequence is unchanged by that ownership. Step 1 is the logical close and runs on the calling statement, always:
 
 ```text
-1. closed = true; destroyRequested = true        (kernel)   every guard now fails
+1. closed = true; destroyRequested = true       (bracket)   every guard now fails
 ```
 
 Steps 2–7 are the physical teardown. They run at the transaction boundary when one is active, and immediately after step 1 when none is:
 
 ```text
-2. clear the queue, drop every retained argument (kernel)
+2. clear the queue, drop every retained argument (bracket)
 3. retire kernel attempts, **each step best-effort and individually wrapped**:
-   abort an uncompleted resolution and clear its settlement; on the settlement
-   attempt, `destroy()` the landing handle, then drop the attempt entirely
-                                                                      (kernel)
-   ── a throwing landing handle here must not prevent steps 4–7. It is the same
-      policy as the join, and for the same reason: the runner is code the kernel
-      did not write. ──
+   drop the resolution attempt, so a completion arriving after this
+   validates against an empty slot, and clear the input the settlement
+   seam was driving                                                   (kernel)
+   ── the landing tail is NOT retired here. It is controller-scoped and
+      outlives the operation deliberately, so it is cancelled at step 7 with
+      the ingress abort, beside the click suppressor.        [D-155] ──
 4. spec.retire()                                 (behavior) wrapped in try/catch
 5. dispose presentation → motion → cancellation lifetimes, LIFO, best-effort
                                                  (kernel)   releases capture
@@ -402,17 +454,19 @@ Steps 2–7 are the physical teardown. They run at the transaction boundary when
       because they share the controller-lifetime signal. ──
 ```
 
+**Steps 3 to 6 require a published behavior, and there is one window in which a behavior exists and is not published yet.** Between the factory's return and `arm()`'s publication of the spec, a `destroy()` finds no armed behavior. Steps 3 and 5 have nothing to do there and could not — no attempt is minted and no operation admitted before ingress is armed — and step 6 has no frames to scrub. **Step 4 does have a behavior, and `arm()`'s own unwind is what runs it**, on the spec it holds as an argument. Ingress abort therefore precedes step 4 in that one window rather than following it, and no participant can observe the difference: no ingress listener is bound until after both frames exist, so the abort releases nothing.
+
 **The sequence and its order survive D-36 intact; only its start time moves.** D-29's totality is rescoped, not retracted: totality is a property of the teardown _sequence, wherever it runs_, not of the stack that called `destroy()`. When teardown defers, the same six physical steps run at the boundary with the same wrapping — each attempt cleanup individually wrapped in step 3, each frame reset individually wrapped in step 6, ingress abort from a `finally` in step 7. What no longer holds is that they have run by the time `destroy()` returns; that is what the returned promise is for.
 
 **No physical-teardown observation may answer a liveness question** (D-38, I-37). Deferral makes an aborted signal, a disposed session or a detached node **lag** the logical close, so `presentation.signal.aborted` and its relatives stop being valid readings of "is this controller still alive" — they were chosen precisely because they are strictly stronger than the latch, catching a kernel-internal panic as well, and deferral turns that same property into strictly weaker. Liveness is read from the logical latch or from transaction validity, and from nothing else.
 
-**Step 3 drops both attempts outright**, which is what makes every late continuation inert: the kernel finds no attempt to resolve against, so a landing `done()` arriving after teardown is the same non-event a stale one is during normal operation. ~~Dropping both attempts makes a late `controller.ready(request)` inert twice over (D-33): the behavior's published request is cleared by step 4's `retire()`, and the kernel finds no attempt even if a behavior bug let the signal through.~~ D-41 deletes `controller.ready()` and `rt.pendingRequest`, so the second half of that argument has no subject; the attempt-dropping is unchanged and is now justified by the staleness rule alone.
+**Step 3 drops both attempts outright**, which is what makes every late continuation inert: the kernel finds no attempt to resolve against, so a resolution arriving after teardown is the same non-event a stale one is during normal operation. ~~Dropping both attempts makes a late `controller.ready(request)` inert twice over (D-33): the behavior's published request is cleared by step 4's `retire()`, and the kernel finds no attempt even if a behavior bug let the signal through.~~ D-41 deletes `controller.ready()` and `rt.pendingRequest`, so the second half of that argument has no subject; the attempt-dropping is unchanged and is now justified by the staleness rule alone.
 
-**Destroy never pins.** The authoritative pin (D-16) belongs to the normal settlement join; a destroyed controller has no authored DOM to agree with, and `LandingHandle.destroy()` is defined as never writing a final position.
+**Destroy never lands a drop.** The authoritative measurement and the release that spends it (D-16, D-166) belong to the normal settlement join; a destroyed controller has no authored DOM to agree with, so it restores and stops. **Cancelling the tail is not a landing either**, and cannot become one: the contribution decays to zero, so ending it at any instant leaves the element exactly where flow puts it.
 
 Two invariants this ordering creates, both of which are new obligations that probe 1's single container did not have (F-12):
 
-- **No behavior callback in the sequence can stop a later step** — wherever the sequence runs. The kernel wraps `spec.retire()`, each attempt's cleanup (including a throwing `LandingHandle.destroy()`), and each frame reset, reporting through the platform reporter and continuing. A behavior cannot strand the kernel's DOM cleanup, and ingress abort is in a `finally`. Deferral does not touch this: the wrapping travels with the steps, and a throw at the transaction boundary is caught by the same handlers it would have been caught by on the closing stack.
+- **No behavior callback in the sequence can stop a later step** — wherever the sequence runs. The kernel wraps `spec.retire()`, each attempt's cleanup, the tail's own `cancel()` — a method on an object reachable from a consumer-owned element — and each frame reset, reporting and continuing. ~~through the platform reporter~~ — since D-130 the report is a `DraggableWarning` on the consumer's `onError`, **and after logical closure it is refused rather than delivered** (D-37): what the sequence guarantees is that the next step runs, never that the consumer hears about the one that did not. **That refusal is grounded rather than merely stated since D-178** (2026-09-04): a fault raised by a teardown step is an obligation the **closure created**, and the exception's clause 2 requires an obligation the closure did not create — so the silence follows from the rule instead of standing beside it. It is also where the rule is most open to challenge: if a disposer throwing during teardown must reach the consumer, that limb of D-178 is what changes, not act (a). A behavior cannot strand the kernel's DOM cleanup, and ingress abort is in a `finally`. Deferral does not touch this: the wrapping travels with the steps, and a throw at the transaction boundary is caught by the same handlers it would have been caught by on the closing stack.
 
   **The same totality applies to the `arm()` unwind**: a reset that throws while unwinding a failed `arm()` must not replace the original arm failure or skip ingress cleanup.
 
@@ -422,21 +476,21 @@ Two invariants this ordering creates, both of which are new obligations that pro
 
   **Every ceiling above that floor is withdrawn** (D-37). The promises that the library reads no further geometry, and that no further consumer-reachable read occurs anywhere in the remainder of the current call graph, are retracted; the **ceiling register** of stronger site-specific promises is retracted with them; and the **consumer reach/stretch analysis is retired as a proof domain**. The replacement is finite and API-shaped: after logical closure the library must not invoke a declared consumer slot, admit another operation, or publish another lifecycle or domain event. Internal work already inside the current transaction may finish, provided it survives the boundary in no observable form. Probe A is the measurement, not the argument: 27 of its 33 statement-level liveness readings retire under the bracket, because a guard exists to stop work that would outlive the close, and work the boundary undoes has no consequence to stop.
 
-  Two things the retraction does **not** reach. The kernel's own `queue.closed` boundary guards are a different category from the statement-level I-36 guards and are untouched. And restoring state still matters as much as stopping calls where a participant does resume — a sequence that resumes and marks its cache clean re-pins DOM `retire()` had released, against I-20 — with the difference that under deferral `retire()` may not have run yet, so the correct reading is the latch and never the cache's own disposal state (D-38).
+  Two things the retraction does **not** reach. The kernel's own terminal-latch boundary guards are a different category from the statement-level I-36 guards and are untouched. And restoring state still matters as much as stopping calls where a participant does resume — a sequence that resumes and marks its cache clean re-pins DOM `retire()` had released, against I-20 — with the difference that under deferral `retire()` may not have run yet, so the correct reading is the latch and never the cache's own disposal state (D-38).
 
-  The mechanism is behavior-owned and not promotable, so this half of the terminal guarantee is **tier C** while everything above it is tier B — §[05](05-lifecycle-invariants.md) I-6 carries that split in its own row, and I-36 and F-47 state it. Original text follows. ~~Every barrier the kernel owns is complete at the kernel's granularity of one callback … **The obligation is provisioning in two forms — a participant's own reading, or a named kernel bracket that revalidates and undoes — over a floor of consequences, plus a register of stronger site-specific promises; it is not a quantifier over call sites** — §05 I-36 (1), (2) and (3) state why the quantifier form is not dischargeable and why provisioning alone does not discharge it either.~~ The retracted sentence was already reaching for D-37's answer and stopped one step short: having found that the quantifier form is not dischargeable, it kept a register of promises quantified the same way.
+  The mechanism is behavior-owned and not promotable, so this half of the terminal guarantee is **tier C** while everything above it is tier B — §[05](05-lifecycle-invariants.md) I-6 carries that split in its own entry, and I-36 and F-47 state it. Original text follows. ~~Every barrier the kernel owns is complete at the kernel's granularity of one callback … **The obligation is provisioning in two forms — a participant's own reading, or a named kernel bracket that revalidates and undoes — over a floor of consequences, plus a register of stronger site-specific promises; it is not a quantifier over call sites** — §05 I-36 (1), (2) and (3) state why the quantifier form is not dischargeable and why provisioning alone does not discharge it either.~~ The retracted sentence was already reaching for D-37's answer and stopped one step short: having found that the quantifier form is not dischargeable, it kept a register of promises quantified the same way.
 
 - **`spec.retire()` runs before the presentation lifetime disposes, but after attempts are inert.** It must therefore tolerate DOM that is still attached, and must not assume it will be the thing that removes it — the placeholder is removed by the disposer the behavior registered on the _presentation lifetime_ at activation, not by `retire()`. `retire()` drops references; the lifetime releases DOM.
 
 The same seven steps, minus 1, 2 and 7, are operation retirement.
 
-**Panic** is `destroy()` followed by reporting the initiating error. ~~with teardown strictly before reporting~~ — **D-36 reverses that ordering to close → report → teardown**, and probe A observed exactly the reversal, `['retire','report']` becoming `['report','retire']`.
+**Panic** is `destroy()` followed by reporting the initiating error — a `DraggableError` with code `platform` and **no stage**, since `FailureStage` classifies faults _within_ an operation and a panic destroys the controller (D-131). ~~with teardown strictly before reporting~~ — **D-36 reverses that ordering to close → report → teardown**, and probe A observed exactly the reversal, `['retire','report']` becoming `['report','retire']`.
 
 The reversal is **safe, not merely permitted**, and the reason is the shape of the window rather than a judgement about what reporting is allowed to see:
 
-- **`panic()` is reached from `drain`'s `catch`, after the loop has already exited.** The deferral window is therefore **one stack frame wide**, and the only statement inside it is `report`.
-- **`report` touches no library state.** It reads the error it was handed and hands it to the platform reporter. It mints nothing, admits nothing, and mutates neither kernel nor behavior state, so there is no state whose teardown it could observe out of order.
-- **The latch is already set before it runs.** Whatever the reporter's own code does — including calling back into the controller — meets a closed controller, because step 1 preceded the report. The old ordering bought its safety by finishing teardown first; the new ordering buys the same safety earlier and more cheaply, from the latch.
+- **`panic()` is reached from the drain's `catch`, after the loop has already exited.** The deferral window is therefore **one stack frame wide**, and the only statement inside it is `report`.
+- ~~**`report` touches no library state.** It reads the error it was handed and hands it to the platform reporter. It mints nothing, admits nothing, and mutates neither kernel nor behavior state, so there is no state whose teardown it could observe out of order.~~ **False since D-130, and D-131 replaces the clause rather than the ordering.** The statement inside the window is now the consumer's `onError`, which does touch library state and can call back in. The ordering survives on the _next_ bullet alone, and the delivery becomes a **named exception to D-37 (a)** — ~~the second member of D-51's closed list~~, admitted for the property D-51 admitted `LandingHandle.destroy()` for: a terminal diagnostic tells the consumer something and asks nothing of them, publishing no lifecycle or domain event, ignoring its return value, performing no operation work, and wrapped. **The list is struck twice over and the property is now the whole rule** (D-178, 2026-09-04): D-51's list never carried this member — D-51 and I-36 both read _the list is currently one member_ while this line read _second_, which is the disagreement that made the enumeration unmaintainable — and D-176 replaced the list with a predicate. Under D-178 the delivery is **terminal diagnosis**, one of the exception's two species, and the four words above are what the clause now says: the axis is non-solicitation, and this sentence had it right before there was a rule to cite.
+- **The latch is already set before it runs.** Whatever the handler's own code does — including calling back into the controller — meets a closed controller, because step 1 preceded the report. The old ordering bought its safety by finishing teardown first; the new ordering buys the same safety earlier and more cheaply, from the latch. **This is now the whole argument**, and the alternative it beats is stated in D-130 §8: reporting first would run consumer code on a controller whose invariants are already known to be broken, with the added hazard that the consumer may start work the next statement tears down.
 
 The one way to distinguish the two orderings from outside is to observe physical teardown — an aborted signal, a disposed session, a detached node — during the report. D-38 forbids reading any of those as a liveness answer, so the distinction is unobservable by any participant obeying the contract. **No library work continues on the broken stack**: the frame that panicked unwinds, and teardown runs at the boundary below it.
 

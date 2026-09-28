@@ -58,8 +58,7 @@ import {
   type FreeDragConfig,
 } from '../../src/free-drag.ts';
 import {
-  beginFrame,
-  composeFrame,
+  frame,
   type Frame,
   type KernelFrame,
 } from '../../src/kernel/frames.ts';
@@ -163,12 +162,15 @@ type Pair = { current: Frame<Part>; draft: Frame<Part> };
 function createPair(size: number): Pair {
   const factory = createPart(size);
 
-  return { current: composeFrame(factory), draft: composeFrame(factory) };
+  return {
+    current: Object.assign(frame(), factory()),
+    draft: Object.assign(frame(), factory()),
+  };
 }
 
 /** What ships: copy the whole frame, write the sample, swap. */
 function publishGeneric(pair: Pair, x: number, y: number): void {
-  beginFrame(pair.draft, pair.current);
+  Object.assign(pair.draft, pair.current);
   pair.draft.pointerX = x;
   pair.draft.pointerY = y;
 

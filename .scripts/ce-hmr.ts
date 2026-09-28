@@ -99,6 +99,9 @@ function patchCustomElementsRegistry(): void {
   const { prototype } = CustomElementRegistry;
 
   // Not patched yet
+  // A membership test on the platform method, not a call: nothing is invoked
+  // through this reference.
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   if (!(STATE_KEY in prototype.define)) {
     const define: CustomElementRegistry['define'] & { [STATE_KEY]: HMRState } =
       Object.assign(
@@ -142,6 +145,9 @@ function patchCustomElementsRegistry(): void {
         {
           [STATE_KEY]: {
             entries: new Map(),
+            // The platform method, kept so the wrapper can delegate to it. Invoked as
+            // `originalDefine.call(registry, …)`, which supplies the receiver.
+            // eslint-disable-next-line @typescript-eslint/unbound-method
             originalDefine: CustomElementRegistry.prototype.define,
           },
         },

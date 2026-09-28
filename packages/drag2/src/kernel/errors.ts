@@ -1,116 +1,88 @@
 /**
- * **The consumer-facing fault vocabulary** (D-64).
+ * The consumer-facing fault vocabulary.
  *
- * `FailureStage` is how a *behavior* classifies, which is kernel-tier work. An
- * ordinary consumer receives a `DraggableError` carrying a coarse `code`
- * instead, and never a stage: the classification machinery is unchanged, only
- * its audience narrowed.
+ * Every fault the library surfaces reaches the consumer's `onError`, and
+ * **which class arrives** says whether the operation was affected: a
+ * `DraggableError` changed the terminal result, the phase sequence or the
+ * settlement, and a `DraggableWarning` changed none of those.
  */
-
-import {
-  FAILURE_ACTION_EFFECT,
-  FAILURE_ACTION_PREPARE,
-  FAILURE_ACTIVATION,
-  FAILURE_ADMISSION,
-  FAILURE_INVALIDATION,
-  FAILURE_LANDING_CREATE,
-  FAILURE_LANDING_INTERRUPTED,
-  FAILURE_LANDING_TARGET,
-  FAILURE_RELEASE,
-  FAILURE_RENDERER_WRITE,
-  FAILURE_RESOLUTION,
-  FAILURE_SCHEDULED_FRAME,
-  FAILURE_TERMINAL_CALLBACK,
-  type FailureStage,
-} from './failures.ts';
+import type { FailureStage } from './failures.ts';
 
 /**
- * The coarse consumer-facing fault classes. **Names are not frozen; the axis
- * is** — a code names an actionable fault class, never an internal pipeline
- * seam.
- */
-export type DraggableErrorCode =
-  | 'consumer'
-  | 'interaction'
-  | 'presentation'
-  | 'platform';
-
-/**
- * A class, therefore a **runtime value** rather than an erased type: a consumer
- * writes `err instanceof DraggableError`, and so does a kernel-tier behavior
- * author. That is what keeps it on `drag.js`, the shared root — putting it on
- * `sortable.js` would make a kernel author import the sortable behavior to
- * recognise an error the kernel raised, and putting it on `kernel.js` would
- * make an ordinary consumer import the kernel to recognise an error its own
- * handler was given (D-64).
+ * A consequential fault: the operation's terminal result, phase sequence or
+ * settlement is not what it would have been.
  *
- * `cause` is the native ES2022 property and is deliberately not redeclared.
+ * `stage` is where the library was standing when the fault occurred, and is
+ * `null` for one case only — the controller was destroyed, so there was no
+ * operation to classify. The twelve stage constants are published beside this
+ * class so the number can be named.
+ *
+ * The classifying error is carried on the native `cause`. `message` is that
+ * error's own whenever there is one, so nothing it said is flattened away.
+ *
+ * **`stage` is the classification and the whole of it.** `message` and `cause`
+ * are diagnostics: **nothing may branch on either**, and both may change in a
+ * patch release. Where the library caught something — a callback of yours, a
+ * third-party capability, the platform — `cause` is that value unchanged, and
+ * `message` is its message. Where the library detected a condition and caught
+ * nothing, `message` is a `drag: <area>/<condition>` identity naming it, which
+ * exists so a production bug report says which invariant broke; it is not a
+ * second classification and is not part of the API.
+ *
+ * This is where the two classes differ, and the difference is the reason for
+ * the rule: a {@link DraggableWarning} has no `stage`, so its `message` **is**
+ * the payload.
+ *
+ * **`name` is `Error`'s**, so a logged fault heads `Error: drag: …` rather than
+ * `DraggableError: …`. The class is identified by `instanceof` and by nothing
+ * else — a `name` of its own would be a second, weaker discriminator, since a
+ * string is copyable and a prototype is not. Everything a bug report needs is
+ * on that line regardless: the `message` above is the cause's, or the identity.
  */
 export class DraggableError extends Error {
-  readonly code: DraggableErrorCode;
+  readonly stage: FailureStage | null;
 
-  constructor(code: DraggableErrorCode, cause: unknown) {
+  constructor(stage: FailureStage | null, cause: unknown) {
     super(
-      cause instanceof Error ? cause.message : `drag: ${code} failure`,
       // Preserved rather than flattened: the classifying error is the only
-      // thing that says *what* went wrong, and the code says only whose fault
-      // it is.
+      // thing that says *what* went wrong, and the stage says only where the
+      // library was standing when it did.
+      cause instanceof Error
+        ? cause.message
+        : stage === null
+          ? 'drag: controller destroyed'
+          : `drag: failure at stage ${stage}`,
       { cause },
     );
-    this.name = 'DraggableError';
-    this.code = code;
+    this.stage = stage;
   }
 }
 
 /**
- * **Total in the type, and that is the whole point** (D-64).
+ * An advisory fault: it must be surfaced, and it did not replace the outcome.
  *
- * This is the second total mapping the failure vocabulary carries, and the
- * first one — stage → recovery — is the reason to insist: D-60 exists because a
- * gap there was read as an unfinished row rather than as a decision. A
- * `default:` arm assigning `'platform'` to whatever is left would reproduce
- * that defect silently, on the channel a consumer actually reads. Adding a
- * stage without naming a code does not compile.
+ * A failing disposer, a rollback that threw on its way out, a landing
+ * measurement that could not be trusted, an interpolation the platform
+ * refused. The operation terminated exactly as it
+ * would have — same terminal result, same phase sequence, same settlement. What
+ * was lost is trajectory, timing or a released resource, never an answer.
  *
- * **The axis is fault attribution where the stage names a caller, and seam
- * position where it names a seam** — narrowed at Checkpoint E (E-08), because
- * the stronger claim this comment used to make is not what the call sites do.
- * `ADMISSION`, `RESOLUTION` and `TERMINAL_CALLBACK` do name consumer code
- * failing — `RESOLUTION` is `FAILURE_REORDER_RESOLUTION`'s D-74 name, and this
- * comment still used the retired one — and `SCHEDULED_FRAME` and `INVALIDATION`
- * name the library's own. But the generic seam stages are chosen by **where
- * the throw happened**, not by whose code it was: one consumer-supplied
- * `bounds` source produces `ACTIVATION`, `RENDERER_WRITE`, `ACTION_EFFECT` or
- * `RELEASE` depending only on which seam resolved the rect first (D-81).
+ * **It does not extend {@link DraggableError}**, so a handler that tests
+ * `err instanceof DraggableError` keeps meaning *my operation was affected*.
+ * The two are siblings and share no base; the `onError` parameter is the union
+ * of them.
  *
- * **That is correct, and the vocabulary stays closed at thirteen**: a
- * behavior-selected stage is the alternative and it is refused, because it
- * would make the wire value a function of which behavior was installed. What
- * changed here is only the claim, not the mapping — a reader deriving an
- * attribution from a stage constant's neighbourhood rather than from the call
- * site gets a plausible wrong answer, which is how two contract rows went wrong
- * (D-83's `bounds`, D-84's `visual`).
+ * There is no discriminator, because by construction nothing follows from a
+ * warning. The payload is `message`, which names the reason, and `cause` —
+ * supplied the native way, `new DraggableWarning(reason, { cause })`, because
+ * this **declares no constructor of its own**: there was nothing left for one
+ * to do that `Error`'s does not, and `name` is `Error`'s for the reason
+ * {@link DraggableError} gives.
  */
-const STAGE_TO_CODE: Readonly<Record<FailureStage, DraggableErrorCode>> = {
-  [FAILURE_ADMISSION]: 'consumer',
-  [FAILURE_ACTIVATION]: 'interaction',
-  [FAILURE_RENDERER_WRITE]: 'presentation',
-  [FAILURE_ACTION_PREPARE]: 'presentation',
-  [FAILURE_ACTION_EFFECT]: 'presentation',
-  [FAILURE_INVALIDATION]: 'platform',
-  [FAILURE_SCHEDULED_FRAME]: 'platform',
-  [FAILURE_RESOLUTION]: 'consumer',
-  [FAILURE_RELEASE]: 'interaction',
-  [FAILURE_LANDING_CREATE]: 'presentation',
-  [FAILURE_LANDING_INTERRUPTED]: 'presentation',
-  [FAILURE_LANDING_TARGET]: 'presentation',
-  [FAILURE_TERMINAL_CALLBACK]: 'consumer',
-};
+export class DraggableWarning extends Error {}
 
-/** Wraps a classified failure in the coarse error the consumer receives. */
-export function toDraggableError(
-  stage: FailureStage,
-  error: unknown,
-): DraggableError {
-  return new DraggableError(STAGE_TO_CODE[stage], error);
-}
+// The one channel, as seen by a module that does not own it. Kernel-internal,
+// and threaded to the four sites that hold no controller reference: the
+// lifetimes, the top-layer acquisition and both composition unwinds. A behavior
+// reaches the consumer through its own callbacks slot.
+export type Notify = (error: DraggableError | DraggableWarning) => void;

@@ -19,6 +19,7 @@ const modules: Readonly<Record<string, object>> = {
   drag,
   kernel,
   sortable,
+  'sortable/feature': feature,
   'sortable/y': y,
   'sortable/xy': xy,
   'sortable/landing': landing,
@@ -27,8 +28,7 @@ const modules: Readonly<Record<string, object>> = {
   'free-drag/bounds': freeDragBounds,
   'free-drag/landing': freeDragLanding,
   // Last, because the assertion below compares against `runtime` then
-  // `typeOnly`, and these two are the whole of the second list.
-  'sortable/feature': feature,
+  // `typeOnly`, and this one is the whole of the second list.
   'free-drag/feature': freeDragFeature,
 };
 
@@ -51,28 +51,54 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
   // **Shared vocabulary, and one runtime value** (D-64). `DraggableError` is a
   // class, which is what keeps this root alive after D-48 moved `draggable`
   // off it and D-64 moved the stages off with them.
-  drag: ['DraggableError'],
-  // **The kernel tier, and the whole of D-68's value half — 33 names.** Thirteen
-  // stages, not fourteen: D-41 deleted `FAILURE_PRESENTATION_READY` with the
-  // readiness protocol. The other nineteen constants are what F-59 found
-  // missing: `config.liftMode` needs a `LIFT_*`, `settlement.prepare` needs the
-  // `SETTLED_*` arms to discriminate its input, D-66's fallback needs the two
-  // `AT_*`, and a behavior reads `frame.phase`. Erased types cannot fill a
-  // value position, which is why a type-only assertion could not have seen the
-  // hole.
-  kernel: [
-    'ACTIVATING',
-    'ACTIVE',
-    'AT_CONSUMER',
-    'AT_PROPOSAL',
+  // **The stage vocabulary joins the two classes** (D-132 §6).
+  // `DraggableError.stage` is a `FailureStage`, so D-68 puts the type at this
+  // root; and a numeric union whose members are unnameable is not a public
+  // type, so the twelve constants follow it as runtime exports. One
+  // declaration in `kernel/failures.ts`, published from here *and* from
+  // `kernel.js` — the same pattern `AT_PROPOSAL`/`AT_CONSUMER` already run
+  // between `kernel.js` and `sortable.js`.
+  drag: [
+    'DraggableError',
+    'DraggableWarning',
     'FAILURE_ACTION_EFFECT',
     'FAILURE_ACTION_PREPARE',
     'FAILURE_ACTIVATION',
     'FAILURE_ADMISSION',
     'FAILURE_INVALIDATION',
-    'FAILURE_LANDING_CREATE',
-    'FAILURE_LANDING_INTERRUPTED',
-    'FAILURE_LANDING_TARGET',
+    'FAILURE_RELEASE',
+    'FAILURE_RENDERER_WRITE',
+    'FAILURE_RESOLUTION',
+    'FAILURE_SCHEDULED_FRAME',
+    'FAILURE_TERMINAL_CALLBACK',
+  ],
+  // **The kernel tier, and the whole of D-68's value half — 33 names**, which is
+  // `1 + 10 + 3 + 5 + 2 + 4 + 8` and is the length of the array below rather
+  // than a number carried from the last edit (F-174). Ten stages, not fourteen:
+  // D-41 deleted `FAILURE_PRESENTATION_READY` with the readiness protocol,
+  // D-130 `FAILURE_LANDING_TARGET`, and D-155 the two landing stages with the
+  // gate that armed the runner they classified. The other nineteen constants are what F-59 found
+  // missing: `config.liftMode` needs a `LIFT_*`, `settlement.prepare` needs the
+  // `SETTLED_*` arms to discriminate its input, D-66's fallback needs the two
+  // `AT_*`, and a behavior reads `frame.phase`. Erased types cannot fill a
+  // value position, which is why a type-only assertion could not have seen the
+  // hole. **The four `CANCEL_*` origins join them under the same rule** (D-154):
+  // a behavior reads one off a `SETTLED_CANCELED` input and writes
+  // `CANCEL_FAILED` into the terminal fallback.
+  kernel: [
+    'ACTIVATING',
+    'ACTIVE',
+    'AT_CONSUMER',
+    'AT_PROPOSAL',
+    'CANCEL_ABORTED',
+    'CANCEL_FAILED',
+    'CANCEL_INTERRUPTED',
+    'CANCEL_SUPPLIED',
+    'FAILURE_ACTION_EFFECT',
+    'FAILURE_ACTION_PREPARE',
+    'FAILURE_ACTIVATION',
+    'FAILURE_ADMISSION',
+    'FAILURE_INVALIDATION',
     'FAILURE_RELEASE',
     'FAILURE_RENDERER_WRITE',
     'FAILURE_RESOLUTION',
@@ -93,24 +119,59 @@ const SURFACE: Readonly<Record<string, readonly string[]>> = {
     'SETTLED_SKIPPED',
     'SETTLING',
     'draggable',
-    'toDraggableError',
   ],
-  sortable: ['AT_CONSUMER', 'AT_PROPOSAL', 'ReorderResolution', 'sortable'],
+  // **Ten since D-154.** The four origins join the two stages — a
+  // `CanceledReorderResult` carries an `origin` and the consumer discriminates
+  // on it — and so do the two reasons the behavior itself supplies, which are
+  // domain vocabulary it owns rather than provenance it claims.
+  sortable: [
+    'AT_CONSUMER',
+    'AT_PROPOSAL',
+    'CANCEL_ABORTED',
+    'CANCEL_COLLECTION_INVALIDATED',
+    'CANCEL_FAILED',
+    'CANCEL_INTERRUPTED',
+    'CANCEL_ITEM_REMOVED',
+    'CANCEL_SUPPLIED',
+    'ReorderResolution',
+    'sortable',
+  ],
   // The second behavior's ordinary tier, and the symmetry is the assertion:
   // one function, one resolution namespace, and the two cancel stages a
   // `CanceledFreeDragResult` obliges the consumer to discriminate (D-68).
-  'free-drag': ['AT_CONSUMER', 'AT_PROPOSAL', 'FreeDragResolution', 'freeDrag'],
+  // **Eleven since D-154**: the three lift constants joined at D-141, because
+  // `config.lift` takes the kernel's numeric `LiftMode` and an unnameable
+  // member cannot fill a slot, and the four origins join now, because
+  // `CanceledFreeDragResult.origin` is the only field that says who decided.
+  'free-drag': [
+    'AT_CONSUMER',
+    'AT_PROPOSAL',
+    'CANCEL_ABORTED',
+    'CANCEL_FAILED',
+    'CANCEL_INTERRUPTED',
+    'CANCEL_SUPPLIED',
+    'FreeDragResolution',
+    'LIFT_FAITHFUL',
+    'LIFT_FLAT',
+    'LIFT_IN_PLACE',
+    'freeDrag',
+  ],
   'free-drag/bounds': ['bounds'],
   'free-drag/landing': ['landing'],
-  // **The middle tier has no runtime exports at all** (D-61). Every name on it
-  // is erased. That is the honest measurement statement for this entry: it
-  // cannot demonstrate absence because it contains nothing present, and unlike
-  // the three subpaths D-56 deleted for exactly that reason, it is not
-  // pretending to. It exists to give the authoring types an address.
-  'sortable/feature': [],
-  // Free drag's middle tier, for the identical reason: `FreeDragInstaller`,
-  // `FreeDragContribution`, `MotionConstraint`, `ConstraintView` and
-  // `MotionDraft` are all erased, so the entry emits no `.js` at all.
+  // **One runtime export, and it is what made this a runtime entry** (D-123,
+  // D-125). ~~The middle tier has no runtime exports at all.~~ Every other
+  // name here is still erased; `insertionAt` is the construction rule for the
+  // value the tier's only *producing* slot returns, so an axis author needs it
+  // to satisfy a term the package publishes and does not implement for them.
+  // This row is also the whole of the emitted-module claim: an entry with no
+  // runtime export emits no `.js`, which is why `files.json` had to move it
+  // out of `typeOnly` in the same change.
+  'sortable/feature': ['insertionAt'],
+  // **Free drag's middle tier still has none, and the asymmetry is the
+  // measurement.** `ConstraintInstaller`, `ConstraintContribution`,
+  // `MotionConstraint`, `ConstraintView` and `MotionDraft` are all erased, so
+  // this entry emits no `.js` at all — which is what `typeOnly` says and what
+  // keeps the split above load-bearing rather than vestigial.
   'free-drag/feature': [],
   'sortable/y': ['y'],
   'sortable/xy': ['xy'],
@@ -131,7 +192,7 @@ describe('package entrypoints', () => {
     // be stated — the surface table below cannot tell the two apart, because
     // both look like an empty export list from inside `src`.
     expect([...files.runtime, ...files.typeOnly]).toEqual(Object.keys(modules));
-    expect(files.typeOnly).toEqual(['sortable/feature', 'free-drag/feature']);
+    expect(files.typeOnly).toEqual(['free-drag/feature']);
   });
 
   it('should resolve every declared entry to a source module', () => {

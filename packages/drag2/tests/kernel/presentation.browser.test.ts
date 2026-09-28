@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { DraggableWarning } from '../../src/kernel/errors.ts';
 import {
   acquireLift,
   acquireTopLayer,
@@ -8,25 +9,36 @@ import {
   type VisualLiftSession,
 } from '../../src/kernel/presentation.ts';
 import { createRealm } from '../../src/kernel/realm.ts';
+import type { Unwind } from '../../src/kernel/unwind.ts';
 
 const created: HTMLElement[] = [];
 const sessions: VisualLiftSession[] = [];
 
-type Reporting = { reportError?(error: unknown): void };
-
 /** The best-effort channel: a rollback that fails on its way out. */
 let reported: unknown[] = [];
 
+/**
+ * **The unwind guard is an argument now** (D-130). `acquireTopLayer` is a free
+ * function that holds no controller reference, so the fixture supplies the
+ * guard and observes what it catches — which is what the ambient
+ * `globalThis.reportError` stub used to do less directly.
+ */
+const unwind: Unwind = (step) => {
+  try {
+    return step();
+  } catch (error) {
+    reported.push(
+      new DraggableWarning('drag: unwind/step-failed', { cause: error }),
+    );
+    return undefined;
+  }
+};
+
 beforeEach(() => {
   reported = [];
-  (globalThis as Reporting).reportError = (error): void => {
-    reported.push(error);
-  };
 });
 
-afterEach(() => {
-  delete (globalThis as Reporting).reportError;
-});
+afterEach(() => {});
 
 afterEach(() => {
   for (const session of sessions.splice(0)) {
@@ -63,9 +75,11 @@ function createBox(
 function lift(visual: HTMLElement, mode: number): VisualLiftSession {
   const { session } = acquireLift(
     visual,
-    mode as Parameters<typeof acquireLift>[1],
+    visual,
+    mode as Parameters<typeof acquireLift>[2],
     visual.getBoundingClientRect(),
     createRealm(visual),
+    unwind,
   );
   sessions.push(session);
   return session;
@@ -288,6 +302,66 @@ describe('in-place projection', () => {
   });
 });
 
+describe('the two published spaces', () => {
+  /** `acquireLift` with the item and the visual named separately. */
+  function acquire(
+    visual: HTMLElement,
+    item: HTMLElement,
+  ): ReturnType<typeof acquireLift> {
+    const acquisition = acquireLift(
+      visual,
+      item,
+      LIFT_IN_PLACE,
+      visual.getBoundingClientRect(),
+      createRealm(visual),
+      unwind,
+    );
+
+    sessions.push(acquisition.session);
+    return acquisition;
+  }
+
+  /** A transformed stage, so neither space collapses to the `null` identity. */
+  function stage(scale: string): HTMLElement {
+    return createBox({
+      position: 'absolute',
+      width: '400px',
+      height: '400px',
+      transform: `scale(${scale})`,
+      transformOrigin: '0 0',
+    });
+  }
+
+  it('should publish one object for both spaces when the item is the visual', () => {
+    // **Reference identity, not agreement.** Two equal-but-distinct buffers
+    // would satisfy every other assertion in the suite and still falsify what
+    // the decision states: under the common configuration a composition does
+    // not pay for a divergence it does not have, and the way that is true is
+    // that there is one derivation and one object.
+    const visual = createBox({}, stage('2'));
+    const { visualSpace, itemSpace } = acquire(visual, visual);
+
+    // Guards the identity against being the trivial `null === null`.
+    expect(visualSpace).not.toBeNull();
+    expect(visualSpace!.a).toBeCloseTo(0.5, 6);
+    expect(itemSpace).toBe(visualSpace);
+  });
+
+  it('should publish two different spaces when a transform sits between them', () => {
+    // The control for the row above: the two are one object because the two
+    // ancestries are one ancestry, not because the kernel only ever derives
+    // one. Here the item carries its own `scale(1.5)`, which is in the space
+    // above the visual and outside the space above the item.
+    const item = createBox({ transform: 'scale(1.5)' }, stage('2'));
+    const visual = createBox({}, item);
+    const { visualSpace, itemSpace } = acquire(visual, item);
+
+    expect(visualSpace!.a).toBeCloseTo(1 / 3, 6);
+    expect(itemSpace!.a).toBeCloseTo(0.5, 6);
+    expect(itemSpace).not.toBe(visualSpace);
+  });
+});
+
 describe('acquireLift cleanup', () => {
   it('should restore the inline styles when top-layer acquisition throws', () => {
     // A lift is all-or-nothing. The style lease is taken before the visual is
@@ -303,9 +377,11 @@ describe('acquireLift cleanup', () => {
     expect(() =>
       acquireLift(
         visual,
+        visual,
         LIFT_FLAT,
         visual.getBoundingClientRect(),
         createRealm(visual),
+        unwind,
       ),
     ).toThrow('no top layer');
 
@@ -321,9 +397,11 @@ describe('acquireLift cleanup', () => {
     const visual = createBox();
     const { session } = acquireLift(
       visual,
+      visual,
       LIFT_FLAT,
       visual.getBoundingClientRect(),
       createRealm(visual),
+      unwind,
     );
 
     visual.hidePopover = (): void => {
@@ -346,7 +424,7 @@ describe('acquireTopLayer rollback', () => {
       throw new Error('cannot promote');
     };
 
-    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
+    expect(() => acquireTopLayer(visual, unwind)).toThrow('cannot promote');
     expect(visual.hasAttribute('popover')).toBe(false);
   });
 
@@ -358,7 +436,7 @@ describe('acquireTopLayer rollback', () => {
       throw new Error('cannot promote');
     };
 
-    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
+    expect(() => acquireTopLayer(visual, unwind)).toThrow('cannot promote');
     expect(visual.getAttribute('popover')).toBe('auto');
   });
 
@@ -376,7 +454,7 @@ describe('acquireTopLayer rollback', () => {
       throw new Error(calls === 1 ? 'cannot promote' : 'cannot restore');
     };
 
-    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
+    expect(() => acquireTopLayer(visual, unwind)).toThrow('cannot promote');
     // Both calls happened: the acquisition and the reopen the rollback tried.
     expect(calls).toBe(2);
   });
@@ -392,10 +470,10 @@ describe('acquireTopLayer rollback', () => {
       throw new Error(calls === 1 ? 'cannot promote' : 'cannot restore');
     };
 
-    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
-    expect(reported.map((error) => (error as Error).message)).toEqual([
-      'cannot restore',
-    ]);
+    expect(() => acquireTopLayer(visual, unwind)).toThrow('cannot promote');
+    expect(
+      reported.map((error) => ((error as Error).cause as Error).message),
+    ).toEqual(['cannot restore']);
   });
 
   it('should restore the popover attribute even when the rollback throws', () => {
@@ -411,7 +489,7 @@ describe('acquireTopLayer rollback', () => {
       throw new Error(calls === 1 ? 'cannot promote' : 'cannot restore');
     };
 
-    expect(() => acquireTopLayer(visual)).toThrow('cannot promote');
+    expect(() => acquireTopLayer(visual, unwind)).toThrow('cannot promote');
     expect(visual.getAttribute('popover')).toBe('auto');
   });
 });
@@ -422,7 +500,7 @@ describe('acquireTopLayer release', () => {
 
     visual.setAttribute('popover', 'auto');
     visual.showPopover();
-    acquireTopLayer(visual)();
+    acquireTopLayer(visual, unwind)();
 
     expect(visual.getAttribute('popover')).toBe('auto');
     expect(visual.matches(':popover-open')).toBe(true);
@@ -439,7 +517,9 @@ describe('acquireTopLayer release', () => {
     visual.setAttribute('popover', 'auto');
     visual.showPopover();
 
-    const dispose = acquireTopLayer(visual);
+    const dispose = acquireTopLayer(visual, unwind);
+    // Captured to delegate to from the patch below: `nativeHide.call(this)`.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const nativeHide = HTMLElement.prototype.hidePopover;
     let hides = 0;
 

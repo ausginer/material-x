@@ -7,7 +7,7 @@ Two cases were routed here. **They do not get the same verdict.**
 | **B-1** — the `presentationReady` obligation set | **Goes to Phase 14.** The SPI expresses the protocol; it distributes it badly, and its failure modes are a 500 ms silence and a nothing. |
 | **B-2** — settle-time `landingTiming()` (ledger L-6) | **It fits. No contract revision.** The capability is reachable today through `landing({ run })`. What is missing is ergonomics, and that belongs to Phase 15 or 22. |
 
-Typed probe: [`packages/drag2/docs/probes/13b-settlement.ts`](../../../../packages/drag2/docs/probes/13b-settlement.ts). Same rules as 13a: `@ts-expect-error` is the executable half, and `R-*` rows are runtime facts with citations.
+Typed probe: [`packages/drag2/tests/probes/13b-settlement.ts`](../../../../packages/drag2/tests/probes/13b-settlement.ts). Same rules as 13a: `@ts-expect-error` is the executable half, and `R-*` rows are runtime facts with citations.
 
 ---
 

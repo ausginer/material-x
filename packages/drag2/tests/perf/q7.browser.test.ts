@@ -214,6 +214,9 @@ const scenarios = (n: number): Row => {
  * same page.
  */
 function countReads(elements: readonly HTMLElement[], run: () => void): number {
+  // Restore slots, never called through: each is assigned straight back onto
+  // its own element in the `finally`. The copy that *is* called is bound.
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const originals = elements.map((element) => element.getBoundingClientRect);
   let reads = 0;
 

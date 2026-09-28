@@ -83,8 +83,15 @@ const REGISTER = join(PACKAGE, '.plan/obligations.md');
  * The normative tree, present tense. `.scripts/` is the monorepo's and is in
  * scope because `packaging.node.test.ts` already imports from it; the rest are
  * this package's.
+ *
+ * **The package root is a scope root and is read flat.** `README.md` is the
+ * package's consumer-facing document and the build and tooling configs beside
+ * it describe the tree as it is now, so both are present tense; recursing from
+ * there would instead pull in `.plan/reviews/**` and `.plan/measurements/**`,
+ * which the tense rule puts out of scope. Flat is therefore the scope
+ * statement, not a shortcut.
  */
-const ROOTS: ReadonlyArray<readonly [string, readonly string[]]> = [
+const ROOTS: ReadonlyArray<readonly [string, readonly string[], boolean?]> = [
   [join(PACKAGE, 'src'), ['.ts']],
   [join(PACKAGE, 'tests'), ['.ts', '.md']],
   [join(PACKAGE, 'bench'), ['.ts', '.js', '.md']],
@@ -94,13 +101,64 @@ const ROOTS: ReadonlyArray<readonly [string, readonly string[]]> = [
   // construction: it carries the live obligations and the standing conditions
   // (D-116 (b)). A file rather than a directory, and `walk` reads it as one.
   [REGISTER, ['.md']],
+  [PACKAGE, ['.ts', '.md'], true],
 ];
 
 /**
  * A decision-ledger row: a dated act, and out of scope because D-116 (a) keeps
  * every live clause out of one — the register carries those, and it is in scope.
  */
-const LEDGER_ROW = /^\| D-\d+ \|/u;
+/** A surviving row of a table that talks *about* a decision. */
+const ABOUT_DECISION = /^\| D-\d+ \|/u;
+
+/**
+ * The lines a canonical decision entry occupies in `00-index.md`.
+ *
+ * **Why the exemption is by position rather than by shape.** It used to be
+ * `/^\| D-\d+ \|/` — a decision was one physical row, so a row prefix named
+ * it exactly. Since D-171 an entry is a `####` heading and a run of ordinary
+ * paragraphs, and no prefix distinguishes those paragraphs from any other
+ * prose. The exemption itself is unchanged in kind: a decision states its own
+ * reasoning in running prose, and a `§` inside it is argument rather than a
+ * delimited citation this resolver can check.
+ *
+ * {@link ABOUT_DECISION} keeps the other half the row prefix used to cover:
+ * the tables above the ledger that talk *about* a decision — the drift table,
+ * the deferred table — are still tables, and their rows still run on.
+ */
+function ledgerEntries(source: string): ReadonlySet<number> {
+  const lines = source.split('\n');
+  const open = lines.indexOf('## Decision ledger');
+  const covered = new Set<number>();
+
+  if (open < 0) {
+    return covered;
+  }
+
+  let close = lines.length;
+
+  for (let at = open + 1; at < lines.length; at += 1) {
+    if (/^#{1,2} /u.test(lines[at]!)) {
+      close = at;
+      break;
+    }
+  }
+
+  for (let at = open; at < close; at += 1) {
+    if (!/^#### D-\d+(?: — |$)/u.test(lines[at]!)) {
+      continue;
+    }
+
+    let end = at + 1;
+
+    while (end < close && !/^#{1,4} /u.test(lines[end]!)) {
+      covered.add(end + 1);
+      end += 1;
+    }
+  }
+
+  return covered;
+}
 
 /**
  * A citation into a dated artifact — a review, a handoff, a synthesis, a
@@ -146,14 +204,37 @@ const NAMED = /`([\w./-]+\.(?:md|ts|js))`[^`[\]]{0,3}$/u;
 const TITLE_END = /^(.*?)(?:[()\][|":]|\*\/|,\s|;\s|\.\s|\s—\s|$)/su;
 
 /**
- * A backticked **repository** path: one anchored at a known top-level
- * directory, which is the only form that names a file without also naming what
- * it is relative to. Deliberately not every slashed string — `sortable/feature.js`
- * is a package subpath, `lib/tsc.js` is inside a dependency, and `./x.d.ts` is
- * relative to whatever the sentence around it is talking about.
+ * The line a dispositioned satellite subsection opens with (D-174, D-175): the
+ * canonical entry it defers to. One per analysis, in exactly the document
+ * holding that analysis, which is what makes it a sound declaration of *this
+ * document analyses that identifier* — the fact `§F-46` is a citation of.
  */
-const PATH =
-  /(~~)?`((?:src|tests|bench|docs|packages|\.plan|\.scripts|\.agents)\/[\w./-]*[\w-]\.\w{1,5})`(~~)?/gu;
+const ANALYSIS = /^\*\*Canonical entry: `([A-Za-z][A-Za-z0-9]*-\d+)`/u;
+
+/** Any backticked span, with the strike markers that may bracket it. */
+const QUOTED = /(~~)?`([^`]+)`(~~)?/gu;
+
+/**
+ * A **repository** path anchored at a known top-level directory — the form that
+ * names a file without also naming what it is relative to.
+ */
+const ANCHORED =
+  /^(?:src|tests|bench|docs|packages|\.plan|\.scripts|\.agents)\/[\w./-]*[\w-]\.\w{1,5}$/u;
+
+/**
+ * A **repo-relative** path: slashed, unanchored, and ending in one of the two
+ * extensions this tree authors. It is a mechanical shape rather than a guess at
+ * intent, and every clause narrows it against a form that is not a path:
+ * a leading `.` or `@` excludes `./x.ts` and a bare package specifier, at least
+ * one `/` excludes a bare filename, and `.ts`/`.md` alone excludes
+ * `sortable/feature.js` — a package subpath — and `lib/tsc.js`, which is inside
+ * a dependency.
+ *
+ * **It is what makes a wrong path visible where an anchored one already was.**
+ * ~~`sortable/verified-refresh.ts`~~ named a module that does not exist, and
+ * the anchored form could not see it because it carries no anchor.
+ */
+const RELATIVE = /^[\w-][\w.-]*(?:\/[\w.-]+)+\.(?:ts|md)$/u;
 
 type Seg = Readonly<{ words: readonly string[]; heading: boolean }>;
 type Doc = Readonly<{ segs: readonly Seg[]; ids: ReadonlySet<string> }>;
@@ -182,6 +263,7 @@ function segmentsOf(title: string): readonly string[] {
 async function walk(
   dir: string,
   extensions: readonly string[],
+  flat = false,
 ): Promise<readonly string[]> {
   // A root may name one file — the register is a scope root, not a tree.
   if (!(await stat(dir)).isDirectory()) {
@@ -194,9 +276,15 @@ async function walk(
     entries.map(async (entry) => {
       const path = join(dir, entry.name);
       if (entry.isDirectory()) {
-        return await walk(path, extensions);
+        return flat ? [] : await walk(path, extensions);
       }
-      return extensions.some((extension) => entry.name.endsWith(extension))
+      // **Emitted declarations are excluded**, and they are the only files the
+      // flat root would otherwise add that nothing authored: their prose is a
+      // copy of `src/`'s, already in scope and already checked, and their
+      // citations were written relative to the module that emitted them rather
+      // than to where they land.
+      return extensions.some((extension) => entry.name.endsWith(extension)) &&
+        !entry.name.endsWith('.d.ts')
         ? [path]
         : [];
     }),
@@ -275,6 +363,16 @@ function analyse(markdown: string): Doc {
     const bold = /^\*\*(.+?)\*\*/u.exec(line);
     if (bold !== null) {
       add(bold[1]!, false);
+    }
+    // A satellite analysis declares the identifier it analyses on its pointer
+    // line rather than in its heading (D-174), so `05 §F-46` still resolves
+    // while the heading no longer *claims* `F-46`. Read from the pointer and
+    // not from a trailing `(F-46)`, which every prose heading mentioning a
+    // decision also has — `### Pointer capture is not here (D-17)` would
+    // otherwise start declaring an identifier it only refers to.
+    const analysis = ANALYSIS.exec(line);
+    if (analysis !== null) {
+      ids.add(analysis[1]!);
     }
     for (const row of line.matchAll(
       /(?:^|\|\s*|#{1,6}\s+|\*\*)([A-Z]{1,3}\d?-\d+)(?:['’]s)?\b/gu,
@@ -401,7 +499,7 @@ function scope(): Promise<Scope> {
   cached ??= (async () => {
     const files = (
       await Promise.all(
-        ROOTS.map(([root, extensions]) => walk(root, extensions)),
+        ROOTS.map(([root, extensions, flat]) => walk(root, extensions, flat)),
       )
     ).flat();
     const sources = new Map(
@@ -579,6 +677,91 @@ async function classify(
 const where = (file: string, line: number): string =>
   `${relative(PACKAGE, file)}:${line}`;
 
+/**
+ * The history and the ledger addresses a pattern can see, in a register that
+ * may carry neither.
+ *
+ * **The same eight forms `packaging.node.test.ts` holds over the emitted
+ * declarations**, and the two lists are one register now rather than two. The
+ * `src/` list used to be three, on the argument that a decision identifier is
+ * an index entry for a maintainer where it is noise for a consumer. What that
+ * argument leaves out is that a reader of this source is not thereby a reader
+ * of `.plan/`: an identifier names a document that answers *why this was
+ * decided*, and a comment's job is *what holds now*. A comment that needs the
+ * ledger to be understood has moved its own content somewhere the code cannot
+ * reach.
+ *
+ * So the rule is the tense rule with its corollary attached. A struck sentence
+ * is a claim the reader must first determine is false; a date and a phase
+ * number say when something happened and nothing about what holds; and a
+ * decision number, a section citation or a record path says *the reason lives
+ * elsewhere*, which is the same absence in a different spelling.
+ *
+ * **This forbids the address, not the argument.** Where a citation was carrying
+ * a real constraint, the constraint stays and says itself; where removing the
+ * citation leaves nothing, there was nothing but archaeology. History belongs
+ * in `.plan/`, and it is not copied here in prose to survive the sweep.
+ *
+ * **Supersession narration is not here, and that is deliberate.** _Restored_,
+ * _deleted_ and _no longer_ occur in ordinary present-tense prose, so a pattern
+ * over them would fail correct comments. That population is a reviewed list.
+ *
+ * It lives in this file rather than beside its published sibling because the
+ * property is the tense rule and `src/` is already one of this file's scope
+ * roots — `packaging.node.test.ts` is about the tarball, and `src/` reaches no
+ * tarball.
+ */
+const HISTORY_FORMS: ReadonlyArray<readonly [string, RegExp]> = [
+  ['strikethrough', /~~/u],
+  ['date', /\b20\d{2}-\d{2}-\d{2}\b/u],
+  ['phase number', /\bphase \d/iu],
+  [
+    'decision, finding or probe number',
+    /\b(?:MNT|CE1|C[2-5]|D|F|I|E|Q|M|K|B|A|H|L|N|P|R|C)-\d+/u,
+  ],
+  ['section citation', /§/u],
+  ['contract document', /\bcontract \d/iu],
+  ['size policy citation', /CODE_OF_SIZE/u],
+  ['record path', /\.plan\//u],
+];
+
+describe('the source tree', () => {
+  it('should carry no history in a comment', async () => {
+    const files = await walk(join(PACKAGE, 'src'), ['.ts']);
+    const sources = await Promise.all(
+      files.map((file) => readFile(file, 'utf8')),
+    );
+    const offences: string[] = [];
+    let comments = 0;
+
+    for (const [ordinal, file] of files.entries()) {
+      for (const [index, raw] of sources[ordinal]!.split('\n').entries()) {
+        // The same prose extractor the path check uses: a comment line, never a
+        // string literal and never a specifier.
+        const prose = /^\s*(?:\/\*\*|\*|\/\/)\s?(.*)$/u.exec(raw)?.[1];
+
+        if (prose === undefined) {
+          continue;
+        }
+
+        comments += 1;
+
+        for (const [what, pattern] of HISTORY_FORMS) {
+          if (pattern.test(prose)) {
+            offences.push(`${where(file, index + 1)} ${what}`);
+          }
+        }
+      }
+    }
+
+    expect(offences).toEqual([]);
+    // Non-vacuity: an extractor that stopped matching would read no prose at
+    // all and pass, which is the fail-open shape D-115 forbids.
+    expect(files.length).toBeGreaterThan(50);
+    expect(comments).toBeGreaterThan(5_000);
+  });
+});
+
 describe('the normative tree', () => {
   it('should scan every scope root D-112 names', async () => {
     const present = await Promise.all(ROOTS.map(([root]) => exists(root)));
@@ -601,9 +784,15 @@ describe('the normative tree', () => {
       if (!source.includes('§')) {
         continue;
       }
-      const ledger = file === join(CONTRACT, '00-index.md');
+      const ledger =
+        file === join(CONTRACT, '00-index.md')
+          ? ledgerEntries(source)
+          : new Set<number>();
       for (const paragraph of paragraphs(source, file.endsWith('.md'))) {
-        if (ledger && LEDGER_ROW.test(paragraph.text)) {
+        if (
+          ledger.has(paragraph.marks[0]?.line ?? 0) ||
+          (ledger.size > 0 && ABOUT_DECISION.test(paragraph.text))
+        ) {
           continue;
         }
         const quoted = codeSpans(paragraph.text);
@@ -645,40 +834,74 @@ describe('the normative tree', () => {
 
   it('should carry repository paths that all resolve on disk', async () => {
     const { files, sources } = await scope();
-    const cited: Array<readonly [string, string]> = [];
+    const cited: Array<readonly [string, string, readonly string[]]> = [];
     let retired = 0;
+    let unanchored = 0;
     for (const file of files) {
       const source = sources.get(file)!;
       const markdown = file.endsWith('.md');
-      const ledger = file === join(CONTRACT, '00-index.md');
+      const ledger =
+        file === join(CONTRACT, '00-index.md')
+          ? ledgerEntries(source)
+          : new Set<number>();
       for (const [index, raw] of source.split('\n').entries()) {
         // Prose only. A specifier in code is resolved by the module loader and
         // by `packaging.node.test.ts`; a path in a fixture string is data.
         const prose = markdown
           ? raw
           : /^\s*(?:\/\*\*|\*|\/\/)\s?(.*)$/u.exec(raw)?.[1];
-        if (prose === undefined || (ledger && LEDGER_ROW.test(prose.trim()))) {
+        if (
+          prose === undefined ||
+          ledger.has(index + 1) ||
+          (ledger.size > 0 && ABOUT_DECISION.test(prose.trim()))
+        ) {
           continue;
         }
-        for (const match of prose.matchAll(PATH)) {
+        for (const match of prose.matchAll(QUOTED)) {
           const [, open, path, close] = match;
+          const anchored = ANCHORED.test(path!);
+          if (!anchored && !RELATIVE.test(path!)) {
+            continue;
+          }
           if (open !== undefined && close !== undefined) {
             // Struck through: a deliberate reference to something retired.
             retired += 1;
             continue;
           }
-          cited.push([`${where(file, index + 1)} :: \`${path!}\``, path!]);
+          // **An anchored path names its own base and a relative one does
+          // not**, so the two resolve against different sets. The relative
+          // bases are the four a writer means, and they are the same four
+          // `linkedDoc` already tries: beside the citing file, at the package
+          // root, in the record, and under `src/`, which is how this tree
+          // spells a module.
+          const bases = anchored
+            ? [PACKAGE, MONOREPO]
+            : [
+                dirname(file),
+                PACKAGE,
+                join(PACKAGE, '.plan'),
+                join(PACKAGE, 'src'),
+                MONOREPO,
+              ];
+          unanchored += anchored ? 0 : 1;
+          cited.push([
+            `${where(file, index + 1)} :: \`${path!}\``,
+            path!,
+            bases,
+          ]);
         }
       }
     }
     // Every candidate is collected first, so the disk reads run as one batch
     // rather than one per citation.
     const found = await Promise.all(
-      cited.map(
-        async ([, path]) =>
-          (await exists(join(PACKAGE, path))) ||
-          (await exists(join(MONOREPO, path))),
-      ),
+      cited.map(async ([, path, bases]) => {
+        const present = await Promise.all(
+          bases.map((base) => exists(join(base, path))),
+        );
+
+        return present.includes(true);
+      }),
     );
 
     expect(
@@ -686,5 +909,10 @@ describe('the normative tree', () => {
     ).toEqual([]);
     expect(cited.length).toBeGreaterThan(100);
     expect(retired).toBeGreaterThan(0);
+    // Non-vacuity for the two widenings, each stated as the thing it enables:
+    // the package root really is read, and the unanchored shape really does
+    // classify candidates the anchored one cannot see.
+    expect(files).toContain(join(PACKAGE, 'README.md'));
+    expect(unanchored).toBeGreaterThan(0);
   });
 });

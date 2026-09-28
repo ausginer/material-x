@@ -12,9 +12,10 @@
  *   supplies a `constrain` installer whose `invalidate()` *records that it ran*,
  *   which is also the honest statement of the contract: the slot admits
  *   arbitrary third-party code, and that is why the barrier is owed.
- * - **L-4** asks where the landing *opens*. `LandingContext.from` is the only
- *   place that answers, and a third-party `startLanding` is how a test reads it
- *   without asserting against an animation's keyframes.
+ * - **L-4** asks where the landing tail *opens*. The tail's own timing policy is
+ *   the only place that answers — the kernel hands it the two endpoints — and a
+ *   third-party `landingTiming` is how a test reads them without asserting
+ *   against an animation's keyframes.
  *
  * Both installers are authored against `free-drag/feature.js` alone, which is
  * B-6's claim exercised rather than merely typed.
@@ -23,7 +24,8 @@ import { describe, expect, it } from 'vitest';
 import { bounds } from '../../src/free-drag/bounds.ts';
 import type {
   ConstraintView,
-  FreeDragInstaller,
+  ConstraintInstaller,
+  FreeDragLandingInstaller,
   MotionDraft,
 } from '../../src/free-drag/feature.ts';
 import {
@@ -53,7 +55,7 @@ function recordingConstraint(
   const invalidations: number[] = [];
   let calls = 0;
 
-  const installer: FreeDragInstaller = () => ({
+  const installer: ConstraintInstaller = () => ({
     constrain: {
       apply(motion: MotionDraft, view: ConstraintView): void {
         clamp?.(motion, view);
@@ -66,25 +68,31 @@ function recordingConstraint(
     },
   });
 
-  return { fragment: { plugins: [installer] }, invalidations };
+  return { fragment: { bounds: installer }, invalidations };
 }
 
-/** A third-party landing that records where the trajectory opened. */
+/**
+ * A third-party landing that records where the tail opened.
+ *
+ * The timing policy is the one seam the two origin coordinates are published
+ * through, and it is called for every tail the kernel is about to start — so a
+ * recorder here observes the origin whether or not the interpolation then
+ * survives the platform.
+ */
 function recordingLanding(): Readonly<{
   fragment: Partial<FreeDragConfig>;
   origins: Point[];
 }> {
   const origins: Point[] = [];
 
-  const installer: FreeDragInstaller = () => ({
-    startLanding: (context, done) => {
-      origins.push({ x: context.from.x, y: context.from.y });
-      done();
-      return { destroy: (): void => {} };
+  const installer: FreeDragLandingInstaller = () => ({
+    landingTiming: (fromX, fromY) => {
+      origins.push({ x: fromX, y: fromY });
+      return { duration: 200, easing: 'linear' };
     },
   });
 
-  return { fragment: { plugins: [installer] }, origins };
+  return { fragment: { landing: installer }, origins };
 }
 
 describe('the released visual', () => {
@@ -231,80 +239,74 @@ describe('a late resolution', () => {
   });
 });
 
-describe('the TAG_POLICY barrier', () => {
-  it('should not reach a third-party invalidate() when the axis source destroys the controller', () => {
-    // **L-3, discriminating** (I-36, F-47, D-81). `TAG_POLICY` reads the `axis`
-    // source, then reads the latch, then calls `constrain.invalidate()` — and
-    // the middle assertion is the whole row: a source that destroyed its own
-    // controller must not have a second consumer-supplied callback run
-    // afterwards.
-    const constraint = recordingConstraint();
-    const composed = compose({
-      fragments: [constraint.fragment],
-      config: {
-        axis: () => {
-          if (composed.starts.length > 0) {
-            void composed.controller.destroy();
-          }
+/**
+ * **`the TAG_POLICY barrier` is deleted with the site it defends** (D-148,
+ * COVERAGE L-3). ~~Three rows pinned I-36 inside `TAG_POLICY`: the seam read
+ * the `axis` source, read the latch, then called `constrain.invalidate()`, and
+ * the middle reading was the row.~~ The seam now makes **one**
+ * consumer-reachable call, and a barrier gating the second call on the first's
+ * outcome has no subject. The rows are deleted rather than ported to a site
+ * that cannot fail — a barrier row over a single call passes by construction,
+ * which is F-74's defect written on purpose.
+ */
 
-          return 'both';
+describe('the destroy promise', () => {
+  it('should return one promise by identity through the free-drag wrapper', async () => {
+    // The kernel memoizes it and the identity is pinned at the kernel's own
+    // member; what free drag publishes is a closure over that call. An `async`
+    // closure would still settle once per call and still settle correctly, so
+    // no other row in the suite can see the difference — and the published
+    // guarantee is about the object handed back, so it is asserted there.
+    const composed = compose();
+    const first = composed.controller.destroy();
+
+    expect(composed.controller.destroy()).toBe(first);
+
+    await expect(first).resolves.toBeUndefined();
+  });
+});
+
+describe('retirement order', () => {
+  it('should run free drag’s retire hooks in reverse installation order', () => {
+    // **The guarantee D-147 moved from representation to execution**, asserted
+    // for the behavior that had no witness for it (F-151): the ledger is stored
+    // in installation order and every reader walks it backwards, so the last
+    // installer releases first. `bounds` is a named key and is installed before
+    // `plugins`, which is schema order (D-57), and the two plugins install in
+    // array order — so this drives the whole sequence rather than one position.
+    //
+    // Discriminating by construction: reversing the loop in
+    // `free-drag/spec.ts`'s `retire()` produces the opposite array.
+    const seen: string[] = [];
+    const record = (name: string) => (): void => {
+      seen.push(name);
+    };
+    const composed = compose({
+      fragments: [
+        {
+          bounds: () => ({
+            constrain: {
+              apply: (): void => {},
+              invalidate: (): void => {},
+              retire: record('bounds-constraint'),
+            },
+            retire: record('bounds-installer'),
+          }),
         },
-      },
+        { plugins: [() => ({ retire: record('plugin-1') })] },
+        { plugins: [() => ({ retire: record('plugin-2') })] },
+      ],
     });
 
     activate(composed);
-    composed.controller.invalidate();
+    composed.controller.cancel('reason');
 
-    expect(constraint.invalidations).toEqual([]);
-  });
-
-  it('should reach it when the axis source leaves the controller alive', () => {
-    // The positive control, without which the row above passes against a
-    // constraint that is simply never installed.
-    const constraint = recordingConstraint();
-    const composed = compose({
-      fragments: [constraint.fragment],
-      config: { axis: () => 'both' },
-    });
-
-    activate(composed);
-    composed.controller.invalidate();
-
-    expect(constraint.invalidations).toEqual([1]);
-  });
-
-  it('should be non-discriminating with the first-party bounds()', () => {
-    // **The recorded control** (F-74). Under lazy resolution `bounds()`'s
-    // `invalidate()` sets a flag and calls nothing, so an `axis` source that
-    // destroys its controller and one that does not are indistinguishable
-    // through the first-party feature — which is why the two rows above use a
-    // recording installer instead. This row asserts the *sameness*, so that a
-    // later reader does not mistake a `bounds()`-based fixture for coverage.
-    const destroying = compose({
-      fragments: [bounds()],
-      config: {
-        axis: () => {
-          if (destroying.starts.length > 0) {
-            void destroying.controller.destroy();
-          }
-
-          return 'both';
-        },
-      },
-    });
-
-    activate(destroying);
-    destroying.controller.invalidate();
-
-    const surviving = compose({
-      fragments: [bounds()],
-      config: { axis: () => 'both' },
-    });
-
-    activate(surviving);
-    surviving.controller.invalidate();
-
-    expect([destroying.errors, surviving.errors]).toEqual([[], []]);
+    expect(seen).toEqual([
+      'plugin-2',
+      'plugin-1',
+      'bounds-installer',
+      'bounds-constraint',
+    ]);
   });
 });
 
@@ -385,21 +387,22 @@ describe('the landing origin', () => {
   });
 
   it('should render the release point, not only report it', async () => {
-    // The other half of the same write: the transform on the element at the
-    // moment the landing opens. Without `release.effect`'s write the visual
-    // sits at the last move while the request reports the release point, which
-    // is D-35's wrong-start signature arriving from the other end.
+    // The other half of the same write: the transform standing on the element
+    // while the visual is still lifted. Without `release.effect`'s write the
+    // visual sits at the last move while the request reports the release point,
+    // which is D-35's wrong-start signature arriving from the other end.
+    //
+    // **Read from the resolver**, which the kernel invokes only after
+    // `release.effect` has returned and while presentation is still held. By
+    // the time the tail's timing policy runs the element is released and its
+    // inline transform is restored, so an assertion there compares against an
+    // empty string and passes for the wrong reason.
     const seen: string[] = [];
-    const installer: FreeDragInstaller = () => ({
-      startLanding: (context, done) => {
-        seen.push(context.visual.style.transform);
-        done();
-        return { destroy: (): void => {} };
-      },
-    });
     const composed = compose({
-      fragments: [{ plugins: [installer] }],
-      onDrop: () => FreeDragResolution.reject('nope'),
+      onDrop: () => {
+        seen.push(composed.item.style.transform);
+        return FreeDragResolution.reject('nope');
+      },
     });
 
     activate(composed);
@@ -418,7 +421,7 @@ describe('the final activation barrier', () => {
   it('should publish no start when a bounds source destroys the controller', async () => {
     // **E-02, and the row the contract already claimed.** 07's terminal table
     // said the `onStart` latch is read immediately before the call; the
-    // implementation read it only after the optional `axis` source, then ran
+    // implementation read it earlier in the sequence, then ran
     // `deriveMotion` — whose `constrain.apply` reaches a third-party constraint
     // and, with `bounds()` installed, the consumer's own rect source — and
     // called `onStart` with no further reading. The review's probe expected

@@ -1,6 +1,6 @@
 # Probe 13a — discrete (keyboard) input
 
-**Result: the frozen SPI cannot express it.** Four negative assertions, each proved by compilation. Typed probe: [`packages/drag2/docs/probes/13a-discrete-input.ts`](../../../../packages/drag2/docs/probes/13a-discrete-input.ts).
+**Result: the frozen SPI cannot express it.** Four negative assertions, each proved by compilation. Typed probe: [`packages/drag2/tests/probes/13a-discrete-input.ts`](../../../../packages/drag2/tests/probes/13a-discrete-input.ts).
 
 Contract 00 requires a _failing executable case_, not a prose finding. The probe is that case: `tsc` errors on an unused `@ts-expect-error`, so a green `npx just typecheck` in `packages/drag2` is a standing assertion that every N-row below still fails to compile. If a later contract revision makes one expressible, the build breaks and the probe has to be revisited — which is the property a prose finding does not have.
 

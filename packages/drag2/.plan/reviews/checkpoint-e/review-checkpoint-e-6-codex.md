@@ -9,11 +9,11 @@
 
 ## Baseline
 
-| Gate | Result |
-| --- | --- |
-| `npx just typecheck` | clean |
-| seven focused declaration/browser files | **213 passed**, no type errors |
-| three remaining lifecycle/packaging files | **33 passed**, no type errors |
+| Gate                                      | Result                         |
+| ----------------------------------------- | ------------------------------ |
+| `npx just typecheck`                      | clean                          |
+| seven focused declaration/browser files   | **213 passed**, no type errors |
+| three remaining lifecycle/packaging files | **33 passed**, no type errors  |
 
 The first browser attempt was unable to bind `0.0.0.0:9876` inside the filesystem sandbox (`EPERM`). The same focused command was rerun with local-port access and passed. The final review artifact is the only worktree change.
 

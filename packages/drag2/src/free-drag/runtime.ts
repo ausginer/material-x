@@ -1,86 +1,13 @@
 /**
- * The behavior's **private** runtime — the one thing H-2 says the kernel can
- * neither name nor type (D-4).
+ * The free-drag behavior action tags.
  *
- * What lives here rather than in the frame part is everything that is *not*
- * transactional: the host and the slot record, which are per-controller; and
- * the three per-operation references the seams need after activation but which
- * no `prepare` decides — the lift session, the visual's grab rect, and the
- * inherited space the kernel measured before it lifted.
- *
- * ~~and the two elements one operation is about, for `home` and the request~~
- * **named fields nothing read** (CE1-08). `item` and `visual` were seeded to
- * `null`, never written, never cleared by `retire()` and never read: `subjectOf`
- * builds from `root` and the frame's own `visual`, and the request takes the
- * subject. They are deleted rather than wired up, because this file is where the
- * contract points a reader to learn what per-operation state exists — two fields
- * that misdescribe the model cost more than they saved — and because a field
- * that is written and not cleared at retirement is the I-20 hazard the rest of
- * this file is organized around.
- *
- * `axis` is here for the opposite reason to the rest: it **is** policy, but it
- * is policy the library re-reads rather than commits. `action.prepare` resolves
- * the source and `action.effect` writes the result, so the read is classified
- * and the write is post-commit, without the value ever occupying one of the
- * five frame fields B-8 fixes.
- *
- * Note what is **not** here: any rect, resolver or clamp belonging to `bounds()`
- * — the constraint owns its own state in its own closure, which is what makes a
- * composition without it carry none of it.
+ * These are not per-operation state: `arm()` validates them through
+ * `config.actionTags` and `dispatch` bounds-checks one, so the controller and
+ * the spec both need the same two constants. Per-operation state lives in the
+ * spec's own closure, where nothing outside it can name it.
  */
-import type {
-  BehaviorLiftSession,
-  InheritedSpace,
-} from '../kernel/presentation.ts';
-import type { KernelHost } from '../kernel/spec.ts';
-import type { DragAxis } from './domain.ts';
-import { DEFAULT_AXIS, type FreeDragSlots } from './slots.ts';
 
-/**
- * Behavior action tags. Behavior-local: the kernel offsets them, and
- * `config.actionTags` is what lets `arm()` validate them and `dispatch`
- * bounds-check one.
- */
+/** Behavior-local action tags; the kernel offsets them. */
 export const TAG_POLICY = 0;
 export const TAG_POSITION = 1;
 export const FREE_DRAG_ACTION_TAGS = 2;
-
-export type FreeDragRuntime = {
-  readonly host: KernelHost;
-  readonly slots: FreeDragSlots;
-
-  /**
-   * The resolved axis. Read at activation and on `invalidate()`, **never per
-   * sample** (D-71) — the hot path reads this field, not the consumer's source.
-   */
-  axis: DragAxis;
-
-  /* per operation, cleared by `retire()` */
-  /** The kernel's session, projected: no `rendered`, no `dispose` (D-35, I-34). */
-  lift: BehaviorLiftSession | null;
-  /** The visual's viewport rect at grab. The basis of every clamp and rect. */
-  originRect: DOMRectReadOnly | null;
-  /**
-   * The inherited linear part's inverse, **handed down by the kernel** from the
-   * one pre-lift measurement (D-72, D-85). It used to be captured here, by a
-   * second traversal taken after acquisition had already moved the visual.
-   */
-  space: InheritedSpace;
-};
-
-export function createFreeDragRuntime(
-  host: KernelHost,
-  slots: FreeDragSlots,
-): FreeDragRuntime {
-  return {
-    host,
-    slots,
-    // Seeded from the default rather than from the source: resolving a consumer
-    // function at construction would run consumer code outside any seam, and
-    // the first real read happens at activation before anything can move.
-    axis: typeof slots.axis === 'function' ? DEFAULT_AXIS : slots.axis,
-    lift: null,
-    originRect: null,
-    space: null,
-  };
-}

@@ -4,14 +4,14 @@
  *
  * F-24 currently says *"removing the copy would be performance theatre"*, which
  * is an assertion with no measurement behind it. `handleMove` publishes one
- * pointer sample as `beginFrame` (an `Object.assign` over the whole frame) plus
+ * pointer sample as the transaction's `Object.assign(draft, current)` plus
  * two field writes plus a swap; a specialized path would write the two pointer
  * fields into the committed frame and skip the copy entirely.
  *
  * **Three variants, and the specialized one has to be proven equivalent before
  * its timing means anything** (05 §Measurements — landed 2026-08-02 asks for exactly that):
  *
- * - `generic` — what ships: `beginFrame(draft, current)`, two writes, swap.
+ * - `generic` — what ships: `Object.assign(draft, current)`, two writes, swap.
  * - `specialized` — two writes straight into the committed frame, no copy and
  *   no swap. Legal *only* for a sample that changes nothing else, which is what
  *   makes it a candidate rather than a design.
@@ -31,8 +31,7 @@
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import {
-  beginFrame,
-  composeFrame,
+  frame,
   type Frame,
   type KernelFrame,
 } from '../../src/kernel/frames.ts';
@@ -116,12 +115,15 @@ function createPair(size: number): Pair {
   const factory = createPart(size);
 
   // Two frames from one factory, exactly as `arm()` builds them.
-  return { current: composeFrame(factory), draft: composeFrame(factory) };
+  return {
+    current: Object.assign(frame(), factory()),
+    draft: Object.assign(frame(), factory()),
+  };
 }
 
 /** What ships: copy the whole frame, write the sample, swap. */
 function publishGeneric(pair: Pair, x: number, y: number): void {
-  beginFrame(pair.draft, pair.current);
+  Object.assign(pair.draft, pair.current);
   pair.draft.pointerX = x;
   pair.draft.pointerY = y;
 

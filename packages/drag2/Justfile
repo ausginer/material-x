@@ -7,8 +7,11 @@ _eslint := "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts"
 default:
     @just --list
 
-# Build core
-build:
+# Build core. Cleans first, so an output whose entrypoint was deleted cannot
+# survive into the next build: `tsdown` overwrites what it emits and removes
+# nothing, so an orphaned module stays importable by relative path and keeps a
+# stale fixture building (F-157).
+build: clean-build
     tsdown --config tsdown.config.ts
 
 # Delete build artefacts
@@ -50,8 +53,30 @@ lint-fix *FILES:
     {{ _eslint }} --fix {{ if FILES == "" { "." } else { FILES } }}
 
 # Measure bundle sizes, budgets and module graphs (builds first)
-size: build
-    node bench/size/measure.ts
+# `--files` writes each measured bundle under `.measured/`; `--unminified`
+# writes a readable twin beside it. Neither changes a reported figure.
+size *FLAGS: build
+    node bench/size/measure.ts {{ FLAGS }}
+
+# Build the profiling fixture as a production bundle, with source maps
+# (`bench/profile`). Not a benchmark harness: a page to record in Chrome's
+# performance panel. Output lands in the ignored `.vite/profile`.
+profile-build:
+    vite build -c bench/profile/vite.config.ts
+
+# Build and serve that fixture at http://localhost:4180/ — `vite preview`, so
+# what runs is the production bundle and no dev server is in the recording.
+profile: profile-build
+    vite preview -c bench/profile/vite.config.ts
+
+# Project the decision ledger against its status register, as TSV on stdout
+# (`--retired` for the withdrawn content instead). Prints; writes nothing.
+decisions *FLAGS:
+    node .scripts/decision-status.ts {{ FLAGS }}
 
 diff:
   git show HEAD --format= -- .plan > "/workspaces/material-x/docs-$(date +%Y%m%d-%H%M%S).patch"
+
+# Walk this package's cants call graph — `just calls --help` for options
+calls *ARGS:
+    node ../../.scripts/call-graph.ts {{ ARGS }}

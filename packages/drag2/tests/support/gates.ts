@@ -1,22 +1,22 @@
 /**
  * The F-6 test obligation, made executable.
  *
- * Sealing detects a gate hold taken *late*; it cannot detect one never taken at
- * all, so the structural claim in 00 §F-6 was weakened to a test obligation:
- * **any fixture installing `landing()` fails loudly if the hold is never
- * taken.** A silently-missing hold does not throw — it finalizes early, which
- * every ordinary assertion in a composed fixture happily accepts because the
- * final DOM is the same.
+ * The failure F-6 names is silent: an operation that finalizes over work the
+ * drop was supposed to account for does not throw, and every ordinary assertion
+ * in a composed fixture happily accepts it because the final DOM is the same.
+ * So the obligation is carried by two witnesses a fixture arms.
  *
- * Two witnesses, and **only the first is a library gate since D-41**:
- *
- * - **Landing.** A fixture installing `landing()` must see its runner started
- *   at least once per terminal operation. No runner start means no hold —
+ * - **Landing.** A fixture installing `landing()` must see its timing policy
+ *   asked at least once per terminal operation. **Nothing about a landing is a
+ *   gate** (D-155): the settlement suspends for nothing and the tail is an
+ *   interpolation the kernel starts on the released visual, after the terminal.
+ *   What this witness catches is therefore the quiet failure that is left — a
+ *   composition that pays for the capability and silently never lands —
  *   **unless the library reported a fault**, which since D-49 is the one
- *   sanctioned way a landing does not run: a target that cannot be measured is
- *   skipped, not faked, and the skip always reports through `onError`. That is
- *   why the exemption keys off a reported fault rather than off a flag a test
- *   can set: it is the same signal the consumer gets.
+ *   sanctioned way a landing does not happen: a target that cannot be measured
+ *   is skipped, not faked, and the skip always reports through `onError`. That
+ *   is why the exemption keys off a reported fault rather than off a flag a
+ *   test can set: it is the same signal the consumer gets.
  * - **The consumer's own commit.** A terminal delivered while the fixture's
  *   authored commit is still outstanding means the settlement did not wait for
  *   it — the same early finalization F-6 names, one owner further out.
@@ -40,12 +40,12 @@
  */
 
 export type GateWitness = Readonly<{
-  /** Call from the landing runner. */
-  landingStarted(): void;
+  /** Call from the landing timing policy. */
+  landingTimed(): void;
   /**
    * Call from `onError`. Exempts the operation from the landing witness,
-   * because a reported fault is the only sanctioned reason a runner never
-   * started (D-49).
+   * because a reported fault is the only sanctioned reason a policy is never
+   * asked (D-49).
    */
   faultReported(): void;
   /** Call when the resolver defers on the fixture's own commit barrier. */
@@ -64,15 +64,15 @@ export type GateWitnessOptions = Readonly<{
 }>;
 
 export function createGateWitness(options: GateWitnessOptions): GateWitness {
-  let landingStarts = 0;
+  let landingTimings = 0;
   let faults = 0;
   let pending = 0;
   let terminals = 0;
   let terminalsWhilePending = 0;
 
   return {
-    landingStarted(): void {
-      landingStarts += 1;
+    landingTimed(): void {
+      landingTimings += 1;
     },
     faultReported(): void {
       faults += 1;
@@ -94,11 +94,11 @@ export function createGateWitness(options: GateWitnessOptions): GateWitness {
       if (
         options.landing &&
         terminals > 0 &&
-        landingStarts === 0 &&
+        landingTimings === 0 &&
         faults === 0
       ) {
         throw new Error(
-          'F-6: landing() is installed but no runner ever started — the landing gate was never held',
+          'F-6: landing() is installed but no landing was ever timed — the composition never lands',
         );
       }
 

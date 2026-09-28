@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { cache } from '../src/index.ts';
 import {
   createBox,
   createFrame,
@@ -153,19 +152,5 @@ describe('public API', () => {
     expectQuad(out, [0, 0, 40, 0, 40, 20, 0, 20]);
     expect(out).toBeInstanceOf(Float64Array);
     expect(out).not.toBeInstanceOf(frameWindow.Float64Array);
-  });
-
-  // CACHE-10
-  it('should keep separate caches independent', () => {
-    const source = createBox();
-    const first = cache();
-    const second = cache();
-    const firstOut = new Float64Array(8);
-    const secondOut = new Float64Array(8);
-
-    expect(readQuad(source, firstOut, undefined, first)).toBe(true);
-    source.style.left = '30px';
-    expect(readQuad(source, secondOut, undefined, second)).toBe(true);
-    expectQuad(secondOut, [30, 0, 50, 0, 50, 10, 30, 10]);
   });
 });

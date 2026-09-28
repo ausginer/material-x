@@ -8,8 +8,10 @@
  * Construction fails explicitly when `defaultView` is `null`; falling back to
  * the ambient `window` would mix realms.
  *
- * `DOMRealm` is **public**: `LandingContext` carries it, and a custom landing
- * runner needs it (contract 00 D-30).
+ * The construction-time context carries it — `BehaviorContext` at the kernel
+ * tier, the feature context at the middle tier — so a behavior schedules and
+ * measures in the realm the controller was built on rather than in the ambient
+ * one.
  */
 export type DOMRealm = Readonly<{
   document: Document;
@@ -23,7 +25,7 @@ export function createRealm(element: Element): DOMRealm {
   const view = document.defaultView;
 
   if (!view) {
-    throw new Error('drag: element has no owning window (detached document).');
+    throw new Error('drag: realm/no-owning-window');
   }
 
   return {

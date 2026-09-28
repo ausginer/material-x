@@ -22,7 +22,12 @@
  * linear part moves at the ancestor's scale instead of the pointer's.
  */
 import { describe, expect, it } from 'vitest';
-import type { FreeDragLift } from '../../src/free-drag.ts';
+import {
+  LIFT_FAITHFUL,
+  LIFT_FLAT,
+  LIFT_IN_PLACE,
+  type LiftMode,
+} from '../../src/free-drag.ts';
 import { activate, freeDragHarness, move } from '../support/free-drag.ts';
 
 const { compose } = freeDragHarness();
@@ -61,7 +66,7 @@ const expectBox = (
  * **before** anything was lifted and the box it has now.
  */
 const drag = (
-  lift: FreeDragLift,
+  lift: LiftMode,
   stageStyle: Readonly<Record<string, string>>,
 ): Readonly<{ before: DOMRect; after: DOMRect }> => {
   const composed = compose({ config: { lift }, stageStyle });
@@ -87,7 +92,7 @@ describe('the faithful lift', () => {
     // The mode's promise: promoted to the top layer and **undistorted** — the
     // composed element→viewport matrix is its base transform, so the box it had
     // in the stage is the box it keeps.
-    const { before, after } = drag('faithful', WARPED);
+    const { before, after } = drag(LIFT_FAITHFUL, WARPED);
 
     expectBox(after, {
       left: before.left + DX,
@@ -100,7 +105,7 @@ describe('the faithful lift', () => {
   it('should keep the stage geometry and travel by the viewport delta under zoom', () => {
     // The lift divides the inherited zoom back out — the top layer does not
     // escape it — so the matrix stays the sole source of scale.
-    const { before, after } = drag('faithful', ZOOMED);
+    const { before, after } = drag(LIFT_FAITHFUL, ZOOMED);
 
     expectBox(after, {
       left: before.left + DX,
@@ -116,7 +121,7 @@ describe('the flat lift', () => {
     // `flat` floats above at its **untransformed** size, centred on the box it
     // came from. That is what makes it the right mode for a drag whose stage is
     // rotated: the visual comes upright under the pointer.
-    const { before, after } = drag('flat', WARPED);
+    const { before, after } = drag(LIFT_FLAT, WARPED);
 
     expectBox(after, {
       left: before.left + before.width / 2 - NATURAL_WIDTH / 2 + DX,
@@ -127,7 +132,7 @@ describe('the flat lift', () => {
   });
 
   it('should drop the inherited zoom and keep its natural size', () => {
-    const { before, after } = drag('flat', ZOOMED);
+    const { before, after } = drag(LIFT_FLAT, ZOOMED);
 
     expectBox(after, {
       left: before.left + before.width / 2 - NATURAL_WIDTH / 2 + DX,
@@ -145,7 +150,7 @@ describe('the in-place lift', () => {
     // lift inverts that linear part, which is why 40 viewport pixels stay 40
     // viewport pixels under a 1.4× rotated stage instead of becoming 56 rotated
     // ones.
-    const { before, after } = drag('in-place', WARPED);
+    const { before, after } = drag(LIFT_IN_PLACE, WARPED);
 
     expectBox(after, {
       left: before.left + DX,
@@ -156,7 +161,7 @@ describe('the in-place lift', () => {
   });
 
   it('should keep the authored transform and still travel by the viewport delta under zoom', () => {
-    const { before, after } = drag('in-place', ZOOMED);
+    const { before, after } = drag(LIFT_IN_PLACE, ZOOMED);
 
     expectBox(after, {
       left: before.left + DX,
@@ -169,7 +174,7 @@ describe('the in-place lift', () => {
 
 describe('the reported geometry', () => {
   it('should report the local delta in the stage space under a transform', () => {
-    // `localDelta` is the viewport delta mapped through the **inverse
+    // The local delta is the viewport delta mapped through the **inverse
     // inherited** linear part (D-72) — the space an authored translate acts in.
     // Under `scale(2)` a 40px viewport travel is 20px of stage-local motion.
     const composed = compose({
@@ -181,9 +186,10 @@ describe('the reported geometry', () => {
 
     const geometry = composed.moves.at(-1)!;
 
-    expect(geometry.viewportDelta).toEqual({ x: DX, y: DY });
-    expect(geometry.localDelta.x).toBeCloseTo(DX / 2, PRECISION);
-    expect(geometry.localDelta.y).toBeCloseTo(DY / 2, PRECISION);
+    expect(geometry.viewportDeltaX).toBe(DX);
+    expect(geometry.viewportDeltaY).toBe(DY);
+    expect(geometry.localDeltaX).toBeCloseTo(DX / 2, PRECISION);
+    expect(geometry.localDeltaY).toBeCloseTo(DY / 2, PRECISION);
   });
 
   it('should report the viewport delta itself when the ancestry is untransformed', () => {
@@ -196,7 +202,8 @@ describe('the reported geometry', () => {
 
     const geometry = composed.moves.at(-1)!;
 
-    expect(geometry.localDelta).toEqual(geometry.viewportDelta);
+    expect(geometry.localDeltaX).toBe(geometry.viewportDeltaX);
+    expect(geometry.localDeltaY).toBe(geometry.viewportDeltaY);
   });
 
   it('should derive the current rect from the origin rect under a transform', () => {

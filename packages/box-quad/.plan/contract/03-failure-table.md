@@ -4,7 +4,7 @@
 
 `readBoxQuad` returns `false` only for an explicitly recognized unsupported or unrepresentable geometry condition in this document.
 
-Before returning `false`, the implementation must leave all eight caller-owned output values unchanged. The contract does not promise that repairing geometry will become observable in the same cache epoch. An uncached call or a newly constructed cache is the freshness boundary.
+Before returning `false`, the implementation must leave all eight caller-owned output values unchanged. Every read is fresh, so repaired geometry is observable on the next call.
 
 The table does not authorize blanket exception handling. Contract violations, unexpected platform exceptions and implementation defects escape normally and are not rewritten as geometry failures.
 
@@ -74,11 +74,3 @@ recognize + calculate into private state
 ```
 
 Any §2 failure ends before the commit stage. The contract does not prescribe whether private state is eight scalars, a temporary array or another representation; later performance work decides that shape.
-
-## 6. Cache interaction
-
-- Any observation associated with a recognized failure may remain stale for the rest of the epoch; the contract does not constrain failure memoization.
-- Successfully completed spaces observed before another part of the same call fails may remain eligible for reuse in that epoch.
-- An escaping exception has no cache-state guarantee beyond cache ownership and the absence of a global cache.
-
-A consumer that repairs geometry and requires the repair to be observed must perform an uncached read or start a new epoch with a new `WeakMap`.

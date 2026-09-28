@@ -3,21 +3,27 @@
  *
  * 07 §Validation, whose two tables are asserted **differently**, which is
  * the whole criterion: a value in the *classified* table surfaces at a named
- * seam, reaches `onError` with that row's coarse code and ends the operation;
- * a value in the *silent* table produces **no `onError`, no terminal and no
+ * seam, reaches `onError` with that row's stage and ends the operation; a
+ * value in the *silent* table produces **no `onError`, no terminal and no
  * classification at all**. Asserting the second half the way one asserts the
  * first is how a deleted check gets quietly re-added.
  *
- * **Codes are read from the mapping, never retyped.** Every expectation is
+ * **The stage is the assertion now** (D-132). ~~Every expectation is
  * `toDraggableError(FAILURE_X, null).code`, so a remap in `STAGE_TO_CODE` fails
- * these rows instead of passing them — which is what B-4 (b) asks for and what
- * a literal `'presentation'` could not give.
+ * these rows instead of passing them.~~ That indirection existed only to
+ * survive a remap of a mapping that no longer exists: `DraggableError` carries
+ * the stage the kernel classified with, so the expectation *is* the constant
+ * and there is nothing left in between to remap.
  *
  * **The `bounds` row is four fixtures, not one** (D-81, F-71, F-73). The rect
  * starts stale, so the *first* resolve is at activation; after a staleness mark
- * the next `apply` decides, and that is three further seams with two different
- * codes. A single fixture asserting one code passes while the other three paths
- * are unattributed.
+ * the next `apply` decides, and that is three further seams. **D-132 is what
+ * makes this row legible**: under the coarse code the four collapsed to
+ * `interaction`, `presentation`, `presentation`, `interaction` — and never to
+ * `consumer`, for a fault that is entirely the consumer's — so two of the four
+ * were indistinguishable and all four told the reader the wrong thing. Four
+ * stages say *one bad source, surfacing at whichever seam resolved first*,
+ * which is what D-81 established actually happens.
  */
 import { describe, expect, it } from 'vitest';
 import { bounds } from '../../src/free-drag/bounds.ts';
@@ -26,13 +32,12 @@ import {
   FreeDragResolution,
   type FreeDragConfig,
 } from '../../src/free-drag.ts';
-import { toDraggableError } from '../../src/kernel/errors.ts';
+import { DraggableError, DraggableWarning } from '../../src/kernel/errors.ts';
 import {
+  type FailureStage,
   FAILURE_ACTION_EFFECT,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
-  FAILURE_LANDING_CREATE,
-  FAILURE_LANDING_TARGET,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
   FAILURE_RESOLUTION,
@@ -48,14 +53,23 @@ import {
   settled,
 } from '../support/free-drag.ts';
 
-const { compose, reported } = freeDragHarness();
+const { compose } = freeDragHarness();
 
-/** The coarse code a stage maps to, read from `STAGE_TO_CODE` (D-64, B-4 b). */
-const codeOf = (stage: Parameters<typeof toDraggableError>[0]): string =>
-  toDraggableError(stage, null).code;
+/**
+ * The stage each surfaced error was classified at (D-132, B-4 b).
+ *
+ * `undefined` for a `DraggableWarning`, which carries no stage — so a warning
+ * arriving where a classified failure was expected fails the row rather than
+ * reading as an absent one.
+ */
+const stages = (
+  errors: readonly unknown[],
+): ReadonlyArray<FailureStage | null | undefined> =>
+  errors.map((error) => (error as { stage?: FailureStage | null }).stage);
 
-const codes = (errors: readonly unknown[]): readonly string[] =>
-  errors.map((error) => (error as { code: string }).code);
+/** For the warning population, which carries a message where a stage would be. */
+const messages = (errors: readonly unknown[]): readonly string[] =>
+  errors.map((error) => (error as Error).message);
 
 /**
  * A bounds source that answers normally until it is armed, then throws on every
@@ -95,7 +109,7 @@ describe('the classified table', () => {
 
     activate(composed);
 
-    expect(codes(composed.errors)).toEqual([codeOf(FAILURE_ADMISSION)]);
+    expect(stages(composed.errors)).toEqual([FAILURE_ADMISSION]);
   });
 
   it('should publish no terminal for a fault that lands before any operation is minted', () => {
@@ -137,7 +151,7 @@ describe('the classified table', () => {
 
     activate(composed);
 
-    expect(codes(composed.errors)).toEqual([codeOf(FAILURE_ADMISSION)]);
+    expect(stages(composed.errors)).toEqual([FAILURE_ADMISSION]);
   });
 
   it('should classify a throwing onStart as an interaction fault with one terminal', () => {
@@ -151,7 +165,7 @@ describe('the classified table', () => {
 
     activate(composed);
 
-    expect(codes(composed.errors)).toEqual([codeOf(FAILURE_ACTIVATION)]);
+    expect(stages(composed.errors)).toEqual([FAILURE_ACTIVATION]);
     // The marker advanced **before** the call (D-66), so the consumer has been
     // told the drag began and is owed exactly one end.
     expect(composed.ends).toHaveLength(1);
@@ -173,14 +187,14 @@ describe('the classified table', () => {
     move(50, 40);
     await settled();
 
-    expect(codes(composed.errors)).toEqual([codeOf(FAILURE_RENDERER_WRITE)]);
+    expect(stages(composed.errors)).toEqual([FAILURE_RENDERER_WRITE]);
     expect(composed.ends).toHaveLength(1);
   });
 
-  it('should classify a throwing home on the quality track and leave the drop standing', async () => {
-    // **D-49.** `anchorTarget` runs on the quality track, so the landing is
-    // skipped rather than faked and the verdict the consumer already gave
-    // stands. A rejected drop is the fixture because that is the arm that asks
+  it('should warn on a throwing home and leave the drop standing', async () => {
+    // **D-49, as revised by D-130.** `anchorTarget` runs unclassified, so the
+    // landing is skipped rather than faked and the verdict the consumer already
+    // gave stands. A rejected drop is the fixture because that is the arm that asks
     // for a home at all.
     const composed = compose({
       onDrop: () => FreeDragResolution.reject('nope'),
@@ -195,7 +209,18 @@ describe('the classified table', () => {
     release(30, 10);
     await settled();
 
-    expect(codes(composed.errors)).toEqual([codeOf(FAILURE_LANDING_TARGET)]);
+    // **A warning since D-130.** ~~`FAILURE_LANDING_TARGET` → `presentation`.~~
+    // The landing measurement is the case rider 1 exists for: the drop's
+    // terminal, phase sequence and settlement are identical whether or not the
+    // target could be produced, and only the trajectory changes. So the stage
+    // that existed to make it *classified, non-consequential and recovery-less*
+    // is gone, and the class carries what the stage carried.
+    expect(composed.errors).toHaveLength(1);
+    expect(composed.errors[0]).toBeInstanceOf(DraggableWarning);
+    expect(composed.errors[0]).not.toBeInstanceOf(DraggableError);
+    expect((composed.errors[0] as DraggableWarning).message).toBe(
+      'drag: landing/target-unavailable',
+    );
     expect(composed.ends).toHaveLength(1);
     expect(composed.ends[0]!.type).toBe('rejected');
   });
@@ -217,12 +242,12 @@ describe('the classified table', () => {
     release(30, 10);
     await settled();
 
-    expect(codes(errors)).toEqual([codeOf(FAILURE_TERMINAL_CALLBACK)]);
+    expect(stages(errors)).toEqual([FAILURE_TERMINAL_CALLBACK]);
   });
 
   it('should classify a non-function onDrop as a consumer fault with one terminal', async () => {
     // The JS consumer's path: the type says `OnDrop`, and a release with
-    // nothing to ask is a designed `SeamRejection` rather than a construction
+    // nothing to ask is a designed settlement failure rather than a construction
     // throw (D-77).
     const composed = compose({
       onDrop: 42 as unknown as FreeDragConfig['onDrop'],
@@ -232,21 +257,53 @@ describe('the classified table', () => {
     release(30, 10);
     await settled();
 
-    expect(codes(composed.errors)).toEqual([codeOf(FAILURE_RESOLUTION)]);
+    expect(stages(composed.errors)).toEqual([FAILURE_RESOLUTION]);
     expect(composed.ends).toHaveLength(1);
     expect(composed.ends[0]!.type).toBe('canceled');
   });
 
-  it('should send a throwing onError to the platform channel rather than classifying it', () => {
-    // **A failure report may not itself fail.** There is no second classified
-    // stage for it, so it leaves through `reportError` — the un-classified
-    // channel — and nothing recurses.
+  it('should carry a rejected round-trip promise back as the cause itself', async () => {
+    // **The caught cause travels verbatim** (D-152, F-162). `SETTLED_REJECTED`
+    // re-raises `input.error` rather than describing it, so the value the
+    // consumer's resolver rejected with is the `cause` of the minted
+    // `DraggableError` — by identity, which is the only assertion that
+    // distinguishes re-raising from wrapping a fresh error of the same class.
+    //
+    // The stage alone does not: `FAILURE_RESOLUTION` is the seam's own, so it
+    // is what a substituted error would classify at too. Sortable's half has
+    // been pinned this way since D-64; this is free drag's.
+    const error = new Error('resolver');
+    const composed = compose({
+      onDrop: () => Promise.reject(error),
+    });
+
+    activate(composed);
+    release(30, 10);
+    await settled();
+
+    expect(stages(composed.errors)).toEqual([FAILURE_RESOLUTION]);
+    expect(composed.errors[0]).toBeInstanceOf(DraggableError);
+    expect((composed.errors[0] as DraggableError).cause).toBe(error);
+  });
+
+  it('should discard a throwing onError rather than reporting it back', () => {
+    // **The terminus** (D-130 §1.3). ~~A failure report leaves through the
+    // platform channel, and nothing recurses.~~ There is no second destination
+    // to leave through any more, so the throw is *discarded* — and being
+    // incapable of recursion is the property, not being careful about it.
+    //
+    // Counted rather than merely observed: a handler that threw was still
+    // called, and the assertion is that it was called **once**. A channel that
+    // re-notified its own failure would call it again with the throw it just
+    // produced, and again with that one.
+    const seen: unknown[] = [];
     const composed = compose({
       config: {
         onStart: () => {
           throw new Error('onStart');
         },
-        onError: () => {
+        onError: (error) => {
+          seen.push(error);
           throw new Error('onError');
         },
       },
@@ -254,7 +311,8 @@ describe('the classified table', () => {
 
     activate(composed);
 
-    expect(reported()).toHaveLength(1);
+    expect(seen).toHaveLength(1);
+    expect(seen[0]).toBeInstanceOf(DraggableError);
   });
 });
 
@@ -273,7 +331,7 @@ describe('a garbage bounds source', () => {
 
     activate(composed);
 
-    expect(codes(composed.errors)).toEqual([codeOf(FAILURE_ACTIVATION)]);
+    expect(stages(composed.errors)).toEqual([FAILURE_ACTIVATION]);
   });
 
   it('should surface from a committed sample as a presentation fault', () => {
@@ -285,7 +343,7 @@ describe('a garbage bounds source', () => {
     composed.controller.invalidate();
     move(50, 40);
 
-    expect(codes(composed.errors)).toEqual([codeOf(FAILURE_RENDERER_WRITE)]);
+    expect(stages(composed.errors)).toEqual([FAILURE_RENDERER_WRITE]);
   });
 
   it('should surface from a moveTo effect as a presentation fault', () => {
@@ -297,7 +355,7 @@ describe('a garbage bounds source', () => {
     composed.controller.invalidate();
     composed.controller.moveTo({ x: 60, y: 25 });
 
-    expect(codes(composed.errors)).toEqual([codeOf(FAILURE_ACTION_EFFECT)]);
+    expect(stages(composed.errors)).toEqual([FAILURE_ACTION_EFFECT]);
   });
 
   it('should surface from the release as an interaction fault', async () => {
@@ -310,7 +368,7 @@ describe('a garbage bounds source', () => {
     release(30, 10);
     await settled();
 
-    expect(codes(composed.errors)).toEqual([codeOf(FAILURE_RELEASE)]);
+    expect(stages(composed.errors)).toEqual([FAILURE_RELEASE]);
   });
 
   it('should never surface from the action that marks it stale', () => {
@@ -326,7 +384,6 @@ describe('a garbage bounds source', () => {
     composed.controller.invalidate();
 
     expect(composed.errors).toEqual([]);
-    expect(reported()).toEqual([]);
   });
 
   it('should publish exactly one terminal for each path that reaches one', async () => {
@@ -375,14 +432,16 @@ describe('the silent table', () => {
     expect(composed.starts).toEqual([]);
     expect(composed.ends).toEqual([]);
     expect(composed.errors).toEqual([]);
-    expect(reported()).toEqual([]);
   });
 
   it('should complete a normal drag for an unknown lift string', async () => {
-    // A TS consumer cannot express it — `LIFT_MODES` is a total `Record`, so a
-    // mode without a mapping does not compile. A JS consumer reaches
-    // `undefined` in the map and gets whichever branch `presentation.ts` falls
-    // through to: consumer-owned, and nothing fails.
+    // A TS consumer cannot express it — the slot takes the kernel's own
+    // `LiftMode`, so a string is not one. ~~`LIFT_MODES` is a total `Record`,
+    // so a mode without a mapping does not compile. A JS consumer reaches
+    // `undefined` in the map.~~ There is no map since D-141: a JS consumer's
+    // value reaches `presentation.ts` unchanged and gets whichever branch it
+    // falls through to — consumer-owned, and nothing fails, which is the same
+    // silence one indirection shorter.
     const composed = compose({
       config: { lift: 'top-layer' as unknown as FreeDragConfig['lift'] },
     });
@@ -395,26 +454,59 @@ describe('the silent table', () => {
     expect(composed.ends).toHaveLength(1);
     expect(composed.ends[0]!.type).toBe('accepted');
     expect(composed.errors).toEqual([]);
-    expect(reported()).toEqual([]);
+  });
+
+  it('should retire a bounds installer that contributed no constraint', async () => {
+    // **F-134.** `ConstraintContribution` requires `constrain`, so only a JS
+    // author reaches this — and what they reach is the same silence a `landing`
+    // installer returning `{}` already produces: the composition has no
+    // constraint and nothing fails. What must *not* happen is the leak, and
+    // that is what the guard buys: the installer's own `retire` was recorded
+    // before anything could throw, so it still runs at teardown.
+    let retired = 0;
+    const composed = compose({
+      config: {
+        bounds: (() => ({
+          retire: (): void => {
+            retired += 1;
+          },
+        })) as unknown as FreeDragConfig['bounds'],
+      },
+    });
+
+    activate(composed);
+    move(500, 500);
+
+    // Unclamped: nothing was installed to clamp with.
+    expect(composed.rendered()).toEqual([490, 490]);
+
+    release(500, 500);
+    await settled();
+
+    // Once, at the operation's retirement — the ledger the guard kept it in.
+    expect(retired).toBe(1);
+    expect(composed.errors).toEqual([]);
   });
 });
 
 describe('the landing duration domain', () => {
-  const landingFailure = codeOf(FAILURE_LANDING_CREATE);
-
-  it('should refuse Infinity and let the committed rejected verdict survive it', async () => {
-    // **B-4 (d), restated at Checkpoint E** (E-07). The row used to be titled
-    // *let the accepted drop survive it*, and it never could be: free drag
-    // deliberately does **not** arm a landing for an accepted result — an
-    // accepted drop is already at its destination — so an accepted drop never
-    // evaluates a duration and cannot reach landing creation at all. The
-    // asymmetry is semantic and is retained; what was wrong was the title, and
-    // the executed path was always this one.
+  it('should not refuse an unbounded duration', async () => {
+    // **B-4 (d), restated at Checkpoint E** (E-07). Free drag deliberately does
+    // **not** arm a landing for an accepted result — an accepted drop is
+    // already at its destination — so this is the arm that evaluates a
+    // duration at all.
     //
-    // `Infinity` is the one duration the platform accepts and never completes,
-    // so the library refuses it — and free drag's `SETTLED_FAILED` mapping
-    // keeps the verdict the consumer already gave (D-24, D-49). The assertion
-    // is on the verdict's survival, not on which track the kernel used.
+    // **The refusal went 2026-08-25 (D-124).** `Infinity` is the one duration
+    // the platform accepts and never completes, and _a duration is finite_ is
+    // the size doctrine's own paradigm of a precondition an integrator can
+    // meet and find, so the gate closes at reachability.
+    //
+    // **What this row pins is acceptance: no failure, and a tail that started.**
+    // Nothing waits for it — the drop is decided, pinned and released before
+    // anything interpolates — so the operation terminates exactly once and the
+    // interpolation that never completes is left holding a displacement on an
+    // element the library has let go of. Cosmetic misuse, with no terminal
+    // behind it.
     const composed = compose({
       fragments: [landing({ duration: Number.POSITIVE_INFINITY })],
       onDrop: () => FreeDragResolution.reject('nope'),
@@ -426,17 +518,24 @@ describe('the landing duration domain', () => {
     await frame();
     await settled();
 
-    expect(codes(composed.errors)).toEqual([landingFailure]);
+    expect(stages(composed.errors)).toEqual([]);
+    expect(composed.item.getAnimations()).toHaveLength(1);
     expect(composed.ends).toHaveLength(1);
-    expect(composed.ends[0]!.type).toBe('rejected');
   });
 
   /**
    * **B-4 (e).** These are not checked by the library at all: `animate()`
-   * refuses them itself, at the same call, at the same stage, with a message
-   * naming its own domain — measured, and the artifact is
+   * refuses them itself, at the same call, with a message naming its own
+   * domain — measured, and the artifact is
    * `.plan/measurements/animate-duration-domain.md` (D-79). Without these rows
    * a later pass re-adds `requireFinite` and nothing notices.
+   *
+   * **The refusal is non-consequential, and the assertions say so** (D-155).
+   * The tail is an interpolation and not a gate: by the time it is started the
+   * drop is decided, pinned and released, so a duration the platform declines
+   * reaches the consumer as a `DraggableWarning` carrying **no stage at all**,
+   * the operation still terminates exactly once, and the visual simply stays
+   * where the pin put it.
    *
    * Written as four `it` calls rather than one `it.each`, because
    * `tests/coverage.node.test.ts` matches cited names against the **first
@@ -454,7 +553,13 @@ describe('the landing duration domain', () => {
     await frame();
     await settled();
 
-    expect(codes(composed.errors)).toEqual([landingFailure]);
+    expect(composed.errors).toHaveLength(1);
+    expect(composed.errors[0]).toBeInstanceOf(DraggableWarning);
+    expect(composed.errors[0]).not.toBeInstanceOf(DraggableError);
+    // A warning carries no stage, so an error classified at one arriving here
+    // fails the row rather than reading as an absent stage.
+    expect(stages(composed.errors)).toEqual([undefined]);
+    expect(composed.item.getAnimations()).toEqual([]);
     expect(composed.ends).toHaveLength(1);
   };
 
@@ -495,8 +600,74 @@ describe('the landing duration domain', () => {
   });
 });
 
+describe('a non-finite moveTo() reaching the landing distance', () => {
+  /**
+   * **The coupling, executed rather than traced** (D-124, and the audit's own
+   * falsifier: _"§2's coupling was traced by reading… that fixture is worth
+   * writing"_).
+   *
+   * `moveTo`'s coordinates are committed as `offsetX`/`offsetY`, the kernel
+   * takes the tail's origin from the rendered offsets, and the timing policy
+   * mints `distance: Math.hypot(target - from)` for the `duration` thunk. So a
+   * value the contract stopped guarding at one end arrives, **library-minted**,
+   * at a conforming author's arithmetic at the other. Both guards were deleted
+   * in one decision because of this path, and it is pinned here so that a
+   * later pass restoring one of them without the other has to say so.
+   */
+  const dropAfterMoveTo = async (
+    x: number,
+  ): Promise<
+    Readonly<{ distances: number[]; composed: ReturnType<typeof compose> }>
+  > => {
+    const distances: number[] = [];
+    const composed = compose({
+      fragments: [
+        landing({
+          // Exactly the use D-67 added the context for.
+          duration: ({ distance }): number => {
+            distances.push(distance);
+            return distance / 2;
+          },
+        }),
+      ],
+      onDrop: () => FreeDragResolution.reject('nope'),
+    });
+
+    activate(composed);
+    composed.controller.moveTo({ x, y: 10 });
+    release(30, 10);
+    await settled();
+    await frame();
+    await settled();
+
+    return { distances, composed };
+  };
+
+  it('should mint a non-finite distance for a conforming duration thunk', async () => {
+    const { distances } = await dropAfterMoveTo(Number.POSITIVE_INFINITY);
+
+    expect(distances).toHaveLength(1);
+    expect(Number.isFinite(distances[0]!)).toBe(false);
+  });
+
+  it('should carry the minted distance into the landing unrefused', async () => {
+    // The second half of the coupling: the minted value is not merely handed
+    // to the thunk, it goes on into the tail, and neither end of the path
+    // refuses it. That is what makes the two deletions one decision.
+    //
+    // ~~And the operation then has no terminal at all.~~ **That assertion went
+    // 2026-08-25** (the D-124 landing review, §1.1 (C)) — it froze the shape of
+    // undefined behaviour, which D-124's own row records in prose where it
+    // belongs.
+    const { composed } = await dropAfterMoveTo(Number.POSITIVE_INFINITY);
+
+    expect(stages(composed.errors)).toEqual([]);
+  });
+});
+
 describe('an invalid home result', () => {
-  const landingTarget = codeOf(FAILURE_LANDING_TARGET);
+  /** The landing measurement is advisory, so it arrives as a warning (D-130). */
+  const landingTarget = 'drag: landing/target-unavailable';
 
   /** Drives a rejected drop, which is the arm that asks `home` where to go. */
   const dropHome = async (
@@ -525,19 +696,24 @@ describe('an invalid home result', () => {
     // probe expected one attributed `onError` and received none.
     const composed = await dropHome((() => null) as never);
 
-    expect(codes(composed.errors)).toEqual([landingTarget]);
-    expect(reported()).toEqual([]);
+    expect(messages(composed.errors)).toEqual([landingTarget]);
   });
 
-  it('should attribute a non-finite result to the same seam', async () => {
-    // Worse than a panic, because nothing throws: `NaN` composes into a target
-    // and reaches a renderer as a transform nobody can see.
+  it('should let a non-finite result compose into the target unattributed', async () => {
+    // **D-124.** The finiteness throw went with the reachability gate — a
+    // landing target is a point, and a point's coordinates are finite by the
+    // same obvious semantics that makes a duration finite, so a non-finite
+    // pair is outside the contract. `domain.d.ts` now publishes that as a
+    // boundary. What the old throw prevented is what happens instead: nothing
+    // throws, nothing is classified, and the value reaches a renderer as a
+    // transform nobody can see. The operation still ends exactly once.
     const composed = await dropHome(() => ({
       x: Number.NaN,
       y: Number.POSITIVE_INFINITY,
     }));
 
-    expect(codes(composed.errors)).toEqual([landingTarget]);
+    expect(stages(composed.errors)).toEqual([]);
+    expect(composed.ends).toHaveLength(1);
   });
 
   it('should attribute a result with a throwing accessor to the same seam', async () => {
@@ -550,7 +726,7 @@ describe('an invalid home result', () => {
       y: 0,
     }));
 
-    expect(codes(composed.errors)).toEqual([landingTarget]);
+    expect(messages(composed.errors)).toEqual([landingTarget]);
   });
 
   it('should end the operation once despite the invalid target', async () => {
@@ -593,7 +769,7 @@ describe('an invalid home result', () => {
     // `destroy()` publishes no terminal at all, so the absence here is the
     // floor holding rather than a terminal that merely arrived early.
     expect(composed.ends).toEqual([]);
-    expect(reported()).toEqual([]);
+    expect(composed.errors).toEqual([]);
   });
 
   it('should accept a finite result and travel to it', async () => {

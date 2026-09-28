@@ -57,7 +57,11 @@ const controller = sortable(
                                                       retire } }   private: RectIndex
               installLayoutAnimation → { beforeInsertionMove,
                                          afterInsertionMove, retire } private: Map
-              installLanding         → { startLanding }             private: timing
+              installLanding         → { landingTiming }            private: timing
+            ← this read `{ startLanding }` until D-155. What a landing feature
+              contributes is TIMING — a duration and an easing, answered once
+              per landing — and never a runner: the interpolation is the
+              kernel's, and there is nothing left for a feature to own.
             ← installation order is SCHEMA order, and `plugins` install in
               array order. D-45 erases provenance, so "declaration order" —
               what retirement used to be defined against — no longer names
@@ -83,15 +87,14 @@ const controller = sortable(
       [B] spec = createSortableSpec(rt)      ← ~16 closures over `rt`  [F-4]
       → { spec, controller }
 [K] kernel.arm(spec)
-      current = composeFrame()   → createFramePart(); validateFramePart(part)
-      draft   = composeFrame()   → createFramePart(); validateFramePart(part)
-             ← BOTH results are validated: no kernel-key collision, no
-               `__proto__`, no symbols, no accessors, plain enumerable
-               writable string keys. The factory is not proven deterministic
-               (F-2), so checking only the first would let the second
-               introduce a collision.                                [I-5]
+      current = Object.assign(frame(), createFramePart())
+      draft   = Object.assign(frame(), createFramePart())
+             ← NEITHER result is validated (D-124, D-122, D-128). The part is
+               still *defined* as a plain enumerable writable string-keyed
+               record, and that definition is the published type's to state.
+               The factory is not proven deterministic (F-2) and nothing
+               compares the two results.                             [I-5]
                 ← same code path twice → one hidden class            [D-15, I-27]
-      __DEV__: key sets match ✔  (captured as armedKeys for scrub checks)
       ── if any step here throws: spec.retire() best-effort, scrub, abort
          ingress, rethrow. No half-armed controller escapes. ──
       list.addEventListener('pointerdown', …, { signal: ingress.signal })
@@ -113,18 +116,30 @@ pointerdown on item 2
 
 [K] listener: !closed ✔  current.operation === null ✔  isPrimaryPress ✔
 [K] begin()                                    Object.assign(draft, current)
-[B] spec.admit(event, draft) → { visual, box? }                 [D-5, D-59]
+[B] spec.admit(event, draft) → AdmissionSubject           [D-5, D-59, D-165]
+      ← this line read `{ visual, box? }` until D-165, which was wrong twice
+        over: the optional `box` is a spelling 02 §Admission returns a subject
+        had already REJECTED — one meaning, one encoding — and the shape was
+        a role short of what admission carries.
       resolve the pressed item from rt.snapshot via composedPath()
-      the composed path holds no interactive or editable descendant
-      between the press and the row, so admission does NOT decline   [D-46]
-      slots.getHandle — not installed, skip
+      the composed path carries no [data-drag-ignore] between the
+      press and the row, so admission does NOT decline       [D-46, D-129]
+      slots.handle — not installed, skip
       draft.item = item2                       ← BEHAVIOR state, in the
       draft.snapshot = rt.snapshot               behavior's own frame part
-      return item2                             ← the element to lift; `box` is
-                                                 omitted here, so it defaults
-                                                 to the visual        [D-43]
-[K] store visual and box in the KERNEL's OWN frame slice, beside
-    originRect — not read back out of a behavior-authored draft  [D-59]
+      return item2                             ← the BARE form, and it says
+                                                 all THREE roles at once: the
+                                                 item is the visual is the box.
+                                                 The object form is the only
+                                                 way to say they differ, and
+                                                 names all three when they do.
+                                              [D-43, D-59, D-165]
+                                             ← this annotation read "`box` is
+                                               omitted here, so it defaults to
+                                               the visual" while the shape had
+                                               an optional member to omit.
+[K] store visual, box and item in the KERNEL's OWN frame slice, beside
+    originRect — not read back out of a behavior-authored draft [D-59, D-165]
       ← D-52's first form had the behavior stash `box` in the draft for the
         kernel to read before acquireLift. That contradicts H-2 — the kernel
         does not know, store, extend or type the behavior's part — and D-15,
@@ -132,9 +147,12 @@ pointerdown on item 2
         cosmetic exception: "the kernel learns one sortable-shaped thing" is
         the defect Checkpoint C found four times.
       ← D-5's principle is intact. The kernel still gets what it needs from
-        admission and nothing else; it now needs TWO things rather than one,
+        admission and nothing else; it now needs THREE things rather than one,
         which changes the count, not the rule. Admission runs once per press
-        and is not the hot path, so the pair costs nothing measurable.
+        and is not the hot path, so the object costs nothing measurable.
+      ← this read TWO until D-165, which needs the item to read the ancestry
+        a displacement is spent in. The count has moved twice and the rule has
+        not moved once, which is the whole reason it is stated as a rule.
 [K] the default is NOT prevented here            ← it MOVES to activation
       ← this line read `event.preventDefault()` until Revision 2, called
         exactly when an admission member returned non-null [C-03]. The press
@@ -147,15 +165,15 @@ pointerdown on item 2
       recheck the listener would mint an operation on a terminal controller.
 [K] mint OperationIdentity
 [K] create the three lifetimes; arm motion + cancellation ingress
-[K] draft.phase = PENDING; pointerId, originX/Y, pointerX/Y = the press
-[K] commit()                                   swap two references
+[K] pointerId, originX/Y, pointerX/Y = the press
+[K] commit(PENDING)                            write the phase, then swap
 ```
 
-`draft.phase` is written by the kernel, after `admit` returned. The behavior could not have written it: it saw `Draft<Part>`, where the kernel slice is `Readonly`. **[I-5, tier A]**
+The phase is written by the kernel, inside the call that commits, after `admit` returned. The behavior could not have written it: it saw `Draft<Part>`, where the kernel slice is `Readonly`. **[I-5, tier A]**
 
 No pointer capture yet — capture is acquired at activation, so a below-threshold press never captures and never retargets later pointer events to `root`. **[D-17]**
 
-**Nothing native has been consumed at this point, and that is D-46's whole correction.** The previous trace prevented the default here on the strength of the behavior's non-null answer, and treated whether a _click_ still fires as a question the contract does not decide. Probe E measured it: the prevented `pointerdown` suppresses the compatibility `mousedown` — focus, caret placement, selection start, form-control operation — while `click`, `href` navigation and ctrl/meta-click survive, because they are defaults of `pointerup`. **Six of probe E's ten cases were destroyed with no drag ever activating**, which is the sharpest statement of the defect: the press was not reserved for a drag that might happen, it was spent on one that provably did not. Two things carry the policy instead, and neither is new machinery — **declining is already total** (an admission member returning `null` leaves the native meaning completely intact), and default admission now declines on interactive and editable descendants. **[D-46, F-48]**
+**Nothing native has been consumed at this point, and that is D-46's whole correction.** The previous trace prevented the default here on the strength of the behavior's non-null answer, and treated whether a _click_ still fires as a question the contract does not decide. Probe E measured it: the prevented `pointerdown` suppresses the compatibility `mousedown` — focus, caret placement, selection start, form-control operation — while `click`, `href` navigation and ctrl/meta-click survive, because they are defaults of `pointerup`. **Six of probe E's ten cases were destroyed with no drag ever activating**, which is the sharpest statement of the defect: the press was not reserved for a drag that might happen, it was spent on one that provably did not. Two things carry the policy instead, and neither is new machinery — **declining is already total** (an admission member returning `null` leaves the native meaning completely intact), and default admission declines where the consumer marked the region. (~~on interactive and editable descendants~~ — D-129 withdraws the element-type inference; the trace above reads the same either way, which is the point of routing a policy through a decline.) **[D-46, D-129, F-48]**
 
 **The call is not deleted, it is relocated — to the threshold crossing.** D-46 withdrew it from admission and named no replacement, which left the policy incomplete in a consumer-visible way; **D-54 completes it.** `preventDefault()` fires when the activation threshold is crossed, and the two consequences of moving it later are carried by the same decision rather than left as residue: at that moment the library **clears any selection the pre-threshold press began**, and after an **activated** drag it **suppresses exactly one subsequent `click`, in the capture phase** — without which a drag that ends on a link navigates. Both are consequences of the relocation, not pre-existing defects.
 
@@ -166,7 +184,7 @@ No pointer capture yet — capture is acquired at activation, so a below-thresho
 ```text
 pointermove (+3 px)
 > MOVE  [K] phase PENDING ✔  pointerId matches ✔
-        [K] begin(); pointerX/Y = sample; commit()
+        [K] begin(); pointerX/Y = sample; commit(null)
         [K] |Δ| < config.threshold (8) → nothing further
 ```
 
@@ -174,7 +192,7 @@ pointermove (+3 px)
 
 ```text
 pointermove (+11 px)
-> MOVE  [K] begin(); pointerX/Y = sample; commit()
+> MOVE  [K] begin(); pointerX/Y = sample; commit(null)
         [K] |Δ| ≥ threshold → open the activation transition
         [K] event.preventDefault()          ← HERE, not at admission  [D-54]
         [K] clear any selection the pre-threshold press began
@@ -199,20 +217,42 @@ pointermove (+11 px)
                 rect read would carry a transform the footprint must not see.
               ← box defaults to the visual; here they are the same element,
                 which is exactly the case where one window looks sufficient.
-        [K] lift = acquireLift(visual, config.liftMode, …)
+        [K] lift = acquireLift(visual, item, config.liftMode, …)
+              ← `item` since D-165. Before the mutation below, this reads the
+                ancestry above the VISUAL and — only when the two are different
+                elements — the ancestry above the ITEM, then measures the
+                visual THROUGH the first. Computed style up the flat tree; no
+                layout is read for either and no rect is measured for the item.
+                                                             [D-85, D-165]
               ← the visual leaves flow HERE. Everything the footprint rule
-                needs is on opposite sides of this line.
+                needs is on opposite sides of this line — and so is every
+                ancestry read, which is why they are all taken above it. A
+                walk taken later reads a tree the lift has already changed.
+                                                             [D-85]
         [K] root.isConnected ✔ → root.setPointerCapture(pointerId)    [D-17]
               ← validated, not assumed: `admit` may return any element and a
                 consumer resolver can detach things. A capture failure is
                 FAILURE_ACTIVATION, not a silently degraded drag.
         [K] begin()
         [B] spec.activation.prepare(draft, scope) → HTMLElement    [prepare]
-              scope = { visual, box, originRect, boxPre, lift,
+              scope = { visual, box, originRect, boxPre,
+                        visualSpace, itemSpace, lift,
                         motion, presentation }
                       ← the kernel HANDS these down, which is the whole of how
                         the behavior sees them. It does not read them back out
                         of the draft, and the behavior never wrote them. [D-59]
+                      ← this literal carried no space at all until D-85, and
+                        carried ONE, `inheritedSpace`, from D-85 until D-165
+                        split it in two.
+                      ← both are the inverse of an inherited linear part, or
+                        `null` for the identity — which is this trace's case,
+                        an untransformed list, and the case `compose` skips the
+                        arithmetic for. `compose` and free drag spend the
+                        VISUAL's; a displacement sink writes its `translate`
+                        on an ITEM and spends the item's, because which element
+                        a translate is written on decides which space it is
+                        spent in. THE SAME OBJECT whenever the item is the
+                        visual, which is here.               [D-85, D-165]
               boxPost = the BOX's offsetHeight ← WINDOW 2 of 2, and the FIRST
                         thing this seam does. Read after acquireLift, from the
                         same element and in the same units as boxPre.
@@ -226,7 +266,7 @@ pointermove (+11 px)
                                                 : boxPre.height − boxPost
                                              ← what the visual actually
                                                removed from the layout
-              placeholder = slots.createPlaceholder({ item, visual, box, rect })   ← from config.placeholder (D-65)
+              placeholder = slots.placeholder({ item, visual, box, rect })   ← from config.placeholder (D-65)
               size it from the FOOTPRINT, not from the visual's offset box
               copy `item`'s `slot` attribute onto the placeholder
                         ← from the ITEM, not the box: the placeholder stands in
@@ -243,7 +283,7 @@ pointermove (+11 px)
               return placeholder            ← DETACHED. no DOM insertion,
                                               no acquisition, no rt write
         [K] preparationValid() ✔        ← nothing reentrant happened  [I-3, tier B]
-        [K] draft.phase = ACTIVATING; commit()
+        [K] commit(ACTIVATING)
         [B] spec.activation.effect(current, placeholder, scope)  [post-commit]
               ── 1. register the release, THEN make it visible ──      [I-30]
               scope.presentation.use(() => placeholder.remove())
@@ -269,22 +309,30 @@ pointermove (+11 px)
                           it; it exists because they need a non-null
                           placeholder, which the controller-lifetime runtime
                           cannot promise before now.
+                        ← it also carries `scope.itemSpace` down to whatever
+                          displaces siblings. HANDED DOWN, never measured here:
+                          this seam runs after acquisition, so a walk taken
+                          from it would describe a tree the lift has already
+                          changed — which is the act D-85 exists to forbid.
+                                                             [D-85, D-165]
               slots.invalidateInsertion()
               ── 4. consumer callback last: it may cancel or destroy ──
               slots.onStart(item2)
         [K] preparationValid() ✔ → dispatch(START_COMMITTED, operation)
 
 > START_COMMITTED  [K] phase ACTIVATING ✔  operation current ✔
-                   [K] begin(); draft.phase = ACTIVE; commit()
+                   [K] begin(); commit(ACTIVE)
 ```
 
 **Two windows, because one is wrong in a case that looks like the common one — and the common case takes the first window alone.** ~~Here `box === visual`, so `boxPre − boxPost` is just the visual's own height and a single pre-lift capture would have agreed.~~ **Corrected during implementation (F-55): that subtraction is `0`, not the visual's height.** `boxPre − boxPost` measures the footprint only when the box _stays in flow_ while the visual leaves it, which is what api-1 measured with a nested pair. Under `box === visual` there is no such pair: the one element **is** the thing being lifted, and `LIFT_FAITHFUL` promotes it with `position: fixed` and an explicit width and height, so its offset box is **unchanged** across `acquireLift` and the difference is zero. The rule is therefore stated on the identity: **`box === visual` ⇒ the footprint is `boxPre`; otherwise its height is `boxPre.height − boxPost` and its width is `boxPre.width`** — one-dimensional, because F-58 found the second axis subtracting a collapse that never happened. The identity branch is not an optimisation — it is the second half of the rule, and the pre-lift capture is the whole answer there, which is what the library did before two windows existed. The subtraction earns its place the moment the box keeps a sibling in flow: api-1 measured `boxPre 62 − boxPost 32 = 30`, and the list collapsed by exactly 30 — while the box's own height (62) over-sizes by double-counting the residue and the visual's height (60) over-sizes by 30. Probe C1 then reproduced it inside a live drag with `layoutAnimation()` running: sizing from `visual.offsetHeight` runs the list `180 → 210`, **30 px too tall for the entire drag**, not just at landing. No single-window rule is correct in both nested cases, which is why the rule takes two. The timing costs nothing structurally — `acquireLift` and this seam are forty lines apart — and buys one additional forced layout per activation. **[D-43, F-50]**
+
+**Two spaces, for the same reason there are two windows: what leaves flow and what the layout loses need not be one element, and neither need be the element a behavior writes on.** `visualSpace` and `itemSpace` are both inverses of an inherited linear part — everything strictly above the element, its own transform and zoom excluded — read from computed style before `acquireLift` mutates anything and handed down rather than measured. `compose` spends the visual's, because an in-place translate is prepended to the visual's authored transform and is scaled only by what the visual inherits. A displacement sink spends the item's, because it writes its `translate` on an item; where `visual` resolves to a descendant of the item the two differ by every linear contribution between them, the item's own included, and one value for both would divide a transform out of a delta it was never in. In this trace they are **the same object** — nothing separates the three roles, so the kernel reads one ancestry and shares one buffer — and both are `null`, the identity, because the list carries no transform. **The count of reads is not what makes this safe**: what D-85 forbids is a behavior taking its own traversal _after_ acquisition, and neither space here is measured by anything below `acquireLift`. **[D-85, D-165]**
 
 `activation.prepare` performs no mutation the _layout_ can see: it never inserts, it measures, and capture is the kernel's. Insertion, disposer registration and the private-runtime writes are all post-commit. But it does mutate — `createPlaceholder` is a **consumer** slot, the element it returns is **consumer-owned**, and `applyMechanics` writes library-authored attributes, styles and state onto it before `prepare` returns. **[I-17 — not vacuous for this behavior, corrected by D-39]**
 
 **Consequently `activation.rollback` is required.** ~~It is unnecessary — a discarded prepare leaves only a detached element for the collector.~~ That reading survived into Revision 2 and D-39 reverses it. Detachment is not disposal when the element is not the library's to collect: `prepare` completes, `preparationValid()` then returns `false`, the seam reports `SEAM_INVALIDATED`, and **adoption never happens** — so the disposer `effect` would have registered is never registered and never becomes responsible for the attributes already written. The consumer is handed back its own element carrying the library's marks. Deferring physical teardown (D-36) does not help and was never going to: it changes _when_ teardown runs, not _whether_ adoption occurred, and this is a local acquisition property with a mechanism that already exists. It is **not** a reason to reinstate statement-level liveness. **[D-39]**
 
-Had `createPlaceholder` thrown, the kernel would have released capture and disposed the lift, queued `FAILURE_ACTIVATION`, and published nothing — no element ever came back, so there is nothing to roll back. Had it reentrantly called `destroy()`, `prepare` would still have returned the element and `preparationValid()` would have returned `false`; **that is the case `rollback` now owns.** **[I-16, tier B]**
+Had the `placeholder` slot thrown, the kernel would have released capture and disposed the lift, queued `FAILURE_ACTIVATION`, and published nothing — no element ever came back, so there is nothing to roll back. Had it reentrantly called `destroy()`, `prepare` would still have returned the element and `preparationValid()` would have returned `false`; **that is the case `rollback` now owns.** **[I-16, tier B]**
 
 **An activation discard retires the operation.** Unlike an action discard, it is not "nothing happened and we carry on": there is no such thing as a committed operation with no presentation. The activation driver releases capture, disposes the lift and returns the controller to `IDLE`. The post-effect `preparationValid()` above is likewise activation-specific — the shared core does not have it, which is why each seam has its own wrapper.
 
@@ -296,7 +344,7 @@ pointermove × N
 > MOVE  [K] phase ACTIVE ✔  pointerId matches ✔
         [K] begin()                     Object.assign, 15 fields, monomorphic
         [K] draft.pointerX = e.clientX; draft.pointerY = e.clientY
-        [K] commit()                    two reference assignments
+        [K] commit(null)                two reference assignments
         [B] spec.moved(current, lift)                                  [D-8]
               dx = current.pointerX - current.originX
               dy = current.pointerY - current.originY
@@ -350,7 +398,7 @@ rAF fires → dispatch(behavior tag 0, attempt)
                       [F] → Insertion { version, index: 4, before, after }
                     draft.insertion = gap 4
                     return true
-              [K] preparationValid() ✔; commit()
+              [K] preparationValid() ✔; commit(null)
               [B] spec.action.effect(0, attempt, current, true)
                     for slots.beforeMove   → [F] measure neighbour rects
                     movePlaceholder(view, insertion)  ← the SOLE writer of the
@@ -380,8 +428,8 @@ pointerup
 
 > UP    [K] phase ACTIVE ✔  pointerId matches ✔
         [K] begin()
-        [K] draft.phase = RELEASING; pointerX/Y = the release point
-        [K] commit()                                   ← commit 1        [D-6]
+        [K] pointerX/Y = the release point
+        [K] commit(RELEASING)                          ← commit 1        [D-6]
               ── the committed frame now matches what is about to be true ──
         [K] lifetimes.motion.dispose()                                   [I-11]
               → root.releasePointerCapture(pointerId)   (guarded)
@@ -403,7 +451,7 @@ pointerup
                 spatial resolve: there is no release sample, the pointer
                 scalars are still zero, and resolving would pick a gap from
                 pointerY === 0. A null insertion here is a broken invariant →
-                SeamRejection, never a home fallback.          [D-32, C4-01]
+                a throw, never a home fallback (D-152).        [D-32, C4-01]
               draft.proposal  = buildReorderProposal(snapshot, item2, insertion)
                                                                immutable, frozen
               return { invoke: (signal) =>
@@ -411,7 +459,7 @@ pointerup
               ← the resolution CHOICE is the staged value. A no-op proposal
                 returns { invoke: null }. There is no `null` return and no
                 gate to call zero or twice.                            [F-20]
-        [K] preparationValid() ✔; commit()             ← commit 2
+        [K] preparationValid() ✔; commit(null)         ← commit 2
         [B] spec.release.effect(current, command)      [post-commit]
               movePlaceholder(view, insertion)    ← the same single writer,
                                                     inert when already correct.
@@ -459,7 +507,7 @@ pointerup
                       RESOLUTION_SETTLED in FIFO.                       [F-25]
 ```
 
-Commit 1 exists so that no irreversible physical action — here, closing motion ingress — happens while the committed frame still says `ACTIVE`. If `release.prepare` throws, returns a `SeamRejection`, or reentrantly destroys, the committed state is `RELEASING`, which is true, rather than `ACTIVE` with no ingress and no path forward. **[I-13]** It cannot return `null`; that is not expressible.
+Commit 1 exists so that no irreversible physical action — here, closing motion ingress — happens while the committed frame still says `ACTIVE`. If `release.prepare` throws — which since D-152 is the only way it fails — or reentrantly destroys, the committed state is `RELEASING`, which is true, rather than `ACTIVE` with no ingress and no path forward. **[I-13]** It cannot return `null`; that is not expressible.
 
 The final `lift.write` render above is **normative**, not decoration: the `UP` action committed the release point, and `pointerup` need not carry the same coordinates as the last processed `pointermove`. Rendering only the placeholder would leave the visual — and the entire landing trajectory — starting from a stale point while the proposal describes a newer one. **[review 6, §7]**
 
@@ -471,6 +519,8 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
 
 **A resolution the library stops waiting for is still safe.** If the user cancels while `onReorder` is outstanding, the operation abandons the wait, restores and retires its presentation, and terminates as **`canceled`** — one terminal, not a new `aborted` one. The consumer's own already-started work may still commit, and the library has never claimed otherwise: `canceled` says the _drag operation_ was abandoned, never that consumer side effects were rolled back. The late settlement or rejection from the abandoned resolver is consumed safely — no unhandled rejection, no second terminal, no revival. `onError` stays the orthogonal diagnostic channel. **[D-40]**
 
+**Which cancellation this was is a separate field from when it happened.** The canceled arm carries `origin: CancelOrigin` beside `stage: CancelStage` — `CANCEL_SUPPLIED` for `cancel(reason?)` from either the consumer or the behavior, `CANCEL_ABORTED` for Escape, `CANCEL_INTERRUPTED` for a pointer stream that ended without a drop, `CANCEL_FAILED` for a classified failure that decided the operation. `origin` names **what decided the terminal**: a failure superseded by an already-latched cancel is reported through `onError` as a warning and leaves the origin alone (F-178), so `CANCEL_FAILED` means _the failure ended it_ rather than _a failure happened_. The kernel writes it and the consumer cannot, which is the whole reason it is not carried on `reason`: `cancel(reason?: unknown)` accepts anything, so a provenance value arriving there is a claim rather than a fact. `reason` keeps its meaning — _what the decider had to say_ — and the sortable's own `sortable:item-removed` and `sortable:collection-invalidated` are supplied values under that reading, published from `sortable.js` beside the result type that carries them. **[D-154]**
+
 ## Settlement
 
 ```text
@@ -479,11 +529,11 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                       [K] begin()
                       [B] spec.settlement.prepare(draft, { type: FULFILLED, value })
                             validate: is this an explicit ReorderResolution?  ✔
-                                      (a non-resolution, or a REJECTED input,
-                                       returns a SeamRejection at
-                                       FAILURE_RESOLUTION — never a
-                                       silent accept and never an inferred
-                                       onEnd)
+                                      (a non-resolution throws, and a REJECTED
+                                       input re-raises the caught cause — both
+                                       classified at the seam's own
+                                       FAILURE_RESOLUTION, never a silent
+                                       accept and never an inferred onEnd)
                             draft.outcome  = OUTCOME_ACCEPTED
                             draft.recovery = RECOVERY_DESTINATION
                             draft.domain   = { ACCEPTED, proposal }
@@ -493,7 +543,7 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                                      presentation expected? There is no such
                                      question now: the authored DOM is already
                                      final when this seam runs.        [D-41]
-                      [K] preparationValid(); draft.phase = SETTLING; commit()
+                      [K] preparationValid(); commit(SETTLING)
                       [K] attempt = { holds: 0,
                                       start: null, landing: null,
                                       landingHeld: false,
@@ -508,21 +558,18 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                               early when nothing arrives separately.   [D-41]
                       [K] lifetimes.cancellation.dispose()
 
-                      ── REQUEST: the scope records, it arms nothing ──
-                      [B] spec.settlement.effect(current, prepared, scope)
-                            slots.startLanding && recovery !== IMMEDIATE →
-                              scope.holdForLanding(slots.startLanding)
-                                [K] holds = 1; start = fn; landingHeld = true
-                            ← ONE gate. `holdForReadiness()` no longer exists.
-                                                                       [D-41]
+                      [B] spec.settlement.effect(current, prepared)
+                            ← this seam took a THIRD argument, a
+                              `SettlementScope`, and requested the landing gate
+                              through it, until D-155. There is no gate and no
+                              capability: the effect closes its lifetimes,
+                              reports a failure if it has one, and returns.
+                                                                 [D-41, D-155]
+                      [K] if settlement.effect THREW, or the operation was
+                          invalidated: measure nothing, join nothing, and let
+                          the queued checkpoint decide.          [F-27, D-155]
 
-                      ── SEAL ──
-                      [K] attempt.sealed = true
-                      [K] if settlement.effect had THROWN, or the operation were
-                          invalidated: drop every unarmed request, arm nothing,
-                          and let the queued checkpoint decide.          [F-27]
-
-                      ── ARM: the complete gate plan is now known ──
+                      ── MEASURE ──
                       ── RESTORE the library's presentation invariants ──
                       [B] the guarded item-relative re-anchor, run ONCE:
                             recovery === DESTINATION ✔
@@ -567,82 +614,110 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                               commit strategies, including the two that
                               otherwise hold. 02 owns the surviving signature;
                               this trace follows it.
-                      [K] from = lift.rendered      ← the delta the session
-                                                        last wrote, not a
-                                                        pointer delta    [D-35]
-                      [K] context = { visual, compose, from, target, realm }
-                      [F] WAAPI animation, 200 ms → LandingHandle
-                      [K] revalidate: still current, still sealed, still held?
-                            ← `start` could have destroyed the controller and
-                              STILL returned this live handle. If stale:
-                              handle.destroy() best-effort, never publish. [F-30]
-                      [K] attempt.landing = handle
-                      [K] arm outcome = ARM_ARMED
-                      [K] advanceSettlement: holds === 1 → return
-                          ← ARM_FAILED would return before this call; the original
-                            settlement would not finalize.
+                      [K] revalidate: still current, still SETTLING?
+                            ← `anchorTarget` is behavior code and may have
+                              destroyed the controller. Nothing joins after
+                              that.                              [F-38, D-155]
+                      [K] join, in this same drain
+                          ← three lines stood here until D-155: the landing
+                            context, `start(context, done, fail)` returning a
+                            `LandingHandle`, and the arm outcome that decided
+                            whether `advanceSettlement` ran at all. A settlement
+                            suspends nothing now, so there is no outcome to
+                            branch on and no drain to wait for.
 ```
 
-The hold is reserved **before** `start` is called and the handle is stored **after** it returns. A `landing({ duration: 0 })` or custom runner that calls `done()` from inside `start` therefore always finds its hold, and its queued completion can never be applied before the handle exists. Had `start` thrown, or had the runner called `fail()` synchronously, the reserved hold would be rolled back and the failure classified `FAILURE_LANDING_CREATE`. Arm would return `ARM_FAILED`: the original settlement would not advance or call its terminal callback; the queued failure checkpoint would take over while presentation remains owned. **[D-28, F-35]**
+~~The hold is reserved **before** `start` is called and the handle is stored **after** it returns.~~ **The whole of that protocol is retired with the gate (D-155)**, and its reason is the clearest statement of why: it existed so that a runner completing _inside_ `start` found a hold to release. Nothing completes now, because nothing is waiting — so there is no early completion, no rollback, and no `FAILURE_LANDING_CREATE` for a runner that could not be created. **What survives is the ordering the protocol was protecting**: one measurement, taken before anything is mutated, and one decided position read from it. **[D-28, F-35, D-155]**
 
-**A failed measurement is not one of those cases, and D-49 is why.** Collapsing two measurement sites into one silently converted a tolerated fault into a fatal one: the old contract survived a failed `anchorTarget` per drop, because F-17 and I-29 make it best-effort and the join's pin decides correctness — with one site, `ARM_FAILED` would tolerate none. So a measurement that throws, or a precondition check that finds the placeholder detached, **reports, skips the landing, and joins immediately**. That restores F-17's tier — the failure is **quality only**, exactly as F-16 classifies a visually abrupt correction — and keeps I-31's single terminal. **It also unifies with D-42**, replacing that decision's weaker "lands from the unrepaired position": the unrepaired position _is_ the viewport origin, and probe C1 shows what animating toward it looks like — twelve frames to `(0,0)` and a teleport back. **A jump cut is honest; a confident animation to `(0,0)` is not.** **[D-49, D-42, F-16, F-17]**
+**A failed measurement is not one of those cases, and D-49 is why.** Collapsing two measurement sites into one silently converted a tolerated fault into a fatal one: the old contract survived a failed `anchorTarget` per drop, because F-17 and I-29 make it best-effort and the join's own authoritative pin decided correctness — with one site, `ARM_FAILED` would tolerate none. So a measurement that throws, or a precondition check that finds the placeholder detached, **reports, skips the landing, and joins immediately**. That restores F-17's tier — the failure is **quality only**, exactly as F-16 classifies a visually abrupt correction — and keeps I-31's single terminal. **It also unifies with D-42**, replacing that decision's weaker "lands from the unrepaired position": the unrepaired position _is_ the viewport origin, and probe C1 shows what animating toward it looks like — twelve frames to `(0,0)` and a teleport back. **A jump cut is honest; a confident animation to `(0,0)` is not.** **[D-49, D-42, F-16, F-17]**
 
 **The measurement is taken once, and the ordering above is the whole of why it can be.** The re-anchor is the library restoring _its own_ presentation invariant after the consumer moved DOM around it; the measurement then reads a placeholder that is where the authored order says it should be. C1 measured what happens without that ordering: `authoredReady` is false at arm **by construction**, so the pre-redesign reading was taken before the re-anchor even when the consumer had committed synchronously inside `onReorder` — 40 px stale in case 3, 40 px stale the other way in case 4, and at the viewport origin in the three that detach the placeholder. A conforming custom runner that omits `retarget()` — which `landing()`'s own contract calls trajectory quality only — animated toward that stale target for the entire landing. **[D-41, D-16, F-13]**
 
-**The precondition check is not renderer detection.** It is two reads validating something the measurement already depends on, and it exists because probe C1's three destructive strategies — `replaceChildren`, an `innerHTML` rebuild, and replacing the container — each detach the placeholder, which then measures `0×0` at `(0, 0)`; the row travels `(46,133) → (0,0)` over twelve frames and teleports back into its slot when the join pins. **All five strategies reported `onEnd` once, `onError` zero times and left zero residue**, so the worst integration bug in the package was also its most silent. D-42 declines to recover: destructive rerenders during an active operation are **out of contract**, supported commits move existing item nodes, and buying recovery would mean relaxing D-27's cross-container refusal for a case that is now outside the contract anyway. **[D-42, F-49]**
+**The precondition check is not renderer detection.** It is two reads validating something the measurement already depends on, and it exists because probe C1's three destructive strategies — `replaceChildren`, an `innerHTML` rebuild, and replacing the container — each detach the placeholder, which then measures `0×0` at `(0, 0)`; the row travels `(46,133) → (0,0)` over twelve frames and teleports back into its slot the moment presentation is released. **All five strategies reported `onEnd` once, `onError` zero times and left zero residue**, so the worst integration bug in the package was also its most silent. D-42 declines to recover: destructive rerenders during an active operation are **out of contract**, supported commits move existing item nodes, and buying recovery would mean relaxing D-27's cross-container refusal for a case that is now outside the contract anyway. **[D-42, F-49]**
 
 The repair is guarded three ways, and each guard earns its place. The `nextElementSibling` test makes it inert when the placeholder is already adjacent — the common case — because `before()` on an already-correct position is a remove-and-reinsert that resets CSS transitions and forces a reflow. The connectivity and parentage tests stop a consumer that unmounted or re-keyed the item from having the placeholder dragged into a detached tree. It acts when the authored commit inserted a new keyed item into the destination gap, and C1 showed it also repairs both supported commit strategies: an append loop leaves the placeholder at index 0, a morphdom-style patch strands it at the tail, and the same repair closes the arithmetic in both.
 
 The item is the anchor because after the commit it is a connected, consumer-owned keyed child the renderer has placed at its authored final slot. **[I-25]** The visual may be a different element; the anchor is always the item.
 
-**With no `landing()` feature installed**, `slots.startLanding` is `null`, so **no landing hold is taken and no animation module is in the bundle** — `holds` is 0 at seal, and the settlement finalizes in this same drain. That is now the whole of the rule, because there is one gate: same-drain finalization needs no landing feature, or an immediate recovery, and nothing else. It used to need _both_ halves — no landing **and** no declared presentation — and the independence of the two was the property that let the render and the animation overlap. **With readiness deleted there is nothing left to be independent of**, and probe 1's underlying requirement is untouched, because it was always the _default-open_ rule rather than the gate count. **[I-9, I-8, D-41, D-7]**
+**With no `landing()` feature installed**, `slots.landingTiming` is `null`, so **nothing travels after the drop and no animation module is in the bundle**. ~~`holds` is 0 at seal, and the settlement finalizes in this same drain.~~ **Every settlement finalizes in this same drain since D-155**, installed landing or not: same-drain finalization is no longer a rule with conditions attached to it. It used to need _both_ halves — no landing **and** no declared presentation — and the independence of the two was the property that let the render and the animation overlap. Readiness left nothing to be independent of; D-155 left nothing to be gated on. Probe 1's underlying requirement is untouched, because it was always the _default-open_ rule rather than the gate count. **[I-9, I-8, D-41, D-7, D-155]**
 
-Note that no gate release will be a frame transition: gate state is on the attempt, not the frame. The only remaining transition is `phase = FINALIZING`.
+Note that no gate release will be a frame transition: ~~gate state is on the attempt, not the frame~~ — there is no gate state anywhere. The only transition in settlement is `phase = FINALIZING`.
 
 **What stood between here and the join, and no longer does.** A `## Readiness — the authoritative re-anchor` section traced `controller.ready(pendingRequest.current)` from a `useLayoutEffect`, compared by object identity against the request `release.prepare` built and `release.effect` published, dispatched `READINESS_SETTLED` with the once-only latch claimed _before_ the dispatch (C4-04, C5-02), released the readiness hold, set `authoredReady`, ran a readiness-time re-anchor and offered the result to `handle.retarget?.()`. **Every mechanism in it was correct for the problem it had** — the identity comparison in particular is the best record of why per-operation identity on a controller method is hard, which is why D-33 is kept in full in the ledger. What it does not have any more is a problem: the authored commit now completes inside `onReorder`, so there is no render to acknowledge after the fact, no interval for a late or duplicate acknowledgement to land in, and no 500 ms deadline to bound the silence. **[D-41, D-33, I-35]**
 
 ## The join
 
 ```text
-landing animation finishes (200 ms)
+immediately, in the settlement's own drain
+    ← this line read `> LANDING_SETTLED  [K] landingHeld ✔ → holds = 0` and
+      waited on a 200 ms animation to say it had finished, until D-155. Nothing
+      reports a completion because nothing is waiting for one.
 
-> LANDING_SETTLED    [K] attempt current ✔  phase SETTLING ✔  no error ✔
-                     [K] landingHeld ✔ → landingHeld = false; holds = 0
-                           the handle itself is retained for the join
-                     [K] advanceSettlement: holds === 0 ✔
-                           [K] begin(); draft.phase = FINALIZING; commit()
+                           [K] begin(); commit(FINALIZING)
                            [K] try {
-                           [K]   target = spec.anchorTarget(current)
-                                 [B]   defensive repeat of the guarded repair,
-                                       then measure — covers layout movement
-                                       during a long landing
-                                 ↳ throws → FAILURE_LANDING_TARGET, no target
-                           [K]   attempt.landing.destroy()
-                                 [F]   animation.cancel() — relinquish the
-                                       transform so the pin is not overridden
-                                 ↳ throws → best-effort report; continue, BUT
-                                   attempt.relinquished = false and I-24 no
-                                   longer holds for this operation: the runner
-                                   may keep writing after the pin.        [§8]
-                           [K]   lift.write(target.x - originRect.x,
-                                            target.y - originRect.y)
-                                 ← the authoritative pin, kernel-owned    [I-24]
-                                 ↳ throws → FAILURE_RENDERER_WRITE, continue
+                           [K]   if the controller is gone → return
+                                 ← `anchorTarget` ran before this and is
+                                   behavior code                       [F-38]
+                                 ── `target = spec.anchorTarget(current)` and a
+                                    defensive repeat of the guarded repair
+                                    stood here until D-41 moved the measurement
+                                    ahead of the join. There is one measurement
+                                    and the join reads what it recorded.
+                           [K]   from = lift.rendered
+                                 ← the delta the session last wrote, not a
+                                   pointer delta. Nothing here overwrites it,
+                                   so the read carries no ordering
+                                   constraint                            [D-35]
+                                 ── `attempt.landing.destroy()` stood here,
+                                    relinquishing the transform so a running
+                                    animation could not override the join's own
+                                    write. There is neither a runner to
+                                    relinquish nor a write.            [D-155]
                            [K] } finally {
                            [K]   lifetimes.presentation.dispose()
                                  → placeholder.remove()   (behavior's disposer)
                                  → lift.dispose()         (inline styles restored,
                                                            latched: exactly once)
+                                 ← the visual reaches the decided position by
+                                   being released into flow. Nothing writes it
+                                   there, and the release is what produces the
+                                   agreement                             [I-24]
                            [K] }
-                           [K] if a consequential failure was classified above:
-                                 STOP *here*. The queued checkpoint drives
-                                 REPORTING, and its own settlement seam
-                                 (SETTLED_FAILED) builds the canceled result
-                                 before `finalized` runs from there. Calling
-                                 `finalized` at this point would publish the
-                                 stale ACCEPTED frame. [F-27, D-66]
-                                 ── the terminal is deferred, not skipped:
-                                    it was skipped until D-66.
+                           ── THE TAIL, on the RELEASED element ──   [D-155]
+                           [K] dx, dy = from - target, projected through
+                                        scope.visualSpace
+                                 ← a `translate` is a LOCAL quantity and the
+                                   endpoints are viewport deltas. The space
+                                   above the VISUAL, because that is the element
+                                   this is written on — and not the session's
+                                   own projection, which is `null` for a lifted
+                                   mode and would be silently wrong for two of
+                                   the three.                     [D-85, D-165]
+                           [K] if dx or dy is non-zero:
+                           [B]   timing = spec.landingTail(current, from, target)
+                                 [F]   slots.landingTiming(...) → { duration,
+                                                                    easing }
+                                 ← the sortable declines an IMMEDIATE recovery:
+                                   a failure repair belongs at its home now,
+                                   not two hundred milliseconds from now
+                                 ↳ throws, or the controller is gone → nothing
+                                   travels; the drop is already decided
+                           [K]   visual.animate([{ translate: `${dx}px ${dy}px` },
+                                                 { translate: '0 0' }],
+                                                { duration, easing,
+                                                  composite: 'add' })
+                                 ← ADDITIVE, no fill, decaying to zero: it
+                                   writes no inline style, composes with an
+                                   authored `translate` rather than replacing
+                                   it, and cancelling it at any instant leaves
+                                   the row exactly where flow puts it
+                           [K]   tail = animation      ← ONE controller-scoped
+                                                          slot, cancelled at the
+                                                          next acquireLift and
+                                                          on destroy()
+                           [K] if the controller is gone → return
+                                 ← the disposers and the tail policy are both
+                                   foreign code
                            [B] spec.finalized(current)
                                  slots.onEnd({ ACCEPTED, proposal })   ← one terminal (D-62)
                                  ← the consumer observes its own authored DOM,
@@ -650,17 +725,22 @@ landing animation finishes (200 ms)
                                  ↳ throws → FAILURE_TERMINAL_CALLBACK; the
                                    operation still retires
                            [K] dispatch(RETIRE, operation)
+                                 ← queued BEHIND the checkpoint a throwing
+                                   terminal raises and AHEAD of the terminal
+                                   that checkpoint goes on to owe, so the
+                                   retirement always intervenes and the second
+                                   terminal arrives stale                [I-31]
 ```
 
-Ordering is normative: `anchorTarget` → `destroy()` → pin → release. The runner must relinquish the transform before the pin, or a running WAAPI animation overrides the inline style.
+Ordering is normative: ~~`anchorTarget` → `destroy()` → pin → release~~ **measure → release → tail → terminal**. The join writes nothing through the lift session — the position is already decided — the release gives the element back, and only then does anything interpolate — so the terminal callback runs in a world the library holds no claim on.
 
-**Every call before the release is fallible, and the release is in a `finally`.** Three of the four steps here run code the kernel does not own — a behavior measurement, a possibly-custom runner handle, and a DOM write — and none of them may strand temporary presentation. That is why I-24 is stated _conditionally_ on **three** things: the measurement succeeding, the pin succeeding, **and runner control being successfully relinquished**. A `destroy()` that throws is only reported, so the runner may still be writing the transform after the pin — the pin is performed but is no longer known to be authoritative. When any of the three fails, the placeholder is still removed and the inline styles are still restored. **[F-22]**
+**Nothing before the release is fallible any more, and the release is still in a `finally`.** ~~Three of the four steps here run code the kernel does not own~~ — **none does**: the measurement moved ahead of the join, the relinquishment has no subject and the join's own DOM write is gone, so what remains before the release is a guard and a read the kernel owns. That is why I-24 is stated ~~conditionally on **three** things~~ **unconditionally**: the release is what puts the visual where the authored DOM says it is, so there is nothing left to condition it on. What a failed measurement now costs is the interpolation, not the place. ~~A `destroy()` that throws is only reported, so the runner may still be writing the transform after the pin~~ — **nothing writes the transform after the release**, because what follows it claims `translate` and not `transform`, holds no inline style, and is the kernel's own to cancel. The `finally` stands on the sequence's own rule rather than on what happens to be fallible: no failure between `FINALIZING` and the release may leave the placeholder inserted or the inline styles overwritten. **[F-22]**
 
-**The pin at the join survives the redesign, and it is now the only correction there is.** This paragraph used to say the gates never awaited each other and that both completion orders produce the same pinned target — true, and no longer the interesting property, because there is one gate and one order. What still matters is the surviving clause of D-16: the kernel performs the final pin **at the join, before releasing presentation**, so layout that moved during a 200 ms landing is absorbed by a measurement taken after it. Correctness was never coming from every runner being retargetable; it came from this pin. **[D-16, D-41]**
+**The decided position survives the redesign, and the write that used to carry it does not.** This paragraph used to say the gates never awaited each other and that both completion orders produce the same pinned target — true, and no longer the interesting property, because there is one gate and one order. What still matters is what is left of D-16 once D-166 has narrowed it: the kernel decides the final position **at the join, before releasing presentation**, so layout that moved while the drag was live is absorbed by a measurement taken after it. Correctness was never coming from every runner being retargetable, and it does not come from a write either — the join decides a position and releases; the release is what makes the visual agree with the authored DOM. **[D-16, D-41, D-166]**
 
-Had `anchorTarget` thrown **here**, the kernel would report `FAILURE_LANDING_TARGET`, skip the pin, and **still** release presentation. A measurement failure must not strand the controller.
+Had `anchorTarget` thrown **here**, the kernel would report it, skip the tail, and **still** release presentation. A measurement failure must not strand the controller. (`FAILURE_LANDING_TARGET` was the stage; ~~it is a `DraggableWarning` since D-130~~ and there is no call site here since D-41 moved the measurement.)
 
-Had the **arm-time** measurement thrown instead, the landing is **skipped and the join runs immediately** — not `ARM_FAILED`, and not an animation toward a target the library does not trust. The advisory readiness-time `anchorTarget` that F-17 and I-29 were written against does not exist any more, but D-49 keeps its **tier**: a failed measurement is quality-only, reported through `onError`, and the drop still terminates normally with its domain result. **[D-49, F-17, I-29 — narrowed by D-41]**
+When the measurement throws, the landing is **skipped and the join runs immediately** — not a replaced settlement, and not an animation toward a target the library does not trust. The advisory readiness-time `anchorTarget` that F-17 and I-29 were written against does not exist any more, but D-49 keeps its **tier**: a failed measurement is quality-only, reported through `onError`, and the drop still terminates normally with its domain result. **[D-49, F-17, I-29 — narrowed by D-41]**
 
 ## Retirement
 
@@ -682,9 +762,8 @@ Had the **arm-time** measurement thrown instead, the landing is **skipped and th
                   ← one throwing hook does not stop the rest         [F-22]
           [K] dispose all three lifetimes (latched, idempotent, best-effort LIFO)
           [K] scrub(current); scrub(draft)
-                resetKernelFields  → 7 fields to defaults
+                frame(target)       → the kernel's 7 to defaults
                 spec.resetFramePart → the behavior's 8 cleared
-                __DEV__: key set still equals armedKeys ✔
           [K] phase = IDLE
 ```
 
@@ -705,14 +784,16 @@ What the same trace does under each difficult case, without adding a branch anyw
 | `onStart` calls `destroy()` | `preparationValid()` after `activation.effect` fails → no `START_COMMITTED`; the drain sees `closed` on its next iteration and stops. |
 | `onReorder` calls `cancel()` | **The cancel wins.** `invoke` must run consumer code before it has a value to settle, and a nested `dispatch` appends in call order — so `CANCEL` is enqueued from inside `onReorder`, and `RESOLUTION_SETTLED` only after it returns. The cancel transition runs first; the completion is then stale for a decided operation and is dropped. This is `CANCEL > FAILURE_CHECKPOINT` and FIFO working as specified. An earlier version of this row asserted the opposite ordering and was simply wrong. **[F-25]** |
 | `onReorder` calls `destroy()` | `closed` is re-read each iteration; the drain stops before `RESOLUTION_SETTLED`. **The controller is closed from that statement onward; physical teardown runs at the boundary of the outermost library transaction, so it has not necessarily completed when `destroy()` returns.** The returned Promise settles once, after it has. **[D-36]** |
-| `destroy()` during the 200 ms landing | `LandingHandle.destroy()` — silent, never dispatches. Presentation disposes. A late `done()` finds no attempt and is inert at both validation points. |
+| `destroy()` during the 200 ms landing | **The tail is cancelled and the row settles instantly** where flow put it, because the contribution decays to zero. ~~`LandingHandle.destroy()` — silent, never dispatches. Presentation disposes. A late `done()` finds no attempt and is inert at both validation points.~~ Presentation is released before the tail exists: `destroy()` during a landing has no lease to reach. **[D-155]** |
 | The consumer commits **synchronously** — `flushSync`, or a non-React renderer | Nothing special happens. `onReorder` does not await, returns its resolution, and the rest of the trace is byte-identical. The pre-redesign row here described an early `controller.ready(request)` latched on the resolution attempt, copied onto the settlement and dispatched at arm; the synchronous and asynchronous consumers are now one code path, which is the point of awaiting inside `onReorder`. **[D-41]** |
 | The consumer's own commit **never settles** | The library waits, exactly as it waits for any pending resolution: the cancellation lifetime's `useWhile` still aborts the signal handed to `onReorder`, and a cancel or a `destroy()` ends the operation. There is no 500 ms readiness deadline any more, because there is no separate acknowledgement to time out — the bound the consumer has is the one it wrote. **[D-41, F-46]** |
-| The consumer's commit **throws or rejects** | `SETTLED_REJECTED` → `SeamRejection(FAILURE_RESOLUTION)`, the same path as any rejected resolver. An `await` that throws is ordinary Promise failure behavior, which is the whole of what replaced four consumer obligations whose only failure signal used to be a 500 ms silence. **[F-46, F-29]** |
+| The consumer's commit **throws or rejects** | `SETTLED_REJECTED` → the seam **re-raises `input.error` verbatim** and the kernel classifies at `FAILURE_RESOLUTION` (D-152), the same path as any rejected resolver. An `await` that throws is ordinary Promise failure behavior, which is the whole of what replaced four consumer obligations whose only failure signal used to be a 500 ms silence. **[F-46, F-29]** |
 | The user cancels while `onReorder` is outstanding | The operation stops waiting, restores and retires presentation, and reaches **one** terminal, `canceled`. The consumer's already-started work may still commit; the library never promised to undo it. The late settlement or rejection from the abandoned resolver is consumed safely — no unhandled rejection, no second terminal, no revival. **[D-40]** |
-| The authored commit **detaches or replaces** the placeholder | Out of contract: `replaceChildren`, an `innerHTML` rebuild and container replacement are unsupported during an active operation. The two-read precondition at the authoritative measurement fails, the library **reports through `onError`, skips the landing animation and joins immediately** — a jump cut, not a confident twelve-frame flight to `(0,0)`. The settlement does not fail and the drop terminates normally, because the DOM commit already happened and the reorder is real. **So this operation fires `onError` once _and_ `onEnd` once** (D-60). Nothing is recovered — C1 showed `request.before`/`after` survive in four of five strategies, so a repair is buildable, and buying it would mean relaxing D-27's cross-container refusal for a case that is now outside the contract. **[D-42, D-49, D-60, F-49]** |
+| A second drag begins while a tail is in flight | **The tail is cancelled at `acquireLift`, before the origin measurement.** Measuring mid-flight would be right — the drag should start from where the element looks — but a running animation outranks inline styles in the cascade, so the new lift's own writes would compose with a contribution that is still decaying. A press that never crosses the threshold cancels nothing. **[D-155]** |
+| The consumer removes or reparents the element mid-tail | **Resource safety is unconditional**: no lease survives the terminal, so a removed node stops rendering and takes its animation with it. **Visual continuity is best-effort**: the contribution is a local quantity derived through a space captured at activation, so a new ancestry sends it along the wrong path — and it still ends at zero, so the element lands exactly where flow puts it. **[D-155, F-190]** |
+| The authored commit **detaches or replaces** the placeholder | Out of contract: `replaceChildren`, an `innerHTML` rebuild and container replacement are unsupported during an active operation. The two-read precondition at the authoritative measurement fails, the library **warns through `onError`, skips the landing animation and joins immediately** — a jump cut, not a confident twelve-frame flight to `(0,0)`. The settlement does not fail and the drop terminates normally, because the DOM commit already happened and the reorder is real. **So this operation fires `onError` once _and_ `onEnd` once** (D-60). Nothing is recovered — C1 showed `request.before`/`after` survive in four of five strategies, so a repair is buildable, and buying it would mean relaxing D-27's cross-container refusal for a case that is now outside the contract. **[D-42, D-49, D-60, F-49]** |
 | The authoritative measurement **throws** | Identical treatment, and that is the point of D-49 unifying the two: report, skip the landing, join immediately, **`onError` once and `onEnd` once**. Quality only — the drop is unaffected. **[D-49, D-60]** |
-| Reading the two channels as mutually exclusive | **False, and worth stating because probe C1's finding is phrased the other way.** C1's defect was _`onEnd` once, `onError` **zero**_; the fixed behavior is _`onEnd` once, `onError` **once**_. `onError` is orthogonal to the terminal: it reports a **classified stage**, not an operation outcome. `FAILURE_LANDING_TARGET` under D-49 is the first stage that is classified, **non-consequential, and has no recovery** — the settlement is not failed and the domain result stands. The contract carried an unstated biconditional, `onError ⇒ consequential`, that nothing had ever tested; D-49 falsifies it, so any assertion of mutual exclusivity between the two channels is now wrong. **[D-60]** |
+| Reading `onError` and the terminal as mutually exclusive | **False, and worth stating because probe C1's finding is phrased the other way.** C1's defect was _`onEnd` once, `onError` **zero**_; the fixed behavior is _`onEnd` once, `onError` **once**_. `onError` is orthogonal to the terminal: it reports a fault, not an operation outcome. ~~`FAILURE_LANDING_TARGET` under D-49 is the first stage that is classified, **non-consequential, and has no recovery**.~~ **D-130 deletes that stage and says it with the class instead** — a `DraggableWarning` means the settlement was not failed and the domain result stands, which is what the stage was invented to encode. The contract carried an unstated biconditional, `onError ⇒ consequential`, that nothing had ever tested; D-49 falsifies it and D-130 makes the falsification legible in the type. **[D-60, D-130]** |
 | Recovery is home or immediate | No re-anchor. Re-anchoring follows the **recovery** — that clause of D-16 is one of the two that survive. |
 | The authored commit inserts a new keyed item into the destination gap | The guarded `item.before(placeholder)` repair, run once before the authoritative measurement, fixes the semantic gap; the repaired rect equals the item's actual landed rect. **[F-15]** |
 | `controller.invalidate()` at `ACTIVE`, `items()` returns the **same** array identity | Geometry and presentation invalidation only. No snapshot, no reconcile, no O(n) copy — which is what a resize, a zoom or a scroll produces, and it is the common case. **[D-44]** |
@@ -723,31 +804,31 @@ What the same trace does under each difficult case, without adding a branch anyw
 | `controller.invalidate()` at `IDLE` | Published in `effect`; `draft.snapshot` is left alone, so an idle frame retains no item elements. **[I-20]** |
 | The consumer mutates the **same** array in place and calls `invalidate()` | Outside the contract. Array identity is the structural signal, so the library reads no structural change and invalidates geometry only. React, Vue and Svelte all return a new array when order changes, which is why the signal is free. **[D-44]** |
 | The consumer unmounts the dragged item as part of the reorder | ~~`anchorTarget` finds no connected anchor and falls back to the placeholder's rect. Degraded, not stranded.~~ **Superseded by D-42/D-49 at Phase R, and the row was a stale residue: it predates the precondition.** The re-anchor is still skipped, and then the precondition's second conjunct fails — the placeholder is no longer in the item's container, because the item has no container — so the **landing is skipped rather than measured**: one `onError`, no animation, and the drop still terminates with its accepted result. Q-12's answer survives in the half that mattered, "not stranded"; what it got wrong is "with nothing classified or reported", which is the silence D-49 exists to end. **[Q-12, D-42, D-49, D-60]** |
-| `LandingHandle.destroy()` throws at the join | Best-effort report. The pin still happens and presentation is still released — a custom runner cannot strand the controller. **[F-22]** |
-| `lift.write()` throws at the join | `FAILURE_RENDERER_WRITE`; the visual stays where landing left it; presentation is **still** released. **[F-22]** |
+| ~~`LandingHandle.destroy()` throws at the join~~ | **No such call since D-155.** The join opens with its entry revalidation and nothing has to be relinquished before it. **[F-22]** |
+| ~~`lift.write()` throws at the join~~ | **The join makes no write since D-166**, so it classifies nothing: the position is decided by the measurement and reached by the release. A `write` that throws on the **move** path keeps `FAILURE_RENDERER_WRITE`, which is a load-bearing write — the visual stops tracking the pointer and the user sees it. **[F-22, D-166]** |
 | `spec.finalized()` throws | `FAILURE_TERMINAL_CALLBACK`; the operation still retires. **[F-22]** |
-| A landing runner calls `done()` synchronously inside `start` | The hold was reserved before `start` was called, so the completion is queued against a real hold; the handle is stored before the queued completion can be applied. **[F-21]** |
-| `startLanding` throws | The reserved hold is rolled back, `FAILURE_LANDING_CREATE` is classified, arm returns `ARM_FAILED`, and the original settlement neither advances nor calls its terminal callback. The failure checkpoint owns recovery while presentation remains held. **[D-28, F-35]** |
+| ~~A landing runner calls `done()` synchronously inside `start`~~ | **Nothing completes since D-155**, so the reserve-before-call ordering this row pinned has no subject. What it protected — a settlement that could not be stranded by its own animation — is now structural. |
+| The tail's timing policy throws | **One `DraggableWarning` and nothing travels.** The drop is already decided, committed and released by the time the policy is asked, so a presentational fault has nothing left it could change. ~~The reserved hold is rolled back, `FAILURE_LANDING_CREATE` is classified, arm returns `ARM_FAILED`~~ — both the hold and the stage retire with the runner. **[D-155]** |
 | An arrow key on an edge item | `command.admit` computes the destination gap, finds `null`, returns `null`. The kernel does not prevent the default, so no operation is minted, no phase changes, and the key keeps its native meaning. Feasibility was answered inside the listener, which is the whole of what D-32 buys. **[D-32, I-32]** |
 | An arrow key inside a **text input, `contenteditable` or native control** in a row | `command.admit` **declines**, because it now asks what the event landed on: text inputs keep caret arrows, `contenteditable` keeps editing navigation, native controls keep their keys. Declining is total, so the keystroke keeps its native meaning entirely. Probe E measured the alternative — a single `ArrowRight` at caret offset 5 in a nested input froze the caret, reported `defaultPrevented`, and produced `onStart` ×1, `{from:2,to:3}` and `onFinish` ×1 (probe E's own vocabulary; `onEnd` since D-62): **a complete accepted reorder from one keystroke in a form field.** **[D-46, F-48]** |
 | An arrow key during **IME composition** | `event.isComposing === true` never admits. In every CJK IME an arrow navigates the candidate list; probe E observed a real Chromium composition (`"にほ"`, `isComposing: true`) reordering the collection instead, mid-word, with the user not interacting with the list at all. **[D-46, F-48]** |
 | A press that never crosses the threshold | Nothing native is consumed: no `preventDefault()`, no selection cleared, and **no trailing-`click` suppressor armed**, so the click, the `href` and ctrl-click all behave exactly as they would with no library present. The suppressor is armed at activation, so it cannot fire for a press that stayed a press. **[D-54, D-46]** |
 | A drag that **activates** and ends on a link or button | The default was prevented at the threshold crossing, the selection the press began was cleared there, and exactly **one** subsequent `click` is suppressed in the capture phase — so the drop does not also navigate. One click, not a latch: the next genuine click on that element works. **[D-54]** |
 | A touch drag that should not scroll the page | **Not this trace's job, and not `preventDefault()`'s.** Scroll suppression is `touch-action`, which the consumer sets in CSS. Probe E is Chromium and mouse only; touch's long-press context menu and tap highlighting are an **owed measurement**, recorded rather than assumed settled. **[D-54]** |
-| An arrow key on a movable item, from a focusable drag control | `command.admit` writes item, snapshot and destination gap into the draft and returns the visual. It mints a pointerless operation (`pointerId === -1`), commits `PENDING`, queues `ACTIVATE`; `START_COMMITTED` queues `RELEASE`. A command has no threshold to cross, so admission and activation are one turn and the default is prevented at activation exactly as D-54 states. **Three seams branch on `pointerId` and the rest of this trace applies verbatim:** `activation.prepare` preserves the command's gap instead of seeding home, `release.prepare` takes it as committed instead of re-resolving spatially, and `release.effect` moves the placeholder but performs no lift write. An earlier version of this row said the trace applied verbatim _from `release.prepare` on_, which was wrong at both ends — the seed had already overwritten the gap and the re-resolve would have replaced it from `pointerY === 0` — and then said "two seams" while the branch was already three. **[D-32, C4-01, C5-05]** |
+| An arrow key on a movable item, from a focusable drag control | `command.admit` writes item, snapshot and destination gap into the draft and returns the subject — the bare item here, since nothing separates the three roles. It mints a pointerless operation (`pointerId === -1`), commits `PENDING`, queues `ACTIVATE`; `START_COMMITTED` queues `RELEASE`. A command has no threshold to cross, so admission and activation are one turn and the default is prevented at activation exactly as D-54 states. **Three seams branch on `pointerId` and the rest of this trace applies verbatim:** `activation.prepare` preserves the command's gap instead of seeding home, `release.prepare` takes it as committed instead of re-resolving spatially, and `release.effect` moves the placeholder but performs no lift write. An earlier version of this row said the trace applied verbatim _from `release.prepare` on_, which was wrong at both ends — the seed had already overwritten the gap and the re-resolve would have replaced it from `pointerY === 0` — and then said "two seams" while the branch was already three. **[D-32, C4-01, C5-05]** |
 | A handle resolver calls `controller.invalidate()` from inside `command.admit` | Enqueued without draining, exactly as from inside `admit`: the ingress boundary is one shared latch across both listeners, and the queue drains once admission has committed or abandoned. **The phase behavior is unchanged from the `updateItems()` this row named before Revision 2 — only the delivery is.** **[I-1, D-32, D-44]** |
 | A feature retire hook throws | Reported; the remaining hooks still run, in reverse installation order. **[F-22]** |
 | An **installer** throws during materialization | The installers that already ran are retired in reverse, each wrapped, and the error propagates. No controller is returned. This row said "a feature factory throws mid-`assemble()`" before Revision 2; under D-45 constructing a fragment installs nothing, so a throwing _fragment_ is an ordinary expression throwing before the library is ever called, and the case with anything to unwind is a throwing **installer** — which runs after the merge, on the winning slot only. **[F-19, D-45]** |
 | A behavior part declares `phase` | Rejected at `arm()` in production, and unconstructible at the authoring boundary via `FramePartOf`. **[I-5]** |
-| ~~`retarget()` throws~~ | **`LandingHandle.retarget` is removed.** D-41 deletes its only producer, and probe C1 separately flagged it as a hazard: `landing()` documents it as optional, so a conforming custom runner that omits it animated toward a stale target for the whole landing in every case C1 measured. A member the library never invokes must not be published. The reasoning underneath the row survives as the general rule for foreign code at the join — best-effort report, the runner is _not_ destroyed, the join destroys it anyway and the pin is computed fresh, so a misbehaving runner cannot affect the final position. **[D-41, I-29]** |
+| ~~`retarget()` throws~~ | **`LandingHandle.retarget` is removed.** D-41 deletes its only producer, and probe C1 separately flagged it as a hazard: `landing()` documents it as optional, so a conforming custom runner that omits it animated toward a stale target for the whole landing in every case C1 measured. A member the library never invokes must not be published. The reasoning underneath the row survives as the general rule for foreign code at the join — best-effort report, the runner is _not_ destroyed, the join destroys it anyway and the position is measured fresh, so a misbehaving runner cannot affect the final position. **[D-41, I-29]** |
 | `activation.effect` throws after the placeholder is inserted | The removal disposer was registered first, so the presentation lifetime still owns it. **[I-30, F-18]** |
 | A `beforeMove` hook throws | `FAILURE_ACTION_EFFECT` from the _committed_ state — the insertion stands, the transition is not reverted, recovery is home. **[I-18]** |
 | `spec.retire()` throws | Reported; the remaining teardown steps still run. **[F-12]** |
-| `LandingHandle.destroy()` throws during `controller.destroy()` | Reported; lifetimes, the frame task, ingress and queue state are still released. Per-attempt cleanup is individually wrapped, same policy as the join. |
+| The tail's `cancel()` throws during `controller.destroy()` | Reported; lifetimes, the frame task, ingress and queue state are still released. `Animation.prototype.cancel` is overridable on a consumer-owned element, so the call is unwound like every other teardown step. **[F-22]** |
 | `release.effect` throws | `FAILURE_RELEASE` from the committed state, and the staged command is **not** executed — `onReorder` never runs. **[F-27]** |
 | `activation.prepare` throws | `FAILURE_ACTIVATION` is queued and the operation stays live for its checkpoint. It is **not** retired here; retiring would make the queued entry stale and swallow the `onError`. **[F-27]** |
-| `settlement.effect` requests the landing hold, then throws | The scope seals, the request is dropped unarmed, and no runner starts. The rule is unchanged; there is one request to drop rather than two. **[F-27]** |
-| `startLanding` destroys the controller and returns a live handle | Revalidation after `start` finds the attempt stale, destroys the handle once, best-effort, and never publishes it. **[F-30]** |
+| `settlement.effect` throws | ~~The scope seals, the request is dropped unarmed, and no runner starts.~~ **Nothing is measured and nothing joins** (D-155): measuring for a join that will never happen would call behavior code for nothing, and the queued checkpoint decides the operation. **The commit is already behind it**, because the seam commits between `prepare` and `effect` — so the report's own `settlement.prepare` finds the result still on the frame, keeps it under _existing result wins_, and the terminal the checkpoint drives is the accepted one. That is the post-commit case where the tie-break decides what the consumer is told. **[F-27, D-66, I-31]** |
+| The tail's timing policy destroys the controller | **No animation is started and no terminal is published.** `destroy()` is a synchronous terminal barrier, so the join re-reads it after the policy returns — the same revalidation ~~that used to destroy a handle a stale `start` returned~~ was for. **[F-30, D-155]** |
 | The consumer resolution is a no-op proposal | `{ invoke: null }` → `SETTLED_SKIPPED` → `OUTCOME_NOOP` with **immediate** recovery and `onEnd({ type: 'noop' })`. It read `onFinish`. Not a rejection, and not a home recovery. **[F-29]** |
-| The `onReorder` promise rejects | `SETTLED_REJECTED` → `SeamRejection(FAILURE_RESOLUTION)`. A resolver malfunction is never reported as `onEnd({ type: 'canceled' })`. It read `onCancel`. **[F-29]** |
+| The `onReorder` promise rejects | `SETTLED_REJECTED` → the seam **re-raises the rejection value verbatim** and the kernel classifies at `FAILURE_RESOLUTION` (D-152), so what the consumer's `onError` sees as `cause` is the value they rejected with. A resolver malfunction is never reported as `onEnd({ type: 'canceled' })`. It read `onCancel`. **[F-29]** |
 | The insertion is a **start** gap | `movePlaceholder` anchors on `insertion.after`, so the placeholder reaches the head of the list. The old `before?.after(…)` writer was a silent no-op here. **[F-31]** |

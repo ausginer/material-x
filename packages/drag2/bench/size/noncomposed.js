@@ -1,3 +1,4 @@
+// oxlint-disable typescript/no-unsafe-call max-params
 /**
  * M-3 baseline A — **feature-matched, non-composed**. Answers *what does
  * composition cost*, and nothing else.
@@ -16,15 +17,19 @@
  * inside. Keeping it out of the export map is the point — nothing a consumer
  * can write reaches this shape.
  *
- * The hand-flattening below mirrors `assemble()`'s tail, and the install body
- * mirrors `behavior.ts`'s. If either changes, this baseline is stale;
- * `tests/bench/size.node.test.ts` asserts the slot key sets still agree so it
- * cannot drift silently.
+ * The hand-flattening below mirrors `assemble()`'s tail, and `mount()` mirrors
+ * `createSortableBehavior`'s body. If either changes, this baseline is stale —
+ * and **the two halves are guarded differently, which is why they are named
+ * separately** (F-157). `tests/bench/size.node.test.ts` pins the slot key sets
+ * against `assemble()`, so the flattening cannot drift silently. `mount()` is
+ * held by nothing here: it is not called by any test, and a call that no longer
+ * matches its target still bundles. What keeps it honest is that the modules it
+ * reaches must exist — the same suite refuses a generated file older than its
+ * own build, so a deleted module cannot leave behind a `.js` for this file to
+ * keep importing.
  */
 import { draggable } from '../../kernel.js';
-import { copyUniqueItems } from '../../sortable/collection.js';
 import { createSortableController } from '../../sortable/controller.js';
-import { createSortableRuntime } from '../../sortable/runtime.js';
 import { createSortableSpec } from '../../sortable/spec.js';
 import { landing } from '../../sortable/landing.js';
 import { layoutAnimation } from '../../sortable/layout-animation.js';
@@ -48,12 +53,12 @@ export function buildSlots(context, config) {
   // slot still needed a fragment position to be written from.
   const { insertion } = y()(context);
   const land = landing().landing(context);
-  const displace = layoutAnimation().plugins[0](context);
+  const displace = layoutAnimation().displacement(context);
 
   return {
     resolveInsertion: insertion.resolve,
     invalidateInsertion: insertion.invalidate,
-    measureInsertion: insertion.measure ?? null,
+    movedInsertion: insertion.moved,
 
     items,
     onReorder,
@@ -65,16 +70,16 @@ export function buildSlots(context, config) {
     // `null` is the default element, which is what the composed side now gets
     // when no `placeholder` slot is written. The key is still filled, which is
     // what `size.node.test.ts` compares.
-    createPlaceholder: null,
-    getHandle: grip,
-    getVisual: box,
+    placeholder: null,
+    handle: grip,
+    visual: box,
     // D-43's default, applied by hand exactly as `assemble()` applies it: with
     // no `box` slot written, the box resolver *is* the visual resolver.
-    getBox: box,
-    startLanding: land.startLanding,
+    box,
+    landingTiming: land.landingTiming,
 
-    beforeMove: [displace.beforeInsertionMove],
-    afterMove: [displace.afterInsertionMove],
+    report: displace.report,
+    settle: displace.settle,
     retireHooks: [displace.retire, insertion.retire],
   };
 }
@@ -100,22 +105,17 @@ export function mount(root, items, onReorder, grip, box) {
         grip,
         box,
       });
-      // `install()` itself, inlined: the built package tree-shakes the
-      // non-composed `createSortableBehavior` seam away, because only the
-      // composed entry reaches it. That is itself a small M-3 result — the
-      // internal seam the tests drive costs a consumer nothing.
-      // **The pull, the validation and the copy are the caller's** (D-80 (b)):
-      // `source` is the identity baseline, the copy is what the runtime
-      // publishes, and both are supplied rather than derived inside.
-      const rt = createSortableRuntime(
-        host,
-        items,
-        copyUniqueItems(items),
-        slots,
-      );
-
+      // `createSortableBehavior`'s body, inlined: the built package
+      // tree-shakes that seam away, because only the composed entry reaches
+      // it. That is itself a small M-3 result — the internal seam the tests
+      // drive costs a consumer nothing.
+      // **The pull and the copy are the caller's** (D-80 (b)): `items` is the
+      // identity baseline a later pull is compared against, the copy is what
+      // the behavior publishes, and both are supplied rather than derived
+      // inside. **No runtime object stands between them and the spec**
+      // (D-149): what the spec is handed is the host and the four facts.
       return {
-        spec: createSortableSpec(rt),
+        spec: createSortableSpec(host, items, [...items], slots),
         controller: createSortableController(host),
       };
     },

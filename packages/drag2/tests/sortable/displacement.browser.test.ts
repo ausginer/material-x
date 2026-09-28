@@ -12,11 +12,9 @@
  * ancestor transforms, and never a displacement offset the library applied.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { createRealm } from '../../src/kernel/realm.ts';
 import type { SortableConfig } from '../../src/sortable/config.ts';
-import type { FeatureContext } from '../../src/sortable/feature.ts';
+import type { SortableFeatureContext } from '../../src/sortable/feature.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
-import type { DisplacementView } from '../../src/sortable/slots.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
@@ -44,20 +42,9 @@ type Composed = Readonly<{
 
 const cleanup: Array<() => void> = [];
 
-type Reporting = { reportError?(error: unknown): void };
-
-let reported: unknown[] = [];
-
-beforeEach(() => {
-  reported = [];
-  (globalThis as Reporting).reportError = (error): void => {
-    reported.push(error);
-  };
-});
+beforeEach(() => {});
 
 afterEach(() => {
-  delete (globalThis as Reporting).reportError;
-
   for (const dispose of cleanup.splice(0)) {
     dispose();
   }
@@ -66,6 +53,8 @@ afterEach(() => {
 type Options = Readonly<{
   itemCount?: number;
   fragments?: ReadonlyArray<Partial<SortableConfig>>;
+  /** Merged over the collection root's own style — an ancestor transform. */
+  rootStyle?: Readonly<Record<string, string>>;
   /** Runs on each row before the controller is armed. */
   decorate?(item: HTMLElement, index: number): void;
   /** Extra non-item children appended to the root. */
@@ -75,12 +64,16 @@ type Options = Readonly<{
 function build(options: Options = {}): Composed {
   const root = document.createElement('div');
 
-  Object.assign(root.style, {
-    width: '200px',
-    position: 'absolute',
-    top: '0px',
-    left: '0px',
-  });
+  Object.assign(
+    root.style,
+    {
+      width: '200px',
+      position: 'absolute',
+      top: '0px',
+      left: '0px',
+    },
+    options.rootStyle,
+  );
   document.body.append(root);
 
   const items: HTMLElement[] = [];
@@ -481,6 +474,8 @@ describe('displacement ownership', () => {
     // count across a committed move is zero.
     const composed = build({ fragments: withLayout(), itemCount: 4 });
     const dragged = composed.items[2]!;
+    // Captured to delegate to from the patch below: `native.call(this)`.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const native = Element.prototype.getBoundingClientRect;
     let reads = 0;
 
@@ -545,12 +540,19 @@ describe('displacement ownership', () => {
     // in flight, and the *next* move crosses back over it — so its layout
     // really does change and a bracket that still owned it would animate it.
     // It stays in the DOM, so only membership can exclude it.
+    //
+    // **What it keeps is what it already had.** Nothing is ever released here,
+    // so the contribution it was given while it was still a member goes on
+    // decaying to zero on its own; the property is that no *new* one arrives.
     const composed = build({ fragments: withLayout(), itemCount: 4 });
 
     activate(composed);
     await drag(130);
 
     expect(displaced(composed)).toEqual([1, 2, 3]);
+
+    const departed = composed.items[1]!;
+    const carried = displacements(departed);
 
     composed.replace([
       composed.items[0]!,
@@ -559,17 +561,18 @@ describe('displacement ownership', () => {
     ]);
     await drag(20);
 
-    // Released with everything else, and never given a new one.
-    expect(displacements(composed.items[1]!)).toEqual([]);
+    expect(displacements(departed)).toEqual(carried);
     expect(displaced(composed)).not.toEqual([]);
   });
 
   it('should cancel a displacement it could not track', async () => {
-    // Acquisition is all-or-nothing, exactly as in `landing()`: `finished` is
-    // an accessor and `then` is a call. An animation started but never entered
-    // into the map would survive `retire()` and keep offsetting a row nothing
-    // owns.
+    // Acquisition is all-or-nothing: `finished` is an accessor and `then` is a
+    // call, so either can throw between starting an animation and recording it.
+    // One started but never entered into the map would survive `retire()` and
+    // keep offsetting a row nothing owns.
     const composed = build({ fragments: withLayout() });
+    // Captured to delegate to from the patch below: `native.apply(this, args)`.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const native = Element.prototype.animate;
     let created: Animation | null = null;
 
@@ -709,44 +712,291 @@ describe('authored presentation survives displacement', () => {
   });
 });
 
-describe('retargeting a running displacement', () => {
-  it('should hold at most one displacement per row', async () => {
+/**
+ * One displaced row, judged by the three positions a FLIP contribution is
+ * defined by: where it stood before the committed move, where the write left
+ * it, and where the contribution draws it at its first instant.
+ *
+ * `hold` is a sample that must commit **nothing** — it crosses the activation
+ * threshold and no candidate centre — so `before` is the pre-move position
+ * rather than one already displaced.
+ */
+const displacementOf = async (
+  composed: Composed,
+  index: number,
+  grab: number,
+  hold: number,
+  to: number,
+): Promise<Readonly<{ travel: number; carried: number; keyframe: string }>> => {
+  const row = composed.items[index]!;
+
+  press(composed.items[0]!, grab);
+  pointerEvent('pointermove', hold);
+  await nextFrame();
+
+  const before = row.getBoundingClientRect().top;
+
+  await drag(to);
+
+  const [animation] = running(row);
+
+  animation!.pause();
+  // Past the active interval the effect applies nothing, so this is the
+  // settled position the write actually produced.
+  animation!.currentTime = DURATION;
+
+  const after = row.getBoundingClientRect().top;
+
+  animation!.currentTime = 0;
+
+  const frames = (animation!.effect as KeyframeEffect).getKeyframes();
+
+  return {
+    travel: after - before,
+    // Negative when the row is drawn back where it came from, which is the
+    // whole of what an inverse-FLIP contribution has to do.
+    carried: row.getBoundingClientRect().top - after,
+    keyframe: String(frames[0]!['translate']),
+  };
+};
+
+/**
+ * **A displacement vector is a viewport quantity and a `translate` is not.**
+ *
+ * The axis reports how far a row travelled on screen; the sink writes
+ * `translate`, which is spent in the space the row's ancestry establishes. Under
+ * a scaled ancestor the two are different numbers, and spending one as the other
+ * overshoots by exactly that scale. So the sink projects through the inverse of
+ * the inherited linear part, which the kernel derived from the measurement the
+ * lift already took.
+ *
+ * Read as **boxes**, not as declarations: `getBoundingClientRect()` is where a
+ * reader sees the row, and the inline string is not evidence about that. The
+ * keyframe is asserted beside it because it is the quantity that changed — the
+ * same `40px` of flow travel under both stages, against a viewport travel that
+ * doubles.
+ */
+describe('displacement under an ancestor transform', () => {
+  it('should render the flow travel under an ancestor scale', async () => {
+    // The stage doubles every screen quantity: a row that must travel one
+    // 40px slot travels 80 viewport pixels, and a `translate` of 80 written
+    // inside the stage would render 160.
+    const composed = build({
+      fragments: withLayout(),
+      rootStyle: { transform: 'scale(2)', transformOrigin: '0 0' },
+    });
+    const { travel, carried, keyframe } = await displacementOf(
+      composed,
+      1,
+      20,
+      60,
+      110,
+    );
+
+    expect(travel).toBeCloseTo(-80, 1);
+    // At its first instant the row is exactly where it was — the contribution
+    // spans the travel and no multiple of it.
+    expect(carried).toBeCloseTo(80, 1);
+    expect(keyframe).toBe('0px 40px');
+  });
+
+  it('should render the same flow travel with no ancestor transform', async () => {
+    // **The control**, and it is the row that must not move: with an identity
+    // ancestry the projection is skipped entirely and the vector reaches the
+    // keyframe as the axis reported it. The flow travel is the same 40px, and
+    // here that is also the viewport travel.
+    const composed = build({ fragments: withLayout() });
+    const { travel, carried, keyframe } = await displacementOf(
+      composed,
+      1,
+      10,
+      30,
+      55,
+    );
+
+    expect(travel).toBeCloseTo(-40, 1);
+    expect(carried).toBeCloseTo(40, 1);
+    expect(keyframe).toBe('0px 40px');
+  });
+});
+
+/**
+ * **A `visual` that is not the item, with a transform on the way down.**
+ *
+ * A displacement `translate` is written on an **item**, so the space it is
+ * spent in is the space above that item — never the space above the visual,
+ * which is a different element whenever `visual` resolves to a descendant.
+ * Every linear contribution between the two, the item's own included, is
+ * outside the quantity, and these three shapes are exactly the ones that tell
+ * the two spaces apart: nothing in between, a transformed wrapper in between,
+ * and a transform authored on the item itself.
+ */
+describe('a visual that is not the item', () => {
+  /** A card filling its row, so the placeholder stands in for the row's height. */
+  const card = (host: HTMLElement): void => {
+    const inner = document.createElement('div');
+
+    Object.assign(inner.style, {
+      display: 'block',
+      width: '100px',
+      height: `${ITEM_HEIGHT}px`,
+    });
+    host.append(inner);
+  };
+
+  /**
+   * The stage the first two are read under. They share it, so the only
+   * difference between them is the transform between the item and its visual.
+   */
+  const stage = { transform: 'scale(2)', transformOrigin: '0 0' } as const;
+
+  it('should render the flow travel with no transform between item and visual', async () => {
+    const composed = build({
+      fragments: [
+        ...withLayout(),
+        { visual: (item) => item.firstElementChild as HTMLElement },
+      ],
+      rootStyle: stage,
+      decorate: card,
+    });
+    // The lifted card leaves its row in the flow, so the pointer has one more
+    // box to cross than it does when the whole row is promoted.
+    const { travel, carried, keyframe } = await displacementOf(
+      composed,
+      1,
+      20,
+      60,
+      210,
+    );
+
+    expect(travel).toBeCloseTo(-80, 1);
+    expect(carried).toBeCloseTo(80, 1);
+    expect(keyframe).toBe('0px 40px');
+  });
+
+  it('should ignore a transformed wrapper between item and visual', async () => {
+    // A 1.5× wrapper *between* the row and its visual. It is on the visual's
+    // chain and not on the item's, so it belongs to neither the delta nor the
+    // projection: the row travels the stage's own factor and no more.
+    const composed = build({
+      fragments: [
+        ...withLayout(),
+        {
+          visual: (item) =>
+            (item.firstElementChild as HTMLElement)
+              .firstElementChild as HTMLElement,
+        },
+      ],
+      rootStyle: stage,
+      decorate(item): void {
+        const middle = document.createElement('div');
+
+        Object.assign(middle.style, {
+          display: 'block',
+          transform: 'scale(1.5)',
+          transformOrigin: '0 0',
+        });
+        card(middle);
+        item.append(middle);
+      },
+    });
+    const { travel, carried, keyframe } = await displacementOf(
+      composed,
+      1,
+      20,
+      60,
+      250,
+    );
+
+    expect(travel).toBeCloseTo(-80, 1);
+    expect(carried).toBeCloseTo(80, 1);
+    expect(keyframe).toBe('0px 40px');
+  });
+
+  it('should ignore a transform authored on the item itself', async () => {
+    // The item is the element the `translate` is written on, so its **own**
+    // transform is not part of the space that translate acts in — the same rule
+    // that keeps a lifted visual from having its scale divided out twice. With
+    // no ancestor transform at all the correct keyframe is the raw viewport
+    // vector, and a projection taken at the visual would divide the row's own
+    // 1.5 out of it.
+    const composed = build({
+      fragments: [
+        ...withLayout(),
+        { visual: (item) => item.firstElementChild as HTMLElement },
+      ],
+      decorate(item, index): void {
+        if (index === 0) {
+          Object.assign(item.style, {
+            transform: 'scale(1.5)',
+            transformOrigin: '0 0',
+          });
+        }
+
+        card(item);
+      },
+    });
+    const { travel, carried, keyframe } = await displacementOf(
+      composed,
+      1,
+      10,
+      30,
+      105,
+    );
+
+    expect(travel).toBeCloseTo(-40, 1);
+    expect(carried).toBeCloseTo(40, 1);
+    expect(keyframe).toBe('0px 40px');
+  });
+});
+
+/**
+ * **Continuity under interruption**, and the property that retires
+ * measure-and-replay.
+ *
+ * A row interrupted mid-flight ends up exactly where it already was. Before a
+ * second move it sits at `T1 + r1`; the move makes its true position `T2` and
+ * the axis hands the sink `d2 = T1 - T2`, so a contribution starting at
+ * `r1 + d2` leaves it at `T2 + r1 + d2 = T1 + r1`. No read, no release, no
+ * replay.
+ *
+ * **The mechanism is a fold, not a stack**, and that is what makes the sink
+ * able to answer for what it holds: one animation per row, started from the
+ * residual it just superseded. Nothing else in the design states either half,
+ * so both are pinned here.
+ */
+describe('continuity under interruption', () => {
+  it('should fold contributions rather than stacking them', async () => {
+    // **One animation per row, always.** A rebuild has to ask this sink what it
+    // is currently holding for a row so that it can subtract it, and a stack of
+    // contributions has no single answer to give. Folding is what makes the
+    // question answerable — and it reaches the same place.
     const composed = build({ fragments: withLayout(), itemCount: 5 });
 
     activate(composed);
+    await drag(55);
+    await drag(95);
 
-    const step = async (y: number): Promise<void> => {
-      await drag(y);
+    const stacked = composed.items.filter(
+      (item) => displacements(item).length > 1,
+    );
 
-      for (const item of composed.items) {
-        expect(displacements(item).length).toBeLessThan(2);
-      }
-    };
-
-    // Out and back across four rows, so later moves keep retargeting rows that
-    // are still in flight from earlier ones.
-    await step(55);
-    await step(95);
-    await step(135);
-    await step(175);
-    await step(95);
-    await step(55);
+    expect(stacked).toEqual([]);
+    expect(displaced(composed)).not.toEqual([]);
   });
 
-  it('should replay a still-running row from where it visually is', async () => {
-    // Continuity: the second move measures the row where the first animation
-    // has it *now*, so the replacement starts from the interrupted position
-    // rather than from a fresh full delta.
+  it('should leave a row exactly where it was across the second write', async () => {
+    // The measurement the property predicts: interrupt a contribution
+    // mid-flight, commit another move that crosses the same row, and the row
+    // does not jump. Nothing measured it to achieve that.
     const composed = build({ fragments: withLayout(), itemCount: 5 });
 
     activate(composed);
     await drag(55);
 
     const row = composed.items[1]!;
-    const first = displacements(row)[0]!;
+    const first = running(row)[0]!;
 
-    // Left paused, so the position measured here is exactly the position the
-    // next bracket will capture as its "First".
     first.pause();
     first.currentTime = DURATION / 2;
     await first.ready;
@@ -755,41 +1005,90 @@ describe('retargeting a running displacement', () => {
 
     await drag(95);
 
-    const second = running(row)[0]!;
+    for (const animation of running(row)) {
+      animation.pause();
+      animation.currentTime = 0;
+    }
 
-    expect(second).not.toBe(first);
-    second.pause();
-    second.currentTime = 0;
-
-    // Back where it visually was, not snapped to a full inversion.
+    // Still where it visually was, with the new contribution at its start.
     expect(row.getBoundingClientRect().top).toBeCloseTo(midpoint, 0);
   });
 
-  it('should release a row still running from an earlier move', async () => {
-    // The set a bracket owns is the span **∪** whatever is still in flight: an
-    // element left carrying an offset is exactly what corrupts the axis read
-    // the bracket exists to protect.
+  it('should leave a row offset across the interruption', async () => {
+    // **Nothing is released between moves.** The fold replaces one contribution
+    // with another that starts where it left off, so there is no instant at
+    // which the row carries no offset at all — which is exactly what lets a
+    // rebuild measure it and subtract what the sink says it holds.
     const composed = build({ fragments: withLayout(), itemCount: 5 });
 
     activate(composed);
     await drag(55);
 
-    const stale = running(composed.items[1]!)[0]!;
+    expect(running(composed.items[1]!).length).toBe(1);
 
     await drag(95);
 
-    // The first animation is gone — cancelled and replaced, never left lying.
-    expect(stale.playState).toBe('idle');
-    expect(running(composed.items[1]!)).toHaveLength(1);
+    expect(running(composed.items[1]!).length).toBe(1);
+  });
+
+  it('should cancel nothing when release resolves', async () => {
+    // **Release owes no cancel** (D-158, F-204). Its measured rebuild does have
+    // to read flow positions rather than rows in transit — but the sink settles
+    // the buffer for it, so the rows can keep travelling. Cancelling them
+    // instead would snap every displaced row from its position plus residual to
+    // its position in one frame, at the one instant the user is watching the
+    // item land.
+    //
+    // **Sampled from inside a recording timing policy** (D-155), because
+    // release no longer leaves an interval to read from the outside: settlement
+    // suspends for nothing, so the operation retires — cancelling everything
+    // the controller still owns, legitimately — on the same statement as the
+    // release. The policy runs at the join, after the settlement rebuild that
+    // did the measuring and before that retire, which is exactly the instant
+    // this row is about. It declines a tail: what is under test is what the
+    // rebuild left running, not what follows it.
+    let sampled: Animation[] | null = null;
+    const composed = build({
+      fragments: [
+        ...withLayout(),
+        {
+          landing: () => ({
+            landingTiming: (): null => {
+              sampled = running(composed.items[1]!);
+              return null;
+            },
+          }),
+        },
+      ],
+      itemCount: 5,
+    });
+
+    activate(composed);
+    await drag(55);
+
+    const carried = running(composed.items[1]!);
+
+    expect(carried.length).toBeGreaterThan(0);
+
+    release(55);
+
+    expect(sampled).toEqual(carried);
   });
 });
 
 describe('the composed bracket cost', () => {
-  it('should read only the span, the in-flight set, and the axis pass', async () => {
-    // M-4's answer for the *composition*, and the reason it needs a count: the
-    // affected set is invisible in the animations, because a row with a zero
-    // delta is skipped whether or not it was measured.
+  it('should read nothing a bare composition does not read', async () => {
+    // **Displacement is not a measurement feature, and this is the number that
+    // says so.** The sink is handed vectors and answers for its own offsets
+    // from animation timing; it never touches layout. So a composition that
+    // animates reads exactly what the same drag reads without it — the axis's
+    // own pass, and nothing added.
+    //
+    // The old shape paid two list-wide measurements per committed move here,
+    // one on each side of the write.
     const rows = 12;
+    // Captured to delegate to from the patch below: `native.call(this)`.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const native = Element.prototype.getBoundingClientRect;
 
     const measure = async (
@@ -824,13 +1123,7 @@ describe('the composed bracket cost', () => {
     const baseline = await measure([]);
     const bracketed = await measure(withLayout());
 
-    // Both runs pay the axis rebuild. The difference is the bracket: the row
-    // this move crosses, the anchor it stops at, and the row still in flight
-    // from the previous move — measured before and after. A destination-view
-    // bracket would add 2 × 12 instead.
-    expect(baseline).toBeGreaterThan(0);
-    expect(bracketed - baseline).toBeGreaterThan(0);
-    expect(bracketed - baseline).toBeLessThan(rows);
+    expect(bracketed).toBe(baseline);
   });
 });
 
@@ -853,7 +1146,8 @@ describe('teardown', () => {
     expect(displaced(composed)).toEqual([]);
     expect(composed.items[1]!.style.translate).toBe('0px 7px');
     expect(composed.items[2]!.style.translate).toBe('');
-    expect(reported).toEqual([]);
+    // **One collector since D-130** — this covers what a `globalThis.reportError`
+    // stub used to observe separately.
     expect(composed.errors).toEqual([]);
   });
 });
@@ -878,10 +1172,9 @@ describe('the terminal barrier in the displacement bracket', () => {
   type Bracket = Readonly<{
     rows: HTMLElement[];
     placeholder: HTMLElement;
-    view: DisplacementView;
-    before(): void;
-    after(): void;
-    /** Commits the move the bracket is wrapped around. */
+    /** Runs the sink over a plan that displaces both rows. */
+    apply(): void;
+    /** Commits the move the sink is called after. */
     move(): void;
   }>;
 
@@ -911,54 +1204,27 @@ describe('the terminal barrier in the displacement bracket', () => {
       return element;
     };
 
-    const item = box();
     const placeholder = box();
     const rows = [box(), box()];
-    const contribution = layoutAnimation({ duration: DURATION }).plugins![0]!(
-      null as unknown as FeatureContext,
-    );
-    const view: DisplacementView = {
-      realm: createRealm(root),
-      snapshot: { items: [item, ...rows], version: 1 },
-      placeholder,
-      item,
-      // The anchor is the far row, so the crossed span is both rows.
-      insertion: { version: 1, index: 2, before: rows[0]!, after: rows[1]! },
-      live,
-    };
+    const contribution = layoutAnimation({
+      duration: DURATION,
+    }).displacement!(null as unknown as SortableFeatureContext);
 
     return {
       rows,
       placeholder,
-      view,
-      before: () => contribution.beforeInsertionMove!(view),
-      after: () => contribution.afterInsertionMove!(view),
+      // The walk an axis would have run for a move crossing both rows: one
+      // row-height of travel each, negated. It is the axis that walks now, so
+      // the fixture is the axis rather than the plan it used to return.
+      apply: (): void => {
+        for (const row of rows) {
+          contribution.report(row, 0, -ITEM_HEIGHT, live, null);
+        }
+      },
       move: () => {
         rows[1]!.after(placeholder);
       },
     };
-  };
-
-  /** Records every row measured, and closes the controller from `target`'s. */
-  const measuringAt = (
-    rows: readonly HTMLElement[],
-    target: HTMLElement,
-    measured: HTMLElement[],
-    close: () => void,
-  ): void => {
-    for (const row of rows) {
-      const native = row.getBoundingClientRect.bind(row);
-
-      row.getBoundingClientRect = (): DOMRect => {
-        measured.push(row);
-
-        if (row === target) {
-          close();
-        }
-
-        return native();
-      };
-    }
   };
 
   /** Records every row asked to animate, and hands back the real animation. */
@@ -1038,21 +1304,21 @@ describe('the terminal barrier in the displacement bracket', () => {
   };
 
   it('should cancel an animation whose `finished` accessor closed the controller', () => {
-    // C5-01. The accessor returns **normally**, so the acquisition `catch`
-    // never sees it: `retire()` ran while `running` was still empty, and
-    // without a reading before `running.set()` the row keeps a live
-    // displacement nothing will ever cancel.
+    // **Subscription is part of the acquisition.** `finished` is an overridable
+    // accessor, so a consumer-instrumented animation can destroy the controller
+    // and return normally — no throw, so the `catch` never sees it — and
+    // without a reading before the animation is tracked the row keeps a live
+    // contribution nothing will ever cancel.
     let alive = true;
     const bracket = bracketFixture(() => alive);
     const played: HTMLElement[] = [];
 
-    bracket.before();
     bracket.move();
     animatingRows(bracket.rows, played);
     finishedAccessorAt(bracket.rows, () => {
       alive = false;
     });
-    bracket.after();
+    bracket.apply();
 
     expect(played).toEqual([bracket.rows[0]]);
     expect(displacements(bracket.rows[0]!)).toEqual([]);
@@ -1069,100 +1335,47 @@ describe('the terminal barrier in the displacement bracket', () => {
       alive = false;
     });
 
-    bracket.before();
     bracket.move();
     animatingRows(bracket.rows, played);
-    bracket.after();
+    bracket.apply();
 
     expect(played).toEqual([bracket.rows[0]]);
     expect(displacements(bracket.rows[0]!)).toEqual([]);
   });
 
-  it('should measure no further row once a before-pass measurement closes the controller', () => {
-    let alive = true;
-    const bracket = bracketFixture(() => alive);
-    const measured: HTMLElement[] = [];
-
-    measuringAt(bracket.rows, bracket.rows[0]!, measured, () => {
-      alive = false;
-    });
-    bracket.before();
-
-    expect(measured).toEqual([bracket.rows[0]]);
-  });
-
-  it('should start no animation once a before-pass measurement closes the controller', () => {
-    // The behavior takes its own reading before `movePlaceholder`, so in a real
-    // bracket `afterMove` never runs at all — this pins the feature's own half,
-    // which has to hold for any other producer of the same pipeline.
-    let alive = true;
-    const bracket = bracketFixture(() => alive);
-    const measured: HTMLElement[] = [];
-    const played: HTMLElement[] = [];
-
-    measuringAt(bracket.rows, bracket.rows[0]!, measured, () => {
-      alive = false;
-    });
-    animatingRows(bracket.rows, played);
-    bracket.before();
-    bracket.move();
-    bracket.after();
-
-    expect(played).toEqual([]);
-  });
-
-  it('should start no animation once an after-pass measurement closes the controller', () => {
-    // The reviewer's reproduction: the after-pass geometry read destroys, and
-    // `animate()` still runs on a feature whose `retire()` has already finished
-    // cancelling everything it knew about — so nothing would ever release it.
-    let alive = true;
-    const bracket = bracketFixture(() => alive);
-    const measured: HTMLElement[] = [];
-    const played: HTMLElement[] = [];
-
-    bracket.before();
-    bracket.move();
-    measuringAt(bracket.rows, bracket.rows[0]!, measured, () => {
-      alive = false;
-    });
-    animatingRows(bracket.rows, played);
-    bracket.after();
-
-    expect(played).toEqual([]);
-  });
-
-  it('should measure no further row once an after-pass measurement closes the controller', () => {
-    let alive = true;
-    const bracket = bracketFixture(() => alive);
-    const measured: HTMLElement[] = [];
-
-    bracket.before();
-    bracket.move();
-    measuringAt(bracket.rows, bracket.rows[0]!, measured, () => {
-      alive = false;
-    });
-    bracket.after();
-
-    expect(measured).toEqual([bracket.rows[0]]);
-  });
-
   it('should cancel an animation whose own start closed the controller', () => {
-    // `animate()` is overridable on a consumer's row too, so it is the third
-    // consumer call in the iteration. The animation is not in the feature's map
-    // yet, so `retire()` cannot have seen it: cancelling it here is the only
-    // thing that stops it writing `translate` forever.
+    // `animate()` is itself overridable on a consumer's row, so it is a
+    // consumer call like any other. The contribution it returned is not tracked
+    // yet, so nothing else would ever stop it.
     let alive = true;
     const bracket = bracketFixture(() => alive);
     const played: HTMLElement[] = [];
 
-    bracket.before();
     bracket.move();
     animatingRows(bracket.rows, played, () => {
       alive = false;
     });
-    bracket.after();
+    bracket.apply();
 
     expect(played).toEqual([bracket.rows[0]]);
     expect(displacements(bracket.rows[0]!)).toEqual([]);
+  });
+
+  it('should start no contribution for a row once the sink is closed', () => {
+    // **The one loop barrier D-157 keeps in this feature**, read at the head of
+    // every iteration: the previous row's `animate()` is a consumer call, so a
+    // reading taken before the walk says nothing about the calls inside it.
+    let alive = true;
+    const bracket = bracketFixture(() => alive);
+    const played: HTMLElement[] = [];
+
+    bracket.move();
+    animatingRows(bracket.rows, played, () => {
+      alive = false;
+    });
+    bracket.apply();
+
+    // The first row was asked; the second never was.
+    expect(played).toEqual([bracket.rows[0]]);
   });
 });

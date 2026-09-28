@@ -112,14 +112,14 @@
   grid-template:
     'a L P I I S T z'
     's s s s c c c c' 0 /
-    /* a */ var(--_padding-inline-start)
-    /* L */ var(--_lead-column-size, 0)
-    /* P */ var(--_prefix-column-size, 0)
-    /* I */ auto
-    /* I */ auto
-    /* S */ var(--_suffix-column-size, 0)
-    /* T */ var(--_trail-column-size, 0)
-    /* z */ var(--_padding-inline-end);
+    var(--_padding-inline-start) /* a */
+    var(--_lead-column-size, 0) /* L */
+    var(--_prefix-column-size, 0) /* P */
+    auto /* I */
+    auto /* I */
+    var(--_suffix-column-size, 0) /* S */
+    var(--_trail-column-size, 0) /* T */
+    var(--_padding-inline-end); /* z */
 
   row-gap: 0;
 }

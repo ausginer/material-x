@@ -1,12 +1,23 @@
 import { defineConfig, globalIgnores, type Config } from 'eslint/config';
+// `eslint-config-prettier` alone, and the omission is the rule.
+// `eslint-config-vaadin/prettier` is that config **plus**
+// `'prettier/prettier': 'error'`, which makes the linter a second formatter:
+// `oxfmt` writes the tree through `just fmt` and Prettier's opinion would then
+// check it, and where two formatters disagree there is no state the handoff
+// sequence can reach. The half taken here only *disables* stylistic rules, so
+// it removes opinions rather than imposing one.
+import prettierDisables from 'eslint-config-prettier';
 import tsImports from 'eslint-config-vaadin/imports-typescript';
-import prettier from 'eslint-config-vaadin/prettier';
 import testing from 'eslint-config-vaadin/testing';
 import tsRequireTypeChecking from 'eslint-config-vaadin/typescript-requiring-type-checking';
 import oxlint from 'eslint-plugin-oxlint';
 
 const config: readonly Config[] = defineConfig(
   globalIgnores([
+    // A harness worktree is a second checkout of this repository living inside
+    // it, so every source file under here is a duplicate of one already linted
+    // at its own path. Git ignores the directory; ESLint's file walk does not.
+    '.claude/worktrees/**/*',
     '.nx/**/*',
     '.vite/**/*',
     '.vite-inspect/**/*',
@@ -24,13 +35,15 @@ const config: readonly Config[] = defineConfig(
   ...tsRequireTypeChecking,
   ...tsImports,
   ...testing,
-  ...prettier,
+  // A single flat-config object rather than an array, so it is not spread.
+  prettierDisables,
   {
     files: ['**/*.{ts,tsx,mts,cts}'],
     rules: {
+      // `unbound-method` is not in this block. It is enforced at the end of
+      // this file instead, after Oxlint's derived disables — see there.
       '@typescript-eslint/no-use-before-define': 'off',
       '@typescript-eslint/no-shadow': 'off',
-      '@typescript-eslint/unbound-method': 'off',
       'import-x/no-unresolved': [
         'error',
         {
@@ -53,6 +66,34 @@ const config: readonly Config[] = defineConfig(
       '@typescript-eslint/promise-function-async': 'off',
       '@typescript-eslint/consistent-type-assertions': 'off',
       '@typescript-eslint/max-params': 'off',
+    },
+  },
+  {
+    // **Last, and the position is the rule.** `buildFromOxlintConfigFile`
+    // resolves its argument against `process.cwd()`, so linting a package from
+    // its own directory loads that package's `.oxlintrc.json` and derives a
+    // wider disable set than the root's — 356 rules against 267, this one
+    // among them. The same config object and the same file therefore produced
+    // two severities depending only on the shell's directory, which is how a
+    // rule can be switched off in the one place it is meant to guard while
+    // reading as enforced from the root. Sitting after the spread is what
+    // makes the severity the same from every working directory; stating it
+    // above the spread does not.
+    //
+    // It is the only instrument in the pipeline for a method read without a
+    // receiver — Oxlint implements it in neither derived set — and that is the
+    // characteristic failure of converting a factory to a class: a member that
+    // stops working at a call site the conversion never touches (D-170). Where
+    // a platform method is captured to delegate to it, the site carries a
+    // narrow disable naming where its receiver comes from.
+    //
+    // **`ignoreStatic: true` is inherited from the preset rather than chosen
+    // here**, so a `static` member a converted class acquires is outside what
+    // this reports. Only the severity is set, which is what leaves that option
+    // where it is instead of silently re-deciding it.
+    files: ['**/*.{ts,tsx,mts,cts}'],
+    rules: {
+      '@typescript-eslint/unbound-method': 'error',
     },
   },
 );

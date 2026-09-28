@@ -1,0 +1,655 @@
+#!/usr/bin/env node
+/**
+ * The D-171/D-172 migration gate, kept runnable.
+ *
+ * **The claim it checks**: the canonical entries the index rendered before the
+ * migration, plus every fragment D-172 recovered, equals the entries the index
+ * carries now — by identifier, and by content down to the clause.
+ *
+ * The pre-migration state is read out of git rather than a fixture, because a
+ * fixture is a transcription and a transcription is the thing this gate exists
+ * to distrust. The historical table reading lives here rather than in
+ * `tests/ledger.ts`: that file interprets the shape the record has, and this
+ * one interprets a shape it no longer has.
+ *
+ *     node .scripts/corpus-equivalence.ts [ref]
+ *
+ * Exits non-zero, naming every identifier whose text is not wholly accounted
+ * for, and every identifier that appears on one side only.
+ *
+ * **An identifier the pass itself amended is classified, not skipped.** D-171
+ * marks its own decision implemented in the same pass that migrates it, so its
+ * entry legitimately differs from the row it came from. Listing those by name
+ * with a reason — rather than letting the gate go quiet about them — is the
+ * same rule `references.node.test.ts` states for an unresolved `§`: an
+ * unnamed exemption is where a real loss would sit.
+ */
+import { execFileSync } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
+import { join, relative, resolve } from 'node:path';
+import MarkdownIt from 'markdown-it';
+import { documents, entries, index, PACKAGE } from '../tests/ledger.ts';
+
+const REF = process.argv[2] ?? 'ea798134';
+const FRAGMENTS = join(
+  PACKAGE,
+  '.plan/reviews/phase-24/recovered-fragments.md',
+);
+
+const md = new MarkdownIt('commonmark').enable(['table']);
+const DELIM = /^\|(?:\s*:?-{2,}:?\s*\|)+$/u;
+const ID = /^(?:\*\*)?([A-Z]{1,3}-\d+)(?:\*\*)?$/u;
+
+/** A row's authored cells, asked of the parser — see D-171 on why not a split. */
+function cells(row: string): string[] {
+  for (let n = 1; n <= 40; n += 1) {
+    const tokens = md.parse(`${row}\n|${' --- |'.repeat(n)}\n| x |\n`, {});
+    if (!tokens.some((t) => t.type === 'table_open')) continue;
+    const out: string[] = [];
+    let head = false;
+    for (const t of tokens) {
+      if (t.type === 'thead_open') head = true;
+      else if (t.type === 'thead_close') break;
+      else if (head && t.type === 'inline') out.push(t.content);
+    }
+    return out;
+  }
+  return [];
+}
+
+const prose = new MarkdownIt('commonmark').enable(['strikethrough']);
+
+/**
+ * A fragment's *content*, with its markup resolved.
+ *
+ * The repository formatter rewrites `*emphasis*` as `_emphasis_`, so comparing
+ * raw Markdown would report a normalization as a lost clause — and, worse,
+ * would train the reader of this gate to expect noise. Link destinations are
+ * kept because a citation is content: losing the target of
+ * `[record](…-claude.md)` is exactly the kind of silent loss this exists for.
+ *
+ * **Markup delimiters are dropped rather than paired.** A code span is
+ * delimited by *matching* runs, so the same sentence pairs differently inside
+ * one table cell than inside a whole entry body — and when pairing shifts, an
+ * `_emphasis_` that was markup in one parse is literal text in the other.
+ * F-130's whole defect was an unmatched backtick. Comparing delimiters would
+ * report both the repair and the formatter's normalization as lost prose;
+ * comparing the words between them is what the claim is actually about.
+ */
+function plain(source: string): string {
+  let out = '';
+
+  for (const token of prose.parseInline(source, {})[0]?.children ?? []) {
+    if (token.type === 'text' || token.type === 'code_inline') {
+      out += token.content;
+    } else if (token.type === 'softbreak' || token.type === 'hardbreak') {
+      out += ' ';
+    } else if (token.type === 'link_open') {
+      out += `${token.attrGet('href') ?? ''} `;
+    }
+  }
+
+  return out;
+}
+
+const norm = (s: string): string =>
+  plain(s)
+    .replaceAll(/[`_*~]/gu, '')
+    .replaceAll(/\s+/gu, ' ')
+    .trim();
+
+/** What the renderer showed before the migration: the first `width` cells. */
+function rendered(lines: readonly string[]): Map<string, string[]> {
+  const D4 = new Set([
+    '| ID | Decision | Why | vs probe 1 |',
+    '| ID | Decision | Why | Supersedes |',
+  ]);
+  const out = new Map<string, string[]>();
+  let header: string | null = null;
+  let width = 0;
+  for (const [n, line] of lines.entries()) {
+    if (!line.startsWith('|')) continue;
+    if (DELIM.test(line)) {
+      header = lines[n - 1]!;
+      width = D4.has(header) ? 4 : 3;
+      continue;
+    }
+    if (header === null || line === header) continue;
+    if (
+      !D4.has(header) &&
+      header !== '| Decision | What and why | Supersedes |' &&
+      header !== '| ID | Finding | Status |'
+    )
+      continue;
+    const c = cells(line);
+    const id = ID.exec(c[0]?.trim() ?? '')?.[1];
+    if (id === undefined) continue;
+    out.set(
+      id,
+      c
+        .slice(1, width)
+        .map(norm)
+        .filter((x) => x !== ''),
+    );
+  }
+  return out;
+}
+
+/** D-172's corpus: the fenced blocks, by the identifier each one lands under. */
+async function corpus(): Promise<Map<string, string[]>> {
+  const lines = (await readFile(FRAGMENTS, 'utf8')).split('\n');
+  const out = new Map<string, string[]>();
+  let heading: string | null = null;
+  let fence = false;
+  let buf: string[] = [];
+  for (const line of lines) {
+    if (line.startsWith('```text')) {
+      fence = true;
+      buf = [];
+      continue;
+    }
+    if (fence && line.startsWith('```')) {
+      fence = false;
+      const text = buf.join('\n');
+      // the renumbered fragment lands under F-283; every other under its heading's id
+      const id = heading!.startsWith('F-283')
+        ? 'F-283'
+        : /^([A-Z]{1,3}-\d+)/u.exec(heading!)![1]!;
+      const title = /^TITLE\s{2}(.+)$/mu.exec(text)?.[1];
+      const status = /^STATUS (.+)$/mu.exec(text)?.[1];
+      out.set(id, [
+        ...(out.get(id) ?? []),
+        ...(title === undefined ? [norm(text)] : [norm(title), norm(status!)]),
+      ]);
+      continue;
+    }
+    if (fence) {
+      buf.push(line);
+      continue;
+    }
+    const h = /^#{3,4} (.+)$/u.exec(line);
+    if (h !== null) heading = h[1]!.trim();
+  }
+  return out;
+}
+
+const before = rendered(
+  execFileSync(
+    'git',
+    ['show', `${REF}:packages/drag2/.plan/contract/00-index.md`],
+    {
+      cwd: resolve(PACKAGE, '../..'),
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+    },
+  ).split('\n'),
+);
+const recovered = await corpus();
+const after = new Map(
+  entries(await index()).map((e) => [e.id, norm(`${e.title ?? ''} ${e.body}`)]),
+);
+
+/**
+ * Entries this pass rewrote rather than carried, and why. An amendment still
+ * has to carry every *recovered* fragment: the allowance is over the
+ * pre-migration text only, so it cannot hide a dropped recovery.
+ */
+const AMENDED: ReadonlyMap<string, string> = new Map([
+  ['D-171', 'marks its own decision implemented and restates what it touches'],
+  [
+    'D-2',
+    'D-170 step 6 deletes the façade the sentence described: the kernel implements `BehaviorContext` and hands itself out narrowed',
+  ],
+  ['D-170', 'marks its own decision implemented, its six steps having landed'],
+  [
+    'D-153',
+    "D-181 deletes the stamp, so the ground loses the fourth dependant it counted and the price loses `runStamped`'s `finally`",
+  ],
+]);
+
+/**
+ * Entries this pass created that no pre-migration row and no fragment holds.
+ * Named for the same reason `AMENDED` is: an unexplained new identifier is
+ * indistinguishable from a migration that invented content.
+ */
+const MINTED: ReadonlyMap<string, string> = new Map([
+  [
+    'D-181',
+    'settles Arc B: the seam driver holds the frame transaction, and the phase becomes an argument',
+  ],
+  [
+    'D-180',
+    "settles Arc A: the execution bracket owns the latch, the queue's semantics and the deferral",
+  ],
+  [
+    'F-286',
+    'raised by the migration: three satellite tables it could not migrate',
+  ],
+  ['D-173', 'settles F-286: the three deferred tables, one answer each'],
+  [
+    'D-174',
+    'settles F-287: satellites cite a canonical identifier, they do not claim one',
+  ],
+  [
+    'F-287',
+    "raised by D-173: 47 finding identifiers have an entry in two documents, masked by 05's heading depth",
+  ],
+  [
+    'D-175',
+    "settles F-288 and F-289: an entry's anchor is its address, and one identifier grammar is shared",
+  ],
+  [
+    'F-288',
+    "raised by the owner against D-174: `#f-2` addresses nothing, because a GFM anchor carries the heading's title",
+  ],
+  [
+    'F-289',
+    'raised by the owner against D-174: three expressions cap an opaque local identifier at three letters',
+  ],
+  [
+    'F-290',
+    'raised by D-175: whether a review-scope identifier such as `P18A-04` is citable is unsettled',
+  ],
+  [
+    'F-297',
+    'raised by the owner against D-170 step 1: the landed `RectIndex` publishes writable state',
+  ],
+  [
+    'F-298',
+    'raised by D-170 §The ownership boundary: the `Fields, not accessors` rationale prices a design that no longer exists',
+  ],
+  [
+    'F-299',
+    'raised by D-170 §The ownership boundary: the equivalence instrument re-implements the scan it checks',
+  ],
+  [
+    'F-300',
+    'raised by D-170 §The ownership boundary: whether the entity-ownership rule belongs in CONTRIBUTING §10 is deferred to step 6',
+  ],
+  [
+    'F-301',
+    'raised by the owner against D-170 §The ownership boundary: `#abort()` justifies itself with a teardown D-36 defers',
+  ],
+  [
+    'F-302',
+    'raised by the owner against D-170 §The ownership boundary: four liveness readings where the contract owes one placement',
+  ],
+  [
+    'F-303',
+    'raised by D-170 §The ownership boundary: two browser cases pin the whole-program ceiling D-37 withdrew',
+  ],
+  [
+    'F-304',
+    "raised by D-170 §The ownership boundary: two readings in the cache's immediate callers are unadjudicated",
+  ],
+  [
+    'F-305',
+    "raised by D-170's implementation: two clauses disagree about whether `KernelHost` becomes the class",
+  ],
+  [
+    'F-306',
+    'raised by the F-305 adjudication: `method-signature-style` forbids the function-property declaration the residue reads as available',
+  ],
+  [
+    'F-307',
+    'raised by the F-305 adjudication: the residue census says fourteen and it is twenty-two',
+  ],
+  [
+    'F-308',
+    "raised by the owner's correction to F-305: the contract states a type-level narrowing as a runtime impossibility",
+  ],
+  [
+    'F-309',
+    "raised by the owner's correction to F-305: the cache's accessors are justified as protection against mutation",
+  ],
+  [
+    'F-310',
+    "raised by the control-panel der pass: `thenOf`'s one-caller clause grounds itself in a gate D-41 deleted",
+  ],
+  [
+    'F-311',
+    'raised by the control-panel der pass: two release-path comments justify a shape by an absent protocol',
+  ],
+  [
+    'Q-18',
+    'raised by the control-panel der pass: whether `ConstraintView` is a context or a materialized projection',
+  ],
+  [
+    'F-312',
+    'raised by the D-170 arc feature proof: the liveness reduction leaves a declared slot invoked after logical closure',
+  ],
+  [
+    'F-313',
+    'raised by the D-170 arc, three lenses merged: the `host` to `kernel` rename is incomplete and reaches shipped `kernel.d.ts`',
+  ],
+  [
+    'F-314',
+    'raised by the D-170 arc der pass: a revision fixture states the D-41-deleted readiness API as shipped',
+  ],
+  [
+    'F-315',
+    'raised by the D-170 arc der pass: live contract sections still state normative constraints over `KernelHost`',
+  ],
+  [
+    'F-316',
+    'raised by the D-170 arc feature proof: `RectIndexView` has no falsifier under `tests/`',
+  ],
+  [
+    'F-317',
+    'raised by the D-170 arc feature proof: three of the four narrowing assertions do not discriminate',
+  ],
+  [
+    'F-318',
+    'raised by the D-170 arc feature proof: nothing pins the memoized `destroy()` identity through the controller wrappers',
+  ],
+  [
+    'F-319',
+    "raised by the D-170 arc feature proof: step 5's rename corrupted comment prose in two spec files",
+  ],
+  [
+    'F-320',
+    'raised by the D-170 arc cleanup pass: two adjacent JSDoc blocks on `#movedLeaf`',
+  ],
+  [
+    'F-321',
+    'raised by the D-170 arc cleanup pass: a duplicate JSDoc block on `#resolveItem`, one copy corrupted',
+  ],
+  [
+    'F-322',
+    "raised by the D-170 arc der pass: `LinearShift.refresh`'s stop arm re-retires a cache the callee already retired",
+  ],
+  [
+    'F-323',
+    'raised at the D-170 arc consolidation: `just lint` is red at the tip, in files the range does not touch',
+  ],
+  [
+    'F-324',
+    'raised by D-176: the irreducible-reading census was measured under the membership test D-176 supersedes',
+  ],
+  [
+    'D-176',
+    'settles Q-19, Q-20 and Q-21: declared-slot membership is a property of the declaration, and the exception is a predicate',
+  ],
+  [
+    'Q-19',
+    'raised by the D-170 arc cleanup pass: whether `#homeGap`, a single-call private method, is inlined',
+  ],
+  [
+    'Q-20',
+    'raised by the D-170 arc feature proof: whether a feature-supplied `settle` is a declared consumer slot under I-36',
+  ],
+  [
+    'Q-21',
+    "raised by the D-170 arc der pass: whether `LinearShift` should own a stop on `refresh`'s failure path at all",
+  ],
+  [
+    'D-177',
+    'raised by the entity-model adjudication: committed frame state is read off the frame, not mirrored onto a runtime view',
+  ],
+  [
+    'F-325',
+    'raised by D-177: `PresentationView.insertion` is a published field with no reader in the package',
+  ],
+  [
+    'F-326',
+    'raised by D-177: `PresentationView.snapshot` mirrors committed frame state on a published view',
+  ],
+  [
+    'Q-22',
+    'raised by the F-324 census: whether the terminal diagnostic keeps an exemption the relinquishment predicate does not grant',
+  ],
+  [
+    'D-178',
+    'settles Q-22: the exception to act (a) is non-solicitation, and relinquishment is one of its two species',
+  ],
+  [
+    'F-327',
+    'raised by D-178: the panic docblock claims its exception is the only one, which D-176 made false',
+  ],
+  [
+    'D-179',
+    "settles s0-1: the liveness obligation's unit is the invoking party's call site, and a route predicate discharges act (a) for its own route only",
+  ],
+  [
+    'F-328',
+    'raised by the Stage 0 feature proof: `onEnd` is invoked after logical closure on the `ERROR_REPORTED` route',
+  ],
+  [
+    'F-329',
+    'raised by the Stage 0 feature proof: a published warning message carries the step-5 rename corruption',
+  ],
+  [
+    'F-330',
+    "raised by the Stage 0 feature proof: the census's stated totals cannot be reconciled with its own enumeration",
+  ],
+  [
+    'F-331',
+    'raised by the Stage 0 feature proof: six census citations name lines the same commit moved',
+  ],
+  [
+    'F-332',
+    "raised by the Stage 0 feature proof: `report` is in the census's candidate set and in none of its groups",
+  ],
+  [
+    'F-333',
+    "raised by the Stage 0 feature proof: D-178's amendment is dated before the D-176 amendment it supersedes",
+  ],
+  [
+    'F-334',
+    'raised by the Stage 0 feature proof: a live test name still calls the kernel a host',
+  ],
+  [
+    'F-335',
+    "raised by F-333's repair: three record entries carry future dates against commits made on 2026-09-04",
+  ],
+  [
+    'F-336',
+    "raised by the Stage 0 closure proof: the re-taken census's kernel citations name lines its own commit moved",
+  ],
+  [
+    'F-337',
+    "raised by the Stage 0 closure proof: D-179's retirement property was booked to an assertion that cannot fail",
+  ],
+  [
+    'F-338',
+    'raised by the Stage 0 closure proof: the recorded falsification count for the `#joinLive()` substitution does not reproduce',
+  ],
+  [
+    'F-339',
+    "raised by the Stage 1 instrument proof: F-317's mechanical confirmation states a textual measurement that is false",
+  ],
+  [
+    'F-340',
+    "raised by the Stage 1 instrument proof: F-316's recorded row and mutation counts are each short by one",
+  ],
+  [
+    'F-341',
+    "raised by the Stage 1 instrument proof: F-318's executed-suite denominator is off by one",
+  ],
+  [
+    'F-342',
+    'raised by the Stage 1 instrument proof: the Stage 1 plan entry counts thirteen instrument rows as eleven',
+  ],
+  [
+    'F-343',
+    "raised by the Arc A feature proof: teardown's step 2 is reddened by nothing",
+  ],
+  [
+    'F-344',
+    'raised by the Arc A feature proof: the settle-on-a-throwing-teardown arm is unwitnessed',
+  ],
+  [
+    'F-345',
+    'raised by the Arc A feature proof: present-tense sites name identifiers Arc A deleted',
+  ],
+  [
+    'F-346',
+    'raised by the Arc A feature proof: the instrument met a weaker standard than the one it was written to, and one row is subsumed',
+  ],
+  [
+    'F-347',
+    "raised by the Arc A feature proof: the +270 B summary is contradicted by the pass's own table",
+  ],
+  [
+    'F-348',
+    "raised by Arc B's B-0 gate: the terminal latch's conjunct in preparationValid had no falsifier",
+  ],
+  [
+    'F-349',
+    "raised by Arc B's B-0 gate: the identity conjunct has no reachable falsifier, so the pin did not move",
+  ],
+  [
+    'F-350',
+    "raised during Arc B's extraction: the seam driver takes a fifth collaborator because the pin stayed behind",
+  ],
+  [
+    'F-351',
+    "raised during Arc B's extraction: the kernel tier's internal list is an allow-list, so a deleted name does not redden it",
+  ],
+  [
+    'F-352',
+    "raised during Arc B's sweep: F-345's own sweep did not reach the ledger",
+  ],
+  [
+    'F-291',
+    "raised by the D-170 step-0 consolidation: the rule's severity was decided by the linting shell's working directory",
+  ],
+  [
+    'F-292',
+    'raised by the D-170 step-0 consolidation: the root lint selection omitted the package the gate guards',
+  ],
+  [
+    'F-293',
+    'raised by the D-170 step-0 consolidation: the census recorded thirteen detached reads where the instrument reports ten',
+  ],
+  [
+    'F-294',
+    "raised by the D-170 step-0 consolidation: the recorded reason for `createRectIndex`'s silence was false",
+  ],
+  [
+    'F-295',
+    'raised by the D-170 step-0 consolidation: `ignoreStatic: true` was in force and unrecorded',
+  ],
+  [
+    'F-296',
+    'raised by the re-review of the repaired gate: six canonical ids were cited by an entry and minted nowhere',
+  ],
+]);
+
+const say = (text: string): void => {
+  process.stdout.write(`${text}\n`);
+};
+
+const missing: string[] = [];
+const orphan: string[] = [];
+const amended: string[] = [];
+
+type Side = readonly ['before' | 'recovered', string, readonly string[]];
+
+const sides: readonly Side[] = [
+  ...[...before].map(([id, texts]): Side => ['before', id, texts]),
+  ...[...recovered].map(([id, texts]): Side => ['recovered', id, texts]),
+];
+
+for (const [kind, id, texts] of sides) {
+  const text = after.get(id);
+
+  if (text === undefined) {
+    orphan.push(`absent after migration: ${id}`);
+    continue;
+  }
+
+  const allowance = kind === 'before' ? AMENDED.get(id) : undefined;
+
+  for (const chunk of texts) {
+    if (text.includes(chunk)) {
+      continue;
+    }
+
+    if (allowance !== undefined) {
+      amended.push(`${id}: amended by this pass — ${allowance}`);
+      continue;
+    }
+
+    missing.push(`${id}: text not carried over — «${chunk.slice(0, 110)}…»`);
+  }
+}
+
+for (const id of after.keys()) {
+  if (before.has(id) || recovered.has(id)) {
+    continue;
+  }
+
+  const reason = MINTED.get(id);
+
+  if (reason === undefined) {
+    orphan.push(`present only after migration: ${id}`);
+  } else {
+    amended.push(`${id}: minted by this pass — ${reason}`);
+  }
+}
+
+/**
+ * The live census, printed rather than written down anywhere.
+ *
+ * Every count this record used to state in prose was stale within one pass —
+ * three of them were, and the last correction was itself taken from a run made
+ * before the entry it was counting existed. A number a person maintains by
+ * hand is a claim no instrument reads, which is the defect class this whole
+ * phase has been about, one level up. So the record names this command and
+ * states no total.
+ */
+async function census(): Promise<readonly string[]> {
+  const rows: string[] = [];
+  let total = 0;
+
+  const counted = await Promise.all(
+    (await documents()).map(async (path) => {
+      const found = entries((await readFile(path, 'utf8')).split('\n'));
+      const families = new Map<string, number>();
+
+      for (const { id } of found) {
+        const family = id.slice(0, id.lastIndexOf('-'));
+
+        families.set(family, (families.get(family) ?? 0) + 1);
+      }
+
+      return { path: relative(PACKAGE, path), found, families };
+    }),
+  );
+
+  for (const { path, found, families } of counted) {
+    if (found.length === 0) {
+      continue;
+    }
+
+    total += found.length;
+    rows.push(
+      `  ${String(found.length).padStart(4)}  ${path.padEnd(46)}${[...families]
+        .map(([family, n]) => `${family}:${n}`)
+        .join(' ')}`,
+    );
+  }
+
+  return [
+    ...rows,
+    `  ${String(total).padStart(4)}  every current-state document`,
+  ];
+}
+
+say(
+  `before ${before.size} entries + recovered ${recovered.size} → after ${after.size}`,
+);
+say('');
+for (const row of await census()) say(row);
+say('');
+for (const line of [...new Set(amended)]) say(`  ${line}`);
+for (const line of [...orphan, ...missing]) console.error(line);
+if (orphan.length + missing.length > 0) {
+  console.error(`\n${orphan.length + missing.length} discrepancies`);
+  process.exitCode = 1;
+} else {
+  say(
+    'corpus equivalence holds: every clause is carried, and no identifier is invented or lost.',
+  );
+}

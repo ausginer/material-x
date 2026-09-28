@@ -26,7 +26,7 @@
  * and this file cannot tell the difference between a tier that declined the
  * import and a tier that never considered it.
  */
-import { readdir, readFile } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import * as drag from '../../src/drag.ts';
@@ -34,6 +34,7 @@ import * as kernel from '../../src/kernel.ts';
 import * as sortable from '../../src/sortable.ts';
 
 const SRC = resolve(import.meta.dirname, '../../src');
+const PACKAGE = resolve(import.meta.dirname, '../..');
 
 /**
  * Every name `src/kernel.ts` and `src/drag.ts` publish — values by reflection,
@@ -52,6 +53,7 @@ const PUBLISHED_TYPES: readonly string[] = [
   'ActivationScope',
   'AdmissionSubject',
   'BehaviorConfig',
+  'BehaviorContext',
   'BehaviorFactory',
   'BehaviorInstall',
   // Published rather than internal, and the move is D-35's (C5-01). 02 §What
@@ -61,6 +63,7 @@ const PUBLISHED_TYPES: readonly string[] = [
   // because this alias's definition names it.
   'BehaviorLiftSession',
   'BehaviorSpec',
+  'CancelOrigin',
   'CancelStage',
   'CommandAdmission',
   'Disposer',
@@ -68,11 +71,12 @@ const PUBLISHED_TYPES: readonly string[] = [
   'FailureStage',
   'Frame',
   'FramePartOf',
+  // The scope's own closure (D-85), and the sortable reaches it for the same
+  // reason free drag does: a behavior reporting a local delta is handed the
+  // projection rather than measuring one.
+  'InheritedSpace',
   'KernelFrame',
-  'KernelHost',
-  'LandingContext',
-  'LandingHandle',
-  'LandingStart',
+  'LandingTail',
   'LiftMode',
   'LifetimeScope',
   'OffsetBox',
@@ -81,14 +85,14 @@ const PUBLISHED_TYPES: readonly string[] = [
   'PreparedSettlement',
   'ReleaseTransition',
   'ResolutionCommand',
-  'SeamRejection',
   'SettlementInput',
-  'SettlementScope',
   'SettlementTransition',
   'Transition',
   'VisualLiftSession',
-  // drag.js — shared vocabulary, belonging to neither tier (D-64)
-  'DraggableErrorCode',
+  // drag.js — shared vocabulary, belonging to neither tier (D-64, D-132).
+  // ~~`DraggableErrorCode`~~ deleted with the coarse code; `FailureStage` is
+  // published from both roots and is already listed with the kernel's types
+  // above, so it needs no second entry here.
   'DOMRealm',
   'Point',
 ];
@@ -102,9 +106,7 @@ const PUBLISHED_TYPES: readonly string[] = [
 const INTERNAL: Readonly<Record<string, readonly string[]>> = {
   'the seam driver': [
     'SeamOutcome',
-    'SeamContext',
     'SeamDriver',
-    'ArmOutcome',
     'SEAM_COMMITTED',
     'SEAM_DISCARDED',
     'SEAM_EFFECT_FAILED',
@@ -117,16 +119,15 @@ const INTERNAL: Readonly<Record<string, readonly string[]>> = {
     'createOperationLifetimes',
     'OperationLifetimes',
   ],
-  'the frame helpers': [
-    'composeFrame',
-    'beginFrame',
-    'scrubFrame',
-    'validateFramePart',
-    'assertFrameScrubbed',
-    'KERNEL_FRAME_KEYS',
-  ],
+  'the frame helpers': ['frame', 'KERNEL_FRAME_KEYS'],
+  // **The channel and the unwind rule** (D-130). `Notify` is the channel as
+  // seen by a module that does not own it, and `createUnwind` builds the guard
+  // over it. Neither is published: a behavior reaches the consumer through its
+  // own callbacks slot and never through these, which is the same
+  // discriminating rule the rest of this table applies — *the kernel never
+  // hands one to a behavior and never accepts one from it*.
+  'the one channel': ['Notify', 'createUnwind', 'Unwind'],
   'lift acquisition': ['acquireLift', 'captureInlineStyles', 'acquireTopLayer'],
-  'the reporter': ['report', 'guarded'],
   'scheduling and invalidation': [
     'createInvalidator',
     'createFrameTask',
@@ -134,17 +135,21 @@ const INTERNAL: Readonly<Record<string, readonly string[]>> = {
     'Invalidator',
   ],
   'the ingress protocol': ['POINTER_DOWN', 'KEY_DOWN'],
-  'the input policy': [
-    'POINTER_OWNERS',
-    'COMMAND_OWNERS',
-    'pathOwnsInteraction',
-  ],
-  // The phase *constants* are published; `NO_STAMP` and the internal frame
-  // plumbing are not.
-  'kernel-private frame state': ['NO_STAMP'],
+  'the input policy': ['pathOwnsInteraction'],
+  // **The reusable coordinate buffer** (D-144). It is `Writable<Point>` and
+  // nothing more, so a third-party behavior's substitute is the shape written
+  // out — the alias exists so that `type-fest` is named in a module the
+  // declaration prune removes, and publishing it would put a `devDependency`
+  // into the tarball's type surface (F-122).
+  'the point cache': ['PointCache'],
+  // The phase *constants* are published; the entity the kernel keeps them in
+  // is not. There is no absent-phase sentinel to keep out of the published
+  // vocabulary either: the phase reaches a commit as an argument (D-181).
+  'kernel-private frame state': ['FrameTransaction'],
   // `DraggableError` is a runtime value on `drag.js`; the sortable imports the
   // class from its declaration site, which is the same declaration.
-  'the shared error class': ['DraggableError', 'toDraggableError'],
+  // ~~`toDraggableError`~~ deleted at D-132 with the mapping it applied.
+  'the shared error class': ['DraggableError'],
 };
 
 const INTERNAL_NAMES = new Set(Object.values(INTERNAL).flat());
@@ -219,18 +224,22 @@ describe('the kernel tier boundary', () => {
     expect(stray).toEqual([]);
   });
 
-  it('should declare the doubly-declared seam types exactly once', async () => {
-    // **F-61.** `ActionTransition` and `SeamRejection` were declared in
+  it('should declare the doubly-declared seam type exactly once', async () => {
+    // **F-61.** `ActionTransition` and ~~`SeamRejection`~~ were declared in
     // `kernel/seams.ts` *and* `kernel/spec.ts`, structurally identical and
     // independently maintained. Harmless while both were internal; publishing
     // one of each makes it the identity hazard 03 §The export topology exists
     // to prevent — a consumer's compiler resolves the published declaration
     // while the driver consumes the other.
+    //
+    // **One of the two is gone with the transport it carried** (D-152), and
+    // the row keeps the other rather than being deleted: the hazard is a
+    // property of re-exporting across the two modules, which `ActionTransition`
+    // still does.
     const dir = join(SRC, 'kernel');
     const files = (await readdir(dir)).filter((name) => name.endsWith('.ts'));
     const declarations: Record<string, string[]> = {
       ActionTransition: [],
-      SeamRejection: [],
     };
 
     const sources = await Promise.all(
@@ -245,10 +254,7 @@ describe('the kernel tier boundary', () => {
       }
     });
 
-    expect(declarations).toEqual({
-      ActionTransition: ['seams.ts'],
-      SeamRejection: ['seams.ts'],
-    });
+    expect(declarations).toEqual({ ActionTransition: ['seams.ts'] });
   });
 
   it('should keep the re-homed cancel stages as one declaration on two entries', () => {
@@ -263,15 +269,15 @@ describe('the kernel tier boundary', () => {
 
   it('should re-export the middle tier’s landing seam types from the kernel’s own modules', async () => {
     // The type half of the same property, and it has to be source-level: the
-    // four re-homed names erase, so nothing survives to `toBe`. What is
-    // asserted is that `sortable/feature.js` **re-exports** them rather than
-    // declaring its own — the direction D-68 corrects, since
-    // `SettlementScope.holdForLanding` is kernel SPI and a kernel-tier author
-    // reaching the sortable for `LandingStart` would be importing a behavior
-    // in order to author a different one.
+    // re-homed names erase, so nothing survives to `toBe`. What is asserted is
+    // that `sortable/feature.js` **re-exports** them rather than declaring its
+    // own — the direction D-68 corrects, since `BehaviorSpec.landingTail` is
+    // kernel SPI and a kernel-tier author reaching the sortable for
+    // `LandingTail` would be importing a behavior in order to author a
+    // different one.
     const source = await readFile(join(SRC, 'sortable/feature.ts'), 'utf8');
 
-    for (const name of ['LandingContext', 'LandingHandle', 'LandingStart']) {
+    for (const name of ['LandingTail', 'Disposer', 'InheritedSpace']) {
       expect([name, source.includes(`export type ${name} =`)]).toEqual([
         name,
         false,
@@ -364,13 +370,116 @@ async function devReaders(): Promise<ReadonlyArray<readonly [string, number]>> {
 }
 
 /**
+ * Every `drag: …` message constructed anywhere in `src/`, with its file and
+ * line — comments stripped first, because a docblock quoting a message is prose
+ * about it rather than a construction of it.
+ */
+async function diagnosticMessages(): Promise<
+  ReadonlyArray<readonly [string, string]>
+> {
+  const found: Array<readonly [string, string]> = [];
+
+  const walk = async (directory: string): Promise<void> => {
+    const entries = await readdir(directory, { withFileTypes: true });
+
+    await Promise.all(
+      entries.map(async (entry) => {
+        const path = join(directory, entry.name);
+
+        if (entry.isDirectory()) {
+          return await walk(path);
+        }
+
+        if (!entry.name.endsWith('.ts')) {
+          return;
+        }
+
+        const source = await readFile(path, 'utf8');
+        const code = source
+          .replaceAll(/\/\*[\s\S]*?\*\//gu, (block) =>
+            block.replaceAll(/[^\n]/gu, ' '),
+          )
+          .replaceAll(/\/\/[^\n]*/gu, '');
+
+        for (const [index, line] of code.split('\n').entries()) {
+          for (const match of line.matchAll(/'(drag: [^']*)'/gu)) {
+            found.push([
+              `${relative(SRC, path).replaceAll('\\', '/')}:${index + 1}`,
+              match[1]!,
+            ]);
+          }
+        }
+      }),
+    );
+  };
+
+  await walk(SRC);
+
+  return found.toSorted(([a], [b]) => a.localeCompare(b));
+}
+
+/**
+ * The files a home claim can be written in: this package's source, tests and
+ * benchmarks, plus its root's own files — where the build define lives, and
+ * where one of the two wrong answers was written.
+ *
+ * **The root is read flat**, because recursing from it would sweep the dated
+ * record in `.plan/`, which states what was true when it was written.
+ */
+async function homeClaimScope(): Promise<readonly string[]> {
+  const walk = async (
+    directory: string,
+    flat: boolean,
+  ): Promise<readonly string[]> => {
+    const entries = await readdir(directory, { withFileTypes: true });
+    const found = await Promise.all(
+      entries.map(async (entry) => {
+        const path = join(directory, entry.name);
+
+        if (entry.isDirectory()) {
+          return entry.name === 'node_modules' ||
+            entry.name.startsWith('.') ||
+            flat
+            ? []
+            : await walk(path, false);
+        }
+
+        // Emitted declarations copy `src/`'s prose, which is already in scope.
+        return /\.(?:ts|md)$/u.test(entry.name) && !entry.name.endsWith('.d.ts')
+          ? [path]
+          : [];
+      }),
+    );
+
+    return found.flat();
+  };
+
+  const roots: ReadonlyArray<readonly [string, boolean]> = [
+    [SRC, false],
+    [join(PACKAGE, 'tests'), false],
+    [join(PACKAGE, 'bench'), false],
+    [PACKAGE, true],
+  ];
+  const walked = await Promise.all(
+    roots.map(async ([root, flat]) =>
+      (await stat(root)).isDirectory() ? await walk(root, flat) : [],
+    ),
+  );
+
+  // `src/globals.d.ts` is the one `.d.ts` that is authored rather than emitted,
+  // and it carried one of the two wrong answers.
+  return [...walked.flat(), join(SRC, 'globals.d.ts')].toSorted();
+}
+
+/**
  * The tier a module belongs to: the **top-level directory under `src/`**, or
  * `.` for the entries at the root.
  *
  * **Not `dirname`** (P06-03). A tier is `kernel`, `sortable`, `free-drag`,
  * `shared` — the units 02 §What stays internal draws its boundary between — and
- * under `dirname` a second binding at `sortable/sub/a.ts` would sit in a tier
- * of its own and satisfy a rule it plainly breaks.
+ * under `dirname` a second binding one directory deeper — in a hypothetical
+ * `sub` folder under `sortable` — would sit in a tier of its own and satisfy a
+ * rule it plainly breaks.
  */
 const tierOf = (file: string): string => file.split('/')[0] ?? '.';
 
@@ -387,10 +496,11 @@ describe('the `__DEV__` binding', () => {
   // second module of a tier fails the first row, and the fix is that tier's own
   // `dev.ts` — still importing nothing from `kernel/`.
   //
-  // **The kernel is no longer on the list** (D-108). Its four author-facing
-  // checks are production checks and ~~`src/kernel/dev.ts`~~ is retired, so the
+  // **The kernel is no longer on the list** (D-108). Its author-facing checks
+  // are production checks and ~~`src/kernel/dev.ts`~~ is retired, so the
   // package now has exactly one binding, in the one tier with per-frame dev
-  // work. The third row is what holds that: the kernel re-acquiring a binding
+  // work. (~~Four~~ **two** since D-128 deleted the frame pair; the rule is
+  // about where a binding lives, not how many checks it would have gated.) The third row is what holds that: the kernel re-acquiring a binding
   // fails it, which is the re-litigation this rule exists to catch.
   //
   // **Each row can fail on its own** (P06-03), which is what makes three of
@@ -437,5 +547,138 @@ describe('the `__DEV__` binding', () => {
     ];
 
     expect(tiers).toEqual(['sortable']);
+  });
+
+  it('should bind the flag in exactly one module', async () => {
+    // The three rows above bound the *shape* — at most one per tier, read once,
+    // in a declared tier — and every one of them is satisfied by a tree that
+    // binds it nowhere. This is the count itself, and it is what the rule below
+    // needs before it can name a file.
+    expect((await devReaders()).map(([file]) => file)).toEqual([
+      'sortable/rect-index.ts',
+    ]);
+  });
+
+  it('should name that module wherever prose names the binding’s home', async () => {
+    // **The invariant that has now failed twice with two different wrong
+    // answers**, and the reason it is an assertion rather than a review item:
+    // both wrong answers named a file that **exists**, so nothing that resolves
+    // paths on disk can see either.
+    //
+    // **It is mechanical, not semantic.** No attempt is made to decide whether
+    // a sentence is *about* the binding. The rule is positional: a prose
+    // paragraph that mentions the ambient may name the module that declares it
+    // and the module that binds it, and no other module of this source tree. A
+    // paragraph naming `tsdown.config.ts`, `.scripts/vite-config.ts` or a test
+    // file is untouched, because those are not modules of `src/`.
+    //
+    // A struck path is a deliberate reference to something retired, which is
+    // the same convention `tests/references.node.test.ts` counts.
+    const bound = (await devReaders()).map(([file]) => `src/${file}`);
+    const allowed = new Set(['src/globals.d.ts', ...bound]);
+    // The tiers are read off the tree rather than listed, so a new one joins
+    // the rule by existing.
+    const tiers = (await readdir(SRC, { withFileTypes: true }))
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name);
+    const module = new RegExp(
+      `^(?:src/)?(?:${tiers.join('|')})/[\\w./-]+\\.ts$|^src/[\\w./-]+\\.ts$`,
+      'u',
+    );
+    const wrong: string[] = [];
+    const files = await homeClaimScope();
+    // One batch rather than one read per file: the scope is the whole package
+    // and every file is read whatever the previous one said.
+    const sources = await Promise.all(
+      files.map((file) => readFile(file, 'utf8')),
+    );
+
+    for (const [ordinal, file] of files.entries()) {
+      const source = sources[ordinal]!;
+      const markdown = file.endsWith('.md');
+      let paragraph: string[] = [];
+      let opened = 0;
+      const close = (): void => {
+        const text = paragraph.join(' ');
+
+        if (paragraph.length > 0 && text.includes('__DEV__')) {
+          for (const [, struck, path] of text.matchAll(
+            /(~~)?`([^`]+)`(?:~~)?/gu,
+          )) {
+            const named = path!.startsWith('src/') ? path! : `src/${path!}`;
+
+            if (
+              struck === undefined &&
+              module.test(path!) &&
+              !allowed.has(named)
+            ) {
+              wrong.push(
+                `${relative(PACKAGE, file)}:${opened} :: \`${path!}\``,
+              );
+            }
+          }
+        }
+
+        paragraph = [];
+      };
+
+      for (const [index, raw] of source.split('\n').entries()) {
+        const prose = markdown
+          ? raw
+          : /^\s*(?:\/\*\*|\*\/|\*|\/\/)\s?(.*)$/u.exec(raw)?.[1];
+
+        // **The unit differs by file kind, and each is the natural one.** In
+        // markdown a blank line separates two statements. Inside a comment
+        // block it does not — a doc block is one statement about one thing,
+        // and both wrong answers put the ambient in one of its paragraphs and
+        // the file name in another. So a comment run closes on the first line
+        // that is not a comment, and a markdown paragraph on the first blank.
+        if (prose === undefined || (markdown && prose.trim() === '')) {
+          close();
+          continue;
+        }
+
+        if (paragraph.length === 0) {
+          opened = index + 1;
+        }
+
+        paragraph.push(prose.trim());
+      }
+
+      close();
+    }
+
+    expect(wrong).toEqual([]);
+  });
+});
+
+describe('the diagnostic vocabulary', () => {
+  /**
+   * **What this pins is the text a consumer reads, and nothing else did.**
+   * `error.message` is published surface — it reaches a correctly integrated
+   * consumer through `onError` — and it is the one published surface with no
+   * type behind it, so a compiler cannot notice when one stops being a
+   * sentence. Step 5's rename reached one of these and survived three passes
+   * over the file, because every sweep that looked for the corruption looked
+   * for it in comments.
+   *
+   * **A shape rather than a list.** An enumeration would have to be edited by
+   * whoever adds a message, which makes it a second place to be wrong; the
+   * shape is a property every message already had, and the one the corruption
+   * broke — a member expression carries a `.` and a `#`, and neither belongs in
+   * a sentence addressed to a consumer.
+   */
+  it('should name every fault in prose rather than in source syntax', async () => {
+    const messages = await diagnosticMessages();
+
+    expect(messages.length).toBeGreaterThan(20);
+    expect(
+      messages.filter(
+        ([, message]) =>
+          !/^drag: [a-z\d]+(?:-[a-z\d]+)*(?:\/[a-z\d]+(?:-[a-z\d]+)*)?(?: [a-z\d]+)*$/u.test(
+            message,
+          ),
+      ),
+    ).toEqual([]);
   });
 });

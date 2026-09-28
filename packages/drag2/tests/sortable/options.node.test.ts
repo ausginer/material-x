@@ -17,10 +17,12 @@
  * later pass re-adds, so every deletion below is asserted as a deletion *and*
  * paired with whatever answers in its place.
  *
- * The one surviving domain test is `landing({ duration })` against `Infinity`,
- * and it is here for a reason no other option has: the landing **holds the
- * settlement gate**, so an animation that never completes is an operation with
- * no terminal at all.
+ * `landing({ duration })` is the last numeric domain here, and every row it
+ * keeps is a deletion: the tail is an interpolation the kernel starts *after*
+ * the terminal, so no duration a consumer writes can withhold an operation's
+ * end. What judges one is the platform's `animate()`, at landing time, and a
+ * refusal reaches the consumer as a warning that changed nothing about the
+ * drop.
  */
 import { describe, expect, it } from 'vitest';
 import { assemble } from '../../src/sortable/assemble.ts';
@@ -86,17 +88,26 @@ describe('the required slots', () => {
   it('should not diagnose a missing axis with a library message', () => {
     // **Three checks deleted (D-77)**, because the required first argument is
     // a compile error when any of them is absent — asserted as such by the
-    // `@ts-expect-error` fixtures in `docs/revision/revision-2.ts`.
+    // `@ts-expect-error` fixtures in `tests/revision/revision-2.ts`.
     //
     // **A missing axis still fails, and the distinction is the point rather
     // than a leftover.** What the deleted check supplied was a *message*, not
-    // the failure: a JS consumer reaching here now meets the flat slot
-    // record's dereference of the resolver, which throws by itself. So the
-    // assertion is not "it stops throwing" — it is that the library no longer
-    // spends bytes restating what the type already refuses.
+    // the failure: a JS consumer reaching here meets their own native
+    // `TypeError` out of their own `sortable()` call, with no stage, no
+    // `DraggableError` and no `onError`. So the assertion is not "it stops
+    // throwing" — it is that the library no longer spends bytes restating what
+    // the type already refuses.
+    //
+    // **The site moved with D-146 and the message with it.** The key is called
+    // directly now rather than pushed into a list of installers, so an absent
+    // `axis` fails at the call instead of at the flat record's dereference of a
+    // resolver that never arrived — which names the offending key rather than
+    // reporting a null read three statements later. An axis that *is* a
+    // function and returns no geometry still fails at the dereference, inside
+    // the unwind bracket, which is the case D-77 left runtime.
     expect(() =>
       assemble(mergeFragments({} as unknown as SortableConfig, []), context),
-    ).toThrow(/Cannot read propert/u);
+    ).toThrow(/config\.axis is not a function/u);
 
     expect(() =>
       assemble(mergeFragments({} as unknown as SortableConfig, []), context),
@@ -160,15 +171,18 @@ describe('the merge', () => {
     ).toMatchObject({ items: config.items, onReorder: config.onReorder });
   });
 
-  it('should append plugins from the required argument and the fragments alike', () => {
-    const first = (): Record<string, never> => ({});
-    const second = (): Record<string, never> => ({});
+  it('should let a later fragment replace the displacement slot', () => {
+    // **There is no appending slot left.** `plugins` was the one position with
+    // unbounded arity and it went with the bracket it existed for, so every
+    // key — displacement included — is one writer and last-wins (D-157).
+    const first = (): never => null as never;
+    const second = (): never => null as never;
 
     expect(
-      mergeFragments({ ...required(), plugins: [first] }, [
-        { plugins: [second] },
-      ]).plugins,
-    ).toEqual([first, second]);
+      mergeFragments({ ...required(), displacement: first }, [
+        { displacement: second },
+      ]).displacement,
+    ).toBe(second);
   });
 });
 
@@ -177,15 +191,16 @@ describe('landing duration', () => {
     expect(() => landing()).not.toThrow();
   });
 
-  it('should accept zero, which still holds the gate through the runner', () => {
+  it('should accept zero, which the platform interpolates instantly', () => {
     expect(() => landing({ duration: 0 })).not.toThrow();
   });
 
   it('should no longer refuse a negative duration at construction', () => {
     // **Narrowed, not deleted (D-77).** What answers instead is `animate()`,
-    // which rejects a negative duration itself — measured, Chrome 150 — and
-    // arrives at the same `FAILURE_LANDING_CREATE` stage the library check
-    // would have reached.
+    // which rejects a negative duration itself — measured, Chrome 150. The
+    // refusal is raised where the tail starts, which is after the drop is
+    // decided and reported, so it reaches the consumer as a warning rather than
+    // as a failure of the operation (D-155).
     expect(() => landing({ duration: -1 })).not.toThrow();
   });
 
@@ -195,9 +210,10 @@ describe('landing duration', () => {
   });
 
   it('should not refuse Infinity at construction either', () => {
-    // The one surviving check moved **to the landing**, so both the fixed and
-    // the contextual form are tested at the same instant against the same
-    // value. Construction is no longer where any duration is judged.
+    // Construction judges no duration at all. An unbounded one is a
+    // contribution that never decays, on an element the library released
+    // before it started — the next activation cancels it, and so does
+    // `destroy()`.
     expect(() => landing({ duration: Number.POSITIVE_INFINITY })).not.toThrow();
   });
 
@@ -236,11 +252,9 @@ describe('layoutAnimation duration', () => {
   });
 
   it('should no longer refuse a negative duration', () => {
-    // **Deleted (D-77), and the difference from `landing({ duration })` is the
-    // rule working rather than an inconsistency.** This animation holds no
-    // gate and gates no terminal: it is registered in `running` and cancelled
-    // by `retire()`, so an unbounded one leaves displaced rows offset until
-    // the controller is destroyed and costs the library nothing.
+    // **Deleted (D-77).** This animation is registered in `running` and
+    // cancelled by `retire()`, so an unbounded one leaves displaced rows offset
+    // until the controller is destroyed and costs the library nothing.
     expect(() => layoutAnimation({ duration: -1 })).not.toThrow();
   });
 

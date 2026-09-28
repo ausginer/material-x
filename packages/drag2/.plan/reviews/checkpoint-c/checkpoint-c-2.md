@@ -217,7 +217,7 @@ Remove all token, deliverer and `abandon()` vocabulary from the live trace.
 The documents repeatedly reference:
 
 ```text
-packages/drag2/docs/revision/phase-14.ts
+packages/drag2/tests/revision/phase-14.ts
 ```
 
 and report that it contains:
@@ -234,7 +234,7 @@ This may simply mean the file is untracked and therefore absent from ordinary `g
 
 ```bash
 git status --short
-git diff --cached -- packages/drag2/docs/revision/phase-14.ts
+git diff --cached -- packages/drag2/tests/revision/phase-14.ts
 ```
 
 or provide an explicit new-file diff.
@@ -284,7 +284,7 @@ Let’s do one narrow consistency pass:
 2. Align I-35, F-46 and probe-13b closure claims with that decision.
 3. Specify and compile the exact request-identity publication/retirement path.
 4. Rewrite document 06 to remove all token-era state and duplicate consumer updates.
-5. Include `packages/drag2/docs/revision/phase-14.ts` in the review diff.
+5. Include `packages/drag2/tests/revision/phase-14.ts` in the review diff.
 6. Run typecheck and the existing suite again after the documentation/fixture corrections.
 
 Please raise a concern if the exact request publication forces `ResolutionCommand` to change. That would be a legitimate contract correction, not implementation scope creep.

@@ -93,7 +93,7 @@ If only the final screenshot exists, failures are hard to diagnose. If only tpro
 
 A reviewed baseline says "this approved rendering must not change without review." It does **not** say "this rendering is correct because it matches a file the same implementation produced." So initial and updated baselines are reviewed against passing behavior + spec contracts, the relevant Material/Figma reference, the intended `@ydinjs/material-x` theme, and expected environment changes. Baselines are committed artifacts, updated only via an explicit command, never in CI, and every changed baseline gets human review.
 
-Screenshots are valid only for a pinned environment (OS/container image, Chromium version, headless mode, device scale/viewport, fonts/icons, color scheme/theme, GPU config where it matters). The ordinary PR gate uses one pinned Chromium environment; local runs must use the same pinned image so developer output matches CI. Broader browser/platform runs are scheduled or manual until their baselines and maintenance cost are justified.
+Screenshots are valid only for a pinned environment (OS/container image, Chromium version, headless mode, device scale/viewport, fonts/icons, color scheme/theme, GPU config where it matters). The ordinary PR gate must use one pinned Chromium environment, and local runs must use the same pinned image so developer output matches CI — the image is owed rather than installed (`repo:RD-2`), so until it lands a baseline is only as reproducible as the container that wrote it. Broader browser/platform runs are scheduled or manual until their baselines and maintenance cost are justified.
 
 ## Avoiding false confidence
 
@@ -113,6 +113,30 @@ A tproc-backed contract proves the component selected the intended production pa
 
 Before updating a screenshot, inspect: the active tproc profile; contract ID and effective state path; expected token name and resolved value; actual public inputs and custom states; actual computed property or geometry; environment and font versions.
 
+## Run lifecycle
+
+**Every Vitest process this repository starts executes at most one test run.** A root run, a per-package run and an ordinary run started from the editor each start a process, run once, release their browser providers and end.
+
+- **The whole repository** runs in one process: `just test` from the root, against `vitest.config.ts`. It contributes the same projects the per-package configurations do, so the coverage is identical.
+- **One package** runs its own configuration unchanged: `cd packages/<name> && just test`.
+
+**Browser projects are serialized, one per `sequence.groupOrder`, assigned from 1.** When the first test module of a later group starts, every browser project in an earlier group has its provider closed and its Chromium exits — the earliest point at which the earlier group is provably finished. A project occupying the _final_ group is never released this way, because a boundary is another group starting; it is released when the process closes. Both paths return Chrome to its baseline before the process exits, and `MX_TEST_TEARDOWN_LOG=1` prints one line per boundary release.
+
+**Test watch and VS Code Continuous Run are retired**, and so is `vitest --watch` in any form for tests. A rerun would arrive in a process that has already released its browsers, so the modes that depend on one are withdrawn by intent rather than left to fail quietly. A second run raises before any module executes:
+
+```
+this Vitest process has already executed a test run. Test watch and VS Code
+Continuous Run are retired: every Vitest process this repository starts runs
+once, releases its browser providers and ends. Start a new process for the
+next run.
+```
+
+A run whose filter matches nothing does not spend the process's execution: Vitest emits a run start for it and executes nothing, so a mistaken filter followed by a real run still works.
+
+**Only _test_ watch is retired.** Build and development watch are untouched — `just docs-dev`, Vite's and tsdown's own watchers, and the CSS plugin's invalidation all remain, and repeated CSS generation on every rebuild is exactly what the per-generation evaluation isolate is built for.
+
+**The contract is declared, not detected.** No in-process signal separates an ordinary editor run from a continuous one — the editor creates Vitest with `watch: true` for both — so `watch` is not evidence of anything here. The contract is installed by a plugin in the shared factory rather than by a configured reporter, because `--reporter` replaces the configured list wholesale and would take the contract with it.
+
 ## Reproducibility and token-source maintenance
 
 `DB.load()` uses cached token payloads when available and otherwise downloads and caches upstream data. Normal CI and test execution must not silently refresh the source of truth — token refresh is an explicit maintenance operation with a reviewable diff, using the `use-tokens-db` skill for any `.data/tokens` access. Tests use tproc APIs and never read those files directly.
@@ -121,7 +145,9 @@ When token sources intentionally change: review tag/profile selection and proven
 
 ## CI policy
 
-Every pull request gates on: formatting, linting, typechecking; tproc node tests; behavior and accessibility browser tests; spec-contract browser tests; the curated Chromium visual suite. CI uploads screenshot actual/diff artifacts on failure and never commits or approves baselines.
+Every pull request must be gated on: formatting, linting, typechecking; tproc node tests; behavior and accessibility browser tests; spec-contract browser tests; the curated Chromium visual suite. CI uploads screenshot actual/diff artifacts on failure and never commits or approves baselines.
+
+**The gate is not installed yet.** This section states the requirement, not a mechanism that runs today: there is no pull-request workflow and no pinned verification image, so nothing here currently blocks a merge and local verification is what stands behind every change. What is owed, in what order, and what counts as done: [`repo:RD-2`](../../.plan/00-index.md).
 
 Scheduled or manual jobs may add the full visual state matrix, dark/contrast theme expansion, Firefox/WebKit behavior checks, RTL/zoom/forced-colors/reduced-motion resilience, and targeted accessibility-tree or manual AT validation. Coverage reports are diagnostic; a global percentage is not a substitute for the contract categories above.
 
@@ -132,6 +158,6 @@ The architecture is being adopted incrementally. Status is tracked in the tests 
 1. Finish moving `@ydinjs/material-x` tests from `src` into their mirrored `test` directories without behavior changes, then remove the old `src/**` includes.
 2. Grow the Node-side visual-contract registry and normalization adapters as components adopt the spec layer.
 3. Pilot findings from `button/spec-consistency.md` into executable tproc-backed assertions.
-4. Extend the curated visual matrix and CI gating.
+4. Extend the curated visual matrix, and build the pull-request gate and its pinned environment (`repo:RD-2`) — neither exists yet, so this is new work rather than an extension.
 5. Apply the shared convention to checkbox and radio, then migrate other components by family.
 6. Retire exploratory consistency documents once their evidence is captured by executable tests or retained as historical design context.

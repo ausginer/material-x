@@ -4,13 +4,14 @@
  *
  * The rule that shapes both: **intent is never recomputed from the latest
  * pointer position.** The exact identity gap the consumer was shown either
- * survives the replacement or the operation ends (I-14).
+ * survives the replacement or the operation ends.
  */
-import type {
-  CollectionSnapshot,
-  Insertion,
-  ReorderProposal,
-  ReorderRequest,
+import {
+  type CollectionSnapshot,
+  type Insertion,
+  insertionAt,
+  type ReorderProposal,
+  type ReorderRequest,
 } from './domain.ts';
 
 /** The incumbent gap survived, rebased into the replacement. */
@@ -23,64 +24,43 @@ export type CollectionChange =
   | Readonly<{ type: typeof CHANGE_CANCEL }>;
 
 /**
- * The collection's **identity precondition**, enforced at every boundary that
- * mints a snapshot.
- *
- * Element identity *is* the collection's key: `destinationOf` filters every
- * occurrence of the dragged item while `buildReorderProposal` takes `from`
- * from `indexOf`, the first. A duplicate therefore puts `from` and `to` in
- * index spaces of different size, and the `{ from, to }` pair handed to
- * `onReorder` cannot be applied coherently to the consumer's own array. There
- * is no correct behaviour to define for that input, so it is refused where the
- * caller can still see which call was wrong.
- *
- * Shallow-copies as it validates — one pass, one array, one set — because
- * every caller needs the copy anyway: a caller that keeps mutating its own
- * array must not be able to change a snapshot already queued.
- */
-export function copyUniqueItems(
-  items: readonly HTMLElement[],
-): readonly HTMLElement[] {
-  const copy = [...items];
-
-  if (new Set(copy).size !== copy.length) {
-    throw new TypeError(
-      'drag: the sortable collection must not contain the same element twice',
-    );
-  }
-
-  return copy;
-}
-
-/** The snapshot minus the dragged item, in order. */
-const destinationOf = (
-  snapshot: CollectionSnapshot,
-  dragged: HTMLElement,
-): readonly HTMLElement[] => snapshot.items.filter((item) => item !== dragged);
-
-/**
  * The four survival rules, by gap kind. `dragged` must remain in `next`;
  * callers classify its removal separately, because that is a different
  * cancellation reason.
+ *
+ * **The arms decide; they do not also construct.** Each keeps its own survival
+ * test, which is not the constructor's to hold, and then hands the surviving
+ * gap's index to {@link insertionAt} over `next`'s destination view. The
+ * neighbours an arm could carry across from the incumbent are exactly the ones
+ * the rule derives, which is precisely what the test above each call has just
+ * established.
+ *
+ * **One input where the rule and these tests disagree.** An incumbent with
+ * `before` and `after` both `null` is the gap of a single-item collection: the
+ * rule builds it, and `placeholderAt` reads it as trivially occupied. The
+ * start-gap test refuses it, because there is no first destination item for
+ * `after` to remain — so a publication during a one-item drag cancels the
+ * operation. Whether it should is a **survival** question, not a construction
+ * one, and is not decided here.
  */
 export function reconcileCollection(
   next: CollectionSnapshot,
   dragged: HTMLElement,
   incumbent: Insertion | null,
 ): CollectionChange {
-  if (incumbent === null) {
+  if (!incumbent) {
     return { type: CHANGE_CANCEL };
   }
 
-  const destination = destinationOf(next, dragged);
+  const destination = next.items.filter((item) => item !== dragged);
   const { before, after } = incumbent;
 
   // A start gap survives only while `after` remains the first destination item.
-  if (before === null) {
-    if (after !== null && destination[0] === after) {
+  if (!before) {
+    if (after && destination[0] === after) {
       return {
         type: CHANGE_REBASE,
-        insertion: { version: next.version, index: 0, before: null, after },
+        insertion: insertionAt(destination, 0, next),
       };
     }
 
@@ -88,16 +68,11 @@ export function reconcileCollection(
   }
 
   // An end gap survives only while `before` remains the last destination item.
-  if (after === null) {
+  if (!after) {
     if (destination[destination.length - 1] === before) {
       return {
         type: CHANGE_REBASE,
-        insertion: {
-          version: next.version,
-          index: destination.length,
-          before,
-          after: null,
-        },
+        insertion: insertionAt(destination, destination.length, next),
       };
     }
 
@@ -110,12 +85,7 @@ export function reconcileCollection(
   if (beforeIndex >= 0 && destination[beforeIndex + 1] === after) {
     return {
       type: CHANGE_REBASE,
-      insertion: {
-        version: next.version,
-        index: beforeIndex + 1,
-        before,
-        after,
-      },
+      insertion: insertionAt(destination, beforeIndex + 1, next),
     };
   }
 
@@ -126,9 +96,23 @@ export function reconcileCollection(
  * The gap the dragged item itself occupies, with **real identity neighbours**.
  *
  * Recomputed from the snapshot rather than stored, so it needs no per-operation
- * slot and cannot go stale against a replacement: removing the item from the
- * full list leaves its own index as the destination gap, whose neighbours are
- * the item's own neighbours (D-27, F-31).
+ * slot and cannot go stale against a replacement.
+ *
+ * **This is {@link insertionAt} over a destination view it never
+ * materializes.** Removing the item from the full list leaves every earlier
+ * element where it was and shifts every later one down by one, so the gap at
+ * the item's own index reads `items[from - 1]` and `items[from + 1]` — the
+ * rule's two ends, evaluated without the array. It is the one site that does
+ * not call the owner, because it is the one site that would have to
+ * **allocate** a destination view to call it with, and seeding home stays free
+ * of that. The identity is held by `tests/sortable/insertion.browser.test.ts`
+ * exhaustively instead of by this paragraph.
+ *
+ * **The equivalence has a precondition and it is the collection's own**: the
+ * element distinctness `SortableConfig.items` publishes. `indexOf` finds one
+ * occurrence where a filtered view drops them all, so on a duplicated
+ * collection the two spellings diverge. That input is outside the contract
+ * rather than handled here, and nothing detects it.
  */
 export function homeInsertion(
   snapshot: CollectionSnapshot,
@@ -156,12 +140,32 @@ export type ProposalBuild = Readonly<{
 
 /**
  * Every request field derives from **one** immutable, version-matching
- * snapshot: mixed-version arithmetic is invalid, and a gap whose captured
- * neighbours no longer match the snapshot fails construction rather than
- * producing a request the consumer would apply to a different ordering.
+ * snapshot: mixed-version arithmetic is invalid, so a gap carrying another
+ * version fails construction rather than producing a request the consumer would
+ * apply to a different ordering.
  *
- * `null` is a broken invariant, not a no-op — the caller turns it into a
- * `SeamRejection`.
+ * `null` is a broken invariant, not a no-op — the caller throws on it, and the
+ * release seam classifies the throw at its own stage.
+ *
+ * **Neither neighbours nor range are checked here.** Both tests would read an
+ * `Insertion` the library itself did not build: `InsertionGeometry.resolve` is
+ * published at the middle tier, so a version-matching gap can arrive from
+ * third-party axis code. The axis author **satisfies** the term instead —
+ * `insertionAt` is published from `sortable/feature.js` beside the type and the
+ * obligation, so the one construction rule is the author's too, and `index` is
+ * documented there as a gap position in the destination view. A gap whose
+ * neighbours are not the destination view's, or whose index is outside
+ * `0 .. length`, is not a conforming contribution, and nothing here detects
+ * one: the request carries the author's own `before`/`after` onward to the
+ * consumer.
+ *
+ * **No destination view is materialized either**, which is the measurable half:
+ * it would exist on the release path solely to re-derive two neighbours and a
+ * length that are taken from the insertion, so this function allocates nothing.
+ *
+ * The two tests that remain are about the pair `(snapshot, insertion)` and
+ * survive on their own terms — a mixed-version gap is arithmetic over two
+ * different orderings, and an item the snapshot does not hold has no `from`.
  */
 export function buildReorderProposal(
   snapshot: CollectionSnapshot,
@@ -178,20 +182,7 @@ export function buildReorderProposal(
     return null;
   }
 
-  const destination = destinationOf(snapshot, item);
-  const { index } = insertion;
-
-  if (index < 0 || index > destination.length) {
-    return null;
-  }
-
-  const before = destination[index - 1] ?? null;
-  const after = destination[index] ?? null;
-
-  if (before !== insertion.before || after !== insertion.after) {
-    return null;
-  }
-
+  const { index, before, after } = insertion;
   const request: ReorderRequest = {
     item,
     version: snapshot.version,

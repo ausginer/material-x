@@ -40,9 +40,16 @@ debug FILE:
 # Tests
 # ---------------------------------------------------------------------------
 
-# Run all tests across all packages
-test:
-    nx run-many -t test --projects=box-quad,core,tproc,material-x --skipNxCache
+# Run every test in the repository, in one Vitest process.
+#
+# One process rather than a package fan-out: Nx never ordered tests — its
+# `targetDefaults` carry no `test` key — so it contributed scheduling and
+# nothing else, while a fan-out pays a Chromium and a CSS evaluation isolate per
+# package. The root configuration contributes the same 15 projects the seven
+# per-package configurations do, so coverage is unchanged. Per-package runs stay
+# available: `cd packages/<name> && just test`.
+test *ARGS:
+    vitest run {{ ARGS }}
 
 # ---------------------------------------------------------------------------
 # Bundle size
@@ -50,7 +57,7 @@ test:
 
 # Check bundle-size budgets for all measured packages
 size:
-    nx run-many -t size --projects=core,drag --skipNxCache
+    nx run-many -t size --projects=box-quad,core,drag,drag2 --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Type checking
@@ -58,31 +65,39 @@ size:
 
 # Type-check all packages
 typecheck:
-    nx run-many -t typecheck --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t typecheck --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Formatting
 # ---------------------------------------------------------------------------
 
-# Format all packages
+# Format every package, then the repository-level files no package owns.
+# One authority over the whole tree: `oxfmt` writes every file type it
+# supports, Markdown included, so no file is offered to a second formatter.
 fmt:
-    nx run-many -t fmt --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t fmt --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    oxfmt . '!packages/**'
 
-# Check formatting for all packages without writing
+# Check formatting everywhere without writing — the same single authority
 fmt-check:
-    nx run-many -t fmt:check --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t fmt:check --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    oxfmt --check . '!packages/**'
 
 # ---------------------------------------------------------------------------
 # Linting
 # ---------------------------------------------------------------------------
 
-# Lint all packages
+# Lint every package, then the repository-level files no package owns
 lint:
-    nx run-many -t lint --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t lint --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    oxlint --ignore-pattern 'packages/**' .
+    eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --ignore-pattern 'packages/**' .
 
-# Lint and auto-fix all packages
+# Lint and auto-fix everywhere
 lint-fix:
-    nx run-many -t lint:fix --projects=box-quad,core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t lint:fix --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    oxlint --fix --ignore-pattern 'packages/**' .
+    eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --ignore-pattern 'packages/**' --fix .
 
 # ---------------------------------------------------------------------------
 # Misc
@@ -91,3 +106,7 @@ lint-fix:
 # Migrate oxlint config
 oxlint-migrate:
     node .scripts/oxlint-migrate.ts
+
+# Walk a cants call graph from a root callable — `just calls --help` for options
+calls *ARGS:
+    node .scripts/call-graph.ts {{ ARGS }}

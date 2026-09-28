@@ -17,7 +17,7 @@
  */
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { LiftMode } from '../kernel/presentation.ts';
-import type { LandingStart } from '../kernel/spec.ts';
+import type { LandingTiming } from '../shared/composition.ts';
 import type {
   FreeDragOnDragError,
   FreeDragOnEnd,
@@ -26,20 +26,20 @@ import type {
   ResolveElement,
   ResolveHandle,
 } from './config.ts';
-import type { AxisSource, DragAxis, OnDrop, ResolveHome } from './domain.ts';
+import type { DragAxis, OnDrop, ResolveHome } from './domain.ts';
 import type { MotionConstraint } from './feature.ts';
 
-/** Parity: the shipped activation travel, and the sortable's own default. */
+/** `@ydinjs/drag`'s activation travel, and the sortable's own default. */
 export const DEFAULT_THRESHOLD = 8;
-/** Parity: `'both'`. Two comparisons on the hot path and no state (D-70). */
+/** Matches `@ydinjs/drag`. Two comparisons on the hot path, no state. */
 export const DEFAULT_AXIS: DragAxis = 'both';
 
 export type FreeDragSlots = Readonly<{
   onDrop: OnDrop;
 
-  getHandle: ResolveHandle | null;
-  getVisual: ResolveElement | null;
-  getHome: ResolveHome | null;
+  handle: ResolveHandle | null;
+  visual: ResolveElement | null;
+  home: ResolveHome | null;
 
   onStart: FreeDragOnStart | null;
   onMove: OnMove | null;
@@ -47,19 +47,19 @@ export type FreeDragSlots = Readonly<{
   onError: FreeDragOnDragError | null;
 
   /**
-   * The scalar **or** the source, unresolved (D-71). Resolving it here would
-   * make it construction-time policy; the behavior reads it at activation and
-   * on `invalidate()`, which is what makes it live.
+   * Fixed configuration, not a source. Its value is applied to accumulated
+   * travel rather than to the present position, which is the property that
+   * makes a live one a command rather than policy.
    */
-  axis: DragAxis | AxisSource;
+  axis: DragAxis;
   threshold: number;
   liftMode: LiftMode;
 
   /** `null` when no `bounds()` and no third-party constraint was installed. */
   constrain: MotionConstraint | null;
   /** `null` when no landing is installed: the visual is released without animating. */
-  startLanding: LandingStart | null;
+  landingTiming: LandingTiming | null;
 
-  /** Reverse installation order, ready to run (D-57). */
+  /** Installation order; every reader walks it backwards. */
   retireHooks: readonly Disposer[];
 }>;

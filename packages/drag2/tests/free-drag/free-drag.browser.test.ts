@@ -19,21 +19,27 @@ import { describe, expect, it } from 'vitest';
 import { bounds } from '../../src/free-drag/bounds.ts';
 import { landing } from '../../src/free-drag/landing.ts';
 import {
+  CANCEL_ABORTED,
+  CANCEL_FAILED,
+  CANCEL_INTERRUPTED,
+  CANCEL_SUPPLIED,
   FreeDragResolution,
   freeDrag,
   type FreeDragController,
 } from '../../src/free-drag.ts';
 import {
   activate,
+  cancelPointer,
   escape,
   freeDragHarness,
+  losePointerCapture,
   move,
   press,
   release,
   settled,
 } from '../support/free-drag.ts';
 
-const { compose, own, reported } = freeDragHarness();
+const { compose, own } = freeDragHarness();
 
 describe('the minimal composition', () => {
   it('should start on a press that crosses the threshold', () => {
@@ -52,7 +58,8 @@ describe('the minimal composition', () => {
 
     activate(composed);
 
-    expect(composed.starts[0]!.viewportDelta).toEqual({ x: 20, y: 0 });
+    expect(composed.starts[0]!.viewportDeltaX).toBe(20);
+    expect(composed.starts[0]!.viewportDeltaY).toBe(0);
   });
 
   it('should place the visual at that delta rather than at zero', () => {
@@ -96,7 +103,7 @@ describe('the minimal composition', () => {
     move(50, 40);
 
     for (const geometry of composed.moves) {
-      seen.push([geometry.viewportDelta.x, geometry.viewportDelta.y]);
+      seen.push([geometry.viewportDeltaX, geometry.viewportDeltaY]);
     }
 
     expect(seen).toEqual([[40, 30]]);
@@ -140,7 +147,8 @@ describe('the minimal composition', () => {
     move(50, 40);
     release(90, 60);
 
-    expect(composed.requests[0]!.viewportDelta).toEqual({ x: 80, y: 50 });
+    expect(composed.requests[0]!.viewportDeltaX).toBe(80);
+    expect(composed.requests[0]!.viewportDeltaY).toBe(50);
   });
 
   it('should carry the subject on the request', () => {
@@ -192,21 +200,6 @@ describe('the minimal composition', () => {
     expect(composed.ends).toHaveLength(1);
   });
 
-  it('should treat an invalid resolution as an error, never an acceptance', async () => {
-    const composed = compose({
-      onDrop: () =>
-        42 as unknown as ReturnType<typeof FreeDragResolution.accept>,
-    });
-
-    activate(composed);
-    release(30, 10);
-    await settled();
-
-    expect(composed.errors).toHaveLength(1);
-    expect(composed.ends).toHaveLength(1);
-    expect(composed.ends[0]!.type).toBe('canceled');
-  });
-
   it('should publish exactly one canceled terminal for an Escape', async () => {
     const composed = compose();
 
@@ -239,7 +232,7 @@ describe('the minimal composition', () => {
     release(50, 40);
     await settled();
 
-    expect(reported()).toEqual([]);
+    expect(composed.errors).toEqual([]);
   });
 });
 
@@ -253,39 +246,17 @@ describe('the axis policy', () => {
     expect(composed.rendered()).toEqual([40, 0]);
   });
 
-  it('should read a source at activation rather than per sample', () => {
-    let reads = 0;
-    const composed = compose({
-      config: {
-        axis: () => {
-          reads += 1;
-          return 'y';
-        },
-      },
-    });
-
-    activate(composed);
-    move(50, 40);
-    move(60, 50);
-
-    expect(reads).toBe(1);
-    expect(composed.rendered()).toEqual([0, 40]);
-  });
-
-  it('should re-read the source on invalidate()', () => {
-    let axis: 'both' | 'x' | 'y' = 'x';
-    const composed = compose({ config: { axis: () => axis } });
-
-    activate(composed);
-    move(50, 40);
-    expect(composed.rendered()).toEqual([40, 0]);
-
-    axis = 'y';
-    composed.controller.invalidate();
-    move(60, 50);
-
-    expect(composed.rendered()).toEqual([0, 40]);
-  });
+  /**
+   * ~~`should read a source at activation rather than per sample`~~ and
+   * ~~`should re-read the source on invalidate()`~~ are **deleted with
+   * `AxisSource`** (D-148). An axis is applied to travel already accumulated,
+   * so a live one reinterprets every pixel since the grab instead of changing
+   * what happens next — which makes the safe version of it a re-basing command,
+   * and D-71 already decided that a controlled position is not policy. The
+   * per-sample case the two rows served — a modifier-key lock — is a `bounds`
+   * installer, whose clamp applies to the present position; `bounds()`'s own
+   * suite below is where that lives.
+   */
 
   it('should complete a normal unconstrained drag for an unknown axis string', async () => {
     // The **silent** table: an unknown value falls through to unconstrained
@@ -307,7 +278,6 @@ describe('the axis policy', () => {
 
     expect(composed.ends[0]!.type).toBe('accepted');
     expect(composed.errors).toEqual([]);
-    expect(reported()).toEqual([]);
   });
 });
 
@@ -418,7 +388,8 @@ describe('moveTo()', () => {
     composed.controller.moveTo({ x: origin.left + 60, y: origin.top });
     release(30, 10);
 
-    expect(composed.requests[0]!.viewportDelta).toEqual({ x: 60, y: 0 });
+    expect(composed.requests[0]!.viewportDeltaX).toBe(60);
+    expect(composed.requests[0]!.viewportDeltaY).toBe(0);
   });
 });
 
@@ -553,19 +524,113 @@ describe('construction', () => {
     expect(controller.invalidate).toBeTypeOf('function');
   });
 
-  it('should refuse two installers claiming the motion constraint', () => {
-    // The package's one construction-time throw, in this behavior's spelling:
-    // an invariant over what installers *contribute*, which no signature can
-    // state.
-    const item = document.createElement('div');
+  // ~~*should refuse two installers claiming the motion constraint*~~ —
+  // **deleted 2026-08-27** (D-146). It was the package's one construction-time
+  // throw, and the invariant it enforced — one writer per unique slot — is now
+  // stated by the types: `constrain` is declared on the `bounds` key's group
+  // and on no other, so `plugins: [bounds().bounds!]` does not compile. The
+  // replacement is `tests/free-drag/feature.declaration.test.ts` — *should
+  // refuse a unique slot from the unbounded position*.
+});
 
-    document.body.append(item);
-    own(() => item.remove());
+/**
+ * **Cancellation provenance, through the public surface** (D-154).
+ *
+ * A free drag mints no `reason` of its own, so `origin` is the whole of what
+ * this behavior can say about who decided — which makes the mapping the entire
+ * contract rather than half of it.
+ */
+describe('cancellation provenance', () => {
+  it('should mark a consumer cancel as supplied', async () => {
+    const composed = compose();
 
-    expect(() =>
-      freeDrag(item, { onDrop: () => FreeDragResolution.accept() }, bounds(), {
-        plugins: [bounds().bounds!],
-      }),
-    ).toThrow(/contributed twice/u);
+    activate(composed);
+    composed.controller.cancel('by hand');
+    await settled();
+
+    expect(composed.ends[0]).toMatchObject({
+      reason: 'by hand',
+      origin: CANCEL_SUPPLIED,
+    });
+  });
+
+  it('should mark Escape as aborted', async () => {
+    const composed = compose();
+
+    activate(composed);
+    escape();
+    await settled();
+
+    expect(composed.ends[0]).toMatchObject({ origin: CANCEL_ABORTED });
+  });
+
+  it('should carry no reason for an Escape', async () => {
+    // The kernel supplies no value for a cause it decided itself, so there is
+    // nothing here a consumer could compare against.
+    const composed = compose();
+
+    activate(composed);
+    escape();
+    await settled();
+
+    expect(composed.ends[0]).toMatchObject({ reason: undefined });
+  });
+
+  it('should mark a cancelled pointer as interrupted', async () => {
+    const composed = compose();
+
+    activate(composed);
+    cancelPointer(30, 10);
+    await settled();
+
+    expect(composed.ends[0]).toMatchObject({ origin: CANCEL_INTERRUPTED });
+  });
+
+  it('should mark lost pointer capture as interrupted', async () => {
+    // **The pair the decision is argued from, pinned in the behavior whose
+    // provenance is entirely `origin`.** The kernel routes both DOM spellings
+    // through one shared `case`; without this row the free-drag suite stays
+    // green against a kernel that splits them, which is the one mutation the
+    // other two suites catch and this one did not.
+    const composed = compose();
+
+    activate(composed);
+    losePointerCapture(30, 10);
+    await settled();
+
+    expect(composed.ends[0]).toMatchObject({ origin: CANCEL_INTERRUPTED });
+  });
+
+  it('should mark a classified failure as failed', async () => {
+    // The terminal says `canceled` and `reason` holds the caught throw. Without
+    // `origin` that is indistinguishable from a consumer who cancelled with an
+    // `Error` in hand.
+    const failure = new Error('resolver');
+    const composed = compose({
+      onDrop: () => {
+        throw failure;
+      },
+    });
+
+    activate(composed);
+    release(30, 10);
+    await settled();
+
+    expect(composed.ends[0]).toMatchObject({
+      reason: failure,
+      origin: CANCEL_FAILED,
+    });
+  });
+
+  it('should not let a supplied reason forge an origin', () => {
+    const composed = compose();
+
+    activate(composed);
+    composed.controller.cancel(CANCEL_ABORTED);
+
+    expect(composed.ends[0]).toMatchObject({
+      reason: CANCEL_ABORTED,
+      origin: CANCEL_SUPPLIED,
+    });
   });
 });

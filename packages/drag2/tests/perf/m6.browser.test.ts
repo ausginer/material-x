@@ -45,7 +45,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { commands } from 'vitest/browser';
 import type {
   ConstraintView,
-  FreeDragInstaller,
+  ConstraintInstaller,
   MotionDraft,
 } from '../../src/free-drag/feature.ts';
 import {
@@ -144,7 +144,7 @@ function census(): Census {
 
   // A constraint that clamps nothing: the census counts `apply` calls, and a
   // clamp would change where the visual goes without changing the count.
-  const counting: FreeDragInstaller = () => ({
+  const counting: ConstraintInstaller = () => ({
     constrain: {
       apply(_motion: MotionDraft, view: ConstraintView): void {
         applies += 1;

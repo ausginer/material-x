@@ -1,37 +1,63 @@
 /**
  * The flat slot record the behavior actually calls, and the consumer-declared
- * views features describe their inputs with (D-13).
+ * views features describe their inputs with.
  *
- * Phase 7's `assemble()` produces a `SortableSlots`; phase 6 takes one as an
- * argument. Nothing here knows what a feature is: by the time the behavior runs,
- * the contribution objects are gone and only these fields and their closures
- * exist.
+ * The assembler produces a `SortableSlots` and the behavior takes one as an
+ * argument. Nothing here knows what a feature is: by the time the behavior
+ * runs, the contribution objects are gone and only these fields and their
+ * closures exist.
  *
- * The shape is deliberately flat — `slots.resolveInsertion(...)` is one property
- * read and one call. The assembler flattens all four of `InsertionGeometry`'s
- * members — `resolve`, `invalidate`, the optional `measure`, and `retire` into
- * the unwind list — so the pairing is a construction-time claim rather than a
+ * The shape is deliberately flat — `slots.resolveInsertion(...)` is one
+ * property read and one call. The assembler flattens every member of
+ * `InsertionGeometry` — `resolve`, `invalidate`, `moved`, and `retire` into the
+ * unwind list — so the pairing is a construction-time claim rather than a
  * hot-path indirection.
  */
-import type { DraggableError } from '../kernel/errors.ts';
+import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
 import type { Disposer } from '../kernel/lifetimes.ts';
-import type { DOMRealm } from '../kernel/realm.ts';
-import type { LandingStart } from '../kernel/spec.ts';
+import type { InheritedSpace } from '../kernel/presentation.ts';
+import type { LandingTiming } from '../shared/composition.ts';
 import type { ItemSource, SortableOnEnd } from './config.ts';
-import type {
-  CollectionSnapshot,
-  SortableErrorContext,
-  Insertion,
-  OnReorder,
-} from './domain.ts';
-import type { PlaceholderSlot } from './placement.ts';
+import type { CollectionSnapshot, Insertion, OnReorder } from './domain.ts';
+import type { PlaceholderFactory } from './placement.ts';
+import type { DisplacementSettle } from './rect-index.ts';
+
+/**
+ * **One element a committed move displaced, and the vector it travelled,
+ * negated.**
+ *
+ * Passed *into* the axis rather than returned from it, so a composition with no
+ * displacement sink constructs nothing on a committed move: the axis takes
+ * `null` and never enters the walk. The vector is negated because that is what
+ * an inverse-FLIP contribution starts from — the element jumped by `+v`, so a
+ * contribution of `-v` decaying to zero shows it travelling.
+ *
+ * `live` reports whether the controller is still alive, and the sink reads it
+ * at the head of every call. Starting a contribution is a consumer call — both
+ * `animate()` and the `finished` accessor on what it returns are overridable —
+ * so a reading taken before the walk says nothing about the calls inside it,
+ * and only the party making those calls can take the readings between them.
+ *
+ * **`space` is the units the vector is in, so a report states its own.** The
+ * vector is a viewport quantity and a `translate` is not, so a sink writing one
+ * has to project; `space` is the inverse of the linear part the collection
+ * inherits, or `null` when that is the identity and the two coincide. It rides
+ * with the vector rather than being read once and held, so there is no interval
+ * over which it must stay valid and nothing for the sink to invalidate.
+ */
+export type DisplacementReport = (
+  element: HTMLElement,
+  dx: number,
+  dy: number,
+  live: () => boolean,
+  space: InheritedSpace,
+) => void;
 
 /**
  * The fields an axis rule may read off the frame. **The behavior passes
- * whichever frame its seam was handed** — `Draft<Part>` inside a `prepare`,
- * `Readonly<Frame<Part>>` inside an `effect` — and structural typing does the
- * rest, so no view is ever materialized and neither `y.ts` nor `xy.ts` imports
- * the kernel slice or the behavior's part to say what it needs.
+ * whichever frame its seam was handed** — a draft inside a `prepare`, a
+ * readonly frame inside an `effect` — and structural typing does the rest, so
+ * no view is ever materialized.
  *
  * **This is the widest view, not the required one.** A feature declares its own
  * narrower view in its own module and the behavior's frame satisfies both:
@@ -41,25 +67,25 @@ import type { PlaceholderSlot } from './placement.ts';
 export type InsertionFrameView = Readonly<{
   insertion: Insertion | null;
   /**
-   * **Added in Phase 17**, for the two-dimensional rule (L-8). It is the second
-   * widening of this view — 8a added `item` — and it was additive both times,
-   * with the behavior's existing frame satisfying it structurally and no import
-   * edge appearing back to the runtime. D-13's mechanism generalized; what the
-   * two data points show is that the view is a *growing* structural contract
-   * rather than a fixed one.
+   * **The collection the gap indexes into**, or `null` before a lift.
+   *
+   * It is the frame's own committed snapshot: a value a gap may be resolved
+   * and version-stamped against, and one that does not move underneath a rule
+   * holding it.
    */
+  snapshot: CollectionSnapshot | null;
+  /** Read by the two-dimensional rule; `y()` ignores it. */
   pointerX: number;
   pointerY: number;
   /**
-   * The dragged item. **A deviation from the contract's two-field sketch**, and
-   * a necessary one: the destination view is the collection minus the dragged
-   * item, and an axis rule that cannot exclude it measures a lifted element
-   * whose centre tracks the pointer — so it would win every search and pin the
-   * gap to its own slot.
+   * The dragged item, or `null` before a lift. The destination view is the
+   * collection minus this item, and an axis rule that cannot exclude it
+   * measures a lifted element whose centre tracks the pointer — so it would win
+   * every search and pin the gap to its own slot.
    *
-   * Read off the frame rather than added to `InsertionRuntimeView`, because the
-   * item is already committed frame state. Duplicating it onto the per-operation
-   * view would create a second copy that a future seam could let drift.
+   * It is read off the frame rather than off {@link InsertionRuntimeView}: the
+   * item is already committed frame state, and duplicating it onto the
+   * per-operation view would create a second copy that could drift.
    */
   item: HTMLElement | null;
 }>;
@@ -71,118 +97,57 @@ export type InsertionFrameView = Readonly<{
  * per-controller is `placeholder`, which cannot be non-null before activation.
  */
 export type InsertionRuntimeView = Readonly<{
-  snapshot: CollectionSnapshot;
   placeholder: HTMLElement;
   /**
    * The installed `box` resolver, or `null` when the config names neither `box`
    * nor `visual`.
    *
-   * **The axis rule measures candidate boxes, not candidate visuals** (D-58,
-   * superseding parity D2's choice of node while keeping its reasoning). D2's
-   * argument was coherence — the incumbent every candidate is compared against
-   * is the placeholder, so both sides of the comparison must be the same kind
-   * of rect — and it chose `visual` only because no `box` concept existed. It
-   * does now, the placeholder occupies the **box's** removed footprint (D-43),
-   * and so `box` is what the comparison has to be on. Leaving candidates on
-   * `visual` would measure the incumbent one way and its challengers another:
-   * a hysteresis defect, not a rounding one, and api-1 measured the two 30 px
-   * apart.
+   * **The axis rule measures candidate boxes, not candidate visuals.** The
+   * incumbent every candidate is compared against is the placeholder, and the
+   * placeholder occupies the **box's** removed footprint, so both sides of the
+   * comparison are the same kind of rect. Measuring candidates as visuals
+   * instead measures the incumbent one way and its challengers another, which
+   * is a hysteresis defect rather than a rounding one.
    *
-   * Under the default `box === visual` nothing changes, so the common case is
+   * Under the default `box === visual` the two coincide, so the common case is
    * untouched.
    *
    * Nullable rather than normalized to identity, because the minimal
    * composition names neither slot and would otherwise pay an identity call per
    * candidate per rebuild.
    */
-  getBox: ((item: HTMLElement) => HTMLElement) | null;
+  box: ((item: HTMLElement) => HTMLElement) | null;
   /**
-   * Whether the controller is still alive (I-36).
+   * Whether the controller is still alive.
    *
-   * **The fourth additive widening of a consumer-declared view** — 8a `item`,
-   * 17 `pointerX`, D2 `getVisual`, now this — and the per-operation view is the
-   * designated channel for exactly this kind of per-operation behavior
-   * guarantee. An axis rule that calls `getVisual` per candidate is calling
-   * consumer code in a loop, and a resolver may destroy the controller; the
-   * loop is feature-private, so the reading has to arrive as data.
-   *
-   * Read only between resolver calls, never on a warm cache.
+   * An axis rule that resolves a box per candidate is calling consumer code in
+   * a loop, and such a call may destroy the controller; the loop is
+   * feature-private, so the reading has to arrive as data. Read only between
+   * resolver calls, never on a warm cache.
    */
   live(): boolean;
   /**
-   * The destination gap of the placeholder move currently being bracketed, or
-   * `null` outside a bracket — the **same field, on the same per-operation
-   * object**, that `DisplacementView.insertion` already publishes to the
-   * displacement hooks.
+   * **The installed displacement sink's settle walk**, or `null` when no
+   * displacement feature is composed.
    *
-   * **The sixth additive widening of a consumer-declared view** — 8a `item`,
-   * 17 `pointerX`, D2 `getVisual`, C2-01 `live`, C4-01 `live` on the
-   * displacement side, now this — and the whole contract cost of P-06 (D-100
-   * §The contract cost). The behavior's per-operation object satisfies it
-   * already: `runtime.ts` declares `insertion: Insertion | null` and the
-   * committed-move bracket writes it before `measureInsertion` is reached, so
-   * there is no wrapper, no allocation and no import edge back to the runtime.
-   *
-   * **It is a reason signal, not a convenience.** `measureInsertion` has
-   * exactly one call site, so an axis rule that sees a non-null gap here knows
-   * a committed move just happened — which is what let P-06 stay inside one
-   * additive field instead of widening `invalidateInsertion` with a reason
-   * argument. `frame.insertion` could not do it: the frame's insertion outlives
-   * the bracket, and it is being *inside* the bracket that the fast path needs
-   * to establish.
-   *
-   * An axis rule that ignores it is unaffected, which is what `xy()` does.
+   * An axis hands it the buffer a rebuild has just measured and gets *settled*
+   * geometry back, rather than where an animation currently draws each row. It
+   * reads no layout, so a rebuild that runs mid-flight costs one call and
+   * nothing per candidate — and no contribution ever has to be released so that
+   * something can measure.
    */
-  insertion: Insertion | null;
+  settle: DisplacementSettle | null;
+  /**
+   * **The inverse of the linear part the collection inherits**, or `null` for
+   * an untransformed ancestry — the projection that turns a viewport
+   * displacement into the `translate` a sink writes.
+   *
+   * Passed straight on to {@link DisplacementReport}; the axis owns the vector
+   * and never the units. It is a fact about the ancestry at grab, captured once
+   * at activation from the measurement the lift already took.
+   */
+  space: InheritedSpace;
 }>;
-
-export type DisplacementView = Readonly<{
-  realm: DOMRealm;
-  snapshot: CollectionSnapshot;
-  placeholder: HTMLElement;
-  /**
-   * The dragged item, so a displacement feature can exclude it.
-   *
-   * Membership in `snapshot` cannot do it — the dragged item *is* a member —
-   * and nothing else identifies it: the element the lift owns is not reachable
-   * from here. It matters because the placeholder is inserted immediately after
-   * the item, so **the dragged item is the first sibling of every backward
-   * span**; a displacement that animates it fights the lift for the element the
-   * kernel owns. Same widening, same reason, as `InsertionFrameView.item`.
-   */
-  item: HTMLElement;
-  /**
-   * The gap the placeholder is moving **to**. Meaningful only inside the
-   * bracket — the hooks are the only readers, and they run nowhere else.
-   *
-   * This is M-4's answer made expressible (`.plan/measurements/
-   * q7.md`). Without it a displacement feature cannot know which elements the
-   * move affects until after the write, so it has to measure the whole
-   * destination view twice: 2.3ms per committed move at 800 rows, against
-   * 0.16ms for the span the move actually touches. The endpoints are what turn
-   * an O(list) bracket into an O(distance) one.
-   */
-  insertion: Insertion;
-  /**
-   * Whether the controller is still alive (I-36).
-   *
-   * **The fifth additive widening of a consumer-declared view**, and the first
-   * on the displacement side — 8a `item`, 17 `pointerX`, D2 `getVisual`, C2-01
-   * `live` on `InsertionRuntimeView`, now this. C2-01 §9.5 recorded that the
-   * per-operation view is the designated channel for exactly this kind of
-   * per-operation behavior guarantee, so the fifth is a routine act.
-   *
-   * It is needed because a displacement hook measures **consumer-owned rows**
-   * in a loop and then animates them: `getBoundingClientRect()` and `animate()`
-   * on a consumer's element are consumer calls under I-36's indirect-invocation
-   * clause, and the behavior cannot guard the interior of a hook it only calls
-   * (C4-01). The same object already carries `live` for the axis rule, so this
-   * costs one property in a type and nothing at runtime.
-   */
-  live(): boolean;
-}>;
-
-export type DisplacementHook = (view: DisplacementView) => void;
 
 export type SortableSlots = Readonly<{
   /* required, filled by the axis feature */
@@ -197,71 +162,68 @@ export type SortableSlots = Readonly<{
    */
   invalidateInsertion(): void;
   /**
-   * "Re-read your geometry **now**", or `null` when the axis feature offers no
-   * eager path.
-   *
-   * The counterpart to the lazy invalidation above, and it exists for exactly
-   * one instant: inside the committed-move bracket, after the placeholder has
-   * been written and after every displacement feature has released its visual
-   * offsets. That is the only window in an active drag in which a read yields
-   * **settled presentation geometry**, and the axis rule is defined against
-   * that (contract 03). Reading lazily on the next frame instead lands in the
-   * middle of a displacement animation and measures items where they no longer
-   * are.
+   * **The committed move has landed**: leave the cache describing the tree, and
+   * tell `report` what moved. Required — an axis that reports nothing still has
+   * to answer for its own cache.
    */
-  measureInsertion:
-    | ((frame: InsertionFrameView, runtime: InsertionRuntimeView) => void)
-    | null;
+  movedInsertion(
+    frame: InsertionFrameView,
+    runtime: InsertionRuntimeView,
+    report: DisplacementReport | null,
+  ): void;
 
   /* required */
   /**
-   * **The collection as a pull source** (D-44). Called by
-   * `action.prepare(COLLECTION)` on every `controller.invalidate()`, and once
-   * at construction for the initial snapshot — never memoized, because the
-   * whole point is that the library re-reads it.
-   *
-   * ~~`updateItems(payload)`~~ is gone with the second channel it belonged to;
-   * ledger L-1's "the thunk is called exactly once, at construction" is
-   * retracted with it.
+   * **The collection as a pull source.** Called by `action.prepare(COLLECTION)`
+   * on every `controller.invalidate()`, and once at construction for the
+   * initial snapshot — never memoized, because the whole point is that the
+   * library re-reads it.
    */
   items: ItemSource;
   onReorder: OnReorder;
   /**
-   * Normalized to a shared no-op, so the call site needs no null check. It takes
-   * an argument the behavior already has.
+   * Normalized to a shared no-op, so the call site needs no null check. It
+   * takes an argument the behavior already has.
    */
   onStart(item: HTMLElement): void;
 
   /* optional; `null` when no feature filled them */
-  createPlaceholder: PlaceholderSlot | null;
-  getHandle: ((item: HTMLElement) => HTMLElement | null) | null;
-  /** The node faithfully lifted (D-43). Resolved once, at admission. */
-  getVisual: ((item: HTMLElement) => HTMLElement) | null;
+  placeholder: PlaceholderFactory | null;
+  handle: ((item: HTMLElement) => HTMLElement | null) | null;
+  /** The node faithfully lifted. Resolved once, at admission. */
+  visual: ((item: HTMLElement) => HTMLElement) | null;
   /**
-   * The geometry source (D-43). **Already defaulted to `getVisual` by the
-   * assembler**, so this is `null` only when neither slot was written — which
-   * is what lets both the admission path and the candidate loop skip the call
-   * entirely rather than pay an identity per item.
+   * The geometry source. **Already defaulted to `visual` by the assembler**, so
+   * this is `null` only when neither slot was written — which is what lets both
+   * the admission path and the candidate loop skip the call entirely rather
+   * than pay an identity per item.
    */
-  getBox: ((item: HTMLElement) => HTMLElement) | null;
-  startLanding: LandingStart | null;
+  box: ((item: HTMLElement) => HTMLElement) | null;
+  /**
+   * The tail's timing, or `null` when no landing is installed — in which case
+   * the visual simply stays where the drop put it.
+   */
+  landingTiming: LandingTiming | null;
   /**
    * These stay nullable rather than normalized: their arguments are result
    * objects that would otherwise be constructed only to be discarded.
    */
   onEnd: SortableOnEnd | null;
-  onError:
-    | ((error: DraggableError, context: SortableErrorContext) => void)
-    | null;
+  onError: ((error: DraggableError | DraggableWarning) => void) | null;
 
   /**
-   * Prebuilt and fixed-length after assembly, empty in the minimal composition,
-   * and touched only around a committed placeholder move — never per pointer
-   * move.
+   * The displacement sink's visitor, or `null` when no displacement feature is
+   * composed — which is the argument the axis is handed and the whole of what
+   * a non-animating composition pays.
    */
-  beforeMove: readonly DisplacementHook[];
-  afterMove: readonly DisplacementHook[];
-  /** Already reversed by the assembler: released in reverse install order. */
+  report: DisplacementReport | null;
+  /**
+   * The sink's settle walk, or `null` when nothing displaces. Copied onto the
+   * per-operation view so an axis reads one field rather than reaching the slot
+   * record.
+   */
+  settle: DisplacementSettle | null;
+  /** Installation order; every reader walks it backwards. */
   retireHooks: readonly Disposer[];
 
   threshold: number;
@@ -271,21 +233,3 @@ export type SortableSlots = Readonly<{
 export const NOOP_START = (): void => {};
 
 export const DEFAULT_THRESHOLD = 8;
-
-/**
- * ~~`requireFinite` — the one numeric-domain check every public option went
- * through.~~ **Deleted with the rule that required it** (D-77).
- *
- * It had three callers and none of them survives the re-derivation: `threshold`
- * is consumer-owned, because a value outside its domain starts no operation;
- * `layoutAnimation({ duration })` holds no gate, so an unbounded one costs the
- * library nothing; and `landing({ duration })` — the one option whose bad value
- * can hang the settlement gate — narrows to a single `=== Infinity` comparison
- * made at the landing, since `animate()` rejects every other out-of-domain
- * value itself and *accepts* `Infinity`, which it then never completes
- * (`.plan/measurements/animate-duration-domain.md`, D-79).
- *
- * Its own justification is what retired it: it argued a bad value would
- * otherwise be diagnosed "three seams later", and being diagnosed at a seam is
- * classification (D-64, D-66), not a defect.
- */

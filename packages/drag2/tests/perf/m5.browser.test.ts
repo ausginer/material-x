@@ -1,16 +1,20 @@
 /**
  * M-5 — the unconditional activation work neither behavior needs twice.
  *
- * Two arms, each measuring work the kernel performs on **every** activation for
- * a behavior that never consumes it:
+ * Two arms, each measuring work the kernel performs on **every** activation and
+ * hands to a composition that may never spend it:
  *
  * - **Arm A — D-52's window 1 (F-65).** `boxPre` is the box's offset box, read
  *   immediately before `acquireLift` so a behavior can derive a placeholder
  *   footprint from two reads straddling acquisition. **Free drag has no
  *   footprint and never names `boxPre`.**
- * - **Arm B — D-85's `inheritedSpace`.** The inverse inherited linear part,
- *   derived from the measurement `acquireLift` already took. **The sortable
- *   never names it.**
+ * - **Arm B — D-85's inverse inherited linear part.** `acquireLift` derives one
+ *   for the visual and one for the item and publishes both as
+ *   `ActivationScope.visualSpace` and `ActivationScope.itemSpace` (D-165);
+ *   under the common configuration the item is the visual, so there is one
+ *   ancestry, one derivation and one object. **A sortable with no displacement
+ *   sink derives it and never spends it**, which is the arm's denominator
+ *   below — the fixture composes `axis: y()` and nothing else.
  *
  * **The decision rule is fixed in `.plan/measurements/phase-21.md` and is not
  * re-derived here**: close under 0.2 ms absolute **and** under 5% of measured
@@ -25,11 +29,19 @@
  * the share to either side of any gate by writing more or less of it, which is
  * a property of the fixture and not of the tree.
  *
- * **Arm B cannot reopen D-85.** That decision was taken for correctness — one
- * traversal, two products, because a second traversal reads an ancestry
- * acquisition has already mutated. This arm checks the **ground** it was
- * accepted on (arithmetic over a materialized buffer rather than a layout
- * read), and no timing result removes `inheritedSpace`.
+ * **Arm B cannot reopen D-85.** That decision was taken for correctness — every
+ * geometry read is taken before acquisition mutates anything, because a read
+ * taken afterwards describes an ancestry the lift has already changed. This arm
+ * checks the **ground** it was accepted on (arithmetic over a buffer the
+ * kernel already materialized rather than a layout read), and no timing result
+ * removes the derivation.
+ *
+ * **What it does not weigh is the walk.** D-165 spends a second `ancestry`
+ * reading when the item is not the visual, deliberately and with its cost
+ * recorded where that decision is. `ancestry` takes computed style and no
+ * layout, so it does not touch D-85's ground either way; this arm is about the
+ * arithmetic that turns a read space into the inverse a behavior multiplies
+ * by.
  *
  * The structural rows — the equivalence checks, the falsifier and the
  * instrument pins — run in CI on every suite run. The timings are opt-in with
@@ -39,7 +51,7 @@
  * **only the measured fixture may be live.** Every arm builds, measures and
  * disposes before the next is built.
  */
-import { box, coordinates, type Box } from '@ydinjs/box-quad';
+import { ancestry, space, type Space } from '@ydinjs/box-quad';
 import { describe, expect, it } from 'vitest';
 import { FreeDragResolution, freeDrag } from '../../src/free-drag.ts';
 import { LIFT_IN_PLACE, acquireLift } from '../../src/kernel/presentation.ts';
@@ -468,10 +480,10 @@ function paired(
 // Arm B — the derivation, and the proof that the copy is the shipped one
 // ---------------------------------------------------------------------------
 
-const BOX_ANCESTOR_A = 9;
-const BOX_ANCESTOR_B = 10;
-const BOX_ANCESTOR_C = 11;
-const BOX_ANCESTOR_D = 12;
+const SPACE_A = 0;
+const SPACE_B = 1;
+const SPACE_C = 2;
+const SPACE_D = 3;
 
 /**
  * `inheritedSpaceOf`, line for line.
@@ -485,12 +497,12 @@ const BOX_ANCESTOR_D = 12;
  * `compose` encodes, before any figure is quoted from it.
  */
 const derive = (
-  measured: Box,
+  above: Space,
 ): Readonly<{ a: number; b: number; c: number; d: number }> | null => {
-  const a = measured[BOX_ANCESTOR_A]!;
-  const b = measured[BOX_ANCESTOR_B]!;
-  const c = measured[BOX_ANCESTOR_C]!;
-  const d = measured[BOX_ANCESTOR_D]!;
+  const a = above[SPACE_A]!;
+  const b = above[SPACE_B]!;
+  const c = above[SPACE_C]!;
+  const d = above[SPACE_D]!;
 
   if (a === 1 && b === 0 && c === 0 && d === 1) {
     return null;
@@ -518,21 +530,18 @@ const derive = (
  * nothing else. It reads the slots so that the buffer access itself is on both
  * sides and the delta is the arithmetic alone.
  */
-const skip = (measured: Box): number =>
-  measured[BOX_ANCESTOR_A]! +
-  measured[BOX_ANCESTOR_B]! +
-  measured[BOX_ANCESTOR_C]! +
-  measured[BOX_ANCESTOR_D]!;
+const skip = (above: Space): number =>
+  above[SPACE_A]! + above[SPACE_B]! + above[SPACE_C]! + above[SPACE_D]!;
 
-/** A real `Box` for `element`, taken the way `acquireLift` takes it. */
-function measure(element: HTMLElement): Box {
-  const measured = box();
+/** A real `Space` for `element`, taken the way `acquireLift` takes it. */
+function measure(element: HTMLElement): Space {
+  const above = space();
 
-  if (!coordinates(element, measured)) {
-    throw new Error('m5: the fixture has no readable box space');
+  if (!ancestry(element, above)) {
+    throw new Error('m5: the fixture has no readable inherited space');
   }
 
-  return measured;
+  return above;
 }
 
 function timings(iteration: (round: number) => void): number {
@@ -639,7 +648,7 @@ describe('M-5 arm A — falsifying the instrument', () => {
 
 describe('M-5 arm B — the copy is the shipped derivation', () => {
   it('should produce the projection the kernel’s own compose encodes', () => {
-    // **In-situ equivalence.** `LIFT_IN_PLACE` hands `inheritedSpace` straight
+    // **In-situ equivalence.** `LIFT_IN_PLACE` hands `visualSpace` straight
     // to `compose`, so `compose(1, 0)` and `compose(0, 1)` encode the four
     // coefficients the shipped private function produced for this element at
     // this instant. If the copy below disagreed, every figure taken from it
@@ -657,9 +666,14 @@ describe('M-5 arm B — the copy is the shipped derivation', () => {
     const mine = derive(measure(leaf));
     const { session } = acquireLift(
       leaf,
+      leaf,
       LIFT_IN_PLACE,
       leaf.getBoundingClientRect(),
       createRealm(leaf),
+      // The unwind guard `acquireTopLayer` reports a failing rollback through
+      // (D-130). Nothing in this measurement rolls back; it is supplied
+      // because the signature requires it.
+      (step) => step(),
     );
 
     try {
@@ -769,7 +783,8 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
       });
 
       it(`should measure the sortable’s activation at ${where} ancestry`, () => {
-        // Arm B's denominator: the behavior that never reads `inheritedSpace`.
+        // Arm B's denominator: an activation that derives the space and never
+        // spends it, which is what this fixture's sink-less composition is.
         const row = withArm('sortable', depth, (it) => {
           const repeats = calibrate(it);
 
@@ -852,7 +867,7 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
         console.info(
           `M-5 armB derive=${(derived * 1000).toFixed(4)}µs ` +
             `control=${(skipped * 1000).toFixed(4)}µs ` +
-            `inheritedSpace=${((derived - skipped) * 1000).toFixed(4)}µs ` +
+            `inheritedSpaceOf=${((derived - skipped) * 1000).toFixed(4)}µs ` +
             `(sink=${sink === 0 ? 0 : 1})`,
         );
       } finally {

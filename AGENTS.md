@@ -1,118 +1,44 @@
-## Code style
+# Working in this repository
 
-- Install dependencies via `npm i` rather than editing `package.json` directly, to get the latest compatible version.
-- Always use Baseline-2025 features.
-- Prefer native browser / Node.js APIs over pulling in a library when the native API covers the use case (e.g. use `fetch` instead of axios, use `Array.groupBy` instead of lodash, use # instead of `private` keyword). This does not apply to libraries that provide substantial value beyond what native APIs offer (e.g. TanStack Query, React Router).
-- Prefer TypeScript `type` over `interface` unless it is an interface the class to implement or it is required for extending global interfaces.
-- Always use `Readonly<>` wrapper type / `readonly` modifier for TS `type`/`interface` unless mutability is required.
-- Always prefer CSS classes over inline style.
-- Each edited source file (`.tsx?`, `.css`, `.html`) should be:
-  - formatted via `npx just fmt <changed files>`,
-  - linted and fixed via `npx just lint-fix <changed files>`. If autofix fails for any file, list those files — do not attempt to resolve lint errors manually; report them and continue,
-  - typechecked via `npx just typecheck`. This checks all packages. Ignore errors in files you did not touch — unless your change caused them, in which case fix them.
-  - The `fmt`, `lint-fix`, and `typecheck` recipes live in each package's own Justfile, so run them from the relevant `@ydinjs` package directory (`packages/core`, `packages/tproc`, `packages/material-x`, or another package workspace). File paths passed to them are relative to that package directory.
-  - When you change a core source file that `@ydinjs/material-x` consumes, rebuild core (`npx just build` from `packages/core`) before typechecking Material X — it resolves `@ydinjs/core` through its built `.d.ts` at the package root, not `src`, so type changes are invisible until rebuilt.
-- Codestyle priorities (in order):
-  1. **Performance** — code should be as fast as possible for the end user.
-  2. **Code size** — a smaller bundle can outperform a faster-but-larger one due to load time. Keep code size minimal unless it hurts runtime performance. Private identifiers can have long names — they are mangled in production builds.
-  3. **Readability** — code must be maintainable. DX should not prevail over UX. A comment is sometimes better than a less performant but "cleaner" implementation.
-- Always put the block expression like `if`, `for`, etc. into `{}`. Never use "one-liners".
-- Always use `AbortController` instead of `removeEventListener` where applicable.
-- Always use `{ once: true }` instead of `removeEventListener` where applicable.
-- All top-level functions should be declared via `function` unless they are a product of another function. All internal functions (e.g., created inside another function) should be declared via arrow functions. Note: this rule doesn't apply to object methods, they should remain shorthand as much as possible.
-- Never use `sync` versions of `node:fs` unless there is truly no async alternative (e.g. `registerHooks` from `node:module` requires synchronous hooks — that is the only known exception).
-- Treat `Object.assign` as an ordered multi-source assignment primitive. When sources already exist independently, pass them as separate arguments instead of pre-merging them with object spread. Pre-merging needlessly materializes a combined source and copies later-source properties twice; it may also change observable assignment behavior for setters, proxies, accessors, or other non-plain targets.
+The durable instructions for anyone — human or agent — making changes here. Vendor harness files live beside this one and import it; they add nothing normative.
 
-### Unit-tests
+Resident in every agent's context, so it carries only what applies before a role knows what work it is doing. Everything else is named by the role that needs it, when it needs it.
 
-When you are working on unit tests, follow the rules:
+## Before you change anything tracked
 
-- Always use `describe` for a unit you're testing.
-- Each `it` should describe only one specific logic part of a unit. Do not mix them up.
-- `it` should start with (in most cases) or should include `should` word.
+- **Tracked changes belong on a non-`main` branch.** Verify the branch first; if it is `main`, stop and ask. Do not create or switch branches implicitly unless asked.
+- **Do not amend, squash, rebase, rewrite or delete an existing commit** unless asked.
+- **Push the current work branch to `origin` once a unit of work is finalized** — after the last commit of the unit, not after each one. **Do not open or merge a PR, force-push, push `main`, or rename, delete or otherwise move any other shared ref** unless asked.
+- **Never bypass branch protection, rulesets or repository policy.** If an operation is rejected, report the blocker rather than force-pushing or changing rules around it.
 
-Example of incorrect test:
+Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before writing or changing source. Before finalizing a unit of work — formatting, linting, typechecking, committing or pushing — read [`.agents/docs/handoff.md`](.agents/docs/handoff.md).
 
-```ts
-// Testing a `buildSelector` function in `it` without `describe.
-it('buildSelector builds state and scoped selectors', () => {
-  // Testging three different logic parts at once:
+## Before running a governed role
 
-  // Scope testing
-  expect(buildSelector('default', { name: 'color', value: 'elevated' })).toBe(
-    ':host([color="elevated"])',
-  );
+The effort guard loads from project settings, and **a fresh checkout's first session runs before it is loadable**: registering the repository marketplace and loading its plugin happen on successive starts. A role acting in that window is unchecked, and an unchecked session is indistinguishable from a clean one, because nothing is watching.
 
-  // Built-in state testing
-  expect(buildSelector('hovered', undefined)).toBe(':host(:hover)');
+A guarded session says so. `Effort guard active` arrives as startup context in every session the guard is loaded into, and it says so whether or not the role definitions resolved — the string answers _is the guard loaded_, and a resolution failure is reported as a separate sentence beside it.
 
-  // Custom state testing
-  expect(buildSelector('selected', undefined)).toBe(':host(:state(selected))');
-});
-```
+- **Seen it — work normally.**
+- **Not seen it — run `claude plugin marketplace add ./` and start a new session before doing governed work or spawning any worker.** A restart is required either way: a plugin does not become loaded in a session already running.
 
-Correct test:
+**This binds every governed role**: `architect`, `implementer`, `consolidator`, `reviewer`, `integrity`, `cleanup` and `der` — the set the guard governs, not a subset of it.
 
-```ts
-describe('buildSelector', () => {
-  it('should build scoped selector', () => {
-    expect(buildSelector('default', { name: 'color', value: 'elevated' })).toBe(
-      ':host([color="elevated"])',
-    );
-  });
+**A role session selects its effort as well as its role.** `--agent` applies the definition's model and not its `effort:`, so the level is the starter's to pass; the guard denies the first tool call of a session that got it wrong, and repairs nothing. [`.scripts/claude-role.sh`](.scripts/claude-role.sh) reads the declared level out of the definition and passes it.
 
-  it('should build built-in state selector', () => {
-    expect(buildSelector('hovered', undefined)).toBe(':host(:hover)');
-  });
+**Dispatch only from the main checkout.** A linked worktree carries its own `.claude/` at its own commit, so it can govern part of the role set and allow the rest, or govern all of it at a superseded generation. Where the guard is loaded there it refuses dispatch outright; where it is not loaded there is no gate string to see, and this rule is the whole of the protection. A worktree-rooted session may still run as a single worker — that is what worktree isolation is for — but it dispatches nothing.
 
-  it('should build custom state selector', () => {
-    expect(buildSelector('selected', undefined)).toBe(
-      ':host(:state(selected))',
-    );
-  });
-});
-```
+[`harness-effort-guard.md`](.agents/docs/harness-effort-guard.md) §Starting a role session is the procedure; §How it loads is the mechanism.
 
-## CLI commands
+## Evidence
 
-You don't need anything to run TS in this repo. Just use direct `node my-file.ts`, and this project's node will do the rest.
+Verify cheap mechanical claims yourself, in the agent that cites them. **Delegate discovery, never verification** — a sub-agent returns candidates; the citing agent confirms the ones it reports. Delegate only when the search justifies a separate context.
 
-## .css.ts files
+Probes, diagnostics, fixtures and benchmarks are fine for any role that needs one to establish a fact. TypeScript runs directly — `node my-file.ts` — with no build or loader step.
 
-Files with `.css.ts` extensions are meant to be compiled for browser usage. They are transformed into regular CSS files. To debug them and check how they look in CSS form, use `npx just debug <relative file path>`. E.g., to see how `src/button/styles/default/main.css.ts` will look in CSS format, run `npx just debug src/button/styles/default/main.css.ts`. The CSS output is printed to stdout.
+## Where things are
 
-## Architecture
-
-You can find `@ydinjs` architecture insights in `.agents/docs/architecture.md`. You can find CSS architecture reiteration in `.agents/docs/css-inheritance.md`. You can find accessibility review in `.agents/docs/accessibility.md`
-
-`src/button` is currently a component closest to the ideal as possible. While migrating other components please follow its layout.
-
-`@ydinjs/material-x` runtime entrypoints are listed in `packages/material-x/files.json`; update it when adding or removing a component.
-
-## Testing
-
-When adding, moving, or reviewing an `@ydinjs/material-x` component's tests, use skill `test-component` (placement under `packages/material-x/test`, file suffixes and Vitest project routing, rendering/interaction rules, definition of done). When writing or debugging an `@ydinjs/tproc`-backed visual contract — a `*.spec.browser.test.ts`, a token binding, the resolve-token bridge, or a normalization adapter — use skill `test-visual-contract`. Both skills apply even if the request doesn't name them. The reasoning behind the layers lives in `.agents/docs/test-architecture.md`.
-
-## Sub-agents and teams
-
-Use sub-agents for research and exploration tasks that can run in parallel (e.g. investigating different parts of the codebase simultaneously).
-
-Use an agent team (`TeamCreate`) only when the task has clearly independent parallel work — for example, migrating several components at the same time. Do not create teams for review, small changes, or tasks with sequential dependencies.
-
-## Tokens DB
-
-If you need to access any file in `.data/tokens`, use skill `use-tokens-db`.
-
-## Git workflow
-
-Work must never be committed directly to `main`. All tracked changes belong on a non-`main` work branch.
-
-**Commit every finalized handoff state without waiting for the user to ask.** A state is finalized when your assigned unit of work is complete and ready to hand to the next role or to the user. For example, an architect commits the completed contract/plan before handing it to an implementer; an implementer commits the completed implementation before review; remediation is committed once that remediation pass is complete.
-
-- Commit only changes belonging to the completed unit. Never sweep unrelated user or agent changes into the commit; stage paths deliberately when the working tree contains unrelated work.
-- If there is no tracked diff, do not create an empty commit.
-- Use a **short, subject-only** commit message unless the user explicitly asks for a body. Never copy completion reports, test output, review summaries, or plan prose into the commit message.
-- Describe the semantic change, not the workflow step: prefer `drag2: validate free-drag actions` over `drag2: phase 21`, `address review`, `finalize implementation`, or similar process labels.
-- Do not amend, squash, rebase, rewrite, or delete existing commits unless explicitly asked.
-- Do not push, create/merge a PR, or move protected branches unless explicitly asked. A local commit is automatic; publication is not.
-- Include the resulting commit SHA in the completion report.
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — how code is written: source conventions, and the size and ownership policy. This is a library, not an application: write for a truthful fellow developer who would prefer better performance, a cleaner API and a smaller bundle over defensive checks against invalid usage.
+- [`.agents/docs/`](.agents/docs/) — conventions and design references: `@ydinjs` architecture, CSS inheritance, attribute-vs-state styling, accessibility, the test layers, the trait flattener plugin, where documentation belongs, and how a review round is run.
+- `.claude/skills/` — task-scoped procedures for `@ydinjs/material-x` component tests, `@ydinjs/tproc` visual contracts, and anything under `.data/tokens`. They apply even when a request does not name them.
+- `packages/*/.plan/` — the record: decisions, reviews, measurements, and why anything is the way it is.

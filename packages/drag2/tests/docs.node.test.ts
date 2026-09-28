@@ -19,7 +19,7 @@
  * header above said "the eight public entries" while `typedoc.json` listed
  * seven, so the tier a behavior author writes against was the one tier no
  * warning could reach. Adding it produced **17** of them, all of the same
- * shape: `BehaviorSpec`, `KernelHost` and `BehaviorFactory` structurally name
+ * shape: `BehaviorSpec`, `BehaviorContext` and `BehaviorFactory` structurally name
  * `Frame`, `Draft`, `Transition`, the five `SETTLED_*` codes and nine more,
  * and none of those is exported.
  *

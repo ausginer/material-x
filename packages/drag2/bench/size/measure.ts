@@ -1,9 +1,10 @@
 /**
- * The M-3 measurement, whole: compositions, bytes, budgets, module graphs.
+ * The size measurement, whole: compositions, bytes, budgets, module graphs.
  *
  * This is the *specification* of what is measured as much as the tool that
  * measures it, so everything 05 §Measurements — landed 2026-08-02 calls a
- * reproducibility precondition is a value in this file rather than a flag somewhere:
+ * reproducibility precondition is a value in this file rather than a flag
+ * somewhere:
  *
  * - **Bundler**: Rolldown, the version in the workspace lockfile.
  * - **Target/platform**: `neutral`, ESM out, no polyfills.
@@ -22,10 +23,38 @@
  * one that is not a number.
  *
  * Run: `just size` (fails on a budget breach), or `node bench/size/measure.ts`.
+ *
+ * ## Looking at what was measured
+ *
+ * `--files` writes each composition's bundled output under `.measured/`, and
+ * `--unminified` writes a readable twin beside it — real identifiers, one
+ * statement per line — for reading rather than for counting. Either flag turns
+ * writing on; `--unminified` implies `--files`.
+ *
+ * ```
+ * npm run size -- --files --unminified
+ * npx just size --files --unminified
+ * node bench/size/measure.ts --files
+ * ```
+ *
+ * **No flag changes a reported number, and that is the point.** The figures
+ * above are a specification with budgets and landed records attached to them,
+ * so the measured generate is always the minified one and the unminified twin
+ * is a **second, separate** generate whose bytes are never read. A flag that
+ * could move a budget would make every recorded figure a question about how
+ * the harness was invoked.
  */
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import {
+  mkdir,
+  mkdtemp,
+  readdir,
+  readFile,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, relative, resolve } from 'node:path';
+import { parseArgs } from 'node:util';
 import { brotliCompressSync } from 'node:zlib';
 import { rolldown } from 'rolldown';
 
@@ -42,188 +71,76 @@ export type Composition = Readonly<{
   /** A checked-in module instead, for what a set of imports cannot express. */
   entry?: string;
   /**
-   * Brotli-compressed bytes. Set from the first measurement (2026-08-02) with
-   * ~0.3 kB of headroom — deliberately tight, because the point of a budget
-   * here is to notice a module appearing in a graph, and 0.3 kB is roughly one
-   * such module.
+   * The composition's Brotli ceiling, in bytes: the minified bundle
+   * compressed at `node:zlib`'s default quality, which is the reported figure
+   * everywhere in this file.
    *
-   * **Re-based 2026-08-07, Phase 16.** D-33 cost 70 B and D-32 cost ~300 B
-   * across *every* composition, including minimal: keyboard sorting is a
-   * `BehaviorSpec` member, not an optional feature, so a consumer cannot
-   * tree-shake away the second input mode. That is a deliberate accessibility
-   * position rather than an oversight — see `.plan/plan.md` Phase 16 — and the
-   * budgets say so by moving together.
+   * **Set at the landed measurement plus ~150 B**, which is about one module.
+   * The margin is sized to notice *a module appearing in a graph* and is
+   * deliberately too small to absorb a feature. It is not a performance
+   * allowance, and it may never be spent to avoid landing a correctness fix.
    *
-   * **Re-based again 2026-08-07, Phase 17.** Extracting the packed rect index
-   * into a module both axis features share costs the list composition **60 B**
-   * — a module boundary under `unbundle`, and one record read where a closure
-   * variable used to be. It is recorded rather than absorbed: the alternative
-   * was two copies of a geometry cache that must stay in step, where a
-   * divergence is a silent correctness bug and not a style one. The 2-D *rule*
-   * itself costs the list consumer nothing, which is the constraint the shape
-   * decision was made under.
+   * **A budget re-bases rather than a fix shrinking**, and the rule reads in
+   * both directions: a change that lands above its ceiling raises it, and a
+   * change that leaves a row several times its margin under lowers it,
+   * because a budget that loose stops noticing the module it exists to
+   * notice. What re-bases nothing is movement inside the noise band — rows no
+   * edit reached have reported −1 to +3 B, and single edits have moved
+   * compressed figures ±25 B in both directions at once, so a swing of that
+   * size is not a signal.
    *
-   * **Re-based again 2026-08-08, Checkpoint D review 5 (Phase 21, pulled
-   * forward).** The rule this re-base establishes is in `.plan/plan.md` §Phase
-   * 21: *a size budget is never a reason to defer a fix for a floor breach; if
-   * the fix does not fit, the budget re-bases and the fix lands. What a budget
-   * may defer is defence in depth.* The C5 closure pass landed **nine** I-36
-   * floor fixes — C5-01's animation-subscription barrier, C5-02's placeholder
-   * mechanics, and seven more the stretch sweep found in `placeholder.ts` and
-   * `spec.ts`. Mid-pass they took `complete` **1 B over** its 11,040 budget,
-   * and the budget re-based rather than the fix shrinking; brotli then gave
-   * some of it back as the repeated `rt.closed` guards started sharing a
-   * dictionary, so the landed cost is **+91 B** on `complete` against 106 B of
-   * headroom. The re-base stays: 15 B is not a margin the next correctness fix
-   * should be planning against, and taking the byte count out of the terminal
-   * safety argument is the point of pulling it forward. Landed per-composition
-   * cost: minimal **+83 B**, minimal (xy) **+77 B**, + layoutAnimation
-   * **+90 B**, + landing **+82 B**, complete **+91 B**, baseline A **+97 B**;
-   * baseline B is the shipped package and did not move. Every budget is now
-   * its measurement plus ~150 B, the headroom the Phase 17 re-base left, and
-   * still under one module's worth.
+   * **The byte half does not carry the module claim, and cannot.** A module's
+   * marginal cost is what Brotli charges for it *given everything else in the
+   * graph*: the smallest module here has measured 149, 154 and 157 B to enter
+   * one, across passes that changed message text and nothing else. It crossed
+   * the headroom in both directions without a module moving, so no headroom
+   * this instrument could carry makes the byte half a sufficient test. The
+   * claim is carried by the graph declarations below — `absent`,
+   * `absentPrefixes`, `present`, `only`. The budget catches growth; the graph
+   * declarations catch a module.
    *
-   * **Re-based again 2026-08-19, Phase 21 (M-3′), and this is the re-base
-   * `plan.md` §Phase 21 promised.** Five sortable rows and baseline A had gone
-   * over — by 247–407 B — because the Checkpoint E floor fixes landed under the
-   * standing rule that a budget re-bases rather than a correctness fix
-   * shrinking. Nothing was absorbed silently: the overruns were carried as
-   * muted telemetry (K-6) until a measurement phase could re-base against the
-   * artifact that will ship, which is here. Baseline B moves for the first
-   * time — its measurement has not changed, only its headroom, so that one
-   * rule covers every row.
+   * **Thirteen of the fifteen rows declare some combination of the four, and
+   * the two baselines declare no topology at all**, so on those two the byte
+   * budget is the only instrument. Baseline A is where that has consequence:
+   * it reaches thirty modules through relative paths into the built package,
+   * so a module can enter it unobserved. It is tolerated rather than repaired
+   * because it is a checked-in fixture whose whole job is to price
+   * composition against `complete`, which does declare. **The repair is not a
+   * wider budget** — 150 B is calibrated against the failure it catches, and
+   * loosening an exact instrument to prop up a redundant one is the wrong
+   * direction.
    *
-   * **What the headroom is for, stated rather than left to be inferred.**
-   * ~150 B is about one module, and it is sized to notice **a module appearing
-   * in a graph** — the failure this file exists to catch. It is deliberately
-   * too small to absorb a feature: a change that fits inside it silently is a
-   * change that added no module, and anything larger comes back here and is
-   * re-based on purpose, with its reason written down. It is not a performance
-   * allowance, and it may never be spent to avoid landing a floor fix.
-   *
-   * Landed figures at that re-base: minimal **10,738**, minimal (xy)
-   * **10,787**, + layoutAnimation **11,162**, + landing **11,020**, complete
-   * **11,447**, free drag minimal **8,717**, free drag + bounds **8,863**,
-   * free drag + landing **9,016**, free drag complete **9,162**, both
-   * behaviors **12,995**, baseline A **11,158**, baseline B **6,889**.
-   *
-   * **Re-based again 2026-08-21, Phase 22 (P-06, D-102), and the reason the
-   * rule above requires is that a module appeared — which is exactly what the
-   * headroom is sized to notice, so it did its job and the answer is a
-   * re-base rather than a wider margin.** `sortable/verified-refresh.js` is
-   * the verified incremental refresh, and it costs **+361 to +388 B** on the
-   * six rows that reach it.
-   *
-   * **It was not re-based when P-06 first landed, and the delay is the
-   * substance rather than bookkeeping.** The fast path was folded into
-   * `createRectIndex`'s shared closure, so `xy()` linked 288 B of an
-   * optimization D-100 condition 1 makes unreachable for it — one axis
-   * feature's private code in the other's bundle, which is the single thing
-   * these exclusivity assertions exist to catch. D-102 held the budgets red
-   * until it moved, on the grounds that an absorbed number is a number nobody
-   * reads again. It moved: `minimal (xy)` is back to **10,787**,
-   * byte-identical to before P-06, so **its budget does not move here** and
-   * neither does any free-drag row. What is being re-based is the cost of the
-   * optimization in the module graph of the only feature that can execute it.
-   *
-   * The split is not free on the `y()` side — ~66 B more than the folded form,
-   * for the wrapper object and the module boundary — and that is stated rather
-   * than netted off against the 288 B it removed. Headroom stays at ~150 B on
-   * every re-based row.
-   *
-   * ~~Landed figures, every row: minimal **11,105**, minimal (xy) **10,787**,
-   * + layoutAnimation **11,550**, + landing **11,388**, complete **11,808**,
-   * free drag minimal **8,717**, free drag + bounds **8,863**, free drag +
-   * landing **9,016**, free drag complete **9,162**, both behaviors
-   * **13,363**, baseline A **11,520**, baseline B **6,889**.~~
-   *
-   * **Superseded as a baseline, and this is the list that caused API-01.** The
-   * numbers are correct for 2026-08-21 and are kept as the dated record. What
-   * is withdrawn is any use of them as a _current_ measurement: D-103 and D-104
-   * moved seven of these rows afterwards without updating the list, and the
-   * D-108 re-base below then subtracted it as though it were the pre-change
-   * tree — charging D-108 with 14–46 B that were not its own.
-   *
-   * **The same withdrawal applies to every _Landed figures_ list above this
-   * one**, for the same reason and without re-measuring any of them: each was
-   * current on its own date and none is updated by a later decision. Only the
-   * most recent re-base states a baseline that can be subtracted, and it states
-   * what it was measured **against** rather than leaving the reader to find the
-   * nearest list.
-   *
-   * **Re-based again 2026-08-22, Phase 22 (D-108), and this one moves the
-   * numbers *up* for a correctness fix rather than for a module.** The kernel's
-   * four author-facing checks — `assertFrameShapesMatch`, `assertFrameScrubbed`
-   * and the two seam reports — were `__DEV__`-gated on `kernel/dev.ts`'s premise
-   * that _behavior authoring is not on the public surface_, which Revision 2.1
-   * voided (F-78): the published build shipped `assertFrameShapesMatch(a, b) {}`
-   * as an empty stub, so a third-party behavior author got no frame-shape or
-   * reset-exhaustiveness validation in any build they could produce. D-108
-   * un-gates all four, retires `kernel/dev.ts`, and leaves the sortable's own
-   * per-frame binding alone.
-   *
-   * **This is the case the headroom rule was written for, in the direction it
-   * is usually read backwards.** ~150 B is sized to notice a module appearing,
-   * and **no module appeared** — the whole cost is the two assert messages, the
-   * two report messages, `sameKeys`, `validateFrameDescriptors` and two loops,
-   * all previously folded to nothing. It is nonetheless **282–305 B**, roughly
-   * twice the headroom, so it comes back here and re-bases visibly rather than
-   * being absorbed. The standing rule governs both halves: a budget re-bases
-   * rather than a correctness fix shrinking, and headroom may never be spent to
-   * avoid landing one.
-   *
-   * **Corrected 2026-08-22 against the API review (API-01), and the correction
-   * is a lesson about this docblock rather than about D-108.** The first
-   * published figures — _283–340 B_ — were computed as `landed` minus the
-   * _Landed figures_ list of the **previous** re-base above, which is not the
-   * pre-change tree: D-103 and D-104 moved seven of these rows *after* that list
-   * was written and neither updated it. So 14–46 B of P-06 remediation and P-02
-   * shrink cost was attributed to D-108, and the published upper bound of 340 B
-   * corresponded to no row at all. The budgets did not change and are not
-   * affected — each is the true landed figure plus ~150 B — and the landed
-   * figures were right throughout; only the attribution was wrong.
-   *
-   * **A re-base measures the tree it is re-basing from.** Subtracting the last
-   * list in this docblock is a proxy for that and silently absorbs everything
-   * that landed in between. The pre-change measurement is therefore recorded
-   * beside the landed one from here on, so the next pass has the subtrahend
-   * rather than having to trust that a list stayed current.
-   *
-   * | Row | pre-slice `e086d058` | landed | D-108 |
-   * | --- | --- | --- | --- |
-   * | minimal | 11,139 | 11,435 | **+296** |
-   * | minimal (xy) | 10,801 | 11,085 | **+284** |
-   * | + layoutAnimation | 11,571 | 11,874 | **+303** |
-   * | + landing | 11,423 | 11,728 | **+305** |
-   * | complete | 11,849 | 12,139 | **+290** |
-   * | free drag minimal | 8,717 | 9,007 | **+290** |
-   * | free drag + bounds | 8,863 | 9,159 | **+296** |
-   * | free drag + landing | 9,016 | 9,307 | **+291** |
-   * | free drag complete | 9,162 | 9,459 | **+297** |
-   * | both behaviors | 13,396 | 13,699 | **+303** |
-   * | vocabulary root | 121 | 121 | **0** |
-   * | kernel root | 6,514 | 6,797 | **+283** |
-   * | baseline A | 11,566 | 11,848 | **+282** |
-   * | baseline B | 6,889 | 6,889 | **0** |
-   *
-   * **Two rows do not move**, and both are deliberate: baseline B is the shipped
-   * `@ydinjs/drag` package and never reaches this code, and the `drag.js`
-   * vocabulary root is byte-identical at **121 B** — the F-77 assertion doing
-   * its job, since the error vocabulary still does not pull the kernel.
-   *
-   * **The four free-drag rows, `kernel root` and the two unmoved rows are the
-   * ones whose first figures were already right**, and that is the tell rather
-   * than a coincidence: they are exactly the rows D-103 and D-104 never touched,
-   * so for them the stale list and the pre-slice tree were the same numbers.
-   *
-   * **Landed figures are the `landed` column above**, and are deliberately not
-   * repeated as a prose list here. Every earlier re-base ends in one, and it is
-   * that habit rather than any single list that produced API-01: a reader
-   * looking for _the last measurement_ finds the nearest list, which was current
-   * when written and is not current when read. The table states what it was
-   * measured against, so it cannot be mistaken for a baseline it is not.
+   * Two rows are administered differently and say so on their own comments:
+   * the vocabulary root, whose ceiling is bracketed by a reproducible
+   * injection because it is the sole detector for its class, and baseline B,
+   * an external control this package does not build. Every re-base is dated
+   * and reasoned in
+   * [`budget-rebases.md`](../../.plan/measurements/budget-rebases.md).
    */
   budget: number;
+  /**
+   * **The exact Brotli figure this row must reproduce**, when it is a row no
+   * change to the behaviors above it may reach.
+   *
+   * **A ceiling cannot see a transfer, and that is what this is for.** Fifteen
+   * budgets can all be green while bytes move *between* rows — a feature
+   * getting cheaper for the compositions that use it and dearer for the ones
+   * that do not is under budget on both sides, so nothing reports it. §18 names
+   * the instrument that would: a row whose expected behaviour is declared
+   * before the pass, and whose *not moving* is the result.
+   *
+   * So a control is exact rather than bounded. The rows that carry it are the
+   * ones no sortable-side or free-drag-side edit can reach from the other side
+   * — plus the two that carry no behavior at all — and a single byte of
+   * movement on one is a finding rather than slack being spent. Re-basing one
+   * means a change deliberately reached it, and is dated and reasoned in
+   * [`budget-rebases.md`](../../.plan/measurements/budget-rebases.md) like any
+   * other.
+   *
+   * Omitted on a row a pass is expected to move, which is every row that
+   * carries the behavior under change.
+   */
+  control?: number;
   /**
    * Modules that must **not** appear in the bundled graph. Absence is the whole
    * tree-shaking claim (03 §Tree-shaking) and a byte count cannot express it: a
@@ -234,11 +151,11 @@ export type Composition = Readonly<{
   /**
    * Whole **subtrees** that must not appear, by package-relative prefix.
    *
-   * Added for M-3′'s cross-behavior claim, which `absent` cannot express: the
-   * assertion is that a free-drag composition pulls **no** `sortable/` module
-   * and vice versa, and enumerating today's module list would pass vacuously
-   * the moment either behavior gains a file. A prefix keeps the claim total
-   * over a growing tree.
+   * This is the cross-behavior claim, which `absent` cannot express: a
+   * free-drag composition pulls **no** `sortable/` module and vice versa, and
+   * enumerating today's module list would pass vacuously the moment either
+   * behavior gains a file. A prefix keeps the claim total over a growing
+   * tree.
    */
   absentPrefixes?: readonly string[];
   /** Modules that must appear — so the absence checks cannot pass vacuously. */
@@ -248,12 +165,12 @@ export type Composition = Readonly<{
    * other. Passing it also satisfies the `present` half, so a composition
    * declaring `only` declares nothing else.
    *
-   * Added for F-77, whose invariant is _`drag.js` reaches `kernel/errors.js`
-   * and nothing else_ — a claim `absent` cannot make and `absentPrefixes`
-   * cannot make either, because the one module that must appear lives inside
-   * the one subtree that must not. Enumerating today's absences would answer a
-   * total claim with a list that grows stale the moment `kernel/` gains a file,
-   * which is the same vacuity `absentPrefixes` was added to prevent.
+   * For an invariant of the form _`drag.js` reaches `kernel/errors.js` and
+   * nothing else_ — a claim `absent` cannot make and `absentPrefixes` cannot
+   * make either, because the one module that must appear lives inside the one
+   * subtree that must not. Enumerating today's absences would answer a total
+   * claim with a list that grows stale the moment `kernel/` gains a file,
+   * which is the same vacuity `absentPrefixes` exists to prevent.
    *
    * **Reserved for roots whose whole point is what they do not reach.** A
    * feature composition should not use it: pinning fifteen module names would
@@ -264,14 +181,12 @@ export type Composition = Readonly<{
 }>;
 
 /**
- * **Two, not four** (D-56). `sortable/placeholder.js` and `sortable/handle.js`
- * are gone, along with `sortable/callbacks.js`, because a fragment factory that
- * installs nothing measures nothing: under D-45 all three had become identity
- * wrappers around a config slot the consumer can write directly.
+ * The sortable's optional features: a composition that does not install one
+ * must not pull it.
  *
- * That is the falsifiable half of D-56 — the deletions should move **zero
- * bytes**, since the modules never carried runtime machinery to begin with —
- * and the budgets below are what would catch it if they did.
+ * **Two, and the placeholder, handle and callback slots are not among them.**
+ * Those are config the consumer writes directly, so there is no module for a
+ * composition to pull or shake and nothing for a row to measure.
  */
 const OPTIONAL = [
   'sortable/landing.js',
@@ -282,11 +197,11 @@ const OPTIONAL = [
  * Free drag's optional features, and the same rule: a composition that does not
  * install one must not pull it.
  *
- * `free-drag/landing.js` shares `shared/landing-runner.js` with the sortable's,
- * which is the one non-kernel module both behaviors reach — and therefore the
- * most interesting single entry in M-3′'s union identity, since a shared module
- * outside `kernel/` is exactly where a second resolution would be least
- * expected.
+ * `free-drag/landing.js` shares `shared/landing.js` with the sortable's, which
+ * is the one non-kernel module both behaviors reach — and
+ * therefore the most interesting single entry in the union identity
+ * {@link unionViolations} asserts, since a shared module outside `kernel/` is
+ * exactly where a second resolution would be least expected.
  */
 const FREE_DRAG_OPTIONAL = [
   'free-drag/bounds.js',
@@ -305,27 +220,25 @@ export const FREE_DRAG_PART = 'free drag complete';
  * The **unselected axis**, which is not optional in the same sense: exactly one
  * axis feature is installed, so the other is always absent. It is listed
  * separately because "the composition did not reach the sibling rule" is the
- * claim that decided the 2-D shape (Phase 17) — a parameterized single feature
- * would have made every list consumer carry the grid metric.
+ * claim the two-feature shape rests on: a single parameterized feature would
+ * make every list consumer carry the grid metric.
  */
 const withoutAxis = (kept: 'sortable/y.js' | 'sortable/xy.js'): string =>
   kept === 'sortable/y.js' ? 'sortable/xy.js' : 'sortable/y.js';
 
 /**
- * **P-06's machinery, and it is `y()`'s alone** (D-102). The verified
- * incremental refresh is `y()`-only *by contract* — D-100 condition 1 refuses
- * it under `xy()`, whose wrapping flow makes `δ` neither scalar nor uniform —
- * so an `xy()` composition reaching this module would be carrying an
- * optimization it can never execute.
+ * **The linear shift rule, and it is `y()`'s alone.** It is `y()`-only *by
+ * contract* — `xy()` wraps, so the displacement is neither scalar nor uniform
+ * and that axis measures instead — so an `xy()` composition reaching this
+ * module would be carrying a rule it can never execute.
  *
- * It lived in `createRectIndex`'s shared closure when P-06 first landed and
- * cost the minimal `xy()` composition **288 B**. Listed here as a peer of
- * {@link withoutAxis} rather than folded into it because it is a different
- * claim: the unselected axis is absent because exactly one installs, and this
- * is absent because a feature's private optimization may not travel in the
- * shared cache the two axes are deliberately built to share.
+ * A peer of {@link withoutAxis} rather than folded into it, because it is a
+ * different claim: the unselected axis is absent because exactly one installs,
+ * and this is absent because a feature's private rule may not travel in the
+ * shared cache the two axes are deliberately built to share. Folding it into
+ * that cache costs a minimal `xy()` composition 288 B.
  */
-const P06 = 'sortable/verified-refresh.js';
+const P06 = 'sortable/linear-shift.js';
 
 const without = (...kept: readonly string[]): readonly string[] =>
   OPTIONAL.filter((module) => !kept.includes(module));
@@ -337,24 +250,26 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
     },
-    budget: 11_585,
+    budget: 10_549,
     absent: [...without(), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: [P06],
   },
   {
-    // The same composition on the other axis. It reopens what "minimal" means,
-    // which 05 §Measurements — landed 2026-08-02 names as an M-3 trigger, so it is
-    // measured as a peer rather than assumed to equal the y one.
+    // The same composition on the other axis. It reopens what "minimal"
+    // means, which 05 §Measurements — landed 2026-08-02 names as a trigger to
+    // re-measure, so it is measured as a peer rather than assumed to equal the
+    // y one.
     name: 'minimal (xy)',
     imports: {
       'sortable.js': '{ sortable }',
       'sortable/xy.js': '{ xy }',
     },
-    budget: 11_235,
+    budget: 10_421,
     absent: [...without(), withoutAxis('sortable/xy.js'), P06],
     absentPrefixes: ['free-drag/'],
-    // **Both halves of D-102 in one row.** The dimension-neutral cache is
+    // **Both halves of the sharing rule in one row.** The dimension-neutral
+    // cache is
     // reached — that is the shared-by-design part, and it is why `xy()` is
     // measured as a peer rather than assumed to equal the `y()` one — and the
     // `y()`-only optimization on top of it is not.
@@ -367,7 +282,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/y.js': '{ y }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 12_024,
+    budget: 10_887,
     absent: [
       ...without('sortable/layout-animation.js'),
       withoutAxis('sortable/y.js'),
@@ -376,13 +291,39 @@ export const COMPOSITIONS: readonly Composition[] = [
     present: ['sortable/layout-animation.js', P06],
   },
   {
+    // **The composition every displacement decision is about**, and it had no
+    // row for three of them: the cellular axis is the one that measures after
+    // the write, so it is the only one whose displacement production a sink
+    // actually drives, and every earlier reading was taken against the linear
+    // axis plus animation or the cellular axis alone. A row a change cannot
+    // reach reports 0 for it, which is §15's *check that the instrument can
+    // see the change* in its structural form.
+    name: 'xy + layoutAnimation',
+    imports: {
+      'sortable.js': '{ sortable }',
+      'sortable/xy.js': '{ xy }',
+      'sortable/layout-animation.js': '{ layoutAnimation }',
+    },
+    budget: 10_776,
+    absent: [
+      ...without('sortable/layout-animation.js'),
+      withoutAxis('sortable/xy.js'),
+      P06,
+    ],
+    absentPrefixes: ['free-drag/'],
+    // The linear rule stays out even with a sink composed, which is the half
+    // the `minimal (xy)` row cannot state: a displacement feature is not what
+    // pulls `y()`'s prediction into a graph.
+    present: ['sortable/layout-animation.js', 'sortable/rect-index.js'],
+  },
+  {
     name: 'minimal + landing',
     imports: {
       'sortable.js': '{ sortable }',
       'sortable/y.js': '{ y }',
       'sortable/landing.js': '{ landing }',
     },
-    budget: 11_878,
+    budget: 10_695,
     absent: [...without('sortable/landing.js'), withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: ['sortable/landing.js', P06],
@@ -395,20 +336,21 @@ export const COMPOSITIONS: readonly Composition[] = [
       'sortable/landing.js': '{ landing }',
       'sortable/layout-animation.js': '{ layoutAnimation }',
     },
-    budget: 12_289,
+    budget: 11_033,
     absent: [withoutAxis('sortable/y.js')],
     absentPrefixes: ['free-drag/'],
     present: [...OPTIONAL, P06],
   },
   {
-    // **The free-drag half of the surface** (M-3′). Declared as peers of the
+    // **The free-drag half of the surface.** Declared as peers of the
     // sortable rows rather than as a variant of them: the two behaviors share
     // the kernel and nothing else, which is a claim about both graphs.
     name: 'free drag minimal',
     imports: {
       'free-drag.js': '{ freeDrag }',
     },
-    budget: 9160,
+    budget: 8266,
+    control: 8116,
     absent: [...withoutFreeDrag()],
     absentPrefixes: ['sortable/'],
     present: ['free-drag.js', 'kernel/kernel.js'],
@@ -419,7 +361,8 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag.js': '{ freeDrag }',
       'free-drag/bounds.js': '{ bounds }',
     },
-    budget: 9310,
+    budget: 8423,
+    control: 8274,
     absent: [...withoutFreeDrag('free-drag/bounds.js')],
     absentPrefixes: ['sortable/'],
     present: ['free-drag/bounds.js'],
@@ -430,10 +373,11 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag.js': '{ freeDrag }',
       'free-drag/landing.js': '{ landing }',
     },
-    budget: 9460,
+    budget: 8425,
+    control: 8276,
     absent: [...withoutFreeDrag('free-drag/landing.js')],
     absentPrefixes: ['sortable/'],
-    present: ['free-drag/landing.js', 'shared/landing-runner.js'],
+    present: ['free-drag/landing.js', 'shared/landing.js'],
   },
   {
     name: FREE_DRAG_PART,
@@ -442,12 +386,13 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
       'free-drag/landing.js': '{ landing }',
     },
-    budget: 9610,
+    budget: 8576,
+    control: 8426,
     absentPrefixes: ['sortable/'],
     present: FREE_DRAG_OPTIONAL,
   },
   {
-    // **The row M-3′ was added for.** One page, both behaviors, every optional
+    // **The largest surface there is.** One page, both behaviors, every optional
     // feature — the largest surface a consumer can compose, and the only
     // configuration in which the kernel is reached by two behaviors at once.
     //
@@ -465,88 +410,118 @@ export const COMPOSITIONS: readonly Composition[] = [
       'free-drag/bounds.js': '{ bounds }',
       'free-drag/landing.js': '{ landing as freeDragLanding }',
     },
-    budget: 13_850,
+    budget: 12_493,
     absent: [withoutAxis('sortable/y.js')],
-    present: [
-      ...OPTIONAL,
-      ...FREE_DRAG_OPTIONAL,
-      'shared/landing-runner.js',
-      P06,
-    ],
+    present: [...OPTIONAL, ...FREE_DRAG_OPTIONAL, 'shared/landing.js', P06],
   },
   {
     /**
-     * **F-77's close, and the graph half is the point of the row.**
+     * **A consumer who wants `err instanceof DraggableError` and nothing else
+     * pays one module**, and it takes both halves of this row to say so. 03
+     * §The export topology asks for the export claim to be checked against
+     * something other than the table it was derived from; this is that check.
      *
-     * The contract says a consumer imports `free-drag.js` and `drag.js` and
-     * _reaches no other tier_, and 03 §The export topology asks for that to be
-     * checked against something other than the table it was derived from. This
-     * is that check: a consumer who wants `err instanceof DraggableError` and
-     * nothing else pays one module.
+     * | Half | Claim | Blind to |
+     * | --- | --- | --- |
+     * | `only` | the root bundles to one module | anything arriving *inside* that module |
+     * | `budget` | that one module stays the size of two classes | nothing — it is the residual detector |
      *
-     * **The isolation is real but not structural, which is why it needs a
-     * standing row rather than a reading.** `src/kernel/errors.ts` imports
-     * thirteen runtime `FAILURE_*` constants from `./failures.ts` and uses them
-     * as computed keys in `STAGE_TO_CODE`. This root bundles to one module only
-     * because Rolldown shakes that map and `toDraggableError` away from the
-     * `DraggableError` class in the same file. **One runtime reference from the
-     * class to the stage map, or one side effect in `failures.ts`, and the root
-     * silently grows** — which is precisely the failure the doctrine at the top
-     * of this file names: a module pulled in, mostly shaken, showing up as a
-     * small delta that reads like success.
+     * **The budget is the sole detector for its class.** The packed
+     * `kernel/errors.js` carries a **bare** `import "./failures.js"`, because
+     * `tsdown` inlines the `FAILURE_*` constants as literals — so machinery
+     * arriving from `failures.ts` lands *inside* this module and moves no
+     * module count at all. `only` cannot see it by construction, and
+     * `tests/packaging.node.test.ts` cannot either: it walks the unshaken
+     * *source* graph, deliberately independent of any bundler's heuristics,
+     * and on that graph `drag.js` **does** reach `kernel/failures.js`. Only a
+     * bundled-graph instrument holds this figure.
      *
-     * **`tests/packaging.node.test.ts` is not this assertion.** It walks the
-     * unshaken *source* graph, deliberately independent of any bundler's
-     * heuristics, and on that graph `drag.js` **does** reach
-     * `kernel/failures.js`. Only a bundled-graph instrument can hold the 121 B.
+     * **The regression class is anything that makes `drag.js`'s
+     * `kernel/failures.js` re-export unshakeable, or gives `errors.ts` a
+     * runtime need for a stage value.** The second shape is the calibrating
+     * injection — import the twelve constants as values, then reference them
+     * from the constructor:
      *
-     * **This row's budget is 29 B of headroom, not the standing ~150 B, and
-     * that is the row working rather than an oversight.** The convention is
-     * sized to _roughly one module_ against 8–13 kB compositions; on a 121 B
-     * root, one module's worth of slack is larger than the artifact, and the
+     * ```ts
+     * // src/kernel/errors.ts
+     * const KNOWN_STAGES: readonly FailureStage[] = [FAILURE_ADMISSION, …];
+     * this.stage = stage !== null && KNOWN_STAGES.includes(stage) ? stage : null;
+     * ```
+     *
+     * | | brotli | minified | shipped modules |
+     * | --- | --- | --- | --- |
+     * | landed | **159** | 344 | 1 |
+     * | injected | **220** | 410 | **1 — unchanged** |
+     * | reworded, same length | 181 | 342 | 1 |
+     * | rewritten, +48 chars | 190 | 402 | 1 |
+     *
+     * **The graph half does not move, which is the whole finding.** A
+     * plausible stage validation adds **+61 B** and zero modules, so only a
+     * ceiling this row can breach observes it. 190 must pass and 220 must
+     * fail, so the admissible window is 191–219 and **205** is its midpoint:
+     * 46 B of headroom, breaching the injection by 15 B and clearing the most
+     * generous rewrite by 15 B.
+     *
+     * **30-to-50 B of headroom, not the standing ~150 B.** That convention is
+     * sized to roughly one module against 8–13 kB compositions; on a 159 B
+     * root, one module's worth of slack is larger than the artifact and the
      * row would report success while the thing it exists to prevent happened.
-     * The graph half cannot cover the gap either: the packed `kernel/errors.js`
-     * carries a **bare** `import "./failures.js"`, because `tsdown` inlines the
-     * thirteen `FAILURE_*` constants as literals — so machinery arriving from
-     * `failures.ts` lands **inside this module** and moves no module count at
-     * all. Verified by injecting F-77's own predicted regression, one runtime
-     * reference from `DraggableError` to `STAGE_TO_CODE`: the graph stays at
-     * one module and the artifact grows **121 → 190 B**. Only a budget this
-     * row can breach observes that, which is why it is set where it is.
      *
-     * A legitimate change to the class re-bases this number, deliberately and
-     * visibly, under the standing rule that a budget re-bases rather than a fix
-     * shrinking. That is the intended behaviour and not a cost.
+     * **The wording band is wider than it looks, and Brotli is why.** A
+     * *same-length* rewording costs **+22 B compressed while saving 2 B
+     * minified**: `destroyed` and `failure` are in Brotli's static dictionary
+     * and `torn down` and `fault` are not, so on a 344 B input the
+     * substitution is a compression loss with no source cost. The band is
+     * measured rather than read off source length, which would put the
+     * ceiling at 190 and fail on a rewording.
+     *
+     * A legitimate change to the two classes re-bases this number visibly,
+     * under the same rule every other row is administered by.
      */
     name: 'vocabulary root - drag.js',
-    imports: { 'drag.js': '{ DraggableError }' },
-    budget: 150,
+    // **Both classes.** Naming one would let the other shake out and quietly
+    // stop measuring half the entry — the row would keep reporting the size of
+    // one class for a vocabulary root that had grown.
+    //
+    // **Deliberately *not* the twelve stage constants.** Importing
+    // them would fold their cost into this figure and destroy the row's one
+    // claim: that a consumer who wants `err instanceof DraggableError` and
+    // nothing else reaches one module. Their cost is a separate question, and
+    // the answer — 0 B, 0 modules, because the re-export shakes — is only
+    // observable while this row declines to import them.
+    imports: { 'drag.js': '{ DraggableError, DraggableWarning }' },
+    budget: 205,
+    control: 142,
     only: ['kernel/errors.js'],
   },
   {
     /**
-     * The kernel tier's own root, the second half of F-77.
+     * The kernel tier's own root, and the other half of the export claim.
      *
-     * **It is what makes the row above a measurement rather than a tautology.**
-     * A one-module vocabulary root is only evidence for D-48's split if the
-     * tier it declines to import is substantial, and this weighs that tier at
-     * twelve modules against the vocabulary root's one.
+     * **It is what makes the row above a measurement rather than a
+     * tautology.** A one-module vocabulary root is only evidence for the tier
+     * split if the tier it declines to import is substantial, and this weighs
+     * that tier at thirteen non-entry modules against the vocabulary root's
+     * one.
      *
-     * **The two graphs turn out to be disjoint, which is stronger than the
-     * split needed.** `kernel.js` does not pull `kernel/errors.js` either —
-     * `draggable` alone never names the class — so neither root subsumes the
-     * other and D-48's _neither tier should have to import the other to name a
-     * symbol both hand out_ holds in both directions rather than one. That was
-     * not known before this row: `bundle-structure.md` recorded the 12-module
-     * floor without listing it.
+     * **The containment runs one way, which is the direction the split
+     * claims.** This graph contains `kernel/errors.js`, because the kernel
+     * constructs every public error and names both classes to do it, so the
+     * vocabulary root's single module is a strict subset of this row's. The
+     * property being measured is the direction that is not subsumption: an
+     * ordinary consumer who wants `err instanceof DraggableError` reaches one
+     * module and never this tier. A future edit that removed the class from
+     * the kernel's graph would widen the gap and falsify nothing here; an edit
+     * that put a behavior in it is what `absentPrefixes` catches.
      *
      * Declared with `present`/`absentPrefixes` rather than `only`: the claim
      * here is that the kernel floor reaches no behavior, not that its own
-     * twelve modules are frozen.
+     * module list is frozen.
      */
     name: 'kernel root - kernel.js',
     imports: { 'kernel.js': '{ draggable }' },
-    budget: 6950,
+    budget: 6312,
+    control: 6185,
     present: ['kernel.js', 'kernel/kernel.js'],
     absentPrefixes: ['sortable/', 'free-drag/'],
   },
@@ -554,7 +529,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     // Answers *what does composition cost*, and nothing else.
     name: 'baseline A - feature-matched, non-composed',
     entry: 'bench/size/noncomposed.js',
-    budget: 12_000,
+    budget: 10_855,
   },
   {
     // Answers *what does migrating cost*, and nothing else. Never substituted
@@ -562,6 +537,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     name: 'baseline B - shipped @ydinjs/drag sortable.js',
     entry: 'bench/size/shipped.js',
     budget: 7040,
+    control: 6889,
   },
 ];
 
@@ -583,7 +559,7 @@ export type Measurement = Readonly<{
   /**
    * Module ids emitted into **more than one** chunk. Empty is the expected
    * state; a non-empty list is duplication in the literal sense, which is what
-   * M-3′'s union identity is watching for from the other side.
+   * {@link unionViolations} is watching for from the other side.
    */
   duplicated: readonly string[];
 }>;
@@ -602,7 +578,50 @@ function importEntry(imports: Readonly<Record<string, string>>): string {
     .join('\n');
 }
 
-export async function measure(composition: Composition): Promise<Measurement> {
+/**
+ * Where a run writes what it measured, and whether it also writes a readable
+ * twin. Absent for an ordinary run, which writes nothing.
+ */
+export type Dump = Readonly<{
+  /** The directory each composition gets a sub-directory of. */
+  directory: string;
+  /** Also emit an unminified generate, for reading rather than counting. */
+  unminified: boolean;
+}>;
+
+/** A composition name as a directory name. */
+const slug = (name: string): string =>
+  name
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9]+/gu, '-')
+    .replace(/^-|-$/gu, '');
+
+/**
+ * Writes one generate's chunks under `<composition>/<kind>/`.
+ *
+ * Per chunk rather than concatenated, because the chunks are what the bundler
+ * produced; the measured figure is their concatenation, which matters only
+ * where a composition emits more than one, and none currently does.
+ */
+async function writeChunks(
+  target: string,
+  kind: string,
+  chunks: ReadonlyArray<Readonly<{ fileName: string; code: string }>>,
+): Promise<void> {
+  const directory = join(target, kind);
+
+  await mkdir(directory, { recursive: true });
+  await Promise.all(
+    chunks.map((chunk) =>
+      writeFile(join(directory, chunk.fileName), chunk.code, 'utf8'),
+    ),
+  );
+}
+
+export async function measure(
+  composition: Composition,
+  dump?: Dump,
+): Promise<Measurement> {
   const directory = await mkdtemp(join(tmpdir(), 'drag2-m3-'));
 
   try {
@@ -618,6 +637,7 @@ export async function measure(composition: Composition): Promise<Measurement> {
     const bundle = await rolldown({ input: [input], platform: 'neutral' });
 
     try {
+      // **The measured generate, and the only one whose bytes are read.**
       const { output } = await bundle.generate({ format: 'es', minify: true });
       const chunks = output.filter((chunk) => chunk.type === 'chunk');
       const code = chunks.map((chunk) => chunk.code).join('');
@@ -632,6 +652,33 @@ export async function measure(composition: Composition): Promise<Measurement> {
       }
 
       const bytes = new TextEncoder().encode(code);
+
+      if (dump !== undefined) {
+        const target = join(dump.directory, slug(composition.name));
+
+        // The synthetic entry is written too: it is the fixture the figure is
+        // a measurement *of*, and it exists nowhere else once the run ends.
+        if (composition.imports) {
+          await mkdir(target, { recursive: true });
+          await writeFile(
+            join(target, 'entry.js'),
+            importEntry(composition.imports),
+            'utf8',
+          );
+        }
+
+        await writeChunks(target, 'measured', chunks);
+
+        if (dump.unminified) {
+          const plain = await bundle.generate({ format: 'es', minify: false });
+
+          await writeChunks(
+            target,
+            'unminified',
+            plain.output.filter((chunk) => chunk.type === 'chunk'),
+          );
+        }
+      }
 
       return {
         composition,
@@ -652,14 +699,14 @@ export async function measure(composition: Composition): Promise<Measurement> {
   }
 }
 
-export async function measureAll(): Promise<Measurement[]> {
+export async function measureAll(dump?: Dump): Promise<Measurement[]> {
   const measured: Measurement[] = [];
 
   // Sequential rather than `Promise.all`: the numbers are deterministic either
   // way, but a serial run keeps peak memory flat and the log readable.
   for (const composition of COMPOSITIONS) {
     // oxlint-disable-next-line no-await-in-loop
-    measured.push(await measure(composition));
+    measured.push(await measure(composition, dump));
   }
 
   return measured;
@@ -687,6 +734,25 @@ export function budgetViolations(measurement: Measurement): readonly string[] {
     ? [
         `over budget by ${brotli - composition.budget} B ` +
           `(${brotli} > ${composition.budget})`,
+      ]
+    : [];
+}
+
+/**
+ * The **control** half: a row that should not have moved, and did not.
+ *
+ * Reported in both directions. A control getting *cheaper* is as much a finding
+ * as one getting dearer — it means a change reached a graph it was declared
+ * unable to reach, and the instrument's whole value is that it says so before
+ * the number is read as a win.
+ */
+export function controlViolations(measurement: Measurement): readonly string[] {
+  const { composition, brotli } = measurement;
+
+  return composition.control !== undefined && brotli !== composition.control
+    ? [
+        `control moved by ${brotli - composition.control} B ` +
+          `(${brotli}, declared ${composition.control})`,
       ]
     : [];
 }
@@ -756,13 +822,12 @@ export function graphViolations(measurement: Measurement): readonly string[] {
 }
 
 /**
- * **M-3′'s topology test, and it is an identity rather than a threshold**
- * (D-95 (b), D-96 (5)).
+ * **The topology test, and it is an identity rather than a threshold.**
  *
- * The question is whether D-48's `kernel.js` split still holds when one page
+ * The question is whether the `kernel.js` tier split still holds when one page
  * runs both behaviors. _Near the sum_ and _near the difference_ are not
- * conditions a byte count can be scored against, and a tolerance invented after
- * the run is exactly the post-hoc rule the phase refuses. The observable is the
+ * conditions a byte count can be scored against, and a tolerance invented
+ * after the run is a post-hoc rule. The observable is the
  * graph: **the combined composition must pull the union of the two
  * single-behavior graphs and nothing else**, so every module both behaviors
  * need resolves once.
@@ -770,7 +835,7 @@ export function graphViolations(measurement: Measurement): readonly string[] {
  * A module in the combined graph and in neither single graph is a module the
  * pairing introduced; a module in a single graph and missing from the combined
  * one means one behavior stopped reaching it. Both are topology changes, and
- * either reopens the export topology under 05 §Measurements — landed 2026-08-02. The byte
+ * either reopens the export topology under 05 §Measurements. The byte
  * delta against the sum is then the **size** of a duplication rather than the
  * evidence for one, which is why it is telemetry.
  */
@@ -796,20 +861,111 @@ export function unionViolations(
   return found;
 }
 
+export type DeclarationWeight = Readonly<{
+  files: number;
+  bytes: number;
+  comment: number;
+}>;
+
+/**
+ * The published type surface, weighed the way a tarball carries it.
+ *
+ * Every other figure here is a *runtime* bundle, and a comment does not survive
+ * minification — so the largest single class of published bytes this package
+ * has is invisible to all of them. `prune-declarations.ts` cannot see it
+ * either: it removes declaration files no entry can reach and never looks
+ * inside the ones it keeps.
+ *
+ * **Reported and not budgeted.** A ceiling whose calibrating injection cannot
+ * be re-run is not calibrated, and this figure has no measured
+ * regression behind it. It is the number a later pass would need before it
+ * could set one.
+ */
+export async function declarationWeight(): Promise<DeclarationWeight> {
+  const SKIP = new Set(['node_modules', 'src', 'tests', 'bench']);
+  const walk = async (directory: string): Promise<readonly string[]> => {
+    const entries = await readdir(directory, { withFileTypes: true });
+    const nested = await Promise.all(
+      entries.map(async (entry) => {
+        const path = join(directory, entry.name);
+
+        if (entry.isDirectory()) {
+          return SKIP.has(entry.name) || entry.name.startsWith('.')
+            ? []
+            : await walk(path);
+        }
+
+        return entry.name.endsWith('.d.ts') ? [path] : [];
+      }),
+    );
+
+    return nested.flat();
+  };
+
+  const files = await walk(ROOT);
+  const sources = await Promise.all(
+    files.map((file) => readFile(file, 'utf8')),
+  );
+  let bytes = 0;
+  let comment = 0;
+
+  for (const source of sources) {
+    bytes += source.length;
+
+    // Declarations are emitted, so the two comment forms are the only ones
+    // present and neither can appear inside a string literal.
+    for (const match of source.matchAll(/\/\*[\s\S]*?\*\//gu)) {
+      comment += match[0].length;
+    }
+
+    for (const match of source.matchAll(/^[^\S\n]*\/\/[^\n]*$/gmu)) {
+      comment += match[0].length;
+    }
+  }
+
+  return { files: files.length, bytes, comment };
+}
+
 /**
  * Both halves, for the CLI. `just size` reports and enforces everything — it is
- * run deliberately, by someone who wants the numbers — which is where the
- * budgets keep living while the suite has them muted.
+ * run deliberately, by someone who wants the numbers printed as well as
+ * checked. The suite enforces the same rows without printing them.
  */
 export function violations(measurement: Measurement): readonly string[] {
-  return [...budgetViolations(measurement), ...graphViolations(measurement)];
+  return [
+    ...budgetViolations(measurement),
+    ...controlViolations(measurement),
+    ...graphViolations(measurement),
+  ];
 }
 
 if (import.meta.main) {
   const kb = (bytes: number): string => `${(bytes / 1000).toFixed(2)} kB`;
+  // Strict, so a misspelt flag stops the run rather than silently measuring
+  // with the flag off — the two flags decide only what is *written*, but a run
+  // that quietly wrote nothing is indistinguishable from one that had nothing
+  // to write.
+  const { values } = parseArgs({
+    options: {
+      files: { type: 'boolean', default: false },
+      unminified: { type: 'boolean', default: false },
+    },
+  });
+  const { unminified } = values;
+  // `--unminified` is about *what is written*, so it implies writing.
+  const writing = unminified || values.files;
+  const OUT = join(ROOT, '.measured');
+
+  if (writing) {
+    // Cleared first: a stale composition directory from an earlier tree reads
+    // as this run's output and there is nothing in the file to say otherwise.
+    await rm(OUT, { force: true, recursive: true });
+  }
 
   let failed = false;
-  const all = await measureAll();
+  const all = await measureAll(
+    writing ? { directory: OUT, unminified } : undefined,
+  );
   const byName = new Map(all.map((one) => [one.composition.name, one]));
 
   for (const measurement of all) {
@@ -851,6 +1007,30 @@ if (import.meta.main) {
       // oxlint-disable-next-line no-console
       console.error(`  ✗ ${COMBINED} ${violation}`);
     }
+  }
+
+  const declarations = await declarationWeight();
+
+  // oxlint-disable-next-line no-console
+  console.log(
+    // Bytes rather than kB. This figure is transcribed into the measurement
+    // records, and at two-decimal kB a change of a few dozen bytes cannot move
+    // it — an obligation to record the new figure is then discharged by
+    // writing the same number.
+    `\npublished declarations: ${declarations.files} files,` +
+      ` ${declarations.bytes} B, of which ${declarations.comment} B is` +
+      ` comment (${Math.round(
+        (declarations.comment / declarations.bytes) * 100,
+      )} %)  (telemetry: not budgeted)`,
+  );
+
+  if (writing) {
+    // oxlint-disable-next-line no-console
+    console.log(
+      `\nwrote ${all.length} compositions to ${relative(process.cwd(), OUT)}/` +
+        `  (\`measured/\` is the bytes above` +
+        `${unminified ? ', `unminified/` is the same bundle for reading' : ''})`,
+    );
   }
 
   if (failed) {

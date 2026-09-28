@@ -1,84 +1,93 @@
 /**
- * The behavior instance: the one place `rt` is declared and created.
+ * The behavior instance: the one place the spec and the controller are created.
  *
  * ```ts
- * const rt = createSortableRuntime(host, items, slots);
- * return { spec: createSortableSpec(rt), controller: createSortableController(host, rt) };
+ * return {
+ *   spec: createSortableSpec(kernel, source, items, slots),
+ *   controller: createSortableController(kernel),
+ * };
  * ```
  *
  * Both halves are returned at once, which is what makes "no input can be
- * admitted before install returns" unexpressible rather than a rule (D-1).
+ * admitted before install returns" unexpressible rather than a rule.
  *
- * Assembly happens **inside** the install function, not before it: a feature
- * factory is handed `realm` and `root`, and neither exists until the kernel has
- * a host. The public `sortable(items, ...features)` entry lives in `sortable.ts`
- * and is the only caller that assembles.
+ * **Neither half is handed a runtime object**: what each takes is the kernel,
+ * narrowed to {@link BehaviorContext}, and
+ * the behavior's own state lives in the spec's closure, where nothing outside
+ * can name it.
+ *
+ * Assembly happens **inside** the returned factory, not before it: a feature
+ * factory is handed `realm` and `root`, and neither exists until the kernel
+ * does. The public `sortable(items, ...features)` entry lives in
+ * `sortable.ts` and is the only caller that assembles.
+ *
+ * **Two factories, and each returns the handshake itself.** There is no shared
+ * `install` between them: it would only name two constructor calls, and writing
+ * those twice is cheaper than a function that exists to be called from two
+ * places. What the seam below protects does not depend on that indirection —
+ * both factories reach the **same two constructors** with the same arguments,
+ * so the browser suite composes spec and controller exactly as production does.
+ * The cost is named rather than absorbed: a third half of the handshake would
+ * have to be written twice, and `BehaviorInstall` is the type that would catch
+ * a factory that forgot one.
  */
-import { report } from '../kernel/reporter.ts';
-import type {
-  BehaviorFactory,
-  BehaviorInstall,
-  KernelHost,
-} from '../kernel/spec.ts';
+import { DraggableWarning } from '../kernel/errors.ts';
+import type { BehaviorFactory } from '../kernel/spec.ts';
 import { assemble } from './assemble.ts';
-import { copyUniqueItems } from './collection.ts';
 import { mergeFragments, type SortableConfig } from './config.ts';
 import {
   createSortableController,
   type SortableController,
 } from './controller.ts';
 import type { SortableFramePart } from './frames.ts';
-import { createSortableRuntime } from './runtime.ts';
 import type { SortableSlots } from './slots.ts';
 import { createSortableSpec } from './spec.ts';
 
 /**
- * `source` is the array the pull returned and `items` is the validated copy of
- * it (D-80 (b)). They are separate parameters because they are separate facts:
- * `source` is the **identity baseline** a later pull is compared against
- * (D-44), so it must be the consumer's own array, while `items` is what the
- * behavior publishes and must be a copy no consumer can mutate.
- */
-function install(
-  host: KernelHost,
-  source: readonly HTMLElement[],
-  items: readonly HTMLElement[],
-  slots: SortableSlots,
-): BehaviorInstall<SortableController, SortableFramePart, HTMLElement> {
-  const rt = createSortableRuntime(host, source, items, slots);
-
-  return {
-    spec: createSortableSpec(rt),
-    controller: createSortableController(host),
-  };
-}
-
-/**
- * Takes an already-assembled slot record. The seam the tests drive directly.
+ * Takes an already-assembled slot record.
  *
- * **A plain factory, unbranded** (D-55). `brandBehavior` is withdrawn: with
- * `sortable()` returning its controller directly there is no branded value for
- * a consumer to hold, so the brand had no producer.
+ * **An internal test seam, and what it protects is the wiring.** It is not a
+ * construction layer and not a duplicate of the composed path: it calls the
+ * same two constructors the composed factory does, so the browser suite
+ * composes spec and controller exactly as production does rather than beside
+ * it, where a test-local equivalent could drift. What it adds is reach — an
+ * already-flattened `SortableSlots` carrying states the public config cannot
+ * express, such as a stub resolver, no placeholder factory, or the hook
+ * overrides no `SortableConfig` names. It cannot become public surface: its
+ * parameter type is the one `feature.ts` deliberately stops the published
+ * closure at.
+ *
+ * **A plain factory, unbranded.** `sortable()` returns its controller directly,
+ * so there is no branded value for a consumer to hold and a brand would have no
+ * producer.
  */
 export function createSortableBehavior(
   items: readonly HTMLElement[],
   slots: SortableSlots,
 ): BehaviorFactory<SortableController, SortableFramePart, HTMLElement> {
-  // Validated here for the same reason as the composed path below (D-80 (b)):
-  // the collection is copied and checked once, at the boundary that receives
-  // it, rather than deeper in where a throw has installers behind it. This seam
-  // is handed an already-assembled record, so nothing has run yet either way —
-  // what it must not do is let the two paths validate in different places.
-  return (host) => install(host, items, copyUniqueItems(items), slots);
+  // Copied here for the same reason as the composed path below: the collection
+  // becomes the library's own at the boundary that receives it, so the behavior
+  // never publishes a snapshot over an array the caller still holds. **Both
+  // paths copy; neither validates** — the mirroring is what must not drift, and
+  // what is mirrored is the ownership act rather than a refusal.
+  //
+  // **`source` and the copy are separate arguments because they are separate
+  // facts**: `source` is the identity baseline a later pull is compared
+  // against, so it must be the caller's own array, while the copy is what the
+  // behavior publishes and no caller may mutate.
+  return (kernel) => ({
+    spec: createSortableSpec(kernel, items, [...items], slots),
+    controller: createSortableController(kernel),
+  });
 }
 
 /**
- * Merges the fragments, then assembles against the host's realm and root.
+ * Merges the fragments, then assembles against the kernel's realm and root.
  *
- * **Two stages, and the split is the decision** (D-45): the merge resolves
- * every named slot before a single installer runs, which is what makes
- * last-wins a merge rule rather than a lifecycle problem — a capability that
- * loses its slot is never constructed, so there is nothing to retire.
+ * **Two stages, and the split is the decision**: the merge resolves every named
+ * slot before a single installer runs, which is what makes last-wins a merge
+ * rule rather than a lifecycle problem — a capability that loses its slot is
+ * never constructed, so there is nothing to retire.
  *
  * The merge happens here rather than at the `sortable()` call site because
  * nothing before this point is per-controller: merging eagerly would compute a
@@ -90,44 +99,68 @@ export function createComposedSortableBehavior(
 ): BehaviorFactory<SortableController, SortableFramePart, HTMLElement> {
   const merged = mergeFragments(config, fragments);
 
-  return (host) => {
-    // **D-44: the first pull.** Every later one goes through
+  return (kernel) => {
+    // **The first pull.** Every later one goes through
     // `action.prepare(COLLECTION)`; this is the initial snapshot and the
     // initial structural baseline, and it is the only `items()` call that
     // happens outside a transaction.
     //
-    // **Called unguarded** (D-77). The `typeof` test that used to stand here
-    // existed to route a non-function `items` to the assembler's diagnostic,
-    // and that diagnostic is deleted: a non-callable `items` is a
-    // required-config *type* violation, not a library invariant, so the
-    // unavoidable construction call is left to fail naturally. Only a later
-    // throw from a *valid* source — one that is a function and raises during an
-    // `invalidate()` — belongs to `FAILURE_ACTION_PREPARE`.
+    // **Called unguarded.** A `typeof` test here would route a non-function
+    // `items` to an assembler diagnostic that does not exist: a non-callable
+    // `items` is a required-config *type* violation, not a library invariant,
+    // so the unavoidable construction call is left to fail naturally. Only a
+    // later throw from a *valid* source — one that is a function and raises
+    // during an `invalidate()` — belongs to `FAILURE_ACTION_PREPARE`.
     const source = merged.items();
 
-    // **Pulled, validated and copied before the first installer runs, and the
-    // statement order is normative** (D-80 (b), F-68, F-69). `copyUniqueItems`
-    // used to run inside `createSortableRuntime`, i.e. *after* `assemble` had
-    // returned: a collection holding the same element twice left every
-    // recorded `retire` hook unrun, plus a kernel and a realm `draggable()`
-    // had already built, because `arm()` was never reached. Nothing here is
-    // bracketed — the point is that no consumer-triggerable throw remains
-    // between the first hook being recorded and the bracket that unwinds them.
+    // **Pulled before the first installer runs, and the statement order is
+    // normative.** The pull above is **consumer code** and may throw on its
+    // own, and it must not do so with installer `retire` hooks recorded and
+    // unrun, because nothing here is bracketed and `arm()` is never reached.
     //
-    // **These were sibling arguments to one call, and only left-to-right
-    // evaluation made that safe** (F-69). Swapping them is a change no reviewer
-    // would flag, and it would strand every hook on a throwing `items()`. They
-    // are statements now so the ordering is deliberate rather than positional.
-    const items = copyUniqueItems(source);
+    // **The pull and the assembly are separate statements, and that is what
+    // makes the order safe.** As sibling arguments to one call it would rest on
+    // left-to-right evaluation instead: swapping them is a change no reviewer
+    // would flag, and it would strand every hook.
+    const items = [...source];
 
-    return install(
-      host,
-      source,
-      items,
-      // `report`, not `fail`: a feature closure created here cannot know which
-      // operation is live, so classifying a failure from one would let a late
-      // continuation settle another.
-      assemble(merged, { realm: host.realm, root: host.root, report }),
-    );
+    return {
+      spec: createSortableSpec(
+        kernel,
+        source,
+        items,
+        assemble(merged, {
+          realm: kernel.realm,
+          root: kernel.root,
+          // **The composition unwind's only route to the channel.** `assemble`
+          // runs before `arm()`, so no behavior spec exists yet and the
+          // kernel's own notifier is unreachable — but `merged.onError` is in
+          // hand right here, which makes this the smallest threading available
+          // rather than a new ownership path.
+          //
+          // `report`, not `fail`: a feature closure created here cannot know
+          // which operation is live, so classifying a failure from one would
+          // let a late continuation settle another.
+          report: (error) => {
+            if (kernel.closed) {
+              return;
+            }
+
+            try {
+              merged.onError?.(
+                new DraggableWarning('drag: composition/unwind-failed', {
+                  cause: error,
+                }),
+              );
+            } catch {
+              // The terminus. A construction unwind that cannot report is still
+              // an unwind, and its next step matters more than this
+              // notification.
+            }
+          },
+        }),
+      ),
+      controller: createSortableController(kernel),
+    };
   };
 }

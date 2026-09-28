@@ -1,19 +1,29 @@
 /**
- * **The input policy, against real input** (D-46, D-50, D-54).
+ * **The input policy, against real input** (D-46, D-50, D-54, D-129).
  *
  * This file began as probe E — a throwaway that *observed* what `src/` did to
  * interactive descendants of a draggable row, and whose output is
  * `.plan/probes/api-3-input-policy.md`. Phase R promoted it: its ten cases are
- * each a case the shipped package passes silently and wrongly, so every
- * snapshot below now records the **repaired** behavior and fails if it
- * regresses. The observation-era snapshots are in the write-up.
+ * each a case the shipped package passed silently and wrongly, so every
+ * snapshot below records the **shipped** behavior and fails if it regresses.
+ * The observation-era snapshots are in the write-up.
  *
- * The two decisions divide the cases and neither covers them alone. **D-54**
- * moves *when* the pointer path prevents — to the activation threshold
- * crossing — which fixes every case where the press never becomes a drag.
- * **D-46** narrows *what* may be admitted, which fixes the cases that do cross
- * the threshold: a drag-select inside a text input, a slider thumb, arrow keys
- * in a descendant, an IME composition.
+ * **D-129 changed which decision answers which case, and this file is where
+ * that is visible.** Probe E's ten cases had two answers. **D-54** moves *when*
+ * the pointer path prevents — to the activation threshold crossing — which
+ * fixes every case where the press never becomes a drag. **D-46** narrowed
+ * *what* may be admitted, by inferring ownership from element type and from
+ * `isContentEditable`, which fixed the cases that *do* cross the threshold.
+ * ~~A drag-select inside a text input, a slider thumb and arrow keys in a
+ * nested control decline.~~ **D-129 withdraws the inference.** A descendant is
+ * draggable by default and `[data-drag-ignore]` is the only opt-out, so those
+ * cases now belong to the drag unless the consumer says otherwise — and the
+ * rows below say so in as many words rather than disappearing.
+ *
+ * D-54 is untouched by that and carries more of the file than it used to:
+ * every sub-threshold tap below still leaves focus, caret, selection and
+ * form-control operation completely intact, and that has never depended on
+ * what kind of element was pressed.
  *
  * Real Chromium input only: presses, moves and releases go through CDP
  * `Input.dispatchMouseEvent` and keystrokes through Playwright's keyboard, so
@@ -237,8 +247,8 @@ type BuildOptions = Readonly<{
   useHandle?: boolean;
   /**
    * Which descendant the handle resolves to, `.grip` by default. D-50's case
-   * needs a handle that is *itself* one of the declined members, which is the
-   * whole point: the list is a default, not a prohibition.
+   * needs a handle that is *itself* marked `data-drag-ignore`, which is the
+   * whole point: the mark is a default, not a prohibition.
    */
   handleSelector?: string;
 }>;
@@ -560,7 +570,23 @@ describe('input policy / nested controls', () => {
     `);
   });
 
-  it('should decline a drag-select inside a nested text input', async () => {
+  it('should drag the row when a gesture crosses a nested text input', async () => {
+    // **The measurement that changed at D-129**, kept in the shape it was
+    // measured in so the two readings are comparable. Under D-46 this declined
+    // and the input kept the drag-select; the input is no longer exempt for
+    // being an `<input>`, so an above-threshold gesture that starts inside it
+    // is a row drag. `data-drag-ignore` on the input is the consumer's answer,
+    // asserted by the `explicit opt-out` block below.
+    //
+    // The press itself is still un-prevented (D-54), so focus lands before the
+    // threshold is crossed — the caret is placed and *then* the gesture becomes
+    // a drag, which is what a sub-threshold tap on the same input keeps.
+    //
+    // **`selected` is empty rather than partial**, and that is D-54's second
+    // consequence rather than a decline: the half-made selection the press
+    // began on its way past the threshold is cleared at the crossing. The
+    // reorder count is 0 because the gesture is 120 px horizontal on a `y()`
+    // axis, so the drag starts and lands where it began.
     const fixture = build();
     const input = fixture.control('text') as HTMLInputElement;
     const rect = input.getBoundingClientRect();
@@ -579,7 +605,7 @@ describe('input policy / nested controls', () => {
       order: fixture.order(),
     }).toMatchInlineSnapshot(`
       {
-        "dragStarted": 0,
+        "dragStarted": 1,
         "focused": true,
         "order": [
           "button",
@@ -592,7 +618,7 @@ describe('input policy / nested controls', () => {
           "editable",
         ],
         "reorderRequests": 0,
-        "selected": "alpha bravo charlie",
+        "selected": "",
         "selectstartFired": false,
       }
     `);
@@ -623,7 +649,18 @@ describe('input policy / nested controls', () => {
     `);
   });
 
-  it('should decline a drag on the thumb of a nested <input type="range">', async () => {
+  it('should drag the row when a gesture crosses a nested range thumb', async () => {
+    // The second changed measurement, same shape as before D-129. A 100 px
+    // slider drag is above the activation threshold by construction, so the
+    // relocation (D-54) never covered it and the decline did; with the decline
+    // withdrawn the row drags.
+    //
+    // **The slider does not move at all**, which is stronger than the decline
+    // being withdrawn: the press lands at 2 % of the track, which is already
+    // `0`, and the `pointermove` that carries the gesture past the threshold is
+    // the one D-54 prevents — so the tracking that took this to `52` under the
+    // old policy never starts. The value is recorded rather than assumed for
+    // exactly that reason.
     const fixture = build();
     const range = fixture.control('range') as HTMLInputElement;
 
@@ -636,10 +673,10 @@ describe('input policy / nested controls', () => {
       reorderRequests: fixture.requests.length,
     }).toMatchInlineSnapshot(`
       {
-        "dragStarted": 0,
-        "moved": true,
+        "dragStarted": 1,
+        "moved": false,
         "reorderRequests": 0,
-        "value": "52",
+        "value": "0",
       }
     `);
   });
@@ -677,44 +714,6 @@ describe('input policy / nested controls', () => {
     `);
   });
 
-  it('should leave the arrow keys to a nested popup <select>', async () => {
-    const fixture = build();
-    const combobox = fixture.control('combobox') as HTMLSelectElement;
-
-    combobox.focus();
-    await userEvent.keyboard('{ArrowDown}');
-    await nextFrame();
-
-    expect({
-      value: combobox.value,
-      optionAdvanced: combobox.value !== 'a',
-      keydownPrevented: prevented(fixture.log, 'keydown'),
-      dragStarted: fixture.starts.length,
-      reorderRequests: fixture.requests.length,
-      order: fixture.order(),
-    }).toMatchInlineSnapshot(`
-      {
-        "dragStarted": 0,
-        "keydownPrevented": [
-          false,
-        ],
-        "optionAdvanced": true,
-        "order": [
-          "button",
-          "link",
-          "text",
-          "range",
-          "listbox",
-          "combobox",
-          "prose",
-          "editable",
-        ],
-        "reorderRequests": 0,
-        "value": "b",
-      }
-    `);
-  });
-
   it('should drag the row when an unmodified gesture crosses prose', async () => {
     const fixture = build();
     const prose = fixture.control('prose');
@@ -742,6 +741,10 @@ describe('input policy / nested controls', () => {
   });
 
   it('should let a nested contenteditable take focus, a caret and text', async () => {
+    // **Unchanged by D-129, and the reason is worth stating**: this case was
+    // never carried by the `isContentEditable` capability test the withdrawn
+    // policy read. The tap is sub-threshold, so nothing is prevented (D-54),
+    // and the typing that follows is not an arrow key.
     const fixture = build();
     const editable = fixture.control('editable');
 
@@ -778,11 +781,25 @@ describe('input policy / nested controls', () => {
 });
 
 // ---------------------------------------------------------------------------
-// 7 — arrow keys inside an interactive descendant
+// 7 — arrow keys inside a descendant
 // ---------------------------------------------------------------------------
 
 describe('input policy / arrow keys inside a descendant', () => {
-  it('should leave ArrowRight to a nested text input', async () => {
+  it('should reorder from an unmarked nested text input', async () => {
+    // **Probe E's R-4, re-accepted by decision** (D-129). This is the case the
+    // probe called the sharpest in the set — one `ArrowRight` at caret offset
+    // 5 in a nested input finishing a reorder instead of moving a caret — and
+    // D-46 declined it by enumerating which element types own which keys. That
+    // inference is withdrawn, so the keystroke reaches the command ingress
+    // again. It is recorded rather than deleted because it is the consequence
+    // a consumer most needs to know: a form field inside a sortable row is
+    // theirs to mark.
+    //
+    // The command path prevents inside its listener (D-54 does not reach it),
+    // so an admitted key is a prevented key and the caret does not move. The
+    // snapshot below is R-4's, field for field — frozen caret, `{from: 2, to:
+    // 3}`, one `onEnd` — and it is written out in full because a consequence
+    // this size is not something a later reader should have to reconstruct.
     const fixture = build();
     const input = fixture.control('text') as HTMLInputElement;
 
@@ -806,70 +823,55 @@ describe('input policy / arrow keys inside a descendant', () => {
       finishes: fixture.finishes.length,
     }).toMatchInlineSnapshot(`
       {
-        "caret": 6,
-        "caretMoved": true,
-        "dragStarted": 0,
-        "finishes": 0,
+        "caret": 5,
+        "caretMoved": false,
+        "dragStarted": 1,
+        "finishes": 1,
         "keydownPrevented": [
-          false,
+          true,
         ],
-        "reorderRequests": 0,
-        "requested": [],
+        "reorderRequests": 1,
+        "requested": [
+          {
+            "from": 2,
+            "to": 3,
+          },
+        ],
       }
     `);
   });
 
-  it('should ask what the event landed on before asking whether the move is feasible', async () => {
-    // The edge case is the one place the command declines, so the *same*
-    // keystroke has two meanings depending on which row holds focus.
+  it('should leave ArrowRight to a nested text input inside a marked region', async () => {
+    // **The consumer's answer to the row above**, and the command path's half
+    // of the opt-out. Same keystroke, same caret, same input — the attribute on
+    // an ancestor is the only difference, and the scan that reads it is the
+    // one the pointer path runs.
     const fixture = build();
-    const edgeInput = document.createElement('input');
+    const input = fixture.control('text') as HTMLInputElement;
 
-    edgeInput.type = 'text';
-    edgeInput.value = 'edge row';
-    fixture.row('button').append(edgeInput);
-    edgeInput.focus();
-    edgeInput.setSelectionRange(4, 4);
+    input.setAttribute('data-drag-ignore', '');
+    input.focus();
+    input.setSelectionRange(5, 5);
     fixture.log.length = 0;
 
-    await userEvent.keyboard('{ArrowUp}');
-    await nextFrame();
-
-    const atEdge = {
-      keydownPrevented: prevented(fixture.log, 'keydown'),
-      dragStarted: fixture.starts.length,
-      reorderRequests: fixture.requests.length,
-    };
-
-    fixture.log.length = 0;
-
-    await userEvent.keyboard('{ArrowDown}');
+    await userEvent.keyboard('{ArrowRight}');
     await nextFrame();
 
     expect({
-      atEdge,
-      awayFromEdge: {
-        keydownPrevented: prevented(fixture.log, 'keydown'),
-        dragStarted: fixture.starts.length,
-        reorderRequests: fixture.requests.length,
-      },
+      caret: input.selectionStart,
+      caretMoved: input.selectionStart !== 5,
+      keydownPrevented: prevented(fixture.log, 'keydown'),
+      dragStarted: fixture.starts.length,
+      reorderRequests: fixture.requests.length,
       order: fixture.order(),
     }).toMatchInlineSnapshot(`
       {
-        "atEdge": {
-          "dragStarted": 0,
-          "keydownPrevented": [
-            false,
-          ],
-          "reorderRequests": 0,
-        },
-        "awayFromEdge": {
-          "dragStarted": 0,
-          "keydownPrevented": [
-            false,
-          ],
-          "reorderRequests": 0,
-        },
+        "caret": 6,
+        "caretMoved": true,
+        "dragStarted": 0,
+        "keydownPrevented": [
+          false,
+        ],
         "order": [
           "button",
           "link",
@@ -880,106 +882,52 @@ describe('input policy / arrow keys inside a descendant', () => {
           "prose",
           "editable",
         ],
+        "reorderRequests": 0,
       }
     `);
   });
 
-  it('should leave the arrow keys to a nested contenteditable', async () => {
-    // The editable is the **last** row, so ArrowRight maps to the infeasible
-    // direction and ArrowLeft to the feasible one. Both are recorded, because
-    // the difference between them is entirely positional.
+  it('should leave ArrowDown to a nested popup <select> inside a marked region', async () => {
+    // A second control type on the command path, because the withdrawn rule
+    // was a *table* and the replacement is one attribute: what used to need a
+    // `select` row now needs no row at all, and the check that this is true is
+    // that the same mark works on a control the table listed separately.
     const fixture = build();
-    const editable = fixture.control('editable');
-    const selection = document.getSelection()!;
+    const combobox = fixture.control('combobox') as HTMLSelectElement;
 
-    const putCaret = (offset: number): void => {
-      const range = document.createRange();
-
-      editable.focus();
-      range.setStart(editable.firstChild!, offset);
-      range.collapse(true);
-      selection.removeAllRanges();
-      selection.addRange(range);
-      fixture.log.length = 0;
-    };
-
-    putCaret(5);
-    await userEvent.keyboard('{ArrowRight}');
-    await nextFrame();
-
-    const towardTheEdge = {
-      caretOffset: document.getSelection()?.focusOffset ?? -1,
-      caretMoved: (document.getSelection()?.focusOffset ?? -1) !== 5,
-      keydownPrevented: prevented(fixture.log, 'keydown'),
-      dragStarted: fixture.starts.length,
-      reorderRequests: fixture.requests.length,
-    };
-
-    putCaret(5);
-    await userEvent.keyboard('{ArrowLeft}');
-    await nextFrame();
-
-    expect({
-      towardTheEdge,
-      awayFromTheEdge: {
-        caretOffset: document.getSelection()?.focusOffset ?? -1,
-        caretMoved: (document.getSelection()?.focusOffset ?? -1) !== 5,
-        keydownPrevented: prevented(fixture.log, 'keydown'),
-        dragStarted: fixture.starts.length,
-        reorderRequests: fixture.requests.length,
-      },
-    }).toMatchInlineSnapshot(`
-      {
-        "awayFromTheEdge": {
-          "caretMoved": true,
-          "caretOffset": 4,
-          "dragStarted": 0,
-          "keydownPrevented": [
-            false,
-          ],
-          "reorderRequests": 0,
-        },
-        "towardTheEdge": {
-          "caretMoved": true,
-          "caretOffset": 6,
-          "dragStarted": 0,
-          "keydownPrevented": [
-            false,
-          ],
-          "reorderRequests": 0,
-        },
-      }
-    `);
-  });
-
-  it('should leave Shift+ArrowRight to a nested text input', async () => {
-    const fixture = build();
-    const input = fixture.control('text') as HTMLInputElement;
-
-    input.focus();
-    input.setSelectionRange(5, 5);
+    combobox.setAttribute('data-drag-ignore', '');
+    combobox.focus();
     fixture.log.length = 0;
 
-    await userEvent.keyboard('{Shift>}{ArrowRight}{/Shift}');
+    await userEvent.keyboard('{ArrowDown}');
     await nextFrame();
 
     expect({
-      selected: input.value.slice(
-        input.selectionStart ?? 0,
-        input.selectionEnd ?? 0,
-      ),
+      value: combobox.value,
+      optionAdvanced: combobox.value !== 'a',
       keydownPrevented: prevented(fixture.log, 'keydown'),
       dragStarted: fixture.starts.length,
       reorderRequests: fixture.requests.length,
+      order: fixture.order(),
     }).toMatchInlineSnapshot(`
       {
         "dragStarted": 0,
         "keydownPrevented": [
           false,
-          false,
+        ],
+        "optionAdvanced": true,
+        "order": [
+          "button",
+          "link",
+          "text",
+          "range",
+          "listbox",
+          "combobox",
+          "prose",
+          "editable",
         ],
         "reorderRequests": 0,
-        "selected": " ",
+        "value": "b",
       }
     `);
   });
@@ -1432,10 +1380,12 @@ describe('input policy / IME composition', () => {
 
 describe('input policy / explicit opt-out', () => {
   it('should decline a press inside a [data-drag-ignore] region', async () => {
-    // The one row of the decline table that is not a platform element. It
-    // exists because the list is a default and a consumer needs a way to name a
-    // region the list does not describe — a chart, a canvas, a custom element
-    // that owns its own gestures.
+    // ~~The one row of the decline table that is not a platform element.~~
+    // **Since D-129 it is the whole table**, and the two halves below are the
+    // entire policy: the same gesture on the same element, differing only in
+    // the attribute. A consumer names the region that owns its own gestures —
+    // a chart, a canvas, a form field, a custom element — and the library
+    // infers nothing else.
     const fixture = build();
     const prose = fixture.control('prose');
 
@@ -1445,9 +1395,6 @@ describe('input policy / explicit opt-out', () => {
 
     const marked = fixture.starts.length;
 
-    // The control: the *same* gesture on the *same* element with the attribute
-    // gone drags. A `<span>` is in no other row of the table, so the attribute
-    // is the only thing that differs between the two halves.
     prose.removeAttribute('data-drag-ignore');
 
     await dragFrom(centre(prose), 0, -60);
@@ -1462,17 +1409,68 @@ describe('input policy / explicit opt-out', () => {
       }
     `);
   });
+
+  it('should read the mark through a shadow boundary', async () => {
+    // **The composed path is not all elements.** A press inside a shadow root
+    // yields the `ShadowRoot` itself as a hop strictly before the row, and a
+    // `ShadowRoot` has no `matches` — which is why the scan reaches it
+    // optionally rather than asserting `Element`. The unmarked half is the one
+    // that would throw if that were wrong, so it is the load-bearing half;
+    // `errors` is recorded because a throw inside `admit` would surface there
+    // rather than as a failed expectation.
+    const fixture = build();
+    const host = document.createElement('div');
+
+    host.style.cssText = 'width:120px;height:24px;background:#dfd';
+    fixture.row('prose').append(host);
+
+    const shadow = host.attachShadow({ mode: 'open' });
+    const inner = document.createElement('span');
+
+    inner.textContent = 'inside';
+    inner.style.cssText = 'display:block;width:120px;height:24px';
+    shadow.append(inner);
+
+    await dragFrom(centre(inner), 0, -60);
+
+    const unmarked = fixture.starts.length;
+
+    inner.setAttribute('data-drag-ignore', '');
+
+    await dragFrom(centre(inner), 0, -60);
+
+    expect({
+      unmarked,
+      marked: fixture.starts.length - unmarked,
+      errors: fixture.errors.length,
+    }).toMatchInlineSnapshot(`
+      {
+        "errors": 0,
+        "marked": 0,
+        "unmarked": 1,
+      }
+    `);
+  });
 });
 
 describe('input policy / D-50, explicit scoping wins', () => {
-  it('should admit from a handle that is itself an interactive element', async () => {
-    // **The override.** A consumer who resolves the handle *to* the button has
-    // scoped dragging to that interaction on purpose, and the default decline
-    // must not re-veto it. The test walks the path between the event target and
-    // the resolved subject, and a handle shortens that path to nothing.
+  it('should admit from a handle that is itself marked', async () => {
+    // **The override, and the reason the scan stops _before_ the subject.**
+    // A consumer who resolves the handle to an element inside a marked region
+    // has scoped dragging to that interaction on purpose, and the opt-out must
+    // not re-veto it — otherwise a region marked for its own gestures could
+    // silently defeat the handle the consumer chose inside it.
+    //
+    // Both halves press the same element. The difference is which index the
+    // scan terminates at: with the handle composed it is the handle's own, so
+    // the marked element is the subject and is exempt; without it the subject
+    // is the row and the mark lies strictly before it.
     const fixture = build({ useHandle: true, handleSelector: '[data-c]' });
+    const button = fixture.control('button');
 
-    await dragFrom(centre(fixture.control('button')), 0, 100);
+    button.setAttribute('data-drag-ignore', '');
+
+    await dragFrom(centre(button), 0, 100);
 
     expect({
       dragStarted: fixture.starts.length,
@@ -1483,6 +1481,30 @@ describe('input policy / D-50, explicit scoping wins', () => {
         "dragStarted": 1,
         "errors": 0,
         "reorderRequests": 1,
+      }
+    `);
+  });
+
+  it('should decline the same press when no handle is composed', async () => {
+    // The control for the row above: the mark is unchanged and only the
+    // `handle` slot differs, so what the two rows isolate is the subject index
+    // rather than the attribute.
+    const fixture = build();
+    const button = fixture.control('button');
+
+    button.setAttribute('data-drag-ignore', '');
+
+    await dragFrom(centre(button), 0, 100);
+
+    expect({
+      dragStarted: fixture.starts.length,
+      reorderRequests: fixture.requests.length,
+      errors: fixture.errors.length,
+    }).toMatchInlineSnapshot(`
+      {
+        "dragStarted": 0,
+        "errors": 0,
+        "reorderRequests": 0,
       }
     `);
   });

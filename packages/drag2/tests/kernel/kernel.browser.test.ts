@@ -1,10 +1,13 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+import { DraggableError, DraggableWarning } from '../../src/kernel/errors.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
+  CANCEL_ABORTED,
+  CANCEL_INTERRUPTED,
+  CANCEL_SUPPLIED,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
-  FAILURE_LANDING_TARGET,
   FAILURE_RELEASE,
   FAILURE_RENDERER_WRITE,
   FAILURE_RESOLUTION,
@@ -26,20 +29,16 @@ import {
   type ActivationScope,
   type BehaviorSpec,
   type CommandAdmission,
-  type KernelHost,
-  type LandingContext,
-  type LandingHandle,
-  type LandingStart,
+  type BehaviorContext,
+  type LandingTail,
   type PreparedSettlement,
   type ResolutionCommand,
-  type SeamRejection,
   SETTLED_CANCELED,
   SETTLED_FAILED,
   SETTLED_FULFILLED,
   SETTLED_REJECTED,
   SETTLED_SKIPPED,
   type SettlementInput,
-  type SettlementScope,
 } from '../../src/kernel/spec.ts';
 import { draggable } from '../../src/kernel.ts';
 
@@ -53,7 +52,7 @@ const POINTER_ID = 7;
 type Harness = Readonly<{
   root: HTMLElement;
   item: HTMLElement;
-  host: KernelHost;
+  kernel: BehaviorContext;
   controller: { cancel(reason?: unknown): void; destroy(): Promise<void> };
   /** Every seam the kernel drove, in order. */
   calls: string[];
@@ -65,10 +64,12 @@ type Harness = Readonly<{
    */
   failures: Array<Readonly<{ stage: FailureStage; error: unknown }>>;
   /**
-   * Everything that reached `spec.reportFailure` — the channel that carries no
-   * consequence. A stage here settles nothing (D-49, D-60).
+   * **Everything that reached `spec.reportError`** — the one channel (D-130).
+   * ~~`reportFailure`, and a `globalThis.reportError` stub beside it.~~ Both
+   * populations arrive here, and `error instanceof DraggableError` is what
+   * separates *the operation was affected* from *it was not*.
    */
-  reports: Array<Readonly<{ stage: FailureStage; error: unknown }>>;
+  reports: Array<DraggableError | DraggableWarning>;
   /** Every settlement input, in order. */
   settlements: SettlementInput[];
   captures: string[];
@@ -84,6 +85,7 @@ type SpecOverrides = Partial<
     | 'action'
     | 'moved'
     | 'anchorTarget'
+    | 'landingTail'
     | 'finalized'
     | 'createFramePart'
     // Injectable so the teardown matrix can be expressed through the shared
@@ -92,36 +94,19 @@ type SpecOverrides = Partial<
     | 'resetFramePart'
     | 'retire'
     | 'command'
+    | 'reportError'
   >
 > &
   Readonly<{
     threshold?: number;
-    /** Called with the host, so a test can cancel or destroy from a seam. */
-    onStart?(host: KernelHost): void;
+    /** Called with the kernel, so a test can cancel or destroy from a seam. */
+    onStart?(kernel: BehaviorContext): void;
     capture?(): void;
     /** Declared by the default `settlement.prepare`, when set. */
     presentation?: boolean;
-    /** Requested by the default `settlement.effect`, when present. */
-    startLanding?: LandingStart;
   }>;
 
 const cleanup: Array<() => void> = [];
-
-type Reporting = { reportError?(error: unknown): void };
-
-/** Non-consequential reports: a dropped tag, a failing disposer. */
-let reported: unknown[] = [];
-
-beforeEach(() => {
-  reported = [];
-  (globalThis as Reporting).reportError = (error) => {
-    reported.push(error);
-  };
-});
-
-afterEach(() => {
-  delete (globalThis as Reporting).reportError;
-});
 
 afterEach(() => {
   for (const dispose of cleanup.splice(0)) {
@@ -147,7 +132,7 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
   const calls: string[] = [];
   const phases: Record<string, number> = {};
   const failures: Array<Readonly<{ stage: FailureStage; error: unknown }>> = [];
-  const reports: Array<Readonly<{ stage: FailureStage; error: unknown }>> = [];
+  const reports: Array<DraggableError | DraggableWarning> = [];
   const settlements: SettlementInput[] = [];
   const captures: string[] = [];
 
@@ -173,14 +158,14 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
     }
   };
 
-  let host!: KernelHost;
+  let kernel!: BehaviorContext;
 
   const controller = draggable<
     { cancel(reason?: unknown): void; destroy(): Promise<void> },
     ExamplePart,
     HTMLElement
   >(root, (kernelHost) => {
-    host = kernelHost;
+    kernel = kernelHost;
 
     // **The harness stages an `HTMLElement`, and now says so** (D-34, K-1).
     // The parameter defaults to `true`; a behavior that stages a real resource
@@ -224,7 +209,7 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
           scope.motion.use(() => {
             calls.push('motion.released');
           });
-          overrides.onStart?.(host);
+          overrides.onStart?.(kernel);
         },
       },
       release: overrides.release ?? {
@@ -249,12 +234,8 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
 
           return true;
         },
-        effect(current, _prepared, scope: SettlementScope): void {
+        effect(current, _prepared): void {
           record('settlement.effect', current);
-
-          if (overrides.startLanding) {
-            scope.holdForLanding(overrides.startLanding);
-          }
         },
       },
       action: overrides.action ?? {
@@ -277,18 +258,20 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
           calls.push('anchorTarget');
           return { x: 0, y: 0 };
         }),
+      landingTail: overrides.landingTail,
       finalized:
         overrides.finalized ??
         ((): void => {
           calls.push('finalized');
         }),
-      // **Its own array since D-60**, because the two channels are orthogonal
-      // and a harness that merges them cannot express the difference. This one
-      // is the un-classified channel: an admission throw with no operation to
-      // settle (Q-1), and a quality failure on the landing measurement (D-49).
-      reportFailure(stage, error): void {
-        reports.push({ stage, error });
-      },
+      // **Forward, and nothing else** (D-130). A behavior that did anything
+      // else here would be re-deciding what the kernel already decided; the
+      // harness is deliberately the minimal conforming implementation.
+      reportError:
+        overrides.reportError ??
+        ((error): void => {
+          reports.push(error);
+        }),
       retire:
         overrides.retire ??
         ((): void => {
@@ -298,7 +281,15 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
 
     return {
       spec,
-      controller: { cancel: host.cancel, destroy: host.destroy },
+      // Wrapped, not detached, exactly as a shipped controller publishes
+      // them: the kernel's members are prototype methods and a bare read
+      // would arrive with no receiver.
+      controller: {
+        cancel: (reason?: unknown): void => {
+          kernel.cancel(reason);
+        },
+        destroy: (): Promise<void> => kernel.destroy(),
+      },
     };
   });
 
@@ -310,7 +301,7 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
   return {
     root,
     item,
-    host,
+    kernel,
     controller,
     calls,
     phases,
@@ -388,56 +379,40 @@ const releaseWith = (
   effect: (): void => {},
 });
 
-type Runner = Readonly<{
-  start: LandingStart;
-  /** `start`, `destroy` and `retarget`, in order. */
-  calls: string[];
-  targets: Array<Readonly<{ x: number; y: number }>>;
-  done(): void;
-  fail(error: unknown): void;
-}>;
+/** A tail policy that always answers, so a test can read the animation. */
+const tailOf =
+  (duration = 200): NonNullable<SpecOverrides['landingTail']> =>
+  (): LandingTail => ({ duration, easing: 'linear' });
 
 /**
- * A landing runner double. `onStart` runs *inside* `start`, which is where the
- * synchronous-completion cases live.
+ * One keyframe's `translate`, as a pair. A single component is a whole
+ * declaration — `translate: 50px` is fifty across and none down — which is how
+ * the platform serializes both a horizontal contribution and a zero one.
  */
-function createRunner(
-  options: Readonly<{
-    onStart?(done: () => void, fail: (error: unknown) => void): void;
-    onDestroy?(): void;
-    retarget?: boolean;
-  }> = {},
-): Runner {
-  const calls: string[] = [];
-  const targets: Array<Readonly<{ x: number; y: number }>> = [];
-  let complete: (() => void) | null = null;
-  let reject: ((error: unknown) => void) | null = null;
-
-  const handle: LandingHandle = {
-    destroy(): void {
-      calls.push('destroy');
-      options.onDestroy?.();
-    },
-  };
+const vectorOf = (frame: Keyframe): Readonly<{ x: number; y: number }> => {
+  const [x, y] = String(frame['translate']).split(' ');
 
   return {
-    calls,
-    targets,
-    start(_context, done, fail): LandingHandle {
-      calls.push('start');
-      complete = done;
-      reject = fail;
-      options.onStart?.(done, fail);
-      return handle;
-    },
-    done(): void {
-      complete!();
-    },
-    fail(error): void {
-      reject!(error);
-    },
+    x: Number.parseFloat(x!),
+    y: y === undefined ? 0 : Number.parseFloat(y),
   };
-}
+};
+
+/**
+ * The tail's own contribution, as the two viewport-space numbers it was issued
+ * for. `null` when nothing is animating the element.
+ */
+const tailVector = (
+  element: HTMLElement,
+): Readonly<{ x: number; y: number }> | null => {
+  const [animation] = element.getAnimations();
+
+  if (!animation) {
+    return null;
+  }
+
+  return vectorOf((animation.effect as KeyframeEffect).getKeyframes()[0]!);
+};
 
 describe('draggable', () => {
   it('should return the controller the behavior built', () => {
@@ -446,14 +421,14 @@ describe('draggable', () => {
     expect(typeof harness.controller.destroy).toBe('function');
   });
 
-  it('should hand the behavior a host whose root is the ingress boundary', () => {
+  it('should hand the behavior a kernel whose root is the ingress boundary', () => {
     const harness = createHarness();
 
-    expect(harness.host.root).toBe(harness.root);
+    expect(harness.kernel.root).toBe(harness.root);
   });
 
   it('should arm ingress only after the behavior returned', () => {
-    // `arm()` is not on `KernelHost`, so the behavior cannot admit input
+    // `arm()` is not on `BehaviorContext`, so the behavior cannot admit input
     // before its own construction finished. The press below is the first one
     // the listener can see.
     const harness = createHarness();
@@ -494,7 +469,7 @@ function createArmedWithPart(
       moved: (): void => {},
       anchorTarget: () => ({ x: 0, y: 0 }),
       finalized: (): void => {},
-      reportFailure: (): void => {},
+      reportError: (): void => {},
       retire: (): void => {},
     },
   }));
@@ -530,7 +505,7 @@ function createArmedWithCommand(
       moved: (): void => {},
       anchorTarget: () => ({ x: 0, y: 0 }),
       finalized: (): void => {},
-      reportFailure: (): void => {},
+      reportError: (): void => {},
       retire: (): void => {},
     },
   }));
@@ -743,9 +718,15 @@ describe('discrete admission', () => {
       new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
     );
 
-    expect(harness.reports).toEqual([
-      { stage: FAILURE_ADMISSION, error: new Error('command') },
-    ]);
+    // **Consequential, so a `DraggableError`** (D-130): the consumer's drag
+    // will not start and no `onEnd` will follow. The kernel built it from the
+    // stage it owns, so the behavior chose nothing.
+    expect(harness.reports).toHaveLength(1);
+    expect(harness.reports[0]).toBeInstanceOf(DraggableError);
+    expect((harness.reports[0] as DraggableError).stage).toBe(
+      FAILURE_ADMISSION,
+    );
+    expect(String(harness.reports[0]?.cause)).toBe('Error: command');
     expect(harness.calls).toEqual([]);
 
     // Still usable: a press admits normally afterwards.
@@ -754,22 +735,26 @@ describe('discrete admission', () => {
     expect(harness.calls).toContain('activation.effect');
   });
 
-  it('should reject an invalid command.types at arm', () => {
+  it('should reject a command.types entry colliding with the pointer ingress', () => {
     // Static spec data, validated once at construction, exactly as
     // `config.actionTags` is — the same `TypeError` policy every public option
     // domain uses. The `pointerdown` collision is refused rather than tolerated:
     // two listeners for one type would run two admission members for one event,
     // and the second would find the first's operation already committed —
-    // silently, and only sometimes.
-    const cases: Array<readonly [readonly string[], RegExp]> = [
-      [[], /must not be empty/u],
-      [[''], /non-empty strings/u],
-      [[1 as unknown as string], /non-empty strings/u],
-      [['keydown', 'keydown'], /duplicate entry/u],
-      [['pointerdown'], /pointer ingress/u],
+    // silently, and only sometimes. **This is the only check left in the loop**
+    // (D-118), and the one that guards the kernel's own state rather than the
+    // author's feature.
+    //
+    // The second case carries an empty entry beside the colliding one, which is
+    // the assertion that this check stands on its own: the empty string is
+    // accepted below, and accepting it must not swallow the collision sharing
+    // its array.
+    const cases: ReadonlyArray<readonly string[]> = [
+      ['pointerdown'],
+      ['', 'pointerdown'],
     ];
 
-    for (const [types, message] of cases) {
+    for (const types of cases) {
       const root = document.createElement('div');
 
       document.body.append(root);
@@ -783,8 +768,112 @@ describe('discrete admission', () => {
       // back.
       expect(() =>
         createArmedWithCommand(root, { types, admit: () => null }),
-      ).toThrow(message);
+      ).toThrow(/spec\/command-type-pointerdown/u);
     }
+  });
+
+  it('should arm an empty command.types as the no-command configuration', () => {
+    // **The empty-array check was removed 2026-08-24** (D-118), because the
+    // configuration it rejected is one the contract already supports under a
+    // different spelling: 02 §Discrete admission says a behavior omitting the
+    // member binds no discrete listener, and an empty `types` reaches exactly
+    // that state — the binding loop below simply never runs. So the assertion
+    // is not *it does not throw*, it is that the two spellings are
+    // indistinguishable from outside.
+    let admitted = 0;
+
+    const drive = (harness: Harness): readonly string[] => {
+      harness.root.dispatchEvent(new Event('', { bubbles: true }));
+      harness.root.dispatchEvent(new CustomEvent('command', { bubbles: true }));
+      activate(harness);
+
+      return [...harness.calls];
+    };
+
+    const declared = createHarness({
+      command: {
+        types: [],
+        admit: (): null => {
+          admitted += 1;
+
+          return null;
+        },
+      },
+    });
+    const declaredCalls = drive(declared);
+
+    // Destroyed before the second harness is driven: `move()` dispatches on
+    // `document`, so a live operation here would keep advancing while the
+    // omitted-member harness takes its own press.
+    void declared.controller.destroy();
+
+    const omitted = createHarness();
+    const omittedCalls = drive(omitted);
+
+    // No discrete listener exists to reach, so `admit` is unreachable rather
+    // than declining.
+    expect(admitted).toBe(0);
+    expect(declaredCalls).toEqual(omittedCalls);
+    // And the pointer ingress is untouched by either spelling.
+    expect(declaredCalls).toContain('activation.effect');
+  });
+
+  it('should arm a command.types carrying an empty-string entry', () => {
+    // **The empty-string check was removed 2026-08-24** (D-118). The empty
+    // string is an ordinary, distinct event type to the platform:
+    // `addEventListener('')` binds, `dispatchEvent(new Event(''))` fires it,
+    // and nothing else reaches it. So the author gets a live listener for a
+    // type nothing dispatches — their own discrete ingress is inert, while the
+    // kernel's state is untouched and its own collision rule still fires
+    // (above). That is the author's invariant, not the library's.
+    const admitted: string[] = [];
+    const harness = createHarness({
+      command: {
+        types: [''],
+        admit: (event): null => {
+          admitted.push(event.type);
+
+          return null;
+        },
+      },
+    });
+
+    harness.root.dispatchEvent(new Event('', { bubbles: true }));
+
+    expect(admitted).toEqual(['']);
+
+    // It intercepts nothing else: the empty type is not a wildcard.
+    harness.root.dispatchEvent(new CustomEvent('command', { bubbles: true }));
+    harness.root.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    expect(admitted).toEqual(['']);
+
+    // And the pointer ingress is intact beside it.
+    activate(harness);
+
+    expect(harness.calls).toContain('activation.effect');
+  });
+
+  it('should arm a command.types carrying a duplicate entry', () => {
+    // **The duplicate check was removed 2026-08-22**, because the platform
+    // already answers it: `addEventListener` dedups on (type, callback,
+    // capture) and all three are identical for every entry in this list, so
+    // the second binding was a no-op before it was a `TypeError`. The
+    // `pointerdown` collision above is a different claim — two *different*
+    // callbacks for one type — and is still refused.
+    const root = document.createElement('div');
+
+    document.body.append(root);
+    cleanup.push(() => {
+      root.remove();
+    });
+
+    expect(() =>
+      createArmedWithCommand(root, {
+        types: ['keydown', 'keydown'],
+        admit: () => null,
+      }),
+    ).not.toThrow();
   });
 
   it('should release the discrete listeners on destroy', () => {
@@ -854,7 +943,7 @@ describe('arm', () => {
           moved: (): void => {},
           anchorTarget: () => ({ x: 0, y: 0 }),
           finalized: (): void => {},
-          reportFailure: (): void => {},
+          reportError: (): void => {},
           retire(): void {
             calls.push('retire');
           },
@@ -866,14 +955,60 @@ describe('arm', () => {
     root.remove();
   });
 
-  it('should reject a frame part that declares a kernel frame key', () => {
+  it('should arm with a frame part that declares a kernel frame key', () => {
+    // **D-124.** The rejection went with the reachability gate: `FramePartOf`
+    // makes such a part uninhabitable at compile time, so reaching this state
+    // needs the cast below. `arm()` no longer refuses it — asserted here so a
+    // returning check has to argue with a test rather than with a silence.
     const root = document.createElement('div');
 
     document.body.append(root);
 
     expect(() =>
       createArmedWithPart(root, () => ({ phase: 1 }) as unknown as ExamplePart),
-    ).toThrow(/phase/u);
+    ).not.toThrow();
+
+    root.remove();
+  });
+
+  it('should arm with a symbol-keyed frame part', () => {
+    // **D-122.** `FramePartOf` publishes that part keys are strings, and
+    // `validateFramePart` — the last arm of which refused this — is deleted.
+    const root = document.createElement('div');
+
+    document.body.append(root);
+
+    expect(() =>
+      createArmedWithPart(
+        root,
+        () => ({ [Symbol('leak')]: null }) as unknown as ExamplePart,
+      ),
+    ).not.toThrow();
+
+    root.remove();
+  });
+
+  it('should arm with a non-deterministic frame part factory', () => {
+    // **D-128.** `assertFrameShapesMatch` compared the two factory results at
+    // `arm()` and threw `drag: frame/shape-mismatch` on a disagreement (F-2);
+    // it went with the frame assertion family. The two frames are still
+    // composed by the same code path, so they still share a hidden class when
+    // the factory is honest — what is gone is the diagnostic for one that is
+    // not, and the frames simply differ.
+    const root = document.createElement('div');
+    let calls = 0;
+
+    document.body.append(root);
+
+    expect(() =>
+      createArmedWithPart(root, () => {
+        calls += 1;
+        return (
+          calls === 1 ? { item: null, insertion: null } : { item: null }
+        ) as ExamplePart;
+      }),
+    ).not.toThrow();
+    expect(calls).toBe(2);
 
     root.remove();
   });
@@ -996,7 +1131,10 @@ describe('admission', () => {
     // no `REPORTING` phase to enter.
     expect(harness.failures).toEqual([]);
     expect(harness.reports).toHaveLength(1);
-    expect(harness.reports[0]!.stage).toBe(FAILURE_ADMISSION);
+    expect(harness.reports[0]).toBeInstanceOf(DraggableError);
+    expect((harness.reports[0] as DraggableError).stage).toBe(
+      FAILURE_ADMISSION,
+    );
 
     fail = false;
     activate(harness);
@@ -1007,7 +1145,7 @@ describe('admission', () => {
     const harness = createHarness({
       admit(_event, draft): HTMLElement {
         draft.item = null;
-        void harness.host.destroy();
+        void harness.kernel.destroy();
         return harness.item;
       },
     });
@@ -1133,6 +1271,12 @@ describe('activation', () => {
 
     activate(harness);
 
+    // The discard retires through the ordinary path, so the operation's
+    // lifetimes are disposed there rather than at teardown. The released
+    // capture is the executable half of that: `acquireActivation` took it and
+    // registered the release, and only step 5 of retirement can run it.
+    expect(harness.captures).toEqual(['acquire', 'release']);
+
     // There is no such thing as a committed operation with no presentation, so
     // a discard returns the controller to IDLE — and a new press is admitted.
     expect(harness.calls).toContain('retire');
@@ -1164,8 +1308,8 @@ describe('activation', () => {
 
   it('should not dispatch START_COMMITTED when onStart cancelled', () => {
     const harness = createHarness({
-      onStart(host): void {
-        host.cancel('from onStart');
+      onStart(kernel): void {
+        kernel.cancel('from onStart');
       },
     });
 
@@ -1181,8 +1325,8 @@ describe('activation', () => {
 
   it('should not dispatch START_COMMITTED when onStart destroyed', () => {
     const harness = createHarness({
-      onStart(host): void {
-        void host.destroy();
+      onStart(kernel): void {
+        void kernel.destroy();
       },
     });
 
@@ -1193,18 +1337,18 @@ describe('activation', () => {
   });
 });
 
-describe('the phase stamp', () => {
+describe('the phase a commit publishes', () => {
   /**
    * `ACTIVATING` is written by the kernel between `preparationValid()` and the
-   * swap, so it is armed before the seam opens. A seam that discards or fails
-   * never reaches `commit()`, and the stamp it armed must die with it — the
-   * next transaction to commit is an ordinary admission or pointer sample, and
-   * stamping *that* would publish a phase no transition ever prepared.
+   * swap, and it reaches that write as an argument of the commit. A seam that
+   * discards or fails never reaches `commit()`, so its phase goes with the
+   * stack frame — the next transaction to commit is an ordinary admission or
+   * pointer sample, and it publishes the phase *it* carries and no other.
    */
   const countActivations = (harness: Harness): number =>
     harness.calls.filter((name) => name === 'activation.prepare').length;
 
-  it('should not carry a discarded activation stamp into the next operation', () => {
+  it('should not carry a discarded activation phase into the next operation', () => {
     let discard = true;
     const harness = createHarness({
       activation: {
@@ -1223,13 +1367,14 @@ describe('the phase stamp', () => {
     discard = false;
     activate(harness);
 
-    // A leaked stamp would have committed the second admission as `ACTIVATING`,
-    // and the sample that follows it would then be ignored as illegal.
+    // A phase surviving its own transaction would have committed the second
+    // admission as `ACTIVATING`, and the sample that follows it would then be
+    // ignored as illegal.
     expect(countActivations(harness)).toBe(2);
     expect(harness.phases['activation.effect']).toBe(ACTIVATING);
   });
 
-  it('should not carry a failed activation stamp into the next operation', () => {
+  it('should not carry a failed activation phase into the next operation', () => {
     let fail = true;
     const harness = createHarness({
       activation: {
@@ -1256,7 +1401,7 @@ describe('the phase stamp', () => {
     expect(harness.calls).toContain('activation.effect');
   });
 
-  it('should admit the next operation at PENDING after an abandoned stamp', () => {
+  it('should admit the next operation at PENDING after an abandoned activation', () => {
     let discard = true;
     let seen = -1;
     const harness = createHarness({
@@ -1275,8 +1420,8 @@ describe('the phase stamp', () => {
     activate(harness);
     move(60, 10);
 
-    // Reaching `ACTIVE` at all proves the admission published `PENDING`: a
-    // stamped `ACTIVATING` would have made the sample that crosses the
+    // Reaching `ACTIVE` at all proves the admission published `PENDING`: an
+    // inherited `ACTIVATING` would have made the sample that crosses the
     // threshold illegal, and the drag would never have started.
     expect(seen).toBe(ACTIVE);
   });
@@ -1376,14 +1521,18 @@ describe('release', () => {
     expect(seen).toBe(123);
   });
 
-  it('should classify a rejection at the stage it names', () => {
-    const rejection: SeamRejection = {
-      stage: FAILURE_RELEASE,
-      error: new Error('no insertion'),
-    };
+  it('should classify a throwing release prepare at the seam’s own stage', () => {
+    // **The seam owns the stage** (D-152). ~~`should classify a rejection at
+    // the stage it names`~~ handed the stage back through a `SeamRejection`,
+    // and every one of the six sites that did handed back exactly the stage the
+    // seam was already running at. The behavior raises a **cause**; the phase is
+    // open at `FAILURE_RELEASE`, so that is what the failure carries.
+    const cause = new Error('no insertion');
     const harness = createHarness({
       release: {
-        prepare: () => rejection,
+        prepare: (): ResolutionCommand => {
+          throw cause;
+        },
         effect(): void {
           throw new Error('unreachable');
         },
@@ -1394,15 +1543,17 @@ describe('release', () => {
     release(80, 10);
 
     expect(harness.failures[0]!.stage).toBe(FAILURE_RELEASE);
+    // And the cause travels verbatim: what reaches the settlement input is the
+    // object the behavior raised, not a wrapper minted at the failing branch.
+    expect(harness.failures[0]!.error).toBe(cause);
   });
 
-  it('should not run the effect after a rejected prepare', () => {
+  it('should not run the effect after a throwing prepare', () => {
     const harness = createHarness({
       release: {
-        prepare: () => ({
-          stage: FAILURE_RELEASE,
-          error: new Error('no insertion'),
-        }),
+        prepare: (): ResolutionCommand => {
+          throw new Error('no insertion');
+        },
         effect(): void {
           harness.calls.push('release.effect');
         },
@@ -1536,8 +1687,8 @@ describe('the resolution round-trip', () => {
   });
 
   it('should not surface an abandoned resolver’s late rejection to the page', async () => {
-    // **The observable, not the mechanism** (probe A). Every other row here
-    // asserts the slot comparison `resolution !== attempt`, which is how the
+    // **The observable, not the mechanism** (probe A). The two rows below
+    // assert the slot comparison `resolution !== attempt`, which is how the
     // library ignores a stale settlement. What a consumer actually *sees* if
     // that ignoring is done by dropping the subscription is an
     // `unhandledrejection` in their console, from a promise they handed the
@@ -1587,7 +1738,12 @@ describe('the resolution round-trip', () => {
     // operation; the late rejection added nothing after it, which is the other
     // half of "consumed, not dropped".
     expect(harness.settlements).toEqual([
-      { type: SETTLED_CANCELED, reason: 'abandoned', stage: AT_CONSUMER },
+      {
+        type: SETTLED_CANCELED,
+        reason: 'abandoned',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_CONSUMER,
+      },
     ]);
 
     aborter.abort();
@@ -1613,7 +1769,7 @@ describe('the resolution round-trip', () => {
   it('should let a cancel raised from inside invoke win', () => {
     const harness = createHarness({
       release: releaseWith((): string => {
-        harness.host.cancel('from onReorder');
+        harness.kernel.cancel('from onReorder');
         return 'verdict';
       }),
     });
@@ -1640,6 +1796,87 @@ describe('the resolution round-trip', () => {
 
     expect(harness.settlements).toEqual([]);
   });
+
+  it('should refuse a completion whose slot turned over before it settled', () => {
+    let signal!: AbortSignal;
+    let complete!: (value: unknown) => void;
+    const harness = createHarness({
+      release: releaseWith((given) => {
+        signal = given;
+
+        // Subscribed to, and completed from inside the settlement below —
+        // where the slot `openSettlement` cleared on its way in is already
+        // empty and this resolver's signal is still open.
+        return {
+          then(onFulfilled: (value: unknown) => void): void {
+            complete = onFulfilled;
+          },
+        };
+      }),
+      settlement: {
+        prepare: (_draft, input): PreparedSettlement => {
+          if (input.type === SETTLED_CANCELED) {
+            complete('verdict');
+            // A settlement the behavior finds no coherent answer for throws,
+            // and a preparation that failed commits nothing: the effect that
+            // releases the operation's lifetimes never runs, so the abort is
+            // still owed when the report below closes them.
+            throw new Error('no coherent settlement');
+          }
+
+          return true;
+        },
+        effect: (): void => {},
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+    harness.controller.cancel('abandoned');
+
+    // **The producer half of the double validation, alone.** The completion
+    // named an attempt the slot no longer held, so it was refused where it
+    // settled and never latched `completed` — which is what leaves the
+    // resolver's own abort to fire (I-4).
+    expect(signal.aborted).toBe(true);
+  });
+
+  it('should refuse a completion whose slot turned over before it was applied', () => {
+    const harness = createHarness({
+      release: releaseWith((): string => {
+        // Queued ahead of the completion this release settles, so the slot
+        // turns over between the settle and the application of it.
+        harness.kernel.cancel('abandoned');
+        return 'verdict';
+      }),
+      settlement: {
+        prepare: (_draft, input): PreparedSettlement => {
+          harness.settlements.push(input);
+
+          if (input.type === SETTLED_CANCELED) {
+            // Nothing commits, so the phase is still `RELEASING` when the
+            // completion behind this is applied — the window in which the
+            // slot comparison is the only thing that answers.
+            throw new Error('no coherent settlement');
+          }
+
+          return true;
+        },
+        effect: (): void => {},
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    // **The applied half of the double validation, alone.** The completion
+    // owned the slot when it settled and lost it to the cancel's settlement
+    // before it was applied; the phase check sees `RELEASING` and passes it.
+    expect(harness.settlements.map((input) => input.type)).toEqual([
+      SETTLED_CANCELED,
+      SETTLED_FAILED,
+    ]);
+  });
 });
 
 describe('the settlement seam', () => {
@@ -1652,21 +1889,18 @@ describe('the settlement seam', () => {
     expect(harness.phases['settlement.effect']).toBe(SETTLING);
   });
 
-  it('should classify a prepare rejection at the stage it names', () => {
+  it('should classify a throwing prepare at the seam’s own stage', () => {
     const harness = createHarness({
       settlement: {
-        prepare(_draft, input): PreparedSettlement | SeamRejection {
-          // The checkpoint the rejection queues drives this same seam, so the
+        prepare(_draft, input): PreparedSettlement {
+          // The checkpoint the failure queues drives this same seam, so the
           // failed input is what records the classification.
           if (input.type === SETTLED_FAILED) {
             harness.failures.push({ stage: input.stage, error: input.error });
             return true;
           }
 
-          return {
-            stage: FAILURE_RESOLUTION,
-            error: new Error('not a resolution'),
-          };
+          throw new Error('not a resolution');
         },
         effect(): void {},
       },
@@ -1676,10 +1910,12 @@ describe('the settlement seam', () => {
     release(80, 10);
 
     // Acceptance is never inferred: a fulfilled value that is not an explicit
-    // resolution is classified, and nothing below the rejection runs.
+    // resolution is classified at the settlement seam's own stage, which the
+    // behavior no longer names because it never had to (D-152), and nothing
+    // below the throw runs.
     expect(harness.failures[0]!.stage).toBe(FAILURE_RESOLUTION);
     // **And the operation is still disposed of** (D-66). "Nothing below the
-    // rejection runs" is about *continuation* — no gate arming, no consumer
+    // throw runs" is about *continuation* — no gate arming, no consumer
     // invocation, no retirement past the failure. The terminal is disposition,
     // not continuation, and this assertion read `not.toContain` until D-66
     // retracted exactly that clause of D-23.
@@ -1707,32 +1943,38 @@ describe('the settlement seam', () => {
     );
   });
 
-  it('should arm nothing when the effect throws after requesting a hold', () => {
-    const runner = createRunner();
+  it('should measure nothing when the effect throws', () => {
+    const measured: string[] = [];
     const harness = createHarness({
       settlement: {
         prepare: () => true,
-        effect(_current, _prepared, scope: SettlementScope): never {
-          scope.holdForLanding(runner.start);
+        effect(): never {
           throw new Error('effect');
         },
+      },
+      anchorTarget(): { x: number; y: number } {
+        measured.push('anchorTarget');
+        return { x: 0, y: 0 };
       },
     });
 
     activate(harness);
     release(80, 10);
 
-    // Arming a half-requested plan would start a runner for a settlement that
-    // has already failed; the queued checkpoint decides instead (F-27). What
-    // the checkpoint decides now includes the terminal (D-66) — the runner is
-    // still never started, which is the half F-27 is about.
-    expect(runner.calls).toEqual([]);
+    // A settlement that never committed does not land: measuring for a join
+    // that will never happen would call behavior code for nothing, and the
+    // queued checkpoint decides the operation instead. What the checkpoint
+    // decides includes the terminal.
+    expect(measured).toEqual([]);
     expect(harness.calls).toContain('finalized');
   });
 });
 
-describe('the settlement gates', () => {
-  it('should finalize in the resolution drain when neither gate is held', () => {
+describe('the settlement drain', () => {
+  it('should finalize in the resolution drain', () => {
+    // **Nothing suspends a settlement.** The seam commits, the target is
+    // measured, the join releases, and the terminal publishes — one
+    // synchronous sequence with no gate in it and nothing to wait for.
     const harness = createHarness();
 
     activate(harness);
@@ -1741,389 +1983,371 @@ describe('the settlement gates', () => {
     expect(harness.calls).toContain('finalized');
   });
 
-  it('should not finalize while the landing gate is held', () => {
-    const runner = createRunner();
-    const harness = createHarness({ startLanding: runner.start });
+  it('should finalize in the same drain with a tail installed', () => {
+    // The tail is an interpolation, not a gate: it holds no lease, so there is
+    // nothing for the terminal to wait on and the operation ends while the
+    // element is still moving.
+    const harness = createHarness({ landingTail: tailOf() });
 
     activate(harness);
     release(80, 10);
 
-    expect(runner.calls).toEqual(['start']);
-    expect(harness.calls).not.toContain('finalized');
-  });
-
-  it('should ignore and report a duplicate hold', () => {
-    // Re-pointed at the surviving gate by D-41. The bookkeeping rule was never
-    // readiness's: a duplicate or post-seal request is ignored and reported,
-    // and it holds for one gate exactly as it held for two.
-    const runner = createRunner();
-    const harness = createHarness({
-      settlement: {
-        prepare: () => true,
-        effect(_current, _prepared, scope: SettlementScope): void {
-          scope.holdForLanding(runner.start);
-          scope.holdForLanding(runner.start);
-        },
-      },
-    });
-
-    activate(harness);
-    release(80, 10);
-
-    // Ignored, reported through the platform reporter, and — crucially — not
-    // double-counted: one release still opens the gate.
-    expect(reported).toHaveLength(1);
-    expect(harness.calls).not.toContain('finalized');
-  });
-
-  it('should ignore and report a hold requested after sealing', () => {
-    let escaped!: SettlementScope;
-    const harness = createHarness({
-      settlement: {
-        prepare: () => true,
-        effect(_current, _prepared, scope: SettlementScope): void {
-          escaped = scope;
-        },
-      },
-    });
-
-    activate(harness);
-    release(80, 10);
-    escaped.holdForLanding(createRunner().start);
-
-    // A bookkeeping error must not destroy a live drop: it never overwrites a
-    // watch, never double-increments and never panics.
-    expect(reported).toHaveLength(1);
     expect(harness.calls).toContain('finalized');
+    expect(tailVector(harness.item)).not.toBeNull();
   });
 });
 
 /**
- * The landing completion protocol: reserve-before-call (F-21), the once-only
- * latch (D-28, I-24) and revalidate-after-return (F-30).
+ * **The landing tail.**
  *
- * **These rows are new, and their absence is the finding that produced them.**
- * `tests/COVERAGE.md` §Landing completion cited six tests here — the
- * synchronous `done()`, the synchronous `fail()`, the duplicate completion,
- * `done()` followed by a throw, `start` throwing, and `start` destroying while
- * returning a live handle — and none of them existed under any name (review 2,
- * B-2). The ledger was read as coverage for the whole of `completeLanding` and
- * `armSettlement`, which is the reason a dangling citation is worse than a
- * missing one: it answers the question a reviewer came to ask.
- *
- * The one that is not a restoration is *`done()` then a throw*: the row
- * predicted the completion survives for the join, and the landed kernel
- * classifies the throw instead. The test below asserts what the kernel does and
- * says why that is the coherent answer, rather than restoring a row that
- * described a system that never shipped.
+ * Presentation is released *completely* at the join — inline styles restored,
+ * top layer exited, the behavior's own presentation disposed — and only then
+ * does anything interpolate. What is left travelling is an additive
+ * contribution to the released element's `translate`, decaying to zero: it
+ * writes no inline style, reverts by itself, cancels to a settled state in one
+ * call and dies with the element. That is why it may outlive the operation, and
+ * it is the whole of the argument.
  */
-describe('landing completion', () => {
-  it('should honour a done() called synchronously inside start', () => {
-    // **F-21, reserve-before-call.** The hold is taken before `start` runs, so
-    // a runner that completes inside `start` — `landing({ duration: 0 })`, or
-    // any synchronous one — always finds its hold to release. Were the hold
-    // reserved after `start` returned, this completion would apply to a gate
-    // that did not yet exist and the operation would hang open.
-    const runner = createRunner({
-      onStart: (done) => {
-        done();
-      },
-    });
-    const harness = createHarness({ startLanding: runner.start });
+describe('the landing tail', () => {
+  it('should start nothing without a landing policy', () => {
+    // A behavior that declares no policy pays for no capability: there is no
+    // animation, and the visual is simply where flow puts it once the release
+    // restores its inline styles. Nothing wrote it there.
+    const harness = createHarness();
 
     activate(harness);
     release(80, 10);
 
-    expect(harness.calls).toContain('finalized');
-    expect(runner.calls).toEqual(['start', 'destroy']);
+    expect(harness.item.getAnimations()).toEqual([]);
   });
 
-  it('should destroy the handle and refuse to finalize after a synchronous fail()', () => {
-    // **F-30.** A runner may fail *and still return a handle*. The failure
-    // latches on the open phase, so the arm returns `ARM_FAILED` and the handle
-    // it is holding is destroyed rather than published — publishing it would
-    // leave a runner owned by a settlement that has already been replaced.
-    const failure = new Error('runner');
-    const runner = createRunner({
-      onStart: (_done, fail) => {
-        fail(failure);
-      },
-    });
-    const harness = createHarness({ startLanding: runner.start });
-
-    activate(harness);
-    release(80, 10);
-
-    expect(runner.calls).toEqual(['start', 'destroy']);
-    expect(harness.failures.map(({ error }) => error)).toEqual([failure]);
-  });
-
-  it('should ignore a duplicate completion', () => {
-    // **I-24.** The second `done()` is not merely harmless — it must not open a
-    // second join, which would pin and call the terminal callback twice.
+  it('should travel the delta the release removed', () => {
+    // The visual was rendered at `(70, 0)` and the drop decided the anchor's
+    // origin-relative `(20, 0)`, so releasing it into flow moves it 50px left
+    // in one frame. The tail contributes exactly that back and decays it away.
     //
-    // **Both calls are inside `start`, and that is what makes this about the
-    // latch.** Two asynchronous `done()`s are stopped by the *staleness* check
-    // instead — the first one finalizes and retires the attempt, so the second
-    // finds `settlement !== attempt` — and a test written that way passes with
-    // the latch deleted. Inside `start` the attempt is still the live one for
-    // both calls, so `attempt.completed` is the only thing standing between
-    // them.
-    const runner = createRunner({
-      onStart: (done) => {
-        done();
-        done();
+    // **The anchor is built from the grab rect the kernel published**, which is
+    // the basis it converts against: by settle time the visual is out of flow
+    // and carrying the drag's transform, so its live rect is a different
+    // number.
+    let grab: DOMRectReadOnly | null = null;
+    const harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      activation: {
+        prepare: (): HTMLElement => document.createElement('div'),
+        effect(_current, _prepared, scope: ActivationScope): void {
+          grab = scope.originRect;
+        },
+      },
+      anchorTarget: (): { x: number; y: number } => ({
+        x: grab!.x + 20,
+        y: grab!.y,
+      }),
+      landingTail: tailOf(),
+    });
+
+    activate(harness);
+    move(80, 10);
+    release(80, 10);
+
+    expect(tailVector(harness.item)).toEqual({ x: 50, y: 0 });
+  });
+
+  it('should decay to a zero contribution', () => {
+    // **This is what makes cancellation safe at any moment.** The tail ends at
+    // nothing, so whether it finishes or is cancelled, the element is left
+    // exactly where flow puts it — there is no final position to write and no
+    // cleanup owner to appoint.
+    const harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: tailOf(),
+    });
+
+    activate(harness);
+    move(80, 10);
+    release(80, 10);
+
+    const [animation] = harness.item.getAnimations();
+    const frames = (animation!.effect as KeyframeEffect).getKeyframes();
+
+    expect(vectorOf(frames.at(-1)!)).toEqual({ x: 0, y: 0 });
+  });
+
+  it('should add to the element rather than claim its transform', () => {
+    // `transform` would be wrong twice over — it replaces an authored
+    // `rotate()` and overrides a consumer's own transform animation — and
+    // additive `transform` concatenates, so the offset would land inside the
+    // element's own `scale()`. `translate` applies before `transform` in the
+    // used-value chain, so an additive contribution to it sits outside
+    // everything the consumer wrote.
+    const harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: tailOf(),
+    });
+
+    activate(harness);
+    move(80, 10);
+    release(80, 10);
+
+    const [animation] = harness.item.getAnimations();
+
+    expect((animation!.effect as KeyframeEffect).composite).toBe('add');
+    // No fill, so nothing of it is written to `style` and a consumer reading
+    // the element's inline styles sees only what it authored itself.
+    expect(harness.item.style.translate).toBe('');
+  });
+
+  it('should start only after presentation is released', () => {
+    // The order is normative and it is what makes the tail sound: a tail
+    // installed while the visual is still `fixed` in the top layer would be
+    // interpolating a lease, which is exactly the shape this design refuses.
+    let animatingAtRelease: number | null = null;
+    const harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: tailOf(),
+      activation: {
+        prepare: (): HTMLElement => document.createElement('div'),
+        effect(_current, _prepared, scope: ActivationScope): void {
+          scope.presentation.use(() => {
+            animatingAtRelease = scope.visual.getAnimations().length;
+          });
+        },
       },
     });
-    const harness = createHarness({ startLanding: runner.start });
 
     activate(harness);
     release(80, 10);
 
-    expect(harness.calls.filter((call) => call === 'finalized')).toHaveLength(
-      1,
-    );
+    expect(animatingAtRelease).toBe(0);
+    expect(tailVector(harness.item)).not.toBeNull();
   });
 
-  it('should classify a start that throws after completing rather than joining', () => {
-    // **The row the ledger got wrong, kept as the correction.** COVERAGE cited
-    // a test called _should retain a synchronously completed handle for the
-    // join_ — the completion standing and the throw being tolerated. The landed
-    // kernel does the opposite, and it is right to: `start` threw, so the
-    // runner is in an unknown state and never returned a handle to destroy. The
-    // completion it queued is applied to an attempt the classification then
-    // retires, which is exactly what the once-only latch's staleness check is
-    // for (I-4).
-    const failure = new Error('start');
-    const runner = createRunner({
-      onStart: (done) => {
-        done();
-        throw failure;
+  it('should start nothing when the visual is already where it lands', () => {
+    // A drop with no journey is not interpolated. The default `moved` writes
+    // nothing and the default anchor is the grab point, so the release removes
+    // a delta of zero and there is nothing to travel.
+    const harness = createHarness({
+      anchorTarget: (): { x: number; y: number } => {
+        const rect = harness.item.getBoundingClientRect();
+
+        return { x: rect.x, y: rect.y };
       },
+      landingTail: tailOf(),
     });
-    const harness = createHarness({ startLanding: runner.start });
 
     activate(harness);
     release(80, 10);
 
-    expect(harness.failures.map(({ error }) => error)).toEqual([failure]);
-    // One terminal, from the failure path (D-66) — not one from each.
-    expect(harness.calls.filter((call) => call === 'finalized')).toHaveLength(
-      1,
-    );
+    expect(harness.item.getAnimations()).toEqual([]);
   });
 
-  it('should roll the hold back and classify when start throws', () => {
-    // **F-27.** The hold was reserved before the call; a throw has to give it
-    // back, or the settlement waits on a gate no runner will ever release.
-    const failure = new Error('start');
-    const runner = createRunner({
-      onStart: () => {
-        throw failure;
+  it('should cancel the tail when the controller is destroyed', async () => {
+    const harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
       },
+      landingTail: tailOf(),
     });
-    const harness = createHarness({ startLanding: runner.start });
 
     activate(harness);
+    move(80, 10);
     release(80, 10);
 
-    // Never published, so there is nothing to destroy — `start` did not return.
-    expect(runner.calls).toEqual(['start']);
-    expect(harness.failures.map(({ error }) => error)).toEqual([failure]);
+    const [animation] = harness.item.getAnimations();
+
+    await harness.controller.destroy();
+
+    // Cancelled, not finished: the contribution decays to zero, so the element
+    // settles instantly and there is nothing left for anyone to release.
+    expect(animation!.playState).toBe('idle');
+    expect(harness.item.getAnimations()).toEqual([]);
   });
 
-  it('should destroy a handle returned by a start that destroyed the controller', () => {
-    // **F-30's other half, revalidate-after-return.** Teardown ran inside
-    // `start`, saw no published handle and retired the attempt; publishing the
-    // handle now would leave a runner nothing owns and nothing will ever
-    // destroy. The kernel destroys it on the spot instead.
-    //
-    // **What this row pins is the outcome, not that mechanism.** Neutralising
-    // the post-return revalidation leaves this row — and the whole browser
-    // suite — green, because the destroy raised inside `start` is inside a
-    // transaction and D-36's bracket defers physical teardown to the boundary
-    // *after* arm published the handle; teardown then destroys it anyway. The
-    // revalidation is defence in depth against a teardown that is not deferred,
-    // which is the same hedge `armSettlement`'s own comment makes about
-    // `started` and `attempt.failed`. Recorded rather than dressed up: a
-    // falsification that does not falsify is worth stating.
+  it('should cancel the tail when the next drag acquires the visual', () => {
+    // Measuring a visual mid-tail is right — the drag should start from where
+    // the element *looks*. Cancelling is about the cascade: a running animation
+    // outranks inline styles, so the new lift's own writes would compose with a
+    // contribution that is still decaying.
+    const harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: tailOf(),
+    });
+
+    activate(harness);
+    move(80, 10);
+    release(80, 10);
+    expect(harness.item.getAnimations()).toHaveLength(1);
+
+    activate(harness);
+
+    expect(harness.item.getAnimations()).toEqual([]);
+  });
+
+  it('should keep the tail through a press that never activates', () => {
+    // A press is not a drag. Cancelling at admission would kill a live
+    // interpolation for a tap that goes on to do nothing at all.
+    const harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: tailOf(),
+    });
+
+    activate(harness);
+    move(80, 10);
+    release(80, 10);
+
+    press(harness.item);
+
+    expect(harness.item.getAnimations()).toHaveLength(1);
+  });
+
+  it('should start no tail when the policy destroyed the controller', () => {
     let harness: Harness | null = null;
-    const runner = createRunner({
-      onStart: () => {
-        void harness!.controller.destroy();
-      },
-    });
-
-    harness = createHarness({ startLanding: runner.start });
-
-    activate(harness);
-    release(80, 10);
-
-    expect(runner.calls).toEqual(['start', 'destroy']);
-  });
-
-  it('should let a done() win over a later fail()', () => {
-    // Inside `start` for the same reason as the duplicate above: this is the
-    // window in which both calls reach a live attempt, so the *order* is what
-    // decides rather than the retirement the first one caused.
-    const runner = createRunner({
-      onStart: (done, fail) => {
-        done();
-        fail(new Error('late'));
-      },
-    });
-    const harness = createHarness({ startLanding: runner.start });
-
-    activate(harness);
-    release(80, 10);
-
-    expect(harness.calls).toContain('finalized');
-    expect(harness.failures).toEqual([]);
-  });
-
-  it('should let a fail() win over a later done()', () => {
-    // The mirror, and the one that would pass vacuously if the latch were
-    // written as "a failure wins": the order decides, not the kind.
-    const failure = new Error('runner');
-    const runner = createRunner({
-      onStart: (done, fail) => {
-        fail(failure);
-        done();
-      },
-    });
-    const harness = createHarness({ startLanding: runner.start });
-
-    activate(harness);
-    release(80, 10);
-
-    // One terminal, and it is the failure's: D-66 makes the terminal total over
-    // started operations, so `finalized` is not evidence the *landing* joined.
-    expect(harness.failures.map(({ error }) => error)).toEqual([failure]);
-    expect(harness.calls.filter((call) => call === 'finalized')).toHaveLength(
-      1,
-    );
-  });
-
-  it('should make a completion for a retired attempt inert', () => {
-    // **I-24, and the staleness check rather than the latch.** `destroy()`
-    // retires the attempt with the animation still running and the runner's
-    // `done()` uncompleted, so nothing has latched: only
-    // `settlement !== attempt || queue.closed` stops this completion opening a
-    // join on a controller that no longer exists.
-    //
-    // Not driven by a cancel, which is the obvious reading and the wrong one: a
-    // cancel arriving at `SETTLING` is late by definition and `handleCancel`
-    // ignores it, so the settlement it was meant to retire is still live and
-    // `done()` would legitimately finalize it.
-    const runner = createRunner();
-    const harness = createHarness({ startLanding: runner.start });
-
-    activate(harness);
-    release(80, 10);
-    void harness.controller.destroy();
-
-    const before = harness.calls.length;
-
-    runner.done();
-
-    expect(harness.calls.slice(before)).toEqual([]);
-  });
-
-  it('should destroy a live runner when the controller is destroyed', () => {
-    // **I-6.** `destroy()` is a synchronous terminal barrier, and a landing
-    // animation is exactly the kind of work that would otherwise keep running
-    // against a controller that no longer exists.
-    const runner = createRunner();
-    const harness = createHarness({ startLanding: runner.start });
-
-    activate(harness);
-    release(80, 10);
-
-    expect(runner.calls).toEqual(['start']);
-
-    void harness.controller.destroy();
-
-    expect(runner.calls).toEqual(['start', 'destroy']);
-  });
-
-  it('should never call start after anchorTarget destroyed the controller', () => {
-    // **F-38.** `anchorTarget` is behavior code and runs before `start`; the
-    // measurement it returns is unusable once it has torn the controller down,
-    // and calling a consumer's runner afterwards violates I-6. Distinct from
-    // the join's own revalidation, which is a later checkpoint on the same
-    // path — this one is why there is nothing for that checkpoint to undo.
-    let harness: Harness | null = null;
-    const runner = createRunner();
 
     harness = createHarness({
-      startLanding: runner.start,
-      anchorTarget: () => {
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: (): LandingTail => {
         void harness!.controller.destroy();
-        return { x: 300, y: 300 };
+        return { duration: 200, easing: 'linear' };
       },
     });
 
     activate(harness);
     release(80, 10);
 
-    expect(runner.calls).toEqual([]);
+    // `destroy()` is a synchronous terminal barrier: a destroyed controller
+    // writes nothing, including an animation nothing would be left to cancel.
+    expect(harness.item.getAnimations()).toEqual([]);
+    expect(harness.calls).not.toContain('finalized');
+  });
+
+  it('should report a policy that throws and still terminate', () => {
+    const harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: (): never => {
+        throw new Error('policy');
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    // A cosmetic fault may not touch a semantic result: the drop is already
+    // decided, committed and released by the time anything interpolates.
+    expect(harness.failures).toEqual([]);
+    expect(harness.reports).toHaveLength(1);
+    expect(harness.reports[0]).toBeInstanceOf(DraggableWarning);
+    expect(harness.calls).toContain('finalized');
+  });
+
+  it('should report a duration the platform refuses and still terminate', () => {
+    const harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: (): LandingTail => ({
+        duration: Number.NaN,
+        easing: 'ease',
+      }),
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    // The duration domain is `animate()`'s, and the refusal is where it lands:
+    // no library check, no classified failure, and a drop that ended normally.
+    expect(harness.failures).toEqual([]);
+    expect(harness.reports).toHaveLength(1);
+    expect(harness.item.getAnimations()).toEqual([]);
+    expect(harness.calls).toContain('finalized');
   });
 });
 
 /**
  * **The landing origin (D-35, K-3).**
  *
- * `LandingContext.from` was `pointerX - originX`, documented as *where the
- * visual is now*. Those are the same number for exactly one behavior — one
+ * Where the drop travels *from* was `pointerX - originX`, documented as *where
+ * the visual is now*. Those are the same number for exactly one behavior — one
  * whose `moved` writes the raw pointer delta on both axes, which is what the
  * sortable does and what this harness's default `moved` deliberately does not.
  * For a behavior that constrains, clamps, snaps or externally drives its visual
  * they differ, and a pointerless operation has no pointer to subtract at all.
  *
  * **Why the whole suite could stay green through it** is the part worth
- * repeating: the landing opens with a jump and still *ends* correctly, because
- * the target is behavior-supplied and the kernel re-pins at the join. Phase 11
- * met the same shape in the lift geometry and only a demo exposed it. So every
- * row here reads `from` at the one instant it exists — inside `start` — rather
- * than inferring it from where the drop ended, which is the assertion that
- * cannot tell the defect from the fix.
+ * repeating: the drop travels with a jump and still *ends* correctly, because
+ * the release is what puts the visual in its place and the tail only decays a
+ * contribution to zero. Phase 11 met the same shape in the lift geometry and
+ * only a demo exposed it. So every row here reads the origin at the one instant
+ * it is published — the tail policy — and checks it against the transform
+ * standing on the element while it is still lifted, rather than inferring it
+ * from where the drop ended, which is the assertion that cannot tell the defect
+ * from the fix.
  */
 describe('the landing origin', () => {
+  type Sampled = Readonly<{ x: number; y: number }>;
+
   /**
-   * Presses, moves through `path`, releases, and returns what the runner was
-   * handed. The release coordinate is the last point of `path` unless
-   * `releaseAt` names another — the two differ where the point is to show that
-   * `from` follows the *write*, not the pointer.
+   * Presses, moves through `path`, releases, and returns the origin the tail
+   * policy was handed. The release coordinate is the last point of `path`
+   * unless `releaseAt` names another — the two differ where the point is to
+   * show that the origin follows the *write*, not the pointer.
    */
   const sample = (
     overrides: SpecOverrides,
     path: ReadonlyArray<readonly [x: number, y: number]>,
   ): Readonly<{
     harness: Harness;
-    context: LandingContext | null;
+    origin: Sampled | null;
     /**
-     * The visual's inline transform **at the instant `from` was sampled**.
-     * Read here rather than after the drop, because teardown restores the
-     * inline-style lease: an assertion against the element afterwards compares
-     * the composition to an empty string and passes for the wrong reason.
+     * The visual's inline transform **while it is still lifted**, read from
+     * inside `anchorTarget`. Read there rather than after the drop, because
+     * teardown restores the inline-style lease: an assertion against the
+     * element afterwards compares the composition to an empty string and passes
+     * for the wrong reason.
      */
     transform: string;
+    /** The lift session, so a row can compose against it. */
+    lift: BehaviorLiftSession | null;
   }> => {
-    let context: LandingContext | null = null;
+    let origin: Sampled | null = null;
     let transform = '';
+    let lift: BehaviorLiftSession | null = null;
     const harness = createHarness({
       ...overrides,
-      startLanding: (received, done): LandingHandle => {
-        const {
-          visual: {
-            style: { transform: written },
-          },
-        } = received;
+      activation: {
+        prepare: (): HTMLElement => document.createElement('div'),
+        effect(_current, _prepared, scope: ActivationScope): void {
+          ({ lift } = scope);
+        },
+      },
+      anchorTarget(): { x: number; y: number } {
+        const rect = harness.item.getBoundingClientRect();
 
-        context = received;
-        transform = written;
-        done();
-        return { destroy(): void {} };
+        ({ transform } = harness.item.style);
+
+        // **A hundred pixels below the visual's own box**, so that every row
+        // travels — including the three whose visual never moved at all, whose
+        // origin is the answer under test.
+        return { x: rect.x, y: rect.y + 100 };
+      },
+      landingTail(_current, fromX, fromY): LandingTail {
+        origin = { x: fromX, y: fromY };
+        return { duration: 200, easing: 'linear' };
       },
     });
 
@@ -2137,7 +2361,7 @@ describe('the landing origin', () => {
 
     release(last[0], last[1]);
 
-    return { harness, context, transform };
+    return { harness, origin, transform, lift };
   };
 
   /** A `moved` that renders the raw pointer delta — the sortable's shape. */
@@ -2152,7 +2376,7 @@ describe('the landing origin', () => {
   };
 
   it('should reproduce the transform the drag last wrote', () => {
-    const { context, transform } = sample({ moved: followsPointer }, [
+    const { origin, transform, lift } = sample({ moved: followsPointer }, [
       // **Two moves, and the first one is not decoration.** The
       // threshold-crossing move is the activation; `moved` runs from the next
       // committed sample onwards. A one-move fixture here renders nothing and
@@ -2164,28 +2388,27 @@ describe('the landing origin', () => {
     // **The agreement case, by construction**: this `moved` writes the raw
     // pointer delta, which is the one shape for which the old computation was
     // right, so the row below is not the falsifier — the five that follow are.
-    // What it does add is the composition identity a runner depends on.
+    // What it does add is the composition identity the tail depends on.
     //
     // **Non-zero on both axes, and that is the whole design of the fixture.** A
     // delta and a viewport point agree at the origin and nowhere else, so a
     // fixture that drags along one axis from a grab at `(0, 0)` cannot tell the
     // recorded delta from the pointer position or from either mistake in
     // between. Grab is `(10, 10)`, so this is `(60, 80)`.
-    expect(context).not.toBeNull();
-    expect(context!.from).toEqual({ x: 60, y: 80 });
-    // The end-to-end form of the same claim, and the one a runner depends on:
-    // `from` and `compose` are the same coordinate space, so composing the
-    // origin the runner is handed reproduces the transform already on the
-    // element. A runner that starts by writing `compose(from.x, from.y)`
-    // therefore writes exactly what is already there — no first-frame jump.
-    expect(context!.compose(context!.from.x, context!.from.y)).toBe(transform);
+    expect(origin).toEqual({ x: 60, y: 80 });
+    // The end-to-end form of the same claim, and the one the tail depends on:
+    // the origin and `compose` are the same coordinate space, so composing the
+    // published origin reproduces the transform that was standing on the
+    // element. A tail issued for `origin - target` therefore starts exactly
+    // where the drag left the visual — no first-frame jump.
+    expect(lift!.compose(origin!.x, origin!.y)).toBe(transform);
   });
 
   it('should report the constrained delta rather than the pointer delta', () => {
     // The cheapest constraining behavior there is: an axis lock. It is also the
     // one free drag ships, which is why this row is K-3's and L-4's shared
     // half — the difference is that free drag reaches it on three paths.
-    const { context } = sample(
+    const { origin } = sample(
       {
         moved(current, lift): void {
           lift.write(current.pointerX - current.originX, 0);
@@ -2199,8 +2422,8 @@ describe('the landing origin', () => {
 
     // The pointer travelled 50px down. The visual did not, so neither does the
     // landing origin. Under the pointer form this read `{ x: 30, y: 50 }` and
-    // the drop opened 50px below the visual.
-    expect(context!.from).toEqual({ x: 30, y: 0 });
+    // the drop travelled from 50px below the visual.
+    expect(origin).toEqual({ x: 30, y: 0 });
   });
 
   it('should track a write issued from an action effect', () => {
@@ -2210,7 +2433,7 @@ describe('the landing origin', () => {
     // own frame part — the duplication that produced the defect in the first
     // place. The kernel records its own writes, so the route does not matter.
     let retained: BehaviorLiftSession | null = null;
-    let context: LandingContext | null = null;
+    let origin: Sampled | null = null;
     const harness = createHarness({
       activation: {
         prepare: (): HTMLElement => document.createElement('div'),
@@ -2225,19 +2448,18 @@ describe('the landing origin', () => {
           retained!.write(-5, 7);
         },
       },
-      startLanding: (received, done): LandingHandle => {
-        context = received;
-        done();
-        return { destroy(): void {} };
+      landingTail(_current, fromX, fromY): LandingTail {
+        origin = { x: fromX, y: fromY };
+        return { duration: 200, easing: 'linear' };
       },
     });
 
     press(harness.item);
     move(40, 60);
-    harness.host.dispatch(0, null);
+    harness.kernel.dispatch(0, null);
     release(40, 60);
 
-    expect(context!.from).toEqual({ x: -5, y: 7 });
+    expect(origin).toEqual({ x: -5, y: 7 });
   });
 
   it('should report the origin for an operation that never rendered', () => {
@@ -2245,13 +2467,17 @@ describe('the landing origin', () => {
     // visual is still where acquisition left it. `(0, 0)` is not a fallback
     // here — it is the true answer, and it is the initial value of the record
     // rather than a special case anyone had to write.
-    const { context } = sample({}, [[40, 60]]);
+    //
+    // **The anchor is `(10, 10)`, the grab point**, so the release removes
+    // nothing and no tail is issued: the origin is read from the policy call, which
+    // happens whether or not anything travels.
+    const { origin } = sample({}, [[40, 60]]);
 
-    expect(context!.from).toEqual({ x: 0, y: 0 });
+    expect(origin).toEqual({ x: 0, y: 0 });
   });
 
   it('should report the origin for a pointerless operation', () => {
-    let context: LandingContext | null = null;
+    let origin: Sampled | null = null;
     const harness = createHarness({
       command: {
         types: ['keydown'],
@@ -2260,10 +2486,10 @@ describe('the landing origin', () => {
           return harness.item;
         },
       },
-      startLanding: (received, done): LandingHandle => {
-        context = received;
-        done();
-        return { destroy(): void {} };
+      anchorTarget: () => ({ x: 40, y: 40 }),
+      landingTail(_current, fromX, fromY): LandingTail {
+        origin = { x: fromX, y: fromY };
+        return { duration: 200, easing: 'linear' };
       },
     });
 
@@ -2279,17 +2505,15 @@ describe('the landing origin', () => {
     // test passes against the pre-D-35 kernel. It is kept because the
     // coincidence is one line wide: any pointerless mint seeded from a real
     // coordinate — the item's rect, a caret, a focus point — makes the
-    // subtracted form return the *negated* origin and teleport the visual
-    // across the viewport at the start of its landing. The recorded delta has
-    // no such failure mode: nothing wrote, so nothing moved.
-    expect(context).not.toBeNull();
-    expect(context!.from).toEqual({ x: 0, y: 0 });
+    // subtracted form return the *negated* origin and send the visual across
+    // the viewport at the start of its tail. The recorded delta has no such
+    // failure mode: nothing wrote, so nothing moved.
+    expect(origin).toEqual({ x: 0, y: 0 });
   });
 
   it('should record nothing for a compose without a write', () => {
-    // Composing is not rendering — a landing runner composes on every frame and
-    // must not move the origin under itself.
-    const { context } = sample(
+    // Composing is not rendering, so it must not move the origin.
+    const { origin } = sample(
       {
         moved(current, lift): void {
           void lift.compose(
@@ -2304,7 +2528,7 @@ describe('the landing origin', () => {
       ],
     );
 
-    expect(context!.from).toEqual({ x: 0, y: 0 });
+    expect(origin).toEqual({ x: 0, y: 0 });
   });
 
   it('should leave the recorded delta stale when a behavior writes behind it', () => {
@@ -2312,14 +2536,14 @@ describe('the landing origin', () => {
     // guarantee** (C4-02, C4-07). A behavior holds the real element through
     // `ActivationScope.visual` and through the session, so it can always write
     // the transform itself. Doing so leaves the record describing the last
-    // `write` — here, no write at all — and the landing opens from there.
+    // `write` — here, no write at all — and the drop travels from there.
     //
     // **This is unsupported tier-C discipline, not a defect**, and the row
     // exists so that the limit of I-34 is executable instead of only asserted.
     // The enforced half is narrower and is the half that matters: the behavior
-    // supplies no origin, so it cannot make `from` and the record disagree — it
-    // can only render behind the session's back.
-    const { context, transform } = sample(
+    // supplies no origin, so it cannot make the published one and the record
+    // disagree — it can only render behind the session's back.
+    const { origin, transform } = sample(
       {
         moved(current, lift): void {
           lift.visual.style.transform = `translate(${
@@ -2334,16 +2558,16 @@ describe('the landing origin', () => {
     );
 
     expect(transform).toBe('translate(30px, 0px)');
-    expect(context!.from).toEqual({ x: 0, y: 0 });
+    expect(origin).toEqual({ x: 0, y: 0 });
   });
 
   /**
    * **The temporal limit is documented, not asserted** (C6-01, and this comment
    * is the row).
    *
-   * A retained `lift.write` called after `from` is sampled still renders, and
-   * fights the landing runner for the same property; called after `retire()` it
-   * writes onto an element no live operation owns. Both are outside the
+   * A retained `lift.write` called after the origin is sampled still renders,
+   * and moves a visual the settlement has already read; called after `retire()`
+   * it writes onto an element no live operation owns. Both are outside the
    * contract and **neither is refused**. No test pins the current behavior,
    * because a test here would read as a promise: the kernel deliberately adds
    * no phase guard — a branch on the one path M-1 measures, defending against a
@@ -2353,29 +2577,36 @@ describe('the landing origin', () => {
 });
 
 describe('the join', () => {
-  it('should destroy the runner before pinning and release presentation last', () => {
-    const runner = createRunner();
-    const harness = createHarness({ startLanding: runner.start });
+  it('should release presentation before finalizing, and tail between', () => {
+    // Ordering is normative: measure → release → tail → finalize. The kernel
+    // writes nothing here — the release hands the element back to the consumer
+    // and flow puts it where the drop decided — and the terminal callback runs
+    // in a world the library holds no claim on.
+    const harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: tailOf(),
+    });
 
     activate(harness);
+    move(80, 10);
     release(80, 10);
-    runner.done();
 
-    // Ordering is normative: measure → relinquish → pin → release → finalize.
-    // The runner must relinquish the transform before the pin, or a running
-    // animation overrides the inline style.
     expect(harness.calls.indexOf('presentation.released')).toBeLessThan(
       harness.calls.indexOf('finalized'),
     );
-    expect(runner.calls).toEqual(['start', 'destroy']);
+    // And the terminal did not wait for the interpolation: it published while
+    // the element was still moving.
+    expect(tailVector(harness.item)).not.toBeNull();
   });
 
-  it('should measure once, at arm, under SETTLING', () => {
-    // **Rewritten by D-41, and the change of phase is the point.** The join
-    // used to measure a second time, authoritatively, after committing
-    // `FINALIZING` — with a provisional measurement at arm before it. There is
-    // one measurement now and it is arm's, so it runs under `SETTLING`; the
-    // join pins to the value it recorded rather than taking its own.
+  it('should measure once, under SETTLING', () => {
+    // **The measurement is the settlement's, not the join's.** There is one
+    // measurement and it runs under `SETTLING`; the join reads the value it
+    // recorded, and the tail travels the inverse of the delta between where the
+    // visual was and that value. A second, advisory reading would give the tail
+    // an endpoint nothing else agrees with.
     const phases: number[] = [];
     const harness = createHarness({
       anchorTarget(current): { x: number; y: number } {
@@ -2390,13 +2621,74 @@ describe('the join', () => {
     expect(phases).toEqual([SETTLING]);
   });
 
-  it('should skip the landing and still terminate when the measurement throws', () => {
+  it('should read the anchor before any code can rewrite it', () => {
+    // **F-123, and it is D-144's precondition rather than its consequence.**
+    // The seam's contract says the returned point is *borrowed*: both fields
+    // are read on return and the object is never retained, which is what lets
+    // an implementation hand back one reusable buffer per controller — as both
+    // first-party behaviors now do. Nothing asserted it. A kernel that stored
+    // the object on the settlement attempt and read it later would break every
+    // caching implementation silently and pass the whole suite.
+    //
+    // **The window is narrow and the poison sits at the front of it.** Nothing
+    // foreign runs between the read and the release, so the earliest a caching
+    // behavior could be betrayed is the presentation disposers — which run
+    // before the tail is issued, and the tail's endpoint is the only thing the
+    // borrowed point still reaches. The two coordinates are deliberately
+    // unequal and non-zero: a transposed axis is the way a flattening fails.
+    const buffer = { x: 0, y: 0 };
+    // Published by the activation scope and read at settle time. The seam needs
+    // the visual's rect **at grab** — the basis the kernel converts against —
+    // and the frame's `originX`/`originY` are the *grab pointer*, which is a
+    // different origin.
+    let grab: DOMRectReadOnly | null = null;
+    const harness = createHarness({
+      activation: {
+        prepare: (): HTMLElement => document.createElement('div'),
+        effect(_current, _prepared, scope: ActivationScope): void {
+          grab = scope.originRect;
+          scope.presentation.use(() => {
+            buffer.x = -999;
+            buffer.y = -777;
+          });
+        },
+      },
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      anchorTarget(): { x: number; y: number } {
+        buffer.x = grab!.x + 60;
+        buffer.y = grab!.y + 25;
+
+        return buffer;
+      },
+      landingTail: tailOf(),
+    });
+
+    activate(harness);
+    move(80, 10);
+    release(80, 10);
+
+    // **The tail's contribution is the whole assertion, because it is the only
+    // thing downstream of the borrow.** The drag rendered `(70, 0)` and the
+    // measurement converted the anchor to `(60, 25)`, so the residual is
+    // `(10, -25)`. A kernel that stored the object and converted it later would
+    // read `(-999, -777)` — poisoned by a disposer that has already run — and
+    // no arithmetic over that pair produces this one.
+    expect(tailVector(harness.item)).toEqual({ x: 10, y: -25 });
+  });
+
+  it('should skip the tail and still terminate when the measurement throws', () => {
     // **D-49, and the assertion that used to read the other way.** This case
-    // classified `FAILURE_LANDING_TARGET`, replaced the settlement and skipped
+    // classified a landing-target failure, replaced the settlement and skipped
     // the terminal callback. That told a consumer whose reorder was already
     // committed and accepted that the drop had failed, over a fault that is
     // entirely presentational — so the measurement moved to the quality track.
     const harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: tailOf(),
       anchorTarget(): never {
         throw new Error('measure');
       },
@@ -2406,61 +2698,52 @@ describe('the join', () => {
     release(80, 10);
 
     // Reported, never classified: no checkpoint, no `OUTCOME_FAILED`.
+    //
+    // **And a warning, which is the whole of what the stage used to say**
+    // (D-130). The retired landing-target stage existed to be *classified,
+    // non-consequential and recovery-less* — a shape D-49 had to invent because
+    // reaching `onError` required a classification. The class says it directly.
     expect(harness.failures).toEqual([]);
-    expect(harness.reports[0]!.stage).toBe(FAILURE_LANDING_TARGET);
+    expect(harness.reports).toHaveLength(1);
+    expect(harness.reports[0]).toBeInstanceOf(DraggableWarning);
+    expect(harness.reports[0]).not.toBeInstanceOf(DraggableError);
+    expect(harness.reports[0]?.message).toBe(
+      'drag: landing/target-unavailable',
+    );
     // And it must not strand the controller: the placeholder is still removed
     // and the inline styles are still restored (F-22).
     expect(harness.calls).toContain('presentation.released');
     // **The terminal now runs** (D-60): the settlement was not failed, so the
     // operation joins immediately and terminates normally.
     expect(harness.calls).toContain('finalized');
+    // **Nothing travels, and not merely "no target to travel to".** A measurement
+    // that failed is not a target to interpolate toward, so there is no
+    // animation to `(0, 0)` and no policy call at all — the visual is released
+    // from where it stands, which is an honest jump cut.
+    expect(harness.item.getAnimations()).toEqual([]);
   });
 
-  it('should skip the runner entirely when the measurement throws', () => {
-    // Not merely "no target to pin to". A measurement that failed is not a
-    // target to animate toward, so `start` is never called — there is no
-    // animation to `(0,0)` and no runner to relinquish.
-    const runner = createRunner();
+  it('should raise no classified failure of its own', () => {
+    // **The join is infallible, and that is a property rather than an
+    // accident.** It reads a recorded pair, releases presentation and asks a
+    // policy; the release reports through the warning channel, the policy is
+    // unwound, and the one classified call it makes is the terminal callback
+    // itself. So no fault of the join's can reach a consumer whose drop is
+    // already decided and committed — the whole reason the kernel writes
+    // nothing here.
+    //
+    // Poisoning the visual's inline `transform` is what used to fail it: the
+    // setter throws on every write, and the drag has already made several.
     const harness = createHarness({
-      startLanding: runner.start,
-      anchorTarget(): never {
-        throw new Error('measure');
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
       },
+      landingTail: tailOf(),
     });
 
     activate(harness);
-    release(80, 10);
+    move(80, 10);
 
-    expect(runner.calls).toEqual([]);
-    expect(harness.calls).toContain('finalized');
-  });
-
-  it('should report a throwing runner destroy and still pin', () => {
-    const runner = createRunner({
-      onDestroy(): void {
-        throw new Error('cancel');
-      },
-    });
-    const harness = createHarness({ startLanding: runner.start });
-
-    activate(harness);
-    release(80, 10);
-    runner.done();
-
-    // Best-effort: a custom runner cannot strand presentation. The cost is that
-    // I-24 is no longer claimed for this operation, not that the drop fails.
-    expect(reported).toHaveLength(1);
-    expect(harness.failures).toEqual([]);
-    expect(harness.calls).toContain('presentation.released');
-    expect(harness.calls).toContain('finalized');
-  });
-
-  it('should release presentation and still publish a terminal when the pin throws', () => {
-    const harness = createHarness();
-
-    activate(harness);
-    // The pin is the one join step the kernel itself performs. Poisoning the
-    // inline transform is the only way to make a CSSOM write fail on demand.
     Object.defineProperty(harness.item.style, 'transform', {
       configurable: true,
       get: (): string => '',
@@ -2468,24 +2751,14 @@ describe('the join', () => {
         throw new Error('cssom');
       },
     });
+
     release(80, 10);
 
-    expect(harness.failures[0]!.stage).toBe(FAILURE_RENDERER_WRITE);
+    // The restore is a `removeProperty`, not a write, so the poisoned setter is
+    // never called again after the last `moved`.
+    expect(harness.failures).toEqual([]);
     expect(harness.calls).toContain('presentation.released');
-    // **The join still skips it, and the checkpoint still pays it** (D-66). The
-    // old assertion was `not.toContain`, reasoning that the committed frame
-    // still carried the accepted outcome so publishing would announce a
-    // successful drop. It would — and that is now the *point*: the pin failed,
-    // but the reorder is real and the consumer's data is committed, so what the
-    // consumer needs is one `onError` **and** the domain result. The publish
-    // moved one action later, from the join to `ERROR_REPORTED`, rather than
-    // being reinstated in the join.
     expect(harness.calls).toContain('finalized');
-    // Ordering is not incidental: the terminal sees presentation released, as
-    // it does on the success path.
-    expect(harness.calls.indexOf('presentation.released')).toBeLessThan(
-      harness.calls.indexOf('finalized'),
-    );
   });
 
   it('should retire after a throwing terminal callback', () => {
@@ -2519,33 +2792,128 @@ describe('the failure checkpoint', () => {
     activate(harness);
     move(60, 10);
 
+    // **`report` rides beside `stage`** (D-130 §5). The behavior maps the stage
+    // to a recovery, which is its own; the finished error is what it forwards
+    // to `onError`, and the kernel building it is what makes `toDraggableError`
+    // kernel-private.
     expect(harness.settlements).toEqual([
-      { type: SETTLED_FAILED, stage: FAILURE_RENDERER_WRITE, error },
+      {
+        type: SETTLED_FAILED,
+        stage: FAILURE_RENDERER_WRITE,
+        error,
+        report: expect.any(DraggableError) as DraggableError,
+      },
     ]);
+    expect(
+      (harness.settlements[0] as { report: DraggableError }).report.cause,
+    ).toBe(error);
   });
 
-  it('should hold no gate for a failed settlement', () => {
-    const runner = createRunner();
+  it('should start no tail for a failed settlement', () => {
     const harness = createHarness({
       moved(): never {
         throw new Error('cssom');
       },
-      settlement: {
-        prepare: () => true,
-        effect(_current, _prepared, scope: SettlementScope): void {
-          scope.holdForLanding(runner.start);
-        },
+      landingTail: tailOf(),
+    });
+
+    activate(harness);
+    move(60, 10);
+
+    // A failed settlement measures nothing and never joins, so there is no
+    // delta to interpolate and the policy is never consulted.
+    expect(harness.item.getAnimations()).toEqual([]);
+    expect(harness.calls).toContain('retire');
+  });
+
+  it('should publish the terminal from the error route, after the release', () => {
+    // **The two routes end in the same order, and that is the promise** (D-66).
+    // A consequential failure of a started operation still owes exactly one
+    // end: the checkpoint drives `onError`, releases presentation and publishes
+    // the terminal from `ERROR_REPORTED` — so a consumer never has to know
+    // which route its drag took to know the element is its own again.
+    //
+    // **This is the route's producer, and it is a pre-commit one.** Nothing
+    // between the settlement's commit and the terminal callback classifies:
+    // the measurement is unclassified, the release reports warnings, and the
+    // tail is unwound. A fault that is going to defer the terminal has to be
+    // raised before the drop is decided.
+    const harness = createHarness({
+      moved(): never {
+        throw new Error('cssom');
       },
     });
 
     activate(harness);
     move(60, 10);
 
-    // Sealed from the start: a failed settlement lands nothing, and the request
-    // is ignored and reported exactly like a post-seal one.
-    expect(runner.calls).toEqual([]);
-    expect(reported).toHaveLength(1);
-    expect(harness.calls).toContain('retire');
+    expect(harness.failures[0]!.stage).toBe(FAILURE_RENDERER_WRITE);
+    expect(harness.calls).toContain('finalized');
+    expect(harness.calls.indexOf('presentation.released')).toBeLessThan(
+      harness.calls.indexOf('finalized'),
+    );
+  });
+
+  it('should publish no terminal once a presentation disposer destroyed the controller on the error route', () => {
+    // **The negative beside the row above, and they pin opposite halves of one
+    // line** (F-328, D-179). The release the error route performs is the same
+    // consumer-reachable step the join's is, so the terminal it pays afterwards
+    // owes the same latch reading — and this route reaches `finalized` through
+    // its own path, which is why the join's guard says nothing about it.
+    //
+    // **The row above is what stops the obvious wrong repair.** Reusing
+    // `#joinLive()` here would satisfy this case and turn that one red, because
+    // its `FINALIZING` conjunct is false on this route by construction: every
+    // classified failure would silently lose its terminal, retracting D-66.
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      activation: {
+        prepare: (): HTMLElement => document.createElement('div'),
+        effect(_current, _prepared, scope: ActivationScope): void {
+          scope.presentation.use(() => {
+            harness!.calls.push('presentation.released');
+            void harness!.controller.destroy();
+          });
+        },
+      },
+      moved(): never {
+        throw new Error('cssom');
+      },
+    });
+
+    activate(harness);
+    move(60, 10);
+
+    // The failure is classified and reported, the release still runs — and the
+    // terminal does not, because the consumer destroyed the controller from
+    // inside that release.
+    expect(harness.failures[0]!.stage).toBe(FAILURE_RENDERER_WRITE);
+    expect(harness.calls).toContain('presentation.released');
+    expect(harness.calls).not.toContain('finalized');
+
+    // **Skipping the terminal does not skip the retirement, and this is what
+    // says so rather than a `toContain('retire')` that cannot fail.** A closed
+    // controller still owes the kernel's own cleanup: `#retireOperation` sits
+    // outside the guard, so the route retires its own operation, and physical
+    // teardown then runs at the transaction boundary because `destroy()` was
+    // raised inside one.
+    //
+    // **Two retirements, and the second is why counting is the only reading
+    // available here.** The lifetimes are self-guarding, so disposing them
+    // twice is invisible; `BehaviorSpec.retire` is *idempotent, best-effort*
+    // by contract and the kernel keeps no flag for it, so it is the one step
+    // that runs once per retirement rather than once per controller. Moving
+    // `#retireOperation` inside the guard leaves exactly one — the boundary's —
+    // and every other observable on this route unchanged, which is why nothing
+    // weaker than this discriminates.
+    //
+    // Sliced from the release rather than asserted whole: what this row owns is
+    // the tail after the consumer's disposer ran, and a `finalized` smuggled
+    // into it fails here as well as above.
+    expect(
+      harness.calls.slice(harness.calls.indexOf('presentation.released')),
+    ).toEqual(['presentation.released', 'retire', 'retire']);
   });
 
   it('should retire the operation after reporting', () => {
@@ -2576,7 +2944,7 @@ describe('the failure checkpoint', () => {
 
           if (!reporting) {
             reporting = true;
-            harness.host.fail(FAILURE_RENDERER_WRITE, new Error('again'));
+            harness.kernel.fail(FAILURE_RENDERER_WRITE, new Error('again'));
           }
 
           return true;
@@ -2588,12 +2956,12 @@ describe('the failure checkpoint', () => {
     activate(harness);
     move(60, 10);
 
-    // An explicit `host.fail` from inside the report reaches the same latch a
+    // An explicit `kernel.fail` from inside the report reaches the same latch a
     // throw does: one settlement, no second turn at deciding the operation, and
     // the error surfaced rather than queued into a checkpoint that would be
     // dropped.
     expect(harness.settlements).toHaveLength(1);
-    expect(reported).toHaveLength(1);
+    expect(harness.reports).toHaveLength(1);
   });
 
   it('should report rather than requeue when the report seam throws', () => {
@@ -2615,26 +2983,29 @@ describe('the failure checkpoint', () => {
     activate(harness);
     move(60, 10);
 
-    // The failure of a report has nowhere left to go: a second checkpoint would
-    // be dropped at REPORTING, which would swallow it. It goes to the platform
-    // reporter instead, and never replaces the initiating error.
+    // The failure of a report has no *classification* left to take: a second
+    // checkpoint would be dropped at REPORTING, which would swallow it. It
+    // surfaces as a warning instead, and never replaces the initiating error.
     expect(harness.settlements).toHaveLength(1);
-    expect(reported).toHaveLength(1);
+    expect(harness.reports).toHaveLength(1);
     expect(harness.calls).toContain('retire');
   });
 
-  it('should not swallow a rejection of the failed input', () => {
+  it('should not swallow a failure raised over the failed input', () => {
     const harness = createHarness({
       moved(): never {
         throw new Error('cssom');
       },
       settlement: {
-        prepare(_draft, input): SeamRejection {
+        prepare(_draft, input): PreparedSettlement {
           harness.settlements.push(input);
-          return {
-            stage: FAILURE_TERMINAL_CALLBACK,
-            error: new Error('cannot map'),
-          };
+          // **The stage this used to name is gone with the transport** (D-152),
+          // and the row is unaffected: what it pins is that a fault raised
+          // while mapping the *failed* input still surfaces, not which stage it
+          // carried. The seam's own `FAILURE_RESOLUTION` is what classifies it,
+          // and the report transition never publishing is why it arrives as a
+          // warning either way.
+          throw new Error('cannot map');
         },
         effect: (): void => {},
       },
@@ -2645,8 +3016,8 @@ describe('the failure checkpoint', () => {
 
     // The report transition never published, so nothing will drive
     // `ERROR_REPORTED` — but the operation still may not stay live, and the
-    // rejection error still has to surface somewhere.
-    expect(reported).toHaveLength(1);
+    // raised error still has to surface somewhere.
+    expect(harness.reports).toHaveLength(1);
     expect(harness.calls).toContain('retire');
   });
 
@@ -2669,24 +3040,31 @@ describe('the failure checkpoint', () => {
     expect(harness.failures[1]!.stage).toBe(FAILURE_RENDERER_WRITE);
   });
 
-  it('should replace an open settlement and stop its runner', async () => {
-    const runner = createRunner();
-    const harness = createHarness({ startLanding: runner.start });
+  it('should replace an open settlement without disturbing a live tail', async () => {
+    const harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: tailOf(),
+      finalized(): never {
+        throw new Error('onFinish');
+      },
+    });
 
     activate(harness);
     release(80, 10);
-    expect(runner.calls).toEqual(['start']);
 
-    // The gate the readiness deadline used to hold open is gone (D-41), so the
-    // failure arrives through the runner instead — what this pins is the
-    // replacement rule, not which stage reached it.
-    runner.fail(new Error('boom'));
+    const [animation] = harness.item.getAnimations();
+
     await flush();
 
-    // A checkpoint replaces whatever settlement was open, and the runner that
-    // settlement started is the kernel's to stop — otherwise it keeps writing
-    // the transform through REPORTING and beyond.
-    expect(runner.calls).toEqual(['start', 'destroy']);
+    // **The tail is not the settlement's to stop, and that is the change.** A
+    // checkpoint replaces whatever settlement was open; what the replaced
+    // settlement left travelling holds no lease on anything, so there is
+    // nothing for the replacement to release and nothing that could still be
+    // writing an inline style through `REPORTING`.
+    expect(harness.failures[0]!.stage).toBe(FAILURE_TERMINAL_CALLBACK);
+    expect(animation!.playState).not.toBe('idle');
   });
 });
 
@@ -2698,7 +3076,12 @@ describe('cancellation stages', () => {
     harness.controller.cancel('reason');
 
     expect(harness.settlements).toEqual([
-      { type: SETTLED_CANCELED, reason: 'reason', stage: AT_PROPOSAL },
+      {
+        type: SETTLED_CANCELED,
+        reason: 'reason',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
     ]);
   });
 
@@ -2712,7 +3095,12 @@ describe('cancellation stages', () => {
     harness.controller.cancel('reason');
 
     expect(harness.settlements).toEqual([
-      { type: SETTLED_CANCELED, reason: 'reason', stage: AT_CONSUMER },
+      {
+        type: SETTLED_CANCELED,
+        reason: 'reason',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_CONSUMER,
+      },
     ]);
   });
 
@@ -2734,17 +3122,129 @@ describe('cancellation stages', () => {
     // presentation exists and the behavior has notified its consumer. Retiring
     // instead would leave that notification with no terminal callback.
     const harness = createHarness({
-      onStart: (host) => {
-        host.cancel('from the effect');
+      onStart: (kernel) => {
+        kernel.cancel('from the effect');
       },
     });
 
     activate(harness);
 
     expect(harness.settlements).toEqual([
-      { type: SETTLED_CANCELED, reason: 'from the effect', stage: AT_PROPOSAL },
+      {
+        type: SETTLED_CANCELED,
+        reason: 'from the effect',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
     ]);
     expect(harness.calls).toContain('finalized');
+  });
+});
+
+/**
+ * **The producer mapping** (D-154). `origin` answers *who decided*, and the
+ * kernel is the only party that writes it — which is the whole reason it is not
+ * carried on `reason`, a channel every party can write.
+ *
+ * One row per producer, because the mapping is the contract: a producer routed
+ * to the wrong origin is a silent relabelling of a cause, and the field exists
+ * to be switched on.
+ */
+describe('cancellation origins', () => {
+  it('should mark a consumer cancel as supplied', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    harness.controller.cancel('reason');
+
+    expect(harness.settlements[0]).toMatchObject({ origin: CANCEL_SUPPLIED });
+  });
+
+  it('should mark a behavior cancel as supplied', () => {
+    // **Not a second origin.** A behavior's controller publishes `kernel.cancel`
+    // through unchanged, so the kernel has no basis to tell the two callers
+    // apart — and both of them are a party supplying a value.
+    const harness = createHarness({
+      onStart: (kernel) => {
+        kernel.cancel('from the behavior');
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.settlements[0]).toMatchObject({ origin: CANCEL_SUPPLIED });
+  });
+
+  it('should mark Escape as aborted', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    );
+
+    expect(harness.settlements[0]).toMatchObject({ origin: CANCEL_ABORTED });
+  });
+
+  it('should carry no reason for an Escape', () => {
+    // The kernel supplies **no** value on a cause it decided itself. What used
+    // to travel here was `'drag:escape'`, and a consumer comparing `reason` to
+    // it was switching on a slot whose other legal occupants include arbitrary
+    // thrown values.
+    const harness = createHarness();
+
+    activate(harness);
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    );
+
+    expect(harness.settlements[0]).toMatchObject({ reason: undefined });
+  });
+
+  it('should mark a cancelled pointer as interrupted', () => {
+    const harness = createHarness();
+
+    activate(harness);
+    document.dispatchEvent(
+      new PointerEvent('pointercancel', { pointerId: POINTER_ID }),
+    );
+
+    expect(harness.settlements[0]).toMatchObject({
+      origin: CANCEL_INTERRUPTED,
+    });
+  });
+
+  it('should not let a supplied reason forge an origin', () => {
+    // **The whole reason provenance is a separate field.** `cancel` accepts
+    // anything, so a consumer can put a provenance constant on `reason` — and
+    // it stays a value they supplied. `origin` is written by the kernel and
+    // says so, which is the discrimination `reason` could never carry.
+    const harness = createHarness();
+
+    activate(harness);
+    harness.controller.cancel(CANCEL_ABORTED);
+
+    expect(harness.settlements[0]).toMatchObject({
+      reason: CANCEL_ABORTED,
+      origin: CANCEL_SUPPLIED,
+    });
+  });
+
+  it('should mark lost pointer capture as interrupted', () => {
+    // **The same origin as `pointercancel`, deliberately.** Two DOM spellings
+    // of one fact — the pointer stream ended without a drop — and a consumer
+    // cannot act differently on them, so telling them apart would re-export the
+    // platform detail the kernel exists to absorb.
+    const harness = createHarness();
+
+    activate(harness);
+    document.dispatchEvent(
+      new PointerEvent('lostpointercapture', { pointerId: POINTER_ID }),
+    );
+
+    expect(harness.settlements[0]).toMatchObject({
+      origin: CANCEL_INTERRUPTED,
+    });
   });
 });
 
@@ -2762,11 +3262,11 @@ describe('the activation checkpoint against a held cancel', () => {
     seen: number[];
   }> => {
     const seen: number[] = [];
-    let host!: KernelHost;
+    let kernel!: BehaviorContext;
     const harness = createHarness({
       onStart: (kernelHost) => {
-        host = kernelHost;
-        host.dispatch(0, null);
+        kernel = kernelHost;
+        kernel.dispatch(0, null);
       },
       action: {
         prepare(_tag, _argument, draft): {} | null {
@@ -2780,8 +3280,8 @@ describe('the activation checkpoint against a held cancel', () => {
 
           // Queued first, so it sits between `START_COMMITTED` and the
           // cancellation and can observe which phase won.
-          host.dispatch(1, null);
-          host.cancel('invalidated');
+          kernel.dispatch(1, null);
+          kernel.cancel('invalidated');
         },
       },
     });
@@ -2800,7 +3300,12 @@ describe('the activation checkpoint against a held cancel', () => {
     const { harness } = cancelFromAnActionEffect();
 
     expect(harness.settlements).toEqual([
-      { type: SETTLED_CANCELED, reason: 'invalidated', stage: AT_PROPOSAL },
+      {
+        type: SETTLED_CANCELED,
+        reason: 'invalidated',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
     ]);
   });
 });
@@ -2810,7 +3315,7 @@ describe('behavior actions', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.host.dispatch(1, 'payload');
+    harness.kernel.dispatch(1, 'payload');
 
     expect(harness.calls).toContain('action.prepare:1');
     expect(harness.calls).toContain('action.effect:1');
@@ -2831,7 +3336,7 @@ describe('behavior actions', () => {
     });
 
     activate(harness);
-    harness.host.dispatch(0, 'payload');
+    harness.kernel.dispatch(0, 'payload');
 
     expect(seen).toEqual(['payload', 'payload']);
   });
@@ -2840,9 +3345,9 @@ describe('behavior actions', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.host.dispatch(2, null);
-    harness.host.dispatch(-1, null);
-    harness.host.dispatch(1.5, null);
+    harness.kernel.dispatch(2, null);
+    harness.kernel.dispatch(-1, null);
+    harness.kernel.dispatch(1.5, null);
 
     // Reported and dropped, never enqueued: the kernel computes
     // `BEHAVIOR_BASE + tag`, so a negative or fractional tag would otherwise
@@ -2850,7 +3355,7 @@ describe('behavior actions', () => {
     expect(harness.calls.some((name) => name.startsWith('action.'))).toBe(
       false,
     );
-    expect(reported).toHaveLength(3);
+    expect(harness.reports).toHaveLength(3);
   });
 
   it('should append a nested dispatch rather than interrupting', () => {
@@ -2865,7 +3370,7 @@ describe('behavior actions', () => {
           order.push(`enter-effect:${tag}`);
 
           if (tag === 0) {
-            harness.host.dispatch(1, null);
+            harness.kernel.dispatch(1, null);
           }
 
           order.push(`exit-effect:${tag}`);
@@ -2874,7 +3379,7 @@ describe('behavior actions', () => {
     });
 
     activate(harness);
-    harness.host.dispatch(0, null);
+    harness.kernel.dispatch(0, null);
 
     expect(order).toEqual([
       'prepare:0',
@@ -3014,9 +3519,39 @@ describe('destroy', () => {
 
     activate(harness);
     // A behavior callback cannot strand the kernel's DOM cleanup (F-12).
-    void harness.host.destroy();
+    void harness.kernel.destroy();
 
     expect(harness.calls).toContain('presentation.released');
+  });
+
+  it('should discard a preparation whose prepare destroyed the controller', () => {
+    const harness = createHarness({
+      activation: {
+        prepare(): HTMLElement {
+          harness.calls.push('activation.prepare');
+          void harness.kernel.destroy();
+
+          return document.createElement('div');
+        },
+        effect(): void {
+          harness.calls.push('activation.effect');
+        },
+        rollback(): void {
+          harness.calls.push('activation.rollback');
+        },
+      },
+    });
+
+    activate(harness);
+
+    // The latch is set on the closing statement, so the revalidation between
+    // `prepare` and the swap is what stops this transaction publishing: the
+    // staged placeholder is released through `rollback` and the effect — which
+    // would deliver a start notification for a destroyed controller — never
+    // runs.
+    expect(
+      harness.calls.filter((name) => name.startsWith('activation.')),
+    ).toEqual(['activation.prepare', 'activation.rollback']);
   });
 
   it('should ignore work dispatched after destroy', () => {
@@ -3024,7 +3559,7 @@ describe('destroy', () => {
 
     activate(harness);
     void harness.controller.destroy();
-    harness.host.dispatch(0, null);
+    harness.kernel.dispatch(0, null);
     move(200, 10);
 
     expect(harness.calls).not.toContain('action.prepare:0');
@@ -3032,14 +3567,19 @@ describe('destroy', () => {
 });
 
 describe('terminal destruction during the join', () => {
-  it('should not pin after anchorTarget destroyed the controller', () => {
-    // The join captures `lift` in a local before it commits `FINALIZING`, so
-    // teardown clearing the kernel's slot does not stop it writing. Without a
-    // revalidation the pin stamps a transform back onto an element whose
-    // authored styles `destroy()` already restored (I-6).
+  it('should start no tail after anchorTarget destroyed the controller', () => {
+    // The join captures its locals before it commits `FINALIZING`, so teardown
+    // clearing the kernel's slots does not stop it proceeding. Without the
+    // entry revalidation it would interpolate an element whose authored styles
+    // `destroy()` has already restored, and leave the animation running past
+    // the controller's life (I-6).
     let harness: Harness | null = null;
 
     harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: tailOf(),
       anchorTarget: () => {
         void harness!.controller.destroy();
         return { x: 300, y: 300 };
@@ -3047,8 +3587,10 @@ describe('terminal destruction during the join', () => {
     });
 
     activate(harness);
+    move(40, 10);
     release(40, 10);
 
+    expect(harness.item.getAnimations()).toEqual([]);
     expect(harness.item.style.transform).toBe('');
   });
 
@@ -3068,40 +3610,166 @@ describe('terminal destruction during the join', () => {
     expect(harness.calls).not.toContain('finalized');
   });
 
-  it('should not pin after the runner destroyed the controller', async () => {
+  it('should start no tail after a presentation disposer destroyed the controller', () => {
     let harness: Harness | null = null;
-    const runner = createRunner({
-      onDestroy: () => {
-        void harness!.controller.destroy();
-      },
-    });
 
-    harness = createHarness({ startLanding: runner.start });
+    harness = createHarness({
+      activation: {
+        prepare: (): HTMLElement => document.createElement('div'),
+        effect(_current, _prepared, scope: ActivationScope): void {
+          scope.presentation.use(() => {
+            void harness!.controller.destroy();
+          });
+        },
+      },
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: tailOf(),
+    });
 
     activate(harness);
     release(40, 10);
-    await flush();
-    runner.done();
 
+    // The disposer runs after the release and before the tail, so what a
+    // destroy there must stop is the interpolation and the terminal. The
+    // element is left exactly as `destroy()` restored it.
     expect(harness.item.style.transform).toBe('');
+    expect(harness.item.getAnimations()).toEqual([]);
+    expect(harness.calls).not.toContain('finalized');
+  });
+});
+
+describe('the one channel', () => {
+  /**
+   * **D-130's own properties**, which no earlier row could hold: the platform
+   * destination could not throw back into the library, so nothing here was
+   * expressible before the channel became a consumer callback.
+   */
+
+  it('should run every remaining disposer when onError throws mid-teardown', () => {
+    // **The §7 property, and the reason `unwind` survived the rename.** The
+    // channel is reached from inside a `catch` whose next statement releases
+    // another resource; if a throwing handler escaped that catch, one failing
+    // notification would strand every disposer behind it.
+    //
+    // Three retire hooks, the first of which throws — so the channel is
+    // entered from the unwind — and a handler that throws every time.
+    const released: string[] = [];
+    const harness = createHarness({
+      retire: (): void => {
+        released.push('retire');
+        throw new Error('retire');
+      },
+      resetFramePart: (part): void => {
+        released.push('reset');
+        part.item = null;
+      },
+      reportError: (): never => {
+        throw new Error('handler');
+      },
+    });
+
+    activate(harness);
+    released.length = 0;
+
+    expect(() => harness.controller.destroy()).not.toThrow();
+
+    // `retire` threw, the handler threw on the way out of the catch, and both
+    // frame scrubs still ran.
+    expect(released).toEqual(['retire', 'reset', 'reset']);
   });
 
-  it('should not call the terminal callback after the runner destroyed the controller', async () => {
-    let harness: Harness | null = null;
-    const runner = createRunner({
-      onDestroy: () => {
-        void harness!.controller.destroy();
+  it('should discard a throwing onError without notifying it back', () => {
+    // **The terminus** (§1.3). A recursive channel would call the handler with
+    // the throw the handler just produced — and again with that one. Being
+    // *incapable* of it is the property; counting the calls is how it is
+    // observed.
+    let calls = 0;
+    const harness = createHarness({
+      admit: (): never => {
+        throw new Error('admit');
+      },
+      reportError: (): never => {
+        calls += 1;
+        throw new Error('handler');
       },
     });
 
-    harness = createHarness({ startLanding: runner.start });
+    expect(() => {
+      press(harness.item);
+    }).not.toThrow();
+    expect(calls).toBe(1);
+  });
+
+  it('should refuse every later notification once onError destroys', () => {
+    // **Post-closure suppression, from the one place that can trigger it**
+    // (E-03, I-31, D-53, D-37). The handler destroys on its first call; the
+    // teardown that follows produces faults of its own — a throwing `retire`,
+    // two throwing resets — and none of them may reach a slot the consumer has
+    // already closed.
+    const seen: Array<DraggableError | DraggableWarning> = [];
+    // The handler destroys the controller it is reporting for, so the closure
+    // reads the binding rather than a value passed in.
+    const harness: Harness = createHarness({
+      admit: (): never => {
+        throw new Error('admit');
+      },
+      retire: (): never => {
+        throw new Error('retire');
+      },
+      reportError: (error): void => {
+        seen.push(error);
+        void harness.controller.destroy();
+      },
+    });
+
+    press(harness.item);
+
+    // Exactly the one that opened the door, and nothing the door closing
+    // produced.
+    expect(seen).toHaveLength(1);
+    expect(seen[0]).toBeInstanceOf(DraggableError);
+  });
+
+  it('should surface a second checkpoint rather than dropping it silently', () => {
+    // **F-103, and the branch matters.** `handleFailed` returns on a stale
+    // checkpoint *or* on a second one arriving while a report is in flight,
+    // and until D-130 that `return` was the one place in the library where an
+    // error reached neither channel. It loses its **classification** — the
+    // `return` decides that, and correctly, since the first report owns the
+    // terminal — but it must not lose the fault.
+    //
+    // Two queued actions whose `prepare` both throw. Each queues its own
+    // `FAILED`; the first opens `REPORTING`, and the second then arrives for a
+    // report already in flight, which is the arm that used to be silent.
+    const harness = createHarness({
+      onStart: (kernel): void => {
+        kernel.dispatch(0, 'first');
+        kernel.dispatch(0, 'second');
+      },
+      action: {
+        prepare(_tag, argument): never {
+          throw new Error(String(argument));
+        },
+        effect(): void {},
+      },
+    });
 
     activate(harness);
-    release(40, 10);
-    await flush();
-    runner.done();
 
-    expect(harness.calls).not.toContain('finalized');
+    // One classified — the first, which owns the settlement and the terminal.
+    expect(harness.failures).toHaveLength(1);
+    expect(String(harness.failures[0]!.error)).toBe('Error: first');
+
+    // The second reached the consumer as a warning rather than vanishing.
+    const warnings = harness.reports.filter(
+      (error) => error instanceof DraggableWarning,
+    );
+
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]?.message).toBe('drag: failure/checkpoint-stale');
+    expect(String(warnings[0]?.cause)).toBe('Error: second');
   });
 });
 
@@ -3143,17 +3811,27 @@ describe('teardown totality', () => {
     expect(() => harness.controller.destroy()).not.toThrow();
   });
 
-  it('should report a reset failure rather than swallow it', () => {
+  it('should run both scrubs when a reset throws during destroy', () => {
     const counter = { calls: 0 };
     const harness = createHarness({ resetFramePart: throwingReset(counter) });
 
     activate(harness);
-    reported = [];
+    harness.reports.length = 0;
     void harness.controller.destroy();
 
-    // Two resets, each reporting the thrown error and the scrub assertion it
-    // leaves behind.
-    expect(reported.length).toBeGreaterThanOrEqual(2);
+    // ~~Two resets, each reporting the thrown error.~~ **The reports are gone
+    // and the totality is the point** (D-130 §1.1, D-37). `destroy()` sets the
+    // latch on its own statement, so every notification after it is refused —
+    // a declared consumer slot may not be invoked once the controller is
+    // logically closed, and that rule is now enforced in one place instead of
+    // three. What the platform channel used to carry here was *visibility into
+    // a teardown the consumer had already asked for*, and D-37 is explicit that
+    // it does not get callbacks after asking.
+    //
+    // So the surviving property is the one that was always the reason for the
+    // guard: the first throwing reset does not skip the second.
+    expect(counter.calls).toBe(2);
+    expect(harness.reports).toEqual([]);
   });
 
   it('should complete retirement after a reset throws mid-operation', () => {
@@ -3168,6 +3846,33 @@ describe('teardown totality', () => {
     activate(harness);
 
     expect(harness.calls).toContain('activation.effect');
+  });
+});
+
+describe('the operation record', () => {
+  it('should still hold the operation while retirement runs', () => {
+    let live: BehaviorContext | null = null;
+    const harness = createHarness({
+      retire(): void {
+        // Step 4 of retirement, before either frame is scrubbed. The frame
+        // still publishes the identity, so every guard here still authorises
+        // work — and the state that authorises it has to still be readable.
+        live!.cancel('from retire');
+      },
+    });
+
+    live = harness.kernel;
+
+    activate(harness);
+    release(40, 10);
+
+    // This pins step 4, and only step 4: a drop above `unwind(spec.retire)`
+    // leaves the reentrant guard reading a null record, and `unwind` turns
+    // that throw into a report. It does not pin the drop's final placement —
+    // moving the records to just before the scrubs is unobservable, because
+    // nothing between the disposal and the scrubs can reenter.
+    expect(harness.reports).toEqual([]);
+    expect(harness.calls).toContain('finalized');
   });
 });
 
@@ -3204,7 +3909,7 @@ describe('arm unwind of a partial frame pair', () => {
         moved: (): void => {},
         anchorTarget: () => ({ x: 0, y: 0 }),
         finalized: (): void => {},
-        reportFailure: (): void => {},
+        reportError: (): void => {},
         retire: (): void => {},
       },
     }));
@@ -3245,30 +3950,92 @@ describe('arm unwind of a partial frame pair', () => {
     expect(resets).toBe(1);
   });
 
-  it('should scrub both frames when the shape assertion throws', () => {
+  it('should reset only the composed frame when a factory destroys', () => {
+    // **`#spec` names the behavior only once the pair it owns is composed**,
+    // and this is the window that makes the ordering load-bearing rather than
+    // tidy: teardown's frame resets are guarded by that field alone, so a
+    // `destroy()` raised from inside the first factory published earlier would
+    // reach a retirement over a pair that does not exist yet — and the throw
+    // would escape the factory, unwind the arm and leave `draggable()` itself
+    // raising a TypeError at the consumer.
+    //
+    // What resets the one frame that does exist is `arm()`'s own unwind, which
+    // holds the spec as an argument for exactly this window.
+    const root = document.createElement('div');
+
+    document.body.append(root);
+    cleanup.push(() => root.remove());
+
+    let resets = 0;
+
+    expect(() => {
+      draggable(root, (kernel) => ({
+        controller: {},
+        spec: {
+          createFramePart: (): ExamplePart => {
+            void kernel.destroy();
+
+            return { item: null, note: '' };
+          },
+          resetFramePart: (): void => {
+            resets += 1;
+          },
+          config: { threshold: 8, liftMode: LIFT_FLAT, actionTags: 0 },
+          admit: () => null,
+          activation: {
+            prepare: () => document.createElement('div'),
+            effect: (): void => {},
+          },
+          release: {
+            prepare: () => ({ invoke: null }),
+            effect: (): void => {},
+          },
+          settlement: { prepare: () => true, effect: (): void => {} },
+          action: { prepare: () => null, effect: (): void => {} },
+          moved: (): void => {},
+          anchorTarget: () => ({ x: 0, y: 0 }),
+          finalized: (): void => {},
+          reportError: (): void => {},
+          retire: (): void => {},
+        },
+      }));
+    }).not.toThrow();
+
+    // One frame part was composed before the close and no second one is, so
+    // exactly one reset is owed. A second would be `resetFramePart` handed a
+    // frame the factory never produced.
+    expect(resets).toBe(1);
+  });
+
+  it('should scrub both frames when arming fails after both were composed', () => {
+    // The `composed > 1` arm of the unwind. **Its trigger changed** (D-128):
+    // this used to be `assertFrameShapesMatch` throwing on a non-deterministic
+    // factory, and that assertion is deleted, so the two frames no longer
+    // disagree about anything the kernel checks. What can still fail with both
+    // frames standing is the ingress attachment itself — the root is the
+    // consumer's own element — and the property under test is unchanged: a
+    // part that already holds a reference is reset on **both** frames before
+    // the failure is rethrown.
     const root = document.createElement('div');
     document.body.append(root);
     cleanup.push(() => root.remove());
 
-    let made = 0;
     let resets = 0;
+
+    root.addEventListener = (): never => {
+      throw new Error('ingress refused');
+    };
 
     expect(() => {
       armWith(
         root,
-        (): ExamplePart => {
-          made += 1;
-
-          return made === 2
-            ? ({ item: null, other: '' } as unknown as ExamplePart)
-            : { item: null, note: '' };
-        },
+        (): ExamplePart => ({ item: null, note: '' }),
         (part): void => {
           resets += 1;
           part.item = null;
         },
       );
-    }).toThrow();
+    }).toThrow('ingress refused');
 
     expect(resets).toBe(2);
   });
@@ -3284,7 +4051,7 @@ describe('cancellation against a failure checkpoint', () => {
 
     harness = createHarness({
       moved: (): void => {
-        harness!.host.cancel('gone');
+        harness!.kernel.cancel('gone');
         throw new Error('write failed');
       },
     });
@@ -3301,28 +4068,28 @@ describe('cancellation against a failure checkpoint', () => {
 
     harness = createHarness({
       moved: (): void => {
-        harness!.host.cancel('gone');
+        harness!.kernel.cancel('gone');
         throw error;
       },
     });
 
     activate(harness);
-    reported = [];
+    harness.reports.length = 0;
     move(60, 10);
 
-    expect(reported).toContain(error);
+    expect(harness.reports.map((r) => r.cause)).toContain(error);
   });
 
   it('should drop a checkpoint classified before the cancel latch was set', () => {
-    // `host.fail()` classifies *immediately*, inside the open phase, so this
+    // `kernel.fail()` classifies *immediately*, inside the open phase, so this
     // ordering queues `[FAILED, CANCEL]` — the latch does not exist when the
     // checkpoint is queued, only when it is applied.
     let harness: Harness | null = null;
 
     harness = createHarness({
       moved: (): void => {
-        harness!.host.fail(FAILURE_RENDERER_WRITE, new Error('write failed'));
-        harness!.host.cancel('gone');
+        harness!.kernel.fail(FAILURE_RENDERER_WRITE, new Error('write failed'));
+        harness!.kernel.cancel('gone');
       },
     });
 
@@ -3337,8 +4104,8 @@ describe('cancellation against a failure checkpoint', () => {
 
     harness = createHarness({
       moved: (): void => {
-        harness!.host.fail(FAILURE_RENDERER_WRITE, new Error('write failed'));
-        harness!.host.cancel('gone');
+        harness!.kernel.fail(FAILURE_RENDERER_WRITE, new Error('write failed'));
+        harness!.kernel.cancel('gone');
       },
     });
 
@@ -3452,7 +4219,7 @@ describe('arbitrary thenables', () => {
 });
 
 /**
- * **The transaction bracket** (D-36, D-38, D-53; probe A).
+ * **The execution bracket** (D-36, D-38, D-53; probe A).
  *
  * Logical closure and physical teardown were one event until Revision 2, and
  * separating them is the change every other liveness rule in the contract now
@@ -3461,7 +4228,7 @@ describe('arbitrary thenables', () => {
  * library transaction ends, and that the two are observably different from
  * inside a reentrant destroy — which is the only place the difference exists.
  */
-describe('the transaction bracket', () => {
+describe('the execution bracket', () => {
   it('should run physical teardown immediately outside a transaction', () => {
     const harness = createHarness();
 
@@ -3492,19 +4259,27 @@ describe('the transaction bracket', () => {
     // `drain`'s catch, which is the one path to `panic`.
     const order: string[] = [];
     const broken = new Error('platform');
-    const harness = createHarness({
+    const delivered: unknown[] = [];
+    // The handler reads `harness.kernel.closed` from inside the report, which is
+    // the assertion this row exists for.
+    const harness: Harness = createHarness({
       retire: (): void => {
         order.push('retire');
       },
+      // **Delivered through `spec.reportError` now, after logical closure**
+      // (D-131). ~~A `globalThis.reportError` stub.~~ This is the named
+      // exception to D-37 (a), and it is the whole reason the amendment needed
+      // the owner's assent rather than being absorbed: every other route
+      // refuses once the latch is set.
+      reportError: (error): void => {
+        delivered.push(error);
+        order.push(`report:${String((error as DraggableError).stage)}`);
+        // Read from *inside* the report, which is the assertion the ordering
+        // exists for: a handler that calls back into the controller must find
+        // it already closed.
+        order.push(`closed:${String(harness.kernel.closed)}`);
+      },
     });
-
-    (globalThis as Reporting).reportError = (error): void => {
-      order.push(`report:${(error as Error).message}`);
-      // Read from *inside* the report, which is the assertion the ordering
-      // exists for: a reporter that calls back into the controller must find
-      // it already closed.
-      order.push(`closed:${String(harness.host.closed)}`);
-    };
 
     const selection = window.getSelection;
 
@@ -3519,7 +4294,23 @@ describe('the transaction bracket', () => {
       window.getSelection = selection;
     }
 
-    expect(order).toEqual(['report:platform', 'closed:true', 'retire']);
+    expect(order).toEqual(['report:null', 'closed:true', 'retire']);
+
+    // **Panic is consequential and carries no stage, and D-132 lets it say
+    // so.** It destroys the whole controller rather than one operation, so it
+    // is a `DraggableError`; and `FailureStage` classifies faults *within* an
+    // operation, so there is nothing to classify. ~~The code is picked
+    // directly rather than mapped from one.~~ That code was `'platform'` —
+    // the taxonomy's *other* bucket, glossed as *the platform refused
+    // something* — which made a panicked controller indistinguishable from a
+    // failed `requestAnimationFrame` (F-104). `null` is the only value that
+    // means *the controller is destroyed*, and this is the assertion that
+    // separates the two; nothing could make it before D-132.
+    expect(delivered).toHaveLength(1);
+    expect(delivered[0]).toBeInstanceOf(DraggableError);
+    expect(delivered[0]).not.toBeInstanceOf(DraggableWarning);
+    expect((delivered[0] as DraggableError).stage).toBeNull();
+    expect((delivered[0] as DraggableError).cause).toBe(broken);
   });
 
   it('should settle the returned promise after physical teardown', async () => {
@@ -3548,11 +4339,11 @@ describe('the transaction bracket', () => {
   it('should close logically on the calling statement', () => {
     let closedInside: boolean | null = null;
     const harness = createHarness({
-      onStart(host): void {
-        void host.destroy();
+      onStart(kernel): void {
+        void kernel.destroy();
         // The latch is set by the closing statement itself, not at the end of a
         // seven-step sequence.
-        closedInside = host.closed;
+        closedInside = kernel.closed;
       },
     });
 
@@ -3564,8 +4355,8 @@ describe('the transaction bracket', () => {
   it('should defer physical teardown to the outermost transaction boundary', () => {
     let calledInside: readonly string[] = [];
     const harness = createHarness({
-      onStart(host): void {
-        void host.destroy();
+      onStart(kernel): void {
+        void kernel.destroy();
         calledInside = [...harness.calls];
       },
     });
@@ -3582,8 +4373,8 @@ describe('the transaction bracket', () => {
     let pending!: Promise<void>;
     let settled = false;
     const harness = createHarness({
-      onStart(host): void {
-        pending = host.destroy();
+      onStart(kernel): void {
+        pending = kernel.destroy();
         void pending.then(() => {
           settled = true;
         });
@@ -3599,9 +4390,9 @@ describe('the transaction bracket', () => {
 
   it('should tear down once when destroy is called twice inside one transaction', () => {
     const harness = createHarness({
-      onStart(host): void {
-        void host.destroy();
-        void host.destroy();
+      onStart(kernel): void {
+        void kernel.destroy();
+        void kernel.destroy();
       },
     });
 
@@ -3626,12 +4417,12 @@ describe('the transaction bracket', () => {
       activation: {
         prepare: (): HTMLElement => document.createElement('div'),
         effect(_current, _prepared, scope: ActivationScope): void {
-          void harness.host.destroy();
+          void harness.kernel.destroy();
 
           // Both read at this instant, on purpose: the point of the row is
           // that the logical latch is already set here while the physical
           // signal is not (D-36, D-38).
-          const { closed } = harness.host;
+          const { closed } = harness.kernel;
           const { aborted: signalAborted } = scope.presentation.signal;
 
           latch = closed;
@@ -3650,8 +4441,8 @@ describe('the transaction bracket', () => {
 
   it('should keep the ingress released once the boundary runs', () => {
     const harness = createHarness({
-      onStart(host): void {
-        void host.destroy();
+      onStart(kernel): void {
+        void kernel.destroy();
       },
     });
 

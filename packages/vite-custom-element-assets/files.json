@@ -3,6 +3,7 @@
     "index",
     "css/css-worker",
     "css/deps-tracker",
+    "css/generation",
     "css/format",
     "css/styles-import",
     "css/transform"
@@ -11,6 +12,8 @@
     "extras": [
       "format-*.js",
       "format-*.js.map",
+      "generation-*.js",
+      "generation-*.js.map",
       "transform-*.js",
       "transform-*.js.map",
       "utils-*.js",

@@ -8,8 +8,10 @@
  *    count. The comparison is the closure model against an opaque per-controller
  *    state record driven by one module-level spec — the same shape, one set of
  *    functions for the whole page instead of one per controller.
- * 2. **The frame-task policy.** `SortableRuntime` creates its `FrameTask`
- *    eagerly, per controller. 05 names three candidates and warns that a binary
+ * 2. **The frame-task policy.** `createSortableSpec` creates its `FrameTask`
+ *    eagerly, per controller (~~`SortableRuntime`~~ — the aggregate is
+ *    dissolved by D-149; the policy this measures is unchanged and only
+ *    relocated). 05 names three candidates and warns that a binary
  *    eager-vs-per-operation benchmark could pick a dominated policy, so
  *    **lazy-retained is measured as a first-class option**: created on first
  *    activation, kept on the controller, cancelled and reused afterwards.
@@ -369,7 +371,7 @@ const build = <T>(count: number, make: () => T): T[] => {
 };
 
 describe('M-2 — the frame-task policies', () => {
-  it('should schedule identically under every policy', () => {
+  it('should schedule identically under every policy', async () => {
     // Equivalence before comparison, as in M-1: three policies that do not
     // schedule the same work are not three policies.
     const seen: number[][] = [];
@@ -380,10 +382,19 @@ describe('M-2 — the frame-task policies', () => {
         runs.push(value);
       });
 
-      // Driven through a real task so the coalescing is the real one.
+      // Driven through a real task so the coalescing is the real one — and now
+      // through a real frame as well. ~~`task.flush()`~~ was removed from
+      // `FrameTask` on 2026-08-22 as a member with no production caller, and
+      // awaiting the frame the task actually scheduled is the closer reading:
+      // the coalescing under test is the animation frame's.
       task.schedule(1);
       task.schedule(2);
-      task.flush();
+      // oxlint-disable-next-line no-await-in-loop
+      await new Promise<void>((resolve) => {
+        realm.window.requestAnimationFrame(() => {
+          resolve();
+        });
+      });
       seen.push(runs);
       void policy;
     }

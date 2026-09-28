@@ -1,62 +1,63 @@
 /**
  * The public, stable free-drag config schema and the merge that folds fragments
- * into it (contract 07 §The config schema).
+ * into it.
  *
  * **Every slot is a named type alias, and that is normative rather than
- * stylistic** (F-51). Method shorthand is checked bivariantly even under
- * `strict`, so `onEnd?(result): void` would silently accept a handler narrowed
- * to two of the three arms — and D-62's whole claim is that the *compiler*
- * checks the consumer's exhaustiveness. The inline property form does not
- * survive this repo either: `method-signature-style` rewrites it back into
- * shorthand on every `lint-fix`. A named alias is immune to both.
+ * stylistic.** Method shorthand is checked bivariantly even under `strict`, so
+ * `onEnd?(result): void` would silently accept a handler narrowed to two of the
+ * three arms, defeating the compiler-checked exhaustiveness the terminal relies
+ * on. The inline property form does not survive this repo either:
+ * `method-signature-style` rewrites it back into shorthand on every `lint-fix`.
+ * A named alias is immune to both.
  *
- * **Three of them are qualified by behavior** (D-109). `onStart`, `onEnd` and
- * `onError` exist on both ordinary configs with **different structures**, which
- * is D-75's only condition for qualifying a name, and both aliases publish from
- * their own root. `ResolveHandle` and `ResolveElement` also collide and are
- * structurally identical, so they stay unqualified — the rule discriminates
- * rather than blankets. A released consumer cannot have the symmetry added
- * later, so it is added before publication.
+ * **Three of them are qualified by behavior.** `onStart`, `onEnd` and `onError`
+ * exist on both ordinary configs with **different structures**, and both
+ * aliases publish from their own root. `ResolveHandle` and `ResolveElement`
+ * also collide but are structurally identical, so they stay unqualified.
  */
 import type { Writable } from 'type-fest';
-import type { DraggableError } from '../kernel/errors.ts';
+import type { DraggableError, DraggableWarning } from '../kernel/errors.ts';
+import type { LiftMode } from '../kernel/presentation.ts';
 import type {
-  AxisSource,
   DragAxis,
   DragGeometry,
-  FreeDragErrorContext,
-  FreeDragLift,
   FreeDragTransactionResult,
   OnDrop,
   ResolveHome,
 } from './domain.ts';
-import type { FreeDragInstaller } from './feature.ts';
+import type {
+  ConstraintInstaller,
+  FreeDragLandingInstaller,
+  FreeDragPlugin,
+} from './feature.ts';
 
 export type FreeDragOnStart = (geometry: DragGeometry) => void;
 export type OnMove = (geometry: DragGeometry) => void;
-/** Exactly once per started operation, whatever happened to it (D-62, D-66). */
+/** Exactly once per started operation, whatever happened to it. */
 export type FreeDragOnEnd = (result: FreeDragTransactionResult) => void;
+/**
+ * **A `DraggableWarning` means the operation was not affected** — a landing
+ * measurement that could not be trusted, a disposer that refused — and its
+ * terminal still arrives. A `DraggableError` means it was.
+ */
 export type FreeDragOnDragError = (
-  error: DraggableError,
-  context: FreeDragErrorContext,
+  error: DraggableError | DraggableWarning,
 ) => void;
 /**
- * **Resolver only** — the shipped element form is withdrawn, unifying with the
- * sortable's slot. `handle: el` migrates to `handle: () => el`.
+ * Resolves the element within the item that must be pressed to start a drag.
  */
 export type ResolveHandle = (item: HTMLElement) => HTMLElement | null;
 export type ResolveElement = (item: HTMLElement) => HTMLElement;
 
 /**
  * Every slot is optional in a *fragment*; the required one is required of the
- * **first argument** (D-77), which is where the compiler can see it.
+ * **first argument**, which is where the compiler can see it.
  */
 export type FreeDragConfig = Readonly<{
   /**
-   * **The one required slot, and a compile error when absent** (D-77). The
-   * merge hid it from the compiler only while every argument was `Partial`; the
-   * required first parameter is not. A later fragment may still **replace** it
-   * and cannot **clear** it — the merge skips `undefined` (B-9).
+   * **The one required slot, and a compile error when absent.** A later
+   * fragment may **replace** it and cannot **clear** it — the merge skips
+   * `undefined`.
    */
   onDrop: OnDrop;
 
@@ -72,25 +73,32 @@ export type FreeDragConfig = Readonly<{
   onEnd?: FreeDragOnEnd;
   onError?: FreeDragOnDragError;
 
-  /* scalars, and one scalar-or-source */
+  /* scalars */
   /**
-   * `'both' | 'x' | 'y'`, default `'both'`. A **function is a source** re-read
-   * on `invalidate()` and at activation, never per sample (D-71).
+   * `'both' | 'x' | 'y'`, default `'both'`. Fixed for the controller's
+   * lifetime: an axis is applied to travel the operation has already
+   * accumulated, so changing one mid-drag would reinterpret every pixel since
+   * the grab rather than change what happens next. A per-sample lock — a
+   * modifier key, say — is a `bounds` installer, which runs on the present
+   * position.
    */
-  axis?: DragAxis | AxisSource;
-  /** `'faithful' | 'flat' | 'in-place'`, default `'faithful'` (D-73). */
-  lift?: FreeDragLift;
+  axis?: DragAxis;
+  /**
+   * `LIFT_FAITHFUL`, `LIFT_FLAT` or `LIFT_IN_PLACE`, default `LIFT_FAITHFUL`.
+   * The three constants publish from this entry beside the type.
+   */
+  lift?: LiftMode;
   /** Activation travel in viewport pixels. Same default and domain as the sortable's. */
   threshold?: number;
 
   /* optional capabilities */
   /** From `free-drag/bounds.js`. Absent means unconstrained, and no bounds code. */
-  bounds?: FreeDragInstaller;
+  bounds?: ConstraintInstaller;
   /** From `free-drag/landing.js`. Absent means the visual is released without animating. */
-  landing?: FreeDragInstaller;
+  landing?: FreeDragLandingInstaller;
 
   /** Appended, never replaced. The one slot that concatenates. */
-  plugins?: readonly FreeDragInstaller[];
+  plugins?: readonly FreeDragPlugin[];
 }>;
 
 /**
@@ -118,21 +126,20 @@ const LAST_WINS_KEYS = [
 ] as const satisfies ReadonlyArray<keyof FreeDragConfig>;
 
 /**
- * **Merge semantics belong to the config slot, not to fragment provenance**
- * (D-45, unchanged for the second behavior). Scalars and plain consumer
- * functions last-win, an atomic capability installer last-wins as one whole
- * slot, and `plugins` appends in fragment order.
+ * **Merge semantics belong to the config slot, not to fragment provenance.**
+ * Scalars and plain consumer functions last-win, an atomic capability installer
+ * last-wins as one whole slot, and `plugins` appends in fragment order.
  *
  * **Last-wins is safe precisely because installers are invoked after the merge
- * completes** (D-57): a capability that loses its slot is never constructed, so
- * there is no cache to free and no entry in `retireHooks` to retire.
+ * completes**: a capability that loses its slot is never constructed, so there
+ * is no cache to free and no entry in `retireHooks` to retire.
  */
 export function mergeFreeFragments(
   config: FreeDragConfig,
   fragments: ReadonlyArray<Partial<FreeDragConfig>>,
 ): FreeDragConfig {
   const merged: Partial<Writable<FreeDragConfig>> = {};
-  const plugins: FreeDragInstaller[] = [];
+  const plugins: FreeDragPlugin[] = [];
 
   for (const fragment of [config, ...fragments]) {
     if (fragment.plugins !== undefined) {
@@ -152,14 +159,14 @@ export function mergeFreeFragments(
 
   merged.plugins = plugins;
 
-  // **The cast is what the required first argument pays for** (D-77): nothing
-  // checks the merged result, because `freeDrag()` takes a complete
-  // `FreeDragConfig` and only the *later* fragments are `Partial`, so `onDrop`
-  // was supplied at a call that could not compile without it.
+  // **The cast is what the required first argument pays for**: nothing checks
+  // the merged result, because `freeDrag()` takes a complete `FreeDragConfig`
+  // and only the *later* fragments are `Partial`, so `onDrop` was supplied at a
+  // call that could not compile without it.
   //
   // **The `undefined` skip above is what closes the remaining hole, and it is
-  // load-bearing rather than a nicety** (B-9): a later fragment may legally
-  // carry `onDrop: undefined`, and skipping it means a fragment that names the
-  // slot and supplies nothing cannot clear it.
+  // load-bearing rather than a nicety**: a later fragment may legally carry
+  // `onDrop: undefined`, and skipping it means a fragment that names the slot
+  // and supplies nothing cannot clear it.
   return merged as FreeDragConfig;
 }

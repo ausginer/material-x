@@ -87,7 +87,7 @@ No scenario authorizes a runtime `display` whitelist. The failure cases are abou
 | `POSITION-01` | A fixed source uses the viewport as its containing block | Page scrolling does not add a document-scroll translation to its viewport quad. |
 | `POSITION-02` | A fixed source is inside a transformed containing block | Its quad follows that containing block and its 2D transform. |
 | `POSITION-03` | A sticky source has not reached its inset threshold | Output matches its current pre-stuck rendered position. |
-| `POSITION-04` | Scrolling moves the sticky source into its stuck position | A fresh uncached read reports the current stuck viewport quad. |
+| `POSITION-04` | Scrolling moves the sticky source into its stuck position | A fresh read reports the current stuck viewport quad. |
 | `POSITION-05` | A fixed or sticky source is read relative to an unrelated target | Both current rendered spaces are composed into the target's local space. |
 
 Fixed and sticky support is limited to geometry already inside the 2D, single-box contract. These rows do not promise general layout-engine compatibility.
@@ -192,16 +192,3 @@ These scenarios require rendered flat-tree correctness; they do not expose or st
 | `UNSUPPORTED-06` | The requested node is not an `HTMLElement`, despite bypassing TypeScript | Behavior is outside the boolean contract; no runtime validation is required. |
 
 SVG, MathML, text nodes and pseudo-elements cannot be validly supplied by the typed API and receive no runtime compatibility layer.
-
-## 14. Cache behavior
-
-| ID | Given / when | Then |
-| --- | --- | --- |
-| `CACHE-01` | Two unchanged reads share a cache within one epoch | Both calls return the same correct geometry; no particular reuse strategy is observable. |
-| `CACHE-04` | Layout changes after a successful read using the same cache | A later result may remain stale by contract. |
-| `CACHE-05` | Layout changes and the next call uses a new cache | The current call observes the new geometry. |
-| `CACHE-06` | Layout changes between two calls that both omit the cache | The second uncached call observes the changed geometry. |
-| `CACHE-10` | Two caller-created caches are used | Their epochs and stale observations are independent. |
-| `CACHE-11` | An element is measured with a cache, adopted into another document, then measured again with the same cache | The prior entry is not reused; the second read uses the new owner document's realm and geometry. |
-
-Every observation in an epoch may remain stale for the lifetime of that cache identity while the observed element retains the same `ownerDocument`, including one made by a call that returned `false`. Owner-document adoption is the mandatory invalidation exception. Calls that omit the cache are always fresh. The cache permits completed-space and inverse reuse, but shared-ancestor reuse, eager versus lazy inverse construction, internal hit counts, failure memoization strategy and allocation counts belong to iteration D. Iteration B must test only observable epoch behavior.

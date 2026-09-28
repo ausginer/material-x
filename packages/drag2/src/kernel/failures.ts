@@ -1,55 +1,42 @@
 /**
- * Classified failure stages and cancellation stages.
+ * Classified failure stages, cancellation stages and cancellation origins.
  *
- * `FailureStage` is a **closed union**, not a bare `number`, so a participant
- * cannot forge an invalid or kernel-private stage (contract 02 §Failure
- * classification, F-23). It is **public**: a consumer receiving `onError` has
- * to be able to discriminate it (D-30).
+ * `FailureStage` is a **closed union** rather than a bare `number`, so an
+ * invalid or private stage cannot be forged. It is public at both tiers: an
+ * ordinary consumer receives it on `DraggableError`, and a behavior author
+ * classifies with it.
  *
- * The stage → recovery mapping is deliberately **not** here. `outcome`,
- * `recovery` and `domain` are fields of the behavior's frame part, which the
- * kernel cannot name or write; the behavior maps a `SETTLED_FAILED` input to
- * its own recovery (D-24, F-33).
+ * **The numbers are stable.** A stage constant is inlined into a consumer's
+ * compiled code, so no constant is ever repointed at a different meaning and no
+ * retired number is ever reused.
  *
- * ## Three names changed and no value did (D-74)
- *
- * `FAILURE_INSERTION` (4), `FAILURE_PLACEHOLDER_MOVE` (5) and
- * `FAILURE_REORDER_RESOLUTION` (8) are now `FAILURE_ACTION_PREPARE`,
- * `FAILURE_ACTION_EFFECT` and `FAILURE_RESOLUTION`. The kernel runs the action
- * seam under 4/5 and the settlement seam under 8 for **every** behavior, not as
- * a default a behavior may override, so three published constants named
- * behavior-generic seams in one behavior's vocabulary (F-62). A free-drag
- * `moveTo()` whose prepare throws would have reported an *insertion* failure.
- *
- * **The numbers are the wire and they do not move.** A stage constant is
- * inlined into a consumer's compiled code, so a rename that repoints a value is
- * the one change this list must never make — the same rule the `= 13` hole
- * below states for deletion. `tests/kernel/errors.node.test.ts` asserts 4, 5
- * and 8 as literals for exactly this reason.
+ * A stage says where the library was standing when a fault occurred. What to
+ * recover is the behavior's own question, and no mapping from stage to recovery
+ * is published here.
  */
 
 export const FAILURE_ADMISSION = 1;
 export const FAILURE_ACTIVATION = 2;
 export const FAILURE_RENDERER_WRITE = 3;
-/** The action seam's `prepare`. `FAILURE_INSERTION` until D-74. */
+/** The action seam's `prepare`. */
 export const FAILURE_ACTION_PREPARE = 4;
-/** The action seam's `effect`. `FAILURE_PLACEHOLDER_MOVE` until D-74. */
+/** The action seam's `effect`. */
 export const FAILURE_ACTION_EFFECT = 5;
 export const FAILURE_INVALIDATION = 6;
 export const FAILURE_SCHEDULED_FRAME = 7;
-/** The settlement seam. `FAILURE_REORDER_RESOLUTION` until D-74. */
+/** The settlement seam. */
 export const FAILURE_RESOLUTION = 8;
 export const FAILURE_RELEASE = 9;
-export const FAILURE_LANDING_CREATE = 10;
-export const FAILURE_LANDING_INTERRUPTED = 11;
-export const FAILURE_LANDING_TARGET = 12;
-/**
- * ~~`FAILURE_PRESENTATION_READY = 13`~~ — **deleted with the readiness protocol
- * (D-41)**. Thirteen stages, not fourteen. The number is not reused: a stage
- * constant is a wire value in a consumer's compiled code, and silently
- * repointing 13 at a different meaning is the one change this list must never
- * make.
- */
+// **10 through 13 are holes and none is ever reused.** A stage constant is a
+// wire value in a consumer's compiled code, so repointing one of them at a
+// different meaning breaks that consumer silently. Adding a stage takes the
+// next free number instead.
+//
+// No positional table is indexed by these numbers anywhere in the library, so
+// nothing pads the gap and nothing would slide if one were filled.
+// `tests/kernel/stages.node.test.ts` is the witness: it reflects over this
+// module's own `FAILURE_*` exports, which a reintroduced number joins whether
+// or not anyone remembers the file, and it asserts every stage as a literal.
 export const FAILURE_TERMINAL_CALLBACK = 14;
 
 /** Where a classified failure occurred. */
@@ -63,9 +50,6 @@ export type FailureStage =
   | typeof FAILURE_SCHEDULED_FRAME
   | typeof FAILURE_RESOLUTION
   | typeof FAILURE_RELEASE
-  | typeof FAILURE_LANDING_CREATE
-  | typeof FAILURE_LANDING_INTERRUPTED
-  | typeof FAILURE_LANDING_TARGET
   | typeof FAILURE_TERMINAL_CALLBACK;
 
 /**
@@ -76,3 +60,45 @@ export const AT_PROPOSAL = 20;
 export const AT_CONSUMER = 21;
 
 export type CancelStage = typeof AT_PROPOSAL | typeof AT_CONSUMER;
+
+// **Who decided the cancellation, and of what kind.** Written by the library
+// and never by a consumer, which is the whole reason provenance is not carried
+// on `reason`: `cancel(reason?: unknown)` accepts anything, so a value arriving
+// there is a claim rather than a fact.
+//
+// Orthogonal to `CancelStage` and to `reason`, and the three answer three
+// different questions: `origin` is *who decided*, `stage` is *when*, `reason`
+// is *what the decider had to say* and stays open.
+//
+// **`origin` names the cancellation that decided the terminal, not every fault
+// the operation met.** A failure raised while a cancellation is already latched
+// is refused its classification and surfaces as a `DraggableWarning` — the
+// cancel owns the terminal — so the origin stays whatever cancelled, typically
+// `CANCEL_SUPPLIED`. `onError` is the channel that answers *did anything go
+// wrong*; this field answers *what ended it*.
+//
+// The numbers are stable on the same terms as the failure stages — a constant
+// is inlined into a consumer's compiled code, so none is ever repointed and
+// none retired is ever reused.
+/** `cancel(reason?)` was called — by the consumer or by the behavior. */
+export const CANCEL_SUPPLIED = 30;
+/** The user pressed Escape. `reason` is `undefined`. */
+export const CANCEL_ABORTED = 31;
+/** The pointer stream ended without a drop. `reason` is `undefined`. */
+export const CANCEL_INTERRUPTED = 32;
+/**
+ * A classified failure decided the operation. `reason` carries the value that
+ * was thrown, and `onError` has already fired.
+ *
+ * **The converse does not hold**: a failure that arrived while a cancellation
+ * was already latched did not decide anything, so it is reported separately and
+ * the origin is the cancellation's. Branching on this value to ask *did
+ * something break* under-reports; `onError` is what answers that.
+ */
+export const CANCEL_FAILED = 33;
+
+export type CancelOrigin =
+  | typeof CANCEL_SUPPLIED
+  | typeof CANCEL_ABORTED
+  | typeof CANCEL_INTERRUPTED
+  | typeof CANCEL_FAILED;

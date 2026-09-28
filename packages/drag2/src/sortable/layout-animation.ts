@@ -3,27 +3,54 @@
  * their new positions instead of jumping.
  *
  * ```text
- * beforeMove   measure the affected set where it currently looks,
- *              then RELEASE every offset this feature owns
- * placeholder  the sole writer of placeholder position
- * (behavior)   the axis rebuilds its index — settled presentation geometry
- * afterMove    re-measure, invert, play
+ * (behavior)   the DOM write
+ * (axis)       report(element, dx, dy, space) -> once per displaced element
+ * report       one additive `translate` per element, decaying to zero
  * ```
  *
- * **It is not a lifecycle gate, and structurally cannot become one** (D-7): it
- * has no access to `SettlementScope`, which is passed only to
- * `settlement.effect`. An in-flight displacement never delays release,
- * settlement or presentation teardown, and a completion carries no operation
- * identity because it can affect nothing outside this feature's own element map.
+ * **It measures nothing.** The vectors arrive from the axis, which either
+ * predicted them from the cache it already held or read them once after the
+ * write, so this feature owns duration, easing and the contributions it starts
+ * — and no geometry at all. That is what it means for displacement to be a
+ * *consumer* of axis-owned deltas.
  *
- * **The affected set is the crossed span, not the destination view** — M-4's
- * answer, measured in `.plan/measurements/q7.md`: 0.16ms against
- * 2.3ms per committed move at 800 rows, and the items outside the span do not
- * move at all, so a full-list pass animates zero deltas for them.
+ * **Nothing is ever released, and one member is why.** An axis rebuilding its
+ * cache must obtain *settled* geometry, and settling by cancelling first would
+ * leave a window in which a row has jumped. So the sink answers for what it is
+ * holding: {@link DisplacementContribution.settle} walks the buffer the axis
+ * just measured and subtracts each element's current offset, computed from its
+ * own animation's timing with **no layout read**. Rows in flight are measured
+ * without being disturbed, and the walk is asked once per rebuild rather than
+ * once per candidate.
+ *
+ * **Contributions fold rather than stack.** A second move arriving mid-flight
+ * cancels the running contribution and starts one from `residual + delta`,
+ * which lands the element at exactly the position the running one had reached
+ * — the same continuity a stack of additive contributions gives, but with one
+ * animation per element, which is what makes the current offset answerable at
+ * all.
+ *
+ * **It is not a lifecycle gate, and structurally cannot become one**: no seam
+ * it can reach suspends anything. An in-flight displacement never delays
+ * release, settlement or presentation teardown.
+ *
+ * **The dragged item and the placeholder are never reported**, so there is
+ * nothing here to exclude them: an axis reports over the destination view,
+ * which is the collection *minus* the dragged item, and the placeholder is not
+ * in it either. The landing tail is on the dragged item's visual, which is
+ * that item or a descendant of it, so it is disjoint by construction.
  */
 import type { SortableConfig } from './config.ts';
-import type { SortableInstaller } from './feature.ts';
-import type { DisplacementView } from './slots.ts';
+import type { SortableDisplacementInstaller } from './feature.ts';
+import {
+  BOTTOM,
+  CENTRE_X,
+  CENTRE_Y,
+  LEFT,
+  RIGHT,
+  STRIDE,
+  TOP,
+} from './rect-index.ts';
 
 export type LayoutAnimationOptions = Readonly<{
   duration?: number;
@@ -33,297 +60,222 @@ export type LayoutAnimationOptions = Readonly<{
 const DEFAULT_DURATION = 160;
 const DEFAULT_EASING = 'ease-out';
 
+/** What one element currently carries, and what it was issued for. */
+type Contribution = {
+  readonly animation: Animation;
+  readonly dx: number;
+  readonly dy: number;
+};
+
+/**
+ * How much of a contribution is still applied, as a fraction of the vector it
+ * was issued for.
+ *
+ * **Timing, not layout.** `getComputedTiming().progress` is the *transformed*
+ * progress — the effect's easing has already been applied to it — and the
+ * keyframes interpolate linearly from the issued vector to zero, so the
+ * remaining fraction is one minus it. An unresolved progress means the effect
+ * is applying nothing.
+ *
+ * **The fraction is not confined to `[0, 1]`**, and nothing here needs it to
+ * be: an overshooting easing drives the transformed progress outside `[0, 1]`,
+ * and `issued × (1 - progress)` is still exactly what the element is currently
+ * carrying, which is what both callers multiply by. A clamp would make the fold
+ * and the settle walk disagree with the animation they are describing.
+ */
+const remainingOf = (animation: Animation): number => {
+  const { progress } = animation.effect!.getComputedTiming();
+
+  return progress == null ? 0 : 1 - progress;
+};
+
+/**
+ * The displacement feature, written `displacement: layoutAnimation()`.
+ *
+ * **A named key, not a plugin.** Two mechanisms writing additive `translate` on
+ * the same rows is a collision worth making unrepresentable rather than
+ * detectable, and the key's cardinality is what does it.
+ */
 export function layoutAnimation(
   options: LayoutAnimationOptions = {},
-): Pick<SortableConfig, 'plugins'> {
-  // **Unchecked** (D-77), and the difference from `landing({ duration })` is
-  // the rule working rather than an inconsistency. This animation holds no gate
-  // and gates no terminal: it is registered in `running` and cancelled by
-  // `retire()`, so an unbounded one leaves displaced rows offset until the
-  // controller is destroyed and costs the library nothing. The landing's check
-  // exists because the landing **holds the settlement gate**; delete the gate
-  // and the check goes with it.
-  const duration = options.duration ?? DEFAULT_DURATION;
-  const easing = options.easing ?? DEFAULT_EASING;
+): Pick<SortableConfig, 'displacement'> {
+  // **Unchecked.** This animation gates nothing, so an unbounded one leaves
+  // displaced rows offset until the controller is destroyed and costs the
+  // library nothing.
+  const { duration = DEFAULT_DURATION, easing = DEFAULT_EASING } = options;
 
-  const install: SortableInstaller = () => {
-    // Private runtime: the animation this feature is currently running per
-    // element, the set of elements it may touch, and the bracketed move's
-    // measurements. Nobody else can name it, and `retire` is the only way
-    // anything leaves it.
-    const running = new Map<HTMLElement, Animation>();
-    // Snapshot membership, rebuilt only when the collection version moves. A
-    // linear `includes` per candidate would make the walk O(distance × list);
-    // this makes it O(list) per *collection change* and O(1) per candidate, on
-    // the key the behavior already stamps every snapshot with.
-    const members = new Set<HTMLElement>();
-    let membersVersion = -1;
-    // Reused across moves rather than reallocated: the bracket is the only
-    // reader, and it is strictly `beforeMove` → write → `afterMove`.
-    const affected: HTMLElement[] = [];
-    const tops: number[] = [];
-
+  const install: SortableDisplacementInstaller = () => {
     /**
-     * The set this move may animate: **the crossed span, plus every element
-     * still carrying an offset from an earlier move.**
+     * Every contribution in flight, keyed by the element carrying it.
      *
-     * The span alone is not enough. During a fast drag an element from the
-     * previous move is still mid-flight, and its offset is visible to any
-     * geometry read — including the axis rebuild this bracket exists to
-     * protect. Including it means it is released and replayed rather than left
-     * lying, which is the same retargeting idiom the span already uses.
-     *
-     * Ownership is explicit at every step: an element is animated only if the
-     * collection contains it, and never if it is the dragged item (whose
-     * presentation the kernel's lift owns) or the placeholder (whose position
-     * the behavior owns). The dragged item is not a hypothetical — the
-     * placeholder is inserted immediately after it, so it is the *first*
-     * sibling a backward span walks over.
+     * **A `Map`, because the sink must answer for an element.** An axis
+     * rebuilding its cache while displacement runs asks what this feature is
+     * holding for a given row, which is a lookup; and one record per element is
+     * what folding needs, since a fold has to find the contribution it
+     * supersedes.
      */
-    const collect = (view: DisplacementView): void => {
-      const { placeholder, insertion, snapshot, item } = view;
+    const running = new Map<HTMLElement, Contribution>();
 
-      if (membersVersion !== snapshot.version) {
-        members.clear();
-
-        for (const member of snapshot.items) {
-          members.add(member);
-        }
-
-        membersVersion = snapshot.version;
+    const retire = (): void => {
+      for (const { animation } of running.values()) {
+        animation.cancel();
       }
 
-      affected.length = 0;
-
-      // The element the placeholder will sit next to when the move lands.
-      const anchor = insertion.after ?? insertion.before;
-
-      if (anchor !== null && anchor !== placeholder) {
-        const forward =
-          // oxlint-disable-next-line no-bitwise
-          (placeholder.compareDocumentPosition(anchor) &
-            Node.DOCUMENT_POSITION_FOLLOWING) !==
-          0;
-        let cursor = forward
-          ? placeholder.nextElementSibling
-          : placeholder.previousElementSibling;
-        let reached = false;
-
-        // O(distance), and **no layout read**. The direction is one
-        // `compareDocumentPosition`; everything after that is pointer chasing.
-        while (cursor !== null) {
-          const element = cursor as HTMLElement;
-
-          if (element !== item && members.has(element)) {
-            affected.push(element);
-          }
-
-          if (cursor === anchor) {
-            reached = true;
-            break;
-          }
-
-          cursor = forward
-            ? cursor.nextElementSibling
-            : cursor.previousElementSibling;
-        }
-
-        if (!reached) {
-          // The anchor is not a sibling of the placeholder — a consumer commit
-          // can reparent items mid-drag. Nothing here is measured against a
-          // tree this feature cannot reason about. Only the span is dropped;
-          // the in-flight set below still has to be released either way.
-          affected.length = 0;
-        }
-      }
-
-      for (const element of running.keys()) {
-        if (!members.has(element) || element === item) {
-          // Left the collection mid-drag. It is still released below with
-          // everything else; it simply earns no new displacement.
-          continue;
-        }
-
-        if (!affected.includes(element)) {
-          affected.push(element);
-        }
-      }
-    };
-
-    /**
-     * The bracket's own retired state (I-36). `retire()` has already emptied
-     * these two arrays by the time a barrier fires — it runs inside the
-     * reentrant `destroy()` — so this is a restore, not a clear: it undoes
-     * whatever the aborted pass wrote back into them and stops a destroyed
-     * controller pinning the rows it was mid-measurement on (I-20).
-     */
-    const discard = (): void => {
-      affected.length = 0;
-      tops.length = 0;
+      running.clear();
     };
 
     return {
-      beforeInsertionMove(view): void {
-        collect(view);
-        tops.length = 0;
-
-        for (const element of affected) {
-          // **The measurement barrier** (I-36, indirect-invocation clause).
-          // The rows are consumer-owned, so the previous iteration's
-          // `getBoundingClientRect()` — and `collect`'s own sibling walk — is
-          // consumer code that may have destroyed the controller. Read at the
-          // head so one reading covers the entry and every predecessor.
-          if (!view.live()) {
-            discard();
-            return;
-          }
-
-          // Deliberately measured **with** this feature's offsets still
-          // applied: the rect already includes the current displacement, which
-          // is what makes retargeting fall out for free. A displacement
-          // interrupted halfway replays from where the element visually is,
-          // not from where it was authored.
-          tops.push(element.getBoundingClientRect().top);
-        }
-
-        if (!view.live()) {
-          // The last row's own measurement. Without this the partial `tops`
-          // survives on a retired feature, and `movePlaceholder` — the
-          // behavior's next statement — is a DOM write on a destroyed
-          // controller; the behavior takes its own reading for that one.
-          discard();
+      report(element, dx, dy, live, space): void {
+        // **The barrier, and it covers indirect invocation.** `animate()` on a
+        // consumer-owned row is a consumer call, so the previous call's may
+        // have destroyed the controller. Read at the head so one reading covers
+        // this element and every predecessor — the axis walks the span and
+        // cannot guard the interior of a loop it only runs.
+        if (!live()) {
           return;
         }
 
-        // Released here, not lazily per element in `afterMove`, and *all* of
-        // them rather than just this span's. Everything downstream of this line
-        // — the axis rebuild, and this feature's own second measurement — has
-        // to see settled presentation geometry, and one element still carrying
-        // an offset is enough to corrupt both. No frame is painted inside the
-        // effect, so nothing snaps visibly: every released element is replayed
-        // from the position just recorded above.
-        for (const animation of running.values()) {
-          animation.cancel();
+        let sx = dx;
+        let sy = dy;
+        const previous = running.get(element);
+
+        if (previous) {
+          // **The fold.** The element is presenting at its old flow position
+          // plus whatever is left of the previous contribution; starting the
+          // replacement from that residual plus the new vector leaves it
+          // exactly there once the write has landed, so the two contributions
+          // sum without either of them being replayed.
+          const remaining = remainingOf(previous.animation);
+
+          sx += previous.dx * remaining;
+          sy += previous.dy * remaining;
+          previous.animation.cancel();
+          running.delete(element);
         }
 
-        running.clear();
-      },
+        // The individual `translate` property, added rather than assigned.
+        //
+        // `transform` would be wrong twice over: it *replaces* an authored
+        // `rotate(4deg)` for the duration, and it overrides a consumer's own
+        // running transform animation. Additive `transform` is wrong too —
+        // additive transform lists concatenate, so the offset would land inside
+        // the element's own `scale()` and move it by a multiple of the delta,
+        // while the delta is in viewport space.
+        //
+        // `translate` applies *before* `transform` in the used-value chain
+        // (`translate → rotate → scale → transform`), so the offset is outside
+        // the element's own transform and needs no correction; and
+        // `composite: 'add'` composes it with an authored `translate` or a
+        // consumer animation on the same property instead of clobbering it.
+        //
+        // **The one expression that changes units.** The vector is a viewport
+        // quantity and a `translate` is a local one, so it is projected through
+        // the inverse of the inherited linear part — four multiplies under an
+        // ancestor transform, one null test without one, which is the common
+        // case. Everything the sink *stores* stays in viewport space: the fold
+        // below and the settle walk both work in the units the axis reports,
+        // and a local keyframe decaying to zero is `sx × remaining` in viewport
+        // at every instant, which is what the walk assumes.
+        const animation = element.animate(
+          [
+            {
+              translate: space
+                ? `${space.a * sx + space.c * sy}px ${
+                    space.b * sx + space.d * sy
+                  }px`
+                : `${sx}px ${sy}px`,
+            },
+            { translate: '0 0' },
+          ],
+          { duration, easing, composite: 'add' },
+        );
 
-      afterInsertionMove(view): void {
-        for (let i = 0; i < affected.length; i += 1) {
-          // **The measurement barrier** (I-36). Covers the entry — the
-          // behavior's eager axis rebuild ran between the two passes — and the
-          // previous iteration's `getBoundingClientRect()` and `animate()`,
-          // both consumer calls on a consumer-owned row.
-          if (!view.live()) {
-            discard();
-            return;
-          }
+        if (!live()) {
+          // `animate()` is itself overridable on a consumer's row. Cancelled
+          // rather than abandoned: it is not tracked yet, so `retire()` cannot
+          // have seen it and nothing else would ever stop it.
+          animation.cancel();
+          return;
+        }
 
-          const element = affected[i]!;
-          const delta = tops[i]! - element.getBoundingClientRect().top;
+        const record: Contribution = { animation, dx: sx, dy: sy };
 
-          if (delta === 0) {
-            continue;
-          }
-
-          // **The barrier the reviewer reproduced** (C4-01): the measurement
-          // one line above destroyed the controller and `animate()` still ran,
-          // starting a WAAPI animation on a retired feature that `retire()` had
-          // already finished cancelling — so nothing would ever release it.
-          if (!view.live()) {
-            discard();
-            return;
-          }
-
-          // The individual `translate` property, added rather than assigned.
-          //
-          // `transform` would be wrong twice over: it *replaces* an authored
-          // `rotate(4deg)` for the duration, and it overrides a consumer's own
-          // running transform animation. Additive `transform` is wrong too —
-          // additive transform lists concatenate, so the offset would land
-          // inside the element's own `scale()` and move it by a multiple of the
-          // delta, while the delta was measured in viewport space.
-          //
-          // `translate` applies *before* `transform` in the used-value chain
-          // (`translate → rotate → scale → transform`), so the offset is
-          // outside the element's own transform and needs no correction; and
-          // `composite: 'add'` composes it with an authored `translate` or a
-          // consumer animation on the same property instead of clobbering it.
-          const animation = element.animate(
-            [{ translate: `0 ${delta}px` }, { translate: '0 0' }],
-            { duration, easing, composite: 'add' },
+        try {
+          // The library holds nothing after the contribution ends, and the
+          // identity test is what keeps a fold's cancellation from evicting the
+          // record that superseded it.
+          animation.finished.then(
+            () => {
+              if (running.get(element) === record) {
+                running.delete(element);
+              }
+            },
+            () => {
+              // A cancel — from a fold or from `retire` — rejects `finished`;
+              // each has already dropped the record it cancelled.
+            },
           );
-
-          if (!view.live()) {
-            // `animate()` is itself overridable on a consumer's row, so it is
-            // the third consumer call in this iteration. Cancelled rather than
-            // abandoned: it is not in `running` yet, so `retire()` cannot have
-            // seen it and nothing else would ever stop it.
-            animation.cancel();
-            discard();
-            return;
-          }
-
-          try {
-            // The library performs only the measurements and temporary offsets
-            // that make animation possible; it holds nothing afterwards.
-            animation.finished.then(
-              () => {
-                if (running.get(element) === animation) {
-                  running.delete(element);
-                }
-              },
-              () => {
-                // A cancel — from the release above, or from `retire` — rejects
-                // `finished`. Both paths have already removed the entry.
-              },
-            );
-          } catch (error) {
-            // Acquisition is all-or-nothing, for the same reason it is in
-            // `landing()`: `finished` is an accessor and `then` is a call. An
-            // animation that is started but never tracked would survive
-            // `retire()` and keep offsetting an element nothing owns.
-            animation.cancel();
-            throw error;
-          }
-
-          if (!view.live()) {
-            // **Subscription is part of the acquisition** (C5-01). `finished`
-            // is an overridable accessor and `then` an overridable call, so a
-            // consumer-instrumented animation can destroy the controller and
-            // return normally — no throw, so the `catch` above never sees it.
-            // `retire()` then ran while `running` was still empty, and
-            // publishing below would retain the row and leave a live
-            // displacement on it forever.
-            animation.cancel();
-            discard();
-            return;
-          }
-
-          // Published only once it is tracked, and only ever one per element:
-          // the map was emptied in `beforeMove`, so nothing can stack here.
-          running.set(element, animation);
-        }
-      },
-
-      retire(): void {
-        // Every touched element restored exactly once: the map is the record of
-        // what this feature wrote, and emptying it is what makes a late
-        // completion find nothing to write.
-        for (const animation of running.values()) {
+        } catch (error) {
+          // Acquisition is all-or-nothing: `finished` is an accessor and `then`
+          // a call, so an animation started but never tracked would survive
+          // `retire()` and keep offsetting an element nothing owns.
           animation.cancel();
+          throw error;
         }
 
-        running.clear();
-        // Retention, not behaviour: the set is what pins collection DOM between
-        // operations, exactly like `y()`'s element array.
-        members.clear();
-        membersVersion = -1;
-        discard();
+        if (!live()) {
+          // **Subscription is part of the acquisition.** A consumer-instrumented
+          // animation can destroy the controller and return normally, so the
+          // `catch` above never sees it, and `retire()` would then run while the
+          // map was still empty.
+          animation.cancel();
+          return;
+        }
+
+        running.set(element, record);
       },
+
+      settle(values, items, count): void {
+        // **One walk, and it stops at the first miss.** The common rebuild
+        // happens with nothing in flight, and an empty map answers that in one
+        // property read rather than `count` lookups.
+        if (running.size === 0) {
+          return;
+        }
+
+        for (let i = 0; i < count; i += 1) {
+          const held = running.get(items[i]!);
+
+          if (held) {
+            const remaining = remainingOf(held.animation);
+            const dx = held.dx * remaining;
+            const dy = held.dy * remaining;
+            const offset = i * STRIDE;
+
+            // The centres are recomputed from the settled edges rather than
+            // offset themselves, so the arithmetic is the one a full scan
+            // performs and the equivalence instrument compares like with like.
+            const left = values[offset + LEFT]! - dx;
+            const right = values[offset + RIGHT]! - dx;
+            const top = values[offset + TOP]! - dy;
+            const bottom = values[offset + BOTTOM]! - dy;
+
+            values[offset + LEFT] = left;
+            values[offset + RIGHT] = right;
+            values[offset + CENTRE_X] = (left + right) * 0.5;
+            values[offset + TOP] = top;
+            values[offset + BOTTOM] = bottom;
+            values[offset + CENTRE_Y] = (top + bottom) * 0.5;
+          }
+        }
+      },
+
+      // **Teardown only.** Nothing is cancelled to let something measure: a
+      // rebuild settles the buffer instead, so the one cancel left is the one
+      // that has to exist, when the controller stops owning the rows.
+      retire,
     };
   };
 
-  return { plugins: [install] };
+  return { displacement: install };
 }

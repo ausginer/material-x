@@ -20,6 +20,7 @@
  * inline style is not evidence about where a reader sees the row.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import type { DraggableError, DraggableWarning } from '../../src/drag.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
   ReorderResolution,
@@ -44,20 +45,20 @@ type Fixture = Readonly<{
 
 const cleanup: Array<() => void> = [];
 
-type Reporting = { reportError?(error: unknown): void };
-
-let reported: unknown[] = [];
+/**
+ * **Everything the library surfaces, in one array** (D-130). ~~A
+ * `globalThis.reportError` stub.~~ The lift path's faults reach the consumer's
+ * `onError` now, so the fixture collects there — which is also what makes
+ * *nothing was reported* a claim about the published surface rather than about
+ * an ambient global.
+ */
+let reported: Array<DraggableError | DraggableWarning> = [];
 
 beforeEach(() => {
   reported = [];
-  (globalThis as Reporting).reportError = (error): void => {
-    reported.push(error);
-  };
 });
 
 afterEach(() => {
-  delete (globalThis as Reporting).reportError;
-
   for (const dispose of cleanup.splice(0)) {
     dispose();
   }
@@ -96,6 +97,9 @@ function build(rootStyle: Readonly<Record<string, string>> = {}): Fixture {
     items: () => items,
     axis: y(),
     onReorder: () => ReorderResolution.accept(),
+    onError: (error): void => {
+      reported.push(error);
+    },
   });
 
   root.setPointerCapture = (): void => {};
@@ -251,7 +255,7 @@ describe('the lifted row', () => {
     expect(after.height).toBeCloseTo(before.height, PRECISION);
   });
 
-  it('should report nothing through the platform channel while doing it', async () => {
+  it('should report nothing at all while doing it', async () => {
     const fixture = build({ zoom: '2' });
 
     await drag(fixture, 60);

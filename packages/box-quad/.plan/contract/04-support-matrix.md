@@ -62,17 +62,13 @@ Support is based on the one-unfragmented-principal-2D-border-box model. It is no
 | Integer/fractional/nested CSS `zoom` | **Supported** | Includes source, target and ancestor zoom |
 | Zoom combined with transforms and scrolling | **Supported** | — |
 
-### 2.4 API and cache
+### 2.4 API
 
 | Case | Status | Boundary |
 | --- | :-: | --- |
 | Caller-owned reusable `Float64Array` output | **Supported** | No hot-path validation |
-| Caller-owned `WeakMap` cache | **Supported** | One map identity is one potentially stale epoch |
-| Omitted cache | **Supported** | Fresh uncached read with no retained observations |
 | Realm-owned DOM geometry | **Supported** | Any constructed DOM geometry uses the current source owner document |
 | Reads wholly within one iframe document | **Supported** | That document's realm and layout viewport |
-
-The cache permits completed coordinate-space and inverse reuse. Shared-ancestor reuse, eager versus lazy inverse construction and the exact reuse strategy are Iteration D concerns, not Iteration B behavioral obligations.
 
 ## 3. Explicitly unsupported v1 matrix
 

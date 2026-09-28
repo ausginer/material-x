@@ -4,7 +4,7 @@ Independent review of the shipped `packages/drag2/src` tree against [`contract/0
 
 **Scope.** Concrete correctness / API / lifecycle defects, implementation↔contract divergence, and missing or vacuous executable coverage. Settled architecture is treated as fixed. Where a finding appears to require a **contract** change rather than an implementation change, it says so explicitly and does not propose a redesign.
 
-**Method.** Read of every `src/` module against the decision rows D-36…D-67, the seam tables in 02, the trace in 06, and the acceptance list in handoff §3; then a targeted audit of `tests/` and `docs/revision/revision-2.ts` for whether each required row actually exists and can fail. `npx just typecheck` is green at the reviewed revision (`8c519ad9`).
+**Method.** Read of every `src/` module against the decision rows D-36…D-67, the seam tables in 02, the trace in 06, and the acceptance list in handoff §3; then a targeted audit of `tests/` and `tests/revision/revision-2.ts` for whether each required row actually exists and can fail. `npx just typecheck` is green at the reviewed revision (`8c519ad9`).
 
 **Overall.** The revision landed substantially and faithfully: the transaction bracket (D-36…D-38, D-53), the deleted readiness protocol (D-41), the eight-entry / three-tier topology (D-48, D-61, D-64), the pull collection (D-44), the input policy (D-46, D-50, D-54), the progress marker (D-66 §The progress marker) and the contextual landing duration (D-67) are all present and match their rows. **One release-blocking behavioral defect** was found, in the single clause of D-66 that the whole decision turns on, together with the reason it was not caught: the assertion that would have caught it is the one acceptance row handoff §3 named and the suite does not have.
 
@@ -17,7 +17,7 @@ Independent review of the shipped `packages/drag2/src` tree against [`contract/0
 | **A-1** | **Blocking** | D-66's tie-break _existing result wins_ is not implemented — the `canceled` fallback overwrites a committed domain result |
 | **A-2** | **Blocking** (coverage) | The acceptance row that would have caught A-1 does not exist; its nearest neighbour asserts only that `finalized` was _called_ |
 | **A-3** | High — **contract decision needed** | The two-window footprint is applied per axis, so `footprint.width === 0` for every `box ≠ visual` composition and the placeholder ships `width: 0px` |
-| A-4 | Medium (coverage) | `docs/revision/revision-2.ts` still restates the surface instead of importing it; handoff §6.3's "closes at Phase R" is not discharged |
+| A-4 | Medium (coverage) | `tests/revision/revision-2.ts` still restates the surface instead of importing it; handoff §6.3's "closes at Phase R" is not discharged |
 | A-5 | Medium (coverage) | Probe A's late-rejection row — a real `unhandledrejection` listener — has no test anywhere |
 | A-6 | Medium (coverage) | Probe A's `panic` ordering row — _close → report → teardown_ — has no test |
 | A-7 | Low–Medium (coverage) | D-63's negative half — `landing({ run })` is a compile error at the ordinary tier — is unasserted |
@@ -148,7 +148,7 @@ Handoff §6.3 closes the "compiled fixture" item with one residue:
 
 > What remains owed is narrower: the fixture restates the surface rather than importing it, because `src/` is still pre-revision, so it proves the surface is _self-consistent_ and not that the implementation matches it. **That closes at Phase R.**
 
-It has not closed. [`docs/revision/revision-2.ts`](../../../docs/revision/revision-2.ts) still opens with
+It has not closed. [`tests/revision/revision-2.ts`](../../../tests/revision/revision-2.ts) still opens with
 
 > `src/` still implements the **pre-revision** surface; nothing here is wired to it, and the imports below are deliberately confined to types the revision does not touch.
 

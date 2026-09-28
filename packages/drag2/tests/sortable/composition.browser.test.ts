@@ -16,11 +16,10 @@
  * inherits its box, so the list stays three boxes tall for the whole drag.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { DraggableError } from '../../src/drag.ts';
-import { AT_PROPOSAL } from '../../src/kernel/failures.ts';
+import { DraggableError, DraggableWarning } from '../../src/drag.ts';
+import { AT_PROPOSAL, FAILURE_RESOLUTION } from '../../src/kernel/failures.ts';
 import { createRealm } from '../../src/kernel/realm.ts';
 import { assemble } from '../../src/sortable/assemble.ts';
-import { copyUniqueItems } from '../../src/sortable/collection.ts';
 import {
   mergeFragments,
   type SortableConfig,
@@ -28,10 +27,19 @@ import {
 import type {
   AxisInstaller,
   FeatureContext,
-  SortableInstaller,
+  SortableDisplacementInstaller,
 } from '../../src/sortable/feature.ts';
 import { y } from '../../src/sortable/y.ts';
+// **The cancellation vocabulary is imported from the public entry**, which is
+// half of what these rows check: `origin` is only a usable discrimination if a
+// consumer can name its values without reaching past `sortable.js`.
 import {
+  CANCEL_ABORTED,
+  CANCEL_COLLECTION_INVALIDATED,
+  CANCEL_FAILED,
+  CANCEL_INTERRUPTED,
+  CANCEL_ITEM_REMOVED,
+  CANCEL_SUPPLIED,
   ReorderResolution,
   type ReorderRequest,
   type SortableController,
@@ -49,7 +57,7 @@ type Composed = Readonly<{
   requests: ReorderRequest[];
   finishes: ReorderTransactionResult[];
   cancels: ReorderTransactionResult[];
-  errors: unknown[];
+  errors: Array<DraggableError | DraggableWarning>;
   started: HTMLElement[];
   placeholder(): HTMLElement | null;
   /** Swap the collection identity and signal it (D-44). */
@@ -68,20 +76,9 @@ type Options = Readonly<{
 
 const cleanup: Array<() => void> = [];
 
-type Reporting = { reportError?(error: unknown): void };
-
-let reported: unknown[] = [];
-
-beforeEach(() => {
-  reported = [];
-  (globalThis as Reporting).reportError = (error): void => {
-    reported.push(error);
-  };
-});
+beforeEach(() => {});
 
 afterEach(() => {
-  delete (globalThis as Reporting).reportError;
-
   for (const dispose of cleanup.splice(0)) {
     dispose();
   }
@@ -115,7 +112,7 @@ function compose(options: Options = {}): Composed {
   // lives, in consumer code.
   const finishes: ReorderTransactionResult[] = [];
   const cancels: ReorderTransactionResult[] = [];
-  const errors: unknown[] = [];
+  const errors: Array<DraggableError | DraggableWarning> = [];
   const started: HTMLElement[] = [];
 
   let composed!: Composed;
@@ -426,10 +423,16 @@ describe('the composed reorder round trip', () => {
     await drag(55);
     release(55);
 
-    // D-64: the consumer receives a coarse `DraggableError`, and the
-    // classifying error survives as `cause` rather than being flattened.
+    // **The row got sharper at D-132.** It asserted the coarse `'consumer'`
+    // code, which admission and resolution share — so it passed for a
+    // resolution failure while naming neither, and would have gone on passing
+    // if the throw had been classified at the wrong one of the two. The stage
+    // says which seam, and the classifying error survives as `cause` rather
+    // than being flattened.
     expect(composed.errors).toHaveLength(1);
-    expect((composed.errors[0] as DraggableError).code).toBe('consumer');
+    expect((composed.errors[0] as DraggableError).stage).toBe(
+      FAILURE_RESOLUTION,
+    );
     expect((composed.errors[0] as DraggableError).cause).toBe(failure);
   });
 
@@ -571,6 +574,7 @@ describe('the composed terminal protocol', () => {
       {
         type: 'canceled',
         reason: 'immediately',
+        origin: CANCEL_SUPPLIED,
         stage: AT_PROPOSAL,
         // Named by the domain type: null when the operation was abandoned
         // before a proposal existed.
@@ -597,7 +601,10 @@ describe('the composed terminal protocol', () => {
     expect(composed.cancels).toEqual([
       {
         type: 'canceled',
+        // **A supplied reason, and the origin says so.** The behavior chose to
+        // say this; it is domain vocabulary the sortable owns, not provenance.
         reason: 'sortable:item-removed',
+        origin: CANCEL_SUPPLIED,
         stage: AT_PROPOSAL,
         proposal: null,
       },
@@ -677,11 +684,14 @@ describe('the composed terminal protocol', () => {
     // dispatched, and losing it because a later statement in the same callback
     // threw would make queueing depend on the caller surviving.
     //
-    // The throw itself lands on the **platform channel**, not `onError`. The
-    // update invalidates the gap and latches a cancellation, and I-22 puts a
-    // cancel above a failure checkpoint — so the classified failure is dropped
-    // and the error is reported best-effort instead. That is the admitted
-    // I-31 gap contract 02 records, reached here through the public surface.
+    // **The throw reaches `onError` as a warning, not as a failure** (D-130).
+    // The update invalidates the gap and latches a cancellation, and I-22 puts
+    // a cancel above a failure checkpoint — so the classification is refused
+    // and the fault travels without one. ~~It landed on the platform channel,
+    // not `onError`.~~ The consumer sees it now; what it does *not* see is a
+    // `DraggableError`, because the cancel owns the terminal and this fault
+    // changed nothing about it. That is the admitted I-31 gap contract 02
+    // records, reached here through the public surface.
     let self!: Composed;
     const composed = compose({
       onStart: () => {
@@ -696,9 +706,19 @@ describe('the composed terminal protocol', () => {
     activate(composed);
 
     expect(composed.cancels).toHaveLength(1);
-    expect(composed.errors).toEqual([]);
-    expect(reported.map(String)).toEqual(['Error: after queueing']);
+    // **The terminal belongs to the cancel, and so does its provenance**
+    // (F-178). The operation both cancelled and threw; `origin` names what
+    // decided it, not everything that happened to it, so a consumer asking
+    // *did something break* has to read `onError` and not this field.
+    expect(composed.cancels[0]).toMatchObject({ origin: CANCEL_SUPPLIED });
     expect(composed.placeholder()).toBeNull();
+    expect(composed.errors).toHaveLength(1);
+    expect(composed.errors[0]).toBeInstanceOf(DraggableWarning);
+    expect(composed.errors[0]).not.toBeInstanceOf(DraggableError);
+    expect(composed.errors[0]?.message).toBe(
+      'drag: failure/superseded-by-cancel',
+    );
+    expect(String(composed.errors[0]?.cause)).toBe('Error: after queueing');
   });
 
   it('should tolerate a destroy from inside the terminal callback', async () => {
@@ -717,7 +737,7 @@ describe('the composed terminal protocol', () => {
     expect(composed.finishes).toHaveLength(1);
     expect(composed.placeholder()).toBeNull();
     expect(composed.items[0]!.style.position).toBe('');
-    expect(reported).toEqual([]);
+    expect(composed.errors).toEqual([]);
   });
 
   it('should ignore a resolution that settles after a newer operation began', async () => {
@@ -776,29 +796,40 @@ describe('the composed terminal protocol', () => {
     expect(composed.order()).toBe('012_');
   });
 
-  it('should report nothing through the platform channel on a clean drag', async () => {
+  it('should report nothing at all on a clean drag', async () => {
     const composed = compose();
 
     activate(composed);
     await drag(55);
     release(55);
 
-    expect(reported).toEqual([]);
+    // **One channel, so one assertion** (D-130). This stood beside an
+    // `expect(reported).toEqual([])` reading a `globalThis.reportError` stub;
+    // there is no second destination left for a fault to hide in.
+    expect(composed.errors).toEqual([]);
   });
 });
 
 /**
- * **Construction unwind, across construction** (D-80 (b), F-68, F-69; 05 §Test
+ * **Construction unwind, across construction** (D-80 (b), F-69; 05 §Test
  * matrix). The `assemble` suite pins the unwind *within* the assembler;
  * this group pins that nothing consumer-triggerable throws *outside* it.
  *
- * **Two of the four rows are negative controls, and they are the load-bearing
- * ones.** The pre-D-80 arrangement throws the same `TypeError`, with the same
+ * **The remaining throw is the consumer's own `items()`, and F-69 is the whole
+ * motive now** (D-121, F-98). Two rows went with the duplicate refusal on
+ * 2026-08-25 — the positive one and the pre-D-80 *validation-position*
+ * control — because the throw they arranged no longer exists: a duplicated
+ * element is outside the contract and the copy refuses nothing. F-68's window
+ * closes for a second time, and the ordering it once motivated survives on
+ * F-69's reason, which the pair below still discriminates.
+ *
+ * **One of the two rows is a negative control, and it is the load-bearing
+ * one.** The pre-D-80 arrangement throws the same `TypeError`, with the same
  * message, at the same consumer call — only its position moved — so every
  * assertion that checks the throw alone passes against the defect. What
  * discriminates is *what the installers did before it*, which is why the
- * positive rows assert **no installer ran** rather than **every installer was
- * retired**, and why the two controls reconstruct the old orders and show them
+ * positive row asserts **no installer ran** rather than **every installer was
+ * retired**, and why the control reconstructs the old order and shows it
  * failing exactly that assertion.
  */
 describe('construction across the whole boundary', () => {
@@ -808,7 +839,7 @@ describe('construction across the whole boundary', () => {
     ran: string[];
     /** Installers whose `retire` ran. */
     retired: string[];
-    plugin: SortableInstaller;
+    displacement: SortableDisplacementInstaller;
   }>;
 
   const probe = (): Probe => {
@@ -822,11 +853,13 @@ describe('construction across the whole boundary', () => {
         ran.push('axis');
         return y()(context);
       },
-      plugin: () => {
-        ran.push('plugin');
+      displacement: () => {
+        ran.push('displacement');
         return {
+          report: (): void => {},
+          settle: (): void => {},
           retire: (): void => {
-            retired.push('plugin');
+            retired.push('displacement');
           },
         };
       },
@@ -842,29 +875,6 @@ describe('construction across the whole boundary', () => {
     return root;
   };
 
-  it('should refuse a duplicated element before any installer runs', () => {
-    const parts = probe();
-    const root = host();
-    const item = document.createElement('div');
-
-    root.append(item);
-
-    expect(() =>
-      sortable(root, {
-        items: () => [item, item],
-        onReorder: () => ReorderResolution.accept(),
-        axis: parts.axis,
-        plugins: [parts.plugin],
-      }),
-    ).toThrow(/same element twice/u);
-
-    // **Not `retired` — `ran`.** A wider bracket would also leave `retired`
-    // equal to `['plugin']`, and the two arrangements are indistinguishable by
-    // that assertion. Nothing ran, so there is nothing to unwind.
-    expect(parts.ran).toEqual([]);
-    expect(parts.retired).toEqual([]);
-  });
-
   it('should refuse a throwing pull source before any installer runs', () => {
     // F-69's case. The throw comes from the consumer's own `items()`, which
     // used to be safe only because it sat left of `assemble(…)` in one
@@ -879,7 +889,7 @@ describe('construction across the whole boundary', () => {
         },
         onReorder: () => ReorderResolution.accept(),
         axis: parts.axis,
-        plugins: [parts.plugin],
+        displacement: parts.displacement,
       }),
     ).toThrow(/consumer pull/u);
 
@@ -900,48 +910,15 @@ describe('construction across the whole boundary', () => {
       items: () => [item],
       onReorder: () => ReorderResolution.accept(),
       axis: parts.axis,
-      plugins: [parts.plugin],
+      displacement: parts.displacement,
     });
 
-    expect(parts.ran).toEqual(['axis', 'plugin']);
+    expect(parts.ran).toEqual(['axis', 'displacement']);
     expect(parts.retired).toEqual([]);
 
     return controller.destroy().then(() => {
-      expect(parts.retired).toEqual(['plugin']);
+      expect(parts.retired).toEqual(['displacement']);
     });
-  });
-
-  it('should be discriminated by the pre-D-80 validation position', () => {
-    // **Negative control.** Validating inside `install` — where
-    // `createSortableRuntime` did it — reconstructed here as: assemble first,
-    // validate second. The throw is identical; what differs is that the
-    // installers have already run and their hooks are held by a record nothing
-    // will unwind, because `arm()` is never reached.
-    const parts = probe();
-    const root = document.createElement('div');
-    const item = document.createElement('div');
-    const context: FeatureContext = {
-      realm: createRealm(root),
-      root,
-      report: (): void => {},
-    };
-    const config: SortableConfig = {
-      items: () => [item, item],
-      onReorder: () => ReorderResolution.accept(),
-      axis: parts.axis,
-      plugins: [parts.plugin],
-    };
-
-    expect(() => {
-      const slots = assemble(mergeFragments(config, []), context);
-
-      void slots;
-      copyUniqueItems(config.items());
-    }).toThrow(/same element twice/u);
-
-    // The assertion the shipped order satisfies is the one this fails.
-    expect(parts.ran).toEqual(['axis', 'plugin']);
-    expect(parts.retired).toEqual([]);
   });
 
   it('should be discriminated by the pre-D-80 argument order', () => {
@@ -961,7 +938,7 @@ describe('construction across the whole boundary', () => {
       },
       onReorder: () => ReorderResolution.accept(),
       axis: parts.axis,
-      plugins: [parts.plugin],
+      displacement: parts.displacement,
     };
     const sibling = (
       slots: unknown,
@@ -972,7 +949,7 @@ describe('construction across the whole boundary', () => {
       sibling(assemble(mergeFragments(config, []), context), config.items()),
     ).toThrow(/consumer pull/u);
 
-    expect(parts.ran).toEqual(['axis', 'plugin']);
+    expect(parts.ran).toEqual(['axis', 'displacement']);
     expect(parts.retired).toEqual([]);
   });
 });
@@ -1036,5 +1013,148 @@ describe('the required first argument, through the public entry', () => {
 
     cleanup.push(() => void controller.destroy());
     expect(controller.invalidate).toBeTypeOf('function');
+  });
+});
+
+/**
+ * **Cancellation provenance, through the public surface** (D-154).
+ *
+ * One row per producer. `origin` is the field that answers *who decided*, and
+ * the suite drives each producer the way a page does — a controller call, a key
+ * press, a lost pointer, a resolver that throws — rather than through the
+ * settlement input, because a consumer reads this off `onEnd`.
+ */
+describe('cancellation provenance', () => {
+  it('should mark a consumer cancel as supplied', () => {
+    const composed = compose();
+
+    activate(composed);
+    composed.controller.cancel('gone');
+
+    expect(composed.cancels[0]).toMatchObject({
+      reason: 'gone',
+      origin: CANCEL_SUPPLIED,
+    });
+  });
+
+  it('should mark an invalidated collection as supplied', async () => {
+    // **The behavior's own vocabulary, and it is a supplied value.** The
+    // sortable *chose* to say this; nothing about it is a claim about the
+    // platform, which is why these two constants publish and the kernel's three
+    // did not.
+    const composed = compose();
+
+    activate(composed);
+    await drag(55);
+    composed.replace([composed.items[0]!, composed.items[1]!]);
+
+    expect(composed.cancels[0]).toMatchObject({
+      reason: CANCEL_COLLECTION_INVALIDATED,
+      origin: CANCEL_SUPPLIED,
+    });
+  });
+
+  it('should mark a removed item as supplied', async () => {
+    const composed = compose();
+
+    activate(composed);
+    await drag(55);
+    composed.replace([composed.items[1]!, composed.items[2]!]);
+
+    expect(composed.cancels[0]).toMatchObject({
+      reason: CANCEL_ITEM_REMOVED,
+      origin: CANCEL_SUPPLIED,
+    });
+  });
+
+  it('should mark Escape as aborted', () => {
+    const composed = compose();
+
+    activate(composed);
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    );
+
+    expect(composed.cancels[0]).toMatchObject({ origin: CANCEL_ABORTED });
+  });
+
+  it('should carry no reason for an Escape', () => {
+    const composed = compose();
+
+    activate(composed);
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    );
+
+    expect(composed.cancels[0]).toMatchObject({ reason: undefined });
+  });
+
+  it('should mark a cancelled pointer as interrupted', () => {
+    const composed = compose();
+
+    activate(composed);
+    pointerEvent('pointercancel', 30);
+
+    expect(composed.cancels[0]).toMatchObject({ origin: CANCEL_INTERRUPTED });
+  });
+
+  it('should mark lost pointer capture as interrupted', () => {
+    const composed = compose();
+
+    activate(composed);
+    pointerEvent('lostpointercapture', 30);
+
+    expect(composed.cancels[0]).toMatchObject({ origin: CANCEL_INTERRUPTED });
+  });
+
+  it('should mark a classified failure as failed', async () => {
+    // **The value that pays for the field.** The terminal says `canceled` and
+    // `reason` holds the caught throw, which is indistinguishable from a
+    // consumer who passed an `Error` deliberately — until `origin` says which.
+    const failure = new Error('resolver');
+    const composed = compose({
+      onReorder: () => {
+        throw failure;
+      },
+    });
+
+    activate(composed);
+    await drag(55);
+    release(55);
+    await Promise.resolve();
+
+    expect(composed.cancels[0]).toMatchObject({
+      reason: failure,
+      origin: CANCEL_FAILED,
+    });
+  });
+
+  it('should not let a supplied reason forge an origin', () => {
+    // **`reason` stays open, and that is why it cannot carry provenance.** A
+    // consumer may pass a provenance constant to `cancel` — the channel accepts
+    // anything — and the result still reports the truth about who decided.
+    const composed = compose();
+
+    activate(composed);
+    composed.controller.cancel(CANCEL_ABORTED);
+
+    expect(composed.cancels[0]).toMatchObject({
+      reason: CANCEL_ABORTED,
+      origin: CANCEL_SUPPLIED,
+    });
+  });
+
+  it('should publish no terminal at all when the controller is destroyed', () => {
+    // **F-172.** A destroyed controller is not a producer of the canceled arm:
+    // `destroy()` closes the queue and every guard then fails, so the operation
+    // announces nothing. There is no origin for this case because there is no
+    // result to carry one, which is why the four are exhaustive without it.
+    const composed = compose();
+
+    activate(composed);
+    void composed.controller.destroy();
+
+    expect(composed.cancels).toEqual([]);
+    expect(composed.finishes).toEqual([]);
   });
 });

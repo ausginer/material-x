@@ -29,7 +29,7 @@ import type {
   Insertion,
 } from '../../src/sortable/domain.ts';
 import type {
-  FeatureContext,
+  SortableFeatureContext,
   InsertionGeometry,
 } from '../../src/sortable/feature.ts';
 import { xy } from '../../src/sortable/xy.ts';
@@ -131,7 +131,7 @@ function createField(slot = 0): Field {
     }
   }
 
-  const geometry = xy()(null as unknown as FeatureContext).insertion;
+  const geometry = xy()(null as unknown as SortableFeatureContext).insertion;
 
   // The snapshot is the whole collection, dragged member included, in grid
   // order. The index skips the dragged one, so destination slots are `items`.
@@ -147,8 +147,20 @@ function createField(slot = 0): Field {
     snapshot: (version = 0, list = collection) => ({ items: list, version }),
     resolve: (x, y, snapshot = field.snapshot(), getBox = null, live = ALIVE) =>
       geometry.resolve(
-        { pointerX: x, pointerY: y, insertion: null, item: dragged },
-        { snapshot, placeholder, getBox, live, insertion: null },
+        {
+          pointerX: x,
+          pointerY: y,
+          snapshot,
+          insertion: null,
+          item: dragged,
+        },
+        {
+          placeholder,
+          box: getBox,
+          live,
+          settle: null,
+          space: null,
+        },
       ),
   };
 
@@ -161,13 +173,19 @@ describe('xy', () => {
 
     expect(
       field.geometry.resolve(
-        { pointerX: 50, pointerY: 20, insertion: null, item: null },
         {
+          pointerX: 50,
+          pointerY: 20,
           snapshot: field.snapshot(),
-          placeholder: field.placeholder,
-          getBox: null,
-          live: ALIVE,
           insertion: null,
+          item: null,
+        },
+        {
+          placeholder: field.placeholder,
+          box: null,
+          live: ALIVE,
+          settle: null,
+          space: null,
         },
       ),
     ).toBeNull();
@@ -536,9 +554,11 @@ describe('the terminal barrier in the candidate loop', () => {
 
   it('should read no placeholder geometry once the controller closes', () => {
     // Mirrors `y.browser.test.ts`, and for the same reason the resolver-list
-    // assertion is mirrored: the barrier is shared but the threading is per
-    // axis. The placeholder is consumer-owned, so measuring it after the close
-    // is an indirect consumer call (I-36).
+    // assertion is mirrored: the reading is shared but the threading is per
+    // axis. **It passes because a candidate remained** — the reading before
+    // that candidate's `visual()` stops the rebuild — and not because measuring
+    // a consumer-owned placeholder is forbidden after a close. Closing on the
+    // last candidate completes the rebuild by design; that case is below.
     const field = createField();
     const asked: HTMLElement[] = [];
     let alive = true;
@@ -569,6 +589,8 @@ describe('the terminal barrier in the candidate loop', () => {
 
   it('should leave the cache retired rather than clean and partial', () => {
     // The half a `break` gets wrong; see `y.browser.test.ts` for the reasoning.
+    // Teardown is deferred, so at this instant the retire hooks have not run
+    // and it is the stop itself that keeps a partial buffer from going clean.
     const field = createField();
     const asked: HTMLElement[] = [];
     let alive = true;
@@ -681,18 +703,21 @@ describe('the terminal barrier in the candidate loop', () => {
 });
 
 /**
- * I-36's **indirect-invocation clause**, mirrored from `y.browser.test.ts` and
- * extended by the one call `y()` does not make (C4-01).
+ * **A close raised from a candidate's own geometry read**, mirrored from
+ * `y.browser.test.ts`, plus the one call `y()` does not make.
  *
- * The discriminating candidate is the **last** one, for the reason written up
- * next door: an earlier candidate's destroy was already caught by the next
- * iteration's reading, while the last one fell through to the trailing
- * bookkeeping and to the placeholder read.
+ * The obligation is over **declared consumer slots**, so the discriminating
+ * candidate is any one with another after it: the reading before the next
+ * `visual()` is what stops the rebuild. On the **last** candidate nothing is
+ * owed and the rebuild completes.
  *
- * `xy()` also touches the consumer-owned placeholder **twice** per resolution —
- * the anchor rect, then `compareDocumentPosition` to decide which side the gap
- * sits on — where `y()` derives the side from two centres it has already
- * measured. So this axis owns a barrier its sibling does not need.
+ * `xy()` also touches the consumer-owned placeholder twice per resolution — the
+ * anchor rect, then `compareDocumentPosition` to decide which side the gap sits
+ * on. Neither is a declared slot, so neither is guarded here; the publication
+ * they feed is refused by the behavior and again by the kernel. These cases
+ * previously pinned the opposite, against a withdrawn whole-program ceiling on
+ * consumer calls, and are retargeted rather than deleted so the reversal stays
+ * visible.
  */
 describe('the terminal barrier on candidate geometry', () => {
   const measuringAt = (
@@ -716,9 +741,10 @@ describe('the terminal barrier on candidate geometry', () => {
     }
   };
 
-  it('should read no placeholder geometry once the last candidate closed the controller', () => {
-    // No `visual()` composed: the cell is its own visual, so the geometry read
-    // is the only consumer call in the loop — and it is still one.
+  it('should still read the placeholder once the last candidate closed the controller', () => {
+    // No `visual()` composed, so this loop invokes no declared slot and takes
+    // no reading. Nothing is owed after the last candidate, and the placeholder
+    // read that finishes the rebuild happens exactly once.
     const field = createField();
     const measured: HTMLElement[] = [];
     let alive = true;
@@ -737,12 +763,14 @@ describe('the terminal barrier on candidate geometry', () => {
 
     expect(
       field.resolve(170, 20, field.snapshot(), null, () => alive),
-    ).toBeNull();
+    ).not.toBeNull();
 
-    expect(anchorReads).toBe(0);
+    expect(anchorReads).toBe(1);
   });
 
-  it('should leave the cache retired after the last candidate closed the controller', () => {
+  it('should leave the cache clean after the last candidate closed the controller', () => {
+    // The completion is what is pinned: the buffer is whole, so the same
+    // version below finds it warm and asks for nothing.
     const field = createField();
     const measured: HTMLElement[] = [];
     let alive = true;
@@ -759,7 +787,7 @@ describe('the terminal barrier on candidate geometry', () => {
       return item;
     });
 
-    expect(asked).toEqual([field.items[0], field.items[1], field.items[2]]);
+    expect(asked).toEqual([]);
   });
 
   it('should resolve no further visual once a candidate closed the controller', () => {
@@ -787,8 +815,8 @@ describe('the terminal barrier on candidate geometry', () => {
   });
 
   it('should call no resolver at all when the controller is already closed', () => {
-    // The entry barrier: a dirty cache can be entered on a controller a
-    // `beforeMove` hook already destroyed.
+    // The entry barrier: a dirty cache can be entered on a controller that
+    // consumer code reached from a committed move already destroyed.
     const field = createField();
     const asked: HTMLElement[] = [];
 
@@ -808,11 +836,13 @@ describe('the terminal barrier on candidate geometry', () => {
     expect(asked).toEqual([]);
   });
 
-  it('should not compare document position once the anchor read closed the controller', () => {
-    // The barrier `y()` has no counterpart for. The anchor rect above is a
-    // consumer call on a consumer-owned element; `compareDocumentPosition`
-    // below is a second one on the same element, and it runs only on a frame
-    // that proposes a gap change — which this one does.
+  it('should compare document position even after the anchor read closed the controller', () => {
+    // **The reading `y()` had no counterpart for, and neither axis owes now.**
+    // `compareDocumentPosition` is a platform query on a consumer-owned node
+    // rather than a declared slot, and the only act after it is a publication —
+    // which the behavior refuses at its own head and the kernel refuses again
+    // before anything acts on it. So the frame that proposes a gap change
+    // completes, and the insertion it computes is discarded upstream.
     const field = createField();
     let alive = true;
     let compares = 0;
@@ -833,8 +863,8 @@ describe('the terminal barrier on candidate geometry', () => {
 
     expect(
       field.resolve(170, 20, field.snapshot(), null, () => alive),
-    ).toBeNull();
+    ).not.toBeNull();
 
-    expect(compares).toBe(0);
+    expect(compares).toBe(1);
   });
 });

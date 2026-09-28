@@ -13,9 +13,10 @@ import type {
   Insertion,
 } from '../../src/sortable/domain.ts';
 import type {
-  FeatureContext,
+  SortableFeatureContext,
   InsertionGeometry,
 } from '../../src/sortable/feature.ts';
+import type { DisplacementSettle } from '../../src/sortable/rect-index.ts';
 import { y } from '../../src/sortable/y.ts';
 
 const ITEM_HEIGHT = 40;
@@ -42,11 +43,35 @@ type Field = Readonly<{
     snapshot?: CollectionSnapshot,
     getBox?: ((item: HTMLElement) => HTMLElement) | null,
     live?: () => boolean,
+    settle?: DisplacementSettle | null,
+    insertion?: Insertion | null,
   ): Insertion | null;
+  /**
+   * One committed move, as `action.effect` drives it: the gap the write just
+   * landed on, and the runtime the axis reads its slots off.
+   */
+  move(
+    gap: number,
+    snapshot?: CollectionSnapshot,
+    getBox?: ((item: HTMLElement) => HTMLElement) | null,
+    live?: () => boolean,
+    settle?: DisplacementSettle | null,
+  ): void;
 }>;
 
 /** The default liveness: a controller nobody destroyed. */
 const ALIVE = (): boolean => true;
+
+/**
+ * A gap the axis is told a committed move landed on. Only `index` is read on
+ * this path, so the two anchors carry the end-gap shape rather than a lookup.
+ */
+const gapAt = (index: number): Insertion => ({
+  version: 0,
+  index,
+  before: null,
+  after: null,
+});
 
 /**
  * Three 40px boxes from y=0. The dragged item is `items[0]`, out of flow the way
@@ -83,7 +108,7 @@ function createField(count = 3): Field {
   // The axis slot **is** the installer now (D-45): `y()` returns a partial
   // config, and the installer is called with a context the geometry never
   // dereferences at construction.
-  const geometry = y()(null as unknown as FeatureContext).insertion;
+  const geometry = y()(null as unknown as SortableFeatureContext).insertion;
 
   const field: Field = {
     geometry,
@@ -95,11 +120,44 @@ function createField(count = 3): Field {
       snapshot = field.snapshot(),
       getBox = null,
       live = ALIVE,
+      settle = null,
+      insertion = null,
     ) =>
       geometry.resolve(
-        { pointerX: 0, pointerY, insertion: null, item: items[0]! },
-        { snapshot, placeholder, getBox, live, insertion: null },
+        { pointerX: 0, pointerY, snapshot, insertion, item: items[0]! },
+        {
+          placeholder,
+          box: getBox,
+          live,
+          settle,
+          space: null,
+        },
       ),
+    move: (
+      gap,
+      snapshot = field.snapshot(),
+      getBox = null,
+      live = ALIVE,
+      settle = null,
+    ) => {
+      geometry.moved(
+        {
+          pointerX: 0,
+          pointerY: 0,
+          snapshot,
+          insertion: gapAt(gap),
+          item: items[0]!,
+        },
+        {
+          placeholder,
+          box: getBox,
+          live,
+          settle,
+          space: null,
+        },
+        null,
+      );
+    },
   };
 
   return field;
@@ -113,13 +171,19 @@ describe('y', () => {
 
     expect(
       field.geometry.resolve(
-        { pointerX: 0, pointerY: 60, insertion: null, item: null },
         {
+          pointerX: 0,
+          pointerY: 60,
           snapshot: field.snapshot(),
-          placeholder: field.placeholder,
-          getBox: null,
-          live: ALIVE,
           insertion: null,
+          item: null,
+        },
+        {
+          placeholder: field.placeholder,
+          box: null,
+          live: ALIVE,
+          settle: null,
+          space: null,
         },
       ),
     ).toBeNull();
@@ -349,11 +413,15 @@ describe('the terminal barrier in the candidate loop', () => {
   });
 
   it('should read no placeholder geometry once the controller closes', () => {
-    // The half a stopped resolver list does not prove. The placeholder is the
-    // **consumer's** element and may override `getBoundingClientRect()`, so
-    // measuring the incumbent after the close is an indirect consumer call
-    // (I-36), not merely wasted layout work. `refresh` reports the abort and
-    // the axis returns before it measures.
+    // **It passes because a candidate remained**, and the reading before that
+    // candidate's `visual()` is what stops the rebuild — not because measuring
+    // the placeholder is itself forbidden after a close. Measuring a
+    // consumer-owned node is a platform read rather than a declared-slot
+    // invocation, so the property this pins is the *shortest* stop: a close
+    // raised inside the loop is caught before the next declared call, and the
+    // trailing placeholder read is never reached because the loop never
+    // finishes. Close on the **last** candidate and the rebuild completes, by
+    // design; that case is below.
     const field = createField(4);
     const asked: HTMLElement[] = [];
     let alive = true;
@@ -382,11 +450,11 @@ describe('the terminal barrier in the candidate loop', () => {
   });
 
   it('should leave the cache retired rather than clean and partial', () => {
-    // The half a `break` gets wrong. `destroy()` has already run `retire()` on
-    // this cache; falling through to the trailing bookkeeping would mark a
-    // half-filled index clean at the snapshot's own version, so the **same**
-    // version below would find it warm, skip the rebuild and keep pinning the
-    // rows of a destroyed controller (I-20).
+    // The half a `break` gets wrong. Teardown is deferred to the outermost
+    // transaction boundary, so at this instant the retire hooks have **not**
+    // run; falling through to the trailing bookkeeping would mark a half-filled
+    // index clean at the snapshot's own version, and the **same** version below
+    // would then find it warm, skip the rebuild and serve a partial buffer.
     const field = createField(4);
     const asked: HTMLElement[] = [];
     let alive = true;
@@ -414,20 +482,21 @@ describe('the terminal barrier in the candidate loop', () => {
 });
 
 /**
- * I-36's **indirect-invocation clause** (contract 05 I-36, C3-03 §3.2), on the
- * call the first two barrier passes stopped one step short of (C4-01).
+ * **A close raised from a candidate's own geometry read**, and what the rule is
+ * — and is not — obliged to do about it.
  *
- * The pre-C4-01 barrier stood between the `visual()` resolver and the
- * candidate's `getBoundingClientRect()`. That read is itself a consumer call —
- * the candidate is the consumer's element, and with no `visual()` composed it
- * is also its own visual — so a destroy raised from it fell through to the
- * write, to the next candidate's resolver, and, on the **last** candidate, to
- * the trailing bookkeeping that marks a retired cache clean and measured.
+ * The obligation is over **declared consumer slots**: `visual()` must not be
+ * invoked once the controller has closed. A candidate's
+ * `getBoundingClientRect()` is a platform member on a consumer-owned node, so a
+ * close raised from inside one is caught by the reading before the **next**
+ * `visual()` — which is the discriminating case, and the only one.
  *
- * The last candidate is therefore the discriminating one, and the cases below
- * use it: an earlier candidate's destroy was already caught by the next
- * iteration's reading. Every assertion is a call list on the instrumented
- * element; the frame is discarded upstream regardless.
+ * On the **last** candidate there is no next invocation, so nothing is owed and
+ * the rebuild completes: the buffer is whole, the placeholder is read once, and
+ * the cache is clean at a version whose data is right. The cases below pin that
+ * as the outcome. They previously pinned its opposite, against a whole-program
+ * ceiling on consumer calls that has since been withdrawn, and they are
+ * retargeted here rather than deleted so the reversal stays visible.
  */
 describe('the terminal barrier on candidate geometry', () => {
   /**
@@ -455,11 +524,11 @@ describe('the terminal barrier on candidate geometry', () => {
     }
   };
 
-  it('should read no placeholder geometry once the last candidate closed the controller', () => {
-    // No `visual()` composed — the composition the review named, and the one
-    // that could not abort at all before C4-01. The placeholder is
-    // consumer-owned, so measuring the incumbent after the close is a second
-    // indirect consumer call.
+  it('should still read the placeholder once the last candidate closed the controller', () => {
+    // No `visual()` composed, so this loop invokes **no** declared slot at all
+    // and takes no reading. The close arrives from the last candidate's own
+    // geometry read, nothing is owed after it, and the placeholder read that
+    // finishes the rebuild happens exactly once.
     const field = createField(4);
     const measured: HTMLElement[] = [];
     let alive = true;
@@ -476,16 +545,19 @@ describe('the terminal barrier on candidate geometry', () => {
       alive = false;
     });
 
-    expect(field.resolve(55, field.snapshot(), null, () => alive)).toBeNull();
+    expect(
+      field.resolve(55, field.snapshot(), null, () => alive),
+    ).not.toBeNull();
 
-    expect(anchorReads).toBe(0);
+    expect(anchorReads).toBe(1);
   });
 
-  it('should leave the cache retired after the last candidate closed the controller', () => {
-    // The trailing-bookkeeping half. Falling through would set
-    // `measured = version` and `dirty = false` on a cache `retire()` had just
-    // emptied, so the **same** version below would find it warm, ask for
-    // nothing, and keep pinning a destroyed controller's rows (I-20).
+  it('should leave the cache clean after the last candidate closed the controller', () => {
+    // The trailing-bookkeeping half, and it is now the completion that is
+    // pinned: the buffer is whole and correct, so marking it clean at this
+    // version is right, and the **same** version below finds it warm and asks
+    // for nothing. The rows it holds are released by the transaction boundary
+    // that runs the retire hooks, not by this loop.
     const field = createField(4);
     const measured: HTMLElement[] = [];
     let alive = true;
@@ -502,7 +574,7 @@ describe('the terminal barrier on candidate geometry', () => {
       return item;
     });
 
-    expect(asked).toEqual([field.items[1], field.items[2], field.items[3]]);
+    expect(asked).toEqual([]);
   });
 
   it('should resolve no further visual once a candidate closed the controller', () => {
@@ -532,10 +604,11 @@ describe('the terminal barrier on candidate geometry', () => {
   });
 
   it('should call no resolver at all when the controller is already closed', () => {
-    // The entry barrier. `settleDisplacement` runs the `beforeMove` hooks and
-    // `release.prepare` resolves immediately afterwards, so a rebuild can be
-    // entered on a controller that a hook already destroyed — and the first
-    // `getBox` of that rebuild would be a consumer call after `destroy()`.
+    // The entry barrier. A committed move invalidates on every failing path
+    // and `release.prepare` resolves immediately afterwards, so a rebuild can
+    // be entered on a controller that consumer code already destroyed — and the
+    // first `getBox` of that rebuild would be a consumer call after
+    // `destroy()`.
     const field = createField(4);
     const asked: HTMLElement[] = [];
 
@@ -552,5 +625,134 @@ describe('the terminal barrier on candidate geometry', () => {
     ).toBeNull();
 
     expect(asked).toEqual([]);
+  });
+});
+
+/**
+ * **`settle` is a declared consumer slot**, and the two sites that invoke it are
+ * pinned here.
+ *
+ * Membership is fillability rather than authorship: `SortableDisplacementInstaller`
+ * is published, so a third party can supply the sink, and neither the axis nor
+ * the cache can read which value a given composition passed. A shipped
+ * `layoutAnimation()` walk and a third-party one are indistinguishable at the
+ * call, so the invoker takes the reading either way.
+ *
+ * **The last candidate is what discriminates.** With a later candidate
+ * remaining, the reading before the next `box` already stops the rebuild and
+ * the sink is never reached; a fixture that closes early would pass with no
+ * barrier here at all.
+ */
+describe('the terminal barrier before the displacement sink', () => {
+  const closingOn =
+    (
+      target: HTMLElement,
+      close: () => void,
+    ): ((item: HTMLElement) => HTMLElement) =>
+    (item) => {
+      if (item === target) {
+        close();
+      }
+
+      return item;
+    };
+
+  it('should invoke no settle once the last candidate closed the controller', () => {
+    const field = createField(4);
+    let alive = true;
+    const settled: number[] = [];
+    const settle: DisplacementSettle = (_values, _items, count): void => {
+      settled.push(count);
+    };
+
+    // The scan itself completes — the close is raised on the last candidate, so
+    // no further `box` invocation is owed a reading — and what stops the sink
+    // is the reading taken immediately before it.
+    expect(
+      field.resolve(
+        55,
+        field.snapshot(),
+        closingOn(field.items[3]!, () => {
+          alive = false;
+        }),
+        () => alive,
+        settle,
+      ),
+    ).toBeNull();
+
+    expect(settled).toEqual([]);
+  });
+
+  it('should invoke settle once on a rebuild the controller survived', () => {
+    // The other direction, because a barrier that never lets the sink run is
+    // indistinguishable from one that works.
+    const field = createField(4);
+    const settled: number[] = [];
+    const settle: DisplacementSettle = (_values, _items, count): void => {
+      settled.push(count);
+    };
+
+    field.resolve(55, field.snapshot(), null, ALIVE, settle);
+
+    expect(settled).toEqual([3]);
+  });
+
+  it('should invoke no settle from a committed move once the probe read closed the controller', () => {
+    // The second site: the linear rule measures **one** crossed row to
+    // establish its constant, and settles that one-slot scratch through the
+    // sink. `box` runs on the probe first, so a resolver that destroys there
+    // must not be followed by a call into the sink.
+    const field = createField(4);
+    let alive = true;
+    const settled: number[] = [];
+    const settle: DisplacementSettle = (_values, _items, count): void => {
+      settled.push(count);
+    };
+
+    // Warm the cache and record the gap the buffer reflects, so the move below
+    // proposes a real span rather than being dropped as degenerate.
+    field.resolve(15, field.snapshot(), null, ALIVE, settle, gapAt(0));
+    settled.length = 0;
+
+    field.move(
+      2,
+      field.snapshot(),
+      closingOn(field.items[1]!, () => {
+        alive = false;
+      }),
+      () => alive,
+      settle,
+    );
+
+    expect(settled).toEqual([]);
+  });
+
+  it('should forget the prediction when the probe read closed the controller', () => {
+    // The stop is `#drop()`, not a bare `return`: a move that measured no
+    // constant has claimed nothing, and the cache it would have advanced is
+    // marked stale so the next rebuild measures instead of trusting it.
+    const field = createField(4);
+    let alive = true;
+    const asked: HTMLElement[] = [];
+
+    field.resolve(15, field.snapshot(), null, ALIVE, null, gapAt(0));
+    field.move(
+      2,
+      field.snapshot(),
+      closingOn(field.items[1]!, () => {
+        alive = false;
+      }),
+      () => alive,
+      (_values, _items, _count): void => {},
+    );
+
+    // Same version and nothing else invalidated: only a dropped prediction
+    // makes this rebuild rather than serve the warm buffer.
+    field.resolve(15, field.snapshot(), (item) => {
+      asked.push(item);
+      return item;
+    });
+
+    expect(asked).toEqual([field.items[1], field.items[2], field.items[3]]);
   });
 });

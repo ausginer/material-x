@@ -3,7 +3,7 @@
   "include": [
     "./src/**/*",
     "./bench/**/*",
-    "./docs/**/*",
+    "./.scripts/**/*",
     "./tests/**/*",
     "../../types.d.ts",
     "./files.json",
