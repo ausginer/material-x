@@ -558,3 +558,69 @@ it('should hold under Firefox app-unit geometry while displacement is in flight'
 
 - **Shipped build in Firefox.** A Firefox run of a `__DEV__ = false` build was not made. By construction the instrument is absent there, and the settled cache is off by at most `1/120` px, which no insertion decision can observe.
 - **The two other Firefox-sensitive readings of the same settle arithmetic.** These are the fold in `layoutAnimation().report` and `LinearShift.moved`'s one-row settle. They were not examined for user-visible effect. Both are sub-pixel by the same bound.
+
+---
+
+## Remediation check — reviewer-3 at `9598fc6d3`
+
+**Tree read:** `9598fc6d3` (`drag2/fin-review2`). The diff checked is `13ef14077..9598fc6d3`:
+
+- `src/sortable/rect-index.ts`: `slack` goes from `1/256` to `1/16`, with a derivation of the `4ε` bound;
+- `tests/sortable/g3-conformance.browser.test.ts`: `compose()` now takes feature fragments, and a new app-unit case is added;
+- `tests/COVERAGE.md`: one new row.
+
+The probes ran in a throwaway worktree, which has been removed. No implementation code was changed.
+
+**Verdict.**
+
+- **reviewer-3:** resolved in substance. It **stays open** on one outstanding item: a confirmation run in Firefox, which this pass could not make.
+- **reviewer-4 (new, below):** the remediation commit leaves the lint and format gates red.
+
+### The new test distinguishes the original defect
+
+The new case is _should predict every gap under app-unit geometry with a displacement in flight_. It rounds every rect to 1/60 px and freezes every displacement at 13 ms into a linear 160 ms slide, so the exact 39.50625 px offset reports as 39.5. It then sweeps down across every boundary and back.
+
+- **At `9598fc6d3`:** all 12 cases in the file pass.
+- **With `slack` put back to `1/256`, in the worktree only:** exactly this case fails, with the original error (`…disagreed with a full scan at slot 0; G3-linear does not hold for this list`). The other 11 pass.
+
+The test therefore fails for the original defect and passes on the fix.
+
+### Does `1/16` cover the measurement error while still rejecting bad layouts?
+
+I measured the margins directly, by recording every absolute difference the instrument compares, in the worktree only.
+
+- **Correct predictions.** The matrix was 120 drags, each down and back across every boundary, all on the 1/60 px grid with a displacement in flight:
+  - 15 frozen instants, 1–155 ms of a 160 ms linear slide;
+  - 4 row geometries: 43, 43.3 and 51.37 px uniform, and 70/55/30/90 px unequal;
+  - flex gaps of 0 and 8.4 px.
+
+  The largest difference was **0.0232 px**. That is inside the commit's derived bound `4ε = 1/30 ≈ 0.0333` px and 2.7× under the new slack. No drag raised an error.
+
+- **Violating layouts.** The two negative fixtures, a two-column grid and a wrapping flex row, were driven with and without app-unit rounding. Each was rejected, and the triggering difference was **100 px** (a whole cell) every time, 1600× the slack. Both negative cases in the committed file still pass, which means they are still rejected.
+- **The derivation.** The prediction is a cached reading plus a constant, where the constant is the difference of two readings of one row. That gives `3ε`. The rebuild's own reading adds `ε`, for `4ε`. This matches the measured worst case. `1/16` is the next power of two above `4ε` plus the `1e-5` terms.
+- **What it does not catch.** A G3-linear violation smaller than 1/16 px now passes silently. Every violation the contract names (wrapping, cellular layout, position-sensitive margin collapse) is wrong by a row or a margin, not by a fraction of a pixel, so this is recorded rather than raised.
+
+### reviewer-4 — the remediation commit leaves the lint and format gates red
+
+**Tier C.** Nothing a consumer sees. But the unit was handed off in a state the repository's own gates reject.
+
+- **Lint.** `npx just lint tests/sortable/g3-conformance.browser.test.ts` reports **2 errors**, both `@typescript-eslint/unbound-method`. They are the detached reads `Element.prototype.getBoundingClientRect` (`:382`) and `Element.prototype.animate` (`:383`).
+  - These are genuine rule hits, not formatting, and `lint-fix` cannot fix them.
+  - `handoff.md` says to list such errors rather than resolve them by hand, so **reporting them was procedurally correct**.
+  - The repository already has a convention for this exact pattern: `// eslint-disable-next-line @typescript-eslint/unbound-method` above the detached read (`tests/sortable/displacement.browser.test.ts:478`, `:575`; also `placement.browser.test.ts:168`, `features.browser.test.ts:1322`, `kernel/presentation.browser.test.ts:522`). Applying it is the implementer's step, not this pass's.
+- **Format.** `npx just fmt-check` fails on the same file. `function  getBoundingClientRect(` and `function  animate(` each carry a double space. This was **not** among the reported errors. It is also reproducible, and caused by the handoff order itself:
+  - oxlint's `func-names: ["error", "always"]` (`.oxlintrc.json:277`) autofixes an anonymous `function (` into `function  name(`, with the double space.
+  - `handoff.md` runs `fmt` **before** `lint-fix`, so a `lint-fix` autofix whose output is not format-clean survives into the commit.
+  - In the worktree, `fmt` on the committed file removes both double spaces, and a later `lint-fix` leaves them removed. Starting from anonymous functions, `fmt` then `lint-fix` reproduces the committed double space exactly.
+- **Routed to the owner, not answered here.** `handoff.md` already calls a lint rule that re-decides formatting "a defect in the gate rather than in the file". This is the mirror case: an autofix that emits unformatted output. Whether the fix is a closing `fmt` pass or a change to the rule's autofix is not decided here.
+
+### What remains unverified without a Firefox run
+
+The fix is verified against a **model** of Gecko's geometry: rounding to the nearest 1/60 px. That model rests on one real sample, the owner's log (`211.817 = 211 + 49/60`). What only Firefox can confirm:
+
+1. **Rounding, not snapping, across display settings.** The sample was one device-pixel ratio and zoom level. If Firefox snapped an in-flight transformed rect to **device pixels** at some DPR or zoom, the error would be up to half a device pixel (0.25 px at DPR 2, 0.5 px at DPR 1), far over `1/16`. The sample (`…49/60`, not a half-pixel) rules this out for the owner's setup only.
+2. **Real animation timing.** The test freezes animations. In Firefox the settle walk reads `getComputedTiming().progress` and the rect in the same task, and the model assumes both see the same animation time. That was not observed for compositor-driven animations.
+3. **Transformed or zoomed contexts in Firefox.** `ZoomedContext`, ancestor transforms (`space` not null), and authored `rotate`/`scale` rows were not driven in Firefox. The model predicts the same `ε` in viewport space.
+4. **The owner's end-to-end check.** No Firefox run of `9598fc6d3` exists. The confirming run is: repeated relocations in the `List` story (1→2, 1→3, 1→2→1, back and forth), with no "row returns to origin" and no `G3-linear` error.
+
+**Closure condition for reviewer-3:** item 4 passes in the owner's Firefox. If it does, items 1–3 stay recorded as untested ground, not open defects.
