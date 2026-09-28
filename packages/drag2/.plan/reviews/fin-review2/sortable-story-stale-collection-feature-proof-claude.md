@@ -268,3 +268,162 @@ The test therefore distinguishes the old behaviour from the fix, under both `y()
 - `oxlint` and `eslint` are clean on both changed source files.
 - `tsc -p tsconfig.json` reports nothing for either file.
 - **Not a defect:** the new `COVERAGE.md` row cites the `List` and `Grid` tests, but not the `CustomPlaceholder` one.
+
+---
+
+## Re-check after the owner's report — a failure that is still reproducible at `f5dfa9dca`
+
+The owner still sees failures in Storybook after the fix: sometimes one relocation succeeds, and only once per page reload. **reviewer-1's closure stands.** The stale-collection fault is gone on every mouse path tried. The re-check found a **separate, input-dependent** defect, reported below as **reviewer-2**. Whether it is the owner's failure depends on the owner's input device, which this pass does not know.
+
+**Tree read:** `f5dfa9dca`. Storybook (`:6006`) was confirmed to serve the fixed story module, `controller.invalidate()` present.
+
+### Mouse paths: no failure
+
+Each matrix below was run on the live story, with `onError` and `onEnd` injected into the served module so that failures are not silent. Every drag ended `accepted`, or `noop` when it returned home. None raised an error.
+
+- **Relocation patterns:**
+  - 1→2 and back, repeated four times in a row;
+  - 1→3;
+  - 1→2→1 and 1→3→1 within a single drag;
+  - 1→4→2 followed by 2→5;
+  - the last row dragged up two rows, then back down.
+- **Input environments:**
+  - Vitest with Playwright mouse input;
+  - the bare story iframe, with synthetic events and with a real Playwright mouse;
+  - the manager UI, with the story in its preview iframe.
+- **Stress variables:**
+  - 2, 10, 40 and 300 interpolated moves per waypoint;
+  - 0, 50, 150 and 300 ms between drags;
+  - device scale factors of 1, 1.25, 1.5 and 2;
+  - fractional row geometry (`line-height: 19.37px`, `padding-block: 12.3px`, `gap: 8.4px`, `font-size: 15.3px`);
+  - clicks, double-clicks and sub-threshold presses between drags.
+
+### reviewer-2 — any touch or pen drag cancels right after it activates
+
+**Tier A.** A correctly integrated consumer sees every touch or pen drag start and then cancel. The kernel is the defect, not the story: `List`, `CustomPlaceholder` and `Grid` are affected alike, and the proposed test below reproduces it without any story.
+
+#### Current behavior
+
+- **The listener.** At admission the kernel arms document-level listeners for `pointermove`, `pointerup`, `pointercancel` and `lostpointercapture` (`src/kernel/pointer.ts:22–46`, armed at `src/kernel/kernel.ts:975`). The only filter is `pointerId` (`kernel.ts:828`). Any `lostpointercapture` with that id, from **any** target, becomes `CANCEL_INTERRUPTED` (`kernel.ts:844–847`).
+- **The trigger.** At activation the kernel calls `root.setPointerCapture(pointerId)` (`kernel.ts:1256`, which D-17 makes kernel-owned on `root`).
+- **What touch and pen do.** For those pointer types the platform has already given the pressed element **implicit** capture. Moving capture to `root` fires `lostpointercapture` on the pressed element, and the event bubbles to the document. The kernel reads its own capture transfer as the pointer stream ending.
+- **Mouse is unaffected.** A mouse press has no implicit capture, so there is nothing to transfer.
+
+#### Evidence
+
+- **Live Storybook `List`, CDP `Input.dispatchTouchEvent`, no dispatch stubs.** Five of five drags ended `canceled`, and the order never changed. The same result held with `isMobile` on. The event trace for one drag:
+
+  ```text
+  pointerdown@SPAN                 (the handle glyph)
+  gotpointercapture@SPAN           implicit capture
+  lostpointercapture@SPAN  moves=4 placeholder present — activation moved capture to root
+  gotpointercapture@list
+  lostpointercapture@list  moves=5 placeholder gone — the kernel cancelled and released
+  pointerup@SPAN           moves=20
+  ```
+
+- **A Vitest fixture with a Playwright mouse.** It builds three 40 px rows and `y()`, with a commit that calls `invalidate()`. The same press-drag-release was run with and without a `pointerdown` listener on each row that calls `row.setPointerCapture(event.pointerId)`, which reproduces touch's implicit capture on a real mouse.
+  - Without the listener: `accepted`, order `bac`.
+  - With it: **`canceled`**, order `abc`.
+- **Coverage.** No existing test drives touch or pen. Every existing `lostpointercapture` row (`COVERAGE.md` §D-154) dispatches a synthetic event with capture stubbed, so implicit capture never occurs in the suite.
+
+#### Required property
+
+Only a loss of the operation's own capture ends the pointer stream: capture held by `root` for the operation's pointer. A capture transfer the kernel itself performs, from the element that held implicit capture to `root`, must not end the operation. This leaves D-154's classification (`pointercancel` and `lostpointercapture` as one `CANCEL_INTERRUPTED` origin) as it is. The dispute is only which `lostpointercapture` counts.
+
+#### Relation to the owner's symptom
+
+Unconfirmed. Touch or pen input would fail **every** drag in Chromium, including the first. The owner reports that one relocation sometimes succeeds. That could fit an engine or device whose capture-transfer timing differs, or a different cause. The next step is the owner's browser and input device (mouse, trackpad, touchscreen or pen; emulated or not).
+
+#### Proposed regression test (fails at `f5dfa9dca`)
+
+The proposed location is `tests/kernel/pointer-capture.browser.test.ts`, or the sortable suite. It uses real Playwright mouse input. The `pointerdown` listener stands in for the implicit capture that touch and pen get from the platform, which keeps the test independent of touch emulation.
+
+```ts
+import { afterEach, describe, expect, it } from 'vitest';
+import { commands } from 'vitest/browser';
+import '../support/browser-commands.ts';
+import { y } from '../../src/sortable/y.ts';
+import {
+  ReorderResolution,
+  type ReorderTransactionResult,
+  sortable,
+} from '../../src/sortable.ts';
+
+async function frame(): Promise<void> {
+  return await new Promise((resolve) => {
+    requestAnimationFrame(() => resolve());
+  });
+}
+
+const cleanup: Array<() => void> = [];
+
+afterEach(() => {
+  for (const dispose of cleanup.splice(0)) {
+    dispose();
+  }
+});
+
+describe('pointer capture held by the pressed element', () => {
+  it('should not cancel when activation moves implicit capture to the root', async () => {
+    const root = document.createElement('div');
+    root.style.cssText = 'position:absolute;left:0;top:0;width:200px;';
+    const rows = ['a', 'b', 'c'].map((id) => {
+      const row = document.createElement('div');
+      row.dataset['id'] = id;
+      row.style.cssText = 'height:40px;touch-action:none;';
+      // What a touch or pen press does implicitly.
+      row.addEventListener('pointerdown', (event) => {
+        row.setPointerCapture(event.pointerId);
+      });
+      root.append(row);
+      return row;
+    });
+    document.body.append(root);
+
+    let order = rows;
+    const ends: ReorderTransactionResult[] = [];
+    const controller = sortable(root, {
+      items: () => order,
+      axis: y(),
+      onEnd: (result) => void ends.push(result),
+      onReorder: (request) => {
+        order = order.filter((row) => row !== request.item);
+        order.splice(request.to, 0, request.item);
+        root.append(...order);
+        controller.invalidate();
+        return ReorderResolution.accept();
+      },
+    });
+    cleanup.push(() => {
+      void controller.destroy();
+      root.remove();
+    });
+
+    await commands.pointerPress(20, 20);
+    for (let dy = 4; dy <= 60; dy += 4) {
+      // oxlint-disable-next-line no-await-in-loop
+      await commands.pointerSweep(20, 20 + dy, 1);
+      // oxlint-disable-next-line no-await-in-loop
+      await frame();
+    }
+    await commands.pointerRelease();
+    for (let i = 0; i < 20; i += 1) {
+      // oxlint-disable-next-line no-await-in-loop
+      await frame();
+    }
+
+    expect(ends.map((end) => end.type)).toEqual(['accepted']);
+    expect(
+      [...root.children].map((child) => (child as HTMLElement).dataset['id']),
+    ).toEqual(['b', 'a', 'c']);
+  });
+});
+```
+
+The same test without the `pointerdown` listener passes at `f5dfa9dca`, so the listener is the whole difference. The test has not been run against a fix, because none exists yet.
+
+#### Not verified
+
+- **Free drag.** It shares this kernel path, so it is presumably affected as well. A touch probe of the `Free drag › Interactive` story was inconclusive: the probe's own locator failed to move the box even with a mouse.
+- **Other engines.** WebKit and Gecko were not available and were not driven.
