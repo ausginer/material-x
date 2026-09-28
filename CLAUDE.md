@@ -6,17 +6,7 @@ What follows is specific to this harness and adds no convention of its own.
 
 ## LSP
 
-Prefer LSP over grep for code-symbol tasks — definitions, references, types, call hierarchy. Grep is still right for plain-text and non-symbol searches.
-
-The LSP plugin is a deferred tool and can be unavailable. At the start of any code task, load it via ToolSearch and try it. If it errors, re-probe once, then fall back to grep.
-
-State both its availability and its actual use in every completion report, with exactly one of:
-
-- `LSP plugin - unavailable.`
-- `LSP plugin - available; used: <operations and purpose>.`
-- `LSP plugin - available; not used: <brief reason>.`
-
-Availability alone is not a report. For code-symbol work, an available-but-unused LSP requires an explicit reason.
+For code-symbol questions (definitions, references, types, call hierarchy), prefer LSP when it is available. If loading or using it fails, continue with another suitable tool and state what evidence supports the conclusion. Use text search for text and diff questions.
 
 ## Skills
 
