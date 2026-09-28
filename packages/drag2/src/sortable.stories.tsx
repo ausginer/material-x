@@ -52,12 +52,19 @@ type SortableDemoProps = Readonly<{
  *
  * The kernel proposes a reorder through the required, explicit `onReorder`
  * resolution. React owns the order state and commits it *inside that
- * resolution*, through `flushSync`, and only then returns `accept()`. There is
- * no declaration, no acknowledgement and no `useLayoutEffect`: the resolution
- * returning **is** the signal, because the commit is serial — release → freeze
- * proposal → `onReorder` → your commit → your resolution → the library restores
- * its presentation invariants → the authoritative landing measurement → landing
- * → terminal.
+ * resolution*, through `flushSync`; the handler then calls
+ * `controller.invalidate()` and returns `accept()`. There is no declaration, no
+ * acknowledgement and no `useLayoutEffect`, because the commit is serial —
+ * release → freeze proposal → `onReorder` → your commit → `invalidate()` → your
+ * resolution → the library restores its presentation invariants → the
+ * authoritative landing measurement → landing → terminal.
+ *
+ * The resolution settles *this* drop; it does not tell the controller the
+ * collection changed. `items()` is pulled at construction and afterwards only
+ * on `invalidate()`, so a commit that skips the call leaves every later drag
+ * running against the construction-time order: under `y()` the drag fails, and
+ * under `xy()` the drop lands wrong. `items()` returns a new array on each pull,
+ * which is the structural signal the call needs.
  *
  * That ordering is what makes the drop correct rather than merely lucky.
  * `onEnd` is terminal — it runs after the kernel has already released the lift
@@ -87,8 +94,8 @@ function SortableDemo({
 }: SortableDemoProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const [order, setOrder] = useState<readonly string[]>(labels);
-  // The live element list: the config's `items()` reads it and each commit
-  // signals `controller.invalidate()`.
+  // The live element list: the config's `items()` reads it, and `onReorder`
+  // signals `controller.invalidate()` after each commit.
   const elements = useRef(new Map<string, HTMLElement>());
   const orderRef = useRef(order);
   orderRef.current = order;
@@ -140,6 +147,10 @@ function SortableDemo({
           flushSync(() => {
             setOrder(next);
           });
+          // The committed order is what `items()` now returns, and the
+          // controller re-pulls it only when told. Without this every later
+          // drag runs against the order the controller was constructed with.
+          controller.invalidate();
           return ReorderResolution.accept();
         },
       },
