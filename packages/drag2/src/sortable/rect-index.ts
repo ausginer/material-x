@@ -612,17 +612,28 @@ export const verifyEquivalence = (
   index.refresh(snapshot, dragged, getBox, () => true, placeholder, settle);
 
   /**
-   * **One slack, and it is not a concession.** Two things reintroduce
-   * floating-point error of order `1e-5` px on a comparison that is otherwise
-   * the same arithmetic on the same readings: settling subtracts a held vector,
-   * and a row wearing an authored `rotate` has its bounding rect recomputed
-   * through a transform matrix, so translating that rect and re-reading it do
-   * not agree bit for bit. Both are five orders of magnitude below the smallest
-   * disagreement a broken rule produces — a rule that is wrong is wrong by a
-   * row — and authored presentation is supported in every composition, so the
-   * tolerance cannot be conditioned on the sink.
+   * **One slack, sized to the precision geometry is reported at.** A correct
+   * prediction and the rebuild disagree only by how inexact their readings are,
+   * and the largest source is the engine's own grid: Gecko reports a rect in
+   * app units, 1/60 px, including a row wearing a mid-animation `translate`. A
+   * settled reading is that rounded presented position minus an exact analytic
+   * offset, so it is off by up to half an app unit, `ε = 1/120` px.
+   *
+   * A predicted slot is a cached reading plus the constant, and the constant is
+   * the difference of two readings of one row, so the prediction carries up to
+   * `3ε`; the rebuild's own reading carries `ε` more. The bound is `4ε = 1/30`
+   * px. Below it sit error terms of order `1e-5` px: settling subtracts a held
+   * vector, and a row wearing an authored `rotate` has its rect recomputed
+   * through a transform matrix. The slack is the next power of two above the
+   * sum.
+   *
+   * It stays far below the smallest disagreement a broken rule produces,
+   * because a rule that is wrong is wrong by a row: a crossed item moved off
+   * the axis travels a row's extent, or nothing, where the rule predicted the
+   * other. Authored presentation and displacement are supported in every
+   * composition, so the tolerance is not conditioned on the sink.
    */
-  const slack = 1 / 256;
+  const slack = 1 / 16;
   const differs = (a: number, b: number): boolean => {
     const gap = a - b;
 

@@ -31,6 +31,7 @@
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import type { DraggableError, DraggableWarning } from '../../src/drag.ts';
+import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { xy } from '../../src/sortable/xy.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
@@ -100,7 +101,10 @@ type Shape = Readonly<{
   axis: SortableConfig['axis'];
 }>;
 
-function compose(shape: Shape): Field {
+function compose(
+  shape: Shape,
+  ...features: ReadonlyArray<Partial<SortableConfig>>
+): Field {
   const root = document.createElement('div');
 
   Object.assign(root.style, shape.container);
@@ -118,12 +122,16 @@ function compose(shape: Shape): Field {
 
   const errors: Array<DraggableError | DraggableWarning> = [];
   const current: readonly HTMLElement[] = items;
-  const controller = sortable(root, {
-    items: () => current,
-    axis: shape.axis,
-    onReorder: () => ReorderResolution.accept(),
-    onError: (error) => void errors.push(error),
-  });
+  const controller = sortable(
+    root,
+    {
+      items: () => current,
+      axis: shape.axis,
+      onReorder: () => ReorderResolution.accept(),
+      onError: (error) => void errors.push(error),
+    },
+    ...features,
+  );
 
   root.setPointerCapture = (): void => {};
   root.releasePointerCapture = (): void => {};
@@ -351,6 +359,82 @@ describe('G3-linear conformance', () => {
       [10, 130],
       [10, 210],
       [10, 120],
+      [10, 20],
+    ]);
+
+    expect(field.errors).toEqual([]);
+  });
+
+  /**
+   * **Geometry an engine reports quantized, while a displacement is in
+   * flight.** Gecko lays out and reports rects in app units — 1/60 CSS px — and
+   * that includes a row wearing a mid-animation `translate`, so the presented
+   * position the settle walk subtracts its analytic offset from is off by up to
+   * half an app unit. The prediction is right; the rebuild it is compared with
+   * is only as exact as the reading.
+   *
+   * Reproduced deterministically rather than by timing: every rect is rounded
+   * to the app-unit grid, and every animation is frozen at one off-grid
+   * instant. At 13 ms into a linear 160 ms displacement of 43 px the exact
+   * offset is 39.50625 px and the engine reports 39.5.
+   */
+  it('should predict every gap under app-unit geometry with a displacement in flight', async () => {
+    const nativeRect = Element.prototype.getBoundingClientRect;
+    const nativeAnimate = Element.prototype.animate;
+    const appUnit = (v: number): number => Math.round(v * 60) / 60;
+
+    Element.prototype.getBoundingClientRect = function  getBoundingClientRect(
+      this: Element,
+    ): DOMRect {
+      const rect = nativeRect.call(this);
+      const left = appUnit(rect.left);
+      const top = appUnit(rect.top);
+
+      return new DOMRect(
+        left,
+        top,
+        appUnit(rect.right) - left,
+        appUnit(rect.bottom) - top,
+      );
+    };
+    Element.prototype.animate = function  animate(
+      this: Element,
+      ...args: Parameters<Element['animate']>
+    ): Animation {
+      const animation = nativeAnimate.apply(this, args);
+
+      animation.pause();
+      animation.currentTime = 13;
+
+      return animation;
+    };
+    cleanup.push(() => {
+      Element.prototype.getBoundingClientRect = nativeRect;
+      Element.prototype.animate = nativeAnimate;
+    });
+
+    const field = compose(
+      {
+        container: { width: '200px', display: 'block' },
+        sizes: [0, 1, 2, 3].map(() => ({
+          display: 'block',
+          width: '100px',
+          height: '43px',
+        })),
+        axis: y(),
+      },
+      layoutAnimation({ duration: 160, easing: 'linear' }),
+    );
+
+    // Down across every boundary and back, so the constant is measured off a
+    // row in flight and then reused against rows in flight.
+    await sweep(field, [
+      [10, 30],
+      [10, 60],
+      [10, 100],
+      [10, 145],
+      [10, 100],
+      [10, 60],
       [10, 20],
     ]);
 
