@@ -427,3 +427,134 @@ The same test without the `pointerdown` listener passes at `f5dfa9dca`, so the l
 
 - **Free drag.** It shares this kernel path, so it is presumably affected as well. A touch probe of the `Free drag › Interactive` story was inconclusive: the probe's own locator failed to move the box even with a mouse.
 - **Other engines.** WebKit and Gecko were not available and were not driven.
+
+---
+
+## The owner's Firefox failure — identified
+
+The owner narrowed the failure to Firefox and ran the `List` story there with temporary diagnostic logging, which is now reverted. The input was a trusted mouse pointer (`pointerType: "mouse"`), so **reviewer-2 (touch and pen) is not this failure** and stands on its own. The log identifies a third finding.
+
+**Tree read:** `c6c8364dc`, plus uncommitted logging that was removed after the run.
+
+### reviewer-3 — the `DEV` G3-linear instrument rejects correct predictions in Firefox
+
+**Tier B.** No shipped behaviour changes, because `DEV` folds to `false` in the published bundle and the instrument is dropped with it. Two things break:
+
+- **The instrument is unsound.** It is the whole of G3-linear enforcement, and in Firefox it produces false positives. Every development build and every Storybook session fails drags there.
+- **A documented assumption is false.** The comment justifying the slack (`src/sortable/rect-index.ts:615–625`) says the only error sources are of order `1e-5` px. In Firefox that does not hold.
+
+#### What the log shows
+
+The owner's first drag failed at the first committed move:
+
+1. `shift.moved` measured the constant, with `Drafts` moving from 221 to 167 (`delta −54`). It advanced slot 0 to top 167, and `layoutAnimation()` started a `translate` of `+54` px on `Drafts`, decaying to zero.
+2. On the next spatial frame, `LinearShift.refresh` ran `verifyEquivalence`, which rebuilt the cache by full scan:
+   - Firefox reported `Drafts`, mid-animation, at `top = 211.817`. That is exactly `211 + 49/60`, a whole number of 1/60 px units.
+   - The sink's settle walk subtracted the analytically computed offset, `54 × remaining` with `remaining = 0.83` (progress 0.17 at `currentTime` 17 ms).
+   - The rebuild therefore produced a settled top of `167.004`.
+3. The prediction was `167`. The difference, about `0.004` px, exceeds `slack = 1/256 ≈ 0.0039` px. The instrument threw `…disagreed with a full scan at slot 0; G3-linear does not hold for this list`. It was classified at `FAILURE_ACTION_PREPARE` (stage 4), and the operation ended `canceled` with that error as its reason.
+
+**Mechanism.** Firefox reports layout geometry in **app units** (1/60 CSS px), and that includes an element carrying an in-flight transform. The exact presented position at that instant was `167 + 54 × 0.829864 ≈ 211.8127`, and Firefox rounded it to the nearest 1/60 px, `211.8167`. The settle walk assumes the reported rect is the exact presented position. It is exact in Chromium, which is why every Chromium run in this report passed. In Firefox the rounding error can reach `1/120 ≈ 0.0083` px, more than twice the slack.
+
+- **Why it is intermittent.** The rounding error depends on the animation's progress at the instant of the rebuild. Whether a given committed move trips the instrument is timing-dependent, and the error exceeds the slack at roughly half of all instants. That matches "sometimes one relocation works".
+- **When it cannot happen.** The failure needs a displacement contribution in flight during a rebuild, so `layoutAnimation()` must be composed and a committed move must have just occurred. Without displacement, every position the scan reads is a whole number of app units and the prediction matches exactly. `xy()` has no instrument.
+
+#### Evidence
+
+- **The owner's Firefox log.** It shows the sequence above, including the `verify.MISMATCH` dump: predicted slot 0 `[506.667, 167, 866.667, 213, …]` against scanned `[506.667, 167.004, 866.667, 213.004, …]`, with every other slot and the hole identical.
+- **Arithmetic.**
+  - `211.817 × 60 = 12709.02`, so the reported value is the nearest 1/60 px step.
+  - Backing out the exact presented top from the logged settled value gives `211.8127`, a rounding error of `0.0040` px.
+- **A deterministic Chromium fixture.** Four 43 px rows, `y()` plus `layoutAnimation({ duration: 160, easing: 'linear' })`. Every displacement animation is paused at `currentTime = 13` so the result does not depend on frame timing. The first boundary is dragged across with Playwright mouse input.
+  - With exact geometry: `onError` stays empty.
+  - With `getBoundingClientRect` rounded to 1/60 px, which is Firefox's reporting granularity: `onError` receives the G3-linear error.
+  - At that instant the exact offset is `43 × 147/160 = 39.50625` px, which reports as `39.5`, an error of `0.00625` px.
+
+#### Required property
+
+The instrument must not reject a prediction that is correct to within the precision the engine reports geometry at. In practice: comparing a settled rebuild against a prediction must tolerate Firefox's 1/60 px rounding of a transformed element's rect. Otherwise the instrument must not rely on analytic settling of reported geometry that the engine has quantized. Loosening it must not hide a real violation; the negative fixtures in `tests/sortable/g3-conformance.browser.test.ts` are wrong by a row, not a fraction of a pixel.
+
+#### Proposed regression test (fails at `c6c8364dc`)
+
+This belongs in `tests/sortable/g3-conformance.browser.test.ts`, beside the positive cases. Run as written, the quantized case fails with the G3-linear error, and the same body without the `getBoundingClientRect` override passes.
+
+```ts
+it('should hold under Firefox app-unit geometry while displacement is in flight', async () => {
+  const nativeRect = Element.prototype.getBoundingClientRect;
+  const nativeAnimate = Element.prototype.animate;
+  const appUnit = (v: number): number => Math.round(v * 60) / 60;
+
+  // Firefox reports geometry in app units: 1/60 CSS px.
+  Element.prototype.getBoundingClientRect = function (this: Element): DOMRect {
+    const r = nativeRect.call(this);
+    const left = appUnit(r.left);
+    const top = appUnit(r.top);
+    return new DOMRect(
+      left,
+      top,
+      appUnit(r.right) - left,
+      appUnit(r.bottom) - top,
+    );
+  };
+  // Every displacement frozen at one off-grid instant, so the result does not
+  // depend on frame timing.
+  Element.prototype.animate = function (
+    this: Element,
+    ...args: Parameters<Element['animate']>
+  ): Animation {
+    const animation = nativeAnimate.apply(this, args);
+    animation.pause();
+    animation.currentTime = 13;
+    return animation;
+  };
+  cleanup.push(() => {
+    Element.prototype.getBoundingClientRect = nativeRect;
+    Element.prototype.animate = nativeAnimate;
+  });
+
+  const root = document.createElement('div');
+  root.style.cssText = 'position:absolute;left:0;top:0;width:200px;';
+  const rows = ['a', 'b', 'c', 'd'].map(() => {
+    const row = document.createElement('div');
+    row.style.height = '43px';
+    root.append(row);
+    return row;
+  });
+  document.body.append(root);
+
+  const errors: Array<DraggableError | DraggableWarning> = [];
+  const controller = sortable(
+    root,
+    {
+      items: () => rows,
+      axis: y(),
+      onError: (error) => void errors.push(error),
+      onReorder: () => ReorderResolution.accept(),
+    },
+    layoutAnimation({ duration: 160, easing: 'linear' }),
+  );
+  cleanup.push(() => {
+    void controller.destroy();
+    root.remove();
+  });
+
+  // Real input (`commands` from 'vitest/browser', plus the
+  // `../support/browser-commands.ts` side-effect import); this file's own
+  // `press`/`pointerEvent` helpers work the same way.
+  await commands.pointerPress(20, 20);
+  for (let dy = 4; dy <= 40; dy += 4) {
+    // oxlint-disable-next-line no-await-in-loop
+    await commands.pointerSweep(20, 20 + dy, 1);
+    // oxlint-disable-next-line no-await-in-loop
+    await nextFrame();
+  }
+  await commands.pointerRelease();
+
+  expect(errors).toEqual([]);
+});
+```
+
+#### Not verified
+
+- **Shipped build in Firefox.** A Firefox run of a `__DEV__ = false` build was not made. By construction the instrument is absent there, and the settled cache is off by at most `1/120` px, which no insertion decision can observe.
+- **The two other Firefox-sensitive readings of the same settle arithmetic.** These are the fold in `layoutAnimation().report` and `LinearShift.moved`'s one-row settle. They were not examined for user-visible effect. Both are sub-pixel by the same bound.
