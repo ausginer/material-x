@@ -221,3 +221,50 @@ The `Grid` case is included deliberately. It fails **without** any instrument, w
 #### Incidental observation (not a finding of this pass)
 
 `tests/sortable/g3-conformance.browser.test.ts:192` says the instrument _"throws through `FAILURE_INVALIDATION`"_. The stage observed here for a throw from a spatial resolve is `FAILURE_ACTION_PREPARE` (4). This was not investigated further.
+---
+
+## Closure check — reviewer-1 at `fb9ddd6f1`
+
+**Verdict: closed.** No remaining defect in scope. The activation re-pull question is still routed to the architect and was not checked here.
+
+**Tree read:** `fb9ddd6f1` (`drag2/fin-review2`). The diff checked is `5efc494bb..fb9ddd6f1`, which touches `src/sortable.stories.tsx`, `README.md`, `tests/COVERAGE.md` and the new `tests/sortable/stories.browser.test.ts`.
+
+### Against D-44
+
+- **The call.** `SortableDemo`'s `onReorder` now commits through `flushSync`, then calls `controller.invalidate()`, then returns `accept()`.
+- **Pull sites.** `items()` is still pulled in exactly two places: at construction (`src/sortable/behavior.ts:114`) and in the invalidation prepare (`src/sortable/spec.ts:1071`). The new prose, _"pulled at construction and afterwards only on `invalidate()`"_, is accurate.
+- **The structural signal.** The story's `items()` maps and filters, so it returns a new identity on every pull. That identity is what takes the structural branch. The story invalidates only after a commit, so the fresh-array pattern never costs a spurious reconcile here.
+
+### Timing during settlement
+
+`onReorder` runs at `RELEASING` or later, so the invalidation's prepare takes the `phase >= RELEASING` branch (`spec.ts:1117`). That branch publishes the new snapshot without rewriting the operation's frozen one, and it cannot stage a cancel.
+
+I checked this with a scratch copy of the fixed story that recorded `onEnd`/`onError`, over three consecutive drags in `List` and in `Grid` with real Playwright input:
+
+- **Terminals.** Every terminal was `accepted`, and there was no `onError`.
+- **Snapshot versions.** Each drop's `proposal.snapshot` kept the version it was resolved against (0, 1, 2). Each published snapshot advanced the version by exactly one per commit.
+- **Requests.** Every request's neighbours were the committed DOM neighbours.
+- **Settled state.** The dragged row settled in its slot with its inline style cleared, and no placeholder was left behind.
+
+### The reproduced failure
+
+The new test runs `List`, `CustomPlaceholder` and `Grid`, dragging twice in each. It passes all three at `fb9ddd6f1`.
+
+The same test was pointed at a scratch copy of the pre-fix story (`5efc494bb`) and fails all three with the original signatures:
+
+- `List` and `CustomPlaceholder` stay at `Drafts,Sent,Archive,Inbox,Spam`;
+- `Grid` stays at `2,3,1,…`.
+
+The test therefore distinguishes the old behaviour from the fix, under both `y()` and `xy()`.
+
+### Reference prose
+
+- **The story docblock.** It now places `invalidate()` in the serial sequence, and it states the consequence of omitting the call under each axis rule.
+- **The inline comments.** They now describe what the code does.
+- **`README.md:32`.** It names the call, cites D-44, and states why the call is required. The phrase _"three statements"_ counts `flushSync`, `invalidate()` and `accept()`, not the handler's literal statement count. That reading is interpretive, not wrong.
+
+### Hygiene
+
+- `oxlint` and `eslint` are clean on both changed source files.
+- `tsc -p tsconfig.json` reports nothing for either file.
+- **Not a defect:** the new `COVERAGE.md` row cites the `List` and `Grid` tests, but not the `CustomPlaceholder` one.
