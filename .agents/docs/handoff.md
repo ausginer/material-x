@@ -6,11 +6,16 @@
 
 The `fmt`, `lint-fix`, `typecheck` and other recipes live in each package's own `Justfile`, so run them from the relevant package directory (`packages/core`, `packages/tproc`, `packages/material-x`, or another workspace). Paths passed to them are relative to that package.
 
-Every edited `.ts`, `.tsx`, `.css` or `.html` file, and every created or updated Markdown file:
+Every edited `.ts`, `.tsx`, `.css` or `.html` file, and every created or updated Markdown file, in this order:
 
-- format with `npx just fmt <changed files>`;
-- lint and autofix with `npx just lint-fix <changed files>`. If autofix fails for a file, list it — do not resolve lint errors by hand; report them and continue. **One tool decides formatting, and a lint rule may not re-decide it.** `just fmt` is the authority; a lint rule that reports formatting is a second formatter, and where two formatters disagree there is no state this sequence can reach. A formatting diagnostic surviving `lint-fix` on a file `fmt` calls correct is therefore a defect in the gate rather than in the file — report it as one, and do not hand-edit the file to satisfy the linter against the formatter.
-- typecheck with `npx just typecheck`. This checks all packages. Ignore errors in files you did not touch, unless your change caused them.
+1. lint and autofix with `npx just lint-fix <changed files>`;
+2. format with `npx just fmt <changed files>`;
+3. confirm with `npx just lint <changed files>`. If an error survives, list it — do not resolve lint errors by hand; report them and continue;
+4. typecheck with `npx just typecheck`. This checks all packages. Ignore errors in files you did not touch, unless your change caused them.
+
+**`fmt` runs after `lint-fix` because an autofix is a writer too, and its output need not be formatted.** oxlint's `func-names` autofix turns an anonymous `function (` into `function  name(` with a double space. Run `fmt` first and that output reaches the commit. Run it last and it cannot: the file's final formatting is whatever `fmt` wrote. Step 3 re-reads the file `fmt` produced, so a lint result is never taken from a state that was later rewritten.
+
+**One tool decides formatting, and a lint rule may not re-decide it.** `just fmt` is the authority; a lint rule that reports formatting is a second formatter, and where two formatters disagree there is no state this sequence can reach. A formatting diagnostic surviving at step 3 on a file `fmt` calls correct is therefore a defect in the gate rather than in the file — report it as one, and do not hand-edit the file to satisfy the linter against the formatter.
 
 Two things that catch people out:
 
