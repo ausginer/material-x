@@ -2298,6 +2298,18 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-09-29 — O-6 closed: the kernel stays one state machine, three extraction candidates are named and none is approved (D-199, F-432)
+
+**The owner's call, and the record behind it.** Record [`kernel-shape-o6-claude.md`](reviews/architecture/kernel-shape-o6-claude.md), at `9dcb62e1a`. O-6 had waited on a human judgment since the maintainability entry. The judgment is that `Kernel` is not split along its handlers. **The file's length was the wrong quantity to watch.** Across every commit that touched it, the code stayed between 1,085 and 1,280 non-blank lines, while the comments grew from 441 to 1,257. The code actually shrank by 146 lines in the last interval, when the bracket, the transaction and the records were consolidated.
+
+**The rule is written down, and it separates a mechanism from a decision.** A piece leaves the kernel only if it touches no kernel field, decides nothing about when foreign code runs, has a peer module, and carries a measured composition figure whose cost is justified. Landing-tail ownership, resolution-attempt state, liveness guards and callback ordering are named as staying. Three mechanisms pass on reading — spec validation, the click suppressor's listener, and the tail's keyframes — and **none is approved**. A candidate becomes an extraction only through an amendment of D-199 that records its figure.
+
+**The teardown deduplication was checked before it was recommended, and its obvious form fails.** `#retireOperation(null)` returns before dropping the records when no behavior is armed, whereas physical teardown drops them unconditionally. On every path but one no operation can exist there. The exception is an `arm()` that fails after its `pointerdown` listener is attached, with foreign code dispatching in between. There the operation's lifetimes are never disposed by either route (F-432, left open under [`CONTRIBUTING.md`](../../../CONTRIBUTING.md) §1.1), and the unconditional drop is all that teardown does to it. D-199 therefore approves the deduplication only with the drop kept unconditional, as a required property.
+
+**The comment pass is scoped by kind, not by count.** It fixes counts and relative positions that decay, history narration, arguments against code that is not there, and restatements. It keeps every local ordering proof. It has no line target and moves nothing wholesale into this record. Both approved units are booked to Remediation under one witness, and the deduplication lands first.
+
+---
+
 ### 2026-09-10 — root verification covers the repository: every declaring package in `test` and `size`, every file outside `packages/` in `fmt` and `lint`, and the closure round's six residues repaired (F-426…F-431)
 
 **`test` and `size` are root verification, and the selectors now say so.** The question closure-4 put to the owner was whether the two targets belong to it at all; the answer is that they do, and that `drag2` participates like any other package. Root `test` names the **seven** projects declaring the script — box-quad, core, tproc, drag, drag2, vite-traits-plugin, material-x — against four before; root `size` names the **four** — box-quad, core, drag, drag2 — against two. **Every root verification selector now names every project that declares its script**, which is the claim F-292's closure sentence made while `test` and `size` contradicted it; the sentence is struck to what was true and re-closed on the wider call.

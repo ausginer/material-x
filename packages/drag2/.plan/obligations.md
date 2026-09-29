@@ -60,14 +60,6 @@ Nothing below is decided by this register. Each row states what is owed and what
 
 **Waiting for:** **An owner's answer, not a repair.** Re-read here rather than closed: the missing matrix row is bookkeeping, but what the row would assert is not settled, and choosing a recovery for a reorder rejected against a moved home is a semantic decision this pass declines to make locally
 
-#### O-6
-
-**Whether `kernel/kernel.ts` should be split.** 2 468 lines against the 1 971 that prompted M-02; its duplicated-SPI half is closed
-
-**Owed by:** M-02
-
-**Waiting for:** **A judgment, and the human owner's.** M-02's own disposition was that _mechanical splitting before those decisions is not warranted_, and the decisions it named have all since been taken — so splitting is now live, buys navigation and risks nothing else. Not made on the last day of agent ownership
-
 #### O-7
 
 **F-80's four API divergences** between the contract and the shipped surface
@@ -159,6 +151,12 @@ Nothing below is decided by this register. Each row states what is owed and what
 **Disposition:** **Withdrawn unsatisfied, 2026-08-22, by the owner.** The required before/after measurement belonged to the deletion's landing window, and that window was missed: Phase R landed the deletion and nobody took the numbers. **The check is not satisfied and must not be described as satisfied**, and no later measurement substitutes for it — a figure taken against any subsequent tree answers a different question, which is precisely what the check's own wording forbids. What is withdrawn is the **lost historical falsifier**; **D-56 itself remains accepted**, on its argument. Four records — `phase-21.md`, `m3-prime.md`, `m2-prime.md`, `m5.md` — each handed this back rather than take it, and this row is where it stops being handed on
 
 ## Discharged here
+
+#### O-6
+
+**Whether `kernel/kernel.ts` should be split.** 2 468 lines against the 1 971 that prompted M-02; its duplicated-SPI half is closed
+
+**Disposition:** **Discharged 2026-09-29 by D-199, on the owner's call, and the answer is no.** `Kernel` stays one state machine in one class. The quantity both triggers measured was mostly prose: from `c87ad854f` to `bfd2832db` the code stayed between 1,085 and 1,280 non-blank lines while the comments grew from 441 to 1,257. The handlers share `#private` state whose non-null assertions are sound because of statement order inside the class. D-199 records the rule under which a _mechanism_ may still leave the kernel, names three candidates without approving any, approves one deduplication and one focused comment pass, and books both to Remediation with a witness. **Asking at the close** (rule (b)): nothing else was booked to this row, and F-432, which the pass raised, is an open finding rather than an obligation. Record [`kernel-shape-o6-claude.md`](reviews/architecture/kernel-shape-o6-claude.md)
 
 #### O-13
 

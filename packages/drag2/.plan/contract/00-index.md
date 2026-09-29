@@ -2321,6 +2321,59 @@ So the reachable shape is a behavior action dispatched while idle whose `prepare
 
 **Touches:** supersedes D-195, carrying the single-authority rule, its argument, its harm and its scope boundary forward and reversing none; widens the booked repair to both `prettier/prettier` rule sites and names the masking that hid the second (F-424); ~~scopes the `handoff.md` clause to the files a package's `fmt` owns and names root-level Markdown as the exception~~ states the `handoff.md` clause with no scope and no exception, over every file a formatting recipe writes; changes no drag2 source, test or measurement; requires no change to `CONTRIBUTING.md`
 
+#### D-199
+
+**Unimplemented (Remediation).** **Decided 2026-09-29, on the owner's instruction. `Kernel` stays one state machine in one class, and `src/kernel/kernel.ts` is not split along its handlers.** Discharges O-6. Record [`kernel-shape-o6-claude.md`](../reviews/architecture/kernel-shape-o6-claude.md), at `9dcb62e1a`.
+
+**What stays in the kernel, named because each looks separable and is not.** Every handler over the committed phases stays, and so do these four:
+
+- **Landing-tail ownership.** `#tail`; when a tail is cancelled, which is before the origin measurement at activation and at teardown; and whether and when one starts, which is `#startTail`'s guards and the `landingTail` policy call.
+- **Resolution-attempt state.** `#attempts`, the attempt `#openResolution` mints, and `#settleResolution`'s latch. The thenable subscription stays with them, because every exit from it is a completion of that attempt.
+- **Liveness guards.** Every re-validation after a call into behavior or consumer code, and the named predicates built from them.
+- **Callback ordering.** Which behavior or consumer slot runs, in what order, and relative to which commit.
+
+**Why the class is not split.** Since `c87ad854f` the code has stayed between 1,085 and 1,280 non-blank lines, while the comments grew from 441 to 1,257. The file sizes M-02 and O-6 were triggered by were therefore mostly prose, and a split would move that prose around without reducing it. The handlers share `#private` state, and the non-null assertions over it are sound because of statement order inside the class. A split would have to expose that state or pass a context object between modules ([`CONTRIBUTING.md`](../../../../CONTRIBUTING.md) §2.2, §9), and in either case the ordering proofs would cross module boundaries. The one change that would really shrink the guard mesh is deferring consumer callbacks to the drain boundary. That would change `destroy()`'s synchronous barrier and `onStart`'s synchronous cancel, so it is a contract change and is not decided here.
+
+**The extraction rule.** A mechanism may leave the kernel only if it has a clear independent boundary, which means all three of these hold:
+
+- **(a)** It reads and writes no kernel field. What it needs arrives as arguments, and what it produces leaves as a return value.
+- **(b)** It decides nothing about whether or when kernel, behavior or consumer code runs. The kernel makes that decision at the call site, and any foreign call inside the mechanism runs under the guard the caller hands it, the way `acquireLift` takes `unwind`.
+- **(c)** It has a peer module that already owns mechanisms of the same kind, so moving it does not create a module for one function.
+
+**And its bundle cost must be justified.** Its composition figure is measured on every `bench/size` row that carries the kernel (§15), and a positive figure needs a stated reason beyond moving lines. `armPointerInput`, `armCancelInput`, `acquirePointerCapture`, `acquireLift` and `thenOf` already meet this rule.
+
+**Candidates, not approved extractions.** Three mechanisms meet (a)–(c) on reading, and none has a figure yet:
+
+- **Static spec validation in `arm()`**, which would sit beside the spec types. `arm()` keeps running it before the first latch test.
+- **The click suppressor's listener**, which would move to `pointer.ts`. The kernel keeps `#disarmClick`, the arm point at the threshold crossing, and both disarm points. Today the listener clears the slot from inside itself, and a moved listener cannot. The amendment approving the move must therefore say either that the slot may hold a disarm that has already fired (sound, since calling it does nothing) or that the kernel keeps the clearing.
+- **The tail's keyframes** — the projection through `visualSpace` and the `animate` call — which would move to `presentation.ts`. This is the narrowest candidate, because everything that decides whether a tail exists stays in the kernel.
+
+**A candidate becomes an approved extraction only through an amendment of this decision that records its figure.** Until then nothing moves, and nothing is booked below. Two further pieces were examined and are retained: the thenable subscription, because it is resolution-attempt state and ordering, and `#acquireActivation`, because it is an ordering proof.
+
+**Approved: remove the teardown duplicate, in a form that keeps the clearing.** `#runPhysicalTeardown` repeats steps 3–6 of `#retireOperation`. Routing teardown through `#retireOperation(null)` is refused. That method returns before dropping the records when no behavior is armed, whereas teardown drops them unconditionally today. On every path but one the difference cannot be observed, because no operation can exist without an armed spec. The exception is F-432's path, where dropping the records is the only thing teardown does to that operation. **Required properties:**
+
+1. Steps 3–6 are written once.
+2. Both records are dropped on every path through physical teardown, including when no behavior is armed.
+3. When a behavior is armed, the records are dropped after the frame resets, which is the order both routes rely on today.
+4. The path with no armed behavior reads no frame.
+5. Step 7 stays unconditional, inside a `finally`.
+6. A stale retirement stays a no-op.
+
+The composition figure is recorded when this lands.
+
+**Approved: a focused comment pass over `src/kernel/kernel.ts`, after the deduplication.** In scope:
+
+- counts and relative positions that an unrelated edit can falsify, restated as the property they count or as the sites they name;
+- history narration, which the rule on comments forbids;
+- passages arguing against code that is not there, shortened in place to the invariant they protect wherever the code can be read without them;
+- restatements of reasoning already given at the member they cite.
+
+**Local ordering proofs are kept without exception:** the premises of the non-null assertions, the order in which records are dropped, the reason for each `finally`, both halves of the double validation, the pre-lift measurement window, the queue-order argument for exactly one `onEnd`, and the order in which `arm()` publishes. **There is no target line count.** Nothing is moved wholesale into `.plan/`. A passage leaves the source only if the code can be read without it, and it goes into the record only if it carries decision reasoning the record does not already hold. The pass moves no runtime statement, checked by hashing the file with comments and blank lines stripped, before and after.
+
+**Order and witness.** The deduplication lands first and the comment pass last. The witness is the history-narration sentence the comment pass removes, because the witness must be falsified by the last step. `plan.md` records when the deduplication lands.
+
+**Touches:** discharges O-6, which is also M-02's control-flow half. Records F-432 and does not decide it. Approves no extraction. Keeps the attempt slots on the kernel, consistent with D-168 and D-181, and reopens neither. Changes no contract, published surface, SPI or behavior.
+
 ### Decisions not yet implemented
 
 **The artifact F-63 asked for** (K-5). D-34 and D-35 were stated in the present tense by three contract documents and were not in the code, across a checkpoint and a whole revision, with every suite green — because a green suite is evidence about the _implemented_ contract only, and nothing in the repository compared a decision booked to a later phase against the code that had not implemented it. Phase 18 found them by reading, which is the discovery this table exists to make unnecessary.
@@ -2332,7 +2385,8 @@ So the reachable shape is a behavior action dispatched while idle whose `prepare
 Two witness forms, both source-level: `absent: <path>` — the path does not exist — and `present: <path> :: <text>` — the file still contains the thing the decision replaces.
 
 | Decision | Lands | What is missing | Witness |
-| -------- | ----- | --------------- | ------- |
+| --- | --- | --- | --- |
+| D-199 | Remediation | the teardown deduplication with unconditional record drops, then the focused comment pass over the kernel | present: `src/kernel/kernel.ts` :: `since the gate went` |
 
 **The twenty-sixth cycle opened and closed on 2026-09-09**, and the row was the first this table has carried whose witness was chosen **after** the obvious one was shown to retire too early. D-191's witness — `omitted for the whole kernel arc series` in [`bench/size/measure.ts`](../../bench/size/measure.ts) — retired when the five suspended `control:` equalities were restored, which is the last of the arc's four steps and the one act its close performs. **Worth recording about the row**: F-407 is the finding that put it there. The inherited witness named the declaration of `snapshot` on `InsertionRuntimeView`, which stops holding at step 3 of four — and since steps 2 and 3 are separate commits, the instrument would have demanded the row deleted and the `Unimplemented` marker removed while the measurement, the record and the act that fires O-13 were all still outstanding. **The general rule it leaves behind**: a witness has to be falsified by the decision's _last_ step, and for a multi-step arc that is not automatically the step touching the type the decision is named after. Where the last step is not a source change at all — a measurement, a close — the row says which source fact stands in for it, and here one did: restoring an instrument is a source act even though closing a series is not.
 
@@ -2604,6 +2658,7 @@ The eighteen `inactive` rows are the ones whose live residue is empty: **D-7** (
 | D-196    | active   |
 | D-197    | active   |
 | D-198    | active   |
+| D-199    | active   |
 
 ## Findings
 
@@ -4831,6 +4886,16 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 **Required property.** The formatting gate is reachable: for every file it checks, some `fmt` run leaves `fmt-check` green.
 
 **Repaired 2026-09-10.** The `oxfmt` pin moves 0.58.0 → **0.67.0**, the latest, so the version is not itself a formatting opinion, and the tree is reformatted under it: **seven files** across box-quad, drag, drag2 and material-x, none of which changes a program. Root `fmt-check` is green over all nine packages and the repository-level files.
+
+#### F-432 — an operation minted inside a failing `arm()` is never disposed · open
+
+**Open, tier C. Raised 2026-09-29 by the O-6 pass**, while checking whether teardown could be routed through `#retireOperation(null)`. Record [`kernel-shape-o6-claude.md`](../reviews/architecture/kernel-shape-o6-claude.md), at `9dcb62e1a`.
+
+**What happens.** `arm()` publishes `#spec` and attaches the `pointerdown` listener before it attaches the `command.types` listeners. That loop runs foreign code: `addEventListener` on a consumer-owned root, and the iteration of a behavior-supplied array. Suppose that code synchronously dispatches an event that is admitted, and then throws. An operation is minted against the armed spec. If the event was a command, the queued `ACTIVATE` drains at the admission boundary and acquires the lift. `#unwindArm` then retires the behavior, resets both frames, aborts ingress and clears `#spec`, but **it does not dispose the operation's lifetimes**. Neither does a later `destroy()`: `#runPhysicalTeardown` disposes only under `if (this.#spec)` and otherwise only drops the references.
+
+**Why it is a problem.** The operation's listeners are on the realm's document, under the motion and cancellation signals, which are not composed with ingress. They stay attached and keep the kernel alive. After a command activation, the visual also stays lifted with the placeholder inserted. That contradicts the unwind's own promise that a controller is never left half-armed.
+
+**Why it is open rather than booked.** It is reachable only through foreign code running inside `arm()` between two listener attachments. [`CONTRIBUTING.md`](../../../../CONTRIBUTING.md) §1.1 declines to add guards against that kind of reach, so whether to repair it is an owner question. **What a repair would establish:** every exit from `arm()` that leaves the controller unarmed leaves no operation resource live. D-199's teardown deduplication neither repairs this nor makes it worse, because its property (2) keeps the unconditional drop this path depends on.
 
 ## What would falsify this model
 
