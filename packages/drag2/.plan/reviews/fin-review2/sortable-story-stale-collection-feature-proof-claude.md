@@ -624,3 +624,37 @@ The fix is verified against a **model** of Gecko's geometry: rounding to the nea
 4. **The owner's end-to-end check.** No Firefox run of `9598fc6d3` exists. The confirming run is: repeated relocations in the `List` story (1→2, 1→3, 1→2→1, back and forth), with no "row returns to origin" and no `G3-linear` error.
 
 **Closure condition for reviewer-3:** item 4 passes in the owner's Firefox. If it does, items 1–3 stay recorded as untested ground, not open defects.
+---
+
+## Closure — reviewer-3 and reviewer-4
+
+**Tree read:** `d77fa7be1`, plus the owner's **uncommitted** change to `tests/sortable/g3-conformance.browser.test.ts`, blob `974266f8ecb1ffc2b1e8cd6c140a5e6d3179e478`. The untracked `tst.md` at the repository root is outside this review and was not read.
+
+### reviewer-3 — closed
+
+**Owner verification, 2026-09-29.** The owner confirmed in Firefox that the original `List` drag works after `9598fc6d3`. That is item 4, the stated closure condition, so **reviewer-3 is closed**.
+
+- **What the owner's words cover.** The confirmation, as the owner gave it, covers the `List` drag that originally failed. The pattern-by-pattern list in item 4 (1→3, 1→2→1, back and forth) and the console were not reported separately. This pass takes the owner's check as satisfying the condition the owner was asked to meet.
+- **What stays untested.** Items 1–3 remain recorded as untested ground, not open defects: display scales and zoom levels other than the owner's, compositor-driven animation timing, and zoomed or transformed stories in Firefox.
+
+### reviewer-4 — resolved in the working tree; closes when committed unchanged
+
+**The change.** Both prototype patches in the app-unit case now use `vi.spyOn(Element.prototype, …).mockImplementation(…)`, with named function expressions, and are restored by `mockRestore()` in the file's `cleanup`. The native methods are taken by one destructuring read under a single `// eslint-disable-next-line @typescript-eslint/unbound-method`. It is the same suppression the repository already uses for this pattern, applied to one statement rather than two.
+
+**Checked against the blob above:**
+
+- **Gates:**
+  - `npx just lint` (oxlint and eslint) passes with no problems; both `unbound-method` errors are gone.
+  - `npx just fmt-check` passes; the two double spaces are gone.
+  - `tsc -p tsconfig.json` reports nothing for the file.
+- **The handoff sequence reaches a fixed point.** A scratch copy put through the full `handoff.md` order (`fmt`, then `lint-fix`) comes out **byte-identical** to the working file and passes `fmt-check`. The failure cannot recur on this file: both functions are now named, so oxlint's `func-names` autofix, the source of the double space, has nothing to insert.
+- **The test is unchanged in what it proves.** The file was run in a throwaway worktree at `HEAD`:
+  - **12/12 pass**, including both negative fixtures and every case after the spied one. That shows `mockRestore()` returns both prototypes to their native methods.
+  - With `slack` put back to `1/256` in the worktree, **exactly** _should predict every gap under app-unit geometry with a displacement in flight_ fails and the other 11 pass, as at `9598fc6d3`.
+
+**Closure condition for reviewer-4:** the blob above is committed as it is. A different blob needs the gates re-run.
+
+### Remaining, routed and not part of this change
+
+- **The latent handoff-order issue.** oxlint's `func-names: always` autofix emits `function  name(`, with a double space, and `handoff.md` runs `fmt` before `lint-fix`. Any future **anonymous** function expression will therefore reproduce the format failure. The owner's change avoids the trigger in this file. It does not change the gate, and that decision stays with the owner.
+- **Commit hygiene.** The untracked `tst.md` sits beside the change. `handoff.md` requires staging paths deliberately so that it is not swept into the reviewer-4 commit.
