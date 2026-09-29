@@ -29,7 +29,7 @@
  * authored-presentation cases and the two margin cases beside it are the
  * layouts G1-presented and the per-item-margin clause already promised.
  */
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { DraggableError, DraggableWarning } from '../../src/drag.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { xy } from '../../src/sortable/xy.ts';
@@ -379,38 +379,45 @@ describe('G3-linear conformance', () => {
    * offset is 39.50625 px and the engine reports 39.5.
    */
   it('should predict every gap under app-unit geometry with a displacement in flight', async () => {
-    const nativeRect = Element.prototype.getBoundingClientRect;
-    const nativeAnimate = Element.prototype.animate;
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    const { getBoundingClientRect: nativeRect, animate: nativeAnimate } =
+      Element.prototype;
     const appUnit = (v: number): number => Math.round(v * 60) / 60;
 
-    Element.prototype.getBoundingClientRect = function  getBoundingClientRect(
-      this: Element,
-    ): DOMRect {
-      const rect = nativeRect.call(this);
-      const left = appUnit(rect.left);
-      const top = appUnit(rect.top);
+    const mockRect = vi
+      .spyOn(Element.prototype, 'getBoundingClientRect')
+      .mockImplementation(
+        function getBoundingClientRect(this: Element): DOMRect {
+          const rect = nativeRect.call(this);
+          const left = appUnit(rect.left);
+          const top = appUnit(rect.top);
 
-      return new DOMRect(
-        left,
-        top,
-        appUnit(rect.right) - left,
-        appUnit(rect.bottom) - top,
+          return new DOMRect(
+            left,
+            top,
+            appUnit(rect.right) - left,
+            appUnit(rect.bottom) - top,
+          );
+        },
       );
-    };
-    Element.prototype.animate = function  animate(
-      this: Element,
-      ...args: Parameters<Element['animate']>
-    ): Animation {
-      const animation = nativeAnimate.apply(this, args);
 
-      animation.pause();
-      animation.currentTime = 13;
+    const mockAnimate = vi
+      .spyOn(Element.prototype, 'animate')
+      .mockImplementation(function animate(
+        this: Element,
+        ...args: Parameters<Element['animate']>
+      ): Animation {
+        const animation = nativeAnimate.apply(this, args);
 
-      return animation;
-    };
+        animation.pause();
+        animation.currentTime = 13;
+
+        return animation;
+      });
+
     cleanup.push(() => {
-      Element.prototype.getBoundingClientRect = nativeRect;
-      Element.prototype.animate = nativeAnimate;
+      mockRect.mockRestore();
+      mockAnimate.mockRestore();
     });
 
     const field = compose(
