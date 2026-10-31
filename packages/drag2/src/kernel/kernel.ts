@@ -1726,12 +1726,11 @@ export class Kernel<
 
     // Keyed off `completed`, not off the payload: keying it off the payload
     // would abort a finished resolver's own signal.
-    this.#operation!.lifetimes.cancellation.useWhile(
-      () => !attempt.completed,
-      () => {
+    this.#operation!.lifetimes.cancellation.use(() => {
+      if (!attempt.completed) {
         aborter.abort();
-      },
-    );
+      }
+    });
 
     let value: unknown;
 
@@ -2232,7 +2231,11 @@ export class Kernel<
     }
 
     if (stage !== FAILURE_TERMINAL_CALLBACK && this.#operation) {
-      this.#unwind(this.#operation.lifetimes.presentation.dispose);
+      const { presentation } = this.#operation.lifetimes;
+
+      this.#unwind(() => {
+        presentation.dispose();
+      });
 
       // **The second route into `onEnd`, and it owes its own reading.** The
       // obligation is per route into a slot, never per slot: one delivery
