@@ -2298,6 +2298,16 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-10-31 — D-200 implemented: `Lifetime` and `ActionQueue` are classes, in two steps
+
+**The owner's two scratch files are integrated and deleted.** `src/kernel/lifetimes.ts` holds the `Lifetime` class, and `LifetimeScope` is a declared interface with `readonly signal` and method-syntax `use`. `useWhile` is gone, and `#openResolution` registers a `use` whose disposer tests `!attempt.completed`. `src/kernel/queue.ts` holds the `ActionQueue` class: one interleaved array, `add`, `apply` and an in-place `clear()`. `ExecutionBracket` drains through `apply` with a `#step` minted once per bracket, which reads the latch before each action. Measurement [`d200-classes.md`](measurements/d200-classes.md).
+
+**Each step has its own figure, and neither is zero.** The lifetime cost +79 B minified on every kernel-carrying row. The queue recovered −28 B. Shipped bytes moved −21 B to +6 B Brotli jointly, and no graph gained or lost a module. A per-dispatch probe found the new drain no slower.
+
+**Two things are routed back rather than decided here.** Property 1's second reason for truncation does not hold for this `apply`. The decision stands on the first reason, so nothing changes, but the record and [`d200-lifetime-queue-classes-claude.md`](reviews/architecture/d200-lifetime-queue-classes-claude.md) §The hot path still state the claim. Six `bench/size` controls were already red at the baseline, with drift not attributable to D-200, so they were neither re-based nor read here.
+
+---
+
 ### 2026-10-31 — `useWhile` leaves the SPI, and `Lifetime` and `ActionQueue` become classes (D-200, F-274)
 
 **The owner's call, from two scratch files.** Record [`d200-lifetime-queue-classes-claude.md`](reviews/architecture/d200-lifetime-queue-classes-claude.md), at `01d88645f`. `useWhile` had one caller, the kernel's own, on the one lifetime no behavior is handed. So it leaves `LifetimeScope`, and the guard it carried moves into the disposer at the call. That closes F-274 by removal rather than by making the member receiver-free.
