@@ -1058,7 +1058,7 @@ The ownership rule made executable: **nothing that exists because something anim
 | **a close raised inside an ingress pass defers too.** Every deferral row that existed drove through `onStart`, which is a drain; the ingress increment is the other arm and deleting it was silent | _should defer teardown raised inside an ingress pass_ | D-180 |
 | **a nested pass is refused before the caller prepares anything.** The refusal precedes `beginPass`, so a nested press cannot rebuild the draft the outer admission is still writing | _should refuse a nested pass before the caller prepares one_ | D-180 |
 | the closure promise settles after the teardown callback has run, **and settles whether that callback returns or throws** — the one arm where the arc changed behaviour rather than relocating it, since the pre-arc shape left the promise pending forever when the last step threw | _should settle its promise only after the teardown callback has run_, _should settle its promise when the teardown callback throws_ | D-180, F-344 |
-| the storage keeps its own row, and nothing else | `tests/kernel/queue.node.test.ts` — _should drop every pending action and argument_ | D-180, D-170 |
+| the storage keeps its own rows, and nothing else: `clear()` drops every entry, `apply` stops at the entry its callback refuses, and a `clear()` during `apply` ends that pass | `tests/kernel/queue.node.test.ts` — _should drop every pending action and argument on clear_, _should stop at the entry the callback refuses_, _should end an iteration that clears the queue_ | D-180, D-200 |
 
 **The mutations, twenty-one of them, and what each reddens.** Each was applied to `src/kernel/execution.ts` and run against the file above; the table records every red, not the one the mutation was written for, and the **bold** ones are the fifteen that redden exactly one row — the witness that gives that row its own failure.
 
@@ -1072,11 +1072,11 @@ The ownership rule made executable: **nothing that exists because something anim
 | **a nested dispatch handled inline instead of appended** | **1 — the nested dispatch** |
 | **the latch read hoisted out of the loop** | **1 — the mid-drain latch** |
 | **the escaping throw swallowed instead of routed** | **1 — panic** |
-| the drain's `clearQueue` dropped | 2 — the replay row, the run latch |
+| the drain's `clear()` dropped | 2 — the replay row, the run latch |
 | the run latch left set | 2 — the replay row, the run latch |
 | **the run latch cleared on the panic path instead of the drain's `finally`** | **1 — the replay row** |
 | **the run latch cleared on the success path only** | **1 — the run latch** |
-| **teardown's `clearQueue` dropped** | **1 — the queued-argument release** |
+| **teardown's `clear()` dropped** | **1 — the queued-argument release** |
 | `close()` tears down unconditionally | 4 — both deferral rows, both settle rows |
 | `runIngress` does not open a transaction | 3 — the ingress deferral, both settle rows |
 | **`dispatch` does not open a transaction** | **1 — the outermost-boundary deferral** |
@@ -1085,6 +1085,21 @@ The ownership rule made executable: **nothing that exists because something anim
 | **`beginPass()` moved above the guards** | **1 — the nested-pass refusal** |
 | **the promise settled before the callback** | **1 — the settle ordering** |
 | **the settle moved out of the teardown's `finally`** | **1 — the settle on a throwing teardown** |
+
+**Re-read 2026-10-31, when the queue became a class and the bracket started draining through `apply` (D-200).** Iteration moved into `ActionQueue.apply`. The latch check moved into the bracket's `#step`, read before each action, and the queue is now one interleaved array. The mutations whose site moved were re-applied to the new code and run against `execution.node.test.ts` and `queue.node.test.ts`:
+
+| Mutation | Rows red |
+| --- | --- |
+| `#step` does not read the latch | 1 — the mid-drain latch |
+| the drain's `clear()` dropped | 2 — the replay row, the run latch |
+| teardown's `clear()` dropped | 1 — the queued-argument release |
+| `apply` hands every entry the first argument | 1 — pairing |
+| `apply` captures the length once | 2 — the nested dispatch, the clear-during-`apply` row |
+| `clear()` does nothing | 5 — all three of the storage's `clear` readers and both bracket rows above |
+| **`apply` ignores the callback's `false`** | **1 — the refusal row**. The bracket alone cannot see this mutation, because `#step` keeps refusing every later entry. That is why the refusal row is the storage's |
+| `#step` handles the action, then returns `!closed` | **0**. The first entry would be handled with the latch already set, but no drain starts closed. `dispatch` returns on the latch before it enqueues, and `runIngress` drains only `if (!this.#closed)`. So there is no input to write a row for, and D-200 property 3 is held by the code's order rather than by a test |
+
+**Seventeen of the twenty-one mutations above were not re-run.** Fourteen have sites D-200 did not touch: the re-entrant guard, an inline nested dispatch, the panic routing, the three run-latch placements, the transactions, the guards, the admission return, `beginPass` and the two settle mutations. Three targeted the old loop's order (the drained order reversed, only the tags reversed, the tail reordered), and their site is now `apply`. With a single interleaved array, "only the tags reversed" no longer has a meaning. FIFO and pairing were re-checked only by the first-argument and captured-length mutations above.
 
 **One migrated row was deleted, and the reason is the standard rather than the count.** _Should reach an entry appended during the same drain_ asserted that the appended entry runs; _should not interrupt the running action when dispatch nests_ asserts that it runs **and** runs after the action that queued it, recording `'appended'` in the same order array. So every mutation that reddens the first reddens the second, and no mutation can redden the first alone — the subsumption is by construction, not an accident of which mutations were tried. Keeping it while the seventh planned falsifier was dropped for being "an assertion with no failure of its own" was one standard applied twice with two answers.
 

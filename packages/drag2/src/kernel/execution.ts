@@ -1,4 +1,4 @@
-import { clearQueue, createActionQueue, enqueue } from './queue.ts';
+import { ActionQueue } from './queue.ts';
 
 /**
  * The controller-lifetime execution bracket: the terminal latch, the
@@ -20,10 +20,11 @@ import { clearQueue, createActionQueue, enqueue } from './queue.ts';
  */
 export class ExecutionBracket {
   /**
-   * Pending work. Two parallel arrays operated on by free functions; the
-   * bracket supplies every semantic the storage deliberately has none of.
+   * Pending work. The storage iterates and decides nothing; the bracket
+   * supplies every semantic it deliberately has none of, including when a
+   * drain stops.
    */
-  readonly #queue = createActionQueue();
+  readonly #queue = new ActionQueue();
 
   /**
    * Terminal latch. Set exactly once, on the statement requesting closure, so
@@ -71,6 +72,24 @@ export class ExecutionBracket {
   readonly #beginPass: () => void;
 
   /**
+   * One drain step, handed to the queue. Minted once per bracket rather than
+   * per drain, because a drain runs on every pointer sample.
+   *
+   * The latch is read before the action, so nothing is handled once it is set
+   * — the first entry of a drain included — and re-read for every entry,
+   * because `handle` can close the bracket synchronously (a consumer callback
+   * destroying the controller).
+   */
+  readonly #step = (action: number, argument: unknown): boolean => {
+    if (this.#closed) {
+      return false;
+    }
+
+    this.#handle(action, argument);
+    return true;
+  };
+
+  /**
    * All four callbacks are controller-invariant and supplied once, so the
    * per-action and per-sample paths allocate nothing.
    *
@@ -113,7 +132,7 @@ export class ExecutionBracket {
       return;
     }
 
-    enqueue(this.#queue, action, argument);
+    this.#queue.add(action, argument);
 
     if (this.#admitting) {
       return; // the admission boundary owns the drain
@@ -216,17 +235,11 @@ export class ExecutionBracket {
     this.#running = true;
 
     try {
-      // `handle` can close the bracket synchronously (a consumer callback
-      // destroying the controller), so the terminal latch is re-read every
-      // iteration.
-      // oxlint-disable-next-line no-unmodified-loop-condition
-      for (let i = 0; !this.#closed && i < this.#queue.actions.length; i += 1) {
-        this.#handle(this.#queue.actions[i]!, this.#queue.args[i]);
-      }
+      this.#queue.apply(this.#step);
     } catch (error) {
       this.#panic(error);
     } finally {
-      clearQueue(this.#queue);
+      this.#queue.clear();
       this.#running = false;
     }
   }
@@ -257,7 +270,7 @@ export class ExecutionBracket {
    */
   #runTeardown(): void {
     try {
-      clearQueue(this.#queue);
+      this.#queue.clear();
       this.#teardown();
     } finally {
       const settle = this.#settle;
