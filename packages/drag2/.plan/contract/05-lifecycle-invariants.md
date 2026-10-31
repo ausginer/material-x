@@ -778,7 +778,7 @@ Found by Checkpoint D review 2 (C2-01), reproduced against the restored D2 geome
 
 #### Q-5 — Should `ActivationScope` expose live `Lifetime` objects?
 
-**No — reversed.** The earlier answer rejected a narrowed scope because a façade "costs an object per lifetime per operation". That was wrong: `Readonly<Pick<Lifetime, 'signal' | 'use' | 'useWhile'>>` is a _type-level_ projection and the kernel passes the same physical object. Zero allocations, and I-11 stops depending on the behavior choosing not to call `dispose()`.
+**No — reversed.** The earlier answer rejected a narrowed scope because a façade "costs an object per lifetime per operation". That was wrong: ~~`Readonly<Pick<Lifetime, 'signal' | 'use' | 'useWhile'>>`~~ `LifetimeScope`, a declared interface since D-200, is a _type-level_ projection and the kernel passes the same physical object. Zero allocations, and I-11 stops depending on the behavior choosing not to call `dispose()`.
 
 #### Q-8 — Does the two-phase handshake survive a behavior whose controller needs the spec?
 

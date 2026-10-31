@@ -338,7 +338,7 @@ Note what is _not_ here: `rects`. The geometry cache lives inside the axis featu
 
 | Concern | Owner | Reachable from |
 | --- | --- | --- |
-| Action queue (two parallel arrays), `running`, `closed` | kernel | nothing |
+| Action queue (~~two parallel arrays~~ one interleaved array in `ActionQueue`, D-200), `running`, `closed` | kernel | nothing |
 | `current` / `draft` references, commit swap, frame composition | kernel | nothing — the _frames_ are passed as arguments, the references are not |
 | `phase`, `operation`, pointer scalars | kernel (frame slice, 7 fields) | behavior, read-only |
 | Operation identity, minting and validation | kernel | nothing |

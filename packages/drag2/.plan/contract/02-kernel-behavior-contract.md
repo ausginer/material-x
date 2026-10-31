@@ -790,7 +790,7 @@ The other half of the decision, and the half that keeps it from being a mechanic
 | Not published | Substitute |
 | --- | --- |
 | `SeamOutcome`, `SEAM_*`, `SeamDriver`, `FrameTransaction` | none needed — the driver's own vocabulary. A behavior returns `Prepared \| null` — or, on a non-discardable seam, throws (D-152) — and never sees an outcome. **03 §Internal to the ordinary tier listed `SeamOutcome` and `ArmOutcome` as kernel-tier published; that was wrong and D-68 corrected it** — neither is in the closure |
-| `Lifetime` (the full type), `createLifetime` | `LifetimeScope`, which is D-21's projection and exists precisely so `dispose` is unreachable |
+| `Lifetime` (the class, D-200), ~~`createLifetime`~~ | `LifetimeScope`, which is D-21's projection and exists precisely so `dispose` is unreachable |
 | `composeFrame`, `beginFrame`, `scrubFrame`, `KERNEL_FRAME_KEYS` | none — the kernel composes the frame (D-15). A behavior authors its part and nothing else |
 | `acquireLift`, `captureInlineStyles`, `acquireTopLayer` | the kernel acquires the lift; the behavior receives a **`BehaviorLiftSession`**, which is published for the same reason everything else on this list is not — the kernel hands one to every behavior twice, as `ActivationScope.lift` and as `moved`'s second argument. `VisualLiftSession` stays published because that alias's definition names it. (This row read _the behavior receives `VisualLiftSession`_ until D-35's projection landed; §`ActivationScope`, below, had been the correct spelling since C5-01.) |
 | ~~`report`~~ (deleted, D-130), `createUnwind` | `host.fail(stage, error)` inside a seam. Outside one it is reported as a `DraggableWarning`, which is the same destination — there is only one |
@@ -915,8 +915,14 @@ So the honest statement is: **two of the three retained capabilities are late-us
 ### `ActivationScope`
 
 ```ts
-/** The same physical `Lifetime`, with `dispose` projected away. */
-type LifetimeScope = Readonly<Pick<Lifetime, 'signal' | 'use' | 'useWhile'>>;
+/**
+ * The same physical `Lifetime`, with `dispose` projected away. Declared, never
+ * mapped, so the receiver gate sees `use` (D-200).
+ */
+interface LifetimeScope {
+  readonly signal: AbortSignal;
+  use(disposer: Disposer): void;
+}
 
 /**
  * The same physical `VisualLiftSession`, **positively projected** to the four
@@ -1057,7 +1063,7 @@ The projection is a type-level `Pick`; the kernel passes the _same physical obje
 
 The direct `style.transform` write stays the honest tier-C residue (I-34). The disposer does not.
 
-One object per operation. `prepare` reads `visual`, `originRect`, `box` and `boxPre`, and takes `boxPost` off `box` itself; `effect` uses the rest. `Lifetime` is unchanged from the shipped package: an `AbortSignal`, a disposer stack, a latched best-effort LIFO `dispose()`, `use(disposer)` and `useWhile(guard, disposer)`.
+One object per operation. `prepare` reads `visual`, `originRect`, `box` and `boxPre`, and takes `boxPost` off `box` itself; `effect` uses the rest. `Lifetime` is unchanged from the shipped package: an `AbortSignal`, a disposer stack, a latched best-effort LIFO `dispose()` and `use(disposer)`. ~~and `useWhile(guard, disposer)`~~ — removed by D-200: its one caller was the kernel, on the cancellation lifetime no behavior holds, and a guarded registration is a `use` whose disposer tests the guard.
 
 **`dispose()` is projected away** (review 4, §15). An earlier draft passed the full `Lifetime` and justified it by saying a restricted façade would cost an object per lifetime per operation — which was simply wrong: a `Pick` is a type-level projection and the kernel passes the _same physical object_ under the narrower type. Zero allocations, and I-11's "the behavior has no opportunity to sequence release incorrectly" becomes true instead of aspirational.
 
@@ -1832,11 +1838,11 @@ The final lift render inside `release.effect` (F-39) is behavior code and stays 
 
 Ported unchanged from the shipped package. Entirely kernel-private.
 
-- **Two parallel arrays** (`actions: number[]`, `args: unknown[]`). An enqueue is two pushes with **no per-entry object allocation**; array capacity growth is amortized, so this is not literally allocation-free and is not claimed to be.
+- ~~**Two parallel arrays** (`actions: number[]`, `args: unknown[]`). An enqueue is two pushes~~ **One interleaved array inside the `ActionQueue` class (D-200)**: an entry is a tag followed by its argument, and the class exposes no field. An enqueue is one push of two values with **no per-entry object allocation**; array capacity growth is amortized, so this is not literally allocation-free and is not claimed to be. **`clear()` truncates in place**, because it runs once per drain, and therefore once per pointer sample.
 - **The drain handler and the panic callback are created once per controller.** The shipped `dispatch` allocates a fresh handler arrow and a fresh panic arrow on every _outer_ dispatch (`packages/drag/src/sortable/runtime/actions.ts:151-174`). Since probe 2 ports the queue unchanged, this is called out as a required change rather than an inherited property: hoist both, or inline the drain loop.
 - **FIFO.** Entries process in order; each retains its own argument.
 - **Run-to-completion.** A nested `dispatch` during a drain appends and returns. The outermost frame owns the pass and reaches the appended entry in the same drain. Nested calls never interrupt an action midway.
-- **Terminal latch.** `closed` is re-read every iteration, so a consumer calling `destroy()` from inside a callback stops the drain immediately.
+- **Terminal latch.** `closed` is re-read every iteration, and is the bracket's: the queue iterates and the bracket's callback decides whether to continue (D-180, D-200), so a consumer calling `destroy()` from inside a callback stops the drain immediately.
 - **Panic.** A throw escaping a handler is an invariant violation: clear the queue, tear down exactly once, then report the initiating error.
 - **No internal steps are queued.** One pointer move is one action that validates, prepares, commits, renders and notifies — not six.
 - **Behavior tags share the queue** and are offset from `BEHAVIOR_BASE` by the kernel, so a behavior declares `0`, `1` and `2` — the sortable's three, per §An invalidating collection replacement, above — and never learns a kernel tag value. This bullet said "`0` and `1`" after that section was corrected to three (C4-08).

@@ -2298,6 +2298,16 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-10-31 — `useWhile` leaves the SPI, and `Lifetime` and `ActionQueue` become classes (D-200, F-274)
+
+**The owner's call, from two scratch files.** Record [`d200-lifetime-queue-classes-claude.md`](reviews/architecture/d200-lifetime-queue-classes-claude.md), at `01d88645f`. `useWhile` had one caller, the kernel's own, on the one lifetime no behavior is handed. So it leaves `LifetimeScope`, and the guard it carried moves into the disposer at the call. That closes F-274 by removal rather than by making the member receiver-free.
+
+**D-170's grading is amended, not overruled.** `Lifetime` was graded a handle with no invariant spanning two fields, but `finalized` gates every write to the disposer stack. `ActionQueue` was the deliberate outlier, but the bracket indexed its two public arrays from outside, which is what §The ownership boundary forbids. D-180's line between storage and policy carries forward: the queue gains iteration, and the decision to stop comes back through the callback.
+
+**One property was settled mid-session.** The scratch `clear()` replaced its array. `MOVE` drains once per `pointermove`, so that would have been one allocation per pointer sample, and a replacement during `apply` would have continued over the new array. The owner chose in-place truncation. Booked to Remediation, lifetime first and queue second, each with its own composition figure. The witness is the free `clearQueue`.
+
+---
+
 ### 2026-09-29 — O-6 closed: the kernel stays one state machine, three extraction candidates are named and none is approved (D-199, F-432)
 
 **The owner's call, and the record behind it.** Record [`kernel-shape-o6-claude.md`](reviews/architecture/kernel-shape-o6-claude.md), at `9dcb62e1a`. O-6 had waited on a human judgment since the maintainability entry. The judgment is that `Kernel` is not split along its handlers. **The file's length was the wrong quantity to watch.** Across every commit that touched it, the code stayed between 1,085 and 1,280 non-blank lines, while the comments grew from 441 to 1,257. The code actually shrank by 146 lines in the last interval, when the bracket, the transaction and the records were consolidated.
