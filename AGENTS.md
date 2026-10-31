@@ -38,6 +38,7 @@ Probes, diagnostics, fixtures and benchmarks are fine for any role that needs on
 
 ## Where things are
 
+- For local coordination, start with [`.agents/docs/coordinator.md`](.agents/docs/coordinator.md) and [`.agents/docs/coordinator-setup.md`](.agents/docs/coordinator-setup.md). The owner relays prompts between Codex and standalone Claude role sessions; role definitions and the guard still govern those sessions.
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — how code is written: source conventions, and the size and ownership policy. This is a library, not an application: write for a truthful fellow developer who would prefer better performance, a cleaner API and a smaller bundle over defensive checks against invalid usage.
 - [`.agents/docs/`](.agents/docs/) — conventions and design references: `@ydinjs` architecture, CSS inheritance, attribute-vs-state styling, accessibility, the test layers, the trait flattener plugin, where documentation belongs, and how a review round is run.
 - `.claude/skills/` — task-scoped procedures for `@ydinjs/material-x` component tests, `@ydinjs/tproc` visual contracts, and anything under `.data/tokens`. They apply even when a request does not name them.
