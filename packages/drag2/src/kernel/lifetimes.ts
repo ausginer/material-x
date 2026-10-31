@@ -51,7 +51,7 @@ export interface LifetimeScope {
 export class Lifetime implements LifetimeScope {
   readonly #controller = new AbortController();
   readonly #notify: Notify;
-  #disposers: Disposer[] = [];
+  readonly #disposers: Disposer[] = [];
 
   /**
    * Set by the first `dispose`, before anything else runs, so a disposer or
@@ -112,7 +112,7 @@ export class Lifetime implements LifetimeScope {
       }
     }
 
-    this.#disposers = [];
+    this.#disposers.length = 0;
   }
 }
 
