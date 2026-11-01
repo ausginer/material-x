@@ -2577,7 +2577,9 @@ Acceptance is R1–R21 as tests against `src/`, plus property 2 as a structural 
 
 #### D-203
 
-**Unimplemented (Remediation).** **Decided 2026-11-01, on the coordinator's handoff check of D-202** ([`request-ordering-coordinator.md`](../reviews/architecture/request-ordering-coordinator.md), `coordinator-a`). **D-202 in full, except that `OPEN_RESOLUTION` also declines while a cancel for its operation is registered.** Supersedes D-202. Raises and repairs F-436. Carries D-202's decisions of F-432, F-433, F-434 and F-435. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §10, at `0f0bf0368`. That record's §2.2, §2.7, §2.8 and §6–§8 state the D-203 form and are the handoff.
+**Superseded by D-204, 2026-11-01, before implementation.** **Everything carries forward; D-204 adds the tag rule for a `dispatch` arriving during construction.** D-203 step 1 showed that R17's queued window dispatch and the SPI's "an out-of-range tag is reported and dropped, never enqueued" cannot both be delivered in the factory body, where `config.actionTags` does not yet exist (F-437). D-204 carries this decision by reference and states only what it adds, and this row's entry in the unimplemented table moves to D-204. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §11. The text below is the decision as it stood.
+
+**Decided 2026-11-01, on the coordinator's handoff check of D-202** ([`request-ordering-coordinator.md`](../reviews/architecture/request-ordering-coordinator.md), `coordinator-a`). **D-202 in full, except that `OPEN_RESOLUTION` also declines while a cancel for its operation is registered.** Supersedes D-202. Raises and repairs F-436. Carries D-202's decisions of F-432, F-433, F-434 and F-435. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §10, at `0f0bf0368`. That record's §2.2, §2.7, §2.8 and §6–§8 state the D-203 form and are the handoff.
 
 **What is carried.** D-202's text, its properties 1–5 and 7–11, its contract-text list and its six steps carry forward unchanged and are not restated. Only property 6 and the precedence clause of property 7 change.
 
@@ -2624,6 +2626,57 @@ The entry condition is the form `START_COMMITTED` already has and adds no readin
 - **D-200:** its pending acceptance is unchanged.
 - **Surface:** no change beyond D-202's.
 
+#### D-204
+
+**Unimplemented (Remediation).** **Decided 2026-11-01, on the implementer's step-1 handoff of D-203**, relayed by the owner at `582092c1f`. **D-203 in full, plus the rule for checking a `dispatch` tag: at armed intake only.** Supersedes D-203. Raises and repairs F-437. Carries D-203's decisions of F-432, F-433, F-434, F-435 and F-436. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §11, at `582092c1f`. That record's §2.9, §3–§5, §7 and §8 state the D-204 form and are the handoff.
+
+**What is carried.** D-203's text, every property, its contract-text list and its six steps carry forward unchanged and are not restated. D-204 adds one property and five cases.
+
+**Property 12, added. A `dispatch` tag is checked once, at armed intake, and nowhere else.**
+
+- **After arming,** the check is unchanged. Once destruction has been applied, every dispatch is dropped without a report. Before that, an out-of-range tag is reported as `drag: dispatch/tag-out-of-range <tag>` through `reportError` before `dispatch` returns, and is not queued. This holds at depth 0, inside a unit, and while a destroy request is registered and not yet applied.
+- **During construction,** from the factory's invocation until arming completes, the tag is not checked. The action is queued as an in-range armed dispatch would be, and is applied after publication, before `draggable()` returns, in dispatch order (R17). The count that bounds the tag is in the spec the factory has not yet returned. An out-of-range tag there has **no specified outcome**, and no case pins one.
+- **At application,** no tag check runs, on either path. The bound is fixed for the controller's life: `#spec` is assigned once, `BehaviorConfig` is `Readonly`, and only the queue's ledger-driven clearing changes between intake and application. A check there would run on every applied action, including sortable's per-frame spatial tag.
+- **Construction-window entries obey the queue's existing rules:** a destroy requested during construction is applied first and clears them, and a failure that unwinds construction clears them.
+
+**The documented guarantee versus misuse** (CONTRIBUTING §1.1, §13).
+
+- The range is a published precondition the author can meet: the tags are the author's constants, bounded by a count the author declares. An out-of-range tag is therefore integrator misuse, and §1.1 owes it nothing at runtime.
+- "Reported and dropped" is a documented outcome, and §13 keeps it as a promise on the path where it was made: armed dispatch. Whether that check survives the reachability gate is F-97's open question, and D-204 neither answers nor pre-empts it.
+- The promise was never made for construction. The window's own sentence overrode it until D-203 ("dropped, without a report"), so leaving the window unchecked withdraws no promise; it declines to extend one.
+
+**Kernel/behavior action separation.** For every in-contract dispatch, on either path, the queue entry is a behavior action applied with the tag it was dispatched with, by the offset alone. The armed check also keeps out-of-range armed tags off the queue. A construction-window tag outside the range is misuse, and separation is not defended for it.
+
+**Contract text, in step 1.** `BehaviorContext.dispatch` in `src/kernel/spec.ts` and 01 §`BehaviorContext` state the precondition, the armed report, the construction-window queuing with its unchecked tag, and the drop after applied destruction. "An action dispatched before the behavior is armed is dropped, without a report" is withdrawn (record §11.5).
+
+**Options rejected:**
+
+- **Validating window entries once at publication** would extend a misuse diagnostic, at the cost of held raw tags, a loop and a second report site. This is the owner's fallback if "preserve separation" is meant to cover window misuse.
+- **Checking at application** would run per applied action and would need the raw tag in every entry.
+- **Refusing window dispatch** contradicts R17.
+- **Withdrawing the armed check** is F-97's question, not this one.
+
+**Cases.** D-203's R1–R22, plus:
+
+- **R23:** construction-window order across the factory body and a frame-part factory.
+- **R24:** a window dispatch overtaken by a construction-time destroy or failure.
+- **R25:** armed out-of-range tags, including `RETIRE - BEHAVIOR_BASE`, at depth 0, inside a unit and with destroy registered.
+- **R26:** armed dispatch after applied destruction.
+- **R27:** `actionTags` read only at construction's static validation and at armed intake.
+
+Probe P6 records today's tree. The armed rows already meet R25 and R26 at depth 0, and no test covers them. Every window dispatch is dropped silently, which R23 changes.
+
+**Order and witness.** D-203's six steps. Property 12, R23–R27 and the `dispatch` text land in step 1. The measurement record is `.plan/measurements/d204-requests.md`, and its absence is the witness.
+
+**Touches:**
+
+- **D-203:** supersedes it before implementation.
+- **F-437:** raises and repairs it.
+- **F-432 to F-436:** carries their decisions.
+- **F-97:** unchanged and open on the armed check.
+- **D-200:** its pending acceptance is unchanged.
+- **Surface:** `BehaviorContext.dispatch`'s documentation only.
+
 ### Decisions not yet implemented
 
 **The artifact F-63 asked for** (K-5). D-34 and D-35 were stated in the present tense by three contract documents and were not in the code, across a checkpoint and a whole revision, with every suite green — because a green suite is evidence about the _implemented_ contract only, and nothing in the repository compared a decision booked to a later phase against the code that had not implemented it. Phase 18 found them by reading, which is the discovery this table exists to make unnecessary.
@@ -2636,7 +2689,9 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-203 | Remediation | the runner and construction, the split and capture, kernel requests, surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d203-requests.md` |
+| D-204 | Remediation | the runner and construction, the split and capture, kernel requests, surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d204-requests.md` |
+
+**D-203's row closed on 2026-11-01 without landing.** D-204 superseded it before implementation, adding the `dispatch` tag rule to step 1. D-204's row carries the same six steps, and its witness is the same measurement record, renamed for the decision that now owns it.
 
 **D-202's row closed on 2026-11-01 without landing.** D-203 superseded it before implementation with one changed entry condition. D-203's row carries the same six steps, and its witness is the same measurement record, renamed for the decision that now owns it.
 
@@ -2714,7 +2769,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 This register is the **status**, not the decision. What each decision says, and what replaced it, is its row in §Decision ledger — the source of truth, which this never restates. `tests/decisions.node.test.ts` holds the two to the same id set: an entry without a canonical row, a canonical row without an entry, a duplicate, or a value outside the vocabulary is a failure rather than a skip.
 
-The twenty-one `inactive` rows are the ones whose live residue is empty: **D-7** (superseded by D-155, no gate left to default open), **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected), **D-150** (superseded by D-151, none of it lands), **D-162** (superseded by D-164), **D-164** (superseded before implementation by D-165), **D-167** and **D-169** (both superseded by D-170, whose owner call reverses the first and closes the question the second answered), **D-182** (superseded by D-184, which restates every property it carries forward), **D-183** (superseded by D-185 on a reading of _reachable_ the owner's rule rejects), **D-185** (superseded by D-186, which restores D-183's holding on a repaired ground), **D-188** (superseded by D-189, which carries both its halves forward on repaired grounds) **D-190** (superseded by D-191, which carries its premise and every disposition forward on a replaced rule), **D-187** (superseded by D-192, which carries all five of its claims forward with three of the rules narrowed), **D-193** (superseded by D-196, which corrects the site the rule names, withdraws the instrument it owed and replaces the cause it states), **D-194** (superseded by D-197, which replaces the ground for the export and re-books the declaration-weight figure) **D-195** (superseded by D-198, which widens the repair to both `prettier/prettier` rule sites and scopes the clause to the files a package's `fmt` owns) **D-199** (superseded before implementation by D-201, which restates the extraction rule, the teardown deduplication and the comment pass it carries forward), **D-201** (superseded before implementation by D-202, which restates every property it carries forward and withdraws the publication points and event sinks whose premise was immediate logical closure) and **D-202** (superseded before implementation by D-203, which carries it by reference and replaces one entry condition). ~~The eight~~ **corrected 2026-09-09 (F-406): the enumeration named eight of thirteen and stated the count as eight, while the table three lines below carried thirteen — five rows explained nowhere by the paragraph that exists to explain them.** ~~The fifteen~~ **corrected 2026-09-10: the same defect recurred when D-193, D-194 and D-195 were added to the table and not to the enumeration.**
+The twenty-two `inactive` rows are the ones whose live residue is empty: **D-7** (superseded by D-155, no gate left to default open), **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected), **D-150** (superseded by D-151, none of it lands), **D-162** (superseded by D-164), **D-164** (superseded before implementation by D-165), **D-167** and **D-169** (both superseded by D-170, whose owner call reverses the first and closes the question the second answered), **D-182** (superseded by D-184, which restates every property it carries forward), **D-183** (superseded by D-185 on a reading of _reachable_ the owner's rule rejects), **D-185** (superseded by D-186, which restores D-183's holding on a repaired ground), **D-188** (superseded by D-189, which carries both its halves forward on repaired grounds) **D-190** (superseded by D-191, which carries its premise and every disposition forward on a replaced rule), **D-187** (superseded by D-192, which carries all five of its claims forward with three of the rules narrowed), **D-193** (superseded by D-196, which corrects the site the rule names, withdraws the instrument it owed and replaces the cause it states), **D-194** (superseded by D-197, which replaces the ground for the export and re-books the declaration-weight figure) **D-195** (superseded by D-198, which widens the repair to both `prettier/prettier` rule sites and scopes the clause to the files a package's `fmt` owns) **D-199** (superseded before implementation by D-201, which restates the extraction rule, the teardown deduplication and the comment pass it carries forward), **D-201** (superseded before implementation by D-202, which restates every property it carries forward and withdraws the publication points and event sinks whose premise was immediate logical closure) **D-202** (superseded before implementation by D-203, which carries it by reference and replaces one entry condition) and **D-203** (superseded before implementation by D-204, which carries it by reference and adds the `dispatch` tag rule). ~~The eight~~ **corrected 2026-09-09 (F-406): the enumeration named eight of thirteen and stated the count as eight, while the table three lines below carried thirteen — five rows explained nowhere by the paragraph that exists to explain them.** ~~The fifteen~~ **corrected 2026-09-10: the same defect recurred when D-193, D-194 and D-195 were added to the table and not to the enumeration.**
 
 | Decision | Status   |
 | -------- | -------- |
@@ -2920,7 +2975,8 @@ The twenty-one `inactive` rows are the ones whose live residue is empty: **D-7**
 | D-200    | active   |
 | D-201    | inactive |
 | D-202    | inactive |
-| D-203    | active   |
+| D-203    | inactive |
+| D-204    | active   |
 
 ## Findings
 
@@ -3406,7 +3462,7 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 #### F-97 — The published `kernel/frames.d.ts` names `validateFramePart` as _the authoritative check_, so deleting any arm of it is a contract edit and not a size edit
 
-**Open, tier B.** Record [`gate-contract-questions-claude.md`](../reviews/phase-23/gate-contract-questions-claude.md) §2.3. Code of Size §1.1's own exception governs: where the contract **fixed** the outcome, the check and the discard that implement it are contract, and an incidental _we happen to throw here_ was not. The sentence also has the ordering backwards under the gate — the **type** is the contract and the runtime check is the redundancy — so it must be revised rather than merely trimmed. **This governs more than D-122**: the same sentence stands behind the audit's §3.2 and §3.3 deletions, and it is the same cross-cutting pattern as the audit's §3.5 and §3.7, where the shipped doc publishes the precondition **and** promises the guard. Tier B because it is a published-surface promise, not a tidiness one **Partially discharged 2026-08-25 by D-124, and the discharged half is the model for the rest.** The two frame arms that landed (audit §3.2, §3.3) revised this sentence in the same change rather than after it: it is struck in place on `FramePartOf`, reversed to _this type **is** the contract_, and followed by what the misuse now buys — a colliding key copied over the kernel's own slice. **It stays open for the guards D-124 did not reach**, where the shipped sentence still publishes the precondition **and** promises the guard: `dispatch/tag-out-of-range` (audit §3.5) and `spec/command-type-pointerdown` (audit §3.7). **§3.7 carries a tension worth naming before anyone acts on it**: D-118 decided that check stays, four days earlier, as _the only one here the library owns_ — a clause-(b) argument the gate now reaches only after (a), which D-118 never asked. That is a re-put of D-118, not a defect in it, and it belongs to whoever opens §3.5/§3.7 rather than to this row. **Closed 2026-08-25 for this site by D-122's landing.** The sentence is gone with the validator it named, and `FramePartOf` now carries the whole frame-part authoring contract — including the string-key term F-100 found published nowhere. **The two guards D-124 did not reach are unaffected and stay open on their own rows**: `dispatch/tag-out-of-range` (audit §3.5) and `spec/command-type-pointerdown` (audit §3.7), the second carrying the D-118 tension this row already names. Neither is opened by this slice.
+**Open, tier B.** Record [`gate-contract-questions-claude.md`](../reviews/phase-23/gate-contract-questions-claude.md) §2.3. Code of Size §1.1's own exception governs: where the contract **fixed** the outcome, the check and the discard that implement it are contract, and an incidental _we happen to throw here_ was not. The sentence also has the ordering backwards under the gate — the **type** is the contract and the runtime check is the redundancy — so it must be revised rather than merely trimmed. **This governs more than D-122**: the same sentence stands behind the audit's §3.2 and §3.3 deletions, and it is the same cross-cutting pattern as the audit's §3.5 and §3.7, where the shipped doc publishes the precondition **and** promises the guard. Tier B because it is a published-surface promise, not a tidiness one **Partially discharged 2026-08-25 by D-124, and the discharged half is the model for the rest.** The two frame arms that landed (audit §3.2, §3.3) revised this sentence in the same change rather than after it: it is struck in place on `FramePartOf`, reversed to _this type **is** the contract_, and followed by what the misuse now buys — a colliding key copied over the kernel's own slice. **It stays open for the guards D-124 did not reach**, where the shipped sentence still publishes the precondition **and** promises the guard: `dispatch/tag-out-of-range` (audit §3.5) and `spec/command-type-pointerdown` (audit §3.7). **§3.7 carries a tension worth naming before anyone acts on it**: D-118 decided that check stays, four days earlier, as _the only one here the library owns_ — a clause-(b) argument the gate now reaches only after (a), which D-118 never asked. That is a re-put of D-118, not a defect in it, and it belongs to whoever opens §3.5/§3.7 rather than to this row. **Closed 2026-08-25 for this site by D-122's landing.** The sentence is gone with the validator it named, and `FramePartOf` now carries the whole frame-part authoring contract — including the string-key term F-100 found published nowhere. **The two guards D-124 did not reach are unaffected and stay open on their own rows**: `dispatch/tag-out-of-range` (audit §3.5) and `spec/command-type-pointerdown` (audit §3.7), the second carrying the D-118 tension this row already names. Neither is opened by this slice. **Scoped 2026-11-01 by D-204, not decided.** D-204 states that the `dispatch/tag-out-of-range` promise covers armed dispatch only, which is all it ever covered, and leaves the construction window unchecked. Whether the armed check survives the gate is still this row's question, and the audit's §3.5 still recommends deletion with the published sentence revised in the same change.
 
 #### F-98 — D-80 (b)'s normative statement ordering was motivated by F-68, and F-68's window closes when D-121's refusal is deleted — the ordering survives on F-69 alone
 
@@ -5149,7 +5205,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Repaired 2026-09-10.** The `oxfmt` pin moves 0.58.0 → **0.67.0**, the latest, so the version is not itself a formatting opinion, and the tree is reformatted under it: **seven files** across box-quad, drag, drag2 and material-x, none of which changes a program. Root `fmt-check` is green over all nine packages and the repository-level files.
 
-#### F-432 — an operation minted inside a failing `arm()` is never disposed · open, decided by D-203
+#### F-432 — an operation minted inside a failing `arm()` is never disposed · open, decided by D-204
+
+**Carried by D-204, which superseded D-203 before implementation and keeps this decision unchanged; closes when D-204 lands.**
 
 **Carried by D-203, which superseded D-202 before implementation and keeps this decision unchanged; closes when D-203 lands.** Case R15. The text below names D-202's or D-201's properties as they stood.
 
@@ -5161,7 +5219,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Why it is open rather than booked.** It is reachable only through foreign code running inside `arm()` between two listener attachments. [`CONTRIBUTING.md`](../../../../CONTRIBUTING.md) §1.1 declines to add guards against that kind of reach, so whether to repair it is an owner question. **What a repair would establish:** every exit from `arm()` that leaves the controller unarmed leaves no operation resource live. D-199's teardown deduplication neither repairs this nor makes it worse, because its property (2) keeps the unconditional drop this path depends on.
 
-#### F-433 — a press dispatched from inside a running unit opens a second admission underneath it · open, decided by D-203
+#### F-433 — a press dispatched from inside a running unit opens a second admission underneath it · open, decided by D-204
+
+**Carried by D-204, which superseded D-203 before implementation and keeps this decision unchanged; closes when D-204 lands.**
 
 **Carried by D-203, which superseded D-202 before implementation and keeps this decision unchanged; closes when D-203 lands.** Case R9. The text below names D-202's or D-201's properties as they stood.
 
@@ -5175,7 +5235,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Required property.** While any unit runs, an ingress pass is refused before it touches any state. D-201 properties 1 and 2; case E1.
 
-#### F-434 — a late `cancel()` raised inside `anchorTarget` strands the operation in `SETTLING` · open, decided by D-203
+#### F-434 — a late `cancel()` raised inside `anchorTarget` strands the operation in `SETTLING` · open, decided by D-204
+
+**Carried by D-204, which superseded D-203 before implementation and keeps this decision unchanged; closes when D-204 lands.**
 
 **Carried by D-203, which superseded D-202 before implementation and keeps this decision unchanged; closes when D-203 lands.** Case R8. The text below names D-202's or D-201's properties as they stood.
 
@@ -5189,7 +5251,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Required property.** A cancel request is latched only in a phase where `CANCEL` acts, and no control reading on the settlement path treats a request as a liveness answer. D-201 properties 5 and 6; case E4.
 
-#### F-435 — a `cancel()` raised inside `release.effect` reports `AT_CONSUMER` for a round-trip that never opened · open, decided by D-203
+#### F-435 — a `cancel()` raised inside `release.effect` reports `AT_CONSUMER` for a round-trip that never opened · open, decided by D-204
+
+**Carried by D-204, which superseded D-203 before implementation and keeps this decision unchanged; closes when D-204 lands.**
 
 **Carried by D-203, which superseded D-202 before implementation and keeps this decision unchanged; closes when D-203 lands.** Cases R4, R6 and R22. The text below names D-202's or D-201's properties as they stood.
 
@@ -5216,6 +5280,20 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 **Why it is a problem.** An implementer would have had to choose between the promised guarantee and the stated entry conditions, which is a contract decision left unrecorded.
 
 **Repair.** `OPEN_RESOLUTION` declines while a cancel for its operation is registered. The cancel then applies at `RELEASING` at `AT_PROPOSAL`. D-203 property 6; case R22.
+
+**Carried by D-204**, which superseded D-203 before implementation and keeps this repair unchanged.
+
+#### F-437 — D-203 queues a construction-window `dispatch` whose tag the SPI promises to check against a count that does not yet exist · repaired 2026-11-01 by D-204
+
+**Tier B. Raised 2026-11-01 by the implementer at D-203 step 1**, relayed by the owner at `582092c1f`. Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §11. The defect is in an unimplemented decision, not in `src/`.
+
+**What happens.** R17 requires a `dispatch` from the behavior factory to be queued and applied after publication. The SPI requires an out-of-range tag to be reported and dropped, never enqueued (`src/kernel/spec.ts:54–65`). In the factory body the spec, and so `config.actionTags`, does not exist yet, and neither does the reporter. Today the conflict is hidden: every construction-window dispatch is dropped silently, in range or not (probe P6).
+
+**Why it is a problem.** An implementer would have had to choose validation timing and diagnostic behavior for a published SPI member: defer validation and hold raw tags, check at application, extend the report, or leave the window unchecked. That is a contract decision left unrecorded.
+
+**Repair.** The tag is checked once, at armed intake, unchanged. A construction-window tag is unchecked, and an out-of-range one has no specified outcome. Nothing is checked at application. D-204 property 12; cases R23–R27.
+
+**Relation to F-97.** F-97 still holds open whether the armed check survives the reachability gate. This repair is compatible with either answer.
 
 ## What would falsify this model
 

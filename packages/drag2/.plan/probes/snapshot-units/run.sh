@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Reruns the snapshot-units probes (D-201, D-202) against the working tree.
+# Reruns the snapshot-units probes (D-201 to D-204) against the working tree.
 #
 # The sources are stored as `*.ts.txt` because the package's `just lint` walks
 # `.plan/` with both oxlint and ESLint, and these files are evidence about one
@@ -28,7 +28,7 @@ for source in "${here}"/*.ts.txt; do
   cp "${source}" "${scratch}/${name}"
 done
 
-for probe in p1-nested-ingress p2-arm-destroy model; do
+for probe in p1-nested-ingress p2-arm-destroy p6-dispatch-tags model; do
   echo "== ${probe}"
   node "${scratch}/${probe}.ts"
 done

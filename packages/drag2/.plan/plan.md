@@ -2298,6 +2298,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-01 — A dispatch tag is checked at armed intake only (D-204, F-437)
+
+**D-203 step 1 found a contract gap in the construction window.** R17 queues a `dispatch` from the behavior factory and applies it after publication. The SPI says an out-of-range tag is reported and dropped, never enqueued. In the factory body the spec, and with it `config.actionTags`, does not exist yet, so that check cannot run. Today the conflict is invisible because every construction-window dispatch is dropped silently. Probe P6 records this. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §11.
+
+**D-204 supersedes D-203 and adds one property.**
+
+- Armed dispatch keeps its intake check and its `dispatch/tag-out-of-range` report, unchanged.
+- A construction-window dispatch is queued with its tag unchecked. An out-of-range tag there has no specified outcome.
+- No check runs at application. The bound is fixed for the controller's life, and a check there would run on sortable's per-frame spatial action.
+
+**The line it draws.** Under CONTRIBUTING §1.1 an out-of-range tag is integrator misuse: the author declares both the tags and their count. Under §13 the armed report is a documented outcome and stays a promise until F-97 decides otherwise. The window never carried that promise, so D-204 declines to extend it rather than withdrawing anything. Validating window entries at publication is recorded as the owner's fallback, if "preserve separation" is meant to cover misuse in the window.
+
+Cases R23–R27 land in step 1, with the `dispatch` text in 01 and `spec.ts`. R25 is the first test of the armed report, which no test covered. The witness is now `measurements/d204-requests.md`.
+
+---
+
 ### 2026-11-01 — The round-trip guarantee gets its entry condition (D-203, F-436)
 
 **The coordinator's handoff check found that one D-202 promise did not follow from its ordering.** D-202 said no consumer round-trip opens after a cancel against its operation is registered, and credited FIFO. But a behavior action that `release.effect` dispatches runs ahead of the queued `OPEN_RESOLUTION`. A cancel it requests sits behind `OPEN_RESOLUTION`, so `onReorder` ran and the cancel settled at `AT_CONSUMER`. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §10, from [`request-ordering-coordinator.md`](reviews/architecture/request-ordering-coordinator.md).

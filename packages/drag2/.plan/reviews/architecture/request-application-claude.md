@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**Amended again 2026-11-01 for `drag2:D-204`, which supersedes `drag2:D-203` before implementation.** D-204 carries D-203 in full and settles one gap D-203 step 1 exposed: what a `dispatch` tag gets checked against when the dispatch arrives during construction. Armed dispatch keeps its intake check and report; a construction-window dispatch is queued unchecked, and an out-of-range tag there has no specified outcome; no check runs at application. §2.9, §3, §4, §5, §7, §8 and §9 below state the D-204 form. §11 records the gap, the policy and the options. Raises and repairs `drag2:F-437`.
+
 **Amended 2026-11-01 for `drag2:D-203`, which supersedes `drag2:D-202` before implementation.** D-203 carries D-202 in full except one entry condition: `OPEN_RESOLUTION` also declines while a cancel for its operation is registered. §2.2, §2.7, §2.8, §6, §7 and §8 below state the D-203 form and are the handoff. §10 records what D-202 said, the counterexample that refuted it, and the choice. Raises and repairs `drag2:F-436`.
 
 **Canonical entries:** `drag2:D-202`, which supersedes `drag2:D-201`, decides `drag2:F-432`, `drag2:F-433` and `drag2:F-434` in D-201's place, and raises and decides `drag2:F-435`. The decision, its required properties and its steps are stated in [`00-index.md`](../../contract/00-index.md) and are not restated here. This record holds the evidence, the reasoning, the alternatives, the contract and surface tables, the cases and the handoff.
@@ -207,7 +209,7 @@ U-C now spans the whole of `draggable()`: the behavior factory, the static valid
 
 - **A failure in U-C**, whether static validation, a factory throw or an attachment throw, still unwinds and rethrows (01 §When construction itself fails). The queue is cleared with it.
 
-- **`dispatch` during U-C is queued and applied after publication**, the first U-As the controller runs. Today it is dropped silently, because no machinery exists to run it. That was a request with no boundary to apply at, and U-C supplies one. A behavior that dispatches from its factory, or from a feature installer, now has the action applied instead of losing it.
+- **`dispatch` during U-C is queued and applied after publication**, the first U-As the controller runs. Today it is dropped silently, because no machinery exists to run it. That was a request with no boundary to apply at, and U-C supplies one. A behavior that dispatches from its factory, or from a feature installer, now has the action applied instead of losing it. **The tag is not checked in the window**, because the count that bounds it is in the spec the factory has not yet returned. An out-of-range tag there is misuse with no specified outcome. Armed dispatch keeps its intake check and report, and nothing is checked at application (§11, D-204).
 
 - **`requestCancel` during U-C** is a no-op, because there is no operation. **`fail` during U-C** is demoted silently, as today, because the reporter is not armed.
 
@@ -275,7 +277,7 @@ The follow-up warns that calling something a query does not isolate a mutable ob
 | `BehaviorContext.destroy()` | as the consumer member | **`requestDestroy()`**, same semantics as the consumer member | as above |
 | `BehaviorContext.cancel(reason?)` | as the consumer member | **`requestCancel(reason?)`** | as above |
 | `BehaviorContext.closed` | the latch, read live | **removed** (D-53 withdrawn) | — |
-| `BehaviorContext.dispatch(tag, arg)` | dropped before arming; FIFO after | FIFO, **queued during U-C** and applied after publication | none |
+| `BehaviorContext.dispatch(tag, arg)` | dropped before arming, unreported; FIFO after, an out-of-range tag reported and dropped at intake | FIFO, **queued during U-C** and applied after publication, **the tag unchecked there**; armed intake check and report unchanged; no check at application (§11) | none |
 | `BehaviorContext.fail(stage, error)` | phase result plus checkpoint; demoted outside a phase | unchanged, except supersession by a registered cancel is decided at application (§2.10) | `onError` at the checkpoint's application |
 | `Transition.rollback`, `ActionTransition.rollback`, `BehaviorSpec.activation.rollback`, `BehaviorSpec.action.rollback` | called on an invalidated preparation | **removed** | — |
 | `InsertionRuntimeView.live`, `DisplacementReport`'s `live` parameter | the latch as a predicate | **removed** | — |
@@ -294,7 +296,7 @@ The follow-up warns that calling something a query does not isolate a mutable ob
 
 3. **A cancel raised during activation** delivers `onStart` and then `onEnd` `canceled` at `AT_PROPOSAL`. Today the drag ends silently.
 4. **A cancel or destroy raised in `release.prepare` or `release.effect`** never opens the round-trip. That is today's outcome, and it now holds by order rather than by a guard. A cancel raised there now reports `AT_PROPOSAL`; today it reports `AT_CONSUMER` (F-435).
-5. **`dispatch` during construction** is applied after publication instead of being dropped. This is a behavior-author change, not a consumer one.
+5. **`dispatch` during construction** is applied after publication instead of being dropped. Its tag is not checked there, so an out-of-range construction-window tag, previously dropped silently, now has no specified outcome (§11). This is a behavior-author change, not a consumer one.
 6. **`moveTo`** applies the coordinates the consumer passed at the call.
 7. **A failure checkpoint superseded by a cancel** is reported at its application as `failure/superseded-by-cancel`, where some cases today report `failure/not-classified` at intake.
 
@@ -318,7 +320,7 @@ Each amendment lands with the step that makes it true, never ahead of it (F-63).
 | 02 §Release ordering, §`ResolutionCommand` | the command is executed by its own unit (§2.8) |
 | 02 §The settlement input is discriminated and exhaustive | the cancel stage rule (§2.6, F-435) |
 | 02 §Attempts | no latch conjunct at the producer |
-| 01 §`BehaviorContext` | renamed members; `closed` removed; the construction-window rows (dispatch queued; cancel no-op; fail demoted; destroy deferred to U-C's boundary) |
+| 01 §`BehaviorContext` | renamed members; `closed` removed; the construction-window rows (dispatch queued, its tag unchecked there, the armed report scoped to after arming (§11.5); cancel no-op; fail demoted; destroy deferred to U-C's boundary) |
 | 01 §`draggable()` and the two-phase handshake, §When construction itself fails, §Teardown across two owners | U-C spans `draggable()`; application at its boundary; teardown is application |
 | 03 §`InsertionRuntimeView`'s `live` row, the `DisplacementContribution.report` and `MovedInsertion` documentation, the placement barrier | removed; the D-13 widening count is recorded, not rewritten |
 | 07 | free-drag controller members; `moveTo`'s capture |
@@ -381,10 +383,13 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 | **R15** F-432 (D-201 E3) | a command-type `addEventListener` dispatches a press and a command, then throws | `arm()` rethrows; no operation was minted; no listener left; nothing lifted |
 | **R16** failure supersession | in one seam: `requestCancel` then `kernel.fail`; and the reverse order across two units | the first is reported `failure/superseded-by-cancel` at the checkpoint's application with one `onEnd` `canceled`; the second reports the failure |
 | **R17** dispatch during U-C | the behavior factory dispatches an action | the action applies after publication, before `draggable()` returns |
-| **R18** `moveTo` argument | inside `onMove`, `moveTo(p)` then mutate `p` | the committed position is the passed coordinates |
-| **R19** mutable call target (D-201 E6) | reassign `options.onEnd` and `options.items` in `onStart` | construction-time functions reached |
-| **R20** destroy while a resolution is pending (D-201 E10) | destroy at depth 0, then the thenable settles | applied at once; resolver's signal aborted; late settle dropped at intake |
-| **R21** structural | `grep` for lifecycle and cancel-request reads | only the places §6 names |
+| **R23** (D-204) window order | `actionTags: 1`; the factory body dispatches `0` with `a`; the first frame-part factory dispatches `0` with `b` | both applied after publication and before `draggable()` returns, `a` then `b`; no report. Today both are dropped silently (P6) |
+| **R24** (D-204) window dispatch overtaken | the factory body dispatches `0`, then requests destroy; separately, dispatches `0` and a frame-part factory throws | no action applied and no report in either; the first returns a controller whose destruction is applied and whose promise has settled (R11); the second rethrows from `draggable()` |
+| **R25** (D-204) armed out-of-range | after arming, at depth 0 and from inside an action's `effect`: tags `RETIRE - BEHAVIOR_BASE` (`-22`), `0.5`, `config.actionTags`, `NaN`, each followed by `0`; then the same with a destroy request registered and not yet applied | each out-of-range tag reports one `DraggableWarning` `drag: dispatch/tag-out-of-range <tag>` through `reportError` before `dispatch` returns; none is queued: no `action.prepare` for it, and `-22` retires nothing; each `0` is applied. Today's depth-0 rows already behave this way (P6), and no test covers them |
+| **R26** (D-204) armed after applied destruction | `dispatch(-22)` and `dispatch(0)` after `requestDestroy()` has been applied | no report and nothing applied. As today (P6) |
+| **R27** (D-204) structural | `grep` for `actionTags` reads in `src/kernel/` | read at exactly two sites: U-C's static validation and armed intake in `dispatch`. Nothing on the drain path reads it, and no list of construction-window tags is held for later validation |
+
+**No case pins an out-of-range tag dispatched during construction.** Its outcome is unspecified (§11.2 item 2), and a test asserting a report, a drop or an application would turn misuse into contract. | **R18** `moveTo` argument | inside `onMove`, `moveTo(p)` then mutate `p` | the committed position is the passed coordinates | | **R19** mutable call target (D-201 E6) | reassign `options.onEnd` and `options.items` in `onStart` | construction-time functions reached | | **R20** destroy while a resolution is pending (D-201 E10) | destroy at depth 0, then the thenable settles | applied at once; resolver's signal aborted; late settle dropped at intake | | **R21** structural | `grep` for lifecycle and cancel-request reads | only the places §6 names |
 
 **D-201's E-cases map as follows:**
 
@@ -413,9 +418,10 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
    - U-C spanning `draggable()`, with dispatch queued during it;
    - ingress refused while any unit runs, with the click disarm behind the refusal;
    - the unconditional post-admission drain;
-   - the arm-time latch tests deleted.
+   - the arm-time latch tests deleted;
+   - `dispatch`'s window path queued without a tag check, its armed intake check unchanged (§11).
 
-   Cases R9, R10, R11, R13, R15, R17, and R1's construction and drain half. Contract: I-1, I-6 (runner half), 01 construction sections, COVERAGE. `closed` stays readable through this step and reports `CLOSED` only.
+   Cases R9, R10, R11, R13, R15, R17, R23–R27, and R1's construction and drain half. Contract: I-1, I-6 (runner half), 01 construction sections including §11.5's `dispatch` text in 01 and `src/kernel/spec.ts`, COVERAGE. `closed` stays readable through this step and reports `CLOSED` only.
 
 2. **The split and capture** (D-201 step 2, unchanged):
    - the façade and the armed controller;
@@ -446,7 +452,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
    Cases R18, R21. Contract: I-36, I-37, 01 §`BehaviorContext`, 03, 07, README and the declaration surface (`tests/**/*.declaration.test.ts` as the surface tests require).
 
 5. **The comment pass**, D-199's, carried by D-201, over the files D-202 rewrote, with its rules and runtime-hash check.
-6. **The measurement record** `.plan/measurements/d203-requests.md`. It holds:
+6. **The measurement record** `.plan/measurements/d204-requests.md`. It holds:
    - composition on every kernel-carrying row, per step;
    - the M-1 move path with I-26's structural check (one sample allocates nothing; `OPEN_RESOLUTION` and `moveTo`'s copy are per drop and per call);
    - M-2 controller cost with the façade;
@@ -468,6 +474,9 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 - **D-200** keeps its pending independent acceptance. No `Lifetime` or `ActionQueue` property changes. The bracket's reason for stopping widens from the latch to the lifecycle request, and that decision is returned through the callback, as D-180 requires. Property 3's first-entry clause gains R1 and R12 as falsifiers.
 - **D-202** is superseded by D-203 before implementation (§10). Every property carries forward except property 6's entry condition, and the unimplemented row moves to D-203 with the witness renamed `d203-requests.md`.
 - **F-436** is raised and repaired by D-203. It is a contradiction in an unimplemented decision, not a code defect.
+- **D-203** is superseded by D-204 before implementation (§11). Every property carries forward. D-204 adds the tag rule for `dispatch` (§11.2), cases R23–R27 and step 1's contract text. The unimplemented row moves to D-204 with the witness renamed `d204-requests.md`.
+- **F-437** is raised and repaired by D-204: an unstated rule in an unimplemented decision, not a code defect.
+- **F-97** is unchanged. It still holds open whether the armed check survives the reachability gate (the audit's §3.5). D-204 scopes the armed promise to armed dispatch, which is all it ever covered, and is compatible with either answer.
 - **F-432** is decided by D-202 (R15) and closes when it lands. **F-433** (R9) and **F-434** (R8) likewise move from D-201 to D-202. **F-435** is raised and decided here (R4, R6).
 - **Live obligations** O-2, O-3, O-4, O-5 and O-7 are untouched. SC-1 and SC-7 are recognitions the measurement record may meet.
 
@@ -488,6 +497,7 @@ The script copies the sources under `tests/zz-snapshot-units-probe/` as `.ts`, w
 | P4 | late cancel in `anchorTarget` (F-434) | `p4-late-cancel.browser.test.ts.txt` |
 | P5 | requests raised inside a unit change its later calls today; F-435 | `p5-in-unit-requests.browser.test.ts.txt` |
 | model | R1–R14 and R22 under D-203's semantics; R22 also under D-202's stated OPEN conditions | `model.ts.txt` |
+| P6 | behavior-action tags from the factory body, a frame-part factory, after arming, and after destruction (D-204) | `p6-dispatch-tags.ts.txt`, with `env.ts.txt` |
 
 **Output at `6905af249`**, with the owner's uncommitted edits in the tree, run 2026-11-01. The model's R22 line is from the D-203 amendment, rerun at `0f0bf0368`, where `src/` is unchanged:
 
@@ -537,6 +547,26 @@ P5 destroy() in anchorTarget: ["activation.prepare","onStart","release.effect","
 
 The browser lines are regrouped by probe; Vitest interleaves them. `type=43` is `SETTLED_CANCELED` and `type=40` is `SETTLED_FULFILLED`. `retire` is `BehaviorSpec.retire`, which runs once per operation retirement and once more at teardown, so a destroyed operation logs it twice. P4's first and control rows reproduce D-201's record.
 
+**P6 output at `582092c1f`**, run 2026-11-01 against a clean extract of that commit's `src/`. The working tree gave identical output: it held the owner's edits and another session's uncommitted step-1 edits, which this record does not describe. `run.sh` runs P6 after P2, against whatever tree it finds. The window's four dispatches, `0` and `7` from the factory body, `0` and `-22` from the first frame-part factory, produce no line at all:
+
+```text
+== p6-dispatch-tags
+-- armed
+dispatch(0)
+action.prepare [0,"armed 0"]
+dispatch(-22)
+reportError DraggableWarning: drag: dispatch/tag-out-of-range -22
+dispatch(0.5)
+reportError DraggableWarning: drag: dispatch/tag-out-of-range 0.5
+dispatch(1)
+reportError DraggableWarning: drag: dispatch/tag-out-of-range 1
+dispatch(NaN)
+reportError DraggableWarning: drag: dispatch/tag-out-of-range NaN
+-- destroyed
+spec.retire
+dispatch(-22) after destroy
+```
+
 ## 10. Amendment: the round-trip guarantee and its entry condition (D-203)
 
 **2026-11-01. Input:** `0f0bf0368` and the coordinator's handoff check [`request-ordering-coordinator.md`](request-ordering-coordinator.md) (`coordinator-a`). This section is that check's resolution. It records **F-436**.
@@ -572,3 +602,94 @@ Nothing in §3, §4 or §5 changes: `requestCancel`'s contract already says a re
 **Stage.** In the coordinator's case the consumer receives one `onEnd` with the `canceled` arm at **`AT_PROPOSAL`**, because `invoke` was never called.
 
 **Verification.** The model's R1–R14 still pass. R22 passes under D-203's condition, and under D-202's stated conditions the model reproduces the coordinator's trace (`onReorder`, then `AT_CONSUMER`). The coordinator's unmodified reproduction script, run against the amended model, exits 0 with the trace ending `onEnd(canceled AT_PROPOSAL)`, `retire #1`. The browser probes are unchanged and were not affected.
+
+## 11. Amendment: behavior-action tags in the construction window (D-204)
+
+**Raised by the implementer at D-203 step 1**, relayed by the owner at `582092c1f` with the owner's local edits in the tree. Recorded as `drag2:F-437`. While this amendment was written, the working tree also gained another session's uncommitted step-1 edits to `src/` and `tests/`. Every source citation below is at `582092c1f`, and none of those edits was read as evidence or changed.
+
+**The gap.** D-203 carries D-202 §2.9: a `dispatch` during U-C is queued and applied after publication (R17). The SPI states two more things about every `dispatch` (`src/kernel/spec.ts:54–65`, 01 §`BehaviorContext`):
+
+- the tag must be an integer in `0 .. config.actionTags - 1`;
+- an out-of-range tag is reported and dropped, never enqueued.
+
+In the factory body neither can be delivered. `config.actionTags` belongs to the spec the factory has not yet returned, so there is nothing to check the tag against at intake, and nothing to report through: `#notify` reports through the spec's `reportError`. Today the conflict is hidden because every window dispatch is dropped, in range or not, with no report (P6). Once R17 queues the in-range ones, the decision has to say what happens to an out-of-range tag from the same position. D-203 does not say.
+
+### 11.1 What the contract promises, and what is misuse
+
+Two different things share one sentence, and §1.1 and §13 of CONTRIBUTING separate them.
+
+- **The precondition** is published and meetable. The tags are the behavior author's own constants, bounded by a count the author declares in the same spec. No platform behavior, race, end-user input or library-minted value produces an out-of-range tag. Under §1.1's gate, an out-of-range tag is integrator misuse and the library owes nothing at runtime for it.
+- **The outcome**, "reported and dropped, never enqueued", is written into the published SPI. Under §13, a documented outcome is a promise even when the input is outside the contract, so the armed check and its report are contract and stay until a contract decision withdraws them. F-97 holds exactly that question open (the reachability audit's §3.5 recommends deletion with the text revised in the same change). D-204 neither decides it nor pre-empts it.
+
+The promise was never made for the window. Until D-203, the window's own sentence overrode it ("dropped, without a report"), and D-203 replaced that sentence with R17 only for the action's application. So the question for the window is not whether to keep a promise. It is whether to extend one, and §1.1 says not to extend a misuse diagnostic to a position where it costs machinery.
+
+### 11.2 The decision
+
+1. **Armed dispatch is unchanged.** The check runs at intake, after the lifecycle test: once destruction has been applied, every dispatch is dropped with no report. An out-of-range tag is reported as `drag: dispatch/tag-out-of-range <tag>` through `reportError` before `dispatch` returns, and nothing is queued. This holds at depth 0, inside a unit, and while a destroy request is registered but not yet applied.
+2. **Window dispatch is not checked.** From the factory's invocation until arming completes (`spec.ts`'s existing definition of the construction window), a dispatch is queued as a behavior action exactly as an in-range armed dispatch is. It is applied after publication, before `draggable()` returns, in dispatch order. The range is the author's precondition there, and an out-of-range tag has **no specified outcome**: no report, no drop and no application are promised. No case may pin one.
+3. **No check at application.** A queued behavior action is applied without re-reading `config.actionTags`, whichever path queued it.
+4. **Window entries follow the queue's existing rules.** A destroy requested in U-C is applied at U-C's boundary, ahead of every queued entry, and application clears the queue: no window dispatch is applied (R12's precedence, R11's boundary). A failure that unwinds U-C clears the queue with it, and `draggable()` rethrows.
+
+**Kernel/behavior action separation.** For every dispatch inside the contract, the queue entry is a behavior action, applied through the behavior's action transition with the tag it was dispatched with, on either path. That follows from the offset alone (`BEHAVIOR_BASE + tag` with `0 ≤ tag`), with no check. The armed intake check also keeps out-of-range armed tags off the queue, because the contract promises it. A window tag outside the range is outside the contract, and the kernel does not defend separation for it, as it does not for any other misuse §1.1's gate closes on. P6 shows what such a tag would alias: `RETIRE − BEHAVIOR_BASE` is `−22`.
+
+### 11.3 Why no check at application
+
+An armed tag valid at intake is valid at application.
+
+- **The bound cannot change.** `#spec` is assigned once, at the end of a successful arming (`kernel.ts:2521` at `582092c1f`; `draggable()` calls `arm()` once, `:305`). Its only other assignment is the failed-arm unwind (`:2583`), on a controller `draggable()` never returns. `BehaviorConfig` is `Readonly`, and `actionTags` is static spec data validated once.
+- **The entry does not change.** The queue holds the encoded action and its argument, and nothing rewrites either.
+- **What can change between intake and application is the ledger.** Applied destruction clears the queue. Whether an action still means something for the current operation is the behavior's own `action.prepare`'s question; sortable's spatial frame already validates its attempt there (`sortable/spec.ts:380–391`).
+- **It would run on every applied action**, including sortable's `TAG_SPATIAL`, dispatched once per animation frame during a drag (`sortable/spec.ts:390`), to re-establish a fact that cannot have changed.
+
+A check at application would also not help the window: a negative tag is already aliased once it is encoded, so detecting it would need the raw tag in each entry, the per-entry wrapper 01 §`BehaviorContext.dispatch` excludes.
+
+### 11.4 Options considered
+
+| Option | Window outcome for an out-of-range tag | Cost and consequence |
+| --- | --- | --- |
+| **(1) Armed check unchanged; window unchecked; no check at application** (chosen) | unspecified (misuse) | none: the window path skips a branch it cannot evaluate. The warning P6 shows the window allocating today, and `#notify` then discarding, is no longer built |
+| (2) Validate window entries once, when U-C validates the spec, reporting and removing out-of-range ones before publication | reported and dropped, uniform with armed | a held list of raw tags or a filter over the bracket's queue, a loop and a second report site. It extends a misuse diagnostic the gate does not require, and hardens a guarantee F-97 holds open for deletion |
+| (3) Validate at application | reported and dropped | per applied action, on the per-frame path, plus raw tags in every entry (§11.3) |
+| (4) Refuse dispatch in the window | dropped | contradicts R17, which the commission keeps |
+| (5) Withdraw the armed check now, as the audit's §3.5 recommends | unspecified on both paths | the smallest and uniform, but it changes a published armed-path promise this question did not open. It stays with F-97 |
+
+**Why (1).** It is the only option that delivers R17 and the armed promise exactly as they stand, and adds nothing. It is also compatible with either outcome of F-97: if the armed check is later withdrawn, both paths become unchecked and uniform, with no window machinery to remove.
+
+**Owner veto point.** If "preserve kernel/behavior action separation" is meant to cover out-of-range tags dispatched during construction, then option (2) is the fallback. It changes only §11.2 item 2, R24 (which gains a report) and step 1.
+
+### 11.5 Contract text
+
+Both land in step 1, with the window path:
+
+- **`BehaviorContext.dispatch`** in `src/kernel/spec.ts` and 01 §`BehaviorContext` must state:
+  - the precondition, unchanged;
+  - that **after arming** an out-of-range tag is reported and dropped, never enqueued;
+  - that **during construction** the action is queued and applied after `draggable()` publishes the controller, before it returns, in dispatch order;
+  - that the tag is not checked there, because the count bounding it is in the spec the factory has not yet returned, so an out-of-range tag has no specified outcome;
+  - that after applied destruction every dispatch is dropped.
+
+  The current sentence "An action dispatched before the behavior is armed is dropped, without a report" is withdrawn.
+
+- **The `BehaviorContext` header** keeps "`BehaviorContext.dispatch` is the one member in that position", with the limitation it points to now being the unchecked tag rather than the drop.
+
+### 11.6 Cases and verification
+
+R23–R27 (§7) carry the decision. **P6** records today's tree:
+
+- the armed rows already deliver R25's and R26's required outcome at depth 0;
+- the window rows show every window dispatch dropped silently, which R23 changes.
+
+No test in `tests/` covers the armed out-of-range report today (`grep -rn tag-out-of-range tests` finds nothing), so R25 is the first test of a published promise.
+
+**What it changes in this record:**
+
+- §2.9's dispatch bullet;
+- §3's `dispatch` row;
+- §4 item 5;
+- §5's 01 row;
+- §7, which gains R23–R27;
+- §8 steps 1 and 6;
+- §9;
+- the Appendix, which gains P6.
+
+Nothing in §2.1–§2.8, §2.10–§2.13 or §6 changes, and D-203's other properties carry unchanged.
