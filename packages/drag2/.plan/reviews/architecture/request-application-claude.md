@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**Step 1 accepted 2026-11-01, at `44e2074f1`, after the step-1 feature proof's recheck.** D-206 stays unimplemented: steps 2–6 remain. `drag2:F-438` and `drag2:F-439` close with the step. D-206's mutation requirement is amended in place to cover the R30 rows whose outcome the clause decides; the `invoke: null` row is an equivalent mutant. §14 records the assessment, the dispositions and step 2's handoff.
+
 **Amended a fourth time 2026-11-01 for `drag2:D-206`, which supersedes `drag2:D-205` after its step-1 checkpoint (`3e44eaf62`).** D-206 carries D-205 in full and adds one clause to `OPEN_RESOLUTION`'s entry condition: the round-trip also declines while a failure checkpoint for its operation is registered and unapplied. Step 1's `release.effect` inventory met §8's first escalation clause: a custom placeholder's reaction to the release move queues collection work, that work fails, and its checkpoint lands behind `OPEN_RESOLUTION`. Under D-205 the round-trip then opened for an operation whose failure was already registered, and the terminal for a synchronous resolver moved from `accepted` to `canceled` at `AT_CONSUMER`. D-206 requires no round-trip and `canceled` at `AT_PROPOSAL` for either resolver. §2.2, §2.7, §2.8, §2.10, §4–§9 below state the D-206 form. §13 records the escalation, the evidence and the options. Raises and repairs `drag2:F-439`.
 
 **Amended a third time 2026-11-01 for `drag2:D-205`, which supersedes `drag2:D-204` after its step 1 landed (`2c5212daf`).** D-205 carries D-204 in full and changes the step order. The consumer round-trip's own unit, with its entry condition, the cancel stage rule and the `release.effect` inventory, moves from step 3 into step 1. Step 1 had made in-unit readers blind to a destroy request before the round-trip left the release unit, so a destroy requested there opened `onReorder` (F-438). D-205 adds property 13: no landed step makes a consumer call that both the baseline and the target withhold. §7, §8 and §9 below state the D-205 form. §12 records the gap, the evidence and the options.
@@ -453,13 +455,15 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 
    **The failure clause completes the round-trip's unit** (D-206, §13.5). `3e44eaf62` landed everything else in it. The clause and R30 land before step 2, and with them the 02 text for the entry condition.
 
+   **Step 1 is accepted** (2026-11-01, at `44e2074f1`; §14).
+
 2. **The split and capture** (D-201 step 2, unchanged):
    - the façade and the armed controller;
    - capture at entry and parameters below it;
    - teardown deduplication;
    - the module-binding census.
 
-   Cases: D-201's capture assertions and R19.
+   Cases: D-201's capture assertions and R19. Its bounded handoff, with what it must keep from step 1, is §14.4.
 
 3. **Kernel requests.** Delete every in-unit ledger read in the kernel and driver (§6):
    - `#preparationValid`, `SEAM_INVALIDATED`, `rollback` and its SPI members together with the sortable D-39 ledger, the staging conditional if step 1 kept it;
@@ -508,7 +512,9 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 - **F-438** is raised by the step-1 feature proof (reviewer-A) and decided by D-205. It is a regression in `src/` at `2c5212daf`, and it closes when step 1's round-trip unit lands.
 - **D-205** is superseded by D-206 after its step-1 checkpoint `3e44eaf62` (§13). Every property, the step order and the landed code carry forward. D-206 adds the failure clause to `OPEN_RESOLUTION`'s entry condition and case R30. The unimplemented row moves to D-206 with the witness renamed `d206-requests.md`.
 - **F-439** is raised by the implementer's escalation at `3e44eaf62` and repaired by D-206. It is a gap in D-205's entry condition, which the checkpoint implemented as stated, not a code defect.
-- **Reviewer-B to reviewer-D** of the same report are step-1 defects for its implementer. Reviewer-B is repaired before step 2, as the report requires.
+- **Reviewer-B to reviewer-D** of the same report are step-1 defects for its implementer. Reviewer-B is repaired before step 2, as the report requires. All three were repaired at `3e44eaf62`, and the recheck resolves them.
+- **Step 1** is accepted at `44e2074f1` (§14). **F-438** and **F-439** close with it. D-206 stays unimplemented, and its row lists steps 2–6.
+- **Reviewer-E to reviewer-G** of the recheck are Tier C. E is the owner's and F the implementer's, and neither blocks step 2. G is repaired in the unimplemented row (§14.2).
 - **F-97** is unchanged. It still holds open whether the armed check survives the reachability gate (the audit's §3.5). D-204 scopes the armed promise to armed dispatch, which is all it ever covered, and is compatible with either answer.
 - **F-432** is decided by D-202 (R15) and closes when it lands. **F-433** (R9) and **F-434** (R8) likewise move from D-201 to D-202. **F-435** is raised and decided here (R4, R6).
 - **Live obligations** O-2, O-3, O-4, O-5 and O-7 are untouched. SC-1 and SC-7 are recognitions the measurement record may meet.
@@ -945,7 +951,7 @@ The other inventory items need nothing:
 - **R30 as tests**, each driven through the bracket with no harness flag:
   - in `kernel.browser`: an action that `release.effect` dispatched fails in its `prepare`, with a synchronous resolver, an asynchronous resolver and the `invoke: null` command;
   - in the sortable suite: P8's throwing path, with both resolvers, asserting the full outcome in §13.3 and the stage `FAILURE_ACTION_PREPARE`.
-- **A mutation**: removing the clause reddens the R30 rows.
+- **A mutation**: removing the clause reddens the R30 rows. _Amended by §14.3:_ the four rows whose outcome the clause decides. On the `invoke: null` row the mutant is equivalent.
 - **Contract text**: 02 §`ResolutionCommand` and §Release ordering state the clause; COVERAGE records the rows and the mutation.
 - **The step-1 record** replaces §The open escalation with a pointer to this section and reports the composition change.
 
@@ -961,3 +967,123 @@ None of the D-205 checkpoint's other work changes. **The checkpoint is not accep
 - the Appendix, which gains P8 and the model's new line.
 
 §3 and every carried property other than the entry condition are unchanged.
+
+## 14. Step 1 accepted (D-206)
+
+**Input.** `e9eaf657c` on `drag2/fin-review2`. The implementation reviewed is `44e2074f1`. Step 1 landed in three commits:
+
+- `2c5212daf`: the runner and construction;
+- `3e44eaf62`: the round-trip's own unit, and the repairs for reviewer-B to reviewer-D;
+- `902810cae`: the failure clause and R30.
+
+`44e2074f1` commits the owner's `seams.node` assertion edit. The assessment rests on the step-1 feature proof ([`d204-step1-feature-proof-claude.md`](../fin-review2/d204-step1-feature-proof-claude.md)): its review of `2c5212daf` and its §Recheck at `44e2074f1`.
+
+### 14.1 Assessment
+
+**Step 1 is accepted.** Each of §8 step 1's completion conditions holds:
+
+- **The round-trip runs in its own unit.** The release unit holds the command and queues `OPEN_RESOLUTION`. Its entry reads the five clauses of D-206 property 6. The cancel stage is `AT_CONSUMER` exactly when that unit reached `invoke`. The `release.effect` inventory is recorded, and its one escalation is decided (§13). Registration is written in `#failOperation` only after the demotion return, it lives on the operation record, and nothing but the round-trip's entry reads it.
+- **The step's cases are rows through the running controller.** The review of `2c5212daf` covered R1's construction and drain half, R9–R11, R13, R15, R17 and R23–R27. The recheck covered R4–R6, R22 and R28–R30.
+- **Mutations discriminate where they can.** Removing the clause or the registration reddens four rows. Opening the round-trip inline reddens eleven, including R5, R28 and both null-command rows. Removing the cancel clause reddens two, and reading the stage from the phase reddens three. Removing reviewer-B's repair reddens one.
+- **The step's contract text is in the tree**: 02 §Release ordering, §`ResolutionCommand` and the stage rule, 01's construction sections, and COVERAGE.
+- **Property 13 holds on the paths probed** (P4, P5, P7, P8). R3 and R8 remain at their baseline outcome; both belong to step 3.
+- **The failing sets are the input's**: the ten test failures, an eslint set that is a subset of the baseline's, and the two `.scripts/vitest-*.ts` typecheck errors.
+
+**Checked independently, at `e9eaf657c`:**
+
+- **`run.sh`:** the model's R1–R14, R22 and R28–R30 are `ok`. P4, P5 and P7 pass 12 of 12. P8's throwing rows show no `onReorder` and `canceled AT_PROPOSAL failed` for both resolvers, and its non-throwing rows are `accepted`.
+- **The five R30 rows** pass.
+- **The `invoke: null` argument** (§14.3) was read in the code. In `kernel.ts`: `#openResolution`'s null path, `#settleResolution`, `#handleFailed` and `#handleResolutionSettled`. In both behaviors' `spec.ts`: the only place `RESOLVING` is set.
+
+**Limits, carried from the recheck and not discharged by this acceptance:**
+
+- Browser runs used Chromium only.
+- The four surviving round-trip mutants in COVERAGE were not re-run.
+- Reviewer-B's repair is verified at the bracket, not through a real `Kernel` panic.
+- 01's and 02's amendments were sampled rather than read in full.
+
+None of these limits leaves a step-1 property without a row. **The decision's own acceptance (§8 Acceptance) still re-reads every §5 contract row against the tree. Step 1's acceptance does not discharge that.**
+
+**What this does not do:**
+
+- **D-206 stays `Unimplemented (Remediation)`.** Its witness, the absent `d206-requests.md`, holds.
+- **F-432 to F-435 stay open** and close when the whole decision lands. Their step-1 rows (R15, R9, R4, R6 and R22) have landed. F-434's R8 is step 3's.
+- **D-200's independent acceptance is still pending**, unchanged.
+
+### 14.2 Dispositions
+
+| Item | Disposition |
+| --- | --- |
+| **F-438** (Tier A) | **Closed.** Its property is held by order rather than by a reading: application discards the queued `OPEN_RESOLUTION`. R5 and R28 are bracket-driven rows that the inline-open mutation reddens |
+| **F-439** (Tier B) | **Closed.** The clause and registration landed at `902810cae`. The four discriminating R30 rows redden under either mutation. The fifth row is §14.3's |
+| Reviewer-A to reviewer-D | **Resolved**, as the recheck records. A was decided as D-205 and is carried by D-206 |
+| Reviewer-E (Tier C) | **The owner's**, for `seams.node.test.ts:1174–1178`. The comment and the unused `oxlint-disable` describe a spelling the assertion no longer uses. Nonblocking |
+| Reviewer-F (Tier C) | **The implementer's.** The census in `d204-step1.md:235` says "three of the five", and COVERAGE's inline-open count of 6 belongs to `3e44eaf62`, not to the tip. Required property: a census states the count for the tree it names. Nonblocking. It may land with step 2's record |
+| Reviewer-G (Tier C) | **Repaired here.** D-206's row in §Decisions not yet implemented now lists steps 2–6, with a dated note beneath the table |
+| The `invoke: null` mutation requirement | **D-206 amended in place** (§14.3) |
+
+### 14.3 The `invoke: null` mutation requirement
+
+**The observation is correct.** D-206 said _"A mutation that removes the clause must redden the R30 rows"_, and §13.5 put the null-command row among them. On that row no surface can see the clause.
+
+**The mutant is equivalent.** Without the clause, opening a null command calls `#settleResolution`, which queues `RESOLUTION_SETTLED` behind the `FAILED` already queued. `#handleFailed` retires the attempt slots, so the late settlement finds no slot and reports nothing. The behaviors take a failed drop's stage from `RESOLVING`, which only the `invoke` closure sets. With no closure, the stage is `AT_PROPOSAL` either way. No consumer call, report or warning differs.
+
+**Decided:** the requirement covers the R30 rows whose outcome the clause decides. Those are the kernel's two resolver rows and the sortable's two. The clause keeps covering the null command, and property 6 is unchanged. The null row stays and asserts the decided outcome. It is not counted as the clause's falsifier, and the inline-open mutation holds it as a regression row. This is a verification sentence, so D-206 is amended in place under a dated paragraph, as the ledger amends decisions. No decision is minted.
+
+**Not chosen:**
+
+- **Require a discriminating null row.** The only ways are a harness flag that forces the queue order, which §8 rules out for these cases, or a production change that makes a null command settle in the opening unit. That would be a behavior change made for testability.
+- **Take the null command out of the clause.** The entry condition would stop being uniform. The null path's outcome would then depend on where the skipped settlement happens to land in the queue, an incidental property that a later step may change. The clause costs nothing there, because the conjunct is already evaluated.
+- **Delete the row.** It fixes the null command's outcome, and it is one of the eleven rows the inline-open mutation reddens.
+
+### 14.4 Handoff: step 2, the split and capture
+
+**Scope.** D-201's split and capture, as D-202 property 1 carries it: D-201's properties 3, 4, 10 and 12, and its decomposition.
+
+- **Decomposition.** The `BehaviorContext` façade owns realm, root, the bracket, the ingress `AbortController`, and one nullable reference to the armed controller. The armed controller holds every handler, controller-scope context as `readonly` fields, and the current-operation slots.
+- **Property 3.** Controller-scope context is published complete by U-C and never reassigned. No reader tests for its presence.
+- **Property 4.** A unit resolves its target operation and activation once, at entry, and validates their currency there. Helpers below the entry receive them as arguments. The current-operation slots are read only:
+  - at unit entries;
+  - at request intake;
+  - by the statements that publish or retire them.
+
+  The settlement input travels as the seam's capability.
+
+- **Property 10.** Teardown deduplication, as D-201 lists it.
+- **Property 12.** `src/` holds no module-level mutable binding, with a census. One pointer sample allocates nothing (I-26).
+
+**Cases:** D-201's capture assertions and R19. The tests D-201 §5 lists as encoding a revised promise change with the step that revises them.
+
+**Step 2 keeps from step 1:**
+
+- **Every step-1 row stays green**, the five R30 rows and both null-command rows included.
+- **`OPEN_RESOLUTION` reads its five clauses at its entry, and nowhere else.** The cancel and failure records may move to the armed controller's operation record. They stay operation-scoped. Registration is still written only where a checkpoint is queued.
+- **Reviewer-B's property.** A `destroy()` after a panic settles its promise, and its three `execution.node` rows stay green. Step 2 rewrites the teardown that promise depends on, so this is the row most at risk.
+- **`closed` stays readable** and reports `CLOSED` only until step 4.
+- **Property 13.** No landed step makes a consumer call that both the baseline and the target withhold. The step's record carries the interim accounting forward.
+- **D-200.** No `Lifetime` or `ActionQueue` property changes.
+
+**Out of scope:**
+
+- deleting in-unit ledger reads and the staging conditional (step 3);
+- the renames and the surface (step 4);
+- the comment pass (step 5);
+- `d206-requests.md`, which is step 6 and whose creation would falsify the witness early;
+- reviewer-E and reviewer-F, which do not gate step 2.
+
+**Record:** `.plan/measurements/d206-step2.md`. It holds:
+
+- composition on every kernel-carrying `bench/size` row, before and after (CONTRIBUTING §15);
+- the module-binding census;
+- each mutation census, with the tree it was taken at;
+- property 13's interim table.
+
+M-1 and M-2 belong to step 6. If the façade hop measurably changes the move path before then, the record reports it.
+
+**Escalate rather than decide** if:
+
+- the split needs a module-level mutable binding, or the façade hop allocates per pointer sample;
+- a step-1 row stays green only by reading a request inside a unit, or by reading the cancel or failure record anywhere but `OPEN_RESOLUTION`'s entry;
+- teardown deduplication changes an outcome that a step-1 row or reviewer-B's rows assert.
+
+**Review.** Step 2 gets its own feature proof before step 3 starts.

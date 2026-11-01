@@ -2298,6 +2298,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-01 — D-206 step 1 accepted; F-438 and F-439 closed
+
+**Step 1 is accepted at `44e2074f1`, and D-206 is not complete.** The step-1 feature proof's recheck finds no step-1 blocker. Reviewer-A to reviewer-D are resolved. The step's cases are rows through the running controller. The failure clause is implemented as D-206 states it. The architect reran `run.sh` and the five R30 rows at `e9eaf657c`, with the same result. F-438 closes: R5 and R28 are held by order, and the inline-open mutation reddens them. F-439 closes: four R30 rows redden without the clause or its registration. Steps 2–6 remain. The witness holds, F-432 to F-435 stay open, and D-200's acceptance is still pending.
+
+**D-206's mutation requirement is amended in place.** It now covers the R30 rows whose outcome the clause decides. On the `invoke: null` row, removing the clause is an equivalent mutant: the skipped settlement queues behind `FAILED`, and only `invoke` marks `RESOLVING`. The row stays as an outcome and regression row. The clause's scope is unchanged.
+
+**The recheck's three Tier C items:**
+
+- reviewer-G, the stale unimplemented row, is repaired;
+- reviewer-E, the `seams.node` comment, is the owner's;
+- reviewer-F, two census counts, is the implementer's.
+
+E and F do not gate step 2, which is next. Its bounded handoff is in [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §14.4.
+
+---
+
 ### 2026-11-01 — D-206 step 1: the failure clause and R30
 
 **Step 1's implementation is complete, and it is not accepted.** `#failOperation` now records on the operation record that it queued a checkpoint. A demoted failure records nothing. `OPEN_RESOLUTION` declines while that record is set, the `invoke: null` command included. R30 lands against the real controller: three kernel rows (synchronous, asynchronous, `invoke: null`) and P8's throwing path in the sortable with both resolvers. Each asserts the full decided outcome, with no `onReorder`, `onError` at `FAILURE_ACTION_PREPARE`, and `canceled` at `AT_PROPOSAL` with origin `failed`.

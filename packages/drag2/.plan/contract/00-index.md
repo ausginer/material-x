@@ -2741,6 +2741,8 @@ R4, R5, R6, R22, R28 and R29 land in step 1. Each is driven by a request from a 
 
 **Unimplemented (Remediation).** **Decided 2026-11-01, on the implementer's escalation at D-205's step-1 checkpoint** (`3e44eaf62`, [`d204-step1.md`](../measurements/d204-step1.md) §The open escalation), relayed by the owner. **D-205 in full, except that `OPEN_RESOLUTION` also declines while a failure checkpoint for its operation is registered and unapplied.** Supersedes D-205. Raises and repairs F-439. Carries D-205's decision of F-438, its decisions of F-432 to F-435 and its repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §13. That record's §2.2, §2.7, §2.8, §2.10 and §4–§9 state the D-206 form and are the handoff. The checkpoint is evidence, not an accepted step.
 
+**Step 1 accepted 2026-11-01, at `44e2074f1`. The decision stays unimplemented.** Step 1 landed at `2c5212daf`, `3e44eaf62` and `902810cae`. The step-1 feature proof's recheck ([`d204-step1-feature-proof-claude.md`](../reviews/fin-review2/d204-step1-feature-proof-claude.md) §Recheck at `44e2074f1`) finds no step-1 blocker. Reviewer-A to reviewer-D are resolved. R4–R6, R22 and R28–R30 are rows whose requests come from seams the running controller drives. The failure clause is implemented as property 6 states it. F-438 and F-439 close with the step. Steps 2–6 remain, the witness holds, and F-432 to F-435 stay open until the whole decision lands. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §14, which also holds step 2's handoff.
+
 **What is carried.** D-205's text, properties 1–5 and 7–13, contract-text list, step order and six steps carry forward and are not restated. So does the code landed at `2c5212daf` and `3e44eaf62`. Only property 6's entry condition and the precedence clause of property 7 change, and one case is added.
 
 **Property 6, amended in one clause.** `OPEN_RESOLUTION` opens the round-trip only if, at its entry:
@@ -2776,6 +2778,14 @@ The round-trip is the one consumer domain transaction. Opening it for an operati
 
 **Order and witness.** D-205's step order. The clause and R30 land in step 1, before step 2, completing the round-trip's unit. A mutation that removes the clause must redden the R30 rows. The measurement record is `.plan/measurements/d206-requests.md`, and its absence is the witness.
 
+**Amended 2026-11-01, on the step-1 recheck: the mutation requirement covers the rows whose outcome the clause decides.** Removing the clause must redden four R30 rows: the kernel's synchronous and asynchronous rows, and the sortable's two. On the `invoke: null` row, removing the clause is an equivalent mutant on every surface:
+
+- opening a null command queues its skipped settlement behind the `FAILED` already queued;
+- `FAILED` retires the attempt, so the settlement finds no slot;
+- the failure's stage is `AT_PROPOSAL` either way, because only the `invoke` closure marks `RESOLVING`.
+
+The clause still covers the null command, and property 6 is unchanged. The null row stays and asserts the decided outcome. The inline-open mutation holds it as a regression row. Record §14.3.
+
 **Touches:**
 
 - **D-205:** supersedes it after its step-1 checkpoint.
@@ -2797,7 +2807,9 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-206 | Remediation | the round-trip's failure clause and R30 (the rest of step 1), the split and capture, kernel requests, surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d206-requests.md` |
+| D-206 | Remediation | steps 2–6: the split and capture, kernel requests, surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d206-requests.md` |
+
+**D-206's row dropped step 1 on 2026-11-01**, when step 1 was accepted at `44e2074f1`. The step-1 recheck's reviewer-G found the cell still listing work that had landed at `902810cae`. The witness is unchanged, because it is falsified by the last step, as a sequence's witness must be.
 
 **D-205's row closed on 2026-11-01 with step 1 at an unaccepted checkpoint.** D-206 superseded it after `3e44eaf62`, adding the failure clause to the round-trip's entry condition. D-206's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 
@@ -5433,7 +5445,7 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Carried by D-206**, which superseded D-205 after its step-1 checkpoint and keeps this repair unchanged.
 
-#### F-438 — D-204 step 1 opens the consumer round-trip after a destroy requested in the release unit · open, decided by D-205, carried by D-206
+#### F-438 — D-204 step 1 opens the consumer round-trip after a destroy requested in the release unit · closed 2026-11-01 with D-206 step 1
 
 **Tier A. Raised 2026-11-01 by the D-204 step-1 feature proof**, reviewer-A ([`d204-step1-feature-proof-claude.md`](../reviews/fin-review2/d204-step1-feature-proof-claude.md)), at `88cb0be8c`. A regression in `src/` at `2c5212daf` against `582092c1f`. Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §12.
 
@@ -5447,7 +5459,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Carried by D-206**, which superseded D-205 after its step-1 checkpoint `3e44eaf62` and keeps this decision unchanged. That checkpoint lands the unit with R5 and R28 as tests. This finding closes when step 1 is accepted, with D-206's failure clause.
 
-#### F-439 — D-205's round-trip entry condition admits a round-trip for an operation whose failure checkpoint is already registered · repaired 2026-11-01 by D-206
+**Closed 2026-11-01 with step 1's acceptance at `44e2074f1`.** The release unit queues `OPEN_RESOLUTION`, and a destroy requested in `release.prepare` or `release.effect` is applied at that unit's boundary and discards it. R5 and R28 are `kernel.browser` rows whose destroy comes from a seam the bracket is running. The mutation that opens the round-trip inline reddens both, among eleven rows. P5 and P7 at the tip show no `invoke`. Property 13 holds on the paths probed: P4, P5, P7 and P8. Evidence: the recheck, and the architect's rerun of `run.sh` at `e9eaf657c` (record §14.1).
+
+#### F-439 — D-205's round-trip entry condition admits a round-trip for an operation whose failure checkpoint is already registered · repaired 2026-11-01 by D-206, closed 2026-11-01 with D-206 step 1
 
 **Tier B. Raised 2026-11-01 by the implementer at D-205's step-1 checkpoint**, under §8's first escalation clause ([`d204-step1.md`](../measurements/d204-step1.md) §The open escalation), at `3e44eaf62`. Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §13. The defect is in D-205's decision, which the checkpoint implemented as stated, not in its code.
 
@@ -5456,6 +5470,8 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 **Why it is a problem.** The round-trip guarantee covered destroy and cancel but not the third terminal request. The kernel opened a consumer domain transaction it had already doomed, and a published terminal changed with no decision stating either outcome. That is the queue shape F-436 closed for cancel.
 
 **Repair.** `OPEN_RESOLUTION` also declines while a failure checkpoint for its operation is registered and unapplied. `FAILED` then applies at `RELEASING`: `onError`, then `canceled` at `AT_PROPOSAL`, origin `failed`, and no `onReorder`, for either resolver. D-206 property 6; case R30.
+
+**Closed 2026-11-01 with step 1's acceptance at `44e2074f1`.** The clause and its registration landed at `902810cae`. Four R30 rows assert the outcome above and redden when either the clause or the registration write is removed: two in `kernel.browser` and two in `sortable.browser`. The `invoke: null` row asserts the same outcome and reddens under neither mutation, as D-206's amended witness paragraph records. Steps 2–6 keep all five rows green.
 
 ## What would falsify this model
 
