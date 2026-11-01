@@ -1175,7 +1175,7 @@ describe('runCore reentrancy', () => {
     // only `${symbol}` throws, so this is the one spelling that discriminates.
     // The rule is right in general and this row is what it is about.
     // oxlint-disable-next-line typescript/restrict-template-expressions
-    expect(`${report.cause}`).toBe('null');
+    expect(String(report.cause)).toBe('null');
 
     // The withdrawn identity, spelled out so the row states what it forbids.
     expect(JSON.stringify([report.message, String(report.cause)])).not.toMatch(
