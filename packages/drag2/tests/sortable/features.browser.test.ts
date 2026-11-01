@@ -259,12 +259,10 @@ describe('placeholder', () => {
     expect([...composed.placeholder()!.classList]).toEqual(['authored']);
   });
 
-  it('should write no mechanics once the factory destroys the controller', () => {
-    // C5-03's stretch sweep. The factory is consumer code and the element it
-    // returns is the **consumer's own**, adopted by nothing until activation
-    // commits — teardown removes only the placeholder it inserted. So an
-    // attribute written between the factory returning and the library's next
-    // liveness reading is a mutation nothing undoes (I-36 (2) act 3).
+  it('should remove the placeholder whose factory requested destruction', () => {
+    // The factory runs inside the activation unit, so the activation commits
+    // and inserts the element it returned; the application after the unit then
+    // removes it, exactly as a destruction requested after activation would.
     const created: HTMLElement[] = [];
     const composed: Composed = compose({
       placeholder: () => {
@@ -278,9 +276,7 @@ describe('placeholder', () => {
 
     activate(composed);
 
-    expect(created).toHaveLength(1);
-    expect(created[0]!.hasAttribute('data-drag-placeholder')).toBe(false);
-    expect(created[0]!.hasAttribute('aria-hidden')).toBe(false);
+    expect([created.length, created[0]!.isConnected]).toEqual([1, false]);
   });
 
   it('should still apply the default mechanics to a custom element', () => {
@@ -1153,23 +1149,14 @@ describe('landing', () => {
     expect(composed.errors).toEqual([]);
   });
 
-  it('should leave nothing behind when the duration thunk destroys the controller', async () => {
-    // **A conformance pin, not a regression pin — the bracket-discharge
-    // witness** (Checkpoint D review 4, the landing residue; reclassified by
-    // review 5, C5-03). The barrier it witnesses is the **kernel's**: the thunk
-    // is consumer code, reached through the policy the kernel asks for the
-    // tail's timing, and the kernel revalidates the controller between that
-    // answer and the `animate()` call it would otherwise make. So a controller
-    // destroyed from inside the thunk leaves **no residue at all** — not one
-    // animation to cancel, because none is started.
-    //
-    // What this pins is the blast radius, executably, so the next reviewer
-    // reads a measured size rather than a prose claim. It **fails** if the
-    // residue ever acquires a consequence the operation outlives: an
-    // `animate()` call, an animation that survives teardown, a transform left
-    // on the visual, a reported failure, or a terminal that should not fire.
-    // Late-bound on purpose: the thunk runs once the drop settles, long after
-    // the controller exists.
+  /**
+   * A landing whose duration thunk requests destruction. The thunk runs once
+   * the drop settles, inside the join unit, so the request is applied after
+   * the join.
+   */
+  const dropDestroyingDuration = async (): Promise<
+    Readonly<{ composed: Composed; calls: readonly string[] }>
+  > => {
     let controller: SortableController | null = null;
     const composed = composeWith({
       fragments: [
@@ -1199,26 +1186,42 @@ describe('landing', () => {
     await Promise.resolve();
     await Promise.resolve();
 
-    // The instrumented call list, not the resulting state: the destroyed
-    // controller writes nothing, so the residue's size is zero.
-    expect(calls).toEqual([]);
-    expect(item.getAnimations()).toEqual([]);
-    expect(item.style.transform).toBe('');
-    expect(item.style.translate).toBe('');
-    expect(composed.placeholder()).toBeNull();
+    return { composed, calls };
+  };
+
+  it('should start the tail of the join whose duration thunk requested destruction', async () => {
+    // The join completes as it would without the request.
+    const { calls } = await dropDestroyingDuration();
+
+    expect(calls).toEqual(['animate']);
+  });
+
+  it('should leave no residue once the destruction a duration thunk requested is applied', async () => {
+    // **The blast radius, executably.** The application's teardown cancels the
+    // tail the join started and restores the visual, so nothing outlives the
+    // controller.
+    const { composed } = await dropDestroyingDuration();
+    const item = composed.items[0]!;
+
+    expect([
+      item.getAnimations(),
+      item.style.transform,
+      item.style.translate,
+      composed.placeholder(),
+    ]).toEqual([[], '', '', null]);
+  });
+
+  it('should report nothing when a duration thunk requests destruction', async () => {
     // A consumer destroying its own controller is not a library failure.
-    // **One collector since D-130.** `expect(reported).toEqual([])` stood
-    // beside this and observed a `globalThis.reportError` stub; with one
-    // channel this single assertion covers both populations.
+    const { composed } = await dropDestroyingDuration();
+
     expect(composed.errors).toEqual([]);
-    // **Neither** terminal callback fires, which is stronger than the decision's
-    // §6 predicted (it expected one `onCancel`) and is the landed rule, not a
-    // gap: destroy is a teardown, not a settlement, so the operation it was
-    // resolving does not get to announce an outcome — see
-    // `composition.browser.test.ts` — _should tear down without a terminal
-    // callback when onReorder destroys_.
-    expect(composed.cancels).toEqual([]);
-    expect(composed.finishes).toEqual([]);
+  });
+
+  it('should deliver the terminal of the join whose duration thunk requested destruction', async () => {
+    const { composed } = await dropDestroyingDuration();
+
+    expect(composed.finishes).toHaveLength(1);
   });
 });
 
@@ -1488,51 +1491,76 @@ describe('the terminal barrier in a resolver sequence', () => {
     };
   };
 
-  it('should not resolve a visual after the handle resolver destroyed', () => {
-    // Site B: `resolveItem` calls the `handle` slot, and `seedDraft` calls
-    // `visual` immediately after. The kernel's post-`admit` recheck stops the
-    // operation from being minted, but it runs after the whole callback returns
-    // and cannot make the second consumer call un-happen.
+  it('should resolve the visual of the press whose handle resolver requested destruction', () => {
+    // `resolveItem` calls the `handle` slot and `seedDraft` calls `visual`
+    // immediately after, both inside the admission unit, which completes
+    // before the request is applied.
     const asked: HTMLElement[] = [];
     const armed = closingHandle(asked);
     const composed = composeWith({ fragments: armed.fragments });
 
     armed.arm(composed.controller);
+    pressReturning(composed.items[0]!);
 
-    const event = pressReturning(composed.items[0]!);
-
-    expect(asked).toEqual([]);
-    // Admission **declines**; it does not throw. So nothing is minted, the
-    // press keeps its native meaning, and no failure is reported (a consumer
-    // destroying its own controller is not a library failure).
-    expect(event.defaultPrevented).toBe(false);
-    expect(composed.placeholder()).toBeNull();
-    expect(composed.errors).toEqual([]);
+    expect(asked).toEqual([composed.items[0]]);
   });
 
-  it('should not resolve a visual after a keydown handle resolver destroyed', () => {
+  it('should leave nothing admitted once the destruction a handle resolver requested is applied', () => {
+    // A consumer destroying its own controller is not a library failure, and
+    // the application after admission tears the pending operation down.
+    const asked: HTMLElement[] = [];
+    const armed = closingHandle(asked);
+    const composed = composeWith({ fragments: armed.fragments });
+
+    armed.arm(composed.controller);
+    pressReturning(composed.items[0]!);
+
+    expect([composed.placeholder(), composed.errors]).toEqual([null, []]);
+  });
+
+  it('should refuse the next press once the destruction a handle resolver requested is applied', () => {
+    const asked: HTMLElement[] = [];
+    const armed = closingHandle(asked);
+    const composed = composeWith({ fragments: armed.fragments });
+
+    armed.arm(composed.controller);
+    pressReturning(composed.items[0]!);
+    pressReturning(composed.items[1]!);
+
+    expect(asked).toEqual([composed.items[0]]);
+  });
+
+  it('should resolve the visual of the command whose handle resolver requested destruction', () => {
     // The same sequence on the second ingress (D-32). A command admits, decides
-    // feasibility and seeds the draft inside the native listener, so the whole
-    // of it runs after the destroy that a handle resolver raised.
+    // feasibility and seeds the draft inside the native listener, all inside
+    // the admission unit.
     const asked: HTMLElement[] = [];
     const armed = closingHandle(asked);
     const composed = composeWith({ fragments: armed.fragments });
 
     armed.arm(composed.controller);
+    arrow(composed.items[0]!, 'ArrowDown');
 
-    const event = arrow(composed.items[0]!, 'ArrowDown');
-
-    expect(asked).toEqual([]);
-    expect(event.defaultPrevented).toBe(false);
-    expect(composed.placeholder()).toBeNull();
-    expect(composed.errors).toEqual([]);
+    expect(asked).toEqual([composed.items[0]]);
   });
 
-  it('should stop the candidate traversal at the destroying candidate', async () => {
-    // Site A, through real pointer input on the `y()` rule — the reviewer's
-    // temporary regression, made permanent. `items[0]` is the dragged item and
-    // was resolved at admission; `items[1]` is the first candidate and destroys,
-    // so `items[2]` must never be asked.
+  it('should leave nothing admitted once the destruction a keydown handle resolver requested is applied', () => {
+    const asked: HTMLElement[] = [];
+    const armed = closingHandle(asked);
+    const composed = composeWith({ fragments: armed.fragments });
+
+    armed.arm(composed.controller);
+    arrow(composed.items[0]!, 'ArrowDown');
+
+    expect([composed.placeholder(), composed.errors]).toEqual([null, []]);
+  });
+
+  /**
+   * The rows the `visual` slot is asked for across activation and one move,
+   * as indices. With `destroying`, the first candidate requests destruction
+   * when it is asked.
+   */
+  const traversal = async (destroying: boolean): Promise<readonly number[]> => {
     const asked: HTMLElement[] = [];
     let controller: SortableController | null = null;
     const composed = composeWith({
@@ -1541,7 +1569,7 @@ describe('the terminal barrier in a resolver sequence', () => {
           visual: (item) => {
             asked.push(item);
 
-            if (item === composed.items[1]) {
+            if (destroying && item === composed.items[1]) {
               void controller!.destroy();
             }
 
@@ -1556,7 +1584,21 @@ describe('the terminal barrier in a resolver sequence', () => {
     activate(composed);
     await drag(70);
 
-    expect(asked).toEqual([composed.items[0], composed.items[1]]);
+    return asked.map((item) => composed.items.indexOf(item));
+  };
+
+  it('should finish the candidate traversal of the move whose candidate requested destruction', async () => {
+    // Site A, through real pointer input on the `y()` rule. `items[0]` is
+    // resolved at admission; `items[1]` is the first candidate and requests
+    // destruction, which is applied after the move, so the move asks exactly
+    // what the control row below records.
+    expect(await traversal(true)).toEqual([0, 1, 2, 1]);
+  });
+
+  it('should ask the same rows when no candidate requests destruction', async () => {
+    // The control for the row above. Each row runs alone: two live
+    // controllers in one row would share the document's pointer stream.
+    expect(await traversal(false)).toEqual([0, 1, 2, 1]);
   });
 
   /**
@@ -1579,7 +1621,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     }),
   });
 
-  it('should not run the bracket past a placeholder reaction that destroyed', async () => {
+  it('should run the bracket past a placeholder reaction that requested destruction', async () => {
     // Site C, and the one no other test reaches. `movePlaceholder` moves a
     // node, so a custom-element placeholder's `disconnectedCallback` runs
     // synchronously inside that call — consumer code from the `placeholder()`
@@ -1618,8 +1660,8 @@ describe('the terminal barrier in a resolver sequence', () => {
     activate(composed);
     await drag(55);
 
-    // The write happened and the reaction destroyed the controller; the sink
-    // never ran, so no contribution was started on a retired feature.
-    expect(applied).toEqual([]);
+    // The reaction runs inside the committed move, which completes before the
+    // request is applied, so the sink still runs for that move.
+    expect(applied.length).toBeGreaterThan(0);
   });
 });

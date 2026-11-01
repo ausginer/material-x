@@ -86,6 +86,7 @@ import {
   type ActivationScope,
   type AdmissionSubject,
   type BehaviorContext,
+  type BehaviorFactory,
   type BehaviorSpec,
   type ResolutionCommand,
   SETTLED_CANCELED,
@@ -295,14 +296,14 @@ const thenOf = (value: unknown): PromiseLike<unknown>['then'] | null => {
  * teardown and the destroy promise.
  *
  * **A behavior receives this object under {@link BehaviorContext}**, which is
- * the whole of what the tier is granted: `arm` is on the class and off the
+ * the whole of what the tier is granted: `construct` is on the class and off the
  * interface, so a behavior reaches it only by deliberately leaving the type it
  * was handed. That is a contract term rather than a runtime property, and it
  * is stated the way the neighbouring one is — *no input can be admitted before
  * `install()` returns* is unenforceable too, and is written down rather than
  * guarded.
  *
- * Only `draggable()` holds it wide, and it calls `arm()` exactly once.
+ * Only `draggable()` holds it wide, and it calls `construct()` exactly once.
  */
 export class Kernel<
   Part extends object,
@@ -317,8 +318,8 @@ export class Kernel<
   /* ---- the execution bracket ---- */
 
   /**
-   * The terminal latch, the queue and its semantics, and deferred teardown, in
-   * the one entity that states their invariants. `#private`, so the kernel's
+   * The lifecycle request, the queue and its semantics, and teardown, in the
+   * one entity that states their invariants. `#private`, so the kernel's
    * public surface is unchanged by holding it.
    *
    * Its four callbacks are the only edges back into the kernel, and each is
@@ -345,11 +346,11 @@ export class Kernel<
   #spec: BehaviorSpec<Part, Activation> | null = null;
 
   /**
-   * The frame pair and the protocol over it, composed by {@link arm}.
+   * The frame pair and the protocol over it, composed by `#arm()`.
    *
    * Definite assignment rather than a nullable field, on the same premise every
    * `#spec!` in this file rests on: nothing reaches a frame before a behavior
-   * is armed, and `arm()` publishes `#spec` only once both frames exist.
+   * is armed, and `#arm()` publishes `#spec` only once both frames exist.
    */
   #frames!: FrameTransaction<Part>;
 
@@ -388,7 +389,7 @@ export class Kernel<
    * admission catch, the quality report and the landing join would be three
    * copies of it to keep in step.
    * 2. **Hand the finished error to the behavior**, which forwards it to
-   * `onError` and does nothing else. Before `arm()` there is no behavior and
+   * `onError` and does nothing else. Before `#arm()` there is no behavior and
    * nothing is delivered — which is correct rather than a gap, since a consumer
    * with no controller has no handler either.
    * 3. **Discard whatever that throws.** *This is the terminus.* A throw from
@@ -502,7 +503,7 @@ export class Kernel<
    * cannot throw, so it is inside the same `unwind` with nothing to lose by it.
    *
    * The behavior is a parameter rather than a field read, for the one caller
-   * that has a spec in hand and no armed controller yet: `arm()`'s unwind is
+   * that has a spec in hand and no armed controller yet: `#arm()`'s unwind is
    * resetting frames composed by a behavior this kernel has not published.
    */
   #resetFrame(
@@ -665,16 +666,15 @@ export class Kernel<
   }
 
   /**
-   * Step 1 of teardown: the latch, which the bracket sets on the closing
-   * statement itself. Steps 3–7 come back through the teardown callback, either
-   * immediately or at the outermost transaction boundary.
+   * Requests destruction. The bracket applies it at once when no unit is
+   * running, and otherwise when the running unit ends: step 1 of teardown, the
+   * closed lifecycle, is set at application, and steps 3–7 come back through
+   * the teardown callback in the same step.
    *
-   * This call does not promise that physical release completes before it
-   * returns — only that the latch is set, and the resource release may be one
-   * transaction late.
+   * The promise settles after application, physical release included.
    */
   destroy(): Promise<void> {
-    return this.#bracket.close();
+    return this.#bracket.requestClose();
   }
 
   /**
@@ -707,7 +707,7 @@ export class Kernel<
    * indistinguishable to a consumer.
    */
   #panic(error: unknown): void {
-    void this.destroy();
+    // The bracket closed before calling this and tears down once it returns.
     this.#notify(new DraggableError(null, error), true);
   }
 
@@ -720,7 +720,7 @@ export class Kernel<
    * **`#spec` guards the pair for the same reason `fail()` guards the driver.**
    * A cancel from the construction window has no operation to latch — there is
    * none anywhere in that window — so it is the idle no-op, reached without
-   * dereferencing a pair `arm()` has not composed yet.
+   * dereferencing a pair `#arm()` has not composed yet.
    */
   #cancelWith(reason: unknown, origin: CancelOrigin): void {
     if (
@@ -1133,6 +1133,13 @@ export class Kernel<
   }
 
   #onPointerDown(event: PointerEvent): void {
+    // **Behind the bracket's refusal, the disarm included.** A press dispatched
+    // from inside a running unit is refused before it touches any state, and
+    // the suppressor slot is state.
+    if (!this.#bracket.idle) {
+      return;
+    }
+
     // **The second of the three disarm conditions**, and it runs before the
     // primary-press test rather than inside it: a one-shot that never fired
     // must not survive to eat an unrelated click, and a press that begins a
@@ -2348,8 +2355,8 @@ export class Kernel<
   // -------------------------------------------------------------------------
 
   /**
-   * The latch itself, read live — a captured boolean would be a copy of a
-   * liveness answer, which is the failure mode the whole invariant is about.
+   * Whether destruction has been applied, read live — a captured boolean would
+   * be a copy of a liveness answer.
    */
   get closed(): boolean {
     return this.#bracket.closed;
@@ -2360,11 +2367,14 @@ export class Kernel<
       return;
     }
 
+    // **Checked at armed intake, and nowhere else.** During construction the
+    // count bounding the tag is in the spec the factory has not returned yet,
+    // so the action is queued unchecked and applied after publication. The
+    // bound is fixed for the controller's life, so nothing re-checks it when
+    // the entry is applied.
     if (
-      !this.#spec ||
-      !Number.isInteger(tag) ||
-      tag < 0 ||
-      tag >= this.#spec.config.actionTags
+      this.#spec &&
+      (!Number.isInteger(tag) || tag < 0 || tag >= this.#spec.config.actionTags)
     ) {
       // Reported and dropped, never enqueued: the kernel computes
       // `BEHAVIOR_BASE + tag`, so a negative or fractional tag would alias a
@@ -2379,7 +2389,7 @@ export class Kernel<
   }
 
   /**
-   * **`#spec` is the liveness test for `#driver`, not a second field.** `arm()`
+   * **`#spec` is the liveness test for `#driver`, not a second field.** `#arm()`
    * assigns the driver before it publishes the spec, so a published spec
    * implies an assigned driver by statement order.
    *
@@ -2396,25 +2406,38 @@ export class Kernel<
   }
 
   /**
+   * **Construction, as one unit**: the behavior factory, the static validation,
+   * both frame-part compositions, ingress attachment and publication.
+   *
+   * A request made anywhere inside is applied when the unit ends, after
+   * publication: a factory or frame-part factory that destroys the controller
+   * still sees both parts composed and ingress attached, and the application
+   * then retires the spec once, resets each frame once and aborts ingress, all
+   * before this returns. Attaching a listener and aborting it inside one
+   * synchronous call is unobservable, since no event can arrive in between.
+   * And because a native ingress pass is refused while a unit runs, foreign
+   * code reached during attachment cannot admit an operation here.
+   */
+  construct<Controller>(
+    behavior: BehaviorFactory<Controller, Part, Activation>,
+  ): Controller {
+    return this.#bracket.construct(() => {
+      const { spec, controller } = behavior(this);
+
+      this.#arm(spec);
+      return controller;
+    });
+  }
+
+  /**
    * Composes both frames and attaches ingress.
    *
-   * **Every exit that does not arm the controller unwinds**, and there are two
-   * of them. A failure — of the static configuration validation, of a frame
-   * part factory, of ingress attachment — unwinds and rethrows. A `destroy()`
-   * raised anywhere in the window is the same situation without the throw: no
-   * further frame part is composed once the latch is closed, the same unwind
-   * runs over whichever frames it has, and the call returns, because a
-   * consumer asking to be destroyed is not an error. A controller is never
-   * returned half-armed, and never returned holding a behavior that was never
-   * retired.
-   *
-   * **Static configuration validation runs before the first latch test.** The
-   * `actionTags` range and the `command.types` collision are facts about the
-   * spec rather than about the controller's liveness, and a `TypeError` that
-   * appeared or vanished depending on whether the behavior destroyed itself
-   * would be a configuration error its author cannot reproduce.
+   * **A failure unwinds and rethrows** — of the static configuration
+   * validation, of a frame part factory, of ingress attachment. A controller
+   * is never returned half-armed, and never returned holding a behavior that
+   * was never retired.
    */
-  arm(next: BehaviorSpec<Part, Activation>): void {
+  #arm(next: BehaviorSpec<Part, Activation>): void {
     // **The frames the unwind is responsible for, and no field read finds
     // them.** The second composition runs behavior code that may throw, so
     // there is a real state in which one frame physically exists and the other
@@ -2470,89 +2493,64 @@ export class Kernel<
       // The same code path twice, so both frames get one hidden class. The
       // part factory is not proven deterministic, so the two results are not
       // assumed identical — they are simply both composed.
-      //
-      // **The latch is tested before each of them.** A part factory may
-      // `destroy()` the controller, and a frame part minted afterwards is
-      // per-controller state nothing will ever release.
-      if (!this.#bracket.closed) {
-        current = Object.assign(frame(), next.createFramePart());
-      }
+      current = Object.assign(frame(), next.createFramePart());
+      draft = Object.assign(frame(), next.createFramePart());
 
-      if (!this.#bracket.closed) {
-        draft = Object.assign(frame(), next.createFramePart());
-      }
+      this.#frames = new FrameTransaction(current, draft);
+      this.#driver = new SeamDriver<Part>(
+        this.#frames,
+        () => this.#preparationValid(),
+        (stage, error) => {
+          this.#failOperation(stage, error);
+        },
+        // **The driver reports without classifying.** Not `failOperation`,
+        // which would settle a drop whose reorder already happened; and
+        // there is no second destination to choose between — a separate
+        // platform reporter would receive a consumer's own destructive
+        // rerender — which is what lets the `QUALITY` and `BEST_EFFORT`
+        // tiers collapse into one sentinel.
+        //
+        // There is no lifetime guard at this site, and adding one here is
+        // wrong: the guard belongs in `notify`, where every route shares
+        // it. A quality fault's producer is consumer-reaching — a `home`
+        // resolver, a landing policy — and is equally free to destroy
+        // before it throws.
+        this.#report,
+      );
 
-      // **The latch decides this branch alone, and the pair is not named
-      // beside it.** `ExecutionBracket` closes at one site and never reopens,
-      // so an open latch here is an open latch at both tests above, and both
-      // compositions ran: the assertions below are what the monotonic latch
-      // already establishes, and testing the frames again would only pay
-      // runtime for a narrowing the compiler is the one party needing.
-      if (!this.#bracket.closed) {
-        this.#frames = new FrameTransaction(current!, draft!);
-        this.#driver = new SeamDriver<Part>(
-          this.#frames,
-          () => this.#preparationValid(),
-          (stage, error) => {
-            this.#failOperation(stage, error);
-          },
-          // **The driver reports without classifying.** Not `failOperation`,
-          // which would settle a drop whose reorder already happened; and
-          // there is no second destination to choose between — a separate
-          // platform reporter would receive a consumer's own destructive
-          // rerender — which is what lets the `QUALITY` and `BEST_EFFORT`
-          // tiers collapse into one sentinel.
-          //
-          // There is no lifetime guard at this site, and adding one here is
-          // wrong: the guard belongs in `notify`, where every route shares
-          // it. A quality fault's producer is consumer-reaching — a `home`
-          // resolver, a landing policy — and is equally free to destroy
-          // before it throws.
-          this.#report,
-        );
+      // **Published last of the three, and the frames are why.** Every
+      // `#spec!` in this file reads as *a behavior is armed*, and teardown's
+      // frame resets are guarded by this field alone: published before the
+      // pair exists, a `fail()` or `cancel()` from inside `createFramePart`
+      // would dereference a pair that was never composed. The same order is
+      // what makes `#spec !== null` a sound answer to *is `#driver`
+      // assigned*, which `fail()` and `#cancelWith` read.
+      this.#spec = next;
 
-        // **Published last of the three, and the frames are why.** Every
-        // `#spec!` in this file reads as *a behavior is armed*, and teardown's
-        // frame resets are guarded by this field alone: published before the
-        // pair exists, a `destroy()` raised from inside `createFramePart`
-        // would reach a retirement over frames that were never composed. The
-        // same order is what makes `#spec !== null` a sound answer to *is
-        // `#driver` assigned*, which `fail()` and `#cancelWith` read.
-        this.#spec = next;
+      this.root.addEventListener(POINTER_DOWN, this.#pointerDownHandler, {
+        signal: this.#ingress.signal,
+      });
 
-        this.root.addEventListener(POINTER_DOWN, this.#pointerDownHandler, {
-          signal: this.#ingress.signal,
-        });
-
-        // Inside the **same** ingress abort that owns `pointerdown`, so
-        // `destroy()` releases every listener including the discrete ones, and
-        // a behavior with no `command` member binds nothing at all.
-        if (next.command !== undefined) {
-          for (const type of next.command.types) {
-            this.root.addEventListener(type, this.#commandHandler, {
-              signal: this.#ingress.signal,
-            });
-          }
+      // Inside the **same** ingress abort that owns `pointerdown`, so
+      // `destroy()` releases every listener including the discrete ones, and
+      // a behavior with no `command` member binds nothing at all.
+      if (next.command !== undefined) {
+        for (const type of next.command.types) {
+          this.root.addEventListener(type, this.#commandHandler, {
+            signal: this.#ingress.signal,
+          });
         }
-
-        return;
       }
     } catch (error) {
       this.#unwindArm(next, current, draft);
       throw error;
     }
-
-    // The controller closed inside the window and is never returned armed.
-    // Outside the `try`, so the unwind's own ingress abort cannot be caught by
-    // the handler above and run a second time.
-    this.#unwindArm(next, current, draft);
   }
 
   /**
-   * `arm()`'s unwind, reached by every exit that leaves the controller
+   * `#arm()`'s unwind, reached by every exit that leaves the controller
    * unarmed: a throw from validation, from a frame-part factory or from
-   * ingress attachment, and a `destroy()` raised anywhere in the construction
-   * window.
+   * ingress attachment.
    *
    * The behavior is a parameter for the reason {@link resetFrame} takes one —
    * `#spec` is published last, so it is not yet a name for the behavior being
@@ -2560,8 +2558,8 @@ export class Kernel<
    *
    * **Totality applies here too**: a reset that throws must not replace the
    * initiating failure or skip the ingress cleanup. Each reset covers
-   * **whichever frame exists** — a second factory that throws or destroys
-   * leaves a constructed frame this path is still responsible for, and one
+   * **whichever frame exists** — a second factory that throws leaves a
+   * constructed frame this path is still responsible for, and one
    * that never ran leaves nothing `resetFramePart` could be handed.
    */
   #unwindArm(

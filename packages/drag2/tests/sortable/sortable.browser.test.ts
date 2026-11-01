@@ -1101,11 +1101,13 @@ describe('activation', () => {
     expect(harness.calls).not.toContain('onStart');
   });
 
-  it('should stop when the placeholder insertion destroyed the controller', () => {
-    // `after()` connects the placeholder, and a custom element's
-    // `connectedCallback` runs synchronously *inside* that call — the one point
-    // in activation where consumer code interleaves with a DOM write the kernel
-    // has no other guard around.
+  /**
+   * Activates with a placeholder whose `connectedCallback` requests
+   * destruction. `after()` connects the placeholder, and a custom element's
+   * `connectedCallback` runs synchronously *inside* that call — consumer code
+   * interleaved with a DOM write inside the activation unit.
+   */
+  const activateDestroyingPlaceholder = (): Harness => {
     let harness: Harness | null = null;
 
     harness = createHarness({
@@ -1118,10 +1120,22 @@ describe('activation', () => {
     };
 
     activate(harness);
+    return harness;
+  };
 
-    expect(harness.calls).not.toContain('onStart');
-    expect(harness.placeholder()).toBeNull();
-    expect(harness.root.querySelector(REENTRANT_PLACEHOLDER)).toBeNull();
+  it('should deliver the start of the activation whose placeholder insertion requested destruction', () => {
+    // The request is applied after the activation unit, which completes as it
+    // would without it.
+    expect(activateDestroyingPlaceholder().calls).toContain('onStart');
+  });
+
+  it('should remove the placeholder once the destruction its insertion requested is applied', () => {
+    const harness = activateDestroyingPlaceholder();
+
+    expect([
+      harness.placeholder(),
+      harness.root.querySelector(REENTRANT_PLACEHOLDER),
+    ]).toEqual([null, null]);
   });
 
   it('should fail activation when the placeholder removes itself on connection', () => {
@@ -1256,25 +1270,22 @@ describe('activation', () => {
     expect(harness.calls).toContain('onStart');
   });
 
-  it('should not republish runtime state after a reentrant destruction', () => {
+  it('should publish runtime state in the unit that requested destruction', () => {
     // The runtime slots are private, so the observable is what they *cause*:
     // `invalidateInsertion` is called immediately after the view is published,
-    // and no scheduled frame or hook may run for a retired operation.
-    let harness: Harness | null = null;
+    // inside the activation unit.
+    expect(activateDestroyingPlaceholder().calls).toContain(
+      'invalidateInsertion',
+    );
+  });
 
-    harness = createHarness({
-      placeholder: (): HTMLElement =>
-        document.createElement(REENTRANT_PLACEHOLDER),
-    });
+  it('should run no later unit after a reentrant destruction', () => {
+    // No scheduled frame or hook may run for a retired operation: the move
+    // after the application finds no operation to drive.
+    const harness = activateDestroyingPlaceholder();
 
-    reentrantPlaceholderConnected = (): void => {
-      void harness.controller.destroy();
-    };
-
-    activate(harness);
     move(80);
 
-    expect(harness.calls).not.toContain('invalidateInsertion');
     expect(harness.calls).not.toContain('resolveInsertion');
   });
 });

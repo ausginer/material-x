@@ -39,20 +39,20 @@ describe('the behavior-facing context', () => {
   });
 
   it('should withhold every public member of the class it does not name', () => {
-    // **The discriminating row.** `arm` is the whole of the difference today,
+    // **The discriminating row.** `construct` is the whole of the difference today,
     // and stating it as a difference is what makes the assertion about the
     // narrowing rather than about one member's name: a public member added to
     // the class lands in `Withheld` and fails here until it is classified, and
     // one promoted onto the interface leaves `Withheld` and fails here too.
-    expectTypeOf<Withheld>().toEqualTypeOf<'arm'>();
+    expectTypeOf<Withheld>().toEqualTypeOf<'construct'>();
   });
 
-  it('should keep the arming handshake on the class', () => {
+  it('should keep the construction handshake on the class', () => {
     // The other half of a positive projection: the member exists, it is just
     // not the behavior's. The direct read a behavior would have to write —
-    // `void kernel.arm` under `@ts-expect-error` — is asserted against the
+    // `void kernel.construct` under `@ts-expect-error` — is asserted against the
     // **shipped** declarations in `tests/consumer.node.test.ts`, so what is
     // owed here is that the member the difference names is really there.
-    expectTypeOf<WideKernel['arm']>().toBeFunction();
+    expectTypeOf<WideKernel['construct']>().toBeFunction();
   });
 });

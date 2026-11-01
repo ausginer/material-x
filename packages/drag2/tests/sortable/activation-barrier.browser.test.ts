@@ -161,11 +161,10 @@ const activate = (composed: Composed): void => {
 };
 
 describe('the final activation barrier', () => {
-  it('should publish no start when an insertion invalidator destroys the controller', () => {
-    // **E-02, the sortable half.** The helper returns `true` for a call that
-    // did not throw, which is a different question from *is the controller
-    // still alive* — so without a reading of its own, activation went on to
-    // mark the operation started and notify.
+  it('should publish the start of the activation whose insertion invalidator requested destruction', () => {
+    // The invalidator runs inside the activation unit, and a destruction it
+    // requests is applied after that unit, so the unit's own start is
+    // delivered.
     // Declared before the installer so the interceptor can close over it; the
     // installer does not run until `build` constructs the controller.
     const composed: Composed = build(
@@ -176,13 +175,11 @@ describe('the final activation barrier', () => {
 
     activate(composed);
 
-    expect(composed.starts).toEqual([]);
-    expect(composed.errors).toEqual([]);
+    expect([composed.starts.length, composed.errors]).toEqual([1, []]);
   });
 
   it('should still publish a start when the invalidator leaves the controller alive', () => {
-    // The positive control: the interceptor is installed either way, so the row
-    // above cannot pass merely because a wrapped axis never starts.
+    // The positive control: the interceptor is installed either way.
     const composed = build(interceptingY(() => {}));
 
     activate(composed);
@@ -308,7 +305,7 @@ describe('the terminal barrier in the committed-move bracket', () => {
       };
     };
 
-  it('should not invalidate the axis once the committed move destroyed the controller', async () => {
+  it('should invalidate the axis in the committed move that requested destruction', async () => {
     let afterClose = 0;
     let closed = false;
     const composed: Composed = build(
@@ -335,14 +332,14 @@ describe('the terminal barrier in the committed-move bracket', () => {
       });
     });
 
-    expect(closed).toBe(true);
-    expect(afterClose).toBe(0);
+    // The committed move completes as a live controller's before the request
+    // is applied, so its staleness invalidation still runs.
+    expect([closed, afterClose]).toEqual([true, 1]);
   });
 
   it('should invalidate the axis when the committed move failed without closing', async () => {
     // The positive control: the same hostile `moved`, minus the destroy. The
-    // staleness flag is the reason the invalidation exists at all, and a
-    // barrier that swallowed it unconditionally would pass the row above.
+    // staleness flag is the reason the invalidation exists at all.
     let invalidations = 0;
     const composed = build(
       movedDestroys(

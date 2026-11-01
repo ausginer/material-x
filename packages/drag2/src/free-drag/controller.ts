@@ -54,11 +54,12 @@ export type FreeDragController = Readonly<{
   moveTo(point: Point): void;
   cancel(reason?: unknown): void;
   /**
-   * Closes the controller **logically**, immediately, on this statement — every
-   * guard fails from here, nothing is admitted, and no declared consumer slot
-   * is invoked again. The returned promise settles **once**, after physical
-   * teardown: this call when no library transaction is active, the boundary of
-   * the outermost one when there is.
+   * Requests destruction. With no library callback running it is applied
+   * before this returns. Called from inside one, the library first finishes
+   * the step that callback belongs to, whose remaining callbacks may still be
+   * invoked, and then applies it. From application on nothing is admitted and
+   * no declared consumer slot is invoked. The returned promise settles
+   * **once**, after physical teardown, and every call returns the same one.
    *
    * Most callers do not want the completion signal and should write
    * `void controller.destroy();`.

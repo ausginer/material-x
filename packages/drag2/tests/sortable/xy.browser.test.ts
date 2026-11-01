@@ -615,11 +615,12 @@ describe('the terminal barrier in the candidate loop', () => {
     expect(asked).toEqual([field.items[0], field.items[1], field.items[2]]);
   });
 
-  it('should stop the traversal of a composed drag at the destroying candidate', async () => {
+  it('should finish the traversal of the composed move whose candidate requested destruction', async () => {
     // The same rule through real pointer input, on the two-dimensional rule's
-    // own field. **The assertion is the resolver's call list, not the resulting
-    // insertion**: the frame is discarded upstream either way, so a state
-    // assertion would pass against unfixed source.
+    // own field. The request is applied after the move that made it, so the
+    // move's traversal runs to its end. **The assertion is the resolver's call
+    // list, not the resulting insertion**: teardown discards the frame either
+    // way.
     const root = document.createElement('div');
 
     Object.assign(root.style, {
@@ -656,8 +657,8 @@ describe('the terminal barrier in the candidate loop', () => {
       visual: (item) => {
         asked.push(item);
 
-        // The **first** candidate destroys. `items[0]` is the dragged one and
-        // was resolved at admission, before any candidate.
+        // The **first** candidate requests destruction. `items[0]` is the
+        // dragged one and was resolved at admission, before any candidate.
         if (item === items[1]) {
           void controller!.destroy();
         }
@@ -698,7 +699,7 @@ describe('the terminal barrier in the candidate loop', () => {
       });
     });
 
-    expect(asked).toEqual([items[0], items[1]]);
+    expect(asked.map((item) => items.indexOf(item))).toEqual([0, 1, 2, 3]);
   });
 });
 

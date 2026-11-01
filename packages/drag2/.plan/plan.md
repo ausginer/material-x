@@ -2298,6 +2298,14 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-01 — D-204 step 1: the runner and construction
+
+**Requests now apply at unit boundaries in the bracket, and construction is one unit.** `ExecutionBracket` holds a three-state lifecycle request. `destroy()` applies at once with no unit running and otherwise when the running unit ends. Units do not nest, so native ingress is refused while one runs, with the click disarm behind the same refusal (F-433). The post-admission drain is unconditional. Panic stays the one immediate application. `draggable()` runs as one unit through `Kernel.construct`, so a destroy requested in a factory is applied after publication, and no operation can be minted inside construction (F-432). Window `dispatch` is queued unchecked under D-204 property 12. Cases R1's construction and drain half, R9–R11, R13, R15, R17 and R23–R27 are tests against `src/`. Record [`measurements/d204-step1.md`](measurements/d204-step1.md), with the composition figures (+68 B minified, +7 to +39 B Brotli on the kernel-carrying rows).
+
+**`closed` reports `CLOSED` only, so in-unit destroy readings stop early.** 22 browser rows that pinned D-36's same-unit outcome are revised to D-203's: the requesting unit completes, then application. The machinery those readings fed is deleted at steps 3 and 4.
+
+---
+
 ### 2026-11-01 — A dispatch tag is checked at armed intake only (D-204, F-437)
 
 **D-203 step 1 found a contract gap in the construction window.** R17 queues a `dispatch` from the behavior factory and applies it after publication. The SPI says an out-of-range tag is reported and dropped, never enqueued. In the factory body the spec, and with it `config.actionTags`, does not exist yet, so that check cannot run. Today the conflict is invisible because every construction-window dispatch is dropped silently. Probe P6 records this. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §11.

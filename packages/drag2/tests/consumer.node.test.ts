@@ -776,11 +776,11 @@ const install = (
 ): BehaviorInstall<Controller, Part, HTMLElement> => {
   // **The narrowing, pinned at the only place it is real.** The value below
   // *is* the kernel controller, handed over under the interface it implements
-  // — so nothing but this declaration keeps \`arm\` out of a behavior's reach,
+  // — so nothing but this declaration keeps \`construct\` out of a behavior's reach,
   // and a member added to the class does not appear here unless the interface
   // names it.
-  // @ts-expect-error: \`arm\` is on the class and off the behavior-facing interface
-  void kernel.arm;
+  // @ts-expect-error: \`construct\` is on the class and off the behavior-facing interface
+  void kernel.construct;
 
   const spec: BehaviorSpec<Part, HTMLElement> = {
     config,

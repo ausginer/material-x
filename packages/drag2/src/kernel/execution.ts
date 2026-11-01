@@ -1,22 +1,29 @@
 import { ActionQueue } from './queue.ts';
 
+/** The lifecycle request's three states, in the only order they are reached. */
+const LIVE = 0;
+const REQUESTED = 1;
+const CLOSED = 2;
+
 /**
- * The controller-lifetime execution bracket: the terminal latch, the
- * run-to-completion drain, the admission boundary, and deferred teardown.
+ * The controller-lifetime execution bracket: the lifecycle request, the
+ * run-to-completion drain, the unit boundary at which a request is applied,
+ * and teardown.
  *
  * **It names nothing the kernel models.** No frame, operation, spec or DOM
  * node, and it invokes no slot the consumer filled — every consumer-visible act
  * stays behind one of the four callbacks it is constructed with. That is what
- * makes the entity safe to hold the latch: the datum every liveness rule is
- * indexed on is owned by the thing that can state its own invariant, and the
- * storage under it keeps owning none.
+ * makes the entity safe to hold the lifecycle request: the datum every liveness
+ * rule is indexed on is owned by the thing that can state its own invariant,
+ * and the storage under it keeps owning none.
  *
- * A *library transaction* is one synchronous entry into kernel code from
- * outside it: a native ingress pass, a drain, an async continuation that
- * dispatches. Nesting is real — a consumer callback inside a drain can dispatch
- * again, and an admission resolver can open a second ingress — so the boundary
- * that owns deferred teardown is the **outermost** one, which is what a depth
- * counter names and a boolean cannot.
+ * A *unit* is one synchronous entry into kernel code from outside it:
+ * construction, a native ingress pass, one queued action. **Units do not
+ * nest.** While one runs, a dispatch appends to the queue and returns, and a
+ * native ingress pass is refused before it touches anything, so whether a unit
+ * is running is one boolean. A request made while a unit runs is applied when
+ * that unit ends and never inside it; with no unit running, the request call
+ * is itself the boundary.
  */
 export class ExecutionBracket {
   /**
@@ -27,41 +34,19 @@ export class ExecutionBracket {
   readonly #queue = new ActionQueue();
 
   /**
-   * Terminal latch. Set exactly once, on the statement requesting closure, so
-   * from that statement every guard fails. Read live at every site: a captured
-   * boolean would be a copy of a liveness answer.
+   * The lifecycle request: `LIVE`, `REQUESTED` while a unit that requested
+   * destruction runs to completion, and `CLOSED` once destruction has been
+   * applied. Only application and panic write `CLOSED`, and nothing reopens.
    */
-  #closed = false;
+  #lifecycle = LIVE;
 
-  /** Whether a drain is already in progress on the stack. */
+  /** Whether a unit is running. */
   #running = false;
 
-  /** How many library transactions are open on the stack. */
-  #depth = 0;
-
-  /** A logical close is done and its physical teardown is owed to the boundary. */
-  #teardownPending = false;
-
   /**
-   * True for the whole of native admission — the caller's `admit`, its
-   * consumer-supplied handle and visual resolvers, and the frame write that
-   * publishes the pending operation.
-   *
-   * **Admission is a queue boundary.** It is the one transaction driven outside
-   * the drain: it mutates the caller's draft directly and commits at the end,
-   * so draining underneath it would run an action against a half-written
-   * admission and have admission commit the stale outcome over it. So dispatch
-   * enqueues and returns while this is set, and the boundary drains once, after
-   * admission has either committed or abandoned. Closure is unaffected: it is
-   * not queued, so it stays a synchronous terminal barrier, and the queue it
-   * closes drops everything a resolver appended.
-   */
-  #admitting = false;
-
-  /**
-   * The promise {@link close} hands back, allocated on the first call and
-   * returned by every later one, so repeated closure is idempotent and every
-   * returned promise still settles exactly once.
+   * The promise {@link requestClose} hands back, allocated on the first call
+   * and returned by every later one, so repeated requests are idempotent and
+   * every returned promise still settles exactly once.
    */
   #settled: Promise<void> | null = null;
   #settle: (() => void) | null = null;
@@ -75,13 +60,13 @@ export class ExecutionBracket {
    * One drain step, handed to the queue. Minted once per bracket rather than
    * per drain, because a drain runs on every pointer sample.
    *
-   * The latch is read before the action, so nothing is handled once it is set
-   * — the first entry of a drain included — and re-read for every entry,
-   * because `handle` can close the bracket synchronously (a consumer callback
-   * destroying the controller).
+   * The lifecycle request is read before each action, the first entry of a
+   * drain included, and never inside one. A destruction requested by an action
+   * therefore lets that action finish and stops the drain at the next entry,
+   * which is the boundary at which the request is applied.
    */
   readonly #step = (action: number, argument: unknown): boolean => {
-    if (this.#closed) {
+    if (this.#lifecycle !== LIVE) {
       return false;
     }
 
@@ -96,7 +81,8 @@ export class ExecutionBracket {
    * @param handle - Runs one action. Must be **total**: an action it does not
    *   recognise in the current phase is ignored, never thrown on.
    * @param panic - Receives a throw escaping `handle`, which is an invariant
-   *   violation. Must terminalize the controller.
+   *   violation. The bracket has already closed when it is called and tears
+   *   down once it returns, so it only reports, and it must not throw.
    * @param teardown - The caller's own physical release, invoked once, after
    *   the bracket has released its own storage.
    * @param beginPass - The caller's preparation for an ingress pass, invoked
@@ -114,31 +100,45 @@ export class ExecutionBracket {
     this.#beginPass = beginPass;
   }
 
-  /** The latch itself, read live. */
+  /**
+   * Whether destruction has been applied. A request not yet applied reads
+   * `false`: the unit that made it completes as a live controller's unit.
+   */
   get closed(): boolean {
-    return this.#closed;
+    return this.#lifecycle === CLOSED;
   }
 
   /**
-   * Enqueues one action and, unless a pass already owns the drain, runs it to
-   * completion.
+   * Whether a native ingress pass would be admitted: no unit is running and
+   * the controller is live.
    *
-   * A nested dispatch appends to the live queue and returns; it never
-   * interrupts the action already running. The outermost frame owns the pass
-   * and reaches the appended entry in the same drain.
+   * Exposed so the caller can keep work it does ahead of a pass — work that
+   * must happen even when it opens none — behind the same refusal.
+   */
+  get idle(): boolean {
+    return !this.#running && this.#lifecycle === LIVE;
+  }
+
+  /**
+   * Enqueues one action and, when no unit is running, runs the queue to
+   * completion as a sequence of units.
+   *
+   * A dispatch made while a unit runs appends to the live queue and returns;
+   * it never interrupts the running unit. The running unit's owner reaches the
+   * appended entry in the same drain.
    */
   dispatch(action: number, argument: unknown): void {
-    if (this.#closed) {
+    if (this.#lifecycle === CLOSED) {
       return;
     }
 
     this.#queue.add(action, argument);
 
-    if (this.#admitting) {
-      return; // the admission boundary owns the drain
+    if (this.#running) {
+      return;
     }
 
-    this.#depth += 1;
+    this.#running = true;
 
     try {
       this.#drain();
@@ -148,74 +148,75 @@ export class ExecutionBracket {
   }
 
   /**
-   * Opens a native ingress pass around `admit`, drains what it dispatched, and
-   * closes the transaction.
+   * Runs one native ingress pass as a unit around `admit`, then drains what it
+   * dispatched.
    *
    * **A refused pass prepares nothing**, which is the whole point of refusing
    * before rather than after: a nested press that reached the caller's
-   * preparation would rebuild its draft from the committed frame, discarding
-   * whatever the outer `admit` had already staged in it, and then commit its
-   * own origin. So both guards precede `beginPass`, and the caller may hold
-   * only preconditions of the call on its own side.
+   * preparation would rebuild the draft a running unit is writing and commit
+   * its own origin. So the refusal precedes `beginPass`, and the caller may
+   * hold only preconditions of the call on its own side.
    *
-   * A native ingress pass is a library transaction the drain cannot see: it
-   * runs outside one, so a closure raised by an admission resolver would
-   * otherwise tear down physically with the outer admission still half-written.
+   * The drain after admission is unconditional. When admission requested
+   * destruction it handles nothing, because its step declines the first entry.
    */
   runIngress(admit: () => void): void {
-    if (this.#closed || this.#admitting) {
+    if (!this.idle) {
       return;
     }
 
-    this.#depth += 1;
-    this.#beginPass();
-    this.#admitting = true;
+    this.#running = true;
 
     try {
-      try {
-        admit();
-      } finally {
-        // Cleared in a `finally` so a throw escaping admission — a panicking
-        // resolver, a re-entry refusal — cannot leave every later dispatch
-        // silently queued with nothing to drain it.
-        this.#admitting = false;
-      }
-
-      // Whatever a resolver dispatched now runs against the committed outcome
-      // of admission, and not at all when the resolver closed the controller.
-      if (!this.#closed) {
-        this.#drain();
-      }
+      this.#beginPass();
+      admit();
+      this.#drain();
     } finally {
       this.#leave();
     }
   }
 
   /**
-   * Logical closure is **immediate**; physical teardown is **deferrable**.
+   * Runs controller construction as a unit and returns what `build` returns.
    *
-   * The latch is set on this statement, not at the end of the teardown
-   * sequence, so from here on every guard fails and nothing is admitted or
-   * drained. The returned promise does not promise that physical release
-   * completed before it was handed back — only that the latch is set, and the
-   * release may be one transaction late.
-   *
-   * Outside a reentrant transaction the two events coincide, which makes
-   * immediate physical release the common case rather than the guarantee.
+   * Construction is a unit like any other: what it dispatches is drained after
+   * `build` returns, and a destruction it requests is applied after that,
+   * before this call returns. A throw from `build` clears the queue and
+   * propagates, so nothing construction queued outlives the failed attempt.
    */
-  close(): Promise<void> {
+  construct<T>(build: () => T): T {
+    this.#running = true;
+
+    try {
+      const built = build();
+
+      this.#drain();
+      return built;
+    } catch (error) {
+      this.#queue.clear();
+      throw error;
+    } finally {
+      this.#leave();
+    }
+  }
+
+  /**
+   * Requests destruction. Applied at once when no unit is running, otherwise
+   * when the running unit ends.
+   *
+   * The returned promise settles once, after application, which includes
+   * physical teardown. Every call returns the same promise.
+   */
+  requestClose(): Promise<void> {
     this.#settled ??= new Promise<void>((resolve) => {
       this.#settle = resolve;
     });
 
-    if (!this.#closed) {
-      // Every guard now fails, on the closing statement itself.
-      this.#closed = true;
-
-      if (this.#depth === 0) {
-        this.#runTeardown();
+    if (this.#lifecycle === LIVE) {
+      if (this.#running) {
+        this.#lifecycle = REQUESTED;
       } else {
-        this.#teardownPending = true;
+        this.#apply();
       }
     }
 
@@ -223,41 +224,38 @@ export class ExecutionBracket {
   }
 
   /**
-   * Drains to completion, then clears. Re-entrant calls return immediately
-   * because the outermost frame owns the drain and will reach the newly
-   * appended work.
+   * Drains to completion, then clears. Only a unit's owner calls it, so a
+   * drain is never re-entered.
+   *
+   * **Panic is the one immediate application**, in the order close, report,
+   * tear down. The throw has already abandoned the unit, so there is nothing
+   * left to complete before applying.
    */
   #drain(): void {
-    if (this.#running) {
-      return;
-    }
-
-    this.#running = true;
-
     try {
       this.#queue.apply(this.#step);
     } catch (error) {
+      this.#lifecycle = CLOSED;
       this.#panic(error);
+      this.#release();
     } finally {
       this.#queue.clear();
-      this.#running = false;
     }
   }
 
-  /**
-   * Runs deferred teardown when the **outermost** transaction closes.
-   *
-   * Read at the boundary rather than latched at entry: a closure raised from
-   * anywhere inside the transaction — including one nested many frames deep —
-   * is owed teardown by this frame and no other.
-   */
+  /** Ends the running unit and applies a destruction it requested. */
   #leave(): void {
-    this.#depth -= 1;
+    this.#running = false;
 
-    if (this.#depth === 0 && this.#teardownPending) {
-      this.#teardownPending = false;
-      this.#runTeardown();
+    if (this.#lifecycle === REQUESTED) {
+      this.#apply();
     }
+  }
+
+  /** Applies destruction: closed first, then the release. */
+  #apply(): void {
+    this.#lifecycle = CLOSED;
+    this.#release();
   }
 
   /**
@@ -268,7 +266,7 @@ export class ExecutionBracket {
    * settle is a `finally` around the callback, so the promise settles once per
    * controller whether the caller's release returns or throws.
    */
-  #runTeardown(): void {
+  #release(): void {
     try {
       this.#queue.clear();
       this.#teardown();

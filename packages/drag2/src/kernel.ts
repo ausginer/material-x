@@ -243,13 +243,9 @@ export function draggable<
   root: HTMLElement,
   behavior: BehaviorFactory<Controller, Part, Activation>,
 ): Controller {
-  const kernel = new Kernel<Part, Activation>(root);
-  // **The narrowing happens structurally, at this call.** `behavior` declares
-  // `BehaviorContext`, so what a behavior holds is this kernel under the
-  // narrower type and `arm` is not on it — the same arrangement `LifetimeScope`
-  // already uses one tier down.
-  const { spec, controller } = behavior(kernel);
-
-  kernel.arm(spec);
-  return controller;
+  // **The narrowing happens structurally, inside `construct`.** `behavior`
+  // declares `BehaviorContext`, so what a behavior holds is the kernel under
+  // the narrower type and `construct` is not on it — the same arrangement
+  // `LifetimeScope` already uses one tier down.
+  return new Kernel<Part, Activation>(root).construct(behavior);
 }

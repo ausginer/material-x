@@ -42,7 +42,8 @@ import type { OffsetBox, Point } from './types.ts';
  * and the frame-part factories alike — is a supported position for every member
  * below, and each behaves there as its own entry states. Where that cannot be
  * delivered the limitation is written into the member's own entry;
- * {@link BehaviorContext.dispatch} is the one member in that position.
+ * {@link BehaviorContext.dispatch} is the one member in that position, whose
+ * tag is unchecked there.
  */
 export interface BehaviorContext {
   /** The owning document/window. Every DOM access goes through it. */
@@ -53,14 +54,17 @@ export interface BehaviorContext {
 
   /**
    * Enqueue one behavior action. `tag` is behavior-local and must be an integer
-   * in `0 .. config.actionTags - 1`. An out-of-range tag is reported and
-   * dropped, never enqueued.
+   * in `0 .. config.actionTags - 1`. Once destruction has been applied, every
+   * dispatch is dropped.
    *
-   * **An action dispatched before the behavior is armed is dropped, without a
-   * report.** Its handler would run the behavior's own transition through
-   * machinery construction has not built yet, so there is nothing to enqueue
-   * into that could run it and no reporter to say so. Dispatch after
-   * construction.
+   * **After arming**, an out-of-range tag is reported and dropped, never
+   * enqueued.
+   *
+   * **During construction** — the factory body and the frame-part factories —
+   * the action is queued and applied after `draggable()` publishes the
+   * controller, before it returns, in dispatch order. The tag is not checked
+   * there, because the count bounding it is in the spec the factory has not
+   * yet returned, so an out-of-range tag has no specified outcome.
    */
   dispatch(tag: number, argument: unknown): void;
 
@@ -79,15 +83,14 @@ export interface BehaviorContext {
   fail(stage: FailureStage, error: unknown): void;
 
   /**
-   * **Is this controller logically closed?** The only sanctioned liveness
-   * reading.
+   * **Has destruction been applied?** The only sanctioned liveness reading.
    *
-   * This is the latch itself, not a proxy for it. No physical-teardown
-   * observation may answer a liveness question: physical teardown is deferred
-   * to the transaction boundary, so `presentation.signal.aborted`, a disposed
-   * session and a detached node all **lag** the logical close.
+   * A destruction requested while a library unit runs is applied when that
+   * unit ends, so this reads `false` for the rest of the requesting unit,
+   * which completes as a live controller's. Once it reads `true`, physical
+   * teardown has run.
    *
-   * Readonly by construction: a behavior may consult the latch, never set it.
+   * Readonly by construction: a behavior may consult it, never set it.
    */
   readonly closed: boolean;
 
@@ -103,17 +106,18 @@ export interface BehaviorContext {
   cancel(reason?: unknown): void;
 
   /**
-   * Closes the controller **logically**, immediately, on this statement. The
-   * returned promise settles **once**, after physical teardown — which is this
-   * call when no library transaction is active, and the boundary of the
-   * outermost one when there is.
+   * Requests destruction. It is applied at once when no library unit is
+   * running, and otherwise when the running unit ends: that unit completes
+   * first, as a live controller's, and nothing after it runs. Application is
+   * one step — closed, queued work discarded, physical teardown — and the
+   * returned promise settles **once**, after it.
    *
-   * Idempotent: repeated destruction closes nothing further and every returned
-   * promise still settles exactly once.
+   * Idempotent: every call returns the same promise.
    *
-   * **The teardown it owes runs whether or not the controller was ever armed**:
-   * a behavior the kernel has taken is retired exactly once, and no frame part
-   * is composed after the latch closes.
+   * **Construction is a unit too.** A destruction requested from the factory
+   * body or a frame-part factory is applied once the controller is published,
+   * so both frame parts are composed, and the behavior is retired exactly once
+   * before `draggable()` returns.
    */
   destroy(): Promise<void>;
 }
@@ -383,7 +387,7 @@ export type BehaviorConfig = Readonly<{
   /** Which lift strategy the kernel acquires at activation. */
   liftMode: LiftMode;
   /**
-   * How many behavior action tags exist. Static spec data: it is what `arm()`
+   * How many behavior action tags exist. Static spec data: it is what construction
    * validates and what bounds a `dispatch` tag.
    */
   actionTags: number;
@@ -427,7 +431,7 @@ export type BehaviorSpec<
 
   /**
    * The optional second ingress. A behavior that omits it binds no discrete
-   * listener at all, and `arm()` binds `pointerdown` and nothing else.
+   * listener at all, and construction binds `pointerdown` and nothing else.
    */
   command?: CommandAdmission<Part>;
 
