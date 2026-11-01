@@ -307,13 +307,11 @@ export class SeamDriver<Part extends object> {
     // clear this transition's staged value, and the assignment lands last
     // regardless of what ran in between.
     //
-    // Which is exactly why it is conditional. Staging last means staging
-    // *after* an effect that reentrantly destroyed the controller or
-    // abandoned the operation, and the caller would then execute a command
-    // belonging to a transaction that no longer has anything to execute
-    // against — the release seam invoking the consumer's resolver for an
-    // operation `destroy()` already retired. A preparation that is no longer
-    // valid stages nothing, and the caller reads `null`.
+    // It is conditional on the cancel request alone now that a destroy request
+    // is not visible inside a unit: a preparation an effect cancelled stages
+    // nothing, and the caller reads `null`. A destroy needs no reading here.
+    // The release seam's caller queues the round-trip as a unit of its own,
+    // which application at this unit's boundary discards.
     this.#staged = this.#preparationValid() ? prepared : null;
     return SEAM_COMMITTED;
   }
@@ -619,27 +617,26 @@ export function runActivationSeam<
  *
  * Release **cannot discard** — `prepare` returns a command or a rejection, and
  * motion is already closed, so "changed my mind" has no meaning. The staged
- * command is executed **only** on a committed transition: running it
+ * command is handed on **only** on a committed transition: handing it on
  * unconditionally would let the consumer receive `onReorder` for a release
  * whose presentation effect had thrown, racing the failure through the same
- * queue.
+ * queue. The caller queues the round-trip rather than opening it.
  */
 export function runReleaseSeam<Part extends object, Prepared extends {}>(
   driver: SeamDriver<Part>,
   transition: Transition<Part, Prepared>,
   stage: FailureStage,
-  execute: (prepared: Prepared) => void,
+  committed: (prepared: Prepared) => void,
 ): SeamOutcome {
   const outcome = driver.runCore(transition, undefined, stage);
   // Taken unconditionally: on any other outcome this clears whatever an earlier
-  // seam left, and `execute` never sees it.
+  // seam left, and `committed` never sees it.
   const command = driver.consumeStaged();
 
-  // `null` on a committed seam means the effect abandoned the operation — a
-  // reentrant `destroy()`. The command has nothing left to run against, and
-  // executing it would open the consumer round-trip for a retired operation.
+  // `null` on a committed seam means the effect cancelled the operation, and
+  // the cancellation it queued decides it instead.
   if (outcome === SEAM_COMMITTED && command !== null) {
-    execute(command as Prepared);
+    committed(command as Prepared);
   }
 
   return outcome;

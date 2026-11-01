@@ -1880,6 +1880,277 @@ describe('the resolution round-trip', () => {
   });
 });
 
+/**
+ * **The consumer round-trip runs in its own unit** (D-205, F-438). The release
+ * unit holds the staged command and queues `OPEN_RESOLUTION`, so a destruction
+ * requested in it is applied at its boundary and discards the entry, and work
+ * the release effect dispatched applies first. Every request below is raised
+ * from a seam the bracket is running, never through a harness flag.
+ */
+describe('the round-trip unit', () => {
+  /** A release whose `invoke` records itself and settles synchronously. */
+  const recordingRelease = (
+    calls: () => string[],
+    during: Readonly<{ prepare?(): void; effect?(): void }> = {},
+  ): BehaviorSpec<ExamplePart, HTMLElement>['release'] => ({
+    prepare(): ResolutionCommand {
+      calls().push('release.prepare');
+      during.prepare?.();
+      return {
+        invoke: (): string => {
+          calls().push('invoke');
+          return 'verdict';
+        },
+      };
+    },
+    effect(): void {
+      calls().push('release.effect');
+      during.effect?.();
+    },
+  });
+
+  it('should open no round-trip for a cancel requested in the release effect', () => {
+    // R4. The cancel is registered inside the release unit, and the round-trip
+    // never reaches `invoke`, so the stage is the proposal's.
+    const harness: Harness = createHarness({
+      release: recordingRelease(() => harness.calls, {
+        effect: () => {
+          harness.kernel.cancel('in effect');
+        },
+      }),
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.calls).not.toContain('invoke');
+    expect(harness.settlements).toEqual([
+      {
+        type: SETTLED_CANCELED,
+        reason: 'in effect',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
+    ]);
+    expect(harness.calls).toContain('finalized');
+  });
+
+  it('should open no round-trip for a destroy requested in the release effect', () => {
+    // R5. The release unit completes, then destruction is applied at its
+    // boundary, ahead of the queued round-trip, which it discards.
+    const harness: Harness = createHarness({
+      release: recordingRelease(() => harness.calls, {
+        effect: () => {
+          void harness.kernel.destroy();
+          harness.calls.push(
+            `destroy; closed=${String(harness.kernel.closed)}`,
+          );
+        },
+      }),
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(
+      harness.calls.slice(harness.calls.indexOf('release.prepare')),
+    ).toEqual([
+      'release.prepare',
+      'release.effect',
+      'destroy; closed=false',
+      'retire',
+      'presentation.released',
+    ]);
+    expect(harness.settlements).toEqual([]);
+    expect(harness.kernel.closed).toBe(true);
+  });
+
+  it('should settle a cancel requested from inside the round-trip at the consumer stage', () => {
+    // R6, unchanged by the split: `invoke` was reached, so the stage is the
+    // consumer's.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        harness.calls.push('invoke');
+        harness.kernel.cancel('in onReorder');
+        return new Promise(() => {});
+      }),
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.calls.filter((call) => call === 'invoke')).toHaveLength(1);
+    expect(harness.settlements).toEqual([
+      {
+        type: SETTLED_CANCELED,
+        reason: 'in onReorder',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_CONSUMER,
+      },
+    ]);
+  });
+
+  it('should decline the round-trip for a cancel requested by an action the release effect dispatched', () => {
+    // R22 (F-436). The queue is `[OPEN_RESOLUTION, CANCEL]` once the action
+    // has run, and FIFO alone would open the round-trip first: the entry
+    // declines because the cancel is registered, and the `CANCEL` behind it
+    // settles at `RELEASING` with `invoke` never called.
+    const harness: Harness = createHarness({
+      release: recordingRelease(() => harness.calls, {
+        effect: () => {
+          harness.kernel.dispatch(0, null);
+        },
+      }),
+      action: {
+        prepare(tag): {} | null {
+          harness.calls.push(`action.prepare:${tag}`);
+          harness.kernel.cancel('in action');
+          return true;
+        },
+        effect(tag): void {
+          harness.calls.push(`action.effect:${tag}`);
+        },
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.calls).toContain('action.prepare:0');
+    expect(harness.calls).not.toContain('invoke');
+    expect(harness.settlements).toEqual([
+      {
+        type: SETTLED_CANCELED,
+        reason: 'in action',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
+    ]);
+    expect(harness.calls.filter((call) => call === 'finalized')).toHaveLength(
+      1,
+    );
+    expect(harness.calls.at(-1)).toBe('retire');
+  });
+
+  it('should open no round-trip for a destroy requested in the release prepare', () => {
+    // R28. The release unit runs as it would without the request, through its
+    // effect; application follows it and discards the round-trip.
+    const harness: Harness = createHarness({
+      release: recordingRelease(() => harness.calls, {
+        prepare: () => {
+          void harness.kernel.destroy();
+        },
+      }),
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(
+      harness.calls.slice(harness.calls.indexOf('release.prepare')),
+    ).toEqual([
+      'release.prepare',
+      'release.effect',
+      'retire',
+      'presentation.released',
+    ]);
+    expect(harness.settlements).toEqual([]);
+    expect(harness.kernel.closed).toBe(true);
+  });
+
+  it('should open no round-trip for a destroy requested by an action the release effect dispatched', () => {
+    // R29, the destroy half of R22. The action applies in full; application
+    // follows its unit and discards `OPEN_RESOLUTION` behind it.
+    const harness: Harness = createHarness({
+      release: recordingRelease(() => harness.calls, {
+        effect: () => {
+          harness.kernel.dispatch(0, null);
+        },
+      }),
+      action: {
+        prepare(tag): {} | null {
+          harness.calls.push(`action.prepare:${tag}`);
+          void harness.kernel.destroy();
+          return true;
+        },
+        effect(tag): void {
+          harness.calls.push(`action.effect:${tag}`);
+        },
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(
+      harness.calls.slice(harness.calls.indexOf('release.prepare')),
+    ).toEqual([
+      'release.prepare',
+      'release.effect',
+      'action.prepare:0',
+      'action.effect:0',
+      'retire',
+      'presentation.released',
+    ]);
+    expect(harness.settlements).toEqual([]);
+    expect(harness.kernel.closed).toBe(true);
+  });
+
+  it('should apply work the release effect dispatched before the round-trip opens', () => {
+    // §2.8's order change: the round-trip is the later unit.
+    const harness: Harness = createHarness({
+      release: recordingRelease(() => harness.calls, {
+        effect: () => {
+          harness.kernel.dispatch(0, null);
+        },
+      }),
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.calls.indexOf('action.effect:0')).toBeLessThan(
+      harness.calls.indexOf('invoke'),
+    );
+    expect(harness.settlements).toEqual([
+      { type: SETTLED_FULFILLED, value: 'verdict' },
+    ]);
+  });
+
+  it('should decline a null command for a cancel requested by an action the release effect dispatched', () => {
+    // The `invoke: null` path takes the same unit and the same entry condition.
+    // Settled inside the release unit, it would have queued its skipped
+    // settlement ahead of the action's `CANCEL`.
+    const harness: Harness = createHarness({
+      release: {
+        prepare: (): ResolutionCommand => ({ invoke: null }),
+        effect(): void {
+          harness.kernel.dispatch(0, null);
+        },
+      },
+      action: {
+        prepare(): {} | null {
+          harness.kernel.cancel('in action');
+          return true;
+        },
+        effect: (): void => {},
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.settlements).toEqual([
+      {
+        type: SETTLED_CANCELED,
+        reason: 'in action',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
+    ]);
+  });
+});
+
 describe('the settlement seam', () => {
   it('should commit SETTLING before the effect runs', () => {
     const harness = createHarness();

@@ -198,7 +198,7 @@ type SeamRejection = Readonly<{ stage: FailureStage; error: unknown }>;
 
 A committed transition leaves its `Prepared` value in the driver's staging slot, for the seams whose staged value the _kernel_ needs after the seam returns — today only the release seam's `ResolutionCommand`. That slot is consume-and-clear, and cleared again as every seam opens. Two further rules make it impossible for a command to survive the transaction that produced it:
 
-- **Staging is conditional on the preparation still being valid.** The assignment is deliberately _after_ `effect`, so nothing the effect triggers can observe or clear it — which is also exactly when a reentrant `destroy()` has already run. Clearing the slot inside teardown cannot help, because the write that repopulates it comes next. So a transition whose effect abandoned the operation stages `null`, and the release seam reads `null` on an otherwise committed outcome and **does not execute the command**: the consumer round-trip must not open for an operation the terminal barrier has retired. This is the same shape as the `SEAM_COMMITTED`-only rule above, one step later.
+- **Staging is conditional on the preparation still being valid.** The assignment is deliberately _after_ `effect`, so nothing the effect triggers can observe or clear it. ~~— which is also exactly when a reentrant `destroy()` has already run. Clearing the slot inside teardown cannot help, because the write that repopulates it comes next. So a transition whose effect abandoned the operation stages `null`, and the release seam reads `null` on an otherwise committed outcome and **does not execute the command**: the consumer round-trip must not open for an operation the terminal barrier has retired.~~ **Since D-205 the reading sees the cancel request only**, because a destroy request is applied at the unit's boundary and is invisible inside it. A transition whose effect cancelled the operation stages `null`, and the release seam reads `null` on an otherwise committed outcome and **hands nothing on**. A destroy needs no reading here: the release seam's caller queues the round-trip as a unit of its own (§`ResolutionCommand`), and application at the release unit's boundary discards it. This is the same shape as the `SEAM_COMMITTED`-only rule above, one step later. Step 3 of D-205 deletes the reading.
 - **Every seam consumes its staged value or drops it.** The two seam policies drop it for their callers; the seams the kernel drives directly — settlement, the failure report, behavior actions — drop it themselves. Otherwise a later seam that commits _without_ staging anything would hand its caller the previous seam's command, which is the precise failure the clear-on-read exists to prevent. A value still sitting in the slot as the next seam opens is a bug in the seam that left it there, and is **reported in `DEV`** rather than silently dropped.
 
 ### Post-callback revalidation
@@ -1153,6 +1153,17 @@ type ReleaseTransition<Part extends object> = Readonly<{
 
 Exactly one choice, made exactly once, executed by the kernel after `release.effect` returns **and only if it returned normally**. No `unused → used → sealed` state machine, no duplicate-call policy, no missing-call failure stage. There is one object and at most one closure per drag — not a hot path.
 
+**The command is executed by its own unit, not by the release unit (D-205).** The release unit holds the command in the kernel's attempt slots and queues `OPEN_RESOLUTION` carrying the operation identity, and the `invoke: null` command takes the same path. At its entry that unit opens the round-trip only if all four hold:
+
+- the operation is the current one;
+- it is still `RELEASING`;
+- no round-trip has been opened for it — the held command, which opening consumes;
+- **no cancel is registered for it.**
+
+Otherwise it declines and leaves the operation as it is. The slot is cleared with the attempt slots, at retirement and when a failure checkpoint applies, so no later operation can read it. One entry per drop is not on the per-sample path.
+
+**What the unit decides.** A destruction requested anywhere in the release unit is applied at that unit's boundary, ahead of `OPEN_RESOLUTION`, and discards it. A cancel registered before the entry is admitted makes it decline, including one registered by an entry queued ahead of it, such as an action the release effect dispatched (F-436). The registered `CANCEL` then settles the operation at `AT_PROPOSAL` (§The settlement input is discriminated and exhaustive). **Work the release effect dispatched applies before the round-trip opens**, where it used to apply after it.
+
 **`invoke: null` asserts a _proven semantic no-op_, and nothing else.** It is not a fallback for missing state. A release that finds no published view, no item, no snapshot or no insertion has a broken invariant, and reporting that as a successful no-op drop would tell the consumer the drag completed normally (review 5, §4). Those paths **throw** (D-152), and the kernel classifies at `FAILURE_RELEASE` because that is the stage the release seam is already open at — the behavior names the condition, never the stage. The only legitimate skip is `proposal.from === proposal.to`.
 
 The kernel treats a thenable as asynchronous and anything else as immediately settled, then hands the result to `settlement.prepare` with a status code. It never names `ReorderResolution`, `accept` or `reject`. It named one more thing until D-41 — the presentation declaration the resolution carried — and that is deleted with `ResolutionOptions`.
@@ -1237,6 +1248,8 @@ The library stops waiting, restores or retires its own presentation, and termina
 This **extends** §The settlement input is discriminated and exhaustive — _a rejected thenable is a resolver malfunction_ — rather than contradicting it, and the two rules are about different windows. While the attempt is live, a rejection is a malfunction and classifies as `FAILURE_RESOLUTION` — that is unchanged. Once the attempt has been abandoned there is no operation left to classify against, and classifying anyway would be `fail` outside a seam of the current operation, which §Failure classification already downgrades to a platform report. So the late rejection takes the non-consequential channel by the rule that is already there; what D-40 adds is the requirement that it be **caught at all**, which is a property of where the `catch` is installed rather than of the failure model.
 
 `CancelStage` is `AT_PROPOSAL` or `AT_CONSUMER`, carried through to the public cancel result — probe 1's preserved product requirement, which the intermediate draft had no constructor for. It is a **diagnostic discriminant on one terminal**, and D-40 is why that is the right shape: the two stages differ in what the consumer may have already started, not in what the consumer must do next.
+
+**The kernel's stage is whether the round-trip opened, not the phase (D-205, F-435).** A cancellation input carries `AT_CONSUMER` exactly when `OPEN_RESOLUTION` opened the round-trip for that operation, and `AT_PROPOSAL` otherwise. `RELEASING` alone is not the test: it spans whole units before the round-trip's own, and a cancel applied in them never reached the consumer's resolver. Read off the resolution attempt, which only the round-trip's unit sets and every settlement clears. The `invoke: null` command sets it too, and no cancel can apply between: its skipped settlement is queued inside the same unit, ahead of any `CANCEL` registered later. The rule agrees with the behaviors' own marker, `RESOLVING` as the first statement of `invoke` (§No start, no terminal).
 
 ## ~~The settlement gate (D-7, narrowed by D-41)~~ The settlement holds no gate (D-155)
 
@@ -1557,7 +1570,7 @@ That is what makes _existing result wins, otherwise `canceled`_ a **lookup**: by
 
 **Why `STARTED` advances _before_ the call and not after.** If `onStart` itself throws, the consumer **has** been told the drag began, so it is owed an end — and advancing afterwards would skip it, reintroducing the exact silence D-66 retracts one paragraph up. Advancing before also makes the marker mean what its name says: _the consumer knows_. There is no window in which the call has been made and the marker disagrees, because the assignment and the call are adjacent statements with nothing fallible between them.
 
-**Why the `invoke` closure and not a frame field.** `ResolutionCommand.invoke` is executed by the kernel _"after `release.effect` returns and only if it returned normally"_, and `invoke: null` means no round-trip at all. So the closure's first statement runs **exactly when the consumer round-trip opens, and never otherwise** — it is truthful by construction rather than by inference, and the behavior authors that closure already.
+**Why the `invoke` closure and not a frame field.** `ResolutionCommand.invoke` is executed by the kernel _"after `release.effect` returns and only if it returned normally"_, by the round-trip's own unit since D-205, and `invoke: null` means no round-trip at all. So the closure's first statement runs **exactly when the consumer round-trip opens, and never otherwise** — it is truthful by construction rather than by inference, and the behavior authors that closure already.
 
 **An earlier wording derived it from `proposal !== null`, and that is false.** The proposal is committed in `release.prepare`, well before the round-trip; a throw in `release.effect` therefore leaves a committed proposal with `onReorder` never called — §Every classification entrypoint latches, whose `release` row says the staged command is **not** executed — so the rule would have reported `AT_CONSUMER` for a drop the consumer never saw. The two events are one seam apart and it is the wrong seam.
 
@@ -1817,9 +1830,11 @@ Two commits, in a fixed order the kernel owns:
       preparationValid(); commit(null)          ← commit 2
       spec.release.effect(current, command)     ← placeholder to the final gap,
                                                   AND the final lift render
+      hold the command; queue OPEN_RESOLUTION   ← only on SEAM_COMMITTED (D-205)
+      … what release.effect dispatched …        ← applied first, as units
+> OPEN_RESOLUTION  current, RELEASING, not opened, no cancel registered?
       execute the command                       ← open resolution, or settle
                                                   immediately when `invoke` is null
-                                                  (only on SEAM_COMMITTED)
 ```
 
 **The final lift render is normative, not a trace embellishment.** `pointerup` need not carry the same coordinates as the last processed `pointermove` — the `UP` action commits the release point, and the proposal is computed from it. An earlier draft showed the render only in the trace while the seam table and the reference behavior moved the placeholder alone (review 6, §7), which would leave the visual and the entire landing trajectory starting from a stale point while the committed transaction describes a newer one. A compose or style failure here is classified `FAILURE_RENDERER_WRITE`.
@@ -1828,7 +1843,7 @@ The one extra 15-field `Object.assign` per `pointerup` buys a general invariant:
 
 Release stability is tier **B**: the kernel closes motion between the two commits, so nothing pending — a queued sample, a scheduled frame, an invalidation — can alter the proposal, and the behavior has no opportunity to sequence it wrongly.
 
-**A pointerless release commits no release point.** For a `RELEASE` action (D-32) commit 1 writes `phase = RELEASING` and nothing else: there is no sample to commit, and the pointer fields stay as admission left them. Commit 2, the motion disposal between them, the staged `ResolutionCommand` and the `SEAM_COMMITTED`-only execution rule are all identical.
+**A pointerless release commits no release point.** For a `RELEASE` action (D-32) commit 1 writes `phase = RELEASING` and nothing else: there is no sample to commit, and the pointer fields stay as admission left them. Commit 2, the motion disposal between them, the staged `ResolutionCommand`, the `SEAM_COMMITTED`-only rule and the round-trip's own unit are all identical.
 
 **And `release.prepare` must not resolve spatially on that path.** The pointer scalars are still zero, so a spatial resolve would select a gap from `pointerY === 0` — the top of the viewport — and silently replace the destination the command authored. The branch is normative and is specified at §The command destination; this section states only the kernel half, which is that commit 1 writes no sample and therefore offers the behavior nothing to resolve _from_.
 

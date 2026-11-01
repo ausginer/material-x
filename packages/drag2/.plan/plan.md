@@ -2298,6 +2298,14 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-01 — D-205 step 1 checkpoint: the round-trip's own unit, and one escalation
+
+**The release unit no longer opens the consumer round-trip.** It holds the staged command in the attempt slots and queues `OPEN_RESOLUTION`. That unit opens the round-trip only for the current operation, still `RELEASING`, not yet opened, with no cancel registered. A cancel's stage is `AT_CONSUMER` exactly when that unit reached `invoke`. R4, R5, R6, R22, R28 and R29 are browser tests whose requests come from seams the running controller drives, and R4, R5, R22, R28 and R29 are red at `2c5212daf`. The step-1 review's reviewer-B (a post-panic `destroy()` promise that never settled), reviewer-C (a census undercount) and reviewer-D (two stale texts) are repaired. +273 B minified, +20 to +59 B Brotli on the kernel-carrying rows. Record [`measurements/d204-step1.md`](measurements/d204-step1.md) §D-205 checkpoint.
+
+**The `release.effect` inventory met §8's first escalation clause, and the checkpoint stops there.** Under a sortable placeholder whose `connectedCallback` calls `invalidate()` during the release move, a throwing `items()` and a synchronous `onReorder`, the terminal moves from `accepted` with `onError` to the failure's `canceled` with `onError`. The collection action's failure now lands ahead of the settlement. The contract is not amended to accept it, F-438 is not closed and step 2 is not started. The architect decides against this fixed tree.
+
+---
+
 ### 2026-11-01 — The consumer round-trip's own unit moves into step 1 (D-205, F-438)
 
 **The step-1 feature proof found a regression between steps.** Step 1 made `closed` report `CLOSED` only, so no reader inside a unit sees a destroy request any longer. The consumer round-trip still ran inside the release unit, behind a staging conditional that had relied on that reading, and its move to its own unit was booked for step 3. A destroy requested in `release.prepare` or `release.effect` therefore opens `onReorder` at `2c5212daf`. Neither the baseline nor D-204's target makes that call. P5 and the new P7 show it in Chrome on both trees. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §12.

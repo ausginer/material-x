@@ -265,18 +265,20 @@ export class ExecutionBracket {
    * DOM element, a consumer value — outlives the drain that abandoned it. The
    * settle is a `finally` around the callback, so the promise settles once per
    * controller whether the caller's release returns or throws.
+   *
+   * **A release nobody requested still leaves a settled promise.** Panic
+   * applies without a request, and a later {@link requestClose} finds the
+   * lifecycle `CLOSED` and applies nothing, so it must find the promise
+   * already settled rather than allocate one nothing would ever settle.
    */
   #release(): void {
     try {
       this.#queue.clear();
       this.#teardown();
     } finally {
-      const settle = this.#settle;
-
-      if (settle) {
-        this.#settle = null;
-        settle();
-      }
+      this.#settle?.();
+      this.#settle = null;
+      this.#settled ??= Promise.resolve();
     }
   }
 }

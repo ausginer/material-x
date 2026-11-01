@@ -14,6 +14,7 @@ import {
   ERROR_REPORTED,
   FAILED,
   MOVE,
+  OPEN_RESOLUTION,
   RELEASE,
   RESOLUTION_SETTLED,
   RETIRE,
@@ -250,13 +251,20 @@ type FailureCheckpoint = Readonly<{
 /**
  * **The attempt lifetime, as a record.**
  *
- * Two correlated slots, minted per round-trip and cleared together. They are
+ * Three correlated slots, minted per round-trip and cleared together. They are
  * grouped because a class has one flat namespace for instance state: on `this`
  * a slot that lives for one settlement and a slot that lives for the
  * controller read identically, and the record is what keeps the difference
  * legible where a field list could not.
  */
 type AttemptSlots = {
+  /**
+   * The command the release unit staged, held from that unit to the
+   * `OPEN_RESOLUTION` entry that consumes it. Cleared with the other slots, so
+   * an operation that retires before the entry runs leaves nothing a later
+   * operation can read.
+   */
+  command: ResolutionCommand | null;
   resolution: ResolutionAttempt | null;
   /** The input the open settlement seam is driving. Seams are non-reentrant. */
   settlementInput: SettlementInput | null;
@@ -363,14 +371,15 @@ export class Kernel<
   #activation: ActivationRecord | null = null;
 
   /**
-   * **The attempt lifetime, named rather than spread across two fields.**
+   * **The attempt lifetime, named rather than spread across three fields.**
    *
    * `this` is one flat namespace, so a slot that lives for one round-trip and
    * a slot that lives for the controller read identically once both are on it.
-   * These two do not: they are minted per attempt, correlated, and cleared
+   * These three do not: they are minted per attempt, correlated, and cleared
    * together, and the record is what says so where a field list could not.
    */
   readonly #attempts: AttemptSlots = {
+    command: null,
     resolution: null,
     settlementInput: null,
   };
@@ -488,6 +497,7 @@ export class Kernel<
    * has no reason to end when the operation does.
    */
   #retireAttempts(): void {
+    this.#attempts.command = null;
     this.#attempts.resolution = null;
     this.#attempts.settlementInput = null;
   }
@@ -1707,8 +1717,8 @@ export class Kernel<
   }
 
   /**
-   * The consumer round-trip, executed by the kernel after `release.effect`
-   * returned normally.
+   * The consumer round-trip, opened by its own unit once the release unit
+   * committed and `release.effect` returned normally.
    *
    * A thenable is asynchronous and anything else is immediately settled. The
    * kernel never names a resolution type, an accept or a reject: it hands the
@@ -1877,11 +1887,43 @@ export class Kernel<
       this.#driver,
       this.#releaseTransition,
       FAILURE_RELEASE,
-      // Wrapped, not detached: the seam calls it with no receiver.
+      // **The round-trip is not opened here.** The command is held and its
+      // own unit queued, the `invoke: null` command included, so a destruction
+      // requested in this unit is applied at its boundary and discards the
+      // entry, and whatever the release effect dispatched applies first.
       (command) => {
-        this.#openResolution(command);
+        this.#attempts.command = command;
+        this.#bracket.dispatch(OPEN_RESOLUTION, this.#frames.current.operation);
       },
     );
+  }
+
+  /**
+   * The round-trip's own unit. It opens only for the operation that queued it,
+   * still `RELEASING`, with no round-trip opened for it and **no cancel
+   * registered for it**, all read at the unit's entry.
+   *
+   * _Not opened_ is the held command, which opening consumes. The cancel clause
+   * is what makes the round-trip guarantee hold for a cancel registered by an
+   * entry queued ahead of this one, such as an action the release effect
+   * dispatched: FIFO alone would run this entry first. Declining leaves the
+   * operation `RELEASING` for that registered `CANCEL`, which settles it at
+   * `AT_PROPOSAL`.
+   */
+  #handleOpenResolution(identity: OperationIdentity): void {
+    const { command } = this.#attempts;
+
+    if (
+      !command ||
+      this.#frames.current.operation !== identity ||
+      this.#frames.current.phase !== RELEASING ||
+      this.#operation!.cancelRequest
+    ) {
+      return;
+    }
+
+    this.#attempts.command = null;
+    this.#openResolution(command);
   }
 
   #handleUp(sample: PointerCoordinates): void {
@@ -2009,12 +2051,18 @@ export class Kernel<
         // drag began with no terminal callback at all — and there is nothing
         // atomic left to protect, because settling un-commits nothing.
         //
-        // The stage is `AT_PROPOSAL` ("abandoned before the consumer round-trip
-        // opened") and the behavior's own result carries a null proposal, which
-        // is the case its domain type already names.
+        // **The stage is whether the round-trip opened, not the phase.**
+        // `RELEASING` spans whole units before `OPEN_RESOLUTION` runs, and a
+        // cancel applied in them never reached the consumer's resolver, so it
+        // is `AT_PROPOSAL` like every earlier phase. The attempt slot is set
+        // only by the round-trip's own unit and cleared by every settlement,
+        // so it is present here exactly when `invoke` was reached. The
+        // `invoke: null` command sets it too, and no cancel can apply in
+        // that window: its settled entry is queued inside the same unit,
+        // ahead of any `CANCEL` registered after the unit's entry.
         this.#settleCancellation(
           request,
-          this.#frames.current.phase === RELEASING ? AT_CONSUMER : AT_PROPOSAL,
+          this.#attempts.resolution ? AT_CONSUMER : AT_PROPOSAL,
         );
         break;
       // **Written out rather than left to a bare `default`.** The handler is
@@ -2325,6 +2373,9 @@ export class Kernel<
         break;
       case RELEASE:
         this.#handleRelease(argument as OperationIdentity);
+        break;
+      case OPEN_RESOLUTION:
+        this.#handleOpenResolution(argument as OperationIdentity);
         break;
       case CANCEL:
         this.#handleCancel(argument as OperationIdentity);

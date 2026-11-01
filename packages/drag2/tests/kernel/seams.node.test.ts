@@ -1131,13 +1131,14 @@ describe('runCore reentrancy', () => {
     const harness = createHarness();
 
     // **The two halves the consumer actually meets, composed.** The driver
-    // produces the escape; `panic` in `kernel.ts` is `void destroy(); notify(new
-    // DraggableError(null, error))`, and that second statement is reproduced
-    // here verbatim. Composed rather than driven through the SPI on purpose:
-    // F-85 settled from the call graph that **no behavior-facing entry can open
-    // a nested phase** — every one is inside a queue handler — so a test that
-    // appeared to reach this latch through `BehaviorContext` would be asserting a
-    // reachability the record has disproved.
+    // produces the escape; `panic` in `kernel.ts` is `notify(new
+    // DraggableError(null, error))`, called after the bracket has closed, and
+    // that statement is reproduced here verbatim. Composed rather than driven
+    // through the SPI on purpose: F-85 settled from the call graph that **no
+    // behavior-facing entry can open a nested phase** — every one is inside a
+    // queue handler — so a test that appeared to reach this latch through
+    // `BehaviorContext` would be asserting a reachability the record has
+    // disproved.
     const thrown = escapeOf(() =>
       harness.driver.runCore(
         createTransition({

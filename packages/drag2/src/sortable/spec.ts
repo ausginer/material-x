@@ -1372,11 +1372,12 @@ class SortableBehavior {
       // **No terminal barrier here, deliberately.** This resolve reaches
       // the candidate loop too, and on an aborted traversal it falls back
       // to `draft.insertion`, builds a proposal and stages an `invoke`
-      // closure — which is never executed: `runCore` stages nothing when
-      // `preparationValid()` is false, and `runReleaseSeam` runs only a
-      // non-null command, so `onReorder` cannot fire for an operation
-      // `destroy()` retired. A guard here would be a second copy of a
-      // decision the kernel already owns, and two copies can disagree.
+      // closure — which is never executed: the kernel opens the round-trip
+      // in a unit of its own, and a destruction requested in this one is
+      // applied at its boundary and discards it, so `onReorder` cannot fire
+      // for an operation `destroy()` retired. A guard here would be a second
+      // copy of a decision the kernel already owns, and two copies can
+      // disagree.
       const resolved =
         this.#slots.resolveInsertion(draft, view) ?? draft.insertion;
 
@@ -1481,8 +1482,8 @@ class SortableBehavior {
     // is correct because the visual has not moved since acquisition.
 
     // **Nothing is published here**, and the effect ends at the write. The
-    // ordering that binds is the kernel's: the staged command runs *after*
-    // this returns, so a throw from the write above classifies
+    // ordering that binds is the kernel's: the staged command runs in a later
+    // unit of its own, so a throw from the write above classifies
     // `FAILURE_RELEASE` and the round-trip never opens.
     //
     // **The render is a consumer-reachable call**, which is what makes that

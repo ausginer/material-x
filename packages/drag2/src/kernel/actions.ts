@@ -49,6 +49,15 @@ export const ACTIVATE = 11;
  * producer of a release, which is what makes it one slot.
  */
 export const RELEASE = 12;
+/**
+ * Open the consumer round-trip for an operation the release unit committed.
+ *
+ * Queued by the release unit in place of running the staged command, so the
+ * round-trip is a unit of its own: a destruction requested in the release unit
+ * is applied at that unit's boundary and discards this entry, and a cancel
+ * registered before it is admitted makes it decline.
+ */
+export const OPEN_RESOLUTION = 13;
 
 /** Behavior tag `n` is queued as `BEHAVIOR_BASE + n`. */
 export const BEHAVIOR_BASE = 32;

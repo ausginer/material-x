@@ -230,6 +230,59 @@ describe('the execution bracket', () => {
     expect(harness.seen).toEqual([1]);
   });
 
+  it('should have settled its promise when destruction is requested after a panic', async () => {
+    // Panic applies without a request, so a later request applies nothing and
+    // must still hand back a settled promise (the step-1 review's reviewer-B).
+    const harness = createHarness(() => {
+      throw new Error('boom');
+    });
+
+    harness.bracket.dispatch(1, null);
+    const closing = harness.bracket.requestClose();
+
+    await expect(
+      Promise.race([closing, Promise.resolve('outstanding')]),
+    ).resolves.toBeUndefined();
+    expect(harness.teardowns).toBe(1);
+  });
+
+  it('should return one promise from every request after a panic', () => {
+    const harness = createHarness(() => {
+      throw new Error('boom');
+    });
+
+    harness.bracket.dispatch(1, null);
+    const first = harness.bracket.requestClose();
+
+    expect(harness.bracket.requestClose()).toBe(first);
+  });
+
+  it('should settle a promise requested from the panic report after teardown', async () => {
+    const order: string[] = [];
+    let closing!: Promise<void>;
+    const bracket = new ExecutionBracket(
+      () => {
+        throw new Error('boom');
+      },
+      () => {
+        closing = bracket.requestClose();
+        void closing.then(() => {
+          order.push('settled');
+        });
+      },
+      () => {
+        order.push('teardown');
+      },
+      NOOP,
+    );
+
+    bracket.dispatch(1, null);
+    await closing;
+
+    expect(order).toEqual(['teardown', 'settled']);
+    expect(bracket.requestClose()).toBe(closing);
+  });
+
   it('should apply a destruction an action requests when that action ends', () => {
     let duringPass = -1;
     const harness = createHarness((bracket) => {

@@ -689,8 +689,8 @@ class FreeDragBehavior {
     // `constrain.apply`; the request pins the item, the visual and a rect
     // in a frame teardown has already scrubbed and will not scrub again.
     // The command is still returned rather than nulled — `invoke: null`
-    // asserts a proven no-op, and the kernel already refuses to run a
-    // staged command for an invalidated preparation.
+    // asserts a proven no-op, and the kernel opens the round-trip in a
+    // later unit, which a destruction requested here discards.
     if (!this.#kernel.closed) {
       draft.request = request;
     }
