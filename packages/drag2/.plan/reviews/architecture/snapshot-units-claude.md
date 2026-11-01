@@ -1,5 +1,7 @@
 # Execution units: snapshot semantics for drag2's internal call sequences
 
+**Superseded by D-202, 2026-11-01, before implementation.** The owner's follow-up separates a request from its application. This record's analysis of the code (§1), its units, capture and exclusivity (§2.1–§2.3, §2.5, §2.8) and its probes carry forward. Its publication points, event sinks and participation-slot revision (§2.4, §2.6, §2.7) are withdrawn. [`request-application-claude.md`](request-application-claude.md) states which cases change and why. The probe sources now live in [`.plan/probes/snapshot-units/`](../../probes/snapshot-units/), with a script that reruns them. The text below is the record as it stood.
+
 **Canonical entries:** `drag2:D-201`, which supersedes `drag2:D-199`, decides `drag2:F-432`, and raises and decides `drag2:F-433` and `drag2:F-434`. The decision, the required properties and the steps are stated in [`00-index.md`](../../contract/00-index.md) and are not restated here. This record holds the evidence, the reasoning, the alternatives, the classification tables and the executable cases.
 
 **Input:** `0ed5483a0` on `drag2/fin-review2`. The owner's uncommitted edits to `src/kernel/execution.ts` (a lint suppression at the post-admission latch read) and `tests/kernel/seams.node.test.ts` were read separately and are not part of the input. D-201 deletes the statement the suppression is attached to, so that edit becomes moot rather than wrong.

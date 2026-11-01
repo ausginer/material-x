@@ -1,0 +1,40 @@
+// P2: destroy() from the first frame-part factory during arm().
+import { draggable } from '../../src/kernel.ts';
+import { LIFT_FLAT } from '../../src/kernel/presentation.ts';
+import { createEnv } from './env.ts';
+
+const env = createEnv();
+const log: string[] = [];
+const noop = () => {};
+let ctx: any;
+let parts = 0;
+draggable(env.root, (kernel) => {
+  ctx = kernel;
+  return {
+    controller: kernel,
+    spec: {
+      createFramePart: () => {
+        parts += 1;
+        log.push(`createFramePart #${parts}`);
+        if (parts === 1) {
+          void ctx.destroy().then(() => log.push('destroy promise settled'));
+          log.push(`  after destroy: pointerdown listeners=${env.rootReg.live('pointerdown')}`);
+        }
+        return { tag: parts };
+      },
+      resetFramePart: (p: any) => log.push(`resetFramePart(tag=${p.tag})`),
+      config: { threshold: 3, liftMode: LIFT_FLAT, actionTags: 0 },
+      admit: () => null,
+      activation: { prepare: () => true, effect: noop },
+      release: { prepare: () => ({ invoke: null }), effect: noop },
+      settlement: { prepare: () => true, effect: noop },
+      action: { prepare: () => null, effect: noop },
+      moved: noop, anchorTarget: () => ({ x: 0, y: 0 }), finalized: noop,
+      reportError: noop,
+      retire: () => log.push('spec.retire'),
+    },
+  };
+});
+log.push(`arm returned; pointerdown listeners=${env.rootReg.live('pointerdown')}`);
+await Promise.resolve();
+console.log(log.join('\n'));

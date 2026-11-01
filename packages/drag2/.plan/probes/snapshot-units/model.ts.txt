@@ -1,0 +1,475 @@
+// Reference model of D-202's request/application boundary. Not the
+// implementation: a self-contained toy with the decision's runner, request
+// ledger and unit boundaries, used to check that the semantics are coherent
+// and to give each acceptance case an executable statement. Run with
+// `node model.ts`; it prints one line per case and throws on the first
+// violated property.
+//
+// The central check is trace equivalence. A unit that receives a request from
+// one of its callbacks must make exactly the calls the same unit makes with no
+// request, in the same order; the request may change only what happens after
+// the unit's boundary.
+import assert from 'node:assert/strict';
+
+type Phase =
+  | 'PENDING'
+  | 'ACTIVATING'
+  | 'ACTIVE'
+  | 'RELEASING'
+  | 'SETTLING'
+  | 'FINALIZING';
+type Op = {
+  readonly id: number;
+  phase: Phase;
+  cancelRequest: { reason: string } | null;
+  roundTripOpened: boolean;
+};
+type Hook =
+  | 'handle'
+  | 'activation.prepare'
+  | 'onStart'
+  | 'release.effect'
+  | 'onReorder'
+  | 'anchorTarget'
+  | 'onEnd';
+type Action =
+  | { kind: 'MOVE' }
+  | { kind: 'UP' }
+  | { kind: 'START_COMMITTED'; id: number }
+  | { kind: 'OPEN_ROUND_TRIP'; id: number }
+  | { kind: 'SETTLE'; id: number; result: string }
+  | { kind: 'CANCEL'; id: number }
+  | { kind: 'RETIRE'; id: number }
+  | { kind: 'BEHAVIOR'; tag: string };
+
+const CANCELLABLE: readonly Phase[] = [
+  'PENDING',
+  'ACTIVATING',
+  'ACTIVE',
+  'RELEASING',
+];
+
+class Controller {
+  readonly trace: string[] = [];
+  #lifecycle: 'live' | 'requested' | 'closed' = 'live';
+  #depth = 0;
+  readonly #queue: Action[] = [];
+  #current: Op | null = null;
+  #ids = 0;
+  #settled: Promise<void> | null = null;
+  #settle: (() => void) | null = null;
+  ingressAttached = false;
+  hook: (name: Hook, c: Controller) => void = () => {};
+
+  // ---- Requests. Each records an intention and returns. ----
+
+  requestDestroy(): Promise<void> {
+    this.#settled ??= new Promise((r) => {
+      this.#settle = r;
+    });
+
+    if (this.#lifecycle === 'live') {
+      this.#lifecycle = 'requested';
+
+      if (this.#depth === 0) {
+        this.#apply(); // no unit runs, so the boundary is this call
+      }
+    }
+
+    return this.#settled;
+  }
+
+  requestCancel(reason: string): void {
+    const op = this.#current; // intake reads the committed operation
+
+    if (
+      this.#lifecycle === 'closed' ||
+      !op ||
+      !CANCELLABLE.includes(op.phase) ||
+      op.cancelRequest
+    ) {
+      return; // nothing registered
+    }
+
+    op.cancelRequest = { reason };
+    this.#enqueue({ kind: 'CANCEL', id: op.id });
+  }
+
+  dispatch(tag: string): void {
+    this.#enqueue({ kind: 'BEHAVIOR', tag });
+  }
+
+  // Native ingress: never queued, refused while closed or while a unit runs.
+  press(): boolean {
+    if (this.#lifecycle === 'closed' || this.#depth > 0) {
+      this.trace.push('press refused');
+      return false;
+    }
+
+    this.#unit('U-I', () => {
+      this.#call('handle');
+      this.#current = {
+        id: (this.#ids += 1),
+        phase: 'PENDING',
+        cancelRequest: null,
+        roundTripOpened: false,
+      };
+      this.trace.push(`publish PENDING #${this.#current.id}`);
+    });
+    return true;
+  }
+
+  move(): void {
+    this.#enqueue({ kind: 'MOVE' });
+  }
+
+  up(): void {
+    this.#enqueue({ kind: 'UP' });
+  }
+
+  // Construction as one unit: a request raised inside it applies after it.
+  construct(body: () => void): void {
+    this.#unit('U-C', () => {
+      body();
+      this.ingressAttached = true;
+      this.trace.push('publish controller');
+    });
+  }
+
+  // ---- The runner. ----
+
+  #enqueue(action: Action): void {
+    if (this.#lifecycle === 'closed') {
+      return;
+    }
+
+    this.#queue.push(action);
+
+    if (this.#depth === 0) {
+      this.#unit(null, () => {});
+    }
+  }
+
+  #unit(kind: string | null, body: () => void): void {
+    this.#depth += 1;
+
+    try {
+      if (kind) {
+        body();
+      }
+
+      // Admission before each queued unit is the only place the runner reads
+      // the lifecycle request.
+      while (this.#queue.length > 0 && this.#lifecycle === 'live') {
+        this.#handle(this.#queue.shift()!);
+      }
+    } finally {
+      this.#depth -= 1;
+    }
+
+    if (this.#depth === 0 && this.#lifecycle === 'requested') {
+      this.#apply();
+    }
+  }
+
+  // Application: close, discard every queued request, tear down, settle.
+  #apply(): void {
+    this.#lifecycle = 'closed';
+    this.#queue.length = 0;
+    this.trace.push('apply destroy');
+
+    if (this.#current) {
+      this.trace.push(`teardown #${this.#current.id}`);
+      this.#current = null;
+    }
+
+    this.ingressAttached = false;
+    this.#settle?.();
+  }
+
+  #call(name: Hook): void {
+    this.trace.push(name);
+    this.hook(name, this);
+  }
+
+  #commit(op: Op, phase: Phase): void {
+    op.phase = phase;
+  }
+
+  // Every handler captures its operation once, at entry, and validates its
+  // currency there. Nothing below the entry reads a request.
+  #handle(action: Action): void {
+    const op = this.#current;
+
+    switch (action.kind) {
+      case 'MOVE':
+        if (op?.phase === 'PENDING') {
+          this.#call('activation.prepare');
+          this.#commit(op, 'ACTIVATING');
+          this.#call('onStart');
+          this.#queue.push({ kind: 'START_COMMITTED', id: op.id });
+        }
+
+        return;
+      case 'START_COMMITTED':
+        if (op?.id === action.id && op.phase === 'ACTIVATING') {
+          if (op.cancelRequest) {
+            return; // precedence, read at this unit's entry
+          }
+
+          this.#commit(op, 'ACTIVE');
+        }
+
+        return;
+      case 'UP':
+        if (op?.phase === 'ACTIVE') {
+          this.#commit(op, 'RELEASING');
+          this.#call('release.effect');
+          this.#queue.push({ kind: 'OPEN_ROUND_TRIP', id: op.id });
+        }
+
+        return;
+      case 'OPEN_ROUND_TRIP':
+        if (
+          op?.id === action.id &&
+          op.phase === 'RELEASING' &&
+          !op.roundTripOpened
+        ) {
+          op.roundTripOpened = true;
+          this.#call('onReorder');
+          this.#queue.push({ kind: 'SETTLE', id: op.id, result: 'accepted' });
+        }
+
+        return;
+      case 'SETTLE':
+        if (op?.id === action.id && op.phase === 'RELEASING') {
+          this.#settleOp(op, action.result);
+        }
+
+        return;
+      case 'CANCEL':
+        if (op?.id !== action.id || !op.cancelRequest) {
+          return; // stale: lapses with no effect
+        }
+
+        op.cancelRequest = null;
+
+        if (op.phase === 'PENDING') {
+          this.trace.push(`retire #${op.id} silently`);
+          this.#current = null;
+        } else if (CANCELLABLE.includes(op.phase)) {
+          const stage = op.roundTripOpened ? 'AT_CONSUMER' : 'AT_PROPOSAL';
+          this.#settleOp(op, `canceled ${stage}`);
+        }
+
+        return;
+      case 'RETIRE':
+        if (op?.id === action.id) {
+          this.trace.push(`retire #${op.id}`);
+          this.#current = null;
+        }
+
+        return;
+      case 'BEHAVIOR':
+        this.trace.push(`action ${action.tag}`);
+    }
+  }
+
+  #settleOp(op: Op, result: string): void {
+    this.#commit(op, 'SETTLING');
+    this.#call('anchorTarget');
+    this.#commit(op, 'FINALIZING');
+    this.trace.push('presentation released');
+    this.#call('onEnd');
+    this.trace.push(`onEnd(${result})`);
+    this.#queue.push({ kind: 'RETIRE', id: op.id });
+  }
+
+  get closed(): boolean {
+    return this.#lifecycle === 'closed';
+  }
+}
+
+// ---- Harness ----
+
+function drag(c: Controller): void {
+  c.press();
+  c.move();
+  c.up();
+}
+
+function run(inject?: { at: Hook; act: (c: Controller) => void }): Controller {
+  const c = new Controller();
+  c.construct(() => {});
+  let fired = false;
+  c.hook = (name, self) => {
+    if (inject && name === inject.at && !fired) {
+      fired = true;
+      inject.act(self);
+      self.trace.push('<request>');
+    }
+  };
+  drag(c);
+  return c;
+}
+
+// The unit containing the injection point, as a slice of the trace: from the
+// start of the unit to the last call before the runner admits another unit.
+// Units in this model are delimited by the calls each handler makes, so the
+// check compares the baseline's calls up to the injection point's unit end.
+function unitSlice(trace: readonly string[], from: string, to: string): string[] {
+  const start = trace.indexOf(from);
+  const end = trace.indexOf(to, start);
+  return trace.slice(start, end + 1).filter((t) => t !== '<request>');
+}
+
+const baseline = run().trace;
+const cases: Array<[string, () => void]> = [];
+const check = (name: string, fn: () => void): void => {
+  cases.push([name, fn]);
+};
+
+check('R1 destroy in handle: admission completes, then destruction applies', () => {
+  const c = run({ at: 'handle', act: (s) => void s.requestDestroy() });
+  assert.deepEqual(unitSlice(c.trace, 'handle', 'publish PENDING #1'), [
+    'handle',
+    'publish PENDING #1',
+  ]);
+  assert.deepEqual(c.trace.slice(-2), ['apply destroy', 'teardown #1']);
+  assert.ok(!c.trace.includes('activation.prepare'));
+  assert.equal(c.press(), false);
+});
+
+check('R2 destroy in activation.prepare: the unit runs as baseline, no terminal', () => {
+  const c = run({ at: 'activation.prepare', act: (s) => void s.requestDestroy() });
+  assert.deepEqual(
+    unitSlice(c.trace, 'activation.prepare', 'onStart'),
+    unitSlice(baseline, 'activation.prepare', 'onStart'),
+  );
+  assert.ok(!c.trace.includes('onEnd'));
+  assert.deepEqual(c.trace.slice(-2), ['apply destroy', 'teardown #1']);
+});
+
+check('R3 cancel in activation.prepare: start, then canceled AT_PROPOSAL', () => {
+  const c = run({ at: 'activation.prepare', act: (s) => s.requestCancel('x') });
+  assert.deepEqual(
+    unitSlice(c.trace, 'activation.prepare', 'onStart'),
+    unitSlice(baseline, 'activation.prepare', 'onStart'),
+  );
+  assert.ok(c.trace.includes('onEnd(canceled AT_PROPOSAL)'));
+  assert.ok(!c.trace.includes('release.effect'));
+});
+
+check('R4 cancel in release.effect: applied before the round-trip opens', () => {
+  const c = run({ at: 'release.effect', act: (s) => s.requestCancel('x') });
+  assert.ok(!c.trace.includes('onReorder'));
+  assert.ok(c.trace.includes('onEnd(canceled AT_PROPOSAL)'));
+});
+
+check('R5 destroy in release.effect: no round-trip, no terminal', () => {
+  const c = run({ at: 'release.effect', act: (s) => void s.requestDestroy() });
+  assert.ok(!c.trace.includes('onReorder'));
+  assert.ok(!c.trace.includes('onEnd'));
+  assert.deepEqual(c.trace.slice(-2), ['apply destroy', 'teardown #1']);
+});
+
+check('R6 cancel in onReorder: the attempt was opened, so AT_CONSUMER', () => {
+  const c = run({ at: 'onReorder', act: (s) => s.requestCancel('x') });
+  assert.ok(c.trace.includes('onEnd(canceled AT_CONSUMER)'));
+});
+
+check('R7 destroy in anchorTarget: the join and its terminal complete first', () => {
+  const c = run({ at: 'anchorTarget', act: (s) => void s.requestDestroy() });
+  assert.deepEqual(
+    unitSlice(c.trace, 'anchorTarget', 'onEnd(accepted)'),
+    unitSlice(baseline, 'anchorTarget', 'onEnd(accepted)'),
+  );
+  assert.deepEqual(c.trace.slice(-2), ['apply destroy', 'teardown #1']);
+  assert.ok(!c.trace.includes('retire #1'));
+});
+
+check('R8 late cancel in anchorTarget registers nothing (F-434)', () => {
+  const c = run({ at: 'anchorTarget', act: (s) => s.requestCancel('late') });
+  // `anchorTarget` runs at SETTLING, so the whole drag is the baseline.
+  assert.deepEqual(
+    c.trace.filter((t) => t !== '<request>'),
+    baseline,
+  );
+  assert.ok(c.trace.includes('retire #1'));
+  assert.equal(c.press(), true);
+});
+
+check('R9 a press dispatched inside a unit is refused (F-433)', () => {
+  const c = run({ at: 'onStart', act: (s) => void s.press() });
+  assert.ok(c.trace.includes('press refused'));
+  assert.ok(!c.trace.includes('publish PENDING #2'));
+});
+
+check('R10 destroy with no unit running applies before the call returns', () => {
+  const c = new Controller();
+  c.construct(() => {});
+  c.press();
+  void c.requestDestroy();
+  assert.equal(c.closed, true);
+  assert.deepEqual(c.trace.slice(-2), ['apply destroy', 'teardown #1']);
+});
+
+check('R11 destroy during construction applies after publication', () => {
+  const c = new Controller();
+  let closedInside: boolean | null = null;
+  c.construct(() => {
+    void c.requestDestroy();
+    closedInside = c.closed;
+  });
+  assert.equal(closedInside, false);
+  assert.deepEqual(c.trace, ['publish controller', 'apply destroy']);
+  assert.equal(c.ingressAttached, false);
+});
+
+check('R12 FIFO among requests; destroy outranks everything queued', () => {
+  const a = run({
+    at: 'onStart',
+    act: (s) => {
+      s.dispatch('A');
+      s.requestCancel('x');
+      s.dispatch('B');
+    },
+  });
+  const order = a.trace.filter((t) => /^action|^onEnd\(/.test(t));
+  assert.deepEqual(order, ['action A', 'onEnd(canceled AT_PROPOSAL)', 'action B']);
+
+  const b = run({
+    at: 'onStart',
+    act: (s) => {
+      s.dispatch('A');
+      s.requestCancel('x');
+      void s.requestDestroy();
+    },
+  });
+  assert.ok(!b.trace.some((t) => t.startsWith('action') || t.startsWith('onEnd(')));
+});
+
+check('R13 repeated destroy returns one promise that settles once', async () => {
+  const c = run({ at: 'onStart', act: (s) => void s.requestDestroy() });
+  const p = c.requestDestroy();
+  assert.equal(p, c.requestDestroy());
+  let settled = 0;
+  await p.then(() => (settled += 1));
+  assert.equal(settled, 1);
+});
+
+check('R14 a cancel from onEnd registers nothing; exactly one terminal', () => {
+  const c = run({
+    at: 'onEnd',
+    act: (s) => s.requestCancel('stale'),
+  });
+  // onEnd runs at FINALIZING, so nothing is registered and the drag retires.
+  assert.ok(c.trace.includes('retire #1'));
+  assert.equal(c.trace.filter((t) => t.startsWith('onEnd(')).length, 1);
+});
+
+for (const [name, fn] of cases) {
+  // R13 is asynchronous; awaiting a synchronous case is a no-op.
+  await fn();
+  console.log(`ok  ${name}`);
+}

@@ -2298,6 +2298,23 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-01 — Requests and their application: no unit reads a request after its entry (D-202, F-435)
+
+**The owner's follow-up, answered.** Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md), at `6905af249`. A request records an intention, and the library applies it at a unit boundary: after the running unit, or before the call returns when none runs. D-201 kept `destroy()` closing the latch on the calling statement and `cancel()` latching on the operation. It then read both inside the unit, at four publication points and at event sinks. At each of those points a request changed the running unit's later calls. Probe P5 records this in today's code, in Chrome: a cancel in `activation.prepare` rolls the transition back, and a destroy there reads `closed=true` on the next statement.
+
+**D-202 supersedes D-201 and keeps its structure.** It keeps the units, capture at entry, the ingress refusal (F-433), construction as a unit (F-432), the split into a façade and an armed controller, and D-199's carried rules. What changes:
+
+- Destruction is requested and then applied in one step, with logical and physical closure coinciding.
+- A cancel registers only in phases where it can act (F-434), applies FIFO, and lapses if its operation is decided first.
+- The consumer round-trip opens in its own queued unit, so no round-trip opens after a request against its operation.
+- The cancel stage is `AT_CONSUMER` only once `invoke` ran. That decides **F-435**, a new tier-A defect P5 found: a cancel in `release.effect` reported `AT_CONSUMER` for a drop the consumer never saw.
+
+**What this deletes.** No preparation can be invalidated, so `rollback` leaves the SPI and the sortable's D-39 ledger goes with it. No callback can change the lifecycle a unit sees, so `BehaviorContext.closed` and the feature `live` hooks leave the surface, and D-201's participation-slot tradeoff disappears rather than being decided. `destroy()` and `cancel()` become `requestDestroy()` and `requestCancel()`. `invalidate()` and `moveTo()` keep their names, and `moveTo` now captures its argument.
+
+**Evidence is in the repository.** Probes P1, P2, P4 and P5, and a reference model executing R1–R14, are in [`probes/snapshot-units/`](probes/snapshot-units/), with `run.sh`. The browser probes ran with the project-configured Chrome. Booked to Remediation in six steps. The witness is the absence of `measurements/d202-requests.md`.
+
+---
+
 ### 2026-11-01 — Snapshot semantics for internal call sequences: execution units, four publication points, event sinks (D-201, F-433, F-434)
 
 **The owner's narrowed mandate, answered.** Record [`snapshot-units-claude.md`](reviews/architecture/snapshot-units-claude.md), at `0ed5483a0`. Once a unit starts, mutation of its originating state must not change the inputs, receivers or targets of its later internal calls. The kernel's guards sort into three families: context, control and publication. Only publication belongs in the design. The context family exists because three gaps break an exclusivity the bracket otherwise already provides: construction runs at depth 0; ingress is refused only during admission; and the click disarm runs ahead of the refusal. The control family exists because one latch reading answered both _should the next call happen_ and _are its inputs still valid_.

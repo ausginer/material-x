@@ -2405,7 +2405,7 @@ The composition figure is recorded when this lands.
 
 #### D-201
 
-**Unimplemented (Remediation).** **Decided 2026-11-01, on the owner's mandate** ([`reentrancy-redesign-brief.md`](../reentrancy-redesign-brief.md) §Governing owner clarification). **Execution units run against a captured context. Lifecycle state is read only at unit admission, at four publication points and at event sinks.** Supersedes D-199. Decides F-432. Raises and decides F-433 and F-434. Record [`snapshot-units-claude.md`](../reviews/architecture/snapshot-units-claude.md), at `0ed5483a0`; it holds the evidence, the guard classification, the cases E1–E12 and the probes.
+**Superseded by D-202, 2026-11-01, before implementation.** **Execution units, capture at entry, the ingress refusal, construction as a unit, the split by lifetime, the cancel phase rule and D-199's carried rules all carry forward. The publication points, the event sinks and the participation-slot revision do not.** The owner's follow-up in the brief separates a request from its application. Every point at which D-201 read the latch or a cancel request inside a running unit makes the unit depend on a request. D-202 restates every property it carries forward, and this row's entry in the unimplemented table moves to D-202. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md). The text below is the decision as it stood. **Decided 2026-11-01, on the owner's mandate** ([`reentrancy-redesign-brief.md`](../reentrancy-redesign-brief.md) §Governing owner clarification). **Execution units run against a captured context. Lifecycle state is read only at unit admission, at four publication points and at event sinks.** Supersedes D-199. Decides F-432. Raises and decides F-433 and F-434. Record [`snapshot-units-claude.md`](../reviews/architecture/snapshot-units-claude.md), at `0ed5483a0`; it holds the evidence, the guard classification, the cases E1–E12 and the probes.
 
 **The unit.** An execution unit is one synchronous run of library code entered from outside library code and executed by the `ExecutionBracket` at depth ≥ 1. There are four kinds: construction (U-C, `arm`), an ingress pass (U-I), one queued action (U-A), and physical teardown (U-T). Every other entry is a **producer**: listeners, the rAF task, invalidators, thenable callbacks, and a consumer's controller calls. A producer runs no foreign code, writes no state a unit reads as context, and only records a request or enqueues.
 
@@ -2488,6 +2488,93 @@ Each step lands its cases from E1–E12 and the contract text it makes true. The
 - **I-36 (a), I-6, I-21, I-1:** amends them.
 - **Surface:** changes no published type and no SPI member. The consumer-visible change is the participation-slot revision, plus the refusal of a press dispatched synchronously from inside a library callback, which today can corrupt the controller (F-433).
 
+#### D-202
+
+**Unimplemented (Remediation).** **Decided 2026-11-01, on the owner's follow-up** ([`reentrancy-redesign-brief.md`](../reentrancy-redesign-brief.md) §Governing owner follow-up). **A request records an intention, and the library applies it at a unit boundary: after the running unit, or at once when no unit runs. No unit reads a request after its entry.** Supersedes D-201. Decides F-432, F-433 and F-434 in D-201's place. Raises and decides F-435. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md), at `6905af249`. It holds the reasoning, the API table, the cases R1–R21 and the handoff. The probes and the reference model are in [`probes/snapshot-units/`](../probes/snapshot-units/).
+
+**Why D-201 does not meet the follow-up.** D-201 kept `destroy()` setting the logical latch on the calling statement, and `cancel()` latching a request on the operation. It then read those facts at seam commit, round-trip opening, admission publish, controller publish and the event sinks. At each of those points a request raised earlier in the same unit changes what the unit does next. P5, in Chrome at `6905af249`, records this in today's code. A `cancel()` in `activation.prepare` rolls the transition back. A `destroy()` there reads `closed=true` on the next statement. A `destroy()` in `release.effect` suppresses the round-trip, and one in `anchorTarget` suppresses the join.
+
+**Three kinds of call.**
+
+- A **request** records an intention in the ledger and returns: `requestDestroy`, `requestCancel`, `invalidate`, `moveTo`, `dispatch`, the checkpoint half of `fail`, pointer and key samples, async completions.
+- A **result** decides the running phase: a `prepare` return, a throw, `kernel.fail` inside an open phase.
+- A **query** returns a value the unit uses.
+
+Native ingress is none of the three. It is admitted as a unit only when no unit runs and the controller is open, and is otherwise refused before it touches any state.
+
+**Required properties:**
+
+1. **Units, capture and exclusivity carry forward from D-201 unchanged:** properties 1–4, 10, 11 and 12 there, and its decomposition into a `BehaviorContext` façade and an armed controller. U-C now spans the whole of `draggable()`, from before the behavior factory to publication.
+2. **The ledger** is:
+   - the controller's lifecycle request (`LIVE`, `REQUESTED`, `CLOSED`);
+   - an operation's cancel request;
+   - the action queue;
+   - a checkpoint's capture of the cancel state at intake.
+
+   It is read only by the runner's admission decision, at a unit's entry (currency and precedence), and at request intake, together with the diagnostic channel's refusal after `CLOSED`. **No unit reads it after its entry.**
+
+3. **Destruction is requested, then applied.** `requestDestroy()` on a `LIVE` controller sets `REQUESTED` and returns the controller's one promise. When no unit runs, it applies before returning. Otherwise it applies when the running unit ends, ahead of everything queued.
+   - **In the interval** the running unit completes its captured sequence exactly as without the request. Every callback it makes is a live controller's.
+   - **Application** is one step: `CLOSED`, the queue cleared, physical teardown in today's order and wrapping, then the promise settles.
+   - **After application** nothing is admitted, invoked, published or announced. Every request is a no-op, and ingress is refused.
+   - Repeated calls return the same promise, which settles once.
+   - Panic stays an immediate application, in the order close, report, tear down.
+4. **A cancel request is registered against the operation committed at intake**, and only in `PENDING`, `ACTIVATING`, `ACTIVE` or `RELEASING`. The first registration wins. A `CANCEL` entry is queued, FIFO, and applied at its entry only if the operation is still current and cancellable: `PENDING` retires silently; the other three open the cancellation settlement. Otherwise the request lapses with no effect. `requestCancel` returns `void`; its application is observable through the terminal.
+5. **The cancel stage is `AT_CONSUMER` exactly when the consumer's `invoke` has been called** for the operation, and `AT_PROPOSAL` otherwise (F-435).
+6. **The consumer round-trip opens in its own queued unit.** The release unit commits `RELEASING`, runs `release.effect` and queues `OPEN_RESOLUTION` with the operation identity. That unit opens the round-trip only if the operation is current, `RELEASING` and not yet opened. The staged command is held at operation scope until then, with no per-sample allocation. No round-trip opens after a cancel or destroy request against its operation has been registered.
+7. **Ordering:**
+   - destruction has priority;
+   - everything else applies in FIFO order;
+   - `DESTROY > CANCEL > FAILURE_CHECKPOINT` holds;
+   - `START_COMMITTED` declines `ACTIVE` while a cancel is registered;
+   - a checkpoint registered while a cancel for its operation is registered and unapplied is superseded, decided and reported (`failure/superseded-by-cancel`) at the checkpoint's application.
+
+   `#failOperation`'s intake no longer consults the cancel request.
+
+8. **No preparation can be invalidated by a request.** The driver's `preparationValid` dependency, `SEAM_INVALIDATED`, the staging conditional, `rollback` (the `Transition`, `ActionTransition` and both `BehaviorSpec` members) and the sortable's D-39 undo ledger are removed. A staged value reaches `effect` exactly when its transition commits.
+9. **Construction.**
+   - A destroy requested in U-C is applied after publication: both parts composed, ingress attached and then aborted, the spec retired once, each frame reset once.
+   - `dispatch` during U-C is queued and applied after publication.
+   - A U-C failure still unwinds and rethrows.
+10. **Surface.**
+    - `destroy()` becomes `requestDestroy()` and `cancel(reason?)` becomes `requestCancel(reason?)`, on `BehaviorContext`, `SortableController` and `FreeDragController`.
+    - `BehaviorContext.closed`, `InsertionRuntimeView.live` and `DisplacementReport`'s `live` parameter are removed, together with every `kernel.closed` and `live()` read in `src/`.
+    - `invalidate` and `moveTo` keep their names. `moveTo` captures its argument at intake.
+11. **Query results** that a unit uses after a later foreign call are read into unit-owned values at the call. The exceptions are elements, which are targets; construction-captured records; and `items()`, whose new identity is shallow-copied and whose in-place mutation stays outside the contract.
+
+**What D-201 loses.** The publication points PP-1 to PP-4, the event sinks, the participation-slot revision and its owner veto point. Their premise, immediate logical closure, is gone. I-36 (a) holds literally against application, so there is no tradeoff left to decide.
+
+**Contract text**, amended by the step that makes it true, never ahead of it (record §5):
+
+- 05: I-1, I-3, I-6, I-7, I-16, I-21, I-22, I-31, I-36 and I-37;
+- 02: §The tri-phase transition, §Post-callback revalidation, §Every classification entrypoint latches, §What this actually guarantees (a new tier-B row: _no unit reads the ledger after its entry_), §Queue semantics, §Release ordering, §`ResolutionCommand`, §The settlement input is discriminated and exhaustive, and §Attempts;
+- 01: §`BehaviorContext`, §`draggable()` and the two-phase handshake, §When construction itself fails, and §Teardown across two owners;
+- 03: the `live` rows and the report documentation;
+- 07: the controller members;
+- `tests/COVERAGE.md`;
+- the README and the declaration surface.
+
+**Order and witness.**
+
+1. The runner and construction: the lifecycle request, U-C spanning `draggable()`, the widened ingress refusal with the disarm behind it, and the unconditional drain.
+2. D-201's split and capture.
+3. Kernel requests: every in-unit ledger read deleted; the cancel rule, supersession, `OPEN_RESOLUTION` and the stage rule.
+4. Surface and behaviors.
+5. D-199's comment pass, carried forward.
+6. The measurement record `.plan/measurements/d202-requests.md`: composition on every kernel-carrying row per step, M-1 with I-26's structural check, M-2, and a census of ledger reads by location.
+
+Acceptance is R1–R21 as tests against `src/`, plus property 2 as a structural check. A reduced guard count is reported and is not acceptance. The witness is the measurement record's absence.
+
+**Touches:**
+
+- **D-201:** supersedes it.
+- **D-199:** stays superseded; its three carried rules are restated through property 1.
+- **F-432, F-433, F-434:** decides them in D-201's place, with cases R15, R9 and R8.
+- **F-435:** raises and decides it.
+- **D-200:** keeps its pending independent acceptance; no `Lifetime` or `ActionQueue` property changes, and property 3's first-entry clause gains R1 and R12.
+- **D-36, D-53, D-37's participant obligation, D-39's ledger, D-13's fourth widening:** withdrawn.
+- **Surface:** renames two members on three types and removes four members. All of these are on an unreleased API (§8).
+
 ### Decisions not yet implemented
 
 **The artifact F-63 asked for** (K-5). D-34 and D-35 were stated in the present tense by three contract documents and were not in the code, across a checkpoint and a whole revision, with every suite green — because a green suite is evidence about the _implemented_ contract only, and nothing in the repository compared a decision booked to a later phase against the code that had not implemented it. Phase 18 found them by reading, which is the discovery this table exists to make unnecessary.
@@ -2500,7 +2587,9 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-201 | Remediation | the bracket, the split and capture, kernel control, the behaviors' sinks, the carried comment pass, then the measurement record | absent: `.plan/measurements/d201-units.md` |
+| D-202 | Remediation | the runner and construction, the split and capture, kernel requests, surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d202-requests.md` |
+
+**D-201's row closed on 2026-11-01 without landing.** D-202 superseded it before implementation, and D-202's row carries all six of its steps in revised form. The witness keeps D-201's form: the absence of the measurement record the last step writes, renamed for the decision that now owns it.
 
 **D-199's row closed on 2026-11-01 without landing.** D-201 superseded it before implementation, and D-201's row carries both of its steps. Its witness, `since the gate went` in `src/kernel/kernel.ts`, was a single sentence of a file D-201's second step rewrites, so it could have retired early. That is why D-201's row is witnessed by the absence of the measurement record its last step writes.
 
@@ -2574,7 +2663,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 This register is the **status**, not the decision. What each decision says, and what replaced it, is its row in §Decision ledger — the source of truth, which this never restates. `tests/decisions.node.test.ts` holds the two to the same id set: an entry without a canonical row, a canonical row without an entry, a duplicate, or a value outside the vocabulary is a failure rather than a skip.
 
-The nineteen `inactive` rows are the ones whose live residue is empty: **D-7** (superseded by D-155, no gate left to default open), **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected), **D-150** (superseded by D-151, none of it lands), **D-162** (superseded by D-164), **D-164** (superseded before implementation by D-165), **D-167** and **D-169** (both superseded by D-170, whose owner call reverses the first and closes the question the second answered), **D-182** (superseded by D-184, which restates every property it carries forward), **D-183** (superseded by D-185 on a reading of _reachable_ the owner's rule rejects), **D-185** (superseded by D-186, which restores D-183's holding on a repaired ground), **D-188** (superseded by D-189, which carries both its halves forward on repaired grounds) **D-190** (superseded by D-191, which carries its premise and every disposition forward on a replaced rule), **D-187** (superseded by D-192, which carries all five of its claims forward with three of the rules narrowed), **D-193** (superseded by D-196, which corrects the site the rule names, withdraws the instrument it owed and replaces the cause it states), **D-194** (superseded by D-197, which replaces the ground for the export and re-books the declaration-weight figure) **D-195** (superseded by D-198, which widens the repair to both `prettier/prettier` rule sites and scopes the clause to the files a package's `fmt` owns) and **D-199** (superseded before implementation by D-201, which restates the extraction rule, the teardown deduplication and the comment pass it carries forward). ~~The eight~~ **corrected 2026-09-09 (F-406): the enumeration named eight of thirteen and stated the count as eight, while the table three lines below carried thirteen — five rows explained nowhere by the paragraph that exists to explain them.** ~~The fifteen~~ **corrected 2026-09-10: the same defect recurred when D-193, D-194 and D-195 were added to the table and not to the enumeration.**
+The twenty `inactive` rows are the ones whose live residue is empty: **D-7** (superseded by D-155, no gate left to default open), **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected), **D-150** (superseded by D-151, none of it lands), **D-162** (superseded by D-164), **D-164** (superseded before implementation by D-165), **D-167** and **D-169** (both superseded by D-170, whose owner call reverses the first and closes the question the second answered), **D-182** (superseded by D-184, which restates every property it carries forward), **D-183** (superseded by D-185 on a reading of _reachable_ the owner's rule rejects), **D-185** (superseded by D-186, which restores D-183's holding on a repaired ground), **D-188** (superseded by D-189, which carries both its halves forward on repaired grounds) **D-190** (superseded by D-191, which carries its premise and every disposition forward on a replaced rule), **D-187** (superseded by D-192, which carries all five of its claims forward with three of the rules narrowed), **D-193** (superseded by D-196, which corrects the site the rule names, withdraws the instrument it owed and replaces the cause it states), **D-194** (superseded by D-197, which replaces the ground for the export and re-books the declaration-weight figure) **D-195** (superseded by D-198, which widens the repair to both `prettier/prettier` rule sites and scopes the clause to the files a package's `fmt` owns) **D-199** (superseded before implementation by D-201, which restates the extraction rule, the teardown deduplication and the comment pass it carries forward) and **D-201** (superseded before implementation by D-202, which restates every property it carries forward and withdraws the publication points and event sinks whose premise was immediate logical closure). ~~The eight~~ **corrected 2026-09-09 (F-406): the enumeration named eight of thirteen and stated the count as eight, while the table three lines below carried thirteen — five rows explained nowhere by the paragraph that exists to explain them.** ~~The fifteen~~ **corrected 2026-09-10: the same defect recurred when D-193, D-194 and D-195 were added to the table and not to the enumeration.**
 
 | Decision | Status   |
 | -------- | -------- |
@@ -2778,7 +2867,8 @@ The nineteen `inactive` rows are the ones whose live residue is empty: **D-7** (
 | D-198    | active   |
 | D-199    | inactive |
 | D-200    | active   |
-| D-201    | active   |
+| D-201    | inactive |
+| D-202    | active   |
 
 ## Findings
 
@@ -5007,9 +5097,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Repaired 2026-09-10.** The `oxfmt` pin moves 0.58.0 → **0.67.0**, the latest, so the version is not itself a formatting opinion, and the tree is reformatted under it: **seven files** across box-quad, drag, drag2 and material-x, none of which changes a program. Root `fmt-check` is green over all nine packages and the repository-level files.
 
-#### F-432 — an operation minted inside a failing `arm()` is never disposed · open, decided by D-201
+#### F-432 — an operation minted inside a failing `arm()` is never disposed · open, decided by D-202
 
-**Decided 2026-11-01 by D-201, and closes when it lands.** Construction becomes an execution unit at bracket depth ≥ 1, and no ingress pass opens while a unit is on the stack, so no operation can be minted inside `arm()`. The repair establishes the required property below **structurally, with no guard added**, and E3 in [`snapshot-units-claude.md`](../reviews/architecture/snapshot-units-claude.md) §5 is its test. The §1.1 question below is therefore moot rather than answered. **Open, tier C. Raised 2026-09-29 by the O-6 pass**, while checking whether teardown could be routed through `#retireOperation(null)`. Record [`kernel-shape-o6-claude.md`](../reviews/architecture/kernel-shape-o6-claude.md), at `9dcb62e1a`.
+**Decided 2026-11-01 by D-202, which superseded D-201 before implementation and keeps its repair. Closes when D-202 lands, with case R15** in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §7. D-201's decision, as it stood: **Decided 2026-11-01 by D-201, and closes when it lands.** Construction becomes an execution unit at bracket depth ≥ 1, and no ingress pass opens while a unit is on the stack, so no operation can be minted inside `arm()`. The repair establishes the required property below **structurally, with no guard added**, and E3 in [`snapshot-units-claude.md`](../reviews/architecture/snapshot-units-claude.md) §5 is its test. The §1.1 question below is therefore moot rather than answered. **Open, tier C. Raised 2026-09-29 by the O-6 pass**, while checking whether teardown could be routed through `#retireOperation(null)`. Record [`kernel-shape-o6-claude.md`](../reviews/architecture/kernel-shape-o6-claude.md), at `9dcb62e1a`.
 
 **What happens.** `arm()` publishes `#spec` and attaches the `pointerdown` listener before it attaches the `command.types` listeners. That loop runs foreign code: `addEventListener` on a consumer-owned root, and the iteration of a behavior-supplied array. Suppose that code synchronously dispatches an event that is admitted, and then throws. An operation is minted against the armed spec. If the event was a command, the queued `ACTIVATE` drains at the admission boundary and acquires the lift. `#unwindArm` then retires the behavior, resets both frames, aborts ingress and clears `#spec`, but **it does not dispose the operation's lifetimes**. Neither does a later `destroy()`: `#runPhysicalTeardown` disposes only under `if (this.#spec)` and otherwise only drops the references.
 
@@ -5017,7 +5107,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Why it is open rather than booked.** It is reachable only through foreign code running inside `arm()` between two listener attachments. [`CONTRIBUTING.md`](../../../../CONTRIBUTING.md) §1.1 declines to add guards against that kind of reach, so whether to repair it is an owner question. **What a repair would establish:** every exit from `arm()` that leaves the controller unarmed leaves no operation resource live. D-199's teardown deduplication neither repairs this nor makes it worse, because its property (2) keeps the unconditional drop this path depends on.
 
-#### F-433 — a press dispatched from inside a running unit opens a second admission underneath it · open, decided by D-201
+#### F-433 — a press dispatched from inside a running unit opens a second admission underneath it · open, decided by D-202
+
+**Decided 2026-11-01 by D-202, which superseded D-201 before implementation and keeps its repair** (D-202 property 1; case R9). The text below names D-201's properties as they stood.
 
 **Open, tier A. Raised 2026-11-01 by the D-201 pass**, while establishing which state a running unit can lose to a reentrant call. Record [`snapshot-units-claude.md`](../reviews/architecture/snapshot-units-claude.md) §1.2, probe P1.
 
@@ -5027,7 +5119,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Required property.** While any unit runs, an ingress pass is refused before it touches any state. D-201 properties 1 and 2; case E1.
 
-#### F-434 — a late `cancel()` raised inside `anchorTarget` strands the operation in `SETTLING` · open, decided by D-201
+#### F-434 — a late `cancel()` raised inside `anchorTarget` strands the operation in `SETTLING` · open, decided by D-202
+
+**Decided 2026-11-01 by D-202, which superseded D-201 before implementation.** The phase rule carries forward (D-202 property 4), and no unit reads a cancel request after its entry (property 2), so the settlement path has no reading left to misinterpret. Case R8. The text below names D-201's properties as they stood.
 
 **Open, tier A. Raised 2026-11-01 by the D-201 pass.** Record [`snapshot-units-claude.md`](../reviews/architecture/snapshot-units-claude.md) §1.3, probe P4, run in Chromium.
 
@@ -5036,6 +5130,16 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 **Why it is a problem.** I-21 makes a late cancel a no-op, so this is valid integration. The consumer is left with a lifted visual, an inserted placeholder, no `onEnd`, and a controller that admits nothing until it is destroyed.
 
 **Required property.** A cancel request is latched only in a phase where `CANCEL` acts, and no control reading on the settlement path treats a request as a liveness answer. D-201 properties 5 and 6; case E4.
+
+#### F-435 — a `cancel()` raised inside `release.effect` reports `AT_CONSUMER` for a round-trip that never opened · open, decided by D-202
+
+**Open, tier A. Raised 2026-11-01 by the D-202 pass.** Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §1, probe P5, run in Chrome.
+
+**What happens.** `#handleCancel` picks the cancellation stage from the committed phase: `RELEASING` gives `AT_CONSUMER`, and every other phase gives `AT_PROPOSAL` (`kernel.ts:2010`). A cancel raised during `release.effect` latches. The staging conditional then suppresses the consumer round-trip, and the queued `CANCEL` finds `RELEASING`. P5 records `settlement.prepare type=43 stage=AT_CONSUMER` with no `invoke` call before it. Both behaviors copy the kernel's `input.stage` into the public `canceled` result (`sortable/spec.ts:1574`, `free-drag/spec.ts:806`).
+
+**Why it is a problem.** 02 §The settlement input is discriminated and exhaustive defines the two stages by what the consumer may already have started. The consumer is told its resolver was running for a drop it never saw. Code raised from `release.effect` that reaches the published controller is valid integration. One example is a custom placeholder reacting to the release move.
+
+**Required property.** The stage is `AT_CONSUMER` exactly when `invoke` has been called for the operation. D-202 property 5; cases R4 and R6.
 
 ## What would falsify this model
 

@@ -1,0 +1,48 @@
+// P1: an admission nested inside a running drain unit (idle behavior action).
+import { draggable } from '../../src/kernel.ts';
+import { LIFT_FLAT } from '../../src/kernel/presentation.ts';
+import { createEnv } from './env.ts';
+
+const env = createEnv();
+const log: string[] = [];
+let nest = true;
+const noop = () => {};
+const controller = draggable(env.root, (kernel) => ({
+  controller: kernel,
+  spec: {
+    createFramePart: () => ({ tag: 0 }),
+    resetFramePart: noop,
+    config: { threshold: 3, liftMode: LIFT_FLAT, actionTags: 1 },
+    admit: () => env.element(),
+    activation: { prepare: () => true, effect: noop },
+    release: { prepare: () => ({ invoke: null }), effect: noop },
+    settlement: { prepare: () => true, effect: noop },
+    action: {
+      prepare(_tag, _arg, draft) {
+        log.push(`action.prepare sees draft.phase=${draft.phase} op=${JSON.stringify(draft.operation)}`);
+        if (nest) {
+          nest = false;
+          // Consumer code reached from a behavior action (e.g. an items() slot)
+          // synchronously dispatches a primary press on the root.
+          env.rootReg.fire('pointerdown', env.press(7));
+          log.push(`after nested press, draft.phase=${draft.phase} op=${JSON.stringify(draft.operation)}`);
+        }
+        return true;
+      },
+      effect(_tag, _arg, current) {
+        log.push(`action.effect sees current.phase=${current.phase} op=${JSON.stringify(current.operation)}`);
+      },
+    },
+    moved: noop,
+    anchorTarget: () => ({ x: 0, y: 0 }),
+    finalized: noop,
+    reportError: (e) => log.push(`reportError ${String(e)}`),
+    retire: noop,
+  },
+}));
+(controller as any).dispatch(0, null);
+log.push(`pointermove listeners after unit: ${env.doc.live('pointermove')}`);
+// A second, top-level press: is it admitted on top of the first operation?
+env.rootReg.fire('pointerdown', env.press(8));
+log.push(`pointermove listeners after second press: ${env.doc.live('pointermove')}`);
+console.log(log.join('\n'));

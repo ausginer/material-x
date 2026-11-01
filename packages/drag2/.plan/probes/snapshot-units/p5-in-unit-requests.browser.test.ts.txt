@@ -1,0 +1,187 @@
+// P5: what a cancel or destroy request raised inside a running unit changes in
+// that unit today. Each row raises one request from one callback of a
+// kernel-tier spec and logs the later internal calls the unit makes. Run by
+// run.sh, which copies this file under tests/ for the package browser project
+// and removes it.
+import { afterEach, expect, it } from 'vitest';
+import { AT_CONSUMER, AT_PROPOSAL } from '../../src/kernel/failures.ts';
+import { LIFT_FLAT } from '../../src/kernel/presentation.ts';
+import type { BehaviorContext, BehaviorSpec } from '../../src/kernel/spec.ts';
+import { draggable } from '../../src/kernel.ts';
+
+type Part = { item: HTMLElement | null };
+type Hook =
+  | 'activation.prepare'
+  | 'activation.effect'
+  | 'release.effect'
+  | 'anchorTarget';
+type Request = 'cancel' | 'destroy';
+
+const ID = 7;
+const cleanup: Array<() => void> = [];
+
+afterEach(() => {
+  for (const f of cleanup.splice(0)) {
+    f();
+  }
+});
+
+function stageName(stage: unknown): string {
+  if (stage === AT_PROPOSAL) {
+    return 'AT_PROPOSAL';
+  }
+
+  if (stage === AT_CONSUMER) {
+    return 'AT_CONSUMER';
+  }
+
+  return String(stage);
+}
+
+function setup(at: Hook, request: Request) {
+  const root = document.createElement('div');
+  const item = document.createElement('div');
+  Object.assign(root.style, { position: 'absolute', inset: '0' });
+  Object.assign(item.style, {
+    position: 'absolute',
+    left: '10px',
+    top: '20px',
+    width: '60px',
+    height: '30px',
+  });
+  root.append(item);
+  document.body.append(root);
+  root.setPointerCapture = () => {};
+  root.releasePointerCapture = () => {};
+
+  const calls: string[] = [];
+  let kernel!: BehaviorContext;
+  let fired = false;
+
+  const raise = (where: Hook): void => {
+    if (where !== at || fired) {
+      return;
+    }
+
+    fired = true;
+
+    if (request === 'cancel') {
+      kernel.cancel('probe');
+    } else {
+      void kernel.destroy().then(() => calls.push('destroy settled'));
+    }
+
+    calls.push(`${request}() in ${where}; closed=${String(kernel.closed)}`);
+  };
+
+  const controller = draggable<BehaviorContext, Part, true>(root, (k) => {
+    kernel = k;
+    const spec: BehaviorSpec<Part, true> = {
+      createFramePart: () => ({ item: null }),
+      resetFramePart: (p) => {
+        p.item = null;
+      },
+      config: { threshold: 8, liftMode: LIFT_FLAT, actionTags: 1 },
+      admit: (_e, draft) => {
+        draft.item = item;
+        return item;
+      },
+      activation: {
+        prepare: () => {
+          calls.push('activation.prepare');
+          raise('activation.prepare');
+          return true;
+        },
+        rollback: () => calls.push('activation.rollback'),
+        effect: (_c, _p, scope) => {
+          scope.presentation.use(() => calls.push('presentation.released'));
+          raise('activation.effect');
+          calls.push('onStart');
+        },
+      },
+      release: {
+        prepare: () => ({
+          invoke: () => {
+            calls.push('invoke (round-trip opened)');
+            return true;
+          },
+        }),
+        effect: () => {
+          calls.push('release.effect');
+          raise('release.effect');
+        },
+      },
+      settlement: {
+        prepare: (_t, input) => {
+          const stage = 'stage' in input ? ` stage=${stageName(input.stage)}` : '';
+          calls.push(`settlement.prepare type=${input.type}${stage}`);
+          return true;
+        },
+        effect: () => calls.push('settlement.effect'),
+      },
+      action: { prepare: () => true, effect: () => {} },
+      moved: () => {},
+      anchorTarget: () => {
+        calls.push('anchorTarget');
+        raise('anchorTarget');
+        return { x: 0, y: 0 };
+      },
+      finalized: (c) => calls.push(`finalized phase=${c.phase}`),
+      reportError: (e) => calls.push(`report ${String(e)}`),
+      retire: () => calls.push('retire'),
+    };
+    return { spec, controller: k };
+  });
+
+  cleanup.push(() => {
+    void controller.destroy();
+    root.remove();
+  });
+
+  const ev = (
+    type: string,
+    x: number,
+    y: number,
+    target: EventTarget = document,
+  ): boolean =>
+    target.dispatchEvent(
+      new PointerEvent(type, {
+        bubbles: true,
+        cancelable: true,
+        pointerId: ID,
+        isPrimary: true,
+        button: 0,
+        buttons: 1,
+        clientX: x,
+        clientY: y,
+      }),
+    );
+
+  return { item, calls, ev };
+}
+
+const flush = async (): Promise<void> =>
+  new Promise((r) => {
+    setTimeout(r, 0);
+  });
+
+const rows: Array<[Hook, Request]> = [
+  ['activation.prepare', 'cancel'],
+  ['activation.prepare', 'destroy'],
+  ['activation.effect', 'destroy'],
+  ['release.effect', 'cancel'],
+  ['release.effect', 'destroy'],
+  ['anchorTarget', 'destroy'],
+];
+
+for (const [at, request] of rows) {
+  it(`P5: ${request}() in ${at}`, async () => {
+    const h = setup(at, request);
+    h.ev('pointerdown', 10, 10, h.item);
+    h.ev('pointermove', 40, 10);
+    h.ev('pointerup', 40, 10);
+    await flush();
+    console.log(`P5 ${request}() in ${at}:`, JSON.stringify(h.calls));
+    expect(h.calls.length).toBeGreaterThan(0);
+  });
+}
