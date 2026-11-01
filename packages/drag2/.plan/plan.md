@@ -2298,6 +2298,20 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-01 — A registered failure declines the round-trip (D-206, F-439)
+
+**The step-1 checkpoint's escalation is decided.** The inventory found one producer whose new position changes a published outcome. A custom placeholder's `connectedCallback`, run by the sortable's release move, calls `invalidate()`, and the collection work then fails in `items()`. Its checkpoint lands behind `OPEN_RESOLUTION`, and under D-205 the round-trip opened anyway. With a synchronous resolver the terminal moved from the baseline's `accepted` with a late `onError` to `canceled` at `AT_CONSUMER`. The new probe P8 reproduces both trees in Chrome.
+
+**D-206 supersedes D-205 and adds one clause.** `OPEN_RESOLUTION` also declines while a failure checkpoint for its operation is registered and unapplied, completing the round-trip guarantee for I-22's three terminal requests. The required outcome for either resolver is no `onReorder`, then `onError`, then `canceled` at `AT_PROPOSAL` with origin `failed`. Three alternatives were declined:
+
+- accepting the checkpoint's outcome, which opens a consumer transaction the kernel has already doomed;
+- keeping the synchronous `accepted`, which needs the round-trip ahead of the release unit's queued work;
+- silencing the sortable's collection action at `RELEASING`, which covers one producer.
+
+Case R30 is added and runs in the model, where it discriminates against D-205's conditions. The clause and R30 complete step 1 before step 2. The checkpoint is not accepted by this. The witness is now `measurements/d206-requests.md`. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §13.
+
+---
+
 ### 2026-11-01 — D-205 step 1 checkpoint: the round-trip's own unit, and one escalation
 
 **The release unit no longer opens the consumer round-trip.** It holds the staged command in the attempt slots and queues `OPEN_RESOLUTION`. That unit opens the round-trip only for the current operation, still `RELEASING`, not yet opened, with no cancel registered. A cancel's stage is `AT_CONSUMER` exactly when that unit reached `invoke`. R4, R5, R6, R22, R28 and R29 are browser tests whose requests come from seams the running controller drives, and R4, R5, R22, R28 and R29 are red at `2c5212daf`. The step-1 review's reviewer-B (a post-panic `destroy()` promise that never settled), reviewer-C (a census undercount) and reviewer-D (two stale texts) are repaired. +273 B minified, +20 to +59 B Brotli on the kernel-carrying rows. Record [`measurements/d204-step1.md`](measurements/d204-step1.md) §D-205 checkpoint.

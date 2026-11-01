@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**Amended a fourth time 2026-11-01 for `drag2:D-206`, which supersedes `drag2:D-205` after its step-1 checkpoint (`3e44eaf62`).** D-206 carries D-205 in full and adds one clause to `OPEN_RESOLUTION`'s entry condition: the round-trip also declines while a failure checkpoint for its operation is registered and unapplied. Step 1's `release.effect` inventory met §8's first escalation clause: a custom placeholder's reaction to the release move queues collection work, that work fails, and its checkpoint lands behind `OPEN_RESOLUTION`. Under D-205 the round-trip then opened for an operation whose failure was already registered, and the terminal for a synchronous resolver moved from `accepted` to `canceled` at `AT_CONSUMER`. D-206 requires no round-trip and `canceled` at `AT_PROPOSAL` for either resolver. §2.2, §2.7, §2.8, §2.10, §4–§9 below state the D-206 form. §13 records the escalation, the evidence and the options. Raises and repairs `drag2:F-439`.
+
 **Amended a third time 2026-11-01 for `drag2:D-205`, which supersedes `drag2:D-204` after its step 1 landed (`2c5212daf`).** D-205 carries D-204 in full and changes the step order. The consumer round-trip's own unit, with its entry condition, the cancel stage rule and the `release.effect` inventory, moves from step 3 into step 1. Step 1 had made in-unit readers blind to a destroy request before the round-trip left the release unit, so a destroy requested there opened `onReorder` (F-438). D-205 adds property 13: no landed step makes a consumer call that both the baseline and the target withhold. §7, §8 and §9 below state the D-205 form. §12 records the gap, the evidence and the options.
 
 **Amended again 2026-11-01 for `drag2:D-204`, which supersedes `drag2:D-203` before implementation.** D-204 carries D-203 in full and settles one gap D-203 step 1 exposed: what a `dispatch` tag gets checked against when the dispatch arrives during construction. Armed dispatch keeps its intake check and report; a construction-window dispatch is queued unchecked, and an out-of-range tag there has no specified outcome; no check runs at application. §2.9, §3, §4, §5, §7, §8 and §9 below state the D-204 form. §11 records the gap, the policy and the options. Raises and repairs `drag2:F-437`.
@@ -60,12 +62,13 @@ The **ledger** is every fact a request writes:
 - the controller's lifecycle request: `LIVE`, `REQUESTED` or `CLOSED`;
 - an operation's cancel request;
 - the action queue, including kernel-queued continuations;
-- a failure checkpoint's capture of the cancel state at intake (§2.10).
+- a failure checkpoint's capture of the cancel state at intake (§2.10);
+- an operation's registered, unapplied failure checkpoint, read only at `OPEN_RESOLUTION`'s entry (§2.10, D-206).
 
 The ledger is read in exactly three places:
 
 1. **The runner's admission decision**: before each queued unit, before an ingress pass, and when the outermost unit ends.
-2. **A unit's entry**: currency (identity, phase, attempt) and precedence (a held cancel at `START_COMMITTED`, `OPEN_RESOLUTION` and `FAILED`). The entry is the unit's application boundary, so reading the ledger there decides whether and how the unit applies. It does not change a unit that is already running.
+2. **A unit's entry**: currency (identity, phase, attempt) and precedence (a held cancel at `START_COMMITTED`, `OPEN_RESOLUTION` and `FAILED`; a registered failure checkpoint at `OPEN_RESOLUTION`). The entry is the unit's application boundary, so reading the ledger there decides whether and how the unit applies. It does not change a unit that is already running.
 3. **Request intake**: whether a request is registered at all (§2.6 phase rule, duplicate cancel, `CLOSED`), and the diagnostic channel's refusal after application.
 
 **No unit reads the ledger after its entry.** This is the follow-up's property, stated as something that can be checked. Every reading D-201 placed at PP-1 to PP-4 and at the event sinks is deleted, together with every reading D-201 had already marked for deletion.
@@ -169,7 +172,7 @@ The kernel keeps one read of its own, in `#notify`: it refuses a diagnostic afte
   - Destroy by priority.
   - Cancel over a checkpoint by the rule in §2.10.
   - The `START_COMMITTED` entry still declines to commit `ACTIVE` while a cancel for its operation is registered. That is a unit-entry reading.
-  - The `OPEN_RESOLUTION` entry declines to open the round-trip while a cancel for its operation is registered (§2.8). Also a unit-entry reading.
+  - The `OPEN_RESOLUTION` entry declines to open the round-trip while a cancel or a failure checkpoint for its operation is registered (§2.8, D-206). Also a unit-entry reading. It decides no precedence between the two: whichever applies first, by the rules above, decides the operation.
 - **Native ingress is never ordered against the queue.** It runs only when no unit is running.
 
 ### 2.8 The consumer round-trip opens in its own unit
@@ -177,14 +180,15 @@ The kernel keeps one read of its own, in `#notify`: it refuses a diagnostic afte
 `release.effect` is followed by the consumer's resolver, `invoke`, which is `onReorder` for the sortable. Today the release unit opens it after the effect returns, if PP-1's predicate still holds (the staging conditional at `seams.ts:317`). Under request/effect separation that predicate is a ledger read inside the unit. Two designs are available.
 
 - **(a) The release unit opens the round-trip unconditionally.** A cancel or destroy raised in `release.prepare` or `release.effect` would still see the consumer asked to commit a reorder. For destroy, the attempt is then aborted at application. For cancel, it settles `AT_CONSUMER`.
-- **(b) The round-trip opens in its own queued unit** (**chosen**). The release unit commits `RELEASING`, runs `release.effect`, and queues `OPEN_RESOLUTION` carrying the operation identity. At its entry that unit opens the round-trip only if the operation is current and `RELEASING`, no round-trip has been opened for it, and **no cancel is registered for it**.
+- **(b) The round-trip opens in its own queued unit** (**chosen**). The release unit commits `RELEASING`, runs `release.effect`, and queues `OPEN_RESOLUTION` carrying the operation identity. At its entry that unit opens the round-trip only if the operation is current and `RELEASING`, no round-trip has been opened for it, **no cancel is registered for it**, and **no failure checkpoint is registered for it** (D-206, §13).
 
-**Why (b).** The round-trip is the one consumer callback that starts a consumer-side domain transaction and carries an abort channel. Every other slot is a lookup or a notification. Under (b), **no round-trip opens once a cancel or destroy request against its operation has been registered before `OPEN_RESOLUTION` is admitted.** Each half rests on a boundary, not on a reading inside a unit:
+**Why (b).** The round-trip is the one consumer callback that starts a consumer-side domain transaction and carries an abort channel. Every other slot is a lookup or a notification. Under (b), **no round-trip opens once a destroy, a cancel or a failure checkpoint against its operation has been registered before `OPEN_RESOLUTION` is admitted.** These are I-22's three terminal requests. Each rests on a boundary, not on a reading inside a unit:
 
 - **Destroy** by priority: it is applied when the requesting unit ends, ahead of `OPEN_RESOLUTION`.
 - **Cancel** by the entry condition. FIFO alone covers only a cancel registered before `OPEN_RESOLUTION` was queued. A cancel registered by an entry queued ahead of it, such as a behavior action that `release.effect` dispatched, sits behind it in the queue (F-436). Declining at the entry covers both.
+- **A failure checkpoint** by the entry condition, for the same reason. A checkpoint registered before `OPEN_RESOLUTION` was queued applies first and retires the held command. One registered by an entry queued ahead of it, such as collection work a placeholder's reaction to the release move queued, sits behind it (F-439).
 
-**The resulting order and stage.** `OPEN_RESOLUTION` declines and leaves the operation `RELEASING`. The registered `CANCEL` is the next entry that can decide the operation, and it applies at `RELEASING` with `invoke` never called, so the stage is **`AT_PROPOSAL`** (§2.6). The consumer sees no `onReorder` and one `onEnd` `canceled` at `AT_PROPOSAL`.
+**The resulting order and stage.** `OPEN_RESOLUTION` declines and leaves the operation `RELEASING`. The registered `CANCEL` is the next entry that can decide the operation, and it applies at `RELEASING` with `invoke` never called, so the stage is **`AT_PROPOSAL`** (§2.6). The consumer sees no `onReorder` and one `onEnd` `canceled` at `AT_PROPOSAL`. For a registered failure checkpoint the next deciding entry is its `FAILED`, which applies at `RELEASING`: `onError` with the failure's stage, then the fallback `onEnd` `canceled` at `AT_PROPOSAL` with origin `failed`.
 
 **Declining cannot strand the operation**, which is the failure F-434 showed a cancel reading can cause:
 
@@ -192,6 +196,8 @@ The kernel keeps one read of its own, in `#notify`: it refuses a diagnostic afte
 - a registered cancel is never dropped at intake;
 - a failure checkpoint applied while the cancel is held is superseded (§2.10);
 - only destruction, which tears the operation down anyway, precedes it.
+
+The same holds for a registered failure checkpoint. Its `FAILED` entry is queued behind `OPEN_RESOLUTION`, and nothing between them can take the operation out of `RELEASING` except a cancel, which then decides it, or destruction. At its application the checkpoint is current and the phase is neither `IDLE` nor `REPORTING`, so it is applied, or superseded by a cancel that is.
 
 A cancel registered after `OPEN_RESOLUTION` has run, from `onReorder` or later, finds the round-trip opened and settles at `AT_CONSUMER` (R6). It also removes the staging conditional, which is the last ledger reading in the driver. It also makes the stage rule in §2.6 exact, because the window between `RELEASING` and `invoke` now contains whole units.
 
@@ -225,6 +231,8 @@ U-C now spans the whole of `draggable()`: the behavior factory, the static valid
 `fail` outside a phase is demoted to a warning, as today.
 
 **A checkpoint registered while a cancel request for its operation is registered and unapplied is superseded by that cancel.** Intake records the fact on the checkpoint. The checkpoint's application decides on that record (or on a cancel still held at its entry), and reports `drag: failure/superseded-by-cancel`.
+
+**A registered checkpoint is also read at `OPEN_RESOLUTION`'s entry (D-206).** Intake records, on the operation, that a checkpoint for it is queued and unapplied. Only `OPEN_RESOLUTION`'s entry reads that record, and only to decline (§2.8). Registration changes nothing else: the held command, the attempts and the phase are the checkpoint's to change at its application, as for every other request. A failure demoted at intake registers nothing.
 
 The intake demotion `#failOperation` makes today on a held cancel (`kernel.ts:784`) is withdrawn. It delivered `onError` synchronously inside the running unit, depending on a request, and it ran under a different code (`failure/not-classified`). The other intake demotions are context checks, not ledger reads, and stay: no committed operation, a report already in flight. A failure raised by the cancellation settlement itself, registered after the cancel was applied, is reported, as today.
 
@@ -301,6 +309,7 @@ The follow-up warns that calling something a query does not isolate a mutable ob
 5. **`dispatch` during construction** is applied after publication instead of being dropped. Its tag is not checked there, so an out-of-range construction-window tag, previously dropped silently, now has no specified outcome (§11). This is a behavior-author change, not a consumer one.
 6. **`moveTo`** applies the coordinates the consumer passed at the call.
 7. **A failure checkpoint superseded by a cancel** is reported at its application as `failure/superseded-by-cancel`, where some cases today report `failure/not-classified` at intake.
+8. **A failure registered by work that the release unit queued**, before the round-trip opens, now prevents the round-trip (D-206). The consumer gets `onError` with the failure's stage and then `onEnd` `canceled` at `AT_PROPOSAL` with origin `failed`, for a synchronous or an asynchronous resolver, and no `onReorder`. Today the round-trip opens first. A synchronous resolver then gets `onEnd` `accepted` and a late `onError`; an asynchronous one gets `canceled` at `AT_CONSUMER`. The sortable reaches this when a custom placeholder's reaction to the release move calls `invalidate()` and `items()` throws (§13).
 
 ## 5. Contract text the implementation amends
 
@@ -319,7 +328,7 @@ Each amendment lands with the step that makes it true, never ahead of it (F-63).
 | 05 I-36 | (a), (b) and (c) after application; the interval clause; the per-invocation reading withdrawn; D-51's list unchanged and empty |
 | 05 I-37 | unchanged rule; there is no liveness reading inside a unit for it to govern, only intake |
 | 02 §The tri-phase transition, §Every classification entrypoint latches, §What this actually guarantees | no invalidated outcome; no `rollback` row; a new tier-B row: _no unit reads the ledger after its entry_ |
-| 02 §Release ordering, §`ResolutionCommand` | the command is executed by its own unit (§2.8) |
+| 02 §Release ordering, §`ResolutionCommand` | the command is executed by its own unit (§2.8), whose entry declines on a registered cancel or failure checkpoint (D-206) |
 | 02 §The settlement input is discriminated and exhaustive | the cancel stage rule (§2.6, F-435) |
 | 02 §Attempts | no latch conjunct at the producer |
 | 01 §`BehaviorContext` | renamed members; `closed` removed; the construction-window rows (dispatch queued, its tag unchecked there, the armed report scoped to after arming (§11.5); cancel no-op; fail demoted; destroy deferred to U-C's boundary) |
@@ -345,6 +354,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 | `kernel.ts:784` `#failOperation`'s cancel conjunct | kept (intake) | **moved** to the checkpoint's application (§2.10) |
 | `kernel.ts:2045` `START_COMMITTED`'s held cancel; `:2076` `FAILED`'s | kept | kept (unit entry) |
 | `OPEN_RESOLUTION`'s held cancel (new unit) | — | **added** (unit entry, §2.8; F-436) |
+| `OPEN_RESOLUTION`'s registered failure checkpoint (new unit) | — | **added** (unit entry, §2.8, §2.10; F-439); written by `#failOperation` when it queues the checkpoint |
 | `kernel.ts:412` `#notify` | kept (sink) | kept as diagnostic intake: refuses after `CLOSED` |
 | `kernel.ts:2355` `closed` getter | kept | **removed** with the SPI member |
 | `kernel.ts:2010` the cancel stage from phase | — | stage from whether `invoke` ran (F-435) |
@@ -354,11 +364,11 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 | `execution.ts` `#step` | latch | the lifecycle request: stops at `REQUESTED` or `CLOSED` |
 | `execution.ts` `close()` | sets the latch | `requestClose()`: `REQUESTED` inside a unit; applies at depth 0; `#leave` applies at the outermost boundary |
 
-**After D-202**, `grep` over `src/` for reads of the lifecycle state finds the runner, intake and `#notify`, and nothing else. For the cancel request it finds intake, the `CANCEL`, `START_COMMITTED`, `OPEN_RESOLUTION` and `FAILED` entries, and nothing else. That is a structural acceptance criterion (§8). It is not a count.
+**After D-202**, `grep` over `src/` for reads of the lifecycle state finds the runner, intake and `#notify`, and nothing else. For the cancel request it finds intake, the `CANCEL`, `START_COMMITTED`, `OPEN_RESOLUTION` and `FAILED` entries, and nothing else. For the registered failure checkpoint it finds intake, `OPEN_RESOLUTION`'s entry and, if the implementation consumes the record there, `FAILED`'s entry. That is a structural acceptance criterion (§8). It is not a count.
 
 ## 7. Cases
 
-**R1–R14, R22, R28 and R29 are executable today in the reference model** ([`model.ts.txt`](../../probes/snapshot-units/model.ts.txt)). The model is a self-contained toy with D-202's runner, ledger and unit boundaries. Its central check is trace equivalence: the unit that receives a request makes exactly the calls the baseline makes, and the request changes only what follows the boundary. The model establishes that the semantics are coherent and gives each case an executable statement. It is not evidence about `src/`. The implementation turns every row into a test against the real kernel and behaviors. _Today_ is `6905af249`, from P1, P2, P4, P5 or D-201's record.
+**R1–R14, R22 and R28–R30 are executable today in the reference model** ([`model.ts.txt`](../../probes/snapshot-units/model.ts.txt)). The model is a self-contained toy with D-202's runner, ledger and unit boundaries. Its central check is trace equivalence: the unit that receives a request makes exactly the calls the baseline makes, and the request changes only what follows the boundary. The model establishes that the semantics are coherent and gives each case an executable statement. It is not evidence about `src/`. The implementation turns every row into a test against the real kernel and behaviors. _Today_ is `6905af249`, from P1, P2, P4, P5 or D-201's record.
 
 | Case | Setup | Today | Required |
 | --- | --- | --- | --- |
@@ -379,6 +389,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 | **R22** (F-436) | `release.effect` dispatches behavior action A; the release unit queues `OPEN_RESOLUTION`; A's seam requests cancel, so the queue is `[OPEN_RESOLUTION, CANCEL]` | — (`OPEN_RESOLUTION` does not exist yet) | `OPEN_RESOLUTION` declines; no `onReorder`; `CANCEL` applies at `RELEASING`; one `onEnd` `canceled` at `AT_PROPOSAL`; retired. Under D-202's stated entry conditions the same trace opens the round-trip and reports `AT_CONSUMER`, and the model shows that too |
 | **R28** (D-205) | destroy requested in `release.prepare` | no `release.effect`, no round-trip (P7). At `2c5212daf`: `release.effect`, then **the round-trip opens** (P7, F-438) | the release unit equals the baseline's through `release.effect`; no round-trip; no `onEnd`; application after the release unit. The model's step-1 mode opens the round-trip, so the case discriminates |
 | **R29** (D-205) | `release.effect` dispatches behavior action A; A's seam requests destroy | round-trip opened in the release unit, then A, then application (P7) | A applies; application follows A's unit and discards `OPEN_RESOLUTION`; no round-trip; no `onEnd`. The destroy half of R22 |
+| **R30** (D-206, F-439) | work the release unit queued fails before `OPEN_RESOLUTION` runs, registering a checkpoint queued behind it: in the kernel, `release.effect` dispatches behavior action A and A's `prepare` fails; in the sortable, a custom placeholder's `connectedCallback` calls `invalidate()` during the release move and `items()` throws. Each with a synchronous and an asynchronous resolver | `582092c1f` (P8): `onReorder`, then `onEnd` `accepted` and `onError` with a synchronous resolver; `onReorder`, `onError`, `onEnd` `canceled` `AT_CONSUMER` with an asynchronous one. At `3e44eaf62`: `onReorder`, `onError`, `onEnd` `canceled` `AT_CONSUMER` with either | `OPEN_RESOLUTION` declines; no `onReorder`; `FAILED` applies at `RELEASING`; `onError` with the failure's stage (`FAILURE_ACTION_PREPARE` in the sortable); one `onEnd` `canceled` at `AT_PROPOSAL`, origin `failed`; retired. The same for both resolvers. The `invoke: null` command declines the same way. The failure half of R22. Under D-205's stated entry conditions the model opens the round-trip and reports `AT_CONSUMER` |
 
 **Implementation-only rows**, with no model counterpart:
 
@@ -431,14 +442,16 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
    - **the consumer round-trip in its own unit** (D-205, §12), because the `closed` change above is safe only once the round-trip no longer runs inside the release unit:
      - the release unit queues `OPEN_RESOLUTION` carrying the operation identity instead of executing the staged command, the `invoke: null` path included;
      - the command in operation-scoped storage, under §2.8's constraints;
-     - the entry condition in full: the operation current and `RELEASING`, no round-trip opened for it, no cancel registered for it (today's `cancelRequest`);
+     - the entry condition in full: the operation current and `RELEASING`, no round-trip opened for it, no cancel registered for it (today's `cancelRequest`), **no failure checkpoint registered for it** (D-206, §13);
      - the cancel stage rule (§2.6, F-435);
-     - the inventory of actions `release.effect` can dispatch in both behaviors, recording whether any changes order (§2.8), under the first escalation clause below;
+     - the inventory of actions `release.effect` can dispatch in both behaviors, recording whether any changes order (§2.8), under the first escalation clause below. The checkpoint at `3e44eaf62` recorded it, and D-206 decided the one case it escalated;
      - the staging conditional may stay until step 3 or go now. With the entry condition in place the outcomes are the same.
 
-   Cases R9, R10, R11, R13, R15, R17, R23–R27, R1's construction and drain half, and **R4, R5, R6, R22, R28 and R29**. Each of the last six raises its request from a seam the bracket is running, not through a harness flag: `seams.node`'s _should never invoke the consumer when the release effect abandoned the operation_ flips `preparationValid` directly and witnesses none of them. Contract: I-1, I-6 (runner half), 01 construction sections including §11.5's `dispatch` text in 01 and `src/kernel/spec.ts`, 02 §Release ordering and §`ResolutionCommand` (the command executed by its own unit, with its entry condition), 02 §The settlement input's stage rule, COVERAGE. `closed` stays readable through this step and reports `CLOSED` only.
+   Cases R9, R10, R11, R13, R15, R17, R23–R27, R1's construction and drain half, and **R4, R5, R6, R22 and R28–R30**. Each of the last seven raises its request from a seam the bracket is running, not through a harness flag: `seams.node`'s _should never invoke the consumer when the release effect abandoned the operation_ flips `preparationValid` directly and witnesses none of them. Contract: I-1, I-6 (runner half), 01 construction sections including §11.5's `dispatch` text in 01 and `src/kernel/spec.ts`, 02 §Release ordering and §`ResolutionCommand` (the command executed by its own unit, with its entry condition), 02 §The settlement input's stage rule, COVERAGE. `closed` stays readable through this step and reports `CLOSED` only.
 
    **Step 1 is complete only when the round-trip's unit has landed.** `2c5212daf` landed the rest. The round-trip's unit lands before step 2, as reviewer-B's repair does. Step 1's record names the interval from `2c5212daf` to that commit as F-438 and lists the cases still at their baseline outcome (D-205 property 13).
+
+   **The failure clause completes the round-trip's unit** (D-206, §13.5). `3e44eaf62` landed everything else in it. The clause and R30 land before step 2, and with them the 02 text for the entry condition.
 
 2. **The split and capture** (D-201 step 2, unchanged):
    - the façade and the armed controller;
@@ -456,7 +469,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
    - the cancel phase rule;
    - supersession captured at intake.
 
-   `OPEN_RESOLUTION`, its entry condition, the cancel stage rule and the inventory moved to step 1 (D-205, §12). Cases R1–R3, R7, R8, R12, R14, R16, R20; R4–R6, R22, R28 and R29 stay green. Contract: I-3, I-16, I-21, I-22, I-31, the remaining 02 sections.
+   `OPEN_RESOLUTION`, its entry condition, the cancel stage rule and the inventory moved to step 1 (D-205, §12; D-206, §13). Cases R1–R3, R7, R8, R12, R14, R16, R20; R4–R6, R22 and R28–R30 stay green. Contract: I-3, I-16, I-21, I-22, I-31, the remaining 02 sections.
 
 4. **Surface and behaviors.**
    - rename `destroy`/`cancel` to `requestDestroy`/`requestCancel` on `BehaviorContext` and both controllers;
@@ -467,7 +480,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
    Cases R18, R21. Contract: I-36, I-37, 01 §`BehaviorContext`, 03, 07, README and the declaration surface (`tests/**/*.declaration.test.ts` as the surface tests require).
 
 5. **The comment pass**, D-199's, carried by D-201, over the files D-202 rewrote, with its rules and runtime-hash check.
-6. **The measurement record** `.plan/measurements/d205-requests.md`. It holds:
+6. **The measurement record** `.plan/measurements/d206-requests.md`. It holds:
    - composition on every kernel-carrying row, per step;
    - the M-1 move path with I-26's structural check (one sample allocates nothing; `OPEN_RESOLUTION` and `moveTo`'s copy are per drop and per call);
    - M-2 controller cost with the façade;
@@ -479,7 +492,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 
 **Escalate rather than decide** if:
 
-- step 1's inventory finds an action dispatched from `release.effect` whose new position before the round-trip changes a published outcome other than the cancel stage;
+- step 1's inventory finds an action dispatched from `release.effect` whose new position before the round-trip changes a published outcome other than the cancel stage. D-206 decided the one case `3e44eaf62`'s inventory found (§13); the clause stands for any other, including one a later step's behavior change creates;
 - §2.12 finds a query result that is a consumer-owned mutable object read after a later foreign call, where a copy would cost an allocation per pointer sample.
 
 ## 9. Accounting
@@ -493,6 +506,8 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 - **F-437** is raised and repaired by D-204: an unstated rule in an unimplemented decision, not a code defect.
 - **D-204** is superseded by D-205 after its step 1 landed at `2c5212daf` (§12). Every property and the landed code carry forward. D-205 moves the round-trip's unit, its entry condition, the cancel stage rule and the inventory from step 3 to step 1, and adds property 13 and cases R28 and R29. The unimplemented row moves to D-205 with the witness renamed `d205-requests.md`.
 - **F-438** is raised by the step-1 feature proof (reviewer-A) and decided by D-205. It is a regression in `src/` at `2c5212daf`, and it closes when step 1's round-trip unit lands.
+- **D-205** is superseded by D-206 after its step-1 checkpoint `3e44eaf62` (§13). Every property, the step order and the landed code carry forward. D-206 adds the failure clause to `OPEN_RESOLUTION`'s entry condition and case R30. The unimplemented row moves to D-206 with the witness renamed `d206-requests.md`.
+- **F-439** is raised by the implementer's escalation at `3e44eaf62` and repaired by D-206. It is a gap in D-205's entry condition, which the checkpoint implemented as stated, not a code defect.
 - **Reviewer-B to reviewer-D** of the same report are step-1 defects for its implementer. Reviewer-B is repaired before step 2, as the report requires.
 - **F-97** is unchanged. It still holds open whether the armed check survives the reachability gate (the audit's §3.5). D-204 scopes the armed promise to armed dispatch, which is all it ever covered, and is compatible with either answer.
 - **F-432** is decided by D-202 (R15) and closes when it lands. **F-433** (R9) and **F-434** (R8) likewise move from D-201 to D-202. **F-435** is raised and decided here (R4, R6).
@@ -506,7 +521,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 packages/drag2/.plan/probes/snapshot-units/run.sh
 ```
 
-The script copies the sources under `tests/zz-snapshot-units-probe/` as `.ts`, where their `../../src/` imports resolve. It runs P1, P2, P6 and the model with `node`, and P4, P5 and P7 in the package's `browser` Vitest project with `--silent=false`. That project's Chrome comes from `.scripts/vitest-config.ts`: `$CHROME_EXECUTABLE`, else `/usr/local/bin/chrome`. The script removes the copies on exit. No browser was installed for this run.
+The script copies the sources under `tests/zz-snapshot-units-probe/` as `.ts`, where their `../../src/` imports resolve. It runs P1, P2, P6 and the model with `node`, and P4, P5, P7 and P8 in the package's `browser` Vitest project with `--silent=false`. That project's Chrome comes from `.scripts/vitest-config.ts`: `$CHROME_EXECUTABLE`, else `/usr/local/bin/chrome`. The script removes the copies on exit. No browser was installed for this run.
 
 | Probe | What it shows | Source |
 | --- | --- | --- |
@@ -514,9 +529,10 @@ The script copies the sources under `tests/zz-snapshot-units-probe/` as `.ts`, w
 | P2 | destroy in the first frame-part factory | `p2-arm-destroy.ts.txt` |
 | P4 | late cancel in `anchorTarget` (F-434) | `p4-late-cancel.browser.test.ts.txt` |
 | P5 | requests raised inside a unit change its later calls today; F-435 | `p5-in-unit-requests.browser.test.ts.txt` |
-| model | R1–R14, R22, R28 and R29 under D-203's semantics; R22 also under D-202's stated OPEN conditions; R5 and R28 also under D-204 step 1's inline round-trip (D-205) | `model.ts.txt` |
+| model | R1–R14, R22 and R28–R30 under D-206's semantics; R22 also under D-202's stated OPEN conditions; R5 and R28 also under D-204 step 1's inline round-trip (D-205); R30 also under D-205's stated OPEN conditions (D-206) | `model.ts.txt` |
 | P6 | behavior-action tags from the factory body, a frame-part factory, after arming, and after destruction (D-204) | `p6-dispatch-tags.ts.txt`, with `env.ts.txt` |
 | P7 | requests raised in `release.prepare` and by an action `release.effect` dispatched (D-205, F-438) | `p7-release-unit.browser.test.ts.txt` |
+| P8 | a sortable placeholder's reaction to the release move queues collection work, with `items()` throwing or not and `onReorder` settling synchronously or not (D-206, F-439) | `p8-release-failure.append.ts.txt`, appended by `run.sh` to a copy of `tests/sortable/sortable.browser.test.ts` and run with `-t P8` |
 
 **Output at `6905af249`**, with the owner's uncommitted edits in the tree, run 2026-11-01. The model's R22 line is from the D-203 amendment, rerun at `0f0bf0368`, where `src/` is unchanged:
 
@@ -611,6 +627,30 @@ ok  R29 destroy from an action queued ahead of OPEN: no round-trip, no terminal
 ```
 
 R1–R14 print as above.
+
+**P8 at `582092c1f` and at `3e44eaf62`**, run 2026-11-01 for D-206. `582092c1f` is a clean extract, with the probe appended to that commit's own sortable suite. `3e44eaf62` is the working tree with the owner's uncommitted one-assertion edit to `tests/kernel/seams.node.test.ts`. The trace starts at the placeholder's connection. `errors` is the stage each `onError` carried (`4` is `FAILURE_ACTION_PREPARE`), and each terminal reads `type stage origin`:
+
+```text
+582092c1f
+P8 throwing=false sync=true  ["placeholder connected","onReorder","items()","invalidateInsertion","onFinish"] errors [] terminals ["accepted"]
+P8 throwing=false sync=false ["placeholder connected","onReorder","items()","invalidateInsertion","onFinish"] errors [] terminals ["accepted"]
+P8 throwing=true  sync=true  ["placeholder connected","onReorder","items()","onFinish","onError"] errors [4] terminals ["accepted"]
+P8 throwing=true  sync=false ["placeholder connected","onReorder","items()","onError","onCancel"] errors [4] terminals ["canceled AT_CONSUMER failed"]
+3e44eaf62
+P8 throwing=false sync=true  ["placeholder connected","items()","invalidateInsertion","onReorder","onFinish"] errors [] terminals ["accepted"]
+P8 throwing=false sync=false ["placeholder connected","items()","invalidateInsertion","onReorder","onFinish"] errors [] terminals ["accepted"]
+P8 throwing=true  sync=true  ["placeholder connected","items()","onReorder","onError","onCancel"] errors [4] terminals ["canceled AT_CONSUMER failed"]
+P8 throwing=true  sync=false ["placeholder connected","items()","onReorder","onError","onCancel"] errors [4] terminals ["canceled AT_CONSUMER failed"]
+```
+
+The `3e44eaf62` rows are `run.sh`'s, from the stored probe. The `582092c1f` rows are from the same probe body before it named the stage and origin; it printed them as `21` (`AT_CONSUMER`) and `33` (`failed`). They match the implementer's `2c5212daf` baseline in `measurements/d204-step1.md`. The model at `3e44eaf62`, with R30 added and also run under D-205's stated conditions:
+
+```text
+ok  R29 destroy from an action queued ahead of OPEN: no round-trip, no terminal
+ok  R30 failure from an action queued ahead of OPEN: no round-trip, failed at AT_PROPOSAL
+```
+
+R1–R14, R22 and R28 print as above.
 
 ## 10. Amendment: the round-trip guarantee and its entry condition (D-203)
 
@@ -819,3 +859,105 @@ Step 3 keeps the deletion of in-unit ledger reads, the cancel phase rule and sup
 - the Appendix, which gains P7 and the model's new lines.
 
 §2.1–§2.13's design, §3–§6 and every carried property are unchanged.
+
+## 13. Amendment: a registered failure declines the round-trip (D-206)
+
+**2026-11-01. Input:** the implementer's escalation checkpoint `3e44eaf62` (D-205 step 1, not accepted) and its record [`d204-step1.md`](../../measurements/d204-step1.md) §The open escalation. This section resolves §8's first escalation clause for the case that record found. It records **F-439**. The checkpoint is evidence here, not an accepted step.
+
+### 13.1 The escalation
+
+D-205 moved the round-trip into `OPEN_RESOLUTION` in step 1, so work the release unit queues now applies before the round-trip opens (§2.8). Step 1's inventory found one producer of such work whose new position changes a published outcome. A custom placeholder's `connectedCallback`, run by the sortable's release move inside `release.effect`, calls `controller.invalidate()`. That queues collection work for the operation.
+
+If `items()` throws, the collection action's `prepare` fails. That registers a checkpoint (`FAILURE_ACTION_PREPARE`), and its `FAILED` entry is queued **behind** `OPEN_RESOLUTION`. D-205's entry condition does not mention failures, so the round-trip opens: `onReorder` runs for an operation whose failure is already registered. `FAILED` then abandons the round-trip and settles with the failure fallback.
+
+| Resolver | Baseline `582092c1f` | Checkpoint `3e44eaf62` (D-205 as stated) |
+| --- | --- | --- |
+| synchronous | `onReorder`; `onEnd` `accepted`; then `onError` | `onReorder`; `onError`; `onEnd` `canceled` `AT_CONSUMER` |
+| asynchronous | `onReorder`; `onError`; `onEnd` `canceled` `AT_CONSUMER` | the same |
+
+At the baseline a synchronous settlement is queued ahead of the late checkpoint and wins, and the checkpoint only reports. Under D-205 the checkpoint is queued ahead of the settlement and decides. **The question was whether that terminal change is an argument value under property 13 or a changed published outcome needing a decision.** It is the second. Its premise is also wrong: no outcome on this path should open the round-trip at all.
+
+### 13.2 Evidence
+
+P8 (Appendix) reproduces both rows in Chrome on a clean extract of `582092c1f` and on the working tree at `3e44eaf62`, for both resolver timings, with and without the throw. Without the throw the outcome is `accepted` on both trees, and only the order of `items()` and `onReorder` differs, as §2.8 anticipates. The baseline rows equal the implementer's, taken at `2c5212daf`.
+
+The model gains a failure checkpoint with §2.10's intake and application rules, and R30. Under D-206's entry condition R30 gives no `onReorder` and `onEnd(canceled AT_PROPOSAL failed)`. Under D-205's stated conditions it gives `onReorder` and `canceled AT_CONSUMER`, so the case tells the two apart. R1–R14, R22, R28 and R29 are unchanged.
+
+The other inventory items need nothing:
+
+- free drag's actions are no-ops at `RELEASING`;
+- neither behavior's `release.effect` dispatches;
+- cancel and destroy from the same placeholder reaction are R4 and R5.
+
+### 13.3 The decision
+
+**`OPEN_RESOLUTION` also declines while a failure checkpoint for its operation is registered and unapplied.** The required outcome on R30's path, for either resolver:
+
+- no `onReorder`;
+- `FAILED` applies at `RELEASING`;
+- `onError` with the failure's stage;
+- one `onEnd` `canceled` at `AT_PROPOSAL`, origin `failed`;
+- retirement.
+
+**This completes §2.8's guarantee rather than adding a rule.** The round-trip is the one consumer callback that starts a consumer-side domain transaction (§2.8). I-22 names three terminal requests: destroy, cancel and the failure checkpoint. D-202 covered destroy by priority, and D-203 covered cancel by an entry reading, because FIFO alone misses a request registered by an entry queued ahead of `OPEN_RESOLUTION` (F-436). A failure checkpoint is the third, and it sits in exactly F-436's queue shape. Without the clause, the kernel asks the consumer to commit a reorder that it already knows will be abandoned. With a synchronous resolver that reorder is committed and cannot be aborted, and the operation still reports `canceled`.
+
+**Request/application separation holds:**
+
+- **Registration** records a fact on the operation when `#failOperation` queues the checkpoint. It changes nothing a running unit uses: the held command, the attempts and the phase are left for `FAILED`'s application.
+- **The reading** happens at `OPEN_RESOLUTION`'s entry, before any of its work, in the form `START_COMMITTED` and D-203's clause already have (§2.2 reading 2).
+- **Application** stays with `FAILED`. Declining changes nothing, and the operation stays `RELEASING` for the entry that decides it.
+
+**Declining cannot strand the operation.** The checkpoint's `FAILED` is behind `OPEN_RESOLUTION`. Only a cancel or destruction can intervene, and each decides the operation itself. At application the checkpoint is current and the phase is neither `IDLE` nor `REPORTING`, so it applies, or is superseded by a cancel that does (§2.8).
+
+**Required properties of the record, not its form:**
+
+- It is written only when a checkpoint is queued for the operation. A failure demoted at intake writes nothing.
+- It is read only at `OPEN_RESOLUTION`'s entry. `FAILED` may consume it.
+- It is operation-scoped, so a later operation cannot read it, and it costs no allocation per pointer sample.
+- A checkpoint superseded at intake (step 3) may write it or not. The cancel clause declines either way.
+
+**Scope.** The clause covers the `invoke: null` command too, as the cancel clause does. `START_COMMITTED` gains no failure clause. Committing `ACTIVE` makes no consumer call, and a checkpoint applied at `ACTIVATING` or at `ACTIVE` produces the same terminal.
+
+**Consumer-visible change** (§4 item 8):
+
+- **With a synchronous resolver:** `onEnd` `accepted` plus a late `onError` becomes `onError` plus `onEnd` `canceled` at `AT_PROPOSAL`, with no `onReorder`.
+- **With an asynchronous resolver:** `onReorder` is no longer called, and the stage moves from `AT_CONSUMER` to `AT_PROPOSAL`.
+- **Unchanged:** a failure raised after the round-trip has opened still abandons it and settles `AT_CONSUMER`.
+
+### 13.4 Options considered
+
+| Option | Outcome on R30's path | Why not |
+| --- | --- | --- |
+| **(1) Decline on a registered failure checkpoint** (chosen) | no `onReorder`; `onError`; `canceled` `AT_PROPOSAL`; the same for both resolvers | — |
+| (2) Accept `3e44eaf62`'s outcome | `onReorder`, then `onError` and `canceled` `AT_CONSUMER` for both resolvers | the outcome is FIFO-consistent and satisfies property 13's call rule. But it opens a consumer domain transaction the kernel has already doomed, the gap F-436 closed for cancel. With a synchronous resolver the consumer commits a reorder and is then told `canceled` |
+| (3) Keep the baseline's synchronous `accepted` | timing-dependent, as today | needs the settlement to outrank a failure registered before the round-trip opened. That requires the round-trip to run ahead of the work the release unit queued (F-438's shape) or a priority rule I-22 does not have |
+| (4) Make the sortable's collection action a no-op at `RELEASING` | no failure on this producer | a behavior change outside the escalation, and it covers one producer. Any other work queued ahead of `OPEN_RESOLUTION` that fails leaves the gap |
+
+**Why (1).** It applies to failures the reasoning D-203 applied to cancel, at the same boundary and in the same form. It makes the outcome independent of resolver timing and of where the checkpoint's entry falls relative to `OPEN_RESOLUTION`. It adds one entry reading and one operation-scoped fact, and moves no order that another case fixes.
+
+### 13.5 Cases, handoff and verification
+
+**R30** is added (§7). It is the failure half of R22. It runs in the model, and it discriminates against D-205's stated conditions.
+
+**Handoff: the clause completes step 1's round-trip unit** (§8 step 1). The rest of the unit landed at `3e44eaf62`. Before step 2:
+
+- **The clause**, with the record's properties from §13.3.
+- **R30 as tests**, each driven through the bracket with no harness flag:
+  - in `kernel.browser`: an action that `release.effect` dispatched fails in its `prepare`, with a synchronous resolver, an asynchronous resolver and the `invoke: null` command;
+  - in the sortable suite: P8's throwing path, with both resolvers, asserting the full outcome in §13.3 and the stage `FAILURE_ACTION_PREPARE`.
+- **A mutation**: removing the clause reddens the R30 rows.
+- **Contract text**: 02 §`ResolutionCommand` and §Release ordering state the clause; COVERAGE records the rows and the mutation.
+- **The step-1 record** replaces §The open escalation with a pointer to this section and reports the composition change.
+
+None of the D-205 checkpoint's other work changes. **The checkpoint is not accepted by this decision.** Its acceptance, with the clause, is the step-1 review's.
+
+**What it changes in this record:**
+
+- §2.2, §2.7, §2.8 and §2.10;
+- §4 item 8, and the §5 and §6 rows;
+- §7, which gains R30;
+- §8 steps 1, 3 and 6, and the first escalation clause;
+- §9;
+- the Appendix, which gains P8 and the model's new line.
+
+§3 and every carried property other than the entry condition are unchanged.

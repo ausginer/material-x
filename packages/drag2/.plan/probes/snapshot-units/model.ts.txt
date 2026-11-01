@@ -22,6 +22,8 @@ type Op = {
   readonly id: number;
   phase: Phase;
   cancelRequest: { reason: string } | null;
+  // D-206: a failure checkpoint queued for this operation and not yet applied.
+  failureRegistered: boolean;
   roundTripOpened: boolean;
 };
 type Hook =
@@ -40,6 +42,7 @@ type Action =
   | { kind: 'OPEN_ROUND_TRIP'; id: number }
   | { kind: 'SETTLE'; id: number; result: string }
   | { kind: 'CANCEL'; id: number }
+  | { kind: 'FAILED'; id: number; superseded: boolean }
   | { kind: 'RETIRE'; id: number }
   | { kind: 'BEHAVIOR'; tag: string; effect?: (c: Controller) => void };
 
@@ -71,9 +74,18 @@ class Controller {
   // reproduces that interval, so R5 and R28 can show that they discriminate.
   readonly #inlineRoundTrip: boolean;
 
-  constructor(openDeclinesOnCancel = true, inlineRoundTrip = false) {
+  // D-206's failure clause for OPEN_ROUND_TRIP. `false` reproduces D-205's
+  // stated conditions, so R30 can show that the case discriminates.
+  readonly #openDeclinesOnFailure: boolean;
+
+  constructor(
+    openDeclinesOnCancel = true,
+    inlineRoundTrip = false,
+    openDeclinesOnFailure = true,
+  ) {
     this.#openDeclinesOnCancel = openDeclinesOnCancel;
     this.#inlineRoundTrip = inlineRoundTrip;
+    this.#openDeclinesOnFailure = openDeclinesOnFailure;
   }
 
   // ---- Requests. Each records an intention and returns. ----
@@ -110,6 +122,25 @@ class Controller {
     this.#enqueue({ kind: 'CANCEL', id: op.id });
   }
 
+  // `fail` inside an open phase: the request half (§2.10). The checkpoint is
+  // queued for the operation committed at intake; one registered while a cancel
+  // is registered is superseded by it, recorded at intake.
+  requestFail(): void {
+    const op = this.#current;
+
+    if (this.#lifecycle === 'closed' || !op) {
+      return; // demoted: no checkpoint
+    }
+
+    const superseded = op.cancelRequest !== null;
+
+    if (!superseded) {
+      op.failureRegistered = true;
+    }
+
+    this.#enqueue({ kind: 'FAILED', id: op.id, superseded });
+  }
+
   // A behavior action, optionally with the seam work it runs when applied:
   // production's action seam can reach the controller, so the model's can too.
   dispatch(tag: string, effect?: (c: Controller) => void): void {
@@ -129,6 +160,7 @@ class Controller {
         id: (this.#ids += 1),
         phase: 'PENDING',
         cancelRequest: null,
+        failureRegistered: false,
         roundTripOpened: false,
       };
       this.trace.push(`publish PENDING #${this.#current.id}`);
@@ -265,7 +297,11 @@ class Controller {
           // registered before OPEN was queued or by an entry queued ahead of
           // it. The held cancel is then the next entry to decide the
           // operation, so declining here cannot strand it.
-          !(this.#openDeclinesOnCancel && op.cancelRequest)
+          !(this.#openDeclinesOnCancel && op.cancelRequest) &&
+          // D-206: the same reading for a failure checkpoint registered by an
+          // entry queued ahead of OPEN. Its FAILED entry is behind OPEN and is
+          // the next entry to decide the operation.
+          !(this.#openDeclinesOnFailure && op.failureRegistered)
         ) {
           op.roundTripOpened = true;
           this.#call('onReorder');
@@ -294,6 +330,27 @@ class Controller {
           this.#settleOp(op, `canceled ${stage}`);
         }
 
+        return;
+      case 'FAILED':
+        if (op?.id !== action.id || !CANCELLABLE.includes(op.phase)) {
+          // Stale, or after a result: the fault is reported and decides nothing.
+          this.trace.push('onError (decides nothing)');
+          return;
+        }
+
+        if (action.superseded || op.cancelRequest) {
+          this.trace.push('failure superseded by cancel');
+          return;
+        }
+
+        op.failureRegistered = false;
+        this.trace.push('onError');
+        // The fallback terminal: `canceled`, origin `failed`, staged by
+        // whether `invoke` was called, as a cancel's is.
+        this.#settleOp(
+          op,
+          `canceled ${op.roundTripOpened ? 'AT_CONSUMER' : 'AT_PROPOSAL'} failed`,
+        );
         return;
       case 'RETIRE':
         if (op?.id === action.id) {
@@ -335,8 +392,13 @@ function run(
   inject?: { at: Hook; act: (c: Controller) => void },
   openDeclinesOnCancel = true,
   inlineRoundTrip = false,
+  openDeclinesOnFailure = true,
 ): Controller {
-  const c = new Controller(openDeclinesOnCancel, inlineRoundTrip);
+  const c = new Controller(
+    openDeclinesOnCancel,
+    inlineRoundTrip,
+    openDeclinesOnFailure,
+  );
   c.construct(() => {});
   let fired = false;
   c.hook = (name, self) => {
@@ -564,6 +626,41 @@ check('R29 destroy from an action queued ahead of OPEN: no round-trip, no termin
   assert.ok(!c.trace.includes('onReorder'));
   assert.ok(!c.trace.includes('onEnd'));
   assert.deepEqual(c.trace.slice(-2), ['apply destroy', 'teardown #1']);
+});
+
+check('R30 failure from an action queued ahead of OPEN: no round-trip, failed at AT_PROPOSAL', () => {
+  // The failure half of R22 (D-206, F-439): release.effect dispatches action A,
+  // the release unit queues OPEN, and A's seam fails, registering a checkpoint
+  // whose FAILED entry is behind OPEN.
+  const inject = {
+    at: 'release.effect' as const,
+    act: (s: Controller) => {
+      s.dispatch('A', (self) => {
+        self.requestFail();
+      });
+    },
+  };
+  const c = run(inject);
+  assert.ok(c.trace.includes('action A'));
+  assert.ok(!c.trace.includes('onReorder'));
+  assert.deepEqual(
+    c.trace.slice(c.trace.indexOf('action A')),
+    [
+      'action A',
+      'onError',
+      'anchorTarget',
+      'presentation released',
+      'onEnd',
+      'onEnd(canceled AT_PROPOSAL failed)',
+      'retire #1',
+    ],
+  );
+
+  // Under D-205's stated entry conditions the round-trip opens for an
+  // operation whose failure is already registered, and is then abandoned.
+  const d205 = run(inject, true, false, false);
+  assert.ok(d205.trace.includes('onReorder'));
+  assert.ok(d205.trace.includes('onEnd(canceled AT_CONSUMER failed)'));
 });
 
 for (const [name, fn] of cases) {

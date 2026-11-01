@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Reruns the snapshot-units probes (D-201 to D-205) against the working tree.
+# Reruns the snapshot-units probes (D-201 to D-206) against the working tree.
 #
 # The sources are stored as `*.ts.txt` because the package's `just lint` walks
 # `.plan/` with both oxlint and ESLint, and these files are evidence about one
@@ -19,11 +19,15 @@ set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 package="$(cd "${here}/../../.." && pwd)"
 scratch="${package}/tests/zz-snapshot-units-probe"
+# P8 runs filtered, in its own directory: it is appended to a copy of the
+# sortable browser suite, whose own rows the filter skips.
+scratch_p8="${package}/tests/zz-snapshot-units-p8"
 
-trap 'rm -rf "${scratch}"' EXIT
-mkdir -p "${scratch}"
+trap 'rm -rf "${scratch}" "${scratch_p8}"' EXIT
+mkdir -p "${scratch}" "${scratch_p8}"
 
 for source in "${here}"/*.ts.txt; do
+  case "${source}" in *.append.ts.txt) continue ;; esac
   name="$(basename "${source}" .txt)"
   cp "${source}" "${scratch}/${name}"
 done
@@ -37,4 +41,12 @@ echo "== browser probes (P4, P5, P7)"
 cd "${package}"
 npx vitest run -c vitest.config.ts --project browser --silent=false \
   tests/zz-snapshot-units-probe 2>&1 |
+  grep -E '^P[0-9]|Test Files|Tests '
+
+echo "== browser probe (P8)"
+cat "${package}/tests/sortable/sortable.browser.test.ts" \
+  "${here}/p8-release-failure.append.ts.txt" \
+  >"${scratch_p8}/p8-release-failure.browser.test.ts"
+npx vitest run -c vitest.config.ts --project browser --silent=false \
+  tests/zz-snapshot-units-p8 -t P8 2>&1 |
   grep -E '^P[0-9]|Test Files|Tests '
