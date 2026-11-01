@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**Amended a fifth time 2026-11-01 for `drag2:D-207`, which supersedes `drag2:D-206` during step 3.** D-207 carries D-206 in full, including its accepted steps 1 and 2, and adds one entry clause: the unit that would enter activation, `ACTIVATE` or `MOVE` at `PENDING`, declines while a cancel for its operation is registered, and the queued `CANCEL` retires the operation silently. Step 3's deletion of the activation's in-unit revalidation had made a command operation announce `onStart` and then `canceled` for a cancel registered at `PENDING`, where the baseline retires silently. §2.2, §2.6, §2.7, §4, §6–§9 and §15.3 below state the D-207 form. §16 records the escalation, the evidence and the options. Raises and repairs `drag2:F-440`.
+
 **Step 2 accepted 2026-11-01, at `877fb9612`, after its feature proof.** D-206 stays unimplemented: steps 3–6 remain. The 13 budget overruns are the owner's tolerated size cost of step 2, and none is re-based. step2-A and step2-B stay with the implementer, to be repaired before `d206-requests.md` is written. step2-C is decided without editing 05, and the obligation goes to step 4's I-36 rewrite. §15 records the assessment, the dispositions and step 3's handoff.
 
 **Step 1 accepted 2026-11-01, at `44e2074f1`, after the step-1 feature proof's recheck.** D-206 stays unimplemented: steps 2–6 remain. `drag2:F-438` and `drag2:F-439` close with the step. D-206's mutation requirement is amended in place to cover the R30 rows whose outcome the clause decides; the `invoke: null` row is an equivalent mutant. §14 records the assessment, the dispositions and step 2's handoff.
@@ -72,7 +74,7 @@ The **ledger** is every fact a request writes:
 The ledger is read in exactly three places:
 
 1. **The runner's admission decision**: before each queued unit, before an ingress pass, and when the outermost unit ends.
-2. **A unit's entry**: currency (identity, phase, attempt) and precedence (a held cancel at `START_COMMITTED`, `OPEN_RESOLUTION` and `FAILED`; a registered failure checkpoint at `OPEN_RESOLUTION`). The entry is the unit's application boundary, so reading the ledger there decides whether and how the unit applies. It does not change a unit that is already running.
+2. **A unit's entry**: currency (identity, phase, attempt) and precedence (a held cancel at the entries that would enter activation, `ACTIVATE` and `MOVE` at `PENDING` (D-207), and at `START_COMMITTED`, `OPEN_RESOLUTION` and `FAILED`; a registered failure checkpoint at `OPEN_RESOLUTION`). The entry is the unit's application boundary, so reading the ledger there decides whether and how the unit applies. It does not change a unit that is already running.
 3. **Request intake**: whether a request is registered at all (§2.6 phase rule, duplicate cancel, `CLOSED`), and the diagnostic channel's refusal after application.
 
 **No unit reads the ledger after its entry.** This is the follow-up's property, stated as something that can be checked. Every reading D-201 placed at PP-1 to PP-4 and at the event sinks is deleted, together with every reading D-201 had already marked for deletion.
@@ -168,6 +170,8 @@ The kernel keeps one read of its own, in `#notify`: it refuses a diagnostic afte
 
 **Consequence for a cancel raised during activation.** A cancel raised in a slot reached from `activation.prepare` no longer rolls the activation back. The activation commits, `onStart` is delivered, and the queued `CANCEL` applies at `ACTIVATING` and settles `canceled` at `AT_PROPOSAL`. This is the result a cancel raised from `onStart` already produces, so the two now agree. `rollback` loses its only trigger (§2.11).
 
+**A cancel registered before activation is entered (D-207).** The unit that would enter the activation seam declines at its entry while a cancel for its operation is registered: `ACTIVATE` for a command, `MOVE` at `PENDING` for a pointer. The operation stays `PENDING`, and its queued `CANCEL` retires it silently. Without the clause a command operation never reaches the `PENDING` row, because admission queues `ACTIVATE` last and every cancel registered at `PENDING` lands behind it (§16). The paragraph above is unchanged: a cancel registered inside the activation unit is not seen by its entry.
+
 ### 2.7 Ordering and priority
 
 - **Destruction has priority.** It is applied at the next boundary, ahead of everything queued, and discards the queue.
@@ -175,6 +179,7 @@ The kernel keeps one read of its own, in `#notify`: it refuses a diagnostic afte
 - **I-22's precedence `DESTROY > CANCEL > FAILURE_CHECKPOINT` is kept, and both halves are now decided at a boundary.**
   - Destroy by priority.
   - Cancel over a checkpoint by the rule in §2.10.
+  - The entries that would enter activation, `ACTIVATE` and `MOVE` at `PENDING`, decline while a cancel for their operation is registered (§2.6, D-207). A unit-entry reading.
   - The `START_COMMITTED` entry still declines to commit `ACTIVE` while a cancel for its operation is registered. That is a unit-entry reading.
   - The `OPEN_RESOLUTION` entry declines to open the round-trip while a cancel or a failure checkpoint for its operation is registered (§2.8, D-206). Also a unit-entry reading. It decides no precedence between the two: whichever applies first, by the rules above, decides the operation.
 - **Native ingress is never ordered against the queue.** It runs only when no unit is running.
@@ -308,7 +313,7 @@ The follow-up warns that calling something a query does not isolate a mutable ob
 
    No later unit runs, so there is no `onEnd` for an operation whose start was delivered in the requesting unit. I-31's antecedent ("the controller remains alive") fails.
 
-3. **A cancel raised during activation** delivers `onStart` and then `onEnd` `canceled` at `AT_PROPOSAL`. Today the drag ends silently.
+3. **A cancel raised during activation** delivers `onStart` and then `onEnd` `canceled` at `AT_PROPOSAL`. Today the drag ends silently. A cancel registered before activation is entered still ends the drag silently, as today (D-207, §16).
 4. **A cancel or destroy raised in `release.prepare` or `release.effect`** never opens the round-trip. That is today's outcome, and it now holds by order rather than by a guard. A cancel raised there now reports `AT_PROPOSAL`; today it reports `AT_CONSUMER` (F-435).
 5. **`dispatch` during construction** is applied after publication instead of being dropped. Its tag is not checked there, so an out-of-range construction-window tag, previously dropped silently, now has no specified outcome (§11). This is a behavior-author change, not a consumer one.
 6. **`moveTo`** applies the coordinates the consumer passed at the call.
@@ -358,6 +363,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 | `kernel.ts:784` `#failOperation`'s cancel conjunct | kept (intake) | **moved** to the checkpoint's application (§2.10) |
 | `kernel.ts:2045` `START_COMMITTED`'s held cancel; `:2076` `FAILED`'s | kept | kept (unit entry) |
 | `OPEN_RESOLUTION`'s held cancel (new unit) | — | **added** (unit entry, §2.8; F-436) |
+| `kernel.ts:2024` `ACTIVATE`'s entry; `kernel.ts:1858` `MOVE`'s entry at `PENDING` (`877fb9612`) | — | **added**: a held cancel declines activation (unit entry, §2.6; F-440, D-207) |
 | `OPEN_RESOLUTION`'s registered failure checkpoint (new unit) | — | **added** (unit entry, §2.8, §2.10; F-439); written by `#failOperation` when it queues the checkpoint |
 | `kernel.ts:412` `#notify` | kept (sink) | kept as diagnostic intake: refuses after `CLOSED` |
 | `kernel.ts:2355` `closed` getter | kept | **removed** with the SPI member |
@@ -368,7 +374,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 | `execution.ts` `#step` | latch | the lifecycle request: stops at `REQUESTED` or `CLOSED` |
 | `execution.ts` `close()` | sets the latch | `requestClose()`: `REQUESTED` inside a unit; applies at depth 0; `#leave` applies at the outermost boundary |
 
-**After D-202**, `grep` over `src/` for reads of the lifecycle state finds the runner, intake and `#notify`, and nothing else. For the cancel request it finds intake, the `CANCEL`, `START_COMMITTED`, `OPEN_RESOLUTION` and `FAILED` entries, and nothing else. For the registered failure checkpoint it finds intake, `OPEN_RESOLUTION`'s entry and, if the implementation consumes the record there, `FAILED`'s entry. That is a structural acceptance criterion (§8). It is not a count.
+**After D-202**, `grep` over `src/` for reads of the lifecycle state finds the runner, intake and `#notify`, and nothing else. For the cancel request it finds intake, the `CANCEL`, `ACTIVATE`, `MOVE`-at-`PENDING`, `START_COMMITTED`, `OPEN_RESOLUTION` and `FAILED` entries, and nothing else. For the registered failure checkpoint it finds intake, `OPEN_RESOLUTION`'s entry and, if the implementation consumes the record there, `FAILED`'s entry. That is a structural acceptance criterion (§8). It is not a count.
 
 ## 7. Cases
 
@@ -411,6 +417,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 | **R25** (D-204) armed out-of-range | after arming, at depth 0 and from inside an action's `effect`: tags `RETIRE - BEHAVIOR_BASE` (`-22`), `0.5`, `config.actionTags`, `NaN`, each followed by `0`; then the same with a destroy request registered and not yet applied | each out-of-range tag reports one `DraggableWarning` `drag: dispatch/tag-out-of-range <tag>` through `reportError` before `dispatch` returns; none is queued: no `action.prepare` for it, and `-22` retires nothing; each `0` is applied. Today's depth-0 rows already behave this way (P6), and no test covers them |
 | **R26** (D-204) armed after applied destruction | `dispatch(-22)` and `dispatch(0)` after `requestDestroy()` has been applied | no report and nothing applied. As today (P6) |
 | **R27** (D-204) structural | `grep` for `actionTags` reads in `src/kernel/` | read at exactly two sites: U-C's static validation and armed intake in `dispatch`. Nothing on the drain path reads it, and no list of construction-window tags is held for later validation |
+| **R31** (D-207, F-440) cancel registered before activation is entered | a command: an entry queued during admission registers a cancel at `PENDING`, so the queue is `[ACTIVATE, CANCEL]` (the sortable's `replace()` during `command.admit`, and a kernel action). A pointer: an action at `PENDING` dispatches a threshold-crossing `pointermove`, then requests cancel | `ACTIVATE`, or `MOVE` at `PENDING`, declines at its entry; `CANCEL` applies at `PENDING` and retires silently: no `onStart`, `onEnd` or `onError`, no placeholder; the next command or press is admitted. As the baseline `877fb9612`, where `#preparationValid` discarded the activation |
 
 **No case pins an out-of-range tag dispatched during construction.** Its outcome is unspecified (§11.2 item 2), and a test asserting a report, a drop or an application would turn misuse into contract.
 
@@ -475,9 +482,10 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 
    Add:
    - the cancel phase rule;
-   - supersession captured at intake.
+   - supersession captured at intake;
+   - activation's held-cancel entry clause, at `ACTIVATE` and at `MOVE` while `PENDING` (D-207, §16).
 
-   `OPEN_RESOLUTION`, its entry condition, the cancel stage rule and the inventory moved to step 1 (D-205, §12; D-206, §13). Cases R1–R3, R7, R8, R12, R14, R16, R20; R4–R6, R22 and R28–R30 stay green. Contract: I-3, I-16, I-21, I-22, I-31, the remaining 02 sections.
+   `OPEN_RESOLUTION`, its entry condition, the cancel stage rule and the inventory moved to step 1 (D-205, §12; D-206, §13). Cases R1–R3, R7, R8, R12, R14, R16, R20, R31; R4–R6, R22 and R28–R30 stay green. Contract: I-3, I-16, I-21, I-22, I-31, the remaining 02 sections.
 
    Its bounded handoff, with what it must keep from steps 1 and 2, is §15.3.
 
@@ -490,7 +498,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
    Cases R18, R21. Contract: I-36, I-37, 01 §`BehaviorContext`, 03, 07, README and the declaration surface (`tests/**/*.declaration.test.ts` as the surface tests require).
 
 5. **The comment pass**, D-199's, carried by D-201, over the files D-202 rewrote, with its rules and runtime-hash check.
-6. **The measurement record** `.plan/measurements/d206-requests.md`. It holds:
+6. **The measurement record** `.plan/measurements/d207-requests.md`. It holds:
    - composition on every kernel-carrying row, per step;
    - the M-1 move path with I-26's structural check (one sample allocates nothing; `OPEN_RESOLUTION` and `moveTo`'s copy are per drop and per call);
    - M-2 controller cost with the façade;
@@ -523,6 +531,8 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 - **Reviewer-E to reviewer-G** of the recheck are Tier C. E is the owner's and F the implementer's, and neither blocks step 2. G is repaired in the unimplemented row (§14.2).
 - **Step 2** is accepted at `877fb9612` (§15). D-206's row lists steps 3–6. The 13 budget overruns are tolerated under the owner's ruling and are not re-based.
 - **step2-A to step2-C** of the step-2 feature proof. A (Tier B) and B (Tier C) are the implementer's, nonblocking, and must be repaired before `d206-requests.md` is written. The decision's acceptance does not rely on property 12's census until A is closed. C (Tier C) is decided without an edit: both passages in 05 are dated or quoted history, and step 4's I-36 rewrite names the panic diagnostic by its route (§15.2).
+- **D-206** is superseded by D-207 during step 3 (§16). Every property, both accepted steps, their dispositions and the owner's size tolerance carry forward. D-207 adds one clause to property 7, activation's held-cancel entry, and case R31. The unimplemented row moves to D-207 with the witness renamed `d207-requests.md`, and step2-A and step2-B are due before it is written.
+- **F-440** is raised by the implementer's step-3 escalation and repaired by D-207. It is a gap in D-206's entry conditions, exposed when step 3 deleted the in-unit revalidation that had covered it, not a defect in landed code.
 - **F-97** is unchanged. It still holds open whether the armed check survives the reachability gate (the audit's §3.5). D-204 scopes the armed promise to armed dispatch, which is all it ever covered, and is compatible with either answer.
 - **F-432** is decided by D-202 (R15) and closes when it lands. **F-433** (R9) and **F-434** (R8) likewise move from D-201 to D-202. **F-435** is raised and decided here (R4, R6).
 - **Live obligations** O-2, O-3, O-4, O-5 and O-7 are untouched. SC-1 and SC-7 are recognitions the measurement record may meet.
@@ -1218,6 +1228,7 @@ A refactor then cannot stale the text. Until step 4, the dated paragraph's membe
 
 - **The cancel phase rule** (§2.6). `cancel` registers only against an operation committed at intake in `PENDING`, `ACTIVATING`, `ACTIVE` or `RELEASING`. It is a no-op otherwise, on a duplicate, and when `CLOSED`.
 - **Supersession captured at intake** (§2.10). The checkpoint records at intake whether a cancel for its operation is registered and unapplied. `FAILED`'s entry decides on that record, or on a cancel still held at its entry, and reports `drag: failure/superseded-by-cancel`.
+- **Activation's held-cancel entry clause** (D-207, §16.3). `ACTIVATE`'s entry, and `MOVE`'s entry while the committed phase is `PENDING`, decline while a cancel for the operation is registered. It lands in the same commit as the deletion of the activation policy's `committed` revalidation and of `#preparationValid`.
 
 **Cases.**
 
@@ -1225,7 +1236,8 @@ A refactor then cannot stale the text. Until step 4, the dated paragraph's membe
   - R1's admission half;
   - R2 and R3;
   - R7 and R8;
-  - R12, R14, R16 and R20.
+  - R12, R14, R16 and R20;
+  - R31 (D-207): the keyboard row _should enqueue an invalidate() rather than drain it_, unchanged, and the two `kernel.browser` rows of §16.5, with their mutations.
 - **Must stay green:**
   - R4–R6, R22 and R28–R30, including the five R30 rows and both null-command rows;
   - reviewer-B's rows;
@@ -1255,18 +1267,18 @@ A refactor then cannot stale the text. Until step 4, the dated paragraph's membe
 - D-200: no `Lifetime` or `ActionQueue` property changes.
 - I-26: one pointer sample allocates nothing.
 
-**Property 13.** R3 and R8 leave their baseline outcome in this step. The record reruns `run.sh` at the input and the tip. It shows P5's R3 trace and P4's R8 trace changing to the required outcomes. It also shows that no probed row makes a consumer call that both the baseline and the target withhold. It carries the table forward with R3, R8, R12, R14, R16 and R20 moved to _required_.
+**Property 13.** R3 and R8 leave their baseline outcome in this step. The record reruns `run.sh` at the input and the tip. It shows P5's R3 trace and P4's R8 trace changing to the required outcomes. It also shows that no probed row makes a consumer call that both the baseline and the target withhold. It carries the table forward with R3, R8, R12, R14, R16 and R20 moved to _required_, and R31 listed with its baseline and required outcomes coinciding.
 
 **Out of scope:**
 
 - the renames and the surface, and the behaviors' sinks (step 4);
 - the comment pass (step 5);
-- `d206-requests.md`, which is step 6, because creating it would falsify the witness early;
+- `d207-requests.md`, which is step 6, because creating it would falsify the witness early;
 - re-basing any budget.
 
 step2-A, step2-B and reviewer-F may land with this step. Reviewer-E stays the owner's.
 
-**Record:** `.plan/measurements/d206-step3.md`. It holds:
+**Record:** `.plan/measurements/d207-step3.md` (renamed by D-207). It holds:
 
 - composition on every kernel-carrying row against the unchanged budgets, with delta and distance to budget (§15.1);
 - each mutation census, with the tree it was taken at;
@@ -1275,10 +1287,114 @@ step2-A, step2-B and reviewer-F may land with this step. Reviewer-E stays the ow
 
 **Escalate rather than decide** if:
 
-- a deletion changes a published outcome other than those §4 and §7 state for R1–R3, R7, R8, R12, R14, R16 and R20;
+- a deletion changes a published outcome other than those §4 and §7 state for R1–R3, R7, R8, R12, R14, R16, R20 and R31. The case raised under this clause on 2026-11-01 is decided by D-207 (§16);
 - a step-1 or step-2 row stays green only through a reading this step deletes;
 - R16's two orders, or any reachable order, disagree with §2.10's _or on a cancel still held at its entry_;
 - a currency conjunct proves necessary below a unit entry for a reason the design does not state;
 - removing `rollback` leaves a `prepare` side effect that nothing undoes and that a test or contract row asserts is undone. §2.11 says the ledger never covered a throwing `prepare`, so this would be new evidence.
 
 **Review.** Step 3 gets its own feature proof before step 4 starts.
+
+## 16. Amendment: a held cancel declines activation (D-207)
+
+**2026-11-01. Input:** the implementer's escalation during step 3, under §15.3's first escalation clause, relayed by the owner. The baseline is `add2d5ca8`, whose `src/` equals `877fb9612`. Step 3's changes are uncommitted; they were run for one row and not otherwise read. This section records **F-440**.
+
+### 16.1 The escalation
+
+The case is `keyboard.browser`'s _should enqueue an invalidate() rather than drain it_. During `command.admit` the consumer's `replace()` reverses the collection, which queues collection work. Admission then queues `ACTIVATE` as its last act. The collection work runs first, at `PENDING`, finds that the commanded downward gap cannot survive, and registers a cancel. That leaves the queue `[ACTIVATE, CANCEL]`.
+
+| Tree | Outcome |
+| --- | --- |
+| Baseline `877fb9612` | `ACTIVATE` runs `activation.prepare`; the driver's `#preparationValid` reads the held cancel (`kernel.ts:548`); the invalidated arm retires the operation (`seams.ts:292`, `:618`). No `onStart`, no `onEnd`, no `onError`, no placeholder. `CANCEL` then finds no current operation |
+| Step 3 as D-206 states it | `ACTIVATE` commits `ACTIVATING` and `activation.effect` delivers `onStart`; `CANCEL` applies at `ACTIVATING`: one `onEnd` `canceled` at `AT_PROPOSAL`, origin `CANCEL_SUPPLIED`, reason `sortable:collection-invalidated`. No error, and the placeholder is removed |
+
+§4 item 3, §2.6's consequence paragraph and R3 describe a cancel raised **inside** the activation unit, from a slot reached from `activation.prepare`. This cancel was registered **before** `ACTIVATE`'s entry, by an entry queued ahead of it. D-206 states no reading at `ACTIVATE`'s entry (`#handleActivate`, `kernel.ts:2024`, checks identity and `PENDING` only). Step 3's deletion therefore changes a published outcome that §4 and §7 do not state, which is the clause's trigger.
+
+### 16.2 Evidence
+
+- **The baseline row passes.** The step-2 feature proof's full run at `877fb9612` fails only `docs.node` and `size.node`.
+- **The step-3 row fails as reported.** On the uncommitted step-3 tree, `vitest run --project browser tests/sortable/keyboard.browser.test.ts -t "enqueue an invalidate"` fails at `:756`: `fixture.started` holds the commanded row. The rest of the implementer's trace (the terminal's stage, origin and reason) is taken from the escalation and was not rerun.
+- **On the command path, no cancel registered at `PENDING` is ever ahead of `ACTIVATE`.** Admission queues `ACTIVATE` last (`#admitCommand`, `kernel.ts:1060`). A cancel requested during admission registers nothing, because no operation is committed (§2.6). The post-admission drain is synchronous, so nothing at depth 0 runs before `ACTIVATE`. Every cancel that registers at `PENDING` therefore comes from an entry queued during admission, ahead of `ACTIVATE`, and lands behind it. **Under D-206 as written, §2.6's `PENDING` row, "retires the operation silently", is unreachable for a command operation.** Every such cancel would announce a start first.
+- **On the pointer path, ordinary orders already retire silently.** Activation is entered by the `MOVE` that crosses the threshold (`#handleMove`, `kernel.ts:1858`). Pointer samples arrive at depth 0 after the drain, so a cancel registered at `PENDING` is applied before the crossing sample. The one order that puts a held cancel behind an activating `MOVE` is a synthetic `pointermove` dispatched from a slot inside a unit at `PENDING`, followed by a cancel registered in that unit or a later one. It is reasoned from the code and was not probed.
+
+### 16.3 The decision
+
+**A unit that would enter the activation seam declines at its entry while a cancel for its operation is registered.** The entries are:
+
+- `ACTIVATE`'s entry;
+- `MOVE`'s entry while the committed phase is `PENDING`.
+
+Declining changes nothing. The operation stays `PENDING`, and the request stays held. Its own `CANCEL` entry, queued at registration and behind the declining entry, applies at `PENDING` and retires the operation silently (§2.6).
+
+**The required outcome on the escalated path** is no `onStart`, no `onEnd`, no `onError` and no placeholder, with the next command admitted. That is the baseline's outcome, reached now by a unit-entry reading rather than an in-unit invalidation. The keyboard row's assertions are the required outcome, and the row does not change.
+
+**Why.**
+
+- **It makes §2.6's `PENDING` row hold on both paths.** Whether activation is queued (a command) or reached inline (a pointer) no longer decides whether a cancel registered before activation announces a start.
+- **No start is owed for an operation cancelled before it started** (I-31, D-32). Without the clause the kernel announces a start whose only consequence is its cancellation.
+- **It is the rule already used at the other entries that open a phase.** `START_COMMITTED` declines `ACTIVE` while a cancel is held, and `OPEN_RESOLUTION` declines the round-trip while a cancel or a failure checkpoint is held (F-436, F-439). In each case FIFO alone covers only a request registered before the entry was queued, and a request registered by an entry queued ahead of it sits behind it. This is that queue shape at activation.
+- **R3 and §4 item 3 are unchanged.** A cancel registered inside the activation unit, after its entry, is not seen by the entry. It still delivers `onStart` and then `canceled` at `AT_PROPOSAL`.
+
+**Request/application separation holds:**
+
+- **Registration** is unchanged: §2.6's intake rule.
+- **The reading** happens at a unit's entry, before any of its work (§2.2 reading 2).
+- **Application** stays with `CANCEL`. The declining entry consumes nothing.
+
+**Declining cannot strand the operation.** The `CANCEL` entry was queued at registration and is behind the declining entry. Between them only these can run:
+
+- behavior actions and consumer requests, which do not change the phase;
+- a `FAILED`, which the held cancel supersedes (§2.10);
+- another `MOVE` at `PENDING`, which declines likewise;
+- destruction, which tears the operation down.
+
+`CANCEL` therefore finds the operation current at `PENDING` and retires it.
+
+**Scope.**
+
+- **Cancel only.** The failure record stays read only at `OPEN_RESOLUTION`'s entry (D-206 property 6). A checkpoint registered at `PENDING` on the command path also lands behind `ACTIVATE`. Its outcome is the baseline's, step 3 does not change it, and this decision does not decide it. It was not probed.
+- **Destroy needs no clause.** Priority applies it at the registering unit's boundary, ahead of `ACTIVATE`.
+- **`MOVE` at `ACTIVE` is untouched**, so the per-sample path gains no read. `MOVE` at `PENDING` gains one field read and no allocation (I-26).
+- **No other entry changes.** §15.3's first escalation clause still governs any other outcome step 3 changes.
+
+### 16.4 Options considered
+
+| Option | Outcome on the escalated path | Why not |
+| --- | --- | --- |
+| **(1) Decline activation at its entry while a cancel is held** (chosen) | silent retirement, as the baseline | — |
+| (2) Accept FIFO | `onStart`, then `canceled` `AT_PROPOSAL` | §2.6's `PENDING` row is unreachable for a command. A start is announced only to be cancelled. The pointer and command paths diverge for the same registration. It adds an unstated §4 change to the keyboard's ordinary invalidation case |
+| (3) Apply the held cancel at `ACTIVATE`'s entry | silent retirement | moves application into another unit. The request would be consumed by an entry other than its own `CANCEL`, and §2.8's no-strand argument and §2.6's lapse rule rest on that not happening |
+| (4) Keep `#preparationValid`'s cancel conjunct for activation | silent retirement | an in-unit ledger read, which the owner's separation forbids (§1) |
+| (5) Change the producer: the sortable's collection work does not cancel at `PENDING`, or `ACTIVATE` is queued ahead of admission's work | varies | a behavior change covering one producer. Queuing `ACTIVATE` ahead of work queued before it reverses I-1's FIFO |
+
+**Why (1).** It applies the entry rule already used at `START_COMMITTED` and `OPEN_RESOLUTION`, in the same form. It keeps the published outcome of the escalated row and of the pointer path. It adds one reading at each of two entries and moves no order that another case fixes.
+
+### 16.5 Cases, handoff and verification
+
+**R31** is added (§7, implementation-only).
+
+**Handoff.** The clause lands in step 3, in the same commit as the deletion of the activation's in-unit revalidation, because that deletion removes the baseline's protection (§15.3).
+
+- **The clause** at both entries, with the property in §16.3.
+- **R31 as tests**, each driven through the bracket with no harness flag:
+  - the keyboard row, unchanged;
+  - a `kernel.browser` command row: an action queued during admission requests cancel at `PENDING`; no `onStart`, `onEnd` or `onError`; retired; the next command admitted;
+  - a `kernel.browser` pointer row: an action at `PENDING` dispatches a threshold-crossing `pointermove` and then requests cancel; no `onStart` or `onEnd`; retired. If the harness cannot express the synthetic sample, `d207-step3.md` records why, and the `MOVE` clause is held by the census and the mutation below.
+- **A mutation**: removing `ACTIVATE`'s clause reddens the command rows, and removing `MOVE`'s reddens the pointer row.
+- **Contract text** with step 3's set: I-21 and I-22 name the activation entries, and 02's unit-entry currency rule names them beside `START_COMMITTED` and `OPEN_RESOLUTION`.
+- **Property 13**: the row's baseline and required outcomes coincide. `d207-step3.md` lists R31 with them.
+- **The guard-site census** finds the cancel request read at intake and at the `CANCEL`, `ACTIVATE`, `MOVE`-at-`PENDING`, `START_COMMITTED`, `OPEN_RESOLUTION` and `FAILED` entries (§6).
+
+**Renamed:** the witness is `.plan/measurements/d207-requests.md`, and step 3's record is `.plan/measurements/d207-step3.md`. step2-A and step2-B keep their boundary, now before `d207-requests.md` is written. Steps 1 and 2 stay accepted.
+
+**What it changes in this record:**
+
+- §2.2, §2.6 and §2.7;
+- §4 item 3;
+- §6;
+- §7, which gains R31;
+- §8 steps 3 and 6;
+- §9;
+- §15.3.
+
+§3, §5's rows and every carried property other than property 7 are unchanged.

@@ -2739,7 +2739,9 @@ R4, R5, R6, R22, R28 and R29 land in step 1. Each is driven by a request from a 
 
 #### D-206
 
-**Unimplemented (Remediation).** **Decided 2026-11-01, on the implementer's escalation at D-205's step-1 checkpoint** (`3e44eaf62`, [`d204-step1.md`](../measurements/d204-step1.md) §The open escalation), relayed by the owner. **D-205 in full, except that `OPEN_RESOLUTION` also declines while a failure checkpoint for its operation is registered and unapplied.** Supersedes D-205. Raises and repairs F-439. Carries D-205's decision of F-438, its decisions of F-432 to F-435 and its repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §13. That record's §2.2, §2.7, §2.8, §2.10 and §4–§9 state the D-206 form and are the handoff. The checkpoint is evidence, not an accepted step.
+**Superseded by D-207, 2026-11-01, during step 3.** **Everything carries forward, including steps 1 and 2 as accepted; D-207 adds one clause to activation's entry.** Step 3 deleted the activation's in-unit revalidation, and a command operation whose cancel was registered at `PENDING` then announced `onStart` before `canceled`, where the baseline retires it silently (F-440). D-207 carries this decision by reference and states only what it changes, and this row's entry in the unimplemented table moves to D-207. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §16. The text below is the decision as it stood.
+
+**Decided 2026-11-01, on the implementer's escalation at D-205's step-1 checkpoint** (`3e44eaf62`, [`d204-step1.md`](../measurements/d204-step1.md) §The open escalation), relayed by the owner. **D-205 in full, except that `OPEN_RESOLUTION` also declines while a failure checkpoint for its operation is registered and unapplied.** Supersedes D-205. Raises and repairs F-439. Carries D-205's decision of F-438, its decisions of F-432 to F-435 and its repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §13. That record's §2.2, §2.7, §2.8, §2.10 and §4–§9 state the D-206 form and are the handoff. The checkpoint is evidence, not an accepted step.
 
 **Step 1 accepted 2026-11-01, at `44e2074f1`. The decision stays unimplemented.** Step 1 landed at `2c5212daf`, `3e44eaf62` and `902810cae`. The step-1 feature proof's recheck ([`d204-step1-feature-proof-claude.md`](../reviews/fin-review2/d204-step1-feature-proof-claude.md) §Recheck at `44e2074f1`) finds no step-1 blocker. Reviewer-A to reviewer-D are resolved. R4–R6, R22 and R28–R30 are rows whose requests come from seams the running controller drives. The failure clause is implemented as property 6 states it. F-438 and F-439 close with the step. Steps 2–6 remain, the witness holds, and F-432 to F-435 stay open until the whole decision lands. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §14, which also holds step 2's handoff.
 
@@ -2797,6 +2799,49 @@ The clause still covers the null command, and property 6 is unchanged. The null 
 - **D-200:** its pending acceptance is unchanged.
 - **Surface:** none beyond D-205's. §4 item 8 of the record is the consumer-visible change.
 
+#### D-207
+
+**Unimplemented (Remediation).** **Decided 2026-11-01, on the implementer's escalation during D-206's step 3**, under the record's §15.3 first escalation clause, relayed by the owner. Baseline `add2d5ca8`, with step 3 uncommitted. **D-206 in full, except that the unit that would enter activation also declines at its entry while a cancel for its operation is registered.** Supersedes D-206. Raises and repairs F-440. Carries D-206's repair of F-439, D-205's decision of F-438, the decisions of F-432 to F-435 and the repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §16. That record's §2.2, §2.6, §2.7, §4, §6–§9 and §15.3 state the D-207 form and are the handoff.
+
+**What is carried.** D-206's text, its properties 1–6 and 8–13 as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1 and 2 as accepted at `44e2074f1` and `877fb9612`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step2-A and step2-B keep their boundary, which is now before `d207-requests.md` is written. Only property 7 changes, and one case is added.
+
+**Property 7, amended in one clause.** At a unit's entry:
+
+- **the unit that would enter the activation seam, `ACTIVATE` or `MOVE` while the committed phase is `PENDING`, declines while a cancel is registered for its operation**;
+- `START_COMMITTED` declines `ACTIVE` while a cancel is registered;
+- `OPEN_RESOLUTION` declines the round-trip while a cancel or a failure checkpoint is registered.
+
+Each is a reading at a unit's entry under property 2, and declining changes nothing.
+
+**When activation declines**, the operation stays `PENDING` and the request stays held. Its `CANCEL` entry, queued at registration behind the declining entry, applies at `PENDING` and retires the operation silently: no `onStart`, no `onEnd` and no `onError`. Declining cannot strand the operation. Before that `CANCEL`, only actions and requests that leave the phase alone, a `FAILED` the held cancel supersedes, another declining `MOVE`, or destruction can run.
+
+**Why.** For a command, admission queues `ACTIVATE` last, and a cancel requested during admission registers nothing. Every cancel registered at `PENDING` therefore lands behind `ACTIVATE`. Once step 3 deleted the revalidation that discarded the activation, §2.6's `PENDING` row became unreachable for a command: the sortable's collection invalidation during `command.admit` delivered `onStart` and then `canceled` at `AT_PROPOSAL`. The baseline and the pointer path both retire silently. The clause is the entry rule `START_COMMITTED` and `OPEN_RESOLUTION` already apply, for the same queue shape (F-436, F-439). A cancel registered inside the activation unit, after its entry, still delivers `onStart` and then `canceled` at `AT_PROPOSAL` (R3).
+
+**Not chosen:**
+
+- **Accept FIFO.** A start is announced only to be cancelled. The pointer and command paths diverge for the same registration, and §2.6's `PENDING` row is unreachable for a command.
+- **Apply the held cancel at `ACTIVATE`'s entry.** The request would be consumed outside its own `CANCEL` entry, which the no-strand and lapse rules rest on.
+- **Keep `#preparationValid`'s cancel conjunct for activation.** It is an in-unit ledger read.
+- **Change the producer or the queue order.** That covers one behavior, or reverses I-1's FIFO.
+
+**Scope.**
+
+- Cancel only. The failure record stays read only at `OPEN_RESOLUTION`'s entry. A checkpoint registered at `PENDING` on the command path keeps its baseline outcome, and this decision does not decide it.
+- Destroy is covered by priority.
+- `MOVE` at `ACTIVE` gains no read. I-26 is unchanged.
+
+**Cases.** D-206's R1–R30, plus **R31**: a cancel registered before activation is entered. It is driven for a command by the sortable's keyboard row _should enqueue an invalidate() rather than drain it_, unchanged, and by a `kernel.browser` action queued during admission. It is driven for a pointer by an action at `PENDING` that dispatches a crossing `pointermove` and then requests cancel. The required outcome is the one above, which is also the baseline's.
+
+**Order and witness.** D-206's step order. The clause lands in step 3, in the same commit as the deletion of the activation's in-unit revalidation. Removing the `ACTIVATE` clause must redden R31's command rows, and removing the `MOVE` clause its pointer row. The measurement record is `.plan/measurements/d207-requests.md`, and its absence is the witness. Step 3's record is `.plan/measurements/d207-step3.md`.
+
+**Touches:**
+
+- **D-206:** supersedes it during step 3. Its steps 1 and 2 stay accepted.
+- **F-440:** raises and repairs it.
+- **F-432 to F-439:** carries their decisions, repairs and closures.
+- **D-200:** its pending acceptance is unchanged.
+- **Surface:** none. No consumer-visible change against the baseline; the record's §4 item 3 is scoped to a cancel raised inside activation.
+
 ### Decisions not yet implemented
 
 **The artifact F-63 asked for** (K-5). D-34 and D-35 were stated in the present tense by three contract documents and were not in the code, across a checkpoint and a whole revision, with every suite green — because a green suite is evidence about the _implemented_ contract only, and nothing in the repository compared a decision booked to a later phase against the code that had not implemented it. Phase 18 found them by reading, which is the discovery this table exists to make unnecessary.
@@ -2809,7 +2854,9 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-206 | Remediation | steps 3–6: kernel requests, surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d206-requests.md` |
+| D-207 | Remediation | steps 3–6: kernel requests with activation's held-cancel entry, surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d207-requests.md` |
+
+**D-206's row closed on 2026-11-01 with steps 1 and 2 accepted.** D-207 superseded it during step 3, adding a held-cancel clause to activation's entry. D-207's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 
 **D-206's row dropped step 2 on 2026-11-01**, when step 2 was accepted at `877fb9612`.
 
@@ -2897,7 +2944,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 This register is the **status**, not the decision. What each decision says, and what replaced it, is its row in §Decision ledger — the source of truth, which this never restates. `tests/decisions.node.test.ts` holds the two to the same id set: an entry without a canonical row, a canonical row without an entry, a duplicate, or a value outside the vocabulary is a failure rather than a skip.
 
-The twenty-four `inactive` rows are the ones whose live residue is empty: **D-7** (superseded by D-155, no gate left to default open), **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected), **D-150** (superseded by D-151, none of it lands), **D-162** (superseded by D-164), **D-164** (superseded before implementation by D-165), **D-167** and **D-169** (both superseded by D-170, whose owner call reverses the first and closes the question the second answered), **D-182** (superseded by D-184, which restates every property it carries forward), **D-183** (superseded by D-185 on a reading of _reachable_ the owner's rule rejects), **D-185** (superseded by D-186, which restores D-183's holding on a repaired ground), **D-188** (superseded by D-189, which carries both its halves forward on repaired grounds) **D-190** (superseded by D-191, which carries its premise and every disposition forward on a replaced rule), **D-187** (superseded by D-192, which carries all five of its claims forward with three of the rules narrowed), **D-193** (superseded by D-196, which corrects the site the rule names, withdraws the instrument it owed and replaces the cause it states), **D-194** (superseded by D-197, which replaces the ground for the export and re-books the declaration-weight figure) **D-195** (superseded by D-198, which widens the repair to both `prettier/prettier` rule sites and scopes the clause to the files a package's `fmt` owns) **D-199** (superseded before implementation by D-201, which restates the extraction rule, the teardown deduplication and the comment pass it carries forward), **D-201** (superseded before implementation by D-202, which restates every property it carries forward and withdraws the publication points and event sinks whose premise was immediate logical closure) **D-202** (superseded before implementation by D-203, which carries it by reference and replaces one entry condition), **D-203** (superseded before implementation by D-204, which carries it by reference and adds the `dispatch` tag rule), **D-204** (superseded after its step 1 by D-205, which carries it by reference and moves the round-trip's own unit into step 1) and **D-205** (superseded after its step-1 checkpoint by D-206, which carries it by reference and adds the failure clause to the round-trip's entry condition). ~~The eight~~ **corrected 2026-09-09 (F-406): the enumeration named eight of thirteen and stated the count as eight, while the table three lines below carried thirteen — five rows explained nowhere by the paragraph that exists to explain them.** ~~The fifteen~~ **corrected 2026-09-10: the same defect recurred when D-193, D-194 and D-195 were added to the table and not to the enumeration.**
+The twenty-five `inactive` rows are the ones whose live residue is empty: **D-7** (superseded by D-155, no gate left to default open), **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected), **D-150** (superseded by D-151, none of it lands), **D-162** (superseded by D-164), **D-164** (superseded before implementation by D-165), **D-167** and **D-169** (both superseded by D-170, whose owner call reverses the first and closes the question the second answered), **D-182** (superseded by D-184, which restates every property it carries forward), **D-183** (superseded by D-185 on a reading of _reachable_ the owner's rule rejects), **D-185** (superseded by D-186, which restores D-183's holding on a repaired ground), **D-188** (superseded by D-189, which carries both its halves forward on repaired grounds) **D-190** (superseded by D-191, which carries its premise and every disposition forward on a replaced rule), **D-187** (superseded by D-192, which carries all five of its claims forward with three of the rules narrowed), **D-193** (superseded by D-196, which corrects the site the rule names, withdraws the instrument it owed and replaces the cause it states), **D-194** (superseded by D-197, which replaces the ground for the export and re-books the declaration-weight figure) **D-195** (superseded by D-198, which widens the repair to both `prettier/prettier` rule sites and scopes the clause to the files a package's `fmt` owns) **D-199** (superseded before implementation by D-201, which restates the extraction rule, the teardown deduplication and the comment pass it carries forward), **D-201** (superseded before implementation by D-202, which restates every property it carries forward and withdraws the publication points and event sinks whose premise was immediate logical closure) **D-202** (superseded before implementation by D-203, which carries it by reference and replaces one entry condition), **D-203** (superseded before implementation by D-204, which carries it by reference and adds the `dispatch` tag rule), **D-204** (superseded after its step 1 by D-205, which carries it by reference and moves the round-trip's own unit into step 1), **D-205** (superseded after its step-1 checkpoint by D-206, which carries it by reference and adds the failure clause to the round-trip's entry condition) and **D-206** (superseded during its step 3 by D-207, which carries it by reference and adds a held-cancel clause to activation's entry). ~~The eight~~ **corrected 2026-09-09 (F-406): the enumeration named eight of thirteen and stated the count as eight, while the table three lines below carried thirteen — five rows explained nowhere by the paragraph that exists to explain them.** ~~The fifteen~~ **corrected 2026-09-10: the same defect recurred when D-193, D-194 and D-195 were added to the table and not to the enumeration.**
 
 | Decision | Status   |
 | -------- | -------- |
@@ -3106,7 +3153,8 @@ The twenty-four `inactive` rows are the ones whose live residue is empty: **D-7*
 | D-203    | inactive |
 | D-204    | inactive |
 | D-205    | inactive |
-| D-206    | active   |
+| D-206    | inactive |
+| D-207    | active   |
 
 ## Findings
 
@@ -5335,7 +5383,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Repaired 2026-09-10.** The `oxfmt` pin moves 0.58.0 → **0.67.0**, the latest, so the version is not itself a formatting opinion, and the tree is reformatted under it: **seven files** across box-quad, drag, drag2 and material-x, none of which changes a program. Root `fmt-check` is green over all nine packages and the repository-level files.
 
-#### F-432 — an operation minted inside a failing `arm()` is never disposed · open, decided by D-206
+#### F-432 — an operation minted inside a failing `arm()` is never disposed · open, decided by D-207
+
+**Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
 
 **Carried by D-206, which superseded D-205 after its step-1 checkpoint and keeps this decision unchanged; closes when D-206 lands.**
 
@@ -5353,7 +5403,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Why it is open rather than booked.** It is reachable only through foreign code running inside `arm()` between two listener attachments. [`CONTRIBUTING.md`](../../../../CONTRIBUTING.md) §1.1 declines to add guards against that kind of reach, so whether to repair it is an owner question. **What a repair would establish:** every exit from `arm()` that leaves the controller unarmed leaves no operation resource live. D-199's teardown deduplication neither repairs this nor makes it worse, because its property (2) keeps the unconditional drop this path depends on.
 
-#### F-433 — a press dispatched from inside a running unit opens a second admission underneath it · open, decided by D-206
+#### F-433 — a press dispatched from inside a running unit opens a second admission underneath it · open, decided by D-207
+
+**Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
 
 **Carried by D-206, which superseded D-205 after its step-1 checkpoint and keeps this decision unchanged; closes when D-206 lands.**
 
@@ -5373,7 +5425,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Required property.** While any unit runs, an ingress pass is refused before it touches any state. D-201 properties 1 and 2; case E1.
 
-#### F-434 — a late `cancel()` raised inside `anchorTarget` strands the operation in `SETTLING` · open, decided by D-206
+#### F-434 — a late `cancel()` raised inside `anchorTarget` strands the operation in `SETTLING` · open, decided by D-207
+
+**Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
 
 **Carried by D-206, which superseded D-205 after its step-1 checkpoint and keeps this decision unchanged; closes when D-206 lands.**
 
@@ -5393,7 +5447,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Required property.** A cancel request is latched only in a phase where `CANCEL` acts, and no control reading on the settlement path treats a request as a liveness answer. D-201 properties 5 and 6; case E4.
 
-#### F-435 — a `cancel()` raised inside `release.effect` reports `AT_CONSUMER` for a round-trip that never opened · open, decided by D-206
+#### F-435 — a `cancel()` raised inside `release.effect` reports `AT_CONSUMER` for a round-trip that never opened · open, decided by D-207
+
+**Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
 
 **Carried by D-206, which superseded D-205 after its step-1 checkpoint and keeps this decision unchanged; closes when D-206 lands.**
 
@@ -5433,6 +5489,8 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Carried by D-206**, which superseded D-205 after its step-1 checkpoint. D-206 adds a failure clause beside this repair's cancel clause and leaves it unchanged (F-439).
 
+**Carried by D-207**, which superseded D-206 during its step 3. D-207 applies this repair's entry rule at activation and leaves the repair unchanged (F-440).
+
 #### F-437 — D-203 queues a construction-window `dispatch` whose tag the SPI promises to check against a count that does not yet exist · repaired 2026-11-01 by D-204
 
 **Tier B. Raised 2026-11-01 by the implementer at D-203 step 1**, relayed by the owner at `582092c1f`. Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §11. The defect is in an unimplemented decision, not in `src/`.
@@ -5448,6 +5506,8 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 **Carried by D-205**, which superseded D-204 after its step 1 and keeps this repair unchanged.
 
 **Carried by D-206**, which superseded D-205 after its step-1 checkpoint and keeps this repair unchanged.
+
+**Carried by D-207**, which superseded D-206 during its step 3 and keeps this repair unchanged.
 
 #### F-438 — D-204 step 1 opens the consumer round-trip after a destroy requested in the release unit · closed 2026-11-01 with D-206 step 1
 
@@ -5476,6 +5536,16 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 **Repair.** `OPEN_RESOLUTION` also declines while a failure checkpoint for its operation is registered and unapplied. `FAILED` then applies at `RELEASING`: `onError`, then `canceled` at `AT_PROPOSAL`, origin `failed`, and no `onReorder`, for either resolver. D-206 property 6; case R30.
 
 **Closed 2026-11-01 with step 1's acceptance at `44e2074f1`.** The clause and its registration landed at `902810cae`. Four R30 rows assert the outcome above and redden when either the clause or the registration write is removed: two in `kernel.browser` and two in `sortable.browser`. The `invoke: null` row asserts the same outcome and reddens under neither mutation, as D-206's amended witness paragraph records. Steps 2–6 keep all five rows green.
+
+#### F-440 — D-206's step 3 announces a start for a command operation whose cancel was registered at `PENDING` · repaired 2026-11-01 by D-207
+
+**Tier B. Raised 2026-11-01 by the implementer during D-206's step 3**, under the record's §15.3 first escalation clause, relayed by the owner. Baseline `add2d5ca8`, with step 3 uncommitted. Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §16. The defect is in D-206's decision, which states no reading at activation's entry, not in landed code.
+
+**What happens.** In `keyboard.browser`'s _should enqueue an invalidate() rather than drain it_, the consumer's `replace()` during `command.admit` queues collection work ahead of `ACTIVATE`. That work finds the commanded gap cannot survive and registers a cancel at `PENDING`, which is queued behind `ACTIVATE`. At the baseline `#preparationValid` discards the activation, and the operation retires silently. With the revalidation deleted, `ACTIVATE` commits and delivers `onStart`, and `CANCEL` then settles `canceled` at `AT_PROPOSAL` with reason `sortable:collection-invalidated`.
+
+**Why it is a problem.** A published outcome changed with no decision stating it. The record's §4 item 3 and R3 describe only a cancel raised inside the activation unit. For a command, every cancel registered at `PENDING` lands behind `ACTIVATE`, so D-206 as written made §2.6's `PENDING` row unreachable on that path.
+
+**Repair.** The unit that would enter activation, `ACTIVATE` or `MOVE` at `PENDING`, declines at its entry while a cancel for its operation is registered. The queued `CANCEL` then retires the operation silently. D-207 property 7; case R31.
 
 ## What would falsify this model
 

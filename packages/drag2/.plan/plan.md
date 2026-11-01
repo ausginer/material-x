@@ -2298,6 +2298,16 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-01 — A held cancel declines activation (D-207, F-440)
+
+**D-207 supersedes D-206 during step 3 and carries it in full**, including steps 1 and 2 as accepted, their dispositions and the owner's size tolerance. It adds one clause. The unit that would enter activation, `ACTIVATE` or `MOVE` at `PENDING`, declines at its entry while a cancel for its operation is registered, and the queued `CANCEL` retires the operation silently.
+
+**The implementer escalated under step 3's first clause.** In the keyboard row _should enqueue an invalidate() rather than drain it_, collection work queued during `command.admit` registers a cancel at `PENDING` behind `ACTIVATE`. The baseline discarded the activation through `#preparationValid`, and the drag ended silently. Once step 3 deleted that read, `onStart` was delivered and then `canceled` at `AT_PROPOSAL`. The architect reproduced the `onStart` on the uncommitted tree. For a command every cancel registered at `PENDING` lands behind `ACTIVATE`, so without the clause §2.6's `PENDING` row is unreachable on that path. The clause is the entry rule `START_COMMITTED` and `OPEN_RESOLUTION` already apply. A cancel raised inside the activation unit still gets `onStart` and then `canceled` (R3).
+
+Case R31 is added. It lands in step 3, in the same commit as the revalidation's deletion, and the keyboard row stays unchanged. The witness is now `measurements/d207-requests.md`, and step 3's record is `measurements/d207-step3.md`. Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §16, with §15.3 amended.
+
+---
+
 ### 2026-11-01 — D-206 step 2 accepted: the split and capture
 
 **Step 2 is accepted at `877fb9612`, and D-206 is not complete.** The step-2 feature proof finds no step-2 blocker. The `Kernel` façade and the armed controller, capture at unit entry, teardown written once, and no module-level mutable binding hold as D-201 properties 3, 4, 10 and 12 state them. Every step-1 row stays green. The architect reran `run.sh` and `capture.node` at the tip, with the same result. Allocation stays at zero per sample. No timing difference is resolved at about 0.1 µs, and none is predicted above call-overhead scale. Steps 3–6 remain. The witness holds, F-432 to F-435 stay open, and D-200's acceptance is still pending.
