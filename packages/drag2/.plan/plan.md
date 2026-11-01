@@ -2298,6 +2298,18 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-01 — Snapshot semantics for internal call sequences: execution units, four publication points, event sinks (D-201, F-433, F-434)
+
+**The owner's narrowed mandate, answered.** Record [`snapshot-units-claude.md`](reviews/architecture/snapshot-units-claude.md), at `0ed5483a0`. Once a unit starts, mutation of its originating state must not change the inputs, receivers or targets of its later internal calls. The kernel's guards sort into three families: context, control and publication. Only publication belongs in the design. The context family exists because three gaps break an exclusivity the bracket otherwise already provides: construction runs at depth 0; ingress is refused only during admission; and the click disarm runs ahead of the refusal. The control family exists because one latch reading answered both _should the next call happen_ and _are its inputs still valid_.
+
+**Two live defects came out of the classification, both reproduced.** F-433: a press dispatched from inside a running unit opens a second admission underneath it. Probe P1 shows the outer `prepare`'s draft changing mid-call, the outer commit republishing `IDLE`, and listeners leaking. F-434: a late `cancel()` inside `anchorTarget` strands the operation in `SETTLING`. Probe P4, in Chromium, shows no release, no `onEnd`, no retirement and no further admission. That second failure was caused by a guard: the liveness predicate treated a cancel request as an answer about liveness.
+
+**D-201 decides four things.** Units run at depth ≥ 1, construction included. A unit captures its controller, operation and action context at entry. Lifecycle state is read only at unit admission, at four publication points (seam commit, round-trip opening, admission publish, controller publish), at request intake and at event sinks. `Kernel` splits by lifetime into a façade and an armed controller, which keeps the handlers with their shared state and so answers D-199's objection to a split. D-199 is superseded, and its extraction rule, teardown deduplication and comment pass carry forward. F-432 becomes unreachable.
+
+**One promise is revised, and it is flagged for the owner.** I-36 (a)'s per-invocation latch reading is itself a guard on the call sequence. Event slots (`onStart`, `onEnd`, `onError`, `onMove`) keep the promise through one sink per route. A participation slot left in a running unit may run after a `destroy()` raised by an earlier slot of the same unit, and nothing is published afterwards. The fallback, splitting those sites into queued units, reorders work and is the owner's call if the revision is refused. Booked to Remediation in six steps, each with its own cases from E1–E12 and the contract text it makes true. The witness is the absence of `measurements/d201-units.md`.
+
+---
+
 ### 2026-10-31 — D-200 implemented: `Lifetime` and `ActionQueue` are classes, in two steps
 
 **The owner's two scratch files are integrated and deleted.** `src/kernel/lifetimes.ts` holds the `Lifetime` class, and `LifetimeScope` is a declared interface with `readonly signal` and method-syntax `use`. `useWhile` is gone, and `#openResolution` registers a `use` whose disposer tests `!attempt.completed`. `src/kernel/queue.ts` holds the `ActionQueue` class: one interleaved array, `add`, `apply` and an in-place `clear()`. `ExecutionBracket` drains through `apply` with a `#step` minted once per bracket, which reads the latch before each action. Measurement [`d200-classes.md`](measurements/d200-classes.md).
