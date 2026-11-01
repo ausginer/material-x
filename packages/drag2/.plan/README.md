@@ -8,6 +8,7 @@ This directory holds the record of how it got there, and the design work for wha
 
 | Document | Status |
 | --- | --- |
+| [`reentrancy-redesign-brief.md`](reentrancy-redesign-brief.md) | **Owner commissioning brief.** The next architectural task examines state ownership and the causes of repeated liveness checks across drag2 and affected first-party code. It authorizes design work, not an already chosen replacement contract. |
 | [`plan.md`](plan.md) | **Active — the live scope.** Part I is the completed vertical-sortable slice (phases 0–11). Part II is the roadmap from that slice to a package that can replace `@ydinjs/drag`. |
 | [`obligations.md`](obligations.md) | **The live set — what is still owed, and the conditions that reopen a decision.** One register, because assembling it took a census across `plan.md`, four contract documents, `bundle-structure.md` and four measurement records (D-114). A human owner inheriting this library starts here for what is outstanding: the _Live_ table is the obligations and who can discharge each, and §Standing conditions carries the clauses a decision reopens on (D-116), which are recognised rather than owed. |
 | [`ledger.md`](ledger.md) | **The parity boundary.** One classified row per public capability of the shipped package's two entries — retain, redesign or drop, with a destination and, for every drop, what a consumer loses. Produced by `plan.md` phase 12; every later phase cites it for what "parity" means. Findings L-1…L-9. |
