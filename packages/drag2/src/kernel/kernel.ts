@@ -1,11 +1,15 @@
 /**
  * The kernel executor: admission → activation → move → release → teardown.
  *
- * Every field below is `#private`. There is no exported container and nothing a
- * behavior can read that the kernel did not deliberately grant it. What the
- * kernel holds of the behavior is **one `spec` reference**; what the behavior
- * holds is this kernel under {@link BehaviorContext}, whose seven members
- * include none that drives a transition.
+ * **Two objects, split by lifetime.** {@link Kernel} is the façade a behavior
+ * holds under {@link BehaviorContext}: it exists from `draggable()`'s first
+ * statement and owns the realm, the root, the execution bracket, ingress and
+ * one nullable reference to the armed controller. `ArmedController` exists
+ * only once construction has composed both frames, and holds every handler,
+ * the controller-scope context as `readonly` fields, and the current-operation
+ * slots. Neither exposes a container: what the kernel holds of the behavior is
+ * **one `spec` reference**, and what the behavior holds is the façade, whose
+ * seven members include none that drives a transition.
  */
 import {
   ACTIVATE,
@@ -99,7 +103,7 @@ import {
 } from './spec.ts';
 import { FrameTransaction } from './transaction.ts';
 import type { OffsetBox } from './types.ts';
-import { createUnwind } from './unwind.ts';
+import { createUnwind, type Unwind } from './unwind.ts';
 
 /**
  * What the kernel reads off a queued pointer event — and the one thing it calls
@@ -136,15 +140,19 @@ type ResolutionAttempt = {
 };
 
 /**
- * The one measurement a settlement takes, carried from where it is read to
- * where it is spent.
+ * One settlement, from its seam to its join: the input it settles with, the
+ * operation's lifetimes its effect closes, and the one measurement it takes.
  *
- * It travels as an argument rather than on the transactional frame or in a
- * slot: nothing outside {@link Kernel}'s settlement helpers reads it, it is
- * unobservable, and its whole life is the synchronous span from the
- * measurement to the join.
+ * **The settlement seam's capability.** The driver hands it to both phases, so
+ * the input reaches `prepare` and the lifetimes reach `effect` without a slot
+ * on the controller. It travels as an argument rather than on the
+ * transactional frame: nothing outside the settlement helpers reads it, it is
+ * unobservable, and its whole life is the synchronous span of the unit that
+ * built it. One object per settlement, never per pointer sample.
  */
 type SettlementAttempt = {
+  readonly input: SettlementInput;
+  readonly lifetimes: OperationLifetimes;
   /**
    * **The one authoritative landing target, measured once.** The serial
    * authored commit guarantees the authored DOM is final before this is taken,
@@ -173,10 +181,12 @@ type SettlementAttempt = {
  * and it may not outlive the operation it latched. The second records that a
  * failure checkpoint was queued, and only the round-trip's entry reads it.
  *
- * **Kernel-local.** It appears in no signature, no queue argument and no
- * captured callback. {@link OperationIdentity} travels instead, and every
- * guard authorises work by comparing that one-field object against the frame's
- * — so stale work never has to hold this.
+ * **Kernel-local, and resolved once per unit.** It appears in no queue
+ * argument and no captured callback. {@link OperationIdentity} travels
+ * instead, and every unit entry authorises work by comparing that one-field
+ * object against the frame's — so stale work never has to hold this. The entry
+ * that validated the identity reads the record from the controller's slot and
+ * hands it to every helper below it as a parameter.
  */
 type OperationRecord = {
   readonly visual: HTMLElement;
@@ -258,7 +268,7 @@ type FailureCheckpoint = Readonly<{
 /**
  * **The attempt lifetime, as a record.**
  *
- * Three correlated slots, minted per round-trip and cleared together. They are
+ * Two correlated slots, minted per round-trip and cleared together. They are
  * grouped because a class has one flat namespace for instance state: on `this`
  * a slot that lives for one settlement and a slot that lives for the
  * controller read identically, and the record is what keeps the difference
@@ -273,8 +283,6 @@ type AttemptSlots = {
    */
   command: ResolutionCommand | null;
   resolution: ResolutionAttempt | null;
-  /** The input the open settlement seam is driving. Seams are non-reentrant. */
-  settlementInput: SettlementInput | null;
 };
 
 /**
@@ -306,71 +314,79 @@ const thenOf = (value: unknown): PromiseLike<unknown>['then'] | null => {
 };
 
 /**
- * **The kernel controller.** It owns the frame pair, ingress, the action queue,
- * the seam driver, the operation and activation records, the attempt slots,
- * teardown and the destroy promise.
+ * Returns one frame to its defaults.
  *
- * **A behavior receives this object under {@link BehaviorContext}**, which is
- * the whole of what the tier is granted: `construct` is on the class and off the
- * interface, so a behavior reaches it only by deliberately leaving the type it
- * was handed. That is a contract term rather than a runtime property, and it
- * is stated the way the neighbouring one is — *no input can be admitted before
- * `install()` returns* is unenforceable too, and is written down rather than
- * guarded.
+ * **Wrapped as one unit, and the kernel's own half goes first.** The kernel
+ * returns its slice to its defaults and the behavior returns its part;
+ * `resetFramePart` is behavior code the API permits to throw, and an unwrapped
+ * throw on the first frame would skip the second scrub *and* the ingress abort,
+ * making `destroy()` non-terminal. The kernel's own reset cannot throw, so it
+ * is inside the same `unwind` with nothing to lose by it.
  *
- * Only `draggable()` holds it wide, and it calls `construct()` exactly once.
+ * A module function with the guard and the behavior as parameters, because it
+ * has two callers on opposite sides of publication: the armed controller's
+ * retirement, and construction's unwind, which resets frames composed by a
+ * behavior that may never have been armed.
  */
-export class Kernel<
-  Part extends object,
-  Activation extends {} = true,
-> implements BehaviorContext {
+function resetFrame<Part extends object, Activation extends {}>(
+  unwind: Unwind,
+  behavior: BehaviorSpec<Part, Activation>,
+  target: Frame<Part>,
+): void {
+  unwind(() => {
+    frame(target);
+    behavior.resetFramePart(target);
+  });
+}
+
+/**
+ * **The armed controller.** It owns the frame pair, the seam driver, the
+ * operation and activation records, the attempt slots, the landing tail, the
+ * click suppressor and steps 3–6 of teardown, and it runs every handler.
+ *
+ * **Constructed complete, by construction's unit, and never reassigned.** The
+ * spec, the frame pair, the driver, the bracket, the ingress signal, the seam
+ * adapters and the channels are `readonly` fields filled before any handler
+ * can run, so no reader tests whether they are there. Construction publishes
+ * the controller to the {@link Kernel} façade only once it exists, which is
+ * what makes _a behavior is armed_ and _the driver is assigned_ one fact.
+ *
+ * **The current-operation slots are read in three places only**: at a unit's
+ * entry, which resolves the operation and activation records once and hands
+ * them down as parameters; at request intake; and by the statements that
+ * publish or retire them. The one exception is the driver's preparation
+ * predicate, which reads the cancel request mid-unit.
+ *
+ * Kernel-internal. No behavior or consumer ever holds it: the façade forwards
+ * the members a behavior may call, and the bracket's four callbacks reach the
+ * rest.
+ */
+class ArmedController<Part extends object, Activation extends {}> {
   /** The owning document/window. Every DOM access goes through it. */
-  readonly realm: DOMRealm;
+  readonly #realm: DOMRealm;
 
   /** The ingress boundary passed to `draggable()`. */
-  readonly root: HTMLElement;
-
-  /* ---- the execution bracket ---- */
+  readonly #root: HTMLElement;
 
   /**
-   * The lifecycle request, the queue and its semantics, and teardown, in the
-   * one entity that states their invariants. `#private`, so the kernel's
-   * public surface is unchanged by holding it.
-   *
-   * Its four callbacks are the only edges back into the kernel, and each is
-   * allocated once per controller: the per-action and per-sample paths through
-   * the bracket allocate nothing.
+   * The façade's execution bracket: the lifecycle request, the queue and
+   * teardown. Held for `dispatch`, the ingress refusal and the closed reading.
    */
-  readonly #bracket = new ExecutionBracket(
-    (action, argument) => {
-      this.#handle(action, argument);
-    },
-    (error) => {
-      this.#panic(error);
-    },
-    () => {
-      this.#runPhysicalTeardown();
-    },
-    () => {
-      this.#frames.begin();
-    },
-  );
-
-  readonly #ingress = new AbortController();
-
-  #spec: BehaviorSpec<Part, Activation> | null = null;
+  readonly #bracket: ExecutionBracket;
 
   /**
-   * The frame pair and the protocol over it, composed by `#arm()`.
-   *
-   * Definite assignment rather than a nullable field, on the same premise every
-   * `#spec!` in this file rests on: nothing reaches a frame before a behavior
-   * is armed, and `#arm()` publishes `#spec` only once both frames exist.
+   * The façade's ingress signal. Every listener the controller binds for its
+   * own life is bound under it, so the façade's abort at step 7 releases them.
    */
-  #frames!: FrameTransaction<Part>;
+  readonly #ingress: AbortSignal;
+
+  readonly #spec: BehaviorSpec<Part, Activation>;
+
+  /** The frame pair and the protocol over it, composed by construction. */
+  readonly #frames: FrameTransaction<Part>;
 
   /** The phase machine over that pair, held for the controller's life. */
-  #driver!: SeamDriver<Part>;
+  readonly #driver: SeamDriver<Part>;
   #nextOperationId = 0;
 
   /* ---- per-operation state, two records dropped whole at retirement ---- */
@@ -378,17 +394,16 @@ export class Kernel<
   #activation: ActivationRecord | null = null;
 
   /**
-   * **The attempt lifetime, named rather than spread across three fields.**
+   * **The attempt lifetime, named rather than spread across two fields.**
    *
    * `this` is one flat namespace, so a slot that lives for one round-trip and
    * a slot that lives for the controller read identically once both are on it.
-   * These three do not: they are minted per attempt, correlated, and cleared
+   * These two do not: they are minted per attempt, correlated, and cleared
    * together, and the record is what says so where a field list could not.
    */
   readonly #attempts: AttemptSlots = {
     command: null,
     resolution: null,
-    settlementInput: null,
   };
 
   /* ---- the one channel ---- */
@@ -405,9 +420,10 @@ export class Kernel<
    * admission catch, the quality report and the landing join would be three
    * copies of it to keep in step.
    * 2. **Hand the finished error to the behavior**, which forwards it to
-   * `onError` and does nothing else. Before `#arm()` there is no behavior and
-   * nothing is delivered — which is correct rather than a gap, since a consumer
-   * with no controller has no handler either.
+   * `onError` and does nothing else. Before construction has armed a behavior
+   * there is no armed controller and so no channel, and nothing is delivered —
+   * which is correct rather than a gap, since a consumer with no controller has
+   * no handler either.
    * 3. **Discard whatever that throws.** *This is the terminus.* A throw from
    * the channel is never re-notified, and that single discard is the whole of
    * what makes the channel non-recursive. It is also what lets the fourteen
@@ -420,7 +436,8 @@ export class Kernel<
    *
    * **The stage is deliberately absent.** Three sites reach this holding a real
    * `FailureStage` and discard it — the demoted checkpoint, `failOperation`'s
-   * five-guard demotion, and a {@link Kernel.fail} outside a seam. In each the stage
+   * five-guard demotion, and a {@link Kernel.fail} outside a seam. In each the
+   * stage
    * describes a classification the kernel has just decided **not** to apply, so
    * carrying it into a warning would publish a claim about the operation that
    * the code refused to make.
@@ -431,7 +448,7 @@ export class Kernel<
     }
 
     try {
-      this.#spec?.reportError(error);
+      this.#spec.reportError(error);
     } catch {
       // The terminus. Reporting a reporting failure is the one recursion this
       // model has to be incapable of, and being incapable is stronger than
@@ -440,13 +457,15 @@ export class Kernel<
   }
 
   /**
-   * The channel as a value, for the two collaborators that take one.
+   * The channel as a value, for the collaborators that take one: the driver,
+   * every operation's lifetimes, this controller's unwind guard, and
+   * construction's unwind when it fails after publishing this controller.
    *
-   * **Wrapped, not detached**: both keep it for the controller's life and call
-   * it with no receiver of their own, so a bare prototype read would arrive
-   * without one. One closure per kernel, shared, rather than one per call.
+   * **Wrapped, not detached**: each calls it with no receiver of its own, so a
+   * bare prototype read would arrive without one. One closure per controller,
+   * shared, rather than one per call.
    */
-  readonly #report: Notify = (error): void => {
+  readonly report: Notify = (error): void => {
     this.#notify(error);
   };
 
@@ -458,7 +477,7 @@ export class Kernel<
    * each of them would put reporting at every site that merely wants the next
    * statement to run.
    */
-  readonly #unwind = createUnwind(this.#report);
+  readonly #unwind = createUnwind(this.report);
 
   /**
    * True while a checkpoint's report transition is running — including its
@@ -471,9 +490,44 @@ export class Kernel<
   #actionTag = 0;
   #actionArgument: unknown = null;
 
-  constructor(root: HTMLElement) {
-    this.root = root;
-    this.realm = createRealm(root);
+  /**
+   * Called once, by construction, with both frames composed. Nothing here
+   * runs foreign code or can throw, so the controller exists complete or not at
+   * all.
+   */
+  constructor(
+    realm: DOMRealm,
+    root: HTMLElement,
+    bracket: ExecutionBracket,
+    ingress: AbortSignal,
+    spec: BehaviorSpec<Part, Activation>,
+    current: Frame<Part>,
+    draft: Frame<Part>,
+  ) {
+    this.#realm = realm;
+    this.#root = root;
+    this.#bracket = bracket;
+    this.#ingress = ingress;
+    this.#spec = spec;
+    this.#frames = new FrameTransaction(current, draft);
+    this.#driver = new SeamDriver<Part>(
+      this.#frames,
+      () => this.#preparationValid(),
+      (stage, error) => {
+        this.#failOperation(stage, error);
+      },
+      // **The driver reports without classifying.** Not `failOperation`, which
+      // would settle a drop whose reorder already happened; and there is no
+      // second destination to choose between — a separate platform reporter
+      // would receive a consumer's own destructive rerender — which is what
+      // lets the `QUALITY` and `BEST_EFFORT` tiers collapse into one sentinel.
+      //
+      // There is no lifetime guard at this site, and adding one here is wrong:
+      // the guard belongs in `notify`, where every route shares it. A quality
+      // fault's producer is consumer-reaching — a `home` resolver, a landing
+      // policy — and is equally free to destroy before it throws.
+      this.report,
+    );
   }
 
   /**
@@ -486,6 +540,11 @@ export class Kernel<
     // The terminal latch alone: a separate `destroyRequested` flag is a second
     // name for it — set on the statement after it and never cleared either — so
     // the extra conjunct is unconditionally true beside it.
+    //
+    // **The one mid-unit read of the operation slot.** The driver calls this
+    // between a seam's phases, with no unit entry in reach to hand it the
+    // record. Within a unit the slot cannot change before the unit's own
+    // retirement, so it names the record the entry resolved.
     return !this.#bracket.closed && !this.#operation?.cancelRequest;
   }
 
@@ -506,31 +565,6 @@ export class Kernel<
   #retireAttempts(): void {
     this.#attempts.command = null;
     this.#attempts.resolution = null;
-    this.#attempts.settlementInput = null;
-  }
-
-  /**
-   * Returns one frame to its defaults.
-   *
-   * **Wrapped as one unit, and the kernel's own half goes first.** The kernel
-   * returns its slice to its defaults and the behavior returns its part;
-   * `resetFramePart` is behavior code the API permits to throw, and an
-   * unwrapped throw on the first frame would skip the second scrub *and* the
-   * ingress abort, making `destroy()` non-terminal. The kernel's own reset
-   * cannot throw, so it is inside the same `unwind` with nothing to lose by it.
-   *
-   * The behavior is a parameter rather than a field read, for the one caller
-   * that has a spec in hand and no armed controller yet: `#arm()`'s unwind is
-   * resetting frames composed by a behavior this kernel has not published.
-   */
-  #resetFrame(
-    active: BehaviorSpec<Part, Activation>,
-    target: Frame<Part>,
-  ): void {
-    this.#unwind(() => {
-      frame(target);
-      active.resetFramePart(target);
-    });
   }
 
   /**
@@ -542,26 +576,14 @@ export class Kernel<
    * reader of it can serve.
    */
   readonly #scrub = (target: Frame<Part>): void => {
-    this.#resetFrame(this.#spec!, target);
+    resetFrame(this.#unwind, this.#spec, target);
   };
 
   /**
-   * The seven-step teardown, minus steps 1, 2 and 7 — which is exactly
-   * operation retirement.
-   *
-   * `operation` narrows the retirement to one operation; `null` means "whatever
-   * the kernel currently holds", used by paths that retire before the operation
-   * was ever committed.
+   * Steps 3–6 of teardown, written once: shared by operation retirement and by
+   * physical teardown, which differ only in what surrounds them.
    */
-  #retireOperation(identity: OperationIdentity | null): void {
-    if (!this.#spec) {
-      return;
-    }
-
-    if (identity && this.#frames.current.operation !== identity) {
-      return; // a stale retirement for an operation that is already gone
-    }
-
+  #release(): void {
     // 3. kernel attempts.
     this.#retireAttempts();
 
@@ -599,6 +621,20 @@ export class Kernel<
     // maintenance property, not a window a guard could catch.
     this.#operation = null;
     this.#activation = null;
+  }
+
+  /**
+   * Operation retirement: the seven-step teardown minus steps 1, 2 and 7.
+   *
+   * `identity` is always the operation the caller resolved. A retirement whose
+   * operation is no longer the committed one is a no-op.
+   */
+  #retireOperation(identity: OperationIdentity): void {
+    if (this.#frames.current.operation !== identity) {
+      return; // a stale retirement for an operation that is already gone
+    }
+
+    this.#release();
   }
 
   /**
@@ -644,54 +680,24 @@ export class Kernel<
   }
 
   /**
-   * Steps 3–7 of teardown, invoked by the bracket once it has released its own
-   * storage in step 2.
+   * Physical teardown's share in this controller: steps 3–6, then the tail at
+   * step 7. Reached through the façade's teardown callback, which aborts
+   * ingress in its own `finally` once this returns or throws.
    *
    * Totality is a property of the sequence *wherever it runs*, not of the stack
    * that requested closure: each attempt cleanup is individually wrapped in
-   * step 3, each frame reset in step 6, and ingress abort is in a `finally` at
-   * step 7, so no behavior callback can stop a later step at the boundary any
-   * more than it could on the closing stack.
+   * step 3, each frame reset in step 6, and step 7 is in a `finally`, so no
+   * behavior callback can stop a later step at the boundary any more than it
+   * could on the closing stack.
    */
-  #runPhysicalTeardown(): void {
+  teardown(): void {
     try {
-      // 3–6.
-      if (this.#spec) {
-        this.#retireAttempts();
-        this.#unwind(this.#spec.retire);
-
-        if (this.#operation) {
-          this.#unwind(this.#operation.lifetimes.dispose);
-        }
-
-        this.#frames.retire(this.#scrub);
-      }
-
-      // Last, for both reasons `retireOperation` states: the records have to
-      // outlive steps 4 and 5, and dropping them after the scrubs rather than
-      // before is what keeps the frame-identity implication true by order.
-      this.#operation = null;
-      this.#activation = null;
+      this.#release();
     } finally {
-      // 7. unconditional: no earlier step can prevent ingress from being
-      //    released, and none may leave a tail interpolating on an element the
-      //    controller has stopped owning. Both are controller-scoped, and the
-      //    click suppressor is disarmed by the abort's own signal.
+      // 7, this controller's half: no earlier step may leave a tail
+      //    interpolating on an element the controller has stopped owning.
       this.#cancelTail();
-      this.#ingress.abort();
     }
-  }
-
-  /**
-   * Requests destruction. The bracket applies it at once when no unit is
-   * running, and otherwise when the running unit ends: step 1 of teardown, the
-   * closed lifecycle, is set at application, and steps 3–7 come back through
-   * the teardown callback in the same step.
-   *
-   * The promise settles after application, physical release included.
-   */
-  destroy(): Promise<void> {
-    return this.#bracket.requestClose();
   }
 
   /**
@@ -723,7 +729,7 @@ export class Kernel<
    * controller and a failed `requestAnimationFrame` would become
    * indistinguishable to a consumer.
    */
-  #panic(error: unknown): void {
+  panic(error: unknown): void {
     // The bracket closed before calling this and tears down once it returns.
     this.#notify(new DraggableError(null, error), true);
   }
@@ -734,15 +740,11 @@ export class Kernel<
    * cancellation raised from inside a seam invalidate that preparation
    * synchronously, which matters most when the caller is `onStart`.
    *
-   * **`#spec` guards the pair for the same reason `fail()` guards the driver.**
-   * A cancel from the construction window has no operation to latch — there is
-   * none anywhere in that window — so it is the idle no-op, reached without
-   * dereferencing a pair `#arm()` has not composed yet.
+   * Request intake, and so one of the places the operation slot is read.
    */
   #cancelWith(reason: unknown, origin: CancelOrigin): void {
     if (
       this.#bracket.closed ||
-      !this.#spec ||
       !this.#frames.current.operation ||
       this.#operation!.cancelRequest
     ) {
@@ -753,13 +755,7 @@ export class Kernel<
     this.#bracket.dispatch(CANCEL, this.#frames.current.operation);
   }
 
-  /**
-   * The kernel's own cancel, and the only one a consumer or a behavior can
-   * reach. Everything arriving here is `CANCEL_SUPPLIED`: a behavior's
-   * controller publishes a closure over this call, so the kernel has no basis
-   * to tell the two callers apart — and a supplied value is what both of them
-   * are.
-   */
+  /** The supplied cancel the façade forwards; see {@link Kernel.cancel}. */
   cancel(reason?: unknown): void {
     this.#cancelWith(reason, CANCEL_SUPPLIED);
   }
@@ -965,6 +961,11 @@ export class Kernel<
    * selects which listeners are armed, and the kernel's own geometry never
    * reads the pointer fields, which stay at their admission values on that
    * path.
+   *
+   * **The record is a local until it is published**, and it is published in
+   * the same statement run as the frame commit. A mint failure therefore owns
+   * the only reference to what it armed: it disposes that and touches no frame
+   * and no controller slot.
    */
   #mintOperation(
     subject: AdmissionSubject,
@@ -973,42 +974,42 @@ export class Kernel<
     y: number,
   ): boolean {
     const identity: OperationIdentity = { id: (this.#nextOperationId += 1) };
+    // Discriminated by `'visual' in subject` rather than `instanceof`:
+    // `instanceof` is realm-sensitive, and `DOMRealm` exists precisely because
+    // an element may come from another document. A bare element is the
+    // spelling of all three coinciding.
+    const parts = 'visual' in subject;
+
+    // **One literal, and the record is complete when it exists.** The
+    // lifetimes are constructed inside it rather than assigned afterwards,
+    // which is what makes the field non-nullable.
+    const live: OperationRecord = {
+      visual: parts ? subject.visual : subject,
+      box: parts ? subject.box : subject,
+      item: parts ? subject.item : subject,
+      lifetimes: createOperationLifetimes(this.report),
+      cancelRequest: null,
+      failureRegistered: false,
+    };
 
     try {
-      // Discriminated by `'visual' in subject` rather than `instanceof`:
-      // `instanceof` is realm-sensitive, and `DOMRealm` exists precisely
-      // because an element may come from another document. A bare element is
-      // the spelling of all three coinciding.
-      const parts = 'visual' in subject;
-
-      // **One literal, and the record is complete when it exists.** The
-      // lifetimes are constructed inside it rather than assigned afterwards,
-      // which is what makes the field non-nullable.
-      this.#operation = {
-        visual: parts ? subject.visual : subject,
-        box: parts ? subject.box : subject,
-        item: parts ? subject.item : subject,
-        lifetimes: createOperationLifetimes(this.#report),
-        cancelRequest: null,
-        failureRegistered: false,
-      };
-
       if (pointerId !== -1) {
         armPointerInput(
-          this.realm,
-          this.#operation.lifetimes.motion.signal,
+          this.#realm,
+          live.lifetimes.motion.signal,
           this.#pointerHandler,
         );
       }
 
       armCancelInput(
-        this.realm,
-        this.#operation.lifetimes.cancellation.signal,
+        this.#realm,
+        live.lifetimes.cancellation.signal,
         this.#escapeHandler,
       );
     } catch (error) {
-      // Nothing is committed yet, so this retires an operation the frames never
-      // saw: it disposes whatever was armed and drops the references.
+      // Nothing is published yet: the frames never saw this operation and the
+      // controller holds no reference to it, so disposing what was armed is
+      // the whole of its retirement.
       //
       // **This site is not forced onto a second channel.** It reads like the
       // one place a platform report is unavoidable — the identity is a local
@@ -1016,13 +1017,14 @@ export class Kernel<
       // — but the channel is operation-independent, so that reason does not
       // hold: a warning needs no operation and no stage, and `return false`
       // refuses admission, so the outcome is the same either way.
-      this.#retireOperation(null);
+      this.#unwind(live.lifetimes.dispose);
       this.#notify(
         new DraggableWarning('drag: operation/arming-failed', { cause: error }),
       );
       return false;
     }
 
+    this.#operation = live;
     this.#frames.draft.operation = identity;
     this.#frames.draft.pointerId = pointerId;
     this.#frames.draft.originX = x;
@@ -1035,7 +1037,7 @@ export class Kernel<
 
   #admitPress(event: PointerEvent): void {
     // `false`: the pointer path prevents at the threshold crossing.
-    const admitted = this.#runAdmission(event, this.#spec!.admit, false);
+    const admitted = this.#runAdmission(event, this.#spec.admit, false);
 
     if (admitted) {
       this.#mintOperation(
@@ -1056,11 +1058,7 @@ export class Kernel<
    * measured from the visual and is pointer-independent already.
    */
   #admitCommand(event: Event): void {
-    const admitted = this.#runAdmission(
-      event,
-      this.#spec!.command!.admit,
-      true,
-    );
+    const admitted = this.#runAdmission(event, this.#spec.command!.admit, true);
 
     if (admitted && this.#mintOperation(admitted, -1, 0, 0)) {
       this.#bracket.dispatch(ACTIVATE, this.#frames.current.operation);
@@ -1136,7 +1134,7 @@ export class Kernel<
 
     this.#disarmClick = disarm;
 
-    this.realm.document.addEventListener(
+    this.#realm.document.addEventListener(
       CLICK,
       (event) => {
         disarm();
@@ -1149,7 +1147,7 @@ export class Kernel<
         // Composed with the ingress signal rather than aborted by hand in
         // teardown: "disarmed by teardown" then holds structurally, and the
         // step-7 abort needs no clause about a listener it does not know.
-        signal: AbortSignal.any([aborter.signal, this.#ingress.signal]),
+        signal: AbortSignal.any([aborter.signal, this.#ingress]),
       },
     );
   }
@@ -1208,9 +1206,11 @@ export class Kernel<
   readonly #activationPolicy = {
     // A discard retires: there is no such thing as a committed operation with
     // no presentation. A *failure* does not — the queued checkpoint owns it,
-    // and retiring here would make that entry stale.
+    // and retiring here would make that entry stale. The committed frame
+    // still names the operation being activated, because the seam did not
+    // commit.
     retire: (): void => {
-      this.#retireOperation(null);
+      this.#retireOperation(this.#frames.current.operation!);
     },
     committed: (): void => {
       // `activation.effect` invokes the consumer's `onStart` last, and that
@@ -1228,10 +1228,11 @@ export class Kernel<
    * Capture is validated rather than assumed — `admit` may return any element
    * and a consumer resolver can detach things — and a capture failure is
    * `FAILURE_ACTIVATION` rather than a silently degraded drag.
+   *
+   * Publishes the activation record, and reads it back from the local it was
+   * built in rather than from the slot.
    */
-  #acquireActivation(): ActivationScope | null {
-    const live = this.#operation!;
-
+  #acquireActivation(live: OperationRecord): ActivationScope | null {
     try {
       // **Before the origin measurement, and that ordering is the reason it is
       // here rather than at admission.** Measuring a visual mid-tail is right —
@@ -1263,13 +1264,19 @@ export class Kernel<
       const { session, visualSpace, itemSpace } = acquireLift(
         live.visual,
         live.item,
-        this.#spec!.config.liftMode,
+        this.#spec.config.liftMode,
         rect,
-        this.realm,
+        this.#realm,
         this.#unwind,
       );
 
-      this.#activation = { originRect: rect, lift: session, visualSpace };
+      const activation: ActivationRecord = {
+        originRect: rect,
+        lift: session,
+        visualSpace,
+      };
+
+      this.#activation = activation;
       live.lifetimes.presentation.use(session.dispose);
 
       // Neither step runs for a pointerless operation: there is no pointer to
@@ -1277,12 +1284,12 @@ export class Kernel<
       // guard either. `originRect` above is measured from the *visual* and was
       // already pointer-independent.
       if (this.#frames.current.pointerId !== -1) {
-        if (!this.root.isConnected) {
+        if (!this.#root.isConnected) {
           throw new Error('drag: activation/root-disconnected');
         }
 
         live.lifetimes.motion.use(
-          acquirePointerCapture(this.root, this.#frames.current.pointerId),
+          acquirePointerCapture(this.#root, this.#frames.current.pointerId),
         );
       }
 
@@ -1290,7 +1297,7 @@ export class Kernel<
         visual: live.visual,
         // Read back from the record the join reads it from, so the scope and
         // the landing measurement can never disagree about the grab basis.
-        originRect: this.#activation.originRect,
+        originRect: activation.originRect,
         // The kernel's own admission-time state, not a behavior-authored draft
         // field read back.
         box: live.box,
@@ -1298,7 +1305,7 @@ export class Kernel<
         // Read back from the record the join reads it from, for the same
         // reason `originRect` is: the tail is spent in this space and must not
         // be able to disagree with what the behavior was handed.
-        visualSpace: this.#activation.visualSpace,
+        visualSpace: activation.visualSpace,
         itemSpace,
         lift: session,
         motion: live.lifetimes.motion,
@@ -1310,8 +1317,8 @@ export class Kernel<
     }
   }
 
-  #activate(): void {
-    const scope = this.#acquireActivation();
+  #activate(live: OperationRecord): void {
+    const scope = this.#acquireActivation(live);
 
     if (!scope) {
       return;
@@ -1319,7 +1326,7 @@ export class Kernel<
 
     runActivationSeam(
       this.#driver,
-      this.#spec!.activation,
+      this.#spec.activation,
       scope,
       FAILURE_ACTIVATION,
       ACTIVATING,
@@ -1343,17 +1350,17 @@ export class Kernel<
    * is on `BehaviorContext`.
    */
   readonly #releaseTransition: Transition<Part, ResolutionCommand> = {
-    prepare: (target) => this.#spec!.release.prepare(target),
+    prepare: (target) => this.#spec.release.prepare(target),
     effect: (committed, prepared) => {
-      this.#spec!.release.effect(committed, prepared);
+      this.#spec.release.effect(committed, prepared);
     },
   };
 
   readonly #actionTransition: Transition<Part, {}> = {
     prepare: (target) =>
-      this.#spec!.action.prepare(this.#actionTag, this.#actionArgument, target),
+      this.#spec.action.prepare(this.#actionTag, this.#actionArgument, target),
     effect: (committed, prepared) => {
-      this.#spec!.action.effect(
+      this.#spec.action.effect(
         this.#actionTag,
         this.#actionArgument,
         committed,
@@ -1361,49 +1368,48 @@ export class Kernel<
       );
     },
     rollback: (prepared) => {
-      this.#spec!.action.rollback?.(this.#actionTag, prepared);
+      this.#spec.action.rollback?.(this.#actionTag, prepared);
     },
   };
 
   /**
    * The settlement seam.
    *
-   * The input travels in a slot rather than as an argument, because only
-   * `prepare` takes it and the seam's envelope hands the same capability to
-   * both phases — and this seam has none. A `prepare` that finds no coherent
-   * settlement
-   * **throws** and is classified at the seam's own `FAILURE_RESOLUTION` — a
-   * fulfilled value that is not an explicit resolution is that failure, and
-   * acceptance is never inferred.
+   * The settlement travels as the seam's capability, which the envelope hands
+   * to both phases: `prepare` takes its input and `effect` its operation's
+   * lifetimes. A `prepare` that finds no coherent settlement **throws** and is
+   * classified at the seam's own `FAILURE_RESOLUTION` — a fulfilled value that
+   * is not an explicit resolution is that failure, and acceptance is never
+   * inferred.
    */
   // `Prepared` is the `true` sentinel `Transition` defaults to: settlement
-  // stages nothing, and since the gate went it carries no capability either.
-  readonly #settlementTransition: Transition<Part> = {
-    prepare: (target) =>
-      this.#spec!.settlement.prepare(target, this.#attempts.settlementInput!),
-    effect: (committed, prepared) => {
+  // stages nothing.
+  readonly #settlementTransition: Transition<Part, true, SettlementAttempt> = {
+    prepare: (target, attempt) =>
+      this.#spec.settlement.prepare(target, attempt.input),
+    effect: (committed, prepared, attempt) => {
       // Between the commit and the behavior's effect: the operation is decided,
       // so nothing may still cancel it. Motion is closed here too rather than
       // only at release, because a cancel at `ACTIVE` reaches settlement with
       // input still open. Both closes are latched, so a release that already
       // closed motion pays nothing.
-      const owned = this.#operation!.lifetimes;
+      const owned = attempt.lifetimes;
 
       owned.motion.dispose();
       owned.cancellation.dispose();
-      this.#spec!.settlement.effect(committed, prepared);
+      this.#spec.settlement.effect(committed, prepared);
     },
   };
 
   /**
    * Whether a live operation is still in `SETTLING`. Checked after
    * `anchorTarget`, which is behavior code and may have destroyed the
-   * controller.
+   * controller. `live` is the operation the settlement's unit resolved.
    */
-  #settlementLive(): boolean {
+  #settlementLive(live: OperationRecord): boolean {
     return (
       !this.#bracket.closed &&
-      !this.#operation?.cancelRequest &&
+      !live.cancelRequest &&
       this.#frames.current.operation !== null &&
       this.#frames.current.phase === SETTLING
     );
@@ -1451,16 +1457,20 @@ export class Kernel<
    * and a warning reaches it without one. The message carries what such a stage
    * would have said.
    */
-  #measureTarget(attempt: SettlementAttempt): boolean {
+  #measureTarget(
+    live: OperationRecord,
+    activation: ActivationRecord,
+    attempt: SettlementAttempt,
+  ): boolean {
     const anchor = this.#driver.runUnclassifiedValue(
-      () => this.#spec!.anchorTarget(this.#frames.current),
+      () => this.#spec.anchorTarget(this.#frames.current),
       'drag: landing/target-unavailable',
     );
 
     // `anchorTarget` is behavior code and may have destroyed the controller. A
     // destroyed controller must not go on to join a settlement, so this is
     // checked before the skip branch as well as after a successful reading.
-    if (!this.#settlementLive()) {
+    if (!this.#settlementLive(live)) {
       return false;
     }
 
@@ -1478,7 +1488,7 @@ export class Kernel<
       return true;
     }
 
-    const origin = this.#activation!.originRect;
+    const origin = activation.originRect;
 
     // Converted to an **origin-relative delta**, the space `compose` and
     // `lift.write` consume. `anchorTarget` produces a viewport point and the
@@ -1527,6 +1537,8 @@ export class Kernel<
    * a zero contribution, so the element lands exactly where flow puts it.
    */
   #startTail(
+    element: HTMLElement,
+    space: InheritedSpace,
     fromX: number,
     fromY: number,
     targetX: number | null,
@@ -1552,7 +1564,7 @@ export class Kernel<
     // classified, because a tail is presentation and a presentational fault may
     // not reach a consumer whose drop has already been decided and reported.
     const timing = this.#unwind(() =>
-      this.#spec!.landingTail?.(
+      this.#spec.landingTail?.(
         this.#frames.current,
         fromX,
         fromY,
@@ -1566,9 +1578,6 @@ export class Kernel<
     if (!timing || !this.#joinLive()) {
       return;
     }
-
-    const space = this.#activation!.visualSpace;
-    const element = this.#operation!.visual;
 
     // `animate` is itself overridable on a consumer-owned element, and the
     // duration domain is the platform's — a `NaN` or a negative is refused
@@ -1613,9 +1622,13 @@ export class Kernel<
    * The release is in a `finally`: the join calls into code the kernel does not
    * own, and none of it may strand the placeholder or the inline styles.
    */
-  #joinSettlement(attempt: SettlementAttempt): void {
-    const owned = this.#operation!.lifetimes;
-    const session = this.#activation!.lift;
+  #joinSettlement(
+    live: OperationRecord,
+    activation: ActivationRecord,
+    attempt: SettlementAttempt,
+  ): void {
+    const owned = live.lifetimes;
+    const session = activation.lift;
 
     this.#frames.begin();
     this.#frames.commit(FINALIZING);
@@ -1655,7 +1668,14 @@ export class Kernel<
     // before, because the consumer's terminal callback may remove the very
     // element this is about, and an animation started onto a removed node is a
     // no-op rather than a fault.
-    this.#startTail(fromX, fromY, attempt.targetX, attempt.targetY);
+    this.#startTail(
+      live.visual,
+      activation.visualSpace,
+      fromX,
+      fromY,
+      attempt.targetX,
+      attempt.targetY,
+    );
 
     // The release and the tail policy are both foreign code, and `destroy()` is
     // a synchronous terminal barrier: a controller closed by either owes no
@@ -1665,7 +1685,7 @@ export class Kernel<
     }
 
     this.#driver.runLeaf(() => {
-      this.#spec!.finalized(this.#frames.current);
+      this.#spec.finalized(this.#frames.current);
     }, FAILURE_TERMINAL_CALLBACK);
     // Queued unconditionally, and this entry is what retires: a
     // terminal-callback failure queues its checkpoint ahead of this one, but
@@ -1682,30 +1702,44 @@ export class Kernel<
    * **One synchronous sequence, and nothing suspends it.** Settlement holds no
    * gate, so the only thing between the seam and the terminal is the behavior's
    * own measurement.
+   *
+   * `live` and `activation` are the records the calling unit resolved at its
+   * entry; settlement is reached only from `ACTIVATING` onwards, so both
+   * exist.
    */
-  #openSettlement(input: SettlementInput): void {
+  #openSettlement(
+    live: OperationRecord,
+    activation: ActivationRecord,
+    input: SettlementInput,
+  ): void {
     // However the round-trip ended, it is over; a later completion for it is
     // inert at both validation points.
     this.#attempts.resolution = null;
-    this.#attempts.settlementInput = input;
 
-    const attempt: SettlementAttempt = { targetX: null, targetY: 0 };
+    const attempt: SettlementAttempt = {
+      input,
+      lifetimes: live.lifetimes,
+      targetX: null,
+      targetY: 0,
+    };
 
     const outcome = this.#driver.runCore(
       this.#settlementTransition,
-      undefined,
+      attempt,
       FAILURE_RESOLUTION,
       SETTLING,
     );
 
     this.#dropStaged();
-    this.#attempts.settlementInput = null;
 
     // A settlement that never committed does not land: the queued checkpoint
     // decides what the operation ends as, and measuring for a join that will
     // never happen would call behavior code for nothing.
-    if (outcome === SEAM_COMMITTED && this.#measureTarget(attempt)) {
-      this.#joinSettlement(attempt);
+    if (
+      outcome === SEAM_COMMITTED &&
+      this.#measureTarget(live, activation, attempt)
+    ) {
+      this.#joinSettlement(live, activation, attempt);
     }
   }
 
@@ -1736,7 +1770,7 @@ export class Kernel<
    * kernel never names a resolution type, an accept or a reject: it hands the
    * value to `settlement.prepare` with a status and lets the behavior classify.
    */
-  #openResolution(command: ResolutionCommand): void {
+  #openResolution(live: OperationRecord, command: ResolutionCommand): void {
     const attempt: ResolutionAttempt = {
       completed: false,
       settlement: null,
@@ -1755,7 +1789,7 @@ export class Kernel<
 
     // Keyed off `completed`, not off the payload: keying it off the payload
     // would abort a finished resolver's own signal.
-    this.#operation!.lifetimes.cancellation.use(() => {
+    live.lifetimes.cancellation.use(() => {
       if (!attempt.completed) {
         aborter.abort();
       }
@@ -1812,17 +1846,14 @@ export class Kernel<
    * so a bare prototype read would arrive without one. A field rather than an
    * arrow at the call site because inlining allocates a fresh closure on every
    * active pointer sample — the one path whose allocations count — and the
-   * emitted bundle keeps the arrow rather than folding it away. Reading the
-   * swappable `current` frame and `activation` record at call time is what
-   * makes hoisting sound: neither is captured by value.
+   * emitted bundle keeps the arrow rather than folding it away. The lift
+   * arrives as the leaf's argument, resolved by the `MOVE` unit's entry, and
+   * the swappable `current` frame is read at call time, so nothing is captured
+   * by value.
    */
-  readonly #movedLeaf = (): void => {
-    this.#runMoved();
+  readonly #movedLeaf = (lift: VisualLiftSession): void => {
+    this.#spec.moved(this.#frames.current, lift);
   };
-
-  #runMoved(): void {
-    this.#spec!.moved(this.#frames.current, this.#activation!.lift);
-  }
 
   #handleMove(sample: PointerCoordinates): void {
     const { phase } = this.#frames.current;
@@ -1841,11 +1872,15 @@ export class Kernel<
     this.#frames.commit(null);
 
     if (phase === ACTIVE) {
-      this.#driver.runLeaf(this.#movedLeaf, FAILURE_RENDERER_WRITE);
+      this.#driver.runLeaf(
+        this.#movedLeaf,
+        FAILURE_RENDERER_WRITE,
+        this.#activation!.lift,
+      );
       return;
     }
 
-    const { threshold } = this.#spec!.config;
+    const { threshold } = this.#spec.config;
     const dx = this.#frames.current.pointerX - this.#frames.current.originX;
     const dy = this.#frames.current.pointerY - this.#frames.current.originY;
 
@@ -1866,9 +1901,9 @@ export class Kernel<
       // the event that began it has returned. Clearing is the only instrument
       // left, and what is cleared is the half-made selection the press made on
       // its way to becoming a drag.
-      this.realm.window.getSelection()?.removeAllRanges();
+      this.#realm.window.getSelection()?.removeAllRanges();
       this.#armClickSuppressor();
-      this.#activate();
+      this.#activate(this.#operation!);
     }
   }
 
@@ -1877,7 +1912,10 @@ export class Kernel<
    * `sample` is `null` for a pointerless release: there is nothing to commit,
    * and the pointer fields stay as admission left them.
    */
-  #closeOperation(sample: PointerCoordinates | null): void {
+  #closeOperation(
+    live: OperationRecord,
+    sample: PointerCoordinates | null,
+  ): void {
     // Commit 1: the committed frame matches what is about to be true, so a
     // `release.prepare` that throws or reentrantly destroys never leaves a
     // committed `ACTIVE` operation with no ingress and no path forward.
@@ -1893,7 +1931,7 @@ export class Kernel<
     // Motion closes *between* the two commits: capture released, listeners and
     // invalidation removed, the behavior's frame task cancelled. Nothing
     // pending can alter the proposal from here.
-    this.#operation!.lifetimes.motion.dispose();
+    live.lifetimes.motion.dispose();
 
     runReleaseSeam(
       this.#driver,
@@ -1929,15 +1967,19 @@ export class Kernel<
     if (
       !command ||
       this.#frames.current.operation !== identity ||
-      this.#frames.current.phase !== RELEASING ||
-      this.#operation!.cancelRequest ||
-      this.#operation!.failureRegistered
+      this.#frames.current.phase !== RELEASING
     ) {
       return;
     }
 
+    const live = this.#operation!;
+
+    if (live.cancelRequest || live.failureRegistered) {
+      return;
+    }
+
     this.#attempts.command = null;
-    this.#openResolution(command);
+    this.#openResolution(live, command);
   }
 
   #handleUp(sample: PointerCoordinates): void {
@@ -1948,7 +1990,7 @@ export class Kernel<
     }
 
     if (phase === PENDING) {
-      this.#retireOperation(this.#frames.current.operation);
+      this.#retireOperation(this.#frames.current.operation!);
       return;
     }
 
@@ -1956,7 +1998,7 @@ export class Kernel<
       return;
     }
 
-    this.#closeOperation(sample);
+    this.#closeOperation(this.#operation!, sample);
   }
 
   /**
@@ -1972,7 +2014,7 @@ export class Kernel<
       return;
     }
 
-    this.#closeOperation(null);
+    this.#closeOperation(this.#operation!, null);
   }
 
   /**
@@ -1987,7 +2029,7 @@ export class Kernel<
       return;
     }
 
-    this.#activate();
+    this.#activate(this.#operation!);
   }
 
   /**
@@ -1997,10 +2039,12 @@ export class Kernel<
    * which the kernel cannot name or write.
    */
   #settleCancellation(
+    live: OperationRecord,
+    activation: ActivationRecord,
     request: { reason: unknown; origin: CancelOrigin },
     stage: CancelStage,
   ): void {
-    this.#openSettlement({
+    this.#openSettlement(live, activation, {
       type: SETTLED_CANCELED,
       reason: request.reason,
       origin: request.origin,
@@ -2027,8 +2071,10 @@ export class Kernel<
     }
 
     // Consumed once and the payload cleared, so it can never be applied twice.
+    // A current attempt means a current `RELEASING` operation, so both records
+    // exist.
     attempt.settlement = null;
-    this.#openSettlement(input);
+    this.#openSettlement(this.#operation!, this.#activation!, input);
   }
 
   #handleCancel(identity: OperationIdentity): void {
@@ -2075,6 +2121,8 @@ export class Kernel<
         // that window: its settled entry is queued inside the same unit,
         // ahead of any `CANCEL` registered after the unit's entry.
         this.#settleCancellation(
+          live,
+          this.#activation!,
           request,
           this.#attempts.resolution ? AT_CONSUMER : AT_PROPOSAL,
         );
@@ -2177,12 +2225,14 @@ export class Kernel<
       return;
     }
 
+    const { lifetimes } = this.#operation!;
+
     // The open round-trip is **abandoned**: a resolution that settles after
     // this validates against an empty slot, and the input the seam below drives
     // is this failure's rather than whatever preceded it.
     this.#retireAttempts();
 
-    this.#attempts.settlementInput = {
+    const input: SettlementInput = {
       type: SETTLED_FAILED,
       stage: checkpoint.stage,
       error: checkpoint.error,
@@ -2202,6 +2252,15 @@ export class Kernel<
       // error is the stage the kernel decided* true by construction rather than
       // by every behavior agreeing.
       report: new DraggableError(checkpoint.stage, checkpoint.error),
+    };
+    // **This report never lands**, so the measurement fields stay unwritten;
+    // the record exists only to carry the input and the lifetimes as the
+    // seam's capability.
+    const attempt: SettlementAttempt = {
+      input,
+      lifetimes,
+      targetX: null,
+      targetY: 0,
     };
 
     // The same seam as an ordinary settlement, because the behavior owns the
@@ -2223,14 +2282,13 @@ export class Kernel<
     try {
       this.#driver.runCore(
         this.#settlementTransition,
-        undefined,
+        attempt,
         checkpoint.stage,
         REPORTING,
       );
     } finally {
       this.#dropStaged();
       this.#reporting = false;
-      this.#attempts.settlementInput = null;
     }
 
     if (this.#frames.current.phase === REPORTING) {
@@ -2299,8 +2357,8 @@ export class Kernel<
       return;
     }
 
-    if (stage !== FAILURE_TERMINAL_CALLBACK && this.#operation) {
-      const { presentation } = this.#operation.lifetimes;
+    if (stage !== FAILURE_TERMINAL_CALLBACK) {
+      const { presentation } = this.#operation!.lifetimes;
 
       this.#unwind(() => {
         presentation.dispose();
@@ -2333,7 +2391,7 @@ export class Kernel<
         // failure path is reported without queueing a second checkpoint for an
         // operation that is one statement from retirement.
         this.#driver.runLeaf(() => {
-          this.#spec!.finalized(this.#frames.current);
+          this.#spec.finalized(this.#frames.current);
         }, FAILURE_TERMINAL_CALLBACK);
       }
     }
@@ -2369,7 +2427,7 @@ export class Kernel<
   }
 
   /** The queue's one drain step, dispatching a kernel or behavior action. */
-  #handle(action: number, argument: unknown): void {
+  handle(action: number, argument: unknown): void {
     if (action >= BEHAVIOR_BASE) {
       this.#handleBehaviorAction(action - BEHAVIOR_BASE, argument);
       return;
@@ -2416,30 +2474,20 @@ export class Kernel<
   }
 
   // -------------------------------------------------------------------------
-  // The behavior-facing surface, and arming
+  // What the façade forwards, and ingress attachment
   // -------------------------------------------------------------------------
 
   /**
-   * Whether destruction has been applied, read live — a captured boolean would
-   * be a copy of a liveness answer.
+   * Armed intake for a behavior action. The façade has already refused it if
+   * destruction was applied.
    */
-  get closed(): boolean {
-    return this.#bracket.closed;
-  }
-
   dispatch(tag: number, argument: unknown): void {
-    if (this.#bracket.closed) {
-      return;
-    }
-
-    // **Checked at armed intake, and nowhere else.** During construction the
-    // count bounding the tag is in the spec the factory has not returned yet,
-    // so the action is queued unchecked and applied after publication. The
-    // bound is fixed for the controller's life, so nothing re-checks it when
-    // the entry is applied.
+    // **Checked at armed intake, and nowhere else.** The bound is fixed for the
+    // controller's life, so nothing re-checks it when the entry is applied.
     if (
-      this.#spec &&
-      (!Number.isInteger(tag) || tag < 0 || tag >= this.#spec.config.actionTags)
+      !Number.isInteger(tag) ||
+      tag < 0 ||
+      tag >= this.#spec.config.actionTags
     ) {
       // Reported and dropped, never enqueued: the kernel computes
       // `BEHAVIOR_BASE + tag`, so a negative or fractional tag would alias a
@@ -2453,20 +2501,186 @@ export class Kernel<
     this.#bracket.dispatch(BEHAVIOR_BASE + tag, argument);
   }
 
+  fail(stage: FailureStage, error: unknown): void {
+    this.#driver.requestFailure(stage, error);
+  }
+
+  /** The preparation for an ingress pass the bracket admitted. */
+  beginPass(): void {
+    this.#frames.begin();
+  }
+
   /**
-   * **`#spec` is the liveness test for `#driver`, not a second field.** `#arm()`
-   * assigns the driver before it publishes the spec, so a published spec
-   * implies an assigned driver by statement order.
+   * Binds the ingress listeners under the façade's signal: `pointerdown`, and
+   * each of the spec's command types.
    *
+   * Inside the **same** ingress abort that owns `pointerdown`, so `destroy()`
+   * releases every listener including the discrete ones, and a behavior with
+   * no `command` member binds nothing at all. A throw here is construction's to
+   * unwind.
+   */
+  attach(): void {
+    this.#root.addEventListener(POINTER_DOWN, this.#pointerDownHandler, {
+      signal: this.#ingress,
+    });
+
+    if (this.#spec.command !== undefined) {
+      for (const type of this.#spec.command.types) {
+        this.#root.addEventListener(type, this.#commandHandler, {
+          signal: this.#ingress,
+        });
+      }
+    }
+  }
+}
+
+/**
+ * **The kernel façade.** It owns the realm, the root, the execution bracket,
+ * ingress and one nullable reference to the armed controller, and it is what
+ * a behavior holds.
+ *
+ * **A behavior receives this object under {@link BehaviorContext}**, which is
+ * the whole of what the tier is granted: `construct` is on the class and off
+ * the interface, so a behavior reaches it only by deliberately leaving the type
+ * it was handed. That is a contract term rather than a runtime property, and it
+ * is stated the way the neighbouring one is — *no input can be admitted before
+ * `install()` returns* is unenforceable too, and is written down rather than
+ * guarded.
+ *
+ * **Before construction publishes the armed controller** the members behave as
+ * the construction window requires: `dispatch` queues unchecked, `cancel` is
+ * the idle no-op, `fail` is demoted with nowhere to report, and `destroy` and
+ * `closed` read the bracket.
+ *
+ * Only `draggable()` holds it wide, and it calls `construct()` exactly once.
+ */
+export class Kernel<
+  Part extends object,
+  Activation extends {} = true,
+> implements BehaviorContext {
+  /** The owning document/window. Every DOM access goes through it. */
+  readonly realm: DOMRealm;
+
+  /** The ingress boundary passed to `draggable()`. */
+  readonly root: HTMLElement;
+
+  /**
+   * The lifecycle request, the queue and its semantics, and teardown, in the
+   * one entity that states their invariants. `#private`, so the kernel's
+   * public surface is unchanged by holding it.
+   *
+   * Its four callbacks are the only edges back into the kernel, and each is
+   * allocated once per controller: the per-action and per-sample paths through
+   * the bracket allocate nothing. Three of them reach the armed controller,
+   * which exists whenever they run: the bracket drains and admits ingress only
+   * after construction published it, and a construction that fails clears
+   * the queue before anything is drained.
+   */
+  readonly #bracket = new ExecutionBracket(
+    (action, argument) => {
+      this.#armed!.handle(action, argument);
+    },
+    (error) => {
+      this.#armed!.panic(error);
+    },
+    () => {
+      this.#teardown();
+    },
+    () => {
+      this.#armed!.beginPass();
+    },
+  );
+
+  readonly #ingress = new AbortController();
+
+  /**
+   * The armed controller, published by construction once it exists complete,
+   * and withdrawn only by construction's own unwind.
+   */
+  #armed: ArmedController<Part, Activation> | null = null;
+
+  constructor(root: HTMLElement) {
+    this.root = root;
+    this.realm = createRealm(root);
+  }
+
+  /**
+   * Whether destruction has been applied, read live — a captured boolean would
+   * be a copy of a liveness answer.
+   */
+  get closed(): boolean {
+    return this.#bracket.closed;
+  }
+
+  /**
+   * Requests destruction. The bracket applies it at once when no unit is
+   * running, and otherwise when the running unit ends: step 1 of teardown, the
+   * closed lifecycle, is set at application, and steps 3–7 come back through
+   * the teardown callback in the same step.
+   *
+   * The promise settles after application, physical release included.
+   */
+  destroy(): Promise<void> {
+    return this.#bracket.requestClose();
+  }
+
+  /**
+   * The kernel's own cancel, and the only one a consumer or a behavior can
+   * reach. Everything arriving here is `CANCEL_SUPPLIED`: a behavior's
+   * controller publishes a closure over this call, so the kernel has no basis
+   * to tell the two callers apart — and a supplied value is what both of them
+   * are.
+   *
+   * Before arming there is no operation to latch anywhere, so it is the idle
+   * no-op.
+   */
+  cancel(reason?: unknown): void {
+    this.#armed?.cancel(reason);
+  }
+
+  dispatch(tag: number, argument: unknown): void {
+    if (this.#bracket.closed) {
+      return;
+    }
+
+    // During construction the count bounding the tag is in the spec the
+    // factory has not returned yet, so the action is queued unchecked and
+    // applied after publication.
+    if (this.#armed) {
+      this.#armed.dispatch(tag, argument);
+    } else {
+      this.#bracket.dispatch(BEHAVIOR_BASE + tag, argument);
+    }
+  }
+
+  /**
    * A call from the construction window — the factory body or a frame-part
    * factory — is outside every seam, so it takes the demotion this member's
-   * own contract states. The demotion is silent there because `#notify`
-   * reports through the spec, which is the same place a platform report has no
-   * destination on any other pre-arm route.
+   * own contract states. The demotion is silent there because the report
+   * travels through the armed controller's channel, which does not exist yet:
+   * the same place a platform report has no destination on any other pre-arm
+   * route.
    */
   fail(stage: FailureStage, error: unknown): void {
-    if (this.#spec) {
-      this.#driver.requestFailure(stage, error);
+    this.#armed?.fail(stage, error);
+  }
+
+  /**
+   * Physical teardown, steps 3–7: the armed controller's share, then the
+   * ingress abort. Invoked by the bracket once it has released its own
+   * storage in step 2.
+   *
+   * The abort is in a `finally`, so no step before it can prevent ingress from
+   * being released, and the click suppressor is disarmed by the abort's own
+   * signal. With no armed controller — a construction that unwound before
+   * publishing one — there is no operation and no frame, and the abort is the
+   * whole of it.
+   */
+  #teardown(): void {
+    try {
+      this.#armed?.teardown();
+    } finally {
+      this.#ingress.abort();
     }
   }
 
@@ -2495,7 +2709,8 @@ export class Kernel<
   }
 
   /**
-   * Composes both frames and attaches ingress.
+   * Validates the spec, composes both frames, constructs and publishes the
+   * armed controller, and attaches ingress.
    *
    * **A failure unwinds and rethrows** — of the static configuration
    * validation, of a frame part factory, of ingress attachment. A controller
@@ -2512,6 +2727,7 @@ export class Kernel<
     // for good.
     let current: Frame<Part> | null = null;
     let draft: Frame<Part> | null = null;
+    let armed: ArmedController<Part, Activation> | null = null;
 
     try {
       if (
@@ -2561,53 +2777,25 @@ export class Kernel<
       current = Object.assign(frame(), next.createFramePart());
       draft = Object.assign(frame(), next.createFramePart());
 
-      this.#frames = new FrameTransaction(current, draft);
-      this.#driver = new SeamDriver<Part>(
-        this.#frames,
-        () => this.#preparationValid(),
-        (stage, error) => {
-          this.#failOperation(stage, error);
-        },
-        // **The driver reports without classifying.** Not `failOperation`,
-        // which would settle a drop whose reorder already happened; and
-        // there is no second destination to choose between — a separate
-        // platform reporter would receive a consumer's own destructive
-        // rerender — which is what lets the `QUALITY` and `BEST_EFFORT`
-        // tiers collapse into one sentinel.
-        //
-        // There is no lifetime guard at this site, and adding one here is
-        // wrong: the guard belongs in `notify`, where every route shares
-        // it. A quality fault's producer is consumer-reaching — a `home`
-        // resolver, a landing policy — and is equally free to destroy
-        // before it throws.
-        this.#report,
+      // **Constructed complete, then published, then attached.** The armed
+      // controller exists only with both frames, so every member a behavior
+      // reaches through the façade finds a spec, a pair and a driver together.
+      // Publication precedes attachment so that foreign code reached while a
+      // listener is bound — `cancel()` or `fail()` from a patched
+      // `addEventListener` — already meets the armed controller.
+      armed = new ArmedController(
+        this.realm,
+        this.root,
+        this.#bracket,
+        this.#ingress.signal,
+        next,
+        current,
+        draft,
       );
-
-      // **Published last of the three, and the frames are why.** Every
-      // `#spec!` in this file reads as *a behavior is armed*, and teardown's
-      // frame resets are guarded by this field alone: published before the
-      // pair exists, a `fail()` or `cancel()` from inside `createFramePart`
-      // would dereference a pair that was never composed. The same order is
-      // what makes `#spec !== null` a sound answer to *is `#driver`
-      // assigned*, which `fail()` and `#cancelWith` read.
-      this.#spec = next;
-
-      this.root.addEventListener(POINTER_DOWN, this.#pointerDownHandler, {
-        signal: this.#ingress.signal,
-      });
-
-      // Inside the **same** ingress abort that owns `pointerdown`, so
-      // `destroy()` releases every listener including the discrete ones, and
-      // a behavior with no `command` member binds nothing at all.
-      if (next.command !== undefined) {
-        for (const type of next.command.types) {
-          this.root.addEventListener(type, this.#commandHandler, {
-            signal: this.#ingress.signal,
-          });
-        }
-      }
+      this.#armed = armed;
+      armed.attach();
     } catch (error) {
-      this.#unwindArm(next, current, draft);
+      this.#unwindArm(next, current, draft, armed);
       throw error;
     }
   }
@@ -2617,32 +2805,37 @@ export class Kernel<
    * unarmed: a throw from validation, from a frame-part factory or from
    * ingress attachment.
    *
-   * The behavior is a parameter for the reason {@link resetFrame} takes one —
-   * `#spec` is published last, so it is not yet a name for the behavior being
-   * unwound.
-   *
    * **Totality applies here too**: a reset that throws must not replace the
    * initiating failure or skip the ingress cleanup. Each reset covers
    * **whichever frame exists** — a second factory that throws leaves a
-   * constructed frame this path is still responsible for, and one
-   * that never ran leaves nothing `resetFramePart` could be handed.
+   * constructed frame this path is still responsible for, and one that never
+   * ran leaves nothing `resetFramePart` could be handed.
+   *
+   * A failure inside the unwind reports through the armed controller's channel
+   * when one was published, and nowhere otherwise: before publication there is
+   * no channel to report through.
    */
   #unwindArm(
     next: BehaviorSpec<Part, Activation>,
     current: Frame<Part> | null,
     draft: Frame<Part> | null,
+    armed: ArmedController<Part, Activation> | null,
   ): void {
-    this.#unwind(next.retire);
+    const unwind = createUnwind((warning) => {
+      armed?.report(warning);
+    });
+
+    unwind(next.retire);
 
     if (current) {
-      this.#resetFrame(next, current);
+      resetFrame(unwind, next, current);
     }
 
     if (draft) {
-      this.#resetFrame(next, draft);
+      resetFrame(unwind, next, draft);
     }
 
     this.#ingress.abort();
-    this.#spec = null;
+    this.#armed = null;
   }
 }

@@ -1159,8 +1159,8 @@ The ownership rule made executable: **nothing that exists because something anim
 | the same from the second frame-part factory and from the factory body | _should unwind both frames once when the second frame-part factory destroys the controller_, _should compose both frame parts and retire once when the factory body destroys the controller_, _should reset each frame once when the factory body destroys the controller_ | see below |
 | the control: construction nobody destroyed leaves ingress attached and the behavior unretired | _should leave the controller live after construction when nothing destroyed it_ | — |
 | a window that composed nothing is handed nothing to reset | _should reset no frame part when the first frame-part factory throws_ | **the unwind's `if (current)` dropped — 1** over `tests/kernel/`, this row alone. Its earlier witness, a factory body that destroyed, composes both frames since D-203. `if (draft)` keeps its browser witness, _scrub the first frame when the second factory throws_, also alone over `tests/kernel/` |
-| `fail()` from the construction window demotes instead of throwing | _should demote a fail() raised from the factory body instead of throwing_ | **the `#spec` guard on `fail` dropped — 1**, this row alone (at `5a438352c`; not re-run) |
-| `cancel()` from the construction window is the idle no-op | _should treat a cancel() raised from the factory body as the idle no-op_ | **the `#spec` conjunct in `#cancelWith` dropped — 1**, this row alone (at `5a438352c`; not re-run) |
+| `fail()` from the construction window demotes instead of throwing | _should demote a fail() raised from the factory body instead of throwing_ | **the façade's `#armed?.` guard on `fail` dropped — 1**, this row alone, over the whole suite (D-206 step 2). It was the `#spec` guard at `5a438352c`, with the same count |
+| `cancel()` from the construction window is the idle no-op | _should treat a cancel() raised from the factory body as the idle no-op_ | **the façade's `#armed?.` guard on `cancel` dropped — 1**, this row alone, over the whole suite (D-206 step 2). It was the `#spec` conjunct in `#cancelWith` at `5a438352c`, with the same count |
 | the `actionTags` range is refused whatever the controller's liveness | _should refuse an invalid configuration even when the factory destroyed the controller_ | the mutation booked here, the validation gated on the latch, **cannot redden either row since D-203**: `closed` is `false` throughout construction, so a gate on it always passes. Not run. The rows remain as statements of the property |
 | the `command.types` collision is refused on the same terms | _should refuse a colliding command type even when the factory destroyed the controller_ | the same |
 | **R15 (F-432).** A command-type `addEventListener` that dispatches a primary press and a command through the listeners already bound, then throws: construction rethrows, neither admission member runs, and every listener's signal is aborted | `tests/kernel/construction.node.test.ts` — _should rethrow the attachment failure_, _should admit nothing dispatched from inside attachment_, _should leave no ingress listener attached_ | F-432, D-203 |
@@ -1280,3 +1280,43 @@ The phase and identity clauses are kept because D-205 decides the entry conditio
 | the registration not written in `failOperation` | 4 — the same |
 
 **The `invoke: null` row is green under both, and the mutant is equivalent there.** With no resolver, opening the round-trip queues the skipped settlement inside `OPEN_RESOLUTION`, behind the `FAILED` the failing action already queued. `FAILED` applies first, retires the operation, and the skipped settlement arrives stale. The decided outcome is the same with or without the clause, and no consumer call is reachable on that path. The row is kept because D-206 names the `invoke: null` command in the clause's scope, and it asserts the full outcome there.
+
+## The split and capture — new (2026-11-01, D-206 step 2)
+
+**The kernel is two objects, split by lifetime** (D-206 step 2, carrying D-201's properties 3, 4, 10 and 12). The `Kernel` façade owns the realm, the root, the bracket, ingress and one nullable reference to the armed controller. `ArmedController` is constructed complete by construction's unit and holds every handler, the controller-scope context as `readonly` fields, and the current-operation slots. The structural rows read the parsed source, because the properties are about _where_ state is read, and a helper that re-reads a slot reads the record its unit's entry resolved, so no outcome can differ.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| **Property 3.** The realm, root, bracket, ingress signal, spec, frame pair and driver are `readonly` fields with no definite-assignment assertion and no nullable type, assigned in the constructor alone, and no reader tests one for presence | `tests/kernel/capture.node.test.ts` — _should declare its controller-scope context readonly and definitely assigned_, _should assign its controller-scope context in the constructor alone_, _should test none of its controller-scope context for presence_ | D-201, D-206 |
+| **Property 4.** The operation and activation slots are read only at unit entries, request intake, publication and retirement, plus the driver's preparation predicate, which reads the cancel request mid-unit until the in-unit ledger reads are deleted; they are written only by publication and retirement | `tests/kernel/capture.node.test.ts` — _should be read only at unit entries, request intake, publication and retirement_, _should be written only by the statements that publish or retire them_ | D-201, D-206 |
+| **Property 4.** The settlement input travels as the settlement seam's capability, with the operation's lifetimes, on the per-settlement attempt record; the attempt slots hold only the held command and the open resolution | `tests/kernel/capture.node.test.ts` — _should carry the settlement input as the seam capability rather than in a slot_ | D-201, D-206 |
+| **Property 10.** Steps 3–6 are written once and reached only from operation retirement and physical teardown; retirement always names one identity | `tests/kernel/capture.node.test.ts` — _should write steps 3–6 once_, _should reach those steps only through retirement and physical teardown_, _should retire only an operation the caller names_ | D-199, D-201 |
+| **Property 10.** A mint failure disposes the unpublished operation's lifetimes and touches no frame and no published slot: no behavior retirement, no frame reset, every armed listener's signal aborted, one `drag: operation/arming-failed` warning, and the next press admits | `tests/kernel/kernel.browser.test.ts` — _should dispose an operation whose input arming failed and retire nothing else_ | D-201 |
+| **Property 12.** `src/` holds no module-level `let`, `var` or mutable static field, and the object-valued module constants are an exact list of defaults and tables | `tests/kernel/capture.node.test.ts` — _should hold no mutable binding in src_, _should hold only these object-valued constants in library modules_ | D-201 |
+| **R19** (D-201 E6). A consumer that reassigns `options.items` and `options.onEnd` inside `onStart` reaches neither: the later collection pull and the terminal call the construction-time functions | `tests/sortable/features.browser.test.ts` — _should keep calling the construction-time items and onEnd after the options object is reassigned_ | D-201 |
+
+**Property 12's one binding at the input** was `rect-index.ts`'s `let verifying`, the switch the zero-read census flipped to keep the development-only equivalence instrument out of its counts. It is deleted. `tests/sortable/zero-read.browser.test.ts` now runs in a `shipped` browser project of its own, declared in the shared Vitest configuration with `__DEV__` defined `false`, and the ordinary browser project excludes it. Every other browser file, `g3-conformance` included, runs with the instrument on. Defining `__DEV__` `true` in that project reddens 5 of the file's 15 rows, so the definition is what keeps the instrument out of the counts.
+
+**The mutations.** Each was applied alone to the file named and restored, and ran against **the whole suite**, every project. The counts exclude the rows red at the tree: the ten red at the input, the 13 budget rows this step breaches, and the two browser files that do not load.
+
+| Mutation | Rows red |
+| --- | --- |
+| a mint failure publishes the record and retires through steps 3–6, as at the input | 2 — the mint-failure row, and _should reach those steps only through retirement and physical teardown_ |
+| the moved leaf reads the activation slot instead of its argument | 1 — _should be read only at unit entries, request intake, publication and retirement_ |
+| the façade's teardown skips the armed controller | 38 |
+| the façade's `#armed?.` guard on `fail` or on `cancel` dropped | 1 each — the construction-window rows above |
+| the façade's `dispatch` assumes an armed controller during the construction window | 3 — R17/R23 and both R24 rows |
+| construction's unwind resets the current frame unconditionally | 1 — _should reset no frame part when the first frame-part factory throws_ |
+| `sortable()`'s merge reads the options lazily | **0** — the assembler's construction-time copy still holds R19 |
+| the merge reads lazily **and** the assembler calls through it | 1 — R19 |
+| reviewer-B's settled promise after an unrequested release removed | 1 — _should have settled its promise when destruction is requested after a panic_ |
+| `OPEN_RESOLUTION`'s failure clause dropped | 4 — the four discriminating R30 rows, as at step 1 |
+| `OPEN_RESOLUTION`'s cancel clause dropped | 2 — R22, the null-command cancel row |
+| the release unit opens the round-trip inline | 11 — as at step 1's acceptance |
+
+**Five zeros, each with a reason:**
+
+- **The ingress abort outside its `finally`, and the tail cancel outside its `finally`.** Every foreign step of teardown is individually unwound, so nothing can throw past them. The `finally` is the rule that stays true when a step is added.
+- **The records dropped before the frame resets.** Past step 5 nothing can observe them; the order keeps `current.operation !== null` ⟹ `operation !== null` true by statement order (D-199 property 3).
+- **A stale retirement that is not a no-op.** No reachable path queues a `RETIRE` or reaches a retirement for an operation that is no longer committed. The guard was unpinned at the input too.
+- **Construction's unwind keeping the armed reference, and publication after attachment.** After a failed construction `draggable()` has thrown and no conforming caller holds the façade. During attachment no foreign code is reached except a patched `addEventListener`, and no row patches one to call `cancel()` or `fail()`.

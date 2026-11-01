@@ -363,33 +363,77 @@ function createCoreTestProjects(
   ];
 }
 
+function createDragBrowserTestProject(
+  root: URL,
+  name: string,
+  include: readonly string[],
+  exclude: readonly string[],
+  commands?: Record<string, BrowserCommand<any[]>>,
+): UserConfig {
+  return createBrowserTestProject({
+    name,
+    root,
+    include,
+    exclude,
+    // M-6's census drives Playwright's own input pipeline; a dispatched event
+    // never reaches the coalescing decision the measurement is about.
+    commands,
+    // The phase 11 measurement suites need a deterministic heap: `gc()` to
+    // settle it before a sample, and precise `performance.memory` rather than
+    // the 100kB-quantized figure Chrome reports by default. Both are inert for
+    // every other test in the project.
+    launchArgs: ['--js-flags=--expose-gc', '--enable-precise-memory-info'],
+    viteConfig: mergeConfig(createCoreViteConfig(root), {
+      // The React fixtures (`tests/**/react*.browser.test.ts`) need exactly
+      // one copy of React: without deduping, the optimizer gives `react-dom`
+      // its own inlined `react`, the hook dispatcher is null in the second
+      // copy, and every render throws. Harmless for the packages themselves —
+      // neither ships a React dependency.
+      resolve: { dedupe: ['react', 'react-dom'] },
+    } satisfies UserConfig),
+  });
+}
+
+/**
+ * `shipped` lists the browser files that measure the code a consumer installs.
+ * They run in a `shipped` browser project of their own with `__DEV__` defined
+ * `false`, so every development-only instrument is folded away exactly as in a
+ * published build, and the ordinary browser project excludes them. A separate
+ * project rather than a runtime switch: the instruments stay on for every other
+ * file, and nothing in `src` holds state for a test to flip. The project
+ * exists only for a package that names such files, because a project matching
+ * no file fails the run.
+ */
 function createDragTestProjects(
   root: URL,
   scope?: string,
   commands?: Record<string, BrowserCommand<any[]>>,
-): [UserConfig, UserConfig, UserConfig] {
+  shipped: readonly string[] = [],
+): UserConfig[] {
   return [
-    createBrowserTestProject({
-      name: scopedName('browser', scope),
+    createDragBrowserTestProject(
       root,
-      include: ['tests/**/*.browser.test.ts'],
-      // M-6's census drives Playwright's own input pipeline; a dispatched event
-      // never reaches the coalescing decision the measurement is about.
+      scopedName('browser', scope),
+      ['tests/**/*.browser.test.ts'],
+      shipped,
       commands,
-      // The phase 11 measurement suites need a deterministic heap: `gc()` to
-      // settle it before a sample, and precise `performance.memory` rather than
-      // the 100kB-quantized figure Chrome reports by default. Both are inert
-      // for every other test in the project.
-      launchArgs: ['--js-flags=--expose-gc', '--enable-precise-memory-info'],
-      viteConfig: mergeConfig(createCoreViteConfig(root), {
-        // The React fixtures (`tests/**/react*.browser.test.ts`) need exactly
-        // one copy of React: without deduping, the optimizer gives `react-dom`
-        // its own inlined `react`, the hook dispatcher is null in the second
-        // copy, and every render throws. Harmless for the packages themselves —
-        // neither ships a React dependency.
-        resolve: { dedupe: ['react', 'react-dom'] },
-      } satisfies UserConfig),
-    }),
+    ),
+    ...(shipped.length > 0
+      ? [
+          // Merged last, so the definition overrides the `true` every other
+          // project inherits from the base and the vite configuration.
+          mergeConfig(
+            createDragBrowserTestProject(
+              root,
+              scopedName('shipped', scope),
+              shipped,
+              [],
+              commands,
+            ),
+            { define: { __DEV__: 'false' } } satisfies UserConfig,
+          ),
+        ]
+      : []),
     createDeclarationTestProject({
       name: scopedName('declaration', scope),
       root,
@@ -476,14 +520,24 @@ export function createCoreTestConfig(root: URL): UserConfig {
   };
 }
 
+/**
+ * drag2's files for the `shipped` project: the zero-read census counts the
+ * geometry reads a consumer's build performs, and the development-only
+ * equivalence instrument is itself such a read.
+ */
+export const DRAG2_SHIPPED_BROWSER_TESTS: readonly string[] = [
+  'tests/sortable/zero-read.browser.test.ts',
+];
+
 export function createDragTestConfig(
   root: URL,
   commands?: Record<string, BrowserCommand<any[]>>,
+  shipped: readonly string[] = [],
 ): UserConfig {
   return {
     test: {
       projects: assignGroupOrder(
-        createDragTestProjects(root, undefined, commands),
+        createDragTestProjects(root, undefined, commands, shipped),
       ),
     },
   };
@@ -527,12 +581,14 @@ export function createWorkspaceTestConfig(
   const [dragBrowser, dragDeclaration, dragNode] = createDragTestProjects(
     options.dragRoot,
     'drag',
-  );
-  const [drag2Browser, drag2Declaration, drag2Node] = createDragTestProjects(
-    options.drag2Root,
-    'drag2',
-    options.drag2Commands,
-  );
+  ) as [UserConfig, UserConfig, UserConfig];
+  const [drag2Browser, drag2Shipped, drag2Declaration, drag2Node] =
+    createDragTestProjects(
+      options.drag2Root,
+      'drag2',
+      options.drag2Commands,
+      DRAG2_SHIPPED_BROWSER_TESTS,
+    ) as [UserConfig, UserConfig, UserConfig, UserConfig];
   const [tprocNode] = createTprocTestProjects(options.tprocRoot, 'tproc');
   const [viteTraitsPluginNode] = createViteTraitsPluginTestProjects(
     options.viteTraitsPluginRoot,
@@ -553,6 +609,7 @@ export function createWorkspaceTestConfig(
         dragNode,
         dragDeclaration,
         drag2Browser,
+        drag2Shipped,
         drag2Node,
         drag2Declaration,
         tprocNode,

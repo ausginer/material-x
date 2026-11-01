@@ -26,16 +26,18 @@
  * own rows and its placeholder are instrumented, which is the whole set a
  * committed move could touch.
  *
- * **The equivalence instrument is switched off for this file**, and that is not
- * a weakening. It performs the very full scan these counts exist to detect, it
- * is `DEV`-only, and it exists in no build a consumer can install — leaving it
- * on would report a number that describes nothing that ships. `g3-conformance`
- * is where it runs.
+ * **The file runs with `__DEV__` defined `false`**, in the `shipped` browser
+ * project the shared Vitest configuration routes it to, and that is not a
+ * weakening. The one
+ * development-only reader on this path is the equivalence instrument, which
+ * performs the very full scan these counts exist to detect and exists in no
+ * build a consumer can install — counting it would report a number that
+ * describes nothing that ships. Every other browser file, `g3-conformance`
+ * included, runs with it on.
  */
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { landing } from '../../src/sortable/landing.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
-import { setRefreshVerification } from '../../src/sortable/rect-index.ts';
 import { xy } from '../../src/sortable/xy.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
@@ -51,15 +53,7 @@ const COUNT = 6;
 
 const cleanup: Array<() => void> = [];
 
-beforeEach(() => {
-  // See the file header: the instrument is the one thing in a `DEV` build that
-  // reads geometry on this path.
-  setRefreshVerification(false);
-});
-
 afterEach(() => {
-  setRefreshVerification(true);
-
   for (const dispose of cleanup.splice(0)) {
     dispose();
   }

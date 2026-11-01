@@ -228,6 +228,81 @@ const authoredLanding = (
   landing: () => ({ landingTiming: timing }),
 });
 
+/**
+ * **Consumer slots are captured at construction (R19).** The assembler copies
+ * every slot into a record of its own, so a consumer that reassigns a field of
+ * the options object it passed changes nothing the controller calls later.
+ */
+describe('consumer slots', () => {
+  it('should keep calling the construction-time items and onEnd after the options object is reassigned', () => {
+    const root = document.createElement('div');
+
+    root.style.width = '200px';
+    document.body.append(root);
+
+    const items: HTMLElement[] = [];
+
+    for (let i = 0; i < 3; i += 1) {
+      const item = document.createElement('div');
+
+      Object.assign(item.style, {
+        display: 'block',
+        width: '100px',
+        height: `${ITEM_HEIGHT}px`,
+      });
+      root.append(item);
+      items.push(item);
+    }
+
+    const reached: string[] = [];
+    // Writable, because reassigning a field is the consumer's act under test.
+    const options: {
+      -readonly [Key in keyof SortableConfig]: SortableConfig[Key];
+    } = {
+      items: () => {
+        reached.push('items');
+        return items;
+      },
+      onReorder: () => ReorderResolution.accept(),
+      axis: y(),
+      onStart: (): void => {
+        reached.push('onStart');
+        options.items = () => {
+          reached.push('reassigned items');
+          return items;
+        };
+        options.onEnd = (): void => {
+          reached.push('reassigned onEnd');
+        };
+      },
+      onEnd: (): void => {
+        reached.push('onEnd');
+      },
+    };
+    const controller = sortable(root, options);
+
+    root.setPointerCapture = (): void => {};
+    root.releasePointerCapture = (): void => {};
+    cleanup.push(() => {
+      void controller.destroy();
+      root.remove();
+    });
+
+    press(items[0]!);
+    move(30);
+    // A collection pull after the reassignment: `items()` is consumer code the
+    // controller calls on its own schedule.
+    controller.invalidate();
+    release(30);
+
+    expect(reached.slice(reached.indexOf('onStart'))).toEqual([
+      'onStart',
+      'items',
+      'onEnd',
+    ]);
+  });
+});
+
 describe('placeholder', () => {
   it('should use the element the factory returned', () => {
     const composed = compose({

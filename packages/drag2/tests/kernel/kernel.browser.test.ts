@@ -1057,6 +1057,69 @@ describe('admission', () => {
     expect(harness.calls).toEqual([]);
   });
 
+  it('should dispose an operation whose input arming failed and retire nothing else', () => {
+    let resets = 0;
+    const harness = createHarness({
+      resetFramePart(part): void {
+        resets += 1;
+        part.item = null;
+        part.note = '';
+      },
+    });
+    const failure = new Error('arming');
+    const signals: AbortSignal[] = [];
+
+    // An own property shadowing the prototype's, removed afterwards. The
+    // cancel input is armed after the pointer input, so the motion listeners
+    // exist when the throw arrives and the disposal has something to release.
+    document.addEventListener = function addEventListener(
+      this: Document,
+      type: string,
+      listener: EventListenerOrEventListenerObject,
+      options?: boolean | AddEventListenerOptions,
+    ): void {
+      if (type === 'keydown') {
+        throw failure;
+      }
+
+      if (typeof options === 'object' && options.signal) {
+        signals.push(options.signal);
+      }
+
+      EventTarget.prototype.addEventListener.call(
+        this,
+        type,
+        listener,
+        options,
+      );
+    } as typeof document.addEventListener;
+
+    try {
+      press(harness.item);
+    } finally {
+      Reflect.deleteProperty(document, 'addEventListener');
+    }
+
+    // **The unpublished record is the whole of what is retired.** No behavior
+    // retirement and no frame reset: the frames never saw the operation.
+    expect(harness.calls).toEqual(['admit']);
+    expect(resets).toBe(0);
+    expect(signals.length).toBeGreaterThan(0);
+    expect(signals.every((signal) => signal.aborted)).toBe(true);
+    expect(
+      harness.reports.map((report) => [report.message, report.cause]),
+    ).toEqual([['drag: operation/arming-failed', failure]]);
+
+    activate(harness);
+
+    expect(harness.calls).toEqual([
+      'admit',
+      'admit',
+      'activation.prepare',
+      'activation.effect',
+    ]);
+  });
+
   it('should refuse a nested press before it can touch either frame', () => {
     // The SPI permits `admit` to write the draft *before* it reaches consumer
     // code, and the sortable behavior happens not to — which is why this lives

@@ -501,27 +501,6 @@ export class RectIndex implements RectIndexView {
 export const DEV: boolean = __DEV__;
 
 /**
- * Whether the equivalence instrument runs. `DEV`-only in every sense: the read
- * sits inside a `DEV` branch, so the published bundle contains neither it nor
- * this binding.
- *
- * **It is not a measurement flag, and the direction is the whole of why.** The
- * instrument is on by default and every suite run checks it; this exists for
- * the opposite case — a performance measurement, which has to measure the code
- * that *ships*. The instrument performs a full scan, which is precisely the
- * forced layout this model removes, so leaving it on would time a build no
- * consumer can install.
- */
-let verifying = true;
-
-/** @see verifying — used by `tests/perf`, and by nothing in `src`. */
-export function setRefreshVerification(enabled: boolean): void {
-  if (DEV) {
-    verifying = enabled;
-  }
-}
-
-/**
  * **The equivalence instrument**, and what makes the prediction admissible
  * rather than merely plausible.
  *
@@ -532,10 +511,11 @@ export function setRefreshVerification(enabled: boolean): void {
  * handed vectors and the animations it started have no resolved timing yet, so
  * a scan there compares a settled cache against a tree in an indeterminate
  * state. One frame later both are answerable. Asserted on every suite run and
- * behind no measurement flag: `DEV` is `true` in this repository's vite and
+ * behind no runtime switch: `DEV` is `true` in this repository's vite and
  * vitest configs and folds to `false` in the published bundle, so every test
  * that drives a real drag through `y()` checks it and no consumer pays for
- * it.
+ * it. The one exception is the test project that measures what ships, which
+ * defines it `false` for the files it routes.
  *
  * **It snapshots and then forces the rebuild, rather than scanning by hand.**
  * The predicted contents are copied out through the read view, the cache is
@@ -580,10 +560,6 @@ export const verifyEquivalence = (
   settle: DisplacementSettle | null,
   rule: string,
 ): void => {
-  if (!verifying) {
-    return;
-  }
-
   // **The instrument distrusts the cache**, so it reads it under the
   // collaborator's type rather than the owner's: nothing here may repair what
   // it is checking, and the rebuild below is what makes the cache

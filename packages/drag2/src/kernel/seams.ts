@@ -324,9 +324,17 @@ export class SeamDriver<Part extends object> {
    * throws or calls `kernel.fail`. Without it a `moved` throw would escape the
    * handler and become a *panic* that destroyed the controller, contradicting
    * the existence of `FAILURE_RENDERER_WRITE`.
+   *
+   * `argument` is handed to `run`, so a caller on a per-sample path can keep
+   * one controller-stable `run` and still pass it what its unit resolved,
+   * without a closure per call.
    */
-  runLeaf(run: () => void, stage: FailureStage): boolean {
-    return this.#runPhase(stage, run) !== FAILED;
+  runLeaf<Argument>(
+    run: (argument: Argument) => void,
+    stage: FailureStage,
+    argument?: Argument,
+  ): boolean {
+    return this.#runPhase(stage, run, argument) !== FAILED;
   }
 
   /**
@@ -508,7 +516,11 @@ export class SeamDriver<Part extends object> {
    * that classifies — a `throw` there would be caught by that very handler.
    * Hence the caught error is carried out as a value and re-examined below.
    */
-  #runPhase<Value>(stage: PhaseStage, run: () => Value): Value | typeof FAILED {
+  #runPhase<Value, Argument>(
+    stage: PhaseStage,
+    run: (argument: Argument) => Value,
+    argument?: Argument,
+  ): Value | typeof FAILED {
     this.#refuseReentry();
     this.#failureRequested = false;
     this.#openStage = stage;
@@ -517,7 +529,7 @@ export class SeamDriver<Part extends object> {
     let raised: unknown;
 
     try {
-      value = run();
+      value = run(argument as Argument);
     } catch (error) {
       value = FAILED;
       raised = error;
