@@ -40,7 +40,7 @@ type Action =
   | { kind: 'SETTLE'; id: number; result: string }
   | { kind: 'CANCEL'; id: number }
   | { kind: 'RETIRE'; id: number }
-  | { kind: 'BEHAVIOR'; tag: string };
+  | { kind: 'BEHAVIOR'; tag: string; effect?: (c: Controller) => void };
 
 const CANCELLABLE: readonly Phase[] = [
   'PENDING',
@@ -60,6 +60,14 @@ class Controller {
   #settle: (() => void) | null = null;
   ingressAttached = false;
   hook: (name: Hook, c: Controller) => void = () => {};
+
+  // D-203's entry condition for OPEN_ROUND_TRIP. `false` reproduces D-202's
+  // stated conditions, so R22 can show that the case discriminates.
+  readonly #openDeclinesOnCancel: boolean;
+
+  constructor(openDeclinesOnCancel = true) {
+    this.#openDeclinesOnCancel = openDeclinesOnCancel;
+  }
 
   // ---- Requests. Each records an intention and returns. ----
 
@@ -95,8 +103,10 @@ class Controller {
     this.#enqueue({ kind: 'CANCEL', id: op.id });
   }
 
-  dispatch(tag: string): void {
-    this.#enqueue({ kind: 'BEHAVIOR', tag });
+  // A behavior action, optionally with the seam work it runs when applied:
+  // production's action seam can reach the controller, so the model's can too.
+  dispatch(tag: string, effect?: (c: Controller) => void): void {
+    this.#enqueue({ kind: 'BEHAVIOR', tag, effect });
   }
 
   // Native ingress: never queued, refused while closed or while a unit runs.
@@ -233,7 +243,13 @@ class Controller {
         if (
           op?.id === action.id &&
           op.phase === 'RELEASING' &&
-          !op.roundTripOpened
+          !op.roundTripOpened &&
+          // Precedence, read at this unit's entry as START_COMMITTED reads it:
+          // a cancel registered before OPEN is admitted wins, whether it was
+          // registered before OPEN was queued or by an entry queued ahead of
+          // it. The held cancel is then the next entry to decide the
+          // operation, so declining here cannot strand it.
+          !(this.#openDeclinesOnCancel && op.cancelRequest)
         ) {
           op.roundTripOpened = true;
           this.#call('onReorder');
@@ -272,6 +288,7 @@ class Controller {
         return;
       case 'BEHAVIOR':
         this.trace.push(`action ${action.tag}`);
+        action.effect?.(this);
     }
   }
 
@@ -298,8 +315,11 @@ function drag(c: Controller): void {
   c.up();
 }
 
-function run(inject?: { at: Hook; act: (c: Controller) => void }): Controller {
-  const c = new Controller();
+function run(
+  inject?: { at: Hook; act: (c: Controller) => void },
+  openDeclinesOnCancel = true,
+): Controller {
+  const c = new Controller(openDeclinesOnCancel);
   c.construct(() => {});
   let fired = false;
   c.hook = (name, self) => {
@@ -466,6 +486,30 @@ check('R14 a cancel from onEnd registers nothing; exactly one terminal', () => {
   // onEnd runs at FINALIZING, so nothing is registered and the drag retires.
   assert.ok(c.trace.includes('retire #1'));
   assert.equal(c.trace.filter((t) => t.startsWith('onEnd(')).length, 1);
+});
+
+check('R22 cancel from an action queued ahead of OPEN: no round-trip, AT_PROPOSAL', () => {
+  // release.effect dispatches action A, then the release unit queues OPEN.
+  // A runs first and requests cancel: the queue is [OPEN, CANCEL].
+  const inject = {
+    at: 'release.effect' as const,
+    act: (s: Controller) => {
+      s.dispatch('A', (self) => {
+        self.requestCancel('from queued action');
+      });
+    },
+  };
+  const c = run(inject);
+  assert.ok(c.trace.includes('action A'));
+  assert.ok(!c.trace.includes('onReorder'));
+  assert.ok(c.trace.includes('onEnd(canceled AT_PROPOSAL)'));
+  assert.ok(c.trace.includes('retire #1'));
+
+  // Under D-202's stated entry conditions the same trace opens the
+  // round-trip after the cancel was registered.
+  const d202 = run(inject, false);
+  assert.ok(d202.trace.includes('onReorder'));
+  assert.ok(d202.trace.includes('onEnd(canceled AT_CONSUMER)'));
 });
 
 for (const [name, fn] of cases) {

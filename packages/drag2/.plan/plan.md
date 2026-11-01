@@ -2298,6 +2298,18 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-01 — The round-trip guarantee gets its entry condition (D-203, F-436)
+
+**The coordinator's handoff check found that one D-202 promise did not follow from its ordering.** D-202 said no consumer round-trip opens after a cancel against its operation is registered, and credited FIFO. But a behavior action that `release.effect` dispatches runs ahead of the queued `OPEN_RESOLUTION`. A cancel it requests sits behind `OPEN_RESOLUTION`, so `onReorder` ran and the cancel settled at `AT_CONSUMER`. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §10, from [`request-ordering-coordinator.md`](reviews/architecture/request-ordering-coordinator.md).
+
+**D-203 supersedes D-202 with one entry condition.** `OPEN_RESOLUTION` declines while a cancel for its operation is registered. This is the same reading at a unit's entry that `START_COMMITTED` already makes, so nothing inside a running unit reads the ledger. The cancel then applies at `RELEASING` with `invoke` never called, and the consumer gets one `onEnd` `canceled` at `AT_PROPOSAL`. Declining cannot strand the operation, because only the held cancel's own entry consumes it.
+
+Two alternatives were rejected. Weakening the promise would let a consumer see `onReorder` after its own cancel. Giving cancel priority would reorder every cancel against queued actions.
+
+The reference model gains R22, which also reproduces D-202's failing trace. The coordinator's reproduction now exits 0. The six steps are unchanged, and the witness is `measurements/d203-requests.md`.
+
+---
+
 ### 2026-11-01 — Requests and their application: no unit reads a request after its entry (D-202, F-435)
 
 **The owner's follow-up, answered.** Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md), at `6905af249`. A request records an intention, and the library applies it at a unit boundary: after the running unit, or before the call returns when none runs. D-201 kept `destroy()` closing the latch on the calling statement and `cancel()` latching on the operation. It then read both inside the unit, at four publication points and at event sinks. At each of those points a request changed the running unit's later calls. Probe P5 records this in today's code, in Chrome: a cancel in `activation.prepare` rolls the transition back, and a destroy there reads `closed=true` on the next statement.
