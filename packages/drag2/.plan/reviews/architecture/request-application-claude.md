@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**Amended a third time 2026-11-01 for `drag2:D-205`, which supersedes `drag2:D-204` after its step 1 landed (`2c5212daf`).** D-205 carries D-204 in full and changes the step order. The consumer round-trip's own unit, with its entry condition, the cancel stage rule and the `release.effect` inventory, moves from step 3 into step 1. Step 1 had made in-unit readers blind to a destroy request before the round-trip left the release unit, so a destroy requested there opened `onReorder` (F-438). D-205 adds property 13: no landed step makes a consumer call that both the baseline and the target withhold. §7, §8 and §9 below state the D-205 form. §12 records the gap, the evidence and the options.
+
 **Amended again 2026-11-01 for `drag2:D-204`, which supersedes `drag2:D-203` before implementation.** D-204 carries D-203 in full and settles one gap D-203 step 1 exposed: what a `dispatch` tag gets checked against when the dispatch arrives during construction. Armed dispatch keeps its intake check and report; a construction-window dispatch is queued unchecked, and an out-of-range tag there has no specified outcome; no check runs at application. §2.9, §3, §4, §5, §7, §8 and §9 below state the D-204 form. §11 records the gap, the policy and the options. Raises and repairs `drag2:F-437`.
 
 **Amended 2026-11-01 for `drag2:D-203`, which supersedes `drag2:D-202` before implementation.** D-203 carries D-202 in full except one entry condition: `OPEN_RESOLUTION` also declines while a cancel for its operation is registered. §2.2, §2.7, §2.8, §6, §7 and §8 below state the D-203 form and are the handoff. §10 records what D-202 said, the counterexample that refuted it, and the choice. Raises and repairs `drag2:F-436`.
@@ -193,7 +195,7 @@ The kernel keeps one read of its own, in `#notify`: it refuses a diagnostic afte
 
 A cancel registered after `OPEN_RESOLUTION` has run, from `onReorder` or later, finds the round-trip opened and settles at `AT_CONSUMER` (R6). It also removes the staging conditional, which is the last ledger reading in the driver. It also makes the stage rule in §2.6 exact, because the window between `RELEASING` and `invoke` now contains whole units.
 
-**What (b) changes.** Work dispatched during `release.effect` now applies before the round-trip opens rather than after it. Today the resolver runs inside the release unit, ahead of anything that unit dispatched. The only producers of such work are consumer code reached from `release.effect`, such as a custom placeholder's reactions to the release move, and behavior actions that effect dispatches. The implementer inventories the second group (§8, step 3). One queue entry per drop is not on the per-sample path.
+**What (b) changes.** Work dispatched during `release.effect` now applies before the round-trip opens rather than after it. Today the resolver runs inside the release unit, ahead of anything that unit dispatched. The only producers of such work are consumer code reached from `release.effect`, such as a custom placeholder's reactions to the release move, and behavior actions that effect dispatches. The implementer inventories the second group (§8, step 1 since D-205; step 3 before it). One queue entry per drop is not on the per-sample path.
 
 **Why D-201's objection to splitting does not carry over.** D-201 rejected splitting _participation slots_ into queued units. That would have moved many lookups and the `AT_PROPOSAL`/`AT_CONSUMER` staging. Here one call is split, the one whose position defines that staging, and the stage rule becomes exact rather than displaced.
 
@@ -356,7 +358,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 
 ## 7. Cases
 
-**R1–R14 and R22 are executable today in the reference model** ([`model.ts.txt`](../../probes/snapshot-units/model.ts.txt)). The model is a self-contained toy with D-202's runner, ledger and unit boundaries. Its central check is trace equivalence: the unit that receives a request makes exactly the calls the baseline makes, and the request changes only what follows the boundary. The model establishes that the semantics are coherent and gives each case an executable statement. It is not evidence about `src/`. The implementation turns every row into a test against the real kernel and behaviors. _Today_ is `6905af249`, from P1, P2, P4, P5 or D-201's record.
+**R1–R14, R22, R28 and R29 are executable today in the reference model** ([`model.ts.txt`](../../probes/snapshot-units/model.ts.txt)). The model is a self-contained toy with D-202's runner, ledger and unit boundaries. Its central check is trace equivalence: the unit that receives a request makes exactly the calls the baseline makes, and the request changes only what follows the boundary. The model establishes that the semantics are coherent and gives each case an executable statement. It is not evidence about `src/`. The implementation turns every row into a test against the real kernel and behaviors. _Today_ is `6905af249`, from P1, P2, P4, P5 or D-201's record.
 
 | Case | Setup | Today | Required |
 | --- | --- | --- | --- |
@@ -375,6 +377,8 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 | **R13** | repeated `requestDestroy` | same promise | same promise, settles once |
 | **R14** | cancel requested in `onEnd` | — | nothing registered; exactly one terminal |
 | **R22** (F-436) | `release.effect` dispatches behavior action A; the release unit queues `OPEN_RESOLUTION`; A's seam requests cancel, so the queue is `[OPEN_RESOLUTION, CANCEL]` | — (`OPEN_RESOLUTION` does not exist yet) | `OPEN_RESOLUTION` declines; no `onReorder`; `CANCEL` applies at `RELEASING`; one `onEnd` `canceled` at `AT_PROPOSAL`; retired. Under D-202's stated entry conditions the same trace opens the round-trip and reports `AT_CONSUMER`, and the model shows that too |
+| **R28** (D-205) | destroy requested in `release.prepare` | no `release.effect`, no round-trip (P7). At `2c5212daf`: `release.effect`, then **the round-trip opens** (P7, F-438) | the release unit equals the baseline's through `release.effect`; no round-trip; no `onEnd`; application after the release unit. The model's step-1 mode opens the round-trip, so the case discriminates |
+| **R29** (D-205) | `release.effect` dispatches behavior action A; A's seam requests destroy | round-trip opened in the release unit, then A, then application (P7) | A applies; application follows A's unit and discards `OPEN_RESOLUTION`; no round-trip; no `onEnd`. The destroy half of R22 |
 
 **Implementation-only rows**, with no model counterpart:
 
@@ -423,9 +427,18 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
    - ingress refused while any unit runs, with the click disarm behind the refusal;
    - the unconditional post-admission drain;
    - the arm-time latch tests deleted;
-   - `dispatch`'s window path queued without a tag check, its armed intake check unchanged (§11).
+   - `dispatch`'s window path queued without a tag check, its armed intake check unchanged (§11);
+   - **the consumer round-trip in its own unit** (D-205, §12), because the `closed` change above is safe only once the round-trip no longer runs inside the release unit:
+     - the release unit queues `OPEN_RESOLUTION` carrying the operation identity instead of executing the staged command, the `invoke: null` path included;
+     - the command in operation-scoped storage, under §2.8's constraints;
+     - the entry condition in full: the operation current and `RELEASING`, no round-trip opened for it, no cancel registered for it (today's `cancelRequest`);
+     - the cancel stage rule (§2.6, F-435);
+     - the inventory of actions `release.effect` can dispatch in both behaviors, recording whether any changes order (§2.8), under the first escalation clause below;
+     - the staging conditional may stay until step 3 or go now. With the entry condition in place the outcomes are the same.
 
-   Cases R9, R10, R11, R13, R15, R17, R23–R27, and R1's construction and drain half. Contract: I-1, I-6 (runner half), 01 construction sections including §11.5's `dispatch` text in 01 and `src/kernel/spec.ts`, COVERAGE. `closed` stays readable through this step and reports `CLOSED` only.
+   Cases R9, R10, R11, R13, R15, R17, R23–R27, R1's construction and drain half, and **R4, R5, R6, R22, R28 and R29**. Each of the last six raises its request from a seam the bracket is running, not through a harness flag: `seams.node`'s _should never invoke the consumer when the release effect abandoned the operation_ flips `preparationValid` directly and witnesses none of them. Contract: I-1, I-6 (runner half), 01 construction sections including §11.5's `dispatch` text in 01 and `src/kernel/spec.ts`, 02 §Release ordering and §`ResolutionCommand` (the command executed by its own unit, with its entry condition), 02 §The settlement input's stage rule, COVERAGE. `closed` stays readable through this step and reports `CLOSED` only.
+
+   **Step 1 is complete only when the round-trip's unit has landed.** `2c5212daf` landed the rest. The round-trip's unit lands before step 2, as reviewer-B's repair does. Step 1's record names the interval from `2c5212daf` to that commit as F-438 and lists the cases still at their baseline outcome (D-205 property 13).
 
 2. **The split and capture** (D-201 step 2, unchanged):
    - the façade and the armed controller;
@@ -436,16 +449,14 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
    Cases: D-201's capture assertions and R19.
 
 3. **Kernel requests.** Delete every in-unit ledger read in the kernel and driver (§6):
-   - `#preparationValid`, `SEAM_INVALIDATED`, `rollback` and its SPI members together with the sortable D-39 ledger, the staging conditional;
+   - `#preparationValid`, `SEAM_INVALIDATED`, `rollback` and its SPI members together with the sortable D-39 ledger, the staging conditional if step 1 kept it;
    - `#activationPolicy.committed`'s revalidation, `#settlementLive`, `#joinLive`, `#settleResolution`'s latch, `#handleErrorReported`'s latch, `#runAdmission`'s recheck.
 
    Add:
    - the cancel phase rule;
-   - supersession captured at intake;
-   - `OPEN_RESOLUTION` with operation-scoped command storage, declining at its entry while a cancel for its operation is registered;
-   - the cancel stage rule.
+   - supersession captured at intake.
 
-   **Inventory** the actions `release.effect` can dispatch in both behaviors and record whether any changes order (§2.8). Cases R1–R8, R12, R14, R16, R20, R22. Contract: I-3, I-16, I-21, I-22, I-31, the 02 sections.
+   `OPEN_RESOLUTION`, its entry condition, the cancel stage rule and the inventory moved to step 1 (D-205, §12). Cases R1–R3, R7, R8, R12, R14, R16, R20; R4–R6, R22, R28 and R29 stay green. Contract: I-3, I-16, I-21, I-22, I-31, the remaining 02 sections.
 
 4. **Surface and behaviors.**
    - rename `destroy`/`cancel` to `requestDestroy`/`requestCancel` on `BehaviorContext` and both controllers;
@@ -456,7 +467,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
    Cases R18, R21. Contract: I-36, I-37, 01 §`BehaviorContext`, 03, 07, README and the declaration surface (`tests/**/*.declaration.test.ts` as the surface tests require).
 
 5. **The comment pass**, D-199's, carried by D-201, over the files D-202 rewrote, with its rules and runtime-hash check.
-6. **The measurement record** `.plan/measurements/d204-requests.md`. It holds:
+6. **The measurement record** `.plan/measurements/d205-requests.md`. It holds:
    - composition on every kernel-carrying row, per step;
    - the M-1 move path with I-26's structural check (one sample allocates nothing; `OPEN_RESOLUTION` and `moveTo`'s copy are per drop and per call);
    - M-2 controller cost with the façade;
@@ -468,7 +479,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 
 **Escalate rather than decide** if:
 
-- step 3's inventory finds an action dispatched from `release.effect` whose new position before the round-trip changes a published outcome other than the cancel stage;
+- step 1's inventory finds an action dispatched from `release.effect` whose new position before the round-trip changes a published outcome other than the cancel stage;
 - §2.12 finds a query result that is a consumer-owned mutable object read after a later foreign call, where a copy would cost an allocation per pointer sample.
 
 ## 9. Accounting
@@ -480,6 +491,9 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 - **F-436** is raised and repaired by D-203. It is a contradiction in an unimplemented decision, not a code defect.
 - **D-203** is superseded by D-204 before implementation (§11). Every property carries forward. D-204 adds the tag rule for `dispatch` (§11.2), cases R23–R27 and step 1's contract text. The unimplemented row moves to D-204 with the witness renamed `d204-requests.md`.
 - **F-437** is raised and repaired by D-204: an unstated rule in an unimplemented decision, not a code defect.
+- **D-204** is superseded by D-205 after its step 1 landed at `2c5212daf` (§12). Every property and the landed code carry forward. D-205 moves the round-trip's unit, its entry condition, the cancel stage rule and the inventory from step 3 to step 1, and adds property 13 and cases R28 and R29. The unimplemented row moves to D-205 with the witness renamed `d205-requests.md`.
+- **F-438** is raised by the step-1 feature proof (reviewer-A) and decided by D-205. It is a regression in `src/` at `2c5212daf`, and it closes when step 1's round-trip unit lands.
+- **Reviewer-B to reviewer-D** of the same report are step-1 defects for its implementer. Reviewer-B is repaired before step 2, as the report requires.
 - **F-97** is unchanged. It still holds open whether the armed check survives the reachability gate (the audit's §3.5). D-204 scopes the armed promise to armed dispatch, which is all it ever covered, and is compatible with either answer.
 - **F-432** is decided by D-202 (R15) and closes when it lands. **F-433** (R9) and **F-434** (R8) likewise move from D-201 to D-202. **F-435** is raised and decided here (R4, R6).
 - **Live obligations** O-2, O-3, O-4, O-5 and O-7 are untouched. SC-1 and SC-7 are recognitions the measurement record may meet.
@@ -492,7 +506,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 packages/drag2/.plan/probes/snapshot-units/run.sh
 ```
 
-The script copies the sources under `tests/zz-snapshot-units-probe/` as `.ts`, where their `../../src/` imports resolve. It runs P1, P2 and the model with `node`, and P4 and P5 in the package's `browser` Vitest project with `--silent=false`. That project's Chrome comes from `.scripts/vitest-config.ts`: `$CHROME_EXECUTABLE`, else `/usr/local/bin/chrome`. The script removes the copies on exit. No browser was installed for this run.
+The script copies the sources under `tests/zz-snapshot-units-probe/` as `.ts`, where their `../../src/` imports resolve. It runs P1, P2, P6 and the model with `node`, and P4, P5 and P7 in the package's `browser` Vitest project with `--silent=false`. That project's Chrome comes from `.scripts/vitest-config.ts`: `$CHROME_EXECUTABLE`, else `/usr/local/bin/chrome`. The script removes the copies on exit. No browser was installed for this run.
 
 | Probe | What it shows | Source |
 | --- | --- | --- |
@@ -500,8 +514,9 @@ The script copies the sources under `tests/zz-snapshot-units-probe/` as `.ts`, w
 | P2 | destroy in the first frame-part factory | `p2-arm-destroy.ts.txt` |
 | P4 | late cancel in `anchorTarget` (F-434) | `p4-late-cancel.browser.test.ts.txt` |
 | P5 | requests raised inside a unit change its later calls today; F-435 | `p5-in-unit-requests.browser.test.ts.txt` |
-| model | R1–R14 and R22 under D-203's semantics; R22 also under D-202's stated OPEN conditions | `model.ts.txt` |
+| model | R1–R14, R22, R28 and R29 under D-203's semantics; R22 also under D-202's stated OPEN conditions; R5 and R28 also under D-204 step 1's inline round-trip (D-205) | `model.ts.txt` |
 | P6 | behavior-action tags from the factory body, a frame-part factory, after arming, and after destruction (D-204) | `p6-dispatch-tags.ts.txt`, with `env.ts.txt` |
+| P7 | requests raised in `release.prepare` and by an action `release.effect` dispatched (D-205, F-438) | `p7-release-unit.browser.test.ts.txt` |
 
 **Output at `6905af249`**, with the owner's uncommitted edits in the tree, run 2026-11-01. The model's R22 line is from the D-203 amendment, rerun at `0f0bf0368`, where `src/` is unchanged:
 
@@ -570,6 +585,32 @@ reportError DraggableWarning: drag: dispatch/tag-out-of-range NaN
 spec.retire
 dispatch(-22) after destroy
 ```
+
+**P5 and P7 at `582092c1f` and at `88cb0be8c`**, run 2026-11-01 for D-205. `582092c1f` is a clean extract, and its `src/` equals `6905af249`'s. `88cb0be8c` is the working tree with the owner's uncommitted one-assertion edit to `tests/kernel/seams.node.test.ts`, and its `src/` equals `2c5212daf`'s. The rows that differ between the two trees, then the three P7 rows that differ only in the logged `closed` value:
+
+```text
+                                582092c1f                                          88cb0be8c
+P5 destroy() in release.effect  …"release.effect","destroy() …; closed=true",      …"release.effect","destroy() …; closed=false",
+                                "retire","presentation.released","destroy settled"  "invoke (round-trip opened)","retire","presentation.released","destroy settled"
+P7 destroy() in release.prepare …"release.prepare","destroy() …; closed=true",     …"release.prepare","destroy() …; closed=false","release.effect",
+                                "retire","presentation.released","destroy settled"  "invoke (round-trip opened)","retire","presentation.released","destroy settled"
+```
+
+```text
+P7 cancel() in release.prepare: ["activation.prepare","onStart","release.prepare","cancel() in release.prepare; closed=false","settlement.prepare type=43 stage=AT_CONSUMER","settlement.effect","anchorTarget","presentation.released","finalized phase=7","retire"]
+P7 cancel() in action.prepare: ["activation.prepare","onStart","release.prepare","release.effect","invoke (round-trip opened)","action.prepare","cancel() in action.prepare; closed=false","settlement.prepare type=40","settlement.prepare type=43 stage=AT_CONSUMER","settlement.effect","anchorTarget","presentation.released","finalized phase=7","retire"]
+P7 destroy() in action.prepare: ["activation.prepare","onStart","release.prepare","release.effect","invoke (round-trip opened)","action.prepare","destroy() in action.prepare; closed=<true at 582092c1f, false at 88cb0be8c>","retire","presentation.released","destroy settled"]
+```
+
+The other P5 rows at `88cb0be8c` are those the feature-proof report quotes: R2 and R7 at their required outcome, both cancel rows unchanged. The model at `88cb0be8c`, with R28 and R29 added and R5 and R28 also run under the step-1 mode:
+
+```text
+ok  R22 cancel from an action queued ahead of OPEN: no round-trip, AT_PROPOSAL
+ok  R28 destroy in release.prepare: the release unit runs as baseline, no round-trip
+ok  R29 destroy from an action queued ahead of OPEN: no round-trip, no terminal
+```
+
+R1–R14 print as above.
 
 ## 10. Amendment: the round-trip guarantee and its entry condition (D-203)
 
@@ -697,3 +738,84 @@ No test in `tests/` covers the armed out-of-range report today (`grep -rn tag-ou
 - the Appendix, which gains P6.
 
 Nothing in §2.1–§2.8, §2.10–§2.13 or §6 changes, and D-203's other properties carry unchanged.
+
+## 12. Amendment: the round-trip's own unit lands with the lifecycle request (D-205)
+
+**2026-11-01. Input:** `88cb0be8c`, implementation `2c5212daf`, and reviewer-A of the step-1 feature proof [`d204-step1-feature-proof-claude.md`](../fin-review2/d204-step1-feature-proof-claude.md). This section is reviewer-A's resolution. It records **F-438**. Reviewer-B to reviewer-D are defects against step 1 for its implementer and are not decided here.
+
+### 12.1 The gap
+
+§8 split one mechanism across two steps:
+
+- **Step 1** makes `closed` report `CLOSED` only. No reader inside a unit sees a destroy request any longer, which is the separation the owner asked for.
+- **Step 3** moves the consumer round-trip out of the release unit into `OPEN_RESOLUTION`.
+
+R5, and §4 item 4 for `release.prepare`, hold under D-204 because the round-trip is a later unit, and destruction applied at the release unit's boundary discards it. At the baseline they held because the staging conditional read the latch (`seams.ts:317`). Step 1 removed the latch reading without adding the later unit. From `2c5212daf` until step 3, the release unit therefore opens the round-trip after a destroy was requested in it. In the sortable, that means `onReorder`, a consumer model mutation, after the consumer or behavior asked to stop.
+
+### 12.2 Evidence
+
+P5 and the new P7 ran in Chrome on a clean extract of `582092c1f` and on the working tree at `88cb0be8c` (Appendix):
+
+| Path | Baseline `582092c1f` | Step 1 `88cb0be8c` | Required |
+| --- | --- | --- | --- |
+| destroy in `release.effect` (P5, R5) | no round-trip | **round-trip opened** | no round-trip, no `onEnd` |
+| destroy in `release.prepare` (P7, R28) | no `release.effect`, no round-trip | `release.effect`, then **round-trip opened** | `release.effect`, no round-trip, no `onEnd` |
+| destroy from an action `release.effect` dispatched (P7, R29) | round-trip opened, then the action and application | the same | no round-trip: the action runs before `OPEN_RESOLUTION`, and the destroy it requests discards it |
+| cancel from an action `release.effect` dispatched (P7, R22's shape) | round-trip opened, then canceled `AT_CONSUMER` | the same | no round-trip; canceled `AT_PROPOSAL` |
+
+In the first two rows the step-1 tree makes a consumer call that both the baseline and the required outcome withhold. That is the defect. In the last two rows step 1 keeps the baseline outcome while D-204's intended change waits for step 3, which is allowed.
+
+**Why the release unit is the only such path.** Relative to the baseline, D-204's unit table (§2.3) changes two boundaries:
+
+- **U-C**, which step 1 delivered;
+- **`OPEN_RESOLUTION`**, a new queued unit.
+
+In every other unit, D-204 runs the baseline's trace without the request and then applies the request (§2.4; the model's trace-equivalence checks). Step 1 produces exactly that, because no reader inside a unit sees the request. So step 1 can differ from the target only where the target places a boundary that step 1 lacks. This argument rests on the design's unit table. It is confirmed by P5's activation and settlement rows and by P7's release rows. It is not an exhaustive probe of every path.
+
+### 12.3 The decision
+
+**The consumer round-trip's own unit lands in step 1, before step 2.** It brings with it:
+
+- its operation-scoped carrier;
+- its full entry condition;
+- the cancel stage rule;
+- the inventory of actions that `release.effect` dispatches.
+
+Step 3 keeps the deletion of in-unit ledger reads, the cancel phase rule and supersession at intake (§8).
+
+**Property 13, added: interim outcomes.** At every commit that lands a step of this decision, the consumer calls on each case's path match either the baseline's (`582092c1f`) or the required outcome's. These are participation slots, `invoke`, `onStart`, `onMove` and `onEnd`. A call that both withhold is never made, and a call that both make is never dropped. An argument value, such as a cancel stage, may come from either side. Each step's record lists the cases still at their baseline outcome, and `run.sh` reruns P5 and P7 against the tree it finds. The interval from `2c5212daf` to the round-trip's unit is F-438. It is a defect, not an accepted interval.
+
+**Why the cancel clause and the stage rule move too:**
+
+- **The cancel clause.** Once the round-trip is its own unit, an action dispatched from `release.effect` runs before it. A cancel requested by that action would then open the round-trip after the registration unless the entry declines, which is F-436's counterexample. The clause reads the cancel request that exists today (`#operation.cancelRequest`), so it needs nothing from step 3.
+- **The stage rule.** The split creates paths where a cancel is applied at `RELEASING` before `invoke` was called, R22's among them. Today's phase test would report `AT_CONSUMER` on them, extending F-435 to paths the split itself creates. The rule, `AT_CONSUMER` exactly when `invoke` was called, is local to the round-trip's unit.
+- **The inventory.** The order change lands with the split, so its inventory and escalation clause land there too.
+
+**What the separation looks like at each commit.** After the round-trip's unit lands, no unit reads a destroy request after its entry, as at `2c5212daf`. The cancel request is still read inside units until step 3 deletes those readings. It is read at `OPEN_RESOLUTION`'s entry permanently, as §2.2 allows.
+
+### 12.4 Options considered
+
+| Option | Outcome between steps | Cost |
+| --- | --- | --- |
+| **(1) Land the round-trip's unit in step 1** (chosen) | R5 and R28 hold, by order as designed. R4, R22 and R29 reach their required outcome early, and R6 is unchanged | step 1 gains the unit, its carrier, its entry condition, the stage rule and the inventory; step 3 loses them. No new machinery, and nothing deleted later |
+| (2) Let the staging conditional also read the lifecycle request until step 3 | baseline for R5 and R28 | puts back an in-unit read of a registered request: the running release unit changes what it does because a destroy was requested. That is the property the owner's follow-up forbids, reintroduced and then deleted again in step 3 |
+| (3) Accept the interval through step 3 | `onReorder` after a stop request, on two landed steps | none in code; a consumer model mutation that both the baseline and the target forbid |
+| (4) Revert step 1's `closed` change until step 3 | baseline | restores immediate logical closure inside units; reverts 22 revised rows and the early outcomes of R2, R7 and R11; step 3 then lands everything at once |
+
+**Why (1).** It is the only option that holds the owner's separation at every commit and restores R5 without a reading that would later be deleted. It changes when D-204's work lands, not what that work is.
+
+### 12.5 Cases and verification
+
+**R28 and R29** are added (§7). R28 is the `release.prepare` half of §4 item 4, which had no case. R29 is the destroy half of R22. Both run in the model. The model also has a step-1 mode, an inline round-trip with no in-unit lifecycle reading. In that mode R5 and R28 open the round-trip, so both cases tell step 1 apart from the target.
+
+**The six release-unit cases**, R4, R5, R6, R22, R28 and R29, land in step 1. Each must be driven by a request raised from a seam the bracket is running. The existing `seams.node` row sets its harness flag directly, so it reaches none of them, and it passes at both trees.
+
+**What it changes in this record:**
+
+- §2.8's inventory pointer;
+- §7, which gains R28 and R29;
+- §8 steps 1, 3 and 6, and the first escalation clause;
+- §9;
+- the Appendix, which gains P7 and the model's new lines.
+
+§2.1–§2.13's design, §3–§6 and every carried property are unchanged.

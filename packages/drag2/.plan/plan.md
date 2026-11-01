@@ -2298,6 +2298,20 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-01 — The consumer round-trip's own unit moves into step 1 (D-205, F-438)
+
+**The step-1 feature proof found a regression between steps.** Step 1 made `closed` report `CLOSED` only, so no reader inside a unit sees a destroy request any longer. The consumer round-trip still ran inside the release unit, behind a staging conditional that had relied on that reading, and its move to its own unit was booked for step 3. A destroy requested in `release.prepare` or `release.effect` therefore opens `onReorder` at `2c5212daf`. Neither the baseline nor D-204's target makes that call. P5 and the new P7 show it in Chrome on both trees. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §12.
+
+**D-205 supersedes D-204 and changes the step order.** The round-trip's own unit lands in step 1, before step 2. It brings its operation-scoped carrier, its full entry condition, the cancel stage rule and the `release.effect` inventory. Step 3 keeps the deletion of in-unit readings. Three alternatives were declined:
+
+- a stopgap request reading in the release unit, which would undo the owner's separation for two steps;
+- accepting the interval;
+- reverting `closed`.
+
+**Property 13 governs every landed step.** The consumer calls on each case's path match the baseline's or the target's, never a call both withhold. Cases R28 (destroy in `release.prepare`) and R29 (destroy from an action `release.effect` dispatched) are added and run in the model. The model's step-1 mode shows that R5 and R28 discriminate. The witness is now `measurements/d205-requests.md`.
+
+---
+
 ### 2026-11-01 — D-204 step 1: the runner and construction
 
 **Requests now apply at unit boundaries in the bracket, and construction is one unit.** `ExecutionBracket` holds a three-state lifecycle request. `destroy()` applies at once with no unit running and otherwise when the running unit ends. Units do not nest, so native ingress is refused while one runs, with the click disarm behind the same refusal (F-433). The post-admission drain is unconditional. Panic stays the one immediate application. `draggable()` runs as one unit through `Kernel.construct`, so a destroy requested in a factory is applied after publication, and no operation can be minted inside construction (F-432). Window `dispatch` is queued unchecked under D-204 property 12. Cases R1's construction and drain half, R9–R11, R13, R15, R17 and R23–R27 are tests against `src/`. Record [`measurements/d204-step1.md`](measurements/d204-step1.md), with the composition figures (+68 B minified, +7 to +39 B Brotli on the kernel-carrying rows).

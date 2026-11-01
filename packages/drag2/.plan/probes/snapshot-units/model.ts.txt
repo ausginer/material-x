@@ -28,6 +28,7 @@ type Hook =
   | 'handle'
   | 'activation.prepare'
   | 'onStart'
+  | 'release.prepare'
   | 'release.effect'
   | 'onReorder'
   | 'anchorTarget'
@@ -65,8 +66,14 @@ class Controller {
   // stated conditions, so R22 can show that the case discriminates.
   readonly #openDeclinesOnCancel: boolean;
 
-  constructor(openDeclinesOnCancel = true) {
+  // D-204 step 1 as landed (F-438): the release unit opens the round-trip
+  // itself, after release.effect, and no unit reads a lifecycle request. `true`
+  // reproduces that interval, so R5 and R28 can show that they discriminate.
+  readonly #inlineRoundTrip: boolean;
+
+  constructor(openDeclinesOnCancel = true, inlineRoundTrip = false) {
     this.#openDeclinesOnCancel = openDeclinesOnCancel;
+    this.#inlineRoundTrip = inlineRoundTrip;
   }
 
   // ---- Requests. Each records an intention and returns. ----
@@ -234,7 +241,16 @@ class Controller {
       case 'UP':
         if (op?.phase === 'ACTIVE') {
           this.#commit(op, 'RELEASING');
+          this.#call('release.prepare');
           this.#call('release.effect');
+
+          if (this.#inlineRoundTrip && !op.cancelRequest) {
+            op.roundTripOpened = true;
+            this.#call('onReorder');
+            this.#queue.push({ kind: 'SETTLE', id: op.id, result: 'accepted' });
+            return;
+          }
+
           this.#queue.push({ kind: 'OPEN_ROUND_TRIP', id: op.id });
         }
 
@@ -318,8 +334,9 @@ function drag(c: Controller): void {
 function run(
   inject?: { at: Hook; act: (c: Controller) => void },
   openDeclinesOnCancel = true,
+  inlineRoundTrip = false,
 ): Controller {
-  const c = new Controller(openDeclinesOnCancel);
+  const c = new Controller(openDeclinesOnCancel, inlineRoundTrip);
   c.construct(() => {});
   let fired = false;
   c.hook = (name, self) => {
@@ -387,10 +404,14 @@ check('R4 cancel in release.effect: applied before the round-trip opens', () => 
 });
 
 check('R5 destroy in release.effect: no round-trip, no terminal', () => {
-  const c = run({ at: 'release.effect', act: (s) => void s.requestDestroy() });
+  const inject = { at: 'release.effect' as const, act: (s: Controller) => void s.requestDestroy() };
+  const c = run(inject);
   assert.ok(!c.trace.includes('onReorder'));
   assert.ok(!c.trace.includes('onEnd'));
   assert.deepEqual(c.trace.slice(-2), ['apply destroy', 'teardown #1']);
+
+  // D-204 step 1 as landed opens the round-trip inside the requesting unit.
+  assert.ok(run(inject, true, true).trace.includes('onReorder'));
 });
 
 check('R6 cancel in onReorder: the attempt was opened, so AT_CONSUMER', () => {
@@ -510,6 +531,39 @@ check('R22 cancel from an action queued ahead of OPEN: no round-trip, AT_PROPOSA
   const d202 = run(inject, false);
   assert.ok(d202.trace.includes('onReorder'));
   assert.ok(d202.trace.includes('onEnd(canceled AT_CONSUMER)'));
+});
+
+check('R28 destroy in release.prepare: the release unit runs as baseline, no round-trip', () => {
+  const c = run({ at: 'release.prepare', act: (s) => void s.requestDestroy() });
+  assert.deepEqual(
+    unitSlice(c.trace, 'release.prepare', 'release.effect'),
+    unitSlice(baseline, 'release.prepare', 'release.effect'),
+  );
+  assert.ok(!c.trace.includes('onReorder'));
+  assert.ok(!c.trace.includes('onEnd'));
+  assert.deepEqual(c.trace.slice(-2), ['apply destroy', 'teardown #1']);
+  assert.ok(
+    run({ at: 'release.prepare', act: (s) => void s.requestDestroy() }, true, true).trace.includes(
+      'onReorder',
+    ),
+  );
+});
+
+check('R29 destroy from an action queued ahead of OPEN: no round-trip, no terminal', () => {
+  // The destroy half of R22: A runs before OPEN and requests destroy, which is
+  // applied when A's unit ends and discards OPEN.
+  const c = run({
+    at: 'release.effect',
+    act: (s) => {
+      s.dispatch('A', (self) => {
+        void self.requestDestroy();
+      });
+    },
+  });
+  assert.ok(c.trace.includes('action A'));
+  assert.ok(!c.trace.includes('onReorder'));
+  assert.ok(!c.trace.includes('onEnd'));
+  assert.deepEqual(c.trace.slice(-2), ['apply destroy', 'teardown #1']);
 });
 
 for (const [name, fn] of cases) {

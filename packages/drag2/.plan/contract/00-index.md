@@ -2628,7 +2628,9 @@ The entry condition is the form `START_COMMITTED` already has and adds no readin
 
 #### D-204
 
-**Unimplemented (Remediation).** **Decided 2026-11-01, on the implementer's step-1 handoff of D-203**, relayed by the owner at `582092c1f`. **D-203 in full, plus the rule for checking a `dispatch` tag: at armed intake only.** Supersedes D-203. Raises and repairs F-437. Carries D-203's decisions of F-432, F-433, F-434, F-435 and F-436. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §11, at `582092c1f`. That record's §2.9, §3–§5, §7 and §8 state the D-204 form and are the handoff.
+**Superseded by D-205, 2026-11-01, after its step 1 landed at `2c5212daf`.** **Every property, and the code step 1 landed, carry forward; D-205 changes the step order.** Step 1 made in-unit readers blind to a destroy request while the consumer round-trip still ran inside the release unit, so a destroy requested in `release.prepare` or `release.effect` opened `onReorder` (F-438). D-205 moves the round-trip's own unit into step 1 and adds an interim-outcome property, and this row's entry in the unimplemented table moves to D-205. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §12. The text below is the decision as it stood.
+
+**Decided 2026-11-01, on the implementer's step-1 handoff of D-203**, relayed by the owner at `582092c1f`. **D-203 in full, plus the rule for checking a `dispatch` tag: at armed intake only.** Supersedes D-203. Raises and repairs F-437. Carries D-203's decisions of F-432, F-433, F-434, F-435 and F-436. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §11, at `582092c1f`. That record's §2.9, §3–§5, §7 and §8 state the D-204 form and are the handoff.
 
 **What is carried.** D-203's text, every property, its contract-text list and its six steps carry forward unchanged and are not restated. D-204 adds one property and five cases.
 
@@ -2677,6 +2679,62 @@ Probe P6 records today's tree. The armed rows already meet R25 and R26 at depth 
 - **D-200:** its pending acceptance is unchanged.
 - **Surface:** `BehaviorContext.dispatch`'s documentation only.
 
+#### D-205
+
+**Unimplemented (Remediation).** **Decided 2026-11-01, on reviewer-A of the D-204 step-1 feature proof** ([`d204-step1-feature-proof-claude.md`](../reviews/fin-review2/d204-step1-feature-proof-claude.md)), relayed by the owner at `88cb0be8c`. **D-204 in full, with the consumer round-trip's own unit moved from step 3 into step 1, plus one property governing the outcomes between steps.** Supersedes D-204. Decides F-438. Carries D-204's decisions of F-432 to F-435 and its repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §12. That record's §7–§9 state the D-205 form and are the handoff.
+
+**What is carried.** D-204's text, properties 1–12, contract-text list and six steps carry forward and are not restated. So does the code `2c5212daf` landed as step 1. D-205 changes what steps 1 and 3 contain, adds property 13, and adds two cases.
+
+**Step order, changed.** Step 1 is complete only when the consumer round-trip runs in its own unit. That work lands before step 2:
+
+- the release unit queues `OPEN_RESOLUTION` instead of executing the staged command, the `invoke: null` path included;
+- the command is held in operation-scoped storage;
+- the entry condition is the full one: current, `RELEASING`, not opened, no cancel registered for the operation;
+- the cancel stage rule (F-435);
+- the `release.effect` inventory and its escalation clause.
+
+Step 3 keeps the deletion of in-unit ledger reads, the cancel phase rule and supersession at intake.
+
+**Why.** Step 1's `closed` change and the round-trip's own unit are two halves of one mechanism:
+
+- the first stops in-unit readers from seeing a destroy request;
+- the second is what keeps the round-trip from opening once one is registered.
+
+Landing the first alone opens `onReorder` after a stop request, which both the baseline and the target forbid (P5, P7).
+
+**Not chosen:**
+
+- **Let the staging conditional read the lifecycle request until step 3.** It would restore the baseline, but by putting back the in-unit request reading that the owner's separation forbids, only for step 3 to delete it again.
+- **Accept the interval.** It mutates the consumer's model on two landed steps.
+- **Revert `closed`.** It restores immediate logical closure and reverts 22 revised rows.
+
+**Property 13, added. Interim outcomes.** At every commit that lands a step of this decision, the consumer calls on each case's path match the baseline's (`582092c1f`) or the required outcome's:
+
+- the calls are participation slots, `invoke`, `onStart`, `onMove` and `onEnd`;
+- a call that both withhold is never made, and a call that both make is never dropped;
+- an argument value, such as a cancel stage, may come from either.
+
+Each step's record lists the cases still at their baseline outcome. P5 and P7 rerun against the tree.
+
+**The separation at each commit.** Once the round-trip has its own unit, no unit reads a destroy request after its entry. The cancel request is still read inside units until step 3, and it is read at `OPEN_RESOLUTION`'s entry permanently, as property 6 allows.
+
+**Cases.** D-204's R1–R27, plus:
+
+- **R28:** destroy in `release.prepare`. The release unit runs as the baseline does without the request; there is no round-trip and no `onEnd`.
+- **R29:** destroy from an action that `release.effect` dispatched. The action applies; application discards `OPEN_RESOLUTION`; there is no round-trip and no `onEnd`.
+
+R4, R5, R6, R22, R28 and R29 land in step 1. Each is driven by a request from a seam the bracket is running. The model runs R28 and R29, and its step-1 mode shows that R5 and R28 discriminate.
+
+**Order and witness.** Six steps, step 1 as above. The measurement record is `.plan/measurements/d205-requests.md`, and its absence is the witness.
+
+**Touches:**
+
+- **D-204:** supersedes it after step 1.
+- **F-438:** decides it; it closes when step 1's round-trip unit lands.
+- **F-432 to F-437:** carries their decisions and repairs. F-435's stage rule now lands in step 1.
+- **D-200:** its pending acceptance is unchanged.
+- **Surface:** none beyond D-204's.
+
 ### Decisions not yet implemented
 
 **The artifact F-63 asked for** (K-5). D-34 and D-35 were stated in the present tense by three contract documents and were not in the code, across a checkpoint and a whole revision, with every suite green — because a green suite is evidence about the _implemented_ contract only, and nothing in the repository compared a decision booked to a later phase against the code that had not implemented it. Phase 18 found them by reading, which is the discovery this table exists to make unnecessary.
@@ -2689,7 +2747,9 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-204 | Remediation | the runner and construction, the split and capture, kernel requests, surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d204-requests.md` |
+| D-205 | Remediation | the consumer round-trip's own unit (the rest of step 1), the split and capture, kernel requests, surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d205-requests.md` |
+
+**D-204's row closed on 2026-11-01 with step 1 partly landed.** D-205 superseded it after `2c5212daf`, moving the round-trip's unit into step 1. D-205's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 
 **D-203's row closed on 2026-11-01 without landing.** D-204 superseded it before implementation, adding the `dispatch` tag rule to step 1. D-204's row carries the same six steps, and its witness is the same measurement record, renamed for the decision that now owns it.
 
@@ -2769,7 +2829,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 This register is the **status**, not the decision. What each decision says, and what replaced it, is its row in §Decision ledger — the source of truth, which this never restates. `tests/decisions.node.test.ts` holds the two to the same id set: an entry without a canonical row, a canonical row without an entry, a duplicate, or a value outside the vocabulary is a failure rather than a skip.
 
-The twenty-two `inactive` rows are the ones whose live residue is empty: **D-7** (superseded by D-155, no gate left to default open), **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected), **D-150** (superseded by D-151, none of it lands), **D-162** (superseded by D-164), **D-164** (superseded before implementation by D-165), **D-167** and **D-169** (both superseded by D-170, whose owner call reverses the first and closes the question the second answered), **D-182** (superseded by D-184, which restates every property it carries forward), **D-183** (superseded by D-185 on a reading of _reachable_ the owner's rule rejects), **D-185** (superseded by D-186, which restores D-183's holding on a repaired ground), **D-188** (superseded by D-189, which carries both its halves forward on repaired grounds) **D-190** (superseded by D-191, which carries its premise and every disposition forward on a replaced rule), **D-187** (superseded by D-192, which carries all five of its claims forward with three of the rules narrowed), **D-193** (superseded by D-196, which corrects the site the rule names, withdraws the instrument it owed and replaces the cause it states), **D-194** (superseded by D-197, which replaces the ground for the export and re-books the declaration-weight figure) **D-195** (superseded by D-198, which widens the repair to both `prettier/prettier` rule sites and scopes the clause to the files a package's `fmt` owns) **D-199** (superseded before implementation by D-201, which restates the extraction rule, the teardown deduplication and the comment pass it carries forward), **D-201** (superseded before implementation by D-202, which restates every property it carries forward and withdraws the publication points and event sinks whose premise was immediate logical closure) **D-202** (superseded before implementation by D-203, which carries it by reference and replaces one entry condition) and **D-203** (superseded before implementation by D-204, which carries it by reference and adds the `dispatch` tag rule). ~~The eight~~ **corrected 2026-09-09 (F-406): the enumeration named eight of thirteen and stated the count as eight, while the table three lines below carried thirteen — five rows explained nowhere by the paragraph that exists to explain them.** ~~The fifteen~~ **corrected 2026-09-10: the same defect recurred when D-193, D-194 and D-195 were added to the table and not to the enumeration.**
+The twenty-three `inactive` rows are the ones whose live residue is empty: **D-7** (superseded by D-155, no gate left to default open), **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected), **D-150** (superseded by D-151, none of it lands), **D-162** (superseded by D-164), **D-164** (superseded before implementation by D-165), **D-167** and **D-169** (both superseded by D-170, whose owner call reverses the first and closes the question the second answered), **D-182** (superseded by D-184, which restates every property it carries forward), **D-183** (superseded by D-185 on a reading of _reachable_ the owner's rule rejects), **D-185** (superseded by D-186, which restores D-183's holding on a repaired ground), **D-188** (superseded by D-189, which carries both its halves forward on repaired grounds) **D-190** (superseded by D-191, which carries its premise and every disposition forward on a replaced rule), **D-187** (superseded by D-192, which carries all five of its claims forward with three of the rules narrowed), **D-193** (superseded by D-196, which corrects the site the rule names, withdraws the instrument it owed and replaces the cause it states), **D-194** (superseded by D-197, which replaces the ground for the export and re-books the declaration-weight figure) **D-195** (superseded by D-198, which widens the repair to both `prettier/prettier` rule sites and scopes the clause to the files a package's `fmt` owns) **D-199** (superseded before implementation by D-201, which restates the extraction rule, the teardown deduplication and the comment pass it carries forward), **D-201** (superseded before implementation by D-202, which restates every property it carries forward and withdraws the publication points and event sinks whose premise was immediate logical closure) **D-202** (superseded before implementation by D-203, which carries it by reference and replaces one entry condition), **D-203** (superseded before implementation by D-204, which carries it by reference and adds the `dispatch` tag rule) and **D-204** (superseded after its step 1 by D-205, which carries it by reference and moves the round-trip's own unit into step 1). ~~The eight~~ **corrected 2026-09-09 (F-406): the enumeration named eight of thirteen and stated the count as eight, while the table three lines below carried thirteen — five rows explained nowhere by the paragraph that exists to explain them.** ~~The fifteen~~ **corrected 2026-09-10: the same defect recurred when D-193, D-194 and D-195 were added to the table and not to the enumeration.**
 
 | Decision | Status   |
 | -------- | -------- |
@@ -2976,7 +3036,8 @@ The twenty-two `inactive` rows are the ones whose live residue is empty: **D-7**
 | D-201    | inactive |
 | D-202    | inactive |
 | D-203    | inactive |
-| D-204    | active   |
+| D-204    | inactive |
+| D-205    | active   |
 
 ## Findings
 
@@ -5205,7 +5266,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Repaired 2026-09-10.** The `oxfmt` pin moves 0.58.0 → **0.67.0**, the latest, so the version is not itself a formatting opinion, and the tree is reformatted under it: **seven files** across box-quad, drag, drag2 and material-x, none of which changes a program. Root `fmt-check` is green over all nine packages and the repository-level files.
 
-#### F-432 — an operation minted inside a failing `arm()` is never disposed · open, decided by D-204
+#### F-432 — an operation minted inside a failing `arm()` is never disposed · open, decided by D-205
+
+**Carried by D-205, which superseded D-204 after its step 1 and keeps this decision unchanged; closes when D-205 lands.**
 
 **Carried by D-204, which superseded D-203 before implementation and keeps this decision unchanged; closes when D-204 lands.**
 
@@ -5219,7 +5282,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Why it is open rather than booked.** It is reachable only through foreign code running inside `arm()` between two listener attachments. [`CONTRIBUTING.md`](../../../../CONTRIBUTING.md) §1.1 declines to add guards against that kind of reach, so whether to repair it is an owner question. **What a repair would establish:** every exit from `arm()` that leaves the controller unarmed leaves no operation resource live. D-199's teardown deduplication neither repairs this nor makes it worse, because its property (2) keeps the unconditional drop this path depends on.
 
-#### F-433 — a press dispatched from inside a running unit opens a second admission underneath it · open, decided by D-204
+#### F-433 — a press dispatched from inside a running unit opens a second admission underneath it · open, decided by D-205
+
+**Carried by D-205, which superseded D-204 after its step 1 and keeps this decision unchanged; closes when D-205 lands.**
 
 **Carried by D-204, which superseded D-203 before implementation and keeps this decision unchanged; closes when D-204 lands.**
 
@@ -5235,7 +5300,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Required property.** While any unit runs, an ingress pass is refused before it touches any state. D-201 properties 1 and 2; case E1.
 
-#### F-434 — a late `cancel()` raised inside `anchorTarget` strands the operation in `SETTLING` · open, decided by D-204
+#### F-434 — a late `cancel()` raised inside `anchorTarget` strands the operation in `SETTLING` · open, decided by D-205
+
+**Carried by D-205, which superseded D-204 after its step 1 and keeps this decision unchanged; closes when D-205 lands.**
 
 **Carried by D-204, which superseded D-203 before implementation and keeps this decision unchanged; closes when D-204 lands.**
 
@@ -5251,7 +5318,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Required property.** A cancel request is latched only in a phase where `CANCEL` acts, and no control reading on the settlement path treats a request as a liveness answer. D-201 properties 5 and 6; case E4.
 
-#### F-435 — a `cancel()` raised inside `release.effect` reports `AT_CONSUMER` for a round-trip that never opened · open, decided by D-204
+#### F-435 — a `cancel()` raised inside `release.effect` reports `AT_CONSUMER` for a round-trip that never opened · open, decided by D-205
+
+**Carried by D-205, which superseded D-204 after its step 1 and keeps this decision unchanged; closes when D-205 lands.** The stage rule now lands in step 1, with the round-trip's own unit.
 
 **Carried by D-204, which superseded D-203 before implementation and keeps this decision unchanged; closes when D-204 lands.**
 
@@ -5283,6 +5352,8 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Carried by D-204**, which superseded D-203 before implementation and keeps this repair unchanged.
 
+**Carried by D-205**, which superseded D-204 after its step 1 and keeps this repair unchanged. The entry condition now lands in step 1.
+
 #### F-437 — D-203 queues a construction-window `dispatch` whose tag the SPI promises to check against a count that does not yet exist · repaired 2026-11-01 by D-204
 
 **Tier B. Raised 2026-11-01 by the implementer at D-203 step 1**, relayed by the owner at `582092c1f`. Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §11. The defect is in an unimplemented decision, not in `src/`.
@@ -5294,6 +5365,20 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 **Repair.** The tag is checked once, at armed intake, unchanged. A construction-window tag is unchecked, and an out-of-range one has no specified outcome. Nothing is checked at application. D-204 property 12; cases R23–R27.
 
 **Relation to F-97.** F-97 still holds open whether the armed check survives the reachability gate. This repair is compatible with either answer.
+
+**Carried by D-205**, which superseded D-204 after its step 1 and keeps this repair unchanged.
+
+#### F-438 — D-204 step 1 opens the consumer round-trip after a destroy requested in the release unit · open, decided by D-205
+
+**Tier A. Raised 2026-11-01 by the D-204 step-1 feature proof**, reviewer-A ([`d204-step1-feature-proof-claude.md`](../reviews/fin-review2/d204-step1-feature-proof-claude.md)), at `88cb0be8c`. A regression in `src/` at `2c5212daf` against `582092c1f`. Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §12.
+
+**What happens.** Step 1 makes `closed` report `CLOSED` only, so `#preparationValid()` stays true for the rest of a unit that requested destruction (`kernel.ts:469–473`). The release seam stages its command after `release.effect` on that reading (`seams.ts:317`), and `runReleaseSeam` executes it inside the release unit (`seams.ts:641–643`), which opens `#openResolution`. The round-trip was to move into its own unit at step 3. P5 and P7 show `invoke (round-trip opened)` after a destroy requested in `release.effect` and in `release.prepare`; at `582092c1f` neither row opens it.
+
+**Why it is a problem.** In the sortable, `invoke` is `onReorder`, a consumer model mutation, delivered after the consumer or behavior asked to stop. Neither the baseline nor the required outcome (R5, R28) makes that call, and no test sees it: the one `seams.node` row on this path flips its harness flag directly.
+
+**Required property.** No round-trip opens for an operation whose release unit requested destruction. More generally, no landed step makes a consumer call that both the baseline and the required outcome withhold (D-205 property 13). Cases R5 and R28.
+
+**Decision.** D-205 moves the round-trip's own unit, its entry condition, the cancel stage rule and the `release.effect` inventory into step 1, before step 2. Closes when that lands with R5 and R28 as tests driven through the bracket.
 
 ## What would falsify this model
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Reruns the snapshot-units probes (D-201 to D-204) against the working tree.
+# Reruns the snapshot-units probes (D-201 to D-205) against the working tree.
 #
 # The sources are stored as `*.ts.txt` because the package's `just lint` walks
 # `.plan/` with both oxlint and ESLint, and these files are evidence about one
@@ -33,7 +33,7 @@ for probe in p1-nested-ingress p2-arm-destroy p6-dispatch-tags model; do
   node "${scratch}/${probe}.ts"
 done
 
-echo "== browser probes (P4, P5)"
+echo "== browser probes (P4, P5, P7)"
 cd "${package}"
 npx vitest run -c vitest.config.ts --project browser --silent=false \
   tests/zz-snapshot-units-probe 2>&1 |
