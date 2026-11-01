@@ -481,8 +481,9 @@ pointerup
                 acknowledge its render after the resolution returned. The
                 serial order removes the window it existed for.       [D-41]
         [K] hold the command; queue OPEN_RESOLUTION                [D-205]
-      > OPEN_RESOLUTION — current, RELEASING, not opened, no cancel
-        registered; execute the command — `invoke` is non-null
+      > OPEN_RESOLUTION — current, RELEASING, not opened, no cancel and no
+        failure checkpoint registered [D-206]; execute the command —
+        `invoke` is non-null
                 [K] attempt = createResolutionAttempt()
                 [K] cancellation.use(() => !attempt.completed && abort())
                 [B] onReorder(request, { signal })

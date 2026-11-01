@@ -168,9 +168,10 @@ type SettlementAttempt = {
  * **Complete at construction.** Every ordinary field is filled in the literal
  * `mintOperation` builds and is never assigned again, so retirement drops the
  * record rather than remembering which slots to clear — a field added here is
- * cleared by construction. `cancelRequest` is the single exception and it is a
- * latch: the first valid cancel per operation wins, and it may not outlive the
- * operation it latched.
+ * cleared by construction. `cancelRequest` and `failureRegistered` are the
+ * exceptions. The first is a latch: the first valid cancel per operation wins,
+ * and it may not outlive the operation it latched. The second records that a
+ * failure checkpoint was queued, and only the round-trip's entry reads it.
  *
  * **Kernel-local.** It appears in no signature, no queue argument and no
  * captured callback. {@link OperationIdentity} travels instead, and every
@@ -198,6 +199,12 @@ type OperationRecord = {
    */
   readonly lifetimes: OperationLifetimes;
   cancelRequest: { reason: unknown; origin: CancelOrigin } | null;
+  /**
+   * Set when `failOperation` queues a checkpoint, never cleared: the operation
+   * is decided by that `FAILED` and retires with the record. A demoted failure
+   * writes nothing.
+   */
+  failureRegistered: boolean;
 };
 
 /**
@@ -805,6 +812,10 @@ export class Kernel<
       return;
     }
 
+    // **Registration, not application.** It changes nothing a running unit
+    // uses; the held command, the attempts and the phase are `FAILED`'s.
+    this.#operation!.failureRegistered = true;
+
     // Dispatched, not merely enqueued. A failure raised inside a seam appends
     // to the drain that is already running, but one raised from an *async*
     // continuation is the outermost frame, and nothing else would ever drain
@@ -979,6 +990,7 @@ export class Kernel<
         item: parts ? subject.item : subject,
         lifetimes: createOperationLifetimes(this.#report),
         cancelRequest: null,
+        failureRegistered: false,
       };
 
       if (pointerId !== -1) {
@@ -1900,15 +1912,16 @@ export class Kernel<
 
   /**
    * The round-trip's own unit. It opens only for the operation that queued it,
-   * still `RELEASING`, with no round-trip opened for it and **no cancel
-   * registered for it**, all read at the unit's entry.
+   * still `RELEASING`, with no round-trip opened for it and **neither a cancel
+   * nor a failure checkpoint registered for it**, all read at the unit's entry.
    *
-   * _Not opened_ is the held command, which opening consumes. The cancel clause
-   * is what makes the round-trip guarantee hold for a cancel registered by an
-   * entry queued ahead of this one, such as an action the release effect
-   * dispatched: FIFO alone would run this entry first. Declining leaves the
-   * operation `RELEASING` for that registered `CANCEL`, which settles it at
-   * `AT_PROPOSAL`.
+   * _Not opened_ is the held command, which opening consumes. The cancel and
+   * failure clauses make the round-trip guarantee hold for a request
+   * registered by an entry queued ahead of this one, such as an action the
+   * release effect dispatched: FIFO alone would run this entry first. Declining
+   * leaves the operation `RELEASING` for the registered `CANCEL` or `FAILED`,
+   * which settles it at `AT_PROPOSAL`. Destruction needs no clause; it is
+   * applied ahead of this entry and discards it.
    */
   #handleOpenResolution(identity: OperationIdentity): void {
     const { command } = this.#attempts;
@@ -1917,7 +1930,8 @@ export class Kernel<
       !command ||
       this.#frames.current.operation !== identity ||
       this.#frames.current.phase !== RELEASING ||
-      this.#operation!.cancelRequest
+      this.#operation!.cancelRequest ||
+      this.#operation!.failureRegistered
     ) {
       return;
     }

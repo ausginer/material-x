@@ -7,6 +7,7 @@ import {
   CANCEL_ABORTED,
   CANCEL_INTERRUPTED,
   CANCEL_SUPPLIED,
+  FAILURE_ACTION_PREPARE,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
   FAILURE_RELEASE,
@@ -2148,6 +2149,91 @@ describe('the round-trip unit', () => {
         stage: AT_PROPOSAL,
       },
     ]);
+  });
+
+  /**
+   * R30 (F-439), the failure half of R22. The action the release effect
+   * dispatched fails in its `prepare`, which registers a checkpoint whose
+   * `FAILED` is queued behind `OPEN_RESOLUTION`. The entry declines, so the
+   * resolver is never reached whatever its timing, and `FAILED` applies at
+   * `RELEASING`: one failed settlement carrying the report with the action's
+   * stage, one finalization, then retirement.
+   */
+  const failInDispatchedAction = (
+    invoke: ResolutionCommand['invoke'],
+  ): void => {
+    const error = new Error('items');
+    const harness: Harness = createHarness({
+      release: {
+        prepare: (): ResolutionCommand => ({
+          invoke:
+            invoke &&
+            ((signal) => {
+              harness.calls.push('invoke');
+              return invoke(signal);
+            }),
+        }),
+        effect(): void {
+          harness.calls.push('release.effect');
+          harness.kernel.dispatch(0, null);
+        },
+      },
+      action: {
+        prepare(tag): never {
+          harness.calls.push(`action.prepare:${tag}`);
+          throw error;
+        },
+        effect(tag): void {
+          harness.calls.push(`action.effect:${tag}`);
+        },
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(
+      harness.calls.slice(harness.calls.indexOf('release.effect')),
+    ).toEqual([
+      'release.effect',
+      'action.prepare:0',
+      'settlement.prepare',
+      'settlement.effect',
+      'presentation.released',
+      'finalized',
+      'retire',
+    ]);
+    expect(harness.settlements).toEqual([
+      {
+        type: SETTLED_FAILED,
+        stage: FAILURE_ACTION_PREPARE,
+        error,
+        report: expect.any(DraggableError) as DraggableError,
+      },
+    ]);
+    expect(harness.failures).toEqual([
+      { stage: FAILURE_ACTION_PREPARE, error },
+    ]);
+
+    // The finished report the behavior forwards to `onError`.
+    const { report } = harness.settlements[0] as { report: DraggableError };
+
+    expect(report.stage).toBe(FAILURE_ACTION_PREPARE);
+    expect(report.cause).toBe(error);
+    expect(harness.reports).toEqual([]);
+  };
+
+  it('should decline a synchronous round-trip for a failure registered by an action the release effect dispatched', () => {
+    failInDispatchedAction(() => 'verdict');
+  });
+
+  it('should decline an asynchronous round-trip for a failure registered by an action the release effect dispatched', () => {
+    failInDispatchedAction(() => Promise.resolve('verdict'));
+  });
+
+  it('should decline a null command for a failure registered by an action the release effect dispatched', () => {
+    // The `invoke: null` path takes the same unit and the same entry condition.
+    failInDispatchedAction(null);
   });
 });
 

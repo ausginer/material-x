@@ -1259,3 +1259,24 @@ The ownership rule made executable: **nothing that exists because something anim
 - **Clearing at retirement** is not observable through the surface. Each entry is queued with a fresh command written just before it. The clear is the constraint that no later operation can read the slot, and that no consumer closure outlives its operation. A collection probe could witness it, as `execution.node`'s argument-release row does, but the browser project has no exposed collector, so none is written.
 
 The phase and identity clauses are kept because D-205 decides the entry condition in full. Step 3 is where the phase clause gains its witness.
+
+### The failure clause — new (2026-11-01, D-206 step 1)
+
+**`OPEN_RESOLUTION` also declines while a failure checkpoint is registered for its operation** (D-206, F-439). `failOperation` records the registration on the operation record when it queues a checkpoint, and a demoted failure records nothing. Only the round-trip's entry reads it. Each row registers its checkpoint from work the release unit queued, which runs ahead of `OPEN_RESOLUTION`, through the running controller with no harness flag. The required outcome is no consumer call into the round-trip, `FAILED` applied at `RELEASING` with the failure's stage, one failed settlement and retirement. In the sortable that is `onError` and then one `onEnd` `canceled` at `AT_PROPOSAL` with origin `failed`.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| **R30**, kernel, synchronous resolver: an action `release.effect` dispatched fails in its `prepare`; `invoke` is never reached and the one settlement is `SETTLED_FAILED` at `FAILURE_ACTION_PREPARE` | `tests/kernel/kernel.browser.test.ts` — _should decline a synchronous round-trip for a failure registered by an action the release effect dispatched_ | D-206, F-439 |
+| **R30**, kernel, asynchronous resolver: the same | `tests/kernel/kernel.browser.test.ts` — _should decline an asynchronous round-trip for a failure registered by an action the release effect dispatched_ | D-206, F-439 |
+| **R30**, kernel, `invoke: null`: the same | `tests/kernel/kernel.browser.test.ts` — _should decline a null command for a failure registered by an action the release effect dispatched_ | D-206 |
+| **R30**, sortable, P8's path, synchronous `onReorder`: the release move's placeholder calls `invalidate()`, `items()` throws, and the consumer sees `items()`, `onError` (`FAILURE_ACTION_PREPARE`), then `onEnd` `canceled` `AT_PROPOSAL` `failed`, with no `onReorder` and the placeholder gone | `tests/sortable/sortable.browser.test.ts` — _should open no synchronous round-trip once the collection work the release queued has failed_ | D-206, F-439 |
+| **R30**, sortable, P8's path, asynchronous `onReorder`: the same | `tests/sortable/sortable.browser.test.ts` — _should open no asynchronous round-trip once the collection work the release queued has failed_ | D-206, F-439 |
+
+**The mutations**, applied alone to `src/kernel/kernel.ts` and run against the whole suite, counted as above:
+
+| Mutation | Rows red |
+| --- | --- |
+| `OPEN_RESOLUTION`'s failure clause dropped (the entry condition as at `3e44eaf62`) | 4 — both kernel resolver rows, both sortable rows |
+| the registration not written in `failOperation` | 4 — the same |
+
+**The `invoke: null` row is green under both, and the mutant is equivalent there.** With no resolver, opening the round-trip queues the skipped settlement inside `OPEN_RESOLUTION`, behind the `FAILED` the failing action already queued. `FAILED` applies first, retires the operation, and the skipped settlement arrives stale. The decided outcome is the same with or without the clause, and no consumer call is reachable on that path. The row is kept because D-206 names the `invoke: null` command in the clause's scope, and it asserts the full outcome there.

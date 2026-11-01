@@ -1,6 +1,6 @@
 # D-204 step 1 — the runner and construction
 
-> **D-205 checkpoint, 2026-11-01.** D-205 superseded D-204 after `2c5212daf` and moved the consumer round-trip's own unit into step 1. §D-205 checkpoint below records that work. **Step 1 is not complete and is not accepted**: one escalation under §8's first clause is open for the architect (§The open escalation). The sections above it describe `2c5212daf` as it landed, with reviewer-C's census corrected.
+> **D-206, 2026-11-01: step 1's implementation is complete, and it is not yet accepted.** D-205 superseded D-204 after `2c5212daf` and moved the consumer round-trip's own unit into step 1; §D-205 checkpoint records that work at `3e44eaf62`. Its one escalation was decided by D-206, which added a failure clause to `OPEN_RESOLUTION`'s entry condition; §D-206 records the clause, R30 and their figures. Acceptance is the step-1 review's. The sections above §D-205 checkpoint describe `2c5212daf` as it landed, with reviewer-C's census corrected.
 
 **Canonical entry: `drag2:D-204`**, which carries D-203 in full and adds property 12. This record holds step 1's implementation status, its composition figures and its verification. It is **not** the decision's measurement record: `d204-requests.md` is written at step 6, collects every step's figures, and its absence is the witness in 00-index §Decisions not yet implemented.
 
@@ -135,79 +135,15 @@ Each row raises its request from a seam the running controller drives, in `tests
 
 ### The open escalation
 
-**§8's first escalation clause is met, and this checkpoint does not decide it.** It does not amend the contract to accept the changed terminal. The architect resolves it against this fixed tree.
+**No longer open: decided 2026-11-01 by D-206** ([`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §13), on the path this checkpoint found. A sortable with a custom placeholder whose `connectedCallback` calls `controller.invalidate()` during the release move, with `items()` throwing, registered a failure checkpoint behind `OPEN_RESOLUTION`. D-205's entry condition opened the round-trip anyway.
 
-**Path.** A sortable with a custom placeholder whose `connectedCallback` calls `controller.invalidate()` during the release move, `items()` throwing, and `onReorder` settling **synchronously**.
+| Tree | Synchronous `onReorder` | Asynchronous `onReorder` |
+| --- | --- | --- |
+| `2c5212daf` (this path's baseline) | `onReorder`, `items()`, `onFinish`, `onError` → `accepted` | `onReorder`, `items()`, `onError`, `onCancel` → `canceled` `AT_CONSUMER` |
+| this checkpoint (D-205 as stated) | `items()`, `onReorder`, `onError`, `onCancel` → `canceled` `AT_CONSUMER` | the same |
+| D-206 (§D-206 below) | `items()`, `onError`, `onCancel` → `canceled` `AT_PROPOSAL` `failed`, no `onReorder` | the same |
 
-| Tree | Trace (from the placeholder's connection) | Errors (stage) | Terminal |
-| --- | --- | --- | --- |
-| `2c5212daf` (= baseline for this path) | `placeholder connected`, `onReorder`, `items()`, `onFinish`, `onError` | `[4]` | `accepted` |
-| this checkpoint | `placeholder connected`, `items()`, `onReorder`, `onError`, `onCancel` | `[4]` | `canceled` (the failure fallback) |
-| either, **async** `onReorder` | `onReorder`/`items()` in the tree's order, then `onError`, `onCancel` | `[4]` | `canceled` on both |
-| either, `items()` not throwing | the tree's order, `invalidateInsertion`, `onFinish` | none | `accepted` on both |
-
-**Why.** At the baseline a synchronous resolution queues `RESOLUTION_SETTLED` ahead of the collection action's `FAILED`, so the settlement wins and the checkpoint arrives stale. Under D-205 the action runs first, and its `FAILED` lands ahead of `RESOLUTION_SETTLED`, so the failure decides. That is what the async resolver already got on both trees. Every call is made on both trees, and only the `onEnd` arm differs. Whether that difference is an argument value under property 13 or a changed published outcome is the architect's question. The baseline trace was taken with `src/kernel/` restored to `HEAD` (`2c5212daf`'s `src/`). `582092c1f` was not run separately for this path, and no destroy request is involved in it.
-
-**Reproducer.** Append to `tests/sortable/sortable.browser.test.ts`, which supplies `createHarness`, `REENTRANT_PLACEHOLDER`, `reentrantPlaceholderConnected`, `activate`, `release`, `reported` and `ReorderResolution`. Then run `npx vitest run -c vitest.config.ts --project browser --silent=false tests/sortable/sortable.browser.test.ts -t PROBE`. It was not committed into the suite, because it asserts no outcome.
-
-```ts
-describe('PROBE inventory', () => {
-  for (const throwing of [false, true]) {
-    for (const sync of [true, false]) {
-      it(`PROBE collection from the release placeholder throwing=${String(throwing)} sync=${String(sync)}`, async () => {
-        let armed = false;
-        let harness: Harness | null = null;
-
-        harness = createHarness({
-          placeholder: (): HTMLElement =>
-            document.createElement(REENTRANT_PLACEHOLDER),
-          pull: (items) => {
-            harness!.calls.push('items()');
-            if (armed && throwing) {
-              throw new Error('pull');
-            }
-            return items;
-          },
-          onReorder: (request) => {
-            harness!.calls.push('onReorder');
-            return sync
-              ? ReorderResolution.accept()
-              : Promise.resolve(ReorderResolution.accept());
-          },
-        });
-
-        activate(harness);
-        reentrantPlaceholderConnected = (): void => {
-          if (!armed) {
-            armed = true;
-            harness!.calls.push('placeholder connected');
-            harness!.controller.invalidate();
-          }
-        };
-        harness.next(harness.gap(2));
-        release(130);
-        await new Promise((resolve) => {
-          setTimeout(resolve, 20);
-        });
-        console.log(
-          `PROBE throwing=${String(throwing)} sync=${String(sync)}`,
-          JSON.stringify(
-            harness.calls.slice(
-              harness.calls.indexOf('placeholder connected') - 1,
-            ),
-          ),
-          JSON.stringify(harness.errors.map((e) => e.stage)),
-          JSON.stringify(reported.map((e) => e.message)),
-          JSON.stringify(
-            [...harness.finishes, ...harness.cancels].map((r) => r.type),
-          ),
-        );
-        expect(true).toBe(true);
-      });
-    }
-  }
-});
-```
+**Disposition.** It is a changed published outcome, not an argument value, and the round-trip should not open at all on this path: `OPEN_RESOLUTION` declines while a failure checkpoint is registered for its operation. Without the throw, the outcome is `accepted` on every tree, and only the order of `items()` and `onReorder` differs. The reproducer this checkpoint recorded is now the architect's probe P8 (`.plan/probes/snapshot-units/p8-release-failure.append.ts.txt`), and its throwing path is the sortable's R30 rows.
 
 ### Property 13 — interim outcomes at this checkpoint
 
@@ -222,7 +158,7 @@ From `run.sh`'s P4, P5 and P7 at this tree (Chrome, package browser project), ag
 | R1, R9–R11, R13, R15, R17, R23–R27 | required, as tests | above |
 | R12, R14, R16, R18–R21 | not probed against `src/` at this checkpoint; booked to steps 2–4 | — |
 
-No probed row makes a consumer call that both the baseline and the target withhold. The open escalation is the one path where the published terminal differs from the baseline in a way neither §7 nor §12 states.
+No probed row makes a consumer call that both the baseline and the target withhold. The escalation path was the one place where the published terminal differed from the baseline in a way neither §7 nor §12 stated. D-206 decided it, and §D-206 accounts for it.
 
 ### Composition
 
@@ -258,7 +194,91 @@ No probed row makes a consumer call that both the baseline and the target withho
 
 ### Unfinished, stated explicitly
 
-- **The open escalation** above. Step 1 is not complete until it is decided.
+- ~~**The open escalation** above. Step 1 is not complete until it is decided.~~ Decided by D-206; the clause and R30 landed (§D-206).
 - **F-438 stays open.** Its required property holds on every probed and tested path. Closing it is the reviewer's and architect's call, not this checkpoint's.
 - **Not run:** `582092c1f` for the escalation path; R12, R14, R16 and R18–R21 at this tree; a collection witness for the held command's release.
 - **Not started:** step 2. `d205-requests.md` is not created, so D-205's witness holds.
+
+## D-206 — the failure clause and R30
+
+**Input.** `3cec09ac4` (D-206), checkpoint `3e44eaf62`. `src/` is unchanged between them. The owner's uncommitted `tests/kernel/seams.node.test.ts` assertion edit is preserved, left uncommitted, and is not part of this unit. With this section, **step 1's implementation is complete. It is not accepted**; that is the step-1 review's call.
+
+### What landed
+
+| Item | Where |
+| --- | --- |
+| **Registration**: `OperationRecord.failureRegistered`, written `true` by `#failOperation` immediately before it dispatches `FAILED`, and only there. A demoted failure returns before the write. Nothing else changes: the held command, the attempts and the phase are left for `FAILED`. It lives on the operation record, so it is dropped with the operation and a later operation cannot read it. It is one boolean field in the literal `mintOperation` builds, so there is no allocation per sample | `kernel.ts` |
+| **The clause**: `#handleOpenResolution` declines when `failureRegistered` is set, after the cancel clause, before any of its work. That covers the `invoke: null` command, which shares the entry | `kernel.ts` |
+| `FAILED` does not consume the record. D-206 permits it to, and nothing reads it after `FAILED`, which retires the operation | — |
+| Contract: 02 §`ResolutionCommand` (the five-clause entry condition, registration, the outcome on decline) and §Release ordering's trace; 06's trace step | `.plan/contract/` |
+
+### Cases — implementation verification
+
+| Case | Row | At `3e44eaf62` |
+| --- | --- | --- |
+| R30, kernel, synchronous | `kernel.browser` — _should decline a synchronous round-trip for a failure registered by an action the release effect dispatched_ | red |
+| R30, kernel, asynchronous | `kernel.browser` — _should decline an asynchronous round-trip for a failure registered by an action the release effect dispatched_ | red |
+| R30, kernel, `invoke: null` | `kernel.browser` — _should decline a null command for a failure registered by an action the release effect dispatched_ | green: an equivalent mutant (COVERAGE §The failure clause) |
+| R30, sortable, P8 throwing, synchronous `onReorder` | `sortable.browser` — _should open no synchronous round-trip once the collection work the release queued has failed_ | red |
+| R30, sortable, P8 throwing, asynchronous `onReorder` | `sortable.browser` — _should open no asynchronous round-trip once the collection work the release queued has failed_ | red |
+
+"At `3e44eaf62`" is the clause-removed mutation, because the clause and the registration are this unit's only `src/` change. Each row asserts the full decided outcome:
+
+- **kernel:** the call order from `release.effect` to `retire`, with no `invoke`; exactly one settlement, `SETTLED_FAILED` with `FAILURE_ACTION_PREPARE`, the thrown error and its report (stage and cause); one finalization.
+- **sortable:** `items()`, `onError` with `FAILURE_ACTION_PREPARE` and the thrown error as cause, then one `onEnd` `canceled` with `AT_PROPOSAL`, origin `failed` (`CANCEL_FAILED`) and the error as reason; no `onReorder` and no `onFinish`; the placeholder removed.
+
+**Mutations**, each alone, over the whole suite:
+
+- dropping the clause reddens 4 rows, both kernel resolver rows and both sortable rows;
+- dropping the registration write reddens the same 4.
+
+The `invoke: null` row is green under both. With no resolver, opening queues the skipped settlement behind the `FAILED` already in the queue, so `FAILED` decides either way and no consumer call is reachable. D-206 names the null command in the clause's scope, so the row stays and asserts the outcome. **This is a limit on §13.5's "removing the clause reddens the R30 rows": three of the five rows can, and do.**
+
+Every previously landed step-1 row still passes: R1's construction/drain portion, R4–R6, R9–R11, R13, R15, R17, R22, R28 and R29, the order row, the null-command cancel row, and reviewer-B's three.
+
+### Model evidence, kept apart
+
+The architect's `run.sh`, model and P8 landed at `3cec09ac4`, and this unit did not rerun them. Their R30 result, no `onReorder` and `canceled AT_PROPOSAL failed` under D-206 and `AT_CONSUMER` under D-205's conditions, is the model's evidence in §13.2. **The rows above are the implementation's.** They reproduce P8's path through the real sortable and agree with the model's R30 outcome.
+
+### Property 13 — the interim accounting, updated
+
+The table in §D-205 checkpoint carries forward, with one change. **R30 is at its required outcome, as tests.** The escalation path's terminal changed against the baseline, and D-206 decided that change: `accepted` with a synchronous resolver, and `canceled` `AT_CONSUMER` with an asynchronous one, both become `canceled` `AT_PROPOSAL` `failed` with no `onReorder`. R3 and R8 are still at their baseline outcome and belong to step 3. R12, R14, R16 and R18–R21 were not probed against `src/`.
+
+### Composition
+
+`just build`, read through `measureAll()`. **Before** is `3e44eaf62`'s `src/` (equal to `HEAD`'s), measured in this tree with `kernel.ts` restored and then put back. It reproduces §D-205 checkpoint's "after" column byte for byte. **After** is this tree. Bytes; Brotli governs.
+
+| Row | min before | min after | Δ | Brotli before | Brotli after | **Δ** |
+| --- | --: | --: | --: | --: | --: | --: |
+| minimal | 34,704 | 34,783 | +79 | 10,412 | 10,445 | **+33** |
+| minimal (xy) | 34,023 | 34,102 | +79 | 10,289 | 10,315 | **+26** |
+| minimal + layoutAnimation | 35,683 | 35,762 | +79 | 10,767 | 10,788 | **+21** |
+| xy + layoutAnimation | 35,002 | 35,081 | +79 | 10,626 | 10,659 | **+33** |
+| minimal + landing | 35,097 | 35,176 | +79 | 10,572 | 10,600 | **+28** |
+| complete | 36,076 | 36,155 | +79 | 10,917 | 10,943 | **+26** |
+| free drag minimal | 27,210 | 27,289 | +79 | 8,165 | 8,193 | **+28** |
+| free drag + bounds | 27,676 | 27,755 | +79 | 8,325 | 8,348 | **+23** |
+| free drag + landing | 27,603 | 27,682 | +79 | 8,329 | 8,351 | **+22** |
+| free drag complete | 28,069 | 28,148 | +79 | 8,476 | 8,518 | **+42** |
+| both behaviors | 43,472 | 43,551 | +79 | 12,348 | 12,374 | **+26** |
+| vocabulary root — drag.js | 252 | 252 | 0 | 142 | 142 | **0** |
+| kernel root — kernel.js | 20,153 | 20,232 | +79 | 6,235 | 6,261 | **+26** |
+| baseline A — feature-matched, non-composed | 35,369 | 35,448 | +79 | 10,720 | 10,740 | **+20** |
+| baseline B — shipped @ydinjs/drag sortable.js | 22,618 | 22,618 | 0 | 6,916 | 6,916 | **0** |
+
+**No module count changed on any row.** `drag.js` and baseline B did not move. +79 B minified is the field, its initializer, the write in `#failOperation` and the fifth conjunct. The six `size.node` controls stay red as at the input and were not re-based.
+
+**Runtime.** Per pointer sample, nothing changes. Per operation, one more boolean on the record. Per failure, one field write.
+
+### Verification
+
+- **Tests:** full suite, every project. The failing set is the input's ten (six `size.node` controls, four `docs.node` rows), and `react.browser` and `stories.browser` still do not load. 1,368 pass, where the checkpoint had 1,363.
+- **Lint**, over the three changed `.ts` files: 4 eslint errors, the same 4 present in those files at `HEAD`. Markdown is formatted and reported as ignored by the linters.
+- **Typecheck:** only the two `.scripts/vitest-*.ts` errors, as at the input.
+
+### Limits
+
+- The `invoke: null` R30 row cannot discriminate the clause (above).
+- `run.sh` was not rerun at this tree. The model is evidence about the semantics, not about `src/`.
+- R12, R14, R16 and R18–R21 were not run at this tree. They are booked to steps 2–4.
+- **Not started:** step 2. `d206-requests.md` is not created, so D-206's witness holds. F-438 and F-439 stay open for the review.

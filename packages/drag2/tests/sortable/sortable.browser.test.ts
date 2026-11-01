@@ -7,7 +7,9 @@ import {
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
+  CANCEL_FAILED,
   FAILURE_ACTION_EFFECT,
+  FAILURE_ACTION_PREPARE,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
   FAILURE_INVALIDATION,
@@ -1645,6 +1647,92 @@ describe('the terminal boundary (D-66)', () => {
 
     expect(calls).toBe(1);
     expect(harness.errors).toHaveLength(1);
+  });
+});
+
+/**
+ * **A failure registered ahead of the round-trip declines it** (D-206, F-439,
+ * R30). The release move connects a custom placeholder whose
+ * `connectedCallback` calls `invalidate()`, so the release unit queues
+ * collection work; `items()` throws in its `prepare`, which registers a
+ * checkpoint behind `OPEN_RESOLUTION`. The round-trip does not open for either
+ * resolver timing, and the failure fallback settles the drop at the proposal.
+ */
+describe('a failure registered ahead of the round-trip (D-206)', () => {
+  const releaseFailingCollection = async (
+    resolve: () =>
+      | ReturnType<typeof ReorderResolution.accept>
+      | Promise<ReturnType<typeof ReorderResolution.accept>>,
+  ): Promise<void> => {
+    const error = new Error('pull');
+    let armed = false;
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      placeholder: (): HTMLElement =>
+        document.createElement(REENTRANT_PLACEHOLDER),
+      pull: (items) => {
+        harness!.calls.push('items()');
+
+        if (armed) {
+          throw error;
+        }
+
+        return items;
+      },
+      onReorder: () => {
+        harness!.calls.push('onReorder');
+        return resolve();
+      },
+    });
+
+    activate(harness);
+    // Armed after activation, so only the release move's connection reacts.
+    reentrantPlaceholderConnected = (): void => {
+      if (!armed) {
+        armed = true;
+        harness.calls.push('placeholder connected');
+        harness.controller.invalidate();
+      }
+    };
+    harness.next(harness.gap(2));
+    release(130);
+    // Long enough for an asynchronous resolver's settlement, had it opened.
+    await new Promise((settle) => {
+      setTimeout(settle, 20);
+    });
+
+    expect(
+      harness.calls.slice(harness.calls.indexOf('placeholder connected')),
+    ).toEqual(['placeholder connected', 'items()', 'onError', 'onCancel']);
+    expect(harness.errors).toHaveLength(1);
+    expect(harness.errors[0]!.stage).toBe(FAILURE_ACTION_PREPARE);
+    expect((harness.errors[0]!.error as DraggableError).cause).toBe(error);
+    expect(harness.finishes).toEqual([]);
+    expect(harness.cancels).toHaveLength(1);
+    expect(harness.cancels[0]).toMatchObject({
+      type: 'canceled',
+      reason: error,
+      origin: CANCEL_FAILED,
+      stage: AT_PROPOSAL,
+    });
+    // Retired: the footprint is gone.
+    expect([
+      harness.placeholder(),
+      harness.root.querySelector(REENTRANT_PLACEHOLDER),
+    ]).toEqual([null, null]);
+  };
+
+  it('should open no synchronous round-trip once the collection work the release queued has failed', async () => {
+    // The baseline settled this `accepted` and reported the failure late; the
+    // D-205 checkpoint ran `onReorder` and then settled `AT_CONSUMER`.
+    await releaseFailingCollection(() => ReorderResolution.accept());
+  });
+
+  it('should open no asynchronous round-trip once the collection work the release queued has failed', async () => {
+    await releaseFailingCollection(() =>
+      Promise.resolve(ReorderResolution.accept()),
+    );
   });
 });
 

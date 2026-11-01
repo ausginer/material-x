@@ -1153,16 +1153,19 @@ type ReleaseTransition<Part extends object> = Readonly<{
 
 Exactly one choice, made exactly once, executed by the kernel after `release.effect` returns **and only if it returned normally**. No `unused → used → sealed` state machine, no duplicate-call policy, no missing-call failure stage. There is one object and at most one closure per drag — not a hot path.
 
-**The command is executed by its own unit, not by the release unit (D-205).** The release unit holds the command in the kernel's attempt slots and queues `OPEN_RESOLUTION` carrying the operation identity, and the `invoke: null` command takes the same path. At its entry that unit opens the round-trip only if all four hold:
+**The command is executed by its own unit, not by the release unit (D-205).** The release unit holds the command in the kernel's attempt slots and queues `OPEN_RESOLUTION` carrying the operation identity, and the `invoke: null` command takes the same path. At its entry that unit opens the round-trip only if all five hold:
 
 - the operation is the current one;
 - it is still `RELEASING`;
 - no round-trip has been opened for it — the held command, which opening consumes;
-- **no cancel is registered for it.**
+- **no cancel is registered for it;**
+- **no failure checkpoint is registered for it (D-206).**
 
-Otherwise it declines and leaves the operation as it is. The slot is cleared with the attempt slots, at retirement and when a failure checkpoint applies, so no later operation can read it. One entry per drop is not on the per-sample path.
+Otherwise it declines and leaves the operation as it is. **No round-trip opens once a destroy, a cancel or a failure checkpoint against its operation is registered before `OPEN_RESOLUTION` is admitted** — I-22's three terminal requests, the first by priority and the other two by this entry reading. The slot is cleared with the attempt slots, at retirement and when a failure checkpoint applies, so no later operation can read it. One entry per drop is not on the per-sample path.
 
-**What the unit decides.** A destruction requested anywhere in the release unit is applied at that unit's boundary, ahead of `OPEN_RESOLUTION`, and discards it. A cancel registered before the entry is admitted makes it decline, including one registered by an entry queued ahead of it, such as an action the release effect dispatched (F-436). The registered `CANCEL` then settles the operation at `AT_PROPOSAL` (§The settlement input is discriminated and exhaustive). **Work the release effect dispatched applies before the round-trip opens**, where it used to apply after it.
+**What the unit decides.** A destruction requested anywhere in the release unit is applied at that unit's boundary, ahead of `OPEN_RESOLUTION`, and discards it. A cancel registered before the entry is admitted makes it decline, including one registered by an entry queued ahead of it, such as an action the release effect dispatched (F-436). The registered `CANCEL` then settles the operation at `AT_PROPOSAL` (§The settlement input is discriminated and exhaustive). **A failure checkpoint registered the same way makes it decline too (F-439)**: the checkpoint's `FAILED` applies at `RELEASING`, so the consumer receives `onError` with the failure's stage and one `onEnd` `canceled` at `AT_PROPOSAL` with origin `failed`, and no `onReorder`, whatever the resolver's timing. Declining cannot strand the operation, because only a cancel or a destruction can precede that `FAILED`, and each decides the operation itself.
+
+**Registration is a fact on the operation, not an application.** `failOperation` records it when it queues a checkpoint, and a failure demoted at intake records nothing. It changes nothing a running unit uses — the held command, the attempts and the phase are left for `FAILED` — and only `OPEN_RESOLUTION`'s entry reads it. It lives on the operation record, so a later operation cannot read it, and it allocates nothing per sample. A failure raised after the round-trip has opened is unaffected: it still abandons the round-trip and settles `AT_CONSUMER`. **Work the release effect dispatched applies before the round-trip opens**, where it used to apply after it.
 
 **`invoke: null` asserts a _proven semantic no-op_, and nothing else.** It is not a fallback for missing state. A release that finds no published view, no item, no snapshot or no insertion has a broken invariant, and reporting that as a successful no-op drop would tell the consumer the drag completed normally (review 5, §4). Those paths **throw** (D-152), and the kernel classifies at `FAILURE_RELEASE` because that is the stage the release seam is already open at — the behavior names the condition, never the stage. The only legitimate skip is `proposal.from === proposal.to`.
 
@@ -1832,7 +1835,8 @@ Two commits, in a fixed order the kernel owns:
                                                   AND the final lift render
       hold the command; queue OPEN_RESOLUTION   ← only on SEAM_COMMITTED (D-205)
       … what release.effect dispatched …        ← applied first, as units
-> OPEN_RESOLUTION  current, RELEASING, not opened, no cancel registered?
+> OPEN_RESOLUTION  current, RELEASING, not opened, no cancel and no failure
+                   checkpoint registered? (D-206)
       execute the command                       ← open resolution, or settle
                                                   immediately when `invoke` is null
 ```

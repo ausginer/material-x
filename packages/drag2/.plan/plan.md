@@ -2298,6 +2298,14 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-01 — D-206 step 1: the failure clause and R30
+
+**Step 1's implementation is complete, and it is not accepted.** `#failOperation` now records on the operation record that it queued a checkpoint. A demoted failure records nothing. `OPEN_RESOLUTION` declines while that record is set, the `invoke: null` command included. R30 lands against the real controller: three kernel rows (synchronous, asynchronous, `invoke: null`) and P8's throwing path in the sortable with both resolvers. Each asserts the full decided outcome, with no `onReorder`, `onError` at `FAILURE_ACTION_PREPARE`, and `canceled` at `AT_PROPOSAL` with origin `failed`.
+
+**Mutations.** Removing either the clause or the registration reddens four rows. The `invoke: null` row cannot redden: the skipped settlement queues behind the `FAILED` already in the queue, so that mutant is equivalent. +79 B minified, +20 to +42 B Brotli on the kernel-carrying rows. Record [`measurements/d204-step1.md`](measurements/d204-step1.md) §D-206. Step 2 is not started, and the targeted recheck of step 1 is the original reviewer's.
+
+---
+
 ### 2026-11-01 — A registered failure declines the round-trip (D-206, F-439)
 
 **The step-1 checkpoint's escalation is decided.** The inventory found one producer whose new position changes a published outcome. A custom placeholder's `connectedCallback`, run by the sortable's release move, calls `invalidate()`, and the collection work then fails in `items()`. Its checkpoint lands behind `OPEN_RESOLUTION`, and under D-205 the round-trip opened anyway. With a synchronous resolver the terminal moved from the baseline's `accepted` with a late `onError` to `canceled` at `AT_CONSUMER`. The new probe P8 reproduces both trees in Chrome.
