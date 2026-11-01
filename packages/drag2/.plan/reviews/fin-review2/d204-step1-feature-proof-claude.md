@@ -1,5 +1,7 @@
 # D-204 step 1: the runner and construction — feature proof
 
+**Rechecked at `44e2074f1` under D-206**: see [§Recheck at `44e2074f1`](#recheck-at-44e2074f1--step-1-complete-under-d-206). The sections before it are the review of `2c5212daf` as it stood.
+
 **Trees read.** Implementation `2c5212daf`. Documentation `c2a38f316`, which changes no file under `src/` relative to `2c5212daf`. Baseline `582092c1f`. Branch `drag2/fin-review2`. The shared checkout has the owner's uncommitted one-assertion edit to `tests/kernel/seams.node.test.ts`. It was present in the tip suite run and is otherwise outside this review. The baseline and tip runs in the table below used detached worktrees at `582092c1f` and `c2a38f316`.
 
 **Subject.** `drag2:D-204`, which carries D-203 → D-202 by reference. The inputs read were:
@@ -205,3 +207,131 @@ The mutation census reports every row the mutation reddens, or states the scope 
 
 - The architect decides reviewer-A's step-order question.
 - reviewer-B, reviewer-C and reviewer-D are defects against step 1 as landed, for its implementer. Step 2 should not land on top of reviewer-B unaddressed, because step 2 rewrites the teardown that reviewer-B's promise depends on.
+
+---
+
+## Recheck at `44e2074f1` — step 1 complete, under D-206
+
+**Trees read.** Review revision `44e2074f1`, branch `drag2/fin-review2`, clean. Implementation follow-ups `3e44eaf62` (D-205 checkpoint, with the repairs for reviewer-B to reviewer-D) and `902810cae` (D-206 clause and R30). `44e2074f1` is the owner's `seams.node` assertion edit, now committed. Baseline `582092c1f`, used for lint only, in a scratch worktree.
+
+**Subject.** `drag2:D-206`, which carries D-205 → D-204 → D-203 → D-202 by reference. The inputs read were:
+
+- D-204 to D-206 in `contract/00-index.md`;
+- `request-application-claude.md` §8, §12 and §13;
+- `measurements/d204-step1.md` §D-205 checkpoint and §D-206.
+
+**Scope.** The recheck covered:
+
+- reviewer-A to reviewer-D against the tree and the architect's dispositions;
+- the round-trip's unit: `#closeOperation`'s release callback, `#handleOpenResolution`, the `command` attempt slot, the cancel stage rule, and `#failOperation`'s registration;
+- the step-1 cases R4, R5, R6, R22 and R28–R30 as rows;
+- the mutation and composition claims in both new record sections;
+- the `invoke: null` limitation;
+- property 13 on the probed paths.
+
+It did **not** cover:
+
+- steps 2–6;
+- R12, R14, R16 and R18–R21, which are booked to those steps;
+- a full read of the 02 and 06 amendments (the round-trip and stage-rule paragraphs were read, the rest sampled);
+- the four surviving round-trip mutants in COVERAGE, which were read but not re-run.
+
+### Result
+
+**No step-1 blocker remains.** reviewer-A to reviewer-D are resolved. The step's cases R4–R6, R22 and R28–R30 have rows that raise their requests through the running controller, and R5 and R28 are now held by order, as D-205 decided. The failure clause is implemented as D-206 states it. The evidence supports the records' claims, apart from the two counts in reviewer-F. There are three new findings, all **Tier C** and none a regression in behaviour.
+
+| Check | Result |
+| --- | --- |
+| `just test`, tip | 10 failed, 1,368 passed, 60 skipped; `react.browser` and `stories.browser` do not load. The ten are the input's (six `size.node` controls, four `docs.node` surface rows). Matches §D-206 |
+| eslint, whole package | 26 errors at the tip, 28 at `582092c1f`. The tip's set is a subset; the two gone are the deleted `execution.ts` latch read and the `seams.node` template literal. No new error |
+| oxlint, whole package | clean. With `--report-unused-disable-directives`, one warning at `seams.node.test.ts:1177` (reviewer-E) |
+| Typecheck | the two `.scripts/vitest-*.ts` errors, as at the input |
+| Composition (`just build`, `measureAll()`) | all fifteen "after" figures in §D-206 reproduce byte for byte. The "before" column was not rebuilt |
+| `run.sh` (P1, P2, P6, the model, P4, P5, P7 and P8) at the tip | model R1–R14, R22 and R28–R30 `ok`. P5 and P7: R5, R22, R28 and R29 at their required outcome. P8: no `onReorder` and `canceled AT_PROPOSAL failed` for both resolvers when throwing, and `accepted` when not. R3 and R8 are at their baseline outcome, as the record says |
+
+**Mutations, each alone in the shared checkout and restored, over the whole suite.** The counts exclude the ten input failures.
+
+| Mutation | Record | Here |
+| --- | --- | --- |
+| failure clause dropped | 4 | **4**: kernel sync and async, sortable sync and async |
+| registration write dropped (`kernel.ts:817`) | 4 | **4**, the same rows |
+| cancel clause dropped | 2 | **2**: R22, the null-command cancel row |
+| stage read from the phase | 3 | **3**: R4, R22, the null-command cancel row |
+| reviewer-B's `#settled ??=` dropped | 1 | **1**: `execution.node` _should have settled its promise when destruction is requested after a panic_ |
+| release unit opens the round-trip inline | 6 (COVERAGE, at `3e44eaf62`) | **11**: R5 (`kernel.browser:1939`), R22, R28 (`:2036`), R29, the order row, both null-command rows, and the four R30 resolver rows. See reviewer-F |
+
+### Dispositions of the original findings
+
+| Finding | Disposition | Evidence at `44e2074f1` |
+| --- | --- | --- |
+| reviewer-A | **Resolved.** The architect decided it as D-205 (F-438) by moving the round-trip's own unit into step 1. It landed at `3e44eaf62` | The release callback holds the command and queues `OPEN_RESOLUTION` (`kernel.ts:1906–1909`). P5's destroy in `release.effect` and P7's destroy in `release.prepare` show no `invoke`. R5 and R28 redden under the inline mutation. Whether F-438 closes is the architect's call, and on this evidence its property holds |
+| reviewer-B | **Resolved.** | `#release` leaves a settled promise when nothing requested the release (`execution.ts:274–283`). Three `execution.node` rows, one of which reddens when the fix is removed |
+| reviewer-C | **Resolved.** | COVERAGE `:1058` and `:1178` and the record `:42` now say two rows, with the correction marked |
+| reviewer-D | **Resolved.** | The `seams.node` comment names the current panic body. 01 names `#arm()` inside `Kernel.construct` |
+
+### The `invoke: null` limitation
+
+**The limitation is genuine, and the record describes it correctly.** Removing the failure clause cannot change any outcome on the null-command R30 row:
+
+1. The failing action's `FAILED` is queued before `OPEN_RESOLUTION` runs. Without the clause, opening a null command calls `#settleResolution`, which queues `RESOLUTION_SETTLED` **behind** that `FAILED` (`kernel.ts:1717–1728`, `:1748–1752`).
+2. `#handleFailed` retires the attempt slots before it opens its seam. When the skipped settlement then arrives, `#handleResolutionSettled` finds the slot empty and returns without a report (`:2011–2025`).
+3. The behaviors derive a failed drop's stage from their `RESOLVING` marker, which only the `invoke` closure sets (`sortable/spec.ts:1428–1435`, `:1650–1653`; `free-drag/spec.ts:698–705`, `:851–854`). A null command has no closure, so the stage is `AT_PROPOSAL` either way.
+
+There is no consumer call, report or warning in either tree. The mutant is equivalent on this path. The cancel half differs because the kernel derives the cancel stage from the attempt slot, so dropping the cancel clause reddens the null-command cancel row.
+
+**The row still earns its place**: it is one of the eleven rows the inline-open mutation reddens.
+
+**For the architect** (an observation, not a defect in the implementation): D-206 says _"A mutation that removes the clause must redden the R30 rows"_, and §13.5 lists the `invoke: null` row among them. For that row the requirement cannot be met through any surface. The record says so, but its count is wrong (reviewer-F).
+
+---
+
+### reviewer-E — the `seams.node` interpolation row's comment and suppression contradict its code
+
+**Tier C. Introduced at `44e2074f1`.**
+
+#### Current behavior / contract
+
+At `tests/kernel/seams.node.test.ts:1174–1178` the comment says _"A real interpolation, not `String(...)`: `String(symbol)` succeeds and only `${symbol}` throws, so this is the one spelling that discriminates"_. An `oxlint-disable-next-line typescript/restrict-template-expressions` follows it. The assertion beneath is now `expect(String(report.cause)).toBe('null')`.
+
+#### Why it is a problem
+
+The comment describes a spelling the row no longer uses, and the suppression covers nothing. The row has lost no detection: `expect(report.cause).toBeNull()` at `:1172` already fails on a symbol cause. The assertion at `:1178` is now redundant with that line rather than a separate check.
+
+#### Evidence
+
+`git show 44e2074f1`. `oxlint --report-unused-disable-directives tests/kernel/seams.node.test.ts` reports _"Unused oxlint-disable directive"_ at `:1177`.
+
+#### Required property
+
+The comment and the directive describe the assertion beneath them.
+
+### reviewer-F — two mutation counts in the step-1 evidence do not match the tree
+
+**Tier C.**
+
+- `measurements/d204-step1.md:235` says _"three of the five rows can, and do"_ redden when the clause is removed. Its own bullets at `:232–233` say 4 rows, and so does the run above.
+- COVERAGE `:1246` books the inline-open mutation at **6** rows. That count was true at `3e44eaf62`. At the tip it reddens **11**, because the five R30 rows landed after it was taken. The section does not say which tree its count was taken at, while the D-206 table beside it reads as current.
+
+**Required property.** A census states the count for the tree it names.
+
+### reviewer-G — the unimplemented-decisions row still lists step 1's failure clause as missing
+
+**Tier C. Routed to the architect, who owns the row.**
+
+`contract/00-index.md:2800`'s _What is missing_ cell for D-206 still begins _"the round-trip's failure clause and R30 (the rest of step 1)"_. Both landed at `902810cae`. The witness, the absent `d206-requests.md`, is unaffected and `decisions.node` still passes. Only the cell's prose is stale.
+
+**Required property.** The row lists what is still unimplemented.
+
+### Recheck: verification limits
+
+- Browser runs used Chromium only, through the package's Vitest browser project.
+- The four surviving round-trip mutants (phase clause, identity clause, the command kept after opening, the command kept at retirement) were not re-run. Their reasons in COVERAGE `:1253–1262` were read and agree with the code read here.
+- reviewer-B's repair is verified at the bracket, through `execution.node`'s rows and the mutation. It was not driven through a real `Kernel` panic.
+- Composition: only the "after" column was rebuilt. The "before" column is taken from the record, which links it to the checkpoint's "after".
+- Property 13 is checked on P4, P5, P7 and P8's paths only. R12, R14, R16 and R18–R21 were not probed.
+- The scratch worktree and the probe scratch directories were removed. `git status` was clean before the report was edited.
+
+### Recheck: next
+
+- **No step-1 blocker remains.** Accepting step 1, and closing F-438 and F-439, are the architect's and owner's calls.
+- reviewer-E is for the owner, who made that edit. reviewer-F is for the implementer. reviewer-G and the `invoke: null` wording are for the architect. None needs to land before step 2.
