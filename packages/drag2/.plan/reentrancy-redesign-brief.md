@@ -2,6 +2,26 @@
 
 **Commissioned 2026-11-01.** This records the owner's direction for an architectural redesign. It is input to the architect, not a new contract or decision, and it does not mark any existing obligation discharged.
 
+## Governing owner clarification — snapshot semantics for internal calls
+
+**2026-11-01, after the initial commissioning.** The owner narrows the immediate assignment to a concrete architectural property: mutability of a class, object or variable must not be able to affect an already-started internal call sequence; the calls must proceed as though against a snapshot. This section supersedes the earlier broad survey scope and architectural outcome below. The original commissioning remains as provenance and context.
+
+The snapshot requirement is the requested behavior, not a prescribed implementation. The architect defines the unit of execution and its capture boundary, the state and call targets it fixes, and how results become current. Subsequent mutation of the originating state, including mutation through a reentrant callback, must not change the inputs, receivers or targets used by later internal calls in that unit. Keeping a `const` reference to an object whose mutable fields are still read does not by itself establish this property; explain the treatment of reachable mutable state.
+
+**Removing classes, splitting classes and using composition are all expressly acceptable**, including changes to `Kernel` and its surrounding entities. Neither the current class layout nor `drag2:D-199`'s one-class conclusion is a constraint on the new design. No particular copying, freezing, persistent-data or scheduling mechanism is chosen by this brief.
+
+Start with drag2's internal call chains in construction and execution, including the frame-factory and admission examples below. Follow the affected seams and behavior integrations as needed to make the chosen boundary coherent. Examine asynchronous continuations and lifecycle entry points where they interact with that boundary. A general workspace-wide audit or unrelated immutability migration is not a prerequisite for this unit; expand to a dependency only where the proposed snapshot semantics require it.
+
+Specify how `destroy`, cancel, reentrant operations and stale asynchronous results interact with a running snapshot and subsequent publication or cleanup. State which existing promises survive and which require explicit revision. Their exact semantics remain architectural work, subject to the snapshot requirement: retaining the present dependence on mutable state through repeated guards does not satisfy it. If a lifecycle promise cannot coexist with the required isolation, expose the conflict and the proposed contract change rather than assuming an exception to the owner's requirement.
+
+The handoff must contain a concrete design and bounded implementation plan for this snapshot property, with executable discriminating examples: mutate originating state or a call target during the sequence, and show that later internal calls still observe the intended captured context. Explain how the capture remains effective for mutable references, how independent or reentrant units are separated, and how results and resources reach the appropriate lifecycle boundary. Identify necessary contract and test revisions and the runtime, allocation and bundle measurements implementation owes. Fewer scattered guards may follow, but a reduced guard count alone is not acceptance of the snapshot property.
+
+The existing integrator-trust policy, architect/implementer authority boundaries, pending obligations and finalization rules remain applicable. This clarification changes the immediate architectural task, not the status of D-200 or the completion of any implementation.
+
+## Original commissioning — superseded scope and outcome
+
+The following sections retain the original mandate. Use the clarification above for the current scope and required outcome wherever it narrows or replaces them.
+
 ## Problem and owner direction
 
 The owner considers the repeated need to revalidate mutable controller state after calls into foreign code a strong architecture smell. A previous cycle of protective checks, architectural decisions, implementation and review expanded the machinery until the owner reaffirmed that the library should trust its integrator. The concern is that the underlying architecture still makes the same expansion likely. The requested outcome is to change that architecture across the affected code, rather than resolve the two triggering examples in isolation.
