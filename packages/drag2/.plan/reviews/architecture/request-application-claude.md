@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**Step 2 accepted 2026-11-01, at `877fb9612`, after its feature proof.** D-206 stays unimplemented: steps 3–6 remain. The 13 budget overruns are the owner's tolerated size cost of step 2, and none is re-based. step2-A and step2-B stay with the implementer, to be repaired before `d206-requests.md` is written. step2-C is decided without editing 05, and the obligation goes to step 4's I-36 rewrite. §15 records the assessment, the dispositions and step 3's handoff.
+
 **Step 1 accepted 2026-11-01, at `44e2074f1`, after the step-1 feature proof's recheck.** D-206 stays unimplemented: steps 2–6 remain. `drag2:F-438` and `drag2:F-439` close with the step. D-206's mutation requirement is amended in place to cover the R30 rows whose outcome the clause decides; the `invoke: null` row is an equivalent mutant. §14 records the assessment, the dispositions and step 2's handoff.
 
 **Amended a fourth time 2026-11-01 for `drag2:D-206`, which supersedes `drag2:D-205` after its step-1 checkpoint (`3e44eaf62`).** D-206 carries D-205 in full and adds one clause to `OPEN_RESOLUTION`'s entry condition: the round-trip also declines while a failure checkpoint for its operation is registered and unapplied. Step 1's `release.effect` inventory met §8's first escalation clause: a custom placeholder's reaction to the release move queues collection work, that work fails, and its checkpoint lands behind `OPEN_RESOLUTION`. Under D-205 the round-trip then opened for an operation whose failure was already registered, and the terminal for a synchronous resolver moved from `accepted` to `canceled` at `AT_CONSUMER`. D-206 requires no round-trip and `canceled` at `AT_PROPOSAL` for either resolver. §2.2, §2.7, §2.8, §2.10, §4–§9 below state the D-206 form. §13 records the escalation, the evidence and the options. Raises and repairs `drag2:F-439`.
@@ -465,6 +467,8 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 
    Cases: D-201's capture assertions and R19. Its bounded handoff, with what it must keep from step 1, is §14.4.
 
+   **Step 2 is accepted** (2026-11-01, at `877fb9612`; §15).
+
 3. **Kernel requests.** Delete every in-unit ledger read in the kernel and driver (§6):
    - `#preparationValid`, `SEAM_INVALIDATED`, `rollback` and its SPI members together with the sortable D-39 ledger, the staging conditional if step 1 kept it;
    - `#activationPolicy.committed`'s revalidation, `#settlementLive`, `#joinLive`, `#settleResolution`'s latch, `#handleErrorReported`'s latch, `#runAdmission`'s recheck.
@@ -474,6 +478,8 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
    - supersession captured at intake.
 
    `OPEN_RESOLUTION`, its entry condition, the cancel stage rule and the inventory moved to step 1 (D-205, §12; D-206, §13). Cases R1–R3, R7, R8, R12, R14, R16, R20; R4–R6, R22 and R28–R30 stay green. Contract: I-3, I-16, I-21, I-22, I-31, the remaining 02 sections.
+
+   Its bounded handoff, with what it must keep from steps 1 and 2, is §15.3.
 
 4. **Surface and behaviors.**
    - rename `destroy`/`cancel` to `requestDestroy`/`requestCancel` on `BehaviorContext` and both controllers;
@@ -515,6 +521,8 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 - **Reviewer-B to reviewer-D** of the same report are step-1 defects for its implementer. Reviewer-B is repaired before step 2, as the report requires. All three were repaired at `3e44eaf62`, and the recheck resolves them.
 - **Step 1** is accepted at `44e2074f1` (§14). **F-438** and **F-439** close with it. D-206 stays unimplemented, and its row lists steps 2–6.
 - **Reviewer-E to reviewer-G** of the recheck are Tier C. E is the owner's and F the implementer's, and neither blocks step 2. G is repaired in the unimplemented row (§14.2).
+- **Step 2** is accepted at `877fb9612` (§15). D-206's row lists steps 3–6. The 13 budget overruns are tolerated under the owner's ruling and are not re-based.
+- **step2-A to step2-C** of the step-2 feature proof. A (Tier B) and B (Tier C) are the implementer's, nonblocking, and must be repaired before `d206-requests.md` is written. The decision's acceptance does not rely on property 12's census until A is closed. C (Tier C) is decided without an edit: both passages in 05 are dated or quoted history, and step 4's I-36 rewrite names the panic diagnostic by its route (§15.2).
 - **F-97** is unchanged. It still holds open whether the armed check survives the reachability gate (the audit's §3.5). D-204 scopes the armed promise to armed dispatch, which is all it ever covered, and is compatible with either answer.
 - **F-432** is decided by D-202 (R15) and closes when it lands. **F-433** (R9) and **F-434** (R8) likewise move from D-201 to D-202. **F-435** is raised and decided here (R4, R6).
 - **Live obligations** O-2, O-3, O-4, O-5 and O-7 are untouched. SC-1 and SC-7 are recognitions the measurement record may meet.
@@ -1087,3 +1095,190 @@ M-1 and M-2 belong to step 6. If the façade hop measurably changes the move pat
 - teardown deduplication changes an outcome that a step-1 row or reviewer-B's rows assert.
 
 **Review.** Step 2 gets its own feature proof before step 3 starts.
+
+## 15. Step 2 accepted (D-206)
+
+**Input.** `889bfc23c` on `drag2/fin-review2`. The implementation reviewed is `877fb9612`, which landed step 2 in one commit on the step-1 acceptance at `222445777`. The assessment rests on the step-2 feature proof ([`d206-step2-feature-proof-claude.md`](../fin-review2/d206-step2-feature-proof-claude.md)) and on the step's record ([`d206-step2.md`](../../measurements/d206-step2.md)).
+
+### 15.1 Assessment
+
+**Step 2 is accepted.** Each requirement §14.4 states holds at `877fb9612`:
+
+- **Decomposition and property 3.** The `Kernel` façade owns the realm, root, bracket, ingress `AbortController` and one nullable `#armed` reference. `ArmedController` holds every handler, the slots and the controller-scope context. That context is in `readonly` fields assigned only in its constructor, and no reader tests them for presence.
+- **Property 4.** Each unit entry resolves its operation and activation records once and passes them down. The settlement input is the seam's capability, and the `settlementInput` slot is gone. One read of a slot below a unit entry remains, `#preparationValid`. It is step 3's, and §14.4 kept it out of step 2.
+- **Property 10.** Steps 3–6 are written once, in `#release`, and are reached only from retirement by identity and from teardown. The `null` retirement mode is gone. A mint failure disposes its local record and touches no frame and no published slot. That is the behavior change D-201 property 10 decides, and it makes no consumer call.
+- **Property 12.** `src/` holds no top-level `let` or `var` and no mutable `static`. `let verifying` and `setRefreshVerification` are gone. The development-only instrument is switched off by a `shipped` test project that defines `__DEV__` false, so no `src/` state remains for a test to flip. Project routing was verified in package and workspace modes. One pointer sample allocates nothing.
+- **Kept from step 1.** `OPEN_RESOLUTION` reads its five clauses at its entry. Registration is written only in `#failOperation`, after the demotion return. `closed` reads the bracket. `lifetimes.ts`, `queue.ts` and `execution.ts` are unchanged, so D-200 is untouched. Every step-1 row passes, including the five R30 rows, both null-command rows and reviewer-B's three `execution.node` rows. The failure clause still reddens four rows and the cancel clause two. The inline-open mutation reddens eleven, and removing reviewer-B's repair reddens one.
+- **Property 13.** `run.sh` gives the same set of lines at the input and the tip. R3 and R8 stay at their baseline outcome, as step 3's.
+- **The failing sets are the input's**, plus the 13 budget rows below. These are the ten test failures (six `size.node` controls and four `docs.node` rows), the same six eslint errors in the changed files, and the two `.scripts/vitest-*.ts` typecheck errors.
+
+**Checked independently at the tip:**
+
+- **`run.sh`:**
+  - the model's R1–R14, R22 and R28–R30 are `ok`;
+  - P4, P5 and P7 pass 12 of 12;
+  - P8's throwing rows show no `onReorder` and `canceled AT_PROPOSAL failed` for both resolvers, and its non-throwing rows are `accepted`;
+  - P5 still shows `activation.rollback` for a cancel in `activation.prepare`, and P4 still strands the first operation. Those are R3 and R8 at baseline.
+- **`capture.node`** passes 11 of 11. A text search finds no top-level `let` or `var` in `src/`.
+- **step2-A's premise.** `objectConstants` accepts only an initializer that is itself an object literal, array literal or `new` expression. The seven constants it misses are each initialized with `as`, `as const` or `as const satisfies`.
+- **step2-B's premise.** The input's bracket callback already called the private `#handle` (`222445777` `kernel.ts:345–347`).
+- **step2-C's premise.** The two passages in 05 name `Kernel.#panic`, and §15.2 reads both.
+
+**Runtime.** The independent measurement used 56 runs per tree. It resolves no end-to-end difference at about 0.1 µs, which is roughly 3%. A smaller one cannot be excluded. Allocation stays at zero per sample. Corrected for step2-B, the call-path analysis predicts one more field read, one more argument and one call fewer per active sample. No runtime regression is demonstrated or predicted above call-overhead scale. The owner's ruling authorizes no runtime regression, and none is found. M-1's resolving measurement remains step 6's.
+
+**Composition: the owner's tolerated overrun.** Thirteen kernel-carrying budget rows exceed their Brotli budgets by 11 to 77 B. The growth is +118 to +160 B Brotli on the composed rows and +128 B on the kernel root, and every tip figure equals the record's _after_ column. Under the owner's ruling (record §Owner rulings, 2), this growth is **a tolerated size cost of step 2, now verified**:
+
+- **No budget is re-based.** The rows stay red in `size.node`, and this acceptance authorizes no re-base. Only the owner can authorize one.
+- **The tolerance is step 2's attributed growth.** A later step's growth on a kernel-carrying row is not covered by it. Each step's record reports its composition against the unchanged budgets, with the delta and each row's distance to budget, and attributes any growth. Whether that growth is tolerated is put to the owner at the step's acceptance. It does not stop the step.
+
+**Limits, carried from the review and not discharged here:**
+
+- Chromium only, and M-2 was not measured.
+- Thirteen of the record's eighteen mutations were not re-run.
+- `react.browser` and `stories.browser` load at neither tree.
+- 02 and 05 were searched for the replaced member names, not read in full.
+
+**What this does not do:**
+
+- **D-206 stays `Unimplemented (Remediation)`.** Steps 3–6 remain. The witness, the absent `d206-requests.md`, holds.
+- **F-432 to F-435 stay open** and close when the whole decision lands.
+- **D-200's independent acceptance is still pending.**
+- **Reviewer-E and reviewer-F** of the step-1 recheck stay open, the owner's and the implementer's, as §14.2 assigned them.
+
+### 15.2 Dispositions
+
+| Item | Disposition |
+| --- | --- |
+| **Step 2** | **Accepted** at `877fb9612` |
+| The 13 budget overruns | **Tolerated** under the owner's ruling. Not re-based. Later steps report against unchanged budgets (§15.1) |
+| **step2-A** (Tier B) | **The implementer's. Open, nonblocking for steps 2 and 3.** Completion boundary below |
+| **step2-B** (Tier C) | **The implementer's. Open, nonblocking.** Completion boundary below |
+| **step2-C** (Tier C) | **Decided here: neither passage is edited.** The current-state obligation goes to step 4's I-36 rewrite (below) |
+
+**step2-A: the object-valued constant census.**
+
+- **Required property.** The census in `capture.node`'s _should hold only these object-valued constants in library modules_, and in the step-2 record, enumerates every module-level constant initialized with an object literal, an array literal or a `new` expression, whatever wraps the initializer:
+  - `as`, `as const` and `satisfies`;
+  - parentheses;
+  - a non-null assertion;
+  - an angle-bracket assertion.
+
+  The row's list is exact for its tree. Each constant it adds is classified by reading its uses.
+
+- **The record states the count for the tree it names.** `d206-step2.md`'s census says 6 for `877fb9612`, and the review counted 13. The implementer corrects the record with a dated correction that names the tree. COVERAGE's claim that the row "pins the list exactly, so a seventh is classified when it appears" becomes true when the row is repaired, and not before.
+- **Completion boundary.** It lands **before `d206-requests.md` is written**, and before any record or acceptance cites the census as property 12's evidence. Step 6's record states the census for its own tree. **D-206's acceptance (§8) does not rely on property 12's census until step2-A is closed.** It may land with step 3, which edits `capture.node` anyway, because the slot-read row loses its `#preparationValid` exception there.
+
+**step2-B: the call-path count.**
+
+- **Required property.** The analysis states the counted difference for the trees it names. At `877fb9612` against `222445777`, that is one more field read and one more argument per active sample, and one call fewer.
+- **Completion boundary.** The implementer corrects `d206-step2.md` §Runtime with a dated correction **before `d206-requests.md` is written**. It may land with step 3's record. Step 6's record states its own call-path analysis for the trees it names.
+
+**step2-C: `Kernel.#panic` in 05.** Neither passage is current-state text.
+
+- **`05-lifecycle-invariants.md:839`** is Q-22's original question. It is struck through and quoted under its resolution ("Original text follows."). Quoted history is never re-pointed.
+- **`:233`** is D-178's dated amendment paragraph (_Amended by D-178, 2026-09-04_). It records what D-178 decided about the site as the tree stood on that date. The ledger amends by adding dated paragraphs and does not rewrite earlier ones. Its date already marks it as of then, so a further marking would add nothing.
+
+**The obligation behind the finding is real, and it belongs to step 4.** A reader of I-36 must be able to locate the post-closure diagnostic by a site that exists. I-36 is rewritten at step 4 (§5, §8 step 4). That rewrite restates D-178's exception members in the present tense, naming each by its route rather than by a private member:
+
+- the two `retireHooks` walks under relinquishment;
+- the panic route's `onError` delivery under diagnosis, which is the bracket's panic callback into the armed controller.
+
+A refactor then cannot stale the text. Until step 4, the dated paragraph's member name is a known, recorded mismatch. §8's acceptance re-read confirms the rewrite.
+
+### 15.3 Handoff: step 3, kernel requests
+
+**Governing design:** §2.2 (the ledger and its three reading places), §2.6 (cancellation), §2.10 (failures), §2.11 (what the deletions remove), §6 (the guard sites), §7 (the cases) and §5 (the contract rows). Sites below are cited at `877fb9612`.
+
+**Scope.** No unit reads the ledger after its entry, in the kernel and the seam driver. Every lifecycle-request and cancel-request read below a unit entry is deleted. The ledger's three reading places are the only ones left: the runner, unit entries and request intake (§2.2).
+
+**Delete:**
+
+- **`ArmedController.#preparationValid`** (`kernel.ts:539–549`) and the driver's dependency on it (`seams.ts:159`, `:227–232`). With it go both of its reads in the shared core:
+  - the invalidated arm (`seams.ts:289–292`);
+  - the staging conditional (`:315`), which step 1 kept.
+- **`SEAM_INVALIDATED`** (`seams.ts:80`, `:104`) and the activation policy's invalidated arm (`:618`).
+- **`rollback`**:
+  - `Transition.rollback` and `ActionTransition.rollback` (`seams.ts:56`, `:74`);
+  - `BehaviorSpec.activation.rollback`, `BehaviorSpec.action.rollback` and the kernel's adapter (`kernel.ts:1370–1371`);
+  - the `seam/rollback-failed` path (`seams.ts:199`, `:290`);
+  - the sortable's D-39 placeholder undo ledger, which only `rollback` replays (§2.11).
+- **The activation policy's `committed` revalidation** (`kernel.ts:1218`). `START_COMMITTED` is queued unconditionally. Its entry keeps the held-cancel reading (§2.7).
+- **The lifecycle and cancel conjuncts of the in-unit liveness checks**:
+  - `#settlementLive` (`:1409–1416`);
+  - `#joinLive` (`:1425–1431`) at each of its call sites;
+  - `#settleResolution`'s latch (`:1755`);
+  - `#handleErrorReported`'s latch (`:2388`);
+  - `#runAdmission`'s recheck (`:952`). Admission publishes unconditionally (R1).
+
+  A phase, identity or attempt conjunct is a currency check. It stays only where it is read at a unit entry, or is shown reachable below one. If it is neither, it goes too.
+
+- **`#failOperation`'s cancel conjunct** (`:797`). Supersession moves to the checkpoint's application (§2.10). The intake's context checks stay: `CLOSED`, no committed operation, and a report in flight.
+
+**Add:**
+
+- **The cancel phase rule** (§2.6). `cancel` registers only against an operation committed at intake in `PENDING`, `ACTIVATING`, `ACTIVE` or `RELEASING`. It is a no-op otherwise, on a duplicate, and when `CLOSED`.
+- **Supersession captured at intake** (§2.10). The checkpoint records at intake whether a cancel for its operation is registered and unapplied. `FAILED`'s entry decides on that record, or on a cancel still held at its entry, and reports `drag: failure/superseded-by-cancel`.
+
+**Cases.**
+
+- **New rows through the running controller:**
+  - R1's admission half;
+  - R2 and R3;
+  - R7 and R8;
+  - R12, R14, R16 and R20.
+- **Must stay green:**
+  - R4–R6, R22 and R28–R30, including the five R30 rows and both null-command rows;
+  - reviewer-B's rows;
+  - every step-2 row. The slot-read row loses its `#preparationValid` exception.
+- **Tests that encode a withdrawn promise.** The ones §7 lists for these behaviors change in this step:
+  - the `SEAM_INVALIDATED` and `rollback` rows in `seams.node`;
+  - the D-39 ledger tests;
+  - the rows asserting a silent drag for a cancel during activation.
+- **The declaration surface.** Any declaration row that names a removed `rollback` member changes in the same commit.
+- **Not this step's:** the renames, `closed`, `live` and `moveTo`, which are step 4's.
+
+**Contract, in the same commit as the code that makes it true** (§5):
+
+- I-3 and 02 §Post-callback revalidation;
+- I-16;
+- I-21 and I-22;
+- I-31;
+- 02 §The tri-phase transition, §Every classification entrypoint latches and §What this actually guarantees, with the new tier-B row _no unit reads the ledger after its entry_;
+- 02 §Attempts.
+
+**No present contract sentence is left false.** Step 3's deletions falsify some text booked to step 4: I-36's per-invocation latch reading on the kernel's own routes, and D-179's `joinLive` route coverage. Step 3 amends those sentences as far as its deletions reach. The participant clause for the behaviors' `closed` and `live()` reads stays until step 4 removes those reads, as does the rest of I-36's rewrite (§15.2).
+
+**Keep:**
+
+- `OPEN_RESOLUTION`'s five-clause entry, and registration written only where a checkpoint is queued. With the intake's cancel conjunct gone, a failure raised while a cancel is held is now queued and registered rather than demoted. The round-trip declines either way, and `FAILED` reports the supersession.
+- `closed` stays readable and reports `CLOSED` only, until step 4.
+- D-200: no `Lifetime` or `ActionQueue` property changes.
+- I-26: one pointer sample allocates nothing.
+
+**Property 13.** R3 and R8 leave their baseline outcome in this step. The record reruns `run.sh` at the input and the tip. It shows P5's R3 trace and P4's R8 trace changing to the required outcomes. It also shows that no probed row makes a consumer call that both the baseline and the target withhold. It carries the table forward with R3, R8, R12, R14, R16 and R20 moved to _required_.
+
+**Out of scope:**
+
+- the renames and the surface, and the behaviors' sinks (step 4);
+- the comment pass (step 5);
+- `d206-requests.md`, which is step 6, because creating it would falsify the witness early;
+- re-basing any budget.
+
+step2-A, step2-B and reviewer-F may land with this step. Reviewer-E stays the owner's.
+
+**Record:** `.plan/measurements/d206-step3.md`. It holds:
+
+- composition on every kernel-carrying row against the unchanged budgets, with delta and distance to budget (§15.1);
+- each mutation census, with the tree it was taken at;
+- the guard-site census, by `grep`, for lifecycle-request, cancel-request and failure-record reads in `src/kernel/`. It must find only §6's places;
+- property 13's table.
+
+**Escalate rather than decide** if:
+
+- a deletion changes a published outcome other than those §4 and §7 state for R1–R3, R7, R8, R12, R14, R16 and R20;
+- a step-1 or step-2 row stays green only through a reading this step deletes;
+- R16's two orders, or any reachable order, disagree with §2.10's _or on a cancel still held at its entry_;
+- a currency conjunct proves necessary below a unit entry for a reason the design does not state;
+- removing `rollback` leaves a `prepare` side effect that nothing undoes and that a test or contract row asserts is undone. §2.11 says the ledger never covered a throwing `prepare`, so this would be new evidence.
+
+**Review.** Step 3 gets its own feature proof before step 4 starts.

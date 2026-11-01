@@ -2743,6 +2743,8 @@ R4, R5, R6, R22, R28 and R29 land in step 1. Each is driven by a request from a 
 
 **Step 1 accepted 2026-11-01, at `44e2074f1`. The decision stays unimplemented.** Step 1 landed at `2c5212daf`, `3e44eaf62` and `902810cae`. The step-1 feature proof's recheck ([`d204-step1-feature-proof-claude.md`](../reviews/fin-review2/d204-step1-feature-proof-claude.md) §Recheck at `44e2074f1`) finds no step-1 blocker. Reviewer-A to reviewer-D are resolved. R4–R6, R22 and R28–R30 are rows whose requests come from seams the running controller drives. The failure clause is implemented as property 6 states it. F-438 and F-439 close with the step. Steps 2–6 remain, the witness holds, and F-432 to F-435 stay open until the whole decision lands. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §14, which also holds step 2's handoff.
 
+**Step 2 accepted 2026-11-01, at `877fb9612`. The decision stays unimplemented.** The step-2 feature proof ([`d206-step2-feature-proof-claude.md`](../reviews/fin-review2/d206-step2-feature-proof-claude.md)) finds no step-2 blocker. The split, capture at entry, teardown deduplication and the removal of the last module binding hold as D-201 properties 3, 4, 10 and 12 state them. Every step-1 row stays green, and `run.sh` gives the same set of lines at the input and the tip. Allocation stays at zero, and no timing difference is resolved at about 0.1 µs. **The 13 Brotli budget overruns, of 11 to 77 B, are the owner's tolerated size cost of step 2. No budget is re-based.** A later step's growth is reported against the unchanged budgets and put to the owner. step2-A, the object-valued constant census that misses type-asserted initializers, and step2-B, a miscounted call, are the implementer's. Both are repaired before `d206-requests.md` is written, and the decision's acceptance does not rely on property 12's census until step2-A is closed. step2-C is decided without an edit: the two passages in 05 that name `Kernel.#panic` are a dated amendment and a quoted original, and step 4's I-36 rewrite names the panic diagnostic by its route. Steps 3–6 remain, the witness holds, and F-432 to F-435 stay open. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §15, which also holds step 3's handoff.
+
 **What is carried.** D-205's text, properties 1–5 and 7–13, contract-text list, step order and six steps carry forward and are not restated. So does the code landed at `2c5212daf` and `3e44eaf62`. Only property 6's entry condition and the precedence clause of property 7 change, and one case is added.
 
 **Property 6, amended in one clause.** `OPEN_RESOLUTION` opens the round-trip only if, at its entry:
@@ -2807,7 +2809,9 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-206 | Remediation | steps 2–6: the split and capture, kernel requests, surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d206-requests.md` |
+| D-206 | Remediation | steps 3–6: kernel requests, surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d206-requests.md` |
+
+**D-206's row dropped step 2 on 2026-11-01**, when step 2 was accepted at `877fb9612`.
 
 **D-206's row dropped step 1 on 2026-11-01**, when step 1 was accepted at `44e2074f1`. The step-1 recheck's reviewer-G found the cell still listing work that had landed at `902810cae`. The witness is unchanged, because it is falsified by the last step, as a sequence's witness must be.
 

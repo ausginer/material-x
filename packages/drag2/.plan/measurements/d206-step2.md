@@ -1,6 +1,11 @@
 # D-206 step 2 — the split and capture
 
-> **Implemented 2026-11-01, not yet accepted.** Acceptance is the step-2 feature review's, which this unit stops for before step 3.
+> ~~**Implemented 2026-11-01, not yet accepted.** Acceptance is the step-2 feature review's, which this unit stops for before step 3.~~
+>
+> **Accepted 2026-11-01, at `877fb9612`**, by the architect on the step-2 feature proof ([`d206-step2-feature-proof-claude.md`](../reviews/fin-review2/d206-step2-feature-proof-claude.md)). Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §15. Two corrections to this record stay open and are the implementer's, due before `d206-requests.md` is written (§15.2):
+>
+> - **step2-A:** §Property 12's census counts six object-valued library constants. The tree has thirteen, because type-asserted initializers are missed;
+> - **step2-B:** §Runtime counts the façade hop as an added call. It adds a field read, so the net is one call fewer.
 
 **Canonical entry: `drag2:D-206`**, step 2 as `request-application-claude.md` §8 and §14.4 state it: D-201's properties 3, 4, 10 and 12 and its decomposition, as D-202 property 1 carries them. This record holds step 2's implementation status, its figures and its verification. It is **not** the decision's measurement record. `d206-requests.md` is written at step 6, and its absence is still the witness.
 

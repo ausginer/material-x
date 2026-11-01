@@ -2298,6 +2298,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-01 — D-206 step 2 accepted: the split and capture
+
+**Step 2 is accepted at `877fb9612`, and D-206 is not complete.** The step-2 feature proof finds no step-2 blocker. The `Kernel` façade and the armed controller, capture at unit entry, teardown written once, and no module-level mutable binding hold as D-201 properties 3, 4, 10 and 12 state them. Every step-1 row stays green. The architect reran `run.sh` and `capture.node` at the tip, with the same result. Allocation stays at zero per sample. No timing difference is resolved at about 0.1 µs, and none is predicted above call-overhead scale. Steps 3–6 remain. The witness holds, F-432 to F-435 stay open, and D-200's acceptance is still pending.
+
+**Thirteen Brotli budget rows stay red, 11 to 77 B over.** Under the owner's ruling this is step 2's tolerated size cost, and no budget is re-based. A later step reports its own growth against the unchanged budgets, and the owner decides at that step's acceptance.
+
+**The review's three findings:**
+
+- **step2-A** (Tier B): the object-valued constant census misses seven type-asserted constants. It is the implementer's and is repaired before `d206-requests.md` is written. The decision's acceptance does not rely on the census until then;
+- **step2-B** (Tier C): the record counts the façade hop as an added call. It is the implementer's, with the same boundary;
+- **step2-C** (Tier C): 05 names `Kernel.#panic` in a dated amendment and in a quoted original. Neither is edited, and step 4's I-36 rewrite names the panic diagnostic by its route.
+
+Step 3, kernel requests, is next. Its bounded handoff is in [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §15.3.
+
+---
+
 ### 2026-11-01 — D-206 step 1 accepted; F-438 and F-439 closed
 
 **Step 1 is accepted at `44e2074f1`, and D-206 is not complete.** The step-1 feature proof's recheck finds no step-1 blocker. Reviewer-A to reviewer-D are resolved. The step's cases are rows through the running controller. The failure clause is implemented as D-206 states it. The architect reran `run.sh` and the five R30 rows at `e9eaf657c`, with the same result. F-438 closes: R5 and R28 are held by order, and the inline-open mutation reddens them. F-439 closes: four R30 rows redden without the clause or its registration. Steps 2–6 remain. The witness holds, F-432 to F-435 stay open, and D-200's acceptance is still pending.
