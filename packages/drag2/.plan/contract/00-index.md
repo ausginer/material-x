@@ -2805,6 +2805,27 @@ The clause still covers the null command, and property 6 is unchanged. The null 
 
 **Unimplemented (Remediation).** **Decided 2026-11-01, on the implementer's escalation during D-206's step 3**, under the record's §15.3 first escalation clause, relayed by the owner. Baseline `add2d5ca8`, with step 3 uncommitted. **D-206 in full, except that the unit that would enter activation also declines at its entry while a cancel for its operation is registered.** Supersedes D-206. Raises and repairs F-440. Carries D-206's repair of F-439, D-205's decision of F-438, the decisions of F-432 to F-435 and the repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §16. That record's §2.2, §2.6, §2.7, §4, §6–§9 and §15.3 state the D-207 form and are the handoff.
 
+**Step 3 accepted 2026-11-02, at `ef1e4ef6b`. The decision stays unimplemented.** The step-3 feature proof ([`d207-step3-feature-proof-claude.md`](../reviews/fin-review2/d207-step3-feature-proof-claude.md)) finds no step-3 blocker:
+
+- No unit reads the ledger after its entry.
+- The rollback machinery and the sortable's D-39 ledger are deleted.
+- The cancel phase rule, supersession at intake and this decision's activation clause hold as stated.
+- R31's three rows pass, and every step-1 and step-2 row stays green.
+- All eleven mutation counts reproduce.
+
+**Composition shrinks on every kernel-carrying row**, and the 13 rows step 2 left over budget are under it. No budget is re-based.
+
+**Runtime.** Allocation is measured at zero per sample. No timing difference is resolved at about 0.1–0.2 µs. Code analysis predicts no regression.
+
+**The review's findings:**
+
+- **step3-A** is decided in place, as a non-substantive edit. A cancel raised in the release seam's `prepare`, or in a behavior action's, no longer discards that preparation, as for activation. That is §2.11's rule, which the code already met. The record's §4 item 3 now states all three seams. Case **R32** is added and lands in step 4.
+- **step3-B** is the implementer's: the ledger census row misses lifecycle reads through `idle`. It is repaired before R21, or any acceptance, relies on the census.
+- **step3-C** is the implementer's: the record understates the published `rollback` removal. _Surface: none_ below is relative to D-206, and §3's surface changes carry forward.
+- **step2-A, step2-B and reviewer-F** close with the step.
+
+Steps 4–6 remain, the witness holds, and F-432 to F-435 stay open. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §17, which also holds step 4's handoff.
+
 **What is carried.** D-206's text, its properties 1–6 and 8–13 as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1 and 2 as accepted at `44e2074f1` and `877fb9612`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step2-A and step2-B keep their boundary, which is now before `d207-requests.md` is written. Only property 7 changes, and one case is added.
 
 **Property 7, amended in one clause.** At a unit's entry:
@@ -2856,7 +2877,9 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-207 | Remediation | steps 3–6: kernel requests with activation's held-cancel entry, surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d207-requests.md` |
+| D-207 | Remediation | steps 4–6: surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d207-requests.md` |
+
+**D-207's row dropped step 3 on 2026-11-02**, when step 3 was accepted at `ef1e4ef6b`.
 
 **D-206's row closed on 2026-11-01 with steps 1 and 2 accepted.** D-207 superseded it during step 3, adding a held-cancel clause to activation's entry. D-207's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 

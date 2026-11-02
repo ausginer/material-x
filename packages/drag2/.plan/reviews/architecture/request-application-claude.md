@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**Step 3 accepted 2026-11-02, at `ef1e4ef6b`, after its feature proof.** D-207 stays unimplemented: steps 4–6 remain. step3-A is decided without a new decision. A cancel raised in a seam's `prepare` no longer discards that preparation, for the release seam and behavior actions as for activation. That is §2.11's rule, which the code already met. §4 item 3 now states the three seams, and case R32 pins the two that had no row; it lands in step 4. step3-B stays with the implementer and is repaired before R21 or the decision's acceptance relies on the ledger census. step3-C stays with the implementer. §17 records the assessment, the dispositions and step 4's handoff.
+
 **Amended a fifth time 2026-11-01 for `drag2:D-207`, which supersedes `drag2:D-206` during step 3.** D-207 carries D-206 in full, including its accepted steps 1 and 2, and adds one entry clause: the unit that would enter activation, `ACTIVATE` or `MOVE` at `PENDING`, declines while a cancel for its operation is registered, and the queued `CANCEL` retires the operation silently. Step 3's deletion of the activation's in-unit revalidation had made a command operation announce `onStart` and then `canceled` for a cancel registered at `PENDING`, where the baseline retires silently. §2.2, §2.6, §2.7, §4, §6–§9 and §15.3 below state the D-207 form. §16 records the escalation, the evidence and the options. Raises and repairs `drag2:F-440`.
 
 **Step 2 accepted 2026-11-01, at `877fb9612`, after its feature proof.** D-206 stays unimplemented: steps 3–6 remain. The 13 budget overruns are the owner's tolerated size cost of step 2, and none is re-based. step2-A and step2-B stay with the implementer, to be repaired before `d206-requests.md` is written. step2-C is decided without editing 05, and the obligation goes to step 4's I-36 rewrite. §15 records the assessment, the dispositions and step 3's handoff.
@@ -313,7 +315,10 @@ The follow-up warns that calling something a query does not isolate a mutable ob
 
    No later unit runs, so there is no `onEnd` for an operation whose start was delivered in the requesting unit. I-31's antecedent ("the controller remains alive") fails.
 
-3. **A cancel raised during activation** delivers `onStart` and then `onEnd` `canceled` at `AT_PROPOSAL`. Today the drag ends silently. A cancel registered before activation is entered still ends the drag silently, as today (D-207, §16).
+3. **A cancel raised in a seam's `prepare` no longer discards that preparation.** The seam commits, its `effect` runs, the unit completes, and the cancel is applied after it, as a destroy is (item 2). Three seams can register one. Settlement runs at `SETTLING` or later, where nothing registers (R8, R14), and admission has no committed operation. Stated for all three on 2026-11-02 (§17.2):
+   - **Activation.** `onStart`, and then `onEnd` `canceled` at `AT_PROPOSAL`. Today the drag ends silently. A cancel registered before activation is entered still ends the drag silently, as today (D-207, §16).
+   - **Release.** No consumer call changes: no round-trip, and `canceled` at `AT_PROPOSAL` (item 4). `release.effect` now runs before the cancellation settles, as it already does for a cancel raised in `release.effect` itself (R4). In the sortable that moves the placeholder to the release gap and writes the lifted element at the release point, so a custom placeholder can observe one more move.
+   - **Behavior actions.** The action's `effect` runs before `CANCEL` applies. In the sortable, a cancel requested from `items()` during a collection pull no longer throws the pull away. The collection is published under the version the pull already took, and at `ACTIVATING` or `ACTIVE` the rect index is invalidated, before the cancellation settles. A later `onReorder` is computed against that collection and carries its version. Today the pull is discarded after it has consumed a version number. In free drag an action's `prepare` reaches consumer code only through accessors on `moveTo`'s argument, which step 4 captures at intake.
 4. **A cancel or destroy raised in `release.prepare` or `release.effect`** never opens the round-trip. That is today's outcome, and it now holds by order rather than by a guard. A cancel raised there now reports `AT_PROPOSAL`; today it reports `AT_CONSUMER` (F-435).
 5. **`dispatch` during construction** is applied after publication instead of being dropped. Its tag is not checked there, so an out-of-range construction-window tag, previously dropped silently, now has no specified outcome (§11). This is a behavior-author change, not a consumer one.
 6. **`moveTo`** applies the coordinates the consumer passed at the call.
@@ -418,6 +423,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 | **R26** (D-204) armed after applied destruction | `dispatch(-22)` and `dispatch(0)` after `requestDestroy()` has been applied | no report and nothing applied. As today (P6) |
 | **R27** (D-204) structural | `grep` for `actionTags` reads in `src/kernel/` | read at exactly two sites: U-C's static validation and armed intake in `dispatch`. Nothing on the drain path reads it, and no list of construction-window tags is held for later validation |
 | **R31** (D-207, F-440) cancel registered before activation is entered | a command: an entry queued during admission registers a cancel at `PENDING`, so the queue is `[ACTIVATE, CANCEL]` (the sortable's `replace()` during `command.admit`, and a kernel action). A pointer: an action at `PENDING` dispatches a threshold-crossing `pointermove`, then requests cancel | `ACTIVATE`, or `MOVE` at `PENDING`, declines at its entry; `CANCEL` applies at `PENDING` and retires silently: no `onStart`, `onEnd` or `onError`, no placeholder; the next command or press is admitted. As the baseline `877fb9612`, where `#preparationValid` discarded the activation |
+| **R32** (§17.2) cancel raised in a non-activation seam's `prepare` | a kernel behavior whose `release.prepare` requests cancel; a kernel behavior action at `ACTIVE` whose `prepare` requests cancel; in the sortable, a consumer whose `items()` requests cancel and returns a new array that keeps the dragged item, pulled by `invalidate()` at `ACTIVE`, followed by a second drag that drops | release: `release.effect` runs once; no round-trip; `CANCEL` applies at `RELEASING`; one `onEnd` `canceled` at `AT_PROPOSAL`. Action: the action's `effect` runs once, then one `onEnd` `canceled` at `AT_PROPOSAL` with the registered reason. Sortable: one `onEnd` `canceled` with that reason; the second drag's `onReorder` carries the pulled collection's version and indices against it. At `c14ee4d5c` none of the three effects runs, and the second drag reads the collection from before the pull |
 
 **No case pins an out-of-range tag dispatched during construction.** Its outcome is unspecified (§11.2 item 2), and a test asserting a report, a drop or an application would turn misuse into contract.
 
@@ -489,13 +495,17 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 
    Its bounded handoff, with what it must keep from steps 1 and 2, is §15.3.
 
+   **Step 3 is accepted** (2026-11-02, at `ef1e4ef6b`; §17).
+
 4. **Surface and behaviors.**
    - rename `destroy`/`cancel` to `requestDestroy`/`requestCancel` on `BehaviorContext` and both controllers;
    - remove `closed`, `InsertionRuntimeView.live` and `DisplacementReport`'s `live`, and every `kernel.closed` and `live()` read in `src/`;
    - capture `moveTo`'s argument at intake;
    - confirm or add the query-result copies of §2.12.
 
-   Cases R18, R21. Contract: I-36, I-37, 01 §`BehaviorContext`, 03, 07, README and the declaration surface (`tests/**/*.declaration.test.ts` as the surface tests require).
+   Cases R18, R21 and R32 (§17.2). Contract: I-36, I-37, 01 §`BehaviorContext`, 03, 07, README and the declaration surface (`tests/**/*.declaration.test.ts` as the surface tests require).
+
+   Its bounded handoff, with what it must keep from steps 1–3 and its dependencies on step3-B and step3-C, is §17.4.
 
 5. **The comment pass**, D-199's, carried by D-201, over the files D-202 rewrote, with its rules and runtime-hash check.
 6. **The measurement record** `.plan/measurements/d207-requests.md`. It holds:
@@ -533,6 +543,8 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 - **step2-A to step2-C** of the step-2 feature proof. A (Tier B) and B (Tier C) are the implementer's, nonblocking, and must be repaired before `d206-requests.md` is written. The decision's acceptance does not rely on property 12's census until A is closed. C (Tier C) is decided without an edit: both passages in 05 are dated or quoted history, and step 4's I-36 rewrite names the panic diagnostic by its route (§15.2).
 - **D-206** is superseded by D-207 during step 3 (§16). Every property, both accepted steps, their dispositions and the owner's size tolerance carry forward. D-207 adds one clause to property 7, activation's held-cancel entry, and case R31. The unimplemented row moves to D-207 with the witness renamed `d207-requests.md`, and step2-A and step2-B are due before it is written.
 - **F-440** is raised by the implementer's step-3 escalation and repaired by D-207. It is a gap in D-206's entry conditions, exposed when step 3 deleted the in-unit revalidation that had covered it, not a defect in landed code.
+- **Step 3** is accepted at `ef1e4ef6b` (§17). D-207's row lists steps 4–6. step2-A, step2-B and reviewer-F close with the step. The 13 rows step 2 left over budget are under budget at the tip, and no budget is re-based.
+- **step3-A to step3-C** of the step-3 feature proof. A (Tier C) is decided in place (§17.2): §4 item 3 states the release and action seams, R32 is added, and §15.3's first clause reads as §17.2 states. That is a non-substantive edit under the documentation model, because it changes nothing the decision requires of the code. B (Tier B) is the implementer's and is repaired before R21, or any acceptance, relies on the ledger census. C (Tier C) is the implementer's, nonblocking.
 - **F-97** is unchanged. It still holds open whether the armed check survives the reachability gate (the audit's §3.5). D-204 scopes the armed promise to armed dispatch, which is all it ever covered, and is compatible with either answer.
 - **F-432** is decided by D-202 (R15) and closes when it lands. **F-433** (R9) and **F-434** (R8) likewise move from D-201 to D-202. **F-435** is raised and decided here (R4, R6).
 - **Live obligations** O-2, O-3, O-4, O-5 and O-7 are untouched. SC-1 and SC-7 are recognitions the measurement record may meet.
@@ -1398,3 +1410,264 @@ Declining changes nothing. The operation stays `PENDING`, and the request stays 
 - §15.3.
 
 §3, §5's rows and every carried property other than property 7 are unchanged.
+
+## 17. Step 3 accepted (D-207)
+
+**Input.** `55eb13f32` on `drag2/fin-review2`. The implementation reviewed is `ef1e4ef6b`. It landed step 3 in one commit on the D-207 decision at `c14ee4d5c`, whose `src/` equals step 2's accepted `877fb9612`. The assessment rests on two documents:
+
+- the step-3 feature proof ([`d207-step3-feature-proof-claude.md`](../fin-review2/d207-step3-feature-proof-claude.md));
+- the step's record ([`d207-step3.md`](../../measurements/d207-step3.md)).
+
+### 17.1 Assessment
+
+**Step 3 is accepted.** The feature proof finds no step-3 blocker. Each requirement of §15.3 and §16.5 holds at `ef1e4ef6b`:
+
+- **Request-read placement (§6).** No handler reads a ledger fact below its entry.
+  - The cancel request is read at intake and at the entries of `MOVE` at `PENDING`, `OPEN_RESOLUTION`, `ACTIVATE`, `CANCEL`, `START_COMMITTED` and `FAILED`.
+  - The registered failure is read only at `OPEN_RESOLUTION`'s entry, and the supersession record only at `FAILED`'s.
+  - `#preparationValid`, `#settlementLive` and `#joinLive` are gone, and so are the latch and recheck conjuncts §15.3 names.
+  - The deleted currency conjuncts were unreachable where they stood.
+- **Deletions (§2.11).**
+  - Gone: `SEAM_INVALIDATED`, both `rollback` members and their adapters, `seam/rollback-failed`, the invalidated arms, the staging conditional and the sortable's D-39 ledger.
+  - `runCore` commits whatever `prepare` returned.
+  - The ledger never undid a `prepare` side effect that still exists, so §15.3's fifth escalation clause is not triggered.
+- **Additions.**
+  - The cancel phase rule.
+  - Supersession captured at intake. `FAILED` decides on that record or on a cancel held at its entry, which is both halves of §2.10. No order that disagrees with it was found.
+  - D-207's clause at `ACTIVATE`, and at `MOVE` while `PENDING`, landed in the same commit as the deletions. A declined `MOVE` writes nothing, and `MOVE` at `ACTIVE` gains one comparison of a local.
+- **Cases.**
+  - R1's admission half, R2, R3, R7, R8, R12, R14, R16, R20 and R31's three rows pass through the running controller.
+  - With the tip's tests over the baseline's `src/`, exactly seven rows fail: R3 ×2, R8 ×2, R16's first order and the two kernel R31 rows. That is the record's _at the input_ set.
+  - R3 stays distinct from R31.
+- **Kept from steps 1 and 2.**
+  - Every step-1 and step-2 row passes.
+  - `OPEN_RESOLUTION` reads its five clauses at its entry.
+  - `closed` reports `CLOSED` only.
+  - `lifetimes.ts`, `queue.ts` and `execution.ts` are unchanged, so D-200 is untouched.
+- **Mutations.** The reviewer re-ran all eleven of the record's mutations at the committed tip, over the whole suite, and every count reproduces. That includes N1 and N2 for D-207's clause and the twelve rows of the inline-open mutation.
+- **Property 13.** `run.sh` differs between the input and the tip in exactly three lines: P4 (R8), P5 (R3) and P7. All model rows are `ok` at both trees. No probed row makes a consumer call that both the baseline and the target withhold.
+- **The failing sets are the input's:**
+  - the ten test failures: six `size.node` controls and four `docs.node` rows;
+  - the same ten eslint errors, by the same rules in the same files;
+  - the two `.scripts/vitest-*.ts` typecheck errors.
+
+  `react.browser` and `stories.browser` load at neither tree.
+
+- **Corrections, verified closed:**
+  - step2-A: the constant census now looks through every assertion form and lists 13 constants, the same list an independent compiler-API pass finds;
+  - step2-B: the dated call-path correction;
+  - reviewer-F: _four of the five_, and the inline-open count now names its tree.
+
+**Checked independently by the architect at the tip.**
+
+- `runCore` stages unconditionally and has no invalidated arm.
+- No `preparationValid`, `SEAM_INVALIDATED` or `rollback` member remains in `src/`.
+- At `c14ee4d5c`, the sortable's collection `prepare` numbers a pull (`this.#version += 1`) before the effect publishes it. That is §17.2's premise for the action case.
+- `55eb13f32` adds only the review.
+
+Nothing else was rerun.
+
+**Composition: no growth.**
+
+- Every kernel-carrying row shrinks, by 87 to 261 B Brotli. The kernel root shrinks by 89 B.
+- Module counts are equal on every row, and the reviewer reproduced all 15 rows byte for byte.
+- **All 13 rows that step 2 left over budget are now under it**, by 12 to 231 B. The deletions §15.3 required did that, not a size pass. No budget changed, and the kernel root's margin is 12 B.
+- There is no step-3 growth to put to the owner. The owner's step-2 tolerance stays recorded as step 2's. It is not a margin for later steps to spend.
+
+**Runtime, measured.**
+
+- **Timing.** The reviewer's paired measurement, 32 runs per tree in alternating order, resolves no end-to-end difference at about 0.1–0.2 µs, roughly 3–5%. A smaller one cannot be excluded. The figures are bimodal and the session was loaded, so they bound a difference and do not measure one.
+- **Allocation is 0.0 B per sample on every run at both trees**, so I-26 holds.
+- The implementer's three tip-only runs correctly make no timing claim.
+
+**Runtime, from code analysis rather than measurement.**
+
+- Per active sample: one comparison of a local more.
+- Per `MOVE` at `PENDING`: one field read more.
+- Per failure checkpoint: one boolean more.
+- Per activation and per settlement: fewer calls and reads. With a custom placeholder, the ledger's array and closures are gone as well.
+
+The analysis predicts no regression, and none is measured. The owner's ruling puts architecture and runtime ahead of size and authorizes no runtime regression; none is found. M-1's resolving measurement remains step 6's.
+
+**Limits carried, not discharged here:**
+
+- Chromium only, and M-2 was not measured.
+- `react.browser` and `stories.browser` load at neither tree.
+- The amended 02, 03, 05, 06 and 07 were searched for every deleted name, and each hit was read in context. They were not read in full.
+- step3-A's two consumer consequences are reasoned from the code. The one probe run for the release case did not discriminate. R32 (§17.2) is the instrument.
+
+**What this does not do:**
+
+- **D-207 stays `Unimplemented (Remediation)`.** Steps 4–6 remain. The witness, the absent `d207-requests.md`, holds.
+- **F-432 to F-435 stay open**, and close when the whole decision lands.
+- **D-200's independent acceptance is still pending.**
+- **Reviewer-E** stays the owner's.
+
+### 17.2 step3-A: a cancel raised in a seam's `prepare`
+
+**The finding.** Step 3 deleted the shared core's revalidation, as §15.3 required. A cancel raised inside any seam's `prepare` now leaves that preparation committed: the effect runs, and `CANCEL` applies after the unit. §4 item 3 stated the consequence for activation only. Two more seams carry it:
+
+- the release seam, which P7 shows. The record noted it and did not escalate it;
+- behavior actions. The record neither recorded nor probed this case.
+
+**What is decided.**
+
+1. **The outcome is the decision's. This states it and changes nothing.**
+   - §2.11's rule is that no request can invalidate a successful `prepare`, and I-16 reduces to _a staged value reaches `effect` exactly when its transition commits_. Both hold for every seam the shared core drives. §15.3 required deleting the invalidated arm in that core, not in one seam.
+   - Item 2 already states this for destroy: the unit completes, and the request applies after it. A cancel is the same kind of request.
+   - **Release.** A cancel raised in `release.prepare` gets R4's outcome, which is the outcome of a cancel raised in `release.effect`. R28 requires the same shape for a destroy raised in `release.prepare`.
+   - **Actions.** The sortable's collection effect states the rule itself. Publication _must never throw away the consumer's update_, and a reentrant cancel _must not be able to invalidate_ a preparation whose runtime has already been replaced (`sortable/spec.ts`, the collection effect). At the baseline, a cancel requested from `items()` did exactly that, after the pull had consumed a version number. That leaves the gap in the numbering which the same `prepare`'s comments warn against. The new outcome is the one the behavior states.
+2. **§4 item 3 is amended in place to state all three seams.** It includes the consumer-observable consequences the code admits:
+   - on the release path, one more move of a custom placeholder;
+   - on the action path, the published collection with its version, and the rect index invalidated.
+
+   It also says why settlement and admission register nothing. **This is a non-substantive edit** under the documentation model's §6. It changes nothing the decision requires of the code, which already does it, so no `D-*` is minted and D-207 is unchanged. Step 1's acceptance followed the same precedent when it amended D-206's mutation requirement in place (§14.3).
+
+3. **R32 is added** (§7). It pins the two seams no row covered, through the running controller: a kernel release row, a kernel action row, and the sortable's `items()` row with its second drag. It lands in step 4 (§17.4). Step 4 removes the sortable's `closed` reads in the same `prepare`, and the row holds the outcome across that change.
+
+**The escalation clause, as it reads for the remaining steps.** §15.3's first clause, and §17.4's, escalate a change to a **published outcome**. A published outcome is a consumer-observable result:
+
+- a consumer callback, its arguments or its order;
+- a controller promise;
+- the state left, after application, in consumer-supplied DOM or in what the controller publishes, such as the collection and its version.
+
+A behavior seam's own call trace is SPI, governed by §3 and I-16, and needs no escalation when it follows them. A unit that now runs to its boundary may make transient writes. Those are recorded, not escalated: the record names the seam, the consumer code that can observe the write, and whether the state after application differs from the baseline's.
+
+Under this reading:
+
+- **P7** was a change to record, and recording it was within the clause. The state after application matches the baseline's: the placeholder is removed, and the drag is `canceled` at `AT_PROPOSAL`.
+- **The action case** changes the published collection state after application. It met the clause and should have been escalated. It is decided here, and no code changes.
+
+**Not chosen:**
+
+- **Restore discarding for release and actions.** It would bring back an in-unit ledger read, or a per-seam latch in its place, against §2.2. It would also reverse the sortable's rule that the consumer's update is never thrown away.
+- **Mint a decision.** Nothing the decision requires of the code changes. A new id would obscure D-207's status without changing any requirement.
+- **Leave §4 as it was.** §4 is titled _complete_, and the owner reads it as the list of consumer-visible changes.
+
+### 17.3 Dispositions
+
+| Item | Disposition |
+| --- | --- |
+| **Step 3** | **Accepted** at `ef1e4ef6b` |
+| Composition | No growth. The 13 rows step 2 left over budget are under it. No budget is re-based |
+| **step3-A** (Tier C) | **Decided in place** (§17.2). §4 item 3 states the three seams, R32 is added, and the escalation clause reads as above. No code change |
+| **step3-B** (Tier B) | **The implementer's. Open, and nonblocking for step 3.** Boundary below |
+| **step3-C** (Tier C) | **The implementer's. Open, and nonblocking.** Boundary below |
+| step2-A, step2-B, reviewer-F | **Closed**, as the feature proof verified |
+
+**step3-B: the ledger census does not see `idle`.**
+
+- **Required property.** `capture.node`'s _should be read only at intake, the channel and unit entries_:
+  - detects every lifecycle-request read in the armed controller, including through `ExecutionBracket.idle`;
+  - lists `#onPointerDown`'s read before an ingress pass;
+  - either discriminates placement within a handler, or states its per-member granularity as a limit: a further read of a listed fact later in the same handler goes undetected.
+
+  `d207-step3.md`'s census table gets a dated correction. It moves the `dispatch` lifecycle read from the armed controller's list to the façade's, and adds `#onPointerDown` under _the runner_.
+
+- **Completion boundary.** It is repaired **before step 4's R21 row lands, or with it**. Either way it comes before any record or acceptance cites the ledger census as evidence, `d207-requests.md` included. Step 3's acceptance does not rest on the census: no current read escapes the row, and the feature proof's text search finds only §6's places.
+
+**step3-C: the published `rollback` members.**
+
+- **Required property.** The record states that step 3 removed `rollback?` from the published `Transition` and `ActionTransition`, which `kernel/seams.d.ts` and the types of the `./kernel.js` export declared. It cites §3 as its authority, because the removal is decided on an unreleased API. D-207's _Surface: none_ is relative to D-206, and §3's surface changes carry forward.
+- **Completion boundary.** A dated correction in `d207-step3.md`, or the same statement in step 6's record. Nonblocking. Step 4's own record states its published-surface changes the same way (§17.4).
+
+### 17.4 Handoff: step 4, surface and behaviors
+
+**Governing design:**
+
+- §2.12, query results and request arguments;
+- §3, the API and SPI table;
+- §4 items 1, 2, 3 and 6;
+- §5's rows for I-36 and I-37;
+- §8 step 4;
+- §15.2, step2-C's obligation;
+- §17.2.
+
+Sites are cited at `ef1e4ef6b`.
+
+**Scope.** Step 4 removes the behaviors' last in-unit readings of the lifecycle request, and makes the surface say _request_. When it lands, no handler in `src/` reads `closed` or a latch predicate, and the published names match §3.
+
+**Change:**
+
+- **The renames.**
+  - `destroy` becomes `requestDestroy`, and `cancel` becomes `requestCancel`.
+  - They change on `BehaviorContext` (`kernel/spec.ts:106`, `:122`), `SortableController` (`sortable/controller.ts:25`, `:37`) and `FreeDragController` (`free-drag/controller.ts:55`, `:67`), and on their implementations.
+  - No alias is kept, because the API is unreleased.
+  - `InvalidationTask.cancel` (`kernel/invalidation.ts:48`) is not a request and keeps its name.
+- **`BehaviorContext.closed` is removed**, from `kernel/spec.ts:95` and the façade getter at `kernel.ts:2553`.
+  - Every `kernel.closed` read in the two behaviors goes with it: 27 by `grep`, comments excluded, across both `spec.ts` and `behavior.ts` files.
+  - Removing a barrier lets the running unit continue to its boundary after consumer code requests destruction (§4 item 2). The record inventories the code each barrier now reaches, as §17.2's escalation reading requires.
+- **The latch as a predicate is removed:**
+  - `InsertionRuntimeView.live` (`sortable/runtime.ts:90`);
+  - `DisplacementReport`'s `live` parameter (`sortable/slots.ts:52`, `:128`);
+  - every `live()` read threaded through placement, linear shift, the rect index, layout animation and the axis installers.
+
+  A local named `live` that holds a record is not the predicate, and is out of scope.
+
+- **`moveTo` captures its argument at intake** (`free-drag/controller.ts:84`): the coordinates are copied at the call. The copy is made once per call, not once per sample.
+- **§2.12's query-result copies** are confirmed or added.
+- **I-36 is rewritten.** The rewrite includes:
+  - step2-C's obligation: D-178's exception members are stated in the present tense and named by route, not by private member;
+  - D-179's participant clause, which step 3 left for this step.
+
+**Cases.**
+
+- **New:**
+  - **R18**: `moveTo`'s argument is captured at intake.
+  - **R21**: the structural read census. It reports by location and finds only §6's places, without `closed`. It lands with step3-B's repair or after it, never before.
+  - **R32**: three rows through the running controller (§7, §17.2). The record shows that they fail with the tip's tests over `c14ee4d5c`'s `src/`, and that they pass at step 4's tip.
+- **Must stay green:**
+  - every row from steps 1–3, including R3, R8, R16, R31's three rows, the five R30 rows, both null-command rows and reviewer-B's three;
+  - the sensitivities of mutations N1–N8. Re-run each one whose path holds a renamed or removed member, and report its count with the tree.
+- **Tests that encode a withdrawn promise** change with the behavior:
+  - every test that calls `destroy()` or `cancel()` on a controller or a `BehaviorContext` (a mechanical rename);
+  - `kernel.closed` readers;
+  - the `live` threading rows in the rect-index, linear-shift and placement suites;
+  - the rows asserting that a slot or callback is not delivered after a destroy raised earlier in the same unit (§7's list).
+- **The declaration surface** (`tests/**/*.declaration.test.ts`) changes in the same commit as the surface.
+
+**Contract, in the same commit as the code that makes it true:** I-36 and I-37, 01 §`BehaviorContext`, 03, 07 and README. The record states every published-surface change, `.d.ts` included, with §3 as its authority. That is step3-C's lesson.
+
+**Keep:**
+
+- **I-26.** One pointer sample allocates nothing.
+- **D-200.** No `Lifetime` or `ActionQueue` property changes.
+- **`OPEN_RESOLUTION` and D-207's clauses**, read at their entries, unchanged.
+- **The owner's priority: architecture and runtime ahead of size.**
+  - Composition is reported against the unchanged budgets on every kernel-carrying row, with the delta and the distance to budget.
+  - Any growth is attributed and put to the owner at step 4's acceptance. It does not stop the step.
+  - Step 2's tolerance does not cover it. No budget is re-based, and no pass is spent only on recovering bytes.
+  - The kernel root's margin at the input is 12 B.
+- **Runtime evidence kept apart from analysis.**
+  - Allocation is measured.
+  - A timing claim needs paired runs of both trees in one session.
+  - Call-path analysis is labelled as analysis, and never reported as a measurement.
+
+**Property 13.** `run.sh` is rerun at the input and the tip. R18 and R32 move to _required_. No probed row may make a consumer call that both the baseline and the target withhold.
+
+**Out of scope:**
+
+- the comment pass, which is step 5;
+- `d207-requests.md`, which is step 6;
+- re-basing any budget;
+- marking D-207, or any F-entry it decides, complete.
+
+step3-C may land here or in step 6's record. Reviewer-E stays the owner's.
+
+**Record:** `.plan/measurements/d207-step4.md`. It holds:
+
+- composition;
+- each mutation census, with its tree;
+- the guard-site census by `grep`, and R21's row;
+- the inventory of code each removed barrier now reaches;
+- property 13's table;
+- the published-surface change.
+
+**Escalate rather than decide** if:
+
+- removing a `closed` or `live()` barrier changes a published outcome (§17.2) other than those §4 states;
+- §2.12 finds a consumer-owned mutable query result read after a later foreign call, where a copy would cost an allocation per pointer sample (§8);
+- a row from steps 1–3 stays green only through a read that step 4 removes;
+- a rename cannot be completed without keeping the old name.
+
+**Review.** Step 4 gets its own feature proof before step 5 starts.

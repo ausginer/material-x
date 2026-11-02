@@ -2298,6 +2298,31 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-02 — D-207 step 3 accepted: kernel requests
+
+**Step 3 is accepted at `ef1e4ef6b`, and D-207 is not complete.** The step-3 feature proof found no step-3 blocker and reproduced all eleven mutation counts.
+
+- No unit reads the ledger after its entry.
+- Rollback and the sortable's D-39 ledger are deleted.
+- The cancel phase rule, supersession at intake and activation's held-cancel clause hold.
+- Every step-1 and step-2 row stays green.
+- step2-A, step2-B and reviewer-F close.
+
+**Size and runtime.** Composition shrinks on every kernel-carrying row, and the 13 rows step 2 left over budget are under it, with no re-base. Allocation is measured at zero per sample. No timing difference is resolved at about 0.1–0.2 µs, and code analysis predicts no regression. Steps 4–6 remain, the witness holds, F-432 to F-435 stay open, and D-200's acceptance is still pending.
+
+**step3-A is decided in place.** A cancel raised in the release seam's `prepare`, or in a behavior action's, now commits the preparation and runs its effect, as it does for activation. That is §2.11's rule, not a new requirement. §4 item 3 now states all three seams:
+
+- the release path gives a custom placeholder one more move;
+- in the sortable, a cancel requested from `items()` no longer throws away the collection it returned.
+
+Case R32 pins both and lands in step 4. The escalation clause now names what a published outcome is: a callback, a promise, or the state after application. A behavior seam's own trace is SPI, governed by §3 and I-16.
+
+**step3-B** (Tier B, the ledger census misses `idle`) and **step3-C** (Tier C, the published `rollback` removal understated) stay with the implementer. step3-B is repaired before step 4's R21, or any acceptance, relies on the census.
+
+Step 4, surface and behaviors, is next. Its bounded handoff is in [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §17.4.
+
+---
+
 ### 2026-11-01 — A held cancel declines activation (D-207, F-440)
 
 **D-207 supersedes D-206 during step 3 and carries it in full**, including steps 1 and 2 as accepted, their dispositions and the owner's size tolerance. It adds one clause. The unit that would enter activation, `ACTIVATE` or `MOVE` at `PENDING`, declines at its entry while a cancel for its operation is registered, and the queued `CANCEL` retires the operation silently.
