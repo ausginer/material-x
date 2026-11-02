@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**Amended a sixth time 2026-11-02 for `drag2:D-208`, which supersedes `drag2:D-207` during step 4.** D-208 carries D-207 in full, including its accepted steps 1–3, and decides how the behaviors' diagnostics are refused after applied destruction once `BehaviorContext.closed` is gone. Four of the 27 `kernel.closed` reads §17.4 removes are diagnostic intake, not readings inside a unit: both behaviors' `#notify` channels and both composition `report` closures. Removing them would deliver `onError` after application, in teardown and from a late installer report, against I-36 (a) and D-178's grounded silence. Under D-208 the kernel owns the refusal and the behaviors reach it through a new `BehaviorContext.channel(deliver)`. The baseline's outcome holds on every path, the pre-arm composition unwind included. §2.2, §2.5, §3, §5–§9 and §17.4 below state the D-208 form. §18 records the escalation, the evidence and the options. Raises and repairs `drag2:F-441`.
+
 **Step 3 accepted 2026-11-02, at `ef1e4ef6b`, after its feature proof.** D-207 stays unimplemented: steps 4–6 remain. step3-A is decided without a new decision. A cancel raised in a seam's `prepare` no longer discards that preparation, for the release seam and behavior actions as for activation. That is §2.11's rule, which the code already met. §4 item 3 now states the three seams, and case R32 pins the two that had no row; it lands in step 4. step3-B stays with the implementer and is repaired before R21 or the decision's acceptance relies on the ledger census. step3-C stays with the implementer. §17 records the assessment, the dispositions and step 4's handoff.
 
 **Amended a fifth time 2026-11-01 for `drag2:D-207`, which supersedes `drag2:D-206` during step 3.** D-207 carries D-206 in full, including its accepted steps 1 and 2, and adds one entry clause: the unit that would enter activation, `ACTIVATE` or `MOVE` at `PENDING`, declines while a cancel for its operation is registered, and the queued `CANCEL` retires the operation silently. Step 3's deletion of the activation's in-unit revalidation had made a command operation announce `onStart` and then `canceled` for a cancel registered at `PENDING`, where the baseline retires silently. §2.2, §2.6, §2.7, §4, §6–§9 and §15.3 below state the D-207 form. §16 records the escalation, the evidence and the options. Raises and repairs `drag2:F-440`.
@@ -77,7 +79,7 @@ The ledger is read in exactly three places:
 
 1. **The runner's admission decision**: before each queued unit, before an ingress pass, and when the outermost unit ends.
 2. **A unit's entry**: currency (identity, phase, attempt) and precedence (a held cancel at the entries that would enter activation, `ACTIVATE` and `MOVE` at `PENDING` (D-207), and at `START_COMMITTED`, `OPEN_RESOLUTION` and `FAILED`; a registered failure checkpoint at `OPEN_RESOLUTION`). The entry is the unit's application boundary, so reading the ledger there decides whether and how the unit applies. It does not change a unit that is already running.
-3. **Request intake**: whether a request is registered at all (§2.6 phase rule, duplicate cancel, `CLOSED`), and the diagnostic channel's refusal after application.
+3. **Request intake**: whether a request is registered at all (§2.6 phase rule, duplicate cancel, `CLOSED`), and the diagnostic channel's refusal after application. The refusal reads `CLOSED` only, so its answer is constant across every unit (§18.3). It is the kernel's, for the kernel's own route and for every channel a behavior mints through `BehaviorContext.channel` (D-208).
 
 **No unit reads the ledger after its entry.** This is the follow-up's property, stated as something that can be checked. Every reading D-201 placed at PP-1 to PP-4 and at the event sinks is deleted, together with every reading D-201 had already marked for deletion.
 
@@ -142,6 +144,8 @@ The tradeoff disappears rather than being decided. I-36 (a) is restated against 
 - every behavior's `kernel.closed` and `live()` reads, including D-201's event sinks.
 
 The kernel keeps one read of its own, in `#notify`: it refuses a diagnostic after `CLOSED`. That is intake for producers and teardown, not a reading inside a unit.
+
+**The behaviors' diagnostics take the same refusal (D-208, §18).** Their own channels and the composition `report` closures carried a `kernel.closed` read of the same kind. They now reach the kernel's refusal through `BehaviorContext.channel(deliver)`. The refusal is written once in the kernel, and no behavior module reads the lifecycle.
 
 **The consumer round-trip is the one place where the library chooses a boundary rather than inheriting one** (§2.8). Everywhere else the unit granularity D-201 settled is unchanged.
 
@@ -298,6 +302,8 @@ The follow-up warns that calling something a query does not isolate a mutable ob
 | `BehaviorContext.destroy()` | as the consumer member | **`requestDestroy()`**, same semantics as the consumer member | as above |
 | `BehaviorContext.cancel(reason?)` | as the consumer member | **`requestCancel(reason?)`** | as above |
 | `BehaviorContext.closed` | the latch, read live | **removed** (D-53 withdrawn) | — |
+| `BehaviorContext.channel(deliver)` | — (each behavior refused through `closed`) | **added** (D-208, §18.4): returns the diagnostic channel over the behavior's sink. It delivers until destruction is applied and drops afterwards, absorbs a throw from the sink, and works from the factory onward | none |
+| `FeatureContext.report(error)` | refused after closure through `closed` | unchanged signature; documented as dropped after applied destruction (D-208) | none |
 | `BehaviorContext.dispatch(tag, arg)` | dropped before arming, unreported; FIFO after, an out-of-range tag reported and dropped at intake | FIFO, **queued during U-C** and applied after publication, **the tag unchecked there**; armed intake check and report unchanged; no check at application (§11) | none |
 | `BehaviorContext.fail(stage, error)` | phase result plus checkpoint; demoted outside a phase | unchanged, except supersession by a registered cancel is decided at application (§2.10) | `onError` at the checkpoint's application |
 | `Transition.rollback`, `ActionTransition.rollback`, `BehaviorSpec.activation.rollback`, `BehaviorSpec.action.rollback` | called on an invalidated preparation | **removed** | — |
@@ -339,15 +345,16 @@ Each amendment lands with the step that makes it true, never ahead of it (F-63).
 | 05 I-21 | registration phases, first registration wins, FIFO application, lapse |
 | 05 I-22 | the precedence, stated at application (§2.7, §2.10) |
 | 05 I-31 | D-40's clause counts from **applied** destruction; a terminal delivered by the unit in which destruction was requested precedes application |
-| 05 I-36 | (a), (b) and (c) after application; the interval clause; the per-invocation reading withdrawn; D-51's list unchanged and empty |
+| 05 I-36 | (a), (b) and (c) after application; the interval clause; the per-invocation reading withdrawn; D-51's list unchanged and empty; the kernel's channel refusal as (a)'s mechanism on every diagnostic route, and D-178's teardown silence named by route (D-208) |
 | 05 I-37 | unchanged rule; there is no liveness reading inside a unit for it to govern, only intake |
 | 02 §The tri-phase transition, §Every classification entrypoint latches, §What this actually guarantees | no invalidated outcome; no `rollback` row; a new tier-B row: _no unit reads the ledger after its entry_ |
 | 02 §Release ordering, §`ResolutionCommand` | the command is executed by its own unit (§2.8), whose entry declines on a registered cancel or failure checkpoint (D-206) |
 | 02 §The settlement input is discriminated and exhaustive | the cancel stage rule (§2.6, F-435) |
 | 02 §Attempts | no latch conjunct at the producer |
-| 01 §`BehaviorContext` | renamed members; `closed` removed; the construction-window rows (dispatch queued, its tag unchecked there, the armed report scoped to after arming (§11.5); cancel no-op; fail demoted; destroy deferred to U-C's boundary) |
+| 01 §`BehaviorContext` | renamed members; `closed` removed; `channel(deliver)` added (D-208); the construction-window rows (dispatch queued, its tag unchecked there, the armed report scoped to after arming (§11.5); cancel no-op; fail demoted; destroy deferred to U-C's boundary) |
 | 01 §`draggable()` and the two-phase handshake, §When construction itself fails, §Teardown across two owners | U-C spans `draggable()`; application at its boundary; teardown is application |
 | 03 §`InsertionRuntimeView`'s `live` row, the `DisplacementContribution.report` and `MovedInsertion` documentation, the placement barrier | removed; the D-13 widening count is recorded, not rewritten |
+| 03 `FeatureContext.report` | dropped after applied destruction, delivered before it, the pre-arm composition unwind included (D-208) |
 | 07 | free-drag controller members; `moveTo`'s capture |
 | `tests/COVERAGE.md` | §The execution bracket's first-entry clause gains R1/R12's falsifier |
 | package README and the controllers' declarations | `requestDestroy`, `requestCancel` |
@@ -371,6 +378,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 | `kernel.ts:2024` `ACTIVATE`'s entry; `kernel.ts:1858` `MOVE`'s entry at `PENDING` (`877fb9612`) | — | **added**: a held cancel declines activation (unit entry, §2.6; F-440, D-207) |
 | `OPEN_RESOLUTION`'s registered failure checkpoint (new unit) | — | **added** (unit entry, §2.8, §2.10; F-439); written by `#failOperation` when it queues the checkpoint |
 | `kernel.ts:412` `#notify` | kept (sink) | kept as diagnostic intake: refuses after `CLOSED` |
+| behaviors' channels (`sortable/spec.ts:304`, `free-drag/spec.ts:224` at `9ae86b189`) and composition `report` closures (`sortable/behavior.ts:144`, `free-drag/behavior.ts:69`) | — | **replaced** by channels minted through `BehaviorContext.channel`, which apply the kernel's one refusal (D-208, §18). Not deleted |
 | `kernel.ts:2355` `closed` getter | kept | **removed** with the SPI member |
 | `kernel.ts:2010` the cancel stage from phase | — | stage from whether `invoke` ran (F-435) |
 | behaviors' sinks (D-201 §4.2) | kept as sinks | **deleted**; `sortable/spec.ts:346` `#live` and every feature `live()` read deleted |
@@ -379,7 +387,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 | `execution.ts` `#step` | latch | the lifecycle request: stops at `REQUESTED` or `CLOSED` |
 | `execution.ts` `close()` | sets the latch | `requestClose()`: `REQUESTED` inside a unit; applies at depth 0; `#leave` applies at the outermost boundary |
 
-**After D-202**, `grep` over `src/` for reads of the lifecycle state finds the runner, intake and `#notify`, and nothing else. For the cancel request it finds intake, the `CANCEL`, `ACTIVATE`, `MOVE`-at-`PENDING`, `START_COMMITTED`, `OPEN_RESOLUTION` and `FAILED` entries, and nothing else. For the registered failure checkpoint it finds intake, `OPEN_RESOLUTION`'s entry and, if the implementation consumes the record there, `FAILED`'s entry. That is a structural acceptance criterion (§8). It is not a count.
+**After D-202**, `grep` over `src/` for reads of the lifecycle state finds the runner, intake and the diagnostic channel's one refusal, all in `src/kernel/`, and nothing else (D-208). For the cancel request it finds intake, the `CANCEL`, `ACTIVATE`, `MOVE`-at-`PENDING`, `START_COMMITTED`, `OPEN_RESOLUTION` and `FAILED` entries, and nothing else. For the registered failure checkpoint it finds intake, `OPEN_RESOLUTION`'s entry and, if the implementation consumes the record there, `FAILED`'s entry. That is a structural acceptance criterion (§8). It is not a count.
 
 ## 7. Cases
 
@@ -424,6 +432,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 | **R27** (D-204) structural | `grep` for `actionTags` reads in `src/kernel/` | read at exactly two sites: U-C's static validation and armed intake in `dispatch`. Nothing on the drain path reads it, and no list of construction-window tags is held for later validation |
 | **R31** (D-207, F-440) cancel registered before activation is entered | a command: an entry queued during admission registers a cancel at `PENDING`, so the queue is `[ACTIVATE, CANCEL]` (the sortable's `replace()` during `command.admit`, and a kernel action). A pointer: an action at `PENDING` dispatches a threshold-crossing `pointermove`, then requests cancel | `ACTIVATE`, or `MOVE` at `PENDING`, declines at its entry; `CANCEL` applies at `PENDING` and retires silently: no `onStart`, `onEnd` or `onError`, no placeholder; the next command or press is admitted. As the baseline `877fb9612`, where `#preparationValid` discarded the activation |
 | **R32** (§17.2) cancel raised in a non-activation seam's `prepare` | a kernel behavior whose `release.prepare` requests cancel; a kernel behavior action at `ACTIVE` whose `prepare` requests cancel; in the sortable, a consumer whose `items()` requests cancel and returns a new array that keeps the dragged item, pulled by `invalidate()` at `ACTIVE`, followed by a second drag that drops | release: `release.effect` runs once; no round-trip; `CANCEL` applies at `RELEASING`; one `onEnd` `canceled` at `AT_PROPOSAL`. Action: the action's `effect` runs once, then one `onEnd` `canceled` at `AT_PROPOSAL` with the registered reason. Sortable: one `onEnd` `canceled` with that reason; the second drag's `onReorder` carries the pulled collection's version and indices against it. At `c14ee4d5c` none of the three effects runs, and the second drag reads the collection from before the pull |
+| **R33** (D-208, F-441) diagnostic intake across application | a composition whose installer captures `context.report` and whose retire hook throws, in both behaviors: **(a)** destruction requested at depth 0; **(b)** destruction requested from a slot inside a unit, applied at its boundary; **(c)** a panic; **(d)** the captured `report` called after the promise has settled; **(e)** a consumer slot that calls `requestDestroy()` and then the captured `report`, in the same unit; **(f)** the same report at depth 0 on a live controller, and the hook throwing at operation retirement; **(g)** an installer that throws after one whose retire hook throws, during `draggable()`; **(h)** in `kernel.browser`, a factory that requests destroy and then reports through a minted channel, and reports through it again after `draggable()` returns | (a), (b) and (d): no `onError`. (c): exactly one `onError`, the panic's `DraggableError` with stage `null`. (e): one `drag: composition/unwind-failed`, delivered before application. (f): one `composition/unwind-failed`, and one `drag: unwind/step-failed` with the hook's error as `cause`. (g): one `composition/unwind-failed` with the hook's error as `cause`, then `draggable()` rethrows the installer's error. (h): the first report delivered, the second dropped. Rows (a)–(g) have the baseline `9ae86b189`'s outcome. Row (h) has no baseline counterpart, because the member is new. Removing the refusal reddens (a)–(d); making it read `REQUESTED` reddens (e) and (h) |
 
 **No case pins an out-of-range tag dispatched during construction.** Its outcome is unspecified (§11.2 item 2), and a test asserting a report, a drop or an application would turn misuse into contract.
 
@@ -500,15 +509,16 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 4. **Surface and behaviors.**
    - rename `destroy`/`cancel` to `requestDestroy`/`requestCancel` on `BehaviorContext` and both controllers;
    - remove `closed`, `InsertionRuntimeView.live` and `DisplacementReport`'s `live`, and every `kernel.closed` and `live()` read in `src/`;
+   - add `BehaviorContext.channel(deliver)`, and route both behaviors' diagnostics and composition `report` closures through it, so the four intake reads are replaced rather than deleted (D-208, §18);
    - capture `moveTo`'s argument at intake;
    - confirm or add the query-result copies of §2.12.
 
-   Cases R18, R21 and R32 (§17.2). Contract: I-36, I-37, 01 §`BehaviorContext`, 03, 07, README and the declaration surface (`tests/**/*.declaration.test.ts` as the surface tests require).
+   Cases R18, R21, R32 (§17.2) and R33 (§18). Contract: I-36, I-37, 01 §`BehaviorContext`, 03, 07, README and the declaration surface (`tests/**/*.declaration.test.ts` as the surface tests require).
 
    Its bounded handoff, with what it must keep from steps 1–3 and its dependencies on step3-B and step3-C, is §17.4.
 
 5. **The comment pass**, D-199's, carried by D-201, over the files D-202 rewrote, with its rules and runtime-hash check.
-6. **The measurement record** `.plan/measurements/d207-requests.md`. It holds:
+6. **The measurement record** `.plan/measurements/d208-requests.md` (renamed by D-208 from `d207-requests.md`). It holds:
    - composition on every kernel-carrying row, per step;
    - the M-1 move path with I-26's structural check (one sample allocates nothing; `OPEN_RESOLUTION` and `moveTo`'s copy are per drop and per call);
    - M-2 controller cost with the façade;
@@ -545,6 +555,8 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 - **F-440** is raised by the implementer's step-3 escalation and repaired by D-207. It is a gap in D-206's entry conditions, exposed when step 3 deleted the in-unit revalidation that had covered it, not a defect in landed code.
 - **Step 3** is accepted at `ef1e4ef6b` (§17). D-207's row lists steps 4–6. step2-A, step2-B and reviewer-F close with the step. The 13 rows step 2 left over budget are under budget at the tip, and no budget is re-based.
 - **step3-A to step3-C** of the step-3 feature proof. A (Tier C) is decided in place (§17.2): §4 item 3 states the release and action seams, R32 is added, and §15.3's first clause reads as §17.2 states. That is a non-substantive edit under the documentation model, because it changes nothing the decision requires of the code. B (Tier B) is the implementer's and is repaired before R21, or any acceptance, relies on the ledger census. C (Tier C) is the implementer's, nonblocking.
+- **D-207** is superseded by D-208 during step 4 (§18). Every property, steps 1–3 as accepted, their dispositions and the owner's size tolerance carry forward. D-208 adds `BehaviorContext.channel(deliver)` to the surface, replaces the behaviors' four diagnostic-intake reads with it rather than deleting them, and adds case R33. The unimplemented row moves to D-208, with the witness renamed `d208-requests.md` and step 4's record `d208-step4.md`. step3-B and step3-C keep their boundaries.
+- **F-441** is raised by the implementer's step-4 escalation and repaired by D-208. It is a defect in D-207's step-4 handoff, which removed the behaviors' diagnostic refusal with `closed` and left no route to the kernel's. It is not a defect in landed code.
 - **F-97** is unchanged. It still holds open whether the armed check survives the reachability gate (the audit's §3.5). D-204 scopes the armed promise to armed dispatch, which is all it ever covered, and is compatible with either answer.
 - **F-432** is decided by D-202 (R15) and closes when it lands. **F-433** (R9) and **F-434** (R8) likewise move from D-201 to D-202. **F-435** is raised and decided here (R4, R6).
 - **Live obligations** O-2, O-3, O-4, O-5 and O-7 are untouched. SC-1 and SC-7 are recognitions the measurement record may meet.
@@ -1564,7 +1576,7 @@ Under this reading:
 
   `d207-step3.md`'s census table gets a dated correction. It moves the `dispatch` lifecycle read from the armed controller's list to the façade's, and adds `#onPointerDown` under _the runner_.
 
-- **Completion boundary.** It is repaired **before step 4's R21 row lands, or with it**. Either way it comes before any record or acceptance cites the ledger census as evidence, `d207-requests.md` included. Step 3's acceptance does not rest on the census: no current read escapes the row, and the feature proof's text search finds only §6's places.
+- **Completion boundary.** It is repaired **before step 4's R21 row lands, or with it**. Either way it comes before any record or acceptance cites the ledger census as evidence, `d208-requests.md` (renamed by D-208) included. Step 3's acceptance does not rest on the census: no current read escapes the row, and the feature proof's text search finds only §6's places.
 
 **step3-C: the published `rollback` members.**
 
@@ -1595,7 +1607,7 @@ Sites are cited at `ef1e4ef6b`.
   - No alias is kept, because the API is unreleased.
   - `InvalidationTask.cancel` (`kernel/invalidation.ts:48`) is not a request and keeps its name.
 - **`BehaviorContext.closed` is removed**, from `kernel/spec.ts:95` and the façade getter at `kernel.ts:2553`.
-  - Every `kernel.closed` read in the two behaviors goes with it: 27 by `grep`, comments excluded, across both `spec.ts` and `behavior.ts` files.
+  - Every `kernel.closed` read in the two behaviors goes with it: 27 by `grep`, comments excluded, across both `spec.ts` and `behavior.ts` files. **Amended 2026-11-02 by D-208 (§18):** 23 of them are readings inside units and are deleted. The other four are diagnostic intake: both behaviors' `#notify` channels and both composition `report` closures. They are **replaced** by channels minted through the new `BehaviorContext.channel(deliver)`, which apply the kernel's one refusal after applied destruction (§18.4). They are not deleted.
   - Removing a barrier lets the running unit continue to its boundary after consumer code requests destruction (§4 item 2). The record inventories the code each barrier now reaches, as §17.2's escalation reading requires.
 - **The latch as a predicate is removed:**
   - `InsertionRuntimeView.live` (`sortable/runtime.ts:90`);
@@ -1616,6 +1628,7 @@ Sites are cited at `ef1e4ef6b`.
   - **R18**: `moveTo`'s argument is captured at intake.
   - **R21**: the structural read census. It reports by location and finds only §6's places, without `closed`. It lands with step3-B's repair or after it, never before.
   - **R32**: three rows through the running controller (§7, §17.2). The record shows that they fail with the tip's tests over `c14ee4d5c`'s `src/`, and that they pass at step 4's tip.
+  - **R33** (D-208): diagnostic intake across application (§7, §18.6), with mutations M1 and M2 and their counts reported with the tree.
 - **Must stay green:**
   - every row from steps 1–3, including R3, R8, R16, R31's three rows, the five R30 rows, both null-command rows and reviewer-B's three;
   - the sensitivities of mutations N1–N8. Re-run each one whose path holds a renamed or removed member, and report its count with the tree.
@@ -1626,7 +1639,7 @@ Sites are cited at `ef1e4ef6b`.
   - the rows asserting that a slot or callback is not delivered after a destroy raised earlier in the same unit (§7's list).
 - **The declaration surface** (`tests/**/*.declaration.test.ts`) changes in the same commit as the surface.
 
-**Contract, in the same commit as the code that makes it true:** I-36 and I-37, 01 §`BehaviorContext`, 03, 07 and README. The record states every published-surface change, `.d.ts` included, with §3 as its authority. That is step3-C's lesson.
+**Contract, in the same commit as the code that makes it true:** I-36 and I-37, 01 §`BehaviorContext`, 03, 07 and README. Under D-208, I-36 names the channel refusal by route, 01 gains the `channel` row, and 03 and `FeatureContext.report`'s JSDoc state the drop (§18.6). The record states every published-surface change, `.d.ts` included, with §3 as its authority. That is step3-C's lesson.
 
 **Keep:**
 
@@ -1648,13 +1661,13 @@ Sites are cited at `ef1e4ef6b`.
 **Out of scope:**
 
 - the comment pass, which is step 5;
-- `d207-requests.md`, which is step 6;
+- `d208-requests.md`, which is step 6;
 - re-basing any budget;
 - marking D-207, or any F-entry it decides, complete.
 
 step3-C may land here or in step 6's record. Reviewer-E stays the owner's.
 
-**Record:** `.plan/measurements/d207-step4.md`. It holds:
+**Record:** `.plan/measurements/d208-step4.md`, renamed by D-208 from `d207-step4.md`. It holds:
 
 - composition;
 - each mutation census, with its tree;
@@ -1671,3 +1684,134 @@ step3-C may land here or in step 6's record. Reviewer-E stays the owner's.
 - a rename cannot be completed without keeping the old name.
 
 **Review.** Step 4 gets its own feature proof before step 5 starts.
+
+## 18. Amendment: diagnostic intake is the kernel's channel (D-208)
+
+**2026-11-02. Input:** the implementer's escalation during step 4, under §17.4's first escalation clause, relayed by the owner. The baseline is `9ae86b189`, whose `src/` equals `ef1e4ef6b`. Step 4's changes are uncommitted and paused. They were not read or run. This section records **F-441**.
+
+### 18.1 The escalation
+
+The implementer's barrier inventory splits the 27 `kernel.closed` reads §17.4 counts into two groups:
+
+- **23 reads inside units**, together with every `live()` read. §17.4 removes them, and nothing here changes that.
+- **Four diagnostic-intake reads:**
+  - the sortable's `#notify` (`sortable/spec.ts:304`) and free drag's (`free-drag/spec.ts:224`). They carry what the behavior reports itself: the settlement failure and every behavior unwind step, including the `retireHooks` walk in `retire()`;
+  - the composition `report` closures in both factories (`sortable/behavior.ts:144`, `free-drag/behavior.ts:69`), which installers receive as `FeatureContext.report`.
+
+The four are reachable after applied destruction, by two routes:
+
+- **teardown**, whose step 4 runs `spec.retire` and so every retire hook;
+- **a published third-party installer** that captured `context.report` and calls it later.
+
+The implementer reports that the baseline delivers no `onError` after `destroy()`. With the four reads removed, a throwing retire hook delivers `drag: unwind/step-failed`, and a late `context.report` delivers `drag: composition/unwind-failed`.
+
+**That conflicts with three things D-207 also requires:**
+
+- §3 removes `BehaviorContext.closed`, so a behavior has nothing left to refuse with.
+- I-36 (a) forbids invoking `onError`, a declared slot, after closure, outside D-178's exception. It is tier A since D-176.
+- D-178 grounds the silence for a teardown step that throws: the closure creates that obligation, so it is not owed.
+
+§2.2's third reading and §2.5 already class the channel's refusal as intake, not as a reading inside a unit, and keep the kernel's own. D-207 kept that one channel and took away the means by which the other four refused. §17.4's _every `kernel.closed` read … goes with it_ states the removal without the distinction. That is F-441, a defect in D-207's handoff, not in landed code.
+
+### 18.2 Evidence
+
+Code at `9ae86b189`, read and not run:
+
+- **Teardown order.** The bracket's `#apply` sets `CLOSED` and then releases (`execution.ts:256`). The armed controller's step 4 is `this.#unwind(this.#spec.retire)` (`kernel.ts:580`). The sortable's `retire()` walks `retireHooks` through `this.#unwind`, which is `createUnwind(this.#notify)` (`sortable/spec.ts:316`, `:1779`). Free drag has the same shape (`free-drag/spec.ts:236`, `:1047`).
+- **The kernel's own route.** `#notify` refuses after `CLOSED`, except for panic's `afterClose` (`kernel.ts:453`). It delivers through `spec.reportError`, which is the behavior's ungated `#deliver`.
+- **Construction.** `assemble` runs in the factory, before `arm()`. Its unwind reports each failed retire hook through `context.report` (`sortable/assemble.ts:186`, `free-drag/assemble.ts:146`). No spec exists yet, so the kernel's route cannot deliver. The closure delivers to `merged.onError` itself.
+- **Where `CLOSED` is set.** Only by `#apply` and by `#drain`'s panic arm (`execution.ts:238`, `:257`). `construct` leaves the lifecycle as it found it when `build` throws.
+
+The implementer's two outcomes come from the escalation and were not rerun. The code above produces both by reading.
+
+### 18.3 What the refusal reads, and why it is not a reading inside a unit
+
+The refusal asks whether destruction has been **applied**: lifecycle `CLOSED`. It does not ask whether destruction has been requested.
+
+- **Inside U-C, U-I and U-A** the lifecycle is `LIVE` or `REQUESTED`, never `CLOSED`. Application happens only at a boundary, after the unit. Panic applies only after the throw has abandoned the unit. So the refusal answers _deliver_ for the whole of every such unit, whatever requests that unit registered.
+- **Inside U-T**, which is the application, it answers _refuse_ throughout.
+- **Outside every unit**, in a late continuation or a third-party timer, it answers by whether application has happened.
+
+The answer is therefore constant across each unit, and changes only at an application boundary. A reading inside a unit, in §2.2's sense, is one that a request registered during the unit could change. This one cannot, so it decides nothing a running unit does.
+
+**That is the property separating intake from the 23 reads step 4 removes, and it can be checked.** A refusal that read `REQUESTED` would change inside the requesting unit, and would be a reading inside a unit. R33's second mutation is that refusal.
+
+### 18.4 The decision
+
+1. **The required behavior is the baseline's.** After applied destruction no diagnostic reaches `onError` by any route, except panic's own report (D-178's diagnosis). Before application, in `LIVE` and in the `REQUESTED` interval of §2.4, every diagnostic is delivered:
+   - **teardown:** a retire hook, a lifetime disposer or a frame reset that throws during application is silent (D-178, grounded);
+   - **panic:** one `DraggableError` with stage `null`, then a silent teardown;
+   - **a late installer report:** `FeatureContext.report` after application is dropped. Before application it is delivered as `drag: composition/unwind-failed`;
+   - **the pre-arm composition unwind:** delivered, because the lifecycle cannot be `CLOSED` before arming. No special case is needed;
+   - **operation retirement on a live controller:** a throwing hook is reported as `drag: unwind/step-failed`, as today.
+2. **Ownership.**
+   - The **kernel** owns the refusal, because it is the lifecycle's one owner.
+   - The **behavior** owns the sink, the consumer's `onError`, and the warnings it builds.
+   - The **composition's `report`** is the behavior's mapping into `drag: composition/unwind-failed` over the kernel's channel.
+3. **Surface.** `BehaviorContext.closed` is removed, as §3 states. `BehaviorContext` gains **`channel(deliver)`**, which returns the controller's diagnostic channel over a sink the behavior supplies. The returned function:
+   - delivers to `deliver` until destruction is applied, and drops every call after that;
+   - absorbs a throw from `deliver`, so it never throws. `createUnwind` relies on that terminus;
+   - works from the factory onward, before arming, because it needs only the lifecycle, which the façade holds from its own construction;
+   - exposes no lifecycle value, so a behavior cannot branch on it;
+   - has no panic bypass. Panic's report stays on the kernel's own route.
+
+   Its parameter and result have the existing `Notify` shape. Whether to publish a name for that type is the implementer's call under CONTRIBUTING §4.
+
+4. **Both behaviors** send every diagnostic they produce through a channel minted from their context: what their `#notify` carries today, their unwind guard and the composition `report`. No module under `sortable/` or `free-drag/` reads the lifecycle.
+5. **The refusal is written once, in the kernel.** The kernel's own route and every minted channel apply the same refusal. Panic's `afterClose` is the only bypass, and only on the kernel's route. The spec's `reportError` stays the ungated sink that route delivers through, which is what lets panic's report reach `onError` after closure.
+6. **`FeatureContext.report`'s signature is unchanged.** Its documentation states the drop after applied destruction.
+
+**Request/application separation holds.** The channel is neither a request nor a query. It is the diagnostic channel that §2.2's third reading names. It registers nothing, and its answer is constant across every unit (§18.3).
+
+**Not decided here.** A late report from an installer of a construction that **failed** is delivered, as at the baseline. A failed construction never applies destruction, so its lifecycle stays `LIVE`, and the installer is calling a `report` whose retire hook has already run. That is misuse under the integrator-trust policy, and its outcome is unchanged.
+
+### 18.5 Options considered
+
+| Option | Outcome | Why not |
+| --- | --- | --- |
+| **(1) A kernel-minted channel over the behavior's sink** (chosen) | the baseline's, on every path | — |
+| (2) Keep `closed`, or a `CLOSED`-only predicate, for the four intake reads | the baseline's | a lifecycle value that any behavior code can read in any unit. R21's census counts per member (step3-B), so it cannot tell the four from a reading inside a unit. §3 and the commission withdraw it |
+| (3) Remove the four reads | `onError` after application: `unwind/step-failed` in teardown, `composition/unwind-failed` from a late installer | I-36 (a), tier A. It reverses D-178's grounded silence, and it is a consumer-visible change §4 does not state |
+| (4) `BehaviorContext.report(error)`, delivering through the armed spec's sink | the baseline's after arming | no spec exists before arming. The pre-arm composition unwind is lost, or the kernel has to learn the behavior's `onError` (H-1) |
+| (5) Withdraw the sink at application: the behavior nulls its `onError` in `retire()`, or the kernel withdraws it | the baseline's in teardown | a nulled slot answering a liveness question (I-37). Retire hooks run inside `retire()`, so the order of the withdrawal becomes load-bearing. The composition closure has no `retire()` |
+| (6) Queue diagnostics as requests | reports after application are dropped with the queue | every diagnostic is delayed past its unit. The pre-arm composition unwind has no boundary before `draggable()` rethrows |
+
+**Why (1).** It keeps the baseline's published outcome on every path. It keeps the lifecycle read in its one owner. It takes away the last lifecycle value a behavior could read. Its cost is one closure per minted channel, per controller, and nothing per sample.
+
+### 18.6 Cases, handoff and verification
+
+**R33** is added (§7, implementation-only).
+
+**Handoff.** The change lands in step 4, in the same commit as the removal of `BehaviorContext.closed`. §17.4 is amended:
+
+- **The 23 reads inside units and every `live()` read are removed**, as before.
+- **The four intake reads are replaced, not deleted.** Both behaviors' channel and composition `report` go through `channel(deliver)` (§18.4 items 3–5).
+- **R33 as tests**, through the running controller, for both behaviors where the path exists, and with no harness flag.
+- **Two mutations:**
+  - **M1:** removing the refusal reddens R33's post-application rows: teardown, panic and the late report;
+  - **M2:** making the refusal read `REQUESTED` as well reddens R33's interval row and its construction-window row.
+- **Contract text** in the same commit:
+  - I-36 states the channel as act (a)'s mechanism on every diagnostic route, and D-178's teardown silence in the present tense, named by route. That joins step2-C's obligation;
+  - 01 §`BehaviorContext` gains the `channel` row;
+  - 03's `FeatureContext.report` documentation, and its JSDoc in `shared/composition.ts`, state the drop;
+  - the declaration surface changes with the member.
+- **R21's census:** see §6. The lifecycle is read in `src/kernel/` only. No module under `src/sortable/` or `src/free-drag/` reads it, and `BehaviorContext` has no lifecycle member. step3-B's repair is still due before or with R21.
+- **Composition.** Growth from the channel is attributed to it on the kernel root, whose margin at the input is 12 B, and on each kernel-carrying row. It is put to the owner at step 4's acceptance and does not stop the step. No pass is spent recovering bytes.
+- **Property 13.** R33's baseline and required outcomes coincide. The step's record lists R33 with them.
+
+**Renamed:** the witness is `.plan/measurements/d208-requests.md`, and step 4's record is `.plan/measurements/d208-step4.md`. Steps 1–3 stay accepted. step3-B and step3-C keep their boundaries.
+
+**Escalate rather than decide** if a diagnostic route is found that the channel cannot serve: one reached before the façade exists, or one that must deliver after application other than panic's.
+
+**What it changes in this record:**
+
+- §2.2 and §2.5;
+- §3;
+- §5's rows for I-36, 01 and 03;
+- §6;
+- §7, which gains R33;
+- §8 steps 4 and 6;
+- §9;
+- §17.4.
+
+Every other property, the step order and steps 1–3 as accepted are unchanged.

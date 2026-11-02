@@ -2803,7 +2803,9 @@ The clause still covers the null command, and property 6 is unchanged. The null 
 
 #### D-207
 
-**Unimplemented (Remediation).** **Decided 2026-11-01, on the implementer's escalation during D-206's step 3**, under the record's §15.3 first escalation clause, relayed by the owner. Baseline `add2d5ca8`, with step 3 uncommitted. **D-206 in full, except that the unit that would enter activation also declines at its entry while a cancel for its operation is registered.** Supersedes D-206. Raises and repairs F-440. Carries D-206's repair of F-439, D-205's decision of F-438, the decisions of F-432 to F-435 and the repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §16. That record's §2.2, §2.6, §2.7, §4, §6–§9 and §15.3 state the D-207 form and are the handoff.
+**Superseded by D-208, 2026-11-02, during step 4.** **Everything carries forward, including steps 1–3 as accepted; D-208 decides how the behaviors' diagnostics are refused once `BehaviorContext.closed` is gone.** Step 4's barrier inventory found four of the 27 `kernel.closed` reads this decision's handoff removes to be diagnostic intake rather than readings inside a unit: both behaviors' `#notify` channels and both composition `report` closures. Removing them would deliver `onError` after applied destruction, in teardown and from a late installer report (F-441). D-208 carries this decision by reference and states only what it changes, and this row's entry in the unimplemented table moves to D-208. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §18. The text below is the decision as it stood.
+
+**Decided 2026-11-01, on the implementer's escalation during D-206's step 3**, under the record's §15.3 first escalation clause, relayed by the owner. Baseline `add2d5ca8`, with step 3 uncommitted. **D-206 in full, except that the unit that would enter activation also declines at its entry while a cancel for its operation is registered.** Supersedes D-206. Raises and repairs F-440. Carries D-206's repair of F-439, D-205's decision of F-438, the decisions of F-432 to F-435 and the repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §16. That record's §2.2, §2.6, §2.7, §4, §6–§9 and §15.3 state the D-207 form and are the handoff.
 
 **Step 3 accepted 2026-11-02, at `ef1e4ef6b`. The decision stays unimplemented.** The step-3 feature proof ([`d207-step3-feature-proof-claude.md`](../reviews/fin-review2/d207-step3-feature-proof-claude.md)) finds no step-3 blocker:
 
@@ -2865,6 +2867,53 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 - **D-200:** its pending acceptance is unchanged.
 - **Surface:** none. No consumer-visible change against the baseline; the record's §4 item 3 is scoped to a cancel raised inside activation.
 
+#### D-208
+
+**Unimplemented (Remediation).** **Decided 2026-11-02, on the implementer's escalation during D-207's step 4**, under the record's §17.4 first escalation clause, relayed by the owner. Baseline `9ae86b189`, with step 4 uncommitted. **D-207 in full, except that the behaviors' diagnostics reach the kernel's refusal through a new `BehaviorContext.channel(deliver)`, and the four reads that refused them are replaced rather than deleted.** Supersedes D-207. Raises and repairs F-441. Carries D-207's repair of F-440, D-206's repair of F-439, D-205's decision of F-438, the decisions of F-432 to F-435 and the repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §18. That record's §2.2, §2.5, §3, §5–§9 and §17.4 state the D-208 form and are the handoff.
+
+**What is carried.** D-207's text, its properties as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1–3 as accepted at `44e2074f1`, `877fb9612` and `ef1e4ef6b`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step3-B and step3-C keep their boundaries.
+
+**The required behavior is the baseline's.** After applied destruction no diagnostic reaches `onError` by any route, except panic's own report (D-178). Before application, in `LIVE` and in the requested interval, every diagnostic is delivered:
+
+- a retire hook, disposer or frame reset that throws during teardown is silent, as D-178 grounds;
+- a panic delivers one `DraggableError` with stage `null`, then tears down silently;
+- `FeatureContext.report` called after application is dropped, and before it is delivered as `drag: composition/unwind-failed`;
+- the pre-arm composition unwind is delivered, because the lifecycle cannot be closed before arming;
+- a throwing hook at operation retirement on a live controller is reported as `drag: unwind/step-failed`.
+
+**The refusal is intake, not a reading inside a unit.** It reads whether destruction has been **applied**. Inside construction, an ingress pass or a queued action that is never true: application happens at a boundary, and panic only after the throw has abandoned the unit. Inside applied destruction it is always true. Its answer is therefore constant across every unit, and no request registered during a unit can change it. A refusal that also read a destruction **request** would be a reading inside a unit, and R33's second mutation is that refusal.
+
+**Ownership and surface.**
+
+- The kernel owns the refusal, because it owns the lifecycle. The behavior owns its sink and the warnings it builds. The composition's `report` is the behavior's mapping over the kernel's channel.
+- `BehaviorContext.closed` is removed, as D-207 states. `BehaviorContext` gains `channel(deliver)`. It returns a function that delivers to `deliver` until destruction is applied and drops every call afterwards, absorbs a throw from `deliver`, works from the factory onward, exposes no lifecycle value and has no panic bypass.
+- Both behaviors send every diagnostic they produce through a minted channel: their own channel, their unwind guard and the composition `report`. No module under `sortable/` or `free-drag/` reads the lifecycle.
+- The refusal is written once in the kernel, for its own route and every minted channel. Panic's bypass stays on the kernel's route, and the spec's `reportError` stays the ungated sink that route delivers through.
+- `FeatureContext.report`'s signature is unchanged. Its documentation states the drop.
+
+**Not chosen:**
+
+- **Keep `closed`, or a closed-only predicate.** Any behavior code could read it in any unit, and the read census cannot tell intake from a reading inside a unit by member.
+- **Remove the four reads.** That delivers `onError` after application, against I-36 (a) and D-178, as a consumer-visible change nothing states.
+- **`BehaviorContext.report(error)` through the armed spec.** No spec exists before arming, so the pre-arm composition unwind would be lost or the kernel would have to learn the behavior's `onError`.
+- **Withdraw the sink at application.** A nulled slot would answer a liveness question (I-37), and the order inside `retire()` would become load-bearing.
+- **Queue diagnostics as requests.** Every diagnostic would be delayed past its unit, and the pre-arm unwind has no boundary before `draggable()` rethrows.
+
+**Not decided.** A late report from an installer of a construction that failed is delivered, as at the baseline. That construction never applied destruction.
+
+**Cases.** D-207's R1–R32, plus **R33**: diagnostic intake across application, in both behaviors, through teardown, panic, a late installer report, the requested interval, a live controller and the pre-arm composition unwind, and in the kernel through a channel minted in the factory. Rows other than the kernel's have the baseline's outcome.
+
+**Order and witness.** D-207's step order. The change lands in step 4, in the same commit as the removal of `BehaviorContext.closed`. Removing the refusal must redden R33's post-application rows, and making it read a destruction request must redden its interval and construction rows. The measurement record is `.plan/measurements/d208-requests.md`, and its absence is the witness. Step 4's record is `.plan/measurements/d208-step4.md`.
+
+**Touches:**
+
+- **D-207:** supersedes it during step 4. Its steps 1–3 stay accepted.
+- **F-441:** raises and repairs it.
+- **F-432 to F-440:** carries their decisions, repairs and closures.
+- **D-178:** its teardown silence and panic exception are kept, and now rest on the kernel's one refusal.
+- **D-200:** its pending acceptance is unchanged.
+- **Surface:** `BehaviorContext.channel(deliver)` is added to the unreleased `./kernel.js` SPI. No consumer-visible change against the baseline.
+
 ### Decisions not yet implemented
 
 **The artifact F-63 asked for** (K-5). D-34 and D-35 were stated in the present tense by three contract documents and were not in the code, across a checkpoint and a whole revision, with every suite green — because a green suite is evidence about the _implemented_ contract only, and nothing in the repository compared a decision booked to a later phase against the code that had not implemented it. Phase 18 found them by reading, which is the discovery this table exists to make unnecessary.
@@ -2877,7 +2926,9 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-207 | Remediation | steps 4–6: surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d207-requests.md` |
+| D-208 | Remediation | steps 4–6: surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d208-requests.md` |
+
+**D-207's row closed on 2026-11-02 with steps 1–3 accepted.** D-208 superseded it during step 4, adding `BehaviorContext.channel` so that the behaviors' diagnostics keep the kernel's refusal after applied destruction. D-208's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 
 **D-207's row dropped step 3 on 2026-11-02**, when step 3 was accepted at `ef1e4ef6b`.
 
@@ -2969,7 +3020,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 This register is the **status**, not the decision. What each decision says, and what replaced it, is its row in §Decision ledger — the source of truth, which this never restates. `tests/decisions.node.test.ts` holds the two to the same id set: an entry without a canonical row, a canonical row without an entry, a duplicate, or a value outside the vocabulary is a failure rather than a skip.
 
-The twenty-five `inactive` rows are the ones whose live residue is empty: **D-7** (superseded by D-155, no gate left to default open), **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected), **D-150** (superseded by D-151, none of it lands), **D-162** (superseded by D-164), **D-164** (superseded before implementation by D-165), **D-167** and **D-169** (both superseded by D-170, whose owner call reverses the first and closes the question the second answered), **D-182** (superseded by D-184, which restates every property it carries forward), **D-183** (superseded by D-185 on a reading of _reachable_ the owner's rule rejects), **D-185** (superseded by D-186, which restores D-183's holding on a repaired ground), **D-188** (superseded by D-189, which carries both its halves forward on repaired grounds) **D-190** (superseded by D-191, which carries its premise and every disposition forward on a replaced rule), **D-187** (superseded by D-192, which carries all five of its claims forward with three of the rules narrowed), **D-193** (superseded by D-196, which corrects the site the rule names, withdraws the instrument it owed and replaces the cause it states), **D-194** (superseded by D-197, which replaces the ground for the export and re-books the declaration-weight figure) **D-195** (superseded by D-198, which widens the repair to both `prettier/prettier` rule sites and scopes the clause to the files a package's `fmt` owns) **D-199** (superseded before implementation by D-201, which restates the extraction rule, the teardown deduplication and the comment pass it carries forward), **D-201** (superseded before implementation by D-202, which restates every property it carries forward and withdraws the publication points and event sinks whose premise was immediate logical closure) **D-202** (superseded before implementation by D-203, which carries it by reference and replaces one entry condition), **D-203** (superseded before implementation by D-204, which carries it by reference and adds the `dispatch` tag rule), **D-204** (superseded after its step 1 by D-205, which carries it by reference and moves the round-trip's own unit into step 1), **D-205** (superseded after its step-1 checkpoint by D-206, which carries it by reference and adds the failure clause to the round-trip's entry condition) and **D-206** (superseded during its step 3 by D-207, which carries it by reference and adds a held-cancel clause to activation's entry). ~~The eight~~ **corrected 2026-09-09 (F-406): the enumeration named eight of thirteen and stated the count as eight, while the table three lines below carried thirteen — five rows explained nowhere by the paragraph that exists to explain them.** ~~The fifteen~~ **corrected 2026-09-10: the same defect recurred when D-193, D-194 and D-195 were added to the table and not to the enumeration.**
+The twenty-six `inactive` rows are the ones whose live residue is empty: **D-7** (superseded by D-155, no gate left to default open), **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected), **D-150** (superseded by D-151, none of it lands), **D-162** (superseded by D-164), **D-164** (superseded before implementation by D-165), **D-167** and **D-169** (both superseded by D-170, whose owner call reverses the first and closes the question the second answered), **D-182** (superseded by D-184, which restates every property it carries forward), **D-183** (superseded by D-185 on a reading of _reachable_ the owner's rule rejects), **D-185** (superseded by D-186, which restores D-183's holding on a repaired ground), **D-188** (superseded by D-189, which carries both its halves forward on repaired grounds) **D-190** (superseded by D-191, which carries its premise and every disposition forward on a replaced rule), **D-187** (superseded by D-192, which carries all five of its claims forward with three of the rules narrowed), **D-193** (superseded by D-196, which corrects the site the rule names, withdraws the instrument it owed and replaces the cause it states), **D-194** (superseded by D-197, which replaces the ground for the export and re-books the declaration-weight figure) **D-195** (superseded by D-198, which widens the repair to both `prettier/prettier` rule sites and scopes the clause to the files a package's `fmt` owns) **D-199** (superseded before implementation by D-201, which restates the extraction rule, the teardown deduplication and the comment pass it carries forward), **D-201** (superseded before implementation by D-202, which restates every property it carries forward and withdraws the publication points and event sinks whose premise was immediate logical closure) **D-202** (superseded before implementation by D-203, which carries it by reference and replaces one entry condition), **D-203** (superseded before implementation by D-204, which carries it by reference and adds the `dispatch` tag rule), **D-204** (superseded after its step 1 by D-205, which carries it by reference and moves the round-trip's own unit into step 1), **D-205** (superseded after its step-1 checkpoint by D-206, which carries it by reference and adds the failure clause to the round-trip's entry condition) **D-206** (superseded during its step 3 by D-207, which carries it by reference and adds a held-cancel clause to activation's entry) and **D-207** (superseded during its step 4 by D-208, which carries it by reference and adds the behaviors' route to the kernel's diagnostic refusal). ~~The eight~~ **corrected 2026-09-09 (F-406): the enumeration named eight of thirteen and stated the count as eight, while the table three lines below carried thirteen — five rows explained nowhere by the paragraph that exists to explain them.** ~~The fifteen~~ **corrected 2026-09-10: the same defect recurred when D-193, D-194 and D-195 were added to the table and not to the enumeration.**
 
 | Decision | Status   |
 | -------- | -------- |
@@ -3179,7 +3230,8 @@ The twenty-five `inactive` rows are the ones whose live residue is empty: **D-7*
 | D-204    | inactive |
 | D-205    | inactive |
 | D-206    | inactive |
-| D-207    | active   |
+| D-207    | inactive |
+| D-208    | active   |
 
 ## Findings
 
@@ -5408,7 +5460,7 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Repaired 2026-09-10.** The `oxfmt` pin moves 0.58.0 → **0.67.0**, the latest, so the version is not itself a formatting opinion, and the tree is reformatted under it: **seven files** across box-quad, drag, drag2 and material-x, none of which changes a program. Root `fmt-check` is green over all nine packages and the repository-level files.
 
-#### F-432 — an operation minted inside a failing `arm()` is never disposed · open, decided by D-207
+#### F-432 — an operation minted inside a failing `arm()` is never disposed · open, decided by D-208
 
 **Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
 
@@ -5428,7 +5480,7 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Why it is open rather than booked.** It is reachable only through foreign code running inside `arm()` between two listener attachments. [`CONTRIBUTING.md`](../../../../CONTRIBUTING.md) §1.1 declines to add guards against that kind of reach, so whether to repair it is an owner question. **What a repair would establish:** every exit from `arm()` that leaves the controller unarmed leaves no operation resource live. D-199's teardown deduplication neither repairs this nor makes it worse, because its property (2) keeps the unconditional drop this path depends on.
 
-#### F-433 — a press dispatched from inside a running unit opens a second admission underneath it · open, decided by D-207
+#### F-433 — a press dispatched from inside a running unit opens a second admission underneath it · open, decided by D-208
 
 **Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
 
@@ -5450,7 +5502,7 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Required property.** While any unit runs, an ingress pass is refused before it touches any state. D-201 properties 1 and 2; case E1.
 
-#### F-434 — a late `cancel()` raised inside `anchorTarget` strands the operation in `SETTLING` · open, decided by D-207
+#### F-434 — a late `cancel()` raised inside `anchorTarget` strands the operation in `SETTLING` · open, decided by D-208
 
 **Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
 
@@ -5472,7 +5524,7 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Required property.** A cancel request is latched only in a phase where `CANCEL` acts, and no control reading on the settlement path treats a request as a liveness answer. D-201 properties 5 and 6; case E4.
 
-#### F-435 — a `cancel()` raised inside `release.effect` reports `AT_CONSUMER` for a round-trip that never opened · open, decided by D-207
+#### F-435 — a `cancel()` raised inside `release.effect` reports `AT_CONSUMER` for a round-trip that never opened · open, decided by D-208
 
 **Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
 
@@ -5571,6 +5623,16 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 **Why it is a problem.** A published outcome changed with no decision stating it. The record's §4 item 3 and R3 describe only a cancel raised inside the activation unit. For a command, every cancel registered at `PENDING` lands behind `ACTIVATE`, so D-206 as written made §2.6's `PENDING` row unreachable on that path.
 
 **Repair.** The unit that would enter activation, `ACTIVATE` or `MOVE` at `PENDING`, declines at its entry while a cancel for its operation is registered. The queued `CANCEL` then retires the operation silently. D-207 property 7; case R31.
+
+#### F-441 — D-207's step 4 removes the behaviors' diagnostic refusal with `BehaviorContext.closed` · repaired 2026-11-02 by D-208
+
+**Tier A. Raised 2026-11-02 by the implementer during D-207's step 4**, under the record's §17.4 first escalation clause, relayed by the owner. Baseline `9ae86b189`, with step 4 uncommitted. Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §18. The defect is in D-207's handoff, not in landed code.
+
+**What happens.** The handoff removes every `kernel.closed` read in the two behaviors, 27 by `grep`, together with `BehaviorContext.closed`. Four of them are not readings inside a unit. They refuse diagnostics after applied destruction: both behaviors' `#notify` channels and both composition `report` closures, which installers receive as `FeatureContext.report`. They are reached in teardown, whose step 4 walks every retire hook, and from a published installer that calls a captured `report` late. With them removed, a throwing retire hook delivers `drag: unwind/step-failed` and a late report delivers `drag: composition/unwind-failed`, both after the controller's destruction was applied. The baseline delivers neither.
+
+**Why it is a problem.** A correctly integrated consumer's `onError` runs after destruction, which I-36 (a) forbids at tier A. It reverses D-178's grounded silence for a throwing teardown step, as a consumer-visible change the record does not state. With `closed` gone the behaviors had no route left to the refusal the kernel keeps for its own diagnostics.
+
+**Repair.** The kernel's refusal is reached through `BehaviorContext.channel(deliver)`, and the four reads are replaced by minted channels rather than deleted. The refusal reads only applied destruction, so its answer is constant across every unit. D-208; case R33.
 
 ## What would falsify this model
 

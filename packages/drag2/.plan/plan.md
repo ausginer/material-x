@@ -2298,6 +2298,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-02 — The behaviors' diagnostics keep the kernel's refusal (D-208, F-441)
+
+**D-208 supersedes D-207 during step 4 and carries it in full**, including steps 1–3 as accepted, their dispositions and the owner's size tolerance. It changes how step 4 treats four of the 27 `kernel.closed` reads in the behaviors. The other 23, and every `live()` read, are still removed.
+
+**The implementer escalated under step 4's first clause.** Four of the reads are diagnostic intake, not readings inside a unit: both behaviors' `#notify` channels and both composition `report` closures, which installers receive as `FeatureContext.report`. They are reached after applied destruction, in teardown and from a late installer report. Removing them would deliver `drag: unwind/step-failed` for a throwing retire hook and `drag: composition/unwind-failed` for a late report, where the baseline delivers neither. That breaks I-36 (a) and D-178's grounded teardown silence, and D-207 had removed `BehaviorContext.closed`, the behaviors' only route to a refusal.
+
+**The decision.**
+
+- The baseline's outcome is required on every path.
+- The kernel owns the refusal, and the behaviors reach it through a new `BehaviorContext.channel(deliver)`. It delivers until destruction is applied, drops afterwards, absorbs a throw from the sink and works before arming, so the pre-arm composition unwind is still delivered.
+- The refusal reads only **applied** destruction, so its answer is constant across every unit. That is what separates it from a reading inside a unit, and a mutation that also reads a destruction request is the check.
+
+Case R33 is added and lands in step 4. The witness is now `measurements/d208-requests.md`, and step 4's record is `measurements/d208-step4.md`. Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §18, with §17.4 amended.
+
+---
+
 ### 2026-11-02 — D-207 step 3 accepted: kernel requests
 
 **Step 3 is accepted at `ef1e4ef6b`, and D-207 is not complete.** The step-3 feature proof found no step-3 blocker and reproduced all eleven mutation counts.
