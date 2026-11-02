@@ -32,8 +32,6 @@ const build = (
   item: HTMLElement,
   visual: HTMLElement = detached(),
   live: () => boolean = () => true,
-  /** D-39's ledger. Most cases are not about rollback and pass none. */
-  undo: Array<() => void> | null = null,
 ) =>
   createPlaceholder(
     createRealm(document.body),
@@ -44,7 +42,6 @@ const build = (
     { width: rect.width, height: rect.height },
     factory === null ? null : () => factory(),
     live,
-    undo,
   );
 
 describe('createPlaceholder', () => {
@@ -155,14 +152,14 @@ describe('createPlaceholder', () => {
     expect(writes).toEqual([]);
   });
 
-  it('should take no rollback snapshot for the default placeholder', () => {
-    // **D-127 (b).** The rollback ledger is `null` for the library's own
-    // `<div>` — dropping the element *is* the undo — and the snapshot each
+  it('should read no attribute of the default placeholder', () => {
+    // **D-127 (b), kept after D-206 removed D-39's ledger.** The snapshot each
     // write would be reversed from used to be built in argument position, so
-    // it was taken and thrown away four times per activation. The reads are on
-    // the **placeholder**, which does not exist until the call returns, so the
-    // instrument records every `getAttribute` and its receiver and filters
-    // afterwards.
+    // it was taken and thrown away four times per activation. With the ledger
+    // gone nothing reads the placeholder back at all, and this row keeps it
+    // so. The reads are on the **placeholder**, which does not exist until the
+    // call returns, so the instrument records every `getAttribute` and its
+    // receiver and filters afterwards.
     const calls: Array<Readonly<{ element: Element; name: string }>> = [];
     // Captured to delegate to from the patch below: `native.call(this, name)`.
     // eslint-disable-next-line @typescript-eslint/unbound-method

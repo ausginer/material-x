@@ -207,9 +207,6 @@ describe('the current-operation slots', () => {
       '#handleResolutionSettled',
       '#handleStartCommitted',
       '#handleUp',
-      // The driver's preparation predicate: the one mid-unit reading, of the
-      // cancel request, which the deletion of in-unit ledger reads removes.
-      '#preparationValid',
       // Retirement, steps 3–6 written once.
       '#release',
     ]);
@@ -244,6 +241,84 @@ describe('the current-operation slots', () => {
         ? slots.type.members.map((member) => member.name?.getText(source))
         : null,
     ).toEqual(['command', 'resolution']);
+  });
+});
+
+/**
+ * Every read of a ledger fact inside the armed controller, as
+ * `member: fact`: the lifecycle request through `#bracket.closed`, an
+ * operation's cancel request and registered failure, and a checkpoint's
+ * supersession record. A write — the assignment that registers or consumes —
+ * is not a read.
+ */
+function ledgerReads(
+  owner: ts.ClassDeclaration,
+  source: ts.SourceFile,
+): string[] {
+  const facts = new Set(['cancelRequest', 'failureRegistered', 'superseded']);
+  const found = new Set<string>();
+
+  const visit = (node: ts.Node, member: string): void => {
+    let enclosing = member;
+
+    if (node.parent === owner && ts.isClassElement(node)) {
+      enclosing = node.name ? node.name.getText(source) : 'constructor';
+    }
+
+    if (ts.isPropertyAccessExpression(node)) {
+      const name = node.name.getText(source);
+      const { parent } = node;
+      const written =
+        ts.isBinaryExpression(parent) &&
+        parent.left === node &&
+        parent.operatorToken.kind === ts.SyntaxKind.EqualsToken;
+      const lifecycle =
+        name === 'closed' &&
+        node.expression.getText(source) === 'this.#bracket';
+
+      if (!written && (lifecycle || facts.has(name))) {
+        found.add(`${enclosing}: ${name}`);
+      }
+    }
+
+    ts.forEachChild(node, (child) => {
+      visit(child, enclosing);
+    });
+  };
+
+  visit(owner, '');
+  return [...found].toSorted();
+}
+
+/**
+ * **No unit reads the ledger after its entry.** The places left are request
+ * intake, the diagnostic channel's refusal after application, and unit
+ * entries. The runner's own reading is the bracket's, outside this class.
+ */
+describe('the ledger', () => {
+  it('should be read only at intake, the channel and unit entries', async () => {
+    const source = await parse(KERNEL);
+
+    expect(ledgerReads(armedClass(source), source)).toEqual([
+      // Intake: whether a request is registered at all.
+      '#cancelWith: cancelRequest',
+      '#cancelWith: closed',
+      // Failure intake also captures the supersession record.
+      '#failOperation: cancelRequest',
+      '#failOperation: closed',
+      // Unit entries. `ACTIVATE` and `MOVE` at `PENDING` decline activation
+      // while a cancel is held (D-207).
+      '#handleActivate: cancelRequest',
+      '#handleCancel: cancelRequest',
+      '#handleFailed: cancelRequest',
+      '#handleFailed: superseded',
+      '#handleMove: cancelRequest',
+      '#handleOpenResolution: cancelRequest',
+      '#handleOpenResolution: failureRegistered',
+      '#handleStartCommitted: cancelRequest',
+      // The channel refuses after application.
+      '#notify: closed',
+    ]);
   });
 });
 
@@ -334,18 +409,48 @@ const mutableBindings = (source: ts.SourceFile): string[] =>
     return ts.isClassDeclaration(statement) ? mutableStatics(statement) : [];
   });
 
-/** A module's top-level constants initialized with an object, array or `new`. */
+/**
+ * The expression a type-only wrapper wraps: `as`, `as const`, `satisfies`,
+ * parentheses, a non-null assertion and an angle-bracket assertion change
+ * nothing at runtime, so the census looks through every one of them.
+ */
+function unwrapped(expression: ts.Expression): ts.Expression {
+  let inner = expression;
+
+  while (
+    ts.isAsExpression(inner) ||
+    ts.isSatisfiesExpression(inner) ||
+    ts.isParenthesizedExpression(inner) ||
+    ts.isNonNullExpression(inner) ||
+    ts.isTypeAssertionExpression(inner)
+  ) {
+    inner = inner.expression;
+  }
+
+  return inner;
+}
+
+/**
+ * A module's top-level constants initialized with an object, array or `new`,
+ * however the initializer is type-asserted.
+ */
 const objectConstants = (source: ts.SourceFile): string[] =>
   source.statements
     .filter(ts.isVariableStatement)
     .flatMap((statement) => statement.declarationList.declarations)
-    .filter(({ initializer }) =>
-      initializer
-        ? ts.isObjectLiteralExpression(initializer) ||
-          ts.isArrayLiteralExpression(initializer) ||
-          ts.isNewExpression(initializer)
-        : false,
-    )
+    .filter(({ initializer }) => {
+      if (!initializer) {
+        return false;
+      }
+
+      const value = unwrapped(initializer);
+
+      return (
+        ts.isObjectLiteralExpression(value) ||
+        ts.isArrayLiteralExpression(value) ||
+        ts.isNewExpression(value)
+      );
+    })
     .map((declaration) => declaration.name.getText(source));
 
 /**
@@ -363,9 +468,14 @@ describe('module scope', () => {
     expect(mutable).toEqual([]);
   });
 
-  // Each is a frame default handed to `Object.assign` as a source, or a table
-  // iterated by index; the list is exact so a new one is classified. Stories
-  // are Storybook's modules, not the library's: no package entry reaches them.
+  // Each is read without being written, by one of four uses, and the list is
+  // exact so a new one is classified. Stories are Storybook's modules, not the
+  // library's: no package entry reaches them.
+  //
+  // - a frame default handed to `Object.assign` as a source;
+  // - a key, property or event-type table that is only iterated;
+  // - `ACCEPTED`, compared by identity only;
+  // - a resolution factory table, read by consumers and never by the library.
   it('should hold only these object-valued constants in library modules', async () => {
     const objects = (await library())
       .filter(([name]) => !name.endsWith('.stories.tsx'))
@@ -374,11 +484,18 @@ describe('module scope', () => {
       );
 
     expect(objects).toEqual([
+      'free-drag/config.ts: LAST_WINS_KEYS',
+      'free-drag/domain.ts: ACCEPTED',
+      'free-drag/domain.ts: FreeDragResolution',
       'free-drag/frames.ts: DEFAULT_PART',
       'kernel/frames.ts: KERNEL_FRAME_KEYS',
       'kernel/frames.ts: DEFAULT_FRAME',
+      'kernel/pointer.ts: SESSION_POINTER_EVENTS',
       'kernel/presentation.ts: UA_PROPS',
       'kernel/presentation.ts: LIFTED_PROPS',
+      'sortable/config.ts: LAST_WINS_KEYS',
+      'sortable/domain.ts: ACCEPTED',
+      'sortable/domain.ts: ReorderResolution',
       'sortable/frames.ts: DEFAULT_PART',
     ]);
   });

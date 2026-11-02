@@ -6,6 +6,8 @@
 >
 > - **step2-A:** §Property 12's census counts six object-valued library constants. The tree has thirteen, because type-asserted initializers are missed;
 > - **step2-B:** §Runtime counts the façade hop as an added call. It adds a field read, so the net is one call fewer.
+>
+> **Both corrected 2026-11-02, with D-207's step 3** ([`d207-step3.md`](d207-step3.md)), in dated paragraphs under §Runtime and §Property 12 below. The original text is kept.
 
 **Canonical entry: `drag2:D-206`**, step 2 as `request-application-claude.md` §8 and §14.4 state it: D-201's properties 3, 4, 10 and 12 and its decomposition, as D-202 property 1 carries them. This record holds step 2's implementation status, its figures and its verification. It is **not** the decision's measurement record. `d206-requests.md` is written at step 6, and its absence is still the witness.
 
@@ -112,6 +114,9 @@ One reduction was tried and reverted: running construction's post-publication un
 **Analysis, not measurement.**
 
 - **Per `MOVE`:** the bracket's handle callback now reads `#armed` and calls `handle` on it, which is one field read and one call more. The moved leaf receives the lift as an argument through `runLeaf` and `#runPhase`, which is one argument more, and the `#runMoved` hop is gone, which is one call less. Net: one field read and one argument more per active sample, no closure, no object.
+
+  **Corrected 2026-11-02 (step2-B).** At `222445777` the bracket's handle callback already made one call, `this.#handle(action, argument)`; at `877fb9612` it makes one call, `this.#armed!.handle(action, argument)`. The hop adds **a field read and no call**. With the `#runMoved` hop gone, the counted difference at `877fb9612` against `222445777` is **one more field read and one more argument per active sample, and one call fewer**. Both callbacks were read at their trees with `git show`. Still no closure and no object.
+
 - **Per settlement:** the attempt record grows from two fields to four and carries what the slot carried, so the object count is unchanged.
 - **Per failure report:** one more object.
 - **Per controller:** one more object, the armed controller, and one more closure, construction's unwind guard, which is created only on a failed construction.
@@ -126,6 +131,8 @@ Over every `.ts` and `.tsx` file under `src/`, by the TypeScript compiler API: t
 | mutable `static` field | 0 | 0 |
 | object-valued constants, library modules | 6: the three frame defaults (`DEFAULT_PART` ×2, `DEFAULT_FRAME`), `KERNEL_FRAME_KEYS`, `UA_PROPS` and `LIFTED_PROPS` | the same 6 |
 | object-valued constants, story files | 13 Storybook story, metadata and label-table objects in the two `*.stories.tsx` | the same |
+
+**Corrected 2026-11-02 (step2-A).** The census above missed every initializer wrapped in a type assertion. At `877fb9612` the library modules hold **13** object-valued constants, not 6: the six above, plus `LAST_WINS_KEYS` in both `config.ts` files, `ACCEPTED` in both `domain.ts` files, `FreeDragResolution` and `ReorderResolution`, and `kernel/pointer.ts`'s `SESSION_POINTER_EVENTS`. The row now looks through `as`, `as const`, `satisfies`, parentheses, non-null assertions and angle-bracket assertions, and lists all 13 (`d207-step3.md` §Property 12). Each added constant was classified by reading its uses: the two `LAST_WINS_KEYS` and `SESSION_POINTER_EVENTS` are iterated tables, the two `ACCEPTED` are compared by identity only, and the two resolution objects are factory tables that consumers read and the library does not. None is written. The sentence below about a seventh became true with that repair, not before it.
 
 The six library constants are read and never written. The frame defaults are `Object.assign` sources. `UA_PROPS` and `LIFTED_PROPS` are iterated. `KERNEL_FRAME_KEYS` is exported and read only by tests. That was checked by reading every use. `capture.node` pins the list exactly, so a seventh is classified when it appears. Adding a module `let` and a mutable `static` to `kernel/types.ts` reddens the binding row with both named, then restored.
 

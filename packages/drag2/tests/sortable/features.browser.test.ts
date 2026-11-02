@@ -22,6 +22,8 @@ import {
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
+  AT_PROPOSAL,
+  CANCEL_SUPPLIED,
   ReorderResolution,
   type SortableConfig,
   type SortableController,
@@ -404,79 +406,44 @@ describe('placeholder', () => {
     expect(composed.items[0]!.style.transform).toBe('');
   });
 
-  it('should roll back every library write when a cancelling factory discards the preparation', () => {
-    // **D-39, and the case that makes `activation.rollback` non-vacuous.**
-    // ~~A discarded prepare leaves only a detached element for the collector~~
-    // is true of the library's own `<div>` and false the moment a factory
-    // exists: `prepare` writes onto an element the **consumer** created, and
-    // `preparationValid()` discards the *preparation*, not the element.
-    //
-    // A `cancel()` rather than a `destroy()` is the discriminating shape.
-    // Destroying closes the controller, so the post-factory liveness reading
-    // returns the element unmechanized and there is nothing to undo — the case
-    // above already pins that. Cancelling leaves the controller open, so every
-    // write lands and only the seam is invalidated.
+  it('should adopt the placeholder, start and then cancel when the factory requests a cancel', () => {
+    // **R3 (D-207), replacing D-39's two rollback rows.** A cancel raised in
+    // a slot reached from `activation.prepare` is a request: the preparation
+    // commits, the consumer's element is adopted and inserted, `onStart` is
+    // delivered, and the queued cancel then settles at `ACTIVATING` with
+    // `AT_PROPOSAL`. The element is the consumer's from adoption on, exactly
+    // as in an uncancelled drag, and the presentation disposer removes it.
     const created: HTMLElement[] = [];
-    const composed: Composed = compose({
-      placeholder: () => {
-        const element = document.createElement('div');
-
-        element.setAttribute('slot', 'mine');
-        element.setAttribute('data-mine', 'kept');
-        element.style.color = 'red';
-        created.push(element);
-        composed.controller.cancel('discard the preparation');
-        return element;
-      },
-    });
-
-    activate(composed);
-
-    const element = created[0]!;
-    const attributes = Object.fromEntries(
-      element
-        .getAttributeNames()
-        .map((name) => [name, element.getAttribute(name)]),
-    );
-
-    // **An attribute map, not `outerHTML`.** A removed-then-restored attribute
-    // is re-appended, so the honest guarantee is the same names with the same
-    // values, never the same bytes.
-    expect(attributes).toEqual({
-      slot: 'mine',
-      'data-mine': 'kept',
-      style: 'color: red;',
-    });
-    // The item's own `slot` is absent, so the mechanics *removed* `slot="mine"`
-    // on the way in — which is why the undo restores rather than deletes.
-    expect(composed.items[0]!.hasAttribute('slot')).toBe(false);
-    // And no residue: `style=""` and `class=""` are absent rather than empty.
-    expect(element.style.width).toBe('');
-    expect(element.style.height).toBe('');
-    expect(element.hasAttribute('class')).toBe(false);
-  });
-
-  it('should leave no style attribute behind on a rolled-back element that had none', () => {
-    // The normalization half of the row, and the case that found a platform
-    // difference: after an inline property has been written through the CSSOM,
-    // `removeAttribute('style')` leaves `style=""` behind in Chromium, so the
-    // undo removes the attribute node itself. Asserted as the whole attribute
-    // list rather than as `hasAttribute`, because the empty leftover is exactly
-    // what `hasAttribute` would have missed by reading `true` either way.
-    const created: HTMLElement[] = [];
+    const startedWith: Array<HTMLElement | null> = [];
     const composed: Composed = compose({
       placeholder: () => {
         const element = document.createElement('div');
 
         created.push(element);
-        composed.controller.cancel('discard the preparation');
+        composed.controller.cancel('from the factory');
         return element;
+      },
+      onStart: () => {
+        startedWith.push(composed.placeholder());
       },
     });
 
     activate(composed);
 
-    expect(created[0]!.getAttributeNames()).toEqual([]);
+    expect(created).toHaveLength(1);
+    expect(startedWith).toEqual([created[0]]);
+    expect(composed.cancels).toEqual([
+      {
+        type: 'canceled',
+        reason: 'from the factory',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+        proposal: null,
+      },
+    ]);
+    expect(composed.finishes).toEqual([]);
+    expect(composed.errors).toEqual([]);
+    expect(created[0]!.isConnected).toBe(false);
   });
 
   it('should stay usable after a factory throw', () => {

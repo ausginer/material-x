@@ -232,7 +232,7 @@ No probed row makes a consumer call that both the baseline and the target withho
 - dropping the clause reddens 4 rows, both kernel resolver rows and both sortable rows;
 - dropping the registration write reddens the same 4.
 
-The `invoke: null` row is green under both. With no resolver, opening queues the skipped settlement behind the `FAILED` already in the queue, so `FAILED` decides either way and no consumer call is reachable. D-206 names the null command in the clause's scope, so the row stays and asserts the outcome. **This is a limit on §13.5's "removing the clause reddens the R30 rows": three of the five rows can, and do.**
+The `invoke: null` row is green under both. With no resolver, opening queues the skipped settlement behind the `FAILED` already in the queue, so `FAILED` decides either way and no consumer call is reachable. D-206 names the null command in the clause's scope, so the row stays and asserts the outcome. **This is a limit on §13.5's "removing the clause reddens the R30 rows": three of the five rows can, and do.** **Corrected 2026-11-02 (reviewer-F): four of the five**, the two kernel resolver rows and the two sortable rows, as the bullets above and the run at `902810cae` say. The `invoke: null` row is the fifth, and it reddens under neither mutation.
 
 Every previously landed step-1 row still passes: R1's construction/drain portion, R4–R6, R9–R11, R13, R15, R17, R22, R28 and R29, the order row, the null-command cancel row, and reviewer-B's three.
 

@@ -132,8 +132,7 @@ export function assemble(
 
     // **Stored in installation order and walked backwards by every reader.**
     // The published guarantee is about execution order; a `reverse()` here
-    // would be a second representation of it, with a mutation between the two —
-    // which is the shape the undo ledger next door already avoids.
+    // would be a second representation of it, with a mutation between the two.
     return slots;
   } catch (error) {
     // A later installer must not leak an earlier installer's state. Installers

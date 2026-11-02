@@ -68,7 +68,6 @@ import {
   createPlaceholder,
   movePlaceholder,
   placeholderAt,
-  type PlaceholderUndo,
 } from './placement.ts';
 import {
   SORTABLE_ACTION_TAGS,
@@ -250,19 +249,6 @@ class SortableBehavior {
    */
   readonly #transaction: {
     /**
-     * The rollback ledger for a **prepared but unadopted** placeholder.
-     *
-     * It lives here rather than on the runtime because it is not runtime state:
-     * it exists only between `activation.prepare` returning and the seam
-     * committing, which is the one window in which the element is mutated and
-     * not yet owned. The activation record is written by `effect`, on the far
-     * side of that window.
-     *
-     * `null` whenever there is nothing staged — including for the library's own
-     * `<div>`, whose undo is being dropped.
-     */
-    placeholderUndo: PlaceholderUndo;
-    /**
      * The failure the open settlement seam is reporting, handed from `prepare`
      * to `effect` because `PreparedSettlement` carries nothing.
      *
@@ -277,8 +263,7 @@ class SortableBehavior {
      * wrote it — there is no window in which one settlement's effect could
      * observe another's failure.
      * 2. Every path that abandons a transaction between the two phases —
-     * `prepare` throwing, `SEAM_INVALIDATED` from a held cancel latch, a
-     * reentrant `destroy()` — skips the effect and therefore leaves the slot
+     * `prepare` throwing — skips the effect and therefore leaves the slot
      * set; the *next* prepare's clear is what collects it. Staleness is
      * impossible by construction, not by timing.
      * 3. The driver refuses a nested seam outright, so no third party can
@@ -290,7 +275,7 @@ class SortableBehavior {
      * clear before it can write**.
      */
     failure: Readonly<{ stage: FailureStage; report: DraggableError }> | null;
-  } = { placeholderUndo: null, failure: null };
+  } = { failure: null };
 
   /**
    * **The one place this behavior invokes the consumer's error callback.** Both
@@ -716,12 +701,8 @@ class SortableBehavior {
    * Creates the placeholder **detached** and seeds the home insertion. No
    * DOM insertion, no acquisition, nothing externally visible.
    *
-   * **Nothing visible is not nothing to undo, and the two cases divide on
-   * ownership.** The library's own `<div>` is created here and discarded
-   * whole with the preparation, so the undo ledger stays `null` for it
-   * and `rollback` has nothing to spend. An element from a `placeholder`
-   * slot is the consumer's and is only *mutated* here, so those writes are
-   * recorded — which is the case `rollback` below is required for.
+   * A successful preparation always commits, so the element it returns is
+   * always adopted by `effect`. Nothing between the two can discard it.
    */
   prepareActivation(
     draft: Draft<SortableFramePart>,
@@ -782,49 +763,13 @@ class SortableBehavior {
       draft.insertion = home;
     }
 
-    // **The ledger is opened only for a consumer-owned element.** With no
-    // `placeholder` slot composed the element is the library's own `<div>`,
-    // which `prepare` created, nothing outside has seen, and a discarded
-    // preparation drops — so an undo for it would be work with no observer.
-    // With a slot composed every write below lands on someone else's node.
-    this.#transaction.placeholderUndo = this.#slots.placeholder ? [] : null;
-
     return createPlaceholder(
       this.#realm,
       { item, visual, box, rect: scope.originRect },
       footprint,
       this.#slots.placeholder,
       this.#live,
-      this.#transaction.placeholderUndo,
     );
-  }
-
-  /**
-   * **Required, and non-vacuous.** A discarded prepare leaves only a
-   * detached element for the collector while the placeholder is the default
-   * `<div>`, and stops doing so the moment a `placeholder` slot exists:
-   * `prepare` writes `data-drag-placeholder`, `aria-hidden`, the copied
-   * `slot` and three inline style properties onto an element the
-   * **consumer** created, and `preparationValid()` does not reverse a
-   * `setAttribute`. It discards the *preparation*; the element is not the
-   * library's to discard.
-   *
-   * Reverse order, and each undo guarded on its own: one throwing revert —
-   * a custom element with an overridden `setAttribute` — must not strand
-   * the writes recorded before it.
-   */
-  rollbackActivation(): void {
-    const ledger = this.#transaction.placeholderUndo;
-
-    this.#transaction.placeholderUndo = null;
-
-    if (!ledger) {
-      return;
-    }
-
-    for (let i = ledger.length - 1; i >= 0; i -= 1) {
-      this.#unwind(ledger[i]!);
-    }
   }
 
   /** Strict order: register, make visible, publish, then notify. */
@@ -833,13 +778,6 @@ class SortableBehavior {
     placeholder: HTMLElement,
     scope: ActivationScope,
   ): void {
-    // **Adoption is what closes the rollback window.** From the line below
-    // the element is the library's: the disposer removes it, moves relocate
-    // it, teardown takes the attributes off with it. A ledger left here
-    // would be a set of reverts for an element nobody may revert, and the
-    // *next* operation's discarded preparation would run them.
-    this.#transaction.placeholderUndo = null;
-
     // 1 → 2, per resource. Registering first is free — removing a detached
     // node is a no-op, so an over-eager disposer cannot over-release — and
     // it means a throw below can never leave a visible orphan that the
@@ -1050,11 +988,8 @@ class SortableBehavior {
       );
 
       // `resolved === null`: the incumbent slot still wins — commit
-      // nothing. `kernel.closed`: a candidate `visual()` resolver destroyed
-      // the controller during the rebuild. The kernel would discard the
-      // transition anyway — `preparationValid()` no longer holds — but
-      // stopping one branch earlier means the behavior never writes
-      // `draft.insertion` for an operation that no longer exists.
+      // nothing. `kernel.closed`: the behavior's own sink, which reports
+      // only applied destruction.
       if (resolved === null || this.#kernel.closed) {
         return null;
       }
@@ -1847,8 +1782,8 @@ class SortableBehavior {
     this.#operation.pendingSpatial = 0;
     this.#operation.activation = null;
 
-    // **Stored in installation order, walked backwards**, like the undo
-    // ledger above. Each is wrapped individually, so one throwing hook cannot
+    // **Stored in installation order, walked backwards.** Each is wrapped
+    // individually, so one throwing hook cannot
     // stop a later one from restoring its DOM.
     for (let i = this.#slots.retireHooks.length - 1; i >= 0; i -= 1) {
       this.#unwind(this.#slots.retireHooks[i]!);
@@ -1893,9 +1828,6 @@ export function createSortableSpec(
     activation: {
       prepare(draft, scope) {
         return behavior.prepareActivation(draft, scope);
-      },
-      rollback() {
-        behavior.rollbackActivation();
       },
       effect(current, placeholder, scope) {
         behavior.effectActivation(current, placeholder, scope);

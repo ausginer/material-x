@@ -50,25 +50,10 @@ type Transition<
     prepared: Prepared,
     capability: Capability,
   ): void;
-
-  /**
-   * Called instead of `effect` when the kernel discards a successful `prepare`
-   * because a reentrant `cancel()` or `destroy()` invalidated it. Releases
-   * whatever `prepare` staged. Publishes nothing, reports nothing.
-   *
-   * ~~Unused by the sortable behavior, because after D-17 nothing it stages
-   * holds an external resource.~~ **Required by D-39, and doubly so after
-   * D-52.** The staged placeholder may be a *consumer-owned* element returned
-   * from the `placeholder` slot, and `prepare` writes library attributes,
-   * styles and sizing onto it — sizing that D-52 keeps in `prepare` precisely
-   * so this ledger covers it. Adoption never happens on the discard path, so
-   * the disposer `effect` would have registered never becomes responsible.
-   * Deferred teardown (D-36) does not dissolve the residue: it changes when
-   * teardown runs, not whether adoption occurred.
-   */
-  rollback?(prepared: Prepared): void;
 }>;
 ```
+
+**`rollback` is deleted (D-207 step 3).** It was called instead of `effect` when a reentrant `cancel()` or `destroy()` invalidated a successful `prepare`, and D-39 made it required for a consumer-owned placeholder. **No request can invalidate a successful `prepare` any more**: a request registered while a unit runs is applied after it, so a `prepare` that returns a value commits, and its value reaches `effect` (I-16). With no trigger, the member, its driver path and the sortable's placeholder undo ledger went together. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §2.11.
 
 ### The shared core, and why it is not the whole driver
 
@@ -76,14 +61,13 @@ There is one core routine. **No seam is only the core** — the discard policy a
 
 #### The core returns an outcome, not a boolean
 
-A `boolean` conflates five outcomes, and each caller needs a different continuation for each. Worse, it conflates _discarded_ with _failed_, which made the failure model internally inconsistent: classification happened, and then success work continued anyway (review 5, §1).
+A `boolean` conflates ~~five~~ **four (D-207 step 3 deleted `SEAM_INVALIDATED`)** outcomes, and each caller needs a different continuation for each. Worse, it conflates _discarded_ with _failed_, which made the failure model internally inconsistent: classification happened, and then success work continued anyway (review 5, §1).
 
 ```ts
 const SEAM_DISCARDED = 0; // `prepare` returned null — nothing happened
-const SEAM_INVALIDATED = 1; // reentrant cancel/destroy after a good prepare
-const SEAM_PREPARE_FAILED = 2; // classified; nothing committed
-const SEAM_COMMITTED = 3; // committed, effect returned normally
-const SEAM_EFFECT_FAILED = 4; // classified, from the committed state
+const SEAM_PREPARE_FAILED = 1; // classified; nothing committed
+const SEAM_COMMITTED = 2; // committed, effect returned normally
+const SEAM_EFFECT_FAILED = 3; // classified, from the committed state
 
 const seamFailed = (o: SeamOutcome): boolean =>
   o === SEAM_PREPARE_FAILED || o === SEAM_EFFECT_FAILED;
@@ -93,7 +77,7 @@ const seamFailed = (o: SeamOutcome): boolean =>
 
 | Seam | What the boolean caused | Rule now |
 | --- | --- | --- |
-| activation | A classified `prepare` failure returned `false`, which the wrapper read as an ordinary discard and retired the operation — making the queued `FAILED` entry stale, so `onError` might never fire | Retire on `SEAM_DISCARDED`/`SEAM_INVALIDATED` **only**. On a failure the operation stays live for its checkpoint. |
+| activation | A classified `prepare` failure returned `false`, which the wrapper read as an ordinary discard and retired the operation — making the queued `FAILED` entry stale, so `onError` might never fire | Retire on `SEAM_DISCARDED` **only** ~~/`SEAM_INVALIDATED`~~ (deleted by D-207 step 3). On a failure the operation stays live for its checkpoint. |
 | release | `openResolution(command)` ran unconditionally, so the consumer could receive `onReorder` for a release whose committed presentation effect had thrown, racing the failure through the same queue | Execute the command **only** on `SEAM_COMMITTED`. |
 | settlement | A `effect` that requested a hold and then threw still got sealed and armed, starting a runner for an already-failed settlement | On `SEAM_EFFECT_FAILED`, ~~seal, then **discard every unarmed request** and arm nothing~~ — **measure nothing and join nothing** (D-155): with no gate to request, what an effect failure must prevent is a measurement taken for a join that will never happen. |
 | join | `spec.finalized(current)` ran after a classified target or renderer failure, and the committed frame still said `OUTCOME_ACCEPTED` — so `onFinish` fired for a drop about to be reported through `onError` | Always release presentation; **skip the terminal callback** after a consequential failure. **Neither producer survives**: the target failure is a warning (D-49) and the renderer failure was the join's own write (D-166), so nothing between the commit and the terminal classifies and the rule now governs an empty set. |
@@ -139,20 +123,8 @@ const runCore = <P extends {}, C>(
     return SEAM_DISCARDED;
   } // draft abandoned
 
-  if (!preparationValid()) {
-    // reentrant destroy/cancel
-    inSeam = true;
-    try {
-      t.rollback?.(prepared);
-    } catch (error) {
-      report(error);
-    } finally {
-      // never classified — see below
-      inSeam = false;
-    }
-    return SEAM_INVALIDATED;
-  }
-
+  // No revalidation (D-207 step 3): a request registered inside `prepare` is
+  // applied after this unit, so a preparation that returned a value commits.
   commit(null); // swap two references
   seamFailureRequested = false;
   inSeam = true;
@@ -173,14 +145,14 @@ Non-transition seams get the same treatment through a `runLeaf` wrapper, so `mov
 Two things this makes explicit that the earlier sketch did not:
 
 - **`effect` is wrapped.** Its throw was promised to be a classified failure, but nothing caught it, so under the queue contract it escaped to panic and destroyed the controller. It is now caught at the seam that owns the stage.
-- **A `rollback` throw is a best-effort report, never classified.** `rollback` runs only when the operation is _already_ invalid; classifying its failure would open a transition against an operation the kernel has just decided to abandon.
+- ~~**A `rollback` throw is a best-effort report, never classified.** `rollback` runs only when the operation is _already_ invalid; classifying its failure would open a transition against an operation the kernel has just decided to abandon.~~ **Withdrawn with `rollback` (D-207 step 3).**
 
 Per seam:
 
 | Seam | Discard | Failure policy |
 | --- | --- | --- |
 | `action` | Normal. Nothing published, operation continues. | Stage per tag (`INSERTION`, `PLACEHOLDER_MOVE`). |
-| `activation` | **Retires the operation** — the kernel releases capture, disposes the lift and returns to `IDLE`; there is no such thing as a pending operation with no presentation. On `SEAM_COMMITTED` the kernel re-checks `preparationValid()` and only then dispatches `START_COMMITTED`. | `ACTIVATION`, and **no retirement** — the queued checkpoint owns it. |
+| `activation` | **Retires the operation** — the kernel releases capture, disposes the lift and returns to `IDLE`; there is no such thing as a pending operation with no presentation. ~~On `SEAM_COMMITTED` the kernel re-checks `preparationValid()` and only then dispatches `START_COMMITTED`.~~ On `SEAM_COMMITTED` the kernel dispatches `START_COMMITTED` unconditionally; its entry declines `ACTIVE` while a cancel is registered. **The seam is not entered while a cancel is registered** (D-207): `ACTIVATE`'s entry and `MOVE`'s at `PENDING` decline, and the queued `CANCEL` retires the operation silently. | `ACTIVATION`, and **no retirement** — the queued checkpoint owns it. |
 | `release` | **Not expressible.** `prepare` returns `ResolutionCommand` — motion is already closed, so "changed my mind" has no meaning. A `prepare` that cannot build one **throws** (D-152). | `RELEASE`, the seam's own stage; the staged command is **not** executed. |
 | `settlement` | **Not expressible.** `prepare` returns `PreparedSettlement`, and **throws** when there is no coherent settlement to prepare (D-152). | `RESOLUTION`, the seam's own stage; on an `effect` failure nothing is measured and nothing joins. |
 
@@ -198,10 +170,12 @@ type SeamRejection = Readonly<{ stage: FailureStage; error: unknown }>;
 
 A committed transition leaves its `Prepared` value in the driver's staging slot, for the seams whose staged value the _kernel_ needs after the seam returns — today only the release seam's `ResolutionCommand`. That slot is consume-and-clear, and cleared again as every seam opens. Two further rules make it impossible for a command to survive the transaction that produced it:
 
-- **Staging is conditional on the preparation still being valid.** The assignment is deliberately _after_ `effect`, so nothing the effect triggers can observe or clear it. ~~— which is also exactly when a reentrant `destroy()` has already run. Clearing the slot inside teardown cannot help, because the write that repopulates it comes next. So a transition whose effect abandoned the operation stages `null`, and the release seam reads `null` on an otherwise committed outcome and **does not execute the command**: the consumer round-trip must not open for an operation the terminal barrier has retired.~~ **Since D-205 the reading sees the cancel request only**, because a destroy request is applied at the unit's boundary and is invisible inside it. A transition whose effect cancelled the operation stages `null`, and the release seam reads `null` on an otherwise committed outcome and **hands nothing on**. A destroy needs no reading here: the release seam's caller queues the round-trip as a unit of its own (§`ResolutionCommand`), and application at the release unit's boundary discards it. This is the same shape as the `SEAM_COMMITTED`-only rule above, one step later. Step 3 of D-205 deletes the reading.
+- ~~**Staging is conditional on the preparation still being valid.**~~ **Staging is unconditional (D-207 step 3).** The assignment is deliberately _after_ `effect`, so nothing the effect triggers can observe or clear it. ~~— which is also exactly when a reentrant `destroy()` has already run. Clearing the slot inside teardown cannot help, because the write that repopulates it comes next. So a transition whose effect abandoned the operation stages `null`, and the release seam reads `null` on an otherwise committed outcome and **does not execute the command**: the consumer round-trip must not open for an operation the terminal barrier has retired.~~ **Since D-205 the reading sees the cancel request only**, because a destroy request is applied at the unit's boundary and is invisible inside it. A transition whose effect cancelled the operation stages `null`, and the release seam reads `null` on an otherwise committed outcome and **hands nothing on**. A destroy needs no reading here: the release seam's caller queues the round-trip as a unit of its own (§`ResolutionCommand`), and application at the release unit's boundary discards it. This is the same shape as the `SEAM_COMMITTED`-only rule above, one step later. ~~Step 3 of D-205 deletes the reading.~~ **Deleted by D-207 step 3.** A cancel requested in the release effect no longer empties the slot: the command is held and `OPEN_RESOLUTION` queued, and that entry declines on the registered cancel.
 - **Every seam consumes its staged value or drops it.** The two seam policies drop it for their callers; the seams the kernel drives directly — settlement, the failure report, behavior actions — drop it themselves. Otherwise a later seam that commits _without_ staging anything would hand its caller the previous seam's command, which is the precise failure the clear-on-read exists to prevent. A value still sitting in the slot as the next seam opens is a bug in the seam that left it there, and is **reported in `DEV`** rather than silently dropped.
 
 ### Post-callback revalidation
+
+**Amended by D-207 step 3: the section is the unit-entry currency rule.** A successful preparation commits, and no request can invalidate it, because a request registered while a unit runs is applied after that unit (05 I-1). What a unit reads is read **at its entry**: the operation's identity and committed phase, the attempt it carries, and the precedence readings — a held cancel at `ACTIVATE`, at `MOVE` while `PENDING` (D-207), at `START_COMMITTED`, `OPEN_RESOLUTION` and `FAILED`, and a registered failure checkpoint at `OPEN_RESOLUTION`. **No unit reads a request after its entry.** The rule below stays true of a resource returned from a callback, and its first example no longer applies.
 
 A rule the reserve-before-call discipline does not cover on its own:
 
@@ -209,7 +183,7 @@ A rule the reserve-before-call discipline does not cover on its own:
 
 Two places this bites, at opposite ends of the lifecycle:
 
-- **`admit`** runs consumer-supplied handle and visual resolvers during native dispatch, and a resolver can close over the already-returned controller and synchronously `destroy()` it. The kernel therefore rechecks terminal state **after `admit` returns** and before minting identity or acquiring anything. Without it, a terminal controller publishes a new operation.
+- ~~**`admit`** runs consumer-supplied handle and visual resolvers during native dispatch, and a resolver can close over the already-returned controller and synchronously `destroy()` it. The kernel therefore rechecks terminal state **after `admit` returns** and before minting identity or acquiring anything. Without it, a terminal controller publishes a new operation.~~ **Withdrawn by D-207 step 3 (R1).** Admission publishes unconditionally: a destruction requested by a resolver is applied when the admission pass ends, and tears down the operation it published; the next press is refused.
 - ~~**`LandingStart`** can `destroy()` the controller and _then_ return a live handle.~~ **Retired with the runner (D-155)**, and the reasoning is kept because it is the clearest statement of why a returned resource is not a reserved one. Teardown, running first, sees no published handle and retires the attempt; the arm code would then store a live runner on a stale attempt with nothing owning it. The kernel revalidates after `start` returns and, if the attempt is stale, **destroys the returned handle immediately, best-effort, and never publishes it**. That destruction happens after logical closure, and D-51 is what makes it legal: it is a **relinquishing invocation**, the sole member of D-37 (a)'s named list. Without that row D-37's finite liveness domain would be false in exactly the place it must not be — the kernel would either leak the runner (I-20, F-30) or breach its own quantifier, and **a finite domain with an unstated exception is not finite**. **This is the call site D-51's deferral clause governs**: reached after logical closure, it is part of physical teardown and defers with it under D-36. The join's `landing.destroy()` is not — same member, live controller, unchanged position.
 
 The same shape applies to any future seam that returns a resource from a callback the consumer can reach.
@@ -223,8 +197,9 @@ The same shape applies to any future seam that returns a resource from a callbac
 | **A** | The behavior cannot write kernel frame fields | `Draft<Part>` omits them, then re-adds them `readonly` |
 | **A** | A post-commit failure cannot revert a committed transition | `effect` runs after the swap and has no way to express a revert |
 | **A** | Release and settlement cannot discard | Non-nullable `prepare` return types |
-| **B** | Revalidate-then-commit is never skipped | The kernel drives it; there is no behavior-callable `commit()` |
-| **B** | A discarded transition's staged value reaches exactly one of `effect` or `rollback` | The driver branches; the behavior does not |
+| **B** | ~~Revalidate-then-commit~~ Commit is never skipped | The kernel drives it; there is no behavior-callable `commit()` |
+| **B** | ~~A discarded transition's staged value reaches exactly one of `effect` or `rollback`~~ A staged value reaches `effect` exactly when its transition commits (D-207 step 3) | The driver branches; the behavior does not |
+| **B** | **No unit reads the ledger after its entry** (D-207 step 3) | Requests are read by the runner, at unit entries and at intake. `tests/kernel/capture.node.test.ts` holds the reading sites of the cancel request, the registered failure, the supersession record and the lifecycle state to that set |
 | **B** | A seam throw is classified, never a panic | Every `prepare`/`effect` call is wrapped by the driver |
 | **B** | **A phase never opens while foreign code is on the stack** | Two enforcement points, at different levels: the execution bracket's drain returns while a pass is already running, so every behavior- and consumer-facing entry appends instead of interrupting; and `refuseReentry` refuses at the driver, ahead of `begin()`. **Scoped to the foreign-code window, which is the whole of what `openStage` marks** (F-167): it is cleared before `runPhase` classifies, so it is not a general nesting interlock |
 | **C** | Preparation performs no externally visible mutation | Discipline. `prepare` can call anything. |
@@ -241,11 +216,11 @@ The same shape applies to any future seam that returns a resource from a callbac
 
 **`Readonly<Frame<Part>>` is shallow.** It prevents `current.insertion = x`; it does not prevent `current.insertion.index = 4`. Since `begin()` shallow-copies, both frames reference the same nested objects, so mutating a referent mutates committed state. That is why the shallow-copy contract exists, and why it is tier C for every part author including a custom behavior the kernel cannot inspect.
 
-The third and fourth rows of tier C matter. **The kernel revalidates once, after `prepare` returns — not after every callback boundary inside it.** Probe 1's prose claimed per-boundary revalidation; its own trace shows the same single check. This model makes that check unforgettable, which is a real but smaller gain.
+The third and fourth rows of tier C matter. ~~**The kernel revalidates once, after `prepare` returns — not after every callback boundary inside it.** Probe 1's prose claimed per-boundary revalidation; its own trace shows the same single check. This model makes that check unforgettable, which is a real but smaller gain.~~ **The kernel no longer revalidates after `prepare` at all (D-207 step 3)**: a request registered inside it is applied after the unit, so there is nothing for a revalidation to find.
 
 ~~What makes tier C _vacuous for the sortable behavior_ is D-17 plus the placement of the placeholder insertion: after both, `activation.prepare` creates a detached element, measures, and returns it. It performs no externally visible mutation at all.~~
 
-**D-39 reverses that, and the reversal is narrow.** The claim held only for the **default** placeholder, which the behavior creates itself. A consumer `placeholder` slot returns an element the **consumer** owns, and `prepare` writes library attributes, styles and the D-52 sizing onto it — a mutation that is externally visible in the only sense that matters, because the element outlives the discarded preparation. So `activation.rollback` is **required, not vacuous**, and I-17's "vacuous for the sortable behavior" is corrected with it. What survives is the smaller true statement: `prepare` performs no mutation of anything the **library** owns, and it inserts nothing into the document.
+**D-39 reverses that, and the reversal is narrow.** The claim held only for the **default** placeholder, which the behavior creates itself. A consumer `placeholder` slot returns an element the **consumer** owns, and `prepare` writes library attributes, styles and the D-52 sizing onto it — a mutation that is externally visible in the only sense that matters ~~, because the element outlives the discarded preparation. So `activation.rollback` is **required, not vacuous**~~. **Since D-207 step 3 a successful preparation is never discarded**, so the element is always adopted and its presentation disposer restores it; `activation.rollback` and its ledger are deleted. I-17's "vacuous for the sortable behavior" stays corrected. What survives is the smaller true statement: `prepare` performs no mutation of anything the **library** owns, and it inserts nothing into the document.
 
 ## `BehaviorSpec`
 
@@ -455,7 +430,7 @@ Three reasons, in order of weight:
 | `admit` | `IDLE` | `PENDING` | Resolve the pressed item against the published snapshot; **decline** if the composed path reaches a `[data-drag-ignore]` region (§Input policy, D-46, D-129), unless the consumer scoped dragging there (D-50); apply the `handle` slot; write `item`, `visual` and `snapshot` into its part; ~~**return the subject** — the visual (via the `visual` slot or identity), paired with the box (via the `box` slot) when the two differ (D-59).~~ **return the subject** — the bare item when the `visual` and `box` slots resolve to it, and the three named separately when any of them differs (D-59, D-165). |
 | `activation.prepare` | `PENDING` | `ACTIVATING` | **Read `boxPost` first**, off `scope.box`, before anything else in the seam (D-52) — **one extent, `box.offsetHeight`** (F-58), and **skipped entirely when `box === visual`** (F-55). Create the placeholder **detached** (default mechanics or the `placeholder` slot), size it from the **removed footprint** — `width` is `scope.boxPre.width` always, `height` is `box === visual ? scope.boxPre.height : scope.boxPre.height − boxPost` — not the visual's offset box (D-43) — and return the element. No DOM insertion, no acquisition. The sizing writes land on an element the consumer may own, so they are **on D-39's rollback ledger**. **Insertion is branched on `draft.pointerId`**: a pointer operation seeds the home insertion; a pointerless one _preserves_ what `command.admit` wrote. See §The command destination. |
 | `activation.effect` | `ACTIVATING` | — | Register removal on `scope.presentation`, **then** `item.after(placeholder)` — retained by D-43 on measurement, not by default; arm scroll/resize invalidation and the frame-task cancel on `scope.motion`; publish `rt.placeholder`, `rt.lift` and the per-operation `rt.view`; `slots.invalidateInsertion()`; `slots.onStart(item)` last. See §Post-commit ordering. |
-| `activation.rollback` | — | — | Undo everything `prepare` wrote onto the staged placeholder — attributes, styles, sizing, state — and drop it. **Required, not vacuous** (D-39): the element may be consumer-owned and adoption never happened, so nothing else becomes responsible for it. |
+| ~~`activation.rollback`~~ | — | — | ~~Undo everything `prepare` wrote onto the staged placeholder — attributes, styles, sizing, state — and drop it. **Required, not vacuous** (D-39): the element may be consumer-owned and adoption never happened, so nothing else becomes responsible for it.~~ **Deleted by D-207 step 3**: a successful preparation always commits, so its placeholder is always adopted. |
 | `moved` | `ACTIVE` | — | `lift.write(dx, dy)`; `spatialSeq += 1`; `frame.schedule(spatialSeq)`. **Kernel-wrapped** — see below. |
 | `action.prepare(SPATIAL)` | `ACTIVE` | — | `slots.resolveInsertion(draft, rt.view)`; write `insertion`, or return `null`. |
 | `action.effect(SPATIAL)` | — | — | `beforeMove` pipeline → placeholder DOM move (sole writer) → `slots.invalidateInsertion()` → `afterMove` pipeline. |
@@ -828,7 +803,7 @@ This says nothing about whether `drag.js` survives as a root; see 00 §D-68 §Wh
 
 ## Post-commit ordering
 
-`prepare` gets rollback. An `effect` does not: it runs after the swap, and a throw inside it opens a _new_ failure transition from the committed state (I-18). So a partially completed effect must never leave a resource that is externally visible but not yet owned by cleanup.
+~~`prepare` gets rollback.~~ `prepare`'s staged value reaches `effect` whenever it commits (D-207 step 3 deleted `rollback`). An `effect` gets no undo either: it runs after the swap, and a throw inside it opens a _new_ failure transition from the committed state (I-18). So a partially completed effect must never leave a resource that is externally visible but not yet owned by cleanup.
 
 **The rule, for every `effect`, in this order:**
 
@@ -1106,7 +1081,7 @@ D-39 and D-43 legislate the same code and neither said which seam owns which wri
 Three things then fix the shape of the windows:
 
 - **Both must be offset-box reads.** A running translate corrupts a border-box read by the drag delta — api-1 measured the top off by 60 px with the height correct — so a `getBoundingClientRect()` pair would produce a footprint whose position is a function of where the pointer happened to be.
-- **The sizing writes stay in `prepare`, on D-39's ledger.** Keeping them there is what puts them under `activation.rollback`: they may land on a consumer-owned placeholder, and a discarded preparation must not leave library sizing on it. Moving them to `effect` to "simplify" would silently take them off the ledger.
+- **The sizing writes stay in `prepare`** ~~, on D-39's ledger. Keeping them there is what puts them under `activation.rollback`: they may land on a consumer-owned placeholder, and a discarded preparation must not leave library sizing on it. Moving them to `effect` to "simplify" would silently take them off the ledger.~~ **The ledger is deleted (D-207 step 3)**: a successful preparation always commits and the presentation disposer restores the adopted placeholder, so where the writes sit no longer decides whether they are undone.
 - **The cost is one extra forced layout per activation, and it is stated rather than absorbed.** `boxPost` is read immediately after the lift's style writes, so it cannot batch with anything. F-58 narrows the read to `offsetHeight` alone — the same forced layout, one fewer value taken, none discarded — which is a reduction and not a saving worth claiming. It is once per drag, not per frame, and it does not touch M-1's move budget — but it is a real read and this document does not claim otherwise. Under the default `box === visual` the post-lift read is skipped entirely (F-55), so the common composition adds **no** extra layout — the cost is paid only by a composition that names a distinct `box`.
 
 `originRect` is **not** derived from either window. It stays the visual's grab rect: it is the basis of the origin-relative landing space frozen at phase 9 (§One coordinate space), which is about **where the visual was**, not about what the layout lost. Deriving it from a `box()` the consumer picked for layout reasons would make the frozen coordinate space a function of that choice.
@@ -1360,19 +1335,19 @@ A "provisional" value that is wrong on 5 of 5 paths is not a useful approximatio
                                                     ← a throw here is classified
                                                       at the seam's own stage and
                                                       nothing below runs
-    preparationValid(); commit(SETTLING)
+    commit(SETTLING)                                ← no revalidation (D-207 step 3)
     attempt = { targetX: null, targetY: 0 }
     lifetimes.cancellation.dispose()
 
     spec.settlement.effect(current, prepared)
         ── no capability is passed. There is no gate to request.  [D-155] ──
 
-    ── if `settlement.effect` threw, or the operation was invalidated:
+    ── if `settlement.effect` threw:
        measure NOTHING and join NOTHING, and let the queued failure checkpoint
        decide. Measuring for a join that will never happen calls behavior code
        for nothing.                                       [review 5 §1, D-155]
 
-    measure → still live?
+    measure                                         ← no liveness reading (D-207)
           precondition (D-42): placeholder still connected, still the item's
                                sibling — two O(1) reads
           attempt.targetX/targetY = spec.anchorTarget(current) - originRect
@@ -1390,15 +1365,14 @@ A "provisional" value that is wrong on 5 of 5 paths is not a useful approximatio
                              happened and the reorder is real — so the operation
                              joins immediately and terminates normally. See
                              §A landing that cannot be measured is skipped. ──
-          if (stale)      no join
-                          ── revalidate AFTER `anchorTarget`: it is behavior code
-                             and may have destroyed the controller. Joining after
-                             that violates I-6.                            ──
+          ── no revalidation after `anchorTarget` (D-207 step 3): a request
+             it raises is applied after this unit, so the join below is the
+             unit's own and runs. ──
 
     join                                              ← always in this drain
 ```
 
-**The arm phase is retired with the gate, and so are its outcomes.** `ARM_ARMED`, `ARM_STALE` and `ARM_FAILED` existed because arming could classify a failure that had to suppress a later continuation; ~~`ARM_FAILED` suppresses `advanceSettlement` and every terminal callback for the original settlement~~ — **there is no continuation to suppress**, because the only thing arming could fail at was creating a runner. What survives is the revalidation, which was never the arm's: `anchorTarget` is behavior code, and everything after it is checked against the operation it was called for.
+**The arm phase is retired with the gate, and so are its outcomes.** `ARM_ARMED`, `ARM_STALE` and `ARM_FAILED` existed because arming could classify a failure that had to suppress a later continuation; ~~`ARM_FAILED` suppresses `advanceSettlement` and every terminal callback for the original settlement~~ — **there is no continuation to suppress**, because the only thing arming could fail at was creating a runner. ~~What survives is the revalidation, which was never the arm's: `anchorTarget` is behavior code, and everything after it is checked against the operation it was called for.~~ **The revalidation is deleted too (D-207 step 3).** `anchorTarget` is behavior code, and a request it raises is applied after the settlement unit, which therefore runs through its terminal callback (R7, R8).
 
 ### ~~The landing completion latch~~ Nothing completes
 
@@ -1416,7 +1390,7 @@ Consequences:
 
 1. **A settlement makes one frame transition.** Probe 1 ran `begin(); flag = true; commit()` per gate. The only transition in settlement is `phase = FINALIZING`.
 2. ~~**A hold count is still the right shape for one hold.**~~ **There is no count and no handle to outlive it.** The join reads two numbers off the attempt and calls nothing back.
-3. ~~**Staleness is answered by identity.** A settlement replaced between the measurement and the join is a different object, which is the check `settlementLive` performs.~~ **Retired 2026-09-09 (D-189): the settlement carries no identity, and `settlementLive()` takes no attempt.** The measurement and the join are one synchronous span no legal writer can enter, so both checks around it read **liveness** — `settlementLive()` before the join is opened and `joinLive()` inside it, neither carrying an identity conjunct. **Staleness by identity is the resolution's rule and is unchanged**: §Attempts and stale continuation rejection.
+3. ~~**Staleness is answered by identity.** A settlement replaced between the measurement and the join is a different object, which is the check `settlementLive` performs.~~ **Retired 2026-09-09 (D-189): the settlement carries no identity, and `settlementLive()` takes no attempt.** The measurement and the join are one synchronous span no legal writer can enter, so ~~both checks around it read **liveness** — `settlementLive()` before the join is opened and `joinLive()` inside it, neither carrying an identity conjunct~~ **nothing around it is checked: D-207 step 3 deleted `settlementLive()` and `joinLive()`**, because a request raised in the span is applied after the unit. **Staleness by identity is the resolution's rule and is unchanged**: §Attempts and stale continuation rejection.
 4. ~~**The hold may be requested at most once, and only before sealing.**~~ **Nothing is requested**, so the duplicate-and-late-request rule — a `DraggableWarning`, never a panic, because a bookkeeping error must not destroy a live drop — has no subject. The rule itself is unchanged wherever a bookkeeping error is still reachable.
 5. **With no `landing()` feature the behavior holds nothing and finalizes in the same drain.** True since D-41 and unconditional since D-155: every settlement finalizes in its own drain, and installing a landing changes what the element does afterwards rather than when the operation ends.
 6. ~~**One gate is v1 product vocabulary, not a generic mechanism.**~~ **Zero gates is the same claim, arrived at from the other side**: removing the last one touched the attempt record, the scope API, the arm step, the action vocabulary, two failure stages, teardown, diagnostics and tests — which is exactly the cost this row predicted a _second_ gate would have, and is the measurement of how specific the mechanism was.
@@ -1465,7 +1439,6 @@ landingTail?(
 join
     begin(); commit(FINALIZING)
     try {
-      if (!joinLive()) return                  ← anchorTarget is behavior code
       from = lift.rendered                     ← the delta the drag last wrote,
                                                  which nothing overwrites (D-35)
     } finally {
@@ -1485,8 +1458,9 @@ join
                                { duration, easing, composite: 'add' })
               ── unwound, never classified: a presentational fault may not reach
                  a consumer whose drop is already decided and released. ──
-    if (!joinLive()) return                    ← the disposers and the policy
-                                                 are both foreign code
+                                               ← no liveness reading (D-207 step 3):
+                                                 a request the disposers or the
+                                                 policy raise applies after
     spec.finalized(current)                    ← throws → FAILURE_TERMINAL_CALLBACK
     dispatch(RETIRE, operation)
 ```
@@ -1736,13 +1710,12 @@ type ActionTransition<Part extends object> = Readonly<{
     current: Readonly<Frame<Part>>,
     prepared: {},
   ): void;
-  rollback?(tag: number, prepared: {}): void;
 }>;
 ```
 
-`Prepared` is opaque to the kernel, which threads it. The behavior narrows it by tag: the spatial tag stages the sentinel `true`, the collection tag stages a `PreparedCollection`.
+`rollback` is deleted with `Transition.rollback` (D-207 step 3). `Prepared` is opaque to the kernel, which threads it. The behavior narrows it by tag: the spatial tag stages the sentinel `true`, the collection tag stages a `PreparedCollection`.
 
-**Actions stage; they do not publish.** An earlier draft had `action.prepare(COLLECTION)` write `rt.snapshot` and dirty feature geometry _before_ returning its discard signal (review 4, §4). That contradicted D-3 outright — `Prepared` exists precisely so a discarded transition need never have touched the private runtime — and it was not merely an external-effect nicety: a reentrant `cancel()` or `destroy()` can invalidate the preparation after the private runtime has already been replaced, and a later queued action then observes a replacement belonging to a transaction that was discarded.
+**Actions stage; they do not publish.** An earlier draft had `action.prepare(COLLECTION)` write `rt.snapshot` and dirty feature geometry _before_ returning its discard signal (review 4, §4). That contradicted D-3 outright — `Prepared` exists precisely so a discarded transition need never have touched the private runtime — and it was not merely an external-effect nicety: a reentrant `cancel()` or `destroy()` can invalidate the preparation after the private runtime has already been replaced, and a later queued action then observes a replacement belonging to a transaction that was discarded. **Since D-207 step 3 no request invalidates a preparation**, and the rule stands on the D-3 ground alone.
 
 ```ts
 type PreparedCollection = Readonly<{
@@ -1830,7 +1803,8 @@ Two commits, in a fixed order the kernel owns:
                                                    cancelled
       begin(); spec.release.prepare(draft)      → insertion + proposal
                                                   + ResolutionCommand
-      preparationValid(); commit(null)          ← commit 2
+      commit(null)                              ← commit 2 (no revalidation,
+                                                  D-207 step 3)
       spec.release.effect(current, command)     ← placeholder to the final gap,
                                                   AND the final lift render
       hold the command; queue OPEN_RESOLUTION   ← only on SEAM_COMMITTED (D-205)
@@ -1882,12 +1856,12 @@ Only two things coalesce: the behavior's rAF frame task and, inside it, the sing
 | Attempt | Owner | Identity | Validated |
 | --- | --- | --- | --- |
 | Resolution | kernel | object | producer boundary + on `RESOLUTION_SETTLED` |
-| ~~Settlement (the landing gate)~~ **Settlement measurement** | kernel | ~~object~~ **none (D-189)** | ~~producer boundary + on gate release~~ **liveness before the join and again inside it** |
+| ~~Settlement (the landing gate)~~ **Settlement measurement** | kernel | ~~object~~ **none (D-189)** | ~~producer boundary + on gate release~~ ~~**liveness before the join and again inside it**~~ **not validated (D-207 step 3)** |
 | Spatial frame | behavior | monotonic `number` (D-11) | producer boundary + in `action.prepare` |
 
-Identity is validated **twice wherever an attempt is dispatched**: once before dispatching and again when the queued action is applied. The two layers guard different windows — an attempt slot may be reset at a different moment than the frame phase changes — so both are required. **The two resolution checks are instrumented since 2026-09-08**, one row per half, each reddened by the deletion of its own comparison and by no other (F-400).
+Identity is validated **twice wherever an attempt is dispatched**: once before dispatching and again when the queued action is applied. The two layers guard different windows — an attempt slot may be reset at a different moment than the frame phase changes — so both are required. **Both checks are attempt identity alone** (D-207 step 3): the producer carries no latch conjunct, because applied destruction retires the slot and a request registered inside a unit is applied after it. **The two resolution checks are instrumented since 2026-09-08**, one row per half, each reddened by the deletion of its own comparison and by no other (F-400).
 
-**The settlement measurement is neither dispatched nor identified** (D-189), which is why its row above carries no identity and no second validation. It travels as an argument across one synchronous span that no legal writer can enter, so what the kernel checks on both sides of it is whether the operation is still live rather than which attempt it is. **The two rules differ because the windows do**: a resolution completion arrives from consumer code at an arbitrary later turn and must prove which attempt it belongs to; a settlement measurement never leaves the call that took it.
+**The settlement measurement is neither dispatched nor identified** (D-189), which is why its row above carries no identity and no second validation. It travels as an argument across one synchronous span that no legal writer can enter, so ~~what the kernel checks on both sides of it is whether the operation is still live rather than which attempt it is~~ **the kernel checks nothing on either side of it (D-207 step 3)**: a request raised in the span is applied after the unit. **The two rules differ because the windows do**: a resolution completion arrives from consumer code at an arbitrary later turn and must prove which attempt it belongs to; a settlement measurement never leaves the call that took it.
 
 A resolution attempt still distinguishes `completed` from `settlement`: `settlement` is the discriminated payload, cleared once consumed, so a fulfilled `undefined` and a rejected `undefined` stay distinguishable; `completed` records that the resolver produced a result at all. The abort guard keys off `completed`, because keying it off the payload aborts a finished resolver's own signal.
 

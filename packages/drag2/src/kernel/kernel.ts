@@ -177,9 +177,9 @@ type SettlementAttempt = {
  * `mintOperation` builds and is never assigned again, so retirement drops the
  * record rather than remembering which slots to clear — a field added here is
  * cleared by construction. `cancelRequest` and `failureRegistered` are the
- * exceptions. The first is a latch: the first valid cancel per operation wins,
- * and it may not outlive the operation it latched. The second records that a
- * failure checkpoint was queued, and only the round-trip's entry reads it.
+ * exceptions. The first is the registered cancel: the first registration per
+ * operation wins, and the `CANCEL` entry consumes it. The second records that
+ * a failure checkpoint was queued, and only the round-trip's entry reads it.
  *
  * **Kernel-local, and resolved once per unit.** It appears in no queue
  * argument and no captured callback. {@link OperationIdentity} travels
@@ -263,6 +263,13 @@ type FailureCheckpoint = Readonly<{
   stage: FailureStage;
   error: unknown;
   operation: OperationIdentity;
+  /**
+   * Whether a cancel for the operation was registered and unapplied when the
+   * checkpoint was. Captured at intake, so the checkpoint's application decides
+   * supersession on the record rather than on a request read inside the unit
+   * that raised it.
+   */
+  superseded: boolean;
 }>;
 
 /**
@@ -354,8 +361,9 @@ function resetFrame<Part extends object, Activation extends {}>(
  * **The current-operation slots are read in three places only**: at a unit's
  * entry, which resolves the operation and activation records once and hands
  * them down as parameters; at request intake; and by the statements that
- * publish or retire them. The one exception is the driver's preparation
- * predicate, which reads the cancel request mid-unit.
+ * publish or retire them. **No unit reads a request after its entry**: the
+ * lifecycle request, a cancel request and a registered failure are read by the
+ * runner, at unit entries and at intake, and nowhere below.
  *
  * Kernel-internal. No behavior or consumer ever holds it: the façade forwards
  * the members a behavior may call, and the bracket's four callbacks reach the
@@ -512,7 +520,6 @@ class ArmedController<Part extends object, Activation extends {}> {
     this.#frames = new FrameTransaction(current, draft);
     this.#driver = new SeamDriver<Part>(
       this.#frames,
-      () => this.#preparationValid(),
       (stage, error) => {
         this.#failOperation(stage, error);
       },
@@ -528,24 +535,6 @@ class ArmedController<Part extends object, Activation extends {}> {
       // policy — and is equally free to destroy before it throws.
       this.report,
     );
-  }
-
-  /**
-   * False once a reentrant `cancel()` or `destroy()` invalidated the open
-   * preparation. The cancel latch counts: a cancellation raised from inside a
-   * `prepare` has already decided the operation, so publishing the preparation
-   * would commit state the very next action abandons.
-   */
-  #preparationValid(): boolean {
-    // The terminal latch alone: a separate `destroyRequested` flag is a second
-    // name for it — set on the statement after it and never cleared either — so
-    // the extra conjunct is unconditionally true beside it.
-    //
-    // **The one mid-unit read of the operation slot.** The driver calls this
-    // between a seam's phases, with no unit entry in reach to hand it the
-    // record. Within a unit the slot cannot change before the unit's own
-    // retirement, so it names the record the entry resolved.
-    return !this.#bracket.closed && !this.#operation?.cancelRequest;
   }
 
   // -------------------------------------------------------------------------
@@ -735,17 +724,30 @@ class ArmedController<Part extends object, Activation extends {}> {
   }
 
   /**
-   * Latched cancellation. The first valid cancel per operation wins, and an
-   * idle cancel is a no-op that leaves no latch. The latch is what makes a
-   * cancellation raised from inside a seam invalidate that preparation
-   * synchronously, which matters most when the caller is `onStart`.
+   * Registers a cancellation against the operation committed at intake, and
+   * queues the `CANCEL` entry that applies it.
+   *
+   * **Registered only in a cancellable phase**: `PENDING`, `ACTIVATING`,
+   * `ACTIVE` or `RELEASING`. From `SETTLING` on the operation is decided, so a
+   * cancel there would have nothing to apply to and would only be held by an
+   * operation that never consumes it. The call is a no-op there, with no
+   * operation, on a duplicate, and once destruction has been applied. The
+   * first registration wins, with its reason and origin.
+   *
+   * Registration changes nothing the running unit uses. The request is read at
+   * unit entries — `CANCEL`, `ACTIVATE`, `MOVE` at `PENDING`,
+   * `START_COMMITTED`, `OPEN_RESOLUTION` and `FAILED` — and at failure intake,
+   * and never below one.
    *
    * Request intake, and so one of the places the operation slot is read.
    */
   #cancelWith(reason: unknown, origin: CancelOrigin): void {
+    const { phase } = this.#frames.current;
+
     if (
       this.#bracket.closed ||
-      !this.#frames.current.operation ||
+      phase < PENDING ||
+      phase > RELEASING ||
       this.#operation!.cancelRequest
     ) {
       return;
@@ -781,20 +783,13 @@ class ArmedController<Part extends object, Activation extends {}> {
     // nothing asynchronous can observe it — and is kept only so that making
     // `ERROR_REPORTED` asynchronous later cannot silently reopen the swallow.
     //
-    // A held cancel latch outranks the checkpoint outright, under the
-    // precedence `DESTROY > CANCEL > FAILURE_CHECKPOINT`. The latch is set
-    // synchronously and consumed by `handleCancel` before the cancellation
-    // settlement opens, so "still held" means the queued `CANCEL` has not run
-    // yet and the operation's terminal channel is already decided as
-    // *canceled*. Without this, a seam that cancels and then throws — `moved()`
-    // calling `controller.cancel()` and failing on the same sample — queues
-    // `CANCEL` then `FAILED`; the cancellation finalizes and queues `RETIRE`,
-    // and the checkpoint still runs ahead of it at `FINALIZING`, so the
-    // consumer gets both `onCancel` and `onError` for one operation.
+    // **These are context checks, not request reads.** A held cancel does not
+    // demote here: the checkpoint is queued and registered, and whether the
+    // cancel supersedes it is decided at its application, from what intake
+    // records below.
     if (
       this.#bracket.closed ||
       !identity ||
-      this.#operation!.cancelRequest ||
       this.#reporting ||
       this.#frames.current.phase === REPORTING
     ) {
@@ -808,18 +803,26 @@ class ArmedController<Part extends object, Activation extends {}> {
       return;
     }
 
+    const live = this.#operation!;
+
     // **Registration, not application.** It changes nothing a running unit
     // uses; the held command, the attempts and the phase are `FAILED`'s.
-    this.#operation!.failureRegistered = true;
+    live.failureRegistered = true;
 
     // Dispatched, not merely enqueued. A failure raised inside a seam appends
     // to the drain that is already running, but one raised from an *async*
     // continuation is the outermost frame, and nothing else would ever drain
     // it.
+    //
+    // **Supersession is captured here and decided at application.** A cancel
+    // registered and unapplied now outranks this checkpoint under
+    // `DESTROY > CANCEL > FAILURE_CHECKPOINT`, and the record carries that to
+    // `FAILED`'s entry, which may also find a cancel registered since.
     this.#bracket.dispatch(FAILED, {
       stage,
       error,
       operation: identity,
+      superseded: live.cancelRequest !== null,
     } satisfies FailureCheckpoint);
   }
 
@@ -889,9 +892,8 @@ class ArmedController<Part extends object, Activation extends {}> {
    * Runs one admission member and returns the subject it admitted, or `null`.
    *
    * Shared by both ingresses, because a second input mode is a second
-   * *ingress*, not a second protocol: the throw policy, the `preventDefault()`
-   * ownership and the post-callback revalidation are one rule each, in one
-   * place.
+   * *ingress*, not a second protocol: the throw policy and the
+   * `preventDefault()` ownership are one rule each, in one place.
    *
    * **`preventDefault()` is the kernel's.** The behavior answers feasibility
    * with its return value; the ingress owner performs the browser effect. A
@@ -945,13 +947,13 @@ class ArmedController<Part extends object, Activation extends {}> {
       event.preventDefault();
     }
 
-    // Post-callback revalidation. An admission member runs consumer-supplied
-    // handle and visual resolvers during native dispatch, and a resolver can
-    // close over the already-returned controller and synchronously destroy it.
-    // Without this recheck a terminal controller publishes a new operation.
-    return this.#bracket.closed || this.#frames.current.operation
-      ? null
-      : admitted;
+    // **Published unconditionally.** An admission member runs consumer-supplied
+    // handle and visual resolvers, and one that requests destruction or a
+    // cancel has registered a request: destruction is applied when this pass
+    // ends and tears the operation down, and a cancel finds no committed
+    // operation to register against. Nothing a resolver can call publishes an
+    // operation, because the bracket refuses a nested pass.
+    return admitted;
   }
 
   /**
@@ -1212,12 +1214,12 @@ class ArmedController<Part extends object, Activation extends {}> {
     retire: (): void => {
       this.#retireOperation(this.#frames.current.operation!);
     },
+    // Queued unconditionally. `activation.effect` invokes the consumer's
+    // `onStart` last, and a cancel or destroy it raises is applied at a
+    // boundary: destruction discards this entry, and the entry itself reads a
+    // held cancel.
     committed: (): void => {
-      // `activation.effect` invokes the consumer's `onStart` last, and that
-      // callback may cancel or destroy.
-      if (this.#preparationValid()) {
-        this.#bracket.dispatch(START_COMMITTED, this.#frames.current.operation);
-      }
+      this.#bracket.dispatch(START_COMMITTED, this.#frames.current.operation);
     },
   };
 
@@ -1367,9 +1369,6 @@ class ArmedController<Part extends object, Activation extends {}> {
         prepared,
       );
     },
-    rollback: (prepared) => {
-      this.#spec.action.rollback?.(this.#actionTag, prepared);
-    },
   };
 
   /**
@@ -1402,37 +1401,7 @@ class ArmedController<Part extends object, Activation extends {}> {
   };
 
   /**
-   * Whether a live operation is still in `SETTLING`. Checked after
-   * `anchorTarget`, which is behavior code and may have destroyed the
-   * controller. `live` is the operation the settlement's unit resolved.
-   */
-  #settlementLive(live: OperationRecord): boolean {
-    return (
-      !this.#bracket.closed &&
-      !live.cancelRequest &&
-      this.#frames.current.operation !== null &&
-      this.#frames.current.phase === SETTLING
-    );
-  }
-
-  /**
-   * The `FINALIZING` counterpart of `settlementLive`. The join calls into code
-   * the kernel does not own — the presentation disposers, the behavior's tail
-   * policy and the terminal callback — and any of it may destroy the controller
-   * synchronously. Everything after such a call is checked against this,
-   * because `destroy()` is a synchronous terminal barrier.
-   */
-  #joinLive(): boolean {
-    return (
-      !this.#bracket.closed &&
-      this.#frames.current.operation !== null &&
-      this.#frames.current.phase === FINALIZING
-    );
-  }
-
-  /**
-   * Takes the one authoritative landing measurement, and reports whether the
-   * settlement survived it.
+   * Takes the one authoritative landing measurement into the attempt.
    *
    * **Called once per settlement.** The serial authored commit guarantees the
    * authored DOM is final here, so there is no interval in which a target is
@@ -1458,21 +1427,16 @@ class ArmedController<Part extends object, Activation extends {}> {
    * would have said.
    */
   #measureTarget(
-    live: OperationRecord,
     activation: ActivationRecord,
     attempt: SettlementAttempt,
-  ): boolean {
+  ): void {
+    // `anchorTarget` is behavior code, and a cancel or destroy it raises is a
+    // request: the settlement this unit opened completes, and the request is
+    // applied after it.
     const anchor = this.#driver.runUnclassifiedValue(
       () => this.#spec.anchorTarget(this.#frames.current),
       'drag: landing/target-unavailable',
     );
-
-    // `anchorTarget` is behavior code and may have destroyed the controller. A
-    // destroyed controller must not go on to join a settlement, so this is
-    // checked before the skip branch as well as after a successful reading.
-    if (!this.#settlementLive(live)) {
-      return false;
-    }
 
     if (anchor === undefined) {
       // **Skipped, not faked.** `onError` has already been delivered by the
@@ -1485,7 +1449,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // reads `0×0` at the viewport origin, so "landing from the unrepaired
       // position" is a confident twelve-frame animation to `(0,0)` followed by
       // a teleport back.
-      return true;
+      return;
     }
 
     const origin = activation.originRect;
@@ -1498,7 +1462,6 @@ class ArmedController<Part extends object, Activation extends {}> {
     // first-party ones do.
     attempt.targetX = anchor.x - origin.x;
     attempt.targetY = anchor.y - origin.y;
-    return true;
   }
 
   /**
@@ -1544,12 +1507,8 @@ class ArmedController<Part extends object, Activation extends {}> {
     targetX: number | null,
     targetY: number,
   ): void {
-    // The presentation disposers ran between the release and here, and they
-    // are consumer-reachable, so the controller may already be closed — in
-    // which case nothing further is asked of the behavior and nothing is
-    // written.
-    if (targetX === null || !this.#joinLive()) {
-      return; // no measurement, or no controller left to interpolate for
+    if (targetX === null) {
+      return; // no measurement
     }
 
     const dx = fromX - targetX;
@@ -1573,9 +1532,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       ),
     );
 
-    // The policy is consumer-authored through `landing()` and may have
-    // destroyed the controller, and a destroyed controller writes nothing.
-    if (!timing || !this.#joinLive()) {
+    if (!timing) {
       return;
     }
 
@@ -1637,16 +1594,6 @@ class ArmedController<Part extends object, Activation extends {}> {
     let fromY = 0;
 
     try {
-      // **The entry revalidation, written out because nothing else performs
-      // it.** With the measurement already taken there is no consumer call here
-      // to revalidate as a side effect — and the code between it and here is
-      // consumer-reachable, because `anchorTarget` runs on the way. Without
-      // this check a destroy raised from it would still reach the terminal
-      // callback.
-      if (!this.#joinLive()) {
-        return;
-      }
-
       // `rendered` is where the visual is — the delta the drag last wrote,
       // which is what the tail has to start from, and which is not the
       // pointer's for any behavior that constrains, clamps, snaps or drives its
@@ -1654,8 +1601,8 @@ class ArmedController<Part extends object, Activation extends {}> {
       // the read is free of ordering constraints.
       ({ x: fromX, y: fromY } = session.rendered);
     } finally {
-      // Unconditional. Nothing above it can throw today — the guard and the
-      // sample are both kernel-private reads — but the rule is the sequence's
+      // Unconditional. Nothing above it can throw today — the sample is a
+      // kernel-private read — but the rule is the sequence's
       // own rather than an artifact of what happens to be fallible: no failure
       // between `FINALIZING` and here may leave the placeholder inserted or the
       // inline styles overwritten.
@@ -1677,13 +1624,9 @@ class ArmedController<Part extends object, Activation extends {}> {
       attempt.targetY,
     );
 
-    // The release and the tail policy are both foreign code, and `destroy()` is
-    // a synchronous terminal barrier: a controller closed by either owes no
-    // terminal callback.
-    if (!this.#joinLive()) {
-      return;
-    }
-
+    // The release and the tail policy are both foreign code, and a request
+    // either raises is applied after this unit: the terminal callback is this
+    // settlement's, and it runs.
     this.#driver.runLeaf(() => {
       this.#spec.finalized(this.#frames.current);
     }, FAILURE_TERMINAL_CALLBACK);
@@ -1735,10 +1678,8 @@ class ArmedController<Part extends object, Activation extends {}> {
     // A settlement that never committed does not land: the queued checkpoint
     // decides what the operation ends as, and measuring for a join that will
     // never happen would call behavior code for nothing.
-    if (
-      outcome === SEAM_COMMITTED &&
-      this.#measureTarget(live, activation, attempt)
-    ) {
+    if (outcome === SEAM_COMMITTED) {
+      this.#measureTarget(activation, attempt);
       this.#joinSettlement(live, activation, attempt);
     }
   }
@@ -1747,13 +1688,13 @@ class ArmedController<Part extends object, Activation extends {}> {
    * The producer-side half of the double validation. The queued action
    * revalidates when it is applied, because the attempt slot and the committed
    * phase change at different moments.
+   *
+   * **Attempt identity alone.** Applied destruction retires the attempt slot,
+   * so a late settlement after it finds no slot; one inside a unit that
+   * requested destruction is queued, and application discards it.
    */
   #settleResolution(attempt: ResolutionAttempt, input: SettlementInput): void {
-    if (
-      attempt.completed ||
-      this.#attempts.resolution !== attempt ||
-      this.#bracket.closed
-    ) {
+    if (attempt.completed || this.#attempts.resolution !== attempt) {
       return;
     }
 
@@ -1863,6 +1804,13 @@ class ArmedController<Part extends object, Activation extends {}> {
     }
 
     if (sample.pointerId !== this.#frames.current.pointerId) {
+      return;
+    }
+
+    // The entry that may cross into activation declines while a cancel is
+    // held, read here and never below, so the queued `CANCEL` retires the
+    // operation silently. `ACTIVE`'s per-sample path reads nothing more.
+    if (phase === PENDING && this.#operation!.cancelRequest) {
       return;
     }
 
@@ -2019,12 +1967,16 @@ class ArmedController<Part extends object, Activation extends {}> {
 
   /**
    * The pointerless activation, which enters the **same** seam the threshold
-   * crossing enters inline from `MOVE`.
+   * crossing enters inline from `MOVE`, and declines at its entry on the same
+   * held cancel: one registered by an entry queued ahead of this one, such as
+   * the collection work a command's admission queued. No start is owed for an
+   * operation cancelled before it started; the queued `CANCEL` retires it.
    */
   #handleActivate(identity: OperationIdentity): void {
     if (
       this.#frames.current.operation !== identity ||
-      this.#frames.current.phase !== PENDING
+      this.#frames.current.phase !== PENDING ||
+      this.#operation!.cancelRequest
     ) {
       return;
     }
@@ -2085,9 +2037,9 @@ class ArmedController<Part extends object, Activation extends {}> {
     const live = this.#operation!;
     const request = live.cancelRequest;
 
-    // Consumed before anything else runs: the latch invalidates every
-    // preparation while it is held, including the settlement transition this
-    // cancellation is about to open.
+    // Consumed at the entry, whatever the phase: applied below, or lapsed. A
+    // failure registered from here on is the cancellation's own and is
+    // reported, not superseded.
     live.cancelRequest = null;
 
     if (!request) {
@@ -2151,7 +2103,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       return;
     }
 
-    // The latch outranks the checkpoint: an operation cancelled during
+    // A held cancel outranks the commit: an operation cancelled during
     // `ACTIVATING` must never reach `ACTIVE`. FIFO alone does not give this —
     // an action whose *effect* cancels (a collection replacement that
     // invalidates the gap, dispatched from `onStart`) queues its `CANCEL`
@@ -2179,19 +2131,29 @@ class ArmedController<Part extends object, Activation extends {}> {
   #handleFailed(checkpoint: FailureCheckpoint): void {
     const { phase } = this.#frames.current;
 
-    // The applied half of the precedence check, and not redundant with the one
-    // in `failOperation`: `fail()` classifies **immediately**, inside the
-    // open phase, so a seam that fails and *then* cancels queues
-    // `[FAILED, CANCEL]` — the latch does not exist yet when the checkpoint is
-    // queued, only when it is applied. Dropping it here leaves the phase
-    // untouched, so the `CANCEL` behind it still finds a live `ACTIVE`
-    // operation and produces the single terminal callback the consumer gets.
+    // **Supersession, decided at application** under
+    // `DESTROY > CANCEL > FAILURE_CHECKPOINT`, and on two readings, both made
+    // here and neither inside the unit that raised the failure.
+    //
+    // - **The record.** Intake captured whether a cancel was registered and
+    //   unapplied. A seam that cancels and then fails queues
+    //   `[CANCEL, FAILED]`; the cancellation settles and queues `RETIRE`, and
+    //   without the record the checkpoint would run ahead of it at
+    //   `FINALIZING` and the consumer would get both terminals for one
+    //   operation.
+    // - **A cancel still held at this entry.** A seam that fails and then
+    //   cancels queues `[FAILED, CANCEL]`, and so does a cancel registered by
+    //   a unit between the failure's and this one. Dropping the checkpoint
+    //   leaves the phase untouched, so the `CANCEL` behind it still finds a
+    //   cancellable operation and produces the single terminal.
+    //
     // The error is not lost; it arrives as a warning, because the `return` here
     // is what decides and the cancel owns the terminal. `checkpoint.stage` is
     // discarded with the classification it names.
     if (
-      this.#operation?.cancelRequest &&
-      this.#frames.current.operation === checkpoint.operation
+      checkpoint.superseded ||
+      (this.#frames.current.operation === checkpoint.operation &&
+        this.#operation!.cancelRequest)
     ) {
       this.#notify(
         new DraggableWarning('drag: failure/superseded-by-cancel', {
@@ -2273,7 +2235,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // below.
     //
     // A throw or a rejection inside this seam cannot become another checkpoint:
-    // `failOperation` sees the latch and reports instead. The seam still
+    // `failOperation` sees `reporting` and reports instead. The seam still
     // *classifies* — the latched failure is what stops the continuation below —
     // but the error takes the non-consequential channel, because a queued
     // checkpoint would be dropped by the guard above and lost.
@@ -2299,9 +2261,9 @@ class ArmedController<Part extends object, Activation extends {}> {
       return;
     }
 
-    // The report transition never published — a rejection from `prepare`, or a
-    // reentrant destroy. Nothing will drive `ERROR_REPORTED`, and the operation
-    // may not stay live.
+    // The report transition never published — a rejection from `prepare`.
+    // Nothing will drive `ERROR_REPORTED`, and the operation may not stay
+    // live.
     this.#retireOperation(checkpoint.operation);
   }
 
@@ -2364,42 +2326,22 @@ class ArmedController<Part extends object, Activation extends {}> {
         presentation.dispose();
       });
 
-      // **The second route into `onEnd`, and it owes its own reading.** The
-      // obligation is per route into a slot, never per slot: one delivery
-      // statement with two callers is two sites, and the join's guard says
-      // nothing about this one.
-      // The disposers above are consumer-reachable — `#startTail` says so for
-      // the join's copy of the same call — and `finalized`'s whole body is the
-      // consumer's terminal slot, which correctly reads no latch of its own
-      // because the reading is the caller's. The entry check fourteen lines up
-      // established the phase and the identity, and neither can change under a
-      // disposer: a nested dispatch inside a running drain appends and returns,
-      // and nothing reachable from one retires an operation. **The latch is the
-      // one conjunct a consumer-reachable step can flip**, so the latch is the
-      // whole reading.
+      // **The second route into `onEnd`, and it reads nothing.** The disposers
+      // above are consumer-reachable, and a request they raise is applied
+      // after this unit, as on the join's route. The entry check established
+      // the phase and the identity, and neither can change under a disposer:
+      // a nested dispatch inside a running drain appends and returns, and
+      // nothing reachable from one retires an operation.
       //
-      // **Bare, and not a `#reportLive()` beside `#joinLive()`.** A named
-      // predicate of that shape reads as slot-wide coverage, which is exactly
-      // how the route this line repairs came to be counted as guarded; and
-      // `#joinLive()` itself is not available here — its `FINALIZING` conjunct
-      // is false on this route by construction, so reusing it would skip the
-      // terminal for *every* classified failure, retracting the rule that a
-      // consequential failure of a started operation still publishes one end.
-      if (!this.#bracket.closed) {
-        // A throw here reaches `failOperation`, which sees `REPORTING` and
-        // takes the non-consequential channel — so a terminal that fails on the
-        // failure path is reported without queueing a second checkpoint for an
-        // operation that is one statement from retirement.
-        this.#driver.runLeaf(() => {
-          this.#spec.finalized(this.#frames.current);
-        }, FAILURE_TERMINAL_CALLBACK);
-      }
+      // A throw here reaches `failOperation`, which sees `REPORTING` and takes
+      // the non-consequential channel — so a terminal that fails on the
+      // failure path is reported without queueing a second checkpoint for an
+      // operation that is one statement from retirement.
+      this.#driver.runLeaf(() => {
+        this.#spec.finalized(this.#frames.current);
+      }, FAILURE_TERMINAL_CALLBACK);
     }
 
-    // **Unconditional, and deliberately outside the guard above.** A closed
-    // controller still owes the kernel's own retirement; physical teardown
-    // defers to the transaction boundary rather than being cancelled by
-    // the close, so skipping the terminal must not skip this.
     this.#retireOperation(identity);
   }
 
