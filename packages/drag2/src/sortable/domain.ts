@@ -197,7 +197,7 @@ export type CanceledReorderResult = Readonly<{
   type: 'canceled';
   /**
    * **What the decider had to say, and nothing more.** An open channel: a value
-   * the consumer passed to `cancel`, one of the two constants this module
+   * the consumer passed to `requestCancel`, one of the two constants this module
    * publishes, the value a classified failure threw, or `undefined`. Provenance
    * is `origin`, which the consumer cannot write; comparing `reason` to a
    * constant answers *what was said*, never *who said it*.

@@ -49,8 +49,7 @@ import {
   SETTLED_REJECTED,
   SETTLED_SKIPPED,
 } from '../kernel/spec.ts';
-import type { Point } from '../kernel/types.ts';
-import { createUnwind } from '../kernel/unwind.ts';
+import { createUnwind, type Unwind } from '../kernel/unwind.ts';
 import {
   ACCEPTED,
   type DragAxis,
@@ -64,7 +63,12 @@ import type {
 } from './feature.ts';
 import { type FreeDragFramePart, freeDragFramePart } from './frames.ts';
 import { applyAxis, buildGeometry, buildRequest } from './geometry.ts';
-import { FREE_DRAG_ACTION_TAGS, TAG_POLICY, TAG_POSITION } from './runtime.ts';
+import {
+  type CapturedPosition,
+  FREE_DRAG_ACTION_TAGS,
+  TAG_POLICY,
+  TAG_POSITION,
+} from './runtime.ts';
 import type { FreeDragSlots } from './slots.ts';
 
 /**
@@ -92,8 +96,6 @@ const RESOLVING = 2;
  * Every field is private. Nothing outside reads or writes one.
  */
 class FreeDragBehavior {
-  readonly #kernel: BehaviorContext;
-
   readonly #slots: FreeDragSlots;
 
   readonly #realm: DOMRealm;
@@ -197,7 +199,7 @@ class FreeDragBehavior {
    *
    * Unguarded and ungated on purpose: its two callers apply those rules, and
    * they apply them differently — the panic delivery is a named exception to
-   * the latch, which is impossible if the latch is read here.
+   * the refusal, which is impossible if the refusal is applied here.
    *
    * **A field rather than a method**, because it is handed on as a value: the
    * spec publishes it as `reportError` and the unwind runner takes it as an
@@ -213,34 +215,24 @@ class FreeDragBehavior {
    * Two callers reach {@link FreeDragBehavior.#deliver} and they are two
    * entries to one channel rather than two channels: everything that arrives is
    * a `DraggableError` or a `DraggableWarning`, and neither entry encodes
-   * severity. The kernel's `notify` covers what the *kernel* reports, because
-   * it owns the latch. This covers what the *behavior* reports — the settlement
+   * severity. This one carries what the *behavior* reports — the settlement
    * failure and the unwind steps, which the kernel cannot see.
    *
-   * Both apply the same two rules. The latch refuses a declared consumer slot
-   * after logical closure, and a throw from the handler stops here rather than
-   * being reported through itself.
+   * Minted by the kernel over {@link FreeDragBehavior.#deliver}, so it applies
+   * the kernel's refusal after applied destruction, and a throw from the
+   * handler stops there rather than being reported through itself.
    */
-  readonly #notify: Notify = (error) => {
-    if (this.#kernel.closed) {
-      return;
-    }
+  readonly #notify: Notify;
 
-    try {
-      this.#deliver(error);
-    } catch {
-      // The terminus, for the same reason the kernel's channel has one.
-    }
-  };
-
-  readonly #unwind = createUnwind(this.#notify);
+  readonly #unwind: Unwind;
 
   /** One per controller. Arming is per operation, on the motion signal. */
   readonly #invalidate: ReturnType<typeof createInvalidator>;
 
   constructor(kernel: BehaviorContext, slots: FreeDragSlots) {
-    this.#kernel = kernel;
     this.#slots = slots;
+    this.#notify = kernel.channel(this.#deliver);
+    this.#unwind = createUnwind(this.#notify);
     this.#realm = kernel.realm;
     this.#root = kernel.root;
     this.#axis = slots.axis;
@@ -333,15 +325,7 @@ class FreeDragBehavior {
     if (this.#slots.handle) {
       const handle = this.#slots.handle(this.#root);
 
-      // **The terminal barrier on the admission sequence.** `handle` is
-      // consumer code and `visual` is called right after it returns, so a
-      // handle resolver that destroyed the controller would otherwise have a
-      // second consumer resolver called after `destroy()` returned.
-      //
-      // It **declines**, it does not throw: a throw reaches
-      // `reportFailure(FAILURE_ADMISSION)` and would tell the consumer that
-      // its own `destroy()` was a library failure.
-      if (this.#kernel.closed || !handle) {
+      if (!handle) {
         return null;
       }
 
@@ -369,14 +353,6 @@ class FreeDragBehavior {
 
     if (this.#slots.visual) {
       visual = this.#slots.visual(this.#root);
-
-      // The terminal barrier on the visual resolver. `runAdmission`
-      // revalidates after this whole callback and declines the operation, but
-      // it does not scrub the draft it declined — so without this the write
-      // below would pin the visual in an inactive frame nothing clears again.
-      if (this.#kernel.closed) {
-        return null;
-      }
     }
 
     draft.visual = visual;
@@ -460,19 +436,6 @@ class FreeDragBehavior {
       current.offsetY,
     );
 
-    // **The last barrier of the activation sequence.** `deriveMotion` calls
-    // `constrain.apply`, which reaches a third-party constraint and — with
-    // `bounds()` installed — the consumer's own rect source. So this is the
-    // reading owed *after the last consumer-reachable call and before the
-    // first thing that survives it*: the lift write, the progress advance
-    // and `onStart` are all on the far side of it.
-    //
-    // **It is the only reading in this seam**: `#axis` is fixed, so it is
-    // read from the slot record without entering consumer code at all.
-    if (this.#kernel.closed) {
-      return;
-    }
-
     scope.lift.write(this.#motion.x, this.#motion.y);
 
     // **The marker advances before the call, not after.** A throw from
@@ -521,11 +484,10 @@ class FreeDragBehavior {
     );
     lift.write(this.#motion.x, this.#motion.y);
 
-    // The latch is read **before** the one consumer call in this seam. The
-    // geometry object is built inside the branch: a composition with no
+    // The geometry object is built inside the branch: a composition with no
     // `onMove` pays no allocation and no derived rect per sample, which is
     // what keeping the slot nullable rather than normalizing it buys.
-    if (this.#slots.onMove && !this.#kernel.closed) {
+    if (this.#slots.onMove) {
       this.#slots.onMove(
         buildGeometry(
           current.pointerX,
@@ -605,13 +567,16 @@ class FreeDragBehavior {
         return null;
       }
 
-      const point = argument as Point;
-      // **Read before anything is written.** A malformed `point` — `null`,
-      // missing fields, a throwing accessor — throws *here*, at the read,
-      // and is classified `FAILURE_ACTION_PREPARE` naturally. It is
-      // deliberately not checked: that is argument validation, and the seam
-      // already classifies it.
-      const { x, y } = point;
+      const { x, y, fault } = argument as CapturedPosition;
+
+      // **Thrown before anything is written.** A malformed `point` — `null`,
+      // missing fields, a throwing accessor — failed the copy `moveTo` made
+      // at the call, and its error is thrown *here*, so it is classified
+      // `FAILURE_ACTION_PREPARE` naturally. It is deliberately not checked:
+      // that is argument validation, and the seam already classifies it.
+      if (fault) {
+        throw fault.error;
+      }
 
       // **Finiteness is not checked.** `moveTo`'s own doc comment publishes
       // _both coordinates must be finite_, so a non-finite one is outside
@@ -684,16 +649,7 @@ class FreeDragBehavior {
       this.#realm,
     );
 
-    // **The terminal barrier on the frame write.** The only
-    // consumer-reachable call above is a `bounds` source inside
-    // `constrain.apply`; the request pins the item, the visual and a rect
-    // in a frame teardown has already scrubbed and will not scrub again.
-    // The command is still returned rather than nulled — `invoke: null`
-    // asserts a proven no-op, and the kernel opens the round-trip in a
-    // later unit, which a destruction requested here discards.
-    if (!this.#kernel.closed) {
-      draft.request = request;
-    }
+    draft.request = request;
 
     return {
       invoke: (signal) => {
@@ -718,13 +674,6 @@ class FreeDragBehavior {
    * between the two phases can have changed it.
    */
   effectRelease(): void {
-    // The terminal barrier on the write: `retire()` nulls the session, so
-    // without this the next line is `null.write(…)` on a controller that no
-    // longer exists.
-    if (this.#kernel.closed) {
-      return;
-    }
-
     this.#operation.lift?.write(this.#motion.x, this.#motion.y);
   }
 
@@ -761,16 +710,6 @@ class FreeDragBehavior {
         // data read. There is nothing to validate — a value that is neither
         // came from outside the types.
         const accepted = value === ACCEPTED;
-
-        // **The barrier stands for the round trip, not for this seam.**
-        // Nothing between this seam's entry and the write reaches consumer
-        // code, but the round trip is a `PromiseLike`: the consumer may
-        // have destroyed the controller while it was pending, and the
-        // request pins the item, the visual and a rect in a frame teardown
-        // has already scrubbed.
-        if (this.#kernel.closed) {
-          return true;
-        }
 
         draft.domain = accepted
           ? { type: 'accepted', request: request! }
@@ -913,10 +852,7 @@ class FreeDragBehavior {
       // **Read, not re-derived.** This arm must not call `deriveMotion`: its
       // last statement is `constrain.apply`, so the no-consumer-call claim
       // above would be false whenever any constraint is installed, and this
-      // seam would become a fifth `apply` site. Such a derivation also has no
-      // barrier of its own: `kernel.closed` is read immediately before `home`
-      // below and nowhere before a derivation, so a third-party `apply` would
-      // run after logical closure while the resolver beside it is guarded.
+      // seam would become a fifth `apply` site.
       //
       // A re-derivation computes the same numbers from the same committed
       // frame, so the read costs nothing. **The invariant it rests on is
@@ -930,15 +866,8 @@ class FreeDragBehavior {
       return this.#anchor;
     }
 
-    // **The terminal barrier before the one consumer call, and it is the
-    // second conjunct.** `kernel.closed` is read only when there is a call to
-    // stop: the kernel revalidates around `anchorTarget` and never starts a
-    // landing for a destroyed controller, so what this stops is the call
-    // itself. Both failing conjuncts fall through to the same answer, which
-    // is why they are one branch and not two — an unconfigured home and a
-    // closed controller both land at the grab position, and the two arms were
-    // byte-identical.
-    if (this.#slots.home && !this.#kernel.closed) {
+    // An unconfigured home lands at the grab position.
+    if (this.#slots.home) {
       const home = this.#slots.home(this.#subjectOf(current.visual!));
       // **Read, checked and copied here, inside the attributed seam.** The
       // kernel's quality wrapper covers *this call* and reads the point's
@@ -982,8 +911,7 @@ class FreeDragBehavior {
     }
 
     // The grab position, which is the origin rect itself — the answer for a
-    // rejected or canceled drop with no `home` configured, and for one whose
-    // controller closed before the resolver could be called.
+    // rejected or canceled drop with no `home` configured.
     this.#anchor.x = origin.left;
     this.#anchor.y = origin.top;
 
@@ -1032,16 +960,16 @@ class FreeDragBehavior {
 
   /**
    * **Forward, and nothing else.** The kernel builds the public error, picks
-   * its class and owns the latch; this member is the last hop, and it is
-   * the channel itself.
+   * its class and owns the refusal; this member is the last hop, the sink
+   * every channel delivers to.
    *
    * It neither maps nor attaches context: the mapping is kernel-owned, so it
    * cannot mean two things in two behaviors, and a `domain: null` context is
    * strictly redundant with the terminal.
    *
-   * Its one caller is the kernel's own channel, which gates on the latch and
-   * discards a throwing handler for every route it owns — including `panic`'s
-   * post-closure delivery, which is exactly why neither rule can live here.
+   * Its callers are the kernel's channels, which refuse after applied
+   * destruction and discard a throwing handler, and `panic`'s one delivery
+   * after closure, which is exactly why neither rule can live here.
    */
 
   retire(): void {

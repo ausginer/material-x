@@ -297,7 +297,7 @@ function stage(count: number): Population {
   const roots: HTMLElement[] = [];
   const rowsOf: HTMLElement[][] = [];
   const isSortable: boolean[] = [];
-  const controllers: Array<{ destroy(): unknown }> = [];
+  const controllers: Array<{ requestDestroy(): unknown }> = [];
 
   for (let i = 0; i < count; i += 1) {
     const element = root();
@@ -335,7 +335,7 @@ function stage(count: number): Population {
       // listeners, so releasing the array alone leaves the whole population
       // reachable and the next baseline reads it as already-allocated.
       for (const controller of controllers.splice(0)) {
-        void controller.destroy();
+        void controller.requestDestroy();
       }
 
       for (const element of roots) {
@@ -455,7 +455,7 @@ function bufferBytes(count: number, thenRetire: boolean): number {
   // buffer here — is still sized by the candidate count alone.
   const placeholder = document.createElement('div');
 
-  index.refresh(snapshot, items[0]!, null, () => true, placeholder, null);
+  index.refresh(snapshot, items[0]!, null, placeholder, null);
 
   if (thenRetire) {
     index.retire();

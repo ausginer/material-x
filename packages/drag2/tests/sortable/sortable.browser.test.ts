@@ -34,7 +34,6 @@ import {
   CANCEL_ITEM_REMOVED,
   type CollectionSnapshot,
   type Insertion,
-  RECOVERY_DESTINATION,
   ReorderResolution,
   type ReorderRequest,
   type ReorderTransactionResult,
@@ -69,7 +68,7 @@ const REPORTING_MOVE = (
   runtime: InsertionRuntimeView,
   report: DisplacementReport | null,
 ): void => {
-  report?.(runtime.placeholder, 0, -1, runtime.live, runtime.space);
+  report?.(runtime.placeholder, 0, -1, runtime.space);
 };
 
 const POINTER_ID = 11;
@@ -316,7 +315,7 @@ function createHarness(overrides: Overrides = {}): Harness {
   };
 
   cleanup.push(() => {
-    void controller.destroy();
+    void controller.requestDestroy();
     root.remove();
   });
 
@@ -531,11 +530,8 @@ function createSpecBench(
   let spec!: BehaviorSpec<SortableFramePart, HTMLElement>;
 
   const controller = draggable(root, (kernel) => {
-    // **Forwarding rather than copying, and `closed` is why.** It is a live
-    // getter on the kernel, so a spread would freeze one liveness answer at
-    // construction — the stand-in D-149 refuses. Every member below reaches
-    // the real kernel on every call, and `dispatch` is the only one that adds
-    // anything.
+    // **Forwarding rather than copying.** Every member below reaches the real
+    // kernel on every call, and `dispatch` is the only one that adds anything.
     //
     // Prototype delegation is not available: the kernel's state is in
     // `#private` fields, which a delegate does not carry, so a method reached
@@ -543,8 +539,8 @@ function createSpecBench(
     const observed: BehaviorContext = {
       realm: kernel.realm,
       root: kernel.root,
-      get closed(): boolean {
-        return kernel.closed;
+      channel(deliver) {
+        return kernel.channel(deliver);
       },
       dispatch(tag: number, argument: unknown): void {
         dispatched.push({ tag, argument });
@@ -553,11 +549,11 @@ function createSpecBench(
       fail(stage, error): void {
         kernel.fail(stage, error);
       },
-      cancel(reason?: unknown): void {
-        kernel.cancel(reason);
+      requestCancel(reason?: unknown): void {
+        kernel.requestCancel(reason);
       },
-      destroy(): Promise<void> {
-        return kernel.destroy();
+      requestDestroy(): Promise<void> {
+        return kernel.requestDestroy();
       },
     };
     const install = behavior(observed);
@@ -567,7 +563,7 @@ function createSpecBench(
   });
 
   cleanup.push(() => {
-    void controller.destroy();
+    void controller.requestDestroy();
   });
 
   return {
@@ -629,7 +625,7 @@ describe('admission', () => {
 
     expect(admitted.defaultPrevented).toBe(false);
 
-    harness.controller.cancel('reset');
+    harness.controller.requestCancel('reset');
 
     const ignored = press(harness.root);
 
@@ -944,7 +940,7 @@ describe('the admission queue boundary', () => {
   it('should treat destroy from the handle resolver as an immediate terminal barrier', () => {
     let harness!: Harness;
     const terminate = once(() => {
-      void harness.controller.destroy();
+      void harness.controller.requestDestroy();
       // Queued behind a closed queue: it must never be drained.
       harness.replace([...harness.items].reverse());
     });
@@ -1011,7 +1007,7 @@ describe('the admission queue boundary', () => {
   it('should treat destroy from the visual resolver as an immediate terminal barrier', () => {
     let harness!: Harness;
     const terminate = once(() => {
-      void harness.controller.destroy();
+      void harness.controller.requestDestroy();
       harness.replace([...harness.items].reverse());
     });
 
@@ -1118,7 +1114,7 @@ describe('activation', () => {
     });
 
     reentrantPlaceholderConnected = (): void => {
-      void harness.controller.destroy();
+      void harness.controller.requestDestroy();
     };
 
     activate(harness);
@@ -1845,7 +1841,7 @@ describe('settlement mapping', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.controller.cancel('escape');
+    harness.controller.requestCancel('escape');
 
     expect(harness.cancels[0]).toMatchObject({
       type: 'canceled',
@@ -1863,7 +1859,7 @@ describe('settlement mapping', () => {
     activate(harness);
     harness.next(harness.gap(2));
     release(60);
-    harness.controller.cancel('gave up');
+    harness.controller.requestCancel('gave up');
 
     const result = harness.cancels[0] as { stage: number; proposal: unknown };
 
@@ -2476,7 +2472,7 @@ describe('retirement', () => {
     });
 
     activate(harness);
-    harness.controller.cancel('reason');
+    harness.controller.requestCancel('reason');
 
     // **The published guarantee, driven where retirement actually happens**
     // (D-147): the ledger is stored in installation order and this walk is
@@ -2492,7 +2488,7 @@ describe('retirement', () => {
     activate(harness);
     expect(harness.placeholder()).not.toBeNull();
 
-    harness.controller.cancel('reason');
+    harness.controller.requestCancel('reason');
 
     // An idle controller retains no DOM from the completed drag (I-20).
     expect(harness.placeholder()).toBeNull();
@@ -2664,9 +2660,9 @@ describe('the destroy promise', () => {
     // published guarantee is that the returned object *is* the one that
     // settles once, so it is asserted on the object a consumer is handed.
     const harness = createHarness();
-    const first = harness.controller.destroy();
+    const first = harness.controller.requestDestroy();
 
-    expect(harness.controller.destroy()).toBe(first);
+    expect(harness.controller.requestDestroy()).toBe(first);
 
     await expect(first).resolves.toBeUndefined();
   });
@@ -2687,7 +2683,7 @@ describe('invalidate() after destroy', () => {
     // "no-op" was true of the kernel and not of the method (D3).
     const harness = createHarness();
 
-    void harness.controller.destroy();
+    void harness.controller.requestDestroy();
     harness.replace([harness.items[1]!, harness.items[0]!]);
     press(harness.items[1]!);
     move(40);
@@ -2718,7 +2714,7 @@ describe('invalidate() after destroy', () => {
 
     const before = pulls;
 
-    void harness.controller.destroy();
+    void harness.controller.requestDestroy();
 
     expect(() =>
       harness.replace([harness.items[1]!, harness.items[0]!]),
@@ -2742,7 +2738,7 @@ describe('invalidate() after destroy', () => {
         return items;
       },
       onStart(h): void {
-        void h.controller.destroy();
+        void h.controller.requestDestroy();
         destroyed = true;
         h.replace([h.items[1]!, h.items[0]!]);
       },
@@ -3298,7 +3294,7 @@ describe('the placeholder container guard', () => {
     const foreign = foreignContainer();
 
     foreign.append(harness.items[1]!);
-    harness.controller.cancel('gone');
+    harness.controller.requestCancel('gone');
 
     // **The orthogonality case, and the assertion that has now read three
     // ways** (D-49, D-60, D-130). Home recovery runs inside `anchorTarget`, so
@@ -3560,252 +3556,5 @@ describe('the committed-move bracket’s exits', () => {
     release(60);
 
     expect(sequence).toEqual(['invalidate', 'resolve']);
-  });
-});
-
-describe('the terminal barrier on the behavior’s frame writes', () => {
-  /**
-   * Two items, so a downward command is *feasible*: a single-item collection
-   * makes `keyboardInsertion` return null and the command declines before it
-   * ever reaches the seed, which would make the command case vacuous.
-   */
-  const closing = (
-    slot: (close: () => void) => Partial<SortableSlots>,
-  ): SpecBench => {
-    // Captured, not reassigned: the slot below runs inside a seam, by which
-    // time the controller it closes over exists.
-    const bench: SpecBench = createSpecBench(
-      slot(() => {
-        void bench.controller.destroy();
-      }),
-    );
-
-    return bench;
-  };
-
-  /** An event whose composed path is exactly the item, as a press would be. */
-  const pathEvent = (item: HTMLElement, key = 'ArrowDown'): Event =>
-    ({
-      key,
-      composedPath: (): readonly EventTarget[] => [item],
-      preventDefault: (): void => {},
-    }) as unknown as Event;
-
-  it('should seed no draft when the visual resolver destroys the controller', () => {
-    const held = closing((close) => ({
-      visual: (element): HTMLElement => {
-        close();
-        return element;
-      },
-    }));
-    const draft = {
-      ...sortableFramePart(),
-    } as unknown as Parameters<typeof held.spec.admit>[1];
-
-    const admitted = held.spec.admit(pathEvent(held.items[0]!) as never, draft);
-
-    expect(admitted).toBeNull();
-    expect([draft.item, draft.visual, draft.snapshot]).toEqual([
-      null,
-      null,
-      null,
-    ]);
-  });
-
-  it('should seed no command draft when the visual resolver destroys the controller', () => {
-    // The command path writes a *fourth* field — the destination — so it needs
-    // its own decline rather than only the shared seed's.
-    const held = closing((close) => ({
-      visual: (element): HTMLElement => {
-        close();
-        return element;
-      },
-    }));
-    const draft = {
-      ...sortableFramePart(),
-    } as unknown as Parameters<typeof held.spec.admit>[1];
-
-    const admitted = held.spec.command!.admit(pathEvent(held.items[0]!), draft);
-
-    expect(admitted).toBeNull();
-    expect([draft.item, draft.snapshot, draft.insertion]).toEqual([
-      null,
-      null,
-      null,
-    ]);
-  });
-
-  it('should build no proposal when the release resolve destroys the controller', () => {
-    // **The measured resolve is the release's consumer-reachable stretch**
-    // (D-158). The settle that used to lead it is gone, so what remains is the
-    // axis's own rebuild — a `box` resolver and a `getBoundingClientRect` per
-    // candidate, then the consumer-owned placeholder — and any of those can
-    // close the controller before the frame writes below it.
-    const held = closing((close) => ({
-      resolveInsertion: (): Insertion | null => {
-        close();
-        return null;
-      },
-    }));
-
-    // A real activation, so the presentation the release resolves against is
-    // one the production path published rather than one this file wrote.
-    activateBench(held);
-
-    const insertion: Insertion = {
-      version: 0,
-      index: 0,
-      before: null,
-      after: null,
-    };
-    const draft = {
-      ...sortableFramePart(),
-      phase: RELEASING,
-      pointerId: POINTER_ID,
-      snapshot: held.snapshot,
-      item: held.items[0],
-      insertion,
-    } as unknown as Parameters<typeof held.spec.release.prepare>[0];
-
-    expect(held.spec.release.prepare(draft)).toEqual({ invoke: null });
-    expect(draft.proposal).toBeNull();
-  });
-
-  it('should start nothing when a survival conjunct destroys the controller', () => {
-    // `isConnected` and `nextElementSibling` are accessors on elements the
-    // consumer owns, so the reading taken right after `after()` does not cover
-    // them. Everything below them publishes this operation's DOM into a runtime
-    // `retire()` has already nulled, and then calls `onStart` — a declared
-    // consumer callback after the terminal barrier (I-36 (2) acts 1 and 4).
-    //
-    // Both accessors have to be *instrumented* to reach it, and that is the
-    // finding rather than a caveat: teardown removes the placeholder, so honest
-    // accessors make the survival test throw instead. A custom element that
-    // proxies either one turns that second line of defence off, and the library
-    // must not depend on the consumer's accessors telling the truth.
-    const built: HTMLElement[] = [];
-    let harness: Harness | null = null;
-
-    harness = createHarness({
-      placeholder: (): HTMLElement => {
-        const element = document.createElement('div');
-        let reads = 0;
-
-        Object.defineProperty(element, 'isConnected', {
-          get: (): boolean => {
-            reads += 1;
-
-            // The adoption check inside `placeholder` reads it first and
-            // requires a detached element; the survival test is the second.
-            if (reads === 1) {
-              return false;
-            }
-
-            void harness!.controller.destroy();
-            return true;
-          },
-        });
-        built.push(element);
-        return element;
-      },
-    });
-
-    Object.defineProperty(harness.items[0]!, 'nextElementSibling', {
-      get: (): Element | null => built[0] ?? null,
-    });
-
-    activate(harness);
-
-    expect(built).toHaveLength(1);
-    expect(harness.started).toEqual([]);
-  });
-
-  it('should build no proposal when the axis destroys the controller while resolving the release', () => {
-    // The second stretch that ends at the same reading: the axis measures the
-    // consumer-owned placeholder *after* its candidate loop, so a resolution
-    // can return a fresh insertion on a controller that no longer exists.
-    const held = closing((close) => ({
-      resolveInsertion: (): Insertion => {
-        close();
-        return { version: 0, index: 0, before: null, after: null };
-      },
-    }));
-
-    // Activated but never given a spatial frame, so the resolver first runs
-    // inside the release below — where its destroy is the reentrancy this row
-    // is about.
-    activateBench(held);
-
-    const draft = {
-      ...sortableFramePart(),
-      phase: RELEASING,
-      pointerId: POINTER_ID,
-      snapshot: held.snapshot,
-      item: held.items[0],
-      insertion: { version: 0, index: 0, before: null, after: null },
-    } as unknown as Parameters<typeof held.spec.release.prepare>[0];
-
-    expect(held.spec.release.prepare(draft)).toEqual({ invoke: null });
-    expect(draft.proposal).toBeNull();
-  });
-
-  it('should re-anchor nothing when a re-anchor conjunct destroys the controller', () => {
-    // Teardown has already removed the placeholder, so `item.before()` after a
-    // destroy re-inserts a footprint the operation has finished with — into the
-    // consumer's list, where nothing removes it again (I-36 (2) act 3).
-    //
-    // The placeholder is the library's own, owned by a real activation: the
-    // conjuncts compare the item's parent with the placeholder's, so a detached
-    // placeholder would short-circuit and make the case vacuous. In a real
-    // teardown it *is* detached — but a consumer element that proxies
-    // `parentElement` turns that off, which is why the barrier is a reading
-    // rather than a DOM coincidence.
-    let built: HTMLElement | null = null;
-    const held: SpecBench = createSpecBench({
-      // **A consumer element that proxies `parentElement`**, which is what
-      // makes the row about the reading rather than about a DOM coincidence:
-      // teardown detaches the placeholder, so an honest `parentElement` would
-      // short-circuit the conjunct chain one test earlier and the last conjunct
-      // would never be reached.
-      placeholder: (): HTMLElement => {
-        const element = document.createElement('div');
-
-        Object.defineProperty(element, 'parentElement', {
-          get: (): HTMLElement => held.root,
-        });
-        built = element;
-        return element;
-      },
-    });
-    activateBench(held);
-
-    const item = held.items[0]!;
-    const placeholder: HTMLElement = built!;
-
-    expect(placeholder).toBeInstanceOf(HTMLElement);
-
-    Object.defineProperty(item, 'isConnected', {
-      get: (): boolean => {
-        void held.controller.destroy();
-        return true;
-      },
-    });
-
-    const current = {
-      ...sortableFramePart(),
-      item,
-      recovery: RECOVERY_DESTINATION,
-    } as unknown as Parameters<typeof held.spec.anchorTarget>[0];
-
-    expect(placeholder.isConnected).toBe(true);
-    expect(held.spec.anchorTarget(current)).toEqual({ x: 0, y: 0 });
-
-    // **The harm the barrier exists to prevent, stated as the DOM** (I-36 (2)
-    // act 3). The destroy inside the first conjunct tears down synchronously —
-    // no library transaction is open — and teardown removes the placeholder.
-    // `item.before(placeholder)` would put it straight back into the consumer's
-    // list, where nothing removes it again; the last conjunct is what stops it.
-    expect(placeholder.isConnected).toBe(false);
-    expect(held.root.contains(placeholder)).toBe(false);
   });
 });

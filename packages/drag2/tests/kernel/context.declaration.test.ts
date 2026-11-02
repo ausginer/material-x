@@ -16,6 +16,10 @@
  * construction, and neither can be added silently.
  */
 import { describe, expectTypeOf, it } from 'vitest';
+import type {
+  DraggableError,
+  DraggableWarning,
+} from '../../src/kernel/errors.ts';
 import type { Kernel } from '../../src/kernel/kernel.ts';
 import type { BehaviorContext } from '../../src/kernel/spec.ts';
 
@@ -32,9 +36,25 @@ type Withheld = Exclude<keyof WideKernel, keyof BehaviorContext>;
 describe('the behavior-facing context', () => {
   it('should grant exactly the seven members it names', () => {
     // Positively selected, so this is an equality in both directions: a member
-    // dropped from the interface fails it as loudly as one added.
+    // dropped from the interface fails it as loudly as one added. No member
+    // reads the lifecycle: a behavior reaches it only through the refusal a
+    // minted channel applies.
     expectTypeOf<keyof BehaviorContext>().toEqualTypeOf<
-      'realm' | 'root' | 'dispatch' | 'fail' | 'closed' | 'cancel' | 'destroy'
+      | 'realm'
+      | 'root'
+      | 'dispatch'
+      | 'fail'
+      | 'channel'
+      | 'requestCancel'
+      | 'requestDestroy'
+    >();
+  });
+
+  it('should mint a channel with the sink shape it takes', () => {
+    type Sink = (error: DraggableError | DraggableWarning) => void;
+
+    expectTypeOf<BehaviorContext['channel']>().toEqualTypeOf<
+      (deliver: Sink) => Sink
     >();
   });
 

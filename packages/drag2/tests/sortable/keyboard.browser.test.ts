@@ -240,7 +240,7 @@ function build(options: Options = {}): Fixture {
   };
 
   cleanup.push(() => {
-    void controller.destroy();
+    void controller.requestDestroy();
     root.remove();
   });
 
@@ -544,7 +544,7 @@ describe('the pointerless lifecycle', () => {
   it('should release every ingress listener on destroy', () => {
     const fixture = build();
 
-    void fixture.controller.destroy();
+    void fixture.controller.requestDestroy();
 
     expect(arrow(fixture.items[0]!, 'ArrowDown')).toBe(true);
     expect(fixture.started).toEqual([]);

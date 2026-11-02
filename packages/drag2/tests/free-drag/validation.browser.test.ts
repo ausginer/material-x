@@ -743,7 +743,7 @@ describe('an invalid home result', () => {
     const composed = compose({
       config: {
         home: () => {
-          void composed.controller.destroy();
+          void composed.controller.requestDestroy();
           throw new Error('home: gone');
         },
       },

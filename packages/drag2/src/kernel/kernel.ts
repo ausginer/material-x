@@ -417,65 +417,21 @@ class ArmedController<Part extends object, Activation extends {}> {
   /* ---- the one channel ---- */
 
   /**
-   * **Every fault the library surfaces leaves through here.** One function,
-   * three jobs, and nothing else:
-   *
-   * 1. **Refuse after logical closure.** Consumer code inside `onError` may
-   * call `destroy()`, and a resolver that destroys and *then* throws would
-   * otherwise have its own destruction reported back to it through a declared
-   * slot — a callback after `destroy()` returned, which the floor forbids
-   * outright. **The refusal lives here alone**: open-coded pre-guards at the
-   * admission catch, the quality report and the landing join would be three
-   * copies of it to keep in step.
-   * 2. **Hand the finished error to the behavior**, which forwards it to
-   * `onError` and does nothing else. Before construction has armed a behavior
-   * there is no armed controller and so no channel, and nothing is delivered —
-   * which is correct rather than a gap, since a consumer with no controller has
-   * no handler either.
-   * 3. **Discard whatever that throws.** *This is the terminus.* A throw from
-   * the channel is never re-notified, and that single discard is the whole of
-   * what makes the channel non-recursive. It is also what lets the fourteen
-   * `unwind` sites stay total without knowing anything about reporting: their
-   * catch calls this, and this cannot throw.
-   *
-   * `afterClose` is `panic`'s named exception and has exactly one caller. It is
-   * a parameter rather than a second function so that the refusal and the
-   * exception to it are read together.
+   * **Every fault the kernel surfaces leaves through here**: the façade's
+   * channel, minted by construction over the spec's `reportError`, so it
+   * applies the one refusal {@link Kernel.channel} states and absorbs a throw
+   * from the behavior. Its collaborators take it as a value: the driver, every
+   * operation's lifetimes, this controller's unwind guard, and construction's
+   * unwind when it fails after publishing this controller.
    *
    * **The stage is deliberately absent.** Three sites reach this holding a real
    * `FailureStage` and discard it — the demoted checkpoint, `failOperation`'s
    * five-guard demotion, and a {@link Kernel.fail} outside a seam. In each the
-   * stage
-   * describes a classification the kernel has just decided **not** to apply, so
-   * carrying it into a warning would publish a claim about the operation that
-   * the code refused to make.
+   * stage describes a classification the kernel has just decided **not** to
+   * apply, so carrying it into a warning would publish a claim about the
+   * operation that the code refused to make.
    */
-  #notify(error: DraggableError | DraggableWarning, afterClose = false): void {
-    if (this.#bracket.closed && !afterClose) {
-      return;
-    }
-
-    try {
-      this.#spec.reportError(error);
-    } catch {
-      // The terminus. Reporting a reporting failure is the one recursion this
-      // model has to be incapable of, and being incapable is stronger than
-      // being careful.
-    }
-  }
-
-  /**
-   * The channel as a value, for the collaborators that take one: the driver,
-   * every operation's lifetimes, this controller's unwind guard, and
-   * construction's unwind when it fails after publishing this controller.
-   *
-   * **Wrapped, not detached**: each calls it with no receiver of its own, so a
-   * bare prototype read would arrive without one. One closure per controller,
-   * shared, rather than one per call.
-   */
-  readonly report: Notify = (error): void => {
-    this.#notify(error);
-  };
+  readonly report: Notify;
 
   /**
    * The unwind guard, over this controller's channel.
@@ -485,7 +441,7 @@ class ArmedController<Part extends object, Activation extends {}> {
    * each of them would put reporting at every site that merely wants the next
    * statement to run.
    */
-  readonly #unwind = createUnwind(this.report);
+  readonly #unwind: Unwind;
 
   /**
    * True while a checkpoint's report transition is running — including its
@@ -511,7 +467,10 @@ class ArmedController<Part extends object, Activation extends {}> {
     spec: BehaviorSpec<Part, Activation>,
     current: Frame<Part>,
     draft: Frame<Part>,
+    report: Notify,
   ) {
+    this.report = report;
+    this.#unwind = createUnwind(report);
     this.#realm = realm;
     this.#root = root;
     this.#bracket = bracket;
@@ -719,8 +678,15 @@ class ArmedController<Part extends object, Activation extends {}> {
    * indistinguishable to a consumer.
    */
   panic(error: unknown): void {
-    // The bracket closed before calling this and tears down once it returns.
-    this.#notify(new DraggableError(null, error), true);
+    // **The one diagnostic delivered after application**: the diagnosis.
+    // The bracket closed before calling this and tears down once it returns,
+    // so the channel would refuse it: it goes to the spec's sink directly,
+    // behind the same terminus.
+    try {
+      this.#spec.reportError(new DraggableError(null, error));
+    } catch {
+      // The terminus, as the channel's.
+    }
   }
 
   /**
@@ -757,8 +723,11 @@ class ArmedController<Part extends object, Activation extends {}> {
     this.#bracket.dispatch(CANCEL, this.#frames.current.operation);
   }
 
-  /** The supplied cancel the façade forwards; see {@link Kernel.cancel}. */
-  cancel(reason?: unknown): void {
+  /**
+   * The supplied cancel the façade forwards; see
+   * {@link Kernel.requestCancel}.
+   */
+  requestCancel(reason?: unknown): void {
     this.#cancelWith(reason, CANCEL_SUPPLIED);
   }
 
@@ -797,7 +766,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // terminal is already owned by whatever is in flight, so this
       // classification is refused and the fault travels without one. The
       // `stage` in hand is discarded for exactly that reason.
-      this.#notify(
+      this.report(
         new DraggableWarning('drag: failure/not-classified', { cause: error }),
       );
       return;
@@ -931,7 +900,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // throwing `onError` is handled here. **Both readings live in `notify`**,
       // which refuses after logical closure and swallows a throwing handler for
       // every route rather than for this one.
-      this.#notify(new DraggableError(FAILURE_ADMISSION, error));
+      this.report(new DraggableError(FAILURE_ADMISSION, error));
 
       return null;
     }
@@ -1020,7 +989,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // hold: a warning needs no operation and no stage, and `return false`
       // refuses admission, so the outcome is the same either way.
       this.#unwind(live.lifetimes.dispose);
-      this.#notify(
+      this.report(
         new DraggableWarning('drag: operation/arming-failed', { cause: error }),
       );
       return false;
@@ -1540,8 +1509,13 @@ class ArmedController<Part extends object, Activation extends {}> {
     // duration domain is the platform's — a `NaN` or a negative is refused
     // here, as a warning that changed nothing.
     this.#tail =
-      this.#unwind(() =>
-        element.animate(
+      this.#unwind(() => {
+        // **Read out of the policy's record before `animate` is reached**: the
+        // record is foreign, and the `animate` lookup is the next foreign code
+        // to run, so the fields are copied first.
+        const { duration, easing } = timing;
+
+        return element.animate(
           [
             {
               translate: space
@@ -1552,13 +1526,9 @@ class ArmedController<Part extends object, Activation extends {}> {
             },
             { translate: '0 0' },
           ],
-          {
-            duration: timing.duration,
-            easing: timing.easing,
-            composite: 'add',
-          },
-        ),
-      ) ?? null;
+          { duration, easing, composite: 'add' },
+        );
+      }) ?? null;
   }
 
   /**
@@ -2155,7 +2125,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       (this.#frames.current.operation === checkpoint.operation &&
         this.#operation!.cancelRequest)
     ) {
-      this.#notify(
+      this.report(
         new DraggableWarning('drag: failure/superseded-by-cancel', {
           cause: checkpoint.error,
         }),
@@ -2179,7 +2149,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // an operation that is already over, and a second one arrives while the
       // first is being reported — in both cases the terminal is owned and the
       // outcome is not this fault's to change.
-      this.#notify(
+      this.report(
         new DraggableWarning('drag: failure/checkpoint-stale', {
           cause: checkpoint.error,
         }),
@@ -2434,7 +2404,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // Reported and dropped, never enqueued: the kernel computes
       // `BEHAVIOR_BASE + tag`, so a negative or fractional tag would alias a
       // kernel action.
-      this.#notify(
+      this.report(
         new DraggableWarning(`drag: dispatch/tag-out-of-range ${String(tag)}`),
       );
       return;
@@ -2490,9 +2460,9 @@ class ArmedController<Part extends object, Activation extends {}> {
  * guarded.
  *
  * **Before construction publishes the armed controller** the members behave as
- * the construction window requires: `dispatch` queues unchecked, `cancel` is
- * the idle no-op, `fail` is demoted with nowhere to report, and `destroy` and
- * `closed` read the bracket.
+ * the construction window requires: `dispatch` queues unchecked,
+ * `requestCancel` is the idle no-op, `fail` is demoted with nowhere to report,
+ * `requestDestroy` reads the bracket, and a minted channel delivers.
  *
  * Only `draggable()` holds it wide, and it calls `construct()` exactly once.
  */
@@ -2547,11 +2517,43 @@ export class Kernel<
   }
 
   /**
-   * Whether destruction has been applied, read live — a captured boolean would
-   * be a copy of a liveness answer.
+   * **The diagnostic refusal, written once.** Every channel — this
+   * controller's own, minted for the armed controller at construction, and
+   * each one a behavior mints — refuses after destruction has been
+   * **applied**, and nowhere else is it written:
+   *
+   * 1. **Refuse after application.** Consumer code inside `onError` may request
+   * destruction, and a resolver that destroys and *then* throws would otherwise
+   * have its own destruction reported back to it through a declared slot after
+   * application, which the floor forbids outright. The refusal reads the
+   * applied lifecycle only, so its answer is constant across every unit: a
+   * request registered in the unit cannot change it.
+   * 2. **Hand the finished error to the sink**, which forwards it to `onError`
+   * and does nothing else.
+   * 3. **Discard whatever that throws.** *This is the terminus.* A throw from
+   * the sink is never re-notified, and that single discard is the whole of
+   * what makes the channel non-recursive. It is also what lets every `unwind`
+   * site stay total without knowing anything about reporting: their catch
+   * calls a channel, and a channel cannot throw.
+   *
+   * It needs only the lifecycle, which this façade holds from its own
+   * construction, so a channel minted in the factory works before arming.
+   * Panic's report is the one exception, and it does not pass through here.
    */
-  get closed(): boolean {
-    return this.#bracket.closed;
+  channel(deliver: Notify): Notify {
+    return (error): void => {
+      if (this.#bracket.closed) {
+        return;
+      }
+
+      try {
+        deliver(error);
+      } catch {
+        // The terminus. Reporting a reporting failure is the one recursion
+        // this model has to be incapable of, and being incapable is stronger
+        // than being careful.
+      }
+    };
   }
 
   /**
@@ -2562,7 +2564,7 @@ export class Kernel<
    *
    * The promise settles after application, physical release included.
    */
-  destroy(): Promise<void> {
+  requestDestroy(): Promise<void> {
     return this.#bracket.requestClose();
   }
 
@@ -2576,8 +2578,8 @@ export class Kernel<
    * Before arming there is no operation to latch anywhere, so it is the idle
    * no-op.
    */
-  cancel(reason?: unknown): void {
-    this.#armed?.cancel(reason);
+  requestCancel(reason?: unknown): void {
+    this.#armed?.requestCancel(reason);
   }
 
   dispatch(tag: number, argument: unknown): void {
@@ -2733,6 +2735,9 @@ export class Kernel<
         next,
         current,
         draft,
+        this.channel((error) => {
+          next.reportError(error);
+        }),
       );
       this.#armed = armed;
       armed.attach();

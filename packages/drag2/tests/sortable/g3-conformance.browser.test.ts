@@ -137,7 +137,7 @@ function compose(
   root.releasePointerCapture = (): void => {};
 
   cleanup.push(() => {
-    void controller.destroy();
+    void controller.requestDestroy();
     root.remove();
   });
 
@@ -386,20 +386,20 @@ describe('G3-linear conformance', () => {
 
     const mockRect = vi
       .spyOn(Element.prototype, 'getBoundingClientRect')
-      .mockImplementation(
-        function getBoundingClientRect(this: Element): DOMRect {
-          const rect = nativeRect.call(this);
-          const left = appUnit(rect.left);
-          const top = appUnit(rect.top);
+      .mockImplementation(function getBoundingClientRect(
+        this: Element,
+      ): DOMRect {
+        const rect = nativeRect.call(this);
+        const left = appUnit(rect.left);
+        const top = appUnit(rect.top);
 
-          return new DOMRect(
-            left,
-            top,
-            appUnit(rect.right) - left,
-            appUnit(rect.bottom) - top,
-          );
-        },
-      );
+        return new DOMRect(
+          left,
+          top,
+          appUnit(rect.right) - left,
+          appUnit(rect.bottom) - top,
+        );
+      });
 
     const mockAnimate = vi
       .spyOn(Element.prototype, 'animate')
@@ -512,9 +512,10 @@ describe('the instrument can fail', () => {
   /** The message the instrument raises. */
   const disagreed = (field: Field): boolean =>
     field.errors.some((error) =>
-      /disagreed with a full scan/u.test(
-        error.cause instanceof Error ? error.cause.message : error.message,
-      ),
+      (error.cause instanceof Error
+        ? error.cause.message
+        : error.message
+      ).includes('disagreed with a full scan'),
     );
 
   it('should reject a two-column grid driven as a list', async () => {

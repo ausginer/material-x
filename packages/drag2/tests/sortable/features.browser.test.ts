@@ -9,7 +9,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DraggableError, DraggableWarning } from '../../src/drag.ts';
-import type { OnReorder } from '../../src/sortable/domain.ts';
+import type { OnReorder, ReorderRequest } from '../../src/sortable/domain.ts';
 import type {
   AxisInstaller,
   LandingTiming,
@@ -69,6 +69,8 @@ type ComposeOptions = Readonly<{
   fragments?: ReadonlyArray<Partial<SortableConfig>>;
   /** The axis rule, when a test needs one that is not stock `y()`. */
   axis?: AxisInstaller;
+  /** What `items()` returns, given the fixture's own rows. */
+  pull?(items: HTMLElement[]): readonly HTMLElement[];
 }>;
 
 /** 40px items, plus whichever optional slots the test fills. */
@@ -99,7 +101,7 @@ function composeWith(options: ComposeOptions = {}): Composed {
   const controller = sortable(
     root,
     {
-      items: () => items,
+      items: () => options.pull?.(items) ?? items,
       onReorder: options.onReorder ?? (() => ReorderResolution.accept()),
       axis: options.axis ?? y(),
       onEnd: (result): void => {
@@ -122,7 +124,7 @@ function composeWith(options: ComposeOptions = {}): Composed {
   root.releasePointerCapture = (): void => {};
 
   cleanup.push(() => {
-    void controller.destroy();
+    void controller.requestDestroy();
     root.remove();
   });
 
@@ -286,7 +288,7 @@ describe('consumer slots', () => {
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
     cleanup.push(() => {
-      void controller.destroy();
+      void controller.requestDestroy();
       root.remove();
     });
 
@@ -346,7 +348,7 @@ describe('placeholder', () => {
         const element = document.createElement('div');
 
         created.push(element);
-        void composed.controller.destroy();
+        void composed.controller.requestDestroy();
         return element;
       },
     });
@@ -420,7 +422,7 @@ describe('placeholder', () => {
         const element = document.createElement('div');
 
         created.push(element);
-        composed.controller.cancel('from the factory');
+        composed.controller.requestCancel('from the factory');
         return element;
       },
       onStart: () => {
@@ -534,7 +536,7 @@ describe('handle', () => {
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
     cleanup.push(() => {
-      void controller.destroy();
+      void controller.requestDestroy();
       root.remove();
     });
 
@@ -723,7 +725,7 @@ describe('visual', () => {
     Object.assign(inner.style, { display: 'block', height: '20px' });
     composed.items[0]!.append(inner);
     activate(composed);
-    composed.controller.cancel('reason');
+    composed.controller.requestCancel('reason');
 
     expect(inner.style.position).toBe('');
     expect(inner.style.transform).toBe('');
@@ -1180,7 +1182,7 @@ describe('landing', () => {
 
     const [animation] = composed.items[0]!.getAnimations();
 
-    void composed.controller.destroy();
+    void composed.controller.requestDestroy();
     await Promise.resolve();
     await Promise.resolve();
 
@@ -1204,7 +1206,7 @@ describe('landing', () => {
       fragments: [
         landing({
           duration: (): number => {
-            void controller!.destroy();
+            void controller!.requestDestroy();
             return 200;
           },
         }),
@@ -1394,7 +1396,7 @@ describe('layoutAnimation', () => {
         Element.prototype.getBoundingClientRect = native;
       }
 
-      void composed.controller.destroy();
+      void composed.controller.requestDestroy();
       composed.root.remove();
       return reads;
     };
@@ -1413,7 +1415,7 @@ describe('layoutAnimation', () => {
 
     activate(composed);
     await drag(110);
-    composed.controller.cancel('reason');
+    composed.controller.requestCancel('reason');
 
     expect(displaced(composed)).toEqual([]);
     expect(composed.items[1]!.style.transform).toBe('');
@@ -1518,7 +1520,7 @@ describe('the terminal barrier in a resolver sequence', () => {
       fragments: [
         {
           handle: (item) => {
-            void controller?.destroy();
+            void controller?.requestDestroy();
             return item;
           },
           visual: (item) => {
@@ -1612,7 +1614,7 @@ describe('the terminal barrier in a resolver sequence', () => {
             asked.push(item);
 
             if (destroying && item === composed.items[1]) {
-              void controller!.destroy();
+              void controller!.requestDestroy();
             }
 
             return item;
@@ -1682,7 +1684,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     class ClosingPlaceholder extends HTMLElement {
       // oxlint-disable-next-line class-methods-use-this -- a lifecycle reaction
       disconnectedCallback(): void {
-        void controller?.destroy();
+        void controller?.requestDestroy();
       }
     }
 
@@ -1705,5 +1707,60 @@ describe('the terminal barrier in a resolver sequence', () => {
     // The reaction runs inside the committed move, which completes before the
     // request is applied, so the sink still runs for that move.
     expect(applied.length).toBeGreaterThan(0);
+  });
+});
+
+describe('a cancel requested from the collection pull', () => {
+  it('should publish the pulled collection and cancel after it', async () => {
+    // R32, the sortable's action seam. `items()` requests cancel and returns a
+    // new collection that keeps the dragged item. The pull commits: the
+    // collection is published under the version the pull took, and the cancel
+    // applies after the unit. A second drag is computed against it.
+    const requests: ReorderRequest[] = [];
+    let armed = false;
+    let pulled: HTMLElement[] | null = null;
+    const composed: Composed = composeWith({
+      onReorder: (request) => {
+        requests.push(request);
+        return ReorderResolution.accept();
+      },
+      pull: (items) => {
+        if (armed) {
+          armed = false;
+          composed.controller.requestCancel('in items');
+
+          const extra = document.createElement('div');
+
+          Object.assign(extra.style, {
+            display: 'block',
+            width: '100px',
+            height: `${ITEM_HEIGHT}px`,
+          });
+          composed.root.append(extra);
+          pulled = [...items, extra];
+        }
+
+        return pulled ?? items;
+      },
+    });
+
+    activate(composed);
+    armed = true;
+    composed.controller.invalidate();
+
+    expect(composed.cancels).toEqual([
+      expect.objectContaining({ type: 'canceled', reason: 'in items' }),
+    ]);
+
+    // The second drag: the dragged item to the end of the pulled collection.
+    press(composed.items[0]!);
+    move(30);
+    await drag(150);
+    await drag(155);
+    release(155);
+    await nextFrame();
+
+    expect(requests).toHaveLength(1);
+    expect(requests[0]).toMatchObject({ version: 1, from: 0, to: 3 });
   });
 });

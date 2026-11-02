@@ -749,10 +749,10 @@ function createSortableController(
 
     // Wrapped, not detached: the kernel's members are prototype methods, and
     // what a controller publishes is a closure over the call.
-    cancel: (reason?: unknown): void => {
-      kernel.cancel(reason);
+    requestCancel: (reason?: unknown): void => {
+      kernel.requestCancel(reason);
     },
-    destroy: (): Promise<void> => kernel.destroy(),
+    requestDestroy: (): Promise<void> => kernel.requestDestroy(),
   };
 }
 

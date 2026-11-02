@@ -31,7 +31,6 @@ const build = (
   factory: (() => HTMLElement) | null,
   item: HTMLElement,
   visual: HTMLElement = detached(),
-  live: () => boolean = () => true,
 ) =>
   createPlaceholder(
     createRealm(document.body),
@@ -41,7 +40,6 @@ const build = (
     { item, visual, box: visual, rect },
     { width: rect.width, height: rect.height },
     factory === null ? null : () => factory(),
-    live,
   );
 
 describe('createPlaceholder', () => {
@@ -88,70 +86,6 @@ describe('createPlaceholder', () => {
     expect(placeholder.hasAttribute('data-drag-placeholder')).toBe(true);
   });
 
-  /** A placeholder that records every attribute write it is handed. */
-  const recording = (
-    writes: string[],
-    onWrite: () => void = (): void => {},
-  ): HTMLElement => {
-    const element = detached();
-    const native = element.setAttribute.bind(element);
-
-    element.setAttribute = (name: string, value: string): void => {
-      writes.push(name);
-      onWrite();
-      native(name, value);
-    };
-
-    return element;
-  };
-
-  it('should write no further attribute once a mechanics write closes the controller', () => {
-    // C5-02. The mechanics run over a **consumer-owned** element the library
-    // has not adopted, so every write after the destroying one is a residue
-    // teardown never undoes — it removes only what it inserted.
-    const writes: string[] = [];
-    let alive = true;
-    const placeholder = recording(writes, () => {
-      alive = false;
-    });
-
-    build(
-      () => placeholder,
-      detached(),
-      detached(),
-      () => alive,
-    );
-
-    expect(writes).toEqual(['data-drag-placeholder']);
-  });
-
-  it('should write no attribute at all once the slot read closes the controller', () => {
-    // **The same property, on the read that is still here** (D-43). This case
-    // used to hook `visual.offsetWidth`, because `applyMechanics` measured the
-    // visual itself; the footprint is computed across the lift now and handed
-    // in, so the only consumer-reachable read left in the pre-write stretch is
-    // the item's `slot`. The rule it pins is unchanged and is the reason the
-    // reads are ordered ahead of the writes: whichever of them closes the
-    // controller, the stretch leaves nothing behind.
-    const writes: string[] = [];
-    const item = detached();
-    let alive = true;
-
-    item.getAttribute = (): string | null => {
-      alive = false;
-      return null;
-    };
-
-    build(
-      () => recording(writes),
-      item,
-      detached(),
-      () => alive,
-    );
-
-    expect(writes).toEqual([]);
-  });
-
   it('should read no attribute of the default placeholder', () => {
     // **D-127 (b), kept after D-206 removed D-39's ledger.** The snapshot each
     // write would be reversed from used to be built in argument position, so
@@ -192,22 +126,6 @@ describe('createPlaceholder', () => {
       calls.filter((call) => call.element === item).map(({ name }) => name),
     ).toEqual(['slot']);
     expect(placeholder.getAttributeNames()).toContain('data-drag-placeholder');
-  });
-
-  it('should apply no mechanics to the default placeholder once the slot read closes the controller', () => {
-    // Same reading, the composition with no `placeholder` slot written: the
-    // library's own element is never mechanized either, so the two paths agree.
-    const item = detached();
-    let alive = true;
-
-    item.getAttribute = (): string | null => {
-      alive = false;
-      return null;
-    };
-
-    const placeholder = build(null, item, detached(), () => alive);
-
-    expect(placeholder.getAttributeNames()).toEqual([]);
   });
 });
 

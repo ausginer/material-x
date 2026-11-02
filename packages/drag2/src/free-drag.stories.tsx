@@ -64,7 +64,7 @@ function Playground({ axis, bounded, tilted }: PlaygroundArgs): JSX.Element {
     );
 
     return () => {
-      void controller.destroy();
+      void controller.requestDestroy();
     };
   }, [axis, bounded]);
 
@@ -137,7 +137,7 @@ function AsyncDrop(): JSX.Element {
     });
 
     return () => {
-      void controller.destroy();
+      void controller.requestDestroy();
     };
   }, []);
 
@@ -214,7 +214,7 @@ function TransformedContext({ lift }: TransformedArgs): JSX.Element {
     });
 
     return () => {
-      void controller.destroy();
+      void controller.requestDestroy();
     };
   }, [lift]);
 

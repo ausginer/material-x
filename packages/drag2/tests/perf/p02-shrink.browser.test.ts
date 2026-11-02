@@ -57,8 +57,6 @@ const capacityFor = (needed: number): number => {
 };
 
 const SLOT_BYTES = STRIDE * 8;
-const ALIVE = (): boolean => true;
-
 const cleanup: Array<() => void> = [];
 
 afterEach(() => {
@@ -122,14 +120,7 @@ function shipped(rows: readonly HTMLElement[]): Cache {
     const items = n === rows.length ? rows : rows.slice(0, n);
     const snapshot: CollectionSnapshot = { items, version: 1 };
 
-    index.refresh(
-      snapshot,
-      items[0] ?? rows[0]!,
-      null,
-      ALIVE,
-      placeholder,
-      null,
-    );
+    index.refresh(snapshot, items[0] ?? rows[0]!, null, placeholder, null);
 
     if (index.values !== seen) {
       seen = index.values;
@@ -453,7 +444,7 @@ describe('the reachable moment', () => {
     });
 
     cleanup.push(() => {
-      void controller.destroy();
+      void controller.requestDestroy();
       root.remove();
     });
 
@@ -639,12 +630,12 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
 
         // One warm-up, so the first reading is not paying for the layout the
         // rows just added.
-        index.refresh(snapshot, items[0]!, null, ALIVE, placeholder, null);
+        index.refresh(snapshot, items[0]!, null, placeholder, null);
         index.retire();
 
         const started = performance.now();
 
-        index.refresh(snapshot, items[0]!, null, ALIVE, placeholder, null);
+        index.refresh(snapshot, items[0]!, null, placeholder, null);
 
         const elapsed = performance.now() - started;
 
@@ -817,7 +808,7 @@ function drive(n: number, animate: boolean): Drive {
     },
 
     dispose(): void {
-      void controller.destroy();
+      void controller.requestDestroy();
       root.remove();
     },
   };

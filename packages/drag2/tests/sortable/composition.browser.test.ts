@@ -185,7 +185,7 @@ function compose(options: Options = {}): Composed {
   };
 
   cleanup.push(() => {
-    void controller.destroy();
+    void controller.requestDestroy();
     root.remove();
   });
 
@@ -501,7 +501,7 @@ describe('the composed terminal protocol', () => {
     const composed = compose();
 
     activate(composed);
-    composed.controller.cancel('gone');
+    composed.controller.requestCancel('gone');
 
     expect(composed.cancels[0]).toMatchObject({
       type: 'canceled',
@@ -540,7 +540,7 @@ describe('the composed terminal protocol', () => {
     const composed = compose();
 
     activate(composed);
-    void composed.controller.destroy();
+    void composed.controller.requestDestroy();
 
     expect(composed.placeholder()).toBeNull();
     expect(composed.items[0]!.style.position).toBe('');
@@ -549,7 +549,7 @@ describe('the composed terminal protocol', () => {
   it('should ignore a press after destroy', () => {
     const composed = compose();
 
-    void composed.controller.destroy();
+    void composed.controller.requestDestroy();
     activate(composed);
 
     expect(composed.started).toEqual([]);
@@ -563,7 +563,7 @@ describe('the composed terminal protocol', () => {
     // the cancellation settles rather than being abandoned.
     const composed = compose({
       onStart: (self) => {
-        self.controller.cancel('immediately');
+        self.controller.requestCancel('immediately');
       },
     });
 
@@ -615,7 +615,7 @@ describe('the composed terminal protocol', () => {
   it('should destroy from inside onStart without leaving presentation behind', () => {
     const composed = compose({
       onStart: (self) => {
-        void self.controller.destroy();
+        void self.controller.requestDestroy();
       },
     });
 
@@ -631,10 +631,10 @@ describe('the composed terminal protocol', () => {
     const composed = compose();
 
     activate(composed);
-    void composed.controller.destroy();
+    void composed.controller.requestDestroy();
 
     expect(() => {
-      void composed.controller.destroy();
+      void composed.controller.requestDestroy();
     }).not.toThrow();
     expect(composed.cancels).toEqual([]);
     expect(composed.finishes).toEqual([]);
@@ -646,7 +646,7 @@ describe('the composed terminal protocol', () => {
     activate(composed);
     await drag(55);
     release(55);
-    composed.controller.cancel('too late');
+    composed.controller.requestCancel('too late');
 
     expect(composed.finishes).toHaveLength(1);
     expect(composed.cancels).toEqual([]);
@@ -659,7 +659,7 @@ describe('the composed terminal protocol', () => {
     let self!: Composed;
     const composed = compose({
       onReorder: () => {
-        void self.controller.destroy();
+        void self.controller.requestDestroy();
 
         return ReorderResolution.accept();
       },
@@ -726,7 +726,7 @@ describe('the composed terminal protocol', () => {
     // operation is retiring through.
     const composed = compose({
       onFinish: (self) => {
-        void self.controller.destroy();
+        void self.controller.requestDestroy();
       },
     });
 
@@ -763,7 +763,7 @@ describe('the composed terminal protocol', () => {
     activate(composed);
     await drag(55);
     release(55);
-    composed.controller.cancel('abandoned');
+    composed.controller.requestCancel('abandoned');
 
     activate(composed);
     await drag(55);
@@ -916,7 +916,7 @@ describe('construction across the whole boundary', () => {
     expect(parts.ran).toEqual(['axis', 'displacement']);
     expect(parts.retired).toEqual([]);
 
-    return controller.destroy().then(() => {
+    return controller.requestDestroy().then(() => {
       expect(parts.retired).toEqual(['displacement']);
     });
   });
@@ -995,7 +995,7 @@ describe('the required first argument, through the public entry', () => {
 
     const controller = sortable(root, base(item), { axis: replacement });
 
-    cleanup.push(() => void controller.destroy());
+    cleanup.push(() => void controller.requestDestroy());
     expect(ran).toEqual(['replacement']);
   });
 
@@ -1011,7 +1011,7 @@ describe('the required first argument, through the public entry', () => {
       onReorder: undefined,
     });
 
-    cleanup.push(() => void controller.destroy());
+    cleanup.push(() => void controller.requestDestroy());
     expect(controller.invalidate).toBeTypeOf('function');
   });
 });
@@ -1029,7 +1029,7 @@ describe('cancellation provenance', () => {
     const composed = compose();
 
     activate(composed);
-    composed.controller.cancel('gone');
+    composed.controller.requestCancel('gone');
 
     expect(composed.cancels[0]).toMatchObject({
       reason: 'gone',
@@ -1136,7 +1136,7 @@ describe('cancellation provenance', () => {
     const composed = compose();
 
     activate(composed);
-    composed.controller.cancel(CANCEL_ABORTED);
+    composed.controller.requestCancel(CANCEL_ABORTED);
 
     expect(composed.cancels[0]).toMatchObject({
       reason: CANCEL_ABORTED,
@@ -1152,7 +1152,7 @@ describe('cancellation provenance', () => {
     const composed = compose();
 
     activate(composed);
-    void composed.controller.destroy();
+    void composed.controller.requestDestroy();
 
     expect(composed.cancels).toEqual([]);
     expect(composed.finishes).toEqual([]);

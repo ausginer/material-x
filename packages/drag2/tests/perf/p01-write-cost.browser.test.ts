@@ -184,7 +184,7 @@ function subject(): Subject {
 
   const teardown = (): void => {
     ticking = false;
-    void controller.destroy();
+    void controller.requestDestroy();
     stage.remove();
   };
 

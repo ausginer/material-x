@@ -218,7 +218,7 @@ function compose(...fragments: ReadonlyArray<Partial<SortableConfig>>): Field {
   };
 
   cleanup.push(() => {
-    void controller.destroy();
+    void controller.requestDestroy();
     root.remove();
   });
 

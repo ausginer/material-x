@@ -125,7 +125,7 @@ function build(): Fixture {
   root.releasePointerCapture = (): void => {};
 
   cleanup.push(() => {
-    void controller.destroy();
+    void controller.requestDestroy();
     root.remove();
   });
 

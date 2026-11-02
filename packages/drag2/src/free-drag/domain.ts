@@ -178,7 +178,7 @@ export type CanceledFreeDragResult = Readonly<{
   request: FreeDragRequest | null;
   /**
    * **What the decider had to say, and nothing more.** An open channel: a value
-   * the consumer passed to `cancel`, the value a classified failure threw, or
+   * the consumer passed to `requestCancel`, the value a classified failure threw, or
    * `undefined` — this behavior mints none of its own. Provenance is `origin`,
    * which the consumer cannot write.
    */

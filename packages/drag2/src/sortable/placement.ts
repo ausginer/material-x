@@ -40,35 +40,12 @@ function applyMechanics(
   placeholder: HTMLElement,
   item: HTMLElement,
   footprint: OffsetBox,
-  live: () => boolean,
 ): void {
-  // Every read first, then every write. Each call below is consumer-reachable —
-  // `getAttribute` on the item, the offset getters on the visual,
-  // `setAttribute`/`style` on a placeholder a `placeholder()` feature may own —
-  // and the element is not adopted until `activation.prepare` returns, so a
-  // mutation left on it after `destroy()` is a residue teardown never undoes.
-  // Ordering the reads ahead of the writes makes the whole read run one stretch
-  // that leaves nothing behind whichever of them closes the controller; each
-  // write then carries its own reading, so the sequence stops before the next
-  // surviving mutation rather than after it.
   const slot = item.getAttribute('slot');
   const { width, height } = footprint;
 
-  if (!live()) {
-    return;
-  }
-
   placeholder.setAttribute('data-drag-placeholder', '');
-
-  if (!live()) {
-    return;
-  }
-
   placeholder.setAttribute('aria-hidden', 'true');
-
-  if (!live()) {
-    return;
-  }
 
   // Mirrored, not merely copied. A custom placeholder may arrive carrying a
   // `slot` of its own; leaving that in place when the item has none puts the
@@ -80,36 +57,18 @@ function applyMechanics(
     placeholder.setAttribute('slot', slot);
   }
 
-  if (!live()) {
-    return;
-  }
-
   // Read once: `style` is an overridable accessor on a custom element, and a
   // consumer declaration's property setters are consumer code like any other.
   const { style } = placeholder;
 
   style.boxSizing = 'border-box';
-
-  if (!live()) {
-    return;
-  }
-
   style.width = `${width}px`;
-
-  if (!live()) {
-    return;
-  }
-
   style.height = `${height}px`;
 }
 
 /**
  * Creates the operation's placeholder, **detached**. The behavior always
  * creates one; the `placeholder` config slot only customises the element.
- *
- * `live` is the library's own barrier and is **not** handed to the factory: the
- * reading that matters is the one between the factory returning and the
- * mechanics writing on the element it returned, and that one is taken here.
  *
  * `footprint` is what the visual removed from the layout, already computed
  * across the lift by the caller — see `activation.prepare`.
@@ -119,38 +78,24 @@ export function createPlaceholder(
   context: PlaceholderContext,
   footprint: OffsetBox,
   factory: PlaceholderFactory | null,
-  live: () => boolean,
 ): HTMLElement {
   const { item } = context;
 
   if (!factory) {
     const placeholder = realm.document.createElement('div');
 
-    applyMechanics(placeholder, item, footprint, live);
+    applyMechanics(placeholder, item, footprint);
     return placeholder;
   }
 
   const placeholder = factory(context);
-
-  // The terminal barrier on the factory. The factory is consumer code, and
-  // everything below it touches consumer-owned elements: the adoption check
-  // reads `isConnected`, and `applyMechanics` writes attributes and inline
-  // styles onto the returned element, all overridable on a consumer's custom
-  // element. The mechanics carry their own readings; this one covers the
-  // factory itself and the adoption check between them.
-  //
-  // Returned unmechanized rather than thrown: a consumer destroying its own
-  // controller is not a library failure.
-  if (!live()) {
-    return placeholder;
-  }
 
   // Nothing checks the factory's result. It is adopted — activation inserts it,
   // every move relocates it, teardown removes it — and `config.ts` publishes
   // the detachedness requirement on the slot itself, as a documented boundary
   // rather than a guard. An author who ignores it hands the library ownership
   // of a node the page owns, and teardown removes it.
-  applyMechanics(placeholder, item, footprint, live);
+  applyMechanics(placeholder, item, footprint);
   return placeholder;
 }
 

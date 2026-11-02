@@ -207,7 +207,7 @@ describe('a late resolution', () => {
     release(30, 10);
     await settled();
 
-    composed.controller.cancel('too slow');
+    composed.controller.requestCancel('too slow');
     await settled();
 
     resolveDrop(FreeDragResolution.accept());
@@ -232,7 +232,7 @@ describe('a late resolution', () => {
     release(30, 10);
     await settled();
 
-    await composed.controller.destroy();
+    await composed.controller.requestDestroy();
     resolveDrop(FreeDragResolution.accept());
     await settled();
 
@@ -259,9 +259,9 @@ describe('the destroy promise', () => {
     // no other row in the suite can see the difference — and the published
     // guarantee is about the object handed back, so it is asserted there.
     const composed = compose();
-    const first = composed.controller.destroy();
+    const first = composed.controller.requestDestroy();
 
-    expect(composed.controller.destroy()).toBe(first);
+    expect(composed.controller.requestDestroy()).toBe(first);
 
     await expect(first).resolves.toBeUndefined();
   });
@@ -300,7 +300,7 @@ describe('retirement order', () => {
     });
 
     activate(composed);
-    composed.controller.cancel('reason');
+    composed.controller.requestCancel('reason');
 
     expect(seen).toEqual([
       'plugin-2',
@@ -426,7 +426,7 @@ describe('the final activation barrier', () => {
     const composed = compose({
       fragments: [
         bounds(() => {
-          void composed.controller.destroy();
+          void composed.controller.requestDestroy();
           return new DOMRectReadOnly(0, 0, 10_000, 10_000);
         }),
       ],
@@ -444,7 +444,7 @@ describe('the final activation barrier', () => {
     const composed = compose({
       fragments: [
         bounds(() => {
-          void composed.controller.destroy();
+          void composed.controller.requestDestroy();
           return new DOMRectReadOnly(0, 0, 10_000, 10_000);
         }),
       ],
@@ -475,7 +475,7 @@ describe('a resolver that destroys and then throws', () => {
     const composed = compose({
       config: {
         handle: () => {
-          void composed.controller.destroy();
+          void composed.controller.requestDestroy();
           throw new Error('handle: gone');
         },
       },
@@ -495,7 +495,7 @@ describe('a resolver that destroys and then throws', () => {
     const composed = compose({
       config: {
         handle: () => {
-          void composed.controller.destroy();
+          void composed.controller.requestDestroy();
           throw new Error('handle: gone');
         },
       },

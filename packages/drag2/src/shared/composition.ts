@@ -49,6 +49,12 @@ export type FeatureContext = Readonly<{
    * It reaches the consumer's `onError` as a `DraggableWarning` — the only
    * route a composition-time unwind has, since both `assemble` unwinds run
    * before `arm()` when no behavior spec exists at all.
+   *
+   * **Delivered until the controller's destruction is applied, and dropped
+   * from then on.** A report made while the controller is being constructed,
+   * or between a destruction request and its application, is delivered. One
+   * made after application — from a retire hook as teardown runs it, or from a
+   * continuation an installer kept — is dropped silently.
    */
   report(error: unknown): void;
 }>;

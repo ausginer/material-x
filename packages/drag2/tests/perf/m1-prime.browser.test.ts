@@ -256,7 +256,7 @@ function liveFreeDrag(
     }
 
     disposed = true;
-    void controller.destroy();
+    void controller.requestDestroy();
     stage.remove();
   };
 

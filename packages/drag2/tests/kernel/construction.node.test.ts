@@ -61,7 +61,7 @@ type Recorder = Readonly<{
   createFramePart(): number;
   resetFramePart(): number;
   retire(): number;
-  /** The promise of the first `destroy()` a row raised, if it raised one. */
+  /** The promise of the first `requestDestroy()` a row raised, if it raised one. */
   destroyed: Promise<void> | null;
   /** Every signal construction bound a root listener under. */
   signals: readonly AbortSignal[];
@@ -164,19 +164,17 @@ function arm(
       signals.push(options.signal!);
     }),
     (kernel) => {
-      // The first `destroy()` a row raises is the one whose promise it reads.
+      // The first `requestDestroy()` a row raises is the one whose promise it reads.
       context = {
         ...kernel,
         dispatch: kernel.dispatch.bind(kernel),
         fail: kernel.fail.bind(kernel),
-        cancel: kernel.cancel.bind(kernel),
-        destroy: () => {
-          destroyed ??= kernel.destroy();
+        requestCancel: kernel.requestCancel.bind(kernel),
+        requestDestroy: () => {
+          destroyed ??= kernel.requestDestroy();
           return destroyed;
         },
-        get closed() {
-          return kernel.closed;
-        },
+        channel: kernel.channel.bind(kernel),
       };
       fromFactory(context);
 
@@ -211,7 +209,7 @@ describe('the construction window', () => {
       () => {},
       (kernel, call) => {
         if (call === 1) {
-          void kernel.destroy();
+          void kernel.requestDestroy();
         }
       },
     );
@@ -224,7 +222,7 @@ describe('the construction window', () => {
       () => {},
       (kernel, call) => {
         if (call === 1) {
-          void kernel.destroy();
+          void kernel.requestDestroy();
         }
       },
     );
@@ -237,7 +235,7 @@ describe('the construction window', () => {
       () => {},
       (kernel, call) => {
         if (call === 1) {
-          void kernel.destroy();
+          void kernel.requestDestroy();
         }
       },
     );
@@ -250,7 +248,7 @@ describe('the construction window', () => {
       () => {},
       (kernel, call) => {
         if (call === 1) {
-          void kernel.destroy();
+          void kernel.requestDestroy();
         }
       },
     );
@@ -263,7 +261,7 @@ describe('the construction window', () => {
       () => {},
       (kernel, call) => {
         if (call === 1) {
-          void kernel.destroy();
+          void kernel.requestDestroy();
         }
       },
     );
@@ -276,7 +274,7 @@ describe('the construction window', () => {
       () => {},
       (kernel, call) => {
         if (call === 2) {
-          void kernel.destroy();
+          void kernel.requestDestroy();
         }
       },
     );
@@ -286,7 +284,7 @@ describe('the construction window', () => {
 
   it('should compose both frame parts and retire once when the factory body destroys the controller', () => {
     const recorder = arm((kernel) => {
-      void kernel.destroy();
+      void kernel.requestDestroy();
     });
 
     expect([recorder.createFramePart(), recorder.retire()]).toEqual([2, 1]);
@@ -294,7 +292,7 @@ describe('the construction window', () => {
 
   it('should reset each frame once when the factory body destroys the controller', () => {
     const recorder = arm((kernel) => {
-      void kernel.destroy();
+      void kernel.requestDestroy();
     });
 
     expect(recorder.resetFramePart()).toBe(2);
@@ -338,7 +336,7 @@ describe('the construction window', () => {
 
   it('should treat a cancel() raised from the factory body as the idle no-op', () => {
     const recorder = arm((kernel) => {
-      kernel.cancel('reason');
+      kernel.requestCancel('reason');
     });
 
     // Nothing was registered and nothing was reported, and the controller went
@@ -358,7 +356,7 @@ describe('the construction window', () => {
     expect(() =>
       arm(
         (kernel) => {
-          void kernel.destroy();
+          void kernel.requestDestroy();
         },
         undefined,
         (spec) => ({
@@ -377,7 +375,7 @@ describe('the construction window', () => {
     expect(() =>
       arm(
         (kernel) => {
-          void kernel.destroy();
+          void kernel.requestDestroy();
         },
         undefined,
         (spec) => ({
@@ -457,7 +455,7 @@ describe('dispatch during construction', () => {
       construct({
         fromFactory: (kernel) => {
           kernel.dispatch(0, 'a');
-          void kernel.destroy();
+          void kernel.requestDestroy();
         },
       }),
     ).toEqual(['listen pointerdown', 'returned']);

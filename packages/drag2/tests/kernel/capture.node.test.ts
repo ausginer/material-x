@@ -104,9 +104,10 @@ const membersWhere = (
 
 /**
  * The controller-scope context: realm, root, the bracket, the ingress signal,
- * the spec, the frame pair and the driver. The seam adapters and channels are
- * arrow-valued fields with initializers, and are `readonly` for the same
- * reason; this list is the context that arrives from construction.
+ * the spec, the frame pair, the driver, and the channel the façade minted with
+ * the unwind guard over it. The seam adapters are arrow-valued fields with
+ * initializers, and are `readonly` for the same reason; this list is the
+ * context that arrives from construction.
  */
 const CONTEXT = [
   '#realm',
@@ -116,6 +117,8 @@ const CONTEXT = [
   '#spec',
   '#frames',
   '#driver',
+  'report',
+  '#unwind',
 ];
 
 describe('the armed controller', () => {
@@ -244,16 +247,50 @@ describe('the current-operation slots', () => {
   });
 });
 
+const EXECUTION = join(SRC, 'kernel/execution.ts');
+
 /**
- * Every read of a ledger fact inside the armed controller, as
- * `member: fact`: the lifecycle request through `#bracket.closed`, an
- * operation's cancel request and registered failure, and a checkpoint's
- * supersession record. A write — the assignment that registers or consumes —
- * is not a read.
+ * **The bracket's lifecycle accessors, derived rather than listed**: every
+ * `ExecutionBracket` getter whose body reads `#lifecycle`. A reader through an
+ * accessor added later is found by the census below without editing it, which
+ * a list of names would not do.
+ */
+async function lifecycleAccessors(): Promise<ReadonlySet<string>> {
+  const source = await parse(EXECUTION);
+  const bracket = source.statements.find(
+    (statement): statement is ts.ClassDeclaration =>
+      ts.isClassDeclaration(statement) &&
+      statement.name?.text === 'ExecutionBracket',
+  );
+
+  if (!bracket) {
+    throw new Error('ExecutionBracket is not declared in execution.ts');
+  }
+
+  return new Set(
+    bracket.members
+      .filter(ts.isGetAccessorDeclaration)
+      .filter((getter) => getter.body?.getText(source).includes('#lifecycle'))
+      .map((getter) => getter.name.getText(source)),
+  );
+}
+
+/**
+ * Every read of a ledger fact inside the armed controller, as `member: fact`:
+ * the lifecycle request through any of the bracket's lifecycle accessors on
+ * `this.#bracket`, an operation's cancel request and registered failure, and a
+ * checkpoint's supersession record. A write — the assignment that registers or
+ * consumes — is not a read.
+ *
+ * **Per member, not per placement.** A second read of a fact the list already
+ * names, later in the same handler and after the unit has done work, leaves
+ * the list unchanged. That limit is inherent to reporting by member, and is
+ * stated rather than closed here.
  */
 function ledgerReads(
   owner: ts.ClassDeclaration,
   source: ts.SourceFile,
+  lifecycle: ReadonlySet<string>,
 ): string[] {
   const facts = new Set(['cancelRequest', 'failureRegistered', 'superseded']);
   const found = new Set<string>();
@@ -272,11 +309,12 @@ function ledgerReads(
         ts.isBinaryExpression(parent) &&
         parent.left === node &&
         parent.operatorToken.kind === ts.SyntaxKind.EqualsToken;
-      const lifecycle =
-        name === 'closed' &&
-        node.expression.getText(source) === 'this.#bracket';
+      const read =
+        (lifecycle.has(name) &&
+          node.expression.getText(source) === 'this.#bracket') ||
+        facts.has(name);
 
-      if (!written && (lifecycle || facts.has(name))) {
+      if (!written && read) {
         found.add(`${enclosing}: ${name}`);
       }
     }
@@ -291,15 +329,19 @@ function ledgerReads(
 }
 
 /**
- * **No unit reads the ledger after its entry.** The places left are request
- * intake, the diagnostic channel's refusal after application, and unit
- * entries. The runner's own reading is the bracket's, outside this class.
+ * **No unit reads the ledger after its entry.** The places left in the armed
+ * controller are request intake, the runner's refusal before an ingress pass,
+ * and unit entries. The diagnostic channel's refusal is the façade's, and the
+ * runner's own reading is the bracket's; both are outside this class and are
+ * located by the source-wide census below.
  */
 describe('the ledger', () => {
-  it('should be read only at intake, the channel and unit entries', async () => {
+  it('should be read only at intake, the ingress refusal and unit entries', async () => {
     const source = await parse(KERNEL);
 
-    expect(ledgerReads(armedClass(source), source)).toEqual([
+    expect(
+      ledgerReads(armedClass(source), source, await lifecycleAccessors()),
+    ).toEqual([
       // Intake: whether a request is registered at all.
       '#cancelWith: cancelRequest',
       '#cancelWith: closed',
@@ -307,7 +349,7 @@ describe('the ledger', () => {
       '#failOperation: cancelRequest',
       '#failOperation: closed',
       // Unit entries. `ACTIVATE` and `MOVE` at `PENDING` decline activation
-      // while a cancel is held (D-207).
+      // while a cancel is held.
       '#handleActivate: cancelRequest',
       '#handleCancel: cancelRequest',
       '#handleFailed: cancelRequest',
@@ -316,9 +358,132 @@ describe('the ledger', () => {
       '#handleOpenResolution: cancelRequest',
       '#handleOpenResolution: failureRegistered',
       '#handleStartCommitted: cancelRequest',
-      // The channel refuses after application.
-      '#notify: closed',
+      // The runner's refusal before a native ingress pass is admitted.
+      '#onPointerDown: idle',
     ]);
+  });
+
+  it('should derive the lifecycle accessors it matches from the bracket', async () => {
+    // Non-vacuity for the row above: a derivation that found nothing would
+    // match no lifecycle read and pass the intake rows by omission.
+    expect([...(await lifecycleAccessors())].toSorted()).toEqual([
+      'closed',
+      'idle',
+    ]);
+  });
+});
+
+/** Every `.ts` file under `dir`, relative to `src/`, sorted. */
+async function sources(dir: string): Promise<string[]> {
+  const entries = await readdir(dir, { recursive: true, withFileTypes: true });
+
+  return entries
+    .filter((entry) => entry.isFile() && /\.tsx?$/u.test(entry.name))
+    .map((entry) =>
+      join(entry.parentPath, entry.name)
+        .slice(SRC.length)
+        .replaceAll('\\', '/'),
+    )
+    .toSorted();
+}
+
+/**
+ * **The read census, by location, over the whole of `src/`.** Every read of
+ * the lifecycle — `#lifecycle` itself, or one of the bracket's lifecycle
+ * accessors on any receiver — and of an operation's cancel request or
+ * registered failure, as `file › Class.member: fact`. A function outside a
+ * class is reported by its own name.
+ */
+async function readCensus(): Promise<string[]> {
+  const lifecycle = await lifecycleAccessors();
+  const facts = new Set(['cancelRequest', 'failureRegistered']);
+  const found = new Set<string>();
+
+  const files = await sources(SRC);
+  const parsed = await Promise.all(files.map((file) => parse(join(SRC, file))));
+
+  for (const [index, file] of files.entries()) {
+    const source = parsed[index]!;
+
+    const visit = (node: ts.Node, where: string): void => {
+      let enclosing = where;
+
+      if (ts.isClassElement(node) && ts.isClassLike(node.parent)) {
+        const owner = node.parent.name?.getText(source) ?? '(class)';
+        const name = node.name ? node.name.getText(source) : 'constructor';
+
+        enclosing = `${owner}.${name}`;
+      } else if (ts.isFunctionDeclaration(node) && node.name) {
+        enclosing = node.name.getText(source);
+      }
+
+      if (ts.isPropertyAccessExpression(node)) {
+        const name = node.name.getText(source);
+        const { parent } = node;
+        const written =
+          ts.isBinaryExpression(parent) &&
+          parent.left === node &&
+          parent.operatorToken.kind === ts.SyntaxKind.EqualsToken;
+
+        if (
+          !written &&
+          (name === '#lifecycle' || lifecycle.has(name) || facts.has(name))
+        ) {
+          found.add(`${file} › ${enclosing}: ${name}`);
+        }
+      }
+
+      ts.forEachChild(node, (child) => {
+        visit(child, enclosing);
+      });
+    };
+
+    visit(source, '(module)');
+  }
+
+  return [...found].toSorted();
+}
+
+describe('the read census', () => {
+  it('should find lifecycle and request reads only at the runner, intake, the channel and unit entries', async () => {
+    expect(await readCensus()).toEqual([
+      // The runner: the bracket's own reads of the lifecycle request, before
+      // each queued unit, at the outermost boundary, at depth-0 application
+      // and before an ingress pass — and the two accessors that expose it.
+      'kernel/execution.ts › ExecutionBracket.#leave: #lifecycle',
+      'kernel/execution.ts › ExecutionBracket.#step: #lifecycle',
+      'kernel/execution.ts › ExecutionBracket.closed: #lifecycle',
+      'kernel/execution.ts › ExecutionBracket.dispatch: #lifecycle',
+      'kernel/execution.ts › ExecutionBracket.idle: #lifecycle',
+      'kernel/execution.ts › ExecutionBracket.requestClose: #lifecycle',
+      'kernel/execution.ts › ExecutionBracket.runIngress: idle',
+      // Intake in the armed controller.
+      'kernel/kernel.ts › ArmedController.#cancelWith: cancelRequest',
+      'kernel/kernel.ts › ArmedController.#cancelWith: closed',
+      'kernel/kernel.ts › ArmedController.#failOperation: cancelRequest',
+      'kernel/kernel.ts › ArmedController.#failOperation: closed',
+      // Unit entries.
+      'kernel/kernel.ts › ArmedController.#handleActivate: cancelRequest',
+      'kernel/kernel.ts › ArmedController.#handleCancel: cancelRequest',
+      'kernel/kernel.ts › ArmedController.#handleFailed: cancelRequest',
+      'kernel/kernel.ts › ArmedController.#handleMove: cancelRequest',
+      'kernel/kernel.ts › ArmedController.#handleOpenResolution: cancelRequest',
+      'kernel/kernel.ts › ArmedController.#handleOpenResolution: failureRegistered',
+      'kernel/kernel.ts › ArmedController.#handleStartCommitted: cancelRequest',
+      // The runner's refusal before a native ingress pass is admitted.
+      'kernel/kernel.ts › ArmedController.#onPointerDown: idle',
+      // The diagnostic channel's one refusal, and the façade's dispatch intake.
+      'kernel/kernel.ts › Kernel.channel: closed',
+      'kernel/kernel.ts › Kernel.dispatch: closed',
+    ]);
+  });
+
+  it('should find no lifecycle or request read outside the kernel', async () => {
+    // The stated half of the property, separately: a reader in a behavior
+    // fails here even if the list above were edited to admit it.
+    expect(
+      (await readCensus()).filter((entry) => !entry.startsWith('kernel/')),
+    ).toEqual([]);
   });
 });
 

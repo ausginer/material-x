@@ -339,7 +339,7 @@ describe('a detached constraint', () => {
     activate(composed);
     release(30, 10);
     await settled();
-    await composed.controller.destroy();
+    await composed.controller.requestDestroy();
 
     expectDetached(constraint.receivers, 'retire', constraint.own());
   });
@@ -394,7 +394,7 @@ describe('a detached constraint', () => {
     activate(composed);
     release(30, 10);
     await settled();
-    await composed.controller.destroy();
+    await composed.controller.requestDestroy();
 
     expect(retired).toBe(2);
     expect(composed.errors).toEqual([]);
@@ -497,5 +497,66 @@ describe('a non-finite moveTo()', () => {
     expect(
       composed.errors.map((error) => (error as DraggableError).stage),
     ).toEqual([FAILURE_ACTION_PREPARE]);
+  });
+});
+
+describe('moveTo() captures its argument at the call', () => {
+  // R18. The point is a consumer object, and the position it requests is
+  // applied after the requesting unit. A consumer that reuses one object across
+  // calls must not be able to change a position after requesting it.
+
+  it('should commit the coordinates passed, not the object mutated afterwards', () => {
+    let origin!: DOMRect;
+    let requested = false;
+    const composed = compose({
+      config: {
+        onMove: (): void => {
+          if (requested) {
+            return;
+          }
+
+          requested = true;
+
+          const point = { x: origin.left + 60, y: origin.top + 25 };
+
+          composed.controller.moveTo(point);
+          // Reused, inside the same unit, before the request is applied.
+          point.x = origin.left + 5;
+          point.y = origin.top + 5;
+        },
+      },
+    });
+    // Measured before the lift, as the points `moveTo` takes are.
+    origin = composed.item.getBoundingClientRect();
+
+    activate(composed);
+    move(60, 20);
+
+    expect(requested).toBe(true);
+    expect(composed.rendered()).toEqual([60, 25]);
+  });
+
+  it('should read the coordinates once, on the call', () => {
+    // The accessors are consumer code: read at intake, not at application, and
+    // only once each.
+    const composed = compose();
+    const origin = composed.item.getBoundingClientRect();
+    const reads: string[] = [];
+    const point = {
+      get x(): number {
+        reads.push('x');
+        return origin.left + 30;
+      },
+      get y(): number {
+        reads.push('y');
+        return origin.top + 15;
+      },
+    };
+
+    activate(composed);
+    composed.controller.moveTo(point);
+
+    expect(reads).toEqual(['x', 'y']);
+    expect(composed.rendered()).toEqual([30, 15]);
   });
 });

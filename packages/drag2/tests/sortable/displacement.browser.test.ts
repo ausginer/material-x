@@ -13,7 +13,6 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { SortableConfig } from '../../src/sortable/config.ts';
-import type { SortableFeatureContext } from '../../src/sortable/feature.ts';
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
@@ -142,7 +141,7 @@ function build(options: Options = {}): Composed {
         })
         .join(''),
     dispose(): void {
-      void controller.destroy();
+      void controller.requestDestroy();
       root.remove();
     },
   };
@@ -1141,7 +1140,7 @@ describe('teardown', () => {
 
     activate(composed);
     await drag(135);
-    composed.controller.cancel('reason');
+    composed.controller.requestCancel('reason');
 
     expect(displaced(composed)).toEqual([]);
     expect(composed.items[1]!.style.translate).toBe('0px 7px');
@@ -1149,233 +1148,5 @@ describe('teardown', () => {
     // **One collector since D-130** — this covers what a `globalThis.reportError`
     // stub used to observe separately.
     expect(composed.errors).toEqual([]);
-  });
-});
-
-/**
- * I-36 inside `layoutAnimation()` itself (C4-01).
- *
- * Both halves of the bracket invoke `getBoundingClientRect()` on
- * **consumer-owned rows** in a loop, and the after half then calls `animate()`
- * on them. Under I-36's indirect-invocation clause every one of those is a
- * consumer call, so a row that destroys the controller from its own overridden
- * method returns into the middle of a loop the behavior cannot guard from
- * outside — `retire()` has already emptied this feature's state by then, and
- * everything the loop does afterwards writes into it again.
- *
- * Driven directly rather than through the composition, because the two
- * measurement passes are otherwise indistinguishable: the axis rebuild reads
- * the same rows between them. **Every assertion is a call list on the
- * instrumented row.**
- */
-describe('the terminal barrier in the displacement bracket', () => {
-  type Bracket = Readonly<{
-    rows: HTMLElement[];
-    placeholder: HTMLElement;
-    /** Runs the sink over a plan that displaces both rows. */
-    apply(): void;
-    /** Commits the move the sink is called after. */
-    move(): void;
-  }>;
-
-  const bracketFixture = (live: () => boolean): Bracket => {
-    const root = document.createElement('div');
-
-    Object.assign(root.style, {
-      position: 'absolute',
-      top: '0px',
-      left: '0px',
-      width: '200px',
-    });
-    document.body.append(root);
-    cleanup.push(() => {
-      root.remove();
-    });
-
-    const box = (): HTMLElement => {
-      const element = document.createElement('div');
-
-      Object.assign(element.style, {
-        display: 'block',
-        width: '100px',
-        height: `${ITEM_HEIGHT}px`,
-      });
-      root.append(element);
-      return element;
-    };
-
-    const placeholder = box();
-    const rows = [box(), box()];
-    const contribution = layoutAnimation({
-      duration: DURATION,
-    }).displacement!(null as unknown as SortableFeatureContext);
-
-    return {
-      rows,
-      placeholder,
-      // The walk an axis would have run for a move crossing both rows: one
-      // row-height of travel each, negated. It is the axis that walks now, so
-      // the fixture is the axis rather than the plan it used to return.
-      apply: (): void => {
-        for (const row of rows) {
-          contribution.report(row, 0, -ITEM_HEIGHT, live, null);
-        }
-      },
-      move: () => {
-        rows[1]!.after(placeholder);
-      },
-    };
-  };
-
-  /** Records every row asked to animate, and hands back the real animation. */
-  const animatingRows = (
-    rows: readonly HTMLElement[],
-    played: HTMLElement[],
-    onPlay: (row: HTMLElement) => void = (): void => {},
-  ): void => {
-    for (const row of rows) {
-      const native = row.animate.bind(row);
-
-      row.animate = (frames, options): Animation => {
-        played.push(row);
-        onPlay(row);
-
-        return native(frames, options);
-      };
-    }
-  };
-
-  /**
-   * Hands back a real animation whose **`finished` accessor** is the consumer's
-   * — the shape a consumer gets for free by overriding `animate()` and
-   * returning an instrumented animation.
-   */
-  const finishedAccessorAt = (
-    rows: readonly HTMLElement[],
-    onRead: () => void,
-  ): void => {
-    for (const row of rows) {
-      const native = row.animate.bind(row);
-
-      row.animate = (frames, options): Animation => {
-        const animation = native(frames, options);
-        const { finished } = animation;
-
-        Object.defineProperty(animation, 'finished', {
-          get: (): Promise<Animation> => {
-            onRead();
-            return finished;
-          },
-        });
-
-        return animation;
-      };
-    }
-  };
-
-  /** The other half of the acquisition: an overridable `then` on the thenable. */
-  const thenableAt = (
-    rows: readonly HTMLElement[],
-    onSubscribe: () => void,
-  ): void => {
-    for (const row of rows) {
-      const native = row.animate.bind(row);
-
-      row.animate = (frames, options): Animation => {
-        const animation = native(frames, options);
-        const { finished } = animation;
-
-        Object.defineProperty(animation, 'finished', {
-          get: (): Promise<Animation> =>
-            ({
-              then: (
-                onDone: (value: Animation) => void,
-                onFail: (reason: unknown) => void,
-              ): unknown => {
-                onSubscribe();
-                return finished.then(onDone, onFail);
-              },
-            }) as unknown as Promise<Animation>,
-        });
-
-        return animation;
-      };
-    }
-  };
-
-  it('should cancel an animation whose `finished` accessor closed the controller', () => {
-    // **Subscription is part of the acquisition.** `finished` is an overridable
-    // accessor, so a consumer-instrumented animation can destroy the controller
-    // and return normally — no throw, so the `catch` never sees it — and
-    // without a reading before the animation is tracked the row keeps a live
-    // contribution nothing will ever cancel.
-    let alive = true;
-    const bracket = bracketFixture(() => alive);
-    const played: HTMLElement[] = [];
-
-    bracket.move();
-    animatingRows(bracket.rows, played);
-    finishedAccessorAt(bracket.rows, () => {
-      alive = false;
-    });
-    bracket.apply();
-
-    expect(played).toEqual([bracket.rows[0]]);
-    expect(displacements(bracket.rows[0]!)).toEqual([]);
-  });
-
-  it('should cancel an animation whose `finished` thenable closed the controller', () => {
-    // The second half of the same acquisition: `then` is a call on an object
-    // the consumer chose, and it too can destroy and return normally.
-    let alive = true;
-    const bracket = bracketFixture(() => alive);
-    const played: HTMLElement[] = [];
-
-    thenableAt(bracket.rows, () => {
-      alive = false;
-    });
-
-    bracket.move();
-    animatingRows(bracket.rows, played);
-    bracket.apply();
-
-    expect(played).toEqual([bracket.rows[0]]);
-    expect(displacements(bracket.rows[0]!)).toEqual([]);
-  });
-
-  it('should cancel an animation whose own start closed the controller', () => {
-    // `animate()` is itself overridable on a consumer's row, so it is a
-    // consumer call like any other. The contribution it returned is not tracked
-    // yet, so nothing else would ever stop it.
-    let alive = true;
-    const bracket = bracketFixture(() => alive);
-    const played: HTMLElement[] = [];
-
-    bracket.move();
-    animatingRows(bracket.rows, played, () => {
-      alive = false;
-    });
-    bracket.apply();
-
-    expect(played).toEqual([bracket.rows[0]]);
-    expect(displacements(bracket.rows[0]!)).toEqual([]);
-  });
-
-  it('should start no contribution for a row once the sink is closed', () => {
-    // **The one loop barrier D-157 keeps in this feature**, read at the head of
-    // every iteration: the previous row's `animate()` is a consumer call, so a
-    // reading taken before the walk says nothing about the calls inside it.
-    let alive = true;
-    const bracket = bracketFixture(() => alive);
-    const played: HTMLElement[] = [];
-
-    bracket.move();
-    animatingRows(bracket.rows, played, () => {
-      alive = false;
-    });
-    bracket.apply();
-
-    // The first row was asked; the second never was.
-    expect(played).toEqual([bracket.rows[0]]);
   });
 });

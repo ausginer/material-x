@@ -11,3 +11,14 @@
 export const TAG_POLICY = 0;
 export const TAG_POSITION = 1;
 export const FREE_DRAG_ACTION_TAGS = 2;
+
+/**
+ * `moveTo`'s argument as captured at the call: the coordinates copied, or the
+ * error reading them raised, carried to the action's `prepare` to be thrown
+ * there.
+ */
+export type CapturedPosition = Readonly<{
+  x: number;
+  y: number;
+  fault: Readonly<{ error: unknown }> | null;
+}>;

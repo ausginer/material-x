@@ -128,12 +128,14 @@ Merge semantics are D-45's unchanged: the merge iterates the schema rather than 
 type FreeDragController = Readonly<{
   invalidate(): void;
   moveTo(point: Point): void;
-  cancel(reason?: unknown): void;
-  destroy(): Promise<void>;
+  requestCancel(reason?: unknown): void;
+  requestDestroy(): Promise<void>;
 }>;
 ```
 
-`cancel` and `destroy` forward to `BehaviorContext`'s own members, exactly as the sortable's do — a closure over the call rather than the member itself, because after D-170 step 6 they are the kernel's prototype methods and a detached read would arrive with no receiver. `destroy()` closes the controller logically on the statement and returns a promise that settles after physical teardown (D-36). The other two are D-71.
+`requestCancel` and `requestDestroy` forward to `BehaviorContext`'s own members, exactly as the sortable's do — a closure over the call rather than the member itself, because after D-170 step 6 they are the kernel's prototype methods and a detached read would arrive with no receiver. ~~`destroy()` closes the controller logically on the statement and returns a promise that settles after physical teardown (D-36).~~ **Renamed by D-208 step 4, 2026-11-02, with no alias**: `requestDestroy()` is applied at once with no library unit running and otherwise when the running unit ends, and its promise settles once, after application (I-6). The other two are D-71.
+
+**`moveTo` captures its argument at intake** (D-202 §2.12, D-208 step 4). The coordinates are copied on the call, once per call and never per sample, so a consumer that reuses one point object across calls cannot change a position after requesting it. A malformed point — `null`, a missing field, a throwing accessor — fails that copy, and its error travels with the queued action and is thrown by the action's `prepare`, so it is still classified `FAILURE_ACTION_PREPARE`, as D-91 states.
 
 ### The results
 

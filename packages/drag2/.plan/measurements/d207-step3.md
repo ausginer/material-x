@@ -24,7 +24,7 @@
 | **COVERAGE**: §Kernel requests, new. The withdrawn rows are rewritten, the `preparationValid()` note is added to the D-181 section, and the D-205 table's inline-open count names its tree (reviewer-F) | `tests/COVERAGE.md` |
 | **Corrections**: step2-A and step2-B in `d206-step2.md`, and reviewer-F in `d204-step1.md` (§Corrections) | `.plan/measurements/` |
 
-`closed` stays readable and reports `CLOSED` only. No published type changes except the removal of the `rollback` members, which no published declaration named. The SPI renames and the behaviors' `closed` and `live()` reads are step 4's.
+`closed` stays readable and reports `CLOSED` only. ~~No published type changes except the removal of the `rollback` members, which no published declaration named.~~ **Corrected 2026-11-02 (step3-C, in `d208-step4.md` §Corrections):** the shipped `kernel/seams.d.ts` declared `rollback?` on `Transition` and `ActionTransition`, both exported from `kernel.js`, so step 3 removed a published, optional kernel-tier SPI member from both. §3 decides it, on an unreleased API. No other published type changed. The SPI renames and the behaviors' `closed` and `live()` reads are step 4's.
 
 ## Cases
 

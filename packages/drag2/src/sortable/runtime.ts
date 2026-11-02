@@ -77,15 +77,4 @@ export type SortableActivation = {
    * and never reaches the slot record.
    */
   readonly box: ((item: HTMLElement) => HTMLElement) | null;
-  /**
-   * The controller's terminal latch, read as a predicate.
-   *
-   * The candidate loop inside `RectIndex.refresh` calls the consumer's `box`
-   * resolver once per candidate, and a resolver may destroy the controller. The
-   * loop is feature-private and can reach nothing of the behavior's, so the
-   * reading travels through the per-operation view, with no import edge and one
-   * closure per controller copied by reference per operation.
-   */
-  // eslint-disable-next-line @typescript-eslint/method-signature-style -- `readonly` is not expressible on a method signature
-  readonly live: () => boolean;
 };

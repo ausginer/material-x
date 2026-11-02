@@ -133,7 +133,7 @@ const controller = sortable(
 
 ## `BehaviorContext`
 
-The whole construction-time surface. **Seven** members, none of which lets the behavior drive a transition. (D-2) It said _six_ from Revision 2 until D-170 step 6, which counts `closed` — a member D-53 added and the list below carries.
+The whole construction-time surface. **Seven** members, none of which lets the behavior drive a transition. (D-2) It said _six_ from Revision 2 until D-170 step 6, which counts `closed` — a member D-53 added. **D-208 step 4, 2026-11-02:** `closed` is removed and `channel` added, `cancel` and `destroy` are renamed `requestCancel` and `requestDestroy` with no alias, and the count stays seven. No member reads the lifecycle.
 
 **It is an interface the kernel implements, and the object a behavior holds is the kernel itself under this type** (D-170 §The behavior-facing interface). There is no second runtime object: the same arrangement `LifetimeScope`/`Lifetime` and `BehaviorLiftSession`/`VisualLiftSession` already use one and two tiers down, where one physical object arrives under the type its recipient is granted. Members are **positively selected**, so a member added to the kernel later is kernel-only until this interface names it.
 
@@ -187,16 +187,22 @@ interface BehaviorContext {
   fail(stage: FailureStage, error: unknown): void; // `FailureStage` is kernel-tier vocabulary (D-64)
 
   /**
-   * **Is this controller logically closed?** The only sanctioned liveness
-   * reading, and the latch itself rather than a proxy for it (D-53): physical
-   * teardown is deferred to the transaction boundary, so
-   * `presentation.signal.aborted`, a disposed session and a detached node all
-   * **lag** the logical close.
+   * **Mints the controller's diagnostic channel over a sink the behavior
+   * supplies** (D-208). The returned function hands each error to `deliver`
+   * until destruction is **applied** and drops every call afterwards, by the
+   * kernel's one refusal. In the interval between a request and its
+   * application it delivers. It absorbs a throw from `deliver`, so it never
+   * throws, which is what an unwind step reporting through it relies on. It
+   * works from the factory onward, before arming, and it exposes no lifecycle
+   * value. Panic's report does not pass through it.
    *
-   * Readonly by construction — a behavior may consult the latch, never set
-   * it.
+   * Every diagnostic a behavior produces goes through a channel it minted:
+   * its own reports, its unwind guard and the composition's `report`. One
+   * closure per call, so a behavior mints one per sink at construction.
    */
-  readonly closed: boolean;
+  channel(
+    deliver: (error: DraggableError | DraggableWarning) => void,
+  ): (error: DraggableError | DraggableWarning) => void;
 
   /**
    * Base controller methods, for the behavior to publish on its controller.
@@ -204,28 +210,30 @@ interface BehaviorContext {
    * behavior publishes a closure over the call rather than the member itself
    * (D-170 §The behavior-facing interface).
    *
-   * **An idle cancel is a no-op that leaves no latch**, and there is no
+   * **A cancel is a request** (D-202): registered against the committed
+   * operation in a cancellable phase and applied in order after the running
+   * unit. An idle request is a no-op that registers nothing, and there is no
    * operation anywhere in the construction window, so a call from there is
-   * that no-op. `destroy()` beside it is the window's other live member and
-   * is not a no-op: it closes on the statement, and the teardown it owes runs
-   * whether or not the controller was ever armed.
+   * that no-op. `requestDestroy()` beside it is the window's other live
+   * member and is not a no-op: it is applied once construction publishes, and
+   * the teardown it owes runs whether or not the controller was ever armed.
    */
-  cancel(reason?: unknown): void;
+  requestCancel(reason?: unknown): void;
 
   /**
-   * Closes the controller **logically**, immediately, on this statement. The
-   * returned promise settles **once**, after physical teardown — which is this
-   * call when no library transaction is active, and the boundary of the
-   * outermost one when there is (D-36). §Teardown across two owners.
+   * **Requests destruction** (D-202). Applied at once when no library unit is
+   * running, and otherwise when the running unit ends: that unit completes as
+   * a live controller's, and nothing after it runs. Application is one step —
+   * closed, queued work discarded, physical teardown — and the returned
+   * promise settles **once**, after it. §Teardown across two owners.
    *
-   * Idempotent: repeated destruction closes nothing further and every returned
-   * promise still settles exactly once.
+   * Idempotent: every call returns the same promise.
    */
-  destroy(): Promise<void>;
+  requestDestroy(): Promise<void>;
 }
 ```
 
-**The construction window is not a state this interface distinguishes, and every member behaves there as its own entry above states.** The window runs from the factory's invocation to the moment arming finishes composing inside `Kernel.construct` (the private `#arm()`), and it is the library's own: the behavior is holding the interface it was handed, from the position that interface exists for, and `#arm()`'s field order is not a fact it can observe or a rule it can break. **So the discriminator is deliverability, not availability.** Where the stated behaviour can be delivered in the window it is delivered — `fail` demotes, `cancel` is the idle no-op, `closed` reads `false` because nothing has been applied, `destroy` is applied once construction publishes, and `dispatch` is queued and applied then too. Where it cannot be, the limitation is **written into the member's own entry** so that an author meets a documented term instead of a platform error: `dispatch` is that member and the only one, and its limitation is the unchecked tag (D-204). **A precondition invented to excuse a failure the library caused is not a contract term**, and the failure mode it excuses — a `TypeError` naming a private field, escaping `draggable()` — is the one this rule exists to keep out of the surface.
+**The construction window is not a state this interface distinguishes, and every member behaves there as its own entry above states.** The window runs from the factory's invocation to the moment arming finishes composing inside `Kernel.construct` (the private `#arm()`), and it is the library's own: the behavior is holding the interface it was handed, from the position that interface exists for, and `#arm()`'s field order is not a fact it can observe or a rule it can break. **So the discriminator is deliverability, not availability.** Where the stated behaviour can be delivered in the window it is delivered — `fail` demotes, `requestCancel` is the idle no-op, a minted `channel` delivers because nothing has been applied, `requestDestroy` is applied once construction publishes, and `dispatch` is queued and applied then too. ~~`closed` reads `false` because nothing has been applied~~ — `closed` is removed by D-208 step 4. Where it cannot be, the limitation is **written into the member's own entry** so that an author meets a documented term instead of a platform error: `dispatch` is that member and the only one, and its limitation is the unchecked tag (D-204). **A precondition invented to excuse a failure the library caused is not a contract term**, and the failure mode it excuses — a `TypeError` naming a private field, escaping `draggable()` — is the one this rule exists to keep out of the surface.
 
 **`destroy()` returning a promise costs the consumer real ergonomics, and the cost is not hypothetical.** Probe A converted the surface and found **46 first-party call sites** turning into `no-floating-promises` violations — every one of them a plain `controller.destroy();` that never wanted a completion signal, including a React `useEffect` cleanup in this package's own demo, where returning the promise would change the cleanup's contract. The remedy is `void controller.destroy();` at each site that does not care, and `await controller.destroy();` at the few that do. D-36 accepts that in preference to a second public concept — no `destroyed` property, no completion method, no token — because the completion is only observable in the deferred reentrant case, and a rarely-useful promise is cheaper than a permanently-visible API surface.
 

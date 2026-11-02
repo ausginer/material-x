@@ -301,8 +301,8 @@ const list: SortableController = sortable(
 // **D-44**: payload-free. The collection is a pull source, so this says
 // \`re-read what you already have\` rather than handing over a new array.
 list.invalidate();
-list.cancel('reason');
-list.destroy();
+list.requestCancel('reason');
+list.requestDestroy();
 
 // A custom timing is authorable from the **middle tier** alone (D-63): the
 // consumer surface takes options rather than a policy, and the seam a
@@ -375,7 +375,7 @@ void hoistedFragment;
 // Inference through the *packed* declarations, with no explicit type argument.
 const inferred = draggable(root, behavior);
 
-inferred.destroy();
+inferred.requestDestroy();
 
 // ---------------------------------------------------------------------------
 // Opacity: neither branded value is constructible or callable.
@@ -609,7 +609,7 @@ type Part = {
   verdict: string | null;
 };
 
-type Controller = Readonly<{ cancel(reason?: unknown): void; destroy(): Promise<void> }>;
+type Controller = Readonly<{ requestCancel(reason?: unknown): void; requestDestroy(): Promise<void> }>;
 
 /** Behavior-private, per-operation. D-66's marker, out of line. */
 const MINTED = 0;
@@ -829,10 +829,10 @@ const install = (
     // off the controller, so what is published is a closure over the call
     // rather than the kernel's prototype method.
     controller: {
-      cancel: (reason?: unknown): void => {
-        kernel.cancel(reason);
+      requestCancel: (reason?: unknown): void => {
+        kernel.requestCancel(reason);
       },
-      destroy: (): Promise<void> => kernel.destroy(),
+      requestDestroy: (): Promise<void> => kernel.requestDestroy(),
     },
   };
 };
@@ -1054,8 +1054,8 @@ const controller: FreeDragController = freeDrag(
 // viewport space rather than a policy slot.
 controller.invalidate();
 controller.moveTo({ x: 10, y: 20 } satisfies Point);
-controller.cancel('reason');
-void controller.destroy();
+controller.requestCancel('reason');
+void controller.requestDestroy();
 
 // Free drag's twin (F-147): named by \`freeDrag()\`'s signature and therefore
 // exported from this entry, with its own closure one tier down.
@@ -1259,7 +1259,7 @@ const controller = freeDrag(
   { bounds: snapToGrid(8) },
 );
 
-void controller.destroy();
+void controller.requestDestroy();
 `;
 
 const TSCONFIG = JSON.stringify({

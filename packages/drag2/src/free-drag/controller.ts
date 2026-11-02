@@ -7,7 +7,7 @@
  */
 import type { BehaviorContext } from '../kernel/spec.ts';
 import type { Point } from '../kernel/types.ts';
-import { TAG_POLICY, TAG_POSITION } from './runtime.ts';
+import { type CapturedPosition, TAG_POLICY, TAG_POSITION } from './runtime.ts';
 
 export type FreeDragController = Readonly<{
   /**
@@ -52,7 +52,13 @@ export type FreeDragController = Readonly<{
    * seam throw.
    */
   moveTo(point: Point): void;
-  cancel(reason?: unknown): void;
+  /**
+   * Requests cancellation of the current drag. It is registered only while
+   * the drag can still be cancelled, applied in order with everything else
+   * the drag is doing, and lapses if the drag is decided first. The outcome
+   * arrives as the drag's terminal callback; with no drag it does nothing.
+   */
+  requestCancel(reason?: unknown): void;
   /**
    * Requests destruction. With no library callback running it is applied
    * before this returns. Called from inside one, the library first finishes
@@ -62,40 +68,50 @@ export type FreeDragController = Readonly<{
    * **once**, after physical teardown, and every call returns the same one.
    *
    * Most callers do not want the completion signal and should write
-   * `void controller.destroy();`.
+   * `void controller.requestDestroy();`.
    */
-  destroy(): Promise<void>;
+  requestDestroy(): Promise<void>;
 }>;
 
 export function createFreeDragController(
   kernel: BehaviorContext,
 ): FreeDragController {
-  // `cancel` and `destroy` forward to the kernel's own members: the kernel's
-  // latch already makes both inert and idempotent before they do any work.
-  // **Neither member re-reads the latch.** `dispatch` opens with the execution
-  // bracket's terminal latch, and `kernel.closed` is a live getter over that
-  // same latch, with nothing observable in between — so a guard here would only
-  // answer the question the callee opens with.
+  // `requestCancel` and `requestDestroy` forward to the kernel's own members,
+  // which already make both inert and idempotent once destruction is applied.
   return {
     invalidate(): void {
       kernel.dispatch(TAG_POLICY, null);
     },
 
     moveTo(point: Point): void {
-      // The point travels as the action's argument rather than being applied
+      // **Captured at intake**: the coordinates are copied on this statement,
+      // so a consumer that reuses one object across calls cannot change a
+      // position after requesting it. One copy per call, never per sample.
+      //
+      // The copy travels as the action's argument rather than being applied
       // here: the offset it becomes is committed frame state, and only a
-      // `prepare` may write one.
-      kernel.dispatch(TAG_POSITION, point);
+      // `prepare` may write one. A malformed `point` fails the read here, and
+      // its error travels in the same position, so `prepare` throws it and
+      // it is classified as a seam throw, as when the point was read there.
+      let captured: CapturedPosition;
+
+      try {
+        captured = { x: point.x, y: point.y, fault: null };
+      } catch (error) {
+        captured = { x: 0, y: 0, fault: { error } };
+      }
+
+      kernel.dispatch(TAG_POSITION, captured);
     },
 
     // **Wrapped, not detached.** Both are published members a consumer may
     // pull off the controller and pass on, so what is published is a closure
     // over the call rather than the kernel's prototype method, which would
-    // arrive with no receiver. `destroy`'s wrapper is a plain arrow rather
+    // arrive with no receiver. `requestDestroy`'s wrapper is a plain arrow rather
     // than an `async` one, so the memoized promise is returned by identity.
-    cancel: (reason?: unknown): void => {
-      kernel.cancel(reason);
+    requestCancel: (reason?: unknown): void => {
+      kernel.requestCancel(reason);
     },
-    destroy: (): Promise<void> => kernel.destroy(),
+    requestDestroy: (): Promise<void> => kernel.requestDestroy(),
   };
 }

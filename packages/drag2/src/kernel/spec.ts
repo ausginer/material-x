@@ -83,27 +83,37 @@ export interface BehaviorContext {
   fail(stage: FailureStage, error: unknown): void;
 
   /**
-   * **Has destruction been applied?** The only sanctioned liveness reading.
+   * **Mints the controller's diagnostic channel over a sink you supply.**
    *
-   * A destruction requested while a library unit runs is applied when that
-   * unit ends, so this reads `false` for the rest of the requesting unit,
-   * which completes as a live controller's. Once it reads `true`, physical
-   * teardown has run.
+   * The returned function hands each error to `deliver` until destruction is
+   * applied, and drops every call after that, by the kernel's own refusal. A
+   * request for destruction is not its application: in the interval before it
+   * the running unit completes as a live controller's, and its diagnostics
+   * are delivered. A throw from `deliver` is absorbed, so the channel never
+   * throws, which is what lets an unwind step report through it and continue.
    *
-   * Readonly by construction: a behavior may consult it, never set it.
+   * It works from the factory onward, before arming, so a composition unwind
+   * that runs before the spec exists can report through it.
+   *
+   * Mint one per sink, at construction: each call allocates one closure.
    */
-  readonly closed: boolean;
+  channel(
+    deliver: (error: DraggableError | DraggableWarning) => void,
+  ): (error: DraggableError | DraggableWarning) => void;
 
   /**
    * Base controller methods, for the behavior to publish on its controller.
    *
    * They are **called with a receiver here and detached by contract there**: a
-   * consumer's `controller.cancel` may be pulled off and passed on, so the
-   * behavior publishes a closure over this call rather than the member itself.
+   * consumer's `controller.requestCancel` may be pulled off and passed on, so
+   * the behavior publishes a closure over this call rather than the member
+   * itself.
    *
-   * An idle cancel is a no-op that leaves no latch.
+   * Registered only against an operation in a cancellable phase, and applied
+   * in order after the running unit; an idle request is a no-op that leaves
+   * nothing registered.
    */
-  cancel(reason?: unknown): void;
+  requestCancel(reason?: unknown): void;
 
   /**
    * Requests destruction. It is applied at once when no library unit is
@@ -119,7 +129,7 @@ export interface BehaviorContext {
    * so both frame parts are composed, and the behavior is retired exactly once
    * before `draggable()` returns.
    */
-  destroy(): Promise<void>;
+  requestDestroy(): Promise<void>;
 }
 
 // Discrete, pointerless admission is a second ingress, not a second protocol. A

@@ -202,18 +202,6 @@ export class RectIndex implements RectIndexView {
    * every candidate *is* its own box and the resolver would be an identity call
    * per item per rebuild.
    *
-   * `live` reports whether the controller is still alive, and it is read
-   * **immediately before each declared-slot invocation and nowhere else**: the
-   * per-candidate `getBox`, and `settle` once after the scan. That is the whole
-   * obligation — a slot the consumer may fill must not be invoked after the
-   * controller closed, and a reading taken *after* a call cannot see a close
-   * the call itself raised. So the count is exactly the number of slot
-   * invocations a composition actually makes: `N + 1` with a resolver and a
-   * sink, `N` with a resolver alone, one with a sink alone, and **none** with
-   * neither. `getBoundingClientRect` on a consumer-owned node is a platform
-   * member rather than a slot, and what follows a candidate's own geometry read
-   * is either internal or the next guarded invocation.
-   *
    * `placeholder` is measured into the hole by the same scan, so the rule that
    * reads it never measures it.
    *
@@ -223,27 +211,16 @@ export class RectIndex implements RectIndexView {
    * are still running — the cache holds where flow puts a row, never where an
    * animation currently draws it. The placeholder is never passed to it: a
    * report visits the destination view, which does not contain it.
-   *
-   * Returns `false` — and **only** then — when the rebuild stopped at one of
-   * those readings.
    */
   refresh(
     snapshot: CollectionSnapshot,
     dragged: HTMLElement,
     getBox: ((item: HTMLElement) => HTMLElement) | null,
-    live: () => boolean,
     placeholder: HTMLElement,
     settle: DisplacementSettle | null,
-  ): boolean {
-    // **A warm cache is safe because a closed rebuild never leaves one.**
-    // Teardown is deferred to the outermost transaction boundary, so a
-    // `refresh` at the same version is reachable inside that window with the
-    // controller already closed — and it reads no geometry and invokes no
-    // slot, so it owes nothing. What it must not be able to serve is a
-    // half-written buffer marked clean, and it cannot: the stop below restores
-    // the staleness pair before returning.
+  ): void {
     if (!this.#dirty && this.#measured === snapshot.version) {
-      return true;
+      return;
     }
 
     const list = snapshot.items;
@@ -307,25 +284,6 @@ export class RectIndex implements RectIndexView {
       let box = item;
 
       if (getBox) {
-        // **The per-candidate barrier, immediately before the declared slot it
-        // protects.** It covers the first invocation of the rebuild as well as
-        // every later one — a committed move invalidates and `release.prepare`
-        // resolves inside the same seam, so a dirty cache is reachable with the
-        // controller already closed — and it covers a close raised from the
-        // previous candidate's overridden `getBoundingClientRect`, which no
-        // reading placed after a call can see.
-        if (!live()) {
-          // **The stop, not a `break`.** The consequence of a call is the call,
-          // so the exit is what prevents the next `getBox`; and falling through
-          // to the trailing bookkeeping would mark a partially written buffer
-          // clean at this version, which every warm return afterwards would
-          // then serve. `retire()` is this class's one definition of *stop*
-          // and restores the staleness pair, so it is what runs here.
-          this.retire();
-
-          return false;
-        }
-
         box = getBox(item);
       }
 
@@ -355,19 +313,6 @@ export class RectIndex implements RectIndexView {
     // collaborator holding a handle it may write through whenever it likes is
     // the different thing this boundary forbids.
     if (settle) {
-      // **The second barrier, immediately before the second declared slot.**
-      // `settle` is one — a published installer fills it, and this class
-      // cannot read which value a composition passed — so it must not be
-      // invoked after the controller closed. The scan above ends with a
-      // candidate's own `getBoundingClientRect`, which is overridable on a
-      // consumer-owned row, so no earlier reading covers this call. A
-      // composition with no sink invokes no slot here and owes nothing.
-      if (!live()) {
-        this.retire();
-
-        return false;
-      }
-
       settle(values, items, n);
     }
 
@@ -387,8 +332,6 @@ export class RectIndex implements RectIndexView {
     items.length = n;
     this.#measured = snapshot.version;
     this.#dirty = false;
-
-    return true;
   }
 
   /**
@@ -439,11 +382,8 @@ export class RectIndex implements RectIndexView {
    * coordinates where they were, which is the same G2 clause the slot advance
    * rests on.
    *
-   * **It takes no liveness capability and cannot fail.** `getBoundingClientRect`
-   * on a consumer-owned node is a platform member rather than a declared slot;
-   * this writes three internal fields, admits nothing and publishes nothing. A
-   * close raised from inside that read is caught where it matters, by the
-   * reading before the next `getBox`.
+   * **It cannot fail.** It writes three internal fields, admits nothing and
+   * publishes nothing.
    */
   remeasureHole(
     placeholder: HTMLElement,
@@ -535,14 +475,8 @@ export const DEV: boolean = __DEV__;
  * ships; this export tree-shakes, and `bench/size` asserts what the module
  * contains.
  *
- * **It takes no terminal barrier, and that is what scopes it.** Every call it
- * makes is a consumer call on a consumer-owned element, so in a shipped build
- * it would need the same threading the candidate loop has. It is not in a
- * shipped build: `DEV` folds to `false` and the whole function is dropped. The
- * scoping survives the inversion because the rebuild is driven with a
- * constant-true `live`, so a fixture that destroys its controller from inside
- * `getBoundingClientRect` is still measuring the instrument rather than the
- * library.
+ * It is not in a shipped build: `DEV` folds to `false` and the whole function
+ * is dropped.
  *
  * **It runs in every composition, including one that animates.** A displaced
  * row carries an additive `translate` and `getBoundingClientRect()` reports
@@ -580,12 +514,9 @@ export const verifyEquivalence = (
     predictedHole[field] = claimedHole[field]!;
   }
 
-  // The authoritative rebuild. `live` is constant-true rather than threaded:
-  // the instrument is scoped out of shipped builds entirely, so a fixture that
-  // closes its controller from inside a geometry read must not be able to stop
-  // the scan it is being measured by.
+  // The authoritative rebuild.
   index.invalidate();
-  index.refresh(snapshot, dragged, getBox, () => true, placeholder, settle);
+  index.refresh(snapshot, dragged, getBox, placeholder, settle);
 
   /**
    * **One slack, sized to the precision geometry is reported at.** A correct

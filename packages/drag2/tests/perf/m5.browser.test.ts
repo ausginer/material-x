@@ -324,7 +324,7 @@ function subject(kind: Behavior, host: Stage): Subject {
       return seen;
     },
     dispose: (): void => {
-      void controller.destroy();
+      void controller.requestDestroy();
 
       for (const row of items) {
         row.remove();

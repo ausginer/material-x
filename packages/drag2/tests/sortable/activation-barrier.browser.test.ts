@@ -124,7 +124,7 @@ function build(axis: AxisInstaller): Composed {
   root.releasePointerCapture = (): void => {};
 
   cleanup.push(() => {
-    void controller.destroy();
+    void controller.requestDestroy();
     root.remove();
   });
 
@@ -169,7 +169,7 @@ describe('the final activation barrier', () => {
     // installer does not run until `build` constructs the controller.
     const composed: Composed = build(
       interceptingY(() => {
-        void composed.controller.destroy();
+        void composed.controller.requestDestroy();
       }),
     );
 
@@ -232,7 +232,7 @@ describe('a late collection invalidate()', () => {
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
     cleanup.push(() => {
-      void controller.destroy();
+      void controller.requestDestroy();
       root.remove();
     });
 
@@ -317,7 +317,7 @@ describe('the terminal barrier in the committed-move bracket', () => {
         },
         () => {
           closed = true;
-          void composed.controller.destroy();
+          void composed.controller.requestDestroy();
         },
       ),
     );

@@ -144,8 +144,8 @@ export {
 /**
  * **The eight phases, as values.** `Draft` and `Frame` carry `phase` and a
  * behavior reads it — in seams the kernel calls at times the behavior cannot
- * predict, like `command.admit` on any bound event — and `BehaviorContext.closed`
- * answers liveness, never *where in the operation this is*.
+ * predict, like `command.admit` on any bound event — and it answers *where in
+ * the operation this is*, never whether the controller is alive.
  *
  * All eight, not a useful subset: a numeric union whose members are unnameable
  * is not a public type, and an ordering test like `phase >= RELEASING` is only
@@ -226,7 +226,7 @@ export {
  *
  * The factory is called with the kernel, narrowed to {@link BehaviorContext},
  * and returns both halves at once:
- * the behavior needs `cancel`/`destroy` to build its controller, and the kernel
+ * the behavior needs `requestCancel`/`requestDestroy` to build its controller, and the kernel
  * needs the spec before it can arm ingress. Ingress is armed exactly once,
  * after the factory has returned, so no input can be admitted before then.
  *

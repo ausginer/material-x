@@ -389,7 +389,7 @@ function build(options: BuildOptions = {}): Fixture {
 
   cleanup.push(() => {
     listeners.abort();
-    void controller.destroy();
+    void controller.requestDestroy();
     root.remove();
   });
 

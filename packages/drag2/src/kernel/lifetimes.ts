@@ -6,7 +6,7 @@
  * Nothing that arrives afterwards can move the geometry the release was
  * resolved from.
  *
- * Cancellation outlives it, because `Escape` and `controller.cancel()` stay
+ * Cancellation outlives it, because `Escape` and `controller.requestCancel()` stay
  * valid while a consumer resolver is in flight. Presentation outlives both: the
  * lift stays acquired until the join, and is released immediately before the
  * terminal callback.

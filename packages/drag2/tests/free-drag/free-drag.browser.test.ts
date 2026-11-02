@@ -397,7 +397,7 @@ describe('the controller', () => {
   it('should close the ingress after destroy()', async () => {
     const composed = compose();
 
-    await composed.controller.destroy();
+    await composed.controller.requestDestroy();
     activate(composed);
 
     expect(composed.starts).toEqual([]);
@@ -407,7 +407,7 @@ describe('the controller', () => {
   it('should stay inert for invalidate() and moveTo() after destroy()', async () => {
     const composed = compose();
 
-    await composed.controller.destroy();
+    await composed.controller.requestDestroy();
 
     expect(() => {
       composed.controller.invalidate();
@@ -425,7 +425,7 @@ describe('the controller', () => {
     const composed = compose();
 
     activate(composed);
-    await composed.controller.destroy();
+    await composed.controller.requestDestroy();
     await settled();
 
     expect(composed.ends).toEqual([]);
@@ -436,7 +436,7 @@ describe('the controller', () => {
     const composed = compose();
 
     activate(composed);
-    composed.controller.cancel('by hand');
+    composed.controller.requestCancel('by hand');
     await settled();
 
     expect(composed.ends).toHaveLength(1);
@@ -502,7 +502,7 @@ describe('construction', () => {
     }).not.toThrow();
 
     expect(controller.moveTo).toBeTypeOf('function');
-    own(() => void controller.destroy());
+    own(() => void controller.requestDestroy());
   });
 
   it('should not let a later fragment clear the required slot', () => {
@@ -520,7 +520,7 @@ describe('construction', () => {
       { onDrop: undefined },
     );
 
-    own(() => void controller.destroy());
+    own(() => void controller.requestDestroy());
     expect(controller.invalidate).toBeTypeOf('function');
   });
 
@@ -545,7 +545,7 @@ describe('cancellation provenance', () => {
     const composed = compose();
 
     activate(composed);
-    composed.controller.cancel('by hand');
+    composed.controller.requestCancel('by hand');
     await settled();
 
     expect(composed.ends[0]).toMatchObject({
@@ -626,7 +626,7 @@ describe('cancellation provenance', () => {
     const composed = compose();
 
     activate(composed);
-    composed.controller.cancel(CANCEL_ABORTED);
+    composed.controller.requestCancel(CANCEL_ABORTED);
 
     expect(composed.ends[0]).toMatchObject({
       reason: CANCEL_ABORTED,

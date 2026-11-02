@@ -117,9 +117,7 @@ export type ResolveInsertion = (
  * returned and nothing need be allocated, so a committed move can cost one
  * traversal and no object at all.
  *
- * It may read geometry — it is the one member that may — and each `report` call
- * reaches consumer-owned code, so the `live` argument it is handed must be
- * passed on and is read by the sink between calls.
+ * It may read geometry — it is the one member that may.
  *
  * **A prediction may consume only a same-element temporal difference of
  * presented geometry** (G5). A difference between two *different* elements'
@@ -199,12 +197,6 @@ export type DisplacementContribution = Readonly<{
    * additive and each ends at zero, so they **sum**: a second move arriving
    * mid-flight needs no measurement, no release and no replay, because the
    * element is already exactly where the previous contribution left it.
-   *
-   * **The axis calls it, so the axis cannot guard it.** `live` is read at the
-   * head of every call and again after each consumer-reachable step inside one:
-   * `animate()` on a consumer-owned row is a consumer call, as is the
-   * `finished` accessor on what it returns, so a reading taken before the walk
-   * says nothing about the calls inside it.
    */
   report: DisplacementReport;
   /**

@@ -82,7 +82,6 @@ import type { DisplacementReport } from './slots.ts';
 export type LinearRuntime = Readonly<{
   placeholder: HTMLElement;
   box: ((item: HTMLElement) => HTMLElement) | null;
-  live(): boolean;
   settle: DisplacementSettle | null;
   /**
    * The projection the reported vector is expressed in, or `null` for an
@@ -100,15 +99,6 @@ export type LinearRuntime = Readonly<{
  * displacement into two components with no branch. Passing them is what makes a
  * second linear axis a rule module and a subpath rather than a rewrite of this
  * one.
- *
- * **It holds no latch and reads one where it invokes a consumer slot.** `live`
- * is forwarded into the cache's rebuild and `runtime.live` into `report`,
- * whose contract obliges the reading at its own head; and where this class
- * invokes a slot itself — `settle`, inside {@link LinearShift.moved} — it
- * takes the reading immediately before the call, because the party that must
- * read is the one performing the act. The latch always arrives as data the
- * caller already passes, so there is no `#live` field and no liveness member
- * to acquire.
  *
  * **Every field is private and nothing outside writes one.** The cache it
  * holds is reached through the operations that cache declares, never through
@@ -209,11 +199,10 @@ export class LinearShift {
     snapshot: CollectionSnapshot,
     dragged: HTMLElement,
     getBox: ((item: HTMLElement) => HTMLElement) | null,
-    live: () => boolean,
     placeholder: HTMLElement,
     settle: DisplacementSettle | null,
     gap: number,
-  ): boolean {
+  ): void {
     const index = this.#index;
 
     // **The stale hole, re-read before anything reads it — the instrument
@@ -233,10 +222,7 @@ export class LinearShift {
       this.#hollow = false;
       // The read moves in with the write, because measuring is the cache's own
       // act: the operation takes the placeholder and the three offsets this
-      // axis moves, and cannot fail — a consumer-owned node's
-      // `getBoundingClientRect` is a platform member rather than a declared
-      // slot, and a close raised from inside it is caught by the reading
-      // before the next `getBox`.
+      // axis moves, and cannot fail.
       index.remeasureHole(placeholder, this.#start, this.#end, this.#centre);
     }
 
@@ -264,17 +250,7 @@ export class LinearShift {
       );
     }
 
-    if (!index.refresh(snapshot, dragged, getBox, live, placeholder, settle)) {
-      // **This module forgets its own prediction and nothing else.** The cache
-      // documents its `false` as *the rebuild stopped at that reading*, and its
-      // one stop runs `retire()` first, because that is its single definition
-      // of stop. Retiring it again here would be a guard against a collaborator
-      // breaking its own documented return contract, which is not a state
-      // correct use of the contract can reach.
-      this.#forget();
-
-      return false;
-    }
+    index.refresh(snapshot, dragged, getBox, placeholder, settle);
 
     this.#seen = snapshot.version;
     this.#dirty = false;
@@ -284,8 +260,6 @@ export class LinearShift {
     if (gap >= 0) {
       this.#last = gap;
     }
-
-    return true;
   }
 
   /**
@@ -344,20 +318,6 @@ export class LinearShift {
       let observed = this.#start === TOP ? rect.top : rect.left;
 
       if (runtime.settle) {
-        // **The reading this module owes, immediately before the slot it
-        // protects.** `settle` is a declared consumer slot — a published
-        // installer fills it, and which value a composition passed is not
-        // readable here — so it must not be invoked after the controller
-        // closed. The two steps above are consumer-reachable and either could
-        // have closed it: `box` is the consumer's own resolver, and the
-        // geometry read is overridable on a consumer-owned row. Stopping
-        // through `#drop()` forgets the prediction this move would otherwise
-        // have claimed, which is what the caller's next rebuild relies on.
-        if (!runtime.live()) {
-          this.#drop();
-          return;
-        }
-
         // The row may be mid-flight from an earlier move. Both sides of the
         // difference have to be settled geometry, and the cache already is.
         // Settled through the sink's own walk over a one-slot scratch, so
@@ -456,7 +416,7 @@ export class LinearShift {
     const dy = -delta * this.#uy;
 
     for (let i = lo; i < hi; i += 1) {
-      report(items[i]!, dx, dy, runtime.live, runtime.space);
+      report(items[i]!, dx, dy, runtime.space);
     }
   }
 }

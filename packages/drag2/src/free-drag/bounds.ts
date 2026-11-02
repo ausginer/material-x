@@ -31,11 +31,17 @@ export function bounds(source?: BoundsSource): Pick<FreeDragConfig, 'bounds'> {
     bounds: (context: FreeDragFeatureContext): ConstraintContribution => {
       const { realm } = context;
       /**
-       * The resolved rect, and a flag rather than a version counter: there is
-       * one reader and one invalidator, so a counter would carry a number
-       * nothing compares.
+       * **The resolved bounds, copied into a record this feature owns.** A
+       * thunk's rect is the consumer's object, and the clamp reads it on every
+       * later sample, after foreign code has run; the copy is taken once per
+       * resolve, into storage allocated once per installation, so no sample
+       * allocates and none reads the consumer's object.
+       *
+       * A flag rather than a version counter: there is one reader and one
+       * invalidator, so a counter would carry a number nothing compares.
        */
-      let rect: DOMRectReadOnly | null = null;
+      const box = { left: 0, top: 0, right: 0, bottom: 0 };
+      let bounded = false;
       let stale = true;
 
       /**
@@ -60,30 +66,48 @@ export function bounds(source?: BoundsSource): Pick<FreeDragConfig, 'bounds'> {
        * `invalidate()` is a staleness flag that calls nothing, so the seam that
        * marks the rect stale is never the seam that resolves it.
        */
-      const resolve = (): DOMRectReadOnly | null => {
+      const resolve = (): typeof box | null => {
         if (!stale) {
-          return rect;
+          return bounded ? box : null;
         }
 
         stale = false;
 
         if (source === undefined) {
-          // The viewport, constructed from the owning realm rather than the
-          // ambient global, so a controller inside an iframe is contained by
-          // that document's viewport.
-          rect = new realm.window.DOMRectReadOnly(
-            0,
-            0,
-            realm.window.innerWidth,
-            realm.window.innerHeight,
-          );
-        } else if (typeof source === 'function') {
-          rect = source();
-        } else {
-          rect = source.getBoundingClientRect();
+          // The viewport of the owning realm rather than the ambient global,
+          // so a controller inside an iframe is contained by that document's
+          // viewport.
+          box.left = 0;
+          box.top = 0;
+          box.right = realm.window.innerWidth;
+          box.bottom = realm.window.innerHeight;
+          bounded = true;
+
+          return box;
         }
 
-        return rect;
+        const read =
+          typeof source === 'function'
+            ? source()
+            : source.getBoundingClientRect();
+
+        if (!read) {
+          bounded = false;
+
+          return null;
+        }
+
+        // Every field read before any is written, so a throwing accessor
+        // leaves the previous bounds whole.
+        const { left, top, right, bottom } = read;
+
+        box.left = left;
+        box.top = top;
+        box.right = right;
+        box.bottom = bottom;
+        bounded = true;
+
+        return box;
       };
 
       return {
@@ -125,7 +149,7 @@ export function bounds(source?: BoundsSource): Pick<FreeDragConfig, 'bounds'> {
           },
 
           retire(): void {
-            rect = null;
+            bounded = false;
             stale = true;
           },
         },
