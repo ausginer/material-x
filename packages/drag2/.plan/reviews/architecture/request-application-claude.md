@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**Step 4 accepted 2026-11-02, at `dbbb62199`, after its feature proof.** D-208 stays unimplemented: steps 5 and 6 remain. The four budget overruns are the owner's to dispose of, before `d208-requests.md` is written, and this acceptance neither tolerates nor re-bases them. step4-A is decided: the contract passages §17.4's list missed are amended in step 5. step4-B stays with the implementer and is due as step 5's first commit. step4-C is decided in place: D-208's text now distinguishes direct lifecycle access, indirect observation through any refusing intake, and what R21 detects. step4-D is discharged for step 4 by the feature proof's measurement, and its remainder goes to step 6. Case R34 pins the two query-result copies. §19 records the assessment, the dispositions and step 5's handoff.
+
 **Amended a sixth time 2026-11-02 for `drag2:D-208`, which supersedes `drag2:D-207` during step 4.** D-208 carries D-207 in full, including its accepted steps 1–3, and decides how the behaviors' diagnostics are refused after applied destruction once `BehaviorContext.closed` is gone. Four of the 27 `kernel.closed` reads §17.4 removes are diagnostic intake, not readings inside a unit: both behaviors' `#notify` channels and both composition `report` closures. Removing them would deliver `onError` after application, in teardown and from a late installer report, against I-36 (a) and D-178's grounded silence. Under D-208 the kernel owns the refusal and the behaviors reach it through a new `BehaviorContext.channel(deliver)`. The baseline's outcome holds on every path, the pre-arm composition unwind included. §2.2, §2.5, §3, §5–§9 and §17.4 below state the D-208 form. §18 records the escalation, the evidence and the options. Raises and repairs `drag2:F-441`.
 
 **Step 3 accepted 2026-11-02, at `ef1e4ef6b`, after its feature proof.** D-207 stays unimplemented: steps 4–6 remain. step3-A is decided without a new decision. A cancel raised in a seam's `prepare` no longer discards that preparation, for the release seam and behavior actions as for activation. That is §2.11's rule, which the code already met. §4 item 3 now states the three seams, and case R32 pins the two that had no row; it lands in step 4. step3-B stays with the implementer and is repaired before R21 or the decision's acceptance relies on the ledger census. step3-C stays with the implementer. §17 records the assessment, the dispositions and step 4's handoff.
@@ -433,6 +435,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 | **R31** (D-207, F-440) cancel registered before activation is entered | a command: an entry queued during admission registers a cancel at `PENDING`, so the queue is `[ACTIVATE, CANCEL]` (the sortable's `replace()` during `command.admit`, and a kernel action). A pointer: an action at `PENDING` dispatches a threshold-crossing `pointermove`, then requests cancel | `ACTIVATE`, or `MOVE` at `PENDING`, declines at its entry; `CANCEL` applies at `PENDING` and retires silently: no `onStart`, `onEnd` or `onError`, no placeholder; the next command or press is admitted. As the baseline `877fb9612`, where `#preparationValid` discarded the activation |
 | **R32** (§17.2) cancel raised in a non-activation seam's `prepare` | a kernel behavior whose `release.prepare` requests cancel; a kernel behavior action at `ACTIVE` whose `prepare` requests cancel; in the sortable, a consumer whose `items()` requests cancel and returns a new array that keeps the dragged item, pulled by `invalidate()` at `ACTIVE`, followed by a second drag that drops | release: `release.effect` runs once; no round-trip; `CANCEL` applies at `RELEASING`; one `onEnd` `canceled` at `AT_PROPOSAL`. Action: the action's `effect` runs once, then one `onEnd` `canceled` at `AT_PROPOSAL` with the registered reason. Sortable: one `onEnd` `canceled` with that reason; the second drag's `onReorder` carries the pulled collection's version and indices against it. At `c14ee4d5c` none of the three effects runs, and the second drag reads the collection from before the pull |
 | **R33** (D-208, F-441) diagnostic intake across application | a composition whose installer captures `context.report` and whose retire hook throws, in both behaviors: **(a)** destruction requested at depth 0; **(b)** destruction requested from a slot inside a unit, applied at its boundary; **(c)** a panic; **(d)** the captured `report` called after the promise has settled; **(e)** a consumer slot that calls `requestDestroy()` and then the captured `report`, in the same unit; **(f)** the same report at depth 0 on a live controller, and the hook throwing at operation retirement; **(g)** an installer that throws after one whose retire hook throws, during `draggable()`; **(h)** in `kernel.browser`, a factory that requests destroy and then reports through a minted channel, and reports through it again after `draggable()` returns | (a), (b) and (d): no `onError`. (c): exactly one `onError`, the panic's `DraggableError` with stage `null`. (e): one `drag: composition/unwind-failed`, delivered before application. (f): one `composition/unwind-failed`, and one `drag: unwind/step-failed` with the hook's error as `cause`. (g): one `composition/unwind-failed` with the hook's error as `cause`, then `draggable()` rethrows the installer's error. (h): the first report delivered, the second dropped. Rows (a)–(g) have the baseline `9ae86b189`'s outcome. Row (h) has no baseline counterpart, because the member is new. Removing the refusal reddens (a)–(d); making it read `REQUESTED` reddens (e) and (h) |
+| **R34** (§19.4) the two query-result copies of §2.12 | free drag with `bounds(thunk)`, where the thunk returns one object the consumer mutates inside `onMove` with no invalidation between; a landing timing policy returning a record, on an element whose `animate` is reached through a getter that mutates that record | the clamp keeps the resolved values until the next invalidation; the animation starts with the record's values as the policy returned them. Each row fails over `0c798ee17`'s `src/`, and removing `bounds()`'s copy reddens the first |
 
 **No case pins an out-of-range tag dispatched during construction.** Its outcome is unspecified (§11.2 item 2), and a test asserting a report, a drop or an application would turn misuse into contract.
 
@@ -517,12 +520,18 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 
    Its bounded handoff, with what it must keep from steps 1–3 and its dependencies on step3-B and step3-C, is §17.4.
 
-5. **The comment pass**, D-199's, carried by D-201, over the files D-202 rewrote, with its rules and runtime-hash check.
+   **Step 4 is accepted** (2026-11-02, at `dbbb62199`; §19).
+
+5. **The comment pass**, D-199's, carried by D-201, over the files D-202 rewrote, with its rules and runtime-hash check. Since step 4's acceptance it also carries the contract passages step4-A and step4-C name, and step4-B's record correction as its first commit. Its bounded handoff is §19.5.
 6. **The measurement record** `.plan/measurements/d208-requests.md` (renamed by D-208 from `d207-requests.md`). It holds:
    - composition on every kernel-carrying row, per step;
    - the M-1 move path with I-26's structural check (one sample allocates nothing; `OPEN_RESOLUTION` and `moveTo`'s copy are per drop and per call);
    - M-2 controller cost with the façade;
-   - R21's read census, reported by location.
+   - R21's read census, reported by location, with the `channel` mint sites beside it (§19.2);
+   - free drag's per-sample allocation net of the harness, and the committed move's, measured or labelled as analysis (§19.4, step4-D);
+   - the owner's disposition of step 4's four budget overruns (§19.3).
+
+   R34 lands before it is written.
 
    Writing it is the last act, and its absence is the witness.
 
@@ -1752,7 +1761,7 @@ The answer is therefore constant across each unit, and changes only at an applic
    - delivers to `deliver` until destruction is applied, and drops every call after that;
    - absorbs a throw from `deliver`, so it never throws. `createUnwind` relies on that terminus;
    - works from the factory onward, before arming, because it needs only the lifecycle, which the façade holds from its own construction;
-   - exposes no lifecycle value, so a behavior cannot branch on it;
+   - exposes no lifecycle value, so a behavior cannot branch on it. **Qualified 2026-11-02, at step 4's acceptance (§19.2):** no member returns a lifecycle value, but a behavior can still observe applied destruction indirectly, by minting a channel over a sink of its own and seeing whether it delivers, as it can through any intake that refuses after application. Inside a unit that observation is constant, and R21 does not detect it;
    - has no panic bypass. Panic's report stays on the kernel's own route.
 
    Its parameter and result have the existing `Notify` shape. Whether to publish a name for that type is the implementer's call under CONTRIBUTING §4.
@@ -1770,7 +1779,7 @@ The answer is therefore constant across each unit, and changes only at an applic
 | Option | Outcome | Why not |
 | --- | --- | --- |
 | **(1) A kernel-minted channel over the behavior's sink** (chosen) | the baseline's, on every path | — |
-| (2) Keep `closed`, or a `CLOSED`-only predicate, for the four intake reads | the baseline's | a lifecycle value that any behavior code can read in any unit. R21's census counts per member (step3-B), so it cannot tell the four from a reading inside a unit. §3 and the commission withdraw it |
+| (2) Keep `closed`, or a `CLOSED`-only predicate, for the four intake reads | the baseline's | a lifecycle value that any behavior code can read in any unit. R21's census counts per member (step3-B), so it cannot tell the four from a reading inside a unit. §3 and the commission withdraw it. **Qualified 2026-11-02 (§19.2):** the census ground does not separate (1) from (2), because R21 cannot see a probe through a channel either. The grounds that stand are the surface §3 withdraws and a refusal written once rather than in each behavior |
 | (3) Remove the four reads | `onError` after application: `unwind/step-failed` in teardown, `composition/unwind-failed` from a late installer | I-36 (a), tier A. It reverses D-178's grounded silence, and it is a consumer-visible change §4 does not state |
 | (4) `BehaviorContext.report(error)`, delivering through the armed spec's sink | the baseline's after arming | no spec exists before arming. The pre-arm composition unwind is lost, or the kernel has to learn the behavior's `onError` (H-1) |
 | (5) Withdraw the sink at application: the behavior nulls its `onError` in `retire()`, or the kernel withdraws it | the baseline's in teardown | a nulled slot answering a liveness question (I-37). Retire hooks run inside `retire()`, so the order of the withdrawal becomes load-bearing. The composition closure has no `retire()` |
@@ -1815,3 +1824,306 @@ The answer is therefore constant across each unit, and changes only at an applic
 - §17.4.
 
 Every other property, the step order and steps 1–3 as accepted are unchanged.
+
+## 19. Step 4 accepted (D-208)
+
+**Input.** `c554a1709` on `drag2/fin-review2`. The implementation reviewed is `dbbb62199`. It landed step 4 in one commit on the D-208 decision at `0c798ee17`, whose `src/` equals step 3's accepted `ef1e4ef6b`. The assessment rests on two documents:
+
+- the step-4 feature proof ([`d208-step4-feature-proof-claude.md`](../fin-review2/d208-step4-feature-proof-claude.md));
+- the step's record ([`d208-step4.md`](../../measurements/d208-step4.md)).
+
+### 19.1 Assessment
+
+**Step 4 is accepted.** The feature proof finds no step-4 blocker. Each code and case requirement of §17.4, as §18.6 amends it, holds at `dbbb62199`:
+
+- **Surface (§3).**
+  - `destroy` and `cancel` are `requestDestroy` and `requestCancel` on `BehaviorContext`, the façade, the armed controller and both controllers, with no alias. `InvalidationTask.cancel` keeps its name.
+  - `BehaviorContext.closed` and the façade getter are gone, and `channel(deliver)` is added. The interface still names seven members.
+  - `InsertionRuntimeView.live`, `DisplacementReport`'s `live` parameter and every threaded `live()` are gone.
+  - The built declarations differ from the input's in the files the record names, plus doc-comment-only changes.
+- **The diagnostic channel (§18.4).**
+  - The refusal is written once, in `Kernel.channel`. It reads the applied lifecycle only, absorbs a throw from the sink and has no bypass.
+  - The armed controller's route is a channel minted at arming, and panic delivers to `reportError` directly, behind its own terminus.
+  - Five channels are minted in `src/`, all at construction: the armed route, each behavior's own channel and each composition `report`.
+  - Nothing under `sortable/` or `free-drag/` reads the lifecycle.
+- **Barrier removal.** The 23 in-unit reads and every `live()` read are deleted. Each answered _live_ for the whole of its unit at the input, so each removal reaches code that already ran there. The reviewer re-ran the record's experiment, the façade getter forced to `false` at the input, and it reaches no production barrier. §17.4's first and third escalation clauses are not triggered.
+- **Capture (§2.12).**
+  - `moveTo` copies its coordinates on the call. A malformed point's error travels in the captured record and is thrown by the action's `prepare`, so D-91's `FAILURE_ACTION_PREPARE` holds.
+  - `bounds()` copies the resolved rect into a record it owns, and the landing tail reads `duration` and `easing` before `element.animate` is looked up.
+  - Neither of those two copies is pinned by a row. §19.4 adds R34 for them.
+- **Cases.**
+  - R18's discriminating row fails at both earlier trees with the mutated coordinates.
+  - R21's two rows hold, and step3-B's instrument half is repaired.
+  - R32's three rows fail on their stated assertions over `c14ee4d5c`'s `src/`.
+  - R33's fourteen behavior rows have the baseline's outcome at `0c798ee17` and `c14ee4d5c`, as §18.4 requires. They discriminate through the refusal's mutations, and the reviewer's mutations RS, RF, CS and CF show that each behavior's own channel and composition `report` is pinned separately.
+- **Kept from steps 1–3.**
+  - Every row outside the 32 withdrawn ones passes, and none of the 32 belongs to steps 1–3.
+  - `queue.ts`, `execution.ts` and `seams.ts` are unchanged, so D-200 is untouched.
+  - `OPEN_RESOLUTION`'s and D-207's entry clauses have no diff.
+- **Mutations.** The reviewer re-ran all eleven of the record's mutations at the committed tip, over the whole suite, and every count reproduces: M1 reddens 19 rows, M2 11, N1–N8 their recorded counts, and the step3-B witness 2.
+- **Property 13.** With the `closed=` instrument field normalized, `run.sh` gives identical outputs at the input and the tip, except P8's skipped count. Every model row is `ok` at both trees. No probed row makes a consumer call that both the baseline and the target withhold.
+- **The failing sets are the input's, plus the four budget rows:**
+  - the ten test failures: six `size.node` controls and four `docs.node` rows;
+  - 13 of the input's eslint errors, by the same rules in the same files;
+  - the two `.scripts/vitest-*.ts` typecheck errors.
+
+  `react.browser` and `stories.browser` load at neither tree.
+
+**Checked independently by the architect at `c554a1709`.**
+
+- `grep` finds no `kernel.closed` and no `live()` in `src/`.
+- `.channel(` has exactly the five call sites above.
+- `this.#bracket.closed` is read in `#cancelWith`, `#failOperation`, `Kernel.channel` and `Kernel.dispatch`, and `this.#bracket.idle` in `#onPointerDown`, all in `kernel/kernel.ts`.
+- `Kernel.channel` reads `this.#bracket.closed` and nothing else before delivering, inside a `try` whose `catch` is empty.
+- `d207-step3.md`'s census row still lists the armed controller's `dispatch` and omits `#onPointerDown` (step4-B).
+- `c554a1709` adds only the review.
+
+Nothing else was rerun.
+
+**Composition.** Four rows are over budget. They are the owner's to dispose of (§19.3). This acceptance does not dispose of them, and §17.4 states that growth does not stop the step.
+
+**Runtime, measured, by the feature proof.** Both trees were run in one session, in alternating order.
+
+- **Allocation.** The sortable allocates 0.0 B per sample on every round at both trees, so I-26 holds there. Free drag's per-sample allocation is equal at both trees within about ±2 B, on all three arms. That figure includes the harness's own `PointerEvent`, so it bounds step 4's change and is not an absolute I-26 figure for free drag.
+- **Timing.** No difference is resolved at about one timer quantum, roughly 0.2 µs or 5%. A smaller one cannot be excluded. The figures are bimodal on a loaded host, so they bound a difference and do not measure one.
+
+**Runtime, from code analysis rather than measurement.** Nothing is added per active sample. `bounds()` reads a record it owns instead of the consumer's object, and free drag's `moved` loses one property read. Per controller there is one closure per minted channel, and per `moveTo` call one record. The analysis predicts no regression, and none is measured. The owner's priority puts architecture and runtime ahead of size and authorizes no runtime regression; none is found. M-1's resolving measurement remains step 6's.
+
+**Limits carried, not discharged here:**
+
+- Chromium only, and M-2 was not measured.
+- `react.browser` and `stories.browser` load at neither tree, and `docs.node`'s four rows are red at both. The typedoc surface is checked only through the compiler and the declaration tests.
+- The contract was searched for the removed names, not read in full. §19.4's census under step4-A is the instrument for the rest.
+- The committed move, which runs in the spatial frame's action, is not measured for allocation (§19.4, step4-D).
+
+**What this does not do:**
+
+- **D-208 stays `Unimplemented (Remediation)`.** Steps 5 and 6 remain. The witness, the absent `d208-requests.md`, holds.
+- **F-432 to F-435 and F-441 stay open**, and close when the whole decision lands.
+- **D-200's independent acceptance is still pending.**
+- **Reviewer-E** stays the owner's.
+
+### 19.2 Direct access, indirect observation and what the census detects (step4-C)
+
+**The finding.** §18.4 item 3 says the channel _exposes no lifecycle value, so a behavior cannot branch on it_. The first half is true. The second is not: the tip's own `applied()` helper in `kernel.browser` mints a channel over a sink that sets a flag, calls it, and reports whether it delivered. Any behavior can do the same in any unit, and R21 does not see it, because it is a call rather than a property read.
+
+**What is decided.** The record distinguishes three things, and D-208's text is qualified in place to say so:
+
+1. **Direct lifecycle access** is a read of the bracket's lifecycle: `#lifecycle`, or an accessor whose body reads it, which at this tree is `closed` and `idle`. It occurs only in `src/kernel/`: the runner, request intake, the runner's ingress refusal, the channel's refusal and unit entries. `BehaviorContext` has no member that returns a lifecycle value. That is what §3 and §18.4 item 3 promise, and it holds.
+2. **Indirect observation** is learning whether destruction has been applied from whether an intake acted. **Every intake that refuses after application allows it**, not only `channel`: a behavior whose `dispatch` from a late continuation is refused learns the same fact from its handler not running. So it is a property of having a refusal, and `channel` does not add it. What it can reveal is bounded by §18.3:
+   - inside U-C, U-I and U-A it always answers _not applied_, whatever that unit requested;
+   - inside U-T it always answers _applied_;
+   - outside every unit it tracks application.
+
+   It therefore cannot reveal a request, and its answer cannot change within a unit, so it cannot restore the reading inside a unit that §2.2 withdraws. Library code makes no such probe: the five channels are minted at construction and used only as diagnostic routes.
+
+3. **What the census detects.** R21 (`capture.node`) detects a property read of `#lifecycle` or of a lifecycle accessor, on any receiver, and reports it per member. It does **not** detect:
+   - a further read of a listed fact in the same member (step3-B's stated granularity);
+   - a destructured alias, such as `const { idle } = this.#bracket`, which the reviewer's mutation AL showed reddens nothing;
+   - indirect observation through `channel` or any other refusing intake.
+
+   The channel mint sites are not tested. They are reported by location, by `grep`, in step 6's record beside R21 (§19.4).
+
+**What this changes in D-208's rationale.** The rejection of option (2), a `CLOSED`-only predicate, cited the census: it _cannot tell intake from a reading inside a unit by member_. That remains true, but it does not discriminate between (1) and (2), because the census cannot see a probe either. The grounds that stand are:
+
+- **the surface.** §3 withdraws the lifecycle member. Option (2) would keep a member whose only purpose is to answer a liveness question. Under (1), observing application means using a diagnostic route against its purpose;
+- **one refusal.** Under (1) the refusal is written once, in the kernel. Under (2) each behavior writes its own, and every later behavior must remember to.
+
+**This is a non-substantive edit** under the documentation model's §6. It corrects what the decision says about itself, and it changes nothing the decision requires of the code. No `D-*` is minted. §18.4 item 3, §18.5's row (2) and D-208's entry carry dated qualifications. The contract and JSDoc sentences that make the same claim are corrected in step 5 (§19.5).
+
+**Not chosen:**
+
+- **Prevent the probe.** Any refusal can serve as one. Removing the refusal breaks I-36 (a), and refusing while the controller is live breaks R33. A probe made in production code would be visible in the mint-site report.
+- **Extend R21 to calls of `channel`.** Every minted channel is called inside units by design, so a call census would flag every diagnostic. The mint sites are the meaningful location, and they are few enough to report.
+- **Reopen option (2).** The grounds that stand are sufficient, and reopening it would put back a member §3 withdrew.
+
+### 19.3 The four budget overruns, for the owner's disposition
+
+**Booked figures** are the joint measurement of what landed. The reviewer reproduced the record's _before_ and _after_ columns byte for byte on all 15 rows, and module counts are equal on every row. Brotli governs. Budgets are unchanged.
+
+| Row                       | Brotli before | after |    Δ | budget |    over |
+| ------------------------- | ------------: | ----: | ---: | -----: | ------: |
+| free drag + bounds        |         8,381 | 8,495 | +114 |  8,423 | **+72** |
+| free drag + landing       |         8,400 | 8,437 |  +37 |  8,425 | **+12** |
+| free drag complete        |         8,529 | 8,628 |  +99 |  8,576 | **+52** |
+| kernel root — `kernel.js` |         6,300 | 6,320 |  +20 |  6,312 |  **+8** |
+
+The sortable-carrying rows shrink by 83 to 148 B. No module enters or leaves any graph.
+
+**What causes the growth.** The reviewer rebuilt the tip with one cause reverted at a time. These are rankings, not a decomposition (CONTRIBUTING §15): Brotli is not additive, so each figure holds only for the row it was measured on.
+
+- **`bounds()`'s copy**, which §2.12 requires, costs +60 B on `free drag + bounds` and +53 B on `free drag complete`. Without it, `free drag complete` would be 1 B under budget and `free drag + bounds` 12 B over.
+- **The landing tail's two-field read**, which §2.12 also requires, costs +28 B on `free drag + landing`, the whole of that row's overrun, and +4 B on the kernel root.
+- **The channel restructure**, which §18.4 requires, accounts for about 15 B of the kernel root's +20 B. Panic's direct delivery accounts for 1 B. With the landing-tail read reverted, the kernel root is still 4 B over.
+- **The two copies that cause three of the four overruns are pinned by no row.** The reviewer's mutation NB, `bounds()` without its copy, reddens nothing. The landing tail's read order is verified only by reading.
+
+**What this acceptance does and does not do:**
+
+- It accepts step 4 with the four rows red. §17.4 states that growth is put to the owner at acceptance and does not stop the step.
+- **It authorizes no overrun.** The owner's tolerance of step 2's overruns was step 2's attributed growth (§15.1). It is not a margin for later steps, and it does not cover these.
+- No budget is re-based, and no byte-recovery pass is directed. Only the owner can authorize either.
+- The owner's priority stands: architecture and runtime ahead of size, with no runtime regression authorized. None is measured.
+
+**The choice, stated for the owner:**
+
+- **Tolerate** the four rows as step 4's attributed size cost, with the rows kept red and nothing re-based, as step 2's were.
+- **Re-base** one or more rows, which only the owner can authorize.
+- **Direct a recovery pass.** Every byte of the growth comes from a property §2.12 or §18.4 requires. Removing either copy, or the channel, would be a design change and would come back to the architect. A pass would therefore be limited to bytes that do not carry one of those properties.
+
+**The architect's recommendation, which is not a disposition:** tolerate. The growth is the price of properties the design requires, and the owner's priority puts them ahead of size. R34 (§19.4) is required whatever the owner decides, so that the bytes buy a property a row protects.
+
+**Deadline.** The owner's disposition is recorded before `d208-requests.md` is written. Step 6's record states it. Step 5 changes comments and contract text only, so it moves no composition figure and does not wait for it.
+
+### 19.4 Dispositions
+
+| Item | Disposition |
+| --- | --- |
+| **Step 4** | **Accepted** at `dbbb62199` |
+| The four budget overruns | **The owner's. Outstanding.** Not tolerated by this acceptance and not re-based (§19.3) |
+| **step4-A** (Tier C) | **Decided: amended in step 5**, by the implementer, with the dispositions below |
+| **step4-B** (Tier C) | **The implementer's. Overdue. Deadline below.** step3-B stays open until it lands |
+| **step4-C** (Tier C) | **Decided in place** (§19.2). D-208's text is qualified here; the contract and JSDoc sentences are corrected in step 5 |
+| **step4-D** (Tier C) | **Discharged for step 4's per-sample paths** by the feature proof's measurement. The remainder goes to step 6 |
+| **step3-B** (Tier B) | Instrument half **closed**, as the feature proof verified. Record half **open** (step4-B) |
+| **step3-C** (Tier C) | **Closed.** The dated correction in `d207-step3.md` is accurate |
+| **R34** | **Added** (§7). Due before `d208-requests.md` |
+
+**step4-A: contract text that still states a withdrawn barrier.**
+
+- **Why it happened.** §17.4's contract list named I-36, I-37, 01 §`BehaviorContext`, 03, 07 and README. It did not name 05's test matrix, 05's F-47 section, 02 or the earlier paragraphs of 01, and step 4 had made each of them false. That gap was in the architect's handoff, not in the implementation.
+- **Required property.** No passage in 01, 02, 03, 05, 06 or 07 states as a current requirement or member any of the following:
+  - a participant barrier, or a participant's reading of the lifecycle;
+  - `live()`, or a latch predicate;
+  - `BehaviorContext.closed`.
+
+  Each passage is either marked, with a date, as withdrawn by D-208 step 4, or restated. History is kept, never deleted. That is how the ledger amends.
+
+- **The passages known now, and the disposition each requires:**
+  - **05 §Test matrix**, the two rows _Terminal barrier in a resolver sequence (C2-01)_ and _Terminal barrier on indirect consumer calls (C4-01)_, and the paragraph that introduces them (_Both terminal-barrier groups are narrowed by D-37_). They are withdrawn as requirements and kept as history. One clause survives: D2's call exactness, once per candidate per rebuild and silent on a warm cache. `y.browser`'s _should resolve each candidate visual once per rebuild_ carries it, and the amendment says so;
+  - **05 §The terminal barrier stopped at the seam boundary (F-47)**: the floor, _a participant that calls consumer code repeatedly … reads the latch between calls_, is withdrawn. Destruction is applied only at a boundary, so between two calls inside one unit there is nothing to read. The barrier table stays as the record of the search;
+  - **05, I-36's _Mechanism_ paragraph**, which follows the operative restatement and so is not covered by its _the paragraphs before it are its history_. It says (a) is behavior-owned, and repeats the F-47 floor. It gets a dated note that (a)'s mechanism is the one the restatement states: the runner's order, and the kernel's channel refusal on every diagnostic route;
+  - **05, I-36's operative restatement**: _`BehaviorContext` has no member that would let one_ is qualified as §19.2 states. No member reads the lifecycle; applied destruction remains indirectly observable, and that observation is constant within a unit;
+  - **02 §The phase is handed over**: _`BehaviorContext.closed` answers liveness (D-53)_ is marked as withdrawn by D-208 step 4. No member answers liveness, and the phase answers where in the operation a seam is;
+  - **01**: _D-203 withdraws it at its step 4, together with `closed` itself_ is put in the past tense. D-203's step 4 is D-208's, and it has landed;
+  - **01's spec field count**, _Seven mutable fields — six, plus `closed` from C2-01_, which counts a field step 4 removed. It is restated for the tree, or marked;
+  - **01 §`BehaviorContext`, the `channel` entry**: it gains §19.2's sentence on indirect observation.
+- **A census bounds the rest.** The reviewer searched and did not read in full, and the architect found two passages the review did not list. So step 5's record lists every hit in 01, 02, 03, 05, 06 and 07 for `closed`, `live`, `latch`, `terminal barrier` and `participant`. It classifies each hit as one of:
+  - the kernel's lifecycle, still current, such as the runner's reading;
+  - history, already marked;
+  - amended in step 5.
+
+  A hit that fits none of these is escalated.
+
+- **The F-47 register entry** in `00-index.md` is the architect's, and it gains its dated note in this commit.
+
+**step4-B: step3-B's record half.**
+
+- **Required property.** As §17.3 states it. `d207-step3.md`'s census table gets a dated correction. The correction moves the `dispatch` lifecycle read from the armed controller's list to the façade's, and adds `#onPointerDown` under the runner.
+- **Two slips in `d208-step4.md` are corrected with it**, each with a date:
+  - §Verification says the input had 14 eslint errors in the changed files. The feature proof counts 15. The fifteenth is `prefer-includes` in `g3-conformance.browser`, which the tip no longer has;
+  - §Published-surface change names `sortable/runtime.d.ts`, which is not emitted. `InsertionRuntimeView` is declared in `sortable/slots.d.ts`.
+- **Deadline.** This lands as step 5's first commit, or within it, and before step 5's feature proof. It was due with R21 at `dbbb62199`. step3-B is not marked closed until the correction is present, and no record or acceptance cites the ledger census's step-3 table until then.
+
+**step4-D: allocation evidence.**
+
+- **Discharged for step 4.** §17.4 required that allocation be measured, and the record measured none. The feature proof's paired measurement is independent, kept apart from the analysis, and covers the per-sample paths step 4 changed:
+  - the sortable allocates 0.0 B per sample at both trees;
+  - free drag allocates the same at both trees, within about ±2 B, on its bare, `bounds(element)` and `bounds(thunk)` arms.
+
+  This acceptance takes that measurement as step 4's evidence. `d208-step4.md` needs no correction, because its statement _not measured in this unit_ is accurate.
+
+- **Not discharged, and carried to step 6's record:**
+  - **an absolute per-sample figure for free drag.** The harness's own `PointerEvent`, about 50 B a sample, is in both trees' figures. Step 6 measures it with a control arm that subtracts the harness, or with events allocated before the samples;
+  - **the committed move.** It runs in the spatial frame's action, once per frame rather than once per sample, and M-1's synchronous samples never reach it. Step 6 measures it if a harness reaches the frame. Otherwise it states the committed move by analysis, labelled as analysis.
+
+**R34: the two query-result copies.** §2.12 requires both copies, they cost bytes over budget, and no row would notice either being removed. Both rows run through the running controller, with no harness flag:
+
+- **(a)** free drag with `bounds(thunk)`, where the thunk returns one object that the consumer mutates inside `onMove`, with no invalidation in between. The clamp keeps the resolved values until the next invalidation;
+- **(b)** a landing timing policy that returns a record, on an element whose `animate` is reached through a getter that mutates that record. The animation starts with the record's values as the policy returned them.
+
+Each row must fail with its test over `0c798ee17`'s `src/`, and the record shows that it does. Mutation NB must redden (a). R34 lands before `d208-requests.md` is written: in step 5's series, as its own commit that touches only tests, or in step 6.
+
+### 19.5 Handoff: step 5, the comment pass
+
+**Governing design:**
+
+- §8 step 5;
+- D-199's approved comment pass, carried by D-201 ([`snapshot-units-claude.md`](snapshot-units-claude.md) §7) and then by every superseding decision through D-208;
+- the documentation model's §5 for source comments and its §6 for what may move into the record.
+
+Sites are cited at `dbbb62199`.
+
+**Scope.** The pass covers the `src/` files that steps 1–4 changed: every library module that differs between D-202's input `6905af249` and `dbbb62199`, with `kernel/kernel.ts` first. The two stories are excluded. After the pass, each comment in those files states what the code there does now, in the present tense.
+
+**The rules, carried unchanged from D-199:**
+
+- **In scope:**
+  - counts and relative positions that an unrelated edit can falsify, restated as the property they count or as the sites they name;
+  - history narration;
+  - passages arguing against code that is not there, shortened to the invariant they protect wherever the code can be read without them;
+  - restatements of reasoning already given at the member they cite.
+- **Local ordering proofs are kept without exception.** They include the premises of the non-null assertions, the order in which records are dropped, the reason for each `finally`, the order in which arming publishes, and the field order that lets a channel close over a defined sink.
+- **There is no target line count.** A passage leaves the source only if the code can be read without it. It goes into the record only if it carries decision reasoning the record does not already hold. Where it does, the record gets it first, in the same change.
+- **No runtime statement moves.** Each file is hashed with comments and blank lines stripped, before and after, and the hashes are equal.
+
+**Known stale comments, which the pass must cover:**
+
+- `moveTo`'s published JSDoc says a malformed point _throws at the read_. The read now happens at the call, and the throw at the action's `prepare`. The classification is unchanged;
+- `reportError`'s SPI docblock calls it _the one place in the library that invokes a consumer's `onError`_, and says _an implementation catches and discards_. Both composition channels call `merged.onError` themselves, and the throw is absorbed by the channel, not by `#deliver`;
+- `BehaviorContext.channel`'s docblock says it _exposes no lifecycle value_. It keeps that and gains §19.2's sentence on indirect observation;
+- the README's new bullet says the library invokes no declared consumer slot from application on. It names neither I-36 exception, relinquishment or diagnosis, and it needs to name both.
+
+**Contract text, in step 5:**
+
+- step4-A's passages, with the dispositions §19.4 states, and the census that bounds them;
+- step4-C's sentences in I-36's restatement and in 01 §`BehaviorContext`.
+
+None of this is a new requirement, so the contract's normative content does not change. Each amendment is dated and names D-208 step 4 or §19.2.
+
+**Record corrections:** step4-B and the two slips in `d208-step4.md`, as step 5's first commit or within it (§19.4).
+
+**May land in step 5's series:** R34, as its own commit that touches only tests.
+
+**Keep:**
+
+- **The runtime.** Every file's stripped hash is unchanged, so step 5 changes no behavior.
+- **Composition.** The build strips comments, so every row is expected byte-equal to step 4's. That is step 5's control row (CONTRIBUTING §18): a difference is a finding.
+- **The suite.** The failing set is step 4's: the input's ten rows and the four budget rows.
+- No budget is re-based.
+
+**Out of scope:**
+
+- `d208-requests.md`, which is step 6. Creating it would falsify the witness early;
+- any change to behavior, surface or tests other than R34;
+- the budget overruns, which are the owner's;
+- marking D-208, or any F-entry it decides, complete.
+
+Reviewer-E stays the owner's.
+
+**Record:** `.plan/measurements/d208-step5.md`. It holds:
+
+- each file's stripped hash, before and after;
+- the composition control;
+- step4-A's census, with the class of each hit;
+- the corrections made and where;
+- R34, if it lands in this step, with its baseline failures and NB's count.
+
+**Escalate rather than decide** if:
+
+- a comment states a property the code does not hold. Report it as a finding. Do not reword the comment to match the code;
+- a passage could leave the source only by losing decision reasoning the record does not hold, and writing that reasoning would itself decide something;
+- a contract hit cannot be classified as current, history or amended without a decision;
+- a passage marked as withdrawn turns out to state a guarantee some code still provides.
+
+**Review.** Step 5 gets its own feature proof before step 6 starts.
+
+**Deadlines for what remains open:**
+
+| Item | Owner | Due |
+| --- | --- | --- |
+| step4-B, with the two `d208-step4.md` slips | implementer | step 5's first commit, or within it, and before step 5's feature proof. Overdue since `dbbb62199` |
+| step4-A, the contract passages and their census | implementer | in step 5, before its feature proof |
+| step4-C, the contract and JSDoc sentences | implementer | in step 5, before its feature proof |
+| R34 | implementer | before `d208-requests.md`: in step 5 as its own commit, or in step 6 |
+| step4-D's remainder | implementer | in step 6's record |
+| The four budget overruns | owner | before `d208-requests.md` is written |

@@ -2298,6 +2298,31 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-02 — D-208 step 4 accepted: surface and behaviors
+
+**Step 4 is accepted at `dbbb62199`, and D-208 is not complete.** The step-4 feature proof found no step-4 blocker and reproduced all eleven mutation counts.
+
+- The requests are renamed `requestDestroy` and `requestCancel`, with no alias.
+- `BehaviorContext.closed` and every `live()` are gone, and no module outside `src/kernel/` reads the lifecycle.
+- The four diagnostic-intake reads are replaced by kernel-minted channels, whose refusal is written once.
+- `moveTo` captures its argument, and `bounds()` and the landing tail copy what they read.
+- Every row from steps 1–3 stays green.
+
+**Size.** Four rows are over unchanged budgets: free drag + bounds by 72 B, + landing by 12 B, complete by 52 B, and the kernel root by 8 B. `bounds()`'s copy and the landing tail's read, which §2.12 requires, cause three of the four, and the channel most of the kernel root's. **The owner disposes of them before `d208-requests.md` is written.** This acceptance neither tolerates nor re-bases them, and step 2's tolerance does not cover them. The architect recommends tolerating them.
+
+**Runtime.** Allocation is measured equal at both trees, and the sortable's is zero per sample. No timing difference is resolved at about 0.2 µs.
+
+**Findings.**
+
+- **step4-A**: contract passages §17.4's list missed still state the withdrawn barriers. They are amended in step 5, with a census.
+- **step4-B**: step3-B's record correction is overdue. It is the implementer's, due as step 5's first commit.
+- **step4-C**: D-208 now distinguishes direct lifecycle access, which only the kernel has, from indirect observation through any refusing intake, which a minted channel also allows and R21 cannot see. Decided in place, with no new decision.
+- **step4-D**: the feature proof's allocation measurement discharges step 4's requirement. Free drag's absolute figure and the committed move go to step 6.
+
+Case R34 is added for the two copies. Steps 5 and 6 remain, the witness holds, F-432 to F-435 and F-441 stay open, and D-200's acceptance is still pending. Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §19.
+
+---
+
 ### 2026-11-02 — The behaviors' diagnostics keep the kernel's refusal (D-208, F-441)
 
 **D-208 supersedes D-207 during step 4 and carries it in full**, including steps 1–3 as accepted, their dispositions and the owner's size tolerance. It changes how step 4 treats four of the 27 `kernel.closed` reads in the behaviors. The other 23, and every `live()` read, are still removed.

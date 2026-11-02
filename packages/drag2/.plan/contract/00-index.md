@@ -2871,6 +2871,8 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 **Unimplemented (Remediation).** **Decided 2026-11-02, on the implementer's escalation during D-207's step 4**, under the record's §17.4 first escalation clause, relayed by the owner. Baseline `9ae86b189`, with step 4 uncommitted. **D-207 in full, except that the behaviors' diagnostics reach the kernel's refusal through a new `BehaviorContext.channel(deliver)`, and the four reads that refused them are replaced rather than deleted.** Supersedes D-207. Raises and repairs F-441. Carries D-207's repair of F-440, D-206's repair of F-439, D-205's decision of F-438, the decisions of F-432 to F-435 and the repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §18. That record's §2.2, §2.5, §3, §5–§9 and §17.4 state the D-208 form and are the handoff.
 
+**Step 4 accepted 2026-11-02, at `dbbb62199`**, after its feature proof (record §19). Steps 5 and 6 remain, and the witness holds. Step 4's four budget overruns are the owner's to dispose of before `d208-requests.md` is written. The acceptance neither tolerates nor re-bases them, and step 2's tolerance does not cover them. step4-C is decided in place, as a non-substantive correction of what this entry says about itself: see _Ownership and surface_ and _Not chosen_ below. Case R34 is added.
+
 **What is carried.** D-207's text, its properties as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1–3 as accepted at `44e2074f1`, `877fb9612` and `ef1e4ef6b`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step3-B and step3-C keep their boundaries.
 
 **The required behavior is the baseline's.** After applied destruction no diagnostic reaches `onError` by any route, except panic's own report (D-178). Before application, in `LIVE` and in the requested interval, every diagnostic is delivered:
@@ -2886,14 +2888,14 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 **Ownership and surface.**
 
 - The kernel owns the refusal, because it owns the lifecycle. The behavior owns its sink and the warnings it builds. The composition's `report` is the behavior's mapping over the kernel's channel.
-- `BehaviorContext.closed` is removed, as D-207 states. `BehaviorContext` gains `channel(deliver)`. It returns a function that delivers to `deliver` until destruction is applied and drops every call afterwards, absorbs a throw from `deliver`, works from the factory onward, exposes no lifecycle value and has no panic bypass.
+- `BehaviorContext.closed` is removed, as D-207 states. `BehaviorContext` gains `channel(deliver)`. It returns a function that delivers to `deliver` until destruction is applied and drops every call afterwards, absorbs a throw from `deliver`, works from the factory onward, exposes no lifecycle value and has no panic bypass. **Qualified 2026-11-02, at step 4's acceptance:** no member returns a lifecycle value, but a behavior can still observe applied destruction indirectly, by minting a channel over a sink of its own and seeing whether it delivers. Any intake that refuses after application allows that, and inside a unit the observation is constant. R21 detects property reads of the lifecycle and does not detect it. The mint sites are reported by location in step 6's record.
 - Both behaviors send every diagnostic they produce through a minted channel: their own channel, their unwind guard and the composition `report`. No module under `sortable/` or `free-drag/` reads the lifecycle.
 - The refusal is written once in the kernel, for its own route and every minted channel. Panic's bypass stays on the kernel's route, and the spec's `reportError` stays the ungated sink that route delivers through.
 - `FeatureContext.report`'s signature is unchanged. Its documentation states the drop.
 
 **Not chosen:**
 
-- **Keep `closed`, or a closed-only predicate.** Any behavior code could read it in any unit, and the read census cannot tell intake from a reading inside a unit by member.
+- **Keep `closed`, or a closed-only predicate.** Any behavior code could read it in any unit, and the read census cannot tell intake from a reading inside a unit by member. **Qualified 2026-11-02:** the census cannot see a probe through a channel either, so it does not separate this option from the chosen one. The grounds that stand are that §3 withdraws the lifecycle member, and that the chosen form writes the refusal once rather than in each behavior.
 - **Remove the four reads.** That delivers `onError` after application, against I-36 (a) and D-178, as a consumer-visible change nothing states.
 - **`BehaviorContext.report(error)` through the armed spec.** No spec exists before arming, so the pre-arm composition unwind would be lost or the kernel would have to learn the behavior's `onError`.
 - **Withdraw the sink at application.** A nulled slot would answer a liveness question (I-37), and the order inside `retire()` would become load-bearing.
@@ -2901,7 +2903,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 **Not decided.** A late report from an installer of a construction that failed is delivered, as at the baseline. That construction never applied destruction.
 
-**Cases.** D-207's R1–R32, plus **R33**: diagnostic intake across application, in both behaviors, through teardown, panic, a late installer report, the requested interval, a live controller and the pre-arm composition unwind, and in the kernel through a channel minted in the factory. Rows other than the kernel's have the baseline's outcome.
+**Cases.** D-207's R1–R32, plus **R34**, added at step 4's acceptance: `bounds()`'s copy and the landing tail's read order, which §2.12 requires and no row pinned. Plus **R33**: diagnostic intake across application, in both behaviors, through teardown, panic, a late installer report, the requested interval, a live controller and the pre-arm composition unwind, and in the kernel through a channel minted in the factory. Rows other than the kernel's have the baseline's outcome.
 
 **Order and witness.** D-207's step order. The change lands in step 4, in the same commit as the removal of `BehaviorContext.closed`. Removing the refusal must redden R33's post-application rows, and making it read a destruction request must redden its interval and construction rows. The measurement record is `.plan/measurements/d208-requests.md`, and its absence is the witness. Step 4's record is `.plan/measurements/d208-step4.md`.
 
@@ -2926,7 +2928,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-208 | Remediation | steps 4–6: surface and behaviors, the carried comment pass, then the measurement record | absent: `.plan/measurements/d208-requests.md` |
+| D-208 | Remediation | steps 5–6: the carried comment pass, then the measurement record. Step 4 is accepted at `dbbb62199` | absent: `.plan/measurements/d208-requests.md` |
 
 **D-207's row closed on 2026-11-02 with steps 1–3 accepted.** D-208 superseded it during step 4, adding `BehaviorContext.channel` so that the behaviors' diagnostics keep the kernel's refusal after applied destruction. D-208's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 
@@ -3507,7 +3509,7 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 #### F-47 — The terminal barrier stopped at the seam boundary: a behavior invoking consumer code more than once inside one seam had no obligation between invocations
 
-**Resolved by I-36, then re-scoped by D-37 (Revision 2).** Back-filled into this table at Revision 2 — it was recorded in [05](05-lifecycle-invariants.md) §F-47 and `ledger.md` L-12 and never carried here, which is exactly how a finding gets rediscovered. The defect was real and its fix is retained at the **floor**: a sequence that calls consumer code repeatedly reads the latch between calls. What is withdrawn is the **ceiling register** the fix grew afterwards — the promise of no geometry read at all — and the stretch table that tried to discharge it whole-program.
+**Resolved by I-36, then re-scoped by D-37 (Revision 2).** Back-filled into this table at Revision 2 — it was recorded in [05](05-lifecycle-invariants.md) §F-47 and `ledger.md` L-12 and never carried here, which is exactly how a finding gets rediscovered. The defect was real and its fix is retained at the **floor**: a sequence that calls consumer code repeatedly reads the latch between calls. What is withdrawn is the **ceiling register** the fix grew afterwards — the promise of no geometry read at all — and the stretch table that tried to discharge it whole-program. **The floor is withdrawn by D-208 step 4, 2026-11-02** (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §19.4). Destruction is applied only at a unit boundary, so between two consumer calls inside one unit there is no lifecycle change for a reading to see, and no participant reads the lifecycle. I-36's restatement holds (a) by the runner's order and the kernel's channel refusal. 05's F-47 section is marked in step 5.
 
 **Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
