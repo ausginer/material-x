@@ -329,7 +329,7 @@ class SortableBehavior {
      * identity is never operation-scoped, because staleness is carried by the
      * monotonic attempt number it schedules.
      *
-     * **Measured against both alternatives (M-2).** Eager costs more on a
+     * **Measured against both alternatives.** Eager costs more on a
      * controller that never drags, and wins everywhere else: an active
      * controller is *cheaper* than under lazy-retained or per-operation,
      * because their nullable slot and initialization branch cost more than the
@@ -791,7 +791,7 @@ class SortableBehavior {
       // *canceled* for a drag `onStart` never announced, and the failure
       // reaches `onError` as superseded by the cancel. Either fault alone is
       // fine: without the cancel this reports through `onError`, and without
-      // the throw `onStart` still runs. The gap is admitted and open (F-442).
+      // the throw `onStart` still runs. The gap is admitted and open.
       return;
     }
 
