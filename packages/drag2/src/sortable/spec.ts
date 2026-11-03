@@ -443,7 +443,7 @@ class SortableBehavior {
     item: HTMLElement,
     snapshot: CollectionSnapshot,
     draft: Draft<SortableFramePart>,
-  ): AdmissionSubject | null {
+  ): AdmissionSubject {
     let visual = item;
 
     if (this.#slots.visual) {
@@ -619,10 +619,6 @@ class SortableBehavior {
     }
 
     const subject = this.#seedDraft(item, this.#snapshot, draft);
-
-    if (!subject) {
-      return null; // a consumer resolver destroyed the controller
-    }
 
     // The destination travels in the draft, exactly as `item` does for a
     // press. No staged value crosses the ingress boundary, which is what
