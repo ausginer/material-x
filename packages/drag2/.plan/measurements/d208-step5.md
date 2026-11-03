@@ -246,3 +246,303 @@ The other deletions are history, counts, or repeats of a member's own docblock.
 - **Reviewer-E** is untouched and stays the owner's.
 
 **Next:** the independent step-5 feature review. Step 6 does not start before it.
+
+## Remediation 5R — 2026-11-03
+
+> **Implemented 2026-11-03, not yet accepted.** Acceptance belongs to the architect, after the bounded independent recheck [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20.4 requires. Step 6 does not start before it.
+
+**Governing record:** [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20.3 and §20.4. **Input:** `15a7fa53d` on `drag2/fin-review2`. Sites below are cited at `0ba8afb64`, whose `src/` and contract equal the input's.
+
+**The series**, in order:
+
+1. `e324ca8fa`: items 1–5. Comments, published doc comments and contract text only;
+2. `39e243887`: item 6, `src/sortable/spec.ts` only;
+3. `c595e96e3`: a comment-only correction to two item-1/3 sites in `src/sortable/spec.ts` (§Deviations, 1);
+4. this section.
+
+No test changed. `kernel/errors.ts` is outside the 31 modules step 5 covered and is hashed here because item 1 touched it.
+
+### Item 1 — source comments
+
+| Site | Before | After |
+| --- | --- | --- |
+| **step5-A**, `sortable/spec.ts`, the `stale` docblock | _every exit in between — a placeholder reaction or a hook that threw_ | names the exits that exist: `movePlaceholder`'s throw (`drag: sortable/anchor-outside-container`, or a DOM exception) and the `return` after a caught `movedInsertion` throw. A custom element's reaction that throws is reported to the global object and does not leave the bracket |
+| **#3**, `sortable/spec.ts`, the collection publication | _a reentrant cancel or destroy must not be able to invalidate a preparation whose private runtime has already been replaced_ | _a preparation that is discarded must not publish_ |
+| **#4**, `kernel/kernel.ts`, `Kernel.channel` item 1 | a resolver that destroys and then throws, reported back after application | a channel outlives the unit that minted it: a composition's `report`, captured by an installer and called after application (R33 (d)). The invariant around it is unchanged |
+| **#5**, `free-drag/spec.ts` and `sortable/spec.ts` `#deliver` | _the one place this behavior invokes the consumer's error callback_ | _where the spec invokes it_; the composition's channel, minted in `behavior.ts`, calls `merged.onError` itself |
+| **#5**, both specs' `#notify` | _the behavior's own route to the one channel_; free drag's _two entries to one channel rather than two channels_ | _the behavior's own channel_; free drag's _two channels over one sink rather than two sinks_ |
+| **#5**, `kernel/seams.ts` `#notify`; `kernel/kernel.ts` section label; `kernel/errors.ts` `Notify` | _the controller's one channel_; `the one channel`; _The one channel, as seen by…_ | _the controller's channel, the one the façade mints over the spec's `reportError`_; `the controller's channel`; _A channel, as seen by…_ |
+| **#7**, `free-drag/spec.ts` and `sortable/spec.ts`, before `onStart` | _last, because it may reentrantly cancel or destroy_; _may request cancellation or destruction_ | the reason that holds: everything the activation owns is in place before `onStart`, so a throw from it, classified as the seam's failure, leaves no step of the effect undone, and the consumer hears of the drag only once it exists. A request from `onStart` is applied after the unit and does not bear on the order. This agrees with 02's _post-commit_ and 07:113 |
+| **#8**, `kernel/spec.ts`, `BehaviorContext`'s header (published) | _`dispatch` is the one member in that position_ | `dispatch`'s tag is unchecked there, and `fail`'s demotion is silent until arming |
+| **#9**, `free-drag/assemble.ts`, `axis` | _a source is read at activation and on `invalidate()`_ | a plain value, fixed for the controller's life and never re-read, `invalidate()` included |
+| **#10**, `sortable/layout-animation.ts` | _One walk, and it stops at the first miss_ | an empty map returns at once; otherwise the walk visits every slot |
+| **#11**, `sortable/rect-index.ts` | _`y()` reads two once per resolution_ | the reads named for the tree: each axis rule reads `values`, `count` and `hole` once per resolution and `items` only on a frame proposing a gap change. Both `resolve` bodies were read |
+| **#12**, `sortable/y.ts`, the hook wrap | both hooks _called with no owner_ | `retire` is called from `retireHooks` with no owner; `invalidate` is published as `invalidateInsertion` and called as a member of the slots object |
+| **#13**, `kernel/kernel.ts` `Kernel` class doc; `kernel/spec.ts` `BehaviorInstall` (published) | _no input can be admitted before `install()` returns_, as a neighbouring unenforceable term | the factory returns, then arming attaches ingress, and native ingress is refused while construction runs. Probe 1's sentence is kept as a quotation in the class doc; the order holds the boundary and no guard checks it |
+| **#14**, `kernel/seams.ts` | _the queue is run-to-completion_; _the queue's panic path_ | the execution bracket's drain; the execution bracket's panic path |
+| `sortable/spec.ts`, the spatial guard (was `:857`) | _The activation test is the one a producer reaches_ | **Established false and corrected.** The producer tests the record before it dispatches, and the record is published before `ACTIVE` is committed and cleared only at retirement, so the applied half's activation conjunct cannot fail once the phase test passes. The comment now says that. The rest of the passage is unchanged |
+| `kernel/kernel.ts`, `attach()` (was `:2431`) | a 94-column line | rewrapped |
+| `sortable/spec.ts`, the frame task's byte figures | _148 B … (281 B against 309 B)_ | the figures are removed and the comparison is kept. [`m2.md`](m2.md) §Answer 2 holds them. No citation is in the source (§Deviations, 1) |
+
+**#7's twins.** 07:478's _behind the barrier_ is struck and marked withdrawn by D-208 step 4. The census found the same phrase on 07:487 (`finalized`), and it gets the same mark. 02's _post-commit_ paragraph and 07:113 already state the order and are unchanged.
+
+**#13's twins.** 01:114's comparison is marked as history. 01:116's sentence is kept as a quotation, and a dated note names the boundary.
+
+**#13: whether saying so decides anything.** The comments and both 01 notes say what the code does. Ingress is attached only after the factory returns (`Kernel.construct`), and `ExecutionBracket` refuses native ingress while construction runs. They do not say the boundary is a contract term or that a behavior must meet it. Nothing was escalated. A recheck that reads _the order holds it_ as a contract change should treat it as an escalation.
+
+### Item 2 — `requestDestroy`
+
+Both controllers' JSDoc (`sortable/controller.ts`, `free-drag/controller.ts`) now says: from application on, nothing is admitted, no lifecycle or domain event is published, and no declared consumer slot is invoked. Two exceptions are named by route: teardown runs each installed feature's retire hook, and a panic delivers its one report to `onError` before teardown. This agrees with `README.md`'s bullet and with 05 I-36's relinquishment and diagnosis. 01:440 has a dated amendment naming the same two. Both `controller.d.ts` files change in doc comments only (§Verification).
+
+### Item 3 — the admitted gap, and its established outcome
+
+**Established by a probe at `0ba8afb64`.** A temporary `it` was appended to `tests/sortable/sortable.browser.test.ts`, run alone in Chromium, and the file restored from a copy; `git status` was clean afterwards. It used the suite's own harness:
+
+- a `REENTRANT_PLACEHOLDER` whose `connectedCallback` calls `controller.requestCancel('probe-cancel')`;
+- an `invalidateInsertion` that throws;
+- the suite's `activate`.
+
+What it observed:
+
+- **calls:** `['onCancel']`. `onStart` never ran;
+- **`onEnd`:** exactly one result, `{ type: 'canceled', reason: 'probe-cancel', origin: CANCEL_SUPPLIED (30), stage: AT_PROPOSAL (20), proposal: null }`;
+- **`onError`:** one `DraggableWarning`, `drag: failure/superseded-by-cancel`, with the thrown error as `cause`. No `DraggableError`;
+- the placeholder is removed.
+
+**The outcome equals the passage's.** It is _a terminal callback for a drag whose start was never notified_, so nothing is escalated. It also agrees with the code:
+
+- `#cancelWith` registers the request and dispatches `CANCEL`;
+- `#failOperation` captures `superseded: true`;
+- `#handleCancel` settles `ACTIVATING` through `SETTLED_CANCELED`, whose arm does not consult the start marker;
+- `#handleFailed` reports the supersession.
+
+**Text.**
+
+- The source comment says _registered_ and states the outcome, including the superseded warning. It says the gap is admitted and open, and does not restate the old reason. It cites no identifier (§Deviations, 1).
+- 02:880 has _latched_ struck for **registered** and the reason sentence struck, and gains a dated paragraph. The paragraph states the probe's outcome, why the struck reason is not a ground, that the gap is open, and that whether to close it is F-442.
+- 02:872's row is marked _open: F-442_, with a date.
+
+### Item 4 — the four contract lines
+
+| Line | Disposition | Established from |
+| --- | --- | --- |
+| **02:1846** | `destroy()`'s _synchronous terminal barrier_ is struck. A dated restatement says it is a request the bracket registers: from a resolver it is applied at the admission unit's boundary, ahead of everything queued, and application clears the queue (R1). The enqueue-without-drain claim around it is unchanged | D-203; I-6's entry; R1 |
+| **06:162** (with :163–165) | a dated `← WITHDRAWN by D-207 step 3` annotation in the trace: no recheck runs. A destroy from a `handle` or `visual` resolver is applied after the admission unit (R1): `visual` and `box` are still called, `PENDING` is published, and application tears it down | R1; D-207 step 3 |
+| **06:777–779** | a dated note marks both paragraphs as history. D-36's deferral window does not exist since D-203: application closes, clears the queue and tears down in one step (01 §Teardown across two owners). I-20 holds once application has run | D-203; 01:436–437 |
+| **06:789** | the D-36 row is struck. A dated restatement by D-203's order follows | `#openResolution`, `#settleResolution`, `#release` and `#retireAttempts` at the tip; the composition test |
+
+**06:789's established outcome.** `onReorder` runs inside the round-trip's unit (`OPEN_RESOLUTION`), so `requestDestroy()` is registered there and applied at that unit's boundary.
+
+- **A synchronous resolution** has queued `RESOLUTION_SETTLED` in that unit (`#settleResolution`). Application clears the queue and discards it: there is no settlement, no landing and no `onEnd`.
+- **An asynchronous resolution** has queued nothing. Application aborts the signal handed to `onReorder`, because the cancellation lifetime's disposer runs while `completed` is false. It also clears the attempt slot (`#retireAttempts`), so the later settlement fails `#settleResolution`'s slot test and is dropped.
+
+**No R-case pins the row.** The synchronous half is pinned by `composition.browser.test.ts`'s _should tear down without a terminal callback when onReorder destroys_ (`COVERAGE.md`, `onReorder` destroys, I-6). The asynchronous half is stated from the code and is not pinned for this path. R20 pins the same intake for a destroy at depth 0. The row says both. Nothing is escalated.
+
+### Item 5 — the supplementary census
+
+**Search.** Over 01, 02, 03, 05, 06 and 07 at `0ba8afb64`, case-insensitively, by line:
+
+```text
+D-36\b|deferr|logical(ly)? clos|immediate(ly)? (terminal|clos)|synchronous terminal|post-callback|recheck|revalidat|\bbarrier
+```
+
+**The lines step 5 had already classed** are those that also match step 5's search, `\bclosed|\blive\w*|latch\w*|terminal barrier|participant\w*`. They are excluded, which leaves **68 lines**. Each was read in context. A passage covered by a section or paragraph note is classed by that note, and old member names are not a class.
+
+| Document | Class | Lines (at `0ba8afb64`)                           |
+| -------- | ----- | ------------------------------------------------ |
+| 01       | K     | 243, 487, 507                                    |
+| 02       | K     | 126, 1338, 1368, 1806                            |
+| 02       | H     | 176, 186, 200, 219, 1375                         |
+| 02       | A     | 502                                              |
+| 02       | N     | 697, 699, 1300, 1305, 1468                       |
+| 03       | K     | 841                                              |
+| 03       | A     | 836                                              |
+| 03       | N     | 855, 1003, 1134, 1138, 1227, 1323                |
+| 05       | K     | 33, 248                                          |
+| 05       | H     | 29, 268, 477, 743, 745, 747, 749, 763, 782, 1048 |
+| 05       | A     | 7, 563, 633, 635                                 |
+| 05       | N     | 573, 579, 1004, 1092                             |
+| 06       | K     | 285, 621, 810                                    |
+| 06       | H     | 338                                              |
+| 06       | A     | 165, 777                                         |
+| 06       | N     | 493, 495, 805                                    |
+| 07       | K     | 16, 750                                          |
+| 07       | H     | 136, 547, 555, 563                               |
+| 07       | A     | 478, 487, 690, 712                               |
+| 07       | N     | 186, 274, 398                                    |
+
+**Totals:** K 15, H 20, A 12, N 21, **E 0**.
+
+**The classes, as applied:**
+
+- **K** is current. It covers:
+  - the unit-entry _no revalidation_ annotations (02:126, 1338, 1368, 1806; 06:285, 621);
+  - the join's entry validation (06:810);
+  - panic's close → report → teardown (01:507);
+  - teardown totality (01:487);
+  - the promise surface, under its old member name (01:243, 03:841, 07:16, 07:750);
+  - I-3's citation of 02's section by title (05:33);
+  - I-36's tier argument (05:248), which holds for any bracket.
+- **H** is struck, dated, or under a note:
+  - 02's _Post-callback revalidation_ section, whose own D-207 note covers it;
+  - 05's I-37 paragraph, under the note at 05:272;
+  - 05's F-47 section and stretch-table section, under step 5's note at 05:731 and the _retired_ heading;
+  - 07's terminal-barrier enumeration, under step 5's note at 07:549.
+- **N** covers _deferral_ that is not lifecycle closure: the collection deferral (F-32), _deferred_ questions, and a deferred `preventDefault()`. It also covers a framework's _commit barrier_, the tail's _deferred lease_, and 05:1092, whose hit is a decision number in a provenance list and states no closure property.
+- **A**, amended in 5R. Each is dated and names D-208 step 4 or remediation 5R:
+  - 02:502, the discrete-admission trace's `revalidate (D-26 …)`, annotated as withdrawn by D-207 step 3;
+  - 03:836, the `destroy()` docblock stating D-36's model, with a note after the block;
+  - 05:7, I-6 _rewritten for deferred physical teardown_, given an inline note;
+  - 05:563, F-30's resolution, and 05:633–635, F-38's, each marked as history (D-155; D-207 step 3; R7 for F-38);
+  - 06:165, which is 06:162's passage (item 4);
+  - 06:777, item 4;
+  - 07:478 and 07:487, _behind the barrier_;
+  - 07:690, L-3's `TAG_POLICY` barrier, marked as history: D-148 deleted the `axis` source and with it the barrier's site, and `lifecycle.browser` deleted its rows. 07:712, L-3's discharge row, is marked with it.
+
+**No E.** Every passage found stating, as current, a property the code no longer holds has a decision that withdraws it: D-155, D-148, D-203, D-207 step 3 or D-208 step 4. So nothing met §20.4's third escalation condition.
+
+### Item 6 — `admitCommand`'s guard
+
+`#seedDraft`'s declared result is `AdmissionSubject`, and `admitCommand` has no branch on it. `admitFrom`'s `item ? … : null` is unchanged.
+
+**The comment-stripped difference** (TypeScript printer, `removeComments`, blank lines dropped) between `e324ca8fa` and `39e243887` is the return type `AdmissionSubject | null` → `AdmissionSubject` and the three-line `if (!subject) { return null; }`, and nothing else. `c595e96e3` has the same stripped hash as `39e243887`. No other file changed.
+
+### Runtime invariance (items 1–5)
+
+**The instrument.** Step 5's digests cannot be reproduced from its record, because its exact serialization is not stated. This section therefore hashes every file with its own instrument and compares within it:
+
+- the TypeScript printer with `removeComments`;
+- blank lines dropped;
+- SHA-256, first 16 hex characters.
+
+**Checked both ways.** Across `6905af249` and `dbbb62199`:
+
+- `sortable/domain.ts` hashes equal (`c8a27cdad384cf37`), and so does `kernel/lifetimes.ts` (`61d0b5f8f938c0ad`);
+- `sortable/runtime.ts` differs (`56e445314c6aed80` → `8ec293994e0f3056`), as step 5 found.
+
+| File | Touched | `0ba8afb64` | `e324ca8fa` (items 1–5) | `c595e96e3` (tip) |
+| --- | --- | --- | --- | --- |
+| `src/free-drag/assemble.ts` | yes | `51278c5912570fdf` | equal | equal |
+| `src/free-drag/behavior.ts` | no | `c65666566897f4d8` | equal | equal |
+| `src/free-drag/bounds.ts` | no | `bc6a71e14f0810c0` | equal | equal |
+| `src/free-drag/controller.ts` | yes | `956bcd9cdeb18ab6` | equal | equal |
+| `src/free-drag/domain.ts` | no | `9be0ce4bde3246af` | equal | equal |
+| `src/free-drag/runtime.ts` | no | `a97fea9cb80baee8` | equal | equal |
+| `src/free-drag/spec.ts` | yes | `8563144052f9ee4c` | equal | equal |
+| `src/kernel.ts` | no | `922578c906497c11` | equal | equal |
+| `src/kernel/actions.ts` | no | `93a7cd9d9c9b2f43` | equal | equal |
+| `src/kernel/errors.ts` | yes | `cca6eba99e8483f6` | equal | equal |
+| `src/kernel/execution.ts` | no | `ac3a7a2ea6ba733f` | equal | equal |
+| `src/kernel/kernel.ts` | yes | `7bebc600fe08aad5` | equal | equal |
+| `src/kernel/lifetimes.ts` | no | `61d0b5f8f938c0ad` | equal | equal |
+| `src/kernel/seams.ts` | yes | `a1b94130e2a8b261` | equal | equal |
+| `src/kernel/spec.ts` | yes | `238cb134ae1c4be4` | equal | equal |
+| `src/kernel/unwind.ts` | no | `c68b74fd5556e105` | equal | equal |
+| `src/shared/composition.ts` | no | `65a4587e21d114d5` | equal | equal |
+| `src/sortable.ts` | no | `2bfa5aedfdfae503` | equal | equal |
+| `src/sortable/assemble.ts` | no | `954b91428db31c4a` | equal | equal |
+| `src/sortable/behavior.ts` | no | `02778555eb1385c1` | equal | equal |
+| `src/sortable/controller.ts` | yes | `7940aa9132371e42` | equal | equal |
+| `src/sortable/domain.ts` | no | `c8a27cdad384cf37` | equal | equal |
+| `src/sortable/feature.ts` | no | `62e732e0d04ef32c` | equal | equal |
+| `src/sortable/layout-animation.ts` | yes | `ebf9ba7ba40b592b` | equal | equal |
+| `src/sortable/linear-shift.ts` | no | `72ce91315bc755ac` | equal | equal |
+| `src/sortable/placement.ts` | no | `1dd71e8da6be8620` | equal | equal |
+| `src/sortable/rect-index.ts` | yes | `6ec3cf3d36e37c6a` | equal | equal |
+| `src/sortable/runtime.ts` | no | `8ec293994e0f3056` | equal | equal |
+| `src/sortable/slots.ts` | no | `ab95dccdcbc88d25` | equal | equal |
+| `src/sortable/spec.ts` | yes | `25b9c85b03f6549c` | equal | `610e73e86ef0b6a9`: item 6 only |
+| `src/sortable/xy.ts` | no | `d4fea4b6fa86a0c4` | equal | equal |
+| `src/sortable/y.ts` | yes | `f97dcc5ed0c69291` | equal | equal |
+
+**At items 1–5, all 32 are equal.** In `git diff -U0` over `src/` for `e324ca8fa`, every changed line is in a comment. The one line not opening with a comment marker is the block comment `/* ---- the controller's channel ---- */`. No lint directive was touched.
+
+### Composition
+
+Built with `just build` and measured with `measureAll()` in the shared checkout, at two trees:
+
+- **item 6's parent:** `e324ca8fa`'s `src/sortable/spec.ts` restored over the tip;
+- **the tip:** measured after item 6, and again at `c595e96e3`. The two runs are identical.
+
+**At item 6's parent, all 15 rows equal step 5's table byte for byte**: minified, Brotli and modules. So items 1–5 move no composition figure.
+
+**After item 6:**
+
+| Row | Minified | Δ | Brotli | Δ | Modules |
+| --- | --: | --: | --: | --: | --: |
+| minimal | 33,336 | −9 | 10,201 | −17 | 33 |
+| minimal (xy) | 32,693 | −9 | 10,094 | −5 | 32 |
+| minimal + layoutAnimation | 34,252 | −9 | 10,533 | −10 | 34 |
+| xy + layoutAnimation | 33,609 | −9 | 10,413 | −4 | 33 |
+| minimal + landing | 33,729 | −9 | 10,386 | **+20** | 35 |
+| complete | 34,645 | −9 | 10,688 | −4 | 36 |
+| free drag minimal | 26,980 | 0 | 8,262 | 0 | 27 |
+| free drag + bounds | 27,624 | 0 | 8,495 | 0 | 28 |
+| free drag + landing | 27,373 | 0 | 8,437 | 0 | 29 |
+| free drag complete | 28,017 | 0 | 8,628 | 0 | 30 |
+| both behaviors | 42,184 | −9 | 12,209 | **+11** | 47 |
+| vocabulary root - drag.js | 252 | 0 | 142 | 0 | 2 |
+| kernel root - kernel.js | 19,954 | 0 | 6,320 | 0 | 16 |
+| baseline A - feature-matched, non-composed | 33,936 | −9 | 10,508 | **+1** | 31 |
+| baseline B - shipped @ydinjs/drag sortable.js | 22,618 | 0 | 6,916 | 0 | 26 |
+
+**Equal, as required:** every free-drag, kernel-root and vocabulary row, minified and Brotli. Baseline B carries none of `src/`, and it is equal too.
+
+**The four budget rows** are unchanged and still over budget by the same bytes (+72, +12, +52, +8; §19.3). They stay pending the owner's disposition. Nothing is re-based.
+
+**Finding, escalated: three sortable-carrying rows grow under Brotli.** Item 6 removes the same 9 minified bytes from every row that carries `sortable/spec.ts`. Under Brotli, four rows shrink and three grow:
+
+- `minimal + landing`, +20;
+- `both behaviors`, +11;
+- `baseline A`, +1.
+
+§20.4 requires the sortable-carrying rows to be equal or smaller, and says any growth is a finding. CONTRIBUTING §15 makes Brotli the governing figure, and it disagrees in direction with the minified figure here. The growth is a compression artefact: no module enters or leaves a graph, and the minified text only shrinks. Even so, it is growth on the governing figure.
+
+None of the three rows is near its budget, and no row in the owner's disposition moves. Item 6 is landed as directed, because reverting it would decide the finding. Whether to keep it, and whether to book it as attributable to item 6, is the architect's.
+
+### Deviations
+
+1. **The source cannot carry a record identifier, and the gate overrules §20.4's wording.**
+   - **The conflict.** `tests/references.node.test.ts`, _should carry no history in a comment_, fails on any `F-`, `M-` or `D-` number, `§` or `.plan/` path in `src/`. That is stricter than CONTRIBUTING's _one bare pointer_. §20.4 item 3 says the text _cites F-442_, and its frame-task bullet says _replace them with a citation_. The first commit put `(F-442)` and `(M-2)` into `sortable/spec.ts`, and the suite failed that row as a fifteenth failure.
+   - **What landed.** `c595e96e3` removes both, comment-only, and leaves the stripped hash unchanged. The source states the property: the gap is admitted and open, and the frame-task comparison stands without figures. F-442 is cited in both contract lines and here. The frame-task figures are held by `m2.md` §Answer 2.
+   - **For the recheck.** If an identifier in the source was meant regardless, the gate and the handoff disagree, and that goes back to the architect.
+2. **A kernel comment that the two-fault gap falsifies**, outside 5R's items and reported rather than changed under §19.5's first condition. `kernel/kernel.ts`, `#handleCancel`'s `ACTIVATING` arm, says that _by the time a cancellation is applied here the placeholder is in the DOM, the lift is acquired and the behavior has already delivered its start notification_. Item 3's probe reaches that arm with `onStart` never run. The claim holds on every path except F-442's gap. It is F-442's to restate, or 5R's if the architect widens it.
+
+### Verification
+
+- **Tests:** `vitest run`, every project, on `c595e96e3`. 1,377 pass and 14 fail, and `react.browser` and `stories.browser` do not load, as before. The 14 are step 5's failing set:
+  - the six `size.node` controls;
+  - the four `docs.node` rows;
+  - the four budget rows.
+
+  The same run at `39e243887` had a fifteenth failure, the gate in §Deviations, 1. Comment-only `c595e96e3` cleared it, and the gate's file passes alone.
+
+- **Lint**, over every changed `src/` file, after `fmt`, `lint-fix`, `fmt`: seven eslint errors. They are the same rules on the same files as at `15a7fa53d`, taken with `git stash` over the same file list:
+  - `free-drag/assemble.ts`: one `no-unnecessary-condition`;
+  - `free-drag/spec.ts`: one `consistent-return`;
+  - `kernel/seams.ts`: two `no-unnecessary-condition` and two `only-throw-error`;
+  - `sortable/spec.ts`: one `consistent-return`.
+
+  Item 6 adds none. The contract Markdown is reported as ignored by eslint and formatted by `oxfmt`.
+
+- **Typecheck:** only the two `.scripts/vitest-*.ts` errors, after items 1–5 and after item 6.
+- **Published declarations:** built at `0ba8afb64`'s `src/` and at items 1–5. Three of 33 files differ: `free-drag/controller.d.ts`, `sortable/controller.d.ts` and `kernel/spec.d.ts`. Each has an equal comment-stripped hash, and every differing line is a doc-comment line. `kernel/spec.d.ts` carries #8's header and #13's `BehaviorInstall` sentence. Item 6 is on a `#private` member and reaches no declaration.
+- `git diff --check`: clean.
+
+### Limits
+
+- Chromium only.
+- Items 3 and 4's outcomes rest on one probe, with the code read for the rest. The probe was not committed, because tests are out of scope. 06:789's asynchronous half is read from the code and pinned by no row for this path.
+- The supplementary census is a word search like step 5's. A passage stating the old closure model in other words escapes it too.
+- No runtime was measured. Items 1–5 change no runtime statement, by the hashes. Item 6 removes a branch on a cold, once-per-command path.
+
+### Unresolved obligations
+
+- **The Brotli growth on three sortable-carrying rows** (§Composition) goes to the architect.
+- **§Deviations, 1 and 2** go to the recheck and the architect.
+- **The four budget overruns** stay the owner's, unchanged and pending disposition.
+- **F-442** is open and not decided here.
+- **D-208 stays `Unimplemented (Remediation)`.** `d208-requests.md` is not created, and the witness holds.
+- **Reviewer-E** is untouched.
+
+**Next:** the bounded independent recheck of 5R's commits against §20.4's required properties, then the architect's acceptance. Step 6 does not start before it.
