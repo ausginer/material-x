@@ -494,3 +494,163 @@ _Read from the figures above. None of it enters the rule._
 ### Next
 
 Step 3 is complete with the outcome _no regression_. Per §24.5, the next step is 6R (step 4). It is not started in this unit. Under step 5, this result carries over to 6R's tree only if 6R's diff touches no function on the per-sample path and the per-sample call counts are identical.
+
+## Remediation 6R, 2026-11-03 (§24.5 step 4) — escalated, nothing landed
+
+**Outcome: the target is unreachable within D-208's properties, and 6R stops here.** No source change is committed. `src/` stays tree `4630579d236624eb32f124268b1c026482f84da2` at this record's commit. The residuals, and what was tried, go to the architect and then the owner (§24.5 step 4, _Escalate rather than decide_).
+
+**Input.** `0852534bf` on `drag2/fin-review2`. Governing text: [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §24.1 and §24.5 step 4.
+
+**The owner's direction, 2026-11-03.** Asked whether to stop and escalate, to commit the in-property changes and escalate the residual, or to read D-208 as allowing an unminted kernel route, the owner chose _Stop and escalate: record the residual per population and every variant tried in §Remediation 6R. Do not commit source._ The question presented variant B′ as in-property. It is not, as below, so the in-property residual is larger than the one the question stated. The direction stands, because B′ failing only widens the gap.
+
+### The target
+
+M-2′, four rounds ABBA, against `6905af249`:
+
+- **at 100 controllers**, the tip's per-controller figure is at or below the baseline's in every round, for all three populations;
+- **at 1000 controllers**, the tip's range does not lie above the baseline's.
+
+### What was tried
+
+All variants touch only construction: `#arm`, `ArmedController`'s constructor, `Kernel.channel`, the two behaviors' factories and their specs' constructors. None of these functions has a nonzero count in step 6's per-sample window. M-2′'s per-controller rows, bytes per controller at 100 controllers, from one run unless noted.
+
+| Variant | What it changes | Sortable | Mixed | Free | Properties |
+| --- | --- | --: | --: | --: | --- |
+| input (`4630579d`) | — | 3,709 | 3,323 | 2,792 | all hold |
+| baseline (`6905af249`) | — | 3,701 | 3,277 | 2,714 | — |
+| **A** | The kernel's mint moves from `#arm` into `ArmedController`'s constructor, over `(error) => { this.#spec.reportError(error); }`. The wrapper shares the context the driver callback already allocates, so `#arm` allocates no context | **3,690** | **3,302** | **2,771** | **all hold** (four rounds, below) |
+| B | The behavior's own channel is the composition channel, passed to the spec, so each controller mints two channels instead of three | 3,816 | 3,474 | 2,885 | hold; reverted |
+| A + B′ | B′: `channel(deliver)` returns `deliverUnlessApplied.bind(bracket, deliver)`, a module function holding the refusal | 3,657 | 3,270 | 2,740 | **R21 fails** (four rounds, below) |
+| A + B′ + a bound forwarder | the kernel's wrapper as `forwardToSpec.bind(spec)` | 3,653 – 3,667 | 3,266 – 3,267 | 2,736 | R21 fails; two runs |
+| prototype P | The kernel's own route as one arrow applying the refusal itself, not minted through `channel()`. A measurement prototype that writes the refusal a second time | 3,622 | 3,235 | 2,704 | breaks _written once_ and the kernel's mint; R21 not run |
+
+- **B costs more than it saves.** In a bare composition the composition channel is garbage after construction, because no installer keeps `report`. Handing it to the spec retains it, and through its sink retains `merged`, the merged plugins array and the factory's context. Attribution books the rise to `mergeFreeFragments` (+52 B), the factory's closures (+49 B) and `createComposedFreeDragBehavior` (+21 B).
+- **B′ moves the refusal's read.** `capture.node`'s census row _should find lifecycle and request reads only at the runner, intake, the channel and unit entries_ then reports `deliverUnlessApplied: closed` in place of `Kernel.channel: closed`, and fails. Keeping B′ would mean changing what R21 pins, which this unit cannot do.
+- **P meets the target, and violates two properties.** It is reported only as the figure a design change would have to reach.
+
+**The diff of A**, the only variant that keeps every property, against `4630579d`, giving src tree `1a5a1ae95c14b7eca741e32918a5c7aa76689f8f`:
+
+```diff
+@@ ArmedController constructor
+     draft: Frame<Part>,
+-    report: Notify,
++    kernel: Kernel<Part, Activation>,
+   ) {
+-    this.report = report;
+-    this.#unwind = createUnwind(report);
++    this.report = kernel.channel((error) => {
++      this.#spec.reportError(error);
++    });
++    this.#unwind = createUnwind(this.report);
+@@ Kernel.#arm
+         draft,
+-        this.channel((error) => {
+-          next.reportError(error);
+-        }),
++        this,
+       );
+```
+
+**B′'s diff**, on top of A (src tree `b7dad3e4c83075055326d640158b90c3421fb305`): `channel`'s body becomes `return deliverUnlessApplied.bind(this.#bracket, deliver);`. `deliverUnlessApplied(this: ExecutionBracket, deliver, error)` is a module function holding the same `closed` test and the same `try`/`catch` terminus.
+
+### Measurements
+
+**M-2′, four rounds ABBA, A against `6905af249`**, ordinary `browser` project as in step 6. Bytes per controller.
+
+| Round | Order | Tip, n=100 (s / m / f) | Base, n=100 (s / m / f) | Tip, n=1000 (s / m / f) | Base, n=1000 (s / m / f) | Load, start → end |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | tip, base | 3,690 / 3,302 / 2,771 | 3,701 / 3,277 / 2,714 | 3,702 / 3,212 / 2,734 | 3,703 / 3,175 / 2,675 | 7.62 → 7.61 |
+| 2 | base, tip | 3,690 / 3,302 / 2,771 | 3,701 / 3,277 / 2,714 | 3,616 / 3,212 / 2,734 | 3,703 / 3,180 / 2,675 | 7.61 → 7.90 |
+| 3 | tip, base | 3,690 / 3,302 / 2,771 | 3,701 / 3,277 / 2,714 | 3,649 / 3,212 / 2,734 | 3,645 / 3,139 / 2,675 | 7.90 → 7.76 |
+| 4 | base, tip | 3,690 / 3,302 / 2,771 | 3,701 / 3,276 / 2,713 | 3,703 / 3,212 / 2,734 | 3,704 / 3,181 / 2,675 | 7.76 → 7.27 |
+
+**M-2′, four rounds ABBA, A + B′ against `6905af249`**, the same project.
+
+| Round | Order | Tip, n=100 (s / m / f) | Base, n=100 (s / m / f) | Tip, n=1000 (s / m / f) | Base, n=1000 (s / m / f) | Load, start → end |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | tip, base | 3,657 / 3,270 / 2,739 | 3,684 / 3,276 / 2,714 | 3,585 / 3,182 / 2,635 | 3,703 / 3,137 / 2,619 | 2.33 → 2.61 |
+| 2 | base, tip | 3,657 / 3,271 / 2,740 | 3,697 / 3,277 / 2,714 | **−858** / 3,182 / 2,702 | 3,702 / 3,180 / 2,675 | 2.61 → 3.52 |
+| 3 | tip, base | 3,657 / 3,271 / 2,740 | 3,701 / 3,277 / 2,688 | 3,584 / 3,180 / 2,702 | 3,646 / 3,182 / 2,675 | 3.52 → 4.17 |
+| 4 | base, tip | 3,657 / 3,270 / 2,739 | 3,701 / 3,276 / 2,713 | 3,671 / 3,109 / 2,702 | 3,703 / 3,180 / 2,675 | 4.17 → 4.20 |
+
+- The tip's sortable figure at 1000 in round 2, **−858 B**, is a failed reading: a negative retained heap. It is reported as read, and no range below includes it.
+- M-2′ has no load filter. The loads are recorded and filter nothing.
+
+**Attribution**, the step-6 harness's retention row (_should attribute what a constructed controller retains, by function_), ordinary `browser` project, 100 bare controllers, one run per tree. Bytes per controller, library frames that bear on the channel:
+
+| Frame                                | Input | A + B′ |            Base |
+| ------------------------------------ | ----: | -----: | --------------: |
+| `kernel/kernel.ts:channel`           | 104.4 |      — |               — |
+| _other_ `bind`                       |     — |   71.3 |               — |
+| `kernel/kernel.ts:#arm`              | 197.9 |  151.2 | — (`arm` 173.7) |
+| `kernel/kernel.ts:ArmedController`   | 671.4 |  700.2 |               — |
+| `free-drag/spec.ts:FreeDragBehavior` | 192.7 |  191.9 |           222.0 |
+
+The input row reproduces step 6's attribution (§M-2): 104.4 B to `channel` at the tip, and no such frame at the baseline.
+
+**R33 and R21 on A:** `tests/diagnostic-intake.browser.test.ts` and `tests/kernel/kernel.browser.test.ts`, 234 of 234 pass; `tests/kernel/capture.node.test.ts`, 15 of 15. On A + B′: 234 of 234, and `capture.node` 14 of 15, the census row above failing. R33's two mutations were not run on any variant, because none lands.
+
+### Analysis
+
+_Everything in this subsection is analysis: read from the code or inferred from the figures above._
+
+**A bare controller retains two channels, not three.** The composition channel is minted at construction and kept only by an installer that keeps `report`. Bare compositions keep none, so the 104.4 B step 6 booked to `Kernel.channel` is two mints: the kernel's own and the behavior's. That is about 52 B each, a closure and its two-slot context. The step-6 analysis's _three per controller_ counted the composition channel, which is transient in M-2′'s populations.
+
+**Where D-208's bytes sit, per bare controller, against the baseline's routes:**
+
+| Route | Baseline | Input | A |
+| --- | --- | --- | --- |
+| kernel's | `#report`, one arrow in the field initializer's existing context (≈ 29 B) | minted channel (≈ 52 B), and a wrapper with its own `#arm` context (≈ 29 + 18 B) | minted channel (≈ 52 B), and a wrapper in the constructor's existing context (≈ 29 B) |
+| behavior's | `#notify`, one arrow in the field initializer's existing context (≈ 29 B) | minted channel (≈ 52 B) | unchanged |
+
+Against the baseline, A still carries about 23 B on the kernel's route (a minted channel's closure and context, over an arrow) and about 23 B on the behavior's (a minted channel, over an arrow). The input's other changes offset part of that per population, which is why sortable meets the target and mixed and free do not.
+
+**Why no in-property variant closes it.**
+
+- A minted channel must hold its `deliver` and the lifecycle's owner. A closure therefore needs a context of its own per mint. The bound form is cheaper, about 36 B against 52 B, but it moves the refusal's read out of `Kernel.channel`, and R21 pins that location.
+- The kernel's route needs a minted channel **and** a function that calls `reportError` with its receiver at each call. `BehaviorSpec.reportError` is a method, and the SPI does not say that it may be called detached or read once. So the wrapper stays. A changes only where it lives.
+- One channel per behavior (B) is possible only by retaining the composition channel, and that retains more than it removes.
+
+### Residual per population, within the properties (A)
+
+| Population | n | Tip (A) | Base | Residual |
+| --- | --: | --- | --- | --- |
+| all sortable | 100 | 3,690 (all four) | 3,701 (all four) | **meets the target** (−11) |
+| half and half | 100 | 3,302 (all four) | 3,276 – 3,277 | **+25 – +26** |
+| all free drag | 100 | 2,771 (all four) | 2,713 – 2,714 | **+57 – +58** |
+| all sortable | 1000 | 3,616 – 3,703 | 3,645 – 3,704 | not above |
+| half and half | 1000 | 3,212 (all four) | 3,139 – 3,181 | **above** |
+| all free drag | 1000 | 2,734 (all four) | 2,675 (all four) | **above** |
+
+Against the input, A recovers 19 B on sortable, 21 B on mixed and 21 B on free drag at 100 controllers. All of it comes from the kernel's mint site and its wrapper.
+
+### Escalation, for the architect and then the owner
+
+**6R's target is unreachable within §24.5 step 4's properties** (_Escalate rather than decide_, first condition). These are the decisions the measured figures leave open:
+
+1. **Authorize the residual** at A: +25 to +26 B per mixed pair and +57 to +58 B per free-drag controller at 100 controllers.
+2. **The kernel's own route.** Could it apply the single refusal without being a channel minted through `channel()`? D-208 _Ownership and surface_ says the refusal is written once _for its own route and every minted channel_. §24.1 and §24.5 say _every diagnostic passes through a minted channel_. Prototype P reaches 2,704 B on free drag. A version that kept the refusal written once would still move the `closed` read, so R21's census would change as well.
+3. **The SPI.** Could `reportError` be called without a receiver, or read once at arming? Then the kernel's route could mint over the spec's own sink with no wrapper. Not measured. It changes `BehaviorSpec`'s calling convention, which is an escalation condition in its own right.
+4. **R21's pinned location.** Could the refusal live in one kernel function other than `Kernel.channel`? That would admit B′: free drag +25 to +52 B, mixed −5 to −7 B and sortable −27 to −44 B at 100 controllers, against each round's baseline. It would still miss the target on free drag.
+
+None of these was decided or acted on here.
+
+### Not measured, because nothing landed
+
+Allocation per sample, per drop, per `moveTo` and per committed frame, call counts, the published declarations and composition against step 1's ceilings were not taken. `drag.js` and baseline B are untouched, as `src/` is.
+
+### Verification
+
+- **The freeze:** `git rev-parse HEAD:packages/drag2/src` returns `4630579d…` at this record's commit. Every variant was applied in the working tree, measured, and restored with `git checkout src`.
+- **This record:** `fmt`, `lint-fix`, `fmt` and `lint` over this file. Both linters report that no Markdown file is lintable, so only formatting is checked. `git diff --check` is clean.
+
+### Limits
+
+- **Chromium only**, one engine and one machine. M-2′'s 100-controller rows reproduce to the byte, or to 1 B, across rounds. The 1000-controller rows spread, and one tip reading failed.
+- **The variants other than A and A + B′ are single runs**, or two, and are reported to rank them, not as the target's reading.
+- **Attribution follows the physical frame**, as step 6's §Limits states. The per-route byte figures in §Analysis are inferred from the attribution and from object sizes, and they identify sources rather than decompose the total.
+- **The baseline worktree** was rebuilt as in step 6: a scratch worktree at `6905af249` with the shared `node_modules` and the tip's test configuration copied in. M-2′ ran from the baseline's own copy. It was removed after the runs.
+
+### Next
+
+6R is escalated, and step 5 does not start. The architect disposes of the four questions above, with the owner where an authorization is needed. A resumed 6R starts from that disposition, with variant A's diff above as the in-property starting point.
