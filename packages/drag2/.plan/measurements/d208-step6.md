@@ -383,3 +383,114 @@ Committed before the first round. Nothing below changes after a round has run, a
 - **Telemetry outside the rule:** each arm's median of all 24 differences with ties included, its tip and base medians, and its slower / faster / equal split.
 
 **On _regression_ or _inconclusive_.** The harness's CPU-profile row (`VITE_DRAG_PROFILE=1`) runs once at each tree, after the 24 rounds. It covers both primary arms: 20,000 warm-up samples, then 200,000 samples under V8's CPU profiler at a 25 µs interval. It reports self time per sample by function, and it books frames served from `src/` to the library. Then step 3 stops and escalates to the architect. No fix is attempted.
+
+### Rounds
+
+**Pre-registration:** protocol commit `08ebdb63e`, over harness commit `3be92b8d9`. Every round ran after both. The rounds ran 2026-11-03, 17:26–19:49 UTC, in the same instruments as §Instruments: Chrome for Testing 153.0.8010.52, Vitest 5.0.5, Node v26.9.0, the same machine. The baseline worktree's src tree is `19f0b867e…`, and its harness differs from the tip's in the two `requestDestroy` → `destroy` lines only.
+
+**Achieved resolution:** every one of the 72 runs (36 attempts, two trees each) reported `q` = 100 µs and `repeats` = 2,048, so `q / repeats` = **0.0488 µs**, and **`r` = 0.0488 µs**.
+
+**Attempts:** 36 in all. **24 accepted. 12 discarded, every one on load:** in each, the start reading was at or below 2.0 and the end reading was above it. **No instrument discard:** every run passed both rows, reported six arms and reached `r`. The blocked conditions were not reached. The longest continuous run of readings above 2.0 was about 12.5 minutes, and the discards stopped at 12 of 48.
+
+**The driver's waiting**, which the protocol leaves to the operator, and which changes no filter:
+
+- Attempts 1 and 2 ran back to back as soon as a reading was at or below 2.0, and both ended above it, carrying the first run's own load.
+- From attempt 3 on, the driver also waits 120 s after every attempt before it polls again.
+- Between attempts 2 and 3, the driver briefly waited for a reading at or below 1.0 instead. No attempt started under that gate, and it was withdrawn because the host's idle floor sat at 1.1–2.5, so the gate might never open while the 2-hour clock never ran.
+
+**Accepted rounds.** Per-sample figures in µs, tip / base. Load is the 1-minute average at the start and end. Times are UTC.
+
+| Round | Attempt | Order | Start | Load start | Load end | bare | `bounds(thunk)` | `axis` | `bounds(element)` | sortable 50 | sortable 200 |
+| --: | --: | --- | --- | --: | --: | --- | --- | --- | --- | --- | --- |
+| 1 | 3 | tip → base | 17:58:27 | 1.53 | 1.67 | 3.223 / 3.467 | 6.934 / 2.881 | 3.516 / 3.320 | 3.467 / 3.125 | 2.783 / 2.930 | 2.783 / 2.881 |
+| 2 | 4 | base → tip | 18:03:03 | 1.72 | 1.90 | 3.516 / 4.150 | 3.125 / 3.076 | 4.297 / 3.467 | 6.982 / 7.031 | 2.881 / 2.832 | 2.881 / 2.881 |
+| 3 | 6 | tip → base | 18:08:15 | 1.49 | 1.45 | 3.320 / 3.662 | 3.027 / 2.832 | 3.272 / 5.078 | 2.783 / 2.978 | 3.125 / 3.027 | 3.174 / 3.027 |
+| 4 | 7 | base → tip | 18:10:21 | 1.21 | 1.28 | 3.613 / 3.125 | 2.783 / 2.881 | 3.027 / 3.027 | 2.881 / 2.783 | 2.686 / 2.978 | 2.783 / 2.832 |
+| 5 | 8 | tip → base | 18:12:26 | 1.66 | 1.61 | 3.272 / 5.713 | 3.027 / 3.027 | 3.027 / 6.494 | 2.930 / 3.320 | 3.027 / 2.686 | 2.783 / 2.978 |
+| 6 | 9 | base → tip | 18:14:32 | 1.35 | 1.48 | 3.223 / 7.178 | 2.881 / 2.930 | 3.467 / 3.369 | 3.174 / 7.178 | 2.930 / 3.027 | 2.978 / 2.832 |
+| 7 | 10 | tip → base | 18:16:37 | 1.40 | 1.45 | 3.027 / 4.150 | 2.881 / 3.076 | 2.832 / 4.883 | 2.881 / 3.174 | 2.832 / 2.930 | 2.783 / 2.881 |
+| 8 | 11 | base → tip | 18:20:43 | 1.59 | 1.57 | 3.418 / 3.320 | 2.978 / 3.076 | 3.174 / 3.027 | 2.930 / 2.783 | 3.320 / 2.734 | 2.832 / 2.881 |
+| 9 | 12 | tip → base | 18:22:48 | 1.01 | 1.00 | 3.272 / 3.174 | 2.881 / 2.978 | 2.978 / 3.076 | 2.734 / 3.076 | 2.881 / 2.881 | 2.832 / 2.881 |
+| 10 | 13 | base → tip | 18:24:53 | 1.70 | 1.64 | 3.272 / 7.471 | 3.125 / 3.076 | 3.027 / 3.125 | 3.027 / 6.836 | 3.027 / 2.978 | 2.881 / 2.783 |
+| 11 | 14 | tip → base | 18:26:59 | 1.26 | 1.40 | 3.125 / 3.564 | 2.881 / 2.978 | 3.320 / 3.564 | 2.783 / 3.223 | 2.588 / 2.881 | 2.734 / 2.881 |
+| 12 | 16 | base → tip | 18:32:09 | 1.54 | 1.57 | 3.076 / 3.174 | 2.832 / 3.125 | 3.076 / 3.174 | 2.783 / 3.027 | 2.637 / 3.027 | 2.686 / 3.125 |
+| 13 | 17 | tip → base | 18:34:15 | 1.14 | 1.12 | 3.125 / 4.736 | 3.174 / 3.076 | 3.272 / 6.348 | 3.174 / 3.467 | 2.930 / 3.076 | 2.930 / 2.930 |
+| 14 | 18 | base → tip | 18:38:51 | 1.63 | 1.66 | 3.223 / 3.369 | 3.809 / 2.881 | 3.174 / 3.272 | 3.320 / 2.881 | 4.639 / 2.734 | 3.272 / 2.686 |
+| 15 | 19 | tip → base | 18:41:57 | 1.51 | 1.55 | 3.272 / 4.541 | 3.125 / 3.760 | 3.223 / 4.346 | 3.076 / 3.857 | 2.978 / 3.516 | 2.930 / 3.516 |
+| 16 | 20 | base → tip | 18:45:02 | 1.67 | 1.80 | 3.467 / 3.467 | 3.076 / 2.832 | 4.346 / 3.125 | 3.125 / 2.832 | 2.978 / 3.174 | 2.881 / 3.076 |
+| 17 | 23 | tip → base | 18:59:51 | 1.53 | 1.57 | 3.369 / 7.227 | 3.272 / 3.076 | 3.467 / 3.662 | 3.369 / 3.320 | 3.272 / 3.027 | 3.223 / 3.174 |
+| 18 | 24 | base → tip | 19:01:57 | 0.87 | 1.04 | 3.564 / 3.516 | 3.272 / 3.174 | 3.418 / 3.369 | 3.076 / 3.174 | 3.174 / 3.223 | 3.272 / 3.369 |
+| 19 | 26 | tip → base | 19:19:10 | 1.39 | 1.60 | 3.418 / 3.272 | 2.881 / 2.978 | 3.272 / 3.320 | 2.881 / 3.076 | 2.686 / 2.930 | 2.832 / 2.930 |
+| 20 | 28 | base → tip | 19:23:21 | 1.64 | 1.67 | 3.418 / 3.564 | 2.930 / 3.027 | 3.516 / 3.174 | 3.027 / 2.978 | 3.027 / 3.027 | 2.978 / 2.978 |
+| 21 | 29 | tip → base | 19:25:26 | 1.23 | 1.29 | 3.174 / 4.004 | 3.125 / 3.174 | 3.076 / 3.223 | 2.978 / 3.076 | 2.930 / 2.930 | 2.832 / 3.027 |
+| 22 | 30 | base → tip | 19:29:02 | 1.61 | 1.56 | 3.418 / 3.369 | 3.174 / 3.174 | 3.369 / 3.418 | 3.125 / 3.516 | 3.076 / 2.783 | 3.027 / 2.783 |
+| 23 | 32 | tip → base | 19:36:13 | 1.64 | 1.99 | 3.272 / 3.418 | 2.978 / 3.027 | 3.125 / 3.320 | 2.930 / 3.223 | 2.978 / 2.978 | 3.076 / 2.832 |
+| 24 | 36 | base → tip | 19:47:36 | 1.26 | 1.32 | 3.320 / 3.272 | 2.978 / 2.930 | 3.418 / 3.320 | 3.711 / 3.223 | 2.881 / 3.027 | 3.027 / 2.978 |
+
+**Discarded rounds.** They do not enter the rule.
+
+| Round | Attempt | Order | Start | Load start | Load end | Discard | bare | `bounds(thunk)` | `axis` | `bounds(element)` | sortable 50 | sortable 200 |
+| --: | --: | --- | --- | --: | --: | --- | --- | --- | --- | --- | --- | --- |
+| 1 | 1 | tip → base | 17:26:53 | 1.72 | 2.06 | load | 3.320 / 4.492 | 2.881 / 3.125 | 3.027 / 3.174 | 2.783 / 3.711 | 3.027 / 2.930 | 2.881 / 2.930 |
+| 1 | 2 | tip → base | 17:27:29 | 1.68 | 2.58 | load | 3.418 / 3.564 | 2.930 / 3.516 | 3.125 / 4.981 | 2.832 / 3.272 | 2.881 / 3.125 | 2.783 / 2.978 |
+| 3 | 5 | tip → base | 18:06:09 | 1.99 | 3.27 | load | 3.272 / 3.223 | 3.027 / 3.125 | 3.027 / 7.031 | 3.076 / 3.857 | 2.783 / 2.832 | 2.881 / 3.076 |
+| 12 | 15 | base → tip | 18:29:04 | 1.77 | 2.35 | load | 3.467 / 3.320 | 3.076 / 2.978 | 3.076 / 3.174 | 3.027 / 3.076 | 3.027 / 2.881 | 2.978 / 2.832 |
+| 17 | 21 | tip → base | 18:53:09 | 1.88 | 2.93 | load | 3.272 / 3.613 | 3.125 / 3.272 | 3.418 / 3.662 | 3.076 / 3.369 | 3.955 / 3.076 | 3.174 / 3.027 |
+| 17 | 22 | tip → base | 18:57:15 | 1.73 | 2.07 | load | 3.369 / 7.666 | 3.125 / 3.272 | 3.467 / 4.492 | 3.369 / 3.272 | 3.076 / 2.930 | 3.223 / 2.930 |
+| 19 | 25 | tip → base | 19:17:04 | 1.87 | 2.20 | load | 3.711 / 3.369 | 2.930 / 3.027 | 3.125 / 3.320 | 2.881 / 2.978 | 2.881 / 2.881 | 2.881 / 2.978 |
+| 20 | 27 | base → tip | 19:21:15 | 1.44 | 4.05 | load | 3.662 / 3.223 | 3.223 / 3.027 | 3.467 / 3.223 | 7.031 / 2.978 | 2.930 / 2.686 | 2.978 / 2.637 |
+| 23 | 31 | tip → base | 19:34:08 | 1.91 | 2.16 | load | 3.320 / 3.369 | 2.783 / 3.125 | 3.027 / 3.174 | 2.734 / 3.027 | 2.734 / 2.930 | 2.832 / 2.881 |
+| 24 | 33 | base → tip | 19:40:49 | 1.99 | 2.21 | load | 7.031 / 4.297 | 2.930 / 3.174 | 5.176 / 3.369 | 3.027 / 3.564 | 2.881 / 2.930 | 3.076 / 2.978 |
+| 24 | 34 | base → tip | 19:43:24 | 1.84 | 3.13 | load | 3.467 / 3.613 | 3.174 / 2.930 | 3.418 / 3.369 | 3.125 / 3.027 | 2.978 / 2.978 | 3.027 / 2.978 |
+| 24 | 35 | base → tip | 19:45:30 | 1.59 | 2.18 | load | 3.857 / 3.223 | 3.027 / 3.027 | 7.178 / 2.881 | 3.076 / 2.832 | 3.272 / 2.881 | 3.174 / 2.930 |
+
+### Results under the rule
+
+`d = tip − base`, in µs. `r` = 0.0488 µs, and a tie is `|d| < 0.0244`.
+
+| Arm | Slower / faster / tied | `n` | `k` | One-sided `p` | `m` (ties dropped) | Verdict |
+| --- | --- | --: | --: | --: | --: | --- |
+| **free drag bare** (primary) | 7 / 16 / 1 | 23 | 7 | 0.983 | −0.244 | **no regression** |
+| **free drag `bounds(thunk)`** (primary) | 10 / 12 / 2 | 22 | 10 | 0.738 | −0.049 | **no regression** |
+| free drag `axis` | 8 / 15 / 1 | 23 | 8 | 0.953 | −0.098 | no finding |
+| free drag `bounds(element)` | 8 / 16 / 0 | 24 | 8 | 0.968 | −0.195 | no finding |
+| sortable, 50 rows | 8 / 12 / 4 | 20 | 8 | 0.868 | −0.098 | no finding |
+| sortable, 200 rows | 8 / 13 / 3 | 21 | 8 | 0.905 | −0.049 | no finding |
+
+**Telemetry, outside the rule:**
+
+| Arm | Tip median | Base median | Median `d`, ties included |
+| --- | --: | --: | --: |
+| free drag bare | 3.272 | 3.540 | −0.195 |
+| free drag `bounds(thunk)` | 3.027 | 3.027 | −0.024 |
+| free drag `axis` | 3.272 | 3.320 | −0.098 |
+| free drag `bounds(element)` | 3.027 | 3.174 | −0.195 |
+| sortable, 50 rows | 2.954 | 2.979 | −0.024 |
+| sortable, 200 rows | 2.881 | 2.905 | −0.049 |
+
+**Outcome: _no regression_.** Both primary arms meet `p ≥ 0.05` and `m ≤ r`. No secondary arm reaches `p < 0.01` for _tip slower_, so there is no finding. Because the outcome is not _regression_ or _inconclusive_, the CPU-profile row was not part of the protocol's response and was not run for the record. Step 3 does not escalate.
+
+### Analysis
+
+_Read from the figures above. None of it enters the rule._
+
+- **The step-6 lean does not reproduce** at four times the resolution on a host inside the filter. On the two arms where it was 16 / 6 and 17 / 6 slower, the tip is now slower in 7 and 10 rounds of 23 and 22, and both medians of the untied differences are at or below zero.
+- **The distribution is still bimodal.** Some arm-runs read about 7 µs against a typical 3 µs, which is the mode step 6 and the step-4 feature proof saw. Among the accepted rounds these land on the baseline more often than on the tip: for example, bare in rounds 5, 6, 10 and 17. Those rounds raise the baseline's median on bare and widen the negative side of `m`. A sign test counts each of them as one round, so they do not decide the outcome. Without them, bare is still not slower: the tip is slower in 7 of the 19 remaining untied rounds.
+- **The outcome is read at `r` and not below it.** `m` on `bounds(thunk)` is −0.049 µs, one resolution step. The figures do not order the trees on that arm, and the rule does not ask them to.
+
+### Limits
+
+- **Chromium only**, one engine version, one machine, under `__DEV__` `true` in the ordinary `browser` project, as step 6's M-1 timing rows ran. A shipped-build timing was not part of the protocol.
+- **The host filter bounds the 1-minute average at the two ends of a round, not during it.** A round lasts about 20 s, so the average reflects mostly what ran before the round.
+- **The sign test answers _is the tip slower more often than not_, not _by how much_.** `m` is the only magnitude in the rule, and it is quantized to `r`.
+
+### Verification
+
+- **The freeze:** `git rev-parse HEAD:packages/drag2/src` returns `4630579d…` at `3be92b8d9`, at `08ebdb63e` and at this section's commit. Nothing under `src/` was edited.
+- **The harness:** `fmt`, `lint-fix`, `fmt` and `lint` are clean. Typecheck shows only the two `.scripts/vitest-*.ts` errors already present at the input. Its structural row passed in every one of the 72 runs.
+- **This record:** `oxfmt` formatted it. `lint` reports Markdown as not linted, so no code-lint pass is claimed.
+- **Retained scratch:** the round logs, the driver and the analysis script are in the session scratchpad, not in the tree. The baseline worktree was removed after the rounds.
+
+### Next
+
+Step 3 is complete with the outcome _no regression_. Per §24.5, the next step is 6R (step 4). It is not started in this unit. Under step 5, this result carries over to 6R's tree only if 6R's diff touches no function on the per-sample path and the per-sample call counts are identical.
