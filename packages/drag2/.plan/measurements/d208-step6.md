@@ -334,3 +334,52 @@ Each where it closed:
 - **D-208 stays `Unimplemented (Remediation)`.** F-432 to F-435 and F-441 stay open. F-442 is untouched. Reviewer-E and D-200's independent acceptance stay the owner's.
 
 **Next:** the architect's disposition of Escalations 1–3, and the owner's dated disposition of the four overruns. Step 6 resumes when both are present: it re-measures whatever an escalation's outcome changes, then writes `d208-requests.md` as its last act. Step 6's feature proof follows.
+
+## M-1's follow-up, 2026-11-03 (§24.5 step 3)
+
+**Canonical entry: `drag2:D-208`**, under [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §24.2 and §24.5 step 3. This is measurement only. **Input:** `57d5b7326`. **The frozen `src/`** is tree `4630579d236624eb32f124268b1c026482f84da2` at the input and at every commit of this section. **Baseline:** `6905af249`, src tree `19f0b867e4094c764c11f1cf5016f7d2796fac98`.
+
+### Protocol (pre-registered)
+
+Committed before the first round. Nothing below changes after a round has run, and the rounds are not pooled with step 6's 24 rounds or its four preliminary rounds.
+
+**Instrument.** `tests/perf/d208-m1.browser.test.ts`, its timing row only, at harness commit `3be92b8d9`. It is the only harness change.
+
+- **Fixtures.** The arms are built as M-1′ arm C and M-1 build them: the same fixtures, the same sample coordinates, one live controller at a time. The arms run in a fixed order: free drag bare, `axis: 'y'`, `bounds(element)`, `bounds(thunk)`, then sortable at 50 rows and at 200 rows.
+- **Policy.** M-1's policy, unchanged: five discarded warm-up samples, a batch calibrated to at least 2 ms, then 21 batches. The per-sample figure is the median batch mean.
+- **Resolution.** The harness measures the clamp quantum `q` of `performance.now()` as the smallest nonzero step over 200 steps. It then doubles the batch's repeat count until `q / repeats ≤ 0.05 µs`. Every figure is reported with `q`, `repeats` and `q / repeats`. **The stated resolution `r`** is the largest `q / repeats` reported in any accepted run. The probe runs before this commit returned `q` = 100 µs, `repeats` = 2,048 and `r` = 0.0488 µs.
+- **Project.** The ordinary `browser` project, where `__DEV__` is `true`, which is where step 6's M-1 timing rows ran. The file runs alone, one file per Vitest run: `VITE_DRAG_MEASURE=1 npx vitest run -c vitest.config.ts --project browser --reporter=verbose tests/perf/d208-m1.browser.test.ts`.
+- **The baseline.** A scratch worktree at `6905af249`, using the shared `node_modules`. The tip's `.scripts/vitest-config.ts` and `packages/drag2/vitest.config.ts` are copied in, as step 6 did. The harness is copied in with `requestDestroy` mapped to `destroy`, and nothing else changes.
+
+**Rounds.** One round is one run at each tree, back to back. Rounds are numbered 1–24 and run in ABBA order: the tip runs first in odd rounds, and the baseline runs first in even rounds. A rerun keeps its round's number and order.
+
+**The host filter.** The 1-minute load average is the first field of `/proc/loadavg`.
+
+- It is read immediately before a round's first run and immediately after its second.
+- **If either reading is above 2.0, the round is discarded** and rerun. A discarded round is recorded with both readings and its figures, and it does not enter the rule.
+- A round is not started until a reading is at or below 2.0. Readings are taken every 30 s while waiting, and a wait is not a discarded round.
+- **The instrument filter.** A run that fails a row, does not report all six arms, or reports `q / repeats` above 0.05 µs discards its round. That discard is recorded separately from the load discards.
+- **Blocked on the environment** if either of these happens:
+  - no reading at or below 2.0 occurs in a continuous 2-hour wait;
+  - 48 rounds are discarded before 24 are accepted.
+
+  Then step 3 is reported blocked, and the accepted rounds so far are recorded without a rule outcome. The 2.0 threshold is not relaxed.
+
+**The rule.** For each arm and each accepted round, `d = tip − base`, in µs, per-sample figure against per-sample figure.
+
+- **A tie** is `|d| < r / 2`, which means the two figures are the same multiple of the resolution. Ties are dropped, both from the sign test and from the median.
+- `n` is the number of untied rounds, and `k` is the number with `d > 0` (tip slower).
+- **Exact one-sided sign test for _tip slower_:** `p = Σ_{j=k}^{n} C(n, j) / 2^n`. If `n = 0`, then `p = 1` and the median is 0.
+- **The median paired difference** `m` is the median of the `n` untied differences. For an even `n` it is the mean of the two middle values.
+- **Per primary arm:**
+  - **regression:** `p < 0.01`;
+  - **no regression:** `p ≥ 0.05` and `m ≤ r`;
+  - **inconclusive:** anything else.
+- **The primary arms** are free drag bare and free drag `bounds(thunk)`. **The secondary arms** are `axis`, `bounds(element)`, sortable at 50 rows and sortable at 200 rows. A secondary arm is computed the same way. At `p < 0.01` it is reported as a finding, and it does not enter the outcome.
+- **Outcome:**
+  - **_no regression_** only if both primary arms are no regression;
+  - **_regression_** if either primary arm is a regression;
+  - **_inconclusive_** otherwise.
+- **Telemetry outside the rule:** each arm's median of all 24 differences with ties included, its tip and base medians, and its slower / faster / equal split.
+
+**On _regression_ or _inconclusive_.** The harness's CPU-profile row (`VITE_DRAG_PROFILE=1`) runs once at each tree, after the 24 rounds. It covers both primary arms: 20,000 warm-up samples, then 200,000 samples under V8's CPU profiler at a 25 µs interval. It reports self time per sample by function, and it books frames served from `src/` to the library. Then step 3 stops and escalates to the architect. No fix is attempted.
