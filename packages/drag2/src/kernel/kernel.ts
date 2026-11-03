@@ -2034,6 +2034,13 @@ class ArmedController<Part extends object, Activation extends {}> {
         // drag began with no terminal callback at all — and there is nothing
         // atomic left to protect, because settling un-commits nothing.
         //
+        // **That claim does not hold on one class of two-fault paths**, and the
+        // arm reads the phase alone. Consumer code reached from the activation
+        // unit registers a cancellation, and the effect then fails before the
+        // start notification: the cancel supersedes the failure, and this arm
+        // settles a drag whose start was never notified. The gap is admitted
+        // and open.
+        //
         // **The stage is whether the round-trip opened, not the phase.**
         // `RELEASING` spans whole units before `OPEN_RESOLUTION` runs, and a
         // cancel applied in them never reached the consumer's resolver, so it
@@ -2459,9 +2466,8 @@ class ArmedController<Part extends object, Activation extends {}> {
  *
  * **No input is admitted before the factory returns.** The factory returns
  * `{ spec, controller }`, then arming composes the frames and attaches
- * ingress, and native ingress is refused while construction runs. Probe 1's
- * *no input can be admitted before `install()` returns* names this boundary;
- * the order holds it, and no guard checks it.
+ * ingress, and native ingress is refused while construction runs. The order
+ * holds this boundary, and no guard checks it.
  *
  * **Before construction publishes the armed controller** the members behave as
  * the construction window requires: `dispatch` queues unchecked,

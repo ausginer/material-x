@@ -432,9 +432,9 @@ export class SeamDriver<Part extends object> {
    *
    * Strictly non-reentrant. Nothing in the kernel runs behavior code from
    * inside other behavior code — the execution bracket's drain is
-   * run-to-completion, so a nested
-   * `dispatch` from a callback appends and returns, and the appended action
-   * opens its phase only after this one has finished.
+   * run-to-completion, so a nested `dispatch` from a callback appends and
+   * returns, and the appended action opens its phase only after this one has
+   * finished.
    *
    * **What `#openStage` covers is the foreign-code window, and that is the
    * boundary this guard is for.** It is set as a phase opens and cleared before
@@ -462,8 +462,8 @@ export class SeamDriver<Part extends object> {
    *
    * So the refusal **latches** rather than merely throwing, for the reason
    * `#reentry` states. `#runPhase` rethrows past every classification on the
-   * way out to reach the execution bracket's panic path, which is also what makes behavior
-   * code that catches its own refusal panic anyway.
+   * way out to reach the execution bracket's panic path, which is also what
+   * makes behavior code that catches its own refusal panic anyway.
    */
   #refuseReentry(): void {
     if (this.#openStage !== NO_STAGE) {

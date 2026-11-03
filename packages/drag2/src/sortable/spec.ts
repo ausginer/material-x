@@ -742,6 +742,13 @@ class SortableBehavior {
     // cannot. Adjacency alone already implies same-parent, so a separate
     // parentage test would be unfalsifiable; but adjacency holds inside a
     // detached fragment too, so connectivity is not implied by it.
+    //
+    // That is the single-fault outcome. If consumer code in this activation
+    // also registered a cancellation, the two-fault class stated where
+    // `#invalidateInSeam` fails below applies instead: the cancel supersedes
+    // this failure, the drag settles as *canceled* without a start
+    // notification, and the landing looks for an activation record this
+    // throw left unpublished.
     const item = current.item!;
 
     if (!placeholder.isConnected || item.nextElementSibling !== placeholder) {
@@ -784,14 +791,18 @@ class SortableBehavior {
     if (!this.#invalidateInSeam()) {
       // Classified; the operation is failing, so do not start it.
       //
-      // This is the one path that reaches a terminal callback without a
-      // start notification — and only in combination with a second fault: a
-      // cancellation registered from the placeholder's `connectedCallback`
-      // above outranks this classified failure, so the operation settles as
+      // This is one instance of a class of two-fault paths that reach a
+      // terminal callback without a start notification; the adjacency throw
+      // above is another. The class needs both faults: consumer code reached
+      // from this activation — the placeholder factory in `prepare`, or the
+      // placeholder's `connectedCallback` above — registers a cancellation,
+      // and the effect then fails before `onStart`. The registered cancel
+      // outranks the classified failure, so the operation settles as
       // *canceled* for a drag `onStart` never announced, and the failure
       // reaches `onError` as superseded by the cancel. Either fault alone is
-      // fine: without the cancel this reports through `onError`, and without
-      // the throw `onStart` still runs. The gap is admitted and open.
+      // fine: without the cancel the failure reports through `onError`, and
+      // without the failure `onStart` still runs. The gap is admitted and
+      // open.
       return;
     }
 
@@ -860,13 +871,13 @@ class SortableBehavior {
       // dispatches — and here it cannot fail once the phase test passes,
       // because the record is published before `ACTIVE` is committed and
       // cleared only at retirement. The attempt comparison cannot fail
-      // either, because the frame task coalesces and dispatches the latest sequence
-      // synchronously, so a queued attempt is always current when it
-      // applies. It is kept because the contract states the check, and
+      // either, because the frame task coalesces and dispatches the latest
+      // sequence synchronously, so a queued attempt is always current when
+      // it applies. It is kept because the contract states the check, and
       // because anything that queues a spatial action from outside the
       // frame task reopens the window it closes. The spatial action is
-      // inert outside `ACTIVE`, and the activation record cannot stand in for
-      // that: it is cleared only at retirement, so it stays non-null
+      // inert outside `ACTIVE`, and the activation record cannot stand in
+      // for that: it is cleared only at retirement, so it stays non-null
       // through `RELEASING`, `SETTLING` and `FINALIZING`. No producer
       // reaches those phases — the frame task is cancelled when motion
       // closes at release, and no other call site dispatches this tag — so

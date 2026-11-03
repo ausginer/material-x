@@ -873,7 +873,7 @@ This is **I-29's sibling, I-30**, and it is tier C — the API does not enforce 
 |  | Cause | Terminal | Consumer's position |
 | --- | --- | --- | --- |
 | **D-40's clause** | `destroy()` after `onStart` | none, by design | the consumer asked for it, on its own stack |
-| **the admitted gap below** (open: F-442; marked 2026-11-03) | two faults in `activation.effect` | one, for an unnotified start | the consumer was told nothing and then told it ended |
+| **the admitted ~~gap~~ class below** (open: F-442; marked 2026-11-03; restated 2026-11-03, remediation 5R.1) | ~~two faults in `activation.effect`~~ two faults: a cancel registered by consumer code reached from the activation unit's `prepare` or `effect`, then an effect failure before the start notification | one, for an unnotified start | the consumer was told nothing and then told it ended |
 
 The gap below is a terminal callback with **no** start; D-40's clause is a start with **no** terminal, and it is deliberate. Neither subsumes the other, and the invariant table in [05](05-lifecycle-invariants.md) carries both rows.
 
@@ -881,9 +881,23 @@ The gap below is a terminal callback with **no** start; D-40's clause is a start
 
 An earlier draft abandoned `ACTIVATING` cancels with no callbacks, on the grounds that there was "nothing to tell the consumer about yet". That is true at `PENDING`, which still retires, and false here: the consumer has been told a drag began, and abandoning leaves it with state to unwind and no event that says to unwind it. Settling costs nothing structurally — nothing is un-committed, and the settlement transition stamps `SETTLING` from whatever phase preceded it.
 
-**The one admitted gap.** A cancellation ~~latched~~ **registered** from a custom placeholder's `connectedCallback` — which runs synchronously inside `item.after(placeholder)`, _before_ the start notification — combined with a `slots.invalidateInsertion()` that then throws, produces a terminal callback for a drag whose start was never notified. Both faults are required: alone, the first still reaches `onStart` and the second reports its own classified failure. ~~Recorded rather than closed, because closing it means carrying a per-operation "started" flag for a two-fault path that already reports through the error channel.~~
+~~**The one admitted gap.**~~ **One instance of the admitted class** (restated 2026-11-03, below). A cancellation ~~latched~~ **registered** from a custom placeholder's `connectedCallback` — which runs synchronously inside `item.after(placeholder)`, _before_ the start notification — combined with a `slots.invalidateInsertion()` that then throws, produces a terminal callback for a drag whose start was never notified. Both faults are required: alone, the first still reaches `onStart` and the second reports its own classified failure. ~~Recorded rather than closed, because closing it means carrying a per-operation "started" flag for a two-fault path that already reports through the error channel.~~
 
 **Amended 2026-11-03 (D-208 remediation 5R, [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20.4).** Since D-207 a cancel raised inside a unit is registered and applied in a later unit, so _latched_ is restated as _registered_. The outcome is unchanged, and was established at D-208 step 5's tip by a probe through the running controller: the activation's `invalidateInsertion()` throw is classified, the registered cancel supersedes the checkpoint, `onStart` never runs, `onEnd` receives one `canceled` result at `AT_PROPOSAL` with origin `CANCEL_SUPPLIED`, and the throw reaches `onError` as `drag: failure/superseded-by-cancel`. The struck reason is not a ground any more: the per-operation start marker exists, and the failure arm already consults it. **The gap is open**, and whether to close it is F-442.
+
+**Amended 2026-11-03 (D-208 remediation 5R.1, [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §21.3 and §21.7).** The gap is not unique: the passage above is one instance of a class. A terminal callback is reached without a start notification exactly when both of these hold:
+
+- consumer code reached from the activation unit, from `activation.prepare` or from `activation.effect`, registers a cancel;
+- the effect then fails before the start notification.
+
+D-207's entry clause cannot decline the unit, because the cancel arrives after the entry. The registered cancel supersedes the failure checkpoint (D-202 property 7), and the `ACTIVATING` arm of the cancel's application settles on the phase alone. The outcome: `onStart` never runs, `onEnd` receives one `canceled` result at `AT_PROPOSAL`, and the failure reaches `onError` as `drag: failure/superseded-by-cancel`.
+
+Two instances are known, both in the sortable and both probed at remediation 5R's tip:
+
+- **P1**, the passage above: `invalidateInsertion()` throws after the activation record is published;
+- **P2**: the placeholder's `connectedCallback` registers a cancel and removes the placeholder, so the adjacency check throws before the activation record is published. The settlement's landing then reads the absent record and reports `drag: landing/target-unavailable`, whose `cause` is the library's own `TypeError`.
+
+Whether a cancel registered in `activation.prepare`, or free drag, yields an instance is not established. The outcome predates D-208. The table row above restates its cause, which named only `activation.effect`, because the cancel may also come from `prepare`. **The class is open**, and F-442 decides it for the class.
 
 ## Capabilities passed at call time
 
