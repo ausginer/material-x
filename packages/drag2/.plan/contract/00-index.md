@@ -2884,6 +2884,8 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 **Remediation 5R.1 assessed 2026-11-03, at `5e5a493d2`, and not yet closed** (record §22). The implementation is clean except for one introduced comment defect, 5r1-A, which is corrected in a closing commit before the source freeze. The same commit qualifies I-31's _only then_ at 05:199 and makes 07's L-2 a citation of I-31 (D-83). Neither decides F-442. A delta recheck and the architect's dated closure follow, and only then does step 6 start.
 
+**Remediation 5R.1 closed 2026-11-03, at `7f1900ccf`** (record §23). The delta recheck found no defect at the closing commit's four sites and the keep list met. The `src/` freeze starts here, at tree `4630579d2`, and holds until the whole decision is accepted. Step 6 may measure now, into `.plan/measurements/d208-step6.md`. `d208-requests.md` waits for complete evidence and the owner's dated disposition of the four overruns. The closure decides nothing on F-442 and nothing on the overruns.
+
 **What is carried.** D-207's text, its properties as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1–3 as accepted at `44e2074f1`, `877fb9612` and `ef1e4ef6b`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step3-B and step3-C keep their boundaries.
 
 **The required behavior is the baseline's.** After applied destruction no diagnostic reaches `onError` by any route, except panic's own report (D-178). Before application, in `LIVE` and in the requested interval, every diagnostic is delivered:
@@ -2940,7 +2942,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-208 | Remediation | remediation 5R.1, then step 6, the measurement record. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64`, and remediation 5R at `2d17645f5` | absent: `.plan/measurements/d208-requests.md` |
+| D-208 | Remediation | step 6, the measurement record, which also waits for the owner's disposition of step 4's four budget overruns. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64`, remediation 5R at `2d17645f5`, and remediation 5R.1 is closed at `7f1900ccf` | absent: `.plan/measurements/d208-requests.md` |
 
 **D-207's row closed on 2026-11-02 with steps 1–3 accepted.** D-208 superseded it during step 4, adding `BehaviorContext.channel` so that the behaviors' diagnostics keep the kernel's refusal after applied destruction. D-208's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 

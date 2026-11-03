@@ -2298,6 +2298,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-03 — D-208 remediation 5R.1 closed: the source freeze starts, and step 6 may measure
+
+**5R.1 is closed at `7f1900ccf`, and D-208 is not complete.** The delta recheck found no defect at the closing commit's four sites, and every keep-list item held. The cancel's source is stated as the class states it, I-31's _only then_ is qualified, and L-2 cites I-31.
+
+**The `src/` freeze starts at this closure,** at `7f1900ccf`'s tree `4630579d2`. Its witness is byte equality of that tree until the whole decision is accepted. A source defect found from here goes to the architect, and step 6 does not fix it.
+
+**Decided here:** step 6 measures now, into its own working record, `d208-step6.md`. `d208-requests.md`, the witness, is written last, and only when the evidence is complete and the owner's dated disposition of the four overruns is present. Without the disposition, step 6 stops and reports itself blocked.
+
+**Not decided here:** F-442 stays open at tier B, due before Phase 24 exits. The four overruns stay the owner's, neither tolerated nor re-based.
+
+**Next:** step 6's measurements; then `d208-requests.md`, once both conditions hold; then step 6's feature proof; then the whole-decision acceptance.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §23.
+
+---
+
 ### 2026-11-03 — D-208 remediation 5R.1 assessed: one closing commit before the source freeze
 
 **5R.1 is not closed yet, and D-208 is not complete.** Its recheck confirms that items 1–3 meet their requirements and change nothing at runtime, in composition or in the published declarations. One introduced comment defect remains: 5r1-A, a list of the class's cancel sources that reads as exhaustive and omits the axis installer's `invalidate`.

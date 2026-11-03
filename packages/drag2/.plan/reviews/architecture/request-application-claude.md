@@ -2830,3 +2830,128 @@ The assessment rests on two documents:
 | Step 6, its feature proof and D-208's whole-decision acceptance | implementer, reviewer, architect | §20.5 as §21.8 amends it | after 5R.1 closes, in that order |
 | F-442, the class (tier B) | architect, then the owner if a published outcome changes | decide, under §21.3's three properties | before Phase 24 exits |
 | D-200's independent acceptance; Reviewer-E | owner | unchanged | unchanged |
+
+## 23. Remediation 5R.1 closed (D-208)
+
+**Input.** `f09416101` on `drag2/fin-review2`. The closing commit reviewed is `7f1900ccf`, over `ba40b6387` (§22's commit). The assessment rests on two documents:
+
+- the delta recheck ([`d208-5r1-closing-recheck-claude.md`](../fin-review2/d208-5r1-closing-recheck-claude.md));
+- `d208-step5.md` §Closing commit — 2026-11-03.
+
+### 23.1 Assessment
+
+**§22.4's three conditions hold, and 5R.1 is closed on 2026-11-03, at `7f1900ccf`.**
+
+1. **The closing commit landed at §22.3's four sites and no others.** `ba40b6387..7f1900ccf` touches `sortable/spec.ts`, 05, 07 and `d208-step5.md`. `f09416101` adds only the recheck.
+2. **The delta recheck reports no defect at the four sites, and the keep list is met.**
+   - The `sortable/spec.ts` parenthesis states the source as the class does, and names its two sources as examples, _not a complete list_.
+   - I-31's _only then_ carries the dated qualification §22.2 requires. Nothing else in the row changed.
+   - L-2 is struck with a date and replaced by a citation of I-31. Its heading and the 07:713 row are unchanged.
+   - The record corrects §Item 1's _twice_ in its own dated subsection, and leaves the original unedited.
+   - Every keep-list item holds.
+3. **This section records the closure,** and D-208's index entry records it with the same date.
+
+**Checked by the architect at `f09416101`:**
+
+- the commit's file list, as condition 1 states it;
+- the three diffs, read against §22.2's properties;
+- `git diff 5e5a493d2 f09416101` changes only `sortable/spec.ts` under `src/`, and the change is inside one comment;
+- nothing under `tests/` or `bench/` changed between `5e5a493d2` and `f09416101`.
+
+**Considered and not raised:**
+
+- **60 or 62 files.** The recheck hashed 62 TypeScript files, and the record states 60 modules. `src/` holds 60 `.ts` files, `globals.d.ts` among them, and two `.tsx` files. The recheck's set contains the record's, and equality holds over both.
+- **The stripped-hash instrument's serialization.** The recheck reproduces the record's digest only with the lines joined by `\n` and parent pointers unset. The earlier recheck described the join differently. Equality between the trees holds under every variant, and equality is the keep property. From the freeze on, no stripped hash is needed (§23.2).
+- **`:796–799` against `:800`.** The record's range covers the source clause, and the last clause wraps onto `:800`. Nothing turns on it.
+
+**This closure certifies:** the three corrected sites state what the code does, under §22.2's properties; and the closing commit changes no runtime statement, no composition row, no published declaration and no test.
+
+**It does not certify:**
+
+- any list of the class's cancel sources as exhaustive (§22.1);
+- F-442's answer, or whether free drag has an instance of the class;
+- the four budget overruns;
+- step 6, or D-208's completion.
+
+### 23.2 The source freeze
+
+**The source freeze starts at this closure.** The frozen `src/` is `7f1900ccf`'s, tree `4630579d236624eb32f124268b1c026482f84da2`. `f09416101` and this section's commit carry it unchanged.
+
+- **The witness is byte equality.** Until the whole decision is accepted, `git rev-parse <rev>:packages/drag2/src` returns that tree hash at every D-208 revision. A stripped hash is weaker than that and is not needed for the freeze.
+- **What the freeze covers.** It covers `packages/drag2/src/`, comments included. It does not cover `tests/`, `bench/` or `.plan/`.
+- **A source defect** found by step 6 or its feature proof goes to the architect (§21.8). Step 6 does not fix it, and its records do not absorb it.
+
+### 23.3 Handoff: step 6, the measurements
+
+**Governing design:** §20.5, as §21.8 amends it. This section adds one thing: where measurements go while `d208-requests.md` waits.
+
+**Owner:** the implementer. **Input:** this section's commit. **The precondition is met.** 5R is accepted (§21), and 5R.1 is closed (§23.1).
+
+**Step 6 may measure now.** The owner's disposition of the four overruns gates the record, not the measurements.
+
+**Step 6's working record is `.plan/measurements/d208-step6.md`.** It follows the pattern of `d208-step4.md` and `d208-step5.md`. It is not D-208's witness, and creating it changes nothing in the unimplemented table. It holds, as each is taken:
+
+- **composition at the tip,** measured at the frozen `src/`, beside 5R's row as §21.2 books it and 5R.1's control (§21.8);
+- **M-1,** the move path, with I-26's structural check: one sample allocates nothing, and `OPEN_RESOLUTION` and `moveTo`'s copy are per drop and per call;
+- **M-2,** controller cost with the façade;
+- **R21's read census,** by location, with the `channel` mint sites beside it. Five are expected. A sixth is a finding, and goes to the architect (§19.2);
+- **step4-D's remainder:**
+  - free drag's per-sample allocation, net of the harness's own `PointerEvent`;
+  - the committed move, measured if a harness reaches the frame, and otherwise stated by analysis labelled as analysis;
+- **each instrument, the revision it ran at, and its limits.**
+
+**The evidence is complete** when every item above is either measured or, for the committed move only, stated by labelled analysis, and no escalation from §20.5 or §23.2 is open.
+
+**`d208-requests.md` is written only when both of these hold:**
+
+1. the evidence is complete;
+2. the owner's dated disposition of the four overruns is present.
+
+It then holds what §20.5 lists. Its step-6 figures are cited from `d208-step6.md`, as steps 1–5R's are cited from their own records. **Writing it is step 6's last act.** If the evidence is complete and the disposition is absent, step 6 commits `d208-step6.md`, does not create `d208-requests.md`, and reports itself blocked on the owner. It does not propose or presume a disposition.
+
+**Closed items the record cites,** each where it closed:
+
+- R34 (`e46e11493`), step3-B (§20.2), step4-A's census and 5R's supplementary census;
+- step5-A, step5-C and #1, closed in 5R (§21);
+- the uniqueness text, closed in 5R.1 (§22), and 5r1-A, I-31's qualification and L-2's citation, closed at `7f1900ccf` (§23.1).
+
+**Keep:**
+
+- the frozen `src/` (§23.2);
+- a harness a measurement needs goes under `bench/` or `tests/`, in its own commit;
+- the failing set stays the same 14 rows by name. A new harness adds no failing row.
+
+**Escalate rather than decide** if:
+
+- M-1 or M-2 shows a runtime regression against the input `6905af249` that is attributable to D-208;
+- a measurement can only be taken by changing `src/`;
+- R21 finds a lifecycle read outside `src/kernel/`, or a sixth mint site;
+- step 6 finds a source defect (§23.2).
+
+**Out of scope:**
+
+- F-442, its instances and its answer;
+- the four overruns' disposition, which is the owner's;
+- re-reviewing the comment pass, 5R or 5R.1, and any new search or census beyond R21's;
+- `c186f120e`, which step 6's feature proof reads in the tree as it is;
+- D-200's independent acceptance and Reviewer-E.
+
+**After the record.** §20.5's order stands: step 6's feature proof, then the architect's whole-decision acceptance. Only that acceptance:
+
+- removes D-208's unimplemented row;
+- closes F-432 to F-435 and F-441;
+- marks D-208 implemented.
+
+**Unchanged by this closure:** D-208 stays `Unimplemented (Remediation)`, and the witness holds. F-432 to F-435 and F-441 stay open. F-442 stays open, at tier B, due before Phase 24 exits. If F-442's decision closes the class, it strikes I-31's qualification. The four overruns stay the owner's, and this closure neither tolerates nor re-bases them.
+
+### 23.4 Remaining items: owner, action, deadline
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| Step 6's measurements, in `d208-step6.md` | implementer | §23.3 | now. 5R.1 is closed |
+| The four budget overruns | **owner** | tolerate, re-base or direct a recovery pass (§19.3) | before `d208-requests.md` is written |
+| `d208-requests.md` | implementer | §20.5, as §21.8 and §23.3 amend it | after the evidence is complete **and** the owner's disposition is present |
+| Step 6's feature proof | independent reviewer | full feature proof | after `d208-requests.md`, before the whole decision is accepted |
+| D-208's whole-decision acceptance | architect | §20.5 | after step 6's feature proof |
+| F-442, the class (tier B) | architect, then the owner if a published outcome changes | decide, under §21.3's three properties | before Phase 24 exits |
+| D-200's independent acceptance; Reviewer-E | owner | unchanged | unchanged |
