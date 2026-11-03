@@ -170,7 +170,14 @@ Kernel-private. **Amended by D-207 step 3: decided at application.** Destruction
 
 **Tier:** C
 
-**Counted by inspection**, §[06](06-vertical-sortable-trace.md); it _does_ create the CSS transform string. M-1 (2026-08-02) bounds it from outside: one sample costs **2.64 µs at 50 rows, 2.73 µs at 200** — flat in list size, because the spatial search is coalesced to a frame — and **20,000 consecutive samples produced no measurable net heap growth**. That bounds retention at zero and transient allocation below a precise-memory reading's noise floor; "creates no object" is a stronger statement than a heap reading can make, so the tier stays C.
+**Counted by inspection**, §[06](06-vertical-sortable-trace.md); it _does_ create the CSS transform string. M-1 (2026-08-02) bounds it from outside: one sample costs **2.64 µs at 50 rows, 2.73 µs at 200** — flat in list size, because the spatial search is coalesced to a frame — and **20,000 consecutive samples produced no measurable net heap growth**. That bounds retention at zero ~~and transient allocation below a precise-memory reading's noise floor~~; "creates no object" is a stronger statement than a heap reading can make, so the tier stays C.
+
+**Corrected 2026-11-03 (F-444): the heap-growth reading bounds retention only.** Net `usedJSHeapSize` growth is read after the loop, and scavenges inside the loop return a sample's short-lived objects before the second reading, so transient allocation never reaches it. It returned 0.0 B per sample at both trees in 28 runs on a path that allocates about 189 B a sample. **The measured per-sample allocation** comes from V8's sampling heap profiler (`HeapProfiler.startSampling`, 8 B sampling interval, collected objects included, bytes booked to the allocating frame), over 2,000 pre-built pointer events per arm after 5,000 warm-up samples, in four ABBA rounds at the D-208 tip and `6905af249`, shipped and DEV — harness `tests/perf/d208-step6.browser.test.ts` (`be75b3da1`), record [`d208-step6.md`](../measurements/d208-step6.md) §Allocation per sample. Arm totals are 191.2–196.7 B for free drag (bare, `bounds(element)`, `bounds(thunk)`) and 193.6–207.1 B for the sortable at 50 rows, against controls of 2.7–9.5 B, so about **189 B a sample net**, equal between the trees. It has two shares:
+
+- **about 105 B is the CSS transform string** (104.5–105.2 B, booked to `presentation.ts:write` or the `moved` it is inlined into). This invariant names it as permitted;
+- **about 84 B is the action queue's backing store**, regrown by `push` under `ExecutionBracket.dispatch` after the previous drain's truncation released it, and reproduced by `ActionQueue` alone at 88.8–90.2 B a cycle (F-443).
+
+**I-26's wording and tier are unchanged.** It counts objects created per sample, by inspection, and it is not _allocates nothing_. D-208's statement is no per-sample difference from `6905af249`, which the same instrument measures (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §24.3.3). The original paragraph above stands as history.
 
 #### I-27 — Part factories are deterministic and folded in a fixed order for both frames
 
@@ -918,6 +925,8 @@ Each entry carries the answer and its write-up, and beneath them the original st
 #### M-1
 
 The generic copy is **0.098 µs of a 2.64 µs pointer sample (3.7%)** and stays — but its cost jumps 10× between 12 and 16 behavior-part fields, and this frame sits 4 fields below that cliff. 20,000 samples produced no measurable net heap growth (I-26).
+
+**Corrected 2026-11-03 (F-444):** the net-heap-growth reading bounds **retention**, not transient allocation — scavenges inside the loop return the churn before the second reading. Step 6's sampling heap profiler measures about **189 B per sample** at both the D-208 tip and `6905af249`: about 105 B of transform string and about 84 B of action-queue backing store (F-443). I-26 carries the figures, the instrument and their scope; the sentence above stands as history.
 
 **Write-up:** [m1.md](../measurements/m1.md)
 

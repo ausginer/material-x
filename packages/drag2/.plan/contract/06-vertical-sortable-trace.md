@@ -366,6 +366,8 @@ The earlier version of this section claimed **"zero allocations, two indirect ca
 
 Nothing else allocates a wrapper: the native event is queued by reference under a narrow `PointerCoordinates` contract (`pointerId`, `clientX`, `clientY`) and is not retained past the drain, and the spatial attempt is a `number`, not an object (D-11). The enqueue itself is two array pushes — **no per-entry object, and capacity growth is amortized**, which is the phrasing every document uses.
 
+**Corrected 2026-11-03 (F-444, F-443): capacity growth is not amortized.** `ActionQueue.clear()` truncates the store, which releases it, and the next sample's `push` regrows it, so every pointer sample allocates about **84 B** of queue backing store. The count above (one string, plus the in-place mode's object) therefore misses it. Measured by V8's sampling heap profiler (`HeapProfiler.startSampling`, 8 B interval, bytes booked to the allocating frame) over 2,000 pre-built pointer events per arm in four ABBA rounds, shipped and DEV, at the D-208 tip and `6905af249` alike, in [`d208-step6.md`](../measurements/d208-step6.md) §Allocation per sample: one sample allocates about **189 B net of the control**, about 105 B of it the transform string and about 84 B the queue store, which `ActionQueue` alone reproduces at 88.8–90.2 B a cycle. M-1's net-heap-growth reading, which returned 0 B at both trees, bounds retention only and cannot see this churn. The fix is to the code, under F-443; the sentence above stands as history.
+
 **DOM reads: none.** Everything the move path needs is already committed as scalars; measurement happens on the coalesced frame.
 
 **DOM writes: one.** The transform on the lifted visual.
