@@ -558,7 +558,7 @@ None of the three rows is near its budget, and no row in the owner's disposition
 1. `df45b1c69`: items 1–3. Comments and contract text only;
 2. this section.
 
-No test changed. No published JSDoc changed.
+No test changed in this series. No published JSDoc changed. **`df45b1c69`'s parent is `c186f120e`, not `b132ae788`.** `c186f120e` was committed in the shared checkout during this unit, by someone else. It adds one `eslint-disable-next-line` comment to `tests/sortable/features.browser.test.ts` and touches no `src/` or contract file. Every check below ran on a tree that includes it.
 
 ### Item 1 — the gap stated as a class
 
