@@ -203,6 +203,7 @@ const drag = async (y: number): Promise<void> => {
  * whole of the dependency.
  */
 const withReducedMotion = async <T>(body: () => Promise<T>): Promise<T> => {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const native = window.matchMedia;
 
   window.matchMedia = (query: string): MediaQueryList => {
