@@ -2298,6 +2298,31 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-03 — D-208 step 6's escalations disposed: ceilings re-base, M-2's retained heap is recovered, and two baseline defects are split off
+
+**D-208 is not complete.** Step 6 measured every item and raised three escalations. The owner has disposed of the four overruns, 2026-11-03: _Rebase the size budgets to the current architecture under the standing budget policy. A compression pass will happen separately, after this phase. This decision does not accept runtime regressions or retained-heap growth._
+
+**Decided here:**
+
+- **Ceilings** re-base now at the frozen tree, to figure plus 150 B on the thirteen package rows. **Controls** stay exact and are re-declared once, at the end, only where their interval is attributed.
+- **M-2's** +8 B and +78 B per controller are a retained-heap regression the owner has not accepted. Remediation 6R recovers them from what D-208 added, keeping D-208's properties, or brings the residual to the owner.
+- **M-1's** free-drag lean is neither noise nor a regression yet. A pre-registered protocol settles it: 0.05 µs resolution, a quiet host, two primary arms and a fixed sign-test rule.
+- **F-443:** the action queue regrows its store every sample, against three source comments. The fix is to the code, after D-208's acceptance.
+- **F-444:** the heap-growth reading bounds retention, not allocation. Its claims get dated corrections now. I-26 is stated as measured bytes, with no per-sample difference from D-208.
+
+**Next**, in order:
+
+1. the ceiling re-base;
+2. F-444's corrections;
+3. M-1's follow-up;
+4. remediation 6R, with its recheck and closure;
+5. remeasurement and controls;
+6. `d208-requests.md`.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §24.
+
+---
+
 ### 2026-11-03 — D-208 remediation 5R.1 closed: the source freeze starts, and step 6 may measure
 
 **5R.1 is closed at `7f1900ccf`, and D-208 is not complete.** The delta recheck found no defect at the closing commit's four sites, and every keep-list item held. The cancel's source is stated as the class states it, I-31's _only then_ is qualified, and L-2 cites I-31.

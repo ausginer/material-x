@@ -76,6 +76,14 @@ Nothing below is decided by this register. Each row states what is owed and what
 
 **Waiting for:** **The architect's decision, and the owner's ruling if a published outcome changes.** Due before Phase 24 exits, since Phase 24 carries no open question. D-208 does not decide it
 
+#### O-15
+
+**The action queue's per-sample store regrowth, and the three source comments that say the per-sample path allocates nothing.** The fix is to the code, under the properties F-443 states. Raised 2026-11-03
+
+**Owed by:** F-443
+
+**Waiting for:** **D-208's whole-decision acceptance**, which lifts the `src/` freeze. Then its own unit, routed by the architect. Due before Phase 24 exits. It is not D-208's, and D-208 does not wait for it
+
 ## Standing conditions
 
 **A standing condition is recognised, not discharged.** Nobody is assigned one; an observer meets the stated circumstance and the named decision reopens. Each row is present tense and its citations resolve today (D-116 (c)) — **and they are checked**: a citation here is written as a citation rather than quoted inside a code span, so `tests/references.node.test.ts` resolves it instead of reading it as a specimen (C-01); the deciding row in [`00-index.md`](contract/00-index.md) keeps its own wording as it stood and cites the id here.

@@ -2955,3 +2955,236 @@ It then holds what §20.5 lists. Its step-6 figures are cited from `d208-step6.m
 | D-208's whole-decision acceptance | architect | §20.5 | after step 6's feature proof |
 | F-442, the class (tier B) | architect, then the owner if a published outcome changes | decide, under §21.3's three properties | before Phase 24 exits |
 | D-200's independent acceptance; Reviewer-E | owner | unchanged | unchanged |
+
+## 24. Step 6's escalations disposed, with the owner's budget disposition (D-208)
+
+**Input.** `b3ac91bee` on `drag2/fin-review2`. The record assessed is [`d208-step6.md`](../../measurements/d208-step6.md), over the harness commit `be75b3da1`. The frozen `src/` is tree `4630579d2` at both commits (§23.2).
+
+**The owner's disposition, 2026-11-03, quoted:**
+
+> Rebase the size budgets to the current architecture under the standing budget policy. A compression pass will happen separately, after this phase. This decision does not accept runtime regressions or retained-heap growth.
+
+**What it settles:**
+
+- the four overruns (§19.3). The ceilings re-base, under CONTRIBUTING §18 and the rules `bench/size/measure.ts` states;
+- **SC-1.** Its first trigger, _a bundle-budget row goes negative_, has been met since step 4 (2026-11-02), and this is the re-base it schedules.
+
+**What it does not settle:**
+
+- **No runtime regression and no retained-heap growth is authorized.** That answers Escalation 1's question (§24.1).
+- **The compression pass is not D-208's.** It follows this phase, and §18 re-bases after its shrink. Nothing here directs a byte-recovery pass.
+- **The exact controls.** A control is an equality, not a ceiling, and a re-base of ceilings does not move one (§24.4).
+
+### 24.1 Escalation 1: M-2's retained heap is a regression, and it is recovered in its own unit
+
+**Decided:** the per-controller increase is a retained-heap regression attributable to D-208, and the owner has not accepted it. **D-208 is not accepted while it stands.**
+
+- **The figures** reproduce to the byte at 100 controllers in four rounds: +8 B per sortable controller, +46 to +47 B per mixed pair, +78 to +79 B per free-drag controller. Attribution books about 105 B per controller to `Kernel.channel`'s closures.
+- **The design does not require the bytes.** D-208 requires that the refusal is written once in the kernel, and that every diagnostic passes through a minted channel with the stated semantics (§18.4, D-208 _Ownership and surface_). It does not require three retained closures per controller.
+- **Analysis.** The kernel's own mint passes an arrow that wraps `next.reportError` (`kernel.ts:2748`), and each composition mints over an arrow that wraps `merged.onError` (`sortable/behavior.ts:126`, `free-drag/behavior.ts:52`). So there is room to recover within the design. This is not a prescription.
+- **Route.** Remediation 6R, a bounded source unit under §21.8, before step 6 resumes (§24.5 step 4). If 6R cannot meet the target without changing a D-208 property, it goes to the owner with the residual figure per population. The owner then authorizes the residual or directs a design change.
+
+**Not decided by this:** the step-4 record's prediction of _one closure per minted channel_. A prediction is not an authorization, and §20.5 already said _the owner authorizes none_.
+
+### 24.2 Escalation 2: M-1's free-drag lean is settled by a pre-registered protocol
+
+**Decided:** the lean is neither dismissed as load noise nor called a regression. The owner accepts no runtime regression, so acceptance needs a positive _no regression_ at a resolution finer than the effect.
+
+- **Why the step-6 rounds cannot settle it:**
+  - the lean is one to two timer quanta of 0.195 µs;
+  - the two arms sit at p ≈ 0.05 and p ≈ 0.035, two-sided, with four arms looked at;
+  - the host's load ran from 6 to 27.
+- **The protocol** (§24.5 step 3) fixes the instrument's resolution, the host condition, the primary arms and the decision rule before any round runs.
+- **A regression attributable to D-208** is any tip-slower difference against `6905af249` that the rule finds. D-208 carries every step of the chain from that input.
+
+### 24.3 Escalation 3: two baseline defects, F-443 and F-444, neither of them D-208's
+
+The queue's per-sample allocation, and the record's reliance on a heap-growth reading, both predate D-208. Both are equal at `6905af249`. **Neither is a D-208 regression, and neither blocks D-208's acceptance** once D-208's record states I-26 as §24.3.3 does.
+
+#### 24.3.1 F-443: the action queue regrows its store on every sample, and three source comments say it does not
+
+- **Measured** (step 6): about 84 B per pointer sample, booked to `push` under `ExecutionBracket.dispatch`. It is reproduced by `ActionQueue` alone (89–90 B a cycle) and by a truncation to a non-empty length. `clear()`'s `length = 0` releases the backing store, and the next `add` regrows it. The baseline books the same bytes.
+- **False comments:**
+  - `queue.ts:7–8`: _capacity growth is amortized_;
+  - `queue.ts:43–44`: _a drain clears once per pointer sample and truncation allocates nothing_;
+  - `execution.ts:78–79`: _the per-action and per-sample paths allocate nothing_;
+  - `presentation.ts:375–376`: _the pointer-sample path, which is allocation-free_. The transform string is allocated on that path each sample.
+- **Tier C.** No consumer-observable behavior changes, and nothing the repository relies on depends on the comments.
+- **The fix is to the code, not only the words.** Runtime wins (CONTRIBUTING §0, §14). The comments state the intended design, and the code misses it. Rewriting the comments to describe a regrowth would document a defect as design.
+- **The unit's required properties:**
+  - in steady state a pointer sample allocates nothing in the queue's storage. The step-6 harness's calibration row and per-sample arms lose the `push` share;
+  - a queued argument still cannot outlive the drain that abandoned it;
+  - **no per-controller retained-heap growth at rest** (M-2′'s 100-controller rows), which is the owner's condition;
+  - every comment that claims an allocation property states the measured one;
+  - if the first three cannot hold together, it goes to the architect.
+- **Remeasurement:**
+  - the step-6 allocation harness on every arm;
+  - M-2′;
+  - M-1, paired against the unit's input under §24.5 step 3's protocol;
+  - composition against the ceilings and controls in force. `drag.js` and baseline B must not move.
+- **When.** After D-208's whole-decision acceptance, because the freeze covers `src/` until then (§23.2) and this is not D-208's. Its own unit. Before Phase 24 exits.
+- **D-200.** The file's text is D-200's (`dfdf59a6a`), and D-200's independent acceptance is the owner's. F-443 is information for it, and changes nothing about who decides it.
+
+#### 24.3.2 F-444: a heap-growth reading was cited as bounding per-sample allocation
+
+- **The instrument is unsound for that claim.** M-1's row reads `usedJSHeapSize` growth over 20,000 samples. It returned 0.0 B per sample at both trees on a path the sampling profiler shows allocating about 189 B a sample. Scavenges return the churn before the second reading. It bounds **retention**. It does not bound transient allocation.
+- **Tier B.** An instrument the repository relies on is unsound for a claim it was used to make.
+- **Decided:**
+  - the heap-growth reading is retired as allocation evidence. It stays a retention reading;
+  - an allocation claim is stated in measured bytes per unit, with the instrument named. The instrument in force is step 6's sampling heap profiler, with attribution and an arm-minus-control figure;
+  - _allocates nothing_ is not written for a path unless that instrument returns zero on it.
+- **What it reopens: no acceptance.** Steps 3 and 4 cited the 0.0 B reading as _I-26 holds_ (§17.1 at :1519, §19.1 at :1905). Their conclusion, no per-sample allocation difference attributable to D-208, is re-established by step 6's profiler, which finds every per-sample arm equal between the trees. Only the stated ground was wrong.
+
+#### 24.3.3 I-26, as D-208's record states it
+
+- **I-26's wording and tier stay.** It counts objects created per sample, and it is counted by inspection (05, 06). It is tier C.
+- **It is not _allocates nothing_.** One sample allocates about 189 B at both trees: about 105 B is the transform string, which I-26 permits, and about 84 B is the queue's store (F-443).
+- **D-208's statement is _no per-sample difference_.** It is measured equal between the tip and `6905af249`, shipped and DEV, with `OPEN_RESOLUTION` per drop and `moveTo`'s copy per call.
+
+**This record's own statements are corrected here,** with the originals left as history. Wherever this record says _one pointer sample allocates nothing_ or _I-26: one sample allocates nothing_, the statement in force is §24.3.3:
+
+- §8 (:544);
+- §14.4, property 12 (:1122);
+- §15.3 (:1319);
+- §17.1 (:1519);
+- §17.4 (:1673);
+- §19.1 (:1905);
+- §20.5 (:2405);
+- §23.3 (:2895).
+
+D-201's item 12 in 00-index (_one pointer sample allocates nothing_) is superseded decision text, and it is left as it stood.
+
+### 24.4 Ceilings and controls are administered separately
+
+**Ceilings re-base now, at the frozen tree.** That puts a sensitive instrument in front of 6R, the next source change. Today the sortable-carrying rows carry 284 to 363 B of slack, and `free drag minimal` carries 4 B.
+
+- **The thirteen package rows** re-base to their Brotli figure at tree `4630579d2`, plus the standing 150 B. Five rise: the four overrun rows and `free drag minimal`. The other eight fall.
+- **The vocabulary root and baseline B** are administered by their own comments. Both are under their ceilings, and neither ceiling moves.
+
+**Controls stay exact, and are re-declared once, at the end.** That happens at 6R's tree (§24.5 step 5), not at the frozen tree, because 6R is expected to move every kernel-carrying control a second time. Re-declaring after each pass is what `budget-rebases.md` calls a budget wearing an exact number.
+
+- **A control is re-declared only when its whole interval is attributed.** The interval runs from the last figure it held, which was 2026-09-09 for all seven: `free drag minimal` 8,116, `+ bounds` 8,274, `+ landing` 8,276, `complete` 8,426, `kernel.js` 6,185, `drag.js` 142 and baseline B 6,889. It is attributed to named landed changes from the dated records (§18's restoration reading).
+- **The six red controls predate D-208.** They were already red at D-204 step 1's input. That includes baseline B, which reads 6,916 against a declared 6,889 and measures a package this one does not build.
+- **An interval that cannot be attributed** is a finding for the architect. That control is not re-declared. It keeps its declared figure, and the record states its last reading.
+- **No control becomes a ceiling, and no ceiling moves when a control does.**
+
+### 24.5 Handoff: budgets, records and the runtime follow-up
+
+**Owner:** the implementer, except where a step names a reviewer. **Input:** this section's commit. Do the steps in order. A step that escalates stops the sequence there. **A source comment carries no record identifier.**
+
+**The freeze.** `src/` stays tree `4630579d2` through steps 1–3. 6R (step 4) is the one source change authorized under D-208, as its own unit. When 6R closes, the freeze resumes at 6R's tree, recorded by hash, until the whole decision is accepted.
+
+**Step 1 — re-base the ceilings.** One commit, touching `bench/size/measure.ts`, `budget-rebases.md` and `obligations.md` only.
+
+- Set `budget:` on the thirteen package rows to their Brotli figure at `4630579d2`, plus 150 B. Do not move the vocabulary root's or baseline B's ceiling, and do not change any `control:`.
+- Write a dated entry in `budget-rebases.md`:
+  - measured against `4630579d2`;
+  - every row's figure, its old and new ceiling and its slack;
+  - the owner's disposition, quoted with its date;
+  - the four overruns' causes, cited from §19.3;
+  - the sortable rows' fall, cited to the step records that booked it. No new decomposition.
+- Add a dated line to SC-1's _Today_: met by its first trigger at step 4, with this re-base as the one it schedules.
+- **Keep:** no graph declaration changes. The failing set becomes the six control rows and the four `docs.node` rows, by name. The four budget rows pass.
+
+**Step 2 — correct the allocation claims (F-444).** One commit, `.plan/` only. Make dated corrections and keep the history. Each correction says the heap-growth reading bounds retention only, and states the measured per-sample allocation with its instrument and its two shares. I-26's wording and tier do not change.
+
+- 05:173, I-26's evidence paragraph;
+- 05:920, _20,000 samples produced no measurable net heap growth (I-26)_;
+- 06:367, _capacity growth is amortized, which is the phrasing every document uses_, which cites F-443;
+- `measurements/m1.md` :49, :67 and :97, with a dated note. Measurement records are history, so the figures stay.
+
+Report any other claim of this kind you come across. Do not search for more.
+
+**Step 3 — M-1's follow-up, at the frozen tree against `6905af249`.** Measurement only. Results go in a dated section of `d208-step6.md`.
+
+- **Pre-register first.** Commit the protocol below and its decision rule to `d208-step6.md` before the first round, and cite that commit.
+- **Resolution.** The per-sample figure's resolution is 0.05 µs or finer, and the achieved resolution is stated. A harness change goes under `tests/` in its own commit.
+- **The host.** Record the 1-minute load average at the start and end of each round. If either reading is above 2.0, discard the round and rerun it. Record the discarded rounds too. If the condition cannot be met, report step 3 blocked on the environment.
+- **Rounds.** 24 new paired rounds in ABBA order, not pooled with step 6's.
+- **Arms.** The primary arms are free drag bare and free drag `bounds(thunk)`. `axis`, `bounds(element)` and the sortable at 50 and 200 rows are secondary arms.
+- **The rule, per primary arm, with ties dropped.** Use an exact one-sided sign test for _tip slower_:
+  - **regression:** p < 0.01;
+  - **no regression:** p ≥ 0.05, and a median paired difference no larger than the stated resolution;
+  - **inconclusive:** anything else.
+- **Outcome.** _No regression_ only if both primary arms are. A secondary arm at p < 0.01 is reported as a finding.
+- **On regression or inconclusive:**
+  1. take a V8 CPU profile of both primary arms at both trees, and report self time by function on the per-sample path;
+  2. stop and escalate.
+
+  Attempt no fix.
+
+**Step 4 — remediation 6R: recover M-2's retained heap.** A source unit. Record it in a dated `§Remediation 6R` section of `d208-step6.md`. Its required properties:
+
+- **The target.** M-2′, four rounds ABBA: at 100 controllers, the tip's per-controller retained heap is at or below `6905af249`'s in every round, for all three populations. At 1000 controllers, the tip's range does not lie above the baseline's.
+- **What the recovery comes from.** From what D-208 added: the channel mechanism, its mint sites and their wrappers. An unrelated saving that nets the figure down is reported separately and is not booked as recovery.
+- **D-208's properties do not change:**
+  - the refusal is written once in the kernel;
+  - `channel(deliver)` keeps its signature and semantics, as D-208's _Ownership and surface_ states them;
+  - every diagnostic still passes through a minted channel;
+  - R33 passes, and its two mutations still redden the rows D-208's _Order and witness_ names;
+  - R21's `capture.node` passes. The mint sites are re-reported by location. Their number may fall, and a rise is a finding.
+- **The per-sample path is untouched.** No function with a nonzero count in step 6's per-sample call-count window changes.
+- **No other cost rises.**
+  - Allocation per sample, per drop, per `moveTo` and per committed frame stays at or below step 6's tip ranges.
+  - Call counts are identical.
+  - The published declarations are byte-identical, or differ only in doc comments.
+  - Composition is read against step 1's ceilings. `drag.js` and baseline B are this unit's declared controls and must not move. A row over its ceiling goes to the architect.
+- **Escalate rather than decide** if:
+  - the target is unreachable within these properties. Report the residual per population and what was tried;
+  - the change needs the SPI, a published surface or the per-sample path.
+- **Review.** A bounded independent recheck of 6R's diff, against these properties and its measurements. The architect then closes 6R.
+
+**Step 5 — remeasure at 6R's tree, and re-declare the controls.**
+
+- **M-1.** Step 3's result carries over only if 6R's diff touches no function on the per-sample path and the per-sample call counts are identical. Otherwise rerun step 3's protocol at 6R's tree.
+- **Composition** at 6R's tree, beside step 1's ceilings.
+- **Controls**, in their own commit and their own `budget-rebases.md` entry, under §24.4:
+  - attribute each red control's interval from its 2026-09-09 figure to its figure at 6R's tree;
+  - re-declare it at the exact landed figure only if the whole interval is attributed;
+  - report an unattributed interval and leave that control as it is;
+  - `drag.js` stays at 142. No ceiling moves.
+- **The failing set** becomes the four `docs.node` rows, plus any unattributed control, by name.
+
+**Step 6 — `d208-requests.md`, the last act.** Write it only when all of these hold:
+
+- steps 1–5 are complete;
+- step 3's outcome is _no regression_;
+- 6R is closed;
+- no escalation or finding from this section is open.
+
+It holds what §20.5 lists, as §21.8 and §23.3 amend it, with these changes:
+
+- I-26 is stated as §24.3.3 states it;
+- M-2 is stated at 6R's tree against `6905af249`;
+- M-1 is stated under step 3's rule;
+- the composition is stated with step 1's re-base and step 5's controls;
+- the owner's disposition is quoted with its date;
+- the closed items include 6R.
+
+Then come step 6's feature proof and the whole-decision acceptance, in §20.5's order.
+
+**Out of scope:**
+
+- F-442, F-443's fix and the compression pass;
+- re-reviewing the comment pass, 5R or 5R.1;
+- any source change other than 6R.
+
+### 24.6 What stays open
+
+D-208 stays `Unimplemented (Remediation)`, and the witness holds. F-432 to F-435 and F-441 stay open until the whole decision is accepted. F-442 is unchanged. F-443 and F-444 are raised open here, and neither is D-208's.
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| Step 1, the ceiling re-base | implementer | §24.5 step 1 | now |
+| Step 2, F-444's corrections | implementer | §24.5 step 2 | before step 3 |
+| Step 3, M-1's follow-up | implementer | §24.5 step 3 | before 6R |
+| Remediation 6R | implementer, then an independent reviewer, then the architect | §24.5 step 4 | before step 5 |
+| Step 5, remeasurement and controls | implementer | §24.5 step 5 | after 6R closes |
+| `d208-requests.md` | implementer | §24.5 step 6 | after step 5, with nothing open |
+| Step 6's feature proof; D-208's whole-decision acceptance | independent reviewer; architect | §20.5 | after `d208-requests.md` |
+| An M-1 regression, a 6R residual or an unattributed control, if one arises | architect, then the owner where an authorization is needed | decide | before `d208-requests.md` |
+| F-443, the queue's per-sample store (tier C) | architect, then the implementer | §24.3.1, as its own unit | after D-208's acceptance, before Phase 24 exits |
+| F-444, the heap-growth reading (tier B) | implementer | §24.5 step 2 | before step 3 |
+| F-442, the class (tier B) | architect, then the owner if a published outcome changes | unchanged | before Phase 24 exits |
+| The compression pass | owner | separate, after this phase | after this phase |
+| D-200's independent acceptance; Reviewer-E | owner | unchanged | unchanged |

@@ -2886,6 +2886,16 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 **Remediation 5R.1 closed 2026-11-03, at `7f1900ccf`** (record §23). The delta recheck found no defect at the closing commit's four sites and the keep list met. The `src/` freeze starts here, at tree `4630579d2`, and holds until the whole decision is accepted. Step 6 may measure now, into `.plan/measurements/d208-step6.md`. `d208-requests.md` waits for complete evidence and the owner's dated disposition of the four overruns. The closure decides nothing on F-442 and nothing on the overruns.
 
+**Step 6's escalations disposed 2026-11-03, with the owner's budget disposition** (record §24). The owner, 2026-11-03: _Rebase the size budgets to the current architecture under the standing budget policy. A compression pass will happen separately, after this phase. This decision does not accept runtime regressions or retained-heap growth._
+
+- **Ceilings** re-base at the frozen tree: the thirteen package rows go to their figure plus 150 B. This is the re-base SC-1's first trigger schedules.
+- **Controls** stay exact. They are re-declared once, at 6R's tree, and only where the whole interval since 2026-09-09 is attributed.
+- **M-2:** the per-controller retained-heap increase (+8 B sortable, +78 B free drag) is a regression the owner has not accepted. Remediation 6R, a bounded source unit, recovers it within D-208's properties, or brings the residual to the owner.
+- **M-1:** the free-drag lean is settled by a pre-registered protocol at 0.05 µs resolution on a quiet host, before 6R.
+- **Baseline defects:** F-443 (the queue regrows its store every sample, against three source comments) and F-444 (a heap-growth reading cited as bounding allocation) are raised. Neither is D-208's or blocks it.
+
+`d208-requests.md` waits for the steps of record §24.5 and for no escalation to be open.
+
 **What is carried.** D-207's text, its properties as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1–3 as accepted at `44e2074f1`, `877fb9612` and `ef1e4ef6b`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step3-B and step3-C keep their boundaries.
 
 **The required behavior is the baseline's.** After applied destruction no diagnostic reaches `onError` by any route, except panic's own report (D-178). Before application, in `LIVE` and in the requested interval, every diagnostic is delivered:
@@ -2925,6 +2935,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 - **D-207:** supersedes it during step 4. Its steps 1–3 stay accepted.
 - **F-441:** raises and repairs it.
 - **F-442:** raised open at step 5's acceptance, and not decided by D-208. ~~Remediation 5R establishes the gap's outcome at the tip and escalates if D-208 changed it.~~ **Established 2026-11-03 (record §21.3):** D-208 changed no published outcome on either known instance. So D-208's completion does not wait for the answer. 5R.1 corrects the text that calls the gap unique.
+- **F-443, F-444:** raised 2026-11-03 from step 6's third escalation. Both are baseline defects, equal at `6905af249`, and neither is decided by D-208 or blocks its acceptance. D-208's record states I-26 as record §24.3.3 does.
 - **F-432 to F-440:** carries their decisions, repairs and closures.
 - **D-178:** its teardown silence and panic exception are kept, and now rest on the kernel's one refusal.
 - **D-200:** its pending acceptance is unchanged.
@@ -2942,7 +2953,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-208 | Remediation | step 6, the measurement record, which also waits for the owner's disposition of step 4's four budget overruns. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64`, remediation 5R at `2d17645f5`, and remediation 5R.1 is closed at `7f1900ccf` | absent: `.plan/measurements/d208-requests.md` |
+| D-208 | Remediation | step 6's remainder under record §24.5: the ceiling re-base, M-1's follow-up, remediation 6R (M-2's retained heap), the remeasurement and controls, then the measurement record. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64`, remediation 5R at `2d17645f5`, and remediation 5R.1 is closed at `7f1900ccf` | absent: `.plan/measurements/d208-requests.md` |
 
 **D-207's row closed on 2026-11-02 with steps 1–3 accepted.** D-208 superseded it during step 4, adding `BehaviorContext.channel` so that the behaviors' diagnostics keep the kernel's refusal after applied destruction. D-208's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 
@@ -5690,6 +5701,50 @@ The cancel supersedes the failure checkpoint, and `#handleCancel` settles `ACTIV
 - if it keeps the gap open, state its ground.
 
 Owner and deadline are unchanged. D-208's 5R.1 corrects the text that calls the gap unique, and decides nothing.
+
+#### F-443 — the action queue regrows its backing store on every pointer sample, and three source comments say the path allocates nothing · open, tier C
+
+**Raised 2026-11-03 from D-208 step 6's third escalation.** Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §24.3.1. It is not D-208's: the bytes are equal at `6905af249`.
+
+**What happens.** `ActionQueue.clear()` truncates with `length = 0`, which releases the backing store, and the next `add` regrows it. So every pointer sample allocates about 84 B in the queue's storage, measured by the sampling heap profiler.
+
+**What the source says:**
+
+- `queue.ts:7–8`: _capacity growth is amortized_;
+- `queue.ts:43–44`: _truncation allocates nothing_;
+- `execution.ts:78–79`: _the per-sample paths allocate nothing_;
+- `presentation.ts:375–376`: _the pointer-sample path, which is allocation-free_. The transform string is allocated on that path.
+
+**Why tier C.** No consumer-observable behavior changes, and nothing the repository relies on depends on the comments. Runtime takes priority (CONTRIBUTING §0), so the fix is to the code.
+
+**Any fix must:**
+
+- allocate nothing in the queue's storage per sample in steady state;
+- keep a queued argument from outliving the drain that abandoned it;
+- add no per-controller retained heap at rest;
+- leave every allocation comment stating the measured property.
+
+If these cannot all hold, it comes back to the architect.
+
+**Owner and deadline.** The architect routes it as its own unit, after D-208's whole-decision acceptance, because `src/` is frozen until then. Before Phase 24 exits, and booked as [O-15](../obligations.md). The file's text is D-200's, and D-200's independent acceptance stays the owner's.
+
+#### F-444 — a heap-growth reading was cited as bounding per-sample allocation, and it cannot see transient allocation · open, tier B
+
+**Raised 2026-11-03 from D-208 step 6's third escalation.** Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §24.3.2.
+
+**What happens.** M-1's allocation row reads `usedJSHeapSize` growth over 20,000 samples. It returned 0.0 B per sample at both trees on a path that allocates about 189 B a sample. Scavenges return the churn before the second reading. It bounds retention and not transient allocation. It was nonetheless cited as bounding transient allocation (I-26, M-1's record) and as _I-26 holds_ at D-208's steps 3 and 4.
+
+**Why tier B.** An instrument the repository relies on is unsound for a claim it was used to make.
+
+**Decided:**
+
+- the reading is a retention reading only;
+- an allocation claim is stated in measured bytes per unit, with the instrument named;
+- _allocates nothing_ is written only where that instrument returns zero.
+
+No acceptance is reopened, because step 6's profiler re-establishes the conclusions those acceptances drew. I-26's wording and tier are unchanged.
+
+**Owner and deadline.** The implementer applies the dated corrections at 05:173, 05:920, 06:367 and `measurements/m1.md`, under record §24.5 step 2, before M-1's follow-up.
 
 ## What would falsify this model
 
