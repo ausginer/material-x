@@ -774,3 +774,49 @@ Measured against `55eaaf1b` with box-quad rebuilt in both states — the depende
 **The five suspended controls are restored here, and a restoration is not a re-base.** `free drag minimal` **8,116**, `free drag + bounds` **8,274**, `free drag + landing` **8,276**, `free drag complete` **8,426**, `kernel root — kernel.js` **6,185** — read against the figures the suspension recorded at **8,136 / 8,298 / 8,295 / 8,447 / 6,210**, an interval of **−20, −24, −19, −21 and −25 B** every byte of which is attributable to F-394's deletion and to Arc C's, with the chain continuous at each seam ([`arc-d.md`](arc-d.md) §The controls). ~~fresh exact figures for rows this arc did not move, which is the reading a returning equality wants~~ — **struck (F-409)**: arc-local inertness is not that reading. The restoration is the one act the close of the D-170 arc series authorises ([O-13](../obligations.md), discharged). The two that never left held as well: `vocabulary root — drag.js` at 142 B and baseline B at 6,889 B, byte-identical with no module gained. **Seven `control:` rows again, and no `budget:` moved with them.**
 
 **Not re-based 2026-09-09, Arc D's remediation** — D-194's variance obligation and F-416's release-site snapshot, landed with eight record and instrument repairs. Measured against `9e74f52fa`, full table in [`arc-d-remediation.md`](arc-d-remediation.md). Every sortable-carrying composition pays **−6 B minified** — one identifier, counted once per graph — and Brotli runs **−15 to +8 B** with the two columns disagreeing in direction on five rows; no module moved, no row breached its ceiling, and slack runs 0.06–0.22 kB over all fifteen. **There is no shrink to re-base after**: five rows are positive on Brotli, three negative and seven flat. **All seven `control:` rows are live for the first pass since the restoration and all seven held exactly**, which is the reading O-13's discharge was for.
+
+## Re-based 2026-11-03, D-208 — the thirteen package ceilings, on the owner's disposition
+
+**The owner's disposition, 2026-11-03, quoted:**
+
+> Rebase the size budgets to the current architecture under the standing budget policy. A compression pass will happen separately, after this phase. This decision does not accept runtime regressions or retained-heap growth.
+
+Administered as [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §24.4 and §24.5 step 1 state it. **Measured against `src/` tree `4630579d2`**, the frozen tree (§23.2), at commit `7583f665b`: `just size`, read through `measureAll()`. Every figure equals [`d208-step6.md`](d208-step6.md) §Composition byte for byte, minified, Brotli and modules. Bytes; Brotli governs.
+
+**Thirteen ceilings move, each to its Brotli figure plus the standing 150 B.** The vocabulary root's and baseline B's do not: each is administered by its own comment in `bench/size/measure.ts`, and both rows are under their ceilings.
+
+| Row | Brotli at `4630579d2` | old ceiling | old slack | new ceiling | Δ ceiling | new slack |
+| --- | --: | --: | --: | --: | --: | --: |
+| minimal | 10,201 | 10,549 | 348 | 10,351 | −198 | 150 |
+| minimal (xy) | 10,094 | 10,421 | 327 | 10,244 | −177 | 150 |
+| minimal + layoutAnimation | 10,533 | 10,887 | 354 | 10,683 | −204 | 150 |
+| xy + layoutAnimation | 10,413 | 10,776 | 363 | 10,563 | −213 | 150 |
+| minimal + landing | 10,386 | 10,695 | 309 | 10,536 | −159 | 150 |
+| complete | 10,688 | 11,033 | 345 | 10,838 | −195 | 150 |
+| free drag minimal | 8,262 | 8,266 | 4 | 8,412 | +146 | 150 |
+| free drag + bounds | 8,495 | 8,423 | **−72** | 8,645 | +222 | 150 |
+| free drag + landing | 8,437 | 8,425 | **−12** | 8,587 | +162 | 150 |
+| free drag complete | 8,628 | 8,576 | **−52** | 8,778 | +202 | 150 |
+| both behaviors | 12,209 | 12,493 | 284 | 12,359 | −134 | 150 |
+| vocabulary root — `drag.js` | 142 | 205 | 63 | 205 | **0** | 63 |
+| kernel root — `kernel.js` | 6,320 | 6,312 | **−8** | 6,470 | +158 | 150 |
+| baseline A — feature-matched, non-composed | 10,508 | 10,855 | 347 | 10,658 | −197 | 150 |
+| baseline B — shipped `@ydinjs/drag` sortable.js | 6,916 | 7,040 | 124 | 7,040 | **0** | 124 |
+
+**Five ceilings rise and eight fall.** The five are the four overrun rows and `free drag minimal`, which stood 4 B under. The eight are the six sortable rows, `both behaviors` and baseline A, which stood 284 to 363 B under ceilings last set 2026-09-07 (D-170 step 6, above).
+
+**The four overruns, as §19.3 attributes them.** Those figures are rankings by single-cause reversion, not a decomposition, and each holds only for the row it was measured on:
+
+- `bounds()`'s copy, which §2.12 requires: +60 B on `free drag + bounds` and +53 B on `free drag complete`;
+- the landing tail's two-field read, which §2.12 also requires: +28 B on `free drag + landing`, the whole of that row's overrun, and +4 B on the kernel root;
+- the channel restructure, which §18.4 requires: about 15 B of the kernel root's +20 B, with panic's direct delivery 1 B.
+
+**The sortable rows' fall is booked by the step records, and is not decomposed again here.** The largest movements on the eight sortable-carrying rows are D-207 step 3's rollback deletion, −230 to −261 B ([`d207-step3.md`](d207-step3.md) §Composition), and D-208 step 4, −83 to −148 B ([`d208-step4.md`](d208-step4.md) §Composition; §19.3). D-206 step 2 grew the same rows +118 to +160 B ([`d206-step2.md`](d206-step2.md) §Composition), and 5R's item 6 moved them −17 to +20 B ([`d208-step5.md`](d208-step5.md) §Remediation 5R, Composition). The rest of the interval since 2026-09-07 is booked in [`arc-c.md`](arc-c.md), [`arc-d.md`](arc-d.md), [`arc-d-remediation.md`](arc-d-remediation.md), [`d200-classes.md`](d200-classes.md) and [`d204-step1.md`](d204-step1.md).
+
+**No `control:` moved, and none is re-declared here** (§24.4). Six controls stay red, all predating D-208, with their readings at this tree: `free drag minimal` 8,262 against a declared 8,116, `free drag + bounds` 8,495 against 8,274, `free drag + landing` 8,437 against 8,276, `free drag complete` 8,628 against 8,426, `kernel root — kernel.js` 6,320 against 6,185, and baseline B 6,916 against 6,889. `drag.js` holds at 142. The controls are re-declared once, at 6R's tree, in their own entry (§24.5 step 5). No control became a ceiling.
+
+**No graph declaration changed.** Module counts are 33/32/34/33/35/36, 27/28/29/30/47, 2/16/31/26, equal to `d208-step6.md`.
+
+**This is the re-base [SC-1](../obligations.md) schedules.** Its first trigger, _a bundle-budget row goes negative_, has been met since D-208 step 4 (2026-11-02). The compression pass the disposition names follows this phase and is not D-208's. It re-bases after its own shrink. Nothing here authorizes a runtime regression or retained-heap growth.
+
+**The failing set after this re-base** is ten rows: the six `size.node` control rows and the four `docs.node` rows, by name. The four budget rows pass.
