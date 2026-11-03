@@ -2298,6 +2298,44 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-03 — D-208 step 5 accepted: the comment pass, with remediation 5R before step 6
+
+**Step 5 is accepted at `0ba8afb64`, and D-208 is not complete.** The step-5 feature proof found no step-5 blocker:
+
+- all 31 modules are runtime-equal by two instruments, and all 15 composition rows are byte-identical;
+- step4-A's passages and step4-C's sentences are amended, and the census of 269 lines reproduces exactly;
+- step4-B's three corrections are accurate;
+- R34 discriminates both copies.
+
+**The postcondition is qualified.** Every comment in the step's files states what the code does now, except at these sites, which 5R discharges before step 6 starts:
+
+- **step5-A**, a rewrite that names a `finally` exit that no longer exists;
+- the pass's **14 escalated source sites**;
+- the **four escalated contract lines**;
+- the twins found beside them.
+
+**Two items are more than wording:**
+
+- **step5-C**: both controllers' published `requestDestroy` JSDoc says no declared consumer slot is invoked after application. It omits I-36's two exceptions, the retire hooks and panic's report. It is a factual fix, due in 5R, and never later than the whole decision's acceptance.
+- **Escalation #1**: `admitCommand` keeps a guard that step 4's barrier removal made unreachable. It is removed in its own 5R commit, which changes no reachable outcome.
+
+**Decided here.** The census's class N is ratified as the search's false positives. step3-B and step4-B are closed.
+
+**One behavioral question is split off.** The sortable's admitted two-fault gap stayed open because closing it needed a "started" flag, and that flag now exists. Whether to close the gap is raised as F-442, due before Phase 24 exits, and it is not D-208's.
+
+**Size.** No change. The four overruns are still the owner's, before `d208-requests.md` is written.
+
+**Next:**
+
+1. 5R, then its bounded recheck and acceptance;
+2. step 6, the measurement record;
+3. step 6's feature proof;
+4. the whole decision's acceptance.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §20.
+
+---
+
 ### 2026-11-02 — D-208 step 4 accepted: surface and behaviors
 
 **Step 4 is accepted at `dbbb62199`, and D-208 is not complete.** The step-4 feature proof found no step-4 blocker and reproduced all eleven mutation counts.

@@ -2873,6 +2873,8 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 **Step 4 accepted 2026-11-02, at `dbbb62199`**, after its feature proof (record §19). Steps 5 and 6 remain, and the witness holds. Step 4's four budget overruns are the owner's to dispose of before `d208-requests.md` is written. The acceptance neither tolerates nor re-bases them, and step 2's tolerance does not cover them. step4-C is decided in place, as a non-substantive correction of what this entry says about itself: see _Ownership and surface_ and _Not chosen_ below. Case R34 is added.
 
+**Step 5 accepted 2026-11-03, at `0ba8afb64`**, after its feature proof (record §20), with its postcondition qualified by the sites it escalated. Remediation 5R discharges them before step 6 starts. It includes both controllers' published `requestDestroy` JSDoc, which must name I-36's two exceptions. The census's class N is ratified, and step3-B is closed. Whether to close the sortable's admitted two-fault gap is not decided here and is raised as F-442. The four budget overruns are still the owner's.
+
 **What is carried.** D-207's text, its properties as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1–3 as accepted at `44e2074f1`, `877fb9612` and `ef1e4ef6b`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step3-B and step3-C keep their boundaries.
 
 **The required behavior is the baseline's.** After applied destruction no diagnostic reaches `onError` by any route, except panic's own report (D-178). Before application, in `LIVE` and in the requested interval, every diagnostic is delivered:
@@ -2911,6 +2913,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 - **D-207:** supersedes it during step 4. Its steps 1–3 stay accepted.
 - **F-441:** raises and repairs it.
+- **F-442:** raised open at step 5's acceptance, and not decided by D-208. Remediation 5R establishes the gap's outcome at the tip and escalates if D-208 changed it. Otherwise D-208's completion does not wait for the answer.
 - **F-432 to F-440:** carries their decisions, repairs and closures.
 - **D-178:** its teardown silence and panic exception are kept, and now rest on the kernel's one refusal.
 - **D-200:** its pending acceptance is unchanged.
@@ -2928,7 +2931,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-208 | Remediation | steps 5–6: the carried comment pass, then the measurement record. Step 4 is accepted at `dbbb62199` | absent: `.plan/measurements/d208-requests.md` |
+| D-208 | Remediation | remediation 5R, then step 6, the measurement record. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64` | absent: `.plan/measurements/d208-requests.md` |
 
 **D-207's row closed on 2026-11-02 with steps 1–3 accepted.** D-208 superseded it during step 4, adding `BehaviorContext.channel` so that the behaviors' diagnostics keep the kernel's refusal after applied destruction. D-208's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 
@@ -5635,6 +5638,21 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 **Why it is a problem.** A correctly integrated consumer's `onError` runs after destruction, which I-36 (a) forbids at tier A. It reverses D-178's grounded silence for a throwing teardown step, as a consumer-visible change the record does not state. With `closed` gone the behaviors had no route left to the refusal the kernel keeps for its own diagnostics.
 
 **Repair.** The kernel's refusal is reached through `BehaviorContext.channel(deliver)`, and the four reads are replaced by minted channels rather than deleted. The refusal reads only applied destruction, so its answer is constant across every unit. D-208; case R33.
+
+#### F-442 — the sortable's admitted two-fault gap lost its stated reason for staying open · open, tier C
+
+**Open, tier C. Raised 2026-11-03 at D-208 step 5's acceptance**, from the comment pass's escalation #2 and the feature proof's step5-B. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20. It is not a defect in landed code, and D-208 does not decide it.
+
+**What happens.** A cancel registered from a custom placeholder's `connectedCallback`, followed in the same `activation.effect` by a throwing `invalidateInsertion()`, produces a terminal callback for a drag whose `onStart` never ran. Both faults are required. 02 records this as the one admitted gap (I-31). The gap stayed open because _closing it means carrying a per-operation "started" flag_.
+
+**Why it is raised.** That flag now exists. `#operation.progress` reaches `STARTED` before `onStart`, and the settlement's failure arm already publishes nothing at `MINTED`. The cancel arm does not consult the marker. So the stated cost of closing the gap is gone, and either answer now decides something:
+
+- **closing it** suppresses a terminal on a two-fault path, which changes a published outcome;
+- **keeping it** needs a ground the record does not state.
+
+**Owner.** The architect decides. The owner rules if the answer changes a published outcome.
+
+**Deadline.** Before Phase 24 exits, because Phase 24 carries no open question. Until then the gap stays as documented. D-208's remediation 5R corrects only the text: _registered_ for _latched_, and a citation of this entry in place of the stale reason.
 
 ## What would falsify this model
 
