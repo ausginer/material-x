@@ -15,7 +15,7 @@
  * with different CSS. `y()` is this same rule narrowed to a single coordinate,
  * so this module lifts a restriction rather than adding a capability.
  *
- * **Two things differ from `y()`, and neither is a switch.**
+ * **Where it differs from `y()`, neither difference is a switch.**
  *
  * - **The metric is squared Euclidean, and stays squared.** Comparing squared
  * distances orders identically to comparing distances, so the `sqrt` is pure
@@ -122,8 +122,8 @@ type InsertionRuntimeView = Readonly<{
  *   difference** of measured geometry. A difference between two *different*
  *   elements' measured rects carries the difference of their authored
  *   presentation and is not a flow quantity. This is the library's own
- *   obligation, stated because it is what decides which of the two axes
- *   predicts and which measures.
+ *   obligation, stated because it is what decides which axis predicts and
+ *   which measures.
  * - **G6** — the placeholder's own geometry is stable between invalidations.
  *   The hole is the incumbent every candidate is compared against and it is
  *   measured once per rebuild, so a placeholder whose own size animates must be
@@ -174,9 +174,9 @@ export function xy(): AxisInstaller {
      * The origins the warm cache held immediately before the write, packed
      * `[left, top]` per slot.
      *
-     * **This is what replaces the old before-move measurement.** The cache the
-     * rule already maintains *is* the "before" geometry, so the move costs one
-     * rebuild rather than a list-wide scan on each side of the write.
+     * **The cache the rule already maintains *is* the "before" geometry**, so
+     * the move costs one rebuild rather than a list-wide scan on each side of
+     * the write.
      */
     let before = new Float64Array(0);
     const invalidate = (): void => {
@@ -245,7 +245,7 @@ export function xy(): AxisInstaller {
           // `nearest` comes after the placeholder in document order, so the gap
           // is on its far side. The mask test is what `compareDocumentPosition`
           // is for — it returns a bitfield and several bits can be set at once,
-          // which is the one legitimate use of `&` in this package.
+          // which is what makes `&` legitimate here.
           const position = runtime.placeholder.compareDocumentPosition(
             items[nearest]!,
           );

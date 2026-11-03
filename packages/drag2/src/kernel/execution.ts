@@ -12,7 +12,7 @@ const CLOSED = 2;
  *
  * **It names nothing the kernel models.** No frame, operation, spec or DOM
  * node, and it invokes no slot the consumer filled — every consumer-visible act
- * stays behind one of the four callbacks it is constructed with. That is what
+ * stays behind the callbacks it is constructed with. That is what
  * makes the entity safe to hold the lifecycle request: the datum every liveness
  * rule is indexed on is owned by the thing that can state its own invariant,
  * and the storage under it keeps owning none.
@@ -75,7 +75,7 @@ export class ExecutionBracket {
   };
 
   /**
-   * All four callbacks are controller-invariant and supplied once, so the
+   * Every callback is controller-invariant and supplied once, so the
    * per-action and per-sample paths allocate nothing.
    *
    * @param handle - Runs one action. Must be **total**: an action it does not

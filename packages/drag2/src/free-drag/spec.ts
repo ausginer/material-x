@@ -145,9 +145,9 @@ class FreeDragBehavior {
    * the record says rather than a banner over a run of locals — and what stops
    * a controller-lifetime binding drifting into the group by proximity.
    *
-   * It also removes the shadow: `moved(current, lift)` takes the kernel's own
-   * session as a parameter, and there is no longer an outer `lift` for it to
-   * hide.
+   * It also keeps `moved(current, lift)` unshadowed: its `lift` parameter is
+   * the kernel's own session, and the operation's is reached only through this
+   * record.
    */
   readonly #operation: {
     lift: BehaviorLiftSession | null;
@@ -193,13 +193,21 @@ class FreeDragBehavior {
   } = { failure: null };
 
   /**
-   * **The one place this behavior invokes the consumer's error callback.** Both
-   * routes below end here, so there is exactly one statement to find when
+   * **The one place this behavior invokes the consumer's error callback.** The
+   * behavior's own channel ({@link FreeDragBehavior.#notify}) and the spec's
+   * `reportError` both end here, so there is exactly one statement to find when
    * asking *where does `onError` get called*.
    *
-   * Unguarded and ungated on purpose: its two callers apply those rules, and
-   * they apply them differently — the panic delivery is a named exception to
-   * the refusal, which is impossible if the refusal is applied here.
+   * **Forward, and nothing else.** The kernel builds the public error, picks
+   * its class and owns the refusal. This neither maps nor attaches context: the
+   * mapping is kernel-owned, so it cannot mean two things in two behaviors, and
+   * a `domain: null` context is strictly redundant with the terminal.
+   *
+   * Unguarded and ungated on purpose: its callers apply those rules, and they
+   * apply them differently — the kernel's channels refuse after applied
+   * destruction and discard a throwing handler, while `panic`'s one delivery
+   * after closure is a named exception to the refusal, which is
+   * impossible if the refusal is applied here.
    *
    * **A field rather than a method**, because it is handed on as a value: the
    * spec publishes it as `reportError` and the unwind runner takes it as an
@@ -212,11 +220,12 @@ class FreeDragBehavior {
   /**
    * **The behavior's own route to the one channel.**
    *
-   * Two callers reach {@link FreeDragBehavior.#deliver} and they are two
-   * entries to one channel rather than two channels: everything that arrives is
-   * a `DraggableError` or a `DraggableWarning`, and neither entry encodes
-   * severity. This one carries what the *behavior* reports — the settlement
-   * failure and the unwind steps, which the kernel cannot see.
+   * This and the spec's `reportError` both reach
+   * {@link FreeDragBehavior.#deliver}, and they are two entries to one channel
+   * rather than two channels: everything that arrives is a `DraggableError` or
+   * a `DraggableWarning`, and neither entry encodes severity. This one carries
+   * what the *behavior* reports — the settlement failure and the unwind steps,
+   * which the kernel cannot see.
    *
    * Minted by the kernel over {@link FreeDragBehavior.#deliver}, so it applies
    * the kernel's refusal after applied destruction, and a throw from the
@@ -262,8 +271,8 @@ class FreeDragBehavior {
    * derives it and none mirrors the kernel's own record.
    *
    * Writes into the motion draft and returns nothing: a `Point` return would
-   * put an allocation on the hot path for a value three of the four callers
-   * immediately destructure.
+   * put an allocation on the hot path for a value its callers read field by
+   * field and drop.
    */
   #deriveMotion(
     pointerX: number,
@@ -404,8 +413,8 @@ class FreeDragBehavior {
       //
       // Not `kernel.fail` because a native scroll listener is not a seam, so
       // a classified failure raised here would be refused anyway. Unlike
-      // the sortable's equivalent there is no third action tag to re-raise
-      // it through — this behavior declares `actionTags: 2` — and
+      // the sortable's equivalent there is no action tag to re-raise it
+      // through — neither of this behavior's tags carries it — and
       // `#invalidate()` is contractually a staleness flag rather than a
       // resolve, so the throw it would report is a defect in a constraint
       // rather than in consumer data.
@@ -526,7 +535,7 @@ class FreeDragBehavior {
     // through an already-disposed lift and leaves a stray inline transform
     // on a released element. `TAG_POLICY` is refused for hygiene: it writes
     // no geometry, but it re-enters a third-party `constrain.invalidate()`
-    // when no later sample exists to be affected. They coincide today only
+    // when no later sample exists to be affected. They coincide only
     // because free drag takes no sample after release.
     //
     // **A no-op, not a rejection.** `null` is this seam's existing discard
@@ -546,8 +555,7 @@ class FreeDragBehavior {
       // **One consumer-reachable call, and nothing to publish.**
       // `#invalidate()` is a staleness flag: the constraint re-resolves on
       // its own next `apply`, so there is no staged value, no commit and no
-      // `effect` branch. Nothing follows the call in this seam, so there is
-      // no closure barrier to read after it.
+      // `effect` branch.
       this.#invalidateConstraint?.();
 
       return null;
@@ -665,10 +673,11 @@ class FreeDragBehavior {
 
   /**
    * **There is no placeholder, and there is still one write.** `pointerup`
-   * need not carry the last processed `pointermove`'s coordinates, and the
-   * request above was built from the *committed release point* — so without
-   * this the visual, and therefore the whole landing trajectory, would
-   * start from a stale position while `anchorTarget` reports the fresh one.
+   * need not carry the last processed `pointermove`'s coordinates, and
+   * `prepareRelease` built the request from the *committed release point* —
+   * so without this the visual, and therefore the whole landing trajectory,
+   * would start from a stale position while `anchorTarget` reports the fresh
+   * one.
    *
    * `#motion` still holds the release delta `prepare` derived, and nothing
    * between the two phases can have changed it.
@@ -679,7 +688,7 @@ class FreeDragBehavior {
 
   // -----------------------------------------------------------------------
   // Settlement
-  /** The five-case mapping, covered exhaustively. */
+  /** The settlement mapping, covered exhaustively. */
   prepareSettlement(
     draft: Draft<FreeDragFramePart>,
     input: SettlementInput,
@@ -781,7 +790,7 @@ class FreeDragBehavior {
                   request,
                   reason: input.error,
                   // **The one origin a behavior mints**: the kernel writes
-                  // the other three onto the `SETTLED_CANCELED` input, and
+                  // every other origin onto the `SETTLED_CANCELED` input, and
                   // this arm is the fallback that gives a classified
                   // failure a terminal. `reason` still carries the caught
                   // throw; `origin` is what tells it apart from a consumer
@@ -852,7 +861,7 @@ class FreeDragBehavior {
       // **Read, not re-derived.** This arm must not call `deriveMotion`: its
       // last statement is `constrain.apply`, so the no-consumer-call claim
       // above would be false whenever any constraint is installed, and this
-      // seam would become a fifth `apply` site.
+      // seam would become another `apply` site.
       //
       // A re-derivation computes the same numbers from the same committed
       // frame, so the read costs nothing. **The invariant it rests on is
@@ -875,18 +884,12 @@ class FreeDragBehavior {
       // missing field or a throwing accessor panics outside the seam its own
       // contract names.
       //
-      // **The reads happen; finiteness is not checked.** A `null`, a missing
-      // field or a throwing accessor fails *here*, inside the seam whose
-      // track is published: the **quality** route, so the landing is skipped
-      // rather than faked and a drop that already committed is not
-      // re-settled. **No stage rides along**: the fault is non-consequential,
-      // so it arrives as a `DraggableWarning` carrying
-      // `drag: landing/target-unavailable`. A non-finite pair is accepted and
-      // passes undetected into target composition or a renderer, and refusing
-      // it here is wrong: a landing target is a point, and a point's
-      // coordinates are finite by the same obvious semantics that makes a
-      // duration finite, so that value is outside the contract and the gate
-      // closes on it.
+      // **The reads happen; finiteness is not checked.** A non-finite pair is
+      // accepted and passes undetected into target composition or a
+      // renderer, and refusing it here is wrong: a landing target is a point,
+      // and a point's coordinates are finite by the same obvious semantics
+      // that makes a duration finite, so that value is outside the contract
+      // and the gate closes on it.
       //
       // **The copy is not defensiveness and is not part of that check**: the
       // returned object is consumer-owned and its accessors may be live, so
@@ -957,20 +960,6 @@ class FreeDragBehavior {
       this.#slots.onEnd?.(domain);
     }
   }
-
-  /**
-   * **Forward, and nothing else.** The kernel builds the public error, picks
-   * its class and owns the refusal; this member is the last hop, the sink
-   * every channel delivers to.
-   *
-   * It neither maps nor attaches context: the mapping is kernel-owned, so it
-   * cannot mean two things in two behaviors, and a `domain: null` context is
-   * strictly redundant with the terminal.
-   *
-   * Its callers are the kernel's channels, which refuse after applied
-   * destruction and discard a throwing handler, and `panic`'s one delivery
-   * after closure, which is exactly why neither rule can live here.
-   */
 
   retire(): void {
     this.#operation.progress = MINTED;

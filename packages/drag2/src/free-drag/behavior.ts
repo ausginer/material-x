@@ -11,10 +11,8 @@
  * **There is no second factory, and no `install` between them.** Every
  * free-drag test constructs through the public `freeDrag()` entry, because this
  * behavior has no state a lower seam would reach — nothing here corresponds to
- * the sortable's hand-built slot records. With one caller, a named `install`
- * was a name for the two constructor calls the factory already is; the
- * sortable's equivalent exists for the opposite reason and under the same rule:
- * a test seam exists where a test drives it.
+ * the sortable's hand-built slot records. A test seam exists where a test
+ * drives it, which is also why the sortable has one.
  */
 import { DraggableWarning } from '../kernel/errors.ts';
 import type { BehaviorFactory } from '../kernel/spec.ts';
@@ -42,8 +40,7 @@ import { createFreeDragSpec } from './spec.ts';
  * **Nothing is pulled or validated ahead of the installers**, and the absence
  * is the point rather than an omission: free drag has no collection, so there
  * is no consumer-triggerable throw between the first `retire` hook being
- * recorded and the bracket that unwinds them. The sortable needed a reordering
- * to make that true; this behavior gets it by having nothing to reorder.
+ * recorded and the bracket that unwinds them.
  */
 export function createComposedFreeDragBehavior(
   config: FreeDragConfig,

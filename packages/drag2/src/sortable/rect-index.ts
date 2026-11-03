@@ -3,7 +3,7 @@
  *
  * **Dimension-neutral, deliberately.** It packs both centres and both edges and
  * expresses no rule about which of them matters — that is the axis feature's,
- * and stays in the axis feature's own module. Extracting this is what lets
+ * and stays in the axis feature's own module. Sharing this is what lets
  * `y()` and `xy()` be two *rules* rather than two implementations of a cache,
  * without either of them growing a branch about the other.
  *
@@ -57,13 +57,13 @@ export type DisplacementSettle = (
 /**
  * **What a caller may do to the packed buffer: read it.**
  *
- * Declared by hand rather than derived, and the reason is the lint gate the
- * class migration runs behind: `Readonly<E>`, `Pick<E, …>` and a record of
- * function-typed properties are all **mapped types**, and a mapped type erases
- * method-ness — `@typescript-eslint/unbound-method` reports a detached read
- * through a class instance type or a hand-written interface and is silent
- * through any of those. A view built the obvious way would buy encapsulation
- * with the instrument that guards the migration.
+ * Declared by hand rather than derived, and the reason is the lint gate:
+ * `Readonly<E>`, `Pick<E, …>` and a record of function-typed properties are all
+ * **mapped types**, and a mapped type erases method-ness —
+ * `@typescript-eslint/unbound-method` reports a detached read through a class
+ * instance type or a hand-written interface and is silent through any of
+ * those. A view built the obvious way would buy encapsulation
+ * with the instrument that guards detached method reads.
  *
  * `Float64Array` is assignable to this, `view[0] = 1` is a type error, and
  * `set` and `buffer` are not members. It costs **nothing at runtime**: the
@@ -80,7 +80,7 @@ export interface ReadonlyFloat64Array {
  * **What a collaborator may read off the cache**, and the whole of it.
  *
  * One field carries two types: the class declares its own, and this
- * re-declares the same four members with the reader's. So the owner writes
+ * re-declares the same members with the reader's. So the owner writes
  * elements, reallocates the buffer, empties the element array and assigns the
  * count through its own declarations with no cast and no second field, while
  * through a binding declared here `count = 0`, `values[0] = 1` and
@@ -88,10 +88,10 @@ export interface ReadonlyFloat64Array {
  *
  * Declared rather than derived, for the reason
  * {@link ReadonlyFloat64Array} gives: a mapped type over the class would erase
- * method-ness from the lint gate this migration runs behind. It carries **no
- * method members**, so it moves nothing out of that gate's reach — the
- * operations stay on {@link RectIndex} itself, which is the type a module
- * driving the cache also holds.
+ * method-ness from the lint gate. It carries **no method members**, so it
+ * moves nothing out of that gate's reach — the operations stay on
+ * {@link RectIndex} itself, which is the type a module driving the cache also
+ * holds.
  */
 export interface RectIndexView {
   readonly values: ReadonlyFloat64Array;
@@ -137,10 +137,10 @@ const edge = (rect: DOMRect, offset: number): number => {
  * {@link RectIndex.invalidate} and {@link RectIndex.retire} — each
  * parameterized by the caller's rule rather than by its access.
  *
- * **The four data members are one field carrying two types.** The class
- * declares the mutable one it needs to write through; {@link RectIndexView}
- * re-declares the same four with the reader's, and that interface is the type
- * every collaborator binds. `readonly` on the field would protect the
+ * **Each data member is one field carrying two types.** The class declares
+ * the mutable one it needs to write through; {@link RectIndexView} re-declares
+ * the same members with the reader's, and that interface is the type every
+ * collaborator binds. `readonly` on the field would protect the
  * reference only — `hole[0] = 1` and `items.length = 0` both compile against
  * one — so it is the reader's **type** that forbids content mutation:
  * `readonly HTMLElement[]` for the element array and
@@ -373,9 +373,9 @@ export class RectIndex implements RectIndexView {
    * **Re-read the placeholder into the hole**, for an axis that marked it
    * stale after a committed move.
    *
-   * The measurement moves in with the write because measuring is the owner's
+   * The measurement lives with the cache because measuring is the owner's
    * act: every consumer call this cache makes then sits in one file under one
-   * discipline, which is what the axis tests already say the arrangement is.
+   * discipline, which is the arrangement the axis tests assert.
    *
    * Only the three fields the caller names are written — a hole relocation
    * moves the placeholder along one axis and leaves both cross-axis
@@ -463,20 +463,16 @@ export const DEV: boolean = __DEV__;
  * things follow. There is **nothing left to heal** — the cache ends
  * authoritative by construction, so a mismatch leaves it correct and the drag
  * classified rather than correct in the message and wrong in the buffer. And
- * **a second definition of the scan disappears**: box resolution, the six-field
- * pack and the settle call were transcribed here by hand, inside the one
- * function whose whole job is to distrust a transcription.
+ * **there is no second definition of the scan**: box resolution, the six-field
+ * pack and the settle call are not transcribed into the one function whose
+ * whole job is to distrust a transcription.
  *
- * It costs one scan rather than two, because the forced rebuild replaces the
- * hand-rolled one instead of joining it, and the caller's own `refresh`
- * immediately afterwards finds the cache warm.
+ * It costs one scan, because the forced rebuild is the scan, and the caller's
+ * own `refresh` immediately afterwards finds the cache warm.
  *
  * **It is a free function and must stay one.** A `DEV`-only prototype body
  * ships; this export tree-shakes, and `bench/size` asserts what the module
  * contains.
- *
- * It is not in a shipped build: `DEV` folds to `false` and the whole function
- * is dropped.
  *
  * **It runs in every composition, including one that animates.** A displaced
  * row carries an additive `translate` and `getBoundingClientRect()` reports

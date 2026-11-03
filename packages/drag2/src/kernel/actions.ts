@@ -23,10 +23,8 @@ export const CANCEL = 3;
 export const START_COMMITTED = 4;
 /** The consumer round-trip produced a value. */
 export const RESOLUTION_SETTLED = 5;
-// 6 and 7 are unused: there is no authored-presentation gate and no landing
-// gate for them to tag. The numbers are left unused rather than reclaimed,
-// because the tags below are matched by value in queued actions and
-// renumbering them buys nothing.
+// 6 and 7 are unused and are not reclaimed: the tags below are matched by
+// value in queued actions, and renumbering them buys nothing.
 /** A classified failure checkpoint. */
 export const FAILED = 8;
 /** `onError` is done; the failure recovery may proceed. */

@@ -6,11 +6,10 @@
  * behaviors, and so are two contribution slots and the installer *shape*, but
  * no cross-behavior composition vocabulary is invented over them.
  *
- * What lands instead is the narrower re-home pattern. This module is internal
- * and is on no entry; `sortable/feature.js` and `free-drag/feature.js` each
- * re-export the name, so the two tiers share a type **identity** rather than a
- * structural coincidence. The declaration suites assert exactly that — same
- * declaration, not same shape.
+ * This module is internal and is on no entry; `sortable/feature.js` and
+ * `free-drag/feature.js` each re-export the name, so the two tiers share a
+ * type **identity** rather than a structural coincidence. The declaration
+ * suites assert exactly that — same declaration, not same shape.
  *
  * The installer aliases stay per-behavior: their contexts carry different
  * brands, so a shared alias would defeat the separation this module is careful
@@ -47,8 +46,8 @@ export type FeatureContext = Readonly<{
    * stage.
    *
    * It reaches the consumer's `onError` as a `DraggableWarning` — the only
-   * route a composition-time unwind has, since both `assemble` unwinds run
-   * before `arm()` when no behavior spec exists at all.
+   * route a composition-time unwind has, since an `assemble` unwind runs
+   * before arming, when no behavior spec exists at all.
    *
    * **Delivered until the controller's destruction is applied, and dropped
    * from then on.** A report made while the controller is being constructed,
@@ -95,7 +94,7 @@ export type LandingTiming = (
  */
 export type LandingContribution = Readonly<{
   landingTiming: LandingTiming;
-  /** Run in **reverse** installation order — see either `assemble`. */
+  /** Run in **reverse** installation order — see each `assemble`. */
   retire?: Disposer;
 }>;
 

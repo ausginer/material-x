@@ -47,9 +47,10 @@ export type FreeDragController = Readonly<{
    * sortable's `box` slot already uses.
    *
    * A **malformed** `point` — `null`, missing fields, a throwing accessor — is
-   * deliberately not checked and throws at the read, so `onError` receives a
-   * `DraggableError` whose `stage` is `FAILURE_ACTION_PREPARE`, like any other
-   * seam throw.
+   * deliberately not checked. Its coordinates are read once, when you call
+   * `moveTo`; a read that throws is reported when the move is applied, so
+   * `onError` receives a `DraggableError` whose `stage` is
+   * `FAILURE_ACTION_PREPARE`, like any other seam throw.
    */
   moveTo(point: Point): void;
   /**
@@ -92,7 +93,7 @@ export function createFreeDragController(
       // here: the offset it becomes is committed frame state, and only a
       // `prepare` may write one. A malformed `point` fails the read here, and
       // its error travels in the same position, so `prepare` throws it and
-      // it is classified as a seam throw, as when the point was read there.
+      // it is classified as a seam throw.
       let captured: CapturedPosition;
 
       try {

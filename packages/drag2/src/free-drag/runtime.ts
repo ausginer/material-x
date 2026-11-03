@@ -3,7 +3,7 @@
  *
  * These are not per-operation state: `arm()` validates them through
  * `config.actionTags` and `dispatch` bounds-checks one, so the controller and
- * the spec both need the same two constants. Per-operation state lives in the
+ * the spec both need the same constants. Per-operation state lives in the
  * spec's own closure, where nothing outside it can name it.
  */
 

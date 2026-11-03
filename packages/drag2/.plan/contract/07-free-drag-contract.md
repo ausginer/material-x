@@ -523,7 +523,7 @@ Stated because the tree **was** split three ways when the decision was taken —
 
 **A no-op, not a rejection**, and not a throw: `prepare` returning `null` is the seam's existing _discard_ value, so a late `moveTo()` costs one phase comparison and produces no failure, no report and no terminal. A consumer calling `moveTo()` from `onEnd` has not made an error the library should classify — the operation is simply over.
 
-**`invalidate()` and `moveTo()` keep their `host.closed` guard**, which is a different question: that one asks whether the controller is alive, this one asks whether the operation still owns its geometry. A controller can be perfectly live in `SETTLING`.
+**`invalidate()` and `moveTo()` keep their `host.closed` guard**, which is a different question: that one asks whether the controller is alive, this one asks whether the operation still owns its geometry. A controller can be perfectly live in `SETTLING`. **Withdrawn by D-208 step 4 (marked 2026-11-03):** neither member reads a lifecycle value. Each dispatches, and the kernel's `dispatch` refuses after applied destruction; the phase question above is unchanged.
 
 **Deliberately not solved in the kernel.** The alternatives are re-ordering `RETIRE` against the success join, or filtering behavior tags by phase in `handleBehaviorAction`. Both are behavior-neutral machinery bought to fix one behavior's rule, and the second is actively wrong: the sortable **intentionally** accepts a collection `invalidate()` in phases where free drag's geometry must be frozen, because a collection change during settlement is real information and a position write is not. Phase legality for behavior actions is behavior knowledge, which is why the kernel routes tags without interpreting them.
 
@@ -545,6 +545,8 @@ Five fields against the sortable's **seven**, and a different shape — which is
 ---
 
 ## The terminal-barrier enumeration (I-36, in D-37's finite form)
+
+**Marked 2026-11-03 (D-208 step 4): this section is history.** Every _Latch read_ cell in the table, and the rule the section closes on — _where a seam makes two consumer calls, the latch is read between them_ — is withdrawn: no participant reads the lifecycle, and a destruction requested inside a unit is applied at its boundary. The table stays as the record of the enumeration. `onError`'s route is the kernel's channel refusal (§[05](05-lifecycle-invariants.md) I-36).
 
 The deliverable, discharged. **Not** the stretch decomposition, the provisioning/floor/register apparatus or the survive-the-stretch sweep — D-37 withdrew the quantifier those existed to discharge, and copying them forward would import an undischargeable obligation into the second behavior.
 

@@ -7,7 +7,7 @@
 // **Which group is the slot's cardinality.** A unique slot is declared on the
 // group of the one config key that can produce it, so two writers are
 // unrepresentable rather than detected — there is no arbitration, no label
-// string and no construction-time collision left to diagnose.
+// string and no construction-time collision to diagnose.
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type {
   FeatureContext,
@@ -55,10 +55,7 @@ export { insertionAt } from './domain.ts';
 // middle tier needs the identical types, so the two tiers share a declaration
 // rather than a structural coincidence. `LandingContribution` joins
 // `FeatureContext` there for the same reason — both behaviors' `landing` key
-// produces exactly it. **The composition check's four helpers no longer travel
-// with them**: they were published because this entry's signature named
-// `SortableComposition`, and with every slot a named key of one writer there is
-// no positional check left for them to serve.
+// produces exactly it.
 export type {
   FeatureContext,
   LandingContribution,

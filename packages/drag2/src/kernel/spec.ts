@@ -96,6 +96,11 @@ export interface BehaviorContext {
    * that runs before the spec exists can report through it.
    *
    * Mint one per sink, at construction: each call allocates one closure.
+   *
+   * It exposes no lifecycle value. Whether it delivered is still an indirect
+   * observation of applied destruction, as the refusal of any other entry
+   * point is. That observation cannot change while a library callback runs,
+   * and it never reveals a request that has not been applied.
    */
   channel(
     deliver: (error: DraggableError | DraggableWarning) => void,
@@ -472,7 +477,7 @@ export type BehaviorSpec<
    * consumer code.
    *
    * So an implementation may return **one mutable buffer per controller**,
-   * rewritten on every call, and both first-party behaviors do. What it may
+   * rewritten on every call, as the first-party behaviors do. What it may
    * *not* do is write the buffer before its last call into foreign code: an
    * implementation that measures, writes, and then calls a consumer's handler
    * has published a value the handler can reach.
@@ -518,11 +523,12 @@ export type BehaviorSpec<
    * proof that the operation is over**, and the terminal for that operation
    * still publishes afterwards.
    *
-   * **The guard belongs here.** This is the one place in the library that
-   * invokes a consumer's `onError`, so it is the one place a throw from it must
-   * stop: an implementation catches and discards, and never reports the throw
-   * back through itself. That single discard is what keeps the channel
-   * non-recursive.
+   * **No guard belongs here.** The kernel calls this only through a channel
+   * it minted over it, and once from a panic, behind a discard of its own. A
+   * channel absorbs a throw from its sink, so a throw from `onError` stops
+   * there and is never reported back. A behavior's own reports and its
+   * composition's `report` reach `onError` through channels the behavior
+   * mints with {@link BehaviorContext.channel}, not through this member.
    */
   reportError(error: DraggableError | DraggableWarning): void;
 

@@ -12,7 +12,7 @@ import type { DOMRealm } from '../kernel/realm.ts';
 import type { OffsetBox } from '../kernel/types.ts';
 import type { Insertion } from './domain.ts';
 
-/** What a `placeholder` factory is handed. Geometry, and all three elements. */
+/** What a `placeholder` factory is handed. Geometry, and every element. */
 export type PlaceholderContext = Readonly<{
   item: HTMLElement;
   /** The node faithfully lifted. */

@@ -106,8 +106,8 @@ const NO_STAGE = 0;
  *
  * One sentinel, because there is one report channel.
  *
- * One phase opens under it: the landing measurement, which runs when the
- * operation is already **committed**, so classifying there would settle a drop
+ * The landing measurement opens under it. It runs when the operation is
+ * already **committed**, so classifying there would settle a drop
  * that really happened. Applying the sentinel to the whole phase is what makes
  * an explicit `kernel.fail` inside it behave exactly like a throw inside it.
  */
@@ -133,8 +133,8 @@ const FAILED = Symbol();
  * re-entry latch are one state, reset together as each phase opens.
  *
  * **Every field is private and nothing outside reads or writes one.** What
- * crosses the boundary is the four run operations, the staged-value consumer,
- * `requestFailure` and one diagnostic predicate.
+ * crosses the boundary is the run operations, the staged-value consumer,
+ * `requestFailure` and the diagnostic predicate `isInSeam`.
  */
 export class SeamDriver<Part extends object> {
   /** The pair every transactional seam publishes and reads. */
@@ -155,7 +155,7 @@ export class SeamDriver<Part extends object> {
    * One field rather than a set of booleans: *whether* behavior code is
    * running, *which* operation stage owns its failures, and *whether* they are
    * classified at all are three readings of the same fact, and splitting them
-   * let them drift apart.
+   * lets them drift apart.
    */
   #openStage: PhaseStage | typeof NO_STAGE = NO_STAGE;
 
@@ -244,7 +244,7 @@ export class SeamDriver<Part extends object> {
     // Not the same call as the one inside `#runPhase`, and not redundant with
     // it: a transaction mutates kernel state *before* its first phase opens,
     // and `begin()` would rebuild the draft the outer seam is still building.
-    // The refusal has to land before that, not one line later.
+    // The refusal has to land before that, not after `begin()`.
     this.#refuseReentry();
 
     if (this.#staged !== null) {
@@ -334,7 +334,7 @@ export class SeamDriver<Part extends object> {
    * report per phase — but a failure reaches the consumer as a warning instead
    * of settling the operation.
    *
-   * One caller: the arm-time landing measurement. A target that cannot be
+   * The caller is the arm-time landing measurement. A target that cannot be
    * produced and one that cannot be trusted are the same fault, and neither is
    * a reason to tell a consumer whose reorder succeeded that it did not.
    *
@@ -364,9 +364,10 @@ export class SeamDriver<Part extends object> {
    *
    * Returns `null` when the last seam staged nothing, discarded or failed.
    *
-   * **Every seam either consumes its staged value or drops it.** The two seam
-   * policies drop it for their callers; the seams the kernel drives directly
-   * drop it themselves. A value left behind is reported.
+   * **Every seam either consumes its staged value or drops it.**
+   * {@link runActivationSeam} and {@link runReleaseSeam} drop it for their
+   * callers; the seams the kernel drives directly drop it themselves. A value
+   * left behind is reported.
    */
   consumeStaged(): unknown {
     const value = this.#staged;
@@ -457,12 +458,10 @@ export class SeamDriver<Part extends object> {
    * does the wrong thing. A nested `begin()` does **not** publish a half-built
    * frame — the swaps cancel — so that is not the reason to refuse.
    *
-   * So the refusal **latches** rather than merely throwing — the nested call
-   * raises from inside the outer phase, whose `catch` would otherwise classify
-   * an invariant break as an ordinary behavior failure and swallow it.
-   * `#runPhase` rethrows past every classification on the way out to reach the
-   * queue's panic path, which is also what makes behavior code that catches its
-   * own refusal panic anyway.
+   * So the refusal **latches** rather than merely throwing, for the reason
+   * `#reentry` states. `#runPhase` rethrows past every classification on the
+   * way out to reach the queue's panic path, which is also what makes behavior
+   * code that catches its own refusal panic anyway.
    */
   #refuseReentry(): void {
     if (this.#openStage !== NO_STAGE) {
@@ -515,8 +514,7 @@ export class SeamDriver<Part extends object> {
     if (this.#reentry) {
       // Cleared on the way out: exactly one `runCore` on the stack got past the
       // guard, and it is the one that unlatches. The raised value is not
-      // consulted — `#reentry` is the whole decision, so a phase that swallowed
-      // the throw unwinds here exactly as one that let it pass.
+      // consulted (see `#reentry`).
       this.#reentry = false;
       // oxlint-disable-next-line typescript/only-throw-error
       throw null;

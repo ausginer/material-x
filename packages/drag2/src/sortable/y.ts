@@ -1,7 +1,6 @@
 /**
- * The y axis rule — **one of two modules containing axis geometry**, and the
- * only one containing *this* axis. `xy()` is a sibling, never a branch inside
- * this one.
+ * The y axis rule — **the only module containing this axis's geometry**.
+ * `xy()` is a sibling, never a branch inside this one.
  *
  * ```text
  * candidates := centres of every non-dragged item's **box**, plus the
@@ -128,8 +127,8 @@ type InsertionRuntimeView = Readonly<{
  *   difference** of measured geometry. A difference between two *different*
  *   elements' measured rects carries the difference of their authored
  *   presentation and is not a flow quantity. This is the library's own
- *   obligation, stated because it is what decides which of the two axes
- *   predicts and which measures.
+ *   obligation, stated because it is what decides which axis predicts and
+ *   which measures.
  * - **G6** — the placeholder's own geometry is stable between invalidations.
  *   The rule describes the hole's footprint as it stood when it was last
  *   measured, and nothing short of an invalidation revisits it, so a
@@ -144,7 +143,7 @@ type InsertionRuntimeView = Readonly<{
  *
  * ## What this rule does not cover
  *
- * Two layouts sit outside it, and neither is checked at runtime:
+ * These layouts sit outside it, and none is checked at runtime:
  *
  * - **position-sensitive collapsing margins.** A block list whose margins
  *   collapse differently depending on which neighbours a row has does not
@@ -260,11 +259,11 @@ export function y(): AxisInstaller {
           return insertionAt(items, gap, snapshot);
         },
 
-        // **Wrapped, not detached.** These two are published into a record the
-        // assembler pushes into `retireHooks` and calls with no owner, so a
-        // bare prototype read would arrive with no receiver. The closure is
-        // what carries it, and the lint gate is what would have caught the
-        // bare read.
+        // **Wrapped, not detached.** `invalidate` and `retire` are published
+        // into a record the assembler pushes into `retireHooks` and calls with
+        // no owner, so a bare prototype read would arrive with no receiver.
+        // The closure is what carries it, and the lint gate is what would have
+        // caught the bare read.
         invalidate: () => {
           shift.invalidate();
         },

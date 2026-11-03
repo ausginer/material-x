@@ -6,7 +6,7 @@
  * closure-local, which is what keeps the kernel unable to name or type it. What
  * lives here is what is not per-operation state at all — the tags, which
  * `arm()` validates through `config.actionTags` and `dispatch` bounds-checks;
- * and {@link SortableActivation}, whose role — one object two feature views
+ * and {@link SortableActivation}, whose role — one object the feature views
  * bind to, with a non-null `placeholder` — is what requires an object.
  */
 import type {
@@ -27,7 +27,7 @@ export const TAG_INVALIDATION = 2;
 export const SORTABLE_ACTION_TAGS = 3;
 
 /**
- * **What activation acquired, as one record.** It exists because both feature
+ * **What activation acquired, as one record.** It exists because the feature
  * views need a **non-null** `placeholder`, which no controller-lifetime state
  * can promise before activation.
  *

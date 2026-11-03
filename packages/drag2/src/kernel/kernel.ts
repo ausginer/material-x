@@ -9,7 +9,7 @@
  * the controller-scope context as `readonly` fields, and the current-operation
  * slots. Neither exposes a container: what the kernel holds of the behavior is
  * **one `spec` reference**, and what the behavior holds is the façade, whose
- * seven members include none that drives a transition.
+ * members include none that drives a transition.
  */
 import {
   ACTIVATE,
@@ -194,7 +194,7 @@ type OperationRecord = {
    * The geometry source. Read before `acquireLift`, never transactional — the
    * same argument that keeps the measured landing target on the settlement
    * attempt rather than on the frame, so the kernel's published slice stays
-   * seven fields.
+   * the phase, the identity and the pointer scalars.
    */
   readonly box: HTMLElement;
   /**
@@ -327,7 +327,7 @@ const thenOf = (value: unknown): PromiseLike<unknown>['then'] | null => {
  * returns its slice to its defaults and the behavior returns its part;
  * `resetFramePart` is behavior code the API permits to throw, and an unwrapped
  * throw on the first frame would skip the second scrub *and* the ingress abort,
- * making `destroy()` non-terminal. The kernel's own reset cannot throw, so it
+ * making destruction non-terminal. The kernel's own reset cannot throw, so it
  * is inside the same `unwind` with nothing to lose by it.
  *
  * A module function with the guard and the behavior as parameters, because it
@@ -424,9 +424,9 @@ class ArmedController<Part extends object, Activation extends {}> {
    * operation's lifetimes, this controller's unwind guard, and construction's
    * unwind when it fails after publishing this controller.
    *
-   * **The stage is deliberately absent.** Three sites reach this holding a real
-   * `FailureStage` and discard it — the demoted checkpoint, `failOperation`'s
-   * five-guard demotion, and a {@link Kernel.fail} outside a seam. In each the
+   * **The stage is deliberately absent.** The sites that reach this holding a
+   * real `FailureStage` discard it — the demoted checkpoints, `failOperation`'s
+   * demotion, and a {@link Kernel.fail} outside a seam. In each the
    * stage describes a classification the kernel has just decided **not** to
    * apply, so carrying it into a warning would publish a claim about the
    * operation that the code refused to make.
@@ -436,8 +436,8 @@ class ArmedController<Part extends object, Activation extends {}> {
   /**
    * The unwind guard, over this controller's channel.
    *
-   * One closure per kernel rather than a free function: the fourteen call sites
-   * read `unwind(fn)` either way, and threading the channel's identity through
+   * One closure per kernel rather than a free function: every call site
+   * reads `unwind(fn)` either way, and threading the channel's identity through
    * each of them would put reporting at every site that merely wants the next
    * statement to run.
    */
@@ -489,9 +489,10 @@ class ArmedController<Part extends object, Activation extends {}> {
       // lets the `QUALITY` and `BEST_EFFORT` tiers collapse into one sentinel.
       //
       // There is no lifetime guard at this site, and adding one here is wrong:
-      // the guard belongs in `notify`, where every route shares it. A quality
-      // fault's producer is consumer-reaching — a `home` resolver, a landing
-      // policy — and is equally free to destroy before it throws.
+      // the guard belongs in the channel, where every route shares it. A
+      // quality fault's producer is consumer-reaching — a `home` resolver, a
+      // landing policy — and is equally free to request destruction before it
+      // throws.
       this.report,
     );
   }
@@ -661,7 +662,7 @@ class ArmedController<Part extends object, Activation extends {}> {
    * next is conditioned on the call; it publishes no lifecycle or domain event
    * and ignores its return; and it is wrapped. Which sites share that property
    * is not this comment's to count — that list is maintained where the
-   * exception is stated, and `notify` refuses every site that fails it.
+   * exception is stated, and the channel refuses every site that fails it.
    *
    * Reporting first and destroying second would run consumer code on a
    * controller whose invariants are *already known to be broken*, with the
@@ -896,10 +897,10 @@ class ArmedController<Part extends object, Activation extends {}> {
       // will follow, which is a changed terminal result by any reading — so
       // this is a `DraggableError`, built here from the stage the kernel owns.
       //
-      // Neither a resolver that closed the controller on its way out nor a
-      // throwing `onError` is handled here. **Both readings live in `notify`**,
-      // which refuses after logical closure and swallows a throwing handler for
-      // every route rather than for this one.
+      // Neither a destruction the resolver requested nor a throwing `onError`
+      // is handled here. **Both belong to the channel**
+      // ({@link Kernel.channel}), which refuses only after application and
+      // absorbs a throwing sink for every route rather than for this one.
       this.report(new DraggableError(FAILURE_ADMISSION, error));
 
       return null;
@@ -1131,7 +1132,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       return;
     }
 
-    // **The second of the three disarm conditions**, and it runs before the
+    // **A new press is a disarm condition**, and it runs before the
     // primary-press test rather than inside it: a one-shot that never fired
     // must not survive to eat an unrelated click, and a press that begins a
     // *new* interaction is as good a signal that the old one is over as the
@@ -1427,7 +1428,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // `lift.write` consume. `anchorTarget` produces a viewport point and the
     // kernel converts once, here. **The borrow ends here.** Both fields of
     // `anchor` are read on this line and the object is never referenced again:
-    // a behavior is free to return one reusable buffer per controller, and both
+    // a behavior is free to return one reusable buffer per controller, and the
     // first-party ones do.
     attempt.targetX = anchor.x - origin.x;
     attempt.targetY = anchor.y - origin.y;
@@ -1835,8 +1836,8 @@ class ArmedController<Part extends object, Activation extends {}> {
     sample: PointerCoordinates | null,
   ): void {
     // Commit 1: the committed frame matches what is about to be true, so a
-    // `release.prepare` that throws or reentrantly destroys never leaves a
-    // committed `ACTIVE` operation with no ingress and no path forward.
+    // `release.prepare` that throws never leaves a committed `ACTIVE`
+    // operation with no ingress and no path forward.
     this.#frames.begin();
 
     if (sample) {
@@ -1922,7 +1923,7 @@ class ArmedController<Part extends object, Activation extends {}> {
   /**
    * The pointerless release, which enters the **same** transition `UP` enters
    * at `ACTIVE`. Unreachable for a pointer operation and unreachable from a
-   * behavior: {@link BehaviorContext} still has no lifecycle entry.
+   * behavior: {@link BehaviorContext} has no member that releases.
    */
   #handleRelease(identity: OperationIdentity): void {
     if (
@@ -2052,7 +2053,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // **Written out rather than left to a bare `default`.** The handler is
       // total either way — a phase it does not recognise is ignored, never
       // thrown on — but with a closed union the compiler can say *which* phases
-      // that covers, so the four are named. `IDLE` has no operation; the three
+      // that covers, so the rest are named. `IDLE` has no operation; the
       // terminal phases have a settlement already deciding the outcome, and a
       // cancel arriving there is late by definition.
       case IDLE:
@@ -2177,7 +2178,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       //
       // **A behavior raises a cause; the kernel mints the error.** The stage is
       // not final at the raise site — a stale checkpoint is demoted to a
-      // `DraggableWarning` above, and a held cancel latch outranks the
+      // `DraggableWarning` above, and a held cancel outranks the
       // checkpoint outright — so an error minted at the failing branch would
       // already be the wrong object in both cases and would have to be
       // unwrapped and rebuilt. One mint site is what makes *the stage on the
@@ -2200,9 +2201,8 @@ class ArmedController<Part extends object, Activation extends {}> {
     // `SETTLING`: `onError` runs in its own phase, exactly once per failure.
     // The input carries the stage, which is what lets the behavior distinguish
     // the recoveries the stage table separates (`TERMINAL_CALLBACK` is "none",
-    // the rest immediate). **This report never lands**: nothing measures and
-    // nothing joins here, and the terminal is published from `ERROR_REPORTED`
-    // below.
+    // the rest immediate). Nothing measures and nothing joins here, and the
+    // terminal is published from `ERROR_REPORTED` below.
     //
     // A throw or a rejection inside this seam cannot become another checkpoint:
     // `failOperation` sees `reporting` and reports instead. The seam still
@@ -2306,7 +2306,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // A throw here reaches `failOperation`, which sees `REPORTING` and takes
       // the non-consequential channel — so a terminal that fails on the
       // failure path is reported without queueing a second checkpoint for an
-      // operation that is one statement from retirement.
+      // operation this entry retires.
       this.#driver.runLeaf(() => {
         this.#spec.finalized(this.#frames.current);
       }, FAILURE_TERMINAL_CALLBACK);
@@ -2426,9 +2426,9 @@ class ArmedController<Part extends object, Activation extends {}> {
    * Binds the ingress listeners under the façade's signal: `pointerdown`, and
    * each of the spec's command types.
    *
-   * Inside the **same** ingress abort that owns `pointerdown`, so `destroy()`
-   * releases every listener including the discrete ones, and a behavior with
-   * no `command` member binds nothing at all. A throw here is construction's to
+   * Inside the **same** ingress abort that owns `pointerdown`, so applied
+   * destruction releases every listener including the discrete ones, and a
+   * behavior with no `command` member binds nothing at all. A throw here is construction's to
    * unwind.
    */
   attach(): void {
@@ -2483,10 +2483,10 @@ export class Kernel<
    *
    * Its four callbacks are the only edges back into the kernel, and each is
    * allocated once per controller: the per-action and per-sample paths through
-   * the bracket allocate nothing. Three of them reach the armed controller,
-   * which exists whenever they run: the bracket drains and admits ingress only
-   * after construction published it, and a construction that fails clears
-   * the queue before anything is drained.
+   * the bracket allocate nothing. `handle`, `panic` and `beginPass` reach the
+   * armed controller, which exists whenever they run: the bracket drains and
+   * admits ingress only after construction published it, and a construction
+   * that fails clears the queue before anything is drained.
    */
   readonly #bracket = new ExecutionBracket(
     (action, argument) => {
@@ -2575,8 +2575,8 @@ export class Kernel<
    * to tell the two callers apart — and a supplied value is what both of them
    * are.
    *
-   * Before arming there is no operation to latch anywhere, so it is the idle
-   * no-op.
+   * Before arming there is no operation to register against, so it is the
+   * idle no-op.
    */
   requestCancel(reason?: unknown): void {
     this.#armed?.requestCancel(reason);
@@ -2633,7 +2633,7 @@ export class Kernel<
    * both frame-part compositions, ingress attachment and publication.
    *
    * A request made anywhere inside is applied when the unit ends, after
-   * publication: a factory or frame-part factory that destroys the controller
+   * publication: a factory or frame-part factory that requests destruction
    * still sees both parts composed and ingress attached, and the application
    * then retires the spec once, resets each frame once and aborts ingress, all
    * before this returns. Attaching a listener and aborting it inside one
@@ -2725,7 +2725,7 @@ export class Kernel<
       // controller exists only with both frames, so every member a behavior
       // reaches through the façade finds a spec, a pair and a driver together.
       // Publication precedes attachment so that foreign code reached while a
-      // listener is bound — `cancel()` or `fail()` from a patched
+      // listener is bound — `requestCancel()` or `fail()` from a patched
       // `addEventListener` — already meets the armed controller.
       armed = new ArmedController(
         this.realm,

@@ -51,9 +51,9 @@
  * composition can never reach, and `bench/size` asserts the absence.
  *
  * **`RectIndex` stays dimension-neutral, and this module is why it can.** It
- * keeps the full scan and gained no rule: what it gained is two operations that
- * interpret nothing — a span advance and a hole re-read, each told which three
- * packed fields to move. The rule about when, over what span and by how much
+ * holds the full scan and no rule: the operations this module drives — a span
+ * advance and a hole re-read — interpret nothing, each told which three packed
+ * fields to move. The rule about when, over what span and by how much
  * lives here, and this module holds no writable handle into the cache's
  * storage.
  */
@@ -211,27 +211,20 @@ export class LinearShift {
     // current by the time it runs or every correct list reports a mismatch at
     // the placeholder on every move.
     //
-    // Only the axis's own three fields are written: a hole relocation moves
-    // the placeholder along this axis and leaves both cross-axis coordinates
-    // where they were, which is the same G2 clause the slot advance rests on.
-    //
     // Every path that dirties the cache clears this — `retire` included. What
     // survives is one redundant read when the collection version moves under a
     // clean cache, inside a frame already paying a full rebuild.
     if (this.#hollow) {
       this.#hollow = false;
-      // The read moves in with the write, because measuring is the cache's own
-      // act: the operation takes the placeholder and the three offsets this
-      // axis moves, and cannot fail.
+      // Measured by the cache itself, writing only this axis's three fields;
+      // see `RectIndex.remeasureHole`.
       index.remeasureHole(placeholder, this.#start, this.#end, this.#centre);
     }
 
     // **The instrument, on the claim the previous move made.** It scans,
     // which is the forced layout this model exists to remove, so it is `DEV`
-    // only. Here rather than inside the move that made the claim: at that
-    // instant the sink has just been handed vectors whose animations have no
-    // resolved timing yet, and a scan would compare a settled cache against a
-    // tree in an indeterminate state. By the next rebuild both answer.
+    // only. Here rather than inside the move that made the claim, for the
+    // reason `verifyEquivalence` gives.
     if (
       DEV &&
       this.#claimed &&
@@ -307,11 +300,6 @@ export class LinearShift {
       // Any crossed row answers, because they all travelled the same
       // constant. Measured as its **box**, which is what the cache holds.
       const probe = items[lo]!;
-      // **No reading before `box`, and that is placement rather than
-      // omission.** The obligation for this invocation — `box` is called per
-      // candidate in one seam's prepare and once more in its effect — is
-      // discharged upstream, immediately before the call that reaches here,
-      // with no consumer-reachable step in between.
       const rect = (
         runtime.box ? runtime.box(probe) : probe
       ).getBoundingClientRect();

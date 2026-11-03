@@ -45,7 +45,7 @@ export interface LifetimeScope {
  * **`notify` is threaded rather than reached.** A lifetime holds no controller
  * reference — it owns its disposers and an `AbortController` and nothing else
  * — so the one place it could have found the channel is the argument list.
- * Three sites here report, and all three are warnings: the resource is released
+ * Every site here that reports sends a warning: the resource is released
  * either way, and what failed is the release rather than the operation.
  */
 export class Lifetime implements LifetimeScope {

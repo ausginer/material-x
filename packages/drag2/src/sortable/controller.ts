@@ -1,6 +1,6 @@
-// The consumer-facing controller. Three members, two of which are the kernel's
-// own — the behavior adds the one thing the kernel cannot know about: what a
-// collection is.
+// The consumer-facing controller. Its cancellation and destruction members are
+// the kernel's own — the behavior adds the one thing the kernel cannot know
+// about: what a collection is.
 import type { BehaviorContext } from '../kernel/spec.ts';
 import { TAG_COLLECTION } from './runtime.ts';
 
@@ -61,10 +61,10 @@ export function createSortableController(
       kernel.dispatch(TAG_COLLECTION, null);
     },
 
-    // **Wrapped, not detached.** These two are published members a consumer
-    // may pull off the controller and pass on, so what is published is a
-    // closure over the call rather than the kernel's prototype method, which
-    // would arrive with no receiver.
+    // **Wrapped, not detached.** `requestCancel` and `requestDestroy` are
+    // published members a consumer may pull off the controller and pass on,
+    // so what is published is a closure over the call rather than the
+    // kernel's prototype method, which would arrive with no receiver.
     requestCancel: (reason?: unknown): void => {
       kernel.requestCancel(reason);
     },

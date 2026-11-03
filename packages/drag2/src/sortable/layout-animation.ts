@@ -164,7 +164,7 @@ export function layoutAnimation(
         // the inverse of the inherited linear part — four multiplies under an
         // ancestor transform, one null test without one, which is the common
         // case. Everything the sink *stores* stays in viewport space: the fold
-        // below and the settle walk both work in the units the axis reports,
+        // and the settle walk both work in the units the axis reports,
         // and a local keyframe decaying to zero is `sx × remaining` in viewport
         // at every instant, which is what the walk assumes.
         const animation = element.animate(

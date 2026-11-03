@@ -179,8 +179,8 @@ class SortableBehavior {
 
   /**
    * Monotonic; the identity of the latest coalesced spatial attempt. **Minted
-   * once per controller and never reset** — which is the same reason `version`
-   * above is not reset, and the reason neither belongs in the operation record.
+   * once per controller and never reset** — the same reason `#version` is not
+   * reset, and the reason neither belongs in the operation record.
    */
   #spatialSeq = 0;
 
@@ -321,7 +321,7 @@ class SortableBehavior {
     this.#invalidate = createInvalidator(kernel.realm);
     /**
      * Created once per **controller**, not per operation, and cancelled at
-     * retirement and at destroy.
+     * retirement and at destruction.
      *
      * Per-controller removes both the nullability and an allocation from the
      * activation path, and costs nothing in staleness handling: the task's
@@ -365,7 +365,7 @@ class SortableBehavior {
       // container, while the placeholder it left behind keeps the on-screen
       // box. The faithful matrix reproduces the composed ancestor space
       // exactly, so lift and placeholder agree. `LIFT_FLAT` is for a free drag
-      // that deliberately straightens out; it was never right here.
+      // that deliberately straightens out; it is wrong here.
       liftMode: LIFT_FAITHFUL,
       actionTags: SORTABLE_ACTION_TAGS,
     };
@@ -598,7 +598,7 @@ class SortableBehavior {
     // ArrowRight only because the edge decline happened to fire.
     //
     // **Both ingresses ask one question of one attribute**, so there is no
-    // per-key owner table to consult and none is to return. The order above
+    // per-key owner table to consult. The order above
     // still holds and still matters — the item is what feasibility is asked
     // about — but that asymmetry returns for an *unmarked* field, and
     // `data-drag-ignore` is what answers it.
@@ -806,7 +806,7 @@ class SortableBehavior {
     // recently heard about.
     this.#operation.progress = STARTED;
 
-    // 4 — last, because it may reentrantly cancel or destroy.
+    // 4 — last, because it may request cancellation or destruction.
     this.#slots.onStart(item);
   }
 
@@ -854,22 +854,21 @@ class SortableBehavior {
     }
 
     if (tag === TAG_SPATIAL) {
-      // The applied half of the double validation. The `view` test is what
-      // bites today; the attempt comparison is unreachable as things stand,
+      // The applied half of the double validation. The activation test is
+      // the one a producer reaches; the attempt comparison cannot fail,
       // because the frame task coalesces and dispatches the latest sequence
       // synchronously, so a queued attempt is always current when it
       // applies. It is kept because the contract states the check, and
-      // because anything that later queues a spatial action from outside
-      // the frame task reopens the window it closes. The spatial action is
+      // because anything that queues a spatial action from outside the
+      // frame task reopens the window it closes. The spatial action is
       // inert outside `ACTIVE`, and the activation record cannot stand in for
       // that: it is cleared only at retirement, so it stays non-null
-      // through `RELEASING`, `SETTLING` and `FINALIZING`. No producer can
-      // reach those phases today — the frame task is cancelled when motion
+      // through `RELEASING`, `SETTLING` and `FINALIZING`. No producer
+      // reaches those phases — the frame task is cancelled when motion
       // closes at release, and no other call site dispatches this tag — so
-      // this guard is unreachable by construction rather than by luck. It
-      // is here so that a future producer (a replayed action, a flush from
-      // a hook) cannot commit a placeholder move into a decided
-      // transaction.
+      // the phase test is unreachable by construction. It keeps any new
+      // producer (a replayed action, a flush from a hook) from committing a
+      // placeholder move into a decided transaction.
       if (
         draft.phase !== ACTIVE ||
         argument !== this.#operation.pendingSpatial ||
@@ -914,8 +913,8 @@ class SortableBehavior {
 
     // Copied on the structural branch **only**, which is the point of the
     // split: the copy is what keeps a queued snapshot safe from a later
-    // caller mutation, and it is now paid when membership changes rather
-    // than on every invalidation.
+    // caller mutation, and it is paid when membership changes rather than
+    // on every invalidation.
     //
     // **Copied first, numbered second.** The copy refuses nothing, so
     // nothing here throws — but the order still matters, because it is what
@@ -1019,8 +1018,8 @@ class SortableBehavior {
        * **The cache does not describe the DOM.** Raised before anything can
        * touch the rule's arrays and lowered only once the cache and the
        * tree agree again, so every exit in between — a placeholder
-       * reaction that destroyed the controller, a hook that threw — leaves
-       * it set and invalidates in the `finally`.
+       * reaction or a hook that threw — leaves it set and invalidates in the
+       * `finally`.
        *
        * That invalidation is load-bearing rather than defensive. There is
        * no invalidation on the happy path at all: the axis either advances
@@ -1035,8 +1034,8 @@ class SortableBehavior {
         movePlaceholder(view.placeholder, insertion);
 
         // 2 — tell the axis, and hand it the sink. One call: the cache
-        // advance does not depend on the DOM, so there was never a reason
-        // for it to precede the write it describes, and the sink's visitor
+        // advance does not depend on the DOM, so there is no reason for it
+        // to precede the write it describes, and the sink's visitor
         // arrives as an argument rather than a plan coming back — which is
         // what leaves a composition with no displacement feature allocating
         // nothing at all here.
@@ -1168,15 +1167,15 @@ class SortableBehavior {
         return { invoke: null };
       }
 
-      // **No terminal barrier here, deliberately.** This resolve reaches
+      // **No lifecycle guard here, deliberately.** This resolve reaches
       // the candidate loop too, and on an aborted traversal it falls back
       // to `draft.insertion`, builds a proposal and stages an `invoke`
       // closure — which is never executed: the kernel opens the round-trip
       // in a unit of its own, and a destruction requested in this one is
       // applied at its boundary and discards it, so `onReorder` cannot fire
-      // for an operation whose destruction was requested. A guard here would be a second
-      // copy of a decision the kernel already owns, and two copies can
-      // disagree.
+      // for an operation whose destruction was requested. A guard here would
+      // be a second copy of a decision the kernel already owns, and two
+      // copies can disagree.
       const resolved =
         this.#slots.resolveInsertion(draft, view) ?? draft.insertion;
 
@@ -1189,10 +1188,11 @@ class SortableBehavior {
     }
 
     // The frame's own committed snapshot, not `#snapshot`: the insertion
-    // carries the version it was resolved against, and the resolve one screen
-    // above used this same value. `buildReorderProposal` answers `null` on a
-    // version mismatch, so a behavior-private snapshot republished since the
-    // resolve is the one input that turns a coherent release into a throw.
+    // carries the version it was resolved against, and the pointer branch's
+    // `resolveInsertion` read this same value. `buildReorderProposal` answers
+    // `null` on a version mismatch, so a behavior-private snapshot republished
+    // since the resolve is the one input that turns a coherent release into a
+    // throw.
     const built = buildReorderProposal(snapshot, item, insertion);
 
     if (!built) {
@@ -1264,7 +1264,7 @@ class SortableBehavior {
   // -----------------------------------------------------------------------
   // Settlement
   // -----------------------------------------------------------------------
-  /** The five-case mapping, covered exhaustively. */
+  /** One arm per `SettlementInput` type, covered exhaustively. */
   prepareSettlement(
     draft: Draft<SortableFramePart>,
     input: SettlementInput,
@@ -1455,8 +1455,7 @@ class SortableBehavior {
 
     if (recovery === RECOVERY_DESTINATION) {
       // Re-anchoring follows the **recovery**, which is committed behavior
-      // state. There is no `authoredReady` gate in front of this and none is
-      // needed: under the serial commit the authored DOM is already final
+      // state. Under the serial commit the authored DOM is already final
       // when this runs, so there is no pending render to wait for.
 
       // Each conjunct earns its place. `nextElementSibling` makes the repair
@@ -1561,22 +1560,6 @@ class SortableBehavior {
     }
   }
 
-  /**
-   * **Forward, and nothing else.** The kernel builds the public error, picks
-   * its class and owns the refusal; this member is the last hop, the sink
-   * every channel delivers to.
-   *
-   * **Neither a classification nor a `domain: null` context belongs here**,
-   * so this member neither derives anything from the stage nor attaches a
-   * context: construction is kernel-owned so a classification cannot mean two
-   * things in two behaviors, and the context is strictly redundant with the
-   * terminal. There is no stage-to-code mapping to call either way.
-   *
-   * Its callers are the kernel's channels, which refuse after applied
-   * destruction and discard a throwing handler, and `panic`'s one delivery
-   * after closure, which is exactly why neither rule can live here.
-   */
-
   retire(): void {
     this.#operation.progress = MINTED;
     this.#spatialFrame.cancel();
@@ -1680,7 +1663,8 @@ export function createSortableSpec(
 
     /**
      * **Forward, and nothing else.** The kernel builds the public error, picks
-     * its class and owns the latch; this member is the last hop.
+     * its class and owns the refusal; this member is the last hop, the sink
+     * every channel delivers to.
      *
      * **Neither a classification nor a `domain: null` context belongs here**,
      * so it neither derives anything from the stage nor attaches a context:
@@ -1688,10 +1672,9 @@ export function createSortableSpec(
      * in two behaviors, and the context is strictly redundant with the
      * terminal.
      *
-     * Its one caller is the kernel's `notify`, which gates on the latch and
-     * discards a throwing handler for every route it owns — including the
-     * post-closure panic delivery, which is exactly why neither rule can live
-     * behind it.
+     * Its callers are the kernel's channels, which refuse after applied
+     * destruction and discard a throwing handler, and `panic`'s one delivery
+     * after closure, which is exactly why neither rule can live here.
      */
     reportError: behavior.reportError,
 

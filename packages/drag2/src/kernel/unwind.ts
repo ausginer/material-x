@@ -8,9 +8,10 @@
  *
  * The rule at every site is the same sentence: **the statement after this call
  * is load-bearing.** Another resource to release, another teardown step, or the
- * original error to rethrow. Ten of the sites are literal multi-resource
- * releases, some of them `for` loops over installer disposers. Unwrapped, a throw from step *n* skips steps *n+1* onward — which is
- * exactly how `destroy()` stops being terminal.
+ * original error to rethrow. Most of the sites are literal multi-resource
+ * releases, some of them `for` loops over installer disposers. Unwrapped, a
+ * throw from step *n* skips steps *n+1* onward — which is exactly how
+ * destruction stops being terminal.
  *
  * The catch reports a {@link DraggableWarning} rather than an error, because an
  * unwind step that failed is by construction not consequential — the
@@ -29,7 +30,7 @@ export type Unwind = <T>(step: () => T) => T | undefined;
  * Builds the unwind guard over one controller's channel.
  *
  * A closure per kernel rather than a free function taking the notifier: the
- * fourteen call sites read `unwind(fn)` either way, and threading the notifier
+ * call sites read `unwind(fn)` either way, and threading the notifier
  * through each of them would put the channel's identity at every site that
  * merely wants to survive a throw.
  *
