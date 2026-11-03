@@ -70,7 +70,7 @@ Nothing below is decided by this register. Each row states what is owed and what
 
 #### O-14
 
-**Whether to close the sortable's admitted two-fault gap**, whose stated reason for staying open, the cost of a per-operation "started" flag, no longer holds
+**What a cancel applied at `ACTIVATING` does for a drag whose start was never notified.** This covers the whole class of two-fault paths in F-442, not only the sortable's admitted gap. The gap's stated reason for staying open, the cost of a per-operation "started" flag, no longer holds. Widened 2026-11-03
 
 **Owed by:** F-442
 

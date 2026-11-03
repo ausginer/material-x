@@ -2875,6 +2875,13 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 **Step 5 accepted 2026-11-03, at `0ba8afb64`**, after its feature proof (record §20), with its postcondition qualified by the sites it escalated. Remediation 5R discharges them before step 6 starts. It includes both controllers' published `requestDestroy` JSDoc, which must name I-36's two exceptions. The census's class N is ratified, and step3-B is closed. Whether to close the sortable's admitted two-fault gap is not decided here and is raised as F-442. The four budget overruns are still the owner's.
 
+**Remediation 5R accepted 2026-11-03, at `2d17645f5`**, after its bounded recheck (record §21), with its postcondition qualified.
+
+- **Discharged:** step5-A and step5-C. Both controllers' `requestDestroy` JSDoc names I-36's two exceptions.
+- **Composition:** item 6's guard removal is kept, and its Brotli movement, −17 to +20 B on the sortable-carrying rows, is booked to it with no re-base.
+- **The admitted gap:** the recheck found a second path to it, so it is one class of two-fault paths. F-442 is widened to that class and re-tiered B. The text that calls the gap unique is corrected in a comment-only follow-up, 5R.1, which lands and closes before step 6 starts. Step 6 changes no `src/`.
+- **The four budget overruns** are still the owner's.
+
 **What is carried.** D-207's text, its properties as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1–3 as accepted at `44e2074f1`, `877fb9612` and `ef1e4ef6b`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step3-B and step3-C keep their boundaries.
 
 **The required behavior is the baseline's.** After applied destruction no diagnostic reaches `onError` by any route, except panic's own report (D-178). Before application, in `LIVE` and in the requested interval, every diagnostic is delivered:
@@ -2913,7 +2920,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 - **D-207:** supersedes it during step 4. Its steps 1–3 stay accepted.
 - **F-441:** raises and repairs it.
-- **F-442:** raised open at step 5's acceptance, and not decided by D-208. Remediation 5R establishes the gap's outcome at the tip and escalates if D-208 changed it. Otherwise D-208's completion does not wait for the answer.
+- **F-442:** raised open at step 5's acceptance, and not decided by D-208. ~~Remediation 5R establishes the gap's outcome at the tip and escalates if D-208 changed it.~~ **Established 2026-11-03 (record §21.3):** D-208 changed no published outcome on either known instance. So D-208's completion does not wait for the answer. 5R.1 corrects the text that calls the gap unique.
 - **F-432 to F-440:** carries their decisions, repairs and closures.
 - **D-178:** its teardown silence and panic exception are kept, and now rest on the kernel's one refusal.
 - **D-200:** its pending acceptance is unchanged.
@@ -2931,7 +2938,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-208 | Remediation | remediation 5R, then step 6, the measurement record. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64` | absent: `.plan/measurements/d208-requests.md` |
+| D-208 | Remediation | remediation 5R.1, then step 6, the measurement record. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64`, and remediation 5R at `2d17645f5` | absent: `.plan/measurements/d208-requests.md` |
 
 **D-207's row closed on 2026-11-02 with steps 1–3 accepted.** D-208 superseded it during step 4, adding `BehaviorContext.channel` so that the behaviors' diagnostics keep the kernel's refusal after applied destruction. D-208's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 
@@ -5639,7 +5646,7 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Repair.** The kernel's refusal is reached through `BehaviorContext.channel(deliver)`, and the four reads are replaced by minted channels rather than deleted. The refusal reads only applied destruction, so its answer is constant across every unit. D-208; case R33.
 
-#### F-442 — the sortable's admitted two-fault gap lost its stated reason for staying open · open, tier C
+#### F-442 — a cancel applied at `ACTIVATING` settles a drag whose start was never notified, on a class of two-fault paths · open, tier B
 
 **Open, tier C. Raised 2026-11-03 at D-208 step 5's acceptance**, from the comment pass's escalation #2 and the feature proof's step5-B. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20. It is not a defect in landed code, and D-208 does not decide it.
 
@@ -5653,6 +5660,32 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 **Owner.** The architect decides. The owner rules if the answer changes a published outcome.
 
 **Deadline.** Before Phase 24 exits, because Phase 24 carries no open question. Until then the gap stays as documented. D-208's remediation 5R corrects only the text: _registered_ for _latched_, and a citation of this entry in place of the stale reason.
+
+**Widened and re-tiered 2026-11-03, at 5R's acceptance** (record §21.3, from the 5R recheck's 5r-A). It was raised as _the sortable's admitted two-fault gap lost its stated reason for staying open_, at tier C.
+
+**The class.** A terminal callback is reached without a start notification exactly when both of these hold:
+
+- a cancel is registered during the activation unit, by consumer code reached from its `prepare` or its `effect`;
+- the effect then fails before the start notification.
+
+The cancel supersedes the failure checkpoint, and `#handleCancel` settles `ACTIVATING` on the phase alone.
+
+**Two known instances, both probed at D-208's tip:**
+
+- a throwing `invalidateInsertion()`, the instance above;
+- a placeholder that removes itself, so the adjacency check throws before the activation record is published. The landing then reads the absent record and reports `drag: landing/target-unavailable`, whose `cause` is the library's own `TypeError`. That is why this is tier B. It is not tier A, because both faults are the consumer's.
+
+**Not established:** whether free drag has an instance, and a `prepare`-registered cancel, which is read from the code but not probed.
+
+**Both instances predate the program.** Their outcome is the same at its input `6905af249`, apart from D-202's stated warning code.
+
+**Any answer must:**
+
+- cover the class in both behaviors;
+- report no library-internal exception as a diagnostic's `cause`;
+- if it keeps the gap open, state its ground.
+
+Owner and deadline are unchanged. D-208's 5R.1 corrects the text that calls the gap unique, and decides nothing.
 
 ## What would falsify this model
 

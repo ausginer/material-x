@@ -1,5 +1,12 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**Remediation 5R accepted 2026-11-03, at `2d17645f5`, after its bounded recheck, with its postcondition qualified.** step5-A and step5-C are discharged, and both published `requestDestroy` JSDoc blocks name I-36's two exceptions. Item 6's Brotli growth is kept and booked to it, with no re-base. The implementer's reading of the source-citation gate is confirmed, and §20.4 carries an erratum. The recheck's 5r-A splits in two:
+
+- **the behavior** is one class of two-fault paths that reach a terminal callback with no start notification. `drag2:F-442` is widened to cover it and re-tiered B. It is not D-208's, and D-208 changed no published outcome on it;
+- **the text** claiming the gap is unique is a factual fix. It lands with 5r-B and 5r-C in a comment-only remediation, 5R.1, before step 6's source freeze.
+
+D-208 stays unimplemented. The four budget overruns are still the owner's. §21 records the assessment, the dispositions and 5R.1's handoff.
+
 **Step 5 accepted 2026-11-03, at `0ba8afb64`, after its feature proof, with its postcondition qualified.** Each comment in the step's files states what the code does now, except at step5-A and the 14 source sites the pass escalated. Four contract lines and their twins also stay unmarked. Those sites go to remediation 5R, which lands and is rechecked before step 6 starts. It includes the published `requestDestroy` JSDoc (step5-C), which must name I-36's two exceptions. The census's fourth class, N, is ratified, and step3-B and step4-B are closed. Whether to close the sortable's admitted two-fault gap is a behavioral question and not D-208's: it is raised as `drag2:F-442`, due before Phase 24 exits. D-208 stays unimplemented. The four budget overruns are still the owner's, before `d208-requests.md` is written. §20 records the assessment, the dispositions, 5R's handoff and step 6's.
 
 **Step 4 accepted 2026-11-02, at `dbbb62199`, after its feature proof.** D-208 stays unimplemented: steps 5 and 6 remain. The four budget overruns are the owner's to dispose of, before `d208-requests.md` is written, and this acceptance neither tolerates nor re-bases them. step4-A is decided: the contract passages §17.4's list missed are amended in step 5. step4-B stays with the implementer and is due as step 5's first commit. step4-C is decided in place: D-208's text now distinguishes direct lifecycle access, indirect observation through any refusing intake, and what R21 detects. step4-D is discharged for step 4 by the feature proof's measurement, and its remainder goes to step 6. Case R34 pins the two query-result copies. §19 records the assessment, the dispositions and step 5's handoff.
@@ -528,6 +535,8 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 
    **Step 5 is accepted** (2026-11-03, at `0ba8afb64`; §20), with its postcondition qualified by its escalations. Remediation 5R discharges them before step 6 starts, and its handoff is §20.4.
 
+   **Remediation 5R is accepted** (2026-11-03, at `2d17645f5`; §21). Its follow-up 5R.1, which is comment and contract text only, lands and is closed before step 6 starts (§21.7).
+
 6. **The measurement record** `.plan/measurements/d208-requests.md` (renamed by D-208 from `d207-requests.md`). It holds:
    - composition on every kernel-carrying row, per step;
    - the M-1 move path with I-26's structural check (one sample allocates nothing; `OPEN_RESOLUTION` and `moveTo`'s copy are per drop and per call);
@@ -538,7 +547,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 
    R34 lands before it is written. It landed in step 5's series (`e46e11493`).
 
-   Step 6 starts after 5R is accepted, and its bounded handoff is §20.5.
+   Step 6 starts after 5R is accepted and 5R.1 is closed. Its bounded handoff is §20.5, as §21.8 amends it.
 
    Writing it is the last act, and its absence is the witness.
 
@@ -2326,6 +2335,7 @@ Where this section states a required property, the implementer chooses the words
    - They state the outcome at the tip, established by reading the code or by a probe. If that outcome differs from the passage's _a terminal callback for a drag whose start was never notified_, **stop and escalate**: D-208 would then have changed a published outcome without stating it.
    - The reason for not closing the gap is not restated as a ground. The text states that the gap is open and cites F-442.
    - The contract lines are amended with a date and keep their history.
+   - **Erratum 2026-11-03 (§21.4).** _cites F-442_ applies to the contract lines only. In `src/`, the comment states the property and carries no record identifier, because CONTRIBUTING §Comments and JSDoc and `references.node` forbid one. The same goes for the frame task's bullet in item 1: the figures are held by `m2.md`, and the source keeps the comparison and carries no citation.
 4. **The four escalated contract lines.** Each gets a dated mark and is restated by a decision that already exists. History is kept.
    - **02:1846.** `requestDestroy` is a request the bracket registers, not a queued action. It is applied at the unit's boundary, ahead of everything queued, and application clears the queue. The surrounding claim about admission's enqueue-without-drain is unchanged;
    - **06:162.** The post-callback recheck is withdrawn by D-207 step 3. A destroy requested from a `handle` or `visual` resolver is applied after the admission unit (R1);
@@ -2380,7 +2390,7 @@ Where this section states a required property, the implementer chooses the words
 
 ### 20.5 Handoff: step 6, the measurement record
 
-**Governing design:** §8 step 6. Step 6 starts after 5R is accepted.
+**Governing design:** §8 step 6. Step 6 starts after 5R is accepted. **Amended 2026-11-03 (§21.8):** it also waits for 5R.1 to close, and the source freeze holds from then until the whole decision is accepted.
 
 **Before the record is written, two things must be present:**
 
@@ -2436,3 +2446,264 @@ Where this section states a required property, the implementer chooses the words
 | F-442, the admitted gap | architect, then the owner if a published outcome changes | decide whether to close it | before Phase 24 exits |
 | D-200's independent acceptance | owner | unchanged | unchanged |
 | Reviewer-E | owner | unchanged | unchanged |
+
+## 21. Remediation 5R accepted (D-208)
+
+**Input.** `ccf08b834` on `drag2/fin-review2`. The implementation reviewed is `2d17645f5`, the last commit of 5R's series over `15a7fa53d`:
+
+- `e324ca8fa`: items 1–5;
+- `39e243887`: item 6;
+- `c595e96e3`: removes the two record identifiers from `sortable/spec.ts`, comment only;
+- `2d17645f5`: the record, `d208-step5.md` §Remediation 5R.
+
+The assessment rests on two documents:
+
+- the bounded recheck ([`d208-5r-recheck-claude.md`](../fin-review2/d208-5r-recheck-claude.md));
+- 5R's record.
+
+### 21.1 Assessment
+
+**5R is accepted at `2d17645f5`, with its postcondition qualified.** The recheck finds no implementation defect that blocks it. Three dispositions it routed here are decided below, in §21.2 to §21.4.
+
+**What holds, as the recheck verified it:**
+
+- **Runtime invariance.** Items 1–5 change no runtime statement in any of the 60 `src/` modules, by two tree-based instruments. Item 6's stripped difference is exactly the authorized guard and return type.
+- **Items 1, 2, 4 and 5** meet §20.4's required properties at every site the recheck read. That includes the spatial guard at `sortable/spec.ts:858`, which was established false and corrected.
+- **Item 3** meets them for the path it names.
+- **step5-A and step5-C are discharged.** Both controllers' published `requestDestroy` JSDoc names I-36's two exceptions by route, word for word with `README.md:74`, and 01:440 is amended. **The precondition for the whole decision's acceptance that §20.3 set on the published documentation is met.**
+- **Composition.** At item 6's parent all 15 rows equal step 5's, byte for byte. Item 6's figures are booked in §21.2.
+- **The suite's failing set** is step 5's 14 rows. Lint has the same seven errors, by the same rules and in the same files. Typecheck has only the two `.scripts` errors. Published declarations differ in doc comments only.
+- **The supplementary census reproduces exactly.** It finds 68 lines, classed K 15, H 20, A 12 and N 21, with no E.
+- **Item 4's 06:789** is stated from the code, and its asynchronous half was observed by the recheck's P5.
+
+**Checked independently by the architect at `ccf08b834`.**
+
+- **5r-A's path is in the code.**
+  - The adjacency check (`sortable/spec.ts:747–748`) throws before step 3 publishes `#operation.activation` (`:770`).
+  - `#handleCancel`'s `ACTIVATING` arm (`kernel.ts:2026–2052`) settles on the phase alone.
+  - `anchorTarget` (`sortable/spec.ts:1458`) destructures the record with a non-null assertion.
+  - The placeholder factory runs in `prepareActivation` (`:699–704`), so a cancel can also be registered there, before the effect. That is read from the code and not probed.
+- **The citation gate.**
+  - `HISTORY_FORMS` (`tests/references.node.test.ts:714–726`) fails every decision, finding or probe number, `§` and `.plan/` path in a `src/` comment.
+  - CONTRIBUTING §Comments and JSDoc already forbids `F-*` in source, and allows only one bare _decision_ pointer, in an internal comment.
+- **5r-B.** `kernel.ts:2462` is the only probe reference in `src/`.
+- **5r-C.**
+  - `seams.ts:465` is 91 columns and `sortable/spec.ts:863` is 84.
+  - `seams.ts:435` is a 35-column line inside a filled paragraph.
+- **A twin of 5r-A that the recheck did not list.**
+  - The adjacency-check passage (`sortable/spec.ts:737–744`) says that after the throw _the consumer gets `onError` with the activation stage, and nothing was published or notified_.
+  - That is false on P2: a `canceled` terminal is published, and the activation error arrives as a superseded warning.
+  - It goes with 5r-A.
+- **The `TAG_POLICY` test comments the recheck considered** are accurate.
+  - `TAG_POLICY` exists (`free-drag/runtime.ts:11`), and `controller.invalidate()` dispatches it (`controller.ts:87`).
+  - The hygiene argument is `free-drag/spec.ts:541`'s.
+  - No action.
+- **Precedent for a deletion that grows under Brotli.** It is booked as a signed range in `bundle-structure.md` (`:222`, `:228`).
+
+### 21.2 Item 6's Brotli growth: kept and booked
+
+**Item 6 is kept, and its joint measurement is booked to it** as the recheck reproduced it:
+
+- every row carrying `sortable/spec.ts` falls 9 B minified;
+- Brotli moves in both directions, from −17 B to +20 B: `minimal + landing` +20, `both behaviors` +11, `baseline A` +1, and the other four rows fall;
+- every free-drag, kernel-root, vocabulary and baseline-B row is byte-equal;
+- no module enters or leaves a graph.
+
+No budget is re-based. None of the three rows is near its ceiling: the recheck measured 309, 284 and 347 B of headroom. No row in the owner's pending disposition moves.
+
+**Why it is kept:**
+
+- **The removed code is wrong as well as dead.** `#seedDraft`'s declared `| null` was false after step 4, and the guard branched on a value no path produces. CONTRIBUTING §1.2 prefers the type to the runtime check.
+- **The growth is not content.** The minified text only shrinks, and the stripped difference is the authorized removal and nothing else.
+- **Reverting would buy the bytes with a falsehood.** Restoring a branch on an impossible `null` to recover a compression artefact is the trade CONTRIBUTING §11 and §13 refuse.
+
+**What §20.4's _any growth is a finding_ did.** It made the change visible, which is a keep property's job (CONTRIBUTING §18). The finding is disposed of here. It is not a regression owed a recovery. The implementer was right to land item 6 and escalate rather than revert. Reverting would have decided the finding.
+
+**For step 6.** 5R's composition row is the figures above, attributed to item 6. Steps 1–5 keep their own.
+
+### 21.3 5r-A: one class of paths, F-442's scope, and the text that claims one path
+
+**The class.** A terminal callback is reached without a start notification exactly when both of these hold:
+
+- a cancel is registered during the activation unit, by consumer code reached from its `prepare` or its `effect`;
+- the effect then fails before the start notification.
+
+D-207's entry clause cannot decline the unit, because the cancel arrives after the entry. The registered cancel supersedes the failure checkpoint (D-202 property 7). `#handleCancel` then settles `ACTIVATING` on the phase alone. The outcome:
+
+- `onStart` never runs;
+- `onEnd` receives one `canceled` result at `AT_PROPOSAL`;
+- the failure reaches `onError` as `drag: failure/superseded-by-cancel`.
+
+**Known instances**, both in the sortable and both probed at the tip:
+
+- **P1**, item 3's: `invalidateInsertion()` throws after the activation record is published.
+- **P2**, the recheck's: the placeholder removes itself, and the adjacency check throws before the record is published. The settlement's landing then reads the absent record. It reports `drag: landing/target-unavailable`, whose `cause` is the library's own `TypeError`.
+
+**Not established:**
+
+- a probe of a cancel registered in `prepare`;
+- whether free drag has an instance. It shares the kernel arm.
+
+**The outcome predates D-208.** P2 at the program's input `6905af249` has the same terminal and the same `TypeError`. P1's warning code moved from `failure/not-classified` to `failure/superseded-by-cancel`, and that is D-202 property 7's stated change, which D-203 carries. **So D-208 changed no published outcome on either instance.** The hedge §20.3 placed on F-442 is discharged, and D-208's completion does not wait for F-442.
+
+**F-442 is widened to the class, and its tier goes from C to B.**
+
+- **Why B.** On one instance the published diagnostic channel carries a library-internal exception. That is the recheck's tier for 5r-A, and it meets B. It is still not A, because both faults are the consumer's.
+- **Owner and deadline are unchanged:** the architect decides, the owner rules if a published outcome changes, and it is due before Phase 24 exits.
+- **What the question now covers.** What a cancel applied at `ACTIVATING` does for a drag whose start was never notified, across the class and in both behaviors.
+
+**Any answer to F-442 must meet three properties:**
+
+1. It covers the class, not an instance. It establishes whether free drag and a `prepare`-registered cancel have instances.
+2. No instance reports a library-internal exception as a diagnostic's `cause`. On P2 the landing must not read an activation record that was never published. This holds whichever way the gap is decided.
+3. A gap kept open states its ground.
+
+**The text is a factual fix (F) and belongs to D-208's remediation.** Four places state that the gap is unique, or bound a claim by its uniqueness:
+
+- `sortable/spec.ts:785–794`, _this is the one path_;
+- 02:884, _The one admitted gap_, with its 02:876 row;
+- 05:203, _One admitted two-fault gap_;
+- `kernel.ts:2029–2034`, whose `ACTIVATING` arm says the start notification has always been delivered.
+
+The adjacency-check passage of §21.1 is a fifth. All five are false about the code at the tip, and each is restated to state the class. That decides nothing.
+
+**The behavioral half is F-442's, and D-208 does not decide it.**
+
+**Step 6's source freeze.** The fix is in `src/`, so it lands before step 6 starts, as remediation 5R.1 (§21.7). It is not absorbed into a measurement record. Step 6 changes no `src/`.
+
+### 21.4 Source citations: the gate's reading is confirmed
+
+The implementer's reading under `d208-step5.md` §Deviations 1 is the only one that complies, and it is confirmed:
+
+- **in source**, the comment states the property, and carries no `F-`, `M-` or `D-` number, `§` or record path;
+- **the contract lines** cite F-442;
+- **the frame task's figures** are held by `m2.md` §Answer 2.
+
+**§20.4 was wrong to ask for a source citation.** Its item 3 says the text _cites F-442_, and its frame-task bullet says _replace them with a citation_. A finding number in source breaks CONTRIBUTING §Comments and JSDoc by itself, and the package gate is stricter than the repository rule, which is allowed. §20.4 now carries a dated erratum. **No policy changes.**
+
+A section label in a source comment is not a citation of a record, and 5R.1 adds none.
+
+### 21.5 Dispositions
+
+The classes are §20.3's: F is a factual documentation fix, C a code cleanup with no reachable behavioral change, and B a behavioral question.
+
+| Item | Class | Disposition |
+| --- | --- | --- |
+| **5R** | — | **Accepted** at `2d17645f5`, with the postcondition qualified by §21.6 |
+| Item 6's Brotli growth | — | **Decided** (§21.2): kept and booked, with no re-base |
+| **5r-A** (Tier B, pre-existing): the text | F | **5R.1** item 1. It covers the four sites the recheck named and the adjacency-check twin |
+| **5r-A**: the behavior, including P2's landing read | B | **F-442**, widened and re-tiered B (§21.3). Not D-208's. Before Phase 24 exits |
+| §Deviations 1, source citations | — | **Confirmed** (§21.4). §20.4 carries the erratum |
+| §Deviations 2, the `ACTIVATING` comment and the record's bound | F | **5R.1** item 1. The record's bound is corrected in 5R.1's dated section, and the 5R section is not edited |
+| **5r-B** (Tier C, introduced), `kernel.ts:2462–2463` | F | **5R.1** item 2 |
+| **5r-C** (Tier C, introduced), `seams.ts:434–435` and `:463–466`, `sortable/spec.ts:858–866` | F | **5R.1** item 3 |
+| step5-A, step5-C (#6), #1 | — | **Discharged** by 5R |
+| 01:487 and 05:248, K lines in old vocabulary | — | No action. The property they state holds. Old vocabulary is out of scope, as §20.4 item 5 put old member names out of scope |
+| The `TAG_POLICY` test comments | — | No action. They are accurate (§21.1) |
+| 02:176 classed H; 05:565 | — | No action, as the recheck reasons |
+| 06:789's asynchronous half, which no R-case pins | — | No action. It is stated from the code and observed by P5. D-208 owes no row for it, and it is recorded as a limit |
+| **The four budget overruns** | — | **The owner's. Outstanding.** Due before `d208-requests.md` is written (§19.3) |
+
+### 21.6 What this acceptance certifies, and what it does not
+
+**It certifies, at `2d17645f5`:**
+
+- **Runtime.** Items 1–5 change no runtime statement. Item 6 removes exactly the unreachable guard and the false `| null`, and changes no reachable outcome.
+- **Text.** Every comment and contract line 5R rewrote states what the code does, with three exceptions:
+  - the uniqueness text and its twins (§21.3);
+  - 5r-B's attribution;
+  - 5r-C's wrapping.
+- **Published documentation.** Both `requestDestroy` JSDoc blocks name I-36's two exceptions. The published declarations differ only in doc comments.
+- **Contract lines.** The four lines step 5 escalated are marked and restated by existing decisions, with their history kept.
+- **The census.** The supplementary census classes all 68 lines, with no E.
+- **Composition.** As booked in §21.2. The four overrun rows did not move.
+
+**It does not certify:**
+
+- that the admitted gap is unique. It is not;
+- F-442's answer, or any behavior on the class;
+- whether free drag, or a cancel registered in `prepare`, yields an instance;
+- comments 5R did not touch, or passages that state the old closure model without any of either census's terms;
+- 06:789's asynchronous half as pinned by a test;
+- anything outside Chromium;
+- the four budget overruns;
+- step 6, or D-208's completion.
+
+**D-208 stays `Unimplemented (Remediation)`.** `d208-requests.md` is not written, and the witness holds. F-432 to F-435 and F-441 stay open.
+
+### 21.7 Handoff: remediation 5R.1
+
+**Owner:** the implementer. **Input:** this acceptance's commit. Sites are cited at `2d17645f5`. §19.5's and §20.4's governing rules carry over. Where this section states a required property, the implementer chooses the words. **A source comment carries no record identifier** (§21.4).
+
+**Items:**
+
+1. **The admitted gap is stated as a class (5r-A, F).**
+   - **`sortable/spec.ts:785–794`** says this site is one instance of the class and drops _the one path_. It may name the other instance, the adjacency throw above it.
+   - **`sortable/spec.ts:737–744`** keeps its single-fault outcome and says that with a registered cancel the class applies instead.
+   - **`kernel.ts:2029–2034`**, the `ACTIVATING` arm, says its claim holds except on the class. There the arm settles a drag whose start was never notified.
+   - **02:884 and the 02:876 row** get a dated amendment, with history kept. It states:
+     - the class by its two conditions and its outcome;
+     - the two known instances, including P2's `landing/target-unavailable` warning;
+     - that the gap is open, citing F-442.
+
+     The row's _two faults in `activation.effect`_ is restated if the class is wider than the effect.
+
+   - **05:203** gets a dated amendment: one admitted class of two-fault paths, stated in 02.
+   - **Search for other uniqueness statements.** Search 01–07, `README.md` and `src/` for any other statement that the gap is unique, such as _one path_, _only path_ or _one admitted_. Restate each, or report it.
+2. **5r-B.** `kernel.ts:2462–2463` states the boundary without naming a probe. The old phrasing may stay as an unattributed quotation, or go.
+3. **5r-C.** `seams.ts:434–435` and `:463–466`, and `sortable/spec.ts:858–866`, are wrapped like their neighbours.
+
+**Keep:**
+
+- **Runtime.** Every `src/` file's stripped hash equals `2d17645f5`'s.
+- **Composition.** All 15 rows are byte-equal to 5R's tip. That is the control row.
+- **The suite.** The failing set is step 5's 14 rows. `references.node` passes.
+- **Lint and typecheck.** The same seven lint errors, and the two `.scripts` typecheck errors.
+- **Published declarations.** Unchanged, or different only in doc comments.
+- **No test changes.**
+
+**Out of scope:**
+
+- F-442's answer, and any change to behavior;
+- probing or enumerating free drag's instances;
+- the budget overruns;
+- `d208-requests.md`.
+
+**Record.** A dated section `§Remediation 5R.1` appended to `d208-step5.md`. It holds:
+
+- each site, before and after;
+- the code read for the class;
+- a dated correction of §Deviations 2's bound, made in the new section;
+- the hashes, the composition control and the verification.
+
+**Escalate rather than decide** if:
+
+- the code shows a terminal callback without a start notification on a path outside the class;
+- the class cannot be stated from the code;
+- a uniqueness statement is found in published JSDoc;
+- any item needs a runtime change.
+
+**Review.** A bounded recheck by an independent reviewer, scoped to 5R.1's diff and this section's properties. The architect then closes 5R.1. **Step 6 does not start before that.**
+
+### 21.8 Step 6: what changes in §20.5
+
+§20.5 stands, with four amendments:
+
+- **Precondition.** 5R accepted (this section) **and 5R.1 closed**. The owner's disposition of the four overruns is still required before `d208-requests.md` is written. If it is absent, step 6 stops and reports itself blocked.
+- **Composition.** The record cites 5R's row as §21.2 books it, and 5R.1's control.
+- **The source freeze holds from 5R.1's close to the whole decision's acceptance.** A source defect that step 6 or its feature proof finds is reported to the architect. Step 6 does not fix it, and the record does not absorb it. The architect decides whether it blocks acceptance, and routes the fix as its own unit.
+- **Citations of closed items.** The record also cites the closed 5R items: step5-A, step5-C and #1, closed in 5R, and the uniqueness text, closed in 5R.1.
+
+### 21.9 Remaining items: owner, action, deadline
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| 5R.1 items 1–3 | implementer | §21.7 | before 5R.1's recheck |
+| 5R.1's recheck | independent reviewer | bounded to 5R.1's diff and §21.7 | before step 6 starts |
+| 5R.1's closure | architect | assess the recheck | before step 6 starts |
+| The four budget overruns | **owner** | tolerate, re-base or direct a recovery pass (§19.3) | before `d208-requests.md` is written |
+| Step 6: M-1, M-2, R21's census and mint sites, step4-D's remainder | implementer | §20.5 as §21.8 amends it | in step 6's record |
+| Step 6's feature proof | independent reviewer | full feature proof | after `d208-requests.md`, before the whole decision is accepted |
+| D-208's whole-decision acceptance | architect | §20.5 | after step 6's feature proof |
+| F-442, the class (tier B) | architect, then the owner if a published outcome changes | decide, under §21.3's three properties | before Phase 24 exits |
+| D-200's independent acceptance; Reviewer-E | owner | unchanged | unchanged |

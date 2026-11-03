@@ -2298,6 +2298,39 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-03 — D-208 remediation 5R accepted, with a comment-only follow-up before step 6
+
+**5R is accepted at `2d17645f5`, and D-208 is not complete.** The bounded recheck found no implementation blocker:
+
+- items 1–5 change no runtime statement, and item 6 removes exactly the unreachable guard;
+- step5-A and step5-C are discharged, and both published `requestDestroy` JSDoc blocks name I-36's two exceptions;
+- the 68-line supplementary census reproduces, with no E.
+
+**Decided here:**
+
+- **Item 6's Brotli growth.** It is +20, +11 and +1 B on three sortable rows, against −9 B minified on every one. Item 6 is kept, its joint measurement is booked to it, and nothing is re-based. Restoring a branch on an impossible `null` to recover a compression artefact is not a trade the size policy makes.
+- **Source citations.** The gate forbids record identifiers in `src/`, and the implementer's reading of it is confirmed. §20.4's request for a source citation was wrong, and it carries an erratum.
+- **The admitted gap is a class.** The recheck found a second two-fault path to a terminal callback without a start notification. Here the landing reports the library's own `TypeError` as a warning's cause. F-442 is widened to the class and re-tiered B. Its owner and deadline are unchanged. D-208 changed no published outcome on it, so D-208's completion does not wait for F-442.
+
+**The text is a factual fix, and it lands before step 6's source freeze.** Remediation 5R.1 is comment and contract text only. It covers:
+
+- the five places that say the gap is unique, or rely on that;
+- 5r-B, a probe name in a source comment;
+- 5r-C, unwrapped lines.
+
+**Size.** No re-base. The four overruns are still the owner's, before `d208-requests.md` is written.
+
+**Next:**
+
+1. 5R.1, then its bounded recheck and closure;
+2. step 6, the measurement record;
+3. step 6's feature proof;
+4. the whole decision's acceptance.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §21.
+
+---
+
 ### 2026-11-03 — D-208 step 5 accepted: the comment pass, with remediation 5R before step 6
 
 **Step 5 is accepted at `0ba8afb64`, and D-208 is not complete.** The step-5 feature proof found no step-5 blocker:
