@@ -1385,3 +1385,12 @@ The renames, the removal of `closed` and of the latch predicate, the kernel-mint
 | `BehaviorContext` names exactly seven members, none of which reads the lifecycle, and `channel`'s shape | `tests/kernel/context.declaration.test.ts` — _should grant exactly the seven members it names_, _should mint a channel with the sink shape it takes_ | D-208 |
 
 **The mutations** M1 and M2, and the re-run of N1–N8, are counted with their tree in `.plan/measurements/d208-step4.md`.
+
+## The query-result copies — new (2026-11-03, D-208 step 5)
+
+The two copies of consumer-owned query results that §2.12 requires. Both rows drive the running controller, with no harness flag, and each fails over `0c798ee17`'s `src/`. The record is `.plan/measurements/d208-step5.md`.
+
+| Row | Test | ID |
+| --- | --- | --- |
+| **R34 (a).** `bounds(thunk)`, where the thunk returns one rect the consumer widens inside `onMove` with no invalidation: the next sample is clamped to the resolved edge | `tests/free-drag/free-drag.browser.test.ts` — _should keep the resolved bounds when the source rect is mutated_ | D-208, §2.12 |
+| **R34 (b).** A landing timing policy's record, rewritten by a getter on the element's `animate`: the tail starts with the duration and easing the policy returned | _should start the tail with the timing the policy returned_ | D-208, §2.12 |
