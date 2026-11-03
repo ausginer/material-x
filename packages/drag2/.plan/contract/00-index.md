@@ -2882,6 +2882,8 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 - **The admitted gap:** the recheck found a second path to it, so it is one class of two-fault paths. F-442 is widened to that class and re-tiered B. The text that calls the gap unique is corrected in a comment-only follow-up, 5R.1, which lands and closes before step 6 starts. Step 6 changes no `src/`.
 - **The four budget overruns** are still the owner's.
 
+**Remediation 5R.1 assessed 2026-11-03, at `5e5a493d2`, and not yet closed** (record §22). The implementation is clean except for one introduced comment defect, 5r1-A, which is corrected in a closing commit before the source freeze. The same commit qualifies I-31's _only then_ at 05:199 and makes 07's L-2 a citation of I-31 (D-83). Neither decides F-442. A delta recheck and the architect's dated closure follow, and only then does step 6 start.
+
 **What is carried.** D-207's text, its properties as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1–3 as accepted at `44e2074f1`, `877fb9612` and `ef1e4ef6b`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step3-B and step3-C keep their boundaries.
 
 **The required behavior is the baseline's.** After applied destruction no diagnostic reaches `onError` by any route, except panic's own report (D-178). Before application, in `LIVE` and in the requested interval, every diagnostic is delivered:

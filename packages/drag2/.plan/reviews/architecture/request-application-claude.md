@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**Remediation 5R.1 assessed 2026-11-03, at `5e5a493d2`, and not yet closed.** Its recheck confirms the required work and invariance. The introduced defect 5r1-A, a cancel-source list that reads as exhaustive and is not, is corrected before the source freeze, in one closing commit. That commit also qualifies I-31's _only then_ (05:199) and makes 07's L-2 a citation of I-31, as D-83 requires. None of these decides F-442. A delta recheck and the architect's dated closure follow, and then step 6 starts. No list of the class's cancel sources is certified exhaustive. §22 records the assessment, the conditions and the handoff.
+
 **Remediation 5R accepted 2026-11-03, at `2d17645f5`, after its bounded recheck, with its postcondition qualified.** step5-A and step5-C are discharged, and both published `requestDestroy` JSDoc blocks name I-36's two exceptions. Item 6's Brotli growth is kept and booked to it, with no re-base. The implementer's reading of the source-citation gate is confirmed, and §20.4 carries an erratum. The recheck's 5r-A splits in two:
 
 - **the behavior** is one class of two-fault paths that reach a terminal callback with no start notification. `drag2:F-442` is widened to cover it and re-tiered B. It is not D-208's, and D-208 changed no published outcome on it;
@@ -547,7 +549,7 @@ D-201 §4 classified every site at `0ed5483a0`. Its deletions stand. D-202 adds 
 
    R34 lands before it is written. It landed in step 5's series (`e46e11493`).
 
-   Step 6 starts after 5R is accepted and 5R.1 is closed. Its bounded handoff is §20.5, as §21.8 amends it.
+   Step 6 starts after 5R is accepted and 5R.1 is closed. Its bounded handoff is §20.5, as §21.8 amends it. 5R.1's closing conditions are §22.4.
 
    Writing it is the last act, and its absence is the witness.
 
@@ -2705,5 +2707,126 @@ The classes are §20.3's: F is a factual documentation fix, C a code cleanup wit
 | Step 6: M-1, M-2, R21's census and mint sites, step4-D's remainder | implementer | §20.5 as §21.8 amends it | in step 6's record |
 | Step 6's feature proof | independent reviewer | full feature proof | after `d208-requests.md`, before the whole decision is accepted |
 | D-208's whole-decision acceptance | architect | §20.5 | after step 6's feature proof |
+| F-442, the class (tier B) | architect, then the owner if a published outcome changes | decide, under §21.3's three properties | before Phase 24 exits |
+| D-200's independent acceptance; Reviewer-E | owner | unchanged | unchanged |
+
+## 22. Remediation 5R.1 assessed: one closing commit, then closure (D-208)
+
+**Input.** `0de0c1032` on `drag2/fin-review2`. The implementation reviewed is `5e5a493d2`. The series:
+
+- `df45b1c69`: items 1–3;
+- `380c93a6a`: the record, `d208-step5.md` §Remediation 5R.1;
+- `5e5a493d2`: the record's note of its parent.
+
+The assessment rests on two documents:
+
+- the bounded recheck ([`d208-5r1-recheck-claude.md`](../fin-review2/d208-5r1-recheck-claude.md));
+- 5R.1's record.
+
+**`c186f120e`** sits under the series. It is the owner's one-line lint suppression in `tests/sortable/features.browser.test.ts`. It changes no `src/` or contract file and no keep property, and it is not 5R.1's. Step 6's feature proof reads the tree with it present.
+
+### 22.1 Assessment
+
+**5R.1 is not closed yet.** Items 1–3 meet §21.7 at every site it names. The one exception is the introduced Tier C defect 5r1-A. The recheck verified:
+
+- all 60 `src/` modules are runtime-equal;
+- the 15 composition rows are byte-equal to 5R's tip;
+- the published declarations are byte-identical;
+- the failing set is the same 14 rows by name, with the same lint and typecheck results;
+- `references.node` passes;
+- 5r-B and 5r-C are discharged;
+- §Deviations 2's bound is corrected in the record's own dated section;
+- no path outside the class was found, so §21.7's first escalation condition is not met.
+
+**Checked by the architect at `0de0c1032`.**
+
+- **5r1-A's third source is real.** `#invalidateInSeam()` (`sortable/spec.ts:791`) calls `this.#slots.invalidateInsertion()` (`:527`), and a throw there is classified at `:530`. So one consumer-written axis installer can register a cancel and then fail.
+- **The text lists only two sources.** The comment at `:796–798` names two, and the record's _reaches consumer code twice_ (`d208-step5.md:567`) does too.
+- **05:199**, I-31's heading, says _and **only** then: an operation whose `onStart` never ran publishes no terminal_, with no qualifier.
+- **07:686**, L-2, restates that half for free drag, with no qualifier and no citation.
+
+**This assessment does not certify any list of the class's cancel sources as exhaustive.** That includes the recheck's three, which are read from the code and not enumerated. The class is defined by its two conditions (§21.3). Its instances are F-442's to establish.
+
+### 22.2 Decisions
+
+**5r1-A is corrected before closure, in 5R.1's closing commit.** §21.8 freezes `src/` from 5R.1's close. A comment fix made after that would need a unit of its own, and a review of its own, to change a parenthesis. Fixing it now costs one comment and one record sentence. Its class is F.
+
+**The required property.** The source comment and the record state the cancel's source as the class states it: consumer code reached from the activation unit before the start notification. A source may be named only as an example, marked as one. **No exhaustive list**, because none is established.
+
+**05:199 is qualified now, and does not wait for F-442.**
+
+- **Why now.** The heading states a property the code does not hold on the class. Qualifying it states what the code does and decides nothing. Leaving it until F-442 would leave I-31's operative sentence false until Phase 24.
+- **The required property.** _only then_ gets a dated qualification:
+  - it names the admitted class of two-fault paths;
+  - it points to the row's own notes and 02 §I-31;
+  - it says the class is open under F-442.
+- **What stays.** Nothing else in the row changes, including _`destroy()` is once again the only exception_: in the row's vocabulary an exception is by design and a gap is admitted.
+- **If F-442 closes the class,** its decision strikes the qualification.
+
+**07:686 (L-2) becomes a citation of I-31, as D-83 already requires.**
+
+- **Why.** D-83 says a per-behavior document cites I-31 and does not restate it. L-2's restatement predates 5R.1, and it is the copy that drifted. Applying an existing decision is F.
+- **Why a citation rather than a qualifier.** A citation also avoids any claim about free drag. Whether free drag has an instance of the class is not established (§21.3). A citation inherits I-31's qualification without asserting either way.
+- **The required property.** L-2's body states that the row is I-31 as it applies to free drag, cited and not restated. The old wording stays struck, with a date. L-2's heading and its discharge row at 07:713 are unchanged.
+
+**Neither of these decides F-442,** and neither widens 5R.1 beyond the sites named here.
+
+### 22.3 Handoff: 5R.1's closing commit
+
+**Owner:** the implementer. **Input:** this section's commit. Sites are cited at `5e5a493d2`. Where a required property is stated, the implementer chooses the words.
+
+**Sites. These and no others:**
+
+1. `sortable/spec.ts:796–798`, under 5r1-A's property (§22.2);
+2. 05:199, under §22.2's qualification;
+3. 07:686, under §22.2's citation;
+4. `d208-step5.md`. A dated subsection appended to §Remediation 5R.1. It corrects §Item 1's _twice_ sentence there, leaving the original unedited, and records sites 1–3 before and after, with the verification.
+
+**Keep:**
+
+- every `src/` stripped hash equals `5e5a493d2`'s;
+- the 15 composition rows are byte-equal to `5e5a493d2`'s;
+- the published declarations are byte-identical;
+- the failing set is the same 14 rows;
+- `references.node` passes;
+- the same seven lint errors, measured from `packages/drag2`;
+- no test changes;
+- `git diff --check` is clean.
+
+**Out of scope:**
+
+- any other site, and any new search or census;
+- F-442's answer, and enumerating its instances;
+- `c186f120e`;
+- the budget overruns;
+- `d208-requests.md`.
+
+**Escalate rather than decide** if a site cannot meet its property without changing another site, or without stating something the code does not show.
+
+**Delta recheck.** An independent reviewer reads the closing commit only: the three sites against §22.2's properties, plus the keep list. It does not re-review 5R.1's accepted items, and it does not search. A defect at the three sites is fixed once, in place, and rechecked in the same pass. Anything else goes to the architect.
+
+### 22.4 Conditions for closing 5R.1 and starting step 6
+
+**5R.1 closes** when all three of these hold:
+
+1. the closing commit has landed at the four sites of §22.3;
+2. the delta recheck reports no defect at them and the keep list met;
+3. the architect records the closure with a date, in this record and in D-208's index entry.
+
+**Step 6 starts** when 5R.1 is closed. §20.5, as §21.8 amends it, governs it.
+
+- **The source freeze starts at the closure.** From then until the whole decision is accepted, no `src/` change lands under D-208. A source defect found by step 6 or its feature proof goes to the architect, and is neither fixed in step 6 nor absorbed into its record.
+- **The owner's disposition of the four budget overruns** is still required before `d208-requests.md` is written. Without it, step 6 may measure, but it stops before writing the record and reports itself blocked.
+- **Unchanged:** D-208 stays `Unimplemented (Remediation)`, and F-432 to F-435 and F-441 stay open. F-442 stays open, at tier B and due before Phase 24 exits.
+
+### 22.5 Remaining items: owner, action, deadline
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| 5R.1's closing commit: 5r1-A, 05:199, 07:686 and the record | implementer | §22.3 | before 5R.1 closes |
+| The delta recheck | independent reviewer | §22.3, the closing commit only | before 5R.1 closes |
+| 5R.1's closure | architect | §22.4 | before step 6 starts |
+| The four budget overruns | **owner** | tolerate, re-base or direct a recovery pass (§19.3) | before `d208-requests.md` is written |
+| Step 6, its feature proof and D-208's whole-decision acceptance | implementer, reviewer, architect | §20.5 as §21.8 amends it | after 5R.1 closes, in that order |
 | F-442, the class (tier B) | architect, then the owner if a published outcome changes | decide, under §21.3's three properties | before Phase 24 exits |
 | D-200's independent acceptance; Reviewer-E | owner | unchanged | unchanged |

@@ -2298,6 +2298,31 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-03 — D-208 remediation 5R.1 assessed: one closing commit before the source freeze
+
+**5R.1 is not closed yet, and D-208 is not complete.** Its recheck confirms that items 1–3 meet their requirements and change nothing at runtime, in composition or in the published declarations. One introduced comment defect remains: 5r1-A, a list of the class's cancel sources that reads as exhaustive and omits the axis installer's `invalidate`.
+
+**Decided here:**
+
+- **5r1-A** is corrected before closure, because the source freeze starts there. The text states the source as the class does, and names any source only as an example.
+- **I-31's _only then_ (05:199)** gets a dated qualification naming the admitted class. Leaving it false until F-442 is decided is not needed, and qualifying it decides nothing.
+- **07's L-2** becomes a citation of I-31, as D-83 already requires. That makes no claim about free drag.
+
+None of these decides F-442. No list of the class's cancel sources is certified exhaustive.
+
+**Next:**
+
+1. the closing commit, at four named sites;
+2. a delta recheck of that commit only;
+3. the architect's dated closure;
+4. step 6.
+
+The four overruns are still the owner's, before `d208-requests.md` is written.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §22.
+
+---
+
 ### 2026-11-03 — D-208 remediation 5R accepted, with a comment-only follow-up before step 6
 
 **5R is accepted at `2d17645f5`, and D-208 is not complete.** The bounded recheck found no implementation blocker:
