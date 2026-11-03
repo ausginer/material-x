@@ -4,7 +4,7 @@ The invariant table, open questions, measurements owed and test matrix are norma
 
 ## Invariants, by enforcement tier
 
-I-1…I-28 are inherited from the shipped package and probe 1. **I-29 and I-30** were introduced by this model's failure and post-commit ordering rules, **I-31** by the Phase 8a amendment, **I-32…I-35 by the Phase 14 revision** (D-32, D-33, D-35), and **I-36 by Checkpoint D review 2** (C2-01), whose third review re-tiered **I-6** to carry in its own entry the split I-36 had stated only in its mechanism (C3-03). **Revision 2 (D-36…D-47) touches four rows and adds one**: **I-35 is deleted** with the protocol it described (D-41), **I-6** is rewritten for deferred physical teardown (D-36), **I-36**'s domain is replaced by a finite API-shaped one (D-37), **I-31** is qualified for a destroyed controller (D-40), and **I-37** is new (D-38). The field that matters is the tier:
+I-1…I-28 are inherited from the shipped package and probe 1. **I-29 and I-30** were introduced by this model's failure and post-commit ordering rules, **I-31** by the Phase 8a amendment, **I-32…I-35 by the Phase 14 revision** (D-32, D-33, D-35), and **I-36 by Checkpoint D review 2** (C2-01), whose third review re-tiered **I-6** to carry in its own entry the split I-36 had stated only in its mechanism (C3-03). **Revision 2 (D-36…D-47) touches four rows and adds one**: **I-35 is deleted** with the protocol it described (D-41), **I-6** is rewritten for deferred physical teardown (D-36; **marked 2026-11-03, D-208 remediation 5R:** D-203 has since replaced the deferral with a request applied at a unit boundary, and I-6's own entry states it), **I-36**'s domain is replaced by a finite API-shaped one (D-37), **I-31** is qualified for a destroyed controller (D-40), and **I-37** is new (D-38). The field that matters is the tier:
 
 - **A — frame publication safety.** The violation does not compile, or is unexpressible through the API.
 - **B — kernel-enforced sequencing.** The kernel orders it; a participant has no opportunity to get it wrong. Not a type property.
@@ -562,6 +562,8 @@ Reserve-before-call protects resources that already exist. It does nothing for a
 
 Resolved by post-callback revalidation at both ends, with immediate best-effort destruction of a stale returned handle — and stated as a general rule rather than two patches.
 
+**Marked 2026-11-03 (D-208 remediation 5R, [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20.4): the resolution is history.** The landing runner and its handle are deleted (D-155), and D-207 step 3 withdrew the admission recheck: a destruction requested inside a unit is applied after it, so the admission unit completes and application tears it down. The general rule in 02 §Post-callback revalidation stands.
+
 ### The placeholder writer could not express a start gap · resolved (F-31)
 
 **Canonical entry: `F-31` — [`00-index.md`](00-index.md) §Findings**
@@ -633,6 +635,8 @@ Replaced with an exhaustive switch on the domain result's discriminant. Accepted
 Revalidation existed _after_ `LandingStart` returned but not after the `anchorTarget` immediately before it. `anchorTarget` is behavior code and can synchronously `destroy()` the controller, after which the kernel called the consumer's runner anyway — violating I-6's "no callback fires afterwards". Destroying the returned handle later does not un-call it.
 
 Resolved by revalidating on both sides of `start`.
+
+**Marked 2026-11-03 (D-208 remediation 5R, [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20.4): the resolution is history.** `start` and the runner are deleted (D-155), and D-207 step 3 withdrew the post-`anchorTarget` revalidation: a destruction `anchorTarget` requests is applied after the settlement unit, which runs through its terminal callback (R7).
 
 ### The final pointerup sample was rendered only in the trace · resolved (F-39)
 

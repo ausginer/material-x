@@ -838,6 +838,8 @@ type SortableController = Readonly<{
 }>;
 ```
 
+**Marked 2026-11-03 (D-208 remediation 5R, [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20.4):** the `destroy()` docblock above states D-36's model. Since D-203 destruction is a request, `requestDestroy()` since D-208 step 4: applied before the call returns when no unit is running, and at the running unit's boundary otherwise. Application closes and tears down in one step, so nothing closes ahead of teardown, and the promise settles once, after it.
+
 Three members changed at once, and only one of them is this section's own decision: `updateItems` is replaced by `items()` + `invalidate()` (D-44, §The collection model), `ready` is deleted with the readiness protocol (D-41), and `destroy` returns a promise (D-36, §[01](01-construction-ownership.md) §Teardown).
 
 #### The readiness protocol is deleted, and the obligation moved rather than vanished

@@ -144,7 +144,8 @@ export class SeamDriver<Part extends object> {
   readonly #fail: (stage: FailureStage, error: unknown) => void;
 
   /**
-   * The controller's one channel. No checkpoint is queued, no recovery is
+   * The controller's channel, the one the façade mints over the spec's
+   * `reportError`. No checkpoint is queued, no recovery is
    * selected, and the operation's own outcome is untouched — which is what
    * makes everything the driver sends here a {@link DraggableWarning}.
    */
@@ -430,7 +431,8 @@ export class SeamDriver<Part extends object> {
    * mutates a byte**.
    *
    * Strictly non-reentrant. Nothing in the kernel runs behavior code from
-   * inside other behavior code — the queue is run-to-completion, so a nested
+   * inside other behavior code — the execution bracket's drain is
+   * run-to-completion, so a nested
    * `dispatch` from a callback appends and returns, and the appended action
    * opens its phase only after this one has finished.
    *
@@ -460,7 +462,7 @@ export class SeamDriver<Part extends object> {
    *
    * So the refusal **latches** rather than merely throwing, for the reason
    * `#reentry` states. `#runPhase` rethrows past every classification on the
-   * way out to reach the queue's panic path, which is also what makes behavior
+   * way out to reach the execution bracket's panic path, which is also what makes behavior
    * code that catches its own refusal panic anyway.
    */
   #refuseReentry(): void {

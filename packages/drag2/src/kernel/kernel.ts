@@ -414,7 +414,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     resolution: null,
   };
 
-  /* ---- the one channel ---- */
+  /* ---- the controller's channel ---- */
 
   /**
    * **Every fault the kernel surfaces leaves through here**: the façade's
@@ -2428,8 +2428,8 @@ class ArmedController<Part extends object, Activation extends {}> {
    *
    * Inside the **same** ingress abort that owns `pointerdown`, so applied
    * destruction releases every listener including the discrete ones, and a
-   * behavior with no `command` member binds nothing at all. A throw here is construction's to
-   * unwind.
+   * behavior with no `command` member binds nothing at all. A throw here is
+   * construction's to unwind.
    */
   attach(): void {
     this.#root.addEventListener(POINTER_DOWN, this.#pointerDownHandler, {
@@ -2455,9 +2455,13 @@ class ArmedController<Part extends object, Activation extends {}> {
  * the whole of what the tier is granted: `construct` is on the class and off
  * the interface, so a behavior reaches it only by deliberately leaving the type
  * it was handed. That is a contract term rather than a runtime property, and it
- * is stated the way the neighbouring one is — *no input can be admitted before
- * `install()` returns* is unenforceable too, and is written down rather than
- * guarded.
+ * is written down rather than guarded.
+ *
+ * **No input is admitted before the factory returns.** The factory returns
+ * `{ spec, controller }`, then arming composes the frames and attaches
+ * ingress, and native ingress is refused while construction runs. Probe 1's
+ * *no input can be admitted before `install()` returns* names this boundary;
+ * the order holds it, and no guard checks it.
  *
  * **Before construction publishes the armed controller** the members behave as
  * the construction window requires: `dispatch` queues unchecked,
@@ -2522,9 +2526,9 @@ export class Kernel<
    * each one a behavior mints — refuses after destruction has been
    * **applied**, and nowhere else is it written:
    *
-   * 1. **Refuse after application.** Consumer code inside `onError` may request
-   * destruction, and a resolver that destroys and *then* throws would otherwise
-   * have its own destruction reported back to it through a declared slot after
+   * 1. **Refuse after application.** A channel outlives the unit that minted
+   * it: a composition's `report`, captured by an installer and called after
+   * destruction has been applied, would otherwise invoke `onError` after
    * application, which the floor forbids outright. The refusal reads the
    * applied lifecycle only, so its answer is constant across every unit: a
    * request registered in the unit cannot change it.

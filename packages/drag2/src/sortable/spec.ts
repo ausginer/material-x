@@ -276,9 +276,10 @@ class SortableBehavior {
   } = { failure: null };
 
   /**
-   * **The one place this behavior invokes the consumer's error callback.** Both
-   * routes end here, so there is exactly one statement to find when asking
-   * *where does `onError` get called*.
+   * **Where the spec invokes the consumer's error callback.** The behavior's
+   * own channel and the spec's `reportError` both end here. The composition's
+   * channel, minted in `behavior.ts` before any spec exists, calls
+   * `merged.onError` itself.
    *
    * Unguarded and ungated on purpose: its callers apply those rules, and they
    * apply them differently.
@@ -292,8 +293,8 @@ class SortableBehavior {
   };
 
   /**
-   * **The behavior's own route to the one channel**: what the *behavior*
-   * reports, which the kernel cannot see. Minted by the kernel over
+   * **The behavior's own channel**: what the *behavior* reports, which the
+   * kernel cannot see. Minted by the kernel over
    * {@link #deliver}, so it applies the kernel's refusal after applied
    * destruction and stops a throw from the handler.
    */
@@ -328,12 +329,11 @@ class SortableBehavior {
      * identity is never operation-scoped, because staleness is carried by the
      * monotonic attempt number it schedules.
      *
-     * **Measured against both alternatives.** Eager costs 148 B more on a
+     * **Measured against both alternatives (M-2).** Eager costs more on a
      * controller that never drags, and wins everywhere else: an active
-     * controller is *cheaper* than under lazy-retained or per-operation (281 B
-     * against 309 B), because their nullable slot and initialization branch
-     * cost more than the task they defer, and `schedule` is half the price with
-     * no null check.
+     * controller is *cheaper* than under lazy-retained or per-operation,
+     * because their nullable slot and initialization branch cost more than the
+     * task they defer, and `schedule` is cheaper with no null check.
      */
     this.#spatialFrame = createFrameTask<number>(kernel.realm, (attempt) => {
       // The producer-side half of the double validation: a frame that fires
@@ -790,12 +790,12 @@ class SortableBehavior {
       //
       // This is the one path that reaches a terminal callback without a
       // start notification — and only in combination with a second fault: a
-      // cancellation latched from the placeholder's `connectedCallback`
+      // cancellation registered from the placeholder's `connectedCallback`
       // above outranks this classified failure, so the operation settles as
-      // *canceled* for a drag `onStart` never announced. Either fault alone
-      // is fine: without the cancel this reports through `onError`, and
-      // without the throw `onStart` still runs. An admitted gap, rather
-      // than closed with a per-operation "started" flag.
+      // *canceled* for a drag `onStart` never announced, and the failure
+      // reaches `onError` as superseded by the cancel. Either fault alone is
+      // fine: without the cancel this reports through `onError`, and without
+      // the throw `onStart` still runs. The gap is admitted and open (F-442).
       return;
     }
 
@@ -806,7 +806,12 @@ class SortableBehavior {
     // recently heard about.
     this.#operation.progress = STARTED;
 
-    // 4 — last, because it may request cancellation or destruction.
+    // 4 — consumer code last. Everything the activation owns is registered
+    // and published above, so a throw from `onStart`, classified as this
+    // seam's failure, leaves no step of the effect undone, and the consumer
+    // hears of the drag only once it exists. A cancellation or destruction
+    // it requests is applied after this unit, so it does not bear on the
+    // order.
     this.#slots.onStart(item);
   }
 
@@ -855,8 +860,11 @@ class SortableBehavior {
 
     if (tag === TAG_SPATIAL) {
       // The applied half of the double validation. The activation test is
-      // the one a producer reaches; the attempt comparison cannot fail,
-      // because the frame task coalesces and dispatches the latest sequence
+      // the producer's own — the frame task tests the record before it
+      // dispatches — and here it cannot fail once the phase test passes,
+      // because the record is published before `ACTIVE` is committed and
+      // cleared only at retirement. The attempt comparison cannot fail
+      // either, because the frame task coalesces and dispatches the latest sequence
       // synchronously, so a queued attempt is always current when it
       // applies. It is kept because the contract states the check, and
       // because anything that queues a spatial action from outside the
@@ -1017,9 +1025,12 @@ class SortableBehavior {
       /**
        * **The cache does not describe the DOM.** Raised before anything can
        * touch the rule's arrays and lowered only once the cache and the
-       * tree agree again, so every exit in between — a placeholder
-       * reaction or a hook that threw — leaves it set and invalidates in the
-       * `finally`.
+       * tree agree again, so every exit in between leaves it set and
+       * invalidates in the `finally`. The exits are `movePlaceholder`'s throw
+       * (`drag: sortable/anchor-outside-container`, or a DOM exception) and
+       * the `return` after a caught `movedInsertion` throw. A custom
+       * element's reaction to the move that throws is reported to the global
+       * object and does not leave this bracket.
        *
        * That invalidation is load-bearing rather than defensive. There is
        * no invalidation on the happy path at all: the axis either advances
@@ -1086,9 +1097,8 @@ class SortableBehavior {
       return;
     }
 
-    // Publication is an effect, not a preparation: a reentrant cancel or
-    // destroy must not be able to invalidate a preparation whose private
-    // runtime has already been replaced.
+    // Publication is an effect, not a preparation: a preparation that is
+    // discarded must not publish.
     this.#snapshot = next;
     // The identity the structural test compares against, advanced with the
     // snapshot it produced and never before it — a preparation that was

@@ -112,8 +112,8 @@ export function assemble(
       onEnd: config.onEnd ?? null,
       onError: config.onError ?? null,
 
-      // Carried unresolved: a source is read at activation and on
-      // `invalidate()`, so resolving here would make it fixed policy.
+      // A plain value, fixed for the controller's life and never re-read,
+      // `invalidate()` included.
       axis: config.axis ?? DEFAULT_AXIS,
       // **There is no domain check, but there is a default.** A `NaN` threshold
       // makes the travel test permanently false, so the drag never activates

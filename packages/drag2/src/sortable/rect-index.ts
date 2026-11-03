@@ -148,11 +148,11 @@ const edge = (rect: DOMRect, offset: number): number => {
  * runtime, and no accessor stands between a read and the field, because an
  * accessor here would be a runtime construct doing a compile-time job.
  *
- * **The hot path is counted rather than forecast.** `xy()` reads three members
- * once per resolution and a fourth only on a frame proposing a gap change;
- * `y()` reads two once per resolution, and every remaining read in the linear
- * rule is on the committed-move path. **No read is added inside the candidate
- * loop** — which is refused outright rather than measured.
+ * **The hot path is named rather than forecast.** Each axis rule reads
+ * `values`, `count` and `hole` once per resolution and `items` only on a frame
+ * proposing a gap change, and every remaining read in the linear rule is on
+ * the committed-move path. **No read is added inside the candidate loop** —
+ * which is refused outright rather than measured.
  */
 export class RectIndex implements RectIndexView {
   /** The packed values. Re-allocated only when the collection outgrows it. */

@@ -210,9 +210,10 @@ export function layoutAnimation(
       },
 
       settle(values, items, count): void {
-        // **One walk, and it stops at the first miss.** The common rebuild
-        // happens with nothing in flight, and an empty map answers that in one
-        // property read rather than `count` lookups.
+        // **An empty map returns at once; otherwise the walk visits every
+        // slot.** The common rebuild happens with nothing in flight, and an
+        // empty map answers that in one property read rather than `count`
+        // lookups.
         if (running.size === 0) {
           return;
         }

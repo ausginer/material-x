@@ -259,10 +259,12 @@ export function y(): AxisInstaller {
           return insertionAt(items, gap, snapshot);
         },
 
-        // **Wrapped, not detached.** `invalidate` and `retire` are published
-        // into a record the assembler pushes into `retireHooks` and calls with
-        // no owner, so a bare prototype read would arrive with no receiver.
-        // The closure is what carries it, and the lint gate is what would have
+        // **Wrapped, not detached**, and each hook for its own reason: the
+        // assembler pushes `retire` into `retireHooks`, which are called with
+        // no owner, and publishes `invalidate` as `invalidateInsertion`, which
+        // is called as a member of the slots object. Either way a bare
+        // prototype read would arrive without `shift` as its receiver. The
+        // closure is what carries it, and the lint gate is what would have
         // caught the bare read.
         invalidate: () => {
           shift.invalidate();

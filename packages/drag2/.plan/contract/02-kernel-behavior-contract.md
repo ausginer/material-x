@@ -500,6 +500,10 @@ native listener (a declared type)
                                                   "the relocation is the pointer
                                                   path's"
                 revalidate (D-26: a resolver may have destroyed the controller)
+                  ← WITHDRAWN by D-207 step 3 (marked 2026-11-03, D-208
+                    remediation 5R): no recheck runs here. A destroy a
+                    resolver requests is applied after the admission unit,
+                    so the operation is published and then torn down
                 mint identity; arm the cancellation channel only
                 draft.pointerId = -1
                 commit(PENDING)
@@ -869,7 +873,7 @@ This is **I-29's sibling, I-30**, and it is tier C — the API does not enforce 
 |  | Cause | Terminal | Consumer's position |
 | --- | --- | --- | --- |
 | **D-40's clause** | `destroy()` after `onStart` | none, by design | the consumer asked for it, on its own stack |
-| **the admitted gap below** | two faults in `activation.effect` | one, for an unnotified start | the consumer was told nothing and then told it ended |
+| **the admitted gap below** (open: F-442; marked 2026-11-03) | two faults in `activation.effect` | one, for an unnotified start | the consumer was told nothing and then told it ended |
 
 The gap below is a terminal callback with **no** start; D-40's clause is a start with **no** terminal, and it is deliberate. Neither subsumes the other, and the invariant table in [05](05-lifecycle-invariants.md) carries both rows.
 
@@ -877,7 +881,9 @@ The gap below is a terminal callback with **no** start; D-40's clause is a start
 
 An earlier draft abandoned `ACTIVATING` cancels with no callbacks, on the grounds that there was "nothing to tell the consumer about yet". That is true at `PENDING`, which still retires, and false here: the consumer has been told a drag began, and abandoning leaves it with state to unwind and no event that says to unwind it. Settling costs nothing structurally — nothing is un-committed, and the settlement transition stamps `SETTLING` from whatever phase preceded it.
 
-**The one admitted gap.** A cancellation latched from a custom placeholder's `connectedCallback` — which runs synchronously inside `item.after(placeholder)`, _before_ the start notification — combined with a `slots.invalidateInsertion()` that then throws, produces a terminal callback for a drag whose start was never notified. Both faults are required: alone, the first still reaches `onStart` and the second reports its own classified failure. Recorded rather than closed, because closing it means carrying a per-operation "started" flag for a two-fault path that already reports through the error channel.
+**The one admitted gap.** A cancellation ~~latched~~ **registered** from a custom placeholder's `connectedCallback` — which runs synchronously inside `item.after(placeholder)`, _before_ the start notification — combined with a `slots.invalidateInsertion()` that then throws, produces a terminal callback for a drag whose start was never notified. Both faults are required: alone, the first still reaches `onStart` and the second reports its own classified failure. ~~Recorded rather than closed, because closing it means carrying a per-operation "started" flag for a two-fault path that already reports through the error channel.~~
+
+**Amended 2026-11-03 (D-208 remediation 5R, [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20.4).** Since D-207 a cancel raised inside a unit is registered and applied in a later unit, so _latched_ is restated as _registered_. The outcome is unchanged, and was established at D-208 step 5's tip by a probe through the running controller: the activation's `invalidateInsertion()` throw is classified, the registered cancel supersedes the checkpoint, `onStart` never runs, `onEnd` receives one `canceled` result at `AT_PROPOSAL` with origin `CANCEL_SUPPLIED`, and the throw reaches `onError` as `drag: failure/superseded-by-cancel`. The struck reason is not a ground any more: the per-operation start marker exists, and the failure arm already consults it. **The gap is open**, and whether to close it is F-442.
 
 ## Capabilities passed at call time
 
@@ -1843,7 +1849,7 @@ Ported unchanged from the shipped package. Entirely kernel-private.
 
   **This applies to `admit` and to `command.admit` identically** (D-32), and the refusal below is one shared latch across both listeners rather than one per listener. A `keydown` dispatched from inside a `pointerdown` resolver, or a second press dispatched from inside a command's handle resolver, is the same half-written-transaction hazard with the two ingresses swapped.
 
-  So dispatch **enqueues without draining for the whole of admission**, and the boundary drains once, after admission has either committed (`PENDING`) or abandoned. `destroy()` is exempt and unchanged: it is not queued, so it stays the synchronous terminal barrier I-6 requires, and the queue it closes drops whatever a resolver appended. The arming is cleared in a `finally`, so a throw escaping admission cannot leave later dispatches queued with nothing to drain them.
+  So dispatch **enqueues without draining for the whole of admission**, and the boundary drains once, after admission has either committed (`PENDING`) or abandoned. ~~`destroy()` is exempt and unchanged: it is not queued, so it stays the synchronous terminal barrier I-6 requires, and the queue it closes drops whatever a resolver appended.~~ **Restated 2026-11-03 (D-208 remediation 5R, [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20.4; D-203):** `requestDestroy()` is not a queued action either, and not a barrier: it is a request the execution bracket registers. Requested from a resolver it is applied at the admission unit's boundary, ahead of everything queued, and application clears the queue, so whatever a resolver appended is dropped (R1). The arming is cleared in a `finally`, so a throw escaping admission cannot leave later dispatches queued with nothing to drain them.
 
   **A nested ingress event is refused for the same reason, and must be refused before anything else runs.** A resolver can dispatch a second eligible press or a declared command type, which re-enters an ingress handler synchronously — and the ordinary "an operation is already live" guard does not stop it, because the outer admission has not committed and `current.operation` is still `null`. The nested pass would `begin()` (rebuilding the draft the outer member holds by reference, discarding whatever it had already staged there), run an admission member a second time, mint an identity and commit its own origin; control would then return to the outer member, which finishes writing _its_ item and visual into the object that is now `current`. The result is one committed operation carrying one event's coordinates and the other's behavior state.
 

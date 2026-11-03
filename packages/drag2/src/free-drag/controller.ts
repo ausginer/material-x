@@ -64,8 +64,11 @@ export type FreeDragController = Readonly<{
    * Requests destruction. With no library callback running it is applied
    * before this returns. Called from inside one, the library first finishes
    * the step that callback belongs to, whose remaining callbacks may still be
-   * invoked, and then applies it. From application on nothing is admitted and
-   * no declared consumer slot is invoked. The returned promise settles
+   * invoked, and then applies it. From application on nothing is admitted, no
+   * lifecycle or domain event is published, and no declared consumer slot is
+   * invoked, with two exceptions: teardown runs each installed feature's
+   * retire hook, so what a feature holds is released, and a panic delivers
+   * its one report to `onError` before teardown. The returned promise settles
    * **once**, after physical teardown, and every call returns the same one.
    *
    * Most callers do not want the completion signal and should write

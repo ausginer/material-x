@@ -41,9 +41,9 @@ import type { OffsetBox, Point } from './types.ts';
  * the factory's invocation to the moment arming completes — the factory body
  * and the frame-part factories alike — is a supported position for every member
  * below, and each behaves there as its own entry states. Where that cannot be
- * delivered the limitation is written into the member's own entry;
- * {@link BehaviorContext.dispatch} is the one member in that position, whose
- * tag is unchecked there.
+ * delivered the limitation is written into the member's own entry:
+ * {@link BehaviorContext.dispatch}'s tag is unchecked there, and
+ * {@link BehaviorContext.fail}'s demotion is silent until arming.
  */
 export interface BehaviorContext {
   /** The owning document/window. Every DOM access goes through it. */
@@ -537,8 +537,9 @@ export type BehaviorSpec<
 }>;
 
 /**
- * Both halves of the two-phase handshake, returned at once so that no input can
- * be admitted before `install()` returns.
+ * Both halves of the two-phase handshake, returned at once. The factory returns
+ * them, and only then does arming attach ingress, so no input is admitted
+ * before the factory has returned.
  */
 export type BehaviorInstall<
   Controller,

@@ -193,10 +193,10 @@ class FreeDragBehavior {
   } = { failure: null };
 
   /**
-   * **The one place this behavior invokes the consumer's error callback.** The
-   * behavior's own channel ({@link FreeDragBehavior.#notify}) and the spec's
-   * `reportError` both end here, so there is exactly one statement to find when
-   * asking *where does `onError` get called*.
+   * **Where the spec invokes the consumer's error callback.** The behavior's
+   * own channel ({@link FreeDragBehavior.#notify}) and the spec's `reportError`
+   * both end here. The composition's channel, minted in `behavior.ts` before
+   * any spec exists, calls `merged.onError` itself.
    *
    * **Forward, and nothing else.** The kernel builds the public error, picks
    * its class and owns the refusal. This neither maps nor attaches context: the
@@ -218,12 +218,12 @@ class FreeDragBehavior {
   };
 
   /**
-   * **The behavior's own route to the one channel.**
+   * **The behavior's own channel.**
    *
-   * This and the spec's `reportError` both reach
-   * {@link FreeDragBehavior.#deliver}, and they are two entries to one channel
-   * rather than two channels: everything that arrives is a `DraggableError` or
-   * a `DraggableWarning`, and neither entry encodes severity. This one carries
+   * This and the kernel's channel over the spec's `reportError` both reach
+   * {@link FreeDragBehavior.#deliver}, and they are two channels over one sink
+   * rather than two sinks: everything that arrives is a `DraggableError` or a
+   * `DraggableWarning`, and neither channel encodes severity. This one carries
    * what the *behavior* reports — the settlement failure and the unwind steps,
    * which the kernel cannot see.
    *
@@ -452,7 +452,12 @@ class FreeDragBehavior {
     // drag began — so it is owed an end.
     this.#operation.progress = STARTED;
 
-    // 4 — last, because it may reentrantly cancel or destroy.
+    // 4 — consumer code last. Everything the activation owns is in place
+    // above, so a throw from `onStart`, classified as this seam's failure,
+    // leaves no step of the effect undone, and the consumer hears of the drag
+    // only once the lift is acquired and the visual placed. A cancellation or
+    // destruction it requests is applied after this unit, so it does not bear
+    // on the order.
     if (this.#slots.onStart) {
       this.#slots.onStart(
         buildGeometry(
