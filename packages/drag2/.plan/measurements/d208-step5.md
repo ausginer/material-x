@@ -546,3 +546,110 @@ None of the three rows is near its budget, and no row in the owner's disposition
 - **Reviewer-E** is untouched.
 
 **Next:** the bounded independent recheck of 5R's commits against §20.4's required properties, then the architect's acceptance. Step 6 does not start before it.
+
+## Remediation 5R.1 — 2026-11-03
+
+> **Implemented 2026-11-03, not yet closed.** Closure belongs to the architect, after the bounded independent recheck [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §21.7 requires. Step 6 does not start before it.
+
+**Governing record:** [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §21.3, §21.4 and §21.7, with §19.5's and §20.4's rules carried over. **Input:** `b132ae788` on `drag2/fin-review2`. Its `src/` and contracts 01–07 equal `2d17645f5`'s, so _before_ sites below are cited at `2d17645f5` and _after_ sites at `df45b1c69`.
+
+**The series:**
+
+1. `df45b1c69`: items 1–3. Comments and contract text only;
+2. this section.
+
+No test changed. No published JSDoc changed.
+
+### Item 1 — the gap stated as a class
+
+**The code read for the class**, at `df45b1c69`:
+
+- **The cancel's sources.** The activation unit reaches consumer code twice before the start notification. In `prepare`, `prepareActivation` (`sortable/spec.ts:640`) calls the placeholder factory through `createPlaceholder` (`:699`). In the effect, `item.after(placeholder)` (`:720`) connects the placeholder and runs its `connectedCallback` synchronously. A cancel requested from either is registered and applied in a later unit.
+- **The effect's failures before `onStart`.** The adjacency check throws (`:755`) before the activation record is published (`:777`). `#invalidateInSeam()` fails (`:791`) after it is published.
+- **Supersession.** `#handleFailed` (`kernel/kernel.ts:2132–2137`) drops the checkpoint when a cancel was registered, and reports the error as `drag: failure/superseded-by-cancel`.
+- **Application.** `#handleCancel`'s `ACTIVATING` arm (`kernel.ts:2026`) settles on the phase alone. Nothing in it reads whether a start was notified.
+- **P2's landing.** `anchorTarget` (`sortable/spec.ts:1468–1469`) destructures `this.#operation.activation!`, which the adjacency throw left unpublished.
+
+This is §21.3's class, and it is stated from the code without a new reading. The `prepare` source is read from the code and not probed. Free drag is not enumerated (§21.7, out of scope).
+
+**Sites:**
+
+| Site | Before (`2d17645f5`) | After (`df45b1c69`) |
+| --- | --- | --- |
+| `sortable/spec.ts:785–794` → `:791–805` | _This is the one path that reaches a terminal callback without a start notification_, with the placeholder's `connectedCallback` as the cancel's only source | One instance of a class of two-fault paths. The adjacency throw above is named as another. The cancel's sources are the placeholder factory in `prepare` and the `connectedCallback`, and the failure is the effect's before `onStart`. The outcome and _either fault alone is fine_ are kept. The gap is admitted and open |
+| `sortable/spec.ts:737–744` → `:737–751` | after the adjacency throw, _nothing was published or notified_ | The single-fault outcome and the two-conjunct argument are kept. A new paragraph says that with a registered cancellation the class applies instead: the drag settles as _canceled_ without a start notification, and the landing looks for an activation record the throw left unpublished |
+| `kernel.ts:2029–2034` → `:2029–2042` | the `ACTIVATING` arm says the behavior _has already delivered its start notification_ | The claim is kept, and a paragraph after it says it does not hold on the class. The arm reads the phase alone and settles a drag whose start was never notified. The gap is admitted and open |
+| 02:876, the I-31 table row | _the admitted gap below_; _two faults in `activation.effect`_ | _gap_ struck for **class**, with a dated mark. The cause is struck and restated: a cancel registered by consumer code reached from the activation unit's `prepare` or `effect`, then an effect failure before the start notification |
+| 02:884 | _The one admitted gap._ | Struck and restated as **one instance of the admitted class**. The passage is otherwise kept |
+| 02:888–900, new | — | A dated 5R.1 amendment. It states the class by its two conditions, why D-207's entry clause cannot decline it, the outcome, P1 and P2 (P2 with its `drag: landing/target-unavailable` warning and the library's own `TypeError` as `cause`), what is not established, that the outcome predates D-208, and that the class is open under F-442 |
+| 05:203 | _One admitted two-fault gap, documented at both ends._ | Struck. **One admitted class of two-fault paths, stated in 02 §I-31**, dated and citing F-442 |
+
+The source comments carry no record identifier (§21.4). F-442 is cited in the two contract lines and here.
+
+**The uniqueness search.** It covered 01–07, `README.md` and `src/`, for _one path_, _only path_, _one admitted_, _admitted gap_, _two-fault_, _start notification_, _unnotified_, _never announced_, _told nothing_ and _nothing was published_. It found:
+
+| Where | Text | Disposition |
+| --- | --- | --- |
+| `sortable/spec.ts:787`, 02:876, 02:884, 05:203, `kernel.ts:2032` | the five §21.3 names | restated above |
+| 02:874 | _This is a second gap, not the one recorded below_ | No change. It distinguishes D-40's clause from the admitted gap, which the row below it now names as a class, and claims no uniqueness |
+| 05:199, I-31's statement | _and **only** then: an operation whose `onStart` never ran publishes no terminal_ | Reported, not changed. It is the invariant the class qualifies, not a uniqueness claim about the gap. 05:203, two lines below, carries the qualification, as it carried the single gap's |
+| 07:686, L-2 | **none** for an operation that never started (Q-15) | Reported, not changed. It is free drag's restatement of the same invariant, with no gap qualifier. Whether free drag has an instance is not established, and enumerating it is out of scope |
+| `README.md` | nothing | — |
+| published JSDoc | nothing | No escalation |
+
+Every other hit for those words is unrelated: _one path_ as the hot pointer path, _the one exception_ as panic's report, an insertion _start gap_.
+
+### Item 2 — 5r-B
+
+`kernel.ts:2462–2463` → `:2469–2470`. _Probe 1's *no input can be admitted before `install()` returns* names this boundary; the order holds it, and no guard checks it_ becomes _The order holds this boundary, and no guard checks it._ The quotation goes rather than stays unattributed: the paragraph's first sentence already states the boundary.
+
+### Item 3 — 5r-C
+
+- `seams.ts:434–435`: the 35-column line is refilled into its paragraph.
+- `seams.ts:463–466`: the 91-column line is refilled.
+- `sortable/spec.ts:858–866` → `:870–878`: the 84-column line and the two following lines are refilled.
+
+No word changed in any of the three. No `+` line in `df45b1c69`'s `src/` diff exceeds 80 columns.
+
+### §Deviations 2 — the bound, corrected
+
+**Dated correction, 2026-11-03.** 5R's §Deviations 2 says the `ACTIVATING` comment's claim _holds on every path except F-442's gap_. That bound is wrong. The claim fails on every path of §21.3's class, and the recheck's P2 is a second known instance: there the placeholder is not in the DOM, the activation record was never published and `onStart` never ran. The correct bound is _every path except the class of two-fault paths F-442 now covers_. The comment is restated to that bound in item 1. The 5R section is not edited.
+
+### Runtime invariance
+
+The instrument is 5R's: the TypeScript printer with `removeComments`, blank lines dropped, SHA-256, first 16 hex characters.
+
+**All 60 `src/` modules hash equal** at `2d17645f5` and `df45b1c69`. The three touched modules:
+
+| File                   | `2d17645f5`        | `df45b1c69` |
+| ---------------------- | ------------------ | ----------- |
+| `src/kernel/kernel.ts` | `7bebc600fe08aad5` | equal       |
+| `src/kernel/seams.ts`  | `a1b94130e2a8b261` | equal       |
+| `src/sortable/spec.ts` | `610e73e86ef0b6a9` | equal       |
+
+### Composition — the control row
+
+Built with `just build` and measured with `measureAll()` at `b132ae788`'s `src/` and at `df45b1c69`. **All 15 rows are equal**: minified, Brotli and module lists. They also equal 5R's tip table above, row for row, so the four budget rows have not moved.
+
+### Verification
+
+- **Tests:** `vitest run`, every project, at `df45b1c69`'s tree. 1,377 pass and 14 fail, and `react.browser` and `stories.browser` do not load, as before. The failing set is identical to 5R's tip run. `references.node` passes.
+- **Lint**, over the three changed `src/` files and the two contracts, after `fmt`, `lint-fix`, `fmt`: five eslint errors, which are these files' share of 5R's seven. They are `kernel/seams.ts`'s two `no-unnecessary-condition` and two `only-throw-error`, and `sortable/spec.ts`'s one `consistent-return`. The contract Markdown is reported as ignored by eslint and formatted by `oxfmt`.
+- **Typecheck:** only the two `.scripts/vitest-*.ts` errors.
+- **Published declarations:** all 33 `.d.ts` files are byte-identical between the two builds. No published doc comment changed.
+- `git diff --check`: clean.
+
+### Limits
+
+- Chromium only.
+- The class is read from the code. Its two instances rest on the probes recorded by 5R and the recheck, and this unit ran no probe.
+- The uniqueness search is a word search. A passage claiming uniqueness in other words escapes it.
+
+### Unresolved obligations
+
+- **05:199 and 07:686** are reported under item 1. They state the invariant without the class's qualification, and 07:686 has no qualifier at all. Whether either is restated is the architect's.
+- **F-442** is open for the class and not decided here.
+- **The four budget overruns** stay the owner's, unchanged.
+- **D-208 stays `Unimplemented (Remediation)`.** `d208-requests.md` is not created.
+
+**Next:** the bounded independent recheck of `df45b1c69` and this section against §21.7, then the architect's closure of 5R.1. Step 6 does not start before it.
