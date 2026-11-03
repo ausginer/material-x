@@ -2894,7 +2894,13 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 - **M-1:** the free-drag lean is settled by a pre-registered protocol at 0.05 µs resolution on a quiet host, before 6R.
 - **Baseline defects:** F-443 (the queue regrows its store every sample, against three source comments) and F-444 (a heap-growth reading cited as bounding allocation) are raised. Neither is D-208's or blocks it.
 
-`d208-requests.md` waits for the steps of record §24.5 and for no escalation to be open.
+**Remediation 6R's escalation disposed 2026-11-03, over `4ee87b9ad`** (record §25). At its in-property variant, 6R recovered 19 to 21 B per controller. Free drag stays +57 to +58 B and mixed +25 to +26 B above the baseline at 100 controllers.
+
+- **Clarified, not amended:** this entry's _Ownership and surface_ separates the kernel's own route from the minted channels. The kernel's route must apply the one refusal, and it is not required to be minted through `channel()`. Record §24.1 and §24.5 step 4 restated it as _every diagnostic passes through a minted channel_. They are corrected to this entry's text.
+- **R21's census** may be re-pinned once, to the refusal's one new location in `kernel/kernel.ts`.
+- **No residual goes to the owner yet.** 6R resumes under record §25.5 with the shared-refusal candidate and a third mutation, M3, on the kernel's route. A residual at that candidate goes to the owner.
+
+`d208-requests.md` waits for the steps of record §24.5, as §25.5 amends step 4, and for no escalation to be open.
 
 **What is carried.** D-207's text, its properties as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1–3 as accepted at `44e2074f1`, `877fb9612` and `ef1e4ef6b`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step3-B and step3-C keep their boundaries.
 
@@ -2913,7 +2919,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 - The kernel owns the refusal, because it owns the lifecycle. The behavior owns its sink and the warnings it builds. The composition's `report` is the behavior's mapping over the kernel's channel.
 - `BehaviorContext.closed` is removed, as D-207 states. `BehaviorContext` gains `channel(deliver)`. It returns a function that delivers to `deliver` until destruction is applied and drops every call afterwards, absorbs a throw from `deliver`, works from the factory onward, exposes no lifecycle value and has no panic bypass. **Qualified 2026-11-02, at step 4's acceptance:** no member returns a lifecycle value, but a behavior can still observe applied destruction indirectly, by minting a channel over a sink of its own and seeing whether it delivers. Any intake that refuses after application allows that, and inside a unit the observation is constant. R21 detects property reads of the lifecycle and does not detect it. The mint sites are reported by location in step 6's record.
 - Both behaviors send every diagnostic they produce through a minted channel: their own channel, their unwind guard and the composition `report`. No module under `sortable/` or `free-drag/` reads the lifecycle.
-- The refusal is written once in the kernel, for its own route and every minted channel. Panic's bypass stays on the kernel's route, and the spec's `reportError` stays the ungated sink that route delivers through.
+- The refusal is written once in the kernel, for its own route and every minted channel. Panic's bypass stays on the kernel's route, and the spec's `reportError` stays the ungated sink that route delivers through. **Clarified 2026-11-03 (record §25.2):** the kernel's own route applies the refusal, and it is not required to be a channel minted through `channel()`.
 - `FeatureContext.report`'s signature is unchanged. Its documentation states the drop.
 
 **Not chosen:**
@@ -2953,7 +2959,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-208 | Remediation | step 6's remainder under record §24.5: the ceiling re-base, M-1's follow-up, remediation 6R (M-2's retained heap), the remeasurement and controls, then the measurement record. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64`, remediation 5R at `2d17645f5`, and remediation 5R.1 is closed at `7f1900ccf` | absent: `.plan/measurements/d208-requests.md` |
+| D-208 | Remediation | step 6's remainder under record §24.5: the ceiling re-base, M-1's follow-up, remediation 6R (M-2's retained heap, resumed under record §25.5), the remeasurement and controls, then the measurement record. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64`, remediation 5R at `2d17645f5`, and remediation 5R.1 is closed at `7f1900ccf` | absent: `.plan/measurements/d208-requests.md` |
 
 **D-207's row closed on 2026-11-02 with steps 1–3 accepted.** D-208 superseded it during step 4, adding `BehaviorContext.channel` so that the behaviors' diagnostics keep the kernel's refusal after applied destruction. D-208's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 

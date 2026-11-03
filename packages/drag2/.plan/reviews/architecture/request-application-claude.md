@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**Remediation 6R's escalation disposed 2026-11-03, over `4ee87b9ad`.** D-208 requires the kernel's own route to apply the one refusal. It does not require that route to be a channel minted through `channel()`. §24.1 and §24.5 step 4 said _every diagnostic passes through a minted channel_, which is broader than D-208, and both are corrected in place. R21's census may be re-pinned once, to the refusal's one new location. That admits B′'s form. No residual goes to the owner yet, because the in-design candidate is unmeasured, and prototype P wrote the refusal twice. 6R resumes under §25.5. If the candidate misses the target, its residual goes to the owner. §25 records the decision and the handoff.
+
 **Remediation 5R.1 assessed 2026-11-03, at `5e5a493d2`, and not yet closed.** Its recheck confirms the required work and invariance. The introduced defect 5r1-A, a cancel-source list that reads as exhaustive and is not, is corrected before the source freeze, in one closing commit. That commit also qualifies I-31's _only then_ (05:199) and makes 07's L-2 a citation of I-31, as D-83 requires. None of these decides F-442. A delta recheck and the architect's dated closure follow, and then step 6 starts. No list of the class's cancel sources is certified exhaustive. §22 records the assessment, the conditions and the handoff.
 
 **Remediation 5R accepted 2026-11-03, at `2d17645f5`, after its bounded recheck, with its postcondition qualified.** step5-A and step5-C are discharged, and both published `requestDestroy` JSDoc blocks name I-36's two exceptions. Item 6's Brotli growth is kept and booked to it, with no re-base. The implementer's reading of the source-citation gate is confirmed, and §20.4 carries an erratum. The recheck's 5r-A splits in two:
@@ -2980,7 +2982,7 @@ It then holds what §20.5 lists. Its step-6 figures are cited from `d208-step6.m
 **Decided:** the per-controller increase is a retained-heap regression attributable to D-208, and the owner has not accepted it. **D-208 is not accepted while it stands.**
 
 - **The figures** reproduce to the byte at 100 controllers in four rounds: +8 B per sortable controller, +46 to +47 B per mixed pair, +78 to +79 B per free-drag controller. Attribution books about 105 B per controller to `Kernel.channel`'s closures.
-- **The design does not require the bytes.** D-208 requires that the refusal is written once in the kernel, and that every diagnostic passes through a minted channel with the stated semantics (§18.4, D-208 _Ownership and surface_). It does not require three retained closures per controller.
+- **The design does not require the bytes.** D-208 requires that the refusal is written once in the kernel, and that ~~every diagnostic passes through a minted channel~~ **corrected 2026-11-03 (§25.2): every diagnostic a behavior produces passes through a channel minted from its context, and the kernel's own route applies the same refusal** with the stated semantics (§18.4, D-208 _Ownership and surface_). It does not require three retained closures per controller.
 - **Analysis.** The kernel's own mint passes an arrow that wraps `next.reportError` (`kernel.ts:2748`), and each composition mints over an arrow that wraps `merged.onError` (`sortable/behavior.ts:126`, `free-drag/behavior.ts:52`). So there is room to recover within the design. This is not a prescription.
 - **Route.** Remediation 6R, a bounded source unit under §21.8, before step 6 resumes (§24.5 step 4). If 6R cannot meet the target without changing a D-208 property, it goes to the owner with the residual figure per population. The owner then authorizes the residual or directs a design change.
 
@@ -3120,9 +3122,9 @@ Report any other claim of this kind you come across. Do not search for more.
 - **D-208's properties do not change:**
   - the refusal is written once in the kernel;
   - `channel(deliver)` keeps its signature and semantics, as D-208's _Ownership and surface_ states them;
-  - every diagnostic still passes through a minted channel;
+  - ~~every diagnostic still passes through a minted channel;~~ **corrected 2026-11-03 (§25.2), and superseded for the resumed 6R by §25.5;**
   - R33 passes, and its two mutations still redden the rows D-208's _Order and witness_ names;
-  - R21's `capture.node` passes. The mint sites are re-reported by location. Their number may fall, and a rise is a finding.
+  - R21's `capture.node` passes. The mint sites are re-reported by location. Their number may fall, and a rise is a finding. **Qualified 2026-11-03 (§25.3):** the census may be re-pinned once, to the refusal's one new location.
 - **The per-sample path is untouched.** No function with a nonzero count in step 6's per-sample call-count window changes.
 - **No other cost rises.**
   - Allocation per sample, per drop, per `moveTo` and per committed frame stays at or below step 6's tip ranges.
@@ -3188,3 +3190,138 @@ D-208 stays `Unimplemented (Remediation)`, and the witness holds. F-432 to F-435
 | F-442, the class (tier B) | architect, then the owner if a published outcome changes | unchanged | before Phase 24 exits |
 | The compression pass | owner | separate, after this phase | after this phase |
 | D-200's independent acceptance; Reviewer-E | owner | unchanged | unchanged |
+
+## 25. Remediation 6R's escalation disposed: the kernel's own route applies the refusal and is not required to be minted (D-208)
+
+**2026-11-03. Input:** `4ee87b9ad` on `drag2/fin-review2`, which adds only [`d208-step6.md`](../../measurements/d208-step6.md) §Remediation 6R to the unit's input `0852534bf`. `src/` is tree `4630579d2` at both. The escalation is that section's _Escalation, for the architect and then the owner_, relayed by the owner.
+
+**The working tree.** The relay says the implementer paused with uncommitted 6R changes. The main checkout is clean at `4ee87b9ad`, and the record says every variant was restored with `git checkout src`. No working-tree state is input to the resumed unit. The diffs recorded in §Remediation 6R are.
+
+**Decided, in short:**
+
+- **Within D-208.** The kernel's own route may apply the shared refusal without being minted through `channel()`. D-208 never required that route to be a mint. This record's §24.1 and §24.5 step 4 restated D-208 more broadly than it reads, and they are corrected here (§25.2). D-208 is not amended, and no owner authorization is needed for it.
+- **R21 may be re-pinned once,** to the refusal's one new location (§25.3). That admits B′'s form.
+- **No residual goes to the owner now.** An in-design candidate exists that has not been measured, and the prototype that reached the target is not that candidate (§25.4). If the candidate misses, 6R escalates with its residual, and the owner decides.
+- **6R resumes** under §25.5's properties.
+
+### 25.1 The question
+
+At variant A, the only one that kept every property as §24.5 step 4 wrote them, 6R misses the target by +25 to +26 B per mixed pair and +57 to +58 B per free-drag controller at 100 controllers. With B′ as well, sortable and mixed meet the target, and free drag holds 2,739 to 2,740 B against the baseline's 2,688 to 2,714 B. B′ failed one row of R21's census. Prototype P reached 2,704 B on free drag by giving the kernel's own route an arrow that applies the refusal itself, not a channel minted through `channel()`.
+
+The implementer escalated four questions. Three are decided here: the kernel's route (2), the SPI (3) and R21's pinned location (4). The first, whether to authorize the residual, is the owner's, and it is not put to the owner yet (§25.4).
+
+### 25.2 What governs: D-208's text, and where this record overstated it
+
+**D-208 separates the kernel's own route from the minted channels throughout:**
+
+- _Ownership and surface_ (00-index): _Both behaviors send every diagnostic they produce through a minted channel._ Then: _The refusal is written once in the kernel, for its own route and every minted channel. Panic's bypass stays on the kernel's route._
+- §18.4 item 3: the channel _has no panic bypass. Panic's report stays on the kernel's own route._ Item 4 is scoped to **both behaviors**. Item 5: _The kernel's own route and every minted channel apply the same refusal._
+- §2 (:95): the refusal _is the kernel's, for the kernel's own route and for every channel a behavior mints through `BehaviorContext.channel`_.
+- **At decision time the kernel's route was not a mint.** It was `#notify`, refusing after `CLOSED` with panic's bypass (§18.2). Step 4 implemented it as `this.channel(...)` in `#arm`. That is an implementation D-208 admits, not a property it states.
+- **01 §`BehaviorContext`** (01:204) is scoped the same way: _every diagnostic a behavior produces goes through a channel it minted_.
+
+**What D-208 requires of the kernel's route:**
+
+- it applies the one refusal, written once;
+- it delivers until destruction is applied and drops every call afterwards;
+- it absorbs a throw from the sink;
+- panic's report is the only bypass.
+
+It does not require the route to be a channel minted through `channel()`.
+
+**This record overstated it twice.** §24.1 says D-208 requires _that every diagnostic passes through a minted channel_, citing §18.4 and _Ownership and surface_. §24.5 step 4 lists _every diagnostic still passes through a minted channel_ as one of D-208's properties. Neither cited source says that. The restatement merged item 4, which is the behaviors' rule, into the whole. The property list in §24.5 step 4 governed 6R, so the implementer was right to treat P's route as outside it. Both sites are struck and corrected in place, dated, with the originals kept.
+
+**This is a correction of the record to its source, not a reinterpretation of D-208.** D-208's text is unchanged. Its entry in 00-index gains a dated clarification that says so, so that the question cannot be reopened as a reading.
+
+**One contract sentence needs precision.** 05:253, I-36's mechanism paragraph, reads _Every diagnostic the library delivers to `onError` leaves through a channel the kernel minted: the kernel's own route, …_. That is true if _minted_ means that the kernel builds the route per controller, and false if it means minted through `channel()`. A contract sentence should not depend on which. It gets a dated precision in the resumed unit (§25.5). I-36's tier and act (a) do not change.
+
+### 25.3 R21's census: the row is a detector, and it may be re-pinned once
+
+R21's census reads `closed` by enclosing function, and it is an exact-equality list. Its row _should find lifecycle and request reads only at the runner, intake, the channel and unit entries_ names `kernel/kernel.ts › Kernel.channel: closed` because that is where step 4 wrote the refusal. §18.6 states the property R21 holds for D-208:
+
+- the lifecycle is read in `src/kernel/` only;
+- no module under `src/sortable/` or `src/free-drag/` reads it;
+- `BehaviorContext` has no lifecycle member.
+
+The function's name is the detector's granularity, not part of the property.
+
+**Decided.** The census may name the refusal's new location in place of `Kernel.channel: closed`. These hold:
+
+- **exactly one** census entry is the diagnostic refusal's read of `closed`. It replaces `Kernel.channel: closed` and is not added beside it;
+- it is in `kernel/kernel.ts`;
+- the entry's comment says what it is: the diagnostic refusal, shared by the kernel's route and every minted channel;
+- the row _should find no lifecycle or request read outside the kernel_, the ledger row and every other entry in both lists are unchanged.
+
+A refusal read in two places is two entries. That fails the first condition, and the census then detects a refusal written twice. So the re-pin keeps R21 able to see what _written once_ forbids.
+
+**B′'s form is admitted** under this re-pin: a module function holding the `closed` test and the terminus, bound per mint. It was the census row alone that put B′ outside §24.5.
+
+### 25.4 Why the residual does not go to the owner yet
+
+The owner's disposition accepts no retained-heap growth, and §24.1 routes a residual to the owner only if 6R _cannot meet the target without changing a D-208 property_. That condition is not established.
+
+- **P is not the candidate.** The committed record states that P _writes the refusal a second time_. That breaks _written once_, and R21 was not run on it. Its 2,704 B is the figure a design would have to reach. It is not a reading of a design.
+- **The relay describes P as applying the shared refusal.** If a shared-refusal form was measured, its figures are not in the committed record, and they are not evidence here.
+- **The candidate is the shared-refusal form.** The kernel's route and every minted channel deliver through one function. The kernel's route is not minted through `channel()`. Its bytes are unmeasured. P is a single run, 9 to 10 B under the baseline's usual 2,713 to 2,714 B on free drag. One A + B′ round read that baseline at 2,688 B, and P would not have met it. A shared refusal may also cost some of the margin. So whether the candidate meets the target in every round is open.
+- **The owner's direction of 2026-11-03** (_Stop and escalate … Do not commit source_) chose the escalation path for a question it routed to the architect. It did not decide the reading.
+
+So 6R resumes. If the candidate meets the target, nothing needs authorizing. If it misses, 6R escalates with the residual per population at the best candidate that keeps §25.5's properties, and the owner authorizes it or directs a design change. The architect does not authorize a residual.
+
+**The SPI question (3) is not pursued.** Calling `reportError` detached, or reading it once at arming, changes `BehaviorSpec`'s calling convention. That is an escalation condition in its own right (§24.5 step 4), and the candidate does not need it.
+
+### 25.5 Handoff: remediation 6R, resumed
+
+**Owner:** the implementer, then a bounded independent recheck, then the architect's closure, as §24.5 step 4 states. **Input:** this section's commit. Record it in a dated subsection of `d208-step6.md` §Remediation 6R. **A source comment carries no record identifier.** Everything in §24.5 step 4 holds except where this list replaces it.
+
+**The target** is §24.5 step 4's, unchanged: M-2′, four rounds ABBA against `6905af249`.
+
+**What the recovery comes from** is unchanged: the channel mechanism, its mint sites and their wrappers. Removing the kernel's mint site is recovery from what D-208 added.
+
+**D-208's properties, as the resumed unit must keep them** (this replaces the list in §24.5 step 4):
+
+1. **The refusal is written once in the kernel.** One function holds the applied-lifecycle test and the delivery terminus. The kernel's own route and every minted channel deliver through it. No second copy of the test exists. Panic's own terminus is unchanged.
+2. **`channel(deliver)`** keeps its signature and semantics, as D-208 _Ownership and surface_ states them.
+3. **Every diagnostic a behavior produces** passes through a channel minted from its context. The behaviors' routes do not change.
+4. **The kernel's own route** carries every diagnostic the kernel surfaces, to every collaborator that holds it today: the driver, each operation's lifetimes, the controller's unwind guard, and construction's unwind after publication. It applies the refusal in item 1. Panic's report is the one bypass, and it stays as it is.
+5. **R33 passes, and three mutations each redden rows.** Each mutation is applied to the shared function or the route and then reverted, and the rows it reddens are reported by name:
+   - **M1**, removing the refusal: R33's post-application rows, as D-208 _Order and witness_ names them;
+   - **M2**, making the refusal read `REQUESTED`: R33's interval and construction-window rows;
+   - **M3**, new: the kernel's route delivering to the sink without the shared refusal. It must redden at least `kernel.browser`'s _should run both scrubs when a reset throws during destroy_, which pins the kernel route's teardown silence. If no row reddens, that is a finding for the architect, and 6R does not close.
+6. **R21** passes with at most the one re-pin §25.3 permits. The mint sites are re-reported by location. Their number falls by the kernel's own, and any other change is a finding.
+
+**Unchanged from §24.5 step 4:**
+
+- the per-sample path is untouched;
+- no other cost rises: allocation per sample, per drop, per `moveTo` and per committed frame; identical call counts; byte-identical published declarations, or a difference in doc comments only; composition against step 1's ceilings, with `drag.js` and baseline B unmoved;
+- the escalation conditions. A change that needs the SPI, a published surface or the per-sample path escalates.
+
+**Text, in the same unit:**
+
+- **Source comments.** The `report` field's documentation and `Kernel.channel`'s documentation in `kernel/kernel.ts` say the controller's own channel is _minted for the armed controller at construction_ and that the refusal is _nowhere else written_. They state what the code does at the candidate. So do the comments in `panic` and the census row that name the channel's refusal.
+- **05:253** gets a dated precision, with the original struck. Each behavior's channel, its unwind guard and `FeatureContext.report` are channels minted through `BehaviorContext.channel`. The kernel's own route is the kernel's, and it applies the same refusal. The refusal is written once. Panic's report is the one delivery that does not pass through it. Nothing else in I-36 changes.
+- Report any other text that states the kernel's route is minted through `channel()`. Do not search for more.
+
+**Measurement**, on the candidate, before anything is committed:
+
+- **M-2′,** four rounds ABBA, every population at 100 and 1000 controllers, with the load recorded;
+- **the attribution row,** against the input and the baseline;
+- **R33, R21 and the three mutations,** as above;
+- **if the target is met,** the costs §Remediation 6R lists under _Not measured_: allocation, call counts, declarations and composition.
+
+**Outcome.**
+
+- **The target is met, with every property above.** Commit the source, the text and the record, and hand the diff to the recheck. Step 5 waits for the architect's closure.
+- **The target is missed.** Commit no source. Record the residual per population at the best candidate that keeps every property, and every variant tried, then escalate. The architect forwards it to the owner as §24.1 states. The owner authorizes the residual or directs a design change, and the implementer does not choose between them.
+- **A property cannot hold.** Escalate. Do not decide.
+
+**Out of scope:** the SPI's calling convention (§25.4); F-442, F-443 and the compression pass; step 5; `d208-requests.md`.
+
+### 25.6 What stays open
+
+D-208 stays `Unimplemented (Remediation)`, and the witness holds. §24.6's table stands, with these changes:
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| Remediation 6R, resumed | implementer, then an independent reviewer, then the architect | §25.5 | before step 5 |
+| A 6R residual, if the candidate misses | architect, then the owner | the owner authorizes the residual or directs a design change | before step 5 |
+| M3 finding, if no row reddens | architect | decide the coverage gap | before 6R closes |

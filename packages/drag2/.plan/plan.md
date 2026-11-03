@@ -2298,6 +2298,22 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-03 — D-208 remediation 6R's escalation disposed: the kernel's own route need not be minted, and 6R resumes
+
+**D-208 is not complete, and nothing is authorized.** At its in-property variant, 6R recovered 19 to 21 B per controller. Mixed stayed +25 to +26 B and free drag +57 to +58 B above the baseline at 100 controllers.
+
+**Decided here:**
+
+- **The kernel's own route** must apply the one refusal, written once. D-208 never required that route to be minted through `channel()`. The record's _every diagnostic passes through a minted channel_ overstated D-208, and it is corrected. D-208 is not amended.
+- **R21's census** may be re-pinned once, to the refusal's one new location. That admits B′'s form.
+- **No residual goes to the owner yet.** The prototype that reached the target wrote the refusal twice, and the in-design candidate is unmeasured.
+
+**Next:** 6R resumes with the shared-refusal candidate, three mutations and 05:253's precision. Then come its recheck and closure. If the candidate misses the target, the residual goes to the owner.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §25.
+
+---
+
 ### 2026-11-03 — D-208 step 6's escalations disposed: ceilings re-base, M-2's retained heap is recovered, and two baseline defects are split off
 
 **D-208 is not complete.** Step 6 measured every item and raised three escalations. The owner has disposed of the four overruns, 2026-11-03: _Rebase the size budgets to the current architecture under the standing budget policy. A compression pass will happen separately, after this phase. This decision does not accept runtime regressions or retained-heap growth._
