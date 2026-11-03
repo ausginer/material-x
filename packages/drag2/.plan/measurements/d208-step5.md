@@ -653,3 +653,29 @@ Built with `just build` and measured with `measureAll()` at `b132ae788`'s `src/`
 - **D-208 stays `Unimplemented (Remediation)`.** `d208-requests.md` is not created.
 
 **Next:** the bounded independent recheck of `df45b1c69` and this section against §21.7, then the architect's closure of 5R.1. Step 6 does not start before it.
+
+### Closing commit — 2026-11-03
+
+**Governing record:** [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §22.2 and §22.3. **Input:** `ba40b6387`, whose `src/` equals `5e5a493d2`'s. Sites are cited at `5e5a493d2` before and at this commit after. One commit, and no other site changed.
+
+**Dated correction, 2026-11-03, of §Item 1 above.** Its _The cancel's sources_ bullet says the activation unit _reaches consumer code twice before the start notification_. That is wrong. `#invalidateInSeam()` (`sortable/spec.ts:791`) calls `invalidateInsertion()` (`:527`), so a consumer-written axis installer is a third source, and no list of sources is established as exhaustive. The class's first condition is stated as §21.3 states it: consumer code reached from the activation unit before the start notification registers a cancel. The placeholder factory and `connectedCallback` are examples of that code, not a complete list. §Item 1's text is left as it was.
+
+| Site | Before (`5e5a493d2`) | After |
+| --- | --- | --- |
+| `sortable/spec.ts:796–798` → `:796–799` | _consumer code reached from this activation — the placeholder factory in `prepare`, or the placeholder's `connectedCallback` above — registers a cancellation_ | _consumer code reached during this activation before `onStart` registers a cancellation_. The placeholder factory and `connectedCallback` are named as examples, _not a complete list_ |
+| 05:199, I-31's heading | _and **only** then: an operation whose `onStart` never ran publishes no terminal (Q-15, D-66)_, unqualified | A dated qualification follows that sentence. It names the admitted class of two-fault paths by its two conditions and its one `canceled` terminal for an unnotified start, points to the row's notes and 02 §I-31, and says the class is open under F-442. Nothing else in the row changed |
+| 07:686, L-2's body | _**Exactly one terminal per started operation** on a live controller, … and **none** for an operation that never started (Q-15)_ | Struck, with a date. L-2 is I-31 as it applies to free drag, cited and not restated, under D-83. It makes no claim about free drag's instances. L-2's heading and its discharge row are unchanged |
+
+**Verification**, on this commit's tree:
+
+- **Runtime.** All 60 `src/` modules hash equal to `5e5a493d2`, with 5R's instrument. `sortable/spec.ts` is `610e73e86ef0b6a9`.
+- **Composition.** All 15 rows are equal between `ba40b6387`'s `src/` and this tree: minified, Brotli and module lists. They equal 5R's tip table too.
+- **Published declarations.** All 33 `.d.ts` files are byte-identical.
+- **Tests.** 1,377 pass and 14 fail. The failing set is identical by name to 5R.1's run. `references.node` passes. No test changed.
+- **Lint**, run from `packages/drag2` over the four files that carry the seven errors and the two contracts: the same seven eslint errors. They are `free-drag/assemble.ts`'s one `no-unnecessary-condition`, `free-drag/spec.ts`'s one `consistent-return`, `kernel/seams.ts`'s two `no-unnecessary-condition` and two `only-throw-error`, and `sortable/spec.ts`'s one `consistent-return`. The Markdown is reported as ignored by eslint and formatted by `oxfmt`.
+- **Typecheck.** Only the two `.scripts/vitest-*.ts` errors.
+- `git diff --check`: clean.
+
+**Not done, as §22.3 directs:** no search, no census, no enumeration of F-442's instances, nothing on the budget overruns, and no `d208-requests.md`.
+
+**Next:** the delta-only independent recheck of this commit against §22.2's properties and §22.3's keep list, then the architect's closure of 5R.1. Step 6 does not start before it.

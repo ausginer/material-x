@@ -683,7 +683,7 @@ Every shipped observable in ledger §6.2 has a row: threshold disarm, lift on ac
 
 #### L-2
 
-**Exactly one terminal per started operation** on a live controller, on the failure path as well (D-66) — and **none** for an operation that never started (Q-15)
+~~**Exactly one terminal per started operation** on a live controller, on the failure path as well (D-66) — and **none** for an operation that never started (Q-15)~~ **Replaced by a citation 2026-11-03 (D-83, applied by D-208 remediation 5R.1, [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §22.2):** L-2 is I-31 ([05](05-lifecycle-invariants.md) §I-31) as it applies to free drag, cited and not restated.
 
 #### L-3
 

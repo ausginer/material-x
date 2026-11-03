@@ -794,9 +794,10 @@ class SortableBehavior {
       // This is one instance of a class of two-fault paths that reach a
       // terminal callback without a start notification; the adjacency throw
       // above is another. The class needs both faults: consumer code reached
-      // from this activation — the placeholder factory in `prepare`, or the
-      // placeholder's `connectedCallback` above — registers a cancellation,
-      // and the effect then fails before `onStart`. The registered cancel
+      // during this activation before `onStart` registers a cancellation —
+      // the placeholder factory in `prepare` and the placeholder's
+      // `connectedCallback` above are examples, not a complete list — and
+      // the effect then fails before `onStart`. The registered cancel
       // outranks the classified failure, so the operation settles as
       // *canceled* for a drag `onStart` never announced, and the failure
       // reaches `onError` as superseded by the cancel. Either fault alone is
