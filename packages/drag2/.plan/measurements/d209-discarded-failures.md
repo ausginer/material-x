@@ -1,8 +1,8 @@
 # Discarded failures: the implementation record (D-209)
 
-> **Implemented 2026-11-04, not accepted.** This record stops for one fresh, bounded `reviewer` pass, and architect acceptance follows that review. D-209's marker and row and F-446 are untouched, so `decisions.node`'s witness row is red by design until then.
+> **Implemented and remediated 2026-11-04, not accepted.** The independent review ran at `3ff2d2acf` and was disposed by §33 of the handoff. [The remediation](#the-remediation-33) is below. This record stops for §33.12's fresh, delta-only `reviewer` recheck, and architect acceptance follows it. D-209's marker and row, F-446 and F-448 are untouched, so `decisions.node`'s witness row is red by design until then.
 
-**Canonical entry: `drag2:D-209`,** with its amendment for rejected settlements. The handoff is [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §32.5 to §32.8.
+**Canonical entry: `drag2:D-209`,** with its amendment for rejected settlements. The handoff is [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §32.5 to §32.8, and §33.8 to §33.11 for the remediation.
 
 **Input.** `7398d6969` on `drag2/fin-review2`, whose `src/` is the accepted tree `626180a058af7374a68c5544fefc4111eec6003c`, the same `src/` as `e2aabaf3b`.
 
@@ -12,9 +12,9 @@
 | --- | --- |
 | `ec15441ce` | Step 1: the source, its rows, `tests/COVERAGE.md` and the README |
 | `448ce5015` | Step 2: five control figures and their [`budget-rebases.md`](budget-rebases.md) entry |
-| This record's commit | Step 3: this record, the mutation readings, and one README correction (§What to correct at acceptance) |
+| `3ff2d2acf` | Step 3: this record, the mutation readings, one README correction (§What to correct at acceptance), and `tests/COVERAGE.md`'s (k) cell, restored to `D-209, F-446` |
 
-**The new `src/` tree is `db3c402a488231e4d17fa2b6a3209543dab561e5`.** Steps 2 and 3 do not change it.
+**The `src/` tree those three commits landed is `db3c402a488231e4d17fa2b6a3209543dab561e5`.** Steps 2 and 3 do not change it. The remediation's tree is in its own section.
 
 ## The mechanism
 
@@ -128,6 +128,8 @@ Run once, at `448ce5015` with this record's file and the README correction in th
 
 ## What to correct at acceptance
 
+**Disposed by §33 of the handoff, and the items below stay as written at `3ff2d2acf`.** Item 1 is corrected at §33.7. Item 2's two sentences are replaced by §33.5's wording, in the remediation. Item 3 stays, because §33.5 finds the sentence true: the same request with no throw also publishes no terminal. The README sentence below is superseded by §33.5's.
+
 **Not amended here, as directed.**
 
 1. **§32.10's attribution is contrary to the owner's.** It says _No independent review of D-209 is booked, by the owner's direction against another round_, and that the acceptance would rest on the architect's reading. The owner clarified on 2026-11-04 that _no new architecture review round_ did not waive independent implementation review: one fresh, bounded `reviewer` pass comes after this implementation, and architect acceptance follows it.
@@ -141,13 +143,135 @@ Run once, at `448ce5015` with this record's file and the README correction in th
 - **Each reading ran once,** in Chromium, on one machine, in the main checkout. A mutation shows that rows see it, not that a property holds wherever it reaches.
 - **§32.2's enumeration of queue entries is the architect's, by reading,** and I did not re-derive it beyond confirming the two `dispatch` sites changed here.
 - **`measureAll()` read the main checkout,** not a fresh worktree. The input's controls reproduced exactly there, so the toolchain and dependency builds match the re-declaration's figures.
-- **The independent review has not run.** Nothing here is an acceptance.
+- **Nothing here is an acceptance.** The independent review ran at `3ff2d2acf`, and its recheck of the remediation has not run.
+
+## The remediation (§33)
+
+**Input.** `302ab0a37` on `drag2/fin-review2`, whose `src/` is `db3c402a4`.
+
+| Commit | Contents |
+| --- | --- |
+| `6386f12e1` | Step 1: `kernel.ts`'s two code sites, comment hunks elsewhere, rows (ab) to (an), `tests/COVERAGE.md` and the README |
+| `a815493a7` | Step 2: five control figures and their [`budget-rebases.md`](budget-rebases.md) entry |
+| This record's commit | Step 3: this section and the [mutation readings](../probes/d209-implementation/remediation-mutations.txt) |
+
+**The new `src/` tree is `779b4b0f5d3a04610b7cdb8edba306fc7520d2ef`.** Steps 2 and 3 do not change it.
+
+### The mechanism
+
+**A rejection that won the latch reports exactly once, whichever request superseded it.** The closure reads its code when it is delivered: destruction's while the attempt is still current, and the cancel's once it has been retired. `#handleResolutionSettled`'s retired branch calls the carried report and returns. An attempt with no rejection carries none and reports nothing. No class gained a field, no constructor gained a callback, and no name was exported.
+
+**The spelling is the prototype's,** in [`prototype-src.diff.txt`](../probes/d209-disposition/prototype-src.diff.txt).
+
+### Property 6, by §29.6's method
+
+| Against | Files differing | Comment-stripped hunks |
+| --- | --: | --- |
+| `3ff2d2acf`, tree `db3c402a4` | 8 | `kernel.ts` only: `#settleResolution`'s closure and `#handleResolutionSettled`'s retired branch. The other seven are comment-only |
+| `e2aabaf3b` | 8 | `execution.ts`: the import and `#step`'s non-`LIVE` branch. `kernel.ts`: `#failOperation`'s `discard`, `#settleResolution`'s branch, and the retired branch. These are §32.8's sites and that branch |
+
+- **The member lists,** by the TypeScript AST, match both revisions: `ExecutionBracket` 21, `ArmedController` 75, `Kernel` 15 and `ActionQueue` 4.
+- **The declarations:** 33 files, built from the landed tree and from `db3c402a4`'s sources. Four differ in text, `free-drag/config`, `free-drag/controller`, `kernel/spec` and `sortable/config`, and all 33 are identical once comments are stripped. This compares with `db3c402a4`, whose declarations matched `e2aabaf3b`'s in the section above.
+- **`capture.node`** passes unchanged, and R21 did not move.
+
+### The rows
+
+Every row of §33.9 is in place, cited by title in `tests/COVERAGE.md`, and has its required outcome: (ab) to (af) in both behaviors, (ag) and (ah) in free drag with (ah) as two rows, and (ai) to (an) in the kernel. Standing rows stayed, and §33.6's retitle changes no assertion.
+
+**Two spellings to read.**
+
+- **(ae) returns `Promise.reject` from a slot that is not `async`,** as (y) does, because `require-await` refuses an `async` function with no `await`. An `async` slot that throws returns the same rejected promise. The disposition's probe drove the `async` spelling.
+- **The fixture's `onResolve` now returns the slot's value,** so a row can return that promise. Returning nothing still accepts.
+
+**§33.9's _Input tree_ column reproduced exactly, with one substitution.** `INPUT` below takes out the two hunks, which gives `db3c402a4`'s behavior under the landed rows. It reddens (ab) and (ac) in both behaviors, (al) and (am), and nothing else. The rows did not run on the tree `db3c402a4` itself.
+
+### The mutations
+
+Each ran once on `6386f12e1` and was restored, over `kernel.browser`, `diagnostic-intake.browser`, `free-drag/anchor.browser`, `execution.node` and `capture.node`. The landed code read 351 pass and 0 fail. **Read each as:** a mutation shows that rows see it, not that a property holds wherever it reaches. Full titles are in [`remediation-mutations.txt`](../probes/d209-implementation/remediation-mutations.txt).
+
+| Mutation | Failed | Listed rows reddened | Beyond the list |
+| --- | --: | --- | --- |
+| **Y1**, the retired branch delivers nothing | 3 | (ab) both, (al) | None |
+| **Y2**, the closure always reports destruction's code | 6 | (ab) both, (ac) both, (al), (am) | None |
+| **Y3**, the closure always reports the cancel's code | 9 | (ad) both, (ai), (v) both, (w) twice | (aj), (ak) |
+| **Y4**, the carrier is set on every settlement | 4 | (af) both, (x) twice | None |
+| **X5s**, the settlement carrier bypasses the route | 1 | (aj) | None |
+| **X6s**, the settlement carrier reports the cancel's code when one is held | 12 | (ai) | (ab), (ac) and (ad), each both, (al), (am), and three `capture.node` census rows |
+| **N1**, `#step` declines only at `CLOSED` | 37 | as §32.7. **(k) stays green** | (ad) both, (ag), (ai), (aj), (ak), (an), and the standing rows the file lists |
+| **X1**, the walk removed | 29 | as §32.7 | (B1), (B2), (ac) both, (ad) both, (ai), (aj), (ak), (am), (an) |
+| **X7**, no settlement carrier | 15 | (v) both, (w) twice | (ab), (ac) and (ad), each both, (ai), (aj), (ak), (al), (am) |
+| **X8**, set the settlement carrier before the latch | 1 | (x), fulfil then reject | None |
+
+**X6s's spelling reads `this.#operation?.cancelRequest` in place of the attempt test,** so it replaces the choice the landed closure makes. That is why it also reddens the routes where the two disagree.
+
+**A mutation that reddened nothing listed would have stopped the sequence, and none did.**
+
+### Composition
+
+`measureAll()` at `6386f12e1`, with `drag2` rebuilt, against the ceilings in force. **No ceiling moved.** _Before_ is `ec15441ce`'s figure above. Bytes.
+
+| Row | Minified | Brotli | Before | Modules | Ceiling | Slack |
+| --- | --: | --: | --: | --: | --: | --: |
+| minimal | 33,723 | 10,329 | 10,290 | 33 | 10,351 | 22 |
+| minimal (xy) | 33,080 | 10,199 | 10,195 | 32 | 10,244 | 45 |
+| minimal + layoutAnimation | 34,639 | 10,651 | 10,615 | 34 | 10,683 | 32 |
+| xy + layoutAnimation | 33,996 | 10,517 | 10,503 | 33 | 10,563 | 46 |
+| minimal + landing | 34,116 | 10,483 | 10,441 | 35 | 10,536 | 53 |
+| complete | 35,032 | 10,791 | 10,767 | 36 | 10,838 | 47 |
+| free drag minimal | 27,367 | 8,357 | 8,337 | 27 | 8,412 | 55 |
+| free drag + bounds | 28,011 | 8,592 | 8,553 | 28 | 8,645 | 53 |
+| free drag + landing | 27,760 | 8,516 | 8,497 | 29 | 8,587 | 71 |
+| free drag complete | 28,404 | 8,734 | 8,712 | 30 | 8,778 | 44 |
+| both behaviors | 42,572 | 12,298 | 12,283 | 47 | 12,359 | 61 |
+| vocabulary root - drag.js | 252 | 142 | 142 | 2 | 205 | 63 |
+| kernel root - kernel.js | 20,337 | 6,418 | 6,398 | 16 | 6,470 | 52 |
+| baseline A - feature-matched, non-composed | 34,323 | 10,620 | 10,600 | 31 | 10,658 | 38 |
+| baseline B - shipped @ydinjs/drag sortable.js | 22,618 | 6,916 | 6,916 | 26 | 7,040 | 124 |
+
+**Every row is under its ceiling, and no module entered a graph.** All fifteen rows equal the prototype's figures. `drag.js` stays at 142 and baseline B at 6,916. Slack on the thirteen package rows is now 22 to 71 B, and the 22 B on `minimal` is what the compression pass inherits.
+
+**The controls.** Five moved, each with its whole interval attributed to `6386f12e1`: 8,357, 8,592, 8,516, 8,734 and 6,418, from `448ce5015`'s 8,337, 8,553, 8,497, 8,712 and 6,398. [`budget-rebases.md`](budget-rebases.md) holds the entry, and none is unattributed.
+
+### What A and a3 cover (§33.13)
+
+**D-208 is not reopened, and its evidence is untouched.** Retained heap A, allocation a3 and the owner's acceptance of 2026-11-04 belong to tree `626180a058af7374a68c5544fefc4111eec6003c`. They do not extend to `db3c402a4` or to this tree. No statistical round ran, and none is owed. The comment-stripped diff shows no statement on the sample path changed and no per-controller state added. This record makes no claim about regression, cost, A or a3 on this tree.
+
+### The whole suite
+
+Run once, at `a815493a7` with the mutation readings in the working tree: **1,475 pass, 5 fail, 68 skipped, of 1,548. 74 of 78 files pass.** The 19 new rows account for the difference from 1,529. The failing set is exactly what §33.11 requires, by name:
+
+- `decisions.node`: _should hold every witness it claims_, by design until acceptance.
+- `docs.node`: _should resolve every reference a public type makes_, and the closure rows for the kernel, ordinary and free-drag tiers (RF-24).
+- `tests/sortable/react.browser.test.ts` and `stories.browser.test.ts` do not load (RF-25).
+
+**`consumer.node`'s sourcemap row passed,** so F-447 did not recur in this run. All six `size.node` control rows pass.
+
+### Finalizing
+
+- `just typecheck` reports only the two `.scripts/` errors (RF-24).
+- **§33.11's _lint must report none_ is not met, by one error that was not introduced here.** `src/sortable/spec.ts:1289` reports `consistent-return` on `prepareSettlement`. That file joined the changed set only through §33.8's comment hunk, and the same error reads at line 1286 on the file at `302ab0a37`. §33.6 says `handoff.md`'s _list it, do not resolve it by hand_ still governs any other lint error, and §33.8 allows no code hunk there, so it is listed and left. **The architect decides it.**
+- §33.6's two `unbound-method` lines carry the directed comment, and neither reports now.
+- `README.md`, `tests/COVERAGE.md` and the records are ignored by the linters, and `oxfmt` wrote them.
+
+### Limits
+
+**§33.14's limits stand.** One of them is carried here because no row reaches it:
+
+- **The kernel-tier wrong-label limit is not tested and not resolved.** A kernel-tier seam that fails and then synchronously rejects the round-trip's thenable in one interval would queue `[FAILED, RESOLUTION_SETTLED]`, and the rejection would carry the cancel's code. The fault is delivered and its label is wrong. That is §33.14's reading. This remediation did not drive it, adds no row for it and adds no guard.
+
+**Also:**
+
+- **Each reading ran once,** in Chromium, on one machine, in the main checkout. Nothing here is an acceptance, and the recheck has not run.
+- **The retired branch's phase test is not re-derived.** §33.14 notes it could report a current attempt as destruction's if the slot and the phase ever disagreed, and I relied on the same comment it did.
+- **§33.2's route was not driven with a real scroll or resize,** and the listener's comment states it by §33.2's reading.
+- **`moveTo`'s _past release_ has no new row.** The published sentence names it, the disposition drove it on the prototype, and (ag) and (ah) cover the other three cases.
 
 ## What stays open
 
 | Item | Owner | Required action |
 | --- | --- | --- |
-| One fresh, bounded `reviewer` pass | owner starts it | Next, before acceptance |
-| D-209's acceptance, marker, row and F-446 | architect | §32.10, after the review, with the corrections above |
+| One fresh, delta-only `reviewer` recheck | owner starts it | §33.12, next, before acceptance |
+| D-209's acceptance, marker, row, F-446 and F-448 | architect | §32.10, after the recheck |
+| `src/sortable/spec.ts`'s standing `consistent-return` error | architect | Decide it, against §33.11's _none_ |
 | RF-24, RF-25, F-447 | architect's handoff, then the implementer | §32.1 gates 3 to 5, after acceptance. Not repaired here |
 | The merge, the terminology phase and the compression pass | as §32.1 states | Not started |
