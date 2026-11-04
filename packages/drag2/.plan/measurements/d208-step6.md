@@ -1524,3 +1524,74 @@ Each sits beside a listed site and was not required by a listed sentence. Changi
 **Every row is under its ceiling.** `drag.js` stays at 142 and baseline B reads 6,916, and neither moved at this commit or at 6R.
 
 **M-1 carries, as record §29.1 states:** the comment-stripped diff changes no code in a per-sample function, and the per-sample counts are identical. Step 3's _no regression_ stands for this tree, and its protocol does not rerun. The comment commit changes no code that runs, so M-2″'s readings and the owner's acceptance carry across it (§29.4): _retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04._
+
+## The bounded remediation, 2026-11-04 (record §30.8): five comment sites and rows R33 (i) to (l)
+
+**Input:** `e600b5357` on `drag2/fin-review2`, with `src/` at tree `c6c5e6ea5`. **Comment commit:** `1a74d547a`. **Rows commit:** `e294acbfe`. **The new frozen `src/` tree is `626180a058af7374a68c5544fefc4111eec6003c`.** No retained-heap, allocation or timing round ran. Retained heap A, allocation a3 and the owner's acceptance are unchanged, and they carry to this tree under record §28.3, because no code that runs changed. D-209 is not implemented, and D-208 is not marked implemented.
+
+### Step 1: the comment commit
+
+The commit changes the five sites of record §30.8 and no other comment: `kernel/failures.ts` twice, `kernel/spec.ts` once and `kernel/kernel.ts` twice.
+
+| Check | Result |
+| --- | --- |
+| Every changed line is a comment | Holds: no added or removed line of the diff falls outside a comment |
+| Each changed file, transpiled with comments removed, equals its version at `c6c5e6ea5` | Holds for all three, with `ts.transpileModule` and `removeComments` on both sides, compared as strings |
+| The built declarations differ only in `kernel/failures.d.ts` and `kernel/spec.d.ts`, only in those doc comments | Holds. 31 of 33 files are byte-identical. `failures.d.ts` differs only in `CANCEL_SUPPLIED`'s doc comment, and `spec.d.ts` only in `fail`'s |
+| The new `src/` tree hash | `626180a058af7374a68c5544fefc4111eec6003c` |
+| `capture.node` and the controls after the commit | `tests/kernel/capture.node.test.ts` 15 of 15, `tests/bench/size.node.test.ts` 43 of 43 |
+
+**Finalizing.** Lint over the three files is clean. `just typecheck` reports only the two `.scripts/` errors.
+
+### Step 2: the rows
+
+No `src/` change. Each row establishes that its callback ran, so none can pass on a slot that was never called.
+
+| Row | Behaviors | Outcome, equal to record §30.4 unless stated | How the row shows the callback ran |
+| --- | --- | --- | --- |
+| (i) `onStart` requests destruction, then throws | both | no `onError`, no `onEnd`, the promise settles | it awaits the promise the slot itself obtained, and an unset one fails the assertion |
+| (j) `onMove` requests destruction, then throws | **free drag only** | the same | the same |
+| (k) `onStart` throws, no request | both | `DraggableError` stage 2 with the cause, then `onEnd` `canceled` | the delivered cause is the slot's own error |
+| (l) a seam calls `fail`, then requests destruction, in one unit | kernel | nothing delivered | destruction is unapplied before the sample and applied after it |
+
+The rows use a fixture without the file's throwing landing hook, so nothing reports but the slot under test.
+
+**Row (j) is not applicable to sortable.** Sortable has no `onMove` slot: the name appears in none of `sortable.ts` or `sortable/config.ts`, `slots.ts`, `assemble.ts` and `spec.ts`. A scratch probe, since deleted, passed `onMove` through a cast and read `onStart` called once and `onMove` never, across three `pointermove`s.
+
+**So the earlier sortable `onMove` probe is not evidence of diagnostic behavior.** The line `sortable P1-onMove-destroy-then-throw []` in `reviews/d208-final/d208-final-rerun-probe.txt` is empty because its callback was never invoked. **The architect needs to correct these at acceptance:** record §30.4's _both behaviors_ on row (j), §30.1's `onStart` or `onMove` row, and the matching claims in the final proof's summary and report. They are left unchanged here. On the owner's direction, no sortable row was added and no other callback was substituted.
+
+**Row (l) was driven as stated,** through `BehaviorContext`, with `moved` as the seam.
+
+**N1, run once and restored:** `#step` declining only at `CLOSED`, whole suite, with the rows in the tree before their final comment-only edit. 1,412 pass, 23 fail, 68 skipped, and `react.browser` and `stories.browser` do not load. Of the 23, 5 are the standing set of step 3 and 4 are controls a kernel byte change moves: `free drag minimal`, `free drag + bounds`, `free drag + landing` and `kernel root - kernel.js`. **14 rows redden beyond those:**
+
+| File | Row |
+| --- | --- |
+| `diagnostic-intake.browser`, **new** | (i) in sortable, (i) in free drag, (j) in free drag |
+| `kernel.browser`, **new** | (l) _should deliver nothing for a checkpoint registered before destruction is requested_ |
+| `construction.node` | _should apply no window action once a window destruction is applied_ |
+| `execution.node` | _should stop the drain at the next entry when an action requests destruction_; _should drain after admission and handle nothing once admission requested destruction_ |
+| `kernel.browser` | _should open no round-trip for a destroy requested in the release effect_; _in the release prepare_; _by an action the release effect dispatched_; _should finish the join whose anchorTarget requested destruction and retire nothing after it_; _should apply none of the requests from onStart when destruction follows them_ |
+| `sortable/composition.browser` | _should tear down without a terminal callback when onReorder destroys_ |
+| `sortable.browser` | _should not classify a post-destroy replacement as an activation failure_ |
+
+**Discrimination:** N1 reddens (i), (j) and (l), as record §30.4 requires, and leaves the control (k) green in both behaviors. The ten existing rows carry the same names as the final proof's clean rerun, `reviews/d208-final/d208-final-rerun-mutations.txt`. The neighbouring `handle`, `home` and R33 (e) rows stay green and unchanged.
+
+**Finalizing.** One `unbound-method` lint error remains at `kernel.browser.test.ts:5009`, on a line this unit did not touch. `just typecheck` reports only the two `.scripts/` errors.
+
+### Step 3: the whole suite
+
+Run once at `e294acbfe` with the freeze note written: 1,430 pass, 5 fail, 68 skipped. All six new rows pass, and every control passes.
+
+**The failing set, by name, as record §30.8 requires:**
+
+- `decisions.node`: _should hold every witness it claims_ (the witness row, red by design until acceptance);
+- `docs.node`: _should resolve every reference a public type makes_;
+- `docs.node`: _should close the kernel tier over the kernel tier_;
+- `docs.node`: _should close the ordinary tier over the ordinary tier and the ones below it_;
+- `docs.node`: _should close the free-drag tier over the ordinary tier and the ones below it_.
+
+**Unloadable, as before:** `sortable/react.browser` and `sortable/stories.browser`.
+
+**Limits.** One run each, Chromium, one machine. A mutation shows that rows see it, not that a property holds wherever it reaches. Other slots in a sortable move were not probed.
+
+**Next:** the architect's acceptance under record §30.9, including the factual correction above.

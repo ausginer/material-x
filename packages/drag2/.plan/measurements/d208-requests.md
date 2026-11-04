@@ -6,7 +6,7 @@
 
 **The input** for the runtime comparison is `6905af249`.
 
-**The freeze.** `src/` is tree `c6c5e6ea59697efa8f27beae2700a574e6f3df4c`, at comment commit `65649c6d0`. It differs from 6R's `c0713204a` only by that commit, whose identity checks are in `d208-step6.md` §The final tree. It holds until the whole decision is accepted, and any other `src/` change goes to the architect first (§29.4).
+**The freeze.** `src/` is tree `c6c5e6ea59697efa8f27beae2700a574e6f3df4c`, at comment commit `65649c6d0`. It differs from 6R's `c0713204a` only by that commit, whose identity checks are in `d208-step6.md` §The final tree. It holds until the whole decision is accepted, and any other `src/` change goes to the architect first (§29.4). **Dated note, 2026-11-04 (§30.8):** `src/` is now tree `626180a058af7374a68c5544fefc4111eec6003c`, at comment commit `1a74d547a`, which changes five comment sites and no code that runs. Rows R33 (i) to (l) landed with no `src/` change. The checks, N1's reading and the failing set are in `d208-step6.md` §The bounded remediation. Row (j) is free drag only, because sortable has no `onMove` slot, and the final proof's sortable `onMove` probe never invoked its callback, so it is not evidence of diagnostic behavior. §30.4 and the matching review and §30.1 claims need the architect's factual correction at acceptance.
 
 **The outcome of the runtime work:** _retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04._
 
