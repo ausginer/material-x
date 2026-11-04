@@ -1,0 +1,42 @@
+// §33.10's mutations for the D-209 recheck, each on the input tree, restoring after each.
+import { execFileSync, spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+const wt = process.argv[2], out = process.argv[3], mode = process.argv[4], which = process.argv.slice(5);
+const pkg = `${wt}/packages/drag2`;
+const K = `${pkg}/src/kernel/kernel.ts`, E = `${pkg}/src/kernel/execution.ts`;
+const k0 = readFileSync(K, 'utf8'), e0 = readFileSync(E, 'utf8');
+const once = (t, a, b) => { const p = t.split(a); if (p.length !== 2) throw new Error(`count ${p.length - 1}: ${a}`); return p.join(b); };
+const WK = (...pairs) => { let t = k0; for (const [a, b] of pairs) t = once(t, a, b); writeFileSync(K, t); };
+const D = "'drag: failure/superseded-by-destruction'", C = "'drag: failure/superseded-by-cancel'";
+const CODE = `            this.#attempts.resolution === attempt\n              ? ${D}\n              : ${C},\n`;
+const NEW = `          new DraggableWarning(\n${CODE}            { cause: input.error },\n          ),\n`;
+const CLOSURE = `      attempt.discard = (): void => {\n        this.report(\n${NEW}        );\n      };\n`;
+const BRANCH = `    if (input.type === SETTLED_REJECTED) {\n${CLOSURE}    }\n`;
+const STEP = `if (this.#lifecycle !== LIVE) {\n      if (action === FAILED`;
+const muts = {
+  Y1: () => WK([`      attempt.discard?.();\n      return;\n`, `      return;\n`]),
+  Y2: () => WK([CODE, `            ${D},\n`]),
+  Y3: () => WK([CODE, `            ${C},\n`]),
+  Y4: () => WK([BRANCH, CLOSURE.replace('input.error', '(input as { error?: unknown }).error')]),
+  X5s: () => WK([`      attempt.discard = (): void => {\n        this.report(\n`, `      attempt.discard = (): void => {\n        this.#spec.reportError(\n`]),
+  X6s: () => WK([CODE, `            this.#operation?.cancelRequest ? ${C} : ${D},\n`]),
+  N1: () => writeFileSync(E, once(e0, STEP, STEP.replace('this.#lifecycle !== LIVE', 'this.#lifecycle === CLOSED'))),
+  // Probe mutations for (ae), not in §33.10: the latch's identity test dropped, and no rejection handler at all.
+  Ma: () => WK([`if (attempt.completed || this.#attempts.resolution !== attempt) {`, `if (attempt.completed) {`]),
+  Mb: () => WK([`          (error: unknown) => {\n            this.#settleResolution(attempt, { type: SETTLED_REJECTED, error });\n          },\n`, ``]),
+};
+const FILES = mode === 'std'
+  ? ['tests/kernel/kernel.browser.test.ts','tests/diagnostic-intake.browser.test.ts','tests/free-drag/anchor.browser.test.ts','tests/kernel/execution.node.test.ts','tests/kernel/capture.node.test.ts']
+  : ['tests/zz-recheck.browser.test.ts','-t','RECHECK|consume a rejection arriving after the cancel'];
+for (const name of which) {
+  try {
+    if (name !== 'base') muts[name]();
+    const r = spawnSync(`${wt}/node_modules/.bin/vitest`, ['run','-c','vitest.config.ts','--reporter=json',`--outputFile=${out}/${mode}-${name}.json`,...FILES], { cwd: pkg, encoding: 'utf8', maxBuffer: 1<<28 });
+    writeFileSync(`${out}/${mode}-${name}.log`, `${r.stdout}\n---\n${r.stderr}`);
+    const j = JSON.parse(readFileSync(`${out}/${mode}-${name}.json`,'utf8'));
+    const fails=[]; for (const f of j.testResults) { const b=f.name.split('/').pop().replace('.test.ts',''); if(f.status!=='passed'&&!f.assertionResults.length) fails.push(`${b} FILE FAILED`); for (const a of f.assertionResults) if (a.status==='failed') fails.push(`${b} › ${a.fullName}`); }
+    console.log(`## ${name} pass ${j.numPassedTests} fail ${j.numFailedTests}`); for (const x of fails) console.log(`    ${x}`);
+  } finally { writeFileSync(K,k0); writeFileSync(E,e0); }
+  const st = execFileSync('git',['status','--short','--','packages/drag2/src'],{cwd:wt,encoding:'utf8'});
+  if (st) { console.log('NOT RESTORED', st); process.exit(2); }
+}

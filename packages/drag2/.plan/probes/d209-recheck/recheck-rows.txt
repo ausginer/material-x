@@ -1,0 +1,113 @@
+  // ---- D-209 recheck probe rows, scratch only. ----
+  describe('RECHECK', () => {
+    const watch = (): unknown[] => {
+      const escaped: unknown[] = [];
+      const aborter = new AbortController();
+      cleanup.push(() => aborter.abort());
+      globalThis.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+        escaped.push(event.reason);
+        event.preventDefault();
+      }, { signal: aborter.signal });
+      return escaped;
+    };
+    const consumed = async (slot: (self: Fixture) => Promise<never>): Promise<void> => {
+      const escaped = watch();
+      const fixture = build({ plain: true, onResolve: slot as never });
+      drop(fixture);
+      // The cancel has applied by the time the dispatch returns, before any reaction can run.
+      expect(fixture.log).toEqual(['onEnd canceled']);
+      await settled();
+      expect(fixture.log).toEqual(['onEnd canceled']);
+      expect(fixture.errors).toEqual([]);
+      expect(escaped).toEqual([]);
+    };
+    it('ae async: requestCancel then throw', async () => {
+      await consumed(async (self) => {
+        self.controller.requestCancel('held');
+        throw new Error('boom');
+      });
+    });
+    it('ae Promise.reject: requestCancel then return rejected', async () => {
+      await consumed((self) => {
+        self.controller.requestCancel('held');
+        return Promise.reject(new Error('boom'));
+      });
+    });
+    it('async, awaiting first: requestCancel then throw arrives after the cancel applied', async () => {
+      const escaped = watch();
+      const fixture = build({
+        plain: true,
+        onResolve: (async (self: Fixture) => {
+          await Promise.resolve();
+          self.controller.requestCancel('held');
+          throw new Error('boom');
+        }) as never,
+      });
+      drop(fixture);
+      await settled();
+      expect(fixture.log).toEqual(['onEnd canceled']);
+      expect(fixture.errors).toEqual([]);
+      expect(escaped).toEqual([]);
+    });
+    it('async, no request: applied live as a DraggableError at FAILURE_RESOLUTION', async () => {
+      const boom = new Error('boom');
+      const escaped = watch();
+      const fixture = build({ plain: true, onResolve: (async () => { throw boom; }) as never });
+      drop(fixture);
+      await settled();
+      expect(fixture.log).toEqual(['onError', 'onEnd canceled']);
+      expect(fixture.errors[0]).toBeInstanceOf(DraggableError);
+      expect((fixture.errors[0] as DraggableError).cause).toBe(boom);
+      expect(String((fixture.errors[0] as DraggableError).stage)).toBe(String(FAILURE_RESOLUTION));
+      expect(escaped).toEqual([]);
+    });
+    it('async: requestDestroy then throw arrives after application: nothing', async () => {
+      const escaped = watch();
+      const fixture = build({
+        plain: true,
+        onResolve: (async (self: Fixture) => {
+          void self.controller.requestDestroy();
+          throw new Error('boom');
+        }) as never,
+      });
+      drop(fixture);
+      await settled();
+      expect(fixture.log).toEqual([]);
+      expect(fixture.errors).toEqual([]);
+      expect(escaped).toEqual([]);
+    });
+    it('async: requestCancel, requestDestroy, throw arrives after application: nothing', async () => {
+      const escaped = watch();
+      const fixture = build({
+        plain: true,
+        onResolve: (async (self: Fixture) => {
+          self.controller.requestCancel('held');
+          void self.controller.requestDestroy();
+          throw new Error('boom');
+        }) as never,
+      });
+      drop(fixture);
+      await settled();
+      expect(fixture.log).toEqual([]);
+      expect(fixture.errors).toEqual([]);
+      expect(escaped).toEqual([]);
+    });
+    if (_name === 'free drag') {
+      it('moveTo past release, from onDrop: nothing, then accepted', async () => {
+        const fixture = build({
+          plain: true,
+          onResolve: (self: Fixture) => {
+            (self.controller as unknown as { moveTo(p: unknown): void }).moveTo({
+              get x(): number { throw new Error('accessor'); },
+              y: 0,
+            });
+            return undefined;
+          },
+        });
+        drop(fixture);
+        await settled();
+        expect(fixture.log).toEqual(['onEnd accepted']);
+        expect(fixture.errors).toEqual([]);
+      });
+    }
+  });
