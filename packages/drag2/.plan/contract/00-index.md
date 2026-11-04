@@ -2915,7 +2915,13 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 - **Protocol Q-a3** is pre-registered in record §27.5 to §27.7, as the last measurement on a3: exact call counts, a 20,000-call window and a byte-identical placebo tree.
 - **Outcomes:** `discharged`, then the source lands and goes to the recheck. `regression` or `uncertain`, then no source, and an explicit disposition goes to the owner.
 
-`d208-requests.md` waits for the steps of record §24.5, as §25.5, §26 and §27 amend step 4, and for no escalation to be open.
+**The owner's disposition 2026-11-04, over `883adc507`** (record §28). The owner: _The owner agrees to stop investigating the small allocation uncertainty and finish this phase: Do not run Q-a3. Accept the remaining allocation uncertainty documented by M-2″, including moveTo's positive differences. Preserve outcomes A and a3, the raw figures and their limits. Do not relabel a3 as a1, discharged, or proof of zero regression. Allow the recorded shared-refusal candidate to proceed through a bounded independent recheck._ D-208's text does not change.
+
+- **Q-a3 is withdrawn, unrun.** Whether `moveTo`'s lean is a per-call cost or a lump, whether it follows the code, and the anonymous arrow's call count stay unanswered, and no later record may imply otherwise.
+- **The outcomes stand:** retained heap A and allocation a3. No regression is demonstrated and none is excluded. The owner's acceptance sets no tolerance, is not a precedent and covers this candidate's code only. The condition of 2026-11-03 stands: a demonstrated regression or retained-heap growth is not authorized.
+- **Next, in order:** the candidate lands byte for byte at src tree `c0713204a`. A bounded recheck follows, covering correctness, diagnostic semantics, R21, R33 and the existing evidence, with no new statistical rounds. New correctness defects are still reported. The architect then closes 6R, and only then does record §24.5 step 5 resume.
+
+`d208-requests.md` waits for the steps of record §24.5, as §25.5, §26, §27 and §28 amend them, and for no escalation to be open.
 
 **What is carried.** D-207's text, its properties as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1–3 as accepted at `44e2074f1`, `877fb9612` and `ef1e4ef6b`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step3-B and step3-C keep their boundaries.
 
@@ -2975,7 +2981,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-208 | Remediation | step 6's remainder under record §24.5: the ceiling re-base, M-1's follow-up, remediation 6R (M-2's retained heap, resumed under record §25.5, its acceptance measured under record §26 and §27), the remeasurement and controls, then the measurement record. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64`, remediation 5R at `2d17645f5`, and remediation 5R.1 is closed at `7f1900ccf` | absent: `.plan/measurements/d208-requests.md` |
+| D-208 | Remediation | step 6's remainder under record §24.5: the ceiling re-base, M-1's follow-up, remediation 6R (M-2's retained heap, resumed under record §25.5, measured under record §26 and §27, landing and recheck under the owner's disposition in record §28), the remeasurement and controls, then the measurement record. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64`, remediation 5R at `2d17645f5`, and remediation 5R.1 is closed at `7f1900ccf` | absent: `.plan/measurements/d208-requests.md` |
 
 **D-207's row closed on 2026-11-02 with steps 1–3 accepted.** D-208 superseded it during step 4, adding `BehaviorContext.channel` so that the behaviors' diagnostics keep the kernel's refusal after applied destruction. D-208's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 

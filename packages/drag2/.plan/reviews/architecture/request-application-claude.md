@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**The owner's disposition recorded 2026-11-04, over `883adc507`.** Q-a3 is not run. The owner accepts the remaining allocation uncertainty that M-2″ documents, including `moveTo`'s positive differences. A and a3 stay as read: a3 is not a1, not `discharged` and not proof of zero regression. The shared-refusal candidate lands byte for byte, then goes through a bounded recheck and the architect's closure. The remainder of §24.5 resumes only after that closure. D-208 stays unimplemented, and `d208-requests.md` does not exist yet. §28 records the disposition, what it leaves unanswered and the handoffs.
+
 **Protocol M-2″'s outcome disposed 2026-11-04, over `8451f1fe6`.** Retained heap reads A and allocation reads a3, and both stand as read. Rounding after the result is not adopted. No regression is demonstrated, and none is excluded: `moveTo` leans the same way in both projects, and a post-hoc test finds a lean across the allocation windows. Protocol Q-a3 is pre-registered in §27.5 to §27.7 as the last measurement on a3: exact call counts, a 20,000-call window and a byte-identical placebo tree. If it does not discharge a3, an explicit disposition goes to the owner. No source is committed. §27 records the disposition and the handoff.
 
 **The resumed 6R's measurement escalation disposed 2026-11-04, over `979d51067`.** The candidate misses _in every round_ in two of twelve cells at 100 controllers, and nine allocation cells read above step 6's ranges, unpaired. That is an unmet criterion. It is not a demonstrated regression, and +104 B and +215 B are not residuals. The instrument's _one-sided noise_ premise is false (`drag2:F-445`). Protocol M-2″ is pre-registered in §26.5 to §26.7, with a same-tree control, a +4 B positive control and a paired allocation against the frozen input. Its outcome decides whether source lands, a residual goes to the owner, or uncertainty is reported. No residual is accepted, and no source is committed. §26 records the disposition and the handoff.
@@ -3131,7 +3133,7 @@ Report any other claim of this kind you come across. Do not search for more.
   - R21's `capture.node` passes. The mint sites are re-reported by location. Their number may fall, and a rise is a finding. **Qualified 2026-11-03 (§25.3):** the census may be re-pinned once, to the refusal's one new location.
 - **The per-sample path is untouched.** No function with a nonzero count in step 6's per-sample call-count window changes.
 - **No other cost rises.**
-  - Allocation per sample, per drop, per `moveTo` and per committed frame stays at or below step 6's tip ranges. **Amended 2026-11-04 for the resumed candidate (§26.7):** read by a paired rule against the frozen input. The nine cells read above those ranges stay recorded.
+  - Allocation per sample, per drop, per `moveTo` and per committed frame stays at or below step 6's tip ranges. **Amended 2026-11-04 for the resumed candidate (§26.7):** read by a paired rule against the frozen input. The nine cells read above those ranges stay recorded. **Disposed 2026-11-04 for this candidate only (§28.1):** that rule read a3, so this property is not shown to hold. The owner accepted the uncertainty, and it no longer blocks landing.
   - Call counts are identical.
   - The published declarations are byte-identical, or differ only in doc comments.
   - Composition is read against step 1's ceilings. `drag.js` and baseline B are this unit's declared controls and must not move. A row over its ceiling goes to the architect.
@@ -3165,7 +3167,8 @@ It holds what §20.5 lists, as §21.8 and §23.3 amend it, with these changes:
 - M-1 is stated under step 3's rule;
 - the composition is stated with step 1's re-base and step 5's controls;
 - the owner's disposition is quoted with its date;
-- the closed items include 6R.
+- the closed items include 6R;
+- **added 2026-11-04 (§28.7):** the owner's disposition of that date is quoted with its date. M-2 and allocation at 6R's tree are stated as §28.7 states them.
 
 Then come step 6's feature proof and the whole-decision acceptance, in §20.5's order.
 
@@ -3552,7 +3555,7 @@ The α values are M-1's 0.01 and 0.05, each divided by the 20 cells, so the fami
 3. Compute the outcome once, then record it in a dated subsection of `d208-step6.md` §Remediation 6R. It holds the harness commit, every round's figures and load, the gates, `L`, `T`, each `R` and each allocation cell, the low-reading classes and the cause's status. It states each result under one of §26.1's three labels. **Every reading goes in a raw data file committed under `.plan/measurements/`.** The earlier subsections are not edited.
 4. **Act on the outcome:**
    - **A and a1:** apply the candidate's diff byte for byte. Commit the source, the text and the record as §25.5 states, and hand the diff to the bounded recheck. The recheck also checks this protocol's record against its raw file. The architect then closes 6R. The two cells stay stated as missed under the literal clause.
-   - **Anything else:** commit no source, and escalate with the outcome's label and figures.
+   - **Anything else:** commit no source, and escalate with the outcome's label and figures. **Disposed 2026-11-04 (§28):** this branch ran, and the escalation reached the owner. The owner's disposition lets this candidate land on A and a3. No other outcome or candidate is covered.
 
 **Carried, and not re-measured,** unless the candidate's diff changes: R33, R21 with its one re-pin, M1 to M3, the call counts, the declarations, composition and the attribution row. They remain the record's readings, and the recheck tests them.
 
@@ -3590,6 +3593,8 @@ D-208 stays `Unimplemented (Remediation)`, and the witness holds. §25.6's table
 - **The anonymous-frame limit does not touch the inconclusive cell.** It affects the four drop cells, and a call-count check closes it (§27.3).
 - **The owner is not asked yet.** One measurement can answer what the owner would otherwise be asked to accept blind, so the architect issues protocol Q-a3 under §26.10 (§27.5 to §27.7).
 - **Q-a3 is the last measurement on a3.** If it does not discharge a3, an explicit disposition goes to the owner, and no further rounds run.
+
+**Overruled by the owner 2026-11-04, as §27.7 provides, before any round (§28).** Q-a3 is not run, and §27.5 to §27.8 stay only as the text of a protocol that never ran. The rest of this section stands.
 
 ### 27.1 The precision question
 
@@ -3661,6 +3666,8 @@ _Everything in this subsection is analysis of the committed raw file, done here 
 **A correction to §26.6's gloss.** It said _no regression at `k ≤ 9` with `m ≤ 0`_. As the implementer found, 12 untied differences with at least 7 positive have a positive median, so that reading holds only up to about `k` = 6. No retained row is near it: G's largest `k` is 3. The rule's text is unchanged, and the gloss is corrected in place.
 
 ### 27.5 Protocol Q-a3: the questions
+
+**Withdrawn 2026-11-04, unrun (§28.2).**
 
 This section is the pre-registration. **Nothing below changes once a round has run.** If the harness cannot do what this states, stop and return to the architect. M-2″ is not repeated. Retained heap is not measured, and no outcome from it is reopened.
 
@@ -3737,6 +3744,8 @@ A cell reading `p < 0.0005` in set C is a regression finding. No other cell verd
 
 ### 27.8 Handoff
 
+**Replaced 2026-11-04, unexecuted, by §28.4 to §28.7.**
+
 **Owner:** the implementer. **Input:** this section's commit.
 
 1. Build the harness commit that §27.6 states, and commit it before the first round. Run Blocks 1 and 2. Compute the outcome once, then record it in a dated subsection of `d208-step6.md` §Remediation 6R, with every reading in a raw data file under `.plan/measurements/`. **On `discharged`:** apply the candidate's diff byte for byte, then commit the source, text and record as §25.5 states, and hand the diff to the bounded recheck. The recheck also checks M-2″'s and Q-a3's records against their raw files. The architect then closes 6R, stating A, a3, `discharged`, the five literal cells and §27.4's limits.
@@ -3764,3 +3773,226 @@ D-208 stays `Unimplemented (Remediation)`, and the witness holds. §26.10's tabl
 | Protocol Q-a3 | implementer | §27.8 | before 6R closes |
 | A disposition on `regression` or `uncertain` | architect, then the owner | §27.8, item 2 | before step 5 |
 | `drag2:F-445`, the estimator | architect | M-2″ left the low state's cause unestablished, and the estimator decision stays open | before Phase 24 exits |
+
+## 28. The owner's disposition: Q-a3 is not run, the allocation uncertainty is accepted, and the candidate goes to landing and a bounded recheck (D-208)
+
+**2026-11-04. Input:** `883adc507` on `drag2/fin-review2`. `src/` is tree `4630579d2`. The governing record is §27. The candidate is the complete diff in [`d208-step6.md`](../../measurements/d208-step6.md) §The candidate's whole diff, src tree `c0713204a`.
+
+**The owner's disposition, 2026-11-04, quoted:**
+
+> The owner agrees to stop investigating the small allocation uncertainty and finish this phase:
+>
+> - Do not run Q-a3.
+> - Accept the remaining allocation uncertainty documented by M-2″, including moveTo's positive differences.
+> - Preserve outcomes A and a3, the raw figures and their limits. Do not relabel a3 as a1, discharged, or proof of zero regression.
+> - Allow the recorded shared-refusal candidate to proceed through a bounded independent recheck.
+
+**The owner also directs:** the recheck covers correctness, diagnostic semantics, R21, R33 and relevant existing evidence. It needs no new statistical rounds solely to resolve this uncertainty. New correctness defects still get reported. After the recheck and closure, the remaining step-6 work resumes. F-442, F-443 and the compression pass remain separate.
+
+**This is the owner's decision.** §27 chose one more measurement before asking, and §27.7 let the owner overrule that. The architect records the decision and adds only what it needs in order to be carried out: its scope (§28.1, §28.3) and the handoffs (§28.4 to §28.7). No `D-*` changes, and D-208's text does not change.
+
+### 28.1 What is accepted, and what is not
+
+| §26.1 label | State |
+| --- | --- |
+| **Unmet criterion** | **a1 stays unreached.** The owner lifts it as the landing gate, for this candidate only |
+| **Demonstrated regression** | **None.** No cell reaches `p < 0.0005`. No regression is excluded either |
+| **Unresolved uncertainty** | **It stays unresolved, and the owner accepts it** |
+
+**The figures accepted,** with `d` = candidate − input and every figure as M-2″ records it:
+
+| Cell | Project | `k`/`n` | `p` | `m` | `r` | Range of `d` | §26.7 reads |
+| --- | --- | --: | --: | --: | --: | --: | --- |
+| `moveTo` | DEV | 9/11 | 0.0327 | 1.010 B | 1.0 B | −1.1 to 2.6 B | **inconclusive** |
+| `moveTo` | shipped | 9/11 | 0.0327 | 0.61 B | 7.7 B | −0.5 to 7.4 B | no regression |
+
+**The rest of the lean, from §27.2:**
+
+- **Three more cells have `p` under 0.05:** `onMove` shipped (`k` 9/11, `m` 0.25 B), sortable sample DEV (`k` 10/12, `m` 0.40 B) and the moving committed frame in DEV (`k` 10/12, `m` 34.74 B). Each reads _no regression_ under §26.7, and that stays as read.
+- **The post-hoc family test:** `S` 20.5, `p` about 0.002. It still raises a question only.
+
+**How the words are read.** _The uncertainty documented by M-2″_ is read as §27.2's whole statement, because all of it is computed from M-2″'s raw file and it is the question Q-a3 would have answered. Landing does not depend on this reading: the one cell that blocked landing is `moveTo` in DEV. It only decides how later records describe the lean.
+
+**What this does not do:**
+
+- **It changes no reading.** §26.7's rule, its `r` values and its computation stand. A and a3 are the outcomes.
+- **It sets no tolerance.** The figures describe what was seen. They do not make 1 B a permitted cost or a proven bound.
+- **It authorizes no demonstrated regression and no retained-heap growth.** The owner's condition of 2026-11-03 stands. Retained heap passes on A with no residual, and §27.4's limits stay. A regression later demonstrated by a measurement run for another reason goes to the owner.
+- **It is not a precedent.** Another candidate or unit is read under its own criteria.
+
+**What stopping leaves unanswered.** No later record may imply that these were answered:
+
+- whether `moveTo`'s lean is a per-call cost or a fixed lump in the window (Q2);
+- whether the lean recurs, and whether it follows the code or the worktree's identity (Q3);
+- the exact call count of the candidate's anonymous arrow in the ten windows (Q1, §27.3). Reading the code can support it, as §28.5 asks, but that is not a count.
+
+**The wording later records use:**
+
+- **Write:** _retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04._
+- **Do not write:** _a1_, _discharged_, _no allocation difference_, _noise_, _at or below step 6's ranges_, or _no regression_ for allocation as a whole. _No regression_ may be written only for a named cell that read it.
+
+### 28.2 Q-a3 is withdrawn
+
+Q-a3 is withdrawn before any round, and no harness for it exists. §27.5 to §27.7 stay as the text of a protocol that never ran, and none of its outcomes occurred. §28.4 to §28.7 replace §27.8. Measurement on a3 ends here.
+
+### 28.3 The acceptance attaches to the candidate's bytes
+
+M-2″ measured src tree `c0713204a`, and the acceptance covers exactly that code.
+
+**Checked here on a scratch index, not in the working tree:** the record's diff applies at `883adc507` and gives these objects. `oxfmt` returns all five files below unchanged.
+
+| Path under `packages/drag2/` | Object at the candidate |
+| --- | --- |
+| `src/` | tree `c0713204a55b24ffc44f9ac0a92d80efa28c7aeb` |
+| `src/kernel/kernel.ts` | blob `f370952e1ef2e73de585a8ced10224621672cc4b` |
+| `src/kernel/seams.ts` | blob `8b8910f98b67ff11a629a9a54d0ad0f382b006b5` |
+| `src/kernel/spec.ts` | blob `a5d737331cc0e6d41bc77c5397f8fdfb713343c5` |
+| `tests/kernel/capture.node.test.ts` | blob `0f748723f3f3582b516e3a8d87055d9d4d501fd2` |
+| `.plan/contract/05-lifecycle-invariants.md` | blob `9a3dc5f23469327967f3a7da48c77ea74b832ae3` |
+
+**The identity to check is these objects, not the diff's hash.** The record gives the diff's sha256 as `68e9672a…df300`. Extracting it today with `run.ts`'s method gives `209b792b…84567`. At `550777c9c` the fence was the file's last line, so the extraction also took a stray ` `` ` line after the diff. `8451f1fe6` added text after the fence, which removed that line. Nothing else differs, and both versions give the same objects. This is not a finding.
+
+**If the code has to change:**
+
+- **A correction only to comments** keeps the acceptance, because it changes no code that runs. It goes in its own commit, on the architect's direction, and the new tree is recorded by hash.
+- **Any other change in `src/`** does not carry the acceptance or M-2″'s readings. It stops at the architect, who states which readings carry and what goes to the owner.
+
+### 28.4 Handoff 1: landing
+
+**Owner:** the implementer. **Input:** this section's commit. This unit runs no measurement rounds and builds no harness.
+
+1. Extract the diff from §The candidate's whole diff and `git apply` it from the repository root. Check every object in §28.3 before anything else.
+2. **Finalize as `handoff.md` states,** over the five files. If `fmt` or `lint-fix` would change a byte, restore the file, stop and report. Do not commit a tree that differs from §28.3. The expected residue, as recorded at the candidate, is four lint errors in `kernel/seams.ts` at lines this diff does not touch, and two typecheck errors in `.scripts/`.
+3. **Run the whole suite once,** every project. R33 and `capture.node` pass. The failing rows are the six `size.node` controls and the four `docs.node` rows, by name, and `react.browser` and `stories.browser` do not load, as before. The totals will differ from the record's, because `m2pp-rule.node` has been added since. Any other failure stops the unit: report it and do not fix it.
+4. **Record** a dated subsection of `d208-step6.md` §Remediation 6R, without editing the earlier subsections:
+   - the input, the objects checked and the suite's result;
+   - the outcome as §28.1 words it, and the owner's disposition, cited to this section;
+   - that this unit ran no rounds.
+5. **Commit** the five files and the record together, and push. The required text is already in the diff: the source comments, the census entry and 05:253's dated precision. **Add no other text.**
+
+**Then stop.** The freeze holds at `c0713204a`. The next role is the recheck. §24.5 step 5 does not start.
+
+**Report and do not fix:** a diff that does not apply, a mismatched object, or any correctness defect you meet.
+
+### 28.5 Handoff 2: the bounded recheck
+
+**Owner:** an independent reviewer, in a fresh session. **Input:** the landing commit. **Artifact:** `.plan/reviews/fin-review2/d208-6r-recheck-claude.md`. The reviewer changes no source and closes nothing.
+
+**Reading and existing rows only.** Everything below is deterministic, so running it is not a statistical round.
+
+**Identity.** The landed objects equal §28.3, and the landing commit touches only those five files and its record.
+
+**The refusal.**
+
+- `closed` is tested once for diagnostics, in `deliverUnlessApplied`. The kernel's route and every minted channel deliver through it.
+- Panic stays the one bypass, behind its own terminus.
+
+**`channel(deliver)`.**
+
+- Its signature is unchanged. `deliver` still receives `undefined` as its receiver, and an extra argument is still ignored.
+- A throw from `deliver` is absorbed. A channel minted in the factory delivers before arming, and every channel drops after application.
+- The bound bracket is the object the replaced arrow read at each call.
+
+**The kernel's route.**
+
+- Every collaborator that held it still holds it: the driver, each operation's lifetimes, the unwind guard, and construction's unwind after publication.
+- `reportError` is still read and called with its receiver at each delivery, after the refusal. `this.#spec` is the object the replaced arrow called as `next`.
+- **New in this diff: the route is now built inside the constructor, before `#bracket` and `#spec` are assigned.** The test of `closed` sits outside the `try`, so a report before those assignments would throw instead of being absorbed. Confirm by reading that no path reaches the route that early.
+
+**Diagnostic outcomes.** D-208's _required behavior_ list holds, each item pinned to a row:
+
+- teardown is silent;
+- a panic delivers one `DraggableError` with stage `null`;
+- a late `FeatureContext.report` is dropped, and an earlier one is delivered;
+- the pre-arm composition unwind is delivered;
+- a throwing hook at retirement on a live controller is reported.
+
+**R33 and R21.**
+
+- R33 passes in full.
+- `capture.node` passes with exactly the one re-pin §25.3 permits, and no other census entry changes.
+- The mint sites are the four the record names.
+- No module under `sortable/` or `free-drag/` reads the lifecycle.
+
+**The mutations.** Apply M1, M2 and M3 as §25.5 states, one at a time, and restore after each. Report the rows each reddens by name, against the record's 19, 11 and 2. A difference is a finding.
+
+**Text.**
+
+- 05:253's precision and the changed comments state what the code does. No source comment carries a record identifier.
+- The published declarations differ only in `BehaviorSpec.reportError`'s doc comment.
+
+**The premises the acceptance rests on.**
+
+- **By reading:** no changed function, and not the anonymous arrow, runs in the allocation windows unless a diagnostic is reported. §27.2 and §27.3 lean on this. If it is false, that is a finding, even without a new measurement.
+- **Run:** the existing call-count row once in each project, against §Costs. §24.5 step 5's M-1 carry depends on it.
+
+**The record against its raw file.**
+
+- `node bench/m2pp/rule.ts` on `d208-m2pp-raw.jsonl` reproduces `d208-m2pp-rule.json`.
+- M-2″'s tables and §28.1's figures match it. That includes `S`, as the sum of `k − n/2`. `S`'s `p` need not be recomputed.
+- The landing record uses §28.1's wording.
+
+**Out of scope:**
+
+- M-2′, M-2″'s rounds and Q-a3, or any new harness or allocation round;
+- re-judging a3 or the owner's acceptance;
+- the low readings' cause, the estimator and F-445;
+- re-reviewing the comment pass, 5R or 5R.1;
+- F-442, F-443 and the compression pass.
+
+**Findings.** A correctness or semantic defect, a failed premise or a record mismatch is reported with its evidence and goes to the architect. Reporting one does not depend on the size of its allocation effect. An allocation figure that merely reads differently is not a finding, and no round is run to produce one.
+
+### 28.6 Closure
+
+**Owner:** the architect, after the recheck. 6R closes only if:
+
+- the landed objects equal §28.3, or §28.3's rule has been applied to any change;
+- no correctness or semantic defect is open;
+- the record checks hold, or their mismatches are disposed of.
+
+**The closure states:**
+
+- A and a3 as read;
+- the owner's disposition, quoted with its date, and that Q-a3 did not run;
+- the five literal cells and the nine allocation cells of the resumed 6R, as recorded;
+- §27.4's limits and §28.1's unanswered questions;
+- the mint sites by location, and the freeze at 6R's tree by hash.
+
+### 28.7 After closure: the remainder of §24.5
+
+**Only after §28.6.** The owner of the rest is the implementer, in a new unit, in §24.5's order. Nothing in it starts now.
+
+**§24.5 step 5:**
+
+- **M-1** carries under that step's own test, if the recheck confirms that the diff touches no per-sample function and the counts are identical. Otherwise its protocol runs. That is about timing, and this disposition does not affect it.
+- **Composition and controls** are as §24.4 and step 5 state.
+- **No M-2′ or allocation round is owed for 6R's tree.** M-2″ measured that src tree, so its readings are the tree's. This holds only while the landed objects equal §28.3.
+
+**§24.5 step 6, `d208-requests.md`:** the last act, under that step's conditions. a3 does not count as an open escalation once 6R closes, and it is carried as a stated limit. Beyond that step's list, the record states:
+
+- **M-2:** M-2″'s set G and outcome A, the five literal cells and §27.4's limits;
+- **Allocation:** a3 with §28.1's figures, in §28.1's wording, with the owner's disposition quoted and the unanswered questions listed;
+- **I-26:** §24.3.3's _measured equal_ is a reading of the frozen tree, and it is not restated for 6R's tree. There, the record gives what holds: the diff touches no per-sample function, the counts are identical, and each per-sample cell's paired reading is reported, including sortable sample DEV's `k` 10/12.
+
+**Then** step 6's feature proof and the whole-decision acceptance, in §20.5's order. The proof tests these statements and does not reopen a3.
+
+### 28.8 Limits of this record
+
+- **Nothing was measured, and no test ran.** The checks here were the diff's application on a scratch index, its objects, the formatter over those objects, the fields read at `883adc507`, and `S`'s sum from the record's table.
+- **The acceptance rests on the figures as recorded.** §27.2 independently recomputed only set G, `L` and the two `moveTo` rows. The recheck covers the rest.
+- **The diff's properties in §28.5 are questions for the recheck.** Reading the diff here raised them, and they are not findings.
+
+### 28.9 What stays open
+
+D-208 stays `Unimplemented (Remediation)`, and the witness holds. §27.10's two rows are closed by this section. So are §26.10's rows for the protocol, for a residual and for outcomes C, D or a3, and §25.6's row for a residual. §26.10's row for the literal cells and allocation cells moves to §28.6. §24.6, §25.6 and §26.10 otherwise stand, with these changes:
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| Landing the candidate | implementer | §28.4 | now |
+| The bounded recheck | independent reviewer | §28.5 | after landing |
+| 6R's closure | architect | §28.6 | after the recheck |
+| §24.5 step 5, remeasurement and controls | implementer | §24.5, as §28.7 reads it | after 6R closes |
+| `d208-requests.md` | implementer | §24.5 step 6, as §28.7 amends it | after step 5, with nothing open |
+| A correctness defect or failed premise from the recheck | architect, then the owner where an authorization is needed | decide | before 6R closes |
+| `drag2:F-445`, the estimator (tier B) | architect | unchanged | before Phase 24 exits |
+| F-442, F-443 and the compression pass | as §24.6 states | separate from this disposition | unchanged |

@@ -2298,6 +2298,31 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-04 — D-208 the owner's disposition: Q-a3 is not run, the allocation uncertainty is accepted, and the candidate goes to landing and a bounded recheck
+
+**D-208 is not complete.** The owner stopped the investigation of the small allocation uncertainty and accepted what M-2″ documents, including `moveTo`'s positive differences. Q-a3 is withdrawn, unrun.
+
+**What stays:**
+
+- **Retained heap A and allocation a3,** with the raw figures and their limits. a3 is not a1, not `discharged` and not proof of zero regression.
+- **The condition of 2026-11-03.** A demonstrated regression or retained-heap growth is not authorized.
+- **What is unanswered.** Whether the lean is a per-call cost or a lump, whether it follows the code, and the anonymous arrow's call count.
+
+**The scope:** the acceptance covers the candidate's code, src tree `c0713204a`. A change other than to comments stops at the architect. It sets no tolerance and is not a precedent.
+
+**Next, in order:**
+
+1. The implementer lands the diff byte for byte, with its required text, and stops. No rounds.
+2. An independent reviewer rechecks correctness, diagnostic semantics, R21, R33, the three mutations, the call counts and M-2″'s record against its raw file. No statistical rounds. Correctness defects are still reported.
+3. The architect closes 6R.
+4. Record §24.5 step 5 resumes, and then `d208-requests.md`.
+
+F-442, F-443 and the compression pass stay separate.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §28.
+
+---
+
 ### 2026-11-04 — D-208 protocol M-2″'s outcome disposed: A and a3 stand, and one last bounded question comes before the owner is asked
 
 **D-208 is not complete, and nothing is authorized.** Retained heap reads A. Allocation reads a3, on `moveTo` in DEV: `k` 9 of 11, `m` 1.010 B against `r` 1.0 B.
