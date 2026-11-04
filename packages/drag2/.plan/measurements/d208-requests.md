@@ -203,7 +203,7 @@ The other 18 cells are in `d208-step6.md` §Allocation, and each read _no regres
 | free-drag drop, DEV | 15,271.9 – 15,317.3 | 15,287 – 15,302 | 15.3 |
 | sortable drop, DEV | 16,751.3 – 16,809.4 | 16,750 – 16,789 | 20.4 |
 
-**Attribution:** 0 B on `ArmedController`, `channel`, `#arm`, `deliverUnlessApplied`, `reportToSpec` or a frame named `report`, in all 20 windows and all 24 candidate runs. `kernel/kernel.ts:(anonymous)` books bytes in the drop windows at both trees, and the profile cannot name which anonymous function. The candidate's new arrow is anonymous too, so this is a limit of the attribution.
+**Attribution:** 0 B on `ArmedController`, `channel`, `#arm`, `deliverUnlessApplied`, `reportToSpec` or a frame named `report`, in all 20 windows and all 24 candidate runs. `kernel/kernel.ts:(anonymous)` books bytes in the drop windows at both trees, and ~~the profile cannot name which anonymous function~~ **corrected 2026-11-04 (record §27.3, §30.6):** the harness keys on `functionName` and `url`, so it cannot tell two anonymous functions apart. The candidate's new arrow is anonymous too, so this is a limit of the attribution.
 
 **What stopping leaves unanswered (§28.1).** Nothing here answers these:
 
@@ -282,7 +282,7 @@ Each where it closed:
 - **The control readings** ran today, at one Node version, not on each commit's date (`budget-rebases.md`).
 - **No retained-heap, allocation or timing round ran for this record.** It runs no new measurement beyond `measureAll()`.
 
-**Reported, not fixed:** `kernel/unwind.ts:33` and `sortable/spec.ts:1685` carry channel wording beside the corrected sites (`d208-step6.md` §Step 1), and §29.3 is not a census.
+**Reported, not fixed:** `kernel/unwind.ts:35` (line corrected 2026-11-04, record §30.6) and `sortable/spec.ts:1685` carry channel wording beside the corrected sites (`d208-step6.md` §Step 1), and §29.3 is not a census.
 
 **Open and separate:** `drag2:F-445`, the estimator, tier B, the architect's before Phase 24 exits; F-442, F-443 and the compression pass.
 

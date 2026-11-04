@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**D-208's final proof disposed 2026-11-04, over `ab65e92f2` (§30). D-208 is not yet accepted.** A classified fault on a controller whose destruction is not applied owes a report, as a `DraggableWarning`, and destruction discards only the checkpoint's claim on the operation. That is D-209, with F-446 carrying the gap. It lands as its own unit after D-208's acceptance and does not block it. Three things still prevent acceptance, and all are in one bounded handoff: one comment-only commit, the rows that pin today's outcome, and the recorded tree (§30.8, §30.9). Retained heap A, allocation a3 and the owner's acceptance are unchanged, and no round ran.
+
 **Remediation 6R closed 2026-11-04, at `70368bfde`, over the recheck at `63f603f1a`.** There is no correctness defect, failed premise or record mismatch. Retained heap A and allocation a3 stand, with the owner's dated acceptance and every limit. reviewer-2 is corrected at 05:253, and reviewer-1 goes to one comment-only commit at seven named sites. The implementer next does composition and controls, where drift nobody can attribute stays red and named, and then `d208-requests.md` once its prerequisites hold. D-208 stays unimplemented until the final proof in the consolidator's round and the whole-decision acceptance. §29 records the closure and the handoff.
 
 **The owner's disposition recorded 2026-11-04, over `883adc507`.** Q-a3 is not run. The owner accepts the remaining allocation uncertainty that M-2″ documents, including `moveTo`'s positive differences. A and a3 stay as read: a3 is not a1, not `discharged` and not proof of zero regression. The shared-refusal candidate lands byte for byte, then goes through a bounded recheck and the architect's closure. The remainder of §24.5 resumes only after that closure. D-208 stays unimplemented, and `d208-requests.md` does not exist yet. §28 records the disposition, what it leaves unanswered and the handoffs.
@@ -135,7 +137,7 @@ Two alternatives were rejected:
 - diagnostic `onError`;
 - frame commits and the effects of committed seams.
 
-Requests raised in the interval are recorded as usual and discarded at application. The interval cannot contain a second unit. Units do not nest, and no other unit is admitted once `REQUESTED` is set. **This is not "callbacks after destruction"**, because destruction has not happened. It is the remainder of a unit that began before the request.
+Requests raised in the interval are recorded as usual and discarded at application. **Qualified 2026-11-04 (§30.2, D-209):** for a failure checkpoint this discards its claim on the operation, not its fault. The fault still owes a report, and today it gets none (F-446). The interval cannot contain a second unit. Units do not nest, and no other unit is admitted once `REQUESTED` is set. **This is not "callbacks after destruction"**, because destruction has not happened. It is the remainder of a unit that began before the request.
 
 **Application** is one step, in this order:
 
@@ -4219,3 +4221,194 @@ D-208 stays `Unimplemented (Remediation)`, and the witness holds. §28.9's rows 
 | Whole-decision acceptance | architect | §29.9 | after the proof, before the merge |
 | `drag2:F-445`, the estimator (tier B) | architect | unchanged | before Phase 24 exits |
 | F-442, F-443 and the compression pass | as §24.6 states | separate | unchanged |
+
+## 30. The final proof disposed: a discarded failure still owes a report, and one bounded remediation comes before acceptance (D-208, D-209)
+
+**2026-11-04. Input:** `ab65e92f2` on `drag2/fin-review2`. **Reviewed:** `bd3613d5f`, src tree `c6c5e6ea59697efa8f27beae2700a574e6f3df4c`. **Round:** [`d208-final-summary.md`](../d208-final/d208-final-summary.md), its two reports and its clean reruns.
+
+**Decided, in short:**
+
+- **reviewer-1:** a classified fault on a controller whose destruction is not applied owes a report, as a `DraggableWarning`. Destruction discards the checkpoint's claim on the operation, not the fault. This is D-209, and F-446 carries the gap (§30.2).
+- **The conflicting texts are reconciled in this unit** (§30.3), and a row pins today's outcome until D-209 changes it (§30.4).
+- **D-209 does not block D-208's acceptance.** It changes code that runs, so it lands as its own unit (§30.5).
+- **integrity-1 and integrity-2** go in one comment-only commit before acceptance (§30.6).
+- **reviewer-2 and reviewer-3** are corrected in this unit. **integrity-3** is the repository's, as RF-23. **integrity-4** waits until after acceptance (§30.6).
+- **D-208 is not accepted in this unit.** §30.9 states exactly what prevents it.
+- **Retained heap A, allocation a3, the owner's acceptance and every limit are unchanged.** No round ran, and no source changed here.
+
+### 30.1 reviewer-1: what is established
+
+**The same call on three routes, by test title at each commit:**
+
+| Slot requests destruction, then throws | At `6905af249` | At the final tree | Moved at |
+| --- | --- | --- | --- |
+| `handle` resolver | no `onError`: _should reach no onError from admission_ | `DraggableError`: _should report the admission failure of the unit that requested destruction_ | `2c5212daf`, D-204 step 1 |
+| `home` resolver | no `onError`: _should reach no onError when the resolver destroys and then throws_ | `DraggableWarning`: _should report the invalid home of the unit that requested destruction_ | `2c5212daf`, D-204 step 1 |
+| `onStart` or `onMove` | no `onError` | no `onError` | never |
+
+**The third row's equality with the input is not equality of behavior under one rule.** At `6905af249` the call closes the controller before the throw. `#failOperation` reads `closed`, demotes the failure, and `#notify` refuses it, so the silence is I-36 (a)'s. At the final tree the controller is not closed. The failure registers and queues `FAILED`, `#step` declines that entry because the lifecycle is `REQUESTED`, and the queue is cleared. The output matches, but the reason no longer applies. The request model moved two of the three routes to _a live controller's_ on purpose, and the third stayed silent through a different mechanism.
+
+**D-208's own baseline is `9ae86b189`, not `6905af249`.** The summary compares with the input. `9ae86b189` already has the final tree's `#step` and `#failOperation`, so by reading it gives the same outcome. That commit was not run.
+
+**Read here:** the code at both commits, the three test titles and the moving commit. **Taken from the round:** the probe, run clean by the consolidator through the public entries at `bd3613d5f` and `6905af249`.
+
+### 30.2 The required behavior
+
+**A classified failure carries two things: a claim on the operation and a fault.** §2.10 calls it a result and a request. Destruction's priority refuses the claim. No text gives a ground for losing the fault.
+
+**Why the fault is owed a report:**
+
+- **The kernel already separates the two.** A stale checkpoint is reported with _the consequence it claims is refused, and the fault is not_. A checkpoint a cancel supersedes is reported with _The error is not lost_.
+- **I-22 is one chain.** A checkpoint under `CANCEL` reports `drag: failure/superseded-by-cancel`. Under `DESTROY`, which outranks `CANCEL`, it reports nothing, and nothing states why the higher rung should lose what the lower one keeps.
+- **The request model chose this for the same call.** `2c5212daf` moved `handle` and `home` from silent to reported, on the ground _the failure that unit raises is a live controller's_. Today a consumer cannot predict the outcome without knowing which slots report inline.
+- **The package names its silences by route, and this one is unnamed.** D-178 grounds a teardown step's silence because the closure the consumer asked for created the obligation. This fault arose before application, in the consumer's own code, and the closure did not create it. §2.4's _a `fail` is dropped silently_ is about after application.
+- **Nothing else records the fault.** The library caught the throw, and since D-130 no platform report exists, so the consumer's error leaves no trace. Throwing from a callback is a route the package classifies, not invalid use, so the policy against defensive checks does not apply.
+
+**What this does not change.** §2.4's discard, §2.7's priority and I-22's order all stand: no later unit runs, no `onEnd` follows, and the operation is decided by destruction. The class is `DraggableWarning`, because a `DraggableError` means the fault changed the terminal, and here it did not.
+
+**It is a new decision, not a reading of D-208.** D-208 states _no consumer-visible change against the baseline_, and §4's list is complete. A newly delivered warning is a consumer-visible change, so D-209 states it and carries the properties. The summary's three questions:
+
+1. **Does the fault owe `onError`?** Yes, as a warning. §2.4's discard governs the claim, and D-208, I-36 and the README stay true of diagnostics that reach the route.
+2. **Which row pins it?** §30.4.
+3. **Does it block acceptance?** The behavior change does not (§30.5). The text, the rows and the comments do (§30.9).
+
+### 30.3 The texts, reconciled
+
+| Text | Change in this unit |
+| --- | --- |
+| D-208, `00-index.md`, _every diagnostic is delivered_ | A dated note: that sentence is on the refusal's axis and covers what reaches the route or a channel. A checkpoint becomes a diagnostic only when applied, and the discarded one is F-446 |
+| I-36's operative statement, `05` | A dated note with the same split |
+| I-22, `05` | One sentence: destruction's priority discards the claim, and the fault is D-209's |
+| §2.4, this record | A dated note on the discard |
+| `README.md`, the requests bullet | One sentence stating the gap, removed when D-209 lands |
+
+**Unchanged because it is true:** `kernel/spec.ts`'s `channel` doc, _its diagnostics are delivered_, which is about a minted channel. R33's rows (a) to (h) also stand.
+
+### 30.4 The witness
+
+**Rows R33 (i) to (l), in the existing diagnostic-intake and kernel files, pin today's outcome.** They are marked in `tests/COVERAGE.md` as a conformance pin for F-446, and D-209 changes them:
+
+| Row | Drive | Outcome today |
+| --- | --- | --- |
+| (i), both behaviors | `onStart` requests destruction, then throws | no `onError`, no `onEnd`, and the promise settles |
+| (j), both behaviors | `onMove` requests destruction, then throws | the same |
+| (k), both behaviors | `onStart` throws with no request, as the control | `DraggableError` stage 2 with the cause, then `onEnd` `canceled` |
+| (l), kernel | a seam calls `fail`, then requests destruction, in one unit: the checkpoint is registered before the request | nothing delivered |
+
+**Discrimination:** N1 of the final proof (`#step` stops only at `CLOSED`) must redden (i), (j) and (l), run once. The neighbouring rows for `handle`, `home` and R33 (e) stay as they are.
+
+**Row (l) is by reading.** I did not run this drive. If it does not reach that state through `BehaviorContext`, the implementer reports it and does not substitute another.
+
+### 30.5 Why D-209 does not block D-208
+
+§21.8 gives this call to the architect, and the tier does not decide it. F-446 is tier A by consequence. The grounds are:
+
+- **It is not a regression.** No run shows the final tree differing from the input on this path, and by reading it matches D-208's own baseline.
+- **D-208's own property holds.** The refusal reads applied destruction only, in one place, and M1 to M3 still redden it. The gap belongs to what the discard does to the fault.
+- **The fix changes code that runs.** §28.3 says such a change carries neither the owner's acceptance nor M-2″'s readings. Landing it first would either owe new rounds, against the owner's disposition, or stretch the acceptance over bytes it never covered. Landing it after leaves the acceptance on the bytes it covers.
+- **The path needs two acts in one callback,** and the package is unreleased, so no consumer reaches it before Phase 25.
+- **The contract says what happens in the meantime.** The texts state the gap and a row pins it.
+
+**The risk accepted by this call:** D-208 would be accepted and merged with a known tier A gap, open until D-209 lands. The deadline is before Phase 24 exits. **The owner can reorder this:** D-209 could land on this branch after acceptance and before the merge, at the cost of its own unit. I recommend it lands first among the post-merge work, ahead of the terminology phase, so that phase rewrites settled text.
+
+### 30.6 The other findings
+
+| Finding | Disposition | Where |
+| --- | --- | --- |
+| integrity-1, tier B | **Corrected before acceptance.** D-208's own rename left it, and §29.3's standard applies: comments state what the code does | §30.8 step 1 |
+| integrity-2, tier B | **Corrected before acceptance.** The phrase predates D-208, and the tier is by consequence. D-208's `BehaviorContext` header points readers at it | §30.8 step 1 |
+| reviewer-2, tier C | **Corrected here**, in `d208-requests.md`, as §27.3 words it. `d208-step6.md`'s original sentence is history and stays | this unit |
+| reviewer-3, tier C | **Corrected here,** to line 35, in `d208-requests.md` and `d208-step6.md` | this unit |
+| integrity-3, tier C | **The repository's.** Minted as RF-23 in `.plan/00-index.md`. It is not fixed by this package's series and does not bear on D-208 | RF-23 |
+| integrity-4, tier C | **After acceptance,** at the six reported sites only, in its own test-only commit, by the implementer. Titles are `COVERAGE.md` citations, so `coverage.node` checks a rename. It is not an input to the terminology phase | §30.11 |
+
+**Reported by the round and left:** `sortable/spec.ts:352`, `free-drag/spec.ts:255`, `kernel.ts:2813`, `kernel/unwind.ts:35` and `sortable/spec.ts:1685`. This is no census, and the terminology phase reads them with the rest.
+
+### 30.7 The evidence
+
+**The clean reruns are the round's evidence where the worktree overlap reached.** They repeat existing readings, once each, in one private worktree, and §The shared worktree states the limits.
+
+| Reading | Assessment |
+| --- | --- |
+| Whole suite | Stands: same row-by-row result, with the one exception below |
+| M1, M2, M3 | Stand at 19, 11 and 2 rows beyond the controls, same names |
+| N1 to N7, N9 to N13 | Stand, same names |
+| **N8** | **8 raw rows, 4 beyond the controls.** The original 517 is not evidence of the mutation's effect. That the overlap caused it is inferred from timing and the clean rerun, and no run isolated it. Three of the four are `capture.node` census rows, so the one behavioral row that sees N8 is _should not reach ACTIVE when a cancel is latched during activation_ |
+| `consumer.node`, _should pack every sourcemap its modules point at_ | Failed once at 32 entries, then passed in 16 runs. **Cause not established.** It carries no conclusion either way, and a recurrence is a finding |
+| Identity checks, 33 declarations | Stand |
+| TypeDoc | Red on two `.scripts/` compiler errors, and clean at this tree with `--skipErrorChecking --treatWarningsAsErrors`, in `integrity`'s own tree. This is a reading, not a repair. **So the four `docs.node` rows cannot see the surface.** Blame puts both lines in the input (read here), and nothing owns the defect, so it is minted as RF-24 |
+
+**Not repeated, and taken from the record:** M-1's rounds, M-2″'s rounds, the allocation rounds, the call counts and the other 22 seam readings. **Limits:** one run each, Chromium, one machine, and a mutation shows that rows see it, not that a property holds wherever it reaches. Browsers other than Chromium and a line-by-line reading of `sortable/` and `free-drag/` were not covered.
+
+**A, a3 and the owner's acceptance are not reopened.** The proof tested how the record states them and found the wording, the figures and the quotations correct, with reviewer-2's one exception. This disposition answers none of the accepted questions.
+
+### 30.8 Handoff: the bounded remediation
+
+**Owner:** the implementer. **Input:** this section's commit. Do the steps in order, and a step that fails stops the sequence. **The freeze holds** (§21.8, §29.4), with step 1 as its one named exception. No retained-heap, allocation or timing round is owed (§28.3). A source comment carries no record identifier.
+
+**Step 1: one comment-only commit, at these sites only.**
+
+| Site at `c6c5e6ea5` | Now reads | Must state |
+| --- | --- | --- |
+| `kernel/failures.ts:83`, published | `` `cancel(reason?)` was called `` | `requestCancel(reason?)` was called, by the consumer or by the behavior |
+| `kernel/failures.ts:66` | `` `cancel(reason?: unknown)` accepts anything `` | The same member by its published name |
+| `kernel/spec.ts:76`, published | _downgraded to a platform report_ | An out-of-seam call becomes a `DraggableWarning` through the controller's route. Say so once, consistently with the next paragraph |
+| `kernel/kernel.ts:801` | _degrades to a platform report_ | Degrades to a warning through the controller's route |
+| `kernel/kernel.ts:2648–2651` | _the same place a platform report has no destination_ | The route does not exist yet, so the demotion is silent there |
+
+The implementer chooses the words. Before committing, check and record, in a dated subsection of `d208-step6.md`:
+
+- every changed line is a comment;
+- each changed file transpiled with comments removed equals its version at `c6c5e6ea5`, by §29.6's method;
+- the built declarations differ from `c6c5e6ea5`'s only in `kernel/failures.d.ts` and `kernel/spec.d.ts`, only in those doc comments;
+- the new `src/` tree hash.
+
+If one fails, restore, stop and report. §28.3's rule then carries the owner's acceptance, M-2″'s readings and M-1's carry to the new tree, because no code that runs changes.
+
+**Step 2: the rows of §30.4,** in their own commit, with `tests/COVERAGE.md`. No `src/` change. Run N1 once, restore it, and record the reddened rows beside step 1's subsection.
+
+**Step 3: the record.** Add a dated note to `d208-requests.md`'s freeze paragraph naming the new tree and steps 1 and 2. Do not rewrite the record. Run the whole suite once and state the failing set by name. It must be `decisions.node`'s witness row and the four `docs.node` rows, with `react.browser` and `stories.browser` unloadable, and the new rows pass.
+
+**Stop and report if:** `capture.node` or a control reddens after step 1, a row of §30.4 has a different outcome from its table, or (l) cannot be driven as stated.
+
+**Out of scope:**
+
+- D-209's source change, its design and its handoff;
+- any other comment, and any search for more;
+- integrity-3, integrity-4 and RF-24;
+- removing D-208's row or marking anything implemented;
+- F-442, F-443, F-445, the compression pass and the terminology phase.
+
+### 30.9 What still prevents acceptance
+
+**Exactly three things, all in §30.8:**
+
+1. **The two published comments are still false.** `kernel/failures.d.ts` and `kernel/spec.d.ts` name a member and a destination the package does not have.
+2. **No row pins the outcome the contract now states.**
+3. **The new tree is not yet recorded** in `d208-requests.md`.
+
+**Everything else §29.9 asks holds.** The proof found no other source defect, and it found the record's figures and a3's wording true.
+
+**The next architect unit then:** reads step 1's diff and the new rows, confirms the checks and the failing set, and records the acceptance. That acceptance alone removes D-208's row and marker, closes F-432 to F-435 and F-441, and marks D-208 implemented, which clears the witness row. It issues no new round. D-209's row stays. **The merge is the owner's,** and the branch still carries the four `docs.node` rows and the two unloadable files, which D-208 did not cause.
+
+### 30.10 Limits of this record
+
+- **No round ran, and no source or test changed here.** The tracked changes are this record, `00-index.md`, `05`, `plan.md`, `README.md`, `d208-requests.md`, `d208-step6.md` and the repository's `.plan/00-index.md`.
+- **The probe is the consolidator's.** I read the code and the test history, and I did not rerun it.
+- **D-209's mechanism is not designed.** Its properties are stated, and whether they can be met with no per-controller state is not established. If not, it stops at the architect, as D-209 says.
+- **Which checkpoints are reachable before a request through the public entries was not enumerated.** Row (l) drives that order at the SPI. `onEnd` and other slots beyond `onStart` and `onMove` were not probed.
+- **F-446's tier assumes this decision.** If the owner overrules D-209, the texts narrow instead, the row stands as the outcome, and the tier falls to B.
+
+### 30.11 What stays open
+
+D-208 stays `Unimplemented (Remediation)`, and its witness row stays red until acceptance (§29.8).
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| Comment commit, rows, recorded tree | implementer | §30.8 | now |
+| D-208's whole-decision acceptance | architect | §30.9 | after §30.8 |
+| The merge | owner |  | after acceptance |
+| D-209, F-446 (tier A) | architect's handoff, then the implementer | its own unit | after acceptance, before Phase 24 exits; recommended first |
+| integrity-4, six test sites (tier C) | implementer | its own test-only commit | after acceptance |
+| RF-23, RF-24 | repository | `.plan/00-index.md` | separate |
+| F-442, F-443, F-445, the compression pass, the terminology phase | as §24.6 and `plan.md` state | separate | unchanged |

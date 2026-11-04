@@ -1492,7 +1492,7 @@ The commit changes the sites of record §29.3 and no other sentence: `free-drag/
 
 **Reported and left, as §29.3 directs. This is not a census:**
 
-- `kernel/unwind.ts:33`, _the channel's identity_, in a guard now built over one notifier;
+- `kernel/unwind.ts:35` (line corrected 2026-11-04, record §30.6), _the channel's identity_, in a guard now built over one notifier;
 - `sortable/spec.ts:1685`, _the sink every channel delivers to_, where the kernel's own route delivers there too.
 
 Each sits beside a listed site and was not required by a listed sentence. Changing either is a further source change, so it goes to the architect first (§29.4).

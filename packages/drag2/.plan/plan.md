@@ -2313,6 +2313,20 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-04 — D-208's final proof disposed: a discarded failure still owes a report, and one bounded remediation comes before acceptance
+
+**D-208 is not yet accepted.** The round at `ab65e92f2`, reviewed at `bd3613d5f`, found one contract question and text findings. No run shows a regression against the input. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §30.
+
+**reviewer-1 decided.** A slot that requests destruction and then throws reaches no `onError` from `onStart` or `onMove`, while `handle` and `home` report the same call. Equality with `6905af249` does not settle it: there the call closed the controller first, and `2c5212daf` later moved the two inline routes to reported. Destruction discards a checkpoint's claim on the operation, and its fault owes a `DraggableWarning`. That is D-209, with F-446 carrying the gap, and it lands as its own unit after acceptance.
+
+**What stays:** retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04. No round ran. N8's corrected result is 8 raw rows, 4 beyond the controls, and the original 517 is not evidence of its effect.
+
+**Disposed:** integrity-1 and integrity-2 go in one comment-only commit before acceptance. reviewer-2 and reviewer-3 are corrected in the record. integrity-3 is RF-23, the repository's, and RF-24 registers the blind `docs.node` rows. integrity-4 waits until after acceptance.
+
+**Next:** the implementer under record §30.8, then the architect's whole-decision acceptance, then the owner's merge.
+
+---
+
 ### 2026-11-04 — D-208 remediation 6R closed: two text findings disposed, and composition and controls handed off
 
 **6R closes at `70368bfde`, src tree `c0713204a`. D-208 is not complete.** The recheck at `63f603f1a` finds no correctness defect, failed premise or record mismatch. M1, M2 and M3 redden 19, 11 and 2 rows, and the call counts match.
