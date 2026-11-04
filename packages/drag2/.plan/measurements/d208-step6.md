@@ -1182,3 +1182,260 @@ index 8a93ebea4..0f748723f 100644
    });
 
 ```
+
+### Protocol M-2″, 2026-11-04 (record §26.5–§26.8): retained heap reads outcome A, allocation reads a3 on one cell, nothing landed
+
+**Input** `296be0275`. **Harness commit** `550777c9c`, before the first round; it touches only `tests/perf/`, `bench/m2pp/` and `drag2:F-445`'s dated notes. **`src/` stays tree `4630579d2`.** The candidate stays outside the tree.
+
+**Result:**
+
+| §26.1 label | At this result | Evidence |
+| --- | --- | --- |
+| **Unmet acceptance criterion** | **Yes.** 6R's landing needs A and a1, and a1 is not reached. The two cells of the resumed 6R and its nine allocation cells stay as they were recorded | §Allocation |
+| **Demonstrated regression** | **No.** No population reads regression, on `E1` or `E2`, and no allocation cell does | §Retained heap, §Allocation |
+| **Unresolved measurement uncertainty** | **Yes, one cell.** `moveTo` in DEV reads inconclusive, with `m` 1.01 B against `r` 1.0 B. The cause of the low readings also stays unestablished | §Allocation, §Low readings |
+
+**Raw data:** [`d208-m2pp-raw.jsonl`](d208-m2pp-raw.jsonl) has one line per run with every `F`, `B` and `A`, including warm-ups, and every allocation row unrounded. [`d208-m2pp-rule.json`](d208-m2pp-rule.json) is the output of `node bench/m2pp/rule.ts` on it, the one computation.
+
+#### What ran
+
+- **168 runs, every one reporting.** No run failed and none was rerun. 2026-11-04, 04:44:59 – 05:02:59 UTC. Load 1.95 – 6.86, as telemetry only.
+- **Engine:** every ledger reports `HeadlessChrome/153.0.0.0`, the record's Chrome for Testing 153.0.8010.52 at `/usr/local/bin/chrome`.
+- **Trees, checked before the first round and after the last:** base `19f0b867e`, input `4630579d2`, candidate `c0713204a`. The candidate is the record's diff, extracted by `bench/m2pp/run.ts`, sha256 `68e9672a…df300`.
+- **Same measurement code:** `m2-prime.browser.test.ts` is identical at input and candidate, and differs at base only by `requestDestroy` → `destroy`. `d208-step6.browser.test.ts` is identical at input and candidate.
+- **Before the harness commit, not rounds:** shape-only smoke runs, whose figures were not read, and one scratch probe of the injected array alone. That probe read 4.24 B per slot at n=100, with single readings of −85.04 and −0.52 B among six. V8's flag list in this Chrome build contains `--flush-bytecode`, so D2 ran. Its effect on this workload is unverified.
+- **No figure was read before the computation.** Progress output held counts only.
+
+#### Gates
+
+| Gate | Result | Figures |
+| --- | --- | --- |
+| **V0, continuity** | pass | Floors, base: 3,700.88, 3,277.12, 2,714.04 B. Candidate: 3,625.24, 3,238.80, 2,708.12 B |
+| **V1, the instrument sees the margin** | pass | At 100, set P reads regression in all three populations, `k` 11 of 12, `m` 4.24 B. At 1000, reported only: inconclusive in all three, `m` 2.35, 2.88, 3.84 B |
+| **V2, no typical difference on one tree** | pass | The median of the six differences is 0.0 B in AB and AC for every population, to the printed precision |
+
+`L` is **2**, of 36 cells: AB sortable round 2 (+17.0 B) and AC mixed round 1 (+252.0 B). So, under §26.4, rule `R` replaces _in every round_ at 100 controllers.
+
+`T`: low figures, base 5 of 72, candidate 9 of 72. Two-sided Fisher p = 0.3997.
+
+#### Retained heap, set G
+
+| Population | Count | `k`/`n` | `p` | `m` | Range of `d` | Tip range | Base range | Literal misses | `R` on `E1` | `R` on `E2` (`k`/`n`, `m`) |
+| --- | --: | --: | --: | --: | --: | --: | --: | --: | --- | --- |
+| sortable | 100 | 0/12 | 1.0000 | -75.1 | -134.9 to -22.9 | 3565.9 – 3625.8 | 3648.1 – 3700.9 | 0 | no regression | no regression (0/12, -69.0) |
+| mixed | 100 | 1/12 | 0.9998 | -38.3 | -177.7 to 94.0 | 3099.4 – 3238.8 | 3144.2 – 3277.1 | 1 | no regression | no regression (1/12, -38.3) |
+| free | 100 | 2/12 | 0.9968 | -5.9 | -95.2 to 228.2 | 2618.9 – 2708.1 | 2479.9 – 2714.0 | 2 | no regression | no regression (1/12, -5.9) |
+| sortable | 1000 | 1/12 | 0.9998 | -64.7 | -152.9 to 2.5 | 3552.1 – 3639.9 | 3637.4 – 3704.9 | 1 | no regression | no regression (0/12, -58.1) |
+| mixed | 1000 | 1/12 | 0.9998 | -33.4 | -102.9 to 22.7 | 3076.9 – 3149.7 | 3127.0 – 3182.0 | 1 | no regression | no regression (1/12, -31.5) |
+| free | 1000 | 3/12 | 0.9807 | -5.4 | -45.2 to 48.3 | 2610.5 – 2670.1 | 2621.7 – 2675.4 | 3 | no regression | no regression (2/12, -5.4) |
+
+**Outcome A, by the table in §26.6.** V0–V2 pass, `R` reads no regression in all six rows, `L` ≥ 1, no range lies above the baseline's at 1000, `E2` reads no regression, and `T`'s p ≥ 0.01.
+
+**The literal clause is missed in three further cells at 100,** beside the two recorded earlier: mixed round 2 (3,238.2 against 3,144.2 B), free drag round 2 (2,708.1 against 2,634.2 B), and free drag round 6 (2,708.1 against 2,479.9 B). Each is the candidate's usual figure against a low base figure.
+
+#### Low readings
+
+| Tree, count | Low figures | Low readings | high-`B` | low-`A` | unclassed |
+| --- | --: | --: | --: | --: | --: |
+| base, 100 | 5 | 12 | 3 | 4 | 5 |
+| candidate, 100 | 9 | 23 | 7 | 5 | 11 |
+| base, 1000 | 5 | 17 | 2 | 0 | 15 |
+| candidate, 1000 | 21 | 62 | 13 | 3 | 46 |
+
+These class the five measured readings of each figure. Warm-ups have no run median to class against, and they stay in the raw file. 3 of the 5,760 readings, warm-ups included, are negative.
+
+| Probe, tree | Low figures of 36 | Floors at 100, against Block 1's | Floors hold |
+| --- | --: | --- | --- |
+| D1, base | 35 | 3,697.32, 3,273.76, 2,710.68 B | no |
+| D1, candidate | 35 | 3,622.68, 3,235.44, 2,704.76 B | no |
+| D2, base | 5 | 3,700.88, 3,277.12, 2,714.04 B | yes |
+| D2, candidate | 6 | 3,625.24, 3,238.16, 2,708.12 B | yes |
+
+**The cause is unestablished at both trees,** a permitted result, carried as a named limit. No class reaches 80%. Base's rate also predicts 2.5 low figures in 36, under the required 3.
+
+_Analysis:_ D1 lowers every floor by about 2.6 to 3.6 B. So its 35 low figures come from comparing against Block 1's floor, and they say nothing about the low state. D2 leaves the low figures in place, at about Block 1's rate, which does not support bytecode flushing as their cause. Neither is a finding about the mechanism.
+
+**What `R` does not settle:** `R` compares each tree's usual state. The low state stays unexplained at both trees, and it is outside what `R` measures.
+
+#### Allocation
+
+Figures are the sum of library, harness and other bytes per unit, unrounded, candidate minus input.
+
+| Cell | Project | `k`/`n` | `p` | `m` | `r` | Range of `d` | Reads |
+| --- | --- | --: | --: | --: | --: | --: | --- |
+| sortable sample | shipped | 5/12 | 0.8062 | -0.13 | 1 | -7.2 to 7.0 | no regression |
+| free sample bare | shipped | 7/12 | 0.3872 | 0.16 | 3.6 | -4.2 to 0.6 | no regression |
+| free sample bounds(element) | shipped | 6/10 | 0.3770 | 0.13 | 4.6 | -0.6 to 5.6 | no regression |
+| free sample bounds(thunk) | shipped | 7/12 | 0.3872 | 0.16 | 0.9 | -0.7 to 0.5 | no regression |
+| free sample onMove | shipped | 9/11 | 0.0327 | 0.25 | 0.3 | -0.3 to 1.0 | no regression |
+| committed move moving | shipped | 6/12 | 0.6128 | -0.06 | 62 | -44.5 to 41.1 | no regression |
+| committed move still | shipped | 5/12 | 0.8062 | -0.98 | 10 | -8.8 to 5.3 | no regression |
+| free drop | shipped | 4/12 | 0.9270 | -16.48 | 42 | -33.7 to 39.0 | no regression |
+| sortable drop | shipped | 7/12 | 0.3872 | 4.32 | 34 | -36.4 to 47.8 | no regression |
+| free moveTo | shipped | 9/11 | 0.0327 | 0.61 | 7.7 | -0.5 to 7.4 | no regression |
+| sortable sample | DEV | 10/12 | 0.0193 | 0.40 | 0.9 | -4.2 to 3.6 | no regression |
+| free sample bare | DEV | 6/11 | 0.5000 | 0.51 | 0.8 | -0.9 to 4.2 | no regression |
+| free sample bounds(element) | DEV | 3/12 | 0.9807 | -0.38 | 5.4 | -4.6 to 5.1 | no regression |
+| free sample bounds(thunk) | DEV | 3/12 | 0.9807 | -0.15 | 0.2 | -0.9 to 0.4 | no regression |
+| free sample onMove | DEV | 7/11 | 0.2744 | 0.10 | 0.2 | -0.9 to 2.7 | no regression |
+| committed move moving | DEV | 10/12 | 0.0193 | 34.74 | 59 | -88.0 to 157.1 | no regression |
+| committed move still | DEV | 7/12 | 0.3872 | 3.48 | 9 | -8.6 to 11.9 | no regression |
+| free drop | DEV | 8/12 | 0.1938 | 3.16 | 15 | -23.8 to 310.6 | no regression |
+| sortable drop | DEV | 9/12 | 0.0730 | 27.32 | 39 | -57.5 to 103.0 | no regression |
+| free moveTo | DEV | 9/11 | 0.0327 | 1.01 | 1 | -1.1 to 2.6 | **inconclusive** |
+
+**Attribution:** 0 B on `ArmedController`, `channel`, `#arm`, `deliverUnlessApplied`, `reportToSpec` or a frame named `report`, in all 20 windows and all 24 candidate runs.
+
+**Outcome a3,** because one cell is inconclusive and no cell reads regression. By round, `moveTo` in DEV, candidate − input:
+
+| Round | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 |
+| --- | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: | --: |
+| `d`, B | 2.550 | 0.950 | 1.326 | −1.056 | tie, 0.028 | 0.370 | 1.186 | 1.010 | 1.872 | 1.794 | −1.016 | 0.774 |
+
+**The outcome turns on precision, and that is the question below.** The committed computation works from raw bytes, as §26.6 states for `E1` and `E2`: 11 untied rounds, `k` 9, `m` 1.010 B, above `r` 1.0 B. §26.7 states `r` at 0.1 B, and calls its tie _the same figure at the reported precision_. The same cell with each arm's figure rounded to 0.1 B first gives `m` 1.0 B, which is within `r`, and every other cell also stays within `r`. That second reading would give a1. **It was computed only after the outcome was known, so it does not govern,** and the candidate was not applied.
+
+`kernel/kernel.ts:(anonymous)` books bytes in the drop windows at both trees, in both directions, and the profile cannot name which anonymous function. The candidate's new arrow in `ArmedController` is anonymous too. §26.7's list does not name it, so this is not counted as a finding, and it is reported as a limit of the attribution.
+
+**Load per allocation round:**
+
+| Round | Load, start – end |
+| ----: | ----------------: |
+|     1 |       4.09 – 3.47 |
+|     2 |       3.47 – 2.75 |
+|     3 |       2.75 – 2.43 |
+|     4 |       2.43 – 2.87 |
+|     5 |       2.87 – 4.76 |
+|     6 |       4.76 – 3.50 |
+|     7 |       3.50 – 4.52 |
+|     8 |       4.52 – 4.79 |
+|     9 |       4.79 – 3.47 |
+|    10 |       3.47 – 4.04 |
+|    11 |       4.04 – 3.60 |
+|    12 |       3.60 – 4.09 |
+
+#### Every round, whole bytes per controller
+
+Each cell reads sortable / mixed / free. Unrounded figures and the five readings behind each are in the raw file. Load is the 1-minute average at the round's first start and last end.
+
+**Set G, candidate against base:**
+
+| Round | Load, start – end | Candidate, 100 | Candidate, 1000 | Base, 100 | Base, 1000 |
+| --: | --: | --- | --- | --- | --- |
+| 1 | 3.60 – 3.95 | 3626 / 3239 / 2708 | 3640 / 3148 / 2670 | 3701 / 3277 / 2714 | 3705 / 3182 / 2675 |
+| 2 | 3.96 – 4.06 | 3625 / 3238 / 2708 | 3640 / 3150 / 2670 | 3648 / 3144 / 2634 | 3637 / 3127 / 2635 |
+| 3 | 4.06 – 5.09 | 3624 / 3239 / 2706 | 3638 / 3077 / 2670 | 3701 / 3276 / 2713 | 3681 / 3180 / 2675 |
+| 4 | 6.33 – 5.82 | 3622 / 3239 / 2707 | 3552 / 3148 / 2670 | 3701 / 3277 / 2714 | 3705 / 3180 / 2675 |
+| 5 | 5.47 – 6.11 | 3625 / 3239 / 2707 | 3638 / 3148 / 2670 | 3701 / 3277 / 2714 | 3681 / 3180 / 2658 |
+| 6 | 5.70 – 5.37 | 3626 / 3239 / 2708 | 3640 / 3148 / 2670 | 3701 / 3277 / 2480 | 3704 / 3180 / 2675 |
+| 7 | 5.16 – 4.84 | 3626 / 3239 / 2708 | 3640 / 3150 / 2670 | 3701 / 3276 / 2713 | 3703 / 3180 / 2675 |
+| 8 | 4.95 – 5.36 | 3625 / 3238 / 2707 | 3640 / 3112 / 2670 | 3701 / 3277 / 2714 | 3703 / 3180 / 2675 |
+| 9 | 5.37 – 5.18 | 3626 / 3239 / 2708 | 3554 / 3150 / 2670 | 3701 / 3276 / 2713 | 3704 / 3182 / 2675 |
+| 10 | 5.66 – 5.62 | 3626 / 3239 / 2708 | 3567 / 3079 / 2670 | 3701 / 3277 / 2714 | 3703 / 3180 / 2675 |
+| 11 | 5.33 – 6.06 | 3566 / 3099 / 2619 | 3561 / 3087 / 2610 | 3701 / 3277 / 2714 | 3703 / 3180 / 2656 |
+| 12 | 5.43 – 5.07 | 3626 / 3239 / 2708 | 3638 / 3148 / 2670 | 3701 / 3277 / 2714 | 3704 / 3182 / 2622 |
+
+**Set AB, base against itself:**
+
+| Round | Load, start – end | Tip role, 100 | Tip role, 1000 | Base role, 100 | Base role, 1000 |
+| --: | --: | --- | --- | --- | --- |
+| 1 | 3.95 – 3.96 | 3701 / 3277 / 2714 | 3703 / 3175 / 2675 | 3701 / 3277 / 2714 | 3705 / 3182 / 2675 |
+| 2 | 5.09 – 6.33 | 3701 / 3277 / 2714 | 3705 / 3180 / 2675 | 3684 / 3277 / 2713 | 3703 / 3178 / 2655 |
+| 3 | 6.11 – 5.70 | 3701 / 3277 / 2714 | 3703 / 3180 / 2675 | 3701 / 3277 / 2714 | 3704 / 3180 / 2675 |
+| 4 | 4.84 – 4.95 | 3701 / 3277 / 2714 | 3705 / 3180 / 2675 | 3701 / 3277 / 2714 | 3681 / 3180 / 2675 |
+| 5 | 5.18 – 5.66 | 3701 / 3277 / 2713 | 3703 / 3180 / 2675 | 3701 / 3277 / 2714 | 3686 / 2882 / 2675 |
+| 6 | 6.06 – 5.43 | 3701 / 3277 / 2714 | 3703 / 3180 / 2675 | 3701 / 3277 / 2714 | 3703 / 3180 / 2675 |
+
+**Set AC, candidate against itself:**
+
+| Round | Load, start – end | Tip role, 100 | Tip role, 1000 | Base role, 100 | Base role, 1000 |
+| --: | --: | --- | --- | --- | --- |
+| 1 | 4.06 – 4.06 | 3626 / 3239 / 2708 | 3638 / 3114 / 2670 | 3626 / 2987 / 2708 | 3638 / 3148 / 2670 |
+| 2 | 5.82 – 5.47 | 3625 / 3238 / 2707 | 3640 / 3150 / 2679 | 3625 / 3238 / 2708 | 3552 / 3148 / 2670 |
+| 3 | 5.37 – 5.16 | 3625 / 3238 / 2708 | 3551 / 3087 / 2623 | 3626 / 3239 / 2708 | 3638 / 3071 / 2670 |
+| 4 | 5.36 – 5.37 | 3585 / 2980 / 2621 | 3561 / 3087 / 2623 | 3625 / 3239 / 2708 | 3638 / 2777 / 2624 |
+| 5 | 5.62 – 5.33 | 3626 / 3239 / 2708 | 3640 / 3150 / 2670 | 3625 / 3238 / 2707 | 3640 / 3148 / 2670 |
+| 6 | 5.07 – 4.83 | 3626 / 3239 / 2708 | 3638 / 3148 / 2607 | 3625 / 3239 / 2708 | 3638 / 3148 / 2670 |
+
+**Set P, base with inject mode against base:**
+
+| Round | Load, start – end | Injected, 100 | Injected, 1000 | Base, 100 | Base, 1000 |
+| --: | --: | --- | --- | --- | --- |
+| 1 | 4.60 – 4.55 | 3705 / 3281 / 2718 | 3707 / 3184 / 2679 | 3701 / 3277 / 2714 | 3703 / 3180 / 2675 |
+| 2 | 4.55 – 4.23 | 3574 / 3148 / 2638 | 3641 / 3131 / 2639 | 3701 / 3277 / 2714 | 3703 / 3182 / 2675 |
+| 3 | 4.23 – 3.97 | 3705 / 3281 / 2718 | 3708 / 3186 / 2679 | 3701 / 3277 / 2714 | 3703 / 3149 / 2675 |
+| 4 | 3.97 – 3.74 | 3705 / 3281 / 2718 | 3707 / 3107 / 2604 | 3701 / 3276 / 2714 | 3705 / 3180 / 2675 |
+| 5 | 3.74 – 5.62 | 3705 / 3281 / 2718 | 3691 / 3180 / 2679 | 3701 / 3277 / 2714 | 3703 / 3180 / 2675 |
+| 6 | 5.62 – 6.86 | 3705 / 3281 / 2718 | 3707 / 3184 / 2679 | 3701 / 3276 / 2713 | 3702 / 3180 / 2675 |
+| 7 | 6.86 – 6.28 | 3705 / 3281 / 2718 | 3689 / 3184 / 2679 | 3701 / 3277 / 2714 | 3704 / 3182 / 2675 |
+| 8 | 6.28 – 5.86 | 3705 / 3281 / 2718 | 3708 / 3186 / 2679 | 3701 / 3276 / 2713 | 3703 / 3180 / 2675 |
+| 9 | 5.86 – 5.63 | 3705 / 3281 / 2718 | 3707 / 3184 / 2625 | 3701 / 3276 / 2713 | 3705 / 3182 / 2675 |
+| 10 | 5.63 – 5.82 | 3705 / 3281 / 2718 | 3641 / 3137 / 2679 | 3684 / 3276 / 2713 | 3705 / 3182 / 2675 |
+| 11 | 5.82 – 5.93 | 3705 / 3281 / 2718 | 3707 / 3184 / 2679 | 3701 / 3277 / 2714 | 3705 / 3138 / 2675 |
+| 12 | 5.93 – 5.84 | 3705 / 3281 / 2718 | 3707 / 3184 / -819 | 3701 / 3277 / 2462 | 3705 / 3182 / 2675 |
+
+**Set D, the probes:**
+
+| Round | Load, start – end | D1 base, 100 | D1 base, 1000 | D1 candidate, 100 | D1 candidate, 1000 |
+| --: | --: | --- | --- | --- | --- |
+| 1 | 5.37 – 4.84 | 3697 / 3274 / 2711 | 3704 / 3180 / 2675 | 3618 / 3236 / 2703 | -858 / 3148 / 2670 |
+| 2 | 4.84 – 4.54 | 3574 / 3141 / 2631 | 3637 / 3128 / 2635 | 3623 / 3235 / 2703 | 3638 / 3148 / 2669 |
+| 3 | 4.54 – 4.95 | 3695 / 3274 / 2711 | 3702 / 3180 / 2675 | 3623 / 3236 / 2705 | 3638 / 3148 / 2669 |
+| 4 | 4.95 – 4.57 | 3695 / 3291 / 2711 | 3703 / 3180 / 2675 | 3622 / 3235 / 2705 | 3638 / 3148 / 2669 |
+| 5 | 4.57 – 4.14 | 3698 / 3274 / 2711 | 3705 / 3181 / 2675 | 3623 / 3236 / 2705 | 3638 / 3149 / 2669 |
+| 6 | 4.14 – 4.45 | 3698 / 3274 / 2711 | 3702 / 3180 / 2675 | 3623 / 3235 / 2705 | 3638 / 3148 / 2669 |
+| 7 | 4.45 – 3.83 | 3698 / 3274 / 2711 | 3705 / 3180 / 2675 | 3622 / 3253 / 2705 | 3638 / 3149 / 2670 |
+| 8 | 3.83 – 3.64 | 3697 / 3274 / 2711 | 3703 / 3180 / 2675 | 3563 / 3097 / 2634 | 3561 / 2776 / 2623 |
+| 9 | 3.64 – 3.41 | 3698 / 3274 / 2711 | 3703 / 3180 / 2675 | 3623 / 3235 / 2705 | 3638 / 3149 / 2670 |
+| 10 | 3.41 – 3.16 | 3698 / 3274 / 2711 | 3702 / 3180 / 2675 | 3623 / 3236 / 2706 | 3638 / 3147 / 2670 |
+| 11 | 3.16 – 2.96 | 3697 / 3274 / 2711 | 3637 / 3132 / 2635 | 3623 / 3235 / 2705 | 3638 / 3148 / 2669 |
+| 12 | 2.96 – 4.09 | 3694 / 3274 / 2711 | 3702 / 3180 / 2675 | 3619 / 3235 / 2705 | 3638 / 3148 / 2670 |
+
+| Round | Load, start – end | D2 base, 100 | D2 base, 1000 | D2 candidate, 100 | D2 candidate, 1000 |
+| --: | --: | --- | --- | --- | --- |
+| 1 | 5.37 – 4.84 | 3701 / 3277 / 2714 | 3703 / 3180 / 2675 | 3567 / 3100 / 2622 | 3253 / 3087 / 2623 |
+| 2 | 4.84 – 4.54 | 3701 / 3277 / 2714 | 3703 / 3180 / 2675 | 3622 / 3189 / 2708 | 3638 / 3148 / 2670 |
+| 3 | 4.54 – 4.95 | 3701 / 3277 / 2714 | 3704 / 3182 / 2675 | 3626 / 3239 / 2708 | 3552 / 3075 / 2628 |
+| 4 | 4.95 – 4.57 | 3642 / 3144 / 2634 | 3637 / 3127 / 2635 | 3626 / 3239 / 2708 | 3638 / 3148 / 2670 |
+| 5 | 4.57 – 4.14 | 3701 / 3275 / 2714 | 3705 / 3182 / 2675 | 3625 / 3189 / 2707 | 3552 / 3163 / 2670 |
+| 6 | 4.14 – 4.45 | 3701 / 3276 / 2713 | 3703 / 3182 / 2675 | 3626 / 3239 / 2708 | 3640 / 2768 / 2670 |
+| 7 | 4.45 – 3.83 | 3701 / 3277 / 2714 | 3703 / 3180 / 2675 | 3625 / 3239 / 2708 | 3552 / 3088 / 2669 |
+| 8 | 3.83 – 3.64 | 3701 / 3277 / 2714 | 3703 / 3180 / 2675 | 3625 / 3238 / 2707 | 3638 / 3111 / 2670 |
+| 9 | 3.64 – 3.41 | 3701 / 3277 / 2714 | 3703 / 3180 / 2675 | 3625 / 3238 / 2707 | 3638 / 3148 / 2670 |
+| 10 | 3.41 – 3.16 | 3701 / 3277 / 2714 | 3704 / 3140 / 2675 | 3625 / 3238 / 2708 | 3587 / 3148 / 2670 |
+| 11 | 3.16 – 2.96 | 3701 / 3277 / 2462 | 3703 / 3182 / 2675 | 3625 / 3239 / 2708 | 3638 / 3148 / 2670 |
+| 12 | 2.96 – 4.09 | 3701 / 3277 / 2714 | 3703 / 3180 / 2675 | 3625 / 3238 / 2707 | 3640 / 3149 / 2670 |
+
+#### Reported beside these, not pooled
+
+The resumed 6R's four governing rounds and four logged rounds stay as recorded above. Their two literal cells stay missed under the clause as written.
+
+#### Escalation, for the architect
+
+**Outcome: retained heap A, allocation a3. No source is committed.**
+
+**The unresolved question:** does §26.7's `m ≤ r` compare at the unrounded figure, or at the 0.1 B precision `r` is stated in? On the first reading, `moveTo` in DEV is inconclusive by 0.01 B and 6R stays open. On the second, the outcome is a1, and the candidate lands byte for byte under §26.8. The computation committed before the first round used the first, so this is not for the implementer to re-read.
+
+Two more things for that decision:
+
+- `k` from 7 to 9 cannot reach _no regression_ with 12 untied rounds. The median of 12 with at least 7 positive differences is positive, so §26.6's _k ≤ 9 with `m` ≤ 0_ holds in practice only up to about `k` = 6. No retained row is near that limit. Set G's largest `k` is 3.
+- `moveTo`'s median is near 1 B in DEV, and shipped reads `m` 0.61 B. Those windows run no function the diff changes, as far as the code reads, and the attribution is clean. That does not explain a small positive median, and `k` 9 of 11 sits in both projects.
+
+**Carried, not re-measured, within §26.8's scope:** R33, R21 with its one re-pin, M1 to M3, the call counts, the declarations, composition and the attribution row. They remain the record's readings, because the candidate's diff did not change.
+
+#### Verification
+
+- **Rule:** `tests/perf/m2pp-rule.node.test.ts` pinned the rule and schedule on made-up data before the harness commit.
+- **Independent recomputation:** a separate script recomputed the `moveTo` DEV row and `k` and `m` for G at 100 from the raw file, and agrees.
+- **Harness commit's checks:** format and lint are clean on its files. `just typecheck` reports two errors, both in `.scripts/` files this unit did not touch. `references` and `entry` node tests pass.
+- **This record:** Markdown only, plus the two data files. `git diff --check` is clean.
+
+#### Limits
+
+- **Chromium only,** one machine, under lower load than step 6.
+- **The rule's thresholds were chosen after seeing earlier rounds,** as §26.9 states.
+- **At 1000 controllers** the row bounds gross growth only.
+- **The candidate's tree was never in the main checkout.** Its worktrees were removed after the runs.
+
+#### Next
+
+Stop at escalation. The architect decides the precision question, and with it whether 6R proceeds under §26.8 or goes on to the owner. Step 5, control re-declaration, `F-442`, `F-443` and `d208-requests.md` have not started.
