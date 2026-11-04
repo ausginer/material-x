@@ -896,3 +896,23 @@ Administered as [`request-application-claude.md`](../reviews/architecture/reques
 **The whole suite after this step, run once:** 1,425 pass, 4 fail, 68 skipped, of 1,497; 75 of 78 files pass. All six `size.node` control rows now pass. **The failing set is the four `docs.node` rows:** _should resolve every reference a public type makes_ and the closure rows for the kernel, ordinary and free-drag tiers. `tests/sortable/react.browser.test.ts` and `stories.browser.test.ts` still do not load, on incompatible `react` and `react-dom` versions.
 
 **Limits.** The readings ran at one Node version, today's, on this machine, not at each commit's own date. Installs skipped lifecycle scripts, and the root's only one links `tsserver`. The declaration reproduced byte for byte under these conditions. Attribution says which landed change moved a row, not how a row's bytes divide within that change.
+
+## Controls re-declared 2026-11-04, D-209: five whole intervals attributed to one change, and no ceiling moved
+
+**Canonical entry: `drag2:D-209`.** Administered under [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §29.5 and §32.8. These are exact figures from `measureAll()` in the main checkout, with `drag2` rebuilt. No statistical round ran.
+
+| Control                   | Before | After, at `ec15441ce` | Move |
+| ------------------------- | -----: | --------------------: | ---: |
+| `free drag minimal`       |  8,281 |             **8,337** |  +56 |
+| `free drag + bounds`      |  8,514 |             **8,553** |  +39 |
+| `free drag + landing`     |  8,449 |             **8,497** |  +48 |
+| `free drag complete`      |  8,652 |             **8,712** |  +60 |
+| `kernel root - kernel.js` |  6,340 |             **6,398** |  +58 |
+
+**Before.** Each figure is the 2026-11-04 re-declaration at tree `c6c5e6ea5`, carried unchanged to `626180a05` by the comment commit. It was read again here at `7398d6969`, whose `src/` is that tree: all six `size.node` control rows passed there.
+
+**After.** The one named change is `ec15441ce`, D-209. Between `7398d6969` and it, the only `src/` files changed are `kernel/execution.ts` and `kernel/kernel.ts`, both in each of these five rows' measured graphs, and no dependency manifest or lockfile changed. The whole interval is that one step, so it telescopes with no remainder. These are measured endpoints: nothing here divides a row's bytes within the change.
+
+**Not moved.** `vocabulary root - drag.js` stays at 142 and baseline B at 6,916. Neither graph contains either changed module.
+
+**No ceiling moved, no control became a ceiling, and no interval is unattributed.** This commit changes only those five `control:` values in `bench/size/measure.ts`. All thirteen package rows stay under their ceilings, with composition recorded in [`d209-discarded-failures.md`](d209-discarded-failures.md).
