@@ -2298,6 +2298,30 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-04 — D-208 remediation 6R closed: two text findings disposed, and composition and controls handed off
+
+**6R closes at `70368bfde`, src tree `c0713204a`. D-208 is not complete.** The recheck at `63f603f1a` finds no correctness defect, failed premise or record mismatch. M1, M2 and M3 redden 19, 11 and 2 rows, and the call counts match.
+
+**What stays:** retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04. The five literal cells, the nine allocation cells, the limits and the unanswered questions stay stated. M-1 carries to this tree.
+
+**The findings:**
+
+- **reviewer-2:** the wording of 05:253's precision was this record's error. It is corrected in this unit, and I-36 does not change.
+- **reviewer-1:** seven comment sites go to one comment-only commit, with no census. It is the freeze's one named exception, and its identity checks are mechanical.
+
+**Next, in order:**
+
+1. The implementer lands that commit and reads composition at the final tree, which must equal the table already read at `c0713204a`.
+2. The controls: a control is re-declared only if its whole interval is attributed, as a continuous chain of readings. An unattributed one stays red and named, and goes to the architect. Nothing is known yet about whether the six can be attributed.
+3. `d208-requests.md`, only when its prerequisites hold. Writing it reddens `decisions.node`'s witness row until acceptance, by design.
+4. The final proof in the consolidator's round, then the whole-decision acceptance, then the owner's merge.
+
+F-442, F-443, F-445 and the compression pass stay separate.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §29.
+
+---
+
 ### 2026-11-04 — D-208 the owner's disposition: Q-a3 is not run, the allocation uncertainty is accepted, and the candidate goes to landing and a bounded recheck
 
 **D-208 is not complete.** The owner stopped the investigation of the small allocation uncertainty and accepted what M-2″ documents, including `moveTo`'s positive differences. Q-a3 is withdrawn, unrun.

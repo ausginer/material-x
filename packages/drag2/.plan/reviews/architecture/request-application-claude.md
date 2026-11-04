@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**Remediation 6R closed 2026-11-04, at `70368bfde`, over the recheck at `63f603f1a`.** There is no correctness defect, failed premise or record mismatch. Retained heap A and allocation a3 stand, with the owner's dated acceptance and every limit. reviewer-2 is corrected at 05:253, and reviewer-1 goes to one comment-only commit at seven named sites. The implementer next does composition and controls, where drift nobody can attribute stays red and named, and then `d208-requests.md` once its prerequisites hold. D-208 stays unimplemented until the final proof in the consolidator's round and the whole-decision acceptance. §29 records the closure and the handoff.
+
 **The owner's disposition recorded 2026-11-04, over `883adc507`.** Q-a3 is not run. The owner accepts the remaining allocation uncertainty that M-2″ documents, including `moveTo`'s positive differences. A and a3 stay as read: a3 is not a1, not `discharged` and not proof of zero regression. The shared-refusal candidate lands byte for byte, then goes through a bounded recheck and the architect's closure. The remainder of §24.5 resumes only after that closure. D-208 stays unimplemented, and `d208-requests.md` does not exist yet. §28 records the disposition, what it leaves unanswered and the handoffs.
 
 **Protocol M-2″'s outcome disposed 2026-11-04, over `8451f1fe6`.** Retained heap reads A and allocation reads a3, and both stand as read. Rounding after the result is not adopted. No regression is demonstrated, and none is excluded: `moveTo` leans the same way in both projects, and a post-hoc test finds a lean across the allocation windows. Protocol Q-a3 is pre-registered in §27.5 to §27.7 as the last measurement on a3: exact call counts, a 20,000-call window and a byte-identical placebo tree. If it does not discharge a3, an explicit disposition goes to the owner. No source is committed. §27 records the disposition and the handoff.
@@ -3170,7 +3172,7 @@ It holds what §20.5 lists, as §21.8 and §23.3 amend it, with these changes:
 - the closed items include 6R;
 - **added 2026-11-04 (§28.7):** the owner's disposition of that date is quoted with its date. M-2 and allocation at 6R's tree are stated as §28.7 states them.
 
-Then come step 6's feature proof and the whole-decision acceptance, in §20.5's order.
+Then come step 6's feature proof and the whole-decision acceptance, in §20.5's order. **Amended 2026-11-04 (§29.7 to §29.9):** the record's prerequisites and its effect on the witness row are stated there, and the proof runs in the consolidator's round.
 
 **Out of scope:**
 
@@ -3305,7 +3307,7 @@ So 6R resumes. If the candidate meets the target, nothing needs authorizing. If 
 **Text, in the same unit:**
 
 - **Source comments.** The `report` field's documentation and `Kernel.channel`'s documentation in `kernel/kernel.ts` say the controller's own channel is _minted for the armed controller at construction_ and that the refusal is _nowhere else written_. They state what the code does at the candidate. So do the comments in `panic` and the census row that name the channel's refusal.
-- **05:253** gets a dated precision, with the original struck. Each behavior's channel, its unwind guard and `FeatureContext.report` are channels minted through `BehaviorContext.channel`. The kernel's own route is the kernel's, and it applies the same refusal. The refusal is written once. Panic's report is the one delivery that does not pass through it. Nothing else in I-36 changes.
+- **05:253** gets a dated precision, with the original struck. Each behavior's channel, its unwind guard and `FeatureContext.report` are channels minted through `BehaviorContext.channel`. **Corrected 2026-11-04 (§29.2):** that sentence is wrong about the guard and `report`, which report through minted channels and are not minted themselves. The kernel's own route is the kernel's, and it applies the same refusal. The refusal is written once. Panic's report is the one delivery that does not pass through it. Nothing else in I-36 changes.
 - Report any other text that states the kernel's route is minted through `channel()`. Do not search for more.
 
 **Measurement**, on the candidate, before anything is committed:
@@ -3854,7 +3856,7 @@ M-2″ measured src tree `c0713204a`, and the acceptance covers exactly that cod
 
 **If the code has to change:**
 
-- **A correction only to comments** keeps the acceptance, because it changes no code that runs. It goes in its own commit, on the architect's direction, and the new tree is recorded by hash.
+- **A correction only to comments or contract text** (contract text added 2026-11-04, §29.2) keeps the acceptance, because it changes no code that runs. It goes in its own commit, on the architect's direction, and the new tree is recorded by hash.
 - **Any other change in `src/`** does not carry the acceptance or M-2″'s readings. It stops at the architect, who states which readings carry and what goes to the owner.
 
 ### 28.4 Handoff 1: landing
@@ -3966,7 +3968,7 @@ M-2″ measured src tree `c0713204a`, and the acceptance covers exactly that cod
 
 - **M-1** carries under that step's own test, if the recheck confirms that the diff touches no per-sample function and the counts are identical. Otherwise its protocol runs. That is about timing, and this disposition does not affect it.
 - **Composition and controls** are as §24.4 and step 5 state.
-- **No M-2′ or allocation round is owed for 6R's tree.** M-2″ measured that src tree, so its readings are the tree's. This holds only while the landed objects equal §28.3.
+- **No M-2′ or allocation round is owed for 6R's tree.** M-2″ measured that src tree, so its readings are the tree's. This holds only while the landed objects equal §28.3. **Amended 2026-11-04 (§29.4):** or `src/` differs only by the comment-only commit §29.6 names.
 
 **§24.5 step 6, `d208-requests.md`:** the last act, under that step's conditions. a3 does not count as an open escalation once 6R closes, and it is carried as a stated limit. Beyond that step's list, the record states:
 
@@ -3996,3 +3998,224 @@ D-208 stays `Unimplemented (Remediation)`, and the witness holds. §27.10's two 
 | A correctness defect or failed premise from the recheck | architect, then the owner where an authorization is needed | decide | before 6R closes |
 | `drag2:F-445`, the estimator (tier B) | architect | unchanged | before Phase 24 exits |
 | F-442, F-443 and the compression pass | as §24.6 states | separate from this disposition | unchanged |
+
+## 29. Remediation 6R closed, its two text findings disposed, and the remainder of step 6 handed off (D-208)
+
+**2026-11-04. Input:** `63f603f1a` on `drag2/fin-review2`. The implementation is `70368bfde`, src tree `c0713204a`. The recheck is [`d208-6r-recheck-claude.md`](../fin-review2/d208-6r-recheck-claude.md).
+
+**Decided, in short:**
+
+- **6R closes at `70368bfde`.** §28.6's conditions hold (§29.1).
+- **reviewer-2 is a defect in wording this record prescribed.** 05:253 is corrected in this unit (§29.2).
+- **reviewer-1 is corrected at its reported sites only,** in one comment-only commit that opens the next handoff (§29.3).
+- **The freeze holds at `c0713204a`,** with that commit as its one named exception (§29.4).
+- **The remainder of step 6 goes to the implementer** (§29.6 to §29.8). Controls keep §24.4's attribution rule, and drift nobody can explain stays visible.
+- **D-208 stays unimplemented.** The final proof runs in the consolidator's review round, before the whole-decision acceptance and the merge (§29.9).
+
+### 29.1 The closure
+
+**§28.6's conditions:**
+
+| Condition | Result | Evidence |
+| --- | --- | --- |
+| The landed objects equal §28.3 | **Holds** | The recheck compares all six. `src/` is `c0713204a` at `70368bfde` and at this section's input, read here |
+| No correctness or semantic defect is open | **Holds** | The recheck reports none. Both findings are tier C text, and neither touches code that runs |
+| The record checks hold | **Holds** | The recheck compares M-2″'s tables with the raw file and finds no mismatch. `rule.ts` reproduces `d208-m2pp-rule.json` by value, read here too |
+
+**The closure states, as §28.6 requires:**
+
+- **The outcome:** _retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04._ a3 is not a1, not `discharged` and not proof of zero regression.
+- **The owner's disposition,** quoted in §28 with its date. Its four points stand as written. The owner's condition of 2026-11-03 also stands, and Q-a3 did not run.
+- **The five literal cells at 100 controllers:** mixed round 2 and sortable round 4 of the resumed 6R, then mixed round 2, free drag round 2 and free drag round 6 of set G. Each is the candidate's usual figure against a low base figure.
+- **The nine allocation cells** of the resumed 6R stay as `d208-step6.md` §Costs records them.
+- **§27.4's limits:**
+  - the low state's cause is unestablished at both trees;
+  - low figures at 1000 controllers lean to the candidate, 21 of 72 against 5 of 72;
+  - the 1000-controller row bounds gross growth only.
+- **§28.1's unanswered questions:**
+  - whether `moveTo`'s lean is a per-call cost or a lump;
+  - whether the lean recurs and follows the code or the worktree;
+  - the anonymous arrow's exact call count. The recheck's reading supports it not running in the windows, but that is not a count. The fixtures also set no `onError`, so a delivered warning there would be silent.
+- **The mint sites,** four: `sortable/spec.ts:317`, `free-drag/spec.ts:243`, `sortable/behavior.ts:126` and `free-drag/behavior.ts:52`.
+- **The recheck's own limits:** the mutations ran once each in Chromium, and the search behind reviewer-1 is not a census. `channel`'s receiver and extra-argument properties rest on reading.
+
+**Evidence not repeated here:** M1, M2 and M3 at 19, 11 and 2 rows, and the call counts, are the reviewer's readings. They agree with the record by name. **Read here:** the tree hashes, the rule's output, `capture.node`, `decisions.node` and every site §29.2 and §29.3 cite.
+
+**M-1 carries.** §24.5 step 5's test is met: the comment-stripped diff changes no code in a per-sample function, and the per-sample counts are identical. Step 3's _no regression_ stands for 6R's tree, and its protocol does not rerun.
+
+**The bound function's differences need no action.** The recheck reports that a channel's `name` changes, that `new channel(error)` no longer throws and bypasses the refusal, and that a shadowed `call` or a patched `Function.prototype.call` is now observed. The contract offers none of these uses, and repository policy is not to defend against invalid use. No row is owed. The receiver and the extra argument are not contract properties either, as D-208's _Ownership and surface_ reads, so their lack of a row is not a gap.
+
+### 29.2 reviewer-2: corrected here
+
+**The finding is right, and the error is this record's.** §25.5 prescribed the sentence, and the implementer followed it. There are four mint sites: each behavior mints its own channel and the composition's. The unwind guard is `createUnwind(this.#notify)`, a function reporting through the behavior's own channel. `FeatureContext.report` is a closure that builds a warning and calls the composition's channel. All of this is read at `sortable/spec.ts:317–318`, `sortable/behavior.ts:126` and `:146`, and their free-drag twins.
+
+**What holds, and what was wrong.** Every diagnostic on those routes does pass through a minted channel, so I-36's mechanism and tier are unaffected. Only the statement of what is minted was wrong.
+
+**Done in this unit:** 05:253 carries a dated correction, with the prescribed wording struck, and §25.5's bullet carries a pointer. D-208's _Ownership and surface_ already says _send … through a minted channel_, which is true, and it does not change.
+
+**§28.3's rule is extended.** The reviewer asks because `05`'s blob is one of §28.3's objects. That row checked the landing. M-2″ measured `src/`, and contract text does not run, so correcting it does not touch the acceptance.
+
+### 29.3 reviewer-1: corrected at the reported sites, and nowhere else
+
+**The finding is right.** The comments state a form the code no longer has. They are tier C, and they do not block closure. They are still corrected before the final figures and the final proof, because §25.5 requires that comments state what the code does.
+
+**The sites, read here at `63f603f1a`, and the property each must state:**
+
+| Site | Now reads | Must state |
+| --- | --- | --- |
+| `free-drag/spec.ts:223–226` | _the kernel's channel over the spec's `reportError`_, _two channels over one sink_, _neither channel encodes severity_ | The kernel's own route and this channel both reach `#deliver`: one route and one channel over one sink. Neither encodes severity |
+| `free-drag/spec.ts:207` | _the kernel's channels refuse …_ | The kernel's own route refuses after applied destruction and discards a throwing handler |
+| `sortable/spec.ts:1693` | _Its callers are the kernel's channels_ | Its callers are the kernel's own route, with the same two rules, and `panic`'s one delivery |
+| `kernel/kernel.ts:413` | _the channels_, among the `readonly` fields | The controller's route |
+| `kernel/unwind.ts:30` | _one controller's channel_ | The guard is built over one notifier: a minted channel or the controller's route |
+| `kernel/unwind.ts:37` | _the channel's own guard_ | The notifier's terminus is what guarantees it does not throw |
+| `kernel/spec.ts:98`, published | _each call allocates one closure_ | Each call allocates one function. The advice to mint one per sink at construction stays |
+
+**The implementer may choose the words.** Only these sites change. Nothing else in those comments changes unless a listed sentence requires it. **This is not a census.** A further stale phrase met along the way is reported and left as it is.
+
+**No separate recheck.** The commit's identity checks are mechanical (§29.6, step 1), and the final proof reads the text. Precedent for a delta recheck, §22's 5R.1, addressed a defect that the pass itself had introduced. Here the fix moves no code and comes with a fixed site list.
+
+### 29.4 The freeze
+
+**The freeze resumes at `c0713204a`.** It has one named exception: §29.6's comment-only commit. From that commit on, the freeze is at that commit's tree, recorded by hash in the implementer's record, until the whole decision is accepted. Any other `src/` change, including a further comment, comes to the architect first, as §21.8 and §28.3 state.
+
+**This amends §28.7's wording.** _While the landed objects equal §28.3_ now reads: while `src/` equals `c0713204a`, or differs only by §29.6's comment-only commit with its identity checks recorded. M-2″'s readings, M-1's carry and the acceptance all carry across that commit, because no code that runs changes.
+
+### 29.5 Attribution: what §24.4 requires of a control
+
+§24.4 stands. This section states how it is read, so that an unexplained interval cannot pass as an explained one.
+
+**A control is re-declared only if its whole interval is attributed:**
+
+- **The interval** runs from the row's declared figure (2026-09-09) to its figure at the final tree.
+- **Every step in it is a reading:** a before figure, an after figure and a named landed change, cited to a dated record.
+- **The chain is continuous at each seam:** one step's after figure is the next step's before figure, at the same tree or across a change named as moving nothing. This is `budget-rebases.md`'s standard at the restoration.
+- **The steps sum to the interval exactly,** with no line reading _rest_, _other_, _rounding_ or _toolchain_ without a reading behind it. Brotli does not add across changes, so these are measured endpoints and not decomposed costs.
+
+**Where the records leave a seam open,** the implementer may run the existing `measureAll()` at that seam's named commits, in a detached worktree that is removed afterwards. It is deterministic, it is not a statistical round, and it needs no new harness. The worktree's dependencies are rebuilt at that commit, because a stale `box-quad` build reports a false zero (`budget-rebases.md`, 2026-08-31). A reading that cannot be reproduced leaves the seam open.
+
+**A dependency update is a named change only with a reading on both sides of it.** `bfd2832db` and `01d88645f` touch dependency manifests inside the interval, as `git log` shows. Baseline B carries no drag2 code and still moved from 6,889 to 6,916 B, so a toolchain cause is a hypothesis for that row and is not established. Nothing here assumes it.
+
+**A commit that a reading locates is attributed only if its change can reach that row:** through the row's module graph, or as a dependency or build change with the reading above. Otherwise the commit is reported, and the drift stays unexplained.
+
+**An unattributed interval:**
+
+- **Is not re-declared.** That control keeps its declared figure and stays red, by name.
+- **Is stated explicitly** in `budget-rebases.md`: its last reading, the unexplained amount, and the seam where the chain breaks.
+- **Is a finding for the architect,** as §24.4 and §24.6 state. It stops the sequence before `d208-requests.md`.
+
+**Refused for any control:**
+
+- moving its ceiling, or making it a ceiling;
+- removing or suspending it;
+- re-declaring only the attributed part of it;
+- describing the drift as noise.
+
+### 29.6 Handoff: the remainder of step 6
+
+**Owner:** the implementer. **Input:** this section's commit. Do the steps in order, and a step that escalates stops the sequence. No retained-heap, allocation or timing round is owed (§28.7, §29.1). A source comment carries no record identifier.
+
+**Step 1: the comment-only commit.** The sites of §29.3, in their own commit. Before committing, check and record:
+
+- every changed line is a comment;
+- each changed file transpiled with comments removed equals its version at `c0713204a`, by the recheck's method;
+- `just build`'s declarations differ from `c0713204a`'s only in `kernel/spec.d.ts`, only in that doc comment;
+- the new `src/` tree hash.
+
+If any of these fails, restore, stop and report.
+
+**Step 2: composition at the final tree.** Run `measureAll()`, and record it in a dated subsection of `d208-step6.md`.
+
+- **Every row must equal `d208-step6.md` §Costs' Composition table,** minified, Brotli and modules. That table was read at `c0713204a`, and step 1 changes no code. A difference stops the sequence.
+- Read every row beside step 1's ceilings. No ceiling moves. `drag.js` stays at 142 and baseline B at its reading.
+- State M-1's carry as §29.1 does.
+
+**Step 3: the controls,** in their own commit and their own dated `budget-rebases.md` entry, under §24.4 and §29.5.
+
+| Control                   | Declared 2026-09-09 | Figure at `c0713204a` |
+| ------------------------- | ------------------: | --------------------: |
+| `free drag minimal`       |               8,116 |                 8,281 |
+| `free drag + bounds`      |               8,274 |                 8,514 |
+| `free drag + landing`     |               8,276 |                 8,449 |
+| `free drag complete`      |               8,426 |                 8,652 |
+| `kernel root - kernel.js` |               6,185 |                 6,340 |
+| baseline B                |               6,889 |                 6,916 |
+
+- Give each row its chain, and re-declare only those whose whole interval is attributed, at the exact landed figure.
+- `drag.js` stays at 142.
+- State the failing set by name afterwards: the four `docs.node` rows, plus any unattributed control.
+
+**Run the whole suite once** after this step.
+
+**Stop and report if any control is unattributed.** Do not write `d208-requests.md`.
+
+**Step 4: `d208-requests.md`, the last act,** only when §29.7's prerequisites all hold.
+
+**Out of scope:**
+
+- any source change other than step 1;
+- further comment searches;
+- retained-heap, allocation or timing measurement;
+- F-442, F-443, F-444's follow-ups, F-445 and the compression pass;
+- the final proof, removing D-208's row, and marking D-208 implemented.
+
+### 29.7 The final record: prerequisites and contents
+
+**Written only when all of these hold:**
+
+- §29.6's steps 1 to 3 are complete, and their checks are recorded;
+- every control is re-declared, or its unattributed interval has been disposed of by the architect and is named in the record;
+- no escalation or finding from §24.5 is open;
+- the owner's dispositions of 2026-11-03 and 2026-11-04 are present, as they are.
+
+If one does not hold, the implementer stops without creating the file. Creating it early falsifies the witness.
+
+**It holds what §20.5, §21.8, §23.3 and §24.5 step 6 list, as §28.7 amends them,** with these changes:
+
+- **Mint sites:** four, by location. §20.5's and §23.3's _five expected_ is superseded by §25.5's expected fall, and a fifth is now a finding;
+- **Closed items:** 6R, cited to this section, and reviewer-1 and reviewer-2, cited to where each landed;
+- **Composition:** 6R's row and the comment commit's unchanged row, with the controls as step 3 leaves them;
+- **The freeze:** the final `src/` tree by hash.
+
+**Every statement of §28.1's wording rules applies,** as does §28.7's I-26 rule. The record names §29.1's limits and does not summarize them away.
+
+### 29.8 What writing the record does
+
+**Writing the file reddens `decisions.node`'s _should hold every witness it claims_, by design.** The row reports `D-208: .plan/measurements/d208-requests.md exists`. The test reads a false witness as a stale row, and only the whole-decision acceptance may remove that row (§20.5). So from the record's commit until acceptance:
+
+- the failing set gains that row, by name. The record says so;
+- the row is **not** deleted, the marker stays, and the witness is not weakened. D-208 is still not implemented;
+- the branch therefore cannot read clean before acceptance. That is a correct gate on the merge.
+
+### 29.9 After the record: the final proof and acceptance
+
+**The final proof runs within the consolidator's review round,** as the owner has planned. This replaces _step 6's feature proof_ by a standalone reviewer in §20.5, §23.3, §24.5 step 6 and §24.6, as to where it runs and not what it owes:
+
+- **It stays an independent feature proof** of the whole decision against this record, the contract and `d208-requests.md`, at the record's commit.
+- **It does not reopen a3 or run new rounds to resolve it,** and it tests that the record states a3, its limits and the owner's words truthfully.
+- **Findings go to the architect** through the consolidator. A source defect is not fixed by the round, and the freeze holds (§21.8).
+
+**Then, in order:** the architect's whole-decision acceptance, which alone removes D-208's row and marker, closes F-432 to F-435 and F-441, and marks D-208 implemented. The merge comes after that and is the owner's.
+
+### 29.10 Limits of this record
+
+- **No rounds ran, and no source changed here.** The only tracked changes are this record, 05:253's text, `00-index.md` and `plan.md`.
+- **The control table's figures** come from `d208-step6.md` §Costs, not from a new reading. §29.6 step 2 re-reads them.
+- **Whether the six intervals can be attributed is not known.** Nothing here assessed the chain. A row may well fail §29.5, and §29.5 says what happens then.
+- **The dependency commits** are named from `git log` over the manifests. Their effect on any row is unread.
+
+### 29.11 What stays open
+
+D-208 stays `Unimplemented (Remediation)`, and the witness holds. §28.9's rows for landing, the recheck and closure are closed. §24.6 and §26.10 otherwise stand, with these changes:
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| reviewer-1, the seven comment sites (tier C) | implementer | §29.3, §29.6 step 1 | first |
+| Composition at the final tree | implementer | §29.6 step 2 | after the comment commit |
+| The controls | implementer | §24.4, §29.5, §29.6 step 3 | after composition |
+| An unattributed control, if one arises | architect, then the owner where an authorization is needed | decide, with the row still red and named | before `d208-requests.md` |
+| `d208-requests.md` | implementer | §29.7 | last, with its prerequisites met |
+| The final proof | consolidator's round | §29.9 | after `d208-requests.md` |
+| Whole-decision acceptance | architect | §29.9 | after the proof, before the merge |
+| `drag2:F-445`, the estimator (tier B) | architect | unchanged | before Phase 24 exits |
+| F-442, F-443 and the compression pass | as §24.6 states | separate | unchanged |

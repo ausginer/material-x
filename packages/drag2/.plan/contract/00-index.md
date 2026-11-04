@@ -2921,7 +2921,15 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 - **The outcomes stand:** retained heap A and allocation a3. No regression is demonstrated and none is excluded. The owner's acceptance sets no tolerance, is not a precedent and covers this candidate's code only. The condition of 2026-11-03 stands: a demonstrated regression or retained-heap growth is not authorized.
 - **Next, in order:** the candidate lands byte for byte at src tree `c0713204a`. A bounded recheck follows, covering correctness, diagnostic semantics, R21, R33 and the existing evidence, with no new statistical rounds. New correctness defects are still reported. The architect then closes 6R, and only then does record §24.5 step 5 resume.
 
-`d208-requests.md` waits for the steps of record §24.5, as §25.5, §26, §27 and §28 amend them, and for no escalation to be open.
+**Remediation 6R closed 2026-11-04, at `70368bfde`, src tree `c0713204a`** (record §29). The recheck at `63f603f1a` finds no correctness defect, failed premise or record mismatch. D-208's text does not change.
+
+- **The outcome stays:** retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04. The limits and unanswered questions in record §28.1 and §29.1 stay stated. M-1's _no regression_ carries to this tree.
+- **reviewer-2:** 05:253's precision named the unwind guard and `FeatureContext.report` as minted channels, and each reports through one. It is corrected, and I-36's mechanism and tier do not change.
+- **reviewer-1:** seven comment sites still state the replaced form. They are corrected at those sites only, in one comment-only commit, with no census. It is the freeze's one named exception. Otherwise the freeze holds at `c0713204a`.
+- **Next:** composition and controls, under record §29.5. A control is re-declared only if its whole interval is attributed, and an unattributed one stays red and named and goes to the architect. Then `d208-requests.md`, only under record §29.7.
+- **Then:** the final proof runs in the consolidator's review round. The whole-decision acceptance follows it and comes before the merge. Writing the record reddens `decisions.node`'s witness row until that acceptance, by design (record §29.8).
+
+`d208-requests.md` waits for the steps of record §24.5, as §25.5, §26, §27, §28 and §29 amend them, and for no escalation to be open.
 
 **What is carried.** D-207's text, its properties as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1–3 as accepted at `44e2074f1`, `877fb9612` and `ef1e4ef6b`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step3-B and step3-C keep their boundaries.
 
@@ -2981,7 +2989,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-208 | Remediation | step 6's remainder under record §24.5: the ceiling re-base, M-1's follow-up, remediation 6R (M-2's retained heap, resumed under record §25.5, measured under record §26 and §27, landing and recheck under the owner's disposition in record §28), the remeasurement and controls, then the measurement record. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64`, remediation 5R at `2d17645f5`, and remediation 5R.1 is closed at `7f1900ccf` | absent: `.plan/measurements/d208-requests.md` |
+| D-208 | Remediation | step 6's remainder under record §29.6: one comment-only commit, composition and controls, then the measurement record, the final proof and the whole-decision acceptance. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64`, remediation 5R at `2d17645f5`, remediation 5R.1 is closed at `7f1900ccf`, and remediation 6R is closed at `70368bfde` | absent: `.plan/measurements/d208-requests.md` |
 
 **D-207's row closed on 2026-11-02 with steps 1–3 accepted.** D-208 superseded it during step 4, adding `BehaviorContext.channel` so that the behaviors' diagnostics keep the kernel's refusal after applied destruction. D-208's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 
