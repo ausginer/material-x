@@ -23,6 +23,8 @@
 | **Sink** | module-level, **disposed and dropped before the baseline**, never after it |
 | **Runs** | 3, all reported; every figure below reproduces across all three |
 
+**Note, 2026-11-04 (`drag2:F-445`):** _heap noise is one-sided_ is false. Anything live at a window's first reading and collected by its second deflates the reading, so the minimum can select a deflated one. The figures here stand as measured. See [`d208-step6.md`](d208-step6.md) §Remediation 6R and `request-application-claude.md` §26.3.
+
 **No consumer slot is composed beyond the required resolution callback**, which runs at release and never at construction: free drag composes `onDrop`, the sortable composes `items` (an O(1) return of a stable array), `axis: y()` (a library feature) and `onReorder`. The figures are the library's, not the fixture's.
 
 ## Three methodological corrections, each found by a wrong number

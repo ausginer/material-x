@@ -644,8 +644,9 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']))(
       // *allocation*; growth under that method is uncollected churn or
       // retention indistinguishably, so it cannot be borrowed for a retention
       // claim. `gc()` before the baseline **and** before the final reading
-      // makes the delta retention. The minimum of several runs, because heap
-      // noise is one-sided.
+      // makes the delta retention. The minimum of several runs, because
+      // allocation from elsewhere inflates a reading. Heap noise is not
+      // one-sided, so the minimum can also select a deflated one (F-445).
       const arms: ReadonlyArray<readonly [string, Partial<FreeDragConfig>]> = [
         ['onMove installed', { onMove: (): void => {} }],
         ['slot null', {}],

@@ -22,8 +22,11 @@
  * - `gc()` before **every** reading (`--js-flags=--expose-gc`);
  * - `--enable-precise-memory-info`, without which Chrome quantizes
  *   `usedJSHeapSize` to 100 kB and every figure here is a rounding artifact;
- * - the **minimum of 5 runs after 3 warm-ups**, because heap noise is
- *   one-sided: other allocation can only inflate a reading;
+ * - the **minimum of 5 runs after 3 warm-ups**, which reproduces when no low
+ *   reading occurs. Heap noise is not one-sided: anything live at the first
+ *   reading of a window and collected by its second deflates the difference,
+ *   so the minimum can select a deflated reading (F-445). A figure is read
+ *   across rounds and beside the median of the same five, never alone;
  * - the module-level sink **cleared, and its graph disposed, before the
  *   baseline** — without which each run frees one population while allocating
  *   the next and every figure reads ≈ 0, which looks exactly like *costs
@@ -35,6 +38,12 @@
  *
  * The structural rows run in CI on every suite run; heap figures are opt-in
  * with `VITE_DRAG_MEASURE=1` and assert nothing. **Run this file alone.**
+ *
+ * **Two more switches exist for `bench/m2pp`,** and neither changes a plain
+ * run's readings. `VITE_M2_INJECT=1` makes `attach` hold a known 4 B per
+ * controller, so the instrument can be shown to see the smallest margin it is
+ * asked about. `VITE_M2_QUIESCE=1` repeats settle and `gc()` before the window's
+ * first reading until the heap stops moving.
  */
 import { afterEach, describe, expect, it } from 'vitest';
 import { FreeDragResolution, freeDrag } from '../../src/free-drag.ts';
@@ -58,6 +67,14 @@ const ROWS = 4;
 const TIMEOUT = 600_000;
 /** Objects the retention falsifier deliberately keeps per drag. */
 const RETAINED_PER_DRAG = 8;
+const INJECT = Boolean(import.meta.env['VITE_M2_INJECT']);
+const QUIESCE = Boolean(import.meta.env['VITE_M2_QUIESCE']);
+/** Extra settle-and-`gc()` cycles a quiesced baseline may take. */
+const QUIESCE_CYCLES = 3;
+/** Successive heap readings this close count as agreeing. */
+const QUIESCE_BYTES = 1024;
+/** Numbers one reading contributes to a ledger: `F`, `B`, `A`, extra cycles. */
+const LEDGER_FIELDS = 4;
 
 type Memory = Readonly<{ usedJSHeapSize: number }>;
 type Gc = Readonly<{ gc?(): void; performance: { memory?: Memory } }>;
@@ -83,12 +100,22 @@ type Graph = Readonly<{ dispose(): void }>;
  */
 let sink: Graph | null = null;
 
+/**
+ * The injected growth: a tagged on-heap array, whose slots the heap reading
+ * counts at 4 B each under pointer compression.
+ */
+let injected: number[] | null = null;
+
 /** Reads the sink so nothing above can be optimized away as write-only. */
 export const retained = (): unknown => sink;
+
+/** Reads the injected growth, for the same reason. */
+export const injectedGrowth = (): unknown => injected;
 
 const clear = (): void => {
   sink?.dispose();
   sink = null;
+  injected = null;
 };
 
 const used = (): number => runtime.performance.memory!.usedJSHeapSize;
@@ -118,8 +145,10 @@ const settle = async (): Promise<void> => {
  * Bytes `build` leaves retained, as the **minimum** of `HEAP_RUNS` runs after
  * `WARMUP` discarded ones.
  *
- * The minimum rather than the median or the mean: heap noise is one-sided, so
- * every source of error inflates a reading and none deflates it.
+ * The minimum rather than the mean, because inflating noise is the common kind
+ * and the minimum reproduces when no low reading occurs. It is not a filter:
+ * anything live at the first reading and collected by the second deflates a
+ * reading, and the minimum then selects it (F-445).
  */
 /**
  * Runs `run(0..count-1)` strictly in order, as a promise chain.
@@ -142,6 +171,22 @@ async function sequence(
   }
 
   await chain;
+}
+
+/**
+ * Repeats settle and `gc()` until two successive heap readings agree, for at
+ * most `QUIESCE_CYCLES` cycles, and returns how many cycles it took.
+ */
+async function quiesce(previous: number, cycles: number): Promise<number> {
+  await settle();
+  runtime.gc?.();
+
+  const current = used();
+
+  return Math.abs(current - previous) <= QUIESCE_BYTES ||
+    cycles + 1 === QUIESCE_CYCLES
+    ? cycles + 1
+    : await quiesce(current, cycles + 1);
 }
 
 async function heap(build: () => Graph): Promise<number> {
@@ -186,24 +231,43 @@ async function heap(build: () => Graph): Promise<number> {
 async function retention(
   build: () => Graph,
   work: (graph: Graph) => void,
+  ledger?: Float64Array,
+  offset = 0,
 ): Promise<number> {
   let best = Number.POSITIVE_INFINITY;
+  let slot = offset;
 
   const once = async (): Promise<number> => {
     clear();
     await settle();
     runtime.gc?.();
+
+    const floor = used();
+
     sink = build();
     await settle();
     runtime.gc?.();
 
+    const extra = QUIESCE ? await quiesce(used(), 0) : 0;
     const before = used();
 
     work(sink);
     await settle();
     runtime.gc?.();
 
-    return used() - before;
+    const after = used();
+
+    // **Numbers into a buffer allocated before the first reading**, so that the
+    // accounting allocates nothing inside a window and nothing is logged there.
+    if (ledger) {
+      ledger[slot] = floor;
+      ledger[slot + 1] = before;
+      ledger[slot + 2] = after;
+      ledger[slot + 3] = extra;
+      slot += LEDGER_FIELDS;
+    }
+
+    return after - before;
   };
 
   await sequence(WARMUP, async () => {
@@ -311,6 +375,10 @@ function stage(count: number): Population {
     roots,
     isSortable,
     attach: (kind): void => {
+      if (INJECT) {
+        injected = new Array<number>(count).fill(0);
+      }
+
       for (let i = 0; i < count; i += 1) {
         const rows = rowsOf[i]!;
         const asSortable =
@@ -654,6 +722,9 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']) && available())(
             'free',
           ] as const satisfies readonly Kind[];
           const each: number[] = [];
+          const ledger = new Float64Array(
+            kinds.length * (WARMUP + HEAP_RUNS) * LEDGER_FIELDS,
+          );
 
           await sequence(kinds.length, async (round) => {
             // **The DOM is the baseline and attaching is the work**, so no
@@ -663,6 +734,8 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']) && available())(
               (graph) => {
                 (graph as Population).attach(kinds[round]!);
               },
+              ledger,
+              round * (WARMUP + HEAP_RUNS) * LEDGER_FIELDS,
             );
 
             each.push(bytes / count);
@@ -689,6 +762,15 @@ describe.runIf(Boolean(import.meta.env['VITE_DRAG_MEASURE']) && available())(
               `mixed-measured=${asMixed.toFixed(0)}B ` +
               `sortable-specific=${(asSortable - asFree).toFixed(0)}B ` +
               `common=${Math.min(asSortable, asFree).toFixed(0)}B`,
+          );
+          // oxlint-disable-next-line no-console -- this suite exists to report
+          console.info(
+            `M-2″ ledger ${JSON.stringify({
+              count,
+              kinds,
+              engine: navigator.userAgent,
+              readings: [...ledger],
+            })}`,
           );
         },
         TIMEOUT,

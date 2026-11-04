@@ -238,6 +238,16 @@ function report(label: string, result: Attribution, per: number): void {
         `harness=${(result.harness / per).toFixed(1)}B other=${(result.other / per).toFixed(1)}B`,
       ...rows,
       ...others,
+      // Unrounded and unfiltered, for `bench/m2pp`'s paired rule and its check
+      // that no byte lands on a named function.
+      `D208-RAW ${JSON.stringify({
+        label,
+        per,
+        libraryTotal: result.libraryTotal,
+        harness: result.harness,
+        other: result.other,
+        library: Object.fromEntries(result.library),
+      })}`,
     ].join('\n'),
   );
 }
