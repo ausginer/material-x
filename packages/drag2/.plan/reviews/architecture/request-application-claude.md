@@ -4611,14 +4611,14 @@ D-208 is implemented, and §30.11's rows for the remediation and this acceptance
 
 ### 32.2 What the inspection found
 
-**Every entry in the queue was enumerated, by its `dispatch` site.** Two carry a fault that is not yet reported:
+~~**Every entry in the queue was enumerated, by its `dispatch` site.** Two carry a fault that is not yet reported:~~ **Corrected 2026-11-04 (§33.3).** This enumeration was false. It read the kernel's `dispatch` sites and treated a behavior action as faultless, and two behavior tags carry a fault. §33.3 is the complete table. The first three rows below stand, and the last is withdrawn.
 
 | Tag | Argument | What is owed if it is discarded |
 | --- | --- | --- |
 | `FAILED` | the checkpoint | the fault, as D-209 states |
 | `RESOLUTION_SETTLED` | the attempt, whose input may be `SETTLED_REJECTED` | **the fault, when rejected.** D-209 does not state this (§32.3) |
 | `ERROR_REPORTED` | the same checkpoint | nothing: its fault was already delivered, so a row must tell it apart from `FAILED` |
-| every other tag | no fault | nothing |
+| ~~every other tag~~ | ~~no fault~~ | ~~nothing~~ |
 
 **Run through the public entries,** at the accepted tree and on the prototype, once each:
 
@@ -4808,16 +4808,16 @@ Run each once on the landed code and restore it, and record the reddened rows by
 
 1. Read the diff and the rows. Rerun the comment-stripped diff, the member lists, the declarations, N1, and the whole suite.
 2. Confirm §32.6's outcomes and the failing set.
-3. **Accept, or stop.** On acceptance, remove D-209's marker and row, close F-446, and mark the decision implemented.
-4. **Reconcile the contract:** I-22 and I-36's dated _today_, §2.4's note and its application order, D-208's _every diagnostic_ note, and `00-index.md`'s F-446 references.
+3. **Accept, or stop.** On acceptance, remove D-209's marker and row, close F-446 **and F-448 (§33.4)**, and mark the decision implemented.
+4. **Reconcile the contract:** I-22 and I-36's dated _today_, §2.4's note and its application order, D-208's _every diagnostic_ note, and `00-index.md`'s F-446 **and F-448** references. **Added 2026-11-04 (§33.5):** D-130's statement of what a warning implies.
 5. Hand off gates 3 to 5.
 
-**No independent review of D-209 is booked,** by the owner's direction against another round. This is a tier A consumer-visible change, so the acceptance would rest on the architect's reading, the rows and the mutations. **The owner can add one `reviewer` lens** between the record and step 1. I would not call that a new architecture round, and it is the owner's to choose.
+~~**No independent review of D-209 is booked,** by the owner's direction against another round. This is a tier A consumer-visible change, so the acceptance would rest on the architect's reading, the rows and the mutations. **The owner can add one `reviewer` lens** between the record and step 1. I would not call that a new architecture round, and it is the owner's to choose.~~ **Corrected 2026-11-04 (§33.7).** That attribution was mine, and it was wrong. The owner's direction against another architecture round did not waive independent implementation review. One independent review was required, and it has run: [`d209-feature-proof-claude.md`](../fin-review2/d209-feature-proof-claude.md), at `3ff2d2acf`. Step 1 now follows §33's remediation and its recheck.
 
 ### 32.11 Limits of this record
 
 - **The prototype is evidence of feasibility, not the implementation.** It has no comments, and its rows are drafts. Each reading ran once, in Chromium, on one machine, in a private worktree. Nothing here is a D-209 acceptance.
-- **The enumeration in §32.2 is by reading** the `dispatch` sites at this tree. A later carrier would need its own decision.
+- **The enumeration in §32.2 is by reading** the `dispatch` sites at this tree. A later carrier would need its own decision. **Corrected 2026-11-04:** it missed two carriers already there (§33.3).
 - **A construction-window `dispatch` whose unchecked tag aliases `FAILED` or `RESOLUTION_SETTLED` can reach the walk with a foreign argument.** That is invalid use, D-204 leaves those tags unchecked, and no guard is owed. It was not run.
 - **`runIngress`'s `admit` throwing past `#drain` was not enumerated.** By reading, no checkpoint can be queued there, because failure intake needs a committed operation.
 - **The accepted tree's outcome for `onReorder` and `onDrop` was run.** The same drive at `6905af249` was not, so §30.5's _not a regression_ is not extended to that route. By reading, the input's immediate closure would retire the attempt and stay silent. This does not touch D-208's acceptance, which never claimed this route.
@@ -4835,3 +4835,335 @@ D-209 stays `Unimplemented (Remediation)`, and F-446 stays open, until §32.10.
 | The merge | owner | after every gate | when the owner chooses |
 | integrity-4, F-442, F-443 and O-15, F-445, RF-23, D-200's independent acceptance, Reviewer-E | as §31.9 | unchanged | unchanged |
 | The terminology phase, comment reduction, the compression pass | as `plan.md` states | separate | after the merge |
+
+## 33. D-209's independent review disposed: two silences named, a cancel-superseded rejection decided, and one remediation before acceptance (D-209, F-448)
+
+**2026-11-04. Input:** `1e5efc518` on `drag2/fin-review2`. **Implementation:** `3ff2d2acf`, baseline `7398d6969`, `src/` tree `db3c402a488231e4d17fa2b6a3209543dab561e5`. **Review:** [`d209-feature-proof-claude.md`](../fin-review2/d209-feature-proof-claude.md).
+
+No source changed, D-209 is not accepted, and nothing is merged. No audit or statistical round ran. A throwaway prototype and its drives ran in a private worktree, and the evidence is in [`probes/d209-disposition/`](../../probes/d209-disposition/).
+
+**The review's confirmation stands.** All six written properties and the recorded verification hold at `3ff2d2acf`. The items below are what the review routed here.
+
+**Disposed:**
+
+| Finding | Contract and domain | Belongs to | Disposition |
+| --- | --- | --- | --- |
+| reviewer-1, `moveTo` | The promise covers an applied move, and a malformed point is outside the contract | a documented silence | §33.1. Stops nothing |
+| reviewer-1, sortable's listener | The stage is promised, but this route needs a synthetic event inside a library callback | a documented silence | §33.2. Stops nothing |
+| reviewer-2, with a later destruction | Valid use. D-209's report names a discard destruction did not make | **D-209** | §33.4. **Stops F-446's closing** |
+| reviewer-2, no destruction | Valid use, and no text grounds the silence | **F-448, new,** decided under D-209 | §33.4. **Stops the merge** |
+| reviewer-3, reviewer-4 | Published texts promise what the code does not do | D-209 | §33.5. The remediation |
+| reviewer-5 | The settlement carrier's route and code have no row | D-209 | §33.6. The remediation |
+| reviewer-6, reviewer-7 | One introduced lint error, stale text | D-209 | §33.6. The remediation |
+| §32.2, §32.10 | The architect's errors | this record | §33.3, §33.7. Corrected here |
+
+**One implementation handoff follows, at §33.8 to §33.11, with one targeted recheck at §33.12.** Acceptance stays §32.10.
+
+### 33.1 reviewer-1: a malformed `moveTo` is a documented silence
+
+**What the contract promises.** `moveTo`'s published doc says a read that throws is reported _when the move is applied_, as a `DraggableError` at `FAILURE_ACTION_PREPARE`. Contract 07 gives the mechanism: the error travels with the queued action and is thrown by the action's `prepare`. Under `CONTRIBUTING.md` §13 that is a fixed outcome, so it stays, and _should classify a malformed point rather than discarding it_ stays with it.
+
+**What it does not promise.** An outcome for a move that is never applied. That is not only destruction's case. The prepare's phase test returns before the fault is read, so the move is already silent on routes that involve no destruction:
+
+| Drive, with a malformed point | Delivered |
+| --- | --- |
+| `moveTo` alone in `onMove` (control) | `DraggableError` stage 4, then `onEnd canceled` |
+| `moveTo` with no drag | nothing |
+| `moveTo` in `onDrop`, at `RELEASING` | nothing, then `onEnd accepted` |
+| `requestCancel`, then `moveTo`, in `onMove` | `onEnd canceled`, and no fault reported |
+| `moveTo`, then `requestDestroy`, in `onMove` | nothing |
+
+So the rule in force is _reported if and only if applied_, and destruction's row is one more instance of it.
+
+**The supported-use domain, by §1.1's gate.** `null` and a missing field violate `Point`, so an integrator passing one has left the contract. A throwing accessor satisfies the type, but the published doc names it _malformed_ in the same sentence, where an integrator reads. That text dates from D-91 and D-202 §2.12, so it is not a term invented here to dispose of the case. No platform, race, end user or library-minted value produces a malformed point: the integrator supplied it. **The gate closes, and clause (b) is not reached.** The review's _one slot, one malformed point and one request_ shows that the silence is reachable. It does not show the input is admitted, and reachability alone establishes no outcome.
+
+**Why F-446's grounds do not carry over.** F-446 is a slot's throw, which the contract classifies without a condition, on every route that reaches it. The same call reports from other slots, and no text conditioned it. Here the text states the condition, and a discarded move does not meet it. The two cases share a shape and have different contracts.
+
+**Decided: a documented silence, not D-209's.** The doc gains one sentence saying that a move that is never applied reports nothing, and one row pins it. Adding that sentence changes no outcome. Reporting here would widen a promise for a value the contract already refuses, and §1.1 owes nothing for that.
+
+### 33.2 reviewer-1: sortable's listener is a documented silence on a different ground
+
+**This one is not invalid input.** `FAILURE_INVALIDATION` is a promised stage, and an axis whose `invalidate` throws is a fault the contract classifies. §33.1's argument does not apply, and I do not rest on it.
+
+**The ground is the route.** The entry reaches the walk only if the listener runs while destruction is requested. `REQUESTED` exists only inside a running unit, because a request with no unit running is applied at once. The platform delivers scroll and resize outside any unit, so a real event finds a live controller, or a listener its signal already removed. The review's drive needed a wrapped axis whose `invalidate` throws and a synthetic `scroll` dispatched from `onStart`. Only the integrator's own synchronous dispatch reaches it, on top of a third party's throw.
+
+**Carrying it would cost a route the kernel does not have.** A behavior action's argument is opaque to the kernel, so reporting it needs a new `BehaviorSpec` member or a shape convention the walk reads, and §32.4 identified entries by tag to avoid exactly that. That cost is not the ground, and it is why I do not reopen the decision for this drive.
+
+**Decided: a silence named by route,** in the listener's comment and D-209's entry. **The kernel-tier statement is general:** a queued behavior action is discarded whole and is never prepared, so whatever its argument carries is dropped unread. `BehaviorContext.dispatch`'s doc says so, and a kernel-tier author who needs a fault reported has `channel`. The free drag's listener already reports through its channel directly and queues nothing.
+
+### 33.3 §32.2's enumeration, corrected
+
+Every `dispatch` site in `src/`, read at `db3c402a4`. **Each entry's outcome under destruction is now stated.**
+
+| Tag | Argument | A fault? | Outcome when destruction discards it |
+| --- | --- | --- | --- |
+| `FAILED` | the checkpoint | yes | **reported** (D-209) |
+| `RESOLUTION_SETTLED` | the attempt | when rejected | **reported** (D-209, §32.3) |
+| `ERROR_REPORTED` | the same checkpoint | delivered already | nothing owed |
+| `CANCEL`, `ACTIVATE`, `START_COMMITTED`, `OPEN_RESOLUTION`, `RELEASE`, `RETIRE` | operation identity | no | nothing owed |
+| `MOVE`, `UP` | the event | no | nothing owed |
+| free drag `TAG_POSITION` | captured coordinates | **when malformed** | **silent,** §33.1 |
+| free drag `TAG_POLICY` | `null` | no | nothing owed |
+| sortable `TAG_INVALIDATION` | the error | **yes** | **silent, by route,** §33.2 |
+| sortable `TAG_SPATIAL` | the attempt number | no | nothing owed |
+| sortable `TAG_COLLECTION` | `null` | no | nothing owed |
+| a kernel-tier behavior's own tag | opaque | unknown to the kernel | **discarded whole,** §33.2 |
+
+**`execution.ts`'s _which two tags owe a report_ is true under this table,** because the other two carriers are decided as owing none. It gains a clause saying so.
+
+### 33.4 reviewer-2: a rejection a cancel superseded
+
+**The contract and the domain.** A slot that requests a cancel and then throws is valid use: both acts are admitted, and the slot's throw is the fault the contract classifies. D-40 says the _late_ settlement or rejection from an abandoned resolver is consumed safely. This rejection is not late. It won the first-completion latch while the attempt was current, in the same synchronous interval, with the cancel registered and unapplied. I-22's ladder and D-207 state the sibling case: a checkpoint a registered cancel supersedes reports `drag: failure/superseded-by-cancel`. F-29 refuses to let a resolver malfunction read as `canceled`. Here the cancel is real, so the terminal stands, but the fault then has no other channel. No text grounds the silence.
+
+**So the case splits, and only half of it is D-209's.**
+
+- **With a later destruction, it is D-209's own defect.** A cancel retired the attempt and `onEnd` requested destruction, so the walk reports the rejection and calls it `superseded-by-destruction`. Destruction discarded nothing that would otherwise have been reported, the message is false, and the delivery depends on an unrelated later request. Property 1 says _a rejection that destruction discards_, and this one was already gone. **It stops F-446's closing.**
+- **With no destruction, it is the accepted tree's silence and not D-209's.** `onEnd canceled`, no `onError`. **F-448 is raised.** It is no regression against the accepted tree. `6905af249` was not driven.
+
+**Decided: it reports, under D-209, as amended.** F-448 is a separate finding because destruction is not involved, and it is decided here because the walk's report must choose an outcome for this entry anyway. A later decision could only reverse that choice in the same lines.
+
+**The rule, now one sentence:** a rejection that won the latch reports exactly once, whichever request superseded it, and one arriving after its operation was decided is consumed silently.
+
+| Route | Reported as | When |
+| --- | --- | --- |
+| Applied live | `DraggableError`, stage `FAILURE_RESOLUTION`, unchanged | as today |
+| Discarded by destruction | `superseded-by-destruction` | in the walk |
+| A cancel applied ahead of it | **`superseded-by-cancel`** | after the terminal |
+| A cancel applied ahead of it, then destruction | **`superseded-by-cancel`** | after the terminal, in the walk |
+| Cancel and destruction both held at the throw | `superseded-by-destruction` | in the walk: destruction outranks the cancel, as row (r) |
+| Arrived after the cancel applied, as an `async` slot's | nothing (D-40) |  |
+| Arrived after destruction applied | nothing (I-36 (a), row (y)) |  |
+
+**Required properties. The implementer chooses the spelling.**
+
+1. `#handleResolutionSettled`'s retired branch delivers the carried report and returns. Nothing else on that path changes, and an attempt with no rejection reports nothing.
+2. The report's code is decided when it is delivered: destruction's while the attempt is still current, because no handler ran, and the cancel's once it has been retired.
+3. No class gains a field, no constructor gains a callback, and no exported name is added. Property 6 is unchanged.
+
+**The prototype,** in [`prototype-src.diff.txt`](../../probes/d209-disposition/prototype-src.diff.txt), meets the table in both behaviors. The whole suite moved nothing except the five exact controls, beside the standing failing set. Every composition row stayed under its ceiling, and the least slack was 22 B, on `minimal`.
+
+**Rejected:**
+
+- **Name the silence and guard the walk.** It is smaller, and it keeps a tier A silence with §32.3's grounds intact: the same call reports from `onStart`, and a resolver malfunction reads as `canceled` and nothing else, which is what F-29 refused.
+- **Report `failure/checkpoint-stale`.** It would be true of the operation, but there is no checkpoint, and the same call from `onStart` reports the cancel's code.
+- **Leave it for after the merge.** The walk has to choose now, and §32.1's order keeps tier A consumer-visible gaps ahead of the merge.
+
+**Why only a cancel retires an attempt ahead of a queued rejection.** `#retireAttempts` runs from `#handleFailed` and from `#release`, which is retirement and teardown, and retirement follows a settlement. `kernel.fail` inside `invoke` is refused outside a seam (K6), so it queues no `FAILED` ahead of the settlement. §33.14 states what is left.
+
+### 33.5 reviewer-3 and reviewer-4: what the published texts say
+
+**The required property:** what the package says a warning implies holds for every warning it delivers. A warning says this fault did not decide the outcome. It does not say a terminal is still coming: `superseded-by-cancel` already arrives after `onEnd`, on both trees, and `superseded-by-destruction` usually has no terminal.
+
+**The wording, as decided. Reflow to the formatter, and change no sense.**
+
+| Text | Decision |
+| --- | --- |
+| `reportError`, `kernel/spec.ts` | Replace from _Which class arrives_ to _publishes afterwards_ with: **Which class arrives says whether this fault decided the outcome.** A `DraggableError` means it did: `admit` threw and the drag will not start, or the controller panicked. A `DraggableWarning` means it did not — a landing measurement that could not be trusted, a disposer that refused, an interpolation the platform declined to start, a throw a cancel or destruction had already superseded. A warning therefore says nothing about the terminal: the operation publishes the one it would have without this fault, before or after the warning, and none once destruction has decided it. |
+| `requestDestroy`, `kernel/spec.ts` | _and nothing after it runs_ becomes: _and no later unit runs. A fault queued behind that unit is reported before application and has no other consequence._ |
+| `dispatch`, `kernel/spec.ts` | Add: _A destruction discards a queued action whole: it is never prepared, and whatever `argument` carries is dropped unread._ |
+| `DraggableWarning`, `kernel/errors.ts` | **Stays.** _The operation terminated exactly as it would have_ is true: the same request with no throw also publishes no terminal (R33 (b)). The implementer's record read it more strictly than it says |
+| `SortableOnDragError`, `FreeDragOnDragError`, both `config.ts` | Replace with: **A `DraggableWarning` means this fault did not decide the outcome** — a landing measurement that could not be trusted, a disposer that refused, a throw a cancel or destruction had already superseded. The operation ends as it would have without it, so do not wait on a warning for a terminal: it may already have arrived, and destruction publishes none. A `DraggableError` means the fault changed the outcome. |
+| `drag.ts`'s header | _something went wrong and your result stands_ becomes _something went wrong and it did not decide your outcome_ |
+| `moveTo`, `free-drag/controller.ts` | After _like any other seam throw_, add: **A move that is never applied reports nothing.** With no drag, past release, behind a cancel, or discarded by destruction, the move is dropped and the read's error with it. |
+| `README.md:60` | _which means the operation was **not** affected and its terminal is still coming (D-130)_ becomes _which means the fault did **not** decide the outcome: the operation ends as it would have without it, and a warning says nothing about whether a terminal is still coming (D-130, D-209)_ |
+| `README.md:80` | _a `DraggableWarning` means none of them did — the settlement is not failed and the domain result stands_ becomes _a `DraggableWarning` means this fault changed none of them, and where a settlement and a domain result exist, they stand. A warning is no signal to wait for a terminal: `superseded-by-cancel` arrives after `onEnd`, and `superseded-by-destruction` usually has none (D-209)_ |
+
+**The README's D-209 sentence (reviewer-4).** The review is right about both §32.5's wording and its replacement. Replace from _A callback that requests destruction_ to the end of the bullet's last sentence with:
+
+> **A callback that requests destruction and then throws synchronously still reaches `onError`** (D-209). Where its own step reports the throw, as a `handle`, `visual`, `box` or `home` resolver's does, that report is unchanged. From `onStart`, `onMove`, `onEnd`, `onReorder`, `onDrop` or a `placeholder` factory it arrives as a `DraggableWarning` with the throw as `cause`, before application, and no `onEnd` follows it, because destruction decided the outcome and the fault did not. **Three routes stay silent:** a rejection arriving after application, which is how an `async` `onReorder` or `onDrop` rejects (I-36 (a)); a throw from `onError` itself, which the route absorbs; and a throw from a placeholder's `connectedCallback`, which goes to the platform and is reported on `window`, because the library never sees it. **A cancel divides the same way** (F-448): a synchronous throw from `onReorder` or `onDrop` after `requestCancel` arrives as a `superseded-by-cancel` warning after the `canceled` `onEnd`, and a rejection arriving after the cancel applied is consumed (D-40). **A `moveTo` that is never applied reports nothing,** because a malformed point is classified when its move is applied.
+
+The README's `handle` and `home` sentence therefore stands as the implementer corrected it, and §32.5's sentence is superseded. Every route it names was driven: on the candidate by the review, and the cancel routes on §33's prototype.
+
+**Scope.** §32.5 put `spec.ts`, `src/sortable/` and `src/free-drag/` out of scope. **Comment hunks there are now in scope, and only comment hunks.**
+
+### 33.6 reviewer-5, reviewer-6 and reviewer-7
+
+**reviewer-5: acceptance needs the rows.** The remediation changes the settlement carrier's closure, so its route and code cannot stay witnessed only by a census and a probe. X5s reddens nothing today, and X6s is seen only by `capture.node`. §33.9's (ai) to (ak) pin them, and K1's mixed order becomes a row.
+
+**reviewer-6: the introduced error is removed.** Line 5900, in row (u), was introduced by `ec15441ce`, and its unit owes it. The standing line 5009 has the same stub and is in the same file. Both take `// eslint-disable-next-line @typescript-eslint/unbound-method`, spelled as at `tests/diagnostic-intake.browser.test.ts:341`, the convention other test files already use. **This is the architect's direction on these two lines, so `handoff.md`'s _list it, do not resolve it by hand_ does not stop it.** That rule still governs any other lint error.
+
+**reviewer-7:**
+
+- `kernel.ts:441` gains the report a discarded fault entry carries, as the same commit said at `Kernel`'s bracket field.
+- `execution.node`'s _should stop the drain at the next entry when an action requests destruction_ is retitled _should handle no entry behind an action that requests destruction_, and `tests/COVERAGE.md`'s cell follows. Its assertions stay.
+- The implementer's record names `3ff2d2acf`'s one `tests/COVERAGE.md` cell in its series table.
+
+### 33.7 §32.10's attribution
+
+**Corrected in place.** §32.10 said no independent review was booked by the owner's direction, and it presented adding one as the owner's option. The owner's direction concerned architecture review rounds. Independent implementation review of a tier A change was required, and it ran before acceptance. The error was in my reading of the direction, so §32.10 now says so, and the implementer's record already reported it.
+
+### 33.8 Handoff: the remediation
+
+**Owner:** the implementer. **Input:** this section's commit. Do the steps in order, and a failed check stops the sequence. A source comment carries no record identifier.
+
+**Step 1, one commit: source, rows, `tests/COVERAGE.md` and the README.**
+
+| Path | Change |
+| --- | --- |
+| `src/kernel/kernel.ts` | §33.4's properties, in `#settleResolution`'s closure and `#handleResolutionSettled`'s retired branch. Comments: `ResolutionAttempt.discard`, `#settleResolution`'s doc, the retired branch's _late completion_ comment (a rejection queued behind the deciding cancel still reports), and `:441` |
+| `src/kernel/execution.ts` | One clause in the class header: a behavior action is opaque to the bracket and is discarded whole. **Comment only** |
+| `src/kernel/spec.ts`, `src/sortable/config.ts`, `src/free-drag/config.ts`, `src/free-drag/controller.ts`, `src/drag.ts` | §33.5's wording. **Comment only** |
+| `src/sortable/spec.ts` | The listener's comment names §33.2's route: a destruction requested in the same unit discards the action with its fault, and only an event dispatched synchronously inside a library callback can reach that. **Comment only** |
+| `README.md` | §33.5's three replacements |
+| `tests/diagnostic-intake.browser.test.ts`, `tests/free-drag/anchor.browser.test.ts`, `tests/kernel/kernel.browser.test.ts`, `tests/kernel/execution.node.test.ts` | §33.9, §33.6's two lint lines and the retitle |
+| `tests/COVERAGE.md` | The new rows by title, and the retitled cell |
+
+**Step 2:** §33.10's mutations, then the controls in one commit, §33.11.
+
+**Step 3:** extend [`d209-discarded-failures.md`](../../measurements/d209-discarded-failures.md), §33.11.
+
+**Out of scope:**
+
+- `src/kernel/errors.ts`, `queue.ts`, `actions.ts` and `seams.ts`, and any non-comment hunk outside `kernel.ts`;
+- any new field, callback or exported name, and any published declaration beyond a doc comment;
+- `00-index.md`, `05`, `07`, this record, and D-209's marker and row;
+- a report for `TAG_POSITION` or `TAG_INVALIDATION`;
+- RF-24, RF-25, F-447 and every other open item;
+- retained-heap, allocation or timing rounds, and any statement about A or a3 beyond §33.13's.
+
+**Stop and report if:**
+
+- a comment-stripped hunk falls outside §33.11's sites;
+- `capture.node` moves;
+- a row's outcome differs from §33.9, a row cannot be driven as stated, or a standing row not named here reddens;
+- `drag.js` or baseline B moves, or a composition row exceeds its ceiling. **No ceiling moves.** With 22 B left on `minimal` on the prototype, an overrun goes to the architect, and it is not compressed in place;
+- property 6 cannot be kept.
+
+### 33.9 The rows
+
+**Every behavior below was driven once on the prototype,** except that (ag) and (ah) do not depend on it. The implementer writes the rows to `tests/`' conventions and chooses titles. _Input tree_ says whether the row fails at `db3c402a4`.
+
+**Public, both behaviors unless stated, in `diagnostic-intake.browser.test.ts`:**
+
+| Row | Drive | Required outcome | Input tree |
+| --- | --- | --- | --- |
+| (ab) | The round-trip slot requests a cancel, then throws. A counter shows that the slot ran once | `onEnd` `canceled`, then one warning `superseded-by-cancel` with the throw as `cause` | fails |
+| (ac) | The same, and `onEnd` requests destruction | the same outcome, the same code | fails, on the code |
+| (ad) | The slot requests a cancel, requests destruction, then throws | one warning `superseded-by-destruction`, `onError` only | passes |
+| (ae) | An `async` slot requests a cancel, then throws | `onEnd` `canceled`, nothing delivered, no `unhandledrejection` | passes |
+| (af) | The slot requests a cancel, then returns its accept | `onEnd` `canceled`, nothing delivered | passes |
+
+**Free drag only, in `tests/free-drag/anchor.browser.test.ts`, beside the malformed-point row:**
+
+| Row | Drive | Required outcome | Input tree |
+| --- | --- | --- | --- |
+| (ag) | `moveTo` with a throwing accessor, then `requestDestroy`, in `onMove` | nothing delivered, no `onEnd`, and the promise settles | passes |
+| (ah) | `moveTo(null)` with no drag, and `requestCancel` then a malformed `moveTo` in `onMove` | nothing, and `onEnd` `canceled` with nothing delivered | passes |
+
+**Kernel, in `kernel.browser.test.ts`:**
+
+| Row | Drive | Required outcome | Input tree |
+| --- | --- | --- | --- |
+| (ai) | `invoke`: `requestCancel`, request, throw | destruction's code only, no settlement | passes |
+| (aj) | `invoke`: request, throw, and the report throws | one delivery, no `DraggableError(null)`, `retire` once | passes |
+| (ak) | An action seam calls `fail(a)` and requests destruction with a thenable pending, and the delivered report rejects that thenable | `a` then the rejection, both destruction's code, no settlement | passes |
+| (al) | `invoke`: `requestCancel`, throw | one cancel settlement, then the cancel's code | fails |
+| (am) | The same, and the settlement's `prepare` requests destruction | the cancel's code, applied afterwards | fails, on the code |
+| (an) | A rejection applied live, whose `prepare` requests destruction and rethrows | one report | passes |
+
+**Standing rows stay,** including §32.6's. `should classify a malformed point rather than discarding it` is unchanged.
+
+### 33.10 The mutations
+
+Run each once on the landed code and restore it, over the four files and `capture.node`, and record the reddened rows by name. X5s and X6s are as spelled in [`mutate.txt`](../../probes/d209-review/mutate.txt).
+
+| Mutation | Must redden, at least |
+| --- | --- |
+| **Y1**, the retired branch delivers nothing | (ab), (al) |
+| **Y2**, the closure always reports destruction's code | (ab), (ac), (al), (am) |
+| **Y3**, the closure always reports the cancel's code | (ad), (ai), (v), (w) |
+| **Y4**, the carrier is set on every settlement | (af), (x) |
+| **X5s**, the settlement carrier bypasses the route | (aj) |
+| **X6s**, the settlement carrier reports the cancel's code when one is held | (ai) |
+| **N1**, as §32.7. (k) stays green | as §32.7 |
+| **X1**, **X7**, **X8**, as §32.7, because the closure moved | as §32.7 |
+
+A mutation that reddens nothing listed stops the sequence. Read each as a mutation shows that rows see it, not that a property holds wherever it reaches.
+
+### 33.11 The checks and the record
+
+**Property 6.** By §29.6's method, the comment-stripped diff at the landed tree:
+
+- **against `db3c402a4`,** shows hunks only in `#settleResolution`'s closure and `#handleResolutionSettled`'s retired branch;
+- **against `e2aabaf3b`,** shows hunks only at §32.8's sites and that branch.
+
+The member lists stay `ExecutionBracket` 21, `ArmedController` 75, `Kernel` 15 and `ActionQueue` 4. The declarations stay 33 files, differing in doc comments only.
+
+**Composition,** by `measureAll()` with `drag2` rebuilt, against the ceilings in force. **No ceiling moves.** Prototype figures, which the landed code will not necessarily match:
+
+| Row                     | Brotli | Ceiling | Slack |
+| ----------------------- | -----: | ------: | ----: |
+| minimal                 | 10,329 |  10,351 |    22 |
+| complete                | 10,791 |  10,838 |    47 |
+| free drag minimal       |  8,357 |   8,412 |    55 |
+| free drag + bounds      |  8,592 |   8,645 |    53 |
+| free drag + landing     |  8,516 |   8,587 |    71 |
+| free drag complete      |  8,734 |   8,778 |    44 |
+| both behaviors          | 12,298 |  12,359 |    61 |
+| kernel root - kernel.js |  6,418 |   6,470 |    52 |
+| baseline A              | 10,620 |  10,658 |    38 |
+
+`drag.js` stays at 142 and baseline B at 6,916. All fifteen rows are in [`readings.txt`](../../probes/d209-disposition/readings.txt).
+
+**The controls move again, and §29.5 administers them.** Re-declare the same five, each with its whole interval attributed. The before figure is `448ce5015`'s 8,337, 8,553, 8,497, 8,712 and 6,398. The after figure is at the landed tree. The named change is this remediation, and the entry goes in `budget-rebases.md`. A figure not fully attributed stays red and stops at the architect.
+
+**The record, extended last.** `d209-discarded-failures.md` gains a section with the input, the commits and the new `src/` tree hash, each check above by name, §33.10's readings, composition and the controls' intervals, and §33.13's statement. It also:
+
+- updates its status line and _What stays open_;
+- marks _What to correct at acceptance_ as disposed by this section;
+- adds `3ff2d2acf`'s `tests/COVERAGE.md` cell to the series table.
+
+**The whole suite, run once.** The failing set must be `decisions.node`'s witness row, the four `docs.node` rows, and `react.browser` and `stories.browser` unloadable. A `consumer.node` sourcemap failure with 32 entries reads as F-447 and is recorded. Any other failure stops the sequence. `just typecheck` must report only the two `.scripts/` errors. Lint over the changed TypeScript files must report none.
+
+### 33.12 The targeted recheck
+
+**One fresh `reviewer` pass, after the record. It is bounded to the remediation's diff against `1e5efc518`, and it is no general audit.**
+
+**It reads:**
+
+1. §33.4's table, by public entries, in both behaviors, and the rows (ab) to (an) against §33.9.
+2. The comment-stripped diff, the member lists and the declarations, §33.11.
+3. Y1 to Y4, X5s, X6s and N1, compared by name with the record.
+4. §33.5's texts, against the delivered behavior they state.
+5. Composition, controls, the whole suite's failing set and lint, each once.
+
+**It does not:**
+
+- re-prove the six properties or §32.6's rows, beyond what the suite reports;
+- reopen §33.1 or §33.2's decisions, or probe further slots or carriers;
+- run A, a3 or any statistical or allocation round, or review RF-24, RF-25 or F-447.
+
+**A new defect in the diff is a finding.** Anything outside the diff is reported as a separate item and does not widen the pass.
+
+**Then the architect runs §32.10,** as one unit, and gates 3 to 6 follow as §32.1 states them.
+
+### 33.13 D-208 and what A and a3 cover
+
+**D-208 is not reopened, and its evidence is untouched.** Retained heap A, allocation a3 and the owner's acceptance of 2026-11-04 belong to tree `626180a058af7374a68c5544fefc4111eec6003c`, as §31.4 and §32.9 state. They do not extend to `db3c402a4` or to this remediation's tree. `d208-requests.md`, `d208-step6.md` and their figures are not edited.
+
+No statistical round is owed, by D-209's _Measurement_, and none is opened. The comment-stripped diff is what the record offers in place of a measurement. It may say no statement on the sample path changed and no per-controller state was added. **It may not say** _no regression_, _unchanged cost_, _A holds_ or _a3 holds_.
+
+### 33.14 Limits of this record
+
+- **Each drive ran once,** in Chromium, on one machine, on a throwaway prototype with no comments and no rows. Nothing here is an acceptance.
+- **The moveTo table's silent rows were driven on the prototype,** which changes no free-drag file. The review drove the destruction row on both trees. The other three were not driven at the input.
+- **§33.2's _outside any unit_ is by reading and by the platform's event model.** A real scroll or resize was not driven against the claim. A browser that dispatched one synchronously inside a script-initiated scroll would break it, and I know of none.
+- **§33.3 is by reading the `dispatch` sites at `db3c402a4`,** and §32.2 failed by trusting the same kind of reading too narrowly. This time every site in `src/` was read, behaviors included.
+- **A kernel-tier seam that fails and then synchronously rejects the round-trip's thenable in one interval would queue `[FAILED, RESOLUTION_SETTLED]`,** and the rejection would carry the cancel's code. The fault is delivered and its label is wrong. By reading, the ordinary tiers run no consumer code after a failure in that interval. It was not driven, and no guard is owed for it.
+- **`#handleResolutionSettled`'s phase test could report a current attempt as destruction's,** if the slot and the phase ever disagreed. Its comment says no such path exists, and I did not re-derive that.
+- **F-448's _not a regression_ reaches the accepted tree only.** `6905af249` was not driven.
+- **The reviewer's limits stand,** including that `landing({ duration })` was not exercised. §33.5's README text does not name that slot.
+
+### 33.15 What stays open
+
+D-209 stays `Unimplemented (Remediation)`, and F-446 and F-448 stay open, until §32.10.
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| The remediation | implementer | §33.8 to §33.11 | now |
+| The targeted recheck | owner starts a fresh `reviewer` | §33.12 | after the record |
+| D-209's acceptance, F-446, F-448 (tier A) | architect | §32.10 | after the recheck |
+| RF-24, RF-25, F-447 | architect's handoff, then the implementer | §32.1 gates 3 to 5 | before the merge |
+| The merge | owner | after every gate | when the owner chooses |
+| `ActionQueue.apply`'s stop branch, and this slack | the compression pass | as §32.4 | after the merge |
+| Everything else in §32.12 | as it states | unchanged | unchanged |

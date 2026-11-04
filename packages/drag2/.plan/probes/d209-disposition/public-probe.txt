@@ -1,0 +1,89 @@
+// D-209 review probe. Public entries only. Prints one PROBE line per row. Not a production test.
+import { afterEach, describe, it } from 'vitest';
+import { DraggableError } from '../src/drag.ts';
+import { freeDrag, FreeDragResolution } from '../src/free-drag.ts';
+import { y } from '../src/sortable/y.ts';
+import { ReorderResolution, sortable } from '../src/sortable.ts';
+
+const boom = new Error('boom');
+const cleanup: Array<() => void> = [];
+afterEach(() => { for (const d of cleanup.splice(0).reverse()) d(); });
+const pointer = (t: EventTarget, type: string, cy: number): void => {
+  t.dispatchEvent(new PointerEvent(type, { bubbles: true, composed: true, cancelable: true, pointerId: 31, isPrimary: true, button: 0, buttons: type === 'pointerup' ? 0 : 1, clientX: 10, clientY: cy }));
+};
+const settled = async (): Promise<void> => { for (let i = 0; i < 4; i++) await new Promise((r) => { requestAnimationFrame(() => { setTimeout(r, 0); }); }); };
+type Ctx = { c: any; ran: number; armed: boolean };
+type Out = { errors: any[]; log: string[] };
+const shape = (e: any) => ({ cls: e instanceof DraggableError ? `DraggableError(${e.stage})` : 'Warning', msg: e.message, causeIsBoom: e.cause === boom });
+const finish = async (name: string, ctx: Ctx, o: Out, targets: { target: HTMLElement }, gesture = true) => {
+  const we: unknown[] = [];
+  const onWin = (ev: ErrorEvent) => { we.push(ev.message); ev.preventDefault(); };
+  window.addEventListener('error', onWin);
+  const ur: unknown[] = [];
+  const onRej = (ev: PromiseRejectionEvent) => { ur.push(String(ev.reason)); ev.preventDefault(); };
+  window.addEventListener('unhandledrejection', onRej);
+  ctx.armed = true;
+  pointer(targets.target, 'pointerdown', 10);
+  pointer(document, 'pointermove', 40);
+  pointer(document, 'pointermove', 70);
+  pointer(document, 'pointerup', 70);
+  await settled();
+  window.removeEventListener('error', onWin);
+  window.removeEventListener('unhandledrejection', onRej);
+  console.log(`PROBE ${name} :: ${JSON.stringify({ ran: ctx.ran, delivered: o.errors.map(shape), log: o.log, windowError: we.length, unhandled: ur.length })}`);
+};
+const S = (name: string, make: (ctx: Ctx) => any) => it(`S ${name}`, async () => {
+  const root = document.createElement('div'); root.style.width = '200px'; document.body.append(root);
+  const items: HTMLElement[] = [];
+  for (let i = 0; i < 3; i++) { const d = document.createElement('div'); Object.assign(d.style, { display: 'block', width: '100px', height: '40px' }); root.append(d); items.push(d); }
+  const ctx: Ctx = { c: null, ran: 0, armed: false }; const o: Out = { errors: [], log: [] };
+  const over = make(ctx);
+  const c = sortable(root, { items: () => items, axis: y(), onReorder: () => ReorderResolution.accept(), onEnd: ({ type }: any) => { o.log.push(`onEnd ${type}`); }, onError: (e: any) => { o.errors.push(e); o.log.push('onError'); }, ...over(o) });
+  ctx.c = c; root.setPointerCapture = () => {}; root.releasePointerCapture = () => {};
+  cleanup.push(() => { void c.requestDestroy(); root.remove(); });
+  await finish(`sortable ${name}`, ctx, o, { target: items[0]! });
+});
+const F = (name: string, make: (ctx: Ctx) => any) => it(`F ${name}`, async () => {
+  const item = document.createElement('div'); Object.assign(item.style, { position: 'fixed', top: '0px', left: '0px', width: '100px', height: '40px' }); document.body.append(item);
+  const ctx: Ctx = { c: null, ran: 0, armed: false }; const o: Out = { errors: [], log: [] };
+  const over = make(ctx);
+  const c = freeDrag(item, { onDrop: () => FreeDragResolution.accept(), onEnd: ({ type }: any) => { o.log.push(`onEnd ${type}`); }, onError: (e: any) => { o.errors.push(e); o.log.push('onError'); }, ...over(o) });
+  ctx.c = c; item.setPointerCapture = () => {}; item.releasePointerCapture = () => {};
+  cleanup.push(() => { void c.requestDestroy(); item.remove(); });
+  await finish(`freeDrag ${name}`, ctx, o, { target: item });
+});
+/** A slot that requests destruction and then throws, once armed. */
+const dt = (ctx: Ctx, pass: any) => (...a: any[]) => { if (ctx.armed && ctx.ran === 0) { ctx.ran += 1; void ctx.c.requestDestroy(); throw boom; } return pass(...a); };
+const adt = (ctx: Ctx) => async () => { ctx.ran += 1; void ctx.c.requestDestroy(); throw boom; };
+
+const bad = () => ({ get x(): number { throw boom; }, y: 0 });
+describe('C', () => {
+  S('onStart cancel then throw [control]', (x) => () => ({ onStart: () => { x.ran += 1; x.c.requestCancel('c'); throw boom; } }));
+  F('onStart cancel then throw [control]', (x) => () => ({ onStart: () => { x.ran += 1; x.c.requestCancel('c'); throw boom; } }));
+  S('onReorder cancel then throw', (x) => () => ({ onReorder: () => { x.ran += 1; x.c.requestCancel('c'); throw boom; } }));
+  F('onDrop cancel then throw', (x) => () => ({ onDrop: () => { x.ran += 1; x.c.requestCancel('c'); throw boom; } }));
+  S('onReorder cancel, request, throw', (x) => () => ({ onReorder: () => { x.ran += 1; x.c.requestCancel('c'); void x.c.requestDestroy(); throw boom; } }));
+  F('onDrop cancel, request, throw', (x) => () => ({ onDrop: () => { x.ran += 1; x.c.requestCancel('c'); void x.c.requestDestroy(); throw boom; } }));
+  S('onReorder cancel then throw, onEnd requests', (x) => (o: Out) => ({ onReorder: () => { x.ran += 1; x.c.requestCancel('c'); throw boom; }, onEnd: ({ type }: any) => { o.log.push(`onEnd ${type}`); void x.c.requestDestroy(); } }));
+  F('onDrop cancel then throw, onEnd requests', (x) => (o: Out) => ({ onDrop: () => { x.ran += 1; x.c.requestCancel('c'); throw boom; }, onEnd: ({ type }: any) => { o.log.push(`onEnd ${type}`); void x.c.requestDestroy(); } }));
+  S('onReorder async cancel then throw', (x) => () => ({ onReorder: async () => { x.ran += 1; x.c.requestCancel('c'); throw boom; } }));
+  F('onDrop async cancel then throw', (x) => () => ({ onDrop: async () => { x.ran += 1; x.c.requestCancel('c'); throw boom; } }));
+  S('onReorder cancel then fulfil', (x) => () => ({ onReorder: () => { x.ran += 1; x.c.requestCancel('c'); return ReorderResolution.accept(); } }));
+  F('onDrop cancel then fulfil', (x) => () => ({ onDrop: () => { x.ran += 1; x.c.requestCancel('c'); return FreeDragResolution.accept(); } }));
+  S('onReorder cancel then throw, onError requests', (x) => (o: Out) => ({ onReorder: () => { x.ran += 1; x.c.requestCancel('c'); throw boom; }, onError: (e: any) => { o.errors.push(e); o.log.push('onError'); void x.c.requestDestroy(); } }));
+});
+describe('M', () => {
+  F('moveTo(bad) alone in onMove [control]', (x) => () => ({ onMove: () => { if (x.ran++ === 0) x.c.moveTo(bad()); } }));
+  F('moveTo(bad) then request in onMove', (x) => () => ({ onMove: () => { if (x.ran++ === 0) { x.c.moveTo(bad()); void x.c.requestDestroy(); } } }));
+  F('requestCancel then moveTo(bad) in onMove', (x) => () => ({ onMove: () => { if (x.ran++ === 0) { x.c.requestCancel('c'); x.c.moveTo(bad()); } } }));
+  F('moveTo(bad) in onDrop, releasing', (x) => () => ({ onDrop: () => { x.ran += 1; x.c.moveTo(bad()); return FreeDragResolution.accept(); } }));
+  it('F moveTo(null) with no drag', async () => {
+    const item = document.createElement('div'); document.body.append(item);
+    const errors: any[] = [];
+    const c = freeDrag(item, { onDrop: () => FreeDragResolution.accept(), onError: (e: any) => { errors.push(e); } });
+    cleanup.push(() => { void c.requestDestroy(); item.remove(); });
+    c.moveTo(null as any);
+    await settled();
+    console.log(`PROBE freeDrag moveTo(null) with no drag :: ${JSON.stringify({ delivered: errors.map(shape) })}`);
+  });
+});

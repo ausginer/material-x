@@ -3000,12 +3000,18 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 **Required properties:**
 
-1. **One report per discarded checkpoint.** Every failure checkpoint registered on a controller and discarded by applying destruction reports once, as `DraggableWarning('drag: failure/superseded-by-destruction')` with the failure as `cause`, in registration order. It does not matter whether the checkpoint was registered before or after the request. **Amended 2026-11-04 (record §32.3):** a settlement carrying a rejection that destruction discards reports on the same terms. It is the same fault under a second carrier: a throw from `onReorder` or `onDrop`, or a thenable rejecting inside `then`, is queued as `RESOLUTION_SETTLED` and has no checkpoint until that entry applies. A rejection arriving after application stays silent under I-36 (a).
+1. **One report per discarded checkpoint.** Every failure checkpoint registered on a controller and discarded by applying destruction reports once, as `DraggableWarning('drag: failure/superseded-by-destruction')` with the failure as `cause`, in registration order. It does not matter whether the checkpoint was registered before or after the request. **Amended 2026-11-04 (record §32.3):** a settlement carrying a rejection that destruction discards reports on the same terms. It is the same fault under a second carrier: a throw from `onReorder` or `onDrop`, or a thenable rejecting inside `then`, is queued as `RESOLUTION_SETTLED` and has no checkpoint until that entry applies. A rejection arriving after application stays silent under I-36 (a). **Amended 2026-11-04 (record §33.4; F-448):** a rejection that won the first-completion latch reports exactly once, whichever request superseded it. A cancel applied ahead of its entry retires the attempt, and the rejection reports `drag: failure/superseded-by-cancel` after the terminal, with or without a later destruction. Destruction's code is only for a rejection destruction itself discards, including with a cancel still held. A rejection arriving after a cancel applied stays consumed under D-40.
 2. **Before application, through the kernel's route.** It is delivered before the lifecycle becomes `CLOSED`, while native ingress is still refused. The refusal is unchanged and still reads applied destruction only.
 3. **Decided at the boundary.** No unit reads the ledger after its entry. The reading is the runner's, and R21 may be re-pinned once, to its one location.
 4. **No consequence.** No later unit runs, no `onEnd` follows, and no phase changes. Anything the delivered `onError` requests is dropped with the queue, and a throw from it is absorbed.
 5. **Panic is unchanged.** It delivers its one report, and a checkpoint a panic discards stays silent, now named by route.
 6. **Nothing on the per-sample path changes,** and no per-controller state is added. If that cannot be met, the unit stops at the architect, and the owner decides whether the retained-heap question reopens for this change.
+
+**Named silences, 2026-11-04 (record §33.1 to §33.3).** D-209 reports its two carriers, failure checkpoints and rejected settlements, and no others. A behavior action is discarded whole and never prepared:
+
+- **A malformed `moveTo`:** its classification is promised for an applied move, and a move that is never applied reports nothing on any route. The input is outside the contract, so `CONTRIBUTING.md` §1.1's gate closes.
+- **Sortable's listener fault:** the stage is in contract, and this silence is by route. `REQUESTED` exists only inside a unit, and only an event the integrator dispatches synchronously inside a library callback runs the listener there.
+- **A kernel-tier behavior's own action:** its argument is opaque to the kernel. `channel` is the route for a fault it must report.
 
 **Not chosen:**
 
@@ -3017,11 +3023,13 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 **Measurement.** Retained heap A, allocation a3 and the owner's acceptance of 2026-11-04 attach to D-208's tree and do not extend to this change (record §28.1, §28.3). It owes composition, its controls under record §29.5 with no ceiling moved, and a comment-stripped diff showing property 6. With that, no statistical round is owed.
 
-**Order and witness.** After D-208's whole-decision acceptance, as its own unit, before Phase 24 exits. Its cases are R33 (i) to (l), which pin today's outcome and change here, and the kernel's two orderings. The measurement record is `.plan/measurements/d209-discarded-failures.md`, and its absence is the witness. Its landing removes F-446's sentence from the README and the dated notes' _today_. **Corrected 2026-11-04 (record §31.3):** of those rows, (i) covers both behaviors and (j) free drag only, because sortable has no `onMove` slot, and (l) runs through the kernel. (k) is the control, a throw with no request, and D-209 does not change it. **Reordered 2026-11-04 by the owner (record §32.1):** D-209 is implemented and accepted on this branch before the merge. **The handoff is record §32.5 to §32.8, and its acceptance is §32.10.** The mechanism is §32.4. It meets property 6, and R21 does not move.
+**Order and witness.** After D-208's whole-decision acceptance, as its own unit, before Phase 24 exits. Its cases are R33 (i) to (l), which pin today's outcome and change here, and the kernel's two orderings. The measurement record is `.plan/measurements/d209-discarded-failures.md`, and its absence is the witness. Its landing removes F-446's sentence from the README and the dated notes' _today_. **Corrected 2026-11-04 (record §31.3):** of those rows, (i) covers both behaviors and (j) free drag only, because sortable has no `onMove` slot, and (l) runs through the kernel. (k) is the control, a throw with no request, and D-209 does not change it. **Reordered 2026-11-04 by the owner (record §32.1):** D-209 is implemented and accepted on this branch before the merge. **The handoff is record §32.5 to §32.8, and its acceptance is §32.10.** The mechanism is §32.4. It meets property 6, and R21 does not move. **Dated 2026-11-04 (record §33):** implemented at `3ff2d2acf`, tree `db3c402a4`, and independently reviewed, which was required. All six properties as then worded were confirmed. One remediation comes first, at §33.8 to §33.11, then one targeted recheck at §33.12, and acceptance stays §32.10.
 
 **Touches:**
 
 - **F-446:** decides it.
+- **F-448:** decides it, by property 1's amendment.
+- **D-40:** unchanged. A rejection arriving after a cancel applied stays consumed.
 - **D-208:** adds a consumer-visible change that D-208 does not make. Supersedes nothing in it.
 - **I-22, I-36, record §2.4:** carry dated notes now.
 - **D-178:** this silence was never among those it grounds, and panic's stays.
@@ -3038,7 +3046,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-209 | Remediation | the whole decision: a failure checkpoint or rejected settlement that destruction discards reports its fault. As its own unit, before the merge | absent: `.plan/measurements/d209-discarded-failures.md` |
+| D-209 | Remediation | its acceptance, after record §33's remediation and recheck: a failure checkpoint or rejected settlement that destruction discards reports its fault, and a rejection a cancel superseded reports too. As its own unit, before the merge | absent: `.plan/measurements/d209-discarded-failures.md` |
 
 **D-208's row closed on 2026-11-04 with the whole-decision acceptance** (record §31). D-209's row stays.
 
@@ -5876,6 +5884,8 @@ No acceptance is reopened. Earlier figures stand as measured.
 
 **Scope corrected 2026-11-04 (record §32.2, §32.3):** sortable's slots past activation are now probed. `onEnd` is this finding as written. `onReorder` and `onDrop` lose the fault the same way through a rejected settlement, which has no checkpoint, and D-209 is amended to cover them.
 
+**Dated 2026-11-04 (record §33):** D-209's independent review confirmed the written properties and found that its walk reports a rejection a cancel had already superseded, under destruction's code. That stops this finding's closing until the remediation lands. A malformed `moveTo` and sortable's listener fault are named silences and do not keep it open.
+
 #### F-447 — `consumer.node`'s sourcemap row can read declarations another test's build has not stripped yet · open, tier C
 
 **Raised 2026-11-04 at D-208's acceptance.** Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §31.2, under §30.7's rule that a recurrence is a finding.
@@ -5889,6 +5899,20 @@ No acceptance is reopened. Earlier figures stand as measured.
 **Required property.** The row's verdict depends only on the build it made: no other test's build can write the tree it packs. The first step is reproducing or excluding the overlap.
 
 **Owner and deadline.** The architect hands it off as its own test-only unit, before Phase 24 exits. It is not D-208's, and it does not block D-208's acceptance. **Dated 2026-11-04 (record §32.1):** booked as a gate before the merge, after D-209's acceptance.
+
+#### F-448 — a rejected settlement a cancel supersedes leaves no report of its fault · open, decided by D-209
+
+**Tier A. Raised 2026-11-04 from D-209's feature proof** (reviewer-2). Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §33.4.
+
+**What happens.** `onReorder` or `onDrop` calls `requestCancel` and then throws, which queues `[CANCEL, RESOLUTION_SETTLED]`. `CANCEL` retires the attempt, and `#handleResolutionSettled` returns at its slot check. In both behaviors the consumer gets `onEnd canceled` and no `onError`. The same call from `onStart` reports `drag: failure/superseded-by-cancel`.
+
+**Why tier A.** A correctly integrated consumer's own error vanishes. The rejection won the latch while its attempt was current, so D-40's consumption of a late rejection does not ground the silence. F-29 refuses to let a resolver malfunction read as `canceled`, and here the fault has no other channel. I-22's ladder gives the sibling case this report.
+
+**It is not a regression against the accepted tree,** whose outcome is the same. `6905af249` was not driven. **D-209's walk made it visible:** at `db3c402a4` the fault is reported only if destruction follows, under destruction's code.
+
+**Decided by D-209's amended property 1:** one `superseded-by-cancel` warning after the terminal, with or without a later destruction. A rejection arriving after the cancel applied stays consumed.
+
+**Owner and deadline.** The implementer, in record §33.8's remediation. It closes at D-209's acceptance, before the merge.
 
 ## What would falsify this model
 

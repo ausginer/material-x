@@ -2316,6 +2316,20 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-04 — D-209's independent review disposed: two silences named, F-448 raised, one remediation before acceptance
+
+**The review confirmed all six written properties and the recorded verification. D-209 is still not accepted.** Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §33.
+
+**Two silences are named, and neither stops anything.** A malformed `moveTo` is promised a classification only when the move is applied, and a move that is never applied is already silent on routes with no destruction. The input is outside the contract, so `CONTRIBUTING.md` §1.1's gate closes. Sortable's listener fault is in-contract, but only a synthetic event inside a library callback reaches it. §32.2's false enumeration is corrected, and every queue entry now has a stated outcome.
+
+**A rejection a cancel supersedes reports.** A round-trip slot that requests a cancel and then throws lost its fault, and D-209's walk reported it under destruction's code only if destruction followed. The second half is D-209's own defect and stops F-446's closing. The first is the accepted tree's silence, raised as F-448. D-209 is amended to decide both: `superseded-by-cancel`, after the terminal.
+
+**One remediation:** that route, the published warning texts, the README's overclaim, the settlement carrier's rows, the introduced lint error and the stale text. **Next:** the implementer at record §33.8, one targeted `reviewer` recheck at §33.12, then acceptance at §32.10. §32.10's attribution is corrected: independent review was required and has run.
+
+**A, a3 and the owner's acceptance stay on tree `626180a05`.** No round ran or is owed.
+
+---
+
 ### 2026-11-04 — D-209 handed off, with the owner's merge order and its second fault carrier
 
 **The owner's order:** D-209 is implemented and accepted on this branch, then the verification infrastructure and browser test loading are restored, and only then is the branch merged. Terminology, comment reduction and compression stay separate. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §32.

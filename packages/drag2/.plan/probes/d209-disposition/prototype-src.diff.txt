@@ -1,0 +1,27 @@
+diff --git a/packages/drag2/src/kernel/kernel.ts b/packages/drag2/src/kernel/kernel.ts
+index e404e76b9..8149640a6 100644
+--- a/packages/drag2/src/kernel/kernel.ts
++++ b/packages/drag2/src/kernel/kernel.ts
+@@ -1767,9 +1767,12 @@ class ArmedController<Part extends object, Activation extends {}> {
+     if (input.type === SETTLED_REJECTED) {
+       attempt.discard = (): void => {
+         this.report(
+-          new DraggableWarning('drag: failure/superseded-by-destruction', {
+-            cause: input.error,
+-          }),
++          new DraggableWarning(
++            this.#attempts.resolution === attempt
++              ? 'drag: failure/superseded-by-destruction'
++              : 'drag: failure/superseded-by-cancel',
++            { cause: input.error },
++          ),
+         );
+       };
+     }
+@@ -2087,6 +2090,7 @@ class ArmedController<Part extends object, Activation extends {}> {
+       this.#attempts.resolution !== attempt ||
+       this.#frames.current.phase !== RELEASING
+     ) {
++      attempt.discard?.();
+       return; // a late completion for an operation that is already decided
+     }
