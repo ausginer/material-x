@@ -654,3 +654,531 @@ Allocation per sample, per drop, per `moveTo` and per committed frame, call coun
 ### Next
 
 6R is escalated, and step 5 does not start. The architect disposes of the four questions above, with the owner where an authorization is needed. A resumed 6R starts from that disposition, with variant A's diff above as the in-property starting point.
+
+### Resumed 2026-11-04 (record §25.5): the shared-refusal candidate, a literal miss in two cells, nothing landed
+
+**Outcome: the literal target is missed, so no source is committed and 6R escalates.** At 100 controllers, the candidate is above the baseline in two of the twelve population-round cells: round 2 mixed and round 4 sortable. In each, the baseline's reading is far below its own other readings. In every other cell the candidate is at or below the baseline. Every property of §25.5 that was checked holds, except that nine cost cells read above step 6's tip ranges (§Costs). `src/` stays tree `4630579d236624eb32f124268b1c026482f84da2`. **Whether those two cells count as a miss is the question this subsection escalates. This unit did not decide it, and no reading was discarded or replaced.**
+
+**Input.** `04f6348c7` on `drag2/fin-review2`. The candidate is the working tree recorded in §The candidate's whole diff, src tree `c0713204a55b24ffc44f9ac0a92d80efa28c7aeb`. Every reading below was taken at that tree, and the tree was then restored with `git checkout`.
+
+#### The candidate
+
+- **One function holds the refusal and the terminus.** `deliverUnlessApplied(this: ExecutionBracket, receiver, deliver, error)`, a module function in `kernel/kernel.ts`, tests `this.closed`, then calls `deliver.call(receiver, error)` inside the one `try`/`catch`. No other copy of the test exists.
+- **Every minted channel** is `deliverUnlessApplied.bind(this.#bracket, undefined, deliver)`. `channel(deliver)` keeps its signature. `deliver` still receives `undefined` as its receiver, and an extra argument to a channel is still ignored.
+- **The kernel's own route** is one arrow in `ArmedController`'s constructor, `(error) => { deliverUnlessApplied.call(this.#bracket, this.#spec, reportToSpec, error); }`. It is not minted through `channel()`. It shares the context the driver's callback already allocates, so `#arm` allocates no context for it.
+- **`reportToSpec`** is a module function, `this.reportError(error)`. `reportError` is still read and called with its receiver at each delivery, after the refusal and inside the terminus, so the SPI's calling convention does not change and no per-controller wrapper exists.
+- **Panic is unchanged:** `ArmedController.panic` calls the spec's sink behind its own discard. The behaviors' routes are not edited.
+- **The per-sample path:** the changed functions are `ArmedController`'s constructor, `Kernel.channel` and `Kernel.#arm`, plus the two new module functions. None appears in the per-sample window.
+
+**The mint sites at the candidate**, four, by the same search as §R21. The kernel's own is gone, and nothing else changed: `sortable/spec.ts:317`, `free-drag/spec.ts:243`, `sortable/behavior.ts:126`, `free-drag/behavior.ts:52`. The definition is `kernel/kernel.ts:2599`, and the refusal's read is `kernel/kernel.ts`, `deliverUnlessApplied`.
+
+**A variant not measured.** Keeping the receiver out of the bound arguments, as a trailing parameter, would save one slot per channel. A channel's second argument would then reach `deliver` as its receiver, which changes `channel`'s semantics, so it was not tried.
+
+#### The rounds
+
+**M-2′, four rounds ABBA, the candidate against `6905af249`**, ordinary `browser` project, as in step 6. Bytes per controller, every population at 100 and 1000. **Bold** marks a 100-controller cell where the candidate is above that round's baseline.
+
+| Round | Order | Tip, n=100 (s / m / f) | Base, n=100 (s / m / f) | Tip, n=1000 (s / m / f) | Base, n=1000 (s / m / f) | Load, start → end |
+| --: | --- | --- | --- | --- | --- | --- |
+| 1 | tip, base | 3,625 / 3,239 / 2,708 | 3,701 / 3,277 / 2,712 | 3,638 / 3,075 / 2,670 | 3,703 / 3,153 / 2,622 | 1.88 → 1.89 |
+| 2 | base, tip | 3,626 / **3,239** / 2,708 | 3,701 / **3,024** / 2,713 | 3,563 / 3,087 / 2,623 | 3,703 / 3,182 / 2,676 | 1.89 → 1.98 |
+| 3 | tip, base | 3,625 / 3,238 / 2,707 | 3,701 / 3,276 / 2,714 | 3,640 / 3,150 / 2,670 | 3,705 / 3,182 / 2,675 | 1.98 → 1.98 |
+| 4 | base, tip | **3,626** / 3,239 / 2,708 | **3,522** / 3,277 / 2,714 | 3,638 / 3,148 / 2,594 | 3,705 / 3,182 / 2,690 | 1.98 → 2.66 |
+
+**The target, read literally against these rounds:**
+
+| Population | n | Tip | Base | Reading |
+| --- | --: | --- | --- | --- |
+| all sortable | 100 | 3,625 – 3,626 | 3,701 ×3, **3,522** in round 4 | **above in round 4, by 104 B**; below in the other three, by 75 – 76 B |
+| half and half | 100 | 3,238 – 3,239 | 3,276 – 3,277 ×3, **3,024** in round 2 | **above in round 2, by 215 B**; below in the other three, by 38 B |
+| all free drag | 100 | 2,707 – 2,708 | 2,712 – 2,714 | met in all four, by 4 – 7 B |
+| all sortable | 1000 | 3,563 – 3,640 | 3,703 – 3,705 | not above |
+| half and half | 1000 | 3,075 – 3,150 | 3,153 – 3,182 | not above |
+| all free drag | 1000 | 2,594 – 2,670 | 2,622 – 2,690 | not above |
+
+**Four further rounds, with each of the five readings logged.** These are a diagnostic, not a substitute. They were taken after the four above, with a temporary `console.info` in `retention` at both trees, since reverted. Each figure is the instrument's minimum of its five readings.
+
+| Round | Order | Tip, n=100 (s / m / f) | Base, n=100 (s / m / f) | Tip, n=1000 (s / m / f) | Base, n=1000 (s / m / f) |
+| --: | --- | --- | --- | --- | --- |
+| 1 | tip, base | 3,506 / 3,239 / 2,708 | 3,684 / 3,277 / 2,714 | 3,640 / 3,150 / 2,670 | 3,705 / 3,182 / 2,675 |
+| 2 | base, tip | 3,625 / 3,239 / 2,708 | 3,701 / 3,277 / 2,714 | 3,553 / 3,148 / 2,670 | 3,703 / 3,180 / 2,675 |
+| 3 | tip, base | 3,625 / 3,238 / 2,707 | 3,701 / 3,277 / 2,714 | 3,640 / 3,150 / 2,670 | 3,703 / 3,180 / 2,635 |
+| 4 | base, tip | 3,626 / 3,239 / 2,708 | 3,701 / 3,277 / 2,714 | 3,640 / 3,161 / 2,670 | 3,703 / 3,180 / 2,675 |
+
+The load ran 2.33 to 3.54. The candidate is at or below the baseline in every cell at 100, and no range at 1000 lies above the baseline's. Examples of what a single reading does, in bytes over 100 controllers:
+
+| Row | The five readings | Minimum, per controller |
+| --- | --- | --- |
+| tip, sortable, n=100, round 1 | 362,524 / **350,592** / 373,952 / 370,424 / 370,424 | 3,506 B; round 2's lowest is 362,524 |
+| base, sortable, n=100, round 1 | **368,388** / 395,148 / 380,788 / 377,436 / 377,380 | 3,684 B; rounds 2–4's lowest is 370,088 |
+| base, free, n=1000, round 3 | 2,690,508 / 2,694,568 / **2,634,892** / 2,694,676 / 2,675,464 | 2,635 B; rounds 1, 2 and 4's lowest is 2,675,064 |
+
+_What follows is analysis, inferred from these figures._ The instrument's comment says that heap noise is one-sided, so that _every source of error inflates a reading and none deflates it_. These readings do not fit that: a single one of five runs can land well below the others, at both trees, and the minimum then selects it. No such reading came with a measured cause, so **3,024 B and 3,522 B are not shown to be errors**. They could also be a true low state of the baseline. §Remediation 6R's −858 B and the 2,688 B baseline that §25.4 cites look like the same behavior. It is why the record cannot say that the target holds, and also why it cannot say that the candidate retains more than the baseline.
+
+**Against the input and the usual baseline**, for ranking only: the candidate recovers 84 B per controller in all three populations (3,709 → 3,625, 3,323 → 3,239, 2,792 → 2,708), and all of it comes from the kernel's mint, the wrapper and the channels' form. Against the baseline's usual reading it is 75 – 76 B below on sortable, 38 B on mixed and 4 – 7 B on free drag. No unrelated saving is in the diff. Free drag's margin is small enough that a low baseline reading such as 2,688 B would also defeat it.
+
+#### Attribution
+
+The step-6 retention row, ordinary `browser` project, 100 bare controllers, one run of the candidate. The input and baseline columns are the §Remediation 6R runs. Bytes per controller, free-drag controller:
+
+| Frame                                | Input | Candidate |            Base |
+| ------------------------------------ | ----: | --------: | --------------: |
+| `kernel/kernel.ts:channel`           | 104.4 |         — |               — |
+| _other_ `bind`                       |     — |      41.0 |               — |
+| `kernel/kernel.ts:#arm`              | 197.9 |     144.4 | — (`arm` 173.7) |
+| `kernel/kernel.ts:ArmedController`   | 671.4 |     699.6 |               — |
+| `free-drag/spec.ts:FreeDragBehavior` | 192.7 |     186.9 |           222.0 |
+| library total                        | 3,009 |     2,640 |           2,805 |
+
+The sortable controller reads the same way: `channel` 104.2 → none, `bind` 40.5, `#arm` 229.3 → 144.8, `ArmedController` 719.8 → 702.3. **The sampled library totals move by more than M-2′ does, and they are not read as the recovery.** The physical frames are what this row establishes: one bound function is retained per bare controller, the behavior's own, because the composition's is garbage after construction.
+
+#### R33, R21 and the mutations
+
+Whole suite, every project, on the candidate. Each mutation was applied alone by an exact-text patch and run against the whole suite. The two kernel files were restored from copies and compared byte for byte after each run.
+
+- **Unmutated:** 1,385 pass, 10 fail, 68 skipped; `react.browser` and `stories.browser` do not load, as before. The 10 are the six `size.node` controls and the four `docs.node` rows, the failing set §24.5 step 1 names. R33 passes in full.
+- **R21:** `capture.node` 15 of 15 with **the one re-pin §25.3 permits**. `kernel/kernel.ts › deliverUnlessApplied: closed` replaces `kernel/kernel.ts › Kernel.channel: closed`, with a comment saying what it is. No other entry in either list, the row _should find no lifecycle or request read outside the kernel_ and the ledger row change.
+
+| Mutation | Applied to | Rows red beyond the unmutated run |
+| --- | --- | --- |
+| **M1** the refusal removed | `deliverUnlessApplied` | **19, as at step 4.** `diagnostic-intake`, both behaviors: _deliver a report made between the request and its application_, _deliver nothing when destruction requested at depth 0 is applied_, _deliver nothing when destruction requested from a slot is applied at its boundary_, _deliver only the panic when a panic tears the controller down_, _drop a kept report once the promise has settled_. `capture.node`: the census row. `kernel.browser`: _run both scrubs when a reset throws during destroy_, _close, report and only then tear down on a panic_, _read closed once the requesting unit has ended_, _deliver in the construction window and drop once destruction is applied_, _refuse every later notification once onError destroys_, and three _open no round-trip_ rows (release effect, its dispatched action, release prepare) |
+| **M2** the refusal reads `REQUESTED` too | `deliverUnlessApplied`, with an accessor added to `execution.ts` | **11, as at step 4.** `diagnostic-intake`, both behaviors: _deliver a report made between the request and its application_ (the interval row). `kernel.browser`: _deliver in the construction window and drop once destruction is applied_ (the construction-window row), _report out-of-range tags while a destroy request is registered and not yet applied_, _agree with the physical signal inside the requesting unit_, _read open for the rest of the requesting unit_, _open no round-trip for a destroy requested in the release effect_. `free-drag`: _report the admission failure of the unit that requested destruction_, _report the invalid home of the unit that requested destruction_. `capture.node`: the census row and the accessor-derivation row |
+| **M3** the kernel's route calls the sink directly behind its own `try`/`catch`, without the refusal | the arrow in `ArmedController`'s constructor | **2.** `kernel.browser`: _run both scrubs when a reset throws during destroy_, the row §25.5 requires, and _refuse every later notification once onError destroys_. **No finding: a row reddens** |
+
+#### Costs
+
+§25.5 asks for these only if the target is met. They were taken anyway, so a disposition does not need a second pass.
+
+**Call counts:** identical in all eight runs, and equal to §Call counts: `#handleMove` 2,001, `#handleOpenResolution` 0; `#handleMove` 100, `#handleUp` 50, `#handleOpenResolution` 50; `moveTo` 2,000, `#handleOpenResolution` 0.
+
+**Declarations:** 32 of 33 files are byte-identical. `kernel/spec.d.ts` differs in one doc-comment passage, `BehaviorSpec.reportError`'s _No guard belongs here_, which said that the kernel calls it _only through a channel it minted_. No type, member or signature changes.
+
+**Allocation**, four rounds, tip only, shipped and DEV; load 2.73 – 4.73. The ranges of **nine cells rise above step 6's tip range**, and those cells are reported rather than read as noise:
+
+| Row | Candidate | Step 6's tip | Above by |
+| --- | --- | --- | --: |
+| sortable sample, shipped | 194.0 – 200.1 | 193.6 – 194.6 | 5.5 |
+| free drag bare, DEV | 192.1 – 195.9 | 191.7 – 192.5 | 3.4 |
+| free drag `bounds(element)`, shipped | 195.7 – 196.8 | 191.5 – 196.1 | 0.7 |
+| free drag `bounds(element)`, DEV | 196.2 – 196.8 | 191.3 – 196.7 | 0.1 |
+| free drag `bounds(thunk)`, DEV | 191.4 – 191.8 | 191.5 – 191.7 | 0.1 |
+| committed move, moving, shipped | 1,133.0 – 1,180.9 | 1,117 – 1,179 | 1.9 |
+| free-drag drop, shipped | 15,290.3 – 15,311.7 | 15,266 – 15,308 | 3.7 |
+| free-drag drop, DEV | 15,271.9 – 15,317.3 | 15,287 – 15,302 | 15.3 |
+| sortable drop, DEV | 16,751.3 – 16,809.4 | 16,750 – 16,789 | 20.4 |
+
+Every other row is within its range: sortable sample DEV 202.4 – 202.9; free drag bare shipped 192.0 – 192.3; `bounds(thunk)` shipped 191.3 – 191.6; `onMove` 259.7 – 260.1 shipped and 260.3 – 260.5 DEV; committed move still 690.2 – 695.7 shipped and 696.1 – 698.5 DEV, moving DEV 2,537.1 – 2,586.5; sortable drop shipped 16,816.2 – 16,860.6; `moveTo` 350.8 – 351.4 shipped and 349.7 – 350.5 DEV.
+
+_Analysis:_ read from the code, no function the candidate changes runs in a sample, frame or `moveTo` window, and a drop reports nothing unless it faults. Each range above also overlaps the baseline's or sits within a few bytes of it, on a sampling instrument. That suggests noise, and no paired run or per-frame comparison was taken to establish it.
+
+**Composition**, `measureAll()` at the candidate, against step 6's table. Bytes.
+
+| Row                       | Minified | Brotli | Δ Brotli | Modules |
+| ------------------------- | -------: | -----: | -------: | ------: |
+| minimal                   |   33,419 | 10,221 |      +20 |      33 |
+| minimal (xy)              |   32,776 | 10,117 |      +23 |      32 |
+| minimal + layoutAnimation |   34,335 | 10,558 |      +25 |      34 |
+| xy + layoutAnimation      |   33,692 | 10,435 |      +22 |      33 |
+| minimal + landing         |   33,812 | 10,393 |       +7 |      35 |
+| complete                  |   34,728 | 10,722 |      +34 |      36 |
+| free drag minimal         |   27,063 |  8,281 |      +19 |      27 |
+| free drag + bounds        |   27,707 |  8,514 |      +19 |      28 |
+| free drag + landing       |   27,456 |  8,449 |      +12 |      29 |
+| free drag complete        |   28,100 |  8,652 |      +24 |      30 |
+| both behaviors            |   42,268 | 12,235 |      +26 |      47 |
+| vocabulary root - drag.js |      252 |    142 |    **0** |       2 |
+| kernel root - kernel.js   |   20,033 |  6,340 |      +20 |      16 |
+| baseline A                |   34,019 | 10,525 |      +17 |      31 |
+| baseline B                |   22,618 |  6,916 |    **0** |      26 |
+
+Every package row stays under step 1's ceiling of its frozen-tree figure plus 150 B: the largest rise is 34 B. `drag.js` and baseline B, this unit's declared controls, do not move. Minified rises 79 to 84 B on every row carrying the kernel.
+
+#### Text
+
+The candidate's diff carries the text §25.5 requires: the `report` field's and `Kernel.channel`'s documentation, `panic`'s comment, the census entry, and 05:253's dated precision with the original struck. Since no source is committed, none of it landed either, and 05:253 still reads as before.
+
+**Other text that states the kernel's route is minted**, as met while editing, and changed in the candidate's diff so that it states what the candidate does. No search was made for more:
+
+- `kernel/seams.ts`, the driver's `#notify` field: _the one the façade mints over the spec's `reportError`_;
+- `kernel/spec.ts`, `BehaviorSpec.reportError`: _only through a channel it minted over it_. It is published, and it is the one declaration difference above;
+- `tests/kernel/capture.node.test.ts`, two comments: _the channel the façade minted_ and _the diagnostic channel's refusal is the façade's_;
+- `kernel/kernel.ts`, four comments that name the controller's channel or link `Kernel.channel` for the refusal.
+
+#### Escalation, for the architect and then the owner
+
+**The literal residual, at the best candidate that keeps §25.5's properties:** all sortable +104 B in round 4 only, half and half +215 B in round 2 only, all free drag none. At 1000 no range lies above the baseline's. In both cells the candidate's own reading is its usual one, and the baseline's is the low one.
+
+**The decision this leaves open.** §25.5 says _in every round_, and M-2′'s figure is a minimum that one low run sets. So:
+
+1. **Is a round whose baseline figure comes from a single low run a miss?** If it is, the target as written can fail on the baseline's noise alone, at any candidate, and the owner authorizes the residual or directs a design change, as §25.5 states.
+2. **If not, what reading replaces it?** For example, a pre-registered rule over M-2′'s five readings, or new rounds under one. It is a change to the target's instrument, so it is not this unit's to make, and rerunning until a clean four-round set appears would be selecting the result.
+3. **The nine allocation cells.** Whether §24.5 step 4's _at or below step 6's tip ranges_ needs a paired reading for them, on a path the diff does not reach.
+
+Nothing here was decided or acted on. If the candidate is admitted, the unit is the diff below, which still needs its commit, the recheck and closure.
+
+#### Verification
+
+- **The freeze:** `git rev-parse HEAD:packages/drag2/src` returns `4630579d…` at this record's commit. `git status` showed only the candidate's five files before the restore, and none after it.
+- **The candidate:** `fmt`, `lint-fix`, `fmt` and `lint` over its four source and test files. The linters report four errors, all in `kernel/seams.ts` at lines this diff does not touch (`only-throw-error` twice and `no-unnecessary-condition` twice), and they report the same four at the input. Typecheck: only the two `.scripts/vitest-*.ts` errors present at the input.
+- **This record:** `fmt`, `lint-fix`, `fmt` and `lint`. Both linters report that no Markdown file is lintable, so only formatting is checked. `git diff --check` is clean.
+
+#### Limits
+
+- **Chromium only**, one engine and one machine. M-2′ has no load filter; the loads filter nothing.
+- **The logged rounds are not the governing four.** They ran after the rounds above were read, with one added line in the instrument at both trees.
+- **The cause of the low readings was not investigated.** Nothing here shows why a run reads low.
+- **Attribution is one run at each tree**, and the input and baseline columns come from the earlier section's runs.
+- **Allocation was read only at the candidate,** against step 6's recorded ranges, not paired against a baseline in these rounds.
+- **The baseline worktree** was rebuilt as in step 6 and removed after the runs.
+
+#### Next
+
+6R is escalated again, and step 5 does not start. The architect and then the owner dispose of the questions above.
+
+#### The candidate's whole diff
+
+Applies with `git apply` from the repository root at `04f6348c7`, and gives src tree `c0713204a`.
+
+```diff
+diff --git a/packages/drag2/.plan/contract/05-lifecycle-invariants.md b/packages/drag2/.plan/contract/05-lifecycle-invariants.md
+index 3d53639dd..9a3dc5f23 100644
+--- a/packages/drag2/.plan/contract/05-lifecycle-invariants.md
++++ b/packages/drag2/.plan/contract/05-lifecycle-invariants.md
+@@ -250,7 +250,7 @@ Kernel-private, decided at admission. Escape-to-cancel is armed identically to a
+ - **relinquishment** — each behavior's walk of its installers' retire hooks, run by teardown as part of application;
+ - **diagnosis** — the panic route's one `onError`, a `DraggableError` whose stage is `null`, delivered after the panic closes and before it tears down.
+
+-**D-51's named list is unchanged and empty.** **(a)'s mechanism on every diagnostic route is the kernel's channel refusal** (D-208). Every diagnostic the library delivers to `onError` leaves through a channel the kernel minted: the kernel's own route, each behavior's own channel and unwind guard, and the composition's `FeatureContext.report`. Each channel delivers until destruction is applied and drops from then on; the refusal is written once, in the kernel, and reads the applied lifecycle only, so its answer is constant across every unit. Panic's report is the one delivery that does not pass through it. **The silence for a teardown step that throws is grounded, and it is named by route**: a retire hook, a lifetime disposer or a frame reset that throws while destruction is applied reports nothing, because the channel it would report through refuses — on the behavior's route for a retire hook, and on the kernel's route for the rest. A `FeatureContext.report` an installer makes after application is dropped the same way. **What remains of D-53 is withdrawn**: the logical-liveness member it added is removed, and the only lifecycle readings left are the kernel's — the runner, request intake and the channel's refusal (§[02](02-kernel-behavior-contract.md) §What this actually guarantees).
++**D-51's named list is unchanged and empty.** **(a)'s mechanism on every diagnostic route is the kernel's channel refusal** (D-208). ~~Every diagnostic the library delivers to `onError` leaves through a channel the kernel minted: the kernel's own route, each behavior's own channel and unwind guard, and the composition's `FeatureContext.report`.~~ **Precision 2026-11-04 (D-208, remediation 6R):** each behavior's own channel, its unwind guard and the composition's `FeatureContext.report` are channels minted through `BehaviorContext.channel`; the kernel's own route is the kernel's, is not minted through it, and applies the same refusal. Each channel, and that route, delivers until destruction is applied and drops from then on; the refusal is written once, in the kernel, and reads the applied lifecycle only, so its answer is constant across every unit. Panic's report is the one delivery that does not pass through it. **The silence for a teardown step that throws is grounded, and it is named by route**: a retire hook, a lifetime disposer or a frame reset that throws while destruction is applied reports nothing, because the channel it would report through refuses — on the behavior's route for a retire hook, and on the kernel's route for the rest. A `FeatureContext.report` an installer makes after application is dropped the same way. **What remains of D-53 is withdrawn**: the logical-liveness member it added is removed, and the only lifecycle readings left are the kernel's — the runner, request intake and the channel's refusal (§[02](02-kernel-behavior-contract.md) §What this actually guarantees).
+
+ **Tier:** ~~**C** for (a)~~ — **corrected to A by D-176, 2026-09-04**: under the repository's current scale Tier A is _a correctly integrated consumer observes something different at runtime_, and invoking a slot the consumer filled after the consumer destroyed the controller runs the consumer's own function body. That is the observation, and it is exactly why D-36's bracket cannot make a call consequence-free. **B** for (b) and for every publication the kernel sequences
+
+diff --git a/packages/drag2/src/kernel/kernel.ts b/packages/drag2/src/kernel/kernel.ts
+index afff1ebc8..f370952e1 100644
+--- a/packages/drag2/src/kernel/kernel.ts
++++ b/packages/drag2/src/kernel/kernel.ts
+@@ -346,6 +346,63 @@ function resetFrame<Part extends object, Activation extends {}>(
+   });
+ }
+
++/**
++ * **The diagnostic refusal and terminus, written once.** The armed controller's
++ * route and every channel {@link Kernel.channel} mints deliver through here, and
++ * nowhere else is either written:
++ *
++ * 1. **Refuse after application.** A channel outlives the unit that minted it: a
++ * composition's `report`, captured by an installer and called after destruction
++ * has been applied, would otherwise invoke `onError` after application, which
++ * the floor forbids outright. The refusal reads the applied lifecycle only, so
++ * its answer is constant across every unit: a request registered in the unit
++ * cannot change it.
++ * 2. **Hand the finished error to the sink**, which forwards it to `onError` and
++ * does nothing else.
++ * 3. **Discard whatever that throws.** *This is the terminus.* A throw from the
++ * sink is never re-notified, and that single discard is the whole of what makes
++ * the route non-recursive. It is also what lets every `unwind` site stay total
++ * without knowing anything about reporting: their catch calls a route, and a
++ * route cannot throw.
++ *
++ * Panic's report is the one exception, and it does not pass through here.
++ *
++ * The bracket is `this` and the receiver a parameter, so a channel is one bound
++ * function with no context of its own, and the armed controller's route reaches
++ * its spec with no per-controller wrapper.
++ */
++function deliverUnlessApplied(
++  this: ExecutionBracket,
++  receiver: unknown,
++  deliver: Notify,
++  error: DraggableError | DraggableWarning,
++): void {
++  if (this.closed) {
++    return;
++  }
++
++  try {
++    deliver.call(receiver, error);
++  } catch {
++    // The terminus. Reporting a reporting failure is the one recursion this
++    // model has to be incapable of, and being incapable is stronger than being
++    // careful.
++  }
++}
++
++/**
++ * The armed controller's sink: the spec's `reportError`, read and called with
++ * its receiver at each delivery and only after the refusal has let it through.
++ * The spec contract does not say that method may be called detached or read
++ * once.
++ */
++function reportToSpec(
++  this: Readonly<Pick<BehaviorSpec<never, never>, 'reportError'>>,
++  error: DraggableError | DraggableWarning,
++): void {
++  this.reportError(error);
++}
++
+ /**
+  * **The armed controller.** It owns the frame pair, the seam driver, the
+  * operation and activation records, the attempt slots, the landing tail, the
+@@ -414,15 +471,16 @@ class ArmedController<Part extends object, Activation extends {}> {
+     resolution: null,
+   };
+
+-  /* ---- the controller's channel ---- */
++  /* ---- the controller's route ---- */
+
+   /**
+-   * **Every fault the kernel surfaces leaves through here**: the façade's
+-   * channel, minted by construction over the spec's `reportError`, so it
+-   * applies the one refusal {@link Kernel.channel} states and absorbs a throw
+-   * from the behavior. Its collaborators take it as a value: the driver, every
+-   * operation's lifetimes, this controller's unwind guard, and construction's
+-   * unwind when it fails after publishing this controller.
++   * **Every fault the kernel surfaces leaves through here**: the kernel's own
++   * route to the spec's `reportError`, not a channel minted through
++   * {@link Kernel.channel}. It applies the one refusal and terminus
++   * {@link deliverUnlessApplied} states, so it refuses after application and
++   * absorbs a throw from the behavior. Its collaborators take it as a value:
++   * the driver, every operation's lifetimes, this controller's unwind guard,
++   * and construction's unwind when it fails after publishing this controller.
+    *
+    * **The stage is deliberately absent.** The sites that reach this holding a
+    * real `FailureStage` discard it — the demoted checkpoints, `failOperation`'s
+@@ -434,10 +492,10 @@ class ArmedController<Part extends object, Activation extends {}> {
+   readonly report: Notify;
+
+   /**
+-   * The unwind guard, over this controller's channel.
++   * The unwind guard, over this controller's route.
+    *
+    * One closure per kernel rather than a free function: every call site
+-   * reads `unwind(fn)` either way, and threading the channel's identity through
++   * reads `unwind(fn)` either way, and threading the route's identity through
+    * each of them would put reporting at every site that merely wants the next
+    * statement to run.
+    */
+@@ -467,10 +525,14 @@ class ArmedController<Part extends object, Activation extends {}> {
+     spec: BehaviorSpec<Part, Activation>,
+     current: Frame<Part>,
+     draft: Frame<Part>,
+-    report: Notify,
+   ) {
+-    this.report = report;
+-    this.#unwind = createUnwind(report);
++    // Over the controller's fields rather than the parameters: the driver's
++    // callback below already puts `this` in this constructor's context, so the
++    // route adds one closure and no context of its own.
++    this.report = (error): void => {
++      deliverUnlessApplied.call(this.#bracket, this.#spec, reportToSpec, error);
++    };
++    this.#unwind = createUnwind(this.report);
+     this.#realm = realm;
+     this.#root = root;
+     this.#bracket = bracket;
+@@ -489,7 +551,7 @@ class ArmedController<Part extends object, Activation extends {}> {
+       // lets the `QUALITY` and `BEST_EFFORT` tiers collapse into one sentinel.
+       //
+       // There is no lifetime guard at this site, and adding one here is wrong:
+-      // the guard belongs in the channel, where every route shares it. A
++      // the guard belongs in the shared refusal, where every route has it. A
+       // quality fault's producer is consumer-reaching — a `home` resolver, a
+       // landing policy — and is equally free to request destruction before it
+       // throws.
+@@ -662,7 +724,7 @@ class ArmedController<Part extends object, Activation extends {}> {
+    * next is conditioned on the call; it publishes no lifecycle or domain event
+    * and ignores its return; and it is wrapped. Which sites share that property
+    * is not this comment's to count — that list is maintained where the
+-   * exception is stated, and the channel refuses every site that fails it.
++   * exception is stated, and the shared refusal drops every site that fails it.
+    *
+    * Reporting first and destroying second would run consumer code on a
+    * controller whose invariants are *already known to be broken*, with the
+@@ -681,12 +743,12 @@ class ArmedController<Part extends object, Activation extends {}> {
+   panic(error: unknown): void {
+     // **The one diagnostic delivered after application**: the diagnosis.
+     // The bracket closed before calling this and tears down once it returns,
+-    // so the channel would refuse it: it goes to the spec's sink directly,
+-    // behind the same terminus.
++    // so the shared refusal would drop it: it goes to the spec's sink directly,
++    // behind a terminus of its own.
+     try {
+       this.#spec.reportError(new DraggableError(null, error));
+     } catch {
+-      // The terminus, as the channel's.
++      // The terminus, as the shared route's.
+     }
+   }
+
+@@ -898,9 +960,9 @@ class ArmedController<Part extends object, Activation extends {}> {
+       // this is a `DraggableError`, built here from the stage the kernel owns.
+       //
+       // Neither a destruction the resolver requested nor a throwing `onError`
+-      // is handled here. **Both belong to the channel**
+-      // ({@link Kernel.channel}), which refuses only after application and
+-      // absorbs a throwing sink for every route rather than for this one.
++      // is handled here. **Both belong to the controller's route**
++      // ({@link deliverUnlessApplied}), which refuses only after application
++      // and absorbs a throwing sink for every route rather than for this one.
+       this.report(new DraggableError(FAILURE_ADMISSION, error));
+
+       return null;
+@@ -986,7 +1048,7 @@ class ArmedController<Part extends object, Activation extends {}> {
+       // **This site is not forced onto a second channel.** It reads like the
+       // one place a platform report is unavoidable — the identity is a local
+       // never published to the frames, so `failOperation` would degrade anyway
+-      // — but the channel is operation-independent, so that reason does not
++      // — but the route is operation-independent, so that reason does not
+       // hold: a warning needs no operation and no stage, and `return false`
+       // refuses admission, so the outcome is the same either way.
+       this.#unwind(live.lifetimes.dispose);
+@@ -2527,43 +2589,15 @@ export class Kernel<
+   }
+
+   /**
+-   * **The diagnostic refusal, written once.** Every channel — this
+-   * controller's own, minted for the armed controller at construction, and
+-   * each one a behavior mints — refuses after destruction has been
+-   * **applied**, and nowhere else is it written:
+-   *
+-   * 1. **Refuse after application.** A channel outlives the unit that minted
+-   * it: a composition's `report`, captured by an installer and called after
+-   * destruction has been applied, would otherwise invoke `onError` after
+-   * application, which the floor forbids outright. The refusal reads the
+-   * applied lifecycle only, so its answer is constant across every unit: a
+-   * request registered in the unit cannot change it.
+-   * 2. **Hand the finished error to the sink**, which forwards it to `onError`
+-   * and does nothing else.
+-   * 3. **Discard whatever that throws.** *This is the terminus.* A throw from
+-   * the sink is never re-notified, and that single discard is the whole of
+-   * what makes the channel non-recursive. It is also what lets every `unwind`
+-   * site stay total without knowing anything about reporting: their catch
+-   * calls a channel, and a channel cannot throw.
++   * Mints a channel over `deliver`: it delivers until destruction is applied,
++   * drops every call afterwards and absorbs a throw from `deliver`, by the one
++   * refusal and terminus {@link deliverUnlessApplied} states.
+    *
+    * It needs only the lifecycle, which this façade holds from its own
+    * construction, so a channel minted in the factory works before arming.
+-   * Panic's report is the one exception, and it does not pass through here.
+    */
+   channel(deliver: Notify): Notify {
+-    return (error): void => {
+-      if (this.#bracket.closed) {
+-        return;
+-      }
+-
+-      try {
+-        deliver(error);
+-      } catch {
+-        // The terminus. Reporting a reporting failure is the one recursion
+-        // this model has to be incapable of, and being incapable is stronger
+-        // than being careful.
+-      }
+-    };
++    return deliverUnlessApplied.bind(this.#bracket, undefined, deliver);
+   }
+
+   /**
+@@ -2611,7 +2645,7 @@ export class Kernel<
+    * A call from the construction window — the factory body or a frame-part
+    * factory — is outside every seam, so it takes the demotion this member's
+    * own contract states. The demotion is silent there because the report
+-   * travels through the armed controller's channel, which does not exist yet:
++   * travels through the armed controller's route, which does not exist yet:
+    * the same place a platform report has no destination on any other pre-arm
+    * route.
+    */
+@@ -2745,9 +2779,6 @@ export class Kernel<
+         next,
+         current,
+         draft,
+-        this.channel((error) => {
+-          next.reportError(error);
+-        }),
+       );
+       this.#armed = armed;
+       armed.attach();
+@@ -2768,9 +2799,9 @@ export class Kernel<
+    * constructed frame this path is still responsible for, and one that never
+    * ran leaves nothing `resetFramePart` could be handed.
+    *
+-   * A failure inside the unwind reports through the armed controller's channel
++   * A failure inside the unwind reports through the armed controller's route
+    * when one was published, and nowhere otherwise: before publication there is
+-   * no channel to report through.
++   * no route to report through.
+    */
+   #unwindArm(
+     next: BehaviorSpec<Part, Activation>,
+diff --git a/packages/drag2/src/kernel/seams.ts b/packages/drag2/src/kernel/seams.ts
+index 0c097a924..8b8910f98 100644
+--- a/packages/drag2/src/kernel/seams.ts
++++ b/packages/drag2/src/kernel/seams.ts
+@@ -144,8 +144,8 @@ export class SeamDriver<Part extends object> {
+   readonly #fail: (stage: FailureStage, error: unknown) => void;
+
+   /**
+-   * The controller's channel, the one the façade mints over the spec's
+-   * `reportError`. No checkpoint is queued, no recovery is
++   * The armed controller's route to the spec's `reportError`, which applies the
++   * kernel's one diagnostic refusal. No checkpoint is queued, no recovery is
+    * selected, and the operation's own outcome is untouched — which is what
+    * makes everything the driver sends here a {@link DraggableWarning}.
+    */
+diff --git a/packages/drag2/src/kernel/spec.ts b/packages/drag2/src/kernel/spec.ts
+index c12f9a32d..a5d737331 100644
+--- a/packages/drag2/src/kernel/spec.ts
++++ b/packages/drag2/src/kernel/spec.ts
+@@ -523,9 +523,9 @@ export type BehaviorSpec<
+    * proof that the operation is over**, and the terminal for that operation
+    * still publishes afterwards.
+    *
+-   * **No guard belongs here.** The kernel calls this only through a channel
+-   * it minted over it, and once from a panic, behind a discard of its own. A
+-   * channel absorbs a throw from its sink, so a throw from `onError` stops
++   * **No guard belongs here.** The kernel calls this only through its own
++   * route, which refuses after destruction is applied and absorbs a throw, and
++   * once from a panic, behind a discard of its own. So a throw from `onError` stops
+    * there and is never reported back. A behavior's own reports and its
+    * composition's `report` reach `onError` through channels the behavior
+    * mints with {@link BehaviorContext.channel}, not through this member.
+diff --git a/packages/drag2/tests/kernel/capture.node.test.ts b/packages/drag2/tests/kernel/capture.node.test.ts
+index 8a93ebea4..0f748723f 100644
+--- a/packages/drag2/tests/kernel/capture.node.test.ts
++++ b/packages/drag2/tests/kernel/capture.node.test.ts
+@@ -104,8 +104,8 @@ const membersWhere = (
+
+ /**
+  * The controller-scope context: realm, root, the bracket, the ingress signal,
+- * the spec, the frame pair, the driver, and the channel the façade minted with
+- * the unwind guard over it. The seam adapters are arrow-valued fields with
++ * the spec, the frame pair, the driver, and the controller's diagnostic route
++ * with the unwind guard over it. The seam adapters are arrow-valued fields with
+  * initializers, and are `readonly` for the same reason; this list is the
+  * context that arrives from construction.
+  */
+@@ -331,7 +331,7 @@ function ledgerReads(
+ /**
+  * **No unit reads the ledger after its entry.** The places left in the armed
+  * controller are request intake, the runner's refusal before an ingress pass,
+- * and unit entries. The diagnostic channel's refusal is the façade's, and the
++ * and unit entries. The diagnostic refusal is a module function's, and the
+  * runner's own reading is the bracket's; both are outside this class and are
+  * located by the source-wide census below.
+  */
+@@ -472,9 +472,11 @@ describe('the read census', () => {
+       'kernel/kernel.ts › ArmedController.#handleStartCommitted: cancelRequest',
+       // The runner's refusal before a native ingress pass is admitted.
+       'kernel/kernel.ts › ArmedController.#onPointerDown: idle',
+-      // The diagnostic channel's one refusal, and the façade's dispatch intake.
+-      'kernel/kernel.ts › Kernel.channel: closed',
++      // The façade's dispatch intake.
+       'kernel/kernel.ts › Kernel.dispatch: closed',
++      // The diagnostic refusal, shared by the kernel's route and every minted
++      // channel.
++      'kernel/kernel.ts › deliverUnlessApplied: closed',
+     ]);
+   });
+
+```
