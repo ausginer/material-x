@@ -4315,7 +4315,7 @@ D-208 stays `Unimplemented (Remediation)`, and the witness holds. §28.9's rows 
 - **The path needs two acts in one callback,** and the package is unreleased, so no consumer reaches it before Phase 25.
 - **The contract says what happens in the meantime.** The texts state the gap and a row pins it.
 
-**The risk accepted by this call:** D-208 would be accepted and merged with a known tier A gap, open until D-209 lands. The deadline is before Phase 24 exits. **The owner can reorder this:** D-209 could land on this branch after acceptance and before the merge, at the cost of its own unit. I recommend it lands first among the post-merge work, ahead of the terminology phase, so that phase rewrites settled text.
+**The risk accepted by this call:** D-208 would be accepted and merged with a known tier A gap, open until D-209 lands. The deadline is before Phase 24 exits. **The owner can reorder this:** D-209 could land on this branch after acceptance and before the merge, at the cost of its own unit. I recommend it lands first among the post-merge work, ahead of the terminology phase, so that phase rewrites settled text. **Superseded 2026-11-04 (§32.1):** the owner reordered it. D-209 lands and is accepted on this branch before the merge.
 
 ### 30.6 The other findings
 
@@ -4533,11 +4533,11 @@ Everything below ran in one private worktree at the input, except the first row'
 
 ### 31.5 D-209 and F-446
 
-**Both stay open and separate.** D-209's marker and row stay, and its witness holds. Nothing here implements it, designs it or changes its properties. §30.5's accepted risk is now live: **D-208 is accepted with a known tier A gap,** until D-209 lands. The owner can still reorder it onto this branch before the merge.
+**Both stay open and separate.** D-209's marker and row stay, and its witness holds. Nothing here implements it, designs it or changes its properties. §30.5's accepted risk is now live: **D-208 is accepted with a known tier A gap,** until D-209 lands. The owner can still reorder it onto this branch before the merge. **Reordered 2026-11-04 (§32.1).**
 
 ### 31.6 What the merge still has to reckon with
 
-**The merge is the owner's.** None of these was caused by D-208, and each is the owner's to weigh:
+**The merge is the owner's.** None of these was caused by D-208, and each is the owner's to weigh. **Dated 2026-11-04 (§32.1):** the owner has weighed them, and all five now fall under its gates:
 
 - **The branch does not read clean.** The expected failing set is now the four `docs.node` rows, with `react.browser` and `stories.browser` unloadable. `plan.md`'s ground rule 2 says no phase lands red.
 - **`docs.node` cannot see the surface** while RF-24 stands, so nothing in the suite checks D-208's published references. A separate TypeDoc reading with error checking skipped was clean at `bd3613d5f`. It was not repeated at this tree, where only two doc comments changed.
@@ -4561,7 +4561,7 @@ Run once, with the unit's tracked changes applied to the private worktree: **1,4
 
 ### 31.9 What stays open
 
-D-208 is implemented, and §30.11's rows for the remediation and this acceptance are closed.
+D-208 is implemented, and §30.11's rows for the remediation and this acceptance are closed. **Dated 2026-11-04:** §32.1 and §32.12 replace this table's order and deadlines for D-209, F-447 and the merge.
 
 | Item | Owner | Required action | Deadline |
 | --- | --- | --- | --- |
@@ -4573,3 +4573,265 @@ D-208 is implemented, and §30.11's rows for the remediation and this acceptance
 | RF-23, RF-24 | repository | `.plan/00-index.md` | separate |
 | F-442, F-445, the compression pass, the terminology phase | as §24.6 and `plan.md` state | separate | unchanged |
 | D-200's independent acceptance; Reviewer-E | owner | unchanged | unchanged |
+
+## 32. D-209's handoff, the owner's ordering, and the second carrier of a discarded fault (D-209)
+
+**2026-11-04. Input:** `e2aabaf3b` on `drag2/fin-review2`. **Accepted tree:** `626180a058af7374a68c5544fefc4111eec6003c`, unchanged here. No source changed, no review round and no statistical measurement ran, and D-208 is not reopened. A throwaway prototype and its rows ran in a private worktree. Evidence is in [`probes/d209-handoff/`](../../probes/d209-handoff/).
+
+**Decided, in short:**
+
+- **The owner's order governs:** D-209 is implemented and accepted on this branch, then the verification infrastructure and browser test loading are restored, and only then is the branch merged (§32.1).
+- **D-209 was one fault carrier short.** A throw from `onReorder` or `onDrop` after a destruction request reaches no checkpoint, so property 1 as written leaves it silent. It is amended to cover that carrier, and the owner can overrule this (§32.3).
+- **Property 6 can be met** with no decision changed. Nothing needs escalating (§32.4).
+- **The handoff is §32.5 to §32.8, and acceptance is §32.10.** R21 does not move.
+- **A, a3 and the owner's acceptance stay on tree `626180a05`** (§32.9).
+
+### 32.1 The owner's ordering
+
+**Quoted:**
+
+> Implement and accept D-209 on this branch BEFORE merging. Then restore the failing verification infrastructure and browser test loading. Merge follows only after those checks are restored. Terminology, comment reduction and compression remain separate.
+
+**This replaces §30.5's recommendation and §31.5's and §31.9's _first after the merge_.** D-208's accepted tier A gap now closes before the merge, not after it. The gates, in order:
+
+| # | Gate | Owner | State |
+| --: | --- | --- | --- |
+| 1 | D-209 implemented | implementer | §32.5 to §32.8 |
+| 2 | D-209 accepted, F-446 closed | architect | §32.10 |
+| 3 | The four `docs.node` rows report on the published surface, and the two `.scripts/` errors are gone (RF-24) | architect's handoff, then the implementer | after gate 2 |
+| 4 | `react.browser` and `stories.browser` load (RF-25) | architect's handoff, then the implementer | after gate 2 |
+| 5 | `consumer.node`'s sourcemap row cannot redden a clean tree (F-447) | architect's handoff, then the implementer | after gate 2 |
+| 6 | The merge | owner | after gates 3 to 5 |
+
+**Gate 5 is my reading of _failing verification infrastructure_.** F-447 can redden the very run that gates 3 and 4 are read from, so I booked it. The owner can take it out.
+
+**RF-25 is minted here,** in `.plan/00-index.md`, because the failure had no entry to hand off. As `packages/drag2` resolves them, `react` is 19.3.1, from the root's `overrides`, and `react-dom` is 19.2.7, from its own pin.
+
+**Not gates, and unchanged from §31.9:** integrity-4, F-442, F-443 and O-15, F-445, RF-23, D-200's independent acceptance and Reviewer-E. **Separate, after the merge:** the terminology phase, comment reduction and the compression pass.
+
+### 32.2 What the inspection found
+
+**Every entry in the queue was enumerated, by its `dispatch` site.** Two carry a fault that is not yet reported:
+
+| Tag | Argument | What is owed if it is discarded |
+| --- | --- | --- |
+| `FAILED` | the checkpoint | the fault, as D-209 states |
+| `RESOLUTION_SETTLED` | the attempt, whose input may be `SETTLED_REJECTED` | **the fault, when rejected.** D-209 does not state this (§32.3) |
+| `ERROR_REPORTED` | the same checkpoint | nothing: its fault was already delivered, so a row must tell it apart from `FAILED` |
+| every other tag | no fault | nothing |
+
+**Run through the public entries,** at the accepted tree and on the prototype, once each:
+
+| Slot requests destruction, then throws | Behaviors | Accepted tree | Prototype |
+| --- | --- | --- | --- |
+| `onStart` | both | nothing | one warning, no `onEnd` |
+| `onMove` | free drag | nothing | one warning, no `onEnd` |
+| `onEnd` | both | `onEnd` only | `onEnd`, then one warning |
+| `onReorder`, `onDrop` | sortable, free drag | **nothing, and the slot ran once** | one warning, no `onEnd` |
+
+**So §31.3's open question is answered:** sortable's slots past activation report through these same two carriers. `onEnd` is a checkpoint, and `onReorder` is the second carrier.
+
+**The no-request control for the last row:** `DraggableError`, then `onEnd` `canceled`, in both behaviors. The same outcome holds on both trees.
+
+### 32.3 The amendment: a rejected settlement that destruction discards
+
+**D-209's property 1 says _failure checkpoint_.** A synchronous throw from the round-trip's slot, or a thenable that rejects inside `then`, is caught by `#openResolution` and queued as `RESOLUTION_SETTLED`. No checkpoint exists until that entry applies, and destruction discards the entry first.
+
+**This is one fault under two carriers, so D-209 is amended and no new decision is minted.** Every ground in §30.2 holds: the library caught the throw, nothing else records it, the same consumer call reports from `handle` and `home`, and no route names this silence. Both behaviors already call a rejection a classified failure, by rethrowing it in `settlement.prepare`. Leaving it would also make the README false once F-446's sentence is removed.
+
+**Rejected:**
+
+- **Leave it out and mint a separate finding.** It would ship the same tier A silence through the merge, with the mechanism already in place one line away.
+- **Register a checkpoint at the rejection.** That is a second claim on the operation, in a path that §2.8 keeps as a settlement.
+
+**The owner can overrule this.** Then rows (v) and (w) pin silence, the carrier is left out of §32.4, and this silence gets its own finding before the merge. Nothing else in the handoff changes.
+
+**The boundary of the amendment:** only a rejection queued and discarded inside the interval. A rejection arriving after application finds the attempt slot empty, and it stays silent under I-36 (a). That is row (y).
+
+### 32.4 The mechanism, and why it is this one
+
+**Required shape.** The implementer chooses the spelling, within these terms:
+
+1. **The walk is `#step`'s non-`LIVE` branch.** It keeps iterating instead of stopping, handles nothing, and reports each remaining fault in queue order. Entries appended during the walk are reached, because `apply` re-reads the length.
+2. **Identified by tag,** never by the argument's shape, because `ERROR_REPORTED` carries the same record.
+3. **The entry carries its own report.** The kernel builds it at registration: a member on the kernel-private checkpoint, and on a rejected attempt only once it has won the first-completion latch. It reports `DraggableWarning('drag: failure/superseded-by-destruction')` with the fault as `cause`, through `this.report`.
+4. **No class gains a field, and no constructor gains a callback.**
+
+**Why this meets each property:**
+
+| Property | How |
+| --- | --- |
+| 1, one report, in order | One walk over the entries a drain has not reached, in FIFO order |
+| 2, before application, through the route | The walk is inside the drain, so `#running` is true and the lifecycle is `REQUESTED`. Ingress is refused, and the refusal lets the delivery through |
+| 3, at the boundary | The runner's existing read in `#step`. **R21 does not move**, and the allowed re-pin is not used |
+| 4, no consequence | No handler runs. What `onError` requests is appended and walked past, and the route absorbs a throw |
+| 5, panic | `#drain`'s catch never reaches the walk, and that code does not change |
+| 6, off the sample path | The `LIVE` branch is byte-identical, and every other change is on a failure path or a rejected round-trip |
+
+**Candidates that fail property 6 or a stated term:**
+
+| Candidate | Fails on |
+| --- | --- |
+| A fifth bracket callback, `discard` | one field and one closure per controller |
+| A new tag and `case` in `ArmedController.handle` | changes the function every sample runs through |
+| A stored queue cursor, read in `#leave` | per-controller state, and a write in `apply` |
+| A kernel walk from teardown | teardown runs after `CLOSED`, against property 2 |
+| `#handle(FAILED)` while `REQUESTED`, with a guard in `#handleFailed` | a unit after the requesting one: D-209's _not chosen_ |
+
+**What this costs, stated:**
+
+- **`#step` no longer produces `false`,** so `ActionQueue.apply`'s stop branch has no production caller. Removing it would change the sample path, so it stays, and `queue.node`'s row stays true. It is a named input to the compression pass, which owes its own reading.
+- **The bracket now knows two tags and calls a member an entry carries.** Its header claims it names nothing the kernel models and that every consumer-visible act stays behind its constructor's callbacks. That comment must be restated truthfully: the bracket knows which entries owe a report when discarded, and nothing about what they mean.
+- **Fault-free drops take one more type test,** in `#settleResolution`. That is per drop, and it is allowed by property 6's text. No allocation is added unless a rejection occurs.
+
+### 32.5 Handoff: the implementation boundary
+
+**Owner:** the implementer. **Input:** this section's commit. Do the steps in order, and a failed check stops the sequence. A source comment carries no record identifier.
+
+**Step 1, one commit: the source, its rows, `tests/COVERAGE.md` and the README.**
+
+| Path | Change |
+| --- | --- |
+| `src/kernel/execution.ts` | The tag import, `#step`'s non-`LIVE` branch, and comments that become false: the class header, `#step`'s doc, `runIngress`'s _handles nothing_ if needed |
+| `src/kernel/kernel.ts` | `FailureCheckpoint` and `ResolutionAttempt` each gain the member. `#failOperation` and `#settleResolution` fill it. Comments: `panic`'s, naming that a checkpoint a panic discards stays silent, `#settleResolution`'s _application discards it_, and any other comment this change makes false in these two files |
+| `tests/diagnostic-intake.browser.test.ts`, `tests/kernel/kernel.browser.test.ts`, `tests/kernel/execution.node.test.ts` | §32.6 |
+| `tests/COVERAGE.md` | R33 (i), (j) and (l) rewritten, with the conformance-pin wording gone. (k)'s row stays. New rows cited by title |
+| `README.md` | F-446's sentence is replaced by one that says what now happens: a callback that requests destruction and then throws reaches `onError` as a `DraggableWarning`, with the throw as `cause`, and no `onEnd` follows |
+
+**Step 2:** §32.7's mutations, then composition and controls in one commit, §32.8.
+
+**Step 3:** the record, §32.8.
+
+**Out of scope:**
+
+- `src/kernel/queue.ts`, `actions.ts`, `seams.ts`, `spec.ts`, `src/sortable/` and `src/free-drag/`;
+- any new field, callback or exported name, and any published declaration beyond a doc comment;
+- `00-index.md`, `05`, this record, and D-209's marker and row, which are §32.10's;
+- RF-24, RF-25, F-447, integrity-4 and every other open item;
+- retained-heap, allocation or timing rounds, and any statement about A or a3 beyond §32.9's.
+
+**Stop and report if:**
+
+- a comment-stripped hunk falls outside the sites in §32.8;
+- `capture.node` moves, in particular R21's census;
+- a row's outcome differs from §32.6, a row cannot be driven as stated, or a row not named in step 1 reddens;
+- `drag.js` or baseline B moves, or a row exceeds its ceiling;
+- property 6 cannot be kept. That goes to the architect and then the owner, and is never relaxed in place.
+
+### 32.6 The rows
+
+**Every row except B1 to B3 was driven once on the prototype,** and its draft is in [`rows.diff.txt`](../../probes/d209-handoff/rows.diff.txt). That draft is not production code. The implementer writes the rows to `tests/`' conventions and chooses titles. A row's _accepted tree_ column says whether the row fails today, which is what makes it discriminating.
+
+**Public, both behaviors unless stated, in `diagnostic-intake.browser.test.ts`:**
+
+| Row | Drive | Required outcome | Accepted tree |
+| --- | --- | --- | --- |
+| (i) | `onStart` requests destruction, then throws | one `DraggableWarning`, `superseded-by-destruction`, with the throw as `cause`. `onError` only, no `onEnd`, and the promise settles | fails |
+| (j), free drag only | `onMove`, the same | the same | fails |
+| (k) | `onStart` throws with no request | **unchanged, byte for byte:** `DraggableError` stage 2, then `onEnd` `canceled` | passes |
+| (s), public half | `onStart` throws, and `onError` requests destruction | one `DraggableError`. No warning and no `onEnd` | passes |
+| (v) | `onReorder` or `onDrop` requests destruction, then throws. A counter shows that the slot ran once. Beside it, the same throw with no request: `DraggableError`, then `onEnd` `canceled` | one warning, `onError` only | fails |
+| (z) | `onEnd` requests destruction, then throws | `onEnd`, then one warning | fails |
+
+**Kernel, in `kernel.browser.test.ts`:**
+
+| Row | Drive | Required outcome | Accepted tree |
+| --- | --- | --- | --- |
+| (l) | one seam: `fail(a)`, request | one warning for `a`, no settlement, applied afterwards | fails |
+| (m) | one seam: request, `fail(a)` | the same: registered after the request | fails |
+| (n) | one seam: `fail(a)`, request, `fail(b)` | `a` then `b`: registration order | fails |
+| (o) | one seam marks its start and end. The report records `applied`, attempts a press, and records whether it was admitted. `retire` marks too | exactly: seam start, seam end, the report, `applied` false, no admission, `retire`. The promise then settles | fails |
+| (p), reentrancy | The delivered report calls `requestDestroy`, `requestCancel`, `dispatch` and `fail(b)` | the warning for `a`, then `drag: seam/fail-outside-seam` for `b`. No action, settlement or `finalized` runs, and `retire` runs once | fails |
+| (q), reentrancy | Two checkpoints, and the report throws each time | both delivered, no `DraggableError(null)`, `retire` once | fails |
+| (r), precedence | `requestCancel`, `fail`, request; and `fail`, `requestCancel`, request | destruction's code only, never the cancel's, and no settlement | fails |
+| (s), kernel half | A checkpoint applies, and its `settlement.prepare` requests destruction | no warning for it, and no `finalized` | passes |
+| (t) | `fail(a)`, `fail(b)`; `a` applies and requests destruction | one warning, for `b` | fails |
+| (u), panic | An action seam moves past the threshold, then calls `fail`. The selection stub throws at the crossing, which is `[action, MOVE, FAILED]` | one `DraggableError` with stage `null`, read `applied` true, no warning, `retire` once | passes |
+| (w) | `invoke` requests destruction, then throws; and returns a thenable that rejects synchronously | one warning, no settlement | fails |
+| (x) | `invoke` requests destruction, then returns a thenable that fulfils and then rejects; and returns a plain value | nothing delivered | passes |
+| (y) | `invoke` requests destruction, then returns a rejected promise | nothing delivered: it arrives after application | passes |
+
+**Bracket, in `execution.node.test.ts`, by plain stubs:** **(B1)** the walk reports the remaining fault entries in FIFO order, including one appended during the walk, and handles nothing. **(B2)** an entry already handled before the request is not reported. **(B3)** a panic with a fault entry behind it calls no report. These were not run on the prototype.
+
+**Standing rows stay.** On the prototype the whole suite moved only (i), (j) and (l), and the five controls (§32.8), beside the known failures. `execution.node`'s _stop the drain_ and `capture.node`'s census pass unchanged.
+
+### 32.7 The mutations
+
+Run each once on the landed code and restore it, and record the reddened rows by name. The expected rows come from the prototype's run, translated from its draft rows to §32.6's letters.
+
+| Mutation | Must redden, at least |
+| --- | --- |
+| **N1**, `#step` declines only at `CLOSED` | **(i) both, (j), (l) and (m). (k) stays green.** Also (n), (o), (p), (q), (r), (s), (t), (v), (w), (z) |
+| **X1**, the walk removed | every row marked _fails_ in §32.6 |
+| **X2**, stop after the first declined entry | (n), (q), (r) |
+| **X3**, identify by argument and not tag | (s), (t) |
+| **X4**, deliver after application | (i), (l), (m), (n), (o), (p), (q), (r), (t), (z) |
+| **X5**, call `spec.reportError`, bypassing the route | (q) |
+| **X6**, report the cancel's code when a cancel is held | (r) |
+| **X7**, no settlement carrier | (v), (w) |
+| **X8**, set the settlement carrier before the first-completion latch | (x) |
+| **X9**, walk before closing on a panic | (u) |
+
+**Read each as:** a mutation shows that rows see it, not that a property holds wherever it reaches. Rows beyond the list are recorded, and a mutation that reddens nothing listed stops the sequence. [`readings.txt`](../../probes/d209-handoff/readings.txt) holds the prototype's run. X2 and X3 ran there before the settlement carrier was added.
+
+### 32.8 Property 6, composition, controls and the record
+
+**Property 6, at `e2aabaf3b` against the landed tree:**
+
+- **The comment-stripped diff,** by §29.6's method over every changed `src/` file, shows hunks only at: `execution.ts`'s import and `#step`'s non-`LIVE` branch, `#failOperation`'s dispatched literal, and `#settleResolution`. Type-only members are erased. A hunk elsewhere stops the sequence.
+- **The member lists** of `ExecutionBracket`, `ArmedController`, `Kernel` and `ActionQueue` are unchanged, by the TypeScript AST.
+- **The declarations:** 33 files, identical except for doc comments, if any. On the prototype, none differed.
+
+**Composition,** read by `measureAll()`, with `drag2` rebuilt, against the ceilings in force. **No ceiling moves.** On the prototype, every row stayed under its ceiling, with about 50 to 100 B left on the thirteen package rows. `drag.js` stayed at 142 and baseline B at 6,916. These must not move.
+
+**The controls move, and §29.5 administers them.** The five kernel-carrying rows are exact, and this change reaches them. On the prototype: `free drag minimal` 8,337, `+ bounds` 8,553, `+ landing` 8,497, `complete` 8,712, and `kernel.js` 6,398. The landed figures will differ. **Re-declare each only with its whole interval attributed:** the before figure is 2026-11-04's re-declaration at tree `c6c5e6ea5`, carried unchanged to `626180a05` by the comment commit. The after figure is at the landed tree, the named change is D-209, and the entry goes in `budget-rebases.md`. A figure that is not fully attributed stays red and stops at the architect.
+
+**The record: `.plan/measurements/d209-discarded-failures.md`, written last.** Creating it reddens `decisions.node`'s witness row, by design, until §32.10. It states:
+
+- the input, the landed commits and the new `src/` tree hash;
+- each check above and §32.7's readings, by name;
+- composition, and the controls' intervals;
+- the outcome in §32.9's terms;
+- the whole suite, run once, with the failing set by name. It must be `decisions.node`'s witness row, the four `docs.node` rows, and `react.browser` and `stories.browser` unloadable. A `consumer.node` sourcemap failure with 32 entries reads as F-447 and is recorded. Any other failure stops the sequence.
+
+### 32.9 What A and a3 cover
+
+**Retained heap A, allocation a3 and the owner's acceptance of 2026-11-04 belong to tree `626180a058af7374a68c5544fefc4111eec6003c`.** They do not extend to D-209's tree, and §31.4's limits stand as written.
+
+**So the merged tree will not be the measured tree.** The record states exactly that, and the comment-stripped diff is what it offers in place of a measurement. It may say that the diff shows no statement on the sample path changing and no per-controller state added. **It may not say** _no regression_, _unchanged cost_, _A holds_ or _a3 holds_ of the new tree. No statistical round is owed, by D-209's _Measurement_, and none is opened to close that distance. If the owner wants the distance closed, that is a new decision of theirs.
+
+`d208-requests.md`, `d208-step6.md` and their figures are not edited for this.
+
+### 32.10 The acceptance sequence
+
+**After the implementer's record, one architect unit, as §31 was, with no new round:**
+
+1. Read the diff and the rows. Rerun the comment-stripped diff, the member lists, the declarations, N1, and the whole suite.
+2. Confirm §32.6's outcomes and the failing set.
+3. **Accept, or stop.** On acceptance, remove D-209's marker and row, close F-446, and mark the decision implemented.
+4. **Reconcile the contract:** I-22 and I-36's dated _today_, §2.4's note and its application order, D-208's _every diagnostic_ note, and `00-index.md`'s F-446 references.
+5. Hand off gates 3 to 5.
+
+**No independent review of D-209 is booked,** by the owner's direction against another round. This is a tier A consumer-visible change, so the acceptance would rest on the architect's reading, the rows and the mutations. **The owner can add one `reviewer` lens** between the record and step 1. I would not call that a new architecture round, and it is the owner's to choose.
+
+### 32.11 Limits of this record
+
+- **The prototype is evidence of feasibility, not the implementation.** It has no comments, and its rows are drafts. Each reading ran once, in Chromium, on one machine, in a private worktree. Nothing here is a D-209 acceptance.
+- **The enumeration in §32.2 is by reading** the `dispatch` sites at this tree. A later carrier would need its own decision.
+- **A construction-window `dispatch` whose unchecked tag aliases `FAILED` or `RESOLUTION_SETTLED` can reach the walk with a foreign argument.** That is invalid use, D-204 leaves those tags unchecked, and no guard is owed. It was not run.
+- **`runIngress`'s `admit` throwing past `#drain` was not enumerated.** By reading, no checkpoint can be queued there, because failure intake needs a committed operation.
+- **The accepted tree's outcome for `onReorder` and `onDrop` was run.** The same drive at `6905af249` was not, so §30.5's _not a regression_ is not extended to that route. By reading, the input's immediate closure would retire the attempt and stay silent. This does not touch D-208's acceptance, which never claimed this route.
+- **The React cause in RF-25 is the resolved versions,** read here. No fix was tried.
+
+### 32.12 What stays open
+
+D-209 stays `Unimplemented (Remediation)`, and F-446 stays open, until §32.10.
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| D-209's implementation | implementer | §32.5 to §32.8 | now |
+| D-209's acceptance, F-446 (tier A) | architect | §32.10 | after the record |
+| RF-24, RF-25, F-447 | architect's handoff, then the implementer | §32.1 gates 3 to 5 | before the merge |
+| The merge | owner | after every gate | when the owner chooses |
+| integrity-4, F-442, F-443 and O-15, F-445, RF-23, D-200's independent acceptance, Reviewer-E | as §31.9 | unchanged | unchanged |
+| The terminology phase, comment reduction, the compression pass | as `plan.md` states | separate | after the merge |

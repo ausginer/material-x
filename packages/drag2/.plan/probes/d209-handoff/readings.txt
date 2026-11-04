@@ -1,0 +1,175 @@
+# D-209's handoff probes, 2026-11-04. Private worktree at e2aabaf3b, Chromium, one machine, once each.
+# prototype-src.diff.txt is a throwaway candidate: no comments, not committed to src/. rows.diff.txt holds its throwaway rows.
+# Files in each mutation run: kernel.browser, diagnostic-intake, execution.node, capture.node.
+
+## Accepted tree 626180a05 with the rows: every failure is a row requiring the new outcome
+BASE pass 300 fail 17
+    probe:sortable onStart
+    probe:sortable round-trip slot
+    probe:sortable onEnd
+    probe:free drag onStart
+    probe:free drag round-trip slot
+    probe:free drag onEnd
+    probe:P-l before
+    probe:P-m after
+    probe:P-n order
+    probe:P-o boundary
+    probe:P-p1 reentrant requests
+    probe:P-p2 throw absorbed
+    probe:P-q1 cancel fail destroy
+    probe:P-q2 fail cancel destroy
+    probe:P-s behind an applied one
+    probe:P-v sync throw
+    probe:P-w sync reject
+
+## Prototype with the rows, those four files: only the four old pins fail
+PROTOTYPE pass 313 fail 4
+    sortable should report nothing when onStart requests destruction and then throws
+    free drag should report nothing when onStart requests destruction and then throws
+    free drag, past activation should report nothing when onMove requests destruction and then
+    should deliver nothing for a checkpoint registered before destruction is requested
+
+## Whole suite on the prototype
+WHOLE pass 1450 fail 13
+    the documented surface should resolve every reference a public type makes
+    the documented surface should close the kernel tier over the kernel tier
+    the documented surface should close the ordinary tier over the ordinary tier and the ones 
+    the documented surface should close the free-drag tier over the ordinary tier and the ones
+    the declared controls should not move free drag minimal at all
+    the declared controls should not move free drag + bounds at all
+    the declared controls should not move free drag + landing at all
+    the declared controls should not move free drag complete at all
+    the declared controls should not move kernel root - kernel.js at all
+    sortable should report nothing when onStart requests destruction and then throws
+    free drag should report nothing when onStart requests destruction and then throws
+    free drag, past activation should report nothing when onMove requests destruction and then
+    should deliver nothing for a checkpoint registered before destruction is requested
+    FILE react.browser.test.ts
+    FILE stories.browser.test.ts
+   skipped 68 total 1531
+
+## Composition on the prototype, against the five exact controls
+minimal                                       10.29 kB brotli  (33 modules, 0.06 kB under budget)
+minimal (xy)                                  10.20 kB brotli  (32 modules, 0.05 kB under budget)
+minimal + layoutAnimation                     10.62 kB brotli  (34 modules, 0.07 kB under budget)
+xy + layoutAnimation                          10.50 kB brotli  (33 modules, 0.06 kB under budget)
+minimal + landing                             10.44 kB brotli  (35 modules, 0.10 kB under budget)
+complete                                      10.77 kB brotli  (36 modules, 0.07 kB under budget)
+free drag minimal                              8.34 kB brotli  (27 modules, 0.07 kB under budget)
+  ✗ free drag minimal control moved by 56 B (8337, declared 8281)
+free drag + bounds                             8.55 kB brotli  (28 modules, 0.09 kB under budget)
+  ✗ free drag + bounds control moved by 39 B (8553, declared 8514)
+free drag + landing                            8.50 kB brotli  (29 modules, 0.09 kB under budget)
+  ✗ free drag + landing control moved by 48 B (8497, declared 8449)
+free drag complete                             8.71 kB brotli  (30 modules, 0.07 kB under budget)
+  ✗ free drag complete control moved by 60 B (8712, declared 8652)
+both behaviors                                12.28 kB brotli  (47 modules, 0.08 kB under budget)
+vocabulary root - drag.js                      0.14 kB brotli  ( 2 modules, 0.06 kB under budget)
+kernel root - kernel.js                        6.40 kB brotli  (16 modules, 0.07 kB under budget)
+  ✗ kernel root - kernel.js control moved by 58 B (6398, declared 6340)
+baseline A - feature-matched, non-composed    10.60 kB brotli  (31 modules, 0.06 kB under budget)
+baseline B - shipped @ydinjs/drag sortable.js   6.92 kB brotli  (26 modules, 0.12 kB under budget)
+
+## Mutations of the prototype, once each, restored after each
+# X2 and X3 ran before the settlement carrier was added.
+X2 stop after the first declined entry pass 310 fail 7
+    sortable should report nothing when onStart requests destruction and then throws
+    free drag should report nothing when onStart requests destruction and then throws
+    free drag, past activation should report nothing when onMove requests destruction and then
+    should deliver nothing for a checkpoint registered before destruction is requested
+    probe:P-n order
+    probe:P-p2 throw absorbed
+    probe:P-q1 cancel fail destroy
+X3 identify by argument, not tag pass 309 fail 8
+    sortable should report nothing when onStart requests destruction and then throws
+    free drag should report nothing when onStart requests destruction and then throws
+    free drag, past activation should report nothing when onMove requests destruction and then
+    probe:sortable onError requests destruction
+    probe:free drag onError requests destruction
+    should deliver nothing for a checkpoint registered before destruction is requested
+    probe:P-r applied not doubled
+    probe:P-s behind an applied one
+N1 #step declines only at CLOSED pass 284 fail 33
+    the execution bracket should stop the drain at the next entry when an action requests dest
+    the execution bracket should drain after admission and handle nothing once admission reque
+    sortable should report nothing when onStart requests destruction and then throws
+    free drag should report nothing when onStart requests destruction and then throws
+    free drag, past activation should report nothing when onMove requests destruction and then
+    probe:sortable onStart
+    probe:sortable round-trip slot
+    probe:sortable round-trip slot, async rejection after the request
+    probe:sortable onEnd
+    probe:sortable onError requests destruction
+    probe:free drag onStart
+    probe:free drag round-trip slot
+    probe:free drag round-trip slot, async rejection after the request
+    probe:free drag onEnd
+    probe:free drag onError requests destruction
+    the round-trip unit should open no round-trip for a destroy requested in the release effec
+    the round-trip unit should open no round-trip for a destroy requested in the release prepa
+    the round-trip unit should open no round-trip for a destroy requested by an action the rel
+    should deliver nothing for a checkpoint registered before destruction is requested
+    should finish the join whose anchorTarget requested destruction and retire nothing after i
+    should apply none of the requests from onStart when destruction follows them
+    probe:P-l before
+    probe:P-m after
+    probe:P-n order
+    probe:P-o boundary
+    probe:P-p1 reentrant requests
+    probe:P-p2 throw absorbed
+    probe:P-q1 cancel fail destroy
+    probe:P-q2 fail cancel destroy
+    probe:P-r applied not doubled
+    probe:P-s behind an applied one
+    probe:P-v sync throw
+    probe:P-w sync reject
+X4 deliver after application, by microtask pass 304 fail 13
+    probe:sortable onStart
+    probe:sortable onEnd
+    probe:free drag onStart
+    probe:free drag onEnd
+    probe:P-l before
+    probe:P-m after
+    probe:P-n order
+    probe:P-o boundary
+    probe:P-p1 reentrant requests
+    probe:P-p2 throw absorbed
+    probe:P-q1 cancel fail destroy
+    probe:P-q2 fail cancel destroy
+    probe:P-s behind an applied one
+X5 call spec.reportError, bypassing the route pass 312 fail 5
+    sortable should report nothing when onStart requests destruction and then throws
+    free drag should report nothing when onStart requests destruction and then throws
+    free drag, past activation should report nothing when onMove requests destruction and then
+    should deliver nothing for a checkpoint registered before destruction is requested
+    probe:P-p2 throw absorbed
+X6 report the cancel code on a held cancel pass 311 fail 6
+    sortable should report nothing when onStart requests destruction and then throws
+    free drag should report nothing when onStart requests destruction and then throws
+    free drag, past activation should report nothing when onMove requests destruction and then
+    should deliver nothing for a checkpoint registered before destruction is requested
+    probe:P-q1 cancel fail destroy
+    probe:P-q2 fail cancel destroy
+X7 no settlement carrier pass 309 fail 8
+    sortable should report nothing when onStart requests destruction and then throws
+    free drag should report nothing when onStart requests destruction and then throws
+    free drag, past activation should report nothing when onMove requests destruction and then
+    probe:sortable round-trip slot
+    probe:free drag round-trip slot
+    should deliver nothing for a checkpoint registered before destruction is requested
+    probe:P-v sync throw
+    probe:P-w sync reject
+X8 settlement carrier set before the first-completion latch pass 312 fail 5
+    sortable should report nothing when onStart requests destruction and then throws
+    free drag should report nothing when onStart requests destruction and then throws
+    free drag, past activation should report nothing when onMove requests destruction and then
+    should deliver nothing for a checkpoint registered before destruction is requested
+    probe:P-x fulfil then reject: first completion latches
+X9 walk before closing on a panic pass 312 fail 5
+    sortable should report nothing when onStart requests destruction and then throws
+    free drag should report nothing when onStart requests destruction and then throws
+    free drag, past activation should report nothing when onMove requests destruction and then
+    should deliver nothing for a checkpoint registered before destruction is requested
+    probe:P-t panic with a queued checkpoint
+
+## Published declarations against the accepted tree: 33 files, 0 differ

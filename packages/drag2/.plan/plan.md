@@ -2313,6 +2313,20 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-04 — D-209 handed off, with the owner's merge order and its second fault carrier
+
+**The owner's order:** D-209 is implemented and accepted on this branch, then the verification infrastructure and browser test loading are restored, and only then is the branch merged. Terminology, comment reduction and compression stay separate. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §32.
+
+**Property 6 can be met, with no decision changed.** `#step`'s non-`LIVE` branch walks the undrained entries and each fault entry reports itself, so no class gains a field and the sample path does not change. A throwaway prototype showed this, with the whole suite moving only the three old pins and five exact controls, beside the known failures. No source is committed.
+
+**D-209 is amended, and the owner can overrule it.** A throw from `onReorder` or `onDrop` after a destruction request is a rejected settlement with no checkpoint, so property 1 as written left it silent. It now reports on the same terms.
+
+**A, a3 and the owner's acceptance stay on tree `626180a05`.** The merged tree will not be the measured tree, and D-209's record may not claim either of them for it. No round ran or is owed.
+
+**Minted:** RF-25, for the two unloadable browser files. **Next:** the implementer, at record §32.5.
+
+---
+
 ### 2026-11-04 — D-208 accepted as a whole decision at src tree `626180a05`, with R33 (j)'s scope corrected
 
 **D-208 is implemented.** Its row and marker are gone, and F-432 to F-435 and F-441 are closed. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §31. §30.8's identity and declaration checks, N1's discrimination, the recorded tree and the failing set were confirmed by running them.

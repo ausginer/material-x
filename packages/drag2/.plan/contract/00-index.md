@@ -3000,7 +3000,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 **Required properties:**
 
-1. **One report per discarded checkpoint.** Every failure checkpoint registered on a controller and discarded by applying destruction reports once, as `DraggableWarning('drag: failure/superseded-by-destruction')` with the failure as `cause`, in registration order. It does not matter whether the checkpoint was registered before or after the request.
+1. **One report per discarded checkpoint.** Every failure checkpoint registered on a controller and discarded by applying destruction reports once, as `DraggableWarning('drag: failure/superseded-by-destruction')` with the failure as `cause`, in registration order. It does not matter whether the checkpoint was registered before or after the request. **Amended 2026-11-04 (record §32.3):** a settlement carrying a rejection that destruction discards reports on the same terms. It is the same fault under a second carrier: a throw from `onReorder` or `onDrop`, or a thenable rejecting inside `then`, is queued as `RESOLUTION_SETTLED` and has no checkpoint until that entry applies. A rejection arriving after application stays silent under I-36 (a).
 2. **Before application, through the kernel's route.** It is delivered before the lifecycle becomes `CLOSED`, while native ingress is still refused. The refusal is unchanged and still reads applied destruction only.
 3. **Decided at the boundary.** No unit reads the ledger after its entry. The reading is the runner's, and R21 may be re-pinned once, to its one location.
 4. **No consequence.** No later unit runs, no `onEnd` follows, and no phase changes. Anything the delivered `onError` requests is dropped with the queue, and a throw from it is absorbed.
@@ -3017,7 +3017,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 **Measurement.** Retained heap A, allocation a3 and the owner's acceptance of 2026-11-04 attach to D-208's tree and do not extend to this change (record §28.1, §28.3). It owes composition, its controls under record §29.5 with no ceiling moved, and a comment-stripped diff showing property 6. With that, no statistical round is owed.
 
-**Order and witness.** After D-208's whole-decision acceptance, as its own unit, before Phase 24 exits. Its cases are R33 (i) to (l), which pin today's outcome and change here, and the kernel's two orderings. The measurement record is `.plan/measurements/d209-discarded-failures.md`, and its absence is the witness. Its landing removes F-446's sentence from the README and the dated notes' _today_. **Corrected 2026-11-04 (record §31.3):** of those rows, (i) covers both behaviors and (j) free drag only, because sortable has no `onMove` slot, and (l) runs through the kernel. (k) is the control, a throw with no request, and D-209 does not change it.
+**Order and witness.** After D-208's whole-decision acceptance, as its own unit, before Phase 24 exits. Its cases are R33 (i) to (l), which pin today's outcome and change here, and the kernel's two orderings. The measurement record is `.plan/measurements/d209-discarded-failures.md`, and its absence is the witness. Its landing removes F-446's sentence from the README and the dated notes' _today_. **Corrected 2026-11-04 (record §31.3):** of those rows, (i) covers both behaviors and (j) free drag only, because sortable has no `onMove` slot, and (l) runs through the kernel. (k) is the control, a throw with no request, and D-209 does not change it. **Reordered 2026-11-04 by the owner (record §32.1):** D-209 is implemented and accepted on this branch before the merge. **The handoff is record §32.5 to §32.8, and its acceptance is §32.10.** The mechanism is §32.4. It meets property 6, and R21 does not move.
 
 **Touches:**
 
@@ -3038,7 +3038,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-209 | Remediation | the whole decision: a failure checkpoint that destruction discards reports its fault. After D-208's acceptance, as its own unit | absent: `.plan/measurements/d209-discarded-failures.md` |
+| D-209 | Remediation | the whole decision: a failure checkpoint or rejected settlement that destruction discards reports its fault. As its own unit, before the merge | absent: `.plan/measurements/d209-discarded-failures.md` |
 
 **D-208's row closed on 2026-11-04 with the whole-decision acceptance** (record §31). D-209's row stays.
 
@@ -5872,7 +5872,9 @@ No acceptance is reopened. Earlier figures stand as measured.
 
 **Decided by D-209:** one `DraggableWarning` per discarded checkpoint, with the claim still discarded. Rows R33 (i) to (l) pin today's outcome until then.
 
-**Owner and deadline.** The architect hands D-209 off after D-208's whole-decision acceptance, because `src/` is frozen until then, and the implementer lands it before Phase 24 exits. It does not block D-208's acceptance (record §30.5).
+**Owner and deadline.** The architect hands D-209 off after D-208's whole-decision acceptance, because `src/` is frozen until then, and the implementer lands it before Phase 24 exits. It does not block D-208's acceptance (record §30.5). **Dated 2026-11-04 (record §32):** handed off, and the owner requires its acceptance before the merge.
+
+**Scope corrected 2026-11-04 (record §32.2, §32.3):** sortable's slots past activation are now probed. `onEnd` is this finding as written. `onReorder` and `onDrop` lose the fault the same way through a rejected settlement, which has no checkpoint, and D-209 is amended to cover them.
 
 #### F-447 — `consumer.node`'s sourcemap row can read declarations another test's build has not stripped yet · open, tier C
 
@@ -5886,7 +5888,7 @@ No acceptance is reopened. Earlier figures stand as measured.
 
 **Required property.** The row's verdict depends only on the build it made: no other test's build can write the tree it packs. The first step is reproducing or excluding the overlap.
 
-**Owner and deadline.** The architect hands it off as its own test-only unit, before Phase 24 exits. It is not D-208's, and it does not block D-208's acceptance.
+**Owner and deadline.** The architect hands it off as its own test-only unit, before Phase 24 exits. It is not D-208's, and it does not block D-208's acceptance. **Dated 2026-11-04 (record §32.1):** booked as a gate before the merge, after D-209's acceptance.
 
 ## What would falsify this model
 

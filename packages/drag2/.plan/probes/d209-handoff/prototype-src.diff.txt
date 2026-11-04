@@ -1,0 +1,74 @@
+diff --git a/packages/drag2/src/kernel/execution.ts b/packages/drag2/src/kernel/execution.ts
+index 36699de08..555fa3a15 100644
+--- a/packages/drag2/src/kernel/execution.ts
++++ b/packages/drag2/src/kernel/execution.ts
+@@ -1,3 +1,4 @@
++import { FAILED, RESOLUTION_SETTLED } from './actions.ts';
+ import { ActionQueue } from './queue.ts';
+
+ /** The lifecycle request's three states, in the only order they are reached. */
+@@ -67,7 +68,11 @@ export class ExecutionBracket {
+    */
+   readonly #step = (action: number, argument: unknown): boolean => {
+     if (this.#lifecycle !== LIVE) {
+-      return false;
++      if (action === FAILED || action === RESOLUTION_SETTLED) {
++        (argument as { discard?(): void }).discard?.();
++      }
++
++      return true;
+     }
+
+     this.#handle(action, argument);
+diff --git a/packages/drag2/src/kernel/kernel.ts b/packages/drag2/src/kernel/kernel.ts
+index aa92b3d04..f474a83be 100644
+--- a/packages/drag2/src/kernel/kernel.ts
++++ b/packages/drag2/src/kernel/kernel.ts
+@@ -137,6 +137,7 @@ export type PointerCoordinates = Readonly<{
+ type ResolutionAttempt = {
+   completed: boolean;
+   settlement: SettlementInput | null;
++  discard?(): void;
+ };
+
+ /**
+@@ -270,6 +271,7 @@ type FailureCheckpoint = Readonly<{
+    * that raised it.
+    */
+   superseded: boolean;
++  discard(): void;
+ }>;
+
+ /**
+@@ -857,6 +859,13 @@ class ArmedController<Part extends object, Activation extends {}> {
+       error,
+       operation: identity,
+       superseded: live.cancelRequest !== null,
++      discard: (): void => {
++        this.report(
++          new DraggableWarning('drag: failure/superseded-by-destruction', {
++            cause: error,
++          }),
++        );
++      },
+     } satisfies FailureCheckpoint);
+   }
+
+@@ -1735,6 +1744,17 @@ class ArmedController<Part extends object, Activation extends {}> {
+
+     attempt.completed = true;
+     attempt.settlement = input;
++
++    if (input.type === SETTLED_REJECTED) {
++      attempt.discard = (): void => {
++        this.report(
++          new DraggableWarning('drag: failure/superseded-by-destruction', {
++            cause: input.error,
++          }),
++        );
++      };
++    }
++
+     this.#bracket.dispatch(RESOLUTION_SETTLED, attempt);
+   }
+
