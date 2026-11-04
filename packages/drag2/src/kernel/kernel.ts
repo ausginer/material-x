@@ -798,7 +798,8 @@ class ArmedController<Part extends object, Activation extends {}> {
   /**
    * Queues a classified failure against the operation the kernel currently
    * holds. A failure with no live operation — and a failure of the report
-   * itself — has no checkpoint to run and degrades to a platform report.
+   * itself — has no checkpoint to run and degrades to a warning through the
+   * controller's route.
    */
   #failOperation(stage: FailureStage, error: unknown): void {
     const identity = this.#frames.current.operation;
@@ -2646,9 +2647,7 @@ export class Kernel<
    * A call from the construction window — the factory body or a frame-part
    * factory — is outside every seam, so it takes the demotion this member's
    * own contract states. The demotion is silent there because the report
-   * travels through the armed controller's route, which does not exist yet:
-   * the same place a platform report has no destination on any other pre-arm
-   * route.
+   * travels through the armed controller's route, which does not exist yet.
    */
   fail(stage: FailureStage, error: unknown): void {
     this.#armed?.fail(stage, error);

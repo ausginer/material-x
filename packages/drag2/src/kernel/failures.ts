@@ -63,8 +63,8 @@ export type CancelStage = typeof AT_PROPOSAL | typeof AT_CONSUMER;
 
 // **Who decided the cancellation, and of what kind.** Written by the library
 // and never by a consumer, which is the whole reason provenance is not carried
-// on `reason`: `cancel(reason?: unknown)` accepts anything, so a value arriving
-// there is a claim rather than a fact.
+// on `reason`: `requestCancel(reason?: unknown)` accepts anything, so a value
+// arriving there is a claim rather than a fact.
 //
 // Orthogonal to `CancelStage` and to `reason`, and the three answer three
 // different questions: `origin` is *who decided*, `stage` is *when*, `reason`
@@ -80,7 +80,7 @@ export type CancelStage = typeof AT_PROPOSAL | typeof AT_CONSUMER;
 // The numbers are stable on the same terms as the failure stages — a constant
 // is inlined into a consumer's compiled code, so none is ever repointed and
 // none retired is ever reused.
-/** `cancel(reason?)` was called — by the consumer or by the behavior. */
+/** `requestCancel(reason?)` was called — by the consumer or by the behavior. */
 export const CANCEL_SUPPLIED = 30;
 /** The user pressed Escape. `reason` is `undefined`. */
 export const CANCEL_ABORTED = 31;

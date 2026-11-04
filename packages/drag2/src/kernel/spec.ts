@@ -73,8 +73,9 @@ export interface BehaviorContext {
    * holds. Never thrown at the producer.
    *
    * Valid **only inside a kernel-driven seam of the current operation**; a call
-   * outside one is downgraded to a platform report, because a late continuation
-   * from operation A could otherwise classify a failure against operation B.
+   * outside one becomes a `DraggableWarning` through the controller's route,
+   * because a late continuation from operation A could otherwise classify a
+   * failure against operation B.
    *
    * **The demotion is silent until the behavior is armed**: the report travels
    * through the behavior's own `reportError`, which the kernel does not hold
