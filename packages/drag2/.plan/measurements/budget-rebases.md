@@ -820,3 +820,79 @@ Administered as [`request-application-claude.md`](../reviews/architecture/reques
 **This is the re-base [SC-1](../obligations.md) schedules.** Its first trigger, _a bundle-budget row goes negative_, has been met since D-208 step 4 (2026-11-02). The compression pass the disposition names follows this phase and is not D-208's. It re-bases after its own shrink. Nothing here authorizes a runtime regression or retained-heap growth.
 
 **The failing set after this re-base** is ten rows: the six `size.node` control rows and the four `docs.node` rows, by name. The four budget rows pass.
+
+## Controls re-declared 2026-11-04, D-208: six whole intervals attributed, and no ceiling moved
+
+Administered as [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §24.4, §29.5 and §29.6 step 3 state it. **Measured at `65649c6d0`, `src/` tree `c6c5e6ea5`**, which composes exactly as 6R's tree (`d208-step6.md` §The final tree).
+
+**Every seam is a reading, not a reconstruction.** `measureAll()` ran at each of the 29 commits below, from the declaration to the final tree: every commit in that history touching `packages/drag2/src`, `drag2`'s manifest, `box-quad`'s or `drag`'s source or manifest, `bench/size`, `drag2`'s `tsdown` config, the root manifest or lockfile, `tsdown-library.ts` or `vite-traits-plugin`'s source. A search over the interval finds no change to the other packages' `tsdown` configs, their `files.json` or `package-files.ts`. Each ran in a detached worktree removed afterwards, with `npm ci --ignore-scripts` from that commit's lockfile and `vite-traits-plugin`, `box-quad`, `drag` and `drag2` rebuilt at that commit. Nothing is carried from a neighbouring tree, so a stale `box-quad` build cannot report a false zero. Eleven moving commits were read a second time, with identical figures on all fifteen rows. Brotli bytes; these are measured endpoints, not decomposed costs, because Brotli does not add across changes.
+
+| Commit | Named change | Dated record | minimal | + bounds | + landing | complete | `kernel.js` | baseline B |
+| --- | --- | --- | --: | --: | --: | --: | --: | --: |
+| `34aedf520` | Arc D's remediation: the declaration | [`arc-d-remediation.md`](arc-d-remediation.md) | 8,116 | 8,274 | 8,276 | 8,426 | 6,185 | 6,889 |
+| `1a0e90487` | root verification; lockfile moves | here | 8,116 | 8,274 | 8,276 | 8,426 | 6,185 | 6,889 |
+| `2aeda69fd` | root verification; lockfile moves | here | 8,116 | 8,274 | 8,276 | 8,426 | 6,185 | 6,889 |
+| `bfd2832db` | the series' landing on `main`; lockfile moves | here | 8,116 | 8,274 | 8,276 | 8,426 | 6,185 | 6,889 |
+| `abbdd67fb` | story label | here | 8,116 | 8,274 | 8,276 | 8,426 | 6,185 | 6,889 |
+| `fb9ddd6f1` | story invalidation | here | 8,116 | 8,274 | 8,276 | 8,426 | 6,185 | 6,889 |
+| `9598fc6d3` | G3-linear instrument | here | 8,116 | 8,274 | 8,276 | 8,426 | 6,185 | 6,889 |
+| `0d89db92f` | D-199 | here | 8,116 | 8,274 | 8,276 | 8,426 | 6,185 | 6,889 |
+| `01d88645f` | **dependency update** | here | 8,118 | 8,281 | 8,280 | 8,428 | 6,189 | 6,916 |
+| `d7b07a8c0` | coordination docs: D-200's baseline | [`d200-classes.md`](d200-classes.md) | 8,118 | 8,281 | 8,280 | 8,428 | 6,189 | 6,916 |
+| `83c4433c1` | D-200 step 1, `Lifetime` | [`d200-classes.md`](d200-classes.md) | 8,107 | 8,275 | 8,272 | 8,435 | 6,177 | 6,916 |
+| `dfdf59a6a` | D-200 step 2, `ActionQueue` | [`d200-classes.md`](d200-classes.md) | 8,109 | 8,276 | 8,274 | 8,423 | 6,178 | 6,916 |
+| `73d10432f` | array shrink without allocation | here | 8,108 | 8,277 | 8,272 | 8,423 | 6,178 | 6,916 |
+| `582092c1f` | D-203: D-204's before | [`d204-step1.md`](d204-step1.md) | 8,108 | 8,277 | 8,272 | 8,423 | 6,178 | 6,916 |
+| `2c5212daf` | D-204 step 1 | [`d204-step1.md`](d204-step1.md) | 8,130 | 8,284 | 8,290 | 8,456 | 6,197 | 6,916 |
+| `3e44eaf62` | D-205 step 1 | [`d204-step1.md`](d204-step1.md) | 8,165 | 8,325 | 8,329 | 8,476 | 6,235 | 6,916 |
+| `902810cae` | D-206 step 1 | [`d204-step1.md`](d204-step1.md) | 8,193 | 8,348 | 8,351 | 8,518 | 6,261 | 6,916 |
+| `877fb9612` | D-206 step 2 | [`d206-step2.md`](d206-step2.md) | 8,327 | 8,482 | 8,487 | 8,646 | 6,389 | 6,916 |
+| `ef1e4ef6b` | D-207 step 3 | [`d207-step3.md`](d207-step3.md) | 8,229 | 8,381 | 8,400 | 8,529 | 6,300 | 6,916 |
+| `dbbb62199` | D-208 step 4 | [`d208-step4.md`](d208-step4.md) | 8,262 | 8,495 | 8,437 | 8,628 | 6,320 | 6,916 |
+| `0ba8afb64` | D-208 step 5, comment pass | [`d208-step5.md`](d208-step5.md) | 8,262 | 8,495 | 8,437 | 8,628 | 6,320 | 6,916 |
+| `e324ca8fa` | 5R, comments | [`d208-step5.md`](d208-step5.md) | 8,262 | 8,495 | 8,437 | 8,628 | 6,320 | 6,916 |
+| `39e243887` | 5R, `admitCommand`'s guard | [`d208-step5.md`](d208-step5.md) | 8,262 | 8,495 | 8,437 | 8,628 | 6,320 | 6,916 |
+| `c595e96e3` | 5R, comments | [`d208-step5.md`](d208-step5.md) | 8,262 | 8,495 | 8,437 | 8,628 | 6,320 | 6,916 |
+| `df45b1c69` | 5R.1, comments | [`d208-step5.md`](d208-step5.md) | 8,262 | 8,495 | 8,437 | 8,628 | 6,320 | 6,916 |
+| `7f1900ccf` | 5R.1's close, comments | record §23.1 | 8,262 | 8,495 | 8,437 | 8,628 | 6,320 | 6,916 |
+| `71d91dbf6` | ceilings re-based | this file, above | 8,262 | 8,495 | 8,437 | 8,628 | 6,320 | 6,916 |
+| `70368bfde` | 6R, the shared refusal | [`d208-step6.md`](d208-step6.md) §Costs | 8,281 | 8,514 | 8,449 | 8,652 | 6,340 | 6,916 |
+| `65649c6d0` | the comment commit | [`d208-step6.md`](d208-step6.md) §The final tree | 8,281 | 8,514 | 8,449 | 8,652 | 6,340 | 6,916 |
+
+**Each figure the dated records hold agrees with its reading.** That covers D-200's three columns, D-204's four, D-206's, D-207's and D-208 step 4's landed columns, the declaration, and the §29.6 table's `c0713204a` column. "Here" means this entry is the record of that reading. The chain is continuous because every step's after figure is the next step's before figure at the same commit, and it telescopes without remainder.
+
+**The steps that moved a control, and their sum:**
+
+| Change | minimal | + bounds | + landing | complete | `kernel.js` | baseline B |
+| --- | --: | --: | --: | --: | --: | --: |
+| `01d88645f` dependency update | +2 | +7 | +4 | +2 | +4 | +27 |
+| `83c4433c1` D-200 step 1, `Lifetime` | −11 | −6 | −8 | +7 | −12 | 0 |
+| `dfdf59a6a` D-200 step 2, `ActionQueue` | +2 | +1 | +2 | −12 | +1 | 0 |
+| `73d10432f` array shrink without allocation | −1 | +1 | −2 | 0 | 0 | 0 |
+| `2c5212daf` D-204 step 1 | +22 | +7 | +18 | +33 | +19 | 0 |
+| `3e44eaf62` D-205 step 1 | +35 | +41 | +39 | +20 | +38 | 0 |
+| `902810cae` D-206 step 1 | +28 | +23 | +22 | +42 | +26 | 0 |
+| `877fb9612` D-206 step 2 | +134 | +134 | +136 | +128 | +128 | 0 |
+| `ef1e4ef6b` D-207 step 3 | −98 | −101 | −87 | −117 | −89 | 0 |
+| `dbbb62199` D-208 step 4 | +33 | +114 | +37 | +99 | +20 | 0 |
+| `70368bfde` 6R, the shared refusal | +19 | +19 | +12 | +24 | +20 | 0 |
+| **Sum: the whole interval** | **+165** | **+240** | **+173** | **+226** | **+155** | **+27** |
+| Declared 2026-09-09 | 8,116 | 8,274 | 8,276 | 8,426 | 6,185 | 6,889 |
+| **Re-declared** | **8,281** | **8,514** | **8,449** | **8,652** | **6,340** | **6,916** |
+
+**Every other commit in the table moves all six rows by 0.** That includes the three lockfile changes before `01d88645f`, D-199 and the comment commits.
+
+**Each move can reach its row:**
+
+- **`src/` commits.** Each commit that moves a row changes at least one module in that row's measured graph, checked against `measureAll()`'s module list at that commit.
+- **`01d88645f`, the one dependency change that moved anything.** It touches only `package.json`, `package-lock.json` and `size-limit-preset-rolldown`'s manifest, with a reading on both sides: `0d89db92f`, its parent, and itself. No `drag2`, `box-quad` or `drag` file differs between them. Among other versions, it moves `rolldown` from 1.1.5 to 1.2.15, and `rolldown` is what `measure.ts` bundles and minifies with. No reading isolates one package inside the update, so the change named is the commit, and this entry does not name a package as the cause.
+
+**Baseline B's whole interval is that commit.** It read 6,889 at every commit through `0d89db92f` and 6,916 at every commit from `01d88645f`, +27 B, with minified 22,573 to 22,618. The record's hypothesis is now a reading. The one change in `packages/drag/src` over the interval is a formatter's line break in `draggable/options.ts`, which lands at `2aeda69fd` and moves 0.
+
+**Six controls are re-declared, each at its exact landed figure:** `free drag minimal` 8,281, `free drag + bounds` 8,514, `free drag + landing` 8,449, `free drag complete` 8,652, `kernel root — kernel.js` 6,340 and baseline B 6,916. **`vocabulary root — drag.js` stays at 142**, which it read at all 29 commits.
+
+**No ceiling moved, no control became a ceiling, and no interval is unattributed.** The re-declaration is the one act §24.4 schedules, at the end, and it changes only those six `control:` values in `bench/size/measure.ts`. Module counts at the final tree equal `d208-step6.md` §Costs': 33/32/34/33/35/36, 27/28/29/30/47, 2/16/31/26.
+
+**The whole suite after this step, run once:** 1,425 pass, 4 fail, 68 skipped, of 1,497; 75 of 78 files pass. All six `size.node` control rows now pass. **The failing set is the four `docs.node` rows:** _should resolve every reference a public type makes_ and the closure rows for the kernel, ordinary and free-drag tiers. `tests/sortable/react.browser.test.ts` and `stories.browser.test.ts` still do not load, on incompatible `react` and `react-dom` versions.
+
+**Limits.** The readings ran at one Node version, today's, on this machine, not at each commit's own date. Installs skipped lifecycle scripts, and the root's only one links `tsserver`. The declaration reproduced byte for byte under these conditions. Attribution says which landed change moved a row, not how a row's bytes divide within that change.
