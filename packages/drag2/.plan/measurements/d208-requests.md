@@ -1,12 +1,14 @@
 # D-208 — the measurement record
 
 > **Written 2026-11-04. D-208 is still `Unimplemented (Remediation)`.** The final proof runs in the consolidator's round, and only the architect's whole-decision acceptance removes D-208's row and marker, closes F-432 to F-435 and F-441, and marks the decision implemented ([record §29.9](../reviews/architecture/request-application-claude.md)).
+>
+> **Dated note, 2026-11-04 ([record §31](../reviews/architecture/request-application-claude.md)):** that acceptance has happened, at src tree `626180a05`. D-208 is implemented, its row and marker are gone, and this file stands as written, with its outcome and every limit unchanged.
 
 **Canonical entry: `drag2:D-208`,** as [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20.5, §21.8, §23.3 and §24.5 step 6 state it, as §28.7 and §29.7 amend them. Step-6 figures are cited from [`d208-step6.md`](d208-step6.md), and each earlier step's from its own record.
 
 **The input** for the runtime comparison is `6905af249`.
 
-**The freeze.** `src/` is tree `c6c5e6ea59697efa8f27beae2700a574e6f3df4c`, at comment commit `65649c6d0`. It differs from 6R's `c0713204a` only by that commit, whose identity checks are in `d208-step6.md` §The final tree. It holds until the whole decision is accepted, and any other `src/` change goes to the architect first (§29.4). **Dated note, 2026-11-04 (§30.8):** `src/` is now tree `626180a058af7374a68c5544fefc4111eec6003c`, at comment commit `1a74d547a`, which changes five comment sites and no code that runs. Rows R33 (i) to (l) landed with no `src/` change. The checks, N1's reading and the failing set are in `d208-step6.md` §The bounded remediation. Row (j) is free drag only, because sortable has no `onMove` slot, and the final proof's sortable `onMove` probe never invoked its callback, so it is not evidence of diagnostic behavior. §30.4 and the matching review and §30.1 claims need the architect's factual correction at acceptance.
+**The freeze.** `src/` is tree `c6c5e6ea59697efa8f27beae2700a574e6f3df4c`, at comment commit `65649c6d0`. It differs from 6R's `c0713204a` only by that commit, whose identity checks are in `d208-step6.md` §The final tree. It holds until the whole decision is accepted, and any other `src/` change goes to the architect first (§29.4). **Dated note, 2026-11-04 (§30.8):** `src/` is now tree `626180a058af7374a68c5544fefc4111eec6003c`, at comment commit `1a74d547a`, which changes five comment sites and no code that runs. Rows R33 (i) to (l) landed with no `src/` change. The checks, N1's reading and the failing set are in `d208-step6.md` §The bounded remediation. Row (j) is free drag only, because sortable has no `onMove` slot, and the final proof's sortable `onMove` probe never invoked its callback, so it is not evidence of diagnostic behavior. §30.4 and the matching review and §30.1 claims need the architect's factual correction at acceptance. **Dated note, 2026-11-04 (§31.3, §31.4):** that correction is made, and the freeze ended with the acceptance.
 
 **The outcome of the runtime work:** _retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04._
 
@@ -20,6 +22,8 @@ Creating this file makes `tests/decisions.node.test.ts`'s _should hold every wit
 - `docs.node`: _should resolve every reference a public type makes_, and the closure rows for the kernel, ordinary and free-drag tiers.
 
 `tests/sortable/react.browser.test.ts` and `stories.browser.test.ts` do not load, on incompatible `react` and `react-dom` versions, as before. **Every declared control passes,** and none is unattributed.
+
+**Dated note, 2026-11-04 (§31):** acceptance removed the witness row, so `decisions.node` leaves this set. `consumer.node`'s sourcemap row can also redden a fresh tree's first whole-suite run, which is F-447.
 
 ## The owner's dispositions
 

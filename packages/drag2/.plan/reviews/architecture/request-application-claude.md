@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**D-208 accepted as a whole decision 2026-11-04, over `a3a7da0e8` (§31), at src tree `626180a05`.** Its row and marker are gone, and F-432 to F-435 and F-441 are closed. The outcome stays: _retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04._ R33 (j) is corrected to free drag only, because sortable has no `onMove` slot. D-209 and F-446 stay open and separate. The `consumer.node` row §30.7 named recurred once, which F-447 carries, and it does not bear on D-208. The merge is the owner's, with the conditions in §31.6.
+
 **D-208's final proof disposed 2026-11-04, over `ab65e92f2` (§30). D-208 is not yet accepted.** A classified fault on a controller whose destruction is not applied owes a report, as a `DraggableWarning`, and destruction discards only the checkpoint's claim on the operation. That is D-209, with F-446 carrying the gap. It lands as its own unit after D-208's acceptance and does not block it. Three things still prevent acceptance, and all are in one bounded handoff: one comment-only commit, the rows that pin today's outcome, and the recorded tree (§30.8, §30.9). Retained heap A, allocation a3 and the owner's acceptance are unchanged, and no round ran.
 
 **Remediation 6R closed 2026-11-04, at `70368bfde`, over the recheck at `63f603f1a`.** There is no correctness defect, failed premise or record mismatch. Retained heap A and allocation a3 stand, with the owner's dated acceptance and every limit. reviewer-2 is corrected at 05:253, and reviewer-1 goes to one comment-only commit at seven named sites. The implementer next does composition and controls, where drift nobody can attribute stays red and named, and then `d208-requests.md` once its prerequisites hold. D-208 stays unimplemented until the final proof in the consolidator's round and the whole-decision acceptance. §29 records the closure and the handoff.
@@ -4252,6 +4254,8 @@ D-208 stays `Unimplemented (Remediation)`, and the witness holds. §28.9's rows 
 
 **Read here:** the code at both commits, the three test titles and the moving commit. **Taken from the round:** the probe, run clean by the consolidator through the public entries at `bd3613d5f` and `6905af249`.
 
+**Corrected 2026-11-04 (§31.3).** The third row's `onMove` applies to free drag only. Sortable has no `onMove` slot at either commit, so no such route exists there. The table above stands as written, and its factual scope is now: `onStart` in both behaviors, `onMove` in free drag. The round's `sortable P1-onMove-destroy-then-throw []` lines never invoked a callback and are not evidence of sortable's behavior. Its free-drag line was empty with no signal that the callback ran. A counter at both commits now shows that it ran once.
+
 ### 30.2 The required behavior
 
 **A classified failure carries two things: a claim on the operation and a fault.** §2.10 calls it a result and a request. Destruction's priority refuses the claim. No text gives a ground for losing the fault.
@@ -4294,6 +4298,8 @@ D-208 stays `Unimplemented (Remediation)`, and the witness holds. §28.9's rows 
 | (j), both behaviors | `onMove` requests destruction, then throws | the same |
 | (k), both behaviors | `onStart` throws with no request, as the control | `DraggableError` stage 2 with the cause, then `onEnd` `canceled` |
 | (l), kernel | a seam calls `fail`, then requests destruction, in one unit: the checkpoint is registered before the request | nothing delivered |
+
+**Corrected 2026-11-04 (§31.3).** Row (j)'s _both behaviors_ is wrong, and the table above stands as written. **(i) and (k) cover both behaviors, (j) covers free drag, and (l) runs through the kernel.** Row (j) was never applicable to sortable, which has no `onMove` slot, and no row or other callback replaces it there.
 
 **Discrimination:** N1 of the final proof (`#step` stops only at `CLOSED`) must redden (i), (j) and (l), run once. The neighbouring rows for `handle`, `home` and R33 (e) stay as they are.
 
@@ -4412,3 +4418,158 @@ D-208 stays `Unimplemented (Remediation)`, and its witness row stays red until a
 | integrity-4, six test sites (tier C) | implementer | its own test-only commit | after acceptance |
 | RF-23, RF-24 | repository | `.plan/00-index.md` | separate |
 | F-442, F-443, F-445, the compression pass, the terminology phase | as §24.6 and `plan.md` state | separate | unchanged |
+
+## 31. D-208 accepted as a whole decision, with R33 (j)'s scope corrected (D-208)
+
+**2026-11-04. Input:** `a3a7da0e8` on `drag2/fin-review2`. **Remediation commits:** `1a74d547a`, `e294acbfe` and `a3a7da0e8`. **Frozen `src/`:** tree `626180a058af7374a68c5544fefc4111eec6003c`.
+
+**Decided, in short:**
+
+- **§30.9's three prerequisites hold,** and §30.8's checks are confirmed by running them here (§31.1).
+- **R33 (j) is free drag only.** §30.1, §30.4 and the two final-review reports carry dated corrections, and the raw log is unchanged (§31.3).
+- **The whole decision is accepted** on those bytes, with every limit kept (§31.4).
+- **D-209 and F-446 stay open and separate.**
+- **`consumer.node`'s sourcemap row recurred, once.** §30.7 makes that a finding, so F-447 is minted. It is not D-208's and does not block this acceptance (§31.2).
+
+No review round and no statistical measurement ran. No source changed.
+
+### 31.1 What §30.8 required, run here
+
+Everything below ran in one private worktree at the input, except the first row's `git` reads. Saved output is in [`probes/d208-acceptance/`](../../probes/d208-acceptance/).
+
+| Check | Result |
+| --- | --- |
+| `src/` tree at `1a74d547a`, `e294acbfe` and `a3a7da0e8` | `626180a05…`, unchanged across the three. `c6c5e6ea5…` at `e600b5357` |
+| The remediation touches `src/` only in `1a74d547a` | Holds: three files, and the rows and record commits change none |
+| Every changed `src/` line is a comment | Holds: 18 changed lines, each inside a comment token, by the TypeScript scanner |
+| Each changed file, transpiled with comments removed, equals its version at `c6c5e6ea5` | Holds for all three |
+| The built declarations | 31 of 33 byte-identical. `kernel/failures.d.ts` differs in `CANCEL_SUPPLIED`'s doc, and `kernel/spec.d.ts` in `fail`'s, and in nothing else |
+| The whole suite at the input | **Second run: 1,430 pass, 5 fail, 68 skipped,** the record's figures, with `decisions.node`'s witness row and the four `docs.node` rows failing by name and `react.browser` and `stories.browser` unloadable. All six new rows pass. **First run: 6 fail,** that set plus the row in §31.2 |
+| N1, once, restored | 1,412 pass, 23 fail. **(i) in both behaviors, (j) in free drag and (l) redden, and (k) stays green in both.** Beyond the set and the four controls, 14 rows redden, the names `d208-step6.md` lists |
+
+**This closes a small gap in the implementer's reading.** Its N1 ran before the rows' final comment-only edit. This one ran at the committed rows, with the same result.
+
+**The five comments read true against the code they describe.** `requestCancel` is the published member, and `#failOperation`'s degradation and `fail`'s pre-arm silence are as stated. Row (l) drives `fail` and `requestDestroy` on the kernel through a `BehaviorContext`-typed harness field, with `moved` as the seam, as the implementer reports.
+
+**The lint error the implementer reports** at `kernel.browser.test.ts:5009` is on a line older than this remediation, by blame. It is not attributed further.
+
+### 31.2 The sourcemap row recurred
+
+**What was seen.** `consumer.node`, _should pack every sourcemap its modules point at_, failed in this worktree's first unmutated whole-suite run, with 32 dangling entries. It passed under N1, in the second unmutated run and alone. §30.7 records the same 32 from the consolidator's baseline, in its own private worktree and before 16 passing runs, and says a recurrence is a finding.
+
+**What is established:**
+
+- `tsdown`'s emit leaves declarations carrying `sourceMappingURL` until its `build:done` hook strips them. Sampling root declarations during one build read **a maximum of 32**, and 0 before and after.
+- `consumer.node` builds and runs `npm pack` in the package root, and `size.node` runs `tsdown` in the same root.
+
+**What is inferred, and not isolated.** A pack overlapping another file's build would read 32 dangling references. One overlap with looping builds and sixteen staggered packs did not reproduce it, so no run shows the overlap causing the failure.
+
+**How it is disposed.** A row in the failing set would stop §30.9's confirmation if it bore on D-208, and it does not: the row and `size.node`'s build predate this remediation, the row's subject is the references in the packed declarations, and the comment commit changes none of those. **Minted as F-447,** tier C, with its required property. It carries no conclusion about any `src/` tree, and a tarball packed from a quiet tree is not implicated by any reading here.
+
+### 31.3 R33 (j)'s factual scope
+
+**The correction.** §30.4 said (j) ran in both behaviors, and §30.1 and the reports carried the same scope. **Sortable has no `onMove` slot:** `git grep` finds the name nowhere under `src/sortable*` at `6905af249` or at the input, and only free drag declares it.
+
+**So the scope is:**
+
+| Row | Scope | Basis |
+| --- | --- | --- |
+| (i) | both behaviors | `describe.each`, with the awaited promise showing the slot ran |
+| (j) | free drag | its own `describe`, with the same signal |
+| (k) | both behaviors | `describe.each`, with the delivered cause showing the slot ran |
+| (l) | the kernel | the kernel file's harness |
+
+**The empty sortable lines are not evidence.** The consolidator's probe passed `onMove` through an untyped options object, read only `onError` and `onEnd`, and had no counter. Its source survives in that session's scratchpad, and was read here. So `sortable P1-onMove-destroy-then-throw []` is a callback that never ran.
+
+**A counter settles what the empty lines left open,** in [`callback-ran.out.txt`](../../probes/d208-acceptance/callback-ran.out.txt), once each, at `6905af249` and at the input, through the public entries:
+
+| Behavior | Drive | Callback ran | `onError` and `onEnd` |
+| --- | --- | --: | --- |
+| free drag | `onStart` requests destruction, then throws | once | nothing, at both |
+| free drag | `onMove` requests destruction, then throws | once | nothing, at both |
+| sortable | `onStart` requests destruction, then throws | once | nothing, at both |
+| sortable | `onMove` passed by cast | **never** | nothing, at both, and it shows nothing |
+
+**So §30.5's _not a regression_ stands on its own ground,** for the routes that exist: both behaviors' `onStart` and free drag's `onMove`.
+
+**Dated corrections, with the original text kept:** §30.1, §30.4, `d208-final-summary.md` and `d208-final-feature-proof-claude.md`. `d208-final-rerun-probe.txt` is the evidence as it was taken and is not edited. **Also corrected, because they repeat the claim:** F-446's _What happens_, and D-209's _Order and witness_, which also treated the control (k) as a row D-209 changes. `tests/COVERAGE.md`'s (j) row no longer says the correction is awaited.
+
+**Left as they are, because they are true:** the README's _From `onStart` or `onMove`_, and `plan.md`'s and §30.2's sentences, name a slot without naming sortable.
+
+**What this does not establish.** No sortable slot past activation has been probed. D-209's property 1 is about checkpoints and not slots, so its unit reads that for itself.
+
+### 31.4 The acceptance
+
+**§30.9's three prerequisites:**
+
+| §30.9 | State |
+| --- | --- |
+| The two published comments were false | Corrected at `1a74d547a`, and read true in the built declarations |
+| No row pinned the outcome the contract states | R33 (i) to (l) pin it, and N1 discriminates them |
+| The new tree was not recorded | Recorded in `d208-requests.md`'s freeze note |
+
+**§29.9's order holds:** the final proof ran in the consolidator's round, and its findings are disposed in §30.
+
+**D-208 is accepted as a whole decision, at src tree `626180a058af7374a68c5544fefc4111eec6003c`, on 2026-11-04.** This acceptance:
+
+- removes D-208's `Unimplemented (Remediation)` marker and its row in _Decisions not yet implemented_;
+- closes F-432, F-433, F-434, F-435 and F-441;
+- marks D-208 implemented, and so clears the witness row. Nothing about the witness was weakened: the row is gone, and `d208-requests.md` stays.
+
+**It carries these across the comment commit under §28.3,** because no code that runs changed: retained heap A, allocation a3, the owner's acceptance and M-1's carry.
+
+**The outcome is exactly:** _retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04._
+
+**What it does not say, and §28.1's rules keep:**
+
+- a3 is not a1, not `discharged` and not proof of zero regression, and no allocation is said to be unchanged. _No regression_ is read only for a named cell that read it;
+- the owner's acceptance sets no tolerance, is no precedent and covers this candidate's code only. A demonstrated regression or retained-heap growth is still not authorized;
+- whether `moveTo`'s lean is a per-call cost or a lump, whether it recurs or follows the code or the worktree, and the anonymous arrow's exact count all stay unanswered. Q-a3 did not run;
+- §27.4's limits stand: the low state's cause is unestablished at both trees, low figures at 1000 controllers lean to the candidate 21 of 72 against 5 of 72, and the 1000-controller row bounds gross growth only;
+- the five literal cells, the nine allocation cells, I-26 as §28.7 states it, and §29.1's limits stay as `d208-requests.md` records them;
+- a mutation shows that rows see it, not that a property holds wherever it reaches. The proof covered Chromium only, with no line-by-line reading of `sortable/` and `free-drag/`.
+
+**The freeze ends with this acceptance.** Any later `src/` change is its own unit and carries none of A, a3 or the owner's acceptance unless it is a comment-only correction under §28.3. D-209's _Measurement_ says what it owes.
+
+### 31.5 D-209 and F-446
+
+**Both stay open and separate.** D-209's marker and row stay, and its witness holds. Nothing here implements it, designs it or changes its properties. §30.5's accepted risk is now live: **D-208 is accepted with a known tier A gap,** until D-209 lands. The owner can still reorder it onto this branch before the merge.
+
+### 31.6 What the merge still has to reckon with
+
+**The merge is the owner's.** None of these was caused by D-208, and each is the owner's to weigh:
+
+- **The branch does not read clean.** The expected failing set is now the four `docs.node` rows, with `react.browser` and `stories.browser` unloadable. `plan.md`'s ground rule 2 says no phase lands red.
+- **`docs.node` cannot see the surface** while RF-24 stands, so nothing in the suite checks D-208's published references. A separate TypeDoc reading with error checking skipped was clean at `bd3613d5f`. It was not repeated at this tree, where only two doc comments changed.
+- **F-446 is tier A and open.** D-209 is due before Phase 24 exits, and I recommend it first after the merge (§30.5).
+- **F-447 can redden a whole-suite run in a fresh tree,** as it has twice. That row with those 32 entries reads as F-447, and any other failure stays a finding.
+- **`just typecheck` reports two `.scripts/` errors,** RF-24's, as the implementer records and §31.8 reads.
+
+**The terminology phase in `plan.md` starts after the merge,** on a new branch. It is unaffected.
+
+### 31.7 Limits of this record
+
+- **N1, the two unmutated runs and the probes ran once each,** in Chromium, on one machine, in a private worktree with its own install. A CSS cache file absent from a fresh install was copied from the main checkout, as in the round.
+- **The probe's scope is its drive:** two `pointermove`s and those two slots. It is a fact about callbacks running, not a new review of diagnostics.
+- **The F-447 mechanism is inferred** and not isolated (§31.2).
+- **Nothing here repeats** M-1's rounds, M-2″'s rounds, the allocation rounds, the call counts, the seam readings or the mutations other than N1. They stand as §30.7 reads them.
+- **The post-acceptance failing set** was read by running the whole suite once with this unit's text in the worktree, before this record's last edit (§31.8).
+
+### 31.8 What the text itself was checked against
+
+Run once, with the unit's tracked changes applied to the private worktree: **1,431 pass, 4 fail, 68 skipped.** `decisions.node`'s _should hold every witness it claims_ passes, with D-209's row still in the table. The four failures are the `docs.node` rows, each with TypeDoc's exit code 3, and `react.browser` and `stories.browser` do not load. Every declared control passes, and `coverage.node` and `references.node` pass over the changed text. `tsc` reports only the two `.scripts/` errors, at `vitest-config.ts:181` and `vitest-one-shot.ts:34`. The Markdown linters report these files as unsupported, so there is no code-lint pass to claim.
+
+### 31.9 What stays open
+
+D-208 is implemented, and §30.11's rows for the remediation and this acceptance are closed.
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| The merge | owner | §31.6 | when the owner chooses |
+| D-209, F-446 (tier A) | architect's handoff, then the implementer | its own unit | before Phase 24 exits; recommended first after the merge |
+| F-447, the sourcemap row's reading of a concurrent build (tier C) | architect's handoff, then the implementer | its own test-only unit | before Phase 24 exits |
+| integrity-4, six test sites (tier C) | implementer | its own test-only commit | now unblocked |
+| F-443, O-15 (tier C) | architect, then the implementer | its own unit, now that the freeze has ended | before Phase 24 exits |
+| RF-23, RF-24 | repository | `.plan/00-index.md` | separate |
+| F-442, F-445, the compression pass, the terminology phase | as §24.6 and `plan.md` state | separate | unchanged |
+| D-200's independent acceptance; Reviewer-E | owner | unchanged | unchanged |

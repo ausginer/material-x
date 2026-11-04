@@ -70,6 +70,8 @@ D-208 stays unimplemented. This pass marks nothing, closes no item and removes n
 | `onStart` requests destruction, then throws | nothing |
 | `onMove` requests destruction, then throws | nothing |
 
+> **Architect's dated correction, 2026-11-04 ([record §31.3](../architecture/request-application-claude.md)), not part of the pass.** _Identical for both behaviors_ overstates the `onMove` row. Sortable has no `onMove` slot, so its empty line shows a callback that never ran and is not evidence of its diagnostic behavior. The established scope is `onStart` in both behaviors and `onMove` in free drag. The pass's text stands as it placed it, and [`d208-final-summary.md`](d208-final-summary.md) holds the same correction beside the consolidator's table.
+
 **Required property.** D-208's and I-36's statements about the interval agree with what a classified fault in that interval does, and a row pins the outcome. Whether the text narrows or the fault is reported is an architectural and contract call, routed to the architect and not decided here. A behavior change would touch `src/`, so it falls under §21.8.
 
 ### reviewer-2, tier C: the record repeats wording §27.3 corrected

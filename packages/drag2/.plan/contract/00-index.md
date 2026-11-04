@@ -2869,7 +2869,14 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 #### D-208
 
-**Unimplemented (Remediation).** **Decided 2026-11-02, on the implementer's escalation during D-207's step 4**, under the record's §17.4 first escalation clause, relayed by the owner. Baseline `9ae86b189`, with step 4 uncommitted. **D-207 in full, except that the behaviors' diagnostics reach the kernel's refusal through a new `BehaviorContext.channel(deliver)`, and the four reads that refused them are replaced rather than deleted.** Supersedes D-207. Raises and repairs F-441. Carries D-207's repair of F-440, D-206's repair of F-439, D-205's decision of F-438, the decisions of F-432 to F-435 and the repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §18. That record's §2.2, §2.5, §3, §5–§9 and §17.4 state the D-208 form and are the handoff.
+**Implemented, 2026-11-04 (Remediation), accepted as a whole decision at src tree `626180a058af7374a68c5544fefc4111eec6003c`, over `a3a7da0e8`** (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §31). Measurement [`d208-requests.md`](../measurements/d208-requests.md).
+
+- **The outcome stays:** _retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04._ a3 is not a1, not `discharged` and not proof of zero regression. The owner's acceptance sets no tolerance, is no precedent and covers this candidate's code only, and record §28.1's unanswered questions and §27.4's limits stay stated.
+- **Closed:** F-432, F-433, F-434, F-435 and F-441. The `src/` freeze ends here.
+- **Not closed:** D-209 and F-446, which are separate and tier A. D-208 is accepted with that gap until D-209 lands (record §30.5). F-442, F-443, F-445 and D-200's independent acceptance are unchanged.
+- **Corrected:** R33 (i) and (k) cover both behaviors, (j) covers free drag and (l) runs through the kernel, because sortable has no `onMove` slot (record §31.3).
+
+**Decided 2026-11-02, on the implementer's escalation during D-207's step 4**, under the record's §17.4 first escalation clause, relayed by the owner. Baseline `9ae86b189`, with step 4 uncommitted. **D-207 in full, except that the behaviors' diagnostics reach the kernel's refusal through a new `BehaviorContext.channel(deliver)`, and the four reads that refused them are replaced rather than deleted.** Supersedes D-207. Raises and repairs F-441. Carries D-207's repair of F-440, D-206's repair of F-439, D-205's decision of F-438, the decisions of F-432 to F-435 and the repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §18. That record's §2.2, §2.5, §3, §5–§9 and §17.4 state the D-208 form and are the handoff.
 
 **Step 4 accepted 2026-11-02, at `dbbb62199`**, after its feature proof (record §19). Steps 5 and 6 remain, and the witness holds. Step 4's four budget overruns are the owner's to dispose of before `d208-requests.md` is written. The acceptance neither tolerates nor re-bases them, and step 2's tolerance does not cover them. step4-C is decided in place, as a non-substantive correction of what this entry says about itself: see _Ownership and surface_ and _Not chosen_ below. Case R34 is added.
 
@@ -2971,7 +2978,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 **Cases.** D-207's R1–R32, plus **R34**, added at step 4's acceptance: `bounds()`'s copy and the landing tail's read order, which §2.12 requires and no row pinned. Plus **R33**: diagnostic intake across application, in both behaviors, through teardown, panic, a late installer report, the requested interval, a live controller and the pre-arm composition unwind, and in the kernel through a channel minted in the factory. Rows other than the kernel's have the baseline's outcome.
 
-**Order and witness.** D-207's step order. The change lands in step 4, in the same commit as the removal of `BehaviorContext.closed`. Removing the refusal must redden R33's post-application rows, and making it read a destruction request must redden its interval and construction rows. The measurement record is `.plan/measurements/d208-requests.md`, and its absence is the witness. Step 4's record is `.plan/measurements/d208-step4.md`.
+**Order and witness.** D-207's step order. The change lands in step 4, in the same commit as the removal of `BehaviorContext.closed`. Removing the refusal must redden R33's post-application rows, and making it read a destruction request must redden its interval and construction rows. The measurement record is `.plan/measurements/d208-requests.md`, and its absence was the witness until the acceptance removed the row. Step 4's record is `.plan/measurements/d208-step4.md`.
 
 **Touches:**
 
@@ -2981,6 +2988,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 - **F-443, F-444:** raised 2026-11-03 from step 6's third escalation. Both are baseline defects, equal at `6905af249`, and neither is decided by D-208 or blocks its acceptance. D-208's record states I-26 as record §24.3.3 does.
 - **F-445:** raised 2026-11-04 from the resumed 6R's escalation. An instrument defect that predates D-208. Its comments are corrected in protocol M-2″'s harness commit, and the protocol's rule bounds it for 6R's reading (record §26.3).
 - **F-446, D-209:** raised and decided 2026-11-04 from the final proof. D-209 is a new consumer-visible change, so it is not D-208's, and D-208's acceptance does not wait for it (record §30.5).
+- **F-447:** raised 2026-11-04 at this acceptance, from a test row's recurrence. It is not D-208's (record §31.2).
 - **F-432 to F-440:** carries their decisions, repairs and closures.
 - **D-178:** its teardown silence and panic exception are kept, and now rest on the kernel's one refusal.
 - **D-200:** its pending acceptance is unchanged.
@@ -3009,7 +3017,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 **Measurement.** Retained heap A, allocation a3 and the owner's acceptance of 2026-11-04 attach to D-208's tree and do not extend to this change (record §28.1, §28.3). It owes composition, its controls under record §29.5 with no ceiling moved, and a comment-stripped diff showing property 6. With that, no statistical round is owed.
 
-**Order and witness.** After D-208's whole-decision acceptance, as its own unit, before Phase 24 exits. Its cases are R33 (i) to (l), which pin today's outcome and change here, and the kernel's two orderings. The measurement record is `.plan/measurements/d209-discarded-failures.md`, and its absence is the witness. Its landing removes F-446's sentence from the README and the dated notes' _today_.
+**Order and witness.** After D-208's whole-decision acceptance, as its own unit, before Phase 24 exits. Its cases are R33 (i) to (l), which pin today's outcome and change here, and the kernel's two orderings. The measurement record is `.plan/measurements/d209-discarded-failures.md`, and its absence is the witness. Its landing removes F-446's sentence from the README and the dated notes' _today_. **Corrected 2026-11-04 (record §31.3):** of those rows, (i) covers both behaviors and (j) free drag only, because sortable has no `onMove` slot, and (l) runs through the kernel. (k) is the control, a throw with no request, and D-209 does not change it.
 
 **Touches:**
 
@@ -3030,8 +3038,9 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-208 | Remediation | the bounded remediation under record §30.8: one comment-only commit, the rows R33 (i) to (l) and the recorded tree, then the whole-decision acceptance. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64`, remediation 5R at `2d17645f5`, remediation 5R.1 is closed at `7f1900ccf`, remediation 6R is closed at `70368bfde`, and the measurement record is written at `bd3613d5f`. **Its witness fails by design from that commit until acceptance (record §29.8)** | absent: `.plan/measurements/d208-requests.md` |
 | D-209 | Remediation | the whole decision: a failure checkpoint that destruction discards reports its fault. After D-208's acceptance, as its own unit | absent: `.plan/measurements/d209-discarded-failures.md` |
+
+**D-208's row closed on 2026-11-04 with the whole-decision acceptance** (record §31). D-209's row stays.
 
 **D-207's row closed on 2026-11-02 with steps 1–3 accepted.** D-208 superseded it during step 4, adding `BehaviorContext.channel` so that the behaviors' diagnostics keep the kernel's refusal after applied destruction. D-208's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 
@@ -5566,7 +5575,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Repaired 2026-09-10.** The `oxfmt` pin moves 0.58.0 → **0.67.0**, the latest, so the version is not itself a formatting opinion, and the tree is reformatted under it: **seven files** across box-quad, drag, drag2 and material-x, none of which changes a program. Root `fmt-check` is green over all nine packages and the repository-level files.
 
-#### F-432 — an operation minted inside a failing `arm()` is never disposed · open, decided by D-208
+#### F-432 — an operation minted inside a failing `arm()` is never disposed · closed 2026-11-04 with D-208's acceptance
+
+**Closed 2026-11-04 with D-208's whole-decision acceptance, at src tree `626180a05`** (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §31). Case R15. The paragraphs below stand as they were written.
 
 **Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
 
@@ -5586,7 +5597,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Why it is open rather than booked.** It is reachable only through foreign code running inside `arm()` between two listener attachments. [`CONTRIBUTING.md`](../../../../CONTRIBUTING.md) §1.1 declines to add guards against that kind of reach, so whether to repair it is an owner question. **What a repair would establish:** every exit from `arm()` that leaves the controller unarmed leaves no operation resource live. D-199's teardown deduplication neither repairs this nor makes it worse, because its property (2) keeps the unconditional drop this path depends on.
 
-#### F-433 — a press dispatched from inside a running unit opens a second admission underneath it · open, decided by D-208
+#### F-433 — a press dispatched from inside a running unit opens a second admission underneath it · closed 2026-11-04 with D-208's acceptance
+
+**Closed 2026-11-04 with D-208's whole-decision acceptance, at src tree `626180a05`** (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §31). Case R9. The paragraphs below stand as they were written.
 
 **Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
 
@@ -5608,7 +5621,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Required property.** While any unit runs, an ingress pass is refused before it touches any state. D-201 properties 1 and 2; case E1.
 
-#### F-434 — a late `cancel()` raised inside `anchorTarget` strands the operation in `SETTLING` · open, decided by D-208
+#### F-434 — a late `cancel()` raised inside `anchorTarget` strands the operation in `SETTLING` · closed 2026-11-04 with D-208's acceptance
+
+**Closed 2026-11-04 with D-208's whole-decision acceptance, at src tree `626180a05`** (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §31). Case R8. The paragraphs below stand as they were written.
 
 **Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
 
@@ -5630,7 +5645,9 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Required property.** A cancel request is latched only in a phase where `CANCEL` acts, and no control reading on the settlement path treats a request as a liveness answer. D-201 properties 5 and 6; case E4.
 
-#### F-435 — a `cancel()` raised inside `release.effect` reports `AT_CONSUMER` for a round-trip that never opened · open, decided by D-208
+#### F-435 — a `cancel()` raised inside `release.effect` reports `AT_CONSUMER` for a round-trip that never opened · closed 2026-11-04 with D-208's acceptance
+
+**Closed 2026-11-04 with D-208's whole-decision acceptance, at src tree `626180a05`** (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §31). Cases R4, R6 and R22. The paragraphs below stand as they were written.
 
 **Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
 
@@ -5730,7 +5747,7 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 **Repair.** The unit that would enter activation, `ACTIVATE` or `MOVE` at `PENDING`, declines at its entry while a cancel for its operation is registered. The queued `CANCEL` then retires the operation silently. D-207 property 7; case R31.
 
-#### F-441 — D-207's step 4 removes the behaviors' diagnostic refusal with `BehaviorContext.closed` · repaired 2026-11-02 by D-208
+#### F-441 — D-207's step 4 removes the behaviors' diagnostic refusal with `BehaviorContext.closed` · repaired 2026-11-02 by D-208, closed 2026-11-04 with D-208's acceptance
 
 **Tier A. Raised 2026-11-02 by the implementer during D-207's step 4**, under the record's §17.4 first escalation clause, relayed by the owner. Baseline `9ae86b189`, with step 4 uncommitted. Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §18. The defect is in D-207's handoff, not in landed code.
 
@@ -5847,7 +5864,7 @@ No acceptance is reopened. Earlier figures stand as measured.
 
 **Tier A. Raised 2026-11-04 from D-208's final proof** (reviewer-1). Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §30.
 
-**What happens.** A consumer slot requests destruction and then throws. `#failOperation` registers the failure and queues `FAILED`, `#step` declines that entry because the lifecycle is `REQUESTED`, and application clears the queue. In both behaviors, through the public entries, `onStart` and `onMove` get no `onError` and no `onEnd`. The library caught the throw, so nothing else records it.
+**What happens.** A consumer slot requests destruction and then throws. `#failOperation` registers the failure and queues `FAILED`, `#step` declines that entry because the lifecycle is `REQUESTED`, and application clears the queue. In both behaviors, through the public entries, `onStart` and `onMove` get no `onError` and no `onEnd`. The library caught the throw, so nothing else records it. **Corrected 2026-11-04 (record §31.3):** the scope is `onStart` in both behaviors and `onMove` in free drag. Sortable has no `onMove` slot, and no sortable slot past activation has been probed.
 
 **Why tier A.** A correctly integrated consumer's own error vanishes, while I-36 says the unit's diagnostics are a live controller's. The same call reports from a `handle` or `home` resolver, and a checkpoint a cancel supersedes reports too. D-178 names the package's silences by route, and this is not one of them.
 
@@ -5856,6 +5873,20 @@ No acceptance is reopened. Earlier figures stand as measured.
 **Decided by D-209:** one `DraggableWarning` per discarded checkpoint, with the claim still discarded. Rows R33 (i) to (l) pin today's outcome until then.
 
 **Owner and deadline.** The architect hands D-209 off after D-208's whole-decision acceptance, because `src/` is frozen until then, and the implementer lands it before Phase 24 exits. It does not block D-208's acceptance (record §30.5).
+
+#### F-447 — `consumer.node`'s sourcemap row can read declarations another test's build has not stripped yet · open, tier C
+
+**Raised 2026-11-04 at D-208's acceptance.** Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §31.2, under §30.7's rule that a recurrence is a finding.
+
+**What happens.** _should pack every sourcemap its modules point at_ failed with 32 dangling entries twice, once in the consolidator's baseline at `bd3613d5f` and once in the first run at `a3a7da0e8`, each in a fresh private worktree. It passed in every later run on those trees and when run alone. A `tsdown` emit leaves exactly 32 root declarations carrying `sourceMappingURL` until its `build:done` hook strips them. `consumer.node` packs in the package root, and `size.node` builds there.
+
+**The cause is inferred and not isolated.** A pack that overlaps another file's build would read that state, but one overlap with looping builds and sixteen staggered packs did not reproduce it.
+
+**Why tier C.** It is a test instrument's flake that can stop a run reading clean. No reading implicates a tarball packed from a quiet tree, and no `src/` tree is involved.
+
+**Required property.** The row's verdict depends only on the build it made: no other test's build can write the tree it packs. The first step is reproducing or excluding the overlap.
+
+**Owner and deadline.** The architect hands it off as its own test-only unit, before Phase 24 exits. It is not D-208's, and it does not block D-208's acceptance.
 
 ## What would falsify this model
 

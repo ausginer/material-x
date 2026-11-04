@@ -38,6 +38,8 @@ No finding was rejected. No two findings describe the same defect, so none was m
 | `onStart` requests destruction, then throws | nothing |
 | `onMove` requests destruction, then throws | nothing |
 
+> **Architect's dated correction, 2026-11-04 ([record §31.3](../architecture/request-application-claude.md)), not part of the round.** The table's third row is not established _in both behaviors_. Sortable has no `onMove` slot at either commit, and the probe passed the key through an untyped options object, so `sortable P1-onMove-destroy-then-throw []` at lines 7 and 15 of the raw log is empty because no callback ran. It is not evidence of sortable's diagnostic behavior. The probe also had no counter, so the free-drag `onMove` lines did not show that their callback ran either. A counter in the same drive shows it ran once at both commits, with the same empty log. The established scope is `onStart` in both behaviors and `onMove` in free drag. The text above and the raw log stay as the round left them, and no sortable slot past activation has been probed.
+
 The mechanism is read at `kernel/kernel.ts:823–859` and `kernel/execution.ts:68–71`: the fault registers and queues `FAILED`, `#step` declines the entry because the lifecycle is `REQUESTED`, and application clears the queue.
 
 **The texts disagree, and the evidence does not separate them.**

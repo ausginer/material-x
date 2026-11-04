@@ -1,0 +1,11 @@
+# One run each, Chromium, one machine, 2026-11-04. The probe reports through a thrown message, so each row reads failed by design.
+src 19f0b867e at 6905af249
+Error: PROBE free onStart-destroy-then-throw [] {"onStart":1,"onMove":0}
+Error: PROBE free onMove-destroy-then-throw [] {"onStart":1,"onMove":1}
+Error: PROBE sortable onStart-destroy-then-throw [] {"onStart":1,"onMove":0}
+Error: PROBE sortable onMove-destroy-then-throw [] {"onStart":1,"onMove":0}
+src 626180a05 at a3a7da0e8
+Error: PROBE free onStart-destroy-then-throw [] {"onStart":1,"onMove":0}
+Error: PROBE free onMove-destroy-then-throw [] {"onStart":1,"onMove":1}
+Error: PROBE sortable onStart-destroy-then-throw [] {"onStart":1,"onMove":0}
+Error: PROBE sortable onMove-destroy-then-throw [] {"onStart":1,"onMove":0}

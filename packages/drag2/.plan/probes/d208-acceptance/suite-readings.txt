@@ -1,0 +1,76 @@
+# Whole suite at a3a7da0e8, src tree 626180a05, in a private worktree, 2026-11-04. Chromium, one machine.
+# Run order: first unmutated run (base), N1 (n1), then a second unmutated run (base2).
+base pass/fail/skip/total [ 1429, 6, 68, 1503 ]
+tests/consumer.node.test.ts :: the packed package should pack every sourcemap its modules point at
+tests/decisions.node.test.ts :: the deferred decisions should hold every witness it claims
+tests/docs.node.test.ts :: the documented surface should close the free-drag tier over the ordinary tier and the ones below it
+tests/docs.node.test.ts :: the documented surface should close the kernel tier over the kernel tier
+tests/docs.node.test.ts :: the documented surface should close the ordinary tier over the ordinary tier and the ones below it
+tests/docs.node.test.ts :: the documented surface should resolve every reference a public type makes
+unloadable [
+  'tests/sortable/react.browser.test.ts',
+  'tests/sortable/stories.browser.test.ts'
+]
+
+n1 pass/fail/skip/total [ 1412, 23, 68, 1503 ]
+unloadable [
+  'tests/sortable/react.browser.test.ts',
+  'tests/sortable/stories.browser.test.ts'
+]
+gone [
+  'tests/consumer.node.test.ts :: the packed package should pack every sourcemap its modules point at'
+]
+new red 18
+tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the free drag should report nothing when onStart requests destruction and then throws
+tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the free drag, past activation should report nothing when onMove requests destruction and then throws
+tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the sortable should report nothing when onStart requests destruction and then throws
+tests/kernel/construction.node.test.ts :: dispatch during construction should apply no window action once a window destruction is applied
+tests/kernel/execution.node.test.ts :: the execution bracket should drain after admission and handle nothing once admission requested destruction
+tests/kernel/execution.node.test.ts :: the execution bracket should stop the drain at the next entry when an action requests destruction
+tests/kernel/kernel.browser.test.ts :: requests at unit boundaries should apply none of the requests from onStart when destruction follows them
+tests/kernel/kernel.browser.test.ts :: requests at unit boundaries should deliver nothing for a checkpoint registered before destruction is requested
+tests/kernel/kernel.browser.test.ts :: requests at unit boundaries should finish the join whose anchorTarget requested destruction and retire nothing after it
+tests/kernel/kernel.browser.test.ts :: the round-trip unit should open no round-trip for a destroy requested by an action the release effect dispatched
+tests/kernel/kernel.browser.test.ts :: the round-trip unit should open no round-trip for a destroy requested in the release effect
+tests/kernel/kernel.browser.test.ts :: the round-trip unit should open no round-trip for a destroy requested in the release prepare
+tests/sortable/composition.browser.test.ts :: the composed terminal protocol should tear down without a terminal callback when onReorder destroys
+tests/sortable/sortable.browser.test.ts :: invalidate() after destroy should not classify a post-destroy replacement as an activation failure
+
+R33 new rows at base
+passed diagnostic intake in the sortable should report nothing when onStart requests destruction and then throws
+passed diagnostic intake in the sortable should report and end the operation when onStart throws with no request
+passed diagnostic intake in the free drag should report nothing when onStart requests destruction and then throws
+passed diagnostic intake in the free drag should report and end the operation when onStart throws with no request
+passed diagnostic intake in the free drag, past activation should report nothing when onMove requests destruction and then throws
+passed requests at unit boundaries should deliver nothing for a checkpoint registered before destruction is requested
+
+R33 new rows under N1
+failed diagnostic intake in the sortable should report nothing when onStart requests destruction and then throws
+passed diagnostic intake in the sortable should report and end the operation when onStart throws with no request
+failed diagnostic intake in the free drag should report nothing when onStart requests destruction and then throws
+passed diagnostic intake in the free drag should report and end the operation when onStart throws with no request
+failed diagnostic intake in the free drag, past activation should report nothing when onMove requests destruction and then throws
+failed requests at unit boundaries should deliver nothing for a checkpoint registered before destruction is requested
+
+base2:
+pass/fail/skip/total 1430 5 68 1503
+tests/decisions.node.test.ts :: the deferred decisions should hold every witness it claims
+tests/docs.node.test.ts :: the documented surface should resolve every reference a public type makes
+tests/docs.node.test.ts :: the documented surface should close the kernel tier over the kernel tier
+tests/docs.node.test.ts :: the documented surface should close the ordinary tier over the ordinary tier and the ones below it
+tests/docs.node.test.ts :: the documented surface should close the free-drag tier over the ordinary tier and the ones below it
+unloadable tests/sortable/react.browser.test.ts
+unloadable tests/sortable/stories.browser.test.ts
+
+post-acceptance, with the unit applied:
+pass/fail/skip/total 1431 4 68 1503
+tests/docs.node.test.ts :: the documented surface should resolve every reference a public type makes
+tests/docs.node.test.ts :: the documented surface should close the kernel tier over the kernel tier
+tests/docs.node.test.ts :: the documented surface should close the ordinary tier over the ordinary tier and the ones below it
+tests/docs.node.test.ts :: the documented surface should close the free-drag tier over the ordinary tier and the ones below it
+unloadable tests/sortable/react.browser.test.ts
+unloadable tests/sortable/stories.browser.test.ts

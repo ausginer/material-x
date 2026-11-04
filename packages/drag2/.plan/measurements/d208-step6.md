@@ -1595,3 +1595,5 @@ Run once at `e294acbfe` with the freeze note written: 1,430 pass, 5 fail, 68 ski
 **Limits.** One run each, Chromium, one machine. A mutation shows that rows see it, not that a property holds wherever it reaches. Other slots in a sortable move were not probed.
 
 **Next:** the architect's acceptance under record §30.9, including the factual correction above.
+
+**Dated note, 2026-11-04 (record §31):** that acceptance and correction are made, at this tree. The architect's rerun read the same N1 result at the committed rows and the same failing set, and F-447 carries one unmutated first-run failure of `consumer.node`'s sourcemap row.

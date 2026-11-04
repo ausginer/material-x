@@ -82,7 +82,7 @@ Nothing below is decided by this register. Each row states what is owed and what
 
 **Owed by:** F-443
 
-**Waiting for:** **D-208's whole-decision acceptance**, which lifts the `src/` freeze. Then its own unit, routed by the architect. Due before Phase 24 exits. It is not D-208's, and D-208 does not wait for it
+**Waiting for:** **Its own unit, routed by the architect.** D-208's whole-decision acceptance ended the `src/` freeze on 2026-11-04. Due before Phase 24 exits. It is not D-208's
 
 ## Standing conditions
 

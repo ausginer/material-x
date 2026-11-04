@@ -2313,6 +2313,20 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-04 — D-208 accepted as a whole decision at src tree `626180a05`, with R33 (j)'s scope corrected
+
+**D-208 is implemented.** Its row and marker are gone, and F-432 to F-435 and F-441 are closed. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §31. §30.8's identity and declaration checks, N1's discrimination, the recorded tree and the failing set were confirmed by running them.
+
+**What stays:** retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04. a3 is not a1, not `discharged` and not proof of zero regression, and the acceptance sets no tolerance and is no precedent. No review round or statistical measurement ran, and no source changed.
+
+**Corrected:** R33 (i) and (k) cover both behaviors, (j) covers free drag and (l) runs through the kernel. Sortable has no `onMove` slot, so the earlier empty sortable probe never invoked a callback and is not evidence of its behavior. The original evidence stays, with dated corrections beside it.
+
+**Raised:** F-447. `consumer.node`'s sourcemap row recurred once, with 32 dangling entries, in a fresh tree's first whole-suite run. A build leaves exactly 32 declarations carrying the reference until its hook strips them, so a concurrent pack is the inferred cause. No run isolated it, and it does not bear on D-208.
+
+**Still open:** D-209 and F-446, tier A, separate from this acceptance and recommended first after the merge. **The merge is the owner's,** with the four `docs.node` rows (RF-24) and the two unloadable browser files still in the branch (§31.6).
+
+---
+
 ### 2026-11-04 — D-208's final proof disposed: a discarded failure still owes a report, and one bounded remediation comes before acceptance
 
 **D-208 is not yet accepted.** The round at `ab65e92f2`, reviewed at `bd3613d5f`, found one contract question and text findings. No run shows a regression against the input. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §30.
