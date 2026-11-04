@@ -14,6 +14,21 @@ Source of truth: [`contract/`](contract/) documents 00–06, read with the prece
 
 A new workspace, **`packages/drag2`** (`@ydinjs/drag2`), built alongside the shipped `@ydinjs/drag`. The shipped package is untouched for the whole plan; the merge back into `@ydinjs/drag` is **Phase 25** and is a separate decision, gated on the Part II roadmap rather than on the Part I sign-off.
 
+## Next owner-directed phase — terminology and comment clarity
+
+**Requested by the owner, 2026-11-04. Planned, not started.** Begin after the current D-208 work, its final review and whole-decision acceptance, and the current branch's PR and merge. Work starts on a new branch. This is a separate readability phase; it does not renumber the roadmap below or add work to D-208. The separately requested compression pass remains separate.
+
+**Goal.** Make the code easier to understand for developers whose first language is not English. Improve names before using comments to explain them, remove unnecessary commentary, then simplify the English that remains.
+
+**Scope and order.**
+
+1. **Audit terminology and names, starting with a small kernel sample.** Check whether each important term is established platform vocabulary, a useful domain concept, or a local invention. Assess its meaning at call sites, consistency across names and comments, and whether it distinguishes something the implementation actually needs. Keep useful terms; propose clearer names for unexplained metaphors, conflicting terms and unnecessary synonyms. `startTail` and `runLeaf` are owner-supplied examples to assess, not approved renames. A glossary alone does not resolve an unclear name.
+2. **Use the sample to agree a short project variation of Simplified Technical English (STE).** Include before/after examples from this code. Prefer short sentences, active voice, concrete subjects, consistent terms, explicit references and little idiomatic language. This is a project writing guide, not a claim of formal STE compliance. Review the sample with the owner before extending the approach across drag2's kernel and behaviors.
+3. **Reduce comments before rewriting them.** Remove code narration, duplication and history that belongs in the record. Preserve non-obvious reasons, ownership constraints, ordering requirements and caller preconditions. Keep the distinction between published JSDoc and maintainer notes from [documentation.md](../../../.agents/docs/documentation.md). Length alone is not a deletion criterion.
+4. **Rewrite the remaining comments and JSDoc using the agreed vocabulary and English guide.** Align names and prose together. If a long explanation exposes a possible structural problem, report it separately rather than hiding a runtime redesign inside the wording pass.
+
+**Boundary and completion.** Preserve runtime behavior and the accepted lifecycle. Route any public API or SPI rename to the architect before implementation. Keep naming edits distinct from prose-only edits so review can assess their effects. Review the pilot and later batches for meaning and readability, with checks appropriate to the actual changes; do not commission statistical performance rounds for prose-only edits. The phase delivers reviewed names, fewer unnecessary comments, simpler remaining English and a short reusable writing guide. Record unresolved semantic or structural questions separately.
+
 ---
 
 # Part I — the vertical-sortable slice
