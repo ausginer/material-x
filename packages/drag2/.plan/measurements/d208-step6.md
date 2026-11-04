@@ -1472,3 +1472,55 @@ Stop at escalation. The architect decides the precision question, and with it wh
 **Limits.** This run checks that these rows pass and nothing about allocation or retained heap. The mutations, the call-count row and the reading of the diff belong to §28.5 and were not run or done here.
 
 **Next.** The freeze holds at `c0713204a`. The next role is the independent recheck under §28.5. Step 5, control re-declaration and `d208-requests.md` have not started.
+
+## The final tree, 2026-11-04 (record §29.6 steps 1 and 2): the comment-only commit, and composition unchanged
+
+**Input:** `6a1f28f2c` on `drag2/fin-review2`, with `src/` at tree `c0713204a`. **Comment commit:** `65649c6d0`. **The new frozen `src/` tree is `c6c5e6ea59697efa8f27beae2700a574e6f3df4c`** (record §29.4). No retained-heap, allocation or timing round ran.
+
+### Step 1: the seven comment sites
+
+The commit changes the sites of record §29.3 and no other sentence: `free-drag/spec.ts` twice, `sortable/spec.ts`, `kernel/kernel.ts`, `kernel/unwind.ts` twice and `kernel/spec.ts`. In `free-drag/spec.ts` and `kernel/kernel.ts` the following lines of the same paragraph are rewrapped.
+
+| Check | Result |
+| --- | --- |
+| Every changed line is a comment | Holds: no added or removed line of the diff falls outside a comment |
+| Each changed file, transpiled with comments removed, equals its version at `c0713204a` | Holds for all five, with `ts.transpileModule` and `removeComments` on both sides, compared as strings |
+| `just build`'s declarations differ only in `kernel/spec.d.ts`, only in that doc comment | Holds. 32 of 33 files are byte-identical. The one difference is _each call allocates one closure_, now _one function_ |
+| The new `src/` tree hash | `c6c5e6ea59697efa8f27beae2700a574e6f3df4c` |
+
+**Finalizing.** The lint residue over the five files is two `consistent-return` errors on `prepareSettlement`, at `free-drag/spec.ts:697` and `sortable/spec.ts:1286`, on lines the commit does not touch. `just typecheck` reports the same two `.scripts/` errors.
+
+**Reported and left, as §29.3 directs. This is not a census:**
+
+- `kernel/unwind.ts:33`, _the channel's identity_, in a guard now built over one notifier;
+- `sortable/spec.ts:1685`, _the sink every channel delivers to_, where the kernel's own route delivers there too.
+
+Each sits beside a listed site and was not required by a listed sentence. Changing either is a further source change, so it goes to the architect first (§29.4).
+
+### Step 2: composition
+
+`measureAll()` at `65649c6d0`, in a detached worktree after `npm ci`, with `vite-traits-plugin`, `box-quad`, `drag` and `drag2` rebuilt there. `just size` in the main checkout reports the same six control figures.
+
+**Every row equals §Costs' Composition table, in minified, Brotli and modules.** Ceilings are step 1's, and none moved. Bytes.
+
+| Row | Minified | Brotli | Modules | Ceiling | Slack |
+| --- | --: | --: | --: | --: | --: |
+| minimal | 33,419 | 10,221 | 33 | 10,351 | 130 |
+| minimal (xy) | 32,776 | 10,117 | 32 | 10,244 | 127 |
+| minimal + layoutAnimation | 34,335 | 10,558 | 34 | 10,683 | 125 |
+| xy + layoutAnimation | 33,692 | 10,435 | 33 | 10,563 | 128 |
+| minimal + landing | 33,812 | 10,393 | 35 | 10,536 | 143 |
+| complete | 34,728 | 10,722 | 36 | 10,838 | 116 |
+| free drag minimal | 27,063 | 8,281 | 27 | 8,412 | 131 |
+| free drag + bounds | 27,707 | 8,514 | 28 | 8,645 | 131 |
+| free drag + landing | 27,456 | 8,449 | 29 | 8,587 | 138 |
+| free drag complete | 28,100 | 8,652 | 30 | 8,778 | 126 |
+| both behaviors | 42,268 | 12,235 | 47 | 12,359 | 124 |
+| vocabulary root - drag.js | 252 | 142 | 2 | 205 | 63 |
+| kernel root - kernel.js | 20,033 | 6,340 | 16 | 6,470 | 130 |
+| baseline A - feature-matched, non-composed | 34,019 | 10,525 | 31 | 10,658 | 133 |
+| baseline B - shipped @ydinjs/drag sortable.js | 22,618 | 6,916 | 26 | 7,040 | 124 |
+
+**Every row is under its ceiling.** `drag.js` stays at 142 and baseline B reads 6,916, and neither moved at this commit or at 6R.
+
+**M-1 carries, as record §29.1 states:** the comment-stripped diff changes no code in a per-sample function, and the per-sample counts are identical. Step 3's _no regression_ stands for this tree, and its protocol does not rerun. The comment commit changes no code that runs, so M-2″'s readings and the owner's acceptance carry across it (§29.4): _retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04._
