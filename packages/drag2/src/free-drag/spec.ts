@@ -204,8 +204,8 @@ class FreeDragBehavior {
    * a `domain: null` context is strictly redundant with the terminal.
    *
    * Unguarded and ungated on purpose: its callers apply those rules, and they
-   * apply them differently — the kernel's channels refuse after applied
-   * destruction and discard a throwing handler, while `panic`'s one delivery
+   * apply them differently — the kernel's own route refuses after applied
+   * destruction and discards a throwing handler, while `panic`'s one delivery
    * after closure is a named exception to the refusal, which is
    * impossible if the refusal is applied here.
    *
@@ -220,12 +220,12 @@ class FreeDragBehavior {
   /**
    * **The behavior's own channel.**
    *
-   * This and the kernel's channel over the spec's `reportError` both reach
-   * {@link FreeDragBehavior.#deliver}, and they are two channels over one sink
-   * rather than two sinks: everything that arrives is a `DraggableError` or a
-   * `DraggableWarning`, and neither channel encodes severity. This one carries
-   * what the *behavior* reports — the settlement failure and the unwind steps,
-   * which the kernel cannot see.
+   * This and the kernel's own route over the spec's `reportError` both reach
+   * {@link FreeDragBehavior.#deliver}, and they are one route and one channel
+   * over one sink rather than two sinks: everything that arrives is a
+   * `DraggableError` or a `DraggableWarning`, and neither encodes severity.
+   * This channel carries what the *behavior* reports — the settlement failure
+   * and the unwind steps, which the kernel cannot see.
    *
    * Minted by the kernel over {@link FreeDragBehavior.#deliver}, so it applies
    * the kernel's refusal after applied destruction, and a throw from the

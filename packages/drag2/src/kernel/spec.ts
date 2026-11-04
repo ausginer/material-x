@@ -95,7 +95,7 @@ export interface BehaviorContext {
    * It works from the factory onward, before arming, so a composition unwind
    * that runs before the spec exists can report through it.
    *
-   * Mint one per sink, at construction: each call allocates one closure.
+   * Mint one per sink, at construction: each call allocates one function.
    *
    * It exposes no lifecycle value. Whether it delivered is still an indirect
    * observation of applied destruction, as the refusal of any other entry

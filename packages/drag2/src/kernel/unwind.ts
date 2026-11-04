@@ -27,15 +27,16 @@ import { DraggableWarning, type Notify } from './errors.ts';
 export type Unwind = <T>(step: () => T) => T | undefined;
 
 /**
- * Builds the unwind guard over one controller's channel.
+ * Builds the unwind guard over one notifier: a minted channel or the
+ * controller's route.
  *
  * A closure per kernel rather than a free function taking the notifier: the
  * call sites read `unwind(fn)` either way, and threading the notifier
  * through each of them would put the channel's identity at every site that
  * merely wants to survive a throw.
  *
- * **The notifier must not throw** — the channel's own guard is what guarantees
- * that, and it is why this function needs no `try` around the report. Every
+ * **The notifier must not throw** — its terminus is what guarantees that, and
+ * it is why this function needs no `try` around the report. Every
  * site here is already inside a teardown whose next step matters; a second
  * failure mode in the reporting path would defeat the one property this exists
  * to provide.

@@ -1690,8 +1690,8 @@ export function createSortableSpec(
      * in two behaviors, and the context is strictly redundant with the
      * terminal.
      *
-     * Its callers are the kernel's channels, which refuse after applied
-     * destruction and discard a throwing handler, and `panic`'s one delivery
+     * Its callers are the kernel's own route, which refuses after applied
+     * destruction and discards a throwing handler, and `panic`'s one delivery
      * after closure, which is exactly why neither rule can live here.
      */
     reportError: behavior.reportError,

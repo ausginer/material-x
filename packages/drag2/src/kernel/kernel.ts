@@ -410,10 +410,11 @@ function reportToSpec(
  *
  * **Constructed complete, by construction's unit, and never reassigned.** The
  * spec, the frame pair, the driver, the bracket, the ingress signal, the seam
- * adapters and the channels are `readonly` fields filled before any handler
- * can run, so no reader tests whether they are there. Construction publishes
- * the controller to the {@link Kernel} façade only once it exists, which is
- * what makes _a behavior is armed_ and _the driver is assigned_ one fact.
+ * adapters and the controller's route are `readonly` fields filled before any
+ * handler can run, so no reader tests whether they are there. Construction
+ * publishes the controller to the {@link Kernel} façade only once it exists,
+ * which is what makes _a behavior is armed_ and _the driver is assigned_ one
+ * fact.
  *
  * **The current-operation slots are read in three places only**: at a unit's
  * entry, which resolves the operation and activation records once and hands
