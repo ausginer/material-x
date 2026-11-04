@@ -104,8 +104,8 @@ const membersWhere = (
 
 /**
  * The controller-scope context: realm, root, the bracket, the ingress signal,
- * the spec, the frame pair, the driver, and the channel the façade minted with
- * the unwind guard over it. The seam adapters are arrow-valued fields with
+ * the spec, the frame pair, the driver, and the controller's diagnostic route
+ * with the unwind guard over it. The seam adapters are arrow-valued fields with
  * initializers, and are `readonly` for the same reason; this list is the
  * context that arrives from construction.
  */
@@ -331,7 +331,7 @@ function ledgerReads(
 /**
  * **No unit reads the ledger after its entry.** The places left in the armed
  * controller are request intake, the runner's refusal before an ingress pass,
- * and unit entries. The diagnostic channel's refusal is the façade's, and the
+ * and unit entries. The diagnostic refusal is a module function's, and the
  * runner's own reading is the bracket's; both are outside this class and are
  * located by the source-wide census below.
  */
@@ -472,9 +472,11 @@ describe('the read census', () => {
       'kernel/kernel.ts › ArmedController.#handleStartCommitted: cancelRequest',
       // The runner's refusal before a native ingress pass is admitted.
       'kernel/kernel.ts › ArmedController.#onPointerDown: idle',
-      // The diagnostic channel's one refusal, and the façade's dispatch intake.
-      'kernel/kernel.ts › Kernel.channel: closed',
+      // The façade's dispatch intake.
       'kernel/kernel.ts › Kernel.dispatch: closed',
+      // The diagnostic refusal, shared by the kernel's route and every minted
+      // channel.
+      'kernel/kernel.ts › deliverUnlessApplied: closed',
     ]);
   });
 

@@ -144,8 +144,8 @@ export class SeamDriver<Part extends object> {
   readonly #fail: (stage: FailureStage, error: unknown) => void;
 
   /**
-   * The controller's channel, the one the façade mints over the spec's
-   * `reportError`. No checkpoint is queued, no recovery is
+   * The armed controller's route to the spec's `reportError`, which applies the
+   * kernel's one diagnostic refusal. No checkpoint is queued, no recovery is
    * selected, and the operation's own outcome is untouched — which is what
    * makes everything the driver sends here a {@link DraggableWarning}.
    */

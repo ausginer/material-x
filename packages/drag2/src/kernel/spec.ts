@@ -523,9 +523,9 @@ export type BehaviorSpec<
    * proof that the operation is over**, and the terminal for that operation
    * still publishes afterwards.
    *
-   * **No guard belongs here.** The kernel calls this only through a channel
-   * it minted over it, and once from a panic, behind a discard of its own. A
-   * channel absorbs a throw from its sink, so a throw from `onError` stops
+   * **No guard belongs here.** The kernel calls this only through its own
+   * route, which refuses after destruction is applied and absorbs a throw, and
+   * once from a panic, behind a discard of its own. So a throw from `onError` stops
    * there and is never reported back. A behavior's own reports and its
    * composition's `report` reach `onError` through channels the behavior
    * mints with {@link BehaviorContext.channel}, not through this member.

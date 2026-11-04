@@ -1439,3 +1439,36 @@ Two more things for that decision:
 #### Next
 
 Stop at escalation. The architect decides the precision question, and with it whether 6R proceeds under §26.8 or goes on to the owner. Step 5, control re-declaration, `F-442`, `F-443` and `d208-requests.md` have not started.
+
+### Landed 2026-11-04 (record §28.4): the shared-refusal candidate at src tree `c0713204a`
+
+**Outcome:** _retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04._ The owner's disposition, its scope and the questions it leaves unanswered are in [record §28](../reviews/architecture/request-application-claude.md), §28.1 above all. **This unit ran no measurement rounds** and built no harness.
+
+**Input:** `85e659cca` on `drag2/fin-review2`, with `src/` at tree `4630579d2`.
+
+**Objects checked.** The diff in §The candidate's whole diff, extracted from this file, applies from the repository root. These objects equal §28.3's after the diff, again after `fmt`, `lint-fix` and `fmt`, and again after the suite:
+
+| Path under `packages/drag2/` | Object |
+| --- | --- |
+| `src/` | tree `c0713204a55b24ffc44f9ac0a92d80efa28c7aeb` |
+| `src/kernel/kernel.ts` | blob `f370952e1ef2e73de585a8ced10224621672cc4b` |
+| `src/kernel/seams.ts` | blob `8b8910f98b67ff11a629a9a54d0ad0f382b006b5` |
+| `src/kernel/spec.ts` | blob `a5d737331cc0e6d41bc77c5397f8fdfb713343c5` |
+| `tests/kernel/capture.node.test.ts` | blob `0f748723f3f3582b516e3a8d87055d9d4d501fd2` |
+| `.plan/contract/05-lifecycle-invariants.md` | blob `9a3dc5f23469327967f3a7da48c77ea74b832ae3` |
+
+**Finalizing.** `fmt` and `lint-fix` changed no byte of the five files. The residue is what §28.4 expects:
+
+- **`lint`:** four errors in `kernel/seams.ts`, at lines 478 and 522 (`only-throw-error`) and 539 and 555 (`no-unnecessary-condition`). The diff changes only lines 147 and 148 of that file. The linters do not read the contract's Markdown.
+- **`typecheck`:** two errors, in `.scripts/vitest-config.ts` and `.scripts/vitest-one-shot.ts`.
+
+**The whole suite, run once, every project:** 1,419 pass, 10 fail, 68 skipped, of 1,497; 74 of 78 files pass. The 34 passes above the candidate's recorded 1,385 are `m2pp-rule.node`'s rows. No other failure occurred.
+
+- **`size.node`, the six declared controls:** _baseline B - shipped @ydinjs/drag sortable.js_, _free drag + bounds_, _free drag + landing_, _free drag complete_, _free drag minimal_ and _kernel root - kernel.js_.
+- **`docs.node`, four rows:** _should resolve every reference a public type makes_, and the closure rows for the kernel, ordinary and free-drag tiers.
+- **Not loaded:** `tests/sortable/react.browser.test.ts` and `tests/sortable/stories.browser.test.ts`, both on incompatible `react` and `react-dom` versions.
+- **R33 and `capture.node`:** `tests/diagnostic-intake.browser.test.ts`, `tests/kernel/kernel.browser.test.ts` and `tests/kernel/capture.node.test.ts` report no failure.
+
+**Limits.** This run checks that these rows pass and nothing about allocation or retained heap. The mutations, the call-count row and the reading of the diff belong to §28.5 and were not run or done here.
+
+**Next.** The freeze holds at `c0713204a`. The next role is the independent recheck under §28.5. Step 5, control re-declaration and `d208-requests.md` have not started.

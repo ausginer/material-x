@@ -347,6 +347,63 @@ function resetFrame<Part extends object, Activation extends {}>(
 }
 
 /**
+ * **The diagnostic refusal and terminus, written once.** The armed controller's
+ * route and every channel {@link Kernel.channel} mints deliver through here, and
+ * nowhere else is either written:
+ *
+ * 1. **Refuse after application.** A channel outlives the unit that minted it: a
+ * composition's `report`, captured by an installer and called after destruction
+ * has been applied, would otherwise invoke `onError` after application, which
+ * the floor forbids outright. The refusal reads the applied lifecycle only, so
+ * its answer is constant across every unit: a request registered in the unit
+ * cannot change it.
+ * 2. **Hand the finished error to the sink**, which forwards it to `onError` and
+ * does nothing else.
+ * 3. **Discard whatever that throws.** *This is the terminus.* A throw from the
+ * sink is never re-notified, and that single discard is the whole of what makes
+ * the route non-recursive. It is also what lets every `unwind` site stay total
+ * without knowing anything about reporting: their catch calls a route, and a
+ * route cannot throw.
+ *
+ * Panic's report is the one exception, and it does not pass through here.
+ *
+ * The bracket is `this` and the receiver a parameter, so a channel is one bound
+ * function with no context of its own, and the armed controller's route reaches
+ * its spec with no per-controller wrapper.
+ */
+function deliverUnlessApplied(
+  this: ExecutionBracket,
+  receiver: unknown,
+  deliver: Notify,
+  error: DraggableError | DraggableWarning,
+): void {
+  if (this.closed) {
+    return;
+  }
+
+  try {
+    deliver.call(receiver, error);
+  } catch {
+    // The terminus. Reporting a reporting failure is the one recursion this
+    // model has to be incapable of, and being incapable is stronger than being
+    // careful.
+  }
+}
+
+/**
+ * The armed controller's sink: the spec's `reportError`, read and called with
+ * its receiver at each delivery and only after the refusal has let it through.
+ * The spec contract does not say that method may be called detached or read
+ * once.
+ */
+function reportToSpec(
+  this: Readonly<Pick<BehaviorSpec<never, never>, 'reportError'>>,
+  error: DraggableError | DraggableWarning,
+): void {
+  this.reportError(error);
+}
+
+/**
  * **The armed controller.** It owns the frame pair, the seam driver, the
  * operation and activation records, the attempt slots, the landing tail, the
  * click suppressor and steps 3–6 of teardown, and it runs every handler.
@@ -414,15 +471,16 @@ class ArmedController<Part extends object, Activation extends {}> {
     resolution: null,
   };
 
-  /* ---- the controller's channel ---- */
+  /* ---- the controller's route ---- */
 
   /**
-   * **Every fault the kernel surfaces leaves through here**: the façade's
-   * channel, minted by construction over the spec's `reportError`, so it
-   * applies the one refusal {@link Kernel.channel} states and absorbs a throw
-   * from the behavior. Its collaborators take it as a value: the driver, every
-   * operation's lifetimes, this controller's unwind guard, and construction's
-   * unwind when it fails after publishing this controller.
+   * **Every fault the kernel surfaces leaves through here**: the kernel's own
+   * route to the spec's `reportError`, not a channel minted through
+   * {@link Kernel.channel}. It applies the one refusal and terminus
+   * {@link deliverUnlessApplied} states, so it refuses after application and
+   * absorbs a throw from the behavior. Its collaborators take it as a value:
+   * the driver, every operation's lifetimes, this controller's unwind guard,
+   * and construction's unwind when it fails after publishing this controller.
    *
    * **The stage is deliberately absent.** The sites that reach this holding a
    * real `FailureStage` discard it — the demoted checkpoints, `failOperation`'s
@@ -434,10 +492,10 @@ class ArmedController<Part extends object, Activation extends {}> {
   readonly report: Notify;
 
   /**
-   * The unwind guard, over this controller's channel.
+   * The unwind guard, over this controller's route.
    *
    * One closure per kernel rather than a free function: every call site
-   * reads `unwind(fn)` either way, and threading the channel's identity through
+   * reads `unwind(fn)` either way, and threading the route's identity through
    * each of them would put reporting at every site that merely wants the next
    * statement to run.
    */
@@ -467,10 +525,14 @@ class ArmedController<Part extends object, Activation extends {}> {
     spec: BehaviorSpec<Part, Activation>,
     current: Frame<Part>,
     draft: Frame<Part>,
-    report: Notify,
   ) {
-    this.report = report;
-    this.#unwind = createUnwind(report);
+    // Over the controller's fields rather than the parameters: the driver's
+    // callback below already puts `this` in this constructor's context, so the
+    // route adds one closure and no context of its own.
+    this.report = (error): void => {
+      deliverUnlessApplied.call(this.#bracket, this.#spec, reportToSpec, error);
+    };
+    this.#unwind = createUnwind(this.report);
     this.#realm = realm;
     this.#root = root;
     this.#bracket = bracket;
@@ -489,7 +551,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // lets the `QUALITY` and `BEST_EFFORT` tiers collapse into one sentinel.
       //
       // There is no lifetime guard at this site, and adding one here is wrong:
-      // the guard belongs in the channel, where every route shares it. A
+      // the guard belongs in the shared refusal, where every route has it. A
       // quality fault's producer is consumer-reaching — a `home` resolver, a
       // landing policy — and is equally free to request destruction before it
       // throws.
@@ -662,7 +724,7 @@ class ArmedController<Part extends object, Activation extends {}> {
    * next is conditioned on the call; it publishes no lifecycle or domain event
    * and ignores its return; and it is wrapped. Which sites share that property
    * is not this comment's to count — that list is maintained where the
-   * exception is stated, and the channel refuses every site that fails it.
+   * exception is stated, and the shared refusal drops every site that fails it.
    *
    * Reporting first and destroying second would run consumer code on a
    * controller whose invariants are *already known to be broken*, with the
@@ -681,12 +743,12 @@ class ArmedController<Part extends object, Activation extends {}> {
   panic(error: unknown): void {
     // **The one diagnostic delivered after application**: the diagnosis.
     // The bracket closed before calling this and tears down once it returns,
-    // so the channel would refuse it: it goes to the spec's sink directly,
-    // behind the same terminus.
+    // so the shared refusal would drop it: it goes to the spec's sink directly,
+    // behind a terminus of its own.
     try {
       this.#spec.reportError(new DraggableError(null, error));
     } catch {
-      // The terminus, as the channel's.
+      // The terminus, as the shared route's.
     }
   }
 
@@ -898,9 +960,9 @@ class ArmedController<Part extends object, Activation extends {}> {
       // this is a `DraggableError`, built here from the stage the kernel owns.
       //
       // Neither a destruction the resolver requested nor a throwing `onError`
-      // is handled here. **Both belong to the channel**
-      // ({@link Kernel.channel}), which refuses only after application and
-      // absorbs a throwing sink for every route rather than for this one.
+      // is handled here. **Both belong to the controller's route**
+      // ({@link deliverUnlessApplied}), which refuses only after application
+      // and absorbs a throwing sink for every route rather than for this one.
       this.report(new DraggableError(FAILURE_ADMISSION, error));
 
       return null;
@@ -986,7 +1048,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // **This site is not forced onto a second channel.** It reads like the
       // one place a platform report is unavoidable — the identity is a local
       // never published to the frames, so `failOperation` would degrade anyway
-      // — but the channel is operation-independent, so that reason does not
+      // — but the route is operation-independent, so that reason does not
       // hold: a warning needs no operation and no stage, and `return false`
       // refuses admission, so the outcome is the same either way.
       this.#unwind(live.lifetimes.dispose);
@@ -2527,43 +2589,15 @@ export class Kernel<
   }
 
   /**
-   * **The diagnostic refusal, written once.** Every channel — this
-   * controller's own, minted for the armed controller at construction, and
-   * each one a behavior mints — refuses after destruction has been
-   * **applied**, and nowhere else is it written:
-   *
-   * 1. **Refuse after application.** A channel outlives the unit that minted
-   * it: a composition's `report`, captured by an installer and called after
-   * destruction has been applied, would otherwise invoke `onError` after
-   * application, which the floor forbids outright. The refusal reads the
-   * applied lifecycle only, so its answer is constant across every unit: a
-   * request registered in the unit cannot change it.
-   * 2. **Hand the finished error to the sink**, which forwards it to `onError`
-   * and does nothing else.
-   * 3. **Discard whatever that throws.** *This is the terminus.* A throw from
-   * the sink is never re-notified, and that single discard is the whole of
-   * what makes the channel non-recursive. It is also what lets every `unwind`
-   * site stay total without knowing anything about reporting: their catch
-   * calls a channel, and a channel cannot throw.
+   * Mints a channel over `deliver`: it delivers until destruction is applied,
+   * drops every call afterwards and absorbs a throw from `deliver`, by the one
+   * refusal and terminus {@link deliverUnlessApplied} states.
    *
    * It needs only the lifecycle, which this façade holds from its own
    * construction, so a channel minted in the factory works before arming.
-   * Panic's report is the one exception, and it does not pass through here.
    */
   channel(deliver: Notify): Notify {
-    return (error): void => {
-      if (this.#bracket.closed) {
-        return;
-      }
-
-      try {
-        deliver(error);
-      } catch {
-        // The terminus. Reporting a reporting failure is the one recursion
-        // this model has to be incapable of, and being incapable is stronger
-        // than being careful.
-      }
-    };
+    return deliverUnlessApplied.bind(this.#bracket, undefined, deliver);
   }
 
   /**
@@ -2611,7 +2645,7 @@ export class Kernel<
    * A call from the construction window — the factory body or a frame-part
    * factory — is outside every seam, so it takes the demotion this member's
    * own contract states. The demotion is silent there because the report
-   * travels through the armed controller's channel, which does not exist yet:
+   * travels through the armed controller's route, which does not exist yet:
    * the same place a platform report has no destination on any other pre-arm
    * route.
    */
@@ -2745,9 +2779,6 @@ export class Kernel<
         next,
         current,
         draft,
-        this.channel((error) => {
-          next.reportError(error);
-        }),
       );
       this.#armed = armed;
       armed.attach();
@@ -2768,9 +2799,9 @@ export class Kernel<
    * constructed frame this path is still responsible for, and one that never
    * ran leaves nothing `resetFramePart` could be handed.
    *
-   * A failure inside the unwind reports through the armed controller's channel
+   * A failure inside the unwind reports through the armed controller's route
    * when one was published, and nowhere otherwise: before publication there is
-   * no channel to report through.
+   * no route to report through.
    */
   #unwindArm(
     next: BehaviorSpec<Part, Activation>,
