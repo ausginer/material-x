@@ -916,3 +916,21 @@ Administered as [`request-application-claude.md`](../reviews/architecture/reques
 **Not moved.** `vocabulary root - drag.js` stays at 142 and baseline B at 6,916. Neither graph contains either changed module.
 
 **No ceiling moved, no control became a ceiling, and no interval is unattributed.** This commit changes only those five `control:` values in `bench/size/measure.ts`. All thirteen package rows stay under their ceilings, with composition recorded in [`d209-discarded-failures.md`](d209-discarded-failures.md).
+
+## Controls re-declared 2026-11-04, D-209's remediation: five whole intervals attributed to one change, and no ceiling moved
+
+**Canonical entry: `drag2:D-209`,** with F-448. Administered under [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §29.5 and §33.11. These are exact figures from `measureAll()` in the main checkout, with `drag2` rebuilt. No statistical round ran.
+
+| Control | Before, at `448ce5015` | After, at `6386f12e1` | Move |
+| --- | --: | --: | --: |
+| `free drag minimal` | 8,337 | **8,357** | +20 |
+| `free drag + bounds` | 8,553 | **8,592** | +39 |
+| `free drag + landing` | 8,497 | **8,516** | +19 |
+| `free drag complete` | 8,712 | **8,734** | +22 |
+| `kernel root - kernel.js` | 6,398 | **6,418** | +20 |
+
+**After.** The one named change is `6386f12e1`, D-209's remediation. Between `448ce5015` and it, the seven other changed `src/` files differ in comments only, by the comment-stripped diff, and `kernel/kernel.ts` differs in `#settleResolution`'s closure and `#handleResolutionSettled`'s retired branch. `kernel/kernel.ts` is in each of these five rows' measured graphs, and no dependency manifest or lockfile changed. The whole interval is that one step, so it telescopes with no remainder. These are measured endpoints: nothing here divides a row's bytes within the change.
+
+**Not moved.** `vocabulary root - drag.js` stays at 142 and baseline B at 6,916. Neither graph contains `kernel/kernel.js`.
+
+**No ceiling moved, no control became a ceiling, and no interval is unattributed.** This commit changes only those five `control:` values in `bench/size/measure.ts`. All thirteen package rows stay under their ceilings, with composition recorded in [`d209-discarded-failures.md`](d209-discarded-failures.md).
