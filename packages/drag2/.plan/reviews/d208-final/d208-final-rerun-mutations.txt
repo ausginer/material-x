@@ -1,0 +1,213 @@
+== M1 new red 24 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag complete at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the free drag should deliver a report made between the request and its application
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the free drag should deliver nothing when destruction requested at depth 0 is applied
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the free drag should deliver nothing when destruction requested from a slot is applied at its boundary
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the free drag should deliver only the panic when a panic tears the controller down
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the free drag should drop a kept report once the promise has settled
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the sortable should deliver a report made between the request and its application
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the sortable should deliver nothing when destruction requested at depth 0 is applied
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the sortable should deliver nothing when destruction requested from a slot is applied at its boundary
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the sortable should deliver only the panic when a panic tears the controller down
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the sortable should drop a kept report once the promise has settled
+    tests/kernel/capture.node.test.ts :: the read census should find lifecycle and request reads only at the runner, intake, the channel and unit entries
+    tests/kernel/kernel.browser.test.ts :: teardown totality should run both scrubs when a reset throws during destroy
+    tests/kernel/kernel.browser.test.ts :: the execution bracket should close, report and only then tear down on a panic
+    tests/kernel/kernel.browser.test.ts :: the execution bracket should read closed once the requesting unit has ended
+    tests/kernel/kernel.browser.test.ts :: the minted channel should deliver in the construction window and drop once destruction is applied
+    tests/kernel/kernel.browser.test.ts :: the one channel should refuse every later notification once onError destroys
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should open no round-trip for a destroy requested by an action the release effect dispatched
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should open no round-trip for a destroy requested in the release effect
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should open no round-trip for a destroy requested in the release prepare
+== M2 new red 16 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag complete at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the free drag should deliver a report made between the request and its application
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the sortable should deliver a report made between the request and its application
+    tests/free-drag/lifecycle.browser.test.ts :: a resolver that destroys and then throws should report the admission failure of the unit that requested destruction
+    tests/free-drag/validation.browser.test.ts :: an invalid home result should report the invalid home of the unit that requested destruction
+    tests/kernel/capture.node.test.ts :: the ledger should derive the lifecycle accessors it matches from the bracket
+    tests/kernel/capture.node.test.ts :: the read census should find lifecycle and request reads only at the runner, intake, the channel and unit entries
+    tests/kernel/kernel.browser.test.ts :: armed dispatch tags should report out-of-range tags while a destroy request is registered and not yet applied
+    tests/kernel/kernel.browser.test.ts :: the execution bracket should agree with the physical signal inside the requesting unit
+    tests/kernel/kernel.browser.test.ts :: the execution bracket should read open for the rest of the requesting unit
+    tests/kernel/kernel.browser.test.ts :: the minted channel should deliver in the construction window and drop once destruction is applied
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should open no round-trip for a destroy requested in the release effect
+== M3 new red 7 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag complete at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+    tests/kernel/kernel.browser.test.ts :: teardown totality should run both scrubs when a reset throws during destroy
+    tests/kernel/kernel.browser.test.ts :: the one channel should refuse every later notification once onError destroys
+== N1 step reads CLOSED only new red 14 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+    tests/kernel/construction.node.test.ts :: dispatch during construction should apply no window action once a window destruction is applied
+    tests/kernel/execution.node.test.ts :: the execution bracket should drain after admission and handle nothing once admission requested destruction
+    tests/kernel/execution.node.test.ts :: the execution bracket should stop the drain at the next entry when an action requests destruction
+    tests/kernel/kernel.browser.test.ts :: requests at unit boundaries should apply none of the requests from onStart when destruction follows them
+    tests/kernel/kernel.browser.test.ts :: requests at unit boundaries should finish the join whose anchorTarget requested destruction and retire nothing after it
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should open no round-trip for a destroy requested by an action the release effect dispatched
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should open no round-trip for a destroy requested in the release effect
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should open no round-trip for a destroy requested in the release prepare
+    tests/sortable/composition.browser.test.ts :: the composed terminal protocol should tear down without a terminal callback when onReorder destroys
+    tests/sortable/sortable.browser.test.ts :: invalidate() after destroy should not classify a post-destroy replacement as an activation failure
+== N2 requestClose applies inside a unit new red 42 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag complete at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the free drag should deliver a report made between the request and its application
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the sortable should deliver a report made between the request and its application
+    tests/free-drag/lifecycle.browser.test.ts :: a resolver that destroys and then throws should report the admission failure of the unit that requested destruction
+    tests/free-drag/validation.browser.test.ts :: an invalid home result should end the operation whose home resolver requested destruction
+    tests/free-drag/validation.browser.test.ts :: an invalid home result should report the invalid home of the unit that requested destruction
+    tests/kernel/construction.node.test.ts :: the construction window should compose both frame parts and retire once when the factory body destroys the controller
+    tests/kernel/construction.node.test.ts :: the construction window should reset each frame once when the factory body destroys the controller
+    tests/kernel/construction.node.test.ts :: the construction window should reset each frame once when the first frame-part factory destroys the controller
+    tests/kernel/construction.node.test.ts :: the construction window should retire the behavior once when a frame-part factory destroys the controller
+    tests/kernel/construction.node.test.ts :: the construction window should unwind both frames once when the second frame-part factory destroys the controller
+    tests/kernel/execution.node.test.ts :: the execution bracket should apply a destruction an action requests when that action ends
+    tests/kernel/execution.node.test.ts :: the execution bracket should apply a destruction requested during construction before construct returns
+    tests/kernel/execution.node.test.ts :: the execution bracket should apply a destruction requested inside an ingress pass when the pass ends
+    tests/kernel/execution.node.test.ts :: the execution bracket should let the requesting action run to completion
+    tests/kernel/execution.node.test.ts :: the execution bracket should settle its promise only after the teardown callback has run
+    tests/kernel/execution.node.test.ts :: the execution bracket should settle its promise when the teardown callback throws
+    tests/kernel/kernel.browser.test.ts :: arm unwind of a partial frame pair should reset each composed frame once when a factory requests destruction
+    tests/kernel/kernel.browser.test.ts :: armed dispatch tags should report out-of-range tags while a destroy request is registered and not yet applied
+    tests/kernel/kernel.browser.test.ts :: requests at unit boundaries should deliver the start of an activation whose prepare requested destruction
+    tests/kernel/kernel.browser.test.ts :: requests at unit boundaries should finish the join whose anchorTarget requested destruction and retire nothing after it
+    tests/kernel/kernel.browser.test.ts :: terminal destruction during the join should leave no tail running after a presentation disposer requested destruction
+    tests/kernel/kernel.browser.test.ts :: terminal destruction during the join should leave no tail running after anchorTarget requested destruction
+    tests/kernel/kernel.browser.test.ts :: the execution bracket should agree with the physical signal inside the requesting unit
+    tests/kernel/kernel.browser.test.ts :: the execution bracket should defer physical teardown to the outermost transaction boundary
+    tests/kernel/kernel.browser.test.ts :: the execution bracket should read open for the rest of the requesting unit
+    tests/kernel/kernel.browser.test.ts :: the failure checkpoint should publish the terminal when a presentation disposer requested destruction on the error route
+    tests/kernel/kernel.browser.test.ts :: the landing tail should leave no tail running once the policy requested destruction
+    tests/kernel/kernel.browser.test.ts :: the minted channel should deliver in the construction window and drop once destruction is applied
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should open no round-trip for a destroy requested by an action the release effect dispatched
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should open no round-trip for a destroy requested in the release effect
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should open no round-trip for a destroy requested in the release prepare
+    tests/sortable/features.browser.test.ts :: landing should deliver the terminal of the join whose duration thunk requested destruction
+    tests/sortable/features.browser.test.ts :: landing should leave no residue once the destruction a duration thunk requested is applied
+    tests/sortable/features.browser.test.ts :: the terminal barrier in a resolver sequence should finish the candidate traversal of the move whose candidate requested destruc
+    tests/sortable/features.browser.test.ts :: the terminal barrier in a resolver sequence should run the bracket past a placeholder reaction that requested destruction
+    tests/sortable/sortable.browser.test.ts :: activation should deliver the start of the activation whose placeholder insertion requested destruction
+    tests/sortable/sortable.browser.test.ts :: activation should publish runtime state in the unit that requested destruction
+== N3 ingress admitted while a unit runs new red 9 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag complete at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/kernel/capture.node.test.ts :: the read census should find lifecycle and request reads only at the runner, intake, the channel and unit entries
+    tests/kernel/construction.node.test.ts :: ingress attachment during construction should admit nothing dispatched from inside attachment
+    tests/kernel/execution.node.test.ts :: the execution bracket should refuse a nested pass before the caller prepares one
+    tests/kernel/execution.node.test.ts :: the execution bracket should refuse an ingress pass while a drained action runs
+    tests/kernel/execution.node.test.ts :: the execution bracket should refuse an ingress pass while construction runs
+== N4 OPEN_RESOLUTION cancel clause dropped new red 9 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag complete at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+    tests/kernel/capture.node.test.ts :: the ledger should be read only at intake, the ingress refusal and unit entries
+    tests/kernel/capture.node.test.ts :: the read census should find lifecycle and request reads only at the runner, intake, the channel and unit entries
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should decline a null command for a cancel requested by an action the release effect dispatched
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should decline the round-trip for a cancel requested by an action the release effect dispatched
+== N5 OPEN_RESOLUTION failure clause dropped new red 11 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag complete at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+    tests/kernel/capture.node.test.ts :: the ledger should be read only at intake, the ingress refusal and unit entries
+    tests/kernel/capture.node.test.ts :: the read census should find lifecycle and request reads only at the runner, intake, the channel and unit entries
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should decline a synchronous round-trip for a failure registered by an action the release effect dispatched
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should decline an asynchronous round-trip for a failure registered by an action the release effect dispatched
+    tests/sortable/sortable.browser.test.ts :: a failure registered ahead of the round-trip (D-206) should open no asynchronous round-trip once the collection work the releas
+    tests/sortable/sortable.browser.test.ts :: a failure registered ahead of the round-trip (D-206) should open no synchronous round-trip once the collection work the release
+== N6 ACTIVATE held-cancel dropped new red 9 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag complete at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+    tests/kernel/capture.node.test.ts :: the ledger should be read only at intake, the ingress refusal and unit entries
+    tests/kernel/capture.node.test.ts :: the read census should find lifecycle and request reads only at the runner, intake, the channel and unit entries
+    tests/kernel/kernel.browser.test.ts :: a cancel held at activation’s entry should retire a command whose admission queued work that cancelled it
+    tests/sortable/keyboard.browser.test.ts :: re-entry from inside command.admit should enqueue an invalidate() rather than drain it
+== N7 MOVE held-cancel dropped new red 8 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag complete at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+    tests/kernel/capture.node.test.ts :: the ledger should be read only at intake, the ingress refusal and unit entries
+    tests/kernel/capture.node.test.ts :: the read census should find lifecycle and request reads only at the runner, intake, the channel and unit entries
+    tests/kernel/kernel.browser.test.ts :: a cancel held at activation’s entry should retire a press whose action dispatched a crossing move and then cancelled
+== N8 START_COMMITTED held-cancel dropped new red 8 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag complete at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/kernel/capture.node.test.ts :: the current-operation slots should be read only at unit entries, request intake, publication and retirement
+    tests/kernel/capture.node.test.ts :: the ledger should be read only at intake, the ingress refusal and unit entries
+    tests/kernel/capture.node.test.ts :: the read census should find lifecycle and request reads only at the runner, intake, the channel and unit entries
+    tests/kernel/kernel.browser.test.ts :: the activation checkpoint against a held cancel should not reach ACTIVE when a cancel is latched during activation
+== N9 cancel stage from phase new red 9 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag complete at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should decline a null command for a cancel requested by an action the release effect dispatched
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should decline the round-trip for a cancel requested by an action the release effect dispatched
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should open no round-trip for a cancel requested in the release effect
+    tests/kernel/kernel.browser.test.ts :: the round-trip unit should run the release effect of a release whose prepare requested cancel
+== N10 cancel phase upper bound dropped new red 6 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag complete at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+    tests/kernel/kernel.browser.test.ts :: requests at unit boundaries should not let a cancel raised in anchorTarget supersede a later failure
+== N11 supersession record not captured new red 10 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag complete at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+    tests/kernel/capture.node.test.ts :: the ledger should be read only at intake, the ingress refusal and unit entries
+    tests/kernel/capture.node.test.ts :: the read census should find lifecycle and request reads only at the runner, intake, the channel and unit entries
+    tests/kernel/kernel.browser.test.ts :: cancellation against a failure checkpoint should drop a checkpoint queued while a cancel latch is held
+    tests/kernel/kernel.browser.test.ts :: cancellation against a failure checkpoint should still report a checkpoint the cancel latch outranked
+    tests/kernel/kernel.browser.test.ts :: requests at unit boundaries should report a failure a cancel in the same seam superseded
+== N12 construct leaves queue undrained new red 7 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag complete at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+    tests/kernel/construction.node.test.ts :: dispatch during construction should apply window actions after publication and before draggable() returns, in dispatch order
+    tests/kernel/execution.node.test.ts :: the execution bracket should drain what construction dispatched once it has built
+== N13 panic bypass goes through the refusal new red 7 gone 1
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + bounds at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag + landing at all
+    tests/bench/size.node.test.ts :: the declared controls should not move free drag minimal at all
+    tests/bench/size.node.test.ts :: the declared controls should not move kernel root - kernel.js at all
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the free drag should deliver only the panic when a panic tears the controller down
+    tests/diagnostic-intake.browser.test.ts :: diagnostic intake in the sortable should deliver only the panic when a panic tears the controller down
+    tests/kernel/kernel.browser.test.ts :: the execution bracket should close, report and only then tear down on a panic
+clean
