@@ -134,9 +134,10 @@ export type PointerCoordinates = Readonly<{
  * guarded abort keys off `completed`, because keying it off the payload would
  * abort a finished resolver's own signal.
  *
- * `discard` reports the rejection if destruction discards the queued entry. It
- * exists only on a rejection that won the first-completion latch, so a settlement
- * with no fault allocates nothing for it and reports nothing.
+ * `discard` reports the rejection when its queued entry never applies: destruction
+ * discarded it, or a cancel retired the attempt ahead of it. It exists only on a
+ * rejection that won the first-completion latch, so a settlement with no fault
+ * allocates nothing for it and reports nothing.
  */
 type ResolutionAttempt = {
   completed: boolean;
@@ -438,8 +439,8 @@ function reportToSpec(
  * runner, at unit entries and at intake, and nowhere below.
  *
  * Kernel-internal. No behavior or consumer ever holds it: the façade forwards
- * the members a behavior may call, and the bracket's four callbacks reach the
- * rest.
+ * the members a behavior may call, and the bracket's four callbacks and the
+ * report a discarded fault entry carries reach the rest.
  */
 class ArmedController<Part extends object, Activation extends {}> {
   /** The owning document/window. Every DOM access goes through it. */
@@ -1752,9 +1753,14 @@ class ArmedController<Part extends object, Activation extends {}> {
    * **Attempt identity alone.** Applied destruction retires the attempt slot,
    * so a late settlement after it finds no slot; one inside a unit that
    * requested destruction is queued, and application discards it. A rejection
-   * discarded that way has no checkpoint yet, so it carries its own report, built
+   * that never applies has no checkpoint, so it carries its own report, built
    * only once it has won the latch: the first completion is the only one the
    * operation could have seen.
+   *
+   * **The report's code is read when it is delivered.** An attempt still current
+   * means no handler ran, so destruction discarded the entry; a retired one means
+   * a cancel applied ahead of it and decided the operation, and a destruction
+   * requested after that discarded nothing that would otherwise have reported.
    */
   #settleResolution(attempt: ResolutionAttempt, input: SettlementInput): void {
     if (attempt.completed || this.#attempts.resolution !== attempt) {
@@ -1767,9 +1773,12 @@ class ArmedController<Part extends object, Activation extends {}> {
     if (input.type === SETTLED_REJECTED) {
       attempt.discard = (): void => {
         this.report(
-          new DraggableWarning('drag: failure/superseded-by-destruction', {
-            cause: input.error,
-          }),
+          new DraggableWarning(
+            this.#attempts.resolution === attempt
+              ? 'drag: failure/superseded-by-destruction'
+              : 'drag: failure/superseded-by-cancel',
+            { cause: input.error },
+          ),
         );
       };
     }
@@ -2087,7 +2096,12 @@ class ArmedController<Part extends object, Activation extends {}> {
       this.#attempts.resolution !== attempt ||
       this.#frames.current.phase !== RELEASING
     ) {
-      return; // a late completion for an operation that is already decided
+      // A late completion for an operation that is already decided. A rejection
+      // that won the latch while the attempt was current still owes its fault:
+      // it queued behind the cancel that decided the operation, and this entry
+      // is its one route to `onError`.
+      attempt.discard?.();
+      return;
     }
 
     const input = attempt.settlement;

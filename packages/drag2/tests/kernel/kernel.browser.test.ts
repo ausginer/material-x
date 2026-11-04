@@ -5006,6 +5006,8 @@ describe('the execution bracket', () => {
       },
     });
 
+    // Saved to be restored, never called detached.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const selection = window.getSelection;
 
     window.getSelection = (): never => {
@@ -5612,6 +5614,7 @@ describe('a cancel held at activation’s entry', () => {
  */
 describe('a fault destruction discards', () => {
   const SUPERSEDED = 'drag: failure/superseded-by-destruction';
+  const SUPERSEDED_BY_CANCEL = 'drag: failure/superseded-by-cancel';
   const FIRST = new Error('first');
   const SECOND = new Error('second');
 
@@ -5897,6 +5900,8 @@ describe('a fault destruction discards', () => {
     press(harness.item);
     harness.calls.length = 0;
 
+    // Saved to be restored, never called detached.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const selection = window.getSelection;
 
     window.getSelection = (): never => {
@@ -6011,6 +6016,158 @@ describe('a fault destruction discards', () => {
     await flush();
 
     expect(harness.reports).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should report destruction for a round-trip that holds a cancel and requests destruction', () => {
+    // (ai) No handler ran, so the attempt is still current at the walk.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        harness.controller.requestCancel('held');
+        void harness.kernel.requestDestroy();
+        throw FIRST;
+      }),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(harness.settlements).toEqual([]);
+  });
+
+  it("should absorb a throw from a discarded rejection's report", () => {
+    // (aj) The report goes through the route, so `onError`'s throw stops there
+    // and no panic follows it.
+    const reports: Array<DraggableError | DraggableWarning> = [];
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        void harness.kernel.requestDestroy();
+        throw FIRST;
+      }),
+      reportError(error): void {
+        reports.push(error);
+        throw new Error('from onError');
+      },
+    });
+
+    activate(harness);
+    reports.length = 0;
+    harness.calls.length = 0;
+    release(40, 10);
+
+    expect(reports.map((report) => report.message)).toEqual([SUPERSEDED]);
+    expect(reports[0]).toBeInstanceOf(DraggableWarning);
+    expect(harness.calls.filter((call) => call === 'retire')).toHaveLength(1);
+  });
+
+  it('should report a rejection the delivered report causes, behind the checkpoint', () => {
+    // (ak) The attempt is still current during the walk, so the rejection the
+    // report causes wins the latch, queues behind the checkpoint and is walked.
+    const reports: Array<[string, unknown]> = [];
+    let reject!: (error: unknown) => void;
+    const harness: Harness = createHarness({
+      release: releaseWith(() => ({
+        then(_fulfil: unknown, fail: (error: unknown) => void): void {
+          reject = fail;
+        },
+      })),
+      action: {
+        prepare(): {} | null {
+          harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+          void harness.kernel.requestDestroy();
+          return null;
+        },
+        effect(): void {},
+      },
+      reportError(error): void {
+        reports.push([error.message, error.cause]);
+
+        if (error.cause === FIRST) {
+          reject(SECOND);
+        }
+      },
+    });
+
+    activate(harness);
+    release(40, 10);
+    reports.length = 0;
+    harness.kernel.dispatch(0, null);
+
+    expect(reports).toEqual([
+      [SUPERSEDED, FIRST],
+      [SUPERSEDED, SECOND],
+    ]);
+    expect(harness.settlements).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should report the cancel for a rejection queued behind it', () => {
+    // (al) The cancel applies first and retires the attempt, so the entry reaches
+    // the retired branch with its report.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        harness.controller.requestCancel('held');
+        throw FIRST;
+      }),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(harness.settlements.map((input) => input.type)).toEqual([
+      SETTLED_CANCELED,
+    ]);
+    expect(harness.reports[0]).toBeInstanceOf(DraggableWarning);
+    expect(delivered(harness)).toEqual([[SUPERSEDED_BY_CANCEL, FIRST]]);
+  });
+
+  it('should report the cancel for a rejection behind a cancel whose settlement requests destruction', () => {
+    // (am) The attempt retired before the request, so the walk finds it retired.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        harness.controller.requestCancel('held');
+        throw FIRST;
+      }),
+      settlement: destroyingSettlement(() => harness),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(harness.settlements.map((input) => input.type)).toEqual([
+      SETTLED_CANCELED,
+    ]);
+    expect(delivered(harness)).toEqual([[SUPERSEDED_BY_CANCEL, FIRST]]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should report once for a rejection whose own settlement requests destruction and rethrows', () => {
+    // (an) The entry applied, so it reports nothing itself. Its `prepare`'s throw
+    // registers a checkpoint in the interval, and that checkpoint reports.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        throw FIRST;
+      }),
+      settlement: {
+        prepare(_draft, input): PreparedSettlement {
+          harness.settlements.push(input);
+          void harness.kernel.requestDestroy();
+          throw FIRST;
+        },
+        effect(): void {},
+      },
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(harness.settlements).toHaveLength(1);
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
     expect(applied(harness.kernel)).toBe(true);
   });
 });

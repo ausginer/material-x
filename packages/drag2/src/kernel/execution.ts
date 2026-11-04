@@ -15,7 +15,8 @@ const CLOSED = 2;
  * node, and it invokes no slot the consumer filled — every consumer-visible act
  * stays behind the callbacks it is constructed with, or behind the report a
  * queued entry carries. It knows which two tags owe a report when their entry
- * is discarded, and nothing about what they mean. That is what makes the entity
+ * is discarded, and nothing about what they mean; a behavior action is opaque
+ * to it and is discarded whole. That is what makes the entity
  * safe to hold the lifecycle request: the datum every liveness rule is indexed
  * on is owned by the thing that can state its own invariant, and the storage
  * under it keeps owning none.

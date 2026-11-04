@@ -65,6 +65,9 @@ export interface BehaviorContext {
    * controller, before it returns, in dispatch order. The tag is not checked
    * there, because the count bounding it is in the spec the factory has not
    * yet returned, so an out-of-range tag has no specified outcome.
+   *
+   * A destruction discards a queued action whole: it is never prepared, and
+   * whatever `argument` carries is dropped unread.
    */
   dispatch(tag: number, argument: unknown): void;
 
@@ -124,9 +127,10 @@ export interface BehaviorContext {
   /**
    * Requests destruction. It is applied at once when no library unit is
    * running, and otherwise when the running unit ends: that unit completes
-   * first, as a live controller's, and nothing after it runs. Application is
-   * one step — closed, queued work discarded, physical teardown — and the
-   * returned promise settles **once**, after it.
+   * first, as a live controller's, and no later unit runs. A fault queued behind
+   * that unit is reported before application and has no other consequence.
+   * Application is one step — closed, queued work discarded, physical teardown —
+   * and the returned promise settles **once**, after it.
    *
    * Idempotent: every call returns the same promise.
    *
@@ -516,13 +520,14 @@ export type BehaviorSpec<
    * kernel hands over a finished error; the behavior chooses nothing and
    * re-derives nothing from it.
    *
-   * **Which class arrives says whether the operation was affected.** A
-   * `DraggableError` means the outcome changed: `admit` threw and the drag will
-   * not start, or the controller panicked. A `DraggableWarning` means it did
-   * not — a landing measurement that could not be trusted, a disposer that
-   * refused, an interpolation the platform declined to start. A warning is therefore **not
-   * proof that the operation is over**, and the terminal for that operation
-   * still publishes afterwards.
+   * **Which class arrives says whether this fault decided the outcome.** A
+   * `DraggableError` means it did: `admit` threw and the drag will not start, or
+   * the controller panicked. A `DraggableWarning` means it did not — a landing
+   * measurement that could not be trusted, a disposer that refused, an
+   * interpolation the platform declined to start, a throw a cancel or destruction
+   * had already superseded. A warning therefore says nothing about the terminal:
+   * the operation publishes the one it would have without this fault, before or
+   * after the warning, and none once destruction has decided it.
    *
    * **No guard belongs here.** The kernel calls this only through its own
    * route, which refuses after destruction is applied and absorbs a throw, and

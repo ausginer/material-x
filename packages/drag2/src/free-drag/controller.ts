@@ -50,7 +50,9 @@ export type FreeDragController = Readonly<{
    * deliberately not checked. Its coordinates are read once, when you call
    * `moveTo`; a read that throws is reported when the move is applied, so
    * `onError` receives a `DraggableError` whose `stage` is
-   * `FAILURE_ACTION_PREPARE`, like any other seam throw.
+   * `FAILURE_ACTION_PREPARE`, like any other seam throw. **A move that is never
+   * applied reports nothing.** With no drag, past release, behind a cancel, or
+   * discarded by destruction, the move is dropped and the read's error with it.
    */
   moveTo(point: Point): void;
   /**

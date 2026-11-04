@@ -14,7 +14,7 @@
  * **`DraggableWarning` joins it on the same argument.** One channel carries
  * both, and which class arrives is how a consumer — or a kernel-tier behavior
  * author — tells *my operation was affected* from *something went wrong and
- * your result stands*. A name both tiers must recognise and neither owns
+ * it did not decide your outcome*. A name both tiers must recognise and neither owns
  * belongs here for the same reason `DraggableError` does.
  *
  * **And so does the stage vocabulary.** `DraggableError.stage` carries a

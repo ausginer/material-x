@@ -498,6 +498,82 @@ describe('a non-finite moveTo()', () => {
       composed.errors.map((error) => (error as DraggableError).stage),
     ).toEqual([FAILURE_ACTION_PREPARE]);
   });
+
+  /** A point whose read throws, which `Point`'s type admits. */
+  const throwingPoint = (): Point => ({
+    get x(): number {
+      throw new Error('accessor');
+    },
+    y: 0,
+  });
+
+  it('should report nothing for a malformed move destruction discards', async () => {
+    // (ag) The read's error travels with the action, and a move never applied
+    // is never prepared, so it is dropped unread.
+    let destroyed: Promise<void> | null = null;
+    const ended: string[] = [];
+    const composed = compose({
+      config: {
+        onMove: (): void => {
+          if (destroyed) {
+            return;
+          }
+
+          composed.controller.moveTo(throwingPoint());
+          destroyed = composed.controller.requestDestroy();
+        },
+        onEnd: (result): void => {
+          ended.push(result.type);
+        },
+      },
+    });
+
+    activate(composed);
+    move(60, 20);
+
+    await expect(destroyed).resolves.toBeUndefined();
+    expect(composed.errors).toEqual([]);
+    expect(ended).toEqual([]);
+  });
+
+  it('should report nothing for a malformed move with no drag', async () => {
+    // (ah), the prepare's phase test returns before the fault is read.
+    const composed = compose();
+
+    composed.controller.moveTo(null as unknown as Point);
+    await settled();
+
+    expect(composed.errors).toEqual([]);
+  });
+
+  it('should report nothing for a malformed move behind a cancel', async () => {
+    // (ah), the cancel applies first and the move finds no drag to apply to.
+    let requested = false;
+    const ended: string[] = [];
+    const composed = compose({
+      config: {
+        onMove: (): void => {
+          if (requested) {
+            return;
+          }
+
+          requested = true;
+          composed.controller.requestCancel('held');
+          composed.controller.moveTo(throwingPoint());
+        },
+        onEnd: (result): void => {
+          ended.push(result.type);
+        },
+      },
+    });
+
+    activate(composed);
+    move(60, 20);
+    await settled();
+
+    expect(ended).toEqual(['canceled']);
+    expect(composed.errors).toEqual([]);
+  });
 });
 
 describe('moveTo() captures its argument at the call', () => {

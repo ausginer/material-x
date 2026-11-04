@@ -128,7 +128,7 @@ describe('the execution bracket', () => {
     expect(order).toEqual(['outer:start', 'outer:end', 'appended']);
   });
 
-  it('should stop the drain at the next entry when an action requests destruction', () => {
+  it('should handle no entry behind an action that requests destruction', () => {
     const harness = createHarness((bracket, action) => {
       if (action === 1) {
         void bracket.requestClose();

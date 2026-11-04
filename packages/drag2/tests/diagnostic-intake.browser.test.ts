@@ -16,7 +16,9 @@
  *   constructing — every report is delivered;
  * - a fault a slot raises in a unit that also requests destruction is delivered
  *   once, as a warning, before application: destruction discards its claim on
- *   the operation, so it decides no terminal and no `onEnd` follows.
+ *   the operation, so it decides no terminal and no `onEnd` follows;
+ * - a synchronous rejection a cancel superseded is delivered once, as a warning
+ *   after the terminal the cancel decided.
  *
  * Each row drives the running controller, with no harness flag. The fixture is
  * one landing installer per behavior that keeps `context.report` and whose
@@ -59,7 +61,10 @@ const describeError = (error: unknown): string => {
 type Fixture = Readonly<{
   /** The element a press lands on. */
   target: HTMLElement;
-  controller: Readonly<{ requestDestroy(): Promise<void> }>;
+  controller: Readonly<{
+    requestCancel(reason?: unknown): void;
+    requestDestroy(): Promise<void>;
+  }>;
   errors: unknown[];
   /** `onError` and `onEnd`, in delivery order. */
   log: string[];
@@ -72,8 +77,11 @@ type Fixture = Readonly<{
 type Slots = Readonly<{
   onStart?(fixture: Fixture): void;
   onMove?(fixture: Fixture): void;
-  /** Runs inside `onReorder` or `onDrop`, the round-trip's slot. */
-  onResolve?(fixture: Fixture): void;
+  /**
+   * Runs inside `onReorder` or `onDrop`, the round-trip's slot. What it returns
+   * is the slot's value, and with nothing returned the slot accepts.
+   */
+  onResolve?(fixture: Fixture): Promise<never> | undefined;
   onEnd?(fixture: Fixture): void;
   /** Runs inside `onError`, after the delivery is recorded. */
   onErrorDelivered?(fixture: Fixture): void;
@@ -132,10 +140,7 @@ const buildSortable: Build = (slots = {}) => {
   const config: SortableConfig = {
     items: () => items,
     axis: y(),
-    onReorder: () => {
-      slots.onResolve?.(fixture);
-      return ReorderResolution.accept();
-    },
+    onReorder: () => slots.onResolve?.(fixture) ?? ReorderResolution.accept(),
     onStart: (): void => {
       slots.onStart?.(fixture);
     },
@@ -201,10 +206,7 @@ const buildFreeDrag: Build = (slots = {}) => {
   const log: string[] = [];
   let fixture!: Fixture;
   const config: FreeDragConfig = {
-    onDrop: () => {
-      slots.onResolve?.(fixture);
-      return FreeDragResolution.accept();
-    },
+    onDrop: () => slots.onResolve?.(fixture) ?? FreeDragResolution.accept(),
     onStart: (): void => {
       slots.onStart?.(fixture);
     },
@@ -290,6 +292,16 @@ const drop = (fixture: Fixture): void => {
   activate(fixture);
   pointer(document, 'pointermove', 70);
   pointer(document, 'pointerup', 70);
+};
+
+/** The one delivery a rejection a cancel superseded owes, after the terminal. */
+const expectOneSupersededByCancel = (fixture: Fixture, fault: Error): void => {
+  expect(fixture.log).toEqual(['onEnd canceled', 'onError']);
+  expect(fixture.errors[0]).toBeInstanceOf(DraggableWarning);
+  expect((fixture.errors[0] as DraggableWarning).message).toBe(
+    'drag: failure/superseded-by-cancel',
+  );
+  expect((fixture.errors[0] as DraggableWarning).cause).toBe(fault);
 };
 
 /** The one delivery a fault destruction discards owes. */
@@ -519,6 +531,118 @@ describe.each([
 
     expect(fixture.errors[0]).toBeInstanceOf(DraggableError);
     expect(fixture.log).toEqual(['onError', 'onEnd canceled']);
+  });
+
+  it('should warn after the terminal when the round-trip slot requests a cancel and then throws', async () => {
+    // (ab) The rejection won the latch with the cancel registered and unapplied,
+    // so it queued behind the cancel. The counter shows the slot ran.
+    const boom = new Error('boom');
+    let ran = 0;
+    const fixture = build({
+      plain: true,
+      onResolve: (self) => {
+        ran += 1;
+        self.controller.requestCancel('held');
+        throw boom;
+      },
+    });
+
+    drop(fixture);
+    await settled();
+
+    expect(ran).toBe(1);
+    expectOneSupersededByCancel(fixture, boom);
+  });
+
+  it("should keep the cancel's code when onEnd requests destruction behind a superseded rejection", async () => {
+    // (ac) The cancel decided the operation before the request, so destruction
+    // discarded nothing that would otherwise have reported.
+    const boom = new Error('boom');
+    const fixture = build({
+      plain: true,
+      onResolve: (self) => {
+        self.controller.requestCancel('held');
+        throw boom;
+      },
+      onEnd: (self) => {
+        void self.controller.requestDestroy();
+      },
+    });
+
+    drop(fixture);
+    await settled();
+
+    expectOneSupersededByCancel(fixture, boom);
+  });
+
+  it('should warn for destruction when the round-trip slot holds a cancel and requests destruction', async () => {
+    // (ad) Destruction outranks the cancel: no handler ran before the walk.
+    const boom = new Error('boom');
+    const fixture = build({
+      plain: true,
+      onResolve: (self) => {
+        self.controller.requestCancel('held');
+        void self.controller.requestDestroy();
+        throw boom;
+      },
+    });
+
+    drop(fixture);
+    await settled();
+
+    expectOneDiscardedFault(fixture, boom);
+    expect(fixture.log).toEqual(['onError']);
+  });
+
+  it('should consume a rejection arriving after the cancel applied', async () => {
+    // (ae) An `async` slot's rejection arrives after the attempt retired, so it
+    // never wins the latch, and the kernel's subscription keeps it off the page.
+    const escaped: unknown[] = [];
+    const aborter = new AbortController();
+
+    cleanup.push(() => {
+      aborter.abort();
+    });
+    globalThis.addEventListener(
+      'unhandledrejection',
+      (event: PromiseRejectionEvent) => {
+        escaped.push(event.reason);
+        event.preventDefault();
+      },
+      { signal: aborter.signal },
+    );
+
+    const fixture = build({
+      plain: true,
+      onResolve: (self) => {
+        self.controller.requestCancel('held');
+        return Promise.reject(new Error('boom'));
+      },
+    });
+
+    drop(fixture);
+    await settled();
+
+    expect(fixture.log).toEqual(['onEnd canceled']);
+    expect(fixture.errors).toEqual([]);
+    expect(escaped).toEqual([]);
+  });
+
+  it('should deliver nothing when the round-trip slot requests a cancel and then returns', async () => {
+    // (af) A settlement with no fault carries no report.
+    const fixture = build({
+      plain: true,
+      onResolve: (self) => {
+        self.controller.requestCancel('held');
+        return undefined;
+      },
+    });
+
+    drop(fixture);
+    await settled();
+
+    expect(fixture.log).toEqual(['onEnd canceled']);
+    expect(fixture.errors).toEqual([]);
   });
 
   it('should warn after onEnd when onEnd requests destruction and then throws', async () => {

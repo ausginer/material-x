@@ -768,7 +768,10 @@ class SortableBehavior {
         // classified-failure mechanism entirely. Queuing it as a behavior
         // action gives it a seam: the action's own `prepare` runs against
         // the live operation, which is where `FAILURE_INVALIDATION` can be
-        // classified with the recovery the contract gives it.
+        // classified with the recovery the contract gives it. A destruction
+        // requested in the same unit discards the action with its fault, and
+        // only an event dispatched synchronously inside a library callback can
+        // reach that: the platform delivers scroll and resize outside any unit.
         this.#kernel.dispatch(TAG_INVALIDATION, error);
       }
     });
