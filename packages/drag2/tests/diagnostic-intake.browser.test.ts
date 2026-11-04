@@ -595,8 +595,10 @@ describe.each([
   });
 
   it('should consume a rejection arriving after the cancel applied', async () => {
-    // (ae) An `async` slot's rejection arrives after the attempt retired, so it
-    // never wins the latch, and the kernel's subscription keeps it off the page.
+    // (ae) The slot returns an already rejected promise, which is what an `async`
+    // slot that throws returns. Its rejection arrives after the attempt retired,
+    // so it never wins the latch, and the kernel's subscription keeps it off the
+    // page.
     const escaped: unknown[] = [];
     const aborter = new AbortController();
 
