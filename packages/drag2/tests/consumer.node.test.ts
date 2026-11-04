@@ -4,8 +4,9 @@
  * Every other suite imports `src/` directly, so nothing else in this package
  * can see what a consumer actually receives: the `exports` map, the emitted
  * declarations, and whether the tarball contains the files those two promise.
- * This builds, packs and extracts the real package, then imports and compiles
- * against the extracted copy from outside the workspace.
+ * This packs and extracts the real package, as the project's global setup built
+ * it, then imports and compiles against the extracted copy from outside the
+ * workspace.
  *
  * It is deliberately the slowest test here. It is also the only one that would
  * catch a subpath whose `default` condition points at a file the build never
@@ -1312,8 +1313,6 @@ async function packedFiles(
 
 beforeAll(async () => {
   const dir = await mkdtemp(join(tmpdir(), 'drag2-consumer-'));
-
-  await run('npx', ['tsdown', '--config', 'tsdown.config.ts'], ROOT);
 
   const { stdout } = await run(
     'npm',

@@ -3,6 +3,7 @@ import type { UserConfigFnObject } from 'vite';
 import { defineConfig } from 'vitest/config';
 import {
   createDragTestConfig,
+  DRAG2_NODE_GLOBAL_SETUP,
   DRAG2_SHIPPED_BROWSER_TESTS,
 } from '../../.scripts/vitest-config.ts';
 import { dragBrowserCommands } from './tests/support/pointer-commands.node.ts';
@@ -12,6 +13,7 @@ const config: UserConfigFnObject = defineConfig(() =>
     new URL('./', import.meta.url),
     dragBrowserCommands,
     DRAG2_SHIPPED_BROWSER_TESTS,
+    DRAG2_NODE_GLOBAL_SETUP,
   ),
 );
 

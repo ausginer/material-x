@@ -129,6 +129,7 @@ type NodeTestProjectOptions = Readonly<{
   root: URL;
   include: readonly string[];
   setupFiles?: readonly string[];
+  globalSetup?: readonly string[];
 }>;
 
 type DeclarationTestProjectOptions = Readonly<{
@@ -271,6 +272,7 @@ function createNodeTestProject(options: NodeTestProjectOptions): UserConfig {
       name: options.name,
       include: [...options.include],
       setupFiles: options.setupFiles ? [...options.setupFiles] : [],
+      globalSetup: options.globalSetup ? [...options.globalSetup] : [],
     },
   });
 }
@@ -403,6 +405,7 @@ function createDragTestProjects(
   scope?: string,
   commands?: Record<string, BrowserCommand<any[]>>,
   shipped: readonly string[] = [],
+  nodeGlobalSetup: readonly string[] = [],
 ): UserConfig[] {
   return [
     createDragBrowserTestProject(
@@ -438,6 +441,7 @@ function createDragTestProjects(
       name: scopedName('node', scope),
       root,
       include: ['tests/**/*.node.test.ts'],
+      globalSetup: nodeGlobalSetup,
     }),
   ];
 }
@@ -523,15 +527,31 @@ export const DRAG2_SHIPPED_BROWSER_TESTS: readonly string[] = [
   'tests/sortable/zero-read.browser.test.ts',
 ];
 
+/**
+ * drag2's node project builds once, before any of its files starts. Its emit
+ * writes the package root, and the tree is not valid until the emit's hook has
+ * finished, so no file in the project may build that tree or read it during one.
+ */
+export const DRAG2_NODE_GLOBAL_SETUP: readonly string[] = [
+  'tests/support/build-package.node.ts',
+];
+
 export function createDragTestConfig(
   root: URL,
   commands?: Record<string, BrowserCommand<any[]>>,
   shipped: readonly string[] = [],
+  nodeGlobalSetup: readonly string[] = [],
 ): UserConfig {
   return {
     test: {
       projects: assignGroupOrder(
-        createDragTestProjects(root, undefined, commands, shipped),
+        createDragTestProjects(
+          root,
+          undefined,
+          commands,
+          shipped,
+          nodeGlobalSetup,
+        ),
       ),
     },
   };
@@ -582,6 +602,7 @@ export function createWorkspaceTestConfig(
       'drag2',
       options.drag2Commands,
       DRAG2_SHIPPED_BROWSER_TESTS,
+      DRAG2_NODE_GLOBAL_SETUP,
     ) as [UserConfig, UserConfig, UserConfig, UserConfig];
   const [tprocNode] = createTprocTestProjects(options.tprocRoot, 'tproc');
   const [viteTraitsPluginNode] = createViteTraitsPluginTestProjects(
