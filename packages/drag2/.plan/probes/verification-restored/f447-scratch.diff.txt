@@ -1,0 +1,18 @@
+diff --git a/packages/drag2/tsdown.config.ts b/packages/drag2/tsdown.config.ts
+index 3bd731787..982841647 100644
+--- a/packages/drag2/tsdown.config.ts
++++ b/packages/drag2/tsdown.config.ts
+@@ -41,6 +41,13 @@ const config: UserConfig = defineConfig({
+     // than exposed, but they are still published — 6.5 kB of internal SPI in
+     // the tarball. Removed here, after the emit that produced them.
+     'build:done': async (): Promise<void> => {
++      const { appendFile: scratchLog } = await import('node:fs/promises');
++      await scratchLog(process.env['F447_LOG']!, `${process.pid} emitted ${Date.now()}\n`);
++      const { mkdir: scratchMkdir } = await import('node:fs/promises');
++      const first = await scratchMkdir(process.env['F447_LOCK']!).then(() => true, () => false);
++      await scratchLog(process.env['F447_LOG']!, `${process.pid} ${first ? 'first-no-delay' : 'second-delayed'}\n`);
++      await new Promise((go) => { setTimeout(go, first ? 0 : Number(process.env['F447_DELAY'] ?? 0)); });
++      await scratchLog(process.env['F447_LOG']!, `${process.pid} stripping ${Date.now()}\n`);
+       await pruneDeclarations(files.runtime.map((entry) => `${entry}.d.ts`));
+       // **The dangling declaration-map references** (D-111). tsdown runs the JS
+       // and the declaration emit as **one** rolldown build over one `sourcemap`

@@ -1,0 +1,67 @@
+# Final readings. Fresh worktree at 9518d654a, npm ci, prerequisite builds, empty .vite. Chromium, one machine.
+npm ci exit 0
+just build exit 0
+extra build exit 0
+vite dirs after clear: 0
+suite 1 exit 1
+suite 2 exit 1
+drag2 1 exit 0
+drag2 2 exit 0
+built files differing: 0
+measure exit 0
+rows exit 0
+== drag2-1 (packages/drag2, vitest.config.ts)
+ Test Files  78 passed (78)
+      Tests  1494 passed | 68 skipped (1562)
+   Duration  108.92s (worker 84%, tests 14%, import 2%, transform 1%)
+== drag2-2 (packages/drag2, vitest.config.ts)
+ Test Files  78 passed (78)
+      Tests  1494 passed | 68 skipped (1562)
+   Duration  101.75s (worker 87%, tests 11%, import 1%)
+== suite-1 (root, repaired tree)
+      Tests  2 failed | 2643 passed | 68 skipped (2713)
+ FAIL  |node/tproc| tests/DB/index.node.test.ts [ packages/tproc/tests/DB/index.node.test.ts ]
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render decl
+ FAIL  |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts:45 > radio visual regression > should match the sel
+ Test Files  3 failed | 160 passed (163)
+Error: browserContext.close: Target page, context or browser has been closed
+⎯⎯ Unhandled Reporter Error ⎯⎯
+== suite-2 (root, repaired tree)
+      Tests  1 failed | 2644 passed | 68 skipped (2713)
+ FAIL  |node/tproc| tests/DB/index.node.test.ts [ packages/tproc/tests/DB/index.node.test.ts ]
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render decl
+ Test Files  2 failed | 161 passed (163)
+Error: browserContext.close: Target page, context or browser has been closed
+⎯⎯ Unhandled Reporter Error ⎯⎯
+== root at the input, c867a14d0, once
+      Tests  7 failed | 2624 passed | 68 skipped (2699)
+ FAIL  |browser/drag2 (chromium)| tests/sortable/react.browser.test.ts [ packages/drag2/tests/sortable/react.browser.test.ts ]
+ FAIL  |browser/drag2 (chromium)| tests/sortable/stories.browser.test.ts [ packages/drag2/tests/sortable/stories.browser.test.ts ]
+ FAIL  |node/drag2| tests/bench/size.node.test.ts:285 > the non-composed baseline > should fill exactly the slots the assembler fi
+ FAIL  |node/drag2| tests/docs.node.test.ts:120 > the documented surface > should resolve every reference a public type makes
+ FAIL  |node/drag2| tests/docs.node.test.ts:152 > the documented surface > should close the kernel tier over the kernel tier
+ FAIL  |node/drag2| tests/docs.node.test.ts:182 > the documented surface > should close the ordinary tier over the ordinary tier a
+ FAIL  |node/drag2| tests/docs.node.test.ts:226 > the documented surface > should close the free-drag tier over the ordinary tier 
+ FAIL  |node/tproc| tests/DB/index.node.test.ts [ packages/tproc/tests/DB/index.node.test.ts ]
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render decl
+ FAIL  |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts:45 > radio visual regression > should match the sel
+ Test Files  7 failed | 156 passed (163)
+Error: browserContext.close: Target page, context or browser has been closed
+⎯⎯ Unhandled Reporter Error ⎯⎯
+
+== measureAll rows at the repaired tree: name | minified | brotli | modules | ceiling
+minimal | 33723 | 10329 | 33 | 10351
+minimal (xy) | 33080 | 10199 | 32 | 10244
+minimal + layoutAnimation | 34639 | 10651 | 34 | 10683
+xy + layoutAnimation | 33996 | 10517 | 33 | 10563
+minimal + landing | 34116 | 10483 | 35 | 10536
+complete | 35032 | 10791 | 36 | 10838
+free drag minimal | 27367 | 8357 | 27 | 8412
+free drag + bounds | 28011 | 8592 | 28 | 8645
+free drag + landing | 27760 | 8516 | 29 | 8587
+free drag complete | 28404 | 8734 | 30 | 8778
+both behaviors | 42572 | 12298 | 47 | 12359
+vocabulary root - drag.js | 252 | 142 | 2 | 205
+kernel root - kernel.js | 20337 | 6418 | 16 | 6470
+baseline A - feature-matched, non-composed | 34323 | 10620 | 31 | 10658
+baseline B - shipped @ydinjs/drag sortable.js | 22618 | 6916 | 26 | 7040
