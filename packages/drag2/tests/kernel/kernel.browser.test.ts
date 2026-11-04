@@ -5187,6 +5187,28 @@ describe('the execution bracket', () => {
  * follows the unit's boundary, or the entry of a later unit.
  */
 describe('requests at unit boundaries', () => {
+  it('should deliver nothing for a checkpoint registered before destruction is requested', () => {
+    // R33 (l). `fail` registers and queues the checkpoint, and the request made
+    // after it in the same unit stops the drain before that entry: application
+    // clears the queue with the checkpoint unapplied.
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, new Error('write failed'));
+        void harness.kernel.requestDestroy();
+      },
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    expect(applied(harness.kernel)).toBe(false);
+
+    move(60, 10);
+
+    expect(applied(harness.kernel)).toBe(true);
+    expect(harness.reports).toEqual([]);
+    expect(harness.settlements).toEqual([]);
+  });
+
   it('should publish an admission whose admit requested destruction and tear it down after', () => {
     // R1's admission half. Admission publishes `PENDING` unconditionally, and
     // destruction is applied when the admission pass ends, so the operation it

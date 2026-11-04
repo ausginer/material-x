@@ -13,7 +13,10 @@
  * - a captured `report` called after application is dropped;
  * - before application — at depth 0 on a live controller, in the interval
  *   between a request and its application, and while `draggable()` is still
- *   constructing — every report is delivered.
+ *   constructing — every report is delivered;
+ * - a failure checkpoint a slot registers in a unit that also requests
+ *   destruction never becomes a diagnostic: destruction discards it, unapplied,
+ *   so it reaches neither `onError` nor `onEnd`.
  *
  * Each row drives the running controller, with no harness flag. The fixture is
  * one landing installer per behavior that keeps `context.report` and whose
@@ -26,6 +29,7 @@ import {
   type FreeDragConfig,
   FreeDragResolution,
 } from '../src/free-drag.ts';
+import { FAILURE_ACTIVATION } from '../src/kernel/failures.ts';
 import type { FeatureContext } from '../src/shared/composition.ts';
 import { y } from '../src/sortable/y.ts';
 import {
@@ -57,6 +61,8 @@ type Fixture = Readonly<{
   target: HTMLElement;
   controller: Readonly<{ requestDestroy(): Promise<void> }>;
   errors: unknown[];
+  /** `onError` and `onEnd`, in delivery order. */
+  log: string[];
   /** The `report` the installer kept. */
   report(error: unknown): void;
   /** How many times the throwing retire hook ran. */
@@ -65,6 +71,9 @@ type Fixture = Readonly<{
 
 type Slots = Readonly<{
   onStart?(fixture: Fixture): void;
+  onMove?(fixture: Fixture): void;
+  /** No landing installer, so nothing reports but the slot under test. */
+  plain?: boolean;
   /** A second installer, which throws when installed. */
   throwing?: boolean;
   /** The `onError` collector, for a row whose construction never returns. */
@@ -113,6 +122,7 @@ const buildSortable: Build = (slots = {}) => {
 
   const state = { report: null as ((error: unknown) => void) | null, hooks: 0 };
   const errors = slots.errors ?? [];
+  const log: string[] = [];
   let fixture!: Fixture;
   const config: SortableConfig = {
     items: () => items,
@@ -121,10 +131,14 @@ const buildSortable: Build = (slots = {}) => {
     onStart: (): void => {
       slots.onStart?.(fixture);
     },
+    onEnd: ({ type }): void => {
+      log.push(`onEnd ${type}`);
+    },
     onError: (error): void => {
       errors.push(error);
+      log.push('onError');
     },
-    landing: hostileLanding(state),
+    ...(slots.plain ? {} : { landing: hostileLanding(state) }),
     ...(slots.throwing
       ? {
           displacement: () => {
@@ -150,6 +164,7 @@ const buildSortable: Build = (slots = {}) => {
     target: items[0]!,
     controller,
     errors,
+    log,
     report: (error) => {
       state.report!(error);
     },
@@ -173,16 +188,24 @@ const buildFreeDrag: Build = (slots = {}) => {
 
   const state = { report: null as ((error: unknown) => void) | null, hooks: 0 };
   const errors = slots.errors ?? [];
+  const log: string[] = [];
   let fixture!: Fixture;
   const config: FreeDragConfig = {
     onDrop: () => FreeDragResolution.accept(),
     onStart: (): void => {
       slots.onStart?.(fixture);
     },
+    onMove: (): void => {
+      slots.onMove?.(fixture);
+    },
+    onEnd: ({ type }): void => {
+      log.push(`onEnd ${type}`);
+    },
     onError: (error): void => {
       errors.push(error);
+      log.push('onError');
     },
-    landing: hostileLanding(state),
+    ...(slots.plain ? {} : { landing: hostileLanding(state) }),
     plugins: slots.throwing
       ? [
           () => {
@@ -208,6 +231,7 @@ const buildFreeDrag: Build = (slots = {}) => {
     target: item,
     controller,
     errors,
+    log,
     report: (error) => {
       state.report!(error);
     },
@@ -363,5 +387,66 @@ describe.each([
     expect(errors.map(describeError)).toEqual([
       'drag: composition/unwind-failed<retire-hook',
     ]);
+  });
+
+  it('should report nothing when onStart requests destruction and then throws', async () => {
+    // (i) The throw registers a checkpoint in the interval, and destruction
+    // discards it at the unit's boundary, unapplied. The promise exists only if
+    // the slot ran.
+    let destroyed!: Promise<void>;
+    const fixture = build({
+      plain: true,
+      onStart: (self) => {
+        destroyed = self.controller.requestDestroy();
+        throw new Error('boom');
+      },
+    });
+
+    activate(fixture);
+
+    await expect(destroyed).resolves.toBeUndefined();
+    expect(fixture.log).toEqual([]);
+  });
+
+  it('should report and end the operation when onStart throws with no request', async () => {
+    // (k) The control for (i): the same throw, applied.
+    const boom = new Error('boom');
+    const fixture = build({
+      plain: true,
+      onStart: () => {
+        throw boom;
+      },
+    });
+
+    activate(fixture);
+    await settled();
+
+    expect(fixture.log).toEqual(['onError', 'onEnd canceled']);
+    expect(fixture.errors[0]).toBeInstanceOf(DraggableError);
+    expect((fixture.errors[0] as DraggableError).stage).toBe(
+      FAILURE_ACTIVATION,
+    );
+    expect((fixture.errors[0] as DraggableError).cause).toBe(boom);
+  });
+});
+
+describe('diagnostic intake in the free drag, past activation', () => {
+  it('should report nothing when onMove requests destruction and then throws', async () => {
+    // (j) As (i), from the unit that delivers a sample. Free drag only: sortable
+    // has no `onMove` slot. The promise exists only if the slot ran.
+    let destroyed!: Promise<void>;
+    const fixture = buildFreeDrag({
+      plain: true,
+      onMove: (self) => {
+        destroyed = self.controller.requestDestroy();
+        throw new Error('boom');
+      },
+    });
+
+    activate(fixture);
+    pointer(document, 'pointermove', 60);
+
+    await expect(destroyed).resolves.toBeUndefined();
+    expect(fixture.log).toEqual([]);
   });
 });
