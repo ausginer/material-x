@@ -1286,6 +1286,7 @@ class SortableBehavior {
   // Settlement
   // -----------------------------------------------------------------------
   /** One arm per `SettlementInput` type, covered exhaustively. */
+  // eslint-disable-next-line @typescript-eslint/consistent-return
   prepareSettlement(
     draft: Draft<SortableFramePart>,
     input: SettlementInput,
