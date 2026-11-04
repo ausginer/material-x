@@ -1,0 +1,44 @@
+// D-209's mutations on the landed tree, in a private worktree, restoring after each.
+import { execFileSync, spawnSync } from 'node:child_process';
+import { readFileSync, writeFileSync } from 'node:fs';
+const wt = process.argv[2], out = process.argv[3], which = process.argv.slice(4);
+const pkg = `${wt}/packages/drag2`;
+const K = `${pkg}/src/kernel/kernel.ts`, E = `${pkg}/src/kernel/execution.ts`;
+const k0 = readFileSync(K, 'utf8'), e0 = readFileSync(E, 'utf8');
+const once = (t, a, b) => { const p = t.split(a); if (p.length !== 2) throw new Error(`count ${p.length - 1}: ${a}`); return p.join(b); };
+const STEP = `if (this.#lifecycle !== LIVE) {\n      if (action === FAILED || action === RESOLUTION_SETTLED) {\n        (argument as { discard?(): void }).discard?.();\n      }\n\n      return true;\n    }`;
+const CP = `      discard: (): void => {\n        this.report(\n          new DraggableWarning('drag: failure/superseded-by-destruction', {\n            cause: error,\n          }),\n        );\n      },\n`;
+const RJ = `      attempt.discard = (): void => {\n        this.report(\n          new DraggableWarning('drag: failure/superseded-by-destruction', {\n            cause: input.error,\n          }),\n        );\n      };\n`;
+const RJF = `    if (input.type === SETTLED_REJECTED) {\n${RJ}    }\n\n`;
+const WE = (extra) => (s) => writeFileSync(E, once(e0, ...extra));
+const WK = (...pairs) => { let t = k0; for (const [a, b] of pairs) t = once(t, a, b); writeFileSync(K, t); };
+const muts = {
+  N1: () => writeFileSync(E, once(e0, STEP, STEP.replace('this.#lifecycle !== LIVE', 'this.#lifecycle === CLOSED'))),
+  X1: () => writeFileSync(E, once(e0, STEP, `if (this.#lifecycle !== LIVE) {\n      return true;\n    }`)),
+  X2: () => writeFileSync(E, once(e0, STEP, STEP.replace('return true;', 'return false;'))),
+  X3: () => writeFileSync(E, once(e0, STEP, `if (this.#lifecycle !== LIVE) {\n      (argument as { discard?(): void } | null)?.discard?.();\n\n      return true;\n    }`)),
+  X4: () => WK([CP, `      discard: (): void => {\n        queueMicrotask(() => {\n          this.report(\n            new DraggableWarning('drag: failure/superseded-by-destruction', {\n              cause: error,\n            }),\n          );\n        });\n      },\n`]),
+  // Both carriers deferred: the record's spelling left the settlement carrier alone.
+  X4both: () => WK([CP, `      discard: (): void => {\n        queueMicrotask(() => {\n          this.report(new DraggableWarning('drag: failure/superseded-by-destruction', { cause: error }));\n        });\n      },\n`], [RJ, `      attempt.discard = (): void => {\n        queueMicrotask(() => {\n          this.report(new DraggableWarning('drag: failure/superseded-by-destruction', { cause: input.error }));\n        });\n      };\n`]),
+  X5: () => WK([CP, `      discard: (): void => {\n        this.#spec.reportError(\n          new DraggableWarning('drag: failure/superseded-by-destruction', {\n            cause: error,\n          }),\n        );\n      },\n`], [RJ, `      attempt.discard = (): void => {\n        this.#spec.reportError(\n          new DraggableWarning('drag: failure/superseded-by-destruction', {\n            cause: input.error,\n          }),\n        );\n      };\n`]),
+  // The settlement carrier alone bypasses the route.
+  X5s: () => WK([RJ, `      attempt.discard = (): void => {\n        this.#spec.reportError(\n          new DraggableWarning('drag: failure/superseded-by-destruction', {\n            cause: input.error,\n          }),\n        );\n      };\n`]),
+  X6: () => WK([CP, `      discard: (): void => {\n        this.report(\n          new DraggableWarning(live.cancelRequest ? 'drag: failure/superseded-by-cancel' : 'drag: failure/superseded-by-destruction', {\n            cause: error,\n          }),\n        );\n      },\n`]),
+  // The settlement carrier alone reports the cancel's code.
+  X6s: () => WK([RJ, `      attempt.discard = (): void => {\n        this.report(\n          new DraggableWarning(this.#operation?.cancelRequest ? 'drag: failure/superseded-by-cancel' : 'drag: failure/superseded-by-destruction', {\n            cause: input.error,\n          }),\n        );\n      };\n`]),
+  X7: () => WK([RJF, '']),
+  X8: () => WK([RJF, ''], [`  #settleResolution(attempt: ResolutionAttempt, input: SettlementInput): void {\n`, `  #settleResolution(attempt: ResolutionAttempt, input: SettlementInput): void {\n${RJF}`]),
+  X9: () => writeFileSync(E, once(e0, `    } catch (error) {\n      this.#lifecycle = CLOSED;\n      this.#panic(error);`, `    } catch (error) {\n      this.#lifecycle = REQUESTED;\n      this.#queue.apply(this.#step);\n      this.#lifecycle = CLOSED;\n      this.#panic(error);`)),
+};
+const FILES = ['tests/kernel/kernel.browser.test.ts','tests/diagnostic-intake.browser.test.ts','tests/kernel/execution.node.test.ts','tests/kernel/capture.node.test.ts'];
+for (const name of which) {
+  const t = Date.now();
+  try {
+    if (name !== 'base') muts[name]();
+    const r = spawnSync(`${wt}/node_modules/.bin/vitest`, ['run','-c','vitest.config.ts','--reporter=json',`--outputFile=${out}/${name}.json`,...FILES], { cwd: pkg, encoding: 'utf8', maxBuffer: 1<<28 });
+    writeFileSync(`${out}/${name}.log`, `${r.stdout}\n---\n${r.stderr}`);
+    console.log(name,'exit',r.status,'s',(Date.now()-t)/1000);
+  } finally { writeFileSync(K,k0); writeFileSync(E,e0); }
+  const st = execFileSync('git',['status','--short','--','packages/drag2/src'],{cwd:wt,encoding:'utf8'});
+  console.log(name,'restored; src status:',JSON.stringify(st), execFileSync('git',['rev-parse','HEAD:packages/drag2/src'],{cwd:wt,encoding:'utf8'}).trim());
+}

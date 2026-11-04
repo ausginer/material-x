@@ -1,0 +1,65 @@
+
+describe('D-209 review probe', () => {
+  const FIRST = new Error('first');
+  const SECOND = new Error('second');
+  const show = (h: Harness) => h.reports.map((r) => [r.message, r.cause === FIRST ? 'FIRST' : r.cause === SECOND ? 'SECOND' : String(r.cause)]);
+
+  it('K1 a rejection a delivered report makes is walked after the checkpoint', async () => {
+    let reject!: (e: unknown) => void;
+    const harness: Harness = createHarness({
+      release: releaseWith(() => ({ then(_f: unknown, r: (e: unknown) => void): void { reject = r; } })),
+      action: { prepare(): {} | null { harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST); void harness.kernel.requestDestroy(); return true; }, effect(): void {} },
+      reportError(error): void { harness.reports.push(error as never); if (harness.reports.length === 1) reject(SECOND); },
+    });
+    activate(harness);
+    release(40, 10);
+    harness.reports.length = 0;
+    harness.kernel.dispatch(0, null);
+    console.log(`PROBE K1 :: ${JSON.stringify({ delivered: show(harness), applied: applied(harness.kernel), settlements: harness.settlements.length })}`);
+  });
+
+  it('K2 cancel then throw in the round trip, applied live, no request', () => {
+    const harness: Harness = createHarness({
+      release: releaseWith(() => { harness.controller.requestCancel('c'); throw FIRST; }),
+    });
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+    console.log(`PROBE K2 :: ${JSON.stringify({ delivered: show(harness), settlementTypes: harness.settlements.map((s: any) => s.type) })}`);
+  });
+
+  it('K3 cancel then throw in the round trip, the cancel settlement requests destruction', () => {
+    const harness: Harness = createHarness({
+      release: releaseWith(() => { harness.controller.requestCancel('c'); throw FIRST; }),
+      settlement: { prepare(_d, input): PreparedSettlement { harness.settlements.push(input); void harness.kernel.requestDestroy(); return true; }, effect(): void {} },
+    });
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+    console.log(`PROBE K3 :: ${JSON.stringify({ delivered: show(harness), settlementTypes: harness.settlements.map((s: any) => s.type), applied: applied(harness.kernel) })}`);
+  });
+
+  it('K4 a rejection applied live whose settlement requests destruction and rethrows reports once', () => {
+    const harness: Harness = createHarness({
+      release: releaseWith(() => { throw FIRST; }),
+      settlement: { prepare(_d, input: any): PreparedSettlement { harness.settlements.push(input); void harness.kernel.requestDestroy(); if (input.error === FIRST && harness.settlements.length === 1) throw FIRST; return true; }, effect(): void {} },
+    });
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+    console.log(`PROBE K4 :: ${JSON.stringify({ delivered: show(harness), settlements: harness.settlements.length, applied: applied(harness.kernel) })}`);
+  });
+
+  it('K5 a report that throws on the settlement carrier', () => {
+    const delivered: unknown[] = [];
+    const harness: Harness = createHarness({
+      release: releaseWith(() => { void harness.kernel.requestDestroy(); throw FIRST; }),
+      reportError(error): void { delivered.push([error.message, error instanceof DraggableError ? (error as DraggableError).stage : 'W']); throw new Error('from onError'); },
+    });
+    activate(harness);
+    delivered.length = 0;
+    harness.calls.length = 0;
+    release(40, 10);
+    console.log(`PROBE K5 :: ${JSON.stringify({ delivered, retire: harness.calls.filter((c) => c === 'retire').length })}`);
+  });
+});
