@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**The resumed 6R's measurement escalation disposed 2026-11-04, over `979d51067`.** The candidate misses _in every round_ in two of twelve cells at 100 controllers, and nine allocation cells read above step 6's ranges, unpaired. That is an unmet criterion. It is not a demonstrated regression, and +104 B and +215 B are not residuals. The instrument's _one-sided noise_ premise is false (`drag2:F-445`). Protocol M-2″ is pre-registered in §26.5 to §26.7, with a same-tree control, a +4 B positive control and a paired allocation against the frozen input. Its outcome decides whether source lands, a residual goes to the owner, or uncertainty is reported. No residual is accepted, and no source is committed. §26 records the disposition and the handoff.
+
 **Remediation 6R's escalation disposed 2026-11-03, over `4ee87b9ad`.** D-208 requires the kernel's own route to apply the one refusal. It does not require that route to be a channel minted through `channel()`. §24.1 and §24.5 step 4 said _every diagnostic passes through a minted channel_, which is broader than D-208, and both are corrected in place. R21's census may be re-pinned once, to the refusal's one new location. That admits B′'s form. No residual goes to the owner yet, because the in-design candidate is unmeasured, and prototype P wrote the refusal twice. 6R resumes under §25.5. If the candidate misses the target, its residual goes to the owner. §25 records the decision and the handoff.
 
 **Remediation 5R.1 assessed 2026-11-03, at `5e5a493d2`, and not yet closed.** Its recheck confirms the required work and invariance. The introduced defect 5r1-A, a cancel-source list that reads as exhaustive and is not, is corrected before the source freeze, in one closing commit. That commit also qualifies I-31's _only then_ (05:199) and makes 07's L-2 a citation of I-31, as D-83 requires. None of these decides F-442. A delta recheck and the architect's dated closure follow, and then step 6 starts. No list of the class's cancel sources is certified exhaustive. §22 records the assessment, the conditions and the handoff.
@@ -3117,7 +3119,7 @@ Report any other claim of this kind you come across. Do not search for more.
 
 **Step 4 — remediation 6R: recover M-2's retained heap.** A source unit. Record it in a dated `§Remediation 6R` section of `d208-step6.md`. Its required properties:
 
-- **The target.** M-2′, four rounds ABBA: at 100 controllers, the tip's per-controller retained heap is at or below `6905af249`'s in every round, for all three populations. At 1000 controllers, the tip's range does not lie above the baseline's.
+- **The target.** M-2′, four rounds ABBA: at 100 controllers, the tip's per-controller retained heap is at or below `6905af249`'s in every round, for all three populations. At 1000 controllers, the tip's range does not lie above the baseline's. **Amended 2026-11-04, on a condition (§26.4):** the four rounds read against this clause stay recorded as read. Whether _in every round_ governs acceptance turns on §26.6's same-tree count.
 - **What the recovery comes from.** From what D-208 added: the channel mechanism, its mint sites and their wrappers. An unrelated saving that nets the figure down is reported separately and is not booked as recovery.
 - **D-208's properties do not change:**
   - the refusal is written once in the kernel;
@@ -3127,7 +3129,7 @@ Report any other claim of this kind you come across. Do not search for more.
   - R21's `capture.node` passes. The mint sites are re-reported by location. Their number may fall, and a rise is a finding. **Qualified 2026-11-03 (§25.3):** the census may be re-pinned once, to the refusal's one new location.
 - **The per-sample path is untouched.** No function with a nonzero count in step 6's per-sample call-count window changes.
 - **No other cost rises.**
-  - Allocation per sample, per drop, per `moveTo` and per committed frame stays at or below step 6's tip ranges.
+  - Allocation per sample, per drop, per `moveTo` and per committed frame stays at or below step 6's tip ranges. **Amended 2026-11-04 for the resumed candidate (§26.7):** read by a paired rule against the frozen input. The nine cells read above those ranges stay recorded.
   - Call counts are identical.
   - The published declarations are byte-identical, or differ only in doc comments.
   - Composition is read against step 1's ceilings. `drag.js` and baseline B are this unit's declared controls and must not move. A row over its ceiling goes to the architect.
@@ -3273,7 +3275,7 @@ So 6R resumes. If the candidate meets the target, nothing needs authorizing. If 
 
 **Owner:** the implementer, then a bounded independent recheck, then the architect's closure, as §24.5 step 4 states. **Input:** this section's commit. Record it in a dated subsection of `d208-step6.md` §Remediation 6R. **A source comment carries no record identifier.** Everything in §24.5 step 4 holds except where this list replaces it.
 
-**The target** is §24.5 step 4's, unchanged: M-2′, four rounds ABBA against `6905af249`.
+**The target** is §24.5 step 4's, unchanged: M-2′, four rounds ABBA against `6905af249`. **Amended 2026-11-04, on a condition (§26.4):** those four rounds were read, and missed the clause in two cells. Protocol M-2″ now decides acceptance.
 
 **What the recovery comes from** is unchanged: the channel mechanism, its mint sites and their wrappers. Removing the kernel's mint site is recovery from what D-208 added.
 
@@ -3325,3 +3327,250 @@ D-208 stays `Unimplemented (Remediation)`, and the witness holds. §24.6's table
 | Remediation 6R, resumed | implementer, then an independent reviewer, then the architect | §25.5 | before step 5 |
 | A 6R residual, if the candidate misses | architect, then the owner | the owner authorizes the residual or directs a design change | before step 5 |
 | M3 finding, if no row reddens | architect | decide the coverage gap | before 6R closes |
+
+## 26. The resumed 6R's measurement escalation disposed: an unmet criterion, no demonstrated regression, and a pre-registered measurement before any residual (D-208)
+
+**2026-11-04. Input:** `979d51067` on `drag2/fin-review2`, which adds only [`d208-step6.md`](../../measurements/d208-step6.md) §Resumed 2026-11-04 to `04f6348c7`. `src/` is tree `4630579d2`. No candidate source landed. **Checked here:** the diff in §The candidate's whole diff applies to `979d51067` on a scratch index and gives src tree `c0713204a55b24ffc44f9ac0a92d80efa28c7aeb`, as the record states. The other figures below are the record's, not re-run here.
+
+**Decided, in short:**
+
+- **The existing evidence does not establish a residual for the owner to authorize.** It establishes an unmet criterion and leaves growth neither shown nor excluded (§26.1, §26.2).
+- **The instrument is investigated first,** under one pre-registered protocol with a fixed end (§26.5 to §26.8). The two missed cells stay on the record as missed.
+- **The instrument's premise is false:** heap noise is not one-sided. `drag2:F-445` is raised (§26.3).
+- **`in every round` is replaced only on evidence.** If the same tree, measured against itself, misses that clause, a paired rule governs. Otherwise the clause stands (§26.4).
+- **No residual is accepted, and no source is committed by this section.** Step 5, the controls and `d208-requests.md` stay closed.
+
+### 26.1 Three different things
+
+| Status | At this input | Evidence |
+| --- | --- | --- |
+| **Unmet acceptance criterion** | **Yes, twice over.** §24.5 step 4's _in every round_ is missed at 100 controllers: sortable in round 4, mixed in round 2. _At or below step 6's tip ranges_ is missed in nine of the 20 allocation cells | §The rounds, §Costs. This stands, and those rounds cannot close 6R |
+| **Demonstrated regression** | **No.** Growth is not shown, and its absence is not shown either | See below |
+| **Unresolved measurement uncertainty** | **Yes.** This is what stops a conclusion in either direction | See below |
+
+**Why the two cells do not demonstrate growth** (read from the record's tables):
+
+- The candidate's own figure in the two missed cells is its usual one: 3,626 B and 3,239 B. Only the baseline's figure moved: 3,522 B against 3,701 B, and 3,024 B against 3,276 to 3,277 B.
+- The other ten of the twelve cells are at or below the baseline. Free drag's margin is small, at 4 to 7 B.
+- The usual figures agree with the arithmetic. The input's 3,709, 3,323 and 2,792 B minus the recovered 84 B give the candidate's 3,625, 3,239 and 2,708 B, which are 76, 38 and 6 B below the baseline's usual figures.
+
+**Why that does not show the target is met:**
+
+- The cause of the low readings is unmeasured. The record says they could be a true low state of the baseline, and nothing here rules that out.
+- The further logged rounds came after the governing four, with an added `console.info` inside `retention`. They do not replace the governing rounds, and they are not pooled with anything below.
+- A low figure can reach any cell: a low free-drag baseline such as 2,688 B would defeat that cell's margin.
+
+**Why the nine allocation cells do not demonstrate growth:** the candidate's ranges were read alone, against step 6's ranges from another session at another load. No function the diff changes runs in those windows, as far as the code reads. No paired reading or attribution in those windows has established it.
+
+### 26.2 Why +104 B and +215 B are not residuals
+
+A residual, under §24.1 and §25.4, is the per-population growth a candidate carries, for the owner to authorize. These two figures are the candidate's usual reading minus one baseline's low reading. They do not recur in the other three rounds of their population, or in the four logged rounds. Asking the owner to authorize them would put a number in front of the owner that may not describe the candidate. Dropping them would decide the same question the other way, on the owner's behalf. So neither happens.
+
+The owner's condition is unchanged: _This decision does not accept runtime regressions or retained-heap growth._
+
+The implementer's three questions are answered as follows:
+
+1. **Is a round whose baseline figure comes from one low run a miss?** Against the clause as written, yes. As evidence of growth, undetermined.
+2. **What reading replaces it?** §26.4 to §26.6, and only on their conditions.
+3. **Do the nine cells need a paired reading?** Yes, against the frozen input (§26.7).
+
+### 26.3 The instrument, and `drag2:F-445`
+
+**What is measured.** `tests/perf/m2-prime.browser.test.ts` reads `A − B`, where `B` is taken after the stage is built and `A` after the controllers attach. Each figure is the minimum of five such readings after three warm-ups.
+
+**The premise is false.** Lines 25–26 and 121–122 say heap noise is one-sided, so that _every source of error inflates a reading and none deflates it_. Anything live at `B` and collected by `A` deflates a reading. The same file records one such case: without `settle`, it read 1000 free-drag controllers at −636 kB. §Remediation 6R has a −858 B per-controller reading, and the logged rounds show one of five runs well below the others, at both trees. So the minimum does not filter noise. It can select a deflated reading.
+
+**What the recorded rounds show about the low figures.** A low figure here is more than 2 B per controller below its own set's median, at 100 controllers:
+
+| Set of four rounds | Load | Base, low figures of 12 | Candidate or variant, low figures of 12 |
+| --- | --: | --: | --: |
+| step 6's rounds | 6.6 – 27.2 | 0 | 0 |
+| variant A | 7.27 – 7.90 | 0 | 0 |
+| A + B′ | 2.33 – 4.20 | 2 | 0 |
+| candidate, governing | 1.88 – 2.66 | 2 | 0 |
+| candidate, logged | 2.33 – 3.54 | 1 | 1 |
+
+_Analysis, from those rows._ This table gives three things to test and establishes none of them:
+
+- **The two trees are not separated.** In the three sets at lower load, the baseline has 5 low figures and the tip has 1, of 36 each, and the tips are not one tree. An asymmetry is neither shown nor excluded by so few.
+- **Load runs the wrong way for a filter.** Every low figure came from a set at or below 4.20, and none from the eight rounds at 6.6 or above. Those sets differ in day and tree too, so this is no finding about load. It is why M-1's ≤ 2.0 load filter is not adopted here: it could select for the behavior under study.
+- **Two candidate mechanisms fit different sizes.** These are hypotheses only.
+  - _A previous population still live at `B`._ −858 B per controller at n=1000 is about 4.4 to 4.5 MB below the usual figure, which is the order of a whole population.
+  - _Heap housekeeping released between `B` and `A`,_ such as V8's bytecode flushing. The n=100 deficits are 1.7 to 25.3 kB and do not scale with a population.
+
+**The minimum stays the round's figure, with its premise corrected.** It is what every earlier M-2′ figure reports, it reproduces to 1 B when no low reading occurs, and a median of five carries the inflating noise on a 4 to 7 B margin. A low reading can move it in only one round, so the rule across rounds is what bounds that error (§26.6). The median of five is a required second reading that can stop a pass but never make one.
+
+**No earlier acceptance reopens.** Step 6's +8, +46 to +47 and +78 to +79 B are differences between figures that reproduced across all four rounds at load, and §24.1's route stands.
+
+### 26.4 What happens to the target
+
+The owner's condition is the requirement. _In every round_ is this record's way of testing it (§24.5 step 4), so amending that clause is the architect's. The amendment stays conditional, so that it cannot act as a waiver:
+
+- **The four governing rounds stay as read:** unmet in two cells, and stated as such wherever this target's result is stated, including `d208-requests.md` if it is reached.
+- **If the same tree misses the clause against itself** (§26.6, count `L` at 1 or more), a miss no longer indicates growth, and the paired rule `R` replaces _in every round_ at 100 controllers.
+- **If `L` is 0,** the clause stands, and it is read literally over the protocol's twelve governing rounds.
+- **At 1000 controllers,** _the tip's range does not lie above the baseline's_ stands unchanged, and `R` is added to it. This tightens that clause.
+- **Allocation:** §26.7's paired rule replaces _at or below step 6's tip ranges_ for this candidate. The nine cells stay recorded as read.
+
+**The owner may overrule this before the first round.** If the literal clause is to stand regardless, the two cells go to the owner now as what they are, an unmet criterion with no demonstrated growth, and the protocol is not run.
+
+### 26.5 Protocol M-2″: instrument, trees and rounds
+
+This section is the pre-registration. **Nothing below changes once a round has run.** If the harness cannot do what this section states, stop and return to the architect.
+
+**Trees.** Each is a scratch worktree on the shared `node_modules`, and the main checkout is not used. Each src tree is checked before the first round and after the last:
+
+| Tree | Revision | Src tree |
+| --- | --- | --- |
+| base | `6905af249`, set up as step 6's §The baseline | `19f0b867e` |
+| input | the harness commit | `4630579d2` |
+| candidate | the harness commit, plus §The candidate's whole diff, byte for byte | `c0713204a` |
+
+A candidate edit of any kind voids the rounds taken at it.
+
+**The harness commit** comes after this section's commit and before the first round. It touches only `tests/perf/`, `bench/` and `drag2:F-445`'s dated notes. It holds the rule's computation, and it carries the same measurement code to all three trees, with only the existing `requestDestroy` mapping at base. It provides:
+
+- **Plain mode, the governing instrument.** `retention` is otherwise unchanged: three warm-ups, five readings, `-t per-controller`, ordinary `browser` project, `VITE_DRAG_MEASURE=1`, one file per run.
+- **Accounting.** For every reading, including warm-ups: `F` (used heap after clear, settle and `gc()`, before the stage is built), `B` and `A`. They are kept in a numeric buffer allocated before the first reading and printed after the arm ends. Nothing is logged inside a reading.
+- **Inject mode.** `attach` also builds a held on-heap array, not a typed array, that adds a nominal 4 B per controller. That is the size of the smallest margin at stake. Nothing in `src/` is involved.
+- **Probe D1, a quiesced baseline.** Before `B`, settle and `gc()` repeat until two successive readings agree within 1 kB, for at most three extra cycles.
+- **Probe D2.** `--no-flush-bytecode` is added to `--js-flags` for those runs, in the scratch worktree's configuration only. If the engine rejects the flag, D2 is reported as not run, and nothing replaces it.
+- **The corrected comments** of `drag2:F-445`.
+
+**Rounds.** One round is one run in each of its two arms, back to back. Rounds are numbered within their set. The first-named arm runs first in odd rounds, and second in even rounds. The blocks run in this order, with each round's load recorded at its start and end. The counts are fixed:
+
+| Block | Set | Arms | Rounds | Runs |
+| --: | --- | --- | --: | --: |
+| 1 | **G**, governing | candidate, base | 12 | 24 |
+| 1 | **AB**, base against itself | base as tip's role, base as base's role | 6 | 12 |
+| 1 | **AC**, candidate against itself | candidate as tip's role, candidate as base's role | 6 | 12 |
+| 2 | **P**, positive control | base with inject mode, base | 12 | 24 |
+| 3 | **D**, probes | D1 and D2, each at base and at candidate, order reversed in even rounds | 12 | 48 |
+| 4 | **Alloc**, §26.7 | candidate, input, each in shipped and DEV | 12 | 48 |
+
+Block 1 repeats the fixed cycle G, AB, G, AC, six times, so host drift falls on every set alike.
+
+**What may not happen:**
+
+- **No reading is discarded.** A low or negative reading is a reading. A run is rerun only if it fails a row or does not report every cell and every reading. The rerun keeps its round's number, and the failed output is recorded. More than six such failures across the protocol means it is reported blocked, with the rounds so far and no outcome.
+- **No load filter.** §26.3 states why. The load is telemetry.
+- **No interim verdict and no early stop.** During the blocks, a run is checked only against the rerun condition above. The rule's computation runs once, after the last round.
+- **No further rounds.** Whatever the outcome, more rounds need a new protocol from the architect. The four governing rounds and the four logged rounds are reported beside these and are not pooled with them.
+
+### 26.6 The decision rule for retained heap
+
+**Figures.** `E1` is the minimum of the five readings, the existing figure. `E2` is their median. Both are in bytes per controller, computed from raw bytes.
+
+**The floor and a low figure.** A tree's floor for a population is the median `E1` of its plain-mode figures in Block 1. At 100 controllers, a figure is **low** if it is more than 2 B below that floor. A reading is low on the same test, reading against floor. At 1000 controllers, low means more than 1% below, and it is reported only.
+
+**The paired rule `R`,** for one population and count, over the rounds of one set:
+
+- `d = tip − base`. A **tie** is `|d| < 1` B and is dropped.
+- `n` is the number of untied rounds, and `k` is the number with `d > 0`.
+- Exact one-sided sign test: `p = Σ_{j=k}^{n} C(n, j) / 2^n`. `m` is the median of the untied differences. If `n = 0`, then `p = 1` and `m = 0`.
+- **Regression:** `p < 0.01`. **No regression:** `p ≥ 0.05` and `m ≤ 0`. **Inconclusive:** anything else.
+
+With 12 untied rounds, that is no regression at `k ≤ 9` with `m ≤ 0`, inconclusive at `k = 10`, and regression at `k ≥ 11`.
+
+**`m ≤ 0` is deliberate.** M-1's rule allows `m ≤ r`. This one allows no positive median, because the owner accepts no growth.
+
+**Gates, read first.** If any fails, the outcome is **D** below:
+
+- **V0, continuity.** At 100 controllers, base's floors are within 2 B of 3,701, 3,277 and 2,714 B, and the candidate's are within 2 B of 3,625, 3,239 and 2,708 B. Otherwise the logging changed the instrument, or the tree is not what the record measured.
+- **V1, the instrument sees the margin.** In set P at 100 controllers, on `E1`, no population reads **no regression**, and each has `m` from 3 to 5 B. How many read regression is reported. A low figure in the injected arm can flip a round, so this gate asks that known growth cannot pass, which is the property acceptance relies on. The 1000-controller rows are reported, and they are no gate.
+- **V2, no typical difference on one tree.** In AB and in AC at 100 controllers, on `E1`, the median of all six differences, ties included, is within 1 B of zero for each population. Six rounds cannot reach `p < 0.01`, so the sign test is not this gate.
+
+**`L`, the clause's behavior with no tree difference.** The number of AB and AC cells at 100 controllers where the tip role's `E1` exceeds the base role's by more than 2 B.
+
+**`T`, the tails.** A two-sided Fisher exact test of low-figure counts, base against candidate, over Block 1 at 100 controllers. Each tree contributes its figures in G and in its own A/A set.
+
+**Outcomes, on `E1` in set G unless stated:**
+
+| Outcome | When | Meaning | What follows |
+| --- | --- | --- | --- |
+| **A, target met** | V0–V2 pass. At 100, `R` reads no regression for all three populations, and either `L ≥ 1` or G has no round with the tip's whole-byte figure above the base's. At 1000, no range lies above the baseline's and `R` reads no regression. No population reads regression on `E2`. `T`'s p ≥ 0.01 | No growth found by an instrument shown unable to pass a known 4 B. The two earlier cells stay recorded as an unmet literal reading | §26.8 |
+| **B, regression demonstrated** | V0–V2 pass, and `R` reads regression for any population, at either count | A residual now exists: `m` and the range of `d`, per population | No source. Architect, then the owner, who authorizes it or directs a design change |
+| **C, uncertainty unresolved** | V0–V2 pass, no regression on `E1`, and any of: `R` inconclusive; `E2` reads regression; `L = 0` with a literal miss in G; `T`'s p < 0.01 | Neither growth nor its absence is established | No source and no more rounds. Architect, then the owner, with this label and the figures |
+| **D, instrument not decisive** | Any of V0–V2 fails | The instrument cannot answer this as run. The two cells stay unmet and undetermined | No source and no verdict. Architect |
+
+**The cause is reported, and no outcome waits on it.** Each low reading in Block 1 is classed. Its deficit is the floor minus the reading. It is **high-`B`** if `B` is above the median `B` of that run's other four readings by at least half the deficit; **low-`A`** if it is not high-`B` and `A` is below the median `A` by at least half the deficit; and **unclassed** otherwise. Low-`A` does not separate housekeeping from truly lower retention.
+
+**A cause may be called _supported_ only if** all of these hold at the tree in question:
+
+- at least 80% of its low readings fall in one class;
+- the matching probe (D1 for high-`B`; D2 for low-`A`, and for its one mechanism only) shows no low figure in its 36 at 100 controllers;
+- Block 1's rate at that tree predicts at least three low figures in 36;
+- the floors under that probe stay within 2 B.
+
+Otherwise the cause is **unestablished**, a permitted result. It is carried as a named limit into 6R's closure and `d208-requests.md`.
+
+**What rule `R` does not settle.** `R` compares a tree's usual state. If a true low state exists at either tree and stays unexplained, it is outside what `R` measures, and the record says so.
+
+### 26.7 Paired allocation against the frozen input
+
+**Instrument.** `tests/perf/d208-step6.browser.test.ts`, as in step 6, in Block 4. It is paired against the **input**, because step 6's tip ranges are that tree's. The baseline does not enter.
+
+**Rule, per cell.** The rule's form is `R`'s, with these changes:
+
+- `d = candidate − input`, in bytes per unit;
+- a tie is `|d| < 0.05` B, the same figure at the reported precision;
+- **regression:** `p < 0.0005`. **No regression:** `p ≥ 0.0025` and `m ≤ r`. **Inconclusive:** anything else.
+
+The α values are M-1's 0.01 and 0.05, each divided by the 20 cells, so the family's false-alarm rate stays near those levels. With 12 untied rounds, only `k = 12` is regression. `r` is the width of that cell's tip range in step 6's tables, which is the spread the old clause tolerated at one tree:
+
+| Cell                         | `r`, shipped | `r`, DEV |
+| ---------------------------- | -----------: | -------: |
+| sortable sample              |          1.0 |      0.9 |
+| free drag, bare              |          3.6 |      0.8 |
+| free drag, `bounds(element)` |          4.6 |      5.4 |
+| free drag, `bounds(thunk)`   |          0.9 |      0.2 |
+| free drag, `onMove`          |          0.3 |      0.2 |
+| committed frame, moving      |           62 |       59 |
+| committed frame, still       |           10 |        9 |
+| free-drag drop               |           42 |       15 |
+| sortable drop                |           34 |       39 |
+| `moveTo`                     |          7.7 |      1.0 |
+
+**Attribution, in the same runs.** At the candidate, in each of the 20 windows, the sampler books no bytes to a function the diff changes: `ArmedController`'s constructor, `Kernel.channel`, `Kernel.#arm`, `deliverUnlessApplied` or `reportToSpec`. Any such byte is a finding.
+
+**Outcomes:**
+
+- **a1, no other cost rises:** every cell reads no regression, and attribution is clean.
+- **a2, regression demonstrated:** any cell reads regression. No source. Architect, then the owner, with `m` per cell.
+- **a3, uncertainty unresolved:** any cell is inconclusive, or attribution finds a byte, with no cell reading regression. No source. Architect.
+
+### 26.8 Handoff
+
+**Owner:** the implementer. **Input:** this section's commit.
+
+1. Build the harness commit that §26.5 states. Commit it before the first round.
+2. Run Blocks 1 to 4 under §26.5.
+3. Compute the outcome once, then record it in a dated subsection of `d208-step6.md` §Remediation 6R. It holds the harness commit, every round's figures and load, the gates, `L`, `T`, each `R` and each allocation cell, the low-reading classes and the cause's status. It states each result under one of §26.1's three labels. **Every reading goes in a raw data file committed under `.plan/measurements/`.** The earlier subsections are not edited.
+4. **Act on the outcome:**
+   - **A and a1:** apply the candidate's diff byte for byte. Commit the source, the text and the record as §25.5 states, and hand the diff to the bounded recheck. The recheck also checks this protocol's record against its raw file. The architect then closes 6R. The two cells stay stated as missed under the literal clause.
+   - **Anything else:** commit no source, and escalate with the outcome's label and figures.
+
+**Carried, and not re-measured,** unless the candidate's diff changes: R33, R21 with its one re-pin, M1 to M3, the call counts, the declarations, composition and the attribution row. They remain the record's readings, and the recheck tests them.
+
+**Out of scope:** any source change other than applying that diff under outcome A and a1; another candidate; replacing the estimator beyond this protocol; step 5 and control re-declaration; `d208-requests.md`; F-442 and F-443.
+
+### 26.9 Limits of this disposition
+
+- **Nothing here measured anything.** The only check run was the diff's application on a scratch index. §26.3's table is computed from the record's published figures. The record commits only three rows of the logged five-reading data, so nothing here rests on the rest of it.
+- **The rule's thresholds were chosen after seeing these rounds,** though before any round they will judge. V1 and V2 test them, and the literal reading stays beside them. So they are not independent of the two missed cells.
+- **The mechanisms in §26.3 are hypotheses.** Bytecode flushing as a cause, and the flag's effect in this Chrome build, are unverified.
+- **At 1000 controllers,** a 4 B difference is likely below the spread. That row bounds gross growth only.
+- **Chromium only,** one machine, as before.
+- **The run count is about 168 runs.** No per-run time has been measured for `-t per-controller`. M-1's follow-up ran 72 runs in about 2.4 hours, which gives an order of magnitude only.
+
+### 26.10 What stays open
+
+D-208 stays `Unimplemented (Remediation)`, and the witness holds. §25.6's table stands, with these changes:
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| Protocol M-2″ and the paired allocation | implementer | §26.8 | before 6R closes |
+| 6R's two literal cells and nine allocation cells | architect | state their result under §26.6 and §26.7's outcome | at 6R's closure |
+| A residual, only under outcome B or a2 | architect, then the owner | the owner authorizes it or directs a design change | before step 5 |
+| Outcome C, D or a3 | architect, then the owner where an authorization is needed | decide. No more rounds without a new protocol | before step 5 |
+| `drag2:F-445`, the one-sided premise (tier B) | implementer for the corrections; architect for any later estimator | §26.8; then decide after the protocol's result | corrections in the harness commit; estimator before Phase 24 exits |

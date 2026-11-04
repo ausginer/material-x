@@ -2900,7 +2900,15 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 - **R21's census** may be re-pinned once, to the refusal's one new location in `kernel/kernel.ts`.
 - **No residual goes to the owner yet.** 6R resumes under record §25.5 with the shared-refusal candidate and a third mutation, M3, on the kernel's route. A residual at that candidate goes to the owner.
 
-`d208-requests.md` waits for the steps of record §24.5, as §25.5 amends step 4, and for no escalation to be open.
+**The resumed 6R's measurement escalation disposed 2026-11-04, over `979d51067`** (record §26). No source landed, and D-208's text does not change.
+
+- **An unmet criterion:** _in every round_ is missed in two of twelve cells at 100 controllers, on single low baseline figures, and nine allocation cells read above step 6's ranges. Both stay recorded as read.
+- **No demonstrated regression:** growth is neither shown nor excluded, and +104 B and +215 B are not residuals.
+- **Unresolved measurement uncertainty:** the cause of the low readings is unmeasured, and M-2′'s _one-sided noise_ premise is false (F-445).
+- **Protocol M-2″** is pre-registered in record §26.5 to §26.7: a same-tree control, a +4 B positive control and a paired rule, and a paired allocation against the frozen input. _In every round_ gives way to the rule only if the same tree misses it against itself.
+- **Outcomes:** target met, then the source lands and goes to the recheck. Regression demonstrated, then its residual goes to the owner. Otherwise uncertainty is reported, with no source and no further rounds.
+
+`d208-requests.md` waits for the steps of record §24.5, as §25.5 and §26 amend step 4, and for no escalation to be open.
 
 **What is carried.** D-207's text, its properties as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1–3 as accepted at `44e2074f1`, `877fb9612` and `ef1e4ef6b`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step3-B and step3-C keep their boundaries.
 
@@ -2942,6 +2950,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 - **F-441:** raises and repairs it.
 - **F-442:** raised open at step 5's acceptance, and not decided by D-208. ~~Remediation 5R establishes the gap's outcome at the tip and escalates if D-208 changed it.~~ **Established 2026-11-03 (record §21.3):** D-208 changed no published outcome on either known instance. So D-208's completion does not wait for the answer. 5R.1 corrects the text that calls the gap unique.
 - **F-443, F-444:** raised 2026-11-03 from step 6's third escalation. Both are baseline defects, equal at `6905af249`, and neither is decided by D-208 or blocks its acceptance. D-208's record states I-26 as record §24.3.3 does.
+- **F-445:** raised 2026-11-04 from the resumed 6R's escalation. An instrument defect that predates D-208. Its comments are corrected in protocol M-2″'s harness commit, and the protocol's rule bounds it for 6R's reading (record §26.3).
 - **F-432 to F-440:** carries their decisions, repairs and closures.
 - **D-178:** its teardown silence and panic exception are kept, and now rest on the kernel's one refusal.
 - **D-200:** its pending acceptance is unchanged.
@@ -2959,7 +2968,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-208 | Remediation | step 6's remainder under record §24.5: the ceiling re-base, M-1's follow-up, remediation 6R (M-2's retained heap, resumed under record §25.5), the remeasurement and controls, then the measurement record. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64`, remediation 5R at `2d17645f5`, and remediation 5R.1 is closed at `7f1900ccf` | absent: `.plan/measurements/d208-requests.md` |
+| D-208 | Remediation | step 6's remainder under record §24.5: the ceiling re-base, M-1's follow-up, remediation 6R (M-2's retained heap, resumed under record §25.5, its acceptance measured under record §26), the remeasurement and controls, then the measurement record. Steps 4 and 5 are accepted at `dbbb62199` and `0ba8afb64`, remediation 5R at `2d17645f5`, and remediation 5R.1 is closed at `7f1900ccf` | absent: `.plan/measurements/d208-requests.md` |
 
 **D-207's row closed on 2026-11-02 with steps 1–3 accepted.** D-208 superseded it during step 4, adding `BehaviorContext.channel` so that the behaviors' diagnostics keep the kernel's refusal after applied destruction. D-208's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 
@@ -5751,6 +5760,24 @@ If these cannot all hold, it comes back to the architect.
 No acceptance is reopened, because step 6's profiler re-establishes the conclusions those acceptances drew. I-26's wording and tier are unchanged.
 
 **Owner and deadline.** The implementer applies the dated corrections at 05:173, 05:920, 06:367 and `measurements/m1.md`, under record §24.5 step 2, before M-1's follow-up.
+
+#### F-445 — the retained-heap instruments take a minimum on the premise that heap noise is one-sided, and their own readings refute it · open, tier B
+
+**Raised 2026-11-04 from the resumed remediation 6R's escalation.** Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §26.3.
+
+**What happens.** `tests/perf/m2-prime.browser.test.ts` reads the heap difference across a window and takes the minimum of five runs, because _every source of error inflates a reading and none deflates it_. Anything live at the window's first reading and collected by its second deflates it. The file itself records −636 kB from one such case, and `d208-step6.md` records a −858 B per-controller reading and single runs of five well below the others at both trees. So the minimum can select a deflated reading. A single low baseline figure set two of the twelve cells that the resumed 6R missed. The cause of those low readings is unmeasured.
+
+**Why tier B.** An instrument the repository relies on rests on a stated premise that is false, and an acceptance criterion was read through it.
+
+**Decided:**
+
+- the premise is corrected where it is stated: `tests/perf/m2-prime.browser.test.ts` lines 25–26 and 121–122, `tests/perf/m2.browser.test.ts` line 23 and `tests/perf/m1-prime.browser.test.ts` line 648, with dated notes at `measurements/m2-prime.md` line 22, `measurements/m2.md` line 14 and `measurements/phase-21.md` line 184;
+- the minimum stays M-2′'s figure for protocol M-2″, read through a paired rule across rounds and beside the median of five (record §26.3, §26.6);
+- whether it stays beyond that protocol is decided after its result.
+
+No acceptance is reopened. Earlier figures stand as measured.
+
+**Owner and deadline.** The implementer applies the corrections in protocol M-2″'s harness commit. The architect decides any later estimator before Phase 24 exits.
 
 ## What would falsify this model
 

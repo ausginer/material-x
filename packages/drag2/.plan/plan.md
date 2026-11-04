@@ -2298,6 +2298,25 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-04 — D-208 resumed 6R's measurement escalation disposed: an unmet criterion, no demonstrated regression, and a pre-registered protocol
+
+**D-208 is not complete, and nothing is authorized.** The shared-refusal candidate recovers 84 B per controller, and it keeps §25.5's properties as checked. It misses _in every round_ in two of twelve cells at 100 controllers, each on one low baseline figure. Nine allocation cells read above step 6's ranges, unpaired.
+
+**Decided here:**
+
+- **Unmet criterion:** yes, and it stays recorded as read.
+- **Demonstrated regression:** no. Growth is neither shown nor excluded. +104 B and +215 B are not residuals, so nothing goes to the owner to authorize yet.
+- **Unresolved uncertainty:** yes. The instrument's _one-sided noise_ premise is false, and F-445 is raised.
+- **Protocol M-2″** is pre-registered, with a fixed run count and no reading discarded: a same-tree control at both trees, a +4 B positive control, twelve governing rounds under a paired rule, two mechanism probes, and a paired allocation against the frozen input. _In every round_ gives way to the rule only if the same tree misses it against itself.
+
+**The owner may overrule** before the first round: if the literal clause is to stand regardless, the two cells go to the owner now.
+
+**Next:** the implementer builds the harness and runs the protocol. Target met and no other cost risen: the source lands, then its recheck and closure. Regression demonstrated: the residual goes to the owner. Otherwise uncertainty is reported, with no source and no more rounds. Step 5, the controls and `d208-requests.md` stay closed.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §26.
+
+---
+
 ### 2026-11-03 — D-208 remediation 6R's escalation disposed: the kernel's own route need not be minted, and 6R resumes
 
 **D-208 is not complete, and nothing is authorized.** At its in-property variant, 6R recovered 19 to 21 B per controller. Mixed stayed +25 to +26 B and free drag +57 to +58 B above the baseline at 100 controllers.
