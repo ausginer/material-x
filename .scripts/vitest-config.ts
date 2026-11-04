@@ -178,12 +178,6 @@ function createBrowserTestConfig(
         // rasters for failed/expected-fail assertions in the behavior/spec
         // projects, which would otherwise litter __screenshots__.
         screenshotFailures: false,
-        api: {
-          host: '0.0.0.0',
-          port: 9876,
-          allowExec: true,
-          // strictPort: true,
-        },
         provider: playwright({
           contextOptions: { deviceScaleFactor: 1 },
           launchOptions: {
