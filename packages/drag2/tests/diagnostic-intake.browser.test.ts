@@ -14,9 +14,9 @@
  * - before application — at depth 0 on a live controller, in the interval
  *   between a request and its application, and while `draggable()` is still
  *   constructing — every report is delivered;
- * - a failure checkpoint a slot registers in a unit that also requests
- *   destruction never becomes a diagnostic: destruction discards it, unapplied,
- *   so it reaches neither `onError` nor `onEnd`.
+ * - a fault a slot raises in a unit that also requests destruction is delivered
+ *   once, as a warning, before application: destruction discards its claim on
+ *   the operation, so it decides no terminal and no `onEnd` follows.
  *
  * Each row drives the running controller, with no harness flag. The fixture is
  * one landing installer per behavior that keeps `context.report` and whose
@@ -72,6 +72,11 @@ type Fixture = Readonly<{
 type Slots = Readonly<{
   onStart?(fixture: Fixture): void;
   onMove?(fixture: Fixture): void;
+  /** Runs inside `onReorder` or `onDrop`, the round-trip's slot. */
+  onResolve?(fixture: Fixture): void;
+  onEnd?(fixture: Fixture): void;
+  /** Runs inside `onError`, after the delivery is recorded. */
+  onErrorDelivered?(fixture: Fixture): void;
   /** No landing installer, so nothing reports but the slot under test. */
   plain?: boolean;
   /** A second installer, which throws when installed. */
@@ -127,16 +132,21 @@ const buildSortable: Build = (slots = {}) => {
   const config: SortableConfig = {
     items: () => items,
     axis: y(),
-    onReorder: () => ReorderResolution.accept(),
+    onReorder: () => {
+      slots.onResolve?.(fixture);
+      return ReorderResolution.accept();
+    },
     onStart: (): void => {
       slots.onStart?.(fixture);
     },
     onEnd: ({ type }): void => {
       log.push(`onEnd ${type}`);
+      slots.onEnd?.(fixture);
     },
     onError: (error): void => {
       errors.push(error);
       log.push('onError');
+      slots.onErrorDelivered?.(fixture);
     },
     ...(slots.plain ? {} : { landing: hostileLanding(state) }),
     ...(slots.throwing
@@ -191,7 +201,10 @@ const buildFreeDrag: Build = (slots = {}) => {
   const log: string[] = [];
   let fixture!: Fixture;
   const config: FreeDragConfig = {
-    onDrop: () => FreeDragResolution.accept(),
+    onDrop: () => {
+      slots.onResolve?.(fixture);
+      return FreeDragResolution.accept();
+    },
     onStart: (): void => {
       slots.onStart?.(fixture);
     },
@@ -200,10 +213,12 @@ const buildFreeDrag: Build = (slots = {}) => {
     },
     onEnd: ({ type }): void => {
       log.push(`onEnd ${type}`);
+      slots.onEnd?.(fixture);
     },
     onError: (error): void => {
       errors.push(error);
       log.push('onError');
+      slots.onErrorDelivered?.(fixture);
     },
     ...(slots.plain ? {} : { landing: hostileLanding(state) }),
     plugins: slots.throwing
@@ -269,6 +284,23 @@ const settled = (): Promise<void> =>
       setTimeout(resolve, 0);
     });
   });
+
+/** Press, cross the threshold, move past a neighbour, and release there. */
+const drop = (fixture: Fixture): void => {
+  activate(fixture);
+  pointer(document, 'pointermove', 70);
+  pointer(document, 'pointerup', 70);
+};
+
+/** The one delivery a fault destruction discards owes. */
+const expectOneDiscardedFault = (fixture: Fixture, fault: Error): void => {
+  expect(fixture.errors).toHaveLength(1);
+  expect(fixture.errors[0]).toBeInstanceOf(DraggableWarning);
+  expect((fixture.errors[0] as DraggableWarning).message).toBe(
+    'drag: failure/superseded-by-destruction',
+  );
+  expect((fixture.errors[0] as DraggableWarning).cause).toBe(fault);
+};
 
 describe.each([
   ['sortable', buildSortable],
@@ -389,23 +421,24 @@ describe.each([
     ]);
   });
 
-  it('should report nothing when onStart requests destruction and then throws', async () => {
-    // (i) The throw registers a checkpoint in the interval, and destruction
-    // discards it at the unit's boundary, unapplied. The promise exists only if
-    // the slot ran.
+  it('should warn once and end nothing when onStart requests destruction and then throws', async () => {
+    // (i) The throw registers a checkpoint in the interval. Destruction discards
+    // the checkpoint's claim at the unit's boundary, and the fault still arrives.
+    const boom = new Error('boom');
     let destroyed!: Promise<void>;
     const fixture = build({
       plain: true,
       onStart: (self) => {
         destroyed = self.controller.requestDestroy();
-        throw new Error('boom');
+        throw boom;
       },
     });
 
     activate(fixture);
 
     await expect(destroyed).resolves.toBeUndefined();
-    expect(fixture.log).toEqual([]);
+    expectOneDiscardedFault(fixture, boom);
+    expect(fixture.log).toEqual(['onError']);
   });
 
   it('should report and end the operation when onStart throws with no request', async () => {
@@ -428,18 +461,99 @@ describe.each([
     );
     expect((fixture.errors[0] as DraggableError).cause).toBe(boom);
   });
+
+  it('should deliver one error and no warning when onError requests destruction for an applied failure', async () => {
+    // (s), public half. The checkpoint applied, so its fault is the error: what
+    // onError requests discards what follows it, and owes nothing for it.
+    const fixture = build({
+      plain: true,
+      onStart: () => {
+        throw new Error('boom');
+      },
+      onErrorDelivered: (self) => {
+        void self.controller.requestDestroy();
+      },
+    });
+
+    activate(fixture);
+    await settled();
+
+    expect(fixture.errors).toHaveLength(1);
+    expect(fixture.errors[0]).toBeInstanceOf(DraggableError);
+    expect(fixture.log).toEqual(['onError']);
+  });
+
+  it('should warn once and end nothing when the round-trip slot requests destruction and then throws', async () => {
+    // (v) The throw is a rejected settlement, with no checkpoint until its entry
+    // applies. The counter shows the slot ran.
+    const boom = new Error('boom');
+    let ran = 0;
+    const fixture = build({
+      plain: true,
+      onResolve: (self) => {
+        ran += 1;
+        void self.controller.requestDestroy();
+        throw boom;
+      },
+    });
+
+    drop(fixture);
+    await settled();
+
+    expect(ran).toBe(1);
+    expectOneDiscardedFault(fixture, boom);
+    expect(fixture.log).toEqual(['onError']);
+  });
+
+  it('should report and end the operation when the round-trip slot throws with no request', async () => {
+    // (v)'s control: the same throw, applied.
+    const fixture = build({
+      plain: true,
+      onResolve: () => {
+        throw new Error('boom');
+      },
+    });
+
+    drop(fixture);
+    await settled();
+
+    expect(fixture.errors[0]).toBeInstanceOf(DraggableError);
+    expect(fixture.log).toEqual(['onError', 'onEnd canceled']);
+  });
+
+  it('should warn after onEnd when onEnd requests destruction and then throws', async () => {
+    // (z) The terminal was already delivered, so the fault follows it.
+    const boom = new Error('boom');
+    const fixture = build({
+      plain: true,
+      onEnd: (self) => {
+        void self.controller.requestDestroy();
+        throw boom;
+      },
+    });
+
+    drop(fixture);
+    await settled();
+
+    expectOneDiscardedFault(fixture, boom);
+    expect(fixture.log.map((entry) => entry.split(' ')[0])).toEqual([
+      'onEnd',
+      'onError',
+    ]);
+  });
 });
 
 describe('diagnostic intake in the free drag, past activation', () => {
-  it('should report nothing when onMove requests destruction and then throws', async () => {
+  it('should warn once and end nothing when onMove requests destruction and then throws', async () => {
     // (j) As (i), from the unit that delivers a sample. Free drag only: sortable
-    // has no `onMove` slot. The promise exists only if the slot ran.
+    // has no `onMove` slot.
+    const boom = new Error('boom');
     let destroyed!: Promise<void>;
     const fixture = buildFreeDrag({
       plain: true,
       onMove: (self) => {
         destroyed = self.controller.requestDestroy();
-        throw new Error('boom');
+        throw boom;
       },
     });
 
@@ -447,6 +561,7 @@ describe('diagnostic intake in the free drag, past activation', () => {
     pointer(document, 'pointermove', 60);
 
     await expect(destroyed).resolves.toBeUndefined();
-    expect(fixture.log).toEqual([]);
+    expectOneDiscardedFault(fixture, boom);
+    expect(fixture.log).toEqual(['onError']);
   });
 });

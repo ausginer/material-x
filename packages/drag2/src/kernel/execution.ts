@@ -1,3 +1,4 @@
+import { FAILED, RESOLUTION_SETTLED } from './actions.ts';
 import { ActionQueue } from './queue.ts';
 
 /** The lifecycle request's three states, in the only order they are reached. */
@@ -10,12 +11,14 @@ const CLOSED = 2;
  * run-to-completion drain, the unit boundary at which a request is applied,
  * and teardown.
  *
- * **It names nothing the kernel models.** No frame, operation, spec or DOM
+ * **It holds nothing the kernel models.** No frame, operation, spec or DOM
  * node, and it invokes no slot the consumer filled — every consumer-visible act
- * stays behind the callbacks it is constructed with. That is what
- * makes the entity safe to hold the lifecycle request: the datum every liveness
- * rule is indexed on is owned by the thing that can state its own invariant,
- * and the storage under it keeps owning none.
+ * stays behind the callbacks it is constructed with, or behind the report a
+ * queued entry carries. It knows which two tags owe a report when their entry
+ * is discarded, and nothing about what they mean. That is what makes the entity
+ * safe to hold the lifecycle request: the datum every liveness rule is indexed
+ * on is owned by the thing that can state its own invariant, and the storage
+ * under it keeps owning none.
  *
  * A *unit* is one synchronous entry into kernel code from outside it:
  * construction, a native ingress pass, one queued action. **Units do not
@@ -28,8 +31,8 @@ const CLOSED = 2;
 export class ExecutionBracket {
   /**
    * Pending work. The storage iterates and decides nothing; the bracket
-   * supplies every semantic it deliberately has none of, including when a
-   * drain stops.
+   * supplies every semantic it deliberately has none of, including what becomes
+   * of an entry once destruction is requested.
    */
   readonly #queue = new ActionQueue();
 
@@ -62,12 +65,24 @@ export class ExecutionBracket {
    *
    * The lifecycle request is read before each action, the first entry of a
    * drain included, and never inside one. A destruction requested by an action
-   * therefore lets that action finish and stops the drain at the next entry,
-   * which is the boundary at which the request is applied.
+   * therefore lets that action finish, and the next entry is the boundary: from
+   * there on nothing is handled, and the request is applied when the drain ends.
+   *
+   * **A discarded entry still owes the fault it carries.** Destruction refuses a
+   * failure's claim on the operation and not the fault, so the walk goes on to
+   * the end of the queue and calls the report on each `FAILED` entry and each
+   * rejected `RESOLUTION_SETTLED` entry, in FIFO order. The controller is still
+   * unapplied, so the report passes the refusal while native ingress stays
+   * refused, and what it dispatches is appended and walked past. The tag decides
+   * because `ERROR_REPORTED` queues the same record, its fault already delivered.
    */
   readonly #step = (action: number, argument: unknown): boolean => {
     if (this.#lifecycle !== LIVE) {
-      return false;
+      if (action === FAILED || action === RESOLUTION_SETTLED) {
+        (argument as { discard?(): void }).discard?.();
+      }
+
+      return true;
     }
 
     this.#handle(action, argument);
@@ -158,7 +173,8 @@ export class ExecutionBracket {
    * hold only preconditions of the call on its own side.
    *
    * The drain after admission is unconditional. When admission requested
-   * destruction it handles nothing, because its step declines the first entry.
+   * destruction it handles nothing, because its step handles no entry from the
+   * first on.
    */
   runIngress(admit: () => void): void {
     if (!this.idle) {

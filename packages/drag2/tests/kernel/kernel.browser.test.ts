@@ -5187,28 +5187,6 @@ describe('the execution bracket', () => {
  * follows the unit's boundary, or the entry of a later unit.
  */
 describe('requests at unit boundaries', () => {
-  it('should deliver nothing for a checkpoint registered before destruction is requested', () => {
-    // R33 (l). `fail` registers and queues the checkpoint, and the request made
-    // after it in the same unit stops the drain before that entry: application
-    // clears the queue with the checkpoint unapplied.
-    const harness: Harness = createHarness({
-      moved(): void {
-        harness.kernel.fail(FAILURE_RENDERER_WRITE, new Error('write failed'));
-        void harness.kernel.requestDestroy();
-      },
-    });
-
-    activate(harness);
-    harness.reports.length = 0;
-    expect(applied(harness.kernel)).toBe(false);
-
-    move(60, 10);
-
-    expect(applied(harness.kernel)).toBe(true);
-    expect(harness.reports).toEqual([]);
-    expect(harness.settlements).toEqual([]);
-  });
-
   it('should publish an admission whose admit requested destruction and tear it down after', () => {
     // R1's admission half. Admission publishes `PENDING` unconditionally, and
     // destruction is applied when the admission pass ends, so the operation it
@@ -5623,6 +5601,417 @@ describe('a cancel held at activation’s entry', () => {
     press(harness.item);
     move(40, 10);
     expect(harness.calls).toContain('activation.effect');
+  });
+});
+
+/**
+ * **A fault destruction discards** (R33 (l) to (y)). Destruction refuses a
+ * failure's claim on the operation and not the fault, so each discarded carrier
+ * reports once, in queue order, while the controller is still unapplied. A fault
+ * already delivered, and one a panic or application leaves behind, owes nothing.
+ */
+describe('a fault destruction discards', () => {
+  const SUPERSEDED = 'drag: failure/superseded-by-destruction';
+  const FIRST = new Error('first');
+  const SECOND = new Error('second');
+
+  /** Each delivery, as its message and its cause. */
+  const delivered = (harness: Harness): Array<[string, unknown]> =>
+    harness.reports.map((report) => [report.message, report.cause]);
+
+  /** A settlement seam whose application requests destruction. */
+  const destroyingSettlement = (
+    harness: () => Harness,
+  ): SpecOverrides['settlement'] => ({
+    prepare(_draft, input): PreparedSettlement {
+      harness().settlements.push(input);
+      void harness().kernel.requestDestroy();
+      return true;
+    },
+    effect(): void {},
+  });
+
+  it('should warn for a checkpoint registered before destruction is requested', () => {
+    // (l)
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        void harness.kernel.requestDestroy();
+      },
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    expect(applied(harness.kernel)).toBe(false);
+
+    move(60, 10);
+
+    expect(harness.reports[0]).toBeInstanceOf(DraggableWarning);
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(harness.settlements).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should warn for a checkpoint registered after destruction is requested', () => {
+    // (m)
+    const harness: Harness = createHarness({
+      moved(): void {
+        void harness.kernel.requestDestroy();
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+      },
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    move(60, 10);
+
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(harness.settlements).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should warn for discarded checkpoints in registration order', () => {
+    // (n)
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        void harness.kernel.requestDestroy();
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, SECOND);
+      },
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    move(60, 10);
+
+    expect(delivered(harness)).toEqual([
+      [SUPERSEDED, FIRST],
+      [SUPERSEDED, SECOND],
+    ]);
+  });
+
+  it('should deliver the warning after the unit and before application, with ingress refused', async () => {
+    // (o)
+    const order: string[] = [];
+    let destroyed!: Promise<void>;
+    const harness: Harness = createHarness({
+      moved(): void {
+        order.push('seam start');
+        destroyed = harness.kernel.requestDestroy();
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        order.push('seam end');
+      },
+      reportError(error): void {
+        const admissions = harness.calls.filter((call) => call === 'admit');
+
+        order.push(error.message, `applied ${applied(harness.kernel)}`);
+        press(harness.item);
+        order.push(
+          `admitted ${
+            harness.calls.filter((call) => call === 'admit').length -
+            admissions.length
+          }`,
+        );
+      },
+      retire(): void {
+        order.push('retire');
+      },
+    });
+
+    activate(harness);
+    order.length = 0;
+    move(60, 10);
+
+    expect(order).toEqual([
+      'seam start',
+      'seam end',
+      SUPERSEDED,
+      'applied false',
+      'admitted 0',
+      'retire',
+    ]);
+    await expect(destroyed).resolves.toBeUndefined();
+  });
+
+  it('should drop what the delivered report requests and retire once', () => {
+    // (p)
+    const reports: Array<[string, unknown]> = [];
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        void harness.kernel.requestDestroy();
+      },
+      reportError(error): void {
+        reports.push([error.message, error.cause]);
+
+        if (reports.length === 1) {
+          void harness.kernel.requestDestroy();
+          harness.controller.requestCancel('from the report');
+          harness.kernel.dispatch(0, null);
+          harness.kernel.fail(FAILURE_RENDERER_WRITE, SECOND);
+        }
+      },
+    });
+
+    activate(harness);
+    harness.calls.length = 0;
+    reports.length = 0;
+    move(60, 10);
+
+    expect(reports).toEqual([
+      [SUPERSEDED, FIRST],
+      ['drag: seam/fail-outside-seam', SECOND],
+    ]);
+    expect(
+      harness.calls.filter(
+        (call) =>
+          call.startsWith('action') ||
+          call.startsWith('settlement') ||
+          call === 'finalized',
+      ),
+    ).toEqual([]);
+    expect(harness.calls.filter((call) => call === 'retire')).toHaveLength(1);
+  });
+
+  it('should absorb a throw from the report and go on to the next fault', () => {
+    // (q)
+    const reports: Array<[string, unknown]> = [];
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, SECOND);
+        void harness.kernel.requestDestroy();
+      },
+      reportError(error): void {
+        reports.push([error.message, error.cause]);
+        throw new Error('from onError');
+      },
+    });
+
+    activate(harness);
+    harness.calls.length = 0;
+    reports.length = 0;
+    move(60, 10);
+
+    expect(reports).toEqual([
+      [SUPERSEDED, FIRST],
+      [SUPERSEDED, SECOND],
+    ]);
+    expect(harness.calls.filter((call) => call === 'retire')).toHaveLength(1);
+  });
+
+  it('should report destruction and not a cancel held before the checkpoint', () => {
+    // (r), cancel first.
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.controller.requestCancel('held');
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        void harness.kernel.requestDestroy();
+      },
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    move(60, 10);
+
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(harness.settlements).toEqual([]);
+  });
+
+  it('should report destruction and not a cancel held after the checkpoint', () => {
+    // (r), failure first.
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        harness.controller.requestCancel('held');
+        void harness.kernel.requestDestroy();
+      },
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    move(60, 10);
+
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(harness.settlements).toEqual([]);
+  });
+
+  it('should not warn for a checkpoint whose own settlement requests destruction', () => {
+    // (s), kernel half. It applied, and `ERROR_REPORTED` queues the same record.
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+      },
+      settlement: destroyingSettlement(() => harness),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    harness.calls.length = 0;
+    move(60, 10);
+
+    expect(harness.settlements).toHaveLength(1);
+    expect(harness.reports).toEqual([]);
+    expect(harness.calls).not.toContain('finalized');
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should warn only for the checkpoint behind one that applied and requested destruction', () => {
+    // (t)
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, SECOND);
+      },
+      settlement: destroyingSettlement(() => harness),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    move(60, 10);
+
+    expect(harness.settlements).toHaveLength(1);
+    expect(delivered(harness)).toEqual([[SUPERSEDED, SECOND]]);
+  });
+
+  it('should deliver only the panic when a panic discards a checkpoint', () => {
+    // (u) The action queues `[MOVE, FAILED]` behind itself, and the selection
+    // stub throws at the crossing `MOVE` makes.
+    const reports: Array<DraggableError | DraggableWarning> = [];
+    const readings: boolean[] = [];
+    const harness: Harness = createHarness({
+      action: {
+        prepare(): {} | null {
+          move(40, 10);
+          harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+          return true;
+        },
+        effect(): void {},
+      },
+      reportError(error): void {
+        reports.push(error);
+        readings.push(applied(harness.kernel));
+      },
+    });
+
+    press(harness.item);
+    harness.calls.length = 0;
+
+    const selection = window.getSelection;
+
+    window.getSelection = (): never => {
+      throw new Error('platform');
+    };
+
+    try {
+      harness.kernel.dispatch(0, null);
+    } finally {
+      window.getSelection = selection;
+    }
+
+    expect(reports).toHaveLength(1);
+    expect(reports[0]).toBeInstanceOf(DraggableError);
+    expect((reports[0] as DraggableError).stage).toBeNull();
+    expect(readings).toEqual([true]);
+    expect(harness.calls.filter((call) => call === 'retire')).toHaveLength(1);
+  });
+
+  it('should warn for a round-trip that requests destruction and then throws', () => {
+    // (w), a synchronous throw.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        void harness.kernel.requestDestroy();
+        throw FIRST;
+      }),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(harness.settlements).toEqual([]);
+  });
+
+  it('should warn for a round-trip that requests destruction and then rejects inside then', () => {
+    // (w), a thenable rejecting synchronously.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        void harness.kernel.requestDestroy();
+        return {
+          then(_fulfil: unknown, reject: (error: unknown) => void): void {
+            reject(FIRST);
+          },
+        };
+      }),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(harness.settlements).toEqual([]);
+  });
+
+  it('should deliver nothing for a rejection after a round-trip already fulfilled', () => {
+    // (x), the first completion latches.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        void harness.kernel.requestDestroy();
+        return {
+          then(
+            fulfil: (value: unknown) => void,
+            reject: (error: unknown) => void,
+          ): void {
+            fulfil('value');
+            reject(FIRST);
+          },
+        };
+      }),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(harness.reports).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should deliver nothing for a round-trip that requests destruction and returns a value', () => {
+    // (x), no fault at all.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        void harness.kernel.requestDestroy();
+        return 'value';
+      }),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(harness.reports).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should deliver nothing for a rejection arriving after application', async () => {
+    // (y) The attempt slot is empty by then, so the rejection is never queued.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        void harness.kernel.requestDestroy();
+        return Promise.reject(FIRST);
+      }),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+    await flush();
+
+    expect(harness.reports).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
   });
 });
 

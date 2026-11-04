@@ -1,6 +1,11 @@
 import v8 from 'node:v8';
 import vm from 'node:vm';
 import { describe, expect, it, vi } from 'vitest';
+import {
+  ERROR_REPORTED,
+  FAILED,
+  RESOLUTION_SETTLED,
+} from '../../src/kernel/actions.ts';
 import { ExecutionBracket } from '../../src/kernel/execution.ts';
 
 /**
@@ -366,6 +371,80 @@ describe('the execution bracket', () => {
     });
 
     expect([harness.seen, harness.teardowns]).toEqual([[], 1]);
+  });
+
+  it('should report the fault entries behind a requested destruction in FIFO order and handle nothing', () => {
+    // (B1) A settlement with no fault carries no report, and `ERROR_REPORTED`
+    // carries a record whose fault was already delivered.
+    const reported: string[] = [];
+    const entry = (name: string): Readonly<{ discard(): void }> => ({
+      discard(): void {
+        reported.push(name);
+      },
+    });
+    const harness = createHarness((bracket, action) => {
+      if (action === 1) {
+        void bracket.requestClose();
+      }
+    });
+
+    harness.bracket.runIngress(() => {
+      harness.bracket.dispatch(1, null);
+      harness.bracket.dispatch(FAILED, {
+        discard(): void {
+          reported.push('checkpoint');
+          harness.bracket.dispatch(FAILED, entry('appended'));
+        },
+      });
+      harness.bracket.dispatch(2, null);
+      harness.bracket.dispatch(RESOLUTION_SETTLED, entry('rejection'));
+      harness.bracket.dispatch(RESOLUTION_SETTLED, {});
+      harness.bracket.dispatch(ERROR_REPORTED, entry('delivered'));
+    });
+
+    expect(reported).toEqual(['checkpoint', 'rejection', 'appended']);
+    expect(harness.seen).toEqual([1]);
+  });
+
+  it('should not report an entry handled before destruction was requested', () => {
+    // (B2)
+    const reported: string[] = [];
+    const entry = (name: string): Readonly<{ discard(): void }> => ({
+      discard(): void {
+        reported.push(name);
+      },
+    });
+    const harness = createHarness((bracket) => {
+      void bracket.requestClose();
+    });
+
+    harness.bracket.runIngress(() => {
+      harness.bracket.dispatch(FAILED, entry('handled'));
+      harness.bracket.dispatch(FAILED, entry('discarded'));
+    });
+
+    expect(harness.seen).toEqual([FAILED]);
+    expect(reported).toEqual(['discarded']);
+  });
+
+  it('should call no report for a fault entry behind a panic', () => {
+    // (B3)
+    let reported = 0;
+    const harness = createHarness(() => {
+      throw new Error('invariant');
+    });
+
+    harness.bracket.runIngress(() => {
+      harness.bracket.dispatch(1, null);
+      harness.bracket.dispatch(FAILED, {
+        discard(): void {
+          reported += 1;
+        },
+      });
+    });
+
+    expect(harness.panics).toHaveLength(1);
+    expect(reported).toBe(0);
   });
 
   it('should tear down once however often destruction is requested', () => {

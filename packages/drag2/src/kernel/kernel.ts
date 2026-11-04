@@ -133,10 +133,15 @@ export type PointerCoordinates = Readonly<{
  * `completed` records only that the resolver produced a result at all. The
  * guarded abort keys off `completed`, because keying it off the payload would
  * abort a finished resolver's own signal.
+ *
+ * `discard` reports the rejection if destruction discards the queued entry. It
+ * exists only on a rejection that won the first-completion latch, so a settlement
+ * with no fault allocates nothing for it and reports nothing.
  */
 type ResolutionAttempt = {
   completed: boolean;
   settlement: SettlementInput | null;
+  discard?(): void;
 };
 
 /**
@@ -258,7 +263,10 @@ type ActivationRecord = Readonly<{
   visualSpace: InheritedSpace;
 }>;
 
-/** The queued classified failure. One object per failure — not a hot path. */
+/**
+ * The queued classified failure. One object and one closure per failure — not a
+ * hot path.
+ */
 type FailureCheckpoint = Readonly<{
   stage: FailureStage;
   error: unknown;
@@ -270,6 +278,12 @@ type FailureCheckpoint = Readonly<{
    * that raised it.
    */
   superseded: boolean;
+  /**
+   * Reports the fault if destruction discards this entry. Destruction refuses
+   * the checkpoint's claim on the operation, and the fault is still delivered.
+   * The execution bracket calls it, by tag, and nothing else does.
+   */
+  discard(): void;
 }>;
 
 /**
@@ -740,6 +754,10 @@ class ArmedController<Part extends object, Activation extends {}> {
    * cannot hold would cost the distinction that matters here — a panicked
    * controller and a failed `requestAnimationFrame` would become
    * indistinguishable to a consumer.
+   *
+   * **A checkpoint a panic discards stays silent, by route.** The throw leaves
+   * the drain, so the walk that reports a discarded fault never reaches the
+   * entries behind it, and this one report is all a panic delivers.
    */
   panic(error: unknown): void {
     // **The one diagnostic delivered after application**: the diagnosis.
@@ -857,6 +875,13 @@ class ArmedController<Part extends object, Activation extends {}> {
       error,
       operation: identity,
       superseded: live.cancelRequest !== null,
+      discard: (): void => {
+        this.report(
+          new DraggableWarning('drag: failure/superseded-by-destruction', {
+            cause: error,
+          }),
+        );
+      },
     } satisfies FailureCheckpoint);
   }
 
@@ -1726,7 +1751,10 @@ class ArmedController<Part extends object, Activation extends {}> {
    *
    * **Attempt identity alone.** Applied destruction retires the attempt slot,
    * so a late settlement after it finds no slot; one inside a unit that
-   * requested destruction is queued, and application discards it.
+   * requested destruction is queued, and application discards it. A rejection
+   * discarded that way has no checkpoint yet, so it carries its own report, built
+   * only once it has won the latch: the first completion is the only one the
+   * operation could have seen.
    */
   #settleResolution(attempt: ResolutionAttempt, input: SettlementInput): void {
     if (attempt.completed || this.#attempts.resolution !== attempt) {
@@ -1735,6 +1763,17 @@ class ArmedController<Part extends object, Activation extends {}> {
 
     attempt.completed = true;
     attempt.settlement = input;
+
+    if (input.type === SETTLED_REJECTED) {
+      attempt.discard = (): void => {
+        this.report(
+          new DraggableWarning('drag: failure/superseded-by-destruction', {
+            cause: input.error,
+          }),
+        );
+      };
+    }
+
     this.#bracket.dispatch(RESOLUTION_SETTLED, attempt);
   }
 
@@ -2555,9 +2594,10 @@ export class Kernel<
    * one entity that states their invariants. `#private`, so the kernel's
    * public surface is unchanged by holding it.
    *
-   * Its four callbacks are the only edges back into the kernel, and each is
-   * allocated once per controller: the per-action and per-sample paths through
-   * the bracket allocate nothing. `handle`, `panic` and `beginPass` reach the
+   * Its four callbacks and the report a discarded fault entry carries are the
+   * only edges back into the kernel. Each callback is allocated once per
+   * controller, and a report only on a failure path, so the per-action and
+   * per-sample paths through the bracket allocate nothing. `handle`, `panic` and `beginPass` reach the
    * armed controller, which exists whenever they run: the bracket drains and
    * admits ingress only after construction published it, and a construction
    * that fails clears the queue before anything is drained.
