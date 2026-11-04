@@ -1,0 +1,57 @@
+
+## 980cc0053 -> cfed5f9da: file set equal true, files 62, textually changed 1
+textual: sortable/spec.ts
+comment-stripped changed: (none)
+
+## 3ff2d2acf -> cfed5f9da: file set equal true, files 62, textually changed 8
+### packages/drag2/src/kernel/kernel.ts
+@@ -452,3 +452,3 @@ class ArmedController {
+-                this.report(new DraggableWarning('drag: failure/superseded-by-destruction', {
+-                    cause: input.error,
+-                }));
++                this.report(new DraggableWarning(this.#attempts.resolution === attempt
++                    ? 'drag: failure/superseded-by-destruction'
++                    : 'drag: failure/superseded-by-cancel', { cause: input.error }));
+@@ -602,0 +603 @@ class ArmedController {
++            attempt.discard?.();
+
+textual: drag.ts free-drag/config.ts free-drag/controller.ts kernel/execution.ts kernel/kernel.ts kernel/spec.ts sortable/config.ts sortable/spec.ts
+comment-stripped changed: kernel/kernel.ts
+
+## e2aabaf3b -> cfed5f9da: file set equal true, files 62, textually changed 8
+### packages/drag2/src/kernel/execution.ts
+@@ -0,0 +1 @@
++import { FAILED, RESOLUTION_SETTLED } from './actions.ts';
+@@ -17 +18,4 @@ export class ExecutionBracket {
+-            return false;
++            if (action === FAILED || action === RESOLUTION_SETTLED) {
++                argument.discard?.();
++            }
++            return true;
+
+### packages/drag2/src/kernel/kernel.ts
+@@ -151,0 +152,5 @@ class ArmedController {
++            discard: () => {
++                this.report(new DraggableWarning('drag: failure/superseded-by-destruction', {
++                    cause: error,
++                }));
++            },
+@@ -444,0 +450,7 @@ class ArmedController {
++        if (input.type === SETTLED_REJECTED) {
++            attempt.discard = () => {
++                this.report(new DraggableWarning(this.#attempts.resolution === attempt
++                    ? 'drag: failure/superseded-by-destruction'
++                    : 'drag: failure/superseded-by-cancel', { cause: input.error }));
++            };
++        }
+@@ -590,0 +603 @@ class ArmedController {
++            attempt.discard?.();
+
+textual: drag.ts free-drag/config.ts free-drag/controller.ts kernel/execution.ts kernel/kernel.ts kernel/spec.ts sortable/config.ts sortable/spec.ts
+comment-stripped changed: kernel/execution.ts kernel/kernel.ts
+
+## members
+ExecutionBracket 21 eq db3c402a4 true eq e2aabaf3b true
+ArmedController 75 eq db3c402a4 true eq e2aabaf3b true
+Kernel 15 eq db3c402a4 true eq e2aabaf3b true
+ActionQueue 4 eq db3c402a4 true eq e2aabaf3b true

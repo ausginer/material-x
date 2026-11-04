@@ -1,6 +1,6 @@
 # Discarded failures: the implementation record (D-209)
 
-> **Implemented and remediated 2026-11-04, not accepted.** The independent review ran at `3ff2d2acf` and was disposed by §33 of the handoff. [The remediation](#the-remediation-33) is below. This record stops for §33.12's fresh, delta-only `reviewer` recheck, and architect acceptance follows it. D-209's marker and row, F-446 and F-448 are untouched, so `decisions.node`'s witness row is red by design until then.
+> **Accepted 2026-11-04 at src tree `f6172d3be770c3f37ea0a1d723960ace05d61c9b`, over `dd4023c0d`** ([`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §34). D-209's marker and row are gone, and F-446 and F-448 are closed. [The acceptance's readings](#the-acceptance-34) are below. **The suite is not clean:** RF-24, RF-25 and F-447 stay open as gates before the merge. The sections above that one keep what was read when they were written.
 
 **Canonical entry: `drag2:D-209`,** with its amendment for rejected settlements. The handoff is [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §32.5 to §32.8, and §33.8 to §33.11 for the remediation.
 
@@ -118,7 +118,7 @@ Run once, at `448ce5015` with this record's file and the README correction in th
 - `docs.node`: _should resolve every reference a public type makes_, and the closure rows for the kernel, ordinary and free-drag tiers (RF-24).
 - `tests/sortable/react.browser.test.ts` and `stories.browser.test.ts` do not load (RF-25).
 
-**`consumer.node`'s sourcemap row passed,** so F-447 did not recur in this run. All six `size.node` control rows pass. At the input the same suite read 1,431 pass, 4 fail and 68 skipped, of 1,503, with the four `docs.node` rows and the same two files.
+**`consumer.node`'s sourcemap row passed,** so F-447 did not recur in this run. ~~All six~~ All seven `size.node` control rows pass (count corrected 2026-11-04, handoff §34.3; the result stands). At the input the same suite read 1,431 pass, 4 fail and 68 skipped, of 1,503, with the four `docs.node` rows and the same two files.
 
 **Finalizing.**
 
@@ -155,7 +155,7 @@ Run once, at `448ce5015` with this record's file and the README correction in th
 | `a815493a7` | Step 2: five control figures and their [`budget-rebases.md`](budget-rebases.md) entry |
 | This record's commit | Step 3: this section and the [mutation readings](../probes/d209-implementation/remediation-mutations.txt) |
 
-**The new `src/` tree is `779b4b0f5d3a04610b7cdb8edba306fc7520d2ef`.** Steps 2 and 3 do not change it.
+**The new `src/` tree is `779b4b0f5d3a04610b7cdb8edba306fc7520d2ef`.** Steps 2 and 3 do not change it. **The owner's `cfed5f9da` adds one comment line, so the accepted tree is `f6172d3be770c3f37ea0a1d723960ace05d61c9b`.** The comment-stripped diff between the two is empty.
 
 ### The mechanism
 
@@ -180,7 +180,7 @@ Every row of §33.9 is in place, cited by title in `tests/COVERAGE.md`, and has 
 
 **Two spellings to read.**
 
-- **(ae) returns `Promise.reject` from a slot that is not `async`,** as (y) does, because `require-await` refuses an `async` function with no `await`. An `async` slot that throws returns the same rejected promise. The disposition's probe drove the `async` spelling.
+- **(ae) returns `Promise.reject` from a slot that is not `async`,** as (y) does, because `require-await` refuses an `async` function with no `await`. An `async` slot that throws returns the same rejected promise. The disposition's probe drove the `async` spelling. **Accepted as discharging (ae), handoff §34.4.**
 - **The fixture's `onResolve` now returns the slot's value,** so a row can return that promise. Returning nothing still accepts.
 
 **§33.9's _Input tree_ column reproduced exactly, with one substitution.** `INPUT` below takes out the two hunks, which gives `db3c402a4`'s behavior under the landed rows. It reddens (ab) and (ac) in both behaviors, (al) and (am), and nothing else. The rows did not run on the tree `db3c402a4` itself.
@@ -244,12 +244,12 @@ Run once, at `a815493a7` with the mutation readings in the working tree: **1,475
 - `docs.node`: _should resolve every reference a public type makes_, and the closure rows for the kernel, ordinary and free-drag tiers (RF-24).
 - `tests/sortable/react.browser.test.ts` and `stories.browser.test.ts` do not load (RF-25).
 
-**`consumer.node`'s sourcemap row passed,** so F-447 did not recur in this run. All six `size.node` control rows pass.
+**`consumer.node`'s sourcemap row passed,** so F-447 did not recur in this run. ~~All six~~ All seven `size.node` control rows pass (count corrected 2026-11-04, handoff §34.3; the result stands). **It did recur at `cfed5f9da`,** in the recheck's run, as the acceptance section states.
 
 ### Finalizing
 
 - `just typecheck` reports only the two `.scripts/` errors (RF-24).
-- **§33.11's _lint must report none_ is not met, by one error that was not introduced here.** `src/sortable/spec.ts:1289` reports `consistent-return` on `prepareSettlement`. That file joined the changed set only through §33.8's comment hunk, and the same error reads at line 1286 on the file at `302ab0a37`. §33.6 says `handoff.md`'s _list it, do not resolve it by hand_ still governs any other lint error, and §33.8 allows no code hunk there, so it is listed and left. **The architect decides it.**
+- **§33.11's _lint must report none_ is not met, by one error that was not introduced here.** `src/sortable/spec.ts:1289` reports `consistent-return` on `prepareSettlement`. That file joined the changed set only through §33.8's comment hunk, and the same error reads at line 1286 on the file at `302ab0a37`. §33.6 says `handoff.md`'s _list it, do not resolve it by hand_ still governs any other lint error, and §33.8 allows no code hunk there, so it is listed and left. **The architect decides it.** **Resolved 2026-11-04, handoff §34.2:** the owner's `cfed5f9da` suppresses it, and §33.11's _none_ holds at the accepted tree.
 - §33.6's two `unbound-method` lines carry the directed comment, and neither reports now.
 - `README.md`, `tests/COVERAGE.md` and the records are ignored by the linters, and `oxfmt` wrote them.
 
@@ -266,12 +266,31 @@ Run once, at `a815493a7` with the mutation readings in the working tree: **1,475
 - **§33.2's route was not driven with a real scroll or resize,** and the listener's comment states it by §33.2's reading.
 - **`moveTo`'s _past release_ has no new row.** The published sentence names it, the disposition drove it on the prototype, and (ag) and (ah) cover the other three cases.
 
+## The acceptance (§34)
+
+**Input.** `dd4023c0d`, whose `src/` is `f6172d3be770c3f37ea0a1d723960ace05d61c9b`, the same as the reviewed `cfed5f9da`. Run once each in a private worktree, in Chromium. Readings are in [`probes/d209-acceptance/`](../probes/d209-acceptance/).
+
+| Check | Reading |
+| --- | --- |
+| Comment-stripped diff against `980cc0053` | none |
+| Against `3ff2d2acf` | `kernel.ts` only: the closure and the retired branch |
+| Against `e2aabaf3b` | `execution.ts`: the import and `#step`'s non-`LIVE` branch. `kernel.ts`: `discard`, the closure and the retired branch |
+| Member lists | `ExecutionBracket` 21, `ArmedController` 75, `Kernel` 15, `ActionQueue` 4, identical to both baselines |
+| Declarations against `e2aabaf3b` | 33 files. Four differ in text, and none once comments are stripped |
+| N1 | 314 pass, 37 fail, from 351 and 0, as the record and the recheck read. (k) stays green |
+| The whole suite | **1,475 pass, 5 fail, 68 skipped, of 1,548. 74 of 78 files pass.** Every skipped row is in `tests/perf/` |
+| Typecheck | Only the two `.scripts/` errors |
+| Lint, the 13 changed TypeScript files | None |
+
+**The failing set is the expected one,** before this acceptance's edits: `decisions.node`'s witness row, the four `docs.node` rows, and `react.browser` and `stories.browser` unloadable. The witness row is cleared by this acceptance.
+
+**F-447 did not recur in this one run, and the suite is not clean.** The recheck's run at `cfed5f9da` failed `consumer.node`'s sourcemap row with 32 entries, at this same `src/`. That result stands beside this one, and its 1,474 and 73 files are what that run read.
+
+**A and a3 are not extended (§33.13).** This record makes no claim about regression, cost, A or a3 on this tree. The kernel-tier wrong-label limit above stays not driven.
+
 ## What stays open
 
 | Item | Owner | Required action |
 | --- | --- | --- |
-| One fresh, delta-only `reviewer` recheck | owner starts it | §33.12, next, before acceptance |
-| D-209's acceptance, marker, row, F-446 and F-448 | architect | §32.10, after the recheck |
-| `src/sortable/spec.ts`'s standing `consistent-return` error | architect | Decide it, against §33.11's _none_ |
-| RF-24, RF-25, F-447 | architect's handoff, then the implementer | §32.1 gates 3 to 5, after acceptance. Not repaired here |
+| RF-24, RF-25, F-447 | the implementer, then one recheck, then the architect | handoff §34.9, before the merge |
 | The merge, the terminology phase and the compression pass | as §32.1 states | Not started |

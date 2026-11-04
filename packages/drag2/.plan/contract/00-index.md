@@ -1254,6 +1254,8 @@ Phase 21 opened with four standing obligations that cannot change a decision as 
 
 **Implemented 2026-08-26.** **Decided 2026-08-25.** **one error channel, two error classes: `DraggableError` when the operation's outcome is affected, `DraggableWarning` when it is not, and the platform destination is deleted.** Record [`error-channel-architecture-claude.md`](../reviews/phase-23/error-channel-architecture-claude.md), which traced every `report()`, `guarded()`, `host.fail`, `reportFailure` and `onError` site before the model was fixed. **This generalizes D-49 rather than inventing anything**: that decision already chose channel and tier independently for the quality track — _the channel and the tier are chosen independently here: `onError`, no `REPORTING` phase, no `OUTCOME_FAILED`, terminal callback intact_ — and 02 already states the corollary, _I-29 constrains what a quality failure may **do**, never which channel tells the consumer about it._ **The discriminator is outcome, not effect**, and it must be stated precisely or one reachable site has no home: a fault is consequential when it changes the operation's **terminal result, phase sequence, or settlement**; trajectory, timing and presentation quality are not outcome. `settlement/hold-unavailable` turns an animated landing into a jump cut with an identical terminal, and is therefore a warning. **No current `report()` payload is consequential** — all sixteen become warnings — which is the audit's strongest single result: the platform channel was never carrying a mixed population that needed splitting, it was carrying one kind of thing to the wrong audience. **`panic()` is the exception and is a `DraggableError`**: it destroys the controller, carries no stage, and picks a `code` directly, since that constructor already takes one and `toDraggableError` is only one way to choose it. **`guarded()` survives, narrowed to one rule.** Fourteen of seventeen sites share _the statement after this call is load-bearing_ — D-29 totality, I-19 best-effort LIFO, I-6's terminal `destroy()` — and ten are literal multi-resource releases. The other three leave: two wrap the consumer's `onError` itself and collapse into the channel's own guard, and one native-listener site becomes a local `try`/`catch` where the reason for surviving is entirely local. Its module does not keep the name `reporter.ts`, which names a channel it will no longer own. **The smallest teardown rule is a separation, not a mechanism**: the channel is the only place the library guards a consumer notification, `guarded` the only place it guards an unwind step, and because the channel never throws the fourteen guards stay total without knowing anything about reporting. A throw from the channel is **never** re-notified — that single discard is what makes it non-recursive. **Three seam tiers collapse to two** (`QUALITY` and `BEST_EFFORT` differ in nothing once the channel is single), **`FAILURE_LANDING_TARGET` leaves the union** with `12` becoming a second documented hole beside D-41's `13`, **both `onError` contexts are deleted** as strictly redundant with the terminal D-66 makes unconditional, and `BehaviorSpec.reportFailure` becomes `reportError(error)` with the kernel constructing the public error and the behavior only forwarding it
 
+**Reconciled 2026-11-04 (D-209, record §33.5, §34.5):** a `DraggableWarning` says this fault did not decide the outcome. It says nothing about the terminal: the operation publishes the one it would have without this fault, before or after the warning, and none once destruction has decided it.
+
 **Touches:** generalizes D-49; retires reporter.ts's two-channel premise; needs D-131
 
 #### D-131
@@ -2873,7 +2875,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 - **The outcome stays:** _retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04._ a3 is not a1, not `discharged` and not proof of zero regression. The owner's acceptance sets no tolerance, is no precedent and covers this candidate's code only, and record §28.1's unanswered questions and §27.4's limits stay stated.
 - **Closed:** F-432, F-433, F-434, F-435 and F-441. The `src/` freeze ends here.
-- **Not closed:** D-209 and F-446, which are separate and tier A. D-208 is accepted with that gap until D-209 lands (record §30.5). F-442, F-443, F-445 and D-200's independent acceptance are unchanged.
+- **Not closed:** D-209 and F-446, which are separate and tier A. D-208 is accepted with that gap until D-209 lands (record §30.5). F-442, F-443, F-445 and D-200's independent acceptance are unchanged. **Dated 2026-11-04 (record §34):** D-209 is accepted and F-446 is closed, at a later tree. D-208's outcome above stays on its own tree.
 - **Corrected:** R33 (i) and (k) cover both behaviors, (j) covers free drag and (l) runs through the kernel, because sortable has no `onMove` slot (record §31.3).
 
 **Decided 2026-11-02, on the implementer's escalation during D-207's step 4**, under the record's §17.4 first escalation clause, relayed by the owner. Baseline `9ae86b189`, with step 4 uncommitted. **D-207 in full, except that the behaviors' diagnostics reach the kernel's refusal through a new `BehaviorContext.channel(deliver)`, and the four reads that refused them are replaced rather than deleted.** Supersedes D-207. Raises and repairs F-441. Carries D-207's repair of F-440, D-206's repair of F-439, D-205's decision of F-438, the decisions of F-432 to F-435 and the repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §18. That record's §2.2, §2.5, §3, §5–§9 and §17.4 state the D-208 form and are the handoff.
@@ -2938,7 +2940,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 **The final proof disposed 2026-11-04, over `ab65e92f2`** (record §30). Reviewed at `bd3613d5f`, src tree `c6c5e6ea5`. D-208 is not yet accepted.
 
-- **reviewer-1:** a classified fault on a controller whose destruction is not applied owes a report, and destruction discards only the checkpoint's claim on the operation. D-209 decides this and F-446 carries the gap. It lands as its own unit after this decision's acceptance and does not block it.
+- **reviewer-1:** a classified fault on a controller whose destruction is not applied owes a report, and destruction discards only the checkpoint's claim on the operation. D-209 decides this and F-446 carries the gap. It lands as its own unit after this decision's acceptance and does not block it. **Accepted 2026-11-04** (record §34).
 - **Before acceptance:** one comment-only commit for integrity-1 and integrity-2, the rows R33 (i) to (l) that pin today's outcome, and the new tree recorded (record §30.8). Nothing else prevents it (record §30.9).
 - **The outcome stays:** retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04. The proof tested how the record states them and reopened none of it.
 
@@ -2954,7 +2956,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 - the pre-arm composition unwind is delivered, because the lifecycle cannot be closed before arming;
 - a throwing hook at operation retirement on a live controller is reported as `drag: unwind/step-failed`.
 
-**Reconciled 2026-11-04 (record §30.3):** _every diagnostic_ is on the refusal's axis: it covers every report that reaches the kernel's route or a minted channel. A classified failure's checkpoint is a request (record §2.10), and it becomes a diagnostic only when applied. One that destruction discards reports nothing today, which is F-446, and D-209 decides that it is reported. The first sentence's _baseline_ does not settle that case.
+**Reconciled 2026-11-04 (record §30.3):** _every diagnostic_ is on the refusal's axis: it covers every report that reaches the kernel's route or a minted channel. A classified failure's checkpoint is a request (record §2.10), and it becomes a diagnostic only when applied. ~~One that destruction discards reports nothing today, which is F-446, and D-209 decides that it is reported.~~ **Reconciled at D-209's acceptance, 2026-11-04 (record §34):** one that destruction discards reports once, as a `DraggableWarning`, before application. The first sentence's _baseline_ does not settle that case.
 
 **The refusal is intake, not a reading inside a unit.** It reads whether destruction has been **applied**. Inside construction, an ingress pass or a queued action that is never true: application happens at a boundary, and panic only after the throw has abandoned the unit. Inside applied destruction it is always true. Its answer is therefore constant across every unit, and no request registered during a unit can change it. A refusal that also read a destruction **request** would be a reading inside a unit, and R33's second mutation is that refusal.
 
@@ -2996,7 +2998,15 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 #### D-209
 
-**Unimplemented (Remediation).** **Decided 2026-11-04, on D-208's final proof** (reviewer-1; F-446). Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §30. **A failure checkpoint that destruction discards still reports its fault.** A classified failure carries a claim on the operation and a fault (record §2.10). Destruction's priority discards the claim, as record §2.4, §2.7 and I-22 state. It does not discard the fault.
+**Implemented, 2026-11-04 (Remediation), accepted at src tree `f6172d3be770c3f37ea0a1d723960ace05d61c9b`, over `dd4023c0d`** (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §34). Measurement [`d209-discarded-failures.md`](../measurements/d209-discarded-failures.md).
+
+- **Closed:** F-446 and F-448.
+- **A and a3 are not extended.** Retained heap A, allocation a3 and the owner's acceptance of 2026-11-04 stay on tree `626180a058af7374a68c5544fefc4111eec6003c`, so the accepted tree is not the measured tree. No statistical round ran or is owed. This acceptance says nothing about regression, cost, A or a3 on this tree.
+- **One limit stays unverified.** By reading, a kernel-tier seam that fails and then synchronously rejects the round-trip's thenable in one interval would queue `[FAILED, RESOLUTION_SETTLED]`, and the rejection would carry the cancel's code. The fault is delivered and its label is wrong. Property 1's _whichever request superseded it_ holds subject to that. It was not driven, no row reaches it, and no guard is owed (record §33.14).
+- **Lint:** the owner's suppression at `cfed5f9da` clears the one standing error on `prepareSettlement`, and record §33.11's _none_ holds at this tree (record §34.2).
+- **Not closed:** RF-24, RF-25 and F-447, which are gates before the merge (record §34.9). The suite is not clean until they land.
+
+**Decided 2026-11-04, on D-208's final proof** (reviewer-1; F-446). Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §30. **A failure checkpoint that destruction discards still reports its fault.** A classified failure carries a claim on the operation and a fault (record §2.10). Destruction's priority discards the claim, as record §2.4, §2.7 and I-22 state. It does not discard the fault.
 
 **Required properties:**
 
@@ -3023,7 +3033,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 **Measurement.** Retained heap A, allocation a3 and the owner's acceptance of 2026-11-04 attach to D-208's tree and do not extend to this change (record §28.1, §28.3). It owes composition, its controls under record §29.5 with no ceiling moved, and a comment-stripped diff showing property 6. With that, no statistical round is owed.
 
-**Order and witness.** After D-208's whole-decision acceptance, as its own unit, before Phase 24 exits. Its cases are R33 (i) to (l), which pin today's outcome and change here, and the kernel's two orderings. The measurement record is `.plan/measurements/d209-discarded-failures.md`, and its absence is the witness. Its landing removes F-446's sentence from the README and the dated notes' _today_. **Corrected 2026-11-04 (record §31.3):** of those rows, (i) covers both behaviors and (j) free drag only, because sortable has no `onMove` slot, and (l) runs through the kernel. (k) is the control, a throw with no request, and D-209 does not change it. **Reordered 2026-11-04 by the owner (record §32.1):** D-209 is implemented and accepted on this branch before the merge. **The handoff is record §32.5 to §32.8, and its acceptance is §32.10.** The mechanism is §32.4. It meets property 6, and R21 does not move. **Dated 2026-11-04 (record §33):** implemented at `3ff2d2acf`, tree `db3c402a4`, and independently reviewed, which was required. All six properties as then worded were confirmed. One remediation comes first, at §33.8 to §33.11, then one targeted recheck at §33.12, and acceptance stays §32.10.
+**Order and witness.** After D-208's whole-decision acceptance, as its own unit, before Phase 24 exits. Its cases are R33 (i) to (l), which pin today's outcome and change here, and the kernel's two orderings. The measurement record is `.plan/measurements/d209-discarded-failures.md`, and its absence is the witness. Its landing removes F-446's sentence from the README and the dated notes' _today_. **Corrected 2026-11-04 (record §31.3):** of those rows, (i) covers both behaviors and (j) free drag only, because sortable has no `onMove` slot, and (l) runs through the kernel. (k) is the control, a throw with no request, and D-209 does not change it. **Reordered 2026-11-04 by the owner (record §32.1):** D-209 is implemented and accepted on this branch before the merge. **The handoff is record §32.5 to §32.8, and its acceptance is §32.10.** The mechanism is §32.4. It meets property 6, and R21 does not move. **Dated 2026-11-04 (record §33):** implemented at `3ff2d2acf`, tree `db3c402a4`, and independently reviewed, which was required. All six properties as then worded were confirmed. One remediation comes first, at §33.8 to §33.11, then one targeted recheck at §33.12, and acceptance stays §32.10. **Accepted 2026-11-04 (record §34).** The witness row is gone and the dated notes' _today_ is reconciled.
 
 **Touches:**
 
@@ -3031,7 +3041,8 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 - **F-448:** decides it, by property 1's amendment.
 - **D-40:** unchanged. A rejection arriving after a cancel applied stays consumed.
 - **D-208:** adds a consumer-visible change that D-208 does not make. Supersedes nothing in it.
-- **I-22, I-36, record §2.4:** carry dated notes now.
+- **I-22, I-36, record §2.4:** reconciled at this acceptance (record §34.5).
+- **D-130:** its class rule stands. What a warning implies is reconciled (record §33.5, §34.5).
 - **D-178:** this silence was never among those it grounds, and panic's stays.
 
 ### Decisions not yet implemented
@@ -3045,10 +3056,11 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 Two witness forms, both source-level: `absent: <path>` — the path does not exist — and `present: <path> :: <text>` — the file still contains the thing the decision replaces.
 
 | Decision | Lands | What is missing | Witness |
-| --- | --- | --- | --- |
-| D-209 | Remediation | its acceptance, after record §33's remediation and recheck: a failure checkpoint or rejected settlement that destruction discards reports its fault, and a rejection a cancel superseded reports too. As its own unit, before the merge | absent: `.plan/measurements/d209-discarded-failures.md` |
+| -------- | ----- | --------------- | ------- |
 
-**D-208's row closed on 2026-11-04 with the whole-decision acceptance** (record §31). D-209's row stays.
+**D-209's row closed on 2026-11-04 with its acceptance** (record §34). The table has no rows now.
+
+**D-208's row closed on 2026-11-04 with the whole-decision acceptance** (record §31). ~~D-209's row stays.~~
 
 **D-207's row closed on 2026-11-02 with steps 1–3 accepted.** D-208 superseded it during step 4, adding `BehaviorContext.channel` so that the behaviors' diagnostics keep the kernel's refusal after applied destruction. D-208's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
 
@@ -5868,7 +5880,7 @@ No acceptance is reopened. Earlier figures stand as measured.
 
 **Owner and deadline.** The implementer applies the corrections in protocol M-2″'s harness commit. The architect decides any later estimator before Phase 24 exits.
 
-#### F-446 — a failure checkpoint that destruction discards leaves no report of its fault · open, decided by D-209
+#### F-446 — a failure checkpoint that destruction discards leaves no report of its fault · closed 2026-11-04 with D-209's acceptance
 
 **Tier A. Raised 2026-11-04 from D-208's final proof** (reviewer-1). Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §30.
 
@@ -5878,13 +5890,15 @@ No acceptance is reopened. Earlier figures stand as measured.
 
 **It is not a regression.** The outcome equals `6905af249`'s, for a different reason: there the call closed the controller first, so the silence was I-36 (a)'s. `2c5212daf` moved the two inline routes to reported and left this one.
 
-**Decided by D-209:** one `DraggableWarning` per discarded checkpoint, with the claim still discarded. Rows R33 (i) to (l) pin today's outcome until then.
+**Decided by D-209:** one `DraggableWarning` per discarded checkpoint, with the claim still discarded. ~~Rows R33 (i) to (l) pin today's outcome until then.~~ Those rows now state the delivered outcome.
 
 **Owner and deadline.** The architect hands D-209 off after D-208's whole-decision acceptance, because `src/` is frozen until then, and the implementer lands it before Phase 24 exits. It does not block D-208's acceptance (record §30.5). **Dated 2026-11-04 (record §32):** handed off, and the owner requires its acceptance before the merge.
 
 **Scope corrected 2026-11-04 (record §32.2, §32.3):** sortable's slots past activation are now probed. `onEnd` is this finding as written. `onReorder` and `onDrop` lose the fault the same way through a rejected settlement, which has no checkpoint, and D-209 is amended to cover them.
 
 **Dated 2026-11-04 (record §33):** D-209's independent review confirmed the written properties and found that its walk reports a rejection a cancel had already superseded, under destruction's code. That stops this finding's closing until the remediation lands. A malformed `moveTo` and sortable's listener fault are named silences and do not keep it open.
+
+**Closed 2026-11-04 with D-209's acceptance (record §34),** at src tree `f6172d3be`. A failure checkpoint or rejected settlement that destruction discards reports once, before application, and its fault no longer vanishes. This entry's present tense describes the tree it was raised on.
 
 #### F-447 — `consumer.node`'s sourcemap row can read declarations another test's build has not stripped yet · open, tier C
 
@@ -5900,7 +5914,9 @@ No acceptance is reopened. Earlier figures stand as measured.
 
 **Owner and deadline.** The architect hands it off as its own test-only unit, before Phase 24 exits. It is not D-208's, and it does not block D-208's acceptance. **Dated 2026-11-04 (record §32.1):** booked as a gate before the merge, after D-209's acceptance.
 
-#### F-448 — a rejected settlement a cancel supersedes leaves no report of its fault · open, decided by D-209
+**Dated 2026-11-04 (record §34.8, §34.9):** it recurred at `cfed5f9da`, with 32 entries, in the D-209 recheck's whole-suite run. That is its third recorded failure, and it stays open. This acceptance's three whole-suite runs did not show it, which excludes nothing. It is handed off at record §34.9.
+
+#### F-448 — a rejected settlement a cancel supersedes leaves no report of its fault · closed 2026-11-04 with D-209's acceptance
 
 **Tier A. Raised 2026-11-04 from D-209's feature proof** (reviewer-2). Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §33.4.
 
@@ -5913,6 +5929,8 @@ No acceptance is reopened. Earlier figures stand as measured.
 **Decided by D-209's amended property 1:** one `superseded-by-cancel` warning after the terminal, with or without a later destruction. A rejection arriving after the cancel applied stays consumed.
 
 **Owner and deadline.** The implementer, in record §33.8's remediation. It closes at D-209's acceptance, before the merge.
+
+**Closed 2026-11-04 with D-209's acceptance (record §34),** at src tree `f6172d3be`. The rejection now reports one `superseded-by-cancel` warning after the terminal, with or without a later destruction, subject to D-209's stated kernel-tier limit. This entry's present tense describes the tree it was raised on.
 
 ## What would falsify this model
 

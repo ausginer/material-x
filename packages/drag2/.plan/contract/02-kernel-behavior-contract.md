@@ -368,8 +368,10 @@ type BehaviorSpec<
   /**
    * Forward the finished error to `onError`, and do nothing else (D-130).
    * ~~`reportFailure(stage: FailureStage, error: unknown)`.~~ The kernel builds
-   * the public error and picks its class; a `DraggableWarning` means the
-   * operation was not affected and its terminal still follows.
+   * the public error and picks its class; a `DraggableWarning` means this fault
+   * did not decide the outcome, and says nothing about the terminal: the
+   * operation publishes the one it would have without this fault, before or
+   * after the warning, and none once destruction has decided it (D-209).
    */
   reportError(error: DraggableError | DraggableWarning): void;
 

@@ -1,0 +1,2 @@
+d.ts count 33 33 set equal true textually differing 4 free-drag/config.d.ts free-drag/controller.d.ts kernel/spec.d.ts sortable/config.d.ts | differing after comment strip: none
+js count 52 52 set equal true textually differing 2 kernel/execution.js kernel/kernel.js 

@@ -1,0 +1,39 @@
+## base pass 351 fail 0
+## N1 pass 314 fail 37
+    execution.node › the execution bracket should handle no entry behind an action that requests destruction
+    execution.node › the execution bracket should drain after admission and handle nothing once admission requested destruction
+    execution.node › the execution bracket should report the fault entries behind a requested destruction in FIFO order and handle nothing
+    execution.node › the execution bracket should not report an entry handled before destruction was requested
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when onStart requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should deliver one error and no warning when onError requests destruction for an applied failure
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn for destruction when the round-trip slot holds a cancel and requests destruction
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn after onEnd when onEnd requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when onStart requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should deliver one error and no warning when onError requests destruction for an applied failure
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn for destruction when the round-trip slot holds a cancel and requests destruction
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn after onEnd when onEnd requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag, past activation should warn once and end nothing when onMove requests destruction and then throws
+    anchor.browser › a non-finite moveTo() should report nothing for a malformed move destruction discards
+    kernel.browser › the round-trip unit should open no round-trip for a destroy requested in the release effect
+    kernel.browser › the round-trip unit should open no round-trip for a destroy requested in the release prepare
+    kernel.browser › the round-trip unit should open no round-trip for a destroy requested by an action the release effect dispatched
+    kernel.browser › requests at unit boundaries should finish the join whose anchorTarget requested destruction and retire nothing after it
+    kernel.browser › requests at unit boundaries should apply none of the requests from onStart when destruction follows them
+    kernel.browser › a fault destruction discards should warn for a checkpoint registered before destruction is requested
+    kernel.browser › a fault destruction discards should warn for a checkpoint registered after destruction is requested
+    kernel.browser › a fault destruction discards should warn for discarded checkpoints in registration order
+    kernel.browser › a fault destruction discards should deliver the warning after the unit and before application, with ingress refused
+    kernel.browser › a fault destruction discards should drop what the delivered report requests and retire once
+    kernel.browser › a fault destruction discards should absorb a throw from the report and go on to the next fault
+    kernel.browser › a fault destruction discards should report destruction and not a cancel held before the checkpoint
+    kernel.browser › a fault destruction discards should report destruction and not a cancel held after the checkpoint
+    kernel.browser › a fault destruction discards should not warn for a checkpoint whose own settlement requests destruction
+    kernel.browser › a fault destruction discards should warn only for the checkpoint behind one that applied and requested destruction
+    kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then throws
+    kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then rejects inside then
+    kernel.browser › a fault destruction discards should report destruction for a round-trip that holds a cancel and requests destruction
+    kernel.browser › a fault destruction discards should absorb a throw from a discarded rejection's report
+    kernel.browser › a fault destruction discards should report a rejection the delivered report causes, behind the checkpoint
+    kernel.browser › a fault destruction discards should report once for a rejection whose own settlement requests destruction and rethrows

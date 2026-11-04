@@ -2317,6 +2317,18 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-04 — D-209 accepted at src tree `f6172d3be`, with F-446 and F-448 closed, and verification's restoration handed off
+
+**D-209 is implemented.** Its row and marker are gone, and F-446 and F-448 are closed. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §34. The diff, member lists, declarations, N1 and the whole suite were rerun at the tip. No source changed, and no review round or statistical measurement ran.
+
+**Two items settled.** The owner's suppression at `cfed5f9da` is recorded, and §33.11's _no lint_ holds at the accepted tree. (ae)'s `Promise.reject` spelling discharges the row, because it reaches the kernel as the same rejected promise and two mutations redden both spellings together.
+
+**What this does not say.** A, a3 and the owner's acceptance stay on tree `626180a05`. The kernel-tier wrong-label limit stays not driven.
+
+**The suite is not clean.** Next is record §34.9: RF-24, RF-25 and F-447, then the owner's merge. Scratch readings show what the first two need, and one trap: moving `browser.api` to `test.api` as Vitest's notice says fails 21 CDP rows. F-447 recurred in the recheck and stays open. Terminology, comment reduction and compression stay separate and after the merge.
+
+---
+
 ### 2026-11-04 — D-209's independent review disposed: two silences named, F-448 raised, one remediation before acceptance
 
 **The review confirmed all six written properties and the recorded verification. D-209 is still not accepted.** Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §33.

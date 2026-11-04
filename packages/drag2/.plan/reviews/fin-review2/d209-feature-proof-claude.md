@@ -188,7 +188,7 @@ Every row of §32.6 exists, and each asserts its required outcome. I read each o
 - **All 15 rows** match the record on minified and Brotli bytes, and on modules at the candidate. The _Before_ column matches the input exactly. Module counts do not change.
 - **Slack** matches on every row, and is 49 to 95 B on the thirteen package rows.
 - **`drag.js` stays 142 and baseline B stays 6,916.**
-- **`measure.ts` changes five `control:` values and no budget.** All six `size.node` control rows pass. The interval is that one change, with no manifest or lockfile in the diff.
+- **`measure.ts` changes five `control:` values and no budget.** ~~All six~~ All seven `size.node` control rows pass (count corrected 2026-11-04, [`request-application-claude.md`](../architecture/request-application-claude.md) §34.3; the result stands). The interval is that one change, with no manifest or lockfile in the diff.
 
 ### The whole suite, once
 

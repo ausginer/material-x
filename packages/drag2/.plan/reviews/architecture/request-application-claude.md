@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**D-209 accepted 2026-11-04, over `dd4023c0d` (§34), at src tree `f6172d3be`.** Its row and marker are gone, and F-446 and F-448 are closed. A and a3 stay on tree `626180a05`, and the kernel-tier wrong-label limit stays not driven. RF-24, RF-25 and F-447 are handed off at §34.9 and stay gates before the merge, and the suite is not clean until they land.
+
 **D-208 accepted as a whole decision 2026-11-04, over `a3a7da0e8` (§31), at src tree `626180a05`.** Its row and marker are gone, and F-432 to F-435 and F-441 are closed. The outcome stays: _retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04._ R33 (j) is corrected to free drag only, because sortable has no `onMove` slot. D-209 and F-446 stay open and separate. The `consumer.node` row §30.7 named recurred once, which F-447 carries, and it does not bear on D-208. The merge is the owner's, with the conditions in §31.6.
 
 **D-208's final proof disposed 2026-11-04, over `ab65e92f2` (§30). D-208 is not yet accepted.** A classified fault on a controller whose destruction is not applied owes a report, as a `DraggableWarning`, and destruction discards only the checkpoint's claim on the operation. That is D-209, with F-446 carrying the gap. It lands as its own unit after D-208's acceptance and does not block it. Three things still prevent acceptance, and all are in one bounded handoff: one comment-only commit, the rows that pin today's outcome, and the recorded tree (§30.8, §30.9). Retained heap A, allocation a3 and the owner's acceptance are unchanged, and no round ran.
@@ -139,7 +141,7 @@ Two alternatives were rejected:
 - diagnostic `onError`;
 - frame commits and the effects of committed seams.
 
-Requests raised in the interval are recorded as usual and discarded at application. **Qualified 2026-11-04 (§30.2, D-209):** for a failure checkpoint this discards its claim on the operation, not its fault. The fault still owes a report, and today it gets none (F-446). The interval cannot contain a second unit. Units do not nest, and no other unit is admitted once `REQUESTED` is set. **This is not "callbacks after destruction"**, because destruction has not happened. It is the remainder of a unit that began before the request.
+Requests raised in the interval are recorded as usual and discarded at application. **Qualified 2026-11-04 (§30.2, D-209), reconciled at its acceptance (§34.5):** for a failure checkpoint this discards its claim on the operation, not its fault. The fault reports once, as a `DraggableWarning`, before step 1 below. The interval cannot contain a second unit. Units do not nest, and no other unit is admitted once `REQUESTED` is set. **This is not "callbacks after destruction"**, because destruction has not happened. It is the remainder of a unit that began before the request.
 
 **Application** is one step, in this order:
 
@@ -147,6 +149,8 @@ Requests raised in the interval are recorded as usual and discarded at applicati
 2. the queue is cleared, releasing its arguments;
 3. physical teardown runs: steps 3–7 of today's sequence, in the same order and with the same wrapping;
 4. the promise settles.
+
+**Added at D-209's acceptance, 2026-11-04 (§32.4, §34.5):** before step 1, while the lifecycle is still `REQUESTED` and ingress is refused, the drain walks the entries it will not handle and calls the report each fault entry carries, in queue order. Nothing else runs, and these four steps are unchanged. A panic does not walk.
 
 Logical and physical closure now coincide. D-36's window, in which the latch was closed while teardown was owed to a later boundary, no longer exists.
 
@@ -4596,11 +4600,11 @@ D-208 is implemented, and §30.11's rows for the remediation and this acceptance
 
 | # | Gate | Owner | State |
 | --: | --- | --- | --- |
-| 1 | D-209 implemented | implementer | §32.5 to §32.8 |
-| 2 | D-209 accepted, F-446 closed | architect | §32.10 |
-| 3 | The four `docs.node` rows report on the published surface, and the two `.scripts/` errors are gone (RF-24) | architect's handoff, then the implementer | after gate 2 |
-| 4 | `react.browser` and `stories.browser` load (RF-25) | architect's handoff, then the implementer | after gate 2 |
-| 5 | `consumer.node`'s sourcemap row cannot redden a clean tree (F-447) | architect's handoff, then the implementer | after gate 2 |
+| 1 | D-209 implemented | implementer | done: §32.5 to §32.8, §33.8 to §33.11 |
+| 2 | D-209 accepted, F-446 closed | architect | done: §34, with F-448 |
+| 3 | The four `docs.node` rows report on the published surface, and the two `.scripts/` errors are gone (RF-24) | architect's handoff, then the implementer | handed off: §34.9 |
+| 4 | `react.browser` and `stories.browser` load (RF-25) | architect's handoff, then the implementer | handed off: §34.9 |
+| 5 | `consumer.node`'s sourcemap row cannot redden a clean tree (F-447) | architect's handoff, then the implementer | handed off: §34.9 |
 | 6 | The merge | owner | after gates 3 to 5 |
 
 **Gate 5 is my reading of _failing verification infrastructure_.** F-447 can redden the very run that gates 3 and 4 are read from, so I booked it. The owner can take it out.
@@ -4825,7 +4829,7 @@ Run each once on the landed code and restore it, and record the reddened rows by
 
 ### 32.12 What stays open
 
-D-209 stays `Unimplemented (Remediation)`, and F-446 stays open, until §32.10.
+D-209 stays `Unimplemented (Remediation)`, and F-446 stays open, until §32.10. **Reached 2026-11-04 (§34).**
 
 | Item | Owner | Required action | Deadline |
 | --- | --- | --- | --- |
@@ -4948,7 +4952,7 @@ Every `dispatch` site in `src/`, read at `db3c402a4`. **Each entry's outcome und
 - **Report `failure/checkpoint-stale`.** It would be true of the operation, but there is no checkpoint, and the same call from `onStart` reports the cancel's code.
 - **Leave it for after the merge.** The walk has to choose now, and §32.1's order keeps tier A consumer-visible gaps ahead of the merge.
 
-**Why only a cancel retires an attempt ahead of a queued rejection.** `#retireAttempts` runs from `#handleFailed` and from `#release`, which is retirement and teardown, and retirement follows a settlement. `kernel.fail` inside `invoke` is refused outside a seam (K6), so it queues no `FAILED` ahead of the settlement. §33.14 states what is left.
+**Why only a cancel retires an attempt ahead of a queued rejection.** `#retireAttempts` runs from `#handleFailed` and from `#release`, which is retirement and teardown, and retirement follows a settlement. `kernel.fail` inside `invoke` is refused outside a seam (K6), so it queues no `FAILED` ahead of the settlement. §33.14 states what is left. **Corrected 2026-11-04 (§34.7):** this sentence is not exhaustive. `#openSettlement` also clears the slot, and the conclusion stands.
 
 ### 33.5 reviewer-3 and reviewer-4: what the published texts say
 
@@ -5043,6 +5047,8 @@ The README's `handle` and `home` sentence therefore stands as the implementer co
 | (ae) | An `async` slot requests a cancel, then throws | `onEnd` `canceled`, nothing delivered, no `unhandledrejection` | passes |
 | (af) | The slot requests a cancel, then returns its accept | `onEnd` `canceled`, nothing delivered | passes |
 
+**(ae)'s drive, dated 2026-11-04 (§34.4):** the landed row returns `Promise.reject` from a slot that is not `async`, and that spelling discharges it.
+
 **Free drag only, in `tests/free-drag/anchor.browser.test.ts`, beside the malformed-point row:**
 
 | Row | Drive | Required outcome | Input tree |
@@ -5113,7 +5119,7 @@ The member lists stay `ExecutionBracket` 21, `ArmedController` 75, `Kernel` 15 a
 - marks _What to correct at acceptance_ as disposed by this section;
 - adds `3ff2d2acf`'s `tests/COVERAGE.md` cell to the series table.
 
-**The whole suite, run once.** The failing set must be `decisions.node`'s witness row, the four `docs.node` rows, and `react.browser` and `stories.browser` unloadable. A `consumer.node` sourcemap failure with 32 entries reads as F-447 and is recorded. Any other failure stops the sequence. `just typecheck` must report only the two `.scripts/` errors. Lint over the changed TypeScript files must report none.
+**The whole suite, run once.** The failing set must be `decisions.node`'s witness row, the four `docs.node` rows, and `react.browser` and `stories.browser` unloadable. A `consumer.node` sourcemap failure with 32 entries reads as F-447 and is recorded. Any other failure stops the sequence. `just typecheck` must report only the two `.scripts/` errors. Lint over the changed TypeScript files must report none. **Dated 2026-11-04 (§34.2):** unmet at `980cc0053` by one error that predates the remediation, and met at the accepted tree by the owner's suppression.
 
 ### 33.12 The targeted recheck
 
@@ -5156,7 +5162,7 @@ No statistical round is owed, by D-209's _Measurement_, and none is opened. The 
 
 ### 33.15 What stays open
 
-D-209 stays `Unimplemented (Remediation)`, and F-446 and F-448 stay open, until §32.10.
+D-209 stays `Unimplemented (Remediation)`, and F-446 and F-448 stay open, until §32.10. **Reached 2026-11-04 (§34).**
 
 | Item | Owner | Required action | Deadline |
 | --- | --- | --- | --- |
@@ -5167,3 +5173,165 @@ D-209 stays `Unimplemented (Remediation)`, and F-446 and F-448 stay open, until 
 | The merge | owner | after every gate | when the owner chooses |
 | `ActionQueue.apply`'s stop branch, and this slack | the compression pass | as §32.4 | after the merge |
 | Everything else in §32.12 | as it states | unchanged | unchanged |
+
+## 34. D-209 accepted at src tree `f6172d3be`, with F-446 and F-448 closed, and the handoff that restores verification before the merge (D-209, F-446, F-448, RF-24, RF-25, F-447)
+
+**2026-11-04. Input:** `dd4023c0d` on `drag2/fin-review2`. **Reviewed implementation:** `cfed5f9da`. **Recheck:** [`d209-remediation-recheck-claude.md`](../fin-review2/d209-remediation-recheck-claude.md). **`src/` tree:** `f6172d3be770c3f37ea0a1d723960ace05d61c9b`.
+
+No source or test code changed, and nothing is merged. No review round or statistical measurement ran. Evidence is in [`probes/d209-acceptance/`](../../probes/d209-acceptance/).
+
+**Decided, in short:**
+
+- **D-209 is accepted at the tree above,** and F-446 and F-448 are closed (§34.5).
+- **The owner's suppression stands** and is recorded as the owner's (§34.2).
+- **(ae)'s `Promise.reject` spelling discharges the row** (§34.4).
+- **The suite is not clean.** F-447 recurred in the recheck, and RF-24 and RF-25 still fail (§34.8).
+- **The next handoff is §34.9,** and it is the last unit before the owner's merge. Terminology and compression stay separate.
+
+### 34.1 §32.10's checks, run here
+
+One private worktree at the input, once each, in Chromium. The baseline's declarations came from a second worktree at `e2aabaf3b`. N1 was restored after its run, and `src/` read clean.
+
+| Check | Result |
+| --- | --- |
+| The diff, read | Three code sites: `#step`'s non-`LIVE` branch, the `discard` members, and `#handleResolutionSettled`'s retired branch |
+| The rows, read | (ab) to (af) and (v)'s control, in source. The kernel rows and the rest of §32.6 and §33.9 rest on the recheck's reading and on passing here |
+| Comment-stripped diff | Against `980cc0053`: none. Against `3ff2d2acf`: `kernel.ts` only, the closure and the retired branch. Against `e2aabaf3b`: §32.8's sites and that branch. **Holds** |
+| Member lists | `ExecutionBracket` 21, `ArmedController` 75, `Kernel` 15, `ActionQueue` 4, identical to both baselines. **Holds** |
+| Declarations | 33 files against `e2aabaf3b`. Four differ in text, and none once comments are stripped. **Holds** |
+| N1 | 314 pass, 37 fail, from 351 and 0, the record's and the recheck's figures. (k) stays green. **Holds** |
+| The whole suite | **1,475 pass, 5 fail, 68 skipped, of 1,548. 74 of 78 files pass.** All 68 skipped rows are in `tests/perf/` |
+| §32.6's outcomes and the failing set | `decisions.node`'s witness row, the four `docs.node` rows, `react.browser` and `stories.browser` unloadable, and nothing else. **Holds** |
+| Typecheck | Only the two `.scripts/` errors. **Holds** |
+| Lint, the 13 changed TypeScript files | None. **Holds** |
+
+**The recheck's other readings are not repeated,** by the owner's direction: Y1 to Y4, X5s, X6s, composition and the published wording. They were read at this same `src/`.
+
+### 34.2 reviewer-1: the tree, and the owner's suppression
+
+**The accepted tree is `f6172d3be`,** not the record's `779b4b0f5`. The difference is `cfed5f9da`, the owner's commit, which adds `// eslint-disable-next-line @typescript-eslint/consistent-return` above `prepareSettlement`. The comment-stripped diff between them is empty, and the recheck found all 52 built `.js` files and all 33 declarations byte-identical.
+
+**§33.11's _lint must report none_ was unmet at `980cc0053` and is met at this tree.** The error predates D-209, and the file joined the changed set only through a comment hunk. So this stops nothing.
+
+**The suppression is the owner's decision, and I record it as that.** It is sound on its facts: the switch's five arms match `SettlementInput`'s five types, and removing one reports `TS2366`, so the compiler still enforces what the rule could not see. **It changes no rule for agents.** `handoff.md`'s _list it, do not resolve it by hand_ stands, and §33.6's direction stays limited to its two lines.
+
+### 34.3 Six controls or seven
+
+**The record's count was wrong, and its result stands.** `bench/size/measure.ts` declares seven `control:` values at `448ce5015`, `a815493a7` and the input, and `the declared controls` runs seven rows, all passing here. Corrected with a dated strike at both sites in `d209-discarded-failures.md` and one in `d209-feature-proof-claude.md`.
+
+**Not corrected:** earlier records that say six, such as `budget-rebases.md`'s and `d208-step6.md`'s. Those count the six rows that were red and re-declared, as `d204-step1.md` lists them, and `drag.js`'s seventh was not among them. _Five moved_ also stays true.
+
+### 34.4 reviewer-2: (ae)'s spelling
+
+**The `Promise.reject` spelling discharges (ae).** §33.4 requires an outcome: a rejection arriving after the cancel applied is consumed. §33.9's _an `async` slot_ described how to reach it, and the recheck shows the spelling reaches it the same way:
+
+- `invoke` receives an already rejected native promise from either spelling, and `#openResolution` distinguishes nothing else.
+- Both spellings were driven in both behaviors, with the same outcome.
+- Probe mutations Ma and Mb redden the row and the `async` spelling together.
+- The repository's lint refuses the `async` spelling with no `await`, and (y) already uses this one.
+
+**The text follows what ran.** `tests/COVERAGE.md`'s cell is corrected here, as a record. The row's comment still says `async`, and it is test source, so §34.9 carries that one line. Acceptance does not wait for it.
+
+### 34.5 The acceptance
+
+**§32.10's prerequisites hold, so D-209 is accepted at src tree `f6172d3be770c3f37ea0a1d723960ace05d61c9b`.** Its marker and row are gone, and F-446 and F-448 are closed. Implementation is `3ff2d2acf`, the remediation is `980cc0053`, and the owner's comment is `cfed5f9da`.
+
+**Reconciled:**
+
+| Passage | Now states |
+| --- | --- |
+| I-22, `05-lifecycle-invariants.md` | The fault reports, by carrier and code |
+| I-36, `05-lifecycle-invariants.md` | A discarded checkpoint reports once before application. A rejection after application stays silent |
+| §2.4's note and application order | The same, and the walk that runs before step 1 |
+| D-208's _every diagnostic_ note | The same, with the old sentence struck |
+| `00-index.md`'s F-446 and F-448 references | Closed, with D-208's two pointers dated |
+| D-130, and `02-kernel-behavior-contract.md`'s `reportError` | What a warning implies, in §33.5's sense |
+
+### 34.6 What this acceptance does not say
+
+- **A and a3.** Retained heap A, allocation a3 and the owner's acceptance of 2026-11-04 stay on tree `626180a058af7374a68c5544fefc4111eec6003c`. **The merged tree will not be the measured tree.** The comment-stripped diff shows no statement on the sample path changed and no per-controller state added. This acceptance does not say _no regression_, _unchanged cost_, _A holds_ or _a3 holds_. `d208-requests.md` and `d208-step6.md` are not edited.
+- **The kernel-tier wrong-label limit stays unverified.** By reading, a kernel-tier seam that fails and then synchronously rejects the round-trip's thenable in one interval carries the cancel's code. The fault is delivered and its label is wrong. Nobody drove it, and no row reaches it. D-209's _whichever request superseded it_ and the `#settleResolution` comment hold subject to it.
+- **The other limits stand:** §33.14's, the recheck's and the record's. They include `#handleResolutionSettled`'s phase test, §33.2's undriven scroll and resize, and the README routes the recheck did not re-drive.
+- **The suite is not clean,** as §34.8 states.
+
+### 34.7 A correction to §33.4
+
+**§33.4's sentence on what retires an attempt was not exhaustive.** It names `#retireAttempts`, and `#openSettlement` also clears the slot. I read that only after §33's commit. **The conclusion stands, by reading the two callers:** `#settleCancellation` is the cancel, and `#handleResolutionSettled` consumes the attempt whose entry is running, which the latch makes its only one. Of §33.4's two named routes, `#handleFailed` is §34.6's limit, and `#release` is as §33.4 states. The kernel's own comment agrees that everything that decides the operation clears the slot.
+
+### 34.8 F-447, and why the suite is not clean
+
+**The recheck's recurrence is evidence and stays on the record.** At `cfed5f9da`, the same `src/`, `consumer.node`'s sourcemap row failed with 32 entries, and that run read 1,474 pass and 73 files. §33.11 reads that failure as F-447, so it did not stop this acceptance. No `src/` tree is implicated.
+
+**This unit's three whole-suite runs did not show it.** That excludes nothing: it has passed on most runs and when run alone. The cause stays inferred and not isolated.
+
+**At the input, a whole-suite run can read either of two failing sets,** with or without that row. After this commit, the witness row clears, so the expected red is the four `docs.node` rows, the two unloadable files and, on some runs, that row.
+
+### 34.9 Handoff: restoring verification (§32.1, gates 3 to 5)
+
+**One implementer unit, with these three repairs and one comment line. Input: this commit. `src/` stays `f6172d3be`.** Evidence for what follows is one scratch whole-suite run per reading, and it is not the repair. The scratch diff is [`rf24-scratch.diff.txt`](../../probes/d209-acceptance/rf24-scratch.diff.txt).
+
+**Read at this tree, with `tsc` clean and both changes applied:**
+
+| Scratch change | Whole suite |
+| --- | --- |
+| `browser.api` deleted, `browser.provider?.close()`, and `drag2` resolving the root's `react-dom` | **1,493 pass, 1 fail, 68 skipped, of 1,562. 77 of 78 files pass.** The one failure is the witness row, which this commit clears. All seven controls pass |
+| The same, except `browser.api` moved to `test.api` as `{ host, port, allowExec }` | **21 `input-policy.browser` rows fail,** 20 with _Cannot use CDP_ and 1 with a snapshot mismatch |
+
+**Gate 3, RF-24. Required property:** the four `docs.node` rows report on the published surface, and `.scripts/` compiles.
+
+- **`.scripts/vitest-config.ts:181`.** Vitest 5 deprecates `test.browser.api` and names `test.api`. **Do not follow that notice as written.** Moving the block unchanged exposes the API on `0.0.0.0` with `allowWrite` defaulting to false, and CDP needs both write and exec.
+- **The recommended repair is deleting the block.** By reading, `resolveApiServerConfig` reads `test.api` and not `browser.api`, so the block is already dead: today's server is on loopback and Vitest's default port, with write and exec allowed. Deleting it also keeps an exec-capable server off the network. **First, confirm that by reading the bound host and port at the input.** If the block turns out to be live, stop at the architect.
+- **`.scripts/vitest-one-shot.ts:34`.** `ProjectBrowser.provider` is typed `undefined` until the instance runs and after it closes. Close it only if present, and still close the orchestrators.
+- **`forwardPorts`' 9876 in `.devcontainer/devcontainer.json` stays,** and is listed in the record. Removing it is a separate tidy.
+- **These two files serve every package.** Run root `just typecheck` and one `material-x` browser project, and record both.
+
+**Gate 4, RF-25. Required property:** both files load and run under one React version.
+
+- **The cause is now read directly:** the import throws _Incompatible React versions_. `react` is 19.3.1 through the root's `overrides`, whatever `drag2` pins, and `react-dom` is 19.2.7 from `drag2`'s pin. Both files load and all 14 rows pass under one version.
+- **The recommended repair** sets `drag2`'s `react` and `react-dom` pins to the root's 19.3.1 and regenerates the lockfile. The lockfile hunks must be confined to those two packages. `@types/*` stays unless the typecheck requires a change.
+- **Clear `.vite` before reading it.** My first scratch run failed on a stale optimizer cache after the version had changed.
+
+**Gate 5, F-447. Required property:** the row's verdict depends only on the build it made, and no other test's build can write the tree it packs.
+
+- **What is known.** Two files build into the package root: `tests/consumer.node.test.ts:1316` and `tests/bench/size.node.test.ts:60`. `outDir` is `.`, and a build leaves 32 declarations unstripped until `build:done`. `packaging.node` also reads that tree.
+- **First, reproduce or exclude the overlap.** Widen the window with a scratch delay at the start of `tsdown.config.ts`'s `build:done`, and run the two files together. **If the row does not redden with 32 entries, the cause is excluded. Stop at the architect,** and do not land a repair for it.
+- **The recommended repair:** one build per project run, in a project-level `globalSetup` before any file starts, with neither file building. That also covers `packaging.node`'s reads, which a lock around the two builders would not. Check that `should measure a graph built from nothing but this build` still means what it says. If a row needs its own build, keep the property and say why.
+- **The witness:** with the same delay, the row stays green. Keep the delay out of the commit.
+
+**One comment line (§34.4).** `tests/diagnostic-intake.browser.test.ts`, (ae)'s comment: say that the slot returns an already rejected promise, which is what an `async` slot that throws returns.
+
+**Boundaries:**
+
+- **No `src/` change,** and the tree hash and all 85 built `.js` and `.d.ts` files stay as they are.
+- **No size row moves.** All fifteen rows and seven controls read as `d209-discarded-failures.md` states, and no ceiling moves. A moved row stops the unit.
+- **No other test changes.** Any row that fails once the React files load stops at the architect. The scratch run saw none.
+- **No terminology, comment reduction or compression,** and no statistical round. `df77b8ff3`'s planned convention stays later too.
+- **One commit per gate,** in the order 3, 4, 5.
+
+**The record:** `.plan/measurements/verification-restored.md`, with the input, commits, each reading above and the delay's result.
+
+**The final reading.** Two whole-suite runs from a fresh worktree after `npm ci`, with an empty `.vite`, each must report **no failures**. A recurrence of the sourcemap row, in either run, keeps F-447 open and stops at the architect.
+
+**Then:**
+
+1. **One fresh `reviewer` recheck, bounded to this diff and to these readings.** A repaired instrument is what the merge relies on, so someone who did not repair it reads it. The owner can drop this.
+2. **The architect closes RF-24, RF-25 and F-447** in their registers.
+3. **The owner merges** (§32.1's gate 6).
+
+### 34.10 Limits of this record
+
+- **Each reading ran once,** in Chromium, on one machine, in a private worktree. This is no statement about other browsers.
+- **The acceptance rests on the recheck for what it did not repeat,** as §34.1 names.
+- **§34.9's scratch runs are not repairs.** They were not linted to the repository's rules or run on other packages, and `drag2`'s nested `react-dom` was moved aside rather than re-pinned, so no lockfile was read.
+- **That `browser.api` is dead is by reading the resolver,** and the bound port was not observed.
+
+### 34.11 What stays open
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| RF-24, RF-25, F-447 | the implementer | §34.9 | before the merge |
+| The recheck of that unit | owner starts a fresh `reviewer` | §34.9 | after its record |
+| Closing them | architect | §34.9 | after the recheck |
+| The merge | owner | §32.1's gate 6 | after those |
+| integrity-4, F-442, F-443 and O-15, F-445, RF-23, D-200's independent acceptance, Reviewer-E | as §31.9 | unchanged | unchanged |
+| The terminology phase, comment reduction, the compression pass, `ActionQueue.apply`'s stop branch, and the 22 B of slack on `minimal` | as `plan.md` states | separate | after the merge |

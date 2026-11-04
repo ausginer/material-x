@@ -1,0 +1,2 @@
+../../.scripts/vitest-config.ts(181,9): error TS2353: Object literal may only specify known properties, and 'api' does not exist in type 'BrowserConfigOptions'.
+../../.scripts/vitest-one-shot.ts(34,11): error TS18048: 'browser.provider' is possibly 'undefined'.
