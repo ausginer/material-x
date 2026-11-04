@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**Protocol M-2″'s outcome disposed 2026-11-04, over `8451f1fe6`.** Retained heap reads A and allocation reads a3, and both stand as read. Rounding after the result is not adopted. No regression is demonstrated, and none is excluded: `moveTo` leans the same way in both projects, and a post-hoc test finds a lean across the allocation windows. Protocol Q-a3 is pre-registered in §27.5 to §27.7 as the last measurement on a3: exact call counts, a 20,000-call window and a byte-identical placebo tree. If it does not discharge a3, an explicit disposition goes to the owner. No source is committed. §27 records the disposition and the handoff.
+
 **The resumed 6R's measurement escalation disposed 2026-11-04, over `979d51067`.** The candidate misses _in every round_ in two of twelve cells at 100 controllers, and nine allocation cells read above step 6's ranges, unpaired. That is an unmet criterion. It is not a demonstrated regression, and +104 B and +215 B are not residuals. The instrument's _one-sided noise_ premise is false (`drag2:F-445`). Protocol M-2″ is pre-registered in §26.5 to §26.7, with a same-tree control, a +4 B positive control and a paired allocation against the frozen input. Its outcome decides whether source lands, a residual goes to the owner, or uncertainty is reported. No residual is accepted, and no source is committed. §26 records the disposition and the handoff.
 
 **Remediation 6R's escalation disposed 2026-11-03, over `4ee87b9ad`.** D-208 requires the kernel's own route to apply the one refusal. It does not require that route to be a channel minted through `channel()`. §24.1 and §24.5 step 4 said _every diagnostic passes through a minted channel_, which is broader than D-208, and both are corrected in place. R21's census may be re-pinned once, to the refusal's one new location. That admits B′'s form. No residual goes to the owner yet, because the in-design candidate is unmeasured, and prototype P wrote the refusal twice. 6R resumes under §25.5. If the candidate misses the target, its residual goes to the owner. §25 records the decision and the handoff.
@@ -3470,7 +3472,7 @@ Block 1 repeats the fixed cycle G, AB, G, AC, six times, so host drift falls on 
 - Exact one-sided sign test: `p = Σ_{j=k}^{n} C(n, j) / 2^n`. `m` is the median of the untied differences. If `n = 0`, then `p = 1` and `m = 0`.
 - **Regression:** `p < 0.01`. **No regression:** `p ≥ 0.05` and `m ≤ 0`. **Inconclusive:** anything else.
 
-With 12 untied rounds, that is no regression at `k ≤ 9` with `m ≤ 0`, inconclusive at `k = 10`, and regression at `k ≥ 11`.
+With 12 untied rounds, that is ~~no regression at `k ≤ 9` with `m ≤ 0`, inconclusive at `k = 10`,~~ **corrected 2026-11-04 (§27.4):** no regression only where `m ≤ 0`, which at 12 untied rounds holds up to about `k` = 6, inconclusive above that up to `k = 10`, and regression at `k ≥ 11`.
 
 **`m ≤ 0` is deliberate.** M-1's rule allows `m ≤ r`. This one allows no positive median, because the owner accepts no growth.
 
@@ -3515,6 +3517,8 @@ Otherwise the cause is **unestablished**, a permitted result. It is carried as a
 - `d = candidate − input`, in bytes per unit;
 - a tie is `|d| < 0.05` B, the same figure at the reported precision;
 - **regression:** `p < 0.0005`. **No regression:** `p ≥ 0.0025` and `m ≤ r`. **Inconclusive:** anything else.
+
+**Clarified 2026-11-04 (§27.1):** `m` and `r` compare unrounded, as the computation committed before the first round does.
 
 The α values are M-1's 0.01 and 0.05, each divided by the 20 cells, so the family's false-alarm rate stays near those levels. With 12 untied rounds, only `k = 12` is regression. `r` is the width of that cell's tip range in step 6's tables, which is the spread the old clause tolerated at one tree:
 
@@ -3574,3 +3578,189 @@ D-208 stays `Unimplemented (Remediation)`, and the witness holds. §25.6's table
 | A residual, only under outcome B or a2 | architect, then the owner | the owner authorizes it or directs a design change | before step 5 |
 | Outcome C, D or a3 | architect, then the owner where an authorization is needed | decide. No more rounds without a new protocol | before step 5 |
 | `drag2:F-445`, the one-sided premise (tier B) | implementer for the corrections; architect for any later estimator | §26.8; then decide after the protocol's result | corrections in the harness commit; estimator before Phase 24 exits |
+
+## 27. Protocol M-2″'s outcome disposed: A and a3 stand as read, and one final bounded question comes before the owner is asked (D-208)
+
+**2026-11-04. Input:** `8451f1fe6` on `drag2/fin-review2`, over the harness commit `550777c9c`. `src/` is tree `4630579d2`, and no candidate source landed. The result is [`d208-step6.md`](../../measurements/d208-step6.md) §Protocol M-2″, with [`d208-m2pp-raw.jsonl`](../../measurements/d208-m2pp-raw.jsonl) and [`d208-m2pp-rule.json`](../../measurements/d208-m2pp-rule.json).
+
+**Decided, in short:**
+
+- **A and a3 stand as the historical result.** Rounding `moveTo`'s figures after the result would change acceptance, and it is not adopted.
+- **No regression is demonstrated, and none is excluded.** `moveTo`'s lean is not a 0.01 B technicality. It has the same sign count in both projects, and a post-hoc test finds a lean across the allocation windows (§27.2).
+- **The anonymous-frame limit does not touch the inconclusive cell.** It affects the four drop cells, and a call-count check closes it (§27.3).
+- **The owner is not asked yet.** One measurement can answer what the owner would otherwise be asked to accept blind, so the architect issues protocol Q-a3 under §26.10 (§27.5 to §27.7).
+- **Q-a3 is the last measurement on a3.** If it does not discharge a3, an explicit disposition goes to the owner, and no further rounds run.
+
+### 27.1 The precision question
+
+**The computation committed before the first round governs.** §26.5 put the rule's computation in the harness commit, and §26.5 says nothing changes once a round has run. That computation compares unrounded figures: `m` 1.010 B against `r` 1.0 B. So `moveTo` in DEV reads inconclusive, and the outcome is a3.
+
+§26.7 can be read either way. It states `r` to 0.1 B and calls a tie _the same figure at the reported precision_. The ambiguity is this record's. But the implementer's rounded reading was computed after the outcome was known, and it would turn a3 into a1 with no new evidence. It is correctly reported and correctly not applied, and §26.7 is clarified below for any later use.
+
+**A 0.01 B margin would also be the wrong thing to settle,** for three reasons read from the committed data:
+
+- **`r` is not a physical tolerance.** It is one cell's spread in four earlier rounds: 1.0 B in DEV and 7.7 B in shipped, on the same path. The shipped width comes from one low reading, 343.8 B, and that kind of reading recurs at the input in this block: 343.64 B in round 9. Shipped `moveTo` passes on that wider `r`, with the same `k` of 9 of 11 and `p` of 0.0327.
+- **The same tree moved more than `r` between sessions.** The input reads 349.2 to 350.6 B in DEV here, against step 6's 350.4 to 351.4 B.
+- **Either side of the line, the evidence is the same.** A result that flips on 20 B in a 700 kB window is not a finding about the library.
+
+### 27.2 What the uncertainty is
+
+_Everything in this subsection is analysis of the committed raw file, done here after the outcome was known. It does not change the outcome._
+
+**Checked independently of the implementer's scripts:** set G's six rows and `L`, recomputed from the raw readings, match the record, as do the two `moveTo` rows.
+
+**Against reading the lean as noise:**
+
+- **Both projects lean the same way:** `k` 9 of 11 in each, with `m` 1.01 and 0.61 B. The two projects' differences correlate at only 0.37 across rounds.
+- **Other cells lean too.** Five of the 20 cells have one-sided `p` under 0.05, where about one would be expected. They are `moveTo` in both projects, `onMove` shipped, and DEV's sortable sample and moving frame.
+- **A family test finds a lean.** Let `S` be the sum over cells of `k − n/2`. Flipping each round's two arms, which keeps the correlation between a run's cells, gives `S` 20.5 and an exact `p` of about 0.002 across both projects. With `moveTo` left out, `S` is 13.5 and `p` is about 0.023. This test was chosen after seeing the data, so it only raises the question. It answers nothing.
+
+**Against reading the lean as a per-call cost of the diff:**
+
+- **It is too small to be one more object per call.** 0.6 to 1 B per call is less than any object costs, so a per-call object is out. A rare allocation, or a once-per-window lump of about 1 to 5 kB, would fit. These windows are 2,000 calls long, and they cannot separate those from each other.
+- **No one frame carries it.** Among the six library frames that carry the `moveTo` window, the largest paired median is about 0.5 B, the largest `k` is 8 of 10, and no frame carries the total in both projects. Bytes also swap between library and _other_ by about ±4 B in single rounds, which suggests attribution shifting rather than new work.
+- **The changed functions book nothing,** in all 20 windows and 24 candidate runs, and as far as the code reads, none of them runs in those windows.
+- **The ranges overlap:** candidate 349.2 to 351.7 B and input 349.2 to 350.6 B in DEV.
+
+**A possible confound was never tested.** The arms differ in code and also in worktree. A lean across windows that do not run the changed code could come from the tree's identity rather than its code. Nothing in M-2″ separates the two.
+
+**So, under §26.1's labels:**
+
+| Label | State |
+| --- | --- |
+| **Unmet criterion** | Yes. a1 is not reached, and 6R cannot land on this result |
+| **Demonstrated regression** | No. No cell reaches `p < 0.0005`, and the family test was chosen after the fact |
+| **Unresolved uncertainty** | Yes: whether the candidate costs a small amount more per `moveTo`, and whether the lean across windows follows the code. The upper size is about 1 B in 350 per call on the median |
+
+**The nine earlier cells are not the question.** The nine cells that read above step 6's ranges in the resumed 6R all read no regression here, and the a3 cell is not one of them. Those readings stand and are not re-judged.
+
+### 27.3 The anonymous-frame limit
+
+**What it covers.** `kernel/kernel.ts:(anonymous)` books bytes in the two drop rows only. In the raw file it books nothing in `moveTo`, in the sample windows or in the committed-frame windows. So it cannot bear on the a3 cell.
+
+**What it is.** In those rows the frame reads about 2 to 20 B per drop, or about 217 to 276 B in some rounds, at both trees. In the free drop, that is four of twelve rounds at the input, shipped, and two of twelve at the candidate, DEV. A similar step of about 250 B, or 12.5 kB in a window, also appears on `kernel/pointer.ts:(anonymous)`, `kernel/presentation.ts:(anonymous)`, `kernel/unwind.ts:(anonymous)` and `sortable/spec.ts:(anonymous)`, at both trees. So one lump lands on whichever anonymous frame is active. The input has this frame without the candidate's arrow. This does not prove the arrow books nothing.
+
+**The record's wording needs one correction.** It says _the profile cannot name which anonymous function_. The harness's key is what loses it. `attribute` keys on `functionName` alone, and its `CallFrame` type reads only two fields, while CDP's call frame also carries a line and column. That is read from the harness and the protocol's definition, and not tried here.
+
+**My §26.7 list omitted the arrow, so this gap is mine.** It listed the changed functions by name, and the diff's arrow has none. The implementer was right not to count it as a finding.
+
+**What closes it.** A function that is not called allocates nothing. §27.5's Q1 asks whether it is called, by exact count. That is a more direct answer than attributing bytes to it.
+
+### 27.4 Retained heap
+
+**Outcome A stands as read, on the rule pre-registered for it.** Five literal misses are on the record: two in the resumed 6R and three in set G, at 100 controllers. Each is the candidate's usual figure against a low base figure. `L` is 2, so the same tree missed the clause against itself, and §26.4 hands the clause to `R`.
+
+**Evidence beside the rule, which it does not rest on.** The floors' differences hold under both probes: 74.6, 38.3 and 5.9 B under D1, and 75.6, 39.0 and 5.9 B under D2. The arithmetic of §26.1 gives 76, 38 and 6 B.
+
+**The limits it carries to closure:**
+
+- **The low state's cause is unestablished,** and it is outside what `R` measures.
+- **Low figures at 1000 controllers lean to the candidate:** 21 of 72, against 5 of 72 at base. `T` covers only 100 controllers, by its terms, and lower candidate minima could flatter `E1` at 1000. `E2`, which a low reading cannot set alone, reads the same way, with `k` at most 2 of 12 and `m` −58.1, −31.5 and −5.4 B. So this does not change the outcome, and it stays stated.
+- **At 1000 the row bounds gross growth only.** V1's 1000-controller rows read inconclusive at the 4 B injection.
+
+**A correction to §26.6's gloss.** It said _no regression at `k ≤ 9` with `m ≤ 0`_. As the implementer found, 12 untied differences with at least 7 positive have a positive median, so that reading holds only up to about `k` = 6. No retained row is near it: G's largest `k` is 3. The rule's text is unchanged, and the gloss is corrected in place.
+
+### 27.5 Protocol Q-a3: the questions
+
+This section is the pre-registration. **Nothing below changes once a round has run.** If the harness cannot do what this states, stop and return to the architect. M-2″ is not repeated. Retained heap is not measured, and no outcome from it is reopened.
+
+**Q1, deterministic: does the candidate run anything differently in these windows?** In each of the ten allocation windows, in each project, is the list of `src/` functions with a nonzero call count, and each one's count, identical at the candidate and the input? This includes anonymous functions, so an added or lost call to the candidate's arrow changes the list.
+
+**Q2, per call: does `moveTo` cost more at the candidate, once a lump cannot pass for a per-call cost?** At 20,000 calls in a window, is the candidate's per-call figure above the input's by more than 0.25 B, in either project? A per-call cost of 0.6 to 1 B stays that size at 20,000 calls, and a fixed lump of the size seen falls to about 0.1 B. 0.25 B lies between them. It is also tighter than the `r` values that governed a1 for this cell, so passing is not a relaxation.
+
+**Q3, the lean: does it recur on fresh rounds, and does it follow the candidate's code?** Does `S` lean at the candidate on fresh rounds? Does it also lean at a tree whose `src/` is byte-identical to the input, in another worktree?
+
+### 27.6 Protocol Q-a3: instrument and rounds
+
+**Trees,** each checked before the first round and after the last:
+
+| Tree | Revision | Src tree |
+| --- | --- | --- |
+| input | the harness commit | `4630579d2` |
+| candidate | the harness commit, plus §The candidate's whole diff, byte for byte | `c0713204a` |
+| placebo | the harness commit, in a worktree whose directory name has the same length as the candidate's | `4630579d2` |
+
+**The harness commit** comes after this section's commit and before the first round, and it touches only `tests/perf/` and `bench/`. It holds the rule's computation. It adds, in `tests/perf/d208-step6.browser.test.ts`:
+
+- **The scaled window.** Directly after the existing `moveTo` window, the same fixture runs a 20,000-call window. Its points are built before the window opens.
+- **The known window.** Directly after that, a further 20,000-call window also allocates a small short-lived array about every 24th call, a nominal 1 B per call. The harness counts it. Its exact size is stated in the harness commit.
+- **A count mode.** In it, each of the ten windows runs under the existing precise coverage instead of the sampler. Every `src/` function with a nonzero count is reported by file, name and count. Anonymous functions are not merged into one key.
+
+No allocation window before these two changes. Count mode runs apart, because coverage changes what the engine optimizes.
+
+**Rounds.** The counts are fixed:
+
+| Block | Set | Arms | Rounds | Runs |
+| --: | --- | --- | --: | --: |
+| 1 | **Counts** | candidate, input, count mode, each in shipped and DEV | 2 | 8 |
+| 2 | **C** | candidate, input, each in shipped and DEV | 12 | 48 |
+| 2 | **Pl** | placebo, input, each in shipped and DEV | 12 | 48 |
+
+Block 2 alternates C and Pl, one round each. The first-named arm runs first in odd rounds of its set, and second in even rounds. That is 104 runs. M-2″'s allocation block ran 48 such runs in about 9 minutes.
+
+**The rules of §26.5 apply:** no reading is discarded, no load filter, no interim verdict, no early stop, and a run is rerun only if it fails a row or does not report every cell, with the failed output recorded. More than four such failures means it is reported blocked, with no outcome. The computation runs once, after the last round. M-2″'s rounds are reported beside these and are not pooled with them.
+
+### 27.7 Protocol Q-a3: the rule and its stopping condition
+
+**Q1.** In each window and project, the two trees' lists are compared. A count that varies between rounds of one tree is reported, and it is not a difference between trees. **Clean** means no other difference. Any other difference is named by function, and it means Q1 is **not clean**.
+
+**Q2,** per project, in set C on the scaled window, with `d = candidate − input` in bytes per call, unrounded, and `|d| < 0.005` a tie. `k`, `n`, `p` and `m` are as in `R`.
+
+- **Per-call growth excluded:** `m ≤ 0.25`.
+- **Per-call growth demonstrated:** `m > 0.25` and `p < 0.005`, the 0.01 of `R` divided by two projects.
+- **Inconclusive:** anything else.
+
+The 2,000-call window's cell is computed the same way, and it is reported only.
+
+**Q3,** per set, across all 20 cells of §26.7, excluding the two new windows. `S` is the sum over cells of `k − n/2`, with §26.7's tie. Its exact `p` comes from flipping a round's two arms, per project, and combining the two projects' distributions.
+
+- **Lean:** `p < 0.01`. **No lean:** `p ≥ 0.05`. **Unsettled:** anything else.
+
+A cell reading `p < 0.0005` in set C is a regression finding. No other cell verdict from these rounds counts, because M-2″'s Block 4 is the reading of those cells. That keeps this from being a second draw at them.
+
+**Gates, read first:**
+
+- **K, the instrument sees the size at issue.** The known window minus the scaled window, within each run, has a median of at least 0.5 B per call over Block 2, in each project.
+- **Z, the worktree alone does not produce the size at issue.** In set Pl, on the scaled window, `m ≤ 0.25` in both projects.
+
+**Outcomes. There are exactly three, and this is the stopping condition:**
+
+| Outcome | When | §26.1 label | What follows |
+| --- | --- | --- | --- |
+| **discharged** | K and Z pass. Q1 is clean. Q2 reads excluded in both projects. No cell reads `p < 0.0005`. Q3 reads no lean in C, or lean in C and lean in Pl with Pl's `S` at least half of C's | **Uncertainty resolved for this path.** a3 stays the historical result, and the bound stated is `m` | §27.8, item 1 |
+| **regression** | K and Z pass, and Q1 is clean, with any of: Q2 reads demonstrated in either project; a cell reads `p < 0.0005`; Q3 reads lean in C and no lean in Pl | **Regression demonstrated,** with figures per project and per cell | §27.8, item 2 |
+| **uncertain** | Anything else, including K or Z failing, Q1 not clean, or Q2 or Q3 unsettled | **Uncertainty unresolved** | §27.8, item 2 |
+
+**Why `discharged` is a legitimate change and rounding is not.** Both alter how a3 could be left behind. Rounding would alter the reading of existing figures after the outcome, with no new evidence. `discharged` is fixed here, before its rounds, and needs new evidence on a tighter bound. It still follows a failed cell, so the selection is disclosed, and the closure states it.
+
+**The owner may overrule this before the first round.** If a3 is to go to the owner now, the disposition in §27.8's item 2 is sent with M-2″'s figures, and Q-a3 is not run.
+
+### 27.8 Handoff
+
+**Owner:** the implementer. **Input:** this section's commit.
+
+1. Build the harness commit that §27.6 states, and commit it before the first round. Run Blocks 1 and 2. Compute the outcome once, then record it in a dated subsection of `d208-step6.md` §Remediation 6R, with every reading in a raw data file under `.plan/measurements/`. **On `discharged`:** apply the candidate's diff byte for byte, then commit the source, text and record as §25.5 states, and hand the diff to the bounded recheck. The recheck also checks M-2″'s and Q-a3's records against their raw files. The architect then closes 6R, stating A, a3, `discharged`, the five literal cells and §27.4's limits.
+2. **On `regression` or `uncertain`:** commit no source, and stop. The architect forwards an explicit disposition to the owner, carrying the outcome's label, its figures and the architect's recommendation. The owner chooses one: authorize the stated bound, direct a design change, or commission a further named question. **Measurement on a3 ends here unless the owner commissions more.**
+
+**Carried, and not re-measured,** unless the candidate's diff changes: M-2″'s outcome A, and §26.8's carried list.
+
+**Out of scope:** another candidate; retained-heap measurement; the low state's cause; replacing the estimator; step 5 and control re-declaration; `d208-requests.md`; F-442 and F-443.
+
+### 27.9 Limits of this disposition
+
+- **No rounds ran here, and no source changed.** The analysis in §27.2 and §27.3 is computed from the committed raw file after the outcome was known. It gives Q-a3 its questions, and it decides nothing.
+- **The 0.25 B bound does not show zero.** Under `discharged`, a sub-bound difference may remain, and it is stated as a bound.
+- **The placebo tests a worktree's identity only.** Other differences between the two checkouts, such as the candidate's text in comments, stay untested, and `discharged`'s lean clause cannot separate them.
+- **That CDP frames carry a line and column,** and that a call-count zero rules out allocation in that function, are read from the protocol and reasoned, not run here. Q1 tests the second.
+- **Chromium only,** one machine, as before.
+- **§26.9's time estimate was wrong.** It offered hours by analogy with M-1's follow-up. M-2″ took about 18 minutes for 168 runs. That is part of why another bounded measurement comes before asking the owner.
+
+### 27.10 What stays open
+
+D-208 stays `Unimplemented (Remediation)`, and the witness holds. §26.10's table stands, with these changes:
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| Protocol Q-a3 | implementer | §27.8 | before 6R closes |
+| A disposition on `regression` or `uncertain` | architect, then the owner | §27.8, item 2 | before step 5 |
+| `drag2:F-445`, the estimator | architect | M-2″ left the low state's cause unestablished, and the estimator decision stays open | before Phase 24 exits |

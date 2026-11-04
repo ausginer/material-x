@@ -2298,6 +2298,25 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-04 — D-208 protocol M-2″'s outcome disposed: A and a3 stand, and one last bounded question comes before the owner is asked
+
+**D-208 is not complete, and nothing is authorized.** Retained heap reads A. Allocation reads a3, on `moveTo` in DEV: `k` 9 of 11, `m` 1.010 B against `r` 1.0 B.
+
+**Decided here:**
+
+- **A and a3 stand as read.** Rounding after the result would change acceptance, and it is not adopted.
+- **No regression is demonstrated, and none is excluded.** `moveTo` leans the same way in both projects. A post-hoc family test also finds a lean across the windows, with an exact `p` of about 0.002. It was chosen after seeing the data, so it raises the question and answers nothing.
+- **The anonymous-frame limit** affects only the drop cells, not the a3 cell. An exact call count closes it.
+- **Protocol Q-a3** is pre-registered, 104 runs, as the last measurement on a3: exact call counts in all ten windows, a 20,000-call `moveTo` window that separates a per-call cost from a lump, a known-allocation gate, and a byte-identical placebo tree in another worktree.
+
+**The owner may overrule** before the first round: if a3 is to go to the owner now, the disposition is sent with M-2″'s figures, and Q-a3 is not run.
+
+**Next:** the implementer builds the harness and runs Q-a3. `discharged`: the source lands, then its recheck and closure. `regression` or `uncertain`: no source, and an explicit disposition goes to the owner, to authorize a stated bound, direct a design change or commission a further named question. Step 5, the controls and `d208-requests.md` stay closed.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §27.
+
+---
+
 ### 2026-11-04 — D-208 resumed 6R's measurement escalation disposed: an unmet criterion, no demonstrated regression, and a pre-registered protocol
 
 **D-208 is not complete, and nothing is authorized.** The shared-refusal candidate recovers 84 B per controller, and it keeps §25.5's properties as checked. It misses _in every round_ in two of twelve cells at 100 controllers, each on one low baseline figure. Nine allocation cells read above step 6's ranges, unpaired.
