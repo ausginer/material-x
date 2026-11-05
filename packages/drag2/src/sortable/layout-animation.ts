@@ -125,16 +125,7 @@ export function layoutAnimation(
     };
 
     return {
-      report(element, dx, dy, live, space): void {
-        // **The barrier, and it covers indirect invocation.** `animate()` on a
-        // consumer-owned row is a consumer call, so the previous call's may
-        // have destroyed the controller. Read at the head so one reading covers
-        // this element and every predecessor — the axis walks the span and
-        // cannot guard the interior of a loop it only runs.
-        if (!live()) {
-          return;
-        }
-
+      report(element, dx, dy, space): void {
         let sx = dx;
         let sy = dy;
         const previous = running.get(element);
@@ -173,7 +164,7 @@ export function layoutAnimation(
         // the inverse of the inherited linear part — four multiplies under an
         // ancestor transform, one null test without one, which is the common
         // case. Everything the sink *stores* stays in viewport space: the fold
-        // below and the settle walk both work in the units the axis reports,
+        // and the settle walk both work in the units the axis reports,
         // and a local keyframe decaying to zero is `sx × remaining` in viewport
         // at every instant, which is what the walk assumes.
         const animation = element.animate(
@@ -189,14 +180,6 @@ export function layoutAnimation(
           ],
           { duration, easing, composite: 'add' },
         );
-
-        if (!live()) {
-          // `animate()` is itself overridable on a consumer's row. Cancelled
-          // rather than abandoned: it is not tracked yet, so `retire()` cannot
-          // have seen it and nothing else would ever stop it.
-          animation.cancel();
-          return;
-        }
 
         const record: Contribution = { animation, dx: sx, dy: sy };
 
@@ -223,22 +206,14 @@ export function layoutAnimation(
           throw error;
         }
 
-        if (!live()) {
-          // **Subscription is part of the acquisition.** A consumer-instrumented
-          // animation can destroy the controller and return normally, so the
-          // `catch` above never sees it, and `retire()` would then run while the
-          // map was still empty.
-          animation.cancel();
-          return;
-        }
-
         running.set(element, record);
       },
 
       settle(values, items, count): void {
-        // **One walk, and it stops at the first miss.** The common rebuild
-        // happens with nothing in flight, and an empty map answers that in one
-        // property read rather than `count` lookups.
+        // **An empty map returns at once; otherwise the walk visits every
+        // slot.** The common rebuild happens with nothing in flight, and an
+        // empty map answers that in one property read rather than `count`
+        // lookups.
         if (running.size === 0) {
           return;
         }

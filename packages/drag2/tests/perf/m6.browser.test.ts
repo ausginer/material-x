@@ -162,7 +162,7 @@ function census(): Census {
   );
 
   cleanup.push(() => {
-    void controller.destroy();
+    void controller.requestDestroy();
     stage.remove();
   });
 

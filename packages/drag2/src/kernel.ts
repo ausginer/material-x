@@ -16,19 +16,19 @@
  * ## What this entry publishes
  *
  * > A name is published here **if and only if** it is in the structural closure
- * > of `BehaviorFactory`, or the SPI hands a behavior a value whose domain it >
- * could not otherwise name.
+ * > of `BehaviorFactory`, or the SPI hands a behavior a value whose domain it
+ * > could not otherwise name.
  *
  * The values matter as much as the types: `config.liftMode` needs a `LIFT_*`,
  * `settlement.prepare` needs the `SETTLED_*` arms to discriminate its input,
  * and the terminal fallback needs `AT_PROPOSAL`/`AT_CONSUMER` and
- * `CANCEL_FAILED`. An erased type
- * cannot fill a value position, and no path under `kernel/` is a declared
- * package export, so this entry is the only specifier that reaches them.
+ * `CANCEL_FAILED`. An erased type cannot fill a value position, and no path
+ * under `kernel/` is a declared package export, so this entry is the only
+ * specifier that reaches them.
  *
  * **Published is not must-name.** A behavior whose seams sit inline in one
- * object literal is contextually typed throughout and names three to eight
- * things; one whose seams live in their own modules names about thirty. The
+ * object literal is contextually typed throughout and names a handful of
+ * things; one whose seams live in their own modules names most of it. The
  * closure is published so the second style is *possible*, not so anyone types
  * it.
  *
@@ -62,9 +62,7 @@ import type { BehaviorFactory } from './kernel/spec.ts';
  *
  * `ActionTransition` is re-exported through this module from **one**
  * declaration, in `kernel/seams.ts`: publishing one copy while the driver
- * consumes another is an identity hazard. It is the only type that needs the
- * treatment, because a non-discardable seam fails by throwing, like every other
- * seam.
+ * consumes another is an identity hazard.
  */
 export type {
   ActionTransition,
@@ -144,8 +142,8 @@ export {
 /**
  * **The eight phases, as values.** `Draft` and `Frame` carry `phase` and a
  * behavior reads it — in seams the kernel calls at times the behavior cannot
- * predict, like `command.admit` on any bound event — and `BehaviorContext.closed`
- * answers liveness, never *where in the operation this is*.
+ * predict, like `command.admit` on any bound event — and it answers *where in
+ * the operation this is*, never whether the controller is alive.
  *
  * All eight, not a useful subset: a numeric union whose members are unnameable
  * is not a public type, and an ordering test like `phase >= RELEASING` is only
@@ -225,8 +223,8 @@ export {
  * Creates one controller.
  *
  * The factory is called with the kernel, narrowed to {@link BehaviorContext},
- * and returns both halves at once:
- * the behavior needs `cancel`/`destroy` to build its controller, and the kernel
+ * and returns both halves at once: the behavior needs
+ * `requestCancel`/`requestDestroy` to build its controller, and the kernel
  * needs the spec before it can arm ingress. Ingress is armed exactly once,
  * after the factory has returned, so no input can be admitted before then.
  *
@@ -243,13 +241,9 @@ export function draggable<
   root: HTMLElement,
   behavior: BehaviorFactory<Controller, Part, Activation>,
 ): Controller {
-  const kernel = new Kernel<Part, Activation>(root);
-  // **The narrowing happens structurally, at this call.** `behavior` declares
-  // `BehaviorContext`, so what a behavior holds is this kernel under the
-  // narrower type and `arm` is not on it — the same arrangement `LifetimeScope`
-  // already uses one tier down.
-  const { spec, controller } = behavior(kernel);
-
-  kernel.arm(spec);
-  return controller;
+  // **The narrowing happens structurally, inside `construct`.** `behavior`
+  // declares `BehaviorContext`, so what a behavior holds is the kernel under
+  // the narrower type and `construct` is not on it — the same arrangement
+  // `LifetimeScope` already uses one tier down.
+  return new Kernel<Part, Activation>(root).construct(behavior);
 }

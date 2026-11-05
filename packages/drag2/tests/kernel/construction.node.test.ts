@@ -1,3 +1,5 @@
+import { readdir, readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import type {
   DraggableError,
@@ -14,11 +16,12 @@ import type {
 import { draggable } from '../../src/kernel.ts';
 
 /**
- * **The construction window**: `draggable()` obtains the spec from the behavior
- * factory and then calls `arm()`, which composes two frame parts before
- * publishing the spec last. A behavior holds `BehaviorContext` for the whole of
- * that window — the factory body and both frame-part factories — and every
- * member behaves there as its own contract states.
+ * **The construction window**: `draggable()` runs one unit that obtains the
+ * spec from the behavior factory, composes two frame parts and publishes the
+ * spec last. A behavior holds `BehaviorContext` for the whole of that window —
+ * the factory body and both frame-part factories — and every member behaves
+ * there as its own contract states. A destruction requested inside is applied
+ * when the unit ends, after publication.
  *
  * **The layer is `node` because the subject needs no layout, no pointer and no
  * real event.** A stub root carrying an owning window is the whole environment;
@@ -35,12 +38,19 @@ type ExamplePart = {
  * `createRealm` reads `ownerDocument.defaultView` and refuses a null one, so a
  * view is the whole of what it needs; the view's `HTMLElement` is reached only
  * by `isElement`, which nothing here calls, and any constructor stands in for
- * it. `arm()` binds `pointerdown` on the root and nothing dispatches one.
+ * it. Construction binds `pointerdown` on the root, and `listen` sees every
+ * binding, which is how a row reaches the listeners or the signal owning them.
  */
-function createRoot(): HTMLElement {
+function createRoot(
+  listen: (
+    type: string,
+    listener: (event: Event) => void,
+    options: AddEventListenerOptions,
+  ) => void = () => {},
+): HTMLElement {
   return {
     ownerDocument: { defaultView: { HTMLElement: Object } },
-    addEventListener(): void {},
+    addEventListener: listen,
     removeEventListener(): void {},
   } as unknown as HTMLElement;
 }
@@ -51,6 +61,10 @@ type Recorder = Readonly<{
   createFramePart(): number;
   resetFramePart(): number;
   retire(): number;
+  /** The promise of the first `requestDestroy()` a row raised, if it raised one. */
+  destroyed: Promise<void> | null;
+  /** Every signal construction bound a root listener under. */
+  signals: readonly AbortSignal[];
 }>;
 
 type Behavior = Readonly<{
@@ -65,7 +79,10 @@ type Behavior = Readonly<{
  * Every seam is present because `BehaviorSpec` requires it, and none of them
  * runs: no operation is ever admitted here.
  */
-function createBehavior(onCreateFramePart?: (call: number) => void): Behavior {
+function createBehavior(
+  onCreateFramePart?: (call: number) => void,
+  log: unknown[] = [],
+): Behavior {
   const reports: Array<DraggableError | DraggableWarning> = [];
   const createFramePart = vi.fn((): ExamplePart => ({ note: '' }));
   const resetFramePart = vi.fn((part: ExamplePart): void => {
@@ -79,6 +96,8 @@ function createBehavior(onCreateFramePart?: (call: number) => void): Behavior {
       createFramePart: () => createFramePart.mock.calls.length,
       resetFramePart: () => resetFramePart.mock.calls.length,
       retire: () => retire.mock.calls.length,
+      destroyed: null,
+      signals: [],
     },
     spec: {
       createFramePart: (): ExamplePart => {
@@ -104,7 +123,10 @@ function createBehavior(onCreateFramePart?: (call: number) => void): Behavior {
         effect: (): void => {},
       },
       action: {
-        prepare: () => true,
+        prepare: (tag, argument) => {
+          log.push(`action ${String(tag)} ${String(argument)}`);
+          return true;
+        },
         effect: (): void => {},
       },
       moved: (): void => {},
@@ -130,64 +152,129 @@ function arm(
   ) => spec,
 ): Recorder {
   let context!: BehaviorContext;
+  const signals: AbortSignal[] = [];
+  let destroyed: Promise<void> | null = null;
 
   const behavior = createBehavior(
     fromFramePart && ((call) => fromFramePart(context, call)),
   );
 
-  draggable<null, ExamplePart>(createRoot(), (kernel) => {
-    context = kernel;
-    fromFactory(kernel);
+  draggable<null, ExamplePart>(
+    createRoot((_type, _listener, options) => {
+      signals.push(options.signal!);
+    }),
+    (kernel) => {
+      // The first `requestDestroy()` a row raises is the one whose promise it reads.
+      context = {
+        ...kernel,
+        dispatch: kernel.dispatch.bind(kernel),
+        fail: kernel.fail.bind(kernel),
+        requestCancel: kernel.requestCancel.bind(kernel),
+        requestDestroy: () => {
+          destroyed ??= kernel.requestDestroy();
+          return destroyed;
+        },
+        channel: kernel.channel.bind(kernel),
+      };
+      fromFactory(context);
 
-    return { spec: mutate(behavior.spec), controller: null };
-  });
+      return { spec: mutate(behavior.spec), controller: null };
+    },
+  );
 
-  return behavior.recorder;
+  return {
+    ...behavior.recorder,
+    reports: behavior.recorder.reports,
+    destroyed,
+    signals,
+  };
 }
 
+const OUTSTANDING = 'outstanding';
+
+/**
+ * Whether `promise` has settled, read synchronously at the call: an
+ * already-settled promise wins the race because its reaction is queued before
+ * the sentinel's.
+ */
+const probe = async (promise: Promise<void> | null): Promise<unknown> =>
+  await Promise.race([promise, Promise.resolve(OUTSTANDING)]);
+
 describe('the construction window', () => {
-  it('should retire the behavior when a frame-part factory destroys the controller', () => {
-    // **`retire` is the assertion, not the frame resets.** Step 4 of teardown
-    // is the step this window loses if `arm()`'s unwind is reached only by its
-    // throwing exit, and it is the one the behavior is owed: a spec that
-    // reached `arm()` is retired exactly once for any `destroy()` at all.
+  it('should retire the behavior once when a frame-part factory destroys the controller', () => {
+    // Destruction requested inside construction is applied after the
+    // controller is published, and application retires a published spec
+    // exactly once.
     const recorder = arm(
       () => {},
-      (kernel) => {
-        void kernel.destroy();
+      (kernel, call) => {
+        if (call === 1) {
+          void kernel.requestDestroy();
+        }
       },
     );
 
     expect(recorder.retire()).toBe(1);
   });
 
-  it('should reset only the frame parts a destroying factory composed', () => {
-    // One composition ran, so one reset is owed. `resetFramePart` declares a
-    // `Frame<Part>` parameter, and handing it a frame that was never composed
-    // is a fault the library would be committing against the behavior.
+  it('should compose both frame parts when the first frame-part factory destroys the controller', () => {
     const recorder = arm(
       () => {},
-      (kernel) => {
-        void kernel.destroy();
+      (kernel, call) => {
+        if (call === 1) {
+          void kernel.requestDestroy();
+        }
       },
     );
 
-    expect([recorder.createFramePart(), recorder.resetFramePart()]).toEqual([
-      1, 1,
-    ]);
+    expect(recorder.createFramePart()).toBe(2);
   });
 
-  it('should unwind both frames when the second frame-part factory destroys the controller', () => {
-    // The terminal latch is what decides this branch. Both compositions
-    // completed, so both frames physically exist and neither guard on the
-    // unwind is what stops the controller arming over a closed latch — the
-    // latch test itself is, and it is the only conjunct that can be false
-    // here.
+  it('should reset each frame once when the first frame-part factory destroys the controller', () => {
+    const recorder = arm(
+      () => {},
+      (kernel, call) => {
+        if (call === 1) {
+          void kernel.requestDestroy();
+        }
+      },
+    );
+
+    expect(recorder.resetFramePart()).toBe(2);
+  });
+
+  it('should attach ingress and abort it when a frame-part factory destroys the controller', () => {
+    const recorder = arm(
+      () => {},
+      (kernel, call) => {
+        if (call === 1) {
+          void kernel.requestDestroy();
+        }
+      },
+    );
+
+    expect(recorder.signals.map((signal) => signal.aborted)).toEqual([true]);
+  });
+
+  it('should have settled the destroy promise when draggable() returns', async () => {
+    const recorder = arm(
+      () => {},
+      (kernel, call) => {
+        if (call === 1) {
+          void kernel.requestDestroy();
+        }
+      },
+    );
+
+    await expect(probe(recorder.destroyed)).resolves.toBeUndefined();
+  });
+
+  it('should unwind both frames once when the second frame-part factory destroys the controller', () => {
     const recorder = arm(
       () => {},
       (kernel, call) => {
         if (call === 2) {
-          void kernel.destroy();
+          void kernel.requestDestroy();
         }
       },
     );
@@ -195,23 +282,45 @@ describe('the construction window', () => {
     expect([recorder.resetFramePart(), recorder.retire()]).toEqual([2, 1]);
   });
 
-  it('should compose no frame part and still retire when the factory body destroys the controller', () => {
+  it('should compose both frame parts and retire once when the factory body destroys the controller', () => {
     const recorder = arm((kernel) => {
-      void kernel.destroy();
+      void kernel.requestDestroy();
     });
 
-    expect([recorder.createFramePart(), recorder.retire()]).toEqual([0, 1]);
+    expect([recorder.createFramePart(), recorder.retire()]).toEqual([2, 1]);
   });
 
-  it('should reset no frame part when the factory body destroys the controller', () => {
-    // Nothing was composed, so nothing may be handed to `resetFramePart`: a
-    // reset of the frame the unwind does not hold would call the behavior's
-    // own member with a value its declaration says is a `Frame<Part>`.
+  it('should reset each frame once when the factory body destroys the controller', () => {
     const recorder = arm((kernel) => {
-      void kernel.destroy();
+      void kernel.requestDestroy();
     });
 
-    expect(recorder.resetFramePart()).toBe(0);
+    expect(recorder.resetFramePart()).toBe(2);
+  });
+
+  it('should reset no frame part when the first frame-part factory throws', () => {
+    // Nothing was composed, so nothing may be handed to `resetFramePart`: the
+    // unwind resets only the frames it holds.
+    const behavior = createBehavior(() => {
+      throw new Error('first factory');
+    });
+
+    expect(() =>
+      draggable<null, ExamplePart>(createRoot(), () => ({
+        spec: behavior.spec,
+        controller: null,
+      })),
+    ).toThrow('first factory');
+    expect(behavior.recorder.resetFramePart()).toBe(0);
+  });
+
+  it('should leave the controller live after construction when nothing destroyed it', () => {
+    const recorder = arm();
+
+    expect([
+      recorder.signals.map((signal) => signal.aborted),
+      recorder.retire(),
+    ]).toEqual([[false], 0]);
   });
 
   it('should demote a fail() raised from the factory body instead of throwing', () => {
@@ -227,11 +336,11 @@ describe('the construction window', () => {
 
   it('should treat a cancel() raised from the factory body as the idle no-op', () => {
     const recorder = arm((kernel) => {
-      kernel.cancel('reason');
+      kernel.requestCancel('reason');
     });
 
-    // Nothing was latched and nothing was reported, and the controller went on
-    // to arm: two frame parts, no retirement.
+    // Nothing was registered and nothing was reported, and the controller went
+    // on to arm: two frame parts, no retirement.
     expect([
       recorder.reports.length,
       recorder.createFramePart(),
@@ -240,7 +349,6 @@ describe('the construction window', () => {
   });
 
   it('should refuse an invalid configuration even when the factory destroyed the controller', () => {
-    // Static configuration validation runs before the first latch test.
     // `actionTags` is a fact about the spec rather than about the controller's
     // liveness, and a `TypeError` that appeared or vanished depending on
     // whether the behavior destroyed itself is a configuration error its
@@ -248,7 +356,7 @@ describe('the construction window', () => {
     expect(() =>
       arm(
         (kernel) => {
-          void kernel.destroy();
+          void kernel.requestDestroy();
         },
         undefined,
         (spec) => ({
@@ -267,7 +375,7 @@ describe('the construction window', () => {
     expect(() =>
       arm(
         (kernel) => {
-          void kernel.destroy();
+          void kernel.requestDestroy();
         },
         undefined,
         (spec) => ({
@@ -276,5 +384,206 @@ describe('the construction window', () => {
         }),
       ),
     ).toThrow(TypeError);
+  });
+});
+
+/**
+ * **Behavior actions dispatched during construction** (D-204). They are queued
+ * and applied after publication, before `draggable()` returns, in dispatch
+ * order. No row here dispatches an out-of-range tag from the window: its
+ * outcome is unspecified, and pinning one would turn misuse into contract.
+ */
+describe('dispatch during construction', () => {
+  type Window = Readonly<{
+    fromFactory?(kernel: BehaviorContext): void;
+    fromFramePart?(kernel: BehaviorContext, call: number): void;
+  }>;
+
+  function construct(window: Window): readonly unknown[] {
+    const log: unknown[] = [];
+    let context!: BehaviorContext;
+    const behavior = createBehavior((call) => {
+      window.fromFramePart?.(context, call);
+    }, log);
+    const spec = {
+      ...behavior.spec,
+      reportError: (error: DraggableError | DraggableWarning): void => {
+        log.push(`report ${error.message}`);
+      },
+    };
+
+    try {
+      draggable<null, ExamplePart>(
+        createRoot((type) => {
+          log.push(`listen ${type}`);
+        }),
+        (kernel) => {
+          context = kernel;
+          window.fromFactory?.(kernel);
+          return { spec, controller: null };
+        },
+      );
+      log.push('returned');
+    } catch (error) {
+      log.push(`threw ${(error as Error).message}`);
+    }
+
+    return log;
+  }
+
+  it('should apply window actions after publication and before draggable() returns, in dispatch order', () => {
+    // R23: one from the factory body, one from the first frame-part factory.
+    // Publication is visible as the ingress listener being attached.
+    expect(
+      construct({
+        fromFactory: (kernel) => {
+          kernel.dispatch(0, 'a');
+        },
+        fromFramePart: (kernel, call) => {
+          if (call === 1) {
+            kernel.dispatch(0, 'b');
+          }
+        },
+      }),
+    ).toEqual(['listen pointerdown', 'action 0 a', 'action 0 b', 'returned']);
+  });
+
+  it('should apply no window action once a window destruction is applied', () => {
+    // R24: the destroy requested in the window is applied at construction's
+    // boundary, ahead of everything queued, and clears the queue.
+    expect(
+      construct({
+        fromFactory: (kernel) => {
+          kernel.dispatch(0, 'a');
+          void kernel.requestDestroy();
+        },
+      }),
+    ).toEqual(['listen pointerdown', 'returned']);
+  });
+
+  it('should apply no window action when construction fails', () => {
+    // R24: a failure that unwinds construction clears the queue with it.
+    expect(
+      construct({
+        fromFactory: (kernel) => {
+          kernel.dispatch(0, 'a');
+        },
+        fromFramePart: () => {
+          throw new Error('frame part');
+        },
+      }),
+    ).toEqual(['threw frame part']);
+  });
+});
+
+/**
+ * **Foreign code inside ingress attachment.** A root whose `addEventListener`
+ * for a command type synchronously dispatches a primary press and a command
+ * through the listeners already bound, then throws.
+ */
+describe('ingress attachment during construction', () => {
+  const COMMAND = 'keydown';
+  const PRESS = {
+    type: POINTER_DOWN,
+    button: 0,
+    isPrimary: true,
+    pointerId: 1,
+    clientX: 0,
+    clientY: 0,
+  } as unknown as Event;
+
+  type Attempt = Readonly<{
+    thrown: unknown;
+    admissions: number;
+    signals: readonly AbortSignal[];
+  }>;
+
+  function attach(): Attempt {
+    const listeners = new Map<string, (event: Event) => void>();
+    const signals: AbortSignal[] = [];
+    let admissions = 0;
+    let thrown: unknown = null;
+    const behavior = createBehavior();
+    const root = createRoot((type, listener, options) => {
+      signals.push(options.signal!);
+      listeners.set(type, listener);
+
+      if (type === COMMAND) {
+        listeners.get(POINTER_DOWN)!(PRESS);
+        listener({ type: COMMAND } as Event);
+        throw new Error('attachment');
+      }
+    });
+
+    try {
+      draggable<null, ExamplePart>(root, () => ({
+        spec: {
+          ...behavior.spec,
+          admit: () => {
+            admissions += 1;
+            return null;
+          },
+          command: {
+            types: [COMMAND],
+            admit: () => {
+              admissions += 1;
+              return null;
+            },
+          },
+        },
+        controller: null,
+      }));
+    } catch (error) {
+      thrown = error;
+    }
+
+    return { thrown, admissions, signals };
+  }
+
+  it('should rethrow the attachment failure', () => {
+    expect((attach().thrown as Error).message).toBe('attachment');
+  });
+
+  it('should admit nothing dispatched from inside attachment', () => {
+    expect(attach().admissions).toBe(0);
+  });
+
+  it('should leave no ingress listener attached', () => {
+    expect(attach().signals.map((signal) => signal.aborted)).toEqual([
+      true,
+      true,
+    ]);
+  });
+});
+
+/**
+ * **R27, structural.** The count bounding a `dispatch` tag is read at two
+ * sites and no others: construction's static validation and armed intake.
+ * Nothing on the drain path reads it, so a queued action is applied without
+ * a second check, and no list of construction-window tags is held for later.
+ */
+describe('the action-tag bound', () => {
+  it('should be read only by static validation and armed intake', async () => {
+    const directory = new URL('../../src/kernel/', import.meta.url).pathname;
+    const names = (await readdir(directory)).toSorted();
+    const sources = await Promise.all(
+      names.map(async (name) => await readFile(join(directory, name), 'utf8')),
+    );
+    // The read expressions, not the lines: formatting moves the latter.
+    const reads = names.flatMap((name, index) =>
+      sources[index]!.split('\n')
+        .map((line) => line.trim())
+        .filter((code) => !code.startsWith('//') && !code.startsWith('*'))
+        .flatMap((code) => code.match(/[\w#.]+\.actionTags\b/gu) ?? [])
+        .map((read) => `${name}: ${read}`),
+    );
+
+    // Armed intake reads the published spec; static validation reads the
+    // spec being armed, twice in one condition.
+    expect(reads).toEqual([
+      'kernel.ts: this.#spec.config.actionTags',
+      'kernel.ts: next.config.actionTags',
+      'kernel.ts: next.config.actionTags',
+    ]);
   });
 });

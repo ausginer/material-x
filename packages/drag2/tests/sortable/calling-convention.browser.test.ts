@@ -223,7 +223,7 @@ function composeWith(
   });
 
   cleanup.push(() => {
-    void controller.destroy();
+    void controller.requestDestroy();
     root.remove();
   });
 
@@ -340,7 +340,7 @@ describe('a lifted insertion geometry', () => {
     await reorder(composed);
     pointer('pointerup', 110, document);
     await settled();
-    await composed.controller.destroy();
+    await composed.controller.requestDestroy();
 
     expectDetached(recording, 'retire');
   });
@@ -391,7 +391,7 @@ describe('a lifted insertion geometry', () => {
     await reorder(composed);
     pointer('pointerup', 110, document);
     await settled();
-    await composed.controller.destroy();
+    await composed.controller.requestDestroy();
 
     expect(
       recording.receivers
@@ -442,7 +442,7 @@ describe('a lifted displacement sink', () => {
     await reorder(composed);
     pointer('pointerup', 110, document);
     await settled();
-    await composed.controller.destroy();
+    await composed.controller.requestDestroy();
 
     expect(
       recording.receivers

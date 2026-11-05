@@ -1,0 +1,165 @@
+diff --git a/.gitignore b/.gitignore
+index bb41a1c94..c24aca742 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -3,12 +3,12 @@
+ /node_modules
+ /.vite
+ /.vite-inspect
+-/.vitest-attachments
++/.vitest
+ /.nx
+ /.coverage
+ /packages/*/.vite
+ /packages/*/.coverage
+-/packages/*/.vitest-attachments
++/packages/*/.vitest
+ /packages/*/node_modules
+ /packages/*/custom-elements.json
+ /packages/*/.codeanalyzer
+diff --git a/.scripts/vitest-config.ts b/.scripts/vitest-config.ts
+index f9b9dc55a..5cfadc66d 100644
+--- a/.scripts/vitest-config.ts
++++ b/.scripts/vitest-config.ts
+@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
+ import { parseArgs } from 'node:util';
+ import { playwright } from '@vitest/browser-playwright';
+ import type { ConfigEnv, UserConfig } from 'vite';
+-import { mergeConfig } from 'vitest/config';
++import { mergeConfig, type TestProjectInlineConfiguration } from 'vitest/config';
+ import type { BrowserCommand } from 'vitest/node';
+ import {
+   createViteConfig,
+@@ -94,7 +94,9 @@ function isBrowserProjectConfig(project: UserConfig): boolean {
+  * is another group starting, so a project in the final group is never released
+  * by one.
+  */
+-function assignGroupOrder(projects: readonly UserConfig[]): UserConfig[] {
++function assignGroupOrder(
++  projects: readonly UserConfig[],
++): TestProjectInlineConfiguration[] {
+   const shared = projects.filter(isBrowserProjectConfig).length + 1;
+   let browser = 0;
+ 
+@@ -107,8 +109,9 @@ function assignGroupOrder(projects: readonly UserConfig[]): UserConfig[] {
+     }
+ 
+     return mergeConfig(project, {
++      extends: false,
+       test: { sequence: { groupOrder } },
+-    } satisfies UserConfig);
++    } satisfies TestProjectInlineConfiguration);
+   });
+ }
+ 
+@@ -442,6 +445,7 @@ function createDragTestProjects(
+       root,
+       include: ['tests/**/*.node.test.ts'],
+       globalSetup: nodeGlobalSetup,
++      setupFiles: nodeGlobalSetup.length ? ['tests/support/require-build.node.ts'] : [],
+     }),
+   ];
+ }
+diff --git a/packages/drag2/bench/shipped/vitest.config.ts b/packages/drag2/bench/shipped/vitest.config.ts
+index d0a70532f..c9f24ca2c 100644
+--- a/packages/drag2/bench/shipped/vitest.config.ts
++++ b/packages/drag2/bench/shipped/vitest.config.ts
+@@ -19,6 +19,7 @@ import type { UserConfigFnObject } from 'vite';
+ import { defineConfig } from 'vitest/config';
+ import {
+   createDragTestConfig,
++  DRAG2_NODE_GLOBAL_SETUP,
+   DRAG2_SHIPPED_BROWSER_TESTS,
+ } from '../../../../.scripts/vitest-config.ts';
+ import { dragBrowserCommands } from '../../tests/support/pointer-commands.node.ts';
+@@ -28,6 +29,7 @@ const config: UserConfigFnObject = defineConfig(() =>
+     new URL('../../', import.meta.url),
+     dragBrowserCommands,
+     [...DRAG2_SHIPPED_BROWSER_TESTS, 'tests/perf/d208-step6.browser.test.ts'],
++    DRAG2_NODE_GLOBAL_SETUP,
+   ),
+ );
+ 
+diff --git a/packages/drag2/tests/bench/size.node.test.ts b/packages/drag2/tests/bench/size.node.test.ts
+index 3e0f2b1a1..62fe7d761 100644
+--- a/packages/drag2/tests/bench/size.node.test.ts
++++ b/packages/drag2/tests/bench/size.node.test.ts
+@@ -135,6 +135,8 @@ describe('the declared module graphs', () => {
+     // disagree about what counts as generated. A second of slack absorbs
+     // filesystem timestamp granularity and nothing else: a survivor is a build
+     // older than this one, not a build a millisecond older.
++    expect(builtAt).toBeTypeOf('number');
++
+     const generated = packageFilesToCleanPathspecs(
+       await readPackageFiles(ROOT),
+     );
+diff --git a/packages/drag2/tests/support/build-package.node.ts b/packages/drag2/tests/support/build-package.node.ts
+index 4369806c2..7f2a4f34a 100644
+--- a/packages/drag2/tests/support/build-package.node.ts
++++ b/packages/drag2/tests/support/build-package.node.ts
+@@ -14,13 +14,14 @@ declare module 'vitest' {
+   export interface ProvidedContext {
+     /** When this project's build started, in epoch milliseconds. */
+     builtAt: number;
++    buildFailure: string | null;
+   }
+ }
+ 
+ const ROOT = resolve(import.meta.dirname, '../..');
+ 
+-function build(): Promise<void> {
+-  return new Promise((done, fail) => {
++function build(): Promise<string | null> {
++  return new Promise((done) => {
+     const child = spawn('npx', ['tsdown', '--config', 'tsdown.config.ts'], {
+       cwd: ROOT,
+     });
+@@ -34,19 +35,16 @@ function build(): Promise<void> {
+     child.stderr.on('data', (chunk: string) => {
+       output += chunk;
+     });
+-    child.on('error', fail);
++    child.on('error', ({ message }) => {
++      done(`tsdown did not start: ${message}`);
++    });
+     child.on('close', (code) => {
+-      if (code === 0) {
+-        done();
+-        return;
+-      }
+-
+-      fail(new Error(`tsdown exited with ${code}\n${output}`));
++      done(code === 0 ? null : `tsdown exited with ${code}\n${output}`);
+     });
+   });
+ }
+ 
+ export async function setup(project: TestProject): Promise<void> {
+   project.provide('builtAt', Date.now());
+-  await build();
++  project.provide('buildFailure', await build());
+ }
+diff --git a/packages/tproc/tests/DB/index.node.test.ts b/packages/tproc/tests/DB/index.node.test.ts
+index 0860b5fc8..8a20ae76c 100644
+--- a/packages/tproc/tests/DB/index.node.test.ts
++++ b/packages/tproc/tests/DB/index.node.test.ts
+@@ -1,8 +1,9 @@
+ import { describe, it, expect, vi } from 'vitest';
+ 
++vi.unmock('../../src/DB/index.ts');
++
+ describe('db index', () => {
+   it('should load db instance', async () => {
+-    vi.unmock('../../src/DB/index.ts');
+     vi.resetModules();
+     const mockInstance = { name: 'db' };
+     const load = vi.fn(async () => await Promise.resolve(mockInstance));
+
+--- new file, untracked in the scratch: packages/drag2/tests/support/require-build.node.ts
+import { inject } from 'vitest';
+
+const failure = inject('buildFailure');
+
+if (failure !== null) {
+  throw new Error(failure);
+}

@@ -59,14 +59,14 @@ export function assemble(
     // **Installation order is schema order**, written out rather than driven by
     // a loop over a heterogeneous array: the named capability keys, in the
     // order the schema declares them, and every reader of `retireHooks` walks
-    // it backwards. With no unbounded position left there is no fragment order
-    // to preserve anywhere.
+    // it backwards. With no unbounded position there is no fragment order to
+    // preserve anywhere.
     const axis = config.axis(branded);
 
     // Cleanup is recorded **first**, before anything below can throw, and in
-    // installation order. Recording it after the loop would put the axis
-    // feature's hook last in installation order and therefore *first* after the
-    // reverse, which is the opposite of the documented order for `[y(), …]`.
+    // installation order: the axis feature's hook is first in installation
+    // order and therefore *last* after the reverse, which is the documented
+    // order for `[y(), …]`.
     //
     // Guarded, though the type declares `insertion` required: a JS-authored
     // installer that returns none must not fail *here*, where the unwind has
@@ -166,8 +166,7 @@ export function assemble(
 
     // **Stored in installation order and walked backwards by every reader.**
     // The published guarantee is about execution order; a `reverse()` here
-    // would be a second representation of it, with a mutation between the two —
-    // the shape the undo ledger next door already avoids.
+    // would be a second representation of it, with a mutation between the two.
     return slots;
   } catch (error) {
     // A later installer or the resolver dereference must not leak an earlier

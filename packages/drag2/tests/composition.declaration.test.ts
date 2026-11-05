@@ -251,7 +251,7 @@ describe('third-party authoring', () => {
 
     expect(controller).toBeTypeOf('object');
 
-    void controller.destroy();
+    void controller.requestDestroy();
   });
 
   it('should type a hoisted installer from its alias', () => {
@@ -263,7 +263,7 @@ describe('third-party authoring', () => {
       return { retire: dispose };
     };
 
-    void freeDrag(item, config, { plugins: [install] }).destroy();
+    void freeDrag(item, config, { plugins: [install] }).requestDestroy();
   });
 
   it('should accept the same contribution when the context is its own', () => {
@@ -281,7 +281,7 @@ describe('third-party authoring', () => {
     };
     const install: FreeDragPlugin = () => contribution;
 
-    void freeDrag(item, config, { plugins: [install] }).destroy();
+    void freeDrag(item, config, { plugins: [install] }).requestDestroy();
   });
 
   it('should still reach the landing key with only shared vocabulary', () => {
@@ -301,7 +301,7 @@ describe('third-party authoring', () => {
 
     expect(controller).toBeTypeOf('object');
 
-    void controller.destroy();
+    void controller.requestDestroy();
   });
 
   it('should stay assignable to both behaviors when it declares no context', () => {
@@ -340,6 +340,6 @@ describe('third-party authoring', () => {
     const install: FreeDragPlugin = (_context: SortableFeatureContext) =>
       contribution;
 
-    void freeDrag(item, config, { plugins: [install] }).destroy();
+    void freeDrag(item, config, { plugins: [install] }).requestDestroy();
   });
 });

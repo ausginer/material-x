@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { BEHAVIOR_BASE, RETIRE } from '../../src/kernel/actions.ts';
 import { DraggableError, DraggableWarning } from '../../src/kernel/errors.ts';
 import {
   AT_CONSUMER,
@@ -6,6 +7,7 @@ import {
   CANCEL_ABORTED,
   CANCEL_INTERRUPTED,
   CANCEL_SUPPLIED,
+  FAILURE_ACTION_PREPARE,
   FAILURE_ACTIVATION,
   FAILURE_ADMISSION,
   FAILURE_RELEASE,
@@ -53,7 +55,10 @@ type Harness = Readonly<{
   root: HTMLElement;
   item: HTMLElement;
   kernel: BehaviorContext;
-  controller: { cancel(reason?: unknown): void; destroy(): Promise<void> };
+  controller: {
+    requestCancel(reason?: unknown): void;
+    requestDestroy(): Promise<void>;
+  };
   /** Every seam the kernel drove, in order. */
   calls: string[];
   /** The committed phase each seam observed. */
@@ -161,7 +166,7 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
   let kernel!: BehaviorContext;
 
   const controller = draggable<
-    { cancel(reason?: unknown): void; destroy(): Promise<void> },
+    { requestCancel(reason?: unknown): void; requestDestroy(): Promise<void> },
     ExamplePart,
     HTMLElement
   >(root, (kernelHost) => {
@@ -285,16 +290,16 @@ function createHarness(overrides: SpecOverrides = {}): Harness {
       // them: the kernel's members are prototype methods and a bare read
       // would arrive with no receiver.
       controller: {
-        cancel: (reason?: unknown): void => {
-          kernel.cancel(reason);
+        requestCancel: (reason?: unknown): void => {
+          kernel.requestCancel(reason);
         },
-        destroy: (): Promise<void> => kernel.destroy(),
+        requestDestroy: (): Promise<void> => kernel.requestDestroy(),
       },
     };
   });
 
   cleanup.push(() => {
-    void controller.destroy();
+    void controller.requestDestroy();
     root.remove();
   });
 
@@ -360,6 +365,21 @@ const click = (): MouseEvent => {
   return event;
 };
 
+/**
+ * Whether destruction has been applied, observed through the one refusal a
+ * behavior can still reach: a freshly minted channel delivers until then and
+ * drops afterwards. `BehaviorContext` has no lifecycle member to read instead.
+ */
+const applied = (kernel: BehaviorContext): boolean => {
+  let delivered = false;
+
+  kernel.channel(() => {
+    delivered = true;
+  })(new DraggableWarning('probe'));
+
+  return !delivered;
+};
+
 /** Press, then cross the activation threshold. */
 const activate = (harness: Harness): void => {
   press(harness.item);
@@ -418,7 +438,7 @@ describe('draggable', () => {
   it('should return the controller the behavior built', () => {
     const harness = createHarness();
 
-    expect(typeof harness.controller.destroy).toBe('function');
+    expect(typeof harness.controller.requestDestroy).toBe('function');
   });
 
   it('should hand the behavior a kernel whose root is the ingress boundary', () => {
@@ -668,7 +688,7 @@ describe('discrete admission', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.controller.cancel('test');
+    harness.controller.requestCancel('test');
     release(40, 10);
 
     expect(click().defaultPrevented).toBe(true);
@@ -696,7 +716,7 @@ describe('discrete admission', () => {
 
     activate(harness);
     release(40, 10);
-    void harness.controller.destroy();
+    void harness.controller.requestDestroy();
 
     expect(click().defaultPrevented).toBe(false);
   });
@@ -805,7 +825,7 @@ describe('discrete admission', () => {
     // Destroyed before the second harness is driven: `move()` dispatches on
     // `document`, so a live operation here would keep advancing while the
     // omitted-member harness takes its own press.
-    void declared.controller.destroy();
+    void declared.controller.requestDestroy();
 
     const omitted = createHarness();
     const omittedCalls = drive(omitted);
@@ -894,7 +914,7 @@ describe('discrete admission', () => {
 
     expect(admitted).toBe(1);
 
-    void harness.controller.destroy();
+    void harness.controller.requestDestroy();
     harness.root.dispatchEvent(
       new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
     );
@@ -1055,6 +1075,69 @@ describe('admission', () => {
     expect(harness.calls).toEqual([]);
   });
 
+  it('should dispose an operation whose input arming failed and retire nothing else', () => {
+    let resets = 0;
+    const harness = createHarness({
+      resetFramePart(part): void {
+        resets += 1;
+        part.item = null;
+        part.note = '';
+      },
+    });
+    const failure = new Error('arming');
+    const signals: AbortSignal[] = [];
+
+    // An own property shadowing the prototype's, removed afterwards. The
+    // cancel input is armed after the pointer input, so the motion listeners
+    // exist when the throw arrives and the disposal has something to release.
+    document.addEventListener = function addEventListener(
+      this: Document,
+      type: string,
+      listener: EventListenerOrEventListenerObject,
+      options?: boolean | AddEventListenerOptions,
+    ): void {
+      if (type === 'keydown') {
+        throw failure;
+      }
+
+      if (typeof options === 'object' && options.signal) {
+        signals.push(options.signal);
+      }
+
+      EventTarget.prototype.addEventListener.call(
+        this,
+        type,
+        listener,
+        options,
+      );
+    } as typeof document.addEventListener;
+
+    try {
+      press(harness.item);
+    } finally {
+      Reflect.deleteProperty(document, 'addEventListener');
+    }
+
+    // **The unpublished record is the whole of what is retired.** No behavior
+    // retirement and no frame reset: the frames never saw the operation.
+    expect(harness.calls).toEqual(['admit']);
+    expect(resets).toBe(0);
+    expect(signals.length).toBeGreaterThan(0);
+    expect(signals.every((signal) => signal.aborted)).toBe(true);
+    expect(
+      harness.reports.map((report) => [report.message, report.cause]),
+    ).toEqual([['drag: operation/arming-failed', failure]]);
+
+    activate(harness);
+
+    expect(harness.calls).toEqual([
+      'admit',
+      'admit',
+      'activation.prepare',
+      'activation.effect',
+    ]);
+  });
+
   it('should refuse a nested press before it can touch either frame', () => {
     // The SPI permits `admit` to write the draft *before* it reaches consumer
     // code, and the sortable behavior happens not to — which is why this lives
@@ -1145,7 +1228,7 @@ describe('admission', () => {
     const harness = createHarness({
       admit(_event, draft): HTMLElement {
         draft.item = null;
-        void harness.kernel.destroy();
+        void harness.kernel.requestDestroy();
         return harness.item;
       },
     });
@@ -1309,7 +1392,7 @@ describe('activation', () => {
   it('should not dispatch START_COMMITTED when onStart cancelled', () => {
     const harness = createHarness({
       onStart(kernel): void {
-        kernel.cancel('from onStart');
+        kernel.requestCancel('from onStart');
       },
     });
 
@@ -1326,7 +1409,7 @@ describe('activation', () => {
   it('should not dispatch START_COMMITTED when onStart destroyed', () => {
     const harness = createHarness({
       onStart(kernel): void {
-        void kernel.destroy();
+        void kernel.requestDestroy();
       },
     });
 
@@ -1339,8 +1422,8 @@ describe('activation', () => {
 
 describe('the phase a commit publishes', () => {
   /**
-   * `ACTIVATING` is written by the kernel between `preparationValid()` and the
-   * swap, and it reaches that write as an argument of the commit. A seam that
+   * `ACTIVATING` is written by the kernel between `prepare` and the swap, and
+   * it reaches that write as an argument of the commit. A seam that
    * discards or fails never reaches `commit()`, so its phase goes with the
    * stack frame — the next transaction to commit is an ordinary admission or
    * pointer sample, and it publishes the phase *it* carries and no other.
@@ -1682,7 +1765,7 @@ describe('the resolution round-trip', () => {
     release(80, 10);
     expect(signal.aborted).toBe(false);
 
-    harness.controller.cancel('reason');
+    harness.controller.requestCancel('reason');
     expect(signal.aborted).toBe(true);
   });
 
@@ -1727,7 +1810,7 @@ describe('the resolution round-trip', () => {
     // Abandon it, then let a **newer** operation own the controller — the
     // exact shape probe A named, because a stale settlement arriving with no
     // successor is the easy case.
-    harness.controller.cancel('abandoned');
+    harness.controller.requestCancel('abandoned');
     activate(harness);
 
     reject(new Error('late'));
@@ -1769,7 +1852,7 @@ describe('the resolution round-trip', () => {
   it('should let a cancel raised from inside invoke win', () => {
     const harness = createHarness({
       release: releaseWith((): string => {
-        harness.kernel.cancel('from onReorder');
+        harness.kernel.requestCancel('from onReorder');
         return 'verdict';
       }),
     });
@@ -1791,7 +1874,7 @@ describe('the resolution round-trip', () => {
 
     activate(harness);
     release(80, 10);
-    void harness.controller.destroy();
+    void harness.controller.requestDestroy();
     await flush();
 
     expect(harness.settlements).toEqual([]);
@@ -1832,7 +1915,7 @@ describe('the resolution round-trip', () => {
 
     activate(harness);
     release(80, 10);
-    harness.controller.cancel('abandoned');
+    harness.controller.requestCancel('abandoned');
 
     // **The producer half of the double validation, alone.** The completion
     // named an attempt the slot no longer held, so it was refused where it
@@ -1846,7 +1929,7 @@ describe('the resolution round-trip', () => {
       release: releaseWith((): string => {
         // Queued ahead of the completion this release settles, so the slot
         // turns over between the settle and the application of it.
-        harness.kernel.cancel('abandoned');
+        harness.kernel.requestCancel('abandoned');
         return 'verdict';
       }),
       settlement: {
@@ -1876,6 +1959,432 @@ describe('the resolution round-trip', () => {
       SETTLED_CANCELED,
       SETTLED_FAILED,
     ]);
+  });
+});
+
+/**
+ * **The consumer round-trip runs in its own unit** (D-205, F-438). The release
+ * unit holds the staged command and queues `OPEN_RESOLUTION`, so a destruction
+ * requested in it is applied at its boundary and discards the entry, and work
+ * the release effect dispatched applies first. Every request below is raised
+ * from a seam the bracket is running, never through a harness flag.
+ */
+describe('the round-trip unit', () => {
+  /** A release whose `invoke` records itself and settles synchronously. */
+  const recordingRelease = (
+    calls: () => string[],
+    during: Readonly<{ prepare?(): void; effect?(): void }> = {},
+  ): BehaviorSpec<ExamplePart, HTMLElement>['release'] => ({
+    prepare(): ResolutionCommand {
+      calls().push('release.prepare');
+      during.prepare?.();
+      return {
+        invoke: (): string => {
+          calls().push('invoke');
+          return 'verdict';
+        },
+      };
+    },
+    effect(): void {
+      calls().push('release.effect');
+      during.effect?.();
+    },
+  });
+
+  it('should open no round-trip for a cancel requested in the release effect', () => {
+    // R4. The cancel is registered inside the release unit, and the round-trip
+    // never reaches `invoke`, so the stage is the proposal's.
+    const harness: Harness = createHarness({
+      release: recordingRelease(() => harness.calls, {
+        effect: () => {
+          harness.kernel.requestCancel('in effect');
+        },
+      }),
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.calls).not.toContain('invoke');
+    expect(harness.settlements).toEqual([
+      {
+        type: SETTLED_CANCELED,
+        reason: 'in effect',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
+    ]);
+    expect(harness.calls).toContain('finalized');
+  });
+
+  it('should run the release effect of a release whose prepare requested cancel', () => {
+    // R32, the release seam. No request invalidates a successful `prepare`, so
+    // the release commits and its effect runs once; `CANCEL` applies after the
+    // release unit, at `RELEASING`, and the round-trip behind it declines.
+    const harness: Harness = createHarness({
+      release: recordingRelease(() => harness.calls, {
+        prepare: () => {
+          harness.kernel.requestCancel('in prepare');
+        },
+      }),
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(
+      harness.calls.filter((call) => call === 'release.effect'),
+    ).toHaveLength(1);
+    expect(harness.calls).not.toContain('invoke');
+    expect(harness.settlements).toEqual([
+      {
+        type: SETTLED_CANCELED,
+        reason: 'in prepare',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
+    ]);
+    expect(harness.calls.filter((call) => call === 'finalized')).toHaveLength(
+      1,
+    );
+  });
+
+  it('should run the effect of an action whose prepare requested cancel', () => {
+    // R32, the action seam, at `ACTIVE`. The action commits and its effect
+    // runs once; the cancel then applies with the reason it registered.
+    const harness: Harness = createHarness({
+      action: {
+        prepare(tag): {} | null {
+          harness.calls.push(`action.prepare:${tag}`);
+          harness.kernel.requestCancel('in action prepare');
+          return true;
+        },
+        effect(tag): void {
+          harness.calls.push(`action.effect:${tag}`);
+        },
+      },
+    });
+
+    activate(harness);
+    harness.kernel.dispatch(0, null);
+
+    expect(
+      harness.calls.filter((call) => call === 'action.effect:0'),
+    ).toHaveLength(1);
+    expect(harness.calls.indexOf('action.effect:0')).toBeLessThan(
+      harness.calls.indexOf('finalized'),
+    );
+    expect(harness.settlements).toEqual([
+      {
+        type: SETTLED_CANCELED,
+        reason: 'in action prepare',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
+    ]);
+    expect(harness.calls.filter((call) => call === 'finalized')).toHaveLength(
+      1,
+    );
+  });
+
+  it('should open no round-trip for a destroy requested in the release effect', () => {
+    // R5. The release unit completes, then destruction is applied at its
+    // boundary, ahead of the queued round-trip, which it discards.
+    const harness: Harness = createHarness({
+      release: recordingRelease(() => harness.calls, {
+        effect: () => {
+          void harness.kernel.requestDestroy();
+          harness.calls.push(
+            `destroy; closed=${String(applied(harness.kernel))}`,
+          );
+        },
+      }),
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(
+      harness.calls.slice(harness.calls.indexOf('release.prepare')),
+    ).toEqual([
+      'release.prepare',
+      'release.effect',
+      'destroy; closed=false',
+      'retire',
+      'presentation.released',
+    ]);
+    expect(harness.settlements).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should settle a cancel requested from inside the round-trip at the consumer stage', () => {
+    // R6, unchanged by the split: `invoke` was reached, so the stage is the
+    // consumer's.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        harness.calls.push('invoke');
+        harness.kernel.requestCancel('in onReorder');
+        return new Promise(() => {});
+      }),
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.calls.filter((call) => call === 'invoke')).toHaveLength(1);
+    expect(harness.settlements).toEqual([
+      {
+        type: SETTLED_CANCELED,
+        reason: 'in onReorder',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_CONSUMER,
+      },
+    ]);
+  });
+
+  it('should decline the round-trip for a cancel requested by an action the release effect dispatched', () => {
+    // R22 (F-436). The queue is `[OPEN_RESOLUTION, CANCEL]` once the action
+    // has run, and FIFO alone would open the round-trip first: the entry
+    // declines because the cancel is registered, and the `CANCEL` behind it
+    // settles at `RELEASING` with `invoke` never called.
+    const harness: Harness = createHarness({
+      release: recordingRelease(() => harness.calls, {
+        effect: () => {
+          harness.kernel.dispatch(0, null);
+        },
+      }),
+      action: {
+        prepare(tag): {} | null {
+          harness.calls.push(`action.prepare:${tag}`);
+          harness.kernel.requestCancel('in action');
+          return true;
+        },
+        effect(tag): void {
+          harness.calls.push(`action.effect:${tag}`);
+        },
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.calls).toContain('action.prepare:0');
+    expect(harness.calls).not.toContain('invoke');
+    expect(harness.settlements).toEqual([
+      {
+        type: SETTLED_CANCELED,
+        reason: 'in action',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
+    ]);
+    expect(harness.calls.filter((call) => call === 'finalized')).toHaveLength(
+      1,
+    );
+    expect(harness.calls.at(-1)).toBe('retire');
+  });
+
+  it('should open no round-trip for a destroy requested in the release prepare', () => {
+    // R28. The release unit runs as it would without the request, through its
+    // effect; application follows it and discards the round-trip.
+    const harness: Harness = createHarness({
+      release: recordingRelease(() => harness.calls, {
+        prepare: () => {
+          void harness.kernel.requestDestroy();
+        },
+      }),
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(
+      harness.calls.slice(harness.calls.indexOf('release.prepare')),
+    ).toEqual([
+      'release.prepare',
+      'release.effect',
+      'retire',
+      'presentation.released',
+    ]);
+    expect(harness.settlements).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should open no round-trip for a destroy requested by an action the release effect dispatched', () => {
+    // R29, the destroy half of R22. The action applies in full; application
+    // follows its unit and discards `OPEN_RESOLUTION` behind it.
+    const harness: Harness = createHarness({
+      release: recordingRelease(() => harness.calls, {
+        effect: () => {
+          harness.kernel.dispatch(0, null);
+        },
+      }),
+      action: {
+        prepare(tag): {} | null {
+          harness.calls.push(`action.prepare:${tag}`);
+          void harness.kernel.requestDestroy();
+          return true;
+        },
+        effect(tag): void {
+          harness.calls.push(`action.effect:${tag}`);
+        },
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(
+      harness.calls.slice(harness.calls.indexOf('release.prepare')),
+    ).toEqual([
+      'release.prepare',
+      'release.effect',
+      'action.prepare:0',
+      'action.effect:0',
+      'retire',
+      'presentation.released',
+    ]);
+    expect(harness.settlements).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should apply work the release effect dispatched before the round-trip opens', () => {
+    // §2.8's order change: the round-trip is the later unit.
+    const harness: Harness = createHarness({
+      release: recordingRelease(() => harness.calls, {
+        effect: () => {
+          harness.kernel.dispatch(0, null);
+        },
+      }),
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.calls.indexOf('action.effect:0')).toBeLessThan(
+      harness.calls.indexOf('invoke'),
+    );
+    expect(harness.settlements).toEqual([
+      { type: SETTLED_FULFILLED, value: 'verdict' },
+    ]);
+  });
+
+  it('should decline a null command for a cancel requested by an action the release effect dispatched', () => {
+    // The `invoke: null` path takes the same unit and the same entry condition.
+    // Settled inside the release unit, it would have queued its skipped
+    // settlement ahead of the action's `CANCEL`.
+    const harness: Harness = createHarness({
+      release: {
+        prepare: (): ResolutionCommand => ({ invoke: null }),
+        effect(): void {
+          harness.kernel.dispatch(0, null);
+        },
+      },
+      action: {
+        prepare(): {} | null {
+          harness.kernel.requestCancel('in action');
+          return true;
+        },
+        effect: (): void => {},
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.settlements).toEqual([
+      {
+        type: SETTLED_CANCELED,
+        reason: 'in action',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
+    ]);
+  });
+
+  /**
+   * R30 (F-439), the failure half of R22. The action the release effect
+   * dispatched fails in its `prepare`, which registers a checkpoint whose
+   * `FAILED` is queued behind `OPEN_RESOLUTION`. The entry declines, so the
+   * resolver is never reached whatever its timing, and `FAILED` applies at
+   * `RELEASING`: one failed settlement carrying the report with the action's
+   * stage, one finalization, then retirement.
+   */
+  const failInDispatchedAction = (
+    invoke: ResolutionCommand['invoke'],
+  ): void => {
+    const error = new Error('items');
+    const harness: Harness = createHarness({
+      release: {
+        prepare: (): ResolutionCommand => ({
+          invoke:
+            invoke &&
+            ((signal) => {
+              harness.calls.push('invoke');
+              return invoke(signal);
+            }),
+        }),
+        effect(): void {
+          harness.calls.push('release.effect');
+          harness.kernel.dispatch(0, null);
+        },
+      },
+      action: {
+        prepare(tag): never {
+          harness.calls.push(`action.prepare:${tag}`);
+          throw error;
+        },
+        effect(tag): void {
+          harness.calls.push(`action.effect:${tag}`);
+        },
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(
+      harness.calls.slice(harness.calls.indexOf('release.effect')),
+    ).toEqual([
+      'release.effect',
+      'action.prepare:0',
+      'settlement.prepare',
+      'settlement.effect',
+      'presentation.released',
+      'finalized',
+      'retire',
+    ]);
+    expect(harness.settlements).toEqual([
+      {
+        type: SETTLED_FAILED,
+        stage: FAILURE_ACTION_PREPARE,
+        error,
+        report: expect.any(DraggableError) as DraggableError,
+      },
+    ]);
+    expect(harness.failures).toEqual([
+      { stage: FAILURE_ACTION_PREPARE, error },
+    ]);
+
+    // The finished report the behavior forwards to `onError`.
+    const { report } = harness.settlements[0] as { report: DraggableError };
+
+    expect(report.stage).toBe(FAILURE_ACTION_PREPARE);
+    expect(report.cause).toBe(error);
+    expect(harness.reports).toEqual([]);
+  };
+
+  it('should decline a synchronous round-trip for a failure registered by an action the release effect dispatched', () => {
+    failInDispatchedAction(() => 'verdict');
+  });
+
+  it('should decline an asynchronous round-trip for a failure registered by an action the release effect dispatched', () => {
+    failInDispatchedAction(() => Promise.resolve('verdict'));
+  });
+
+  it('should decline a null command for a failure registered by an action the release effect dispatched', () => {
+    // The `invoke: null` path takes the same unit and the same entry condition.
+    failInDispatchedAction(null);
   });
 });
 
@@ -1936,7 +2445,7 @@ describe('the settlement seam', () => {
     // the seam is where both close. Both are latched, so a release that already
     // closed motion pays nothing.
     activate(harness);
-    harness.controller.cancel('reason');
+    harness.controller.requestCancel('reason');
 
     expect(harness.calls.indexOf('motion.released')).toBeLessThan(
       harness.calls.indexOf('settlement.effect'),
@@ -2163,7 +2672,7 @@ describe('the landing tail', () => {
 
     const [animation] = harness.item.getAnimations();
 
-    await harness.controller.destroy();
+    await harness.controller.requestDestroy();
 
     // Cancelled, not finished: the contribution decays to zero, so the element
     // settles instantly and there is nothing left for anyone to release.
@@ -2212,7 +2721,7 @@ describe('the landing tail', () => {
     expect(harness.item.getAnimations()).toHaveLength(1);
   });
 
-  it('should start no tail when the policy destroyed the controller', () => {
+  it('should leave no tail running once the policy requested destruction', () => {
     let harness: Harness | null = null;
 
     harness = createHarness({
@@ -2220,7 +2729,7 @@ describe('the landing tail', () => {
         lift.write(current.pointerX - current.originX, 0);
       },
       landingTail: (): LandingTail => {
-        void harness!.controller.destroy();
+        void harness!.controller.requestDestroy();
         return { duration: 200, easing: 'linear' };
       },
     });
@@ -2228,10 +2737,28 @@ describe('the landing tail', () => {
     activate(harness);
     release(80, 10);
 
-    // `destroy()` is a synchronous terminal barrier: a destroyed controller
-    // writes nothing, including an animation nothing would be left to cancel.
+    // The requesting unit completes, and the application after it cancels
+    // whatever tail that unit started.
     expect(harness.item.getAnimations()).toEqual([]);
-    expect(harness.calls).not.toContain('finalized');
+  });
+
+  it('should deliver the terminal of the unit whose policy requested destruction', () => {
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      moved(current, lift): void {
+        lift.write(current.pointerX - current.originX, 0);
+      },
+      landingTail: (): LandingTail => {
+        void harness!.controller.requestDestroy();
+        return { duration: 200, easing: 'linear' };
+      },
+    });
+
+    activate(harness);
+    release(80, 10);
+
+    expect(harness.calls).toContain('finalized');
   });
 
   it('should report a policy that throws and still terminate', () => {
@@ -2854,17 +3381,11 @@ describe('the failure checkpoint', () => {
     );
   });
 
-  it('should publish no terminal once a presentation disposer destroyed the controller on the error route', () => {
-    // **The negative beside the row above, and they pin opposite halves of one
-    // line** (F-328, D-179). The release the error route performs is the same
-    // consumer-reachable step the join's is, so the terminal it pays afterwards
-    // owes the same latch reading — and this route reaches `finalized` through
-    // its own path, which is why the join's guard says nothing about it.
-    //
-    // **The row above is what stops the obvious wrong repair.** Reusing
-    // `#joinLive()` here would satisfy this case and turn that one red, because
-    // its `FINALIZING` conjunct is false on this route by construction: every
-    // classified failure would silently lose its terminal, retracting D-66.
+  it('should publish the terminal when a presentation disposer requested destruction on the error route', () => {
+    // A destruction requested from inside the error route's release is applied
+    // after the unit that runs the route, so the route completes as it would
+    // without the request: the terminal is published, then the operation
+    // retires, then the application tears down.
     let harness: Harness | null = null;
 
     harness = createHarness({
@@ -2873,7 +3394,7 @@ describe('the failure checkpoint', () => {
         effect(_current, _prepared, scope: ActivationScope): void {
           scope.presentation.use(() => {
             harness!.calls.push('presentation.released');
-            void harness!.controller.destroy();
+            void harness!.controller.requestDestroy();
           });
         },
       },
@@ -2885,35 +3406,18 @@ describe('the failure checkpoint', () => {
     activate(harness);
     move(60, 10);
 
-    // The failure is classified and reported, the release still runs — and the
-    // terminal does not, because the consumer destroyed the controller from
-    // inside that release.
     expect(harness.failures[0]!.stage).toBe(FAILURE_RENDERER_WRITE);
     expect(harness.calls).toContain('presentation.released');
-    expect(harness.calls).not.toContain('finalized');
 
-    // **Skipping the terminal does not skip the retirement, and this is what
-    // says so rather than a `toContain('retire')` that cannot fail.** A closed
-    // controller still owes the kernel's own cleanup: `#retireOperation` sits
-    // outside the guard, so the route retires its own operation, and physical
-    // teardown then runs at the transaction boundary because `destroy()` was
-    // raised inside one.
-    //
     // **Two retirements, and the second is why counting is the only reading
-    // available here.** The lifetimes are self-guarding, so disposing them
-    // twice is invisible; `BehaviorSpec.retire` is *idempotent, best-effort*
-    // by contract and the kernel keeps no flag for it, so it is the one step
-    // that runs once per retirement rather than once per controller. Moving
-    // `#retireOperation` inside the guard leaves exactly one — the boundary's —
-    // and every other observable on this route unchanged, which is why nothing
-    // weaker than this discriminates.
-    //
-    // Sliced from the release rather than asserted whole: what this row owns is
-    // the tail after the consumer's disposer ran, and a `finalized` smuggled
-    // into it fails here as well as above.
+    // available here.** `BehaviorSpec.retire` is *idempotent, best-effort* by
+    // contract and the kernel keeps no flag for it, so it runs once for the
+    // operation's own retirement and once more for the application's teardown.
+    // Sliced from the release: what this row owns is what follows the
+    // consumer's disposer.
     expect(
       harness.calls.slice(harness.calls.indexOf('presentation.released')),
-    ).toEqual(['presentation.released', 'retire', 'retire']);
+    ).toEqual(['presentation.released', 'finalized', 'retire', 'retire']);
   });
 
   it('should retire the operation after reporting', () => {
@@ -3073,7 +3577,7 @@ describe('cancellation stages', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.controller.cancel('reason');
+    harness.controller.requestCancel('reason');
 
     expect(harness.settlements).toEqual([
       {
@@ -3092,7 +3596,7 @@ describe('cancellation stages', () => {
 
     activate(harness);
     release(80, 10);
-    harness.controller.cancel('reason');
+    harness.controller.requestCancel('reason');
 
     expect(harness.settlements).toEqual([
       {
@@ -3108,7 +3612,7 @@ describe('cancellation stages', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.controller.cancel('reason');
+    harness.controller.requestCancel('reason');
 
     // A cancel is a complete terminal result, not a bare retirement: the
     // behavior maps it, the join releases presentation, and `finalized` runs.
@@ -3123,7 +3627,7 @@ describe('cancellation stages', () => {
     // instead would leave that notification with no terminal callback.
     const harness = createHarness({
       onStart: (kernel) => {
-        kernel.cancel('from the effect');
+        kernel.requestCancel('from the effect');
       },
     });
 
@@ -3155,7 +3659,7 @@ describe('cancellation origins', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.controller.cancel('reason');
+    harness.controller.requestCancel('reason');
 
     expect(harness.settlements[0]).toMatchObject({ origin: CANCEL_SUPPLIED });
   });
@@ -3166,7 +3670,7 @@ describe('cancellation origins', () => {
     // apart — and both of them are a party supplying a value.
     const harness = createHarness({
       onStart: (kernel) => {
-        kernel.cancel('from the behavior');
+        kernel.requestCancel('from the behavior');
       },
     });
 
@@ -3222,7 +3726,7 @@ describe('cancellation origins', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.controller.cancel(CANCEL_ABORTED);
+    harness.controller.requestCancel(CANCEL_ABORTED);
 
     expect(harness.settlements[0]).toMatchObject({
       reason: CANCEL_ABORTED,
@@ -3281,7 +3785,7 @@ describe('the activation checkpoint against a held cancel', () => {
           // Queued first, so it sits between `START_COMMITTED` and the
           // cancellation and can observe which phase won.
           kernel.dispatch(1, null);
-          kernel.cancel('invalidated');
+          kernel.requestCancel('invalidated');
         },
       },
     });
@@ -3307,6 +3811,206 @@ describe('the activation checkpoint against a held cancel', () => {
         stage: AT_PROPOSAL,
       },
     ]);
+  });
+});
+
+describe('armed dispatch tags', () => {
+  // `actionTags: 2`, so `2` is the first out-of-range tag, and `-22` encodes
+  // to `RETIRE`, the kernel action an unchecked negative tag would alias.
+  const OUT_OF_RANGE = [RETIRE - BEHAVIOR_BASE, 0.5, 2, Number.NaN] as const;
+
+  /** What the harness saw, as one ordered list of names. */
+  const seen = (harness: Harness): readonly string[] =>
+    harness.calls.filter(
+      (name) => name.startsWith('action.prepare') || name.startsWith('report'),
+    );
+
+  /** Records every report into the call list, so order is observable. */
+  const reporting = (
+    overrides: Parameters<typeof createHarness>[0] = {},
+  ): Harness => {
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      ...overrides,
+      reportError: (error): void => {
+        harness!.calls.push(`report ${error.message}`);
+      },
+    });
+
+    return harness;
+  };
+
+  /** Dispatches `tag` at depth 0 and records what happened before it returned. */
+  const reportedAtDepthZero = (tag: number): readonly string[] => {
+    const harness = reporting();
+
+    harness.kernel.dispatch(tag, null);
+    harness.calls.push('returned');
+
+    return harness.calls;
+  };
+
+  it('should report -22 before dispatch returns at depth 0', () => {
+    expect(reportedAtDepthZero(RETIRE - BEHAVIOR_BASE)).toEqual([
+      'report drag: dispatch/tag-out-of-range -22',
+      'returned',
+    ]);
+  });
+
+  it('should report 0.5 before dispatch returns at depth 0', () => {
+    expect(reportedAtDepthZero(0.5)).toEqual([
+      'report drag: dispatch/tag-out-of-range 0.5',
+      'returned',
+    ]);
+  });
+
+  it('should report 2 before dispatch returns at depth 0', () => {
+    expect(reportedAtDepthZero(2)).toEqual([
+      'report drag: dispatch/tag-out-of-range 2',
+      'returned',
+    ]);
+  });
+
+  it('should report NaN before dispatch returns at depth 0', () => {
+    expect(reportedAtDepthZero(Number.NaN)).toEqual([
+      'report drag: dispatch/tag-out-of-range NaN',
+      'returned',
+    ]);
+  });
+
+  it('should queue no out-of-range tag and still apply the next in-range one at depth 0', () => {
+    const harness = reporting();
+
+    for (const tag of OUT_OF_RANGE) {
+      harness.kernel.dispatch(tag, null);
+      harness.kernel.dispatch(0, null);
+    }
+
+    expect(seen(harness)).toEqual(
+      OUT_OF_RANGE.flatMap((tag) => [
+        `report drag: dispatch/tag-out-of-range ${String(tag)}`,
+        'action.prepare:0',
+      ]),
+    );
+  });
+
+  it('should retire nothing for a tag that would alias RETIRE', () => {
+    const harness = reporting();
+
+    harness.kernel.dispatch(RETIRE - BEHAVIOR_BASE, null);
+
+    expect(harness.calls).not.toContain('retire');
+  });
+
+  it('should report out-of-range tags dispatched inside a unit before dispatch returns', () => {
+    // From inside an action's `effect`: the report is synchronous, and the
+    // in-range dispatch after each one is queued and applied after the unit.
+    let harness: Harness | null = null;
+
+    harness = reporting({
+      action: {
+        prepare(tag): {} {
+          harness!.calls.push(`action.prepare:${String(tag)}`);
+          return true;
+        },
+        effect(tag): void {
+          if (tag !== 1) {
+            return;
+          }
+
+          for (const outOfRange of OUT_OF_RANGE) {
+            harness!.kernel.dispatch(outOfRange, null);
+            harness!.calls.push('returned');
+            harness!.kernel.dispatch(0, null);
+          }
+        },
+      },
+    });
+
+    harness.kernel.dispatch(1, null);
+
+    expect(
+      harness.calls.filter(
+        (name) => name.startsWith('report') || name === 'returned',
+      ),
+    ).toEqual(
+      OUT_OF_RANGE.flatMap((tag) => [
+        `report drag: dispatch/tag-out-of-range ${String(tag)}`,
+        'returned',
+      ]),
+    );
+  });
+
+  it('should apply the in-range dispatches made inside a unit after it', () => {
+    let harness: Harness | null = null;
+
+    harness = reporting({
+      action: {
+        prepare(tag): {} {
+          harness!.calls.push(`action.prepare:${String(tag)}`);
+          return true;
+        },
+        effect(tag): void {
+          if (tag === 1) {
+            for (const outOfRange of OUT_OF_RANGE) {
+              harness!.kernel.dispatch(outOfRange, null);
+              harness!.kernel.dispatch(0, null);
+            }
+          }
+        },
+      },
+    });
+
+    harness.kernel.dispatch(1, null);
+
+    expect(
+      harness.calls.filter((name) => name.startsWith('action.prepare')),
+    ).toEqual([
+      'action.prepare:1',
+      ...OUT_OF_RANGE.map(() => 'action.prepare:0'),
+    ]);
+  });
+
+  it('should report out-of-range tags while a destroy request is registered and not yet applied', () => {
+    let harness: Harness | null = null;
+
+    harness = reporting({
+      action: {
+        prepare(tag): {} {
+          harness!.calls.push(`action.prepare:${String(tag)}`);
+          return true;
+        },
+        effect(): void {
+          void harness!.kernel.requestDestroy();
+
+          for (const outOfRange of OUT_OF_RANGE) {
+            harness!.kernel.dispatch(outOfRange, null);
+          }
+        },
+      },
+    });
+
+    harness.kernel.dispatch(0, null);
+
+    expect(seen(harness)).toEqual([
+      'action.prepare:0',
+      ...OUT_OF_RANGE.map(
+        (tag) => `report drag: dispatch/tag-out-of-range ${String(tag)}`,
+      ),
+    ]);
+  });
+
+  it('should report and apply nothing once destruction has been applied', () => {
+    // R26.
+    const harness = reporting();
+
+    void harness.kernel.requestDestroy();
+    harness.calls.length = 0;
+    harness.kernel.dispatch(RETIRE - BEHAVIOR_BASE, null);
+    harness.kernel.dispatch(0, null);
+
+    expect(harness.calls).toEqual([]);
   });
 });
 
@@ -3397,7 +4101,7 @@ describe('cancellation', () => {
     const harness = createHarness();
 
     press(harness.item);
-    harness.controller.cancel('reason');
+    harness.controller.requestCancel('reason');
 
     expect(harness.calls).toEqual(['admit', 'retire']);
   });
@@ -3405,7 +4109,7 @@ describe('cancellation', () => {
   it('should ignore a cancel while idle', () => {
     const harness = createHarness();
 
-    harness.controller.cancel('reason');
+    harness.controller.requestCancel('reason');
     press(harness.item);
     move(40, 10);
 
@@ -3428,8 +4132,8 @@ describe('cancellation', () => {
     });
 
     activate(harness);
-    harness.controller.cancel('first');
-    harness.controller.cancel('second');
+    harness.controller.requestCancel('first');
+    harness.controller.requestCancel('second');
 
     expect(harness.calls.filter((name) => name === 'retire')).toHaveLength(1);
   });
@@ -3438,7 +4142,7 @@ describe('cancellation', () => {
     const harness = createHarness();
 
     activate(harness);
-    harness.controller.cancel('reason');
+    harness.controller.requestCancel('reason');
 
     expect(harness.calls).toContain('presentation.released');
   });
@@ -3471,7 +4175,7 @@ describe('destroy', () => {
     const harness = createHarness();
 
     activate(harness);
-    void harness.controller.destroy();
+    void harness.controller.requestDestroy();
 
     expect(harness.calls).toContain('presentation.released');
     expect(harness.calls).toContain('motion.released');
@@ -3481,7 +4185,7 @@ describe('destroy', () => {
     const harness = createHarness();
 
     activate(harness);
-    void harness.controller.destroy();
+    void harness.controller.requestDestroy();
 
     expect(harness.captures).toEqual(['acquire', 'release']);
   });
@@ -3489,7 +4193,7 @@ describe('destroy', () => {
   it('should abort ingress so a later press is inert', () => {
     const harness = createHarness();
 
-    void harness.controller.destroy();
+    void harness.controller.requestDestroy();
     press(harness.item);
 
     expect(harness.calls).not.toContain('admit');
@@ -3499,8 +4203,8 @@ describe('destroy', () => {
     const harness = createHarness();
 
     activate(harness);
-    void harness.controller.destroy();
-    void harness.controller.destroy();
+    void harness.controller.requestDestroy();
+    void harness.controller.requestDestroy();
 
     expect(harness.calls.filter((name) => name === 'retire')).toHaveLength(1);
   });
@@ -3519,46 +4223,40 @@ describe('destroy', () => {
 
     activate(harness);
     // A behavior callback cannot strand the kernel's DOM cleanup (F-12).
-    void harness.kernel.destroy();
+    void harness.kernel.requestDestroy();
 
     expect(harness.calls).toContain('presentation.released');
   });
 
-  it('should discard a preparation whose prepare destroyed the controller', () => {
+  it('should commit a preparation whose prepare requested destruction', () => {
     const harness = createHarness({
       activation: {
         prepare(): HTMLElement {
           harness.calls.push('activation.prepare');
-          void harness.kernel.destroy();
+          void harness.kernel.requestDestroy();
 
           return document.createElement('div');
         },
         effect(): void {
           harness.calls.push('activation.effect');
         },
-        rollback(): void {
-          harness.calls.push('activation.rollback');
-        },
       },
     });
 
     activate(harness);
 
-    // The latch is set on the closing statement, so the revalidation between
-    // `prepare` and the swap is what stops this transaction publishing: the
-    // staged placeholder is released through `rollback` and the effect — which
-    // would deliver a start notification for a destroyed controller — never
-    // runs.
+    // The request is applied after the activation unit, so the unit runs as it
+    // would without it: the preparation commits and its effect runs.
     expect(
       harness.calls.filter((name) => name.startsWith('activation.')),
-    ).toEqual(['activation.prepare', 'activation.rollback']);
+    ).toEqual(['activation.prepare', 'activation.effect']);
   });
 
   it('should ignore work dispatched after destroy', () => {
     const harness = createHarness();
 
     activate(harness);
-    void harness.controller.destroy();
+    void harness.controller.requestDestroy();
     harness.kernel.dispatch(0, null);
     move(200, 10);
 
@@ -3567,12 +4265,10 @@ describe('destroy', () => {
 });
 
 describe('terminal destruction during the join', () => {
-  it('should start no tail after anchorTarget destroyed the controller', () => {
-    // The join captures its locals before it commits `FINALIZING`, so teardown
-    // clearing the kernel's slots does not stop it proceeding. Without the
-    // entry revalidation it would interpolate an element whose authored styles
-    // `destroy()` has already restored, and leave the animation running past
-    // the controller's life (I-6).
+  it('should leave no tail running after anchorTarget requested destruction', () => {
+    // The join completes before the request is applied, and the application's
+    // teardown cancels the tail it started and restores the authored styles,
+    // so nothing interpolates past the controller's life (I-6).
     let harness: Harness | null = null;
 
     harness = createHarness({
@@ -3581,7 +4277,7 @@ describe('terminal destruction during the join', () => {
       },
       landingTail: tailOf(),
       anchorTarget: () => {
-        void harness!.controller.destroy();
+        void harness!.controller.requestDestroy();
         return { x: 300, y: 300 };
       },
     });
@@ -3594,12 +4290,12 @@ describe('terminal destruction during the join', () => {
     expect(harness.item.style.transform).toBe('');
   });
 
-  it('should not call the terminal callback after anchorTarget destroyed the controller', () => {
+  it('should call the terminal callback of the join whose anchorTarget requested destruction', () => {
     let harness: Harness | null = null;
 
     harness = createHarness({
       anchorTarget: () => {
-        void harness!.controller.destroy();
+        void harness!.controller.requestDestroy();
         return { x: 300, y: 300 };
       },
     });
@@ -3607,10 +4303,10 @@ describe('terminal destruction during the join', () => {
     activate(harness);
     release(40, 10);
 
-    expect(harness.calls).not.toContain('finalized');
+    expect(harness.calls).toContain('finalized');
   });
 
-  it('should start no tail after a presentation disposer destroyed the controller', () => {
+  it('should leave no tail running after a presentation disposer requested destruction', () => {
     let harness: Harness | null = null;
 
     harness = createHarness({
@@ -3618,7 +4314,7 @@ describe('terminal destruction during the join', () => {
         prepare: (): HTMLElement => document.createElement('div'),
         effect(_current, _prepared, scope: ActivationScope): void {
           scope.presentation.use(() => {
-            void harness!.controller.destroy();
+            void harness!.controller.requestDestroy();
           });
         },
       },
@@ -3631,12 +4327,10 @@ describe('terminal destruction during the join', () => {
     activate(harness);
     release(40, 10);
 
-    // The disposer runs after the release and before the tail, so what a
-    // destroy there must stop is the interpolation and the terminal. The
-    // element is left exactly as `destroy()` restored it.
+    // The join completes, terminal included, and the application's teardown
+    // then cancels the tail and leaves the element as its authored styles.
     expect(harness.item.style.transform).toBe('');
     expect(harness.item.getAnimations()).toEqual([]);
-    expect(harness.calls).not.toContain('finalized');
   });
 });
 
@@ -3673,7 +4367,7 @@ describe('the one channel', () => {
     activate(harness);
     released.length = 0;
 
-    expect(() => harness.controller.destroy()).not.toThrow();
+    expect(() => harness.controller.requestDestroy()).not.toThrow();
 
     // `retire` threw, the handler threw on the way out of the catch, and both
     // frame scrubs still ran.
@@ -3720,7 +4414,7 @@ describe('the one channel', () => {
       },
       reportError: (error): void => {
         seen.push(error);
-        void harness.controller.destroy();
+        void harness.controller.requestDestroy();
       },
     });
 
@@ -3785,7 +4479,7 @@ describe('teardown totality', () => {
     const harness = createHarness({ resetFramePart: throwingReset(counter) });
 
     activate(harness);
-    void harness.controller.destroy();
+    void harness.controller.requestDestroy();
 
     expect(counter.calls).toBe(2);
   });
@@ -3795,7 +4489,7 @@ describe('teardown totality', () => {
     const harness = createHarness({ resetFramePart: throwingReset(counter) });
 
     activate(harness);
-    void harness.controller.destroy();
+    void harness.controller.requestDestroy();
     harness.calls.length = 0;
     press(harness.item);
 
@@ -3808,7 +4502,7 @@ describe('teardown totality', () => {
 
     activate(harness);
 
-    expect(() => harness.controller.destroy()).not.toThrow();
+    expect(() => harness.controller.requestDestroy()).not.toThrow();
   });
 
   it('should run both scrubs when a reset throws during destroy', () => {
@@ -3817,7 +4511,7 @@ describe('teardown totality', () => {
 
     activate(harness);
     harness.reports.length = 0;
-    void harness.controller.destroy();
+    void harness.controller.requestDestroy();
 
     // ~~Two resets, each reporting the thrown error.~~ **The reports are gone
     // and the totality is the point** (D-130 §1.1, D-37). `destroy()` sets the
@@ -3857,7 +4551,7 @@ describe('the operation record', () => {
         // Step 4 of retirement, before either frame is scrubbed. The frame
         // still publishes the identity, so every guard here still authorises
         // work — and the state that authorises it has to still be readable.
-        live!.cancel('from retire');
+        live!.requestCancel('from retire');
       },
     });
 
@@ -3950,17 +4644,10 @@ describe('arm unwind of a partial frame pair', () => {
     expect(resets).toBe(1);
   });
 
-  it('should reset only the composed frame when a factory destroys', () => {
-    // **`#spec` names the behavior only once the pair it owns is composed**,
-    // and this is the window that makes the ordering load-bearing rather than
-    // tidy: teardown's frame resets are guarded by that field alone, so a
-    // `destroy()` raised from inside the first factory published earlier would
-    // reach a retirement over a pair that does not exist yet — and the throw
-    // would escape the factory, unwind the arm and leave `draggable()` itself
-    // raising a TypeError at the consumer.
-    //
-    // What resets the one frame that does exist is `arm()`'s own unwind, which
-    // holds the spec as an argument for exactly this window.
+  it('should reset each composed frame once when a factory requests destruction', () => {
+    // Construction is one unit, so the request is applied after publication:
+    // both frames are composed, and the application's teardown resets each of
+    // them once.
     const root = document.createElement('div');
 
     document.body.append(root);
@@ -3973,7 +4660,7 @@ describe('arm unwind of a partial frame pair', () => {
         controller: {},
         spec: {
           createFramePart: (): ExamplePart => {
-            void kernel.destroy();
+            void kernel.requestDestroy();
 
             return { item: null, note: '' };
           },
@@ -4001,10 +4688,7 @@ describe('arm unwind of a partial frame pair', () => {
       }));
     }).not.toThrow();
 
-    // One frame part was composed before the close and no second one is, so
-    // exactly one reset is owed. A second would be `resetFramePart` handed a
-    // frame the factory never produced.
-    expect(resets).toBe(1);
+    expect(resets).toBe(2);
   });
 
   it('should scrub both frames when arming fails after both were composed', () => {
@@ -4051,7 +4735,7 @@ describe('cancellation against a failure checkpoint', () => {
 
     harness = createHarness({
       moved: (): void => {
-        harness!.kernel.cancel('gone');
+        harness!.kernel.requestCancel('gone');
         throw new Error('write failed');
       },
     });
@@ -4068,7 +4752,7 @@ describe('cancellation against a failure checkpoint', () => {
 
     harness = createHarness({
       moved: (): void => {
-        harness!.kernel.cancel('gone');
+        harness!.kernel.requestCancel('gone');
         throw error;
       },
     });
@@ -4089,7 +4773,7 @@ describe('cancellation against a failure checkpoint', () => {
     harness = createHarness({
       moved: (): void => {
         harness!.kernel.fail(FAILURE_RENDERER_WRITE, new Error('write failed'));
-        harness!.kernel.cancel('gone');
+        harness!.kernel.requestCancel('gone');
       },
     });
 
@@ -4105,7 +4789,7 @@ describe('cancellation against a failure checkpoint', () => {
     harness = createHarness({
       moved: (): void => {
         harness!.kernel.fail(FAILURE_RENDERER_WRITE, new Error('write failed'));
-        harness!.kernel.cancel('gone');
+        harness!.kernel.requestCancel('gone');
       },
     });
 
@@ -4229,12 +4913,54 @@ describe('arbitrary thenables', () => {
  * inside a reentrant destroy — which is the only place the difference exists.
  */
 describe('the execution bracket', () => {
+  /**
+   * A harness whose behavior action presses the item from inside its own
+   * `prepare`, which is consumer-reachable code running inside a queued unit.
+   */
+  const pressingFromAction = (): Harness => {
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      action: {
+        prepare(tag): {} {
+          harness!.calls.push(`action.prepare:${String(tag)}`);
+          press(harness!.item);
+          return true;
+        },
+        effect(): void {},
+      },
+    });
+
+    return harness;
+  };
+
+  it('should refuse a press dispatched from inside a running unit', () => {
+    const harness = pressingFromAction();
+
+    harness.kernel.dispatch(0, null);
+
+    expect(harness.calls).toEqual(['action.prepare:0']);
+  });
+
+  it('should keep the click suppressor armed through a refused press', () => {
+    // **The disarm sits behind the refusal.** A press refused because a unit
+    // is running touches no state, and the suppressor slot is state: had the
+    // refused press disarmed it, the trailing click below would get through.
+    const harness = pressingFromAction();
+
+    activate(harness);
+    release(40, 10);
+    harness.kernel.dispatch(0, null);
+
+    expect(click().defaultPrevented).toBe(true);
+  });
+
   it('should run physical teardown immediately outside a transaction', () => {
     const harness = createHarness();
 
     activate(harness);
     harness.calls.length = 0;
-    void harness.controller.destroy();
+    void harness.controller.requestDestroy();
 
     // Nothing is on the stack, so the two events still coincide. This is the
     // shipped behavior as the common case rather than as the definition.
@@ -4246,11 +4972,10 @@ describe('the execution bracket', () => {
     // `['report','retire']`), and the only test that reaches the kernel's
     // `panic()` rather than the seam driver's in isolation.
     //
-    // It is worth pinning because the ordering is **non-local**: `panic` is
-    // `void destroy(); report(error);`, and that produces this order only
-    // because the drain sits inside a transaction, so the physical steps defer
-    // to `leaveTransaction`. A drain that lost its bracket would still pass
-    // every other test in this file and silently tear down before reporting.
+    // It is worth pinning because the ordering is **non-local**: the bracket
+    // closes, then hands the throw to the kernel's `panic`, which only
+    // reports, and tears down once that returns. Panic is the one immediate
+    // application, so nothing here waits for the unit boundary.
     //
     // The route in is the threshold crossing's selection clear: it is one of
     // the few statements the handler runs **unguarded**, on purpose — a
@@ -4260,8 +4985,8 @@ describe('the execution bracket', () => {
     const order: string[] = [];
     const broken = new Error('platform');
     const delivered: unknown[] = [];
-    // The handler reads `harness.kernel.closed` from inside the report, which is
-    // the assertion this row exists for.
+    // The handler asks whether destruction is applied from inside the report,
+    // which is the assertion this row exists for.
     const harness: Harness = createHarness({
       retire: (): void => {
         order.push('retire');
@@ -4277,10 +5002,12 @@ describe('the execution bracket', () => {
         // Read from *inside* the report, which is the assertion the ordering
         // exists for: a handler that calls back into the controller must find
         // it already closed.
-        order.push(`closed:${String(harness.kernel.closed)}`);
+        order.push(`closed:${String(applied(harness.kernel))}`);
       },
     });
 
+    // Saved to be restored, never called detached.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     const selection = window.getSelection;
 
     window.getSelection = (): never => {
@@ -4319,44 +5046,55 @@ describe('the execution bracket', () => {
     activate(harness);
     harness.calls.length = 0;
 
-    await harness.controller.destroy();
+    await harness.controller.requestDestroy();
 
     expect(harness.calls).toContain('retire');
   });
 
   it('should return one promise from every destroy call', async () => {
     const harness = createHarness();
-    const first = harness.controller.destroy();
+    const first = harness.controller.requestDestroy();
 
-    expect(harness.controller.destroy()).toBe(first);
+    expect(harness.controller.requestDestroy()).toBe(first);
 
     // Idempotent: repeated destruction closes nothing further, and every
     // returned promise still settles exactly once.
     await expect(first).resolves.toBeUndefined();
-    await expect(harness.controller.destroy()).resolves.toBeUndefined();
+    await expect(harness.controller.requestDestroy()).resolves.toBeUndefined();
   });
 
-  it('should close logically on the calling statement', () => {
+  it('should read open for the rest of the requesting unit', () => {
     let closedInside: boolean | null = null;
     const harness = createHarness({
       onStart(kernel): void {
-        void kernel.destroy();
-        // The latch is set by the closing statement itself, not at the end of a
-        // seven-step sequence.
-        closedInside = kernel.closed;
+        void kernel.requestDestroy();
+        // Requested, not applied: the unit completes as a live controller's.
+        closedInside = applied(kernel);
       },
     });
 
     activate(harness);
 
-    expect(closedInside).toBe(true);
+    expect(closedInside).toBe(false);
+  });
+
+  it('should read closed once the requesting unit has ended', () => {
+    const harness = createHarness({
+      onStart(kernel): void {
+        void kernel.requestDestroy();
+      },
+    });
+
+    activate(harness);
+
+    expect(applied(harness.kernel)).toBe(true);
   });
 
   it('should defer physical teardown to the outermost transaction boundary', () => {
     let calledInside: readonly string[] = [];
     const harness = createHarness({
       onStart(kernel): void {
-        void kernel.destroy();
+        void kernel.requestDestroy();
         calledInside = [...harness.calls];
       },
     });
@@ -4374,7 +5112,7 @@ describe('the execution bracket', () => {
     let settled = false;
     const harness = createHarness({
       onStart(kernel): void {
-        pending = kernel.destroy();
+        pending = kernel.requestDestroy();
         void pending.then(() => {
           settled = true;
         });
@@ -4391,8 +5129,8 @@ describe('the execution bracket', () => {
   it('should tear down once when destroy is called twice inside one transaction', () => {
     const harness = createHarness({
       onStart(kernel): void {
-        void kernel.destroy();
-        void kernel.destroy();
+        void kernel.requestDestroy();
+        void kernel.requestDestroy();
       },
     });
 
@@ -4402,27 +5140,20 @@ describe('the execution bracket', () => {
   });
 
   /**
-   * **The disagreement I-37 exists to adjudicate, made real.**
-   *
-   * Both readings agreed before D-36, and `signal.aborted` was preferred
-   * because it is strictly *stronger* — it also fires for a kernel-internal
-   * `panic()`. Deferral inverts that: the signal now lags the close, so the
-   * fixture below is one where the two genuinely disagree, and the rule is that
-   * the latch wins.
+   * **The logical and physical readings agree inside the requesting unit.**
+   * Application closes and tears down in one step, so neither reading changes
+   * before the unit ends.
    */
-  it('should resolve a liveness disagreement by the latch', () => {
+  it('should agree with the physical signal inside the requesting unit', () => {
     let latch: boolean | null = null;
     let aborted: boolean | null = null;
     const harness = createHarness({
       activation: {
         prepare: (): HTMLElement => document.createElement('div'),
         effect(_current, _prepared, scope: ActivationScope): void {
-          void harness.kernel.destroy();
+          void harness.kernel.requestDestroy();
 
-          // Both read at this instant, on purpose: the point of the row is
-          // that the logical latch is already set here while the physical
-          // signal is not (D-36, D-38).
-          const { closed } = harness.kernel;
+          const closed = applied(harness.kernel);
           const { aborted: signalAborted } = scope.presentation.signal;
 
           latch = closed;
@@ -4433,16 +5164,13 @@ describe('the execution bracket', () => {
 
     activate(harness);
 
-    expect(latch).toBe(true);
-    // The physical observation has not happened yet, which is exactly why it
-    // may not answer a liveness question (D-38).
-    expect(aborted).toBe(false);
+    expect([latch, aborted]).toEqual([false, false]);
   });
 
   it('should keep the ingress released once the boundary runs', () => {
     const harness = createHarness({
       onStart(kernel): void {
-        void kernel.destroy();
+        void kernel.requestDestroy();
       },
     });
 
@@ -4451,5 +5179,1061 @@ describe('the execution bracket', () => {
     press(harness.item);
 
     expect(harness.calls).toEqual([]);
+  });
+});
+
+/**
+ * **Requests applied at their boundaries** (D-207 step 3). Each row drives a
+ * request from a seam the running controller calls, and asserts that the unit
+ * which received it ran as it would without it: the request changes only what
+ * follows the unit's boundary, or the entry of a later unit.
+ */
+describe('requests at unit boundaries', () => {
+  it('should publish an admission whose admit requested destruction and tear it down after', () => {
+    // R1's admission half. Admission publishes `PENDING` unconditionally, and
+    // destruction is applied when the admission pass ends, so the operation it
+    // published is the one teardown disposes, and the next press is refused.
+    let harness: Harness | null = null;
+
+    harness = createHarness({
+      admit(_event, draft): HTMLElement {
+        harness!.calls.push('admit');
+        draft.item = harness!.item;
+        void harness!.kernel.requestDestroy();
+        return harness!.item;
+      },
+    });
+
+    press(harness.item);
+    move(40, 10);
+    press(harness.item);
+
+    expect(harness.calls).toEqual(['admit', 'retire']);
+  });
+
+  it('should deliver the start of an activation whose prepare requested destruction', () => {
+    // R2. The activation unit's calls are the baseline's, the start included;
+    // destruction is applied at its boundary, which discards
+    // `START_COMMITTED`, and no terminal follows.
+    const harness: Harness = createHarness({
+      activation: {
+        prepare(): HTMLElement {
+          harness.calls.push('activation.prepare');
+          void harness.kernel.requestDestroy();
+          return document.createElement('div');
+        },
+        effect(_current, _prepared, scope: ActivationScope): void {
+          harness.calls.push('activation.effect');
+          scope.presentation.use(() => {
+            harness.calls.push('presentation.released');
+          });
+        },
+      },
+    });
+
+    activate(harness);
+    move(60, 10);
+
+    expect(harness.calls).toEqual([
+      'admit',
+      'activation.prepare',
+      'activation.effect',
+      'retire',
+      'presentation.released',
+    ]);
+    expect(harness.settlements).toEqual([]);
+  });
+
+  it('should start and then cancel an activation whose prepare requested a cancel', () => {
+    // R3. The cancel is registered inside the activation unit, after its
+    // entry, so the entry does not see it: the unit runs as the baseline does
+    // and the cancellation settles at the proposal stage after it.
+    const harness: Harness = createHarness({
+      activation: {
+        prepare(): HTMLElement {
+          harness.calls.push('activation.prepare');
+          harness.kernel.requestCancel('from prepare');
+          return document.createElement('div');
+        },
+        effect(): void {
+          harness.calls.push('activation.effect');
+        },
+      },
+    });
+
+    activate(harness);
+
+    expect(harness.calls.slice(0, 3)).toEqual([
+      'admit',
+      'activation.prepare',
+      'activation.effect',
+    ]);
+    expect(harness.settlements).toEqual([
+      {
+        type: SETTLED_CANCELED,
+        reason: 'from prepare',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+      },
+    ]);
+    expect(harness.calls).not.toContain('moved');
+  });
+
+  it('should finish the join whose anchorTarget requested destruction and retire nothing after it', () => {
+    // R7. The settlement unit runs through `finalized` as the baseline's does;
+    // destruction is applied at its boundary, which discards `RETIRE`, and
+    // teardown retires the spec once.
+    const harness: Harness = createHarness({
+      anchorTarget: () => {
+        harness.calls.push('anchorTarget');
+        void harness.controller.requestDestroy();
+        return { x: 300, y: 300 };
+      },
+    });
+
+    activate(harness);
+    release(40, 10);
+
+    expect(
+      harness.calls.slice(harness.calls.indexOf('release.prepare')),
+    ).toEqual([
+      'release.prepare',
+      'release.effect',
+      'settlement.prepare',
+      'settlement.effect',
+      'anchorTarget',
+      'presentation.released',
+      'finalized',
+      'retire',
+    ]);
+  });
+
+  it('should register nothing for a cancel raised in anchorTarget', () => {
+    // R8 (F-434). `SETTLING` is not a cancellable phase, so the late cancel is
+    // a no-op: the drag ends as the baseline's, retires, and the next press is
+    // admitted rather than stranded.
+    const harness: Harness = createHarness({
+      anchorTarget: () => {
+        harness.calls.push('anchorTarget');
+        harness.controller.requestCancel('late');
+        return { x: 0, y: 0 };
+      },
+    });
+
+    activate(harness);
+    release(40, 10);
+
+    expect(harness.settlements.map((input) => input.type)).toEqual([
+      SETTLED_SKIPPED,
+    ]);
+    expect(harness.calls.filter((name) => name === 'finalized')).toHaveLength(
+      1,
+    );
+    expect(harness.calls.filter((name) => name === 'retire')).toHaveLength(1);
+
+    press(harness.item);
+    expect(harness.calls.filter((name) => name === 'admit')).toHaveLength(2);
+  });
+
+  it('should not let a cancel raised in anchorTarget supersede a later failure', () => {
+    // R8's registration half. A cancel at `SETTLING` registers nothing, so a
+    // failure the terminal callback raises afterwards is classified as itself
+    // rather than superseded by a cancel that was never registered.
+    const error = new Error('terminal');
+    const harness: Harness = createHarness({
+      anchorTarget: () => {
+        harness.controller.requestCancel('late');
+        return { x: 0, y: 0 };
+      },
+      finalized(): never {
+        throw error;
+      },
+    });
+
+    activate(harness);
+    release(40, 10);
+
+    // The failure is classified and settles as itself; superseded, it would
+    // arrive as a warning and settle nothing.
+    expect(harness.failures).toEqual([
+      { stage: FAILURE_TERMINAL_CALLBACK, error },
+    ]);
+    expect(harness.reports).toEqual([]);
+  });
+
+  /** In `onStart`: dispatch `0`, request a cancel, dispatch `1`. */
+  const requestsInOnStart = (destroys: boolean): Harness => {
+    const harness: Harness = createHarness({
+      onStart(kernel): void {
+        kernel.dispatch(0, null);
+        kernel.requestCancel('between');
+        kernel.dispatch(1, null);
+
+        if (destroys) {
+          void kernel.requestDestroy();
+        }
+      },
+    });
+
+    activate(harness);
+    return harness;
+  };
+
+  it('should apply requests from onStart in the order they were made', () => {
+    // R12. The cancel is applied between the two actions, at `ACTIVATING`;
+    // the second action then applies to a settled operation's frame.
+    const harness = requestsInOnStart(false);
+    const applied = harness.calls.filter(
+      (name) =>
+        name.startsWith('action.prepare') || name === 'settlement.prepare',
+    );
+
+    expect(applied).toEqual([
+      'action.prepare:0',
+      'settlement.prepare',
+      'action.prepare:1',
+    ]);
+  });
+
+  it('should apply none of the requests from onStart when destruction follows them', () => {
+    // R12, with destruction: applied at the activation unit's boundary, ahead
+    // of the three entries it discards.
+    const harness = requestsInOnStart(true);
+
+    expect(
+      harness.calls.filter(
+        (name) => name.startsWith('action.') || name.startsWith('settlement.'),
+      ),
+    ).toEqual([]);
+  });
+
+  it('should register nothing for a cancel raised in the terminal callback', () => {
+    // R14. `finalized` runs at `FINALIZING`, so the cancel has nothing to
+    // register against, and there is exactly one terminal.
+    const harness: Harness = createHarness({
+      finalized(): void {
+        harness.calls.push('finalized');
+        harness.controller.requestCancel('after the end');
+      },
+    });
+
+    activate(harness);
+    release(40, 10);
+
+    expect(harness.settlements.map((input) => input.type)).toEqual([
+      SETTLED_SKIPPED,
+    ]);
+    expect(harness.calls.filter((name) => name === 'finalized')).toHaveLength(
+      1,
+    );
+    expect(harness.calls.filter((name) => name === 'retire')).toHaveLength(1);
+  });
+
+  it('should report a failure a cancel in the same seam superseded', () => {
+    // R16, first order. The checkpoint records at intake that a cancel was
+    // registered and unapplied, and `FAILED` reports the supersession at its
+    // application; the cancellation is the one terminal.
+    const error = new Error('write failed');
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.requestCancel('gone');
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, error);
+      },
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    move(60, 10);
+
+    expect(harness.settlements.map((input) => input.type)).toEqual([
+      SETTLED_CANCELED,
+    ]);
+    expect(
+      harness.reports.map((report) => [report.message, report.cause]),
+    ).toEqual([['drag: failure/superseded-by-cancel', error]]);
+  });
+
+  it('should report a failure applied before a cancel raised in a later unit', () => {
+    // R16, the reverse order across two units. The failure applies first, and
+    // the cancel raised in the failed settlement's own unit, at `SETTLING`,
+    // registers nothing: the failure is the one terminal.
+    const error = new Error('write failed');
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, error);
+      },
+      settlement: {
+        prepare(_draft, input): PreparedSettlement {
+          harness.settlements.push(input);
+          harness.controller.requestCancel('too late');
+          return true;
+        },
+        effect(): void {},
+      },
+    });
+
+    activate(harness);
+    move(60, 10);
+
+    expect(harness.settlements).toEqual([
+      expect.objectContaining({
+        type: SETTLED_FAILED,
+        stage: FAILURE_RENDERER_WRITE,
+        error,
+      }),
+    ]);
+    expect(harness.calls.filter((name) => name === 'retire')).toHaveLength(1);
+  });
+
+  it('should apply destruction at once while a resolution is pending and drop its late settle', async () => {
+    // R20 (D-201 E10). Destruction requested at depth 0 is applied before the
+    // call returns: the resolver's signal is aborted, and the settle that
+    // follows is dropped at intake.
+    let signal!: AbortSignal;
+    let settle!: (value: string) => void;
+    const harness = createHarness({
+      release: releaseWith((given) => {
+        signal = given;
+        return new Promise<string>((resolve) => {
+          settle = resolve;
+        });
+      }),
+    });
+
+    activate(harness);
+    release(80, 10);
+    void harness.controller.requestDestroy();
+
+    expect(signal.aborted).toBe(true);
+    expect(harness.calls).toContain('retire');
+
+    settle('verdict');
+    await flush();
+
+    expect(harness.settlements).toEqual([]);
+    expect(harness.reports).toEqual([]);
+  });
+});
+
+/**
+ * **A cancel registered before activation is entered** (R31, D-207, F-440).
+ * The unit that would enter the activation seam declines at its entry while a
+ * cancel for its operation is registered, and the queued `CANCEL` retires the
+ * operation silently at `PENDING`.
+ */
+describe('a cancel held at activation’s entry', () => {
+  it('should retire a command whose admission queued work that cancelled it', () => {
+    // The action is queued during `command.admit`, ahead of `ACTIVATE`, and
+    // registers a cancel at `PENDING`: the queue is `[ACTIVATE, CANCEL]`.
+    let cancels = true;
+    const harness: Harness = createHarness({
+      command: {
+        types: ['keydown'],
+        admit: (_event, draft): HTMLElement => {
+          harness.calls.push('command.admit');
+          draft.item = harness.item;
+
+          if (cancels) {
+            harness.kernel.dispatch(0, null);
+          }
+
+          return harness.item;
+        },
+      },
+      action: {
+        prepare(tag): {} | null {
+          harness.calls.push(`action.prepare:${tag}`);
+          harness.kernel.requestCancel('invalidated');
+          return true;
+        },
+        effect: (): void => {},
+      },
+    });
+    const command = (): void => {
+      harness.root.dispatchEvent(
+        new KeyboardEvent('keydown', {
+          key: 'ArrowDown',
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    };
+
+    command();
+
+    expect(harness.calls).toEqual([
+      'command.admit',
+      'action.prepare:0',
+      'retire',
+    ]);
+    expect(harness.settlements).toEqual([]);
+    expect(harness.reports).toEqual([]);
+
+    cancels = false;
+    command();
+
+    expect(harness.calls.slice(3, 5)).toEqual([
+      'command.admit',
+      'activation.prepare',
+    ]);
+  });
+
+  it('should retire a press whose action dispatched a crossing move and then cancelled', () => {
+    // A synthetic `pointermove` dispatched from inside a unit at `PENDING`
+    // queues `MOVE` ahead of the `CANCEL` registered after it.
+    const harness: Harness = createHarness({
+      action: {
+        prepare(tag): {} | null {
+          harness.calls.push(`action.prepare:${tag}`);
+          move(40, 10);
+          harness.kernel.requestCancel('invalidated');
+          return true;
+        },
+        effect: (): void => {},
+      },
+    });
+
+    press(harness.item);
+    harness.kernel.dispatch(0, null);
+
+    expect(harness.calls).toEqual(['admit', 'action.prepare:0', 'retire']);
+    expect(harness.settlements).toEqual([]);
+    expect(harness.reports).toEqual([]);
+
+    press(harness.item);
+    move(40, 10);
+    expect(harness.calls).toContain('activation.effect');
+  });
+});
+
+/**
+ * **A fault destruction discards** (R33 (l) to (y)). Destruction refuses a
+ * failure's claim on the operation and not the fault, so each discarded carrier
+ * reports once, in queue order, while the controller is still unapplied. A fault
+ * already delivered, and one a panic or application leaves behind, owes nothing.
+ */
+describe('a fault destruction discards', () => {
+  const SUPERSEDED = 'drag: failure/superseded-by-destruction';
+  const SUPERSEDED_BY_CANCEL = 'drag: failure/superseded-by-cancel';
+  const FIRST = new Error('first');
+  const SECOND = new Error('second');
+
+  /** Each delivery, as its message and its cause. */
+  const delivered = (harness: Harness): Array<[string, unknown]> =>
+    harness.reports.map((report) => [report.message, report.cause]);
+
+  /** A settlement seam whose application requests destruction. */
+  const destroyingSettlement = (
+    harness: () => Harness,
+  ): SpecOverrides['settlement'] => ({
+    prepare(_draft, input): PreparedSettlement {
+      harness().settlements.push(input);
+      void harness().kernel.requestDestroy();
+      return true;
+    },
+    effect(): void {},
+  });
+
+  it('should warn for a checkpoint registered before destruction is requested', () => {
+    // (l)
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        void harness.kernel.requestDestroy();
+      },
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    expect(applied(harness.kernel)).toBe(false);
+
+    move(60, 10);
+
+    expect(harness.reports[0]).toBeInstanceOf(DraggableWarning);
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(harness.settlements).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should warn for a checkpoint registered after destruction is requested', () => {
+    // (m)
+    const harness: Harness = createHarness({
+      moved(): void {
+        void harness.kernel.requestDestroy();
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+      },
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    move(60, 10);
+
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(harness.settlements).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should warn for discarded checkpoints in registration order', () => {
+    // (n)
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        void harness.kernel.requestDestroy();
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, SECOND);
+      },
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    move(60, 10);
+
+    expect(delivered(harness)).toEqual([
+      [SUPERSEDED, FIRST],
+      [SUPERSEDED, SECOND],
+    ]);
+  });
+
+  it('should deliver the warning after the unit and before application, with ingress refused', async () => {
+    // (o)
+    const order: string[] = [];
+    let destroyed!: Promise<void>;
+    const harness: Harness = createHarness({
+      moved(): void {
+        order.push('seam start');
+        destroyed = harness.kernel.requestDestroy();
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        order.push('seam end');
+      },
+      reportError(error): void {
+        const admissions = harness.calls.filter((call) => call === 'admit');
+
+        order.push(error.message, `applied ${applied(harness.kernel)}`);
+        press(harness.item);
+        order.push(
+          `admitted ${
+            harness.calls.filter((call) => call === 'admit').length -
+            admissions.length
+          }`,
+        );
+      },
+      retire(): void {
+        order.push('retire');
+      },
+    });
+
+    activate(harness);
+    order.length = 0;
+    move(60, 10);
+
+    expect(order).toEqual([
+      'seam start',
+      'seam end',
+      SUPERSEDED,
+      'applied false',
+      'admitted 0',
+      'retire',
+    ]);
+    await expect(destroyed).resolves.toBeUndefined();
+  });
+
+  it('should drop what the delivered report requests and retire once', () => {
+    // (p)
+    const reports: Array<[string, unknown]> = [];
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        void harness.kernel.requestDestroy();
+      },
+      reportError(error): void {
+        reports.push([error.message, error.cause]);
+
+        if (reports.length === 1) {
+          void harness.kernel.requestDestroy();
+          harness.controller.requestCancel('from the report');
+          harness.kernel.dispatch(0, null);
+          harness.kernel.fail(FAILURE_RENDERER_WRITE, SECOND);
+        }
+      },
+    });
+
+    activate(harness);
+    harness.calls.length = 0;
+    reports.length = 0;
+    move(60, 10);
+
+    expect(reports).toEqual([
+      [SUPERSEDED, FIRST],
+      ['drag: seam/fail-outside-seam', SECOND],
+    ]);
+    expect(
+      harness.calls.filter(
+        (call) =>
+          call.startsWith('action') ||
+          call.startsWith('settlement') ||
+          call === 'finalized',
+      ),
+    ).toEqual([]);
+    expect(harness.calls.filter((call) => call === 'retire')).toHaveLength(1);
+  });
+
+  it('should absorb a throw from the report and go on to the next fault', () => {
+    // (q)
+    const reports: Array<[string, unknown]> = [];
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, SECOND);
+        void harness.kernel.requestDestroy();
+      },
+      reportError(error): void {
+        reports.push([error.message, error.cause]);
+        throw new Error('from onError');
+      },
+    });
+
+    activate(harness);
+    harness.calls.length = 0;
+    reports.length = 0;
+    move(60, 10);
+
+    expect(reports).toEqual([
+      [SUPERSEDED, FIRST],
+      [SUPERSEDED, SECOND],
+    ]);
+    expect(harness.calls.filter((call) => call === 'retire')).toHaveLength(1);
+  });
+
+  it('should report destruction and not a cancel held before the checkpoint', () => {
+    // (r), cancel first.
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.controller.requestCancel('held');
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        void harness.kernel.requestDestroy();
+      },
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    move(60, 10);
+
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(harness.settlements).toEqual([]);
+  });
+
+  it('should report destruction and not a cancel held after the checkpoint', () => {
+    // (r), failure first.
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        harness.controller.requestCancel('held');
+        void harness.kernel.requestDestroy();
+      },
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    move(60, 10);
+
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(harness.settlements).toEqual([]);
+  });
+
+  it('should not warn for a checkpoint whose own settlement requests destruction', () => {
+    // (s), kernel half. It applied, and `ERROR_REPORTED` queues the same record.
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+      },
+      settlement: destroyingSettlement(() => harness),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    harness.calls.length = 0;
+    move(60, 10);
+
+    expect(harness.settlements).toHaveLength(1);
+    expect(harness.reports).toEqual([]);
+    expect(harness.calls).not.toContain('finalized');
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should warn only for the checkpoint behind one that applied and requested destruction', () => {
+    // (t)
+    const harness: Harness = createHarness({
+      moved(): void {
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+        harness.kernel.fail(FAILURE_RENDERER_WRITE, SECOND);
+      },
+      settlement: destroyingSettlement(() => harness),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    move(60, 10);
+
+    expect(harness.settlements).toHaveLength(1);
+    expect(delivered(harness)).toEqual([[SUPERSEDED, SECOND]]);
+  });
+
+  it('should deliver only the panic when a panic discards a checkpoint', () => {
+    // (u) The action queues `[MOVE, FAILED]` behind itself, and the selection
+    // stub throws at the crossing `MOVE` makes.
+    const reports: Array<DraggableError | DraggableWarning> = [];
+    const readings: boolean[] = [];
+    const harness: Harness = createHarness({
+      action: {
+        prepare(): {} | null {
+          move(40, 10);
+          harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+          return true;
+        },
+        effect(): void {},
+      },
+      reportError(error): void {
+        reports.push(error);
+        readings.push(applied(harness.kernel));
+      },
+    });
+
+    press(harness.item);
+    harness.calls.length = 0;
+
+    // Saved to be restored, never called detached.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    const selection = window.getSelection;
+
+    window.getSelection = (): never => {
+      throw new Error('platform');
+    };
+
+    try {
+      harness.kernel.dispatch(0, null);
+    } finally {
+      window.getSelection = selection;
+    }
+
+    expect(reports).toHaveLength(1);
+    expect(reports[0]).toBeInstanceOf(DraggableError);
+    expect((reports[0] as DraggableError).stage).toBeNull();
+    expect(readings).toEqual([true]);
+    expect(harness.calls.filter((call) => call === 'retire')).toHaveLength(1);
+  });
+
+  it('should warn for a round-trip that requests destruction and then throws', () => {
+    // (w), a synchronous throw.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        void harness.kernel.requestDestroy();
+        throw FIRST;
+      }),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(harness.settlements).toEqual([]);
+  });
+
+  it('should warn for a round-trip that requests destruction and then rejects inside then', () => {
+    // (w), a thenable rejecting synchronously.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        void harness.kernel.requestDestroy();
+        return {
+          then(_fulfil: unknown, reject: (error: unknown) => void): void {
+            reject(FIRST);
+          },
+        };
+      }),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(harness.settlements).toEqual([]);
+  });
+
+  it('should deliver nothing for a rejection after a round-trip already fulfilled', () => {
+    // (x), the first completion latches.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        void harness.kernel.requestDestroy();
+        return {
+          then(
+            fulfil: (value: unknown) => void,
+            reject: (error: unknown) => void,
+          ): void {
+            fulfil('value');
+            reject(FIRST);
+          },
+        };
+      }),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(harness.reports).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should deliver nothing for a round-trip that requests destruction and returns a value', () => {
+    // (x), no fault at all.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        void harness.kernel.requestDestroy();
+        return 'value';
+      }),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(harness.reports).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should deliver nothing for a rejection arriving after application', async () => {
+    // (y) The attempt slot is empty by then, so the rejection is never queued.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        void harness.kernel.requestDestroy();
+        return Promise.reject(FIRST);
+      }),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+    await flush();
+
+    expect(harness.reports).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should report destruction for a round-trip that holds a cancel and requests destruction', () => {
+    // (ai) No handler ran, so the attempt is still current at the walk.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        harness.controller.requestCancel('held');
+        void harness.kernel.requestDestroy();
+        throw FIRST;
+      }),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(harness.settlements).toEqual([]);
+  });
+
+  it("should absorb a throw from a discarded rejection's report", () => {
+    // (aj) The report goes through the route, so `onError`'s throw stops there
+    // and no panic follows it.
+    const reports: Array<DraggableError | DraggableWarning> = [];
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        void harness.kernel.requestDestroy();
+        throw FIRST;
+      }),
+      reportError(error): void {
+        reports.push(error);
+        throw new Error('from onError');
+      },
+    });
+
+    activate(harness);
+    reports.length = 0;
+    harness.calls.length = 0;
+    release(40, 10);
+
+    expect(reports.map((report) => report.message)).toEqual([SUPERSEDED]);
+    expect(reports[0]).toBeInstanceOf(DraggableWarning);
+    expect(harness.calls.filter((call) => call === 'retire')).toHaveLength(1);
+  });
+
+  it('should report a rejection the delivered report causes, behind the checkpoint', () => {
+    // (ak) The attempt is still current during the walk, so the rejection the
+    // report causes wins the latch, queues behind the checkpoint and is walked.
+    const reports: Array<[string, unknown]> = [];
+    let reject!: (error: unknown) => void;
+    const harness: Harness = createHarness({
+      release: releaseWith(() => ({
+        then(_fulfil: unknown, fail: (error: unknown) => void): void {
+          reject = fail;
+        },
+      })),
+      action: {
+        prepare(): {} | null {
+          harness.kernel.fail(FAILURE_RENDERER_WRITE, FIRST);
+          void harness.kernel.requestDestroy();
+          return null;
+        },
+        effect(): void {},
+      },
+      reportError(error): void {
+        reports.push([error.message, error.cause]);
+
+        if (error.cause === FIRST) {
+          reject(SECOND);
+        }
+      },
+    });
+
+    activate(harness);
+    release(40, 10);
+    reports.length = 0;
+    harness.kernel.dispatch(0, null);
+
+    expect(reports).toEqual([
+      [SUPERSEDED, FIRST],
+      [SUPERSEDED, SECOND],
+    ]);
+    expect(harness.settlements).toEqual([]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should report the cancel for a rejection queued behind it', () => {
+    // (al) The cancel applies first and retires the attempt, so the entry reaches
+    // the retired branch with its report.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        harness.controller.requestCancel('held');
+        throw FIRST;
+      }),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(harness.settlements.map((input) => input.type)).toEqual([
+      SETTLED_CANCELED,
+    ]);
+    expect(harness.reports[0]).toBeInstanceOf(DraggableWarning);
+    expect(delivered(harness)).toEqual([[SUPERSEDED_BY_CANCEL, FIRST]]);
+  });
+
+  it('should report the cancel for a rejection behind a cancel whose settlement requests destruction', () => {
+    // (am) The attempt retired before the request, so the walk finds it retired.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        harness.controller.requestCancel('held');
+        throw FIRST;
+      }),
+      settlement: destroyingSettlement(() => harness),
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(harness.settlements.map((input) => input.type)).toEqual([
+      SETTLED_CANCELED,
+    ]);
+    expect(delivered(harness)).toEqual([[SUPERSEDED_BY_CANCEL, FIRST]]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+
+  it('should report once for a rejection whose own settlement requests destruction and rethrows', () => {
+    // (an) The entry applied, so it reports nothing itself. Its `prepare`'s throw
+    // registers a checkpoint in the interval, and that checkpoint reports.
+    const harness: Harness = createHarness({
+      release: releaseWith(() => {
+        throw FIRST;
+      }),
+      settlement: {
+        prepare(_draft, input): PreparedSettlement {
+          harness.settlements.push(input);
+          void harness.kernel.requestDestroy();
+          throw FIRST;
+        },
+        effect(): void {},
+      },
+    });
+
+    activate(harness);
+    harness.reports.length = 0;
+    release(40, 10);
+
+    expect(harness.settlements).toHaveLength(1);
+    expect(delivered(harness)).toEqual([[SUPERSEDED, FIRST]]);
+    expect(applied(harness.kernel)).toBe(true);
+  });
+});
+
+describe('the minted channel', () => {
+  it('should deliver in the construction window and drop once destruction is applied', () => {
+    // R33 (h). The factory requests destruction and reports through a channel
+    // it minted: construction is a unit, so the request is not yet applied and
+    // the report is delivered. After `draggable()` returns, destruction has
+    // been applied, and the same channel drops.
+    const root = document.createElement('div');
+    const delivered: unknown[] = [];
+    let channel!: (error: DraggableError | DraggableWarning) => void;
+
+    document.body.append(root);
+    cleanup.push(() => root.remove());
+
+    draggable(root, (kernel) => {
+      channel = kernel.channel((error) => {
+        delivered.push(error);
+      });
+      void kernel.requestDestroy();
+      channel(new DraggableWarning('in construction'));
+
+      return {
+        controller: {},
+        spec: {
+          createFramePart: (): ExamplePart => ({ item: null, note: '' }),
+          resetFramePart: (): void => {},
+          config: { threshold: 8, liftMode: LIFT_FLAT, actionTags: 0 },
+          admit: () => null,
+          activation: {
+            prepare: () => document.createElement('div'),
+            effect: (): void => {},
+          },
+          release: {
+            prepare: () => ({ invoke: null }),
+            effect: (): void => {},
+          },
+          settlement: { prepare: () => true, effect: (): void => {} },
+          action: { prepare: () => null, effect: (): void => {} },
+          moved: (): void => {},
+          anchorTarget: () => ({ x: 0, y: 0 }),
+          finalized: (): void => {},
+          reportError: (): void => {},
+          retire: (): void => {},
+        },
+      };
+    });
+
+    channel(new DraggableWarning('after application'));
+
+    expect(delivered.map((error) => (error as Error).message)).toEqual([
+      'in construction',
+    ]);
+  });
+
+  it('should absorb a throw from the sink', () => {
+    // The terminus: an unwind step reports through a channel and continues.
+    const harness = createHarness();
+    const channel = harness.kernel.channel(() => {
+      throw new Error('sink');
+    });
+
+    expect(() => {
+      channel(new DraggableWarning('probe'));
+    }).not.toThrow();
   });
 });

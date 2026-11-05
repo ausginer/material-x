@@ -60,14 +60,6 @@ Nothing below is decided by this register. Each row states what is owed and what
 
 **Waiting for:** **An owner's answer, not a repair.** Re-read here rather than closed: the missing matrix row is bookkeeping, but what the row would assert is not settled, and choosing a recovery for a reorder rejected against a moved home is a semantic decision this pass declines to make locally
 
-#### O-6
-
-**Whether `kernel/kernel.ts` should be split.** 2 468 lines against the 1 971 that prompted M-02; its duplicated-SPI half is closed
-
-**Owed by:** M-02
-
-**Waiting for:** **A judgment, and the human owner's.** M-02's own disposition was that _mechanical splitting before those decisions is not warranted_, and the decisions it named have all since been taken — so splitting is now live, buys navigation and risks nothing else. Not made on the last day of agent ownership
-
 #### O-7
 
 **F-80's four API divergences** between the contract and the shipped surface
@@ -75,6 +67,22 @@ Nothing below is decided by this register. Each row states what is owed and what
 **Owed by:** F-80
 
 **Waiting for:** **An owner's call on each.** Unchanged since the API entry; kept as one row here so the register is the whole list rather than most of it
+
+#### O-14
+
+**What a cancel applied at `ACTIVATING` does for a drag whose start was never notified.** This covers the whole class of two-fault paths in F-442, not only the sortable's admitted gap. The gap's stated reason for staying open, the cost of a per-operation "started" flag, no longer holds. Widened 2026-11-03
+
+**Owed by:** F-442
+
+**Waiting for:** **The architect's decision, and the owner's ruling if a published outcome changes.** Due before Phase 24 exits, since Phase 24 carries no open question. D-208 does not decide it
+
+#### O-15
+
+**The action queue's per-sample store regrowth, and the three source comments that say the per-sample path allocates nothing.** The fix is to the code, under the properties F-443 states. Raised 2026-11-03
+
+**Owed by:** F-443
+
+**Waiting for:** **Its own unit, routed by the architect.** D-208's whole-decision acceptance ended the `src/` freeze on 2026-11-04. Due before Phase 24 exits. It is not D-208's
 
 ## Standing conditions
 
@@ -89,6 +97,8 @@ Nothing below is decided by this register. Each row states what is owed and what
 **Where it was decided:** D-106, and [`bundle-structure.md`](bundle-structure.md) §Headroom
 
 **Today:** **Met 2026-08-29 by its third trigger, and the re-base it schedules does not follow.** L-11 landed as D-154, the export map changed on three entries, and M-3 was re-measured for that reason rather than for a byte: [`budget-rebases.md`](measurements/budget-rebases.md) §SC-1 fires carries the fourteen rows. **Every row is under budget**, the movement is +4 to +19 B Brotli and attributable to one named landed change, and no row goes negative. **Slack runs 63–630 B**: 456–630 B on the eleven rows that carry a behavior, and 63 B (`drag.js`), 151 B (baseline B) and 246 B (`kernel.js`) on the three that do not — ~~456–630 B~~ over all fourteen is **corrected 2026-08-29 (F-175)**, having replaced the previously-live _114–154 B_ with a range that excluded the register's own tightest rows — so the first two triggers are still not met and the twelve rows keep the budgets they had. **A re-measurement is what this condition asks for; a re-base is what the evidence has to earn**, and it does not
+
+**Met 2026-11-02 by its first trigger, and re-based 2026-11-03.** D-208 step 4 put four rows over their ceilings — `free drag + bounds` +72, `free drag + landing` +12, `free drag complete` +52 and `kernel root — kernel.js` +8 B ([`request-application-claude.md`](reviews/architecture/request-application-claude.md) §19.3). The owner's disposition of 2026-11-03 directs the re-base this condition schedules, and it is [`budget-rebases.md`](measurements/budget-rebases.md) §Re-based 2026-11-03: the thirteen package rows at their Brotli figure at `src/` tree `4630579d2` plus 150 B, with the vocabulary root's and baseline B's ceilings and every `control:` unchanged (§24.4, §24.5 step 1)
 
 #### SC-3
 
@@ -159,6 +169,12 @@ Nothing below is decided by this register. Each row states what is owed and what
 **Disposition:** **Withdrawn unsatisfied, 2026-08-22, by the owner.** The required before/after measurement belonged to the deletion's landing window, and that window was missed: Phase R landed the deletion and nobody took the numbers. **The check is not satisfied and must not be described as satisfied**, and no later measurement substitutes for it — a figure taken against any subsequent tree answers a different question, which is precisely what the check's own wording forbids. What is withdrawn is the **lost historical falsifier**; **D-56 itself remains accepted**, on its argument. Four records — `phase-21.md`, `m3-prime.md`, `m2-prime.md`, `m5.md` — each handed this back rather than take it, and this row is where it stops being handed on
 
 ## Discharged here
+
+#### O-6
+
+**Whether `kernel/kernel.ts` should be split.** 2 468 lines against the 1 971 that prompted M-02; its duplicated-SPI half is closed
+
+**Disposition:** **Discharged 2026-09-29 by D-199, on the owner's call, and the answer is no.** `Kernel` stays one state machine in one class. The quantity both triggers measured was mostly prose: from `c87ad854f` to `bfd2832db` the code stayed between 1,085 and 1,280 non-blank lines while the comments grew from 441 to 1,257. The handlers share `#private` state whose non-null assertions are sound because of statement order inside the class. D-199 records the rule under which a _mechanism_ may still leave the kernel, names three candidates without approving any, approves one deduplication and one focused comment pass, and books both to Remediation with a witness. **Asking at the close** (rule (b)): nothing else was booked to this row, and F-432, which the pass raised, is an open finding rather than an obligation. Record [`kernel-shape-o6-claude.md`](reviews/architecture/kernel-shape-o6-claude.md)
 
 #### O-13
 

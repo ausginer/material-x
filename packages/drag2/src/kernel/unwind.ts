@@ -8,10 +8,10 @@
  *
  * The rule at every site is the same sentence: **the statement after this call
  * is load-bearing.** Another resource to release, another teardown step, or the
- * original error to rethrow. Ten of the sites are literal multi-resource
- * releases, three of them `for` loops over installer disposers or an undo
- * ledger. Unwrapped, a throw from step *n* skips steps *n+1* onward — which is
- * exactly how `destroy()` stops being terminal.
+ * original error to rethrow. Most of the sites are literal multi-resource
+ * releases, some of them `for` loops over installer disposers. Unwrapped, a
+ * throw from step *n* skips steps *n+1* onward — which is exactly how
+ * destruction stops being terminal.
  *
  * The catch reports a {@link DraggableWarning} rather than an error, because an
  * unwind step that failed is by construction not consequential — the
@@ -27,15 +27,16 @@ import { DraggableWarning, type Notify } from './errors.ts';
 export type Unwind = <T>(step: () => T) => T | undefined;
 
 /**
- * Builds the unwind guard over one controller's channel.
+ * Builds the unwind guard over one notifier: a minted channel or the
+ * controller's route.
  *
  * A closure per kernel rather than a free function taking the notifier: the
- * fourteen call sites read `unwind(fn)` either way, and threading the notifier
+ * call sites read `unwind(fn)` either way, and threading the notifier
  * through each of them would put the channel's identity at every site that
  * merely wants to survive a throw.
  *
- * **The notifier must not throw** — the channel's own guard is what guarantees
- * that, and it is why this function needs no `try` around the report. Every
+ * **The notifier must not throw** — its terminus is what guarantees that, and
+ * it is why this function needs no `try` around the report. Every
  * site here is already inside a teardown whose next step matters; a second
  * failure mode in the reporting path would defeat the one property this exists
  * to provide.

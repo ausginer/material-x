@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { DraggableError, DraggableWarning } from '../../src/kernel/errors.ts';
+import {
+  DraggableError,
+  type DraggableWarning,
+} from '../../src/kernel/errors.ts';
 import { ExecutionBracket } from '../../src/kernel/execution.ts';
 import {
   FAILURE_ACTIVATION,
@@ -16,7 +19,6 @@ import {
   SEAM_COMMITTED,
   SEAM_DISCARDED,
   SEAM_EFFECT_FAILED,
-  SEAM_INVALIDATED,
   SEAM_PREPARE_FAILED,
   type Transition,
 } from '../../src/kernel/seams.ts';
@@ -41,8 +43,6 @@ type Harness = Readonly<{
    */
   warnings: readonly DraggableWarning[];
   current(): Readonly<Frame<ExamplePart>>;
-  /** Simulates a reentrant cancel or destroy invalidating the preparation. */
-  invalidate(): void;
   /**
    * Whether the pair is swapped from the way it was built.
    *
@@ -58,13 +58,12 @@ type Harness = Readonly<{
 
 /**
  * A real frame transaction — two composed frames, the real copy and the real
- * swap — and a validity flag a test flips to stand in for a reentrant cancel.
- * No queue, no lifecycle: the driver is what is under test, and the pair it
- * drives is the shipped one rather than a description of it.
+ * swap. No queue, no lifecycle: the driver is what is under test, and the pair
+ * it drives is the shipped one rather than a description of it.
  *
- * The kernel's three remaining edges stay closures, which is what they are on
- * the kernel too: the revalidation composes two conjuncts owned elsewhere, and
- * the two channels are the controller's.
+ * The kernel's two remaining edges stay closures, which is what they are on
+ * the kernel too: the two channels are the controller's. There is no third:
+ * the driver reads no request, so nothing stands in for one.
  *
  * **The transaction count is taken at `FrameTransaction.begin` itself**, which
  * is where the driver opens one. Counting it through a collaborator would
@@ -77,14 +76,12 @@ function createHarness(): Harness {
     Object.assign(frame(), createExamplePart()),
   );
   const begins = vi.spyOn(frames, 'begin');
-  let valid = true;
   const failures: Array<{ stage: FailureStage; error: unknown }> = [];
   const warnings: DraggableWarning[] = [];
 
   return {
     driver: new SeamDriver<ExamplePart>(
       frames,
-      () => valid,
       (stage, error): void => {
         failures.push({ stage, error });
       },
@@ -95,9 +92,6 @@ function createHarness(): Harness {
     failures,
     warnings,
     current: () => frames.current,
-    invalidate(): void {
-      valid = false;
-    },
     committed: () => frames.current !== first,
     begins: () => begins.mock.calls.length,
   };
@@ -123,8 +117,6 @@ function createTransition(
       return { staged: 1 };
     });
   const effect = overrides.effect ?? ((): void => {});
-  const rollback =
-    'rollback' in overrides ? overrides.rollback : (): void => {};
 
   return {
     calls,
@@ -136,14 +128,6 @@ function createTransition(
       calls.push('effect');
       effect(current, prepared, capability);
     },
-    ...(rollback
-      ? {
-          rollback(prepared: { staged: number }): void {
-            calls.push('rollback');
-            rollback(prepared);
-          },
-        }
-      : {}),
   };
 }
 
@@ -290,107 +274,6 @@ describe('runCore discard', () => {
   });
 });
 
-describe('runCore invalidation', () => {
-  it('should report a reentrant invalidation rather than committing', () => {
-    const harness = createHarness();
-
-    const outcome = harness.driver.runCore(
-      createTransition({
-        prepare(_draft) {
-          harness.invalidate();
-          return { staged: 1 };
-        },
-      }),
-      undefined,
-      FAILURE_ACTIVATION,
-    );
-
-    expect(outcome).toBe(SEAM_INVALIDATED);
-    expect(harness.committed()).toBe(false);
-  });
-
-  it('should roll back instead of running the effect', () => {
-    const harness = createHarness();
-    const transition = createTransition({
-      prepare(_draft) {
-        harness.invalidate();
-        return { staged: 1 };
-      },
-    });
-
-    harness.driver.runCore(transition, undefined, FAILURE_ACTIVATION);
-
-    expect(transition.calls).toEqual(['prepare', 'rollback']);
-  });
-
-  it('should hand rollback the staged value', () => {
-    const harness = createHarness();
-    let released: { staged: number } | null = null;
-
-    harness.driver.runCore(
-      createTransition({
-        prepare(_draft) {
-          harness.invalidate();
-          return { staged: 9 };
-        },
-        rollback(prepared) {
-          released = prepared;
-        },
-      }),
-      undefined,
-      FAILURE_ACTIVATION,
-    );
-
-    expect(released).toEqual({ staged: 9 });
-  });
-
-  it('should tolerate a transition with no rollback', () => {
-    const harness = createHarness();
-
-    expect(() =>
-      harness.driver.runCore(
-        createTransition({
-          prepare(_draft) {
-            harness.invalidate();
-            return { staged: 1 };
-          },
-          rollback: undefined,
-        }),
-        undefined,
-        FAILURE_ACTIVATION,
-      ),
-    ).not.toThrow();
-  });
-
-  it('should report a throwing rollback without classifying it', () => {
-    const harness = createHarness();
-    const error = new Error('rollback boom');
-
-    const outcome = harness.driver.runCore(
-      createTransition({
-        prepare(_draft) {
-          harness.invalidate();
-          return { staged: 1 };
-        },
-        rollback(): void {
-          throw error;
-        },
-      }),
-      undefined,
-      FAILURE_ACTIVATION,
-    );
-
-    // Classifying it would open a transition against an operation the kernel
-    // has just decided to abandon.
-    expect(outcome).toBe(SEAM_INVALIDATED);
-    expect(harness.failures).toHaveLength(0);
-    expect(harness.warnings).toHaveLength(1);
-    expect(harness.warnings[0]).toBeInstanceOf(DraggableWarning);
-    expect(harness.warnings[0]?.message).toBe('drag: seam/rollback-failed');
-    expect(harness.warnings[0]?.cause).toBe(error);
-  });
-});
-
 describe('runCore failure', () => {
   it('should classify a throwing prepare without committing', () => {
     const harness = createHarness();
@@ -462,7 +345,7 @@ describe('runCore failure', () => {
     expect(harness.failures[0]?.stage).toBe(FAILURE_RELEASE);
   });
 
-  it('should not rollback a transition that already committed', () => {
+  it('should run nothing after a throwing effect', () => {
     const harness = createHarness();
     const transition = createTransition({
       effect(): void {
@@ -635,36 +518,6 @@ describe('explicit failure latching', () => {
     expect(harness.committed()).toBe(false);
   });
 
-  it('should report kernel.fail inside rollback exactly like a throw inside it', () => {
-    const harness = createHarness();
-    const error = new Error('during rollback');
-
-    const outcome = harness.driver.runCore(
-      createTransition({
-        prepare(_draft) {
-          harness.invalidate();
-          return { staged: 1 };
-        },
-        rollback(): void {
-          harness.driver.requestFailure(FAILURE_ACTIVATION, error);
-        },
-      }),
-      undefined,
-      FAILURE_ACTIVATION,
-    );
-
-    expect(outcome).toBe(SEAM_INVALIDATED);
-    expect(harness.failures).toHaveLength(0);
-
-    // **`kernel.fail` inside `rollback` is now literally the same event as a
-    // throw inside it** (D-130). It used to report a distinct
-    // `seam/fail-during-rollback`; applying one sentinel to the whole phase is
-    // what makes the equivalence the comment always claimed hold in the output.
-    expect(harness.warnings).toHaveLength(1);
-    expect(harness.warnings[0]?.message).toBe('drag: seam/rollback-failed');
-    expect(harness.warnings[0]?.cause).toBe(error);
-  });
-
   it('should close the seam once the phase returns', () => {
     const harness = createHarness();
     let insideSeam = false;
@@ -823,28 +676,6 @@ describe('staged value', () => {
     expect(harness.driver.consumeStaged()).toBeNull();
   });
 
-  it('should not carry a committed value into an invalidated seam', () => {
-    const harness = createHarness();
-
-    harness.driver.runCore(
-      createTransition({ prepare: () => ({ staged: 5 }) }),
-      undefined,
-      FAILURE_RELEASE,
-    );
-    harness.driver.runCore(
-      createTransition({
-        prepare(_draft) {
-          harness.invalidate();
-          return { staged: 6 };
-        },
-      }),
-      undefined,
-      FAILURE_RELEASE,
-    );
-
-    expect(harness.driver.consumeStaged()).toBeNull();
-  });
-
   it('should not carry a committed value into a failed prepare', () => {
     const harness = createHarness();
 
@@ -929,28 +760,6 @@ describe('staged value', () => {
 
   it('should report nothing staged before any seam has run', () => {
     expect(createHarness().driver.consumeStaged()).toBeNull();
-  });
-
-  it('should stage nothing when the effect abandoned the operation', () => {
-    const harness = createHarness();
-
-    // The staging assignment lands *after* the effect, which is exactly when a
-    // reentrant `destroy()` has already run: clearing the slot inside teardown
-    // cannot help, because the write that repopulates it happens next. So the
-    // write itself is conditional.
-    const outcome = harness.driver.runCore(
-      createTransition({
-        prepare: () => ({ staged: 5 }),
-        effect(): void {
-          harness.invalidate();
-        },
-      }),
-      undefined,
-      FAILURE_RELEASE,
-    );
-
-    expect(outcome).toBe(SEAM_COMMITTED);
-    expect(harness.driver.consumeStaged()).toBeNull();
   });
 
   it('should report a value an earlier seam left unconsumed', () => {
@@ -1131,13 +940,14 @@ describe('runCore reentrancy', () => {
     const harness = createHarness();
 
     // **The two halves the consumer actually meets, composed.** The driver
-    // produces the escape; `panic` in `kernel.ts` is `void destroy(); notify(new
-    // DraggableError(null, error))`, and that second statement is reproduced
-    // here verbatim. Composed rather than driven through the SPI on purpose:
-    // F-85 settled from the call graph that **no behavior-facing entry can open
-    // a nested phase** — every one is inside a queue handler — so a test that
-    // appeared to reach this latch through `BehaviorContext` would be asserting a
-    // reachability the record has disproved.
+    // produces the escape; `panic` in `kernel.ts` is `notify(new
+    // DraggableError(null, error))`, called after the bracket has closed, and
+    // that statement is reproduced here verbatim. Composed rather than driven
+    // through the SPI on purpose: F-85 settled from the call graph that **no
+    // behavior-facing entry can open a nested phase** — every one is inside a
+    // queue handler — so a test that appeared to reach this latch through
+    // `BehaviorContext` would be asserting a reachability the record has
+    // disproved.
     const thrown = escapeOf(() =>
       harness.driver.runCore(
         createTransition({
@@ -1174,7 +984,7 @@ describe('runCore reentrancy', () => {
     // only `${symbol}` throws, so this is the one spelling that discriminates.
     // The rule is right in general and this row is what it is about.
     // oxlint-disable-next-line typescript/restrict-template-expressions
-    expect(`${report.cause}`).toBe('null');
+    expect(String(report.cause)).toBe('null');
 
     // The withdrawn identity, spelled out so the row states what it forbids.
     expect(JSON.stringify([report.message, String(report.cause)])).not.toMatch(
@@ -1554,27 +1364,6 @@ describe('runActivationSeam', () => {
     expect(policy.committed).not.toHaveBeenCalled();
   });
 
-  it('should retire the operation when activation is invalidated', () => {
-    const harness = createHarness();
-    const policy = { retire: vi.fn(), committed: vi.fn() };
-
-    runActivationSeam(
-      harness.driver,
-      activation({
-        prepare(): HTMLElement {
-          harness.invalidate();
-          return element;
-        },
-      }),
-      scope,
-      FAILURE_ACTIVATION,
-      ACTIVATING,
-      policy,
-    );
-
-    expect(policy.retire).toHaveBeenCalledOnce();
-  });
-
   it('should not retire on a prepare failure', () => {
     const harness = createHarness();
     const policy = { retire: vi.fn(), committed: vi.fn() };
@@ -1688,32 +1477,6 @@ describe('runReleaseSeam', () => {
 
     expect(outcome).toBe(SEAM_COMMITTED);
     expect(execute).toHaveBeenCalledExactlyOnceWith(command);
-  });
-
-  it('should never invoke the consumer when the release effect abandoned the operation', () => {
-    const harness = createHarness();
-    const execute = vi.fn();
-
-    // A `release.effect` that reentrantly destroys the controller still commits
-    // — I-18 does not revert it — but the command it staged addresses an
-    // operation that no longer exists, and running it would open the consumer
-    // round-trip after the terminal barrier.
-    const outcome = runReleaseSeam(
-      harness.driver,
-      {
-        prepare: () => ({ invoke: null }),
-        effect(): void {
-          harness.invalidate();
-        },
-      },
-      FAILURE_RELEASE,
-      (prepared: unknown): void => {
-        execute(prepared);
-      },
-    );
-
-    expect(outcome).toBe(SEAM_COMMITTED);
-    expect(execute).not.toHaveBeenCalled();
   });
 
   it('should never invoke the consumer after a failed release effect', () => {

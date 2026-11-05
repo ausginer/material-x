@@ -187,6 +187,7 @@ A convention with no instrument is a convention that decays, and the classes abo
 | `.agents/docs/documentation.md` | Convention — this document |
 | `.agents/docs/review-findings.md`, `handoff.md` | Convention and Operation — routed chunks; each carries a retrieval header naming its trigger |
 | `.agents/docs/agent-workflow.md` | Operation — how the roles are arranged and a round is run. Coordinator and human documentation; no role reads it at runtime |
+| `.agents/docs/coordinator.md`, `coordinator-setup.md` | Operation — local Codex coordination, owner-relayed handoffs and guarded Claude role startup |
 | `.agents/docs/architecture.md`, `css-inheritance.md`, `accessibility.md`, `attribute-vs-state-styling.md`, `trait-flattener-plugin.md`, `test-architecture.md` | Convention and design reference — consulted, not resident |
 | `.claude/agents/` | Operation — the role definitions, and the only store of `role → chunk` edges |
 | `.claude/skills/` | Operation — task-scoped procedure |

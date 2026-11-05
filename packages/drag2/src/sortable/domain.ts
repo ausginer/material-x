@@ -6,7 +6,7 @@
  * discriminating a result must not require importing an internal outcome
  * constant.
  *
- * The numeric `recovery` constants below are the opposite: they are
+ * The numeric `RECOVERY_*` constants are the opposite: they are
  * behavior-private frame state, never handed to a consumer.
  */
 import type { CancelOrigin, CancelStage } from '../kernel/failures.ts';
@@ -143,7 +143,8 @@ export type RejectedResolution = ReorderResolution &
  * constant rather than a fresh one per acceptance: there is no string to ship,
  * none to compare, and nothing on the value for a consumer to read or forge.
  *
- * **The two assertions below are irreducible and are the only ones.** The brand
+ * **The `as never` assertions on `ACCEPTED` and in `reject` are irreducible
+ * and are the only ones.** The brand
  * is a *required* property no runtime value carries — that is what makes the
  * type unforgeable, and it is also why an array literal is not comparable to
  * it. `as never` is the narrowest spelling: it claims nothing about the source,
@@ -197,10 +198,11 @@ export type CanceledReorderResult = Readonly<{
   type: 'canceled';
   /**
    * **What the decider had to say, and nothing more.** An open channel: a value
-   * the consumer passed to `cancel`, one of the two constants this module
-   * publishes, the value a classified failure threw, or `undefined`. Provenance
-   * is `origin`, which the consumer cannot write; comparing `reason` to a
-   * constant answers *what was said*, never *who said it*.
+   * the consumer passed to `requestCancel`, `CANCEL_COLLECTION_INVALIDATED` or
+   * `CANCEL_ITEM_REMOVED`, the value a classified failure threw, or
+   * `undefined`. Provenance is `origin`, which the consumer cannot write;
+   * comparing `reason` to a constant answers *what was said*, never *who said
+   * it*.
    */
   reason: unknown;
   /** Who decided, and of what kind. Written by the library. */

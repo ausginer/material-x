@@ -22,10 +22,9 @@
  *    it builds the same slot record `assemble()` does. It is hand-written, so
  *    it drifts unless something checks.
  */
-import { spawn } from 'node:child_process';
 import { readdir, stat } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, inject, it } from 'vitest';
 import {
   packageFilesToCleanPathspecs,
   readPackageFiles,
@@ -55,49 +54,18 @@ import { y } from '../../src/sortable/y.ts';
 const ROOT = resolve(import.meta.dirname, '../..');
 const MINUTE = 60_000;
 
-function build(): Promise<void> {
-  return new Promise((done, fail) => {
-    const child = spawn('npx', ['tsdown', '--config', 'tsdown.config.ts'], {
-      cwd: ROOT,
-    });
-    let output = '';
-
-    child.stdout.setEncoding('utf8');
-    child.stderr.setEncoding('utf8');
-    child.stdout.on('data', (chunk: string) => {
-      output += chunk;
-    });
-    child.stderr.on('data', (chunk: string) => {
-      output += chunk;
-    });
-    child.on('error', fail);
-    child.on('close', (code) => {
-      if (code === 0) {
-        done();
-        return;
-      }
-
-      fail(new Error(`tsdown exited with ${code}\n${output}`));
-    });
-  });
-}
-
 const measured = new Map<string, Measurement>();
 
 /**
- * When the build below started. Every generated file must be newer than this;
- * see the orphaned-output row.
+ * When the project's one build started. Every generated file must be newer than
+ * this; see the orphaned-output row.
  */
-let builtAt = 0;
+const builtAt = inject('builtAt');
 
 beforeAll(async () => {
   // The fixtures import **built** output — that is the point, since a consumer
-  // never sees `src/`. Building here rather than relying on a prior `just
-  // build` keeps the suite self-contained, the same way the packed-consumer
-  // fixture does.
-  builtAt = Date.now();
-  await build();
-
+  // never sees `src/`. The project's global setup builds it before any file
+  // starts, which keeps the suite self-contained.
   for (const composition of COMPOSITIONS) {
     // oxlint-disable-next-line no-await-in-loop
     measured.set(composition.name, await measure(composition));
@@ -167,6 +135,11 @@ describe('the declared module graphs', () => {
     // disagree about what counts as generated. A second of slack absorbs
     // filesystem timestamp granularity and nothing else: a survivor is a build
     // older than this one, not a build a millisecond older.
+    //
+    // With no timestamp nothing can be older than the build, so a config that
+    // reaches this row without building is refused rather than passed.
+    expect(builtAt).toBeTypeOf('number');
+
     const generated = packageFilesToCleanPathspecs(
       await readPackageFiles(ROOT),
     );
@@ -221,11 +194,11 @@ describe('the declared module graphs', () => {
  * made an enforced budget a red row with the same answer every time, so these
  * were gated behind an environment variable and only `just size` read them.
  *
- * **The gate's cost was assumed and is measured**: `beforeAll` already builds
- * and measures every composition for the graph assertions above, so these
- * fifteen are arithmetic over results already in hand — 0.08 s across the
- * file. What the gate bought was silence on every row a change to the sortable
- * can actually reach, since the always-on controls below cover only the rows
+ * **The gate's cost was assumed and is measured**: `beforeAll` already
+ * measures every composition for the graph assertions above, so these fifteen
+ * are arithmetic over results already in hand — 0.08 s across the file. What
+ * the gate bought was silence on every row a change to the sortable can
+ * actually reach, since the always-on controls below cover only the rows
  * declared unreachable.
  *
  * Loosening the numbers would have been worse than gating them: a budget with
@@ -307,8 +280,8 @@ describe('the non-composed baseline', () => {
       ),
       context,
     );
-    // Imported here rather than at the top: it reaches built output, which
-    // does not exist until `beforeAll` has run.
+    // Imported here rather than at the top: it reaches built output, and only
+    // this row needs that graph loaded.
     const { buildSlots } = await import('../../bench/size/noncomposed.js');
     const byHand = buildSlots(context, {
       items: (): readonly HTMLElement[] => [],

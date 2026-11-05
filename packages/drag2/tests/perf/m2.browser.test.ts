@@ -20,7 +20,9 @@
  * for this project only) and `--enable-precise-memory-info`, without which
  * Chrome quantizes `usedJSHeapSize` to 100kB and every figure below would be a
  * rounding artifact. Each figure is the **minimum** of several runs, because
- * heap noise is one-sided: allocation from elsewhere can only inflate it.
+ * allocation from elsewhere inflates a reading. Heap noise is not one-sided:
+ * anything collected inside the window deflates one, and the minimum then
+ * selects it (F-445).
  *
  * The models here are *models*. Rewriting the kernel in opaque-`S` style to
  * measure it would be the change the measurement is supposed to justify, so

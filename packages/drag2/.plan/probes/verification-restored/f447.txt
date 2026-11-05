@@ -1,0 +1,92 @@
+# F-447 readings. Two builder files together, node project. Delay at the start of build:done. Scratch only; see f447-scratch.diff.txt.
+
+## Before the repair, both builds delayed equally
+delay=3000: 54 of 54 pass
+70675 emitted 1793831331430
+70730 emitted 1793831331923
+70675 stripping 1793831334434
+70730 stripping 1793831334928
+delay=8000: 54 of 54 pass
+71512 emitted 1793831341663
+71566 emitted 1793831341982
+71512 stripping 1793831349672
+71566 stripping 1793831349991
+delay=20000: 54 of 54 pass
+72255 emitted 1793831355230
+72263 emitted 1793831355301
+72255 stripping 1793831375251
+72263 stripping 1793831375322
+
+## Before the repair, only the second emitter delayed, 20 s
+run 1: failed rows: node| tests/consumer.node.test.ts:1618 > the packed package > should pack every sourcemap its modules ; dangling: 32
+73255 emitted 1793831417961
+73255 first-no-delay
+73255 stripping 1793831417963
+73300 emitted 1793831418171
+73300 second-delayed
+73300 stripping 1793831438193
+run 2: failed rows: node| tests/consumer.node.test.ts:1618 > the packed package > should pack every sourcemap its modules ; dangling: 32
+74076 emitted 1793831442262
+74076 first-no-delay
+74076 stripping 1793831442264
+74099 emitted 1793831442484
+74099 second-delayed
+74099 stripping 1793831462506
+run 3: failed rows: node| tests/consumer.node.test.ts:1618 > the packed package > should pack every sourcemap its modules ; dangling: 32
+74871 emitted 1793831467029
+74871 first-no-delay
+74871 stripping 1793831467033
+74918 emitted 1793831467295
+74918 second-delayed
+74918 stripping 1793831487320
+run 4: failed rows: ; dangling: 0
+75618 emitted 1793831489857
+75618 first-no-delay
+75618 stripping 1793831489859
+75642 emitted 1793831489929
+75642 second-delayed
+75642 stripping 1793831509940
+run 5: failed rows: node| tests/consumer.node.test.ts:1618 > the packed package > should pack every sourcemap its modules ; dangling: 32
+76261 emitted 1793831512068
+76261 first-no-delay
+76261 stripping 1793831512069
+76284 emitted 1793831512135
+76284 second-delayed
+76284 stripping 1793831532155
+run 6: failed rows: node| tests/consumer.node.test.ts:1618 > the packed package > should pack every sourcemap its modules ; dangling: 32
+76973 emitted 1793831534583
+76973 first-no-delay
+76973 stripping 1793831534585
+76996 emitted 1793831534710
+76996 second-delayed
+76996 stripping 1793831554724
+
+## After the repair, consumer, size and packaging together, 68 of 68 pass in each
+the one build forced to be delayed 20 s:
+78861 emitted 1793831675899
+78861 second-delayed
+78861 stripping 1793831695916
+same scratch as the six runs above, run 1:
+79553 emitted 1793831700571
+79553 first-no-delay
+79553 stripping 1793831700573
+same scratch as the six runs above, run 2:
+80154 emitted 1793831706630
+80154 first-no-delay
+80154 stripping 1793831706633
+same scratch as the six runs above, run 3:
+80692 emitted 1793831712124
+80692 first-no-delay
+80692 stripping 1793831712127
+same scratch as the six runs above, run 4:
+81237 emitted 1793831717669
+81237 first-no-delay
+81237 stripping 1793831717671
+same scratch as the six runs above, run 5:
+81778 emitted 1793831723591
+81778 first-no-delay
+81778 stripping 1793831723594
+same scratch as the six runs above, run 6:
+82330 emitted 1793831728860
+82330 first-no-delay
+82330 stripping 1793831728863

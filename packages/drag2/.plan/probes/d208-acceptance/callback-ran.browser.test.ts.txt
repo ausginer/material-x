@@ -1,0 +1,128 @@
+// The consolidator's P1 drive, plus the one thing it lacked: a counter inside
+// the callback, so an empty log can be told from a callback that never ran.
+import { afterEach, describe, it } from 'vitest';
+import { freeDrag, FreeDragResolution } from '../src/free-drag.ts';
+import { y } from '../src/sortable/y.ts';
+import { ReorderResolution, sortable } from '../src/sortable.ts';
+
+const PID = 31;
+const cleanup: Array<() => void> = [];
+afterEach(() => {
+  for (const d of cleanup.splice(0).reverse()) d();
+});
+const ptr = (t: EventTarget, type: string, yy: number) =>
+  t.dispatchEvent(
+    new PointerEvent(type, {
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+      pointerId: PID,
+      isPrimary: true,
+      button: 0,
+      buttons: type === 'pointerup' ? 0 : 1,
+      clientX: 10,
+      clientY: yy,
+    }),
+  );
+const settled = () =>
+  new Promise<void>((r) => requestAnimationFrame(() => setTimeout(r, 0)));
+const destroy = (c: any) => (c.requestDestroy ?? c.destroy).call(c);
+const msg = (e: any) =>
+  `${e?.constructor?.name}:${e?.stage ?? ''}:${e?.message}<${e?.cause?.message ?? ''}`;
+
+function fd(extra: (self: any) => any) {
+  const item = document.createElement('div');
+  Object.assign(item.style, {
+    position: 'fixed',
+    top: '0px',
+    left: '0px',
+    width: '100px',
+    height: '40px',
+  });
+  document.body.append(item);
+  const self: any = { log: [], ran: { onStart: 0, onMove: 0 } };
+  const c = freeDrag(item, {
+    onDrop: () => FreeDragResolution.accept(),
+    onError: (e: unknown) => self.log.push('onError ' + msg(e)),
+    onEnd: (r: any) => self.log.push('onEnd ' + r?.type),
+    ...extra(self),
+  } as any);
+  self.c = c;
+  item.setPointerCapture = () => {};
+  item.releasePointerCapture = () => {};
+  cleanup.push(() => {
+    void destroy(c);
+    item.remove();
+  });
+  self.target = item;
+  return self;
+}
+function st(extra: (self: any) => any) {
+  const root = document.createElement('div');
+  root.style.width = '200px';
+  document.body.append(root);
+  const items: HTMLElement[] = [];
+  for (let i = 0; i < 3; i++) {
+    const it = document.createElement('div');
+    Object.assign(it.style, { display: 'block', width: '100px', height: '40px' });
+    root.append(it);
+    items.push(it);
+  }
+  const self: any = { log: [], ran: { onStart: 0, onMove: 0 } };
+  const c = sortable(root, {
+    items: () => items,
+    axis: y(),
+    onReorder: () => ReorderResolution.accept(),
+    onError: (e: unknown) => self.log.push('onError ' + msg(e)),
+    onEnd: (r: any) => self.log.push('onEnd ' + r?.type),
+    ...extra(self),
+  } as any);
+  self.c = c;
+  root.setPointerCapture = () => {};
+  root.releasePointerCapture = () => {};
+  cleanup.push(() => {
+    void destroy(c);
+    root.remove();
+  });
+  self.target = items[0];
+  return self;
+}
+const builds: Array<[string, typeof fd]> = [
+  ['free', fd],
+  ['sortable', st],
+];
+const emit = (name: string, label: string, s: any) => {
+  throw new Error(['PROBE', name, label, JSON.stringify(s.log), JSON.stringify(s.ran)].join(' '));
+};
+describe.each(builds)('%s', (name, build) => {
+  it('onStart destroys then throws', async () => {
+    const s = build((self) => ({
+      onStart: () => {
+        self.ran.onStart++;
+        void destroy(self.c);
+        throw new Error('boom');
+      },
+    }));
+    ptr(s.target, 'pointerdown', 10);
+    ptr(document, 'pointermove', 40);
+    await settled();
+    emit(name, 'onStart-destroy-then-throw', s);
+  });
+  it('onMove destroys then throws', async () => {
+    const s = build((self) => ({
+      onStart: () => {
+        self.ran.onStart++;
+      },
+      onMove: () => {
+        self.ran.onMove++;
+        void destroy(self.c);
+        throw new Error('boom');
+      },
+    }));
+    ptr(s.target, 'pointerdown', 10);
+    ptr(document, 'pointermove', 40);
+    ptr(document, 'pointermove', 60);
+    await settled();
+    emit(name, 'onMove-destroy-then-throw', s);
+  });
+});

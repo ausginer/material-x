@@ -1,0 +1,279 @@
+diff --git a/packages/drag2/tests/diagnostic-intake.browser.test.ts b/packages/drag2/tests/diagnostic-intake.browser.test.ts
+index e41eac3de..b72efd68f 100644
+--- a/packages/drag2/tests/diagnostic-intake.browser.test.ts
++++ b/packages/drag2/tests/diagnostic-intake.browser.test.ts
+@@ -72,6 +72,9 @@ type Fixture = Readonly<{
+ type Slots = Readonly<{
+   onStart?(fixture: Fixture): void;
+   onMove?(fixture: Fixture): void;
++  onEnd?(fixture: Fixture): void;
++  complete?(fixture: Fixture): void;
++  onErr?(fixture: Fixture): void;
+   /** No landing installer, so nothing reports but the slot under test. */
+   plain?: boolean;
+   /** A second installer, which throws when installed. */
+@@ -127,16 +130,18 @@ const buildSortable: Build = (slots = {}) => {
+   const config: SortableConfig = {
+     items: () => items,
+     axis: y(),
+-    onReorder: () => ReorderResolution.accept(),
++    onReorder: () => { slots.complete?.(fixture); return ReorderResolution.accept(); },
+     onStart: (): void => {
+       slots.onStart?.(fixture);
+     },
+     onEnd: ({ type }): void => {
+       log.push(`onEnd ${type}`);
++      slots.onEnd?.(fixture);
+     },
+     onError: (error): void => {
+       errors.push(error);
+       log.push('onError');
++      slots.onErr?.(fixture);
+     },
+     ...(slots.plain ? {} : { landing: hostileLanding(state) }),
+     ...(slots.throwing
+@@ -191,7 +196,7 @@ const buildFreeDrag: Build = (slots = {}) => {
+   const log: string[] = [];
+   let fixture!: Fixture;
+   const config: FreeDragConfig = {
+-    onDrop: () => FreeDragResolution.accept(),
++    onDrop: () => { slots.complete?.(fixture); return FreeDragResolution.accept(); },
+     onStart: (): void => {
+       slots.onStart?.(fixture);
+     },
+@@ -200,10 +205,12 @@ const buildFreeDrag: Build = (slots = {}) => {
+     },
+     onEnd: ({ type }): void => {
+       log.push(`onEnd ${type}`);
++      slots.onEnd?.(fixture);
+     },
+     onError: (error): void => {
+       errors.push(error);
+       log.push('onError');
++      slots.onErr?.(fixture);
+     },
+     ...(slots.plain ? {} : { landing: hostileLanding(state) }),
+     plugins: slots.throwing
+@@ -450,3 +457,51 @@ describe('diagnostic intake in the free drag, past activation', () => {
+     expect(fixture.log).toEqual([]);
+   });
+ });
++
++describe.each([['sortable', buildSortable], ['free drag', buildFreeDrag]] as const)('d209 probe %s', (_n, build) => {
++  const boom = new Error('boom');
++  const destroyThrow = (self: Fixture): void => { void self.controller.requestDestroy(); throw boom; };
++  it('onStart', async () => {
++    const f = build({ plain: true, onStart: destroyThrow });
++    activate(f); await new Promise((r) => { setTimeout(r, 20); });
++    expect(f.errors.map(describeError)).toEqual(['drag: failure/superseded-by-destruction<boom']);
++    expect(f.errors[0]).toBeInstanceOf(DraggableWarning);
++    expect(f.log).toEqual(['onError']);
++  });
++  it('round-trip slot, baseline: throw with no request', async () => {
++    let ran = 0;
++    const f = build({ plain: true, complete: () => { ran += 1; throw boom; } });
++    activate(f); pointer(document, 'pointermove', 70); pointer(document, 'pointerup', 70);
++    await new Promise((r) => { setTimeout(r, 40); });
++    expect(f.log).toEqual(['onError', 'onEnd canceled']);
++  });
++  it('round-trip slot', async () => {
++    let ran = 0;
++    let p: Promise<void> | null = null;
++    const f = build({ plain: true, complete: (self) => { ran += 1; p = self.controller.requestDestroy(); throw boom; } });
++    activate(f); pointer(document, 'pointermove', 70); pointer(document, 'pointerup', 70);
++    await new Promise((r) => { setTimeout(r, 40); });
++    await p;
++    expect({ ran, errors: f.errors.map(describeError), log: f.log }).toEqual({ ran: 1, errors: ['drag: failure/superseded-by-destruction<boom'], log: ['onError'] });
++  });
++  it('round-trip slot, async rejection after the request', async () => {
++    let ran = 0;
++    const f = build({ plain: true, complete: (self) => { ran += 1; void self.controller.requestDestroy(); } });
++    activate(f); pointer(document, 'pointermove', 70); pointer(document, 'pointerup', 70);
++    await new Promise((r) => { setTimeout(r, 40); });
++    expect({ ran, errors: f.errors, log: f.log }).toEqual({ ran: 1, errors: [], log: [] });
++  });
++  it('onEnd', async () => {
++    const f = build({ plain: true, onEnd: destroyThrow });
++    activate(f); pointer(document, 'pointermove', 70); pointer(document, 'pointerup', 70);
++    await new Promise((r) => { setTimeout(r, 40); });
++    expect({ errors: f.errors.map(describeError), log: f.log.map((l) => l.split(' ')[0]) }).toEqual({ errors: ['drag: failure/superseded-by-destruction<boom'], log: ['onEnd', 'onError'] });
++  });
++  it('onError requests destruction', async () => {
++    const f = build({ plain: true, onStart: () => { throw boom; }, onErr: (self) => { void self.controller.requestDestroy(); } });
++    activate(f); await new Promise((r) => { setTimeout(r, 20); });
++    expect(f.errors).toHaveLength(1);
++    expect(f.errors[0]).toBeInstanceOf(DraggableError);
++    expect(f.log).toEqual(['onError']);
++  });
++});
+diff --git a/packages/drag2/tests/kernel/kernel.browser.test.ts b/packages/drag2/tests/kernel/kernel.browser.test.ts
+index 0d32a6612..e478de424 100644
+--- a/packages/drag2/tests/kernel/kernel.browser.test.ts
++++ b/packages/drag2/tests/kernel/kernel.browser.test.ts
+@@ -5691,3 +5691,166 @@ describe('the minted channel', () => {
+     }).not.toThrow();
+   });
+ });
++
++describe('d209 probe', () => {
++  const read = (h: Harness): Array<[string, string]> =>
++    h.reports.map((r) => [r.message, String((r.cause as Error | undefined)?.message)]);
++  const A = new Error('a');
++  const B = new Error('b');
++
++  it('P-l before', () => {
++    const h: Harness = createHarness({ moved(): void { h.kernel.fail(FAILURE_RENDERER_WRITE, A); void h.kernel.requestDestroy(); } });
++    activate(h); h.reports.length = 0; move(60, 10);
++    expect(read(h)).toEqual([['drag: failure/superseded-by-destruction', 'a']]);
++    expect(h.reports[0]).toBeInstanceOf(DraggableWarning);
++    expect(h.settlements).toEqual([]);
++    expect(applied(h.kernel)).toBe(true);
++  });
++  it('P-m after', () => {
++    const h: Harness = createHarness({ moved(): void { void h.kernel.requestDestroy(); h.kernel.fail(FAILURE_RENDERER_WRITE, A); } });
++    activate(h); h.reports.length = 0; move(60, 10);
++    expect(read(h)).toEqual([['drag: failure/superseded-by-destruction', 'a']]);
++    expect(h.settlements).toEqual([]);
++  });
++  it('P-n order', () => {
++    const h: Harness = createHarness({ moved(): void { h.kernel.fail(FAILURE_RENDERER_WRITE, A); void h.kernel.requestDestroy(); h.kernel.fail(FAILURE_RENDERER_WRITE, B); } });
++    activate(h); h.reports.length = 0; move(60, 10);
++    expect(read(h)).toEqual([['drag: failure/superseded-by-destruction', 'a'], ['drag: failure/superseded-by-destruction', 'b']]);
++  });
++  it('P-o boundary', async () => {
++    const order: string[] = [];
++    let promise!: Promise<void>;
++    const h: Harness = createHarness({
++      moved(): void { order.push('moved:start'); promise = h.kernel.requestDestroy(); h.kernel.fail(FAILURE_RENDERER_WRITE, A); order.push('moved:end'); },
++      reportError: (error): void => {
++        order.push(`report:${error.message}`);
++        order.push(`closed:${String(applied(h.kernel))}`);
++        const admits = h.calls.filter((c) => c === 'admit').length;
++        press(h.item);
++        order.push(`admits:${String(h.calls.filter((c) => c === 'admit').length - admits)}`);
++      },
++      retire: (): void => { order.push('retire'); },
++    });
++    activate(h); order.length = 0; move(60, 10);
++    expect(order).toEqual(['moved:start', 'moved:end', 'report:drag: failure/superseded-by-destruction', 'closed:false', 'admits:0', 'retire']);
++    await expect(promise).resolves.toBeUndefined();
++  });
++  it('P-p1 reentrant requests', () => {
++    const reports: Array<[string, string]> = [];
++    const h: Harness = createHarness({
++      moved(): void { h.kernel.fail(FAILURE_RENDERER_WRITE, A); void h.kernel.requestDestroy(); },
++      reportError: (error): void => {
++        reports.push([error.message, String((error.cause as Error | undefined)?.message)]);
++        if (reports.length === 1) {
++          void h.kernel.requestDestroy();
++          h.controller.requestCancel('x');
++          h.kernel.dispatch(0, null);
++          h.kernel.fail(FAILURE_RENDERER_WRITE, B);
++        }
++      },
++    });
++    activate(h); h.calls.length = 0; reports.length = 0; move(60, 10);
++    expect(reports).toEqual([['drag: failure/superseded-by-destruction', 'a'], ['drag: seam/fail-outside-seam', 'b']]);
++    expect(h.calls.filter((c) => c.startsWith('action') || c.startsWith('settlement') || c === 'finalized')).toEqual([]);
++    expect(h.calls.filter((c) => c === 'retire')).toEqual(['retire']);
++  });
++  it('P-p2 throw absorbed', () => {
++    const reports: string[] = [];
++    const h: Harness = createHarness({
++      moved(): void { h.kernel.fail(FAILURE_RENDERER_WRITE, A); h.kernel.fail(FAILURE_RENDERER_WRITE, B); void h.kernel.requestDestroy(); },
++      reportError: (error): void => { reports.push(`${error.message}<${String((error.cause as Error | undefined)?.message)}`); throw new Error('from onError'); },
++    });
++    activate(h); h.calls.length = 0; reports.length = 0; move(60, 10);
++    expect(reports).toEqual(['drag: failure/superseded-by-destruction<a', 'drag: failure/superseded-by-destruction<b']);
++    expect(h.calls.filter((c) => c === 'retire')).toEqual(['retire']);
++  });
++  it('P-q1 cancel fail destroy', () => {
++    const h: Harness = createHarness({ moved(): void { h.controller.requestCancel('c'); h.kernel.fail(FAILURE_RENDERER_WRITE, A); void h.kernel.requestDestroy(); } });
++    activate(h); h.reports.length = 0; move(60, 10);
++    expect(read(h)).toEqual([['drag: failure/superseded-by-destruction', 'a']]);
++    expect(h.settlements).toEqual([]);
++  });
++  it('P-q2 fail cancel destroy', () => {
++    const h: Harness = createHarness({ moved(): void { h.kernel.fail(FAILURE_RENDERER_WRITE, A); h.controller.requestCancel('c'); void h.kernel.requestDestroy(); } });
++    activate(h); h.reports.length = 0; move(60, 10);
++    expect(read(h)).toEqual([['drag: failure/superseded-by-destruction', 'a']]);
++    expect(h.settlements).toEqual([]);
++  });
++  it('P-r applied not doubled', () => {
++    const h: Harness = createHarness({
++      moved(): void { h.kernel.fail(FAILURE_RENDERER_WRITE, A); },
++      settlement: {
++        prepare(_d, input): PreparedSettlement { h.settlements.push(input); void h.kernel.requestDestroy(); return true; },
++        effect(): void {},
++      },
++    });
++    activate(h); h.reports.length = 0; h.calls.length = 0; move(60, 10);
++    expect(h.settlements.length).toBe(1);
++    expect(h.reports).toEqual([]);
++    expect(h.calls).not.toContain('finalized');
++    expect(applied(h.kernel)).toBe(true);
++  });
++  it('P-s behind an applied one', () => {
++    const h: Harness = createHarness({
++      moved(): void { h.kernel.fail(FAILURE_RENDERER_WRITE, A); h.kernel.fail(FAILURE_RENDERER_WRITE, B); },
++      settlement: {
++        prepare(_d, input): PreparedSettlement { h.settlements.push(input); void h.kernel.requestDestroy(); return true; },
++        effect(): void {},
++      },
++    });
++    activate(h); h.reports.length = 0; move(60, 10);
++    expect(h.settlements.length).toBe(1);
++    expect(read(h)).toEqual([['drag: failure/superseded-by-destruction', 'b']]);
++  });
++  it('P-t panic with a queued checkpoint', () => {
++    const order: string[] = [];
++    const broken = new Error('platform');
++    const h: Harness = createHarness({
++      action: {
++        prepare(): {} | null { move(40, 10); h.kernel.fail(FAILURE_RENDERER_WRITE, A); return true; },
++        effect(): void { order.push('action.effect'); },
++      },
++      reportError: (error): void => { order.push(`report:${String((error as DraggableError).stage)}:${error.message}`); order.push(`closed:${String(applied(h.kernel))}`); },
++      retire: (): void => { order.push('retire'); },
++    });
++    press(h.item);
++    const selection = window.getSelection;
++    window.getSelection = (): never => { throw broken; };
++    try { h.kernel.dispatch(0, null); } finally { window.getSelection = selection; }
++    console.warn(JSON.stringify(order));
++    expect(order.filter((o) => o.startsWith('report')).length).toBe(1);
++    expect(order.filter((o) => o.startsWith('report'))[0]).toMatch(/^report:null/);
++    expect(order).toContain('closed:true');
++    expect(order.filter((o) => o === 'retire').length).toBe(1);
++  });
++  const released = (invoke: (signal: AbortSignal) => unknown): SpecOverrides => ({
++    release: { prepare(): ResolutionCommand { return { invoke }; }, effect(): void {} },
++  });
++  it('P-v sync throw', () => {
++    const h: Harness = createHarness(released(() => { void h.kernel.requestDestroy(); throw A; }));
++    activate(h); h.reports.length = 0; release(40, 10);
++    expect(read(h)).toEqual([['drag: failure/superseded-by-destruction', 'a']]);
++    expect(h.settlements).toEqual([]);
++  });
++  it('P-w sync reject', () => {
++    const h: Harness = createHarness(released(() => { void h.kernel.requestDestroy(); return { then(_f: unknown, r: (e: unknown) => void): void { r(A); } }; }));
++    activate(h); h.reports.length = 0; release(40, 10);
++    expect(read(h)).toEqual([['drag: failure/superseded-by-destruction', 'a']]);
++  });
++  it('P-x fulfil then reject: first completion latches', () => {
++    const h: Harness = createHarness(released(() => { void h.kernel.requestDestroy(); return { then(f: (v: unknown) => void, r: (e: unknown) => void): void { f(1); r(A); } }; }));
++    activate(h); h.reports.length = 0; release(40, 10);
++    expect(read(h)).toEqual([]);
++  });
++  it('P-y fulfilled: nothing', () => {
++    const h: Harness = createHarness(released(() => { void h.kernel.requestDestroy(); return 1; }));
++    activate(h); h.reports.length = 0; release(40, 10);
++    expect(read(h)).toEqual([]);
++  });
++  it('P-z late rejection after application: nothing', async () => {
++    const h: Harness = createHarness(released(() => { void h.kernel.requestDestroy(); return Promise.reject(A); }));
++    activate(h); h.reports.length = 0; release(40, 10);
++    await new Promise((r) => { setTimeout(r, 10); });
++    expect(read(h)).toEqual([]);
++  });
++});

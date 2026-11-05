@@ -1,0 +1,64 @@
+# D-209 acceptance readings, 2026-11-04. Private worktrees at dd4023c0d (src f6172d3be770c3f37ea0a1d723960ace05d61c9b) and e2aabaf3b. Chromium, one machine, once each.
+
+## The whole suite at the input, unchanged
+total 1548, pass 1475, fail 5, skipped 68, files 78, files not passing 4
+FAIL tests/decisions.node.test.ts › should hold every witness it claims :: AssertionError: expected [ Array(1) ] to deeply equal []
+FAIL tests/docs.node.test.ts › should resolve every reference a public type makes :: AssertionError: expected { code: 3, …(1) } to match object { code: +0 }
+FAIL tests/docs.node.test.ts › should close the kernel tier over the kernel tier :: AssertionError: expected { code: 3, …(1) } to match object { code: +0 }
+FAIL tests/docs.node.test.ts › should close the ordinary tier over the ordinary tier and the ones below it :: AssertionError: expected { code: 3, …(1) } to match object { code: +0 }
+FAIL tests/docs.node.test.ts › should close the free-drag tier over the ordinary tier and the ones below it :: AssertionError: expected { code: 3, …(1) } to match object { code: +0 }
+FILE DID NOT LOAD tests/sortable/react.browser.test.ts
+FILE DID NOT LOAD tests/sortable/stories.browser.test.ts
+consumer.node sourcemap row: passed
+declared controls: 7 rows, 7 pass
+
+# Scratch readings for record §34.9. None is a repair, and none was committed.
+
+## Scratch: browser.api moved to test.api as { host, port, allowExec }, provider?.close(), one react-dom
+total 1562, pass 1472, fail 22, skipped 68, files 78, files not passing 2
+FAIL tests/sortable/input-policy.browser.test.ts › should land CDP input on the intended element :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should reorder from the grip with real input :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should leave a sub-threshold tap on a nested <button> alone :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should leave a sub-threshold tap on a nested <a href> alone :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should place focus and a caret in a nested text input :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should drag the row when a gesture crosses a nested text input :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should let a tap operate a nested <input type="range"> :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should drag the row when a gesture crosses a nested range thumb :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should let a tap select an option of a nested <select size="3"> :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should drag the row when an unmodified gesture crosses prose :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should let a nested contenteditable take focus, a caret and text :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should decline an Alt-held press and admit under every other modifier :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should leave a modified sub-threshold tap on a nested link alone :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should admit only from the grip for the pointer cases with { handle: … } composed :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should still drag from the grip with { handle:  } composed :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should never admit while an IME composition is in progress :: Error: Snapshot `input policy / IME composition > should never admit while an IME composition is in progress 1` mismatch
+FAIL tests/sortable/input-policy.browser.test.ts › should decline a press inside a [data-drag-ignore] region :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should read the mark through a shadow boundary :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should admit from a handle that is itself marked :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should decline the same press when no handle is composed :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/sortable/input-policy.browser.test.ts › should suppress the drop click and keep the next one :: Error: Cannot use CDP because browser API write or exec operations are disabled. See https://vitest.dev/config/api.
+FAIL tests/decisions.node.test.ts › should hold every witness it claims :: AssertionError: expected [ Array(1) ] to deeply equal []
+consumer.node sourcemap row: passed
+declared controls: 7 rows, 7 pass
+
+## Scratch: browser.api deleted, provider?.close(), one react-dom
+total 1562, pass 1493, fail 1, skipped 68, files 78, files not passing 1
+FAIL tests/decisions.node.test.ts › should hold every witness it claims :: AssertionError: expected [ Array(1) ] to deeply equal []
+consumer.node sourcemap row: passed
+declared controls: 7 rows, 7 pass
+
+## RF-25 as it stands, react.browser alone
+ ❯ |browser (chromium)| tests/sortable/react.browser.test.ts (0 test)
+ FAIL  |browser (chromium)| tests/sortable/react.browser.test.ts [ tests/sortable/react.browser.test.ts ]
+Error: Failed to import test file wt-accept/packages/drag2/tests/sortable/react.browser.test.ts
+Caused by: Error: Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:
+  - react:      19.3.1
+  - react-dom:  19.2.7
+Learn more: https://react.dev/warnings/version-mismatch
+ ❯ .vite/vitest/ef98362b8a6b0c8cd804b0d227aa1ffeaba89786/deps/react-dom_client.js?v=947100e8:23852:58
+
+## RF-25 with one react-dom and .vite cleared, react.browser and stories.browser
+ Test Files  2 passed (2)
+      Tests  14 passed (14)
+
+## A first scratch run moved react-dom aside without clearing .vite, and both files still failed to import: the optimizer cache held the old copy.

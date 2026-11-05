@@ -323,7 +323,7 @@ Feature seams take **frame state and runtime state as separate arguments**. The 
 
 #### D-21
 
-`LifetimeScope = Readonly<Pick<Lifetime, 'signal' | 'use' | 'useWhile'>>` is what activation hands the behavior.
+**Amended 2026-10-31 by D-200.** ~~`LifetimeScope = Readonly<Pick<Lifetime, 'signal' | 'use' | 'useWhile'>>` is what activation hands the behavior.~~ `LifetimeScope` is a hand-written interface, `readonly signal` and `use(disposer)`, which the `Lifetime` class implements, and it is what activation hands the behavior. `useWhile` is removed, and the projection is declared rather than mapped, so the receiver gate can see `use`.
 
 **Why:** A type-level projection costs nothing — the same physical object is passed — and it converts I-11 from "the behavior should not close motion" into "it cannot".
 
@@ -1254,6 +1254,8 @@ Phase 21 opened with four standing obligations that cannot change a decision as 
 
 **Implemented 2026-08-26.** **Decided 2026-08-25.** **one error channel, two error classes: `DraggableError` when the operation's outcome is affected, `DraggableWarning` when it is not, and the platform destination is deleted.** Record [`error-channel-architecture-claude.md`](../reviews/phase-23/error-channel-architecture-claude.md), which traced every `report()`, `guarded()`, `host.fail`, `reportFailure` and `onError` site before the model was fixed. **This generalizes D-49 rather than inventing anything**: that decision already chose channel and tier independently for the quality track — _the channel and the tier are chosen independently here: `onError`, no `REPORTING` phase, no `OUTCOME_FAILED`, terminal callback intact_ — and 02 already states the corollary, _I-29 constrains what a quality failure may **do**, never which channel tells the consumer about it._ **The discriminator is outcome, not effect**, and it must be stated precisely or one reachable site has no home: a fault is consequential when it changes the operation's **terminal result, phase sequence, or settlement**; trajectory, timing and presentation quality are not outcome. `settlement/hold-unavailable` turns an animated landing into a jump cut with an identical terminal, and is therefore a warning. **No current `report()` payload is consequential** — all sixteen become warnings — which is the audit's strongest single result: the platform channel was never carrying a mixed population that needed splitting, it was carrying one kind of thing to the wrong audience. **`panic()` is the exception and is a `DraggableError`**: it destroys the controller, carries no stage, and picks a `code` directly, since that constructor already takes one and `toDraggableError` is only one way to choose it. **`guarded()` survives, narrowed to one rule.** Fourteen of seventeen sites share _the statement after this call is load-bearing_ — D-29 totality, I-19 best-effort LIFO, I-6's terminal `destroy()` — and ten are literal multi-resource releases. The other three leave: two wrap the consumer's `onError` itself and collapse into the channel's own guard, and one native-listener site becomes a local `try`/`catch` where the reason for surviving is entirely local. Its module does not keep the name `reporter.ts`, which names a channel it will no longer own. **The smallest teardown rule is a separation, not a mechanism**: the channel is the only place the library guards a consumer notification, `guarded` the only place it guards an unwind step, and because the channel never throws the fourteen guards stay total without knowing anything about reporting. A throw from the channel is **never** re-notified — that single discard is what makes it non-recursive. **Three seam tiers collapse to two** (`QUALITY` and `BEST_EFFORT` differ in nothing once the channel is single), **`FAILURE_LANDING_TARGET` leaves the union** with `12` becoming a second documented hole beside D-41's `13`, **both `onError` contexts are deleted** as strictly redundant with the terminal D-66 makes unconditional, and `BehaviorSpec.reportFailure` becomes `reportError(error)` with the kernel constructing the public error and the behavior only forwarding it
 
+**Reconciled 2026-11-04 (D-209, record §33.5, §34.5):** a `DraggableWarning` says this fault did not decide the outcome. It says nothing about the terminal: the operation publishes the one it would have without this fault, before or after the warning, and none once destruction has decided it.
+
 **Touches:** generalizes D-49; retires reporter.ts's two-channel premise; needs D-131
 
 #### D-131
@@ -1567,6 +1569,8 @@ Phase 21 opened with four standing obligations that cannot change a decision as 
 
 **`createActionQueue`'s grading revisited by Arc A, 2026-09-04, and confirmed.** Record [`arc-a-execution-bracket-claude.md`](../reviews/d170-arc/arc-a-execution-bracket-claude.md), D-180. The C1 direction as first sketched would have absorbed the whole record into a class, which is the conversion this row examined and refused. **It is refused again, and the refusal is what makes the arc implementable**: this row's grading is about the _representation_, and its own test — an invariant spanning two fields — is met by the **latch**, not by the two parallel arrays. So `ActionQueue` keeps `actions` and `args` with `enqueue` and `clearQueue` and stays a plain mutable record operated on by free module functions; `closed`, `running` and the drain loop leave, because they are policy rather than storage. _Travels as a field of the kernel_ becomes _travels as a field of the execution bracket_, which is not a fact this grading depends on. **The deliberate outlier stays an outlier**, and the misfiling it looked like was never the queue's representation — it was two semantic fields declared on a record whose docblock says it has none.
 
+**The grading of `createLifetime` and `createActionQueue` is amended by D-200, 2026-10-31, on the owner's instruction, and both become classes.** `createFrameTask`'s grading is unaffected. **For `Lifetime` the grading's premise was wrong**: `finalized` gates every write to the disposer stack, which is an invariant spanning two fields. **For `ActionQueue` the conversion applies §The ownership boundary**: the bracket indexed two public mutable fields of the record, and the class owns its storage and pairs entries by adjacency in one array. **Arc A's line between storage and policy carries forward unchanged**: the queue gains iteration and nothing else, and the latch, `running`, depth, admission and panic stay in the bracket, with the decision to stop returned through `apply`'s callback.
+
 #### D-171
 
 **Implemented, 2026-09-02 (Remediation).** **Amended by D-172, 2026-09-02, on three points.** **(a) The rule is the identifier, not the row length** — every canonical `D-*` and `F-*` entry becomes a `####` heading without exception, and the median-width scoping below is demoted to the diagnostic that found the problem. It failed on its own terms: `Revision 2.2` has a median of 170 because two short rows sit beside D-68's long one, so a canonical decision would have stayed in a table and been the only one no `#### D-68` could address. **The exception is principled rather than measured**: the Decision status register and the deferred table stay tables because their rows are _projections_ of entries — one derived fact per identifier — which is what a table is for. Corrected counts: **442 entries** (176 decisions, 258 findings, 7 recovered, 1 renumbered) and **203 rows staying in tables**. **(b) §Findings needs no invented group.** It contains zero headings, and every available grouping invents a fact — by phase assigns 258 findings to phases the rows do not state, by status is unstable, by identifier block is arbitrary. The requirement was only ever uniform `####` depth, so §Findings goes `## Findings` to `#### F-1`, skipping a level, which the extractor does not care about. **(c) [`recovered-fragments.md`](../reviews/phase-24/recovered-fragments.md) is step 2's second input**, because re-reading `00-index.md` is what loses the fourteen entries; the gate extends to `canonical()` before, plus the corpus, equals the entries after. **An entry in a current-state record is a `####` heading, and the table form is kept for values.** Record [`d171-entry-headings-claude.md`](../reviews/phase-24/d171-entry-headings-claude.md), closing F-282. **The formatter is the symptom, not the reason.** Three defect classes exist only because prose sits in table cells, and each has an instrument built to catch it: a cell cannot hold a pipe, so `width()` offers every row to a markdown parser as its own header to count the cells it authored — **200 rows carry a pipe inside a code span** and 22 carry an escaped one; a strikethrough span cannot cross a cell boundary, so `residual()` exists to catch a clause struck nowhere and invisible to the retired projection — **67 rows carry strikethrough**; and a row is a line, which is F-231 and F-282, the same failure ten days apart. **The form is hostile to writing it too**: two of the four ledger edits behind D-170 failed their pipe-count guard on the first attempt, and marking D-167 and D-169 superseded needed the closing tildes placed before the cell boundary rather than at the end of the clause. **The form.** An entry is a `####` heading whose text is the identifier alone or the identifier, an em dash and a title; nothing else at `####` may begin with an identifier. Every entry sits under a `###` group, so depth is uniform across sections. `#####` and deeper belong to the entry and are never an entry — the four `#### D-66 §…`, `#### D-62 §…` and `#### D-68 §…` headings move there, which is what they always were. The status marker keeps its own opening sentence, and the last column becomes a trailing **Touches** line. **Verified against the repository's own formatter**: byte-identical after one pass and stable on a second, with `proseWrap: never` in force. **Which matters more than it first reads** — the formatter that breaks the table form runs on save, not on a command, so it is configured on developers' machines rather than in the repository and no ignore entry can be checked to cover it. **Scope is by what the cells hold, not by a list of files.** A table row that carries prose is not a table row; the table is right when every cell is a value, and a median row width above roughly 400 characters is the diagnostic that finds them rather than the definition. In this document **392 rows migrate and 225 stay** — the **Decision status** register is a table at a median of 23 characters and remains one, and so do the deferred table and five short ones. About 556 rows across eight current-state documents. **Dated provenance is excluded**: reviews, `plan.md` and measurements are history that a later record supersedes rather than edits, which is where the reference instrument's own current-state boundary already falls. **The rule limits itself** — box-quad's index is eighteen rows at a median of 78 and needs no exemption. **The instrument gets smaller and stronger.** `DELIMITER`, `width()`, `shape()` and `residual()` are deleted with their tests, not migrated; eight regexes and seven readers re-anchor from a row prefix to a heading; `references.node.test.ts` is untouched. The unimplemented marker becomes line-anchored, where today it must reach past a cell boundary. **And the migration is verified by the instrument that already exists**: `canonical()`, `registered()` and `marked()` must return the same maps before and after, which turns 556 transcriptions into a checked transformation. **Reading one entry back is `.scripts/entry.ts`, beside `decision-status.ts` and reading through `tests/ledger.ts`** — not a shell script and not a skill, because the reader and the assertion must not drift. It finds the file over the current-state roots, and it refuses rather than guesses on an unknown or duplicated identifier. The documented no-dependency fallback is an `awk` range whose anchor carries two load-bearing guards: an em-dash-or-end suffix, so `D-16` cannot answer for `D-163` and a `§` sub-clause heading cannot answer for its parent, and a one-to-four-hash terminator, which cannot match five hashes and so keeps an entry's own sub-headings inside the extraction.
@@ -1733,6 +1737,8 @@ Everything else is **soliciting** and inside act (a), with the two discharges D-
 **Two properties the repair must hold, and the first is a trap.** **It must not require `FINALIZING`** — reusing `#joinLive()` is the obvious repair and is wrong in the worse direction, since the conjunct is false on this route by construction, so every classified failure would skip its terminal and D-66's retraction of _the terminal callback is skipped after a consequential failure_ would be silently undone. **And skipping the terminal must not skip `#retireOperation(identity)`**, which is unconditional today because a closed controller still owes the kernel's own cleanup. **The positive control already exists** — [`kernel.browser.test.ts:2747`](../../tests/kernel/kernel.browser.test.ts), _should publish the terminal from the error route, after the release_ — so the instrument owed is one negative row beside it: a presentation disposer that destroys on the `ERROR_REPORTED` route produces no `onEnd`.
 
 **Touches:** amends I-36's mechanism note, whose enumeration of the boundary revalidations grounding (b) and (c) omits a (c) publication that has none; amends F-324's third group, whose `onEnd` justification is true of one of two routes; extends D-178's per-call-site holding from the exception to the obligation; mints F-328; creates no new obligation and requires no change to I-36's rule or to D-66
+
+**Kernel routes amended by D-207 step 3, 2026-11-02.** `#joinLive()` is deleted, and so is the reporting route's latch reading between the dispose and the call. Neither route reads a request: a destruction requested inside the join's unit or the report's unit is applied at that unit's boundary, after its terminal callback, and no later unit runs. So on both kernel routes the terminal is the requesting unit's own and precedes application (R7), and the F-328 instrument's row now asserts that terminal (_should publish the terminal when a presentation disposer requested destruction on the error route_). The holding on routes is unchanged and still governs the participants' readings, which D-207's step 4 removes.
 
 #### D-180
 
@@ -2321,6 +2327,724 @@ So the reachable shape is a behavior action dispatched while idle whose `prepare
 
 **Touches:** supersedes D-195, carrying the single-authority rule, its argument, its harm and its scope boundary forward and reversing none; widens the booked repair to both `prettier/prettier` rule sites and names the masking that hid the second (F-424); ~~scopes the `handoff.md` clause to the files a package's `fmt` owns and names root-level Markdown as the exception~~ states the `handoff.md` clause with no scope and no exception, over every file a formatting recipe writes; changes no drag2 source, test or measurement; requires no change to `CONTRIBUTING.md`
 
+#### D-199
+
+**Superseded by D-201, 2026-11-01, before implementation.** **The extraction rule, the teardown deduplication and the comment pass carry forward; the one-class conclusion and the retained liveness guards do not.** The owner's redesign brief reopened both, and D-201 answers this decision's own objection to a split: it splits the class by lifetime rather than along its handlers, so the shared state and its ordering proofs stay in one class. D-201 restates every property it carries forward, and this row's entry in the unimplemented table moves to D-201. Record [`snapshot-units-claude.md`](../reviews/architecture/snapshot-units-claude.md). The text below is the decision as it stood. **Decided 2026-09-29, on the owner's instruction. `Kernel` stays one state machine in one class, and `src/kernel/kernel.ts` is not split along its handlers.** Discharges O-6. Record [`kernel-shape-o6-claude.md`](../reviews/architecture/kernel-shape-o6-claude.md), at `9dcb62e1a`.
+
+**What stays in the kernel, named because each looks separable and is not.** Every handler over the committed phases stays, and so do these four:
+
+- **Landing-tail ownership.** `#tail`; when a tail is cancelled, which is before the origin measurement at activation and at teardown; and whether and when one starts, which is `#startTail`'s guards and the `landingTail` policy call.
+- **Resolution-attempt state.** `#attempts`, the attempt `#openResolution` mints, and `#settleResolution`'s latch. The thenable subscription stays with them, because every exit from it is a completion of that attempt.
+- **Liveness guards.** Every re-validation after a call into behavior or consumer code, and the named predicates built from them.
+- **Callback ordering.** Which behavior or consumer slot runs, in what order, and relative to which commit.
+
+**Why the class is not split.** Since `c87ad854f` the code has stayed between 1,085 and 1,280 non-blank lines, while the comments grew from 441 to 1,257. The file sizes M-02 and O-6 were triggered by were therefore mostly prose, and a split would move that prose around without reducing it. The handlers share `#private` state, and the non-null assertions over it are sound because of statement order inside the class. A split would have to expose that state or pass a context object between modules ([`CONTRIBUTING.md`](../../../../CONTRIBUTING.md) §2.2, §9), and in either case the ordering proofs would cross module boundaries. The one change that would really shrink the guard mesh is deferring consumer callbacks to the drain boundary. That would change `destroy()`'s synchronous barrier and `onStart`'s synchronous cancel, so it is a contract change and is not decided here.
+
+**The extraction rule.** A mechanism may leave the kernel only if it has a clear independent boundary, which means all three of these hold:
+
+- **(a)** It reads and writes no kernel field. What it needs arrives as arguments, and what it produces leaves as a return value.
+- **(b)** It decides nothing about whether or when kernel, behavior or consumer code runs. The kernel makes that decision at the call site, and any foreign call inside the mechanism runs under the guard the caller hands it, the way `acquireLift` takes `unwind`.
+- **(c)** It has a peer module that already owns mechanisms of the same kind, so moving it does not create a module for one function.
+
+**And its bundle cost must be justified.** Its composition figure is measured on every `bench/size` row that carries the kernel (§15), and a positive figure needs a stated reason beyond moving lines. `armPointerInput`, `armCancelInput`, `acquirePointerCapture`, `acquireLift` and `thenOf` already meet this rule.
+
+**Candidates, not approved extractions.** Three mechanisms meet (a)–(c) on reading, and none has a figure yet:
+
+- **Static spec validation in `arm()`**, which would sit beside the spec types. `arm()` keeps running it before the first latch test.
+- **The click suppressor's listener**, which would move to `pointer.ts`. The kernel keeps `#disarmClick`, the arm point at the threshold crossing, and both disarm points. Today the listener clears the slot from inside itself, and a moved listener cannot. The amendment approving the move must therefore say either that the slot may hold a disarm that has already fired (sound, since calling it does nothing) or that the kernel keeps the clearing.
+- **The tail's keyframes** — the projection through `visualSpace` and the `animate` call — which would move to `presentation.ts`. This is the narrowest candidate, because everything that decides whether a tail exists stays in the kernel.
+
+**A candidate becomes an approved extraction only through an amendment of this decision that records its figure.** Until then nothing moves, and nothing is booked below. Two further pieces were examined and are retained: the thenable subscription, because it is resolution-attempt state and ordering, and `#acquireActivation`, because it is an ordering proof.
+
+**Approved: remove the teardown duplicate, in a form that keeps the clearing.** `#runPhysicalTeardown` repeats steps 3–6 of `#retireOperation`. Routing teardown through `#retireOperation(null)` is refused. That method returns before dropping the records when no behavior is armed, whereas teardown drops them unconditionally today. On every path but one the difference cannot be observed, because no operation can exist without an armed spec. The exception is F-432's path, where dropping the records is the only thing teardown does to that operation. **Required properties:**
+
+1. Steps 3–6 are written once.
+2. Both records are dropped on every path through physical teardown, including when no behavior is armed.
+3. When a behavior is armed, the records are dropped after the frame resets, which is the order both routes rely on today.
+4. The path with no armed behavior reads no frame.
+5. Step 7 stays unconditional, inside a `finally`.
+6. A stale retirement stays a no-op.
+
+The composition figure is recorded when this lands.
+
+**Approved: a focused comment pass over `src/kernel/kernel.ts`, after the deduplication.** In scope:
+
+- counts and relative positions that an unrelated edit can falsify, restated as the property they count or as the sites they name;
+- history narration, which the rule on comments forbids;
+- passages arguing against code that is not there, shortened in place to the invariant they protect wherever the code can be read without them;
+- restatements of reasoning already given at the member they cite.
+
+**Local ordering proofs are kept without exception:** the premises of the non-null assertions, the order in which records are dropped, the reason for each `finally`, both halves of the double validation, the pre-lift measurement window, the queue-order argument for exactly one `onEnd`, and the order in which `arm()` publishes. **There is no target line count.** Nothing is moved wholesale into `.plan/`. A passage leaves the source only if the code can be read without it, and it goes into the record only if it carries decision reasoning the record does not already hold. The pass moves no runtime statement, checked by hashing the file with comments and blank lines stripped, before and after.
+
+**Order and witness.** The deduplication lands first and the comment pass last. The witness is the history-narration sentence the comment pass removes, because the witness must be falsified by the last step. `plan.md` records when the deduplication lands.
+
+**Touches:** discharges O-6, which is also M-02's control-flow half. Records F-432 and does not decide it. Approves no extraction. Keeps the attempt slots on the kernel, consistent with D-168 and D-181, and reopens neither. Changes no contract, published surface, SPI or behavior.
+
+#### D-200
+
+**Implemented, 2026-10-31 (Remediation), both steps, in two commits and in the order the decision sets.** Measurement [`d200-classes.md`](../measurements/d200-classes.md). Step 1 measured +79 B minified on every kernel-carrying row and step 2 −28 B (−24 B on `kernel.js`). Jointly that is −21 B to +6 B Brotli, and no module moved. All six queue properties and all five lifetime properties landed as written. The one detached read the receiver gate reports, `presentation.dispose`, is wrapped. **One stated reason did not hold, and the decision does not depend on it.** Property 1's second reason, that truncation ends an `apply` still iterating where replacement would carry on over a new array, is false for this `apply`. It re-reads `this.#queue` on every iteration, so both forms behave identically, which a probe confirmed with and without appends after the clear. The first reason, no allocation per pointer sample, carries the owner's choice alone. The implementation does not repeat the second claim. **Property 3's first-entry clause has no falsifier.** A check-after-handle mutation survives every row, because no drain starts closed. That is recorded in [`COVERAGE.md`](../../tests/COVERAGE.md) §The execution bracket, and the code's order holds the property. **Decided 2026-10-31, on the owner's instruction. `useWhile` is removed from `LifetimeScope`, and `Lifetime` and `ActionQueue` become classes.** Closes F-274. Amends D-21 and D-170's grading clause. Record [`d200-lifetime-queue-classes-claude.md`](../reviews/architecture/d200-lifetime-queue-classes-claude.md), at `01d88645f`.
+
+**`useWhile` leaves the SPI.** It has one caller, `#openResolution`, on the cancellation lifetime, which `ActivationScope` never hands a behavior, so the published member serves no SPI caller. The call becomes a `use` whose disposer tests `!attempt.completed`. **The guard is kept**, because aborting after completion fires `abort` on a signal a consumer may still be watching. Behavior is unchanged.
+
+**`Lifetime` becomes a class**, from the owner's `src/kernel/lifetime1.ts`, which is renamed to `src/kernel/lifetimes.ts` and replaces the factory. **Required properties:**
+
+1. `LifetimeScope` is a hand-written `interface`: `readonly signal: AbortSignal` and `use(disposer: Disposer): void` in method syntax. It is never a mapped type over the class (D-170 §The ownership boundary, clause 2). `Lifetime` implements it, and the kernel passes the same object under the narrower type, as D-21 requires.
+2. Semantics are unchanged: a latched, idempotent `dispose`; abort before the disposers; best-effort LIFO, where one failing disposer does not stop the rest; and registration after closure runs the disposer at once and reports `lifetime/use-after-dispose`, with `lifetime/late-disposer` if that disposer throws (02 §Registration after closure, D-130 §3). The three warning codes keep their spelling.
+3. `OperationLifetimes` and `createOperationLifetimes` stay as a record built by a function, because they hold no mutable state. Their `dispose` stays receiver-free, because it is passed bare to `unwind`.
+4. Every read of a `Lifetime` method that the receiver gate reports is wrapped, never suppressed. `kernel.ts`'s `this.#unwind(…presentation.dispose)` is the one such site on this tree.
+5. The module keeps its documentation: the three stages and their ordering, the idempotent-disposer contract on `Disposer`, the closed-scope rationale on `LifetimeScope`, and why `notify` is threaded rather than reached.
+
+**`ActionQueue` becomes a class**, from the owner's `src/kernel/queue1.ts`, which is renamed to `src/kernel/queue.ts` and replaces the record and its three free functions. `ExecutionBracket` drains through `apply`. **Required properties:**
+
+1. **`clear()` empties in place** (`length = 0`) and never allocates, on the owner's instruction. `MOVE` drains once per `pointermove`, so a replacing `clear()` would allocate once per pointer sample, and truncation also ends an `apply` that is still iterating, where replacement would carry on over a new array.
+2. `apply` re-reads the length on every iteration, so an entry appended during a drain is reached in the same drain, after the action that appended it (I-1).
+3. **No action is handled once the latch is set**, including the first action of a drain. Whether to stop is the bracket's decision, returned through the callback; the queue decides nothing about policy (D-180).
+4. The callback `apply` receives has a fixed identity per controller and is not minted per drain, because the drain is on the per-sample path (D-170 step 6).
+5. Panic routing, the `finally` that clears, and teardown's argument release (COVERAGE row 1053) are unchanged.
+6. The queue exposes no field, and entries stay paired by adjacency in one array (D-170 §The ownership boundary, clause 1).
+
+**Order and witness.** The lifetime lands first and the queue second, each with its own composition figure on every `bench/size` row that carries the kernel (§15). Neither figure needs to be zero, but a positive one is recorded rather than defended. The witness is the queue's free `clearQueue`, which only the second step deletes. Both scratch files are gone when the decision lands.
+
+**Touches:** closes F-274 by removing the member it named; amends D-21's projection to a declared interface; amends D-170's grading of `createLifetime` and `createActionQueue` and D-180's confirmation of the latter, carrying forward D-180's line between storage and policy; keeps 02 §Registration after closure and D-130 §3 unchanged; removes `useWhile` from the `./kernel.js` SPI, a published-surface change to an unreleased API (§8)
+
+#### D-201
+
+**Superseded by D-202, 2026-11-01, before implementation.** **Execution units, capture at entry, the ingress refusal, construction as a unit, the split by lifetime, the cancel phase rule and D-199's carried rules all carry forward. The publication points, the event sinks and the participation-slot revision do not.** The owner's follow-up in the brief separates a request from its application. Every point at which D-201 read the latch or a cancel request inside a running unit makes the unit depend on a request. D-202 restates every property it carries forward, and this row's entry in the unimplemented table moves to D-202. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md). The text below is the decision as it stood. **Decided 2026-11-01, on the owner's mandate** ([`reentrancy-redesign-brief.md`](../reentrancy-redesign-brief.md) §Governing owner clarification). **Execution units run against a captured context. Lifecycle state is read only at unit admission, at four publication points and at event sinks.** Supersedes D-199. Decides F-432. Raises and decides F-433 and F-434. Record [`snapshot-units-claude.md`](../reviews/architecture/snapshot-units-claude.md), at `0ed5483a0`; it holds the evidence, the guard classification, the cases E1–E12 and the probes.
+
+**The unit.** An execution unit is one synchronous run of library code entered from outside library code and executed by the `ExecutionBracket` at depth ≥ 1. There are four kinds: construction (U-C, `arm`), an ingress pass (U-I), one queued action (U-A), and physical teardown (U-T). Every other entry is a **producer**: listeners, the rAF task, invalidators, thenable callbacks, and a consumer's controller calls. A producer runs no foreign code, writes no state a unit reads as context, and only records a request or enqueues.
+
+**Where the property comes from.** The run-to-completion drain, the driver's re-entry refusal and deferred physical teardown already keep a running transaction exclusive, except for three gaps: construction runs at depth 0 (G1); ingress is refused only during admission (G2, F-433); and the click disarm runs ahead of that refusal (G3). Close the three, and every reachable mutable state a unit reads falls into one of four classes:
+
+- **exclusive to the unit:** the frame pair, and the unit-local slots;
+- **immutable:** frame referents, operation and activation records, and the construction-captured slot records;
+- **a request:** the latch, a cancel request, queued actions, checkpoints;
+- **environment:** the DOM and staleness flags, which are observed and are not context.
+
+The record's §2.3 gives the table. Copy-on-commit frames were rejected: one object per sample violates I-26.
+
+**Required properties:**
+
+1. **Every unit runs at depth ≥ 1**, construction included, so physical teardown requested during any unit runs at the outermost unit's boundary. A producer calls no foreign code and writes no unit-read context.
+2. **An ingress pass is refused when the bracket is closed or any unit is on the stack.** A refused pass changes nothing, the click suppressor included. This replaces the admission-only refusal.
+3. **Controller-scope context is published complete by U-C and never reassigned.** That context is realm, root, the spec and its seams, config, the frame pair, the driver, the kernel's seam adapters and policies, and the channels. No reader tests for its presence.
+4. **A unit resolves its target operation and activation once, at entry, and validates their currency there.** Every helper below the entry receives them as arguments. The controller's current-operation and current-activation slots are read only at unit entries, at request intake, and by the statements that publish or retire them. The settlement input travels as the seam's capability, not in a slot.
+5. **Within a unit, the latch and a cancel request are read only at these points:**
+   - the runner's admission;
+   - **PP-1**, seam commit;
+   - **PP-2**, round-trip opening, which the release seam decides after `release.effect` returns;
+   - **PP-3**, admission publish, on the latch alone;
+   - **PP-4**, controller publish;
+   - request intake;
+   - an event sink.
+
+   The record's §4.1 lists the deletions: `#settlementLive`, `#joinLive`, `arm()`'s per-factory tests, the post-admission latch read (the drain runs unconditionally), `#activationPolicy.committed`'s revalidation, `#settleResolution`'s latch, `#handleErrorReported`'s latch, admission's `current.operation` conjunct, and the `!this.#spec` tests.
+
+6. **A cancel request is latched only while the committed phase is `PENDING`, `ACTIVATING`, `ACTIVE` or `RELEASING`.** Anywhere else, `cancel()` leaves no latch.
+7. **Every event slot is invoked at exactly one delivery site per route, which reads the latch immediately before the call.** An event slot is one whose result no sequence consumes: `onStart`, `onEnd`, `onError` on every route, `onMove`. Nothing after a sink branches on whether it delivered.
+8. **A participation slot is invoked by a running unit regardless of the latch**, and nothing the unit produces after closure is published. A participation slot is one whose result a unit consumes. The resolution `invoke` opens only at PP-2. A behavior's `kernel.closed` reads are its sinks and nothing else.
+9. **U-C runs in this order:**
+   - static validation first, as D-199 required;
+   - if the controller is already closed, it is not admitted: nothing is composed, and the spec is retired;
+   - once admitted, both frame parts are composed;
+   - PP-4 publishes the armed controller and attaches ingress, or unwinds by retiring the spec once and resetting each composed frame once.
+10. **Teardown deduplication**, carried forward from D-199:
+    - steps 3–6 are written once;
+    - the current-operation records are dropped after the frame resets;
+    - step 7 stays unconditional, inside a `finally`;
+    - a stale retirement is a no-op;
+    - a mint failure disposes the unpublished local operation and touches no frame and no published slot. The `null`-identity retirement mode is removed.
+11. **Stale asynchronous results keep their double validation by attempt identity**, with no latch conjunct.
+12. **`src/` holds no module-level mutable binding.** One pointer sample allocates nothing (I-26). Consumer slot records stay construction-time copies.
+
+**Decomposition.** `Kernel` splits by lifetime. The `BehaviorContext` façade owns the bracket, ingress and one nullable reference to the armed controller. The armed controller holds every handler, controller-scope context as `readonly` fields, and the current-operation slots. This meets property 3 without the statement-order premise behind `#spec!`, `#frames!` and `#driver!`, and it leaves the handlers with the state they share, which was D-199's objection to a split. **D-199's extraction rule carries forward unchanged** and applies to the armed controller.
+
+**The one consumer-visible revision.** I-36 (a)'s per-invocation latch reading is itself a guard on the internal call sequence, so it cannot coexist with the requirement. Event slots keep the promise in full, so I-31's D-40 clause holds. A participation slot left in a running unit may run after a `destroy()` raised by an earlier slot of that unit. Nothing is admitted, published or announced afterwards. **If the owner rejects this, the fallback is to split those sites into queued units.** That reorders consumer-dispatched work and moves the observable cancellation stages, and the record states the trade.
+
+**Contract text** amended by the step that makes it true, never ahead of it (record §3):
+
+- 05 I-36 (a) and the participant obligation;
+- 05 I-6's participant clause and its deferral scope;
+- 05 I-21, which gains late cancels;
+- 05 I-1 and 02 §Queue semantics, where the nested-ingress refusal covers every unit;
+- 02 §Post-callback revalidation;
+- a new tier-B row in 02 §What this actually guarantees;
+- 02 §Attempts' settlement row;
+- 01 §When construction itself fails and §`draggable()` and the two-phase handshake;
+- `tests/COVERAGE.md` §The execution bracket, whose first-entry clause gains E12.
+
+**Order and witness.**
+
+1. The bracket: U-C, the widened refusal, disarm behind it, and the unconditional drain.
+2. The split and capture: properties 3, 4, 10 and 12.
+3. Kernel control: properties 5 and 6.
+4. Behaviors: properties 7 and 8.
+5. D-199's focused comment pass, carried forward with its rules and its runtime-hash check, over the files this decision rewrote.
+6. The measurement record `.plan/measurements/d201-units.md`: composition on every kernel-carrying `bench/size` row (§15), the M-1 move path with the I-26 structural check, the M-2 controller cost, and a guard census reported but not accepted as evidence.
+
+Each step lands its cases from E1–E12 and the contract text it makes true. The witness is that record's absence, because writing it is the last step.
+
+**Touches:**
+
+- **D-199:** supersedes it.
+- **F-432:** decides it; it closes on landing, with E3.
+- **F-433, F-434:** raises and decides them.
+- **D-200:** keeps its pending independent acceptance; no `Lifetime` or `ActionQueue` property changes, and property 3's first-entry clause gains a falsifier.
+- **I-36 (a), I-6, I-21, I-1:** amends them.
+- **Surface:** changes no published type and no SPI member. The consumer-visible change is the participation-slot revision, plus the refusal of a press dispatched synchronously from inside a library callback, which today can corrupt the controller (F-433).
+
+#### D-202
+
+**Superseded by D-203, 2026-11-01, before implementation.** **Everything carries forward except property 6's entry condition for `OPEN_RESOLUTION` and the precedence clause of property 7 that names it.** The coordinator's handoff check showed that the promised round-trip guarantee does not follow from FIFO (F-436). D-203 carries this decision's text by reference and restates only what it changes, and this row's entry in the unimplemented table moves to D-203. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §10. The text below is the decision as it stood. **Decided 2026-11-01, on the owner's follow-up** ([`reentrancy-redesign-brief.md`](../reentrancy-redesign-brief.md) §Governing owner follow-up). **A request records an intention, and the library applies it at a unit boundary: after the running unit, or at once when no unit runs. No unit reads a request after its entry.** Supersedes D-201. Decides F-432, F-433 and F-434 in D-201's place. Raises and decides F-435. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md), at `6905af249`. It holds the reasoning, the API table, the cases R1–R21 and the handoff. The probes and the reference model are in [`probes/snapshot-units/`](../probes/snapshot-units/).
+
+**Why D-201 does not meet the follow-up.** D-201 kept `destroy()` setting the logical latch on the calling statement, and `cancel()` latching a request on the operation. It then read those facts at seam commit, round-trip opening, admission publish, controller publish and the event sinks. At each of those points a request raised earlier in the same unit changes what the unit does next. P5, in Chrome at `6905af249`, records this in today's code. A `cancel()` in `activation.prepare` rolls the transition back. A `destroy()` there reads `closed=true` on the next statement. A `destroy()` in `release.effect` suppresses the round-trip, and one in `anchorTarget` suppresses the join.
+
+**Three kinds of call.**
+
+- A **request** records an intention in the ledger and returns: `requestDestroy`, `requestCancel`, `invalidate`, `moveTo`, `dispatch`, the checkpoint half of `fail`, pointer and key samples, async completions.
+- A **result** decides the running phase: a `prepare` return, a throw, `kernel.fail` inside an open phase.
+- A **query** returns a value the unit uses.
+
+Native ingress is none of the three. It is admitted as a unit only when no unit runs and the controller is open, and is otherwise refused before it touches any state.
+
+**Required properties:**
+
+1. **Units, capture and exclusivity carry forward from D-201 unchanged:** properties 1–4, 10, 11 and 12 there, and its decomposition into a `BehaviorContext` façade and an armed controller. U-C now spans the whole of `draggable()`, from before the behavior factory to publication.
+2. **The ledger** is:
+   - the controller's lifecycle request (`LIVE`, `REQUESTED`, `CLOSED`);
+   - an operation's cancel request;
+   - the action queue;
+   - a checkpoint's capture of the cancel state at intake.
+
+   It is read only by the runner's admission decision, at a unit's entry (currency and precedence), and at request intake, together with the diagnostic channel's refusal after `CLOSED`. **No unit reads it after its entry.**
+
+3. **Destruction is requested, then applied.** `requestDestroy()` on a `LIVE` controller sets `REQUESTED` and returns the controller's one promise. When no unit runs, it applies before returning. Otherwise it applies when the running unit ends, ahead of everything queued.
+   - **In the interval** the running unit completes its captured sequence exactly as without the request. Every callback it makes is a live controller's.
+   - **Application** is one step: `CLOSED`, the queue cleared, physical teardown in today's order and wrapping, then the promise settles.
+   - **After application** nothing is admitted, invoked, published or announced. Every request is a no-op, and ingress is refused.
+   - Repeated calls return the same promise, which settles once.
+   - Panic stays an immediate application, in the order close, report, tear down.
+4. **A cancel request is registered against the operation committed at intake**, and only in `PENDING`, `ACTIVATING`, `ACTIVE` or `RELEASING`. The first registration wins. A `CANCEL` entry is queued, FIFO, and applied at its entry only if the operation is still current and cancellable: `PENDING` retires silently; the other three open the cancellation settlement. Otherwise the request lapses with no effect. `requestCancel` returns `void`; its application is observable through the terminal.
+5. **The cancel stage is `AT_CONSUMER` exactly when the consumer's `invoke` has been called** for the operation, and `AT_PROPOSAL` otherwise (F-435).
+6. **The consumer round-trip opens in its own queued unit.** The release unit commits `RELEASING`, runs `release.effect` and queues `OPEN_RESOLUTION` with the operation identity. That unit opens the round-trip only if the operation is current, `RELEASING` and not yet opened. The staged command is held at operation scope until then, with no per-sample allocation. No round-trip opens after a cancel or destroy request against its operation has been registered.
+7. **Ordering:**
+   - destruction has priority;
+   - everything else applies in FIFO order;
+   - `DESTROY > CANCEL > FAILURE_CHECKPOINT` holds;
+   - `START_COMMITTED` declines `ACTIVE` while a cancel is registered;
+   - a checkpoint registered while a cancel for its operation is registered and unapplied is superseded, decided and reported (`failure/superseded-by-cancel`) at the checkpoint's application.
+
+   `#failOperation`'s intake no longer consults the cancel request.
+
+8. **No preparation can be invalidated by a request.** The driver's `preparationValid` dependency, `SEAM_INVALIDATED`, the staging conditional, `rollback` (the `Transition`, `ActionTransition` and both `BehaviorSpec` members) and the sortable's D-39 undo ledger are removed. A staged value reaches `effect` exactly when its transition commits.
+9. **Construction.**
+   - A destroy requested in U-C is applied after publication: both parts composed, ingress attached and then aborted, the spec retired once, each frame reset once.
+   - `dispatch` during U-C is queued and applied after publication.
+   - A U-C failure still unwinds and rethrows.
+10. **Surface.**
+    - `destroy()` becomes `requestDestroy()` and `cancel(reason?)` becomes `requestCancel(reason?)`, on `BehaviorContext`, `SortableController` and `FreeDragController`.
+    - `BehaviorContext.closed`, `InsertionRuntimeView.live` and `DisplacementReport`'s `live` parameter are removed, together with every `kernel.closed` and `live()` read in `src/`.
+    - `invalidate` and `moveTo` keep their names. `moveTo` captures its argument at intake.
+11. **Query results** that a unit uses after a later foreign call are read into unit-owned values at the call. The exceptions are elements, which are targets; construction-captured records; and `items()`, whose new identity is shallow-copied and whose in-place mutation stays outside the contract.
+
+**What D-201 loses.** The publication points PP-1 to PP-4, the event sinks, the participation-slot revision and its owner veto point. Their premise, immediate logical closure, is gone. I-36 (a) holds literally against application, so there is no tradeoff left to decide.
+
+**Contract text**, amended by the step that makes it true, never ahead of it (record §5):
+
+- 05: I-1, I-3, I-6, I-7, I-16, I-21, I-22, I-31, I-36 and I-37;
+- 02: §The tri-phase transition, §Post-callback revalidation, §Every classification entrypoint latches, §What this actually guarantees (a new tier-B row: _no unit reads the ledger after its entry_), §Queue semantics, §Release ordering, §`ResolutionCommand`, §The settlement input is discriminated and exhaustive, and §Attempts;
+- 01: §`BehaviorContext`, §`draggable()` and the two-phase handshake, §When construction itself fails, and §Teardown across two owners;
+- 03: the `live` rows and the report documentation;
+- 07: the controller members;
+- `tests/COVERAGE.md`;
+- the README and the declaration surface.
+
+**Order and witness.**
+
+1. The runner and construction: the lifecycle request, U-C spanning `draggable()`, the widened ingress refusal with the disarm behind it, and the unconditional drain.
+2. D-201's split and capture.
+3. Kernel requests: every in-unit ledger read deleted; the cancel rule, supersession, `OPEN_RESOLUTION` and the stage rule.
+4. Surface and behaviors.
+5. D-199's comment pass, carried forward.
+6. The measurement record `.plan/measurements/d202-requests.md`: composition on every kernel-carrying row per step, M-1 with I-26's structural check, M-2, and a census of ledger reads by location.
+
+Acceptance is R1–R21 as tests against `src/`, plus property 2 as a structural check. A reduced guard count is reported and is not acceptance. The witness is the measurement record's absence.
+
+**Touches:**
+
+- **D-201:** supersedes it.
+- **D-199:** stays superseded; its three carried rules are restated through property 1.
+- **F-432, F-433, F-434:** decides them in D-201's place, with cases R15, R9 and R8.
+- **F-435:** raises and decides it.
+- **D-200:** keeps its pending independent acceptance; no `Lifetime` or `ActionQueue` property changes, and property 3's first-entry clause gains R1 and R12.
+- **D-36, D-53, D-37's participant obligation, D-39's ledger, D-13's fourth widening:** withdrawn.
+- **Surface:** renames two members on three types and removes four members. All of these are on an unreleased API (§8).
+
+#### D-203
+
+**Superseded by D-204, 2026-11-01, before implementation.** **Everything carries forward; D-204 adds the tag rule for a `dispatch` arriving during construction.** D-203 step 1 showed that R17's queued window dispatch and the SPI's "an out-of-range tag is reported and dropped, never enqueued" cannot both be delivered in the factory body, where `config.actionTags` does not yet exist (F-437). D-204 carries this decision by reference and states only what it adds, and this row's entry in the unimplemented table moves to D-204. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §11. The text below is the decision as it stood.
+
+**Decided 2026-11-01, on the coordinator's handoff check of D-202** ([`request-ordering-coordinator.md`](../reviews/architecture/request-ordering-coordinator.md), `coordinator-a`). **D-202 in full, except that `OPEN_RESOLUTION` also declines while a cancel for its operation is registered.** Supersedes D-202. Raises and repairs F-436. Carries D-202's decisions of F-432, F-433, F-434 and F-435. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §10, at `0f0bf0368`. That record's §2.2, §2.7, §2.8 and §6–§8 state the D-203 form and are the handoff.
+
+**What is carried.** D-202's text, its properties 1–5 and 7–11, its contract-text list and its six steps carry forward unchanged and are not restated. Only property 6 and the precedence clause of property 7 change.
+
+**Property 6, replaced.** **The consumer round-trip opens in its own queued unit.**
+
+- The release unit commits `RELEASING`, runs `release.effect`, and queues `OPEN_RESOLUTION` carrying the operation identity.
+- That unit opens the round-trip only if all of these hold at its entry:
+  - the operation is current;
+  - it is `RELEASING`;
+  - no round-trip has been opened for it;
+  - **no cancel is registered for it**.
+- Otherwise it declines and changes nothing.
+- The staged command is held at operation scope until then, with no per-sample allocation.
+
+**No round-trip opens once a cancel or destroy request against its operation has been registered before `OPEN_RESOLUTION` is admitted.** Destroy is covered by priority. Cancel is covered by the entry condition, because FIFO alone covers only a cancel registered before `OPEN_RESOLUTION` was queued.
+
+When `OPEN_RESOLUTION` declines, the registered `CANCEL` applies at `RELEASING` with `invoke` never called. The consumer receives one `onEnd` with the `canceled` arm at **`AT_PROPOSAL`** (property 5).
+
+Declining cannot strand the operation:
+
+- a held cancel is consumed only by its own `CANCEL` entry;
+- registration never drops a cancel;
+- a checkpoint applied while it is held is superseded;
+- only destruction precedes it.
+
+**Property 7, amended in one clause.** `START_COMMITTED` declines `ACTIVE`, and `OPEN_RESOLUTION` declines the round-trip, while a cancel for their operation is registered. Both are readings at a unit's entry under property 2. The rest of property 7 is unchanged.
+
+**Why this repair.** The check showed the guarantee does not follow from FIFO. In its case, `release.effect` dispatches a behavior action, the release unit queues `OPEN_RESOLUTION`, and the action then requests cancel, so the queue is `[OPEN_RESOLUTION, CANCEL]`. Two other repairs were considered:
+
+- **Weakening the guarantee** to "registered before `OPEN_RESOLUTION` was queued" would let a consumer see `onReorder` after its own cancel.
+- **Giving cancel priority over the queue** would reorder every cancel against every queued action, and R12 fixes that order.
+
+The entry condition is the form `START_COMMITTED` already has and adds no reading inside a unit.
+
+**Cases.** D-202's R1–R21, plus **R22**: the check's case, which requires no round-trip and `canceled` at `AT_PROPOSAL`. The reference model executes R22, and under D-202's stated conditions reproduces the check's trace.
+
+**Order and witness.** D-202's six steps. R22 lands in step 3 with `OPEN_RESOLUTION`. The measurement record is `.plan/measurements/d203-requests.md`, and its absence is the witness.
+
+**Touches:**
+
+- **D-202:** supersedes it before implementation.
+- **F-436:** raises and repairs it.
+- **F-432, F-433, F-434, F-435:** carries their decisions.
+- **D-200:** its pending acceptance is unchanged.
+- **Surface:** no change beyond D-202's.
+
+#### D-204
+
+**Superseded by D-205, 2026-11-01, after its step 1 landed at `2c5212daf`.** **Every property, and the code step 1 landed, carry forward; D-205 changes the step order.** Step 1 made in-unit readers blind to a destroy request while the consumer round-trip still ran inside the release unit, so a destroy requested in `release.prepare` or `release.effect` opened `onReorder` (F-438). D-205 moves the round-trip's own unit into step 1 and adds an interim-outcome property, and this row's entry in the unimplemented table moves to D-205. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §12. The text below is the decision as it stood.
+
+**Decided 2026-11-01, on the implementer's step-1 handoff of D-203**, relayed by the owner at `582092c1f`. **D-203 in full, plus the rule for checking a `dispatch` tag: at armed intake only.** Supersedes D-203. Raises and repairs F-437. Carries D-203's decisions of F-432, F-433, F-434, F-435 and F-436. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §11, at `582092c1f`. That record's §2.9, §3–§5, §7 and §8 state the D-204 form and are the handoff.
+
+**What is carried.** D-203's text, every property, its contract-text list and its six steps carry forward unchanged and are not restated. D-204 adds one property and five cases.
+
+**Property 12, added. A `dispatch` tag is checked once, at armed intake, and nowhere else.**
+
+- **After arming,** the check is unchanged. Once destruction has been applied, every dispatch is dropped without a report. Before that, an out-of-range tag is reported as `drag: dispatch/tag-out-of-range <tag>` through `reportError` before `dispatch` returns, and is not queued. This holds at depth 0, inside a unit, and while a destroy request is registered and not yet applied.
+- **During construction,** from the factory's invocation until arming completes, the tag is not checked. The action is queued as an in-range armed dispatch would be, and is applied after publication, before `draggable()` returns, in dispatch order (R17). The count that bounds the tag is in the spec the factory has not yet returned. An out-of-range tag there has **no specified outcome**, and no case pins one.
+- **At application,** no tag check runs, on either path. The bound is fixed for the controller's life: `#spec` is assigned once, `BehaviorConfig` is `Readonly`, and only the queue's ledger-driven clearing changes between intake and application. A check there would run on every applied action, including sortable's per-frame spatial tag.
+- **Construction-window entries obey the queue's existing rules:** a destroy requested during construction is applied first and clears them, and a failure that unwinds construction clears them.
+
+**The documented guarantee versus misuse** (CONTRIBUTING §1.1, §13).
+
+- The range is a published precondition the author can meet: the tags are the author's constants, bounded by a count the author declares. An out-of-range tag is therefore integrator misuse, and §1.1 owes it nothing at runtime.
+- "Reported and dropped" is a documented outcome, and §13 keeps it as a promise on the path where it was made: armed dispatch. Whether that check survives the reachability gate is F-97's open question, and D-204 neither answers nor pre-empts it.
+- The promise was never made for construction. The window's own sentence overrode it until D-203 ("dropped, without a report"), so leaving the window unchecked withdraws no promise; it declines to extend one.
+
+**Kernel/behavior action separation.** For every in-contract dispatch, on either path, the queue entry is a behavior action applied with the tag it was dispatched with, by the offset alone. The armed check also keeps out-of-range armed tags off the queue. A construction-window tag outside the range is misuse, and separation is not defended for it.
+
+**Contract text, in step 1.** `BehaviorContext.dispatch` in `src/kernel/spec.ts` and 01 §`BehaviorContext` state the precondition, the armed report, the construction-window queuing with its unchecked tag, and the drop after applied destruction. "An action dispatched before the behavior is armed is dropped, without a report" is withdrawn (record §11.5).
+
+**Options rejected:**
+
+- **Validating window entries once at publication** would extend a misuse diagnostic, at the cost of held raw tags, a loop and a second report site. This is the owner's fallback if "preserve separation" is meant to cover window misuse.
+- **Checking at application** would run per applied action and would need the raw tag in every entry.
+- **Refusing window dispatch** contradicts R17.
+- **Withdrawing the armed check** is F-97's question, not this one.
+
+**Cases.** D-203's R1–R22, plus:
+
+- **R23:** construction-window order across the factory body and a frame-part factory.
+- **R24:** a window dispatch overtaken by a construction-time destroy or failure.
+- **R25:** armed out-of-range tags, including `RETIRE - BEHAVIOR_BASE`, at depth 0, inside a unit and with destroy registered.
+- **R26:** armed dispatch after applied destruction.
+- **R27:** `actionTags` read only at construction's static validation and at armed intake.
+
+Probe P6 records today's tree. The armed rows already meet R25 and R26 at depth 0, and no test covers them. Every window dispatch is dropped silently, which R23 changes.
+
+**Order and witness.** D-203's six steps. Property 12, R23–R27 and the `dispatch` text land in step 1. The measurement record is `.plan/measurements/d204-requests.md`, and its absence is the witness.
+
+**Touches:**
+
+- **D-203:** supersedes it before implementation.
+- **F-437:** raises and repairs it.
+- **F-432 to F-436:** carries their decisions.
+- **F-97:** unchanged and open on the armed check.
+- **D-200:** its pending acceptance is unchanged.
+- **Surface:** `BehaviorContext.dispatch`'s documentation only.
+
+#### D-205
+
+**Superseded by D-206, 2026-11-01, after its step-1 checkpoint `3e44eaf62`.** **Everything carries forward, including the landed code; D-206 adds one clause to `OPEN_RESOLUTION`'s entry condition.** Step 1's `release.effect` inventory met §8's first escalation clause: a failure registered by work the release unit queued lands behind `OPEN_RESOLUTION`, so the round-trip opened for an operation whose failure was already registered (F-439). D-206 carries this decision by reference and states only what it changes, and this row's entry in the unimplemented table moves to D-206. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §13. The text below is the decision as it stood.
+
+**Decided 2026-11-01, on reviewer-A of the D-204 step-1 feature proof** ([`d204-step1-feature-proof-claude.md`](../reviews/fin-review2/d204-step1-feature-proof-claude.md)), relayed by the owner at `88cb0be8c`. **D-204 in full, with the consumer round-trip's own unit moved from step 3 into step 1, plus one property governing the outcomes between steps.** Supersedes D-204. Decides F-438. Carries D-204's decisions of F-432 to F-435 and its repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §12. That record's §7–§9 state the D-205 form and are the handoff.
+
+**What is carried.** D-204's text, properties 1–12, contract-text list and six steps carry forward and are not restated. So does the code `2c5212daf` landed as step 1. D-205 changes what steps 1 and 3 contain, adds property 13, and adds two cases.
+
+**Step order, changed.** Step 1 is complete only when the consumer round-trip runs in its own unit. That work lands before step 2:
+
+- the release unit queues `OPEN_RESOLUTION` instead of executing the staged command, the `invoke: null` path included;
+- the command is held in operation-scoped storage;
+- the entry condition is the full one: current, `RELEASING`, not opened, no cancel registered for the operation;
+- the cancel stage rule (F-435);
+- the `release.effect` inventory and its escalation clause.
+
+Step 3 keeps the deletion of in-unit ledger reads, the cancel phase rule and supersession at intake.
+
+**Why.** Step 1's `closed` change and the round-trip's own unit are two halves of one mechanism:
+
+- the first stops in-unit readers from seeing a destroy request;
+- the second is what keeps the round-trip from opening once one is registered.
+
+Landing the first alone opens `onReorder` after a stop request, which both the baseline and the target forbid (P5, P7).
+
+**Not chosen:**
+
+- **Let the staging conditional read the lifecycle request until step 3.** It would restore the baseline, but by putting back the in-unit request reading that the owner's separation forbids, only for step 3 to delete it again.
+- **Accept the interval.** It mutates the consumer's model on two landed steps.
+- **Revert `closed`.** It restores immediate logical closure and reverts 22 revised rows.
+
+**Property 13, added. Interim outcomes.** At every commit that lands a step of this decision, the consumer calls on each case's path match the baseline's (`582092c1f`) or the required outcome's:
+
+- the calls are participation slots, `invoke`, `onStart`, `onMove` and `onEnd`;
+- a call that both withhold is never made, and a call that both make is never dropped;
+- an argument value, such as a cancel stage, may come from either.
+
+Each step's record lists the cases still at their baseline outcome. P5 and P7 rerun against the tree.
+
+**The separation at each commit.** Once the round-trip has its own unit, no unit reads a destroy request after its entry. The cancel request is still read inside units until step 3, and it is read at `OPEN_RESOLUTION`'s entry permanently, as property 6 allows.
+
+**Cases.** D-204's R1–R27, plus:
+
+- **R28:** destroy in `release.prepare`. The release unit runs as the baseline does without the request; there is no round-trip and no `onEnd`.
+- **R29:** destroy from an action that `release.effect` dispatched. The action applies; application discards `OPEN_RESOLUTION`; there is no round-trip and no `onEnd`.
+
+R4, R5, R6, R22, R28 and R29 land in step 1. Each is driven by a request from a seam the bracket is running. The model runs R28 and R29, and its step-1 mode shows that R5 and R28 discriminate.
+
+**Order and witness.** Six steps, step 1 as above. The measurement record is `.plan/measurements/d205-requests.md`, and its absence is the witness.
+
+**Touches:**
+
+- **D-204:** supersedes it after step 1.
+- **F-438:** decides it; it closes when step 1's round-trip unit lands.
+- **F-432 to F-437:** carries their decisions and repairs. F-435's stage rule now lands in step 1.
+- **D-200:** its pending acceptance is unchanged.
+- **Surface:** none beyond D-204's.
+
+#### D-206
+
+**Superseded by D-207, 2026-11-01, during step 3.** **Everything carries forward, including steps 1 and 2 as accepted; D-207 adds one clause to activation's entry.** Step 3 deleted the activation's in-unit revalidation, and a command operation whose cancel was registered at `PENDING` then announced `onStart` before `canceled`, where the baseline retires it silently (F-440). D-207 carries this decision by reference and states only what it changes, and this row's entry in the unimplemented table moves to D-207. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §16. The text below is the decision as it stood.
+
+**Decided 2026-11-01, on the implementer's escalation at D-205's step-1 checkpoint** (`3e44eaf62`, [`d204-step1.md`](../measurements/d204-step1.md) §The open escalation), relayed by the owner. **D-205 in full, except that `OPEN_RESOLUTION` also declines while a failure checkpoint for its operation is registered and unapplied.** Supersedes D-205. Raises and repairs F-439. Carries D-205's decision of F-438, its decisions of F-432 to F-435 and its repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §13. That record's §2.2, §2.7, §2.8, §2.10 and §4–§9 state the D-206 form and are the handoff. The checkpoint is evidence, not an accepted step.
+
+**Step 1 accepted 2026-11-01, at `44e2074f1`. The decision stays unimplemented.** Step 1 landed at `2c5212daf`, `3e44eaf62` and `902810cae`. The step-1 feature proof's recheck ([`d204-step1-feature-proof-claude.md`](../reviews/fin-review2/d204-step1-feature-proof-claude.md) §Recheck at `44e2074f1`) finds no step-1 blocker. Reviewer-A to reviewer-D are resolved. R4–R6, R22 and R28–R30 are rows whose requests come from seams the running controller drives. The failure clause is implemented as property 6 states it. F-438 and F-439 close with the step. Steps 2–6 remain, the witness holds, and F-432 to F-435 stay open until the whole decision lands. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §14, which also holds step 2's handoff.
+
+**Step 2 accepted 2026-11-01, at `877fb9612`. The decision stays unimplemented.** The step-2 feature proof ([`d206-step2-feature-proof-claude.md`](../reviews/fin-review2/d206-step2-feature-proof-claude.md)) finds no step-2 blocker. The split, capture at entry, teardown deduplication and the removal of the last module binding hold as D-201 properties 3, 4, 10 and 12 state them. Every step-1 row stays green, and `run.sh` gives the same set of lines at the input and the tip. Allocation stays at zero, and no timing difference is resolved at about 0.1 µs. **The 13 Brotli budget overruns, of 11 to 77 B, are the owner's tolerated size cost of step 2. No budget is re-based.** A later step's growth is reported against the unchanged budgets and put to the owner. step2-A, the object-valued constant census that misses type-asserted initializers, and step2-B, a miscounted call, are the implementer's. Both are repaired before `d206-requests.md` is written, and the decision's acceptance does not rely on property 12's census until step2-A is closed. step2-C is decided without an edit: the two passages in 05 that name `Kernel.#panic` are a dated amendment and a quoted original, and step 4's I-36 rewrite names the panic diagnostic by its route. Steps 3–6 remain, the witness holds, and F-432 to F-435 stay open. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §15, which also holds step 3's handoff.
+
+**What is carried.** D-205's text, properties 1–5 and 7–13, contract-text list, step order and six steps carry forward and are not restated. So does the code landed at `2c5212daf` and `3e44eaf62`. Only property 6's entry condition and the precedence clause of property 7 change, and one case is added.
+
+**Property 6, amended in one clause.** `OPEN_RESOLUTION` opens the round-trip only if, at its entry:
+
+- the operation is current;
+- it is `RELEASING`;
+- no round-trip has been opened for it;
+- no cancel is registered for it;
+- **no failure checkpoint is registered for it**.
+
+Otherwise it declines and changes nothing. **No round-trip opens once a destroy, a cancel or a failure checkpoint against its operation has been registered before `OPEN_RESOLUTION` is admitted.** These are I-22's three terminal requests: destroy is covered by priority, and the other two by the entry condition. The clause covers the `invoke: null` command too.
+
+**Registration** records the fact on the operation when a checkpoint is queued for it. A failure demoted at intake records nothing. Registration changes nothing else; the held command, the attempts and the phase are left for `FAILED`'s application. Only `OPEN_RESOLUTION`'s entry reads the record, and `FAILED` may consume it. It is operation-scoped and allocates nothing per pointer sample.
+
+**When it declines**, the checkpoint's `FAILED` applies at `RELEASING`. The consumer receives `onError` with the failure's stage, then one `onEnd` `canceled` at `AT_PROPOSAL` with origin `failed`, and no `onReorder`. Declining cannot strand the operation: only a cancel or destruction can precede the `FAILED`, and each decides the operation.
+
+**Property 7, amended in one clause.** `START_COMMITTED` declines `ACTIVE` while a cancel is registered. `OPEN_RESOLUTION` declines the round-trip while a cancel or a failure checkpoint is registered. Both are readings at a unit's entry under property 2. `START_COMMITTED` gains no failure clause, because committing `ACTIVE` makes no consumer call.
+
+**Why.** Step 1's inventory found the case. A custom placeholder's `connectedCallback`, run by the sortable's release move, calls `invalidate()`; the collection work fails in `items()`; and its checkpoint is queued behind `OPEN_RESOLUTION`. Under D-205 the round-trip opened anyway:
+
+- with a synchronous resolver, the terminal moved from the baseline's `accepted` with a late `onError` to `canceled` at `AT_CONSUMER`;
+- with an asynchronous resolver, both trees give `canceled` at `AT_CONSUMER` after `onReorder` (P8).
+
+The round-trip is the one consumer domain transaction. Opening it for an operation whose failure is registered asks the consumer to commit a reorder the kernel will abandon, the gap F-436 closed for cancel. The clause makes the outcome independent of resolver timing and of where the checkpoint's entry lands.
+
+**Not chosen:**
+
+- **Accept the checkpoint's outcome.** It satisfies property 13's call rule but opens a doomed transaction, and a synchronous resolver commits a reorder that is then reported `canceled`.
+- **Keep the baseline's synchronous `accepted`.** The settlement would have to outrank a failure registered before the round-trip opened. That needs the round-trip ahead of the work the release unit queued (F-438) or a priority rule I-22 does not have.
+- **Make the sortable's collection action a no-op at `RELEASING`.** It is a behavior change that covers one producer and leaves the gap for any other.
+
+**Cases.** D-205's R1–R29, plus **R30**: work the release unit queued fails before `OPEN_RESOLUTION` runs. It is driven in the kernel by an action `release.effect` dispatched whose `prepare` fails, and in the sortable by P8's path, each with a synchronous and an asynchronous resolver, and in the kernel also with the `invoke: null` command. The required outcome is the one above. The reference model executes R30, and under D-205's stated conditions reproduces the checkpoint's `AT_CONSUMER`.
+
+**Order and witness.** D-205's step order. The clause and R30 land in step 1, before step 2, completing the round-trip's unit. A mutation that removes the clause must redden the R30 rows. The measurement record is `.plan/measurements/d206-requests.md`, and its absence is the witness.
+
+**Amended 2026-11-01, on the step-1 recheck: the mutation requirement covers the rows whose outcome the clause decides.** Removing the clause must redden four R30 rows: the kernel's synchronous and asynchronous rows, and the sortable's two. On the `invoke: null` row, removing the clause is an equivalent mutant on every surface:
+
+- opening a null command queues its skipped settlement behind the `FAILED` already queued;
+- `FAILED` retires the attempt, so the settlement finds no slot;
+- the failure's stage is `AT_PROPOSAL` either way, because only the `invoke` closure marks `RESOLVING`.
+
+The clause still covers the null command, and property 6 is unchanged. The null row stays and asserts the decided outcome. The inline-open mutation holds it as a regression row. Record §14.3.
+
+**Touches:**
+
+- **D-205:** supersedes it after its step-1 checkpoint.
+- **F-439:** raises and repairs it.
+- **F-438:** carries D-205's decision; it still closes when step 1's round-trip unit is accepted.
+- **F-432 to F-437:** carries their decisions and repairs.
+- **D-200:** its pending acceptance is unchanged.
+- **Surface:** none beyond D-205's. §4 item 8 of the record is the consumer-visible change.
+
+#### D-207
+
+**Superseded by D-208, 2026-11-02, during step 4.** **Everything carries forward, including steps 1–3 as accepted; D-208 decides how the behaviors' diagnostics are refused once `BehaviorContext.closed` is gone.** Step 4's barrier inventory found four of the 27 `kernel.closed` reads this decision's handoff removes to be diagnostic intake rather than readings inside a unit: both behaviors' `#notify` channels and both composition `report` closures. Removing them would deliver `onError` after applied destruction, in teardown and from a late installer report (F-441). D-208 carries this decision by reference and states only what it changes, and this row's entry in the unimplemented table moves to D-208. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §18. The text below is the decision as it stood.
+
+**Decided 2026-11-01, on the implementer's escalation during D-206's step 3**, under the record's §15.3 first escalation clause, relayed by the owner. Baseline `add2d5ca8`, with step 3 uncommitted. **D-206 in full, except that the unit that would enter activation also declines at its entry while a cancel for its operation is registered.** Supersedes D-206. Raises and repairs F-440. Carries D-206's repair of F-439, D-205's decision of F-438, the decisions of F-432 to F-435 and the repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §16. That record's §2.2, §2.6, §2.7, §4, §6–§9 and §15.3 state the D-207 form and are the handoff.
+
+**Step 3 accepted 2026-11-02, at `ef1e4ef6b`. The decision stays unimplemented.** The step-3 feature proof ([`d207-step3-feature-proof-claude.md`](../reviews/fin-review2/d207-step3-feature-proof-claude.md)) finds no step-3 blocker:
+
+- No unit reads the ledger after its entry.
+- The rollback machinery and the sortable's D-39 ledger are deleted.
+- The cancel phase rule, supersession at intake and this decision's activation clause hold as stated.
+- R31's three rows pass, and every step-1 and step-2 row stays green.
+- All eleven mutation counts reproduce.
+
+**Composition shrinks on every kernel-carrying row**, and the 13 rows step 2 left over budget are under it. No budget is re-based.
+
+**Runtime.** Allocation is measured at zero per sample. No timing difference is resolved at about 0.1–0.2 µs. Code analysis predicts no regression.
+
+**The review's findings:**
+
+- **step3-A** is decided in place, as a non-substantive edit. A cancel raised in the release seam's `prepare`, or in a behavior action's, no longer discards that preparation, as for activation. That is §2.11's rule, which the code already met. The record's §4 item 3 now states all three seams. Case **R32** is added and lands in step 4.
+- **step3-B** is the implementer's: the ledger census row misses lifecycle reads through `idle`. It is repaired before R21, or any acceptance, relies on the census.
+- **step3-C** is the implementer's: the record understates the published `rollback` removal. _Surface: none_ below is relative to D-206, and §3's surface changes carry forward.
+- **step2-A, step2-B and reviewer-F** close with the step.
+
+Steps 4–6 remain, the witness holds, and F-432 to F-435 stay open. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §17, which also holds step 4's handoff.
+
+**What is carried.** D-206's text, its properties 1–6 and 8–13 as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1 and 2 as accepted at `44e2074f1` and `877fb9612`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step2-A and step2-B keep their boundary, which is now before `d207-requests.md` is written. Only property 7 changes, and one case is added.
+
+**Property 7, amended in one clause.** At a unit's entry:
+
+- **the unit that would enter the activation seam, `ACTIVATE` or `MOVE` while the committed phase is `PENDING`, declines while a cancel is registered for its operation**;
+- `START_COMMITTED` declines `ACTIVE` while a cancel is registered;
+- `OPEN_RESOLUTION` declines the round-trip while a cancel or a failure checkpoint is registered.
+
+Each is a reading at a unit's entry under property 2, and declining changes nothing.
+
+**When activation declines**, the operation stays `PENDING` and the request stays held. Its `CANCEL` entry, queued at registration behind the declining entry, applies at `PENDING` and retires the operation silently: no `onStart`, no `onEnd` and no `onError`. Declining cannot strand the operation. Before that `CANCEL`, only actions and requests that leave the phase alone, a `FAILED` the held cancel supersedes, another declining `MOVE`, or destruction can run.
+
+**Why.** For a command, admission queues `ACTIVATE` last, and a cancel requested during admission registers nothing. Every cancel registered at `PENDING` therefore lands behind `ACTIVATE`. Once step 3 deleted the revalidation that discarded the activation, §2.6's `PENDING` row became unreachable for a command: the sortable's collection invalidation during `command.admit` delivered `onStart` and then `canceled` at `AT_PROPOSAL`. The baseline and the pointer path both retire silently. The clause is the entry rule `START_COMMITTED` and `OPEN_RESOLUTION` already apply, for the same queue shape (F-436, F-439). A cancel registered inside the activation unit, after its entry, still delivers `onStart` and then `canceled` at `AT_PROPOSAL` (R3).
+
+**Not chosen:**
+
+- **Accept FIFO.** A start is announced only to be cancelled. The pointer and command paths diverge for the same registration, and §2.6's `PENDING` row is unreachable for a command.
+- **Apply the held cancel at `ACTIVATE`'s entry.** The request would be consumed outside its own `CANCEL` entry, which the no-strand and lapse rules rest on.
+- **Keep `#preparationValid`'s cancel conjunct for activation.** It is an in-unit ledger read.
+- **Change the producer or the queue order.** That covers one behavior, or reverses I-1's FIFO.
+
+**Scope.**
+
+- Cancel only. The failure record stays read only at `OPEN_RESOLUTION`'s entry. A checkpoint registered at `PENDING` on the command path keeps its baseline outcome, and this decision does not decide it.
+- Destroy is covered by priority.
+- `MOVE` at `ACTIVE` gains no read. I-26 is unchanged.
+
+**Cases.** D-206's R1–R30, plus **R31**: a cancel registered before activation is entered. It is driven for a command by the sortable's keyboard row _should enqueue an invalidate() rather than drain it_, unchanged, and by a `kernel.browser` action queued during admission. It is driven for a pointer by an action at `PENDING` that dispatches a crossing `pointermove` and then requests cancel. The required outcome is the one above, which is also the baseline's.
+
+**Order and witness.** D-206's step order. The clause lands in step 3, in the same commit as the deletion of the activation's in-unit revalidation. Removing the `ACTIVATE` clause must redden R31's command rows, and removing the `MOVE` clause its pointer row. The measurement record is `.plan/measurements/d207-requests.md`, and its absence is the witness. Step 3's record is `.plan/measurements/d207-step3.md`.
+
+**Touches:**
+
+- **D-206:** supersedes it during step 3. Its steps 1 and 2 stay accepted.
+- **F-440:** raises and repairs it.
+- **F-432 to F-439:** carries their decisions, repairs and closures.
+- **D-200:** its pending acceptance is unchanged.
+- **Surface:** none. No consumer-visible change against the baseline; the record's §4 item 3 is scoped to a cancel raised inside activation.
+
+#### D-208
+
+**Implemented, 2026-11-04 (Remediation), accepted as a whole decision at src tree `626180a058af7374a68c5544fefc4111eec6003c`, over `a3a7da0e8`** (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §31). Measurement [`d208-requests.md`](../measurements/d208-requests.md).
+
+- **The outcome stays:** _retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04._ a3 is not a1, not `discharged` and not proof of zero regression. The owner's acceptance sets no tolerance, is no precedent and covers this candidate's code only, and record §28.1's unanswered questions and §27.4's limits stay stated.
+- **Closed:** F-432, F-433, F-434, F-435 and F-441. The `src/` freeze ends here.
+- **Not closed:** D-209 and F-446, which are separate and tier A. D-208 is accepted with that gap until D-209 lands (record §30.5). F-442, F-443, F-445 and D-200's independent acceptance are unchanged. **Dated 2026-11-04 (record §34):** D-209 is accepted and F-446 is closed, at a later tree. D-208's outcome above stays on its own tree.
+- **Corrected:** R33 (i) and (k) cover both behaviors, (j) covers free drag and (l) runs through the kernel, because sortable has no `onMove` slot (record §31.3).
+
+**Decided 2026-11-02, on the implementer's escalation during D-207's step 4**, under the record's §17.4 first escalation clause, relayed by the owner. Baseline `9ae86b189`, with step 4 uncommitted. **D-207 in full, except that the behaviors' diagnostics reach the kernel's refusal through a new `BehaviorContext.channel(deliver)`, and the four reads that refused them are replaced rather than deleted.** Supersedes D-207. Raises and repairs F-441. Carries D-207's repair of F-440, D-206's repair of F-439, D-205's decision of F-438, the decisions of F-432 to F-435 and the repairs of F-436 and F-437. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §18. That record's §2.2, §2.5, §3, §5–§9 and §17.4 state the D-208 form and are the handoff.
+
+**Step 4 accepted 2026-11-02, at `dbbb62199`**, after its feature proof (record §19). Steps 5 and 6 remain, and the witness holds. Step 4's four budget overruns are the owner's to dispose of before `d208-requests.md` is written. The acceptance neither tolerates nor re-bases them, and step 2's tolerance does not cover them. step4-C is decided in place, as a non-substantive correction of what this entry says about itself: see _Ownership and surface_ and _Not chosen_ below. Case R34 is added.
+
+**Step 5 accepted 2026-11-03, at `0ba8afb64`**, after its feature proof (record §20), with its postcondition qualified by the sites it escalated. Remediation 5R discharges them before step 6 starts. It includes both controllers' published `requestDestroy` JSDoc, which must name I-36's two exceptions. The census's class N is ratified, and step3-B is closed. Whether to close the sortable's admitted two-fault gap is not decided here and is raised as F-442. The four budget overruns are still the owner's.
+
+**Remediation 5R accepted 2026-11-03, at `2d17645f5`**, after its bounded recheck (record §21), with its postcondition qualified.
+
+- **Discharged:** step5-A and step5-C. Both controllers' `requestDestroy` JSDoc names I-36's two exceptions.
+- **Composition:** item 6's guard removal is kept, and its Brotli movement, −17 to +20 B on the sortable-carrying rows, is booked to it with no re-base.
+- **The admitted gap:** the recheck found a second path to it, so it is one class of two-fault paths. F-442 is widened to that class and re-tiered B. The text that calls the gap unique is corrected in a comment-only follow-up, 5R.1, which lands and closes before step 6 starts. Step 6 changes no `src/`.
+- **The four budget overruns** are still the owner's.
+
+**Remediation 5R.1 assessed 2026-11-03, at `5e5a493d2`, and not yet closed** (record §22). The implementation is clean except for one introduced comment defect, 5r1-A, which is corrected in a closing commit before the source freeze. The same commit qualifies I-31's _only then_ at 05:199 and makes 07's L-2 a citation of I-31 (D-83). Neither decides F-442. A delta recheck and the architect's dated closure follow, and only then does step 6 start.
+
+**Remediation 5R.1 closed 2026-11-03, at `7f1900ccf`** (record §23). The delta recheck found no defect at the closing commit's four sites and the keep list met. The `src/` freeze starts here, at tree `4630579d2`, and holds until the whole decision is accepted. Step 6 may measure now, into `.plan/measurements/d208-step6.md`. `d208-requests.md` waits for complete evidence and the owner's dated disposition of the four overruns. The closure decides nothing on F-442 and nothing on the overruns.
+
+**Step 6's escalations disposed 2026-11-03, with the owner's budget disposition** (record §24). The owner, 2026-11-03: _Rebase the size budgets to the current architecture under the standing budget policy. A compression pass will happen separately, after this phase. This decision does not accept runtime regressions or retained-heap growth._
+
+- **Ceilings** re-base at the frozen tree: the thirteen package rows go to their figure plus 150 B. This is the re-base SC-1's first trigger schedules.
+- **Controls** stay exact. They are re-declared once, at 6R's tree, and only where the whole interval since 2026-09-09 is attributed.
+- **M-2:** the per-controller retained-heap increase (+8 B sortable, +78 B free drag) is a regression the owner has not accepted. Remediation 6R, a bounded source unit, recovers it within D-208's properties, or brings the residual to the owner.
+- **M-1:** the free-drag lean is settled by a pre-registered protocol at 0.05 µs resolution on a quiet host, before 6R.
+- **Baseline defects:** F-443 (the queue regrows its store every sample, against three source comments) and F-444 (a heap-growth reading cited as bounding allocation) are raised. Neither is D-208's or blocks it.
+
+**Remediation 6R's escalation disposed 2026-11-03, over `4ee87b9ad`** (record §25). At its in-property variant, 6R recovered 19 to 21 B per controller. Free drag stays +57 to +58 B and mixed +25 to +26 B above the baseline at 100 controllers.
+
+- **Clarified, not amended:** this entry's _Ownership and surface_ separates the kernel's own route from the minted channels. The kernel's route must apply the one refusal, and it is not required to be minted through `channel()`. Record §24.1 and §24.5 step 4 restated it as _every diagnostic passes through a minted channel_. They are corrected to this entry's text.
+- **R21's census** may be re-pinned once, to the refusal's one new location in `kernel/kernel.ts`.
+- **No residual goes to the owner yet.** 6R resumes under record §25.5 with the shared-refusal candidate and a third mutation, M3, on the kernel's route. A residual at that candidate goes to the owner.
+
+**The resumed 6R's measurement escalation disposed 2026-11-04, over `979d51067`** (record §26). No source landed, and D-208's text does not change.
+
+- **An unmet criterion:** _in every round_ is missed in two of twelve cells at 100 controllers, on single low baseline figures, and nine allocation cells read above step 6's ranges. Both stay recorded as read.
+- **No demonstrated regression:** growth is neither shown nor excluded, and +104 B and +215 B are not residuals.
+- **Unresolved measurement uncertainty:** the cause of the low readings is unmeasured, and M-2′'s _one-sided noise_ premise is false (F-445).
+- **Protocol M-2″** is pre-registered in record §26.5 to §26.7: a same-tree control, a +4 B positive control and a paired rule, and a paired allocation against the frozen input. _In every round_ gives way to the rule only if the same tree misses it against itself.
+- **Outcomes:** target met, then the source lands and goes to the recheck. Regression demonstrated, then its residual goes to the owner. Otherwise uncertainty is reported, with no source and no further rounds.
+
+**Protocol M-2″'s outcome disposed 2026-11-04, over `8451f1fe6`** (record §27). No source landed, and D-208's text does not change.
+
+- **Retained heap reads A and allocation reads a3.** Both stand as the historical result. Rounding after the result is not adopted.
+- **No regression is demonstrated, and none is excluded.** `moveTo` leans the same way in both projects (`k` 9 of 11, `m` 1.01 B in DEV and 0.61 B shipped), and a post-hoc test finds a lean across the allocation windows.
+- **Protocol Q-a3** is pre-registered in record §27.5 to §27.7, as the last measurement on a3: exact call counts, a 20,000-call window and a byte-identical placebo tree.
+- **Outcomes:** `discharged`, then the source lands and goes to the recheck. `regression` or `uncertain`, then no source, and an explicit disposition goes to the owner.
+
+**The owner's disposition 2026-11-04, over `883adc507`** (record §28). The owner: _The owner agrees to stop investigating the small allocation uncertainty and finish this phase: Do not run Q-a3. Accept the remaining allocation uncertainty documented by M-2″, including moveTo's positive differences. Preserve outcomes A and a3, the raw figures and their limits. Do not relabel a3 as a1, discharged, or proof of zero regression. Allow the recorded shared-refusal candidate to proceed through a bounded independent recheck._ D-208's text does not change.
+
+- **Q-a3 is withdrawn, unrun.** Whether `moveTo`'s lean is a per-call cost or a lump, whether it follows the code, and the anonymous arrow's call count stay unanswered, and no later record may imply otherwise.
+- **The outcomes stand:** retained heap A and allocation a3. No regression is demonstrated and none is excluded. The owner's acceptance sets no tolerance, is not a precedent and covers this candidate's code only. The condition of 2026-11-03 stands: a demonstrated regression or retained-heap growth is not authorized.
+- **Next, in order:** the candidate lands byte for byte at src tree `c0713204a`. A bounded recheck follows, covering correctness, diagnostic semantics, R21, R33 and the existing evidence, with no new statistical rounds. New correctness defects are still reported. The architect then closes 6R, and only then does record §24.5 step 5 resume.
+
+**Remediation 6R closed 2026-11-04, at `70368bfde`, src tree `c0713204a`** (record §29). The recheck at `63f603f1a` finds no correctness defect, failed premise or record mismatch. D-208's text does not change.
+
+- **The outcome stays:** retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04. The limits and unanswered questions in record §28.1 and §29.1 stay stated. M-1's _no regression_ carries to this tree.
+- **reviewer-2:** 05:253's precision named the unwind guard and `FeatureContext.report` as minted channels, and each reports through one. It is corrected, and I-36's mechanism and tier do not change.
+- **reviewer-1:** seven comment sites still state the replaced form. They are corrected at those sites only, in one comment-only commit, with no census. It is the freeze's one named exception. Otherwise the freeze holds at `c0713204a`.
+- **Next:** composition and controls, under record §29.5. A control is re-declared only if its whole interval is attributed, and an unattributed one stays red and named and goes to the architect. Then `d208-requests.md`, only under record §29.7.
+- **Then:** the final proof runs in the consolidator's review round. The whole-decision acceptance follows it and comes before the merge. Writing the record reddens `decisions.node`'s witness row until that acceptance, by design (record §29.8).
+
+**The final proof disposed 2026-11-04, over `ab65e92f2`** (record §30). Reviewed at `bd3613d5f`, src tree `c6c5e6ea5`. D-208 is not yet accepted.
+
+- **reviewer-1:** a classified fault on a controller whose destruction is not applied owes a report, and destruction discards only the checkpoint's claim on the operation. D-209 decides this and F-446 carries the gap. It lands as its own unit after this decision's acceptance and does not block it. **Accepted 2026-11-04** (record §34).
+- **Before acceptance:** one comment-only commit for integrity-1 and integrity-2, the rows R33 (i) to (l) that pin today's outcome, and the new tree recorded (record §30.8). Nothing else prevents it (record §30.9).
+- **The outcome stays:** retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04. The proof tested how the record states them and reopened none of it.
+
+~~`d208-requests.md` waits for the steps of record §24.5, as §25.5, §26, §27, §28 and §29 amend them, and for no escalation to be open.~~ **`d208-requests.md` was written at `bd3613d5f`.**
+
+**What is carried.** D-207's text, its properties as amended, its contract-text list, step order and six steps carry forward and are not restated. So do steps 1–3 as accepted at `44e2074f1`, `877fb9612` and `ef1e4ef6b`, their dispositions, and the owner's tolerance of step 2's 13 budget overruns, with no budget re-based. step3-B and step3-C keep their boundaries.
+
+**The required behavior is the baseline's.** After applied destruction no diagnostic reaches `onError` by any route, except panic's own report (D-178). Before application, in `LIVE` and in the requested interval, every diagnostic is delivered:
+
+- a retire hook, disposer or frame reset that throws during teardown is silent, as D-178 grounds;
+- a panic delivers one `DraggableError` with stage `null`, then tears down silently;
+- `FeatureContext.report` called after application is dropped, and before it is delivered as `drag: composition/unwind-failed`;
+- the pre-arm composition unwind is delivered, because the lifecycle cannot be closed before arming;
+- a throwing hook at operation retirement on a live controller is reported as `drag: unwind/step-failed`.
+
+**Reconciled 2026-11-04 (record §30.3):** _every diagnostic_ is on the refusal's axis: it covers every report that reaches the kernel's route or a minted channel. A classified failure's checkpoint is a request (record §2.10), and it becomes a diagnostic only when applied. ~~One that destruction discards reports nothing today, which is F-446, and D-209 decides that it is reported.~~ **Reconciled at D-209's acceptance, 2026-11-04 (record §34):** one that destruction discards reports once, as a `DraggableWarning`, before application. The first sentence's _baseline_ does not settle that case.
+
+**The refusal is intake, not a reading inside a unit.** It reads whether destruction has been **applied**. Inside construction, an ingress pass or a queued action that is never true: application happens at a boundary, and panic only after the throw has abandoned the unit. Inside applied destruction it is always true. Its answer is therefore constant across every unit, and no request registered during a unit can change it. A refusal that also read a destruction **request** would be a reading inside a unit, and R33's second mutation is that refusal.
+
+**Ownership and surface.**
+
+- The kernel owns the refusal, because it owns the lifecycle. The behavior owns its sink and the warnings it builds. The composition's `report` is the behavior's mapping over the kernel's channel.
+- `BehaviorContext.closed` is removed, as D-207 states. `BehaviorContext` gains `channel(deliver)`. It returns a function that delivers to `deliver` until destruction is applied and drops every call afterwards, absorbs a throw from `deliver`, works from the factory onward, exposes no lifecycle value and has no panic bypass. **Qualified 2026-11-02, at step 4's acceptance:** no member returns a lifecycle value, but a behavior can still observe applied destruction indirectly, by minting a channel over a sink of its own and seeing whether it delivers. Any intake that refuses after application allows that, and inside a unit the observation is constant. R21 detects property reads of the lifecycle and does not detect it. The mint sites are reported by location in step 6's record.
+- Both behaviors send every diagnostic they produce through a minted channel: their own channel, their unwind guard and the composition `report`. No module under `sortable/` or `free-drag/` reads the lifecycle.
+- The refusal is written once in the kernel, for its own route and every minted channel. Panic's bypass stays on the kernel's route, and the spec's `reportError` stays the ungated sink that route delivers through. **Clarified 2026-11-03 (record §25.2):** the kernel's own route applies the refusal, and it is not required to be a channel minted through `channel()`.
+- `FeatureContext.report`'s signature is unchanged. Its documentation states the drop.
+
+**Not chosen:**
+
+- **Keep `closed`, or a closed-only predicate.** Any behavior code could read it in any unit, and the read census cannot tell intake from a reading inside a unit by member. **Qualified 2026-11-02:** the census cannot see a probe through a channel either, so it does not separate this option from the chosen one. The grounds that stand are that §3 withdraws the lifecycle member, and that the chosen form writes the refusal once rather than in each behavior.
+- **Remove the four reads.** That delivers `onError` after application, against I-36 (a) and D-178, as a consumer-visible change nothing states.
+- **`BehaviorContext.report(error)` through the armed spec.** No spec exists before arming, so the pre-arm composition unwind would be lost or the kernel would have to learn the behavior's `onError`.
+- **Withdraw the sink at application.** A nulled slot would answer a liveness question (I-37), and the order inside `retire()` would become load-bearing.
+- **Queue diagnostics as requests.** Every diagnostic would be delayed past its unit, and the pre-arm unwind has no boundary before `draggable()` rethrows.
+
+**Not decided.** A late report from an installer of a construction that failed is delivered, as at the baseline. That construction never applied destruction.
+
+**Cases.** D-207's R1–R32, plus **R34**, added at step 4's acceptance: `bounds()`'s copy and the landing tail's read order, which §2.12 requires and no row pinned. Plus **R33**: diagnostic intake across application, in both behaviors, through teardown, panic, a late installer report, the requested interval, a live controller and the pre-arm composition unwind, and in the kernel through a channel minted in the factory. Rows other than the kernel's have the baseline's outcome.
+
+**Order and witness.** D-207's step order. The change lands in step 4, in the same commit as the removal of `BehaviorContext.closed`. Removing the refusal must redden R33's post-application rows, and making it read a destruction request must redden its interval and construction rows. The measurement record is `.plan/measurements/d208-requests.md`, and its absence was the witness until the acceptance removed the row. Step 4's record is `.plan/measurements/d208-step4.md`.
+
+**Touches:**
+
+- **D-207:** supersedes it during step 4. Its steps 1–3 stay accepted.
+- **F-441:** raises and repairs it.
+- **F-442:** raised open at step 5's acceptance, and not decided by D-208. ~~Remediation 5R establishes the gap's outcome at the tip and escalates if D-208 changed it.~~ **Established 2026-11-03 (record §21.3):** D-208 changed no published outcome on either known instance. So D-208's completion does not wait for the answer. 5R.1 corrects the text that calls the gap unique.
+- **F-443, F-444:** raised 2026-11-03 from step 6's third escalation. Both are baseline defects, equal at `6905af249`, and neither is decided by D-208 or blocks its acceptance. D-208's record states I-26 as record §24.3.3 does.
+- **F-445:** raised 2026-11-04 from the resumed 6R's escalation. An instrument defect that predates D-208. Its comments are corrected in protocol M-2″'s harness commit, and the protocol's rule bounds it for 6R's reading (record §26.3).
+- **F-446, D-209:** raised and decided 2026-11-04 from the final proof. D-209 is a new consumer-visible change, so it is not D-208's, and D-208's acceptance does not wait for it (record §30.5).
+- **F-447:** raised 2026-11-04 at this acceptance, from a test row's recurrence. It is not D-208's (record §31.2).
+- **F-432 to F-440:** carries their decisions, repairs and closures.
+- **D-178:** its teardown silence and panic exception are kept, and now rest on the kernel's one refusal.
+- **D-200:** its pending acceptance is unchanged.
+- **Surface:** `BehaviorContext.channel(deliver)` is added to the unreleased `./kernel.js` SPI. No consumer-visible change against the baseline.
+
+#### D-209
+
+**Implemented, 2026-11-04 (Remediation), accepted at src tree `f6172d3be770c3f37ea0a1d723960ace05d61c9b`, over `dd4023c0d`** (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §34). Measurement [`d209-discarded-failures.md`](../measurements/d209-discarded-failures.md).
+
+- **Closed:** F-446 and F-448.
+- **A and a3 are not extended.** Retained heap A, allocation a3 and the owner's acceptance of 2026-11-04 stay on tree `626180a058af7374a68c5544fefc4111eec6003c`, so the accepted tree is not the measured tree. No statistical round ran or is owed. This acceptance says nothing about regression, cost, A or a3 on this tree.
+- **One limit stays unverified.** By reading, a kernel-tier seam that fails and then synchronously rejects the round-trip's thenable in one interval would queue `[FAILED, RESOLUTION_SETTLED]`, and the rejection would carry the cancel's code. The fault is delivered and its label is wrong. Property 1's _whichever request superseded it_ holds subject to that. It was not driven, no row reaches it, and no guard is owed (record §33.14).
+- **Lint:** the owner's suppression at `cfed5f9da` clears the one standing error on `prepareSettlement`, and record §33.11's _none_ holds at this tree (record §34.2).
+- **Not closed:** RF-24, RF-25 and F-447, which are gates before the merge (record §34.9). The suite is not clean until they land. **Dated 2026-11-05:** all three are closed, and the branch's regressions against `main` are the remaining gate (record §35).
+
+**Decided 2026-11-04, on D-208's final proof** (reviewer-1; F-446). Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §30. **A failure checkpoint that destruction discards still reports its fault.** A classified failure carries a claim on the operation and a fault (record §2.10). Destruction's priority discards the claim, as record §2.4, §2.7 and I-22 state. It does not discard the fault.
+
+**Required properties:**
+
+1. **One report per discarded checkpoint.** Every failure checkpoint registered on a controller and discarded by applying destruction reports once, as `DraggableWarning('drag: failure/superseded-by-destruction')` with the failure as `cause`, in registration order. It does not matter whether the checkpoint was registered before or after the request. **Amended 2026-11-04 (record §32.3):** a settlement carrying a rejection that destruction discards reports on the same terms. It is the same fault under a second carrier: a throw from `onReorder` or `onDrop`, or a thenable rejecting inside `then`, is queued as `RESOLUTION_SETTLED` and has no checkpoint until that entry applies. A rejection arriving after application stays silent under I-36 (a). **Amended 2026-11-04 (record §33.4; F-448):** a rejection that won the first-completion latch reports exactly once, whichever request superseded it. A cancel applied ahead of its entry retires the attempt, and the rejection reports `drag: failure/superseded-by-cancel` after the terminal, with or without a later destruction. Destruction's code is only for a rejection destruction itself discards, including with a cancel still held. A rejection arriving after a cancel applied stays consumed under D-40.
+2. **Before application, through the kernel's route.** It is delivered before the lifecycle becomes `CLOSED`, while native ingress is still refused. The refusal is unchanged and still reads applied destruction only.
+3. **Decided at the boundary.** No unit reads the ledger after its entry. The reading is the runner's, and R21 may be re-pinned once, to its one location.
+4. **No consequence.** No later unit runs, no `onEnd` follows, and no phase changes. Anything the delivered `onError` requests is dropped with the queue, and a throw from it is absorbed.
+5. **Panic is unchanged.** It delivers its one report, and a checkpoint a panic discards stays silent, now named by route.
+6. **Nothing on the per-sample path changes,** and no per-controller state is added. If that cannot be met, the unit stops at the architect, and the owner decides whether the retained-heap question reopens for this change.
+
+**Named silences, 2026-11-04 (record §33.1 to §33.3).** D-209 reports its two carriers, failure checkpoints and rejected settlements, and no others. A behavior action is discarded whole and never prepared:
+
+- **A malformed `moveTo`:** its classification is promised for an applied move, and a move that is never applied reports nothing on any route. The input is outside the contract, so `CONTRIBUTING.md` §1.1's gate closes.
+- **Sortable's listener fault:** the stage is in contract, and this silence is by route. `REQUESTED` exists only inside a unit, and only an event the integrator dispatches synchronously inside a library callback runs the listener there.
+- **A kernel-tier behavior's own action:** its argument is opaque to the kernel. `channel` is the route for a fault it must report.
+
+**Not chosen:**
+
+- **Narrow the texts and keep the silence.** It leaves the one silence no text grounds, keeps the same call reported from `handle` and silent from `onStart`, and lets I-22's lower rung report what its higher rung loses.
+- **A `DraggableError` with the stage.** That class says the fault changed the terminal. Destruction decided it.
+- **Demote at failure intake on `REQUESTED`.** It misses a checkpoint registered before the request, and it restores the form record §2.10 withdrew: `onError` inside the running unit, depending on a request.
+- **Run `FAILED` while `REQUESTED`.** A unit would run after the requesting one, against record §2.3, and it would publish a terminal.
+- **Deliver after `CLOSED` through panic's bypass.** Panic's report is the one delivery that does not pass through the refusal, and this one has no need to be a second.
+
+**Measurement.** Retained heap A, allocation a3 and the owner's acceptance of 2026-11-04 attach to D-208's tree and do not extend to this change (record §28.1, §28.3). It owes composition, its controls under record §29.5 with no ceiling moved, and a comment-stripped diff showing property 6. With that, no statistical round is owed.
+
+**Order and witness.** After D-208's whole-decision acceptance, as its own unit, before Phase 24 exits. Its cases are R33 (i) to (l), which pin today's outcome and change here, and the kernel's two orderings. The measurement record is `.plan/measurements/d209-discarded-failures.md`, and its absence is the witness. Its landing removes F-446's sentence from the README and the dated notes' _today_. **Corrected 2026-11-04 (record §31.3):** of those rows, (i) covers both behaviors and (j) free drag only, because sortable has no `onMove` slot, and (l) runs through the kernel. (k) is the control, a throw with no request, and D-209 does not change it. **Reordered 2026-11-04 by the owner (record §32.1):** D-209 is implemented and accepted on this branch before the merge. **The handoff is record §32.5 to §32.8, and its acceptance is §32.10.** The mechanism is §32.4. It meets property 6, and R21 does not move. **Dated 2026-11-04 (record §33):** implemented at `3ff2d2acf`, tree `db3c402a4`, and independently reviewed, which was required. All six properties as then worded were confirmed. One remediation comes first, at §33.8 to §33.11, then one targeted recheck at §33.12, and acceptance stays §32.10. **Accepted 2026-11-04 (record §34).** The witness row is gone and the dated notes' _today_ is reconciled.
+
+**Touches:**
+
+- **F-446:** decides it.
+- **F-448:** decides it, by property 1's amendment.
+- **D-40:** unchanged. A rejection arriving after a cancel applied stays consumed.
+- **D-208:** adds a consumer-visible change that D-208 does not make. Supersedes nothing in it.
+- **I-22, I-36, record §2.4:** reconciled at this acceptance (record §34.5).
+- **D-130:** its class rule stands. What a warning implies is reconciled (record §33.5, §34.5).
+- **D-178:** this silence was never among those it grounds, and panic's stays.
+
 ### Decisions not yet implemented
 
 **The artifact F-63 asked for** (K-5). D-34 and D-35 were stated in the present tense by three contract documents and were not in the code, across a checkpoint and a whole revision, with every suite green — because a green suite is evidence about the _implemented_ contract only, and nothing in the repository compared a decision booked to a later phase against the code that had not implemented it. Phase 18 found them by reading, which is the discovery this table exists to make unnecessary.
@@ -2333,6 +3057,34 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | -------- | ----- | --------------- | ------- |
+
+**D-209's row closed on 2026-11-04 with its acceptance** (record §34). The table has no rows now.
+
+**D-208's row closed on 2026-11-04 with the whole-decision acceptance** (record §31). ~~D-209's row stays.~~
+
+**D-207's row closed on 2026-11-02 with steps 1–3 accepted.** D-208 superseded it during step 4, adding `BehaviorContext.channel` so that the behaviors' diagnostics keep the kernel's refusal after applied destruction. D-208's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
+
+**D-207's row dropped step 3 on 2026-11-02**, when step 3 was accepted at `ef1e4ef6b`.
+
+**D-206's row closed on 2026-11-01 with steps 1 and 2 accepted.** D-207 superseded it during step 3, adding a held-cancel clause to activation's entry. D-207's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
+
+**D-206's row dropped step 2 on 2026-11-01**, when step 2 was accepted at `877fb9612`.
+
+**D-206's row dropped step 1 on 2026-11-01**, when step 1 was accepted at `44e2074f1`. The step-1 recheck's reviewer-G found the cell still listing work that had landed at `902810cae`. The witness is unchanged, because it is falsified by the last step, as a sequence's witness must be.
+
+**D-205's row closed on 2026-11-01 with step 1 at an unaccepted checkpoint.** D-206 superseded it after `3e44eaf62`, adding the failure clause to the round-trip's entry condition. D-206's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
+
+**D-204's row closed on 2026-11-01 with step 1 partly landed.** D-205 superseded it after `2c5212daf`, moving the round-trip's unit into step 1. D-205's row carries the remaining work, and its witness is the same measurement record, renamed for the decision that now owns it.
+
+**D-203's row closed on 2026-11-01 without landing.** D-204 superseded it before implementation, adding the `dispatch` tag rule to step 1. D-204's row carries the same six steps, and its witness is the same measurement record, renamed for the decision that now owns it.
+
+**D-202's row closed on 2026-11-01 without landing.** D-203 superseded it before implementation with one changed entry condition. D-203's row carries the same six steps, and its witness is the same measurement record, renamed for the decision that now owns it.
+
+**D-201's row closed on 2026-11-01 without landing.** D-202 superseded it before implementation, and D-202's row carries all six of its steps in revised form. The witness keeps D-201's form: the absence of the measurement record the last step writes, renamed for the decision that now owns it.
+
+**D-199's row closed on 2026-11-01 without landing.** D-201 superseded it before implementation, and D-201's row carries both of its steps. Its witness, `since the gate went` in `src/kernel/kernel.ts`, was a single sentence of a file D-201's second step rewrites, so it could have retired early. That is why D-201's row is witnessed by the absence of the measurement record its last step writes.
+
+**D-200's row opened and closed on 2026-10-31**, beside D-199's, which stays open. Its witness, `export function clearQueue(` in `src/kernel/queue.ts`, retired in step 2 as the decision ordered. It held through step 1, which landed `Lifetime` without touching the queue, so for one commit the table correctly read half-implemented as unimplemented. A witness is one source fact, and it can only hold the endpoint of a sequence.
 
 **The twenty-sixth cycle opened and closed on 2026-09-09**, and the row was the first this table has carried whose witness was chosen **after** the obvious one was shown to retire too early. D-191's witness — `omitted for the whole kernel arc series` in [`bench/size/measure.ts`](../../bench/size/measure.ts) — retired when the five suspended `control:` equalities were restored, which is the last of the arc's four steps and the one act its close performs. **Worth recording about the row**: F-407 is the finding that put it there. The inherited witness named the declaration of `snapshot` on `InsertionRuntimeView`, which stops holding at step 3 of four — and since steps 2 and 3 are separate commits, the instrument would have demanded the row deleted and the `Unimplemented` marker removed while the measurement, the record and the act that fires O-13 were all still outstanding. **The general rule it leaves behind**: a witness has to be falsified by the decision's _last_ step, and for a multi-step arc that is not automatically the step touching the type the decision is named after. Where the last step is not a source change at all — a measurement, a close — the row says which source fact stands in for it, and here one did: restoring an instrument is a source act even though closing a series is not.
 
@@ -2402,7 +3154,7 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 This register is the **status**, not the decision. What each decision says, and what replaced it, is its row in §Decision ledger — the source of truth, which this never restates. `tests/decisions.node.test.ts` holds the two to the same id set: an entry without a canonical row, a canonical row without an entry, a duplicate, or a value outside the vocabulary is a failure rather than a skip.
 
-The eighteen `inactive` rows are the ones whose live residue is empty: **D-7** (superseded by D-155, no gate left to default open), **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected), **D-150** (superseded by D-151, none of it lands), **D-162** (superseded by D-164), **D-164** (superseded before implementation by D-165), **D-167** and **D-169** (both superseded by D-170, whose owner call reverses the first and closes the question the second answered), **D-182** (superseded by D-184, which restates every property it carries forward), **D-183** (superseded by D-185 on a reading of _reachable_ the owner's rule rejects), **D-185** (superseded by D-186, which restores D-183's holding on a repaired ground), **D-188** (superseded by D-189, which carries both its halves forward on repaired grounds) **D-190** (superseded by D-191, which carries its premise and every disposition forward on a replaced rule), **D-187** (superseded by D-192, which carries all five of its claims forward with three of the rules narrowed), **D-193** (superseded by D-196, which corrects the site the rule names, withdraws the instrument it owed and replaces the cause it states), **D-194** (superseded by D-197, which replaces the ground for the export and re-books the declaration-weight figure) and **D-195** (superseded by D-198, which widens the repair to both `prettier/prettier` rule sites and scopes the clause to the files a package's `fmt` owns). ~~The eight~~ **corrected 2026-09-09 (F-406): the enumeration named eight of thirteen and stated the count as eight, while the table three lines below carried thirteen — five rows explained nowhere by the paragraph that exists to explain them.** ~~The fifteen~~ **corrected 2026-09-10: the same defect recurred when D-193, D-194 and D-195 were added to the table and not to the enumeration.**
+The twenty-six `inactive` rows are the ones whose live residue is empty: **D-7** (superseded by D-155, no gate left to default open), **D-33** (retracted by D-41, the whole protocol deleted), **D-73** (superseded by D-141), **D-88** (superseded by D-138, the remedy rejected), **D-150** (superseded by D-151, none of it lands), **D-162** (superseded by D-164), **D-164** (superseded before implementation by D-165), **D-167** and **D-169** (both superseded by D-170, whose owner call reverses the first and closes the question the second answered), **D-182** (superseded by D-184, which restates every property it carries forward), **D-183** (superseded by D-185 on a reading of _reachable_ the owner's rule rejects), **D-185** (superseded by D-186, which restores D-183's holding on a repaired ground), **D-188** (superseded by D-189, which carries both its halves forward on repaired grounds) **D-190** (superseded by D-191, which carries its premise and every disposition forward on a replaced rule), **D-187** (superseded by D-192, which carries all five of its claims forward with three of the rules narrowed), **D-193** (superseded by D-196, which corrects the site the rule names, withdraws the instrument it owed and replaces the cause it states), **D-194** (superseded by D-197, which replaces the ground for the export and re-books the declaration-weight figure) **D-195** (superseded by D-198, which widens the repair to both `prettier/prettier` rule sites and scopes the clause to the files a package's `fmt` owns) **D-199** (superseded before implementation by D-201, which restates the extraction rule, the teardown deduplication and the comment pass it carries forward), **D-201** (superseded before implementation by D-202, which restates every property it carries forward and withdraws the publication points and event sinks whose premise was immediate logical closure) **D-202** (superseded before implementation by D-203, which carries it by reference and replaces one entry condition), **D-203** (superseded before implementation by D-204, which carries it by reference and adds the `dispatch` tag rule), **D-204** (superseded after its step 1 by D-205, which carries it by reference and moves the round-trip's own unit into step 1), **D-205** (superseded after its step-1 checkpoint by D-206, which carries it by reference and adds the failure clause to the round-trip's entry condition) **D-206** (superseded during its step 3 by D-207, which carries it by reference and adds a held-cancel clause to activation's entry) and **D-207** (superseded during its step 4 by D-208, which carries it by reference and adds the behaviors' route to the kernel's diagnostic refusal). ~~The eight~~ **corrected 2026-09-09 (F-406): the enumeration named eight of thirteen and stated the count as eight, while the table three lines below carried thirteen — five rows explained nowhere by the paragraph that exists to explain them.** ~~The fifteen~~ **corrected 2026-09-10: the same defect recurred when D-193, D-194 and D-195 were added to the table and not to the enumeration.**
 
 | Decision | Status   |
 | -------- | -------- |
@@ -2604,6 +3356,17 @@ The eighteen `inactive` rows are the ones whose live residue is empty: **D-7** (
 | D-196    | active   |
 | D-197    | active   |
 | D-198    | active   |
+| D-199    | inactive |
+| D-200    | active   |
+| D-201    | inactive |
+| D-202    | inactive |
+| D-203    | inactive |
+| D-204    | inactive |
+| D-205    | inactive |
+| D-206    | inactive |
+| D-207    | inactive |
+| D-208    | active   |
+| D-209    | active   |
 
 ## Findings
 
@@ -2879,7 +3642,7 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 #### F-47 — The terminal barrier stopped at the seam boundary: a behavior invoking consumer code more than once inside one seam had no obligation between invocations
 
-**Resolved by I-36, then re-scoped by D-37 (Revision 2).** Back-filled into this table at Revision 2 — it was recorded in [05](05-lifecycle-invariants.md) §F-47 and `ledger.md` L-12 and never carried here, which is exactly how a finding gets rediscovered. The defect was real and its fix is retained at the **floor**: a sequence that calls consumer code repeatedly reads the latch between calls. What is withdrawn is the **ceiling register** the fix grew afterwards — the promise of no geometry read at all — and the stretch table that tried to discharge it whole-program.
+**Resolved by I-36, then re-scoped by D-37 (Revision 2).** Back-filled into this table at Revision 2 — it was recorded in [05](05-lifecycle-invariants.md) §F-47 and `ledger.md` L-12 and never carried here, which is exactly how a finding gets rediscovered. The defect was real and its fix is retained at the **floor**: a sequence that calls consumer code repeatedly reads the latch between calls. What is withdrawn is the **ceiling register** the fix grew afterwards — the promise of no geometry read at all — and the stretch table that tried to discharge it whole-program. **The floor is withdrawn by D-208 step 4, 2026-11-02** (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §19.4). Destruction is applied only at a unit boundary, so between two consumer calls inside one unit there is no lifecycle change for a reading to see, and no participant reads the lifecycle. I-36's restatement holds (a) by the runner's order and the kernel's channel refusal. 05's F-47 section is marked in step 5.
 
 **Satellite analysis: [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) §Findings**
 
@@ -3089,7 +3852,7 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 #### F-97 — The published `kernel/frames.d.ts` names `validateFramePart` as _the authoritative check_, so deleting any arm of it is a contract edit and not a size edit
 
-**Open, tier B.** Record [`gate-contract-questions-claude.md`](../reviews/phase-23/gate-contract-questions-claude.md) §2.3. Code of Size §1.1's own exception governs: where the contract **fixed** the outcome, the check and the discard that implement it are contract, and an incidental _we happen to throw here_ was not. The sentence also has the ordering backwards under the gate — the **type** is the contract and the runtime check is the redundancy — so it must be revised rather than merely trimmed. **This governs more than D-122**: the same sentence stands behind the audit's §3.2 and §3.3 deletions, and it is the same cross-cutting pattern as the audit's §3.5 and §3.7, where the shipped doc publishes the precondition **and** promises the guard. Tier B because it is a published-surface promise, not a tidiness one **Partially discharged 2026-08-25 by D-124, and the discharged half is the model for the rest.** The two frame arms that landed (audit §3.2, §3.3) revised this sentence in the same change rather than after it: it is struck in place on `FramePartOf`, reversed to _this type **is** the contract_, and followed by what the misuse now buys — a colliding key copied over the kernel's own slice. **It stays open for the guards D-124 did not reach**, where the shipped sentence still publishes the precondition **and** promises the guard: `dispatch/tag-out-of-range` (audit §3.5) and `spec/command-type-pointerdown` (audit §3.7). **§3.7 carries a tension worth naming before anyone acts on it**: D-118 decided that check stays, four days earlier, as _the only one here the library owns_ — a clause-(b) argument the gate now reaches only after (a), which D-118 never asked. That is a re-put of D-118, not a defect in it, and it belongs to whoever opens §3.5/§3.7 rather than to this row. **Closed 2026-08-25 for this site by D-122's landing.** The sentence is gone with the validator it named, and `FramePartOf` now carries the whole frame-part authoring contract — including the string-key term F-100 found published nowhere. **The two guards D-124 did not reach are unaffected and stay open on their own rows**: `dispatch/tag-out-of-range` (audit §3.5) and `spec/command-type-pointerdown` (audit §3.7), the second carrying the D-118 tension this row already names. Neither is opened by this slice.
+**Open, tier B.** Record [`gate-contract-questions-claude.md`](../reviews/phase-23/gate-contract-questions-claude.md) §2.3. Code of Size §1.1's own exception governs: where the contract **fixed** the outcome, the check and the discard that implement it are contract, and an incidental _we happen to throw here_ was not. The sentence also has the ordering backwards under the gate — the **type** is the contract and the runtime check is the redundancy — so it must be revised rather than merely trimmed. **This governs more than D-122**: the same sentence stands behind the audit's §3.2 and §3.3 deletions, and it is the same cross-cutting pattern as the audit's §3.5 and §3.7, where the shipped doc publishes the precondition **and** promises the guard. Tier B because it is a published-surface promise, not a tidiness one **Partially discharged 2026-08-25 by D-124, and the discharged half is the model for the rest.** The two frame arms that landed (audit §3.2, §3.3) revised this sentence in the same change rather than after it: it is struck in place on `FramePartOf`, reversed to _this type **is** the contract_, and followed by what the misuse now buys — a colliding key copied over the kernel's own slice. **It stays open for the guards D-124 did not reach**, where the shipped sentence still publishes the precondition **and** promises the guard: `dispatch/tag-out-of-range` (audit §3.5) and `spec/command-type-pointerdown` (audit §3.7). **§3.7 carries a tension worth naming before anyone acts on it**: D-118 decided that check stays, four days earlier, as _the only one here the library owns_ — a clause-(b) argument the gate now reaches only after (a), which D-118 never asked. That is a re-put of D-118, not a defect in it, and it belongs to whoever opens §3.5/§3.7 rather than to this row. **Closed 2026-08-25 for this site by D-122's landing.** The sentence is gone with the validator it named, and `FramePartOf` now carries the whole frame-part authoring contract — including the string-key term F-100 found published nowhere. **The two guards D-124 did not reach are unaffected and stay open on their own rows**: `dispatch/tag-out-of-range` (audit §3.5) and `spec/command-type-pointerdown` (audit §3.7), the second carrying the D-118 tension this row already names. Neither is opened by this slice. **Scoped 2026-11-01 by D-204, not decided.** D-204 states that the `dispatch/tag-out-of-range` promise covers armed dispatch only, which is all it ever covered, and leaves the construction window unchecked. Whether the armed check survives the gate is still this row's question, and the audit's §3.5 still recommends deletion with the published sentence revised in the same change.
 
 #### F-98 — D-80 (b)'s normative statement ordering was motivated by F-68, and F-68's window closes when D-121's refusal is deleted — the ordering survives on F-69 alone
 
@@ -3757,7 +4520,7 @@ Severity is about the model, not implementation effort. Resolved entries are kep
 
 #### F-274 — The one receiver-dependent member in the package is on a published SPI object whose siblings are all detached
 
-**Open, tier C, 2026-09-02** — record [`factory-representation-reassessment-claude.md`](../reviews/phase-24/factory-representation-reassessment-claude.md). `LifetimeScope` publishes from `src/kernel.ts` and its `useWhile` is implemented as `this.use(() => …)` in `src/kernel/lifetimes.ts`. **It is one of exactly two `this.` in `src/`**; the other is `DraggableError`'s constructor, which rule 10 sanctions. Every other member on this package's surfaces is receiver-free and is relied upon to be — `cancel: host.cancel` and `destroy: host.destroy` are spread into both controllers detached, `fail: driver.requestFailure` likewise, and `session.dispose`, `spec.retire` and `spatialFrame.cancel` are all passed as bare references. So a behavior author who writes `const { useWhile } = scope` gets a `TypeError`, and the surface gives no sign that this one member differs. **Required property** — either `useWhile` closes over the disposer list as its siblings do, so that every published member may be detached, or the receiver requirement is stated on the type; the first is preferred, because a surface with one exception to a rule is worse than one with none. **Not a defect the factory representation prevents**, which is the reason it is recorded under D-167: receiver sensitivity was assessed as a risk of classing and was found already present, and invisible, in the factory.
+**Closed by D-200, 2026-10-31, by removing the member.** `useWhile` had no SPI caller and leaves `LifetimeScope`. The same decision makes `Lifetime` a class, so `use` becomes receiver-sensitive, against this finding's preferred option. Its premise, that every other published member was receiver-free, had already stopped holding at D-170, whose `BehaviorContext` members are prototype methods. On the SPI, method syntax now means a receiver is required, which is this finding's second option applied across the whole surface rather than to one member. **As raised, Open, tier C, 2026-09-02** — record [`factory-representation-reassessment-claude.md`](../reviews/phase-24/factory-representation-reassessment-claude.md). `LifetimeScope` publishes from `src/kernel.ts` and its `useWhile` is implemented as `this.use(() => …)` in `src/kernel/lifetimes.ts`. **It is one of exactly two `this.` in `src/`**; the other is `DraggableError`'s constructor, which rule 10 sanctions. Every other member on this package's surfaces is receiver-free and is relied upon to be — `cancel: host.cancel` and `destroy: host.destroy` are spread into both controllers detached, `fail: driver.requestFailure` likewise, and `session.dispose`, `spec.retire` and `spatialFrame.cancel` are all passed as bare references. So a behavior author who writes `const { useWhile } = scope` gets a `TypeError`, and the surface gives no sign that this one member differs. **Required property** — either `useWhile` closes over the disposer list as its siblings do, so that every published member may be detached, or the receiver requirement is stated on the type; the first is preferred, because a surface with one exception to a rule is worse than one with none. **Not a defect the factory representation prevents**, which is the reason it is recorded under D-167: receiver sensitivity was assessed as a risk of classing and was found already present, and invisible, in the factory.
 
 #### F-275 — D-168 states its retirement ordering as a runtime necessity, and the window it names is zero-width
 
@@ -4831,6 +5594,351 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 **Required property.** The formatting gate is reachable: for every file it checks, some `fmt` run leaves `fmt-check` green.
 
 **Repaired 2026-09-10.** The `oxfmt` pin moves 0.58.0 → **0.67.0**, the latest, so the version is not itself a formatting opinion, and the tree is reformatted under it: **seven files** across box-quad, drag, drag2 and material-x, none of which changes a program. Root `fmt-check` is green over all nine packages and the repository-level files.
+
+#### F-432 — an operation minted inside a failing `arm()` is never disposed · closed 2026-11-04 with D-208's acceptance
+
+**Closed 2026-11-04 with D-208's whole-decision acceptance, at src tree `626180a05`** (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §31). Case R15. The paragraphs below stand as they were written.
+
+**Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
+
+**Carried by D-206, which superseded D-205 after its step-1 checkpoint and keeps this decision unchanged; closes when D-206 lands.**
+
+**Carried by D-205, which superseded D-204 after its step 1 and keeps this decision unchanged; closes when D-205 lands.**
+
+**Carried by D-204, which superseded D-203 before implementation and keeps this decision unchanged; closes when D-204 lands.**
+
+**Carried by D-203, which superseded D-202 before implementation and keeps this decision unchanged; closes when D-203 lands.** Case R15. The text below names D-202's or D-201's properties as they stood.
+
+**Decided 2026-11-01 by D-202, which superseded D-201 before implementation and keeps its repair. Closes when D-202 lands, with case R15** in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §7. D-201's decision, as it stood: **Decided 2026-11-01 by D-201, and closes when it lands.** Construction becomes an execution unit at bracket depth ≥ 1, and no ingress pass opens while a unit is on the stack, so no operation can be minted inside `arm()`. The repair establishes the required property below **structurally, with no guard added**, and E3 in [`snapshot-units-claude.md`](../reviews/architecture/snapshot-units-claude.md) §5 is its test. The §1.1 question below is therefore moot rather than answered. **Open, tier C. Raised 2026-09-29 by the O-6 pass**, while checking whether teardown could be routed through `#retireOperation(null)`. Record [`kernel-shape-o6-claude.md`](../reviews/architecture/kernel-shape-o6-claude.md), at `9dcb62e1a`.
+
+**What happens.** `arm()` publishes `#spec` and attaches the `pointerdown` listener before it attaches the `command.types` listeners. That loop runs foreign code: `addEventListener` on a consumer-owned root, and the iteration of a behavior-supplied array. Suppose that code synchronously dispatches an event that is admitted, and then throws. An operation is minted against the armed spec. If the event was a command, the queued `ACTIVATE` drains at the admission boundary and acquires the lift. `#unwindArm` then retires the behavior, resets both frames, aborts ingress and clears `#spec`, but **it does not dispose the operation's lifetimes**. Neither does a later `destroy()`: `#runPhysicalTeardown` disposes only under `if (this.#spec)` and otherwise only drops the references.
+
+**Why it is a problem.** The operation's listeners are on the realm's document, under the motion and cancellation signals, which are not composed with ingress. They stay attached and keep the kernel alive. After a command activation, the visual also stays lifted with the placeholder inserted. That contradicts the unwind's own promise that a controller is never left half-armed.
+
+**Why it is open rather than booked.** It is reachable only through foreign code running inside `arm()` between two listener attachments. [`CONTRIBUTING.md`](../../../../CONTRIBUTING.md) §1.1 declines to add guards against that kind of reach, so whether to repair it is an owner question. **What a repair would establish:** every exit from `arm()` that leaves the controller unarmed leaves no operation resource live. D-199's teardown deduplication neither repairs this nor makes it worse, because its property (2) keeps the unconditional drop this path depends on.
+
+#### F-433 — a press dispatched from inside a running unit opens a second admission underneath it · closed 2026-11-04 with D-208's acceptance
+
+**Closed 2026-11-04 with D-208's whole-decision acceptance, at src tree `626180a05`** (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §31). Case R9. The paragraphs below stand as they were written.
+
+**Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
+
+**Carried by D-206, which superseded D-205 after its step-1 checkpoint and keeps this decision unchanged; closes when D-206 lands.**
+
+**Carried by D-205, which superseded D-204 after its step 1 and keeps this decision unchanged; closes when D-205 lands.**
+
+**Carried by D-204, which superseded D-203 before implementation and keeps this decision unchanged; closes when D-204 lands.**
+
+**Carried by D-203, which superseded D-202 before implementation and keeps this decision unchanged; closes when D-203 lands.** Case R9. The text below names D-202's or D-201's properties as they stood.
+
+**Decided 2026-11-01 by D-202, which superseded D-201 before implementation and keeps its repair** (D-202 property 1; case R9). The text below names D-201's properties as they stood.
+
+**Open, tier A. Raised 2026-11-01 by the D-201 pass**, while establishing which state a running unit can lose to a reentrant call. Record [`snapshot-units-claude.md`](../reviews/architecture/snapshot-units-claude.md) §1.2, probe P1.
+
+**What happens.** `ExecutionBracket.runIngress` refuses a pass only while the bracket is closed or an admission is running. Suppose consumer code reached from inside a drain unit, at a moment no operation is committed, synchronously dispatches a primary `pointerdown` on the root. An example is an `items()` slot inside a behavior action. The press then runs a full admission under the running unit. `begin()` rebuilds the draft that unit's `prepare` is writing, and the mint commits `PENDING` with the operation's listeners armed. The outer seam then commits, which swaps the pair back and republishes the idle frame. P1 shows the outer `prepare`'s draft changing from phase `0`/operation `null` to `1`/`{id:1}` across one call, the outer effect seeing `IDLE`, the first operation's `pointermove` listeners still armed, and a second top-level press admitted on top of them.
+
+**Why it is a problem.** The library corrupts its own published state and keeps operating: a committed operation is lost, its listeners leak, and a second operation overwrites the record of the first without disposing it. Reentrancy by a consumer callback is inside correctness's domain (CONTRIBUTING §1.1 (a)). A mint failure in the same window would scrub both frames under the outer unit through `#retireOperation(null)`.
+
+**Required property.** While any unit runs, an ingress pass is refused before it touches any state. D-201 properties 1 and 2; case E1.
+
+#### F-434 — a late `cancel()` raised inside `anchorTarget` strands the operation in `SETTLING` · closed 2026-11-04 with D-208's acceptance
+
+**Closed 2026-11-04 with D-208's whole-decision acceptance, at src tree `626180a05`** (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §31). Case R8. The paragraphs below stand as they were written.
+
+**Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
+
+**Carried by D-206, which superseded D-205 after its step-1 checkpoint and keeps this decision unchanged; closes when D-206 lands.**
+
+**Carried by D-205, which superseded D-204 after its step 1 and keeps this decision unchanged; closes when D-205 lands.**
+
+**Carried by D-204, which superseded D-203 before implementation and keeps this decision unchanged; closes when D-204 lands.**
+
+**Carried by D-203, which superseded D-202 before implementation and keeps this decision unchanged; closes when D-203 lands.** Case R8. The text below names D-202's or D-201's properties as they stood.
+
+**Decided 2026-11-01 by D-202, which superseded D-201 before implementation.** The phase rule carries forward (D-202 property 4), and no unit reads a cancel request after its entry (property 2), so the settlement path has no reading left to misinterpret. Case R8. The text below names D-201's properties as they stood.
+
+**Open, tier A. Raised 2026-11-01 by the D-201 pass.** Record [`snapshot-units-claude.md`](../reviews/architecture/snapshot-units-claude.md) §1.3, probe P4, run in Chromium.
+
+**What happens.** `#cancelWith` latches a cancel request in any phase. `#settlementLive` counts a held request as _the settlement is not live_. Free drag's `anchorTarget` reaches the consumer's `home` resolver, and a `cancel()` raised there (on the published controller) makes the measurement report the settlement dead, so the join never runs. The queued `CANCEL` then arrives at `SETTLING`, where `#handleCancel` ignores it. P4 records `onStart`, `settlement.effect` and `anchorTarget`, then nothing: no presentation release, no `finalized`, no retirement. A second press and move produce no calls at all.
+
+**Why it is a problem.** I-21 makes a late cancel a no-op, so this is valid integration. The consumer is left with a lifted visual, an inserted placeholder, no `onEnd`, and a controller that admits nothing until it is destroyed.
+
+**Required property.** A cancel request is latched only in a phase where `CANCEL` acts, and no control reading on the settlement path treats a request as a liveness answer. D-201 properties 5 and 6; case E4.
+
+#### F-435 — a `cancel()` raised inside `release.effect` reports `AT_CONSUMER` for a round-trip that never opened · closed 2026-11-04 with D-208's acceptance
+
+**Closed 2026-11-04 with D-208's whole-decision acceptance, at src tree `626180a05`** (record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §31). Cases R4, R6 and R22. The paragraphs below stand as they were written.
+
+**Carried by D-207, which superseded D-206 during its step 3 and keeps this decision unchanged; closes when D-207 lands.**
+
+**Carried by D-206, which superseded D-205 after its step-1 checkpoint and keeps this decision unchanged; closes when D-206 lands.**
+
+**Carried by D-205, which superseded D-204 after its step 1 and keeps this decision unchanged; closes when D-205 lands.** The stage rule now lands in step 1, with the round-trip's own unit.
+
+**Carried by D-204, which superseded D-203 before implementation and keeps this decision unchanged; closes when D-204 lands.**
+
+**Carried by D-203, which superseded D-202 before implementation and keeps this decision unchanged; closes when D-203 lands.** Cases R4, R6 and R22. The text below names D-202's or D-201's properties as they stood.
+
+**Open, tier A. Raised 2026-11-01 by the D-202 pass.** Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §1, probe P5, run in Chrome.
+
+**What happens.** `#handleCancel` picks the cancellation stage from the committed phase: `RELEASING` gives `AT_CONSUMER`, and every other phase gives `AT_PROPOSAL` (`kernel.ts:2010`). A cancel raised during `release.effect` latches. The staging conditional then suppresses the consumer round-trip, and the queued `CANCEL` finds `RELEASING`. P5 records `settlement.prepare type=43 stage=AT_CONSUMER` with no `invoke` call before it. Both behaviors copy the kernel's `input.stage` into the public `canceled` result (`sortable/spec.ts:1574`, `free-drag/spec.ts:806`).
+
+**Why it is a problem.** 02 §The settlement input is discriminated and exhaustive defines the two stages by what the consumer may already have started. The consumer is told its resolver was running for a drop it never saw. Code raised from `release.effect` that reaches the published controller is valid integration. One example is a custom placeholder reacting to the release move.
+
+**Required property.** The stage is `AT_CONSUMER` exactly when `invoke` has been called for the operation. D-202 property 5; cases R4 and R6.
+
+#### F-436 — D-202's round-trip guarantee does not follow from its ordering · repaired 2026-11-01 by D-203
+
+**Tier B. Raised 2026-11-01 by the coordinator's handoff check** of D-202, at `7721b3ef4` ([`request-ordering-coordinator.md`](../reviews/architecture/request-ordering-coordinator.md), `coordinator-a`). Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §10. The defect is in an unimplemented decision and its reference model, not in `src/`.
+
+**What happens.** D-202 property 6 promised that no consumer round-trip opens after a cancel request against its operation has been registered, and attributed this to FIFO. `OPEN_RESOLUTION`'s entry conditions did not mention a cancel. In the check's case:
+
+1. `release.effect` dispatches a behavior action;
+2. the release unit queues `OPEN_RESOLUTION`;
+3. the action requests cancel, so the queue is `[OPEN_RESOLUTION, CANCEL]`.
+
+`onReorder` therefore runs after the registration, and the cancel settles at `AT_CONSUMER`. The model reproduced this.
+
+**Why it is a problem.** An implementer would have had to choose between the promised guarantee and the stated entry conditions, which is a contract decision left unrecorded.
+
+**Repair.** `OPEN_RESOLUTION` declines while a cancel for its operation is registered. The cancel then applies at `RELEASING` at `AT_PROPOSAL`. D-203 property 6; case R22.
+
+**Carried by D-204**, which superseded D-203 before implementation and keeps this repair unchanged.
+
+**Carried by D-205**, which superseded D-204 after its step 1 and keeps this repair unchanged. The entry condition now lands in step 1.
+
+**Carried by D-206**, which superseded D-205 after its step-1 checkpoint. D-206 adds a failure clause beside this repair's cancel clause and leaves it unchanged (F-439).
+
+**Carried by D-207**, which superseded D-206 during its step 3. D-207 applies this repair's entry rule at activation and leaves the repair unchanged (F-440).
+
+#### F-437 — D-203 queues a construction-window `dispatch` whose tag the SPI promises to check against a count that does not yet exist · repaired 2026-11-01 by D-204
+
+**Tier B. Raised 2026-11-01 by the implementer at D-203 step 1**, relayed by the owner at `582092c1f`. Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §11. The defect is in an unimplemented decision, not in `src/`.
+
+**What happens.** R17 requires a `dispatch` from the behavior factory to be queued and applied after publication. The SPI requires an out-of-range tag to be reported and dropped, never enqueued (`src/kernel/spec.ts:54–65`). In the factory body the spec, and so `config.actionTags`, does not exist yet, and neither does the reporter. Today the conflict is hidden: every construction-window dispatch is dropped silently, in range or not (probe P6).
+
+**Why it is a problem.** An implementer would have had to choose validation timing and diagnostic behavior for a published SPI member: defer validation and hold raw tags, check at application, extend the report, or leave the window unchecked. That is a contract decision left unrecorded.
+
+**Repair.** The tag is checked once, at armed intake, unchanged. A construction-window tag is unchecked, and an out-of-range one has no specified outcome. Nothing is checked at application. D-204 property 12; cases R23–R27.
+
+**Relation to F-97.** F-97 still holds open whether the armed check survives the reachability gate. This repair is compatible with either answer.
+
+**Carried by D-205**, which superseded D-204 after its step 1 and keeps this repair unchanged.
+
+**Carried by D-206**, which superseded D-205 after its step-1 checkpoint and keeps this repair unchanged.
+
+**Carried by D-207**, which superseded D-206 during its step 3 and keeps this repair unchanged.
+
+#### F-438 — D-204 step 1 opens the consumer round-trip after a destroy requested in the release unit · closed 2026-11-01 with D-206 step 1
+
+**Tier A. Raised 2026-11-01 by the D-204 step-1 feature proof**, reviewer-A ([`d204-step1-feature-proof-claude.md`](../reviews/fin-review2/d204-step1-feature-proof-claude.md)), at `88cb0be8c`. A regression in `src/` at `2c5212daf` against `582092c1f`. Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §12.
+
+**What happens.** Step 1 makes `closed` report `CLOSED` only, so `#preparationValid()` stays true for the rest of a unit that requested destruction (`kernel.ts:469–473`). The release seam stages its command after `release.effect` on that reading (`seams.ts:317`), and `runReleaseSeam` executes it inside the release unit (`seams.ts:641–643`), which opens `#openResolution`. The round-trip was to move into its own unit at step 3. P5 and P7 show `invoke (round-trip opened)` after a destroy requested in `release.effect` and in `release.prepare`; at `582092c1f` neither row opens it.
+
+**Why it is a problem.** In the sortable, `invoke` is `onReorder`, a consumer model mutation, delivered after the consumer or behavior asked to stop. Neither the baseline nor the required outcome (R5, R28) makes that call, and no test sees it: the one `seams.node` row on this path flips its harness flag directly.
+
+**Required property.** No round-trip opens for an operation whose release unit requested destruction. More generally, no landed step makes a consumer call that both the baseline and the required outcome withhold (D-205 property 13). Cases R5 and R28.
+
+**Decision.** D-205 moves the round-trip's own unit, its entry condition, the cancel stage rule and the `release.effect` inventory into step 1, before step 2. Closes when that lands with R5 and R28 as tests driven through the bracket.
+
+**Carried by D-206**, which superseded D-205 after its step-1 checkpoint `3e44eaf62` and keeps this decision unchanged. That checkpoint lands the unit with R5 and R28 as tests. This finding closes when step 1 is accepted, with D-206's failure clause.
+
+**Closed 2026-11-01 with step 1's acceptance at `44e2074f1`.** The release unit queues `OPEN_RESOLUTION`, and a destroy requested in `release.prepare` or `release.effect` is applied at that unit's boundary and discards it. R5 and R28 are `kernel.browser` rows whose destroy comes from a seam the bracket is running. The mutation that opens the round-trip inline reddens both, among eleven rows. P5 and P7 at the tip show no `invoke`. Property 13 holds on the paths probed: P4, P5, P7 and P8. Evidence: the recheck, and the architect's rerun of `run.sh` at `e9eaf657c` (record §14.1).
+
+#### F-439 — D-205's round-trip entry condition admits a round-trip for an operation whose failure checkpoint is already registered · repaired 2026-11-01 by D-206, closed 2026-11-01 with D-206 step 1
+
+**Tier B. Raised 2026-11-01 by the implementer at D-205's step-1 checkpoint**, under §8's first escalation clause ([`d204-step1.md`](../measurements/d204-step1.md) §The open escalation), at `3e44eaf62`. Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §13. The defect is in D-205's decision, which the checkpoint implemented as stated, not in its code.
+
+**What happens.** During the sortable's release move a custom placeholder's `connectedCallback` calls `controller.invalidate()`, which queues collection work in the release unit. If `items()` throws, the work's `prepare` fails and registers a checkpoint whose `FAILED` entry is queued behind `OPEN_RESOLUTION`. D-205's entry condition does not mention failures, so `onReorder` opens. `FAILED` then abandons the round-trip and settles `canceled` at `AT_CONSUMER`. With a synchronous resolver the baseline gave `accepted` and a late `onError`; with an asynchronous one both trees give `canceled` at `AT_CONSUMER` (P8).
+
+**Why it is a problem.** The round-trip guarantee covered destroy and cancel but not the third terminal request. The kernel opened a consumer domain transaction it had already doomed, and a published terminal changed with no decision stating either outcome. That is the queue shape F-436 closed for cancel.
+
+**Repair.** `OPEN_RESOLUTION` also declines while a failure checkpoint for its operation is registered and unapplied. `FAILED` then applies at `RELEASING`: `onError`, then `canceled` at `AT_PROPOSAL`, origin `failed`, and no `onReorder`, for either resolver. D-206 property 6; case R30.
+
+**Closed 2026-11-01 with step 1's acceptance at `44e2074f1`.** The clause and its registration landed at `902810cae`. Four R30 rows assert the outcome above and redden when either the clause or the registration write is removed: two in `kernel.browser` and two in `sortable.browser`. The `invoke: null` row asserts the same outcome and reddens under neither mutation, as D-206's amended witness paragraph records. Steps 2–6 keep all five rows green.
+
+#### F-440 — D-206's step 3 announces a start for a command operation whose cancel was registered at `PENDING` · repaired 2026-11-01 by D-207
+
+**Tier B. Raised 2026-11-01 by the implementer during D-206's step 3**, under the record's §15.3 first escalation clause, relayed by the owner. Baseline `add2d5ca8`, with step 3 uncommitted. Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §16. The defect is in D-206's decision, which states no reading at activation's entry, not in landed code.
+
+**What happens.** In `keyboard.browser`'s _should enqueue an invalidate() rather than drain it_, the consumer's `replace()` during `command.admit` queues collection work ahead of `ACTIVATE`. That work finds the commanded gap cannot survive and registers a cancel at `PENDING`, which is queued behind `ACTIVATE`. At the baseline `#preparationValid` discards the activation, and the operation retires silently. With the revalidation deleted, `ACTIVATE` commits and delivers `onStart`, and `CANCEL` then settles `canceled` at `AT_PROPOSAL` with reason `sortable:collection-invalidated`.
+
+**Why it is a problem.** A published outcome changed with no decision stating it. The record's §4 item 3 and R3 describe only a cancel raised inside the activation unit. For a command, every cancel registered at `PENDING` lands behind `ACTIVATE`, so D-206 as written made §2.6's `PENDING` row unreachable on that path.
+
+**Repair.** The unit that would enter activation, `ACTIVATE` or `MOVE` at `PENDING`, declines at its entry while a cancel for its operation is registered. The queued `CANCEL` then retires the operation silently. D-207 property 7; case R31.
+
+#### F-441 — D-207's step 4 removes the behaviors' diagnostic refusal with `BehaviorContext.closed` · repaired 2026-11-02 by D-208, closed 2026-11-04 with D-208's acceptance
+
+**Tier A. Raised 2026-11-02 by the implementer during D-207's step 4**, under the record's §17.4 first escalation clause, relayed by the owner. Baseline `9ae86b189`, with step 4 uncommitted. Resolution in [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §18. The defect is in D-207's handoff, not in landed code.
+
+**What happens.** The handoff removes every `kernel.closed` read in the two behaviors, 27 by `grep`, together with `BehaviorContext.closed`. Four of them are not readings inside a unit. They refuse diagnostics after applied destruction: both behaviors' `#notify` channels and both composition `report` closures, which installers receive as `FeatureContext.report`. They are reached in teardown, whose step 4 walks every retire hook, and from a published installer that calls a captured `report` late. With them removed, a throwing retire hook delivers `drag: unwind/step-failed` and a late report delivers `drag: composition/unwind-failed`, both after the controller's destruction was applied. The baseline delivers neither.
+
+**Why it is a problem.** A correctly integrated consumer's `onError` runs after destruction, which I-36 (a) forbids at tier A. It reverses D-178's grounded silence for a throwing teardown step, as a consumer-visible change the record does not state. With `closed` gone the behaviors had no route left to the refusal the kernel keeps for its own diagnostics.
+
+**Repair.** The kernel's refusal is reached through `BehaviorContext.channel(deliver)`, and the four reads are replaced by minted channels rather than deleted. The refusal reads only applied destruction, so its answer is constant across every unit. D-208; case R33.
+
+#### F-442 — a cancel applied at `ACTIVATING` settles a drag whose start was never notified, on a class of two-fault paths · open, tier B
+
+**Open, tier C. Raised 2026-11-03 at D-208 step 5's acceptance**, from the comment pass's escalation #2 and the feature proof's step5-B. Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20. It is not a defect in landed code, and D-208 does not decide it.
+
+**What happens.** A cancel registered from a custom placeholder's `connectedCallback`, followed in the same `activation.effect` by a throwing `invalidateInsertion()`, produces a terminal callback for a drag whose `onStart` never ran. Both faults are required. 02 records this as the one admitted gap (I-31). The gap stayed open because _closing it means carrying a per-operation "started" flag_.
+
+**Why it is raised.** That flag now exists. `#operation.progress` reaches `STARTED` before `onStart`, and the settlement's failure arm already publishes nothing at `MINTED`. The cancel arm does not consult the marker. So the stated cost of closing the gap is gone, and either answer now decides something:
+
+- **closing it** suppresses a terminal on a two-fault path, which changes a published outcome;
+- **keeping it** needs a ground the record does not state.
+
+**Owner.** The architect decides. The owner rules if the answer changes a published outcome.
+
+**Deadline.** Before Phase 24 exits, because Phase 24 carries no open question. Until then the gap stays as documented. D-208's remediation 5R corrects only the text: _registered_ for _latched_, and a citation of this entry in place of the stale reason.
+
+**Widened and re-tiered 2026-11-03, at 5R's acceptance** (record §21.3, from the 5R recheck's 5r-A). It was raised as _the sortable's admitted two-fault gap lost its stated reason for staying open_, at tier C.
+
+**The class.** A terminal callback is reached without a start notification exactly when both of these hold:
+
+- a cancel is registered during the activation unit, by consumer code reached from its `prepare` or its `effect`;
+- the effect then fails before the start notification.
+
+The cancel supersedes the failure checkpoint, and `#handleCancel` settles `ACTIVATING` on the phase alone.
+
+**Two known instances, both probed at D-208's tip:**
+
+- a throwing `invalidateInsertion()`, the instance above;
+- a placeholder that removes itself, so the adjacency check throws before the activation record is published. The landing then reads the absent record and reports `drag: landing/target-unavailable`, whose `cause` is the library's own `TypeError`. That is why this is tier B. It is not tier A, because both faults are the consumer's.
+
+**Not established:** whether free drag has an instance, and a `prepare`-registered cancel, which is read from the code but not probed.
+
+**Both instances predate the program.** Their outcome is the same at its input `6905af249`, apart from D-202's stated warning code.
+
+**Any answer must:**
+
+- cover the class in both behaviors;
+- report no library-internal exception as a diagnostic's `cause`;
+- if it keeps the gap open, state its ground.
+
+Owner and deadline are unchanged. D-208's 5R.1 corrects the text that calls the gap unique, and decides nothing.
+
+#### F-443 — the action queue regrows its backing store on every pointer sample, and three source comments say the path allocates nothing · open, tier C
+
+**Raised 2026-11-03 from D-208 step 6's third escalation.** Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §24.3.1. It is not D-208's: the bytes are equal at `6905af249`.
+
+**What happens.** `ActionQueue.clear()` truncates with `length = 0`, which releases the backing store, and the next `add` regrows it. So every pointer sample allocates about 84 B in the queue's storage, measured by the sampling heap profiler.
+
+**What the source says:**
+
+- `queue.ts:7–8`: _capacity growth is amortized_;
+- `queue.ts:43–44`: _truncation allocates nothing_;
+- `execution.ts:78–79`: _the per-sample paths allocate nothing_;
+- `presentation.ts:375–376`: _the pointer-sample path, which is allocation-free_. The transform string is allocated on that path.
+
+**Why tier C.** No consumer-observable behavior changes, and nothing the repository relies on depends on the comments. Runtime takes priority (CONTRIBUTING §0), so the fix is to the code.
+
+**Any fix must:**
+
+- allocate nothing in the queue's storage per sample in steady state;
+- keep a queued argument from outliving the drain that abandoned it;
+- add no per-controller retained heap at rest;
+- leave every allocation comment stating the measured property.
+
+If these cannot all hold, it comes back to the architect.
+
+**Owner and deadline.** The architect routes it as its own unit, after D-208's whole-decision acceptance, because `src/` is frozen until then. Before Phase 24 exits, and booked as [O-15](../obligations.md). The file's text is D-200's, and D-200's independent acceptance stays the owner's.
+
+#### F-444 — a heap-growth reading was cited as bounding per-sample allocation, and it cannot see transient allocation · open, tier B
+
+**Raised 2026-11-03 from D-208 step 6's third escalation.** Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §24.3.2.
+
+**What happens.** M-1's allocation row reads `usedJSHeapSize` growth over 20,000 samples. It returned 0.0 B per sample at both trees on a path that allocates about 189 B a sample. Scavenges return the churn before the second reading. It bounds retention and not transient allocation. It was nonetheless cited as bounding transient allocation (I-26, M-1's record) and as _I-26 holds_ at D-208's steps 3 and 4.
+
+**Why tier B.** An instrument the repository relies on is unsound for a claim it was used to make.
+
+**Decided:**
+
+- the reading is a retention reading only;
+- an allocation claim is stated in measured bytes per unit, with the instrument named;
+- _allocates nothing_ is written only where that instrument returns zero.
+
+No acceptance is reopened, because step 6's profiler re-establishes the conclusions those acceptances drew. I-26's wording and tier are unchanged.
+
+**Owner and deadline.** The implementer applies the dated corrections at 05:173, 05:920, 06:367 and `measurements/m1.md`, under record §24.5 step 2, before M-1's follow-up.
+
+#### F-445 — the retained-heap instruments take a minimum on the premise that heap noise is one-sided, and their own readings refute it · open, tier B
+
+**Raised 2026-11-04 from the resumed remediation 6R's escalation.** Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §26.3.
+
+**What happens.** `tests/perf/m2-prime.browser.test.ts` reads the heap difference across a window and takes the minimum of five runs, because _every source of error inflates a reading and none deflates it_. Anything live at the window's first reading and collected by its second deflates it. The file itself records −636 kB from one such case, and `d208-step6.md` records a −858 B per-controller reading and single runs of five well below the others at both trees. So the minimum can select a deflated reading. A single low baseline figure set two of the twelve cells that the resumed 6R missed. The cause of those low readings is unmeasured.
+
+**Why tier B.** An instrument the repository relies on rests on a stated premise that is false, and an acceptance criterion was read through it.
+
+**Decided:**
+
+- the premise is corrected where it is stated: `tests/perf/m2-prime.browser.test.ts` lines 25–26 and 121–122, `tests/perf/m2.browser.test.ts` line 23 and `tests/perf/m1-prime.browser.test.ts` line 648, with dated notes at `measurements/m2-prime.md` line 22, `measurements/m2.md` line 14 and `measurements/phase-21.md` line 184;
+- the minimum stays M-2′'s figure for protocol M-2″, read through a paired rule across rounds and beside the median of five (record §26.3, §26.6);
+- whether it stays beyond that protocol is decided after its result. **Updated 2026-11-04 (record §27.4):** the protocol left the low state's cause unestablished at both trees, and neither probe supports a cause. The decision stays open.
+
+No acceptance is reopened. Earlier figures stand as measured.
+
+**Owner and deadline.** The implementer applies the corrections in protocol M-2″'s harness commit. The architect decides any later estimator before Phase 24 exits.
+
+#### F-446 — a failure checkpoint that destruction discards leaves no report of its fault · closed 2026-11-04 with D-209's acceptance
+
+**Tier A. Raised 2026-11-04 from D-208's final proof** (reviewer-1). Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §30.
+
+**What happens.** A consumer slot requests destruction and then throws. `#failOperation` registers the failure and queues `FAILED`, `#step` declines that entry because the lifecycle is `REQUESTED`, and application clears the queue. In both behaviors, through the public entries, `onStart` and `onMove` get no `onError` and no `onEnd`. The library caught the throw, so nothing else records it. **Corrected 2026-11-04 (record §31.3):** the scope is `onStart` in both behaviors and `onMove` in free drag. Sortable has no `onMove` slot, and no sortable slot past activation has been probed.
+
+**Why tier A.** A correctly integrated consumer's own error vanishes, while I-36 says the unit's diagnostics are a live controller's. The same call reports from a `handle` or `home` resolver, and a checkpoint a cancel supersedes reports too. D-178 names the package's silences by route, and this is not one of them.
+
+**It is not a regression.** The outcome equals `6905af249`'s, for a different reason: there the call closed the controller first, so the silence was I-36 (a)'s. `2c5212daf` moved the two inline routes to reported and left this one.
+
+**Decided by D-209:** one `DraggableWarning` per discarded checkpoint, with the claim still discarded. ~~Rows R33 (i) to (l) pin today's outcome until then.~~ Those rows now state the delivered outcome.
+
+**Owner and deadline.** The architect hands D-209 off after D-208's whole-decision acceptance, because `src/` is frozen until then, and the implementer lands it before Phase 24 exits. It does not block D-208's acceptance (record §30.5). **Dated 2026-11-04 (record §32):** handed off, and the owner requires its acceptance before the merge.
+
+**Scope corrected 2026-11-04 (record §32.2, §32.3):** sortable's slots past activation are now probed. `onEnd` is this finding as written. `onReorder` and `onDrop` lose the fault the same way through a rejected settlement, which has no checkpoint, and D-209 is amended to cover them.
+
+**Dated 2026-11-04 (record §33):** D-209's independent review confirmed the written properties and found that its walk reports a rejection a cancel had already superseded, under destruction's code. That stops this finding's closing until the remediation lands. A malformed `moveTo` and sortable's listener fault are named silences and do not keep it open.
+
+**Closed 2026-11-04 with D-209's acceptance (record §34),** at src tree `f6172d3be`. A failure checkpoint or rejected settlement that destruction discards reports once, before application, and its fault no longer vanishes. This entry's present tense describes the tree it was raised on.
+
+#### F-447 — `consumer.node`'s sourcemap row can read declarations another test's build has not stripped yet · closed 2026-11-05 at `39e32b58d`, on its structural property, with the recorded failures' cause not established
+
+**Raised 2026-11-04 at D-208's acceptance.** Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §31.2, under §30.7's rule that a recurrence is a finding.
+
+**What happens.** _should pack every sourcemap its modules point at_ failed with 32 dangling entries twice, once in the consolidator's baseline at `bd3613d5f` and once in the first run at `a3a7da0e8`, each in a fresh private worktree. It passed in every later run on those trees and when run alone. A `tsdown` emit leaves exactly 32 root declarations carrying `sourceMappingURL` until its `build:done` hook strips them. `consumer.node` packs in the package root, and `size.node` builds there.
+
+**The cause is inferred and not isolated.** A pack that overlaps another file's build would read that state, but one overlap with looping builds and sixteen staggered packs did not reproduce it.
+
+**Why tier C.** It is a test instrument's flake that can stop a run reading clean. No reading implicates a tarball packed from a quiet tree, and no `src/` tree is involved.
+
+**Required property.** The row's verdict depends only on the build it made: no other test's build can write the tree it packs. The first step is reproducing or excluding the overlap.
+
+**Owner and deadline.** The architect hands it off as its own test-only unit, before Phase 24 exits. It is not D-208's, and it does not block D-208's acceptance. **Dated 2026-11-04 (record §32.1):** booked as a gate before the merge, after D-209's acceptance.
+
+**Dated 2026-11-04 (record §34.8, §34.9):** it recurred at `cfed5f9da`, with 32 entries, in the D-209 recheck's whole-suite run. That is its third recorded failure, and it stays open. This acceptance's three whole-suite runs did not show it, which excludes nothing. It is handed off at record §34.9.
+
+**Closed 2026-11-05 (record §35.2).** `39e32b58d` builds once in the node project's global setup, so within that project no test builds, and no other test's build can write the tree the row packs. A `just build` run by hand still can.
+
+- **The mechanism is demonstrated.** With one build delayed, the tree went from 0 to 32 unstripped declarations during the pack and the row reddened with 32 entries, only when `consumer.node` emitted first. A delay on both builds cannot show this, because the first strip walks the whole tree, so §34.9's _the cause is excluded_ was wrong. The one-sided form discharges that step.
+- **The cause of the three recorded failures is not established.** None was observed in the act, and no delay-free run has reddened the row. _Inferred and not isolated_ stays accurate.
+- **Closure rests on the structure.** Clean runs add little, since the row passed on most runs before the repair.
+- **A recurrence after this tree is a new finding with another cause,** citing this one. Moving the build out of the setup reopens this one.
+- **The repair introduced RF-28 in the repository's register,** and an unreachable vacuous path through `bench/shipped/vitest.config.ts`. Both are repaired at record §35.9, and neither touches this property.
+
+#### F-448 — a rejected settlement a cancel supersedes leaves no report of its fault · closed 2026-11-04 with D-209's acceptance
+
+**Tier A. Raised 2026-11-04 from D-209's feature proof** (reviewer-2). Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §33.4.
+
+**What happens.** `onReorder` or `onDrop` calls `requestCancel` and then throws, which queues `[CANCEL, RESOLUTION_SETTLED]`. `CANCEL` retires the attempt, and `#handleResolutionSettled` returns at its slot check. In both behaviors the consumer gets `onEnd canceled` and no `onError`. The same call from `onStart` reports `drag: failure/superseded-by-cancel`.
+
+**Why tier A.** A correctly integrated consumer's own error vanishes. The rejection won the latch while its attempt was current, so D-40's consumption of a late rejection does not ground the silence. F-29 refuses to let a resolver malfunction read as `canceled`, and here the fault has no other channel. I-22's ladder gives the sibling case this report.
+
+**It is not a regression against the accepted tree,** whose outcome is the same. `6905af249` was not driven. **D-209's walk made it visible:** at `db3c402a4` the fault is reported only if destruction follows, under destruction's code.
+
+**Decided by D-209's amended property 1:** one `superseded-by-cancel` warning after the terminal, with or without a later destruction. A rejection arriving after the cancel applied stays consumed.
+
+**Owner and deadline.** The implementer, in record §33.8's remediation. It closes at D-209's acceptance, before the merge.
+
+**Closed 2026-11-04 with D-209's acceptance (record §34),** at src tree `f6172d3be`. The rejection now reports one `superseded-by-cancel` warning after the terminal, with or without a later destruction, subject to D-209's stated kernel-tier limit. This entry's present tense describes the tree it was raised on.
 
 ## What would falsify this model
 

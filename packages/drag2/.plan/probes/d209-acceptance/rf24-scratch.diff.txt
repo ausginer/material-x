@@ -1,0 +1,30 @@
+diff --git a/.scripts/vitest-config.ts b/.scripts/vitest-config.ts
+index 8db6fa8cb..1cea8f6ff 100644
+--- a/.scripts/vitest-config.ts
++++ b/.scripts/vitest-config.ts
+@@ -178,12 +178,6 @@ function createBrowserTestConfig(
+         // rasters for failed/expected-fail assertions in the behavior/spec
+         // projects, which would otherwise litter __screenshots__.
+         screenshotFailures: false,
+-        api: {
+-          host: '0.0.0.0',
+-          port: 9876,
+-          allowExec: true,
+-          // strictPort: true,
+-        },
+         provider: playwright({
+           contextOptions: { deviceScaleFactor: 1 },
+           launchOptions: {
+diff --git a/.scripts/vitest-one-shot.ts b/.scripts/vitest-one-shot.ts
+index b75264cf5..af3675289 100644
+--- a/.scripts/vitest-one-shot.ts
++++ b/.scripts/vitest-one-shot.ts
+@@ -31,7 +31,7 @@ async function release(
+   const { browser } = project;
+ 
+   if (browser) {
+-    await browser.provider.close();
++    await browser.provider?.close();
+ 
+     for (const orchestrator of browser.state.orchestrators.values()) {
+       orchestrator.$close();

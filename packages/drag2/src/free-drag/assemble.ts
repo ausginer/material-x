@@ -112,8 +112,8 @@ export function assemble(
       onEnd: config.onEnd ?? null,
       onError: config.onError ?? null,
 
-      // Carried unresolved: a source is read at activation and on
-      // `invalidate()`, so resolving here would make it fixed policy.
+      // A plain value, fixed for the controller's life and never re-read,
+      // `invalidate()` included.
       axis: config.axis ?? DEFAULT_AXIS,
       // **There is no domain check, but there is a default.** A `NaN` threshold
       // makes the travel test permanently false, so the drag never activates
@@ -132,8 +132,7 @@ export function assemble(
 
     // **Stored in installation order and walked backwards by every reader.**
     // The published guarantee is about execution order; a `reverse()` here
-    // would be a second representation of it, with a mutation between the two —
-    // which is the shape the undo ledger next door already avoids.
+    // would be a second representation of it, with a mutation between the two.
     return slots;
   } catch (error) {
     // A later installer must not leak an earlier installer's state. Installers

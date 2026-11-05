@@ -12,7 +12,7 @@ import type { DOMRealm } from '../kernel/realm.ts';
 import type { OffsetBox } from '../kernel/types.ts';
 import type { Insertion } from './domain.ts';
 
-/** What a `placeholder` factory is handed. Geometry, and all three elements. */
+/** What a `placeholder` factory is handed. Geometry, and every element. */
 export type PlaceholderContext = Readonly<{
   item: HTMLElement;
   /** The node faithfully lifted. */
@@ -23,65 +23,6 @@ export type PlaceholderContext = Readonly<{
 }>;
 
 export type PlaceholderFactory = (context: PlaceholderContext) => HTMLElement;
-
-/**
- * The undo ledger a **consumer-owned** placeholder accumulates while it is
- * being prepared.
- *
- * `null` for the library's own `<div>`: dropping the element *is* the undo, and
- * recording anything for it would be ceremony over a node nobody else can see.
- * An array is the whole mechanism — `activation.rollback` runs it in reverse.
- */
-export type PlaceholderUndo = Array<() => void> | null;
-
-/**
- * Restores an attribute to the value it had, or removes it if it had none.
- *
- * **The removal is `removeNamedItem`, not `removeAttribute`, and that is a
- * measured platform difference rather than a style preference.** After an
- * inline style property has been written through the CSSOM,
- * `removeAttribute('style')` leaves `style=""` behind in Chromium — the name
- * survives in `getAttributeNames()` and in `outerHTML`, on connected and
- * detached elements alike — while `attributes.removeNamedItem('style')` removes
- * it cleanly. The rollback guarantee is stated as an attribute-map comparison,
- * so an empty leftover attribute is a real difference and not a cosmetic one.
- * `removeNamedItem` throws when the attribute is absent, hence the guard.
- */
-const restoreAttribute = (element: HTMLElement, name: string): (() => void) => {
-  const previous = element.getAttribute(name);
-
-  return previous === null
-    ? () => {
-        if (element.hasAttribute(name)) {
-          element.attributes.removeNamedItem(name);
-        }
-      }
-    : () => {
-        element.setAttribute(name, previous);
-      };
-};
-
-/**
- * Records one undo, **before** the write it reverses.
- *
- * Before rather than after, so a mechanics run that stops mid-way — the
- * liveness readings below can return at six different points — leaves a ledger
- * that exactly covers what was written and nothing more. An undo for a write
- * that never happened is not harmless: restoring an attribute the library did
- * not touch is itself a mutation of a consumer's element.
- */
-const willWrite = (
-  undo: PlaceholderUndo,
-  element: HTMLElement,
-  name: string,
-): void => {
-  // The snapshot is taken inside the guard, not at the call. The default
-  // placeholder path passes `null` and has nothing to roll back; an
-  // argument-position `restoreAttribute(…)` would be evaluated for it anyway,
-  // at four `getAttribute` reads and four closures per activation. Only an
-  // adopted placeholder keeps a ledger, and only it pays for one.
-  undo?.push(restoreAttribute(element, name));
-};
 
 /**
  * Applies the mechanics that are **always present and not configurable away**,
@@ -99,90 +40,29 @@ function applyMechanics(
   placeholder: HTMLElement,
   item: HTMLElement,
   footprint: OffsetBox,
-  live: () => boolean,
-  undo: PlaceholderUndo,
 ): void {
-  // Every read first, then every write. Each call below is consumer-reachable —
-  // `getAttribute` on the item, the offset getters on the visual,
-  // `setAttribute`/`style` on a placeholder a `placeholder()` feature may own —
-  // and the element is not adopted until `activation.prepare` returns, so a
-  // mutation left on it after `destroy()` is a residue teardown never undoes.
-  // Ordering the reads ahead of the writes makes the whole read run one stretch
-  // that leaves nothing behind whichever of them closes the controller; each
-  // write then carries its own reading, so the sequence stops before the next
-  // surviving mutation rather than after it.
   const slot = item.getAttribute('slot');
   const { width, height } = footprint;
 
-  if (!live()) {
-    return;
-  }
-
-  willWrite(undo, placeholder, 'data-drag-placeholder');
   placeholder.setAttribute('data-drag-placeholder', '');
-
-  if (!live()) {
-    return;
-  }
-
-  willWrite(undo, placeholder, 'aria-hidden');
   placeholder.setAttribute('aria-hidden', 'true');
-
-  if (!live()) {
-    return;
-  }
 
   // Mirrored, not merely copied. A custom placeholder may arrive carrying a
   // `slot` of its own; leaving that in place when the item has none puts the
   // footprint in a different slot from the item it stands for, which is the
   // opposite of "inherits the item's slot".
-  //
-  // Which is why the undo is `restoreAttribute` and not `removeAttribute`: the
-  // branch below *removes* a consumer's own `slot="mine"`, so an undo that only
-  // knew how to delete would leave the element permanently missing an attribute
-  // the library never granted it.
-  willWrite(undo, placeholder, 'slot');
-
   if (slot === null) {
     placeholder.removeAttribute('slot');
   } else {
     placeholder.setAttribute('slot', slot);
   }
 
-  if (!live()) {
-    return;
-  }
-
-  // One undo for all three property writes, and it is stronger than three.
-  // Removing three *properties* leaves `style=""` behind — a residue on a
-  // consumer-owned element and a real difference in an attribute-map
-  // comparison. Restoring the whole attribute answers that and the three
-  // property values at once: an element that arrived with `style="color:red"`
-  // gets that string back, and one that arrived with no `style` attribute ends
-  // with none.
-  //
-  // Registered here rather than at the top so a mechanics run that stops before
-  // the style block records no style undo at all. An undo for a write that
-  // never happened is not free — it is a `removeAttribute` on someone else's
-  // element.
-  willWrite(undo, placeholder, 'style');
-
   // Read once: `style` is an overridable accessor on a custom element, and a
   // consumer declaration's property setters are consumer code like any other.
   const { style } = placeholder;
 
   style.boxSizing = 'border-box';
-
-  if (!live()) {
-    return;
-  }
-
   style.width = `${width}px`;
-
-  if (!live()) {
-    return;
-  }
-
   style.height = `${height}px`;
 }
 
@@ -190,61 +70,32 @@ function applyMechanics(
  * Creates the operation's placeholder, **detached**. The behavior always
  * creates one; the `placeholder` config slot only customises the element.
  *
- * `live` is the library's own barrier and is **not** handed to the factory: the
- * reading that matters is the one between the factory returning and the
- * mechanics writing on the element it returned, and that one is taken here.
- *
  * `footprint` is what the visual removed from the layout, already computed
  * across the lift by the caller — see `activation.prepare`.
- *
- * `undo` is the rollback ledger, filled only for a `placeholder` slot's
- * element: the default `<div>` is dropped whole, so recording an undo for it
- * would be work no one can observe.
  */
 export function createPlaceholder(
   realm: DOMRealm,
   context: PlaceholderContext,
   footprint: OffsetBox,
   factory: PlaceholderFactory | null,
-  live: () => boolean,
-  undo: PlaceholderUndo,
 ): HTMLElement {
   const { item } = context;
 
   if (!factory) {
     const placeholder = realm.document.createElement('div');
 
-    // `null`, not `undo`: the library's own `<div>` records no rollback.
-    // Nothing outside this function has ever seen it, so discarding the
-    // reference undoes every write at once.
-    applyMechanics(placeholder, item, footprint, live, null);
+    applyMechanics(placeholder, item, footprint);
     return placeholder;
   }
 
   const placeholder = factory(context);
-
-  // The terminal barrier on the factory. The factory is consumer code, and
-  // everything below it touches consumer-owned elements: the adoption check
-  // reads `isConnected`, and `applyMechanics` writes attributes and inline
-  // styles onto the returned element, all overridable on a consumer's custom
-  // element. The mechanics carry their own readings; this one covers the
-  // factory itself and the adoption check between them.
-  //
-  // Returned unmechanized rather than thrown: a consumer destroying its own
-  // controller is not a library failure, and nothing here has been adopted —
-  // `activation.prepare` has published nothing and `preparationValid()`
-  // discards the whole preparation, so the element is dropped rather than
-  // inserted.
-  if (!live()) {
-    return placeholder;
-  }
 
   // Nothing checks the factory's result. It is adopted — activation inserts it,
   // every move relocates it, teardown removes it — and `config.ts` publishes
   // the detachedness requirement on the slot itself, as a documented boundary
   // rather than a guard. An author who ignores it hands the library ownership
   // of a node the page owns, and teardown removes it.
-  applyMechanics(placeholder, item, footprint, live, undo);
+  applyMechanics(placeholder, item, footprint);
   return placeholder;
 }
 

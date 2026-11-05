@@ -31,7 +31,7 @@ async function release(
   const { browser } = project;
 
   if (browser) {
-    await browser.provider.close();
+    await browser.provider?.close();
 
     for (const orchestrator of browser.state.orchestrators.values()) {
       orchestrator.$close();

@@ -14,6 +14,25 @@ Source of truth: [`contract/`](contract/) documents 00–06, read with the prece
 
 A new workspace, **`packages/drag2`** (`@ydinjs/drag2`), built alongside the shipped `@ydinjs/drag`. The shipped package is untouched for the whole plan; the merge back into `@ydinjs/drag` is **Phase 25** and is a separate decision, gated on the Part II roadmap rather than on the Part I sign-off.
 
+## Next owner-directed phase — terminology and comment clarity
+
+**Requested by the owner, 2026-11-04. Planned, not started.** Begin after the current D-208 work, its final review and whole-decision acceptance, and the current branch's PR and merge. Work starts on a new branch. This is a separate readability phase; it does not renumber the roadmap below or add work to D-208. The separately requested compression pass remains separate.
+
+**Goal.** Make the code and agent reports easier to understand for developers whose first language is not English. Improve names before using comments to explain them, remove unnecessary commentary, then simplify the English that remains.
+
+**Scope and order.**
+
+1. **Audit terminology and names, starting with a small kernel sample.** Check whether each important term is established platform vocabulary, a useful domain concept, or a local invention. Assess its meaning at call sites, consistency across names and comments, and whether it distinguishes something the implementation actually needs. Keep useful terms; propose clearer names for unexplained metaphors, conflicting terms and unnecessary synonyms. `startTail` and `runLeaf` are owner-supplied examples to assess, not approved renames. A glossary alone does not resolve an unclear name.
+2. **Use the sample to agree a short project variation of Simplified Technical English (STE).** Include before/after examples from this code. Prefer short sentences, active voice, concrete subjects, consistent terms, explicit references and little idiomatic language. This is a project writing guide, not a claim of formal STE compliance. Review the sample with the owner before extending the approach across drag2's kernel and behaviors.
+3. **Reduce comments before rewriting them.** Remove code narration, duplication and history that belongs in the record. Preserve non-obvious reasons, ownership constraints, ordering requirements and caller preconditions. Keep the distinction between published JSDoc and maintainer notes from [documentation.md](../../../.agents/docs/documentation.md). Length alone is not a deletion criterion.
+4. **Rewrite the remaining comments and JSDoc using the agreed vocabulary and English guide.** Align names and prose together. If a long explanation exposes a possible structural problem, report it separately rather than hiding a runtime redesign inside the wording pass.
+5. **Apply the same guide to agent instructions and future reports.** Added at the owner's request, 2026-11-04. Include [CLAUDE.md](../../../CLAUDE.md), [AGENTS.md](../../../AGENTS.md), the relevant [role definitions](../../../.claude/agents/), and the shared instructions for [reports](../../../.agents/docs/review-findings.md), [handoffs](../../../.agents/docs/handoff.md) and [coordination](../../../.agents/docs/agent-workflow.md). Simplify the instructions themselves and how they ask agents to write future reports and closing messages. Make completed work, evidence, uncertainty, decisions needed from the owner and the next action easy to identify. Preserve each instruction's meaning and role authority. Keep the project guide practical: use examples and flexible guidance, without adding rigid sentence limits, word bans, mandatory report sections or new approval and verification gates.
+6. **Give each object variant of a union its own type name.** Added at the owner's request, 2026-11-04, for this later phase only. Add the convention to [CONTRIBUTING.md](../../../CONTRIBUTING.md)'s TypeScript section: define each object variant as a separate named type, then compose the union from those names. For example, define `SettlementInputFulfilled = Readonly<{ ... }>` and the other variants before defining `SettlementInput`. Inline anonymous object variants are not the default form. Code that needs one variant should name that type directly rather than reconstructing it through utility types such as `Pick` or `Extract`. Utility types remain useful for actual transformations. Use `kernel/spec.ts`'s `SettlementInput` as the initial example; preserve discriminants, readonly fields, narrowing and exhaustiveness. Any proposed exception needs a concrete TypeScript reason, rather than a preference for fewer declarations. Keep type edits separate from prose edits and account for any published declaration or export changes through the existing architecture process. This request authorizes planning now, not a type migration in the current D-209 work.
+
+**Existing records stay as written.** The owner explicitly excludes rewriting or retrospectively checking existing journals, reports, decisions and measurement records for STE or terminology. Apply the guide to future writing; do not migrate the archive. Updating this planned scope does not start the phase or change the current reporting instructions.
+
+**Boundary and completion.** Preserve runtime behavior and the accepted lifecycle. Route any public API or SPI rename to the architect before implementation. Keep naming edits distinct from prose-only edits so review can assess their effects. Review the pilot and later batches for meaning and readability, with checks appropriate to the actual changes; do not commission statistical performance rounds for prose-only edits. The phase delivers reviewed names, fewer unnecessary comments, simpler remaining English, clearer agent instructions and future reporting guidance, and a short reusable writing guide. Record unresolved semantic or structural questions separately.
+
 ---
 
 # Part I — the vertical-sortable slice
@@ -2295,6 +2314,587 @@ The third round on the same page, and the third time a sweep bounded by a findin
 **F-247 — the wording class one directory over.** `sortable/spec.ts` still said the box travels as the "second half of the admission subject", after F-236's sweep reached `src/kernel/` and stopped.
 
 **The recurrence is the finding worth keeping.** Three rounds, three sweeps, each scoped to where the previous finding's evidence happened to point: F-232 named two sites and left F-236 one member away; F-237 named three and left F-244, F-245 and F-246 on the same page; F-236 swept `src/kernel/` and left F-247 in `src/sortable/`. A defect that is a _class of wording_ has no failing state and no instrument, so its boundary has to be drawn from where the wording can live — the whole surface, the whole package — rather than from the citations that surfaced it.
+
+---
+
+### 2026-11-05 — RF-26, RF-27 and RF-28 closed, gate 5a satisfied, and the merge waiting only on the owner
+
+**Closed.** RF-26, RF-27 and RF-28 on the recheck of `c15042847`, which independently confirmed their properties. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §36. RD-3 and RD-4 now state what is implemented.
+
+**Gate 5a is satisfied.** Every failure in the five recorded root runs is one `main` already has. `just test` still exits 1, so §35.8's exception stays the owner's, and it is the one remaining blocker. This record doesn't grant it.
+
+**Two tier C findings disposed.** A close failure under a reporter outside Vitest's base family gives exit 1 and may print nothing, which is an accepted limit. Every tracked route uses a base-family reporter, and the rule binding future routes is now in `test-architecture.md` and RD-2. The refusal's `--sequence.*` sentence is out of date since Vitest 5, and is RF-30: one sentence owed, not a gate.
+
+**Limits kept.** A close failure in the final group was not forced, and RF-26 doesn't claim it. F-447's three recorded failures still have no established cause. No statistical round ran.
+
+---
+
+### 2026-11-05 — RF-24, RF-25 and F-447 closed, and the branch's regressions against `main` handed off before the merge
+
+**Closed.** RF-24 and RF-25 on their properties. F-447 on its structural one: within the node project no test builds. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §35.2. The delayed reproduction demonstrates the overlap as a mechanism, and it does not establish the cause of the three recorded failures. §34.9's _the cause is excluded_ was wrong, and it is corrected there.
+
+**The baseline moved to `main`.** The upgrade to Vitest 5 is on this branch, so a failure at the unit's input can still be the branch's. Three are: a root run closes each provider 17 times per boundary (RF-26), `tproc`'s `DB/index.node` does not load (RF-27), and a failed build misreports itself and stops every package (RF-28). `main`'s own failures are RF-29.
+
+**Decided.** RD-3: the factory's projects set `extends: false`, which removes the 17 reporters at their cause. RD-4: a global setup hands a foreseeable failure to its project's files. Scratch readings hold for both, and no `src/` line or size row moves.
+
+**Next** is record §35.9, then one bounded recheck. **After that `just test` still exits 1 on `main`'s failures, so merging is an exception this record does not grant.** It is the owner's (§35.8). Terminology, comment reduction and compression stay separate and after the merge.
+
+---
+
+### 2026-11-04 — D-209 accepted at src tree `f6172d3be`, with F-446 and F-448 closed, and verification's restoration handed off
+
+**D-209 is implemented.** Its row and marker are gone, and F-446 and F-448 are closed. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §34. The diff, member lists, declarations, N1 and the whole suite were rerun at the tip. No source changed, and no review round or statistical measurement ran.
+
+**Two items settled.** The owner's suppression at `cfed5f9da` is recorded, and §33.11's _no lint_ holds at the accepted tree. (ae)'s `Promise.reject` spelling discharges the row, because it reaches the kernel as the same rejected promise and two mutations redden both spellings together.
+
+**What this does not say.** A, a3 and the owner's acceptance stay on tree `626180a05`. The kernel-tier wrong-label limit stays not driven.
+
+**The suite is not clean.** Next is record §34.9: RF-24, RF-25 and F-447, then the owner's merge. Scratch readings show what the first two need, and one trap: moving `browser.api` to `test.api` as Vitest's notice says fails 21 CDP rows. F-447 recurred in the recheck and stays open. Terminology, comment reduction and compression stay separate and after the merge.
+
+---
+
+### 2026-11-04 — D-209's independent review disposed: two silences named, F-448 raised, one remediation before acceptance
+
+**The review confirmed all six written properties and the recorded verification. D-209 is still not accepted.** Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §33.
+
+**Two silences are named, and neither stops anything.** A malformed `moveTo` is promised a classification only when the move is applied, and a move that is never applied is already silent on routes with no destruction. The input is outside the contract, so `CONTRIBUTING.md` §1.1's gate closes. Sortable's listener fault is in-contract, but only a synthetic event inside a library callback reaches it. §32.2's false enumeration is corrected, and every queue entry now has a stated outcome.
+
+**A rejection a cancel supersedes reports.** A round-trip slot that requests a cancel and then throws lost its fault, and D-209's walk reported it under destruction's code only if destruction followed. The second half is D-209's own defect and stops F-446's closing. The first is the accepted tree's silence, raised as F-448. D-209 is amended to decide both: `superseded-by-cancel`, after the terminal.
+
+**One remediation:** that route, the published warning texts, the README's overclaim, the settlement carrier's rows, the introduced lint error and the stale text. **Next:** the implementer at record §33.8, one targeted `reviewer` recheck at §33.12, then acceptance at §32.10. §32.10's attribution is corrected: independent review was required and has run.
+
+**A, a3 and the owner's acceptance stay on tree `626180a05`.** No round ran or is owed.
+
+---
+
+### 2026-11-04 — D-209 handed off, with the owner's merge order and its second fault carrier
+
+**The owner's order:** D-209 is implemented and accepted on this branch, then the verification infrastructure and browser test loading are restored, and only then is the branch merged. Terminology, comment reduction and compression stay separate. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §32.
+
+**Property 6 can be met, with no decision changed.** `#step`'s non-`LIVE` branch walks the undrained entries and each fault entry reports itself, so no class gains a field and the sample path does not change. A throwaway prototype showed this, with the whole suite moving only the three old pins and five exact controls, beside the known failures. No source is committed.
+
+**D-209 is amended, and the owner can overrule it.** A throw from `onReorder` or `onDrop` after a destruction request is a rejected settlement with no checkpoint, so property 1 as written left it silent. It now reports on the same terms.
+
+**A, a3 and the owner's acceptance stay on tree `626180a05`.** The merged tree will not be the measured tree, and D-209's record may not claim either of them for it. No round ran or is owed.
+
+**Minted:** RF-25, for the two unloadable browser files. **Next:** the implementer, at record §32.5.
+
+---
+
+### 2026-11-04 — D-208 accepted as a whole decision at src tree `626180a05`, with R33 (j)'s scope corrected
+
+**D-208 is implemented.** Its row and marker are gone, and F-432 to F-435 and F-441 are closed. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §31. §30.8's identity and declaration checks, N1's discrimination, the recorded tree and the failing set were confirmed by running them.
+
+**What stays:** retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04. a3 is not a1, not `discharged` and not proof of zero regression, and the acceptance sets no tolerance and is no precedent. No review round or statistical measurement ran, and no source changed.
+
+**Corrected:** R33 (i) and (k) cover both behaviors, (j) covers free drag and (l) runs through the kernel. Sortable has no `onMove` slot, so the earlier empty sortable probe never invoked a callback and is not evidence of its behavior. The original evidence stays, with dated corrections beside it.
+
+**Raised:** F-447. `consumer.node`'s sourcemap row recurred once, with 32 dangling entries, in a fresh tree's first whole-suite run. A build leaves exactly 32 declarations carrying the reference until its hook strips them, so a concurrent pack is the inferred cause. No run isolated it, and it does not bear on D-208.
+
+**Still open:** D-209 and F-446, tier A, separate from this acceptance and recommended first after the merge. **The merge is the owner's,** with the four `docs.node` rows (RF-24) and the two unloadable browser files still in the branch (§31.6).
+
+---
+
+### 2026-11-04 — D-208's final proof disposed: a discarded failure still owes a report, and one bounded remediation comes before acceptance
+
+**D-208 is not yet accepted.** The round at `ab65e92f2`, reviewed at `bd3613d5f`, found one contract question and text findings. No run shows a regression against the input. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §30.
+
+**reviewer-1 decided.** A slot that requests destruction and then throws reaches no `onError` from `onStart` or `onMove`, while `handle` and `home` report the same call. Equality with `6905af249` does not settle it: there the call closed the controller first, and `2c5212daf` later moved the two inline routes to reported. Destruction discards a checkpoint's claim on the operation, and its fault owes a `DraggableWarning`. That is D-209, with F-446 carrying the gap, and it lands as its own unit after acceptance.
+
+**What stays:** retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04. No round ran. N8's corrected result is 8 raw rows, 4 beyond the controls, and the original 517 is not evidence of its effect.
+
+**Disposed:** integrity-1 and integrity-2 go in one comment-only commit before acceptance. reviewer-2 and reviewer-3 are corrected in the record. integrity-3 is RF-23, the repository's, and RF-24 registers the blind `docs.node` rows. integrity-4 waits until after acceptance.
+
+**Next:** the implementer under record §30.8, then the architect's whole-decision acceptance, then the owner's merge.
+
+---
+
+### 2026-11-04 — D-208 remediation 6R closed: two text findings disposed, and composition and controls handed off
+
+**6R closes at `70368bfde`, src tree `c0713204a`. D-208 is not complete.** The recheck at `63f603f1a` finds no correctness defect, failed premise or record mismatch. M1, M2 and M3 redden 19, 11 and 2 rows, and the call counts match.
+
+**What stays:** retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04. The five literal cells, the nine allocation cells, the limits and the unanswered questions stay stated. M-1 carries to this tree.
+
+**The findings:**
+
+- **reviewer-2:** the wording of 05:253's precision was this record's error. It is corrected in this unit, and I-36 does not change.
+- **reviewer-1:** seven comment sites go to one comment-only commit, with no census. It is the freeze's one named exception, and its identity checks are mechanical.
+
+**Next, in order:**
+
+1. The implementer lands that commit and reads composition at the final tree, which must equal the table already read at `c0713204a`.
+2. The controls: a control is re-declared only if its whole interval is attributed, as a continuous chain of readings. An unattributed one stays red and named, and goes to the architect. Nothing is known yet about whether the six can be attributed.
+3. `d208-requests.md`, only when its prerequisites hold. Writing it reddens `decisions.node`'s witness row until acceptance, by design.
+4. The final proof in the consolidator's round, then the whole-decision acceptance, then the owner's merge.
+
+F-442, F-443, F-445 and the compression pass stay separate.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §29.
+
+---
+
+### 2026-11-04 — D-208 the owner's disposition: Q-a3 is not run, the allocation uncertainty is accepted, and the candidate goes to landing and a bounded recheck
+
+**D-208 is not complete.** The owner stopped the investigation of the small allocation uncertainty and accepted what M-2″ documents, including `moveTo`'s positive differences. Q-a3 is withdrawn, unrun.
+
+**What stays:**
+
+- **Retained heap A and allocation a3,** with the raw figures and their limits. a3 is not a1, not `discharged` and not proof of zero regression.
+- **The condition of 2026-11-03.** A demonstrated regression or retained-heap growth is not authorized.
+- **What is unanswered.** Whether the lean is a per-call cost or a lump, whether it follows the code, and the anonymous arrow's call count.
+
+**The scope:** the acceptance covers the candidate's code, src tree `c0713204a`. A change other than to comments stops at the architect. It sets no tolerance and is not a precedent.
+
+**Next, in order:**
+
+1. The implementer lands the diff byte for byte, with its required text, and stops. No rounds.
+2. An independent reviewer rechecks correctness, diagnostic semantics, R21, R33, the three mutations, the call counts and M-2″'s record against its raw file. No statistical rounds. Correctness defects are still reported.
+3. The architect closes 6R.
+4. Record §24.5 step 5 resumes, and then `d208-requests.md`.
+
+F-442, F-443 and the compression pass stay separate.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §28.
+
+---
+
+### 2026-11-04 — D-208 protocol M-2″'s outcome disposed: A and a3 stand, and one last bounded question comes before the owner is asked
+
+**D-208 is not complete, and nothing is authorized.** Retained heap reads A. Allocation reads a3, on `moveTo` in DEV: `k` 9 of 11, `m` 1.010 B against `r` 1.0 B.
+
+**Decided here:**
+
+- **A and a3 stand as read.** Rounding after the result would change acceptance, and it is not adopted.
+- **No regression is demonstrated, and none is excluded.** `moveTo` leans the same way in both projects. A post-hoc family test also finds a lean across the windows, with an exact `p` of about 0.002. It was chosen after seeing the data, so it raises the question and answers nothing.
+- **The anonymous-frame limit** affects only the drop cells, not the a3 cell. An exact call count closes it.
+- **Protocol Q-a3** is pre-registered, 104 runs, as the last measurement on a3: exact call counts in all ten windows, a 20,000-call `moveTo` window that separates a per-call cost from a lump, a known-allocation gate, and a byte-identical placebo tree in another worktree.
+
+**The owner may overrule** before the first round: if a3 is to go to the owner now, the disposition is sent with M-2″'s figures, and Q-a3 is not run.
+
+**Next:** the implementer builds the harness and runs Q-a3. `discharged`: the source lands, then its recheck and closure. `regression` or `uncertain`: no source, and an explicit disposition goes to the owner, to authorize a stated bound, direct a design change or commission a further named question. Step 5, the controls and `d208-requests.md` stay closed.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §27.
+
+---
+
+### 2026-11-04 — D-208 resumed 6R's measurement escalation disposed: an unmet criterion, no demonstrated regression, and a pre-registered protocol
+
+**D-208 is not complete, and nothing is authorized.** The shared-refusal candidate recovers 84 B per controller, and it keeps §25.5's properties as checked. It misses _in every round_ in two of twelve cells at 100 controllers, each on one low baseline figure. Nine allocation cells read above step 6's ranges, unpaired.
+
+**Decided here:**
+
+- **Unmet criterion:** yes, and it stays recorded as read.
+- **Demonstrated regression:** no. Growth is neither shown nor excluded. +104 B and +215 B are not residuals, so nothing goes to the owner to authorize yet.
+- **Unresolved uncertainty:** yes. The instrument's _one-sided noise_ premise is false, and F-445 is raised.
+- **Protocol M-2″** is pre-registered, with a fixed run count and no reading discarded: a same-tree control at both trees, a +4 B positive control, twelve governing rounds under a paired rule, two mechanism probes, and a paired allocation against the frozen input. _In every round_ gives way to the rule only if the same tree misses it against itself.
+
+**The owner may overrule** before the first round: if the literal clause is to stand regardless, the two cells go to the owner now.
+
+**Next:** the implementer builds the harness and runs the protocol. Target met and no other cost risen: the source lands, then its recheck and closure. Regression demonstrated: the residual goes to the owner. Otherwise uncertainty is reported, with no source and no more rounds. Step 5, the controls and `d208-requests.md` stay closed.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §26.
+
+---
+
+### 2026-11-03 — D-208 remediation 6R's escalation disposed: the kernel's own route need not be minted, and 6R resumes
+
+**D-208 is not complete, and nothing is authorized.** At its in-property variant, 6R recovered 19 to 21 B per controller. Mixed stayed +25 to +26 B and free drag +57 to +58 B above the baseline at 100 controllers.
+
+**Decided here:**
+
+- **The kernel's own route** must apply the one refusal, written once. D-208 never required that route to be minted through `channel()`. The record's _every diagnostic passes through a minted channel_ overstated D-208, and it is corrected. D-208 is not amended.
+- **R21's census** may be re-pinned once, to the refusal's one new location. That admits B′'s form.
+- **No residual goes to the owner yet.** The prototype that reached the target wrote the refusal twice, and the in-design candidate is unmeasured.
+
+**Next:** 6R resumes with the shared-refusal candidate, three mutations and 05:253's precision. Then come its recheck and closure. If the candidate misses the target, the residual goes to the owner.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §25.
+
+---
+
+### 2026-11-03 — D-208 step 6's escalations disposed: ceilings re-base, M-2's retained heap is recovered, and two baseline defects are split off
+
+**D-208 is not complete.** Step 6 measured every item and raised three escalations. The owner has disposed of the four overruns, 2026-11-03: _Rebase the size budgets to the current architecture under the standing budget policy. A compression pass will happen separately, after this phase. This decision does not accept runtime regressions or retained-heap growth._
+
+**Decided here:**
+
+- **Ceilings** re-base now at the frozen tree, to figure plus 150 B on the thirteen package rows. **Controls** stay exact and are re-declared once, at the end, only where their interval is attributed.
+- **M-2's** +8 B and +78 B per controller are a retained-heap regression the owner has not accepted. Remediation 6R recovers them from what D-208 added, keeping D-208's properties, or brings the residual to the owner.
+- **M-1's** free-drag lean is neither noise nor a regression yet. A pre-registered protocol settles it: 0.05 µs resolution, a quiet host, two primary arms and a fixed sign-test rule.
+- **F-443:** the action queue regrows its store every sample, against three source comments. The fix is to the code, after D-208's acceptance.
+- **F-444:** the heap-growth reading bounds retention, not allocation. Its claims get dated corrections now. I-26 is stated as measured bytes, with no per-sample difference from D-208.
+
+**Next**, in order:
+
+1. the ceiling re-base;
+2. F-444's corrections;
+3. M-1's follow-up;
+4. remediation 6R, with its recheck and closure;
+5. remeasurement and controls;
+6. `d208-requests.md`.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §24.
+
+---
+
+### 2026-11-03 — D-208 remediation 5R.1 closed: the source freeze starts, and step 6 may measure
+
+**5R.1 is closed at `7f1900ccf`, and D-208 is not complete.** The delta recheck found no defect at the closing commit's four sites, and every keep-list item held. The cancel's source is stated as the class states it, I-31's _only then_ is qualified, and L-2 cites I-31.
+
+**The `src/` freeze starts at this closure,** at `7f1900ccf`'s tree `4630579d2`. Its witness is byte equality of that tree until the whole decision is accepted. A source defect found from here goes to the architect, and step 6 does not fix it.
+
+**Decided here:** step 6 measures now, into its own working record, `d208-step6.md`. `d208-requests.md`, the witness, is written last, and only when the evidence is complete and the owner's dated disposition of the four overruns is present. Without the disposition, step 6 stops and reports itself blocked.
+
+**Not decided here:** F-442 stays open at tier B, due before Phase 24 exits. The four overruns stay the owner's, neither tolerated nor re-based.
+
+**Next:** step 6's measurements; then `d208-requests.md`, once both conditions hold; then step 6's feature proof; then the whole-decision acceptance.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §23.
+
+---
+
+### 2026-11-03 — D-208 remediation 5R.1 assessed: one closing commit before the source freeze
+
+**5R.1 is not closed yet, and D-208 is not complete.** Its recheck confirms that items 1–3 meet their requirements and change nothing at runtime, in composition or in the published declarations. One introduced comment defect remains: 5r1-A, a list of the class's cancel sources that reads as exhaustive and omits the axis installer's `invalidate`.
+
+**Decided here:**
+
+- **5r1-A** is corrected before closure, because the source freeze starts there. The text states the source as the class does, and names any source only as an example.
+- **I-31's _only then_ (05:199)** gets a dated qualification naming the admitted class. Leaving it false until F-442 is decided is not needed, and qualifying it decides nothing.
+- **07's L-2** becomes a citation of I-31, as D-83 already requires. That makes no claim about free drag.
+
+None of these decides F-442. No list of the class's cancel sources is certified exhaustive.
+
+**Next:**
+
+1. the closing commit, at four named sites;
+2. a delta recheck of that commit only;
+3. the architect's dated closure;
+4. step 6.
+
+The four overruns are still the owner's, before `d208-requests.md` is written.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §22.
+
+---
+
+### 2026-11-03 — D-208 remediation 5R accepted, with a comment-only follow-up before step 6
+
+**5R is accepted at `2d17645f5`, and D-208 is not complete.** The bounded recheck found no implementation blocker:
+
+- items 1–5 change no runtime statement, and item 6 removes exactly the unreachable guard;
+- step5-A and step5-C are discharged, and both published `requestDestroy` JSDoc blocks name I-36's two exceptions;
+- the 68-line supplementary census reproduces, with no E.
+
+**Decided here:**
+
+- **Item 6's Brotli growth.** It is +20, +11 and +1 B on three sortable rows, against −9 B minified on every one. Item 6 is kept, its joint measurement is booked to it, and nothing is re-based. Restoring a branch on an impossible `null` to recover a compression artefact is not a trade the size policy makes.
+- **Source citations.** The gate forbids record identifiers in `src/`, and the implementer's reading of it is confirmed. §20.4's request for a source citation was wrong, and it carries an erratum.
+- **The admitted gap is a class.** The recheck found a second two-fault path to a terminal callback without a start notification. Here the landing reports the library's own `TypeError` as a warning's cause. F-442 is widened to the class and re-tiered B. Its owner and deadline are unchanged. D-208 changed no published outcome on it, so D-208's completion does not wait for F-442.
+
+**The text is a factual fix, and it lands before step 6's source freeze.** Remediation 5R.1 is comment and contract text only. It covers:
+
+- the five places that say the gap is unique, or rely on that;
+- 5r-B, a probe name in a source comment;
+- 5r-C, unwrapped lines.
+
+**Size.** No re-base. The four overruns are still the owner's, before `d208-requests.md` is written.
+
+**Next:**
+
+1. 5R.1, then its bounded recheck and closure;
+2. step 6, the measurement record;
+3. step 6's feature proof;
+4. the whole decision's acceptance.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §21.
+
+---
+
+### 2026-11-03 — D-208 step 5 accepted: the comment pass, with remediation 5R before step 6
+
+**Step 5 is accepted at `0ba8afb64`, and D-208 is not complete.** The step-5 feature proof found no step-5 blocker:
+
+- all 31 modules are runtime-equal by two instruments, and all 15 composition rows are byte-identical;
+- step4-A's passages and step4-C's sentences are amended, and the census of 269 lines reproduces exactly;
+- step4-B's three corrections are accurate;
+- R34 discriminates both copies.
+
+**The postcondition is qualified.** Every comment in the step's files states what the code does now, except at these sites, which 5R discharges before step 6 starts:
+
+- **step5-A**, a rewrite that names a `finally` exit that no longer exists;
+- the pass's **14 escalated source sites**;
+- the **four escalated contract lines**;
+- the twins found beside them.
+
+**Two items are more than wording:**
+
+- **step5-C**: both controllers' published `requestDestroy` JSDoc says no declared consumer slot is invoked after application. It omits I-36's two exceptions, the retire hooks and panic's report. It is a factual fix, due in 5R, and never later than the whole decision's acceptance.
+- **Escalation #1**: `admitCommand` keeps a guard that step 4's barrier removal made unreachable. It is removed in its own 5R commit, which changes no reachable outcome.
+
+**Decided here.** The census's class N is ratified as the search's false positives. step3-B and step4-B are closed.
+
+**One behavioral question is split off.** The sortable's admitted two-fault gap stayed open because closing it needed a "started" flag, and that flag now exists. Whether to close the gap is raised as F-442, due before Phase 24 exits, and it is not D-208's.
+
+**Size.** No change. The four overruns are still the owner's, before `d208-requests.md` is written.
+
+**Next:**
+
+1. 5R, then its bounded recheck and acceptance;
+2. step 6, the measurement record;
+3. step 6's feature proof;
+4. the whole decision's acceptance.
+
+Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §20.
+
+---
+
+### 2026-11-02 — D-208 step 4 accepted: surface and behaviors
+
+**Step 4 is accepted at `dbbb62199`, and D-208 is not complete.** The step-4 feature proof found no step-4 blocker and reproduced all eleven mutation counts.
+
+- The requests are renamed `requestDestroy` and `requestCancel`, with no alias.
+- `BehaviorContext.closed` and every `live()` are gone, and no module outside `src/kernel/` reads the lifecycle.
+- The four diagnostic-intake reads are replaced by kernel-minted channels, whose refusal is written once.
+- `moveTo` captures its argument, and `bounds()` and the landing tail copy what they read.
+- Every row from steps 1–3 stays green.
+
+**Size.** Four rows are over unchanged budgets: free drag + bounds by 72 B, + landing by 12 B, complete by 52 B, and the kernel root by 8 B. `bounds()`'s copy and the landing tail's read, which §2.12 requires, cause three of the four, and the channel most of the kernel root's. **The owner disposes of them before `d208-requests.md` is written.** This acceptance neither tolerates nor re-bases them, and step 2's tolerance does not cover them. The architect recommends tolerating them.
+
+**Runtime.** Allocation is measured equal at both trees, and the sortable's is zero per sample. No timing difference is resolved at about 0.2 µs.
+
+**Findings.**
+
+- **step4-A**: contract passages §17.4's list missed still state the withdrawn barriers. They are amended in step 5, with a census.
+- **step4-B**: step3-B's record correction is overdue. It is the implementer's, due as step 5's first commit.
+- **step4-C**: D-208 now distinguishes direct lifecycle access, which only the kernel has, from indirect observation through any refusing intake, which a minted channel also allows and R21 cannot see. Decided in place, with no new decision.
+- **step4-D**: the feature proof's allocation measurement discharges step 4's requirement. Free drag's absolute figure and the committed move go to step 6.
+
+Case R34 is added for the two copies. Steps 5 and 6 remain, the witness holds, F-432 to F-435 and F-441 stay open, and D-200's acceptance is still pending. Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §19.
+
+---
+
+### 2026-11-02 — The behaviors' diagnostics keep the kernel's refusal (D-208, F-441)
+
+**D-208 supersedes D-207 during step 4 and carries it in full**, including steps 1–3 as accepted, their dispositions and the owner's size tolerance. It changes how step 4 treats four of the 27 `kernel.closed` reads in the behaviors. The other 23, and every `live()` read, are still removed.
+
+**The implementer escalated under step 4's first clause.** Four of the reads are diagnostic intake, not readings inside a unit: both behaviors' `#notify` channels and both composition `report` closures, which installers receive as `FeatureContext.report`. They are reached after applied destruction, in teardown and from a late installer report. Removing them would deliver `drag: unwind/step-failed` for a throwing retire hook and `drag: composition/unwind-failed` for a late report, where the baseline delivers neither. That breaks I-36 (a) and D-178's grounded teardown silence, and D-207 had removed `BehaviorContext.closed`, the behaviors' only route to a refusal.
+
+**The decision.**
+
+- The baseline's outcome is required on every path.
+- The kernel owns the refusal, and the behaviors reach it through a new `BehaviorContext.channel(deliver)`. It delivers until destruction is applied, drops afterwards, absorbs a throw from the sink and works before arming, so the pre-arm composition unwind is still delivered.
+- The refusal reads only **applied** destruction, so its answer is constant across every unit. That is what separates it from a reading inside a unit, and a mutation that also reads a destruction request is the check.
+
+Case R33 is added and lands in step 4. The witness is now `measurements/d208-requests.md`, and step 4's record is `measurements/d208-step4.md`. Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §18, with §17.4 amended.
+
+---
+
+### 2026-11-02 — D-207 step 3 accepted: kernel requests
+
+**Step 3 is accepted at `ef1e4ef6b`, and D-207 is not complete.** The step-3 feature proof found no step-3 blocker and reproduced all eleven mutation counts.
+
+- No unit reads the ledger after its entry.
+- Rollback and the sortable's D-39 ledger are deleted.
+- The cancel phase rule, supersession at intake and activation's held-cancel clause hold.
+- Every step-1 and step-2 row stays green.
+- step2-A, step2-B and reviewer-F close.
+
+**Size and runtime.** Composition shrinks on every kernel-carrying row, and the 13 rows step 2 left over budget are under it, with no re-base. Allocation is measured at zero per sample. No timing difference is resolved at about 0.1–0.2 µs, and code analysis predicts no regression. Steps 4–6 remain, the witness holds, F-432 to F-435 stay open, and D-200's acceptance is still pending.
+
+**step3-A is decided in place.** A cancel raised in the release seam's `prepare`, or in a behavior action's, now commits the preparation and runs its effect, as it does for activation. That is §2.11's rule, not a new requirement. §4 item 3 now states all three seams:
+
+- the release path gives a custom placeholder one more move;
+- in the sortable, a cancel requested from `items()` no longer throws away the collection it returned.
+
+Case R32 pins both and lands in step 4. The escalation clause now names what a published outcome is: a callback, a promise, or the state after application. A behavior seam's own trace is SPI, governed by §3 and I-16.
+
+**step3-B** (Tier B, the ledger census misses `idle`) and **step3-C** (Tier C, the published `rollback` removal understated) stay with the implementer. step3-B is repaired before step 4's R21, or any acceptance, relies on the census.
+
+Step 4, surface and behaviors, is next. Its bounded handoff is in [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §17.4.
+
+---
+
+### 2026-11-01 — A held cancel declines activation (D-207, F-440)
+
+**D-207 supersedes D-206 during step 3 and carries it in full**, including steps 1 and 2 as accepted, their dispositions and the owner's size tolerance. It adds one clause. The unit that would enter activation, `ACTIVATE` or `MOVE` at `PENDING`, declines at its entry while a cancel for its operation is registered, and the queued `CANCEL` retires the operation silently.
+
+**The implementer escalated under step 3's first clause.** In the keyboard row _should enqueue an invalidate() rather than drain it_, collection work queued during `command.admit` registers a cancel at `PENDING` behind `ACTIVATE`. The baseline discarded the activation through `#preparationValid`, and the drag ended silently. Once step 3 deleted that read, `onStart` was delivered and then `canceled` at `AT_PROPOSAL`. The architect reproduced the `onStart` on the uncommitted tree. For a command every cancel registered at `PENDING` lands behind `ACTIVATE`, so without the clause §2.6's `PENDING` row is unreachable on that path. The clause is the entry rule `START_COMMITTED` and `OPEN_RESOLUTION` already apply. A cancel raised inside the activation unit still gets `onStart` and then `canceled` (R3).
+
+Case R31 is added. It lands in step 3, in the same commit as the revalidation's deletion, and the keyboard row stays unchanged. The witness is now `measurements/d207-requests.md`, and step 3's record is `measurements/d207-step3.md`. Record: [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §16, with §15.3 amended.
+
+---
+
+### 2026-11-01 — D-206 step 2 accepted: the split and capture
+
+**Step 2 is accepted at `877fb9612`, and D-206 is not complete.** The step-2 feature proof finds no step-2 blocker. The `Kernel` façade and the armed controller, capture at unit entry, teardown written once, and no module-level mutable binding hold as D-201 properties 3, 4, 10 and 12 state them. Every step-1 row stays green. The architect reran `run.sh` and `capture.node` at the tip, with the same result. Allocation stays at zero per sample. No timing difference is resolved at about 0.1 µs, and none is predicted above call-overhead scale. Steps 3–6 remain. The witness holds, F-432 to F-435 stay open, and D-200's acceptance is still pending.
+
+**Thirteen Brotli budget rows stay red, 11 to 77 B over.** Under the owner's ruling this is step 2's tolerated size cost, and no budget is re-based. A later step reports its own growth against the unchanged budgets, and the owner decides at that step's acceptance.
+
+**The review's three findings:**
+
+- **step2-A** (Tier B): the object-valued constant census misses seven type-asserted constants. It is the implementer's and is repaired before `d206-requests.md` is written. The decision's acceptance does not rely on the census until then;
+- **step2-B** (Tier C): the record counts the façade hop as an added call. It is the implementer's, with the same boundary;
+- **step2-C** (Tier C): 05 names `Kernel.#panic` in a dated amendment and in a quoted original. Neither is edited, and step 4's I-36 rewrite names the panic diagnostic by its route.
+
+Step 3, kernel requests, is next. Its bounded handoff is in [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §15.3.
+
+---
+
+### 2026-11-01 — D-206 step 1 accepted; F-438 and F-439 closed
+
+**Step 1 is accepted at `44e2074f1`, and D-206 is not complete.** The step-1 feature proof's recheck finds no step-1 blocker. Reviewer-A to reviewer-D are resolved. The step's cases are rows through the running controller. The failure clause is implemented as D-206 states it. The architect reran `run.sh` and the five R30 rows at `e9eaf657c`, with the same result. F-438 closes: R5 and R28 are held by order, and the inline-open mutation reddens them. F-439 closes: four R30 rows redden without the clause or its registration. Steps 2–6 remain. The witness holds, F-432 to F-435 stay open, and D-200's acceptance is still pending.
+
+**D-206's mutation requirement is amended in place.** It now covers the R30 rows whose outcome the clause decides. On the `invoke: null` row, removing the clause is an equivalent mutant: the skipped settlement queues behind `FAILED`, and only `invoke` marks `RESOLVING`. The row stays as an outcome and regression row. The clause's scope is unchanged.
+
+**The recheck's three Tier C items:**
+
+- reviewer-G, the stale unimplemented row, is repaired;
+- reviewer-E, the `seams.node` comment, is the owner's;
+- reviewer-F, two census counts, is the implementer's.
+
+E and F do not gate step 2, which is next. Its bounded handoff is in [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §14.4.
+
+---
+
+### 2026-11-01 — D-206 step 1: the failure clause and R30
+
+**Step 1's implementation is complete, and it is not accepted.** `#failOperation` now records on the operation record that it queued a checkpoint. A demoted failure records nothing. `OPEN_RESOLUTION` declines while that record is set, the `invoke: null` command included. R30 lands against the real controller: three kernel rows (synchronous, asynchronous, `invoke: null`) and P8's throwing path in the sortable with both resolvers. Each asserts the full decided outcome, with no `onReorder`, `onError` at `FAILURE_ACTION_PREPARE`, and `canceled` at `AT_PROPOSAL` with origin `failed`.
+
+**Mutations.** Removing either the clause or the registration reddens four rows. The `invoke: null` row cannot redden: the skipped settlement queues behind the `FAILED` already in the queue, so that mutant is equivalent. +79 B minified, +20 to +42 B Brotli on the kernel-carrying rows. Record [`measurements/d204-step1.md`](measurements/d204-step1.md) §D-206. Step 2 is not started, and the targeted recheck of step 1 is the original reviewer's.
+
+---
+
+### 2026-11-01 — A registered failure declines the round-trip (D-206, F-439)
+
+**The step-1 checkpoint's escalation is decided.** The inventory found one producer whose new position changes a published outcome. A custom placeholder's `connectedCallback`, run by the sortable's release move, calls `invalidate()`, and the collection work then fails in `items()`. Its checkpoint lands behind `OPEN_RESOLUTION`, and under D-205 the round-trip opened anyway. With a synchronous resolver the terminal moved from the baseline's `accepted` with a late `onError` to `canceled` at `AT_CONSUMER`. The new probe P8 reproduces both trees in Chrome.
+
+**D-206 supersedes D-205 and adds one clause.** `OPEN_RESOLUTION` also declines while a failure checkpoint for its operation is registered and unapplied, completing the round-trip guarantee for I-22's three terminal requests. The required outcome for either resolver is no `onReorder`, then `onError`, then `canceled` at `AT_PROPOSAL` with origin `failed`. Three alternatives were declined:
+
+- accepting the checkpoint's outcome, which opens a consumer transaction the kernel has already doomed;
+- keeping the synchronous `accepted`, which needs the round-trip ahead of the release unit's queued work;
+- silencing the sortable's collection action at `RELEASING`, which covers one producer.
+
+Case R30 is added and runs in the model, where it discriminates against D-205's conditions. The clause and R30 complete step 1 before step 2. The checkpoint is not accepted by this. The witness is now `measurements/d206-requests.md`. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §13.
+
+---
+
+### 2026-11-01 — D-205 step 1 checkpoint: the round-trip's own unit, and one escalation
+
+**The release unit no longer opens the consumer round-trip.** It holds the staged command in the attempt slots and queues `OPEN_RESOLUTION`. That unit opens the round-trip only for the current operation, still `RELEASING`, not yet opened, with no cancel registered. A cancel's stage is `AT_CONSUMER` exactly when that unit reached `invoke`. R4, R5, R6, R22, R28 and R29 are browser tests whose requests come from seams the running controller drives, and R4, R5, R22, R28 and R29 are red at `2c5212daf`. The step-1 review's reviewer-B (a post-panic `destroy()` promise that never settled), reviewer-C (a census undercount) and reviewer-D (two stale texts) are repaired. +273 B minified, +20 to +59 B Brotli on the kernel-carrying rows. Record [`measurements/d204-step1.md`](measurements/d204-step1.md) §D-205 checkpoint.
+
+**The `release.effect` inventory met §8's first escalation clause, and the checkpoint stops there.** Under a sortable placeholder whose `connectedCallback` calls `invalidate()` during the release move, a throwing `items()` and a synchronous `onReorder`, the terminal moves from `accepted` with `onError` to the failure's `canceled` with `onError`. The collection action's failure now lands ahead of the settlement. The contract is not amended to accept it, F-438 is not closed and step 2 is not started. The architect decides against this fixed tree.
+
+---
+
+### 2026-11-01 — The consumer round-trip's own unit moves into step 1 (D-205, F-438)
+
+**The step-1 feature proof found a regression between steps.** Step 1 made `closed` report `CLOSED` only, so no reader inside a unit sees a destroy request any longer. The consumer round-trip still ran inside the release unit, behind a staging conditional that had relied on that reading, and its move to its own unit was booked for step 3. A destroy requested in `release.prepare` or `release.effect` therefore opens `onReorder` at `2c5212daf`. Neither the baseline nor D-204's target makes that call. P5 and the new P7 show it in Chrome on both trees. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §12.
+
+**D-205 supersedes D-204 and changes the step order.** The round-trip's own unit lands in step 1, before step 2. It brings its operation-scoped carrier, its full entry condition, the cancel stage rule and the `release.effect` inventory. Step 3 keeps the deletion of in-unit readings. Three alternatives were declined:
+
+- a stopgap request reading in the release unit, which would undo the owner's separation for two steps;
+- accepting the interval;
+- reverting `closed`.
+
+**Property 13 governs every landed step.** The consumer calls on each case's path match the baseline's or the target's, never a call both withhold. Cases R28 (destroy in `release.prepare`) and R29 (destroy from an action `release.effect` dispatched) are added and run in the model. The model's step-1 mode shows that R5 and R28 discriminate. The witness is now `measurements/d205-requests.md`.
+
+---
+
+### 2026-11-01 — D-204 step 1: the runner and construction
+
+**Requests now apply at unit boundaries in the bracket, and construction is one unit.** `ExecutionBracket` holds a three-state lifecycle request. `destroy()` applies at once with no unit running and otherwise when the running unit ends. Units do not nest, so native ingress is refused while one runs, with the click disarm behind the same refusal (F-433). The post-admission drain is unconditional. Panic stays the one immediate application. `draggable()` runs as one unit through `Kernel.construct`, so a destroy requested in a factory is applied after publication, and no operation can be minted inside construction (F-432). Window `dispatch` is queued unchecked under D-204 property 12. Cases R1's construction and drain half, R9–R11, R13, R15, R17 and R23–R27 are tests against `src/`. Record [`measurements/d204-step1.md`](measurements/d204-step1.md), with the composition figures (+68 B minified, +7 to +39 B Brotli on the kernel-carrying rows).
+
+**`closed` reports `CLOSED` only, so in-unit destroy readings stop early.** 22 browser rows that pinned D-36's same-unit outcome are revised to D-203's: the requesting unit completes, then application. The machinery those readings fed is deleted at steps 3 and 4.
+
+---
+
+### 2026-11-01 — A dispatch tag is checked at armed intake only (D-204, F-437)
+
+**D-203 step 1 found a contract gap in the construction window.** R17 queues a `dispatch` from the behavior factory and applies it after publication. The SPI says an out-of-range tag is reported and dropped, never enqueued. In the factory body the spec, and with it `config.actionTags`, does not exist yet, so that check cannot run. Today the conflict is invisible because every construction-window dispatch is dropped silently. Probe P6 records this. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §11.
+
+**D-204 supersedes D-203 and adds one property.**
+
+- Armed dispatch keeps its intake check and its `dispatch/tag-out-of-range` report, unchanged.
+- A construction-window dispatch is queued with its tag unchecked. An out-of-range tag there has no specified outcome.
+- No check runs at application. The bound is fixed for the controller's life, and a check there would run on sortable's per-frame spatial action.
+
+**The line it draws.** Under CONTRIBUTING §1.1 an out-of-range tag is integrator misuse: the author declares both the tags and their count. Under §13 the armed report is a documented outcome and stays a promise until F-97 decides otherwise. The window never carried that promise, so D-204 declines to extend it rather than withdrawing anything. Validating window entries at publication is recorded as the owner's fallback, if "preserve separation" is meant to cover misuse in the window.
+
+Cases R23–R27 land in step 1, with the `dispatch` text in 01 and `spec.ts`. R25 is the first test of the armed report, which no test covered. The witness is now `measurements/d204-requests.md`.
+
+---
+
+### 2026-11-01 — The round-trip guarantee gets its entry condition (D-203, F-436)
+
+**The coordinator's handoff check found that one D-202 promise did not follow from its ordering.** D-202 said no consumer round-trip opens after a cancel against its operation is registered, and credited FIFO. But a behavior action that `release.effect` dispatches runs ahead of the queued `OPEN_RESOLUTION`. A cancel it requests sits behind `OPEN_RESOLUTION`, so `onReorder` ran and the cancel settled at `AT_CONSUMER`. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §10, from [`request-ordering-coordinator.md`](reviews/architecture/request-ordering-coordinator.md).
+
+**D-203 supersedes D-202 with one entry condition.** `OPEN_RESOLUTION` declines while a cancel for its operation is registered. This is the same reading at a unit's entry that `START_COMMITTED` already makes, so nothing inside a running unit reads the ledger. The cancel then applies at `RELEASING` with `invoke` never called, and the consumer gets one `onEnd` `canceled` at `AT_PROPOSAL`. Declining cannot strand the operation, because only the held cancel's own entry consumes it.
+
+Two alternatives were rejected. Weakening the promise would let a consumer see `onReorder` after its own cancel. Giving cancel priority would reorder every cancel against queued actions.
+
+The reference model gains R22, which also reproduces D-202's failing trace. The coordinator's reproduction now exits 0. The six steps are unchanged, and the witness is `measurements/d203-requests.md`.
+
+---
+
+### 2026-11-01 — Requests and their application: no unit reads a request after its entry (D-202, F-435)
+
+**The owner's follow-up, answered.** Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md), at `6905af249`. A request records an intention, and the library applies it at a unit boundary: after the running unit, or before the call returns when none runs. D-201 kept `destroy()` closing the latch on the calling statement and `cancel()` latching on the operation. It then read both inside the unit, at four publication points and at event sinks. At each of those points a request changed the running unit's later calls. Probe P5 records this in today's code, in Chrome: a cancel in `activation.prepare` rolls the transition back, and a destroy there reads `closed=true` on the next statement.
+
+**D-202 supersedes D-201 and keeps its structure.** It keeps the units, capture at entry, the ingress refusal (F-433), construction as a unit (F-432), the split into a façade and an armed controller, and D-199's carried rules. What changes:
+
+- Destruction is requested and then applied in one step, with logical and physical closure coinciding.
+- A cancel registers only in phases where it can act (F-434), applies FIFO, and lapses if its operation is decided first.
+- The consumer round-trip opens in its own queued unit, so no round-trip opens after a request against its operation.
+- The cancel stage is `AT_CONSUMER` only once `invoke` ran. That decides **F-435**, a new tier-A defect P5 found: a cancel in `release.effect` reported `AT_CONSUMER` for a drop the consumer never saw.
+
+**What this deletes.** No preparation can be invalidated, so `rollback` leaves the SPI and the sortable's D-39 ledger goes with it. No callback can change the lifecycle a unit sees, so `BehaviorContext.closed` and the feature `live` hooks leave the surface, and D-201's participation-slot tradeoff disappears rather than being decided. `destroy()` and `cancel()` become `requestDestroy()` and `requestCancel()`. `invalidate()` and `moveTo()` keep their names, and `moveTo` now captures its argument.
+
+**Evidence is in the repository.** Probes P1, P2, P4 and P5, and a reference model executing R1–R14, are in [`probes/snapshot-units/`](probes/snapshot-units/), with `run.sh`. The browser probes ran with the project-configured Chrome. Booked to Remediation in six steps. The witness is the absence of `measurements/d202-requests.md`.
+
+---
+
+### 2026-11-01 — Snapshot semantics for internal call sequences: execution units, four publication points, event sinks (D-201, F-433, F-434)
+
+**The owner's narrowed mandate, answered.** Record [`snapshot-units-claude.md`](reviews/architecture/snapshot-units-claude.md), at `0ed5483a0`. Once a unit starts, mutation of its originating state must not change the inputs, receivers or targets of its later internal calls. The kernel's guards sort into three families: context, control and publication. Only publication belongs in the design. The context family exists because three gaps break an exclusivity the bracket otherwise already provides: construction runs at depth 0; ingress is refused only during admission; and the click disarm runs ahead of the refusal. The control family exists because one latch reading answered both _should the next call happen_ and _are its inputs still valid_.
+
+**Two live defects came out of the classification, both reproduced.** F-433: a press dispatched from inside a running unit opens a second admission underneath it. Probe P1 shows the outer `prepare`'s draft changing mid-call, the outer commit republishing `IDLE`, and listeners leaking. F-434: a late `cancel()` inside `anchorTarget` strands the operation in `SETTLING`. Probe P4, in Chromium, shows no release, no `onEnd`, no retirement and no further admission. That second failure was caused by a guard: the liveness predicate treated a cancel request as an answer about liveness.
+
+**D-201 decides four things.** Units run at depth ≥ 1, construction included. A unit captures its controller, operation and action context at entry. Lifecycle state is read only at unit admission, at four publication points (seam commit, round-trip opening, admission publish, controller publish), at request intake and at event sinks. `Kernel` splits by lifetime into a façade and an armed controller, which keeps the handlers with their shared state and so answers D-199's objection to a split. D-199 is superseded, and its extraction rule, teardown deduplication and comment pass carry forward. F-432 becomes unreachable.
+
+**One promise is revised, and it is flagged for the owner.** I-36 (a)'s per-invocation latch reading is itself a guard on the call sequence. Event slots (`onStart`, `onEnd`, `onError`, `onMove`) keep the promise through one sink per route. A participation slot left in a running unit may run after a `destroy()` raised by an earlier slot of the same unit, and nothing is published afterwards. The fallback, splitting those sites into queued units, reorders work and is the owner's call if the revision is refused. Booked to Remediation in six steps, each with its own cases from E1–E12 and the contract text it makes true. The witness is the absence of `measurements/d201-units.md`.
+
+---
+
+### 2026-10-31 — D-200 implemented: `Lifetime` and `ActionQueue` are classes, in two steps
+
+**The owner's two scratch files are integrated and deleted.** `src/kernel/lifetimes.ts` holds the `Lifetime` class, and `LifetimeScope` is a declared interface with `readonly signal` and method-syntax `use`. `useWhile` is gone, and `#openResolution` registers a `use` whose disposer tests `!attempt.completed`. `src/kernel/queue.ts` holds the `ActionQueue` class: one interleaved array, `add`, `apply` and an in-place `clear()`. `ExecutionBracket` drains through `apply` with a `#step` minted once per bracket, which reads the latch before each action. Measurement [`d200-classes.md`](measurements/d200-classes.md).
+
+**Each step has its own figure, and neither is zero.** The lifetime cost +79 B minified on every kernel-carrying row. The queue recovered −28 B. Shipped bytes moved −21 B to +6 B Brotli jointly, and no graph gained or lost a module. A per-dispatch probe found the new drain no slower.
+
+**Two things are routed back rather than decided here.** Property 1's second reason for truncation does not hold for this `apply`. The decision stands on the first reason, so nothing changes, but the record and [`d200-lifetime-queue-classes-claude.md`](reviews/architecture/d200-lifetime-queue-classes-claude.md) §The hot path still state the claim. Six `bench/size` controls were already red at the baseline, with drift not attributable to D-200, so they were neither re-based nor read here.
+
+---
+
+### 2026-10-31 — `useWhile` leaves the SPI, and `Lifetime` and `ActionQueue` become classes (D-200, F-274)
+
+**The owner's call, from two scratch files.** Record [`d200-lifetime-queue-classes-claude.md`](reviews/architecture/d200-lifetime-queue-classes-claude.md), at `01d88645f`. `useWhile` had one caller, the kernel's own, on the one lifetime no behavior is handed. So it leaves `LifetimeScope`, and the guard it carried moves into the disposer at the call. That closes F-274 by removal rather than by making the member receiver-free.
+
+**D-170's grading is amended, not overruled.** `Lifetime` was graded a handle with no invariant spanning two fields, but `finalized` gates every write to the disposer stack. `ActionQueue` was the deliberate outlier, but the bracket indexed its two public arrays from outside, which is what §The ownership boundary forbids. D-180's line between storage and policy carries forward: the queue gains iteration, and the decision to stop comes back through the callback.
+
+**One property was settled mid-session.** The scratch `clear()` replaced its array. `MOVE` drains once per `pointermove`, so that would have been one allocation per pointer sample, and a replacement during `apply` would have continued over the new array. The owner chose in-place truncation. Booked to Remediation, lifetime first and queue second, each with its own composition figure. The witness is the free `clearQueue`.
+
+---
+
+### 2026-09-29 — O-6 closed: the kernel stays one state machine, three extraction candidates are named and none is approved (D-199, F-432)
+
+**The owner's call, and the record behind it.** Record [`kernel-shape-o6-claude.md`](reviews/architecture/kernel-shape-o6-claude.md), at `9dcb62e1a`. O-6 had waited on a human judgment since the maintainability entry. The judgment is that `Kernel` is not split along its handlers. **The file's length was the wrong quantity to watch.** Across every commit that touched it, the code stayed between 1,085 and 1,280 non-blank lines, while the comments grew from 441 to 1,257. The code actually shrank by 146 lines in the last interval, when the bracket, the transaction and the records were consolidated.
+
+**The rule is written down, and it separates a mechanism from a decision.** A piece leaves the kernel only if it touches no kernel field, decides nothing about when foreign code runs, has a peer module, and carries a measured composition figure whose cost is justified. Landing-tail ownership, resolution-attempt state, liveness guards and callback ordering are named as staying. Three mechanisms pass on reading — spec validation, the click suppressor's listener, and the tail's keyframes — and **none is approved**. A candidate becomes an extraction only through an amendment of D-199 that records its figure.
+
+**The teardown deduplication was checked before it was recommended, and its obvious form fails.** `#retireOperation(null)` returns before dropping the records when no behavior is armed, whereas physical teardown drops them unconditionally. On every path but one no operation can exist there. The exception is an `arm()` that fails after its `pointerdown` listener is attached, with foreign code dispatching in between. There the operation's lifetimes are never disposed by either route (F-432, left open under [`CONTRIBUTING.md`](../../../CONTRIBUTING.md) §1.1), and the unconditional drop is all that teardown does to it. D-199 therefore approves the deduplication only with the drop kept unconditional, as a required property.
+
+**The comment pass is scoped by kind, not by count.** It fixes counts and relative positions that decay, history narration, arguments against code that is not there, and restatements. It keeps every local ordering proof. It has no line target and moves nothing wholesale into this record. Both approved units are booked to Remediation under one witness, and the deduplication lands first.
 
 ---
 

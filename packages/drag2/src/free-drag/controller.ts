@@ -7,7 +7,7 @@
  */
 import type { BehaviorContext } from '../kernel/spec.ts';
 import type { Point } from '../kernel/types.ts';
-import { TAG_POLICY, TAG_POSITION } from './runtime.ts';
+import { type CapturedPosition, TAG_POLICY, TAG_POSITION } from './runtime.ts';
 
 export type FreeDragController = Readonly<{
   /**
@@ -47,54 +47,77 @@ export type FreeDragController = Readonly<{
    * sortable's `box` slot already uses.
    *
    * A **malformed** `point` — `null`, missing fields, a throwing accessor — is
-   * deliberately not checked and throws at the read, so `onError` receives a
-   * `DraggableError` whose `stage` is `FAILURE_ACTION_PREPARE`, like any other
-   * seam throw.
+   * deliberately not checked. Its coordinates are read once, when you call
+   * `moveTo`; a read that throws is reported when the move is applied, so
+   * `onError` receives a `DraggableError` whose `stage` is
+   * `FAILURE_ACTION_PREPARE`, like any other seam throw. **A move that is never
+   * applied reports nothing.** With no drag, past release, behind a cancel, or
+   * discarded by destruction, the move is dropped and the read's error with it.
    */
   moveTo(point: Point): void;
-  cancel(reason?: unknown): void;
   /**
-   * Closes the controller **logically**, immediately, on this statement — every
-   * guard fails from here, nothing is admitted, and no declared consumer slot
-   * is invoked again. The returned promise settles **once**, after physical
-   * teardown: this call when no library transaction is active, the boundary of
-   * the outermost one when there is.
+   * Requests cancellation of the current drag. It is registered only while
+   * the drag can still be cancelled, applied in order with everything else
+   * the drag is doing, and lapses if the drag is decided first. The outcome
+   * arrives as the drag's terminal callback; with no drag it does nothing.
+   */
+  requestCancel(reason?: unknown): void;
+  /**
+   * Requests destruction. With no library callback running it is applied
+   * before this returns. Called from inside one, the library first finishes
+   * the step that callback belongs to, whose remaining callbacks may still be
+   * invoked, and then applies it. From application on nothing is admitted, no
+   * lifecycle or domain event is published, and no declared consumer slot is
+   * invoked, with two exceptions: teardown runs each installed feature's
+   * retire hook, so what a feature holds is released, and a panic delivers
+   * its one report to `onError` before teardown. The returned promise settles
+   * **once**, after physical teardown, and every call returns the same one.
    *
    * Most callers do not want the completion signal and should write
-   * `void controller.destroy();`.
+   * `void controller.requestDestroy();`.
    */
-  destroy(): Promise<void>;
+  requestDestroy(): Promise<void>;
 }>;
 
 export function createFreeDragController(
   kernel: BehaviorContext,
 ): FreeDragController {
-  // `cancel` and `destroy` forward to the kernel's own members: the kernel's
-  // latch already makes both inert and idempotent before they do any work.
-  // **Neither member re-reads the latch.** `dispatch` opens with the execution
-  // bracket's terminal latch, and `kernel.closed` is a live getter over that
-  // same latch, with nothing observable in between — so a guard here would only
-  // answer the question the callee opens with.
+  // `requestCancel` and `requestDestroy` forward to the kernel's own members,
+  // which already make both inert and idempotent once destruction is applied.
   return {
     invalidate(): void {
       kernel.dispatch(TAG_POLICY, null);
     },
 
     moveTo(point: Point): void {
-      // The point travels as the action's argument rather than being applied
+      // **Captured at intake**: the coordinates are copied on this statement,
+      // so a consumer that reuses one object across calls cannot change a
+      // position after requesting it. One copy per call, never per sample.
+      //
+      // The copy travels as the action's argument rather than being applied
       // here: the offset it becomes is committed frame state, and only a
-      // `prepare` may write one.
-      kernel.dispatch(TAG_POSITION, point);
+      // `prepare` may write one. A malformed `point` fails the read here, and
+      // its error travels in the same position, so `prepare` throws it and
+      // it is classified as a seam throw.
+      let captured: CapturedPosition;
+
+      try {
+        captured = { x: point.x, y: point.y, fault: null };
+      } catch (error) {
+        captured = { x: 0, y: 0, fault: { error } };
+      }
+
+      kernel.dispatch(TAG_POSITION, captured);
     },
 
     // **Wrapped, not detached.** Both are published members a consumer may
     // pull off the controller and pass on, so what is published is a closure
     // over the call rather than the kernel's prototype method, which would
-    // arrive with no receiver. `destroy`'s wrapper is a plain arrow rather
+    // arrive with no receiver. `requestDestroy`'s wrapper is a plain arrow rather
     // than an `async` one, so the memoized promise is returned by identity.
-    cancel: (reason?: unknown): void => {
-      kernel.cancel(reason);
+    requestCancel: (reason?: unknown): void => {
+      kernel.requestCancel(reason);
     },
-    destroy: (): Promise<void> => kernel.destroy(),
+    requestDestroy: (): Promise<void> => kernel.requestDestroy(),
   };
 }

@@ -1,0 +1,16 @@
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import { createRequire } from 'node:module';
+const [ , , A, B, wtTs] = process.argv;
+const ts = createRequire(join(wtTs,'package.json'))('typescript');
+const pk=(w)=>join(w,'packages/drag2');
+const files=JSON.parse(readFileSync(join(pk(B),'files.json'),'utf8'));
+const walk=(d,base=d,acc=[])=>{for(const e of readdirSync(d)){if(['node_modules','src','tests','bench','.plan','.scripts','.vite','.measured','.codeanalyzer'].includes(e))continue;const p=join(d,e);if(statSync(p).isDirectory())walk(p,base,acc);else acc.push(relative(base,p))}return acc};
+const all=(w)=>walk(pk(w));
+const strip=(s,f)=>{const sf=ts.createSourceFile(f,s,ts.ScriptTarget.ESNext,true);return ts.createPrinter({removeComments:true}).printFile(sf)};
+for(const [label,re] of [['d.ts',/\.d\.ts$/],['js',/\.js$/]]){
+  const a=all(A).filter(f=>re.test(f)&&!/\.config\.|prune-|eslint/.test(f)).sort(), b=all(B).filter(f=>re.test(f)&&!/\.config\.|prune-|eslint/.test(f)).sort();
+  const diff=[],sdiff=[];
+  for(const f of b){const x=readFileSync(join(pk(A),f),'utf8'),y=readFileSync(join(pk(B),f),'utf8');if(x!==y){diff.push(f);if(label==='d.ts'&&strip(x,f)!==strip(y,f))sdiff.push(f)}}
+  console.log(label,'count',a.length,b.length,'set equal',JSON.stringify(a)===JSON.stringify(b),'textually differing',diff.length,diff.join(' '), label==='d.ts'?'| differing after comment strip: '+(sdiff.join(' ')||'none'):'');
+}

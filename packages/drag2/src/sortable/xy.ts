@@ -15,7 +15,7 @@
  * with different CSS. `y()` is this same rule narrowed to a single coordinate,
  * so this module lifts a restriction rather than adding a capability.
  *
- * **Two things differ from `y()`, and neither is a switch.**
+ * **Where it differs from `y()`, neither difference is a switch.**
  *
  * - **The metric is squared Euclidean, and stays squared.** Comparing squared
  * distances orders identically to comparing distances, so the `sqrt` is pure
@@ -80,12 +80,6 @@ type InsertionRuntimeView = Readonly<{
   /** The installed `box` resolver, or `null`; see `y.ts` for why. */
   box: ((item: HTMLElement) => HTMLElement) | null;
   /**
-   * Whether the controller is still alive; see `y.ts`. The check itself lives
-   * in `RectIndex.refresh`, but the **threading** is per-axis — which is why
-   * both sibling modules name it and a future axis has to as well.
-   */
-  live(): boolean;
-  /**
    * The installed displacement sink's settle walk, or `null`; see
    * `rect-index.ts`.
    */
@@ -128,8 +122,8 @@ type InsertionRuntimeView = Readonly<{
  *   difference** of measured geometry. A difference between two *different*
  *   elements' measured rects carries the difference of their authored
  *   presentation and is not a flow quantity. This is the library's own
- *   obligation, stated because it is what decides which of the two axes
- *   predicts and which measures.
+ *   obligation, stated because it is what decides which axis predicts and
+ *   which measures.
  * - **G6** — the placeholder's own geometry is stable between invalidations.
  *   The hole is the incumbent every candidate is compared against and it is
  *   measured once per rebuild, so a placeholder whose own size animates must be
@@ -180,9 +174,9 @@ export function xy(): AxisInstaller {
      * The origins the warm cache held immediately before the write, packed
      * `[left, top]` per slot.
      *
-     * **This is what replaces the old before-move measurement.** The cache the
-     * rule already maintains *is* the "before" geometry, so the move costs one
-     * rebuild rather than a list-wide scan on each side of the write.
+     * **The cache the rule already maintains *is* the "before" geometry**, so
+     * the move costs one rebuild rather than a list-wide scan on each side of
+     * the write.
      */
     let before = new Float64Array(0);
     const invalidate = (): void => {
@@ -204,19 +198,13 @@ export function xy(): AxisInstaller {
 
           const snapshot = frame.snapshot!;
 
-          if (
-            !index.refresh(
-              snapshot,
-              dragged,
-              runtime.box,
-              runtime.live,
-              runtime.placeholder,
-              runtime.settle,
-            )
-          ) {
-            // The rebuild crossed the terminal barrier; see `y.ts`.
-            return null;
-          }
+          index.refresh(
+            snapshot,
+            dragged,
+            runtime.box,
+            runtime.placeholder,
+            runtime.settle,
+          );
 
           last = frame.insertion ? frame.insertion.index : -1;
 
@@ -257,13 +245,7 @@ export function xy(): AxisInstaller {
           // `nearest` comes after the placeholder in document order, so the gap
           // is on its far side. The mask test is what `compareDocumentPosition`
           // is for — it returns a bitfield and several bits can be set at once,
-          // which is the one legitimate use of `&` in this package.
-          //
-          // **No liveness reading precedes this**, and `y()` has no counterpart
-          // to it either. `compareDocumentPosition` is a platform query on a
-          // consumer-owned node rather than a declared slot, and the only act
-          // that follows is a publication — which the behavior refuses at its
-          // own head and the kernel refuses again before anything acts on it.
+          // which is what makes `&` legitimate here.
           const position = runtime.placeholder.compareDocumentPosition(
             items[nearest]!,
           );
@@ -336,19 +318,13 @@ export function xy(): AxisInstaller {
 
           index.invalidate();
 
-          if (
-            !index.refresh(
-              frame.snapshot!,
-              frame.item!,
-              runtime.box,
-              runtime.live,
-              runtime.placeholder,
-              runtime.settle,
-            )
-          ) {
-            last = -1;
-            return;
-          }
+          index.refresh(
+            frame.snapshot!,
+            frame.item!,
+            runtime.box,
+            runtime.placeholder,
+            runtime.settle,
+          );
 
           last = gap;
 
@@ -365,7 +341,7 @@ export function xy(): AxisInstaller {
             const dy = before[i * 2 + 1]! - values[offset + TOP]!;
 
             if (dx !== 0 || dy !== 0) {
-              report(items[i]!, dx, dy, runtime.live, runtime.space);
+              report(items[i]!, dx, dy, runtime.space);
             }
           }
         },

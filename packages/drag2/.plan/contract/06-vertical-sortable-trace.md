@@ -163,6 +163,11 @@ pointerdown on item 2
       a consumer handle/visual resolver runs inside native dispatch and can
       close over this controller and synchronously destroy() it. Without this
       recheck the listener would mint an operation on a terminal controller.
+      ← WITHDRAWN by D-207 step 3 (marked 2026-11-03, D-208 remediation 5R):
+        no recheck runs here. A destroy requested from a handle or visual
+        resolver is registered and applied after the admission unit (R1):
+        `visual` and `box` are still called, PENDING is published, and
+        application tears it down.
 [K] mint OperationIdentity
 [K] create the three lifetimes; arm motion + cancellation ingress
 [K] pointerId, originX/Y, pointerX/Y = the press
@@ -282,8 +287,9 @@ pointermove (+11 px)
                                        the only state carrying it.  [D-32, C4-01]
               return placeholder            ← DETACHED. no DOM insertion,
                                               no acquisition, no rt write
-        [K] preparationValid() ✔        ← nothing reentrant happened  [I-3, tier B]
-        [K] commit(ACTIVATING)
+        [K] commit(ACTIVATING)          ← no revalidation: a request raised
+                                          above applies after this unit
+                                                        [I-3, D-207 step 3]
         [B] spec.activation.effect(current, placeholder, scope)  [post-commit]
               ── 1. register the release, THEN make it visible ──      [I-30]
               scope.presentation.use(() => placeholder.remove())
@@ -318,9 +324,9 @@ pointermove (+11 px)
               slots.invalidateInsertion()
               ── 4. consumer callback last: it may cancel or destroy ──
               slots.onStart(item2)
-        [K] preparationValid() ✔ → dispatch(START_COMMITTED, operation)
+        [K] dispatch(START_COMMITTED, operation)   ← unconditional  [D-207]
 
-> START_COMMITTED  [K] phase ACTIVATING ✔  operation current ✔
+> START_COMMITTED  [K] phase ACTIVATING ✔  operation current ✔  no cancel held ✔
                    [K] begin(); commit(ACTIVE)
 ```
 
@@ -330,11 +336,11 @@ pointermove (+11 px)
 
 `activation.prepare` performs no mutation the _layout_ can see: it never inserts, it measures, and capture is the kernel's. Insertion, disposer registration and the private-runtime writes are all post-commit. But it does mutate — `createPlaceholder` is a **consumer** slot, the element it returns is **consumer-owned**, and `applyMechanics` writes library-authored attributes, styles and state onto it before `prepare` returns. **[I-17 — not vacuous for this behavior, corrected by D-39]**
 
-**Consequently `activation.rollback` is required.** ~~It is unnecessary — a discarded prepare leaves only a detached element for the collector.~~ That reading survived into Revision 2 and D-39 reverses it. Detachment is not disposal when the element is not the library's to collect: `prepare` completes, `preparationValid()` then returns `false`, the seam reports `SEAM_INVALIDATED`, and **adoption never happens** — so the disposer `effect` would have registered is never registered and never becomes responsible for the attributes already written. The consumer is handed back its own element carrying the library's marks. Deferring physical teardown (D-36) does not help and was never going to: it changes _when_ teardown runs, not _whether_ adoption occurred, and this is a local acquisition property with a mechanism that already exists. It is **not** a reason to reinstate statement-level liveness. **[D-39]**
+**Withdrawn by D-207 step 3, with `rollback`.** A request registered during `prepare` is applied after the activation unit, so the preparation always commits and `activation.effect` adopts the placeholder; the presentation disposer restores it. The two paragraphs below are the D-39 reading as it stood. ~~**Consequently `activation.rollback` is required.**~~ ~~It is unnecessary — a discarded prepare leaves only a detached element for the collector.~~ That reading survived into Revision 2 and D-39 reverses it. Detachment is not disposal when the element is not the library's to collect: `prepare` completes, `preparationValid()` then returns `false`, the seam reports `SEAM_INVALIDATED`, and **adoption never happens** — so the disposer `effect` would have registered is never registered and never becomes responsible for the attributes already written. The consumer is handed back its own element carrying the library's marks. Deferring physical teardown (D-36) does not help and was never going to: it changes _when_ teardown runs, not _whether_ adoption occurred, and this is a local acquisition property with a mechanism that already exists. It is **not** a reason to reinstate statement-level liveness. **[D-39]**
 
-Had the `placeholder` slot thrown, the kernel would have released capture and disposed the lift, queued `FAILURE_ACTIVATION`, and published nothing — no element ever came back, so there is nothing to roll back. Had it reentrantly called `destroy()`, `prepare` would still have returned the element and `preparationValid()` would have returned `false`; **that is the case `rollback` now owns.** **[I-16, tier B]**
+Had the `placeholder` slot thrown, the kernel would have released capture and disposed the lift, queued `FAILURE_ACTIVATION`, and published nothing — no element ever came back, so there is nothing to roll back. ~~Had it reentrantly called `destroy()`, `prepare` would still have returned the element and `preparationValid()` would have returned `false`; **that is the case `rollback` now owns.**~~ Had it called `destroy()`, the activation would commit, `onStart` would run, and destruction would be applied at the unit's boundary, discarding `START_COMMITTED` (R2). Had it called `cancel()`, the same unit would run and the queued `CANCEL` would settle `canceled` at `AT_PROPOSAL` (R3). **[I-16, tier B; D-207 step 3]**
 
-**An activation discard retires the operation.** Unlike an action discard, it is not "nothing happened and we carry on": there is no such thing as a committed operation with no presentation. The activation driver releases capture, disposes the lift and returns the controller to `IDLE`. The post-effect `preparationValid()` above is likewise activation-specific — the shared core does not have it, which is why each seam has its own wrapper.
+**An activation discard retires the operation.** Unlike an action discard, it is not "nothing happened and we carry on": there is no such thing as a committed operation with no presentation. The activation driver releases capture, disposes the lift and returns the controller to `IDLE`. ~~The post-effect `preparationValid()` above is likewise activation-specific — the shared core does not have it, which is why each seam has its own wrapper.~~ The post-effect revalidation is deleted (D-207 step 3); the discard policy is still activation-specific, which is why each seam has its own wrapper.
 
 ## The hot path
 
@@ -359,6 +365,8 @@ The earlier version of this section claimed **"zero allocations, two indirect ca
 **Allocations: one string, plus one object in the in-place lift mode.** The transform string is unavoidable — it is the value the CSSOM requires. The shipped in-place strategy additionally allocates a `{ x, y }` projection because its mapping goes through the consumer's coordinate mapper (`packages/drag/src/kernel/presentation.ts:190-224`); the two lifted modes project identically and take `compose`'s scalar path. **Every supported lift mode must retain a scalar projection path**; making the in-place mode allocation- free is an implementation obligation, not a claim already met.
 
 Nothing else allocates a wrapper: the native event is queued by reference under a narrow `PointerCoordinates` contract (`pointerId`, `clientX`, `clientY`) and is not retained past the drain, and the spatial attempt is a `number`, not an object (D-11). The enqueue itself is two array pushes — **no per-entry object, and capacity growth is amortized**, which is the phrasing every document uses.
+
+**Corrected 2026-11-03 (F-444, F-443): capacity growth is not amortized.** `ActionQueue.clear()` truncates the store, which releases it, and the next sample's `push` regrows it, so every pointer sample allocates about **84 B** of queue backing store. The count above (one string, plus the in-place mode's object) therefore misses it. Measured by V8's sampling heap profiler (`HeapProfiler.startSampling`, 8 B interval, bytes booked to the allocating frame) over 2,000 pre-built pointer events per arm in four ABBA rounds, shipped and DEV, at the D-208 tip and `6905af249` alike, in [`d208-step6.md`](../measurements/d208-step6.md) §Allocation per sample: one sample allocates about **189 B net of the control**, about 105 B of it the transform string and about 84 B the queue store, which `ActionQueue` alone reproduces at 88.8–90.2 B a cycle. M-1's net-heap-growth reading, which returned 0 B at both trees, bounds retention only and cannot see this churn. The fix is to the code, under F-443; the sentence above stands as history.
 
 **DOM reads: none.** Everything the move path needs is already committed as scalars; measurement happens on the coalesced frame.
 
@@ -398,7 +406,7 @@ rAF fires → dispatch(behavior tag 0, attempt)
                       [F] → Insertion { version, index: 4, before, after }
                     draft.insertion = gap 4
                     return true
-              [K] preparationValid() ✔; commit(null)
+              [K] commit(null)
               [B] spec.action.effect(0, attempt, current, true)
                     for slots.beforeMove   → [F] measure neighbour rects
                     movePlaceholder(view, insertion)  ← the SOLE writer of the
@@ -459,7 +467,7 @@ pointerup
               ← the resolution CHOICE is the staged value. A no-op proposal
                 returns { invoke: null }. There is no `null` return and no
                 gate to call zero or twice.                            [F-20]
-        [K] preparationValid() ✔; commit(null)         ← commit 2
+        [K] commit(null)                               ← commit 2
         [B] spec.release.effect(current, command)      [post-commit]
               movePlaceholder(view, insertion)    ← the same single writer,
                                                     inert when already correct.
@@ -480,9 +488,12 @@ pointerup
                 until Revision 2, so that a consumer holding the request could
                 acknowledge its render after the resolution returned. The
                 serial order removes the window it existed for.       [D-41]
-        [K] execute the command — `invoke` is non-null
+        [K] hold the command; queue OPEN_RESOLUTION                [D-205]
+      > OPEN_RESOLUTION — current, RELEASING, not opened, no cancel and no
+        failure checkpoint registered [D-206]; execute the command —
+        `invoke` is non-null
                 [K] attempt = createResolutionAttempt()
-                [K] cancellation.useWhile(() => !attempt.completed, abort)
+                [K] cancellation.use(() => !attempt.completed && abort())
                 [B] onReorder(request, { signal })
                       consumer: setItems((items) => applyReorder(items, request))
                       consumer: await committed    ← the consumer's OWN commit
@@ -543,7 +554,7 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                                      presentation expected? There is no such
                                      question now: the authored DOM is already
                                      final when this seam runs.        [D-41]
-                      [K] preparationValid(); commit(SETTLING)
+                      [K] commit(SETTLING)
                       [K] attempt = { holds: 0,
                                       start: null, landing: null,
                                       landingHeld: false,
@@ -614,10 +625,9 @@ The kernel closes motion between the two commits, so the behavior cannot get rel
                               commit strategies, including the two that
                               otherwise hold. 02 owns the surviving signature;
                               this trace follows it.
-                      [K] revalidate: still current, still SETTLING?
-                            ← `anchorTarget` is behavior code and may have
-                              destroyed the controller. Nothing joins after
-                              that.                              [F-38, D-155]
+                      ← no revalidation (D-207 step 3): a request
+                        `anchorTarget` raises applies after this unit, so
+                        the join below is the unit's own and runs. [R7, R8]
                       [K] join, in this same drain
                           ← three lines stood here until D-155: the landing
                             context, `start(context, done, fail)` returning a
@@ -775,18 +785,20 @@ The controller now retains **no DOM**: not in either frame, not on the private b
 
 **Do not read the residue as a liveness answer.** Inside the deferral window the controller is closed and still holds elements, an undisposed presentation and an unaborted signal. `signal.aborted`, a disposed session and a detached node all **lag** logical closure now, and each was previously a legitimate — indeed strictly stronger — liveness reading, because it also caught a kernel-internal panic. Under deferral that same property makes them strictly weaker. Liveness is read from the logical latch or from transaction validity, never from a physical-teardown observation. **[D-38, I-37]**
 
+**Marked 2026-11-03 (D-208 remediation 5R, [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20.4): the two paragraphs above are history.** D-36's deferral window does not exist since D-203: application closes the lifecycle, clears the queue and tears down in one step (01 §Teardown across two owners). So no interval exists in which the controller is closed and still holds elements, and no physical-teardown observation lags a closure. I-20 holds once application has run: before `requestDestroy()` returns when no unit is running, and at the requesting unit's boundary otherwise. No participant takes a liveness reading (D-208 step 4).
+
 ## Counterfactuals
 
 What the same trace does under each difficult case, without adding a branch anywhere above.
 
 | Event | Where it lands |
 | --- | --- |
-| `onStart` calls `destroy()` | `preparationValid()` after `activation.effect` fails → no `START_COMMITTED`; the drain sees `closed` on its next iteration and stops. |
+| `onStart` calls `destroy()` | ~~`preparationValid()` after `activation.effect` fails → no `START_COMMITTED`; the drain sees `closed` on its next iteration and stops.~~ `START_COMMITTED` is queued, and destruction is applied at the activation unit's boundary, which discards it; no terminal follows (D-207 step 3, R2). |
 | `onReorder` calls `cancel()` | **The cancel wins.** `invoke` must run consumer code before it has a value to settle, and a nested `dispatch` appends in call order — so `CANCEL` is enqueued from inside `onReorder`, and `RESOLUTION_SETTLED` only after it returns. The cancel transition runs first; the completion is then stale for a decided operation and is dropped. This is `CANCEL > FAILURE_CHECKPOINT` and FIFO working as specified. An earlier version of this row asserted the opposite ordering and was simply wrong. **[F-25]** |
-| `onReorder` calls `destroy()` | `closed` is re-read each iteration; the drain stops before `RESOLUTION_SETTLED`. **The controller is closed from that statement onward; physical teardown runs at the boundary of the outermost library transaction, so it has not necessarily completed when `destroy()` returns.** The returned Promise settles once, after it has. **[D-36]** |
+| `onReorder` calls `destroy()` | ~~`closed` is re-read each iteration; the drain stops before `RESOLUTION_SETTLED`. **The controller is closed from that statement onward; physical teardown runs at the boundary of the outermost library transaction, so it has not necessarily completed when `destroy()` returns.** The returned Promise settles once, after it has. **[D-36]**~~ **Restated 2026-11-03 by D-203's order (D-208 remediation 5R):** `onReorder` runs inside the round-trip's unit, so `requestDestroy()` is registered there and applied at that unit's boundary, ahead of everything queued; `requestDestroy()` returns before it is applied, and its promise settles once, after teardown. Application clears the queue, which discards the `RESOLUTION_SETTLED` a synchronous resolution queued in the unit: no settlement, no landing and no `onEnd`. An asynchronous resolution has queued nothing yet; application aborts the signal handed to `onReorder` and clears the attempt slot, so its later settlement is dropped at intake. No R-case pins this row. The synchronous half is pinned by `composition.browser`'s _should tear down without a terminal callback when onReorder destroys_ (I-6). **[D-203, I-6]** |
 | `destroy()` during the 200 ms landing | **The tail is cancelled and the row settles instantly** where flow put it, because the contribution decays to zero. ~~`LandingHandle.destroy()` — silent, never dispatches. Presentation disposes. A late `done()` finds no attempt and is inert at both validation points.~~ Presentation is released before the tail exists: `destroy()` during a landing has no lease to reach. **[D-155]** |
 | The consumer commits **synchronously** — `flushSync`, or a non-React renderer | Nothing special happens. `onReorder` does not await, returns its resolution, and the rest of the trace is byte-identical. The pre-redesign row here described an early `controller.ready(request)` latched on the resolution attempt, copied onto the settlement and dispatched at arm; the synchronous and asynchronous consumers are now one code path, which is the point of awaiting inside `onReorder`. **[D-41]** |
-| The consumer's own commit **never settles** | The library waits, exactly as it waits for any pending resolution: the cancellation lifetime's `useWhile` still aborts the signal handed to `onReorder`, and a cancel or a `destroy()` ends the operation. There is no 500 ms readiness deadline any more, because there is no separate acknowledgement to time out — the bound the consumer has is the one it wrote. **[D-41, F-46]** |
+| The consumer's own commit **never settles** | The library waits, exactly as it waits for any pending resolution: the cancellation lifetime's ~~`useWhile`~~ guarded disposer (D-200) still aborts the signal handed to `onReorder`, and a cancel or a `destroy()` ends the operation. There is no 500 ms readiness deadline any more, because there is no separate acknowledgement to time out — the bound the consumer has is the one it wrote. **[D-41, F-46]** |
 | The consumer's commit **throws or rejects** | `SETTLED_REJECTED` → the seam **re-raises `input.error` verbatim** and the kernel classifies at `FAILURE_RESOLUTION` (D-152), the same path as any rejected resolver. An `await` that throws is ordinary Promise failure behavior, which is the whole of what replaced four consumer obligations whose only failure signal used to be a 500 ms silence. **[F-46, F-29]** |
 | The user cancels while `onReorder` is outstanding | The operation stops waiting, restores and retires presentation, and reaches **one** terminal, `canceled`. The consumer's already-started work may still commit; the library never promised to undo it. The late settlement or rejection from the abandoned resolver is consumed safely — no unhandled rejection, no second terminal, no revival. **[D-40]** |
 | A second drag begins while a tail is in flight | **The tail is cancelled at `acquireLift`, before the origin measurement.** Measuring mid-flight would be right — the drag should start from where the element looks — but a running animation outranks inline styles in the cascade, so the new lift's own writes would compose with a contribution that is still decaying. A press that never crosses the threshold cancels nothing. **[D-155]** |
@@ -828,7 +840,7 @@ What the same trace does under each difficult case, without adding a branch anyw
 | `release.effect` throws | `FAILURE_RELEASE` from the committed state, and the staged command is **not** executed — `onReorder` never runs. **[F-27]** |
 | `activation.prepare` throws | `FAILURE_ACTIVATION` is queued and the operation stays live for its checkpoint. It is **not** retired here; retiring would make the queued entry stale and swallow the `onError`. **[F-27]** |
 | `settlement.effect` throws | ~~The scope seals, the request is dropped unarmed, and no runner starts.~~ **Nothing is measured and nothing joins** (D-155): measuring for a join that will never happen would call behavior code for nothing, and the queued checkpoint decides the operation. **The commit is already behind it**, because the seam commits between `prepare` and `effect` — so the report's own `settlement.prepare` finds the result still on the frame, keeps it under _existing result wins_, and the terminal the checkpoint drives is the accepted one. That is the post-commit case where the tie-break decides what the consumer is told. **[F-27, D-66, I-31]** |
-| The tail's timing policy destroys the controller | **No animation is started and no terminal is published.** `destroy()` is a synchronous terminal barrier, so the join re-reads it after the policy returns — the same revalidation ~~that used to destroy a handle a stale `start` returned~~ was for. **[F-30, D-155]** |
+| The tail's timing policy destroys the controller | ~~**No animation is started and no terminal is published.** `destroy()` is a synchronous terminal barrier, so the join re-reads it after the policy returns.~~ **The join's unit runs to its end, terminal included, and application then cancels the tail it started** (D-207 step 3 deleted the join's revalidation). **[F-30, D-155, R7]** |
 | The consumer resolution is a no-op proposal | `{ invoke: null }` → `SETTLED_SKIPPED` → `OUTCOME_NOOP` with **immediate** recovery and `onEnd({ type: 'noop' })`. It read `onFinish`. Not a rejection, and not a home recovery. **[F-29]** |
 | The `onReorder` promise rejects | `SETTLED_REJECTED` → the seam **re-raises the rejection value verbatim** and the kernel classifies at `FAILURE_RESOLUTION` (D-152), so what the consumer's `onError` sees as `cause` is the value they rejected with. A resolver malfunction is never reported as `onEnd({ type: 'canceled' })`. It read `onCancel`. **[F-29]** |
 | The insertion is a **start** gap | `movePlaceholder` anchors on `insertion.after`, so the placeholder reaches the head of the list. The old `before?.after(…)` writer was a silent no-op here. **[F-31]** |

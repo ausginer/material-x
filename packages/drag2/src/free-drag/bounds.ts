@@ -1,6 +1,6 @@
 /**
- * `bounds()` — the containment capability, and the package's first slot a third
- * party can fill **instead of** the first-party one rather than beside it.
+ * `bounds()` — the containment capability, and a slot a third party can fill
+ * **instead of** the first-party one rather than beside it.
  *
  * **A capability installer rather than a config key**: it owns a resolved rect,
  * a staleness rule and a source it re-reads, so a composition without it
@@ -31,11 +31,17 @@ export function bounds(source?: BoundsSource): Pick<FreeDragConfig, 'bounds'> {
     bounds: (context: FreeDragFeatureContext): ConstraintContribution => {
       const { realm } = context;
       /**
-       * The resolved rect, and a flag rather than a version counter: there is
-       * one reader and one invalidator, so a counter would carry a number
-       * nothing compares.
+       * **The resolved bounds, copied into a record this feature owns.** A
+       * thunk's rect is the consumer's object, and the clamp reads it on every
+       * later sample, after foreign code has run; the copy is taken once per
+       * resolve, into storage allocated once per installation, so no sample
+       * allocates and none reads the consumer's object.
+       *
+       * A flag rather than a version counter: there is one reader and one
+       * invalidator, so a counter would carry a number nothing compares.
        */
-      let rect: DOMRectReadOnly | null = null;
+      const box = { left: 0, top: 0, right: 0, bottom: 0 };
+      let bounded = false;
       let stale = true;
 
       /**
@@ -45,45 +51,63 @@ export function bounds(source?: BoundsSource): Pick<FreeDragConfig, 'bounds'> {
        * resolving eagerly would put both on the scroll path.
        *
        * **Where a garbage source surfaces is therefore the seam that next
-       * renders, and that is four seams rather than one.** The rect starts
+       * renders, which is not one fixed seam.** The rect starts
        * stale, so the **first** resolve of every operation is at
        * `activation.effect`, which places the visual at the accumulated grab
        * delta — `FAILURE_ACTIVATION`, and the path a bad source almost always
        * takes. After a staleness mark the next `apply` is whichever of `moved`
        * (`FAILURE_RENDERER_WRITE`), a `TAG_POSITION` effect
        * (`FAILURE_ACTION_EFFECT`) or `release.prepare` (`FAILURE_RELEASE`) runs
-       * first. **Four stages for one bad source is the point**: a stage says
-       * where the library was standing, so the same fault reports four
-       * different ones and none of them names the consumer.
+       * first. **Several stages for one bad source is the point**: a stage
+       * says where the library was standing, so the same fault reports a
+       * different one at each seam and none of them names the consumer.
        *
        * **`FAILURE_ACTION_PREPARE` is not reachable from here at all**:
        * `invalidate()` is a staleness flag that calls nothing, so the seam that
        * marks the rect stale is never the seam that resolves it.
        */
-      const resolve = (): DOMRectReadOnly | null => {
+      const resolve = (): typeof box | null => {
         if (!stale) {
-          return rect;
+          return bounded ? box : null;
         }
 
         stale = false;
 
         if (source === undefined) {
-          // The viewport, constructed from the owning realm rather than the
-          // ambient global, so a controller inside an iframe is contained by
-          // that document's viewport.
-          rect = new realm.window.DOMRectReadOnly(
-            0,
-            0,
-            realm.window.innerWidth,
-            realm.window.innerHeight,
-          );
-        } else if (typeof source === 'function') {
-          rect = source();
-        } else {
-          rect = source.getBoundingClientRect();
+          // The viewport of the owning realm rather than the ambient global,
+          // so a controller inside an iframe is contained by that document's
+          // viewport.
+          box.left = 0;
+          box.top = 0;
+          box.right = realm.window.innerWidth;
+          box.bottom = realm.window.innerHeight;
+          bounded = true;
+
+          return box;
         }
 
-        return rect;
+        const read =
+          typeof source === 'function'
+            ? source()
+            : source.getBoundingClientRect();
+
+        if (!read) {
+          bounded = false;
+
+          return null;
+        }
+
+        // Every field read before any is written, so a throwing accessor
+        // leaves the previous bounds whole.
+        const { left, top, right, bottom } = read;
+
+        box.left = left;
+        box.top = top;
+        box.right = right;
+        box.bottom = bottom;
+        bounded = true;
+
+        return box;
       };
 
       return {
@@ -125,7 +149,7 @@ export function bounds(source?: BoundsSource): Pick<FreeDragConfig, 'bounds'> {
           },
 
           retire(): void {
-            rect = null;
+            bounded = false;
             stale = true;
           },
         },

@@ -43,7 +43,7 @@ import {
   SETTLED_REJECTED,
   SETTLED_SKIPPED,
 } from '../kernel/spec.ts';
-import { createUnwind } from '../kernel/unwind.ts';
+import { createUnwind, type Unwind } from '../kernel/unwind.ts';
 import {
   buildReorderProposal,
   CHANGE_CANCEL,
@@ -68,7 +68,6 @@ import {
   createPlaceholder,
   movePlaceholder,
   placeholderAt,
-  type PlaceholderUndo,
 } from './placement.ts';
 import {
   SORTABLE_ACTION_TAGS,
@@ -180,8 +179,8 @@ class SortableBehavior {
 
   /**
    * Monotonic; the identity of the latest coalesced spatial attempt. **Minted
-   * once per controller and never reset** — which is the same reason `version`
-   * above is not reset, and the reason neither belongs in the operation record.
+   * once per controller and never reset** — the same reason `#version` is not
+   * reset, and the reason neither belongs in the operation record.
    */
   #spatialSeq = 0;
 
@@ -192,10 +191,8 @@ class SortableBehavior {
    * seam's own contract states. Never module-level: two controllers on one page
    * must not share one.
    *
-   * **Nothing may read it between calls**, and the closed-controller arm is why
-   * that sentence is here rather than implied: it writes a `(0, 0)` sentinel
-   * the kernel discards, so *the cache holds the last landing target* is false
-   * in exactly that arm.
+   * **Nothing may read it between calls**: it holds the last landing target
+   * only until the next `anchorTarget` writes it.
    */
   readonly #anchor: PointCache = { x: 0, y: 0 };
 
@@ -250,19 +247,6 @@ class SortableBehavior {
    */
   readonly #transaction: {
     /**
-     * The rollback ledger for a **prepared but unadopted** placeholder.
-     *
-     * It lives here rather than on the runtime because it is not runtime state:
-     * it exists only between `activation.prepare` returning and the seam
-     * committing, which is the one window in which the element is mutated and
-     * not yet owned. The activation record is written by `effect`, on the far
-     * side of that window.
-     *
-     * `null` whenever there is nothing staged — including for the library's own
-     * `<div>`, whose undo is being dropped.
-     */
-    placeholderUndo: PlaceholderUndo;
-    /**
      * The failure the open settlement seam is reporting, handed from `prepare`
      * to `effect` because `PreparedSettlement` carries nothing.
      *
@@ -277,8 +261,7 @@ class SortableBehavior {
      * wrote it — there is no window in which one settlement's effect could
      * observe another's failure.
      * 2. Every path that abandons a transaction between the two phases —
-     * `prepare` throwing, `SEAM_INVALIDATED` from a held cancel latch, a
-     * reentrant `destroy()` — skips the effect and therefore leaves the slot
+     * `prepare` throwing — skips the effect and therefore leaves the slot
      * set; the *next* prepare's clear is what collects it. Staleness is
      * impossible by construction, not by timing.
      * 3. The driver refuses a nested seam outright, so no third party can
@@ -290,12 +273,13 @@ class SortableBehavior {
      * clear before it can write**.
      */
     failure: Readonly<{ stage: FailureStage; report: DraggableError }> | null;
-  } = { placeholderUndo: null, failure: null };
+  } = { failure: null };
 
   /**
-   * **The one place this behavior invokes the consumer's error callback.** Both
-   * routes end here, so there is exactly one statement to find when asking
-   * *where does `onError` get called*.
+   * **Where the spec invokes the consumer's error callback.** The behavior's
+   * own channel and the spec's `reportError` both end here. The composition's
+   * channel, minted in `behavior.ts` before any spec exists, calls
+   * `merged.onError` itself.
    *
    * Unguarded and ungated on purpose: its callers apply those rules, and they
    * apply them differently.
@@ -309,41 +293,14 @@ class SortableBehavior {
   };
 
   /**
-   * **The behavior's own route to the one channel.** The kernel's `notify`
-   * covers what the *kernel* reports, because it owns the latch; this covers
-   * what the *behavior* reports, which the kernel cannot see. Both apply the
-   * same two rules: the latch refuses a declared consumer slot after logical
-   * closure, and a throw from the handler stops here rather than being reported
-   * through itself.
+   * **The behavior's own channel**: what the *behavior* reports, which the
+   * kernel cannot see. Minted by the kernel over
+   * {@link #deliver}, so it applies the kernel's refusal after applied
+   * destruction and stops a throw from the handler.
    */
-  readonly #notify: Notify = (error) => {
-    if (this.#kernel.closed) {
-      return;
-    }
+  readonly #notify: Notify;
 
-    try {
-      this.#deliver(error);
-    } catch {
-      // The terminus, for the same reason the kernel's channel has one.
-    }
-  };
-
-  readonly #unwind = createUnwind(this.#notify);
-
-  /**
-   * The terminal latch as a predicate, for the barriers that cannot reach
-   * the kernel: the candidate loop inside the feature's private `RectIndex`, the
-   * displacement hooks' own measurement loops, and `createPlaceholder`'s
-   * post-factory mechanics. Every barrier written *in this file* reads
-   * `kernel.closed` directly instead; this closure is created once per controller
-   * and copied by reference onto each per-operation view.
-   *
-   * **`kernel.closed` is the reading, and nothing else may stand in for it.**
-   * Physical teardown is deferred to the transaction boundary, so a disposed
-   * lifetime, an aborted signal, a nulled slot and a detached node all lag the
-   * logical close and none of them may answer a liveness question.
-   */
-  readonly #live = (): boolean => !this.#kernel.closed;
+  readonly #unwind: Unwind;
 
   readonly #invalidate: ReturnType<typeof createInvalidator>;
 
@@ -357,25 +314,26 @@ class SortableBehavior {
   ) {
     this.#kernel = kernel;
     this.#slots = slots;
+    this.#notify = kernel.channel(this.#deliver);
+    this.#unwind = createUnwind(this.#notify);
     this.#realm = kernel.realm;
     this.#snapshot = { items, version: 0 };
     this.#sourceIdentity = initialSource;
     this.#invalidate = createInvalidator(kernel.realm);
     /**
      * Created once per **controller**, not per operation, and cancelled at
-     * retirement and at destroy.
+     * retirement and at destruction.
      *
      * Per-controller removes both the nullability and an allocation from the
      * activation path, and costs nothing in staleness handling: the task's
      * identity is never operation-scoped, because staleness is carried by the
      * monotonic attempt number it schedules.
      *
-     * **Measured against both alternatives.** Eager costs 148 B more on a
+     * **Measured against both alternatives.** Eager costs more on a
      * controller that never drags, and wins everywhere else: an active
-     * controller is *cheaper* than under lazy-retained or per-operation (281 B
-     * against 309 B), because their nullable slot and initialization branch
-     * cost more than the task they defer, and `schedule` is half the price with
-     * no null check.
+     * controller is *cheaper* than under lazy-retained or per-operation,
+     * because their nullable slot and initialization branch cost more than the
+     * task they defer, and `schedule` is cheaper with no null check.
      */
     this.#spatialFrame = createFrameTask<number>(kernel.realm, (attempt) => {
       // The producer-side half of the double validation: a frame that fires
@@ -407,7 +365,7 @@ class SortableBehavior {
       // container, while the placeholder it left behind keeps the on-screen
       // box. The faithful matrix reproduces the composed ancestor space
       // exactly, so lift and placeholder agree. `LIFT_FLAT` is for a free drag
-      // that deliberately straightens out; it was never right here.
+      // that deliberately straightens out; it is wrong here.
       liftMode: LIFT_FAITHFUL,
       actionTags: SORTABLE_ACTION_TAGS,
     };
@@ -443,23 +401,8 @@ class SortableBehavior {
     if (this.#slots.handle) {
       const handle = this.#slots.handle(item);
 
-      // **The terminal barrier on the admission sequence.** `handle` is
-      // consumer code, and `seedDraft` calls a *second* consumer resolver right
-      // after this returns — so a handle resolver that destroyed the controller
-      // would otherwise have `visual()` called after `destroy()` returned. The
-      // kernel's own post-`admit` recheck stops the operation from being
-      // minted, but it runs after the whole callback and cannot make that
-      // second call un-happen.
-      //
-      // It **declines**, it does not throw: a throw reaches
-      // `reportFailure(FAILURE_ADMISSION)` and would tell the consumer that its
-      // own `destroy()` was a library failure. Declining leaves the controller
-      // idle, mints nothing, and — on the command path — leaves the arrow key
-      // its native meaning, which is right for a controller that no longer
-      // exists.
-      //
       // A handle *narrows* admission; it never replaces the item.
-      if (this.#kernel.closed || !handle) {
+      if (!handle) {
         return null;
       }
 
@@ -500,24 +443,11 @@ class SortableBehavior {
     item: HTMLElement,
     snapshot: CollectionSnapshot,
     draft: Draft<SortableFramePart>,
-  ): AdmissionSubject | null {
+  ): AdmissionSubject {
     let visual = item;
 
     if (this.#slots.visual) {
       visual = this.#slots.visual(item);
-
-      // **The terminal barrier on the visual resolver**, inside the branch
-      // because with no resolver composed there is no call here for it to stand
-      // behind. `runAdmission` revalidates after this whole callback and
-      // declines the operation — but it does not scrub the draft it declined,
-      // and teardown scrubbed both frames *before* returning into this line, so
-      // the three writes below would pin the item, its visual and the whole
-      // snapshot in an inactive frame nothing will clear again. It **declines**
-      // for the same reason `resolveItem` does: destroying your own controller
-      // is not a library failure.
-      if (this.#kernel.closed) {
-        return null;
-      }
     }
 
     draft.item = item;
@@ -540,14 +470,6 @@ class SortableBehavior {
     }
 
     const box = this.#slots.box(item);
-
-    // The terminal barrier on the box resolver, for the same reason the visual
-    // resolver carries one two statements up: it is consumer code, and a
-    // resolver that destroys its own controller must not have its result minted
-    // into an operation.
-    if (this.#kernel.closed) {
-      return null;
-    }
 
     // Returned as a bare element when all three coincide, so the kernel's
     // `box` and `visual` are the *same reference* and `activation.prepare`'s
@@ -676,7 +598,7 @@ class SortableBehavior {
     // ArrowRight only because the edge decline happened to fire.
     //
     // **Both ingresses ask one question of one attribute**, so there is no
-    // per-key owner table to consult and none is to return. The order above
+    // per-key owner table to consult. The order above
     // still holds and still matters — the item is what feasibility is asked
     // about — but that asymmetry returns for an *unmarked* field, and
     // `data-drag-ignore` is what answers it.
@@ -698,10 +620,6 @@ class SortableBehavior {
 
     const subject = this.#seedDraft(item, this.#snapshot, draft);
 
-    if (!subject) {
-      return null; // a consumer resolver destroyed the controller
-    }
-
     // The destination travels in the draft, exactly as `item` does for a
     // press. No staged value crosses the ingress boundary, which is what
     // keeps the second ingress to one SPI member.
@@ -716,12 +634,8 @@ class SortableBehavior {
    * Creates the placeholder **detached** and seeds the home insertion. No
    * DOM insertion, no acquisition, nothing externally visible.
    *
-   * **Nothing visible is not nothing to undo, and the two cases divide on
-   * ownership.** The library's own `<div>` is created here and discarded
-   * whole with the preparation, so the undo ledger stays `null` for it
-   * and `rollback` has nothing to spend. An element from a `placeholder`
-   * slot is the consumer's and is only *mutated* here, so those writes are
-   * recorded — which is the case `rollback` below is required for.
+   * A successful preparation always commits, so the element it returns is
+   * always adopted by `effect`. Nothing between the two can discard it.
    */
   prepareActivation(
     draft: Draft<SortableFramePart>,
@@ -782,49 +696,12 @@ class SortableBehavior {
       draft.insertion = home;
     }
 
-    // **The ledger is opened only for a consumer-owned element.** With no
-    // `placeholder` slot composed the element is the library's own `<div>`,
-    // which `prepare` created, nothing outside has seen, and a discarded
-    // preparation drops — so an undo for it would be work with no observer.
-    // With a slot composed every write below lands on someone else's node.
-    this.#transaction.placeholderUndo = this.#slots.placeholder ? [] : null;
-
     return createPlaceholder(
       this.#realm,
       { item, visual, box, rect: scope.originRect },
       footprint,
       this.#slots.placeholder,
-      this.#live,
-      this.#transaction.placeholderUndo,
     );
-  }
-
-  /**
-   * **Required, and non-vacuous.** A discarded prepare leaves only a
-   * detached element for the collector while the placeholder is the default
-   * `<div>`, and stops doing so the moment a `placeholder` slot exists:
-   * `prepare` writes `data-drag-placeholder`, `aria-hidden`, the copied
-   * `slot` and three inline style properties onto an element the
-   * **consumer** created, and `preparationValid()` does not reverse a
-   * `setAttribute`. It discards the *preparation*; the element is not the
-   * library's to discard.
-   *
-   * Reverse order, and each undo guarded on its own: one throwing revert —
-   * a custom element with an overridden `setAttribute` — must not strand
-   * the writes recorded before it.
-   */
-  rollbackActivation(): void {
-    const ledger = this.#transaction.placeholderUndo;
-
-    this.#transaction.placeholderUndo = null;
-
-    if (!ledger) {
-      return;
-    }
-
-    for (let i = ledger.length - 1; i >= 0; i -= 1) {
-      this.#unwind(ledger[i]!);
-    }
   }
 
   /** Strict order: register, make visible, publish, then notify. */
@@ -833,13 +710,6 @@ class SortableBehavior {
     placeholder: HTMLElement,
     scope: ActivationScope,
   ): void {
-    // **Adoption is what closes the rollback window.** From the line below
-    // the element is the library's: the disposer removes it, moves relocate
-    // it, teardown takes the attributes off with it. A ledger left here
-    // would be a set of reverts for an element nobody may revert, and the
-    // *next* operation's discarded preparation would run them.
-    this.#transaction.placeholderUndo = null;
-
     // 1 → 2, per resource. Registering first is free — removing a detached
     // node is a no-op, so an over-eager disposer cannot over-release — and
     // it means a throw below can never leave a visible orphan that the
@@ -853,11 +723,8 @@ class SortableBehavior {
     // `connectedCallback` runs synchronously inside that call. It is
     // consumer code — the placeholder may come from a `placeholder()`
     // factory — reached from a plain DOM write, so no seam wraps it and no
-    // reentrancy guard above sees it. If it destroyed the controller, the
-    // controller is logically closed. Everything below would then register
-    // against lifetimes that are closing, republish this operation's DOM
-    // into the runtime for the *next* drag to find, and call `onStart`
-    // after `destroy()` — the terminal barrier forbids crossing.
+    // reentrancy guard above sees it. A destruction it requests is applied
+    // after this unit, so the activation completes as a live controller's.
     //
     // Everything below assumes the insertion actually took, and a
     // `connectedCallback` gets to run between `after()` and this line. It
@@ -875,31 +742,17 @@ class SortableBehavior {
     // cannot. Adjacency alone already implies same-parent, so a separate
     // parentage test would be unfalsifiable; but adjacency holds inside a
     // detached fragment too, so connectivity is not implied by it.
+    //
+    // That is the single-fault outcome. If consumer code in this activation
+    // also registered a cancellation, the two-fault class stated where
+    // `#invalidateInSeam` fails below applies instead: the cancel supersedes
+    // this failure, the drag settles as *canceled* without a start
+    // notification, and the landing looks for an activation record this
+    // throw left unpublished.
     const item = current.item!;
 
     if (!placeholder.isConnected || item.nextElementSibling !== placeholder) {
       throw new Error('drag: sortable/insertion-placeholder-lost');
-    }
-
-    // **The pre-publication revalidation, and the one reading that covers
-    // this whole stretch.** The alternative is a pair of readings — one
-    // after `after()`, one after the survival conjuncts — of
-    // `scope.presentation.signal.aborted`, which is strictly *stronger*
-    // than the controller's latch in that it also fires for a
-    // kernel-internal `panic()` destroy.
-    //
-    // That property inverts here: physical teardown runs at the transaction
-    // boundary, so the signal **lags** the close it would stand in for, and
-    // the stronger reading is the wrong one for exactly the reason that
-    // made it attractive. `kernel.closed` is the latch itself, and since a
-    // panic closes logically first it sees that too, so one reading placed
-    // immediately before the publication block loses nothing. Every
-    // consumer-reachable accessor in the stretch — `connectedCallback`,
-    // `isConnected`, `nextElementSibling` on a consumer-owned placeholder —
-    // is covered by it, because everything below is the publication and
-    // nothing above it is consequential.
-    if (this.#kernel.closed) {
-      return;
     }
 
     // Listeners bound to the signal are self-releasing, so the signal *is*
@@ -915,7 +768,10 @@ class SortableBehavior {
         // classified-failure mechanism entirely. Queuing it as a behavior
         // action gives it a seam: the action's own `prepare` runs against
         // the live operation, which is where `FAILURE_INVALIDATION` can be
-        // classified with the recovery the contract gives it.
+        // classified with the recovery the contract gives it. A destruction
+        // requested in the same unit discards the action with its fault, and
+        // only an event dispatched synchronously inside a library callback can
+        // reach that: the platform delivers scroll and resize outside any unit.
         this.#kernel.dispatch(TAG_INVALIDATION, error);
       }
     });
@@ -933,35 +789,24 @@ class SortableBehavior {
       // ancestry the drag began in; a read taken here would describe a tree
       // activation has already changed.
       space: scope.itemSpace,
-      live: this.#live,
     };
 
     if (!this.#invalidateInSeam()) {
       // Classified; the operation is failing, so do not start it.
       //
-      // This is the one path that reaches a terminal callback without a
-      // start notification — and only in combination with a second fault: a
-      // cancellation latched from the placeholder's `connectedCallback`
-      // above outranks this classified failure, so the operation settles as
-      // *canceled* for a drag `onStart` never announced. Either fault alone
-      // is fine: without the cancel this reports through `onError`, and
-      // without the throw `onStart` still runs. An admitted gap, rather
-      // than closed with a per-operation "started" flag.
-      return;
-    }
-
-    // **The last barrier of the activation sequence.** `invalidateInSeam`
-    // calls a third-party `invalidateInsertion` — the axis installer's,
-    // which is middle-tier code — and it reports only whether that call
-    // *threw*, never whether it destroyed the controller on its way out.
-    // Without this reading an installer that closed its own controller
-    // still gets a start published for it.
-    //
-    // It is the same shape as free drag's and is deliberately not shared:
-    // the two barriers guard different calls in different sequences, and
-    // extracting them would build a common activation runtime out of a
-    // coincidence of shape.
-    if (this.#kernel.closed) {
+      // This is one instance of a class of two-fault paths that reach a
+      // terminal callback without a start notification; the adjacency throw
+      // above is another. The class needs both faults: consumer code reached
+      // during this activation before `onStart` registers a cancellation —
+      // the placeholder factory in `prepare` and the placeholder's
+      // `connectedCallback` above are examples, not a complete list — and
+      // the effect then fails before `onStart`. The registered cancel
+      // outranks the classified failure, so the operation settles as
+      // *canceled* for a drag `onStart` never announced, and the failure
+      // reaches `onError` as superseded by the cancel. Either fault alone is
+      // fine: without the cancel the failure reports through `onError`, and
+      // without the failure `onStart` still runs. The gap is admitted and
+      // open.
       return;
     }
 
@@ -972,7 +817,12 @@ class SortableBehavior {
     // recently heard about.
     this.#operation.progress = STARTED;
 
-    // 4 — last, because it may reentrantly cancel or destroy.
+    // 4 — consumer code last. Everything the activation owns is registered
+    // and published above, so a throw from `onStart`, classified as this
+    // seam's failure, leaves no step of the effect undone, and the consumer
+    // hears of the drag only once it exists. A cancellation or destruction
+    // it requests is applied after this unit, so it does not bear on the
+    // order.
     this.#slots.onStart(item);
   }
 
@@ -1020,22 +870,24 @@ class SortableBehavior {
     }
 
     if (tag === TAG_SPATIAL) {
-      // The applied half of the double validation. The `view` test is what
-      // bites today; the attempt comparison is unreachable as things stand,
-      // because the frame task coalesces and dispatches the latest sequence
-      // synchronously, so a queued attempt is always current when it
-      // applies. It is kept because the contract states the check, and
-      // because anything that later queues a spatial action from outside
-      // the frame task reopens the window it closes. The spatial action is
-      // inert outside `ACTIVE`, and the activation record cannot stand in for
-      // that: it is cleared only at retirement, so it stays non-null
-      // through `RELEASING`, `SETTLING` and `FINALIZING`. No producer can
-      // reach those phases today — the frame task is cancelled when motion
+      // The applied half of the double validation. The activation test is
+      // the producer's own — the frame task tests the record before it
+      // dispatches — and here it cannot fail once the phase test passes,
+      // because the record is published before `ACTIVE` is committed and
+      // cleared only at retirement. The attempt comparison cannot fail
+      // either, because the frame task coalesces and dispatches the latest
+      // sequence synchronously, so a queued attempt is always current when
+      // it applies. It is kept because the contract states the check, and
+      // because anything that queues a spatial action from outside the
+      // frame task reopens the window it closes. The spatial action is
+      // inert outside `ACTIVE`, and the activation record cannot stand in
+      // for that: it is cleared only at retirement, so it stays non-null
+      // through `RELEASING`, `SETTLING` and `FINALIZING`. No producer
+      // reaches those phases — the frame task is cancelled when motion
       // closes at release, and no other call site dispatches this tag — so
-      // this guard is unreachable by construction rather than by luck. It
-      // is here so that a future producer (a replayed action, a flush from
-      // a hook) cannot commit a placeholder move into a decided
-      // transaction.
+      // the phase test is unreachable by construction. It keeps any new
+      // producer (a replayed action, a flush from a hook) from committing a
+      // placeholder move into a decided transaction.
       if (
         draft.phase !== ACTIVE ||
         argument !== this.#operation.pendingSpatial ||
@@ -1050,12 +902,8 @@ class SortableBehavior {
       );
 
       // `resolved === null`: the incumbent slot still wins — commit
-      // nothing. `kernel.closed`: a candidate `visual()` resolver destroyed
-      // the controller during the rebuild. The kernel would discard the
-      // transition anyway — `preparationValid()` no longer holds — but
-      // stopping one branch earlier means the behavior never writes
-      // `draft.insertion` for an operation that no longer exists.
-      if (resolved === null || this.#kernel.closed) {
+      // nothing.
+      if (resolved === null) {
         return null;
       }
 
@@ -1069,13 +917,6 @@ class SortableBehavior {
     // controller member is reachable from inside a seam and could only have
     // called it at an arbitrary reentrant point.
     const source = this.#slots.items();
-
-    // The terminal barrier on the pull. `items()` may destroy the
-    // controller; discarding here means the behavior neither copies nor
-    // publishes for an operation that no longer exists.
-    if (this.#kernel.closed) {
-      return null;
-    }
 
     // **Array identity is the whole structural test.** An unchanged
     // identity is a resize, a zoom or a scroll — the warm, common case —
@@ -1091,8 +932,8 @@ class SortableBehavior {
 
     // Copied on the structural branch **only**, which is the point of the
     // split: the copy is what keeps a queued snapshot safe from a later
-    // caller mutation, and it is now paid when membership changes rather
-    // than on every invalidation.
+    // caller mutation, and it is paid when membership changes rather than
+    // on every invalidation.
     //
     // **Copied first, numbered second.** The copy refuses nothing, so
     // nothing here throws — but the order still matters, because it is what
@@ -1195,9 +1036,12 @@ class SortableBehavior {
       /**
        * **The cache does not describe the DOM.** Raised before anything can
        * touch the rule's arrays and lowered only once the cache and the
-       * tree agree again, so every exit in between — a placeholder
-       * reaction that destroyed the controller, a hook that threw — leaves
-       * it set and invalidates in the `finally`.
+       * tree agree again, so every exit in between leaves it set and
+       * invalidates in the `finally`. The exits are `movePlaceholder`'s throw
+       * (`drag: sortable/anchor-outside-container`, or a DOM exception) and
+       * the `return` after a caught `movedInsertion` throw. A custom
+       * element's reaction to the move that throws is reported to the global
+       * object and does not leave this bracket.
        *
        * That invalidation is load-bearing rather than defensive. There is
        * no invalidation on the happy path at all: the axis either advances
@@ -1211,22 +1055,9 @@ class SortableBehavior {
         // 1 — the one write.
         movePlaceholder(view.placeholder, insertion);
 
-        // **The terminal barrier on the placeholder-reaction window** — the
-        // same hazard `activation.effect` already guards one line after
-        // `item.after(placeholder)`, reached through the other door.
-        // `movePlaceholder` moves a node, so a custom-element placeholder's
-        // `disconnectedCallback`/`connectedCallback` runs synchronously
-        // inside that call; it is consumer code the `placeholder()` factory
-        // supplied, and no seam wraps it. If it destroyed the controller,
-        // the hook below would read consumer-owned rows and the sink would
-        // start WAAPI animations against a retired feature.
-        if (this.#kernel.closed) {
-          return;
-        }
-
         // 2 — tell the axis, and hand it the sink. One call: the cache
-        // advance does not depend on the DOM, so there was never a reason
-        // for it to precede the write it describes, and the sink's visitor
+        // advance does not depend on the DOM, so there is no reason for it
+        // to precede the write it describes, and the sink's visitor
         // arrives as an argument rather than a plan coming back — which is
         // what leaves a composition with no displacement feature allocating
         // nothing at all here.
@@ -1255,18 +1086,7 @@ class SortableBehavior {
 
         stale = false;
       } finally {
-        // **Not on a closed controller**, and the second conjunct is the
-        // reading this site owes. `invalidateInsertion` is a declared
-        // consumer slot — a published axis installer fills it — and every
-        // exit that leaves `stale` set arrives here from a consumer-reachable
-        // step: the placeholder's own reactions, or the hook itself. One of
-        // those exits has already read the latch as closed two statements up.
-        //
-        // Skipping it loses nothing the boundary does not already do: the
-        // assembler pushes the axis's `retire` into `retireHooks`, and
-        // teardown walks them, so a closed controller's cache is emptied and
-        // marked stale rather than left describing a tree that never existed.
-        if (stale && !this.#kernel.closed) {
+        if (stale) {
           this.#invalidateInSeam();
         }
       }
@@ -1288,9 +1108,8 @@ class SortableBehavior {
       return;
     }
 
-    // Publication is an effect, not a preparation: a reentrant cancel or
-    // destroy must not be able to invalidate a preparation whose private
-    // runtime has already been replaced.
+    // Publication is an effect, not a preparation: a preparation that is
+    // discarded must not publish.
     this.#snapshot = next;
     // The identity the structural test compares against, advanced with the
     // snapshot it produced and never before it — a preparation that was
@@ -1308,7 +1127,7 @@ class SortableBehavior {
     // Last, and only after publication: an invalid collection ends the
     // current drag, but it must never throw away the consumer's update.
     if (staged.cancelReason !== null) {
-      this.#kernel.cancel(staged.cancelReason);
+      this.#kernel.requestCancel(staged.cancelReason);
     }
   }
 
@@ -1369,30 +1188,17 @@ class SortableBehavior {
         return { invoke: null };
       }
 
-      // **No terminal barrier here, deliberately.** This resolve reaches
+      // **No lifecycle guard here, deliberately.** This resolve reaches
       // the candidate loop too, and on an aborted traversal it falls back
       // to `draft.insertion`, builds a proposal and stages an `invoke`
-      // closure — which is never executed: `runCore` stages nothing when
-      // `preparationValid()` is false, and `runReleaseSeam` runs only a
-      // non-null command, so `onReorder` cannot fire for an operation
-      // `destroy()` retired. A guard here would be a second copy of a
-      // decision the kernel already owns, and two copies can disagree.
+      // closure — which is never executed: the kernel opens the round-trip
+      // in a unit of its own, and a destruction requested in this one is
+      // applied at its boundary and discards it, so `onReorder` cannot fire
+      // for an operation whose destruction was requested. A guard here would
+      // be a second copy of a decision the kernel already owns, and two
+      // copies can disagree.
       const resolved =
         this.#slots.resolveInsertion(draft, view) ?? draft.insertion;
-
-      // **The terminal barrier on the frame writes**, and it is a
-      // *different* guard from the one declined above: that one was about
-      // `onReorder` firing, which the kernel owns. This one is about what
-      // the **draft** holds. The consumer-reaching stretch that ends here
-      // is the axis's own rebuild — a `box` resolver and a
-      // `getBoundingClientRect` per candidate, then the consumer-owned
-      // placeholder — and every statement below writes a frame teardown has
-      // already scrubbed and will not scrub again: `draft.insertion`, then
-      // `draft.proposal`, whose request pins the item and the whole
-      // released snapshot in an inactive frame.
-      if (this.#kernel.closed) {
-        return { invoke: null };
-      }
 
       if (!resolved) {
         throw new Error('drag: sortable/release-no-insertion');
@@ -1403,10 +1209,11 @@ class SortableBehavior {
     }
 
     // The frame's own committed snapshot, not `#snapshot`: the insertion
-    // carries the version it was resolved against, and the resolve one screen
-    // above used this same value. `buildReorderProposal` answers `null` on a
-    // version mismatch, so a behavior-private snapshot republished since the
-    // resolve is the one input that turns a coherent release into a throw.
+    // carries the version it was resolved against, and the pointer branch's
+    // `resolveInsertion` read this same value. `buildReorderProposal` answers
+    // `null` on a version mismatch, so a behavior-private snapshot republished
+    // since the resolve is the one input that turns a coherent release into a
+    // throw.
     const built = buildReorderProposal(snapshot, item, insertion);
 
     if (!built) {
@@ -1444,23 +1251,6 @@ class SortableBehavior {
     // reaches the same final gap by the same single writer.
     movePlaceholder(activation.placeholder, current.insertion!);
 
-    // **The terminal barrier on the release write.** The move above runs a
-    // custom-element placeholder's callbacks, and a reentrant `retire()` has
-    // then already dropped the record this effect is holding — so without
-    // this the write below reaches a **disposed** lift session, rendering
-    // into an operation that no longer exists. The record is read once at
-    // the head, so the failure is a quiet write rather than a `TypeError`,
-    // and this barrier is the whole of what stops it.
-    //
-    // **It covers the `lift.write` alone**, and the scope is a property of
-    // what follows it: that write is the only statement below reading the
-    // activation record at all. Everything else in this effect reads
-    // committed frame scalars, which survive retirement and mean the same
-    // thing after it.
-    if (this.#kernel.closed) {
-      return;
-    }
-
     if (current.pointerId !== -1) {
       // Normative, not decoration: `pointerup` need not carry the last
       // processed `pointermove`'s coordinates, and the proposal was
@@ -1481,8 +1271,8 @@ class SortableBehavior {
     // is correct because the visual has not moved since acquisition.
 
     // **Nothing is published here**, and the effect ends at the write. The
-    // ordering that binds is the kernel's: the staged command runs *after*
-    // this returns, so a throw from the write above classifies
+    // ordering that binds is the kernel's: the staged command runs in a later
+    // unit of its own, so a throw from the write above classifies
     // `FAILURE_RELEASE` and the round-trip never opens.
     //
     // **The render is a consumer-reachable call**, which is what makes that
@@ -1495,7 +1285,8 @@ class SortableBehavior {
   // -----------------------------------------------------------------------
   // Settlement
   // -----------------------------------------------------------------------
-  /** The five-case mapping, covered exhaustively. */
+  /** One arm per `SettlementInput` type, covered exhaustively. */
+  // eslint-disable-next-line @typescript-eslint/consistent-return
   prepareSettlement(
     draft: Draft<SortableFramePart>,
     input: SettlementInput,
@@ -1526,16 +1317,6 @@ class SortableBehavior {
         // data read. There is nothing to validate — a value that is neither
         // came from outside the types.
         const accepted = value === ACCEPTED;
-
-        // **The barrier stands.** Nothing between this seam's entry and the
-        // write reaches consumer code, but the round trip is a
-        // `PromiseLike`: the consumer may have destroyed the controller
-        // while it was pending, and publishing into a frame teardown has
-        // already scrubbed would pin the whole proposal in an inactive
-        // frame nothing clears again.
-        if (this.#kernel.closed) {
-          return true;
-        }
 
         const domain: ReorderTransactionResult = accepted
           ? { type: 'accepted', proposal: proposal! }
@@ -1696,8 +1477,7 @@ class SortableBehavior {
 
     if (recovery === RECOVERY_DESTINATION) {
       // Re-anchoring follows the **recovery**, which is committed behavior
-      // state. There is no `authoredReady` gate in front of this and none is
-      // needed: under the serial commit the authored DOM is already final
+      // state. Under the serial commit the authored DOM is already final
       // when this runs, so there is no pending render to wait for.
 
       // Each conjunct earns its place. `nextElementSibling` makes the repair
@@ -1710,14 +1490,7 @@ class SortableBehavior {
       if (
         item.isConnected &&
         item.parentElement === placeholder.parentElement &&
-        placeholder.nextElementSibling !== item &&
-        // **The terminal barrier on the re-anchor's own conjuncts.** All
-        // three above are accessors on consumer-owned elements. Teardown has
-        // already *removed* this placeholder, so `before()` after a destroy
-        // would re-insert a footprint the operation has finished with — back
-        // into the consumer's list, where nothing will remove it again. Last
-        // conjunct, so it is read only on the frame that would mutate.
-        !this.#kernel.closed
+        placeholder.nextElementSibling !== item
       ) {
         item.before(placeholder);
       }
@@ -1726,21 +1499,6 @@ class SortableBehavior {
       // grab slot before measuring. The home gap is recomputed from the
       // committed snapshot, so it needs no per-operation slot.
       this.#homeGap(current);
-    }
-
-    // **The terminal barrier on the re-anchor.** Both branches above move a
-    // node — `item.before(placeholder)` here, `movePlaceholder` inside
-    // `homeGap` — so a custom-element placeholder's
-    // `disconnectedCallback`/`connectedCallback` runs synchronously inside
-    // them, and it is consumer code. The measurement below is a *second*
-    // consumer call on the same element. The kernel revalidates around
-    // `anchorTarget` and never joins for a destroyed controller, so the
-    // point is discarded either way; what this stops is the read itself.
-    if (this.#kernel.closed) {
-      this.#anchor.x = 0;
-      this.#anchor.y = 0;
-
-      return this.#anchor;
     }
 
     // **The precondition, two O(1) reads, immediately before the
@@ -1824,30 +1582,14 @@ class SortableBehavior {
     }
   }
 
-  /**
-   * **Forward, and nothing else.** The kernel builds the public error, picks
-   * its class and owns the latch; this member is the last hop, and it is
-   * {@link deliver} itself.
-   *
-   * **Neither a classification nor a `domain: null` context belongs here**,
-   * so this member neither derives anything from the stage nor attaches a
-   * context: construction is kernel-owned so a classification cannot mean two
-   * things in two behaviors, and the context is strictly redundant with the
-   * terminal. There is no stage-to-code mapping to call either way.
-   *
-   * Its one caller is the kernel's `notify`, which gates on the latch and
-   * discards a throwing handler for every route it owns — including `panic`'s
-   * post-closure delivery, which is exactly why neither rule can live here.
-   */
-
   retire(): void {
     this.#operation.progress = MINTED;
     this.#spatialFrame.cancel();
     this.#operation.pendingSpatial = 0;
     this.#operation.activation = null;
 
-    // **Stored in installation order, walked backwards**, like the undo
-    // ledger above. Each is wrapped individually, so one throwing hook cannot
+    // **Stored in installation order, walked backwards.** Each is wrapped
+    // individually, so one throwing hook cannot
     // stop a later one from restoring its DOM.
     for (let i = this.#slots.retireHooks.length - 1; i >= 0; i -= 1) {
       this.#unwind(this.#slots.retireHooks[i]!);
@@ -1892,9 +1634,6 @@ export function createSortableSpec(
     activation: {
       prepare(draft, scope) {
         return behavior.prepareActivation(draft, scope);
-      },
-      rollback() {
-        behavior.rollbackActivation();
       },
       effect(current, placeholder, scope) {
         behavior.effectActivation(current, placeholder, scope);
@@ -1946,7 +1685,8 @@ export function createSortableSpec(
 
     /**
      * **Forward, and nothing else.** The kernel builds the public error, picks
-     * its class and owns the latch; this member is the last hop.
+     * its class and owns the refusal; this member is the last hop, the sink
+     * every channel delivers to.
      *
      * **Neither a classification nor a `domain: null` context belongs here**,
      * so it neither derives anything from the stage nor attaches a context:
@@ -1954,10 +1694,9 @@ export function createSortableSpec(
      * in two behaviors, and the context is strictly redundant with the
      * terminal.
      *
-     * Its one caller is the kernel's `notify`, which gates on the latch and
-     * discards a throwing handler for every route it owns — including the
-     * post-closure panic delivery, which is exactly why neither rule can live
-     * behind it.
+     * Its callers are the kernel's own route, which refuses after applied
+     * destruction and discards a throwing handler, and `panic`'s one delivery
+     * after closure, which is exactly why neither rule can live here.
      */
     reportError: behavior.reportError,
 

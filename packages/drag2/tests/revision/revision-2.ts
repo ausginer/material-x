@@ -545,7 +545,7 @@ sortable(
   { axis: undefined },
 );
 
-void controller.destroy();
+void controller.requestDestroy();
 controller.invalidate();
 
 /**
@@ -570,7 +570,7 @@ const kernelSide: SortableController = draggable<
   SortableController,
   SortableFramePart,
   HTMLElement
->(root, (kernel) => {
+>(root, (_kernel) => {
   // **`HTMLElement` is written out, and D-34 is why it can be** (K-1). The
   // staged activation type is the behavior's choice now; this one stages an
   // element, so it says so. Omitting the argument here would not be shorter by
@@ -664,12 +664,11 @@ const kernelSide: SortableController = draggable<
     moved: () => {},
     anchorTarget: () => ({ x: 0, y: 0 }),
 
-    // D-53 — liveness is read from the latch, never from a disposed resource.
     // D-66 — one lookup, no branch per stage: by the time this runs, the
     // fallback has already been written into the same field a successful drop
     // writes.
     finalized: (current) => {
-      if (!kernel.closed && current.domain !== null) {
+      if (current.domain !== null) {
         globalThis.console.log(disposition(current.domain));
       }
     },
@@ -687,8 +686,8 @@ const kernelSide: SortableController = draggable<
     spec,
     controller: {
       invalidate: () => {},
-      cancel: () => {},
-      destroy: () => Promise.resolve(),
+      requestCancel: () => {},
+      requestDestroy: () => Promise.resolve(),
     },
   };
 });
@@ -787,7 +786,7 @@ const strayContribution: AxisContribution = { whenever: () => {} };
 void strayContribution;
 
 // n15 — **withdrawn, and this one has teeth.** The assertion was that
-// `controller.destroy` cannot be used where `() => void` is expected. It can:
+// `controller.requestDestroy` cannot be used where `() => void` is expected. It can:
 // TypeScript assigns *any* return type to a `void` return position, by design,
 // so `Promise<void>` flows into a void-returning slot with no complaint.
 //
@@ -831,11 +830,12 @@ declare const settledFrame: Parameters<
 // @ts-expect-error the committed frame is readonly in `effect` (D-3, D-66)
 settledFrame.domain = null;
 
-// n16 — D-53: the liveness reader is readonly. A behavior may consult the
-// latch; it may not set it, which is what keeps closure the kernel's to decide.
+// n16 — D-53 is withdrawn (D-208): there is no liveness reader to consult or
+// set. A behavior reaches the lifecycle only through the refusal its minted
+// channel applies, which keeps closure the kernel's to decide.
 declare const kernel: BehaviorContext;
-// @ts-expect-error `closed` is readonly (D-53)
-kernel.closed = true;
+// @ts-expect-error `BehaviorContext` has no lifecycle member (D-208)
+void kernel.closed;
 
 export type { DraggableError, FailureStage, SortableConfig };
 export { AT_CONSUMER, report };

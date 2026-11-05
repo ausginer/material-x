@@ -41,8 +41,9 @@ import type { OffsetBox, Point } from './types.ts';
  * the factory's invocation to the moment arming completes — the factory body
  * and the frame-part factories alike — is a supported position for every member
  * below, and each behaves there as its own entry states. Where that cannot be
- * delivered the limitation is written into the member's own entry;
- * {@link BehaviorContext.dispatch} is the one member in that position.
+ * delivered the limitation is written into the member's own entry:
+ * {@link BehaviorContext.dispatch}'s tag is unchecked there, and
+ * {@link BehaviorContext.fail}'s demotion is silent until arming.
  */
 export interface BehaviorContext {
   /** The owning document/window. Every DOM access goes through it. */
@@ -53,14 +54,20 @@ export interface BehaviorContext {
 
   /**
    * Enqueue one behavior action. `tag` is behavior-local and must be an integer
-   * in `0 .. config.actionTags - 1`. An out-of-range tag is reported and
-   * dropped, never enqueued.
+   * in `0 .. config.actionTags - 1`. Once destruction has been applied, every
+   * dispatch is dropped.
    *
-   * **An action dispatched before the behavior is armed is dropped, without a
-   * report.** Its handler would run the behavior's own transition through
-   * machinery construction has not built yet, so there is nothing to enqueue
-   * into that could run it and no reporter to say so. Dispatch after
-   * construction.
+   * **After arming**, an out-of-range tag is reported and dropped, never
+   * enqueued.
+   *
+   * **During construction** — the factory body and the frame-part factories —
+   * the action is queued and applied after `draggable()` publishes the
+   * controller, before it returns, in dispatch order. The tag is not checked
+   * there, because the count bounding it is in the spec the factory has not
+   * yet returned, so an out-of-range tag has no specified outcome.
+   *
+   * A destruction discards a queued action whole: it is never prepared, and
+   * whatever `argument` carries is dropped unread.
    */
   dispatch(tag: number, argument: unknown): void;
 
@@ -69,8 +76,9 @@ export interface BehaviorContext {
    * holds. Never thrown at the producer.
    *
    * Valid **only inside a kernel-driven seam of the current operation**; a call
-   * outside one is downgraded to a platform report, because a late continuation
-   * from operation A could otherwise classify a failure against operation B.
+   * outside one becomes a `DraggableWarning` through the controller's route,
+   * because a late continuation from operation A could otherwise classify a
+   * failure against operation B.
    *
    * **The demotion is silent until the behavior is armed**: the report travels
    * through the behavior's own `reportError`, which the kernel does not hold
@@ -79,43 +87,59 @@ export interface BehaviorContext {
   fail(stage: FailureStage, error: unknown): void;
 
   /**
-   * **Is this controller logically closed?** The only sanctioned liveness
-   * reading.
+   * **Mints the controller's diagnostic channel over a sink you supply.**
    *
-   * This is the latch itself, not a proxy for it. No physical-teardown
-   * observation may answer a liveness question: physical teardown is deferred
-   * to the transaction boundary, so `presentation.signal.aborted`, a disposed
-   * session and a detached node all **lag** the logical close.
+   * The returned function hands each error to `deliver` until destruction is
+   * applied, and drops every call after that, by the kernel's own refusal. A
+   * request for destruction is not its application: in the interval before it
+   * the running unit completes as a live controller's, and its diagnostics
+   * are delivered. A throw from `deliver` is absorbed, so the channel never
+   * throws, which is what lets an unwind step report through it and continue.
    *
-   * Readonly by construction: a behavior may consult the latch, never set it.
+   * It works from the factory onward, before arming, so a composition unwind
+   * that runs before the spec exists can report through it.
+   *
+   * Mint one per sink, at construction: each call allocates one function.
+   *
+   * It exposes no lifecycle value. Whether it delivered is still an indirect
+   * observation of applied destruction, as the refusal of any other entry
+   * point is. That observation cannot change while a library callback runs,
+   * and it never reveals a request that has not been applied.
    */
-  readonly closed: boolean;
+  channel(
+    deliver: (error: DraggableError | DraggableWarning) => void,
+  ): (error: DraggableError | DraggableWarning) => void;
 
   /**
    * Base controller methods, for the behavior to publish on its controller.
    *
    * They are **called with a receiver here and detached by contract there**: a
-   * consumer's `controller.cancel` may be pulled off and passed on, so the
-   * behavior publishes a closure over this call rather than the member itself.
+   * consumer's `controller.requestCancel` may be pulled off and passed on, so
+   * the behavior publishes a closure over this call rather than the member
+   * itself.
    *
-   * An idle cancel is a no-op that leaves no latch.
+   * Registered only against an operation in a cancellable phase, and applied
+   * in order after the running unit; an idle request is a no-op that leaves
+   * nothing registered.
    */
-  cancel(reason?: unknown): void;
+  requestCancel(reason?: unknown): void;
 
   /**
-   * Closes the controller **logically**, immediately, on this statement. The
-   * returned promise settles **once**, after physical teardown — which is this
-   * call when no library transaction is active, and the boundary of the
-   * outermost one when there is.
+   * Requests destruction. It is applied at once when no library unit is
+   * running, and otherwise when the running unit ends: that unit completes
+   * first, as a live controller's, and no later unit runs. A fault queued behind
+   * that unit is reported before application and has no other consequence.
+   * Application is one step — closed, queued work discarded, physical teardown —
+   * and the returned promise settles **once**, after it.
    *
-   * Idempotent: repeated destruction closes nothing further and every returned
-   * promise still settles exactly once.
+   * Idempotent: every call returns the same promise.
    *
-   * **The teardown it owes runs whether or not the controller was ever armed**:
-   * a behavior the kernel has taken is retired exactly once, and no frame part
-   * is composed after the latch closes.
+   * **Construction is a unit too.** A destruction requested from the factory
+   * body or a frame-part factory is applied once the controller is published,
+   * so both frame parts are composed, and the behavior is retired exactly once
+   * before `draggable()` returns.
    */
-  destroy(): Promise<void>;
+  requestDestroy(): Promise<void>;
 }
 
 // Discrete, pointerless admission is a second ingress, not a second protocol. A
@@ -383,7 +407,7 @@ export type BehaviorConfig = Readonly<{
   /** Which lift strategy the kernel acquires at activation. */
   liftMode: LiftMode;
   /**
-   * How many behavior action tags exist. Static spec data: it is what `arm()`
+   * How many behavior action tags exist. Static spec data: it is what construction
    * validates and what bounds a `dispatch` tag.
    */
   actionTags: number;
@@ -427,7 +451,7 @@ export type BehaviorSpec<
 
   /**
    * The optional second ingress. A behavior that omits it binds no discrete
-   * listener at all, and `arm()` binds `pointerdown` and nothing else.
+   * listener at all, and construction binds `pointerdown` and nothing else.
    */
   command?: CommandAdmission<Part>;
 
@@ -458,7 +482,7 @@ export type BehaviorSpec<
    * consumer code.
    *
    * So an implementation may return **one mutable buffer per controller**,
-   * rewritten on every call, and both first-party behaviors do. What it may
+   * rewritten on every call, as the first-party behaviors do. What it may
    * *not* do is write the buffer before its last call into foreign code: an
    * implementation that measures, writes, and then calls a consumer's handler
    * has published a value the handler can reach.
@@ -496,19 +520,21 @@ export type BehaviorSpec<
    * kernel hands over a finished error; the behavior chooses nothing and
    * re-derives nothing from it.
    *
-   * **Which class arrives says whether the operation was affected.** A
-   * `DraggableError` means the outcome changed: `admit` threw and the drag will
-   * not start, or the controller panicked. A `DraggableWarning` means it did
-   * not — a landing measurement that could not be trusted, a disposer that
-   * refused, an interpolation the platform declined to start. A warning is therefore **not
-   * proof that the operation is over**, and the terminal for that operation
-   * still publishes afterwards.
+   * **Which class arrives says whether this fault decided the outcome.** A
+   * `DraggableError` means it did: `admit` threw and the drag will not start, or
+   * the controller panicked. A `DraggableWarning` means it did not — a landing
+   * measurement that could not be trusted, a disposer that refused, an
+   * interpolation the platform declined to start, a throw a cancel or destruction
+   * had already superseded. A warning therefore says nothing about the terminal:
+   * the operation publishes the one it would have without this fault, before or
+   * after the warning, and none once destruction has decided it.
    *
-   * **The guard belongs here.** This is the one place in the library that
-   * invokes a consumer's `onError`, so it is the one place a throw from it must
-   * stop: an implementation catches and discards, and never reports the throw
-   * back through itself. That single discard is what keeps the channel
-   * non-recursive.
+   * **No guard belongs here.** The kernel calls this only through its own
+   * route, which refuses after destruction is applied and absorbs a throw, and
+   * once from a panic, behind a discard of its own. So a throw from `onError` stops
+   * there and is never reported back. A behavior's own reports and its
+   * composition's `report` reach `onError` through channels the behavior
+   * mints with {@link BehaviorContext.channel}, not through this member.
    */
   reportError(error: DraggableError | DraggableWarning): void;
 
@@ -517,8 +543,9 @@ export type BehaviorSpec<
 }>;
 
 /**
- * Both halves of the two-phase handshake, returned at once so that no input can
- * be admitted before `install()` returns.
+ * Both halves of the two-phase handshake, returned at once. The factory returns
+ * them, and only then does arming attach ingress, so no input is admitted
+ * before the factory has returned.
  */
 export type BehaviorInstall<
   Controller,

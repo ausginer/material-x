@@ -1,0 +1,11 @@
+describe('R2 kernel', () => {
+  const FIRST = new Error('first');
+  const show = (h: Harness) => h.reports.map((r) => [r.message, r.cause === FIRST ? 'FIRST' : String(r.cause)]);
+  it('K6 fail inside invoke, then throw', () => {
+    const harness: Harness = createHarness({
+      release: releaseWith(() => { harness.kernel.fail(FAILURE_RENDERER_WRITE, new Error('a')); throw FIRST; }),
+    });
+    activate(harness); harness.reports.length = 0; release(40, 10);
+    console.log(`PROBE K6 :: ${JSON.stringify({ delivered: show(harness), types: harness.settlements.map((s: any) => s.type) })}`);
+  });
+});

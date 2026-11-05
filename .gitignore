@@ -3,12 +3,12 @@
 /node_modules
 /.vite
 /.vite-inspect
-/.vitest-attachments
+/.vitest
 /.nx
 /.coverage
 /packages/*/.vite
 /packages/*/.coverage
-/packages/*/.vitest-attachments
+/packages/*/.vitest
 /packages/*/node_modules
 /packages/*/custom-elements.json
 /packages/*/.codeanalyzer

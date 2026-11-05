@@ -42,7 +42,6 @@ type Field = Readonly<{
     pointerY: number,
     snapshot?: CollectionSnapshot,
     getBox?: ((item: HTMLElement) => HTMLElement) | null,
-    live?: () => boolean,
     settle?: DisplacementSettle | null,
     insertion?: Insertion | null,
   ): Insertion | null;
@@ -54,13 +53,9 @@ type Field = Readonly<{
     gap: number,
     snapshot?: CollectionSnapshot,
     getBox?: ((item: HTMLElement) => HTMLElement) | null,
-    live?: () => boolean,
     settle?: DisplacementSettle | null,
   ): void;
 }>;
-
-/** The default liveness: a controller nobody destroyed. */
-const ALIVE = (): boolean => true;
 
 /**
  * A gap the axis is told a committed move landed on. Only `index` is read on
@@ -119,7 +114,6 @@ function createField(count = 3): Field {
       pointerY,
       snapshot = field.snapshot(),
       getBox = null,
-      live = ALIVE,
       settle = null,
       insertion = null,
     ) =>
@@ -128,18 +122,11 @@ function createField(count = 3): Field {
         {
           placeholder,
           box: getBox,
-          live,
           settle,
           space: null,
         },
       ),
-    move: (
-      gap,
-      snapshot = field.snapshot(),
-      getBox = null,
-      live = ALIVE,
-      settle = null,
-    ) => {
+    move: (gap, snapshot = field.snapshot(), getBox = null, settle = null) => {
       geometry.moved(
         {
           pointerX: 0,
@@ -151,7 +138,6 @@ function createField(count = 3): Field {
         {
           placeholder,
           box: getBox,
-          live,
           settle,
           space: null,
         },
@@ -181,7 +167,6 @@ describe('y', () => {
         {
           placeholder: field.placeholder,
           box: null,
-          live: ALIVE,
           settle: null,
           space: null,
         },
@@ -369,390 +354,16 @@ describe('y', () => {
   });
 });
 
-describe('the terminal barrier in the candidate loop', () => {
-  /**
-   * I-36, at the level only a direct drive can reach. `RectIndex.refresh` calls
-   * the consumer's `visual()` resolver once per candidate, and a resolver is
-   * allowed to call `controller.destroy()` — which runs teardown to completion
-   * synchronously and returns into the middle of the loop.
-   *
-   * The check lives in `rect-index.ts`, but the **threading** is per axis, so
-   * both sibling suites pin it: a future axis can forget to pass `live`.
-   */
-  const closingAt =
-    (
-      target: HTMLElement,
-      asked: HTMLElement[],
-      close: () => void,
-    ): ((item: HTMLElement) => HTMLElement) =>
-    (item) => {
-      asked.push(item);
-
-      if (item === target) {
-        close();
-      }
-
-      return item;
-    };
-
-  it('should stop resolving candidates once the controller closes', () => {
-    const field = createField(4);
-    const asked: HTMLElement[] = [];
-    let alive = true;
-    const getBox = closingAt(field.items[2]!, asked, () => {
-      alive = false;
-    });
-
-    // Three destination candidates; the second one destroys.
-    expect(field.resolve(55, field.snapshot(), getBox, () => alive)).toBeNull();
-
-    // `items[3]` is never resolved: no `visual()` call crosses the terminal
-    // barrier. The other half of the barrier — that no geometry is read after
-    // it either — is a separate concern and is asserted below.
-    expect(asked).toEqual([field.items[1], field.items[2]]);
-  });
-
-  it('should read no placeholder geometry once the controller closes', () => {
-    // **It passes because a candidate remained**, and the reading before that
-    // candidate's `visual()` is what stops the rebuild — not because measuring
-    // the placeholder is itself forbidden after a close. Measuring a
-    // consumer-owned node is a platform read rather than a declared-slot
-    // invocation, so the property this pins is the *shortest* stop: a close
-    // raised inside the loop is caught before the next declared call, and the
-    // trailing placeholder read is never reached because the loop never
-    // finishes. Close on the **last** candidate and the rebuild completes, by
-    // design; that case is below.
-    const field = createField(4);
-    const asked: HTMLElement[] = [];
-    let alive = true;
-    let measured = 0;
-    const { placeholder } = field;
-    const native = placeholder.getBoundingClientRect.bind(placeholder);
-
-    placeholder.getBoundingClientRect = (): DOMRect => {
-      measured += 1;
-
-      return native();
-    };
-
-    expect(
-      field.resolve(
-        55,
-        field.snapshot(),
-        closingAt(field.items[2]!, asked, () => {
-          alive = false;
-        }),
-        () => alive,
-      ),
-    ).toBeNull();
-
-    expect(measured).toBe(0);
-  });
-
-  it('should leave the cache retired rather than clean and partial', () => {
-    // The half a `break` gets wrong. Teardown is deferred to the outermost
-    // transaction boundary, so at this instant the retire hooks have **not**
-    // run; falling through to the trailing bookkeeping would mark a half-filled
-    // index clean at the snapshot's own version, and the **same** version below
-    // would then find it warm, skip the rebuild and serve a partial buffer.
-    const field = createField(4);
-    const asked: HTMLElement[] = [];
-    let alive = true;
-
-    field.resolve(
-      55,
-      field.snapshot(),
-      closingAt(field.items[2]!, asked, () => {
-        alive = false;
-      }),
-      () => alive,
-    );
-
-    asked.length = 0;
-
-    // Same version, nothing invalidated: only a cache left dirty at
-    // `measured === -1` rebuilds, and only an emptied one asks for all three.
-    field.resolve(55, field.snapshot(), (item) => {
-      asked.push(item);
-      return item;
-    });
-
-    expect(asked).toEqual([field.items[1], field.items[2], field.items[3]]);
-  });
-});
-
-/**
- * **A close raised from a candidate's own geometry read**, and what the rule is
- * — and is not — obliged to do about it.
- *
- * The obligation is over **declared consumer slots**: `visual()` must not be
- * invoked once the controller has closed. A candidate's
- * `getBoundingClientRect()` is a platform member on a consumer-owned node, so a
- * close raised from inside one is caught by the reading before the **next**
- * `visual()` — which is the discriminating case, and the only one.
- *
- * On the **last** candidate there is no next invocation, so nothing is owed and
- * the rebuild completes: the buffer is whole, the placeholder is read once, and
- * the cache is clean at a version whose data is right. The cases below pin that
- * as the outcome. They previously pinned its opposite, against a whole-program
- * ceiling on consumer calls that has since been withdrawn, and they are
- * retargeted here rather than deleted so the reversal stays visible.
- */
-describe('the terminal barrier on candidate geometry', () => {
-  /**
-   * Instruments `getBoundingClientRect()` on each element, recording who was
-   * measured and closing the controller from `target`'s own read.
-   */
-  const measuringAt = (
-    elements: readonly HTMLElement[],
-    target: HTMLElement,
-    measured: HTMLElement[],
-    close: () => void,
-  ): void => {
-    for (const element of elements) {
-      const native = element.getBoundingClientRect.bind(element);
-
-      element.getBoundingClientRect = (): DOMRect => {
-        measured.push(element);
-
-        if (element === target) {
-          close();
-        }
-
-        return native();
-      };
-    }
-  };
-
-  it('should still read the placeholder once the last candidate closed the controller', () => {
-    // No `visual()` composed, so this loop invokes **no** declared slot at all
-    // and takes no reading. The close arrives from the last candidate's own
-    // geometry read, nothing is owed after it, and the placeholder read that
-    // finishes the rebuild happens exactly once.
-    const field = createField(4);
-    const measured: HTMLElement[] = [];
-    let alive = true;
-    let anchorReads = 0;
-    const { placeholder } = field;
-    const native = placeholder.getBoundingClientRect.bind(placeholder);
-
-    placeholder.getBoundingClientRect = (): DOMRect => {
-      anchorReads += 1;
-
-      return native();
-    };
-    measuringAt(field.items, field.items[3]!, measured, () => {
-      alive = false;
-    });
-
-    expect(
-      field.resolve(55, field.snapshot(), null, () => alive),
-    ).not.toBeNull();
-
-    expect(anchorReads).toBe(1);
-  });
-
-  it('should leave the cache clean after the last candidate closed the controller', () => {
-    // The trailing-bookkeeping half, and it is now the completion that is
-    // pinned: the buffer is whole and correct, so marking it clean at this
-    // version is right, and the **same** version below finds it warm and asks
-    // for nothing. The rows it holds are released by the transaction boundary
-    // that runs the retire hooks, not by this loop.
-    const field = createField(4);
-    const measured: HTMLElement[] = [];
-    let alive = true;
-
-    measuringAt(field.items, field.items[3]!, measured, () => {
-      alive = false;
-    });
-    field.resolve(55, field.snapshot(), null, () => alive);
-
-    const asked: HTMLElement[] = [];
-
-    field.resolve(55, field.snapshot(), (item) => {
-      asked.push(item);
-      return item;
-    });
-
-    expect(asked).toEqual([]);
-  });
-
-  it('should resolve no further visual once a candidate closed the controller', () => {
-    // The other half of the same ordering defect: the barrier sat *before* the
-    // geometry read, so the next iteration reached `getBox` before the next
-    // reading was taken.
-    const field = createField(4);
-    const measured: HTMLElement[] = [];
-    const asked: HTMLElement[] = [];
-    let alive = true;
-
-    measuringAt(field.items, field.items[1]!, measured, () => {
-      alive = false;
-    });
-
-    field.resolve(
-      55,
-      field.snapshot(),
-      (item) => {
-        asked.push(item);
-        return item;
-      },
-      () => alive,
-    );
-
-    expect(asked).toEqual([field.items[1]]);
-  });
-
-  it('should call no resolver at all when the controller is already closed', () => {
-    // The entry barrier. A committed move invalidates on every failing path
-    // and `release.prepare` resolves immediately afterwards, so a rebuild can
-    // be entered on a controller that consumer code already destroyed — and the
-    // first `getBox` of that rebuild would be a consumer call after
-    // `destroy()`.
-    const field = createField(4);
-    const asked: HTMLElement[] = [];
-
-    expect(
-      field.resolve(
-        55,
-        field.snapshot(),
-        (item) => {
-          asked.push(item);
-          return item;
-        },
-        () => false,
-      ),
-    ).toBeNull();
-
-    expect(asked).toEqual([]);
-  });
-});
-
-/**
- * **`settle` is a declared consumer slot**, and the two sites that invoke it are
- * pinned here.
- *
- * Membership is fillability rather than authorship: `SortableDisplacementInstaller`
- * is published, so a third party can supply the sink, and neither the axis nor
- * the cache can read which value a given composition passed. A shipped
- * `layoutAnimation()` walk and a third-party one are indistinguishable at the
- * call, so the invoker takes the reading either way.
- *
- * **The last candidate is what discriminates.** With a later candidate
- * remaining, the reading before the next `box` already stops the rebuild and
- * the sink is never reached; a fixture that closes early would pass with no
- * barrier here at all.
- */
-describe('the terminal barrier before the displacement sink', () => {
-  const closingOn =
-    (
-      target: HTMLElement,
-      close: () => void,
-    ): ((item: HTMLElement) => HTMLElement) =>
-    (item) => {
-      if (item === target) {
-        close();
-      }
-
-      return item;
-    };
-
-  it('should invoke no settle once the last candidate closed the controller', () => {
-    const field = createField(4);
-    let alive = true;
-    const settled: number[] = [];
-    const settle: DisplacementSettle = (_values, _items, count): void => {
-      settled.push(count);
-    };
-
-    // The scan itself completes — the close is raised on the last candidate, so
-    // no further `box` invocation is owed a reading — and what stops the sink
-    // is the reading taken immediately before it.
-    expect(
-      field.resolve(
-        55,
-        field.snapshot(),
-        closingOn(field.items[3]!, () => {
-          alive = false;
-        }),
-        () => alive,
-        settle,
-      ),
-    ).toBeNull();
-
-    expect(settled).toEqual([]);
-  });
-
-  it('should invoke settle once on a rebuild the controller survived', () => {
-    // The other direction, because a barrier that never lets the sink run is
-    // indistinguishable from one that works.
+describe('the displacement sink', () => {
+  it('should invoke settle once per rebuild', () => {
     const field = createField(4);
     const settled: number[] = [];
     const settle: DisplacementSettle = (_values, _items, count): void => {
       settled.push(count);
     };
 
-    field.resolve(55, field.snapshot(), null, ALIVE, settle);
+    field.resolve(55, field.snapshot(), null, settle);
 
     expect(settled).toEqual([3]);
-  });
-
-  it('should invoke no settle from a committed move once the probe read closed the controller', () => {
-    // The second site: the linear rule measures **one** crossed row to
-    // establish its constant, and settles that one-slot scratch through the
-    // sink. `box` runs on the probe first, so a resolver that destroys there
-    // must not be followed by a call into the sink.
-    const field = createField(4);
-    let alive = true;
-    const settled: number[] = [];
-    const settle: DisplacementSettle = (_values, _items, count): void => {
-      settled.push(count);
-    };
-
-    // Warm the cache and record the gap the buffer reflects, so the move below
-    // proposes a real span rather than being dropped as degenerate.
-    field.resolve(15, field.snapshot(), null, ALIVE, settle, gapAt(0));
-    settled.length = 0;
-
-    field.move(
-      2,
-      field.snapshot(),
-      closingOn(field.items[1]!, () => {
-        alive = false;
-      }),
-      () => alive,
-      settle,
-    );
-
-    expect(settled).toEqual([]);
-  });
-
-  it('should forget the prediction when the probe read closed the controller', () => {
-    // The stop is `#drop()`, not a bare `return`: a move that measured no
-    // constant has claimed nothing, and the cache it would have advanced is
-    // marked stale so the next rebuild measures instead of trusting it.
-    const field = createField(4);
-    let alive = true;
-    const asked: HTMLElement[] = [];
-
-    field.resolve(15, field.snapshot(), null, ALIVE, null, gapAt(0));
-    field.move(
-      2,
-      field.snapshot(),
-      closingOn(field.items[1]!, () => {
-        alive = false;
-      }),
-      () => alive,
-      (_values, _items, _count): void => {},
-    );
-
-    // Same version and nothing else invalidated: only a dropped prediction
-    // makes this rebuild rather than serve the warm buffer.
-    field.resolve(15, field.snapshot(), (item) => {
-      asked.push(item);
-      return item;
-    });
-
-    expect(asked).toEqual([field.items[1], field.items[2], field.items[3]]);
   });
 });

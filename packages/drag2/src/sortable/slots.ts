@@ -32,12 +32,6 @@ import type { DisplacementSettle } from './rect-index.ts';
  * an inverse-FLIP contribution starts from — the element jumped by `+v`, so a
  * contribution of `-v` decaying to zero shows it travelling.
  *
- * `live` reports whether the controller is still alive, and the sink reads it
- * at the head of every call. Starting a contribution is a consumer call — both
- * `animate()` and the `finished` accessor on what it returns are overridable —
- * so a reading taken before the walk says nothing about the calls inside it,
- * and only the party making those calls can take the readings between them.
- *
  * **`space` is the units the vector is in, so a report states its own.** The
  * vector is a viewport quantity and a `translate` is not, so a sink writing one
  * has to project; `space` is the inverse of the linear part the collection
@@ -49,7 +43,6 @@ export type DisplacementReport = (
   element: HTMLElement,
   dx: number,
   dy: number,
-  live: () => boolean,
   space: InheritedSpace,
 ) => void;
 
@@ -117,15 +110,6 @@ export type InsertionRuntimeView = Readonly<{
    * candidate per rebuild.
    */
   box: ((item: HTMLElement) => HTMLElement) | null;
-  /**
-   * Whether the controller is still alive.
-   *
-   * An axis rule that resolves a box per candidate is calling consumer code in
-   * a loop, and such a call may destroy the controller; the loop is
-   * feature-private, so the reading has to arrive as data. Read only between
-   * resolver calls, never on a warm cache.
-   */
-  live(): boolean;
   /**
    * **The installed displacement sink's settle walk**, or `null` when no
    * displacement feature is composed.

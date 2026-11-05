@@ -739,20 +739,11 @@ describe('an invalid home result', () => {
     expect(composed.ends[0]!.type).toBe('rejected');
   });
 
-  it('should reach no onError when the resolver destroys and then throws', async () => {
-    // **E-03's quality route, and the half `runAdmission` does not cover.**
-    // `reportQuality` delegated to the behavior's hook unconditionally, and its
-    // producers are consumer-reaching too — this one is `home`, which is free
-    // drag's only consumer call on the landing-target path. A resolver that
-    // calls `destroy()` and *then* throws would otherwise have its own
-    // destruction reported back to it through a declared callback.
-    //
-    // `armSettlement`'s `settlementLive()` check runs **after** the report, so
-    // it never saw this ordering; the reading belongs where the report is made.
+  const dropDestroyingHome = async (): Promise<ReturnType<typeof compose>> => {
     const composed = compose({
       config: {
         home: () => {
-          void composed.controller.destroy();
+          void composed.controller.requestDestroy();
           throw new Error('home: gone');
         },
       },
@@ -765,11 +756,23 @@ describe('an invalid home result', () => {
     await frame();
     await settled();
 
-    expect(composed.errors).toEqual([]);
-    // `destroy()` publishes no terminal at all, so the absence here is the
-    // floor holding rather than a terminal that merely arrived early.
-    expect(composed.ends).toEqual([]);
-    expect(composed.errors).toEqual([]);
+    return composed;
+  };
+
+  it('should report the invalid home of the unit that requested destruction', async () => {
+    // `home` runs inside the settlement unit, and a destruction it requests is
+    // applied after that unit, so the quality report it raises is a live
+    // controller's.
+    const composed = await dropDestroyingHome();
+
+    expect(messages(composed.errors)).toEqual([landingTarget]);
+  });
+
+  it('should end the operation whose home resolver requested destruction', async () => {
+    // The settlement unit runs to its terminal before the request is applied.
+    const composed = await dropDestroyingHome();
+
+    expect(composed.ends.map((end) => end.type)).toEqual(['rejected']);
   });
 
   it('should accept a finite result and travel to it', async () => {

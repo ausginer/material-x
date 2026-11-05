@@ -81,12 +81,14 @@ function draggable<Controller, Part extends object, Activation extends {}>(
   root: HTMLElement,
   factory: BehaviorFactory<Controller, Part, Activation>,
 ): Controller {
-  const kernel = createKernel<Part>(root); // queue, frames unarmed, no listener
-  const { spec, controller } = factory(kernel.host);
-  kernel.arm(spec); // composes both frames, attaches ingress
-  return controller;
+  // One execution unit, from the factory through publication: the factory
+  // runs, both frames are composed, ingress is attached, and only then is a
+  // request made anywhere inside applied (D-203).
+  return new Kernel<Part, Activation>(root).construct(factory);
 }
 ```
+
+**Construction is one execution unit** (D-203). It spans the whole of `draggable()`: the behavior factory, the static validation, both frame-part compositions, ingress attachment and publication. A request made inside it is applied when it ends, after publication — so a `destroy()` raised from the factory body or a frame-part factory still sees both parts composed and ingress attached, and the application then retires the spec once, resets each frame once and aborts ingress before `draggable()` returns, with the destroy promise already settled. Attaching and then aborting a listener within one synchronous call is unobservable, since no event can arrive in between. Native ingress is refused while the unit runs, so foreign code reached during attachment cannot admit an operation inside construction (F-432). A `cancel()` there is the idle no-op and a `fail()` is demoted silently, because there is no operation and no armed reporter. **A behavior `dispatch` during construction is queued** and applied after publication, before `draggable()` returns, in dispatch order, unless a destroy requested in the window is applied first and clears it. Its tag is not checked there, because `config.actionTags` is in the spec the factory has not yet returned (D-204, F-437).
 
 **C4-03's argument is intact; D-48 moves the boundary it applies to.** The reasoning is worth keeping in front of the reader, because it is what makes D-48 safe rather than what D-48 overrules. It ran: _the public parameter is the opaque `Behavior<Controller>`, not the factory_ — an earlier version of this section declared `draggable()` against `BehaviorFactory<Controller, Part, Activation>` and had `sortable()` return one, and because this document is normative that was not a stale example. It published the internal factory type _and_ both private generic parameters **at the ordinary public boundary**, and it contradicted 03 §The public/internal boundary.
 
@@ -109,9 +111,9 @@ BehaviorSpec<FreeDragPart>; // stages nothing; Activation = true
 
 What D-45 withdraws is one level down again and is a different value: the `SortableFeature` brand on a _fragment_, which is now a plain object literal (§The behavior instance).
 
-`arm()` is not on `BehaviorContext`; only `draggable()` holds the kernel wide, and it calls `arm()` exactly once. **A behavior may not arm itself or re-arm**, and the interface is where that is expressed: the kernel implements `BehaviorContext` directly, so the object a behavior holds _is_ the kernel under a type that does not name `arm`. Reaching it means leaving the declared type deliberately, which is the same kind of term as the sentence two paragraphs below — _"No input can be admitted before `install()` returns" stays unexpressible rather than enforced_ — and it gains no runtime guard for the same reason.
+`construct()` is not on `BehaviorContext`; only `draggable()` holds the kernel wide, and it calls `construct()` exactly once. **A behavior may not arm itself or re-arm**, and the interface is where that is expressed: the kernel implements `BehaviorContext` directly, so the object a behavior holds _is_ the kernel under a type that does not name `construct`. Reaching it means leaving the declared type deliberately, which is the same kind of term as the sentence two paragraphs below — _"No input can be admitted before `install()` returns" stays unexpressible rather than enforced_ — and it gains no runtime guard for the same reason. **Marked 2026-11-03 (D-208 remediation 5R, [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20.4):** the comparison is history. There is no `install()`; the boundary that exists is the next paragraph's — the factory returns, then arming attaches ingress — and construction's own order holds it. `construct()` off `BehaviorContext` is a type-level term and gains no runtime guard on its own account.
 
-**D-1's two-phase handshake is untouched by D-48, and that is why the move is safe.** Whichever tier the call sits at, the ordering is the one probe 1 needed a rule for: the kernel exists before the factory runs, so a behavior can build kernel-backed runtime and controller state; the factory returns `{ spec, controller }` complete; and only then does `arm()` compose the frames and attach ingress. "No input can be admitted before `install()` returns" stays unexpressible rather than enforced. §11's progressive-disclosure requirement is a requirement about _that_ ordering, and relocating the function preserves it exactly.
+**D-1's two-phase handshake is untouched by D-48, and that is why the move is safe.** Whichever tier the call sits at, the ordering is the one probe 1 needed a rule for: the kernel exists before the factory runs, so a behavior can build kernel-backed runtime and controller state; the factory returns `{ spec, controller }` complete; and only then does arming (`#arm()`, inside `Kernel.construct` since D-204) compose the frames and attach ingress. "No input can be admitted before `install()` returns" stays unexpressible rather than enforced. **Marked 2026-11-03 (D-208 remediation 5R, [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20.4):** probe 1's sentence is kept as a quotation; no `install()` exists. The boundary it names is the one above: the factory returns, then arming attaches ingress, and native ingress is refused while construction runs, so no input is admitted before the factory has returned. No type expresses that and no guard checks it; the order holds it. §11's progressive-disclosure requirement is a requirement about _that_ ordering, and relocating the function preserves it exactly.
 
 ~~Consumer-facing shape is unchanged from probe 1:~~ **Revision 2 changes it** (D-44, D-45, D-48). The previous form was `draggable(list, sortable(items, y(), placeholder({ className: 'ghost' }), callbacks({ onReorder })))` — an eager array, a variadic list of branded feature values, and a two-call composition. D-48 makes `sortable()` the ordinary entry point: it takes `root` first, returns a `SortableController`, and calls `draggable()` itself. D-45's argument list is variadic _config fragments_, and D-44 makes the collection a pull source inside the config:
 
@@ -131,7 +133,7 @@ const controller = sortable(
 
 ## `BehaviorContext`
 
-The whole construction-time surface. **Seven** members, none of which lets the behavior drive a transition. (D-2) It said _six_ from Revision 2 until D-170 step 6, which counts `closed` — a member D-53 added and the list below carries.
+The whole construction-time surface. **Seven** members, none of which lets the behavior drive a transition. (D-2) It said _six_ from Revision 2 until D-170 step 6, which counts `closed` — a member D-53 added. **D-208 step 4, 2026-11-02:** `closed` is removed and `channel` added, `cancel` and `destroy` are renamed `requestCancel` and `requestDestroy` with no alias, and the count stays seven. No member reads the lifecycle.
 
 **It is an interface the kernel implements, and the object a behavior holds is the kernel itself under this type** (D-170 §The behavior-facing interface). There is no second runtime object: the same arrangement `LifetimeScope`/`Lifetime` and `BehaviorLiftSession`/`VisualLiftSession` already use one and two tiers down, where one physical object arrives under the type its recipient is granted. Members are **positively selected**, so a member added to the kernel later is kernel-only until this interface names it.
 
@@ -149,16 +151,19 @@ interface BehaviorContext {
 
   /**
    * Enqueue one behavior action. `tag` is behavior-local and must be in
-   * `0 .. config.actionTags - 1`; the kernel offsets it internally and
-   * bounds-checks it here. Two array pushes: **no per-entry wrapper, and
-   * capacity growth is amortized.**
+   * `0 .. config.actionTags - 1`; the kernel offsets it internally. Two array
+   * pushes: **no per-entry wrapper, and capacity growth is amortized.** Once
+   * destruction has been applied, every dispatch is dropped.
    *
-   * **An action dispatched before the behavior is armed is dropped**, without
-   * a report, and this is the one member the construction window narrows. It
-   * is not a policy choice: the action's handler runs the behavior's own
-   * transition through machinery `arm()` has not built yet, so there is
-   * nothing to enqueue into that could run it, and no reporter to say so.
-   * Dispatch after construction.
+   * **After arming**, the tag is bounds-checked at intake: an out-of-range tag
+   * is reported and dropped, never enqueued.
+   *
+   * **During construction** the action is queued and applied after
+   * `draggable()` publishes the controller, before it returns, in dispatch
+   * order, and this is the one member the construction window narrows: the
+   * tag is not checked there, because the count bounding it is in the spec
+   * the factory has not yet returned, so an out-of-range tag has no specified
+   * outcome. Nothing is checked when a queued action is applied (D-204).
    */
   dispatch(tag: number, argument: unknown): void;
 
@@ -182,16 +187,27 @@ interface BehaviorContext {
   fail(stage: FailureStage, error: unknown): void; // `FailureStage` is kernel-tier vocabulary (D-64)
 
   /**
-   * **Is this controller logically closed?** The only sanctioned liveness
-   * reading, and the latch itself rather than a proxy for it (D-53): physical
-   * teardown is deferred to the transaction boundary, so
-   * `presentation.signal.aborted`, a disposed session and a detached node all
-   * **lag** the logical close.
+   * **Mints the controller's diagnostic channel over a sink the behavior
+   * supplies** (D-208). The returned function hands each error to `deliver`
+   * until destruction is **applied** and drops every call afterwards, by the
+   * kernel's one refusal. In the interval between a request and its
+   * application it delivers. It absorbs a throw from `deliver`, so it never
+   * throws, which is what an unwind step reporting through it relies on. It
+   * works from the factory onward, before arming, and it exposes no lifecycle
+   * value. Panic's report does not pass through it.
    *
-   * Readonly by construction — a behavior may consult the latch, never set
-   * it.
+   * Whether a channel delivered is still an indirect observation of applied
+   * destruction, as the refusal of any other entry point is. It cannot change
+   * while a library callback runs, and it never reveals a request that has
+   * not been applied.
+   *
+   * Every diagnostic a behavior produces goes through a channel it minted:
+   * its own reports, its unwind guard and the composition's `report`. One
+   * closure per call, so a behavior mints one per sink at construction.
    */
-  readonly closed: boolean;
+  channel(
+    deliver: (error: DraggableError | DraggableWarning) => void,
+  ): (error: DraggableError | DraggableWarning) => void;
 
   /**
    * Base controller methods, for the behavior to publish on its controller.
@@ -199,28 +215,30 @@ interface BehaviorContext {
    * behavior publishes a closure over the call rather than the member itself
    * (D-170 §The behavior-facing interface).
    *
-   * **An idle cancel is a no-op that leaves no latch**, and there is no
+   * **A cancel is a request** (D-202): registered against the committed
+   * operation in a cancellable phase and applied in order after the running
+   * unit. An idle request is a no-op that registers nothing, and there is no
    * operation anywhere in the construction window, so a call from there is
-   * that no-op. `destroy()` beside it is the window's other live member and
-   * is not a no-op: it closes on the statement, and the teardown it owes runs
-   * whether or not the controller was ever armed.
+   * that no-op. `requestDestroy()` beside it is the window's other live
+   * member and is not a no-op: it is applied once construction publishes, and
+   * the teardown it owes runs whether or not the controller was ever armed.
    */
-  cancel(reason?: unknown): void;
+  requestCancel(reason?: unknown): void;
 
   /**
-   * Closes the controller **logically**, immediately, on this statement. The
-   * returned promise settles **once**, after physical teardown — which is this
-   * call when no library transaction is active, and the boundary of the
-   * outermost one when there is (D-36). §Teardown across two owners.
+   * **Requests destruction** (D-202). Applied at once when no library unit is
+   * running, and otherwise when the running unit ends: that unit completes as
+   * a live controller's, and nothing after it runs. Application is one step —
+   * closed, queued work discarded, physical teardown — and the returned
+   * promise settles **once**, after it. §Teardown across two owners.
    *
-   * Idempotent: repeated destruction closes nothing further and every returned
-   * promise still settles exactly once.
+   * Idempotent: every call returns the same promise.
    */
-  destroy(): Promise<void>;
+  requestDestroy(): Promise<void>;
 }
 ```
 
-**The construction window is not a state this interface distinguishes, and every member behaves there as its own entry above states.** The window runs from the factory's invocation to the moment `arm()` finishes composing, and it is the library's own: the behavior is holding the interface it was handed, from the position that interface exists for, and `arm()`'s field order is not a fact it can observe or a rule it can break. **So the discriminator is deliverability, not availability.** Where the stated behaviour can be delivered in the window it is delivered — `fail` demotes, `cancel` is the idle no-op, `closed` is the latch, `destroy` closes and still owes its teardown. Where it cannot be, the limitation is **written into the member's own entry** so that an author meets a documented term instead of a platform error: `dispatch` is that member and the only one. **A precondition invented to excuse a failure the library caused is not a contract term**, and the failure mode it excuses — a `TypeError` naming a private field, escaping `draggable()` — is the one this rule exists to keep out of the surface.
+**The construction window is not a state this interface distinguishes, and every member behaves there as its own entry above states.** The window runs from the factory's invocation to the moment arming finishes composing inside `Kernel.construct` (the private `#arm()`), and it is the library's own: the behavior is holding the interface it was handed, from the position that interface exists for, and `#arm()`'s field order is not a fact it can observe or a rule it can break. **So the discriminator is deliverability, not availability.** Where the stated behaviour can be delivered in the window it is delivered — `fail` demotes, `requestCancel` is the idle no-op, a minted `channel` delivers because nothing has been applied, `requestDestroy` is applied once construction publishes, and `dispatch` is queued and applied then too. ~~`closed` reads `false` because nothing has been applied~~ — `closed` is removed by D-208 step 4. Where it cannot be, the limitation is **written into the member's own entry** so that an author meets a documented term instead of a platform error: `dispatch` is that member and the only one, and its limitation is the unchecked tag (D-204). **A precondition invented to excuse a failure the library caused is not a contract term**, and the failure mode it excuses — a `TypeError` naming a private field, escaping `draggable()` — is the one this rule exists to keep out of the surface.
 
 **`destroy()` returning a promise costs the consumer real ergonomics, and the cost is not hypothetical.** Probe A converted the surface and found **46 first-party call sites** turning into `no-floating-promises` violations — every one of them a plain `controller.destroy();` that never wanted a completion signal, including a React `useEffect` cleanup in this package's own demo, where returning the promise would change the cleanup's contract. The remedy is `void controller.destroy();` at each site that does not care, and `await controller.destroy();` at the few that do. D-36 accepts that in preference to a second public concept — no `destroyed` property, no completion method, no token — because the completion is only observable in the deferred reentrant case, and a rarely-useful promise is cheaper than a permanently-visible API surface.
 
@@ -272,7 +290,7 @@ function sortable(
 
 ~~**One `rt`, created inside the factory, shared by both halves.** That coupling is the whole of H-2 and it is why the factory exists at all: the spec closes over the same runtime object the controller was handed, and neither can be constructed without a `host`.~~
 
-**The sharing ended at D-53 and this sentence did not** (F-139). Both controllers have taken `host` alone since the terminal latch moved onto it, so the coupling that survives is on `host` — which both halves would take whether or not a runtime object existed. What H-2 and D-4 actually require is that the runtime be **captured by closures** and unreachable from the kernel, and closure-local state satisfies that more literally than an object does.
+**The sharing ended at D-53 and this sentence did not** (F-139). Both controllers have taken `host` alone since the terminal latch moved onto it, so the coupling that survives is on `host` — which both halves would take whether or not a runtime object existed. **Marked 2026-11-03 (D-208 step 4):** the latch is not on `host` any more — `BehaviorContext` has no lifecycle member — and both controllers still take `host` alone. What H-2 and D-4 actually require is that the runtime be **captured by closures** and unreachable from the kernel, and closure-local state satisfies that more literally than an object does.
 
 **Implemented (D-149, amended 2026-08-28).** **Both runtime aggregates dissolve.** Each spec takes what it needs — `createFreeDragSpec(host, slots)`, `createSortableSpec(host, source, items, slots)` — and every remaining field becomes a spec local cleared in `retire()`, beside the per-operation locals that already are. The sortable's `frame` is created inside the spec, which is what removes the self-referential `let runtime!`. `PresentationView` is untouched: it is a genuine runtime value, the per-operation object the feature views bind to, and its role is what requires an object.
 
@@ -306,7 +324,7 @@ type SortableRuntime = {
 
 **This moves an allocation rather than removing one, and which policy is cheaper is not decided** (review 5, §19). Eager-per-controller gives every controller an object, method and closure graph even if it never activates; the shipped package creates the task during activation instead, paying nothing for cold controllers and paying again on every drag. The functional fix — the task must exist before the first move — is settled; the allocation policy is part of M-2.
 
-**Seven mutable fields** — six, plus `closed` from C2-01 — beside three readonly ones (`kernel`, `slots`, `frame`). Since D-149 `kernel` and `slots` are the spec's own parameters and `frame` is a `const` beside the rest, so the readonly/mutable split is now the ordinary `const`/`let` one. ~~**Eight** — six, plus `pendingRequest` from D-33 and `closed` from C2-01.~~ D-41 deletes `pendingRequest` with the acknowledgement protocol that was its only reader, and the count returns to the number it held before Phase 14. The `closed` half of that history is untouched and is the half that carries an argument: the count was _six_ until Checkpoint D review 2 moved the controller's terminal latch onto the runtime, so that D3's one reader and I-36's readers read **one** latch rather than two that can disagree — which D-37 leaves standing at the floor, since a floor reading is still a latch reading. The document said _eight_ before Checkpoint C, C4-08, which was the different error of counting the readonly three among them. Probe 1's shared runtime had those _plus_ fourteen kernel fields (`actions`, `args`, `running`, `closed`, `current`, `draft`, `ingress`, `spec`, `lifetimes`, `originRect`, three attempt slots, `cancelRequest`, `pendingContinuation`, `destroyRequested`). Those fourteen are now unreachable, unnameable and untestable-from-outside — which is correct: none of them is a behavior concern, and probe 1 exported them only because the container was shared.
+**Seven mutable fields** — six, plus `closed` from C2-01 — beside three readonly ones (`kernel`, `slots`, `frame`). **Marked 2026-11-03 (D-208 step 4):** one of the seven is `closed`, which step 4 removed with the lifecycle member it mirrored, so the count describes the field list as it stood and not the tree. The `closed` half of the history below, and the floor reading it names, is withdrawn with it: no participant reads the lifecycle. Since D-149 `kernel` and `slots` are the spec's own parameters and `frame` is a `const` beside the rest, so the readonly/mutable split is now the ordinary `const`/`let` one. ~~**Eight** — six, plus `pendingRequest` from D-33 and `closed` from C2-01.~~ D-41 deletes `pendingRequest` with the acknowledgement protocol that was its only reader, and the count returns to the number it held before Phase 14. The `closed` half of that history is untouched and is the half that carries an argument: the count was _six_ until Checkpoint D review 2 moved the controller's terminal latch onto the runtime, so that D3's one reader and I-36's readers read **one** latch rather than two that can disagree — which D-37 leaves standing at the floor, since a floor reading is still a latch reading. The document said _eight_ before Checkpoint C, C4-08, which was the different error of counting the readonly three among them. Probe 1's shared runtime had those _plus_ fourteen kernel fields (`actions`, `args`, `running`, `closed`, `current`, `draft`, `ingress`, `spec`, `lifetimes`, `originRect`, three attempt slots, `cancelRequest`, `pendingContinuation`, `destroyRequested`). Those fourteen are now unreachable, unnameable and untestable-from-outside — which is correct: none of them is a behavior concern, and probe 1 exported them only because the container was shared.
 
 ### `snapshot` is fed by a pull source, not by a construction-time capture
 
@@ -338,7 +356,7 @@ Note what is _not_ here: `rects`. The geometry cache lives inside the axis featu
 
 | Concern | Owner | Reachable from |
 | --- | --- | --- |
-| Action queue (two parallel arrays), `running`, `closed` | kernel | nothing |
+| Action queue (~~two parallel arrays~~ one interleaved array in `ActionQueue`, D-200), `running`, `closed` | kernel | nothing |
 | `current` / `draft` references, commit swap, frame composition | kernel | nothing — the _frames_ are passed as arguments, the references are not |
 | `phase`, `operation`, pointer scalars | kernel (frame slice, 7 fields) | behavior, read-only |
 | Operation identity, minting and validation | kernel | nothing |
@@ -389,7 +407,7 @@ These three numbers all appear in the documents and are not in conflict; the tax
 
 ## When construction itself fails
 
-`draggable()` runs three fallible steps before it can return a controller — `assemble()` (under D-45, the slot merge and then the installers it names), the behavior's own construction, and `kernel.arm(spec)` — and an earlier draft defined cleanup for none of them (review 4, §13). Under D-48 all three still run inside `draggable()`; what changes is where the throw surfaces, which at the ordinary tier is `sortable()` rather than a `draggable()` the consumer wrote. Nothing about the unwinds below depends on which frame catches it.
+`draggable()` runs three fallible steps before it can return a controller — `assemble()` (under D-45, the slot merge and then the installers it names), the behavior's own construction, and the kernel's arming of the spec — and an earlier draft defined cleanup for none of them (review 4, §13). Under D-48 all three still run inside `draggable()`; what changes is where the throw surfaces, which at the ordinary tier is `sortable()` rather than a `draggable()` the consumer wrote. Nothing about the unwinds below depends on which frame catches it.
 
 The rule adopted is the strict one:
 
@@ -403,31 +421,31 @@ Inertness alone is not quite enough, so two unwinds are also normative:
 
   **D-45 adds an ordering rule that shrinks what can need unwinding: installers are invoked _after_ the merge completes.** The assembler collects fragments, merges by slot, derives defaults, and only then materializes. So a capability that loses a last-wins slot — a second `y()` overriding the first, a preset's `axis` overridden by the call site's — is **never constructed**, and there is nothing to unwind for it. Unwinding covers the installers that actually ran, which after the merge is at most one per capability slot plus the whole `plugins` array. Merge-first is also what makes the losing installer's absence observable as a non-event rather than as an acquire/release pair.
 
-- **`arm()` unwinds, and both of its exits reach the unwind.** If either frame factory, the static-configuration validation or any ingress attachment throws, `arm()` calls `spec.retire()` best-effort, scrubs whichever frame exists, aborts ingress, and rethrows. **A `destroy()` raised from inside a frame-part factory is the same situation without the throw**: `arm()` composes no further frame part once the terminal latch is closed, runs the same unwind over whichever frames it has composed, and returns instead of rethrowing, because a consumer asking to be destroyed is not an error. A controller is never returned half-armed, and never returned holding a behavior that was never retired.
+- **Arming unwinds on a throw.** If either frame factory, the static-configuration validation or any ingress attachment throws, arming calls `spec.retire()` best-effort, scrubs whichever frame exists, aborts ingress, and rethrows; the construction unit clears its queue with it. **A `destroy()` raised from inside a frame-part factory is not an exit of arming** since D-203: it is a request, applied once construction has published, by the ordinary application (§Teardown across two owners). A controller is never returned half-armed, and never returned holding a behavior that was never retired.
 
-  **The window belongs to `arm()` because the spec does.** `#spec` is published last, after both frames exist, so that a teardown reaching a frame reset always finds a composed pair; it is therefore not yet a name for the behavior while the frames are being composed, and teardown's steps 3 to 6 cannot see one there. The spec is an argument of `arm()` for the whole of that window, which is why the frame reset takes the behavior as a parameter instead of reading the field.
+  **The window belongs to arming because the spec does.** The spec, the frame pair and the seam driver live on the armed controller, which arming constructs only once both frames exist and publishes to the kernel's façade before attaching ingress (D-206 step 2, carrying D-201's decomposition), so a teardown reaching a frame reset always finds a composed pair. Nothing is a name for the behavior while the frames are being composed. The spec is an argument of arming for the whole of that window, which is why the unwind's frame reset takes the behavior as a parameter.
 
   **A frame reset is never handed anything but a composed frame.** _Whichever frame exists_ is the whole rule: resetting a frame the factory has not produced would call `resetFramePart` with a value its own declaration says is a `Frame<Part>`, which is a fault the library would be committing against the behavior rather than one it is unwinding for it.
 
-  **Ingress is `pointerdown` plus each type a `command` member declares** (D-32). Every listener is bound on `root` against the one controller-lifetime ingress signal, so the unwind and the teardown abort in step 7 below release all of them together and a discrete listener can never outlive I-6's terminal barrier. Under D-36 a deferred step 7 leaves those listeners physically **attached** until the transaction boundary; the barrier is unaffected, because admission is refused from the logical latch onward (D-37) and an attached listener that admits nothing is a non-event. This is the reading D-38 makes normative: `ingress.signal.aborted` answers "has teardown run", never "is this controller alive". `arm()` validates `command.types` here, with the same construction-time `TypeError` policy as every other static option, and since D-118 it validates one thing: no type the kernel binds for its own pointer ingress. An empty array binds no discrete listener and is a supported spelling of that, and the other four shapes this sentence once listed are accepted.
+  **Ingress is `pointerdown` plus each type a `command` member declares** (D-32). Every listener is bound on `root` against the one controller-lifetime ingress signal, so the unwind and the teardown abort in step 7 below release all of them together and a discrete listener can never outlive I-6's terminal barrier. Since D-203 application closes and runs step 7 in one step, so an attached listener and a live controller coincide; ingress is in any case refused while any unit runs. `ingress.signal.aborted` still answers "has teardown run" and nothing else (D-38). Arming validates `command.types` here, with the same construction-time `TypeError` policy as every other static option, and since D-118 it validates one thing: no type the kernel binds for its own pointer ingress. An empty array binds no discrete listener and is a supported spelling of that, and the other four shapes this sentence once listed are accepted.
 
 ## Teardown across two owners
 
-~~`destroy()` is a synchronous terminal barrier, unchanged in semantics from the shipped package.~~ **`destroy()` is an _immediate_ terminal barrier, and D-36 changes its semantics from the shipped package's.** The change is not a clarification and should not be read as one:
+~~`destroy()` is a synchronous terminal barrier, unchanged in semantics from the shipped package.~~ ~~**`destroy()` is an _immediate_ terminal barrier, and D-36 changes its semantics from the shipped package's.**~~ **`destroy()` is a request, applied at a unit boundary** (D-203, which withdraws D-36's immediate logical closure):
 
-- **Logical closure is immediate.** The latch is set on the closing statement itself, not at the end of a seven-step sequence. From that statement onward every guard fails, no operation is admitted, no declared consumer slot is invoked and no lifecycle or domain event is published (D-37).
-- **Physical teardown is deferrable.** If synchronous library execution is in progress when `destroy()` is called, teardown runs at the boundary of the **outermost** library transaction rather than on the closing stack. Outside a reentrant transaction the two events still coincide, which is why the shipped behavior is the common case rather than the definition.
-- **`destroy()` returns `Promise<void>`**, settling once, after physical teardown. Repeated destruction is idempotent and every returned promise still settles exactly once.
+- **With no unit running it is applied before the call returns.** Requested while a unit runs — construction, a native ingress pass, one queued action — it is applied when that unit ends, ahead of everything queued, and never inside it. The requesting unit completes its captured sequence as a live controller's, and no later unit runs.
+- **Application is one step**: the lifecycle becomes closed, the queue is cleared, and the physical teardown below runs, in the same order with the same wrapping. Logical and physical closure coincide; the window D-36 opened, in which the latch was closed while teardown was owed, no longer exists.
+- **`destroy()` returns `Promise<void>`**, settling once, after application. Every call returns the same promise.
 
-What was `destroy()`'s guarantee — _physical release completes before it returns_ — is therefore withdrawn. What replaces it is stronger where it matters and weaker only where it did not: the **latch** is now set earlier than it ever was, and only the resource release is late.
+From application onward every guard fails, no operation is admitted, no declared consumer slot is invoked and no lifecycle or domain event is published (D-37, counted from application). **Amended 2026-11-03 (D-208 remediation 5R, [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §20.4):** _no declared consumer slot is invoked_ has I-36's two exceptions, named by route in [05](05-lifecycle-invariants.md): teardown runs each installed feature's retire hook (relinquishment), and a panic delivers its one report to `onError` before teardown (diagnosis).
 
-It still spans two private state spaces, in a fixed order. **Steps 1 and 2 are the execution bracket's** (D-180): it owns the latch and the queue, so it sets the one and clears the other, and it invokes the kernel's steps 3 to 7 as a callback. The observable sequence is unchanged by that ownership. Step 1 is the logical close and runs on the calling statement, always:
+It still spans two private state spaces, in a fixed order. **Steps 1 and 2 are the execution bracket's** (D-180): it owns the lifecycle request and the queue, so it sets the one and clears the other, and it invokes the kernel's steps 3 to 7 as a callback. Step 1 is the close, and it is the first act of application:
 
 ```text
-1. closed = true; destroyRequested = true       (bracket)   every guard now fails
+1. lifecycle = CLOSED                             (bracket)   every guard now fails
 ```
 
-Steps 2–7 are the physical teardown. They run at the transaction boundary when one is active, and immediately after step 1 when none is:
+Steps 2–7 are the physical teardown. They follow step 1 immediately, wherever application runs:
 
 ```text
 2. clear the queue, drop every retained argument (bracket)
@@ -454,11 +472,11 @@ Steps 2–7 are the physical teardown. They run at the transaction boundary when
       because they share the controller-lifetime signal. ──
 ```
 
-**Steps 3 to 6 require a published behavior, and there is one window in which a behavior exists and is not published yet.** Between the factory's return and `arm()`'s publication of the spec, a `destroy()` finds no armed behavior. Steps 3 and 5 have nothing to do there and could not — no attempt is minted and no operation admitted before ingress is armed — and step 6 has no frames to scrub. **Step 4 does have a behavior, and `arm()`'s own unwind is what runs it**, on the spec it holds as an argument. Ingress abort therefore precedes step 4 in that one window rather than following it, and no participant can observe the difference: no ingress listener is bound until after both frames exist, so the abort releases nothing.
+**Steps 3 to 6 require a published behavior, and application always finds one or none.** A `destroy()` requested during construction is applied after publication, so steps 4 and 6 run over the published spec and both composed frames. The one path that leaves a behavior unpublished is a construction that throws, and arming's own unwind runs step 4 and the frame resets on the spec it holds as an argument before the throw propagates.
 
-**The sequence and its order survive D-36 intact; only its start time moves.** D-29's totality is rescoped, not retracted: totality is a property of the teardown _sequence, wherever it runs_, not of the stack that called `destroy()`. When teardown defers, the same six physical steps run at the boundary with the same wrapping — each attempt cleanup individually wrapped in step 3, each frame reset individually wrapped in step 6, ingress abort from a `finally` in step 7. What no longer holds is that they have run by the time `destroy()` returns; that is what the returned promise is for.
+**The sequence and its order are intact; only its start time moves to application.** D-29's totality is a property of the teardown _sequence, wherever it runs_, not of the stack that called `destroy()`: each attempt cleanup individually wrapped in step 3, each frame reset individually wrapped in step 6, ingress abort from a `finally` in step 7. A `destroy()` requested inside a unit has not been applied by the time it returns; that is what the returned promise is for.
 
-**No physical-teardown observation may answer a liveness question** (D-38, I-37). Deferral makes an aborted signal, a disposed session or a detached node **lag** the logical close, so `presentation.signal.aborted` and its relatives stop being valid readings of "is this controller still alive" — they were chosen precisely because they are strictly stronger than the latch, catching a kernel-internal panic as well, and deferral turns that same property into strictly weaker. Liveness is read from the logical latch or from transaction validity, and from nothing else.
+**No physical-teardown observation may answer a liveness question** (D-38, I-37). Since D-203 application closes and tears down in one step, so the two readings no longer disagree; the rule is kept because a request not yet applied reads open by both. Under D-36 deferral made an aborted signal, a disposed session or a detached node **lag** the logical close, so `presentation.signal.aborted` and its relatives stop being valid readings of "is this controller still alive" — they were chosen precisely because they are strictly stronger than the latch, catching a kernel-internal panic as well, and deferral turns that same property into strictly weaker. Liveness is read from the logical latch or from transaction validity, and from nothing else.
 
 **Step 3 drops both attempts outright**, which is what makes every late continuation inert: the kernel finds no attempt to resolve against, so a resolution arriving after teardown is the same non-event a stale one is during normal operation. ~~Dropping both attempts makes a late `controller.ready(request)` inert twice over (D-33): the behavior's published request is cleared by step 4's `retire()`, and the kernel finds no attempt even if a behavior bug let the signal through.~~ D-41 deletes `controller.ready()` and `rt.pendingRequest`, so the second half of that argument has no subject; the attempt-dropping is unchanged and is now justified by the staleness rule alone.
 
@@ -468,7 +486,9 @@ Two invariants this ordering creates, both of which are new obligations that pro
 
 - **No behavior callback in the sequence can stop a later step** — wherever the sequence runs. The kernel wraps `spec.retire()`, each attempt's cleanup, the tail's own `cancel()` — a method on an object reachable from a consumer-owned element — and each frame reset, reporting and continuing. ~~through the platform reporter~~ — since D-130 the report is a `DraggableWarning` on the consumer's `onError`, **and after logical closure it is refused rather than delivered** (D-37): what the sequence guarantees is that the next step runs, never that the consumer hears about the one that did not. **That refusal is grounded rather than merely stated since D-178** (2026-09-04): a fault raised by a teardown step is an obligation the **closure created**, and the exception's clause 2 requires an obligation the closure did not create — so the silence follows from the rule instead of standing beside it. It is also where the rule is most open to challenge: if a disposer throwing during teardown must reach the consumer, that limb of D-178 is what changes, not act (a). A behavior cannot strand the kernel's DOM cleanup, and ingress abort is in a `finally`. Deferral does not touch this: the wrapping travels with the steps, and a throw at the transaction boundary is caught by the same handlers it would have been caught by on the closing stack.
 
-  **The same totality applies to the `arm()` unwind**: a reset that throws while unwinding a failed `arm()` must not replace the original arm failure or skip ingress cleanup.
+  **The same totality applies to arming's unwind**: a reset that throws while unwinding a failed arming must not replace the original failure or skip ingress cleanup.
+
+  **Since D-203 step 1 a `destroy()` raised from inside consumer code is a request**: it is applied when the running unit ends, so the unit completes as a live controller's. The paragraphs below state the participant obligation as it stood under D-36. **D-203's step 4, landed as D-208 step 4 (2026-11-02; marked 2026-11-03), withdrew it, together with `closed` itself**: no participant reads the lifecycle, and the paragraphs below are history.
 
   **The converse obligation is the participant's, and it is not covered by any of the above** (I-36, added by C2-01; **rescoped by D-37**). Totality says the sequence above finishes; it says nothing about code that is _already running_ when `destroy()` is entered reentrantly. A `destroy()` raised from inside consumer code — a `handle()` or `visual()` resolver, a placeholder custom element's connected/disconnected reaction — sets the latch and **returns into the middle of whatever was calling it**, with the physical steps still to come at the transaction boundary.
 
@@ -484,15 +504,15 @@ Two invariants this ordering creates, both of which are new obligations that pro
 
 The same seven steps, minus 1, 2 and 7, are operation retirement.
 
-**Panic** is `destroy()` followed by reporting the initiating error — a `DraggableError` with code `platform` and **no stage**, since `FailureStage` classifies faults _within_ an operation and a panic destroys the controller (D-131). ~~with teardown strictly before reporting~~ — **D-36 reverses that ordering to close → report → teardown**, and probe A observed exactly the reversal, `['retire','report']` becoming `['report','retire']`.
+**Panic** is the one immediate application (D-203): the bracket closes, the kernel reports the initiating error, and teardown follows. The report is a `DraggableError` with code `platform` and **no stage**, since `FailureStage` classifies faults _within_ an operation and a panic destroys the controller (D-131). ~~with teardown strictly before reporting~~ — **D-36 reverses that ordering to close → report → teardown**, and probe A observed exactly the reversal, `['retire','report']` becoming `['report','retire']`.
 
 The reversal is **safe, not merely permitted**, and the reason is the shape of the window rather than a judgement about what reporting is allowed to see:
 
-- **`panic()` is reached from the drain's `catch`, after the loop has already exited.** The deferral window is therefore **one stack frame wide**, and the only statement inside it is `report`.
+- **`panic()` is reached from the drain's `catch`, after the loop has already exited.** The window between close and teardown is therefore **one statement wide**, and that statement is `report`.
 - ~~**`report` touches no library state.** It reads the error it was handed and hands it to the platform reporter. It mints nothing, admits nothing, and mutates neither kernel nor behavior state, so there is no state whose teardown it could observe out of order.~~ **False since D-130, and D-131 replaces the clause rather than the ordering.** The statement inside the window is now the consumer's `onError`, which does touch library state and can call back in. The ordering survives on the _next_ bullet alone, and the delivery becomes a **named exception to D-37 (a)** — ~~the second member of D-51's closed list~~, admitted for the property D-51 admitted `LandingHandle.destroy()` for: a terminal diagnostic tells the consumer something and asks nothing of them, publishing no lifecycle or domain event, ignoring its return value, performing no operation work, and wrapped. **The list is struck twice over and the property is now the whole rule** (D-178, 2026-09-04): D-51's list never carried this member — D-51 and I-36 both read _the list is currently one member_ while this line read _second_, which is the disagreement that made the enumeration unmaintainable — and D-176 replaced the list with a predicate. Under D-178 the delivery is **terminal diagnosis**, one of the exception's two species, and the four words above are what the clause now says: the axis is non-solicitation, and this sentence had it right before there was a rule to cite.
 - **The latch is already set before it runs.** Whatever the handler's own code does — including calling back into the controller — meets a closed controller, because step 1 preceded the report. The old ordering bought its safety by finishing teardown first; the new ordering buys the same safety earlier and more cheaply, from the latch. **This is now the whole argument**, and the alternative it beats is stated in D-130 §8: reporting first would run consumer code on a controller whose invariants are already known to be broken, with the added hazard that the consumer may start work the next statement tears down.
 
-The one way to distinguish the two orderings from outside is to observe physical teardown — an aborted signal, a disposed session, a detached node — during the report. D-38 forbids reading any of those as a liveness answer, so the distinction is unobservable by any participant obeying the contract. **No library work continues on the broken stack**: the frame that panicked unwinds, and teardown runs at the boundary below it.
+The one way to distinguish the two orderings from outside is to observe physical teardown — an aborted signal, a disposed session, a detached node — during the report. D-38 forbids reading any of those as a liveness answer, so the distinction is unobservable by any participant obeying the contract. **No library work continues on the broken stack**: teardown runs as soon as the report returns, and the frame that panicked then unwinds.
 
 ## Why not thread the behavior state as an argument
 

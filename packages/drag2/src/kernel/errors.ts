@@ -81,7 +81,7 @@ export class DraggableError extends Error {
  */
 export class DraggableWarning extends Error {}
 
-// The one channel, as seen by a module that does not own it. Kernel-internal,
+// A channel, as seen by a module that does not own it. Kernel-internal,
 // and threaded to the four sites that hold no controller reference: the
 // lifetimes, the top-layer acquisition and both composition unwinds. A behavior
 // reaches the consumer through its own callbacks slot.

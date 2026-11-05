@@ -1,7 +1,6 @@
 /**
- * The y axis rule — **one of two modules containing axis geometry**, and the
- * only one containing *this* axis. `xy()` is a sibling, never a branch inside
- * this one.
+ * The y axis rule — **the only module containing this axis's geometry**.
+ * `xy()` is a sibling, never a branch inside this one.
  *
  * ```text
  * candidates := centres of every non-dragged item's **box**, plus the
@@ -85,13 +84,6 @@ type InsertionRuntimeView = Readonly<{
    */
   box: ((item: HTMLElement) => HTMLElement) | null;
   /**
-   * Whether the controller is still alive, threaded into the candidate loop so
-   * a `visual()` resolver that destroys the controller stops the traversal at
-   * that call instead of resolving the rest of the list after teardown
-   * returned.
-   */
-  live(): boolean;
-  /**
    * The installed displacement sink's settle walk, or `null` when no
    * displacement feature is composed. Applied once per rebuild so the cache
    * holds settled geometry while contributions run; see `rect-index.ts`.
@@ -135,8 +127,8 @@ type InsertionRuntimeView = Readonly<{
  *   difference** of measured geometry. A difference between two *different*
  *   elements' measured rects carries the difference of their authored
  *   presentation and is not a flow quantity. This is the library's own
- *   obligation, stated because it is what decides which of the two axes
- *   predicts and which measures.
+ *   obligation, stated because it is what decides which axis predicts and
+ *   which measures.
  * - **G6** — the placeholder's own geometry is stable between invalidations.
  *   The rule describes the hole's footprint as it stood when it was last
  *   measured, and nothing short of an invalidation revisits it, so a
@@ -151,7 +143,7 @@ type InsertionRuntimeView = Readonly<{
  *
  * ## What this rule does not cover
  *
- * Two layouts sit outside it, and neither is checked at runtime:
+ * These layouts sit outside it, and none is checked at runtime:
  *
  * - **position-sensitive collapsing margins.** A block list whose margins
  *   collapse differently depending on which neighbours a row has does not
@@ -216,23 +208,17 @@ export function y(): AxisInstaller {
           const snapshot = frame.snapshot!;
           const { insertion } = frame;
 
-          if (
-            !shift.refresh(
-              snapshot,
-              dragged,
-              runtime.box,
-              runtime.live,
-              runtime.placeholder,
-              runtime.settle,
-              // The gap the buffer this scan produces reflects: where the
-              // placeholder stands right now, which is what the next committed
-              // move advances from.
-              insertion ? insertion.index : -1,
-            )
-          ) {
-            // The rebuild crossed the terminal barrier.
-            return null;
-          }
+          shift.refresh(
+            snapshot,
+            dragged,
+            runtime.box,
+            runtime.placeholder,
+            runtime.settle,
+            // The gap the buffer this scan produces reflects: where the
+            // placeholder stands right now, which is what the next committed
+            // move advances from.
+            insertion ? insertion.index : -1,
+          );
 
           const { values, count, hole } = view;
           // **Read, not measured.** The rebuild above cached the placeholder's
@@ -273,11 +259,13 @@ export function y(): AxisInstaller {
           return insertionAt(items, gap, snapshot);
         },
 
-        // **Wrapped, not detached.** These two are published into a record the
-        // assembler pushes into `retireHooks` and calls with no owner, so a
-        // bare prototype read would arrive with no receiver. The closure is
-        // what carries it, and the lint gate is what would have caught the
-        // bare read.
+        // **Wrapped, not detached**, and each hook for its own reason: the
+        // assembler pushes `retire` into `retireHooks`, which are called with
+        // no owner, and publishes `invalidate` as `invalidateInsertion`, which
+        // is called as a member of the slots object. Either way a bare
+        // prototype read would arrive without `shift` as its receiver. The
+        // closure is what carries it, and the lint gate is what would have
+        // caught the bare read.
         invalidate: () => {
           shift.invalidate();
         },

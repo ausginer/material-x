@@ -122,6 +122,12 @@ Before updating a screenshot, inspect: the active tproc profile; contract ID and
 
 **Browser projects are serialized, one per `sequence.groupOrder`, assigned from 1.** When the first test module of a later group starts, every browser project in an earlier group has its provider closed and its Chromium exits — the earliest point at which the earlier group is provably finished. A project occupying the _final_ group is never released this way, because a boundary is another group starting; it is released when the process closes. Both paths return Chrome to its baseline before the process exits, and `MX_TEST_TEARDOWN_LOG=1` prints one line per boundary release.
 
+**Every project the shared factory declares sets `extends: false`,** so a project's configuration is what the factory gave it and the config file is evaluated once. Since Vitest 5 an inline project otherwise re-evaluates the file that declares it, and each copy brings its own one-shot reporter.
+
+**A project's global setup does not throw for a failure it can foresee,** because Vitest ends the whole run for every project. It passes the failure to that project's files, which raise it, so one package's failed build leaves the others' results standing.
+
+**A run's verdict is its exit status.** A real close failure at a group boundary sets it whichever reporters are selected, but only Vitest's base reporter family prints the error: `default`, `minimal`, `verbose`, `dot` and `tree`. `json` reports rows and does not carry it, so its `success` can read true on a run that exits 1. **A route this repository tracks keeps a base-family reporter in its list and reads the exit status.** Every current route does. A reporter selected by hand elsewhere is allowed, and without a base-family reporter beside it may give only the exit status: [`repo:RD-3`](../../.plan/00-index.md).
+
 **Test watch and VS Code Continuous Run are retired**, and so is `vitest --watch` in any form for tests. A rerun would arrive in a process that has already released its browsers, so the modes that depend on one are withdrawn by intent rather than left to fail quietly. A second run raises before any module executes:
 
 ```

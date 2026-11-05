@@ -1,0 +1,53 @@
+// Comment-stripped diff and member lists, by git objects. Usage: node strip.mjs <wt-with-typescript>
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import { join } from 'node:path';
+const wt = process.argv[2];
+const require = createRequire(join(wt, 'package.json'));
+const ts = require('typescript');
+const g = (...a) => execFileSync('git', ['-C', wt, ...a], { encoding: 'utf8', maxBuffer: 1 << 28 });
+const P = 'packages/drag2/src';
+const list = (r) => g('ls-tree', '-r', '--name-only', r, P).trim().split('\n').filter((f) => /\.tsx?$/.test(f));
+const read = (r, f) => g('show', `${r}:${f}`);
+const strip = (src, f) => ts.transpileModule(src, { fileName: f, compilerOptions: { removeComments: true, target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext, verbatimModuleSyntax: false } }).outputText;
+const tmp = mkdtempSync(join(wt, '..', 'strip-'));
+function compare(a, b) {
+  const fa = list(a), fb = list(b);
+  const same = fa.length === fb.length && fa.every((x, i) => x === fb[i]);
+  const textual = g('diff', '--name-only', a, b, '--', P).trim().split('\n').filter(Boolean);
+  const stripped = [];
+  console.log(`\n## ${a} -> ${b}: file set equal ${same}, files ${fb.length}, textually changed ${textual.length}`);
+  for (const f of textual) {
+    const A = strip(read(a, f), f), B = strip(read(b, f), f);
+    if (A !== B) {
+      stripped.push(f);
+      const pa = join(tmp, 'a'), pb = join(tmp, 'b');
+      writeFileSync(pa, A); writeFileSync(pb, B);
+      let d = '';
+      try { execFileSync('git', ['diff', '--no-index', '-U0', pa, pb], { encoding: 'utf8' }); } catch (e) { d = e.stdout; }
+      console.log(`### ${f}\n` + d.split('\n').slice(4).join('\n'));
+    }
+  }
+  console.log('textual:', textual.map((f) => f.replace(P + '/', '')).join(' '));
+  console.log('comment-stripped changed:', stripped.map((f) => f.replace(P + '/', '')).join(' ') || '(none)');
+}
+function members(r) {
+  const out = {};
+  for (const [file, cls] of [['kernel/execution.ts', 'ExecutionBracket'], ['kernel/kernel.ts', 'ArmedController'], ['kernel/kernel.ts', 'Kernel'], ['kernel/queue.ts', 'ActionQueue']]) {
+    const sf = ts.createSourceFile(file, read(r, `${P}/${file}`), ts.ScriptTarget.ESNext, true);
+    let names = null;
+    const visit = (n) => { if (ts.isClassDeclaration(n) && n.name?.text === cls) names = n.members.map((m) => (m.name ? m.name.getText() : ts.SyntaxKind[m.kind])); ts.forEachChild(n, visit); };
+    visit(sf);
+    out[cls] = names;
+  }
+  return out;
+}
+for (const [a, b] of [['980cc0053', 'cfed5f9da'], ['3ff2d2acf', 'cfed5f9da'], ['e2aabaf3b', 'cfed5f9da']]) compare(a, b);
+const m = Object.fromEntries(['e2aabaf3b', '3ff2d2acf', 'cfed5f9da'].map((r) => [r, members(r)]));
+console.log('\n## members');
+for (const c of ['ExecutionBracket', 'ArmedController', 'Kernel', 'ActionQueue']) {
+  const land = JSON.stringify(m.cfed5f9da[c]);
+  console.log(c, m.cfed5f9da[c]?.length, 'eq db3c402a4', land === JSON.stringify(m['3ff2d2acf'][c]), 'eq e2aabaf3b', land === JSON.stringify(m.e2aabaf3b[c]));
+}
+rmSync(tmp, { recursive: true, force: true });

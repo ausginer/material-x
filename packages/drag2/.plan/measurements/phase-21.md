@@ -183,6 +183,8 @@ An SPI question that has been deferred twice cannot be settled by reading a numb
 
 **Reused unchanged, and this is the half that took two attempts to get right.** `gc()` before every reading; `--enable-precise-memory-info`, without which Chrome quantizes `usedJSHeapSize` to 100 kB and every figure is a rounding artifact; the **minimum of 5 runs after 3 warm-ups**, because heap noise is one-sided; and the module-level sink cleared before the baseline, without which each run frees one graph while allocating the next and every figure reads ≈ 0 — which looks exactly like _costs nothing_.
 
+**Note, 2026-11-04 (`drag2:F-445`):** _heap noise is one-sided_ is false. Anything live at a window's first reading and collected by its second deflates the reading, so the minimum can select a deflated one. The figures here stand as measured. See [`d208-step6.md`](d208-step6.md) §Remediation 6R and `request-application-claude.md` §26.3.
+
 **What must change.** The population under test: `{ all sortable, half and half, all free drag }` at 100 and 1000 controllers, with **real controllers of both behaviors** rather than construction stand-ins.
 
 **Decision-driving:** per-controller heap by behavior; retention after 1000 mixed drags, which is the property that actually mattered last time. **Telemetry:** the cold frame-task cost at a mixed population, and `schedule` and first-drag timings, which M-2 already showed are separated by ~4 ns and decide nothing.

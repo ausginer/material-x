@@ -1,0 +1,51 @@
+# Scratch readings, §35.9, in the same worktree after the final runs. No commit carries the scratch edits.
+
+== failed build, package config
+exit 1
+      1 Error: tsdown exited with 1
+      1  Test Files  26 failed (26)
+      1     ╭─[ src/drag.ts:67:16 ]
+      1     ,-[<wt>/packages/drag2/src/drag.ts:67:16]
+      1       Tests  no tests
+== failed build, root config, with node/vite-traits-plugin
+exit 1
+      1 Error: tsdown exited with 1
+      1  Test Files  26 failed | 6 passed (32)
+      1     ╭─[ src/drag.ts:67:16 ]
+      1     ,-[<wt>/packages/drag2/src/drag.ts:67:16]
+      1       Tests  52 passed (52)
+rebuild after failed-build reading 0
+== planted orphan, three configs
+package config: 2 lines naming it;       Tests  1 failed | 42 skipped (43)
+root config: 2 lines naming it;       Tests  1 failed | 42 skipped (43)
+third config: 2 lines naming it;       Tests  1 failed | 42 skipped (43)
+== a config without the setup
+exit 1
+AssertionError: expected undefined to be type of 'number'
+      Tests  1 failed | 42 skipped (43)
+== reporter=dot, two browser projects
+exit 0
+      Tests  438 passed (438)
+== a close that really fails, once
+exit 1
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+⎯⎯ Unhandled Reporter Error ⎯⎯
+Error: scratch: provider.close rejected
+      Tests  438 passed (438)
+== typecheck, docs, negative control
+just typecheck exit 0; error TS lines 0
+      Tests  4 passed (4)
+TypeDoc kernel.ts alone exit 4
+
+== the dot reporter's boundary line, as printed after the dots
+closed browser/core (chromium) (group 4) at boundary 4->5
+
+== builds by hook log (one appended line in build:done; repeated, see the record)
+package config, node project: builds 1;       Tests  441 passed (441)
+root config, node/drag2: builds 1;       Tests  441 passed (441)
+package config, browser only, one file: builds 0;       Tests  11 passed (11)
+package config, shipped: builds 0;       Tests  15 passed (15)
+third config, node project: builds 1;       Tests  43 passed (43)
+
+== the third config's orphan row
+AssertionError: expected [ 'kernel/zz-orphan.js' ] to deeply equal []

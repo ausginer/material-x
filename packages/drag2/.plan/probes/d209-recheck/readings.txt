@@ -1,0 +1,268 @@
+# D-209 remediation recheck readings, 2026-11-04. Scratch worktrees with their own installs and builds at cfed5f9da (input), 980cc0053 and 302ab0a37. Chromium, one machine, once each. Restored after each mutation.
+
+## Trees
+302ab0a37 src db3c402a488231e4d17fa2b6a3209543dab561e5
+980cc0053 src 779b4b0f5d3a04610b7cdb8edba306fc7520d2ef
+cfed5f9da src f6172d3be770c3f37ea0a1d723960ace05d61c9b
+448ce5015 src db3c402a488231e4d17fa2b6a3209543dab561e5
+6386f12e1 src 779b4b0f5d3a04610b7cdb8edba306fc7520d2ef
+
+## Lint: src/sortable/spec.ts, eslint
+### 302ab0a37
+
+wt-302ab0a37/packages/drag2/src/sortable/spec.ts
+  1286:3  error  Expected to return a value at the end of method 'prepareSettlement'  @typescript-eslint/consistent-return
+
+✖ 1 problem (1 error, 0 warnings)
+
+### 980cc0053
+
+wt-980cc0053/packages/drag2/src/sortable/spec.ts
+  1289:3  error  Expected to return a value at the end of method 'prepareSettlement'  @typescript-eslint/consistent-return
+
+✖ 1 problem (1 error, 0 warnings)
+
+### cfed5f9da, with --report-unused-disable-directives: exit 0, no output
+### oxlint: exit 0 at all three
+
+## Lint: the 13 changed TypeScript files at cfed5f9da (just lint): exit 0
+bench/size/measure.ts
+src/drag.ts
+src/free-drag/config.ts
+src/free-drag/controller.ts
+src/kernel/execution.ts
+src/kernel/kernel.ts
+src/kernel/spec.ts
+src/sortable/config.ts
+src/sortable/spec.ts
+tests/diagnostic-intake.browser.test.ts
+tests/free-drag/anchor.browser.test.ts
+tests/kernel/execution.node.test.ts
+tests/kernel/kernel.browser.test.ts
+
+## Exhaustiveness: SETTLED_SKIPPED's arm removed, tsc, scratch, restored
+src/sortable/spec.ts(1292,6): error TS2366: Function lacks ending return statement and return type does not include 'undefined'.
+
+## Typecheck at cfed5f9da
+../../.scripts/vitest-config.ts(181,9): error TS2353: Object literal may only specify known properties, and 'api' does not exist in type 'BrowserConfigOptions'.
+../../.scripts/vitest-one-shot.ts(34,11): error TS18048: 'browser.provider' is possibly 'undefined'.
+
+## Comment-stripped diff and member lists
+
+## 980cc0053 -> cfed5f9da: file set equal true, files 62, textually changed 1
+textual: sortable/spec.ts
+comment-stripped changed: (none)
+
+## 3ff2d2acf -> cfed5f9da: file set equal true, files 62, textually changed 8
+### packages/drag2/src/kernel/kernel.ts
+@@ -452,3 +452,3 @@ class ArmedController {
+-                this.report(new DraggableWarning('drag: failure/superseded-by-destruction', {
+-                    cause: input.error,
+-                }));
++                this.report(new DraggableWarning(this.#attempts.resolution === attempt
++                    ? 'drag: failure/superseded-by-destruction'
++                    : 'drag: failure/superseded-by-cancel', { cause: input.error }));
+@@ -602,0 +603 @@ class ArmedController {
++            attempt.discard?.();
+
+textual: drag.ts free-drag/config.ts free-drag/controller.ts kernel/execution.ts kernel/kernel.ts kernel/spec.ts sortable/config.ts sortable/spec.ts
+comment-stripped changed: kernel/kernel.ts
+
+## e2aabaf3b -> cfed5f9da: file set equal true, files 62, textually changed 8
+### packages/drag2/src/kernel/execution.ts
+@@ -0,0 +1 @@
++import { FAILED, RESOLUTION_SETTLED } from './actions.ts';
+@@ -17 +18,4 @@ export class ExecutionBracket {
+-            return false;
++            if (action === FAILED || action === RESOLUTION_SETTLED) {
++                argument.discard?.();
++            }
++            return true;
+
+### packages/drag2/src/kernel/kernel.ts
+@@ -151,0 +152,5 @@ class ArmedController {
++            discard: () => {
++                this.report(new DraggableWarning('drag: failure/superseded-by-destruction', {
++                    cause: error,
++                }));
++            },
+@@ -444,0 +450,7 @@ class ArmedController {
++        if (input.type === SETTLED_REJECTED) {
++            attempt.discard = () => {
++                this.report(new DraggableWarning(this.#attempts.resolution === attempt
++                    ? 'drag: failure/superseded-by-destruction'
++                    : 'drag: failure/superseded-by-cancel', { cause: input.error }));
++            };
++        }
+@@ -590,0 +603 @@ class ArmedController {
++            attempt.discard?.();
+
+textual: drag.ts free-drag/config.ts free-drag/controller.ts kernel/execution.ts kernel/kernel.ts kernel/spec.ts sortable/config.ts sortable/spec.ts
+comment-stripped changed: kernel/execution.ts kernel/kernel.ts
+
+## members
+ExecutionBracket 21 eq db3c402a4 true eq e2aabaf3b true
+ArmedController 75 eq db3c402a4 true eq e2aabaf3b true
+Kernel 15 eq db3c402a4 true eq e2aabaf3b true
+ActionQueue 4 eq db3c402a4 true eq e2aabaf3b true
+
+## Built output (d.ts and js; A then B)
+d.ts count 33 33 set equal true textually differing 0  | differing after comment strip: none
+js count 52 52 set equal true textually differing 0
+d.ts count 33 33 set equal true textually differing 4 free-drag/config.d.ts free-drag/controller.d.ts kernel/spec.d.ts sortable/config.d.ts | differing after comment strip: none
+js count 52 52 set equal true textually differing 2 kernel/execution.js kernel/kernel.js
+
+## Source maps differing, 980cc0053 against cfed5f9da
+map differs: sortable/spec.js.map
+
+## Composition at cfed5f9da: minified, brotli, modules
+33723 10329 33
+33080 10199 32
+34639 10651 34
+33996 10517 33
+34116 10483 35
+35032 10791 36
+27367 8357 27
+28011 8592 28
+27760 8516 29
+28404 8734 30
+42572 12298 47
+252 142 2
+20337 6418 16
+34323 10620 31
+22618 6916 26
+
+## §33.10 mutations at cfed5f9da
+## base pass 351 fail 0
+## Y1 pass 348 fail 3
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn after the terminal when the round-trip slot requests a cancel and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn after the terminal when the round-trip slot requests a cancel and then throws
+    kernel.browser › a fault destruction discards should report the cancel for a rejection queued behind it
+## Y2 pass 345 fail 6
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn after the terminal when the round-trip slot requests a cancel and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should keep the cancel's code when onEnd requests destruction behind a superseded rejection
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn after the terminal when the round-trip slot requests a cancel and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should keep the cancel's code when onEnd requests destruction behind a superseded rejection
+    kernel.browser › a fault destruction discards should report the cancel for a rejection queued behind it
+    kernel.browser › a fault destruction discards should report the cancel for a rejection behind a cancel whose settlement requests destruction
+## Y3 pass 342 fail 9
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn for destruction when the round-trip slot holds a cancel and requests destruction
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn for destruction when the round-trip slot holds a cancel and requests destruction
+    kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then throws
+    kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then rejects inside then
+    kernel.browser › a fault destruction discards should report destruction for a round-trip that holds a cancel and requests destruction
+    kernel.browser › a fault destruction discards should absorb a throw from a discarded rejection's report
+    kernel.browser › a fault destruction discards should report a rejection the delivered report causes, behind the checkpoint
+## Y4 pass 347 fail 4
+    diagnostic-intake.browser › diagnostic intake in the sortable should deliver nothing when the round-trip slot requests a cancel and then returns
+    diagnostic-intake.browser › diagnostic intake in the free drag should deliver nothing when the round-trip slot requests a cancel and then returns
+    kernel.browser › a fault destruction discards should deliver nothing for a rejection after a round-trip already fulfilled
+    kernel.browser › a fault destruction discards should deliver nothing for a round-trip that requests destruction and returns a value
+## X5s pass 350 fail 1
+    kernel.browser › a fault destruction discards should absorb a throw from a discarded rejection's report
+## X6s pass 339 fail 12
+    capture.node › the current-operation slots should be read only at unit entries, request intake, publication and retirement
+    capture.node › the ledger should be read only at intake, the ingress refusal and unit entries
+    capture.node › the read census should find lifecycle and request reads only at the runner, intake, the channel and unit entries
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn after the terminal when the round-trip slot requests a cancel and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should keep the cancel's code when onEnd requests destruction behind a superseded rejection
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn for destruction when the round-trip slot holds a cancel and requests destruction
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn after the terminal when the round-trip slot requests a cancel and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should keep the cancel's code when onEnd requests destruction behind a superseded rejection
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn for destruction when the round-trip slot holds a cancel and requests destruction
+    kernel.browser › a fault destruction discards should report destruction for a round-trip that holds a cancel and requests destruction
+    kernel.browser › a fault destruction discards should report the cancel for a rejection queued behind it
+    kernel.browser › a fault destruction discards should report the cancel for a rejection behind a cancel whose settlement requests destruction
+## N1 pass 314 fail 37
+    execution.node › the execution bracket should handle no entry behind an action that requests destruction
+    execution.node › the execution bracket should drain after admission and handle nothing once admission requested destruction
+    execution.node › the execution bracket should report the fault entries behind a requested destruction in FIFO order and handle nothing
+    execution.node › the execution bracket should not report an entry handled before destruction was requested
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when onStart requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should deliver one error and no warning when onError requests destruction for an applied failure
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn for destruction when the round-trip slot holds a cancel and requests destruction
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn after onEnd when onEnd requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when onStart requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should deliver one error and no warning when onError requests destruction for an applied failure
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn for destruction when the round-trip slot holds a cancel and requests destruction
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn after onEnd when onEnd requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag, past activation should warn once and end nothing when onMove requests destruction and then throws
+    anchor.browser › a non-finite moveTo() should report nothing for a malformed move destruction discards
+    kernel.browser › the round-trip unit should open no round-trip for a destroy requested in the release effect
+    kernel.browser › the round-trip unit should open no round-trip for a destroy requested in the release prepare
+    kernel.browser › the round-trip unit should open no round-trip for a destroy requested by an action the release effect dispatched
+    kernel.browser › requests at unit boundaries should finish the join whose anchorTarget requested destruction and retire nothing after it
+    kernel.browser › requests at unit boundaries should apply none of the requests from onStart when destruction follows them
+    kernel.browser › a fault destruction discards should warn for a checkpoint registered before destruction is requested
+    kernel.browser › a fault destruction discards should warn for a checkpoint registered after destruction is requested
+    kernel.browser › a fault destruction discards should warn for discarded checkpoints in registration order
+    kernel.browser › a fault destruction discards should deliver the warning after the unit and before application, with ingress refused
+    kernel.browser › a fault destruction discards should drop what the delivered report requests and retire once
+    kernel.browser › a fault destruction discards should absorb a throw from the report and go on to the next fault
+    kernel.browser › a fault destruction discards should report destruction and not a cancel held before the checkpoint
+    kernel.browser › a fault destruction discards should report destruction and not a cancel held after the checkpoint
+    kernel.browser › a fault destruction discards should not warn for a checkpoint whose own settlement requests destruction
+    kernel.browser › a fault destruction discards should warn only for the checkpoint behind one that applied and requested destruction
+    kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then throws
+    kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then rejects inside then
+    kernel.browser › a fault destruction discards should report destruction for a round-trip that holds a cancel and requests destruction
+    kernel.browser › a fault destruction discards should absorb a throw from a discarded rejection's report
+    kernel.browser › a fault destruction discards should report a rejection the delivered report causes, behind the checkpoint
+    kernel.browser › a fault destruction discards should report once for a rejection whose own settlement requests destruction and rethrows
+
+## Compared by name with remediation-mutations.txt
+base record 351 0 recheck 351 0 name-set equal true
+Y1 record 348 3 recheck 348 3 name-set equal true
+Y2 record 345 6 recheck 345 6 name-set equal true
+Y3 record 342 9 recheck 342 9 name-set equal true
+Y4 record 347 4 recheck 347 4 name-set equal true
+X5s record 350 1 recheck 350 1 name-set equal true
+X6s record 339 12 recheck 339 12 name-set equal true
+N1 record 314 37 recheck 314 37 name-set equal true
+
+## (ae) and async probes: RECHECK rows in recheck-rows.txt, with the row itself. Ma drops the latch's identity test; Mb subscribes no rejection handler
+## base pass 15 fail 0
+## Ma pass 7 fail 8
+    zz-recheck.browser › diagnostic intake in the sortable should consume a rejection arriving after the cancel applied
+    zz-recheck.browser › diagnostic intake in the sortable RECHECK ae async: requestCancel then throw
+    zz-recheck.browser › diagnostic intake in the sortable RECHECK ae Promise.reject: requestCancel then return rejected
+    zz-recheck.browser › diagnostic intake in the sortable RECHECK async, awaiting first: requestCancel then throw arrives after the cancel applied
+    zz-recheck.browser › diagnostic intake in the free drag should consume a rejection arriving after the cancel applied
+    zz-recheck.browser › diagnostic intake in the free drag RECHECK ae async: requestCancel then throw
+    zz-recheck.browser › diagnostic intake in the free drag RECHECK ae Promise.reject: requestCancel then return rejected
+    zz-recheck.browser › diagnostic intake in the free drag RECHECK async, awaiting first: requestCancel then throw arrives after the cancel applied
+## Mb pass 1 fail 14
+    zz-recheck.browser › diagnostic intake in the sortable should consume a rejection arriving after the cancel applied
+    zz-recheck.browser › diagnostic intake in the sortable RECHECK ae async: requestCancel then throw
+    zz-recheck.browser › diagnostic intake in the sortable RECHECK ae Promise.reject: requestCancel then return rejected
+    zz-recheck.browser › diagnostic intake in the sortable RECHECK async, awaiting first: requestCancel then throw arrives after the cancel applied
+    zz-recheck.browser › diagnostic intake in the sortable RECHECK async, no request: applied live as a DraggableError at FAILURE_RESOLUTION
+    zz-recheck.browser › diagnostic intake in the sortable RECHECK async: requestDestroy then throw arrives after application: nothing
+    zz-recheck.browser › diagnostic intake in the sortable RECHECK async: requestCancel, requestDestroy, throw arrives after application: nothing
+    zz-recheck.browser › diagnostic intake in the free drag should consume a rejection arriving after the cancel applied
+    zz-recheck.browser › diagnostic intake in the free drag RECHECK ae async: requestCancel then throw
+    zz-recheck.browser › diagnostic intake in the free drag RECHECK ae Promise.reject: requestCancel then return rejected
+    zz-recheck.browser › diagnostic intake in the free drag RECHECK async, awaiting first: requestCancel then throw arrives after the cancel applied
+    zz-recheck.browser › diagnostic intake in the free drag RECHECK async, no request: applied live as a DraggableError at FAILURE_RESOLUTION
+    zz-recheck.browser › diagnostic intake in the free drag RECHECK async: requestDestroy then throw arrives after application: nothing
+    zz-recheck.browser › diagnostic intake in the free drag RECHECK async: requestCancel, requestDestroy, throw arrives after application: nothing
+
+## Whole suite at cfed5f9da
+suite exit 1
+total 1548 pass 1474 fail 6 pending 68 suites 391
+tests/consumer.node.test.ts failed
+   FAIL the packed package should pack every sourcemap its modules point at
+tests/decisions.node.test.ts failed
+   FAIL the deferred decisions should hold every witness it claims
+tests/docs.node.test.ts failed
+   FAIL the documented surface should resolve every reference a public type makes
+   FAIL the documented surface should close the kernel tier over the kernel tier
+   FAIL the documented surface should close the ordinary tier over the ordinary tier and the ones below it
+   FAIL the documented surface should close the free-drag tier over the ordinary tier and the ones below it
+tests/sortable/react.browser.test.ts failed Failed to import test file wt/packages/drag2/tests/sortable/react.browser.test.ts
+tests/sortable/stories.browser.test.ts failed Failed to import test file wt/packages/drag2/tests/sortable/stories.browser.test.ts
+files 78 passedfiles 73

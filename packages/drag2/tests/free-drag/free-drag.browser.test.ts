@@ -31,6 +31,7 @@ import {
   activate,
   cancelPointer,
   escape,
+  frame,
   freeDragHarness,
   losePointerCapture,
   move,
@@ -346,6 +347,27 @@ describe('bounds()', () => {
 
     expect(composed.rendered()).toEqual([9990, 0]);
   });
+
+  it('should keep the resolved bounds when the source rect is mutated', () => {
+    // The thunk hands back one consumer-owned rect, and the consumer widens it
+    // inside `onMove` with no invalidation in between. The clamp is over what
+    // was resolved, so the next sample is still held at the resolved edge.
+    const rect = new DOMRect(0, 0, 300, 300);
+    const composed = compose({
+      fragments: [bounds(() => rect)],
+      config: {
+        onMove: (): void => {
+          rect.width = 10_000;
+        },
+      },
+    });
+
+    activate(composed);
+    move(10_000, 10);
+    move(10_000, 10);
+
+    expect(composed.rendered()).toEqual([200, 0]);
+  });
 });
 
 describe('moveTo()', () => {
@@ -397,7 +419,7 @@ describe('the controller', () => {
   it('should close the ingress after destroy()', async () => {
     const composed = compose();
 
-    await composed.controller.destroy();
+    await composed.controller.requestDestroy();
     activate(composed);
 
     expect(composed.starts).toEqual([]);
@@ -407,7 +429,7 @@ describe('the controller', () => {
   it('should stay inert for invalidate() and moveTo() after destroy()', async () => {
     const composed = compose();
 
-    await composed.controller.destroy();
+    await composed.controller.requestDestroy();
 
     expect(() => {
       composed.controller.invalidate();
@@ -425,7 +447,7 @@ describe('the controller', () => {
     const composed = compose();
 
     activate(composed);
-    await composed.controller.destroy();
+    await composed.controller.requestDestroy();
     await settled();
 
     expect(composed.ends).toEqual([]);
@@ -436,7 +458,7 @@ describe('the controller', () => {
     const composed = compose();
 
     activate(composed);
-    composed.controller.cancel('by hand');
+    composed.controller.requestCancel('by hand');
     await settled();
 
     expect(composed.ends).toHaveLength(1);
@@ -468,6 +490,42 @@ describe('landing()', () => {
 
     expect(composed.ends).toHaveLength(1);
     expect(composed.ends[0]!.type).toBe('rejected');
+  });
+
+  it('should start the tail with the timing the policy returned', async () => {
+    // The policy's record is consumer-owned, and so is the element's
+    // `animate`: reaching it through a getter runs consumer code that rewrites
+    // the record. The animation carries the values as they were returned.
+    const timing = { duration: 500, easing: 'linear' };
+    const composed = compose({
+      fragments: [{ landing: () => ({ landingTiming: () => timing }) }],
+      onDrop: () => FreeDragResolution.reject(),
+    });
+    const animate = composed.item.animate.bind(composed.item);
+
+    Object.defineProperty(composed.item, 'animate', {
+      configurable: true,
+      get: () => {
+        timing.duration = 1;
+        timing.easing = 'ease-in';
+
+        return animate;
+      },
+    });
+
+    activate(composed);
+    move(50, 40);
+    release(50, 40);
+    await settled();
+    await frame();
+    await settled();
+
+    const [tail] = composed.item.getAnimations();
+
+    expect(tail?.effect?.getTiming()).toMatchObject({
+      duration: 500,
+      easing: 'linear',
+    });
   });
 });
 
@@ -502,7 +560,7 @@ describe('construction', () => {
     }).not.toThrow();
 
     expect(controller.moveTo).toBeTypeOf('function');
-    own(() => void controller.destroy());
+    own(() => void controller.requestDestroy());
   });
 
   it('should not let a later fragment clear the required slot', () => {
@@ -520,7 +578,7 @@ describe('construction', () => {
       { onDrop: undefined },
     );
 
-    own(() => void controller.destroy());
+    own(() => void controller.requestDestroy());
     expect(controller.invalidate).toBeTypeOf('function');
   });
 
@@ -545,7 +603,7 @@ describe('cancellation provenance', () => {
     const composed = compose();
 
     activate(composed);
-    composed.controller.cancel('by hand');
+    composed.controller.requestCancel('by hand');
     await settled();
 
     expect(composed.ends[0]).toMatchObject({
@@ -626,7 +684,7 @@ describe('cancellation provenance', () => {
     const composed = compose();
 
     activate(composed);
-    composed.controller.cancel(CANCEL_ABORTED);
+    composed.controller.requestCancel(CANCEL_ABORTED);
 
     expect(composed.ends[0]).toMatchObject({
       reason: CANCEL_ABORTED,

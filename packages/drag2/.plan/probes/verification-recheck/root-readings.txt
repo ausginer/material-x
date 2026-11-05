@@ -1,0 +1,66 @@
+== main
+ RUN  v4.1.10 <scratch>/main-wt
+ Test Files  3 failed | 154 passed (157)
+      Tests  3 failed | 2466 passed | 60 skipped (2529)
+Type Errors  no errors
+ FAIL  |node/drag2| tests/bench/size.node.test.ts:285:3 > the non-composed baseline > should fill exactly the slots the assembler fills
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75:3 > TokenPackageProcessor > should apply inheritance and render declarations
+ FAIL  |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts:45:3 > radio visual regression > should match the selection state matrix
+29 pixels (ratio 0.01) differ.
+Warning: A vi.unmock("../../src/DB/index.ts") call in "packages/tproc/test
+== input
+ RUN  v5.0.5 <scratch>/input
+ Test Files  7 failed | 156 passed (163)
+      Tests  7 failed | 2624 passed | 68 skipped (2699)
+Type Errors  no errors
+     Errors  1 error
+ FAIL  |browser/drag2 (chromium)| tests/sortable/react.browser.test.ts [ packages/drag2/tests/sortable/react.browser.test.ts ]
+ FAIL  |browser/drag2 (chromium)| tests/sortable/stories.browser.test.ts [ packages/drag2/tests/sortable/stories.browser.test.ts ]
+ FAIL  |node/drag2| tests/bench/size.node.test.ts:285 > the non-composed baseline > should fill exactly the slots the assembler fills
+ FAIL  |node/drag2| tests/docs.node.test.ts:120 > the documented surface > should resolve every reference a public type makes
+ FAIL  |node/drag2| tests/docs.node.test.ts:152 > the documented surface > should close the kernel tier over the kernel tier
+ FAIL  |node/drag2| tests/docs.node.test.ts:182 > the documented surface > should close the ordinary tier over the ordinary tier and the ones below it
+ FAIL  |node/drag2| tests/docs.node.test.ts:226 > the documented surface > should close the free-drag tier over the ordinary tier and the ones below it
+ FAIL  |node/tproc| tests/DB/index.node.test.ts [ packages/tproc/tests/DB/index.node.test.ts ]
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render declarations
+ FAIL  |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts:45 > radio visual regression > should match the selection state matrix
+- vi.unmock("../../src/DB/index.ts") at tests/DB/index.node.test.ts:5:5
+29 pixels (ratio 0.01) differ.
+Error: browserContext.close: Target page, context or browser has been closed
+⎯⎯ Unhandled Reporter Error ⎯⎯
+== tip
+ RUN  v5.0.5 <scratch>/tip
+ Test Files  3 failed | 160 passed (163)
+      Tests  2 failed | 2643 passed | 68 skipped (2713)
+Type Errors  no errors
+     Errors  1 error
+ FAIL  |node/tproc| tests/DB/index.node.test.ts [ packages/tproc/tests/DB/index.node.test.ts ]
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render declarations
+ FAIL  |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts:45 > radio visual regression > should match the selection state matrix
+- vi.unmock("../../src/DB/index.ts") at tests/DB/index.node.test.ts:5:5
+29 pixels (ratio 0.01) differ.
+Error: browserContext.close: Target page, context or browser has been closed
+⎯⎯ Unhandled Reporter Error ⎯⎯
+== oneinstance
+ RUN  v5.0.5 <scratch>/tip
+ Test Files  2 failed | 161 passed (163)
+      Tests  1 failed | 2644 passed | 68 skipped (2713)
+Type Errors  no errors
+ FAIL  |node/tproc| tests/DB/index.node.test.ts [ packages/tproc/tests/DB/index.node.test.ts ]
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render declarations
+- vi.unmock("../../src/DB/index.ts") at tests/DB/index.node.test.ts:5:5
+
+== tproc's own config, tip and input
+- tip
+      Tests  1 failed | 69 passed (70)
+ FAIL  |node| tests/DB/index.node.test.ts [ tests/DB/index.node.test.ts ]
+ FAIL  |node| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render declaratio
+ Test Files  2 failed | 10 passed (12)
+- input
+      Tests  1 failed | 69 passed (70)
+ FAIL  |node| tests/DB/index.node.test.ts [ tests/DB/index.node.test.ts ]
+ FAIL  |node| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render declaratio
+ Test Files  2 failed | 10 passed (12)
+
+== radio.visual alone at the tip
+      Tests  4 passed (4)

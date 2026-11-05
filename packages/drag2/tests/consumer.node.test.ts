@@ -4,8 +4,9 @@
  * Every other suite imports `src/` directly, so nothing else in this package
  * can see what a consumer actually receives: the `exports` map, the emitted
  * declarations, and whether the tarball contains the files those two promise.
- * This builds, packs and extracts the real package, then imports and compiles
- * against the extracted copy from outside the workspace.
+ * This packs and extracts the real package, as the project's global setup built
+ * it, then imports and compiles against the extracted copy from outside the
+ * workspace.
  *
  * It is deliberately the slowest test here. It is also the only one that would
  * catch a subpath whose `default` condition points at a file the build never
@@ -301,8 +302,8 @@ const list: SortableController = sortable(
 // **D-44**: payload-free. The collection is a pull source, so this says
 // \`re-read what you already have\` rather than handing over a new array.
 list.invalidate();
-list.cancel('reason');
-list.destroy();
+list.requestCancel('reason');
+list.requestDestroy();
 
 // A custom timing is authorable from the **middle tier** alone (D-63): the
 // consumer surface takes options rather than a policy, and the seam a
@@ -375,7 +376,7 @@ void hoistedFragment;
 // Inference through the *packed* declarations, with no explicit type argument.
 const inferred = draggable(root, behavior);
 
-inferred.destroy();
+inferred.requestDestroy();
 
 // ---------------------------------------------------------------------------
 // Opacity: neither branded value is constructible or callable.
@@ -609,7 +610,7 @@ type Part = {
   verdict: string | null;
 };
 
-type Controller = Readonly<{ cancel(reason?: unknown): void; destroy(): Promise<void> }>;
+type Controller = Readonly<{ requestCancel(reason?: unknown): void; requestDestroy(): Promise<void> }>;
 
 /** Behavior-private, per-operation. D-66's marker, out of line. */
 const MINTED = 0;
@@ -776,11 +777,11 @@ const install = (
 ): BehaviorInstall<Controller, Part, HTMLElement> => {
   // **The narrowing, pinned at the only place it is real.** The value below
   // *is* the kernel controller, handed over under the interface it implements
-  // — so nothing but this declaration keeps \`arm\` out of a behavior's reach,
+  // — so nothing but this declaration keeps \`construct\` out of a behavior's reach,
   // and a member added to the class does not appear here unless the interface
   // names it.
-  // @ts-expect-error: \`arm\` is on the class and off the behavior-facing interface
-  void kernel.arm;
+  // @ts-expect-error: \`construct\` is on the class and off the behavior-facing interface
+  void kernel.construct;
 
   const spec: BehaviorSpec<Part, HTMLElement> = {
     config,
@@ -829,10 +830,10 @@ const install = (
     // off the controller, so what is published is a closure over the call
     // rather than the kernel's prototype method.
     controller: {
-      cancel: (reason?: unknown): void => {
-        kernel.cancel(reason);
+      requestCancel: (reason?: unknown): void => {
+        kernel.requestCancel(reason);
       },
-      destroy: (): Promise<void> => kernel.destroy(),
+      requestDestroy: (): Promise<void> => kernel.requestDestroy(),
     },
   };
 };
@@ -1054,8 +1055,8 @@ const controller: FreeDragController = freeDrag(
 // viewport space rather than a policy slot.
 controller.invalidate();
 controller.moveTo({ x: 10, y: 20 } satisfies Point);
-controller.cancel('reason');
-void controller.destroy();
+controller.requestCancel('reason');
+void controller.requestDestroy();
 
 // Free drag's twin (F-147): named by \`freeDrag()\`'s signature and therefore
 // exported from this entry, with its own closure one tier down.
@@ -1259,7 +1260,7 @@ const controller = freeDrag(
   { bounds: snapToGrid(8) },
 );
 
-void controller.destroy();
+void controller.requestDestroy();
 `;
 
 const TSCONFIG = JSON.stringify({
@@ -1312,8 +1313,6 @@ async function packedFiles(
 
 beforeAll(async () => {
   const dir = await mkdtemp(join(tmpdir(), 'drag2-consumer-'));
-
-  await run('npx', ['tsdown', '--config', 'tsdown.config.ts'], ROOT);
 
   const { stdout } = await run(
     'npm',

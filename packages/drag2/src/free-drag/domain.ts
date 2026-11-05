@@ -130,11 +130,12 @@ export type RejectedResolution = FreeDragResolution &
  * constant rather than a fresh one per acceptance: there is no string to ship,
  * none to compare, and nothing on the value for a consumer to read or forge.
  *
- * **The two assertions below are irreducible and are the only ones.** The brand
- * is a *required* property no runtime value carries — that is what makes the
- * type unforgeable, and it is also why an array literal is not comparable to
- * it. `as never` is the narrowest spelling: it claims nothing about the source,
- * and the annotation beside it is what states the result.
+ * **The `as never` assertions on `ACCEPTED` and in `reject` are
+ * irreducible.** The brand is a *required* property no runtime value carries —
+ * that is what makes the type unforgeable, and it is also why an array literal
+ * is not comparable to it. `as never` is the narrowest spelling: it claims
+ * nothing about the source, and the annotation beside it is what states the
+ * result.
  */
 export const ACCEPTED: AcceptedResolution = [] as never;
 
@@ -178,7 +179,7 @@ export type CanceledFreeDragResult = Readonly<{
   request: FreeDragRequest | null;
   /**
    * **What the decider had to say, and nothing more.** An open channel: a value
-   * the consumer passed to `cancel`, the value a classified failure threw, or
+   * the consumer passed to `requestCancel`, the value a classified failure threw, or
    * `undefined` — this behavior mints none of its own. Provenance is `origin`,
    * which the consumer cannot write.
    */
@@ -189,7 +190,7 @@ export type CanceledFreeDragResult = Readonly<{
 }>;
 
 /**
- * **Three arms**, one fewer than the sortable's. A free drag has no
+ * **No identity-preserving arm**, unlike the sortable's. A free drag has no
  * identity-preserving success state: `accept()` means *keep it where it landed*
  * whether or not it travelled, and a zero-distance drop is an ordinary
  * acceptance.

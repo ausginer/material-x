@@ -123,6 +123,9 @@ export function createComposedSortableBehavior(
     // left-to-right evaluation instead: swapping them is a change no reviewer
     // would flag, and it would strand every hook.
     const items = [...source];
+    const composition = kernel.channel((warning) => {
+      merged.onError?.(warning);
+    });
 
     return {
       spec: createSortableSpec(
@@ -133,30 +136,19 @@ export function createComposedSortableBehavior(
           realm: kernel.realm,
           root: kernel.root,
           // **The composition unwind's only route to the channel.** `assemble`
-          // runs before `arm()`, so no behavior spec exists yet and the
-          // kernel's own notifier is unreachable — but `merged.onError` is in
-          // hand right here, which makes this the smallest threading available
-          // rather than a new ownership path.
+          // runs before `arm()`, so no behavior spec exists yet — but
+          // `merged.onError` is in hand right here, and the kernel mints a
+          // channel over it that already works in the construction window.
           //
           // `report`, not `fail`: a feature closure created here cannot know
           // which operation is live, so classifying a failure from one would
           // let a late continuation settle another.
           report: (error) => {
-            if (kernel.closed) {
-              return;
-            }
-
-            try {
-              merged.onError?.(
-                new DraggableWarning('drag: composition/unwind-failed', {
-                  cause: error,
-                }),
-              );
-            } catch {
-              // The terminus. A construction unwind that cannot report is still
-              // an unwind, and its next step matters more than this
-              // notification.
-            }
+            composition(
+              new DraggableWarning('drag: composition/unwind-failed', {
+                cause: error,
+              }),
+            );
           },
         }),
       ),

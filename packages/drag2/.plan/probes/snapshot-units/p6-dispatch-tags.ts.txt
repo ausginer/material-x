@@ -1,0 +1,67 @@
+// P6: behavior-action tags in the construction window and after arming (D-204).
+//
+// Records today's tree, which D-204 keeps on the armed path and changes in the
+// window. Window: an in-range and an out-of-range tag, from the factory body
+// and from a frame-part factory. Armed: an in-range tag, four out-of-range
+// tags (one of which, -22, is `RETIRE - BEHAVIOR_BASE` and would alias a kernel
+// action if encoded), then the same out-of-range tag after destruction.
+import { draggable } from '../../src/kernel.ts';
+import { BEHAVIOR_BASE, RETIRE } from '../../src/kernel/actions.ts';
+import { LIFT_FLAT } from '../../src/kernel/presentation.ts';
+import { createEnv } from './env.ts';
+
+const env = createEnv();
+const log: string[] = [];
+const noop = () => {};
+let ctx: any;
+let parts = 0;
+const ALIAS = RETIRE - BEHAVIOR_BASE;
+
+const controller = draggable(env.root, (kernel) => {
+  ctx = kernel;
+  kernel.dispatch(0, 'factory in-range');
+  kernel.dispatch(7, 'factory out-of-range');
+  return {
+    controller: kernel,
+    spec: {
+      createFramePart: () => {
+        parts += 1;
+        if (parts === 1) {
+          ctx.dispatch(0, 'frame-part in-range');
+          ctx.dispatch(ALIAS, 'frame-part aliasing');
+        }
+        return {};
+      },
+      resetFramePart: noop,
+      config: { threshold: 3, liftMode: LIFT_FLAT, actionTags: 1 },
+      admit: () => null,
+      activation: { prepare: () => true, effect: noop },
+      release: { prepare: () => ({ invoke: null }), effect: noop },
+      settlement: { prepare: () => true, effect: noop },
+      action: {
+        prepare: (...args: unknown[]) => {
+          log.push(`action.prepare ${JSON.stringify(args.filter((a) => typeof a !== 'object' || a === null))}`);
+          return null;
+        },
+        effect: noop,
+      },
+      moved: noop,
+      anchorTarget: () => ({ x: 0, y: 0 }),
+      finalized: noop,
+      reportError: (error: Error) => log.push(`reportError ${error.constructor.name}: ${error.message}`),
+      retire: () => log.push('spec.retire'),
+    },
+  };
+}) as any;
+
+log.push('-- armed');
+for (const tag of [0, ALIAS, 0.5, 1, Number.NaN]) {
+  log.push(`dispatch(${String(tag)})`);
+  ctx.dispatch(tag, `armed ${String(tag)}`);
+}
+log.push('-- destroyed');
+await ctx.destroy();
+ctx.dispatch(ALIAS, 'after destroy');
+log.push(`dispatch(${String(ALIAS)}) after destroy`);
+console.log(log.join('\n'));
+void controller;

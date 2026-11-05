@@ -1,0 +1,107 @@
+# Fresh worktree at 77871383e: npm ci, nx build of all packages, no .vite directory. Chromium, one machine. packages/drag2, npx vitest run -c vitest.config.ts
+== run 1
+ Test Files  78 passed (78)
+      Tests  1494 passed | 68 skipped (1562)
+   Duration  45.15s (worker 88%, tests 11%, import 1%)
+== run 2
+ Test Files  78 passed (78)
+      Tests  1494 passed | 68 skipped (1562)
+   Duration  44.94s (worker 91%, tests 9%)
+
+# src tree at c867a14d0 and 77871383e
+f6172d3be770c3f37ea0a1d723960ace05d61c9b
+f6172d3be770c3f37ea0a1d723960ace05d61c9b
+
+# Built output: 85 .js and .d.ts files (33 .d.ts), SHA-256, input worktree against tip worktree: identical
+85
+identical
+
+# measureAll at the tip: minified | brotli | modules | budget violations | control violations, in table order
+33723 | 10329 | 33 | 0 | 0
+33080 | 10199 | 32 | 0 | 0
+34639 | 10651 | 34 | 0 | 0
+33996 | 10517 | 33 | 0 | 0
+34116 | 10483 | 35 | 0 | 0
+35032 | 10791 | 36 | 0 | 0
+27367 | 8357 | 27 | 0 | 0
+28011 | 8592 | 28 | 0 | 0
+27760 | 8516 | 29 | 0 | 0
+28404 | 8734 | 30 | 0 | 0
+42572 | 12298 | 47 | 0 | 0
+252 | 142 | 2 | 0 | 0
+20337 | 6418 | 16 | 0 | 0
+34323 | 10620 | 31 | 0 | 0
+22618 | 6916 | 26 | 0 | 0
+
+# The declared controls, verbose
+ ✓ |node| tests/bench/size.node.test.ts:229 > the declared controls > should not move free drag minimal at all 0ms
+ ✓ |node| tests/bench/size.node.test.ts:229 > the declared controls > should not move free drag + bounds at all 0ms
+ ✓ |node| tests/bench/size.node.test.ts:229 > the declared controls > should not move free drag + landing at all 0ms
+ ✓ |node| tests/bench/size.node.test.ts:229 > the declared controls > should not move free drag complete at all 0ms
+ ✓ |node| tests/bench/size.node.test.ts:229 > the declared controls > should not move vocabulary root - drag.js at all
+ ✓ |node| tests/bench/size.node.test.ts:229 > the declared controls > should not move kernel root - kernel.js at all 0
+ ✓ |node| tests/bench/size.node.test.ts:229 > the declared controls > should not move baseline B - shipped @ydinjs/dra
+      Tests  43 passed (43)
+
+# Root just typecheck at the tip
+ NX   15 tasks: 15 succeeded
+error TS lines: 0
+
+# Resolved root config at the tip
+{"name":"node/material-x","globalSetup":[]}
+{"name":"declaration/core","globalSetup":[]}
+{"name":"node/drag","globalSetup":[]}
+{"name":"declaration/drag","globalSetup":[]}
+{"name":"node/drag2","globalSetup":["packages/drag2/tests/support/build-package.node.ts"]}
+{"name":"declaration/drag2","globalSetup":[]}
+{"name":"node/tproc","globalSetup":[]}
+{"name":"node/vite-traits-plugin","globalSetup":[]}
+{"name":"browser/material-x (chromium)","globalSetup":[],"api":{"host":null,"port":63318,"allowExec":true,"allowWrite":true},"hasBrowserApi":false}
+{"name":"spec/material-x (chromium)","globalSetup":[],"api":{"host":null,"port":63317,"allowExec":true,"allowWrite":true},"hasBrowserApi":false}
+{"name":"visual/material-x (chromium)","globalSetup":[],"api":{"host":null,"port":63315,"allowExec":true,"allowWrite":true},"hasBrowserApi":false}
+{"name":"browser/core (chromium)","globalSetup":[],"api":{"host":null,"port":63319,"allowExec":true,"allowWrite":true},"hasBrowserApi":false}
+{"name":"browser/box-quad (chromium)","globalSetup":[],"api":{"host":null,"port":63320,"allowExec":true,"allowWrite":true},"hasBrowserApi":false}
+{"name":"browser/drag (chromium)","globalSetup":[],"api":{"host":null,"port":63316,"allowExec":true,"allowWrite":true},"hasBrowserApi":false}
+{"name":"browser/drag2 (chromium)","globalSetup":[],"api":{"host":null,"port":63321,"allowExec":true,"allowWrite":true},"hasBrowserApi":false}
+{"name":"shipped/drag2 (chromium)","globalSetup":[],"api":{"host":null,"port":63322,"allowExec":true,"allowWrite":true},"hasBrowserApi":false}
+
+# Bound sockets, one input-policy.browser run, whose CDP rows pass
+## input: input exit 0;       Tests  25 passed (25)
+      8 [::1]:63316
+9876 sightings: 0; 0.0.0.0 sightings: 0
+## tip: tip exit 0;       Tests  25 passed (25)
+      7 [::1]:63315
+9876 sightings: 0; 0.0.0.0 sightings: 0
+
+# Lockfile, c867a14d0 to 77871383e, JSON entries compared
+CHANGED "packages/drag2" modified
+CHANGED "packages/drag2/node_modules/react-dom" removed
+CHANGED "packages/drag2/node_modules/scheduler" removed
+entries 1126 1124
+scheduler dep @input: "node_modules/react-dom" 19.3.1 ^0.28.0
+scheduler dep @input: "packages/drag2/node_modules/react-dom" 19.2.7 ^0.27.0
+scheduler dep @tip: "node_modules/react-dom" 19.3.1 ^0.28.0
+---
+node_modules/react 19.3.1
+node_modules/react-dom 19.3.1
+node_modules/scheduler 0.28.0
+packages/drag2/node_modules/react-dom 19.2.7
+packages/drag2/node_modules/scheduler 0.27.0
+---
+node_modules/react 19.3.1
+node_modules/react-dom 19.3.1
+node_modules/scheduler 0.28.0
+nested under drag2 @input: [
+  'packages/drag2/node_modules/@types/react',
+  'packages/drag2/node_modules/@types/react-dom',
+  'packages/drag2/node_modules/react-dom',
+  'packages/drag2/node_modules/scheduler',
+  'packages/drag2/node_modules/type-fest'
+]
+nested under drag2 @tip: [
+  'packages/drag2/node_modules/@types/react',
+  'packages/drag2/node_modules/@types/react-dom',
+  'packages/drag2/node_modules/type-fest'
+]
+
+# npm i --package-lock-only at the tip: lockfile unchanged. Resolution from packages/drag2: react 19.3.1, react-dom 19.3.1, scheduler 0.28.0, all from the root node_modules

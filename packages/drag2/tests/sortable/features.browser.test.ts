@@ -9,7 +9,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { DraggableError, DraggableWarning } from '../../src/drag.ts';
-import type { OnReorder } from '../../src/sortable/domain.ts';
+import type { OnReorder, ReorderRequest } from '../../src/sortable/domain.ts';
 import type {
   AxisInstaller,
   LandingTiming,
@@ -22,6 +22,8 @@ import {
 import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
 import { y } from '../../src/sortable/y.ts';
 import {
+  AT_PROPOSAL,
+  CANCEL_SUPPLIED,
   ReorderResolution,
   type SortableConfig,
   type SortableController,
@@ -67,6 +69,8 @@ type ComposeOptions = Readonly<{
   fragments?: ReadonlyArray<Partial<SortableConfig>>;
   /** The axis rule, when a test needs one that is not stock `y()`. */
   axis?: AxisInstaller;
+  /** What `items()` returns, given the fixture's own rows. */
+  pull?(items: HTMLElement[]): readonly HTMLElement[];
 }>;
 
 /** 40px items, plus whichever optional slots the test fills. */
@@ -97,7 +101,7 @@ function composeWith(options: ComposeOptions = {}): Composed {
   const controller = sortable(
     root,
     {
-      items: () => items,
+      items: () => options.pull?.(items) ?? items,
       onReorder: options.onReorder ?? (() => ReorderResolution.accept()),
       axis: options.axis ?? y(),
       onEnd: (result): void => {
@@ -120,7 +124,7 @@ function composeWith(options: ComposeOptions = {}): Composed {
   root.releasePointerCapture = (): void => {};
 
   cleanup.push(() => {
-    void controller.destroy();
+    void controller.requestDestroy();
     root.remove();
   });
 
@@ -199,6 +203,7 @@ const drag = async (y: number): Promise<void> => {
  * whole of the dependency.
  */
 const withReducedMotion = async <T>(body: () => Promise<T>): Promise<T> => {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const native = window.matchMedia;
 
   window.matchMedia = (query: string): MediaQueryList => {
@@ -226,6 +231,81 @@ const authoredLanding = (
   timing: LandingTiming,
 ): { landing: SortableLandingInstaller } => ({
   landing: () => ({ landingTiming: timing }),
+});
+
+/**
+ * **Consumer slots are captured at construction (R19).** The assembler copies
+ * every slot into a record of its own, so a consumer that reassigns a field of
+ * the options object it passed changes nothing the controller calls later.
+ */
+describe('consumer slots', () => {
+  it('should keep calling the construction-time items and onEnd after the options object is reassigned', () => {
+    const root = document.createElement('div');
+
+    root.style.width = '200px';
+    document.body.append(root);
+
+    const items: HTMLElement[] = [];
+
+    for (let i = 0; i < 3; i += 1) {
+      const item = document.createElement('div');
+
+      Object.assign(item.style, {
+        display: 'block',
+        width: '100px',
+        height: `${ITEM_HEIGHT}px`,
+      });
+      root.append(item);
+      items.push(item);
+    }
+
+    const reached: string[] = [];
+    // Writable, because reassigning a field is the consumer's act under test.
+    const options: {
+      -readonly [Key in keyof SortableConfig]: SortableConfig[Key];
+    } = {
+      items: () => {
+        reached.push('items');
+        return items;
+      },
+      onReorder: () => ReorderResolution.accept(),
+      axis: y(),
+      onStart: (): void => {
+        reached.push('onStart');
+        options.items = () => {
+          reached.push('reassigned items');
+          return items;
+        };
+        options.onEnd = (): void => {
+          reached.push('reassigned onEnd');
+        };
+      },
+      onEnd: (): void => {
+        reached.push('onEnd');
+      },
+    };
+    const controller = sortable(root, options);
+
+    root.setPointerCapture = (): void => {};
+    root.releasePointerCapture = (): void => {};
+    cleanup.push(() => {
+      void controller.requestDestroy();
+      root.remove();
+    });
+
+    press(items[0]!);
+    move(30);
+    // A collection pull after the reassignment: `items()` is consumer code the
+    // controller calls on its own schedule.
+    controller.invalidate();
+    release(30);
+
+    expect(reached.slice(reached.indexOf('onStart'))).toEqual([
+      'onStart',
+      'items',
+      'onEnd',
+    ]);
+  });
 });
 
 describe('placeholder', () => {
@@ -259,28 +339,24 @@ describe('placeholder', () => {
     expect([...composed.placeholder()!.classList]).toEqual(['authored']);
   });
 
-  it('should write no mechanics once the factory destroys the controller', () => {
-    // C5-03's stretch sweep. The factory is consumer code and the element it
-    // returns is the **consumer's own**, adopted by nothing until activation
-    // commits — teardown removes only the placeholder it inserted. So an
-    // attribute written between the factory returning and the library's next
-    // liveness reading is a mutation nothing undoes (I-36 (2) act 3).
+  it('should remove the placeholder whose factory requested destruction', () => {
+    // The factory runs inside the activation unit, so the activation commits
+    // and inserts the element it returned; the application after the unit then
+    // removes it, exactly as a destruction requested after activation would.
     const created: HTMLElement[] = [];
     const composed: Composed = compose({
       placeholder: () => {
         const element = document.createElement('div');
 
         created.push(element);
-        void composed.controller.destroy();
+        void composed.controller.requestDestroy();
         return element;
       },
     });
 
     activate(composed);
 
-    expect(created).toHaveLength(1);
-    expect(created[0]!.hasAttribute('data-drag-placeholder')).toBe(false);
-    expect(created[0]!.hasAttribute('aria-hidden')).toBe(false);
+    expect([created.length, created[0]!.isConnected]).toEqual([1, false]);
   });
 
   it('should still apply the default mechanics to a custom element', () => {
@@ -333,79 +409,44 @@ describe('placeholder', () => {
     expect(composed.items[0]!.style.transform).toBe('');
   });
 
-  it('should roll back every library write when a cancelling factory discards the preparation', () => {
-    // **D-39, and the case that makes `activation.rollback` non-vacuous.**
-    // ~~A discarded prepare leaves only a detached element for the collector~~
-    // is true of the library's own `<div>` and false the moment a factory
-    // exists: `prepare` writes onto an element the **consumer** created, and
-    // `preparationValid()` discards the *preparation*, not the element.
-    //
-    // A `cancel()` rather than a `destroy()` is the discriminating shape.
-    // Destroying closes the controller, so the post-factory liveness reading
-    // returns the element unmechanized and there is nothing to undo — the case
-    // above already pins that. Cancelling leaves the controller open, so every
-    // write lands and only the seam is invalidated.
+  it('should adopt the placeholder, start and then cancel when the factory requests a cancel', () => {
+    // **R3 (D-207), replacing D-39's two rollback rows.** A cancel raised in
+    // a slot reached from `activation.prepare` is a request: the preparation
+    // commits, the consumer's element is adopted and inserted, `onStart` is
+    // delivered, and the queued cancel then settles at `ACTIVATING` with
+    // `AT_PROPOSAL`. The element is the consumer's from adoption on, exactly
+    // as in an uncancelled drag, and the presentation disposer removes it.
     const created: HTMLElement[] = [];
-    const composed: Composed = compose({
-      placeholder: () => {
-        const element = document.createElement('div');
-
-        element.setAttribute('slot', 'mine');
-        element.setAttribute('data-mine', 'kept');
-        element.style.color = 'red';
-        created.push(element);
-        composed.controller.cancel('discard the preparation');
-        return element;
-      },
-    });
-
-    activate(composed);
-
-    const element = created[0]!;
-    const attributes = Object.fromEntries(
-      element
-        .getAttributeNames()
-        .map((name) => [name, element.getAttribute(name)]),
-    );
-
-    // **An attribute map, not `outerHTML`.** A removed-then-restored attribute
-    // is re-appended, so the honest guarantee is the same names with the same
-    // values, never the same bytes.
-    expect(attributes).toEqual({
-      slot: 'mine',
-      'data-mine': 'kept',
-      style: 'color: red;',
-    });
-    // The item's own `slot` is absent, so the mechanics *removed* `slot="mine"`
-    // on the way in — which is why the undo restores rather than deletes.
-    expect(composed.items[0]!.hasAttribute('slot')).toBe(false);
-    // And no residue: `style=""` and `class=""` are absent rather than empty.
-    expect(element.style.width).toBe('');
-    expect(element.style.height).toBe('');
-    expect(element.hasAttribute('class')).toBe(false);
-  });
-
-  it('should leave no style attribute behind on a rolled-back element that had none', () => {
-    // The normalization half of the row, and the case that found a platform
-    // difference: after an inline property has been written through the CSSOM,
-    // `removeAttribute('style')` leaves `style=""` behind in Chromium, so the
-    // undo removes the attribute node itself. Asserted as the whole attribute
-    // list rather than as `hasAttribute`, because the empty leftover is exactly
-    // what `hasAttribute` would have missed by reading `true` either way.
-    const created: HTMLElement[] = [];
+    const startedWith: Array<HTMLElement | null> = [];
     const composed: Composed = compose({
       placeholder: () => {
         const element = document.createElement('div');
 
         created.push(element);
-        composed.controller.cancel('discard the preparation');
+        composed.controller.requestCancel('from the factory');
         return element;
+      },
+      onStart: () => {
+        startedWith.push(composed.placeholder());
       },
     });
 
     activate(composed);
 
-    expect(created[0]!.getAttributeNames()).toEqual([]);
+    expect(created).toHaveLength(1);
+    expect(startedWith).toEqual([created[0]]);
+    expect(composed.cancels).toEqual([
+      {
+        type: 'canceled',
+        reason: 'from the factory',
+        origin: CANCEL_SUPPLIED,
+        stage: AT_PROPOSAL,
+        proposal: null,
+      },
+    ]);
+    expect(composed.finishes).toEqual([]);
+    expect(composed.errors).toEqual([]);
+    expect(created[0]!.isConnected).toBe(false);
   });
 
   it('should stay usable after a factory throw', () => {
@@ -496,7 +537,7 @@ describe('handle', () => {
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
     cleanup.push(() => {
-      void controller.destroy();
+      void controller.requestDestroy();
       root.remove();
     });
 
@@ -685,7 +726,7 @@ describe('visual', () => {
     Object.assign(inner.style, { display: 'block', height: '20px' });
     composed.items[0]!.append(inner);
     activate(composed);
-    composed.controller.cancel('reason');
+    composed.controller.requestCancel('reason');
 
     expect(inner.style.position).toBe('');
     expect(inner.style.transform).toBe('');
@@ -1142,7 +1183,7 @@ describe('landing', () => {
 
     const [animation] = composed.items[0]!.getAnimations();
 
-    void composed.controller.destroy();
+    void composed.controller.requestDestroy();
     await Promise.resolve();
     await Promise.resolve();
 
@@ -1153,29 +1194,20 @@ describe('landing', () => {
     expect(composed.errors).toEqual([]);
   });
 
-  it('should leave nothing behind when the duration thunk destroys the controller', async () => {
-    // **A conformance pin, not a regression pin — the bracket-discharge
-    // witness** (Checkpoint D review 4, the landing residue; reclassified by
-    // review 5, C5-03). The barrier it witnesses is the **kernel's**: the thunk
-    // is consumer code, reached through the policy the kernel asks for the
-    // tail's timing, and the kernel revalidates the controller between that
-    // answer and the `animate()` call it would otherwise make. So a controller
-    // destroyed from inside the thunk leaves **no residue at all** — not one
-    // animation to cancel, because none is started.
-    //
-    // What this pins is the blast radius, executably, so the next reviewer
-    // reads a measured size rather than a prose claim. It **fails** if the
-    // residue ever acquires a consequence the operation outlives: an
-    // `animate()` call, an animation that survives teardown, a transform left
-    // on the visual, a reported failure, or a terminal that should not fire.
-    // Late-bound on purpose: the thunk runs once the drop settles, long after
-    // the controller exists.
+  /**
+   * A landing whose duration thunk requests destruction. The thunk runs once
+   * the drop settles, inside the join unit, so the request is applied after
+   * the join.
+   */
+  const dropDestroyingDuration = async (): Promise<
+    Readonly<{ composed: Composed; calls: readonly string[] }>
+  > => {
     let controller: SortableController | null = null;
     const composed = composeWith({
       fragments: [
         landing({
           duration: (): number => {
-            void controller!.destroy();
+            void controller!.requestDestroy();
             return 200;
           },
         }),
@@ -1199,26 +1231,42 @@ describe('landing', () => {
     await Promise.resolve();
     await Promise.resolve();
 
-    // The instrumented call list, not the resulting state: the destroyed
-    // controller writes nothing, so the residue's size is zero.
-    expect(calls).toEqual([]);
-    expect(item.getAnimations()).toEqual([]);
-    expect(item.style.transform).toBe('');
-    expect(item.style.translate).toBe('');
-    expect(composed.placeholder()).toBeNull();
+    return { composed, calls };
+  };
+
+  it('should start the tail of the join whose duration thunk requested destruction', async () => {
+    // The join completes as it would without the request.
+    const { calls } = await dropDestroyingDuration();
+
+    expect(calls).toEqual(['animate']);
+  });
+
+  it('should leave no residue once the destruction a duration thunk requested is applied', async () => {
+    // **The blast radius, executably.** The application's teardown cancels the
+    // tail the join started and restores the visual, so nothing outlives the
+    // controller.
+    const { composed } = await dropDestroyingDuration();
+    const item = composed.items[0]!;
+
+    expect([
+      item.getAnimations(),
+      item.style.transform,
+      item.style.translate,
+      composed.placeholder(),
+    ]).toEqual([[], '', '', null]);
+  });
+
+  it('should report nothing when a duration thunk requests destruction', async () => {
     // A consumer destroying its own controller is not a library failure.
-    // **One collector since D-130.** `expect(reported).toEqual([])` stood
-    // beside this and observed a `globalThis.reportError` stub; with one
-    // channel this single assertion covers both populations.
+    const { composed } = await dropDestroyingDuration();
+
     expect(composed.errors).toEqual([]);
-    // **Neither** terminal callback fires, which is stronger than the decision's
-    // §6 predicted (it expected one `onCancel`) and is the landed rule, not a
-    // gap: destroy is a teardown, not a settlement, so the operation it was
-    // resolving does not get to announce an outcome — see
-    // `composition.browser.test.ts` — _should tear down without a terminal
-    // callback when onReorder destroys_.
-    expect(composed.cancels).toEqual([]);
-    expect(composed.finishes).toEqual([]);
+  });
+
+  it('should deliver the terminal of the join whose duration thunk requested destruction', async () => {
+    const { composed } = await dropDestroyingDuration();
+
+    expect(composed.finishes).toHaveLength(1);
   });
 });
 
@@ -1349,7 +1397,7 @@ describe('layoutAnimation', () => {
         Element.prototype.getBoundingClientRect = native;
       }
 
-      void composed.controller.destroy();
+      void composed.controller.requestDestroy();
       composed.root.remove();
       return reads;
     };
@@ -1368,7 +1416,7 @@ describe('layoutAnimation', () => {
 
     activate(composed);
     await drag(110);
-    composed.controller.cancel('reason');
+    composed.controller.requestCancel('reason');
 
     expect(displaced(composed)).toEqual([]);
     expect(composed.items[1]!.style.transform).toBe('');
@@ -1473,7 +1521,7 @@ describe('the terminal barrier in a resolver sequence', () => {
       fragments: [
         {
           handle: (item) => {
-            void controller?.destroy();
+            void controller?.requestDestroy();
             return item;
           },
           visual: (item) => {
@@ -1488,51 +1536,76 @@ describe('the terminal barrier in a resolver sequence', () => {
     };
   };
 
-  it('should not resolve a visual after the handle resolver destroyed', () => {
-    // Site B: `resolveItem` calls the `handle` slot, and `seedDraft` calls
-    // `visual` immediately after. The kernel's post-`admit` recheck stops the
-    // operation from being minted, but it runs after the whole callback returns
-    // and cannot make the second consumer call un-happen.
+  it('should resolve the visual of the press whose handle resolver requested destruction', () => {
+    // `resolveItem` calls the `handle` slot and `seedDraft` calls `visual`
+    // immediately after, both inside the admission unit, which completes
+    // before the request is applied.
     const asked: HTMLElement[] = [];
     const armed = closingHandle(asked);
     const composed = composeWith({ fragments: armed.fragments });
 
     armed.arm(composed.controller);
+    pressReturning(composed.items[0]!);
 
-    const event = pressReturning(composed.items[0]!);
-
-    expect(asked).toEqual([]);
-    // Admission **declines**; it does not throw. So nothing is minted, the
-    // press keeps its native meaning, and no failure is reported (a consumer
-    // destroying its own controller is not a library failure).
-    expect(event.defaultPrevented).toBe(false);
-    expect(composed.placeholder()).toBeNull();
-    expect(composed.errors).toEqual([]);
+    expect(asked).toEqual([composed.items[0]]);
   });
 
-  it('should not resolve a visual after a keydown handle resolver destroyed', () => {
+  it('should leave nothing admitted once the destruction a handle resolver requested is applied', () => {
+    // A consumer destroying its own controller is not a library failure, and
+    // the application after admission tears the pending operation down.
+    const asked: HTMLElement[] = [];
+    const armed = closingHandle(asked);
+    const composed = composeWith({ fragments: armed.fragments });
+
+    armed.arm(composed.controller);
+    pressReturning(composed.items[0]!);
+
+    expect([composed.placeholder(), composed.errors]).toEqual([null, []]);
+  });
+
+  it('should refuse the next press once the destruction a handle resolver requested is applied', () => {
+    const asked: HTMLElement[] = [];
+    const armed = closingHandle(asked);
+    const composed = composeWith({ fragments: armed.fragments });
+
+    armed.arm(composed.controller);
+    pressReturning(composed.items[0]!);
+    pressReturning(composed.items[1]!);
+
+    expect(asked).toEqual([composed.items[0]]);
+  });
+
+  it('should resolve the visual of the command whose handle resolver requested destruction', () => {
     // The same sequence on the second ingress (D-32). A command admits, decides
-    // feasibility and seeds the draft inside the native listener, so the whole
-    // of it runs after the destroy that a handle resolver raised.
+    // feasibility and seeds the draft inside the native listener, all inside
+    // the admission unit.
     const asked: HTMLElement[] = [];
     const armed = closingHandle(asked);
     const composed = composeWith({ fragments: armed.fragments });
 
     armed.arm(composed.controller);
+    arrow(composed.items[0]!, 'ArrowDown');
 
-    const event = arrow(composed.items[0]!, 'ArrowDown');
-
-    expect(asked).toEqual([]);
-    expect(event.defaultPrevented).toBe(false);
-    expect(composed.placeholder()).toBeNull();
-    expect(composed.errors).toEqual([]);
+    expect(asked).toEqual([composed.items[0]]);
   });
 
-  it('should stop the candidate traversal at the destroying candidate', async () => {
-    // Site A, through real pointer input on the `y()` rule — the reviewer's
-    // temporary regression, made permanent. `items[0]` is the dragged item and
-    // was resolved at admission; `items[1]` is the first candidate and destroys,
-    // so `items[2]` must never be asked.
+  it('should leave nothing admitted once the destruction a keydown handle resolver requested is applied', () => {
+    const asked: HTMLElement[] = [];
+    const armed = closingHandle(asked);
+    const composed = composeWith({ fragments: armed.fragments });
+
+    armed.arm(composed.controller);
+    arrow(composed.items[0]!, 'ArrowDown');
+
+    expect([composed.placeholder(), composed.errors]).toEqual([null, []]);
+  });
+
+  /**
+   * The rows the `visual` slot is asked for across activation and one move,
+   * as indices. With `destroying`, the first candidate requests destruction
+   * when it is asked.
+   */
+  const traversal = async (destroying: boolean): Promise<readonly number[]> => {
     const asked: HTMLElement[] = [];
     let controller: SortableController | null = null;
     const composed = composeWith({
@@ -1541,8 +1614,8 @@ describe('the terminal barrier in a resolver sequence', () => {
           visual: (item) => {
             asked.push(item);
 
-            if (item === composed.items[1]) {
-              void controller!.destroy();
+            if (destroying && item === composed.items[1]) {
+              void controller!.requestDestroy();
             }
 
             return item;
@@ -1556,7 +1629,21 @@ describe('the terminal barrier in a resolver sequence', () => {
     activate(composed);
     await drag(70);
 
-    expect(asked).toEqual([composed.items[0], composed.items[1]]);
+    return asked.map((item) => composed.items.indexOf(item));
+  };
+
+  it('should finish the candidate traversal of the move whose candidate requested destruction', async () => {
+    // Site A, through real pointer input on the `y()` rule. `items[0]` is
+    // resolved at admission; `items[1]` is the first candidate and requests
+    // destruction, which is applied after the move, so the move asks exactly
+    // what the control row below records.
+    expect(await traversal(true)).toEqual([0, 1, 2, 1]);
+  });
+
+  it('should ask the same rows when no candidate requests destruction', async () => {
+    // The control for the row above. Each row runs alone: two live
+    // controllers in one row would share the document's pointer stream.
+    expect(await traversal(false)).toEqual([0, 1, 2, 1]);
   });
 
   /**
@@ -1579,7 +1666,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     }),
   });
 
-  it('should not run the bracket past a placeholder reaction that destroyed', async () => {
+  it('should run the bracket past a placeholder reaction that requested destruction', async () => {
     // Site C, and the one no other test reaches. `movePlaceholder` moves a
     // node, so a custom-element placeholder's `disconnectedCallback` runs
     // synchronously inside that call — consumer code from the `placeholder()`
@@ -1598,7 +1685,7 @@ describe('the terminal barrier in a resolver sequence', () => {
     class ClosingPlaceholder extends HTMLElement {
       // oxlint-disable-next-line class-methods-use-this -- a lifecycle reaction
       disconnectedCallback(): void {
-        void controller?.destroy();
+        void controller?.requestDestroy();
       }
     }
 
@@ -1618,8 +1705,63 @@ describe('the terminal barrier in a resolver sequence', () => {
     activate(composed);
     await drag(55);
 
-    // The write happened and the reaction destroyed the controller; the sink
-    // never ran, so no contribution was started on a retired feature.
-    expect(applied).toEqual([]);
+    // The reaction runs inside the committed move, which completes before the
+    // request is applied, so the sink still runs for that move.
+    expect(applied.length).toBeGreaterThan(0);
+  });
+});
+
+describe('a cancel requested from the collection pull', () => {
+  it('should publish the pulled collection and cancel after it', async () => {
+    // R32, the sortable's action seam. `items()` requests cancel and returns a
+    // new collection that keeps the dragged item. The pull commits: the
+    // collection is published under the version the pull took, and the cancel
+    // applies after the unit. A second drag is computed against it.
+    const requests: ReorderRequest[] = [];
+    let armed = false;
+    let pulled: HTMLElement[] | null = null;
+    const composed: Composed = composeWith({
+      onReorder: (request) => {
+        requests.push(request);
+        return ReorderResolution.accept();
+      },
+      pull: (items) => {
+        if (armed) {
+          armed = false;
+          composed.controller.requestCancel('in items');
+
+          const extra = document.createElement('div');
+
+          Object.assign(extra.style, {
+            display: 'block',
+            width: '100px',
+            height: `${ITEM_HEIGHT}px`,
+          });
+          composed.root.append(extra);
+          pulled = [...items, extra];
+        }
+
+        return pulled ?? items;
+      },
+    });
+
+    activate(composed);
+    armed = true;
+    composed.controller.invalidate();
+
+    expect(composed.cancels).toEqual([
+      expect.objectContaining({ type: 'canceled', reason: 'in items' }),
+    ]);
+
+    // The second drag: the dragged item to the end of the pulled collection.
+    press(composed.items[0]!);
+    move(30);
+    await drag(150);
+    await drag(155);
+    release(155);
+    await nextFrame();
+
+    expect(requests).toHaveLength(1);
+    expect(requests[0]).toMatchObject({ version: 1, from: 0, to: 3 });
   });
 });

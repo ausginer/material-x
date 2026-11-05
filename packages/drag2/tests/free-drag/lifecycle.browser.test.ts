@@ -32,6 +32,7 @@ import {
   FreeDragResolution,
   type FreeDragConfig,
 } from '../../src/free-drag.ts';
+import type { DraggableError } from '../../src/kernel/errors.ts';
 import type { Point } from '../../src/kernel/types.ts';
 import {
   activate,
@@ -206,7 +207,7 @@ describe('a late resolution', () => {
     release(30, 10);
     await settled();
 
-    composed.controller.cancel('too slow');
+    composed.controller.requestCancel('too slow');
     await settled();
 
     resolveDrop(FreeDragResolution.accept());
@@ -231,7 +232,7 @@ describe('a late resolution', () => {
     release(30, 10);
     await settled();
 
-    await composed.controller.destroy();
+    await composed.controller.requestDestroy();
     resolveDrop(FreeDragResolution.accept());
     await settled();
 
@@ -258,9 +259,9 @@ describe('the destroy promise', () => {
     // no other row in the suite can see the difference — and the published
     // guarantee is about the object handed back, so it is asserted there.
     const composed = compose();
-    const first = composed.controller.destroy();
+    const first = composed.controller.requestDestroy();
 
-    expect(composed.controller.destroy()).toBe(first);
+    expect(composed.controller.requestDestroy()).toBe(first);
 
     await expect(first).resolves.toBeUndefined();
   });
@@ -299,7 +300,7 @@ describe('retirement order', () => {
     });
 
     activate(composed);
-    composed.controller.cancel('reason');
+    composed.controller.requestCancel('reason');
 
     expect(seen).toEqual([
       'plugin-2',
@@ -418,18 +419,14 @@ describe('the landing origin', () => {
 });
 
 describe('the final activation barrier', () => {
-  it('should publish no start when a bounds source destroys the controller', async () => {
-    // **E-02, and the row the contract already claimed.** 07's terminal table
-    // said the `onStart` latch is read immediately before the call; the
-    // implementation read it earlier in the sequence, then ran
-    // `deriveMotion` — whose `constrain.apply` reaches a third-party constraint
-    // and, with `bounds()` installed, the consumer's own rect source — and
-    // called `onStart` with no further reading. The review's probe expected
-    // zero starts after logical closure and got one.
+  it('should publish the start of the activation whose bounds source requested destruction', async () => {
+    // The bounds source runs inside the activation unit, and a destruction it
+    // requests is applied after that unit, so the unit's own `onStart` is
+    // still delivered.
     const composed = compose({
       fragments: [
         bounds(() => {
-          void composed.controller.destroy();
+          void composed.controller.requestDestroy();
           return new DOMRectReadOnly(0, 0, 10_000, 10_000);
         }),
       ],
@@ -438,14 +435,29 @@ describe('the final activation barrier', () => {
     activate(composed);
     await settled();
 
-    expect(composed.starts).toEqual([]);
-    expect(composed.ends).toEqual([]);
-    expect(composed.errors).toEqual([]);
+    expect(composed.starts).toHaveLength(1);
+  });
+
+  it('should publish no end after a bounds source requested destruction', async () => {
+    // No later unit runs once the request is applied, so the started drag
+    // never reaches a terminal.
+    const composed = compose({
+      fragments: [
+        bounds(() => {
+          void composed.controller.requestDestroy();
+          return new DOMRectReadOnly(0, 0, 10_000, 10_000);
+        }),
+      ],
+    });
+
+    activate(composed);
+    await settled();
+
+    expect([composed.ends, composed.errors]).toEqual([[], []]);
   });
 
   it('should still publish a start when the same source leaves the controller alive', () => {
-    // The positive control. Without it the row above passes against an
-    // activation that never notifies at all.
+    // The positive control: the activation notifies at all.
     const composed = compose({
       fragments: [bounds(() => new DOMRectReadOnly(0, 0, 10_000, 10_000))],
     });
@@ -457,17 +469,13 @@ describe('the final activation barrier', () => {
 });
 
 describe('a resolver that destroys and then throws', () => {
-  it('should reach no onError from admission', async () => {
-    // **E-03.** `runAdmission` catches a throwing `admit` and reported the
-    // fault unconditionally — so a `handle` resolver that called `destroy()`
-    // and *then* threw had its own destruction handed back to it through a
-    // declared callback, after `destroy()` had returned. The floor forbids that
-    // outright, and the guard is kernel-side because the rule is controller
-    // lifetime rather than domain settlement.
+  it('should report the admission failure of the unit that requested destruction', async () => {
+    // The request is applied after the admission unit, so the failure that
+    // unit raises is a live controller's and reaches `onError`.
     const composed = compose({
       config: {
         handle: () => {
-          void composed.controller.destroy();
+          void composed.controller.requestDestroy();
           throw new Error('handle: gone');
         },
       },
@@ -476,7 +484,26 @@ describe('a resolver that destroys and then throws', () => {
     press(composed.item);
     await settled();
 
-    expect(composed.errors).toEqual([]);
+    expect(
+      composed.errors.map(
+        (error) => ((error as DraggableError).cause as Error).message,
+      ),
+    ).toEqual(['handle: gone']);
+  });
+
+  it('should publish no end after a resolver that requested destruction threw', async () => {
+    const composed = compose({
+      config: {
+        handle: () => {
+          void composed.controller.requestDestroy();
+          throw new Error('handle: gone');
+        },
+      },
+    });
+
+    press(composed.item);
+    await settled();
+
     expect(composed.ends).toEqual([]);
   });
 

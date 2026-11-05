@@ -1,0 +1,34 @@
+# RF-24 at the input (c867a14d0): per-project resolved config, createVitest("test") from the root
+# (read before the repair; port order varies by project init order)
+{"name":"browser/drag (chromium)","port":63317,"allowExec":true,"allowWrite":true,"middlewareMode":false,"hasBrowserApi":true,"browserApi":{"host":"0.0.0.0","port":9876,"allowExec":true}}
+
+# Bound sockets during one material-x browser file, input, ss -ltnp
+LISTEN 0      511        [::1]:63317    [::]:* users:(("node-MainThread",pid=61651,fd=22))
+LISTEN 1      511        [::1]:63317    [::]:* users:(("node-MainThread",pid=61651,fd=22))
+# before the run: only 127.0.0.1:37761; 9876 never bound
+
+# After the repair: resolved config
+{"name":"browser/material-x (chromium)","port":63316,"allowExec":true,"allowWrite":true,"middlewareMode":false,"hasBrowserApi":false}
+{"name":"spec/material-x (chromium)","port":63317,"allowExec":true,"allowWrite":true,"middlewareMode":false,"hasBrowserApi":false}
+{"name":"visual/material-x (chromium)","port":63318,"allowExec":true,"allowWrite":true,"middlewareMode":false,"hasBrowserApi":false}
+{"name":"browser/core (chromium)","port":63319,"allowExec":true,"allowWrite":true,"middlewareMode":false,"hasBrowserApi":false}
+{"name":"browser/box-quad (chromium)","port":63320,"allowExec":true,"allowWrite":true,"middlewareMode":false,"hasBrowserApi":false}
+{"name":"browser/drag (chromium)","port":63315,"allowExec":true,"allowWrite":true,"middlewareMode":false,"hasBrowserApi":false}
+{"name":"browser/drag2 (chromium)","port":63321,"allowExec":true,"allowWrite":true,"middlewareMode":false,"hasBrowserApi":false}
+{"name":"shipped/drag2 (chromium)","port":63322,"allowExec":true,"allowWrite":true,"middlewareMode":false,"hasBrowserApi":false}
+root {"allowExec":true,"allowWrite":true,"middlewareMode":true}
+
+# After the repair: bound sockets during the browser/drag2 project
+LISTEN 0      511        [::1]:63315    [::]:* users:(("node-MainThread",pid=66301,fd=22))
+LISTEN 2      511        [::1]:63315    [::]:* users:(("node-MainThread",pid=66301,fd=22))
+
+# TypeDoc --treatWarningsAsErrors over ./src/kernel.ts alone (negative control): exit 4
+[warning] DOMRealm, defined in @ydinjs/drag2/src/kernel/realm.ts, is referenced by BehaviorContext.realm but not included in the documentation
+[warning] Point, defined in @ydinjs/drag2/src/kernel/types.ts, is referenced by VisualLiftSession.__type.rendered but not included in the documentation
+[warning] DraggableError, defined in @ydinjs/drag2/src/kernel/errors.ts, is referenced by SettlementInput.__type.report but not included in the documentation
+[warning] DraggableWarning, defined in @ydinjs/drag2/src/kernel/errors.ts, is referenced by BehaviorSpec.__type.reportError.error but not included in the documentation
+[warning] The comment for AdmissionSubject links to "DOMRealm" which was resolved but is not included in the documentation. To fix this warning export it or add { "@ydinj
+[warning] Found 0 errors and 5 warnings
+
+# TypeDoc over typedoc.json entries: exit 0, converted
+drag:15 free-drag:37 free-drag/bounds:2 free-drag/feature:19 free-drag/landing:4 kernel:65 sortable:35 sortable/feature:22 sortable/landing:4 sortable/layout-animation:2 sortable/xy:1 sortable/y:1

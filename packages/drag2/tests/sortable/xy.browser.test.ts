@@ -70,12 +70,8 @@ type Field = Readonly<{
     y: number,
     snapshot?: CollectionSnapshot,
     getBox?: ((item: HTMLElement) => HTMLElement) | null,
-    live?: () => boolean,
   ): Insertion | null;
 }>;
-
-/** The default liveness: a controller nobody destroyed. */
-const ALIVE = (): boolean => true;
 
 /**
  * The placeholder occupies cell `slot`; the other three cells are the
@@ -145,7 +141,7 @@ function createField(slot = 0): Field {
     dragged,
     placeholder,
     snapshot: (version = 0, list = collection) => ({ items: list, version }),
-    resolve: (x, y, snapshot = field.snapshot(), getBox = null, live = ALIVE) =>
+    resolve: (x, y, snapshot = field.snapshot(), getBox = null) =>
       geometry.resolve(
         {
           pointerX: x,
@@ -157,7 +153,6 @@ function createField(slot = 0): Field {
         {
           placeholder,
           box: getBox,
-          live,
           settle: null,
           space: null,
         },
@@ -183,7 +178,6 @@ describe('xy', () => {
         {
           placeholder: field.placeholder,
           box: null,
-          live: ALIVE,
           settle: null,
           space: null,
         },
@@ -394,7 +388,9 @@ describe('the composed two-dimensional collection', () => {
 
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
-    cleanup.push({ remove: () => void controller.destroy() } as HTMLElement);
+    cleanup.push({
+      remove: () => void controller.requestDestroy(),
+    } as HTMLElement);
 
     const pointer = (type: string, x: number, y: number): void => {
       const target = type === 'pointerdown' ? items[0]! : document;
@@ -476,7 +472,9 @@ describe('the composed two-dimensional collection', () => {
 
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
-    cleanup.push({ remove: () => void controller.destroy() } as HTMLElement);
+    cleanup.push({
+      remove: () => void controller.requestDestroy(),
+    } as HTMLElement);
 
     const pointer = (type: string, x: number, y2: number): void => {
       const target = type === 'pointerdown' ? items[0]! : document;
@@ -511,115 +509,13 @@ describe('the composed two-dimensional collection', () => {
   });
 });
 
-describe('the terminal barrier in the candidate loop', () => {
-  /**
-   * I-36. The check lives in `rect-index.ts`, shared by both axes, but the
-   * **threading** is per axis — `xy()` has to hand `live` to `refresh` exactly
-   * as `y()` does, and a future axis can forget to. So this group mirrors
-   * `y.browser.test.ts`'s, deliberately, rather than trusting the shared cache.
-   */
-  const closingAt =
-    (
-      target: HTMLElement,
-      asked: HTMLElement[],
-      close: () => void,
-    ): ((item: HTMLElement) => HTMLElement) =>
-    (item) => {
-      asked.push(item);
-
-      if (item === target) {
-        close();
-      }
-
-      return item;
-    };
-
-  it('should stop resolving candidates once the controller closes', () => {
-    const field = createField();
-    const asked: HTMLElement[] = [];
-    let alive = true;
-    const getBox = closingAt(field.items[1]!, asked, () => {
-      alive = false;
-    });
-
-    expect(
-      field.resolve(170, 20, field.snapshot(), getBox, () => alive),
-    ).toBeNull();
-
-    // The third cell is never resolved: no `visual()` call crosses the terminal
-    // barrier. The other half — that no geometry is read after it either — is a
-    // separate concern and is asserted below.
-    expect(asked).toEqual([field.items[0], field.items[1]]);
-  });
-
-  it('should read no placeholder geometry once the controller closes', () => {
-    // Mirrors `y.browser.test.ts`, and for the same reason the resolver-list
-    // assertion is mirrored: the reading is shared but the threading is per
-    // axis. **It passes because a candidate remained** — the reading before
-    // that candidate's `visual()` stops the rebuild — and not because measuring
-    // a consumer-owned placeholder is forbidden after a close. Closing on the
-    // last candidate completes the rebuild by design; that case is below.
-    const field = createField();
-    const asked: HTMLElement[] = [];
-    let alive = true;
-    let measured = 0;
-    const { placeholder } = field;
-    const native = placeholder.getBoundingClientRect.bind(placeholder);
-
-    placeholder.getBoundingClientRect = (): DOMRect => {
-      measured += 1;
-
-      return native();
-    };
-
-    expect(
-      field.resolve(
-        170,
-        20,
-        field.snapshot(),
-        closingAt(field.items[1]!, asked, () => {
-          alive = false;
-        }),
-        () => alive,
-      ),
-    ).toBeNull();
-
-    expect(measured).toBe(0);
-  });
-
-  it('should leave the cache retired rather than clean and partial', () => {
-    // The half a `break` gets wrong; see `y.browser.test.ts` for the reasoning.
-    // Teardown is deferred, so at this instant the retire hooks have not run
-    // and it is the stop itself that keeps a partial buffer from going clean.
-    const field = createField();
-    const asked: HTMLElement[] = [];
-    let alive = true;
-
-    field.resolve(
-      170,
-      20,
-      field.snapshot(),
-      closingAt(field.items[1]!, asked, () => {
-        alive = false;
-      }),
-      () => alive,
-    );
-
-    asked.length = 0;
-
-    field.resolve(170, 20, field.snapshot(), (item) => {
-      asked.push(item);
-      return item;
-    });
-
-    expect(asked).toEqual([field.items[0], field.items[1], field.items[2]]);
-  });
-
-  it('should stop the traversal of a composed drag at the destroying candidate', async () => {
+describe('a destroy requested from a candidate', () => {
+  it('should finish the traversal of the composed move whose candidate requested destruction', async () => {
     // The same rule through real pointer input, on the two-dimensional rule's
-    // own field. **The assertion is the resolver's call list, not the resulting
-    // insertion**: the frame is discarded upstream either way, so a state
-    // assertion would pass against unfixed source.
+    // own field. The request is applied after the move that made it, so the
+    // move's traversal runs to its end. **The assertion is the resolver's call
+    // list, not the resulting insertion**: teardown discards the frame either
+    // way.
     const root = document.createElement('div');
 
     Object.assign(root.style, {
@@ -656,10 +552,10 @@ describe('the terminal barrier in the candidate loop', () => {
       visual: (item) => {
         asked.push(item);
 
-        // The **first** candidate destroys. `items[0]` is the dragged one and
-        // was resolved at admission, before any candidate.
+        // The **first** candidate requests destruction. `items[0]` is the
+        // dragged one and was resolved at admission, before any candidate.
         if (item === items[1]) {
-          void controller!.destroy();
+          void controller!.requestDestroy();
         }
 
         return item;
@@ -669,7 +565,9 @@ describe('the terminal barrier in the candidate loop', () => {
 
     root.setPointerCapture = (): void => {};
     root.releasePointerCapture = (): void => {};
-    cleanup.push({ remove: () => void controller.destroy() } as HTMLElement);
+    cleanup.push({
+      remove: () => void controller.requestDestroy(),
+    } as HTMLElement);
 
     const pointer = (type: string, x: number, y2: number): void => {
       const target = type === 'pointerdown' ? items[0]! : document;
@@ -698,173 +596,6 @@ describe('the terminal barrier in the candidate loop', () => {
       });
     });
 
-    expect(asked).toEqual([items[0], items[1]]);
-  });
-});
-
-/**
- * **A close raised from a candidate's own geometry read**, mirrored from
- * `y.browser.test.ts`, plus the one call `y()` does not make.
- *
- * The obligation is over **declared consumer slots**, so the discriminating
- * candidate is any one with another after it: the reading before the next
- * `visual()` is what stops the rebuild. On the **last** candidate nothing is
- * owed and the rebuild completes.
- *
- * `xy()` also touches the consumer-owned placeholder twice per resolution — the
- * anchor rect, then `compareDocumentPosition` to decide which side the gap sits
- * on. Neither is a declared slot, so neither is guarded here; the publication
- * they feed is refused by the behavior and again by the kernel. These cases
- * previously pinned the opposite, against a withdrawn whole-program ceiling on
- * consumer calls, and are retargeted rather than deleted so the reversal stays
- * visible.
- */
-describe('the terminal barrier on candidate geometry', () => {
-  const measuringAt = (
-    elements: readonly HTMLElement[],
-    target: HTMLElement,
-    measured: HTMLElement[],
-    close: () => void,
-  ): void => {
-    for (const element of elements) {
-      const native = element.getBoundingClientRect.bind(element);
-
-      element.getBoundingClientRect = (): DOMRect => {
-        measured.push(element);
-
-        if (element === target) {
-          close();
-        }
-
-        return native();
-      };
-    }
-  };
-
-  it('should still read the placeholder once the last candidate closed the controller', () => {
-    // No `visual()` composed, so this loop invokes no declared slot and takes
-    // no reading. Nothing is owed after the last candidate, and the placeholder
-    // read that finishes the rebuild happens exactly once.
-    const field = createField();
-    const measured: HTMLElement[] = [];
-    let alive = true;
-    let anchorReads = 0;
-    const { placeholder } = field;
-    const native = placeholder.getBoundingClientRect.bind(placeholder);
-
-    placeholder.getBoundingClientRect = (): DOMRect => {
-      anchorReads += 1;
-
-      return native();
-    };
-    measuringAt(field.items, field.items[2]!, measured, () => {
-      alive = false;
-    });
-
-    expect(
-      field.resolve(170, 20, field.snapshot(), null, () => alive),
-    ).not.toBeNull();
-
-    expect(anchorReads).toBe(1);
-  });
-
-  it('should leave the cache clean after the last candidate closed the controller', () => {
-    // The completion is what is pinned: the buffer is whole, so the same
-    // version below finds it warm and asks for nothing.
-    const field = createField();
-    const measured: HTMLElement[] = [];
-    let alive = true;
-
-    measuringAt(field.items, field.items[2]!, measured, () => {
-      alive = false;
-    });
-    field.resolve(170, 20, field.snapshot(), null, () => alive);
-
-    const asked: HTMLElement[] = [];
-
-    field.resolve(170, 20, field.snapshot(), (item) => {
-      asked.push(item);
-      return item;
-    });
-
-    expect(asked).toEqual([]);
-  });
-
-  it('should resolve no further visual once a candidate closed the controller', () => {
-    const field = createField();
-    const measured: HTMLElement[] = [];
-    const asked: HTMLElement[] = [];
-    let alive = true;
-
-    measuringAt(field.items, field.items[0]!, measured, () => {
-      alive = false;
-    });
-
-    field.resolve(
-      170,
-      20,
-      field.snapshot(),
-      (item) => {
-        asked.push(item);
-        return item;
-      },
-      () => alive,
-    );
-
-    expect(asked).toEqual([field.items[0]]);
-  });
-
-  it('should call no resolver at all when the controller is already closed', () => {
-    // The entry barrier: a dirty cache can be entered on a controller that
-    // consumer code reached from a committed move already destroyed.
-    const field = createField();
-    const asked: HTMLElement[] = [];
-
-    expect(
-      field.resolve(
-        170,
-        20,
-        field.snapshot(),
-        (item) => {
-          asked.push(item);
-          return item;
-        },
-        () => false,
-      ),
-    ).toBeNull();
-
-    expect(asked).toEqual([]);
-  });
-
-  it('should compare document position even after the anchor read closed the controller', () => {
-    // **The reading `y()` had no counterpart for, and neither axis owes now.**
-    // `compareDocumentPosition` is a platform query on a consumer-owned node
-    // rather than a declared slot, and the only act after it is a publication —
-    // which the behavior refuses at its own head and the kernel refuses again
-    // before anything acts on it. So the frame that proposes a gap change
-    // completes, and the insertion it computes is discarded upstream.
-    const field = createField();
-    let alive = true;
-    let compares = 0;
-    const { placeholder } = field;
-    const nativeRect = placeholder.getBoundingClientRect.bind(placeholder);
-    const nativeCompare = placeholder.compareDocumentPosition.bind(placeholder);
-
-    placeholder.getBoundingClientRect = (): DOMRect => {
-      alive = false;
-
-      return nativeRect();
-    };
-    placeholder.compareDocumentPosition = (node: Node): number => {
-      compares += 1;
-
-      return nativeCompare(node);
-    };
-
-    expect(
-      field.resolve(170, 20, field.snapshot(), null, () => alive),
-    ).not.toBeNull();
-
-    expect(compares).toBe(1);
+    expect(asked.map((item) => items.indexOf(item))).toEqual([0, 1, 2, 3]);
   });
 });

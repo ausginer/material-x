@@ -11,10 +11,8 @@
  * **There is no second factory, and no `install` between them.** Every
  * free-drag test constructs through the public `freeDrag()` entry, because this
  * behavior has no state a lower seam would reach — nothing here corresponds to
- * the sortable's hand-built slot records. With one caller, a named `install`
- * was a name for the two constructor calls the factory already is; the
- * sortable's equivalent exists for the opposite reason and under the same rule:
- * a test seam exists where a test drives it.
+ * the sortable's hand-built slot records. A test seam exists where a test
+ * drives it, which is also why the sortable has one.
  */
 import { DraggableWarning } from '../kernel/errors.ts';
 import type { BehaviorFactory } from '../kernel/spec.ts';
@@ -42,8 +40,7 @@ import { createFreeDragSpec } from './spec.ts';
  * **Nothing is pulled or validated ahead of the installers**, and the absence
  * is the point rather than an omission: free drag has no collection, so there
  * is no consumer-triggerable throw between the first `retire` hook being
- * recorded and the bracket that unwinds them. The sortable needed a reordering
- * to make that true; this behavior gets it by having nothing to reorder.
+ * recorded and the bracket that unwinds them.
  */
 export function createComposedFreeDragBehavior(
   config: FreeDragConfig,
@@ -51,39 +48,35 @@ export function createComposedFreeDragBehavior(
 ): BehaviorFactory<FreeDragController, FreeDragFramePart> {
   const merged = mergeFreeFragments(config, fragments);
 
-  return (kernel) => ({
-    spec: createFreeDragSpec(
-      kernel,
-      assemble(merged, {
-        realm: kernel.realm,
-        root: kernel.root,
-        // **The composition unwind's only route to the channel.** `assemble`
-        // runs before `arm()`, so no behavior spec exists yet and the kernel's
-        // own notifier is unreachable — but `merged.onError` is in hand right
-        // here, which makes this the smallest threading available rather than a
-        // new ownership path.
-        //
-        // `report`, not `fail`: a feature closure created here cannot know
-        // which operation is live, so classifying a failure from one would let
-        // a late continuation settle another.
-        report: (error) => {
-          if (kernel.closed) {
-            return;
-          }
+  return (kernel) => {
+    const composition = kernel.channel((warning) => {
+      merged.onError?.(warning);
+    });
 
-          try {
-            merged.onError?.(
+    return {
+      spec: createFreeDragSpec(
+        kernel,
+        assemble(merged, {
+          realm: kernel.realm,
+          root: kernel.root,
+          // **The composition unwind's only route to the channel.** `assemble`
+          // runs before `arm()`, so no behavior spec exists yet — but
+          // `merged.onError` is in hand right here, and the kernel mints a
+          // channel over it that already works in the construction window.
+          //
+          // `report`, not `fail`: a feature closure created here cannot know
+          // which operation is live, so classifying a failure from one would
+          // let a late continuation settle another.
+          report: (error) => {
+            composition(
               new DraggableWarning('drag: composition/unwind-failed', {
                 cause: error,
               }),
             );
-          } catch {
-            // The terminus. A construction unwind that cannot report is still
-            // an unwind, and its next step matters more than this notification.
-          }
-        },
-      }),
-    ),
-    controller: createFreeDragController(kernel),
-  });
+          },
+        }),
+      ),
+      controller: createFreeDragController(kernel),
+    };
+  };
 }

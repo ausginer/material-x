@@ -7,7 +7,7 @@
 // **Which group is the slot's cardinality.** A unique slot is declared on the
 // group of the one config key that can produce it, so two writers are
 // unrepresentable rather than detected — there is no arbitration, no label
-// string and no construction-time collision left to diagnose.
+// string and no construction-time collision to diagnose.
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type {
   FeatureContext,
@@ -55,10 +55,7 @@ export { insertionAt } from './domain.ts';
 // middle tier needs the identical types, so the two tiers share a declaration
 // rather than a structural coincidence. `LandingContribution` joins
 // `FeatureContext` there for the same reason — both behaviors' `landing` key
-// produces exactly it. **The composition check's four helpers no longer travel
-// with them**: they were published because this entry's signature named
-// `SortableComposition`, and with every slot a named key of one writer there is
-// no positional check left for them to serve.
+// produces exactly it.
 export type {
   FeatureContext,
   LandingContribution,
@@ -117,9 +114,7 @@ export type ResolveInsertion = (
  * returned and nothing need be allocated, so a committed move can cost one
  * traversal and no object at all.
  *
- * It may read geometry — it is the one member that may — and each `report` call
- * reaches consumer-owned code, so the `live` argument it is handed must be
- * passed on and is read by the sink between calls.
+ * It may read geometry — it is the one member that may.
  *
  * **A prediction may consume only a same-element temporal difference of
  * presented geometry** (G5). A difference between two *different* elements'
@@ -199,12 +194,6 @@ export type DisplacementContribution = Readonly<{
    * additive and each ends at zero, so they **sum**: a second move arriving
    * mid-flight needs no measurement, no release and no replay, because the
    * element is already exactly where the previous contribution left it.
-   *
-   * **The axis calls it, so the axis cannot guard it.** `live` is read at the
-   * head of every call and again after each consumer-reachable step inside one:
-   * `animate()` on a consumer-owned row is a consumer call, as is the
-   * `finished` accessor on what it returns, so a reading taken before the walk
-   * says nothing about the calls inside it.
    */
   report: DisplacementReport;
   /**

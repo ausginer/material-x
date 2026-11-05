@@ -1,6 +1,6 @@
-// The consumer-facing controller. Three members, two of which are the kernel's
-// own — the behavior adds the one thing the kernel cannot know about: what a
-// collection is.
+// The consumer-facing controller. Its cancellation and destruction members are
+// the kernel's own — the behavior adds the one thing the kernel cannot know
+// about: what a collection is.
 import type { BehaviorContext } from '../kernel/spec.ts';
 import { TAG_COLLECTION } from './runtime.ts';
 
@@ -22,18 +22,28 @@ export type SortableController = Readonly<{
    * invalidates the current gap publishes first and cancels afterwards.
    */
   invalidate(): void;
-  cancel(reason?: unknown): void;
   /**
-   * Closes the controller **logically**, immediately, on this statement — every
-   * guard fails from here, nothing is admitted, and no declared consumer slot
-   * is invoked again. The returned promise settles **once**, after physical
-   * teardown: this call when no library transaction is active, the boundary of
-   * the outermost one when there is.
+   * Requests cancellation of the current drag. It is registered only while
+   * the drag can still be cancelled, applied in order with everything else
+   * the drag is doing, and lapses if the drag is decided first. The outcome
+   * arrives as the drag's terminal callback; with no drag it does nothing.
+   */
+  requestCancel(reason?: unknown): void;
+  /**
+   * Requests destruction. With no library callback running it is applied
+   * before this returns. Called from inside one, the library first finishes
+   * the step that callback belongs to, whose remaining callbacks may still be
+   * invoked, and then applies it. From application on nothing is admitted, no
+   * lifecycle or domain event is published, and no declared consumer slot is
+   * invoked, with two exceptions: teardown runs each installed feature's
+   * retire hook, so what a feature holds is released, and a panic delivers
+   * its one report to `onError` before teardown. The returned promise settles
+   * **once**, after physical teardown, and every call returns the same one.
    *
    * Most callers do not want the completion signal and should write
-   * `void controller.destroy();`.
+   * `void controller.requestDestroy();`.
    */
-  destroy(): Promise<void>;
+  requestDestroy(): Promise<void>;
 }>;
 
 // The controller holds no collection state at all, which is the shape a pull
@@ -41,15 +51,10 @@ export type SortableController = Readonly<{
 export function createSortableController(
   kernel: BehaviorContext,
 ): SortableController {
-  // The terminal latch is the kernel's, and it is readable. `cancel` and
-  // `destroy` forward to the kernel's own members, and that latch already
-  // makes both inert and idempotent before they do any work.
-
+  // `requestCancel` and `requestDestroy` forward to the kernel's own members,
+  // which already make both inert and idempotent once destruction is applied.
   return {
     invalidate(): void {
-      // No `kernel.closed` guard here: `dispatch` opens with the kernel's
-      // terminal latch, and `kernel.closed` is a live getter over it.
-      //
       // Payload-free, and it reads nothing here. `items()` is consumer code and
       // this member is reachable from inside a seam — a handle resolver may
       // call it during admission — so calling it on this statement would run
@@ -59,19 +64,17 @@ export function createSortableController(
       kernel.dispatch(TAG_COLLECTION, null);
     },
 
-    // **Wrapped, not detached.** These two are published members a consumer
-    // may pull off the controller and pass on, so what is published is a
-    // closure over the call rather than the kernel's prototype method, which
-    // would arrive with no receiver.
-    cancel: (reason?: unknown): void => {
-      kernel.cancel(reason);
+    // **Wrapped, not detached.** `requestCancel` and `requestDestroy` are
+    // published members a consumer may pull off the controller and pass on,
+    // so what is published is a closure over the call rather than the
+    // kernel's prototype method, which would arrive with no receiver.
+    requestCancel: (reason?: unknown): void => {
+      kernel.requestCancel(reason);
     },
 
-    // Logical closure is immediate and the promise settles after physical
-    // teardown. The behavior keeps no latch mirror, so this forwards to the
-    // kernel's member, as `cancel` already does. A plain arrow rather than an
-    // `async` one, so the memoized promise is returned **by identity** — the
-    // *settles once* the kernel documents is a statement about that object.
-    destroy: (): Promise<void> => kernel.destroy(),
+    // A plain arrow rather than an `async` one, so the memoized promise is
+    // returned **by identity** — the *settles once* the kernel documents is a
+    // statement about that object.
+    requestDestroy: (): Promise<void> => kernel.requestDestroy(),
   };
 }

@@ -43,7 +43,7 @@ export type {
  * `SortableConfig` — `axis` by `AxisInstaller`, `landing?` by
  * `SortableLandingInstaller`, `displacement?` by
  * `SortableDisplacementInstaller` — so a consumer who writes one can hoist it
- * into a typed `const` rather than only fill the slot inline. **Three of them**,
+ * into a typed `const` rather than only fill the slot inline. **One per key**,
  * because each key carries its own installer and therefore its own contribution
  * group. Their own closure —
  * `FeatureContext`, `AxisContribution`, `InsertionGeometry` — stays declared at
@@ -84,16 +84,15 @@ export {
 } from './kernel/failures.ts';
 
 /**
- * **The two reasons the behavior itself supplies**, as values. Both arrive on
+ * **The reasons the behavior itself supplies**, as values. Each arrives on
  * `reason` with `origin: CANCEL_SUPPLIED`, because a behavior calling
- * `kernel.cancel` is a party supplying a value exactly as a consumer is — the
- * sortable *chose* to say `sortable:item-removed`, and that is what `SUPPLIED`
- * means.
+ * `kernel.requestCancel` is a party supplying a value exactly as a consumer is
+ * — the sortable *chose* to say `sortable:item-removed`, and that is what
+ * `SUPPLIED` means.
  *
- * Sound here for a reason the kernel's deleted three never had: this is
- * **domain** vocabulary the behavior owns, published beside the result type
- * that carries it, and a consumer who compares `reason` to one of these is
- * asking what was said rather than who said it.
+ * Sound here because this is **domain** vocabulary the behavior owns,
+ * published beside the result type that carries it, and a consumer who compares
+ * `reason` to one of these is asking what was said rather than who said it.
  */
 export {
   CANCEL_COLLECTION_INVALIDATED,
@@ -142,7 +141,7 @@ export { ReorderResolution } from './sortable/domain.ts';
  * as the first argument set it.
  *
  * **Every slot is a named key with one writer**, so there is no positional
- * composition check left to apply: two producers of a capability are
+ * composition check to apply: two producers of a capability are
  * unrepresentable rather than diagnosed.
  *
  * The installers run **once**, when the behavior is installed and a realm

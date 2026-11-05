@@ -1,0 +1,105 @@
+== Failed build: stray token appended to src/drag.ts (const review-broken = ;), a different break from the implementer's
+-- fb-pkg: tsdownExited=1 namesFile=4 charCodeAt=0 NoTestFiles=0
+ Test Files 26 failed (26)
+ Tests no tests
+-- fb-third: tsdownExited=1 namesFile=4 charCodeAt=0 NoTestFiles=0
+ Test Files 26 failed (26)
+ Tests no tests
+-- fb-pkg-dot: tsdownExited=1 namesFile=4 charCodeAt=0 NoTestFiles=0
+ Test Files 26 failed (26)
+ Tests no tests
+-- fb-root3: tsdownExited=1 namesFile=4 charCodeAt=0 NoTestFiles=0
+ Test Files 26 failed | 11 passed (37)
+ Tests 245 passed (245)
+-- fb-rootall: tsdownExited=1 namesFile=40 charCodeAt=0 NoTestFiles=0
+ Test Files 34 failed | 129 passed (163)
+ Tests 2 failed | 1913 passed | 68 skipped (1983)
+all five exit 1
+json reporter: 26 files {'failed'} {'tsdown exited with 1'} carries output naming the file: True
+whole root, file statuses and row counts equal to a clean root run, by package (files, equal):
+  box-quad [5, 5]
+  core [25, 25]
+  drag [18, 18]
+  drag2 [78, 45]
+  material-x [19, 19]
+  tproc [12, 12]
+  vite-traits-plugin [6, 6]
+  drag2 differing: {'node': 26, 'browser': 7} (the browser files import the broken module)
+-- the fb-rootall TypeError lines are 'Failed to fetch dynamically imported module' from those browser files, none is the charCodeAt one
+
+== Other foreseeable failures, package config, node project
+hookthrow:  1 ERROR Error: review-hook failed; 1 Error: tsdown exited with 1;  Test Files 26 failed (26), exit 1
+exit7:  1 Error: tsdown exited with 7;  Test Files 26 failed (26), exit 1
+sigkill:  1 Error: tsdown exited with 137;  Test Files 26 failed (26), exit 1
+enoent:  1 Error: tsdown did not start: spawn review-no-such-binary ENOENT;  Test Files 26 failed (26), exit 1
+built tree after restoring and rebuilding: byte-identical to before the readings
+
+== Builds, two instruments: START a wrapper around the tsdown binary, DONE an appended line in build:done
+pkg-node             starts=1 dones=1  Tests 441 passed (441)
+root-node            starts=1 dones=1  Tests 441 passed (441)
+third-node           starts=1 dones=1  Tests 441 passed (441)
+pkg-whole            starts=1 dones=1  Tests 1494 passed | 68 skipped (1562)
+root-whole           starts=1 dones=1  Tests 1 failed | 2645 passed | 68 skipped (2714)
+pkg-browser-one      starts=0 dones=0  Tests 242 passed (242)
+pkg-browser-any      starts=0 dones=0  Tests 152 passed (152)
+pkg-shipped          starts=0 dones=0  Tests 15 passed (15)
+third-shipped        starts=0 dones=0  Tests 18 passed | 6 skipped (24)
+root-vtp             starts=0 dones=0  Tests 52 passed (52)
+root-browser-drag2   starts=0 dones=0  Tests 137 passed (137)
+-- my first form of the hook line used process.env.REVIEW_BUILDS, which TypeDoc's compile of the package refuses. That reddened docs.node's four rows with TypeDoc exit 3 in the node-project and whole-suite readings and changed no count (each read 1 and 1). I repaired the form and repeated those readings; the lines above are the repaired ones, and the 0-build readings were unaffected and not repeated.
+
+== Orphan row, tests/bench/size.node.test.ts -t 'should measure a graph built from nothing'
+orphan0-pkg             Tests 1 passed | 42 skipped (43) | 
+orphan0-root            Tests 1 passed | 42 skipped (43) | 
+orphan0-third           Tests 1 passed | 42 skipped (43) | 
+orphan1-pkg             Tests 1 failed | 42 skipped (43) | AssertionError: expected [ 'kernel/zz-orphan.js' ] to deeply equal []
+orphan1-root            Tests 1 failed | 42 skipped (43) | AssertionError: expected [ 'kernel/zz-orphan.js' ] to deeply equal []
+orphan1-third           Tests 1 failed | 42 skipped (43) | AssertionError: expected [ 'kernel/zz-orphan.js' ] to deeply equal []
+orphan2-pkg             Tests 1 failed | 42 skipped (43) | AssertionError: expected [ 'sortable/zz/orphan.js' ] to deeply equal []
+nots-pkg                Tests 1 failed | 42 skipped (43) | AssertionError: expected undefined to be type of 'number'
+nots-root               Tests 1 failed | 42 skipped (43) | AssertionError: expected undefined to be type of 'number'
+nots-third              Tests 1 failed | 42 skipped (43) | AssertionError: expected undefined to be type of 'number'
+ctl-norefuse-orphan     Tests 1 passed | 42 skipped (43) | 
+-- orphan0 no plant; orphan1 kernel/zz-orphan.js dated 2020; orphan2 sortable/zz/orphan.js dated 2020 (package config); nots DRAG2_NODE_BUILD removed from that config
+-- ctl-norefuse-orphan: refusal line removed, value removed, orphan planted: the row passes, which is the state the refusal closes
+-- setup file with no global setup, by hand: the file fails closed with an empty Error message
+
+== tproc tests/DB/index.node.test.ts
+at c15042847: 1 passed through tproc's config and through node/tproc in the root's
+control, the f1451268b file: refuses to load, 'was defined outside of the module's top level scope'
+control, the line removed: row fails, expected { tokenSets: ... } to be { name: 'db' }
+
+== Built output, 85 .js and .d.ts files by SHA-256: tsdown at f1451268b and at c15042847 in the same worktree: byte-identical. Files: 85
+
+== measureAll at c15042847: name | minified | brotli | modules | ceiling | control
+minimal | 33723 | 10329 | 33 | 10351 | 
+minimal (xy) | 33080 | 10199 | 32 | 10244 | 
+minimal + layoutAnimation | 34639 | 10651 | 34 | 10683 | 
+xy + layoutAnimation | 33996 | 10517 | 33 | 10563 | 
+minimal + landing | 34116 | 10483 | 35 | 10536 | 
+complete | 35032 | 10791 | 36 | 10838 | 
+free drag minimal | 27367 | 8357 | 27 | 8412 | 8357
+free drag + bounds | 28011 | 8592 | 28 | 8645 | 8592
+free drag + landing | 27760 | 8516 | 29 | 8587 | 8516
+free drag complete | 28404 | 8734 | 30 | 8778 | 8734
+both behaviors | 42572 | 12298 | 47 | 12359 | 
+vocabulary root - drag.js | 252 | 142 | 2 | 205 | 142
+kernel root - kernel.js | 20337 | 6418 | 16 | 6470 | 6418
+baseline A - feature-matched, non-composed | 34323 | 10620 | 31 | 10658 | 
+baseline B - shipped @ydinjs/drag sortable.js | 22618 | 6916 | 26 | 7040 | 6916
+-- equal in minified, brotli, modules and ceiling to verification-regressions/final.txt and to d209-discarded-failures.md's table at 6386f12e1. No row over its ceiling.
+
+== Typecheck and TypeDoc
+root just typecheck: exit 0, 0 error TS,  NX 15 tasks: 15 succeeded
+TypeDoc --treatWarningsAsErrors on ./src/kernel.ts alone: exit 4
+
+== Ignore patterns, git check-ignore -v --no-index at c15042847
+.vitest                                            .gitignore:6:/.vitest
+.vitest/attachments/a.png                          .gitignore:6:/.vitest
+packages/material-x/.vitest/attachments/a.png      .gitignore:11:/packages/*/.vitest
+packages/drag2/.vitest                             .gitignore:11:/packages/*/.vitest
+packages/core/.vitest-attachments/a.png            not ignored
+.vitest-attachments/a.png                          not ignored
+packages/material-x/tests/.vitest/a.png            not ignored
+real failure, baseline replaced in the scratch: package config wrote 5 files under packages/material-x/.vitest and none at the root; root config wrote 5 files under .vitest. git status --short empty and git status --ignored lists both
+control, main's .gitignore with the same two paths: both listed as untracked

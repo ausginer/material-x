@@ -1,0 +1,332 @@
+# D-209 review readings, 2026-11-04. Private worktrees at 3ff2d2acf (candidate) and 7398d6969 (input). Chromium, one machine, once each. Restored after each mutation.
+
+## Comment-stripped diff, member lists and declarations: input against candidate
+### kernel/execution.ts
+@@ -0,0 +1 @@
++import { FAILED, RESOLUTION_SETTLED } from './actions.ts';
+@@ -17 +18,4 @@ export class ExecutionBracket {
+-            return false;
++            if (action === FAILED || action === RESOLUTION_SETTLED) {
++                argument.discard?.();
++            }
++            return true;
+
+### kernel/kernel.ts
+@@ -151,0 +152,5 @@ class ArmedController {
++            discard: () => {
++                this.report(new DraggableWarning('drag: failure/superseded-by-destruction', {
++                    cause: error,
++                }));
++            },
+@@ -444,0 +450,7 @@ class ArmedController {
++        if (input.type === SETTLED_REJECTED) {
++            attempt.discard = () => {
++                this.report(new DraggableWarning('drag: failure/superseded-by-destruction', {
++                    cause: input.error,
++                }));
++            };
++        }
+
+files 60 textually changed [ 'kernel/execution.ts', 'kernel/kernel.ts' ] comment-stripped changed [ 'kernel/execution.ts', 'kernel/kernel.ts' ]
+file set equal true
+ExecutionBracket 21 21 identical true
+ArmedController 75 75 identical true
+Kernel 15 15 identical true
+ActionQueue 4 4 identical true
+declarations 33 33 set equal true
+declarations differing []
+drag.d.ts free-drag.d.ts free-drag/bounds.d.ts free-drag/config.d.ts free-drag/controller.d.ts free-drag/domain.d.ts free-drag/feature.d.ts free-drag/landing.d.ts kernel.d.ts kernel/errors.d.ts kernel/failures.d.ts kernel/frames.d.ts kernel/lifetimes.d.ts kernel/phases.d.ts kernel/presentation.d.ts kernel/realm.d.ts kernel/seams.d.ts kernel/spec.d.ts kernel/types.d.ts shared/composition.d.ts shared/landing.d.ts sortable.d.ts sortable/config.d.ts sortable/controller.d.ts sortable/domain.d.ts sortable/feature.d.ts sortable/landing.d.ts sortable/layout-animation.d.ts sortable/placement.d.ts sortable/rect-index.d.ts sortable/slots.d.ts sortable/xy.d.ts sortable/y.d.ts
+
+## Whole suite on the candidate, run once
+{
+  total: 1529,
+  passed: 1456,
+  failed: 5,
+  pending: 68,
+  todo: 0,
+  files: 78,
+  filesFailed: 4
+}
+FAIL tests/decisions.node.test.ts › the deferred decisions should hold every witness it claims :: AssertionError: expected [ Array(1) ] to deeply equal []
+FAIL tests/docs.node.test.ts › the documented surface should resolve every reference a public type makes :: AssertionError: expected { code: 3, …(1) } to match object { code: +0 }
+FAIL tests/docs.node.test.ts › the documented surface should close the kernel tier over the kernel tier :: AssertionError: expected { code: 3, …(1) } to match object { code: +0 }
+FAIL tests/docs.node.test.ts › the documented surface should close the ordinary tier over the ordinary tier and the ones below it :: AssertionError: expected { code: 3, …(1) } to match object { code: +0 }
+FAIL tests/docs.node.test.ts › the documented surface should close the free-drag tier over the ordinary tier and the ones below it :: AssertionError: expected { code: 3, …(1) } to match object { code: +0 }
+NOLOAD tests/sortable/react.browser.test.ts Failed to import test file packages/drag2/tests/sortable/react.browser.test.ts
+NOLOAD tests/sortable/stories.browser.test.ts Failed to import test file packages/drag2/tests/sortable/stories.browser.test.ts
+
+## Composition: brotli, ceiling, slack, control, on the candidate
+minimal | 10290 | budget 10351 | slack 61 | control -
+minimal (xy) | 10195 | budget 10244 | slack 49 | control -
+minimal + layoutAnimation | 10615 | budget 10683 | slack 68 | control -
+xy + layoutAnimation | 10503 | budget 10563 | slack 60 | control -
+minimal + landing | 10441 | budget 10536 | slack 95 | control -
+complete | 10767 | budget 10838 | slack 71 | control -
+free drag minimal | 8337 | budget 8412 | slack 75 | control 8337
+free drag + bounds | 8553 | budget 8645 | slack 92 | control 8553
+free drag + landing | 8497 | budget 8587 | slack 90 | control 8497
+free drag complete | 8712 | budget 8778 | slack 66 | control 8712
+both behaviors | 12283 | budget 12359 | slack 76 | control -
+vocabulary root - drag.js | 142 | budget 205 | slack 63 | control 142
+kernel root - kernel.js | 6398 | budget 6470 | slack 72 | control 6398
+baseline A - feature-matched, non-composed | 10600 | budget 10658 | slack 58 | control -
+baseline B - shipped @ydinjs/drag sortable.js | 6916 | budget 7040 | slack 124 | control 6916
+
+## Minified and Brotli at the input, in COMPOSITIONS order
+{"minified":33419,"brotli":10221}
+{"minified":32776,"brotli":10117}
+{"minified":34335,"brotli":10558}
+{"minified":33692,"brotli":10435}
+{"minified":33812,"brotli":10393}
+{"minified":34728,"brotli":10722}
+{"minified":27063,"brotli":8281}
+{"minified":27707,"brotli":8514}
+{"minified":27456,"brotli":8449}
+{"minified":28100,"brotli":8652}
+{"minified":42268,"brotli":12235}
+{"minified":252,"brotli":142}
+{"minified":20033,"brotli":6340}
+{"minified":34019,"brotli":10525}
+{"minified":22618,"brotli":6916}
+
+## Lint over the six changed TypeScript files
+input     7398d6969: kernel.browser.test.ts 5009:23 unbound-method. Blame: 452bdc574.
+candidate 3ff2d2acf: kernel.browser.test.ts 5009:23 unbound-method. Blame: 452bdc574.
+candidate 3ff2d2acf: kernel.browser.test.ts 5900:23 unbound-method. Blame: ec15441ce, in row (u).
+oxlint and oxfmt --check clean on both.
+
+## Typecheck on the candidate
+../../.scripts/vitest-config.ts(181,9) TS2353 and ../../.scripts/vitest-one-shot.ts(34,11) TS18048. Nothing else.
+
+## Mutations on the candidate: rows red beyond the unmutated run
+# X4both defers both carriers. X5s and X6s change the settlement carrier only. The rest match mutations.txt by name, 83 of 83.
+base 315 0 315
+## N1 pass 285 fail 30 noload 0
+    kernel/execution.node › the execution bracket should stop the drain at the next entry when an action requests destruction
+    kernel/execution.node › the execution bracket should drain after admission and handle nothing once admission requested destruction
+    kernel/execution.node › the execution bracket should report the fault entries behind a requested destruction in FIFO order and handle nothing
+    kernel/execution.node › the execution bracket should not report an entry handled before destruction was requested
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when onStart requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should deliver one error and no warning when onError requests destruction for an applied failure
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn after onEnd when onEnd requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when onStart requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should deliver one error and no warning when onError requests destruction for an applied failure
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn after onEnd when onEnd requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag, past activation should warn once and end nothing when onMove requests destruction and then throws
+    kernel/kernel.browser › the round-trip unit should open no round-trip for a destroy requested in the release effect
+    kernel/kernel.browser › the round-trip unit should open no round-trip for a destroy requested in the release prepare
+    kernel/kernel.browser › the round-trip unit should open no round-trip for a destroy requested by an action the release effect dispatched
+    kernel/kernel.browser › requests at unit boundaries should finish the join whose anchorTarget requested destruction and retire nothing after it
+    kernel/kernel.browser › requests at unit boundaries should apply none of the requests from onStart when destruction follows them
+    kernel/kernel.browser › a fault destruction discards should warn for a checkpoint registered before destruction is requested
+    kernel/kernel.browser › a fault destruction discards should warn for a checkpoint registered after destruction is requested
+    kernel/kernel.browser › a fault destruction discards should warn for discarded checkpoints in registration order
+    kernel/kernel.browser › a fault destruction discards should deliver the warning after the unit and before application, with ingress refused
+    kernel/kernel.browser › a fault destruction discards should drop what the delivered report requests and retire once
+    kernel/kernel.browser › a fault destruction discards should absorb a throw from the report and go on to the next fault
+    kernel/kernel.browser › a fault destruction discards should report destruction and not a cancel held before the checkpoint
+    kernel/kernel.browser › a fault destruction discards should report destruction and not a cancel held after the checkpoint
+    kernel/kernel.browser › a fault destruction discards should not warn for a checkpoint whose own settlement requests destruction
+    kernel/kernel.browser › a fault destruction discards should warn only for the checkpoint behind one that applied and requested destruction
+    kernel/kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then throws
+    kernel/kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then rejects inside then
+## X1 pass 295 fail 20 noload 0
+    kernel/execution.node › the execution bracket should report the fault entries behind a requested destruction in FIFO order and handle nothing
+    kernel/execution.node › the execution bracket should not report an entry handled before destruction was requested
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when onStart requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn after onEnd when onEnd requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when onStart requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn after onEnd when onEnd requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag, past activation should warn once and end nothing when onMove requests destruction and then throws
+    kernel/kernel.browser › a fault destruction discards should warn for a checkpoint registered before destruction is requested
+    kernel/kernel.browser › a fault destruction discards should warn for a checkpoint registered after destruction is requested
+    kernel/kernel.browser › a fault destruction discards should warn for discarded checkpoints in registration order
+    kernel/kernel.browser › a fault destruction discards should deliver the warning after the unit and before application, with ingress refused
+    kernel/kernel.browser › a fault destruction discards should drop what the delivered report requests and retire once
+    kernel/kernel.browser › a fault destruction discards should absorb a throw from the report and go on to the next fault
+    kernel/kernel.browser › a fault destruction discards should report destruction and not a cancel held before the checkpoint
+    kernel/kernel.browser › a fault destruction discards should report destruction and not a cancel held after the checkpoint
+    kernel/kernel.browser › a fault destruction discards should warn only for the checkpoint behind one that applied and requested destruction
+    kernel/kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then throws
+    kernel/kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then rejects inside then
+## X2 pass 311 fail 4 noload 0
+    kernel/execution.node › the execution bracket should report the fault entries behind a requested destruction in FIFO order and handle nothing
+    kernel/kernel.browser › a fault destruction discards should warn for discarded checkpoints in registration order
+    kernel/kernel.browser › a fault destruction discards should absorb a throw from the report and go on to the next fault
+    kernel/kernel.browser › a fault destruction discards should report destruction and not a cancel held before the checkpoint
+## X3 pass 310 fail 5 noload 0
+    kernel/execution.node › the execution bracket should report the fault entries behind a requested destruction in FIFO order and handle nothing
+    diagnostic-intake.browser › diagnostic intake in the sortable should deliver one error and no warning when onError requests destruction for an applied failure
+    diagnostic-intake.browser › diagnostic intake in the free drag should deliver one error and no warning when onError requests destruction for an applied failure
+    kernel/kernel.browser › a fault destruction discards should not warn for a checkpoint whose own settlement requests destruction
+    kernel/kernel.browser › a fault destruction discards should warn only for the checkpoint behind one that applied and requested destruction
+## X4 pass 301 fail 14 noload 0
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when onStart requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn after onEnd when onEnd requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when onStart requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn after onEnd when onEnd requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag, past activation should warn once and end nothing when onMove requests destruction and then throws
+    kernel/kernel.browser › a fault destruction discards should warn for a checkpoint registered before destruction is requested
+    kernel/kernel.browser › a fault destruction discards should warn for a checkpoint registered after destruction is requested
+    kernel/kernel.browser › a fault destruction discards should warn for discarded checkpoints in registration order
+    kernel/kernel.browser › a fault destruction discards should deliver the warning after the unit and before application, with ingress refused
+    kernel/kernel.browser › a fault destruction discards should drop what the delivered report requests and retire once
+    kernel/kernel.browser › a fault destruction discards should absorb a throw from the report and go on to the next fault
+    kernel/kernel.browser › a fault destruction discards should report destruction and not a cancel held before the checkpoint
+    kernel/kernel.browser › a fault destruction discards should report destruction and not a cancel held after the checkpoint
+    kernel/kernel.browser › a fault destruction discards should warn only for the checkpoint behind one that applied and requested destruction
+## X4both pass 297 fail 18 noload 0
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when onStart requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn after onEnd when onEnd requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when onStart requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn after onEnd when onEnd requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag, past activation should warn once and end nothing when onMove requests destruction and then throws
+    kernel/kernel.browser › a fault destruction discards should warn for a checkpoint registered before destruction is requested
+    kernel/kernel.browser › a fault destruction discards should warn for a checkpoint registered after destruction is requested
+    kernel/kernel.browser › a fault destruction discards should warn for discarded checkpoints in registration order
+    kernel/kernel.browser › a fault destruction discards should deliver the warning after the unit and before application, with ingress refused
+    kernel/kernel.browser › a fault destruction discards should drop what the delivered report requests and retire once
+    kernel/kernel.browser › a fault destruction discards should absorb a throw from the report and go on to the next fault
+    kernel/kernel.browser › a fault destruction discards should report destruction and not a cancel held before the checkpoint
+    kernel/kernel.browser › a fault destruction discards should report destruction and not a cancel held after the checkpoint
+    kernel/kernel.browser › a fault destruction discards should warn only for the checkpoint behind one that applied and requested destruction
+    kernel/kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then throws
+    kernel/kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then rejects inside then
+## X5 pass 314 fail 1 noload 0
+    kernel/kernel.browser › a fault destruction discards should absorb a throw from the report and go on to the next fault
+## X5s pass 315 fail 0 noload 0
+## X6 pass 313 fail 2 noload 0
+    kernel/kernel.browser › a fault destruction discards should report destruction and not a cancel held before the checkpoint
+    kernel/kernel.browser › a fault destruction discards should report destruction and not a cancel held after the checkpoint
+## X6s pass 312 fail 3 noload 0
+    kernel/capture.node › the current-operation slots should be read only at unit entries, request intake, publication and retirement
+    kernel/capture.node › the ledger should be read only at intake, the ingress refusal and unit entries
+    kernel/capture.node › the read census should find lifecycle and request reads only at the runner, intake, the channel and unit entries
+## X7 pass 311 fail 4 noload 0
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when the round-trip slot requests destruction and then throws
+    kernel/kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then throws
+    kernel/kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then rejects inside then
+## X8 pass 314 fail 1 noload 0
+    kernel/kernel.browser › a fault destruction discards should deliver nothing for a rejection after a round-trip already fulfilled
+## X9 pass 313 fail 2 noload 0
+    kernel/execution.node › the execution bracket should call no report for a fault entry behind a panic
+    kernel/kernel.browser › a fault destruction discards should deliver only the panic when a panic discards a checkpoint
+
+## The candidate's rows on the accepted tree's src/ (626180a05): rows red
+## accepted pass 295 fail 20 noload 0
+    kernel/execution.node › the execution bracket should report the fault entries behind a requested destruction in FIFO order and handle nothing
+    kernel/execution.node › the execution bracket should not report an entry handled before destruction was requested
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when onStart requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the sortable should warn after onEnd when onEnd requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when onStart requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn once and end nothing when the round-trip slot requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag should warn after onEnd when onEnd requests destruction and then throws
+    diagnostic-intake.browser › diagnostic intake in the free drag, past activation should warn once and end nothing when onMove requests destruction and then throws
+    kernel/kernel.browser › a fault destruction discards should warn for a checkpoint registered before destruction is requested
+    kernel/kernel.browser › a fault destruction discards should warn for a checkpoint registered after destruction is requested
+    kernel/kernel.browser › a fault destruction discards should warn for discarded checkpoints in registration order
+    kernel/kernel.browser › a fault destruction discards should deliver the warning after the unit and before application, with ingress refused
+    kernel/kernel.browser › a fault destruction discards should drop what the delivered report requests and retire once
+    kernel/kernel.browser › a fault destruction discards should absorb a throw from the report and go on to the next fault
+    kernel/kernel.browser › a fault destruction discards should report destruction and not a cancel held before the checkpoint
+    kernel/kernel.browser › a fault destruction discards should report destruction and not a cancel held after the checkpoint
+    kernel/kernel.browser › a fault destruction discards should warn only for the checkpoint behind one that applied and requested destruction
+    kernel/kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then throws
+    kernel/kernel.browser › a fault destruction discards should warn for a round-trip that requests destruction and then rejects inside then
+
+## Probes: input
+K1 :: {"delivered":[],"applied":true,"settlements":0}
+K2 :: {"delivered":[],"settlementTypes":[43]}
+K3 :: {"delivered":[],"settlementTypes":[43],"applied":true}
+K4 :: {"delivered":[],"settlements":1,"applied":true}
+K5 :: {"delivered":[],"retire":1}
+freeDrag handle :: {"ran":1,"delivered":[{"cls":"DraggableError(1)","msg":"boom","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+freeDrag home :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: landing/target-unavailable","causeIsBoom":true}],"log":["onError","onEnd rejected"],"windowError":0,"unhandled":0}
+freeDrag landing duration :: {"ran":0,"delivered":[],"log":["onEnd accepted"],"windowError":0,"unhandled":0}
+freeDrag moveTo(bad) alone in onMove [control] :: {"ran":1,"delivered":[{"cls":"DraggableError(4)","msg":"boom","causeIsBoom":true}],"log":["onError","onEnd canceled"],"windowError":0,"unhandled":0}
+freeDrag moveTo(bad) alone in onStart [control] :: {"ran":1,"delivered":[{"cls":"DraggableError(4)","msg":"boom","causeIsBoom":true}],"log":["onError","onEnd canceled"],"windowError":0,"unhandled":0}
+freeDrag moveTo(bad) then request in onMove :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag moveTo(bad) then request in onStart :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag moveTo(null) then request in onMove :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag onDrop async :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag onDrop cancel then throw :: {"ran":1,"delivered":[],"log":["onEnd canceled"],"windowError":0,"unhandled":0}
+freeDrag onDrop cancel then throw, onEnd requests :: {"ran":1,"delivered":[],"log":["onEnd canceled"],"windowError":0,"unhandled":0}
+freeDrag onDrop cancel, request, throw :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag onDrop returns rejected thenable, sync, after request :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag onDrop sync :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag onEnd :: {"ran":1,"delivered":[],"log":["onEnd accepted"],"windowError":0,"unhandled":0}
+freeDrag onMove :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag onStart :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag onStart cancel then throw [checkpoint control] :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-cancel","causeIsBoom":true}],"log":["onEnd canceled","onError"],"windowError":0,"unhandled":0}
+freeDrag request then moveTo(bad) in onStart :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag visual :: {"ran":1,"delivered":[{"cls":"DraggableError(1)","msg":"boom","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+sortable box :: {"ran":1,"delivered":[{"cls":"DraggableError(1)","msg":"boom","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+sortable handle :: {"ran":1,"delivered":[{"cls":"DraggableError(1)","msg":"boom","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+sortable onEnd :: {"ran":1,"delivered":[],"log":["onEnd accepted"],"windowError":0,"unhandled":0}
+sortable onError from a warning-free fault :: {"ran":1,"delivered":[{"cls":"DraggableError(2)","msg":"other","causeIsBoom":false}],"log":["onError"],"windowError":0,"unhandled":0}
+sortable onReorder async :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+sortable onReorder cancel then throw :: {"ran":1,"delivered":[],"log":["onEnd canceled"],"windowError":0,"unhandled":0}
+sortable onReorder cancel then throw, onEnd requests :: {"ran":1,"delivered":[],"log":["onEnd canceled"],"windowError":0,"unhandled":0}
+sortable onReorder cancel, request, throw :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+sortable onReorder sync :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+sortable onStart :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+sortable onStart cancel then throw [checkpoint control] :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-cancel","causeIsBoom":true}],"log":["onEnd canceled","onError"],"windowError":0,"unhandled":0}
+sortable placeholder connectedCallback :: {"ran":1,"delivered":[],"log":[],"windowError":1,"unhandled":0}
+sortable placeholder factory :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+sortable scroll listener faults in onStart [control] :: {"ran":1,"delivered":[{"cls":"DraggableError(6)","msg":"boom","causeIsBoom":true}],"log":["onError","onEnd canceled"],"windowError":0,"unhandled":0}
+sortable scroll listener faults in onStart, then request :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+sortable visual :: {"ran":1,"delivered":[{"cls":"DraggableError(1)","msg":"boom","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+
+## Probes: candidate
+K1 :: {"delivered":[["drag: failure/superseded-by-destruction","FIRST"],["drag: failure/superseded-by-destruction","SECOND"]],"applied":true,"settlements":0}
+K2 :: {"delivered":[],"settlementTypes":[43]}
+K3 :: {"delivered":[["drag: failure/superseded-by-destruction","FIRST"]],"settlementTypes":[43],"applied":true}
+K4 :: {"delivered":[["drag: failure/superseded-by-destruction","FIRST"]],"settlements":1,"applied":true}
+K5 :: {"delivered":[["drag: failure/superseded-by-destruction","W"]],"retire":1}
+freeDrag handle :: {"ran":1,"delivered":[{"cls":"DraggableError(1)","msg":"boom","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+freeDrag home :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: landing/target-unavailable","causeIsBoom":true}],"log":["onError","onEnd rejected"],"windowError":0,"unhandled":0}
+freeDrag landing duration :: {"ran":0,"delivered":[],"log":["onEnd accepted"],"windowError":0,"unhandled":0}
+freeDrag moveTo(bad) alone in onMove [control] :: {"ran":1,"delivered":[{"cls":"DraggableError(4)","msg":"boom","causeIsBoom":true}],"log":["onError","onEnd canceled"],"windowError":0,"unhandled":0}
+freeDrag moveTo(bad) alone in onStart [control] :: {"ran":1,"delivered":[{"cls":"DraggableError(4)","msg":"boom","causeIsBoom":true}],"log":["onError","onEnd canceled"],"windowError":0,"unhandled":0}
+freeDrag moveTo(bad) then request in onMove :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag moveTo(bad) then request in onStart :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag moveTo(null) then request in onMove :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag onDrop async :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag onDrop cancel then throw :: {"ran":1,"delivered":[],"log":["onEnd canceled"],"windowError":0,"unhandled":0}
+freeDrag onDrop cancel then throw, onEnd requests :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-destruction","causeIsBoom":true}],"log":["onEnd canceled","onError"],"windowError":0,"unhandled":0}
+freeDrag onDrop cancel, request, throw :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-destruction","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+freeDrag onDrop returns rejected thenable, sync, after request :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-destruction","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+freeDrag onDrop sync :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-destruction","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+freeDrag onEnd :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-destruction","causeIsBoom":true}],"log":["onEnd accepted","onError"],"windowError":0,"unhandled":0}
+freeDrag onMove :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-destruction","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+freeDrag onStart :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-destruction","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+freeDrag onStart cancel then throw [checkpoint control] :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-cancel","causeIsBoom":true}],"log":["onEnd canceled","onError"],"windowError":0,"unhandled":0}
+freeDrag request then moveTo(bad) in onStart :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+freeDrag visual :: {"ran":1,"delivered":[{"cls":"DraggableError(1)","msg":"boom","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+sortable box :: {"ran":1,"delivered":[{"cls":"DraggableError(1)","msg":"boom","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+sortable handle :: {"ran":1,"delivered":[{"cls":"DraggableError(1)","msg":"boom","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+sortable onEnd :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-destruction","causeIsBoom":true}],"log":["onEnd accepted","onError"],"windowError":0,"unhandled":0}
+sortable onError from a warning-free fault :: {"ran":1,"delivered":[{"cls":"DraggableError(2)","msg":"other","causeIsBoom":false}],"log":["onError"],"windowError":0,"unhandled":0}
+sortable onReorder async :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+sortable onReorder cancel then throw :: {"ran":1,"delivered":[],"log":["onEnd canceled"],"windowError":0,"unhandled":0}
+sortable onReorder cancel then throw, onEnd requests :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-destruction","causeIsBoom":true}],"log":["onEnd canceled","onError"],"windowError":0,"unhandled":0}
+sortable onReorder cancel, request, throw :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-destruction","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+sortable onReorder sync :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-destruction","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+sortable onStart :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-destruction","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+sortable onStart cancel then throw [checkpoint control] :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-cancel","causeIsBoom":true}],"log":["onEnd canceled","onError"],"windowError":0,"unhandled":0}
+sortable placeholder connectedCallback :: {"ran":1,"delivered":[],"log":[],"windowError":1,"unhandled":0}
+sortable placeholder factory :: {"ran":1,"delivered":[{"cls":"Warning","msg":"drag: failure/superseded-by-destruction","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+sortable scroll listener faults in onStart [control] :: {"ran":1,"delivered":[{"cls":"DraggableError(6)","msg":"boom","causeIsBoom":true}],"log":["onError","onEnd canceled"],"windowError":0,"unhandled":0}
+sortable scroll listener faults in onStart, then request :: {"ran":1,"delivered":[],"log":[],"windowError":0,"unhandled":0}
+sortable visual :: {"ran":1,"delivered":[{"cls":"DraggableError(1)","msg":"boom","causeIsBoom":true}],"log":["onError"],"windowError":0,"unhandled":0}
+
+## Probes: candidate under X5s, K5 only
+K5 :: {"delivered":[["drag: failure/superseded-by-destruction","W"],["from onError",null]],"retire":1}

@@ -3,7 +3,7 @@
  *
  * **Dimension-neutral, deliberately.** It packs both centres and both edges and
  * expresses no rule about which of them matters — that is the axis feature's,
- * and stays in the axis feature's own module. Extracting this is what lets
+ * and stays in the axis feature's own module. Sharing this is what lets
  * `y()` and `xy()` be two *rules* rather than two implementations of a cache,
  * without either of them growing a branch about the other.
  *
@@ -57,13 +57,13 @@ export type DisplacementSettle = (
 /**
  * **What a caller may do to the packed buffer: read it.**
  *
- * Declared by hand rather than derived, and the reason is the lint gate the
- * class migration runs behind: `Readonly<E>`, `Pick<E, …>` and a record of
- * function-typed properties are all **mapped types**, and a mapped type erases
- * method-ness — `@typescript-eslint/unbound-method` reports a detached read
- * through a class instance type or a hand-written interface and is silent
- * through any of those. A view built the obvious way would buy encapsulation
- * with the instrument that guards the migration.
+ * Declared by hand rather than derived, and the reason is the lint gate:
+ * `Readonly<E>`, `Pick<E, …>` and a record of function-typed properties are all
+ * **mapped types**, and a mapped type erases method-ness —
+ * `@typescript-eslint/unbound-method` reports a detached read through a class
+ * instance type or a hand-written interface and is silent through any of
+ * those. A view built the obvious way would buy encapsulation
+ * with the instrument that guards detached method reads.
  *
  * `Float64Array` is assignable to this, `view[0] = 1` is a type error, and
  * `set` and `buffer` are not members. It costs **nothing at runtime**: the
@@ -80,7 +80,7 @@ export interface ReadonlyFloat64Array {
  * **What a collaborator may read off the cache**, and the whole of it.
  *
  * One field carries two types: the class declares its own, and this
- * re-declares the same four members with the reader's. So the owner writes
+ * re-declares the same members with the reader's. So the owner writes
  * elements, reallocates the buffer, empties the element array and assigns the
  * count through its own declarations with no cast and no second field, while
  * through a binding declared here `count = 0`, `values[0] = 1` and
@@ -88,10 +88,10 @@ export interface ReadonlyFloat64Array {
  *
  * Declared rather than derived, for the reason
  * {@link ReadonlyFloat64Array} gives: a mapped type over the class would erase
- * method-ness from the lint gate this migration runs behind. It carries **no
- * method members**, so it moves nothing out of that gate's reach — the
- * operations stay on {@link RectIndex} itself, which is the type a module
- * driving the cache also holds.
+ * method-ness from the lint gate. It carries **no method members**, so it
+ * moves nothing out of that gate's reach — the operations stay on
+ * {@link RectIndex} itself, which is the type a module driving the cache also
+ * holds.
  */
 export interface RectIndexView {
   readonly values: ReadonlyFloat64Array;
@@ -137,10 +137,10 @@ const edge = (rect: DOMRect, offset: number): number => {
  * {@link RectIndex.invalidate} and {@link RectIndex.retire} — each
  * parameterized by the caller's rule rather than by its access.
  *
- * **The four data members are one field carrying two types.** The class
- * declares the mutable one it needs to write through; {@link RectIndexView}
- * re-declares the same four with the reader's, and that interface is the type
- * every collaborator binds. `readonly` on the field would protect the
+ * **Each data member is one field carrying two types.** The class declares
+ * the mutable one it needs to write through; {@link RectIndexView} re-declares
+ * the same members with the reader's, and that interface is the type every
+ * collaborator binds. `readonly` on the field would protect the
  * reference only — `hole[0] = 1` and `items.length = 0` both compile against
  * one — so it is the reader's **type** that forbids content mutation:
  * `readonly HTMLElement[]` for the element array and
@@ -148,11 +148,11 @@ const edge = (rect: DOMRect, offset: number): number => {
  * runtime, and no accessor stands between a read and the field, because an
  * accessor here would be a runtime construct doing a compile-time job.
  *
- * **The hot path is counted rather than forecast.** `xy()` reads three members
- * once per resolution and a fourth only on a frame proposing a gap change;
- * `y()` reads two once per resolution, and every remaining read in the linear
- * rule is on the committed-move path. **No read is added inside the candidate
- * loop** — which is refused outright rather than measured.
+ * **The hot path is named rather than forecast.** Each axis rule reads
+ * `values`, `count` and `hole` once per resolution and `items` only on a frame
+ * proposing a gap change, and every remaining read in the linear rule is on
+ * the committed-move path. **No read is added inside the candidate loop** —
+ * which is refused outright rather than measured.
  */
 export class RectIndex implements RectIndexView {
   /** The packed values. Re-allocated only when the collection outgrows it. */
@@ -202,18 +202,6 @@ export class RectIndex implements RectIndexView {
    * every candidate *is* its own box and the resolver would be an identity call
    * per item per rebuild.
    *
-   * `live` reports whether the controller is still alive, and it is read
-   * **immediately before each declared-slot invocation and nowhere else**: the
-   * per-candidate `getBox`, and `settle` once after the scan. That is the whole
-   * obligation — a slot the consumer may fill must not be invoked after the
-   * controller closed, and a reading taken *after* a call cannot see a close
-   * the call itself raised. So the count is exactly the number of slot
-   * invocations a composition actually makes: `N + 1` with a resolver and a
-   * sink, `N` with a resolver alone, one with a sink alone, and **none** with
-   * neither. `getBoundingClientRect` on a consumer-owned node is a platform
-   * member rather than a slot, and what follows a candidate's own geometry read
-   * is either internal or the next guarded invocation.
-   *
    * `placeholder` is measured into the hole by the same scan, so the rule that
    * reads it never measures it.
    *
@@ -223,27 +211,16 @@ export class RectIndex implements RectIndexView {
    * are still running — the cache holds where flow puts a row, never where an
    * animation currently draws it. The placeholder is never passed to it: a
    * report visits the destination view, which does not contain it.
-   *
-   * Returns `false` — and **only** then — when the rebuild stopped at one of
-   * those readings.
    */
   refresh(
     snapshot: CollectionSnapshot,
     dragged: HTMLElement,
     getBox: ((item: HTMLElement) => HTMLElement) | null,
-    live: () => boolean,
     placeholder: HTMLElement,
     settle: DisplacementSettle | null,
-  ): boolean {
-    // **A warm cache is safe because a closed rebuild never leaves one.**
-    // Teardown is deferred to the outermost transaction boundary, so a
-    // `refresh` at the same version is reachable inside that window with the
-    // controller already closed — and it reads no geometry and invokes no
-    // slot, so it owes nothing. What it must not be able to serve is a
-    // half-written buffer marked clean, and it cannot: the stop below restores
-    // the staleness pair before returning.
+  ): void {
     if (!this.#dirty && this.#measured === snapshot.version) {
-      return true;
+      return;
     }
 
     const list = snapshot.items;
@@ -307,25 +284,6 @@ export class RectIndex implements RectIndexView {
       let box = item;
 
       if (getBox) {
-        // **The per-candidate barrier, immediately before the declared slot it
-        // protects.** It covers the first invocation of the rebuild as well as
-        // every later one — a committed move invalidates and `release.prepare`
-        // resolves inside the same seam, so a dirty cache is reachable with the
-        // controller already closed — and it covers a close raised from the
-        // previous candidate's overridden `getBoundingClientRect`, which no
-        // reading placed after a call can see.
-        if (!live()) {
-          // **The stop, not a `break`.** The consequence of a call is the call,
-          // so the exit is what prevents the next `getBox`; and falling through
-          // to the trailing bookkeeping would mark a partially written buffer
-          // clean at this version, which every warm return afterwards would
-          // then serve. `retire()` is this class's one definition of *stop*
-          // and restores the staleness pair, so it is what runs here.
-          this.retire();
-
-          return false;
-        }
-
         box = getBox(item);
       }
 
@@ -355,19 +313,6 @@ export class RectIndex implements RectIndexView {
     // collaborator holding a handle it may write through whenever it likes is
     // the different thing this boundary forbids.
     if (settle) {
-      // **The second barrier, immediately before the second declared slot.**
-      // `settle` is one — a published installer fills it, and this class
-      // cannot read which value a composition passed — so it must not be
-      // invoked after the controller closed. The scan above ends with a
-      // candidate's own `getBoundingClientRect`, which is overridable on a
-      // consumer-owned row, so no earlier reading covers this call. A
-      // composition with no sink invokes no slot here and owes nothing.
-      if (!live()) {
-        this.retire();
-
-        return false;
-      }
-
       settle(values, items, n);
     }
 
@@ -387,8 +332,6 @@ export class RectIndex implements RectIndexView {
     items.length = n;
     this.#measured = snapshot.version;
     this.#dirty = false;
-
-    return true;
   }
 
   /**
@@ -430,20 +373,17 @@ export class RectIndex implements RectIndexView {
    * **Re-read the placeholder into the hole**, for an axis that marked it
    * stale after a committed move.
    *
-   * The measurement moves in with the write because measuring is the owner's
+   * The measurement lives with the cache because measuring is the owner's
    * act: every consumer call this cache makes then sits in one file under one
-   * discipline, which is what the axis tests already say the arrangement is.
+   * discipline, which is the arrangement the axis tests assert.
    *
    * Only the three fields the caller names are written — a hole relocation
    * moves the placeholder along one axis and leaves both cross-axis
    * coordinates where they were, which is the same G2 clause the slot advance
    * rests on.
    *
-   * **It takes no liveness capability and cannot fail.** `getBoundingClientRect`
-   * on a consumer-owned node is a platform member rather than a declared slot;
-   * this writes three internal fields, admits nothing and publishes nothing. A
-   * close raised from inside that read is caught where it matters, by the
-   * reading before the next `getBox`.
+   * **It cannot fail.** It writes three internal fields, admits nothing and
+   * publishes nothing.
    */
   remeasureHole(
     placeholder: HTMLElement,
@@ -501,27 +441,6 @@ export class RectIndex implements RectIndexView {
 export const DEV: boolean = __DEV__;
 
 /**
- * Whether the equivalence instrument runs. `DEV`-only in every sense: the read
- * sits inside a `DEV` branch, so the published bundle contains neither it nor
- * this binding.
- *
- * **It is not a measurement flag, and the direction is the whole of why.** The
- * instrument is on by default and every suite run checks it; this exists for
- * the opposite case — a performance measurement, which has to measure the code
- * that *ships*. The instrument performs a full scan, which is precisely the
- * forced layout this model removes, so leaving it on would time a build no
- * consumer can install.
- */
-let verifying = true;
-
-/** @see verifying — used by `tests/perf`, and by nothing in `src`. */
-export function setRefreshVerification(enabled: boolean): void {
-  if (DEV) {
-    verifying = enabled;
-  }
-}
-
-/**
  * **The equivalence instrument**, and what makes the prediction admissible
  * rather than merely plausible.
  *
@@ -532,10 +451,11 @@ export function setRefreshVerification(enabled: boolean): void {
  * handed vectors and the animations it started have no resolved timing yet, so
  * a scan there compares a settled cache against a tree in an indeterminate
  * state. One frame later both are answerable. Asserted on every suite run and
- * behind no measurement flag: `DEV` is `true` in this repository's vite and
+ * behind no runtime switch: `DEV` is `true` in this repository's vite and
  * vitest configs and folds to `false` in the published bundle, so every test
  * that drives a real drag through `y()` checks it and no consumer pays for
- * it.
+ * it. The one exception is the test project that measures what ships, which
+ * defines it `false` for the files it routes.
  *
  * **It snapshots and then forces the rebuild, rather than scanning by hand.**
  * The predicted contents are copied out through the read view, the cache is
@@ -543,26 +463,16 @@ export function setRefreshVerification(enabled: boolean): void {
  * things follow. There is **nothing left to heal** — the cache ends
  * authoritative by construction, so a mismatch leaves it correct and the drag
  * classified rather than correct in the message and wrong in the buffer. And
- * **a second definition of the scan disappears**: box resolution, the six-field
- * pack and the settle call were transcribed here by hand, inside the one
- * function whose whole job is to distrust a transcription.
+ * **there is no second definition of the scan**: box resolution, the six-field
+ * pack and the settle call are not transcribed into the one function whose
+ * whole job is to distrust a transcription.
  *
- * It costs one scan rather than two, because the forced rebuild replaces the
- * hand-rolled one instead of joining it, and the caller's own `refresh`
- * immediately afterwards finds the cache warm.
+ * It costs one scan, because the forced rebuild is the scan, and the caller's
+ * own `refresh` immediately afterwards finds the cache warm.
  *
  * **It is a free function and must stay one.** A `DEV`-only prototype body
  * ships; this export tree-shakes, and `bench/size` asserts what the module
  * contains.
- *
- * **It takes no terminal barrier, and that is what scopes it.** Every call it
- * makes is a consumer call on a consumer-owned element, so in a shipped build
- * it would need the same threading the candidate loop has. It is not in a
- * shipped build: `DEV` folds to `false` and the whole function is dropped. The
- * scoping survives the inversion because the rebuild is driven with a
- * constant-true `live`, so a fixture that destroys its controller from inside
- * `getBoundingClientRect` is still measuring the instrument rather than the
- * library.
  *
  * **It runs in every composition, including one that animates.** A displaced
  * row carries an additive `translate` and `getBoundingClientRect()` reports
@@ -580,10 +490,6 @@ export const verifyEquivalence = (
   settle: DisplacementSettle | null,
   rule: string,
 ): void => {
-  if (!verifying) {
-    return;
-  }
-
   // **The instrument distrusts the cache**, so it reads it under the
   // collaborator's type rather than the owner's: nothing here may repair what
   // it is checking, and the rebuild below is what makes the cache
@@ -604,25 +510,33 @@ export const verifyEquivalence = (
     predictedHole[field] = claimedHole[field]!;
   }
 
-  // The authoritative rebuild. `live` is constant-true rather than threaded:
-  // the instrument is scoped out of shipped builds entirely, so a fixture that
-  // closes its controller from inside a geometry read must not be able to stop
-  // the scan it is being measured by.
+  // The authoritative rebuild.
   index.invalidate();
-  index.refresh(snapshot, dragged, getBox, () => true, placeholder, settle);
+  index.refresh(snapshot, dragged, getBox, placeholder, settle);
 
   /**
-   * **One slack, and it is not a concession.** Two things reintroduce
-   * floating-point error of order `1e-5` px on a comparison that is otherwise
-   * the same arithmetic on the same readings: settling subtracts a held vector,
-   * and a row wearing an authored `rotate` has its bounding rect recomputed
-   * through a transform matrix, so translating that rect and re-reading it do
-   * not agree bit for bit. Both are five orders of magnitude below the smallest
-   * disagreement a broken rule produces — a rule that is wrong is wrong by a
-   * row — and authored presentation is supported in every composition, so the
-   * tolerance cannot be conditioned on the sink.
+   * **One slack, sized to the precision geometry is reported at.** A correct
+   * prediction and the rebuild disagree only by how inexact their readings are,
+   * and the largest source is the engine's own grid: Gecko reports a rect in
+   * app units, 1/60 px, including a row wearing a mid-animation `translate`. A
+   * settled reading is that rounded presented position minus an exact analytic
+   * offset, so it is off by up to half an app unit, `ε = 1/120` px.
+   *
+   * A predicted slot is a cached reading plus the constant, and the constant is
+   * the difference of two readings of one row, so the prediction carries up to
+   * `3ε`; the rebuild's own reading carries `ε` more. The bound is `4ε = 1/30`
+   * px. Below it sit error terms of order `1e-5` px: settling subtracts a held
+   * vector, and a row wearing an authored `rotate` has its rect recomputed
+   * through a transform matrix. The slack is the next power of two above the
+   * sum.
+   *
+   * It stays far below the smallest disagreement a broken rule produces,
+   * because a rule that is wrong is wrong by a row: a crossed item moved off
+   * the axis travels a row's extent, or nothing, where the rule predicted the
+   * other. Authored presentation and displacement are supported in every
+   * composition, so the tolerance is not conditioned on the sink.
    */
-  const slack = 1 / 256;
+  const slack = 1 / 16;
   const differs = (a: number, b: number): boolean => {
     const gap = a - b;
 

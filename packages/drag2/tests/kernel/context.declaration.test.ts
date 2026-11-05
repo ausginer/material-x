@@ -16,6 +16,10 @@
  * construction, and neither can be added silently.
  */
 import { describe, expectTypeOf, it } from 'vitest';
+import type {
+  DraggableError,
+  DraggableWarning,
+} from '../../src/kernel/errors.ts';
 import type { Kernel } from '../../src/kernel/kernel.ts';
 import type { BehaviorContext } from '../../src/kernel/spec.ts';
 
@@ -32,27 +36,43 @@ type Withheld = Exclude<keyof WideKernel, keyof BehaviorContext>;
 describe('the behavior-facing context', () => {
   it('should grant exactly the seven members it names', () => {
     // Positively selected, so this is an equality in both directions: a member
-    // dropped from the interface fails it as loudly as one added.
+    // dropped from the interface fails it as loudly as one added. No member
+    // reads the lifecycle: a behavior reaches it only through the refusal a
+    // minted channel applies.
     expectTypeOf<keyof BehaviorContext>().toEqualTypeOf<
-      'realm' | 'root' | 'dispatch' | 'fail' | 'closed' | 'cancel' | 'destroy'
+      | 'realm'
+      | 'root'
+      | 'dispatch'
+      | 'fail'
+      | 'channel'
+      | 'requestCancel'
+      | 'requestDestroy'
+    >();
+  });
+
+  it('should mint a channel with the sink shape it takes', () => {
+    type Sink = (error: DraggableError | DraggableWarning) => void;
+
+    expectTypeOf<BehaviorContext['channel']>().toEqualTypeOf<
+      (deliver: Sink) => Sink
     >();
   });
 
   it('should withhold every public member of the class it does not name', () => {
-    // **The discriminating row.** `arm` is the whole of the difference today,
+    // **The discriminating row.** `construct` is the whole of the difference today,
     // and stating it as a difference is what makes the assertion about the
     // narrowing rather than about one member's name: a public member added to
     // the class lands in `Withheld` and fails here until it is classified, and
     // one promoted onto the interface leaves `Withheld` and fails here too.
-    expectTypeOf<Withheld>().toEqualTypeOf<'arm'>();
+    expectTypeOf<Withheld>().toEqualTypeOf<'construct'>();
   });
 
-  it('should keep the arming handshake on the class', () => {
+  it('should keep the construction handshake on the class', () => {
     // The other half of a positive projection: the member exists, it is just
     // not the behavior's. The direct read a behavior would have to write —
-    // `void kernel.arm` under `@ts-expect-error` — is asserted against the
+    // `void kernel.construct` under `@ts-expect-error` — is asserted against the
     // **shipped** declarations in `tests/consumer.node.test.ts`, so what is
     // owed here is that the member the difference names is really there.
-    expectTypeOf<WideKernel['arm']>().toBeFunction();
+    expectTypeOf<WideKernel['construct']>().toBeFunction();
   });
 });

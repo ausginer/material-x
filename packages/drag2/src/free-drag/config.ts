@@ -36,9 +36,12 @@ export type OnMove = (geometry: DragGeometry) => void;
 /** Exactly once per started operation, whatever happened to it. */
 export type FreeDragOnEnd = (result: FreeDragTransactionResult) => void;
 /**
- * **A `DraggableWarning` means the operation was not affected** — a landing
- * measurement that could not be trusted, a disposer that refused — and its
- * terminal still arrives. A `DraggableError` means it was.
+ * **A `DraggableWarning` means this fault did not decide the outcome** — a
+ * landing measurement that could not be trusted, a disposer that refused, a throw
+ * a cancel or destruction had already superseded. The operation ends as it would
+ * have without it, so do not wait on a warning for a terminal: it may already
+ * have arrived, and destruction publishes none. A `DraggableError` means the
+ * fault changed the outcome.
  */
 export type FreeDragOnDragError = (
   error: DraggableError | DraggableWarning,

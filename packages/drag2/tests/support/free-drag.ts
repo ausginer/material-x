@@ -147,7 +147,7 @@ export function freeDragHarness(): Harness {
       item.releasePointerCapture = (): void => {};
 
       own(() => {
-        void controller.destroy();
+        void controller.requestDestroy();
         stage.remove();
       });
 

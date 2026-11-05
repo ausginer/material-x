@@ -1,0 +1,84 @@
+// P8 (D-206, F-439). Appended by run.sh to a copy of
+// tests/sortable/sortable.browser.test.ts, which supplies `createHarness`,
+// `REENTRANT_PLACEHOLDER`, `reentrantPlaceholderConnected`, `activate`,
+// `release`, `ReorderResolution`, `AT_PROPOSAL` and `AT_CONSUMER`. Derived from
+// the implementer's reproducer in measurements/d204-step1.md §The open
+// escalation.
+//
+// During the release move a custom placeholder's connectedCallback calls
+// `controller.invalidate()`, queuing collection work in the release unit. With
+// `throwing`, the collection pull `items()` throws, which registers a failure
+// checkpoint (stage 4, FAILURE_ACTION_PREPARE) for the operation. `sync`
+// chooses whether `onReorder` returns its resolution or a promise of it.
+// Asserts nothing; prints the trace from the placeholder's connection, the
+// reported stages, and each terminal as `type stage origin`.
+describe('P8 failure registered ahead of the round-trip', () => {
+  const stageName = (stage: unknown): unknown =>
+    stage === AT_PROPOSAL
+      ? 'AT_PROPOSAL'
+      : stage === AT_CONSUMER
+        ? 'AT_CONSUMER'
+        : stage;
+  // CANCEL_FAILED, the fallback's origin, is 33 in src/kernel/failures.ts.
+  const originName = (origin: unknown): unknown =>
+    origin === 33 ? 'failed' : origin;
+
+  for (const throwing of [false, true]) {
+    for (const sync of [true, false]) {
+      it(`P8 throwing=${String(throwing)} sync=${String(sync)}`, async () => {
+        let armed = false;
+        let harness: Harness | null = null;
+
+        harness = createHarness({
+          placeholder: (): HTMLElement =>
+            document.createElement(REENTRANT_PLACEHOLDER),
+          pull: (items) => {
+            harness!.calls.push('items()');
+            if (armed && throwing) {
+              throw new Error('pull');
+            }
+            return items;
+          },
+          onReorder: () => {
+            harness!.calls.push('onReorder');
+            return sync
+              ? ReorderResolution.accept()
+              : Promise.resolve(ReorderResolution.accept());
+          },
+        });
+
+        activate(harness);
+        reentrantPlaceholderConnected = (): void => {
+          if (!armed) {
+            armed = true;
+            harness!.calls.push('placeholder connected');
+            harness!.controller.invalidate();
+          }
+        };
+        harness.next(harness.gap(2));
+        release(130);
+        await new Promise((resolve) => {
+          setTimeout(resolve, 20);
+        });
+
+        const terminals = [...harness.finishes, ...harness.cancels].map((r) => {
+          const x = r as unknown as Record<string, unknown>;
+          return [x.type, stageName(x.stage), originName(x.origin)]
+            .filter((v) => v !== undefined)
+            .join(' ');
+        });
+        console.log(
+          `P8 throwing=${String(throwing)} sync=${String(sync)}`,
+          JSON.stringify(
+            harness.calls.slice(harness.calls.indexOf('placeholder connected')),
+          ),
+          'errors',
+          JSON.stringify(harness.errors.map((e) => e.stage)),
+          'terminals',
+          JSON.stringify(terminals),
+        );
+        expect(true).toBe(true);
+      });
+    }
+  }
+});

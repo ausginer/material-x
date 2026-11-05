@@ -345,7 +345,7 @@ function mount(options: Options): Fixture {
   root.releasePointerCapture = (): void => {};
 
   cleanup.push(() => {
-    void controller.destroy();
+    void controller.requestDestroy();
     root.remove();
   });
 
@@ -835,7 +835,7 @@ describe('the api-1 footprint rule under a live drag', () => {
     root.releasePointerCapture = (): void => {};
 
     cleanup.push(() => {
-      void controller.destroy();
+      void controller.requestDestroy();
       root.remove();
     });
 
@@ -903,7 +903,7 @@ describe('the api-1 footprint rule under a live drag', () => {
 
     const regrabPost = boxOf(b);
 
-    controller.cancel();
+    controller.requestCancel();
     await settle();
 
     dump.push({

@@ -1,0 +1,60 @@
+# D-209 disposition probes, 2026-11-04. Private worktree at 1e5efc518 with prototype-src.diff.txt applied, Chromium, one machine, once each.
+# The prototype is throwaway and not committed. kernel-probe.txt adds K6 to probes/d209-review/kernel-probe.txt, K1 to K5, which were rerun.
+
+## Drives on the prototype
+sortable onStart cancel then throw [control] :: onEnd canceled, then Warning superseded-by-cancel, cause boom
+freeDrag onStart cancel then throw [control] :: onEnd canceled, then Warning superseded-by-cancel, cause boom
+sortable onReorder cancel then throw :: onEnd canceled, then Warning superseded-by-cancel, cause boom
+freeDrag onDrop cancel then throw :: onEnd canceled, then Warning superseded-by-cancel, cause boom
+sortable onReorder cancel, request, throw :: Warning superseded-by-destruction, cause boom, no onEnd
+freeDrag onDrop cancel, request, throw :: Warning superseded-by-destruction, cause boom, no onEnd
+sortable onReorder cancel then throw, onEnd requests :: onEnd canceled, then Warning superseded-by-cancel, cause boom
+freeDrag onDrop cancel then throw, onEnd requests :: onEnd canceled, then Warning superseded-by-cancel, cause boom
+sortable onReorder cancel then throw, onError requests :: onEnd canceled, then Warning superseded-by-cancel, cause boom
+sortable onReorder async cancel then throw :: onEnd canceled, nothing delivered, no unhandled rejection
+freeDrag onDrop async cancel then throw :: onEnd canceled, nothing delivered, no unhandled rejection
+sortable onReorder cancel then fulfil :: onEnd canceled, nothing delivered
+freeDrag onDrop cancel then fulfil :: onEnd canceled, nothing delivered
+freeDrag moveTo(bad) alone in onMove [control] :: DraggableError(4), cause boom, then onEnd canceled
+freeDrag moveTo(bad) then request in onMove :: nothing delivered, no onEnd
+freeDrag requestCancel then moveTo(bad) in onMove :: onEnd canceled, nothing delivered
+freeDrag moveTo(bad) in onDrop, releasing :: onEnd accepted, nothing delivered
+freeDrag moveTo(null) with no drag :: nothing delivered
+K1 checkpoint, then the report rejects the pending thenable :: destruction FIRST, destruction SECOND, applied, 0 settlements
+K2 invoke: requestCancel, throw :: cancel FIRST, one settlement of type 43
+K3 the same, and the settlement requests destruction :: cancel FIRST, one settlement of type 43, applied
+K4 rejection applied live whose prepare requests destruction and rethrows :: destruction FIRST, 1 settlement, applied
+K5 invoke: request, throw, and the report throws :: destruction once, retire 1
+K6 invoke: kernel.fail, then throw :: drag: seam/fail-outside-seam for a, one settlement of type 41. No FAILED entry is queued ahead of the settlement.
+
+## Whole suite on the prototype, run once
+total 1529 passed 1451 failed 10 skipped 68
+FAIL tests/decisions.node.test.ts :: should hold every witness it claims
+FAIL tests/docs.node.test.ts :: should resolve every reference a public type makes
+FAIL tests/docs.node.test.ts :: should close the kernel tier over the kernel tier
+FAIL tests/docs.node.test.ts :: should close the ordinary tier over the ordinary tier and the ones below it
+FAIL tests/docs.node.test.ts :: should close the free-drag tier over the ordinary tier and the ones below it
+FAIL tests/bench/size.node.test.ts :: should not move free drag minimal at all
+FAIL tests/bench/size.node.test.ts :: should not move free drag + bounds at all
+FAIL tests/bench/size.node.test.ts :: should not move free drag + landing at all
+FAIL tests/bench/size.node.test.ts :: should not move free drag complete at all
+FAIL tests/bench/size.node.test.ts :: should not move kernel root - kernel.js at all
+NOLOAD tests/sortable/react.browser.test.ts
+NOLOAD tests/sortable/stories.browser.test.ts
+
+## Composition on the prototype, measureAll(), with drag2 rebuilt
+minimal | 33723 | 10329 | ceil 10351 | slack 22 | control - | modules 33
+minimal (xy) | 33080 | 10199 | ceil 10244 | slack 45 | control - | modules 32
+minimal + layoutAnimation | 34639 | 10651 | ceil 10683 | slack 32 | control - | modules 34
+xy + layoutAnimation | 33996 | 10517 | ceil 10563 | slack 46 | control - | modules 33
+minimal + landing | 34116 | 10483 | ceil 10536 | slack 53 | control - | modules 35
+complete | 35032 | 10791 | ceil 10838 | slack 47 | control - | modules 36
+free drag minimal | 27367 | 8357 | ceil 8412 | slack 55 | control 8337 | modules 27
+free drag + bounds | 28011 | 8592 | ceil 8645 | slack 53 | control 8553 | modules 28
+free drag + landing | 27760 | 8516 | ceil 8587 | slack 71 | control 8497 | modules 29
+free drag complete | 28404 | 8734 | ceil 8778 | slack 44 | control 8712 | modules 30
+both behaviors | 42572 | 12298 | ceil 12359 | slack 61 | control - | modules 47
+vocabulary root - drag.js | 252 | 142 | ceil 205 | slack 63 | control 142 | modules 2
+kernel root - kernel.js | 20337 | 6418 | ceil 6470 | slack 52 | control 6398 | modules 16
+baseline A - feature-matched, non-composed | 34323 | 10620 | ceil 10658 | slack 38 | control - | modules 31
+baseline B - shipped @ydinjs/drag sortable.js | 22618 | 6916 | ceil 7040 | slack 124 | control 6916 | modules 26

@@ -115,7 +115,6 @@ const INTERNAL: Readonly<Record<string, readonly string[]>> = {
   ],
   'the full lifetime': [
     'Lifetime',
-    'createLifetime',
     'createOperationLifetimes',
     'OperationLifetimes',
   ],
