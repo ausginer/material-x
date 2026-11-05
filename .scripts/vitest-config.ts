@@ -26,12 +26,13 @@ const BROWSER_WORKERS = 2;
 
 // Files at once across the whole non-browser group, which shares one
 // `groupOrder` and therefore one resolved bound. Half the cores rather than
-// Vitest's `cores - 1`, because several files in this group spawn a build of
-// their own — tsdown, Rolldown, Brotli — and each of those uses more than the
-// one core the worker holding it is counted as. At `cores - 1` the group
-// oversubscribes badly enough to time out three tests that do no more than read
-// what they just built; measured on all five node projects, 40 s with four
-// failures against 45 s with none.
+// Vitest's `cores - 1`, because several files in this group spawn work that uses
+// more than the one core the worker holding it is counted as: `consumer.node`
+// runs `npm pack` and `tsc`, and `size.node` bundles and compresses. At
+// `cores - 1` the group oversubscribed badly enough to time out three tests;
+// measured on all five node projects, 40 s with four failures against 45 s with
+// none. That measurement predates drag2's single build, when those files also
+// ran tsdown, and it has not been repeated.
 const NON_BROWSER_WORKERS = Math.max(Math.floor(availableParallelism() / 2), 1);
 
 /**

@@ -135,6 +135,11 @@ describe('the declared module graphs', () => {
     // disagree about what counts as generated. A second of slack absorbs
     // filesystem timestamp granularity and nothing else: a survivor is a build
     // older than this one, not a build a millisecond older.
+    //
+    // With no timestamp nothing can be older than the build, so a config that
+    // reaches this row without building is refused rather than passed.
+    expect(builtAt).toBeTypeOf('number');
+
     const generated = packageFilesToCleanPathspecs(
       await readPackageFiles(ROOT),
     );
