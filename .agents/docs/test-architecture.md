@@ -122,6 +122,8 @@ Before updating a screenshot, inspect: the active tproc profile; contract ID and
 
 **Browser projects are serialized, one per `sequence.groupOrder`, assigned from 1.** When the first test module of a later group starts, every browser project in an earlier group has its provider closed and its Chromium exits — the earliest point at which the earlier group is provably finished. A project occupying the _final_ group is never released this way, because a boundary is another group starting; it is released when the process closes. Both paths return Chrome to its baseline before the process exits, and `MX_TEST_TEARDOWN_LOG=1` prints one line per boundary release.
 
+**Every project the shared factory declares sets `extends: false`,** so a project's configuration is what the factory gave it and the config file is evaluated once. Since Vitest 5 an inline project otherwise re-evaluates the file that declares it, and each copy brings its own one-shot reporter.
+
 **Test watch and VS Code Continuous Run are retired**, and so is `vitest --watch` in any form for tests. A rerun would arrive in a process that has already released its browsers, so the modes that depend on one are withdrawn by intent rather than left to fail quietly. A second run raises before any module executes:
 
 ```

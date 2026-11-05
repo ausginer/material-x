@@ -3,7 +3,10 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { playwright } from '@vitest/browser-playwright';
 import type { ConfigEnv, UserConfig } from 'vite';
-import { mergeConfig } from 'vitest/config';
+import {
+  mergeConfig,
+  type TestProjectInlineConfiguration,
+} from 'vitest/config';
 import type { BrowserCommand } from 'vitest/node';
 import {
   createViteConfig,
@@ -93,8 +96,15 @@ function isBrowserProjectConfig(project: UserConfig): boolean {
  * and their being last is what releases the final browser project: a boundary
  * is another group starting, so a project in the final group is never released
  * by one.
+ *
+ * Every project also sets `extends: false`. This is the one funnel every config
+ * passes through, and each project already holds its whole configuration. Since
+ * Vitest 5 an inline project otherwise re-evaluates the file that declares it,
+ * and each copy brings its own one-shot reporter.
  */
-function assignGroupOrder(projects: readonly UserConfig[]): UserConfig[] {
+function assignGroupOrder(
+  projects: readonly UserConfig[],
+): TestProjectInlineConfiguration[] {
   const shared = projects.filter(isBrowserProjectConfig).length + 1;
   let browser = 0;
 
@@ -107,8 +117,9 @@ function assignGroupOrder(projects: readonly UserConfig[]): UserConfig[] {
     }
 
     return mergeConfig(project, {
+      extends: false,
       test: { sequence: { groupOrder } },
-    } satisfies UserConfig);
+    } satisfies TestProjectInlineConfiguration);
   });
 }
 
