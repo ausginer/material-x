@@ -682,7 +682,7 @@ class ArmedController<Part extends object, Activation extends {}> {
    * subscription: cancelling one is a no-op, and one retained {@link Animation}
    * on a live element is cheaper than a promise per landing.
    */
-  #tail: Animation | null = null;
+  #landingAnimation: Animation | null = null;
 
   /**
    * Ends the tail, if one is in flight.
@@ -695,11 +695,11 @@ class ArmedController<Part extends object, Activation extends {}> {
    * so it is unwound rather than trusted: this runs inside activation and
    * inside teardown, and both have a load-bearing next statement.
    */
-  #cancelTail(): void {
-    const running = this.#tail;
+  #cancelLandingAnimation(): void {
+    const running = this.#landingAnimation;
 
     if (running) {
-      this.#tail = null;
+      this.#landingAnimation = null;
       this.#unwind(() => {
         running.cancel();
       });
@@ -723,7 +723,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     } finally {
       // 7, this controller's half: no earlier step may leave a tail
       //    interpolating on an element the controller has stopped owning.
-      this.#cancelTail();
+      this.#cancelLandingAnimation();
     }
   }
 
@@ -1304,7 +1304,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       //
       // A press that never crosses the threshold keeps whatever is in flight,
       // which is why this is not at `pointerdown`.
-      this.#cancelTail();
+      this.#cancelLandingAnimation();
 
       const rect = live.visual.getBoundingClientRect();
       // **Window 1 of 2, and its position in this function is the whole
@@ -1559,7 +1559,7 @@ class ArmedController<Part extends object, Activation extends {}> {
    * change during the tail sends it along the wrong path, and it still ends at
    * a zero contribution, so the element lands exactly where flow puts it.
    */
-  #startTail(
+  #startLandingAnimation(
     element: HTMLElement,
     space: InheritedSpace,
     fromX: number,
@@ -1599,7 +1599,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // `animate` is itself overridable on a consumer-owned element, and the
     // duration domain is the platform's — a `NaN` or a negative is refused
     // here, as a warning that changed nothing.
-    this.#tail =
+    this.#landingAnimation =
       this.#unwind(() => {
         // **Read out of the policy's record before `animate` is reached**: the
         // record is foreign, and the `animate` lookup is the next foreign code
@@ -1676,7 +1676,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // before, because the consumer's terminal callback may remove the very
     // element this is about, and an animation started onto a removed node is a
     // no-op rather than a fault.
-    this.#startTail(
+    this.#startLandingAnimation(
       live.visual,
       activation.visualSpace,
       fromX,
@@ -1875,7 +1875,7 @@ class ArmedController<Part extends object, Activation extends {}> {
    * the swappable `current` frame is read at call time, so nothing is captured
    * by value.
    */
-  readonly #movedLeaf = (lift: VisualLiftSession): void => {
+  readonly #callMoved = (lift: VisualLiftSession): void => {
     this.#spec.moved(this.#frames.current, lift);
   };
 
@@ -1904,7 +1904,7 @@ class ArmedController<Part extends object, Activation extends {}> {
 
     if (phase === ACTIVE) {
       this.#driver.runLeaf(
-        this.#movedLeaf,
+        this.#callMoved,
         FAILURE_RENDERER_WRITE,
         this.#activation!.lift,
       );

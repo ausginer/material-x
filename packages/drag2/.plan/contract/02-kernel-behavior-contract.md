@@ -1469,7 +1469,7 @@ join
                                                  what puts the visual at the
                                                  measured position (D-166)
     }
-    startTail(from, target)                    ← on the RELEASED element
+    startLandingAnimation(from, target)        ← on the RELEASED element
               ── a null target means the measurement was skipped (D-49): no
                  tail, and the release above is the jump cut. `finalized`
                  still runs. ──
