@@ -1,0 +1,81 @@
+diff --git a/packages/drag2/tests/bench/size.node.test.ts b/packages/drag2/tests/bench/size.node.test.ts
+index b7edf82b8..ca339168a 100644
+--- a/packages/drag2/tests/bench/size.node.test.ts
++++ b/packages/drag2/tests/bench/size.node.test.ts
+@@ -95,6 +95,8 @@ beforeAll(async () => {
+   // never sees `src/`. Building here rather than relying on a prior `just
+   // build` keeps the suite self-contained, the same way the packed-consumer
+   // fixture does.
++  process.env['F447_WHO'] = 'size';
++  await new Promise((go) => { setTimeout(go, Number(process.env['F447_WAIT_size'] ?? 0)); });
+   builtAt = Date.now();
+   await build();
+
+diff --git a/packages/drag2/tests/consumer.node.test.ts b/packages/drag2/tests/consumer.node.test.ts
+index 50035c7d4..e1a647d79 100644
+--- a/packages/drag2/tests/consumer.node.test.ts
++++ b/packages/drag2/tests/consumer.node.test.ts
+@@ -1310,17 +1310,38 @@ async function packedFiles(
+     .map((entry) => join(entry.parentPath, entry.name));
+ }
+
++
++async function scratchCount(root: string): Promise<number> {
++  const { readdir, readFile: rf } = await import('node:fs/promises');
++  const { join: j } = await import('node:path');
++  let n = 0;
++  for (const e of await readdir(root, { withFileTypes: true, recursive: true })) {
++    const p = j(e.parentPath, e.name);
++    if (!e.isFile() || !e.name.endsWith('.d.ts') || /node_modules|\/src\/|\/tests\/|\/bench\//u.test(p)) continue;
++    if ((await rf(p, 'utf8')).includes('sourceMappingURL')) n += 1;
++  }
++  return n;
++}
++async function scratchLog(who: string, m: string): Promise<void> {
++  const { appendFile } = await import('node:fs/promises');
++  await appendFile(process.env['F447_LOG'] ?? '/dev/null', `${who} ${m} ${Date.now()}\n`);
++}
+ beforeAll(async () => {
+   const dir = await mkdtemp(join(tmpdir(), 'drag2-consumer-'));
++  process.env['F447_WHO'] = 'consumer';
++  await new Promise((go) => { setTimeout(go, Number(process.env['F447_WAIT_consumer'] ?? 0)); });
++  await scratchLog('consumer', 'build-start');
+
+   await run('npx', ['tsdown', '--config', 'tsdown.config.ts'], ROOT);
+
++  await scratchLog('consumer', `pack-start unstripped=${await scratchCount(ROOT)}`);
+   const { stdout } = await run(
+     'npm',
+     ['pack', '--pack-destination', dir, '--silent'],
+     ROOT,
+   );
+
++  await scratchLog('consumer', `pack-end unstripped=${await scratchCount(ROOT)}`);
+   await run(
+     'tar',
+     ['-xzf', join(dir, stdout.trim().split('\n').at(-1)!), '-C', dir],
+diff --git a/packages/drag2/tsdown.config.ts b/packages/drag2/tsdown.config.ts
+index 3bd731787..38130866a 100644
+--- a/packages/drag2/tsdown.config.ts
++++ b/packages/drag2/tsdown.config.ts
+@@ -41,6 +41,12 @@ const config: UserConfig = defineConfig({
+     // than exposed, but they are still published — 6.5 kB of internal SPI in
+     // the tarball. Removed here, after the emit that produced them.
+     'build:done': async (): Promise<void> => {
++      const scratchFs = await import('node:fs/promises');
++      const who = process.env['F447_WHO'] ?? 'direct';
++      const scratchLog = (m: string) => scratchFs.appendFile(process.env['F447_LOG'] ?? '/dev/null', `${who} ${m} ${Date.now()}\n`);
++      await scratchLog('emitted');
++      await new Promise((go) => { setTimeout(go, Number(process.env[`F447_DELAY_${who}`] ?? 0)); });
++      await scratchLog('strip-start');
+       await pruneDeclarations(files.runtime.map((entry) => `${entry}.d.ts`));
+       // **The dangling declaration-map references** (D-111). tsdown runs the JS
+       // and the declaration emit as **one** rolldown build over one `sourcemap`
+@@ -56,6 +62,7 @@ const config: UserConfig = defineConfig({
+       // deleted is wasted work, and the prune's fail-safe should see the emit
+       // exactly as the plugin left it.
+       await stripDeclarationMapReferences();
++      await scratchLog('strip-end');
+     },
+   },
+ });

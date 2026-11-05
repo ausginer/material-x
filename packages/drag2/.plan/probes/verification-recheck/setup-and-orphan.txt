@@ -1,0 +1,94 @@
+## pkg-node: (packages/drag2) vitest run -c vitest.config.ts --project node  -> exit=0 builds=1
+      Tests  441 passed (441)
+ Test Files  26 passed (26)
+## root-node: (.) vitest run --project node/drag2  -> exit=0 builds=1
+      Tests  441 passed (441)
+ Test Files  26 passed (26)
+## pkg-browser-one: (packages/drag2) vitest run -c vitest.config.ts --project browser tests/sortable/react.browser.test.ts  -> exit=0 builds=0
+      Tests  11 passed (11)
+ Test Files  1 passed (1)
+## root-browser-one: (.) vitest run --project browser/drag2 packages/drag2/tests/sortable/react.browser.test.ts  -> exit=0 builds=0
+      Tests  11 passed (11)
+ Test Files  1 passed (1)
+## root-tproc: (.) vitest run --project node/vite-traits-plugin  -> exit=0 builds=0
+      Tests  52 passed (52)
+ Test Files  6 passed (6)
+## pkg-forced: (packages/drag2) vitest run -c vitest.config.ts --project node tests/consumer.node.test.ts tests/bench/size.node.test.ts tests/packaging.node.test.ts BUILD_DELAY=20000 -> exit=0 builds=1
+      Tests  68 passed (68)
+ Test Files  3 passed (3)
+## root-forced: (.) vitest run --project node/drag2 packages/drag2/tests/consumer.node.test.ts packages/drag2/tests/bench/size.node.test.ts packages/drag2/tests/packaging.node.test.ts BUILD_DELAY=20000 -> exit=0 builds=1
+      Tests  68 passed (68)
+ Test Files  3 passed (3)
+
+## orphan-pkg: (tip/packages/drag2) vitest run -c vitest.config.ts --project node tests/bench/size.node.test.ts -t should measure a graph built from nothing but this build -> exit=1 builds(tip hook log)=1
+      Tests  1 failed | 42 skipped (43)
+ FAIL  |node| tests/bench/size.node.test.ts:118 > the declared module graphs > should measure a graph built from nothing but this build
+ Test Files  1 failed (1)
++   "kernel/zz-orphan.js",
+AssertionError: expected [ 'kernel/zz-orphan.js' ] to deeply equal []
+## orphan-root: (tip/.) vitest run --project node/drag2 packages/drag2/tests/bench/size.node.test.ts -t should measure a graph built from nothing but this build -> exit=1 builds(tip hook log)=1
+      Tests  1 failed | 42 skipped (43)
+ FAIL  |node/drag2| tests/bench/size.node.test.ts:118 > the declared module graphs > should measure a graph built from nothing but this build
+ Test Files  1 failed (1)
++   "kernel/zz-orphan.js",
+AssertionError: expected [ 'kernel/zz-orphan.js' ] to deeply equal []
+## orphan-shipped: (tip/packages/drag2) vitest run -c bench/shipped/vitest.config.ts --project node tests/bench/size.node.test.ts -t should measure a graph built from nothing but this build -> exit=0 builds(tip hook log)=0
+      Tests  1 passed | 42 skipped (43)
+ Test Files  1 passed (1)
+## control-pkg: (tip/packages/drag2) vitest run -c vitest.config.ts --project node tests/bench/size.node.test.ts -t should measure a graph built from nothing but this build -> exit=0 builds(tip hook log)=1
+      Tests  1 passed | 42 skipped (43)
+ Test Files  1 passed (1)
+## control-root: (tip/.) vitest run --project node/drag2 packages/drag2/tests/bench/size.node.test.ts -t should measure a graph built from nothing but this build -> exit=0 builds(tip hook log)=1
+      Tests  1 passed | 42 skipped (43)
+ Test Files  1 passed (1)
+## orphan-input-shipped: (input/packages/drag2) vitest run -c bench/shipped/vitest.config.ts --project node tests/bench/size.node.test.ts -t should measure a graph built from nothing but this build -> exit=1 builds(tip hook log)=0
+      Tests  1 failed | 42 skipped (43)
+ FAIL  |node| tests/bench/size.node.test.ts:150 > the declared module graphs > should measure a graph built from nothing but this build
+ Test Files  1 failed (1)
++   "kernel/zz-orphan.js",
+AssertionError: expected [ 'kernel/zz-orphan.js' ] to deeply equal []
+## buildfail-pkg: (tip/packages/drag2) vitest run -c vitest.config.ts --project node tests/packaging.node.test.ts -> exit=1 builds(tip hook log)=0
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+## buildfail-root: (tip/.) vitest run --project node/drag2 --project node/vite-traits-plugin -> exit=1 builds(tip hook log)=0
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+
+include: tests/**/*.node.test.ts
+exclude:  **/node_modules/**, **/.git/**
+
+|node/vite-traits-plugin|
+
+include: tests/**/*.node.test.ts
+exclude:  **/node_modules/**, **/.git/**
+
+
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+TypeError: code.charCodeAt is not a function
+    at extractInlineSourceMap (file://node_modul
+    at EvaluatedModules.getModuleSourceMapById (file:///tmp/claude-1000/-workspaces-material-x/a9c9ce8c-3d10-4e56-ba6d-0cbb1d0f0734/scratchp
+    at getRunnerSourceMap (file://node_modules/v
+    at mapSourcePosition (file://node_modules/vi
+    at wrapCallSite (file://node_modules/vite/di
+    at Error.prepareStackTrace (file://node_modu
+    at prepareStackTraceCallback (node:internal/errors:150:29)
+    at parseErrorStacktrace (file://node_modules
+    at Object.parseErrorStacktrace (file://node_
+    at printErrorInner (file://node_modules/vite
+
+
+
+
+## syntax error in src/drag.ts, tip, package config, exit=1, 'tsdown exited' mentions=0, 'drag.ts' mentions=0
+No test files found, exiting with code 1
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+TypeError: code.charCodeAt is not a function
+## plain throw from the setup, no child process, tip, exit=1, 'plain setup failure' mentions=0
+No test files found, exiting with code 1
+⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯
+TypeError: code.charCodeAt is not a function
+
+# Input, the same forced exit, size.node and packaging.node
+      Tests  14 passed | 43 skipped (57)
+     80|       fail(new Error(`tsdown exited with ${code}\n${output}`));
+ FAIL  |node| tests/bench/size.node.test.ts [ tests/bench/size.node.test.ts ]
+ Test Files  1 failed | 1 passed (2)
+Error: tsdown exited with 7

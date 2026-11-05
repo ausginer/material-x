@@ -1,0 +1,46 @@
+diff --git a/.scripts/vitest-one-shot.ts b/.scripts/vitest-one-shot.ts
+index af3675289..7f9566b9f 100644
+--- a/.scripts/vitest-one-shot.ts
++++ b/.scripts/vitest-one-shot.ts
+@@ -1,3 +1,4 @@
++import { appendFileSync } from 'node:fs';
+ import type { Plugin } from 'vite';
+ import type {
+   Reporter,
+@@ -31,7 +32,16 @@ async function release(
+   const { browser } = project;
+
+   if (browser) {
+-    await browser.provider?.close();
++    const scratchProvider = browser.provider as any;
++    const scratchLine = (s: string) => appendFileSync(process.env['RELEASE_LOG']!, `${Date.now()} ${project.name} group=${group} boundary=${boundary} ${s}\n`);
++    scratchLine(`release provider=${scratchProvider ? 'present' : 'undefined'} closing=${scratchProvider?.closing} browser=${scratchProvider?.browser ? (scratchProvider.browser.isConnected() ? 'connected' : 'disconnected') : 'null'} contexts=${scratchProvider?.contexts?.size} pages=${scratchProvider?.pages?.size} orchestrators=${browser.state.orchestrators.size}`);
++    try {
++      await browser.provider?.close();
++      scratchLine(`closed ok`);
++    } catch (error) {
++      scratchLine(`close REJECTED ${String(error).split('\n')[0]} orchestrators-not-closed=${browser.state.orchestrators.size}`);
++      throw error;
++    }
+
+     for (const orchestrator of browser.state.orchestrators.values()) {
+       orchestrator.$close();
+@@ -55,6 +65,7 @@ async function release(
+  * the runtime project objects that only a reporter is handed.
+  */
+ class OneShotTestExecution implements Reporter {
++  readonly scratchId = appendFileSync(process.env['RELEASE_LOG'] ?? '/dev/null', `instance ${new Error().stack?.split('\n')[2]?.trim() ?? ''}\n`);
+   /**
+    * A run whose specification list is empty executes nothing, so it does not
+    * spend the process's single execution.
+@@ -184,8 +195,9 @@ export function oneShotTestExecution(): Plugin {
+     // installs a reporter per project.
+     configureVitest({ vitest }) {
+       const { reporters } = vitest.config;
++      appendFileSync(process.env['RELEASE_LOG'] ?? '/dev/null', `configureVitest reporters=${reporters.length} guardHit=${reporters.some((r) => r instanceof OneShotTestExecution)} sameClassName=${reporters.filter((r) => (r as any)?.constructor?.name === 'OneShotTestExecution').length}\n`);
+
+-      if (!reporters.some((r) => r instanceof OneShotTestExecution)) {
++      if (!reporters.some((r) => (r as any)?.constructor?.name === 'OneShotTestExecution')) {
+         reporters.push(new OneShotTestExecution());
+       }
+     },

@@ -1,0 +1,40 @@
+## baseline exit=0
+      Tests  4 passed (4)
+## drop-Point-from-drag exit=1
+      Tests  4 failed (4)
+ FAIL  |node| tests/docs.node.test.ts:120 > the documented surface > should resolve every reference a public type makes
+ FAIL  |node| tests/docs.node.test.ts:152 > the documented surface > should close the kernel tier over the kernel tier
+ FAIL  |node| tests/docs.node.test.ts:182 > the documented surface > should close the ordinary tier over the ordinary tier and the
+ FAIL  |node| tests/docs.node.test.ts:226 > the documented surface > should close the free-drag tier over the ordinary tier and th
++   "code": 3,
+-   "code": 0,
+## leak-kernel exit=1
+      Tests  2 failed | 2 passed (4)
+ FAIL  |node| tests/docs.node.test.ts:120 > the documented surface > should resolve every reference a public type makes
+ FAIL  |node| tests/docs.node.test.ts:152 > the documented surface > should close the kernel tier over the kernel tier
++   "code": 4,
+-   "code": 0,
+## leak-sortable exit=1
+      Tests  2 failed | 2 passed (4)
+ FAIL  |node| tests/docs.node.test.ts:120 > the documented surface > should resolve every reference a public type makes
+ FAIL  |node| tests/docs.node.test.ts:182 > the documented surface > should close the ordinary tier over the ordinary tier and the
++   "code": 4,
+-   "code": 0,
+## leak-free-drag exit=1
+      Tests  2 failed | 2 passed (4)
+ FAIL  |node| tests/docs.node.test.ts:120 > the documented surface > should resolve every reference a public type makes
+ FAIL  |node| tests/docs.node.test.ts:226 > the documented surface > should close the free-drag tier over the ordinary tier and th
++   "code": 4,
+-   "code": 0,
+## drop-entry exit=1
+      Tests  1 failed | 3 passed (4)
+ FAIL  |node| tests/docs.node.test.ts:120 > the documented surface > should resolve every reference a public type makes
+-   "sortable/y",
+## script-type-error exit=1
+      Tests  4 failed (4)
+ FAIL  |node| tests/docs.node.test.ts:120 > the documented surface > should resolve every reference a public type makes
+ FAIL  |node| tests/docs.node.test.ts:152 > the documented surface > should close the kernel tier over the kernel tier
+ FAIL  |node| tests/docs.node.test.ts:182 > the documented surface > should close the ordinary tier over the ordinary tier and the
+ FAIL  |node| tests/docs.node.test.ts:226 > the documented surface > should close the free-drag tier over the ordinary tier and th
++   "code": 3,
+-   "code": 0,

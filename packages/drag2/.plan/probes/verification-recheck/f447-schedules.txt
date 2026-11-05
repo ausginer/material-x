@@ -1,0 +1,112 @@
+# Scratch instrumentation at the input: f447-instrumentation.diff. Each builder identified, the pack timed, and the declarations with sourceMappingURL counted in the package root.
+## symmetric-20s [F447_DELAY_consumer=20000 F447_DELAY_size=20000] exit=0
+      Tests  54 passed (54)
+d.ts.map mentions: 0
+consumer pack-end unstripped=0 1793848631475
+consumer pack-start unstripped=0 1793848631043
+consumer build-start 1793848610245
+consumer emitted 1793848610990
+size emitted 1793848611278
+consumer strip-start 1793848631010
+consumer strip-end 1793848631015
+size strip-start 1793848631299
+size strip-end 1793848631304
+
+## consumer-first [F447_WAIT_size=200 F447_DELAY_size=20000] exit=1
+      Tests  1 failed | 53 passed (54)
+ FAIL  |node| tests/consumer.node.test.ts:1639 > the packed package > should pack every sourcemap its modules point at
+d.ts.map mentions: 32
+consumer pack-end unstripped=32 1793848636134
+consumer pack-start unstripped=0 1793848635321
+consumer build-start 1793848633949
+consumer emitted 1793848635259
+consumer strip-start 1793848635261
+consumer strip-end 1793848635271
+size emitted 1793848635619
+size strip-start 1793848655639
+size strip-end 1793848655644
+
+## size-first [F447_WAIT_consumer=2000 F447_DELAY_consumer=20000] exit=0
+      Tests  54 passed (54)
+d.ts.map mentions: 0
+consumer pack-end unstripped=0 1793848683096
+consumer pack-start unstripped=0 1793848682510
+size emitted 1793848660073
+size strip-start 1793848660074
+size strip-end 1793848660080
+consumer build-start 1793848660949
+consumer emitted 1793848662451
+consumer strip-start 1793848682471
+consumer strip-end 1793848682477
+
+## natural-both [] exit=0
+      Tests  54 passed (54)
+d.ts.map mentions: 0
+consumer pack-end unstripped=0 1793848687944
+consumer pack-start unstripped=32 1793848687229
+consumer build-start 1793848685662
+consumer emitted 1793848687160
+consumer strip-start 1793848687162
+consumer strip-end 1793848687171
+size emitted 1793848687317
+size strip-start 1793848687319
+size strip-end 1793848687331
+
+## consumer alone, its own hook delayed 20 s, exit=0
+      Tests  11 passed (11)
+consumer build-start 1793848690803
+consumer emitted 1793848692039
+consumer strip-start 1793848712059
+consumer strip-end 1793848712067
+consumer pack-start unstripped=0 1793848712112
+consumer pack-end unstripped=0 1793848713300
+
+# No hook delay. size's build started late by the stated offset. Each once.
+## no hook delay, size's build started 100 ms late, exit=0; d.ts.map mentions: 0;       Tests  54 passed (54)
+consumer pack-end unstripped=0 1793848736818
+consumer pack-start unstripped=0 1793848735935
+consumer strip-end 1793848735873
+size emitted 1793848736085
+size strip-end 1793848736098
+## no hook delay, size's build started 200 ms late, exit=0; d.ts.map mentions: 0;       Tests  54 passed (54)
+consumer pack-end unstripped=0 1793848741910
+consumer pack-start unstripped=0 1793848740762
+consumer strip-end 1793848740711
+size emitted 1793848741175
+size strip-end 1793848741186
+## no hook delay, size's build started 300 ms late, exit=0; d.ts.map mentions: 0;       Tests  54 passed (54)
+consumer pack-end unstripped=0 1793848746642
+consumer pack-start unstripped=0 1793848745818
+consumer strip-end 1793848745768
+size emitted 1793848746244
+size strip-end 1793848746252
+## no hook delay, size's build started 400 ms late, exit=0; d.ts.map mentions: 0;       Tests  54 passed (54)
+consumer pack-end unstripped=0 1793848751512
+consumer pack-start unstripped=0 1793848750752
+consumer strip-end 1793848750656
+size emitted 1793848751219
+size strip-end 1793848751231
+## no hook delay, size's build started 500 ms late, exit=0; d.ts.map mentions: 0;       Tests  54 passed (54)
+consumer pack-end unstripped=0 1793848757281
+consumer pack-start unstripped=0 1793848755562
+consumer strip-end 1793848755491
+size emitted 1793848756901
+size strip-end 1793848756916
+## no hook delay, size's build started 600 ms late, exit=0; d.ts.map mentions: 0;       Tests  54 passed (54)
+consumer pack-end unstripped=0 1793848762820
+consumer pack-start unstripped=0 1793848761957
+consumer strip-end 1793848761914
+size emitted 1793848762588
+size strip-end 1793848762616
+## no hook delay, size's build started 700 ms late, exit=0; d.ts.map mentions: 0;       Tests  54 passed (54)
+consumer pack-end unstripped=0 1793848769318
+consumer pack-start unstripped=0 1793848767794
+consumer strip-end 1793848767728
+size emitted 1793848769119
+size strip-end 1793848769139
+## no hook delay, size's build started 800 ms late, exit=0; d.ts.map mentions: 0;       Tests  54 passed (54)
+consumer pack-end unstripped=0 1793848775325
+consumer pack-start unstripped=0 1793848774399
+consumer strip-end 1793848774337
+size emitted 1793848775145
+size strip-end 1793848775162

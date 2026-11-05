@@ -1,0 +1,99 @@
+== input:
+1x browser/material-x group=1 boundary=1->2 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+16x browser/material-x group=1 boundary=1->2 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+16x browser/material-x group=1 boundary=1->2 closed ok
+1x browser/material-x group=1 boundary=1->2 close REJECTED Error: browserContext.close: Target page, context or browser has been closed orchestrators-not-closed=0
+1x spec/material-x group=2 boundary=2->3 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+16x spec/material-x group=2 boundary=2->3 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+17x spec/material-x group=2 boundary=2->3 closed ok
+1x visual/material-x group=3 boundary=3->4 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+16x visual/material-x group=3 boundary=3->4 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+17x visual/material-x group=3 boundary=3->4 closed ok
+1x browser/core group=4 boundary=4->5 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+16x browser/core group=4 boundary=4->5 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+17x browser/core group=4 boundary=4->5 closed ok
+1x browser/box-quad group=5 boundary=5->6 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+16x browser/box-quad group=5 boundary=5->6 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+17x browser/box-quad group=5 boundary=5->6 closed ok
+1x browser/drag group=6 boundary=6->7 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+16x browser/drag group=6 boundary=6->7 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+17x browser/drag group=6 boundary=6->7 closed ok
+1x browser/drag2 group=7 boundary=7->8 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+16x browser/drag2 group=7 boundary=7->8 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+17x browser/drag2 group=7 boundary=7->8 closed ok
+1x shipped/drag2 group=8 boundary=8->9 release provider=present closing=false browser=connected contexts=1 pages=1 orchestrators=1
+16x shipped/drag2 group=8 boundary=8->9 release provider=present closing=true browser=null contexts=1 pages=1 orchestrators=1
+17x shipped/drag2 group=8 boundary=8->9 closed ok
+browser main processes: max 2 last 0
+== tip:
+1x browser/material-x group=1 boundary=1->2 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+16x browser/material-x group=1 boundary=1->2 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+16x browser/material-x group=1 boundary=1->2 closed ok
+1x browser/material-x group=1 boundary=1->2 close REJECTED Error: browserContext.close: Target page, context or browser has been closed orchestrators-not-closed=0
+1x spec/material-x group=2 boundary=2->3 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+16x spec/material-x group=2 boundary=2->3 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+17x spec/material-x group=2 boundary=2->3 closed ok
+1x visual/material-x group=3 boundary=3->4 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+16x visual/material-x group=3 boundary=3->4 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+17x visual/material-x group=3 boundary=3->4 closed ok
+1x browser/core group=4 boundary=4->5 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+16x browser/core group=4 boundary=4->5 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+17x browser/core group=4 boundary=4->5 closed ok
+1x browser/box-quad group=5 boundary=5->6 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+16x browser/box-quad group=5 boundary=5->6 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+17x browser/box-quad group=5 boundary=5->6 closed ok
+1x browser/drag group=6 boundary=6->7 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+16x browser/drag group=6 boundary=6->7 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+17x browser/drag group=6 boundary=6->7 closed ok
+1x browser/drag2 group=7 boundary=7->8 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+16x browser/drag2 group=7 boundary=7->8 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+17x browser/drag2 group=7 boundary=7->8 closed ok
+1x shipped/drag2 group=8 boundary=8->9 release provider=present closing=false browser=connected contexts=1 pages=1 orchestrators=1
+16x shipped/drag2 group=8 boundary=8->9 release provider=present closing=true browser=null contexts=1 pages=1 orchestrators=1
+17x shipped/drag2 group=8 boundary=8->9 closed ok
+browser main processes: max 2 last 0
+== oneinstance: tip with one reporter instance, scratch: one-instance-probe.diff.txt
+1x browser/material-x group=1 boundary=1->2 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+1x browser/material-x group=1 boundary=1->2 closed ok
+1x spec/material-x group=2 boundary=2->3 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+1x spec/material-x group=2 boundary=2->3 closed ok
+1x visual/material-x group=3 boundary=3->4 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+1x visual/material-x group=3 boundary=3->4 closed ok
+1x browser/core group=4 boundary=4->5 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+1x browser/core group=4 boundary=4->5 closed ok
+1x browser/box-quad group=5 boundary=5->6 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+1x browser/box-quad group=5 boundary=5->6 closed ok
+1x browser/drag group=6 boundary=6->7 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+1x browser/drag group=6 boundary=6->7 closed ok
+1x browser/drag2 group=7 boundary=7->8 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+1x browser/drag2 group=7 boundary=7->8 closed ok
+1x shipped/drag2 group=8 boundary=8->9 release provider=present closing=false browser=connected contexts=1 pages=1 orchestrators=1
+1x shipped/drag2 group=8 boundary=8->9 closed ok
+browser main processes: max 2 last 0
+
+== package config at the tip, browser and shipped, one file each
+1x browser (chromium) group=1 boundary=1->2 closed ok
+1x browser (chromium) group=1 boundary=1->2 release provider=present closing=false browser=connected contexts=1 pages=1 orchestrators=1
+1x configureVitest reporters=1 guardHit=false sameClassName=0
+1x configureVitest reporters=2 guardHit=true sameClassName=1
+1x reporter instance constructed
+
+== root config at the tip, browser/box-quad and browser/core
+3x browser/core (chromium) group=4 boundary=4->5 closed ok
+1x browser/core (chromium) group=4 boundary=4->5 release provider=present closing=false browser=connected contexts=2 pages=2 orchestrators=2
+2x browser/core (chromium) group=4 boundary=4->5 release provider=present closing=true browser=null contexts=2 pages=2 orchestrators=2
+1x configureVitest reporters=1 guardHit=false sameClassName=0
+1x configureVitest reporters=2 guardHit=false sameClassName=1
+1x configureVitest reporters=3 guardHit=false sameClassName=2
+1x configureVitest reporters=4 guardHit=true sameClassName=3
+3x reporter instance constructed
+
+== main, bfd2832db, Vitest 4.1.10, MX_TEST_TEARDOWN_LOG=1
+      1 closed browser/box-quad (chromium) (group 5) at boundary 5->6
+      1 closed browser/core (chromium) (group 4) at boundary 4->5
+      1 closed browser/drag (chromium) (group 6) at boundary 6->7
+      1 closed browser/drag2 (chromium) (group 7) at boundary 7->8
+      1 closed browser/material-x (chromium) (group 1) at boundary 1->2
+      1 closed spec/material-x (chromium) (group 2) at boundary 2->3
+      1 closed visual/material-x (chromium) (group 3) at boundary 3->4
+browser main processes: max 2 last 0
