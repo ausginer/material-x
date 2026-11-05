@@ -101,7 +101,17 @@ Current references changed: [02](contract/02-kernel-behavior-contract.md), the `
 
 **Verification.** With the names substituted, the comment-free esbuild emit of `seams.ts`, `kernel.ts` and `sortable/spec.ts` at `2f96cf3d4` equals `3edcd41b5`. No old name remains in `src`, `tests`, `bench`, `.scripts` or the README. The comment commit changes no comment-free emit of `seams.ts`, and all 15 `measured/` bundles are byte-identical to `3edcd41b5`. `just test` passes at both commits (78 files, 1494 passed, 68 skipped), and `just typecheck` and `just size` pass. `just lint` reports the same seven errors on `seams.ts` and `tests/sortable/sortable.browser.test.ts` as at `2f96cf3d4`; they were left as they are. Readability was not measured.
 
-**Next.** The owner reviews this batch, its refinement, this reduction and the driver batch, and decides the scope of the next batch. Work stops here until then.
+**Owner-approved execution plan, 2026-11-05.** The pilot has established enough examples to continue across the source. The owner approved three larger units instead of further batches for individual methods:
+
+1. **Source clarity across `src/`.** Starting from `0eb4a7524`, finish the remaining internal naming work, remove unnecessary comments and simplify the comments and JSDoc that remain. Review names at their call sites; longer names are not automatically clearer. Keep renames and prose edits in separate commits within one unit. Update directly affected current references. Preserve runtime behavior, API/SPI and runtime messages. Report disputed semantics and possible defects separately, leave those passages unchanged, and continue with independent clarity work. Do not remove unused code or migrate union types in this unit.
+2. **Named union variants.** Apply the type convention described below and add it to `CONTRIBUTING.md`, as a separate unit with its own declaration checks.
+3. **Agent instructions and future reports.** Apply the writing guide to the instructions named below, preserving their authority and obligations. Existing journals and review, decision and measurement records remain outside the language pass.
+
+The separate driver-batch review was not started. One independent cleanup review will cover that batch and the completed source unit together, from `2f96cf3d4`. Handle small wording findings together rather than starting a full review cycle for each phrase. Public-surface choices and behavioral questions still follow their existing ownership rules; they do not stop unrelated clarity work. Complete the applicable checks under [handoff.md](../../../.agents/docs/handoff.md) at the end of each unit; use cheaper identity checks during editing. No statistical performance rounds are added.
+
+Record the source unit's rename table, aggregate comment reduction, verification and unresolved questions briefly here. There is no deletion quota, and unchanged comments do not need individual justifications.
+
+**Next.** The implementer completes the remaining source clarity pass, then stops for the combined cleanup review. The type and instruction units follow separately.
 
 **Scope and order.**
 
