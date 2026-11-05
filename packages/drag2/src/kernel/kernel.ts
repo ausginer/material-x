@@ -163,14 +163,14 @@ type SettlementAttempt = {
    * **The one authoritative landing target, measured once.** The serial
    * authored commit guarantees the authored DOM is final before this is taken,
    * so there is no interval in which a target is provisional. This pair is
-   * where the drop ends, and the tail is the inverse of the delta between it
-   * and where the visual was.
+   * where the drop ends, and the landing animation travels the inverse of the
+   * delta between it and where the visual was.
    *
    * **`null` on the X carries the absence.** A skipped measurement is what
-   * tells the join to release without a tail, and the two coordinates are
-   * written and read as one act — so the sentinel sits on the first of them
-   * rather than in a third slot. It is `=== null` and never truthiness: `0` is
-   * an ordinary abscissa.
+   * tells the join to release without a landing animation, and the two
+   * coordinates are written and read as one act — so the sentinel sits on the
+   * first of them rather than in a third slot. It is `=== null` and never
+   * truthiness: `0` is an ordinary abscissa.
    */
   targetX: number | null;
   targetY: number;
@@ -253,13 +253,13 @@ type ActivationRecord = Readonly<{
   lift: VisualLiftSession;
   /**
    * The inverse of the linear part the visual inherited at grab, **retained
-   * for the join**. The tail is written on the visual after it is back in
-   * flow, so the delta it travels is a local one and this is what maps it:
+   * for the join**. The landing animation runs on the visual after it is back
+   * in flow, so the delta it travels is a local one and this is what maps it:
    * four numbers or `null`, read once at activation and never re-read.
    *
    * The item's space is deliberately not retained. Which element a translate
-   * is written on decides which space it is spent in, and the tail's element
-   * is the visual.
+   * is written on decides which space it applies in, and the landing
+   * animation's element is the visual.
    */
   visualSpace: InheritedSpace;
 }>;
@@ -420,8 +420,8 @@ function reportToSpec(
 
 /**
  * **The armed controller.** It owns the frame pair, the seam driver, the
- * operation and activation records, the attempt slots, the landing tail, the
- * click suppressor and steps 3–6 of teardown, and it runs every handler.
+ * operation and activation records, the attempt slots, the landing animation,
+ * the click suppressor and steps 3–6 of teardown, and it runs every handler.
  *
  * **Constructed complete, by construction's unit, and never reassigned.** The
  * spec, the frame pair, the driver, the bracket, the ingress signal, the seam
@@ -585,9 +585,9 @@ class ArmedController<Part extends object, Activation extends {}> {
    * A late resolution is inert after this: it validates against the slot it was
    * minted for, which is now empty.
    *
-   * **The landing tail is not one of these.** It is controller-scoped and
-   * outlives the operation deliberately — an interpolation that holds nothing
-   * has no reason to end when the operation does.
+   * **The landing animation is not one of these.** It is controller-scoped and
+   * can outlive the operation: it holds nothing, so it has no reason to end
+   * when the operation does.
    */
   #retireAttempts(): void {
     this.#attempts.command = null;
@@ -665,17 +665,18 @@ class ArmedController<Part extends object, Activation extends {}> {
   }
 
   /**
-   * The landing tail: an additive contribution to the released visual's
-   * `translate`, decaying to zero. `null` when nothing is in flight.
+   * The landing animation: an additive contribution to the released visual's
+   * `translate` that decays to zero. `null` means that no animation is in
+   * flight.
    *
    * **Controller-scoped, like the click suppressor, and for the same kind of
-   * reason.** The tail exists *after* the operation it belongs to has ended, so
-   * an operation-scoped slot would be cleared before the only thing that ever
-   * reads it.
+   * reason.** The animation exists *after* the operation it belongs to has
+   * ended, so an operation-scoped slot would be cleared before the only code
+   * that reads it.
    *
-   * **One slot, not a set.** Two tails can coexist in principle — drop one
-   * item, drag and drop a second, and the first may still be gliding — and
-   * keeping both would cost a keyed map and a removal path to preserve an
+   * **One slot, not a set.** Two landing animations can coexist in principle —
+   * drop one item, drag and drop a second, and the first may still be running —
+   * and keeping both would cost a keyed map and a removal path to preserve an
    * animation on an item the user has demonstrably stopped caring about.
    *
    * A finished animation is left in the slot rather than cleared through a
@@ -685,15 +686,15 @@ class ArmedController<Part extends object, Activation extends {}> {
   #landingAnimation: Animation | null = null;
 
   /**
-   * Ends the tail, if one is in flight.
+   * Ends the landing animation, if one is in flight.
    *
-   * **Cancel, not finish.** The contribution decays to zero, so cancelling it
-   * lands the visual exactly where flow puts it — there is no position to
-   * settle and nothing to restore.
+   * Use `cancel()`, not `finish()`. The contribution decays to zero, so
+   * cancelling it leaves the visual exactly where flow puts it. There is no
+   * position to settle and nothing to restore.
    *
    * `cancel` is a method on an object reachable from a consumer-owned element,
-   * so it is unwound rather than trusted: this runs inside activation and
-   * inside teardown, and both have a load-bearing next statement.
+   * so the call goes through `#unwind`. This method runs inside activation and
+   * inside teardown, and the next statement in both must run.
    */
   #cancelLandingAnimation(): void {
     const running = this.#landingAnimation;
@@ -707,9 +708,9 @@ class ArmedController<Part extends object, Activation extends {}> {
   }
 
   /**
-   * Physical teardown's share in this controller: steps 3–6, then the tail at
-   * step 7. Reached through the façade's teardown callback, which aborts
-   * ingress in its own `finally` once this returns or throws.
+   * Physical teardown's share in this controller: steps 3–6, then the landing
+   * animation at step 7. Reached through the façade's teardown callback, which
+   * aborts ingress in its own `finally` once this returns or throws.
    *
    * Totality is a property of the sequence *wherever it runs*, not of the stack
    * that requested closure: each attempt cleanup is individually wrapped in
@@ -721,8 +722,8 @@ class ArmedController<Part extends object, Activation extends {}> {
     try {
       this.#release();
     } finally {
-      // 7, this controller's half: no earlier step may leave a tail
-      //    interpolating on an element the controller has stopped owning.
+      // 7, this controller's half: no earlier step may leave a landing
+      //    animation running on an element the controller has stopped owning.
       this.#cancelLandingAnimation();
     }
   }
@@ -1297,10 +1298,11 @@ class ArmedController<Part extends object, Activation extends {}> {
   #acquireActivation(live: OperationRecord): ActivationScope | null {
     try {
       // **Before the origin measurement, and that ordering is the reason it is
-      // here rather than at admission.** Measuring a visual mid-tail is right —
-      // the drag should start from where the element *looks* — but a running
-      // animation outranks inline styles in the cascade, so the lift's own
-      // writes would compose with a contribution that is still decaying.
+      // here rather than at admission.** Measuring a visual during its landing
+      // animation is right — the drag should start from where the element
+      // *looks* — but a running animation outranks inline styles in the
+      // cascade, so the lift's own writes would compose with a contribution that
+      // is still decaying.
       //
       // A press that never crosses the threshold keeps whatever is in flight,
       // which is why this is not at `pointerdown`.
@@ -1365,8 +1367,8 @@ class ArmedController<Part extends object, Activation extends {}> {
         box: live.box,
         boxPre,
         // Read back from the record the join reads it from, for the same
-        // reason `originRect` is: the tail is spent in this space and must not
-        // be able to disagree with what the behavior was handed.
+        // reason `originRect` is: the landing animation applies in this space
+        // and must not be able to disagree with what the behavior was handed.
         visualSpace: activation.visualSpace,
         itemSpace,
         lift: session,
@@ -1465,14 +1467,15 @@ class ArmedController<Part extends object, Activation extends {}> {
    *
    * **Called once per settlement.** The serial authored commit guarantees the
    * authored DOM is final here, so there is no interval in which a target is
-   * provisional. A second, advisory call would read a stale target and the tail
-   * would travel the inverse of a delta nothing else agrees with, which is this
-   * bug class's signature: the landing opens with a jump and still ends
-   * correctly, because the release is what puts the visual in its place.
+   * provisional. A second, advisory call would read a stale target and the
+   * landing animation would travel the inverse of a delta nothing else agrees
+   * with, which is this bug class's signature: the landing opens with a jump and
+   * still ends correctly, because the release is what puts the visual in its
+   * place.
    *
-   * Called unconditionally, and it cannot be conditional: whether a tail
-   * follows is the behavior's own policy, and that policy is asked with the
-   * delta this measurement produces.
+   * Called unconditionally, and it cannot be conditional: whether a landing
+   * animation follows is the behavior's own policy, and that policy is asked
+   * with the delta this measurement produces.
    *
    * **Unclassified, not classified.** Failing the settlement for a measurement
    * throw tells a consumer whose reorder is already committed and accepted that
@@ -1501,9 +1504,10 @@ class ArmedController<Part extends object, Activation extends {}> {
     if (anchor === undefined) {
       // **Skipped, not faked.** `onError` has already been delivered by the
       // driver. `targetX` stays null, which is what tells the join to release
-      // without installing a tail. The settlement is **not** failed and the
-      // domain result stands — the DOM commit already happened and the reorder
-      // is real — so the operation joins immediately and terminates normally.
+      // without starting a landing animation. The settlement is **not** failed
+      // and the domain result stands — the DOM commit already happened and the
+      // reorder is real — so the operation joins immediately and terminates
+      // normally.
       //
       // A jump cut is honest. The alternative is worse: a detached placeholder
       // reads `0×0` at the viewport origin, so "landing from the unrepaired
@@ -1525,39 +1529,45 @@ class ArmedController<Part extends object, Activation extends {}> {
   }
 
   /**
-   * Starts the landing tail on the **released** visual: the residual
-   * displacement, decaying to zero.
+   * Starts the optional landing animation on the **released** visual. The
+   * animation reduces the residual displacement to zero. Call this after
+   * presentation is disposed.
    *
-   * **It claims nothing, which is the whole of why it may outlive the
-   * operation.** The animation has no fill, so it writes no inline style and is
-   * invisible to a consumer reading or setting one; it reverts by itself, so
-   * there is no cleanup obligation to place anywhere; one call cancels it to a
-   * settled state; and it dies with the element, so removal, reparenting and
-   * replacement need no handling.
+   * The animation may outlive the operation because it owns nothing:
+   * - It has no fill, so it writes no inline style and is invisible to a
+   *   consumer reading or setting one.
+   * - It reverts by itself, so no code has to clean it up.
+   * - One call cancels it to a settled state.
+   * - It ends with the element, so removal, reparenting and replacement need no
+   *   handling.
    *
-   * **The individual `translate` property, added rather than assigned.**
-   * `transform` would be wrong twice over: it *replaces* an authored
-   * `rotate(4deg)` for the duration, and it overrides a consumer's own running
-   * transform animation. Additive `transform` is wrong too — additive transform
-   * lists concatenate, so the offset would land inside the element's own
-   * `scale()` and move it by a multiple of a delta measured in viewport space.
+   * The animation adds to the individual `translate` property. Do not use
+   * `transform`:
+   * - A non-additive `transform` animation *replaces* an authored `rotate(4deg)`
+   *   for the duration, and it overrides a consumer's own running transform
+   *   animation.
+   * - Additive transform lists concatenate, so an additive `transform` would put
+   *   the offset inside the element's own `scale()`. The element would then move
+   *   by a multiple of a delta measured in viewport space.
+   *
    * `translate` applies *before* `transform` in the used-value chain
-   * (`translate → rotate → scale → transform`), so the offset sits outside the
-   * element's own transform and needs no correction; it is also
-   * origin-independent, where an inverse `transform` would have to correct for
-   * whatever `transform-origin` the visual was restored to.
+   * (`translate → rotate → scale → transform`), so the offset stays outside the
+   * element's own transform and needs no correction. It also does not depend on
+   * the origin. An inverse `transform` would have to correct for whatever
+   * `transform-origin` the visual was restored to.
    *
-   * **The one expression that changes units.** The endpoints are viewport
-   * deltas and a `translate` is a local quantity, so the vector is projected
-   * through the inverse of the space above the visual — captured at activation,
-   * which is the ancestry the released element returns to. It is deliberately
-   * not the session's own projection: that one is `null` for both lifted modes,
-   * correctly, because a `fixed` element's local space is viewport space, while
-   * the released element is in flow in every mode.
+   * One expression changes units. The endpoints are viewport deltas and a
+   * `translate` is a local quantity, so the vector is projected through `space`,
+   * the inverse of the space above the visual. `space` is captured at activation
+   * because the released element returns to that ancestry. Do not use the
+   * session's own projection. It is `null` for both lifted modes, correctly,
+   * because a `fixed` element's local space is viewport space, while the released
+   * element is in flow in every mode.
    *
-   * Visual continuity is best-effort and resource safety is not: an ancestry
-   * change during the tail sends it along the wrong path, and it still ends at
-   * a zero contribution, so the element lands exactly where flow puts it.
+   * Visual continuity is best-effort and resource safety is not. If the ancestry
+   * changes during the animation, the element takes the wrong path. The
+   * contribution still ends at zero, so the element ends exactly where flow puts
+   * it.
    */
   #startLandingAnimation(
     element: HTMLElement,
@@ -1578,10 +1588,11 @@ class ArmedController<Part extends object, Activation extends {}> {
       return; // the visual is already where the drop decided
     }
 
-    // Behavior code, and its own policy: it decides whether this drop has a
-    // journey worth interpolating and how long that takes. Unwound rather than
-    // classified, because a tail is presentation and a presentational fault may
-    // not reach a consumer whose drop has already been decided and reported.
+    // `landingTail` is behavior code, and its own policy: it decides whether
+    // this drop needs an animation and how long that takes. Unwound rather than
+    // classified, because a landing animation is presentation and a
+    // presentational fault may not reach a consumer whose drop has already been
+    // decided and reported.
     const timing = this.#unwind(() =>
       this.#spec.landingTail?.(
         this.#frames.current,
@@ -1623,19 +1634,20 @@ class ArmedController<Part extends object, Activation extends {}> {
   }
 
   /**
-   * Release presentation completely, then hand the rest to the tail.
+   * Release presentation completely, then start the landing animation.
    *
    * **The position is already decided and the join writes nothing.** Where the
    * drop ends is `attempt.targetX`/`.targetY`, measured once before the join;
-   * the visual reaches it by being **released into it**, in flow, and the tail
-   * carries the residual displacement to zero. A write here could only restate
-   * the position the release is about to produce, on an element whose inline
-   * `transform` the very next statement restores.
+   * the visual reaches it by being **released into it**, in flow, and the
+   * landing animation reduces the residual displacement to zero. A write here
+   * could only restate the position the release is about to produce, on an
+   * element whose inline `transform` the very next statement restores.
    *
-   * **Ordering is normative and it is what makes the tail sound.** The release
-   * gives the visual's inline styles, its place in flow and the behavior's own
-   * presentation back to the consumer; only then does anything interpolate. So
-   * the terminal callback runs in a world the library holds no claim on.
+   * **Ordering is normative and it is what makes the landing animation safe.**
+   * The release gives the visual's inline styles, its place in flow and the
+   * behavior's own presentation back to the consumer; only then does anything
+   * interpolate. So the terminal callback runs in a world the library holds no
+   * claim on.
    *
    * The release is in a `finally`: the join calls into code the kernel does not
    * own, and none of it may strand the placeholder or the inline styles.
@@ -1656,10 +1668,10 @@ class ArmedController<Part extends object, Activation extends {}> {
 
     try {
       // `rendered` is where the visual is — the delta the drag last wrote,
-      // which is what the tail has to start from, and which is not the
-      // pointer's for any behavior that constrains, clamps, snaps or drives its
-      // visual, nor for a pointerless operation. Nothing here overwrites it, so
-      // the read is free of ordering constraints.
+      // which is what the landing animation has to start from, and which is not
+      // the pointer's for any behavior that constrains, clamps, snaps or drives
+      // its visual, nor for a pointerless operation. Nothing here overwrites it,
+      // so the read is free of ordering constraints.
       ({ x: fromX, y: fromY } = session.rendered);
     } finally {
       // Unconditional. Nothing above it can throw today — the sample is a
@@ -1670,9 +1682,9 @@ class ArmedController<Part extends object, Activation extends {}> {
       owned.presentation.dispose();
     }
 
-    // **After the release and before the terminal.** After, because a tail
-    // installed while the visual is still lifted would interpolate a fixed,
-    // top-layer element and would then have to be released by something;
+    // **After the release and before the terminal.** After, because a landing
+    // animation started while the visual is still lifted would interpolate a
+    // fixed, top-layer element and would then have to be released by something;
     // before, because the consumer's terminal callback may remove the very
     // element this is about, and an animation started onto a removed node is a
     // no-op rather than a fault.
@@ -1685,9 +1697,9 @@ class ArmedController<Part extends object, Activation extends {}> {
       attempt.targetY,
     );
 
-    // The release and the tail policy are both foreign code, and a request
-    // either raises is applied after this unit: the terminal callback is this
-    // settlement's, and it runs.
+    // The release and the `landingTail` policy are both foreign code, and a
+    // request either raises is applied after this unit: the terminal callback is
+    // this settlement's, and it runs.
     this.#driver.runLeaf(() => {
       this.#spec.finalized(this.#frames.current);
     }, FAILURE_TERMINAL_CALLBACK);
@@ -1864,16 +1876,15 @@ class ArmedController<Part extends object, Activation extends {}> {
   // -------------------------------------------------------------------------
 
   /**
-   * The active-movement leaf, hoisted to **one** controller-stable closure.
+   * Calls `spec.moved`. The controller creates this callback once and reuses it.
    *
-   * **Wrapped, not detached**: the seam calls it with no receiver of its own,
-   * so a bare prototype read would arrive without one. A field rather than an
-   * arrow at the call site because inlining allocates a fresh closure on every
-   * active pointer sample — the one path whose allocations count — and the
-   * emitted bundle keeps the arrow rather than folding it away. The lift
-   * arrives as the leaf's argument, resolved by the `MOVE` unit's entry, and
-   * the swappable `current` frame is read at call time, so nothing is captured
-   * by value.
+   * It is a field, not an arrow at the call site, because an inline arrow
+   * allocates a new closure on every active pointer sample, the one path whose
+   * allocations count. The emitted bundle keeps that arrow. It is an arrow, not
+   * a prototype method, because the driver calls it without `this`.
+   *
+   * `#handleMove` passes the lift as the argument. The callback reads the
+   * swappable `current` frame when it runs, so nothing is captured by value.
    */
   readonly #callMoved = (lift: VisualLiftSession): void => {
     this.#spec.moved(this.#frames.current, lift);

@@ -15,9 +15,9 @@ Review identifiers and the comments that explain them together. A name can use c
 - Identify where a proposed change reaches: a private name, an internal member, a published API or SPI, consumer documentation, current contract text, or a runtime message. A name shared with a published member does not make every private rename a public change. Names for different roles, such as starting an animation and supplying its timing, need not be identical.
 - Preserve established technical terms such as `delta`, `vector`, `callback` and `transaction` when they are accurate. Explain how the concept applies rather than replacing its name with a less precise everyday word. For example, a viewport delta is a signed displacement; calling it a distance loses information. Registering a request and applying it are also different actions in this implementation.
 
-Initial examples, read from the current source:
+Initial examples, read from the source before the first batch. That batch implemented the `#startTail` and `#movedLeaf` rows, so those two names no longer exist in the source:
 
-| Current name | What it does | Candidate to evaluate |
+| Name before the first batch | What it does | Candidate to evaluate |
 | --- | --- | --- |
 | `#startTail` | Starts the optional animation that reduces remaining displacement after presentation is released | `#startLandingAnimation` |
 | `SeamDriver.runLeaf` | Runs a callback with the driver's failure handling; returns whether it succeeded | `runCallback` |
@@ -51,7 +51,7 @@ Look for recurring sentence patterns as well as individual words: “which is wh
 
 Fix an unclear name before adding a paragraph to explain it. Remove comments that only repeat the code or duplicate information already stated where readers need it. Preserve reasons that prevent a plausible mistake, ownership constraints, ordering requirements and caller preconditions.
 
-For example, an introduction to `#startTail` can become:
+For example, an introduction to the method that starts the landing animation can become:
 
 ```ts
 /**
