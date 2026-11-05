@@ -13,6 +13,11 @@
  * npx just profile         # build, then serve it at http://localhost:4180/
  * ```
  *
+ * **One build per page, with the page named by `PROFILE_PAGE`.** A multi-page
+ * build splits what its pages share into chunks, so one page loads three
+ * scripts and its code is grouped by what other pages import. Built alone, a
+ * page loads one script holding its own composition.
+ *
  * Output goes to the package's ignored `.vite/` directory rather than beside
  * the fixture, because `bench/**` is exempt from the repository's build-output
  * ignore rules and a `dist/` here would be committed.
@@ -32,10 +37,20 @@ const config: UserConfigFnObject = defineConfig(() =>
     ),
     build: {
       outDir: fileURLToPath(new URL('../../.vite/profile', import.meta.url)),
-      // Outside the fixture root, so Vite asks before clearing it.
-      emptyOutDir: true,
+      // `just profile-build` clears it once, before the first page.
+      emptyOutDir: false,
       sourcemap: true,
+      // The native preload is enough, and the polyfill is not the scenario's.
+      modulePreload: { polyfill: false },
+      rolldownOptions: {
+        input: fileURLToPath(
+          new URL(process.env['PROFILE_PAGE'] ?? 'index.html', import.meta.url),
+        ),
+      },
     },
+    // A mistyped URL has to fail. The default falls back to `index.html`, which
+    // would record the wrong scenario without saying so.
+    appType: 'mpa',
     // **`host` is not a convenience here.** Vite's default binds loopback
     // only, and in this container that resolves to `::1` alone — so the port
     // is unreachable over IPv4, which is what an editor's port forwarding and

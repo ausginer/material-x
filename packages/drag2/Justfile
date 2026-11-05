@@ -58,13 +58,15 @@ lint-fix *FILES:
 size *FLAGS: build
     node bench/size/measure.ts {{ FLAGS }}
 
-# Build the profiling fixture as a production bundle, with source maps
-# (`bench/profile`). Not a benchmark harness: a page to record in Chrome's
-# performance panel. Output lands in the ignored `.vite/profile`.
+# Build the profiling pages as production bundles, with source maps
+# (`bench/profile`). Not a benchmark harness: pages to record in Chrome's
+# performance panel. One build per page, so no page shares a bundle with another.
+# Output lands in the ignored `.vite/profile`.
 profile-build:
-    vite build -c bench/profile/vite.config.ts
+    rm -rf .vite/profile
+    for page in bench/profile/*.html; do PROFILE_PAGE="$(basename "$page")" vite build -c bench/profile/vite.config.ts; done
 
-# Build and serve that fixture at http://localhost:4180/ — `vite preview`, so
+# Build and serve those pages at http://localhost:4180/ — `vite preview`, so
 # what runs is the production bundle and no dev server is in the recording.
 profile: profile-build
     vite preview -c bench/profile/vite.config.ts
