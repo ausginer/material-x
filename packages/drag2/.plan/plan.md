@@ -20,6 +20,8 @@ A new workspace, **`packages/drag2`** (`@ydinjs/drag2`), built alongside the shi
 
 **Goal.** Make the code and agent reports easier to understand for developers whose first language is not English. Improve names before using comments to explain them, remove unnecessary commentary, then simplify the English that remains.
 
+**Pilot preparation, 2026-11-05.** PR #11 is merged, and the new branch is `drag2/terminology-ste`. The owner clarified two separate checks: translate the author's local model into familiar technical concepts in both names and comments, then remove English expressions that add unnecessary difficulty for non-native readers. The [agent brief](terminology-ste-brief.md) collects these checks and the discussion examples. It is a draft for the pilot, not an approved set of renames or a source migration.
+
 **Scope and order.**
 
 1. **Audit terminology and names, starting with a small kernel sample.** Check whether each important term is established platform vocabulary, a useful domain concept, or a local invention. Assess its meaning at call sites, consistency across names and comments, and whether it distinguishes something the implementation actually needs. Keep useful terms; propose clearer names for unexplained metaphors, conflicting terms and unnecessary synonyms. `startTail` and `runLeaf` are owner-supplied examples to assess, not approved renames. A glossary alone does not resolve an unclear name.
