@@ -255,10 +255,10 @@ class SortableBehavior {
      * makes it transaction-safe is not "seams do not currently re-enter" but a
      * stronger, enforced property:
      *
-     * 1. `runCore` is the only driver of this seam and always runs `prepare`
-     * before `effect`, and `prepare` **clears the slot on entry**. So a value
-     * can only ever be read by the effect of the very transaction whose prepare
-     * wrote it — there is no window in which one settlement's effect could
+     * 1. `runTransition` is the only driver of this seam and always runs
+     * `prepare` before `effect`, and `prepare` **clears the slot on entry**. So
+     * a value can only ever be read by the effect of the very transaction whose
+     * prepare wrote it — there is no window in which one settlement's effect could
      * observe another's failure.
      * 2. Every path that abandons a transaction between the two phases —
      * `prepare` throwing — skips the effect and therefore leaves the slot

@@ -3354,7 +3354,7 @@ describe('seam staging across whole operations', () => {
     release(90);
 
     // The second operation is what makes the first one's leftovers visible:
-    // its activation seam is the next `runCore` after the first settlement.
+    // its activation seam is the next `runTransition` after the first settlement.
     press(harness.items[1]!);
     move(40);
     release(40);

@@ -15,7 +15,7 @@ Review identifiers and the comments that explain them together. A name can use c
 - Identify where a proposed change reaches: a private name, an internal member, a published API or SPI, consumer documentation, current contract text, or a runtime message. A name shared with a published member does not make every private rename a public change. Names for different roles, such as starting an animation and supplying its timing, need not be identical.
 - Preserve established technical terms such as `delta`, `vector`, `callback` and `transaction` when they are accurate. Explain how the concept applies rather than replacing its name with a less precise everyday word. For example, a viewport delta is a signed displacement; calling it a distance loses information. Registering a request and applying it are also different actions in this implementation.
 
-Initial examples, read from the source before the first batch. That batch implemented the `#startTail` and `#movedLeaf` rows, so those two names no longer exist in the source:
+Initial examples, read from the source before the first batch. That batch implemented the `#startTail` and `#movedLeaf` rows. The driver batch renamed `runLeaf` to `runCallback` and `runLeafValue` to `runCallbackForValue`. None of these four old names exists in the source now:
 
 | Name before the first batch | What it does | Candidate to evaluate |
 | --- | --- | --- |
@@ -26,7 +26,7 @@ Initial examples, read from the source before the first batch. That batch implem
 
 These are discussion examples, not a replacement dictionary. In particular, evaluate the callback names as a family and check that their context makes the failure behavior clear enough.
 
-The [first pilot](reviews/terminology-ste-pilot.md) identifies related names and their reach. Its full rename map is not approved. `BehaviorSpec.landingTail` and `LandingTail` are published SPI, while the private method starts the animation. `runLeafValue` has no production caller in the pilot's source search; deciding whether to remove it is a separate cleanup task.
+The [first pilot](reviews/terminology-ste-pilot.md) identifies related names and their reach. Its full rename map is not approved. `BehaviorSpec.landingTail` and `LandingTail` are published SPI, while the private method starts the animation. `runCallbackForValue` has no production caller in the pilot's source search; deciding whether to remove it is a separate cleanup task.
 
 ## 2. Express the model in direct English
 

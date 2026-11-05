@@ -183,7 +183,7 @@ export class SeamDriver<Part extends object> {
 
   /**
    * The staged value of the last committed transition. Owned here rather than
-   * passed in, so no call path can skip the reset: passed in, a `runCore`
+   * passed in, so no call path can skip the reset: passed in, a `runTransition`
    * handed no slot would leave the previous seam's value readable.
    */
   #staged: unknown = null;
@@ -235,14 +235,14 @@ export class SeamDriver<Part extends object> {
    * classified at its own stage. An explicit `kernel.fail` narrows further from
    * the inside; this is only the default a raw throw lands on.
    */
-  runCore<Prepared extends {}, Capability>(
+  runTransition<Prepared extends {}, Capability>(
     transition: Transition<Part, Prepared, Capability>,
     capability: Capability,
     stage: FailureStage,
     phase: Phase | null = null,
     effectStage: FailureStage = stage,
   ): SeamOutcome {
-    // Not the same call as the one inside `#runPhase`, and not redundant with
+    // Not the same call as the one inside `#callAndHandleFailure`, and not redundant with
     // it: a transaction mutates kernel state *before* its first phase opens,
     // and `begin()` would rebuild the draft the outer seam is still building.
     // The refusal has to land before that, not after `begin()`.
@@ -259,7 +259,7 @@ export class SeamDriver<Part extends object> {
     this.#staged = null;
     this.#frames.begin();
 
-    const prepared = this.#runPhase(stage, () =>
+    const prepared = this.#callAndHandleFailure(stage, () =>
       transition.prepare(this.#frames.draft, capability),
     );
 
@@ -273,7 +273,7 @@ export class SeamDriver<Part extends object> {
 
     this.#frames.commit(phase);
 
-    const effected = this.#runPhase(effectStage, () =>
+    const effected = this.#callAndHandleFailure(effectStage, () =>
       transition.effect(this.#frames.current, prepared, capability),
     );
 
@@ -307,12 +307,12 @@ export class SeamDriver<Part extends object> {
    * one controller-stable `run` and still pass it what its unit resolved,
    * without a closure per call.
    */
-  runLeaf<Argument>(
+  runCallback<Argument>(
     run: (argument: Argument) => void,
     stage: FailureStage,
     argument?: Argument,
   ): boolean {
-    return this.#runPhase(stage, run, argument) !== FAILED;
+    return this.#callAndHandleFailure(stage, run, argument) !== FAILED;
   }
 
   /**
@@ -320,17 +320,17 @@ export class SeamDriver<Part extends object> {
    * `undefined` when it threw or latched a failure, which is why `Value` is
    * constrained to exclude `undefined`.
    */
-  runLeafValue<Value extends {}>(
+  runCallbackForValue<Value extends {}>(
     run: () => Value,
     stage: FailureStage,
   ): Value | undefined {
-    const value = this.#runPhase(stage, run);
+    const value = this.#callAndHandleFailure(stage, run);
 
     return value === FAILED ? undefined : value;
   }
 
   /**
-   * {@link SeamDriver.runLeafValue} on the **unclassified track**: the seam
+   * {@link SeamDriver.runCallbackForValue} on the **unclassified track**: the seam
    * still runs inside a phase — re-entry refused, `kernel.fail` latched, one
    * report per phase — but a failure reaches the consumer as a warning instead
    * of settling the operation.
@@ -342,13 +342,13 @@ export class SeamDriver<Part extends object> {
    * There is no stage argument: an unclassified failure names no stage, only a
    * `reason` the report carries.
    */
-  runUnclassifiedValue<Value extends {}>(
+  runCallbackWarningOnFailure<Value extends {}>(
     run: () => Value,
     reason: string,
   ): Value | undefined {
     this.#unclassifiedReason = reason;
 
-    const value = this.#runPhase(UNCLASSIFIED, run);
+    const value = this.#callAndHandleFailure(UNCLASSIFIED, run);
 
     return value === FAILED ? undefined : value;
   }
@@ -385,7 +385,7 @@ export class SeamDriver<Part extends object> {
    */
   requestFailure(stage: FailureStage, error: unknown): void {
     // **A latched failure and a throw are the same event on this path too.**
-    // The flag is what makes `#runPhase` return `FAILED` for a phase that
+    // The flag is what makes `#callAndHandleFailure` return `FAILED` for a phase that
     // latched without throwing, so the caller sees no target either way.
     if (this.#openStage === UNCLASSIFIED) {
       this.#failureRequested = true;
@@ -438,7 +438,7 @@ export class SeamDriver<Part extends object> {
    *
    * **What `#openStage` covers is the foreign-code window, and that is the
    * boundary this guard is for.** It is set as a phase opens and cleared before
-   * `#runPhase` classifies, so a phase opened from the classification path
+   * `#callAndHandleFailure` classifies, so a phase opened from the classification path
    * would not be refused. Read the sentinel as *is foreign code on the stack*,
    * which is where a nested call can originate; it is not a general nesting
    * interlock.
@@ -461,7 +461,7 @@ export class SeamDriver<Part extends object> {
    * frame — the swaps cancel — so that is not the reason to refuse.
    *
    * So the refusal **latches** rather than merely throwing, for the reason
-   * `#reentry` states. `#runPhase` rethrows past every classification on the
+   * `#reentry` states. `#callAndHandleFailure` rethrows past every classification on the
    * way out to reach the execution bracket's panic path, which is also what
    * makes behavior code that catches its own refusal panic anyway.
    */
@@ -492,7 +492,7 @@ export class SeamDriver<Part extends object> {
    * that classifies — a `throw` there would be caught by that very handler.
    * Hence the caught error is carried out as a value and re-examined below.
    */
-  #runPhase<Value, Argument>(
+  #callAndHandleFailure<Value, Argument>(
     stage: PhaseStage,
     run: (argument: Argument) => Value,
     argument?: Argument,
@@ -514,7 +514,7 @@ export class SeamDriver<Part extends object> {
     this.#openStage = NO_STAGE;
 
     if (this.#reentry) {
-      // Cleared on the way out: exactly one `runCore` on the stack got past the
+      // Cleared on the way out: exactly one `runTransition` on the stack got past the
       // guard, and it is the one that unlatches. The raised value is not
       // consulted (see `#reentry`).
       this.#reentry = false;
@@ -581,7 +581,7 @@ export function runActivationSeam<
   phase: Phase,
   policy: Readonly<{ retire(): void; committed(): void }>,
 ): SeamOutcome {
-  const outcome = driver.runCore(transition, capability, stage, phase);
+  const outcome = driver.runTransition(transition, capability, stage, phase);
 
   // Dropped **before** the policy runs, so nothing this seam triggers can read
   // the placeholder it staged. Activation's staged value is consumed by its own
@@ -615,7 +615,7 @@ export function runReleaseSeam<Part extends object, Prepared extends {}>(
   stage: FailureStage,
   committed: (prepared: Prepared) => void,
 ): SeamOutcome {
-  const outcome = driver.runCore(transition, undefined, stage);
+  const outcome = driver.runTransition(transition, undefined, stage);
   // Taken unconditionally: on any other outcome this clears whatever an earlier
   // seam left, and `committed` never sees it.
   const command = driver.consumeStaged();

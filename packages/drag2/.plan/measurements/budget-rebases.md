@@ -934,3 +934,23 @@ Administered as [`request-application-claude.md`](../reviews/architecture/reques
 **Not moved.** `vocabulary root - drag.js` stays at 142 and baseline B at 6,916. Neither graph contains `kernel/kernel.js`.
 
 **No ceiling moved, no control became a ceiling, and no interval is unattributed.** This commit changes only those five `control:` values in `bench/size/measure.ts`. All thirteen package rows stay under their ceilings, with composition recorded in [`d209-discarded-failures.md`](d209-discarded-failures.md).
+
+## Controls re-declared 2026-11-05, the driver method renames: five whole intervals attributed to one change, and no ceiling moved
+
+Exact figures from `just size`, with `drag2` rebuilt. No statistical round ran.
+
+| Control | Before, at `2f96cf3d4` | After, in this commit | Move |
+| --- | --: | --: | --: |
+| `free drag minimal` | 8,357 | **8,355** | −2 |
+| `free drag + bounds` | 8,592 | **8,595** | +3 |
+| `free drag + landing` | 8,516 | **8,517** | +1 |
+| `free drag complete` | 8,734 | **8,736** | +2 |
+| `kernel root - kernel.js` | 6,418 | **6,420** | +2 |
+
+**Before.** All seven controls passed at `2f96cf3d4`.
+
+**After.** The one named change is the rename of four non-private `SeamDriver` methods in this commit. These property keys are not mangled, so each of these five bundles grows by 73 B minified. `kernel/seams.js` and `kernel/kernel.js` are in each row's measured graph, and no dependency manifest or lockfile changed. With the names substituted, the comment-free esbuild emit of the changed source is byte-identical to `2f96cf3d4`. The whole interval is that one step.
+
+**Not moved.** `vocabulary root - drag.js` stays at 142 and baseline B at 6,916. Neither graph contains `kernel/seams.js`.
+
+**No ceiling moved, no control became a ceiling, and no interval is unattributed.** This commit changes only those five `control:` values in `bench/size/measure.ts`. Every row with a ceiling stays under it.

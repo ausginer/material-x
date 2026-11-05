@@ -1396,8 +1396,8 @@ class ArmedController<Part extends object, Activation extends {}> {
    *
    * **A release that cannot build one throws**, like every other seam. There is
    * no second return arm and no adapter between the two: the phase is already
-   * open at `FAILURE_RELEASE`, so `runPhase` catches the throw, calls
-   * `context.fail` with that stage and returns `SEAM_PREPARE_FAILED`. A
+   * open at `FAILURE_RELEASE`, so `callAndHandleFailure` catches the throw,
+   * calls `context.fail` with that stage and returns `SEAM_PREPARE_FAILED`. A
    * behavior wanting a *different* stage still has `fail`, which latches and
    * is on `BehaviorContext`.
    */
@@ -1478,7 +1478,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // `anchorTarget` is behavior code, and a cancel or destroy it raises is a
     // request: the settlement this unit opened completes, and the request is
     // applied after it.
-    const anchor = this.#driver.runUnclassifiedValue(
+    const anchor = this.#driver.runCallbackWarningOnFailure(
       () => this.#spec.anchorTarget(this.#frames.current),
       'drag: landing/target-unavailable',
     );
@@ -1665,7 +1665,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // The release and the `landingTail` policy are both foreign code, and a
     // request either raises is applied after this unit: the terminal callback is
     // this settlement's, and it runs.
-    this.#driver.runLeaf(() => {
+    this.#driver.runCallback(() => {
       this.#spec.finalized(this.#frames.current);
     }, FAILURE_TERMINAL_CALLBACK);
     // Queued unconditionally, and this entry is what retires: a
@@ -1704,7 +1704,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       targetY: 0,
     };
 
-    const outcome = this.#driver.runCore(
+    const outcome = this.#driver.runTransition(
       this.#settlementTransition,
       attempt,
       FAILURE_RESOLUTION,
@@ -1877,7 +1877,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     this.#frames.commit(null);
 
     if (phase === ACTIVE) {
-      this.#driver.runLeaf(
+      this.#driver.runCallback(
         this.#callMoved,
         FAILURE_RENDERER_WRITE,
         this.#activation!.lift,
@@ -2310,7 +2310,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     this.#reporting = true;
 
     try {
-      this.#driver.runCore(
+      this.#driver.runTransition(
         this.#settlementTransition,
         attempt,
         checkpoint.stage,
@@ -2405,7 +2405,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // the non-consequential channel — so a terminal that fails on the
       // failure path is reported without queueing a second checkpoint for an
       // operation this entry retires.
-      this.#driver.runLeaf(() => {
+      this.#driver.runCallback(() => {
         this.#spec.finalized(this.#frames.current);
       }, FAILURE_TERMINAL_CALLBACK);
     }
@@ -2421,7 +2421,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // Two stages, because the seam's phases fail differently: resolving an
       // insertion and moving the placeholder are not the same failure. An
       // explicit `fail` narrows further from the inside.
-      this.#driver.runCore(
+      this.#driver.runTransition(
         this.#actionTransition,
         undefined,
         FAILURE_ACTION_PREPARE,
