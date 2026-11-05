@@ -13,6 +13,8 @@
 
 **Disposed 2026-11-05** ([`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §35): RF-24, RF-25 and F-447 are closed. Two of this record's root failures are regressions against `main`, and the handoff is §35.9.
 
+**The regressions are repaired at `12cb95a93`** (see [the branch's regressions](#the-branchs-regressions-359)). The root run still exits 1 on failures `main` already has.
+
 **Two things need the reviewer's attention:** gate 5's reproduction used a one-sided delay after the symmetric one did not reproduce, and I read _whole suite_ as `packages/drag2`'s suite.
 
 ## The final reading
@@ -118,6 +120,78 @@ Each reading ran `consumer.node` and `size.node` together, with a scratch delay 
 
 **The `size.node` timeout was seen once and is not explained.** Its absence from later runs is no evidence that the repair fixed it.
 
+## The branch's regressions (§35.9)
+
+**2026-11-05. Input:** `f1451268b`. **`src/` tree:** `f6172d3be770c3f37ea0a1d723960ace05d61c9b`, unchanged. Evidence is in [`probes/verification-regressions/`](../probes/verification-regressions/).
+
+| Item | Commit | Result |
+| --- | --- | --- |
+| RF-26 | `45ccefa4b` | `assignGroupOrder` sets `extends: false` on every project |
+| RF-27 | `18f3e959f` | `vi.unmock` moved to the top level, and nothing else in the file changed |
+| RF-28 | `c95212956` | The setup provides a failure as a string, and `require-build.node.ts` raises it |
+| Tier C | `12cb95a93` | The row's refusal, the third config, the worker comment, `COVERAGE.md` and `.gitignore` |
+
+**No required reading failed, and no stop condition fired.** The only failures are `main`'s, listed below.
+
+**The option's shape.** `DRAG2_NODE_GLOBAL_SETUP` became `DRAG2_NODE_BUILD`, one `NodeProjectBuild` value holding both the global setup and the setup file. The factory takes only that value, so a config can't pass one without the other through it. `build-package.node.ts` is still the only place that builds.
+
+### Final runs
+
+A fresh worktree at `12cb95a93`, after `npm ci` and `nx run-many -t build` for every package, with no `.vite` directory.
+
+| Run | Files | Pass | Fail | Skipped | Of | `closed` lines | Reporter error or plugin notice |
+| --- | --: | --: | --: | --: | --: | --: | --: |
+| Root 1 | 161 of 163 | 2,644 | 2 | 68 | 2,714 | 8 | 0 |
+| Root 2 | 162 of 163 | 2,645 | 1 | 68 | 2,714 | 8 | 0 |
+| `drag2` 1 | 78 of 78 | 1,494 | 0 | 68 | 1,562 | none expected | 0 |
+| `drag2` 2 | 78 of 78 | 1,494 | 0 | 68 | 1,562 | none expected | 0 |
+
+**The eight lines are one per browser project, each at its own boundary.**
+
+**The remaining failures, all in §35.3's baseline set:**
+
+| Failure | Root 1 | Root 2 | Entry |
+| --- | --- | --- | --- |
+| `tproc` `TokenPackageProcessor` _should apply inheritance and render declarations_ | Failed | Failed | RF-29 |
+| `material-x` `radio.visual` _should match the selection state matrix_ | Failed | Passed | RF-29 |
+| `drag2` `size.node` slots row | Passed | Passed | RF-29 |
+| `drag2` M-5 _should report a difference that tracks…_ | Passed | Passed | F-412 |
+
+**These are not repaired, and nothing here permits merging with them open.** That question is §35.8's and the owner's. `DB/index.node` passes in both root runs, and `consumer.node`'s sourcemap row passes in all four, read as no failure naming it.
+
+**Built output and size are as stated above.** All 85 built files match the baseline hashes taken at `b046aff8a`, and all fifteen rows match `final.txt`'s table. All seven controls pass in the runs. No ceiling moved.
+
+### Scratch readings
+
+The same worktree, after the runs above. No commit carries the scratch edits.
+
+| Reading | Result |
+| --- | --- |
+| Syntax error in `src/drag.ts`, package config | 26 of 26 node files red, one `tsdown exited with 1`, output naming `src/drag.ts:67:16`, no `TypeError`, exit 1 |
+| The same, root config, with `node/vite-traits-plugin` | Its 52 rows pass, and `drag2`'s 26 files are red, exit 1 |
+| Builds, package config, node project | 1 |
+| Builds, root config, `node/drag2` | 1 |
+| Builds, third config, node project | 1 |
+| Builds, package config, one browser file | 0 |
+| Builds, package config, `--project shipped` | 0 |
+| Planted `kernel/zz-orphan.js`, package, root and third configs | The row fails in each, naming the file |
+| A config without the setup | The row fails: `expected undefined to be type of 'number'` |
+| `--reporter=dot`, `browser/core` and `browser/box-quad` | `closed browser/core` prints, after the dots |
+| `provider.close()` made to reject (added, for the handoff's _a real close failure stays loud_) | `Unhandled Reporter Error` naming the rejection, exit 1, with all 438 rows passing |
+| Root `just typecheck` | Exit 0, no `error TS` |
+| `docs.node`'s four rows | 4 pass |
+| TypeDoc on `./src/kernel.ts` alone | Exit 4 |
+
+**My first build-count reading was wrong and is discarded.** My scratch line put a raw newline into `tsdown.config.ts`, so every build failed and the log read 0. I repaired the line and repeated those five readings. The discarded lines are not in the evidence.
+
+### For the recheck
+
+- **Old attachment directories now show as untracked.** `.gitignore` no longer covers `.vitest-attachments`, as §35.7 directs, so a checkout holding one from before Vitest 5 lists it. The main checkout shows `packages/core/.vitest-attachments/` and `packages/material-x/.vitest-attachments/`, dated from earlier months. I left them in place and unstaged, so a `git add -A` there would sweep them in. A fresh worktree has none.
+- **`.vitest` was not observed as a directory on disk.** `radio.visual` failed in root 1 and `git status` stayed empty, but I did not check that this failure wrote attachments.
+- **`--project shipped` through the third config was not read.** §35.9 asks for it through the package config, which is what ran.
+- **Not repeated:** the limit RD-4 accepts, an unforeseen throw in the setup ending the run.
+- **RD-3 and RD-4's register text still says _handed off, not implemented_.** I left it for the architect.
+
 ## Limits
 
 - **Each reading ran on one machine, in Chromium.** No statistical round ran. Two clean runs do not show that F-447 cannot recur from some other cause, and the repair's claim is structural: within the node project, no test builds.
@@ -133,5 +207,8 @@ Each reading ran `consumer.node` and `size.node` together, with a scratch delay 
 | One fresh `reviewer` recheck, bounded to `c867a14d0..` and these readings | owner starts it | **Done** |
 | Closing RF-24, RF-25 and F-447 | architect | **Done, 2026-11-05** |
 | Whether the root suite's failures bear on the merge, and the reporter error | architect, then owner | **Decided at §35.3 and §35.8,** with one question left to the owner |
-| The branch's regressions against `main` | the implementer | §35.9, recorded here |
+| The branch's regressions against `main` | the implementer | **Done at `12cb95a93`,** recorded here |
+| One fresh `reviewer` recheck of that unit | owner starts it | §35.10 |
+| Closing RF-26, RF-27 and RF-28 | architect | After the recheck |
+| Merging with RF-29 and F-412 open, or repairing RF-29 first | owner | §35.8, not yet granted |
 | The merge | owner | §32.1's gate 6 |

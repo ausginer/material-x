@@ -1,0 +1,69 @@
+# Final readings, §35.9. Fresh worktree at 12cb95a93, npm ci, nx run-many -t build for every package, empty .vite. Chromium, one machine.
+npm ci exit 0
+nx build exit 0
+vite dirs after clear: 0
+root 1 exit 1
+root 2 exit 1
+drag2 1 exit 0
+drag2 2 exit 0
+built files differing: 0
+baseline entries: 85
+rows exit 0
+
+== root-1
+closed browser/material-x (chromium) (group 1) at boundary 1->2
+closed spec/material-x (chromium) (group 2) at boundary 2->3
+closed visual/material-x (chromium) (group 3) at boundary 3->4
+closed browser/core (chromium) (group 4) at boundary 4->5
+closed browser/box-quad (chromium) (group 5) at boundary 5->6
+closed browser/drag (chromium) (group 6) at boundary 6->7
+closed browser/drag2 (chromium) (group 7) at boundary 7->8
+closed shipped/drag2 (chromium) (group 8) at boundary 8->9
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render declarations
+ FAIL  |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts:45 > radio visual regression > should match the selection state matrix
+ Test Files  2 failed | 161 passed (163)
+      Tests  2 failed | 2644 passed | 68 skipped (2714)
+reporter error or plugin notice lines: 0
+
+== root-2
+closed browser/material-x (chromium) (group 1) at boundary 1->2
+closed spec/material-x (chromium) (group 2) at boundary 2->3
+closed visual/material-x (chromium) (group 3) at boundary 3->4
+closed browser/core (chromium) (group 4) at boundary 4->5
+closed browser/box-quad (chromium) (group 5) at boundary 5->6
+closed browser/drag (chromium) (group 6) at boundary 6->7
+closed browser/drag2 (chromium) (group 7) at boundary 7->8
+closed shipped/drag2 (chromium) (group 8) at boundary 8->9
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render declarations
+ Test Files  1 failed | 162 passed (163)
+      Tests  1 failed | 2645 passed | 68 skipped (2714)
+reporter error or plugin notice lines: 0
+
+== drag2-1
+ Test Files  78 passed (78)
+      Tests  1494 passed | 68 skipped (1562)
+reporter error or plugin notice lines: 0
+
+== drag2-2
+ Test Files  78 passed (78)
+      Tests  1494 passed | 68 skipped (1562)
+reporter error or plugin notice lines: 0
+
+== git status after the root runs, including a failing radio.visual: 0 lines; after the drag2 runs: 0 lines
+
+== measureAll: name | minified | brotli | modules | ceiling
+minimal | 33723 | 10329 | 33 | 10351
+minimal (xy) | 33080 | 10199 | 32 | 10244
+minimal + layoutAnimation | 34639 | 10651 | 34 | 10683
+xy + layoutAnimation | 33996 | 10517 | 33 | 10563
+minimal + landing | 34116 | 10483 | 35 | 10536
+complete | 35032 | 10791 | 36 | 10838
+free drag minimal | 27367 | 8357 | 27 | 8412
+free drag + bounds | 28011 | 8592 | 28 | 8645
+free drag + landing | 27760 | 8516 | 29 | 8587
+free drag complete | 28404 | 8734 | 30 | 8778
+both behaviors | 42572 | 12298 | 47 | 12359
+vocabulary root - drag.js | 252 | 142 | 2 | 205
+kernel root - kernel.js | 20337 | 6418 | 16 | 6470
+baseline A - feature-matched, non-composed | 34323 | 10620 | 31 | 10658
+baseline B - shipped @ydinjs/drag sortable.js | 22618 | 6916 | 26 | 7040
