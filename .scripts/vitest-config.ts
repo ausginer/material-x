@@ -143,6 +143,16 @@ type NodeTestProjectOptions = Readonly<{
   globalSetup?: readonly string[];
 }>;
 
+/**
+ * A build the node project needs before any of its files starts. One value so
+ * that no config can take the global setup without the setup file that raises
+ * its failure.
+ */
+type NodeProjectBuild = Readonly<{
+  globalSetup: readonly string[];
+  setupFiles: readonly string[];
+}>;
+
 type DeclarationTestProjectOptions = Readonly<{
   name: string;
   root: URL;
@@ -416,7 +426,7 @@ function createDragTestProjects(
   scope?: string,
   commands?: Record<string, BrowserCommand<any[]>>,
   shipped: readonly string[] = [],
-  nodeGlobalSetup: readonly string[] = [],
+  nodeBuild?: NodeProjectBuild,
 ): UserConfig[] {
   return [
     createDragBrowserTestProject(
@@ -452,7 +462,7 @@ function createDragTestProjects(
       name: scopedName('node', scope),
       root,
       include: ['tests/**/*.node.test.ts'],
-      globalSetup: nodeGlobalSetup,
+      ...nodeBuild,
     }),
   ];
 }
@@ -542,27 +552,24 @@ export const DRAG2_SHIPPED_BROWSER_TESTS: readonly string[] = [
  * drag2's node project builds once, before any of its files starts. Its emit
  * writes the package root, and the tree is not valid until the emit's hook has
  * finished, so no file in the project may build that tree or read it during one.
+ * A failed build goes to the setup file, which raises it in each of the project's
+ * files.
  */
-export const DRAG2_NODE_GLOBAL_SETUP: readonly string[] = [
-  'tests/support/build-package.node.ts',
-];
+export const DRAG2_NODE_BUILD: NodeProjectBuild = {
+  globalSetup: ['tests/support/build-package.node.ts'],
+  setupFiles: ['tests/support/require-build.node.ts'],
+};
 
 export function createDragTestConfig(
   root: URL,
   commands?: Record<string, BrowserCommand<any[]>>,
   shipped: readonly string[] = [],
-  nodeGlobalSetup: readonly string[] = [],
+  nodeBuild?: NodeProjectBuild,
 ): UserConfig {
   return {
     test: {
       projects: assignGroupOrder(
-        createDragTestProjects(
-          root,
-          undefined,
-          commands,
-          shipped,
-          nodeGlobalSetup,
-        ),
+        createDragTestProjects(root, undefined, commands, shipped, nodeBuild),
       ),
     },
   };
@@ -613,7 +620,7 @@ export function createWorkspaceTestConfig(
       'drag2',
       options.drag2Commands,
       DRAG2_SHIPPED_BROWSER_TESTS,
-      DRAG2_NODE_GLOBAL_SETUP,
+      DRAG2_NODE_BUILD,
     ) as [UserConfig, UserConfig, UserConfig, UserConfig];
   const [tprocNode] = createTprocTestProjects(options.tprocRoot, 'tproc');
   const [viteTraitsPluginNode] = createViteTraitsPluginTestProjects(

@@ -124,6 +124,8 @@ Before updating a screenshot, inspect: the active tproc profile; contract ID and
 
 **Every project the shared factory declares sets `extends: false`,** so a project's configuration is what the factory gave it and the config file is evaluated once. Since Vitest 5 an inline project otherwise re-evaluates the file that declares it, and each copy brings its own one-shot reporter.
 
+**A project's global setup does not throw for a failure it can foresee,** because Vitest ends the whole run for every project. It passes the failure to that project's files, which raise it, so one package's failed build leaves the others' results standing.
+
 **Test watch and VS Code Continuous Run are retired**, and so is `vitest --watch` in any form for tests. A rerun would arrive in a process that has already released its browsers, so the modes that depend on one are withdrawn by intent rather than left to fail quietly. A second run raises before any module executes:
 
 ```
