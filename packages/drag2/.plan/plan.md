@@ -47,7 +47,31 @@ The published `landingTail` and `LandingTail`, runtime messages, `delta` and the
 
 **Verification of the refinement.** Against `28736a843`: all 15 `measured/` bundles from `just size --files` are byte-identical, and the size report is unchanged, including the published declarations at 115605 B. The measured graphs include `kernel.ts`. The esbuild emit of `kernel.ts` with type stripping and whitespace minification is identical. `just test` passes (78 files, 1494 passed, 68 skipped), and `just typecheck` and `just lint src/kernel/kernel.ts` pass. Readability was not measured.
 
-**Next.** The owner reviews this batch and its refinement, and decides the scope of the next batch. Work stops here until then.
+**Comment reduction, 2026-11-05.** Input: `9b2cc4516`. Scope: comments in `src/kernel/kernel.ts` about the landing-animation flow and `#callMoved`. Executable code and names are unchanged. There was no quota; each comment was first judged as below, and only then rewritten.
+
+| Comment | Decision | What changed |
+| --- | --- | --- |
+| Two trailing comments on the `#startLandingAnimation` early returns | Removed | They repeated the condition. `targetX` documents the sentinel. |
+| `#retireAttempts`, landing animation paragraph | Removed here | The retirement rule moved to `#landingAnimation`, so one comment states the cancellation rules. |
+| `#cancelLandingAnimation`, first sentence; `#callMoved`, "Calls `spec.moved`" | Removed | They repeated the name. |
+| `#measureTarget`, "The message carries what such a stage would have said" | Removed | No edit depends on it. |
+| `targetX`, `visualSpace`, `#landingAnimation`, `#cancelLandingAnimation`, `#measureTarget` and its two inner comments, `#startLandingAnimation` and its two inner comments, `#joinSettlement` position paragraph and its `rendered` and `finally` comments, the `visualSpace` read-back, `#callMoved` | Shortened | Duplicate statements and restated code are gone. Reasons, constraints and order are kept, including the `translate` versus `transform` reasoning and the fallback warning for a detached placeholder. |
+| `#acquireActivation` cancel comment; `teardown` step 7; the `originRect` read-back; the `anchorTarget` and `animate` comments; the `#joinSettlement` order paragraph, `finally` sentence, "After the release" comment and foreign-code comment | Unchanged | Each is either already short or a disputed passage (`pilot-5`, `pilot-6`, and the question below). |
+
+`#measureTarget` now says "once per committed settlement", because its only call is behind `SEAM_COMMITTED`.
+
+| `kernel.ts` comments (adjacent line comments count as one) | Count | Lines | Characters | Words |
+| --- | --- | --- | --- | --- |
+| Whole file, before | 115 | 894 | 47894 | 7971 |
+| Whole file, after | 113 | 856 | 45618 | 7573 |
+| Edited comments, before | 14 | 165 | 8841 | 1487 |
+| Edited comments, after | 12 | 127 | 6565 | 1089 |
+
+**Verification of the reduction.** Against `9b2cc4516`: all 15 `measured/` bundles are byte-identical and the size report is unchanged, including the published declarations at 115605 B. Of the 135 package files compared, only `kernel/kernel.js` and `kernel/kernel.js.map` differ. The build keeps comments in `kernel/kernel.js`; without comments it is identical. The map differs because it carries the source. The esbuild emit of the source is identical. `just test` passes (78 files, 1494 passed, 68 skipped), and `just typecheck` and `just lint src/kernel/kernel.ts` pass. Readability was not measured.
+
+**Question from this batch, not repaired.** The `#acquireActivation` comment, and the same note in the test `should cancel the tail when the next drag acquires the visual`, say that measuring a visual during its landing animation is right, because the drag should start from where the element looks. The code cancels the animation first and then measures. A throwaway browser probe on a paused additive `translate` animation read `x` as 100 before `cancel()` and 0 after it, so the origin excludes the animation. Either the comment or the order is wrong; the comment keeps its text until the owner or architect decides. The probe covered the platform behavior and did not run through a controller.
+
+**Next.** The owner reviews this batch, its refinement and this reduction, and decides the scope of the next batch. Work stops here until then.
 
 **Scope and order.**
 
