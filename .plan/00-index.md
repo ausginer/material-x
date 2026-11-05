@@ -52,6 +52,30 @@ awk -v re="^#### RD-1( —|$)" \
 
 **Home when the work is taken:** a `.plan/` work directory of its own beside the others, holding the design for the image and the workflow. It is not created here, and nothing about the mechanism is designed here — this entry classifies the work and fixes its contract, and the unit that builds it is separate.
 
+#### RD-3 — Every project the shared factory declares sets `extends: false`
+
+**Decided 2026-11-05** ([`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §35.4). **Handed off, not implemented** (§35.9).
+
+**Since Vitest 5 an inline project extends the config file that declares it by default.** Each project then re-evaluates that file, and so `.scripts/vitest-one-shot.ts`. In a root run, whose top level carries the plugin, each project gains a reporter of a new class, and TE-D15's `instanceof` guard misses. The result is 17 reporters and 17 concurrent closes of one provider per boundary, which raises the reporter error RF-26 records.
+
+**The factory gives each project its whole configuration,** so a project has nothing to inherit. This restores what these projects do at Vitest 4, and it keeps TE-D15's _installation is idempotent_ and TE-D12's single release true without a second mechanism.
+
+**Refused:** guarding by class name or a global brand, and remembering closed providers, because both leave the re-evaluation and the inheritance in place. Catching the rejection in `release` is refused by TE-D12: a provider that really fails to close stays loud.
+
+**A Vitest upgrade re-reads this.** No row watches it. The reading is `MX_TEST_TEARDOWN_LOG=1` on a root run: one line per browser project at its boundary.
+
+#### RD-4 — A project's global setup hands a foreseeable failure to that project's files
+
+**Decided 2026-11-05** ([`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §35.6). **Handed off, not implemented** (§35.9).
+
+**A global setup does not throw for a failure it can foresee, such as a build failing. It provides the failure to its project, and a setup file in that project raises it.** That project's files go red with the failure's own message, and every other project's results stand.
+
+**Why.** Vitest awaits global setups outside the `try` around the pool, for every project in series, so a throw ends the run for all of them. At 5.0.5 it also reports _No test files found_ and loses its own message to a `TypeError`. `just test` exists to report the repository in one process. TE-D15's refusals end a run because the process's contract is broken, and one package's syntax error does not break it.
+
+**The whole project goes red rather than the files known to read the output,** so that no later reader can forget to check.
+
+**The limit is accepted.** A throw the setup cannot foresee, such as its own import failing, still ends the run with exit 1. A setup cannot catch that, and failing closed is enough.
+
 ## Findings
 
 **Allocated by the `test-execution-1` closure consolidation.** Twenty-two, spanning the full review chain: the four-pass Review Swarm consolidated at `e618e5677`, the focused supersession review at `c63269e5a`, the focused lifecycle/budget/formatter review at `30f6ff2e8`, and two derived at closure. Each row keeps its pass-local name so the artefact it came from stays citable, and its `TE-` name where the architecture record carries one.
@@ -154,11 +178,37 @@ Tier C. `integrity-3`, drag2's `d208-final` round, refused by that package's reg
 
 #### RF-24 — Two `.scripts/` compiler errors abort TypeDoc, so drag2's four `docs.node` rows see nothing
 
-Tier B: an instrument the repository relies on is blind. Reported as information by both passes of drag2's `d208-final` round, and registered by [`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §30.7. TypeDoc exits with code 3 on `.scripts/vitest-config.ts:181` and `.scripts/vitest-one-shot.ts:34` before it reaches the surface, so these rows are red and cannot detect an unresolved reference: _should resolve every reference a public type makes_ and the closure rows for the kernel, ordinary and free-drag tiers. Blame puts both lines before `6905af249`. With `--skipErrorChecking --treatWarningsAsErrors` all four configurations exit clean at drag2's `bd3613d5f`, which is one tree's reading, not a repair. **Open.** Required property: these rows report on the published surface. No package's decision waits for it, and a merge carries the red rows. **Dated 2026-11-04:** drag2's owner made this a gate before that branch's merge, after D-209's acceptance ([`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §32.1), so that merge no longer carries them. **Dated 2026-11-04:** handed off at §34.9 of the same record. Scratch readings there show the `browser.api` block is the trap: moving it to `test.api` as Vitest's deprecation notice says fails 21 CDP rows, and deleting it with an optional call on `browser.provider` makes the four rows pass.
+Tier B: an instrument the repository relies on is blind. Reported as information by both passes of drag2's `d208-final` round, and registered by [`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §30.7. TypeDoc exits with code 3 on `.scripts/vitest-config.ts:181` and `.scripts/vitest-one-shot.ts:34` before it reaches the surface, so these rows are red and cannot detect an unresolved reference: _should resolve every reference a public type makes_ and the closure rows for the kernel, ordinary and free-drag tiers. Blame puts both lines before `6905af249`. With `--skipErrorChecking --treatWarningsAsErrors` all four configurations exit clean at drag2's `bd3613d5f`, which is one tree's reading, not a repair. ~~**Open.**~~ **Closed 2026-11-05 at `1da64ed9c`** (see the end of this entry). Required property: these rows report on the published surface. No package's decision waits for it, and a merge carries the red rows. **Dated 2026-11-04:** drag2's owner made this a gate before that branch's merge, after D-209's acceptance ([`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §32.1), so that merge no longer carries them. **Dated 2026-11-04:** handed off at §34.9 of the same record. Scratch readings there show the `browser.api` block is the trap: moving it to `test.api` as Vitest's deprecation notice says fails 21 CDP rows, and deleting it with an optional call on `browser.provider` makes the four rows pass.
+
+**Closed 2026-11-05** (§35.2 of the same record). The block was dead, as read at both trees, and `browser.provider` is closed only if present. A fresh recheck showed each tier's row reddening alone on a leak in that tier, and TypeDoc's negative control exits 4. `.scripts/` compiles.
 
 #### RF-25 — `drag2`'s two React browser test files do not load, because `react` and `react-dom` resolve to different versions
 
 Tier B: a test instrument the package relies on does not run. Minted 2026-11-04 from drag2's owner's ordering ([`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §32.1). `tests/sortable/react.browser.test.ts` and `stories.browser.test.ts` fail to import. As `packages/drag2` resolves them, `react` is 19.3.1, through the root's `overrides`, and `react-dom` is 19.2.7, through the package's own pin. That reading is the only cause established, and no fix was tried. **Open.** Required property: both files load and run under one coherent React version. It is a gate before drag2's merge, after D-209's acceptance. **Dated 2026-11-04:** handed off at [`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §34.9. The cause is now read directly: the import throws _Incompatible React versions_. With one `react-dom` in a scratch tree, and the optimizer cache cleared, both files load and all 14 rows pass.
+
+**Closed 2026-11-05 at `b046aff8a`** (§35.2 of the same record). `drag2` pins both to 19.3.1, and both files load and run under one version. The nested `scheduler` left with the nested `react-dom`, which is the only other lockfile change.
+
+#### RF-26 — A root run installs 17 one-shot reporters and closes each provider 17 times per boundary
+
+Tier B: a run whose rows all pass exits 1. `reviewer-1`, [`verification-restored-recheck-claude.md`](../packages/drag2/.plan/reviews/fin-review2/verification-restored-recheck-claude.md), registered at [`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §35.4. **A regression against `main`,** where one close per boundary runs under Vitest 4.1.10. It enters with `01d88645f`, on `drag2/fin-review2`. The cause is read at RD-3. **Open, a gate before that branch's merge,** handed off at §35.9. Required property: a root run releases each provider once per boundary, and a real close failure stays loud.
+
+#### RF-27 — `tproc`'s `DB/index.node` test does not load under Vitest 5
+
+Tier B: a test that passes at `main` no longer runs. Found by the same recheck, registered at §35.5 of the same record. `vi.unmock` sits inside the `it`, which 4.1.10 warns about and 5.0.5 refuses. **A regression against `main`,** from `01d88645f`. **Open, a gate before that branch's merge,** handed off at §35.9. Required property: the file loads and its row passes.
+
+#### RF-28 — A failed `drag2` build misreports itself and stops every package in a root run
+
+Tier B: a build error names the wrong cause and hides unrelated results. `reviewer-2`, the same recheck, registered at §35.6 of the same record. **A regression against `main`, from F-447's repair at `39e32b58d`.** The run prints `No test files found` and a `TypeError`, and neither the build's output nor its failure appears. **Open, a gate before that branch's merge,** handed off at §35.9 under RD-4. Required property: a failed build names itself and carries its output, reddens its own project, and leaves every other project's results standing.
+
+#### RF-29 — The root run fails at `main` on rows nothing owns
+
+Tier B: `just test` cannot exit 0, so a clean root run is not something the repository can currently read. Registered 2026-11-05 at §35.3 of the same record. **Present at `main` at `bfd2832db`, not caused by `drag2/fin-review2`:**
+
+- **`tproc`, `TokenPackageProcessor` _should apply inheritance and render declarations_.** Every recorded run, and `test-execution-1`'s records call it pre-existing at `7aeaff260`. It expects `container.color` and receives only `state-layer.opacity`.
+- **`material-x`, `radio.visual` _should match the selection state matrix_, 29 pixels.** Intermittent, and it passes alone.
+- **`drag2`, `size.node` _should fill exactly the slots the assembler fills_, 5 s timeout.** Failed at `main` and at that branch's `c867a14d0`, and has not been seen since. Not explained.
+
+None has been looked into. **Open.** Required property: a root run on a clean tree can exit 0. **Whether these block that branch's merge is the owner's** (§35.8). `F-412` keeps its own row.
 
 ## Questions
 
@@ -166,4 +216,4 @@ Tier B: a test instrument the package relies on does not run. Minted 2026-11-04 
 
 `architect-test-execution-model-r4.md` §The local register carries forty-odd rows whose `Canonical` column reads `unassigned`. This closure assigns `RF-1`…`RF-22` over the findings a **review pass** produced, and stops there for a reason that is not arbitrary: `TE-D12`…`TE-D21` are decisions, and RD-1 keeps the kind letter separate precisely because **only the architect mints one**; `TE-F1`…`TE-F35` are the design and challenge passes' own findings, which no review pass owns and which a consolidator numbering them would be allocating on someone else's behalf.
 
-**What is owed** is one architect pass that mints `RD-` over the decision rows and `RF-` over the design-pass findings, continuing from the `RF-22` high-water mark this entry sets (**`RF-23`, `RF-24` and `RF-25` were minted separately 2026-11-04, so the next is `RF-26`**), and fills the `Canonical` column in that document's table. Until it is taken, a citation of any of those rows is document-local and resolves through the file rather than through `entry.ts`.
+**What is owed** is one architect pass that mints `RD-` over the decision rows and `RF-` over the design-pass findings, continuing from the `RF-22` high-water mark this entry sets (**`RF-23` to `RF-25` were minted separately 2026-11-04 and `RF-26` to `RF-29` 2026-11-05, so the next is `RF-30`**), and fills the `Canonical` column in that document's table. Until it is taken, a citation of any of those rows is document-local and resolves through the file rather than through `entry.ts`.

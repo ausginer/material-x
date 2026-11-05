@@ -1,0 +1,97 @@
+# Scratch readings on 2026-11-05 at 4c8aff2a6, private worktrees, Chromium, one machine. All scratch; no commit carries them.
+# Scratch diffs: combined.diff.txt. Paths under the scratch directory are shortened to <wt>.
+
+== root-extends: extends:false only, whole root, MX_TEST_TEARDOWN_LOG=1
+ Test Files  3 failed | 160 passed (163)
+      Tests  2 failed | 2643 passed | 68 skipped (2713)
+exit=1
+      1 closed browser/box-quad (chromium) (group 5) at boundary 5->6
+      1 closed browser/core (chromium) (group 4) at boundary 4->5
+      1 closed browser/drag (chromium) (group 6) at boundary 6->7
+      1 closed browser/drag2 (chromium) (group 7) at boundary 7->8
+      1 closed browser/material-x (chromium) (group 1) at boundary 1->2
+      1 closed shipped/drag2 (chromium) (group 8) at boundary 8->9
+      1 closed spec/material-x (chromium) (group 2) at boundary 2->3
+      1 closed visual/material-x (chromium) (group 3) at boundary 3->4
+reporter error or duplicate-plugin notice lines: 0
+ FAIL  |node/tproc| tests/DB/index.node.test.ts [ packages/tproc/tests/DB/index.node.test.ts ]
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render declarations
+ FAIL  |browser/drag2 (chromium)| tests/perf/m5.browser.test.ts:629 > M-5 arm A — falsifying the instrument > should report a difference t
+
+== root-extends-2: extends:false only, whole root, MX_TEST_TEARDOWN_LOG=1
+ Test Files  2 failed | 161 passed (163)
+      Tests  1 failed | 2644 passed | 68 skipped (2713)
+exit=1
+      1 closed browser/box-quad (chromium) (group 5) at boundary 5->6
+      1 closed browser/core (chromium) (group 4) at boundary 4->5
+      1 closed browser/drag (chromium) (group 6) at boundary 6->7
+      1 closed browser/drag2 (chromium) (group 7) at boundary 7->8
+      1 closed browser/material-x (chromium) (group 1) at boundary 1->2
+      1 closed shipped/drag2 (chromium) (group 8) at boundary 8->9
+      1 closed spec/material-x (chromium) (group 2) at boundary 2->3
+      1 closed visual/material-x (chromium) (group 3) at boundary 3->4
+reporter error or duplicate-plugin notice lines: 0
+ FAIL  |node/tproc| tests/DB/index.node.test.ts [ packages/tproc/tests/DB/index.node.test.ts ]
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render declarations
+
+== root-extends-3: extends:false only, whole root, MX_TEST_TEARDOWN_LOG=1
+ Test Files  2 failed | 161 passed (163)
+      Tests  1 failed | 2644 passed | 68 skipped (2713)
+exit=1
+      1 closed browser/box-quad (chromium) (group 5) at boundary 5->6
+      1 closed browser/core (chromium) (group 4) at boundary 4->5
+      1 closed browser/drag (chromium) (group 6) at boundary 6->7
+      1 closed browser/drag2 (chromium) (group 7) at boundary 7->8
+      1 closed browser/material-x (chromium) (group 1) at boundary 1->2
+      1 closed shipped/drag2 (chromium) (group 8) at boundary 8->9
+      1 closed spec/material-x (chromium) (group 2) at boundary 2->3
+      1 closed visual/material-x (chromium) (group 3) at boundary 3->4
+reporter error or duplicate-plugin notice lines: 0
+ FAIL  |node/tproc| tests/DB/index.node.test.ts [ packages/tproc/tests/DB/index.node.test.ts ]
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render declarations
+
+== root-combined: the whole combined diff, whole root, empty .vite
+ Test Files  2 failed | 161 passed (163)
+      Tests  2 failed | 2644 passed | 68 skipped (2714)
+closed lines: 8
+reporter error or duplicate-plugin notice lines: 0
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render declarations
+ FAIL  |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts:45 > radio visual regression > should match the selection sta
+
+== pkg-combined: the whole combined diff, packages/drag2's own config
+ Test Files  78 passed (78)
+      Tests  1494 passed | 68 skipped (1562)
+
+== failed build, syntax error in src/drag.ts, package config, --project node
+ Test Files  26 failed (26)
+      Tests  no tests
+exit=1
+'tsdown exited' lines: 1; FAIL lines: 26; charCodeAt lines: 0
+61:Error: tsdown exited with 1
+62-ℹ tsdown v0.23.2 powered by rolldown v1.2.15
+72:    ╭─[ src/drag.ts:67:23 ]
+
+== failed build, same error, root config, node/drag2 and node/vite-traits-plugin
+ Test Files  26 failed | 6 passed (32)
+      Tests  52 passed (52)
+exit=1
+'tsdown exited' lines: 1; charCodeAt lines: 0
+
+== plain throw from the setup (the accepted limit), root config, same two projects
+No test files found, exiting with code 1
+TypeError: code.charCodeAt is not a function
+exit=1
+'plain setup failure' lines: 0
+
+== typecheck with the typed form: exit 0, error TS lines 0
+== dot reporter, browser/box-quad and browser/core: closed line count 1
+closed browser/core (chromium) (group 4) at boundary 4->5
+ Test Files  27 passed (27)
+      Tests  438 passed (438)
+
+== main bfd2832db, tproc's own config, Vitest 4.1.10
+ RUN  v4.1.10 <wt>/main/packages/tproc
+Warning: A vi.unmock("../../src/DB/index.ts") call in "<wt>/main/packages/tproc/tests/DB/index.node.test.ts" is not at the top level of the 
+ FAIL  |node| tests/TokenPackageProcessor.node.test.ts:75:3 > TokenPackageProcessor > should apply inheritance and render declarations
+ Test Files  1 failed | 11 passed (12)
+      Tests  1 failed | 70 passed (71)

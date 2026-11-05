@@ -3004,7 +3004,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 - **A and a3 are not extended.** Retained heap A, allocation a3 and the owner's acceptance of 2026-11-04 stay on tree `626180a058af7374a68c5544fefc4111eec6003c`, so the accepted tree is not the measured tree. No statistical round ran or is owed. This acceptance says nothing about regression, cost, A or a3 on this tree.
 - **One limit stays unverified.** By reading, a kernel-tier seam that fails and then synchronously rejects the round-trip's thenable in one interval would queue `[FAILED, RESOLUTION_SETTLED]`, and the rejection would carry the cancel's code. The fault is delivered and its label is wrong. Property 1's _whichever request superseded it_ holds subject to that. It was not driven, no row reaches it, and no guard is owed (record §33.14).
 - **Lint:** the owner's suppression at `cfed5f9da` clears the one standing error on `prepareSettlement`, and record §33.11's _none_ holds at this tree (record §34.2).
-- **Not closed:** RF-24, RF-25 and F-447, which are gates before the merge (record §34.9). The suite is not clean until they land.
+- **Not closed:** RF-24, RF-25 and F-447, which are gates before the merge (record §34.9). The suite is not clean until they land. **Dated 2026-11-05:** all three are closed, and the branch's regressions against `main` are the remaining gate (record §35).
 
 **Decided 2026-11-04, on D-208's final proof** (reviewer-1; F-446). Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §30. **A failure checkpoint that destruction discards still reports its fault.** A classified failure carries a claim on the operation and a fault (record §2.10). Destruction's priority discards the claim, as record §2.4, §2.7 and I-22 state. It does not discard the fault.
 
@@ -5900,7 +5900,7 @@ No acceptance is reopened. Earlier figures stand as measured.
 
 **Closed 2026-11-04 with D-209's acceptance (record §34),** at src tree `f6172d3be`. A failure checkpoint or rejected settlement that destruction discards reports once, before application, and its fault no longer vanishes. This entry's present tense describes the tree it was raised on.
 
-#### F-447 — `consumer.node`'s sourcemap row can read declarations another test's build has not stripped yet · open, tier C
+#### F-447 — `consumer.node`'s sourcemap row can read declarations another test's build has not stripped yet · closed 2026-11-05 at `39e32b58d`, on its structural property, with the recorded failures' cause not established
 
 **Raised 2026-11-04 at D-208's acceptance.** Record [`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §31.2, under §30.7's rule that a recurrence is a finding.
 
@@ -5915,6 +5915,14 @@ No acceptance is reopened. Earlier figures stand as measured.
 **Owner and deadline.** The architect hands it off as its own test-only unit, before Phase 24 exits. It is not D-208's, and it does not block D-208's acceptance. **Dated 2026-11-04 (record §32.1):** booked as a gate before the merge, after D-209's acceptance.
 
 **Dated 2026-11-04 (record §34.8, §34.9):** it recurred at `cfed5f9da`, with 32 entries, in the D-209 recheck's whole-suite run. That is its third recorded failure, and it stays open. This acceptance's three whole-suite runs did not show it, which excludes nothing. It is handed off at record §34.9.
+
+**Closed 2026-11-05 (record §35.2).** `39e32b58d` builds once in the node project's global setup, so within that project no test builds, and no other test's build can write the tree the row packs. A `just build` run by hand still can.
+
+- **The mechanism is demonstrated.** With one build delayed, the tree went from 0 to 32 unstripped declarations during the pack and the row reddened with 32 entries, only when `consumer.node` emitted first. A delay on both builds cannot show this, because the first strip walks the whole tree, so §34.9's _the cause is excluded_ was wrong. The one-sided form discharges that step.
+- **The cause of the three recorded failures is not established.** None was observed in the act, and no delay-free run has reddened the row. _Inferred and not isolated_ stays accurate.
+- **Closure rests on the structure.** Clean runs add little, since the row passed on most runs before the repair.
+- **A recurrence after this tree is a new finding with another cause,** citing this one. Moving the build out of the setup reopens this one.
+- **The repair introduced RF-28 in the repository's register,** and an unreachable vacuous path through `bench/shipped/vitest.config.ts`. Both are repaired at record §35.9, and neither touches this property.
 
 #### F-448 — a rejected settlement a cancel supersedes leaves no report of its fault · closed 2026-11-04 with D-209's acceptance
 

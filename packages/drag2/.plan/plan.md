@@ -2317,6 +2317,18 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-05 — RF-24, RF-25 and F-447 closed, and the branch's regressions against `main` handed off before the merge
+
+**Closed.** RF-24 and RF-25 on their properties. F-447 on its structural one: within the node project no test builds. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §35.2. The delayed reproduction demonstrates the overlap as a mechanism, and it does not establish the cause of the three recorded failures. §34.9's _the cause is excluded_ was wrong, and it is corrected there.
+
+**The baseline moved to `main`.** The upgrade to Vitest 5 is on this branch, so a failure at the unit's input can still be the branch's. Three are: a root run closes each provider 17 times per boundary (RF-26), `tproc`'s `DB/index.node` does not load (RF-27), and a failed build misreports itself and stops every package (RF-28). `main`'s own failures are RF-29.
+
+**Decided.** RD-3: the factory's projects set `extends: false`, which removes the 17 reporters at their cause. RD-4: a global setup hands a foreseeable failure to its project's files. Scratch readings hold for both, and no `src/` line or size row moves.
+
+**Next** is record §35.9, then one bounded recheck. **After that `just test` still exits 1 on `main`'s failures, so merging is an exception this record does not grant.** It is the owner's (§35.8). Terminology, comment reduction and compression stay separate and after the merge.
+
+---
+
 ### 2026-11-04 — D-209 accepted at src tree `f6172d3be`, with F-446 and F-448 closed, and verification's restoration handed off
 
 **D-209 is implemented.** Its row and marker are gone, and F-446 and F-448 are closed. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §34. The diff, member lists, declarations, N1 and the whole suite were rerun at the tip. No source changed, and no review round or statistical measurement ran.

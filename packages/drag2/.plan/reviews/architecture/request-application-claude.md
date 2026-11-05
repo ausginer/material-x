@@ -1,5 +1,7 @@
 # Requests and their application: request/effect separation for drag2's execution units
 
+**RF-24, RF-25 and F-447 closed 2026-11-05, over `4c8aff2a6` (§35).** F-447 closes on its structural property, and the cause of its three recorded failures stays unestablished. The recheck's regressions against `main` are RF-26, RF-27 and RF-28, decided by RD-3 and RD-4 and handed off at §35.9. They gate the merge. `main`'s own failures are RF-29, and whether to merge while `just test` exits 1 on them is the owner's (§35.8).
+
 **D-209 accepted 2026-11-04, over `dd4023c0d` (§34), at src tree `f6172d3be`.** Its row and marker are gone, and F-446 and F-448 are closed. A and a3 stay on tree `626180a05`, and the kernel-tier wrong-label limit stays not driven. RF-24, RF-25 and F-447 are handed off at §34.9 and stay gates before the merge, and the suite is not clean until they land.
 
 **D-208 accepted as a whole decision 2026-11-04, over `a3a7da0e8` (§31), at src tree `626180a05`.** Its row and marker are gone, and F-432 to F-435 and F-441 are closed. The outcome stays: _retained heap A; allocation a3; no regression demonstrated and none excluded; the remaining uncertainty accepted by the owner, 2026-11-04._ R33 (j) is corrected to free drag only, because sortable has no `onMove` slot. D-209 and F-446 stay open and separate. The `consumer.node` row §30.7 named recurred once, which F-447 carries, and it does not bear on D-208. The merge is the owner's, with the conditions in §31.6.
@@ -4602,10 +4604,11 @@ D-208 is implemented, and §30.11's rows for the remediation and this acceptance
 | --: | --- | --- | --- |
 | 1 | D-209 implemented | implementer | done: §32.5 to §32.8, §33.8 to §33.11 |
 | 2 | D-209 accepted, F-446 closed | architect | done: §34, with F-448 |
-| 3 | The four `docs.node` rows report on the published surface, and the two `.scripts/` errors are gone (RF-24) | architect's handoff, then the implementer | handed off: §34.9 |
-| 4 | `react.browser` and `stories.browser` load (RF-25) | architect's handoff, then the implementer | handed off: §34.9 |
-| 5 | `consumer.node`'s sourcemap row cannot redden a clean tree (F-447) | architect's handoff, then the implementer | handed off: §34.9 |
-| 6 | The merge | owner | after gates 3 to 5 |
+| 3 | The four `docs.node` rows report on the published surface, and the two `.scripts/` errors are gone (RF-24) | architect's handoff, then the implementer | done: §35.2 |
+| 4 | `react.browser` and `stories.browser` load (RF-25) | architect's handoff, then the implementer | done: §35.2 |
+| 5 | `consumer.node`'s sourcemap row cannot redden a clean tree (F-447) | architect's handoff, then the implementer | done: §35.2 |
+| 5a | No failure in a root run that `main` does not have (RF-26, RF-27, RF-28 and §35.7's items). Added 2026-11-05 | architect's handoff, then the implementer | handed off: §35.9 |
+| 6 | The merge | owner | after gates 3 to 5a, and the owner's answer at §35.8 |
 
 **Gate 5 is my reading of _failing verification infrastructure_.** F-447 can redden the very run that gates 3 and 4 are read from, so I booked it. The owner can take it out.
 
@@ -5294,7 +5297,7 @@ One private worktree at the input, once each, in Chromium. The baseline's declar
 **Gate 5, F-447. Required property:** the row's verdict depends only on the build it made, and no other test's build can write the tree it packs.
 
 - **What is known.** Two files build into the package root: `tests/consumer.node.test.ts:1316` and `tests/bench/size.node.test.ts:60`. `outDir` is `.`, and a build leaves 32 declarations unstripped until `build:done`. `packaging.node` also reads that tree.
-- **First, reproduce or exclude the overlap.** Widen the window with a scratch delay at the start of `tsdown.config.ts`'s `build:done`, and run the two files together. **If the row does not redden with 32 entries, the cause is excluded. Stop at the architect,** and do not land a repair for it.
+- **First, reproduce or exclude the overlap.** Widen the window with a scratch delay at the start of `tsdown.config.ts`'s `build:done`, and run the two files together. **If the row does not redden with 32 entries, the cause is excluded. Stop at the architect,** and do not land a repair for it. **Corrected 2026-11-05 (§35.2):** a delay on both builds cannot redden the row, so _the cause is excluded_ did not follow. The one-sided form discharges this step, and the cause of the recorded failures stays unestablished.
 - **The recommended repair:** one build per project run, in a project-level `globalSetup` before any file starts, with neither file building. That also covers `packaging.node`'s reads, which a lock around the two builders would not. Check that `should measure a graph built from nothing but this build` still means what it says. If a row needs its own build, keep the property and say why.
 - **The witness:** with the same delay, the row stays green. Keep the delay out of the commit.
 
@@ -5329,9 +5332,278 @@ One private worktree at the input, once each, in Chromium. The baseline's declar
 
 | Item | Owner | Required action | Deadline |
 | --- | --- | --- | --- |
-| RF-24, RF-25, F-447 | the implementer | §34.9 | before the merge |
-| The recheck of that unit | owner starts a fresh `reviewer` | §34.9 | after its record |
-| Closing them | architect | §34.9 | after the recheck |
+| RF-24, RF-25, F-447 | the implementer | §34.9. **Done, and closed 2026-11-05 (§35.2)** | before the merge |
+| The recheck of that unit | owner starts a fresh `reviewer` | §34.9. **Done** | after its record |
+| Closing them | architect | §34.9. **Done** | after the recheck |
+| The merge | owner | §32.1's gate 6. **Now after §35.12** | after those |
+| integrity-4, F-442, F-443 and O-15, F-445, RF-23, D-200's independent acceptance, Reviewer-E | as §31.9 | unchanged | unchanged |
+| The terminology phase, comment reduction, the compression pass, `ActionQueue.apply`'s stop branch, and the 22 B of slack on `minimal` | as `plan.md` states | separate | after the merge |
+
+## 35. RF-24, RF-25 and F-447 closed, the branch's regressions against `main` separated from `main`'s own failures, and the handoff before the merge (RF-24, RF-25, F-447, RD-3, RD-4, RF-26, RF-27, RF-28, RF-29)
+
+**2026-11-05. Input:** `4c8aff2a6` on `drag2/fin-review2`. **Recheck:** [`verification-restored-recheck-claude.md`](../fin-review2/verification-restored-recheck-claude.md). **Record:** [`verification-restored.md`](../../measurements/verification-restored.md). **Baselines:** `main` at `bfd2832db` for integration, `c867a14d0` for the unit. **`src/` tree:** `f6172d3be770c3f37ea0a1d723960ace05d61c9b`.
+
+Nothing is implemented or merged, and no statistical round ran. D-208 and D-209 are not reopened. Scratch readings are in [`probes/verification-disposition/`](../../probes/verification-disposition/).
+
+**Decided, in short:**
+
+- **RF-24, RF-25 and F-447 are closed** (§35.2). F-447 closes on its structural property. The cause of its three recorded failures stays unestablished.
+- **Occurring at the unit's input does not make a failure standing.** The two regressions the recheck found come in with this branch's upgrade to Vitest 5, and they are gates (§35.3).
+- **RD-3:** the factory's projects do not extend their declaring config, which removes the 17 closes at their cause (§35.4).
+- **RD-4:** a project's global setup reports a failed build through that project's files and does not end a run other packages share (§35.6).
+- **One implementer unit repairs everything the branch introduced** (§35.9), then one bounded recheck (§35.10).
+- **After that, `just test` still exits 1 on failures `main` already has.** Whether to merge that way is the owner's (§35.8). This record grants no exception.
+
+**The recheck's five findings:**
+
+| Local id | Disposition | Where |
+| --- | --- | --- |
+| reviewer-1, 17 closes | RF-26, repaired under RD-3, with its required property narrowed | §35.4 |
+| reviewer-2, a failed build | RF-28, repaired under RD-4 | §35.6 |
+| reviewer-3, §34.9's stop | Ruled: the step is discharged, the clause was wrong, and the implementer should have stopped | §35.2 |
+| reviewer-4, the third config | Repaired in the handoff, no new id | §35.7 |
+| reviewer-5, two statements | Repaired in the handoff, no new id. The worker bound's value stays | §35.7 |
+
+### 35.1 What was retrieved first
+
+The shared lifecycle has decisions, so these were read before anything was proposed: [`architect-test-execution-model-r4.md`](../../../../../.plan/test-execution-1/architect-test-execution-model-r4.md)'s TE-D12, TE-D14, TE-D15, TE-F25, TE-F33 and TE-F34, [`test-architecture.md`](../../../../../.agents/docs/test-architecture.md) §Run lifecycle, and `repo:RD-1` and `repo:RD-2`.
+
+**What they bind here:**
+
+- **TE-D15:** one reporter, installed idempotently from `configureVitest`. A reporter throw is a deliberate refusal when the process's contract is broken.
+- **TE-D12:** the primitive is `provider.close()` then `$close()`, and _a teardown failure is distinguishable, not merely present_. A real close failure must stay loud, so swallowing it is not available.
+- **TE-F33:** a provider tolerates a second close. That was measured with the second close arriving after the first had finished, not beside it.
+- **TE-F34:** the non-browser group's bound rests on contention, measured when test files built.
+- **Nothing decides what a project's global setup does when it fails.** No project had one before `39e32b58d`. That gap is RD-4.
+
+### 35.2 The three closures
+
+**RF-24 closes, at `1da64ed9c`.** Its property holds: the four rows report on the published surface and `.scripts/` compiles. The recheck shows each tier's row reddening alone on a leak in that tier, and it observed the block's deadness directly at both trees.
+
+**RF-25 closes, at `b046aff8a`.** Both files load and run under one version. The nested `scheduler`'s removal follows from removing the nested `react-dom`, as the recheck establishes, so §34.9's _confined to those two packages_ holds with that one stated consequence.
+
+**F-447 closes, at `39e32b58d`, on its structural property.** Within the node project no test builds, so no other test's build can write the tree `consumer.node` packs. A `just build` run by hand still can. Neither reviewer-2 nor reviewer-4 touches that property: the first is about what a failed build reports, and the second is about a config no route runs. Both are repaired below, and §35.9 forbids moving the build out of the setup. **A recurrence of the row after this tree is a new finding with another cause,** citing F-447.
+
+**The asymmetric delay, and what it is evidence of.**
+
+- **§34.9's clause was wrong, and it was mine.** I wrote that a row not reddening under a delay at that site means _the cause is excluded_. A delay applied to both builds cannot redden it, because the first strip walks the whole tree and removes the second build's references too. Had the unit stopped and I had accepted the clause as written, I would have recorded a false exclusion.
+- **The one-sided form discharges §34.9's first step,** which was to reproduce or exclude the overlap. It meets the site, the two files and the 32-entry criterion. The evidence I rely on is the recheck's schedule table: a red row with the tree going from 0 to 32 unstripped declarations during the pack, reddening only when `consumer.node` emits first.
+- **The implementer should still have stopped.** On its plain reading the condition fired, and lifting a stop is the architect's call. The disclosure is why this costs no rework, not a reason to do it again. A stop that looks wrong is reported at the stop.
+
+**What is demonstrated, and what is not. These stay separate in every record:**
+
+| Claim | Status |
+| --- | --- |
+| A pack overlapping another file's unstripped emit reddens the row with 32 entries | **Demonstrated, with an injected delay** |
+| The state is reachable with no delay | Observed once: 32 unstripped as `consumer.node` was about to pack |
+| A delay-free run reddens the row | **Not reached,** in one run and eight offsets, and in F-447's earlier attempt |
+| The three recorded failures had this cause | **Not established.** They fit it, none was observed in the act, and they do not exclude another cause |
+
+**Closure rests on the structure, not on clean runs.** The row passed on most runs before the repair too, so the clean runs add little.
+
+### 35.3 The failures, against `main`
+
+**The merge base is `bfd2832db`, which is `main`, and `01d88645f` (Vitest 4.1.10 to 5.0.5) is only on this branch.** So a failure in this branch and not at `main` is the branch's, whichever unit first showed it. The record's _none of the first four is new_ was true of the unit's input and does not hold against `main`. It is corrected there with a date.
+
+| Failure | `main` | Tip | Class | Owner |
+| --- | --: | --: | --- | --- |
+| Reporter error `browserContext.close`, 17 closes per boundary | No | Yes | **Branch regression** | RF-26, a gate |
+| `tproc` `DB/index.node` does not load | No | Yes | **Branch regression** | RF-27, a gate |
+| A failed `drag2` build reports `No test files found`, loses its message and stops every package | No | Yes | **Branch regression,** from F-447's repair | RF-28, a gate |
+| The orphan row passes with no build through the third config | No | Yes | Branch regression, unreached by any route | Tier C, in this unit (§35.7) |
+| A failing visual row leaves an untracked `.vitest/` | No, `.vitest-attachments` is ignored | Yes | Branch regression. Vitest 5's default is `.vitest/attachments` | Tier C, in this unit (§35.7) |
+| `tproc` `TokenPackageProcessor` | **Fails** | Fails | `main`'s | RF-29 |
+| `material-x` `radio.visual`, 29 pixels | **Fails, intermittent** | Same | `main`'s | RF-29 |
+| `drag2` `size.node` slots row, 5 s timeout | **Failed once** | Not seen | `main`'s, not explained | RF-29 |
+| `drag2` M-5 _should report a difference that tracks…_ | Open since `F-412` | Once in my four root runs | `main`'s, load-sensitive | F-412, unchanged |
+
+**Evidence for `main`:** the recheck's one root run, one run here of `tproc`'s own config (1 failed, 70 passed, the unmock a warning), and `test-execution-1`'s records, which already call `TokenPackageProcessor` pre-existing at `7aeaff260`.
+
+### 35.4 Seventeen closes: the cause and RD-3
+
+**The cause is read, and it answers the recheck's _I didn't trace why the class has several copies_.** Vitest 5 changed what an inline project is: _an inline project extends the config file that declares it by default_ (`vitest/dist/chunks/index.1TqnEahn.js:7016`, `:7202`). In a root run:
+
+1. Each of the 16 projects resolves with `configFile` set to the root's `vitest.config.ts`, so Vite loads that file again and evaluates a fresh copy of `.scripts/vitest-one-shot.ts`.
+2. The root's top level carries the plugin through `createTestBaseConfig`, so each project gains a plugin whose class is a new one.
+3. `instanceof OneShotTestExecution` is false across copies, so the guard misses. That gives one instance for the root and one per project: 17.
+4. Seventeen reporters close the same provider at once, and the recheck's logs show one close rejecting at the first boundary in each run. Why only that one is not established, and with one close per boundary the question goes away.
+
+**Why a package config is unaffected:** its top level holds only `test.projects`, so there is no plugin to inherit and one class. **Why `main` is unaffected:** Vitest 4 inline projects do not extend. This also explains the _applies the same plugin multiple times_ notice.
+
+**The evidence is by reading and by the fix.** I did not count module evaluations. One scratch line, `extends: false` on each project:
+
+| Reading, whole root run | Tip, as the recheck read it | `extends: false`, three runs |
+| --- | --: | --: |
+| Closes per project per boundary | 17 | **1** |
+| Boundary lines | 136 | **8** |
+| Reporter error, or the plugin notice | Yes | **None** |
+| Files and rows | 163, 2,713 | **163, 2,713** |
+
+**RD-3 is minted in `repo`'s register: every project the shared factory declares sets `extends: false`.** It restores what `main`'s projects already do, and the factory already gives each project its whole configuration.
+
+**The alternatives, and why not:**
+
+| Alternative | Why not |
+| --- | --- |
+| Guard by class name or a `Symbol.for` brand (the recheck's probe) | Hides the symptom. The file is still evaluated per project, each project still takes the plugin twice, and each project still inherits whatever the root declares |
+| Remove the plugin from the root's top level | Stops the misses, but projects still re-evaluate and inherit the root's `test` block, which then decides things nobody declared for them |
+| Remember closed providers | Same as a brand, with more state |
+| Catch the rejection in `release` | **Refused by TE-D12.** It would hide a genuine close failure as well |
+
+**This narrows reviewer-1's required property.** _A root run releases each provider once per boundary_ stands. _Teardown alone can't fail a run whose rows pass_ does not: a provider that really fails to close should fail the run, loudly. What goes away is the failure this repository manufactures by closing one provider 17 times at once.
+
+**No row watches this.** The check is the reading `MX_TEST_TEARDOWN_LOG=1` gives, and §35.9 runs it. A Vitest upgrade is what can break it, as this one did, so that reading belongs to any future upgrade.
+
+### 35.5 `DB/index.node`: RF-27
+
+`vi.unmock` sits inside the `it`. Vitest always hoisted it, warned about it at 4.1.10, and refuses to load the file at 5.0.5. **Moving the one line to the file's top level changes no behavior,** because that is where it already ran, as Vitest's own message says. The row loads and passes in the scratch, in `tproc`'s own config and the root's.
+
+**This is a test-file edit outside `drag2`,** and the owner's boundary permits it: `drag2`'s `src/` and accepted behavior don't move.
+
+### 35.6 A failed build: RD-4 and RF-28
+
+**What happens, by reading.** `Vitest.runFiles` awaits `initializeGlobalSetup` outside the `try` around `pool.runTests` (`cli-api.De07GUeT.js:12869`), and it visits every project in series (`:13027`). So a throw from one project's setup ends the run for all of them, and with no module run, the run reports _No test files found_. Printing the error then hits `TypeError: code.charCodeAt is not a function` in the module runner's source mapping. That second part I read only as far as the stack in the recheck's probe, and I treat it as a defect of this Vitest version.
+
+**The question RD-4 answers: how far should one package's build failure reach?**
+
+**RD-4 is minted in `repo`'s register. A project's global setup does not throw for a failure it can foresee. It hands the failure to that project's files, which raise it.** Only that project goes red.
+
+- **Why not keep the throw and print the output first.** The diagnostics would survive, but every other package's result would still be lost. `just test` exists to report the whole repository in one process, and TE-D15's refusals end a run because the process's contract is broken, which a `drag2` syntax error is not.
+- **Why the whole node project goes red, not only the three files that read the tree.** No future reader can forget to check. The input failed only the file that built, and `packaging.node` passed over a stale tree there, which is the less honest result. The cost is 26 red files for one cause, and Vitest groups them under one message.
+- **The accepted limit.** A throw the setup does not foresee, such as a failed import or a bug in the setup itself, still ends the run, still exits 1 and, at this version, still loses its message. The setup cannot catch its own import, and a repair would mean wrapping Vitest. Failing closed is enough for that case.
+
+**Read in the scratch, with a syntax error in `src/drag.ts`:**
+
+| Reading | Tip | Scratch |
+| --- | --- | --- |
+| Package config, node project | `No test files found`, `TypeError`, no build output | **26 files red, one `tsdown exited with 1`, the build's output naming `src/drag.ts:67:23`, no `TypeError`** |
+| Root config, with `node/vite-traits-plugin` | No project's tests ran | **Its 52 rows pass, and `drag2`'s 26 files are red** |
+| Exit code | 1 | 1 |
+| A plain `throw` in the setup (the limit) | Run ends, message lost | The same |
+
+**The clean path reads the same:** 68 of 68 in the three files that use the tree, 1,494 of 1,562 for the whole package, and no rebuild through `--project shipped`. §35.9 reads the build counts again.
+
+### 35.7 The tier C items
+
+**reviewer-4, the third config.** The required property stands: the row can't pass without a build's timestamp, whichever config reaches it. Two one-line changes do different jobs:
+
+- **The row refuses a missing timestamp.** That is what makes the property hold for any config. It adds an assertion, and none is weakened.
+- **`bench/shipped/vitest.config.ts` passes the same setup.** At the moment `size.node` and `consumer.node` read a stale tree through that config. The only route is `--project shipped`, which builds nothing and stays as it is, as read here.
+
+**reviewer-5, the two statements.** Both change to what runs.
+
+- **`NON_BROWSER_WORKERS`' comment** gives a reason that has gone: _several files in this group spawn a build of their own_. **The bound stays at half the cores.** TE-F34's table measured contention with those builds running, and nothing has remeasured it. `consumer.node` still spawns `npm pack` and `tsc`, and `size.node` still bundles and compresses. The comment says that, and says the table predates the single build. Moving the value needs its own measurement and is not in this unit.
+- **`tests/COVERAGE.md:991`:** a `beforeAll` measures every composition. It no longer builds.
+
+**`.vitest/`.** Vitest 5's attachments default is `.vitest/attachments`, so `.gitignore`'s two `.vitest-attachments` lines no longer cover it. A failing visual row leaves an untracked directory that a later `git add` can sweep in. Both lines change. Read in the scratch: `radio.visual` failed, `.vitest` appeared, and `git status` stayed quiet.
+
+### 35.8 What the merge requires, and the owner's question
+
+**§32.1 did not say whether a root run must be clean, so this settles what the record can.**
+
+**Gate 5a is added to §32.1: no failure in a root run that `main` does not have.** That covers RF-26, RF-27, RF-28 and the tier C items. Gate 6, the merge, keeps its number.
+
+**A root run cannot exit 0 after that, and this is not something this unit can fix.** `TokenPackageProcessor` fails at `main` in every recorded run. `radio.visual`, the `size.node` slots row and F-412's row can also redden it. Read in the scratch: the whole combined repair gave **2 failed and 2,644 passed of 2,714, in 163 files, and both failures are `main`'s,** with one close per boundary and no reporter error.
+
+**The owner's words were _merge follows only after those checks are restored_. Merging with `just test` red is therefore an exception, and this record does not grant it.** The owner chooses:
+
+| Option | What it means | Cost |
+| --- | --- | --- |
+| **Merge with RF-29 and F-412 carried** | The branch adds nothing red to `main`, and those rows stay open under their entries | `main` keeps a root run that exits 1, as it does today |
+| **Repair RF-29's rows first** | A separate unit, since none of them is this branch's and neither has been looked into | Delays the merge by an unknown amount. `radio.visual` may need RD-2's pinned environment |
+
+**My view, for the owner to weigh:** the first. The merge makes nothing worse, and tying it to failures this branch didn't cause is scope the owner's ordering didn't ask for. RF-29 stays open either way, so the rows don't get lost.
+
+### 35.9 Handoff: the branch's regressions (gate 5a)
+
+**One implementer unit. Input: this commit. `src/` stays `f6172d3be`.** The scratch diff is [`combined.diff.txt`](../../probes/verification-disposition/combined.diff.txt) and its readings are in [`readings.txt`](../../probes/verification-disposition/readings.txt). It is evidence and not the repair: each shape below is yours within its property.
+
+**Commit 1, RF-26. Required property:** a root run has one reporter instance, closing each provider once per boundary.
+
+- **Recommended repair:** `extends: false` on every project the factory declares. `assignGroupOrder` is the one funnel every config passes through. Typing its result `TestProjectInlineConfiguration` compiled clean in the scratch, so no cast is needed.
+- **Not:** a name or brand guard, a memo of closed providers, or a `catch` in `release` (§35.4). The `instanceof` guard stays.
+- **`.scripts/vitest-one-shot.ts`'s text:** its summary already says what this makes true again. Leave it unless a statement is wrong.
+- **`.agents/docs/test-architecture.md` §Run lifecycle gains, in present tense:** _Every project the shared factory declares sets `extends: false`, so a project's configuration is what the factory gave it and the config file is evaluated once. Since Vitest 5 an inline project otherwise re-evaluates the file that declares it, and each copy brings its own one-shot reporter._
+
+**Commit 2, RF-27. Required property:** `tests/DB/index.node.test.ts` loads, and its row passes. Move the `vi.unmock` line to the top level and change nothing else in the file.
+
+**Commit 3, RF-28. Required property:** a failed build names itself and carries its output, reddens `drag2`'s node project, and leaves every other project's results standing.
+
+- **Recommended repair.** The setup catches every failure of the child process and provides it as a string beside `builtAt`. A setup file in the same project raises it.
+- **Do not construct an `Error` in the setup.** Printing one is what loses the message at this version.
+- **Keep the build in the global setup, before any file starts.** That is F-447's property, and moving it reopens F-447.
+- **The option's shape is yours,** so long as a config can't take the setup without the file that raises its failure.
+- **`.agents/docs/test-architecture.md` §Run lifecycle gains:** _A project's global setup does not throw for a failure it can foresee, because Vitest ends the whole run for every project. It passes the failure to that project's files, which raise it, so one package's failed build leaves the others' results standing._
+
+**Commit 4, the tier C items (§35.7).** The row's refusal, the third config's argument, `NON_BROWSER_WORKERS`' comment, `tests/COVERAGE.md:991` and `.gitignore`'s two lines. The bound's value does not change.
+
+**Traps I hit:**
+
+- **A fresh worktree needs `nx run-many -t build`, every package.** `just build` names three, and without `box-quad` and `drag` built, 29 files fail for that reason alone.
+- **F-412's M-5 row went red once in my runs,** with no connection to this change. Do not chase it.
+- **`radio.visual` went red once in my four runs too,** and `.vitest/` appears when it does.
+
+**Boundaries:**
+
+- **No `src/` change,** with the tree hash and all 85 built `.js` and `.d.ts` files as they are.
+- **No size row or control moves,** and no ceiling moves.
+- **No assertion is weakened and no row is skipped.** The only new assertion is the row's refusal.
+- **Not in this unit:** RF-29's rows, F-412, RF-23, `forwardPorts`' 9876, the worker bound's value, terminology, comment reduction, compression, or a statistical round.
+- **One commit per item, in this order.** A stop condition that looks wrong is reported at the stop (§35.2).
+
+**The final reading,** in a fresh worktree after `npm ci` and every package's build, with no `.vite`, added to [`verification-restored.md`](../../measurements/verification-restored.md) with evidence in `probes/verification-regressions/`:
+
+| Reading | Required | If not |
+| --- | --- | --- |
+| Two root runs, `MX_TEST_TEARDOWN_LOG=1` | 163 files, 2,714 rows. Eight `closed` lines, one per browser project at its boundary. No reporter error or plugin notice | Stop at the architect |
+| Failures in those runs | Only `TokenPackageProcessor`, `radio.visual`, the `size.node` slots row and F-412's row. `DB/index.node` passes. List which appeared | **Any other failure stops at the architect** |
+| Two `drag2` package runs | 78 files, 1,494 pass, 68 skipped, of 1,562. Only F-412's row may fail, recorded | Stop at the architect |
+| `consumer.node`'s sourcemap row, in all four runs | Passes | **A new finding, not F-447. Stop at the architect** |
+| Syntax error in `src/drag.ts`, package config | Node project red, build's output printed, no `TypeError` | Stop at the architect |
+| The same, root config, with `node/vite-traits-plugin` | Its 52 rows pass | Stop at the architect |
+| Builds, by hook log | 1 per node-project run through both configs, 0 for a browser-only run, 0 for `--project shipped` | Stop at the architect |
+| Planted `kernel/zz-orphan.js`, all three configs | Reddens the row and names the file | Stop at the architect |
+| A config without the setup, scratch | The row fails on the missing timestamp | Stop at the architect |
+| `--reporter=dot`, two browser projects | The boundary line still prints | Stop at the architect |
+| Root `just typecheck`, the four `docs.node` rows, and TypeDoc's negative control on `./src/kernel.ts` | No `error TS`, 4 pass, exit 4 | Stop at the architect |
+| `src/` hash, 85 built files, fifteen rows, seven controls | As `verification-restored.md` states | **Stop at the architect** |
+
+### 35.10 The review boundary
+
+**One fresh `reviewer` recheck, bounded to this unit's diff and §35.9's readings.** Shared lifecycle code serves every package, and the last recheck is what found these regressions. The owner can drop it.
+
+**It reads:**
+
+- **RD-3 and TE-D12, TE-D15:** one instance, one close per boundary, and a real close failure still loud. A scratch rejecting `provider.close()` once should surface.
+- **RD-4:** the failed-build pair, repeated independently, and that no config can take the setup without what raises its failure.
+- **F-447's property still holding,** by the same reading the last recheck used.
+- **The diff:** no weakened assertion, no moved size row.
+
+**It does not:** repeat the F-447 schedules, look into RF-29's rows, read the worker bound's value, or reopen D-208 or D-209.
+
+**Then:** the architect closes RF-26, RF-27 and RF-28, and the owner answers §35.8 and merges.
+
+### 35.11 Limits of this record
+
+- **Scratch readings, one machine, Chromium.** Three runs with `extends: false` alone and one with the whole diff, through the root config. One whole `drag2` package run with the diff. None of it is a repair.
+- **The class-copy step is by reading and by the fix removing its effect.** I didn't count evaluations.
+- **The `TypeError`'s origin is read only to the stack.** I didn't establish what `mod.meta.code` holds, or report it upstream.
+- **Other packages' own configs were not run with `extends: false`,** apart from `drag2`'s and `drag`'s node project. They go through the same funnel, and their projects ran through the root.
+- **The editor was not driven.** `extends: false` gives its root config what `main`'s projects already have, and TE-D15 already names the editor as the design's weakest evidence.
+- **`main` was read once as a root run, by the recheck, and once for `tproc` here,** at its own dependency versions.
+- **The `npm` advisory** stays unread, by the record, the recheck and me. It is not a gate here, and merging carries it.
+- **Two claims stay as they were:** the three F-447 failures' cause (§35.2) and the `size.node` slots row, not explained.
+- **D-209's limits are unchanged.** A, a3 and §34.6 stand.
+
+### 35.12 What stays open
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| RF-26, RF-27, RF-28 and the tier C items | the implementer | §35.9 | before the merge |
+| The recheck of that unit | owner starts a fresh `reviewer` | §35.10 | after its record |
+| Closing RF-26, RF-27 and RF-28 | architect | §35.10 | after the recheck |
+| Merging with `just test` red, or repairing RF-29 first | **owner** | §35.8 | before the merge |
 | The merge | owner | §32.1's gate 6 | after those |
+| RF-29, F-412 | as their entries state | unchanged by this record | not gates unless the owner says so |
 | integrity-4, F-442, F-443 and O-15, F-445, RF-23, D-200's independent acceptance, Reviewer-E | as §31.9 | unchanged | unchanged |
 | The terminology phase, comment reduction, the compression pass, `ActionQueue.apply`'s stop branch, and the 22 B of slack on `minimal` | as `plan.md` states | separate | after the merge |

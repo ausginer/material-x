@@ -11,6 +11,8 @@
 
 **The final reading is clean for `packages/drag2`, in both runs.** The repository root's suite is not clean, and neither was it at the input (see [the root suite](#the-root-suite-is-not-clean)).
 
+**Disposed 2026-11-05** ([`request-application-claude.md`](../reviews/architecture/request-application-claude.md) §35): RF-24, RF-25 and F-447 are closed. Two of this record's root failures are regressions against `main`, and the handoff is §35.9.
+
 **Two things need the reviewer's attention:** gate 5's reproduction used a one-sided delay after the symmetric one did not reproduce, and I read _whole suite_ as `packages/drag2`'s suite.
 
 ## The final reading
@@ -112,7 +114,7 @@ Each reading ran `consumer.node` and `size.node` together, with a scratch delay 
 | Repaired, 2 | 161 of 163 | 2,644 |    1 |
 | Input       | 156 of 163 | 2,624 |    7 |
 
-**None of the first four is new.** All four appear at the input, so this unit did not cause them, and I did not touch them. **The reporter error needs a decision.** It goes through the function gate 3 edits, and it reads as a provider closing over a browser that has already gone. `?.` does not address it, and it does not occur in `drag2`'s own runs. Vitest's own message says an unhandled error can mean false positives.
+**None of the first four is new.** All four appear at the input, so this unit did not cause them, and I did not touch them. **Corrected 2026-11-05 (§35.3):** that compares against the unit's input only. Against `main`, the `tproc` load failure and the reporter error are new, and they enter with this branch's upgrade to Vitest 5. **The reporter error needs a decision.** It goes through the function gate 3 edits, and it reads as a provider closing over a browser that has already gone. `?.` does not address it, and it does not occur in `drag2`'s own runs. Vitest's own message says an unhandled error can mean false positives.
 
 **The `size.node` timeout was seen once and is not explained.** Its absence from later runs is no evidence that the repair fixed it.
 
@@ -128,7 +130,8 @@ Each reading ran `consumer.node` and `size.node` together, with a scratch delay 
 
 | Item | Owner | Next |
 | --- | --- | --- |
-| One fresh `reviewer` recheck, bounded to `c867a14d0..` and these readings | owner starts it | Now |
-| Closing RF-24, RF-25 and F-447 | architect | After the recheck |
-| Whether the root suite's failures bear on the merge, and the reporter error | architect, then owner | Before the merge |
+| One fresh `reviewer` recheck, bounded to `c867a14d0..` and these readings | owner starts it | **Done** |
+| Closing RF-24, RF-25 and F-447 | architect | **Done, 2026-11-05** |
+| Whether the root suite's failures bear on the merge, and the reporter error | architect, then owner | **Decided at §35.3 and §35.8,** with one question left to the owner |
+| The branch's regressions against `main` | the implementer | §35.9, recorded here |
 | The merge | owner | §32.1's gate 6 |
