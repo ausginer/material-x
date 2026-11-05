@@ -71,6 +71,16 @@ The published `landingTail` and `LandingTail`, runtime messages, `delta` and the
 
 **Question from this batch, not repaired.** The `#acquireActivation` comment, and the same note in the test `should cancel the tail when the next drag acquires the visual`, say that measuring a visual during its landing animation is right, because the drag should start from where the element looks. The code cancels the animation first and then measures. A throwaway browser probe on a paused additive `translate` animation read `x` as 100 before `cancel()` and 0 after it, so the origin excludes the animation. Either the comment or the order is wrong; the comment keeps its text until the owner or architect decides. The probe covered the platform behavior and did not run through a controller.
 
+**Handling of the [reduction review](reviews/terminology-ste-comment-reduction-review.md), 2026-11-05.** Input: `1236fc0ae`. Scope: two comments in `src/kernel/kernel.ts`.
+
+- **`cleanup-1`: fixed.** The `#startLandingAnimation` paragraph now starts "The animation adds to the individual `translate` property".
+- **`cleanup-2`, `#joinSettlement` `finally` comment: fixed by dropping the claim.** "Nothing above it can throw today" is removed. The comment keeps the unconditional cleanup requirement.
+- **`cleanup-2`, `#measureTarget`: no change, by owner decision.** The explanation already says that `landingTail` decides using the delta this measurement produces.
+
+The recorded behavioral questions are unchanged and outside this change. The counts in the reduction table describe `738fd813b` and were not recomputed.
+
+**Verification of the handling.** Against `1236fc0ae`: every changed line in `kernel.ts` is a comment line, and the esbuild emit of the source with type stripping and whitespace minification is byte-identical. `just typecheck` and `just lint src/kernel/kernel.ts` pass. Tests and `just size` were not rerun, because the emit is identical.
+
 **Next.** The owner reviews this batch, its refinement and this reduction, and decides the scope of the next batch. Work stops here until then.
 
 **Scope and order.**

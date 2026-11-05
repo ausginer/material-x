@@ -1516,7 +1516,8 @@ class ArmedController<Part extends object, Activation extends {}> {
    * - It ends with the element, so removal, reparenting and replacement need no
    *   handling.
    *
-   * It adds to the individual `translate` property. Do not use `transform`:
+   * The animation adds to the individual `translate` property. Do not use
+   * `transform`:
    * - A non-additive `transform` animation *replaces* an authored `rotate(4deg)`
    *   for the duration, and it overrides a consumer's own running transform
    *   animation.
@@ -1641,9 +1642,8 @@ class ArmedController<Part extends object, Activation extends {}> {
       // constraint.
       ({ x: fromX, y: fromY } = session.rendered);
     } finally {
-      // Unconditional. Nothing above it can throw today, but no failure between
-      // `FINALIZING` and here may leave the placeholder inserted or the inline
-      // styles overwritten.
+      // Unconditional. No failure between `FINALIZING` and here may leave the
+      // placeholder inserted or the inline styles overwritten.
       owned.presentation.dispose();
     }
 
