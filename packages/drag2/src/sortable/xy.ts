@@ -1,8 +1,8 @@
 /**
- * The two-dimensional axis rule — a field of rectangles rather than a column.
+ * The two-dimensional axis rule, for a field of rectangles and not a column.
  *
  * ```text
- * candidates := centres of every non-dragged item's **box**, plus the
+ * candidates := centres of every non-dragged item's box, plus the
  *               placeholder's own
  * nearest    := the candidate whose centre is closest to the pointer, squared
  *               Euclidean over BOTH coordinates
@@ -10,29 +10,28 @@
  * else  gap := nearest follows the placeholder in DOM order ? slot + 1 : slot
  * ```
  *
- * **The rule is one squared-Euclidean search over both centres, with DOM order
- * deciding the gap side.** There is no axis concept in it: a grid is a list
- * with different CSS. `y()` is this same rule narrowed to a single coordinate,
- * so this module lifts a restriction rather than adding a capability.
+ * The rule is one squared-Euclidean search over both centres, and DOM order
+ * decides the gap side. The rule has no axis concept: a grid is a list with
+ * different CSS. `y()` is this same rule narrowed to a single coordinate, so
+ * this module removes a restriction and does not add a capability.
  *
- * **Where it differs from `y()`, neither difference is a switch.**
+ * It differs from `y()` in two ways, and neither is a switch:
  *
- * - **The metric is squared Euclidean, and stays squared.** Comparing squared
- * distances orders identically to comparing distances, so the `sqrt` is pure
- * cost on a per-frame scan.
- * - **The gap side is DOM order, not a coordinate comparison.** On one axis
- * "which side of `nearest` is the placeholder on" *is* "is its centre above or
- * below", which `y()` reads straight out of the scan it already did. In two
- * dimensions there is no such reduction — a candidate up and to the right has
- * no unambiguous side — so the question has to be asked of the document, which
- * is what `compareDocumentPosition` answers. One DOM call per resolution, and
- * only when a nearest was found.
+ * - The metric is squared Euclidean and stays squared. Comparing squared
+ *   distances gives the same order as comparing distances, so `sqrt` is pure
+ *   cost on a per-frame scan.
+ * - The gap side comes from DOM order, not from a coordinate comparison. On one
+ *   axis, "which side of `nearest` is the placeholder on" is the same as "is
+ *   its centre above or below", which `y()` reads from the scan it already did.
+ *   Two dimensions have no such reduction: a candidate up and to the right has
+ *   no unambiguous side. So the code asks the document, with
+ *   `compareDocumentPosition`. That is one DOM call per resolution, and only
+ *   when a nearest was found.
  *
- * **What is shared, and what deliberately is not.** The packed rect index is
- * `rect-index.ts`, held privately per feature instance; the *rule* is here. A
- * parameterized single axis feature would have made every list consumer carry
- * this module's metric and its `compareDocumentPosition` call, which a list
- * consumer must not pay for.
+ * The packed rect index is in `rect-index.ts`, held privately per feature
+ * instance, and the rule is here. A parameterized single axis feature would
+ * make every list consumer carry this module's metric and its
+ * `compareDocumentPosition` call, which a list consumer must not pay for.
  */
 import type { InheritedSpace } from '../kernel/presentation.ts';
 import {
@@ -54,18 +53,18 @@ import {
 import type { DisplacementReport } from './slots.ts';
 
 /**
- * Consumer-declared views, declared **here** rather than imported from the
- * behavior, exactly as `y()` declares its own: the behavior's frame and its
- * per-operation view satisfy them structurally, with no wrapper, no allocation
- * and no import edge back to the runtime.
+ * Consumer-declared views, declared here and not imported from the behavior, as
+ * `y()` declares its own. The behavior's frame and its per-operation view
+ * satisfy them structurally, with no wrapper, no allocation and no import edge
+ * back to the runtime.
  */
 type InsertionFrameView = Readonly<{
   pointerX: number;
   pointerY: number;
   /**
-   * **The collection the gap indexes into**, or `null` before a lift. Read off
-   * the frame for the same reason `item` is: it is committed state, and the
-   * release resolve runs after the frame has frozen.
+   * The collection the gap indexes into, or `null` before a lift. It is read
+   * from the frame for the same reason as `item`: it is committed state, and
+   * the release resolve runs after the frame has frozen.
    */
   snapshot: CollectionSnapshot | null;
 
@@ -97,86 +96,83 @@ type InsertionRuntimeView = Readonly<{
  * nearest the pointer over both coordinates, with the placeholder's own centre
  * as the incumbent.
  *
- * **It returns the installer itself, not a one-key fragment**, and is written
+ * Returns the installer itself, not a one-key fragment. Write it as
  * `axis: xy()` inside the required first argument of `sortable()`.
  *
  * ## The geometry this rule requires
  *
  * The rule maintains a cache of destination-slot geometry and moves it forward
- * without re-reading the DOM. **These are contract terms, not runtime checks.**
- * A list that breaks one of them is outside the rule's domain, and the library
- * spends no bytes discovering that.
+ * without re-reading the DOM. The terms below are contract terms, not runtime
+ * checks. A list that breaks one of them is outside the rule's domain, and the
+ * library does not detect that.
  *
- * - **G1-flow** — a candidate box's **flow** size does not depend on where in
- *   the collection it sits. A row that grows when it moves is not a sortable
+ * - G1-flow: a candidate box's flow size does not depend on where in the
+ *   collection the box sits. A row that grows when it moves is not a sortable
  *   row.
- * - **G1-presented** — whatever authored presentation a row wears — a
- *   `translate`, a `rotate`, a `scale`, an ancestor's transform — **travels
- *   with the row rather than changing because of where it landed**. Authored
- *   presentation is fully supported; presentation that is a *function of the
- *   slot* is not.
- * - **G2** — a committed move relocates exactly one hole, from one gap to one
- *   other gap. Nothing else in the destination order changes.
- * - **G4** — every box occupies one contiguous run of the flow, never two.
- * - **G5** — a prediction may consume only a **same-element temporal
- *   difference** of measured geometry. A difference between two *different*
- *   elements' measured rects carries the difference of their authored
- *   presentation and is not a flow quantity. This is the library's own
- *   obligation, stated because it is what decides which axis predicts and
- *   which measures.
- * - **G6** — the placeholder's own geometry is stable between invalidations.
- *   The hole is the incumbent every candidate is compared against and it is
+ * - G1-presented: any authored presentation on a row, such as a `translate`, a
+ *   `rotate`, a `scale` or an ancestor's transform, travels with the row and
+ *   does not change because of where the row landed. Authored presentation is
+ *   fully supported. Presentation that is a function of the slot is not.
+ * - G2: a committed move relocates exactly one hole, from one gap to one other
+ *   gap. Nothing else in the destination order changes.
+ * - G4: every box occupies one contiguous run of the flow, never two.
+ * - G5: a prediction may consume only a same-element temporal difference of
+ *   measured geometry. A difference between the measured rects of two different
+ *   elements includes the difference of their authored presentation, so it is
+ *   not a flow quantity. This term binds the library. It is stated here because
+ *   it decides which axis predicts and which measures.
+ * - G6: the placeholder's own geometry is stable between invalidations. The
+ *   hole is the incumbent every candidate is compared against and it is
  *   measured once per rebuild, so a placeholder whose own size animates must be
  *   accompanied by `controller.invalidate()`.
- * - **G7** — the linear map the collection **inherits** is stable for the
- *   operation. It is captured once, at the grab, before the lift mutates
- *   anything, and nothing revisits it — `controller.invalidate()` included,
- *   because revisiting it would describe a tree the activation has already
- *   changed. An ancestor transform that changes mid-drag is outside the domain;
- *   one that is constant for the drag is fully supported.
+ * - G7: the linear map the collection inherits is stable for the operation. It
+ *   is captured once, at the grab, before the lift mutates anything. Nothing
+ *   revisits it, including `controller.invalidate()`, because revisiting it
+ *   would describe a tree the activation has already changed. An ancestor
+ *   transform that changes mid-drag is outside the domain. One that is constant
+ *   for the drag is fully supported.
  *
  * ## This axis does not predict
  *
- * A cellular move sets a crossed slot to the position **another** slot holds,
- * which is exactly the cross-element difference G5 refuses, and unlike the
- * linear constant the error is per element and no single measurement recovers
- * it. So a committed move here **rebuilds the cache after the write** and takes
- * its "before" geometry from the cache it already held — one list-wide
- * measurement per committed move rather than two, and still none on a warm
- * spatial frame.
+ * A cellular move sets a crossed slot to the position another slot holds, which
+ * is the cross-element difference G5 refuses. Unlike the linear constant, the
+ * error is per element and no single measurement recovers it. So a committed
+ * move here rebuilds the cache after the DOM write and takes its "before"
+ * geometry from the cache it already held. That is one list-wide measurement
+ * per committed move, not two, and still none on a warm spatial frame.
  *
- * **And only when something consumes it.** Composed without a displacement
- * feature, a committed move reads nothing at all: it invalidates and lets the
- * next spatial frame rebuild against a tree the browser has already laid
- * out.
+ * The rebuild happens only when something consumes it. Composed without a
+ * displacement feature, a committed move reads nothing at all: it invalidates,
+ * and the next spatial frame rebuilds against a tree the browser has already
+ * laid out.
  *
- * There is therefore no cellular rule for a consumer to satisfy, and in
- * particular **no requirement that the track geometry be independent of its
- * occupants**: this axis measures what the browser actually laid out.
+ * So there is no cellular rule for a consumer to satisfy. In particular, the
+ * track geometry does not have to be independent of its occupants: this axis
+ * measures what the browser actually laid out.
  */
 export function xy(): AxisInstaller {
   return () => {
     const index = new RectIndex();
     /**
-     * **The binding the reading code names is the reader.** This module drives
-     * the cache's operations as well, so it holds both types; `index` is the
-     * operator's and this is every read's, which is where the packed contents
-     * stop being writable from outside the cache.
+     * Reading code uses this binding. This module also drives the cache's
+     * operations, so it holds both types. `index` is for the operations and
+     * this binding is for every read, where the packed contents are not
+     * writable from outside the cache.
      */
     const view: RectIndexView = index;
     /**
-     * The gap the packed buffer reflects, or `-1` when nothing is known.
-     * Recorded by every rebuild, and what tells a committed move which slots it
-     * could possibly have touched.
+     * The gap the packed buffer reflects, or `-1` when nothing is known. Every
+     * rebuild records it, and it tells a committed move which slots it could
+     * possibly have touched.
      */
     let last = -1;
     /**
-     * The origins the warm cache held immediately before the write, packed
+     * The origins the warm cache held immediately before the DOM write, packed
      * `[left, top]` per slot.
      *
-     * **The cache the rule already maintains *is* the "before" geometry**, so
-     * the move costs one rebuild rather than a list-wide scan on each side of
-     * the write.
+     * The cache the rule already maintains is the "before" geometry, so the
+     * move costs one rebuild and not a list-wide scan on each side of the
+     * write.
      */
     let before = new Float64Array(0);
     const invalidate = (): void => {
@@ -210,12 +206,12 @@ export function xy(): AxisInstaller {
 
           const { values, count, hole } = view;
           const { pointerX, pointerY } = frame;
-          // **Read, not measured**: the rebuild cached the placeholder's own
-          // rect, so a warm spatial frame performs no layout read.
+          // Read, not measured: the rebuild cached the placeholder's own rect,
+          // so a warm spatial frame performs no layout read.
           const anchorX = hole[CENTRE_X]!;
           const anchorY = hole[CENTRE_Y]!;
-          // The incumbent to beat is the placeholder's own centre — the same
-          // hysteresis `y()` has, and for the same reason: a new gap is
+          // The incumbent to beat is the placeholder's own centre. This is the
+          // same hysteresis `y()` has, for the same reason: a new gap is
           // proposed only once another candidate is genuinely closer than the
           // slot the item already occupies.
           const dxAnchor = pointerX - anchorX;
@@ -242,10 +238,10 @@ export function xy(): AxisInstaller {
           }
 
           const { items } = view;
-          // `nearest` comes after the placeholder in document order, so the gap
-          // is on its far side. The mask test is what `compareDocumentPosition`
-          // is for — it returns a bitfield and several bits can be set at once,
-          // which is what makes `&` legitimate here.
+          // When `nearest` comes after the placeholder in document order, the
+          // gap is on its far side. `compareDocumentPosition` returns a
+          // bitfield in which several bits can be set at once, so `&` is the
+          // correct test here.
           const position = runtime.placeholder.compareDocumentPosition(
             items[nearest]!,
           );
@@ -260,30 +256,29 @@ export function xy(): AxisInstaller {
         invalidate,
 
         /**
-         * **The committed move has landed**, and this is the one hook that
-         * follows it.
+         * Runs after the committed move, and is the only hook that does.
          *
-         * **This rule does not predict, and G5 is the reason it cannot.** A
-         * cellular move sets a crossed slot to the position *another* slot
-         * currently holds, which is a difference between two different
-         * elements' presented geometry and therefore carries the difference of
-         * their authored contributions. Unlike the linear case the error is
-         * per-element rather than one scalar, and one measurement cannot
-         * recover it: same-element temporal differences yield only the cell
-         * steps already behind the hole, never the ones ahead of it.
+         * This rule does not predict, because of G5. A cellular move sets a
+         * crossed slot to the position another slot currently holds. That is a
+         * difference between two different elements' presented geometry, so it
+         * includes the difference of their authored contributions. Unlike the
+         * linear case, the error is per element and not one scalar, and one
+         * measurement cannot recover it: same-element temporal differences
+         * yield only the cell steps already behind the hole, never the ones
+         * ahead of it.
          *
-         * **So it measures, and only when something consumes the measurement.**
-         * With no displacement feature composed there is nothing a rebuild
-         * could tell anyone, so the move invalidates and returns: no read, no
-         * scan, and — because a read straight after a DOM write is what forces
-         * layout — no forced layout either. The next spatial frame rebuilds
+         * So this hook measures, and only when something consumes the
+         * measurement. With no displacement feature composed, nothing can use a
+         * rebuild's result, so the move invalidates and returns. It performs no
+         * read and no scan. A read straight after a DOM write forces layout, so
+         * this path forces no layout either. The next spatial frame rebuilds
          * against a tree the browser has already laid out.
          *
-         * With a sink installed the vectors are needed before the animations
-         * start, so the rebuild is inherent and happens here. The "before"
-         * geometry is the warm cache this rule already holds and the "after" is
-         * that one rebuild — **one list-wide measurement per committed move
-         * rather than two**, and a warm spatial frame still reads nothing.
+         * With a sink installed, the vectors are needed before the animations
+         * start, so the rebuild must happen here. The "before" geometry is the
+         * warm cache this rule already holds, and the "after" is that one
+         * rebuild. That is one list-wide measurement per committed move, not
+         * two, and a warm spatial frame still reads nothing.
          */
         moved(
           frame: InsertionFrameView,
@@ -300,7 +295,8 @@ export function xy(): AxisInstaller {
           const held = view.count;
 
           if (from < 0 || from === gap || held === 0) {
-            // Nothing to compare against, and the write has already landed.
+            // Nothing to compare against, and the DOM write has already
+            // happened.
             invalidate();
             return;
           }
@@ -328,9 +324,9 @@ export function xy(): AxisInstaller {
 
           last = gap;
 
-          // **The destination order is stable across a placeholder move**: the
-          // view is the collection minus the dragged item, and moving the hole
-          // reorders none of it. So slot `i` is the same element on both sides
+          // The destination order is stable across a placeholder move: the view
+          // is the collection minus the dragged item, and moving the hole
+          // reorders none of it. So slot `i` is the same element on both sides,
           // and the vector is one subtraction.
           const { values, items, count } = view;
           const span = count < held ? count : held;

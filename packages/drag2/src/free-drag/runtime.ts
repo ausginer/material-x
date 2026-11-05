@@ -13,9 +13,8 @@ export const TAG_POSITION = 1;
 export const FREE_DRAG_ACTION_TAGS = 2;
 
 /**
- * `moveTo`'s argument as captured at the call: the coordinates copied, or the
- * error reading them raised, carried to the action's `prepare` to be thrown
- * there.
+ * `moveTo`'s argument as captured at the call: the copied coordinates, or the
+ * error raised while reading them. The action's `prepare` throws that error.
  */
 export type CapturedPosition = Readonly<{
   x: number;

@@ -13,12 +13,9 @@ import {
 import css from './stories.module.css';
 
 /**
- * The three free-drag stories — `Interactive`, `AsyncDropConfirmation` and
- * `TransformedStage`.
- *
- * They are a deliverable rather than documentation: the place where a person
- * looks at the thing. `tests/free-drag/geometry.browser.test.ts` is the other
- * half, comparing the lifted visual's on-screen box to where it should be.
+ * These stories are a deliverable and not documentation: a person looks at the
+ * behavior here. `tests/free-drag/geometry.browser.test.ts` is the other half:
+ * it compares the lifted visual's on-screen box to where it should be.
  */
 const meta: Meta = {
   title: 'Drag2/Free drag',
@@ -33,10 +30,10 @@ type PlaygroundArgs = Readonly<{
 }>;
 
 /**
- * A free-drag box inside a bounded area. The area doubles as the drag bounds
- * when `bounded` is on, so the box cannot leave it; with it off the drag is
- * contained by the viewport, which is what the no-argument `bounds()` means.
- * `onDrop` accepts every drop, leaving the box wherever it was released.
+ * A free-drag box inside a bounded area. When `bounded` is on, the area is also
+ * the drag bounds, so the box cannot leave it. When `bounded` is off, the
+ * viewport contains the drag, because that is what the no-argument `bounds()`
+ * means. `onDrop` accepts every drop, leaving the box wherever it was released.
  */
 function Playground({ axis, bounded, tilted }: PlaygroundArgs): JSX.Element {
   const areaRef = useRef<HTMLDivElement>(null);
@@ -50,10 +47,10 @@ function Playground({ axis, bounded, tilted }: PlaygroundArgs): JSX.Element {
       return;
     }
 
-    // **One required config, then fragments merged by slot.** `bounds()` is a
-    // capability installer rather than a config key: a composition without it
-    // carries neither the clamp nor the rect resolver, which
-    // `tests/packaging.node.test.ts` asserts over the module graph.
+    // One required config, then fragments merged by slot. `bounds()` is a
+    // capability installer and not a config key: a composition without it
+    // carries neither the clamp nor the rect resolver.
+    // `tests/packaging.node.test.ts` asserts this over the module graph.
     const controller = freeDrag(
       box,
       {
@@ -110,7 +107,7 @@ export const Interactive: StoryObj<PlaygroundArgs> = {
 /**
  * A drop confirmed asynchronously, holding the visual until it resolves.
  *
- * **The terminal is one callback with three arms**: the story discriminates on
+ * The terminal is one callback with three arms: the story discriminates on
  * `result.type`.
  */
 function AsyncDrop(): JSX.Element {
@@ -163,10 +160,10 @@ export const AsyncDropConfirmation: StoryObj = {
 type TransformedArgs = Readonly<{ lift: LiftMode }>;
 
 /**
- * **The kernel's own constants, and there is no second vocabulary.** The
- * numeric modes name no mechanism — two of the three use the top layer, and the
- * third still lifts, suppresses transitions and projects coordinates — so the
- * prose below is the story's own.
+ * These keys are the kernel's own constants, and there is no second vocabulary.
+ * The numeric modes name no mechanism: two of the three use the top layer, and
+ * the third still lifts, suppresses transitions and projects coordinates. So
+ * the prose below belongs to this story.
  */
 const LIFT_HINT: Readonly<Record<LiftMode, string>> = {
   [LIFT_FAITHFUL]:
@@ -186,11 +183,11 @@ const LIFT_LABEL: Readonly<Record<LiftMode, string>> = {
 /**
  * A drag inside a rotated, scaled stage.
  *
- * **There is no coordinate module behind this.** The local delta is the
- * viewport delta mapped through the inverse of the *inherited* linear part,
- * which falls out of the single box-quad traversal the lift already performs.
- * Every point on the surface is viewport, and the delta is the one quantity a
- * linear part alone can map.
+ * There is no coordinate module behind this. The local delta is the viewport
+ * delta mapped through the inverse of the inherited linear part. That inverse
+ * comes from the single box-quad traversal the lift already performs. Every
+ * point on the surface is in viewport space, and the delta is the one quantity
+ * a linear part alone can map.
  */
 function TransformedContext({ lift }: TransformedArgs): JSX.Element {
   const boxRef = useRef<HTMLDivElement>(null);

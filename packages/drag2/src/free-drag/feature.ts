@@ -1,23 +1,23 @@
 /**
- * Free drag's **middle tier**, mirroring `sortable/feature.js`: an installer
- * runs once while a concrete behavior instance is being constructed, may create
- * whatever private runtime it likes, captures that runtime in the callbacks it
- * returns, and hands back a flat object of named contributions.
+ * Free drag's middle tier, mirroring `sortable/feature.js`. An installer runs
+ * once while a concrete behavior instance is being constructed. It may create
+ * any private runtime, it captures that runtime in the callbacks it returns,
+ * and it returns a flat object of named contributions.
  *
- * **Three keys against the sortable's three, no discriminator, and the same
- * closed-world rule**: a new semantic seam is a coordinated edit to one
- * contribution group, the slot record, the assembler and the behavior's call
- * sites. That closed world is what buys direct slot calls with no runtime
- * descriptor interpretation.
+ * There are three keys, as in the sortable, no discriminator, and the same
+ * closed-world rule. A new semantic call into behavior code needs a coordinated
+ * edit to one contribution group, the slot record, the assembler and the
+ * behavior's call sites. In exchange, slots are called directly, with no
+ * runtime descriptor interpretation.
  *
- * **Which group a slot is declared on is its cardinality**: `constrain` is
- * producible from `bounds` and nowhere else, `landingTiming` from `landing` and
- * nowhere else, so a second writer is unrepresentable rather than caught.
+ * The group that declares a slot sets its cardinality. `constrain` can come
+ * from `bounds` and nowhere else, and `landingTiming` from `landing` and
+ * nowhere else, so a second writer cannot be represented and needs no check.
  *
- * **No runtime exports.** Every name here is erased.
+ * This module has no runtime exports. Every name here is erased.
  *
- * An installer is **externally inert**: it may allocate and capture, but it may
- * not attach a listener, write the DOM, or acquire anything needing release.
+ * An installer is externally inert: it may allocate and capture, but it may not
+ * attach a listener, write the DOM, or acquire anything that needs release.
  * Every acquisition happens inside a kernel-owned operation lifetime.
  */
 import type { Disposer } from '../kernel/lifetimes.ts';
@@ -28,17 +28,18 @@ import type {
 } from '../shared/composition.ts';
 
 /**
- * **The structural closure of the middle tier, re-exported deliberately.**
- * Publishing the contribution groups publishes everything they structurally
- * name, so those types acquire the same versioning promise whether or not this
- * file lists them — the only choice is whether an installer author can *write
- * them down*. `tests/docs.node.test.ts` fails on any public type that reaches
- * an unexported one, which keeps the two in step.
+ * The types the middle tier structurally reaches, re-exported. Publishing the
+ * contribution groups publishes everything they structurally name, so those
+ * types get the same versioning promise whether or not this file lists them.
+ * The only choice is whether an installer author can write them down.
+ * `tests/docs.node.test.ts` fails on any public type that reaches an unexported
+ * one, which keeps the two in step.
  *
- * **`FeatureContext` and `LandingContribution` are the same declarations
- * `sortable/feature.js` publishes** — a shared type identity, not a structural
- * coincidence, and deliberately not a shared *vocabulary*. The second joins the
- * first because both behaviors' `landing` key produces exactly it.
+ * `FeatureContext` and `LandingContribution` are the same declarations that
+ * `sortable/feature.js` publishes: a shared type identity, not a structural
+ * coincidence, and not a shared vocabulary. `LandingContribution` joins
+ * `FeatureContext` because both behaviors' `landing` key produces exactly that
+ * type.
  */
 // The composition check's four helpers travel with them: the entry signature
 // names `FreeDragComposition`, whose own closure resolves here. Every one of
@@ -59,18 +60,17 @@ export type {
 declare const FREE_DRAG_FEATURE: unique symbol;
 
 /**
- * The context a free-drag installer is handed.
+ * The context a free-drag installer receives.
  *
- * It is a {@link FeatureContext} and one compile-time brand, and **the brand is
- * why a sortable installer is not a free-drag installer**. Nothing carries the
- * brand at runtime and nothing reads it: an installer parameter is checked
+ * It is a {@link FeatureContext} and one compile-time brand. The brand is why a
+ * sortable installer is not a free-drag installer. Nothing carries the brand at
+ * runtime and nothing reads it. An installer parameter is checked
  * contravariantly, so a function written against the other behavior's context
  * is refused where this one is expected, and the other way round.
  *
- * **An author never writes it.** Filling `bounds`, `landing` or a `plugins`
- * entry types the parameter from the slot, and hoisting into a
- * `const install: ConstraintInstaller = (context) => …` types it from the
- * alias.
+ * An author never writes this type. Filling `bounds`, `landing` or a `plugins`
+ * entry types the parameter from the slot, and storing an installer in `const
+ * install: ConstraintInstaller = (context) => …` types it from the alias.
  */
 export type FreeDragFeatureContext = FeatureContext &
   Readonly<{ [FREE_DRAG_FEATURE]: never }>;
@@ -79,10 +79,10 @@ export type { DOMRealm } from '../kernel/realm.ts';
 export type { LandingTail } from '../kernel/spec.ts';
 
 /**
- * The scalars a constraint reads and writes, **by reference**.
+ * The scalars a constraint reads and writes, by reference.
  *
  * `apply` writes the clamped values back into an object the behavior owns and
- * passes down, rather than returning a point, so a committed sample allocates
+ * passes down, and does not return a point, so a committed sample allocates
  * nothing.
  */
 export type MotionDraft = {
@@ -93,48 +93,51 @@ export type MotionDraft = {
 
 /**
  * What a constraint may read while clamping. Everything on it is committed or
- * construction-time state, so `apply` performs **no** layout read of its own —
- * a feature that needs one caches it and refreshes it on `invalidate()`.
+ * construction-time state, so `apply` performs no layout read of its own. A
+ * feature that needs one caches it and refreshes it on `invalidate()`.
  */
 export type ConstraintView = Readonly<{
   realm: DOMRealm;
-  /** The visual's viewport rect at grab. The basis every clamp is relative to. */
+  /**
+   * The visual's viewport rect at grab. The basis every clamp is relative to.
+   */
   originRect: DOMRectReadOnly;
   visual: HTMLElement;
 }>;
 
-// The receiver convention below is stated verbatim on `InsertionGeometry` too:
-// an author writing against both middle tiers must not meet two conventions.
+// `InsertionGeometry` states the same `this` convention as the block below: an
+// author writing against both middle tiers must not meet two conventions.
 /**
- * **A paired capability.** The behavior owns the events that make a bounds rect
- * stale — activation, scroll, resize, `invalidate()`, release — and the feature
- * owns the rect. Neither can do the other's half, so installing a resolver
- * without its invalidator is impossible rather than discouraged.
+ * A paired capability. The behavior owns the events that make a bounds rect
+ * stale: activation, scroll, resize, `invalidate()`, release. The feature owns
+ * the rect. Neither can do the other's part, so a resolver cannot be installed
+ * without its invalidator.
  *
- * **Single-writer, and that is the extensibility story.** A consumer wanting
- * grid snapping, magnetic guides or a custom containment rule writes a
- * middle-tier installer that fills this slot *instead of* `bounds()`, and the
- * library ships none of it. It is the first capability in this package a third
- * party can supply in place of a first-party one rather than beside it.
+ * This slot has a single writer, and that is how the capability extends. A
+ * consumer who wants grid snapping, magnetic guides or a custom containment
+ * rule writes a middle-tier installer that fills this slot instead of
+ * `bounds()`. The library ships none of these.
  *
- * **These members are never invoked with this `MotionConstraint` as their
- * receiver, and an author may not depend on `this`.** The forbidden receiver is
- * **this record — the one the members are declared on**, the object an
- * installer nests under `constrain`. A constraint written as a class instance —
- * or with any method that reads `this` — is **outside contract**; it must close
- * over its state, as the first-party `bounds()` does.
+ * **These members are never invoked with this `MotionConstraint` as `this`, and
+ * an author may not depend on `this`.** The forbidden `this` value is this
+ * record: the one the members are declared on, the object an installer nests
+ * under `constrain`. A constraint written as a class instance, or with any
+ * method that reads `this`, is outside the contract. It must close over its
+ * state, as the first-party `bounds()` does.
  *
- * **What the receiver _is_ at any site is unspecified**, and that is the whole
- * of the promise rather than a gap in it. Depending on `this === undefined` is
- * as far outside contract as depending on `this` being the constraint.
+ * What `this` is at any call site is unspecified. Depending on
+ * `this === undefined` is as far outside the contract as depending on `this`
+ * being the constraint.
  *
- * **Where each member is lifted is mechanism, not promise**, and is free to
- * change while the receiver negative holds.
+ * Where the library reads each member from the record is not part of the
+ * contract, and may change while the `this` rule holds.
  */
 export type MotionConstraint = Readonly<{
   /** One indirect call per committed sample, and it allocates nothing. */
   apply(motion: MotionDraft, view: ConstraintView): void;
-  /** "What you cached is stale." Lazy by contract: it must not read geometry. */
+  /**
+   * "What you cached is stale." Lazy by contract: it must not read geometry.
+   */
   invalidate(): void;
   retire(): void;
 }>;
@@ -142,42 +145,39 @@ export type MotionConstraint = Readonly<{
 /**
  * What the `bounds` key's installer returns.
  *
- * **`constrain` is required, and that is the whole of the key's cardinality**:
- * the slot is producible here and nowhere else, so a second writer cannot be
- * expressed rather than being caught by a construction-time throw.
+ * `constrain` is required. This key is the only place the slot can come from,
+ * so a second writer cannot be expressed.
  *
- * Fixed key names, **no discriminator**. There is deliberately no `type`,
- * `kind` or `phase` field: a discriminator invites a runtime `switch`, which is
- * exactly what the composition model exists to avoid. There is no member for
- * transactional frame state either — the constraint's rect lives in the
- * feature's own closure.
+ * The key names are fixed, and there is no `type`, `kind` or `phase`
+ * discriminator. There is no member for transactional frame state either: the
+ * constraint's rect lives in the feature's own closure.
  */
 export type ConstraintContribution = Readonly<{
   constrain: MotionConstraint;
-  /** Run in **reverse** installation order — see `assemble`. */
+  /** Runs in reverse installation order. */
   retire?: Disposer;
 }>;
 
 /**
- * What a `plugins` entry returns, and free drag has **no multi-writer slot**,
- * so the group is a lifetime and nothing else.
+ * What a `plugins` entry returns. Free drag has no multi-writer slot, so this
+ * group is only a lifetime.
  *
  * A plugin here is an installer that allocates per-instance state and needs it
- * released: the position exists, its arity is unbounded, and neither of the two
- * unique slots is reachable from it.
+ * disposed. Any number of plugins may be installed, and a plugin cannot reach
+ * either of the two unique slots.
  */
 export type FreeDragPluginContribution = Readonly<{
-  /** Run in **reverse** installation order — see `assemble`. */
+  /** Runs in reverse installation order. */
   retire?: Disposer;
 }>;
 
 /**
- * The `bounds` key's installer — named for the capability rather than for
+ * The `bounds` key's installer. It is named for the capability and not for
  * `bounds()`, the first-party feature that fills it, because a third party
- * supplies a constraint **instead of** it.
+ * supplies a constraint instead of `bounds()`.
  *
- * It runs **once**, while a concrete behavior instance is being constructed,
- * and is externally inert.
+ * It runs once, while a concrete behavior instance is being constructed, and is
+ * externally inert.
  */
 export type ConstraintInstaller = (
   context: FreeDragFeatureContext,

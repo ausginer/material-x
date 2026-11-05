@@ -1,13 +1,13 @@
 /**
- * The behavior's action tags and the one per-operation object its feature views
- * bind to.
+ * The behavior's action tags and the one per-operation object that its feature
+ * views bind to.
  *
- * **There is no runtime aggregate here**: the behavior's per-operation state is
- * closure-local, which is what keeps the kernel unable to name or type it. What
- * lives here is what is not per-operation state at all — the tags, which
- * `arm()` validates through `config.actionTags` and `dispatch` bounds-checks;
- * and {@link SortableActivation}, whose role — one object the feature views
- * bind to, with a non-null `placeholder` — is what requires an object.
+ * There is no runtime aggregate here. The behavior's per-operation state is
+ * closure-local, which keeps the kernel unable to name or type it. This module
+ * holds what is not per-operation state: the tags, which `arm()` validates
+ * through `config.actionTags` and `dispatch` bounds-checks. It also holds
+ * {@link SortableActivation}, which must be an object because the feature views
+ * bind to one object with a non-null `placeholder`.
  */
 import type {
   BehaviorLiftSession,
@@ -20,61 +20,61 @@ export const TAG_SPATIAL = 0;
 export const TAG_COLLECTION = 1;
 /**
  * Carries an invalidation failure raised from a native scroll/resize listener
- * back into a seam, which is the only place a stage can be classified. Never
- * dispatched on a healthy drag.
+ * back into a transition, which is the only place where a stage can be
+ * classified. Never dispatched on a healthy drag.
  */
 export const TAG_INVALIDATION = 2;
 export const SORTABLE_ACTION_TAGS = 3;
 
 /**
- * **What activation acquired, as one record.** It exists because the feature
- * views need a **non-null** `placeholder`, which no controller-lifetime state
- * can promise before activation.
+ * What activation acquired, as one record. The record exists because the
+ * feature views need a non-null `placeholder`, which no controller-lifetime
+ * state can promise before activation.
  *
- * **Complete-or-absent**: every member is written in the one statement that
- * builds it and the whole record is dropped at retirement, so a partial state
- * is unrepresentable rather than asserted away per site. A member belongs here
- * when its lifetime is the activation's, or when a published view this record
- * must satisfy names it — and never when the frame commits it, which is where
- * committed state is read from.
+ * The record is complete or absent: one statement writes every member, and
+ * retirement drops the whole record. So a partial state is unrepresentable and
+ * no call site has to assert against one. A member belongs here when its
+ * lifetime is the activation's, or when a published view that this record must
+ * satisfy names it. A member never belongs here when the frame commits it,
+ * because committed state is read from the frame.
  *
- * **Not a second lifecycle authority**: `phase` on the frame is the sole
- * lifecycle discriminant, and this record is read for what activation
- * acquired, never for where the operation is.
+ * This record is not a second lifecycle authority. `phase` on the frame is the
+ * sole lifecycle discriminant. Read this record for what activation acquired,
+ * never for where the operation is.
  *
- * Created whole in `activation.effect`, dropped whole at retirement, and
- * never written again in between — one write per operation and none per call.
+ * Created whole in `activation.effect`, dropped whole at retirement, and never
+ * written in between: one write per operation and none per call.
  */
 export type SortableActivation = {
   readonly placeholder: HTMLElement;
   /**
-   * The **projection**: the lift session the kernel handed activation, whose
-   * `rendered` reading and `dispose` sequencing stay the kernel's own.
+   * The projection: the lift session that the kernel gave activation. Its
+   * `rendered` reading and `dispose` sequencing stay with the kernel.
    */
   readonly lift: BehaviorLiftSession;
   /**
    * The composed displacement sink's settle walk, or `null` when nothing
-   * displaces. Copied off the slots once per operation so an axis rebuild reads
-   * one field of this object rather than reaching the slot record.
+   * displaces. Copied from the slots once per operation so that an axis rebuild
+   * reads one field of this object and does not reach the slot record.
    */
   readonly settle: DisplacementSettle | null;
   /**
-   * **The inverse of the linear part the collection inherits**, or `null` when
-   * that part is the identity — which is the common case, and answers the
-   * projection in one null test.
+   * The inverse of the linear part that the collection inherits, or `null` when
+   * that part is the identity. The identity is the common case, and the
+   * projection then costs one null test.
    *
-   * A fact about the ancestry at grab: the kernel derives it from the
-   * measurement the lift already took, before it moved anything, so this costs
-   * no DOM read of its own and cannot disagree with the geometry the operation
-   * began in. Carried here so a displaced element's viewport vector can state
-   * its own units when it reaches the sink.
+   * This value describes the ancestry at grab. The kernel derives it from the
+   * measurement the lift already took, before the lift moved anything. So it
+   * costs no DOM read of its own and cannot disagree with the geometry the
+   * operation began in. It is carried here so that a displaced element's
+   * viewport vector can state its own units when it reaches the sink.
    */
   readonly space: InheritedSpace;
   /**
    * The installed `box` resolver, for the axis rule's candidate measurement.
-   * Copied off the slots once per operation rather than read through `slots`
-   * per rebuild, so the axis feature keeps naming only fields of this object
-   * and never reaches the slot record.
+   * Copied from the slots once per operation and not read through `slots` per
+   * rebuild, so the axis feature names only fields of this object and never
+   * reaches the slot record.
    */
   readonly box: ((item: HTMLElement) => HTMLElement) | null;
 };

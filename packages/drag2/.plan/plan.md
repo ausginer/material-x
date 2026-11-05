@@ -111,7 +111,56 @@ The separate driver-batch review was not started. One independent cleanup review
 
 Record the source unit's rename table, aggregate comment reduction, verification and unresolved questions briefly here. There is no deletion quota, and unchanged comments do not need individual justifications.
 
-**Next.** The implementer completes the remaining source clarity pass, then stops for the combined cleanup review. The type and instruction units follow separately.
+**Source clarity pass, 2026-11-05.** Input: `678a6ab18`. Scope: internal names and all comments in `src/`. Renames are in `e5c91eac8`; comments are in the commit that carries this paragraph.
+
+| Before | After |
+| --- | --- |
+| `SeamDriver`, `kernel/seams.ts` | `BehaviorRunner`, `kernel/behavior-runner.ts` |
+| `SeamOutcome`, `SEAM_DISCARDED`, `SEAM_PREPARE_FAILED`, `SEAM_COMMITTED`, `SEAM_EFFECT_FAILED` | `TransitionOutcome`, `TRANSITION_DISCARDED`, `TRANSITION_PREPARE_FAILED`, `TRANSITION_COMMITTED`, `TRANSITION_EFFECT_FAILED` |
+| `runActivationSeam`, `runReleaseSeam`, `isInSeam` | `runActivationTransition`, `runReleaseTransition`, `isRunningBehavior` |
+| `#driver`, `#openStage`, `#unclassifiedReason` | `#runner`, `#runningStage`, `#warningMessage` |
+| `Unwind`, `createUnwind`, `#unwind`, `kernel/unwind.ts` | `WarnOnThrow`, `createWarnOnThrow`, `#warnOnThrow`, `kernel/warn-on-throw.ts` |
+| `#unwindArm` | `#rollbackArm` |
+| `ExecutionBracket`, `#bracket` | `ExecutionLoop`, `#loop` |
+| `runIngress`, `#ingress`, `#openIngress` | `runNativeEvent`, `#listenerSignal`, `#admitIfNoOperation` |
+| `#joinSettlement`, `#mintOperation`, `MINTED`, `#scrub` | `#finalizeSettlement`, `#createOperation`, `CREATED`, `#clearFrame` |
+| `#release` in `kernel.ts`; `#release` in `execution.ts` | `#disposeOperationState`; `#runTeardown` |
+| `#invalidateInSeam` in `sortable/spec.ts` | `#invalidateInsertion` |
+| `LinearShift`: `#last`, `#seen`, `#constant`, `#hollow`, `#claimed`, `#forget`, `#drop`, `#ux`, `#uy` | `#lastGap`, `#snapshotVersion`, `#rowDistance`, `#holeIsStale`, `#advanceUnchecked`, `#resetCache`, `#abandonCache`, `#unitX`, `#unitY` |
+
+The pilot left `seam` as an open owner question. This unit's instruction to finish the internal names is why its identifiers changed. **The word remains outside `src/` code:** runtime messages keep it by instruction, the README and contract prose keep it (about 580 contract occurrences), and so do test titles. Published `landingTail` and `LandingTail`, `retire`, `lift`, `staged`, `arm` and `settlement` are unchanged.
+
+Current references changed: identifiers in [02](contract/02-kernel-behavior-contract.md), [03](contract/03-feature-composition.md), [05](contract/05-lifecycle-invariants.md), [07](contract/07-free-drag-contract.md), [obligations](obligations.md), the README, `tests/COVERAGE.md`, and nine lines in [00](contract/00-index.md) where `tests/references.node.test.ts` requires a path that resolves. The test file moved to `tests/kernel/behavior-runner.node.test.ts`. Other dated entries keep their names.
+
+**Comment reduction.** Across `src/`: 1102 to 1089 comments, 8154 to 8063 lines, 433429 to 425076 characters, 65013 to 63682 words (about 2 %; adjacent line comments count as one). Most of the change is rewriting, because the comments mainly carry reasons that the guide keeps. Bold spans went from 836 to 1. Published declarations went from 115625 B to 113973 B. Six agents edited separate file groups from one vocabulary. The implementer read samples and the mechanical checks, not every rewrite, so the review should compare meaning.
+
+**Bundle change.** Two unmangled method names add 17 B minified to all 13 rows containing the driver. The import of the moved module also changed its order in each bundle; it holds only declarations. Brotli moves both ways, from −13 B to +19 B: `minimal` 10303 → 10322, `minimal + landing` 10465 → 10477, `complete` 10798 → 10795, `both behaviors` 12320 → 12314, baseline A 10614 → 10632. Every ceiling holds. Five exact controls are [re-declared with their intervals attributed](measurements/budget-rebases.md). `vocabulary root` and baseline B did not move.
+
+**Verification.** Rename commit: with names, module paths and that one import substituted, the comment-free esbuild emit of all 58 modules at `678a6ab18` equals `e5c91eac8`. Comment commit: all 62 source files have the same syntax tree, ignoring comments, and the same directives as `e5c91eac8`, and all 15 `measured/` bundles are byte-identical. `just test` passes (78 files, 1494 passed, 68 skipped), and `just typecheck` and `just size` pass. `oxlint` passes on the edited source. ESLint reports 14 errors in `src/`, all type-aware rules on code the comment commit does not change, and the rename commit left that code's structure equal to the input. They were not run at the input for direct comparison and were left as they are. Readability was not measured.
+
+**Questions from this pass, not repaired.** The comments below keep their claims. These were checked against the code by reading the cited lines at this commit.
+
+| Location | Claim | What the code shows |
+| --- | --- | --- |
+| `kernel/errors.ts:17`, `drag.ts:34` (published) | "twelve" stage constants | `kernel/failures.ts` exports ten `FAILURE_*` constants |
+| `sortable/behavior.ts:21` | `sortable(items, ...features)` is the only caller that assembles | The signature takes a root, a config and fragments |
+| `sortable/behavior.ts:90`, `free-drag/behavior.ts:35` | The merge is lazy, inside the factory | `mergeFragments` runs when the function is called, outside the returned factory |
+| `sortable/spec.ts:279`, `free-drag/spec.ts:217` | The `warnOnThrow` helper takes this field | The constructor passes `#notify`; `#deliver` goes to `kernel.channel` |
+| `sortable/spec.ts:474` | The press and command paths share `#admitFrom` | `admit` is its only caller |
+| `sortable/spec.ts:509`, `kernel/kernel.ts:565`, `:2355` | Cite `SortableErrorContext`, `QUALITY`, `BEST_EFFORT`, `OUTCOME_ACCEPTED` | None of these names exists elsewhere in `src/` |
+| `sortable/spec.ts:2` | "closures over one private runtime" | The state is a `SortableBehavior` instance |
+| `kernel/kernel.ts:709` | Each attempt cleanup is wrapped in step 3 | `#retireAttempts` only assigns two nulls |
+| `kernel/kernel.ts:1176` | The click suppressor arms "only after activation" | It arms on the line before `#activate` |
+| `kernel/invalidation.ts:10` | `FrameTask` handles exception forwarding and release flushing | Reported by the pass; only the claim's text was read here |
+| `sortable/placement.ts:134`, `:138` | An `append` fallback for an end gap | The code calls `insertion.before!.after(placeholder)` |
+| `sortable/rect-index.ts:152` | Reallocated only when the collection outgrows it | The branch also reallocates when capacity exceeds `4 * length` |
+| `sortable/linear-shift.ts:144` | Every invalidation discards `#rowDistance` | `#abandonCache` invalidates the index and keeps it |
+| `free-drag/spec.ts:317` | No composed-path search | `admit` calls `path.indexOf(this.#root)` |
+| `free-drag/assemble.ts:13` | Every slot is nullable | Reported: `onDrop`, `axis`, `threshold`, `liftMode` are not; the slot types were not re-read here |
+
+The pass also reported these, and they have **not** been confirmed: `sortable/feature.ts:119` (the one hook that may read geometry), `sortable.ts:4` ("nothing else", while `y()` has its own entry), `sortable/spec.ts:179`, `:1457`, `:1668`, `kernel/kernel.ts:1172` (`pointerdown` "was prevented"), `sortable/rect-index.ts:249`, `sortable/linear-shift.ts:56`, `sortable/y.ts:132` (published G6), `:267`, `sortable/xy.ts:166`, `sortable/layout-animation.ts:103`, `:249`, `sortable/collection.ts:27`, `:162`, and in free drag `spec.ts:130`, `:587`, `:835`, `:850`, `:886`, `domain.ts:83`, `free-drag.ts:160`, `controller.ts:20`, `feature.ts:97`, `:112`, `landing.ts:7`. Line numbers are at this commit. The earlier `pilot-1` to `pilot-9` and the activation-measurement question stay open and unchanged in meaning.
+
+**Next.** One independent cleanup review of `2f96cf3d4..` covers the driver batch and this pass. The type and instruction units follow separately.
 
 **Scope and order.**
 

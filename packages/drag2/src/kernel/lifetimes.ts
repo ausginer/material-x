@@ -1,52 +1,53 @@
 /**
  * The three releasable stages of one admitted operation.
  *
- * Motion ingress dies first, at release: pointer move/up/cancel, pointer
+ * Motion input closes first, at release: pointer move/up/cancel, pointer
  * capture, scroll and resize invalidation, and any coalesced frame work.
  * Nothing that arrives afterwards can move the geometry the release was
  * resolved from.
  *
- * Cancellation outlives it, because `Escape` and `controller.requestCancel()` stay
- * valid while a consumer resolver is in flight. Presentation outlives both: the
- * lift stays acquired until the join, and is released immediately before the
- * terminal callback.
+ * Cancellation outlives motion, because `Escape` and
+ * `controller.requestCancel()` stay valid while a consumer resolver is in
+ * flight. Presentation outlives both: the lift stays acquired until
+ * `#finalizeSettlement`, and is disposed immediately before the terminal
+ * callback.
  *
- * Every close is latched, so teardown paths may run unconditionally and in any
- * order.
+ * Every close takes effect once, so teardown paths may run unconditionally and
+ * in any order.
  */
 import { DraggableWarning, type Notify } from './errors.ts';
 
 /**
  * Releases one acquisition. Every disposer in this package is idempotent: a
- * second call is a no-op, never an error, so teardown paths may run
+ * second call does nothing and is never an error, so teardown paths may run
  * unconditionally.
  */
 export type Disposer = () => void;
 
 /**
  * What a behavior receives at activation: a lifetime it may register work
- * against but cannot close. Closing is the kernel's, so a behavior can neither
- * end motion ingress early nor keep it open past release.
+ * against but cannot close. Only the kernel closes it, so a behavior can
+ * neither end motion input early nor keep it open past release.
  *
  * `use` reads the scope it is called on, so call it as a method and do not
  * detach it.
  */
 export interface LifetimeScope {
   readonly signal: AbortSignal;
-  // Declared here rather than mapped over `Lifetime`: a mapped type hides the
-  // method syntax, and with it the receiver requirement, from the lint gate.
+  // Declared here and not mapped over `Lifetime`: a mapped type hides the
+  // method syntax, and with it the `this` requirement, from the lint gate.
   use(disposer: Disposer): void;
 }
 
 /**
- * One releasable stage: an `AbortSignal`, a disposer stack, and a latched
- * best-effort `dispose`.
+ * One releasable stage: an `AbortSignal`, a disposer stack, and a best-effort
+ * `dispose` that takes effect once.
  *
- * **`notify` is threaded rather than reached.** A lifetime holds no controller
- * reference — it owns its disposers and an `AbortController` and nothing else
- * — so the one place it could have found the channel is the argument list.
- * Every site here that reports sends a warning: the resource is released
- * either way, and what failed is the release rather than the operation.
+ * `notify` is passed in. A lifetime holds no controller reference and owns only
+ * its disposers and an `AbortController`, so the argument list is the one place
+ * it could get the channel. Every site here that reports sends a warning: the
+ * resource is released either way, and what failed is the release and not the
+ * operation.
  */
 export class Lifetime implements LifetimeScope {
   readonly #controller = new AbortController();
@@ -54,9 +55,9 @@ export class Lifetime implements LifetimeScope {
   readonly #disposers: Disposer[] = [];
 
   /**
-   * Set by the first `dispose`, before anything else runs, so a disposer or
-   * an abort listener that registers more work reaches the late-registration
-   * branch rather than a stack nothing will drain again.
+   * Set by the first `dispose`, before anything else runs. So a disposer or an
+   * abort listener that registers more work reaches the late-registration
+   * branch and not a stack that nothing will drain again.
    */
   #finalized = false;
 
@@ -69,9 +70,9 @@ export class Lifetime implements LifetimeScope {
   }
 
   use(disposer: Disposer): void {
-    // Registration after closure is always a bug, but the resource it names
-    // is real: dropping it leaks, and registering it silently guarantees it
-    // never runs. So run it now and report.
+    // Registration after closure is always a bug, but the resource it names is
+    // real. Dropping it leaks, and registering it silently guarantees it never
+    // runs. So run it now and report.
     if (this.#finalized) {
       this.#notify(new DraggableWarning('drag: lifetime/use-after-dispose'));
 
@@ -117,12 +118,12 @@ export class Lifetime implements LifetimeScope {
 }
 
 /**
- * Five conceptual resource scopes, **three** physical objects. Controller
- * ingress is the controller's own `AbortController`; async attempts are
- * records, not lifetimes.
+ * Five conceptual resource scopes, three physical objects. Controller input is
+ * the controller's own `AbortController`, and async attempts are records and
+ * not lifetimes.
  *
- * A record rather than a class: it holds no state of its own, and its
- * `dispose` is passed bare to the unwind guard, so it must not need a receiver.
+ * This is a record and not a class: it holds no state of its own. Its `dispose`
+ * is passed bare to `warnOnThrow`, so `dispose` must not need `this`.
  */
 export type OperationLifetimes = Readonly<{
   motion: Lifetime;

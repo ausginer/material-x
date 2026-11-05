@@ -1,34 +1,34 @@
 /**
- * The landing tail's timing policy — **behavior-neutral, declared once,
- * wrapped by two entries**.
+ * The landing animation's timing policy. It is behavior-neutral, declared once,
+ * and wrapped by two entries.
  *
  * How the dropped visual travels to its final place has nothing to do with
- * collections or with free drags, and the kernel owns the interpolation
- * itself. What is left for a feature to own is the policy: how long, with what
- * easing, and whether the user asked for no motion at all. What the two entries
- * do **not** share is the installer type, because the contribution types differ
- * — so `sortable/landing.js` and `free-drag/landing.js` are each a thin factory
- * over this module.
+ * collections or with free drags, and the kernel owns the interpolation itself.
+ * What remains for a feature to own is the policy: how long, with what easing,
+ * and whether the user asked for no motion at all. The two entries do not share
+ * the installer type, because the contribution types differ. So
+ * `sortable/landing.js` and `free-drag/landing.js` are each a thin factory over
+ * this module.
  *
  * `LandingOptions` is declared here for the same reason: imported from either
- * landing entry it must be the **same declaration**, not two structurally equal
+ * landing entry, it must be the same declaration and not two structurally equal
  * ones.
  *
- * Without a landing installed the visual is simply where the drop put it, and
+ * Without a landing installed, the visual is simply where the drop put it, and
  * none of this module is imported.
  */
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { LandingTiming } from './composition.ts';
 
 /**
- * What a contextual `duration` is handed.
+ * What a contextual `duration` receives.
  *
- * The four coordinates are the tail's endpoints — origin-relative viewport
- * deltas, where the visual was and where the drop decided it belongs — and
- * `distance` is the straight-line magnitude between them.
+ * The four coordinates are the landing animation's endpoints, as
+ * origin-relative viewport deltas: where the visual was and where the drop
+ * decided it belongs. `distance` is the straight-line magnitude between them.
  *
- * They are **scalars rather than two points**: the kernel already holds them as
- * scalars, so nesting them here would allocate two objects for a function that
+ * They are scalars and not two points: the kernel already holds them as
+ * scalars, and nesting them here would allocate two objects for a function that
  * most often reads only `distance`.
  */
 export type LandingTimingContext = Readonly<{
@@ -39,29 +39,28 @@ export type LandingTimingContext = Readonly<{
   distance: number;
 }>;
 
-/**
- * **The contextual duration function.**
- */
+/** The contextual duration function. */
 export type LandingDuration = (context: LandingTimingContext) => number;
 
 export type LandingOptions = Readonly<{
   /**
-   * Fixed at construction, or **read at landing time** through a function. The
+   * Fixed at construction, or read at landing time through a function. The
    * function is called once per landing, immediately before the interpolation
    * starts, and after the settlement step that decided where the visual went.
    *
    * A zero-parameter function such as `() => 200` is assignable and is called
    * the same way.
    *
-   * What the function form costs is one call per landing, at landing time
-   * rather than at construction — the value does not exist before then.
+   * The function form costs one call per landing, at landing time and not at
+   * construction. The value does not exist before then.
    *
-   * **The domain is a finite number of milliseconds, and nothing here detects a
-   * violation.** Either form — the fixed number or the value the function
-   * returns — is handed to the platform's `animate()` as written, which refuses
+   * The domain is a finite number of milliseconds, and nothing here detects a
+   * violation. Either form, the fixed number or the value the function returns,
+   * is passed to the platform's `animate()` as written. `animate()` refuses
    * `NaN`, a negative, `-Infinity`, a string and an object itself. The refusal
    * reaches the consumer as a warning and changes nothing about the drop, which
-   * is already complete: the tail is an interpolation, not a gate.
+   * is already complete: the landing animation only interpolates, and nothing
+   * waits on it.
    */
   duration?: number | LandingDuration;
   easing?: string;
@@ -72,13 +71,13 @@ const DEFAULT_EASING = 'ease';
 
 /**
  * Builds the timing both behaviors install. Pure: it allocates one closure and
- * reads no DOM, so an installer calling it stays externally inert.
+ * reads no DOM, so an installer that calls it stays externally inert.
  */
 export function createLandingTiming(
   options: LandingOptions,
   realm: DOMRealm,
 ): LandingTiming {
-  // **Both options are always read**, unconditionally.
+  // Both options are always read, unconditionally.
   const declared = options.duration ?? DEFAULT_DURATION;
   const timing: LandingDuration | null =
     typeof declared === 'function' ? declared : null;
@@ -88,19 +87,19 @@ export function createLandingTiming(
   const easing = options.easing ?? DEFAULT_EASING;
 
   return (fromX, fromY, toX, toY) => {
-    // Resolved **once per landing**, and **before the reduced-motion test,
-    // never inside it**. The documented call timing — once per landing,
-    // immediately before the interpolation starts — is not conditional on a
-    // media query. Resolving inside the collapse would make a consumer's
-    // settle-time side effect, and a thrown result, observable only for users
-    // who have not asked for reduced motion.
+    // Resolved once per landing, before the reduced-motion test and never
+    // inside it. The documented call timing, once per landing and immediately
+    // before the interpolation starts, does not depend on a media query.
+    // Resolving inside the collapse would make a consumer's settle-time side
+    // effect, and a thrown result, observable only for users who have not asked
+    // for reduced motion.
     const resolved = timing
       ? timing({
           fromX,
           fromY,
           toX,
           toY,
-          // The endpoints are the kernel's; the distance is the one arithmetic
+          // The endpoints are the kernel's. The distance is the one calculation
           // this context adds.
           distance: Math.hypot(toX - fromX, toY - fromY),
         })
@@ -109,10 +108,10 @@ export function createLandingTiming(
       realm.window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ??
       false;
 
-    // **Collapsed to zero rather than declined**, so the element arrives on the
-    // frame the drop lands and the two motion preferences differ in duration
-    // alone. An unbounded duration therefore collapses and lands: that misuse
-    // differs by OS setting, and nothing waits on either answer.
+    // Reduced to zero and not declined, so the element arrives on the frame the
+    // drop lands and the two motion preferences differ in duration alone. An
+    // unbounded duration therefore collapses and lands: that misuse differs by
+    // OS setting, and nothing waits on either answer.
     return { duration: reduced ? 0 : resolved, easing };
   };
 }

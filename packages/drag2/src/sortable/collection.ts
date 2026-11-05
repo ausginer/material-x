@@ -1,10 +1,10 @@
 /**
- * Collection reconciliation and proposal construction. Both are **pure**: they
- * read identity, never the DOM, never the pointer, and never mutate anything.
+ * Collection reconciliation and proposal construction. Both are pure: they read
+ * identity, never the DOM or the pointer, and they mutate nothing.
  *
- * The rule that shapes both: **intent is never recomputed from the latest
- * pointer position.** The exact identity gap the consumer was shown either
- * survives the replacement or the operation ends.
+ * One rule shapes both: intent is never recomputed from the latest pointer
+ * position. The exact identity gap the consumer was shown either survives the
+ * replacement or the operation ends.
  */
 import {
   type CollectionSnapshot,
@@ -16,7 +16,7 @@ import {
 
 /** The incumbent gap survived, rebased into the replacement. */
 export const CHANGE_REBASE = 112;
-/** It did not, and the operation must end. */
+/** The incumbent gap did not survive, so the operation must end. */
 export const CHANGE_CANCEL = 113;
 
 export type CollectionChange =
@@ -24,24 +24,23 @@ export type CollectionChange =
   | Readonly<{ type: typeof CHANGE_CANCEL }>;
 
 /**
- * The four survival rules, by gap kind. `dragged` must remain in `next`;
- * callers classify its removal separately, because that is a different
+ * The four survival rules, by gap kind. `dragged` must remain in `next`.
+ * Callers classify its removal separately, because that is a different
  * cancellation reason.
  *
- * **The arms decide; they do not also construct.** Each keeps its own survival
- * test, which is not the constructor's to hold, and then hands the surviving
+ * The arms decide and do not also construct. Each arm keeps its own survival
+ * test, which does not belong to the constructor, and then passes the surviving
  * gap's index to {@link insertionAt} over `next`'s destination view. The
  * neighbours an arm could carry across from the incumbent are exactly the ones
- * the rule derives, which is precisely what the test above each call has just
- * established.
+ * the rule derives, as the test above each call has just established.
  *
- * **One input where the rule and these tests disagree.** An incumbent with
- * `before` and `after` both `null` is the gap of a single-item collection: the
- * rule builds it, and `placeholderAt` reads it as trivially occupied. The
- * start-gap test refuses it, because there is no first destination item for
- * `after` to remain — so a publication during a one-item drag cancels the
- * operation. Whether it should is a **survival** question, not a construction
- * one, and is not decided here.
+ * On one input the rule and these tests disagree. An incumbent with `before`
+ * and `after` both `null` is the gap of a single-item collection: the rule
+ * builds it, and `placeholderAt` reads it as trivially occupied. The start-gap
+ * test refuses it, because there is no first destination item for `after` to
+ * remain. So a publication during a one-item drag cancels the operation.
+ * Whether it should is a survival question, not a construction one, and it is
+ * not decided here.
  */
 export function reconcileCollection(
   next: CollectionSnapshot,
@@ -93,26 +92,25 @@ export function reconcileCollection(
 }
 
 /**
- * The gap the dragged item itself occupies, with **real identity neighbours**.
+ * The gap the dragged item itself occupies, with real identity neighbours.
  *
- * Recomputed from the snapshot rather than stored, so it needs no per-operation
+ * Recomputed from the snapshot and not stored, so it needs no per-operation
  * slot and cannot go stale against a replacement.
  *
- * **This is {@link insertionAt} over a destination view it never
- * materializes.** Removing the item from the full list leaves every earlier
- * element where it was and shifts every later one down by one, so the gap at
- * the item's own index reads `items[from - 1]` and `items[from + 1]` — the
- * rule's two ends, evaluated without the array. It is the one site that does
- * not call the owner, because it is the one site that would have to
- * **allocate** a destination view to call it with, and seeding home stays free
- * of that. The identity is held by `tests/sortable/insertion.browser.test.ts`
- * exhaustively instead of by this paragraph.
+ * This is {@link insertionAt} over a destination view it never materializes.
+ * Removing the item from the full list leaves every earlier element where it
+ * was and shifts every later one down by one. So the gap at the item's own
+ * index reads `items[from - 1]` and `items[from + 1]`, the rule's two ends,
+ * evaluated without the array. This is the one site that does not call
+ * `insertionAt`, because it would have to allocate a destination view to call
+ * it, and seeding home stays free of that allocation.
+ * `tests/sortable/insertion.browser.test.ts` tests this identity exhaustively.
  *
- * **The equivalence has a precondition and it is the collection's own**: the
+ * The equivalence has a precondition, and it belongs to the collection: the
  * element distinctness `SortableConfig.items` publishes. `indexOf` finds one
  * occurrence where a filtered view drops them all, so on a duplicated
- * collection the two spellings diverge. That input is outside the contract
- * rather than handled here, and nothing detects it.
+ * collection the two forms diverge. That input is outside the contract and is
+ * not handled here, and nothing detects it.
  */
 export function homeInsertion(
   snapshot: CollectionSnapshot,
@@ -139,33 +137,33 @@ export type ProposalBuild = Readonly<{
 }>;
 
 /**
- * Every request field derives from **one** immutable, version-matching
- * snapshot: mixed-version arithmetic is invalid, so a gap carrying another
- * version fails construction rather than producing a request the consumer would
- * apply to a different ordering.
+ * Every request field derives from one immutable, version-matching snapshot.
+ * Mixed-version arithmetic is invalid, so a gap carrying another version fails
+ * construction and does not produce a request the consumer would apply to a
+ * different ordering.
  *
- * `null` is a broken invariant, not a no-op — the caller throws on it, and the
- * release seam classifies the throw at its own stage.
+ * `null` is a broken invariant, not a no-op. The caller throws on it, and the
+ * release transition classifies the throw at its own stage.
  *
- * **Neither neighbours nor range are checked here.** Both tests would read an
+ * Neither neighbours nor range are checked here. Both tests would read an
  * `Insertion` the library itself did not build: `InsertionGeometry.resolve` is
  * published at the middle tier, so a version-matching gap can arrive from
- * third-party axis code. The axis author **satisfies** the term instead —
+ * third-party axis code. The axis author satisfies the term instead.
  * `insertionAt` is published from `sortable/feature.js` beside the type and the
- * obligation, so the one construction rule is the author's too, and `index` is
+ * obligation, so the author has the same construction rule, and `index` is
  * documented there as a gap position in the destination view. A gap whose
  * neighbours are not the destination view's, or whose index is outside
  * `0 .. length`, is not a conforming contribution, and nothing here detects
- * one: the request carries the author's own `before`/`after` onward to the
+ * one: the request carries the author's own `before` and `after` onward to the
  * consumer.
  *
- * **No destination view is materialized either**, which is the measurable half:
- * it would exist on the release path solely to re-derive two neighbours and a
- * length that are taken from the insertion, so this function allocates nothing.
+ * No destination view is materialized either. It would exist on the release
+ * path only to re-derive two neighbours and a length that are taken from the
+ * insertion, so this function allocates nothing.
  *
- * The two tests that remain are about the pair `(snapshot, insertion)` and
- * survive on their own terms — a mixed-version gap is arithmetic over two
- * different orderings, and an item the snapshot does not hold has no `from`.
+ * The two remaining tests concern the pair `(snapshot, insertion)` and stand on
+ * their own: a mixed-version gap is arithmetic over two different orderings,
+ * and an item the snapshot does not hold has no `from`.
  */
 export function buildReorderProposal(
   snapshot: CollectionSnapshot,

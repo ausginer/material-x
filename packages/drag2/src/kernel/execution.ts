@@ -7,33 +7,32 @@ const REQUESTED = 1;
 const CLOSED = 2;
 
 /**
- * The controller-lifetime execution bracket: the lifecycle request, the
- * run-to-completion drain, the unit boundary at which a request is applied,
- * and teardown.
+ * The controller-lifetime execution loop: the lifecycle request, the
+ * run-to-completion drain, the unit boundary at which a request is applied, and
+ * teardown.
  *
- * **It holds nothing the kernel models.** No frame, operation, spec or DOM
- * node, and it invokes no slot the consumer filled — every consumer-visible act
- * stays behind the callbacks it is constructed with, or behind the report a
- * queued entry carries. It knows which two tags owe a report when their entry
- * is discarded, and nothing about what they mean; a behavior action is opaque
- * to it and is discarded whole. That is what makes the entity
- * safe to hold the lifecycle request: the datum every liveness rule is indexed
- * on is owned by the thing that can state its own invariant, and the storage
- * under it keeps owning none.
+ * It holds nothing the kernel models: no frame, operation, spec or DOM node. It
+ * invokes no slot the consumer filled. Every consumer-visible action stays
+ * behind the callbacks it is constructed with, or behind the report a queued
+ * entry carries. It knows which two tags must still report when their entry is
+ * discarded, and nothing about what they mean. A behavior action is opaque to
+ * it and is discarded whole. So this class can safely hold the lifecycle
+ * request: the value every liveness rule depends on belongs to the class that
+ * can state its invariant, and the storage under it still owns none.
  *
- * A *unit* is one synchronous entry into kernel code from outside it:
- * construction, a native ingress pass, one queued action. **Units do not
- * nest.** While one runs, a dispatch appends to the queue and returns, and a
- * native ingress pass is refused before it touches anything, so whether a unit
- * is running is one boolean. A request made while a unit runs is applied when
- * that unit ends and never inside it; with no unit running, the request call
- * is itself the boundary.
+ * A unit is one synchronous entry into kernel code from outside it:
+ * construction, a native event pass, or one queued action. Units do not nest.
+ * While one runs, a dispatch appends to the queue and returns, and a native
+ * event pass is refused before it touches anything, so whether a unit is
+ * running is one boolean. A request made while a unit runs is applied when that
+ * unit ends and never inside it. With no unit running, the request call is
+ * itself the boundary.
  */
 export class ExecutionLoop {
   /**
-   * Pending work. The storage iterates and decides nothing; the bracket
-   * supplies every semantic it deliberately has none of, including what becomes
-   * of an entry once destruction is requested.
+   * Pending work. The storage iterates and decides nothing. This class supplies
+   * every semantic, including what becomes of an entry once destruction is
+   * requested.
    */
   readonly #queue = new ActionQueue();
 
@@ -61,21 +60,23 @@ export class ExecutionLoop {
   readonly #beginPass: () => void;
 
   /**
-   * One drain step, handed to the queue. Minted once per bracket rather than
-   * per drain, because a drain runs on every pointer sample.
+   * One drain step, passed to the queue. Created once per loop and not per
+   * drain, because a drain runs on every pointer sample.
    *
-   * The lifecycle request is read before each action, the first entry of a
-   * drain included, and never inside one. A destruction requested by an action
+   * The lifecycle request is read before each action, including the first entry
+   * of a drain, and never inside one. A destruction requested by an action
    * therefore lets that action finish, and the next entry is the boundary: from
-   * there on nothing is handled, and the request is applied when the drain ends.
+   * there on nothing is handled, and the request is applied when the drain
+   * ends.
    *
-   * **A discarded entry still owes the fault it carries.** Destruction refuses a
-   * failure's claim on the operation and not the fault, so the walk goes on to
-   * the end of the queue and calls the report on each `FAILED` entry and each
-   * rejected `RESOLUTION_SETTLED` entry, in FIFO order. The controller is still
-   * unapplied, so the report passes the refusal while native ingress stays
-   * refused, and what it dispatches is appended and walked past. The tag decides
-   * because `ERROR_REPORTED` queues the same record, its fault already delivered.
+   * A discarded entry must still report the fault it carries. Destruction
+   * removes a failure's effect on the operation but does not remove the fault.
+   * So the walk continues to the end of the queue and calls the report on each
+   * `FAILED` entry and each rejected `RESOLUTION_SETTLED` entry, in FIFO order.
+   * Destruction is still not applied, so the report passes the refusal while
+   * native events stay refused, and what it dispatches is appended and walked
+   * past. The tag decides, because `ERROR_REPORTED` queues the same record with
+   * its fault already delivered.
    */
   readonly #step = (action: number, argument: unknown): boolean => {
     if (this.#lifecycle !== LIVE) {
@@ -94,15 +95,15 @@ export class ExecutionLoop {
    * Every callback is controller-invariant and supplied once, so the
    * per-action and per-sample paths allocate nothing.
    *
-   * @param handle - Runs one action. Must be **total**: an action it does not
+   * @param handle - Runs one action. Must be total: an action it does not
    *   recognise in the current phase is ignored, never thrown on.
    * @param panic - Receives a throw escaping `handle`, which is an invariant
-   *   violation. The bracket has already closed when it is called and tears
-   *   down once it returns, so it only reports, and it must not throw.
+   *   violation. The loop has already closed when it is called and tears down
+   *   once it returns, so it only reports, and it must not throw.
    * @param teardown - The caller's own physical release, invoked once, after
-   *   the bracket has released its own storage.
-   * @param beginPass - The caller's preparation for an ingress pass, invoked
-   *   only on a pass this bracket did not refuse.
+   *   the loop has released its own storage.
+   * @param beginPass - The caller's preparation for a native event pass,
+   *   invoked only on a pass this loop did not refuse.
    */
   constructor(
     handle: (action: number, argument: unknown) => void,
@@ -125,11 +126,11 @@ export class ExecutionLoop {
   }
 
   /**
-   * Whether a native ingress pass would be admitted: no unit is running and
-   * the controller is live.
+   * Whether a native event pass would be admitted: no unit is running and the
+   * controller is live.
    *
-   * Exposed so the caller can keep work it does ahead of a pass — work that
-   * must happen even when it opens none — behind the same refusal.
+   * Exposed so that the caller can keep work it does before a pass, which must
+   * happen even when it opens none, behind the same refusal.
    */
   get idle(): boolean {
     return !this.#running && this.#lifecycle === LIVE;
@@ -164,18 +165,18 @@ export class ExecutionLoop {
   }
 
   /**
-   * Runs one native ingress pass as a unit around `admit`, then drains what it
+   * Runs one native event pass as a unit around `admit`, then drains what it
    * dispatched.
    *
-   * **A refused pass prepares nothing**, which is the whole point of refusing
-   * before rather than after: a nested press that reached the caller's
-   * preparation would rebuild the draft a running unit is writing and commit
-   * its own origin. So the refusal precedes `beginPass`, and the caller may
-   * hold only preconditions of the call on its own side.
+   * A refused pass prepares nothing, so the refusal must come before the
+   * preparation. A nested press that reached the caller's preparation would
+   * rebuild the draft a running unit is writing and commit its own origin. So
+   * the refusal precedes `beginPass`, and the caller may hold only
+   * preconditions of the call on its own side.
    *
    * The drain after admission is unconditional. When admission requested
-   * destruction it handles nothing, because its step handles no entry from the
-   * first on.
+   * destruction, the drain handles nothing, because its step handles no entry
+   * from the first on.
    */
   runNativeEvent(admit: () => void): void {
     if (!this.idle) {
@@ -244,9 +245,9 @@ export class ExecutionLoop {
    * Drains to completion, then clears. Only a unit's owner calls it, so a
    * drain is never re-entered.
    *
-   * **Panic is the one immediate application**, in the order close, report,
-   * tear down. The throw has already abandoned the unit, so there is nothing
-   * left to complete before applying.
+   * Panic is the one immediate application, in the order close, report, tear
+   * down. The throw has already abandoned the unit, so nothing is left to
+   * complete before applying.
    */
   #drain(): void {
     try {
@@ -276,17 +277,17 @@ export class ExecutionLoop {
   }
 
   /**
-   * Releases the bracket's own storage, then the caller's.
+   * Releases the loop's own storage, then the caller's.
    *
-   * Clearing first is the argument-release invariant: no queued argument — a
-   * DOM element, a consumer value — outlives the drain that abandoned it. The
-   * settle is a `finally` around the callback, so the promise settles once per
-   * controller whether the caller's release returns or throws.
+   * Clear first to keep the argument-release invariant: no queued argument,
+   * such as a DOM element or a consumer value, outlives the drain that
+   * abandoned it. The settle is a `finally` around the callback, so the promise
+   * settles once per controller whether the caller's release returns or throws.
    *
-   * **A release nobody requested still leaves a settled promise.** Panic
-   * applies without a request, and a later {@link requestClose} finds the
-   * lifecycle `CLOSED` and applies nothing, so it must find the promise
-   * already settled rather than allocate one nothing would ever settle.
+   * A release nobody requested still leaves a settled promise. Panic applies
+   * without a request, and a later {@link requestClose} finds the lifecycle
+   * `CLOSED` and applies nothing. So it must find the promise already settled,
+   * and must not allocate one that nothing would ever settle.
    */
   #runTeardown(): void {
     try {

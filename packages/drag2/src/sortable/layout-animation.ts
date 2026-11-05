@@ -8,37 +8,37 @@
  * report       one additive `translate` per element, decaying to zero
  * ```
  *
- * **It measures nothing.** The vectors arrive from the axis, which either
- * predicted them from the cache it already held or read them once after the
- * write, so this feature owns duration, easing and the contributions it starts
- * — and no geometry at all. That is what it means for displacement to be a
- * *consumer* of axis-owned deltas.
+ * This feature measures nothing. The vectors come from the axis, which either
+ * predicted them from the cache it already held or read them once after the DOM
+ * write. So this feature owns duration, easing and the contributions it starts,
+ * and no geometry. Displacement only consumes axis-owned deltas.
  *
- * **Nothing is ever released, and one member is why.** An axis rebuilding its
- * cache must obtain *settled* geometry, and settling by cancelling first would
- * leave a window in which a row has jumped. So the sink answers for what it is
- * holding: {@link DisplacementContribution.settle} walks the buffer the axis
- * just measured and subtracts each element's current offset, computed from its
- * own animation's timing with **no layout read**. Rows in flight are measured
- * without being disturbed, and the walk is asked once per rebuild rather than
- * once per candidate.
+ * A rebuild never cancels a contribution, and {@link
+ * DisplacementContribution.settle} is the reason. An axis rebuilding its cache
+ * must obtain settled geometry, and cancelling first would leave a window in
+ * which a row has jumped. So the sink subtracts what it holds: `settle` walks
+ * the buffer the axis just measured and subtracts each element's current
+ * offset, computed from its own animation's timing with no layout read. Rows in
+ * flight are measured without being disturbed, and the walk runs once per
+ * rebuild, not once per candidate.
  *
- * **Contributions fold rather than stack.** A second move arriving mid-flight
- * cancels the running contribution and starts one from `residual + delta`,
- * which lands the element at exactly the position the running one had reached
- * — the same continuity a stack of additive contributions gives, but with one
- * animation per element, which is what makes the current offset answerable at
- * all.
+ * Contributions fold and do not stack. A second move arriving mid-flight
+ * cancels the running contribution and starts one from `residual + delta`. That
+ * lands the element at exactly the position the running one had reached. A
+ * stack of additive contributions gives the same continuity, but folding keeps
+ * one animation per element, and the sink needs that to compute the current
+ * offset.
  *
- * **It is not a lifecycle gate, and structurally cannot become one**: no seam
+ * Displacement is not a lifecycle gate and cannot become one: no behavior code
  * it can reach suspends anything. An in-flight displacement never delays
  * release, settlement or presentation teardown.
  *
- * **The dragged item and the placeholder are never reported**, so there is
- * nothing here to exclude them: an axis reports over the destination view,
- * which is the collection *minus* the dragged item, and the placeholder is not
- * in it either. The landing tail is on the dragged item's visual, which is
- * that item or a descendant of it, so it is disjoint by construction.
+ * The dragged item and the placeholder are never reported, so this module has
+ * no code to exclude them. An axis reports over the destination view, which is
+ * the collection minus the dragged item, and the placeholder is not in that
+ * view either. The landing animation is on the dragged item's visual, which is
+ * that item or a descendant of it, so it is disjoint from every reported
+ * element.
  */
 import type { SortableConfig } from './config.ts';
 import type { SortableDisplacementInstaller } from './feature.ts';
@@ -60,7 +60,7 @@ export type LayoutAnimationOptions = Readonly<{
 const DEFAULT_DURATION = 160;
 const DEFAULT_EASING = 'ease-out';
 
-/** What one element currently carries, and what it was issued for. */
+/** What one element currently carries, and the vector it started with. */
 type Contribution = {
   readonly animation: Animation;
   readonly dx: number;
@@ -69,19 +69,19 @@ type Contribution = {
 
 /**
  * How much of a contribution is still applied, as a fraction of the vector it
- * was issued for.
+ * started with.
  *
- * **Timing, not layout.** `getComputedTiming().progress` is the *transformed*
- * progress — the effect's easing has already been applied to it — and the
+ * This reads timing, not layout. `getComputedTiming().progress` is the
+ * transformed progress: the effect's easing has already been applied to it. The
  * keyframes interpolate linearly from the issued vector to zero, so the
- * remaining fraction is one minus it. An unresolved progress means the effect
- * is applying nothing.
+ * remaining fraction is one minus the progress. An unresolved progress means
+ * the effect is applying nothing.
  *
- * **The fraction is not confined to `[0, 1]`**, and nothing here needs it to
- * be: an overshooting easing drives the transformed progress outside `[0, 1]`,
- * and `issued × (1 - progress)` is still exactly what the element is currently
+ * The fraction is not confined to `[0, 1]`, and nothing here needs it to be. An
+ * overshooting easing drives the transformed progress outside `[0, 1]`, and
+ * `issued × (1 - progress)` is still exactly what the element is currently
  * carrying, which is what both callers multiply by. A clamp would make the fold
- * and the settle walk disagree with the animation they are describing.
+ * and the settle walk disagree with the animation they describe.
  */
 const remainingOf = (animation: Animation): number => {
   const { progress } = animation.effect!.getComputedTiming();
@@ -92,27 +92,26 @@ const remainingOf = (animation: Animation): number => {
 /**
  * The displacement feature, written `displacement: layoutAnimation()`.
  *
- * **A named key, not a plugin.** Two mechanisms writing additive `translate` on
- * the same rows is a collision worth making unrepresentable rather than
- * detectable, and the key's cardinality is what does it.
+ * This is a named key and not a plugin, because two mechanisms writing additive
+ * `translate` on the same rows would collide. A key holds one value, so that
+ * collision cannot be expressed.
  */
 export function layoutAnimation(
   options: LayoutAnimationOptions = {},
 ): Pick<SortableConfig, 'displacement'> {
-  // **Unchecked.** This animation gates nothing, so an unbounded one leaves
-  // displaced rows offset until the controller is destroyed and costs the
-  // library nothing.
+  // These options are not checked. This animation gates nothing, so an
+  // unbounded one leaves displaced rows offset until the controller is
+  // destroyed and costs the library nothing.
   const { duration = DEFAULT_DURATION, easing = DEFAULT_EASING } = options;
 
   const install: SortableDisplacementInstaller = () => {
     /**
      * Every contribution in flight, keyed by the element carrying it.
      *
-     * **A `Map`, because the sink must answer for an element.** An axis
-     * rebuilding its cache while displacement runs asks what this feature is
-     * holding for a given row, which is a lookup; and one record per element is
-     * what folding needs, since a fold has to find the contribution it
-     * supersedes.
+     * This is a `Map` because the sink must answer for an element. An axis
+     * rebuilding its cache while displacement runs asks what this feature holds
+     * for a given row, which is a lookup. A fold also needs one record per
+     * element, because it has to find the contribution it replaces.
      */
     const running = new Map<HTMLElement, Contribution>();
 
@@ -131,11 +130,11 @@ export function layoutAnimation(
         const previous = running.get(element);
 
         if (previous) {
-          // **The fold.** The element is presenting at its old flow position
-          // plus whatever is left of the previous contribution; starting the
-          // replacement from that residual plus the new vector leaves it
-          // exactly there once the write has landed, so the two contributions
-          // sum without either of them being replayed.
+          // Fold into the previous contribution. The element is presenting at
+          // its old flow position plus what is left of the previous
+          // contribution. Starting the replacement from that residual plus the
+          // new vector leaves the element exactly there once the DOM write has
+          // happened. So the two contributions sum, and neither is replayed.
           const remaining = remainingOf(previous.animation);
 
           sx += previous.dx * remaining;
@@ -144,29 +143,30 @@ export function layoutAnimation(
           running.delete(element);
         }
 
-        // The individual `translate` property, added rather than assigned.
+        // Use the individual `translate` property, added and not assigned.
         //
-        // `transform` would be wrong twice over: it *replaces* an authored
+        // `transform` would be wrong for two reasons: it replaces an authored
         // `rotate(4deg)` for the duration, and it overrides a consumer's own
-        // running transform animation. Additive `transform` is wrong too —
+        // running transform animation. Additive `transform` is wrong too:
         // additive transform lists concatenate, so the offset would land inside
         // the element's own `scale()` and move it by a multiple of the delta,
         // while the delta is in viewport space.
         //
-        // `translate` applies *before* `transform` in the used-value chain
+        // `translate` applies before `transform` in the used-value chain
         // (`translate → rotate → scale → transform`), so the offset is outside
-        // the element's own transform and needs no correction; and
+        // the element's own transform and needs no correction.
         // `composite: 'add'` composes it with an authored `translate` or a
-        // consumer animation on the same property instead of clobbering it.
+        // consumer animation on the same property and does not overwrite them.
         //
-        // **The one expression that changes units.** The vector is a viewport
-        // quantity and a `translate` is a local one, so it is projected through
-        // the inverse of the inherited linear part — four multiplies under an
-        // ancestor transform, one null test without one, which is the common
-        // case. Everything the sink *stores* stays in viewport space: the fold
-        // and the settle walk both work in the units the axis reports,
-        // and a local keyframe decaying to zero is `sx × remaining` in viewport
-        // at every instant, which is what the walk assumes.
+        // This expression is the only one that changes units. The vector is a
+        // viewport quantity and a `translate` is a local one, so the vector is
+        // projected through the inverse of the inherited linear part. That
+        // costs four multiplies under an ancestor transform, and one null test
+        // without one, which is the common case. Everything the sink stores
+        // stays in viewport space: the fold and the settle walk both work in
+        // the units the axis reports, and a local keyframe decaying to zero is
+        // `sx × remaining` in viewport at every instant, which is what the walk
+        // assumes.
         const animation = element.animate(
           [
             {
@@ -184,9 +184,9 @@ export function layoutAnimation(
         const record: Contribution = { animation, dx: sx, dy: sy };
 
         try {
-          // The library holds nothing after the contribution ends, and the
-          // identity test is what keeps a fold's cancellation from evicting the
-          // record that superseded it.
+          // The library holds nothing after the contribution ends. The identity
+          // test keeps a fold's cancellation from evicting the record that
+          // replaced it.
           animation.finished.then(
             () => {
               if (running.get(element) === record) {
@@ -194,14 +194,14 @@ export function layoutAnimation(
               }
             },
             () => {
-              // A cancel — from a fold or from `retire` — rejects `finished`;
-              // each has already dropped the record it cancelled.
+              // A cancel, from a fold or from `retire`, rejects `finished`.
+              // Each has already dropped the record it cancelled.
             },
           );
         } catch (error) {
           // Acquisition is all-or-nothing: `finished` is an accessor and `then`
-          // a call, so an animation started but never tracked would survive
-          // `retire()` and keep offsetting an element nothing owns.
+          // a call. An animation started but never tracked would survive
+          // `retire()` and keep offsetting an element no code owns.
           animation.cancel();
           throw error;
         }
@@ -210,10 +210,9 @@ export function layoutAnimation(
       },
 
       settle(values, items, count): void {
-        // **An empty map returns at once; otherwise the walk visits every
-        // slot.** The common rebuild happens with nothing in flight, and an
-        // empty map answers that in one property read rather than `count`
-        // lookups.
+        // An empty map returns at once; otherwise the walk visits every slot.
+        // The common rebuild happens with nothing in flight, and an empty map
+        // answers that in one property read, not `count` lookups.
         if (running.size === 0) {
           return;
         }
@@ -227,9 +226,9 @@ export function layoutAnimation(
             const dy = held.dy * remaining;
             const offset = i * STRIDE;
 
-            // The centres are recomputed from the settled edges rather than
-            // offset themselves, so the arithmetic is the one a full scan
-            // performs and the equivalence instrument compares like with like.
+            // The centres are recomputed from the settled edges and are not
+            // offset themselves. So the arithmetic is the one a full scan
+            // performs, and the equivalence check compares like with like.
             const left = values[offset + LEFT]! - dx;
             const right = values[offset + RIGHT]! - dx;
             const top = values[offset + TOP]! - dy;
@@ -245,9 +244,9 @@ export function layoutAnimation(
         }
       },
 
-      // **Teardown only.** Nothing is cancelled to let something measure: a
-      // rebuild settles the buffer instead, so the one cancel left is the one
-      // that has to exist, when the controller stops owning the rows.
+      // Teardown only. Nothing is cancelled to let something measure: a rebuild
+      // settles the buffer instead. The one remaining cancel has to exist, for
+      // when the controller stops owning the rows.
       retire,
     };
   };

@@ -8,9 +8,9 @@
  * Construction fails explicitly when `defaultView` is `null`; falling back to
  * the ambient `window` would mix realms.
  *
- * The construction-time context carries it — `BehaviorContext` at the kernel
- * tier, the feature context at the middle tier — so a behavior schedules and
- * measures in the realm the controller was built on rather than in the ambient
+ * The construction-time context carries this value: `BehaviorContext` at the
+ * kernel tier, the feature context at the middle tier. So a behavior schedules
+ * and measures in the realm the controller was built on, not in the ambient
  * one.
  */
 export type DOMRealm = Readonly<{
@@ -32,17 +32,17 @@ export function createRealm(element: Element): DOMRealm {
     document,
     window: view,
     isElement(value): value is HTMLElement {
-      // This realm first. `instanceof` is exact where a bare `nodeType === 1`
-      // test is not: that test accepts SVG and MathML elements, and any plain
-      // object carrying the property, all of which the `HTMLElement` return
-      // type claims they are not.
+      // Check this realm first. `instanceof` is exact where a bare
+      // `nodeType === 1` test is not: that test accepts SVG and MathML elements
+      // and any plain object with the property, and none of those is the
+      // `HTMLElement` that the return type states.
       if (value instanceof view.HTMLElement) {
         return true;
       }
 
-      // Another realm's element is not `instanceof` *this* realm's constructor,
+      // Another realm's element is not `instanceof` this realm's constructor,
       // so reach that realm's constructor through the node's own document
-      // rather than weakening the check to a duck-type.
+      // instead of weakening the check to a duck-type.
       const foreign = (value as Node | null | undefined)?.ownerDocument
         ?.defaultView;
 

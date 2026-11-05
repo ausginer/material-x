@@ -1,24 +1,22 @@
-// The reusable coordinate buffer, declared **where declaration emit cannot
-// publish it**. `type-fest` is a `devDependency`, and emit is total per module:
+// The reusable coordinate buffer, declared where declaration emit cannot
+// publish it. `type-fest` is a `devDependency`, and emit covers a whole module:
 // an `export type` naming `Writable` in `kernel/types.ts` would put a
-// `type-fest` import into the tarball's type surface of a package that does not
-// depend on it. This module is type-only and reachable from no public
-// declaration, so the declaration prune removes it — which is what makes the
-// name safe rather than the two existing uses' accident of sitting on local
-// `const`s.
+// `type-fest` import into the published types of a package that does not depend
+// on it. This module is type-only and no public declaration reaches it, so the
+// declaration prune removes it. That makes the name safe, and the safety does
+// not depend on the two existing uses happening to sit on local `const`s.
 //
-// A module header rather than a doc block, for the reason `kernel/types.ts`
-// states.
+// A module header and not a doc block, for the reason `kernel/types.ts` states.
 
 import type { Writable } from 'type-fest';
 import type { Point } from './types.ts';
 
 /**
- * A {@link Point} a single owner writes in place and hands out **borrowed**.
+ * A {@link Point} that a single owner writes in place and lends to its reader.
  *
- * It is the return type of an `anchorTarget` implementation: the kernel reads
+ * It is the return type of an `anchorTarget` implementation. The kernel reads
  * both fields immediately and retains nothing, so one buffer per controller
- * serves every settlement arm. Nothing may depend on what it holds between
- * calls — it is a return buffer, not state.
+ * serves every settlement arm. Nothing may depend on what the buffer holds
+ * between calls: it is a return buffer, not state.
  */
 export type PointCache = Writable<Point>;
