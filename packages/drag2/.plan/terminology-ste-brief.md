@@ -10,9 +10,10 @@ Review identifiers and the comments that explain them together. A name can use c
 
 - Establish what the code does by reading the implementation and its call sites. Identify the action, the object it acts on and any distinction the name must preserve.
 - Prefer established platform or programming vocabulary when it describes that behavior accurately. Keep a useful domain term when ordinary vocabulary would lose a real distinction.
-- Question local metaphors, unexplained abbreviations and several names for the same concept. Do not replace them with a new metaphor or require a glossary to explain an avoidably unclear name.
-- Read proposed names at their call sites. Use the surrounding class or module as context instead of repeating every detail in each identifier. Check related names together.
-- Do not replace precise terms merely because they are technical. For example, registering a request and applying it are different actions in this implementation. Simpler wording must preserve that difference.
+- Question local metaphors, unexplained abbreviations, several names for the same concept and one name used for different concepts. Do not replace them with a new metaphor or require a glossary to explain an avoidably unclear name.
+- Read proposed names at their call sites. Use the surrounding class or module as context instead of repeating every detail in each identifier. Check related names together, but do not assume the whole family needs renaming.
+- Identify where a proposed change reaches: a private name, an internal member, a published API or SPI, consumer documentation, current contract text, or a runtime message. A name shared with a published member does not make every private rename a public change. Names for different roles, such as starting an animation and supplying its timing, need not be identical.
+- Preserve established technical terms such as `delta`, `vector`, `callback` and `transaction` when they are accurate. Explain how the concept applies rather than replacing its name with a less precise everyday word. For example, a viewport delta is a signed displacement; calling it a distance loses information. Registering a request and applying it are also different actions in this implementation.
 
 Initial examples, read from the current source:
 
@@ -24,6 +25,8 @@ Initial examples, read from the current source:
 | `#movedLeaf` | Reuses a wrapper that calls `spec.moved` with the current frame and supplied lift | `#callMoved` |
 
 These are discussion examples, not a replacement dictionary. In particular, evaluate the callback names as a family and check that their context makes the failure behavior clear enough.
+
+The [first pilot](reviews/terminology-ste-pilot.md) identifies related names and their reach. Its full rename map is not approved. `BehaviorSpec.landingTail` and `LandingTail` are published SPI, while the private method starts the animation. `runLeafValue` has no production caller in the pilot's source search; deciding whether to remove it is a separate cleanup task.
 
 ## 2. Express the model in direct English
 
@@ -41,6 +44,8 @@ Prefer a concrete subject and action. Name what is released, called, reported, r
 The first example concerns agent instructions, not resource cleanup. `dispose()` is an established name for resource cleanup and may be appropriate in code. Do not rename every occurrence of `dispose`, or replace every “dispose of” with “release resources”. Determine the intended action first.
 
 These examples are preferences, not banned words. A familiar technical term can be clearer than a long substitute. Shorter wording is useful only if it preserves the meaning.
+
+Look for recurring sentence patterns as well as individual words: “which is what makes…”, “the whole of why…” and “load-bearing” can often become a direct statement of the action or constraint. Do not turn those examples into mandatory substitutions. A clearer name should not need a whole explanatory sentence inside the identifier.
 
 ## 3. Reduce comments, then rewrite what remains
 
@@ -67,6 +72,8 @@ The comment for the reused movement callback can explain its reason directly:
 
 This explains one avoided allocation; it does not claim that the whole pointer-sample path allocates nothing.
 
+Compare the rewrite with the original claim and the code. Preserve technical distinctions, conditions, ordering and degree of certainty. Do not turn “may” into “always”, describe an example as a complete list, or turn one implementation technique into the only possible solution. If the original claim appears false, report it instead of making it sound more authoritative through simpler wording.
+
 Follow the [documentation model](../../../.agents/docs/documentation.md#5-source-comments): published JSDoc serves consumers; internal comments serve maintainers. Do not remove a precondition because the code trusts it. Preserve rationale according to the existing record rules rather than silently deleting the only explanation.
 
 ## 4. Apply the guide without changing the design
@@ -75,6 +82,10 @@ Begin with the small kernel sample in the plan. Show the owner representative na
 
 Keep identifier renames, prose edits and the separately planned named union variants distinguishable in the diff. Preserve behavior, ordering, failure handling and ownership. Public API or SPI renames follow the existing architecture process. Report a semantic conflict or possible code defect separately; do not repair it through a wording pass.
 
+Unused-code removal and the pilot's possible behavior defects are separate work. Leave disputed passages for that work and continue with independent clarity changes. Do not make every reported question a prerequisite for the whole pass.
+
 Apply the same two checks to the planned agent-instruction work and to future prompts and reports. Preserve obligations, role authority, evidence limits and the difference between measured, inferred, accepted and unresolved results. Do not add rigid sentence limits, word bans, report templates or new approval gates to enforce this guide. Prompts should not contain manual line breaks inside sentences; code and repository prose follow their existing formatting rules.
 
-Do not rewrite or audit historical journals, decisions, measurements and review reports for clarity. The compression pass also stays separate. Use checks appropriate to the edits under the existing workflow; prose-only work does not require statistical performance rounds.
+Do not rewrite or audit historical journals, decisions, measurements and review reports for clarity. Update current documentation that directly depends on an implemented rename under its existing ownership rules; a mixed document can contain both current instructions and dated history, so distinguish them at the passage being changed. Preserve historical entries rather than replacing their old names throughout the archive.
+
+The compression pass also stays separate. Use checks appropriate to the edits under the existing workflow; prose-only work does not require statistical performance rounds. Identifier renames can change emitted property names, so use the existing size check when the edited names can affect bundle output.
