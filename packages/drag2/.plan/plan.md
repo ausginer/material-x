@@ -39,7 +39,15 @@ The published `landingTail` and `LandingTail`, runtime messages, `delta` and the
 
 **Questions from this batch, not repaired.** (1) The `#landingAnimation` comment says two animations can coexist "in principle" after a second drag and drop. `#acquireActivation` cancels the slot before every activation, so the code read shows no such state within one controller; the comment keeps its wording until the question is decided. (2) The pilot's Example 1 says the vector is converted with "the inverse of `space`". `space` already is the inverse (`ActivationRecord.visualSpace`), so the source comment says "through `space`, the inverse of the space above the visual".
 
-**Next.** The owner reviews this batch. Work stops here until then.
+**Refinement of the batch, 2026-11-05.** Input: `28736a843`. Scope: `cleanup-1`, `cleanup-2` and `cleanup-3` from the [batch review](reviews/terminology-ste-batch1-review.md), in `src/kernel/kernel.ts` comments only. `cleanup-4` and the pilot's other questions are unchanged.
+
+- **`cleanup-1`, which closes question 1 above.** The `#landingAnimation` comment now states the rules instead of the two-animation example. The example, its keyed-map cost and "stopped caring about" are removed, because they described a state the code does not reach. No other reason for one slot is stated. Evidence: `#cancelLandingAnimation` has two callers, the first statement of `#acquireActivation` and step 7 of `teardown`. It does not compare elements. `#startLandingAnimation` has one path: `#joinSettlement`, from a committed `#openSettlement`. Its only callers require `ACTIVATING`, `ACTIVE` or `RELEASING`, and `ACTIVATING` is committed only by `#activate` after that cancel. Existing browser tests cover the next-drag cancel on the same item, the press that keeps the animation and the destroy cancel. The cancel on a different element rests on the code read only.
+- **`cleanup-2`.** "Safe" is now "correct only in this order", "needs an animation" is now "decides whether to animate this drop", and "can outlive" is now a statement that retirement does not cancel the animation and that it continues after the operation ends. The disputed `pilot-5` and `pilot-6` reasons are not repaired.
+- **`cleanup-3`.** The `#callMoved` comment now says "closure" for the inline case and uses "arrow function" once, for the field. The bundle claim that the review left unchecked is now checked: a temporary inline arrow at the `runLeaf` call site stayed in the `minimal` bundle as `runLeaf(e=>{…},3,…)`. That probe was reverted. It measured `minimal` at 10.30 kB Brotli against 10.33 kB, so the field costs bytes and saves the per-sample allocation; `complete` showed 10.79 kB in both.
+
+**Verification of the refinement.** Against `28736a843`: all 15 `measured/` bundles from `just size --files` are byte-identical, and the size report is unchanged, including the published declarations at 115605 B. The measured graphs include `kernel.ts`. The esbuild emit of `kernel.ts` with type stripping and whitespace minification is identical. `just test` passes (78 files, 1494 passed, 68 skipped), and `just typecheck` and `just lint src/kernel/kernel.ts` pass. Readability was not measured.
+
+**Next.** The owner reviews this batch and its refinement, and decides the scope of the next batch. Work stops here until then.
 
 **Scope and order.**
 

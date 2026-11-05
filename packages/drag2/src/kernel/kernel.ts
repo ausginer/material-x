@@ -585,9 +585,10 @@ class ArmedController<Part extends object, Activation extends {}> {
    * A late resolution is inert after this: it validates against the slot it was
    * minted for, which is now empty.
    *
-   * **The landing animation is not one of these.** It is controller-scoped and
-   * can outlive the operation: it holds nothing, so it has no reason to end
-   * when the operation does.
+   * **The landing animation is not one of these.** It is controller-scoped, and
+   * operation retirement does not cancel it, so it continues after the operation
+   * ends. It holds nothing, so retirement has no reason to end it. Physical
+   * teardown cancels it at step 7.
    */
   #retireAttempts(): void {
     this.#attempts.command = null;
@@ -674,10 +675,13 @@ class ArmedController<Part extends object, Activation extends {}> {
    * ended, so an operation-scoped slot would be cleared before the only code
    * that reads it.
    *
-   * **One slot, not a set.** Two landing animations can coexist in principle —
-   * drop one item, drag and drop a second, and the first may still be running —
-   * and keeping both would cost a keyed map and a removal path to preserve an
-   * animation on an item the user has demonstrably stopped caring about.
+   * **One slot, not a set.** `#acquireActivation` empties this slot before every
+   * activation and cancels what it held, on whichever element that animation
+   * runs. `#startLandingAnimation` runs at most once per activated operation, so
+   * it always finds the slot empty. A press that does not activate starts nothing
+   * and cancels nothing, so a running animation continues through that press.
+   *
+   * Only activation and physical teardown cancel the animation.
    *
    * A finished animation is left in the slot rather than cleared through a
    * subscription: cancelling one is a no-op, and one retained {@link Animation}
@@ -1588,8 +1592,8 @@ class ArmedController<Part extends object, Activation extends {}> {
       return; // the visual is already where the drop decided
     }
 
-    // `landingTail` is behavior code, and its own policy: it decides whether
-    // this drop needs an animation and how long that takes. Unwound rather than
+    // `landingTail` is behavior code, and its own policy: it decides whether to
+    // animate this drop and how long the animation takes. Unwound rather than
     // classified, because a landing animation is presentation and a
     // presentational fault may not reach a consumer whose drop has already been
     // decided and reported.
@@ -1643,9 +1647,9 @@ class ArmedController<Part extends object, Activation extends {}> {
    * could only restate the position the release is about to produce, on an
    * element whose inline `transform` the very next statement restores.
    *
-   * **Ordering is normative and it is what makes the landing animation safe.**
-   * The release gives the visual's inline styles, its place in flow and the
-   * behavior's own presentation back to the consumer; only then does anything
+   * **The order is normative, and the landing animation is correct only in this
+   * order.** The release gives the visual's inline styles, its place in flow and
+   * the behavior's own presentation back to the consumer; only then does anything
    * interpolate. So the terminal callback runs in a world the library holds no
    * claim on.
    *
@@ -1878,10 +1882,10 @@ class ArmedController<Part extends object, Activation extends {}> {
   /**
    * Calls `spec.moved`. The controller creates this callback once and reuses it.
    *
-   * It is a field, not an arrow at the call site, because an inline arrow
-   * allocates a new closure on every active pointer sample, the one path whose
-   * allocations count. The emitted bundle keeps that arrow. It is an arrow, not
-   * a prototype method, because the driver calls it without `this`.
+   * A closure written inline at the call site would be allocated on every active
+   * pointer sample, the one path whose allocations count, and the emitted bundle
+   * would keep that allocation. So this field holds one closure. The driver calls
+   * it without `this`, so the field is an arrow function, not a prototype method.
    *
    * `#handleMove` passes the lift as the argument. The callback reads the
    * swappable `current` frame when it runs, so nothing is captured by value.
