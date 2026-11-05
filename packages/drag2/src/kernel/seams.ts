@@ -1,16 +1,15 @@
 /**
  * The transactional seam driver.
  *
- * Every substantial action is three stages — **prepare** (validation, pure
+ * Every substantial action has three steps — **prepare** (validation, pure
  * calculation, DOM reads, local acquisition), **commit** (short, effectively
  * non-throwing), **post-commit effects** (DOM writes, lifetime closes,
  * continuations, callbacks). The order is the shape of the contract rather than
- * a rule the behavior obeys: the kernel drives all three stages and the
- * behavior supplies two pure-ish callbacks.
+ * a rule the behavior obeys: the kernel drives all three steps and the behavior
+ * supplies two pure-ish callbacks.
  *
- * There is one core routine, and **no seam is only the core** — the discard
- * policy and the failure policy differ per seam, so each seam wraps the core
- * with its own.
+ * `SeamDriver.runTransition` runs those steps. The discard policy and the
+ * failure policy differ per seam, so each caller applies its own to the outcome.
  */
 import { DraggableWarning, type Notify } from './errors.ts';
 import type { FailureStage } from './failures.ts';
@@ -120,7 +119,7 @@ type PhaseStage = FailureStage | typeof UNCLASSIFIED;
  * A phase that threw or latched a failure, as a value.
  *
  * A private symbol, so it is distinguishable from every legal `Prepared`,
- * `null` and leaf value without constraining what a seam may stage.
+ * `null` and callback value without constraining what a seam may stage.
  */
 const FAILED = Symbol();
 
@@ -216,24 +215,22 @@ export class SeamDriver<Part extends object> {
   }
 
   /**
-   * The shared core: begin → prepare → commit → effect. Returns the outcome;
-   * the caller applies its own seam's continuation policy.
+   * Runs one frame transaction: begin → prepare → commit → effect. Returns the
+   * outcome; the caller applies its own seam's continuation policy.
    *
-   * **A successful preparation commits.** Nothing between `prepare` and the
+   * A successful preparation commits. Nothing between `prepare` and the
    * commit reads a request: a cancel or destroy raised inside the seam is
    * registered and applied at a unit boundary, after this one, so it cannot
    * invalidate the preparation the running unit computed.
    *
-   * A committed transition leaves its `Prepared` value in the staging slot, for
-   * the one seam whose staged value the *kernel* needs after the seam returns —
-   * the release seam's `ResolutionCommand`. Read it with
-   * {@link SeamDriver.consumeStaged}.
+   * A committed transition leaves its `Prepared` value in the staging slot. The
+   * kernel reads one such value after the seam returns: the release seam's
+   * `ResolutionCommand`. Read it with {@link SeamDriver.consumeStaged}.
    *
-   * `effectStage` defaults to `stage` and exists for the one seam whose two
-   * phases fail at different stages: a behavior action resolves an insertion in
-   * `prepare` and moves the placeholder in `effect`, and a throw in each is
-   * classified at its own stage. An explicit `kernel.fail` narrows further from
-   * the inside; this is only the default a raw throw lands on.
+   * `effectStage` is the stage of a throw from `effect`. A behavior action needs
+   * it: it resolves an insertion in `prepare` and moves the placeholder in
+   * `effect`, and a throw in each is classified at its own stage. An explicit
+   * `kernel.fail` can name a narrower stage.
    */
   runTransition<Prepared extends {}, Capability>(
     transition: Transition<Part, Prepared, Capability>,
@@ -242,17 +239,15 @@ export class SeamDriver<Part extends object> {
     phase: Phase | null = null,
     effectStage: FailureStage = stage,
   ): SeamOutcome {
-    // Not the same call as the one inside `#callAndHandleFailure`, and not redundant with
-    // it: a transaction mutates kernel state *before* its first phase opens,
-    // and `begin()` would rebuild the draft the outer seam is still building.
-    // The refusal has to land before that, not after `begin()`.
+    // `#callAndHandleFailure` also refuses, but too late for this method: a
+    // transaction mutates kernel state before its first phase opens, and
+    // `begin()` would rebuild the draft the outer seam is still building.
     this.#refuseReentry();
 
     if (this.#staged !== null) {
-      // The clear below already makes this harmless; the report is what stops
-      // it from being *invisible*. A staged value still sitting here means
-      // the previous seam neither consumed nor dropped it, which is the one
-      // way a command can outlive its transaction.
+      // The clear below makes this harmless, and the report makes it visible. A
+      // staged value here means the previous seam neither consumed nor dropped
+      // it, which is the one way a command can outlive its transaction.
       this.#notify(new DraggableWarning('drag: seam/staged-unconsumed'));
     }
 
@@ -264,7 +259,7 @@ export class SeamDriver<Part extends object> {
     );
 
     if (prepared === FAILED) {
-      return SEAM_PREPARE_FAILED; // nothing staged escaped
+      return SEAM_PREPARE_FAILED;
     }
 
     if (prepared === null) {
@@ -278,33 +273,32 @@ export class SeamDriver<Part extends object> {
     );
 
     if (effected === FAILED) {
-      return SEAM_EFFECT_FAILED; // classified, from the committed state
+      return SEAM_EFFECT_FAILED;
     }
 
-    // Staged **after** the effect, deliberately. Anything the effect triggers
-    // — a queued action, a consumer callback — therefore cannot observe or
-    // clear this transition's staged value, and the assignment lands last
-    // regardless of what ran in between.
+    // Stage after the effect, so anything the effect triggers, such as a queued
+    // action or a consumer callback, cannot observe or clear this value.
     //
     // Unconditional: a request the effect raised is applied after this unit.
-    // The release seam's caller queues the round-trip as a unit of its own,
-    // whose entry declines on a registered cancel, and which application of a
-    // destroy at this unit's boundary discards.
+    // The release seam's caller queues the round-trip as its own unit. That
+    // unit's entry declines on a registered cancel, and applying a destroy at
+    // this unit's boundary discards the unit.
     this.#staged = prepared;
     return SEAM_COMMITTED;
   }
 
   /**
-   * A non-transactional seam returning nothing — `moved`, `finalized`. Returns
-   * `false` when it threw or latched a failure.
+   * Runs one behavior callback without a frame transaction, such as `moved` or
+   * `finalized`. A throw is classified at `stage`. Returns `false` when the
+   * callback threw or latched a failure.
    *
-   * This exists so those seams behave **identically** whether the behavior
-   * throws or calls `kernel.fail`. Without it a `moved` throw would escape the
-   * handler and become a *panic* that destroyed the controller, contradicting
-   * the existence of `FAILURE_RENDERER_WRITE`.
+   * These callbacks behave identically whether the behavior throws or calls
+   * `kernel.fail`. Without this method, a `moved` throw would escape the handler
+   * and become a panic that destroys the controller, instead of reporting
+   * `FAILURE_RENDERER_WRITE`.
    *
-   * `argument` is handed to `run`, so a caller on a per-sample path can keep
-   * one controller-stable `run` and still pass it what its unit resolved,
+   * `run` receives `argument`, so a caller on a per-sample path can keep one
+   * function for the controller's life and pass it what its unit resolved,
    * without a closure per call.
    */
   runCallback<Argument>(
@@ -330,14 +324,13 @@ export class SeamDriver<Part extends object> {
   }
 
   /**
-   * {@link SeamDriver.runCallbackForValue} on the **unclassified track**: the seam
-   * still runs inside a phase — re-entry refused, `kernel.fail` latched, one
-   * report per phase — but a failure reaches the consumer as a warning instead
-   * of settling the operation.
+   * Runs one behavior callback for its value, like
+   * {@link SeamDriver.runCallbackForValue}, but a failure reaches the consumer
+   * as a warning instead of settling the operation. The callback still runs
+   * inside a phase: re-entry refused, `kernel.fail` latched, one report per
+   * phase.
    *
-   * The caller is the arm-time landing measurement. A target that cannot be
-   * produced and one that cannot be trusted are the same fault, and neither is
-   * a reason to tell a consumer whose reorder succeeded that it did not.
+   * The caller is the arm-time landing measurement.
    *
    * There is no stage argument: an unclassified failure names no stage, only a
    * `reason` the report carries.
@@ -385,8 +378,8 @@ export class SeamDriver<Part extends object> {
    */
   requestFailure(stage: FailureStage, error: unknown): void {
     // **A latched failure and a throw are the same event on this path too.**
-    // The flag is what makes `#callAndHandleFailure` return `FAILED` for a phase that
-    // latched without throwing, so the caller sees no target either way.
+    // The flag is what makes `#callAndHandleFailure` return `FAILED` for a phase
+    // that latched without throwing, so the caller sees no target either way.
     if (this.#openStage === UNCLASSIFIED) {
       this.#failureRequested = true;
       this.#notify(
@@ -415,7 +408,7 @@ export class SeamDriver<Part extends object> {
       return;
     }
 
-    // The stage is the caller's, not the open phase's: a leaf narrows its own
+    // The stage is the caller's, not the open phase's: a callback narrows its own
     // stage from the inside (`moved` renders and schedules in one callback).
     this.#failureRequested = true;
     this.#fail(stage, error);
@@ -438,10 +431,10 @@ export class SeamDriver<Part extends object> {
    *
    * **What `#openStage` covers is the foreign-code window, and that is the
    * boundary this guard is for.** It is set as a phase opens and cleared before
-   * `#callAndHandleFailure` classifies, so a phase opened from the classification path
-   * would not be refused. Read the sentinel as *is foreign code on the stack*,
-   * which is where a nested call can originate; it is not a general nesting
-   * interlock.
+   * `#callAndHandleFailure` classifies, so a phase opened from the classification
+   * path would not be refused. Read the sentinel as *is foreign code on the
+   * stack*, which is where a nested call can originate; it is not a general
+   * nesting interlock.
    *
    * **Consumer code still runs past the clear, and the queue is what covers
    * it**: the notify channel reaches the consumer's `onError`, and a `dispatch`
@@ -461,9 +454,9 @@ export class SeamDriver<Part extends object> {
    * frame — the swaps cancel — so that is not the reason to refuse.
    *
    * So the refusal **latches** rather than merely throwing, for the reason
-   * `#reentry` states. `#callAndHandleFailure` rethrows past every classification on the
-   * way out to reach the execution bracket's panic path, which is also what
-   * makes behavior code that catches its own refusal panic anyway.
+   * `#reentry` states. `#callAndHandleFailure` rethrows past every classification
+   * on the way out to reach the execution bracket's panic path, which is also
+   * what makes behavior code that catches its own refusal panic anyway.
    */
   #refuseReentry(): void {
     if (this.#openStage !== NO_STAGE) {
@@ -480,17 +473,16 @@ export class SeamDriver<Part extends object> {
   }
 
   /**
-   * One behavior callback, start to finish — **the only place this module runs
-   * foreign code**, and therefore the one boundary the re-entry guard has to
-   * cover. Refuses a nested phase, opens the phase, runs `run`, closes it,
-   * panics on a latched re-entry, and reduces a throw or a latched `kernel.fail`
-   * to {@link FAILED}. Returns whatever `run` returned otherwise.
+   * Runs one behavior callback in its own phase and handles its failure. This is
+   * the only place this module runs foreign code, so it is the one boundary the
+   * re-entry guard has to cover. Returns what `run` returned, or {@link FAILED}
+   * after a throw or a latched `kernel.fail`.
    *
-   * The order is the contract, and having it in one place is why it holds for
-   * every seam: **refuse, then close, then panic, then classify**. The panic
-   * has to escape past the classification, so it cannot live inside the `catch`
-   * that classifies — a `throw` there would be caught by that very handler.
-   * Hence the caught error is carried out as a value and re-examined below.
+   * The order is the contract, for every seam: refuse a nested phase, close the
+   * phase, panic on a latched re-entry, then classify. The panic has to escape
+   * past the classification, so it cannot be inside the `catch` that classifies:
+   * that handler would catch a `throw` there. So the caught error is carried out
+   * as a value and examined below.
    */
   #callAndHandleFailure<Value, Argument>(
     stage: PhaseStage,
@@ -514,8 +506,8 @@ export class SeamDriver<Part extends object> {
     this.#openStage = NO_STAGE;
 
     if (this.#reentry) {
-      // Cleared on the way out: exactly one `runTransition` on the stack got past the
-      // guard, and it is the one that unlatches. The raised value is not
+      // Cleared on the way out: exactly one `runTransition` on the stack got past
+      // the guard, and it is the one that unlatches. The raised value is not
       // consulted (see `#reentry`).
       this.#reentry = false;
       // oxlint-disable-next-line typescript/only-throw-error
@@ -523,23 +515,21 @@ export class SeamDriver<Part extends object> {
     }
 
     if (value === FAILED) {
-      // **One phase, one classification**, and the two arms below are the two
-      // ways a phase can produce a fault the kernel refuses to classify: the
-      // phase was never classified at all, or it was already classified once.
-      // Classifying a second time for a single phase would let the later error
-      // decide the operation's outcome. Nothing is lost either way: both arms
-      // reach the same consumer the classified one does.
+      // One phase, one classification. The first two arms below are the ways a
+      // phase can produce a fault the kernel refuses to classify: the phase is
+      // never classified, or it is already classified. A second classification
+      // would let the later error decide the operation's outcome. Both arms reach
+      // the same consumer the classified one does.
       if (stage === UNCLASSIFIED) {
-        // `#unclassifiedReason` rather than the sentinel, because the sentinel
-        // says how the failure travels and never what it was — the reason the
-        // consumer reads is the one the caller named.
+        // The sentinel says how the failure travels, not what it was, so the
+        // warning carries the reason the caller named.
         this.#notify(
           new DraggableWarning(this.#unclassifiedReason, { cause: raised }),
         );
       } else if (this.#failureRequested) {
-        // **One phase, one report.** A phase that called `kernel.fail` and then
-        // threw is already classified against its own error; the throw travels
-        // as a warning, which is what keeps it from deciding the outcome.
+        // A phase that called `kernel.fail` and then threw is already classified
+        // against its own error. The throw travels as a warning, so it cannot
+        // decide the outcome.
         this.#notify(
           new DraggableWarning('drag: seam/failed-then-threw', {
             cause: raised,

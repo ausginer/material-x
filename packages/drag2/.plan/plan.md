@@ -81,7 +81,27 @@ The recorded behavioral questions are unchanged and outside this change. The cou
 
 **Verification of the handling.** Against `1236fc0ae`: every changed line in `kernel.ts` is a comment line, and the esbuild emit of the source with type stripping and whitespace minification is byte-identical. `just typecheck` and `just lint src/kernel/kernel.ts` pass. Tests and `just size` were not rerun, because the emit is identical.
 
-**Next.** The owner reviews this batch, its refinement and this reduction, and decides the scope of the next batch. Work stops here until then.
+**Driver batch, 2026-11-05.** Input: `2f96cf3d4`. Scope: the execution methods of `SeamDriver`, their comments in `src/kernel/seams.ts`, and current references. The pilot's analysis was input. Renames are in `3edcd41b5`; comments are in the commit that carries this paragraph.
+
+| Before | After | What it does |
+| --- | --- | --- |
+| `runCore` | `runTransition` | Runs one frame transaction |
+| `runLeaf` | `runCallback` | Runs a callback with no transaction; a throw is classified at `stage` |
+| `runLeafValue` | `runCallbackForValue` | The same, and returns the callback's value |
+| `runUnclassifiedValue` | `runCallbackWarningOnFailure` | Returns the callback's value; a failure becomes a warning |
+| `#runPhase` | `#callAndHandleFailure` | Refuses re-entry, calls the callback and handles its failure |
+
+The pilot's `#callBehavior` names the callee and not the failure handling, so it was not used. `runCallbackForValue` keeps its method and its only callers, the tests. `SeamDriver`, `seam`, `runActivationSeam`, `runReleaseSeam`, `#unclassifiedReason`, `PhaseStage` and runtime messages are unchanged.
+
+Current references changed: [02](contract/02-kernel-behavior-contract.md), the `anchorTarget` name in [07](contract/07-free-drag-contract.md), the [brief](terminology-ste-brief.md), the README, `tests/COVERAGE.md`, and the test titles that said "leaf". Dated entries in [00](contract/00-index.md), other records, three passages in [05](contract/05-lifecycle-invariants.md) about retired mechanisms or a dated probe, and `runLeaf` for the retired `start` path in 07 keep their text.
+
+**Comment reduction.** Comments in `seams.ts` went from 52 to 50, 356 to 344 lines, 18601 to 17728 characters and 2671 to 2541 words (adjacent line comments count as one). Two trailing comments and the duplicate target-fault sentence, also stated at `#measureTarget`, are removed. The module header says "steps", because `stage` means `FailureStage` elsewhere. The disputed passages keep their claims: "one report per phase" (`pilot-1`), `anchorTarget` on `runCallbackForValue` (`pilot-2`), "exactly one `runTransition`" (`pilot-7`) and "arm-time" (`pilot-8`). The `#refuseReentry` comment was only rewrapped.
+
+**Bundle change.** The four public method names are not mangled, so all 13 rows containing the driver grow by 73 B minified. Brotli moves both ways, from −26 B to +22 B; compressed bytes govern. Sortable rows: `minimal` 10329 → 10303, `minimal + landing` 10483 → 10465, `minimal + layoutAnimation` 10651 → 10641, `minimal (xy)` 10199 → 10202, `xy + layoutAnimation` 10517 → 10522, `complete` 10791 → 10798, `both behaviors` 12298 → 12320, baseline A 10620 → 10614. Every ceiling holds. Five exact controls moved by −2 to +3 B and are [re-declared with their intervals attributed](measurements/budget-rebases.md). `vocabulary root` and baseline B did not move, and published declarations stay at 115605 B.
+
+**Verification.** With the names substituted, the comment-free esbuild emit of `seams.ts`, `kernel.ts` and `sortable/spec.ts` at `2f96cf3d4` equals `3edcd41b5`. No old name remains in `src`, `tests`, `bench`, `.scripts` or the README. The comment commit changes no comment-free emit of `seams.ts`, and all 15 `measured/` bundles are byte-identical to `3edcd41b5`. `just test` passes at both commits (78 files, 1494 passed, 68 skipped), and `just typecheck` and `just size` pass. `just lint` reports the same seven errors on `seams.ts` and `tests/sortable/sortable.browser.test.ts` as at `2f96cf3d4`; they were left as they are. Readability was not measured.
+
+**Next.** The owner reviews this batch, its refinement, this reduction and the driver batch, and decides the scope of the next batch. Work stops here until then.
 
 **Scope and order.**
 
