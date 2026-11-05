@@ -4607,7 +4607,7 @@ D-208 is implemented, and §30.11's rows for the remediation and this acceptance
 | 3 | The four `docs.node` rows report on the published surface, and the two `.scripts/` errors are gone (RF-24) | architect's handoff, then the implementer | done: §35.2 |
 | 4 | `react.browser` and `stories.browser` load (RF-25) | architect's handoff, then the implementer | done: §35.2 |
 | 5 | `consumer.node`'s sourcemap row cannot redden a clean tree (F-447) | architect's handoff, then the implementer | done: §35.2 |
-| 5a | No failure in a root run that `main` does not have (RF-26, RF-27, RF-28 and §35.7's items). Added 2026-11-05 | architect's handoff, then the implementer | handed off: §35.9 |
+| 5a | No failure in a root run that `main` does not have (RF-26, RF-27, RF-28 and §35.7's items). Added 2026-11-05 | architect's handoff, then the implementer | done: §36.3 |
 | 6 | The merge | owner | after gates 3 to 5a, and the owner's answer at §35.8 |
 
 **Gate 5 is my reading of _failing verification infrastructure_.** F-447 can redden the very run that gates 3 and 4 are read from, so I booked it. The owner can take it out.
@@ -5597,6 +5597,8 @@ The shared lifecycle has decisions, so these were read before anything was propo
 
 ### 35.12 What stays open
 
+**Dated 2026-11-05:** §36.7 replaces this table.
+
 | Item | Owner | Required action | Deadline |
 | --- | --- | --- | --- |
 | RF-26, RF-27, RF-28 and the tier C items | the implementer | §35.9 | before the merge |
@@ -5605,5 +5607,164 @@ The shared lifecycle has decisions, so these were read before anything was propo
 | Merging with `just test` red, or repairing RF-29 first | **owner** | §35.8 | before the merge |
 | The merge | owner | §32.1's gate 6 | after those |
 | RF-29, F-412 | as their entries state | unchanged by this record | not gates unless the owner says so |
+| integrity-4, F-442, F-443 and O-15, F-445, RF-23, D-200's independent acceptance, Reviewer-E | as §31.9 | unchanged | unchanged |
+
+## 36. RF-26, RF-27 and RF-28 closed, gate 5a satisfied, and the recheck's two tier C findings disposed (RF-26, RF-27, RF-28, RF-30, RD-2, RD-3, RD-4)
+
+**2026-11-05. Input:** `9f3709589` on `drag2/fin-review2`, which adds only the recheck's records to the repair at `c15042847`. **Recheck:** [`verification-regressions-recheck-claude.md`](../fin-review2/verification-regressions-recheck-claude.md). **Record:** [`verification-restored.md`](../../measurements/verification-restored.md) §The branch's regressions. **Baseline:** `main` at `bfd2832db`, still `origin/main` and the merge base when read here. **`src/` tree:** `f6172d3be770c3f37ea0a1d723960ace05d61c9b`, at both commits.
+
+Nothing is implemented or merged, and no statistical round ran. D-208, D-209, RF-29 and F-412 are not reopened. I repeated none of the recheck's readings and added one scratch probe, of Vitest's reporter routing and the `--sequence` flags: [`probes/verification-regressions-disposition/`](../../probes/verification-regressions-disposition/).
+
+**Decided, in short:**
+
+- **RF-26, RF-27 and RF-28 are closed** (§36.1). RF-26's close-failure half is verified at group boundaries only.
+- **RD-3 and RD-4 now state the verified implementation** (§36.2).
+- **Gate 5a is satisfied** (§36.3).
+- **reviewer-1 is an accepted limit with a rule on tracked routes** (§36.4). No route breaks that rule today.
+- **reviewer-2 becomes RF-30:** open, tier C and not a gate (§36.5).
+- **The only remaining merge blocker is the owner's answer at §35.8.** This record does not grant that exception.
+
+**The recheck's two findings:**
+
+| Local id | Tier | Disposition | Where |
+| --- | --- | --- | --- |
+| reviewer-1, a close failure with no text | C, confirmed | Accepted limit. `test-architecture.md` and RD-2 gain the rule. No code change | §36.4 |
+| reviewer-2, the `--sequence.*` sentence | C, confirmed | RF-30, one sentence owed | §36.5 |
+
+### 36.1 The three closures
+
+| Item | Closes at | Required property, and what shows it |
+| --- | --- | --- |
+| RF-26 | `45ccefa4b` | **One reporter and one close per boundary.** The recheck counted one evaluation and one instance in the root and every package config, with 8 `release` calls in a whole root run. With `extends: false` removed, two browser projects give 17 evaluations, 3 instances and 16 notices. **A real close failure stays loud,** as §36.4 defines it |
+| RF-27 | `18f3e959f` | **The file loads and its row passes,** through `tproc`'s config and the root's. Both controls bite: the old file refuses to load, and without the line the row fails |
+| RF-28 | `c95212956` | **A failed build names itself and carries its output, reddens its own project and leaves the others standing.** A different break from the implementer's reddens all 26 node files with one `tsdown exited with 1` and the output naming `src/drag.ts`. Four other foreseeable failures raise the same way. All 85 files of the other six packages match a clean run |
+
+**RF-26 closes on the boundary path, and it does not claim the final group.** `release` is the path the repository owns. The final group's provider is closed by Vitest's pool, which the recheck reads the diff as not touching, and nobody forced that close to fail (§36.6).
+
+**RF-28's _every other project_ holds with one distinction.** In the whole-root reading, 7 of `drag2`'s browser files also went red, because they import the broken source. RD-4 didn't stop them: each ran and reported its own failure. One of the seven is M-6's census row. The recheck didn't trace why the break reaches it, and I don't either. RD-4 now states the distinction.
+
+**§35.7's items are done:** the row's refusal, the third config, the worker comment with its value unchanged, `COVERAGE.md` and `.gitignore`. The recheck reports them holding, and it read the refusal, the third config and `.gitignore` by driving them. It also discharges §35.11's _I didn't count evaluations_ and _other packages' own configs were not run_, and the record's _`.vitest` was not observed as a directory_.
+
+**F-447's property still holds by the recheck's reading,** with the setup awaiting the one build and whole-suite `tsdown` starts at 1. It stays closed on its structure, and the cause of its three recorded failures stays unestablished, as §35.2 states.
+
+### 36.2 What changed in the register
+
+| Entry | Was | Now |
+| --- | --- | --- |
+| RD-3 | _Handed off, not implemented_ | Implemented at `45ccefa4b` and verified at `c15042847`. It now defines _stays loud_ and names the final group as not forced |
+| RD-4 | _Handed off, not implemented_ | Implemented at `c95212956` and verified at `c15042847`. It names the one setup and states the browser-import distinction. The accepted limit is unchanged |
+| RD-2 | No reporter property | The future workflow is a tracked route, so §36.4's rule binds it |
+| RF-30 | Not registered | Minted, so the next is RF-31 |
+
+**RD-4's accepted limit was not read again at this tip.** A throw the setup can't foresee still rests on §35.6's scratch reading and on reading Vitest, and neither the implementer nor the recheck repeated it. The `TypeError` at this version's setup path stays read only as far as its stack.
+
+### 36.3 Gate 5a
+
+**Gate 5a is satisfied at `c15042847`: no failure in the recorded root runs is one `main` lacks.**
+
+| Reading | Tree | Failures |
+| --- | --- | --- |
+| Implementer, root 1 | `12cb95a93` | `TokenPackageProcessor`, `radio.visual` |
+| Implementer, root 2 | `12cb95a93` | `TokenPackageProcessor` |
+| Recheck, plain root 1 | `c15042847` | `TokenPackageProcessor`, `radio.visual` |
+| Recheck, plain root 2 | `c15042847` | `TokenPackageProcessor` |
+| Recheck, instrumented root | `c15042847` | `TokenPackageProcessor` |
+
+`12cb95a93..c15042847` changes only records, so all five read the same code. Each failure is on §35.3's list. The `size.node` slots row and F-412's row appeared in none of them, which says nothing about their rate. **One further root run is excluded:** the recheck's first build counter reddened `docs.node`'s four rows there, the recheck attributes that to its instrument, and it repeated those readings with the form corrected.
+
+**What the gate does and does not mean.** These are five readings on one machine, in Chromium, so this is _none seen_ and not _none possible_. `just test` still exits 1. The baseline is §35.3's, which rests on one `main` root run, one `tproc` run and `test-execution-1`'s records. **Neither tier C finding bears on the gate,** because neither is a failure in a root run.
+
+**Merge state:**
+
+| Gate                        | State                                        |
+| --------------------------- | -------------------------------------------- |
+| 1 to 5a                     | Done                                         |
+| The owner's answer at §35.8 | **Pending. It is the one remaining blocker** |
+| 6, the merge                | The owner's, after that answer               |
+
+**§35.8's options and my view are unchanged,** and RF-30 is not on that list. If `main` moves before the merge, the baseline these readings were compared with moves too.
+
+### 36.4 Close failures with no text: reviewer-1
+
+**The finding is confirmed, with one correction.** The recheck's second table row counts printed lines, and it is right about those. Two of the selections keep a record in their file, and it did not read those files or select `blob`. All of this table's readings are mine, from a scratch reporter that rejects, routed the way `release`'s rejection is:
+
+| Selected alone | Exit | Printed | The selection's own file |
+| --- | --: | --: | --- |
+| `default`, `verbose`, `dot`, `minimal`, `agent`, `tree` | 1 | Yes | Not applicable |
+| `junit` | 1 | No | **Carries it:** `errors="1"` with the message |
+| `blob` | 1 | No | **Carries it.** Merging a blob was not read |
+| `json` | 1 | No | **Doesn't carry it:** `success: true`, 0 failed |
+| `tap`, `tap-flat`, `hanging-process`, `github-actions` | 1 | No | None read. `github-actions` emitted no `::error`, and setting `GITHUB_ACTIONS` didn't change that |
+
+**The cause is by reading.** Unhandled errors are printed from one place, in `BaseReporter`'s summary (`cli-api.De07GUeT.js:8293`). `default`, `dot` and, through `default`, `minimal`, `tree` and `verbose` inherit it, and `agent` maps to `minimal`. So this isn't particular to a close: it is how Vitest treats any unhandled error under those selections.
+
+**The distinction the disposition turns on:**
+
+| What selects the reporter | Examples | Today |
+| --- | --- | --- |
+| **A tracked route** | `just test` and `npm test` at the root, every package's recipes, and `bench/m2pp/run.ts`'s `--reporter=verbose` | Each selects a base-family reporter, by flag or by Vitest's default list. **A close failure at a boundary prints and exits 1** |
+| **A person's selection through a tracked recipe** | `just test --reporter=json` | Not a route: `{{ ARGS }}` hands over the selection. Exit 1, and the text depends on what was chosen |
+| **A person's selection on the command line** | `vitest run --reporter=tap` | The same |
+| **A tool's selection** | The editor's extension | Not read. The editor was not driven, and TE-D15 already names it as the weakest evidence |
+| **A route not built yet** | RD-2's workflow | Bound by the rule below |
+
+**A search of the tracked tree outside `.plan/` finds no other reporter selection.** Commands recorded under `.plan/` are evidence and not routes.
+
+**Decided: an accepted limit.** _A real close failure stays loud_ means exit 1 under every selection read, and printed text on every tracked route. It doesn't promise text under a run whose only reporters don't print unhandled errors.
+
+- **It fails closed.** Nothing tracked passes by mistake, because the exit status is right under every selection read.
+- **Tier C stands.** Nothing the repository relies on depends on these selections.
+- **It isn't the branch's.** `main`, under 4.1.10, read the same for `default`, `json` and `tap`.
+
+**Refused:**
+
+| Alternative | Why not |
+| --- | --- |
+| Print from `release`, then rethrow | Prints twice on every tracked route, and repairs one member of a class Vitest owns |
+| Push a base reporter from the carrier | Overrides the selection a person made, including one made to get clean machine output |
+| Catch the rejection | Refused by TE-D12 |
+| Rewrite the JSON report | The report describes rows, and its format is Vitest's |
+
+**The obligation, and all of it.** `test-architecture.md` §Run lifecycle now says a run's verdict is its exit status and a tracked route keeps a base-family reporter. RD-2 carries that into the workflow it owes. Nothing needs doing before the merge, and no recheck follows. A Vitest upgrade rereads this along with RD-3.
+
+### 36.5 The `--sequence.*` sentence: reviewer-2
+
+**Confirmed, and now precise.** The hook read each project's order under each flag, configured at 1 and 2:
+
+| Flag | Orders read |
+| --- | --- |
+| `--sequence.shuffle`, `.concurrent`, `.seed=5`, `.hooks=list` | 1 and 2, unchanged |
+| `--sequence.groupOrder=7` | 7 and 7 |
+| `--sequence.groupOrder=0` | 0 and 0 |
+
+**The cause is by reading:** Vitest 5 merges CLI options with `deepMerge` (`index.1TqnEahn.js:3734`), so one `sequence` field leaves the others. The recheck read the same result with two real browser projects: `--sequence.shuffle` stays serialized at the tip and `--sequence.groupOrder` raises the refusal.
+
+**The invariant is unchanged, and it holds.** A shared order or a zero still refuses, and only the last sentence's explanation is out of date. This also makes TE-D14's hazard smaller than its text, so that text gains a dated note.
+
+**RF-30 is minted because the correction may outlive the merge,** and the register is where it will be found. Tier C stands, and it is not a gate.
+
+**Handoff, for one implementer commit whenever the owner starts one.** Required property: the refusal states what a command-line flag does at the Vitest version in use. The wording is the implementer's. Read `--sequence.groupOrder=7` and `--sequence.shuffle` on two browser projects after the edit. No other line in the file changes, and this needs no recheck.
+
+### 36.6 Limits of this record
+
+- **The final group's close failure is untested.** By reading at 5.0.5, the pool's close awaits `closeProvider` (`index.1TqnEahn.js:4443`), and a rejection reaches `logger.error('error during close')` and exit 1 (`cli-api.De07GUeT.js:13241`, `:13254`), which wouldn't depend on the reporter. A close that never settles warns after 30 s and resolves (`index.1TqnEahn.js:4487`), which by reading wouldn't fail the run. Neither was forced, and no closure rests on them.
+- **F-447's three recorded failures still have no established cause.** Its closure is structural, and a recurrence is a new finding citing it.
+- **My probe tested routing, not a provider.** It ran once per selection, with a reporter that rejects, no browser and a scratch config. The readings with a real rejecting provider are the recheck's.
+- **The recheck's limits stand as it states them.** Single readings, one machine, Chromium, the resolved-config comparison limited to `resolve.mjs.txt`'s fields, `main` run for two comparisons only, and the editor not driven.
+- **The discarded build-count reading is not evidence,** and nothing here rests on it. The replacement readings and the recheck's own counts are what stand.
+- **`npm`'s advisory stays unread.** Merging carries it.
+- **Not re-read here:** RF-29's rows, F-412, the worker bound's value and anything under D-208 or D-209.
+
+**The main checkout's two untracked `.vitest-attachments` directories** predate Vitest 5, and a `git add -A` there would sweep them in. They aren't a gate. I left them alone and named my paths when staging.
+
+### 36.7 What stays open
+
+| Item | Owner | Required action | Deadline |
+| --- | --- | --- | --- |
+| Merging with `just test` red, or repairing RF-29 first | **owner** | §35.8 | before the merge |
+| The merge | owner | §32.1's gate 6 | after that answer |
+| RF-30 | implementer, when the owner starts one | §36.5 | not a gate |
+| RD-2's workflow keeping the reporter rule | whoever takes RD-2 | §36.4 | when that work is taken |
+| RF-29, F-412 | as their entries state | unchanged | not gates unless the owner says so |
 | integrity-4, F-442, F-443 and O-15, F-445, RF-23, D-200's independent acceptance, Reviewer-E | as §31.9 | unchanged | unchanged |
 | The terminology phase, comment reduction, the compression pass, `ActionQueue.apply`'s stop branch, and the 22 B of slack on `minimal` | as `plan.md` states | separate | after the merge |

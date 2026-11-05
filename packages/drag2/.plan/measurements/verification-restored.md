@@ -190,7 +190,7 @@ The same worktree, after the runs above. No commit carries the scratch edits.
 - **`.vitest` was not observed as a directory on disk.** `radio.visual` failed in root 1 and `git status` stayed empty, but I did not check that this failure wrote attachments.
 - **`--project shipped` through the third config was not read.** §35.9 asks for it through the package config, which is what ran.
 - **Not repeated:** the limit RD-4 accepts, an unforeseen throw in the setup ending the run.
-- **RD-3 and RD-4's register text still says _handed off, not implemented_.** I left it for the architect.
+- **RD-3 and RD-4's register text still says _handed off, not implemented_.** I left it for the architect. **Dated 2026-11-05:** updated at `request-application-claude.md` §36.2.
 
 ## Limits
 
@@ -208,7 +208,7 @@ The same worktree, after the runs above. No commit carries the scratch edits.
 | Closing RF-24, RF-25 and F-447 | architect | **Done, 2026-11-05** |
 | Whether the root suite's failures bear on the merge, and the reporter error | architect, then owner | **Decided at §35.3 and §35.8,** with one question left to the owner |
 | The branch's regressions against `main` | the implementer | **Done at `12cb95a93`,** recorded here |
-| One fresh `reviewer` recheck of that unit | owner starts it | §35.10 |
-| Closing RF-26, RF-27 and RF-28 | architect | After the recheck |
-| Merging with RF-29 and F-412 open, or repairing RF-29 first | owner | §35.8, not yet granted |
+| One fresh `reviewer` recheck of that unit | owner starts it | **Done:** [`verification-regressions-recheck-claude.md`](../reviews/fin-review2/verification-regressions-recheck-claude.md) |
+| Closing RF-26, RF-27 and RF-28 | architect | **Done, 2026-11-05,** at `request-application-claude.md` §36.1 |
+| Merging with RF-29 and F-412 open, or repairing RF-29 first | owner | §35.8, not yet granted. The one remaining blocker (§36.3) |
 | The merge | owner | §32.1's gate 6 |

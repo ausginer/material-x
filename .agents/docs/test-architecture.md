@@ -126,6 +126,8 @@ Before updating a screenshot, inspect: the active tproc profile; contract ID and
 
 **A project's global setup does not throw for a failure it can foresee,** because Vitest ends the whole run for every project. It passes the failure to that project's files, which raise it, so one package's failed build leaves the others' results standing.
 
+**A run's verdict is its exit status.** A real close failure at a group boundary sets it whichever reporters are selected, but only Vitest's base reporter family prints the error: `default`, `minimal`, `verbose`, `dot` and `tree`. `json` reports rows and does not carry it, so its `success` can read true on a run that exits 1. **A route this repository tracks keeps a base-family reporter in its list and reads the exit status.** Every current route does. A reporter selected by hand elsewhere is allowed, and without a base-family reporter beside it may give only the exit status: [`repo:RD-3`](../../.plan/00-index.md).
+
 **Test watch and VS Code Continuous Run are retired**, and so is `vitest --watch` in any form for tests. A rerun would arrive in a process that has already released its browsers, so the modes that depend on one are withdrawn by intent rather than left to fail quietly. A second run raises before any module executes:
 
 ```

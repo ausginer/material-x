@@ -42,7 +42,7 @@ awk -v re="^#### RD-1( —|$)" \
 **What is owed, in dependency order.** The first deliverable is not the workflow.
 
 1. **A pinned verification environment** — a container image fixing OS, Chromium, fonts and icons, headless mode, device scale and viewport, colour scheme and GPU configuration. The visual suite is only meaningful inside one, and the same image must be runnable locally or developer output and CI output diverge by construction. Without this step first, the visual half of the gate produces false diffs and is disabled within a week of landing, which is worse than not having it.
-2. **The pull-request workflow** running the suite §CI policy enumerates: formatting, linting, typechecking; `tproc` node tests; behaviour and accessibility browser tests; spec-contract browser tests; the curated Chromium visual suite. It uploads screenshot actual/diff artefacts on failure and never commits or approves a baseline.
+2. **The pull-request workflow** running the suite §CI policy enumerates: formatting, linting, typechecking; `tproc` node tests; behaviour and accessibility browser tests; spec-contract browser tests; the curated Chromium visual suite. It uploads screenshot actual/diff artefacts on failure and never commits or approves a baseline. **Dated 2026-11-05:** it is a tracked route, so RD-3's reporter rule binds it: it passes or fails on the exit status, and its reporter list keeps a base-family reporter beside any machine-readable one. Vitest's default list under GitHub Actions already satisfies this.
 3. **The branch rule** that makes the workflow a gate rather than a report.
 4. **A baseline-maintenance policy** for what happens when the pinned image is upgraded, which is the recurring cost the environment creates.
 
@@ -54,7 +54,7 @@ awk -v re="^#### RD-1( —|$)" \
 
 #### RD-3 — Every project the shared factory declares sets `extends: false`
 
-**Decided 2026-11-05** ([`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §35.4). **Handed off, not implemented** (§35.9).
+**Decided 2026-11-05** ([`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §35.4). **Implemented at `45ccefa4b`, in `assignGroupOrder`, the funnel every config passes through, and verified at `c15042847`** (§36.1).
 
 **Since Vitest 5 an inline project extends the config file that declares it by default.** Each project then re-evaluates that file, and so `.scripts/vitest-one-shot.ts`. In a root run, whose top level carries the plugin, each project gains a reporter of a new class, and TE-D15's `instanceof` guard misses. The result is 17 reporters and 17 concurrent closes of one provider per boundary, which raises the reporter error RF-26 records.
 
@@ -64,11 +64,15 @@ awk -v re="^#### RD-1( —|$)" \
 
 **A Vitest upgrade re-reads this.** No row watches it. The reading is `MX_TEST_TEARDOWN_LOG=1` on a root run: one line per browser project at its boundary.
 
+**What _stays loud_ means** (§36.4). A provider rejecting its close at a group boundary gives exit 1 under every reporter read. It prints under Vitest's base reporter family, which every tracked route uses. **A run with no base-family reporter is an accepted limit:** it can give the exit status with no printed explanation, and `json` can read `success: true` beside exit 1. This is Vitest's handling of unhandled errors, which the repository does not repair for one of them. So a tracked route keeps a base-family reporter and reads the exit status (`test-architecture.md` §Run lifecycle).
+
+**Not forced:** a close failure in the final group, which Vitest's pool closes rather than `release`. It is read at 5.0.5 and no more.
+
 #### RD-4 — A project's global setup hands a foreseeable failure to that project's files
 
-**Decided 2026-11-05** ([`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §35.6). **Handed off, not implemented** (§35.9).
+**Decided 2026-11-05** ([`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §35.6). **Implemented at `c95212956` and verified at `c15042847`** (§36.1). `drag2`'s `build-package.node.ts` is the one setup that does this, and `DRAG2_NODE_BUILD` hands a config it and `require-build.node.ts` as one value.
 
-**A global setup does not throw for a failure it can foresee, such as a build failing. It provides the failure to its project, and a setup file in that project raises it.** That project's files go red with the failure's own message, and every other project's results stand.
+**A global setup does not throw for a failure it can foresee, such as a build failing. It provides the failure to its project, and a setup file in that project raises it.** That project's files go red with the failure's own message, and every other project's results stand. **A browser project that imports the same broken source fails on its own import.** That is its own result and not this mechanism: in a whole root run with a broken `src/drag.ts`, 7 of `drag2`'s browser files went red beside its 26 node files, and all 85 files of the other six packages matched a clean run.
 
 **Why.** Vitest awaits global setups outside the `try` around the pool, for every project in series, so a throw ends the run for all of them. At 5.0.5 it also reports _No test files found_ and loses its own message to a `TypeError`. `just test` exists to report the repository in one process. TE-D15's refusals end a run because the process's contract is broken, and one package's syntax error does not break it.
 
@@ -192,13 +196,19 @@ Tier B: a test instrument the package relies on does not run. Minted 2026-11-04 
 
 Tier B: a run whose rows all pass exits 1. `reviewer-1`, [`verification-restored-recheck-claude.md`](../packages/drag2/.plan/reviews/fin-review2/verification-restored-recheck-claude.md), registered at [`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §35.4. **A regression against `main`,** where one close per boundary runs under Vitest 4.1.10. It enters with `01d88645f`, on `drag2/fin-review2`. The cause is read at RD-3. **Open, a gate before that branch's merge,** handed off at §35.9. Required property: a root run releases each provider once per boundary, and a real close failure stays loud.
 
+**Closed 2026-11-05 at `45ccefa4b`** (§36.1 of the same record). One instance and one close per boundary, counted directly through the root and every package config, and removing the line brings back 17 evaluations and 16 notices. A close failure at a boundary is loud as RD-3 defines it. A close failure in the final group was not forced.
+
 #### RF-27 — `tproc`'s `DB/index.node` test does not load under Vitest 5
 
 Tier B: a test that passes at `main` no longer runs. Found by the same recheck, registered at §35.5 of the same record. `vi.unmock` sits inside the `it`, which 4.1.10 warns about and 5.0.5 refuses. **A regression against `main`,** from `01d88645f`. **Open, a gate before that branch's merge,** handed off at §35.9. Required property: the file loads and its row passes.
 
+**Closed 2026-11-05 at `18f3e959f`** (§36.1 of the same record). The row passes through `tproc`'s config and the root's. The line's position and its presence both have a control that bites.
+
 #### RF-28 — A failed `drag2` build misreports itself and stops every package in a root run
 
 Tier B: a build error names the wrong cause and hides unrelated results. `reviewer-2`, the same recheck, registered at §35.6 of the same record. **A regression against `main`, from F-447's repair at `39e32b58d`.** The run prints `No test files found` and a `TypeError`, and neither the build's output nor its failure appears. **Open, a gate before that branch's merge,** handed off at §35.9 under RD-4. Required property: a failed build names itself and carries its output, reddens its own project, and leaves every other project's results standing.
+
+**Closed 2026-11-05 at `c95212956`** (§36.1 of the same record). Syntax error, a throwing hook, exit 7, `SIGKILL` and a child that can't start each raise in all 26 node files, and the other six packages' results match a clean run. RD-4's limit stands: a throw the setup can't foresee still ends the run.
 
 #### RF-29 — The root run fails at `main` on rows nothing owns
 
@@ -210,10 +220,14 @@ Tier B: `just test` cannot exit 0, so a clean root run is not something the repo
 
 None has been looked into. **Open.** Required property: a root run on a clean tree can exit 0. **Whether these block that branch's merge is the owner's** (§35.8). `F-412` keeps its own row.
 
+#### RF-30 — The one-shot refusal says every `--sequence.*` flag erases the configured order
+
+Tier C: a message overstates what a flag does, and nothing goes wrong because of it. `reviewer-2`, [`verification-regressions-recheck-claude.md`](../packages/drag2/.plan/reviews/fin-review2/verification-regressions-recheck-claude.md), registered at [`request-application-claude.md`](../packages/drag2/.plan/reviews/architecture/request-application-claude.md) §36.5. `.scripts/vitest-one-shot.ts`'s group refusal ends: _A --sequence.\* flag on the command line replaces the configured sequence object wholesale and erases it._ That has been untrue since Vitest 5, at `01d88645f`: CLI options merge deeply, so `--sequence.shuffle`, `.concurrent`, `.seed` and `.hooks` leave each project's order alone, and `--sequence.groupOrder` gives every project the same value. The refusal still fires where it should. **Open, and not a merge gate.** Required property: the refusal states what a command-line flag does at the Vitest version in use. It is one sentence in one file, and it can land on either side of the merge.
+
 ## Questions
 
 #### RQ-1 — The `TE-` local register's decisions and design-pass findings have no canonical assignment
 
 `architect-test-execution-model-r4.md` §The local register carries forty-odd rows whose `Canonical` column reads `unassigned`. This closure assigns `RF-1`…`RF-22` over the findings a **review pass** produced, and stops there for a reason that is not arbitrary: `TE-D12`…`TE-D21` are decisions, and RD-1 keeps the kind letter separate precisely because **only the architect mints one**; `TE-F1`…`TE-F35` are the design and challenge passes' own findings, which no review pass owns and which a consolidator numbering them would be allocating on someone else's behalf.
 
-**What is owed** is one architect pass that mints `RD-` over the decision rows and `RF-` over the design-pass findings, continuing from the `RF-22` high-water mark this entry sets (**`RF-23` to `RF-25` were minted separately 2026-11-04 and `RF-26` to `RF-29` 2026-11-05, so the next is `RF-30`**), and fills the `Canonical` column in that document's table. Until it is taken, a citation of any of those rows is document-local and resolves through the file rather than through `entry.ts`.
+**What is owed** is one architect pass that mints `RD-` over the decision rows and `RF-` over the design-pass findings, continuing from the `RF-22` high-water mark this entry sets (**`RF-23` to `RF-25` were minted separately 2026-11-04 and `RF-26` to `RF-30` 2026-11-05, so the next is `RF-31`**), and fills the `Canonical` column in that document's table. Until it is taken, a citation of any of those rows is document-local and resolves through the file rather than through `entry.ts`.

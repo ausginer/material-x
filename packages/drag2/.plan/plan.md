@@ -2317,6 +2317,18 @@ The third round on the same page, and the third time a sweep bounded by a findin
 
 ---
 
+### 2026-11-05 — RF-26, RF-27 and RF-28 closed, gate 5a satisfied, and the merge waiting only on the owner
+
+**Closed.** RF-26, RF-27 and RF-28 on the recheck of `c15042847`, which independently confirmed their properties. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §36. RD-3 and RD-4 now state what is implemented.
+
+**Gate 5a is satisfied.** Every failure in the five recorded root runs is one `main` already has. `just test` still exits 1, so §35.8's exception stays the owner's, and it is the one remaining blocker. This record doesn't grant it.
+
+**Two tier C findings disposed.** A close failure under a reporter outside Vitest's base family gives exit 1 and may print nothing, which is an accepted limit. Every tracked route uses a base-family reporter, and the rule binding future routes is now in `test-architecture.md` and RD-2. The refusal's `--sequence.*` sentence is out of date since Vitest 5, and is RF-30: one sentence owed, not a gate.
+
+**Limits kept.** A close failure in the final group was not forced, and RF-26 doesn't claim it. F-447's three recorded failures still have no established cause. No statistical round ran.
+
+---
+
 ### 2026-11-05 — RF-24, RF-25 and F-447 closed, and the branch's regressions against `main` handed off before the merge
 
 **Closed.** RF-24 and RF-25 on their properties. F-447 on its structural one: within the node project no test builds. Record [`request-application-claude.md`](reviews/architecture/request-application-claude.md) §35.2. The delayed reproduction demonstrates the overlap as a mechanism, and it does not establish the cause of the three recorded failures. §34.9's _the cause is excluded_ was wrong, and it is corrected there.

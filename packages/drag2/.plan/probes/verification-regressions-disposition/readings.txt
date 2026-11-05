@@ -1,0 +1,40 @@
+Vitest 5.0.5, scratch config reporter-routing.mjs.txt, outside the repository, with one passing row per project. No browser and no provider:
+a reporter's module hook rejects, which Vitest routes as it routes release()'s rejection (cli-api.De07GUeT.js:12654-12668). One run each. For the real provider's rejection see ../verification-regressions-recheck/readings.txt.
+
+== Rejection, by selected reporter (exit; lines naming it on stdout and stderr)
+default          exit 1  printed lines 1
+verbose          exit 1  printed lines 1
+dot              exit 1  printed lines 1
+minimal          exit 1  printed lines 1
+agent            exit 1  printed lines 1
+tree             exit 1  printed lines 1
+json             exit 1  printed lines 0
+tap              exit 1  printed lines 0
+tap-flat         exit 1  printed lines 0
+hanging-process  exit 1  printed lines 0
+github-actions   exit 1  printed lines 0
+gha-env          exit 1  printed lines 0
+junit            exit 1  printed lines 0
+json-file        exit 1  printed lines 0
+blob             exit 1  printed lines 0
+gha-env is github-actions with GITHUB_ACTIONS=true. It printed no ::error line.
+
+== What the selected reporter's file holds
+junit.xml: mentions the rejection 3 lines; <testsuites name="vitest tests" tests="3" failures="0" errors="1">
+json.json: {"success":true,"failed":0,"total":2,"mentionsRejection":false}
+blob.json: mentions the rejection 1 line. Merging a blob was not read.
+
+== Each project's sequence.groupOrder as the hook read it, configured a=1 b=2, no rejection
+--sequence.shuffle       a=1 b=2
+--sequence.concurrent    a=1 b=2
+--sequence.seed=5        a=1 b=2
+--sequence.hooks=list    a=1 b=2
+--sequence.groupOrder=7  a=7 b=7
+--sequence.groupOrder=0  a=0 b=0
+
+== By reading, 5.0.5
+Default list: defaults.B1FCaFfh.js:67, default or (agent) minimal, plus github-actions when GITHUB_ACTIONS is true
+Base family: cli-api.De07GUeT.js:7624 BaseReporter; Default, Dot extend it; Minimal, Tree, Verbose extend Default; :9875 maps agent to Minimal
+Only printer of unhandled errors: cli-api:8293, inside BaseReporter's summary
+CLI overrides: index.1TqnEahn.js:3734, deepMerge rather than a spread, so one --sequence field leaves the others
+Final group: index.1TqnEahn.js:4443 pool close awaits closeProvider; :4487 a 30 s race that warns and resolves; cli-api:13239-13254 a rejected pool close reaches logger.error('error during close') and exit 1. Not forced

@@ -1,0 +1,14 @@
+// A throw from a reporter's module hook, routed as release()'s rejection is. No browser, no provider.
+class Probe {
+  thrown = false;
+  async onTestModuleStart(m) {
+    const o = m.project.config.sequence.groupOrder;
+    console.error(`PROBE order ${m.project.name}=${o}`);
+    if (!this.thrown && o === 2 && !process.env.NO_THROW) { this.thrown = true; throw new Error('PROBE-REJECTION'); }
+  }
+}
+const plugin = { name: 'probe', configureVitest({ vitest }) {
+  if (!vitest.config.reporters.some((r) => r instanceof Probe)) vitest.config.reporters.push(new Probe());
+} };
+const project = (name, groupOrder) => ({ extends: false, plugins: [plugin], test: { name, globals: true, include: [`${name}.test.js`], sequence: { groupOrder } } });
+export default { test: { projects: [project('a', 1), project('b', 2)] } };
