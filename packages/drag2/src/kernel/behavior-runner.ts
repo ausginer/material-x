@@ -8,7 +8,7 @@
  * a rule the behavior obeys: the kernel drives all three steps and the behavior
  * supplies two pure-ish callbacks.
  *
- * `SeamDriver.runTransition` runs those steps. The discard policy and the
+ * `BehaviorRunner.runTransition` runs those steps. The discard policy and the
  * failure policy differ per seam, so each caller applies its own to the outcome.
  */
 import { DraggableWarning, type Notify } from './errors.ts';
@@ -66,13 +66,13 @@ export type ActionTransition<Part extends object> = Readonly<{
 }>;
 
 /** `prepare` returned `null` — nothing happened. */
-export const SEAM_DISCARDED = 0;
+export const TRANSITION_DISCARDED = 0;
 /** Classified; nothing committed. */
-export const SEAM_PREPARE_FAILED = 1;
+export const TRANSITION_PREPARE_FAILED = 1;
 /** Committed, effect returned normally. */
-export const SEAM_COMMITTED = 2;
+export const TRANSITION_COMMITTED = 2;
 /** Classified, from the committed state. */
-export const SEAM_EFFECT_FAILED = 3;
+export const TRANSITION_EFFECT_FAILED = 3;
 
 /**
  * What one seam run did, named once so every caller branches on the same
@@ -84,15 +84,15 @@ export const SEAM_EFFECT_FAILED = 3;
  * **A classified failure must also stop incompatible continuation**, and the
  * driver is where that is enforced, because the failure checkpoint is *queued*.
  * Between the throw and the checkpoint there is a window in which the driver
- * would otherwise still be doing success work — so `SEAM_PREPARE_FAILED`
- * returns before `commit()`, and `SEAM_EFFECT_FAILED` returns before anything
+ * would otherwise still be doing success work — so `TRANSITION_PREPARE_FAILED`
+ * returns before `commit()`, and `TRANSITION_EFFECT_FAILED` returns before anything
  * is staged.
  */
-export type SeamOutcome =
-  | typeof SEAM_DISCARDED
-  | typeof SEAM_PREPARE_FAILED
-  | typeof SEAM_COMMITTED
-  | typeof SEAM_EFFECT_FAILED;
+export type TransitionOutcome =
+  | typeof TRANSITION_DISCARDED
+  | typeof TRANSITION_PREPARE_FAILED
+  | typeof TRANSITION_COMMITTED
+  | typeof TRANSITION_EFFECT_FAILED;
 
 /**
  * No phase is open. `FailureStage` starts at 1, so `0` and `-1` are free to
@@ -133,9 +133,9 @@ const FAILED = Symbol();
  *
  * **Every field is private and nothing outside reads or writes one.** What
  * crosses the boundary is the run operations, the staged-value consumer,
- * `requestFailure` and the diagnostic predicate `isInSeam`.
+ * `requestFailure` and the diagnostic predicate `isRunningBehavior`.
  */
-export class SeamDriver<Part extends object> {
+export class BehaviorRunner<Part extends object> {
   /** The pair every transactional seam publishes and reads. */
   readonly #frames: FrameTransaction<Part>;
 
@@ -157,7 +157,7 @@ export class SeamDriver<Part extends object> {
    * classified at all are three readings of the same fact, and splitting them
    * lets them drift apart.
    */
-  #openStage: PhaseStage | typeof NO_STAGE = NO_STAGE;
+  #runningStage: PhaseStage | typeof NO_STAGE = NO_STAGE;
 
   /**
    * Set by `requestFailure`, cleared as each phase opens. **A latched failure
@@ -178,7 +178,7 @@ export class SeamDriver<Part extends object> {
    * message, so the driver carries the reason rather than a classification it
    * is about to refuse to apply.
    */
-  #unclassifiedReason = '';
+  #warningMessage = '';
 
   /**
    * The staged value of the last committed transition. Owned here rather than
@@ -225,7 +225,7 @@ export class SeamDriver<Part extends object> {
    *
    * A committed transition leaves its `Prepared` value in the staging slot. The
    * kernel reads one such value after the seam returns: the release seam's
-   * `ResolutionCommand`. Read it with {@link SeamDriver.consumeStaged}.
+   * `ResolutionCommand`. Read it with {@link BehaviorRunner.consumeStaged}.
    *
    * `effectStage` is the stage of a throw from `effect`. A behavior action needs
    * it: it resolves an insertion in `prepare` and moves the placeholder in
@@ -238,7 +238,7 @@ export class SeamDriver<Part extends object> {
     stage: FailureStage,
     phase: Phase | null = null,
     effectStage: FailureStage = stage,
-  ): SeamOutcome {
+  ): TransitionOutcome {
     // `#callAndHandleFailure` also refuses, but too late for this method: a
     // transaction mutates kernel state before its first phase opens, and
     // `begin()` would rebuild the draft the outer seam is still building.
@@ -259,11 +259,11 @@ export class SeamDriver<Part extends object> {
     );
 
     if (prepared === FAILED) {
-      return SEAM_PREPARE_FAILED;
+      return TRANSITION_PREPARE_FAILED;
     }
 
     if (prepared === null) {
-      return SEAM_DISCARDED; // the draft is abandoned
+      return TRANSITION_DISCARDED; // the draft is abandoned
     }
 
     this.#frames.commit(phase);
@@ -273,7 +273,7 @@ export class SeamDriver<Part extends object> {
     );
 
     if (effected === FAILED) {
-      return SEAM_EFFECT_FAILED;
+      return TRANSITION_EFFECT_FAILED;
     }
 
     // Stage after the effect, so anything the effect triggers, such as a queued
@@ -284,7 +284,7 @@ export class SeamDriver<Part extends object> {
     // unit's entry declines on a registered cancel, and applying a destroy at
     // this unit's boundary discards the unit.
     this.#staged = prepared;
-    return SEAM_COMMITTED;
+    return TRANSITION_COMMITTED;
   }
 
   /**
@@ -325,7 +325,7 @@ export class SeamDriver<Part extends object> {
 
   /**
    * Runs one behavior callback for its value, like
-   * {@link SeamDriver.runCallbackForValue}, but a failure reaches the consumer
+   * {@link BehaviorRunner.runCallbackForValue}, but a failure reaches the consumer
    * as a warning instead of settling the operation. The callback still runs
    * inside a phase: re-entry refused, `kernel.fail` latched, one report per
    * phase.
@@ -339,7 +339,7 @@ export class SeamDriver<Part extends object> {
     run: () => Value,
     reason: string,
   ): Value | undefined {
-    this.#unclassifiedReason = reason;
+    this.#warningMessage = reason;
 
     const value = this.#callAndHandleFailure(UNCLASSIFIED, run);
 
@@ -359,7 +359,7 @@ export class SeamDriver<Part extends object> {
    * Returns `null` when the last seam staged nothing, discarded or failed.
    *
    * **Every seam either consumes its staged value or drops it.**
-   * {@link runActivationSeam} and {@link runReleaseSeam} drop it for their
+   * {@link runActivationTransition} and {@link runReleaseTransition} drop it for their
    * callers; the seams the kernel drives directly drop it themselves. A value
    * left behind is reported.
    */
@@ -380,15 +380,15 @@ export class SeamDriver<Part extends object> {
     // **A latched failure and a throw are the same event on this path too.**
     // The flag is what makes `#callAndHandleFailure` return `FAILED` for a phase
     // that latched without throwing, so the caller sees no target either way.
-    if (this.#openStage === UNCLASSIFIED) {
+    if (this.#runningStage === UNCLASSIFIED) {
       this.#failureRequested = true;
       this.#notify(
-        new DraggableWarning(this.#unclassifiedReason, { cause: error }),
+        new DraggableWarning(this.#warningMessage, { cause: error }),
       );
       return;
     }
 
-    if (this.#openStage === NO_STAGE) {
+    if (this.#runningStage === NO_STAGE) {
       // **One warning, not two reports.** A caught error and a
       // library-authored companion naming why the classification was denied
       // are one fault said twice: the message names the reason and `cause`
@@ -415,8 +415,8 @@ export class SeamDriver<Part extends object> {
   }
 
   /** Whether a seam phase is currently open. Diagnostics and tests. */
-  isInSeam(): boolean {
-    return this.#openStage !== NO_STAGE;
+  isRunningBehavior(): boolean {
+    return this.#runningStage !== NO_STAGE;
   }
 
   /**
@@ -429,7 +429,7 @@ export class SeamDriver<Part extends object> {
    * returns, and the appended action opens its phase only after this one has
    * finished.
    *
-   * **What `#openStage` covers is the foreign-code window, and that is the
+   * **What `#runningStage` covers is the foreign-code window, and that is the
    * boundary this guard is for.** It is set as a phase opens and cleared before
    * `#callAndHandleFailure` classifies, so a phase opened from the classification
    * path would not be refused. Read the sentinel as *is foreign code on the
@@ -448,7 +448,7 @@ export class SeamDriver<Part extends object> {
    * `prepare` **neither** transaction lands and `current` is untouched, and
    * nested from `effect` the outer's committed frame is **replaced wholesale**
    * by the inner's while the staged command run against it is the outer's. Both
-   * seams then return `SEAM_COMMITTED`, and neither path produces a diagnostic,
+   * seams then return `TRANSITION_COMMITTED`, and neither path produces a diagnostic,
    * which is the worst shape a broken invariant can take: the code succeeds and
    * does the wrong thing. A nested `begin()` does **not** publish a half-built
    * frame — the swaps cancel — so that is not the reason to refuse.
@@ -459,7 +459,7 @@ export class SeamDriver<Part extends object> {
    * what makes behavior code that catches its own refusal panic anyway.
    */
   #refuseReentry(): void {
-    if (this.#openStage !== NO_STAGE) {
+    if (this.#runningStage !== NO_STAGE) {
       this.#reentry = true;
       // **`null`, and deliberately.** Not an `Error`, because an `Error`
       // carries a message and a message here would be an identity for a
@@ -491,7 +491,7 @@ export class SeamDriver<Part extends object> {
   ): Value | typeof FAILED {
     this.#refuseReentry();
     this.#failureRequested = false;
-    this.#openStage = stage;
+    this.#runningStage = stage;
 
     let value: Value | typeof FAILED;
     let raised: unknown;
@@ -503,7 +503,7 @@ export class SeamDriver<Part extends object> {
       raised = error;
     }
 
-    this.#openStage = NO_STAGE;
+    this.#runningStage = NO_STAGE;
 
     if (this.#reentry) {
       // Cleared on the way out: exactly one `runTransition` on the stack got past
@@ -524,7 +524,7 @@ export class SeamDriver<Part extends object> {
         // The sentinel says how the failure travels, not what it was, so the
         // warning carries the reason the caller named.
         this.#notify(
-          new DraggableWarning(this.#unclassifiedReason, { cause: raised }),
+          new DraggableWarning(this.#warningMessage, { cause: raised }),
         );
       } else if (this.#failureRequested) {
         // A phase that called `kernel.fail` and then threw is already classified
@@ -559,30 +559,30 @@ export class SeamDriver<Part extends object> {
  * destroy `onStart` raised is applied at a boundary, and the entry reads the
  * held cancel.
  */
-export function runActivationSeam<
+export function runActivationTransition<
   Part extends object,
   Prepared extends {},
   Capability,
 >(
-  driver: SeamDriver<Part>,
+  runner: BehaviorRunner<Part>,
   transition: Transition<Part, Prepared, Capability>,
   capability: Capability,
   stage: FailureStage,
   phase: Phase,
   policy: Readonly<{ retire(): void; committed(): void }>,
-): SeamOutcome {
-  const outcome = driver.runTransition(transition, capability, stage, phase);
+): TransitionOutcome {
+  const outcome = runner.runTransition(transition, capability, stage, phase);
 
   // Dropped **before** the policy runs, so nothing this seam triggers can read
   // the placeholder it staged. Activation's staged value is consumed by its own
   // `effect` and has no reader afterwards — whatever it is: the behavior
   // chooses the staged type, and the kernel does nothing with it but hand it
   // back and drop it.
-  driver.consumeStaged();
+  runner.consumeStaged();
 
-  if (outcome === SEAM_DISCARDED) {
+  if (outcome === TRANSITION_DISCARDED) {
     policy.retire();
-  } else if (outcome === SEAM_COMMITTED) {
+  } else if (outcome === TRANSITION_COMMITTED) {
     policy.committed();
   }
 
@@ -599,18 +599,18 @@ export function runActivationSeam<
  * whose presentation effect had thrown, racing the failure through the same
  * queue. The caller queues the round-trip rather than opening it.
  */
-export function runReleaseSeam<Part extends object, Prepared extends {}>(
-  driver: SeamDriver<Part>,
+export function runReleaseTransition<Part extends object, Prepared extends {}>(
+  runner: BehaviorRunner<Part>,
   transition: Transition<Part, Prepared>,
   stage: FailureStage,
   committed: (prepared: Prepared) => void,
-): SeamOutcome {
-  const outcome = driver.runTransition(transition, undefined, stage);
+): TransitionOutcome {
+  const outcome = runner.runTransition(transition, undefined, stage);
   // Taken unconditionally: on any other outcome this clears whatever an earlier
   // seam left, and `committed` never sees it.
-  const command = driver.consumeStaged();
+  const command = runner.consumeStaged();
 
-  if (outcome === SEAM_COMMITTED) {
+  if (outcome === TRANSITION_COMMITTED) {
     committed(command as Prepared);
   }
 

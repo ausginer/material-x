@@ -43,7 +43,10 @@ import {
   SETTLED_REJECTED,
   SETTLED_SKIPPED,
 } from '../kernel/spec.ts';
-import { createUnwind, type Unwind } from '../kernel/unwind.ts';
+import {
+  createWarnOnThrow,
+  type WarnOnThrow,
+} from '../kernel/warn-on-throw.ts';
 import {
   buildReorderProposal,
   CHANGE_CANCEL,
@@ -107,7 +110,7 @@ export const STAGED = true;
  * behavior-internal: nothing outside this file may read how far an operation
  * got, and nothing in the kernel could interpret it if it did.
  */
-const MINTED = 0;
+const CREATED = 0;
 const STARTED = 1;
 const RESOLVING = 2;
 
@@ -236,7 +239,7 @@ class SortableBehavior {
   } = {
     activation: null,
     pendingSpatial: 0,
-    progress: MINTED,
+    progress: CREATED,
   };
 
   /**
@@ -300,7 +303,7 @@ class SortableBehavior {
    */
   readonly #notify: Notify;
 
-  readonly #unwind: Unwind;
+  readonly #warnOnThrow: WarnOnThrow;
 
   readonly #invalidate: ReturnType<typeof createInvalidator>;
 
@@ -315,7 +318,7 @@ class SortableBehavior {
     this.#kernel = kernel;
     this.#slots = slots;
     this.#notify = kernel.channel(this.#deliver);
-    this.#unwind = createUnwind(this.#notify);
+    this.#warnOnThrow = createWarnOnThrow(this.#notify);
     this.#realm = kernel.realm;
     this.#snapshot = { items, version: 0 };
     this.#sourceIdentity = initialSource;
@@ -522,7 +525,7 @@ class SortableBehavior {
    * the seam's outcome: a caller that would go on to publish or to notify must
    * stop instead.
    */
-  #invalidateInSeam(): boolean {
+  #invalidateInsertion(): boolean {
     try {
       this.#slots.invalidateInsertion();
       return true;
@@ -745,7 +748,7 @@ class SortableBehavior {
     //
     // That is the single-fault outcome. If consumer code in this activation
     // also registered a cancellation, the two-fault class stated where
-    // `#invalidateInSeam` fails below applies instead: the cancel supersedes
+    // `#invalidateInsertion` fails below applies instead: the cancel supersedes
     // this failure, the drag settles as *canceled* without a start
     // notification, and the landing looks for an activation record this
     // throw left unpublished.
@@ -791,7 +794,7 @@ class SortableBehavior {
       space: scope.itemSpace,
     };
 
-    if (!this.#invalidateInSeam()) {
+    if (!this.#invalidateInsertion()) {
       // Classified; the operation is failing, so do not start it.
       //
       // This is one instance of a class of two-fault paths that reach a
@@ -1087,7 +1090,7 @@ class SortableBehavior {
         stale = false;
       } finally {
         if (stale) {
-          this.#invalidateInSeam();
+          this.#invalidateInsertion();
         }
       }
 
@@ -1104,7 +1107,7 @@ class SortableBehavior {
     // the publication path is what makes the pull source cheap rather than
     // merely tidy.
     if (!next) {
-      this.#invalidateInSeam();
+      this.#invalidateInsertion();
       return;
     }
 
@@ -1121,7 +1124,7 @@ class SortableBehavior {
       // Not gated on success: publication already happened above, and the
       // consumer's update must never be thrown away by a failing
       // invalidation. The latched failure still decides the seam.
-      this.#invalidateInSeam();
+      this.#invalidateInsertion();
     }
 
     // Last, and only after publication: an invalid collection ends the
@@ -1184,7 +1187,7 @@ class SortableBehavior {
       // Cancelling here would land the same numbers and snap every
       // displaced row at the one instant the user is watching the item
       // land.
-      if (!this.#invalidateInSeam()) {
+      if (!this.#invalidateInsertion()) {
         return { invoke: null };
       }
 
@@ -1410,11 +1413,11 @@ class SortableBehavior {
           // not the result — and carries no weight in this tie-break.
           //
           // **The marker decides the stage, and it also decides whether to
-          // publish at all.** At `MINTED` the consumer never heard this
+          // publish at all.** At `CREATED` the consumer never heard this
           // drag start, and an end for a beginning it has no record of is
           // worse than publishing nothing.
           draft.domain ??=
-            this.#operation.progress === MINTED
+            this.#operation.progress === CREATED
               ? null
               : {
                   type: 'canceled',
@@ -1583,7 +1586,7 @@ class SortableBehavior {
   }
 
   retire(): void {
-    this.#operation.progress = MINTED;
+    this.#operation.progress = CREATED;
     this.#spatialFrame.cancel();
     this.#operation.pendingSpatial = 0;
     this.#operation.activation = null;
@@ -1592,7 +1595,7 @@ class SortableBehavior {
     // individually, so one throwing hook cannot
     // stop a later one from restoring its DOM.
     for (let i = this.#slots.retireHooks.length - 1; i >= 0; i -= 1) {
-      this.#unwind(this.#slots.retireHooks[i]!);
+      this.#warnOnThrow(this.#slots.retireHooks[i]!);
     }
   }
 }

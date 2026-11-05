@@ -954,3 +954,23 @@ Exact figures from `just size`, with `drag2` rebuilt. No statistical round ran.
 **Not moved.** `vocabulary root - drag.js` stays at 142 and baseline B at 6,916. Neither graph contains `kernel/seams.js`.
 
 **No ceiling moved, no control became a ceiling, and no interval is unattributed.** This commit changes only those five `control:` values in `bench/size/measure.ts`. Every row with a ceiling stays under it.
+
+## Controls re-declared 2026-11-05, the source clarity renames: five whole intervals attributed to one change, and no ceiling moved
+
+Exact figures from `just size`, with `drag2` rebuilt. No statistical round ran.
+
+| Control | Before, at `678a6ab18` | After, in this commit | Move |
+| --- | --: | --: | --: |
+| `free drag minimal` | 8,355 | **8,369** | +14 |
+| `free drag + bounds` | 8,595 | **8,582** | −13 |
+| `free drag + landing` | 8,517 | **8,521** | +4 |
+| `free drag complete` | 8,736 | **8,735** | −1 |
+| `kernel root - kernel.js` | 6,420 | **6,422** | +2 |
+
+**Before.** All seven controls passed at `678a6ab18`.
+
+**After.** The one named change is the rename in this commit. Two non-private method names, `runIngress` and `isInSeam`, are not mangled, so each of these five bundles grows by 17 B minified. Private names do not reach the bundles. The lint autofix also moved the import of the renamed module to its sorted place in `kernel/kernel.ts`, which changes the order of that module in each bundle; the module holds only declarations, so evaluation order has no effect. `kernel/behavior-runner.js` and `kernel/execution.js` are in each row's measured graph, and no dependency manifest or lockfile changed. With the names and module paths substituted and that one import moved, the comment-free esbuild emit of all 58 source modules at `678a6ab18` equals this commit.
+
+**Not moved.** `vocabulary root - drag.js` stays at 142 and baseline B at 6,916. Neither graph contains the renamed code.
+
+**No ceiling moved, no control became a ceiling, and no interval is unattributed.** This commit changes only those five `control:` values in `bench/size/measure.ts`. Every row with a ceiling stays under it.

@@ -24,7 +24,7 @@ import { DraggableWarning, type Notify } from './errors.ts';
  * Runs one unwind step, absorbing a throw so the next one still runs. Returns
  * `undefined` when the step failed.
  */
-export type Unwind = <T>(step: () => T) => T | undefined;
+export type WarnOnThrow = <T>(step: () => T) => T | undefined;
 
 /**
  * Builds the unwind guard over one notifier: a minted channel or the
@@ -41,7 +41,7 @@ export type Unwind = <T>(step: () => T) => T | undefined;
  * failure mode in the reporting path would defeat the one property this exists
  * to provide.
  */
-export function createUnwind(notify: Notify): Unwind {
+export function createWarnOnThrow(notify: Notify): WarnOnThrow {
   return (step) => {
     try {
       return step();

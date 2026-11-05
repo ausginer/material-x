@@ -136,7 +136,7 @@ Nothing below is decided by this register. Each row states what is owed and what
 
 **Reopens:** D-117's rule that a P2 diagnostic gates only in a tier that already binds the flag, and D-101's boundary, which the kernel would then re-cross
 
-**Where it was decided:** D-117, declining the one candidate the measurement produced — the unconsumed-staged-value report in `kernel/seams.ts`
+**Where it was decided:** D-117, declining the one candidate the measurement produced — the unconsumed-staged-value report in `kernel/behavior-runner.ts`
 
 **Today:** **Not met.** That report is the package's only P2 site whose check is not load-bearing, and gating it buys a branch, an `Error` construction and a token's difference. D-101 says the boundary _must not be argued on bytes_ and that is the whole of the argument available for it, so the site ships. **This is a decline with a live condition, not a closed door**: the declared tier set in `tests/kernel/vocabulary.node.test.ts` is a declaration rule and would accept a kernel binding that was declared, which is what D-101 built it to make visible
 

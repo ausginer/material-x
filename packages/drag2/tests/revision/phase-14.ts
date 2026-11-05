@@ -67,6 +67,7 @@
  * never assembled. Publishing state is not free: it adds a clearing obligation
  * and a failure path, and pass 5 added the publication without either.
  */
+import type { Transition } from '../../src/kernel/behavior-runner.ts';
 import type { CancelStage, FailureStage } from '../../src/kernel/failures.ts';
 import type {
   Draft,
@@ -75,7 +76,6 @@ import type {
   KernelFrame,
 } from '../../src/kernel/frames.ts';
 import type { LifetimeScope } from '../../src/kernel/lifetimes.ts';
-import type { Transition } from '../../src/kernel/seams.ts';
 import type {
   BehaviorContext,
   PreparedSettlement,

@@ -1704,7 +1704,10 @@ describe('the packed package', () => {
     // diagnostic at all. What D-108 decided is untouched and is what this row
     // still reads: the checks that **do** ship are un-gated, in the build a
     // third party installs.
-    const seams = await readFile(join(packed.dir, 'kernel/seams.js'), 'utf8');
+    const seams = await readFile(
+      join(packed.dir, 'kernel/behavior-runner.js'),
+      'utf8',
+    );
     const frames = await readFile(join(packed.dir, 'kernel/frames.js'), 'utf8');
 
     expect(seams).toContain('drag: seam/staged-unconsumed');

@@ -61,7 +61,7 @@ import type { BehaviorFactory } from './kernel/spec.ts';
  * a name a behavior of the sortable's size writes out of line.
  *
  * `ActionTransition` is re-exported through this module from **one**
- * declaration, in `kernel/seams.ts`: publishing one copy while the driver
+ * declaration, in `kernel/behavior-runner.ts`: publishing one copy while the driver
  * consumes another is an identity hazard.
  */
 export type {
@@ -81,7 +81,7 @@ export type {
   SettlementInput,
   SettlementTransition,
 } from './kernel/spec.ts';
-export type { Transition } from './kernel/seams.ts';
+export type { Transition } from './kernel/behavior-runner.ts';
 export type {
   Draft,
   Frame,

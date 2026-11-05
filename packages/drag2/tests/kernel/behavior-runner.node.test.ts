@@ -1,9 +1,19 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  BehaviorRunner,
+  runActivationTransition,
+  runReleaseTransition,
+  TRANSITION_COMMITTED,
+  TRANSITION_DISCARDED,
+  TRANSITION_EFFECT_FAILED,
+  TRANSITION_PREPARE_FAILED,
+  type Transition,
+} from '../../src/kernel/behavior-runner.ts';
+import {
   DraggableError,
   type DraggableWarning,
 } from '../../src/kernel/errors.ts';
-import { ExecutionBracket } from '../../src/kernel/execution.ts';
+import { ExecutionLoop } from '../../src/kernel/execution.ts';
 import {
   FAILURE_ACTIVATION,
   FAILURE_RELEASE,
@@ -12,16 +22,6 @@ import {
 } from '../../src/kernel/failures.ts';
 import { frame, type Draft, type Frame } from '../../src/kernel/frames.ts';
 import { ACTIVATING, ACTIVE, IDLE } from '../../src/kernel/phases.ts';
-import {
-  SeamDriver,
-  runActivationSeam,
-  runReleaseSeam,
-  SEAM_COMMITTED,
-  SEAM_DISCARDED,
-  SEAM_EFFECT_FAILED,
-  SEAM_PREPARE_FAILED,
-  type Transition,
-} from '../../src/kernel/seams.ts';
 import { FrameTransaction } from '../../src/kernel/transaction.ts';
 
 type ExamplePart = {
@@ -32,7 +32,7 @@ type ExamplePart = {
 const createExamplePart = (): ExamplePart => ({ item: null, published: 0 });
 
 type Harness = Readonly<{
-  driver: SeamDriver<ExamplePart>;
+  driver: BehaviorRunner<ExamplePart>;
   /** Classified failures, in the order the kernel queued them. */
   failures: ReadonlyArray<Readonly<{ stage: FailureStage; error: unknown }>>;
   /**
@@ -80,7 +80,7 @@ function createHarness(): Harness {
   const warnings: DraggableWarning[] = [];
 
   return {
-    driver: new SeamDriver<ExamplePart>(
+    driver: new BehaviorRunner<ExamplePart>(
       frames,
       (stage, error): void => {
         failures.push({ stage, error });
@@ -142,7 +142,7 @@ describe('runTransition', () => {
       FAILURE_ACTIVATION,
     );
 
-    expect(outcome).toBe(SEAM_COMMITTED);
+    expect(outcome).toBe(TRANSITION_COMMITTED);
     expect(transition.calls).toEqual(['prepare', 'effect']);
   });
 
@@ -234,7 +234,7 @@ describe('runTransition discard', () => {
         undefined,
         FAILURE_ACTIVATION,
       ),
-    ).toBe(SEAM_DISCARDED);
+    ).toBe(TRANSITION_DISCARDED);
   });
 
   it('should not commit a discarded transition', () => {
@@ -293,7 +293,7 @@ describe('runTransition failure', () => {
       FAILURE_ACTIVATION,
     );
 
-    expect(outcome).toBe(SEAM_PREPARE_FAILED);
+    expect(outcome).toBe(TRANSITION_PREPARE_FAILED);
     expect(harness.committed()).toBe(false);
     expect(harness.failures).toEqual([{ stage: FAILURE_ACTIVATION, error }]);
   });
@@ -327,7 +327,7 @@ describe('runTransition failure', () => {
 
     // An `effect` throw is a classified failure, never a panic (F-19) — and the
     // transition is **not** reverted (I-18).
-    expect(outcome).toBe(SEAM_EFFECT_FAILED);
+    expect(outcome).toBe(TRANSITION_EFFECT_FAILED);
     expect(harness.committed()).toBe(true);
     expect(harness.current().item).toBe('staged');
     expect(harness.failures).toEqual([{ stage: FAILURE_ACTIVATION, error }]);
@@ -381,7 +381,7 @@ describe('explicit failure latching', () => {
 
     // Returning normally after `kernel.fail` must be indistinguishable from a
     // throw at the driver boundary (D-28, F-34).
-    expect(outcome).toBe(SEAM_PREPARE_FAILED);
+    expect(outcome).toBe(TRANSITION_PREPARE_FAILED);
     expect(harness.committed()).toBe(false);
     expect(harness.failures).toEqual([{ stage: FAILURE_ACTIVATION, error }]);
   });
@@ -413,7 +413,7 @@ describe('explicit failure latching', () => {
       FAILURE_ACTIVATION,
     );
 
-    expect(outcome).toBe(SEAM_EFFECT_FAILED);
+    expect(outcome).toBe(TRANSITION_EFFECT_FAILED);
   });
 
   it('should clear the latch between the prepare and effect phases', () => {
@@ -442,7 +442,7 @@ describe('explicit failure latching', () => {
         undefined,
         FAILURE_ACTIVATION,
       ),
-    ).toBe(SEAM_COMMITTED);
+    ).toBe(TRANSITION_COMMITTED);
   });
 
   it('should report kernel.fail outside a seam as a warning rather than classifying it', () => {
@@ -522,7 +522,7 @@ describe('explicit failure latching', () => {
       FAILURE_ACTIVATION,
     );
 
-    expect(outcome).toBe(SEAM_PREPARE_FAILED);
+    expect(outcome).toBe(TRANSITION_PREPARE_FAILED);
     expect(harness.committed()).toBe(false);
   });
 
@@ -533,7 +533,7 @@ describe('explicit failure latching', () => {
     harness.driver.runTransition(
       createTransition({
         prepare(): { staged: number } {
-          insideSeam = harness.driver.isInSeam();
+          insideSeam = harness.driver.isRunningBehavior();
           return { staged: 1 };
         },
       }),
@@ -542,7 +542,7 @@ describe('explicit failure latching', () => {
     );
 
     expect(insideSeam).toBe(true);
-    expect(harness.driver.isInSeam()).toBe(false);
+    expect(harness.driver.isRunningBehavior()).toBe(false);
   });
 
   it('should close the seam even when a phase throws', () => {
@@ -558,7 +558,7 @@ describe('explicit failure latching', () => {
       FAILURE_ACTIVATION,
     );
 
-    expect(harness.driver.isInSeam()).toBe(false);
+    expect(harness.driver.isRunningBehavior()).toBe(false);
   });
 });
 
@@ -894,7 +894,7 @@ describe('runTransition reentrancy', () => {
 
     // The nested call raises from inside the outer `prepare`, so the outer
     // `catch` would otherwise launder an invariant break into an ordinary
-    // behavior failure and return `SEAM_PREPARE_FAILED`.
+    // behavior failure and return `TRANSITION_PREPARE_FAILED`.
     expectReentryPanic(() =>
       harness.driver.runTransition(
         createTransition({
@@ -1130,7 +1130,7 @@ describe('runTransition reentrancy', () => {
         undefined,
         FAILURE_ACTIVATION,
       ),
-    ).toBe(SEAM_COMMITTED);
+    ).toBe(TRANSITION_COMMITTED);
   });
 });
 
@@ -1203,7 +1203,7 @@ describe('seams driven through the action queue', () => {
    */
   function createQueuedKernel(): Readonly<{
     dispatch(action: number, argument: unknown): void;
-    driver: SeamDriver<ExamplePart>;
+    driver: BehaviorRunner<ExamplePart>;
     order: readonly string[];
     staged: readonly unknown[];
     panics: readonly unknown[];
@@ -1215,7 +1215,7 @@ describe('seams driven through the action queue', () => {
 
     // `handle` and the bracket are mutually recursive: that is the point — a
     // seam reaches back into the kernel, and the bracket must queue it.
-    let bracket: ExecutionBracket;
+    let bracket: ExecutionLoop;
 
     const handle = (action: number, argument: unknown): void => {
       order.push(`enter:${action}`);
@@ -1240,7 +1240,7 @@ describe('seams driven through the action queue', () => {
       panics.push(error);
     };
 
-    bracket = new ExecutionBracket(
+    bracket = new ExecutionLoop(
       handle,
       panic,
       () => {},
@@ -1293,7 +1293,7 @@ describe('seams driven through the action queue', () => {
   });
 });
 
-describe('runActivationSeam', () => {
+describe('runActivationTransition', () => {
   const scope = { visual: null };
   /**
    * Stands in for the element `activation.prepare` returns. The driver only
@@ -1318,7 +1318,7 @@ describe('runActivationSeam', () => {
     const harness = createHarness();
     const policy = { retire: vi.fn(), committed: vi.fn() };
 
-    const outcome = runActivationSeam(
+    const outcome = runActivationTransition(
       harness.driver,
       activation(),
       scope,
@@ -1327,7 +1327,7 @@ describe('runActivationSeam', () => {
       policy,
     );
 
-    expect(outcome).toBe(SEAM_COMMITTED);
+    expect(outcome).toBe(TRANSITION_COMMITTED);
     expect(policy.committed).toHaveBeenCalledOnce();
     expect(policy.retire).not.toHaveBeenCalled();
   });
@@ -1335,7 +1335,7 @@ describe('runActivationSeam', () => {
   it('should leave nothing staged behind after a committed activation', () => {
     const harness = createHarness();
 
-    runActivationSeam(
+    runActivationTransition(
       harness.driver,
       activation(),
       scope,
@@ -1356,7 +1356,7 @@ describe('runActivationSeam', () => {
     const harness = createHarness();
     let observed: unknown = 'unset';
 
-    runActivationSeam(
+    runActivationTransition(
       harness.driver,
       activation(),
       scope,
@@ -1378,7 +1378,7 @@ describe('runActivationSeam', () => {
     const policy = { retire: vi.fn(), committed: vi.fn() };
 
     // There is no such thing as a pending operation with no presentation.
-    runActivationSeam(
+    runActivationTransition(
       harness.driver,
       activation({ prepare: () => null }),
       scope,
@@ -1397,7 +1397,7 @@ describe('runActivationSeam', () => {
 
     // Retiring here would make the queued FAILED entry stale, so `onError`
     // might never fire (F-27).
-    runActivationSeam(
+    runActivationTransition(
       harness.driver,
       activation({
         prepare(): HTMLElement {
@@ -1418,7 +1418,7 @@ describe('runActivationSeam', () => {
     const harness = createHarness();
     const policy = { retire: vi.fn(), committed: vi.fn() };
 
-    runActivationSeam(
+    runActivationTransition(
       harness.driver,
       activation({
         effect(): void {
@@ -1439,7 +1439,7 @@ describe('runActivationSeam', () => {
     const harness = createHarness();
     const policy = { retire: vi.fn(), committed: vi.fn() };
 
-    runActivationSeam(
+    runActivationTransition(
       harness.driver,
       activation({
         effect(): void {
@@ -1456,11 +1456,11 @@ describe('runActivationSeam', () => {
   });
 });
 
-describe('runReleaseSeam', () => {
+describe('runReleaseTransition', () => {
   it('should leave nothing staged behind after executing', () => {
     const harness = createHarness();
 
-    runReleaseSeam(
+    runReleaseTransition(
       harness.driver,
       { prepare: () => ({ invoke: null }), effect: () => {} },
       FAILURE_RELEASE,
@@ -1473,7 +1473,7 @@ describe('runReleaseSeam', () => {
   it('should leave nothing staged behind after a failed release', () => {
     const harness = createHarness();
 
-    runReleaseSeam(
+    runReleaseTransition(
       harness.driver,
       {
         prepare: () => ({ invoke: null }),
@@ -1493,7 +1493,7 @@ describe('runReleaseSeam', () => {
     const execute = vi.fn();
     const command = { invoke: null };
 
-    const outcome = runReleaseSeam(
+    const outcome = runReleaseTransition(
       harness.driver,
       { prepare: () => command, effect: () => {} },
       FAILURE_RELEASE,
@@ -1502,7 +1502,7 @@ describe('runReleaseSeam', () => {
       },
     );
 
-    expect(outcome).toBe(SEAM_COMMITTED);
+    expect(outcome).toBe(TRANSITION_COMMITTED);
     expect(execute).toHaveBeenCalledExactlyOnceWith(command);
   });
 
@@ -1512,7 +1512,7 @@ describe('runReleaseSeam', () => {
 
     // Running the command unconditionally let the consumer receive `onReorder`
     // for a release whose presentation effect had thrown (F-27).
-    runReleaseSeam(
+    runReleaseTransition(
       harness.driver,
       {
         prepare: () => ({ invoke: null }),
@@ -1533,7 +1533,7 @@ describe('runReleaseSeam', () => {
     const harness = createHarness();
     const execute = vi.fn();
 
-    runReleaseSeam(
+    runReleaseTransition(
       harness.driver,
       {
         prepare: () => ({ invoke: null }),

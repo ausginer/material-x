@@ -18,7 +18,7 @@ import {
 import type { Disposer } from './lifetimes.ts';
 import type { DOMRealm } from './realm.ts';
 import type { Point } from './types.ts';
-import type { Unwind } from './unwind.ts';
+import type { WarnOnThrow } from './warn-on-throw.ts';
 
 /** Which lift strategy a free/sortable operation uses. */
 export const LIFT_FAITHFUL = 61;
@@ -181,7 +181,10 @@ export function captureInlineStyles(visual: HTMLElement): Disposer {
  * itself back and rethrows: it either fully owns the top layer or leaves the
  * element exactly as it found it.
  */
-export function acquireTopLayer(visual: HTMLElement, unwind: Unwind): Disposer {
+export function acquireTopLayer(
+  visual: HTMLElement,
+  warnOnThrow: WarnOnThrow,
+): Disposer {
   const priorAttribute = visual.getAttribute('popover');
   const priorOpen = visual.matches(':popover-open');
 
@@ -223,7 +226,7 @@ export function acquireTopLayer(visual: HTMLElement, unwind: Unwind): Disposer {
     // previously-open popover is literally the call that threw. **The statement
     // after it is the load-bearing one**: the acquisition error is what
     // explains why the lift was refused, and it must still reach the caller.
-    unwind(restore);
+    warnOnThrow(restore);
     throw error;
   }
 
@@ -501,7 +504,7 @@ export function acquireLift(
   mode: LiftMode,
   originRect: DOMRectReadOnly,
   realm: DOMRealm,
-  unwind: Unwind,
+  warnOnThrow: WarnOnThrow,
 ): LiftAcquisition {
   const above = space();
   // One buffer when the two coincide, which is both the common case and the
@@ -599,7 +602,7 @@ export function acquireLift(
       visual.style.left = `${originRect.left + originRect.width / 2 - width / 2}px`;
     }
 
-    const topLayerDisposer = acquireTopLayer(visual, unwind);
+    const topLayerDisposer = acquireTopLayer(visual, warnOnThrow);
 
     const session = makeSession(visual, base, null, () => {
       // `finally`, not sequence: restoring the inline styles is the one

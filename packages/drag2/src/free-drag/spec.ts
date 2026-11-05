@@ -49,7 +49,10 @@ import {
   SETTLED_REJECTED,
   SETTLED_SKIPPED,
 } from '../kernel/spec.ts';
-import { createUnwind, type Unwind } from '../kernel/unwind.ts';
+import {
+  createWarnOnThrow,
+  type WarnOnThrow,
+} from '../kernel/warn-on-throw.ts';
 import {
   ACCEPTED,
   type DragAxis,
@@ -76,7 +79,7 @@ import type { FreeDragSlots } from './slots.ts';
  * behavior-internal: nothing outside this file may read how far an operation
  * got, and nothing in the kernel could interpret it if it did.
  */
-const MINTED = 0;
+const CREATED = 0;
 const STARTED = 1;
 const RESOLVING = 2;
 
@@ -173,7 +176,7 @@ class FreeDragBehavior {
     originRect: null,
     space: null,
     view: null,
-    progress: MINTED,
+    progress: CREATED,
   };
 
   /**
@@ -233,7 +236,7 @@ class FreeDragBehavior {
    */
   readonly #notify: Notify;
 
-  readonly #unwind: Unwind;
+  readonly #warnOnThrow: WarnOnThrow;
 
   /** One per controller. Arming is per operation, on the motion signal. */
   readonly #invalidate: ReturnType<typeof createInvalidator>;
@@ -241,7 +244,7 @@ class FreeDragBehavior {
   constructor(kernel: BehaviorContext, slots: FreeDragSlots) {
     this.#slots = slots;
     this.#notify = kernel.channel(this.#deliver);
-    this.#unwind = createUnwind(this.#notify);
+    this.#warnOnThrow = createWarnOnThrow(this.#notify);
     this.#realm = kernel.realm;
     this.#root = kernel.root;
     this.#axis = slots.axis;
@@ -406,7 +409,7 @@ class FreeDragBehavior {
       // second, so this marks staleness and never resolves — the feature
       // re-reads on the next `apply`.
       //
-      // A local `try`/`catch`, not `#unwind` and not `kernel.fail`. **Nothing
+      // A local `try`/`catch`, not `#warnOnThrow` and not `kernel.fail`. **Nothing
       // is pending**: this is one call at the end of a native listener, so
       // no later statement is load-bearing and the shared unwind helper
       // would be naming a rule this site does not have.
@@ -784,11 +787,11 @@ class FreeDragBehavior {
           // here is then the operation's only terminal.
           //
           // **The marker decides the stage, and it also decides whether to
-          // publish at all.** At `MINTED` the consumer never heard this
+          // publish at all.** At `CREATED` the consumer never heard this
           // drag start, and an end for a beginning it has no record of is
           // worse than no end.
           draft.domain ??=
-            this.#operation.progress === MINTED
+            this.#operation.progress === CREATED
               ? null
               : {
                   type: 'canceled',
@@ -967,7 +970,7 @@ class FreeDragBehavior {
   }
 
   retire(): void {
-    this.#operation.progress = MINTED;
+    this.#operation.progress = CREATED;
     this.#operation.lift = null;
     this.#operation.originRect = null;
     this.#operation.space = null;
@@ -977,7 +980,7 @@ class FreeDragBehavior {
     // individually, so one throwing hook cannot stop a later one from
     // releasing what it holds.
     for (let i = this.#slots.retireHooks.length - 1; i >= 0; i -= 1) {
-      this.#unwind(this.#slots.retireHooks[i]!);
+      this.#warnOnThrow(this.#slots.retireHooks[i]!);
     }
   }
 }

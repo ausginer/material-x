@@ -9,7 +9,7 @@ import {
   type VisualLiftSession,
 } from '../../src/kernel/presentation.ts';
 import { createRealm } from '../../src/kernel/realm.ts';
-import type { Unwind } from '../../src/kernel/unwind.ts';
+import type { WarnOnThrow } from '../../src/kernel/warn-on-throw.ts';
 
 const created: HTMLElement[] = [];
 const sessions: VisualLiftSession[] = [];
@@ -23,7 +23,7 @@ let reported: unknown[] = [];
  * guard and observes what it catches — which is what the ambient
  * `globalThis.reportError` stub used to do less directly.
  */
-const unwind: Unwind = (step) => {
+const unwind: WarnOnThrow = (step) => {
   try {
     return step();
   } catch (error) {

@@ -25,8 +25,15 @@ import {
   START_COMMITTED,
   UP,
 } from './actions.ts';
+import {
+  BehaviorRunner,
+  runActivationTransition,
+  runReleaseTransition,
+  TRANSITION_COMMITTED,
+  type Transition,
+} from './behavior-runner.ts';
 import { DraggableError, DraggableWarning, type Notify } from './errors.ts';
-import { ExecutionBracket } from './execution.ts';
+import { ExecutionLoop } from './execution.ts';
 import {
   AT_CONSUMER,
   AT_PROPOSAL,
@@ -81,13 +88,6 @@ import {
 } from './protocol.ts';
 import { createRealm, type DOMRealm } from './realm.ts';
 import {
-  SeamDriver,
-  runActivationSeam,
-  runReleaseSeam,
-  SEAM_COMMITTED,
-  type Transition,
-} from './seams.ts';
-import {
   type ActivationScope,
   type AdmissionSubject,
   type BehaviorContext,
@@ -103,7 +103,7 @@ import {
 } from './spec.ts';
 import { FrameTransaction } from './transaction.ts';
 import type { OffsetBox } from './types.ts';
-import { createUnwind, type Unwind } from './unwind.ts';
+import { createWarnOnThrow, type WarnOnThrow } from './warn-on-throw.ts';
 
 /**
  * What the kernel reads off a queued pointer event — and the one thing it calls
@@ -337,7 +337,7 @@ const thenOf = (value: unknown): PromiseLike<unknown>['then'] | null => {
  * `resetFramePart` is behavior code the API permits to throw, and an unwrapped
  * throw on the first frame would skip the second scrub *and* the ingress abort,
  * making destruction non-terminal. The kernel's own reset cannot throw, so it
- * is inside the same `unwind` with nothing to lose by it.
+ * is inside the same `warnOnThrow` with nothing to lose by it.
  *
  * A module function with the guard and the behavior as parameters, because it
  * has two callers on opposite sides of publication: the armed controller's
@@ -345,11 +345,11 @@ const thenOf = (value: unknown): PromiseLike<unknown>['then'] | null => {
  * behavior that may never have been armed.
  */
 function resetFrame<Part extends object, Activation extends {}>(
-  unwind: Unwind,
+  warnOnThrow: WarnOnThrow,
   behavior: BehaviorSpec<Part, Activation>,
   target: Frame<Part>,
 ): void {
-  unwind(() => {
+  warnOnThrow(() => {
     frame(target);
     behavior.resetFramePart(target);
   });
@@ -370,7 +370,7 @@ function resetFrame<Part extends object, Activation extends {}>(
  * does nothing else.
  * 3. **Discard whatever that throws.** *This is the terminus.* A throw from the
  * sink is never re-notified, and that single discard is the whole of what makes
- * the route non-recursive. It is also what lets every `unwind` site stay total
+ * the route non-recursive. It is also what lets every `warnOnThrow` site stay total
  * without knowing anything about reporting: their catch calls a route, and a
  * route cannot throw.
  *
@@ -381,7 +381,7 @@ function resetFrame<Part extends object, Activation extends {}>(
  * its spec with no per-controller wrapper.
  */
 function deliverUnlessApplied(
-  this: ExecutionBracket,
+  this: ExecutionLoop,
   receiver: unknown,
   deliver: Notify,
   error: DraggableError | DraggableWarning,
@@ -447,13 +447,13 @@ class ArmedController<Part extends object, Activation extends {}> {
    * The façade's execution bracket: the lifecycle request, the queue and
    * teardown. Held for `dispatch`, the ingress refusal and the closed reading.
    */
-  readonly #bracket: ExecutionBracket;
+  readonly #loop: ExecutionLoop;
 
   /**
    * The façade's ingress signal. Every listener the controller binds for its
    * own life is bound under it, so the façade's abort at step 7 releases them.
    */
-  readonly #ingress: AbortSignal;
+  readonly #listenerSignal: AbortSignal;
 
   readonly #spec: BehaviorSpec<Part, Activation>;
 
@@ -461,7 +461,7 @@ class ArmedController<Part extends object, Activation extends {}> {
   readonly #frames: FrameTransaction<Part>;
 
   /** The phase machine over that pair, held for the controller's life. */
-  readonly #driver: SeamDriver<Part>;
+  readonly #runner: BehaviorRunner<Part>;
   #nextOperationId = 0;
 
   /* ---- per-operation state, two records dropped whole at retirement ---- */
@@ -509,7 +509,7 @@ class ArmedController<Part extends object, Activation extends {}> {
    * each of them would put reporting at every site that merely wants the next
    * statement to run.
    */
-  readonly #unwind: Unwind;
+  readonly #warnOnThrow: WarnOnThrow;
 
   /**
    * True while a checkpoint's report transition is running — including its
@@ -530,8 +530,8 @@ class ArmedController<Part extends object, Activation extends {}> {
   constructor(
     realm: DOMRealm,
     root: HTMLElement,
-    bracket: ExecutionBracket,
-    ingress: AbortSignal,
+    loop: ExecutionLoop,
+    listenerSignal: AbortSignal,
     spec: BehaviorSpec<Part, Activation>,
     current: Frame<Part>,
     draft: Frame<Part>,
@@ -540,16 +540,16 @@ class ArmedController<Part extends object, Activation extends {}> {
     // callback below already puts `this` in this constructor's context, so the
     // route adds one closure and no context of its own.
     this.report = (error): void => {
-      deliverUnlessApplied.call(this.#bracket, this.#spec, reportToSpec, error);
+      deliverUnlessApplied.call(this.#loop, this.#spec, reportToSpec, error);
     };
-    this.#unwind = createUnwind(this.report);
+    this.#warnOnThrow = createWarnOnThrow(this.report);
     this.#realm = realm;
     this.#root = root;
-    this.#bracket = bracket;
-    this.#ingress = ingress;
+    this.#loop = loop;
+    this.#listenerSignal = listenerSignal;
     this.#spec = spec;
     this.#frames = new FrameTransaction(current, draft);
-    this.#driver = new SeamDriver<Part>(
+    this.#runner = new BehaviorRunner<Part>(
       this.#frames,
       (stage, error) => {
         this.#failOperation(stage, error);
@@ -592,29 +592,29 @@ class ArmedController<Part extends object, Activation extends {}> {
    * the committed frame is written in place here, which is the one act no
    * reader of it can serve.
    */
-  readonly #scrub = (target: Frame<Part>): void => {
-    resetFrame(this.#unwind, this.#spec, target);
+  readonly #clearFrame = (target: Frame<Part>): void => {
+    resetFrame(this.#warnOnThrow, this.#spec, target);
   };
 
   /**
    * Steps 3–6 of teardown, written once: shared by operation retirement and by
    * physical teardown, which differ only in what surrounds them.
    */
-  #release(): void {
+  #disposeOperationState(): void {
     // 3. kernel attempts.
     this.#retireAttempts();
 
     // 4. behavior references.
-    this.#unwind(this.#spec.retire);
+    this.#warnOnThrow(this.#spec.retire);
 
     // 5. presentation → motion → cancellation, LIFO, best-effort. Releases
     //    pointer capture, removes the placeholder and restores inline styles.
     if (this.#operation) {
-      this.#unwind(this.#operation.lifetimes.dispose);
+      this.#warnOnThrow(this.#operation.lifetimes.dispose);
     }
 
     // 6. both frames, each reset individually wrapped.
-    this.#frames.retire(this.#scrub);
+    this.#frames.retire(this.#clearFrame);
 
     // **Last, and for a proof reason rather than a runtime one.** The two
     // halves are not the same claim.
@@ -629,7 +629,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     //
     // *Structural*: past step 5 there is nothing left to observe. `scrub`
     // nulls the frame's identity before it runs anything, and the two calls
-    // in between — `unwind`, which calls nothing ahead of its callback, and
+    // in between — `warnOnThrow`, which calls nothing ahead of its callback, and
     // `frame`, an `Object.assign` over a plain literal — cannot reenter. The
     // records are dropped here anyway so that
     // `current.operation !== null` ⟹ `operation !== null` holds directly
@@ -651,7 +651,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       return; // a stale retirement for an operation that is already gone
     }
 
-    this.#release();
+    this.#disposeOperationState();
   }
 
   /**
@@ -682,7 +682,7 @@ class ArmedController<Part extends object, Activation extends {}> {
    * it leaves the visual exactly where flow puts it, with nothing to restore.
    *
    * `cancel` is a method on an object reachable from a consumer-owned element, so
-   * the call goes through `#unwind`. This method runs inside activation and inside
+   * the call goes through `#warnOnThrow`. This method runs inside activation and inside
    * teardown, and the next statement in both must run.
    */
   #cancelLandingAnimation(): void {
@@ -690,7 +690,7 @@ class ArmedController<Part extends object, Activation extends {}> {
 
     if (running) {
       this.#landingAnimation = null;
-      this.#unwind(() => {
+      this.#warnOnThrow(() => {
         running.cancel();
       });
     }
@@ -709,7 +709,7 @@ class ArmedController<Part extends object, Activation extends {}> {
    */
   teardown(): void {
     try {
-      this.#release();
+      this.#disposeOperationState();
     } finally {
       // 7, this controller's half: no earlier step may leave a landing
       //    animation running on an element the controller has stopped owning.
@@ -784,7 +784,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     const { phase } = this.#frames.current;
 
     if (
-      this.#bracket.closed ||
+      this.#loop.closed ||
       phase < PENDING ||
       phase > RELEASING ||
       this.#operation!.cancelRequest
@@ -793,7 +793,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     }
 
     this.#operation!.cancelRequest = { reason, origin };
-    this.#bracket.dispatch(CANCEL, this.#frames.current.operation);
+    this.#loop.dispatch(CANCEL, this.#frames.current.operation);
   }
 
   /**
@@ -831,7 +831,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // cancel supersedes it is decided at its application, from what intake
     // records below.
     if (
-      this.#bracket.closed ||
+      this.#loop.closed ||
       !identity ||
       this.#reporting ||
       this.#frames.current.phase === REPORTING
@@ -861,7 +861,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // registered and unapplied now outranks this checkpoint under
     // `DESTROY > CANCEL > FAILURE_CHECKPOINT`, and the record carries that to
     // `FAILED`'s entry, which may also find a cancel registered since.
-    this.#bracket.dispatch(FAILED, {
+    this.#loop.dispatch(FAILED, {
       stage,
       error,
       operation: identity,
@@ -886,7 +886,7 @@ class ArmedController<Part extends object, Activation extends {}> {
    * over — which is the whole reason the slot is consume-and-clear.
    */
   #dropStaged(): void {
-    this.#driver.consumeStaged();
+    this.#runner.consumeStaged();
   }
 
   // -------------------------------------------------------------------------
@@ -902,10 +902,10 @@ class ArmedController<Part extends object, Activation extends {}> {
 
     switch (event.type) {
       case POINTER_MOVE:
-        this.#bracket.dispatch(MOVE, event);
+        this.#loop.dispatch(MOVE, event);
         break;
       case POINTER_UP:
-        this.#bracket.dispatch(UP, event);
+        this.#loop.dispatch(UP, event);
         break;
       // **Two DOM spellings of one fact** — the pointer stream ended without a
       // drop — so they share an arm rather than being told apart. The platform
@@ -1019,7 +1019,7 @@ class ArmedController<Part extends object, Activation extends {}> {
    * the only reference to what it armed: it disposes that and touches no frame
    * and no controller slot.
    */
-  #mintOperation(
+  #createOperation(
     subject: AdmissionSubject,
     pointerId: number,
     x: number,
@@ -1069,7 +1069,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // — but the route is operation-independent, so that reason does not
       // hold: a warning needs no operation and no stage, and `return false`
       // refuses admission, so the outcome is the same either way.
-      this.#unwind(live.lifetimes.dispose);
+      this.#warnOnThrow(live.lifetimes.dispose);
       this.report(
         new DraggableWarning('drag: operation/arming-failed', { cause: error }),
       );
@@ -1092,7 +1092,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     const admitted = this.#runAdmission(event, this.#spec.admit, false);
 
     if (admitted) {
-      this.#mintOperation(
+      this.#createOperation(
         admitted,
         event.pointerId,
         event.clientX,
@@ -1112,8 +1112,8 @@ class ArmedController<Part extends object, Activation extends {}> {
   #admitCommand(event: Event): void {
     const admitted = this.#runAdmission(event, this.#spec.command!.admit, true);
 
-    if (admitted && this.#mintOperation(admitted, -1, 0, 0)) {
-      this.#bracket.dispatch(ACTIVATE, this.#frames.current.operation);
+    if (admitted && this.#createOperation(admitted, -1, 0, 0)) {
+      this.#loop.dispatch(ACTIVATE, this.#frames.current.operation);
     }
   }
 
@@ -1142,12 +1142,12 @@ class ArmedController<Part extends object, Activation extends {}> {
    * `pointerdown` dispatched from inside `command.admit`, and a `keydown`
    * dispatched from inside `admit`, refused by the same rule.
    */
-  #openIngress(admit: () => void): void {
+  #admitIfNoOperation(admit: () => void): void {
     if (this.#frames.current.operation) {
       return;
     }
 
-    this.#bracket.runIngress(admit);
+    this.#loop.runNativeEvent(admit);
   }
 
   /**
@@ -1199,7 +1199,7 @@ class ArmedController<Part extends object, Activation extends {}> {
         // Composed with the ingress signal rather than aborted by hand in
         // teardown: "disarmed by teardown" then holds structurally, and the
         // step-7 abort needs no clause about a listener it does not know.
-        signal: AbortSignal.any([aborter.signal, this.#ingress]),
+        signal: AbortSignal.any([aborter.signal, this.#listenerSignal]),
       },
     );
   }
@@ -1208,7 +1208,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // **Behind the bracket's refusal, the disarm included.** A press dispatched
     // from inside a running unit is refused before it touches any state, and
     // the suppressor slot is state.
-    if (!this.#bracket.idle) {
+    if (!this.#loop.idle) {
       return;
     }
 
@@ -1222,7 +1222,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // The primary-press test is the pointer ingress's own and stays outside the
     // shared boundary: a secondary button must not open a transaction at all.
     if (isPrimaryPress(event)) {
-      this.#openIngress(() => {
+      this.#admitIfNoOperation(() => {
         this.#admitPress(event);
       });
     }
@@ -1246,7 +1246,7 @@ class ArmedController<Part extends object, Activation extends {}> {
   };
 
   #onCommand(event: Event): void {
-    this.#openIngress(() => {
+    this.#admitIfNoOperation(() => {
       this.#admitCommand(event);
     });
   }
@@ -1269,7 +1269,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // boundary: destruction discards this entry, and the entry itself reads a
     // held cancel.
     committed: (): void => {
-      this.#bracket.dispatch(START_COMMITTED, this.#frames.current.operation);
+      this.#loop.dispatch(START_COMMITTED, this.#frames.current.operation);
     },
   };
 
@@ -1320,7 +1320,7 @@ class ArmedController<Part extends object, Activation extends {}> {
         this.#spec.config.liftMode,
         rect,
         this.#realm,
-        this.#unwind,
+        this.#warnOnThrow,
       );
 
       const activation: ActivationRecord = {
@@ -1376,8 +1376,8 @@ class ArmedController<Part extends object, Activation extends {}> {
       return;
     }
 
-    runActivationSeam(
-      this.#driver,
+    runActivationTransition(
+      this.#runner,
       this.#spec.activation,
       scope,
       FAILURE_ACTIVATION,
@@ -1397,7 +1397,7 @@ class ArmedController<Part extends object, Activation extends {}> {
    * **A release that cannot build one throws**, like every other seam. There is
    * no second return arm and no adapter between the two: the phase is already
    * open at `FAILURE_RELEASE`, so `callAndHandleFailure` catches the throw,
-   * calls `context.fail` with that stage and returns `SEAM_PREPARE_FAILED`. A
+   * calls `context.fail` with that stage and returns `TRANSITION_PREPARE_FAILED`. A
    * behavior wanting a *different* stage still has `fail`, which latches and
    * is on `BehaviorContext`.
    */
@@ -1478,7 +1478,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // `anchorTarget` is behavior code, and a cancel or destroy it raises is a
     // request: the settlement this unit opened completes, and the request is
     // applied after it.
-    const anchor = this.#driver.runCallbackWarningOnFailure(
+    const anchor = this.#runner.runCallbackWarningOnFailure(
       () => this.#spec.anchorTarget(this.#frames.current),
       'drag: landing/target-unavailable',
     );
@@ -1563,7 +1563,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // Behavior code. Unwound rather than classified, because a landing animation
     // is presentation and a presentational fault may not reach a consumer whose
     // drop has already been decided and reported.
-    const timing = this.#unwind(() =>
+    const timing = this.#warnOnThrow(() =>
       this.#spec.landingTail?.(
         this.#frames.current,
         fromX,
@@ -1581,7 +1581,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // duration domain is the platform's — a `NaN` or a negative is refused
     // here, as a warning that changed nothing.
     this.#landingAnimation =
-      this.#unwind(() => {
+      this.#warnOnThrow(() => {
         // The record is foreign, and the `animate` lookup is the next foreign
         // code to run, so the fields are copied first.
         const { duration, easing } = timing;
@@ -1620,7 +1620,7 @@ class ArmedController<Part extends object, Activation extends {}> {
    * The release is in a `finally`: the join calls into code the kernel does not
    * own, and none of it may strand the placeholder or the inline styles.
    */
-  #joinSettlement(
+  #finalizeSettlement(
     live: OperationRecord,
     activation: ActivationRecord,
     attempt: SettlementAttempt,
@@ -1665,7 +1665,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // The release and the `landingTail` policy are both foreign code, and a
     // request either raises is applied after this unit: the terminal callback is
     // this settlement's, and it runs.
-    this.#driver.runCallback(() => {
+    this.#runner.runCallback(() => {
       this.#spec.finalized(this.#frames.current);
     }, FAILURE_TERMINAL_CALLBACK);
     // Queued unconditionally, and this entry is what retires: a
@@ -1674,7 +1674,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // dispatched from inside it and so lands *behind* this entry. The
     // retirement therefore always intervenes, and it is that second terminal
     // which arrives stale. Exactly one `onEnd` on this path is that ordering.
-    this.#bracket.dispatch(RETIRE, this.#frames.current.operation);
+    this.#loop.dispatch(RETIRE, this.#frames.current.operation);
   }
 
   /**
@@ -1704,7 +1704,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       targetY: 0,
     };
 
-    const outcome = this.#driver.runTransition(
+    const outcome = this.#runner.runTransition(
       this.#settlementTransition,
       attempt,
       FAILURE_RESOLUTION,
@@ -1716,9 +1716,9 @@ class ArmedController<Part extends object, Activation extends {}> {
     // A settlement that never committed does not land: the queued checkpoint
     // decides what the operation ends as, and measuring for a join that will
     // never happen would call behavior code for nothing.
-    if (outcome === SEAM_COMMITTED) {
+    if (outcome === TRANSITION_COMMITTED) {
       this.#measureTarget(activation, attempt);
-      this.#joinSettlement(live, activation, attempt);
+      this.#finalizeSettlement(live, activation, attempt);
     }
   }
 
@@ -1760,7 +1760,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       };
     }
 
-    this.#bracket.dispatch(RESOLUTION_SETTLED, attempt);
+    this.#loop.dispatch(RESOLUTION_SETTLED, attempt);
   }
 
   /**
@@ -1877,7 +1877,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     this.#frames.commit(null);
 
     if (phase === ACTIVE) {
-      this.#driver.runCallback(
+      this.#runner.runCallback(
         this.#callMoved,
         FAILURE_RENDERER_WRITE,
         this.#activation!.lift,
@@ -1938,8 +1938,8 @@ class ArmedController<Part extends object, Activation extends {}> {
     // pending can alter the proposal from here.
     live.lifetimes.motion.dispose();
 
-    runReleaseSeam(
-      this.#driver,
+    runReleaseTransition(
+      this.#runner,
       this.#releaseTransition,
       FAILURE_RELEASE,
       // **The round-trip is not opened here.** The command is held and its
@@ -1948,7 +1948,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // entry, and whatever the release effect dispatched applies first.
       (command) => {
         this.#attempts.command = command;
-        this.#bracket.dispatch(OPEN_RESOLUTION, this.#frames.current.operation);
+        this.#loop.dispatch(OPEN_RESOLUTION, this.#frames.current.operation);
       },
     );
   }
@@ -2193,7 +2193,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     // `onStart` and anything it dispatched drain first, exactly as they would
     // before a press's own release.
     if (this.#frames.current.pointerId === -1) {
-      this.#bracket.dispatch(RELEASE, this.#frames.current.operation);
+      this.#loop.dispatch(RELEASE, this.#frames.current.operation);
     }
   }
 
@@ -2310,7 +2310,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     this.#reporting = true;
 
     try {
-      this.#driver.runTransition(
+      this.#runner.runTransition(
         this.#settlementTransition,
         attempt,
         checkpoint.stage,
@@ -2325,7 +2325,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // The **whole checkpoint**, not just its operation: the terminal this
       // path now owes is skipped for exactly one stage, and the reader of that
       // rule needs the stage to apply it.
-      this.#bracket.dispatch(ERROR_REPORTED, checkpoint);
+      this.#loop.dispatch(ERROR_REPORTED, checkpoint);
       return;
     }
 
@@ -2390,7 +2390,7 @@ class ArmedController<Part extends object, Activation extends {}> {
     if (stage !== FAILURE_TERMINAL_CALLBACK) {
       const { presentation } = this.#operation!.lifetimes;
 
-      this.#unwind(() => {
+      this.#warnOnThrow(() => {
         presentation.dispose();
       });
 
@@ -2405,7 +2405,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // the non-consequential channel — so a terminal that fails on the
       // failure path is reported without queueing a second checkpoint for an
       // operation this entry retires.
-      this.#driver.runCallback(() => {
+      this.#runner.runCallback(() => {
         this.#spec.finalized(this.#frames.current);
       }, FAILURE_TERMINAL_CALLBACK);
     }
@@ -2421,7 +2421,7 @@ class ArmedController<Part extends object, Activation extends {}> {
       // Two stages, because the seam's phases fail differently: resolving an
       // insertion and moving the placeholder are not the same failure. An
       // explicit `fail` narrows further from the inside.
-      this.#driver.runTransition(
+      this.#runner.runTransition(
         this.#actionTransition,
         undefined,
         FAILURE_ACTION_PREPARE,
@@ -2508,11 +2508,11 @@ class ArmedController<Part extends object, Activation extends {}> {
       return;
     }
 
-    this.#bracket.dispatch(BEHAVIOR_BASE + tag, argument);
+    this.#loop.dispatch(BEHAVIOR_BASE + tag, argument);
   }
 
   fail(stage: FailureStage, error: unknown): void {
-    this.#driver.requestFailure(stage, error);
+    this.#runner.requestFailure(stage, error);
   }
 
   /** The preparation for an ingress pass the bracket admitted. */
@@ -2531,13 +2531,13 @@ class ArmedController<Part extends object, Activation extends {}> {
    */
   attach(): void {
     this.#root.addEventListener(POINTER_DOWN, this.#pointerDownHandler, {
-      signal: this.#ingress,
+      signal: this.#listenerSignal,
     });
 
     if (this.#spec.command !== undefined) {
       for (const type of this.#spec.command.types) {
         this.#root.addEventListener(type, this.#commandHandler, {
-          signal: this.#ingress,
+          signal: this.#listenerSignal,
         });
       }
     }
@@ -2590,7 +2590,7 @@ export class Kernel<
    * admits ingress only after construction published it, and a construction
    * that fails clears the queue before anything is drained.
    */
-  readonly #bracket = new ExecutionBracket(
+  readonly #loop = new ExecutionLoop(
     (action, argument) => {
       this.#armed!.handle(action, argument);
     },
@@ -2605,7 +2605,7 @@ export class Kernel<
     },
   );
 
-  readonly #ingress = new AbortController();
+  readonly #listenerSignal = new AbortController();
 
   /**
    * The armed controller, published by construction once it exists complete,
@@ -2627,7 +2627,7 @@ export class Kernel<
    * construction, so a channel minted in the factory works before arming.
    */
   channel(deliver: Notify): Notify {
-    return deliverUnlessApplied.bind(this.#bracket, undefined, deliver);
+    return deliverUnlessApplied.bind(this.#loop, undefined, deliver);
   }
 
   /**
@@ -2639,7 +2639,7 @@ export class Kernel<
    * The promise settles after application, physical release included.
    */
   requestDestroy(): Promise<void> {
-    return this.#bracket.requestClose();
+    return this.#loop.requestClose();
   }
 
   /**
@@ -2657,7 +2657,7 @@ export class Kernel<
   }
 
   dispatch(tag: number, argument: unknown): void {
-    if (this.#bracket.closed) {
+    if (this.#loop.closed) {
       return;
     }
 
@@ -2667,7 +2667,7 @@ export class Kernel<
     if (this.#armed) {
       this.#armed.dispatch(tag, argument);
     } else {
-      this.#bracket.dispatch(BEHAVIOR_BASE + tag, argument);
+      this.#loop.dispatch(BEHAVIOR_BASE + tag, argument);
     }
   }
 
@@ -2696,7 +2696,7 @@ export class Kernel<
     try {
       this.#armed?.teardown();
     } finally {
-      this.#ingress.abort();
+      this.#listenerSignal.abort();
     }
   }
 
@@ -2716,7 +2716,7 @@ export class Kernel<
   construct<Controller>(
     behavior: BehaviorFactory<Controller, Part, Activation>,
   ): Controller {
-    return this.#bracket.construct(() => {
+    return this.#loop.construct(() => {
       const { spec, controller } = behavior(this);
 
       this.#arm(spec);
@@ -2802,8 +2802,8 @@ export class Kernel<
       armed = new ArmedController(
         this.realm,
         this.root,
-        this.#bracket,
-        this.#ingress.signal,
+        this.#loop,
+        this.#listenerSignal.signal,
         next,
         current,
         draft,
@@ -2811,7 +2811,7 @@ export class Kernel<
       this.#armed = armed;
       armed.attach();
     } catch (error) {
-      this.#unwindArm(next, current, draft, armed);
+      this.#rollbackArm(next, current, draft, armed);
       throw error;
     }
   }
@@ -2831,27 +2831,27 @@ export class Kernel<
    * when one was published, and nowhere otherwise: before publication there is
    * no route to report through.
    */
-  #unwindArm(
+  #rollbackArm(
     next: BehaviorSpec<Part, Activation>,
     current: Frame<Part> | null,
     draft: Frame<Part> | null,
     armed: ArmedController<Part, Activation> | null,
   ): void {
-    const unwind = createUnwind((warning) => {
+    const warnOnThrow = createWarnOnThrow((warning) => {
       armed?.report(warning);
     });
 
-    unwind(next.retire);
+    warnOnThrow(next.retire);
 
     if (current) {
-      resetFrame(unwind, next, current);
+      resetFrame(warnOnThrow, next, current);
     }
 
     if (draft) {
-      resetFrame(unwind, next, draft);
+      resetFrame(warnOnThrow, next, draft);
     }
 
-    this.#ingress.abort();
+    this.#listenerSignal.abort();
     this.#armed = null;
   }
 }

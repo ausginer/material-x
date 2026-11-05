@@ -105,13 +105,13 @@ const PUBLISHED_TYPES: readonly string[] = [
  */
 const INTERNAL: Readonly<Record<string, readonly string[]>> = {
   'the seam driver': [
-    'SeamOutcome',
-    'SeamDriver',
-    'SEAM_COMMITTED',
-    'SEAM_DISCARDED',
-    'SEAM_EFFECT_FAILED',
+    'TransitionOutcome',
+    'BehaviorRunner',
+    'TRANSITION_COMMITTED',
+    'TRANSITION_DISCARDED',
+    'TRANSITION_EFFECT_FAILED',
     'SEAM_INVALIDATED',
-    'SEAM_PREPARE_FAILED',
+    'TRANSITION_PREPARE_FAILED',
   ],
   'the full lifetime': [
     'Lifetime',
@@ -120,12 +120,12 @@ const INTERNAL: Readonly<Record<string, readonly string[]>> = {
   ],
   'the frame helpers': ['frame', 'KERNEL_FRAME_KEYS'],
   // **The channel and the unwind rule** (D-130). `Notify` is the channel as
-  // seen by a module that does not own it, and `createUnwind` builds the guard
+  // seen by a module that does not own it, and `createWarnOnThrow` builds the guard
   // over it. Neither is published: a behavior reaches the consumer through its
   // own callbacks slot and never through these, which is the same
   // discriminating rule the rest of this table applies — *the kernel never
   // hands one to a behavior and never accepts one from it*.
-  'the one channel': ['Notify', 'createUnwind', 'Unwind'],
+  'the one channel': ['Notify', 'createWarnOnThrow', 'WarnOnThrow'],
   'lift acquisition': ['acquireLift', 'captureInlineStyles', 'acquireTopLayer'],
   'scheduling and invalidation': [
     'createInvalidator',
@@ -225,7 +225,7 @@ describe('the kernel tier boundary', () => {
 
   it('should declare the doubly-declared seam type exactly once', async () => {
     // **F-61.** `ActionTransition` and ~~`SeamRejection`~~ were declared in
-    // `kernel/seams.ts` *and* `kernel/spec.ts`, structurally identical and
+    // `kernel/behavior-runner.ts` *and* `kernel/spec.ts`, structurally identical and
     // independently maintained. Harmless while both were internal; publishing
     // one of each makes it the identity hazard 03 §The export topology exists
     // to prevent — a consumer's compiler resolves the published declaration
@@ -253,7 +253,7 @@ describe('the kernel tier boundary', () => {
       }
     });
 
-    expect(declarations).toEqual({ ActionTransition: ['seams.ts'] });
+    expect(declarations).toEqual({ ActionTransition: ['behavior-runner.ts'] });
   });
 
   it('should keep the re-homed cancel stages as one declaration on two entries', () => {

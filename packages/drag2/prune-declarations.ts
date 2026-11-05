@@ -5,7 +5,7 @@
  *
  * `unbundle: true` emits one `.d.ts` per source module, but a module's *types*
  * are only published if some public declaration names them. Four kernel modules
- * — `frames`, `lifetimes`, `presentation`, `seams` — are reached at runtime and
+ * — `frames`, `lifetimes`, `presentation`, `behavior-runner` — are reached at runtime and
  * by nothing in the type graph, so their declarations shipped as 6.5 kB of
  * unreachable internal SPI: not a boundary hole (phase 9's criterion is
  * *reachability*, and nothing reaches them) but dead weight in the tarball with

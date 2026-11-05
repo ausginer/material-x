@@ -121,9 +121,9 @@ export class LinearShift {
 
   readonly #centre: number;
 
-  readonly #ux: number;
+  readonly #unitX: number;
 
-  readonly #uy: number;
+  readonly #unitY: number;
 
   /**
    * Whether an invalidation is outstanding. The prediction is licensed only
@@ -136,10 +136,10 @@ export class LinearShift {
    * known. **Authoritative**: every exit before a completed advance
    * invalidates, so the buffer either describes the tree or is dirty.
    */
-  #last = -1;
+  #lastGap = -1;
 
   /** The collection version the packed buffer holds, or `-1` for nothing. */
-  #seen = -1;
+  #snapshotVersion = -1;
 
   /**
    * The distance one crossed row travels along the axis when the hole passes
@@ -152,20 +152,20 @@ export class LinearShift {
    * with no reason attached. The cost of that bluntness is one row read on the
    * next committed move.
    */
-  #constant = -1;
+  #rowDistance = -1;
 
   /**
    * Whether a committed move has left the cached hole describing where the
    * placeholder no longer stands. One read clears it, at the head of the next
    * rebuild.
    */
-  #hollow = false;
+  #holeIsStale = false;
 
   /**
    * Whether an advance has been made that the instrument has not checked yet.
    * Written only inside `DEV` branches, so it folds away with them.
    */
-  #claimed = false;
+  #advanceUnchecked = false;
 
   constructor(
     index: RectIndex,
@@ -180,8 +180,8 @@ export class LinearShift {
     this.#start = start;
     this.#end = end;
     this.#centre = centre;
-    this.#ux = ux;
-    this.#uy = uy;
+    this.#unitX = ux;
+    this.#unitY = uy;
   }
 
   /**
@@ -214,8 +214,8 @@ export class LinearShift {
     // Every path that dirties the cache clears this — `retire` included. What
     // survives is one redundant read when the collection version moves under a
     // clean cache, inside a frame already paying a full rebuild.
-    if (this.#hollow) {
-      this.#hollow = false;
+    if (this.#holeIsStale) {
+      this.#holeIsStale = false;
       // Measured by the cache itself, writing only this axis's three fields;
       // see `RectIndex.remeasureHole`.
       index.remeasureHole(placeholder, this.#start, this.#end, this.#centre);
@@ -227,11 +227,11 @@ export class LinearShift {
     // reason `verifyEquivalence` gives.
     if (
       DEV &&
-      this.#claimed &&
+      this.#advanceUnchecked &&
       !this.#dirty &&
-      this.#seen === snapshot.version
+      this.#snapshotVersion === snapshot.version
     ) {
-      this.#claimed = false;
+      this.#advanceUnchecked = false;
       verifyEquivalence(
         index,
         snapshot,
@@ -245,13 +245,13 @@ export class LinearShift {
 
     index.refresh(snapshot, dragged, getBox, placeholder, settle);
 
-    this.#seen = snapshot.version;
+    this.#snapshotVersion = snapshot.version;
     this.#dirty = false;
 
     // The buffer this scan produced reflects the placeholder where it stands,
     // which the caller is the one that knows.
     if (gap >= 0) {
-      this.#last = gap;
+      this.#lastGap = gap;
     }
   }
 
@@ -274,7 +274,7 @@ export class LinearShift {
     runtime: LinearRuntime,
     report: DisplacementReport | null,
   ): void {
-    const from = this.#last;
+    const from = this.#lastGap;
 
     // Each rejection is a real degenerate case: a dirty buffer describes a
     // tree that has already changed under it, `count === 0` is a single-item
@@ -282,20 +282,20 @@ export class LinearShift {
     // unchanged gap proposes no span at all.
     if (
       this.#dirty ||
-      this.#seen !== snapshot.version ||
+      this.#snapshotVersion !== snapshot.version ||
       this.#view.count === 0 ||
       from < 0 ||
       from === gap
     ) {
-      this.#drop();
+      this.#abandonCache();
       return;
     }
 
     const lo = from < gap ? from : gap;
     const hi = from < gap ? gap : from;
-    let delta = from < gap ? -this.#constant : this.#constant;
+    let delta = from < gap ? -this.#rowDistance : this.#rowDistance;
 
-    if (this.#constant < 0) {
+    if (this.#rowDistance < 0) {
       const { values, items } = this.#view;
       // Any crossed row answers, because they all travelled the same
       // constant. Measured as its **box**, which is what the cache holds.
@@ -321,44 +321,44 @@ export class LinearShift {
       // this row wears — an authored `translate`, an ancestor's transform —
       // sits in both terms identically and cancels.
       delta = observed - values[lo * STRIDE + this.#start]!;
-      this.#constant = delta < 0 ? -delta : delta;
+      this.#rowDistance = delta < 0 ? -delta : delta;
     }
 
     this.#shiftSpan(lo, hi, delta, runtime, report);
 
-    this.#last = gap;
-    this.#hollow = true;
+    this.#lastGap = gap;
+    this.#holeIsStale = true;
 
     if (DEV) {
-      this.#claimed = true;
+      this.#advanceUnchecked = true;
     }
   }
 
   invalidate(): void {
     this.#dirty = true;
-    this.#constant = -1;
-    this.#hollow = false;
+    this.#rowDistance = -1;
+    this.#holeIsStale = false;
     this.#index.invalidate();
   }
 
   retire(): void {
-    this.#forget();
+    this.#resetCache();
     this.#index.retire();
   }
 
-  #forget(): void {
+  #resetCache(): void {
     this.#dirty = true;
-    this.#last = -1;
-    this.#seen = -1;
-    this.#constant = -1;
-    this.#hollow = false;
+    this.#lastGap = -1;
+    this.#snapshotVersion = -1;
+    this.#rowDistance = -1;
+    this.#holeIsStale = false;
   }
 
   /** Nothing sound to advance, and the write has already landed. */
-  #drop(): void {
+  #abandonCache(): void {
     this.#dirty = true;
-    this.#last = -1;
-    this.#hollow = false;
+    this.#lastGap = -1;
+    this.#holeIsStale = false;
     this.#index.invalidate();
   }
 
@@ -400,8 +400,8 @@ export class LinearShift {
     // vector, so the two components are computed once per move rather than
     // once per element.
     const { items } = this.#view;
-    const dx = -delta * this.#ux;
-    const dy = -delta * this.#uy;
+    const dx = -delta * this.#unitX;
+    const dy = -delta * this.#unitY;
 
     for (let i = lo; i < hi; i += 1) {
       report(items[i]!, dx, dy, runtime.space);

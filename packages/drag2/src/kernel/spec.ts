@@ -6,6 +6,7 @@
  * can be authored against the contract without importing the executor, and so
  * the frozen surface is readable in one place.
  */
+import type { ActionTransition, Transition } from './behavior-runner.ts';
 import type { DraggableError, DraggableWarning } from './errors.ts';
 import type { CancelOrigin, CancelStage, FailureStage } from './failures.ts';
 import type { Draft, Frame, FramePartOf } from './frames.ts';
@@ -16,11 +17,10 @@ import type {
   LiftMode,
 } from './presentation.ts';
 import type { DOMRealm } from './realm.ts';
-// `ActionTransition` has exactly one declaration, in `seams.ts`, and is
+// `ActionTransition` has exactly one declaration, in `behavior-runner.ts`, and is
 // re-exported from here. A second structurally identical declaration at this
 // tier would let a consumer's compiler resolve one while the driver consumes
 // the other.
-import type { ActionTransition, Transition } from './seams.ts';
 import type { OffsetBox, Point } from './types.ts';
 
 /**
@@ -311,7 +311,7 @@ export type ResolutionCommand = Readonly<{
   invoke: ((signal: AbortSignal) => unknown) | null;
 }>;
 
-export type { ActionTransition } from './seams.ts';
+export type { ActionTransition } from './behavior-runner.ts';
 
 export type ReleaseTransition<Part extends object> = Readonly<{
   prepare(draft: Draft<Part>): ResolutionCommand;

@@ -3197,7 +3197,7 @@ describe('a pointerless release with no destination', () => {
 
     // **It raises a cause; the seam owns the stage** (D-152). ~~It returned a
     // `SeamRejection` naming `FAILURE_RELEASE`~~ — which is the stage
-    // `runReleaseSeam` was already running at, so the behavior was handing back
+    // `runReleaseTransition` was already running at, so the behavior was handing back
     // a value the kernel already held. What is asserted is therefore the throw
     // and its identity, and specifically **not** a returned command: nothing
     // stages a round-trip out of this branch.

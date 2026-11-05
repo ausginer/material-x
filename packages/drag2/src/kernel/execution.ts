@@ -29,7 +29,7 @@ const CLOSED = 2;
  * that unit ends and never inside it; with no unit running, the request call
  * is itself the boundary.
  */
-export class ExecutionBracket {
+export class ExecutionLoop {
   /**
    * Pending work. The storage iterates and decides nothing; the bracket
    * supplies every semantic it deliberately has none of, including what becomes
@@ -177,7 +177,7 @@ export class ExecutionBracket {
    * destruction it handles nothing, because its step handles no entry from the
    * first on.
    */
-  runIngress(admit: () => void): void {
+  runNativeEvent(admit: () => void): void {
     if (!this.idle) {
       return;
     }
@@ -254,7 +254,7 @@ export class ExecutionBracket {
     } catch (error) {
       this.#lifecycle = CLOSED;
       this.#panic(error);
-      this.#release();
+      this.#runTeardown();
     } finally {
       this.#queue.clear();
     }
@@ -272,7 +272,7 @@ export class ExecutionBracket {
   /** Applies destruction: closed first, then the release. */
   #apply(): void {
     this.#lifecycle = CLOSED;
-    this.#release();
+    this.#runTeardown();
   }
 
   /**
@@ -288,7 +288,7 @@ export class ExecutionBracket {
    * lifecycle `CLOSED` and applies nothing, so it must find the promise
    * already settled rather than allocate one nothing would ever settle.
    */
-  #release(): void {
+  #runTeardown(): void {
     try {
       this.#queue.clear();
       this.#teardown();
