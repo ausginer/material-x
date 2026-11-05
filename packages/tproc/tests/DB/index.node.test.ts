@@ -1,8 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 
+vi.unmock('../../src/DB/index.ts');
+
 describe('db index', () => {
   it('should load db instance', async () => {
-    vi.unmock('../../src/DB/index.ts');
     vi.resetModules();
     const mockInstance = { name: 'db' };
     const load = vi.fn(async () => await Promise.resolve(mockInstance));
