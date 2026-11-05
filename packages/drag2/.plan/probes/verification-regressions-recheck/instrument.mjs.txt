@@ -1,0 +1,66 @@
+// Scratch instrumentation for the recheck. Applied only in the private worktree.
+// Usage: node instrument.mjs <worktree>. Every addition is inert without REVIEW_LOG / REVIEW_REJECT.
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+const root = process.argv[2];
+const file = join(root, '.scripts/vitest-one-shot.ts');
+let text = readFileSync(file, 'utf8');
+
+function swap(before, after) {
+  if (!text.includes(before)) {
+    throw new Error(`missing anchor: ${before}`);
+  }
+  text = text.replace(before, after);
+}
+
+swap(
+  `import type { Plugin } from 'vite';`,
+  [
+    `import { appendFileSync as reviewAppend } from 'node:fs';`,
+    `import type { Plugin } from 'vite';`,
+    `const reviewLog = (line: string): void => { const to = process.env['REVIEW_LOG']; if (to) { reviewAppend(to, line + '\\n'); } };`,
+    `reviewLog('EVAL one-shot module');`,
+  ].join('\n'),
+);
+
+swap(
+  `  const { browser } = project;\n`,
+  [
+    `  const { browser } = project;`,
+    `  reviewLog('RELEASE ' + project.name + ' ' + boundary);`,
+    `  const mode = process.env['REVIEW_REJECT'];`,
+    `  const state = globalThis as unknown as { reviewRejected?: boolean };`,
+    `  if (mode && browser?.provider && !state.reviewRejected) {`,
+    `    state.reviewRejected = true;`,
+    `    const provider = browser.provider;`,
+    `    const real = provider.close.bind(provider);`,
+    `    provider.close = async () => {`,
+    `      provider.close = real;`,
+    `      if (mode === 'after') { await real(); }`,
+    `      throw new Error('review-forced: provider.close rejected at ' + boundary);`,
+    `    };`,
+    `  }`,
+    ``,
+  ].join('\n'),
+);
+
+swap(
+  `  #consumed = false;\n`,
+  [
+    `  #consumed = false;`,
+    `  constructor() { reviewLog('NEW OneShotTestExecution'); }`,
+    ``,
+  ].join('\n'),
+);
+
+swap(
+  `      const { reporters } = vitest.config;\n`,
+  [
+    `      const { reporters } = vitest.config;`,
+    `      reviewLog('CONFIGURE guardHit=' + String(reporters.some((r) => r instanceof OneShotTestExecution)) + ' reporters=' + reporters.map((r) => (r as object).constructor?.name ?? String(r)).join(','));`,
+    ``,
+  ].join('\n'),
+);
+
+writeFileSync(file, text);

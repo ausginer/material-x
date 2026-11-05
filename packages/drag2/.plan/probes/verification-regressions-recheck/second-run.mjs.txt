@@ -1,0 +1,42 @@
+// Scratch: TE-D15's refusal of a second run in one process, through the root config.
+import { createVitest } from 'vitest/node';
+
+const vitest = await createVitest(
+  'test',
+  {
+    config: 'vitest.config.ts',
+    watch: false,
+    run: true,
+    project: ['node/vite-traits-plugin'],
+  },
+  {},
+  {},
+);
+
+const first = await vitest.start();
+console.log(
+  'first run modules',
+  first.testModules.length,
+  'unhandled',
+  first.unhandledErrors.length,
+);
+
+const specs = await vitest.globTestSpecifications();
+let outcome = 'no refusal';
+
+try {
+  const second = await vitest.runTestSpecifications(specs);
+  outcome = `resolved, unhandled=${second.unhandledErrors.length}, modules=${second.testModules.length}`;
+} catch (error) {
+  outcome = `rejected: ${String(error.message).slice(0, 110)}`;
+}
+
+console.log('second run', outcome);
+console.log(
+  'state errors',
+  vitest.state
+    .getUnhandledErrors()
+    .map((e) => String(e.message).slice(0, 110)),
+);
+await vitest.close();
+process.exit(0);

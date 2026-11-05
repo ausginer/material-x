@@ -1,0 +1,128 @@
+# Recheck readings at c15042847 against f1451268b. Private worktree, npm ci, nx run-many -t build for every package, no .vite. Chromium, one machine.
+# A second private worktree at main (bfd2832db, Vitest 4.1.10) served only the close-failure and sequence-flag comparisons.
+
+== Instance, evaluation and close counts (instrument.mjs.txt). eval = evaluations of vitest-one-shot.ts; new = reporter instances; release = release() calls
+-- dot lines are not at line start, so closedLines reads 0 there; the boundary line is listed below
+tip-two-default        eval=1 new=1 release=1 boundaryLines=1 exit 0 | Tests 438 passed (438)| reporterError/notice=0
+rep-dot                eval=1 new=1 release=1 boundaryLines=1 exit 0 | Tests 438 passed (438)| reporterError/notice=0
+rep-verbose            eval=1 new=1 release=1 boundaryLines=1 exit 0 | Tests 438 passed (438)| reporterError/notice=0
+rep-json               eval=1 new=1 release=1 boundaryLines=1 exit 0 || reporterError/notice=0
+rep-dot-junit          eval=1 new=1 release=1 boundaryLines=1 exit 0 | Tests 438 passed (438)| reporterError/notice=0
+rep-github             eval=1 new=1 release=1 boundaryLines=1 exit 0 || reporterError/notice=0
+rep-tap                eval=1 new=1 release=1 boundaryLines=1 exit 0 || reporterError/notice=0
+rep-minimal            eval=1 new=1 release=1 boundaryLines=1 exit 0 | Tests 438 passed (438)| reporterError/notice=0
+root2-instr            eval=1 new=1 release=8 boundaryLines=8 exit 1 | Tests 1 failed | 2645 passed | 68 skipped (2714)| reporterError/notice=0
+pkg-drag2-two          eval=1 new=1 release=1 boundaryLines=1 exit 0 | Tests 519 passed (519)| reporterError/notice=0
+pkg-core               eval=1 new=1 release=1 boundaryLines=1 exit 0 | Tests 263 passed (263)| reporterError/notice=0
+pkg-mx                 eval=1 new=1 release=3 boundaryLines=3 exit 1 | Tests 1 failed | 262 passed (263)| reporterError/notice=0
+pkg-drag               eval=1 new=1 release=1 boundaryLines=1 exit 0 | Tests 310 passed (310)| reporterError/notice=0
+pkg-boxquad            eval=1 new=1 release=0 boundaryLines=0 exit 0 | Tests 193 passed (193)| reporterError/notice=0
+pkg-tproc              eval=1 new=1 release=0 boundaryLines=0 exit 1 | Tests 1 failed | 70 passed (71)| reporterError/notice=0
+pkg-vtp                eval=1 new=1 release=0 boundaryLines=0 exit 0 | Tests 52 passed (52)| reporterError/notice=0
+third-shipped          eval=1 new=1 release=1 boundaryLines=1 exit 0 | Tests 291 passed (291)| reporterError/notice=0
+ctl-noextends-two      eval=17 new=3 release=3 boundaryLines=3 exit 0 | Tests 438 passed (438)| reporterError/notice=16
+-- the control ctl-noextends-two removes only 'extends: false' from assignGroupOrder
+-- boundary line under dot: closed browser/core (chromium) (group 4) at boundary 4->5
+
+== Plain root runs, MX_TEST_TEARDOWN_LOG=1
+-- root1
+closed browser/material-x (chromium) (group 1) at boundary 1->2
+closed spec/material-x (chromium) (group 2) at boundary 2->3
+closed visual/material-x (chromium) (group 3) at boundary 3->4
+closed browser/core (chromium) (group 4) at boundary 4->5
+closed browser/box-quad (chromium) (group 5) at boundary 5->6
+closed browser/drag (chromium) (group 6) at boundary 6->7
+closed browser/drag2 (chromium) (group 7) at boundary 7->8
+closed shipped/drag2 (chromium) (group 8) at boundary 8->9
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render declarations
+ FAIL  |visual/material-x (chromium)| tests/radio/radio.visual.browser.test.ts:45 > radio visual regression > should match the selection sta
+ Test Files  2 failed | 161 passed (163)
+      Tests  2 failed | 2644 passed | 68 skipped (2714)
+reporter error or plugin notice lines: 0
+-- root3
+closed browser/material-x (chromium) (group 1) at boundary 1->2
+closed spec/material-x (chromium) (group 2) at boundary 2->3
+closed visual/material-x (chromium) (group 3) at boundary 3->4
+closed browser/core (chromium) (group 4) at boundary 4->5
+closed browser/box-quad (chromium) (group 5) at boundary 5->6
+closed browser/drag (chromium) (group 6) at boundary 6->7
+closed browser/drag2 (chromium) (group 7) at boundary 7->8
+closed shipped/drag2 (chromium) (group 8) at boundary 8->9
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render declarations
+ Test Files  1 failed | 162 passed (163)
+      Tests  1 failed | 2645 passed | 68 skipped (2714)
+reporter error or plugin notice lines: 0
+-- instrumented whole root (dot, json):
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render declarations
+files 163 rows 2714 pass 2645 fail 1 skipped 68
+  sourcemap ['passed']
+  should load db instance ['passed']
+  should measure a graph built ['passed']
+  should fill exactly the slots ['passed']
+  should report a difference that tracks ['passed']
+  declared controls ['passed', 'passed', 'passed', 'passed', 'passed', 'passed', 'passed']
+  docs.node ['passed', 'passed', 'passed', 'passed']
+-- plain package run, packages/drag2:
+ Test Files  78 passed (78)
+      Tests  1494 passed | 68 skipped (1562)
+reporter error or plugin notice lines: 0
+
+== Forced close failure (one rejection of provider.close; 'before' rejects without closing, 'after' closes and then rejects). two = browser/core, browser/box-quad
+rej-after-default: forced message lines=1 unhandledReporterError=1  Tests 438 passed (438)
+rej-before-default: forced message lines=1 unhandledReporterError=1  Tests 438 passed (438)
+rej-after-dot: forced message lines=1 unhandledReporterError=1  Tests 438 passed (438)
+rej-before-verbose: forced message lines=1 unhandledReporterError=1  Tests 438 passed (438)
+all four exit 1
+rej-after-minimal: forced message lines=1, exit 1
+rej-after-tree: forced message lines=1, exit 1
+rej-after-json-default: forced message lines=1, exit 1
+rej-after-tap: forced message lines=0 Unhandled=0, exit 1
+rej-after-tap-flat: forced message lines=0 Unhandled=0, exit 1
+rej-after-junit: forced message lines=0 Unhandled=0, exit 1
+rej-after-github-actions: forced message lines=0 Unhandled=0, exit 1
+rej-after-hanging-process: forced message lines=0 Unhandled=0, exit 1
+rej-json2 (json alone, default output file): exit 1, forced message lines=0; .vitest/json/output.json success=True failed=0 total=438, mentions the rejection: False
+main 4.1.10: default forced=1; json forced=0; tap forced=0; all exit 1
+whole root, rejection 'before' at the first boundary:
+      Tests  1 failed | 2645 passed | 68 skipped (2714)
+ FAIL  |node/tproc| tests/TokenPackageProcessor.node.test.ts:75 > TokenPackageProcessor > should apply inheritance and render decl
+ Test Files  1 failed | 162 passed (163)
+Error: review-forced: provider.close rejected at 1->2
+exit 1
+⎯⎯ Unhandled Reporter Error ⎯⎯
+release calls 8, closed lines 7
+headless Chrome processes on the machine, counting other sessions': 9 before, 9 after every rejection reading
+
+== TE-D15's refusals
+second run, root config: rejected: this Vitest process has already executed a test run. ...
+tip-shuffle: refusal=0 closed=1  Tests 438 passed (438)
+tip-group0: refusal=1 closed=0 
+tip-group7: refusal=1 closed=0 
+noext-shuffle: refusal=0 closed=3  Tests 1 failed | 437 passed (438)
+noext-group7: refusal=1 closed=0 
+main --sequence.shuffle: refusal=1 closed=0, exit 1
+
+== Resolved config, every project of every config, createVitest (resolve.mjs.txt)
+## . -c vitest.config.ts
+{"reporters":["Array","OneShotTestExecution"],"oneShot":1,"projects":16}
+## packages/drag2 -c vitest.config.ts
+{"reporters":["Array","OneShotTestExecution"],"oneShot":1,"projects":4}
+## packages/drag2 -c bench/shipped/vitest.config.ts
+{"reporters":["Array","OneShotTestExecution"],"oneShot":1,"projects":4}
+## packages/drag -c vitest.config.ts
+{"reporters":["Array","OneShotTestExecution"],"oneShot":1,"projects":3}
+## packages/material-x -c vitest.config.ts
+{"reporters":["Array","OneShotTestExecution"],"oneShot":1,"projects":4}
+## packages/core -c vitest.config.ts
+{"reporters":["Array","OneShotTestExecution"],"oneShot":1,"projects":2}
+## packages/box-quad -c vitest.config.ts
+{"reporters":["Array","OneShotTestExecution"],"oneShot":1,"projects":1}
+## packages/tproc -c vitest.config.ts
+{"reporters":["Array","OneShotTestExecution"],"oneShot":1,"projects":1}
+## packages/vite-traits-plugin -c vitest.config.ts
+{"reporters":["Array","OneShotTestExecution"],"oneShot":1,"projects":1}
+. -c vitest.config.ts | node/drag2 | ['packages/drag2/tests/support/build-package.node.ts'] ['packages/drag2/tests/support/require-build.node.ts']
+packages/drag2 -c vitest.config.ts | node | ['tests/support/build-package.node.ts'] ['tests/support/require-build.node.ts']
+packages/drag2 -c bench/shipped/vitest.config.ts | node | ['tests/support/build-package.node.ts'] ['tests/support/require-build.node.ts']
+-- root config, extends:false against without it, all 16 projects: the only keys that differ are the one-shot plugin count (1 against 2) and the plugin count
+-- no global setup or raising file on any other project of any config: rows above are the complete list

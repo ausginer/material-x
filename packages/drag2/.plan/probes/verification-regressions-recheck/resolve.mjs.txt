@@ -1,0 +1,69 @@
+// Scratch: resolve one config through Vitest's own API and print what each project received.
+// Copied into the private worktree, run from the config's package directory.
+// Usage: node resolve.mjs <config path>
+import { relative } from 'node:path';
+import { createVitest } from 'vitest/node';
+
+const config = process.argv[2];
+const vitest = await createVitest(
+  'test',
+  { config, watch: false, run: true },
+  {},
+  {},
+);
+const top = process.cwd();
+const rel = (list) => (list ?? []).map((entry) => relative(top, entry));
+const rows = vitest.projects.map((project) => {
+  const c = project.config;
+  const plugins = (project.vite?.config?.plugins ?? []).map((p) => p.name);
+
+  return {
+    name: project.name,
+    root: relative(top, c.root),
+    include: c.include,
+    exclude: c.exclude?.filter((e) => e.startsWith('tests')),
+    setupFiles: rel(c.setupFiles),
+    globalSetup: rel(c.globalSetup),
+    groupOrder: c.sequence.groupOrder,
+    maxWorkers: c.maxWorkers,
+    fileParallelism: c.fileParallelism,
+    isolate: c.isolate,
+    testTimeout: c.testTimeout,
+    hookTimeout: c.hookTimeout,
+    includeTaskLocation: c.includeTaskLocation,
+    typecheck: c.typecheck?.enabled,
+    attachmentsDir: relative(top, c.attachmentsDir),
+    browser: {
+      enabled: c.browser?.enabled,
+      headless: c.browser?.headless,
+      provider: c.browser?.provider?.name,
+      viewport: c.browser?.viewport,
+      screenshotFailures: c.browser?.screenshotFailures,
+      api: c.browser?.api,
+      commands: Object.keys(c.browser?.commands ?? {}).length,
+    },
+    api: c.api,
+    dev: c.defines?.__DEV__ ?? project.vite?.config?.define?.__DEV__,
+    oneShotPlugins: plugins.filter((n) => n === 'ydin-one-shot-test-execution')
+      .length,
+    plugins: plugins.filter((n) => !n.startsWith('vite:')).length,
+  };
+});
+
+console.log(
+  JSON.stringify({
+    reporters: vitest.config.reporters.map(
+      (r) => r?.constructor?.name ?? String(r),
+    ),
+    oneShot: vitest.config.reporters.filter(
+      (r) => r?.constructor?.name === 'OneShotTestExecution',
+    ).length,
+    projects: rows.length,
+  }),
+);
+for (const row of rows) {
+  console.log(JSON.stringify(row));
+}
+
+await vitest.close();
+process.exit(0);
