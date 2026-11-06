@@ -77,7 +77,7 @@ The rule is about meaning, not byte count. Where both spellings are correct, the
 
 ## Naming and self-documentation
 
-Follow the [technical English guide](.agents/docs/technical-english.md). Choose names that describe the operation or value in familiar technical terms, and check them at their call sites. Improve an unclear name before adding a comment to translate it. Preserve the performance priorities above when considering changes to code structure.
+Follow the [technical English guide](.agents/docs/technical-english.md). Choose names that describe the operation or value in familiar technical terms. Improve an unclear name before adding a comment to translate it. Preserve the performance priorities above when considering changes to code structure.
 
 ## CSS
 
@@ -110,7 +110,7 @@ Governed by [`documentation.md`](.agents/docs/documentation.md) §5. Comments de
 - Present tense, self-contained.
 - Remove code narration and duplicated explanations before rewriting comments. There is no quota for comments or their length.
 - Explain a non-obvious invariant, ordering constraint, ownership boundary, performance property, or reason for the current implementation.
-- Check factual claims against the code. Preserve conditions, ordering and uncertainty; report a false or disputed claim rather than making it sound certain through a wording change.
+- Check factual claims against the code. When rewriting a comment, follow the [technical English guide](.agents/docs/technical-english.md#keep-the-comments-a-reader-needs).
 - No planning or review bookkeeping — no `D-*`, `F-*`, `I-*`, phase numbers, review names, commit hashes or `.plan` sections. An internal comment may carry one bare decision pointer as an index entry; published JSDoc may not.
 - Do not narrate history: no "used to", "was changed", "replaces", "previously", "this was added because". If a past decision holds reasoning still needed to understand the code, restate **the reason**, not its provenance. If removing the historical reference leaves nothing useful, remove the comment.
 - A JSDoc block reaching a published `.d.ts` is consumer documentation: it carries only what a reader outside this repository can act on, and **preconditions the compiler cannot state are load-bearing there** — §1.1 deletes runtime guards on the strength of those sentences existing.
