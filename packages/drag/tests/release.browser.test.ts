@@ -29,8 +29,13 @@ describe('drag:DRI-9 release order', () => {
   it('should release in the fixed order', async () => {
     const list = makeList(3);
     const row = document.querySelector<HTMLElement>('#r0')!;
+    const animate = row.animate.bind(row);
     let dragSignal: AbortSignal | null = null;
 
+    row.animate = (...args) => {
+      log.push(`animate:lifted=${row.matches(':popover-open')}`);
+      return animate(...args);
+    };
     managed(list, {
       lift,
       admit: (event) => ({ item: targetOf(event) }),
@@ -56,6 +61,8 @@ describe('drag:DRI-9 release order', () => {
     expect(log).toEqual([
       'settle:signal=false',
       'dispose:skipped:signal=true:lifted=true',
+      'animate:lifted=false',
+      'animate:lifted=false',
       'end:lifted=false:animations=2',
     ]);
   });

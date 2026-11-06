@@ -18,6 +18,26 @@ import {
 } from './support/harness.ts';
 
 describe('drag:DRI-7 faults', () => {
+  it('should cancel once with a fault when move throws, and let the terminal run', async () => {
+    const list = makeList(2);
+    const ended: string[] = [];
+
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
+      move() {
+        throw new Error('move');
+      },
+      end(_drag, outcome) {
+        ended.push(
+          `${outcome.type}:${(outcome as { origin?: string }).origin}`,
+        );
+      },
+    });
+    await dragAndDrop('#r0', 30);
+    expect(ended).toEqual(['canceled:fault']);
+    expect(faultMessages()).toEqual(['move']);
+  });
+
   it('should report two faults in one pass once each, and let the first decide', async () => {
     const list = makeList(4);
     const first = new Error('first');

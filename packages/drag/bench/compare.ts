@@ -116,6 +116,12 @@ async function openPage(browser: Browser, code: string): Promise<PageContext> {
 
 const delta = (before: Metrics, after: Metrics, count: number): Reading => ({
   layouts: after['LayoutCount']! - before['LayoutCount']!,
+  // Not judged. These say where a task-time difference went.
+  layoutUs:
+    ((after['LayoutDuration']! - before['LayoutDuration']!) * 1e6) / count,
+  styleUs:
+    ((after['RecalcStyleDuration']! - before['RecalcStyleDuration']!) * 1e6) /
+    count,
   scriptUs:
     ((after['ScriptDuration']! - before['ScriptDuration']!) * 1e6) / count,
   taskUs: ((after['TaskDuration']! - before['TaskDuration']!) * 1e6) / count,
@@ -177,7 +183,7 @@ function movesScenario(count: number): Scenario {
 }
 
 type HeapNode = Readonly<{
-  callFrame: Readonly<{ functionName: string }>;
+  callFrame: Readonly<{ functionName: string; scriptId: string }>;
   selfSize: number;
   children: readonly HeapNode[];
 }>;
@@ -202,14 +208,21 @@ async function samplingProfile(
 
   const { profile } = await cdp.send('HeapProfiler.stopSampling');
   const bytes = new Map<string, number>();
-  const walk = (node: HeapNode): void => {
-    const name = node.callFrame.functionName || '(anonymous)';
+  // A built-in such as `push` has no script, and its bytes belong to its caller.
+  // Counted under its own name, the kernel's allocation would escape the rule.
+  const walk = (node: HeapNode, caller: string): void => {
+    const name =
+      node.callFrame.scriptId === '0' && caller
+        ? caller
+        : node.callFrame.functionName || '(anonymous)';
 
     bytes.set(name, (bytes.get(name) ?? 0) + node.selfSize);
-    node.children.forEach(walk);
+    node.children.forEach((child) => {
+      walk(child, name);
+    });
   };
 
-  walk(profile.head);
+  walk(profile.head, '');
   return Object.fromEntries(
     [...bytes]
       .map(([name, size]) => [name, Math.round(size / MOVES)] as const)
@@ -343,8 +356,8 @@ const SCENARIOS: readonly Scenario[] = [
       return delta(before, after, KEYS);
     },
   })),
-  {
-    id: '200 operations, then destroy: retained heap against an empty page',
+  ...[OPERATIONS, 0].map((operations): Scenario => ({
+    id: `${operations} operations, then destroy: retained heap against an empty page`,
     rule: 'retained',
     arms: 'sortable',
     async run({ page, cdp, metrics }) {
@@ -363,7 +376,7 @@ const SCENARIOS: readonly Scenario[] = [
         refocus: false,
       });
 
-      for (let i = 0; i < OPERATIONS; i += 1) {
+      for (let i = 0; i < operations; i += 1) {
         await page.mouse.move(X, Y0);
         await page.mouse.down();
         await page.mouse.move(X, Y0 + 12, { steps: 2 });
@@ -382,7 +395,7 @@ const SCENARIOS: readonly Scenario[] = [
 
       return { retainedBytes: (await heap()) - empty };
     },
-  },
+  })),
   {
     id: 'free drag, 300 moves, one frame each',
     rule: 'exact-and-floor',
@@ -467,8 +480,9 @@ const median = (values: readonly number[]): number =>
 const spread = (values: readonly number[]): number =>
   Math.max(...values) - Math.min(...values);
 
-/** The kernel's methods are private, so their names start with `#`. */
-const isKernelFunction = (name: string): boolean => name.startsWith('#');
+/** The kernel's methods are private, so their names start with `#`, except these. */
+const isKernelFunction = (name: string): boolean =>
+  name.startsWith('#') || name === 'requestStep' || name === 'requestCancel';
 
 type ArmReadings = Readonly<Record<string, readonly Reading[]>>;
 export type Verdict = Readonly<{
@@ -525,7 +539,7 @@ export function judge(
       verdicts.push({
         against: before,
         measure: 'retainedBytes',
-        result: `${difference > floor ? 'FLAG slower' : 'no difference'}: ${Math.round(difference)} B, floor ${Math.round(floor)} B`,
+        result: `${difference > floor ? 'FLAG slower' : difference < -floor ? 'less' : 'no difference'}: ${Math.round(difference)} B, floor ${Math.round(floor)} B`,
       });
       continue;
     }
@@ -688,7 +702,16 @@ const INJECTIONS: ReadonlyArray<
     file: 'draggable.ts',
     find: 'view.x = event.clientX;\n    view.y = event.clientY;\n\n    if (session.phase === ACTIVE) {',
     replace:
-      '(globalThis as Record<string, unknown>)["__kept"] = new Array(128).fill(session);\n    view.x = event.clientX;\n    view.y = event.clientY;\n\n    if (session.phase === ACTIVE) {',
+      '(globalThis as Record<string, unknown>)["__kept"] = new Array(256).fill(session);\n    view.x = event.clientX;\n    view.y = event.clientY;\n\n    if (session.phase === ACTIVE) {',
+    scenario: 'bytes per move by function, 20 items',
+    expect: /FLAG/u,
+  },
+  {
+    name: 'one entry on the step list per frame',
+    file: 'draggable.ts',
+    find: 'this.#enter(this.#runStep, step);',
+    replace:
+      'this.#steps.push(step);\n      this.#enter(NOOP as never, null as never);',
     scenario: 'bytes per move by function, 20 items',
     expect: /FLAG/u,
   },

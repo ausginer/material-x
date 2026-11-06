@@ -16,6 +16,7 @@ import {
   log,
   makeList,
   moveHeld,
+  onCleanup,
   press,
   ReactionProbe,
   release,
@@ -210,11 +211,144 @@ describe('drag:DRI-14 collection', () => {
   });
 });
 
+describe('drag:DRI-14 collection failures', () => {
+  it('should cancel with a fault when a pull during a drag throws', async () => {
+    const list = makeList(4);
+    const results: string[] = [];
+    let broken = false;
+    const controller = basicSortable(list, {
+      items() {
+        if (broken) {
+          throw new Error('items');
+        }
+
+        return rowsOf(list);
+      },
+      onEnd(result) {
+        results.push(
+          `${result.type}:${(result as { origin?: string }).origin}`,
+        );
+      },
+    });
+
+    await grab('#r0');
+    broken = true;
+    controller.invalidate();
+    await release();
+    expect(results).toEqual(['canceled:fault']);
+    expect(faultMessages()).toEqual(['items']);
+    expect(isClean(list)).toBe(true);
+  });
+
+  it('should end activation with a fault and no start when the second pull throws', async () => {
+    const list = makeList(4);
+    let pulls = 0;
+
+    basicSortable(list, {
+      items() {
+        pulls += 1;
+
+        if (pulls === 2) {
+          throw new Error('items');
+        }
+
+        return rowsOf(list);
+      },
+    });
+    await dragAndDrop('#r0', 40);
+    expect(log).toEqual([]);
+    expect(faultMessages()).toEqual(['items']);
+    expect(isClean(list)).toBe(true);
+  });
+
+  it('should report a throwing visual, with no operation', async () => {
+    const list = makeList(3);
+
+    basicSortable(list, {
+      visual() {
+        throw new Error('visual');
+      },
+    });
+    await dragAndDrop('#r0', 40);
+    expect(log).toEqual([]);
+    expect(faultMessages()).toEqual(['visual']);
+    expect(isClean(list)).toBe(true);
+  });
+
+  it('should apply an invalidate from inside onStart', async () => {
+    const list = makeList(4);
+    let pulls = 0;
+    const controller = basicSortable(list, {
+      items() {
+        pulls += 1;
+        return rowsOf(list);
+      },
+      onStart() {
+        const before = pulls;
+
+        controller.invalidate();
+        log.push(`pulled:${pulls - before}`);
+      },
+    });
+
+    await dragAndDrop('#r0', 45);
+    expect(log[0]).toBe('pulled:0');
+    expect(log.at(-1)).toBe('end:accepted');
+    expect(faults).toEqual([]);
+  });
+
+  it('should pull nothing and report nothing for an invalidate after destruction', async () => {
+    const list = makeList(3);
+    let pulls = 0;
+    const controller = basicSortable(list, {
+      items() {
+        pulls += 1;
+        return rowsOf(list);
+      },
+    });
+
+    await controller.requestDestroy();
+    controller.invalidate();
+    expect(pulls).toBe(0);
+    expect(faults).toEqual([]);
+  });
+
+  it('should reach the first gap, moving a row to the start', async () => {
+    const list = makeList(4);
+
+    basicSortable(list);
+    await dragAndDrop('#r3', -125);
+    expect(order(list)).toBe('r3,r0,r1,r2');
+  });
+
+  it('should resolve the release from the final sample, with no frame after it', async () => {
+    const list = makeList(5);
+
+    basicSortable(list);
+
+    const start = await press('#r0');
+
+    await commands.pointerMove(start.x, start.y + 10, 2);
+    await frames();
+    await commands.pointerMove(start.x, start.y + 85, 1);
+    await release();
+    expect(order(list)).toBe('r1,r2,r0,r3,r4');
+  });
+});
+
 describe('drag:DRI-15 placeholder integrity', () => {
   it.each([
     ['removes itself', (probe: Element) => probe.remove()],
     ['moves itself', (probe: Element) => document.body.append(probe)],
     ['takes the list out', (probe: Element) => probe.parentElement!.remove()],
+    [
+      'moves within the container',
+      (probe: Element) => probe.parentElement!.append(probe),
+    ],
+    [
+      'takes the item away from it',
+      () => document.body.append(document.querySelector('#r0')!),
+    ],
   ] as const)(
     'should end activation clean with a fault when a placeholder %s',
     async (_name, act) => {
@@ -260,6 +394,83 @@ describe('drag:DRI-15 placeholder integrity', () => {
     await release();
     expect(results).toEqual(['canceled:fault']);
     expect(faultMessages()).toHaveLength(1);
+  });
+
+  it('should cancel and report when an anchor leaves before the release', async () => {
+    const list = makeList(5);
+    const results: string[] = [];
+
+    basicSortable(list, {
+      onEnd(result) {
+        results.push(result.type);
+      },
+    });
+    await grab('#r0', 0, 45);
+    document.body.append(document.querySelector('#r2')!);
+    await release();
+    expect(results).toEqual(['canceled']);
+    expect(faultMessages()).toHaveLength(1);
+    expect(isClean(list)).toBe(true);
+  });
+
+  it('should still cancel on Escape when the home anchor left', async () => {
+    const list = makeList(5);
+    const results: string[] = [];
+
+    basicSortable(list, {
+      onEnd(result) {
+        results.push(
+          `${result.type}:${(result as { origin?: string }).origin}`,
+        );
+      },
+    });
+    await grab('#r1', 0, 45);
+    document.body.append(document.querySelector('#r2')!);
+    await commands.keyPress('Escape');
+    await release();
+    expect(results).toHaveLength(1);
+    expect(results[0]).toMatch(/^canceled:/u);
+    expect(isClean(list)).toBe(true);
+  });
+
+  it('should report a factory that returns the dragged item, whose disposer then removes it', async () => {
+    const list = makeList(4);
+
+    basicSortable(list, {
+      placeholder: ({ item }) => item,
+    });
+    await grab('#r0');
+    await release();
+    expect(log).toEqual([]);
+    expect(faults).toHaveLength(1);
+    expect(order(list)).toBe('r1,r2,r3');
+  });
+
+  it('should move a factory result that is already in the document', async () => {
+    const list = makeList(4);
+    const existing = document.createElement('div');
+
+    document.body.append(existing);
+    onCleanup(() => {
+      existing.remove();
+    });
+    basicSortable(list, { placeholder: () => existing });
+    await grab('#r0');
+    expect(existing.parentElement).toBe(list);
+    await release();
+    expect(log).toEqual(['start', 'end:accepted']);
+    expect(existing.parentElement).toBeNull();
+  });
+
+  it('should clear a stale slot when the item has none', async () => {
+    const list = makeList(4);
+    const stale = document.createElement('div');
+
+    stale.slot = 'old';
+    basicSortable(list, { placeholder: () => stale });
+    await grab('#r0');
+    expect(stale.hasAttribute('slot')).toBe(false);
+    await release();
   });
 
   it('should hide the placeholder from assistive technology and mirror the slot', async () => {

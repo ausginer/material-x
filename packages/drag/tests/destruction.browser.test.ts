@@ -14,6 +14,7 @@ import {
   basicSortable,
   commands,
   dragAndDrop,
+  faultMessages,
   faults,
   frames,
   grab,
@@ -21,6 +22,7 @@ import {
   isClean,
   log,
   makeList,
+  managed,
   moveHeld,
   ReactionProbe,
   release,
@@ -119,6 +121,22 @@ async function destroyFrom(where: Hook) {
 }
 
 describe('drag:DRI-10 destruction', () => {
+  it('should admit no press after destruction', async () => {
+    const list = makeList(2);
+    let admissions = 0;
+    const controller = managed(list, {
+      admit(event) {
+        admissions += 1;
+        return { item: targetOf(event) };
+      },
+    });
+
+    await controller.requestDestroy();
+    await dragAndDrop('#r0', 30);
+    expect(admissions).toBe(0);
+    expect(faultMessages()).toEqual([]);
+  });
+
   it.each<Hook>([
     'admit',
     'activate',

@@ -6,10 +6,8 @@ import {
   basicSortable,
   commands,
   dragAndDrop,
-  engine,
   frames,
   grab,
-  log,
   makeList,
   managed,
   order,
@@ -226,18 +224,23 @@ describe('drag:DRI-12 focus', () => {
     expect(scroller.scrollTop).toBeGreaterThan(0);
   });
 
-  it('should report :focus-visible per engine after a restore', async () => {
+  it('should keep :focus-visible on a keyboard restore', async () => {
     const list = focusableList(3);
 
     basicSortable(list);
     row('r0').focus();
     await commands.keyPress('ArrowDown');
     await frames();
+    expect(row('r0').matches(':focus-visible')).toBe(true);
+  });
 
-    const visible = row('r0').matches(':focus-visible');
+  it('should restore a pointer drop without :focus-visible', async () => {
+    const list = focusableList(3);
 
-    // An observation, kept in the report's table for each engine.
-    log.push(`${engine}:${visible}`);
-    expect(typeof visible).toBe('boolean');
+    basicSortable(list);
+    await dragAndDrop('#r0', 60);
+    await frames();
+    expect(document.activeElement).toBe(row('r0'));
+    expect(row('r0').matches(':focus-visible')).toBe(false);
   });
 });

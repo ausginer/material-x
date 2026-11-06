@@ -47,7 +47,7 @@ export const COMPOSITIONS: readonly Composition[] = [
     name: 'draggable alone',
     imports: { 'src/draggable': ['draggable'] },
     budget: 2150,
-    control: 2034,
+    control: 2035,
     absent: [
       'src/lift',
       'box-quad',

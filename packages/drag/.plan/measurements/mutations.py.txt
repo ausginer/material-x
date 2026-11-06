@@ -1,0 +1,167 @@
+#!/usr/bin/env python3
+"""Throwaway edits: each must fail a named test. Run from packages/drag. Restores every file."""
+import json, subprocess, sys, tempfile, os
+D='src/draggable.ts'; L='src/lift.ts'; S='src/sortable.ts'; B='../box-quad/src/index.ts'
+CH='browser'; SH='shipped'; DC='node'
+M=[
+('DRI-1','Apply a cancel inline when requested',[(D,"""      session.decision ??= { type: 'canceled', reason, origin };
+      this.#enter(NOOP, null);""","""      session.decision ??= { type: 'canceled', reason, origin };
+      if (this.#running && session.phase !== CONCLUDED) { this.#conclude(session, session.decision); }
+      this.#enter(NOOP, null);""")],CH,'tests/requests','chromium'),
+('DRI-2','Apply the decision before deferred steps',[(D,"""        if (this.#steps.length > 0) {""","""        if (session?.decision && session.phase !== CONCLUDED) {
+          this.#conclude(session, session.decision);
+        } else if (this.#steps.length > 0) {""")],CH,'tests/requests','chromium'),
+('DRI-3','Run end when activate threw',[(D,"""    if (session.started) {
+      session.next = () => {""","""    if (session.started || outcome.type === 'canceled') {
+      session.next = () => {""")],CH,'tests/terminals','chromium'),
+('DRI-4','Let a second cancel replace the first',[(D,"""      session.decision ??= { type: 'canceled', reason, origin };""","""      session.decision = { type: 'canceled', reason, origin };""")],CH,'tests/terminals','chromium'),
+('DRI-5','Abort the verdict signal on acceptance',[(D,"""      done = true;
+      session.verdictAborter = null;
+""","""      done = true;
+"""),(D,"""    if (outcome.type === 'canceled') {
+      session.verdictAborter?.abort();
+    }""","""    session.verdictAborter?.abort();""")],CH,'tests/verdict','chromium'),
+('DRI-5','Let a late completion reach a later drag',[(D,"""      if (this.#session !== session || session.decision) {
+        return;
+      }
+""","""      if (!this.#session) {
+        return;
+      }
+"""),(D,"""        session.decision = { type: 'verdict', value: value as Verdict };""","""        this.#session.decision ??= { type: 'verdict', value: value as Verdict };""")],CH,'tests/verdict','chromium'),
+('DRI-6','Remove the #running refusal',[(D,"""    if (this.#running || this.#destroyed) {""","""    if (this.#destroyed) {""")],CH,'tests/terminals','chromium'),
+('DRI-7','Report the raw value',[(D,"""    reportError(fault);""","""    reportError(error);""")],CH,'tests/faults','chromium'),
+('DRI-7','Fill the decision after the report',[(D,"""    if (this.#session) {
+      this.#session.decision ??= {
+        type: 'canceled',
+        reason: fault,
+        origin: 'fault',
+      };
+    }
+
+    reportError(fault);""","""    reportError(fault);
+
+    if (this.#session) {
+      this.#session.decision ??= {
+        type: 'canceled',
+        reason: fault,
+        origin: 'fault',
+      };
+    }""")],CH,'tests/faults','chromium'),
+('DRI-8','Pass the Drag to a step behind a decision',[(D,"""session?.phase === ACTIVE && !session.decision""","""session?.phase === ACTIVE""")],CH,'tests/requests','chromium'),
+('DRI-8','Remove identity coalescing',[(D,"""    } else if (!this.#steps.includes(step)) {""","""    } else {""")],CH,'tests/requests','chromium'),
+('DRI-9','Start the landing before releasing the lift',[(D,"""    this.#release(session, outcome);
+
+    try {
+      const { focused } = session;""","""    if (landing && lift) {
+      this.#cancelLanding = lift.land(landing);
+      landing = null;
+    }
+
+    this.#release(session, outcome);
+
+    try {
+      const { focused } = session;""")],CH,'tests/release','chromium'),
+('DRI-9','Stop at the first disposer throw',[(D,"""    while (disposers.length > 0) {
+      this.#dispose(disposers.pop()!, outcome);
+    }""","""    while (disposers.length > 0) {
+      disposers.pop()!(outcome);
+    }""")],CH,'tests/release','chromium'),
+('DRI-10','Run end on destruction',[(D,"""      this.#release(session, null);
+    }
+""","""      this.#release(session, null);
+      this.#behavior.end?.(session.view, SKIPPED);
+    }
+""")],CH,'tests/destruction','chromium'),
+('DRI-10','Remove the guard with the controller listeners',[(D,"""function armClickGuard(target: Window, pointerId: number): void {
+  const guard = new AbortController();
+  const options = { capture: true, signal: guard.signal };""","""function armClickGuard(target: Window, pointerId: number, gone: AbortSignal): void {
+  const guard = new AbortController();
+  const options = { capture: true, signal: AbortSignal.any([guard.signal, gone]) };"""),(D,"""armClickGuard(this.#window, view.pointerId);""","""armClickGuard(this.#window, view.pointerId, this.#listeners.signal);""")],CH,'tests/click-guard','chromium'),
+('DRI-11','Remove the click expiry',[(D,"""        expire();
+        event.preventDefault();
+        event.stopPropagation();""","""        event.preventDefault();
+        event.stopPropagation();""")],CH,'tests/click-guard','chromium'),
+('DRI-11','Remove the pointerup expiry',[(D,"""        setTimeout(expire);""","""        void expire;""")],CH,'tests/click-guard','chromium'),
+('DRI-11','Remove the pointercancel expiry',[(D,"""    'pointercancel',
+    (event) => {
+      if (event.pointerId === pointerId) {
+        expire();
+      }
+    },""","""    'pointercancel',
+    () => {},""")],CH,'tests/click-guard','chromium'),
+('DRI-11','Remove the next-press expiry',[(D,"""      if (event.isPrimary && event.button === 0) {
+        expire();
+      }""","""      void event;""")],CH,'tests/click-guard','chromium'),
+('DRI-11','Swallow a below-threshold click',[(D,"""        this.#open(admitted, event.pointerId, event.clientX, event.clientY);""","""        armClickGuard(this.#window, event.pointerId);
+        this.#open(admitted, event.pointerId, event.clientX, event.clientY);""")],CH,'tests/click-guard','chromium'),
+('DRI-12','Restore over a newer focus',[(D,"""        if (!activeElement || activeElement === body) {""","""        if (activeElement || body) {""")],CH,'tests/focus','chromium'),
+('DRI-12','Use preventScroll for a command',[(D,"""            preventScroll: view.pointerId !== COMMAND_POINTER_ID,""","""            preventScroll: true,""")],CH,'tests/focus','chromium'),
+('DRI-12','Remove the lift focus repair',[(L,"""  const current = deepActiveElement(ownerDocument);
+
+  if (current !== focused) {""","""  const current = deepActiveElement(ownerDocument);
+
+  if (current !== focused && current === null) {""")],CH,'tests/focus','chromium'),
+('DRI-13','Make elevation additive',[(L,"""const elevation = visual.animate([keyframe, keyframe], { duration });""","""const elevation = visual.animate([keyframe, keyframe], { duration, composite: 'add' });""")],'browser/webkit','tests/landing','webkit'),
+('DRI-13','Remove reduced motion from the lift',[(L,"""  const duration = realm.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 0
+    : (landing.duration ?? DEFAULT_LANDING_DURATION);""","""  const duration = landing.duration ?? DEFAULT_LANDING_DURATION;""")],CH,'tests/landing','chromium'),
+('DRI-14','Remove the activation pull',[(S,"""        const snapshot = pull();
+
+        if (!snapshot.items.includes(item)) {
+          return false;
+        }
+
+        state.snapshot = snapshot;
+        state.insertion = homeInsertion(snapshot, item);""","""        state.insertion = homeInsertion(state.snapshot, item);""")],CH,'tests/sortable','chromium'),
+('DRI-15','Skip the placeholder check at activation',[(S,"""      if (!placeholder.isConnected || item.nextElementSibling !== placeholder) {
+        throw new Error('sortable/insertion-placeholder-lost');
+      }
+""","")],CH,'tests/sortable','chromium'),
+('DRI-16','Use a ratio in place of localDelta',[('../box-quad/index.js',"""	const x = (d * dx - c * dy) * inverseDeterminant;
+	const y = (a * dy - b * dx) * inverseDeterminant;""","""	const x = (dx / a) + 0 * inverseDeterminant;
+	const y = (dy / d) + 0 * inverseDeterminant;""")],CH,'tests/coordinates','chromium'),
+('DRI-17','Read layout in a sample',[(S,"""    move(drag) {
+      drag.translate""","""    move(drag) {
+      void drag.item.offsetWidth;
+      drag.translate""")],SH,'tests/hot-path','chromium'),
+('DRI-17','Put an idle step on the list',[(D,"""      this.#enter(this.#runStep, step);""","""      this.#steps.push(step);
+      this.#enter(NOOP as never, null as never);""")],SH,'tests/hot-path','chromium'),
+('DRI-17','Allocate in #move',[(D,"""    view.x = event.clientX;
+    view.y = event.clientY;
+
+    if (session.phase === ACTIVE) {""","""    (globalThis as Record<string, unknown>)['__kept'] = { x: event.clientX, y: event.clientY, a: [view.x, view.y] };
+    view.x = event.clientX;
+    view.y = event.clientY;
+
+    if (session.phase === ACTIVE) {""")],SH,'tests/hot-path','chromium'),
+('DRI-18','Import lift from draggable',[(D,"""import type { lift } from './lift.ts';""","""import { lift } from './lift.ts';
+
+export { lift };""")],DC,'tests/size','node'),
+]
+out=[]
+only=set(sys.argv[1:])
+for dri,name,patches,project,tests,engine in M:
+    if only and dri not in only: continue
+    originals={}
+    ok=True
+    for f,a,b in patches:
+        s=open(f).read(); originals.setdefault(f,s)
+        if a not in s:
+            print('NOT APPLICABLE',dri,name,f); ok=False; break
+        open(f,'w').write(s.replace(a,b,1))
+    failed=[]
+    if ok:
+        fd,path=tempfile.mkstemp(suffix='.json'); os.close(fd)
+        cfg='vitest.engines.config.ts' if '/' in project else 'vitest.config.ts'
+        subprocess.run(['npx','vitest','run','-c',cfg,'--project',project,tests,'--reporter=json','--outputFile',path],capture_output=True,text=True,timeout=400)
+        try:
+            data=json.load(open(path))
+            for t in data['testResults']:
+                for r in t['assertionResults']:
+                    if r['status']=='failed':
+                        failed.append(r['fullName'])
+        except Exception as e:
+            failed=['RUNNER ERROR '+str(e)]
+    for f,s in originals.items(): open(f,'w').write(s)
+    print(f"{dri}\t{name}\t{engine}\t{len(failed)}\t{failed[0] if failed else 'SURVIVED'}",flush=True)
+    out.append((dri,name,engine,len(failed),failed[:3]))

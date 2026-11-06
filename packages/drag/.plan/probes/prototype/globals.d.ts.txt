@@ -1,0 +1,5 @@
+/**
+ * Substituted at build time: `true` on the dev server, `false` where size and
+ * cost are measured. The minifier drops every branch guarded by it.
+ */
+declare const __DEV__: boolean;

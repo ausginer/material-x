@@ -1,0 +1,62 @@
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { chromium } from 'playwright';
+import { rolldown } from 'rolldown';
+const ROOT = new URL('../', import.meta.url).pathname;
+const BQ = join(ROOT, '../box-quad/src/index.ts');
+async function bundle(lab: string, srcRoot: string) {
+  const b = await rolldown({ input: lab, platform: 'browser', resolve: { alias: { '@ydinjs/box-quad': BQ } }, transform: { define: { __DEV__: 'false' } },
+    plugins: [{ name: 'a', resolveId(id: string) { return id.startsWith('../src/') ? join(srcRoot, id.slice(7)) : null; } }] });
+  const { output } = await b.generate({ format: 'iife', name: 'labExports' });
+  await b.close();
+  return output[0].code;
+}
+const scratch = mkdtempSync(join(tmpdir(), 'trace-'));
+execFileSync('git', ['archive', '599684791', '--output', join(scratch, 't.tar'), 'packages/drag/prototype/src'], { cwd: join(ROOT, '../..') });
+execFileSync('tar', ['-xf', join(scratch, 't.tar'), '-C', scratch]);
+import { cpSync, readFileSync, writeFileSync } from 'node:fs';
+async function variant(tag: string, file: string, find: string, rep: string) {
+  const dir = join(scratch, tag); cpSync(join(ROOT, 'src'), dir, { recursive: true });
+  const f = join(dir, file); const t = readFileSync(f, 'utf8');
+  if (!t.includes(find)) throw new Error('no match ' + tag);
+  writeFileSync(f, t.replace(find, rep));
+  return bundle(join(ROOT, 'bench/lab.ts'), dir);
+}
+const FOCUS = "focused.focus({\n            preventScroll: view.pointerId !== COMMAND_POINTER_ID,\n          });";
+const arms: Record<string,[string,boolean]> = {
+  production: [await bundle(join(ROOT, 'bench/lab.ts'), join(ROOT, 'src')), false],
+  prototype: [await bundle(join(ROOT, 'bench/lab.ts'), join(scratch, 'packages/drag/prototype/src')), true],
+  'land-before-focus': [await variant('lf', 'draggable.ts', "    try {\n      const { focused } = session;", "    try {\n      if (landing && lift) { this.#cancelLanding = lift.land(landing); landing = null; }\n      const { focused } = session;"), false],
+  'no-elevation': [await variant('ne', 'lift.ts', "const elevation = visual.animate([keyframe, keyframe], { duration });", "const elevation = { cancel() {} };"), false],
+  'no-kernel-focus, consumer refocus': [await variant('nf', 'draggable.ts', FOCUS, ""), true],
+  'no-kernel-focus, no refocus': [await variant('nf2', 'draggable.ts', FOCUS, ""), false],
+};
+const browser = await chromium.launch({ executablePath: process.env['CHROME_EXECUTABLE'] ?? '/usr/local/bin/chrome' });
+const X = 140, Y0 = 140;
+for (const [name, [code, refocus]] of Object.entries(arms)) {
+  const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
+  await page.setContent('<!doctype html><body style="margin:40px"></body>');
+  await page.addScriptTag({ content: code });
+  await page.evaluate((o) => (globalThis as any).lab.sortable(o), { count: 20, cached: true, landed: true, refocus });
+  await page.waitForTimeout(30);
+  // warm one cycle
+  for (let i = 0; i < 2; i++) {
+    if (i === 1) await browser.startTracing(page, { categories: ['devtools.timeline', 'disabled-by-default-devtools.timeline', 'disabled-by-default-devtools.timeline.stack'] });
+    await page.mouse.move(X, Y0); await page.mouse.down();
+    await page.mouse.move(X, Y0 + 12, { steps: 2 }); await page.mouse.move(X, Y0 + 45);
+    await page.evaluate(() => new Promise(requestAnimationFrame));
+    await page.mouse.up(); await page.waitForTimeout(90);
+  }
+  const buf = await browser.stopTracing();
+  const events = JSON.parse(buf.toString()).traceEvents;
+  console.log('\n==', name);
+  for (const e of events.filter((e: any) => e.name === 'Layout').sort((a: any, b: any) => a.ts - b.ts)) {
+    const st = e.args?.beginData?.stackTrace ?? [];
+    console.log(' Layout', st.slice(0, 7).map((f: any) => f.functionName || '(anon)').join(' < ') || '(no script: rendering)');
+  }
+  await page.close();
+}
+await browser.close();
+rmSync(scratch, { recursive: true, force: true });

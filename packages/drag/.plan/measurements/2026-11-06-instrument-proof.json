@@ -1,0 +1,829 @@
+[
+ {
+  "injection": "one forced layout per move",
+  "scenario": "300 moves, one frame each, 20 items",
+  "flagged": true,
+  "verdicts": [
+   {
+    "against": "production",
+    "measure": "layouts",
+    "result": "FLAG more: 367 against 83"
+   },
+   {
+    "against": "production",
+    "measure": "scriptUs",
+    "result": "FLAG slower: 35 µs, floor 18 µs"
+   },
+   {
+    "against": "production",
+    "measure": "taskUs",
+    "result": "FLAG slower: 244 µs, floor 219 µs"
+   }
+  ],
+  "raw": {
+   "injected": [
+    {
+     "layouts": 368,
+     "layoutUs": 173.12333333333333,
+     "styleUs": 300.7966666666667,
+     "scriptUs": 238.26666666666662,
+     "taskUs": 2785.146666666667
+    },
+    {
+     "layouts": 367,
+     "layoutUs": 185.00333333333333,
+     "styleUs": 313.09000000000003,
+     "scriptUs": 253.62333333333333,
+     "taskUs": 3005.443333333333
+    },
+    {
+     "layouts": 366,
+     "layoutUs": 186.34666666666666,
+     "styleUs": 322.6066666666667,
+     "scriptUs": 259.07000000000005,
+     "taskUs": 3010.7733333333335
+    }
+   ],
+   "production": [
+    {
+     "layouts": 83,
+     "layoutUs": 49.096666666666664,
+     "styleUs": 266.8733333333334,
+     "scriptUs": 218.67666666666668,
+     "taskUs": 2761.266666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 47.12666666666667,
+     "styleUs": 255.68,
+     "scriptUs": 210.74333333333334,
+     "taskUs": 2624.6133333333337
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 51.51,
+     "styleUs": 278.89333333333326,
+     "scriptUs": 227.80333333333334,
+     "taskUs": 2822.4533333333334
+    }
+   ],
+   "control": [
+    {
+     "layouts": 83,
+     "layoutUs": 53.00666666666667,
+     "styleUs": 272.76,
+     "scriptUs": 225.14,
+     "taskUs": 2808.486666666666
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 45.43666666666667,
+     "styleUs": 251.73666666666668,
+     "scriptUs": 207.15666666666664,
+     "taskUs": 2589.6866666666665
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 49.22333333333333,
+     "styleUs": 267.73999999999995,
+     "scriptUs": 218.30666666666664,
+     "taskUs": 2699.9066666666663
+    }
+   ]
+  }
+ },
+ {
+  "injection": "one O(n) walk per move",
+  "scenario": "300 moves, one frame each, 2000 items",
+  "flagged": true,
+  "verdicts": [
+   {
+    "against": "production",
+    "measure": "layouts",
+    "result": "at or below: 83 against 83"
+   },
+   {
+    "against": "production",
+    "measure": "scriptUs",
+    "result": "FLAG slower: 1108 µs, floor 95 µs"
+   },
+   {
+    "against": "production",
+    "measure": "taskUs",
+    "result": "FLAG slower: 1495 µs, floor 1483 µs"
+   }
+  ],
+  "raw": {
+   "injected": [
+    {
+     "layouts": 83,
+     "layoutUs": 388.50333333333333,
+     "styleUs": 360.54,
+     "scriptUs": 1342.4499999999998,
+     "taskUs": 4736.53
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 386.03333333333336,
+     "styleUs": 362.08666666666664,
+     "scriptUs": 1291.3466666666666,
+     "taskUs": 4621.566666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 341.13,
+     "styleUs": 362.86,
+     "scriptUs": 1302.9666666666665,
+     "taskUs": 4570.626666666667
+    }
+   ],
+   "production": [
+    {
+     "layouts": 83,
+     "layoutUs": 340.2133333333333,
+     "styleUs": 325.61666666666673,
+     "scriptUs": 195.27,
+     "taskUs": 3126.8933333333334
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 316.46666666666664,
+     "styleUs": 314.90000000000003,
+     "scriptUs": 182.70666666666668,
+     "taskUs": 2965.326666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 434.93000000000006,
+     "styleUs": 402.5366666666667,
+     "scriptUs": 241.55,
+     "taskUs": 3837.7566666666667
+    }
+   ],
+   "control": [
+    {
+     "layouts": 83,
+     "layoutUs": 226.88666666666666,
+     "styleUs": 242.44666666666666,
+     "scriptUs": 141.99333333333337,
+     "taskUs": 2309.9266666666667
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 397.0133333333333,
+     "styleUs": 418.2200000000001,
+     "scriptUs": 236.75666666666666,
+     "taskUs": 3793.3166666666657
+    },
+    {
+     "layouts": 83,
+     "layoutUs": 416.60999999999996,
+     "styleUs": 374.07666666666665,
+     "scriptUs": 219.67333333333335,
+     "taskUs": 3675.7166666666667
+    }
+   ]
+  }
+ },
+ {
+  "injection": "1 KB allocated per move",
+  "scenario": "bytes per move by function, 20 items",
+  "flagged": true,
+  "verdicts": [
+   {
+    "against": "rule",
+    "measure": "#move",
+    "result": "FLAG 1050 B per move"
+   },
+   {
+    "against": "rule",
+    "measure": "#move",
+    "result": "FLAG 1050 B per move"
+   },
+   {
+    "against": "rule",
+    "measure": "#move",
+    "result": "FLAG 1050 B per move"
+   }
+  ],
+  "raw": {
+   "injected": [
+    {
+     "(root)": 2862,
+     "(anonymous)": 587,
+     "evaluate": 509,
+     "parseEvaluationResultValue": 191,
+     "_promiseAwareJsonValueNoThrow": 132,
+     "setupDragListeners": 208,
+     "window.__cleanupDrag": 222,
+     "#onPointer": 7,
+     "#move": 1050,
+     "view.translate": 104,
+     "schedule": 1,
+     "requestStep": 1,
+     "#applyRequests": 1,
+     "resolveSpatially": 3,
+     "resolve": 143,
+     "insertionAt": 5,
+     "refresh": 2,
+     "remeasurePlaceholder": 3,
+     "edge": 2,
+     "moved": 22,
+     "advance": 11,
+     "report": 412,
+     "localDelta": 33,
+     "placeholderAt": 1,
+     "movePlaceholder": 1,
+     "mouseListener": 120,
+     "jsonValue": 28,
+     "serializeAsCallArgument": 146,
+     "innerSerialize": 15
+    },
+    {
+     "(root)": 2886,
+     "(anonymous)": 605,
+     "evaluate": 516,
+     "parseEvaluationResultValue": 190,
+     "_promiseAwareJsonValueNoThrow": 137,
+     "setupDragListeners": 217,
+     "window.__cleanupDrag": 240,
+     "#onPointer": 5,
+     "#enter": 1,
+     "#applyRequests": 1,
+     "#move": 1050,
+     "view.translate": 105,
+     "schedule": 1,
+     "requestStep": 1,
+     "resolveSpatially": 3,
+     "resolve": 149,
+     "insertionAt": 5,
+     "refresh": 2,
+     "remeasurePlaceholder": 5,
+     "edge": 2,
+     "moved": 19,
+     "advance": 11,
+     "report": 416,
+     "localDelta": 31,
+     "movePlaceholder": 1,
+     "listener": 1,
+     "mouseListener": 122,
+     "jsonValue": 25,
+     "serializeAsCallArgument": 144,
+     "innerSerialize": 19
+    },
+    {
+     "(root)": 2867,
+     "(anonymous)": 600,
+     "evaluate": 513,
+     "parseEvaluationResultValue": 191,
+     "_promiseAwareJsonValueNoThrow": 137,
+     "setupDragListeners": 222,
+     "window.__cleanupDrag": 233,
+     "#onPointer": 6,
+     "#enter": 1,
+     "#move": 1050,
+     "view.translate": 105,
+     "#applyRequests": 1,
+     "resolveSpatially": 2,
+     "resolve": 144,
+     "insertionAt": 6,
+     "refresh": 1,
+     "remeasurePlaceholder": 4,
+     "edge": 2,
+     "moved": 21,
+     "advance": 14,
+     "report": 429,
+     "localDelta": 29,
+     "placeholderAt": 1,
+     "movePlaceholder": 1,
+     "mouseListener": 136,
+     "jsonValue": 27,
+     "serializeAsCallArgument": 153,
+     "innerSerialize": 18
+    }
+   ],
+   "production": [
+    {
+     "(root)": 2782,
+     "(anonymous)": 603,
+     "evaluate": 506,
+     "parseEvaluationResultValue": 191,
+     "_promiseAwareJsonValueNoThrow": 130,
+     "setupDragListeners": 215,
+     "window.__cleanupDrag": 237,
+     "#onPointer": 7,
+     "#applyRequests": 1,
+     "#move": 1,
+     "view.translate": 104,
+     "requestStep": 1,
+     "resolveSpatially": 2,
+     "resolve": 156,
+     "insertionAt": 5,
+     "refresh": 2,
+     "remeasurePlaceholder": 5,
+     "edge": 3,
+     "moved": 20,
+     "advance": 11,
+     "report": 417,
+     "localDelta": 37,
+     "mouseListener": 131,
+     "jsonValue": 27,
+     "serializeAsCallArgument": 153,
+     "innerSerialize": 18
+    },
+    {
+     "(root)": 2895,
+     "(anonymous)": 606,
+     "evaluate": 522,
+     "parseEvaluationResultValue": 186,
+     "_promiseAwareJsonValueNoThrow": 145,
+     "setupDragListeners": 221,
+     "window.__cleanupDrag": 231,
+     "#onPointer": 6,
+     "#move": 1,
+     "view.translate": 114,
+     "schedule": 1,
+     "requestStep": 1,
+     "#applyRequests": 1,
+     "resolveSpatially": 2,
+     "resolve": 147,
+     "insertionAt": 4,
+     "refresh": 1,
+     "remeasurePlaceholder": 4,
+     "edge": 2,
+     "moved": 23,
+     "advance": 10,
+     "report": 419,
+     "localDelta": 35,
+     "placeholderAt": 1,
+     "mouseListener": 130,
+     "jsonValue": 27,
+     "serializeAsCallArgument": 152,
+     "innerSerialize": 17
+    },
+    {
+     "(root)": 2756,
+     "(anonymous)": 591,
+     "evaluate": 536,
+     "parseEvaluationResultValue": 184,
+     "_promiseAwareJsonValueNoThrow": 137,
+     "setupDragListeners": 219,
+     "window.__cleanupDrag": 233,
+     "#onPointer": 7,
+     "#move": 1,
+     "view.translate": 106,
+     "requestStep": 1,
+     "#applyRequests": 1,
+     "resolveSpatially": 2,
+     "resolve": 149,
+     "insertionAt": 5,
+     "refresh": 1,
+     "remeasurePlaceholder": 5,
+     "edge": 2,
+     "moved": 22,
+     "advance": 12,
+     "report": 416,
+     "localDelta": 34,
+     "placeholderAt": 1,
+     "movePlaceholder": 1,
+     "mouseListener": 133,
+     "jsonValue": 28,
+     "serializeAsCallArgument": 155,
+     "innerSerialize": 18
+    }
+   ],
+   "control": [
+    {
+     "(root)": 2843,
+     "(anonymous)": 585,
+     "evaluate": 530,
+     "parseEvaluationResultValue": 194,
+     "_promiseAwareJsonValueNoThrow": 139,
+     "setupDragListeners": 211,
+     "window.__cleanupDrag": 244,
+     "#onPointer": 7,
+     "#applyRequests": 1,
+     "#move": 1,
+     "view.translate": 112,
+     "resolveSpatially": 3,
+     "resolve": 147,
+     "insertionAt": 6,
+     "refresh": 2,
+     "remeasurePlaceholder": 5,
+     "edge": 3,
+     "moved": 24,
+     "advance": 12,
+     "report": 415,
+     "localDelta": 32,
+     "movePlaceholder": 1,
+     "listener": 1,
+     "mouseListener": 127,
+     "jsonValue": 30,
+     "serializeAsCallArgument": 146,
+     "innerSerialize": 14
+    },
+    {
+     "(root)": 2858,
+     "(anonymous)": 592,
+     "evaluate": 526,
+     "parseEvaluationResultValue": 180,
+     "_promiseAwareJsonValueNoThrow": 146,
+     "setupDragListeners": 211,
+     "window.__cleanupDrag": 244,
+     "#onPointer": 9,
+     "#applyRequests": 1,
+     "#move": 2,
+     "view.translate": 116,
+     "schedule": 1,
+     "resolveSpatially": 3,
+     "resolve": 151,
+     "insertionAt": 7,
+     "refresh": 2,
+     "remeasurePlaceholder": 3,
+     "edge": 2,
+     "moved": 26,
+     "advance": 13,
+     "report": 423,
+     "localDelta": 35,
+     "listener": 1,
+     "mouseListener": 126,
+     "jsonValue": 30,
+     "serializeAsCallArgument": 148,
+     "innerSerialize": 18
+    },
+    {
+     "(root)": 2857,
+     "(anonymous)": 599,
+     "evaluate": 526,
+     "parseEvaluationResultValue": 183,
+     "_promiseAwareJsonValueNoThrow": 144,
+     "setupDragListeners": 217,
+     "window.__cleanupDrag": 237,
+     "#onPointer": 7,
+     "#move": 1,
+     "view.translate": 106,
+     "schedule": 1,
+     "#applyRequests": 1,
+     "resolveSpatially": 3,
+     "resolve": 145,
+     "insertionAt": 7,
+     "refresh": 1,
+     "remeasurePlaceholder": 5,
+     "edge": 2,
+     "moved": 19,
+     "advance": 10,
+     "report": 418,
+     "localDelta": 30,
+     "listener": 1,
+     "mouseListener": 131,
+     "jsonValue": 32,
+     "serializeAsCallArgument": 158,
+     "innerSerialize": 19
+    }
+   ]
+  }
+ },
+ {
+  "injection": "one entry on the step list per frame",
+  "scenario": "bytes per move by function, 20 items",
+  "flagged": true,
+  "verdicts": [
+   {
+    "against": "rule",
+    "measure": "requestStep",
+    "result": "FLAG 74 B per move"
+   },
+   {
+    "against": "rule",
+    "measure": "requestStep",
+    "result": "FLAG 75 B per move"
+   },
+   {
+    "against": "rule",
+    "measure": "requestStep",
+    "result": "FLAG 75 B per move"
+   }
+  ],
+  "raw": {
+   "injected": [
+    {
+     "(root)": 2774,
+     "(anonymous)": 585,
+     "evaluate": 520,
+     "parseEvaluationResultValue": 188,
+     "_promiseAwareJsonValueNoThrow": 147,
+     "setupDragListeners": 217,
+     "window.__cleanupDrag": 234,
+     "#onPointer": 5,
+     "#enter": 1,
+     "#applyRequests": 1,
+     "#move": 1,
+     "view.translate": 108,
+     "requestStep": 74,
+     "#runStep": 1,
+     "resolveSpatially": 3,
+     "resolve": 147,
+     "insertionAt": 6,
+     "refresh": 2,
+     "remeasurePlaceholder": 4,
+     "edge": 2,
+     "moved": 25,
+     "advance": 11,
+     "report": 413,
+     "localDelta": 29,
+     "mouseListener": 127,
+     "jsonValue": 30,
+     "serializeAsCallArgument": 151,
+     "innerSerialize": 18
+    },
+    {
+     "(root)": 2887,
+     "(anonymous)": 627,
+     "evaluate": 527,
+     "parseEvaluationResultValue": 187,
+     "_promiseAwareJsonValueNoThrow": 142,
+     "setupDragListeners": 223,
+     "window.__cleanupDrag": 237,
+     "#onPointer": 7,
+     "#applyRequests": 1,
+     "view.translate": 106,
+     "requestStep": 75,
+     "resolveSpatially": 3,
+     "resolve": 142,
+     "insertionAt": 5,
+     "refresh": 2,
+     "remeasurePlaceholder": 5,
+     "edge": 2,
+     "moved": 25,
+     "advance": 10,
+     "report": 425,
+     "localDelta": 30,
+     "mouseListener": 132,
+     "jsonValue": 27,
+     "serializeAsCallArgument": 147,
+     "innerSerialize": 16
+    },
+    {
+     "(root)": 2884,
+     "(anonymous)": 593,
+     "evaluate": 518,
+     "parseEvaluationResultValue": 181,
+     "_promiseAwareJsonValueNoThrow": 144,
+     "setupDragListeners": 219,
+     "window.__cleanupDrag": 237,
+     "#onPointer": 7,
+     "#enter": 1,
+     "#applyRequests": 1,
+     "#move": 1,
+     "view.translate": 108,
+     "requestStep": 75,
+     "resolveSpatially": 3,
+     "resolve": 162,
+     "insertionAt": 4,
+     "refresh": 1,
+     "remeasurePlaceholder": 4,
+     "edge": 2,
+     "moved": 22,
+     "advance": 10,
+     "report": 413,
+     "localDelta": 33,
+     "movePlaceholder": 1,
+     "mouseListener": 129,
+     "jsonValue": 30,
+     "serializeAsCallArgument": 157,
+     "innerSerialize": 19
+    }
+   ],
+   "production": [
+    {
+     "(root)": 2774,
+     "(anonymous)": 604,
+     "evaluate": 525,
+     "parseEvaluationResultValue": 189,
+     "_promiseAwareJsonValueNoThrow": 131,
+     "setupDragListeners": 219,
+     "window.__cleanupDrag": 244,
+     "#onPointer": 7,
+     "#move": 1,
+     "view.translate": 106,
+     "resolveSpatially": 2,
+     "resolve": 150,
+     "insertionAt": 4,
+     "refresh": 2,
+     "remeasurePlaceholder": 4,
+     "edge": 2,
+     "moved": 24,
+     "advance": 15,
+     "report": 422,
+     "localDelta": 32,
+     "placeholderAt": 1,
+     "mouseListener": 131,
+     "jsonValue": 28,
+     "serializeAsCallArgument": 150,
+     "innerSerialize": 18
+    },
+    {
+     "(root)": 2875,
+     "(anonymous)": 586,
+     "evaluate": 522,
+     "parseEvaluationResultValue": 184,
+     "_promiseAwareJsonValueNoThrow": 132,
+     "setupDragListeners": 205,
+     "window.__cleanupDrag": 240,
+     "#onPointer": 7,
+     "#enter": 1,
+     "#applyRequests": 1,
+     "#move": 1,
+     "view.translate": 111,
+     "requestStep": 1,
+     "resolveSpatially": 2,
+     "resolve": 144,
+     "insertionAt": 2,
+     "refresh": 2,
+     "remeasurePlaceholder": 6,
+     "edge": 2,
+     "moved": 19,
+     "advance": 12,
+     "report": 420,
+     "localDelta": 40,
+     "movePlaceholder": 1,
+     "mouseListener": 128,
+     "jsonValue": 26,
+     "serializeAsCallArgument": 147,
+     "innerSerialize": 17
+    },
+    {
+     "(root)": 2873,
+     "(anonymous)": 575,
+     "evaluate": 512,
+     "parseEvaluationResultValue": 186,
+     "_promiseAwareJsonValueNoThrow": 144,
+     "setupDragListeners": 219,
+     "window.__cleanupDrag": 241,
+     "#onPointer": 7,
+     "#enter": 1,
+     "#applyRequests": 1,
+     "#move": 1,
+     "view.translate": 110,
+     "schedule": 1,
+     "requestStep": 1,
+     "#runStep": 1,
+     "resolveSpatially": 2,
+     "resolve": 153,
+     "insertionAt": 4,
+     "refresh": 3,
+     "remeasurePlaceholder": 3,
+     "edge": 1,
+     "moved": 20,
+     "advance": 12,
+     "report": 422,
+     "localDelta": 32,
+     "movePlaceholder": 1,
+     "mouseListener": 126,
+     "jsonValue": 28,
+     "serializeAsCallArgument": 161,
+     "innerSerialize": 18
+    }
+   ],
+   "control": [
+    {
+     "(root)": 2865,
+     "(anonymous)": 603,
+     "evaluate": 513,
+     "parseEvaluationResultValue": 193,
+     "_promiseAwareJsonValueNoThrow": 147,
+     "setupDragListeners": 207,
+     "window.__cleanupDrag": 234,
+     "#onPointer": 7,
+     "#applyRequests": 1,
+     "#move": 1,
+     "view.translate": 108,
+     "schedule": 1,
+     "#runStep": 1,
+     "resolveSpatially": 2,
+     "resolve": 141,
+     "insertionAt": 4,
+     "refresh": 1,
+     "remeasurePlaceholder": 6,
+     "edge": 2,
+     "moved": 18,
+     "advance": 15,
+     "report": 415,
+     "localDelta": 28,
+     "movePlaceholder": 1,
+     "mouseListener": 130,
+     "jsonValue": 29,
+     "serializeAsCallArgument": 154,
+     "innerSerialize": 15
+    },
+    {
+     "(root)": 2878,
+     "(anonymous)": 593,
+     "evaluate": 537,
+     "parseEvaluationResultValue": 180,
+     "_promiseAwareJsonValueNoThrow": 139,
+     "setupDragListeners": 217,
+     "window.__cleanupDrag": 225,
+     "#onPointer": 7,
+     "#enter": 1,
+     "#applyRequests": 1,
+     "#move": 1,
+     "view.translate": 105,
+     "resolveSpatially": 3,
+     "resolve": 149,
+     "insertionAt": 5,
+     "refresh": 3,
+     "remeasurePlaceholder": 5,
+     "edge": 2,
+     "moved": 26,
+     "advance": 12,
+     "report": 416,
+     "localDelta": 35,
+     "listener": 1,
+     "mouseListener": 124,
+     "jsonValue": 28,
+     "serializeAsCallArgument": 152,
+     "innerSerialize": 16
+    },
+    {
+     "(root)": 2871,
+     "(anonymous)": 595,
+     "evaluate": 517,
+     "parseEvaluationResultValue": 178,
+     "_promiseAwareJsonValueNoThrow": 137,
+     "safeJson": 1,
+     "setupDragListeners": 222,
+     "window.__cleanupDrag": 243,
+     "#onPointer": 6,
+     "#enter": 1,
+     "#move": 1,
+     "view.translate": 114,
+     "requestStep": 1,
+     "#applyRequests": 1,
+     "resolveSpatially": 2,
+     "resolve": 154,
+     "insertionAt": 4,
+     "refresh": 2,
+     "remeasurePlaceholder": 4,
+     "edge": 2,
+     "moved": 21,
+     "advance": 12,
+     "report": 419,
+     "localDelta": 29,
+     "placeholderAt": 1,
+     "mouseListener": 125,
+     "jsonValue": 26,
+     "serializeAsCallArgument": 148,
+     "innerSerialize": 15
+    }
+   ]
+  }
+ },
+ {
+  "injection": "an item retained after destruction",
+  "scenario": "200 operations, then destroy: retained heap against an empty page",
+  "flagged": true,
+  "verdicts": [
+   {
+    "against": "production",
+    "measure": "retainedBytes",
+    "result": "FLAG slower: 3858724 B, floor 0 B"
+   }
+  ],
+  "raw": {
+   "injected": [
+    {
+     "retainedBytes": 4201252
+    },
+    {
+     "retainedBytes": 4200788
+    },
+    {
+     "retainedBytes": 4201204
+    }
+   ],
+   "production": [
+    {
+     "retainedBytes": 342480
+    },
+    {
+     "retainedBytes": 342480
+    },
+    {
+     "retainedBytes": 342480
+    }
+   ],
+   "control": [
+    {
+     "retainedBytes": 342480
+    },
+    {
+     "retainedBytes": 342480
+    },
+    {
+     "retainedBytes": 342480
+    }
+   ]
+  }
+ }
+]

@@ -174,12 +174,17 @@ describe('drag:DRI-11 the click guard', () => {
     const pointerId = await holdGuard();
 
     window.dispatchEvent(new PointerEvent('pointerup', { pointerId }));
-    syntheticClick();
-    expect(deliveredClicks).toEqual([]);
-    window.dispatchEvent(new PointerEvent('pointerup', { pointerId }));
     await wait(0);
     syntheticClick();
     expect(deliveredClicks).toHaveLength(1);
+  });
+
+  it('should still swallow a click in the task of that pointer pointerup', async () => {
+    const pointerId = await holdGuard();
+
+    window.dispatchEvent(new PointerEvent('pointerup', { pointerId }));
+    syntheticClick();
+    expect(deliveredClicks).toEqual([]);
   });
 
   it('should not expire at another pointer pointerup', async () => {

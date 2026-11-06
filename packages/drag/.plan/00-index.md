@@ -10,7 +10,7 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Input:** the prototype read at `26f82fbb1`. That commit is on no ref now. Its `packages/drag` tree is byte-identical to `599684791` on `drag/prototype`, so later citations use `599684791`. Evidence: [`prototype-report.md`](prototype-report.md), [`probes/prototype/`](probes/prototype/README.md), [`probes/final-design/`](probes/final-design/README.md). The comparison and earlier evidence are in [`architecture-plan.md`](architecture-plan.md).
 
-**Status, 2026-11-06:** the owner tried the prototype, supports the direction and closed the prototype checkpoint. All decisions below are unimplemented. The next step is [`implementation-handoff.md`](implementation-handoff.md). The required behavior is in [`contract.md`](contract.md).
+**Status, 2026-11-06:** all decisions below are implemented on `drag/production`, which awaits independent review. The result is [`implementation-report.md`](implementation-report.md). The required behavior is in [`contract.md`](contract.md).
 
 **Approving the prototype did not establish a performance result.** `DRD-13` says what does.
 

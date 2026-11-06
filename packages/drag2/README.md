@@ -45,6 +45,8 @@ A `handle` resolver — now a plain config key rather than a `handle()` factory 
 
 ## Migrating from `@ydinjs/drag`
 
+**The package this section describes is gone.** It is recoverable at `7723f3e8a`, nothing migrates from it, and the package now named `@ydinjs/drag` is a different one: see [its README](../drag/README.md). This section stays as the record of the differences.
+
 The two packages are not source-compatible; this is a rewrite against a frozen contract, and this table covers the sortable — free drag has no counterpart here yet. The full boundary, per capability, is [`ledger.md`](.plan/ledger.md). The differences a consumer actually meets:
 
 | `@ydinjs/drag` | `@ydinjs/drag2` |

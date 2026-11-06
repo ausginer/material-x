@@ -117,21 +117,25 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
         profile: { head: HeapNode };
       };
       const bytes: Record<string, number> = {};
-      const visit = (node: HeapNode): void => {
+      // A built-in such as `push` has no url, and its bytes belong to its caller.
+      const visit = (node: HeapNode, caller: string | null): void => {
         const { url, functionName } = node.callFrame;
+        const key = url.includes(urlPart)
+          ? `${url.slice(url.lastIndexOf('/') + 1).split('?')[0]}:${functionName}`
+          : url
+            ? null
+            : caller;
 
-        if (node.selfSize > 0 && url.includes(urlPart)) {
-          const key = `${url.slice(url.lastIndexOf('/') + 1).split('?')[0]}:${functionName}`;
-
+        if (node.selfSize > 0 && key) {
           bytes[key] = (bytes[key] ?? 0) + node.selfSize;
         }
 
         for (const child of node.children) {
-          visit(child);
+          visit(child, key);
         }
       };
 
-      visit(profile.head);
+      visit(profile.head, null);
       return bytes;
     },
   ),

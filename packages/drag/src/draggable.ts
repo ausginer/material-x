@@ -450,13 +450,7 @@ class Gesture<State, Verdict> {
         }
 
         if (this.#steps.length > 0) {
-          const step = this.#steps.shift()!;
-
-          step(
-            session?.phase === ACTIVE && !session.decision
-              ? session.view
-              : null,
-          );
+          this.#runStep(this.#steps.shift()!);
         } else if (session?.decision && session.phase !== CONCLUDED) {
           this.#conclude(session, session.decision);
         } else if (session?.next) {
@@ -495,13 +489,23 @@ class Gesture<State, Verdict> {
   readonly requestStep = (
     step: (drag: LiftedDrag<State> | null) => void,
   ): void => {
-    if (!this.#destroyed) {
-      if (!this.#steps.includes(step)) {
-        this.#steps.push(step);
-      }
-
-      this.#enter(NOOP, null);
+    if (this.#destroyed) {
+      return;
     }
+
+    if (!this.#running) {
+      this.#enter(this.#runStep, step);
+    } else if (!this.#steps.includes(step)) {
+      this.#steps.push(step);
+    }
+  };
+
+  readonly #runStep = (
+    step: (drag: LiftedDrag<State> | null) => void,
+  ): void => {
+    const session = this.#session;
+
+    step(session?.phase === ACTIVE && !session.decision ? session.view : null);
   };
 
   requestCancel(reason?: unknown): void {

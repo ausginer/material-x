@@ -56,6 +56,29 @@ Note: `[Docs]` tag is for those requirements that cannot be fixed and considered
 
 - No automated accessibility coverage exists yet for the `display: contents` host plus `ElementInternals.role` combination. If tests show that a supported browser/AT combination drops the host `listitem` role, move list item semantics to a non-`display: contents` wrapper or another tested structure.
 
+## Drag (`@ydinjs/drag` sortable)
+
+Reviewed 2026-11-06, with the production package. Tests: `packages/drag/tests/focus.browser.test.ts`, `sortable.browser.test.ts` and `landing.browser.test.ts`, run in Chromium, Firefox and WebKit.
+
+### Fulfilled requirements
+
+- **Reordering is operable from the keyboard.** `ArrowUp`/`ArrowLeft` move the focused row one slot toward the start and `ArrowDown`/`ArrowRight` one slot toward the end. An arrow key at the edge of the collection leaves the event untouched, so it keeps its native meaning.
+- **Focus survives a reorder.** Moving a focused element sends focus to `body` in all three engines. The kernel records the focused element inside the item at the drop, through open shadow roots, and focuses it again after presentation is released if nothing has taken focus since. So two arrow presses in a row reorder twice, with no consumer code.
+- **A keyboard restore scrolls, and a pointer restore does not.** A row moved off-screen by keyboard stays visible.
+- **The lift does not move focus.** Promotion runs the popover focusing steps, which focus an `autofocus` descendant, and the lift puts focus back.
+- **The library never takes focus** from an element the user or the consumer has focused since the drop, and it does not restore on destruction.
+- **`Escape` cancels an in-flight drag** on both input paths.
+- **A `handle()` narrows both input modes identically.**
+- **The placeholder is `aria-hidden`** and mirrors the dragged row's slot.
+- **Every landing has zero duration with `prefers-reduced-motion: reduce`,** including one a custom behavior returned with no timing.
+
+### Missing requirements
+
+- **The library provides no roles and no live-region announcement.** It is headless and never owns the consumer's markup. A consumer must supply `tabindex`, the list and listitem semantics and an announcement of the new order. **A row that cannot take focus cannot be reordered from the keyboard.** `[Docs]`
+- **`layoutAnimation`'s row animations ignore `prefers-reduced-motion`.** A consumer who needs that omits `displacement` under the preference. `[Docs]`
+- **A multi-press drag is not supported,** for the reasons in Q-13 below.
+- **Physical touch and pen are unverified.** Touch runs through Chromium's emulated input only.
+
 ## Drag (`@ydinjs/drag2` sortable)
 
 Reviewed 2026-08-07, at the Phase 16 keyboard-sorting gate.

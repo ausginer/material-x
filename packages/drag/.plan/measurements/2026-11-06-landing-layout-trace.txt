@@ -1,0 +1,56 @@
+
+== production
+ Layout (no script: rendering)
+ Layout moved < moved < resolveSpatially < #runStep < #enter < requestStep < (anon)
+ Layout (no script: rendering)
+ Layout landingTarget < settle < #conclude < #applyRequests < #enter < #onPointer
+ Layout #conclude < #applyRequests < #enter < #onPointer
+ Layout (no script: rendering)
+ Layout (no script: rendering)
+ Layout (no script: rendering)
+
+== prototype
+ Layout (no script: rendering)
+ Layout moved < moved < spatial < #runStep < #enter < run < (anon)
+ Layout (no script: rendering)
+ Layout landingTarget < settle < #conclude < #applyRequests < #enter < #onPointer
+ Layout onEnd < end < session.next < #applyRequests < #enter < #onPointer
+ Layout (no script: rendering)
+ Layout (no script: rendering)
+
+== land-before-focus
+ Layout (no script: rendering)
+ Layout moved < moved < resolveSpatially < #runStep < #enter < requestStep < (anon)
+ Layout (no script: rendering)
+ Layout landingTarget < settle < #conclude < #applyRequests < #enter < #onPointer
+ Layout #conclude < #applyRequests < #enter < #onPointer
+ Layout (no script: rendering)
+ Layout (no script: rendering)
+
+== no-elevation
+ Layout (no script: rendering)
+ Layout moved < moved < resolveSpatially < #runStep < #enter < requestStep < (anon)
+ Layout (no script: rendering)
+ Layout landingTarget < settle < #conclude < #applyRequests < #enter < #onPointer
+ Layout #conclude < #applyRequests < #enter < #onPointer
+ Layout (no script: rendering)
+ Layout (no script: rendering)
+ Layout (no script: rendering)
+
+== no-kernel-focus, consumer refocus
+ Layout (no script: rendering)
+ Layout moved < moved < resolveSpatially < #runStep < #enter < requestStep < (anon)
+ Layout (no script: rendering)
+ Layout landingTarget < settle < #conclude < #applyRequests < #enter < #onPointer
+ Layout onEnd < end < session.next < #applyRequests < #enter < #onPointer
+ Layout (no script: rendering)
+ Layout (no script: rendering)
+
+== no-kernel-focus, no refocus
+ Layout (no script: rendering)
+ Layout moved < moved < resolveSpatially < #runStep < #enter < requestStep < (anon)
+ Layout (no script: rendering)
+ Layout landingTarget < settle < #conclude < #applyRequests < #enter < #onPointer
+ Layout (no script: rendering)
+ Layout (no script: rendering)
+ Layout (no script: rendering)
