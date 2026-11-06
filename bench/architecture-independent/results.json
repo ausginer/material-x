@@ -1,0 +1,723 @@
+{
+  "browser": "156.0.8078.4",
+  "rows": [
+    {
+      "id": "H1.a",
+      "name": "layouts bounded by distinct items touched, not crossings",
+      "pass": true,
+      "detail": {
+        "sticky": [5, 5, 5],
+        "flip": [33, 33, 33]
+      }
+    },
+    {
+      "id": "H1.b",
+      "name": "script per move at 2000 items within 2x of 20 items",
+      "pass": true,
+      "detail": [111.9, 95.4]
+    },
+    {
+      "id": "H1.c",
+      "name": "a plain press and release forces no layout beyond the page",
+      "pass": true,
+      "detail": [0, 0, 0]
+    },
+    {
+      "id": "H2.a",
+      "name": "landing stays continuous across the DOM move",
+      "pass": true,
+      "detail": {
+        "ratioItem": 1.0000086155067456,
+        "landingDistance": 56,
+        "orderAfter": "023415"
+      }
+    },
+    {
+      "id": "H2.b",
+      "name": "a settled neighbour does not move across the commit",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "H2.c",
+      "name": "landing ends at the committed natural position",
+      "pass": true,
+      "detail": {
+        "finalTop": 272,
+        "orderAfter": "023415"
+      }
+    },
+    {
+      "id": "H2.i",
+      "name": "a neighbour mid-tail stays continuous across the commit",
+      "pass": true,
+      "detail": {
+        "flightRatio": 1.0000008543191612,
+        "flightEnd": 0
+      }
+    },
+    {
+      "id": "H2.d",
+      "name": "repeated retargeting sums without a jump",
+      "pass": true,
+      "detail": 1.0000015909128406
+    },
+    {
+      "id": "H2.e",
+      "name": "tails do not accumulate once finished",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "H2.f",
+      "name": "rejection mid-landing returns without a jump",
+      "pass": true,
+      "detail": 1.10294332635281
+    },
+    {
+      "id": "H2.g",
+      "name": "rejection ends at origin",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "H3.a",
+      "name": "landing item paints above later siblings during its tail",
+      "pass": true,
+      "detail": {
+        "top": 231.50250244140625,
+        "animating": 1,
+        "onTop": true,
+        "under": "0"
+      }
+    },
+    {
+      "id": "H3.b",
+      "name": "re-grab during a tail stops motion and measures natural layout",
+      "pass": true,
+      "detail": {
+        "during": {
+          "order": "123045",
+          "top": 0
+        },
+        "naturalTops": [0, 0, 0, 0, 0, 0]
+      }
+    },
+    {
+      "id": "H3.c",
+      "name": "cancel after acceptance leaves the accepted order",
+      "pass": true,
+      "detail": {
+        "order": "120345",
+        "tails": 1
+      }
+    },
+    {
+      "id": "H3.d",
+      "name": "destroy during a tail stops it at the truth",
+      "pass": true,
+      "detail": {
+        "tails": 0,
+        "top": 136,
+        "order": "120345",
+        "elevated": 0
+      }
+    },
+    {
+      "id": "H4.a",
+      "name": "240 callback cells keep every invariant",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "H4.b",
+      "name": "48 pending-verdict cells ignore late answers",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "id": "H4.c.cancel",
+      "name": "command while moving restores at once and ignores the later release",
+      "pass": true,
+      "detail": {
+        "ends": ["canceled"],
+        "order": "012345",
+        "held": "|||||",
+        "capture": false
+      }
+    },
+    {
+      "id": "H4.c.destroy",
+      "name": "command while moving restores at once and ignores the later release",
+      "pass": true,
+      "detail": {
+        "ends": ["canceled"],
+        "order": "012345",
+        "held": "|||||",
+        "capture": false
+      }
+    },
+    {
+      "id": "H4.c.escape",
+      "name": "command while moving restores at once and ignores the later release",
+      "pass": true,
+      "detail": {
+        "ends": ["canceled"],
+        "order": "012345",
+        "held": "|||||",
+        "capture": false
+      }
+    },
+    {
+      "id": "H4.c.release-capture",
+      "name": "command while moving restores at once and ignores the later release",
+      "pass": true,
+      "detail": {
+        "ends": ["canceled"],
+        "order": "012345",
+        "held": "|||||",
+        "capture": false
+      }
+    },
+    {
+      "id": "H4.d",
+      "name": "destroy from an abort listener still ends the session once",
+      "pass": true,
+      "detail": ["canceled"]
+    },
+    {
+      "id": "H4.g.true",
+      "name": "a late verdict cannot end the following session",
+      "pass": true,
+      "detail": {
+        "starts": 2,
+        "ends": ["canceled"],
+        "errors": 0
+      }
+    },
+    {
+      "id": "H4.g.false",
+      "name": "a late verdict cannot end the following session",
+      "pass": true,
+      "detail": {
+        "starts": 2,
+        "ends": ["canceled"],
+        "errors": 0
+      }
+    },
+    {
+      "id": "H4.g.reject",
+      "name": "a late verdict cannot end the following session",
+      "pass": true,
+      "detail": {
+        "starts": 2,
+        "ends": ["canceled"],
+        "errors": 0
+      }
+    },
+    {
+      "id": "H4.e",
+      "name": "a press during a pending verdict is ignored, and input returns after it",
+      "pass": true,
+      "detail": {
+        "held": 1,
+        "resumed": 2,
+        "order": "120345"
+      }
+    },
+    {
+      "id": "H4.f",
+      "name": "free rest accumulates on accept, returns on reject, keeps transform",
+      "pass": true,
+      "detail": {
+        "accepted": {
+          "translate": "30px 40px",
+          "transform": "rotate(10deg)"
+        },
+        "rejected": {
+          "translate": "30px 40px",
+          "transform": "rotate(10deg)"
+        }
+      }
+    },
+    {
+      "id": "H2.h.neither",
+      "name": "motion options act independently",
+      "pass": true,
+      "detail": {
+        "moving": 0,
+        "after": []
+      }
+    },
+    {
+      "id": "H2.h.landing only",
+      "name": "motion options act independently",
+      "pass": true,
+      "detail": {
+        "moving": 0,
+        "after": ["0"]
+      }
+    },
+    {
+      "id": "H2.h.neighbours only",
+      "name": "motion options act independently",
+      "pass": true,
+      "detail": {
+        "moving": 2,
+        "after": ["1", "2"]
+      }
+    },
+    {
+      "id": "H5.a",
+      "name": "residual under half a pixel for equal heights",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "H5.b",
+      "name": "residual under half a pixel for varied heights",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "H5.c",
+      "name": "residual under half a pixel for uniform block margins",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "H5.d",
+      "name": "residual under half a pixel for fractional heights",
+      "pass": true,
+      "detail": 0
+    },
+    {
+      "id": "H6.a",
+      "name": "keyboard commits the same transaction",
+      "pass": true,
+      "detail": "023145"
+    },
+    {
+      "id": "H6.b",
+      "name": "focus survives the DOM move",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "id": "H6.c",
+      "name": "Escape restores order and styles",
+      "pass": true,
+      "detail": ["canceled"]
+    },
+    {
+      "id": "H6.d",
+      "name": "losing focus cancels",
+      "pass": true,
+      "detail": ["canceled"]
+    },
+    {
+      "id": "H6.e",
+      "name": "Space on an inner button does not lift",
+      "pass": true,
+      "detail": {
+        "starts": 0
+      }
+    },
+    {
+      "id": "H6.f",
+      "name": "a step past the end changes nothing and does not scroll",
+      "pass": true,
+      "detail": [0, 0]
+    },
+    {
+      "id": "H6.g",
+      "name": "consumer-owned DOM move is not mistaken for losing focus",
+      "pass": true,
+      "detail": {
+        "order": "023145",
+        "ends": ["accepted"],
+        "focus": "1",
+        "translate": "",
+        "top": 204
+      }
+    },
+    {
+      "id": "H6.h",
+      "name": "focus survives a consumer-owned DOM move",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "id": "H6.i",
+      "name": "keyboard steps end with the item fully in view",
+      "pass": true,
+      "detail": {
+        "worstOutside": 0,
+        "settledOutside": 0
+      }
+    },
+    {
+      "id": "H6.j",
+      "name": "keyboard commit in a scrolled list lands in view with focus",
+      "pass": true,
+      "detail": {
+        "index": 30,
+        "outside": 0,
+        "focus": "0"
+      }
+    },
+    {
+      "id": "H7.a.element",
+      "name": "the item stays under the pointer through a wheel scroll",
+      "pass": true,
+      "detail": {
+        "scrollTop": 340,
+        "itemCentre": 174,
+        "pointerY": 174,
+        "changes": 1
+      }
+    },
+    {
+      "id": "H7.b.element",
+      "name": "the commit uses the scrolled proposal",
+      "pass": true,
+      "detail": {
+        "index": 7,
+        "expected": 7
+      }
+    },
+    {
+      "id": "H7.a.window",
+      "name": "the item stays under the pointer through a wheel scroll",
+      "pass": true,
+      "detail": {
+        "scrollTop": 340,
+        "itemCentre": 174,
+        "pointerY": 174,
+        "changes": 1
+      }
+    },
+    {
+      "id": "H7.b.window",
+      "name": "the commit uses the scrolled proposal",
+      "pass": true,
+      "detail": {
+        "index": 7,
+        "expected": 7
+      }
+    },
+    {
+      "id": "H8.a",
+      "name": "a plain click reaches the inner button",
+      "pass": true,
+      "detail": [1, 1]
+    },
+    {
+      "id": "H8.b",
+      "name": "a click under threshold reaches the button",
+      "pass": true,
+      "detail": [1, 1]
+    },
+    {
+      "id": "H8.c",
+      "name": "a click after a drag that ends on the item is suppressed",
+      "pass": true,
+      "detail": [0, 0]
+    },
+    {
+      "id": "H8.d",
+      "name": "the next real click is delivered",
+      "pass": true,
+      "detail": [1, 1]
+    },
+    {
+      "id": "H8.e",
+      "name": "a later programmatic click is delivered",
+      "pass": true,
+      "detail": [2, 2]
+    },
+    {
+      "id": "H8.f",
+      "name": "a release after a mid-drag cancel delivers no click",
+      "pass": true,
+      "detail": [0, 0]
+    },
+    {
+      "id": "H8.g",
+      "name": "pressing on a link cannot start a native drag",
+      "pass": true,
+      "detail": {
+        "ends": ["accepted"],
+        "order": "120345"
+      }
+    },
+    {
+      "id": "L.a",
+      "name": "idle costs two root listeners, none per item, none global",
+      "pass": true,
+      "detail": {
+        "idleRoot": 3,
+        "idleItem": 0
+      }
+    },
+    {
+      "id": "L.b",
+      "name": "destroy leaves no library listener",
+      "pass": true
+    },
+    {
+      "id": "L.c",
+      "name": "a destroyed list is collectable",
+      "pass": true
+    },
+    {
+      "id": "T.a",
+      "name": "a touch drag with touch-action none commits",
+      "pass": true,
+      "detail": {
+        "ends": ["accepted"],
+        "order": "120345"
+      }
+    },
+    {
+      "id": "T.b",
+      "name": "a browser pan ends the session with no leftovers",
+      "pass": true,
+      "detail": {
+        "starts": 1,
+        "ends": ["canceled"],
+        "order": "012345"
+      }
+    },
+    {
+      "id": "F.a",
+      "name": "3000 random operations keep order, cleanliness and error accounting",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "measurements": {
+    "H1.samples": [
+      {
+        "kind": "sticky",
+        "count": 20,
+        "moves": 300,
+        "layouts": 5,
+        "styleRecalcs": 296,
+        "scriptUsPerMove": 111.9,
+        "layoutUsPerMove": 1.4,
+        "styleUsPerMove": 87.8,
+        "taskUsPerMove": 1739.6
+      },
+      {
+        "kind": "sticky",
+        "count": 200,
+        "moves": 300,
+        "layouts": 5,
+        "styleRecalcs": 296,
+        "scriptUsPerMove": 101.4,
+        "layoutUsPerMove": 3.6,
+        "styleUsPerMove": 96.8,
+        "taskUsPerMove": 1626.6
+      },
+      {
+        "kind": "sticky",
+        "count": 2000,
+        "moves": 300,
+        "layouts": 5,
+        "styleRecalcs": 296,
+        "scriptUsPerMove": 95.4,
+        "layoutUsPerMove": 28.8,
+        "styleUsPerMove": 190.4,
+        "taskUsPerMove": 1599.1
+      },
+      {
+        "kind": "flip",
+        "count": 20,
+        "moves": 300,
+        "layouts": 33,
+        "styleRecalcs": 296,
+        "scriptUsPerMove": 98,
+        "layoutUsPerMove": 10.9,
+        "styleUsPerMove": 74.8,
+        "taskUsPerMove": 1449.6
+      },
+      {
+        "kind": "flip",
+        "count": 200,
+        "moves": 300,
+        "layouts": 33,
+        "styleRecalcs": 296,
+        "scriptUsPerMove": 112,
+        "layoutUsPerMove": 29,
+        "styleUsPerMove": 94.3,
+        "taskUsPerMove": 1777.5
+      },
+      {
+        "kind": "flip",
+        "count": 2000,
+        "moves": 300,
+        "layouts": 33,
+        "styleRecalcs": 296,
+        "scriptUsPerMove": 107,
+        "layoutUsPerMove": 295.2,
+        "styleUsPerMove": 222.8,
+        "taskUsPerMove": 2449.8
+      },
+      {
+        "kind": "seed",
+        "count": 20,
+        "moves": 300,
+        "layouts": 0,
+        "styleRecalcs": 296,
+        "scriptUsPerMove": 102.4,
+        "layoutUsPerMove": 0,
+        "styleUsPerMove": 76.7,
+        "taskUsPerMove": 1552.3
+      },
+      {
+        "kind": "seed",
+        "count": 200,
+        "moves": 300,
+        "layouts": 0,
+        "styleRecalcs": 296,
+        "scriptUsPerMove": 98.2,
+        "layoutUsPerMove": 0,
+        "styleUsPerMove": 111.4,
+        "taskUsPerMove": 1679.5
+      },
+      {
+        "kind": "seed",
+        "count": 2000,
+        "moves": 300,
+        "layouts": 0,
+        "styleRecalcs": 296,
+        "scriptUsPerMove": 90.5,
+        "layoutUsPerMove": 0,
+        "styleUsPerMove": 423,
+        "taskUsPerMove": 3292.3
+      },
+      {
+        "kind": "control",
+        "count": 20,
+        "moves": 300,
+        "layouts": 32,
+        "styleRecalcs": 313,
+        "scriptUsPerMove": 102.1,
+        "layoutUsPerMove": 9,
+        "styleUsPerMove": 68.6,
+        "taskUsPerMove": 1357.6
+      },
+      {
+        "kind": "control",
+        "count": 200,
+        "moves": 300,
+        "layouts": 32,
+        "styleRecalcs": 313,
+        "scriptUsPerMove": 96.5,
+        "layoutUsPerMove": 26.4,
+        "styleUsPerMove": 79.1,
+        "taskUsPerMove": 1282.2
+      },
+      {
+        "kind": "control",
+        "count": 2000,
+        "moves": 300,
+        "layouts": 32,
+        "styleRecalcs": 313,
+        "scriptUsPerMove": 118.3,
+        "layoutUsPerMove": 219.2,
+        "styleUsPerMove": 236.1,
+        "taskUsPerMove": 2043.9
+      }
+    ],
+    "H1.activation": [
+      {
+        "count": 20,
+        "clickLayouts": 0,
+        "activationScriptUs": 397
+      },
+      {
+        "count": 200,
+        "clickLayouts": 0,
+        "activationScriptUs": 513
+      },
+      {
+        "count": 2000,
+        "clickLayouts": 0,
+        "activationScriptUs": 4994
+      }
+    ],
+    "H2.commit": {
+      "landingDistance": 56,
+      "ratioItem": 1.0000086155067456,
+      "ratioNeighbor": 0,
+      "orderAfter": "023415",
+      "frames": 35
+    },
+    "H2.neighbourInFlight": {
+      "flightRatio": 1.0000008543191612,
+      "flightEnd": 0
+    },
+    "H2.flips": {
+      "flipRatio": 1.0000015909128406,
+      "tails": 0
+    },
+    "H2.reject": {
+      "rejectRatio": 1.10294332635281,
+      "backTop": 0
+    },
+    "H4.callbackCells": {
+      "cells": 240,
+      "failures": 0,
+      "sample": []
+    },
+    "H4.pendingCells": {
+      "cells": 48,
+      "failures": 0,
+      "sample": []
+    },
+    "H5.residualPx": {
+      "flex gap, equal heights": 0,
+      "flex gap, varied heights": 0,
+      "block with uniform margin": 0,
+      "non-uniform margins": 30,
+      "fractional heights": 0
+    },
+    "H6.scroll": {
+      "worstOutside": 0,
+      "settledOutside": 0,
+      "index": 30,
+      "outside": 0,
+      "focus": "0"
+    },
+    "H7.element": {
+      "scrollTop": 340,
+      "itemCentre": 174,
+      "pointerY": 174,
+      "changes": 1,
+      "layouts": 1,
+      "index": 7
+    },
+    "H7.window": {
+      "scrollTop": 340,
+      "itemCentre": 174,
+      "pointerY": 174,
+      "changes": 1,
+      "layouts": 1,
+      "index": 7
+    },
+    "H8.destroyMidDragThenRelease": [1, 1],
+    "L.listeners": {
+      "idleRoot": 3,
+      "idleItem": 0,
+      "baseline": 16,
+      "during": 26,
+      "after": 16
+    },
+    "F.fuzz": {
+      "operations": 3000,
+      "violations": []
+    }
+  }
+}

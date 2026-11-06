@@ -1,6 +1,6 @@
 # Independent drag architecture experiment
 
-An architecture experiment started from external requirements only. It is not a production implementation, it mints no decision, and it compares itself with nothing. **Status:** model stated; prototype not yet run.
+An architecture experiment started from external requirements only. It is not a production implementation, it mints no decision, and it compares itself with nothing. **Status:** model stated, prototype run, revised; stopped before any comparison with the existing system.
 
 - **Date:** 2026-11-05.
 - **Input revision:** `1c25e576c`, branch `drag2/architecture-independent`.
@@ -173,3 +173,179 @@ Modal, and the same transaction as a pointer drag: Space or Enter lifts, Arrow k
 - **Re-grab during a tail.** `getBoundingClientRect` sees running animations, so activation must stop tails before measuring. A re-grabbed item would then visibly snap.
 - **Tail destinations are only as good as H5.** The commit-spanning property assumes the prediction was exact.
 - **`insertBefore` may disturb a running animation** on the moved element, which would break H2 at its most important moment.
+
+## Part 2 — Prototype and results
+
+Appended 2026-11-06. Part 1 above is unchanged; where the two disagree, this part and Part 3 win.
+
+**What was built.** `bench/architecture-independent/drag.ts` holds the machine and both behaviours. `lab.ts` holds fixtures, misbehaving consumers and a live-reorder control. `probe.ts` drives them over CDP with real pointer, wheel, touch and key input.
+
+- **Run it:** `node bench/architecture-independent/probe.ts [H1,H2,…]`, from a checkout whose `node_modules` holds Playwright.
+- **Environment:** Chromium 156.0.8078.4, headless, on one machine. No other browser ran.
+- **Evidence:** `bench/architecture-independent/results.json` holds the last full run: 61 of 61 checks pass.
+
+That figure describes the prototype after the changes in Part 3. It does not mean the initial model passed. Several hypotheses failed first.
+
+### Verdicts
+
+| Id | Verdict | Evidence |
+| --- | --- | --- |
+| H1 | **Falsified, then replaced.** Neighbours trigger layout, and cost is not independent of list size | Table below |
+| H2 | **Held.** | Frame-to-frame travel stayed at 1.00× the expected speed for a landing across the DOM move (`after()` does not disturb a running script animation) and for a neighbour mid-tail across the commit; 1.00× when retargeted repeatedly; 1.10× when rejected mid-landing |
+| H3 | **Partly falsified.** No logical state is needed; a presentation duty does outlive the session | Change 2 |
+| H4 | **Held,** with one correction to what counts as a callback (change 3) | 240 callback cells, 48 pending-verdict cells, 4 commands while moving, a late verdict arriving during the next session, and 3,000 random operations against a reference order: no violations |
+| H5 | **Held within its assumption.** The assumption's consequence was understated | 0 px residual for equal, varied and fractional heights and for uniform block margins. **30 px** for non-uniform margins, where Part 1 said "a small jump" |
+| H6 | **Partly falsified.** The machine is shared, but two keyboard defects appeared | One `pointerId === -1` test separates the adapters and nothing else branches on input kind. See changes 4 and 5 |
+| H7 | **Held.** | After a 340 px wheel scroll, in an element and in the window, the item centre stayed exactly under the pointer and the commit used the scrolled proposal. One layout, from the first displacement |
+| H8 | **Held,** after a guard was reshaped (change 6) | Plain, under-threshold and later clicks are delivered; post-drag clicks are suppressed, including a release after a mid-drag cancel. The `dragstart` guard is **not established**: see below |
+
+Beyond the hypotheses:
+
+- **Idle cost:** two root listeners, none per item, none global.
+- **Session cost:** ten global listeners while a session runs, back to baseline afterwards.
+- **After destruction:** no library listener remains, and a destroyed list is collectable.
+- **Touch:** a real touch drag commits. A browser pan under `touch-action: pan-y` arrives as `pointercancel` and restores cleanly.
+
+### Cost measurements
+
+Medians of three runs of 300 real pointer moves oscillating over about nine items. Values are per move except layouts, which are totals for the run. Pointer-move events matched samples one to one. `flip` is the initial model as written. `seed` and `sticky` are the fixes tried. `control` reorders the DOM live, tuned fairly: it moves the neighbour rather than the dragged node, so it keeps capture, and it reads two rects per sample. **The control has no animation**, so it says nothing about FLIP costs.
+
+| Items | Arm | Layouts | Layout µs | Style µs | Script µs | Task µs (range) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 20 | `flip` | 33 | 10 | 65 | 86 | 1199 (1109–1691) |
+| 20 | `seed` | 0 | 0 | 63 | 86 | 1158 (1155–1885) |
+| 20 | `sticky` | 5 | 1 | 61 | 82 | 1185 (991–1423) |
+| 20 | `control` | 32 | 9 | 54 | 83 | 1102 (1019–1708) |
+| 2000 | `flip` | 33 | 177 | 166 | 85 | 1682 (1381–2066) |
+| 2000 | `seed` | 0 | 0 | 354 | 90 | 3141 (2827–3686) |
+| 2000 | `sticky` | 5 | 23 | 178 | 82 | 1405 (1391–2066) |
+| 2000 | `control` | 32 | 184 | 174 | 100 | 1795 (1477–2170) |
+
+How to read it:
+
+- **Task time is dominated by things this harness cannot separate,** and one arm's task time varies by up to about 50% between runs. Only differences larger than that mean anything: `seed` at 2000 items, and the layout column.
+- **Script is flat with list size, and style is not.** Style triples for a hundredfold list because of work the browser does, not library code. The sibling walk during style recalculation is the probable mechanism; I did not verify it.
+- **Layout has a definite cause, established by the arms.** An item crossing between `translate: none` and a value costs a layout. About 1.6 ms per crossing at 2000 items.
+
+**Activation** costs 0.25–0.7 ms of script at 20 items and 2.4–6.8 ms at 2000, across all runs. **A plain press and release** forces no layout at any size.
+
+**Size,** minified and gzipped with esbuild, experiment arms included: 2.6 kB for everything, 2.3 kB for `sortable` alone, 1.6 kB for `movable` alone. `movable` still carries the keyboard adapter and scroll handler, because they live inside the shared machine. Tree-shaking cannot remove them.
+
+### Do the probes discriminate?
+
+A passing check only means something if it can fail, so I removed five guards from `drag.ts` in turn. The file was restored by checksum after each run.
+
+| Guard removed | Result |
+| --- | --- |
+| Click guard | H8.c and H8.f fail. The undelivered click at the button in H8.c shows capture retargets it to the item |
+| `composite: 'add'` replaced by `replace` | H2.d, H2.f and H2.i fail, with jumps of 22–44× expected travel. **H2.a still passes,** so it does not itself establish that additivity matters |
+| Stale-verdict signal checks | H4.b and all three H4.g fail. Without them a late verdict **ends the following session**. The idle check in `finish` is not enough, which is why H4.g exists: I first ran this mutation without it and only saw an error-count difference |
+| `tails.stop()` before measuring | H3.b fails, with a 21 px error in cached geometry |
+| `dragstart` prevention | **Nothing fails.** H8.g passes without the guard, so CDP input apparently does not start a native drag here. The guard is unproven, and `selectstart` prevention has no probe at all |
+
+## Part 3 — What changed
+
+### Changes forced by a probe
+
+1. **"No layout during `moving`" is withdrawn, and with it the main efficiency argument for rule 1.** This is the largest result of the experiment.
+   - I expected transform-only sorting to beat live reordering categorically. As first modelled it did not: `flip` and the control are indistinguishable on every column at both sizes.
+   - **Tried `seed`**, holding every item non-none for the session: zero layouts, but about twice the style and task time at 2000 items. Its numbers are worse overall, so it is rejected.
+   - **Adopted `sticky`:** an item stays non-none from its first displacement until the session ends, and a contiguous range records what to clear. Layouts become bounded by distinct items touched rather than by crossings. That is about 8× less layout time than the control at 2000 items, with style unchanged and task time within noise.
+   - **Consequence:** rule 1 now rests on lifecycle grounds. Cancellation has no DOM order to undo, nothing can lose capture or focus mid-drag, and neighbour motion needs no reads. Efficiency is a modest gain at large sizes and no gain at small ones.
+2. **Elevation outlives the session.**
+   - Predicted in §12, and missed by my first probe. H3.a passed because unpositioned siblings paint beneath any stacking context. Once items were `position: relative`, ordinary consumer styling, the landing item painted under item 4.
+   - **Fix:** `data-dragging` is removed when the element's tails end, through a small `whenStill`. It runs synchronously when tails are stopped, so a late animation event cannot touch a newer session.
+   - **Verdict:** rule 2's "no landing state" survives as logic, not as a complete statement. Decoration can owe a cleanup, and the tail set has to own it.
+3. **Keyboard steps do not animate the dragged item.**
+   - `scrollIntoView` reads the animated box. With rapid key presses the item's earlier tails kept it apparently in view, and it finished 1,700 px outside the scroller.
+   - **Fix:** the item jumps and its neighbours still animate. The requirements only ask for these animations on pointer sorting, so this removes a guarantee nobody asked for.
+4. **Focus is recorded at lift, not read at commit.** A consumer-owned DOM move blurs the item before `commit` runs, so reading `activeElement` there finds nothing to restore.
+
+### Changes found while writing, before any probe
+
+5. **The `AbortSignal` could not do all three jobs in rule 4.** One signal as listener scope, consumer signal and stale-verdict guard would abort on acceptance too, firing a consumer's rollback listener on success. It is now two controllers: the listener scope always ends, and the decision aborts only on cancellation. **An abort listener is also a second consumer callback in a terminal transition,** so rule 4's "at most one callback" is false as written. It runs after the state is consistent and before `onEnd`, and H4.d confirms `destroy()` from there is sound.
+6. **The click guard cannot belong to the session.**
+   - A session cancelled with the button still held must still swallow the click at release. So the guard arms at activation and lives until that pointer's release, on its own controller tied to the controller's lifetime.
+   - **The fuzz then found a real bug in it:** the guard compared against the machine's current `pointerId`, so a keyboard session started meanwhile left it listening forever. It now keeps its own pointer identity.
+   - **A consequence I chose:** destroying mid-drag releases the guard too, so the later release does deliver a click (`H8.destroyMidDragThenRelease`). "Destroyed means released, on return" won over click suppression.
+
+### Corrections to Part 1's tables
+
+7. **`destroyed` is not a state.** Aborting the root listeners makes every command a natural no-op, so §3 has four states, and no flag was needed.
+8. **`cancel()` after acceptance does not stop a tail.** §4's row contradicted its own `idle` row. Cancel is a no-op on an idle controller, the tail finishes at the accepted position, and only `destroy` stops tails.
+9. **A consumer's own `releasePointerCapture` is not seen at once.** The platform defers it to the next pointer event, so restoration waits for that event.
+
+### Revised rules
+
+1. **Propose, do not mutate.** Justified by lifecycle simplicity, with bounded rather than zero layout.
+2. **Animations carry no truth.** Stopping them is always safe, but the tail set owns the cleanups that decoration needs.
+3. **One input vocabulary.** Unchanged, apart from keyboard steps not animating the dragged item.
+4. **Consumer code runs only after the state is consistent, and the first terminal event wins.** "At most one callback" is dropped: an abort listener and then `onEnd` may both run.
+
+The model stayed understandable through all of this. It still has four states, one `finish`, and one place where code follows a callback. No change added a state or a queue.
+
+### Probe changes a reader should check
+
+I changed expectations in these places, so a passing row should not be read as an unmoved goalpost:
+
+- **H1.a** now requires layouts bounded by touched items, because the original claim was false. The `flip` arm in the table preserves the original result.
+- **H1.b** covers script only. Style growth is reported above, not asserted.
+- **H2.b** turned out to measure a neighbour with no running tail. I renamed it and added H2.i for the case it was meant to cover.
+- **H3.a** was strengthened by making items positioned.
+- **H4.a** had two artefacts. On keyboard, a final Space after a mid-session cancel is correctly a new lift, so the gesture no longer presses it. On the free element, an inline `0px 0px` serializes as `0px`.
+- **H4.c,** for a consumer's capture release, now observes after the next pointer event (change 9).
+- **H4.g** was added after a mutation showed nothing covered a late verdict arriving during the next session.
+- **H8.g** still passes but proves nothing about native drag, as the mutation table shows.
+- **The H2 and H7 thresholds** (1.6×, 2.6×, 6.5×, ±1 slot) were set before the first run. Observed values are far inside the first three and exact for the fourth.
+
+## Part 4 — Untested
+
+**Platform**
+
+- **Firefox and WebKit, entirely.** That includes additive `translate` animation, animation survival across a DOM move, the click guard's `setTimeout` expiry, `dragstart`, and the deferred capture behaviour. Every result above is Chromium's.
+- **Paint, compositing and frame timing on real hardware.** The harness measures main-thread metrics headlessly, and `seed`'s task-time penalty is the only paint-sensitive signal. **"No object allocation" in a sample** is by inspection only (one string per write) and was not measured.
+- **Real hand input.** Moves arrive over CDP. Real pointer cadence, coalescing and pen were not exercised. Touch was synthetic. **A real native drag or text selection could not be provoked,** so those two guards are unproven.
+
+**Consumer environment**
+
+- **Shadow DOM.** `document.activeElement` returns the host and `closest` stops at the boundary, so focus retention and handle matching are expected to fail inside a shadow root as written.
+- **Framework rendering.** A re-render during `moving` or `deciding` can wipe inline `translate`. Only a same-task consumer DOM move was tested.
+- **Scaled or zoomed ancestors.** Pointer deltas are written as `translate` pixels, which is wrong under an ancestor `scale`.
+- **Assistive technology and `prefers-reduced-motion`.** The first is left to the consumer's callbacks, the second to the consumer passing no motion. Neither was exercised.
+- **Native `<button>` items.** Activation on Space keyup after a keyboard drop is untested. Only an inner button and `tabindex` items were.
+
+**Stated assumptions, not exercised**
+
+- Consumer mutation of the list, or layout change, during a session. Accepting after a neighbour was removed would throw from `after()`. That is a published precondition, but its failure path was not tried.
+- Horizontal lists, grids, wrapping, RTL and writing modes, cross-list transfer, auto-scroll.
+- Free-element scroll compensation is **not implemented**; `rescroll` is empty for `movable`.
+
+**Open design questions the experiment did not settle**
+
+- **Non-uniform gaps.** A 30 px jump at commit is not small. Reading real positions after the DOM move and playing the difference as a correcting tail looks cheap, since that layout happens anyway. It was not tried.
+- **Very large lists.** Activation at 2000 items is several milliseconds; 10,000 was not measured.
+- **A "visually finished" signal.** The model offers none, and a consumer wanting one has only their own timer.
+- **A stale `cancel()`.** A cancel from an earlier session's closure hits the current session, because `cancel` belongs to the controller. The value object is also reused per controller, so a consumer must copy it to keep it past `onEnd`.
+
+## Part 5 — Verification and handoff
+
+- **Typecheck:** `tsc -p bench/architecture-independent/tsconfig.json` is clean.
+- **Formatting:** `oxfmt` ran on all changed files.
+- **Lint:** surviving `oxlint` findings are listed below rather than resolved by hand. `eslint` also reports two `prefer-destructuring` errors, one each in `drag.ts` and `probe.ts`. Markdown is unsupported by `oxlint`. The last full probe run followed the last lint-fix, and `drag.ts` matches its pre-mutation checksum.
+
+| File | Rule | Count |
+| --- | --- | --- |
+| `probe.ts` | `no-await-in-loop` (real input is sequential by nature) | 175 |
+| `probe.ts` | `max-depth` | 33 |
+| `lab.ts` | `no-bitwise` (fuzz PRNG) | 11 |
+| `probe.ts` | `no-console` | 5 |
+| `drag.ts` | `no-multi-assign` | 4 |
+| `probe.ts` | `no-unsafe-member-access` | 2 |
+| `lab.ts` | `no-use-before-define` | 2 |
+| `drag.ts`, `probe.ts` | `no-bitwise` | 1 each |
+| `drag.ts` | `no-use-before-define` | 1 |
+| `lab.ts` | `no-mutable-exports`, `operator-assignment`, `no-multi-assign` | 1 each |
+
+**Scope and limits.** Prototype only: no existing file changed, and neither implementation was imported. Independence is qualified by the exposures listed at the top. No decision was minted.
+
+**Stopping boundary.** Per the brief, this stops before any comparison with the existing system. The one bounded next task, if the owner wants it, is that comparison, taking Part 3 as the claims to compare rather than Part 1.
