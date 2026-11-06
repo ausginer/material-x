@@ -162,6 +162,8 @@ The pass also reported these, and they have **not** been confirmed: `sortable/fe
 
 **Next.** One independent cleanup review of `2f96cf3d4..` covers the driver batch and this pass. The type and instruction units follow separately.
 
+**Reusable guidance, 2026-11-06.** After trying the new drag prototype, the owner requested that the STE pass's naming, commenting and self-documentation guidance be established before production implementation. The [technical English guide](../../../.agents/docs/technical-english.md) now carries the reusable guidance; `CONTRIBUTING.md` links it from the source conventions, and `AGENTS.md` requires it for new names and English writing. `CLAUDE.md` already reads `AGENTS.md`, so it needs no duplicate rules. This documentation unit changes no source and does not rewrite existing journals, reviews, decisions or measurements. It adds no word bans, sentence limits, comment quotas or verification gates. The named union variants and the old source findings are not changed by this unit.
+
 **Scope and order.**
 
 1. **Audit terminology and names, starting with a small kernel sample.** Check whether each important term is established platform vocabulary, a useful domain concept, or a local invention. Assess its meaning at call sites, consistency across names and comments, and whether it distinguishes something the implementation actually needs. Keep useful terms; propose clearer names for unexplained metaphors, conflicting terms and unnecessary synonyms. `startTail` and `runLeaf` are owner-supplied examples to assess, not approved renames. A glossary alone does not resolve an unclear name.

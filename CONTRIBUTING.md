@@ -75,6 +75,10 @@ The rule is about meaning, not byte count. Where both spellings are correct, the
 - Declare top-level functions with `function`. Declare internal functions — those created inside another function — as arrow functions. Object methods stay shorthand.
 - Always brace block statements. No one-liners.
 
+## Naming and self-documentation
+
+Follow the [technical English guide](.agents/docs/technical-english.md). Choose names that describe the operation or value in familiar technical terms, and check them at their call sites. Improve an unclear name before adding a comment to translate it. Preserve the performance priorities above when considering changes to code structure.
+
 ## CSS
 
 - Prefer CSS classes over inline styles.
@@ -104,7 +108,9 @@ Placement, file suffixes and Vitest project routing for `@ydinjs/material-x` com
 Governed by [`documentation.md`](.agents/docs/documentation.md) §5. Comments describe **the code that exists now**.
 
 - Present tense, self-contained.
+- Remove code narration and duplicated explanations before rewriting comments. There is no quota for comments or their length.
 - Explain a non-obvious invariant, ordering constraint, ownership boundary, performance property, or reason for the current implementation.
+- Check factual claims against the code. Preserve conditions, ordering and uncertainty; report a false or disputed claim rather than making it sound certain through a wording change.
 - No planning or review bookkeeping — no `D-*`, `F-*`, `I-*`, phase numbers, review names, commit hashes or `.plan` sections. An internal comment may carry one bare decision pointer as an index entry; published JSDoc may not.
 - Do not narrate history: no "used to", "was changed", "replaces", "previously", "this was added because". If a past decision holds reasoning still needed to understand the code, restate **the reason**, not its provenance. If removing the historical reference leaves nothing useful, remove the comment.
 - A JSDoc block reaching a published `.d.ts` is consumer documentation: it carries only what a reader outside this repository can act on, and **preconditions the compiler cannot state are load-bearing there** — §1.1 deletes runtime guards on the strength of those sentences existing.
@@ -389,3 +395,4 @@ What this document used to say, and what changed it, so a measurement already ma
 | 2026-09-09 | §18 | **Added:** a restoration reads the new figure against the figure the suspension recorded and states the interval as attributable or not; the restoration rule leaves the re-base bullet, and _the last figure it produced_ means a figure rather than a delta. Record: [`00-index.md`](packages/drag2/.plan/contract/00-index.md) D-192, F-409 |
 | 2026-09-09 | §18 | **Added:** the boundary test carries a second limb — one identification of the boundary, stated where the obligation is administered. The abandonment limb is necessary and was shown insufficient. Record: [`00-index.md`](packages/drag2/.plan/contract/00-index.md) D-192, F-410 |
 | 2026-09-09 | §18 | **Added:** a withdrawal is stated against what the instrument **asserts** rather than a docblock's motivating case, and guarded in both directions — understated withdrawal is the same failure as overstated residue. Record: [`00-index.md`](packages/drag2/.plan/contract/00-index.md) D-192, F-411 |
+| 2026-11-06 | Part I, Naming and self-documentation; Comments and JSDoc | **Added:** the reusable naming and English guide from the owner-directed [terminology pass](packages/drag2/.plan/terminology-ste-brief.md), with comment reduction and preservation of factual meaning. Applies to new work; existing records are not rewritten |
