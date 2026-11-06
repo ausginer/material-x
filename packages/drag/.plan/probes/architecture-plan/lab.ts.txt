@@ -1,0 +1,139 @@
+/**
+ * Runs in the page. Exposes both prototypes behind one adapter, so one script
+ * can ask the same question of each. Not production code: see README.md.
+ */
+import { landing } from '../src/sortable/landing.ts';
+import { y } from '../src/sortable/y.ts';
+import { ReorderResolution } from '../src/sortable.ts';
+import { sortable as independent } from './independent.ts';
+import { sortable as singlePass } from './sortable.ts';
+
+type Hook = (() => void) | null;
+const hooks: { reaction: Hook; focus: Hook; disconnect: Hook } = {
+  reaction: null,
+  focus: null,
+  disconnect: null,
+};
+
+class Item extends HTMLElement {
+  static observedAttributes = ['data-dragging', 'popover'];
+  attributeChangedCallback(_n: string, _o: string | null, value: string | null) {
+    if (value !== null && hooks.reaction) {
+      const run = hooks.reaction;
+      hooks.reaction = null;
+      run();
+    }
+  }
+  disconnectedCallback() {
+    if (hooks.disconnect) {
+      const run = hooks.disconnect;
+      hooks.disconnect = null;
+      run();
+    }
+  }
+}
+customElements.define('x-item', Item);
+
+export type Impl = 'independent' | 'singlePass';
+export type Lab = ReturnType<typeof setup>;
+
+function setup(impl: Impl, host: HTMLElement) {
+  const list = document.createElement('div');
+  list.id = 'list';
+  list.style.cssText = 'position:relative;width:200px;';
+  const doc = host.ownerDocument;
+  const items: HTMLElement[] = [];
+  for (let i = 0; i < 5; i += 1) {
+    const item = doc.createElement('x-item') as HTMLElement;
+    item.id = `i${i}`;
+    item.tabIndex = 0;
+    item.textContent = String(i);
+    item.style.cssText =
+      'display:block;height:40px;box-sizing:border-box;background:#ccd;border:1px solid #889;';
+    list.append(item);
+    items.push(item);
+  }
+  host.append(list);
+  const trace: string[] = [];
+  const onStart = () => {
+    trace.push('onStart');
+    (lab as { startHook?: Hook }).startHook?.();
+  };
+  let controller: { cancel(): void; destroy(): void };
+  if (impl === 'independent') {
+    const c = independent(list, {
+      onStart,
+      onEnd(outcome) {
+        trace.push(`onEnd:${outcome}`);
+      },
+    });
+    controller = { cancel: c.cancel, destroy: c.destroy };
+  } else {
+    const c = singlePass(list, {
+      items: () => [...list.children].filter((n) => n.localName === 'x-item') as HTMLElement[],
+      axis: y(),
+      onStart,
+      onReorder(request: { item: HTMLElement; before: HTMLElement | null; after?: unknown }) {
+        trace.push('onReorder');
+        const r = request as unknown as { item: HTMLElement; after: HTMLElement | null };
+        list.insertBefore(r.item, r.after);
+        c.invalidate();
+        return ReorderResolution.accept();
+      },
+      onEnd(result: { type: string }) {
+        trace.push(`onEnd:${result.type}`);
+      },
+      onError(error: unknown) {
+        trace.push(`onError:${(error as Error).constructor.name}`);
+      },
+    });
+    controller = {
+      cancel: () => c.requestCancel(),
+      destroy: () => {
+        void c.requestDestroy();
+      },
+    };
+  }
+  const lab = {
+    impl,
+    list,
+    items,
+    trace,
+    controller,
+    hooks,
+    startHook: null as Hook,
+    leftovers(): string[] {
+      const out: string[] = [];
+      for (const item of items) {
+        if (item.style.translate || item.style.transform) {
+          out.push(`${item.id}:inline-move`);
+        }
+        if (item.hasAttribute('data-dragging')) {
+          out.push(`${item.id}:data-dragging`);
+        }
+        if (item.hasAttribute('popover')) {
+          out.push(`${item.id}:popover`);
+        }
+        if (item.style.position) {
+          out.push(`${item.id}:position`);
+        }
+      }
+      const extra = [...list.children].filter((n) => n.localName !== 'x-item').length;
+      if (extra) {
+        out.push(`placeholders:${extra}`);
+      }
+      return out;
+    },
+    order: () => [...list.children].filter((n) => n.localName === 'x-item').map((n) => n.id).join(','),
+    center(id: string) {
+      const r = doc.getElementById(id)!.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    },
+    teardownHooks() {
+      hooks.reaction = hooks.focus = hooks.disconnect = null;
+    },
+  };
+  return lab;
+}
+
+(globalThis as unknown as { makeLab: typeof setup; labHooks: typeof hooks; landing: typeof landing }).makeLab = setup;

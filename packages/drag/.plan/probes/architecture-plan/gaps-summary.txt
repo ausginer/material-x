@@ -1,0 +1,69 @@
+SAME  verdict: then accessor throws
+   P {"t":["onStart","onReorder","onError:DraggableError:8","onEnd:canceled(Error: then-get)"],"o":"i0,i1,i2,i3,i4","l":[],"u":0,"s":["onStart","onReorder","onError:DraggableError:8","onEnd:canceled(Error: then-get)"],"sl":[]}
+SAME  verdict: then accessor read count
+   P {"t":["onStart","onReorder","onEnd:accepted"],"o":"i0,i1,i2,i3,i4","l":[],"u":0,"a":1,"s":["onStart","onReorder","onEnd:accepted"],"sl":[]}
+SAME  verdict: then() throws
+   P {"t":["onStart","onReorder","onError:DraggableError:8","onEnd:canceled(Error: then-call)"],"o":"i0,i1,i2,i3,i4","l":[],"u":0,"s":["onStart","onReorder","onError:DraggableError:8","onEnd:canceled(Error: then-call)"],"sl":[]}
+SAME  verdict: late rejection after cancel does not reach the page
+   P {"t":["onStart","onReorder","onEnd:canceled(c)"],"o":"i0,i1,i2,i3,i4","l":[],"u":0,"a":0,"s":["onStart","onReorder"],"sl":["i0:popover","i0:inline","extra-children:1"]}
+SAME  verdict: late rejection after destroy does not reach the page
+   P {"t":["onStart","onReorder"],"o":"i0,i1,i2,i3,i4","l":[],"u":0,"a":0}
+SAME  verdict: signal stays unaborted on accept
+   P {"t":["onStart","onReorder","onEnd:accepted"],"o":"i0,i2,i3,i1,i4","l":[],"u":0,"a":[false,0],"s":["onStart","onReorder","onEnd:accepted"],"sl":[]}
+SAME  placeholder: removes itself on connection
+   P {"t":["onError:DraggableError:2"],"o":"i0,i1,i2,i3,i4","l":[],"u":0,"s":["onError:DraggableError:2"],"sl":[]}
+SAME  placeholder: reparents itself on connection
+   P {"t":["onError:DraggableError:2"],"o":"i0,i1,i2,i3,i4","l":[],"u":0,"s":["onError:DraggableError:2"],"sl":[]}
+SAME  placeholder: whole list leaves on connection
+   P {"t":["onError:DraggableError:2"],"o":"i0,i1,i2,i3,i4","l":[],"u":0}
+SAME  placeholder: item reparented away on connection
+   P {"t":["onError:DraggableError:2"],"o":"i0,i2,i3,i4","l":[],"u":0}
+SAME  placeholder: moves within the list on connection
+   P {"t":["onError:DraggableError:2"],"o":"i0,i1,i2,i3,i4","l":[],"u":0,"s":["onError:DraggableError:2"],"sl":[]}
+SAME  placeholder: destroy on connection
+   P {"t":["onStart"],"o":"i0,i1,i2,i3,i4","l":[],"u":0}
+SAME  placeholder: factory returns the dragged item
+   P {"t":["onError:DraggableError:2"],"o":"i0,i1,i2,i3,i4","l":[],"u":0,"s":["onError:DraggableError:2"],"sl":[]}
+SAME  placeholder: factory returns an in-document node
+   P {"t":["onStart","onReorder","onEnd:accepted"],"o":"i0,i2,i3,i1,i4","l":[],"u":0,"s":["onError:DraggableError:2"],"sl":[]}
+SAME  placeholder: destroy from the factory
+   P {"t":["onStart"],"o":"i0,i1,i2,i3,i4","l":[],"u":0}
+SAME  anchor: a sibling leaves the list during the drag, then moves
+   P {"t":["onStart","onError:DraggableError:5","onEnd:canceled(Error: drag: sortable/anchor-outside-container)"],"o":"i0,i1,i2,i4","l":[],"u":0,"s":["onStart","onReorder","onEnd:accepted"],"sl":[]}
+SAME  anchor: a sibling leaves and invalidate reports it
+   P {"t":["onStart","onReorder","onEnd:accepted"],"o":"i0,i2,i4,i1","l":[],"u":0,"s":["onStart","onReorder","onEnd:accepted"],"sl":[]}
+SAME  anchor: dragged item leaves during the drag, invalidate reports it
+   P {"t":["onStart","onError:DraggableWarning:","onEnd:canceled(sortable:item-removed)"],"o":"i0,i2,i3,i4","l":[],"u":0}
+SAME  rebase: list reversed during the drag, invalidate
+   P {"t":["onStart","onEnd:canceled(sortable:collection-invalidated)"],"o":"i4,i3,i2,i1,i0","l":[],"u":0,"s":["onStart","onReorder","onEnd:accepted"],"sl":[]}
+SAME  rebase: item prepended during the drag, invalidate
+   P {"t":["onStart","onReorder","onEnd:accepted"],"o":"i9,i0,i2,i1,i3,i4","l":[],"u":0,"s":["onStart","onReorder","onEnd:accepted"],"sl":[]}
+SAME  admission: handle replaces the collection
+   P {"t":["onStart","onReorder","onEnd:accepted"],"o":"i0,i2,i3,i1,i4,i8","l":[],"u":0,"s":["onStart","onReorder","onEnd:accepted"],"sl":[]}
+SAME  admission: handle removes the pressed item
+   P {"t":[],"o":"i0,i2,i3,i4","l":[],"u":0}
+SAME  admission: destroy from handle
+   P {"t":[],"o":"i0,i1,i2,i3,i4","l":[],"u":0}
+SAME  admission: destroy from visual
+   P {"t":[],"o":"i0,i1,i2,i3,i4","l":[],"u":0}
+SAME  admission: visual throws
+   P {"t":["onError:DraggableError:1"],"o":"i0,i1,i2,i3,i4","l":[],"u":0,"s":["onError:DraggableError:1"],"sl":[]}
+SAME  popover: beforetoggle listener requests cancel
+   P {"t":["onStart","onEnd:canceled(bt)"],"o":"i0,i1,i2,i3,i4","l":[],"u":0,"s":["onStart","onReorder","onEnd:accepted"],"sl":[]}
+SAME  popover: beforetoggle listener requests destroy
+   P {"t":["onStart"],"o":"i0,i1,i2,i3,i4","l":[],"u":0}
+SAME  landing: duration function throws
+   P {"t":["onStart","onReorder","onError:DraggableWarning:","onEnd:accepted"],"o":"i0,i2,i3,i1,i4","l":[],"u":0,"s":["onStart","onReorder","onError:DraggableWarning:","onEnd:accepted"],"sl":[]}
+SAME  landing: refused duration
+   P {"t":["onStart","onReorder","onError:DraggableWarning:","onEnd:accepted"],"o":"i0,i2,i3,i1,i4","l":[],"u":0,"s":["onStart","onReorder","onError:DraggableWarning:","onEnd:accepted"],"sl":[]}
+SAME  landing: destroy from the duration function
+   P {"t":["onStart","onReorder","onEnd:accepted"],"o":"i0,i2,i3,i1,i4","l":[],"u":0}
+SAME  landing: tail survives a press below threshold
+   P {"t":["onStart","onReorder","onEnd:accepted"],"o":"i0,i2,i3,i1,i4","l":[],"u":0,"tail":[1,1],"s":["onStart","onReorder","onEnd:accepted"],"sl":[]}
+DIFF  control (must differ): two invalidates in one callback pull once
+   P {"t":["onStart","onReorder","onEnd:accepted"],"o":"i0,i2,i3,i1,i4","l":[],"u":0,"a":2,"s":["onStart","onReorder","onEnd:accepted"],"sl":[]}
+   Q {"t":["onStart","onReorder","onEnd:accepted"],"o":"i0,i2,i3,i1,i4","l":[],"u":0,"a":1,"s":["onStart","onReorder","onEnd:accepted"],"sl":[]}
+SAME  nested: inner list inside an outer list item
+   P {"t":["onStart","onReorder","onEnd:accepted"],"it":["onStart","onEnd:noop"],"o":"i0,i2,i3,i1,i4","l":[],"u":0,"s":["onStart","onReorder","onEnd:accepted"],"sl":[]}
+SAME  shadow: list inside a shadow root
+   P {"t":["onStart","onReorder","onEnd:accepted"],"o":"i0,i2,i3,i1,i4","l":[],"u":0,"s":["onStart","onReorder","onEnd:accepted"],"sl":[]}

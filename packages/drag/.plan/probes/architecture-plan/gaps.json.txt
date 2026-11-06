@@ -1,0 +1,1508 @@
+{
+ "verdict: then accessor throws/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableError:8",
+    "onEnd:canceled(Error: then-get)"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableError:8",
+    "onEnd:canceled(Error: then-get)"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "verdict: then accessor read count/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "after": 1,
+  "pageErrors": []
+ },
+ "verdict: then() throws/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableError:8",
+    "onEnd:canceled(Error: then-call)"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableError:8",
+    "onEnd:canceled(Error: then-call)"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "verdict: late rejection after cancel does not reach the page/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:canceled(c)"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder"
+   ],
+   "left": [
+    "i0:popover",
+    "i0:inline",
+    "extra-children:1"
+   ]
+  },
+  "after": 0,
+  "pageErrors": []
+ },
+ "verdict: late rejection after destroy does not reach the page/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "after": 0,
+  "pageErrors": []
+ },
+ "verdict: signal stays unaborted on accept/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "after": [
+   false,
+   0
+  ],
+  "pageErrors": []
+ },
+ "placeholder: removes itself on connection/production": {
+  "first": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "placeholder: reparents itself on connection/production": {
+  "first": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "placeholder: whole list leaves on connection/production": {
+  "first": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "placeholder: item reparented away on connection/production": {
+  "first": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "order": "i0,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "placeholder: moves within the list on connection/production": {
+  "first": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "placeholder: destroy on connection/production": {
+  "first": {
+   "trace": [
+    "onStart"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "placeholder: factory returns the dragged item/production": {
+  "first": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "placeholder: factory returns an in-document node/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "placeholder: destroy from the factory/production": {
+  "first": {
+   "trace": [
+    "onStart"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "anchor: a sibling leaves the list during the drag, then moves/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onError:DraggableError:5",
+    "onEnd:canceled(Error: drag: sortable/anchor-outside-container)"
+   ],
+   "order": "i0,i1,i2,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "anchor: a sibling leaves and invalidate reports it/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i4,i1",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i4",
+    "after": null
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "anchor: dragged item leaves during the drag, invalidate reports it/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onError:DraggableWarning:",
+    "onEnd:canceled(sortable:item-removed)"
+   ],
+   "order": "i0,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "rebase: list reversed during the drag, invalidate/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onEnd:canceled(sortable:collection-invalidated)"
+   ],
+   "order": "i4,i3,i2,i1,i0",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "rebase: item prepended during the drag, invalidate/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i9,i0,i2,i1,i3,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i2",
+    "after": "i3"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "admission: handle replaces the collection/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4,i8",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "admission: handle removes the pressed item/production": {
+  "first": {
+   "trace": [],
+   "order": "i0,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "admission: destroy from handle/production": {
+  "first": {
+   "trace": [],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "admission: destroy from visual/production": {
+  "first": {
+   "trace": [],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "admission: visual throws/production": {
+  "first": {
+   "trace": [
+    "onError:DraggableError:1"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onError:DraggableError:1"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "popover: beforetoggle listener requests cancel/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onEnd:canceled(bt)"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "popover: beforetoggle listener requests destroy/production": {
+  "first": {
+   "trace": [
+    "onStart"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "landing: duration function throws/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableWarning:",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableWarning:",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "landing: refused duration/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableWarning:",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableWarning:",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "landing: destroy from the duration function/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "landing: tail survives a press below threshold/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "tail": [
+   1,
+   1
+  ],
+  "pageErrors": []
+ },
+ "control (must differ): two invalidates in one callback pull once/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "after": 2,
+  "pageErrors": []
+ },
+ "nested: inner list inside an outer list item/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "inner": [
+    "onStart",
+    "onEnd:noop"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "shadow: list inside a shadow root/production": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "verdict: then accessor throws/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableError:8",
+    "onEnd:canceled(Error: then-get)"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableError:8",
+    "onEnd:canceled(Error: then-get)"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "verdict: then accessor read count/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "after": 1,
+  "pageErrors": []
+ },
+ "verdict: then() throws/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableError:8",
+    "onEnd:canceled(Error: then-call)"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableError:8",
+    "onEnd:canceled(Error: then-call)"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "verdict: late rejection after cancel does not reach the page/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:canceled(c)"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder"
+   ],
+   "left": [
+    "i0:popover",
+    "i0:inline",
+    "extra-children:1"
+   ]
+  },
+  "after": 0,
+  "pageErrors": []
+ },
+ "verdict: late rejection after destroy does not reach the page/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "after": 0,
+  "pageErrors": []
+ },
+ "verdict: signal stays unaborted on accept/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "after": [
+   false,
+   0
+  ],
+  "pageErrors": []
+ },
+ "placeholder: removes itself on connection/singlePass": {
+  "first": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "placeholder: reparents itself on connection/singlePass": {
+  "first": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "placeholder: whole list leaves on connection/singlePass": {
+  "first": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "placeholder: item reparented away on connection/singlePass": {
+  "first": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "order": "i0,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "placeholder: moves within the list on connection/singlePass": {
+  "first": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "placeholder: destroy on connection/singlePass": {
+  "first": {
+   "trace": [
+    "onStart"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "placeholder: factory returns the dragged item/singlePass": {
+  "first": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "placeholder: factory returns an in-document node/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onError:DraggableError:2"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "placeholder: destroy from the factory/singlePass": {
+  "first": {
+   "trace": [
+    "onStart"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "anchor: a sibling leaves the list during the drag, then moves/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onError:DraggableError:5",
+    "onEnd:canceled(Error: drag: sortable/anchor-outside-container)"
+   ],
+   "order": "i0,i1,i2,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "anchor: a sibling leaves and invalidate reports it/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i4,i1",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i4",
+    "after": null
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "anchor: dragged item leaves during the drag, invalidate reports it/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onError:DraggableWarning:",
+    "onEnd:canceled(sortable:item-removed)"
+   ],
+   "order": "i0,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "rebase: list reversed during the drag, invalidate/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onEnd:canceled(sortable:collection-invalidated)"
+   ],
+   "order": "i4,i3,i2,i1,i0",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "rebase: item prepended during the drag, invalidate/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i9,i0,i2,i1,i3,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i2",
+    "after": "i3"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "admission: handle replaces the collection/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4,i8",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "admission: handle removes the pressed item/singlePass": {
+  "first": {
+   "trace": [],
+   "order": "i0,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "admission: destroy from handle/singlePass": {
+  "first": {
+   "trace": [],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "admission: destroy from visual/singlePass": {
+  "first": {
+   "trace": [],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "admission: visual throws/singlePass": {
+  "first": {
+   "trace": [
+    "onError:DraggableError:1"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onError:DraggableError:1"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "popover: beforetoggle listener requests cancel/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onEnd:canceled(bt)"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "popover: beforetoggle listener requests destroy/singlePass": {
+  "first": {
+   "trace": [
+    "onStart"
+   ],
+   "order": "i0,i1,i2,i3,i4",
+   "left": [],
+   "reorder": null,
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "landing: duration function throws/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableWarning:",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableWarning:",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "landing: refused duration/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableWarning:",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onError:DraggableWarning:",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "landing: destroy from the duration function/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": null,
+  "pageErrors": []
+ },
+ "landing: tail survives a press below threshold/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "tail": [
+   1,
+   1
+  ],
+  "pageErrors": []
+ },
+ "control (must differ): two invalidates in one callback pull once/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "after": 1,
+  "pageErrors": []
+ },
+ "nested: inner list inside an outer list item/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "inner": [
+    "onStart",
+    "onEnd:noop"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ },
+ "shadow: list inside a shadow root/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "order": "i0,i2,i3,i1,i4",
+   "left": [],
+   "reorder": {
+    "item": "i1",
+    "before": "i3",
+    "after": "i4"
+   },
+   "unhandled": 0,
+   "stray": false
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "left": []
+  },
+  "pageErrors": []
+ }
+}

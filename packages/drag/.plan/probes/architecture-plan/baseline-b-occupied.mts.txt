@@ -1,0 +1,17 @@
+// argv: none. Two facts about the bundler, on throwaway fixtures: a re-occupied name is measured as the occupant, and an unresolved import can be refused.
+import { rolldown } from '/workspaces/material-x/node_modules/rolldown/dist/index.mjs';
+import { brotliCompressSync } from 'node:zlib';
+const input = new URL('./bench/shipped.js', import.meta.url).pathname;
+const b = await rolldown({ input: [input], platform: 'neutral' });
+const { output } = await b.generate({ format: 'es', minify: true });
+const c = output.filter((x) => x.type === 'chunk');
+const code = c.map((x) => x.code).join('');
+console.log('re-occupied name:', JSON.stringify({ brotli: brotliCompressSync(new TextEncoder().encode(code)).byteLength, modules: c.flatMap((x) => Object.keys(x.modules)).map((i) => i.replace(/.*occ\//, '')) }));
+await b.close();
+const entry = new URL('./unresolved.js', import.meta.url).pathname;
+try {
+  const bb = await rolldown({ input: [entry], platform: 'neutral', onLog(_level, log) { if (log.code === 'UNRESOLVED_IMPORT') throw new Error(`refused: ${log.code}`); } });
+  await bb.generate({ format: 'es' });
+  await bb.close();
+  console.log('fail-closed: not refused');
+} catch (e) { console.log('fail-closed:', String(e.message).split('\n')[0].slice(0, 160)); }

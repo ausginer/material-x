@@ -1,0 +1,242 @@
+438	draggable	should return the controller the behavior built
+444	draggable	should hand the behavior a kernel whose root is the ingress boundary
+450	draggable	should arm ingress only after the behavior returned
+535	discrete admission	should bind no discrete listener when the spec declares no command
+549	discrete admission	should mint a pointerless operation and queue ACTIVATE
+579	discrete admission	should not prevent the default when the command declines
+598	discrete admission	should leave an admitted press unprevented
+633	discrete admission	should prevent the move that crosses the activation threshold
+644	discrete admission	should not prevent a move for an operation that never activates
+658	discrete admission	should suppress exactly one trailing click after an activated drag
+672	discrete admission	should not arm the suppressor for a press that never activated
+683	discrete admission	should suppress the trailing click after a cancelled drag too
+697	discrete admission	should disarm the suppressor on the next pointerdown
+710	discrete admission	should disarm the suppressor at teardown
+724	discrete admission	should report a throwing command.admit with no operation
+758	discrete admission	should reject a command.types entry colliding with the pointer ingress
+795	discrete admission	should arm an empty command.types as the no-command configuration
+841	discrete admission	should arm a command.types carrying an empty-string entry
+877	discrete admission	should arm a command.types carrying a duplicate entry
+899	discrete admission	should release the discrete listeners on destroy
+929	arm	should unwind and rethrow when a frame factory throws
+978	arm	should arm with a frame part that declares a kernel frame key
+994	arm	should arm with a symbol-keyed frame part
+1011	arm	should arm with a non-deterministic frame part factory
+1038	admission	should run admit inside the native dispatch
+1054	admission	should leave the controller idle when admit returns null
+1061	admission	should ignore a non-primary press
+1078	admission	should dispose an operation whose input arming failed and retire nothing else
+1141	admission	should refuse a nested press before it can touch either frame
+1189	admission	should ignore a press while an operation is live
+1198	admission	should report a throwing admit and stay usable
+1227	admission	should not mint an operation when admit destroyed the controller
+1248	threshold	should not activate below the threshold
+1257	threshold	should activate once the travel reaches the threshold
+1266	threshold	should measure travel from the grab point, not the previous sample
+1281	threshold	should ignore a sample carrying another pointer id
+1298	activation	should drive prepare then effect
+1309	activation	should commit ACTIVATING before the effect runs
+1316	activation	should acquire pointer capture on the root, not the item
+1323	activation	should classify a capture failure as an activation failure
+1338	activation	should reach ACTIVE through START_COMMITTED
+1347	activation	should retire a discarded activation
+1371	activation	should not retire a failed activation
+1392	activation	should not dispatch START_COMMITTED when onStart cancelled
+1409	activation	should not dispatch START_COMMITTED when onStart destroyed
+1434	the phase a commit publishes	should not carry a discarded activation phase into the next operation
+1460	the phase a commit publishes	should not carry a failed activation phase into the next operation
+1487	the phase a commit publishes	should admit the next operation at PENDING after an abandoned activation
+1514	the hot path	should commit the sample before calling moved
+1528	the hot path	should classify a throwing moved instead of panicking
+1545	release	should retire a press released below the threshold
+1554	release	should commit RELEASING before preparing
+1563	release	should close motion between the two commits
+1579	release	should release pointer capture with motion
+1588	release	should commit the release point, not the last processed move
+1607	release	should classify a throwing release prepare at the seam’s own stage
+1634	release	should not run the effect after a throwing prepare
+1652	release	should ignore a release carrying another pointer id
+1665	the resolution round-trip	should settle a null command as skipped
+1676	the resolution round-trip	should settle a synchronously returned value as fulfilled
+1687	the resolution round-trip	should settle a thenable when it resolves
+1703	the resolution round-trip	should settle a rejected thenable as rejected
+1718	the resolution round-trip	should settle a throwing invoke as rejected
+1732	the resolution round-trip	should not execute the command when the release effect failed
+1755	the resolution round-trip	should abort the resolver signal when the operation is cancelled
+1772	the resolution round-trip	should not surface an abandoned resolver’s late rejection to the page
+1835	the resolution round-trip	should not abort the signal of a resolver that already completed
+1852	the resolution round-trip	should let a cancel raised from inside invoke win
+1870	the resolution round-trip	should drop a resolution that settles after the controller was destroyed
+1883	the resolution round-trip	should refuse a completion whose slot turned over before it settled
+1927	the resolution round-trip	should refuse a completion whose slot turned over before it was applied
+1994	the round-trip unit	should open no round-trip for a cancel requested in the release effect
+2020	the round-trip unit	should run the release effect of a release whose prepare requested cancel
+2052	the round-trip unit	should run the effect of an action whose prepare requested cancel
+2090	the round-trip unit	should open no round-trip for a destroy requested in the release effect
+2120	the round-trip unit	should settle a cancel requested from inside the round-trip at the consumer stage
+2145	the round-trip unit	should decline the round-trip for a cancel requested by an action the release effect dispatched
+2187	the round-trip unit	should open no round-trip for a destroy requested in the release prepare
+2213	the round-trip unit	should open no round-trip for a destroy requested by an action the release effect dispatched
+2251	the round-trip unit	should apply work the release effect dispatched before the round-trip opens
+2272	the round-trip unit	should decline a null command for a cancel requested by an action the release effect dispatched
+2377	the round-trip unit	should decline a synchronous round-trip for a failure registered by an action the release effect dispatched
+2381	the round-trip unit	should decline an asynchronous round-trip for a failure registered by an action the release effect dispatched
+2385	the round-trip unit	should decline a null command for a failure registered by an action the release effect dispatched
+2392	the settlement seam	should commit SETTLING before the effect runs
+2401	the settlement seam	should classify a throwing prepare at the seam’s own stage
+2434	the settlement seam	should close motion and cancellation before the behavior effect
+2455	the settlement seam	should measure nothing when the effect throws
+2483	the settlement drain	should finalize in the resolution drain
+2495	the settlement drain	should finalize in the same drain with a tail installed
+2521	the landing tail	should start nothing without a landing policy
+2533	the landing tail	should travel the delta the release removed
+2567	the landing tail	should decay to a zero contribution
+2589	the landing tail	should add to the element rather than claim its transform
+2615	the landing tail	should start only after presentation is released
+2642	the landing tail	should start nothing when the visual is already where it lands
+2661	the landing tail	should cancel the tail when the controller is destroyed
+2683	the landing tail	should cancel the tail when the next drag acquires the visual
+2705	the landing tail	should keep the tail through a press that never activates
+2724	the landing tail	should leave no tail running once the policy requested destruction
+2745	the landing tail	should deliver the terminal of the unit whose policy requested destruction
+2764	the landing tail	should report a policy that throws and still terminate
+2785	the landing tail	should report a duration the platform refuses and still terminate
+2905	the landing origin	should reproduce the transform the drag last wrote
+2934	the landing origin	should report the constrained delta rather than the pointer delta
+2956	the landing origin	should track a write issued from an action effect
+2992	the landing origin	should report the origin for an operation that never rendered
+3006	the landing origin	should report the origin for a pointerless operation
+3041	the landing origin	should record nothing for a compose without a write
+3061	the landing origin	should leave the recorded delta stale when a behavior writes behind it
+3107	the join	should release presentation before finalizing, and tail between
+3131	the join	should measure once, under SETTLING
+3151	the join	should read the anchor before any code can rewrite it
+3208	the join	should skip the tail and still terminate when the measurement throws
+3253	the join	should raise no classified failure of its own
+3291	the join	should retire after a throwing terminal callback
+3311	the failure checkpoint	should drive the settlement seam with the failed input
+3339	the failure checkpoint	should start no tail for a failed settlement
+3356	the failure checkpoint	should publish the terminal from the error route, after the release
+3384	the failure checkpoint	should publish the terminal when a presentation disposer requested destruction on the error route
+3423	the failure checkpoint	should retire the operation after reporting
+3439	the failure checkpoint	should ignore a second checkpoint while a report is in flight
+3471	the failure checkpoint	should report rather than requeue when the report seam throws
+3498	the failure checkpoint	should not swallow a failure raised over the failed input
+3528	the failure checkpoint	should classify a failure in a later operation just as well
+3547	the failure checkpoint	should replace an open settlement without disturbing a live tail
+3576	cancellation stages	should cancel an active drag at the proposal stage
+3592	cancellation stages	should cancel a releasing drag at the consumer stage
+3611	cancellation stages	should finalize a cancelled operation through the join
+3623	cancellation stages	should cancel an activating drag at the proposal stage
+3658	cancellation origins	should mark a consumer cancel as supplied
+3667	cancellation origins	should mark a behavior cancel as supplied
+3682	cancellation origins	should mark Escape as aborted
+3693	cancellation origins	should carry no reason for an Escape
+3708	cancellation origins	should mark a cancelled pointer as interrupted
+3721	cancellation origins	should not let a supplied reason forge an origin
+3737	cancellation origins	should mark lost pointer capture as interrupted
+3797	the activation checkpoint against a held cancel	should not reach ACTIVE when a cancel is latched during activation
+3803	the activation checkpoint against a held cancel	should settle the cancellation the checkpoint refused to overtake
+3854	armed dispatch tags	should report -22 before dispatch returns at depth 0
+3861	armed dispatch tags	should report 0.5 before dispatch returns at depth 0
+3868	armed dispatch tags	should report 2 before dispatch returns at depth 0
+3875	armed dispatch tags	should report NaN before dispatch returns at depth 0
+3882	armed dispatch tags	should queue no out-of-range tag and still apply the next in-range one at depth 0
+3898	armed dispatch tags	should retire nothing for a tag that would alias RETIRE
+3906	armed dispatch tags	should report out-of-range tags dispatched inside a unit before dispatch returns
+3945	armed dispatch tags	should apply the in-range dispatches made inside a unit after it
+3975	armed dispatch tags	should report out-of-range tags while a destroy request is registered and not yet applied
+4004	armed dispatch tags	should report and apply nothing once destruction has been applied
+4018	behavior actions	should run the action envelope for a declared tag
+4028	behavior actions	should thread the argument to both phases
+4048	behavior actions	should drop a tag outside the declared range
+4065	behavior actions	should append a nested dispatch rather than interrupting
+4100	cancellation	should retire a cancelled pending press
+4109	cancellation	should ignore a cancel while idle
+4121	cancellation	should let the first cancel of an operation win
+4141	cancellation	should release presentation when an active drag is cancelled
+4150	cancellation	should cancel on Escape
+4161	cancellation	should cancel when the pointer is cancelled
+4174	destroy	should release presentation and motion synchronously
+4184	destroy	should release pointer capture
+4193	destroy	should abort ingress so a later press is inert
+4202	destroy	should be terminal exactly once
+4212	destroy	should complete every later step after spec.retire throws
+4231	destroy	should commit a preparation whose prepare requested destruction
+4255	destroy	should ignore work dispatched after destroy
+4268	terminal destruction during the join	should leave no tail running after anchorTarget requested destruction
+4293	terminal destruction during the join	should call the terminal callback of the join whose anchorTarget requested destruction
+4309	terminal destruction during the join	should leave no tail running after a presentation disposer requested destruction
+4344	the one channel	should run every remaining disposer when onError throws mid-teardown
+4377	the one channel	should discard a throwing onError without notifying it back
+4399	the one channel	should refuse every later notification once onError destroys
+4429	the one channel	should surface a second checkpoint rather than dropping it silently
+4477	teardown totality	should scrub the draft after the current frame reset throws
+4487	teardown totality	should release ingress after a reset throws
+4499	teardown totality	should not let a throwing reset escape destroy
+4508	teardown totality	should run both scrubs when a reset throws during destroy
+4531	teardown totality	should complete retirement after a reset throws mid-operation
+4547	the operation record	should still hold the operation while retirement runs
+4612	arm unwind of a partial frame pair	should scrub the first frame when the second factory throws
+4647	arm unwind of a partial frame pair	should reset each composed frame once when a factory requests destruction
+4694	arm unwind of a partial frame pair	should scrub both frames when arming fails after both were composed
+4729	cancellation against a failure checkpoint	should drop a checkpoint queued while a cancel latch is held
+4749	cancellation against a failure checkpoint	should still report a checkpoint the cancel latch outranked
+4767	cancellation against a failure checkpoint	should drop a checkpoint classified before the cancel latch was set
+4786	cancellation against a failure checkpoint	should let the cancellation produce the single terminal callback
+4806	arbitrary thenables	should reject the resolution when the then accessor throws
+4826	arbitrary thenables	should reject the resolution when then() throws
+4844	arbitrary thenables	should keep the controller usable after a hostile thenable
+4862	arbitrary thenables	should read the then accessor exactly once
+4885	arbitrary thenables	should keep the first completion when a thenable resolves and then throws
+4937	the execution bracket	should refuse a press dispatched from inside a running unit
+4945	the execution bracket	should keep the click suppressor armed through a refused press
+4958	the execution bracket	should run physical teardown immediately outside a transaction
+4970	the execution bracket	should close, report and only then tear down on a panic
+5043	the execution bracket	should settle the returned promise after physical teardown
+5054	the execution bracket	should return one promise from every destroy call
+5066	the execution bracket	should read open for the rest of the requesting unit
+5081	the execution bracket	should read closed once the requesting unit has ended
+5093	the execution bracket	should defer physical teardown to the outermost transaction boundary
+5110	the execution bracket	should settle the deferred promise only after the boundary runs teardown
+5129	the execution bracket	should tear down once when destroy is called twice inside one transaction
+5147	the execution bracket	should agree with the physical signal inside the requesting unit
+5170	the execution bracket	should keep the ingress released once the boundary runs
+5192	requests at unit boundaries	should publish an admission whose admit requested destruction and tear it down after
+5214	requests at unit boundaries	should deliver the start of an activation whose prepare requested destruction
+5247	requests at unit boundaries	should start and then cancel an activation whose prepare requested a cancel
+5282	requests at unit boundaries	should finish the join whose anchorTarget requested destruction and retire nothing after it
+5311	requests at unit boundaries	should register nothing for a cancel raised in anchorTarget
+5338	requests at unit boundaries	should not let a cancel raised in anchorTarget supersede a later failure
+5382	requests at unit boundaries	should apply requests from onStart in the order they were made
+5398	requests at unit boundaries	should apply none of the requests from onStart when destruction follows them
+5410	requests at unit boundaries	should register nothing for a cancel raised in the terminal callback
+5432	requests at unit boundaries	should report a failure a cancel in the same seam superseded
+5456	requests at unit boundaries	should report a failure applied before a cancel raised in a later unit
+5488	requests at unit boundaries	should apply destruction at once while a resolution is pending and drop its late settle
+5525	a cancel held at activation’s entry	should retire a command whose admission queued work that cancelled it
+5581	a cancel held at activation’s entry	should retire a press whose action dispatched a crossing move and then cancelled
+5637	a fault destruction discards	should warn for a checkpoint registered before destruction is requested
+5658	a fault destruction discards	should warn for a checkpoint registered after destruction is requested
+5676	a fault destruction discards	should warn for discarded checkpoints in registration order
+5696	a fault destruction discards	should deliver the warning after the unit and before application, with ingress refused
+5739	a fault destruction discards	should drop what the delivered report requests and retire once
+5779	a fault destruction discards	should absorb a throw from the report and go on to the next fault
+5806	a fault destruction discards	should report destruction and not a cancel held before the checkpoint
+5824	a fault destruction discards	should report destruction and not a cancel held after the checkpoint
+5842	a fault destruction discards	should not warn for a checkpoint whose own settlement requests destruction
+5862	a fault destruction discards	should warn only for the checkpoint behind one that applied and requested destruction
+5880	a fault destruction discards	should deliver only the panic when a panic discards a checkpoint
+5924	a fault destruction discards	should warn for a round-trip that requests destruction and then throws
+5941	a fault destruction discards	should warn for a round-trip that requests destruction and then rejects inside then
+5962	a fault destruction discards	should deliver nothing for a rejection after a round-trip already fulfilled
+5987	a fault destruction discards	should deliver nothing for a round-trip that requests destruction and returns a value
+6004	a fault destruction discards	should deliver nothing for a rejection arriving after application
+6022	a fault destruction discards	should report destruction for a round-trip that holds a cancel and requests destruction
+6040	a fault destruction discards	should absorb a throw from a discarded rejection's report
+6065	a fault destruction discards	should report a rejection the delivered report causes, behind the checkpoint
+6106	a fault destruction discards	should report the cancel for a rejection queued behind it
+6127	a fault destruction discards	should report the cancel for a rejection behind a cancel whose settlement requests destruction
+6148	a fault destruction discards	should report once for a rejection whose own settlement requests destruction and rethrows
+6176	the minted channel	should deliver in the construction window and drop once destruction is applied
+6228	the minted channel	should absorb a throw from the sink

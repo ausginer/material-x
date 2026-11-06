@@ -1,0 +1,371 @@
+file	row	line	describe	title	group	guarantee	disposition	evidence
+kernel	1	438	draggable	should return the controller the behavior built	X	Mechanism, SPI or out of domain	drop	
+kernel	2	444	draggable	should hand the behavior a kernel whose root is the ingress boundary	X	Mechanism, SPI or out of domain	drop	
+kernel	3	450	draggable	should arm ingress only after the behavior returned	X	Mechanism, SPI or out of domain	drop	
+kernel	4	535	discrete admission	should bind no discrete listener when the spec declares no command	X	Mechanism, SPI or out of domain	drop	
+kernel	5	549	discrete admission	should mint a pointerless operation and queue ACTIVATE	B	Press admission, threshold and pointer identity	keep	
+kernel	6	579	discrete admission	should not prevent the default when the command declines	A	Input policy and click suppression	keep	
+kernel	7	598	discrete admission	should leave an admitted press unprevented	A	Input policy and click suppression	keep	
+kernel	8	633	discrete admission	should prevent the move that crosses the activation threshold	A	Input policy and click suppression	keep	
+kernel	9	644	discrete admission	should not prevent a move for an operation that never activates	A	Input policy and click suppression	keep	
+kernel	10	658	discrete admission	should suppress exactly one trailing click after an activated drag	A	Input policy and click suppression	revise	
+kernel	11	672	discrete admission	should not arm the suppressor for a press that never activated	A	Input policy and click suppression	keep	
+kernel	12	683	discrete admission	should suppress the trailing click after a cancelled drag too	A	Input policy and click suppression	keep	
+kernel	13	697	discrete admission	should disarm the suppressor on the next pointerdown	A	Input policy and click suppression	revise	
+kernel	14	710	discrete admission	should disarm the suppressor at teardown	A	Input policy and click suppression	keep	
+kernel	15	724	discrete admission	should report a throwing command.admit with no operation	I	Fault reporting	revise	
+kernel	16	758	discrete admission	should reject a command.types entry colliding with the pointer ingress	X	Mechanism, SPI or out of domain	drop	
+kernel	17	795	discrete admission	should arm an empty command.types as the no-command configuration	X	Mechanism, SPI or out of domain	drop	
+kernel	18	841	discrete admission	should arm a command.types carrying an empty-string entry	X	Mechanism, SPI or out of domain	drop	
+kernel	19	877	discrete admission	should arm a command.types carrying a duplicate entry	X	Mechanism, SPI or out of domain	drop	
+kernel	20	899	discrete admission	should release the discrete listeners on destroy	E	Destroy: request, application, totality	keep	
+kernel	21	929	arm	should unwind and rethrow when a frame factory throws	X	Mechanism, SPI or out of domain	drop	
+kernel	22	978	arm	should arm with a frame part that declares a kernel frame key	X	Mechanism, SPI or out of domain	drop	
+kernel	23	994	arm	should arm with a symbol-keyed frame part	X	Mechanism, SPI or out of domain	drop	
+kernel	24	1011	arm	should arm with a non-deterministic frame part factory	X	Mechanism, SPI or out of domain	drop	
+kernel	25	1038	admission	should run admit inside the native dispatch	B	Press admission, threshold and pointer identity	keep	
+kernel	26	1054	admission	should leave the controller idle when admit returns null	B	Press admission, threshold and pointer identity	keep	
+kernel	27	1061	admission	should ignore a non-primary press	B	Press admission, threshold and pointer identity	keep	
+kernel	28	1078	admission	should dispose an operation whose input arming failed and retire nothing else	I	Fault reporting	revise	
+kernel	29	1141	admission	should refuse a nested press before it can touch either frame	C	Reentrant input is refused	keep	
+kernel	30	1189	admission	should ignore a press while an operation is live	C	Reentrant input is refused	keep	
+kernel	31	1198	admission	should report a throwing admit and stay usable	I	Fault reporting	revise	
+kernel	32	1227	admission	should not mint an operation when admit destroyed the controller	E	Destroy: request, application, totality	keep	
+kernel	33	1248	threshold	should not activate below the threshold	B	Press admission, threshold and pointer identity	keep	
+kernel	34	1257	threshold	should activate once the travel reaches the threshold	B	Press admission, threshold and pointer identity	keep	
+kernel	35	1266	threshold	should measure travel from the grab point, not the previous sample	B	Press admission, threshold and pointer identity	keep	
+kernel	36	1281	threshold	should ignore a sample carrying another pointer id	B	Press admission, threshold and pointer identity	keep	
+kernel	37	1298	activation	should drive prepare then effect	X	Mechanism, SPI or out of domain	drop	
+kernel	38	1309	activation	should commit ACTIVATING before the effect runs	X	Mechanism, SPI or out of domain	drop	
+kernel	39	1316	activation	should acquire pointer capture on the root, not the item	A	Input policy and click suppression	keep	
+kernel	40	1323	activation	should classify a capture failure as an activation failure	I	Fault reporting	revise	
+kernel	41	1338	activation	should reach ACTIVE through START_COMMITTED	X	Mechanism, SPI or out of domain	drop	
+kernel	42	1347	activation	should retire a discarded activation	H	Exactly one terminal, gated by start	keep	
+kernel	43	1371	activation	should not retire a failed activation	X	Mechanism, SPI or out of domain	drop	
+kernel	44	1392	activation	should not dispatch START_COMMITTED when onStart cancelled	D	Cancel semantics and precedence	revise	
+kernel	45	1409	activation	should not dispatch START_COMMITTED when onStart destroyed	E	Destroy: request, application, totality	revise	
+kernel	46	1434	the phase a commit publishes	should not carry a discarded activation phase into the next operation	X	Mechanism, SPI or out of domain	drop	
+kernel	47	1460	the phase a commit publishes	should not carry a failed activation phase into the next operation	X	Mechanism, SPI or out of domain	drop	
+kernel	48	1487	the phase a commit publishes	should admit the next operation at PENDING after an abandoned activation	X	Mechanism, SPI or out of domain	drop	
+kernel	49	1514	the hot path	should commit the sample before calling moved	J	Release and presentation order	keep	
+kernel	50	1528	the hot path	should classify a throwing moved instead of panicking	I	Fault reporting	revise	
+kernel	51	1545	release	should retire a press released below the threshold	B	Press admission, threshold and pointer identity	keep	
+kernel	52	1554	release	should commit RELEASING before preparing	X	Mechanism, SPI or out of domain	drop	
+kernel	53	1563	release	should close motion between the two commits	J	Release and presentation order	keep	
+kernel	54	1579	release	should release pointer capture with motion	J	Release and presentation order	keep	
+kernel	55	1588	release	should commit the release point, not the last processed move	J	Release and presentation order	keep	
+kernel	56	1607	release	should classify a throwing release prepare at the seam’s own stage	I	Fault reporting	revise	
+kernel	57	1634	release	should not run the effect after a throwing prepare	X	Mechanism, SPI or out of domain	drop	
+kernel	58	1652	release	should ignore a release carrying another pointer id	B	Press admission, threshold and pointer identity	keep	
+kernel	59	1665	the resolution round-trip	should settle a null command as skipped	F	Verdict round-trip and thenables	keep	
+kernel	60	1676	the resolution round-trip	should settle a synchronously returned value as fulfilled	F	Verdict round-trip and thenables	keep	
+kernel	61	1687	the resolution round-trip	should settle a thenable when it resolves	F	Verdict round-trip and thenables	keep	
+kernel	62	1703	the resolution round-trip	should settle a rejected thenable as rejected	F	Verdict round-trip and thenables	revise	
+kernel	63	1718	the resolution round-trip	should settle a throwing invoke as rejected	F	Verdict round-trip and thenables	revise	
+kernel	64	1732	the resolution round-trip	should not execute the command when the release effect failed	F	Verdict round-trip and thenables	keep	
+kernel	65	1755	the resolution round-trip	should abort the resolver signal when the operation is cancelled	F	Verdict round-trip and thenables	keep	
+kernel	66	1772	the resolution round-trip	should not surface an abandoned resolver’s late rejection to the page	F	Verdict round-trip and thenables	keep	gap-probe
+kernel	67	1835	the resolution round-trip	should not abort the signal of a resolver that already completed	F	Verdict round-trip and thenables	keep	gap-probe
+kernel	68	1852	the resolution round-trip	should let a cancel raised from inside invoke win	F	Verdict round-trip and thenables	keep	
+kernel	69	1870	the resolution round-trip	should drop a resolution that settles after the controller was destroyed	F	Verdict round-trip and thenables	keep	
+kernel	70	1883	the resolution round-trip	should refuse a completion whose slot turned over before it settled	F	Verdict round-trip and thenables	keep	
+kernel	71	1927	the resolution round-trip	should refuse a completion whose slot turned over before it was applied	F	Verdict round-trip and thenables	keep	
+kernel	72	1994	the round-trip unit	should open no round-trip for a cancel requested in the release effect	F	Verdict round-trip and thenables	keep	
+kernel	73	2020	the round-trip unit	should run the release effect of a release whose prepare requested cancel	X	Mechanism, SPI or out of domain	drop	
+kernel	74	2052	the round-trip unit	should run the effect of an action whose prepare requested cancel	X	Mechanism, SPI or out of domain	drop	
+kernel	75	2090	the round-trip unit	should open no round-trip for a destroy requested in the release effect	F	Verdict round-trip and thenables	keep	
+kernel	76	2120	the round-trip unit	should settle a cancel requested from inside the round-trip at the consumer stage	F	Verdict round-trip and thenables	revise	
+kernel	77	2145	the round-trip unit	should decline the round-trip for a cancel requested by an action the release effect dispatched	F	Verdict round-trip and thenables	revise	
+kernel	78	2187	the round-trip unit	should open no round-trip for a destroy requested in the release prepare	F	Verdict round-trip and thenables	keep	
+kernel	79	2213	the round-trip unit	should open no round-trip for a destroy requested by an action the release effect dispatched	F	Verdict round-trip and thenables	revise	
+kernel	80	2251	the round-trip unit	should apply work the release effect dispatched before the round-trip opens	F	Verdict round-trip and thenables	revise	
+kernel	81	2272	the round-trip unit	should decline a null command for a cancel requested by an action the release effect dispatched	F	Verdict round-trip and thenables	revise	
+kernel	82	2377	the round-trip unit	should decline a synchronous round-trip for a failure registered by an action the release effect dispatched	F	Verdict round-trip and thenables	revise	
+kernel	83	2381	the round-trip unit	should decline an asynchronous round-trip for a failure registered by an action the release effect dispatched	F	Verdict round-trip and thenables	revise	
+kernel	84	2385	the round-trip unit	should decline a null command for a failure registered by an action the release effect dispatched	F	Verdict round-trip and thenables	revise	
+kernel	85	2392	the settlement seam	should commit SETTLING before the effect runs	X	Mechanism, SPI or out of domain	drop	
+kernel	86	2401	the settlement seam	should classify a throwing prepare at the seam’s own stage	I	Fault reporting	revise	
+kernel	87	2434	the settlement seam	should close motion and cancellation before the behavior effect	J	Release and presentation order	keep	
+kernel	88	2455	the settlement seam	should measure nothing when the effect throws	X	Mechanism, SPI or out of domain	drop	
+kernel	89	2483	the settlement drain	should finalize in the resolution drain	J	Release and presentation order	keep	
+kernel	90	2495	the settlement drain	should finalize in the same drain with a tail installed	J	Release and presentation order	keep	
+kernel	91	2521	the landing tail	should start nothing without a landing policy	L	Landing tail, origin and target	keep	
+kernel	92	2533	the landing tail	should travel the delta the release removed	L	Landing tail, origin and target	keep	
+kernel	93	2567	the landing tail	should decay to a zero contribution	L	Landing tail, origin and target	keep	
+kernel	94	2589	the landing tail	should add to the element rather than claim its transform	L	Landing tail, origin and target	keep	
+kernel	95	2615	the landing tail	should start only after presentation is released	L	Landing tail, origin and target	keep	
+kernel	96	2642	the landing tail	should start nothing when the visual is already where it lands	L	Landing tail, origin and target	keep	
+kernel	97	2661	the landing tail	should cancel the tail when the controller is destroyed	L	Landing tail, origin and target	keep	
+kernel	98	2683	the landing tail	should cancel the tail when the next drag acquires the visual	L	Landing tail, origin and target	keep	
+kernel	99	2705	the landing tail	should keep the tail through a press that never activates	L	Landing tail, origin and target	keep	gap-probe
+kernel	100	2724	the landing tail	should leave no tail running once the policy requested destruction	L	Landing tail, origin and target	keep	
+kernel	101	2745	the landing tail	should deliver the terminal of the unit whose policy requested destruction	L	Landing tail, origin and target	keep	
+kernel	102	2764	the landing tail	should report a policy that throws and still terminate	L	Landing tail, origin and target	revise	gap-probe
+kernel	103	2785	the landing tail	should report a duration the platform refuses and still terminate	L	Landing tail, origin and target	revise	gap-probe
+kernel	104	2905	the landing origin	should reproduce the transform the drag last wrote	L	Landing tail, origin and target	keep	
+kernel	105	2934	the landing origin	should report the constrained delta rather than the pointer delta	L	Landing tail, origin and target	keep	
+kernel	106	2956	the landing origin	should track a write issued from an action effect	L	Landing tail, origin and target	revise	
+kernel	107	2992	the landing origin	should report the origin for an operation that never rendered	L	Landing tail, origin and target	keep	
+kernel	108	3006	the landing origin	should report the origin for a pointerless operation	L	Landing tail, origin and target	keep	
+kernel	109	3041	the landing origin	should record nothing for a compose without a write	X	Mechanism, SPI or out of domain	drop	
+kernel	110	3061	the landing origin	should leave the recorded delta stale when a behavior writes behind it	X	Mechanism, SPI or out of domain	drop	
+kernel	111	3107	the join	should release presentation before finalizing, and tail between	J	Release and presentation order	keep	
+kernel	112	3131	the join	should measure once, under SETTLING	J	Release and presentation order	revise	
+kernel	113	3151	the join	should read the anchor before any code can rewrite it	J	Release and presentation order	keep	
+kernel	114	3208	the join	should skip the tail and still terminate when the measurement throws	L	Landing tail, origin and target	revise	
+kernel	115	3253	the join	should raise no classified failure of its own	X	Mechanism, SPI or out of domain	drop	
+kernel	116	3291	the join	should retire after a throwing terminal callback	H	Exactly one terminal, gated by start	keep	
+kernel	117	3311	the failure checkpoint	should drive the settlement seam with the failed input	X	Mechanism, SPI or out of domain	drop	
+kernel	118	3339	the failure checkpoint	should start no tail for a failed settlement	L	Landing tail, origin and target	keep	
+kernel	119	3356	the failure checkpoint	should publish the terminal from the error route, after the release	H	Exactly one terminal, gated by start	keep	
+kernel	120	3384	the failure checkpoint	should publish the terminal when a presentation disposer requested destruction on the error route	E	Destroy: request, application, totality	revise	
+kernel	121	3423	the failure checkpoint	should retire the operation after reporting	I	Fault reporting	revise	
+kernel	122	3439	the failure checkpoint	should ignore a second checkpoint while a report is in flight	I	Fault reporting	revise	
+kernel	123	3471	the failure checkpoint	should report rather than requeue when the report seam throws	X	Mechanism, SPI or out of domain	drop	
+kernel	124	3498	the failure checkpoint	should not swallow a failure raised over the failed input	I	Fault reporting	revise	
+kernel	125	3528	the failure checkpoint	should classify a failure in a later operation just as well	I	Fault reporting	revise	
+kernel	126	3547	the failure checkpoint	should replace an open settlement without disturbing a live tail	L	Landing tail, origin and target	keep	
+kernel	127	3576	cancellation stages	should cancel an active drag at the proposal stage	D	Cancel semantics and precedence	revise	
+kernel	128	3592	cancellation stages	should cancel a releasing drag at the consumer stage	D	Cancel semantics and precedence	revise	
+kernel	129	3611	cancellation stages	should finalize a cancelled operation through the join	X	Mechanism, SPI or out of domain	drop	
+kernel	130	3623	cancellation stages	should cancel an activating drag at the proposal stage	D	Cancel semantics and precedence	revise	
+kernel	131	3658	cancellation origins	should mark a consumer cancel as supplied	D	Cancel semantics and precedence	revise	
+kernel	132	3667	cancellation origins	should mark a behavior cancel as supplied	X	Mechanism, SPI or out of domain	drop	
+kernel	133	3682	cancellation origins	should mark Escape as aborted	D	Cancel semantics and precedence	revise	
+kernel	134	3693	cancellation origins	should carry no reason for an Escape	D	Cancel semantics and precedence	revise	
+kernel	135	3708	cancellation origins	should mark a cancelled pointer as interrupted	D	Cancel semantics and precedence	revise	
+kernel	136	3721	cancellation origins	should not let a supplied reason forge an origin	D	Cancel semantics and precedence	keep	
+kernel	137	3737	cancellation origins	should mark lost pointer capture as interrupted	D	Cancel semantics and precedence	revise	
+kernel	138	3797	the activation checkpoint against a held cancel	should not reach ACTIVE when a cancel is latched during activation	D	Cancel semantics and precedence	keep	
+kernel	139	3803	the activation checkpoint against a held cancel	should settle the cancellation the checkpoint refused to overtake	D	Cancel semantics and precedence	keep	
+kernel	140	3854	armed dispatch tags	should report -22 before dispatch returns at depth 0	X	Mechanism, SPI or out of domain	drop	
+kernel	141	3861	armed dispatch tags	should report 0.5 before dispatch returns at depth 0	X	Mechanism, SPI or out of domain	drop	
+kernel	142	3868	armed dispatch tags	should report 2 before dispatch returns at depth 0	X	Mechanism, SPI or out of domain	drop	
+kernel	143	3875	armed dispatch tags	should report NaN before dispatch returns at depth 0	X	Mechanism, SPI or out of domain	drop	
+kernel	144	3882	armed dispatch tags	should queue no out-of-range tag and still apply the next in-range one at depth 0	X	Mechanism, SPI or out of domain	drop	
+kernel	145	3898	armed dispatch tags	should retire nothing for a tag that would alias RETIRE	X	Mechanism, SPI or out of domain	drop	
+kernel	146	3906	armed dispatch tags	should report out-of-range tags dispatched inside a unit before dispatch returns	X	Mechanism, SPI or out of domain	drop	
+kernel	147	3945	armed dispatch tags	should apply the in-range dispatches made inside a unit after it	X	Mechanism, SPI or out of domain	drop	
+kernel	148	3975	armed dispatch tags	should report out-of-range tags while a destroy request is registered and not yet applied	X	Mechanism, SPI or out of domain	drop	
+kernel	149	4004	armed dispatch tags	should report and apply nothing once destruction has been applied	X	Mechanism, SPI or out of domain	drop	
+kernel	150	4018	behavior actions	should run the action envelope for a declared tag	X	Mechanism, SPI or out of domain	drop	
+kernel	151	4028	behavior actions	should thread the argument to both phases	X	Mechanism, SPI or out of domain	drop	
+kernel	152	4048	behavior actions	should drop a tag outside the declared range	X	Mechanism, SPI or out of domain	drop	
+kernel	153	4065	behavior actions	should append a nested dispatch rather than interrupting	X	Mechanism, SPI or out of domain	drop	
+kernel	154	4100	cancellation	should retire a cancelled pending press	D	Cancel semantics and precedence	keep	
+kernel	155	4109	cancellation	should ignore a cancel while idle	D	Cancel semantics and precedence	keep	
+kernel	156	4121	cancellation	should let the first cancel of an operation win	D	Cancel semantics and precedence	keep	
+kernel	157	4141	cancellation	should release presentation when an active drag is cancelled	D	Cancel semantics and precedence	keep	
+kernel	158	4150	cancellation	should cancel on Escape	D	Cancel semantics and precedence	keep	
+kernel	159	4161	cancellation	should cancel when the pointer is cancelled	D	Cancel semantics and precedence	keep	
+kernel	160	4174	destroy	should release presentation and motion synchronously	E	Destroy: request, application, totality	keep	
+kernel	161	4184	destroy	should release pointer capture	E	Destroy: request, application, totality	keep	
+kernel	162	4193	destroy	should abort ingress so a later press is inert	E	Destroy: request, application, totality	keep	
+kernel	163	4202	destroy	should be terminal exactly once	E	Destroy: request, application, totality	keep	
+kernel	164	4212	destroy	should complete every later step after spec.retire throws	E	Destroy: request, application, totality	revise	
+kernel	165	4231	destroy	should commit a preparation whose prepare requested destruction	X	Mechanism, SPI or out of domain	drop	
+kernel	166	4255	destroy	should ignore work dispatched after destroy	E	Destroy: request, application, totality	keep	
+kernel	167	4268	terminal destruction during the join	should leave no tail running after anchorTarget requested destruction	E	Destroy: request, application, totality	revise	
+kernel	168	4293	terminal destruction during the join	should call the terminal callback of the join whose anchorTarget requested destruction	E	Destroy: request, application, totality	keep	
+kernel	169	4309	terminal destruction during the join	should leave no tail running after a presentation disposer requested destruction	E	Destroy: request, application, totality	revise	
+kernel	170	4344	the one channel	should run every remaining disposer when onError throws mid-teardown	E	Destroy: request, application, totality	revise	
+kernel	171	4377	the one channel	should discard a throwing onError without notifying it back	X	Mechanism, SPI or out of domain	drop	
+kernel	172	4399	the one channel	should refuse every later notification once onError destroys	X	Mechanism, SPI or out of domain	drop	
+kernel	173	4429	the one channel	should surface a second checkpoint rather than dropping it silently	I	Fault reporting	revise	
+kernel	174	4477	teardown totality	should scrub the draft after the current frame reset throws	X	Mechanism, SPI or out of domain	drop	
+kernel	175	4487	teardown totality	should release ingress after a reset throws	X	Mechanism, SPI or out of domain	drop	
+kernel	176	4499	teardown totality	should not let a throwing reset escape destroy	X	Mechanism, SPI or out of domain	drop	
+kernel	177	4508	teardown totality	should run both scrubs when a reset throws during destroy	X	Mechanism, SPI or out of domain	drop	
+kernel	178	4531	teardown totality	should complete retirement after a reset throws mid-operation	X	Mechanism, SPI or out of domain	drop	
+kernel	179	4547	the operation record	should still hold the operation while retirement runs	X	Mechanism, SPI or out of domain	drop	
+kernel	180	4612	arm unwind of a partial frame pair	should scrub the first frame when the second factory throws	X	Mechanism, SPI or out of domain	drop	
+kernel	181	4647	arm unwind of a partial frame pair	should reset each composed frame once when a factory requests destruction	X	Mechanism, SPI or out of domain	drop	
+kernel	182	4694	arm unwind of a partial frame pair	should scrub both frames when arming fails after both were composed	X	Mechanism, SPI or out of domain	drop	
+kernel	183	4729	cancellation against a failure checkpoint	should drop a checkpoint queued while a cancel latch is held	I	Fault reporting	revise	
+kernel	184	4749	cancellation against a failure checkpoint	should still report a checkpoint the cancel latch outranked	I	Fault reporting	revise	
+kernel	185	4767	cancellation against a failure checkpoint	should drop a checkpoint classified before the cancel latch was set	I	Fault reporting	revise	
+kernel	186	4786	cancellation against a failure checkpoint	should let the cancellation produce the single terminal callback	H	Exactly one terminal, gated by start	keep	
+kernel	187	4806	arbitrary thenables	should reject the resolution when the then accessor throws	F	Verdict round-trip and thenables	keep	gap-probe
+kernel	188	4826	arbitrary thenables	should reject the resolution when then() throws	F	Verdict round-trip and thenables	keep	gap-probe
+kernel	189	4844	arbitrary thenables	should keep the controller usable after a hostile thenable	F	Verdict round-trip and thenables	keep	gap-probe
+kernel	190	4862	arbitrary thenables	should read the then accessor exactly once	F	Verdict round-trip and thenables	keep	gap-probe
+kernel	191	4885	arbitrary thenables	should keep the first completion when a thenable resolves and then throws	F	Verdict round-trip and thenables	keep	gap-probe
+kernel	192	4937	the execution bracket	should refuse a press dispatched from inside a running unit	C	Reentrant input is refused	keep	
+kernel	193	4945	the execution bracket	should keep the click suppressor armed through a refused press	A	Input policy and click suppression	keep	
+kernel	194	4958	the execution bracket	should run physical teardown immediately outside a transaction	E	Destroy: request, application, totality	keep	
+kernel	195	4970	the execution bracket	should close, report and only then tear down on a panic	I	Fault reporting	revise	
+kernel	196	5043	the execution bracket	should settle the returned promise after physical teardown	E	Destroy: request, application, totality	keep	
+kernel	197	5054	the execution bracket	should return one promise from every destroy call	E	Destroy: request, application, totality	keep	
+kernel	198	5066	the execution bracket	should read open for the rest of the requesting unit	E	Destroy: request, application, totality	keep	
+kernel	199	5081	the execution bracket	should read closed once the requesting unit has ended	E	Destroy: request, application, totality	keep	
+kernel	200	5093	the execution bracket	should defer physical teardown to the outermost transaction boundary	E	Destroy: request, application, totality	keep	
+kernel	201	5110	the execution bracket	should settle the deferred promise only after the boundary runs teardown	E	Destroy: request, application, totality	keep	
+kernel	202	5129	the execution bracket	should tear down once when destroy is called twice inside one transaction	E	Destroy: request, application, totality	keep	
+kernel	203	5147	the execution bracket	should agree with the physical signal inside the requesting unit	E	Destroy: request, application, totality	keep	
+kernel	204	5170	the execution bracket	should keep the ingress released once the boundary runs	E	Destroy: request, application, totality	keep	
+kernel	205	5192	requests at unit boundaries	should publish an admission whose admit requested destruction and tear it down after	E	Destroy: request, application, totality	keep	
+kernel	206	5214	requests at unit boundaries	should deliver the start of an activation whose prepare requested destruction	E	Destroy: request, application, totality	keep	
+kernel	207	5247	requests at unit boundaries	should start and then cancel an activation whose prepare requested a cancel	D	Cancel semantics and precedence	keep	
+kernel	208	5282	requests at unit boundaries	should finish the join whose anchorTarget requested destruction and retire nothing after it	E	Destroy: request, application, totality	keep	
+kernel	209	5311	requests at unit boundaries	should register nothing for a cancel raised in anchorTarget	D	Cancel semantics and precedence	keep	
+kernel	210	5338	requests at unit boundaries	should not let a cancel raised in anchorTarget supersede a later failure	I	Fault reporting	revise	
+kernel	211	5382	requests at unit boundaries	should apply requests from onStart in the order they were made	D	Cancel semantics and precedence	revise	
+kernel	212	5398	requests at unit boundaries	should apply none of the requests from onStart when destruction follows them	E	Destroy: request, application, totality	keep	
+kernel	213	5410	requests at unit boundaries	should register nothing for a cancel raised in the terminal callback	D	Cancel semantics and precedence	keep	
+kernel	214	5432	requests at unit boundaries	should report a failure a cancel in the same seam superseded	I	Fault reporting	revise	
+kernel	215	5456	requests at unit boundaries	should report a failure applied before a cancel raised in a later unit	I	Fault reporting	revise	
+kernel	216	5488	requests at unit boundaries	should apply destruction at once while a resolution is pending and drop its late settle	E	Destroy: request, application, totality	keep	
+kernel	217	5525	a cancel held at activation’s entry	should retire a command whose admission queued work that cancelled it	D	Cancel semantics and precedence	revise	
+kernel	218	5581	a cancel held at activation’s entry	should retire a press whose action dispatched a crossing move and then cancelled	D	Cancel semantics and precedence	revise	
+kernel	219	5637	a fault destruction discards	should warn for a checkpoint registered before destruction is requested	I	Fault reporting	revise	
+kernel	220	5658	a fault destruction discards	should warn for a checkpoint registered after destruction is requested	I	Fault reporting	revise	
+kernel	221	5676	a fault destruction discards	should warn for discarded checkpoints in registration order	I	Fault reporting	revise	
+kernel	222	5696	a fault destruction discards	should deliver the warning after the unit and before application, with ingress refused	I	Fault reporting	revise	
+kernel	223	5739	a fault destruction discards	should drop what the delivered report requests and retire once	I	Fault reporting	revise	
+kernel	224	5779	a fault destruction discards	should absorb a throw from the report and go on to the next fault	I	Fault reporting	revise	
+kernel	225	5806	a fault destruction discards	should report destruction and not a cancel held before the checkpoint	I	Fault reporting	revise	
+kernel	226	5824	a fault destruction discards	should report destruction and not a cancel held after the checkpoint	I	Fault reporting	revise	
+kernel	227	5842	a fault destruction discards	should not warn for a checkpoint whose own settlement requests destruction	I	Fault reporting	revise	
+kernel	228	5862	a fault destruction discards	should warn only for the checkpoint behind one that applied and requested destruction	I	Fault reporting	revise	
+kernel	229	5880	a fault destruction discards	should deliver only the panic when a panic discards a checkpoint	I	Fault reporting	revise	
+kernel	230	5924	a fault destruction discards	should warn for a round-trip that requests destruction and then throws	I	Fault reporting	revise	
+kernel	231	5941	a fault destruction discards	should warn for a round-trip that requests destruction and then rejects inside then	I	Fault reporting	revise	
+kernel	232	5962	a fault destruction discards	should deliver nothing for a rejection after a round-trip already fulfilled	I	Fault reporting	revise	
+kernel	233	5987	a fault destruction discards	should deliver nothing for a round-trip that requests destruction and returns a value	I	Fault reporting	revise	
+kernel	234	6004	a fault destruction discards	should deliver nothing for a rejection arriving after application	I	Fault reporting	revise	
+kernel	235	6022	a fault destruction discards	should report destruction for a round-trip that holds a cancel and requests destruction	I	Fault reporting	revise	
+kernel	236	6040	a fault destruction discards	should absorb a throw from a discarded rejection's report	I	Fault reporting	revise	
+kernel	237	6065	a fault destruction discards	should report a rejection the delivered report causes, behind the checkpoint	I	Fault reporting	revise	
+kernel	238	6106	a fault destruction discards	should report the cancel for a rejection queued behind it	I	Fault reporting	revise	
+kernel	239	6127	a fault destruction discards	should report the cancel for a rejection behind a cancel whose settlement requests destruction	I	Fault reporting	revise	
+kernel	240	6148	a fault destruction discards	should report once for a rejection whose own settlement requests destruction and rethrows	I	Fault reporting	revise	
+kernel	241	6176	the minted channel	should deliver in the construction window and drop once destruction is applied	I	Fault reporting	revise	
+kernel	242	6228	the minted channel	should absorb a throw from the sink	X	Mechanism, SPI or out of domain	drop	
+sortable	1	597	admission	should resolve the pressed item from the composed path	B	Press admission, threshold and pointer identity	keep	
+sortable	2	608	admission	should ignore a press outside the collection	B	Press admission, threshold and pointer identity	keep	
+sortable	3	617	admission	should not preventDefault on an admitted press	A	Input policy and click suppression	keep	
+sortable	4	635	admission	should preventDefault on the move that crosses the threshold	A	Input policy and click suppression	keep	
+sortable	5	645	admission	should not preventDefault on a move that stays below the threshold	A	Input policy and click suppression	keep	
+sortable	6	658	admission	should not preventDefault on moves after the crossing	A	Input policy and click suppression	keep	
+sortable	7	669	admission	should narrow admission through the handle slot	B	Press admission, threshold and pointer identity	keep	
+sortable	8	688	admission	should lift the visual without replacing the item	J	Release and presentation order	keep	
+sortable	9	728	the admission queue boundary	should apply a replacement dispatched from the handle resolver after admission commits	M	Collection and rebase	keep	
+sortable	10	752	the admission queue boundary	should apply a replacement dispatched from the visual resolver	M	Collection and rebase	keep	
+sortable	11	772	the admission queue boundary	should rebase the drag onto a collection replaced during admission	M	Collection and rebase	keep	gap-probe
+sortable	12	799	the admission queue boundary	should retire the operation when the replacement removes the pressed item	M	Collection and rebase	keep	gap-probe
+sortable	13	827	the admission queue boundary	should apply several queued replacements in dispatch order	M	Collection and rebase	revise	
+sortable	14	860	the admission queue boundary	should refuse a nested press dispatched from the handle resolver	C	Reentrant input is refused	keep	
+sortable	15	894	the admission queue boundary	should refuse a nested press dispatched from the visual resolver	C	Reentrant input is refused	keep	
+sortable	16	915	the admission queue boundary	should still admit the next press after refusing a nested one	C	Reentrant input is refused	keep	
+sortable	17	940	the admission queue boundary	should treat destroy from the handle resolver as an immediate terminal barrier	E	Destroy: request, application, totality	keep	gap-probe
+sortable	18	966	the admission queue boundary	should classify a throwing visual resolver as a consumer fault	I	Fault reporting	revise	gap-probe
+sortable	19	1007	the admission queue boundary	should treat destroy from the visual resolver as an immediate terminal barrier	E	Destroy: request, application, totality	keep	gap-probe
+sortable	20	1033	activation	should create the placeholder detached and insert it after the item	P	Placeholder and movement	keep	
+sortable	21	1057	activation	should apply the default mechanics to a customised placeholder	P	Placeholder and movement	keep	
+sortable	22	1074	activation	should publish the runtime before onStart runs	X	Mechanism, SPI or out of domain	drop	
+sortable	23	1090	activation	should not activate when the item left the collection	M	Collection and rebase	keep	
+sortable	24	1124	activation	should deliver the start of the activation whose placeholder insertion requested destruction	E	Destroy: request, application, totality	keep	gap-probe
+sortable	25	1130	activation	should remove the placeholder once the destruction its insertion requested is applied	E	Destroy: request, application, totality	keep	gap-probe
+sortable	26	1139	activation	should fail activation when the placeholder removes itself on connection	P	Placeholder and movement	keep	gap-probe
+sortable	27	1162	activation	should fail activation when the placeholder reparents itself on connection	P	Placeholder and movement	keep	gap-probe
+sortable	28	1187	activation	should fail activation when the whole list leaves the document	P	Placeholder and movement	keep	gap-probe
+sortable	29	1206	activation	should fail activation when the placeholder moves within the container	P	Placeholder and movement	keep	gap-probe
+sortable	30	1225	activation	should fail activation when the item is reparented away from the placeholder	P	Placeholder and movement	keep	gap-probe
+sortable	31	1250	activation	should start normally when the placeholder survives connection	P	Placeholder and movement	keep	
+sortable	32	1271	activation	should publish runtime state in the unit that requested destruction	X	Mechanism, SPI or out of domain	drop	
+sortable	33	1280	activation	should run no later unit after a reentrant destruction	E	Destroy: request, application, totality	keep	
+sortable	34	1292	the hot path	should render the committed sample and coalesce the spatial search	P	Placeholder and movement	keep	
+sortable	35	1313	the hot path	should not commit an insertion the resolver declined	P	Placeholder and movement	keep	
+sortable	36	1328	the hot path	should move the placeholder for a resolved insertion	P	Placeholder and movement	keep	
+sortable	37	1341	the hot path	should displace once, after the placeholder write	P	Placeholder and movement	keep	
+sortable	38	1371	placeholder movement	should reach a start gap	P	Placeholder and movement	keep	
+sortable	39	1387	placeholder movement	should reach an end gap	P	Placeholder and movement	keep	
+sortable	40	1398	placeholder movement	should be inert when the placeholder is already in position	P	Placeholder and movement	keep	
+sortable	41	1424	release	should build the proposal from the committed release point	J	Release and presentation order	keep	
+sortable	42	1442	release	should render the final sample, not the last processed move	J	Release and presentation order	keep	
+sortable	43	1463	release	should skip the round-trip for a proven no-op	F	Verdict round-trip and thenables	keep	
+sortable	44	1476	release	should not refuse an insertion whose neighbours the snapshot does not support	M	Collection and rebase	keep	
+sortable	45	1503	release	should still refuse an insertion carrying another version	M	Collection and rebase	revise	
+sortable	46	1519	release	should move the placeholder to the final gap before resolving	J	Release and presentation order	keep	
+sortable	47	1547	the terminal boundary (D-66)	should publish no terminal when activation.prepare throws	H	Exactly one terminal, gated by start	keep	
+sortable	48	1563	the terminal boundary (D-66)	should publish a terminal when onStart itself throws	H	Exactly one terminal, gated by start	keep	
+sortable	49	1583	the terminal boundary (D-66)	should carry AT_PROPOSAL for a failure before the round-trip opens	H	Exactly one terminal, gated by start	revise	
+sortable	50	1601	the terminal boundary (D-66)	should carry AT_PROPOSAL for a release.effect throw	H	Exactly one terminal, gated by start	revise	
+sortable	51	1627	the terminal boundary (D-66)	should publish exactly one terminal when the terminal callback throws	H	Exactly one terminal, gated by start	keep	
+sortable	52	1722	a failure registered ahead of the round-trip (D-206)	should open no synchronous round-trip once the collection work the release queued has failed	F	Verdict round-trip and thenables	revise	
+sortable	53	1728	a failure registered ahead of the round-trip (D-206)	should open no asynchronous round-trip once the collection work the release queued has failed	F	Verdict round-trip and thenables	revise	
+sortable	54	1736	settlement mapping	should map an accepted resolution to a destination recovery	F	Verdict round-trip and thenables	keep	
+sortable	55	1747	settlement mapping	should map a rejected resolution to onCancel with its reason	F	Verdict round-trip and thenables	keep	
+sortable	56	1764	settlement mapping	should classify a rejected round-trip promise	F	Verdict round-trip and thenables	revise	
+sortable	57	1794	settlement mapping	should classify a null rejection rather than reading it as a re-entry	F	Verdict round-trip and thenables	keep	
+sortable	58	1840	settlement mapping	should map a cancel at ACTIVE to the proposal stage	D	Cancel semantics and precedence	revise	
+sortable	59	1854	settlement mapping	should map a cancel during the round-trip to the consumer stage	D	Cancel semantics and precedence	revise	
+sortable	60	1871	settlement mapping	should publish both channels for a consequential failure	I	Fault reporting	revise	
+sortable	61	1944	a failure after the authored commit (D-66)	should keep the accepted result when the terminal callback throws	H	Exactly one terminal, gated by start	keep	
+sortable	62	1959	a failure after the authored commit (D-66)	should keep a rejected result too, not just an accepted one	H	Exactly one terminal, gated by start	keep	
+sortable	63	1983	the landing target	should re-anchor to the item for a destination recovery	L	Landing tail, origin and target	keep	
+sortable	64	2005	the landing target	should repair the semantic gap when the item moved	L	Landing tail, origin and target	keep	
+sortable	65	2032	the landing target	should not reinsert the placeholder when it is already anchored	L	Landing tail, origin and target	keep	
+sortable	66	2070	the landing target	should follow the grabbed item when a replacement moves it	L	Landing tail, origin and target	keep	
+sortable	67	2109	the landing target	should recover to the home gap of the frozen transaction	L	Landing tail, origin and target	keep	
+sortable	68	2145	the landing target	should not fabricate a gap for a removed item	L	Landing tail, origin and target	keep	
+sortable	69	2172	the landing target	should not derive a home gap for an item the replacement removed	L	Landing tail, origin and target	keep	
+sortable	70	2196	the landing target	should stay usable after an item-removed cancellation	L	Landing tail, origin and target	keep	
+sortable	71	2212	the landing target	should return the placeholder home for a rejected drop	L	Landing tail, origin and target	keep	
+sortable	72	2233	the landing target	should start no landing tail for an immediate recovery	L	Landing tail, origin and target	keep	
+sortable	73	2257	the collection	should publish an idle replacement without binding it to a frame	M	Collection and rebase	revise	
+sortable	74	2269	the collection	should copy the caller array at call time	M	Collection and rebase	keep	
+sortable	75	2283	the collection	should rebase a surviving gap during an active drag	M	Collection and rebase	keep	gap-probe
+sortable	76	2304	the collection	should publish and then cancel when the gap cannot survive	M	Collection and rebase	keep	gap-probe
+sortable	77	2324	the collection	should rebase an internal gap that stays adjacent	M	Collection and rebase	keep	gap-probe
+sortable	78	2348	the collection	should cancel when an internal gap loses its adjacency	M	Collection and rebase	keep	gap-probe
+sortable	79	2370	the collection	should refuse to build a proposal across versions	M	Collection and rebase	revise	
+sortable	80	2397	the collection	should cancel with item-removed when the dragged item vanishes	M	Collection and rebase	keep	gap-probe
+sortable	81	2409	the collection	should apply an update from inside onStart at ACTIVATING	M	Collection and rebase	keep	
+sortable	82	2434	the collection	should not rewrite the frozen snapshot after release	M	Collection and rebase	keep	
+sortable	83	2460	retirement	should run the retire hooks, each wrapped	E	Destroy: request, application, totality	revise	
+sortable	84	2485	retirement	should leave no placeholder and no item references behind	E	Destroy: request, application, totality	keep	
+sortable	85	2498	retirement	should admit a second drag after the first completed	H	Exactly one terminal, gated by start	keep	
+sortable	86	2513	collection identity	should apply two signals queued in one drain exactly once	M	Collection and rebase	revise	
+sortable	87	2540	collection identity	should invalidate geometry only when the identity did not move	M	Collection and rebase	keep	
+sortable	88	2578	collection identity	should keep versions increasing across separate drains	M	Collection and rebase	revise	
+sortable	89	2592	collection identity	should publish a duplicated collection the pull source returned	X	Mechanism, SPI or out of domain	drop	
+sortable	90	2610	collection identity	should not consume a version for a pull that produced no collection	X	Mechanism, SPI or out of domain	drop	
+sortable	91	2654	the destroy promise	should return one promise by identity through the sortable wrapper	E	Destroy: request, application, totality	keep	
+sortable	92	2678	invalidate() after destroy	should stay inert for a valid replacement	E	Destroy: request, application, totality	keep	
+sortable	93	2697	invalidate() after destroy	should not pull the collection at all for a post-destroy replacement	E	Destroy: request, application, totality	keep	
+sortable	94	2725	invalidate() after destroy	should not classify a post-destroy replacement as an activation failure	E	Destroy: request, application, totality	keep	
+sortable	95	2755	committed move failure classification	should classify a failing move hook as an action-effect failure	X	Mechanism, SPI or out of domain	drop	
+sortable	96	2787	invalidation failure classification	should classify a scroll-time invalidation failure	I	Fault reporting	revise	
+sortable	97	2808	invalidation failure classification	should classify an activation-time invalidation failure as its own stage	I	Fault reporting	revise	
+sortable	98	2824	invalidation failure classification	should not start an operation whose activation invalidation failed	H	Exactly one terminal, gated by start	keep	
+sortable	99	2836	invalidation failure classification	should classify a scheduling failure as SCHEDULED_FRAME	X	Mechanism, SPI or out of domain	drop	
+sortable	100	2875	placeholder factory results	should adopt the dragged item and lose the insertion one seam later	P	Placeholder and movement	keep	gap-probe
+sortable	101	2894	placeholder factory results	should adopt the lifted visual and lose the insertion the same way	P	Placeholder and movement	keep	gap-probe
+sortable	102	2906	placeholder factory results	should move a node that is already in the document	P	Placeholder and movement	keep	gap-probe
+sortable	103	2921	placeholder factory results	should fail at the first mechanics write for a result that is not an element	X	Mechanism, SPI or out of domain	drop	
+sortable	104	2933	placeholder factory results	should clear a stale slot when the item has none	P	Placeholder and movement	keep	
+sortable	105	2948	placeholder factory results	should mirror the slot the item does have	P	Placeholder and movement	keep	
+sortable	106	2966	inert placeholder movement	should not displace for an already-correct gap	P	Placeholder and movement	keep	
+sortable	107	2997	inert placeholder movement	should not invalidate geometry for an already-correct gap	P	Placeholder and movement	keep	
+sortable	108	3021	inert placeholder movement	should still displace for a real move	P	Placeholder and movement	keep	
+sortable	109	3092	the spatial action legality guard	should stage a spatial action at ACTIVE	X	Mechanism, SPI or out of domain	drop	
+sortable	110	3101	the spatial action legality guard	should discard a spatial action at RELEASING	X	Mechanism, SPI or out of domain	drop	
+sortable	111	3108	the spatial action legality guard	should discard a spatial action at SETTLING	X	Mechanism, SPI or out of domain	drop	
+sortable	112	3115	the spatial action legality guard	should discard a spatial action at FINALIZING	X	Mechanism, SPI or out of domain	drop	
+sortable	113	3122	the spatial action legality guard	should discard a spatial action at ACTIVATING	X	Mechanism, SPI or out of domain	drop	
+sortable	114	3129	the spatial action legality guard	should discard a spatial action whose attempt is stale	X	Mechanism, SPI or out of domain	drop	
+sortable	115	3170	a pointerless release with no destination	should reject rather than fall back to home	F	Verdict round-trip and thenables	keep	
+sortable	116	3211	the hoisted move leaf	should read the live frame and lift on a second operation	X	Mechanism, SPI or out of domain	drop	
+sortable	117	3247	the placeholder container guard	should refuse a spatial move whose anchor left the container	P	Placeholder and movement	keep	gap-probe
+sortable	118	3270	the placeholder container guard	should refuse a release whose resolved anchor left the container	P	Placeholder and movement	keep	
+sortable	119	3289	the placeholder container guard	should refuse a home recovery whose anchor left the container and still cancel	P	Placeholder and movement	keep	
+sortable	120	3314	the placeholder container guard	should skip a destination recovery whose item left the container	P	Placeholder and movement	keep	
+sortable	121	3347	seam staging across whole operations	should leave nothing staged across two consecutive drags	X	Mechanism, SPI or out of domain	drop	
+sortable	122	3365	seam staging across whole operations	should leave nothing staged after a failed drag	X	Mechanism, SPI or out of domain	drop	
+sortable	123	3453	the committed-move bracket’s exits	should report no failure from a successful bracket	X	Mechanism, SPI or out of domain	drop	
+sortable	124	3459	the committed-move bracket’s exits	should classify a refused placeholder write	I	Fault reporting	revise	
+sortable	125	3465	the committed-move bracket’s exits	should classify a throwing move hook	X	Mechanism, SPI or out of domain	drop	
+sortable	126	3483	the committed-move bracket’s exits	should classify a throwing lazy invalidation into the failing seam	I	Fault reporting	revise	
+sortable	127	3512	the committed-move bracket’s exits	should classify a throwing sink	X	Mechanism, SPI or out of domain	drop	
+sortable	128	3533	the committed-move bracket’s exits	should invalidate and then resolve at release, cancelling nothing	M	Collection and rebase	keep	

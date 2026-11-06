@@ -1,0 +1,21 @@
+import ts from '/workspaces/material-x/node_modules/typescript/lib/typescript.js';
+import {readFileSync} from 'node:fs';
+const [,, file] = process.argv;
+const sf = ts.createSourceFile(file, readFileSync(file,'utf8'), ts.ScriptTarget.Latest, true);
+const out=[]; 
+function name(n){ if(ts.isStringLiteralLike(n)||ts.isNoSubstitutionTemplateLiteral(n)) return n.text; return n.getText(); }
+function visit(n, path){
+  if(ts.isCallExpression(n)){
+    const callee=n.expression.getText();
+    if(/^(describe|it|test)(\.(each|skip|only|skipIf|runIf|for|concurrent)(\(.*\))?)*$/s.test(callee) && n.arguments.length){
+      const t=name(n.arguments[0]);
+      const line=sf.getLineAndCharacterOfPosition(n.getStart()).line+1;
+      if(callee.startsWith('describe')){ n.arguments.slice(1).forEach(a=>visit(a,[...path,t])); return; }
+      out.push(`${line}\t${path.join(' > ')}\t${t}`); 
+      return;
+    }
+  }
+  ts.forEachChild(n,c=>visit(c,path));
+}
+visit(sf,[]);
+console.log(out.join('\n'));

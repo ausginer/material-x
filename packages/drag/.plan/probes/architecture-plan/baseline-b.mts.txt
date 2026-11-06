@@ -1,0 +1,14 @@
+// What baseline B's row reports when `@ydinjs/drag` is absent or re-occupied. argv: <drag2 root> <scratch>
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+const [, , root, scratch] = process.argv;
+const { COMPOSITIONS, measure, controlViolations, graphViolations } = await import(pathToFileURL(join(root, 'bench/size/measure.ts')).href);
+const row = COMPOSITIONS.find((c) => c.name.startsWith('baseline B'));
+console.log('declared', row.name, 'budget', row.budget, 'control', row.control);
+const report = (label, m) => console.log(label, JSON.stringify({ minified: m.minified, brotli: m.brotli, modules: m.modules.length, ids: m.modules.map((i) => i.replace(/.*packages\//, '')).slice(0, 6), underBudget: m.brotli <= row.budget, control: controlViolations(m), graph: graphViolations(m) }));
+try {
+  report('A. the real shipped.js, as the tree stands now:', await measure(row));
+} catch (e) {
+  console.log('A. threw:', String(e.message ?? e).slice(0, 600));
+}

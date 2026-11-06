@@ -1,0 +1,62 @@
+/**
+ * An axis with no geometry cache: ask the browser what is under the pointer,
+ * then read the one rectangle that decides. Exists only to price the rect index
+ * and the linear shift. Not a candidate as written: `xy` and tall-item
+ * hysteresis are not covered. See README.md.
+ */
+import { insertionAt, type Insertion } from '../src/sortable/domain.ts';
+import type { AxisInstaller } from '../src/sortable/feature.ts';
+
+export function hit(): AxisInstaller {
+  return () => {
+    let forItem: HTMLElement | null = null;
+    let others: HTMLElement[] = [];
+    return {
+      insertion: {
+        resolve(frame, runtime): Insertion | null {
+          const dragged = frame.item as HTMLElement | null;
+          if (!dragged) {
+            return null;
+          }
+          const snapshot = frame.snapshot!;
+          if (forItem !== dragged) {
+            forItem = dragged;
+            others = (snapshot.items as HTMLElement[]).filter((i) => i !== dragged);
+          }
+          const placeholder = runtime.placeholder as HTMLElement;
+          const root = placeholder.parentElement!;
+          const bounds = root.getBoundingClientRect();
+          const y = Math.min(Math.max(frame.pointerY as number, bounds.top + 1), bounds.bottom - 1);
+          const stack = root.ownerDocument.elementsFromPoint(bounds.left + bounds.width / 2, y);
+          for (const node of stack) {
+            if (node === placeholder) {
+              return null;
+            }
+            let child: Element | null = node;
+            while (child && child.parentElement !== root) {
+              child = child.parentElement;
+            }
+            if (child && child !== dragged) {
+              const rect = child.getBoundingClientRect();
+              const mid = rect.top + rect.height / 2;
+              const below =
+                (placeholder.compareDocumentPosition(child) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+              if (below ? y < mid : y > mid) {
+                return null;
+              }
+              const at = others.indexOf(child as HTMLElement);
+              return insertionAt(others, below ? at + 1 : at, snapshot);
+            }
+          }
+          return null;
+        },
+        invalidate() {},
+        moved() {},
+        retire() {
+          forItem = null;
+          others = [];
+        },
+      },
+    };
+  };
+}

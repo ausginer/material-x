@@ -1,0 +1,119 @@
+/** Differential over guarantees from the 370 tests that no prior scenario reached. argv: <prototype dir> <out json> */
+import { build } from '/workspaces/material-x/node_modules/esbuild/lib/main.js';
+import { chromium } from '/workspaces/material-x/node_modules/playwright/index.mjs';
+import { writeFileSync } from 'node:fs';
+const [, , proto, out] = process.argv;
+const code = (await build({ entryPoints: [`${proto}/gaps-lab.ts`], bundle: true, format: 'iife', write: false, target: 'es2022', define: { __DEV__: 'false' }, logLevel: 'error' })).outputFiles[0].text;
+const browser = await chromium.launch({ executablePath: '/usr/local/bin/chrome', headless: true });
+type S = { setup?: string; hooks?: string; landing?: unknown; during?: string; dy?: number; release?: boolean; after?: string; settle?: number; noSecond?: boolean; shadow?: boolean; below?: boolean };
+const SCENARIOS: Record<string, S> = {
+  'verdict: then accessor throws': { hooks: `{onReorder(){return {get then(){throw new Error('then-get')}}}}` },
+  'verdict: then accessor read count': { hooks: `{onReorder(r){return {get then(){w.reads=(w.reads||0)+1;return (f)=>f(ReorderResolution.accept())}}}}`, after: `w.reads` },
+  'verdict: then() throws': { hooks: `{onReorder(){return {then(){throw new Error('then-call')}}}}` },
+  'verdict: late rejection after cancel does not reach the page': { hooks: `{onReorder(){return new Promise((_,rej)=>{w.rej=rej})}}`, during: 'release-then-cancel', after: `new Promise(r=>{w.rej(new Error('late'));setTimeout(()=>r(w.unhandled),30)})` },
+  'verdict: late rejection after destroy does not reach the page': { hooks: `{onReorder(){return new Promise((_,rej)=>{w.rej=rej})}}`, during: 'release-then-destroy', after: `new Promise(r=>{w.rej(new Error('late'));setTimeout(()=>r(w.unhandled),30)})`, noSecond: true },
+  'verdict: signal stays unaborted on accept': { after: `[lab.log.signal?.aborted, lab.log.abortEvents]` },
+  'placeholder: removes itself on connection': { hooks: `{placeholder(){ph.connect=function(){this_ph().remove()};return mkph()}}` },
+  'placeholder: reparents itself on connection': { hooks: `{placeholder(){ph.connect=function(){document.body.append(this_ph())};return mkph()}}` },
+  'placeholder: whole list leaves on connection': { hooks: `{placeholder(){ph.connect=function(){lab_list().remove()};return mkph()}}`, noSecond: true },
+  'placeholder: item reparented away on connection': { hooks: `{placeholder(){ph.connect=function(){document.body.append(document.getElementById('i1'))};return mkph()}}`, noSecond: true },
+  'placeholder: moves within the list on connection': { hooks: `{placeholder(){ph.connect=function(){lab_list().prepend(this_ph())};return mkph()}}` },
+  'placeholder: destroy on connection': { hooks: `{placeholder(){ph.connect=function(){lab().controller.requestDestroy()};return mkph()}}`, noSecond: true },
+  'placeholder: factory returns the dragged item': { hooks: `{placeholder(i){return i}}` },
+  'placeholder: factory returns an in-document node': { setup: `const n=document.createElement('div');n.id='stray';document.body.append(n);`, hooks: `{placeholder(){return document.getElementById('stray')}}` },
+  'placeholder: destroy from the factory': { hooks: `{placeholder(){lab().controller.requestDestroy();return mkph()}}`, noSecond: true },
+  'anchor: a sibling leaves the list during the drag, then moves': { during: `document.getElementById('i3').remove()`, },
+  'anchor: a sibling leaves and invalidate reports it': { during: `document.getElementById('i3').remove();lab.controller.invalidate()` },
+  'anchor: dragged item leaves during the drag, invalidate reports it': { during: `document.getElementById('i1').remove();lab.controller.invalidate()`, noSecond: true },
+  'rebase: list reversed during the drag, invalidate': { during: `for(const n of [...lab.list.children].reverse())lab.list.append(n);lab.controller.invalidate()` },
+  'rebase: item prepended during the drag, invalidate': { during: `const n=document.createElement('div');n.id='i9';n.style.cssText='height:40px';lab.list.prepend(n);lab.controller.invalidate()` },
+  'admission: handle replaces the collection': { hooks: `{handle(){const n=document.createElement('div');n.id='i8';n.style.cssText='height:40px';lab_list().append(n);lab().controller.invalidate()}}` },
+  'admission: handle removes the pressed item': { hooks: `{handle(i){i.remove();lab().controller.invalidate()}}`, noSecond: true },
+  'admission: destroy from handle': { hooks: `{handle(){lab().controller.requestDestroy()}}`, noSecond: true },
+  'admission: destroy from visual': { hooks: `{visual(){lab().controller.requestDestroy()}}`, noSecond: true },
+  'admission: visual throws': { hooks: `{visual(){throw new Error('v')}}` },
+  'popover: beforetoggle listener requests cancel': { setup: `w.bt='cancel'`, },
+  'popover: beforetoggle listener requests destroy': { setup: `w.bt='destroy'`, noSecond: true },
+  'landing: duration function throws': { landing: 'throw' },
+  'landing: refused duration': { landing: 'nan' },
+  'landing: destroy from the duration function': { landing: 'destroy', noSecond: true },
+  'landing: tail survives a press below threshold': { landing: 'long', during: 'none', after: `w.tailProbe` },
+  'control (must differ): two invalidates in one callback pull once': { setup: `w.pulls=0`, hooks: `{items(){w.pulls+=1;return undefined},onStart(){w.pulls=0;lab().controller.invalidate();lab().controller.invalidate();w.pullsAfterStart=0;queueMicrotask(()=>{w.seen=w.pulls})}}`, after: `w.seen` },
+  'nested: inner list inside an outer list item': { setup: `w.nested=true` },
+  'shadow: list inside a shadow root': { shadow: true },
+};
+const results: Record<string, unknown> = {};
+for (const impl of ['production', 'singlePass']) for (const [name, s] of Object.entries(SCENARIOS)) {
+  const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
+  const errs: string[] = [];
+  page.on('pageerror', (e: Error) => errs.push(String(e.message).slice(0, 60)));
+  await page.setContent(`<!doctype html><body style="margin:40px"><div id="host"></div></body>`);
+  await page.addScriptTag({ content: code });
+  try {
+    await page.evaluate(({ impl, s }: any) => {
+      const w: any = window; w.w = w; w.unhandled = 0;
+      addEventListener('unhandledrejection', (e) => { w.unhandled += 1; e.preventDefault(); });
+      w.lab = () => w.theLab; w.lab_list = () => w.theLab.list;
+      w.mkph = () => { const p = document.createElement('x-ph'); p.id = 'ph'; p.style.cssText = 'display:block;height:40px'; w.thePh = p; return p; };
+      w.this_ph = () => w.thePh;
+      if (s.setup) (0, eval)(s.setup);
+      const hooks = s.hooks ? (0, eval)(`(${s.hooks})`) : {};
+      let land: any = null;
+      if (s.landing === 'throw') land = { duration() { throw new Error('dur'); } };
+      if (s.landing === 'nan') land = { duration: Number.NaN };
+      if (s.landing === 'destroy') land = { duration() { w.theLab.controller.requestDestroy(); return 100; } };
+      if (s.landing === 'long') land = { duration: 2000 };
+      let host: any = document.getElementById('host');
+      if (s.shadow) { host = host.attachShadow({ mode: 'open' }); }
+      w.theLab = w.makeLab(impl, host, hooks, land);
+      if (w.nested) {
+        const inner = w.makeLab(impl, document.getElementById('i1'), {}, null);
+        for (const n of inner.list.children) n.id = `n${n.id}`;
+        inner.list.id = 'inner'; w.inner = inner;
+      }
+      if (w.bt) {
+        document.addEventListener('beforetoggle', (e: any) => { if (e.newState === 'open') { const b = w.bt; w.bt = null; if (b === 'cancel') w.theLab.controller.requestCancel('bt'); else if (b) w.theLab.controller.requestDestroy(); } }, true);
+      }
+    }, { impl, s });
+    const center = (id: string) => page.evaluate((i: string) => (window as any).theLab.center(i), id);
+    const drag = async (id: string, dy: number, body?: string, release = true) => {
+      const p = await center(id);
+      await page.mouse.move(p.x, p.y); await page.mouse.down();
+      await page.mouse.move(p.x, p.y + 6, { steps: 2 }); await page.mouse.move(p.x, p.y + 14, { steps: 2 });
+      await page.waitForTimeout(30);
+      if (body && !body.startsWith('release-') && body !== 'none') await page.evaluate((b: string) => { const lab = (window as any).theLab; new Function('lab', b)(lab); }, body);
+      await page.mouse.move(p.x, p.y + dy, { steps: 6 }); await page.waitForTimeout(30);
+      if (release) { await page.mouse.up(); await page.waitForTimeout(40); }
+    };
+    await drag('i1', s.dy ?? 90, s.during);
+    if (s.during === 'release-then-cancel') { await page.evaluate(() => (window as any).theLab.controller.requestCancel('c')); await page.waitForTimeout(30); }
+    if (s.during === 'release-then-destroy') { await page.evaluate(() => (window as any).theLab.controller.requestDestroy()); await page.waitForTimeout(30); }
+    let tail: unknown;
+    if (s.landing === 'long') {
+      const before = await page.evaluate(() => (window as any).theLab.tails());
+      const p = await center('i4'); await page.mouse.move(p.x, p.y); await page.mouse.down(); await page.mouse.up(); await page.waitForTimeout(20);
+      tail = [before, await page.evaluate(() => (window as any).theLab.tails())];
+    }
+    const after = s.after ? await page.evaluate((a: string) => { const lab = (window as any).theLab; const w = window as any; return (0, eval)(`((lab,w)=>${a})`)(lab, w); }, s.after) : undefined;
+    await page.waitForTimeout(s.settle ?? 60);
+    const first = await page.evaluate(() => { const l = (window as any).theLab; return { trace: [...l.trace], inner: (window as any).inner?.trace, order: l.order(), left: l.leftovers(), reorder: l.log.reorder, unhandled: (window as any).unhandled, stray: !!document.getElementById('ph') && !l.list.contains(document.getElementById('ph')) }; });
+    let second: unknown = null;
+    if (!s.noSecond) {
+      await page.evaluate(() => { const l = (window as any).theLab; l.trace.length = 0; (window as any).ph.connect = null; });
+      const ids: string[] = await page.evaluate(() => [...(window as any).theLab.list.children].filter((n: any) => n.id.startsWith('i')).map((n: any) => n.id));
+      if (ids.length > 1) { await drag(ids[0], 60); second = await page.evaluate(() => { const l = (window as any).theLab; return { trace: [...l.trace], left: l.leftovers() }; }); }
+    }
+    results[`${name}/${impl}`] = { first, second, after, tail, pageErrors: errs };
+  } catch (e) { results[`${name}/${impl}`] = { harnessError: String(e).slice(0, 160), pageErrors: errs }; }
+  await page.close();
+}
+await browser.close();
+writeFileSync(out, JSON.stringify(results, null, 1));
+const same = (a: any, b: any) => JSON.stringify(a) === JSON.stringify(b);
+for (const name of Object.keys(SCENARIOS)) {
+  const p: any = results[`${name}/production`], q: any = results[`${name}/singlePass`];
+  console.log(`${same(p, q) ? 'SAME' : 'DIFF'}  ${name}`);
+  const brief = (r: any) => JSON.stringify({ t: r.first?.trace, it: r.first?.inner, o: r.first?.order, l: r.first?.left, u: r.first?.unhandled, a: r.after, tail: r.tail, s: r.second?.trace, sl: r.second?.left, e: r.pageErrors?.length ? r.pageErrors : undefined, h: r.harnessError });
+  console.log(`   P ${brief(p)}`);
+  if (!same(p, q)) console.log(`   Q ${brief(q)}`);
+}

@@ -1,0 +1,70 @@
+/** Runs in the page: one list per implementation, for guarantees the prototype's own suites did not reach. */
+import { landing } from '../src/sortable/landing.ts';
+import { y } from '../src/sortable/y.ts';
+import { ReorderResolution, sortable as production } from '../src/sortable.ts';
+import { sortable as singlePass } from './sortable.ts';
+
+type H = Record<string, ((...a: any[]) => any) | null | undefined>;
+const ph: { connect: (() => void) | null } = { connect: null };
+class Ph extends HTMLElement {
+  connectedCallback() { const r = ph.connect; ph.connect = null; r?.(); }
+}
+customElements.define('x-ph', Ph);
+
+export function make(impl: 'production' | 'singlePass', host: ParentNode & Node, hooks: H = {}, useLanding: unknown = null, top?: HTMLElement) {
+  const doc = (host.ownerDocument ?? host) as Document;
+  const list = doc.createElement('div');
+  list.id = 'list';
+  list.style.cssText = 'position:relative;width:200px;';
+  for (let i = 0; i < 5; i += 1) {
+    const it = doc.createElement('div');
+    it.id = `i${i}`; it.tabIndex = 0; it.textContent = String(i);
+    it.style.cssText = 'height:40px;box-sizing:border-box;background:#ccd;border:1px solid #889;';
+    list.append(it);
+  }
+  host.appendChild(list);
+  const trace: string[] = [];
+  const log = { trace, signalAborted: null as null | boolean, abortEvents: 0, reorder: null as any };
+  const items = () => (hooks.items?.() ?? [...list.children].filter((n) => n.id.startsWith('i'))) as HTMLElement[];
+  const cfg: any = {
+    items, axis: y(),
+    onStart: () => { trace.push('onStart'); hooks.onStart?.(); },
+    onReorder: (req: any, signal: AbortSignal) => {
+      trace.push('onReorder');
+      log.reorder = { item: req.item?.id, before: req.before?.id ?? null, after: req.after?.id ?? null };
+      const sg = (signal as any)?.signal; if (sg) { sg.addEventListener('abort', () => { log.abortEvents += 1; }); (log as any).signal = sg; }
+      const custom = hooks.onReorder?.(req, signal);
+      if (custom !== undefined) return custom;
+      list.insertBefore(req.item, req.after);
+      controller.invalidate();
+      return ReorderResolution.accept();
+    },
+    onEnd: (r: any) => { trace.push(`onEnd:${r.type}${r.reason !== undefined ? `(${String(r.reason)})` : ''}`); hooks.onEnd?.(r); },
+    onError: (e: any) => { trace.push(`onError:${e.constructor.name}:${e.stage ?? e.reason ?? ''}`); },
+  };
+  if (hooks.handle) cfg.handle = (i: HTMLElement) => { hooks.handle!(i); return i; };
+  if (hooks.visual) cfg.visual = (i: HTMLElement) => { hooks.visual!(i); return i; };
+  if (hooks.placeholder) cfg.placeholder = hooks.placeholder;
+  if (useLanding) cfg.landing = landing(useLanding as any).landing;
+  const sort = impl === 'production' ? production : singlePass;
+  const controller: any = (sort as any)(list, cfg);
+  const lab = {
+    list, trace, log, controller, doc,
+    order: () => [...list.children].filter((n) => n.id.startsWith('i')).map((n) => n.id).join(','),
+    leftovers() {
+      const out: string[] = [];
+      for (const n of doc.querySelectorAll('[id^=i]')) {
+        const it = n as HTMLElement;
+        if (it.hasAttribute('popover')) out.push(`${it.id}:popover`);
+        if (it.id !== 'inner' && (it.style.position || it.style.transform)) out.push(`${it.id}:inline`);
+      }
+      const extra = [...list.children].filter((n) => !n.id.startsWith('i')).length;
+      if (extra) out.push(`extra-children:${extra}`);
+      return out;
+    },
+    tails: () => doc.getAnimations().length,
+    center(id: string) { const r = (doc.getElementById(id) ?? (host as any).querySelector(`#${id}`)).getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; },
+  };
+  return lab;
+}
+Object.assign(globalThis, { makeLab: make, ph, ReorderResolution, doc: document, Ph });
