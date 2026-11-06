@@ -1,8 +1,31 @@
 set shell := ["bash", "-euo", "pipefail", "-c"]
 
+[private]
+_eslint := "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts"
+
 # List available recipes
 default:
     @just --list
+
+# Start the prototype's pages and print the URL
+prototype:
+    vite --config prototype/vite.config.ts
+
+# Run the prototype's focused checks in Chromium, Firefox and WebKit
+prototype-check *ENGINES:
+    node prototype/checks/run.ts {{ ENGINES }}
+
+# Measure the prototype's bundle sizes
+prototype-size:
+    node prototype/measure/size.ts
+
+# Measure the prototype's per-move and per-press cost
+prototype-cost:
+    node prototype/measure/cost.ts
+
+# Type-check the prototype
+typecheck:
+    tsc -p prototype/tsconfig.json --noEmit
 
 # Format files (paths are relative to this package)
 fmt *FILES:
@@ -11,3 +34,13 @@ fmt *FILES:
 # Check formatting without writing
 fmt-check *FILES:
     oxfmt --check {{ if FILES == "" { "." } else { FILES } }}
+
+# Lint files
+lint *FILES:
+    oxlint {{ if FILES == "" { "prototype" } else { FILES } }}
+    {{ _eslint }} {{ if FILES == "" { "prototype" } else { FILES } }}
+
+# Lint and auto-fix files
+lint-fix *FILES:
+    oxlint --fix {{ if FILES == "" { "prototype" } else { FILES } }}
+    {{ _eslint }} --fix {{ if FILES == "" { "prototype" } else { FILES } }}

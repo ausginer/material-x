@@ -1,0 +1,41 @@
+composition                      minified   brotli
+
+draggable alone                     10119     3810
+example: resize handle              10541     3958
+example: drop zone                  10838     4081
+example: canvas group               11687     4429
+freeDrag                            12732     4700
+freeDrag + bounds + landing         13544     4998
+sortable + y                        19380     7041
+sortable + xy                       17858     6539
+complete                            20530     7468
+
+complete: minified bytes attributed per module
+
+   5571  src/draggable.ts
+   3414  src/sortable.ts
+   2419  src/draggable/presentation.ts
+   1970  ../../box-quad/src/index.ts
+   1937  src/sortable/rect-index.ts
+   1259  src/sortable/linear-shift.ts
+    874  src/sortable/layout-animation.ts
+    700  src/sortable/placement.ts
+    667  src/sortable/collection.ts
+    488  src/sortable/y.ts
+    311  src/sortable/keyboard.ts
+    284  src/shared/invalidation.ts
+    267  src/shared/landing.ts
+    174  src/fault.ts
+    167  src/sortable/domain.ts
+     27  ../<stdin>
+
+lines without comments
+
+   618  lifecycle: kernel and authoring API
+   305  sortable glue
+   185  free-drag glue
+    14  fault
+   210  presentation
+    34  example: resize handle
+    48  example: drop zone
+   145  example: canvas group

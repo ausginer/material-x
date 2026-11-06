@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Focused checks</title>
+    <style>
+      body {
+        margin: 20px;
+        font: 14px sans-serif;
+      }
+      .row {
+        box-sizing: border-box;
+        height: 40px;
+        width: 200px;
+        background: #ccd;
+        border: 1px solid #889;
+        touch-action: none;
+        user-select: none;
+      }
+      #out {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        width: 80px;
+        height: 40px;
+      }
+    </style>
+    <script type="module" src="./harness.ts"></script>
+  </head>
+  <body>
+    <button id="out">outside</button>
+  </body>
+</html>
