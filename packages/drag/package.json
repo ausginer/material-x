@@ -1,46 +1,11 @@
 {
   "name": "@ydinjs/drag",
   "version": "0.1.0",
+  "private": true,
   "license": "Apache-2.0",
-  "files": [
-    "draggable.js",
-    "draggable.d.ts",
-    "sortable.js",
-    "sortable.d.ts",
-    "draggable",
-    "sortable",
-    "kernel"
-  ],
   "type": "module",
-  "exports": {
-    "./draggable.js": {
-      "types": "./draggable.d.ts",
-      "default": "./draggable.js"
-    },
-    "./sortable.js": {
-      "types": "./sortable.d.ts",
-      "default": "./sortable.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
-    "build": "just build",
-    "clean:build": "just clean-build",
-    "docs:api:prepare": "just docs-api-prepare",
-    "docs:api:build": "just docs-api-build",
-    "typecheck": "just typecheck",
     "fmt": "just fmt",
-    "fmt:check": "just fmt-check",
-    "lint": "just lint",
-    "lint:fix": "just lint-fix",
-    "test": "just test",
-    "size": "just size"
-  },
-  "devDependencies": {
-    "size-limit": "12.1.0",
-    "size-limit-preset-rolldown": "0.1.0"
+    "fmt:check": "just fmt-check"
   }
 }
