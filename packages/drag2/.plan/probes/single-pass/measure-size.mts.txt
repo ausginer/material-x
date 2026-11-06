@@ -1,0 +1,16 @@
+import { build } from '/workspaces/material-x/node_modules/esbuild/lib/main.js';
+import { brotliCompressSync, gzipSync, constants } from 'node:zlib';
+const root = '/workspaces/material-x/.claude/worktrees/drag2-single-pass/packages/drag2';
+const rows: Record<string,string> = {
+  'production sortable + y': `import {sortable} from '${root}/src/sortable.ts'; import {y} from '${root}/src/sortable/y.ts'; globalThis.a=[sortable,y];`,
+  'prototype sortable + y': `import {sortable} from '${root}/prototype/sortable.ts'; import {y} from '${root}/src/sortable/y.ts'; globalThis.a=[sortable,y];`,
+  'production complete': `import {sortable} from '${root}/src/sortable.ts'; import {y} from '${root}/src/sortable/y.ts'; import {landing} from '${root}/src/sortable/landing.ts'; import {layoutAnimation} from '${root}/src/sortable/layout-animation.ts'; globalThis.a=[sortable,y,landing,layoutAnimation];`,
+  'prototype complete': `import {sortable} from '${root}/prototype/sortable.ts'; import {y} from '${root}/src/sortable/y.ts'; import {landing} from '${root}/src/sortable/landing.ts'; import {layoutAnimation} from '${root}/src/sortable/layout-animation.ts'; globalThis.a=[sortable,y,landing,layoutAnimation];`,
+  'production free drag': `import {freeDrag} from '${root}/src/free-drag.ts'; globalThis.a=[freeDrag];`,
+  'prototype free drag': `import {freeDrag} from '${root}/prototype/free-drag.ts'; globalThis.a=[freeDrag];`,
+};
+for (const [name, contents] of Object.entries(rows)) {
+  const r = await build({ stdin:{contents, resolveDir: root, loader:'ts'}, bundle:true, minify:true, format:'esm', write:false, target:'es2022', define:{'import.meta.env.DEV':'false','__DEV__':'false'}, logLevel:'error', mangleProps:/^#/ });
+  const code = r.outputFiles[0].contents;
+  console.log(name.padEnd(28), String(code.length).padStart(7),'min', String(gzipSync(code,{level:9}).length).padStart(6),'gz', String(brotliCompressSync(code,{params:{[constants.BROTLI_PARAM_QUALITY]:11}}).length).padStart(6),'br');
+}

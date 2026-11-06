@@ -1,0 +1,450 @@
+/**
+ * The sortable on the single-pass kernel. The public config, `assemble`, the
+ * axis rules, the rect cache, the landing and the row animations are the
+ * production modules, unchanged: only the lifecycle glue is new.
+ */
+import { FAILURE_ACTION_EFFECT, FAILURE_ACTION_PREPARE, FAILURE_ACTIVATION, FAILURE_INVALIDATION, FAILURE_RELEASE, FAILURE_SCHEDULED_FRAME, AT_CONSUMER, AT_PROPOSAL, CANCEL_FAILED } from '../src/kernel/failures.ts';
+import { DraggableWarning } from '../src/kernel/errors.ts';
+import { pathOwnsInteraction } from '../src/kernel/input-policy.ts';
+import { createFrameTask, createInvalidator } from '../src/kernel/invalidation.ts';
+import { LIFT_FAITHFUL } from '../src/kernel/presentation.ts';
+import { KEY_DOWN } from '../src/kernel/protocol.ts';
+import { createWarnOnThrow } from '../src/kernel/warn-on-throw.ts';
+import { assemble } from '../src/sortable/assemble.ts';
+import { buildReorderProposal, CHANGE_CANCEL, homeInsertion, reconcileCollection } from '../src/sortable/collection.ts';
+import { mergeFragments, type SortableConfig } from '../src/sortable/config.ts';
+import type { SortableController } from '../src/sortable/controller.ts';
+import {
+  ACCEPTED,
+  CANCEL_COLLECTION_INVALIDATED,
+  CANCEL_ITEM_REMOVED,
+  type CollectionSnapshot,
+  type Insertion,
+  RECOVERY_DESTINATION,
+  RECOVERY_HOME,
+  RECOVERY_IMMEDIATE,
+  type RejectedResolution,
+  type ReorderProposal,
+  type ReorderTransactionResult,
+} from '../src/sortable/domain.ts';
+import { directionOf, keyboardInsertion } from '../src/sortable/keyboard.ts';
+import { createPlaceholder, movePlaceholder, placeholderAt } from '../src/sortable/placement.ts';
+import type { InsertionRuntimeView } from '../src/sortable/slots.ts';
+import { type Admitted, type Behavior, Gesture, type Outcome, RELEASING, type Session } from './gesture.ts';
+
+type SortableSession = Session & {
+  snapshot: CollectionSnapshot;
+  insertion: Insertion | null;
+  proposal: ReorderProposal | null;
+  domain: ReorderTransactionResult | null;
+  recovery: number;
+  placeholder: HTMLElement | null;
+  view: InsertionRuntimeView | null;
+};
+
+export function sortable(
+  root: HTMLElement,
+  config: SortableConfig,
+  ...fragments: ReadonlyArray<Partial<SortableConfig>>
+): SortableController {
+  const merged = mergeFragments(config, fragments);
+  const gesture = new Gesture<SortableSession>(root);
+
+  return gesture.construct(() => {
+    let source = merged.items();
+    let snapshot: CollectionSnapshot = { items: [...source], version: 0 };
+    let version = 0;
+    const composition = gesture.channel((warning) => {
+      merged.onError?.(warning);
+    });
+    const slots = assemble(merged, {
+      realm: gesture.realm,
+      root,
+      report: (error) => {
+        composition(new DraggableWarning('drag: composition/unwind-failed', { cause: error }));
+      },
+    });
+    const { realm } = gesture;
+    const notify = gesture.channel((error) => {
+      slots.onError?.(error);
+    });
+    const warnOnThrow = createWarnOnThrow(notify);
+    const invalidate = createInvalidator(realm);
+    const anchor = { x: 0, y: 0 };
+
+    /** A frame fires with the session it was scheduled for: motion cancels it. */
+    const spatial = (): void => {
+      const session = gesture.session!;
+      const view = session.view!;
+      const resolved = slots.resolveInsertion(session, view);
+
+      if (resolved === null) {
+        return;
+      }
+
+      session.insertion = resolved;
+
+      if (placeholderAt(view.placeholder, resolved)) {
+        return;
+      }
+
+      gesture.stage = FAILURE_ACTION_EFFECT;
+
+      let stale = true;
+
+      try {
+        movePlaceholder(view.placeholder, resolved);
+        slots.movedInsertion(session, view, slots.report);
+        stale = false;
+      } finally {
+        if (stale) {
+          slots.invalidateInsertion();
+        }
+      }
+    };
+
+    const frame = createFrameTask<null>(realm, () => {
+      gesture.enter(FAILURE_ACTION_PREPARE, spatial, null);
+    });
+
+    const invalidated = (): void => {
+      slots.invalidateInsertion();
+    };
+
+    const resolveItem = (event: Event): HTMLElement | null => {
+      const path = event.composedPath();
+      let at = path.findIndex((node) => snapshot.items.includes(node as HTMLElement));
+
+      if (at === -1) {
+        return null;
+      }
+
+      const item = path[at] as HTMLElement;
+
+      if (slots.handle) {
+        const handle = slots.handle(item);
+
+        if (!handle) {
+          return null;
+        }
+
+        at = path.indexOf(handle);
+
+        if (at === -1) {
+          return null;
+        }
+      }
+
+      return pathOwnsInteraction(path, at) ? null : item;
+    };
+
+    const seed = (item: HTMLElement, insertion: Insertion | null): Admitted<SortableSession> => {
+      const visual = slots.visual ? slots.visual(item) : item;
+      const box = !slots.box || slots.box === slots.visual ? visual : slots.box(item);
+
+      return {
+        item,
+        visual,
+        box,
+        snapshot,
+        insertion,
+        proposal: null,
+        domain: null,
+        recovery: RECOVERY_IMMEDIATE,
+        placeholder: null,
+        view: null,
+      };
+    };
+
+    const behavior: Behavior<SortableSession> = {
+      threshold: slots.threshold,
+      liftMode: LIFT_FAITHFUL,
+      commandTypes: [KEY_DOWN],
+
+      admit(event) {
+        if (event.altKey) {
+          return null;
+        }
+
+        const item = resolveItem(event);
+
+        return item ? seed(item, null) : null;
+      },
+
+      command(event) {
+        const keys = event as KeyboardEvent;
+
+        if (keys.isComposing) {
+          return null;
+        }
+
+        const direction = directionOf(keys.key);
+
+        if (direction === null) {
+          return null;
+        }
+
+        const item = resolveItem(event);
+
+        if (!item) {
+          return null;
+        }
+
+        const insertion = keyboardInsertion(snapshot, item, direction);
+
+        return insertion ? seed(item, insertion) : null;
+      },
+
+      start(session) {
+        const { item, visual, box, lifetimes } = session;
+        const lift = session.lift!;
+        const boxPre = session.boxPre!;
+        const footprint =
+          box === visual
+            ? boxPre
+            : { width: boxPre.width, height: boxPre.height - box.offsetHeight };
+
+        if (session.pointerId !== -1) {
+          session.insertion = homeInsertion(session.snapshot, item);
+        }
+
+        const placeholder = createPlaceholder(
+          realm,
+          { item, visual, box, rect: session.originRect! },
+          footprint,
+          slots.placeholder,
+        );
+
+        lifetimes.presentation.use(() => {
+          placeholder.remove();
+        });
+        item.after(placeholder);
+
+        if (!placeholder.isConnected || item.nextElementSibling !== placeholder) {
+          throw new Error('drag: sortable/insertion-placeholder-lost');
+        }
+
+        lifetimes.motion.use(frame.cancel);
+        invalidate(lifetimes.motion.signal, () => {
+          gesture.enter(FAILURE_INVALIDATION, invalidated, null);
+        });
+        session.placeholder = placeholder;
+        session.view = {
+          placeholder,
+          lift,
+          box: slots.box,
+          settle: slots.settle,
+          space: session.itemSpace,
+        } as InsertionRuntimeView;
+
+        gesture.stage = FAILURE_INVALIDATION;
+        slots.invalidateInsertion();
+        gesture.stage = FAILURE_ACTIVATION;
+        session.started = true;
+        slots.onStart(item);
+      },
+
+      move(session) {
+        session.lift!.write(
+          session.pointerX - session.originX,
+          session.pointerY - session.originY,
+        );
+        gesture.stage = FAILURE_SCHEDULED_FRAME;
+        frame.schedule(null);
+      },
+
+      propose(session) {
+        const { item } = session;
+        const placeholder = session.placeholder!;
+
+        if (session.pointerId !== -1) {
+          gesture.stage = FAILURE_INVALIDATION;
+          slots.invalidateInsertion();
+          gesture.stage = FAILURE_RELEASE;
+          session.insertion = slots.resolveInsertion(session, session.view!) ?? session.insertion;
+        }
+
+        const insertion = session.insertion;
+
+        if (!insertion) {
+          throw new Error('drag: sortable/release-no-insertion');
+        }
+
+        const built = buildReorderProposal(session.snapshot, item, insertion);
+
+        if (!built) {
+          throw new Error('drag: sortable/release-no-proposal');
+        }
+
+        session.proposal = built.proposal;
+        movePlaceholder(placeholder, insertion);
+
+        if (session.pointerId !== -1) {
+          session.lift!.write(
+            session.pointerX - session.originX,
+            session.pointerY - session.originY,
+          );
+        }
+
+        if (built.noop) {
+          return null;
+        }
+
+        return (signal) => slots.onReorder(built.proposal.request, { signal });
+      },
+
+      decide(session, outcome: Outcome) {
+        const { proposal } = session;
+
+        switch (outcome.type) {
+          case 'skipped':
+            session.recovery = RECOVERY_IMMEDIATE;
+            session.domain = { type: 'noop', proposal: proposal! };
+            break;
+          case 'verdict': {
+            const accepted = outcome.value === ACCEPTED;
+
+            session.recovery = accepted ? RECOVERY_DESTINATION : RECOVERY_HOME;
+            session.domain = accepted
+              ? { type: 'accepted', proposal: proposal! }
+              : {
+                  type: 'rejected',
+                  reason: (outcome.value as RejectedResolution)[0],
+                  proposal: proposal!,
+                };
+            break;
+          }
+          case 'canceled':
+            session.recovery = RECOVERY_HOME;
+            session.domain = {
+              type: 'canceled',
+              reason: outcome.reason,
+              origin: outcome.origin,
+              stage: outcome.stage,
+              proposal,
+            };
+            break;
+          default:
+            session.recovery = RECOVERY_IMMEDIATE;
+            session.domain = {
+              type: 'canceled',
+              reason: outcome.error,
+              origin: CANCEL_FAILED,
+              stage: session.invoked ? AT_CONSUMER : AT_PROPOSAL,
+              proposal,
+            };
+        }
+      },
+
+      target(session) {
+        const placeholder = session.placeholder!;
+        const { item, recovery } = session;
+
+        if (recovery === RECOVERY_DESTINATION) {
+          if (
+            item.isConnected &&
+            item.parentElement === placeholder.parentElement &&
+            placeholder.nextElementSibling !== item
+          ) {
+            item.before(placeholder);
+          }
+        } else if (recovery === RECOVERY_HOME) {
+          const home = homeInsertion(session.snapshot, item);
+
+          if (home) {
+            movePlaceholder(placeholder, home);
+          }
+        }
+
+        if (!placeholder.isConnected || placeholder.parentElement !== item.parentElement) {
+          throw new Error('drag: sortable/landing-placeholder-lost');
+        }
+
+        const rect = placeholder.getBoundingClientRect();
+
+        anchor.x = rect.left;
+        anchor.y = rect.top;
+        return anchor;
+      },
+
+      tail(session, fromX, fromY, targetX, targetY) {
+        return slots.landingTiming && session.recovery !== RECOVERY_IMMEDIATE
+          ? slots.landingTiming(fromX, fromY, targetX, targetY)
+          : null;
+      },
+
+      end(session) {
+        slots.onEnd?.(session.domain!);
+      },
+
+      retire() {
+        frame.cancel();
+
+        for (let i = slots.retireHooks.length - 1; i >= 0; i -= 1) {
+          warnOnThrow(slots.retireHooks[i]!);
+        }
+      },
+
+      /** `controller.invalidate()`, pulled where a stage can classify a throw. */
+      flush(session) {
+        const pulled = slots.items();
+
+        if (pulled === source) {
+          gesture.stage = FAILURE_INVALIDATION;
+          slots.invalidateInsertion();
+          return;
+        }
+
+        version += 1;
+
+        const next: CollectionSnapshot = { items: [...pulled], version };
+        let cancelReason: unknown = null;
+
+        snapshot = next;
+        source = pulled;
+
+        if (session && session.state !== RELEASING) {
+          session.snapshot = next;
+
+          if (!next.items.includes(session.item)) {
+            cancelReason = CANCEL_ITEM_REMOVED;
+          } else if (session.insertion) {
+            const change = reconcileCollection(next, session.item, session.insertion);
+
+            if (change.type === CHANGE_CANCEL) {
+              cancelReason = CANCEL_COLLECTION_INVALIDATED;
+            } else {
+              session.insertion = change.insertion;
+            }
+          }
+
+          if (session.lift) {
+            gesture.stage = FAILURE_INVALIDATION;
+            slots.invalidateInsertion();
+          }
+        }
+
+        if (cancelReason !== null) {
+          gesture.requestCancel(cancelReason);
+        }
+      },
+
+      report(error) {
+        slots.onError?.(error);
+      },
+    };
+
+    return {
+      behavior,
+      controller: {
+        invalidate(): void {
+          gesture.requestFlush();
+        },
+        requestCancel: (reason?: unknown): void => {
+          gesture.requestCancel(reason);
+        },
+        requestDestroy: (): Promise<void> => gesture.requestDestroy(),
+      },
+    };
+  });
+}

@@ -1,0 +1,91 @@
+# Applies one change at a time to prototype/gesture.ts and runs the parity suite.
+# A mutant is killed when any scenario fails or the run hangs past the timeout.
+import subprocess, re, json, pathlib, sys
+root = pathlib.Path('/workspaces/material-x/.claude/worktrees/drag2-single-pass/packages/drag2')
+g = root/'prototype/gesture.ts'
+base = g.read_text()
+ORDER_OLD = """        if (this.#flushRequested) {
+          this.#flush(session);
+        } else if (session?.cancel) {
+          this.#applyCancel(session, session.cancel);
+        } else if (session?.fault) {
+          this.#fail(session, session.fault);
+        } else if (session?.verdict) {
+          this.#conclude(session, {
+            type: 'verdict',
+            value: session.verdict.value,
+          });
+        } else if (session?.next) {
+          const { next } = session;
+
+          session.next = null;
+          next();
+        } else {
+          return;
+        }
+"""
+FLUSH = """if (this.#flushRequested) {
+          this.#flush(session);
+        }"""
+CANCEL = """if (session?.cancel) {
+          this.#applyCancel(session, session.cancel);
+        }"""
+FAULT = """if (session?.fault) {
+          this.#fail(session, session.fault);
+        }"""
+VERDICT = """if (session?.verdict) {
+          this.#conclude(session, {
+            type: 'verdict',
+            value: session.verdict.value,
+          });
+        }"""
+NEXT = """if (session?.next) {
+          const { next } = session;
+
+          session.next = null;
+          next();
+        }"""
+def order(*parts):
+    return "        " + " else ".join(parts) + " else {\n          return;\n        }\n"
+M = {
+ 'M1 the next step runs ahead of a registered cancel': (ORDER_OLD, order(NEXT, FLUSH, CANCEL, FAULT, VERDICT)),
+ 'M2 a later completion overwrites the first': ("      if (!done) {\n        done = true;\n        this.#complete(session, fault, value);\n      }", "      done = true;\n      this.#complete(session, fault, value);"),
+ 'M3 the session is cleared at the end of the conclusion, not the start': None,
+ 'M4 a cancel from inside a pass applies at once': ("      session.cancel = { reason, origin };\n      this.enter(this.stage, NOOP, null);\n", "      session.cancel = { reason, origin };\n      if (this.#running) { this.#applyCancel(session, session.cancel); return; }\n      this.enter(this.stage, NOOP, null);\n"),
+ 'M5 passes may nest': ("    if (this.#running || this.#closed) {\n      return;\n    }\n\n    this.#running = true;\n\n    try {\n      this.stage = stage;", "    if (this.#closed) {\n      return;\n    }\n\n    this.#running = true;\n\n    try {\n      this.stage = stage;"),
+ 'M6 destruction from inside a pass applies at once': ("      if (!this.#running) {\n        this.#teardown();\n      }", "      this.#teardown();"),
+ 'M7 a fault is read ahead of a cancel': (ORDER_OLD, order(FLUSH, FAULT, CANCEL, VERDICT, NEXT)),
+ 'M8 no start gate on the ordinary terminal': ("    if (session.started) {\n      try {\n        behavior.end(session);", "    if (true) {\n      try {\n        behavior.end(session);"),
+ 'M9 teardown does not retire the live session': ("      if (session) {\n        this.#retire(session);\n      } else if", "      if (false) {\n      } else if"),
+ 'M10 deferred work runs after the next step': (ORDER_OLD, order(CANCEL, FAULT, VERDICT, NEXT, FLUSH)),
+ 'M11 a verdict is read ahead of a cancel': (ORDER_OLD, order(FLUSH, VERDICT, CANCEL, FAULT, NEXT)),
+ 'M12 destruction waits for a held cancel': ("        if (this.#destroyRequested) {\n          if (session?.fault) {", "        if (this.#destroyRequested && !session?.cancel) {\n          if (session?.fault) {"),
+ 'M13 motion stays open across the drop': ("    session.state = RELEASING;\n    session.lifetimes.motion.dispose();\n", "    session.state = RELEASING;\n"),
+ 'M14 the click suppressor is not armed': ("      this.#armClickSuppressor();\n      this.#activate(session);", "      this.#activate(session);"),
+ 'M15 the terminal runs before presentation is released': ("    presentation.dispose();\n    this.#startLanding(session, fromX, fromY, targetX, targetY);\n\n    if (session.started) {\n      try {\n        behavior.end(session);\n      } catch (error) {\n        this.#report(new DraggableError(FAILURE_TERMINAL_CALLBACK, error));\n      }\n    }\n", "    if (session.started) {\n      try {\n        behavior.end(session);\n      } catch (error) {\n        this.#report(new DraggableError(FAILURE_TERMINAL_CALLBACK, error));\n      }\n    }\n\n    presentation.dispose();\n    this.#startLanding(session, fromX, fromY, targetX, targetY);\n"),
+ 'M16 a cancel is not first-wins': ("    if (session && !session.cancel && !session.verdict) {", "    if (session && !session.verdict) {"),
+ 'M17 a fault decides ahead of deferred work': (ORDER_OLD, order(CANCEL, FAULT, FLUSH, VERDICT, NEXT)),
+ 'M18 a cancel can overtake a completed verdict': ("    if (session && !session.cancel && !session.verdict) {", "    if (session && !session.cancel) {"),
+}
+out = {}
+try:
+  for name, m in M.items():
+    if m is None:
+      text = base.replace("    this.#session = null;\n    motion.dispose();\n    cancellation.dispose();\n    behavior.decide(session, outcome);", "    motion.dispose();\n    cancellation.dispose();\n    behavior.decide(session, outcome);")
+      text = text.replace("        this.#report(new DraggableError(FAILURE_TERMINAL_CALLBACK, error));\n      }\n    }\n\n    this.#retire(session);", "        this.#report(new DraggableError(FAILURE_TERMINAL_CALLBACK, error));\n      }\n    }\n\n    this.#session = null;\n    this.#retire(session);")
+    else:
+      assert base.count(m[0]) == 1, name
+      text = base.replace(m[0], m[1])
+    assert text != base, name
+    g.write_text(text)
+    try:
+      r = subprocess.run(['/workspaces/material-x/node_modules/.bin/vitest','run','-c','vitest.config.ts','--project','browser','tests/prototype/parity.browser.test.ts','--reporter=dot','-t','single-pass prototype'],cwd=root,capture_output=True,text=True,timeout=170)
+      txt = re.sub(r'\x1b\[[0-9;]*m','',r.stdout+r.stderr)
+      fails = sorted(set(re.findall(r'FAIL .*? > single-pass prototype against production > (.*)', txt)))
+    except subprocess.TimeoutExpired:
+      fails = ['HANG: the run did not finish within 170 s']
+    out[name] = fails
+    print(name, len(fails), flush=True)
+    pathlib.Path(sys.argv[1]).write_text(json.dumps(out,indent=2))
+finally:
+  g.write_text(base)

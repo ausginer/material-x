@@ -1,0 +1,318 @@
+/**
+ * Free drag on the single-pass kernel. `bounds()` and the geometry module are
+ * the production modules, unchanged.
+ */
+import { DraggableWarning } from '../src/kernel/errors.ts';
+import { AT_CONSUMER, AT_PROPOSAL, CANCEL_FAILED, FAILURE_ACTION_EFFECT, FAILURE_ACTION_PREPARE } from '../src/kernel/failures.ts';
+import { pathOwnsInteraction } from '../src/kernel/input-policy.ts';
+import { createInvalidator } from '../src/kernel/invalidation.ts';
+import type { Point } from '../src/kernel/types.ts';
+import { createWarnOnThrow } from '../src/kernel/warn-on-throw.ts';
+import { assemble } from '../src/free-drag/assemble.ts';
+import { type FreeDragConfig, mergeFreeFragments } from '../src/free-drag/config.ts';
+import type { FreeDragController } from '../src/free-drag/controller.ts';
+import {
+  ACCEPTED,
+  type FreeDragRequest,
+  type FreeDragTransactionResult,
+  type RejectedResolution,
+} from '../src/free-drag/domain.ts';
+import { applyAxis, buildGeometry, buildRequest } from '../src/free-drag/geometry.ts';
+import { type Behavior, Gesture, RELEASING, type Session } from './gesture.ts';
+
+type FreeSession = Session & {
+  offsetX: number;
+  offsetY: number;
+  request: FreeDragRequest | null;
+  domain: FreeDragTransactionResult | null;
+  view: Readonly<{ realm: unknown; originRect: DOMRectReadOnly; visual: HTMLElement }> | null;
+};
+
+export function freeDrag(
+  root: HTMLElement,
+  config: FreeDragConfig,
+  ...fragments: ReadonlyArray<Partial<FreeDragConfig>>
+): FreeDragController {
+  const merged = mergeFreeFragments(config, fragments);
+  const gesture = new Gesture<FreeSession>(root);
+
+  return gesture.construct(() => {
+    const composition = gesture.channel((warning) => {
+      merged.onError?.(warning);
+    });
+    const slots = assemble(merged, {
+      realm: gesture.realm,
+      root,
+      report: (error) => {
+        composition(new DraggableWarning('drag: composition/unwind-failed', { cause: error }));
+      },
+    });
+    const { realm } = gesture;
+    const notify = gesture.channel((error) => {
+      slots.onError?.(error);
+    });
+    const warnOnThrow = createWarnOnThrow(notify);
+    const invalidate = createInvalidator(realm);
+    const motion = { x: 0, y: 0 };
+    // Detached: the constraint's methods are called with no receiver.
+    const applyConstraint = slots.constrain ? slots.constrain.apply : null;
+    const invalidateConstraint = slots.constrain
+      ? slots.constrain.invalidate
+      : null;
+    const anchor = { x: 0, y: 0 };
+    let policyStale = false;
+    let position: Readonly<{ x: number; y: number; fault: { error: unknown } | null }> | null = null;
+
+    const derive = (session: FreeSession): void => {
+      motion.x = session.pointerX - session.originX + session.offsetX;
+      motion.y = session.pointerY - session.originY + session.offsetY;
+      applyAxis(motion, slots.axis);
+      applyConstraint?.(motion, session.view as never);
+    };
+
+    const geometry = (session: FreeSession) =>
+      buildGeometry(
+        session.pointerX,
+        session.pointerY,
+        session.originX,
+        session.originY,
+        motion.x,
+        motion.y,
+        session.originRect!,
+        session.visualSpace,
+        realm,
+      );
+
+    const behavior: Behavior<FreeSession> = {
+      threshold: slots.threshold,
+      liftMode: slots.liftMode,
+
+      admit(event) {
+        if (event.altKey) {
+          return null;
+        }
+
+        const path = event.composedPath();
+        let at = path.indexOf(root);
+
+        if (at === -1) {
+          return null;
+        }
+
+        if (slots.handle) {
+          const handle = slots.handle(root);
+
+          if (!handle) {
+            return null;
+          }
+
+          at = path.indexOf(handle);
+
+          if (at === -1) {
+            return null;
+          }
+        }
+
+        if (pathOwnsInteraction(path, at)) {
+          return null;
+        }
+
+        const visual = slots.visual ? slots.visual(root) : root;
+
+        return {
+          item: visual,
+          visual,
+          box: visual,
+          offsetX: 0,
+          offsetY: 0,
+          request: null,
+          domain: null,
+          view: null,
+        };
+      },
+
+      start(session) {
+        session.view = {
+          realm,
+          originRect: session.originRect!,
+          visual: session.visual,
+        };
+
+        if (slots.constrain) {
+          invalidate(session.lifetimes.motion.signal, () => {
+            try {
+              invalidateConstraint!();
+            } catch (error) {
+              notify(new DraggableWarning('drag: constraint/invalidate-failed', { cause: error }));
+            }
+          });
+        }
+
+        derive(session);
+        session.lift!.write(motion.x, motion.y);
+        session.started = true;
+        slots.onStart?.(geometry(session));
+      },
+
+      move(session) {
+        derive(session);
+        session.lift!.write(motion.x, motion.y);
+        slots.onMove?.(geometry(session));
+      },
+
+      propose(session) {
+        derive(session);
+
+        const request = buildRequest(
+          { item: root, visual: session.visual },
+          session.pointerX,
+          session.pointerY,
+          motion.x,
+          motion.y,
+          session.originRect!,
+          session.visualSpace,
+          realm,
+        );
+
+        session.request = request;
+        session.lift!.write(motion.x, motion.y);
+        return (signal) => slots.onDrop(request, { signal });
+      },
+
+      decide(session, outcome) {
+        const { request } = session;
+
+        switch (outcome.type) {
+          case 'verdict':
+            session.domain =
+              outcome.value === ACCEPTED
+                ? { type: 'accepted', request: request! }
+                : {
+                    type: 'rejected',
+                    request: request!,
+                    reason: (outcome.value as RejectedResolution)[0],
+                  };
+            break;
+          case 'canceled':
+            session.domain = {
+              type: 'canceled',
+              request,
+              reason: outcome.reason,
+              origin: outcome.origin,
+              stage: outcome.stage,
+            };
+            break;
+          case 'failed':
+            session.domain = {
+              type: 'canceled',
+              request,
+              reason: outcome.error,
+              origin: CANCEL_FAILED,
+              stage: session.invoked ? AT_CONSUMER : AT_PROPOSAL,
+            };
+            break;
+          default:
+            throw new Error('drag: free-drag/settled-skipped');
+        }
+      },
+
+      target(session) {
+        const origin = session.originRect!;
+
+        if (session.domain?.type === 'accepted') {
+          anchor.x = origin.left + motion.x;
+          anchor.y = origin.top + motion.y;
+          return anchor;
+        }
+
+        if (slots.home) {
+          const { x, y } = slots.home({ item: root, visual: session.visual });
+
+          anchor.x = x;
+          anchor.y = y;
+          return anchor;
+        }
+
+        anchor.x = origin.left;
+        anchor.y = origin.top;
+        return anchor;
+      },
+
+      tail(session, fromX, fromY, targetX, targetY) {
+        return slots.landingTiming && session.domain?.type !== 'accepted'
+          ? slots.landingTiming(fromX, fromY, targetX, targetY)
+          : null;
+      },
+
+      end(session) {
+        slots.onEnd?.(session.domain!);
+      },
+
+      retire() {
+        for (let i = slots.retireHooks.length - 1; i >= 0; i -= 1) {
+          warnOnThrow(slots.retireHooks[i]!);
+        }
+      },
+
+      /** `invalidate()` and `moveTo()`. Inert with no lift, once releasing, or behind a cancel. */
+      flush(session) {
+        const stale = policyStale;
+        const requested = position;
+
+        policyStale = false;
+        position = null;
+
+        if (!session?.lift || session.state === RELEASING || session.cancel) {
+          return;
+        }
+
+        gesture.stage = FAILURE_ACTION_PREPARE;
+
+        if (stale) {
+          invalidateConstraint?.();
+        }
+
+        if (requested) {
+          if (requested.fault) {
+            throw requested.fault.error;
+          }
+
+          const origin = session.originRect!;
+
+          session.offsetX = requested.x - origin.left - (session.pointerX - session.originX);
+          session.offsetY = requested.y - origin.top - (session.pointerY - session.originY);
+          gesture.stage = FAILURE_ACTION_EFFECT;
+          derive(session);
+          session.lift.write(motion.x, motion.y);
+        }
+      },
+
+      report(error) {
+        slots.onError?.(error);
+      },
+    };
+
+    return {
+      behavior,
+      controller: {
+        invalidate(): void {
+          policyStale = true;
+          gesture.requestFlush();
+        },
+        moveTo(point: Point): void {
+          try {
+            position = { x: point.x, y: point.y, fault: null };
+          } catch (error) {
+            position = { x: 0, y: 0, fault: { error } };
+          }
+
+          gesture.requestFlush();
+        },
+        requestCancel: (reason?: unknown): void => {
+          gesture.requestCancel(reason);
+        },
+        requestDestroy: (): Promise<void> => gesture.requestDestroy(),
+      },
+    };
+  });
+}

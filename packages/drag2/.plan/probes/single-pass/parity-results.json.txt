@@ -1,0 +1,1715 @@
+{
+  "drop: synchronous accept reorders": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->6",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,6,7,2,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->6",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,6,7,2,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "drop: no-op returns home": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "press: below the threshold keeps its click": {
+    "equal": true,
+    "production": [
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "drop: composed with landing and row animations": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "landing animations=1",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "later animations=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "landing animations=1",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "later animations=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "drop: second drag after the first": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "onStart",
+      "onReorder 4->0",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=5,1,3,4,2,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "onStart",
+      "onReorder 4->0",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=5,1,3,4,2,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "verdict: synchronous reject": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd rejected reason=no origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd rejected reason=no origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "verdict: resolver throws": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onError error stage=8 resolver threw",
+      "onEnd canceled reason=resolver threw origin=33 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onError error stage=8 resolver threw",
+      "onEnd canceled reason=resolver threw origin=33 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "async: accept resolves later": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder pending",
+      "pending: order=1,2,3,4,5,P,6,7,8 lifted=1",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,2,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder pending",
+      "pending: order=1,2,3,4,5,P,6,7,8 lifted=1",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,2,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "async: reject resolves later": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd rejected reason=later no origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd rejected reason=later no origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "async: rejected promise is a fault": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onError error stage=8 promise rejected",
+      "onEnd canceled reason=promise rejected origin=33 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onError error stage=8 promise rejected",
+      "onEnd canceled reason=promise rejected origin=33 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "async: thenable resolves synchronously, then throws": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "async: a press while a verdict is pending is refused": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "click reached the page",
+      "second press done",
+      "onEnd rejected reason=stop origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "click reached the page",
+      "second press done",
+      "onEnd rejected reason=stop origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "cancel: Escape while active": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd canceled reason=undefined origin=31 stage=20",
+      "canceled: order=1,2,3,4,5,6,7,8 lifted=0",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd canceled reason=undefined origin=31 stage=20",
+      "canceled: order=1,2,3,4,5,6,7,8 lifted=0",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "cancel: requestCancel from outside while active": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd canceled reason=outside origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd canceled reason=outside origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "cancel: requestCancel while pending is silent": {
+    "equal": true,
+    "production": [
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "cancel: from inside onStart": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd canceled reason=in onStart origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd canceled reason=in onStart origin=30 stage=20",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd canceled reason=in onStart origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd canceled reason=in onStart origin=30 stage=20",
+      "probe: alive"
+    ]
+  },
+  "cancel: from inside onStart, which then throws": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd canceled reason=in onStart origin=30 stage=20",
+      "onError warning drag: failure/superseded-by-cancel",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd canceled reason=in onStart origin=30 stage=20",
+      "onError warning drag: failure/superseded-by-cancel",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd canceled reason=in onStart origin=30 stage=20",
+      "onError warning drag: failure/superseded-by-cancel",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd canceled reason=in onStart origin=30 stage=20",
+      "onError warning drag: failure/superseded-by-cancel",
+      "probe: alive"
+    ]
+  },
+  "destroy: from inside onStart, which then throws": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onError warning drag: failure/superseded-by-destruction",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onStart",
+      "onError warning drag: failure/superseded-by-destruction",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "cancel: two from one callback, the first wins": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd canceled reason=first origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd canceled reason=first origin=30 stage=20",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd canceled reason=first origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd canceled reason=first origin=30 stage=20",
+      "probe: alive"
+    ]
+  },
+  "terminal: onEnd observes released presentation": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "inside onEnd: order=1,3,4,2,5,6,7,8 lifted=0",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "inside onEnd: order=1,3,4,2,5,6,7,8 lifted=0",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "inside onEnd: order=1,3,4,2,5,6,7,8 lifted=0",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "inside onEnd: order=1,3,4,2,5,6,7,8 lifted=0",
+      "probe: alive"
+    ]
+  },
+  "cancel: after a thenable has already completed is too late": {
+    "equal": false,
+    "production": [
+      "onStart",
+      "onEnd rejected reason=completed first origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd canceled reason=too late origin=30 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "cancel: from inside onReorder beats the returned accept": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder",
+      "onEnd canceled reason=in onReorder origin=30 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder",
+      "onEnd canceled reason=in onReorder origin=30 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "cancel: from inside onReorder, which then throws": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd canceled reason=in onReorder origin=30 stage=21",
+      "onError warning drag: failure/superseded-by-cancel",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd canceled reason=in onReorder origin=30 stage=21",
+      "onError warning drag: failure/superseded-by-cancel",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "cancel: while a verdict is pending aborts, and the late verdict is ignored": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "signal aborted",
+      "onEnd canceled reason=while pending origin=30 stage=21",
+      "canceled: order=1,2,3,4,5,6,7,8 lifted=0",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "signal aborted",
+      "onEnd canceled reason=while pending origin=30 stage=21",
+      "canceled: order=1,2,3,4,5,6,7,8 lifted=0",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "cancel: Escape while a verdict is pending": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd canceled reason=undefined origin=31 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd canceled reason=undefined origin=31 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "cancel: a real pointercancel": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd canceled reason=undefined origin=32 stage=20",
+      "canceled: order=1,2,3,4,5,6,7,8 lifted=0",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd canceled reason=undefined origin=32 stage=20",
+      "canceled: order=1,2,3,4,5,6,7,8 lifted=0",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "cancel: from inside onEnd is a no-op": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "destroy: while idle": {
+    "equal": true,
+    "production": [
+      "destroy settled",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "destroy settled",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "destroy: while active is silent and restores": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "destroy settled",
+      "destroyed: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onStart",
+      "destroy settled",
+      "destroyed: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "destroy: while pending": {
+    "equal": true,
+    "production": [
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "destroy: from inside onStart completes the unit, then no terminal": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "inside onStart: order=1,2,P,3,4,5,6,7,8 lifted=1",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onStart",
+      "inside onStart: order=1,2,P,3,4,5,6,7,8 lifted=1",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "destroy: from inside onReorder drops the terminal": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "destroy: from inside onReorder, which then throws": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onError warning drag: failure/superseded-by-destruction",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onStart",
+      "onError warning drag: failure/superseded-by-destruction",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "destroy: from inside onEnd keeps that terminal": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "divergence: destroy from inside onError keeps the terminal": {
+    "equal": false,
+    "production": [
+      "onStart",
+      "onError error stage=8 resolver threw",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onStart",
+      "onError error stage=8 resolver threw",
+      "onEnd canceled reason=resolver threw origin=33 stage=21",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "destroy: while a verdict is pending aborts, and the late verdict is ignored": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "signal aborted",
+      "destroy settled",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onStart",
+      "signal aborted",
+      "destroy settled",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "destroy: the promise is one promise": {
+    "equal": true,
+    "production": [
+      "same promise=true",
+      "settled",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "same promise=true",
+      "settled",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "reentrant: a press dispatched from a handle resolver is refused": {
+    "equal": true,
+    "production": [
+      "handle",
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "handle",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "handle",
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "handle",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "reentrant: a press dispatched from onStart is refused": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "reentrant: invalidate from inside onReorder publishes before the terminal": {
+    "equal": true,
+    "production": [
+      "items pull 1",
+      "onStart",
+      "onReorder 1->3",
+      "items pull 2",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "items pull 1",
+      "onStart",
+      "onReorder 1->3",
+      "items pull 2",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "reentrant: invalidate from inside onEnd": {
+    "equal": true,
+    "production": [
+      "items pull 1",
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "items pull 2",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "items pull 3",
+      "probe: alive"
+    ],
+    "prototype": [
+      "items pull 1",
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "items pull 2",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "items pull 3",
+      "probe: alive"
+    ]
+  },
+  "reentrant: the item is removed from the collection during the drag": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd canceled reason=sortable:item-removed origin=30 stage=20",
+      "removed: order=1,2,3,4,5,6,7,8 lifted=0",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd canceled reason=sortable:item-removed origin=30 stage=20",
+      "removed: order=1,2,3,4,5,6,7,8 lifted=0",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "reentrant: a throwing items() during invalidate fails the drag": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onError error stage=4 items threw",
+      "onEnd canceled reason=items threw origin=33 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onError error stage=4 items threw",
+      "onEnd canceled reason=items threw origin=33 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "fault: onStart throws": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onError error stage=2 onStart threw",
+      "onEnd canceled reason=onStart threw origin=33 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onError error stage=2 onStart threw",
+      "onEnd canceled reason=onStart threw origin=33 stage=20",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onError error stage=2 onStart threw",
+      "onEnd canceled reason=onStart threw origin=33 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onError error stage=2 onStart threw",
+      "onEnd canceled reason=onStart threw origin=33 stage=20",
+      "probe: alive"
+    ]
+  },
+  "fault: onEnd throws, exactly one terminal": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "onError error stage=14 onEnd threw",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "onError error stage=14 onEnd threw",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "onError error stage=14 onEnd threw",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "onError error stage=14 onEnd threw",
+      "probe: alive"
+    ]
+  },
+  "fault: handle throws at admission": {
+    "equal": true,
+    "production": [
+      "onError error stage=1 handle threw",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onError error stage=1 handle threw",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onError error stage=1 handle threw",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onError error stage=1 handle threw",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "fault: onError throws and is absorbed": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onError error stage=8 resolver threw",
+      "onEnd canceled reason=resolver threw origin=33 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onError error stage=8 resolver threw",
+      "onEnd canceled reason=resolver threw origin=33 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "keyboard: arrow moves one slot": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 2->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,4,3,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 2->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,4,3,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "keyboard: edge declines": {
+    "equal": true,
+    "production": [
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "keyboard: cancel from inside onStart": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd canceled reason=kb origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd canceled reason=kb origin=30 stage=20",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd canceled reason=kb origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd canceled reason=kb origin=30 stage=20",
+      "probe: alive"
+    ]
+  },
+  "boundary: cancel from a box resolver during release, no round-trip": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "box requests cancel",
+      "onEnd canceled reason=in box origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "box requests cancel",
+      "onEnd canceled reason=in box origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "boundary: destroy from a box resolver during release, no round-trip": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "box requests destroy",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onStart",
+      "box requests destroy",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "boundary: invalidate removing the item, from a box resolver during release": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->4",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,2,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->4",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,2,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "boundary: a thenable completed from items() during a later pass": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "pending",
+      "items completes the verdict",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "pending",
+      "items completes the verdict",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "boundary: cancel then destroy in one callback": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onStart",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "boundary: destroy from a placeholder disconnect keeps the terminal": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "placeholder removed, destroy requested",
+      "placeholder removed, destroy requested",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onStart",
+      "placeholder removed, destroy requested",
+      "placeholder removed, destroy requested",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "platform: Escape while pending is silent": {
+    "equal": true,
+    "production": [
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "platform: capture taken away during the drag": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "canceled: order=1,2,3,4,P,5,6,7,8 lifted=1",
+      "onEnd canceled reason=undefined origin=32 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "canceled: order=1,2,3,4,P,5,6,7,8 lifted=1",
+      "onEnd canceled reason=undefined origin=32 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "platform: scroll during the drag invalidates and the drop still lands": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->5",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,6,2,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->5",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,6,2,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "platform: an ignored region declines the press": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->4",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,2,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->4",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,2,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "platform: a landing is cancelled by the next activation": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "animating=1",
+      "onStart",
+      "animating after activation=0",
+      "onReorder 3->5",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,6,2,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "animating=1",
+      "onStart",
+      "animating after activation=0",
+      "onReorder 3->5",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,6,2,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "platform: a later click after a reorder (flow-1, unchanged)": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "first outside click done",
+      "outside click arrived",
+      "second outside click done",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "first outside click done",
+      "outside click arrived",
+      "second outside click done",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "fault: placeholder factory throws, so no start and no terminal": {
+    "equal": true,
+    "production": [
+      "onError error stage=2 placeholder threw",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onError error stage=2 placeholder threw",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onError error stage=2 placeholder threw",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onError error stage=2 placeholder threw",
+      "probe: inert"
+    ]
+  },
+  "fault: box throws during a spatial frame": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onError error stage=4 box threw",
+      "onEnd canceled reason=box threw origin=33 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onError error stage=1 box threw",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onStart",
+      "onError error stage=4 box threw",
+      "onEnd canceled reason=box threw origin=33 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onError error stage=1 box threw",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "fault: the consumer detaches everything in onReorder": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder detaches",
+      "onError warning drag: landing/target-unavailable",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder detaches",
+      "onError warning drag: landing/target-unavailable",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "keyboard: async verdict then Escape": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "pending: order=1,2,3,4,P,5,6,7,8 lifted=1",
+      "onEnd canceled reason=undefined origin=31 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "pending: order=1,2,3,4,P,5,6,7,8 lifted=1",
+      "onEnd canceled reason=undefined origin=31 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "keyboard: destroy from inside onStart": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onStart",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "free: onMove throws": {
+    "equal": true,
+    "production": [
+      "onError error stage=3 onMove threw",
+      "onEnd canceled reason=onMove threw origin=33 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onError error stage=3 onMove threw",
+      "onEnd canceled reason=onMove threw origin=33 stage=20",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onError error stage=3 onMove threw",
+      "onEnd canceled reason=onMove threw origin=33 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onError error stage=3 onMove threw",
+      "onEnd canceled reason=onMove threw origin=33 stage=20",
+      "probe: inert"
+    ]
+  },
+  "free: Escape while a verdict is pending returns home": {
+    "equal": true,
+    "production": [
+      "onEnd canceled reason=undefined origin=31 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onEnd canceled reason=undefined origin=31 stage=21",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "probe: inert"
+    ]
+  },
+  "keyboard: item removed by an invalidate from inside onStart": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onEnd canceled reason=sortable:item-removed origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd canceled reason=sortable:item-removed origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "divergence: invalidate removing the item, then a throw, from onStart": {
+    "equal": false,
+    "production": [
+      "onStart",
+      "onError warning drag: failure/superseded-by-cancel",
+      "onEnd canceled reason=sortable:item-removed origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onError warning drag: failure/superseded-by-cancel",
+      "onEnd canceled reason=sortable:collection-invalidated origin=30 stage=20",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onEnd canceled reason=sortable:item-removed origin=30 stage=20",
+      "onError warning drag: failure/superseded-by-cancel",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd canceled reason=sortable:collection-invalidated origin=30 stage=20",
+      "onError warning drag: failure/superseded-by-cancel",
+      "probe: alive"
+    ]
+  },
+  "divergence: a throw from the crossing step is a fault, not a panic": {
+    "equal": false,
+    "production": [
+      "onError error stage=null platform",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onError error stage=2 platform",
+      "click reached the page",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "divergence: onEnd requests destruction, then throws": {
+    "equal": false,
+    "production": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "onError warning drag: failure/superseded-by-destruction",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "onError error stage=14 onEnd threw",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "reentrant: a pointerup dispatched from onStart is ignored": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->4",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,2,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->4",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,2,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "divergence: two invalidates in one callback pull once": {
+    "equal": false,
+    "production": [
+      "items pull 1",
+      "onStart",
+      "items pull 2",
+      "items pull 3",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "items pull 4",
+      "items pull 5",
+      "onEnd canceled reason=sortable:collection-invalidated origin=30 stage=20",
+      "probe: alive"
+    ],
+    "prototype": [
+      "items pull 1",
+      "onStart",
+      "items pull 2",
+      "onReorder 1->3",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,2,5,6,7,8 lifted=0",
+      "onStart",
+      "items pull 3",
+      "onEnd canceled reason=sortable:collection-invalidated origin=30 stage=20",
+      "probe: alive"
+    ]
+  },
+  "divergence: start failure with a cancel already registered": {
+    "equal": false,
+    "production": [
+      "onError warning drag: landing/target-unavailable",
+      "onEnd canceled reason=registered first origin=30 stage=20",
+      "onError warning drag: failure/superseded-by-cancel",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onError warning drag: landing/target-unavailable",
+      "onEnd canceled reason=registered first origin=30 stage=20",
+      "onError warning drag: failure/superseded-by-cancel",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onError warning drag: landing/target-unavailable",
+      "onError warning drag: failure/superseded-by-cancel",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onError warning drag: landing/target-unavailable",
+      "onError warning drag: failure/superseded-by-cancel",
+      "probe: inert"
+    ]
+  },
+  "divergence: a pointerup dispatched from onMove": {
+    "equal": false,
+    "production": [
+      "onMove dispatches pointerup",
+      "dispatch returned",
+      "onDrop",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "real release next",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onDrop",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onMove dispatches pointerup",
+      "dispatch returned",
+      "real release next",
+      "onDrop",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onDrop",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "probe: inert"
+    ]
+  },
+  "smoke: the two-dimensional axis, unchanged": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onReorder 1->4",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,2,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onReorder 1->4",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,3,4,5,2,6,7,8 lifted=0",
+      "onStart",
+      "onEnd noop reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "smoke: bounds and a home, unchanged": {
+    "equal": true,
+    "production": [
+      "onDrop at 160,130",
+      "onEnd rejected reason=home origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onDrop at 100,62",
+      "onEnd rejected reason=home origin=undefined stage=undefined",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onDrop at 160,130",
+      "onEnd rejected reason=home origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onDrop at 100,62",
+      "onEnd rejected reason=home origin=undefined stage=undefined",
+      "probe: inert"
+    ]
+  },
+  "free: accept stays where it landed": {
+    "equal": true,
+    "production": [
+      "onStart",
+      "onDrop dx=40 dy=60",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onDrop dx=0 dy=12",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart",
+      "onDrop dx=40 dy=60",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart",
+      "onDrop dx=0 dy=12",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  },
+  "free: onMove sees every sample and may cancel": {
+    "equal": true,
+    "production": [
+      "onMove cancels",
+      "onEnd canceled reason=in onMove origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "probe: inert"
+    ],
+    "prototype": [
+      "onMove cancels",
+      "onEnd canceled reason=in onMove origin=30 stage=20",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "probe: inert"
+    ]
+  },
+  "free: async reject, destroyed while pending": {
+    "equal": true,
+    "production": [
+      "signal aborted",
+      "destroy settled",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ],
+    "prototype": [
+      "signal aborted",
+      "destroy settled",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "click reached the page",
+      "probe: inert"
+    ]
+  },
+  "free: moveTo from inside onStart, then a drop": {
+    "equal": true,
+    "production": [
+      "onStart moves",
+      "onDrop at 400,300",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart moves",
+      "onDrop at 400,304",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ],
+    "prototype": [
+      "onStart moves",
+      "onDrop at 400,300",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "after: order=1,2,3,4,5,6,7,8 lifted=0",
+      "onStart moves",
+      "onDrop at 400,304",
+      "onEnd accepted reason=undefined origin=undefined stage=undefined",
+      "probe: alive"
+    ]
+  }
+}
