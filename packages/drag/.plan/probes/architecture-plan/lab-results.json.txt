@@ -1,0 +1,291 @@
+{
+ "reaction-cancel/independent": {
+  "first": {
+   "trace": [
+    "onEnd:canceled",
+    "onStart"
+   ],
+   "leftovers": [
+    "i1:inline-move"
+   ],
+   "order": "i0,i1,i2,i3,i4"
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onEnd:accepted"
+   ],
+   "leftovers": [
+    "i1:inline-move"
+   ]
+  },
+  "pageErrors": []
+ },
+ "reaction-destroy/independent": {
+  "first": {
+   "trace": [
+    "onEnd:canceled",
+    "onStart"
+   ],
+   "leftovers": [
+    "i1:inline-move"
+   ],
+   "order": "i0,i1,i2,i3,i4"
+  },
+  "second": {
+   "trace": [],
+   "leftovers": [
+    "i1:inline-move"
+   ]
+  },
+  "pageErrors": []
+ },
+ "reaction-nested-press/independent": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onEnd:accepted"
+   ],
+   "leftovers": [],
+   "order": "i0,i2,i3,i1,i4"
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onEnd:accepted"
+   ],
+   "leftovers": []
+  },
+  "pageErrors": []
+ },
+ "reaction-cancel/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onEnd:canceled"
+   ],
+   "leftovers": [],
+   "order": "i0,i1,i2,i3,i4"
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "leftovers": []
+  },
+  "pageErrors": []
+ },
+ "reaction-destroy/singlePass": {
+  "first": {
+   "trace": [
+    "onStart"
+   ],
+   "leftovers": [],
+   "order": "i0,i1,i2,i3,i4"
+  },
+  "second": {
+   "trace": [],
+   "leftovers": []
+  },
+  "pageErrors": []
+ },
+ "reaction-nested-press/singlePass": {
+  "first": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "leftovers": [],
+   "order": "i0,i2,i3,i1,i4"
+  },
+  "second": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "leftovers": []
+  },
+  "pageErrors": []
+ },
+ "commit-disconnect:lab.controller.destroy()/independent": {
+  "trace": [
+   "onStart",
+   "onEnd:accepted"
+  ],
+  "leftovers": [],
+  "order": "i0,i2,i3,i1,i4"
+ },
+ "commit-disconnect:lab.controller.cancel()/independent": {
+  "trace": [
+   "onStart",
+   "onEnd:accepted"
+  ],
+  "leftovers": [],
+  "order": "i0,i2,i3,i1,i4"
+ },
+ "commit-disconnect:nested-press/independent": {
+  "trace": [
+   "onStart",
+   "onEnd:accepted"
+  ],
+  "leftovers": [],
+  "order": "i0,i2,i3,i1,i4"
+ },
+ "clip: overflow hidden, 120px tall, drag 170px down/independent": {
+  "pointerY": 270,
+  "startCentreY": 100,
+  "hit": "HTML",
+  "itemCentreY": 270,
+  "itemCentreX": 140,
+  "errorPx": 0,
+  "leftovers": [],
+  "trace": [
+   "onStart",
+   "onEnd:accepted"
+  ],
+  "order": "i0,i2,i3,i4,i1"
+ },
+ "stacking: covered by a later positioned panel/independent": {
+  "pointerY": 200,
+  "startCentreY": 100,
+  "hit": "panel",
+  "itemCentreY": 200,
+  "itemCentreX": 140,
+  "errorPx": 0,
+  "leftovers": [],
+  "trace": [
+   "onStart",
+   "onEnd:accepted"
+  ],
+  "order": "i0,i2,i3,i1,i4"
+ },
+ "scale: ancestor transform scale(0.5)/independent": {
+  "pointerY": 130,
+  "startCentreY": 70,
+  "hit": "i4",
+  "itemCentreY": 100,
+  "itemCentreX": 90,
+  "errorPx": -30,
+  "leftovers": [],
+  "trace": [
+   "onStart",
+   "onEnd:accepted"
+  ],
+  "order": "i0,i2,i3,i1,i4"
+ },
+ "zoom: ancestor zoom 2/independent": {
+  "pointerY": 220,
+  "startCentreY": 160,
+  "hit": "i2",
+  "itemCentreY": 280,
+  "itemCentreX": 240,
+  "errorPx": 60,
+  "leftovers": [],
+  "trace": [
+   "onStart",
+   "onEnd:accepted"
+  ],
+  "order": "i0,i1,i2,i3,i4"
+ },
+ "clip: overflow hidden, 120px tall, drag 170px down/singlePass": {
+  "pointerY": 270,
+  "startCentreY": 100,
+  "hit": "i1",
+  "itemCentreY": 270,
+  "itemCentreX": 140,
+  "errorPx": 0,
+  "leftovers": [],
+  "trace": [
+   "onStart",
+   "onReorder",
+   "onEnd:accepted"
+  ],
+  "order": "i0,i2,i3,i4,i1"
+ },
+ "stacking: covered by a later positioned panel/singlePass": {
+  "pointerY": 200,
+  "startCentreY": 100,
+  "hit": "i1",
+  "itemCentreY": 200,
+  "itemCentreX": 140,
+  "errorPx": 0,
+  "leftovers": [],
+  "trace": [
+   "onStart",
+   "onReorder",
+   "onEnd:accepted"
+  ],
+  "order": "i0,i2,i3,i1,i4"
+ },
+ "scale: ancestor transform scale(0.5)/singlePass": {
+  "pointerY": 130,
+  "startCentreY": 70,
+  "hit": "i1",
+  "itemCentreY": 130,
+  "itemCentreX": 90,
+  "errorPx": 0,
+  "leftovers": [],
+  "trace": [
+   "onStart",
+   "onReorder",
+   "onEnd:accepted"
+  ],
+  "order": "i0,i2,i3,i4,i1"
+ },
+ "zoom: ancestor zoom 2/singlePass": {
+  "pointerY": 220,
+  "startCentreY": 160,
+  "hit": "i1",
+  "itemCentreY": 220,
+  "itemCentreX": 240,
+  "errorPx": 0,
+  "leftovers": [],
+  "trace": [
+   "onStart",
+   "onReorder",
+   "onEnd:accepted"
+  ],
+  "order": "i0,i2,i1,i3,i4"
+ },
+ "iframe, parent-controlled/independent": {
+  "trace": [],
+  "order": "i0,i1,i2,i3,i4"
+ },
+ "iframe, parent-controlled/singlePass": {
+  "trace": [
+   "onStart",
+   "onReorder",
+   "onEnd:accepted"
+  ],
+  "order": "i0,i2,i3,i1,i4"
+ },
+ "flow-1 next click outside after reorder/independent": {
+  "afterDrop": {
+   "trace": [
+    "onStart",
+    "onEnd:accepted"
+   ],
+   "leftovers": [],
+   "order": "i0,i2,i3,i1,i4"
+  },
+  "firstClickDelivered": true,
+  "deliveredAfterTwo": 2
+ },
+ "flow-1 next click outside after reorder/singlePass": {
+  "afterDrop": {
+   "trace": [
+    "onStart",
+    "onReorder",
+    "onEnd:accepted"
+   ],
+   "leftovers": [],
+   "order": "i0,i2,i3,i1,i4"
+  },
+  "firstClickDelivered": false,
+  "deliveredAfterTwo": 1
+ }
+}

@@ -1,0 +1,227 @@
+/**
+ * One script, both prototypes, Playwright's real mouse. Usage: see README.md.
+ * argv: <prototype dir> <output json>
+ */
+import { build } from '/workspaces/material-x/node_modules/esbuild/lib/main.js';
+import { chromium } from '/workspaces/material-x/node_modules/playwright/index.mjs';
+import { writeFileSync } from 'node:fs';
+
+const [, , proto, out] = process.argv;
+const bundled = await build({
+  entryPoints: [`${proto}/lab.ts`],
+  bundle: true,
+  format: 'iife',
+  write: false,
+  target: 'es2022',
+  define: { __DEV__: 'false' },
+  logLevel: 'error',
+});
+const code = bundled.outputFiles[0].text;
+const browser = await chromium.launch({ executablePath: '/usr/local/bin/chrome', headless: true });
+const results: Record<string, unknown> = {};
+const IMPLS = ['independent', 'singlePass'] as const;
+
+async function fresh(body = '') {
+  const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
+  await page.setContent(`<!doctype html><body style="margin:40px">${body}<div id="host"></div><button id="outside" style="position:fixed;right:20px;top:20px;width:80px;height:40px">out</button></body>`);
+  await page.addScriptTag({ content: code });
+  await page.evaluate(() => {
+    (window as any).clicks = [];
+    document.getElementById('outside')!.addEventListener('click', () => (window as any).clicks.push('outside'));
+  });
+  return page;
+}
+const mk = (page: any, impl: string) =>
+  page.evaluate((i: string) => {
+    (window as any).lab = (window as any).makeLab(i, document.getElementById('host'));
+  }, impl);
+const c = (page: any, id: string) => page.evaluate((i: string) => (window as any).lab.center(i), id);
+const state = (page: any) =>
+  page.evaluate(() => {
+    const l = (window as any).lab;
+    return { trace: [...l.trace], leftovers: l.leftovers(), order: l.order() };
+  });
+
+async function drag(page: any, id: string, dy: number, opts: { release?: boolean; dx?: number } = {}) {
+  const p = await c(page, id);
+  await page.mouse.move(p.x, p.y);
+  await page.mouse.down();
+  await page.mouse.move(p.x + (opts.dx ?? 0), p.y + 6, { steps: 2 });
+  await page.mouse.move(p.x + (opts.dx ?? 0), p.y + 12, { steps: 2 });
+  await page.mouse.move(p.x + (opts.dx ?? 0), p.y + dy, { steps: 6 });
+  await page.waitForTimeout(40);
+  if (opts.release !== false) {
+    await page.mouse.up();
+    await page.waitForTimeout(40);
+  }
+  return p;
+}
+
+/* ---- foreign code reached synchronously during the activation step ---- */
+const REENTRY: Record<string, string> = {
+  'reaction-cancel': 'lab.controller.cancel()',
+  'reaction-destroy': 'lab.controller.destroy()',
+  'reaction-nested-press':
+    "lab.items[3].dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,composed:true,button:0,pointerId:1,isPrimary:true,clientX:1,clientY:1}))",
+};
+for (const impl of IMPLS) {
+  for (const [name, stmt] of Object.entries(REENTRY)) {
+    const page = await fresh();
+    await mk(page, impl);
+    await page.evaluate((s: string) => {
+      const lab = (window as any).lab;
+      lab.hooks.reaction = () => new Function('lab', s)(lab);
+    }, stmt);
+    const error: string[] = [];
+    page.on('pageerror', (e: Error) => error.push(e.message));
+    await drag(page, 'i1', 90);
+    const first = await state(page);
+    const again = await page.evaluate(() => (window as any).lab.trace.length);
+    await drag(page, 'i3', -50);
+    const second = await state(page);
+    results[`${name}/${impl}`] = { first, second: { trace: second.trace.slice(again), leftovers: second.leftovers }, pageErrors: error };
+    await page.close();
+  }
+}
+
+/* ---- foreign code reached during the terminal step, independent's own DOM move ---- */
+for (const stmt of ['lab.controller.destroy()', 'lab.controller.cancel()']) {
+  const page = await fresh();
+  await mk(page, 'independent');
+  await page.evaluate((s: string) => {
+    const lab = (window as any).lab;
+    lab.hooks.disconnect = () => new Function('lab', s)(lab);
+  }, stmt);
+  await drag(page, 'i1', 90);
+  results[`commit-disconnect:${stmt}/independent`] = await state(page);
+  await page.close();
+}
+
+/* ---- a nested press while a commit's DOM move runs: a second session inside the first's end ---- */
+{
+  const page = await fresh();
+  await mk(page, 'independent');
+  await page.evaluate(() => {
+    const lab = (window as any).lab;
+    lab.hooks.disconnect = () =>
+      lab.items[4].dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, composed: true, button: 0, pointerId: 1, isPrimary: true, clientX: 1, clientY: 1 }));
+  });
+  await drag(page, 'i1', 90);
+  results['commit-disconnect:nested-press/independent'] = await state(page);
+  await page.close();
+}
+
+/* ---- presentation capabilities ---- */
+async function pointerSees(page: any, id: string, x: number, y: number) {
+  return page.evaluate(
+    ([i, px, py]: [string, number, number]) => {
+      const hit = document.elementFromPoint(px, py);
+      const el = document.getElementById(i)!;
+      const r = el.getBoundingClientRect();
+      return { hit: hit?.id || hit?.nodeName, itemCentreY: r.top + r.height / 2, itemCentreX: r.left + r.width / 2 };
+    },
+    [id, x, y],
+  );
+}
+const CAPS: Record<string, { wrap: string; dy: number }> = {
+  'clip: overflow hidden, 120px tall, drag 170px down': {
+    wrap: '<div id="wrap" style="height:120px;overflow:hidden;background:#eee"></div>',
+    dy: 170,
+  },
+  'stacking: covered by a later positioned panel': {
+    wrap: '<div style="position:relative;z-index:0"><div id="wrap"></div></div><div id="panel" style="position:absolute;z-index:1;left:0;top:130px;width:400px;height:300px;background:#fcc"></div>',
+    dy: 100,
+  },
+  'scale: ancestor transform scale(0.5)': {
+    wrap: '<div id="wrap" style="transform:scale(0.5);transform-origin:0 0"></div>',
+    dy: 60,
+  },
+  'zoom: ancestor zoom 2': {
+    wrap: '<div id="wrap" style="zoom:2"></div>',
+    dy: 60,
+  },
+};
+for (const impl of IMPLS) {
+  for (const [name, { wrap, dy }] of Object.entries(CAPS)) {
+    const page = await fresh(wrap);
+    await page.evaluate(() => {
+      const w = document.getElementById('wrap')!;
+      const h = document.getElementById('host')!;
+      w.append(h);
+    });
+    await mk(page, impl);
+    const start = await c(page, 'i1');
+    const p = await drag(page, 'i1', dy, { release: false });
+    const seen = await pointerSees(page, 'i1', p.x, p.y + dy);
+    await page.mouse.up();
+    await page.waitForTimeout(40);
+    const after = await state(page);
+    results[`${name}/${impl}`] = {
+      pointerY: p.y + dy,
+      startCentreY: start.y,
+      ...seen,
+      errorPx: Math.round((seen.itemCentreY - (p.y + dy)) * 100) / 100,
+      leftovers: after.leftovers,
+      trace: after.trace,
+      order: after.order,
+    };
+    await page.close();
+  }
+}
+
+/* ---- a same-origin iframe, controlled from the parent ---- */
+for (const impl of IMPLS) {
+  const page = await fresh('<iframe id="f" style="width:400px;height:400px;border:0"></iframe>');
+  await page.evaluate((i: string) => {
+    const f = document.getElementById('f') as HTMLIFrameElement;
+    const body = f.contentDocument!.body;
+    body.style.margin = '0';
+    const host = f.contentDocument!.createElement('div');
+    body.append(host);
+    (window as any).lab = (window as any).makeLab(i, host);
+  }, impl);
+  const box = await page.evaluate(() => {
+    const r = document.getElementById('f')!.getBoundingClientRect();
+    return { x: r.left, y: r.top };
+  });
+  const a = { x: box.x + 100, y: box.y + 60 };
+  await page.mouse.move(a.x, a.y);
+  await page.mouse.down();
+  await page.mouse.move(a.x, a.y + 12, { steps: 3 });
+  await page.mouse.move(a.x, a.y + 90, { steps: 6 });
+  await page.waitForTimeout(40);
+  await page.mouse.up();
+  await page.waitForTimeout(40);
+  results[`iframe, parent-controlled/${impl}`] = await page.evaluate(() => {
+    const l = (window as any).lab;
+    return { trace: [...l.trace], order: l.order() };
+  });
+  await page.close();
+}
+
+/* ---- flow-1: the next click on something else, after a reordering drop ---- */
+for (const impl of IMPLS) {
+  const page = await fresh();
+  await mk(page, impl);
+  await drag(page, 'i1', 90);
+  const afterDrop = await state(page);
+  await page.waitForTimeout(40);
+  const b = await page.evaluate(() => {
+    const r = document.getElementById('outside')!.getBoundingClientRect();
+    return { x: r.left + 10, y: r.top + 10 };
+  });
+  await page.mouse.click(b.x, b.y);
+  await page.waitForTimeout(20);
+  const first = await page.evaluate(() => (window as any).clicks.length);
+  await page.mouse.click(b.x, b.y);
+  await page.waitForTimeout(20);
+  const second = await page.evaluate(() => (window as any).clicks.length);
+  results[`flow-1 next click outside after reorder/${impl}`] = { afterDrop, firstClickDelivered: first === 1, deliveredAfterTwo: second };
+  await page.close();
+}
+
+await browser.close();
+writeFileSync(out, JSON.stringify(results, null, 1));
+for (const [k, v] of Object.entries(results)) {
+  console.log(k, JSON.stringify(v));
+}

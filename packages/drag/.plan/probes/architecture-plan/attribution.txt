@@ -1,0 +1,85 @@
+
+## independent, everything (with experiment arms): 6164 min, 2563 gz, 2307 br
+
+## independent, sortable: 5543 min, 2310 gz, 2082 br
+
+## independent, movable: 3885 min, 1575 gz, 1404 br
+
+## single-pass, sortable + y: 23833 min, 9213 gz, 8265 br
+   5906 gesture.ts
+   4073 sortable.ts
+   2994 src/kernel/presentation.ts
+   1972 packages/box-quad/index.js
+   1937 src/sortable/rect-index.ts
+   1260 src/sortable/linear-shift.ts
+    789 src/sortable/assemble.ts
+    717 src/sortable/placement.ts
+    715 src/sortable/collection.ts
+    615 src/kernel/lifetimes.ts
+    542 src/sortable/y.ts
+    400 src/kernel/invalidation.ts
+    340 src/kernel/pointer.ts
+    311 src/sortable/keyboard.ts
+    267 src/kernel/realm.ts
+    244 src/sortable/config.ts
+    202 src/kernel/errors.ts
+    183 src/sortable/domain.ts
+    129 src/kernel/protocol.ts
+    105 src/kernel/warn-on-throw.ts
+     96 src/kernel/input-policy.ts
+     21 <stdin>
+     14 src/sortable/slots.ts
+
+## single-pass, complete: 25121 min, 9784 gz, 8740 br
+   5907 gesture.ts
+   4074 sortable.ts
+   2994 src/kernel/presentation.ts
+   1972 packages/box-quad/index.js
+   1938 src/sortable/rect-index.ts
+   1260 src/sortable/linear-shift.ts
+    889 src/sortable/layout-animation.ts
+    789 src/sortable/assemble.ts
+    717 src/sortable/placement.ts
+    715 src/sortable/collection.ts
+    615 src/kernel/lifetimes.ts
+    543 src/sortable/y.ts
+    400 src/kernel/invalidation.ts
+    340 src/kernel/pointer.ts
+    316 src/shared/landing.ts
+    311 src/sortable/keyboard.ts
+    267 src/kernel/realm.ts
+    244 src/sortable/config.ts
+    202 src/kernel/errors.ts
+    183 src/sortable/domain.ts
+    129 src/kernel/protocol.ts
+    105 src/kernel/warn-on-throw.ts
+     96 src/kernel/input-policy.ts
+     73 src/sortable/landing.ts
+     27 <stdin>
+     14 src/sortable/slots.ts
+
+## single-pass, free drag: 17175 min, 6757 gz, 6025 br
+   5902 gesture.ts
+   2988 src/kernel/presentation.ts
+   2771 free-drag.ts
+   1969 packages/box-quad/index.js
+    651 src/free-drag/assemble.ts
+    630 src/free-drag/geometry.ts
+    615 src/kernel/lifetimes.ts
+    341 src/kernel/pointer.ts
+    290 src/free-drag/config.ts
+    267 src/kernel/realm.ts
+    202 src/kernel/errors.ts
+    176 src/kernel/invalidation.ts
+    130 src/kernel/protocol.ts
+    105 src/kernel/warn-on-throw.ts
+     95 src/kernel/input-policy.ts
+     18 <stdin>
+     14 src/free-drag/slots.ts
+     10 src/free-drag/domain.ts
+
+## single-pass, sortable + hit-axis: 20776 min, 7981 gz, 7157 br
+   rect-index and linear-shift in graph: none
+
+## single-pass, complete + hit-axis: 22060 min, 8560 gz, 7658 br
+   rect-index and linear-shift in graph: none

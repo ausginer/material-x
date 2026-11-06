@@ -1,0 +1,128 @@
+597	admission	should resolve the pressed item from the composed path
+608	admission	should ignore a press outside the collection
+617	admission	should not preventDefault on an admitted press
+635	admission	should preventDefault on the move that crosses the threshold
+645	admission	should not preventDefault on a move that stays below the threshold
+658	admission	should not preventDefault on moves after the crossing
+669	admission	should narrow admission through the handle slot
+688	admission	should lift the visual without replacing the item
+728	the admission queue boundary	should apply a replacement dispatched from the handle resolver after admission commits
+752	the admission queue boundary	should apply a replacement dispatched from the visual resolver
+772	the admission queue boundary	should rebase the drag onto a collection replaced during admission
+799	the admission queue boundary	should retire the operation when the replacement removes the pressed item
+827	the admission queue boundary	should apply several queued replacements in dispatch order
+860	the admission queue boundary	should refuse a nested press dispatched from the handle resolver
+894	the admission queue boundary	should refuse a nested press dispatched from the visual resolver
+915	the admission queue boundary	should still admit the next press after refusing a nested one
+940	the admission queue boundary	should treat destroy from the handle resolver as an immediate terminal barrier
+966	the admission queue boundary	should classify a throwing visual resolver as a consumer fault
+1007	the admission queue boundary	should treat destroy from the visual resolver as an immediate terminal barrier
+1033	activation	should create the placeholder detached and insert it after the item
+1057	activation	should apply the default mechanics to a customised placeholder
+1074	activation	should publish the runtime before onStart runs
+1090	activation	should not activate when the item left the collection
+1124	activation	should deliver the start of the activation whose placeholder insertion requested destruction
+1130	activation	should remove the placeholder once the destruction its insertion requested is applied
+1139	activation	should fail activation when the placeholder removes itself on connection
+1162	activation	should fail activation when the placeholder reparents itself on connection
+1187	activation	should fail activation when the whole list leaves the document
+1206	activation	should fail activation when the placeholder moves within the container
+1225	activation	should fail activation when the item is reparented away from the placeholder
+1250	activation	should start normally when the placeholder survives connection
+1271	activation	should publish runtime state in the unit that requested destruction
+1280	activation	should run no later unit after a reentrant destruction
+1292	the hot path	should render the committed sample and coalesce the spatial search
+1313	the hot path	should not commit an insertion the resolver declined
+1328	the hot path	should move the placeholder for a resolved insertion
+1341	the hot path	should displace once, after the placeholder write
+1371	placeholder movement	should reach a start gap
+1387	placeholder movement	should reach an end gap
+1398	placeholder movement	should be inert when the placeholder is already in position
+1424	release	should build the proposal from the committed release point
+1442	release	should render the final sample, not the last processed move
+1463	release	should skip the round-trip for a proven no-op
+1476	release	should not refuse an insertion whose neighbours the snapshot does not support
+1503	release	should still refuse an insertion carrying another version
+1519	release	should move the placeholder to the final gap before resolving
+1547	the terminal boundary (D-66)	should publish no terminal when activation.prepare throws
+1563	the terminal boundary (D-66)	should publish a terminal when onStart itself throws
+1583	the terminal boundary (D-66)	should carry AT_PROPOSAL for a failure before the round-trip opens
+1601	the terminal boundary (D-66)	should carry AT_PROPOSAL for a release.effect throw
+1627	the terminal boundary (D-66)	should publish exactly one terminal when the terminal callback throws
+1722	a failure registered ahead of the round-trip (D-206)	should open no synchronous round-trip once the collection work the release queued has failed
+1728	a failure registered ahead of the round-trip (D-206)	should open no asynchronous round-trip once the collection work the release queued has failed
+1736	settlement mapping	should map an accepted resolution to a destination recovery
+1747	settlement mapping	should map a rejected resolution to onCancel with its reason
+1764	settlement mapping	should classify a rejected round-trip promise
+1794	settlement mapping	should classify a null rejection rather than reading it as a re-entry
+1840	settlement mapping	should map a cancel at ACTIVE to the proposal stage
+1854	settlement mapping	should map a cancel during the round-trip to the consumer stage
+1871	settlement mapping	should publish both channels for a consequential failure
+1944	a failure after the authored commit (D-66)	should keep the accepted result when the terminal callback throws
+1959	a failure after the authored commit (D-66)	should keep a rejected result too, not just an accepted one
+1983	the landing target	should re-anchor to the item for a destination recovery
+2005	the landing target	should repair the semantic gap when the item moved
+2032	the landing target	should not reinsert the placeholder when it is already anchored
+2070	the landing target	should follow the grabbed item when a replacement moves it
+2109	the landing target	should recover to the home gap of the frozen transaction
+2145	the landing target	should not fabricate a gap for a removed item
+2172	the landing target	should not derive a home gap for an item the replacement removed
+2196	the landing target	should stay usable after an item-removed cancellation
+2212	the landing target	should return the placeholder home for a rejected drop
+2233	the landing target	should start no landing tail for an immediate recovery
+2257	the collection	should publish an idle replacement without binding it to a frame
+2269	the collection	should copy the caller array at call time
+2283	the collection	should rebase a surviving gap during an active drag
+2304	the collection	should publish and then cancel when the gap cannot survive
+2324	the collection	should rebase an internal gap that stays adjacent
+2348	the collection	should cancel when an internal gap loses its adjacency
+2370	the collection	should refuse to build a proposal across versions
+2397	the collection	should cancel with item-removed when the dragged item vanishes
+2409	the collection	should apply an update from inside onStart at ACTIVATING
+2434	the collection	should not rewrite the frozen snapshot after release
+2460	retirement	should run the retire hooks, each wrapped
+2485	retirement	should leave no placeholder and no item references behind
+2498	retirement	should admit a second drag after the first completed
+2513	collection identity	should apply two signals queued in one drain exactly once
+2540	collection identity	should invalidate geometry only when the identity did not move
+2578	collection identity	should keep versions increasing across separate drains
+2592	collection identity	should publish a duplicated collection the pull source returned
+2610	collection identity	should not consume a version for a pull that produced no collection
+2654	the destroy promise	should return one promise by identity through the sortable wrapper
+2678	invalidate() after destroy	should stay inert for a valid replacement
+2697	invalidate() after destroy	should not pull the collection at all for a post-destroy replacement
+2725	invalidate() after destroy	should not classify a post-destroy replacement as an activation failure
+2755	committed move failure classification	should classify a failing move hook as an action-effect failure
+2787	invalidation failure classification	should classify a scroll-time invalidation failure
+2808	invalidation failure classification	should classify an activation-time invalidation failure as its own stage
+2824	invalidation failure classification	should not start an operation whose activation invalidation failed
+2836	invalidation failure classification	should classify a scheduling failure as SCHEDULED_FRAME
+2875	placeholder factory results	should adopt the dragged item and lose the insertion one seam later
+2894	placeholder factory results	should adopt the lifted visual and lose the insertion the same way
+2906	placeholder factory results	should move a node that is already in the document
+2921	placeholder factory results	should fail at the first mechanics write for a result that is not an element
+2933	placeholder factory results	should clear a stale slot when the item has none
+2948	placeholder factory results	should mirror the slot the item does have
+2966	inert placeholder movement	should not displace for an already-correct gap
+2997	inert placeholder movement	should not invalidate geometry for an already-correct gap
+3021	inert placeholder movement	should still displace for a real move
+3092	the spatial action legality guard	should stage a spatial action at ACTIVE
+3101	the spatial action legality guard	should discard a spatial action at RELEASING
+3108	the spatial action legality guard	should discard a spatial action at SETTLING
+3115	the spatial action legality guard	should discard a spatial action at FINALIZING
+3122	the spatial action legality guard	should discard a spatial action at ACTIVATING
+3129	the spatial action legality guard	should discard a spatial action whose attempt is stale
+3170	a pointerless release with no destination	should reject rather than fall back to home
+3211	the hoisted move leaf	should read the live frame and lift on a second operation
+3247	the placeholder container guard	should refuse a spatial move whose anchor left the container
+3270	the placeholder container guard	should refuse a release whose resolved anchor left the container
+3289	the placeholder container guard	should refuse a home recovery whose anchor left the container and still cancel
+3314	the placeholder container guard	should skip a destination recovery whose item left the container
+3347	seam staging across whole operations	should leave nothing staged across two consecutive drags
+3365	seam staging across whole operations	should leave nothing staged after a failed drag
+3453	the committed-move bracket’s exits	should report no failure from a successful bracket
+3459	the committed-move bracket’s exits	should classify a refused placeholder write
+3465	the committed-move bracket’s exits	should classify a throwing move hook
+3483	the committed-move bracket’s exits	should classify a throwing lazy invalidation into the failing seam
+3512	the committed-move bracket’s exits	should classify a throwing sink
+3533	the committed-move bracket’s exits	should invalidate and then resolve at release, cancelling nothing

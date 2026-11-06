@@ -1,0 +1,9 @@
+import { rolldown } from '/workspaces/material-x/node_modules/rolldown/dist/index.mjs';
+import { brotliCompressSync } from 'node:zlib';
+const input = process.argv[2];
+const b = await rolldown({ input: [input], platform: 'neutral' });
+const { output } = await b.generate({ format: 'es', minify: true });
+const c = output.filter((x) => x.type === 'chunk');
+const code = new TextEncoder().encode(c.map((x) => x.code).join(''));
+console.log(JSON.stringify({ minified: code.byteLength, brotli: brotliCompressSync(code).byteLength, modules: new Set(c.flatMap((x) => Object.keys(x.modules))).size }));
+await b.close();
