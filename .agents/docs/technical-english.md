@@ -25,7 +25,7 @@ Compare a rewrite with both the original meaning and the current code. Preserve 
 
 ## Use direct English
 
-Replace an ambiguous “it” or “this” with the object when more than one could fit. When you split a sentence, keep its conditions and order clear.
+Prefer concrete subjects, active verbs and explicit references. Replace an ambiguous “it” or “this” with the object when more than one could fit. When you split a sentence, keep its conditions and order clear.
 
 Avoid idioms, decorative emphasis and formal administrative wording when a direct expression says the same thing. For example, “record the decision and remaining work” is clearer than “record the disposition”; “create the callback once per controller and reuse it” explains the lifetime directly. `dispose()` can still be the correct name for resource cleanup.
 
