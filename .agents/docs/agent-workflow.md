@@ -25,7 +25,7 @@ Reviewers find and document; they do not fix or decide. Only the architect creat
 
 Straightforward defects go to the implementer. A change to architecture, contract, lifecycle, ownership, parity or public surface goes to the architect. An owner answer that changes a contract is recorded by the architect before dependent implementation resumes.
 
-The owner transfers top-level prompts and closing messages, following [coordinator-setup.md](coordinator-setup.md). The coordinator does not launch or automatically resume those sessions. No tracked main-thread router is in use. The consolidator's review-local dispatch is governed by its own definition and the [effort guard](harness-effort-guard.md).
+The owner transfers top-level prompts and closing messages, following [coordinator-setup.md](coordinator-setup.md). The consolidator's review-local dispatch is governed by its own definition and the [effort guard](harness-effort-guard.md).
 
 ## Phase coordination
 
@@ -33,9 +33,9 @@ The owner transfers top-level prompts and closing messages, following [coordinat
 
 Recover the authorized phase or unit, goal, governing plan, constraints and completion boundary from the owner's instruction and existing records. Do not require another brief when the plan is sufficient. A branch name alone does not authorize starting or skipping a phase.
 
-Within that boundary, prepare the next settled task through architectural work when needed, implementation, review and remediation. Ask the owner about changes to goals, scope, priorities and product tradeoffs; route technical architectural questions to the architect. Ordinary implementation choices stay with the implementer. Do not waive checks or lower acceptance criteria to finish.
+Within that boundary, prepare the next settled task through architectural work when needed, implementation, review and remediation. Ordinary implementation choices stay with the implementer. [coordinator.md](coordinator.md#route-one-bounded-task) owns what the coordinator asks the owner, routes to the architect and may not waive, and the authorization required before another phase, a merge or a release.
 
-Stop at the authorized boundary and report behavior, reviewed revision, verification and its limits, pending findings and obligations. A completed agent run is not phase acceptance. Starting the next phase, merging or releasing requires authorization. Finalization follows [handoff.md](handoff.md).
+Stop at the authorized boundary and report behavior, reviewed revision, verification and its limits, pending findings and obligations. A completed agent run is not phase acceptance. Finalization follows [handoff.md](handoff.md).
 
 ### Recovering state
 
@@ -53,41 +53,33 @@ Notice repeated failure and unexpected growth: the same blocker without new evid
 
 ### Context reuse and usage
 
-Reuse a related architect or implementer session when available. The owner relays the follow-up; it names the current revision and changed sources. Recover an unavailable session from the repository handoff rather than its transcript.
+[coordinator-setup.md](coordinator-setup.md#manual-relay) owns session reuse and when a session must be fresh. A relayed follow-up names the current revision and changed sources. Recover an unavailable session from the repository handoff rather than its transcript.
 
-Use fresh contexts for independent review. A targeted recheck may return to its original reviewer, but is identified as a recheck. Do not poll sessions or send keep-alives merely to preserve a cache. Report available usage honestly; do not invent token counts, cache savings or subscription costs.
+A targeted recheck may return to its original reviewer, but is identified as a recheck. Do not poll sessions or send keep-alives merely to preserve a cache. Report available usage honestly; do not invent token counts, cache savings or subscription costs.
 
 ## Records and concise returns
 
-The repository carries the substance; messages route the work. A finalized handoff identifies:
+The repository carries the substance; messages route the work. [handoff.md](handoff.md#record-the-handoff) owns what a finalized handoff identifies and the form of its closing message.
 
-- the input or reviewed revision and governing records;
-- the outcome and scope, with paths to the substantive result;
-- verification, discriminating witnesses or mutations when owed, and limits;
-- unresolved findings, obligations and pending acceptance;
-- one bounded next task and its recipient, or the stopping boundary.
-
-Record owner constraints that govern subsequent work in the owning document. Follow [documentation.md](documentation.md) for record placement and [review-findings.md](review-findings.md) for report schema, tiers and identifiers.
-
-The closing message is normally three to five short lines: status, resulting commit or reviewed revision, record path and next action or blocker. State missing verification plainly. Read-only discovery needs no artifact for every search; the agent citing its result verifies cheap mechanical claims itself.
+Record owner constraints that govern subsequent work in the owning document. Follow [documentation.md](documentation.md) for record placement and [review-findings.md](review-findings.md) for report schema, tiers and identifiers. Read-only discovery needs no artifact for every search.
 
 ### Durable references and revision metadata
 
 Use the repository's qualified addresses, such as `drag2:D-199` and `repo:RD-1`. The [record rules](../../CONTRIBUTING.md#reading-one-entry-of-a-record) require one canonical definition per identifier, claimed at `####`; headings that merely discuss an entry do not claim its ID. Link the owning document rather than inventing a heading fragment for a retitled entry.
 
-Drag2's [contract index](../../packages/drag2/.plan/contract/00-index.md) owns its `D-`/`F-`/`Q-`/`I-` series. The [repository index](../../.plan/00-index.md) owns `RD-`/`RF-`/`RQ-`/`RI-`. Other packages retain their own registered vocabulary. Do not import a global D/F/H/Q sequence or add an H register for coordination. Allocation and local-to-canonical proposals follow `review-findings.md`.
+Drag2's [contract index](../../packages/drag2/.plan/contract/00-index.md) owns its `D-`/`F-`/`Q-`/`I-` series. The [repository index](../../.plan/00-index.md) owns `RD-`/`RF-`/`RQ-`/`RI-`. Other packages retain their own registered vocabulary. Allocation and local-to-canonical proposals follow `review-findings.md`.
 
 Use SHAs and ranges to pin prompts and reviewed trees. Review artifacts record the commit actually read, as the review convention requires; an ID identifies an entry and does not replace that provenance. Preserve published evidence. Before authorized integration, ensure active handoffs remain understandable without relying solely on transient history. This grants no history-rewriting authority.
 
 ### Writes and temporary work
 
-Respect role write boundaries. In a shared checkout, serialize source and contract changes and keep a round's reviewed tree fixed. If another writer changes it, state which review claims need rechecking. Stage only the unit's own files; preserve unrelated changes.
+Respect role write boundaries. In a shared checkout, serialize source and contract changes and keep a round's reviewed tree fixed. If another writer changes it, state which review claims need rechecking.
 
-Save cited evidence in the owning record. The agent creating a scratch probe, build or worktree owns its cleanup after its processes finish and evidence is saved. Preserve another session's work and shared build caches. A worktree-rooted worker dispatches nothing, as [AGENTS.md](../../AGENTS.md) requires.
+[handoff.md](handoff.md) owns staging, saved evidence and scratch cleanup. [AGENTS.md](../../AGENTS.md#before-running-a-governed-role) owns dispatch from a worktree.
 
 ## Prompt format
 
-Name the recipient outside the prompt. Use an editable writing block when the UI offers one; otherwise use a fenced text block. Keep the prompt compact: task and purpose, input revision, canonical records, new owner constraints and completion boundary. Let the role determine the solution within its authority. Do not reproduce rules and reasoning already in its inputs.
+Name the recipient outside the prompt. Use an editable writing block when the UI offers one; otherwise use a fenced text block. Keep the prompt compact: task and purpose, input revision, canonical records, new owner constraints and completion boundary. Let the role determine the solution within its authority. Do not reproduce rules and reasoning already in its inputs. Let the client wrap the prompt's prose rather than inserting line breaks inside sentences.
 
 Every task prompt ends with its recipient stamp on the final line:
 
@@ -115,13 +107,9 @@ There is no challenger role definition or launcher profile. Start a fresh archit
 
 ## Review round
 
-A Review Swarm is rooted at `consolidator`. Its [role definition](../../.claude/agents/consolidator.md) owns cadence and dispatch: `reviewer` on implementation handoffs, `integrity` at checkpoints and round boundaries, `cleanup` and `der` on demand. A direct feature-review session does not require a full swarm. Important checkpoints may use an independent model instead of the Claude reviewer when explicitly selected.
+A Review Swarm is rooted at `consolidator`. Its [role definition](../../.claude/agents/consolidator.md) owns cadence, dispatch, pass isolation, evidence validation and routing. A direct feature-review session does not require a full swarm. Important checkpoints may use an independent model instead of the Claude reviewer when explicitly selected.
 
-The consolidator launches the requested lenses in parallel, isolated from one another. Each launch selects its governed `subagent_type`, with no `name` and no model override. No pass receives a sibling's report, findings or artifact path. Do not substitute a general-purpose worker for a missing governed lens; report the missing coverage.
-
-Keep shared context to the revision, scope and canonical inputs. Feature-proof targets go only to the reviewer; a hypothesis goes only to the lens it concerns. The other lenses must form independent questions. New rounds use fresh lenses; targeted rechecks are labelled and do not count as new independent opinions.
-
-The consolidator validates evidence, merges supported overlaps, preserves materially different claims and proposes IDs through the owning register. It does not become a fifth general reviewer or second architect. Rejections need falsifying evidence, tiers follow consequence rather than votes, and unresolved semantics are routed. Follow [review-findings.md](review-findings.md) for report paths and schema and [handoff.md](handoff.md) for publication.
+When preparing a round, keep shared context to the revision, scope and canonical inputs. Feature-proof targets go only to the reviewer; a hypothesis goes only to the lens it concerns. The other lenses must form independent questions. Follow [review-findings.md](review-findings.md) for report paths and schema and [handoff.md](handoff.md) for publication.
 
 ## Agent configuration
 

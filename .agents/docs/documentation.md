@@ -2,16 +2,16 @@
 
 A document's home is decided by **what makes it wrong**, not by what it is about.
 
-Four things go wrong in four different ways, and mixing them is what produced the state this model replaces: a size policy that a reader must diff against itself to extract the current rule, a coding convention living in a vendor's agent file in two drifted copies, and a published type surface in which decision narrative outweighs the library it describes by seven to one.
+Four things go wrong in four different ways. Mixing them makes a reader diff a policy against itself to find the current rule, lets copies of a convention drift, and lets decision narrative outweigh a published type surface.
 
 | Kind | Answers | Goes wrong when | Home |
 | --- | --- | --- | --- |
-| **Convention** | What do I write? | someone decides to write it differently | `.agents/docs/` |
+| **Convention** | What do I write? | someone decides to write it differently | `.agents/docs/`, `CONTRIBUTING.md` Part I |
 | **Policy** | What may I spend, and what must I prove? | a measurement falsifies it | `CONTRIBUTING.md` Part II |
-| **Operation** | How do I run things here? | the tooling changes | `AGENTS.md`, `CLAUDE.md` |
-| **Record** | Why is it like this? | never — it is what happened | `packages/*/.plan/` |
+| **Operation** | How do I run things here? | the tooling changes | `AGENTS.md`, `CLAUDE.md`, `.agents/docs/`, `.claude/` |
+| **Record** | Why is it like this? | never — it is what happened | `packages/*/.plan/`, `.plan/` |
 
-The record is the only one of the four that is **append-only**. The other three are **current-state**: they are rewritten in place, and what they used to say is not their business.
+The record is the only one of the four that is **append-only**. The other three are **current-state**: they are rewritten in place, and their rules do not carry what they used to say. A closing change record, kept apart from the rules, is the one exception; this document's is §9.
 
 That single asymmetry produces every rule below.
 
@@ -41,7 +41,7 @@ One line, and the reader who wants the fourteen compositions follows the link.
 
 ## 2. Citations bind section numbers, not sentences
 
-The size policy kept its withdrawn wording inline on the stated ground that _other documents cite it_. They do not. All 55 citations in this repository address a section number — `§1.1`, `§4`, `§13` — and none quotes a struck sentence.
+Citations in this repository address a section number, such as `§1.1`, `§4` or `§13`, and not a struck sentence.
 
 So the compatibility obligation a current-state document actually carries is **numbering stability**, and struck text does nothing for it:
 
@@ -57,7 +57,7 @@ Two files holding the same conventions drift, and the drift is silent because ne
 
 - **`AGENTS.md` is the durable root.** Vendor-neutral name, read by humans and by every agent harness that can be pointed at a file.
 - **`CLAUDE.md` imports it** with a bare `@AGENTS.md` line and adds only what is specific to Claude Code — tool-availability protocol, skills routing, sub-agent policy. It states no convention of its own.
-- **`.agents/docs/` holds the conventions themselves**, one subject per file, referenced rather than resident and named by the role or reader that needs each one.
+- **`.agents/docs/` holds the conventions and operating procedures**, one subject per file, referenced rather than resident and named by the role or reader that needs each one.
 
 ### Residency is a real property and costs real context
 
@@ -67,7 +67,7 @@ An imported file is loaded into every agent's prompt whether or not it is needed
 - **Everything else is a chunk**, named by the role that needs it at the trigger where it becomes relevant: at start, before writing findings, before finalizing, or on a stated condition.
 - **Content too small for a retrieval to pay for itself goes inline** in the role that owns it. A retrieval costs a call and a result as well as the text, so below some size a separate file is more expensive than the duplication it avoids. The threshold is an engineering estimate rather than a measurement; keep it in the record, not here.
 - **A chunk is the smallest unit never partially needed.** If a role routinely wants half a file, the file is too coarse.
-- **The role definition is the only place an edge is stored.** A chunk states its purpose and trigger in a one-line retrieval header; it does not enumerate its readers, because a second copy of the graph is a consistency problem rather than a witness. _Who reads this?_ is derived from the role definitions.
+- **Role definitions and the resident files store the edges.** A role definition names what that role retrieves; `AGENTS.md` and `CLAUDE.md` name what a role-less session or every writer needs. A chunk states its purpose and trigger in a one-line retrieval header; it does not enumerate its readers, because a second copy of the graph is a consistency problem rather than a witness. _Who reads this?_ is derived from those files.
 
 A large document with permanent section numbers is addressable without being loaded whole: extraction terminates at the next heading of the same or higher level, so a stable address never requires stable adjacency.
 
@@ -81,7 +81,7 @@ Imports are resolved relative to the importing file and nest up to four hops. **
 
 A number has an owner — the instrument that produces it and the pass that re-bases it. A copy of that number in a rulebook has neither, so it goes stale without anything failing.
 
-`CONTRIBUTING.md` §18 illustrated tight budgets with _a 121 B vocabulary root with 29 B of slack_. That row has since been re-based twice; the sentence describes no instrument that exists. The rule it illustrates is durable and correct. The illustration was a fact about one file in one package, and facts about files belong to those files.
+A rule can stay durable and correct while its illustration goes stale. A figure from one file is a fact about that file, and facts about files belong to those files.
 
 - **State the rule generically.** _A deliberately tight row is tight on purpose_ needs no byte figure.
 - **Where a figure is the evidence, link it** rather than transcribing it.
@@ -95,18 +95,17 @@ The audience split is **mechanical**, and it is worth stating in those terms bec
 
 > A JSDoc block attached to a declaration that appears in a published `.d.ts` is **consumer documentation and part of the shipped surface**. Everything else — line comments, JSDoc on declarations that do not survive the declaration prune, internal module headers — is a **maintainer note**.
 
-The two have different readers, different obligations and different costs, and the current tree writes them the same way.
+The two have different readers, different obligations and different costs.
 
 ### 5.1 Published JSDoc
 
-It ships. It is fetched at install, rendered on hover in a consumer's editor, and published by TypeDoc. `CONTRIBUTING.md` §4 (c) already priced this class and drew the conclusion in passing — _when a vocabulary looks expensive, check whether you are pricing the values or the prose about them_. This is that observation as a rule.
+It ships. It is fetched at install, rendered on hover in a consumer's editor, and published by TypeDoc.
 
-**It contains only what a reader outside this repository can act on.**
+**It contains only what a reader outside this repository can act on.** §1's current-state rules apply, so it carries no strikethrough or supersession.
 
 - Present tense, describing what the declaration is and what the caller must guarantee.
 - **Preconditions the compiler cannot state belong here and are load-bearing** — _its coordinates must both be finite_, _a duration is finite_, _the elements are distinct_. `CONTRIBUTING.md` §1.1 deletes runtime guards on the strength of these sentences existing, so deleting one silently converts a documented boundary into an undocumented one.
 - **No internal identifiers**: no `D-`, `F-`, `I-`, `E-` or `Q-` numbers, no `§` citations of internal documents, no `.plan/` links, no phase numbers, no dates, no commit references.
-- **No strikethrough and no supersession**: not _was X until_, not _corrected_, not _this used to_.
 - **No rejected alternatives, and no defence of the design.** A consumer cannot act on why the other shape lost.
 
 Length is proportional to what the caller must do — never to what it took to decide.
@@ -117,7 +116,6 @@ They do not ship, so they are free of install weight and consumer confusion. The
 
 - **State a constraint that holds and the consequence of breaking it.** _Neither 12 nor 13 is reused: a stage constant is inlined into a consumer's build_ is a working comment. It stops a specific edit.
 - **One bare pointer is allowed** — `(D-74)` — as an index entry into the record. It carries no argument; it says where the argument is.
-- **No strikethrough.** A superseded sentence is deleted here. If it needs to be preserved, the record preserves it.
 - **No dates, no phase numbers, no review-file narration, no vote counts.**
 - **Argue for what is, never about what was.** A comment may say why the current shape is the right one and what the obvious alternative gets wrong — that is a constraint on the next edit, stated where the edit happens. It may not narrate that the alternative was considered, by whom, or when. State the alternative's property, not the deliberation: _ignoring X is not an optimisation of the 2-D rule; it is a different and better answer for a list_ needs no history to do its work.
 - **Length is not the test.** A rationale is as long as the mistake it prevents is attractive. §5.3's first question decides these, and it decides them the same way whether the comment is one line or thirty.
@@ -169,11 +167,12 @@ A convention with no instrument is a convention that decays, and the classes abo
 | --- | --- |
 | No internal identifier reaches a published `.d.ts` | a pattern assertion over the built declaration set, in the package's node suite |
 | The published declaration weight is visible | a reported figure in the package's size bench |
-| Cross-document links resolve | the existing reference tests |
+| Citations in drag2's normative tree resolve | `packages/drag2/tests/references.node.test.ts` |
+| Links in other Markdown resolve | none available; checked manually or by a scratch script, and reported as that |
 | Section numbers are never reused | none available; held by the rule in §2 |
-| The routing graph closes | none available; every file carrying a retrieval header is named by at least one role definition, and every path a role names resolves |
+| The routing graph closes | none available, so this is intended rather than enforced: every file carrying a retrieval header is named by a role definition or a resident file, and every path a role names resolves |
 
-**Report a figure before budgeting it.** A ceiling whose calibrating injection cannot be re-run is not calibrated, and the published-declaration weight has no measured regression behind it yet.
+**Report a figure before budgeting it.** A ceiling whose calibrating injection cannot be re-run is not calibrated.
 
 ---
 
@@ -188,14 +187,14 @@ A convention with no instrument is a convention that decays, and the classes abo
 | `.agents/docs/review-findings.md`, `handoff.md` | Convention and Operation — routed chunks; each carries a retrieval header naming its trigger |
 | `.agents/docs/agent-workflow.md` | Operation — how the roles are arranged and a round is run. Coordinator and human documentation; no role reads it at runtime |
 | `.agents/docs/coordinator.md`, `coordinator-setup.md` | Operation — local Codex coordination, owner-relayed handoffs and guarded Claude role startup |
-| `.agents/docs/architecture.md`, `css-inheritance.md`, `accessibility.md`, `attribute-vs-state-styling.md`, `trait-flattener-plugin.md`, `test-architecture.md` | Convention and design reference — consulted, not resident |
-| `.claude/agents/` | Operation — the role definitions, and the only store of `role → chunk` edges |
+| Other files under `.agents/docs/` | Convention, operation, design reference or retired measurement record — consulted, not resident |
+| `.claude/agents/` | Operation — the role definitions, and the store of `role → chunk` edges |
 | `.claude/skills/` | Operation — task-scoped procedure |
 | `packages/*/.plan/` | Record — that package's |
 | `.plan/` | Record — the repository's, registered in `.plan/00-index.md` under the `repo` scope (`repo:RD-1`) |
 | `packages/*/README.md` | Consumer documentation for that package |
 
-This document is itself governed by the model it describes: it states the rules in force and carries no history of its own.
+This document is itself governed by the model it describes: §§1–8 state the rules in force, and §9 alone carries what the document used to say.
 
 ---
 
@@ -211,3 +210,5 @@ What this document used to say, and what changed it. Section numbers are permane
 | 2026-08-30 | §7 | **Added:** the routing graph as a checkable property — every chunk carrying a retrieval header is named by at least one role, and every path a role names resolves. It replaces the readable-on-the-page safeguard that per-chunk reader lists would have given, and that a single store of edges gives up |
 | 2026-08-30 | §8 | **Changed:** `CONTRIBUTING.md` becomes referenced rather than resident; `agent-workflow.md` becomes coordinator and human documentation that no role reads; the routed chunks and `.claude/agents/` are named |
 | 2026-09-11 | §8 | **Added:** the repository's own record at `.plan/`. The table named `packages/*/.plan/` alone while three repository-level work directories already sat at the root, so repository findings had no home and were twice proposed into a package's register. Record: [`00-index.md`](../../.plan/00-index.md) RD-1 |
+| 2026-11-06 | Introduction, §3, §7, §8 | **Corrected:** the table's homes now match §8; a closing change record is named as the exception to the current-state rule, replacing _carries no history of its own_; routing edges are stored in role definitions and resident files, not _only_ role definitions; the routing graph is intended rather than enforced; link coverage is drag2's normative tree, not all cross-document links; §8 describes the remaining `.agents/docs/` files as a class, because its list omitted some. Routing and instruments did not change |
+| 2026-11-06 | Introduction, §2, §4, §5, §7 | **Removed** point-in-time statements, written here because no record carries them and not rechecked: _a published type surface in which decision narrative outweighs the library it describes by seven to one_; _All 55 citations in this repository address a section number_; `CONTRIBUTING.md` §18's former _121 B vocabulary root with 29 B of slack_, _re-based twice_; _the current tree writes them the same way_; _the published-declaration weight has no measured regression behind it yet_ |
