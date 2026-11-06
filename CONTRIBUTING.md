@@ -164,7 +164,7 @@ In particular:
 
 **This section decides whether a check exists; §1.3 decides whether its message ships.** A check can survive here on (b) and still be gated under §1.3, because the party who can trigger it is outside the library. _Whose state breaks_ selects the check; _who can reach the condition_ selects the payload.
 
-If consumer misuse causes an operation to fail, prefer the normal `onError` path over a synchronous `throw`. Ideally, public runtime code contains very few explicit `throw` statements.
+If consumer misuse causes an operation to fail, prefer the package's normal failure path over a synchronous `throw`: `reportError` with a `DragFault` in `@ydinjs/drag`, `onError` in drag2. Ideally, public runtime code contains very few explicit `throw` statements.
 
 ### 1.2 Prefer types over runtime guards
 
@@ -396,3 +396,4 @@ What this document used to say, and what changed it, so a measurement already ma
 | 2026-09-09 | §18 | **Added:** the boundary test carries a second limb — one identification of the boundary, stated where the obligation is administered. The abandonment limb is necessary and was shown insufficient. Record: [`00-index.md`](packages/drag2/.plan/contract/00-index.md) D-192, F-410 |
 | 2026-09-09 | §18 | **Added:** a withdrawal is stated against what the instrument **asserts** rather than a docblock's motivating case, and guarded in both directions — understated withdrawal is the same failure as overstated residue. Record: [`00-index.md`](packages/drag2/.plan/contract/00-index.md) D-192, F-411 |
 | 2026-11-06 | Part I, Naming and self-documentation; Comments and JSDoc | **Added:** the reusable naming and English guide from the owner-directed [terminology pass](packages/drag2/.plan/terminology-ste-brief.md), with comment reduction and preservation of factual meaning. Applies to new work; existing records are not rewritten |
+| 2026-11-06 | §1.1 | **Changed:** the failure path is named per package, because `@ydinjs/drag` has no `onError`. It used to say _the normal `onError` path_. Record: [`00-index.md`](packages/drag/.plan/00-index.md) DRD-3 |

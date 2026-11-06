@@ -3045,6 +3045,14 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 - **D-130:** its class rule stands. What a warning implies is reconciled (record §33.5, §34.5).
 - **D-178:** this silence was never among those it grounds, and panic's stays.
 
+#### D-210
+
+**Unimplemented (Remediation).** **Retire size baseline B.** Delete `bench/size/shipped.js` and its row, before any package named `@ydinjs/drag` exports `./sortable.js`. Amend M-3 §Specification to drop the migration-context baseline. Add a dated retirement entry to `budget-rebases.md`. No other row moves, and each stays byte-identical. Decided 2026-11-06 under the owner's completion scope for the new package (`drag:DRD-13`), with the reasoning in [`deferred-integration.md`](../../../drag/.plan/deferred-integration.md).
+
+**Why.** The row answered what migrating from the shipped package costs. Nothing is published, and the package is gone, so the question is void. Re-basing freezes a 51 B stub as truth, re-pointing asks a different question under an old name, and a vendored copy keeps removed sources alive.
+
+**Capability withdrawn, in the instrument's terms (CONTRIBUTING §18):** exact byte reproduction of a 26-module, 22.6 KB minified graph that no drag2 source reaches, which is detection of a bundler, minifier, compressor or dependency shift at that scale, separately from package edits. Last figure: 6,916 B Brotli, 22,618 B minified, 26 modules, ceiling 7,040 B, at `7723f3e8a`. That detection was real: the row caught a dependency update at `01d88645f`, from 6,889 B to 6,916 B.
+
 ### Decisions not yet implemented
 
 **The artifact F-63 asked for** (K-5). D-34 and D-35 were stated in the present tense by three contract documents and were not in the code, across a checkpoint and a whole revision, with every suite green — because a green suite is evidence about the _implemented_ contract only, and nothing in the repository compared a decision booked to a later phase against the code that had not implemented it. Phase 18 found them by reading, which is the discovery this table exists to make unnecessary.
@@ -3056,7 +3064,8 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 Two witness forms, both source-level: `absent: <path>` — the path does not exist — and `present: <path> :: <text>` — the file still contains the thing the decision replaces.
 
 | Decision | Lands | What is missing | Witness |
-| -------- | ----- | --------------- | ------- |
+| --- | --- | --- | --- |
+| D-210 | Remediation | Baseline B's fixture and row are still here | present: `bench/size/shipped.js` :: `@ydinjs/drag/sortable.js` |
 
 **D-209's row closed on 2026-11-04 with its acceptance** (record §34). The table has no rows now.
 
@@ -3367,6 +3376,7 @@ The twenty-six `inactive` rows are the ones whose live residue is empty: **D-7**
 | D-207    | inactive |
 | D-208    | active   |
 | D-209    | active   |
+| D-210    | active   |
 
 ## Findings
 

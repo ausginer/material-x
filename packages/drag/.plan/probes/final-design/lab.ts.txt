@@ -1,0 +1,32 @@
+import { ancestry, box, coordinates, space } from '/workspaces/material-x/packages/box-quad/src/index.ts';
+import { draggable } from '/workspaces/material-x/packages/drag/prototype/src/draggable.ts';
+import { sortable, ReorderResolution } from '/workspaces/material-x/packages/drag/prototype/src/sortable.ts';
+import { y } from '/workspaces/material-x/packages/drag/prototype/src/sortable/y.ts';
+
+const w = window as any;
+w.lab = { ancestry, box, coordinates, space, draggable, sortable, ReorderResolution, y };
+
+/** The planned box-quad addition, as a pure function of the first four slots. */
+w.lab.localDelta = (basis: Float64Array, dx: number, dy: number, out: Float64Array): boolean => {
+  const [a, b, c, d] = basis as unknown as number[];
+  const reciprocal = 1 / (a! * d! - b! * c!);
+  if (!reciprocal || !Number.isFinite(reciprocal)) return false;
+  out[0] = (d! * dx - c! * dy) * reciprocal;
+  out[1] = (a! * dy - b! * dx) * reciprocal;
+  return true;
+};
+
+w.lab.makeList = (count: number, positioned: string | null) => {
+  const list = document.createElement('div');
+  list.id = 'list';
+  for (let i = 0; i < count; i += 1) {
+    const row = document.createElement('div');
+    row.id = `r${i}`;
+    row.tabIndex = 0;
+    row.textContent = `row ${i}`;
+    row.style.cssText = `height:40px;background:hsl(${i * 80} 70% 70%);${positioned ?? ''}`;
+    list.append(row);
+  }
+  document.body.append(list);
+  return list;
+};

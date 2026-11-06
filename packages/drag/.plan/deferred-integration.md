@@ -1,8 +1,11 @@
 # Deferred integration findings from the architecture plan
 
-**Status: deferred by the owner, not acted on.** These came up before the owner returned the unit to the architecture comparison. They are preserved here, and nothing in them is a prerequisite for [`architecture-plan.md`](architecture-plan.md).
+**Status: scheduled, 2026-11-06.** The owner made this cleanup part of completion and keeps drag2 as reference evidence. [`implementation-handoff.md`](implementation-handoff.md) step 1 and step 7 carry it, and `drag2:D-210` decides the retirement. It remains no prerequisite for the architecture.
 
-**No edits were made.** No drag2 file changed, and no `D-*` was minted. What follows is a recommendation to pick up when integration is scheduled.
+**When written, no edits were made.** What follows is the work to do, with these corrections at `599684791`.
+
+- **Sites moved.** `bench/size/measure.ts` names the row at about lines 115 and 537. Find each site by searching for `baseline B` and `shipped.js`.
+- **The main checkout has a false green.** It still holds ignored legacy build output in `packages/drag`, so the row and its test passed there on 2026-11-06, measuring the old package. The table below is the state in a clean checkout.
 
 **Input:** `7723f3e8a`, with the removal as simulated in a throwaway worktree and as recorded in `drag/rebuild`'s `packages/drag/.plan/rebuild-clean-slate.md` at `17b818efe`.
 
@@ -38,10 +41,8 @@ Rolldown reports `UNRESOLVED_IMPORT` as a warning and treats the import as exter
 - `git grep` finds no `@ydinjs/drag/` import in drag2's `bench`, `tests` or `src`.
 - No live sentence counts or names the row. The sites are `bench/size/measure.ts` (lines 102–103, 115, about 130, 176), `tests/bench/size.node.test.ts` (121, 198), `README.md` (172, 184, 186) and `.plan/obligations.md` (99, 101).
 - `budget-rebases.md` gets a dated retirement entry.
-- `.plan/contract/05-lifecycle-invariants.md` M-3 §Specification is amended. It requires the baseline, so **this retirement needs a minted decision.** The next free number in drag2's register is D-210.
+- `.plan/contract/05-lifecycle-invariants.md` M-3 §Specification is amended, as `drag2:D-210` decides.
 - The size, decisions and references tests pass.
-
-If drag2 is removed first, all of this falls away with it.
 
 ## References to deleted files
 

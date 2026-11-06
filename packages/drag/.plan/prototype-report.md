@@ -1,6 +1,6 @@
 # Prototype report
 
-**Status: built and stopped for the owner to try.** This is section 10 of the [architecture plan](architecture-plan.md), under the [prototype checkpoint](../../../.agents/docs/agent-workflow.md#architecture-prototypes). It is evidence for a design and not production acceptance. No `D-*` was minted and no contract changed.
+**Status: closed, 2026-11-06.** The owner tried the prototype and closed the checkpoint. [`00-index.md`](00-index.md) records how each finding was resolved. The sections below are as written at the stop, when this was evidence for a design, not production acceptance, and no decision had been recorded.
 
 **Input:** `drag/rebuild` with `drag/architecture-plan` merged at `79a6404f9`, on `drag/prototype`.
 

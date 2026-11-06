@@ -1,6 +1,6 @@
 # Architecture plan for the new `packages/drag`
 
-**Status: provisional design, stopped at the prototype handoff.** Section 10 is the one next task, under the [prototype checkpoint](../../../.agents/docs/agent-workflow.md#architecture-prototypes). The owner tries the result and decides afterwards. Section 11 separates what the owner has already ruled from what stays provisional. No `D-*` was minted and no contract was changed.
+**Status: closed record, 2026-11-06.** The owner tried the prototype and closed its checkpoint. **Sections 5, 6, 10 and 11 are superseded** by [`contract.md`](contract.md), [`00-index.md`](00-index.md) and [`implementation-handoff.md`](implementation-handoff.md). The comparison and evidence in the other sections stand as written. The status when written was a provisional design stopped at the prototype handoff.
 
 **Inputs:** `7723f3e8a` for the pre-removal sources, the single-pass proposal, the flow record and the prototype. `b739c5449` for Part 3 of the independent model. `f7c988220` on `drag/rebuild` for the prototype checkpoint.
 
