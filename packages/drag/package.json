@@ -3,9 +3,95 @@
   "version": "0.1.0",
   "private": true,
   "license": "Apache-2.0",
+  "files": [
+    "draggable.js",
+    "draggable.js.map",
+    "draggable.d.ts",
+    "lift.js",
+    "lift.js.map",
+    "lift.d.ts",
+    "fault.js",
+    "fault.js.map",
+    "fault.d.ts",
+    "sortable.js",
+    "sortable.js.map",
+    "sortable.d.ts",
+    "sortable",
+    "free-drag.js",
+    "free-drag.js.map",
+    "free-drag.d.ts",
+    "free-drag",
+    "shared"
+  ],
   "type": "module",
+  "exports": {
+    "./draggable.js": {
+      "types": "./draggable.d.ts",
+      "default": "./draggable.js"
+    },
+    "./lift.js": {
+      "types": "./lift.d.ts",
+      "default": "./lift.js"
+    },
+    "./fault.js": {
+      "types": "./fault.d.ts",
+      "default": "./fault.js"
+    },
+    "./sortable.js": {
+      "types": "./sortable.d.ts",
+      "default": "./sortable.js"
+    },
+    "./sortable/y.js": {
+      "types": "./sortable/y.d.ts",
+      "default": "./sortable/y.js"
+    },
+    "./sortable/xy.js": {
+      "types": "./sortable/xy.d.ts",
+      "default": "./sortable/xy.js"
+    },
+    "./sortable/landing.js": {
+      "types": "./sortable/landing.d.ts",
+      "default": "./sortable/landing.js"
+    },
+    "./sortable/layout-animation.js": {
+      "types": "./sortable/layout-animation.d.ts",
+      "default": "./sortable/layout-animation.js"
+    },
+    "./free-drag.js": {
+      "types": "./free-drag.d.ts",
+      "default": "./free-drag.js"
+    },
+    "./free-drag/bounds.js": {
+      "types": "./free-drag/bounds.d.ts",
+      "default": "./free-drag/bounds.js"
+    },
+    "./free-drag/landing.js": {
+      "types": "./free-drag/landing.d.ts",
+      "default": "./free-drag/landing.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
+    "build": "just build",
+    "clean:build": "just clean-build",
+    "docs:api:prepare": "just docs-api-prepare",
+    "docs:api:build": "just docs-api-build",
+    "typecheck": "just typecheck",
     "fmt": "just fmt",
-    "fmt:check": "just fmt-check"
+    "fmt:check": "just fmt-check",
+    "lint": "just lint",
+    "lint:fix": "just lint-fix",
+    "test": "just test",
+    "size": "just size"
+  },
+  "dependencies": {
+    "@ydinjs/box-quad": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "rolldown": "1.1.5"
   }
 }

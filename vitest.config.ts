@@ -4,7 +4,9 @@ import { createWorkspaceTestConfig } from './.scripts/vitest-config.ts';
 // Test-only infrastructure is deliberately not a package runtime export, so
 // both of these are reached by path rather than by specifier.
 // eslint-disable-next-line import-x/no-relative-packages
-import { dragBrowserCommands } from './packages/drag2/tests/support/pointer-commands.node.ts';
+import { dragBrowserCommands } from './packages/drag/tests/support/commands.node.ts';
+// eslint-disable-next-line import-x/no-relative-packages
+import { dragBrowserCommands as drag2BrowserCommands } from './packages/drag2/tests/support/pointer-commands.node.ts';
 // eslint-disable-next-line import-x/no-relative-packages
 import { materialXBrowserCommands } from './packages/material-x/tests/support/visual-contracts.node.ts';
 
@@ -15,8 +17,10 @@ const config: UserConfigFnObject = defineConfig((env) =>
     materialXRoot: new URL('./packages/material-x/', import.meta.url),
     materialXCommands: materialXBrowserCommands,
     coreRoot: new URL('./packages/core/', import.meta.url),
+    dragRoot: new URL('./packages/drag/', import.meta.url),
+    dragCommands: dragBrowserCommands,
     drag2Root: new URL('./packages/drag2/', import.meta.url),
-    drag2Commands: dragBrowserCommands,
+    drag2Commands: drag2BrowserCommands,
     tprocRoot: new URL('./packages/tproc/', import.meta.url),
     viteTraitsPluginRoot: new URL(
       './packages/vite-traits-plugin/',

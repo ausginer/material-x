@@ -7,25 +7,34 @@ _eslint := "eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts"
 default:
     @just --list
 
-# Start the prototype's pages and print the URL
-prototype:
-    vite --config prototype/vite.config.ts
+# Build. Cleans first, so an output whose entrypoint was deleted cannot survive
+# into the next build.
+build: clean-build
+    tsdown --config tsdown.config.ts
 
-# Run the prototype's focused checks in Chromium, Firefox and WebKit
-prototype-check *ENGINES:
-    node prototype/checks/run.ts {{ ENGINES }}
+# Delete build artefacts
+clean-build:
+    node ../../.scripts/package-files.ts clean --package .
 
-# Measure the prototype's bundle sizes
-prototype-size:
-    node prototype/measure/size.ts
+# Build TypeDoc API into the cache consumed by the Storybook dev server
+docs-api-prepare:
+    typedoc --options typedoc.json --out ../../node_modules/.cache/docs/api/drag
 
-# Measure the prototype's per-move and per-press cost
-prototype-cost:
-    node prototype/measure/cost.ts
+# Build TypeDoc API into the output directory
+docs-api-build:
+    typedoc --options typedoc.json --out ../../.docs/api/drag
 
-# Type-check the prototype
+# Run tests in Chromium
+test *ARGS:
+    vitest run -c vitest.config.ts {{ ARGS }}
+
+# Run the browser suite in Chromium, Firefox and WebKit
+test-engines *ARGS:
+    vitest run -c vitest.engines.config.ts {{ ARGS }}
+
+# Type-check
 typecheck:
-    tsc -p prototype/tsconfig.json --noEmit
+    tsc -p tsconfig.json --noEmit
 
 # Format files (paths are relative to this package)
 fmt *FILES:
@@ -37,10 +46,18 @@ fmt-check *FILES:
 
 # Lint files
 lint *FILES:
-    oxlint {{ if FILES == "" { "prototype" } else { FILES } }}
-    {{ _eslint }} {{ if FILES == "" { "prototype" } else { FILES } }}
+    oxlint {{ if FILES == "" { "." } else { FILES } }}
+    {{ _eslint }} {{ if FILES == "" { "." } else { FILES } }}
 
 # Lint and auto-fix files
 lint-fix *FILES:
-    oxlint --fix {{ if FILES == "" { "prototype" } else { FILES } }}
-    {{ _eslint }} --fix {{ if FILES == "" { "prototype" } else { FILES } }}
+    oxlint --fix {{ if FILES == "" { "." } else { FILES } }}
+    {{ _eslint }} --fix {{ if FILES == "" { "." } else { FILES } }}
+
+# Measure bundle sizes and module graphs (builds first)
+size *FLAGS: build
+    node bench/size/measure.ts {{ FLAGS }}
+
+# Compare per-operation cost with drag2 and the prototype, in one browser process
+compare *FLAGS:
+    node bench/compare.ts {{ FLAGS }}

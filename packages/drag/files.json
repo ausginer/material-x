@@ -1,0 +1,18 @@
+{
+  "runtime": [
+    "draggable",
+    "lift",
+    "fault",
+    "sortable",
+    "sortable/y",
+    "sortable/xy",
+    "sortable/landing",
+    "sortable/layout-animation",
+    "free-drag",
+    "free-drag/bounds",
+    "free-drag/landing"
+  ],
+  "clean": {
+    "extras": ["_virtual", "shared"]
+  }
+}
