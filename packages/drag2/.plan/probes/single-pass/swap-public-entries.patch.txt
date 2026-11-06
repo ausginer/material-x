@@ -1,0 +1,49 @@
+diff --git a/packages/drag2/src/free-drag.ts b/packages/drag2/src/free-drag.ts
+index 6c71ca910..7039cd690 100644
+--- a/packages/drag2/src/free-drag.ts
++++ b/packages/drag2/src/free-drag.ts
+@@ -22,7 +22,6 @@
+  * they reach stay declared at the middle tier, one import away for an author
+  * who wants them.
+  */
+-import { createComposedFreeDragBehavior } from './free-drag/behavior.ts';
+ import type { FreeDragConfig } from './free-drag/config.ts';
+ import type { FreeDragController } from './free-drag/controller.ts';
+ import type {
+@@ -30,7 +29,7 @@ import type {
+   FreeDragPluginContribution,
+   LandingContribution,
+ } from './free-drag/feature.ts';
+-import { draggable } from './kernel.ts';
++import { freeDrag as prototypeFree } from '../prototype/free-drag.ts';
+ import type { Composed, UniqueSlot } from './shared/composition.ts';
+ 
+ export type { FreeDragController } from './free-drag/controller.ts';
+@@ -171,5 +170,5 @@ export function freeDrag<
+   config: C & FreeDragComposition<C>,
+   ...fragments: { [I in keyof F]: F[I] & FreeDragComposition<F[I]> }
+ ): FreeDragController {
+-  return draggable(item, createComposedFreeDragBehavior(config, fragments));
++  return prototypeFree(item, config as never, ...(fragments as never[]));
+ }
+diff --git a/packages/drag2/src/sortable.ts b/packages/drag2/src/sortable.ts
+index f16eea137..6c1304012 100644
+--- a/packages/drag2/src/sortable.ts
++++ b/packages/drag2/src/sortable.ts
+@@ -15,8 +15,7 @@
+  * reaches stay declared at `sortable/feature.js`, one import away for an author
+  * who wants them.
+  */
+-import { draggable } from './kernel.ts';
+-import { createComposedSortableBehavior } from './sortable/behavior.ts';
++import { sortable as prototypeSortable } from '../prototype/sortable.ts';
+ import type { SortableConfig } from './sortable/config.ts';
+ import type { SortableController } from './sortable/controller.ts';
+ 
+@@ -155,5 +154,5 @@ export function sortable(
+   config: SortableConfig,
+   ...fragments: ReadonlyArray<Partial<SortableConfig>>
+ ): SortableController {
+-  return draggable(root, createComposedSortableBehavior(config, fragments));
++  return prototypeSortable(root, config, ...fragments);
+ }

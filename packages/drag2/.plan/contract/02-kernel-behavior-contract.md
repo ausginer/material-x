@@ -64,22 +64,22 @@ There is one core routine. **No seam is only the core** — the discard policy a
 A `boolean` conflates ~~five~~ **four (D-207 step 3 deleted `SEAM_INVALIDATED`)** outcomes, and each caller needs a different continuation for each. Worse, it conflates _discarded_ with _failed_, which made the failure model internally inconsistent: classification happened, and then success work continued anyway (review 5, §1).
 
 ```ts
-const SEAM_DISCARDED = 0; // `prepare` returned null — nothing happened
-const SEAM_PREPARE_FAILED = 1; // classified; nothing committed
-const SEAM_COMMITTED = 2; // committed, effect returned normally
-const SEAM_EFFECT_FAILED = 3; // classified, from the committed state
+const TRANSITION_DISCARDED = 0; // `prepare` returned null — nothing happened
+const TRANSITION_PREPARE_FAILED = 1; // classified; nothing committed
+const TRANSITION_COMMITTED = 2; // committed, effect returned normally
+const TRANSITION_EFFECT_FAILED = 3; // classified, from the committed state
 
-const seamFailed = (o: SeamOutcome): boolean =>
-  o === SEAM_PREPARE_FAILED || o === SEAM_EFFECT_FAILED;
+const seamFailed = (o: TransitionOutcome): boolean =>
+  o === TRANSITION_PREPARE_FAILED || o === TRANSITION_EFFECT_FAILED;
 ```
 
 **Classification is not sufficient on its own. A classified failure must also stop incompatible continuation**, because the failure checkpoint is _queued_ — so between the throw and the checkpoint there is a window in which the driver was still doing success work:
 
 | Seam | What the boolean caused | Rule now |
 | --- | --- | --- |
-| activation | A classified `prepare` failure returned `false`, which the wrapper read as an ordinary discard and retired the operation — making the queued `FAILED` entry stale, so `onError` might never fire | Retire on `SEAM_DISCARDED` **only** ~~/`SEAM_INVALIDATED`~~ (deleted by D-207 step 3). On a failure the operation stays live for its checkpoint. |
-| release | `openResolution(command)` ran unconditionally, so the consumer could receive `onReorder` for a release whose committed presentation effect had thrown, racing the failure through the same queue | Execute the command **only** on `SEAM_COMMITTED`. |
-| settlement | A `effect` that requested a hold and then threw still got sealed and armed, starting a runner for an already-failed settlement | On `SEAM_EFFECT_FAILED`, ~~seal, then **discard every unarmed request** and arm nothing~~ — **measure nothing and join nothing** (D-155): with no gate to request, what an effect failure must prevent is a measurement taken for a join that will never happen. |
+| activation | A classified `prepare` failure returned `false`, which the wrapper read as an ordinary discard and retired the operation — making the queued `FAILED` entry stale, so `onError` might never fire | Retire on `TRANSITION_DISCARDED` **only** ~~/`SEAM_INVALIDATED`~~ (deleted by D-207 step 3). On a failure the operation stays live for its checkpoint. |
+| release | `openResolution(command)` ran unconditionally, so the consumer could receive `onReorder` for a release whose committed presentation effect had thrown, racing the failure through the same queue | Execute the command **only** on `TRANSITION_COMMITTED`. |
+| settlement | A `effect` that requested a hold and then threw still got sealed and armed, starting a runner for an already-failed settlement | On `TRANSITION_EFFECT_FAILED`, ~~seal, then **discard every unarmed request** and arm nothing~~ — **measure nothing and join nothing** (D-155): with no gate to request, what an effect failure must prevent is a measurement taken for a join that will never happen. |
 | join | `spec.finalized(current)` ran after a classified target or renderer failure, and the committed frame still said `OUTCOME_ACCEPTED` — so `onFinish` fired for a drop about to be reported through `onError` | Always release presentation; **skip the terminal callback** after a consequential failure. **Neither producer survives**: the target failure is a warning (D-49) and the renderer failure was the join's own write (D-166), so nothing between the commit and the terminal classifies and the rule now governs an empty set. |
 
 That last row is a direct contradiction of the rule that a failed operation reports through `onError` only, and it is the reason **F-19 was not actually resolved** by catching throws. **The rule it contradicts is itself retracted by D-66**, and the row is a defect anyway for the reason that outlives it: the frame said `OUTCOME_ACCEPTED` for a drop the checkpoint was about to report as failed. Under D-66 that state is still wrong — what changed is that the answer is to make the frame tell the truth, not to publish nothing.
@@ -93,16 +93,16 @@ host.fail(stage, error);
 return normally;
 ```
 
-and an earlier driver had no state connecting that call to its result, so it returned `SEAM_COMMITTED` and **every continuation D-23 forbids ran anyway** — activation queued `START_COMMITTED`, release invoked `onReorder`, settlement armed its gate plan, an action's committed transition carried on (review 6, §2).
+and an earlier driver had no state connecting that call to its result, so it returned `TRANSITION_COMMITTED` and **every continuation D-23 forbids ran anyway** — activation queued `START_COMMITTED`, release invoked `onReorder`, settlement armed its gate plan, an action's committed transition carried on (review 6, §2).
 
 The kernel therefore keeps one private `seamFailureRequested` latch, cleared as each seam phase opens and set by `host.fail`. **A latched failure is indistinguishable from a throw at the driver boundary.** Enqueuing a checkpoint is not enough on its own: the checkpoint is queued, and the window before it applies is exactly what the latch closes.
 
 ```ts
-const runCore = <P extends {}, C>(
+const runTransition = <P extends {}, C>(
   t: Transition<Part, P, C>,
   capability: C,
   stage: FailureStage,
-): SeamOutcome => {
+): TransitionOutcome => {
   begin(); // Object.assign(draft, current)
   let prepared: P | null;
   seamFailureRequested = false;
@@ -111,16 +111,16 @@ const runCore = <P extends {}, C>(
     prepared = t.prepare(draft, capability);
   } catch (error) {
     fail(stage, error);
-    return SEAM_PREPARE_FAILED; // nothing staged escaped
+    return TRANSITION_PREPARE_FAILED; // nothing staged escaped
   } finally {
     inSeam = false;
   }
 
   if (seamFailureRequested) {
-    return SEAM_PREPARE_FAILED;
+    return TRANSITION_PREPARE_FAILED;
   } // explicit fail
   if (prepared === null) {
-    return SEAM_DISCARDED;
+    return TRANSITION_DISCARDED;
   } // draft abandoned
 
   // No revalidation (D-207 step 3): a request registered inside `prepare` is
@@ -132,15 +132,15 @@ const runCore = <P extends {}, C>(
     t.effect(current, prepared, capability);
   } catch (error) {
     fail(stage, error); // classified, from the committed state
-    return SEAM_EFFECT_FAILED;
+    return TRANSITION_EFFECT_FAILED;
   } finally {
     inSeam = false;
   }
-  return seamFailureRequested ? SEAM_EFFECT_FAILED : SEAM_COMMITTED;
+  return seamFailureRequested ? TRANSITION_EFFECT_FAILED : TRANSITION_COMMITTED;
 };
 ```
 
-Non-transition seams get the same treatment through a `runLeaf` wrapper, so `moved`, `anchorTarget` and `finalized` all behave identically whether the behavior throws or calls `host.fail`.
+Non-transition seams get the same treatment through a `runCallback` wrapper, so `moved`, `anchorTarget` and `finalized` all behave identically whether the behavior throws or calls `host.fail`.
 
 Two things this makes explicit that the earlier sketch did not:
 
@@ -152,13 +152,13 @@ Per seam:
 | Seam | Discard | Failure policy |
 | --- | --- | --- |
 | `action` | Normal. Nothing published, operation continues. | Stage per tag (`INSERTION`, `PLACEHOLDER_MOVE`). |
-| `activation` | **Retires the operation** — the kernel releases capture, disposes the lift and returns to `IDLE`; there is no such thing as a pending operation with no presentation. ~~On `SEAM_COMMITTED` the kernel re-checks `preparationValid()` and only then dispatches `START_COMMITTED`.~~ On `SEAM_COMMITTED` the kernel dispatches `START_COMMITTED` unconditionally; its entry declines `ACTIVE` while a cancel is registered. **The seam is not entered while a cancel is registered** (D-207): `ACTIVATE`'s entry and `MOVE`'s at `PENDING` decline, and the queued `CANCEL` retires the operation silently. | `ACTIVATION`, and **no retirement** — the queued checkpoint owns it. |
+| `activation` | **Retires the operation** — the kernel releases capture, disposes the lift and returns to `IDLE`; there is no such thing as a pending operation with no presentation. ~~On `TRANSITION_COMMITTED` the kernel re-checks `preparationValid()` and only then dispatches `START_COMMITTED`.~~ On `TRANSITION_COMMITTED` the kernel dispatches `START_COMMITTED` unconditionally; its entry declines `ACTIVE` while a cancel is registered. **The seam is not entered while a cancel is registered** (D-207): `ACTIVATE`'s entry and `MOVE`'s at `PENDING` decline, and the queued `CANCEL` retires the operation silently. | `ACTIVATION`, and **no retirement** — the queued checkpoint owns it. |
 | `release` | **Not expressible.** `prepare` returns `ResolutionCommand` — motion is already closed, so "changed my mind" has no meaning. A `prepare` that cannot build one **throws** (D-152). | `RELEASE`, the seam's own stage; the staged command is **not** executed. |
 | `settlement` | **Not expressible.** `prepare` returns `PreparedSettlement`, and **throws** when there is no coherent settlement to prepare (D-152). | `RESOLUTION`, the seam's own stage; on an `effect` failure nothing is measured and nothing joins. |
 
 The last two close a hole the generic driver had: `release.prepare` returning `null` left a truthful but stranded `RELEASING` operation with no resolution, no failure and no retirement, and `settlement.prepare` returning `null` depended on the behavior having queued a failure first — which the kernel could not check, after the resolution payload was already consumed.
 
-**Implemented (D-152): `SeamRejection` is deleted and both seams fail by throwing.** ~~`SeamRejection` is shared by both, because both are non-discardable seams that still need to say _this is a failure, at this stage_:~~ The hole the last two rows close is real and stays closed — `null` from either `prepare` is still not a way to fail — but a **throw** closes it as well as a returned record does, and does so the way the other four seams already do. `runPhase` catches and calls `context.fail(stage, raised)` with the seam's own stage, which is the stage all **eight** return sites named (the census said six; the two `SETTLED_REJECTED` arms built the shape as a bare literal and a search for the helper missed them); `host.fail` remains for a behavior that needs a different one; and `requestFailure` already states the equivalence — _a latched failure and a throw are the same event on this path too_ (D-49). What the union expressed was _these two seams may fail in a second way_, not _a seam may fail_. Record [`rejection-transport-claude.md`](../reviews/phase-23/rejection-transport-claude.md).
+**Implemented (D-152): `SeamRejection` is deleted and both seams fail by throwing.** ~~`SeamRejection` is shared by both, because both are non-discardable seams that still need to say _this is a failure, at this stage_:~~ The hole the last two rows close is real and stays closed — `null` from either `prepare` is still not a way to fail — but a **throw** closes it as well as a returned record does, and does so the way the other four seams already do. `callAndHandleFailure` catches and calls `context.fail(stage, raised)` with the seam's own stage, which is the stage all **eight** return sites named (the census said six; the two `SETTLED_REJECTED` arms built the shape as a bare literal and a search for the helper missed them); `host.fail` remains for a behavior that needs a different one; and `requestFailure` already states the equivalence — _a latched failure and a throw are the same event on this path too_ (D-49). What the union expressed was _these two seams may fail in a second way_, not _a seam may fail_. Record [`rejection-transport-claude.md`](../reviews/phase-23/rejection-transport-claude.md).
 
 ```ts
 // Deleted 2026-08-28. Kept as the shape the two arms carried, so the rows above
@@ -170,7 +170,7 @@ type SeamRejection = Readonly<{ stage: FailureStage; error: unknown }>;
 
 A committed transition leaves its `Prepared` value in the driver's staging slot, for the seams whose staged value the _kernel_ needs after the seam returns — today only the release seam's `ResolutionCommand`. That slot is consume-and-clear, and cleared again as every seam opens. Two further rules make it impossible for a command to survive the transaction that produced it:
 
-- ~~**Staging is conditional on the preparation still being valid.**~~ **Staging is unconditional (D-207 step 3).** The assignment is deliberately _after_ `effect`, so nothing the effect triggers can observe or clear it. ~~— which is also exactly when a reentrant `destroy()` has already run. Clearing the slot inside teardown cannot help, because the write that repopulates it comes next. So a transition whose effect abandoned the operation stages `null`, and the release seam reads `null` on an otherwise committed outcome and **does not execute the command**: the consumer round-trip must not open for an operation the terminal barrier has retired.~~ **Since D-205 the reading sees the cancel request only**, because a destroy request is applied at the unit's boundary and is invisible inside it. A transition whose effect cancelled the operation stages `null`, and the release seam reads `null` on an otherwise committed outcome and **hands nothing on**. A destroy needs no reading here: the release seam's caller queues the round-trip as a unit of its own (§`ResolutionCommand`), and application at the release unit's boundary discards it. This is the same shape as the `SEAM_COMMITTED`-only rule above, one step later. ~~Step 3 of D-205 deletes the reading.~~ **Deleted by D-207 step 3.** A cancel requested in the release effect no longer empties the slot: the command is held and `OPEN_RESOLUTION` queued, and that entry declines on the registered cancel.
+- ~~**Staging is conditional on the preparation still being valid.**~~ **Staging is unconditional (D-207 step 3).** The assignment is deliberately _after_ `effect`, so nothing the effect triggers can observe or clear it. ~~— which is also exactly when a reentrant `destroy()` has already run. Clearing the slot inside teardown cannot help, because the write that repopulates it comes next. So a transition whose effect abandoned the operation stages `null`, and the release seam reads `null` on an otherwise committed outcome and **does not execute the command**: the consumer round-trip must not open for an operation the terminal barrier has retired.~~ **Since D-205 the reading sees the cancel request only**, because a destroy request is applied at the unit's boundary and is invisible inside it. A transition whose effect cancelled the operation stages `null`, and the release seam reads `null` on an otherwise committed outcome and **hands nothing on**. A destroy needs no reading here: the release seam's caller queues the round-trip as a unit of its own (§`ResolutionCommand`), and application at the release unit's boundary discards it. This is the same shape as the `TRANSITION_COMMITTED`-only rule above, one step later. ~~Step 3 of D-205 deletes the reading.~~ **Deleted by D-207 step 3.** A cancel requested in the release effect no longer empties the slot: the command is held and `OPEN_RESOLUTION` queued, and that entry declines on the registered cancel.
 - **Every seam consumes its staged value or drops it.** The two seam policies drop it for their callers; the seams the kernel drives directly — settlement, the failure report, behavior actions — drop it themselves. Otherwise a later seam that commits _without_ staging anything would hand its caller the previous seam's command, which is the precise failure the clear-on-read exists to prevent. A value still sitting in the slot as the next seam opens is a bug in the seam that left it there, and is **reported in `DEV`** rather than silently dropped.
 
 ### Post-callback revalidation
@@ -201,18 +201,18 @@ The same shape applies to any future seam that returns a resource from a callbac
 | **B** | ~~A discarded transition's staged value reaches exactly one of `effect` or `rollback`~~ A staged value reaches `effect` exactly when its transition commits (D-207 step 3) | The driver branches; the behavior does not |
 | **B** | **No unit reads the ledger after its entry** (D-207 step 3) | Requests are read by the runner, at unit entries and at intake. `tests/kernel/capture.node.test.ts` holds the reading sites of the cancel request, the registered failure, the supersession record and the lifecycle state to that set |
 | **B** | A seam throw is classified, never a panic | Every `prepare`/`effect` call is wrapped by the driver |
-| **B** | **A phase never opens while foreign code is on the stack** | Two enforcement points, at different levels: the execution bracket's drain returns while a pass is already running, so every behavior- and consumer-facing entry appends instead of interrupting; and `refuseReentry` refuses at the driver, ahead of `begin()`. **Scoped to the foreign-code window, which is the whole of what `openStage` marks** (F-167): it is cleared before `runPhase` classifies, so it is not a general nesting interlock |
+| **B** | **A phase never opens while foreign code is on the stack** | Two enforcement points, at different levels: the execution bracket's drain returns while a pass is already running, so every behavior- and consumer-facing entry appends instead of interrupting; and `refuseReentry` refuses at the driver, ahead of `begin()`. **Scoped to the foreign-code window, which is the whole of what `openStage` marks** (F-167): it is cleared before `callAndHandleFailure` classifies, so it is not a general nesting interlock |
 | **C** | Preparation performs no externally visible mutation | Discipline. `prepare` can call anything. |
 | **C** | Frame _referents_ are immutable or replace-on-write | Discipline. `Readonly` is shallow — §04 §The shallow-copy contract. |
 | **C** | Ownership transfers only at commit | Discipline. Physical acquisition inside `prepare` precedes the swap. |
 
 **Non-reentrancy has two enforcement points and they are not redundant** (D-153). The queue's is the one that runs: a nested `dispatch`, `cancel`, `fail`, `destroy`, `done()` or resolution settling from inside a callback appends and returns, constantly, in ordinary operation. The driver's never runs — the eleven phase-opening call sites all sit in the action handler's call tree, so no behavior-facing entry can open a nested phase (F-85) — and it is kept because **it is what keeps that true**.
 
-**The driver's point covers the window it marks, and no more** (F-167). `openStage` is set as a phase opens and cleared **before** `runPhase` classifies, so a phase opened from the classification path would not be refused. The guard is _is foreign code on the stack_, which is where a nested call can originate; reading it as _nothing may nest, ever_ claims coverage it does not have and was never written to have.
+**The driver's point covers the window it marks, and no more** (F-167). `openStage` is set as a phase opens and cleared **before** `callAndHandleFailure` classifies, so a phase opened from the classification path would not be refused. The guard is _is foreign code on the stack_, which is where a nested call can originate; reading it as _nothing may nest, ever_ claims coverage it does not have and was never written to have.
 
-**Consumer code does run past the clear, and the other enforcement point is what covers it** (F-171). `context.notify` reaches the kernel's `notify`, then `spec.reportError`, then the consumer's `onError` — foreign code, outside the window, on the classification path. What stops a `dispatch` from there opening a nested phase is **the execution bracket's drain returning while a pass is already running**, not `context.fail` enqueuing: `context.fail` covers only the classification the driver itself performs. Of the five `context.notify` sites in `seams.ts` exactly **one** is inside the window — `requestFailure`'s `UNCLASSIFIED` arm; `runPhase`'s two classification arms follow the clear, `runCore`'s `staged-unconsumed` precedes the assignment, and `requestFailure`'s second arm is guarded on `openStage === NO_STAGE`. ~~The two `context.notify` arms that D-152 routed onto that path are still inside the window~~ asserted the opposite of the paragraph's own point, and is withdrawn.
+**Consumer code does run past the clear, and the other enforcement point is what covers it** (F-171). `context.notify` reaches the kernel's `notify`, then `spec.reportError`, then the consumer's `onError` — foreign code, outside the window, on the classification path. What stops a `dispatch` from there opening a nested phase is **the execution bracket's drain returning while a pass is already running**, not `context.fail` enqueuing: `context.fail` covers only the classification the driver itself performs. Of the five `context.notify` sites in `behavior-runner.ts` exactly **one** is inside the window — `requestFailure`'s `UNCLASSIFIED` arm; `callAndHandleFailure`'s two classification arms follow the clear, `runTransition`'s `staged-unconsumed` precedes the assignment, and `requestFailure`'s second arm is guarded on `openStage === NO_STAGE`. ~~The two `context.notify` arms that D-152 routed onto that path are still inside the window~~ asserted the opposite of the paragraph's own point, and is withdrawn.
 
-**The runtime is not widened for this**: the two points together already cover both halves — the window for the stack, the queue for anything the reporting path provokes — so a wider `openStage` would be machinery for a state nothing produces. The claim is a property of a call graph that no test holds; the guard fails loudly at the first edit that breaks it, where the alternative is silent. **What a nested phase actually does, measured rather than reasoned** (F-169): `begin()` refills the draft in place and `commit()` swaps, so the swaps cancel — nested from `prepare` **neither** transaction lands and the published frame is untouched; nested from `effect` the outer's committed frame is replaced wholesale by the inner's, while the staged command executed against it belongs to the outer. Both seams return `SEAM_COMMITTED` and neither path reports anything. Three other pieces of kernel state are written against this guarantee — the single `actionTag`/`actionArgument` slots, the phase-scoped `failureRequested` and `unclassifiedReason`, and `consumeStaged`'s clear-on-open — which is why it is a stated guarantee rather than an incidental property. **The list was four and lost one because a dependant stopped being a slot, not because the guarantee weakened** (D-181): the phase a transaction publishes is an argument of `commit` rather than state armed around a seam, so there is nothing left there for non-reentrancy to protect. The guarantee is untouched and has one fewer dependant.
+**The runtime is not widened for this**: the two points together already cover both halves — the window for the stack, the queue for anything the reporting path provokes — so a wider `openStage` would be machinery for a state nothing produces. The claim is a property of a call graph that no test holds; the guard fails loudly at the first edit that breaks it, where the alternative is silent. **What a nested phase actually does, measured rather than reasoned** (F-169): `begin()` refills the draft in place and `commit()` swaps, so the swaps cancel — nested from `prepare` **neither** transaction lands and the published frame is untouched; nested from `effect` the outer's committed frame is replaced wholesale by the inner's, while the staged command executed against it belongs to the outer. Both seams return `TRANSITION_COMMITTED` and neither path reports anything. Three other pieces of kernel state are written against this guarantee — the single `actionTag`/`actionArgument` slots, the phase-scoped `failureRequested` and `unclassifiedReason`, and `consumeStaged`'s clear-on-open — which is why it is a stated guarantee rather than an incidental property. **The list was four and lost one because a dependant stopped being a slot, not because the guarantee weakened** (D-181): the phase a transaction publishes is an argument of `commit` rather than state armed around a seam, so there is nothing left there for non-reentrancy to protect. The guarantee is untouched and has one fewer dependant.
 
 **`Readonly<Frame<Part>>` is shallow.** It prevents `current.insertion = x`; it does not prevent `current.insertion.index = 4`. Since `begin()` shallow-copies, both frames reference the same nested objects, so mutating a referent mutates committed state. That is why the shallow-copy contract exists, and why it is tier C for every part author including a custom behavior the kernel cannot inspect.
 
@@ -770,11 +770,11 @@ The other half of the decision, and the half that keeps it from being a mechanic
 
 | Not published | Substitute |
 | --- | --- |
-| `SeamOutcome`, `SEAM_*`, `SeamDriver`, `FrameTransaction` | none needed — the driver's own vocabulary. A behavior returns `Prepared \| null` — or, on a non-discardable seam, throws (D-152) — and never sees an outcome. **03 §Internal to the ordinary tier listed `SeamOutcome` and `ArmOutcome` as kernel-tier published; that was wrong and D-68 corrected it** — neither is in the closure |
+| `TransitionOutcome`, `SEAM_*`, `BehaviorRunner`, `FrameTransaction` | none needed — the driver's own vocabulary. A behavior returns `Prepared \| null` — or, on a non-discardable seam, throws (D-152) — and never sees an outcome. **03 §Internal to the ordinary tier listed `TransitionOutcome` and `ArmOutcome` as kernel-tier published; that was wrong and D-68 corrected it** — neither is in the closure |
 | `Lifetime` (the class, D-200), ~~`createLifetime`~~ | `LifetimeScope`, which is D-21's projection and exists precisely so `dispose` is unreachable |
 | `composeFrame`, `beginFrame`, `scrubFrame`, `KERNEL_FRAME_KEYS` | none — the kernel composes the frame (D-15). A behavior authors its part and nothing else |
 | `acquireLift`, `captureInlineStyles`, `acquireTopLayer` | the kernel acquires the lift; the behavior receives a **`BehaviorLiftSession`**, which is published for the same reason everything else on this list is not — the kernel hands one to every behavior twice, as `ActivationScope.lift` and as `moved`'s second argument. `VisualLiftSession` stays published because that alias's definition names it. (This row read _the behavior receives `VisualLiftSession`_ until D-35's projection landed; §`ActivationScope`, below, had been the correct spelling since C5-01.) |
-| ~~`report`~~ (deleted, D-130), `createUnwind` | `host.fail(stage, error)` inside a seam. Outside one it is reported as a `DraggableWarning`, which is the same destination — there is only one |
+| ~~`report`~~ (deleted, D-130), `createWarnOnThrow` | `host.fail(stage, error)` inside a seam. Outside one it is reported as a `DraggableWarning`, which is the same destination — there is only one |
 | `createInvalidator`, `createFrameTask`, `FrameTask`, `Invalidator` | `realm.window` — scheduling is the behavior's own, and `FAILURE_SCHEDULED_FRAME` exists so it can classify its own coalescing |
 | `POINTER_DOWN`, `KEY_DOWN` and the rest of `protocol.ts` | string literals. `CommandAdmission.types` is `readonly string[]` |
 | `pathOwnsInteraction` (~~`POINTER_OWNERS`, `COMMAND_OWNERS`~~, deleted by D-129) | **none, and this is a stated cost** — see below |
@@ -1469,7 +1469,7 @@ join
                                                  what puts the visual at the
                                                  measured position (D-166)
     }
-    startTail(from, target)                    ← on the RELEASED element
+    startLandingAnimation(from, target)        ← on the RELEASED element
               ── a null target means the measurement was skipped (D-49): no
                  tail, and the release above is the jump cut. `finalized`
                  still runs. ──
@@ -1563,7 +1563,7 @@ That is what makes _existing result wins, otherwise `canceled`_ a **lookup**: by
 
 | State | Advanced when | The fallback |
 | --- | --- | --- |
-| `MINTED` | the operation exists | **publishes nothing** — see §No start, no terminal |
+| `CREATED` | the operation exists | **publishes nothing** — see §No start, no terminal |
 | `STARTED` | **immediately before invoking `onStart`** | `canceled` at **`AT_PROPOSAL`** |
 | `RESOLVING` | as the **first statement of the `ResolutionCommand.invoke` closure** | `canceled` at **`AT_CONSUMER`** |
 
@@ -1583,7 +1583,7 @@ The owner's guarantee is an implication and **must not be read as a biconditiona
 
 > If `onStart` fires **and the controller remains alive**, the operation eventually produces one terminal `onEnd`.
 
-It says nothing about an operation that never started, and D-66 does not extend it to one. **Pinned explicitly: a failure classified before the behavior's `onStart` call publishes `onError` and no `onEnd`.** The marker is at `MINTED`, `settlement.prepare` writes no fallback, `domain` stays null, and `finalized` publishes nothing.
+It says nothing about an operation that never started, and D-66 does not extend it to one. **Pinned explicitly: a failure classified before the behavior's `onStart` call publishes `onError` and no `onEnd`.** The marker is at `CREATED`, `settlement.prepare` writes no fallback, `domain` stays null, and `finalized` publishes nothing.
 
 Two paths reach that state and they are different in kind:
 
@@ -1829,7 +1829,7 @@ Two commits, in a fixed order the kernel owns:
                                                   D-207 step 3)
       spec.release.effect(current, command)     ← placeholder to the final gap,
                                                   AND the final lift render
-      hold the command; queue OPEN_RESOLUTION   ← only on SEAM_COMMITTED (D-205)
+      hold the command; queue OPEN_RESOLUTION   ← only on TRANSITION_COMMITTED (D-205)
       … what release.effect dispatched …        ← applied first, as units
 > OPEN_RESOLUTION  current, RELEASING, not opened, no cancel and no failure
                    checkpoint registered? (D-206)
@@ -1843,7 +1843,7 @@ The one extra 15-field `Object.assign` per `pointerup` buys a general invariant:
 
 Release stability is tier **B**: the kernel closes motion between the two commits, so nothing pending — a queued sample, a scheduled frame, an invalidation — can alter the proposal, and the behavior has no opportunity to sequence it wrongly.
 
-**A pointerless release commits no release point.** For a `RELEASE` action (D-32) commit 1 writes `phase = RELEASING` and nothing else: there is no sample to commit, and the pointer fields stay as admission left them. Commit 2, the motion disposal between them, the staged `ResolutionCommand`, the `SEAM_COMMITTED`-only rule and the round-trip's own unit are all identical.
+**A pointerless release commits no release point.** For a `RELEASE` action (D-32) commit 1 writes `phase = RELEASING` and nothing else: there is no sample to commit, and the pointer fields stay as admission left them. Commit 2, the motion disposal between them, the staged `ResolutionCommand`, the `TRANSITION_COMMITTED`-only rule and the round-trip's own unit are all identical.
 
 **And `release.prepare` must not resolve spatially on that path.** The pointer scalars are still zero, so a spatial resolve would select a gap from `pointerY === 0` — the top of the viewport — and silently replace the destination the command authored. The branch is normative and is specified at §The command destination; this section states only the kernel half, which is that commit 1 writes no sample and therefore offers the behavior nothing to resolve _from_.
 

@@ -39,11 +39,10 @@ export function createInvalidator(realm: DOMRealm): Invalidator {
 export type FrameTask<T> = Readonly<{
   /** Schedules `run` with the latest value on the next frame (coalesced). */
   schedule(value: T): void;
-  // Nothing on this task runs pending work synchronously: a scheduled value is
-  // either taken by the frame or dropped by `cancel`, and no composition has a
-  // production caller for a third option. Like `Lifetime.finalized`, such a
-  // member would sit on a live object, where nothing can shake an uncalled one
-  // loose.
+  // Nothing on this task runs pending work synchronously: the frame takes a
+  // scheduled value or `cancel` drops it, and no composition has a production
+  // caller for a third option. Tree shaking cannot remove an uncalled member of
+  // a live object, so do not add one.
   /** Cancels any pending scheduled work without running it. */
   cancel(): void;
 }>;
@@ -54,7 +53,7 @@ export function createFrameTask<T>(
 ): FrameTask<T> {
   let handle = 0;
   // The latest scheduled value is held directly with a presence flag, so
-  // `schedule` — called per pointer move — allocates no wrapper object.
+  // `schedule`, called per pointer move, allocates no wrapper object.
   let hasPending = false;
   let pending: T | undefined;
 

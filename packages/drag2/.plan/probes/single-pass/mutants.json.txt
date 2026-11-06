@@ -1,0 +1,154 @@
+{
+  "M1 the next step runs ahead of a registered cancel": [
+    "boundary: cancel from a box resolver during release, no round-trip",
+    "keyboard: cancel from inside onStart",
+    "keyboard: item removed by an invalidate from inside onStart"
+  ],
+  "M2 a later completion overwrites the first": [
+    "async: thenable resolves synchronously, then throws"
+  ],
+  "M3 the session is cleared at the end of the conclusion, not the start": [],
+  "M4 a cancel from inside a pass applies at once": [
+    "boundary: cancel from a box resolver during release, no round-trip",
+    "boundary: cancel then destroy in one callback",
+    "cancel: from inside onReorder, which then throws",
+    "cancel: from inside onStart, which then throws"
+  ],
+  "M5 passes may nest": [
+    "boundary: cancel from a box resolver during release, no round-trip",
+    "boundary: cancel then destroy in one callback",
+    "cancel: from inside onReorder, which then throws",
+    "cancel: from inside onStart, which then throws",
+    "divergence: a pointerup dispatched from onMove",
+    "divergence: invalidate removing the item, then a throw, from onStart",
+    "divergence: two invalidates in one callback pull once",
+    "reentrant: a pointerup dispatched from onStart is ignored",
+    "reentrant: a press dispatched from a handle resolver is refused",
+    "reentrant: a press dispatched from onStart is refused"
+  ],
+  "M6 destruction from inside a pass applies at once": [
+    "destroy: from inside onReorder, which then throws",
+    "destroy: from inside onStart completes the unit, then no terminal",
+    "destroy: from inside onStart, which then throws",
+    "divergence: onEnd requests destruction, then throws"
+  ],
+  "M7 a fault is read ahead of a cancel": [
+    "cancel: from inside onReorder, which then throws",
+    "cancel: from inside onStart, which then throws",
+    "divergence: invalidate removing the item, then a throw, from onStart"
+  ],
+  "M8 no start gate on the ordinary terminal": [
+    "divergence: start failure with a cancel already registered"
+  ],
+  "M9 teardown does not retire the live session": [
+    "boundary: cancel then destroy in one callback",
+    "boundary: destroy from a box resolver during release, no round-trip",
+    "boundary: destroy from a placeholder disconnect keeps the terminal",
+    "destroy: from inside onReorder drops the terminal",
+    "destroy: from inside onReorder, which then throws",
+    "destroy: from inside onStart completes the unit, then no terminal",
+    "destroy: from inside onStart, which then throws",
+    "destroy: while a verdict is pending aborts, and the late verdict is ignored",
+    "destroy: while active is silent and restores",
+    "free: async reject, destroyed while pending",
+    "keyboard: destroy from inside onStart"
+  ],
+  "M10 deferred work runs after the next step": [
+    "divergence: invalidate removing the item, then a throw, from onStart",
+    "keyboard: item removed by an invalidate from inside onStart",
+    "reentrant: invalidate from inside onReorder publishes before the terminal"
+  ],
+  "M11 a verdict is read ahead of a cancel": [
+    "cancel: from inside onReorder beats the returned accept"
+  ],
+  "M12 destruction waits for a held cancel": [
+    "boundary: cancel then destroy in one callback"
+  ],
+  "M13 motion stays open across the drop": [
+    "async: a press while a verdict is pending is refused",
+    "async: accept resolves later",
+    "async: reject resolves later",
+    "async: rejected promise is a fault",
+    "boundary: a thenable completed from items() during a later pass",
+    "cancel: Escape while a verdict is pending",
+    "cancel: while a verdict is pending aborts, and the late verdict is ignored",
+    "destroy: while a verdict is pending aborts, and the late verdict is ignored",
+    "free: Escape while a verdict is pending returns home",
+    "free: async reject, destroyed while pending"
+  ],
+  "M14 the click suppressor is not armed": [
+    "async: a press while a verdict is pending is refused",
+    "async: accept resolves later",
+    "async: reject resolves later",
+    "async: rejected promise is a fault",
+    "async: thenable resolves synchronously, then throws",
+    "boundary: a thenable completed from items() during a later pass",
+    "boundary: cancel from a box resolver during release, no round-trip",
+    "boundary: invalidate removing the item, from a box resolver during release",
+    "cancel: Escape while a verdict is pending",
+    "cancel: Escape while active",
+    "cancel: a real pointercancel",
+    "cancel: from inside onEnd is a no-op",
+    "cancel: from inside onReorder beats the returned accept",
+    "cancel: from inside onReorder, which then throws",
+    "cancel: from inside onStart",
+    "cancel: from inside onStart, which then throws",
+    "cancel: requestCancel from outside while active",
+    "cancel: requestCancel while pending is silent",
+    "cancel: two from one callback, the first wins",
+    "cancel: while a verdict is pending aborts, and the late verdict is ignored",
+    "destroy: while a verdict is pending aborts, and the late verdict is ignored",
+    "drop: composed with landing and row animations",
+    "drop: no-op returns home",
+    "drop: second drag after the first",
+    "drop: synchronous accept reorders",
+    "fault: box throws during a spatial frame",
+    "fault: onEnd throws, exactly one terminal",
+    "fault: onError throws and is absorbed",
+    "fault: onStart throws",
+    "fault: placeholder factory throws, so no start and no terminal",
+    "fault: the consumer detaches everything in onReorder",
+    "free: Escape while a verdict is pending returns home",
+    "free: accept stays where it landed",
+    "free: async reject, destroyed while pending",
+    "free: moveTo from inside onStart, then a drop",
+    "free: onMove sees every sample and may cancel",
+    "free: onMove throws",
+    "keyboard: arrow moves one slot",
+    "keyboard: async verdict then Escape",
+    "keyboard: cancel from inside onStart",
+    "keyboard: edge declines",
+    "keyboard: item removed by an invalidate from inside onStart",
+    "platform: Escape while pending is silent",
+    "platform: a landing is cancelled by the next activation",
+    "platform: a later click after a reorder (flow-1, unchanged)",
+    "platform: an ignored region declines the press",
+    "platform: capture taken away during the drag",
+    "platform: scroll during the drag invalidates and the drop still lands",
+    "press: below the threshold keeps its click",
+    "reentrant: a pointerup dispatched from onStart is ignored",
+    "reentrant: a press dispatched from a handle resolver is refused",
+    "reentrant: a press dispatched from onStart is refused",
+    "reentrant: a throwing items() during invalidate fails the drag",
+    "reentrant: invalidate from inside onEnd",
+    "reentrant: invalidate from inside onReorder publishes before the terminal",
+    "reentrant: the item is removed from the collection during the drag",
+    "smoke: bounds and a home, unchanged",
+    "smoke: the two-dimensional axis, unchanged",
+    "terminal: onEnd observes released presentation",
+    "verdict: resolver throws",
+    "verdict: synchronous reject"
+  ],
+  "M15 the terminal runs before presentation is released": [
+    "terminal: onEnd observes released presentation"
+  ],
+  "M16 a cancel is not first-wins": [
+    "cancel: two from one callback, the first wins"
+  ],
+  "M17 a fault decides ahead of deferred work": [
+    "divergence: invalidate removing the item, then a throw, from onStart"
+  ],
+  "M18 a cancel can overtake a completed verdict": [
+    "cancel: after a thenable has already completed is too late"
+  ]
+}

@@ -1,0 +1,7 @@
+production lifecycle (queue, frames, phases, runner, kernel, SPI)              4733 raw   1448 code
+production sortable glue                                                       2066 raw    659 code
+production free-drag glue                                                      1369 raw    446 code
+prototype kernel                                                                860 raw    609 code
+prototype sortable glue                                                         450 raw    340 code
+prototype free-drag glue                                                        318 raw    251 code
+shared, unchanged (presentation, lifetimes, pointer, axis, cache, features)    5720 raw   1891 code

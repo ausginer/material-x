@@ -1,0 +1,1888 @@
+/**
+ * A differential run: one script, driven through Playwright's real mouse where a
+ * pointer is involved, against the production controller and the prototype.
+ *
+ * A scenario produces a trace of everything a consumer can observe: callbacks in
+ * order, their discriminating fields, whether a click reached the page, and the
+ * DOM left behind. Equal traces are parity for that script and nothing more.
+ * A scenario listed in `EXPECTED_DIFFERENCE` must differ, so a claimed
+ * divergence cannot silently stop being one.
+ */
+import { afterAll, afterEach, describe, expect, it } from 'vitest';
+import { commands } from 'vitest/browser';
+import { DraggableError } from '../../src/drag.ts';
+import { freeDrag as productionFree } from '../../src/free-drag.ts';
+import { bounds } from '../../src/free-drag/bounds.ts';
+import { FreeDragResolution } from '../../src/free-drag/domain.ts';
+import { landing } from '../../src/sortable/landing.ts';
+import { layoutAnimation } from '../../src/sortable/layout-animation.ts';
+import { xy } from '../../src/sortable/xy.ts';
+import { y } from '../../src/sortable/y.ts';
+import {
+  ReorderResolution,
+  sortable as productionSortable,
+  type SortableConfig,
+  type SortableController,
+} from '../../src/sortable.ts';
+import { freeDrag as prototypeFree } from '../../prototype/free-drag.ts';
+import { sortable as prototypeSortable } from '../../prototype/sortable.ts';
+import '../support/browser-commands.ts';
+
+const IMPLEMENTATIONS = [
+  { name: 'production', sortable: productionSortable, freeDrag: productionFree },
+  { name: 'prototype', sortable: prototypeSortable, freeDrag: prototypeFree },
+] as const;
+
+type Implementation = (typeof IMPLEMENTATIONS)[number];
+
+const ROW = 40;
+const LEFT = 100;
+const TOP = 50;
+const WIDTH = 200;
+
+const nextFrames = async (count = 2): Promise<void> => {
+  for (let i = 0; i < count; i += 1) {
+    // oxlint-disable-next-line no-await-in-loop
+    await new Promise((resolve) => {
+      requestAnimationFrame(resolve);
+    });
+  }
+};
+
+const tick = async (): Promise<void> =>
+  new Promise((resolve) => {
+    setTimeout(resolve, 0);
+  });
+
+const rowY = (index: number): number => TOP + ROW * index + ROW / 2;
+
+class Harness {
+  readonly trace: string[] = [];
+  readonly list = document.createElement('ul');
+  readonly rows: HTMLElement[] = [];
+  source: readonly HTMLElement[] = [];
+  controller!: SortableController;
+  lastPointerId = 1;
+  lastSignal: AbortSignal | null = null;
+  readonly #abort = new AbortController();
+
+  constructor() {
+    const { list } = this;
+
+    list.style.cssText = `position:absolute;left:${LEFT}px;top:${TOP}px;width:${WIDTH}px;margin:0;padding:0;list-style:none`;
+
+    for (let i = 0; i < 8; i += 1) {
+      const row = document.createElement('li');
+
+      row.textContent = String(i + 1);
+      row.tabIndex = 0;
+      row.style.cssText = `height:${ROW}px;box-sizing:border-box;background:#ccc;touch-action:none;user-select:none`;
+      list.append(row);
+      this.rows.push(row);
+    }
+
+    document.body.append(list);
+    this.source = [...this.rows];
+
+    const { signal } = this.#abort;
+
+    list.addEventListener(
+      'click',
+      () => {
+        this.trace.push('click reached the page');
+      },
+      { signal },
+    );
+    window.addEventListener(
+      'pointerdown',
+      (event) => {
+        this.lastPointerId = event.pointerId;
+      },
+      { capture: true, signal },
+    );
+  }
+
+  log = (entry: string): void => {
+    this.trace.push(entry);
+  };
+
+  describeError = (error: unknown): string => {
+    if (error instanceof DraggableError) {
+      return `onError error stage=${String(error.stage)} ${error.message}`;
+    }
+
+    return `onError warning ${(error as Error).message}`;
+  };
+
+  /** The consumer every sortable scenario starts from: logs, applies, accepts. */
+  config(overrides: Partial<SortableConfig> = {}): SortableConfig {
+    return {
+      items: () => this.source,
+      axis: y(),
+      onStart: () => {
+        this.log('onStart');
+      },
+      onReorder: (request, { signal }) => {
+        this.lastSignal = signal;
+        this.log(`onReorder ${request.from}->${request.to}`);
+        this.apply(request.item, request.after);
+        return ReorderResolution.accept();
+      },
+      onEnd: (result) => {
+        this.logEnd(result);
+      },
+      onError: (error) => {
+        this.log(this.describeError(error));
+      },
+      ...overrides,
+    };
+  }
+
+  apply(item: HTMLElement, after: HTMLElement | null): void {
+    this.list.insertBefore(item, after);
+    this.source = [...this.list.children].filter(
+      (node) => !node.hasAttribute('data-drag-placeholder'),
+    ) as HTMLElement[];
+  }
+
+  logEnd(result: {
+    type: string;
+    reason?: unknown;
+    origin?: unknown;
+    stage?: unknown;
+  }): void {
+    this.log(
+      `onEnd ${result.type} reason=${String(
+        result.reason instanceof Error ? result.reason.message : result.reason,
+      )} origin=${String(result.origin)} stage=${String(result.stage)}`,
+    );
+  }
+
+  /** What the drag left behind, including anything it failed to restore. */
+  state(label: string): void {
+    const order = [...this.list.children]
+      .map((node) =>
+        node.hasAttribute('data-drag-placeholder') ? 'P' : node.textContent,
+      )
+      .join(',');
+    const styled = this.rows.filter(
+      (row) =>
+        row.style.position !== '' ||
+        row.style.transform !== '' ||
+        row.hasAttribute('popover'),
+    ).length;
+
+    this.log(`${label}: order=${order} lifted=${styled}`);
+  }
+
+  async press(index: number): Promise<void> {
+    await commands.pointerPress(LEFT + 50, rowY(index));
+  }
+
+  async moveToRow(index: number, steps = 6): Promise<void> {
+    await commands.pointerSweep(LEFT + 50, rowY(index), steps);
+    await nextFrames();
+  }
+
+  async release(): Promise<void> {
+    await commands.pointerRelease();
+    await tick();
+  }
+
+  async drag(from: number, to: number): Promise<void> {
+    await this.press(from);
+    await this.moveToRow(to);
+    await this.release();
+  }
+
+  /**
+   * Whether a further drag still works, and what the old controller does with
+   * one. Run after every scenario, so a leaked session shows as a refusal.
+   */
+  async probeAlive(): Promise<void> {
+    const before = this.trace.length;
+
+    await this.press(0);
+    await this.moveToRow(0, 2);
+    await commands.pointerSweep(LEFT + 50, rowY(0) + 12, 3);
+    await nextFrames();
+    await this.release();
+    await nextFrames();
+    this.log(
+      this.trace.slice(before).some((entry) => entry.startsWith('onStart'))
+        ? 'probe: alive'
+        : 'probe: inert',
+    );
+  }
+
+  dispose(): void {
+    this.#abort.abort();
+    this.list.remove();
+  }
+}
+
+type Scenario = (h: Harness, impl: Implementation) => Promise<void>;
+
+const key = (target: EventTarget, value: string): void => {
+  target.dispatchEvent(
+    new KeyboardEvent('keydown', {
+      key: value,
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+    }),
+  );
+};
+
+const deferred = <T,>(): {
+  promise: Promise<T>;
+  resolve: (value: T) => void;
+  reject: (error: unknown) => void;
+} => {
+  let resolve!: (value: T) => void;
+  let reject!: (error: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+
+  return { promise, resolve, reject };
+};
+
+const SCENARIOS: Record<string, Scenario> = {
+  /* ---- the recorded paths ---- */
+  'drop: synchronous accept reorders': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    await h.drag(1, 6);
+    h.state('after');
+  },
+  'drop: no-op returns home': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    await h.press(1);
+    await h.moveToRow(4);
+    await h.moveToRow(1);
+    await h.release();
+    h.state('after');
+  },
+  'press: below the threshold keeps its click': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    await h.press(1);
+    await h.release();
+    h.state('after');
+  },
+  'drop: composed with landing and row animations': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config(),
+      landing(),
+      layoutAnimation(),
+    );
+    await h.press(1);
+    await h.moveToRow(3);
+    // Off the row grid, so the drop leaves a residual for a landing to travel.
+    await commands.pointerSweep(LEFT + 63, rowY(3) + 13, 3);
+    await nextFrames();
+    await h.release();
+    h.log(`landing animations=${h.rows[1]!.getAnimations().length}`);
+    h.state('after');
+    await new Promise((resolve) => {
+      setTimeout(resolve, 400);
+    });
+    h.log(`later animations=${document.getAnimations().length}`);
+  },
+  'drop: second drag after the first': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    await h.drag(1, 3);
+    h.controller.invalidate();
+    await h.drag(4, 0);
+    h.state('after');
+  },
+  /* ---- verdicts ---- */
+  'verdict: synchronous reject': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onReorder: () => ReorderResolution.reject('no'),
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'verdict: resolver throws': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onReorder: () => {
+          throw new Error('resolver threw');
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'async: accept resolves later': async (h, impl) => {
+    const verdict = deferred<ReturnType<typeof ReorderResolution.accept>>();
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onReorder: (request) => {
+          h.log('onReorder pending');
+          return verdict.promise.then((value) => {
+            h.apply(request.item, request.after);
+            return value;
+          });
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('pending');
+    verdict.resolve(ReorderResolution.accept());
+    await tick();
+    h.state('after');
+  },
+  'async: reject resolves later': async (h, impl) => {
+    const verdict = deferred<ReturnType<typeof ReorderResolution.reject>>();
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({ onReorder: () => verdict.promise }),
+    );
+    await h.drag(1, 4);
+    verdict.resolve(ReorderResolution.reject('later no'));
+    await tick();
+    h.state('after');
+  },
+  'async: rejected promise is a fault': async (h, impl) => {
+    const verdict = deferred<never>();
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({ onReorder: () => verdict.promise }),
+    );
+    await h.drag(1, 4);
+    verdict.reject(new Error('promise rejected'));
+    await tick();
+    h.state('after');
+  },
+  'async: thenable resolves synchronously, then throws': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onReorder: () =>
+          ({
+            then(fulfil: (value: unknown) => void) {
+              fulfil(ReorderResolution.accept());
+              throw new Error('after the first completion');
+            },
+          }) as never,
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'async: a press while a verdict is pending is refused': async (h, impl) => {
+    const verdict = deferred<ReturnType<typeof ReorderResolution.accept>>();
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({ onReorder: () => verdict.promise }),
+    );
+    await h.drag(1, 4);
+    await h.drag(2, 5);
+    h.log('second press done');
+    verdict.resolve(ReorderResolution.reject('stop'));
+    await tick();
+    h.state('after');
+  },
+  /* ---- cancellation ---- */
+  'cancel: Escape while active': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    await h.press(1);
+    await h.moveToRow(4);
+    key(document, 'Escape');
+    h.state('canceled');
+    await h.moveToRow(5);
+    await h.release();
+    h.state('after');
+  },
+  'cancel: requestCancel from outside while active': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    await h.press(1);
+    await h.moveToRow(4);
+    h.controller.requestCancel('outside');
+    h.controller.requestCancel('second, ignored');
+    await h.release();
+    h.state('after');
+  },
+  'cancel: requestCancel while pending is silent': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    await h.press(1);
+    h.controller.requestCancel('too early');
+    await h.moveToRow(4);
+    await h.release();
+    h.state('after');
+  },
+  'cancel: from inside onStart': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onStart: () => {
+          h.log('onStart');
+          h.controller.requestCancel('in onStart');
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'cancel: from inside onStart, which then throws': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onStart: () => {
+          h.log('onStart');
+          h.controller.requestCancel('in onStart');
+          throw new Error('and threw');
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'destroy: from inside onStart, which then throws': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onStart: () => {
+          h.log('onStart');
+          void h.controller.requestDestroy();
+          throw new Error('and threw');
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'cancel: two from one callback, the first wins': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onStart: () => {
+          h.log('onStart');
+          h.controller.requestCancel('first');
+          h.controller.requestCancel('second');
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'terminal: onEnd observes released presentation': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onEnd: (result) => {
+          h.logEnd(result);
+          h.state('inside onEnd');
+        },
+      }),
+    );
+    await h.drag(1, 3);
+    h.state('after');
+  },
+  'cancel: after a thenable has already completed is too late': async (
+    h,
+    impl,
+  ) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onReorder: () =>
+          ({
+            then(fulfil: (value: unknown) => void) {
+              fulfil(ReorderResolution.reject('completed first'));
+              h.controller.requestCancel('too late');
+            },
+          }) as never,
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'cancel: from inside onReorder beats the returned accept': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onReorder: () => {
+          h.log('onReorder');
+          h.controller.requestCancel('in onReorder');
+          return ReorderResolution.accept();
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'cancel: from inside onReorder, which then throws': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onReorder: () => {
+          h.controller.requestCancel('in onReorder');
+          throw new Error('and threw');
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'cancel: while a verdict is pending aborts, and the late verdict is ignored':
+    async (h, impl) => {
+      const verdict = deferred<ReturnType<typeof ReorderResolution.accept>>();
+
+      h.controller = impl.sortable(
+        h.list,
+        h.config({
+          onReorder: (_request, { signal }) => {
+            h.lastSignal = signal;
+            signal.addEventListener('abort', () => {
+              h.log('signal aborted');
+            });
+            return verdict.promise;
+          },
+        }),
+      );
+      await h.drag(1, 4);
+      h.controller.requestCancel('while pending');
+      h.state('canceled');
+      verdict.resolve(ReorderResolution.accept());
+      await tick();
+      h.state('after');
+    },
+  'cancel: Escape while a verdict is pending': async (h, impl) => {
+    const verdict = deferred<never>();
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({ onReorder: () => verdict.promise }),
+    );
+    await h.drag(1, 4);
+    key(document, 'Escape');
+    verdict.reject(new Error('late rejection'));
+    await tick();
+    h.state('after');
+  },
+  'cancel: a real pointercancel': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    await h.press(1);
+    await h.moveToRow(4);
+    document.dispatchEvent(
+      new PointerEvent('pointercancel', {
+        pointerId: h.lastPointerId,
+        bubbles: true,
+      }),
+    );
+    h.state('canceled');
+    await h.release();
+    h.state('after');
+  },
+  'cancel: from inside onEnd is a no-op': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onEnd: (result) => {
+          h.logEnd(result);
+          h.controller.requestCancel('too late');
+        },
+      }),
+    );
+    await h.drag(1, 3);
+    h.state('after');
+  },
+  /* ---- destruction ---- */
+  'destroy: while idle': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    await h.controller.requestDestroy();
+    h.log('destroy settled');
+    await h.drag(1, 3);
+    h.state('after');
+  },
+  'destroy: while active is silent and restores': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    await h.press(1);
+    await h.moveToRow(4);
+    await h.controller.requestDestroy();
+    h.log('destroy settled');
+    h.state('destroyed');
+    await h.release();
+    h.state('after');
+  },
+  'destroy: while pending': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    await h.press(1);
+    void h.controller.requestDestroy();
+    await h.moveToRow(4);
+    await h.release();
+    h.state('after');
+  },
+  'destroy: from inside onStart completes the unit, then no terminal': async (
+    h,
+    impl,
+  ) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onStart: () => {
+          h.log('onStart');
+          void h.controller.requestDestroy();
+          h.state('inside onStart');
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'destroy: from inside onReorder drops the terminal': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onReorder: () => {
+          h.log('onReorder');
+          void h.controller.requestDestroy();
+          return ReorderResolution.accept();
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'destroy: from inside onReorder, which then throws': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onReorder: () => {
+          void h.controller.requestDestroy();
+          throw new Error('and threw');
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'destroy: from inside onEnd keeps that terminal': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onEnd: (result) => {
+          h.logEnd(result);
+          void h.controller.requestDestroy();
+        },
+      }),
+    );
+    await h.drag(1, 3);
+    h.state('after');
+  },
+  'divergence: destroy from inside onError keeps the terminal': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onReorder: () => {
+          throw new Error('resolver threw');
+        },
+        onError: (error) => {
+          h.log(h.describeError(error));
+          void h.controller.requestDestroy();
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'destroy: while a verdict is pending aborts, and the late verdict is ignored':
+    async (h, impl) => {
+      const verdict = deferred<ReturnType<typeof ReorderResolution.accept>>();
+
+      h.controller = impl.sortable(
+        h.list,
+        h.config({
+          onReorder: (_request, { signal }) => {
+            signal.addEventListener('abort', () => {
+              h.log('signal aborted');
+            });
+            return verdict.promise;
+          },
+        }),
+      );
+      await h.drag(1, 4);
+      await h.controller.requestDestroy();
+      h.log('destroy settled');
+      verdict.resolve(ReorderResolution.accept());
+      await tick();
+      h.state('after');
+    },
+  'destroy: the promise is one promise': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+
+    const first = h.controller.requestDestroy();
+    const second = h.controller.requestDestroy();
+
+    h.log(`same promise=${String(first === second)}`);
+    await first;
+    h.log('settled');
+  },
+  /* ---- reentrancy ---- */
+  'reentrant: a press dispatched from a handle resolver is refused': async (
+    h,
+    impl,
+  ) => {
+    let nested = false;
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        handle: (item) => {
+          h.log('handle');
+
+          if (!nested) {
+            nested = true;
+            h.rows[3]!.dispatchEvent(
+              new PointerEvent('pointerdown', {
+                bubbles: true,
+                composed: true,
+                button: 0,
+                isPrimary: true,
+                pointerId: h.lastPointerId,
+                clientX: LEFT + 50,
+                clientY: rowY(3),
+              }),
+            );
+          }
+
+          return item;
+        },
+      }),
+    );
+    await h.drag(1, 3);
+    h.state('after');
+  },
+  'reentrant: a press dispatched from onStart is refused': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onStart: () => {
+          h.log('onStart');
+          h.rows[6]!.dispatchEvent(
+            new PointerEvent('pointerdown', {
+              bubbles: true,
+              composed: true,
+              button: 0,
+              isPrimary: true,
+              pointerId: 99,
+              clientX: LEFT + 50,
+              clientY: rowY(6),
+            }),
+          );
+        },
+      }),
+    );
+    await h.drag(1, 3);
+    h.state('after');
+  },
+  'reentrant: invalidate from inside onReorder publishes before the terminal':
+    async (h, impl) => {
+      let pulls = 0;
+
+      h.controller = impl.sortable(
+        h.list,
+        h.config({
+          items: () => {
+            pulls += 1;
+            h.log(`items pull ${pulls}`);
+            return h.source;
+          },
+          onReorder: (request) => {
+            h.log(`onReorder ${request.from}->${request.to}`);
+            h.apply(request.item, request.after);
+            h.controller.invalidate();
+            return ReorderResolution.accept();
+          },
+        }),
+      );
+      await h.drag(1, 3);
+      h.state('after');
+    },
+  'reentrant: invalidate from inside onEnd': async (h, impl) => {
+    let pulls = 0;
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        items: () => {
+          pulls += 1;
+          h.log(`items pull ${pulls}`);
+          return h.source;
+        },
+        onEnd: (result) => {
+          h.logEnd(result);
+          h.controller.invalidate();
+        },
+      }),
+    );
+    await h.drag(1, 3);
+    h.state('after');
+  },
+  'reentrant: the item is removed from the collection during the drag': async (
+    h,
+    impl,
+  ) => {
+    h.controller = impl.sortable(h.list, h.config());
+    await h.press(1);
+    await h.moveToRow(3);
+    h.source = h.rows.filter((_, index) => index !== 1);
+    h.controller.invalidate();
+    h.state('removed');
+    await h.release();
+    h.state('after');
+  },
+  'reentrant: a throwing items() during invalidate fails the drag': async (
+    h,
+    impl,
+  ) => {
+    let broken = false;
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        items: () => {
+          if (broken) {
+            throw new Error('items threw');
+          }
+
+          return h.source;
+        },
+      }),
+    );
+    await h.press(1);
+    await h.moveToRow(3);
+    broken = true;
+    h.controller.invalidate();
+    broken = false;
+    await h.release();
+    h.state('after');
+  },
+  /* ---- faults ---- */
+  'fault: onStart throws': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onStart: () => {
+          h.log('onStart');
+          throw new Error('onStart threw');
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'fault: onEnd throws, exactly one terminal': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onEnd: (result) => {
+          h.logEnd(result);
+          throw new Error('onEnd threw');
+        },
+      }),
+    );
+    await h.drag(1, 3);
+    h.state('after');
+  },
+  'fault: handle throws at admission': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        handle: () => {
+          throw new Error('handle threw');
+        },
+      }),
+    );
+    await h.drag(1, 3);
+    h.state('after');
+  },
+  'fault: onError throws and is absorbed': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onReorder: () => {
+          throw new Error('resolver threw');
+        },
+        onError: (error) => {
+          h.log(h.describeError(error));
+          throw new Error('onError threw');
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  /* ---- the keyboard ---- */
+  'keyboard: arrow moves one slot': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    key(h.rows[2]!, 'ArrowDown');
+    await tick();
+    h.state('after');
+  },
+  'keyboard: edge declines': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    key(h.rows[0]!, 'ArrowUp');
+    await tick();
+    h.state('after');
+  },
+  'keyboard: cancel from inside onStart': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onStart: () => {
+          h.log('onStart');
+          h.controller.requestCancel('kb');
+        },
+      }),
+    );
+    key(h.rows[2]!, 'ArrowDown');
+    await tick();
+    h.state('after');
+  },
+
+  /* ---- the round-trip boundary: requests from code reached by the release ---- */
+  'boundary: cancel from a box resolver during release, no round-trip': async (
+    h,
+    impl,
+  ) => {
+    let releasing = false;
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        box: (item) => {
+          if (releasing) {
+            releasing = false;
+            h.log('box requests cancel');
+            h.controller.requestCancel('in box');
+          }
+
+          return item;
+        },
+      }),
+    );
+    await h.press(1);
+    await h.moveToRow(4);
+    window.addEventListener(
+      'pointerup',
+      () => {
+        releasing = true;
+      },
+      { capture: true, once: true },
+    );
+    await h.release();
+    h.state('after');
+  },
+  'boundary: destroy from a box resolver during release, no round-trip': async (
+    h,
+    impl,
+  ) => {
+    let releasing = false;
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        box: (item) => {
+          if (releasing) {
+            releasing = false;
+            h.log('box requests destroy');
+            void h.controller.requestDestroy();
+          }
+
+          return item;
+        },
+      }),
+    );
+    await h.press(1);
+    await h.moveToRow(4);
+    window.addEventListener(
+      'pointerup',
+      () => {
+        releasing = true;
+      },
+      { capture: true, once: true },
+    );
+    await h.release();
+    h.state('after');
+  },
+  'boundary: invalidate removing the item, from a box resolver during release':
+    async (h, impl) => {
+      let releasing = false;
+
+      h.controller = impl.sortable(
+        h.list,
+        h.config({
+          box: (item) => {
+            if (releasing) {
+              releasing = false;
+              h.source = [...h.source];
+              h.controller.invalidate();
+            }
+
+            return item;
+          },
+        }),
+      );
+      await h.press(1);
+      await h.moveToRow(4);
+      window.addEventListener(
+        'pointerup',
+        () => {
+          releasing = true;
+        },
+        { capture: true, once: true },
+      );
+      await h.release();
+      h.state('after');
+    },
+  'boundary: a thenable completed from items() during a later pass': async (
+    h,
+    impl,
+  ) => {
+    let fulfil: ((value: unknown) => void) | null = null;
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        items: () => {
+          if (fulfil) {
+            h.log('items completes the verdict');
+            fulfil(ReorderResolution.accept());
+            fulfil = null;
+          }
+
+          return h.source;
+        },
+        onReorder: () =>
+          ({
+            then(resolve: (value: unknown) => void) {
+              fulfil = resolve;
+            },
+          }) as never,
+      }),
+    );
+    await h.drag(1, 4);
+    h.log('pending');
+    h.controller.invalidate();
+    await tick();
+    h.state('after');
+  },
+  'boundary: cancel then destroy in one callback': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onStart: () => {
+          h.log('onStart');
+          h.controller.requestCancel('first');
+          void h.controller.requestDestroy();
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'boundary: destroy from a placeholder disconnect keeps the terminal': async (
+    h,
+    impl,
+  ) => {
+    if (!customElements.get('x-destroys-on-remove')) {
+      customElements.define(
+        'x-destroys-on-remove',
+        class extends HTMLElement {
+          disconnectedCallback(): void {
+            (this as unknown as { onGone(): void }).onGone();
+          }
+        },
+      );
+    }
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        placeholder: () => {
+          const node = document.createElement(
+            'x-destroys-on-remove',
+          ) as HTMLElement & { onGone(): void };
+
+          node.onGone = () => {
+            h.log('placeholder removed, destroy requested');
+            void h.controller.requestDestroy();
+          };
+          return node;
+        },
+      }),
+    );
+    await h.drag(1, 3);
+    h.state('after');
+  },
+  /* ---- platform input ---- */
+  'platform: Escape while pending is silent': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    await h.press(1);
+    key(document, 'Escape');
+    await h.moveToRow(4);
+    await h.release();
+    h.state('after');
+  },
+  'platform: capture taken away during the drag': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config());
+    await h.press(1);
+    await h.moveToRow(3);
+    h.list.releasePointerCapture(h.lastPointerId);
+    await tick();
+    await nextFrames();
+    h.state('canceled');
+    await h.release();
+    h.state('after');
+  },
+  'platform: scroll during the drag invalidates and the drop still lands':
+    async (h, impl) => {
+      h.controller = impl.sortable(h.list, h.config());
+      await h.press(1);
+      await h.moveToRow(3);
+      window.dispatchEvent(new Event('scroll'));
+      window.dispatchEvent(new Event('resize'));
+      await h.moveToRow(5);
+      await h.release();
+      h.state('after');
+    },
+  'platform: an ignored region declines the press': async (h, impl) => {
+    h.rows[1]!.setAttribute('data-drag-ignore', '');
+    h.controller = impl.sortable(h.list, h.config());
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'platform: a landing is cancelled by the next activation': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config(), landing());
+    await h.press(1);
+    await h.moveToRow(3);
+    await commands.pointerSweep(LEFT + 63, rowY(3) + 13, 3);
+    await nextFrames();
+    await h.release();
+    h.controller.invalidate();
+    h.log(`animating=${h.rows[1]!.getAnimations().length}`);
+    await h.press(3);
+    await h.moveToRow(5);
+    h.log(`animating after activation=${h.rows[1]!.getAnimations().length}`);
+    await h.release();
+    h.state('after');
+  },
+  'platform: a later click after a reorder (flow-1, unchanged)': async (
+    h,
+    impl,
+  ) => {
+    const outside = document.createElement('button');
+
+    outside.style.cssText = 'position:absolute;left:500px;top:50px;width:80px;height:40px';
+    outside.addEventListener('click', () => {
+      h.log('outside click arrived');
+    });
+    document.body.append(outside);
+    h.controller = impl.sortable(h.list, h.config());
+    await h.drag(1, 3);
+    await commands.pointerPress(540, 70);
+    await h.release();
+    h.log('first outside click done');
+    await commands.pointerPress(540, 70);
+    await h.release();
+    h.log('second outside click done');
+    outside.remove();
+    h.state('after');
+  },
+  /* ---- more faults, by stage ---- */
+  'fault: placeholder factory throws, so no start and no terminal': async (
+    h,
+    impl,
+  ) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        placeholder: () => {
+          throw new Error('placeholder threw');
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'fault: box throws during a spatial frame': async (h, impl) => {
+    let armed = false;
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onStart: () => {
+          h.log('onStart');
+          armed = true;
+        },
+        box: (item) => {
+          if (armed) {
+            throw new Error('box threw');
+          }
+
+          return item;
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'fault: the consumer detaches everything in onReorder': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onReorder: () => {
+          h.log('onReorder detaches');
+          h.list.replaceChildren(...h.rows);
+          return ReorderResolution.accept();
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'keyboard: async verdict then Escape': async (h, impl) => {
+    const verdict = deferred<ReturnType<typeof ReorderResolution.accept>>();
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({ onReorder: () => verdict.promise }),
+    );
+    key(h.rows[2]!, 'ArrowDown');
+    await tick();
+    h.state('pending');
+    key(document, 'Escape');
+    verdict.resolve(ReorderResolution.accept());
+    await tick();
+    h.state('after');
+  },
+  'keyboard: destroy from inside onStart': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onStart: () => {
+          h.log('onStart');
+          void h.controller.requestDestroy();
+        },
+      }),
+    );
+    key(h.rows[2]!, 'ArrowDown');
+    await tick();
+    h.state('after');
+  },
+  'free: onMove throws': async (h, impl) => {
+    const box = h.rows[0]!;
+    const controller = impl.freeDrag(box, {
+      onMove: () => {
+        throw new Error('onMove threw');
+      },
+      onDrop: () => FreeDragResolution.accept(),
+      onEnd: (result) => {
+        h.logEnd(result);
+      },
+      onError: (error) => {
+        h.log(h.describeError(error));
+      },
+    });
+
+    h.controller = controller as never;
+    await h.press(0);
+    await commands.pointerSweep(LEFT + 90, rowY(0) + 60, 5);
+    await nextFrames();
+    await h.release();
+    h.state('after');
+  },
+  'free: Escape while a verdict is pending returns home': async (h, impl) => {
+    const box = h.rows[0]!;
+    const verdict = deferred<ReturnType<typeof FreeDragResolution.accept>>();
+    const controller = impl.freeDrag(box, {
+      onDrop: () => verdict.promise,
+      onEnd: (result) => {
+        h.logEnd(result);
+      },
+    });
+
+    h.controller = controller as never;
+    await h.press(0);
+    await commands.pointerSweep(LEFT + 90, rowY(0) + 60, 5);
+    await nextFrames();
+    await h.release();
+    key(document, 'Escape');
+    verdict.resolve(FreeDragResolution.accept());
+    await tick();
+    h.state('after');
+  },
+  'keyboard: item removed by an invalidate from inside onStart': async (
+    h,
+    impl,
+  ) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onStart: () => {
+          h.log('onStart');
+          h.source = h.rows.filter((_, index) => index !== 2);
+          h.controller.invalidate();
+        },
+      }),
+    );
+    key(h.rows[2]!, 'ArrowDown');
+    await tick();
+    h.source = [...h.rows];
+    h.controller.invalidate();
+    h.state('after');
+  },
+  'divergence: invalidate removing the item, then a throw, from onStart': async (
+    h,
+    impl,
+  ) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onStart: () => {
+          h.log('onStart');
+          h.source = h.rows.filter((_, index) => index !== 1);
+          h.controller.invalidate();
+          throw new Error('after queueing');
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.source = [...h.rows];
+    h.controller.invalidate();
+    h.state('after');
+  },
+  'divergence: a throw from the crossing step is a fault, not a panic': async (
+    h,
+    impl,
+  ) => {
+    const selection = window.getSelection;
+
+    window.getSelection = (): never => {
+      throw new Error('platform');
+    };
+
+    try {
+      h.controller = impl.sortable(h.list, h.config());
+      await h.drag(1, 4);
+    } finally {
+      window.getSelection = selection;
+    }
+
+    h.state('after');
+  },
+  'divergence: onEnd requests destruction, then throws': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onEnd: (result) => {
+          h.logEnd(result);
+          void h.controller.requestDestroy();
+          throw new Error('onEnd threw');
+        },
+      }),
+    );
+    await h.drag(1, 3);
+    h.state('after');
+  },
+  /* ---- known or accepted divergences, pinned below ---- */
+  'reentrant: a pointerup dispatched from onStart is ignored': async (h, impl) => {
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        onStart: () => {
+          h.log('onStart');
+          document.dispatchEvent(
+            new PointerEvent('pointerup', {
+              pointerId: h.lastPointerId,
+              bubbles: true,
+              clientX: LEFT + 50,
+              clientY: rowY(4),
+            }),
+          );
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'divergence: two invalidates in one callback pull once': async (h, impl) => {
+    let pulls = 0;
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        items: () => {
+          pulls += 1;
+          h.log(`items pull ${pulls}`);
+          return h.source;
+        },
+        onStart: () => {
+          h.log('onStart');
+          h.controller.invalidate();
+          h.controller.invalidate();
+        },
+      }),
+    );
+    await h.drag(1, 3);
+    h.state('after');
+  },
+  'divergence: start failure with a cancel already registered': async (
+    h,
+    impl,
+  ) => {
+    if (!customElements.get('x-self-removing')) {
+      customElements.define(
+        'x-self-removing',
+        class extends HTMLElement {
+          connectedCallback(): void {
+            this.remove();
+          }
+        },
+      );
+    }
+
+    h.controller = impl.sortable(
+      h.list,
+      h.config({
+        placeholder: () => {
+          h.controller.requestCancel('registered first');
+          return document.createElement('x-self-removing');
+        },
+      }),
+    );
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'divergence: a pointerup dispatched from onMove': async (h, impl) => {
+    const box = h.rows[0]!;
+    let sent = false;
+    const controller = impl.freeDrag(box, {
+      onMove: () => {
+        if (!sent) {
+          sent = true;
+          h.log('onMove dispatches pointerup');
+          document.dispatchEvent(
+            new PointerEvent('pointerup', {
+              pointerId: h.lastPointerId,
+              bubbles: true,
+              clientX: LEFT + 60,
+              clientY: rowY(0) + 20,
+            }),
+          );
+          h.log('dispatch returned');
+        }
+      },
+      onDrop: () => {
+        h.log('onDrop');
+        return FreeDragResolution.accept();
+      },
+      onEnd: (result) => {
+        h.logEnd(result);
+      },
+    });
+
+    h.controller = controller as never;
+    await h.press(0);
+    await commands.pointerSweep(LEFT + 90, rowY(0) + 60, 6);
+    await nextFrames();
+    h.log('real release next');
+    await h.release();
+    h.state('after');
+  },
+  'smoke: the two-dimensional axis, unchanged': async (h, impl) => {
+    h.controller = impl.sortable(h.list, h.config({ axis: xy() }));
+    await h.drag(1, 4);
+    h.state('after');
+  },
+  'smoke: bounds and a home, unchanged': async (h, impl) => {
+    const box = h.rows[0]!;
+    const controller = impl.freeDrag(
+      box,
+      {
+        home: () => ({ x: LEFT, y: TOP }),
+        onDrop: (request) => {
+          h.log(`onDrop at ${request.positionX},${request.positionY}`);
+          return FreeDragResolution.reject('home');
+        },
+        onEnd: (result) => {
+          h.logEnd(result);
+        },
+      },
+      bounds(() => new DOMRect(LEFT, TOP, 260, 120)),
+    );
+
+    h.controller = controller as never;
+    await h.press(0);
+    await commands.pointerSweep(LEFT + 400, rowY(0) + 400, 5);
+    await nextFrames();
+    await h.release();
+    h.state('after');
+  },
+  /* ---- free drag ---- */
+  'free: accept stays where it landed': async (h, impl) => {
+    const box = h.rows[0]!;
+
+    box.style.touchAction = 'none';
+    h.controller = impl.freeDrag(box, {
+      onStart: () => {
+        h.log('onStart');
+      },
+      onDrop: (request) => {
+        h.log(`onDrop dx=${request.viewportDeltaX} dy=${request.viewportDeltaY}`);
+        return FreeDragResolution.accept();
+      },
+      onEnd: (result) => {
+        h.logEnd(result);
+      },
+    }) as never;
+    await h.press(0);
+    await commands.pointerSweep(LEFT + 90, rowY(0) + 60, 5);
+    await nextFrames();
+    await h.release();
+    h.state('after');
+  },
+  'free: onMove sees every sample and may cancel': async (h, impl) => {
+    const box = h.rows[0]!;
+    let moves = 0;
+    let controller: { requestCancel(reason?: unknown): void } | null = null;
+
+    controller = impl.freeDrag(box, {
+      onMove: () => {
+        moves += 1;
+
+        if (moves === 2) {
+          h.log('onMove cancels');
+          controller!.requestCancel('in onMove');
+        }
+      },
+      onDrop: () => FreeDragResolution.accept(),
+      onEnd: (result) => {
+        h.logEnd(result);
+      },
+    });
+    h.controller = controller as never;
+    await h.press(0);
+    await commands.pointerSweep(LEFT + 90, rowY(0) + 60, 6);
+    await nextFrames();
+    await h.release();
+    h.state('after');
+  },
+  'free: async reject, destroyed while pending': async (h, impl) => {
+    const box = h.rows[0]!;
+    const verdict = deferred<ReturnType<typeof FreeDragResolution.reject>>();
+    const controller = impl.freeDrag(box, {
+      onDrop: (_request, { signal }) => {
+        signal.addEventListener('abort', () => {
+          h.log('signal aborted');
+        });
+        return verdict.promise;
+      },
+      onEnd: (result) => {
+        h.logEnd(result);
+      },
+    });
+
+    h.controller = controller as never;
+    await h.press(0);
+    await commands.pointerSweep(LEFT + 90, rowY(0) + 60, 5);
+    await nextFrames();
+    await h.release();
+    await controller.requestDestroy();
+    h.log('destroy settled');
+    verdict.resolve(FreeDragResolution.reject('late'));
+    await tick();
+    h.state('after');
+  },
+  'free: moveTo from inside onStart, then a drop': async (h, impl) => {
+    const box = h.rows[0]!;
+    let controller: { moveTo(point: { x: number; y: number }): void } | null =
+      null;
+
+    controller = impl.freeDrag(box, {
+      onStart: () => {
+        h.log('onStart moves');
+        controller!.moveTo({ x: 400, y: 300 });
+      },
+      onDrop: (request) => {
+        h.log(`onDrop at ${request.positionX},${request.positionY}`);
+        return FreeDragResolution.accept();
+      },
+      onEnd: (result) => {
+        h.logEnd(result);
+      },
+    });
+    h.controller = controller as never;
+    await h.press(0);
+    await commands.pointerSweep(LEFT + 60, rowY(0), 3);
+    await nextFrames();
+    await h.release();
+    h.state('after');
+  },
+};
+
+/**
+ * Where the prototype is expected to differ, with the reason. Each entry is a
+ * statement in the architecture report and is pinned here by requiring the two
+ * traces to differ.
+ */
+type Pin = Readonly<{ why: string; holds(prototype: string[]): boolean }>;
+
+const count = (trace: string[], prefix: string): number =>
+  trace.filter((entry) => entry.startsWith(prefix)).length;
+
+/** Asserted on the first drag's portion of a trace, up to the probe. */
+const firstDrag = (trace: string[]): string[] =>
+  trace.slice(
+    0,
+    trace.findIndex((entry) => entry.startsWith('after:')),
+  );
+
+const EXPECTED_DIFFERENCE: Record<string, Pin> = {
+  'divergence: a throw from the crossing step is a fault, not a panic': {
+    why: 'one catch per pass: only a throw escaping the loop itself panics, so the controller survives',
+    holds: (trace) => trace.at(-1) === 'probe: alive',
+  },
+  'divergence: onEnd requests destruction, then throws': {
+    why: 'the fault in a terminal is reported as stage 14 whatever else the callback requested',
+    holds: (trace) => count(firstDrag(trace), 'onError error stage=14') === 1,
+  },
+  'divergence: invalidate removing the item, then a throw, from onStart': {
+    why: 'a superseded warning always follows the terminal; production has both orders',
+    holds: (trace) => {
+      const drag = firstDrag(trace);
+
+      return (
+        drag.findIndex((entry) => entry.startsWith('onEnd canceled')) <
+        drag.indexOf('onError warning drag: failure/superseded-by-cancel')
+      );
+    },
+  },
+  'divergence: two invalidates in one callback pull once': {
+    why: 'requests coalesce into one slot, so items() is pulled once per boundary',
+    holds: (trace) => count(firstDrag(trace), 'items pull') === 2,
+  },
+  'divergence: start failure with a cancel already registered': {
+    why: 'no terminal without a start: the admitted two-fault class does not exist',
+    holds: (trace) =>
+      count(firstDrag(trace), 'onStart') === 0 &&
+      count(firstDrag(trace), 'onEnd') === 0,
+  },
+  'divergence: a pointerup dispatched from onMove': {
+    why: 'a native sample raised inside a pass is refused, not queued',
+    holds: (trace) =>
+      trace.indexOf('real release next') < trace.indexOf('onDrop'),
+  },
+  'divergence: destroy from inside onError keeps the terminal': {
+    why: 'the report and the terminal are one step, so a destruction requested in the report applies after the terminal',
+    holds: (trace) => count(firstDrag(trace), 'onEnd canceled') === 1,
+  },
+};
+
+const results: Record<string, unknown> = {};
+
+describe('single-pass prototype against production', () => {
+  afterAll(async () => {
+    await commands.writeFile(
+      'parity-results.json',
+      JSON.stringify(results, null, 2),
+    );
+  });
+
+  const active: Harness[] = [];
+
+  afterEach(async () => {
+    for (const harness of active.splice(0)) {
+      harness.dispose();
+    }
+
+    await commands.pointerRelease().catch(() => {});
+  });
+
+  for (const [name, scenario] of Object.entries(SCENARIOS)) {
+    it(name, async () => {
+      const traces: Record<string, string[]> = {};
+
+      for (const impl of IMPLEMENTATIONS) {
+        const harness = new Harness();
+
+        active.push(harness);
+        // oxlint-disable-next-line no-await-in-loop
+        await scenario(harness, impl);
+        // oxlint-disable-next-line no-await-in-loop
+        await harness.probeAlive();
+        traces[impl.name] = harness.trace;
+        // oxlint-disable-next-line no-await-in-loop
+        await harness.controller.requestDestroy();
+        harness.dispose();
+        // oxlint-disable-next-line no-await-in-loop
+        await commands.pointerSweep(5, 5, 1);
+      }
+
+      results[name] = {
+        equal:
+          JSON.stringify(traces['production']) ===
+          JSON.stringify(traces['prototype']),
+        ...traces,
+      };
+
+      const pin = EXPECTED_DIFFERENCE[name];
+
+      if (pin) {
+        expect(traces['prototype']).not.toEqual(traces['production']);
+        expect(pin.holds(traces['prototype']!), pin.why).toBe(true);
+      } else {
+        expect(traces['prototype']).toEqual(traces['production']);
+      }
+    });
+  }
+});
+
+describe('stack depth at the recorded write sites', () => {
+  it('counts library frames', async () => {
+    const depth: Record<string, number> = {};
+    const frames = (): number =>
+      (new Error().stack ?? '')
+        .split('\n')
+        .filter(
+          (line) =>
+            /\/(src|prototype)\/[^:]*\.ts/.test(line) &&
+            !line.includes('/tests/'),
+        ).length;
+    const { before } = Element.prototype;
+    const limit = Error.stackTraceLimit;
+
+    Error.stackTraceLimit = 200;
+
+    try {
+      for (const impl of IMPLEMENTATIONS) {
+        const harness = new Harness();
+        const row = harness.rows[1]!;
+        const real = row.style;
+        const writes: number[] = [];
+        let move = 0;
+
+        Object.defineProperty(row, 'style', {
+          configurable: true,
+          get: () =>
+            new Proxy(real, {
+              get(target, property) {
+                const value = Reflect.get(target, property, target) as unknown;
+
+                return typeof value === 'function' ? value.bind(target) : value;
+              },
+              set(target, property, value) {
+                if (property === 'transform') {
+                  writes.push(frames());
+                }
+
+                return Reflect.set(target, property, value, target);
+              },
+            }),
+        });
+        Element.prototype.before = function patched(
+          this: Element,
+          ...nodes: Array<Node | string>
+        ): void {
+          if ((nodes[0] as Element).hasAttribute?.('data-drag-placeholder')) {
+            move = Math.max(move, frames());
+          }
+
+          before.apply(this, nodes);
+        };
+
+        harness.controller = impl.sortable(harness.list, harness.config());
+        // oxlint-disable-next-line no-await-in-loop
+        await harness.drag(1, 5);
+        writes.sort((a, b) => a - b);
+        depth[`${impl.name} transform write, median sample`] =
+          writes[writes.length >> 1]!;
+        depth[`${impl.name} transform write, deepest`] = writes.at(-1)!;
+        depth[`${impl.name} placeholder move`] = move;
+        Element.prototype.before = before;
+        // oxlint-disable-next-line no-await-in-loop
+        await harness.controller.requestDestroy();
+        harness.dispose();
+      }
+    } finally {
+      Error.stackTraceLimit = limit;
+      Element.prototype.before = before;
+    }
+
+    await commands.writeFile('stack-depth.json', JSON.stringify(depth, null, 2));
+    expect(depth['prototype placeholder move']).toBeGreaterThan(0);
+  });
+});
+
+describe('one active pointer sample', () => {
+  it('times synthetic samples, alternating implementations', async () => {
+    const SAMPLES = 20_000;
+    const ROUNDS = 7;
+    const times: Record<string, number[]> = { production: [], prototype: [] };
+
+    for (let round = 0; round < ROUNDS; round += 1) {
+      for (const impl of IMPLEMENTATIONS) {
+        const harness = new Harness();
+
+        harness.controller = impl.sortable(harness.list, harness.config());
+        // oxlint-disable-next-line no-await-in-loop
+        await harness.press(1);
+        // oxlint-disable-next-line no-await-in-loop
+        await harness.moveToRow(3);
+
+        const event = new PointerEvent('pointermove', {
+          pointerId: harness.lastPointerId,
+          bubbles: true,
+          clientX: LEFT + 50,
+          clientY: rowY(3),
+        });
+        const started = performance.now();
+
+        for (let i = 0; i < SAMPLES; i += 1) {
+          document.dispatchEvent(event);
+        }
+
+        times[impl.name]!.push(
+          ((performance.now() - started) / SAMPLES) * 1000,
+        );
+        // oxlint-disable-next-line no-await-in-loop
+        await harness.release();
+        // oxlint-disable-next-line no-await-in-loop
+        await harness.controller.requestDestroy();
+        harness.dispose();
+      }
+    }
+
+    const median = (values: number[]): number =>
+      [...values].sort((a, b) => a - b)[values.length >> 1]!;
+
+    await commands.writeFile(
+      'sample-time.json',
+      JSON.stringify(
+        {
+          unit: 'microseconds per dispatched sample, one identical event object',
+          production: { median: median(times['production']!), runs: times['production'] },
+          prototype: { median: median(times['prototype']!), runs: times['prototype'] },
+        },
+        null,
+        2,
+      ),
+    );
+    expect(times['prototype']!.length).toBe(ROUNDS);
+  });
+});
+

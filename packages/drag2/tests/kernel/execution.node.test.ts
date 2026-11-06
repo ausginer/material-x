@@ -6,7 +6,7 @@ import {
   FAILED,
   RESOLUTION_SETTLED,
 } from '../../src/kernel/actions.ts';
-import { ExecutionBracket } from '../../src/kernel/execution.ts';
+import { ExecutionLoop } from '../../src/kernel/execution.ts';
 
 /**
  * A real collection, which is the only way to read an argument-release
@@ -34,7 +34,7 @@ const settledWithin = async (
 const NOOP = (): void => {};
 
 type Harness = Readonly<{
-  bracket: ExecutionBracket;
+  bracket: ExecutionLoop;
   seen: readonly number[];
   args: readonly unknown[];
   panics: readonly unknown[];
@@ -48,14 +48,14 @@ type Harness = Readonly<{
  * drain, which is where every ordering property here lives.
  */
 function createHarness(
-  step?: (bracket: ExecutionBracket, action: number, argument: unknown) => void,
+  step?: (bracket: ExecutionLoop, action: number, argument: unknown) => void,
 ): Harness {
   const seen: number[] = [];
   const args: unknown[] = [];
   const panics: unknown[] = [];
   const counts = { teardowns: 0, passes: 0 };
 
-  const bracket = new ExecutionBracket(
+  const bracket = new ExecutionLoop(
     (action, argument) => {
       seen.push(action);
       args.push(argument);
@@ -90,7 +90,7 @@ describe('the execution bracket', () => {
   it('should process entries in FIFO order', () => {
     const harness = createHarness();
 
-    harness.bracket.runIngress(() => {
+    harness.bracket.runNativeEvent(() => {
       harness.bracket.dispatch(1, null);
       harness.bracket.dispatch(2, null);
       harness.bracket.dispatch(3, null);
@@ -102,7 +102,7 @@ describe('the execution bracket', () => {
   it('should pair each entry with its own argument', () => {
     const harness = createHarness();
 
-    harness.bracket.runIngress(() => {
+    harness.bracket.runNativeEvent(() => {
       harness.bracket.dispatch(1, 'a');
       harness.bracket.dispatch(2, 'b');
     });
@@ -135,7 +135,7 @@ describe('the execution bracket', () => {
       }
     });
 
-    harness.bracket.runIngress(() => {
+    harness.bracket.runNativeEvent(() => {
       harness.bracket.dispatch(1, null);
       harness.bracket.dispatch(2, null);
       harness.bracket.dispatch(3, null);
@@ -159,7 +159,7 @@ describe('the execution bracket', () => {
   it('should route an escaping throw to panic', () => {
     const error = new Error('boom');
     const panic = vi.fn();
-    const bracket = new ExecutionBracket(
+    const bracket = new ExecutionLoop(
       () => {
         throw error;
       },
@@ -186,7 +186,7 @@ describe('the execution bracket', () => {
 
   it('should close before it reports a panic', () => {
     let closedAtPanic: boolean | null = null;
-    const bracket: ExecutionBracket = new ExecutionBracket(
+    const bracket: ExecutionLoop = new ExecutionLoop(
       () => {
         throw new Error('boom');
       },
@@ -204,7 +204,7 @@ describe('the execution bracket', () => {
 
   it('should tear down after it reports a panic', () => {
     const order: string[] = [];
-    const bracket = new ExecutionBracket(
+    const bracket = new ExecutionLoop(
       () => {
         throw new Error('boom');
       },
@@ -265,7 +265,7 @@ describe('the execution bracket', () => {
   it('should settle a promise requested from the panic report after teardown', async () => {
     const order: string[] = [];
     let closing!: Promise<void>;
-    const bracket = new ExecutionBracket(
+    const bracket = new ExecutionLoop(
       () => {
         throw new Error('boom');
       },
@@ -309,7 +309,7 @@ describe('the execution bracket', () => {
   });
 
   it('should have settled its promise when a request with no unit running returns', async () => {
-    const bracket = new ExecutionBracket(NOOP, NOOP, NOOP, NOOP);
+    const bracket = new ExecutionLoop(NOOP, NOOP, NOOP, NOOP);
     const closing = bracket.requestClose();
 
     // An already-settled promise wins this race, because its reaction is
@@ -323,7 +323,7 @@ describe('the execution bracket', () => {
     const harness = createHarness();
     let inside!: Promise<void>;
 
-    harness.bracket.runIngress(() => {
+    harness.bracket.runNativeEvent(() => {
       inside = harness.bracket.requestClose();
     });
 
@@ -337,7 +337,7 @@ describe('the execution bracket', () => {
     const harness = createHarness();
     let settlements = 0;
 
-    harness.bracket.runIngress(() => {
+    harness.bracket.runNativeEvent(() => {
       void harness.bracket.requestClose().then(() => {
         settlements += 1;
       });
@@ -354,7 +354,7 @@ describe('the execution bracket', () => {
     let duringPass = -1;
     const harness = createHarness();
 
-    harness.bracket.runIngress(() => {
+    harness.bracket.runNativeEvent(() => {
       void harness.bracket.requestClose();
       duringPass = harness.teardowns;
     });
@@ -365,7 +365,7 @@ describe('the execution bracket', () => {
   it('should drain after admission and handle nothing once admission requested destruction', () => {
     const harness = createHarness();
 
-    harness.bracket.runIngress(() => {
+    harness.bracket.runNativeEvent(() => {
       harness.bracket.dispatch(1, null);
       void harness.bracket.requestClose();
     });
@@ -388,7 +388,7 @@ describe('the execution bracket', () => {
       }
     });
 
-    harness.bracket.runIngress(() => {
+    harness.bracket.runNativeEvent(() => {
       harness.bracket.dispatch(1, null);
       harness.bracket.dispatch(FAILED, {
         discard(): void {
@@ -418,7 +418,7 @@ describe('the execution bracket', () => {
       void bracket.requestClose();
     });
 
-    harness.bracket.runIngress(() => {
+    harness.bracket.runNativeEvent(() => {
       harness.bracket.dispatch(FAILED, entry('handled'));
       harness.bracket.dispatch(FAILED, entry('discarded'));
     });
@@ -434,7 +434,7 @@ describe('the execution bracket', () => {
       throw new Error('invariant');
     });
 
-    harness.bracket.runIngress(() => {
+    harness.bracket.runNativeEvent(() => {
       harness.bracket.dispatch(1, null);
       harness.bracket.dispatch(FAILED, {
         discard(): void {
@@ -460,7 +460,7 @@ describe('the execution bracket', () => {
     let duringPass: readonly number[] = [-1];
     const harness = createHarness();
 
-    harness.bracket.runIngress(() => {
+    harness.bracket.runNativeEvent(() => {
       harness.bracket.dispatch(1, null);
       duringPass = [...harness.seen];
     });
@@ -472,8 +472,8 @@ describe('the execution bracket', () => {
     const harness = createHarness();
     let nested = 0;
 
-    harness.bracket.runIngress(() => {
-      harness.bracket.runIngress(() => {
+    harness.bracket.runNativeEvent(() => {
+      harness.bracket.runNativeEvent(() => {
         nested += 1;
       });
     });
@@ -484,7 +484,7 @@ describe('the execution bracket', () => {
   it('should refuse an ingress pass while a drained action runs', () => {
     let nested = 0;
     const harness = createHarness((bracket) => {
-      bracket.runIngress(() => {
+      bracket.runNativeEvent(() => {
         nested += 1;
       });
     });
@@ -499,7 +499,7 @@ describe('the execution bracket', () => {
     let nested = 0;
 
     harness.bracket.construct(() => {
-      harness.bracket.runIngress(() => {
+      harness.bracket.runNativeEvent(() => {
         nested += 1;
       });
     });
@@ -512,7 +512,7 @@ describe('the execution bracket', () => {
     let admitted = 0;
 
     void harness.bracket.requestClose();
-    harness.bracket.runIngress(() => {
+    harness.bracket.runNativeEvent(() => {
       admitted += 1;
     });
 
@@ -583,7 +583,7 @@ describe('the execution bracket', () => {
     const OUTSTANDING = 'outstanding';
     let closing!: Promise<void>;
     let probe!: Promise<unknown>;
-    const bracket = new ExecutionBracket(
+    const bracket = new ExecutionLoop(
       NOOP,
       NOOP,
       () => {
@@ -597,7 +597,7 @@ describe('the execution bracket', () => {
 
     // Closed from inside a pass, so the promise exists before the callback the
     // ordering is about runs.
-    bracket.runIngress(() => {
+    bracket.runNativeEvent(() => {
       closing = bracket.requestClose();
     });
 
@@ -606,9 +606,9 @@ describe('the execution bracket', () => {
 
   it('should release the arguments a destroying pass left queued', async () => {
     let queued!: WeakRef<object>;
-    const bracket = new ExecutionBracket(NOOP, NOOP, NOOP, NOOP);
+    const bracket = new ExecutionLoop(NOOP, NOOP, NOOP, NOOP);
 
-    bracket.runIngress(() => {
+    bracket.runNativeEvent(() => {
       const argument = { retained: true };
 
       queued = new WeakRef(argument);
@@ -629,7 +629,7 @@ describe('the execution bracket', () => {
 
   it('should settle its promise when the teardown callback throws', async () => {
     let closing!: Promise<void>;
-    const throwing = new ExecutionBracket(
+    const throwing = new ExecutionLoop(
       NOOP,
       NOOP,
       () => {
@@ -639,7 +639,7 @@ describe('the execution bracket', () => {
     );
 
     expect(() => {
-      throwing.runIngress(() => {
+      throwing.runNativeEvent(() => {
         closing = throwing.requestClose();
       });
     }).toThrow('teardown');

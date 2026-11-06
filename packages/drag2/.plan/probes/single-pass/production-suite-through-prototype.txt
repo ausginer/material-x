@@ -1,0 +1,49 @@
+passed failed reaches file
+  31   6 public   tests/diagnostic-intake.browser.test.ts
+         FAILED: diagnostic intake in the sortable should deliver only the panic when a panic tears the controller down
+         FAILED: diagnostic intake in the sortable should deliver one error and no warning when onError requests destruction for an applied failure
+         FAILED: diagnostic intake in the sortable should warn after onEnd when onEnd requests destruction and then throws
+         FAILED: diagnostic intake in the free drag should deliver only the panic when a panic tears the controller down
+         FAILED: diagnostic intake in the free drag should deliver one error and no warning when onError requests destruction for an applied failure
+         FAILED: diagnostic intake in the free drag should warn after onEnd when onEnd requests destruction and then throws
+ 242   0 internal tests/kernel/kernel.browser.test.ts
+   3   0 internal tests/kernel/pointer.browser.test.ts
+  26   0 internal tests/kernel/presentation.browser.test.ts
+   5   0 internal tests/kernel/realm.browser.test.ts
+   7   0 public   tests/free-drag/actions.browser.test.ts
+   6   0 public   tests/free-drag/activation-snapshot.browser.test.ts
+  20   0 public   tests/free-drag/anchor.browser.test.ts
+  40   0 public   tests/free-drag/free-drag.browser.test.ts
+   9   0 public   tests/free-drag/geometry.browser.test.ts
+  21   0 public   tests/free-drag/lifecycle.browser.test.ts
+  34   0 public   tests/free-drag/validation.browser.test.ts
+   1   0 public   tests/perf/d208-m1.browser.test.ts
+   3   0 public   tests/perf/d208-step6.browser.test.ts
+   8   0 public   tests/perf/m1-prime.browser.test.ts
+   2   0 public   tests/perf/m1.browser.test.ts
+   7   0 public   tests/perf/m2-prime.browser.test.ts
+   2   0 internal tests/perf/m2.browser.test.ts
+   5   0 public   tests/perf/m5.browser.test.ts
+   3   0 public   tests/perf/m6.browser.test.ts
+   7   0 public   tests/perf/p01-write-cost.browser.test.ts
+  15   0 public   tests/perf/p02-shrink.browser.test.ts
+   2   0 internal tests/perf/q7.browser.test.ts
+   5   0 public   tests/sortable/activation-barrier.browser.test.ts
+  20   0 internal tests/sortable/assemble.browser.test.ts
+  11   0 public   tests/sortable/calling-convention.browser.test.ts
+   7   0 public   tests/sortable/commit-window.browser.test.ts
+  49   0 public   tests/sortable/composition.browser.test.ts
+  27   0 public   tests/sortable/displacement.browser.test.ts
+  61   0 public   tests/sortable/features.browser.test.ts
+  12   0 public   tests/sortable/g3-conformance.browser.test.ts
+  25   0 public   tests/sortable/input-policy.browser.test.ts
+   6   0 internal tests/sortable/insertion.browser.test.ts
+  26   0 public   tests/sortable/keyboard.browser.test.ts
+   4   0 public   tests/sortable/landing-space.browser.test.ts
+   5   0 public   tests/sortable/lift-geometry.browser.test.ts
+  14   0 internal tests/sortable/placement.browser.test.ts
+  11   0 public   tests/sortable/react.browser.test.ts
+ 128   0 internal tests/sortable/sortable.browser.test.ts
+   3   0 public   tests/sortable/stories.browser.test.ts
+  14   0 public   tests/sortable/xy.browser.test.ts
+  15   0 internal tests/sortable/y.browser.test.ts

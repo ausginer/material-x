@@ -1,0 +1,860 @@
+/**
+ * The single-pass kernel, as a prototype.
+ *
+ * The library runs only inside a pass: one synchronous run from a native event,
+ * a frame callback, a settled verdict or an idle controller request. Passes do
+ * not nest. A pass is a sequence of steps. Foreign code reached during a step
+ * cannot change what the step is doing: it can only fill a request slot, and no
+ * step reads a slot. A throw is a request too. `#applyRequests` runs between
+ * steps and is the one place that reads them.
+ *
+ * A sequence that continues past a callback does not call its next step. It
+ * names it in `Session.next`, and the loop runs it only if no request outranks
+ * it. So adding a callback cannot add a guard: there is nowhere to write one.
+ *
+ * One record, `Session`, holds the operation. Its absence means idle, so a late
+ * cancel and a stale verdict have nothing to reach.
+ */
+import {
+  DraggableError,
+  DraggableWarning,
+  type Notify,
+} from '../src/kernel/errors.ts';
+import {
+  AT_CONSUMER,
+  AT_PROPOSAL,
+  CANCEL_ABORTED,
+  CANCEL_INTERRUPTED,
+  CANCEL_SUPPLIED,
+  type CancelOrigin,
+  type CancelStage,
+  FAILURE_ACTION_PREPARE,
+  FAILURE_ACTIVATION,
+  FAILURE_ADMISSION,
+  FAILURE_RELEASE,
+  FAILURE_RENDERER_WRITE,
+  FAILURE_RESOLUTION,
+  FAILURE_TERMINAL_CALLBACK,
+  type FailureStage,
+} from '../src/kernel/failures.ts';
+import {
+  createOperationLifetimes,
+  type OperationLifetimes,
+} from '../src/kernel/lifetimes.ts';
+import {
+  acquirePointerCapture,
+  armCancelInput,
+  armPointerInput,
+  isPrimaryPress,
+} from '../src/kernel/pointer.ts';
+import {
+  acquireLift,
+  type InheritedSpace,
+  type LiftMode,
+  type VisualLiftSession,
+} from '../src/kernel/presentation.ts';
+import {
+  CLICK,
+  POINTER_DOWN,
+  POINTER_MOVE,
+  POINTER_UP,
+} from '../src/kernel/protocol.ts';
+import { createRealm, type DOMRealm } from '../src/kernel/realm.ts';
+import type { LandingTail } from '../src/kernel/spec.ts';
+import type { OffsetBox, Point } from '../src/kernel/types.ts';
+import { createWarnOnThrow } from '../src/kernel/warn-on-throw.ts';
+
+/** The only states that outlast a pass. Idle is the absence of a session. */
+export const PENDING = 1;
+export const ACTIVE = 2;
+export const RELEASING = 3;
+
+export type Outcome =
+  | Readonly<{ type: 'skipped' }>
+  | Readonly<{ type: 'verdict'; value: unknown }>
+  | Readonly<{
+      type: 'canceled';
+      reason: unknown;
+      origin: CancelOrigin;
+      stage: CancelStage;
+    }>
+  | Readonly<{ type: 'failed'; stage: FailureStage; error: unknown }>;
+
+export type Subject = Readonly<{
+  item: HTMLElement;
+  visual: HTMLElement;
+  box: HTMLElement;
+}>;
+
+/** One operation, created at admission and dropped when it is decided. */
+export type Session = Subject & {
+  state: typeof PENDING | typeof ACTIVE | typeof RELEASING;
+  readonly pointerId: number;
+  readonly originX: number;
+  readonly originY: number;
+  pointerX: number;
+  pointerY: number;
+  readonly lifetimes: OperationLifetimes;
+  /** The consumer heard `onStart`. No start, no terminal. */
+  started: boolean;
+  /** The consumer's resolver was reached. */
+  invoked: boolean;
+  /** The first cancel registered and not yet applied. */
+  cancel: Readonly<{ reason: unknown; origin: CancelOrigin }> | null;
+  /** The first fault raised and not yet applied. */
+  fault: Readonly<{ stage: FailureStage; error: unknown }> | null;
+  /** The round-trip's fulfilled value, not yet applied. */
+  verdict: Readonly<{ value: unknown }> | null;
+  /** The sequence's next step, run between steps unless a request outranks it. */
+  next: (() => void) | null;
+  /* Filled together by activation. */
+  lift: VisualLiftSession | null;
+  originRect: DOMRectReadOnly | null;
+  visualSpace: InheritedSpace;
+  itemSpace: InheritedSpace;
+  boxPre: OffsetBox | null;
+};
+
+/** The fields a behavior adds to the session at admission. */
+export type Admitted<S extends Session> = Subject & Omit<S, keyof Session>;
+
+export type Behavior<S extends Session> = Readonly<{
+  threshold: number;
+  liftMode: LiftMode;
+  commandTypes?: readonly string[];
+  admit(event: PointerEvent): Admitted<S> | null;
+  command?(event: Event): Admitted<S> | null;
+  /** Everything activation makes visible. Consumer code last. */
+  start(session: S): void;
+  move(session: S): void;
+  /** Builds the proposal, renders the release, returns the round-trip. */
+  propose(session: S): ((signal: AbortSignal) => unknown) | null;
+  /** Total: records the outcome on the session. */
+  decide(session: S, outcome: Outcome): void;
+  target(session: S): Point;
+  tail?(
+    session: S,
+    fromX: number,
+    fromY: number,
+    targetX: number,
+    targetY: number,
+  ): LandingTail | null;
+  end(session: S): void;
+  retire(): void;
+  /** Applies whatever the behavior deferred with `requestFlush`. */
+  flush(session: S | null): void;
+  report: Notify;
+}>;
+
+const NOOP = (): void => {};
+
+export class Gesture<S extends Session> {
+  readonly realm: DOMRealm;
+  readonly root: HTMLElement;
+
+  /** The stage a throw is classified at. Narrowed by the running step. */
+  stage: FailureStage = FAILURE_ADMISSION;
+
+  #behavior!: Behavior<S>;
+  #session: S | null = null;
+  #running = false;
+  #closed = false;
+
+  /* The controller-scope request slots. */
+  #destroyRequested = false;
+  #flushRequested = false;
+
+  #destroyed: Promise<void> | null = null;
+  #resolveDestroyed: (() => void) | null = null;
+
+  #landing: Animation | null = null;
+  #disarmClick: (() => void) | null = null;
+  readonly #listeners = new AbortController();
+
+  /** Refuses after application and absorbs a throw. Every report ends here. */
+  readonly #report: Notify = (error) => {
+    if (this.#closed) {
+      return;
+    }
+
+    try {
+      this.#behavior.report(error);
+    } catch {
+      // The terminus.
+    }
+  };
+
+  readonly #warn = createWarnOnThrow(this.#report);
+
+  constructor(root: HTMLElement) {
+    this.root = root;
+    this.realm = createRealm(root);
+  }
+
+  get session(): S | null {
+    return this.#session;
+  }
+
+  channel(deliver: Notify): Notify {
+    return (error) => {
+      if (!this.#closed) {
+        try {
+          deliver(error);
+        } catch {
+          // The terminus.
+        }
+      }
+    };
+  }
+
+  construct<C>(
+    factory: (gesture: this) => Readonly<{ behavior: Behavior<S>; controller: C }>,
+  ): C {
+    this.#running = true;
+
+    try {
+      const { behavior, controller } = factory(this);
+      const { signal } = this.#listeners;
+
+      this.#behavior = behavior;
+      this.root.addEventListener(POINTER_DOWN, this.#onPress, { signal });
+
+      if (behavior.command) {
+        for (const type of behavior.commandTypes!) {
+          this.root.addEventListener(type, this.#onCommand, { signal });
+        }
+      }
+
+      this.#applyRequests();
+      return controller;
+    } catch (error) {
+      this.#listeners.abort();
+      throw error;
+    } finally {
+      this.#running = false;
+    }
+  }
+
+  /* -------- the pass -------- */
+
+  /**
+   * The one entry into library work. `step` is a stable function, so a pointer
+   * sample allocates nothing here. Only a library defect escapes to the outer
+   * `catch`: the fault path is total over everything foreign.
+   */
+  enter<A>(stage: FailureStage, step: (argument: A) => void, argument: A): void {
+    if (this.#running || this.#closed) {
+      return;
+    }
+
+    this.#running = true;
+
+    try {
+      this.stage = stage;
+
+      try {
+        step(argument);
+      } catch (error) {
+        this.#raise(error);
+      }
+
+      this.#applyRequests();
+    } catch (error) {
+      this.#panic(error);
+    } finally {
+      this.#running = false;
+    }
+  }
+
+  /**
+   * Between steps, the one reader of the request slots. Precedence is statement
+   * order: destruction, deferred behavior work, a cancel, a fault, a verdict,
+   * and last the sequence's own next step. A request made by anything run here
+   * is seen on the next turn of the loop.
+   */
+  #applyRequests(): void {
+    for (;;) {
+      const session = this.#session;
+
+      try {
+        if (this.#destroyRequested) {
+          if (session?.fault) {
+            this.#report(
+              new DraggableWarning('drag: failure/superseded-by-destruction', {
+                cause: session.fault.error,
+              }),
+            );
+          }
+
+          this.#teardown();
+          return;
+        }
+
+        if (this.#flushRequested) {
+          this.#flush(session);
+        } else if (session?.cancel) {
+          this.#applyCancel(session, session.cancel);
+        } else if (session?.fault) {
+          this.#fail(session, session.fault);
+        } else if (session?.verdict) {
+          this.#conclude(session, {
+            type: 'verdict',
+            value: session.verdict.value,
+          });
+        } else if (session?.next) {
+          const { next } = session;
+
+          session.next = null;
+          next();
+        } else {
+          return;
+        }
+      } catch (error) {
+        this.#raise(error);
+      }
+    }
+  }
+
+  /**
+   * A throw reached the pass. It decides the operation when it is applied, so
+   * work the step requested before it threw still lands first. With no session,
+   * or behind an earlier fault, it decides nothing and only reports.
+   */
+  #raise(error: unknown): void {
+    const session = this.#session;
+
+    if (session && !session.fault) {
+      session.fault = { stage: this.stage, error };
+    } else {
+      this.#report(
+        this.stage === FAILURE_ADMISSION
+          ? new DraggableError(this.stage, error)
+          : new DraggableWarning('drag: failure/not-classified', {
+              cause: error,
+            }),
+      );
+    }
+  }
+
+  #flush(session: S | null): void {
+    this.#flushRequested = false;
+    this.stage = FAILURE_ACTION_PREPARE;
+    this.#behavior.flush(session);
+  }
+
+  #panic(error: unknown): void {
+    this.#closed = true;
+
+    try {
+      this.#behavior.report(new DraggableError(null, error));
+    } catch {
+      // The terminus.
+    }
+
+    this.#teardown();
+  }
+
+  /* -------- requests -------- */
+
+  requestDestroy(): Promise<void> {
+    this.#destroyed ??= new Promise((resolve) => {
+      this.#resolveDestroyed = resolve;
+    });
+
+    if (!this.#closed && !this.#destroyRequested) {
+      this.#destroyRequested = true;
+
+      if (!this.#running) {
+        this.#teardown();
+      }
+    }
+
+    return this.#destroyed;
+  }
+
+  requestCancel(reason?: unknown, origin: CancelOrigin = CANCEL_SUPPLIED): void {
+    const session = this.#session;
+
+    if (session && !session.cancel && !session.verdict) {
+      session.cancel = { reason, origin };
+      this.enter(this.stage, NOOP, null);
+    }
+  }
+
+  /** Marks behavior work to apply at the next boundary, or now when idle. */
+  requestFlush(): void {
+    if (!this.#closed) {
+      this.#flushRequested = true;
+      this.enter(this.stage, NOOP, null);
+    }
+  }
+
+  /** No identity check: the loop reads the live session, not this record. */
+  #complete(session: S, fault: boolean, value: unknown): void {
+    if (fault) {
+      session.fault ??= { stage: FAILURE_RESOLUTION, error: value };
+    } else {
+      session.verdict = { value };
+    }
+
+    this.enter(FAILURE_RESOLUTION, NOOP, null);
+  }
+
+  /* -------- admission -------- */
+
+  readonly #onPress = (event: PointerEvent): void => {
+    this.enter(FAILURE_ADMISSION, this.#press, event);
+  };
+
+  readonly #press = (event: PointerEvent): void => {
+    this.#disarmClick?.();
+
+    if (isPrimaryPress(event) && !this.#session) {
+      const admitted = this.#behavior.admit(event);
+
+      if (admitted) {
+        this.#open(admitted, event.pointerId, event.clientX, event.clientY);
+      }
+    }
+  };
+
+  readonly #onCommand = (event: Event): void => {
+    this.enter(FAILURE_ADMISSION, this.#command, event);
+  };
+
+  /** A press, then an activation, whose last act names the release. */
+  readonly #command = (event: Event): void => {
+    if (this.#session) {
+      return;
+    }
+
+    const admitted = this.#behavior.command!(event);
+
+    if (!admitted) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const session = this.#open(admitted, -1, 0, 0);
+
+    session.next = () => {
+      this.#activate(session);
+    };
+  };
+
+  #open(admitted: Admitted<S>, pointerId: number, x: number, y: number): S {
+    const lifetimes = createOperationLifetimes(this.#report);
+    const session = Object.assign(admitted, {
+      state: PENDING,
+      pointerId,
+      originX: x,
+      originY: y,
+      pointerX: x,
+      pointerY: y,
+      lifetimes,
+      started: false,
+      invoked: false,
+      cancel: null,
+      fault: null,
+      verdict: null,
+      next: null,
+      lift: null,
+      originRect: null,
+      visualSpace: null,
+      itemSpace: null,
+      boxPre: null,
+    }) as unknown as S;
+
+    if (pointerId !== -1) {
+      armPointerInput(this.realm, lifetimes.motion.signal, this.#onPointer);
+    }
+
+    armCancelInput(this.realm, lifetimes.cancellation.signal, this.#onEscape);
+    this.#session = session;
+    return session;
+  }
+
+  readonly #onEscape = (): void => {
+    this.requestCancel(undefined, CANCEL_ABORTED);
+  };
+
+  /* -------- motion -------- */
+
+  readonly #onPointer = (event: PointerEvent): void => {
+    if (event.pointerId !== this.#session?.pointerId) {
+      return;
+    }
+
+    if (event.type === POINTER_MOVE) {
+      this.enter(FAILURE_RENDERER_WRITE, this.#move, event);
+    } else if (event.type === POINTER_UP) {
+      this.enter(FAILURE_RELEASE, this.#up, event);
+    } else {
+      // `pointercancel` and `lostpointercapture`: one fact, two spellings.
+      this.requestCancel(undefined, CANCEL_INTERRUPTED);
+    }
+  };
+
+  readonly #move = (event: PointerEvent): void => {
+    const session = this.#session!;
+
+    session.pointerX = event.clientX;
+    session.pointerY = event.clientY;
+
+    if (session.state === ACTIVE) {
+      this.#behavior.move(session);
+      return;
+    }
+
+    const { threshold } = this.#behavior;
+    const dx = session.pointerX - session.originX;
+    const dy = session.pointerY - session.originY;
+
+    if (dx * dx + dy * dy >= threshold * threshold) {
+      this.stage = FAILURE_ACTIVATION;
+      event.preventDefault();
+      this.realm.window.getSelection()?.removeAllRanges();
+      this.#armClickSuppressor();
+      this.#activate(session);
+    }
+  };
+
+  readonly #up = (event: PointerEvent): void => {
+    const session = this.#session!;
+
+    if (session.state === PENDING) {
+      this.#abandon(session);
+      return;
+    }
+
+    session.pointerX = event.clientX;
+    session.pointerY = event.clientY;
+    this.#drop(session);
+  };
+
+  #armClickSuppressor(): void {
+    this.#disarmClick?.();
+
+    const aborter = new AbortController();
+    const disarm = (): void => {
+      if (this.#disarmClick === disarm) {
+        this.#disarmClick = null;
+      }
+
+      aborter.abort();
+    };
+
+    this.#disarmClick = disarm;
+    this.realm.document.addEventListener(
+      CLICK,
+      (event) => {
+        disarm();
+        event.preventDefault();
+        event.stopPropagation();
+      },
+      {
+        capture: true,
+        once: true,
+        signal: AbortSignal.any([aborter.signal, this.#listeners.signal]),
+      },
+    );
+  }
+
+  /* -------- activation -------- */
+
+  #activate(session: S): void {
+    this.stage = FAILURE_ACTIVATION;
+    this.#landing?.cancel();
+    this.#landing = null;
+
+    const { visual, box, item, lifetimes } = session;
+    const rect = visual.getBoundingClientRect();
+    const boxPre = { width: box.offsetWidth, height: box.offsetHeight };
+    const lifted = acquireLift(
+      visual,
+      item,
+      this.#behavior.liftMode,
+      rect,
+      this.realm,
+      this.#warn,
+    );
+
+    session.lift = lifted.session;
+    session.originRect = rect;
+    session.visualSpace = lifted.visualSpace;
+    session.itemSpace = lifted.itemSpace;
+    session.boxPre = boxPre;
+    lifetimes.presentation.use(lifted.session.dispose);
+
+    if (session.pointerId !== -1) {
+      if (!this.root.isConnected) {
+        throw new Error('drag: activation/root-disconnected');
+      }
+
+      lifetimes.motion.use(acquirePointerCapture(this.root, session.pointerId));
+    }
+
+    this.#behavior.start(session);
+    session.state = ACTIVE;
+
+    // A pointerless operation has no `pointerup`, so the sequence produces its
+    // own release, after anything `onStart` requested.
+    if (session.pointerId === -1) {
+      session.next = () => {
+        this.#drop(session);
+      };
+    }
+  }
+
+  /* -------- the drop -------- */
+
+  #drop(session: S): void {
+    session.state = RELEASING;
+    session.lifetimes.motion.dispose();
+    this.stage = FAILURE_RELEASE;
+
+    const invoke = this.#behavior.propose(session);
+
+    session.next = invoke
+      ? () => {
+          this.#roundTrip(session, invoke);
+        }
+      : () => {
+          this.#conclude(session, { type: 'skipped' });
+        };
+  }
+
+  /** The consumer's verdict. Every completion lands in the slot. */
+  #roundTrip(session: S, invoke: (signal: AbortSignal) => unknown): void {
+    session.invoked = true;
+    this.stage = FAILURE_RESOLUTION;
+
+    const aborter = new AbortController();
+    let done = false;
+    const complete = (fault: boolean, value: unknown): void => {
+      if (!done) {
+        done = true;
+        this.#complete(session, fault, value);
+      }
+    };
+
+    session.lifetimes.cancellation.use(() => {
+      if (!done) {
+        aborter.abort();
+      }
+    });
+
+    let value: unknown;
+
+    try {
+      value = invoke(aborter.signal);
+
+      // Read once and subscribed in one `try`: both run consumer code.
+      const then = (value as PromiseLike<unknown> | null | undefined)?.then;
+
+      if (typeof then === 'function') {
+        then.call(
+          value as PromiseLike<unknown>,
+          (settled: unknown) => {
+            complete(false, settled);
+          },
+          (error: unknown) => {
+            complete(true, error);
+          },
+        );
+        return;
+      }
+    } catch (error) {
+      complete(true, error);
+      return;
+    }
+
+    complete(false, value);
+  }
+
+  #applyCancel(
+    session: S,
+    request: Readonly<{ reason: unknown; origin: CancelOrigin }>,
+  ): void {
+    if (session.lift) {
+      this.#conclude(session, {
+        type: 'canceled',
+        reason: request.reason,
+        origin: request.origin,
+        stage: session.invoked ? AT_CONSUMER : AT_PROPOSAL,
+      });
+    } else {
+      this.#abandon(session);
+    }
+
+    if (session.fault) {
+      this.#report(
+        new DraggableWarning('drag: failure/superseded-by-cancel', {
+          cause: session.fault.error,
+        }),
+      );
+    }
+  }
+
+  /* -------- the ways an operation ends -------- */
+
+  /** Nothing was started and nothing is told. */
+  #abandon(session: S): void {
+    this.#session = null;
+    this.#retire(session);
+  }
+
+  /**
+   * The ordinary end. Total over foreign code: a landing fault is a warning, a
+   * terminal fault is reported, and the retirement always runs.
+   */
+  #conclude(session: S, outcome: Outcome): void {
+    const { motion, cancellation, presentation } = session.lifetimes;
+    const behavior = this.#behavior;
+
+    this.#session = null;
+    motion.dispose();
+    cancellation.dispose();
+    behavior.decide(session, outcome);
+
+    const origin = session.originRect!;
+    let targetX: number | null = null;
+    let targetY = 0;
+
+    try {
+      const anchor = behavior.target(session);
+
+      targetX = anchor.x - origin.x;
+      targetY = anchor.y - origin.y;
+    } catch (error) {
+      this.#report(
+        new DraggableWarning('drag: landing/target-unavailable', {
+          cause: error,
+        }),
+      );
+    }
+
+    const { x: fromX, y: fromY } = session.lift!.rendered;
+
+    presentation.dispose();
+    this.#startLanding(session, fromX, fromY, targetX, targetY);
+
+    if (session.started) {
+      try {
+        behavior.end(session);
+      } catch (error) {
+        this.#report(new DraggableError(FAILURE_TERMINAL_CALLBACK, error));
+      }
+    }
+
+    this.#retire(session);
+  }
+
+  /** A fault decides the operation: report, release, terminal, one step. */
+  #fail(
+    session: S,
+    fault: Readonly<{ stage: FailureStage; error: unknown }>,
+  ): void {
+    const { motion, cancellation, presentation } = session.lifetimes;
+    const { stage, error } = fault;
+
+    this.#session = null;
+    motion.dispose();
+    cancellation.dispose();
+    this.#behavior.decide(session, { type: 'failed', stage, error });
+    this.#report(new DraggableError(stage, error));
+    presentation.dispose();
+
+    if (session.started) {
+      try {
+        this.#behavior.end(session);
+      } catch (nested) {
+        this.#report(
+          new DraggableWarning('drag: failure/not-classified', {
+            cause: nested,
+          }),
+        );
+      }
+    }
+
+    this.#retire(session);
+  }
+
+  #retire(session: S): void {
+    this.#warn(this.#behavior.retire);
+    this.#warn(session.lifetimes.dispose);
+  }
+
+  #startLanding(
+    session: S,
+    fromX: number,
+    fromY: number,
+    targetX: number | null,
+    targetY: number,
+  ): void {
+    if (targetX === null) {
+      return;
+    }
+
+    const dx = fromX - targetX;
+    const dy = fromY - targetY;
+
+    if (dx === 0 && dy === 0) {
+      return;
+    }
+
+    const timing = this.#warn(() =>
+      this.#behavior.tail?.(session, fromX, fromY, targetX, targetY),
+    );
+
+    if (!timing) {
+      return;
+    }
+
+    const space = session.visualSpace;
+
+    this.#landing =
+      this.#warn(() => {
+        // Copied first: the `animate` lookup can run consumer code.
+        const { duration, easing } = timing;
+
+        return session.visual.animate(
+          [
+            {
+              translate: space
+                ? `${space.a * dx + space.c * dy}px ${
+                    space.b * dx + space.d * dy
+                  }px`
+                : `${dx}px ${dy}px`,
+            },
+            { translate: '0 0' },
+          ],
+          { duration, easing, composite: 'add' },
+        );
+      }) ?? null;
+  }
+
+  /** Destruction applied: closed first, then everything released, once. */
+  #teardown(): void {
+    const session = this.#session;
+
+    this.#closed = true;
+    this.#session = null;
+
+    try {
+      if (session) {
+        this.#retire(session);
+      } else if (this.#behavior) {
+        this.#warn(this.#behavior.retire);
+      }
+
+      this.#landing?.cancel();
+    } finally {
+      this.#landing = null;
+      this.#listeners.abort();
+      this.#resolveDestroyed?.();
+      this.#destroyed ??= Promise.resolve();
+    }
+  }
+}

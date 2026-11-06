@@ -3,7 +3,7 @@
  * and holds no behavior policy: primary-button, handle and phase checks live in
  * the behavior's `admit`.
  *
- * A press starts on `root`; once an operation is admitted the remaining events
+ * A press starts on `root`. Once an operation is admitted, the remaining events
  * are tracked on the document, because before pointer capture is acquired a
  * pointer can leave the element, and Escape only reaches an unfocused drag
  * through the document.
@@ -27,14 +27,13 @@ const SESSION_POINTER_EVENTS = [
 ] as const;
 
 /**
- * Arms one operation's document-level pointer samples, on the motion lifetime,
+ * Arms one operation's document-level pointer samples on the motion lifetime,
  * which is closed at release.
  *
- * **Not called for a pointerless operation.** `MOVE`, `UP` and
- * `lostpointercapture` are then structurally unreachable rather than defended
- * by a `pointerId` comparison, so a pointerless operation cannot receive a
- * pointer sample by construction rather than by a guard someone has to
- * remember.
+ * This is not called for a pointerless operation. `MOVE`, `UP` and
+ * `lostpointercapture` are then unreachable and need no `pointerId` comparison,
+ * so a pointerless operation cannot receive a pointer sample, with no guard
+ * that someone has to remember.
  */
 export function armPointerInput(
   realm: DOMRealm,
@@ -47,11 +46,11 @@ export function armPointerInput(
 }
 
 /**
- * Arms Escape-to-cancel, on the cancellation lifetime — which **outlives**
+ * Arms Escape-to-cancel on the cancellation lifetime. That lifetime outlives
  * motion, so a consumer can still abandon a gesture whose resolver has not
  * settled. Sharing one signal with the samples would make that impossible.
  *
- * Armed identically for a press and for a command: a command is a live
+ * This is armed identically for a press and for a command. A command is a live
  * operation with a placeholder and a lift, and Escape cancels it exactly as it
  * cancels a press.
  */
@@ -72,7 +71,7 @@ export function armCancelInput(
 }
 
 /**
- * Whether `event` is a primary press eligible to start a drag: left button /
+ * Whether `event` is a primary press eligible to start a drag: left button or
  * first touch only.
  */
 export function isPrimaryPress(event: PointerEvent): boolean {
@@ -82,8 +81,8 @@ export function isPrimaryPress(event: PointerEvent): boolean {
 /**
  * Acquires pointer capture and returns its guarded release.
  *
- * **A capture failure is an activation failure**, not a silently degraded drag,
- * so `setPointerCapture` is allowed to throw here and the caller classifies it.
+ * A capture failure is an activation failure and not a silently degraded drag,
+ * so `setPointerCapture` may throw here and the caller classifies the throw.
  *
  * The release is guarded because releasing capture for a pointer that no longer
  * exists throws `NotFoundError`, and by then the operation is already over.

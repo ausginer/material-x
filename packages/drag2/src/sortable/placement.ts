@@ -1,21 +1,21 @@
 /**
- * The placeholder: its default mechanics, and the **single canonical writer**
- * of its position.
+ * The placeholder: its default mechanics, and the single canonical writer of
+ * its position.
  *
  * The placeholder is the dragged item's authoritative layout footprint for the
- * whole operation — created detached during `activation.prepare`, inserted as a
- * post-commit effect, never duplicated or lost, and removed when
- * presentation is released, which is after the landing target is measured and
- * before the terminal callback.
+ * whole operation. It is created detached during `activation.prepare` and
+ * inserted as a post-commit effect. It is never duplicated or lost. It is
+ * removed when presentation is disposed, which is after the landing target is
+ * measured and before the terminal callback.
  */
 import type { DOMRealm } from '../kernel/realm.ts';
 import type { OffsetBox } from '../kernel/types.ts';
 import type { Insertion } from './domain.ts';
 
-/** What a `placeholder` factory is handed. Geometry, and every element. */
+/** What a `placeholder` factory receives: the geometry and each element. */
 export type PlaceholderContext = Readonly<{
   item: HTMLElement;
-  /** The node faithfully lifted. */
+  /** The node the drag lifts. */
   visual: HTMLElement;
   /** The geometry source, or `visual` when the config named no `box`. */
   box: HTMLElement;
@@ -25,14 +25,15 @@ export type PlaceholderContext = Readonly<{
 export type PlaceholderFactory = (context: PlaceholderContext) => HTMLElement;
 
 /**
- * Applies the mechanics that are **always present and not configurable away**,
- * whether the element came from a feature factory or from the default below: it
- * occupies exactly one insertion position, is hidden from assistive technology,
- * inherits the item's slot, and is sized from the **footprint the visual
- * removed** — computed by the caller across the lift, never measured here. The
- * two windows straddle `acquireLift`, one owned by the kernel and one by
- * `activation.prepare`, and neither is reachable from this function, so it
- * takes the answer instead of computing it.
+ * Applies the mechanics that are always present and cannot be configured away,
+ * whether the element came from a feature factory or from the default below.
+ * The placeholder occupies exactly one insertion position, is hidden from
+ * assistive technology, inherits the item's slot, and is sized from the
+ * footprint the visual removed. The caller computes that footprint across the
+ * lift, and this function does not measure it. The two measurement windows
+ * straddle `acquireLift`, one owned by the kernel and one by
+ * `activation.prepare`. This function can reach neither, so it takes the result
+ * as a parameter.
  *
  * Beyond this the library writes no visual styling.
  */
@@ -47,10 +48,9 @@ function applyMechanics(
   placeholder.setAttribute('data-drag-placeholder', '');
   placeholder.setAttribute('aria-hidden', 'true');
 
-  // Mirrored, not merely copied. A custom placeholder may arrive carrying a
-  // `slot` of its own; leaving that in place when the item has none puts the
-  // footprint in a different slot from the item it stands for, which is the
-  // opposite of "inherits the item's slot".
+  // Mirror the attribute; do not merely copy it. A custom placeholder may
+  // arrive with a `slot` of its own. Leaving that in place when the item has
+  // none puts the footprint in a different slot from the item it stands for.
   if (slot === null) {
     placeholder.removeAttribute('slot');
   } else {
@@ -67,11 +67,11 @@ function applyMechanics(
 }
 
 /**
- * Creates the operation's placeholder, **detached**. The behavior always
- * creates one; the `placeholder` config slot only customises the element.
+ * Creates the operation's placeholder, detached. The behavior always creates
+ * one, and the `placeholder` config slot only customises the element.
  *
  * `footprint` is what the visual removed from the layout, already computed
- * across the lift by the caller — see `activation.prepare`.
+ * across the lift by the caller. See `activation.prepare`.
  */
 export function createPlaceholder(
   realm: DOMRealm,
@@ -90,11 +90,11 @@ export function createPlaceholder(
 
   const placeholder = factory(context);
 
-  // Nothing checks the factory's result. It is adopted — activation inserts it,
-  // every move relocates it, teardown removes it — and `config.ts` publishes
-  // the detachedness requirement on the slot itself, as a documented boundary
-  // rather than a guard. An author who ignores it hands the library ownership
-  // of a node the page owns, and teardown removes it.
+  // Nothing checks the factory's result. The library adopts it: activation
+  // inserts it, every move relocates it, and teardown removes it. `config.ts`
+  // publishes the detachedness requirement on the slot itself, as a documented
+  // boundary and not a guard. An author who ignores the requirement gives the
+  // library ownership of a node the page owns, and teardown removes that node.
   applyMechanics(placeholder, item, footprint);
   return placeholder;
 }
@@ -102,10 +102,10 @@ export function createPlaceholder(
 /**
  * Whether the placeholder already occupies `insertion`.
  *
- * Exported because inertness has to be decidable *before* the move. The
- * committed-move bracket opens on the answer: a frame whose gap is already
+ * Exported because inertness must be decidable before the move, and the
+ * committed-move path starts only on the answer. A frame whose gap is already
  * correct performs no write, advances no cache, starts no contribution and
- * raises no staleness, so the whole of it is skipped rather than entered and
+ * marks nothing stale. So that path is skipped completely, not entered and then
  * reported inert.
  */
 export function placeholderAt(
@@ -118,8 +118,8 @@ export function placeholderAt(
     return after.previousElementSibling === placeholder;
   }
 
-  // An empty destination view: there is no gap to express, so the placeholder
-  // is trivially where it belongs.
+  // An empty destination view has no gap to express, so the placeholder is
+  // trivially where it belongs.
   if (!before) {
     return true;
   }
@@ -128,28 +128,28 @@ export function placeholderAt(
 }
 
 /**
- * Moves the placeholder into `insertion` and reports **whether it moved**; does
+ * Moves the placeholder into `insertion` and reports whether it moved. Does
  * nothing when it is already there.
  *
- * Anchored on `after`, with an append fallback for an end gap: anchoring on
+ * Anchored on `after`, with an append fallback for an end gap. Anchoring on
  * `before` instead is a silent no-op for a start gap, where `before` is `null`,
  * and the placeholder never reaches the head of the list.
  *
- * The inertness check is not an optimisation: `Node.before()` and `append()` on
+ * The inertness check is not an optimisation. `Node.before()` and `append()` on
  * an already-correct position are a remove-and-reinsert, which resets CSS
- * transitions on the placeholder and forces a reflow. Release invokes this
- * unconditionally, and the common case is that nothing needs to move.
+ * transitions on the placeholder and forces a reflow. Release calls this
+ * unconditionally, and in the common case nothing needs to move.
  *
- * **The anchor must be in the placeholder's own container**, and that is
- * checked rather than assumed. `before()`/`after()` are relative to the anchor,
- * so an anchor the consumer has reparented mid-drag does not fail — it silently
- * *moves the placeholder into the other container*, taking the drag's layout
+ * The anchor must be in the placeholder's own container, and this function
+ * checks that. `before()` and `after()` are relative to the anchor, so an
+ * anchor the consumer has reparented mid-drag does not fail. It silently moves
+ * the placeholder into the other container, which takes the drag's layout
  * footprint out of the list it belongs to. Every caller reaches this with an
  * insertion built from a snapshot that may be older than the DOM: the spatial
- * move, the release write, home recovery and destination recovery alike.
- * Refused here so each of them classifies it at its own stage
- * (`PLACEHOLDER_MOVE`, `RELEASE`, `LANDING_TARGET`) instead of discovering it
- * as DOM corruption.
+ * move, the release write, home recovery and destination recovery. This
+ * function throws, so each caller classifies the fault at its own stage
+ * (`PLACEHOLDER_MOVE`, `RELEASE`, `LANDING_TARGET`) and does not discover it as
+ * DOM corruption.
  */
 export function movePlaceholder(
   placeholder: HTMLElement,
@@ -163,8 +163,6 @@ export function movePlaceholder(
   const anchor = after ?? insertion.before!;
 
   if (anchor.parentNode !== placeholder.parentNode) {
-    // Refused rather than obeyed: following the anchor would move the
-    // placeholder out of the list it belongs to.
     throw new Error('drag: sortable/anchor-outside-container');
   }
 

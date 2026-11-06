@@ -1,16 +1,18 @@
 /**
- * Every free-drag seam, as closures over one private runtime.
+ * Every free-drag transition and behavior callback, as closures over one
+ * private runtime.
  *
- * The kernel drives all three phases of every transaction; this module supplies
- * the two pure-ish halves. Nothing here calls `begin()` or `commit()`, nothing
- * here reads `current` from a `prepare`, and nothing here can close a lifetime
- * the kernel owns — those are properties of the arguments, not of discipline.
+ * The kernel drives all three phases of every transaction. This module supplies
+ * the two mostly pure parts, `prepare` and `effect`. Nothing here calls
+ * `begin()` or `commit()`, nothing here reads `current` from a `prepare`, and
+ * nothing here can close a lifetime the kernel owns. The arguments enforce
+ * these properties; they do not depend on discipline.
  *
- * **`Activation` is `true`.** Free drag stages nothing at activation — no
- * placeholder, no detached node, no acquired resource — so a pinned
- * `HTMLElement` staging type would force its `prepare` to return
- * `scope.visual`, an element the kernel already holds, with `effect` ignoring
- * what it was handed: the staged-resource contract inverted.
+ * `Activation` is `true`. Free drag stages nothing at activation: no
+ * placeholder, no detached node, no acquired resource. A pinned `HTMLElement`
+ * staging type would force `prepare` to return `scope.visual`, an element the
+ * kernel already holds, and `effect` would ignore the value it received. That
+ * inverts the staged-resource contract.
  */
 import {
   type DraggableError,
@@ -49,7 +51,10 @@ import {
   SETTLED_REJECTED,
   SETTLED_SKIPPED,
 } from '../kernel/spec.ts';
-import { createUnwind, type Unwind } from '../kernel/unwind.ts';
+import {
+  createWarnOnThrow,
+  type WarnOnThrow,
+} from '../kernel/warn-on-throw.ts';
 import {
   ACCEPTED,
   type DragAxis,
@@ -72,28 +77,25 @@ import {
 import type { FreeDragSlots } from './slots.ts';
 
 /**
- * The three states of the progress marker, module-private because they are
- * behavior-internal: nothing outside this file may read how far an operation
- * got, and nothing in the kernel could interpret it if it did.
+ * The three states of the progress marker. They are private to this module
+ * because they are behavior-internal: nothing outside this file may read how
+ * far an operation got, and nothing in the kernel could interpret it.
  */
-const MINTED = 0;
+const CREATED = 0;
 const STARTED = 1;
 const RESOLVING = 2;
 
 /**
- * **The free-drag behavior entity**, and the state it owns for one controller.
+ * The free-drag behavior entity, and the state it owns for one controller.
  *
- * The `BehaviorSpec` this backs is a **protocol record with nested
- * namespaces**, so an instance cannot be one: what becomes the class is the
- * entity behind the spec, and {@link createFreeDragSpec} is the thin adapter
- * that presents it in the shape the kernel reads.
+ * The `BehaviorSpec` this class backs is a protocol record with nested
+ * namespaces, so an instance cannot be a spec. This class is the entity behind
+ * the spec, and {@link createFreeDragSpec} is the thin adapter that presents it
+ * in the shape the kernel reads.
  *
- * **Three lifetimes, and only one of them is the class's own field list.** The
- * operation's state and the open transaction's state are named records; every
- * other field here lives exactly as long as the controller. That separation is
- * what the field list is arrived at by, rather than transcribed.
- *
- * Every field is private. Nothing outside reads or writes one.
+ * The state has three lifetimes. The operation's state and the open
+ * transaction's state are named records. Every other field lives as long as the
+ * controller.
  */
 class FreeDragBehavior {
   readonly #slots: FreeDragSlots;
@@ -105,56 +107,58 @@ class FreeDragBehavior {
   readonly #axis: DragAxis;
 
   /**
-   * **`apply` and `invalidate`, lifted once here.** `retire` is not one of them
-   * — the assembler lifts that one and owns both its call sites.
+   * `apply` and `invalidate`, read from the constraint once, here. `retire` is
+   * not one of them: the assembler reads that one and owns both its call sites.
    *
-   * No site below may call these with the constraint record as the receiver:
-   * the convention on `MotionConstraint` is that an author may not depend on
-   * `this`, and it survives only while nothing re-attaches a member to the
-   * record it came from. Lifting also keeps each site to one call rather than a
-   * record read plus a member read.
+   * No site below may call these with the constraint record as `this`. The
+   * convention on `MotionConstraint` is that an author may not depend on
+   * `this`, and the convention holds only while nothing re-attaches a member to
+   * the record it came from. Reading them once also keeps each site to one
+   * call, and not a record read plus a member read.
    *
    * `tests/free-drag/anchor.browser.test.ts` drives each site alone with a
-   * constraint that records the receiver it is handed, so re-attaching any one
-   * of them fails a row.
+   * constraint that records the `this` it receives, so re-attaching any one of
+   * them fails a row.
    */
   readonly #applyConstraint: MotionConstraint['apply'] | null;
 
   readonly #invalidateConstraint: MotionConstraint['invalidate'] | null;
 
   /**
-   * **One scratch draft per controller, written in place.** The constraint
-   * writes clamped scalars back into this object rather than returning a
-   * `Point`, so the per-sample path allocates nothing — which is the whole
-   * reason `MotionConstraint.apply` has the shape it has.
+   * One scratch draft per controller, written in place. The constraint writes
+   * clamped scalars back into this object and does not return a `Point`, so the
+   * per-sample path allocates nothing. That is the reason for the shape of
+   * `MotionConstraint.apply`.
    */
   readonly #motion: MotionDraft = { x: 0, y: 0 };
 
   /**
-   * **The landing target's return buffer, one per controller.** Every
-   * `anchorTarget` arm writes these two fields and returns this object; the
-   * kernel reads them immediately and retains nothing, which is the borrow the
-   * seam's own contract states. Never module-level: two controllers on one page
-   * must not share one. Nothing may read it between calls.
+   * The landing target's return buffer, one per controller. Every
+   * `anchorTarget` arm writes these two fields and returns this object. The
+   * kernel reads them immediately and retains nothing, which is the borrow that
+   * the contract of `anchorTarget` states. Never make this module-level: two
+   * controllers on one page must not share one. Nothing may read it between
+   * calls.
    */
   readonly #anchor: PointCache = { x: 0, y: 0 };
 
   /**
-   * **One operation's state, named as one.** Every field here lives exactly as
-   * long as the operation and is cleared together in `retire()`, which is what
-   * the record says rather than a banner over a run of locals — and what stops
-   * a controller-lifetime binding drifting into the group by proximity.
+   * One operation's state. Every field here lives as long as the operation and
+   * is cleared together in `retire()`. The record states that grouping, and it
+   * stops a controller-lifetime binding from joining the group by proximity.
    *
-   * It also keeps `moved(current, lift)` unshadowed: its `lift` parameter is
-   * the kernel's own session, and the operation's is reached only through this
-   * record.
+   * The record also keeps `moved(current, lift)` unshadowed: the `lift`
+   * parameter is the kernel's own session, and the operation's session is
+   * reached only through this record.
    */
   readonly #operation: {
     lift: BehaviorLiftSession | null;
-    /** The visual's viewport rect at grab. The basis of every clamp and rect. */
+    /**
+     * The visual's viewport rect at grab. The basis of every clamp and rect.
+     */
     originRect: DOMRectReadOnly | null;
     /**
-     * The inherited linear part's inverse, **handed down by the kernel** from
+     * The inverse of the inherited linear part, passed down by the kernel from
      * the one pre-lift measurement. Capturing it here would take a second
      * traversal, after acquisition has already moved the visual.
      */
@@ -162,10 +166,10 @@ class FreeDragBehavior {
     /** Built once per operation, in `activation.effect`. */
     view: ConstraintView | null;
     /**
-     * **How far the operation got, as one monotone marker.** It exists because
-     * the failure path owes a terminal and the kernel cannot supply the two
-     * facts that decide which one: *did the consumer hear this drag start*, and
-     * *was its resolver actually invoked*. Both are behavior knowledge.
+     * How far the operation got, as one monotone marker. It exists because the
+     * failure path must choose a terminal, and the kernel cannot supply the two
+     * facts that decide which one: did the consumer hear this drag start, and
+     * was its resolver actually invoked. Both are behavior knowledge.
      */
     progress: number;
   } = {
@@ -173,67 +177,67 @@ class FreeDragBehavior {
     originRect: null,
     space: null,
     view: null,
-    progress: MINTED,
+    progress: CREATED,
   };
 
   /**
-   * **One settlement transaction's state**, which is a third lifetime and not a
+   * One settlement transaction's state. This is a third lifetime and not a
    * short per-operation one: `prepare` clears the slot on entry and `effect`
-   * reads it, so a value can only ever be read by the effect of the transaction
-   * whose prepare wrote it. Naming it is what keeps it out of `retire()`, where
+   * reads it, so only the effect of the transaction whose prepare wrote a value
+   * can read that value. This record keeps the slot out of `retire()`, where
    * clearing it would be either redundant or wrong.
    */
   readonly #transaction: {
     /**
-     * The failure the open settlement seam is reporting, handed from `prepare`
-     * to `effect` because `PreparedSettlement` carries nothing — the same
-     * accepted out-of-band channel the sortable uses.
+     * The failure the open settlement transition is reporting. `prepare` passes
+     * it to `effect` here because `PreparedSettlement` carries nothing. The
+     * sortable uses the same accepted out-of-band channel.
      */
     failure: Readonly<{ stage: FailureStage; report: DraggableError }> | null;
   } = { failure: null };
 
   /**
-   * **Where the spec invokes the consumer's error callback.** The behavior's
-   * own channel ({@link FreeDragBehavior.#notify}) and the spec's `reportError`
-   * both end here. The composition's channel, minted in `behavior.ts` before
+   * Where the spec invokes the consumer's error callback. The behavior's own
+   * channel ({@link FreeDragBehavior.#notify}) and the spec's `reportError`
+   * both end here. The composition's channel, created in `behavior.ts` before
    * any spec exists, calls `merged.onError` itself.
    *
-   * **Forward, and nothing else.** The kernel builds the public error, picks
-   * its class and owns the refusal. This neither maps nor attaches context: the
-   * mapping is kernel-owned, so it cannot mean two things in two behaviors, and
-   * a `domain: null` context is strictly redundant with the terminal.
+   * This only forwards. The kernel builds the public error, picks its class and
+   * owns the refusal. This neither maps nor attaches context: the mapping is
+   * kernel-owned, so it cannot mean two things in two behaviors, and a
+   * `domain: null` context is strictly redundant with the terminal.
    *
-   * Unguarded and ungated on purpose: its callers apply those rules, and they
-   * apply them differently — the kernel's own route refuses after applied
-   * destruction and discards a throwing handler, while `panic`'s one delivery
-   * after closure is a named exception to the refusal, which is
-   * impossible if the refusal is applied here.
+   * This has no guard and no gate because its callers apply those rules, and
+   * they apply them differently. The kernel's own route refuses after
+   * destruction is applied and discards a throwing handler. `panic`'s one
+   * delivery after closure is a named exception to the refusal, and that
+   * exception would be impossible if the refusal were applied here.
    *
-   * **A field rather than a method**, because it is handed on as a value: the
-   * spec publishes it as `reportError` and the unwind runner takes it as an
-   * argument, and an arrow has no receiver to lose on either path.
+   * This is a field and not a method because it is passed on as a value: the
+   * spec publishes it as `reportError` and the `warnOnThrow` runner takes it as
+   * an argument. An arrow has no `this` to lose on either path.
    */
   readonly #deliver: Notify = (error) => {
     this.#slots.onError?.(error);
   };
 
   /**
-   * **The behavior's own channel.**
+   * The behavior's own channel.
    *
-   * This and the kernel's own route over the spec's `reportError` both reach
-   * {@link FreeDragBehavior.#deliver}, and they are one route and one channel
-   * over one sink rather than two sinks: everything that arrives is a
-   * `DraggableError` or a `DraggableWarning`, and neither encodes severity.
-   * This channel carries what the *behavior* reports — the settlement failure
-   * and the unwind steps, which the kernel cannot see.
+   * This channel and the kernel's own route over the spec's `reportError` both
+   * reach {@link FreeDragBehavior.#deliver}. They are one route and one channel
+   * over one sink, not two sinks: everything that arrives is a `DraggableError`
+   * or a `DraggableWarning`, and neither encodes severity. This channel carries
+   * what the behavior reports, which the kernel cannot see: the settlement
+   * failure and the cleanup steps.
    *
-   * Minted by the kernel over {@link FreeDragBehavior.#deliver}, so it applies
-   * the kernel's refusal after applied destruction, and a throw from the
-   * handler stops there rather than being reported through itself.
+   * The kernel creates this channel over {@link FreeDragBehavior.#deliver}, so
+   * it applies the kernel's refusal after destruction is applied, and a throw
+   * from the handler stops there and is not reported through itself.
    */
   readonly #notify: Notify;
 
-  readonly #unwind: Unwind;
+  readonly #warnOnThrow: WarnOnThrow;
 
   /** One per controller. Arming is per operation, on the motion signal. */
   readonly #invalidate: ReturnType<typeof createInvalidator>;
@@ -241,7 +245,7 @@ class FreeDragBehavior {
   constructor(kernel: BehaviorContext, slots: FreeDragSlots) {
     this.#slots = slots;
     this.#notify = kernel.channel(this.#deliver);
-    this.#unwind = createUnwind(this.#notify);
+    this.#warnOnThrow = createWarnOnThrow(this.#notify);
     this.#realm = kernel.realm;
     this.#root = kernel.root;
     this.#axis = slots.axis;
@@ -252,7 +256,6 @@ class FreeDragBehavior {
     this.#invalidate = createInvalidator(kernel.realm);
   }
 
-  /** The channel the spec publishes as `reportError`. */
   get reportError(): Notify {
     return this.#deliver;
   }
@@ -266,13 +269,13 @@ class FreeDragBehavior {
   }
 
   /**
-   * The rendered delta, derived rather than stored. It is a pure function of
-   * the committed sample, the frame's offset and the policy, so every reader
+   * The rendered delta, derived and not stored. It is a pure function of the
+   * committed sample, the frame's offset and the policy, so every reader
    * derives it and none mirrors the kernel's own record.
    *
-   * Writes into the motion draft and returns nothing: a `Point` return would
-   * put an allocation on the hot path for a value its callers read field by
-   * field and drop.
+   * This writes into the motion draft and returns nothing: a `Point` return
+   * would put an allocation on the hot path for a value its callers read field
+   * by field and drop.
    */
   #deriveMotion(
     pointerX: number,
@@ -286,9 +289,9 @@ class FreeDragBehavior {
 
     motion.x = pointerX - originX + offsetX;
     motion.y = pointerY - originY + offsetY;
-    // **Core, not a capability**: two comparisons and no state.
+    // The axis is core and not a capability: two comparisons and no state.
     applyAxis(motion, this.#axis);
-    // **One indirect call, only when something filled the slot.** A composition
+    // One indirect call, only when something filled the slot. A composition
     // without `bounds()` pays one property read and one predictable branch, and
     // carries no clamp arithmetic and no rect resolver at all.
     this.#applyConstraint?.(motion, this.#operation.view!);
@@ -304,22 +307,22 @@ class FreeDragBehavior {
   // -----------------------------------------------------------------------
 
   /**
-   * The input policy and the handle scoping, then the visual resolver.
-   * Returns **a bare element**, because free drag has no separate geometry
-   * source: there is no placeholder, so nothing measures a footprint and
-   * `box === visual` is not a choice being repeated.
+   * Applies the input policy and the handle scoping, then the visual resolver.
+   * Returns a bare element because free drag has no separate geometry source:
+   * there is no placeholder, so nothing measures a footprint, and `box ===
+   * visual` is not a separate choice.
    *
-   * **The item is the root.** `freeDrag(item, …)` passes the item as the
-   * ingress boundary, so the ingress root and the dragged item are the same
-   * element by construction rather than by lookup — which is why there is no
-   * composed-path search here and no collection to search.
+   * The item is the root. `freeDrag(item, …)` passes the item as the root
+   * element, where listeners bind, so the root and the dragged item are the
+   * same element without a lookup. That is why there is no composed-path search
+   * here and no collection to search.
    */
   admit(
     event: PointerEvent,
     draft: Draft<FreeDragFramePart>,
   ): AdmissionSubject | null {
-    // **A modifier requests native text selection; its absence means drag**
-    // One branch, no state, no disambiguation window.
+    // A modifier requests native text selection; its absence means drag. One
+    // branch, no state, no disambiguation window.
     if (event.altKey) {
       return null;
     }
@@ -338,10 +341,10 @@ class FreeDragBehavior {
         return null;
       }
 
-      // **The resolved subject governs.** A handle inside the item sits
-      // earlier in the composed path, so scoping to it shortens the segment
-      // the opt-out scan walks — and a handle inside a marked region admits,
-      // because the consumer scoped dragging there on purpose.
+      // The resolved subject governs. A handle inside the item is earlier in
+      // the composed path, so scoping to it shortens the segment the opt-out
+      // scan walks. A handle inside a marked region admits, because the
+      // consumer chose to scope dragging there.
       subject = path.indexOf(handle);
 
       if (subject === -1) {
@@ -349,11 +352,11 @@ class FreeDragBehavior {
       }
     }
 
-    // **What did the event land on**, asked after the subject is known and
-    // before anything is seeded. A press reaching a `[data-drag-ignore]`
-    // region declines by the ordinary total-decline path: no operation, no
-    // phase change, and — since the kernel prevents nothing for a `null` —
-    // focus lands and the caret places.
+    // Ask what the event landed on after the subject is known and before
+    // anything is seeded. A press reaching a `[data-drag-ignore]` region
+    // declines by the ordinary total-decline path: no operation and no phase
+    // change. The kernel prevents nothing for a `null`, so focus lands and the
+    // caret is placed.
     if (pathOwnsInteraction(path, subject)) {
       return null;
     }
@@ -381,18 +384,18 @@ class FreeDragBehavior {
   ): void {
     const { visual } = scope;
 
-    // 1 → 2. Everything the later seams read that no `prepare` decides.
+    // 1 → 2. Everything later behavior code reads that no `prepare` decides.
     this.#operation.lift = scope.lift;
     this.#operation.originRect = scope.originRect;
-    // **Handed down, not measured.** The inverse inherited linear part is
-    // what turns a viewport delta into the local one, with four multiplies
-    // written out where the two consumer shapes are built and no coordinate
-    // module — and this behavior performs **no** DOM read per activation,
-    // because the kernel derived it from the measurement `acquireLift` took
-    // before it moved anything. Reading it here would read a different
-    // ancestry: under a lifted mode the visual is `position: fixed` in the
-    // top layer by now, so a second traversal reports the viewport rather
-    // than the transformed stage the drag actually began in.
+    // Passed down, not measured. The inverse inherited linear part turns a
+    // viewport delta into the local one, with four multiplies written out where
+    // the two consumer shapes are built and no coordinate module. This behavior
+    // performs no DOM read per activation, because the kernel derived the value
+    // from the measurement `acquireLift` took before it moved anything. Reading
+    // it here would read a different ancestry: under a lifted mode the visual
+    // is `position: fixed` in the top layer by now, so a second traversal
+    // reports the viewport and not the transformed stage the drag actually
+    // began in.
     this.#operation.space = scope.visualSpace;
     this.#operation.view = {
       realm: this.#realm,
@@ -401,23 +404,23 @@ class FreeDragBehavior {
     };
 
     if (this.#slots.constrain) {
-      // **The behavior owns the events that make the rect stale; the
-      // feature owns the rect.** Scroll and resize fire many times a
-      // second, so this marks staleness and never resolves — the feature
-      // re-reads on the next `apply`.
+      // The behavior owns the events that make the rect stale; the feature owns
+      // the rect. Scroll and resize fire many times a second, so this marks the
+      // rect stale and never resolves it. The feature re-reads on the next
+      // `apply`.
       //
-      // A local `try`/`catch`, not `#unwind` and not `kernel.fail`. **Nothing
-      // is pending**: this is one call at the end of a native listener, so
-      // no later statement is load-bearing and the shared unwind helper
-      // would be naming a rule this site does not have.
+      // This uses a local `try`/`catch`, not `#warnOnThrow` and not
+      // `kernel.fail`. Nothing is pending: this is one call at the end of a
+      // native listener, so no later statement must run, and `warnOnThrow`
+      // would express a rule this site does not have.
       //
-      // Not `kernel.fail` because a native scroll listener is not a seam, so
-      // a classified failure raised here would be refused anyway. Unlike
-      // the sortable's equivalent there is no action tag to re-raise it
-      // through — neither of this behavior's tags carries it — and
-      // `#invalidate()` is contractually a staleness flag rather than a
-      // resolve, so the throw it would report is a defect in a constraint
-      // rather than in consumer data.
+      // Not `kernel.fail`, because a native scroll listener is not a call into
+      // behavior code through the runner, so a classified failure raised here
+      // would be refused anyway. Unlike the sortable's equivalent there is no
+      // action tag to re-raise it through: neither of this behavior's tags
+      // carries it. `#invalidate()` is by contract a staleness flag and not a
+      // resolve, so the throw it would report is a defect in a constraint and
+      // not in consumer data.
       this.#invalidate(scope.motion.signal, () => {
         try {
           this.#invalidateConstraint!();
@@ -431,11 +434,11 @@ class FreeDragBehavior {
       });
     }
 
-    // 3 — the visual is placed at the delta the pointer has already
-    // accumulated. **Parity: no jump on the first move after activation.**
-    // The threshold crossing is what activates, so the pointer is already
-    // some distance from the grab; leaving the visual at zero until the
-    // next sample would show that distance as a jump.
+    // 3. Place the visual at the delta the pointer has already accumulated.
+    // Parity: no jump on the first move after activation. Crossing the
+    // threshold is what activates, so the pointer is already some distance from
+    // the grab. Leaving the visual at zero until the next sample would show
+    // that distance as a jump.
     this.#deriveMotion(
       current.pointerX,
       current.pointerY,
@@ -447,17 +450,17 @@ class FreeDragBehavior {
 
     scope.lift.write(this.#motion.x, this.#motion.y);
 
-    // **The marker advances before the call, not after.** A throw from
-    // `onStart` is classified, and the consumer has by then been told the
-    // drag began — so it is owed an end.
+    // Advance the marker before the call, not after. A throw from `onStart` is
+    // classified, and the consumer has by then been told the drag began, so the
+    // consumer must receive an end.
     this.#operation.progress = STARTED;
 
-    // 4 — consumer code last. Everything the activation owns is in place
-    // above, so a throw from `onStart`, classified as this seam's failure,
-    // leaves no step of the effect undone, and the consumer hears of the drag
-    // only once the lift is acquired and the visual placed. A cancellation or
-    // destruction it requests is applied after this unit, so it does not bear
-    // on the order.
+    // 4. Consumer code last. Everything the activation owns is in place above,
+    // so a throw from `onStart`, classified as this transition's failure,
+    // leaves no step of the effect undone. The consumer hears of the drag only
+    // once the lift is acquired and the visual placed. A cancellation or
+    // destruction that `onStart` requests is applied after this unit, so it
+    // does not affect the order.
     if (this.#slots.onStart) {
       this.#slots.onStart(
         buildGeometry(
@@ -480,9 +483,9 @@ class FreeDragBehavior {
   // -----------------------------------------------------------------------
 
   /**
-   * Raw delta from the committed sample plus the frame's offset, the axis, the
-   * constraint when installed, the write — and **then** `onMove`, so the
-   * callback observes a visual that has already moved.
+   * Applies the raw delta from the committed sample plus the frame's offset,
+   * the axis, the constraint when installed, and the write. `onMove` runs after
+   * that, so the callback observes a visual that has already moved.
    */
   moved(
     current: Readonly<Frame<FreeDragFramePart>>,
@@ -498,9 +501,9 @@ class FreeDragBehavior {
     );
     lift.write(this.#motion.x, this.#motion.y);
 
-    // The geometry object is built inside the branch: a composition with no
-    // `onMove` pays no allocation and no derived rect per sample, which is
-    // what keeping the slot nullable rather than normalizing it buys.
+    // Build the geometry object inside the branch: a composition with no
+    // `onMove` pays no allocation and no derived rect per sample. That is why
+    // the slot stays nullable and is not normalized.
     if (this.#slots.onMove) {
       this.#slots.onMove(
         buildGeometry(
@@ -519,60 +522,59 @@ class FreeDragBehavior {
   }
 
   // -----------------------------------------------------------------------
-  // Behavior actions — the two mints
+  // Behavior actions
   // -----------------------------------------------------------------------
   prepareAction(
     tag: number,
     argument: unknown,
     draft: Draft<FreeDragFramePart>,
   ): {} | null {
-    // **Per-tag phase legality.** Free drag owns writable geometry in
-    // exactly two phases: `ACTIVATING`, so a `moveTo()` from `onStart`
-    // retargets rather than being dropped, and `ACTIVE`. From `RELEASING`
-    // on the kernel's own vocabulary says *input closed, geometry final* —
-    // the request is built, the landing origin is about to be sampled, and
-    // `BehaviorLiftSession` already declares a write after that point out
-    // of contract.
+    // Phase legality per tag. Free drag owns writable geometry in exactly two
+    // phases: `ACTIVATING`, so a `moveTo()` from `onStart` retargets and is not
+    // dropped, and `ACTIVE`. From `RELEASING` on, the kernel's own vocabulary
+    // says that input is closed and geometry is final: the request is built,
+    // the landing origin is about to be sampled, and `BehaviorLiftSession`
+    // already declares a write after that point out of contract.
     //
-    // **The two tags share the set and not the reason**, which is why the
+    // The two tags share the set of phases but not the reason, so the
     // comparison is written once here. `TAG_POSITION` is refused for
-    // correctness: from `onEnd` it is FIFO-ahead of `RETIRE`, so it writes
-    // through an already-disposed lift and leaves a stray inline transform
-    // on a released element. `TAG_POLICY` is refused for hygiene: it writes
-    // no geometry, but it re-enters a third-party `constrain.invalidate()`
-    // when no later sample exists to be affected. They coincide only
-    // because free drag takes no sample after release.
+    // correctness: from `onEnd` it is ahead of `RETIRE` in FIFO order, so it
+    // writes through an already-disposed lift and leaves a stray inline
+    // transform on an element whose presentation is disposed. `TAG_POLICY` is
+    // refused for hygiene: it writes no geometry, but it re-enters a
+    // third-party `constrain.invalidate()` when no later sample exists to be
+    // affected. The two coincide only because free drag takes no sample after
+    // release.
     //
-    // **A no-op, not a rejection.** `null` is this seam's existing discard
-    // value, so a late `moveTo()` costs one comparison and produces no
-    // failure, no report and no terminal — a consumer calling it from
-    // `onEnd` has not made an error the library should classify.
+    // This is a no-op and not a rejection. `null` is this transition's existing
+    // discard value, so a late `moveTo()` costs one comparison and produces no
+    // failure, no report and no terminal. A consumer calling it from `onEnd`
+    // has not made an error the library should classify.
     //
-    // **Not in the kernel**, deliberately: the sortable *intentionally*
-    // accepts a collection `invalidate()` in these same phases, because a
-    // collection change during settlement is real information and a
-    // position write is not. Action legality is behavior knowledge.
+    // This is not in the kernel: the sortable intentionally accepts a
+    // collection `invalidate()` in these same phases, because a collection
+    // change during settlement is real information and a position write is not.
+    // Action legality is behavior knowledge.
     if (draft.phase !== ACTIVATING && draft.phase !== ACTIVE) {
       return null;
     }
 
     if (tag === TAG_POLICY) {
-      // **One consumer-reachable call, and nothing to publish.**
-      // `#invalidate()` is a staleness flag: the constraint re-resolves on
-      // its own next `apply`, so there is no staged value, no commit and no
-      // `effect` branch.
+      // One consumer-reachable call, and nothing to publish. `#invalidate()` is
+      // a staleness flag: the constraint re-resolves on its own next `apply`,
+      // so there is no staged value, no commit and no `effect` branch.
       this.#invalidateConstraint?.();
 
       return null;
     }
 
     if (tag === TAG_POSITION) {
-      // **`moveTo` re-bases.** The offset is chosen so the visual is at
-      // `point` on the next committed frame, and later pointer motion
-      // continues *relative to that*, which composes with a live pointer
-      // rather than fighting it.
+      // `moveTo` re-bases. The offset is chosen so that the visual is at
+      // `point` on the next committed frame. Later pointer motion continues
+      // relative to that point, so the move composes with a live pointer and
+      // does not fight it.
       //
-      // It is an **input**, not a derivation, so it is a frame field and
+      // The offset is an input and not a derivation, so it is a frame field and
       // only a `prepare` may write it.
       const origin = this.#operation.originRect;
 
@@ -582,23 +584,23 @@ class FreeDragBehavior {
 
       const { x, y, fault } = argument as CapturedPosition;
 
-      // **Thrown before anything is written.** A malformed `point` — `null`,
-      // missing fields, a throwing accessor — failed the copy `moveTo` made
-      // at the call, and its error is thrown *here*, so it is classified
-      // `FAILURE_ACTION_PREPARE` naturally. It is deliberately not checked:
-      // that is argument validation, and the seam already classifies it.
+      // Throw before anything is written. A malformed `point` (`null`, missing
+      // fields, a throwing accessor) failed the copy `moveTo` made at the call,
+      // and its error is thrown here, so it is classified
+      // `FAILURE_ACTION_PREPARE` without further work. It is not checked: that
+      // would be argument validation, and this transition already classifies
+      // the throw.
       if (fault) {
         throw fault.error;
       }
 
-      // **Finiteness is not checked.** `moveTo`'s own doc comment publishes
-      // _both coordinates must be finite_, so a non-finite one is outside
-      // the contract and the reachability gate closes before ownership is
-      // asked. What the offsets then poison — `deriveMotion`, every
-      // geometry object, the pinned `anchorTarget`, and through the
-      // rendered delta the library-minted `distance` — is the undefined
-      // behaviour that misuse buys, not a second harm that makes it the
-      // library's.
+      // Finiteness is not checked. `moveTo`'s own doc comment publishes that
+      // both coordinates must be finite, so a non-finite one is outside the
+      // contract and the reachability gate closes before ownership is asked.
+      // What the offsets then poison (`deriveMotion`, every geometry object,
+      // the pinned `anchorTarget`, and through the rendered delta the
+      // `distance` the library creates) is the undefined behavior of that
+      // misuse, not a second harm that makes it the library's.
       draft.offsetX = x - origin.left - (draft.pointerX - draft.originX);
       draft.offsetY = y - origin.top - (draft.pointerY - draft.originY);
 
@@ -613,9 +615,9 @@ class FreeDragBehavior {
     _argument: unknown,
     current: Readonly<Frame<FreeDragFramePart>>,
   ): void {
-    // **Rendered from an `action.effect`**: there is no way to make the
-    // kernel emit a `moved` for a position it did not sample, so the write
-    // happens here — after the commit, from the committed offset.
+    // Render from `action.effect`: there is no way to make the kernel emit a
+    // `moved` for a position it did not sample, so the write happens here,
+    // after the commit, from the committed offset.
     this.#deriveMotion(
       current.pointerX,
       current.pointerY,
@@ -633,11 +635,10 @@ class FreeDragBehavior {
     const { visual } = draft;
     const origin = this.#operation.originRect;
 
-    // **Never `invoke: null`**: free drag has no proven semantic no-op, so
-    // `SETTLED_SKIPPED` has no producer in this behavior. A release that
-    // finds no visual has a broken invariant, and reporting it as a
-    // successful no-op drop would tell the consumer the drag completed
-    // normally.
+    // Never `invoke: null`: free drag has no proven semantic no-op, so
+    // `SETTLED_SKIPPED` has no producer in this behavior. A release that finds
+    // no visual has a broken invariant, and reporting it as a successful no-op
+    // drop would tell the consumer the drag completed normally.
     if (!visual || !origin) {
       throw new Error('drag: free-drag/release-no-visual');
     }
@@ -666,10 +667,10 @@ class FreeDragBehavior {
 
     return {
       invoke: (signal) => {
-        // **First statement of the closure.** The kernel runs this only
-        // after `release.effect` returns normally, so reaching it is proof
-        // the consumer's resolver is being invoked — which is what makes a
-        // later failure `AT_CONSUMER` rather than `AT_PROPOSAL`.
+        // First statement of the closure. The kernel runs this only after
+        // `release.effect` returns normally, so reaching it proves the
+        // consumer's resolver is being invoked. That makes a later failure
+        // `AT_CONSUMER` and not `AT_PROPOSAL`.
         this.#operation.progress = RESOLVING;
         return this.#slots.onDrop(request, { signal });
       },
@@ -677,12 +678,11 @@ class FreeDragBehavior {
   }
 
   /**
-   * **There is no placeholder, and there is still one write.** `pointerup`
-   * need not carry the last processed `pointermove`'s coordinates, and
-   * `prepareRelease` built the request from the *committed release point* —
-   * so without this the visual, and therefore the whole landing trajectory,
-   * would start from a stale position while `anchorTarget` reports the fresh
-   * one.
+   * There is no placeholder, but there is still one write. `pointerup` need not
+   * carry the coordinates of the last processed `pointermove`, and
+   * `prepareRelease` built the request from the committed release point.
+   * Without this write the visual, and so the whole landing trajectory, would
+   * start from a stale position while `anchorTarget` reports the fresh one.
    *
    * `#motion` still holds the release delta `prepare` derived, and nothing
    * between the two phases can have changed it.
@@ -702,27 +702,27 @@ class FreeDragBehavior {
 
     const { request } = draft;
 
-    // No `default`, deliberately: an exhaustive switch over the
-    // discriminant is what makes a new settlement case a *compile* error
-    // here rather than a silent fall-through to some plausible outcome.
+    // No `default`: an exhaustive switch over the discriminant makes a new
+    // settlement case a compile error here, not a silent fall-through to some
+    // plausible outcome.
     // oxlint-disable-next-line default-case
     switch (input.type) {
       case SETTLED_SKIPPED: {
-        // **No producer in this behavior**: `release.prepare` never returns
-        // `invoke: null`. Reaching it means the kernel skipped a round-trip
-        // this behavior never declined, which is a broken invariant rather
-        // than a drop.
+        // No producer in this behavior: `release.prepare` never returns
+        // `invoke: null`. Reaching this case means the kernel skipped a round
+        // trip this behavior never declined, which is a broken invariant and
+        // not a drop.
         throw new Error('drag: free-drag/settled-skipped');
       }
 
       case SETTLED_FULFILLED: {
         const { value } = input;
 
-        // **The resolution is the library's own value, not the
-        // consumer's**: `accept()` returns a shared sentinel and `reject()`
-        // a one-slot carrier, so this is an identity comparison and a plain
-        // data read. There is nothing to validate — a value that is neither
-        // came from outside the types.
+        // The resolution is the library's own value, not the consumer's:
+        // `accept()` returns a shared sentinel and `reject()` a one-slot
+        // carrier, so this is an identity comparison and a plain data read.
+        // There is nothing to validate: a value that is neither came from
+        // outside the types.
         const accepted = value === ACCEPTED;
 
         draft.domain = accepted
@@ -738,14 +738,14 @@ class FreeDragBehavior {
 
       case SETTLED_REJECTED: {
         // A rejected thenable is a resolver malfunction, not a considered
-        // consumer verdict, so it is a named classified failure rather than
-        // an inferred rejection. It still *ends* the operation, but as a
-        // fault reported through `onError`, with the terminal saying
-        // `canceled` rather than `rejected`.
+        // consumer verdict, so it is a named classified failure and not an
+        // inferred rejection. It still ends the operation, but as a fault
+        // reported through `onError`, with the terminal saying `canceled` and
+        // not `rejected`.
         //
-        // **The caught cause travels verbatim.** Something *was* caught
-        // here — the consumer's own rejection value — so nothing is added
-        // to it: no identity, no wrapper. The seam is already open at
+        // The caught cause travels unchanged. What was caught here is the
+        // consumer's own rejection value, so nothing is added to it: no
+        // identity and no wrapper. The transition is already open at
         // `FAILURE_RESOLUTION`, so re-raising classifies it there.
         throw input.error;
       }
@@ -768,38 +768,38 @@ class FreeDragBehavior {
           report: input.report,
         };
 
-        // A terminal-callback failure arrives *after* the operation
-        // finalized, so rewriting the result now would relabel a drop that
-        // has already been reported.
+        // A terminal-callback failure arrives after the operation finalized, so
+        // rewriting the result now would relabel a drop that has already been
+        // reported.
         if (input.stage !== FAILURE_TERMINAL_CALLBACK) {
-          // **Existing result wins, otherwise `canceled`** — a lookup on
-          // the frame rather than a branch per stage. A transaction opens
-          // with `Object.assign(draft, current)`, so a settlement that
-          // already committed a result arrives here still carrying it, and
-          // `??=` is the tie-break. It is the lookup that makes the
-          // terminal total, so it stays whatever the producer set looks
-          // like: a `settlement.effect` that throws is classified from the
-          // committed state, which reaches this line with a result present
-          // and before any terminal has been published, and the value kept
-          // here is then the operation's only terminal.
+          // An existing result wins; otherwise `canceled`. This is a lookup on
+          // the frame and not a branch per stage. A transaction opens with
+          // `Object.assign(draft, current)`, so a settlement that already
+          // committed a result arrives here still carrying it, and `??=` is the
+          // tie-break. This lookup makes the terminal total, so it stays
+          // whatever the producer set looks like: a `settlement.effect` that
+          // throws is classified from the committed state, which reaches this
+          // line with a result present and before any terminal has been
+          // published. The value kept here is then the operation's only
+          // terminal.
           //
-          // **The marker decides the stage, and it also decides whether to
-          // publish at all.** At `MINTED` the consumer never heard this
-          // drag start, and an end for a beginning it has no record of is
-          // worse than no end.
+          // The marker decides the stage, and it also decides whether to
+          // publish at all. At `CREATED` the consumer never heard this drag
+          // start, and an end for a beginning it has no record of is worse than
+          // no end.
           draft.domain ??=
-            this.#operation.progress === MINTED
+            this.#operation.progress === CREATED
               ? null
               : {
                   type: 'canceled',
                   request,
                   reason: input.error,
-                  // **The one origin a behavior mints**: the kernel writes
-                  // every other origin onto the `SETTLED_CANCELED` input, and
-                  // this arm is the fallback that gives a classified
-                  // failure a terminal. `reason` still carries the caught
-                  // throw; `origin` is what tells it apart from a consumer
-                  // who passed an `Error` deliberately.
+                  // The one origin a behavior creates: the kernel writes every
+                  // other origin onto the `SETTLED_CANCELED` input, and this
+                  // arm is the fallback that gives a classified failure a
+                  // terminal. `reason` still carries the caught throw. `origin`
+                  // tells it apart from a consumer who deliberately passed an
+                  // `Error`.
                   origin: CANCEL_FAILED,
                   stage:
                     this.#operation.progress === RESOLVING
@@ -821,21 +821,20 @@ class FreeDragBehavior {
 
     this.#transaction.failure = null;
 
-    // Consumer callbacks last. A failed settlement reports through
-    // `onError` here **and** publishes its terminal from the failure path's
-    // own step — the report is orthogonal to the terminal and neither
-    // suppresses the other.
+    // Consumer callbacks last. A failed settlement reports through `onError`
+    // here and also publishes its terminal from the failure path's own step.
+    // The report and the terminal are independent, and neither suppresses the
+    // other.
     if (failure) {
-      // The error carries the stage the kernel classified with, and this
-      // member neither reads it nor derives anything from it.
+      // The error carries the stage the kernel classified with, and this member
+      // neither reads it nor derives anything from it.
       //
-      // Reported through `#notify`, so a throwing handler stops here instead
-      // of becoming a fresh library fault that reports itself back. The
-      // kernel built the error, and no `domain` rides along with it:
-      // `finalized` publishes that same `current.domain` to `onEnd`
-      // unconditionally, so a copy here would be redundant at best and
-      // **stale** at worst, since a second failure arriving between
-      // `REPORTING` and `FINALIZING` moves it.
+      // Report through `#notify`, so a throwing handler stops here and does not
+      // become a new library fault that reports itself back. The kernel built
+      // the error, and no `domain` travels with it: `finalized` publishes that
+      // same `current.domain` to `onEnd` unconditionally, so a copy here would
+      // be redundant at best and stale at worst, since a second failure
+      // arriving between `REPORTING` and `FINALIZING` moves it.
       this.#notify(failure.report);
     }
   }
@@ -845,70 +844,67 @@ class FreeDragBehavior {
   // -----------------------------------------------------------------------
 
   /**
-   * Accepted → where the visual already is. Rejected or canceled → `home`, or
-   * the grab position when none is configured.
+   * Accepted: where the visual already is. Rejected or canceled: `home`, or the
+   * grab position when none is configured.
    *
-   * **A throwing or non-finite `home` is an error, not a cancel.** The kernel
-   * runs this on the *quality* track, so the landing is skipped rather than
-   * faked and a drop that already committed is not re-settled. **No stage is
-   * attached and none is needed**: the fault is non-consequential, so it
-   * reaches `onError` as a `DraggableWarning` carrying
-   * `drag: landing/target-unavailable`, and a warning needs no stage to be
-   * delivered.
+   * A throwing or non-finite `home` is an error, not a cancel. The kernel runs
+   * this through `runCallbackWarningOnFailure`, so the landing is skipped and
+   * not faked, and a drop that already committed is not re-settled. No stage is
+   * attached and none is needed: the fault is non-consequential, so it reaches
+   * `onError` as a `DraggableWarning` carrying `drag:
+   * landing/target-unavailable`, and a warning needs no stage to be delivered.
    */
   anchorTarget(current: Readonly<Frame<FreeDragFramePart>>): PointCache {
     const origin = this.#operation.originRect!;
 
     if (current.domain?.type === 'accepted') {
-      // The accepted arm answers from arithmetic the frame already holds — no
-      // consumer call and no DOM read. It is the visual's current position.
+      // The accepted arm answers from arithmetic the frame already holds: no
+      // consumer call and no DOM read. The answer is the visual's current
+      // position.
       //
-      // **Read, not re-derived.** This arm must not call `deriveMotion`: its
-      // last statement is `constrain.apply`, so the no-consumer-call claim
-      // above would be false whenever any constraint is installed, and this
-      // seam would become another `apply` site.
+      // Read `#motion`; do not re-derive it. This arm must not call
+      // `deriveMotion`: its last statement is `constrain.apply`, so the
+      // statement above about no consumer call would be false whenever any
+      // constraint is installed, and this callback would become another `apply`
+      // site.
       //
       // A re-derivation computes the same numbers from the same committed
-      // frame, so the read costs nothing. **The invariant it rests on is
-      // stated rather than assumed**: `#motion` still holds the delta
-      // `release.prepare` derived and `release.effect` wrote, and nothing may
-      // change it in between — both behavior tags are deterministic no-ops
-      // after `ACTIVE`.
+      // frame, so the read costs nothing. The read rests on this invariant:
+      // `#motion` still holds the delta `release.prepare` derived and
+      // `release.effect` wrote, and nothing may change it in between, because
+      // both behavior tags are deterministic no-ops after `ACTIVE`.
       this.#anchor.x = origin.left + this.#motion.x;
       this.#anchor.y = origin.top + this.#motion.y;
 
       return this.#anchor;
     }
 
-    // An unconfigured home lands at the grab position.
     if (this.#slots.home) {
       const home = this.#slots.home(this.#subjectOf(current.visual!));
-      // **Read, checked and copied here, inside the attributed seam.** The
-      // kernel's quality wrapper covers *this call* and reads the point's
-      // fields later, outside it — so without the reads here a `null`, a
-      // missing field or a throwing accessor panics outside the seam its own
-      // contract names.
+      // Read, check and copy here, inside the call the kernel attributes. The
+      // kernel's warning wrapper covers this call and reads the point's fields
+      // later, outside it. Without the reads here, a `null`, a missing field or
+      // a throwing accessor panics outside the call its own contract names.
       //
-      // **The reads happen; finiteness is not checked.** A non-finite pair is
-      // accepted and passes undetected into target composition or a
-      // renderer, and refusing it here is wrong: a landing target is a point,
-      // and a point's coordinates are finite by the same obvious semantics
-      // that makes a duration finite, so that value is outside the contract
-      // and the gate closes on it.
+      // The reads happen; finiteness is not checked. A non-finite pair is
+      // accepted and passes undetected into target composition or a renderer.
+      // Refusing it here is wrong: a landing target is a point, and a point's
+      // coordinates are finite by the same obvious semantics that makes a
+      // duration finite, so that value is outside the contract and the gate
+      // closes on it.
       //
-      // **The copy is not defensiveness and is not part of that check**: the
-      // returned object is consumer-owned and its accessors may be live, so
-      // composing against it twice could read two different points. That is
-      // the library taking ownership of a value it reads across a seam
-      // boundary and pins geometry with, and a getter-backed `Point` is a
-      // legitimate shape rather than misuse.
+      // The copy is not defensive and is not part of that check. The returned
+      // object is consumer-owned and its accessors may be live, so composing
+      // against it twice could read two different points. The library takes
+      // ownership of a value it reads across this boundary and pins geometry
+      // with. A getter-backed `Point` is a legitimate shape and not misuse.
       //
-      // **Each axis is read exactly once, and the reads precede the writes.**
-      // The cache removes the allocation and nothing else: reading `home`
-      // twice, or writing `#anchor.x = home.x` and then `#anchor.y = home.y`,
-      // would still be two reads of a live accessor — the second separated
-      // from the first by a field write. The destructuring below is the copy
-      // this seam already owed.
+      // Read each axis exactly once, before the writes. The cache removes the
+      // allocation and nothing else: reading `home` twice, or writing
+      // `#anchor.x = home.x` and then `#anchor.y = home.y`, would still be two
+      // reads of a live accessor, the second separated from the first by a
+      // field write. The destructuring below is the copy this callback must
+      // make.
       const { x } = home;
       const { y } = home;
 
@@ -918,7 +914,7 @@ class FreeDragBehavior {
       return this.#anchor;
     }
 
-    // The grab position, which is the origin rect itself — the answer for a
+    // The grab position, which is the origin rect itself: the answer for a
     // rejected or canceled drop with no `home` configured.
     this.#anchor.x = origin.left;
     this.#anchor.y = origin.top;
@@ -927,14 +923,14 @@ class FreeDragBehavior {
   }
 
   /**
-   * **The tail travels only when the visual has to.** An accepted drop stays
-   * where it landed — `anchorTarget` answers with the position it is already
-   * at — so a tail for it would interpolate a trajectory of no length.
-   * Rejected and canceled arms return to a home, configured or the grab spot,
-   * and that is a real journey.
+   * The landing animation runs only when the visual has to travel. An accepted
+   * drop stays where it landed: `anchorTarget` answers with the position the
+   * visual is already at, so an animation for it would follow a path of no
+   * length. Rejected and canceled arms return to a home, configured or the grab
+   * spot, and that is real travel.
    *
-   * A `null` domain is the no-start case, treated as travelling: the visual
-   * is somewhere the consumer never sanctioned.
+   * A `null` domain is the no-start case, treated as travelling: the visual is
+   * somewhere the consumer never approved.
    */
   landingTail(
     current: Readonly<Frame<FreeDragFramePart>>,
@@ -951,12 +947,11 @@ class FreeDragBehavior {
   }
 
   /**
-   * **It publishes `current.domain` and nothing else.** The arms are the
-   * consumer's to discriminate; with one `onEnd` there is no routing
-   * predicate to get wrong.
+   * Publishes `current.domain` and nothing else. The arms are the consumer's to
+   * discriminate. With one `onEnd` there is no routing predicate to get wrong.
    *
-   * `null` means one thing only: the operation failed **before** `onStart`
-   * ran, so the consumer has no record of it beginning.
+   * `null` means one thing only: the operation failed before `onStart` ran, so
+   * the consumer has no record of it beginning.
    */
   finalized(current: Readonly<Frame<FreeDragFramePart>>): void {
     const { domain } = current;
@@ -967,26 +962,26 @@ class FreeDragBehavior {
   }
 
   retire(): void {
-    this.#operation.progress = MINTED;
+    this.#operation.progress = CREATED;
     this.#operation.lift = null;
     this.#operation.originRect = null;
     this.#operation.space = null;
     this.#operation.view = null;
 
-    // **Stored in installation order, walked backwards.** Each is wrapped
-    // individually, so one throwing hook cannot stop a later one from
-    // releasing what it holds.
+    // Stored in installation order, walked backwards. Each hook is wrapped
+    // individually, so one throwing hook cannot stop a later one from disposing
+    // what it holds.
     for (let i = this.#slots.retireHooks.length - 1; i >= 0; i -= 1) {
-      this.#unwind(this.#slots.retireHooks[i]!);
+      this.#warnOnThrow(this.#slots.retireHooks[i]!);
     }
   }
 }
 
 /**
- * **The thin protocol adapter.** `BehaviorSpec` is a record with nested
- * namespaces, so an instance cannot be one; every member here forwards to the
- * entity and adds nothing. Keeping the namespaces in the adapter is what lets
- * the entity be a flat class without the kernel learning a second shape.
+ * The thin protocol adapter. `BehaviorSpec` is a record with nested namespaces,
+ * so an instance cannot be one. Every member here forwards to the entity and
+ * adds nothing. Keeping the namespaces in the adapter lets the entity be a flat
+ * class without the kernel learning a second shape.
  */
 export function createFreeDragSpec(
   kernel: BehaviorContext,
@@ -996,10 +991,9 @@ export function createFreeDragSpec(
 
   return {
     createFramePart: freeDragFramePart,
-    // **One function fills both slots**: called with no argument it allocates a
-    // part at its defaults, called with one it returns that part to them. The
-    // reset's return is the part it was handed, which the kernel has and
-    // ignores.
+    // One function fills both slots: called with no argument it allocates a
+    // part at its defaults, and called with one it resets that part to them.
+    // The reset returns the part it received, which the kernel has and ignores.
     // eslint-disable-next-line @typescript-eslint/strict-void-return
     resetFramePart: freeDragFramePart,
     config: behavior.config,
@@ -1009,17 +1003,17 @@ export function createFreeDragSpec(
     },
 
     /**
-     * **No `command` member.** Free drag has no discrete ingress: `arm()` binds
+     * No `command` member. Free drag has no discrete input path: `arm()` binds
      * `pointerdown` and nothing else. Keyboard free drag has no counterpart in
-     * `@ydinjs/drag`, so it is not invented here.
+     * `@ydinjs/drag`, so it is not added here.
      */
 
     activation: {
       /**
-       * **Stages nothing, and says so.** There is no placeholder to create, no
-       * node to detach and nothing to acquire, so the honest return value is
-       * "proceed" — a protocol constant rather than entity behavior, which is
-       * why it is answered here and not forwarded.
+       * Stages nothing. There is no placeholder to create, no node to detach
+       * and nothing to acquire, so the return value only means "proceed". That
+       * is a protocol constant and not entity behavior, so it is answered here
+       * and not forwarded.
        */
       prepare() {
         return true;

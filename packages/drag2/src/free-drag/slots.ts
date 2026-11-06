@@ -1,19 +1,19 @@
 /**
- * The flat slot record: what the behavior actually reads, after the merge has
- * resolved every named slot and the assembler has run every installer.
+ * The flat slot record: what the behavior reads, after the merge has resolved
+ * every named slot and the assembler has run every installer.
  *
- * One property read and one call per site, no descriptor interpretation, and no
- * reference to a contribution object — the assembler drops those, which is what
- * makes an installer's private state unreachable from the behavior, the kernel
- * or a sibling installer.
+ * Each site does one property read and one call, with no descriptor
+ * interpretation and no reference to a contribution object. The assembler drops
+ * those objects, so the behavior, the kernel and a sibling installer cannot
+ * reach an installer's private state.
  *
- * **Every optional callback stays nullable rather than being normalized to a
- * shared no-op**, and the reason is the argument rather than the call. The
- * sortable normalizes `onStart` because its argument is an element it already
- * holds; free drag's is a `DragGeometry` that has to be *built*, and building
- * one to hand to a no-op would put an allocation and a derived rect on the hot
- * path for a consumer that asked for neither. The null check is what lets the
- * whole geometry be skipped.
+ * Every optional callback stays nullable and is not normalized to a shared
+ * no-op. The reason is the argument and not the call. The sortable normalizes
+ * `onStart` because its argument is an element it already holds. Free drag's
+ * argument is a `DragGeometry` that must be built, and building one for a no-op
+ * would put an allocation and a derived rect on the hot path for a consumer
+ * that asked for neither. The null check lets the behavior skip the whole
+ * geometry.
  */
 import type { Disposer } from '../kernel/lifetimes.ts';
 import type { LiftMode } from '../kernel/presentation.ts';
@@ -47,9 +47,9 @@ export type FreeDragSlots = Readonly<{
   onError: FreeDragOnDragError | null;
 
   /**
-   * Fixed configuration, not a source. Its value is applied to accumulated
-   * travel rather than to the present position, which is the property that
-   * makes a live one a command rather than policy.
+   * Fixed configuration, not a source. Its value applies to accumulated travel
+   * and not to the present position, so a live axis would be a command and not
+   * policy.
    */
   axis: DragAxis;
   threshold: number;
@@ -57,7 +57,7 @@ export type FreeDragSlots = Readonly<{
 
   /** `null` when no `bounds()` and no third-party constraint was installed. */
   constrain: MotionConstraint | null;
-  /** `null` when no landing is installed: the visual is released without animating. */
+  /** `null` when no landing is installed: no landing animation runs. */
   landingTiming: LandingTiming | null;
 
   /** Installation order; every reader walks it backwards. */

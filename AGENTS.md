@@ -13,6 +13,8 @@ Resident in every agent's context, so it carries only what applies before a role
 
 Read [`CONTRIBUTING.md`](CONTRIBUTING.md) before writing or changing source. Before finalizing a unit of work — formatting, linting, typechecking, committing or pushing — read [`.agents/docs/handoff.md`](.agents/docs/handoff.md).
 
+Before choosing identifiers or writing English comments, documentation, instructions or reports, read [technical English and self-documenting code](.agents/docs/technical-english.md).
+
 ## Before running a governed role
 
 The effort guard loads from project settings, and **a fresh checkout's first session runs before it is loadable**: registering the repository marketplace and loading its plugin happen on successive starts. A role acting in that window is unchecked, and an unchecked session is indistinguishable from a clean one, because nothing is watching.

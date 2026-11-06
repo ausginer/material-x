@@ -1,11 +1,12 @@
 /**
  * The behavior–kernel SPI.
  *
- * Everything here is a *type* plus a handful of discriminant constants. The
- * kernel executor lives in `kernel.ts`; this module exists so the behavior side
- * can be authored against the contract without importing the executor, and so
+ * Everything here is a type plus a few discriminant constants. The kernel
+ * executor is in `kernel.ts`. This module exists so that the behavior side can
+ * be authored against the contract without importing the executor, and so that
  * the frozen surface is readable in one place.
  */
+import type { ActionTransition, Transition } from './behavior-runner.ts';
 import type { DraggableError, DraggableWarning } from './errors.ts';
 import type { CancelOrigin, CancelStage, FailureStage } from './failures.ts';
 import type { Draft, Frame, FramePartOf } from './frames.ts';
@@ -16,32 +17,31 @@ import type {
   LiftMode,
 } from './presentation.ts';
 import type { DOMRealm } from './realm.ts';
-// `ActionTransition` has exactly one declaration, in `seams.ts`, and is
-// re-exported from here. A second structurally identical declaration at this
-// tier would let a consumer's compiler resolve one while the driver consumes
-// the other.
-import type { ActionTransition, Transition } from './seams.ts';
+// `ActionTransition` has exactly one declaration, in `behavior-runner.ts`, and
+// is re-exported from here. A second structurally identical declaration at this
+// tier would let a consumer's compiler resolve one while `BehaviorRunner`
+// consumes the other.
 import type { OffsetBox, Point } from './types.ts';
 
 /**
- * **What a behavior factory is handed to act with**, and the whole of its
+ * What a behavior factory receives to act with, and its complete
  * construction-time surface. No member lets the behavior drive a transition.
  *
  * The kernel implements this directly, so the object a behavior holds is the
- * kernel itself under a narrower type — the same arrangement
- * {@link LifetimeScope} and {@link BehaviorLiftSession} already use, where one
- * physical object arrives under the type its recipient is granted. Members are
- * **positively selected**, so one added to the kernel later is kernel-only
- * until this interface names it.
+ * kernel itself under a narrower type. {@link LifetimeScope} and {@link
+ * BehaviorLiftSession} use the same arrangement, where one physical object
+ * arrives under the type its recipient is granted. Members are selected
+ * explicitly, so a member added to the kernel later is kernel-only until this
+ * interface names it.
  *
- * Stable for the controller's life, so a behavior that captures it captures
- * one object.
+ * Stable for the controller's life, so a behavior that captures it captures one
+ * object.
  *
- * **Construction is not a state this interface distinguishes.** The window from
- * the factory's invocation to the moment arming completes — the factory body
- * and the frame-part factories alike — is a supported position for every member
+ * Construction is not a state this interface distinguishes. The window from the
+ * factory's invocation to the moment arming completes, which covers the factory
+ * body and the frame-part factories, is a supported position for every member
  * below, and each behaves there as its own entry states. Where that cannot be
- * delivered the limitation is written into the member's own entry:
+ * delivered, the member's own entry states the limitation:
  * {@link BehaviorContext.dispatch}'s tag is unchecked there, and
  * {@link BehaviorContext.fail}'s demotion is silent until arming.
  */
@@ -49,7 +49,7 @@ export interface BehaviorContext {
   /** The owning document/window. Every DOM access goes through it. */
   readonly realm: DOMRealm;
 
-  /** The ingress boundary passed to `draggable()`. */
+  /** The root element passed to `draggable()`, where listeners bind. */
   readonly root: HTMLElement;
 
   /**
@@ -57,14 +57,13 @@ export interface BehaviorContext {
    * in `0 .. config.actionTags - 1`. Once destruction has been applied, every
    * dispatch is dropped.
    *
-   * **After arming**, an out-of-range tag is reported and dropped, never
-   * enqueued.
+   * After arming, an out-of-range tag is reported and dropped, never enqueued.
    *
-   * **During construction** — the factory body and the frame-part factories —
-   * the action is queued and applied after `draggable()` publishes the
-   * controller, before it returns, in dispatch order. The tag is not checked
-   * there, because the count bounding it is in the spec the factory has not
-   * yet returned, so an out-of-range tag has no specified outcome.
+   * During construction, which covers the factory body and the frame-part
+   * factories, the action is queued and applied after `draggable()` publishes
+   * the controller, before it returns, in dispatch order. The tag is not
+   * checked there, because the count that bounds it is in the spec the factory
+   * has not yet returned. So an out-of-range tag has no specified outcome.
    *
    * A destruction discards a queued action whole: it is never prepared, and
    * whatever `argument` carries is dropped unread.
@@ -75,36 +74,36 @@ export interface BehaviorContext {
    * Queue a classified failure against the operation the kernel currently
    * holds. Never thrown at the producer.
    *
-   * Valid **only inside a kernel-driven seam of the current operation**; a call
-   * outside one becomes a `DraggableWarning` through the controller's route,
-   * because a late continuation from operation A could otherwise classify a
-   * failure against operation B.
+   * Valid only inside a kernel-driven call into behavior code of the current
+   * operation. A call outside one becomes a `DraggableWarning` through the
+   * controller's route, because a late continuation from operation A could
+   * otherwise classify a failure against operation B.
    *
-   * **The demotion is silent until the behavior is armed**: the report travels
+   * The demotion is silent until the behavior is armed: the report travels
    * through the behavior's own `reportError`, which the kernel does not hold
    * until arming completes.
    */
   fail(stage: FailureStage, error: unknown): void;
 
   /**
-   * **Mints the controller's diagnostic channel over a sink you supply.**
+   * Creates the controller's diagnostic channel over a sink you supply.
    *
-   * The returned function hands each error to `deliver` until destruction is
+   * The returned function passes each error to `deliver` until destruction is
    * applied, and drops every call after that, by the kernel's own refusal. A
-   * request for destruction is not its application: in the interval before it
-   * the running unit completes as a live controller's, and its diagnostics
+   * request for destruction is not its application: in the interval before it,
+   * the running unit completes as a live controller's unit, and its diagnostics
    * are delivered. A throw from `deliver` is absorbed, so the channel never
-   * throws, which is what lets an unwind step report through it and continue.
+   * throws. A cleanup step can therefore report through it and continue.
    *
-   * It works from the factory onward, before arming, so a composition unwind
+   * It works from the factory onward, before arming, so a composition rollback
    * that runs before the spec exists can report through it.
    *
-   * Mint one per sink, at construction: each call allocates one function.
+   * Create one per sink, at construction: each call allocates one function.
    *
    * It exposes no lifecycle value. Whether it delivered is still an indirect
-   * observation of applied destruction, as the refusal of any other entry
-   * point is. That observation cannot change while a library callback runs,
-   * and it never reveals a request that has not been applied.
+   * observation of applied destruction, as the refusal of any other entry point
+   * is. That observation cannot change while a library callback runs, and it
+   * never reveals a request that has not been applied.
    */
   channel(
     deliver: (error: DraggableError | DraggableWarning) => void,
@@ -113,13 +112,12 @@ export interface BehaviorContext {
   /**
    * Base controller methods, for the behavior to publish on its controller.
    *
-   * They are **called with a receiver here and detached by contract there**: a
+   * Call them with `this` here. Their published form is detached by contract: a
    * consumer's `controller.requestCancel` may be pulled off and passed on, so
-   * the behavior publishes a closure over this call rather than the member
-   * itself.
+   * the behavior publishes a closure over this call and not the member itself.
    *
-   * Registered only against an operation in a cancellable phase, and applied
-   * in order after the running unit; an idle request is a no-op that leaves
+   * Registered only against an operation in a cancellable phase, and applied in
+   * order after the running unit. An idle request does nothing and leaves
    * nothing registered.
    */
   requestCancel(reason?: unknown): void;
@@ -127,29 +125,29 @@ export interface BehaviorContext {
   /**
    * Requests destruction. It is applied at once when no library unit is
    * running, and otherwise when the running unit ends: that unit completes
-   * first, as a live controller's, and no later unit runs. A fault queued behind
-   * that unit is reported before application and has no other consequence.
-   * Application is one step — closed, queued work discarded, physical teardown —
-   * and the returned promise settles **once**, after it.
+   * first, as a live controller's unit, and no later unit runs. A fault queued
+   * behind that unit is reported before application and has no other
+   * consequence. Application is one step (closed, queued work discarded,
+   * physical teardown), and the returned promise settles once, after it.
    *
    * Idempotent: every call returns the same promise.
    *
-   * **Construction is a unit too.** A destruction requested from the factory
-   * body or a frame-part factory is applied once the controller is published,
-   * so both frame parts are composed, and the behavior is retired exactly once
+   * Construction is a unit too. A destruction requested from the factory body
+   * or a frame-part factory is applied once the controller is published. So
+   * both frame parts are composed, and the behavior is retired exactly once
    * before `draggable()` returns.
    */
   requestDestroy(): Promise<void>;
 }
 
-// Discrete, pointerless admission is a second ingress, not a second protocol. A
-// section header rather than a doc block: it documents the group below it and
-// no single declaration, and as JSDoc it would ship orphaned into
+// Discrete, pointerless admission is a second input path, not a second
+// protocol. A section header and not a doc block: it documents the group below
+// it and no single declaration, and as JSDoc it would ship orphaned into
 // `kernel/spec.d.ts`.
 //
 // A command's feasibility must be answered synchronously, inside the native
-// listener, so `preventDefault()` is called only when the command is possible;
-// otherwise an arrow key on an edge item loses its native meaning. Nothing in
+// listener, so `preventDefault()` is called only when the command is possible.
+// Otherwise an arrow key on an edge item loses its native meaning. Nothing in
 // the frozen SPI can answer it: `dispatch` returns `void`, so the decision
 // would land on the drain, after the listener returned.
 //
@@ -158,20 +156,20 @@ export interface BehaviorContext {
 /**
  * What an admission member returns when it admits.
  *
- * **Three roles, and a bare `HTMLElement` says one element fills all of them**
- * — `item === box === visual`, which is the common form. The **item** is what
- * the operation is about and what a behavior's own plan visits; the **visual**
- * is what leaves flow and travels; the **box** is what the layout loses. They
- * separate when a row lifts an inner card: the item is the row and the visual
- * is the card, and the box is named again because what leaves flow is not
- * always what the layout loses.
+ * There are three roles, and a bare `HTMLElement` says one element fills all of
+ * them: `item === box === visual`, which is the common form. The item is what
+ * the operation is about and what a behavior's own plan visits. The visual is
+ * what leaves flow and travels. The box is what the layout loses. They separate
+ * when a row lifts an inner card: the item is the row and the visual is the
+ * card, and the box is named separately because what leaves flow is not always
+ * what the layout loses.
  *
- * Discriminated by `'visual' in subject`, never `instanceof HTMLElement`:
- * `instanceof` is realm-sensitive, and {@link DOMRealm} exists precisely
- * because an element may come from another document.
+ * Discriminate with `'visual' in subject`, never `instanceof HTMLElement`:
+ * `instanceof` is realm-sensitive, and {@link DOMRealm} exists because an
+ * element may come from another document.
  *
- * All three are **required** inside the object form, so that *they are one
- * element* has exactly one encoding.
+ * All three are required in the object form, so that "they are one element" has
+ * exactly one encoding.
  */
 export type AdmissionSubject =
   | HTMLElement
@@ -179,9 +177,9 @@ export type AdmissionSubject =
       visual: HTMLElement;
       box: HTMLElement;
       /**
-       * The element the operation is *about* — the one a behavior's own plan
-       * visits and writes on. The visual and the box are both resolved from
-       * it, and a bare element is the spelling of all three coinciding.
+       * The element the operation is about: the one a behavior's own plan
+       * visits and writes on. The visual and the box are both resolved from it,
+       * and a bare element means that all three coincide.
        */
       item: HTMLElement;
     }>;
@@ -189,20 +187,20 @@ export type AdmissionSubject =
 export type CommandAdmission<Part extends object> = Readonly<{
   /**
    * The event types the kernel binds on `root`, for the controller's life,
-   * inside the same ingress abort that owns `pointerdown`. Static spec data,
-   * validated once at arm; an entry colliding with the kernel's own pointer
-   * ingress is refused. **An empty array is a supported spelling of binding no
-   * discrete listener**, identical to omitting this member.
+   * inside the same abort that owns the `pointerdown` listener. Static spec
+   * data, validated once at arm. An entry that collides with the kernel's own
+   * pointer listeners is refused. An empty array is a supported way to bind no
+   * discrete listener, and is identical to omitting this member.
    */
   types: readonly string[];
 
   /**
    * Runs synchronously inside the native listener, after the kernel's own
-   * guards, with the draft open — the only position from which feasibility can
-   * still reach the producer.
+   * guards, with the draft open. This is the only position from which
+   * feasibility can still reach the producer.
    *
-   * Returns the subject to lift, or `null` to decline. Declining is total: no
-   * operation, no phase change, and the kernel does not prevent the default.
+   * Returns the subject to lift, or `null` to decline. A decline has no effect:
+   * no operation, no phase change, and the kernel does not prevent the default.
    */
   admit(event: Event, draft: Draft<Part>): AdmissionSubject | null;
 }>;
@@ -211,12 +209,12 @@ export type CommandAdmission<Part extends object> = Readonly<{
  * What the kernel grants `activation.prepare` and `activation.effect`. One
  * object per operation.
  *
- * `dispose` is projected away from both lifetimes, so a behavior has no
- * opportunity to sequence release incorrectly.
+ * `dispose` is removed from both lifetimes, so a behavior has no opportunity to
+ * sequence release incorrectly.
  */
 export type ActivationScope = Readonly<{
   /**
-   * The element the kernel is lifting — what `admit` returned as the `visual`
+   * The element the kernel is lifting: what `admit` returned as the `visual`
    * member of its subject, or the element itself when it returned a bare one,
    * which names it as the item and the box as well.
    */
@@ -224,56 +222,55 @@ export type ActivationScope = Readonly<{
   /** Its viewport rect at grab. Basis for every landing measurement. */
   originRect: DOMRectReadOnly;
   /**
-   * The geometry source — what `admit` returned as the `box` member of its
-   * subject, or the element itself when it returned a bare one. Held by the
-   * kernel from admission, never read out of the behavior's frame part.
+   * The geometry source: what `admit` returned as the `box` member of its
+   * subject, or the element itself when it returned a bare one. The kernel
+   * holds it from admission, and never reads it from the behavior's frame part.
    */
   box: HTMLElement;
   /**
-   * **Window 1 of 2** — the box's offset box, read by the *kernel*, immediately
-   * before `acquireLift`.
+   * Window 1 of 2: the box's offset box, read by the kernel immediately before
+   * `acquireLift`.
    *
    * The behavior reads window 2 itself, at the top of `activation.prepare`, and
-   * the footprint is the difference. The two reads have to straddle
-   * `acquireLift`, and only the kernel is on the near side of it.
+   * the footprint is the difference. The two reads have to be on either side of
+   * `acquireLift`, and only the kernel runs before it.
    *
-   * **`originRect` is derived from neither window** and stays the *visual's*
-   * grab rect. It is the basis of the origin-relative landing space, which must
-   * not become a function of the box the consumer chose for layout reasons.
+   * `originRect` is derived from neither window and stays the visual's grab
+   * rect. It is the basis of the origin-relative landing space, which must not
+   * become a function of the box the consumer chose for layout reasons.
    */
   boxPre: OffsetBox;
   /**
-   * The inverse of the linear part the visual **inherits** — everything
-   * strictly above it, its own transform and zoom excluded — or `null` for the
-   * identity, which is the common case.
+   * The inverse of the linear part the visual inherits (everything strictly
+   * above it, its own transform and zoom excluded), or `null` for the identity,
+   * which is the common case.
    *
    * Read before `acquireLift` mutates anything: one activation snapshot, with
-   * no layout read at all. A behavior that needs a local delta multiplies
-   * rather than measures — a walk taken later would run *after* positioning,
+   * no layout read at all. A behavior that needs a local delta multiplies and
+   * does not measure, because a walk taken later would run after positioning,
    * dimensions, top-layer state and transforms have changed.
    *
-   * **Not the same value as the lift session's own projection**, and the two
-   * must never be conflated: `compose`'s is the space an *in-place* translate
-   * acts in and is `null` for both lifted modes. This one is a fact about the
-   * **ancestry at grab** and is computed for every mode.
+   * This is not the same value as the lift session's own projection, and the
+   * two must never be conflated. `compose`'s projection is the space an
+   * in-place translate acts in, and is `null` for both lifted modes. This one
+   * is a fact about the ancestry at grab, and is computed for every mode.
    *
-   * **A delta, never a point.** The linear part alone maps a delta; a point
-   * would additionally need the translation, which box-quad does not expose.
+   * It applies to a delta, never a point. The linear part alone maps a delta; a
+   * point would also need the translation, which box-quad does not expose.
    *
-   * `acquireLift` throws `FAILURE_ACTIVATION` for an unreadable space; singular
+   * `acquireLift` throws `FAILURE_ACTIVATION` for an unreadable space. Singular
    * and non-finite spaces resolve to `null`, the identity.
    */
   visualSpace: InheritedSpace;
   /**
-   * The same inverse for the space above the **item**, or `null` for the
-   * identity.
+   * The same inverse for the space above the item, or `null` for the identity.
    *
-   * **Which element a translate is written on decides which space it is spent
-   * in**, and a behavior displacing the item's siblings writes on items, not on
-   * visuals. Where `visual` resolves to a descendant of the item the two
-   * differ by every linear contribution between them, the item's own included,
-   * so publishing one value for both would divide a transform out of a delta it
-   * was never in.
+   * The element a translate is written on decides which space the translate
+   * acts in, and a behavior that displaces the item's siblings writes on items,
+   * not on visuals. Where `visual` resolves to a descendant of the item, the
+   * two differ by every linear contribution between them, the item's own
+   * included. So publishing one value for both would divide a transform out of
+   * a delta it was never in.
    *
    * `=== visualSpace` whenever the item is the visual, which is the default.
    */
@@ -281,37 +278,38 @@ export type ActivationScope = Readonly<{
   /**
    * The lift capability. The behavior keeps it for `moved`.
    *
-   * **A projection, not the session**: `rendered` and `dispose` are
+   * This is a projection and not the session: `rendered` and `dispose` are
    * kernel-only. The same physical object arrives under the narrower type.
    */
   lift: BehaviorLiftSession;
   /** Closed at release, cancel, destroy, panic. */
   motion: LifetimeScope;
-  /** Closed at finalization, before the landing tail and the terminal. */
+  /** Closed at finalization, before the landing animation and the terminal. */
   presentation: LifetimeScope;
 }>;
 
 /**
- * The release choice, **staged rather than called**.
+ * The release choice, staged and not called.
  *
- * Exactly one choice, made exactly once, executed by the kernel after
- * `release.effect` returns and only if it returned normally.
+ * Exactly one choice, made exactly once. The kernel executes it after
+ * `release.effect` returns, and only if it returned normally.
  */
 export type ResolutionCommand = Readonly<{
   /**
-   * The consumer round-trip, or `null` to settle immediately with no round-trip.
+   * The consumer round-trip, or `null` to settle immediately with no
+   * round-trip.
    *
-   * `null` asserts a **proven semantic no-op** and nothing else. A release that
+   * `null` asserts a proven semantic no-op and nothing else. A release that
    * finds no view, item, snapshot or insertion has a broken invariant and must
-   * **throw** instead; reporting that as a successful no-op drop would tell the
-   * consumer the drag completed normally. The seam is already running at its
-   * own stage, so a throw is classified there — this seam fails the way every
-   * other seam fails.
+   * throw instead. Reporting that as a successful no-op drop would tell the
+   * consumer the drag completed normally. This transition is already running at
+   * its own stage, so a throw is classified there, as for every other
+   * transition.
    */
   invoke: ((signal: AbortSignal) => unknown) | null;
 }>;
 
-export type { ActionTransition } from './seams.ts';
+export type { ActionTransition } from './behavior-runner.ts';
 
 export type ReleaseTransition<Part extends object> = Readonly<{
   prepare(draft: Draft<Part>): ResolutionCommand;
@@ -326,9 +324,9 @@ export type ReleaseTransition<Part extends object> = Readonly<{
 export const SETTLED_FULFILLED = 40;
 /** The thenable rejected, or `invoke` threw. A resolver malfunction. */
 export const SETTLED_REJECTED = 41;
-/** `invoke` was `null` — a proven semantic no-op. */
+/** `invoke` was `null`: a proven semantic no-op. */
 export const SETTLED_SKIPPED = 42;
-/** A latched cancellation decided the operation. */
+/** A recorded cancellation decided the operation. */
 export const SETTLED_CANCELED = 43;
 /** A classified failure decided the operation. */
 export const SETTLED_FAILED = 44;
@@ -336,7 +334,7 @@ export const SETTLED_FAILED = 44;
 /**
  * Five cases, discriminated and exhaustive.
  *
- * `canceled` and `failed` are kernel-*triggered* but behavior-*owned*:
+ * The kernel triggers `canceled` and `failed`, but the behavior owns them:
  * `recovery` and `domain` are fields of the behavior's frame part, which the
  * kernel cannot name or write.
  */
@@ -349,10 +347,10 @@ export type SettlementInput =
       reason: unknown;
       stage: CancelStage;
       /**
-       * Who decided, **written by the kernel**. The behavior forwards it to its
-       * own canceled result and never mints one here: the only origin a
-       * behavior produces is `CANCEL_FAILED`, on the fallback that maps a
-       * classified failure to a canceled terminal.
+       * Who decided, written by the kernel. The behavior forwards it to its own
+       * canceled result and never creates one here. The only origin a behavior
+       * produces is `CANCEL_FAILED`, on the fallback that maps a classified
+       * failure to a canceled terminal.
        */
       origin: CancelOrigin;
     }>
@@ -361,31 +359,33 @@ export type SettlementInput =
       stage: FailureStage;
       error: unknown;
       /**
-       * The public error the consumer receives, **built by the kernel**. The
-       * `stage` beside it is what the behavior maps to a recovery; this is what
-       * it forwards to `onError`, unchanged and unexamined.
+       * The public error the consumer receives, built by the kernel. The
+       * behavior maps the `stage` beside it to a recovery, and forwards this
+       * value to `onError`, unchanged and unexamined.
        */
       report: DraggableError;
     }>;
 
-/** The settlement seam's `Prepared` sentinel. Nothing travels through it. */
+/**
+ * The settlement transition's `Prepared` sentinel. Nothing travels through it.
+ */
 export type PreparedSettlement = true;
 
 /**
- * **How the landing tail is timed** — a duration in milliseconds and a CSS
- * easing function, or `null` from `BehaviorSpec.landingTail` for no tail at
- * all.
+ * How the landing animation is timed: a duration in milliseconds and a CSS
+ * easing function. `BehaviorSpec.landingTail` returns `null` for no animation
+ * at all.
  *
- * It carries timing and nothing else. Where the tail travels from is the
- * kernel's own arithmetic, and what it claims — an additive contribution to
- * the visual's `translate`, decaying to zero — is fixed by the kernel rather
- * than chosen here.
+ * This type carries timing and nothing else. The kernel's own arithmetic
+ * decides where the animation starts. The kernel also fixes what it writes: an
+ * additive contribution to the visual's `translate`, reducing to zero.
  *
- * **The duration domain is `animate()`'s.** Nothing tests it: a `NaN`, a
- * negative or a string is refused by the platform, and the refusal reaches the
+ * The duration domain is the domain of `animate()`. Nothing tests it: the
+ * platform refuses a `NaN`, a negative or a string, and the refusal reaches the
  * consumer as a warning that changed nothing. `Infinity` is accepted and never
- * completes, which leaves the visual holding its displacement until the
- * next drag cancels it — a cosmetic misuse, with no terminal waiting on it.
+ * completes, which leaves the visual holding its displacement until the next
+ * drag cancels the animation. This is a cosmetic misuse, with no terminal
+ * waiting on it.
  */
 export type LandingTail = Readonly<{
   duration: number;
@@ -402,13 +402,15 @@ export type SettlementTransition<Part extends object> = Readonly<{
 // ---------------------------------------------------------------------------
 
 export type BehaviorConfig = Readonly<{
-  /** Activation travel in viewport pixels. The kernel owns the distance test. */
+  /**
+   * Activation travel in viewport pixels. The kernel owns the distance test.
+   */
   threshold: number;
   /** Which lift strategy the kernel acquires at activation. */
   liftMode: LiftMode;
   /**
-   * How many behavior action tags exist. Static spec data: it is what construction
-   * validates and what bounds a `dispatch` tag.
+   * How many behavior action tags exist. Static spec data: construction
+   * validates it, and it bounds a `dispatch` tag.
    */
   actionTags: number;
 }>;
@@ -417,7 +419,7 @@ export type BehaviorConfig = Readonly<{
  * The behavior's whole SPI.
  *
  * `Activation` is the behavior's choice of what `activation.prepare` stages,
- * and defaults to `true` — a behavior that stages nothing writes nothing. The
+ * and defaults to `true`, so a behavior that stages nothing writes nothing. The
  * kernel treats the staged value as opaque and drops it.
  */
 export type BehaviorSpec<
@@ -434,12 +436,12 @@ export type BehaviorSpec<
    * Runs synchronously inside `pointerdown`, after the kernel's own guards,
    * with the draft open.
    *
-   * `composedPath()` is valid only here. **`preventDefault()` is not the
-   * behavior's** — the ingress owner performs it, at the activation threshold
-   * crossing rather than at admission, and the behavior answers feasibility
-   * with its return value and nothing else.
+   * `composedPath()` is valid only here. The behavior does not call
+   * `preventDefault()`. The kernel performs it, at the activation threshold
+   * crossing and not at admission, and the behavior answers feasibility with
+   * its return value and nothing else.
    *
-   * Admission also answers *what did the event land on*: a press whose composed
+   * Admission also answers what the event landed on: a press whose composed
    * path reaches a `[data-drag-ignore]` region declines, unless a `handle`
    * scoped dragging there.
    *
@@ -450,22 +452,22 @@ export type BehaviorSpec<
   admit(event: PointerEvent, draft: Draft<Part>): AdmissionSubject | null;
 
   /**
-   * The optional second ingress. A behavior that omits it binds no discrete
+   * The optional second input path. A behavior that omits it binds no discrete
    * listener at all, and construction binds `pointerdown` and nothing else.
    */
   command?: CommandAdmission<Part>;
 
-  /* ---- transactional seams ---- */
+  /* ---- transitions ---- */
   activation: Transition<Part, Activation, ActivationScope>;
   release: ReleaseTransition<Part>;
   settlement: SettlementTransition<Part>;
   action: ActionTransition<Part>;
 
-  /* ---- non-transactional seams ---- */
+  /* ---- behavior callbacks ---- */
   /**
    * The committed pointer sample changed. The hot path.
    *
-   * **The kernel wraps this call** and classifies a throw as
+   * The kernel wraps this call and classifies a throw as
    * `FAILURE_RENDERER_WRITE`. Rendering and scheduling stay one callback with
    * two stages, narrowed from the inside via
    * `kernel.fail(FAILURE_SCHEDULED_FRAME, …)`.
@@ -475,34 +477,34 @@ export type BehaviorSpec<
   /**
    * Produce the viewport point the lifted visual should end at.
    *
-   * **The result is borrowed, and the kernel never retains it.** Both fields
-   * are read immediately on return — converted once into the origin-relative
-   * delta the settlement carries as scalars — and the object itself is dropped
-   * before any further code runs. Nothing stores it, and nothing hands it to
+   * The result is borrowed, and the kernel never retains it. Both fields are
+   * read immediately on return and converted once into the origin-relative
+   * delta that the settlement carries as scalars. The object itself is dropped
+   * before any further code runs. Nothing stores it, and nothing passes it to
    * consumer code.
    *
-   * So an implementation may return **one mutable buffer per controller**,
-   * rewritten on every call, as the first-party behaviors do. What it may
-   * *not* do is write the buffer before its last call into foreign code: an
-   * implementation that measures, writes, and then calls a consumer's handler
-   * has published a value the handler can reach.
+   * So an implementation may return one mutable buffer per controller,
+   * rewritten on every call, as the first-party behaviors do. It must not write
+   * the buffer before its last call into consumer code: an implementation that
+   * measures, writes, and then calls a consumer's handler has published a value
+   * the handler can reach.
    */
   anchorTarget(current: Readonly<Frame<Part>>): Point;
 
   /**
-   * **The tail's timing for this settlement, or `null` for no tail.** Called at
-   * the join, after presentation has been released and before the terminal
-   * callback, and only when a target was measured.
+   * Returns the landing animation's timing for this settlement, or `null` for
+   * no animation. The kernel calls this during finalization, after presentation
+   * is disposed and before the terminal callback, and only when a target was
+   * measured.
    *
-   * The four coordinates are the tail's endpoints in the one landing space —
-   * origin-relative viewport deltas, where the visual is and where the drop
-   * decided it belongs — so a behavior offering a distance-derived duration has
-   * everything it needs and reads no DOM to get it.
+   * The four coordinates are the animation's endpoints in the one landing
+   * space, as origin-relative viewport deltas: where the visual is and where
+   * the drop decided it belongs. So a behavior can derive a duration from the
+   * distance between them without reading the DOM.
    *
-   * **The answer is a policy decision and nothing else.** A behavior returns
-   * `null` where the drop has no journey to interpolate — a visual that stayed
-   * where it landed, a recovery that must be immediate — and a behavior that
-   * omits the member never tails at all.
+   * Return `null` when the drop needs no animation, for example when the visual
+   * stayed where it landed or a recovery must be immediate. A behavior that
+   * omits this member has no landing animation.
    */
   landingTail?(
     current: Readonly<Frame<Part>>,
@@ -512,29 +514,29 @@ export type BehaviorSpec<
     targetY: number,
   ): LandingTail | null;
 
-  /** Presentation is released and the drop is settled. Terminal callback. */
+  /** Presentation is disposed and the drop is settled. Terminal callback. */
   finalized(current: Readonly<Frame<Part>>): void;
 
   /**
-   * **Forward this to the consumer's `onError`, and do nothing else.** The
-   * kernel hands over a finished error; the behavior chooses nothing and
-   * re-derives nothing from it.
+   * Forward this to the consumer's `onError`, and do nothing else. The kernel
+   * passes a finished error. The behavior chooses nothing and derives nothing
+   * from it.
    *
-   * **Which class arrives says whether this fault decided the outcome.** A
-   * `DraggableError` means it did: `admit` threw and the drag will not start, or
-   * the controller panicked. A `DraggableWarning` means it did not — a landing
-   * measurement that could not be trusted, a disposer that refused, an
-   * interpolation the platform declined to start, a throw a cancel or destruction
-   * had already superseded. A warning therefore says nothing about the terminal:
-   * the operation publishes the one it would have without this fault, before or
-   * after the warning, and none once destruction has decided it.
+   * The class that arrives says whether this fault decided the outcome. A
+   * `DraggableError` means it did: `admit` threw and the drag will not start,
+   * or the controller panicked. A `DraggableWarning` means it did not: a
+   * landing measurement that could not be trusted, a disposer that refused, an
+   * interpolation the platform declined to start, a throw that a cancel or
+   * destruction had already superseded. So a warning says nothing about the
+   * terminal: the operation publishes the one it would have without this fault,
+   * before or after the warning, and none once destruction has decided it.
    *
-   * **No guard belongs here.** The kernel calls this only through its own
-   * route, which refuses after destruction is applied and absorbs a throw, and
-   * once from a panic, behind a discard of its own. So a throw from `onError` stops
+   * No guard belongs here. The kernel calls this only through its own route,
+   * which refuses after destruction is applied and absorbs a throw, and once
+   * from a panic, behind a discard of its own. So a throw from `onError` stops
    * there and is never reported back. A behavior's own reports and its
    * composition's `report` reach `onError` through channels the behavior
-   * mints with {@link BehaviorContext.channel}, not through this member.
+   * creates with {@link BehaviorContext.channel}, not through this member.
    */
   reportError(error: DraggableError | DraggableWarning): void;
 
@@ -543,8 +545,8 @@ export type BehaviorSpec<
 }>;
 
 /**
- * Both halves of the two-phase handshake, returned at once. The factory returns
- * them, and only then does arming attach ingress, so no input is admitted
+ * Both parts of the two-phase handshake, returned at once. The factory returns
+ * them, and only then does arming attach listeners, so no input is admitted
  * before the factory has returned.
  */
 export type BehaviorInstall<
@@ -557,10 +559,10 @@ export type BehaviorInstall<
 }>;
 
 /**
- * The install function itself — what a behavior author writes.
+ * The install function itself: what a behavior author writes.
  *
- * `Part` is inferred from the factory's return position rather than supplied.
- * It defaults to `object` so a behavior that never names its own part still
+ * `Part` is inferred from the factory's return position and is not supplied. It
+ * defaults to `object`, so a behavior that never names its own part still
  * satisfies the constraint. `Activation` is inferred the same way and defaults
  * the same way `BehaviorSpec` does.
  */

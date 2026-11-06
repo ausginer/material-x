@@ -20,6 +20,152 @@ A new workspace, **`packages/drag2`** (`@ydinjs/drag2`), built alongside the shi
 
 **Goal.** Make the code and agent reports easier to understand for developers whose first language is not English. Improve names before using comments to explain them, remove unnecessary commentary, then simplify the English that remains.
 
+**Pilot preparation, 2026-11-05.** PR #11 is merged, and the new branch is `drag2/terminology-ste`. The owner clarified two separate checks: translate the author's local model into familiar technical concepts in both names and comments, then remove English expressions that add unnecessary difficulty for non-native readers. The [agent brief](terminology-ste-brief.md) collects these checks and the discussion examples. It is a draft for the pilot, not an approved set of renames or a source migration.
+
+**Pilot feedback, 2026-11-05.** The [first proposal](reviews/terminology-ste-pilot.md) is recorded. The owner confirmed that established technical terms such as `delta` must retain their precise meaning. The brief now also checks a name's reach, multiple meanings of one name, and whether a rewrite loses a condition or strengthens a claim. The proposal's full rename map is not approved; unused-code removal and possible behavior defects remain separate from this readability work.
+
+**First clarity batch, 2026-11-05.** Input: `772069f66`. Scope: the private names below and the comments in `src/kernel/kernel.ts` that use them or the word "tail" for the same concept.
+
+| Before        | After                     |
+| ------------- | ------------------------- |
+| `#tail`       | `#landingAnimation`       |
+| `#startTail`  | `#startLandingAnimation`  |
+| `#cancelTail` | `#cancelLandingAnimation` |
+| `#movedLeaf`  | `#callMoved`              |
+
+The published `landingTail` and `LandingTail`, runtime messages, `delta` and the other names in the pilot's map are unchanged. The comments keep "delta", the `transform` reasoning and the `#movedLeaf` allocation reason. The reasons the pilot disputes for the `#joinSettlement` ordering and `finally` (`pilot-5`, `pilot-6`) keep their meaning; only the name of the animation changed there. Current references changed: the settlement trace in [02](contract/02-kernel-behavior-contract.md) and the [brief](terminology-ste-brief.md). Dated ledger and finding entries in [00](contract/00-index.md), the row in [05](contract/05-lifecycle-invariants.md) that describes the retired `joinLive()` reading, the mirror of F-320 in `.scripts/corpus-equivalence.ts`, and prose that says "tail" in the contract keep their text.
+
+**Verification.** `just size` reports every row unchanged at its 0.01 kB precision against `772069f66`: `minimal` 10.33 kB Brotli, `complete` 10.79 kB, `kernel root` 6.42 kB. The 28 measured bundles contain none of the old or new private names, which is why the rename moves nothing. With comments removed, the TypeScript emit of the result equals the emit of `772069f66` with the four names substituted. `just test` passes (78 files, 1494 passed, 68 skipped), and `just typecheck` and `just lint src/kernel/kernel.ts` pass. Readability was not measured; the owner's review is the first check.
+
+**Questions from this batch, not repaired.** (1) The `#landingAnimation` comment says two animations can coexist "in principle" after a second drag and drop. `#acquireActivation` cancels the slot before every activation, so the code read shows no such state within one controller; the comment keeps its wording until the question is decided. (2) The pilot's Example 1 says the vector is converted with "the inverse of `space`". `space` already is the inverse (`ActivationRecord.visualSpace`), so the source comment says "through `space`, the inverse of the space above the visual".
+
+**Refinement of the batch, 2026-11-05.** Input: `28736a843`. Scope: `cleanup-1`, `cleanup-2` and `cleanup-3` from the [batch review](reviews/terminology-ste-batch1-review.md), in `src/kernel/kernel.ts` comments only. `cleanup-4` and the pilot's other questions are unchanged.
+
+- **`cleanup-1`, which closes question 1 above.** The `#landingAnimation` comment now states the rules instead of the two-animation example. The example, its keyed-map cost and "stopped caring about" are removed, because they described a state the code does not reach. No other reason for one slot is stated. Evidence: `#cancelLandingAnimation` has two callers, the first statement of `#acquireActivation` and step 7 of `teardown`. It does not compare elements. `#startLandingAnimation` has one path: `#joinSettlement`, from a committed `#openSettlement`. Its only callers require `ACTIVATING`, `ACTIVE` or `RELEASING`, and `ACTIVATING` is committed only by `#activate` after that cancel. Existing browser tests cover the next-drag cancel on the same item, the press that keeps the animation and the destroy cancel. The cancel on a different element rests on the code read only.
+- **`cleanup-2`.** "Safe" is now "correct only in this order", "needs an animation" is now "decides whether to animate this drop", and "can outlive" is now a statement that retirement does not cancel the animation and that it continues after the operation ends. The disputed `pilot-5` and `pilot-6` reasons are not repaired.
+- **`cleanup-3`.** The `#callMoved` comment now says "closure" for the inline case and uses "arrow function" once, for the field. The bundle claim that the review left unchecked is now checked: a temporary inline arrow at the `runLeaf` call site stayed in the `minimal` bundle as `runLeaf(e=>{…},3,…)`. That probe was reverted. It measured `minimal` at 10.30 kB Brotli against 10.33 kB, so the field costs bytes and saves the per-sample allocation; `complete` showed 10.79 kB in both.
+
+**Verification of the refinement.** Against `28736a843`: all 15 `measured/` bundles from `just size --files` are byte-identical, and the size report is unchanged, including the published declarations at 115605 B. The measured graphs include `kernel.ts`. The esbuild emit of `kernel.ts` with type stripping and whitespace minification is identical. `just test` passes (78 files, 1494 passed, 68 skipped), and `just typecheck` and `just lint src/kernel/kernel.ts` pass. Readability was not measured.
+
+**Comment reduction, 2026-11-05.** Input: `9b2cc4516`. Scope: comments in `src/kernel/kernel.ts` about the landing-animation flow and `#callMoved`. Executable code and names are unchanged. There was no quota; each comment was first judged as below, and only then rewritten.
+
+| Comment | Decision | What changed |
+| --- | --- | --- |
+| Two trailing comments on the `#startLandingAnimation` early returns | Removed | They repeated the condition. `targetX` documents the sentinel. |
+| `#retireAttempts`, landing animation paragraph | Removed here | The retirement rule moved to `#landingAnimation`, so one comment states the cancellation rules. |
+| `#cancelLandingAnimation`, first sentence; `#callMoved`, "Calls `spec.moved`" | Removed | They repeated the name. |
+| `#measureTarget`, "The message carries what such a stage would have said" | Removed | No edit depends on it. |
+| `targetX`, `visualSpace`, `#landingAnimation`, `#cancelLandingAnimation`, `#measureTarget` and its two inner comments, `#startLandingAnimation` and its two inner comments, `#joinSettlement` position paragraph and its `rendered` and `finally` comments, the `visualSpace` read-back, `#callMoved` | Shortened | Duplicate statements and restated code are gone. Reasons, constraints and order are kept, including the `translate` versus `transform` reasoning and the fallback warning for a detached placeholder. |
+| `#acquireActivation` cancel comment; `teardown` step 7; the `originRect` read-back; the `anchorTarget` and `animate` comments; the `#joinSettlement` order paragraph, `finally` sentence, "After the release" comment and foreign-code comment | Unchanged | Each is either already short or a disputed passage (`pilot-5`, `pilot-6`, and the question below). |
+
+`#measureTarget` now says "once per committed settlement", because its only call is behind `SEAM_COMMITTED`.
+
+| `kernel.ts` comments (adjacent line comments count as one) | Count | Lines | Characters | Words |
+| --- | --- | --- | --- | --- |
+| Whole file, before | 115 | 894 | 47894 | 7971 |
+| Whole file, after | 113 | 856 | 45618 | 7573 |
+| Edited comments, before | 14 | 165 | 8841 | 1487 |
+| Edited comments, after | 12 | 127 | 6565 | 1089 |
+
+**Verification of the reduction.** Against `9b2cc4516`: all 15 `measured/` bundles are byte-identical and the size report is unchanged, including the published declarations at 115605 B. Of the 135 package files compared, only `kernel/kernel.js` and `kernel/kernel.js.map` differ. The build keeps comments in `kernel/kernel.js`; without comments it is identical. The map differs because it carries the source. The esbuild emit of the source is identical. `just test` passes (78 files, 1494 passed, 68 skipped), and `just typecheck` and `just lint src/kernel/kernel.ts` pass. Readability was not measured.
+
+**Question from this batch, not repaired.** The `#acquireActivation` comment, and the same note in the test `should cancel the tail when the next drag acquires the visual`, say that measuring a visual during its landing animation is right, because the drag should start from where the element looks. The code cancels the animation first and then measures. A throwaway browser probe on a paused additive `translate` animation read `x` as 100 before `cancel()` and 0 after it, so the origin excludes the animation. Either the comment or the order is wrong; the comment keeps its text until the owner or architect decides. The probe covered the platform behavior and did not run through a controller.
+
+**Handling of the [reduction review](reviews/terminology-ste-comment-reduction-review.md), 2026-11-05.** Input: `1236fc0ae`. Scope: two comments in `src/kernel/kernel.ts`.
+
+- **`cleanup-1`: fixed.** The `#startLandingAnimation` paragraph now starts "The animation adds to the individual `translate` property".
+- **`cleanup-2`, `#joinSettlement` `finally` comment: fixed by dropping the claim.** "Nothing above it can throw today" is removed. The comment keeps the unconditional cleanup requirement.
+- **`cleanup-2`, `#measureTarget`: no change, by owner decision.** The explanation already says that `landingTail` decides using the delta this measurement produces.
+
+The recorded behavioral questions are unchanged and outside this change. The counts in the reduction table describe `738fd813b` and were not recomputed.
+
+**Verification of the handling.** Against `1236fc0ae`: every changed line in `kernel.ts` is a comment line, and the esbuild emit of the source with type stripping and whitespace minification is byte-identical. `just typecheck` and `just lint src/kernel/kernel.ts` pass. Tests and `just size` were not rerun, because the emit is identical.
+
+**Driver batch, 2026-11-05.** Input: `2f96cf3d4`. Scope: the execution methods of `SeamDriver`, their comments in `src/kernel/seams.ts`, and current references. The pilot's analysis was input. Renames are in `3edcd41b5`; comments are in the commit that carries this paragraph.
+
+| Before | After | What it does |
+| --- | --- | --- |
+| `runCore` | `runTransition` | Runs one frame transaction |
+| `runLeaf` | `runCallback` | Runs a callback with no transaction; a throw is classified at `stage` |
+| `runLeafValue` | `runCallbackForValue` | The same, and returns the callback's value |
+| `runUnclassifiedValue` | `runCallbackWarningOnFailure` | Returns the callback's value; a failure becomes a warning |
+| `#runPhase` | `#callAndHandleFailure` | Refuses re-entry, calls the callback and handles its failure |
+
+The pilot's `#callBehavior` names the callee and not the failure handling, so it was not used. `runCallbackForValue` keeps its method and its only callers, the tests. `SeamDriver`, `seam`, `runActivationSeam`, `runReleaseSeam`, `#unclassifiedReason`, `PhaseStage` and runtime messages are unchanged.
+
+Current references changed: [02](contract/02-kernel-behavior-contract.md), the `anchorTarget` name in [07](contract/07-free-drag-contract.md), the [brief](terminology-ste-brief.md), the README, `tests/COVERAGE.md`, and the test titles that said "leaf". Dated entries in [00](contract/00-index.md), other records, three passages in [05](contract/05-lifecycle-invariants.md) about retired mechanisms or a dated probe, and `runLeaf` for the retired `start` path in 07 keep their text.
+
+**Comment reduction.** Comments in `seams.ts` went from 52 to 50, 356 to 344 lines, 18601 to 17728 characters and 2671 to 2541 words (adjacent line comments count as one). Two trailing comments and the duplicate target-fault sentence, also stated at `#measureTarget`, are removed. The module header says "steps", because `stage` means `FailureStage` elsewhere. The disputed passages keep their claims: "one report per phase" (`pilot-1`), `anchorTarget` on `runCallbackForValue` (`pilot-2`), "exactly one `runTransition`" (`pilot-7`) and "arm-time" (`pilot-8`). The `#refuseReentry` comment was only rewrapped.
+
+**Bundle change.** The four public method names are not mangled, so all 13 rows containing the driver grow by 73 B minified. Brotli moves both ways, from −26 B to +22 B; compressed bytes govern. Sortable rows: `minimal` 10329 → 10303, `minimal + landing` 10483 → 10465, `minimal + layoutAnimation` 10651 → 10641, `minimal (xy)` 10199 → 10202, `xy + layoutAnimation` 10517 → 10522, `complete` 10791 → 10798, `both behaviors` 12298 → 12320, baseline A 10620 → 10614. Every ceiling holds. Five exact controls moved by −2 to +3 B and are [re-declared with their intervals attributed](measurements/budget-rebases.md). `vocabulary root` and baseline B did not move, and published declarations stay at 115605 B.
+
+**Verification.** With the names substituted, the comment-free esbuild emit of `seams.ts`, `kernel.ts` and `sortable/spec.ts` at `2f96cf3d4` equals `3edcd41b5`. No old name remains in `src`, `tests`, `bench`, `.scripts` or the README. The comment commit changes no comment-free emit of `seams.ts`, and all 15 `measured/` bundles are byte-identical to `3edcd41b5`. `just test` passes at both commits (78 files, 1494 passed, 68 skipped), and `just typecheck` and `just size` pass. `just lint` reports the same seven errors on `seams.ts` and `tests/sortable/sortable.browser.test.ts` as at `2f96cf3d4`; they were left as they are. Readability was not measured.
+
+**Owner-approved execution plan, 2026-11-05.** The pilot has established enough examples to continue across the source. The owner approved three larger units instead of further batches for individual methods:
+
+1. **Source clarity across `src/`.** Starting from `0eb4a7524`, finish the remaining internal naming work, remove unnecessary comments and simplify the comments and JSDoc that remain. Review names at their call sites; longer names are not automatically clearer. Keep renames and prose edits in separate commits within one unit. Update directly affected current references. Preserve runtime behavior, API/SPI and runtime messages. Report disputed semantics and possible defects separately, leave those passages unchanged, and continue with independent clarity work. Do not remove unused code or migrate union types in this unit.
+2. **Named union variants.** Apply the type convention described below and add it to `CONTRIBUTING.md`, as a separate unit with its own declaration checks.
+3. **Agent instructions and future reports.** Apply the writing guide to the instructions named below, preserving their authority and obligations. Existing journals and review, decision and measurement records remain outside the language pass.
+
+The separate driver-batch review was not started. One independent cleanup review will cover that batch and the completed source unit together, from `2f96cf3d4`. Handle small wording findings together rather than starting a full review cycle for each phrase. Public-surface choices and behavioral questions still follow their existing ownership rules; they do not stop unrelated clarity work. Complete the applicable checks under [handoff.md](../../../.agents/docs/handoff.md) at the end of each unit; use cheaper identity checks during editing. No statistical performance rounds are added.
+
+Record the source unit's rename table, aggregate comment reduction, verification and unresolved questions briefly here. There is no deletion quota, and unchanged comments do not need individual justifications.
+
+**Source clarity pass, 2026-11-05.** Input: `678a6ab18`. Scope: internal names and all comments in `src/`. Renames are in `e5c91eac8`; comments are in the commit that carries this paragraph.
+
+| Before | After |
+| --- | --- |
+| `SeamDriver`, `kernel/seams.ts` | `BehaviorRunner`, `kernel/behavior-runner.ts` |
+| `SeamOutcome`, `SEAM_DISCARDED`, `SEAM_PREPARE_FAILED`, `SEAM_COMMITTED`, `SEAM_EFFECT_FAILED` | `TransitionOutcome`, `TRANSITION_DISCARDED`, `TRANSITION_PREPARE_FAILED`, `TRANSITION_COMMITTED`, `TRANSITION_EFFECT_FAILED` |
+| `runActivationSeam`, `runReleaseSeam`, `isInSeam` | `runActivationTransition`, `runReleaseTransition`, `isRunningBehavior` |
+| `#driver`, `#openStage`, `#unclassifiedReason` | `#runner`, `#runningStage`, `#warningMessage` |
+| `Unwind`, `createUnwind`, `#unwind`, `kernel/unwind.ts` | `WarnOnThrow`, `createWarnOnThrow`, `#warnOnThrow`, `kernel/warn-on-throw.ts` |
+| `#unwindArm` | `#rollbackArm` |
+| `ExecutionBracket`, `#bracket` | `ExecutionLoop`, `#loop` |
+| `runIngress`, `#ingress`, `#openIngress` | `runNativeEvent`, `#listenerSignal`, `#admitIfNoOperation` |
+| `#joinSettlement`, `#mintOperation`, `MINTED`, `#scrub` | `#finalizeSettlement`, `#createOperation`, `CREATED`, `#clearFrame` |
+| `#release` in `kernel.ts`; `#release` in `execution.ts` | `#disposeOperationState`; `#runTeardown` |
+| `#invalidateInSeam` in `sortable/spec.ts` | `#invalidateInsertion` |
+| `LinearShift`: `#last`, `#seen`, `#constant`, `#hollow`, `#claimed`, `#forget`, `#drop`, `#ux`, `#uy` | `#lastGap`, `#snapshotVersion`, `#rowDistance`, `#holeIsStale`, `#advanceUnchecked`, `#resetCache`, `#abandonCache`, `#unitX`, `#unitY` |
+
+The pilot left `seam` as an open owner question. This unit's instruction to finish the internal names is why its identifiers changed. **The word remains outside `src/` code:** runtime messages keep it by instruction, the README and contract prose keep it (about 580 contract occurrences), and so do test titles. Published `landingTail` and `LandingTail`, `retire`, `lift`, `staged`, `arm` and `settlement` are unchanged.
+
+Current references changed: identifiers in [02](contract/02-kernel-behavior-contract.md), [03](contract/03-feature-composition.md), [05](contract/05-lifecycle-invariants.md), [07](contract/07-free-drag-contract.md), [obligations](obligations.md), the README, `tests/COVERAGE.md`, and nine lines in [00](contract/00-index.md) where `tests/references.node.test.ts` requires a path that resolves. The test file moved to `tests/kernel/behavior-runner.node.test.ts`. Other dated entries keep their names.
+
+**Comment reduction.** Across `src/`: 1102 to 1089 comments, 8154 to 8063 lines, 433429 to 425076 characters, 65013 to 63682 words (about 2 %; adjacent line comments count as one). Most of the change is rewriting, because the comments mainly carry reasons that the guide keeps. Bold spans went from 836 to 1. Published declarations went from 115625 B to 113973 B. Six agents edited separate file groups from one vocabulary. The implementer read samples and the mechanical checks, not every rewrite, so the review should compare meaning.
+
+**Bundle change.** Two unmangled method names add 17 B minified to all 13 rows containing the driver. The import of the moved module also changed its order in each bundle; it holds only declarations. Brotli moves both ways, from −13 B to +19 B: `minimal` 10303 → 10322, `minimal + landing` 10465 → 10477, `complete` 10798 → 10795, `both behaviors` 12320 → 12314, baseline A 10614 → 10632. Every ceiling holds. Five exact controls are [re-declared with their intervals attributed](measurements/budget-rebases.md). `vocabulary root` and baseline B did not move.
+
+**Verification.** Rename commit: with names, module paths and that one import substituted, the comment-free esbuild emit of all 58 modules at `678a6ab18` equals `e5c91eac8`. Comment commit: all 62 source files have the same syntax tree, ignoring comments, and the same directives as `e5c91eac8`, and all 15 `measured/` bundles are byte-identical. `just test` passes (78 files, 1494 passed, 68 skipped), and `just typecheck` and `just size` pass. `oxlint` passes on the edited source. ESLint reports 14 errors in `src/`, all type-aware rules on code the comment commit does not change, and the rename commit left that code's structure equal to the input. They were not run at the input for direct comparison and were left as they are. Readability was not measured.
+
+**Questions from this pass, not repaired.** The comments below keep their claims. These were checked against the code by reading the cited lines at this commit.
+
+| Location | Claim | What the code shows |
+| --- | --- | --- |
+| `kernel/errors.ts:17`, `drag.ts:34` (published) | "twelve" stage constants | `kernel/failures.ts` exports ten `FAILURE_*` constants |
+| `sortable/behavior.ts:21` | `sortable(items, ...features)` is the only caller that assembles | The signature takes a root, a config and fragments |
+| `sortable/behavior.ts:90`, `free-drag/behavior.ts:35` | The merge is lazy, inside the factory | `mergeFragments` runs when the function is called, outside the returned factory |
+| `sortable/spec.ts:279`, `free-drag/spec.ts:217` | The `warnOnThrow` helper takes this field | The constructor passes `#notify`; `#deliver` goes to `kernel.channel` |
+| `sortable/spec.ts:474` | The press and command paths share `#admitFrom` | `admit` is its only caller |
+| `sortable/spec.ts:509`, `kernel/kernel.ts:565`, `:2355` | Cite `SortableErrorContext`, `QUALITY`, `BEST_EFFORT`, `OUTCOME_ACCEPTED` | None of these names exists elsewhere in `src/` |
+| `sortable/spec.ts:2` | "closures over one private runtime" | The state is a `SortableBehavior` instance |
+| `kernel/kernel.ts:709` | Each attempt cleanup is wrapped in step 3 | `#retireAttempts` only assigns two nulls |
+| `kernel/kernel.ts:1176` | The click suppressor arms "only after activation" | It arms on the line before `#activate` |
+| `kernel/invalidation.ts:10` | `FrameTask` handles exception forwarding and release flushing | Reported by the pass; only the claim's text was read here |
+| `sortable/placement.ts:134`, `:138` | An `append` fallback for an end gap | The code calls `insertion.before!.after(placeholder)` |
+| `sortable/rect-index.ts:152` | Reallocated only when the collection outgrows it | The branch also reallocates when capacity exceeds `4 * length` |
+| `sortable/linear-shift.ts:144` | Every invalidation discards `#rowDistance` | `#abandonCache` invalidates the index and keeps it |
+| `free-drag/spec.ts:317` | No composed-path search | `admit` calls `path.indexOf(this.#root)` |
+| `free-drag/assemble.ts:13` | Every slot is nullable | Reported: `onDrop`, `axis`, `threshold`, `liftMode` are not; the slot types were not re-read here |
+
+The pass also reported these, and they have **not** been confirmed: `sortable/feature.ts:119` (the one hook that may read geometry), `sortable.ts:4` ("nothing else", while `y()` has its own entry), `sortable/spec.ts:179`, `:1457`, `:1668`, `kernel/kernel.ts:1172` (`pointerdown` "was prevented"), `sortable/rect-index.ts:249`, `sortable/linear-shift.ts:56`, `sortable/y.ts:132` (published G6), `:267`, `sortable/xy.ts:166`, `sortable/layout-animation.ts:103`, `:249`, `sortable/collection.ts:27`, `:162`, and in free drag `spec.ts:130`, `:587`, `:835`, `:850`, `:886`, `domain.ts:83`, `free-drag.ts:160`, `controller.ts:20`, `feature.ts:97`, `:112`, `landing.ts:7`. Line numbers are at this commit. The earlier `pilot-1` to `pilot-9` and the activation-measurement question stay open and unchanged in meaning.
+
+**Next.** One independent cleanup review of `2f96cf3d4..` covers the driver batch and this pass. The type and instruction units follow separately.
+
+**Reusable guidance, 2026-11-06.** After trying the new drag prototype, the owner requested that the STE pass's naming, commenting and self-documentation guidance be established before production implementation. The [technical English guide](../../../.agents/docs/technical-english.md) now carries the reusable guidance; `CONTRIBUTING.md` links it from the source conventions, and `AGENTS.md` requires it for new names and English writing. `CLAUDE.md` already reads `AGENTS.md`, so it needs no duplicate rules. This documentation unit changes no source and does not rewrite existing journals, reviews, decisions or measurements. It adds no word bans, sentence limits, comment quotas or verification gates. The named union variants and the old source findings are not changed by this unit.
+
+**Merge preparation, 2026-11-06.** The owner requested the PR and merge of `drag2/terminology-ste`. The previously requested formatter exclusion is now limited to the three raw recordings named in [the execution-flow report](reviews/architecture/current-execution-flow.md); their SHA-256 hashes are unchanged. At `31da0c56e`, package typecheck passes and the whole drag2 suite gives 1494 passed, 68 skipped, with all 78 files passing, including the size controls. Source lint reports the same 14 errors as `main` at `1c25e576c`, allowing for the `seams.ts` to `behavior-runner.ts` rename and line shifts. Formatting passes for the changed supported files. The seven files reported by the root format check are byte-identical to `main`. Three `git diff --check` warnings remain in two verbatim single-pass probe files; the evidence is preserved rather than rewritten. The new package implementation and its prototype remain outside this branch.
+
 **Scope and order.**
 
 1. **Audit terminology and names, starting with a small kernel sample.** Check whether each important term is established platform vocabulary, a useful domain concept, or a local invention. Assess its meaning at call sites, consistency across names and comments, and whether it distinguishes something the implementation actually needs. Keep useful terms; propose clearer names for unexplained metaphors, conflicting terms and unnecessary synonyms. `startTail` and `runLeaf` are owner-supplied examples to assess, not approved renames. A glossary alone does not resolve an unclear name.

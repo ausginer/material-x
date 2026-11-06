@@ -1,0 +1,8 @@
+{
+  "production transform write, median sample": 15,
+  "production transform write, deepest": 18,
+  "production placeholder move": 18,
+  "prototype transform write, median sample": 5,
+  "prototype transform write, deepest": 6,
+  "prototype placeholder move": 5
+}

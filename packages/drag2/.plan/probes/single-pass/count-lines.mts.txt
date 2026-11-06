@@ -1,0 +1,17 @@
+import ts from '/workspaces/material-x/node_modules/typescript/lib/typescript.js';
+import { readFileSync } from 'node:fs';
+const root='/workspaces/material-x/.claude/worktrees/drag2-single-pass/packages/drag2/';
+const count=(f:string)=>{const src=readFileSync(root+f,'utf8');const raw=src.split('\n').length-1;
+ // Code lines: statements and declarations, comments and blanks removed, types kept.
+ const sf=ts.createSourceFile(f,src,ts.ScriptTarget.ES2022,true);const printer=ts.createPrinter({removeComments:true});
+ const code=printer.printFile(sf).split('\n').filter(l=>l.trim()).length;return {raw,code};};
+const groups:Record<string,string[]>={
+ 'production lifecycle (queue, frames, phases, runner, kernel, SPI)':['src/kernel/kernel.ts','src/kernel/behavior-runner.ts','src/kernel/execution.ts','src/kernel/queue.ts','src/kernel/transaction.ts','src/kernel/frames.ts','src/kernel/phases.ts','src/kernel/actions.ts','src/kernel/spec.ts'],
+ 'production sortable glue':['src/sortable/spec.ts','src/sortable/behavior.ts','src/sortable/controller.ts','src/sortable/frames.ts','src/sortable/runtime.ts'],
+ 'production free-drag glue':['src/free-drag/spec.ts','src/free-drag/behavior.ts','src/free-drag/controller.ts','src/free-drag/frames.ts','src/free-drag/runtime.ts'],
+ 'prototype kernel':['prototype/gesture.ts'],
+ 'prototype sortable glue':['prototype/sortable.ts'],
+ 'prototype free-drag glue':['prototype/free-drag.ts'],
+ 'shared, unchanged (presentation, lifetimes, pointer, axis, cache, features)':['src/kernel/presentation.ts','src/kernel/lifetimes.ts','src/kernel/pointer.ts','src/kernel/invalidation.ts','src/kernel/realm.ts','src/kernel/errors.ts','src/kernel/failures.ts','src/kernel/warn-on-throw.ts','src/kernel/input-policy.ts','src/sortable/y.ts','src/sortable/xy.ts','src/sortable/rect-index.ts','src/sortable/linear-shift.ts','src/sortable/layout-animation.ts','src/sortable/landing.ts','src/sortable/placement.ts','src/sortable/collection.ts','src/sortable/keyboard.ts','src/sortable/assemble.ts','src/sortable/config.ts','src/sortable/domain.ts','src/sortable/slots.ts','src/free-drag/assemble.ts','src/free-drag/bounds.ts','src/free-drag/config.ts','src/free-drag/domain.ts','src/free-drag/geometry.ts','src/free-drag/slots.ts','src/shared/composition.ts','src/shared/landing.ts'],
+};
+for(const [g,fs] of Object.entries(groups)){let raw=0,code=0;for(const f of fs){const c=count(f);raw+=c.raw;code+=c.code;}console.log(g.padEnd(76),String(raw).padStart(6),'raw',String(code).padStart(6),'code');}

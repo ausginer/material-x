@@ -1,0 +1,6 @@
+production sortable + y        35266 min  12265 gz  11032 br
+prototype sortable + y         23833 min   9213 gz   8265 br
+production complete            36557 min  12835 gz  11533 br
+prototype complete             25121 min   9784 gz   8740 br
+production free drag           27984 min   9613 gz   8627 br
+prototype free drag            17175 min   6757 gz   6025 br

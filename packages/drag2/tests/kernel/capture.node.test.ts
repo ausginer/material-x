@@ -112,13 +112,13 @@ const membersWhere = (
 const CONTEXT = [
   '#realm',
   '#root',
-  '#bracket',
-  '#ingress',
+  '#loop',
+  '#listenerSignal',
   '#spec',
   '#frames',
-  '#driver',
+  '#runner',
   'report',
-  '#unwind',
+  '#warnOnThrow',
 ];
 
 describe('the armed controller', () => {
@@ -198,6 +198,9 @@ describe('the current-operation slots', () => {
     expect(read).toEqual([
       // Request intake.
       '#cancelWith',
+      // Retirement, steps 3–6 written once.
+      '#disposeOperationState',
+      // Request intake.
       '#failOperation',
       // Unit entries: each resolves the records once and passes them down.
       '#handleActivate',
@@ -210,8 +213,6 @@ describe('the current-operation slots', () => {
       '#handleResolutionSettled',
       '#handleStartCommitted',
       '#handleUp',
-      // Retirement, steps 3–6 written once.
-      '#release',
     ]);
   });
 
@@ -226,8 +227,8 @@ describe('the current-operation slots', () => {
 
     expect(written).toEqual([
       '#acquireActivation',
-      '#mintOperation',
-      '#release',
+      '#createOperation',
+      '#disposeOperationState',
     ]);
   });
 
@@ -251,7 +252,7 @@ const EXECUTION = join(SRC, 'kernel/execution.ts');
 
 /**
  * **The bracket's lifecycle accessors, derived rather than listed**: every
- * `ExecutionBracket` getter whose body reads `#lifecycle`. A reader through an
+ * `ExecutionLoop` getter whose body reads `#lifecycle`. A reader through an
  * accessor added later is found by the census below without editing it, which
  * a list of names would not do.
  */
@@ -260,11 +261,11 @@ async function lifecycleAccessors(): Promise<ReadonlySet<string>> {
   const bracket = source.statements.find(
     (statement): statement is ts.ClassDeclaration =>
       ts.isClassDeclaration(statement) &&
-      statement.name?.text === 'ExecutionBracket',
+      statement.name?.text === 'ExecutionLoop',
   );
 
   if (!bracket) {
-    throw new Error('ExecutionBracket is not declared in execution.ts');
+    throw new Error('ExecutionLoop is not declared in execution.ts');
   }
 
   return new Set(
@@ -278,7 +279,7 @@ async function lifecycleAccessors(): Promise<ReadonlySet<string>> {
 /**
  * Every read of a ledger fact inside the armed controller, as `member: fact`:
  * the lifecycle request through any of the bracket's lifecycle accessors on
- * `this.#bracket`, an operation's cancel request and registered failure, and a
+ * `this.#loop`, an operation's cancel request and registered failure, and a
  * checkpoint's supersession record. A write — the assignment that registers or
  * consumes — is not a read.
  *
@@ -311,7 +312,7 @@ function ledgerReads(
         parent.operatorToken.kind === ts.SyntaxKind.EqualsToken;
       const read =
         (lifecycle.has(name) &&
-          node.expression.getText(source) === 'this.#bracket') ||
+          node.expression.getText(source) === 'this.#loop') ||
         facts.has(name);
 
       if (!written && read) {
@@ -450,13 +451,13 @@ describe('the read census', () => {
       // The runner: the bracket's own reads of the lifecycle request, before
       // each queued unit, at the outermost boundary, at depth-0 application
       // and before an ingress pass — and the two accessors that expose it.
-      'kernel/execution.ts › ExecutionBracket.#leave: #lifecycle',
-      'kernel/execution.ts › ExecutionBracket.#step: #lifecycle',
-      'kernel/execution.ts › ExecutionBracket.closed: #lifecycle',
-      'kernel/execution.ts › ExecutionBracket.dispatch: #lifecycle',
-      'kernel/execution.ts › ExecutionBracket.idle: #lifecycle',
-      'kernel/execution.ts › ExecutionBracket.requestClose: #lifecycle',
-      'kernel/execution.ts › ExecutionBracket.runIngress: idle',
+      'kernel/execution.ts › ExecutionLoop.#leave: #lifecycle',
+      'kernel/execution.ts › ExecutionLoop.#step: #lifecycle',
+      'kernel/execution.ts › ExecutionLoop.closed: #lifecycle',
+      'kernel/execution.ts › ExecutionLoop.dispatch: #lifecycle',
+      'kernel/execution.ts › ExecutionLoop.idle: #lifecycle',
+      'kernel/execution.ts › ExecutionLoop.requestClose: #lifecycle',
+      'kernel/execution.ts › ExecutionLoop.runNativeEvent: idle',
       // Intake in the armed controller.
       'kernel/kernel.ts › ArmedController.#cancelWith: cancelRequest',
       'kernel/kernel.ts › ArmedController.#cancelWith: closed',
@@ -498,8 +499,8 @@ describe('teardown', () => {
       membersWhere(found, ({ node }) => node.parent.getText(source) === text);
 
     expect([sites('this.#spec.retire'), sites('this.#frames.retire')]).toEqual([
-      ['#release'],
-      ['#release'],
+      ['#disposeOperationState'],
+      ['#disposeOperationState'],
     ]);
   });
 
@@ -510,7 +511,7 @@ describe('teardown', () => {
       membersWhere(
         accesses(armedClass(source), source),
         (access) =>
-          access.field === '#release' &&
+          access.field === '#disposeOperationState' &&
           ts.isCallExpression(access.node.parent),
       ),
     ).toEqual(['#retireOperation', 'teardown']);

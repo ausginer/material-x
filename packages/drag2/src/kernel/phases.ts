@@ -1,11 +1,11 @@
-// The eight-phase vocabulary. A module header rather than a doc block, for the
+// The eight-phase vocabulary. A module header and not a doc block, for the
 // reason `kernel/types.ts` states.
 //
-// Two of these are named for a state they describe only *after* their effect
-// runs. `ACTIVATING` is committed **before** `activation.effect` inserts the
-// placeholder, and `FINALIZING` is committed **before** the join releases
-// presentation and starts the tail. The names describe the phase from its
-// commit, which is when it becomes observable.
+// Two of these are named for a state they describe only after their effect
+// runs. `ACTIVATING` is committed before `activation.effect` inserts the
+// placeholder. `FINALIZING` is committed before `#finalizeSettlement` disposes
+// presentation and starts the landing animation. The names describe the phase
+// from its commit, which is when it becomes observable.
 
 /** No operation. The only phase that admits input. */
 export const IDLE = 0;
@@ -21,7 +21,7 @@ export const RELEASING = 4;
 export const SETTLING = 5;
 /** `onError` in flight. */
 export const REPORTING = 6;
-/** Finalization in progress: release, interpolate, report. */
+/** Finalization in progress: dispose presentation, animate, report. */
 export const FINALIZING = 7;
 
 export type Phase =
