@@ -245,7 +245,9 @@ describe('drag:DRI-15 placeholder integrity', () => {
 
     basicSortable(list, {
       onEnd(result) {
-        results.push(`${result.type}:${(result as { origin?: string }).origin}`);
+        results.push(
+          `${result.type}:${(result as { origin?: string }).origin}`,
+        );
       },
     });
     await grab('#r0', 0, 20);
@@ -299,7 +301,8 @@ describe('sortable options', () => {
     const list = makeList(3);
 
     for (const row of rowsOf(list)) {
-      row.innerHTML = '<span class="grip" style="display:inline-block;width:40px;height:40px"></span>';
+      row.innerHTML =
+        '<span class="grip" style="display:inline-block;width:40px;height:40px"></span>';
     }
 
     basicSortable(list, {
@@ -384,7 +387,11 @@ describe('sortable options', () => {
   });
 
   it('should resolve a grid with xy()', async () => {
-    const list = makeList(6, document.body, 'display:flex;flex-wrap:wrap;width:300px');
+    const list = makeList(
+      6,
+      document.body,
+      'display:flex;flex-wrap:wrap;width:300px',
+    );
 
     for (const row of rowsOf(list)) {
       row.style.cssText = 'width:100px;height:60px;touch-action:none';
@@ -403,7 +410,11 @@ describe('sortable options', () => {
   });
 
   it('should animate displaced rows with layoutAnimation, in xy() too', async () => {
-    const list = makeList(6, document.body, 'display:flex;flex-wrap:wrap;width:300px');
+    const list = makeList(
+      6,
+      document.body,
+      'display:flex;flex-wrap:wrap;width:300px',
+    );
 
     for (const row of rowsOf(list)) {
       row.style.cssText = 'width:100px;height:60px;touch-action:none';
@@ -475,7 +486,9 @@ describe('sortable options', () => {
     await moveHeld(start.x, start.y + 30);
     await release();
     // The pointer is over the row scrolled to that height: r5 is at 200 + 30 + 20.
-    expect(rowsOf(list).indexOf(document.querySelector('#r0')!)).toBeGreaterThan(4);
+    expect(
+      rowsOf(list).indexOf(document.querySelector('#r0')!),
+    ).toBeGreaterThan(4);
 
     log.length = 0;
     outer.scrollTop = 0;

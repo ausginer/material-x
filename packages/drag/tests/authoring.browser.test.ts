@@ -41,7 +41,9 @@ function mountCanvas(canvasCss: string, fails = false): CanvasGroup {
     canvas,
     () => {
       log.push('save');
-      return fails ? Promise.reject(new Error('save failed')) : Promise.resolve();
+      return fails
+        ? Promise.reject(new Error('save failed'))
+        : Promise.resolve();
     },
     () => {},
   );
@@ -55,20 +57,28 @@ describe('drag:DRI-18 resize handle', () => {
     const box = document.createElement('div');
 
     box.id = 'box';
-    box.style.cssText = 'position:relative;width:200px;height:100px;background:#ccd';
-    box.innerHTML = '<div id="grip" style="position:absolute;right:0;bottom:0;width:20px;height:20px;background:#88a;touch-action:none"></div>';
+    box.style.cssText =
+      'position:relative;width:200px;height:100px;background:#ccd';
+    box.innerHTML =
+      '<div id="grip" style="position:absolute;right:0;bottom:0;width:20px;height:20px;background:#88a;touch-action:none"></div>';
     document.body.append(box);
 
-    const panel = resizeHandle(box.firstElementChild as HTMLElement, box, (size) => {
-      log.push(typeof size === 'string' ? size : 'resized');
-    });
+    const panel = resizeHandle(
+      box.firstElementChild as HTMLElement,
+      box,
+      (size) => {
+        log.push(typeof size === 'string' ? size : 'resized');
+      },
+    );
 
     onCleanup(() => panel.requestDestroy());
     await grab('#grip', 50, 30);
     await commands.pointerMove(600, 400);
     await frames();
     expect(box.offsetWidth).toBeGreaterThan(250);
-    expect(document.querySelector('#grip')!.hasAttribute('popover')).toBe(false);
+    expect(document.querySelector('#grip')!.hasAttribute('popover')).toBe(
+      false,
+    );
     await commands.keyPress('Escape');
     expect(box.offsetWidth).toBe(200);
     await release();
@@ -78,8 +88,10 @@ describe('drag:DRI-18 resize handle', () => {
   it('should resize in viewport distance inside a scaled parent', async () => {
     const parent = document.createElement('div');
 
-    parent.style.cssText = 'transform:scale(.5);transform-origin:0 0;width:600px';
-    parent.innerHTML = '<div id="box" style="position:relative;width:200px;height:100px"><div id="grip" style="position:absolute;right:0;bottom:0;width:20px;height:20px;touch-action:none"></div></div>';
+    parent.style.cssText =
+      'transform:scale(.5);transform-origin:0 0;width:600px';
+    parent.innerHTML =
+      '<div id="box" style="position:relative;width:200px;height:100px"><div id="grip" style="position:absolute;right:0;bottom:0;width:20px;height:20px;touch-action:none"></div></div>';
     document.body.append(parent);
 
     const box = parent.querySelector<HTMLElement>('#box')!;
@@ -96,33 +108,38 @@ describe('drag:DRI-18 resize handle', () => {
 });
 
 describe('drag:DRI-18 drop zone', () => {
-  it.each([true, false])('should land an async verdict of %s where it says', async (accepts) => {
-    const board = document.createElement('div');
+  it.each([true, false])(
+    'should land an async verdict of %s where it says',
+    async (accepts) => {
+      const board = document.createElement('div');
 
-    board.style.cssText = 'display:flex;gap:40px';
-    board.innerHTML = `
+      board.style.cssText = 'display:flex;gap:40px';
+      board.innerHTML = `
       <div class="zone" id="z1" style="width:150px;height:200px;background:#eee"><div class="card" id="card" style="height:40px;background:#ccd;touch-action:none;user-select:none"></div></div>
       <div class="zone" id="z2" style="width:150px;height:200px;background:#eee"></div>`;
-    document.body.append(board);
+      document.body.append(board);
 
-    const panel = dropZone(board, async (_, zone) => {
-      log.push(`save:${zone.id}`);
-      await wait(20);
-      return accepts;
-    });
+      const panel = dropZone(board, async (_, zone) => {
+        log.push(`save:${zone.id}`);
+        await wait(20);
+        return accepts;
+      });
 
-    onCleanup(() => panel.requestDestroy());
+      onCleanup(() => panel.requestDestroy());
 
-    const home = centerOf('#card');
-    const zone = centerOf('#z2');
+      const home = centerOf('#card');
+      const zone = centerOf('#z2');
 
-    await grab('#card', zone.x - home.x, zone.y - home.y);
-    await release();
-    await wait(300);
-    expect(log).toEqual(['save:z2']);
-    expect(document.querySelector('#card')!.parentElement!.id).toBe(accepts ? 'z2' : 'z1');
-    expect(document.querySelector('#z2')!.className).toBe('zone');
-  });
+      await grab('#card', zone.x - home.x, zone.y - home.y);
+      await release();
+      await wait(300);
+      expect(log).toEqual(['save:z2']);
+      expect(document.querySelector('#card')!.parentElement!.id).toBe(
+        accepts ? 'z2' : 'z1',
+      );
+      expect(document.querySelector('#z2')!.className).toBe('zone');
+    },
+  );
 });
 
 describe('drag:DRI-18 canvas group', () => {
@@ -146,7 +163,9 @@ describe('drag:DRI-18 canvas group', () => {
 
     const after = centerOf('#c');
 
-    expect(Math.hypot(after.x - before.x - 60, after.y - before.y - 20)).toBeLessThan(1);
+    expect(
+      Math.hypot(after.x - before.x - 60, after.y - before.y - 20),
+    ).toBeLessThan(1);
     await release();
   });
 
@@ -184,7 +203,9 @@ describe('drag:DRI-18 canvas group', () => {
     await moveHeld(start.x + 20, start.y + 60);
     await moveHeld(start.x + 21, start.y + 61);
     group.nudge(10);
-    expect(document.querySelector<HTMLElement>('#a')!.style.translate).not.toBe('');
+    expect(document.querySelector<HTMLElement>('#a')!.style.translate).not.toBe(
+      '',
+    );
     await commands.keyPress('Escape');
   });
 });

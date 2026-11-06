@@ -221,7 +221,8 @@ describe('drag:DRI-13 landing', () => {
       settle: (drag) => ({ x: drag.rect.x, y: drag.rect.y }),
     });
 
-    const animate = Element.prototype.animate;
+    // eslint-disable-next-line @typescript-eslint/unbound-method -- restored and called with `this`
+    const { animate } = Element.prototype;
 
     Element.prototype.animate = function capture(keyframes, options) {
       durations.push((options as KeyframeAnimationOptions).duration);

@@ -68,7 +68,12 @@ export function canvasGroup(
     const { state } = drag;
     const [first] = state.origins;
 
-    localDelta(state.basis, drag.x - drag.originX, drag.y - drag.originY, local);
+    localDelta(
+      state.basis,
+      drag.x - drag.originX,
+      drag.y - drag.originY,
+      local,
+    );
 
     const rawX = local[0]! + state.nudgeX;
     const rawY = local[1]!;
@@ -87,7 +92,7 @@ export function canvasGroup(
     );
   };
 
-  const panel = draggable<State, void>(canvas, {
+  const panel = draggable<State, undefined>(canvas, {
     threshold: 3,
 
     admit(event) {
@@ -178,6 +183,8 @@ export function canvasGroup(
             element.style.left = `${left}px`;
             element.style.top = `${top}px`;
           }
+
+          return undefined;
         });
     },
   });

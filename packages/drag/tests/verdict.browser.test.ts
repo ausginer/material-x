@@ -130,7 +130,7 @@ describe('drag:DRI-5 verdict', () => {
   it('should read then once, and take the first completion', async () => {
     const list = makeList(2);
     let reads = 0;
-    const outcomes: Outcome<string>[] = [];
+    const outcomes: Array<Outcome<string>> = [];
 
     managed<undefined, string>(list, {
       admit: (event) => ({ item: targetOf(event) }),
@@ -170,20 +170,23 @@ describe('drag:DRI-5 verdict', () => {
         },
       },
     ],
-  ] as const)('should treat a throwing then %s as a fault', async (name, value) => {
-    const list = makeList(2);
+  ] as const)(
+    'should treat a throwing then %s as a fault',
+    async (name, value) => {
+      const list = makeList(2);
 
-    managed<undefined, string>(list, {
-      admit: (event) => ({ item: targetOf(event) }),
-      drop: () => () => value as unknown as PromiseLike<string>,
-      end(_, outcome) {
-        log.push(`end:${outcome.type}`);
-      },
-    });
-    await dragAndDrop('#r0', 30);
-    expect(faultMessages()).toEqual([name]);
-    expect(log).toEqual(['end:canceled']);
-  });
+      managed<undefined, string>(list, {
+        admit: (event) => ({ item: targetOf(event) }),
+        drop: () => () => value as unknown as PromiseLike<string>,
+        end(_, outcome) {
+          log.push(`end:${outcome.type}`);
+        },
+      });
+      await dragAndDrop('#r0', 30);
+      expect(faultMessages()).toEqual([name]);
+      expect(log).toEqual(['end:canceled']);
+    },
+  );
 
   it('should deliver a thrown and a rejected verdict as the reported fault', async () => {
     const list = makeList(4);

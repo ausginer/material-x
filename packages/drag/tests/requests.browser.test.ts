@@ -152,9 +152,7 @@ describe('drag:DRI-1 a request does not change the running step', () => {
       settle(_, outcome) {
         cancelInSettle = true;
         panel.requestCancel('too late');
-        log.push(
-          `settle:${String((outcome as { reason?: unknown }).reason)}`,
-        );
+        log.push(`settle:${String((outcome as { reason?: unknown }).reason)}`);
         return null;
       },
       end(_, outcome) {
@@ -439,11 +437,13 @@ describe('drag:DRI-8 deferred writes', () => {
     const list = makeList(2);
     const seen: unknown[] = [];
     let finish: (() => void) | null = null;
-    const panel = managed<undefined, void>(list, {
+    const panel = managed<undefined, string>(list, {
       admit: (event) => ({ item: targetOf(event) }),
       drop: () => () =>
-        new Promise<void>((resolve) => {
-          finish = resolve;
+        new Promise<string>((resolve) => {
+          finish = () => {
+            resolve('done');
+          };
         }),
     });
 

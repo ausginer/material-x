@@ -149,7 +149,7 @@ type Hooks<View, Admitted, Settled, Verdict> = Readonly<{
    * Everything that can fail. `false` declines quietly and a throw is a fault.
    * Neither gets `start` or `end`.
    */
-  activate?(drag: View): void | false;
+  activate?(drag: View): false | undefined;
   /** The consumer's notification. From here `end` is guaranteed. */
   start?(drag: View): void;
   move?(drag: View): void;
@@ -233,18 +233,14 @@ const NOOP = (): void => {};
 
 /** One operation. Its absence means idle, so a late request reaches nothing. */
 type Session<State, Verdict> = {
-  readonly view: SessionView<State>;
+  view: SessionView<State>;
   readonly admission: LiftedAdmission<State>;
   /** Pointer samples, closed at the drop or the decision. */
   readonly motion: AbortController;
   /** Escape and `drag.signal`, closed when the presentation is released. */
   readonly operation: AbortController;
   readonly disposers: DragDisposer[];
-  phase:
-    | typeof PENDING
-    | typeof ACTIVE
-    | typeof DROPPING
-    | typeof CONCLUDED;
+  phase: typeof PENDING | typeof ACTIVE | typeof DROPPING | typeof CONCLUDED;
   /** The first cancel, fault or verdict. Whichever arrives first decides. */
   decision: Outcome<Verdict> | null;
   /** The sequence's next step, run unless a request outranks it. */
@@ -342,7 +338,9 @@ function armClickGuard(target: Window, pointerId: number): void {
     (event) => {
       // WebKit's click is a `MouseEvent` with no `pointerId`, whatever the
       // library type says.
-      if (((event.pointerId as number | undefined) ?? pointerId) === pointerId) {
+      if (
+        ((event.pointerId as number | undefined) ?? pointerId) === pointerId
+      ) {
         expire();
         event.preventDefault();
         event.stopPropagation();
@@ -598,33 +596,9 @@ class Gesture<State, Verdict> {
   ): Session<State, Verdict> {
     const motion = new AbortController();
     const operation = new AbortController();
-    const view = {
-      item: admission.item,
-      state: admission.state as State,
-      pointerId,
-      x,
-      y,
-      originX: x,
-      originY: y,
-      signal: operation.signal,
-      use: (dispose: DragDisposer): void => {
-        if (operation.signal.aborted) {
-          this.#dispose(dispose, this.#destroyed ? null : session.decision);
-        } else {
-          session.disposers.push(dispose);
-        }
-      },
-      requestStep: this.requestStep,
-      requestCancel: (reason?: unknown): void => {
-        if (this.#session === session) {
-          this.#cancel(reason, 'request');
-        }
-      },
-      // A lift fills the rest before `activate`, and only a behavior composed
-      // with `lift` can name them.
-    } as SessionView<State>;
     const session: Session<State, Verdict> = {
-      view,
+      // Filled below, because its methods close over this record.
+      view: null as never,
       admission,
       motion,
       operation,
@@ -637,6 +611,34 @@ class Gesture<State, Verdict> {
       started: false,
       focused: null,
     };
+    const view: Drag<State> = {
+      item: admission.item,
+      state: admission.state as State,
+      pointerId,
+      x,
+      y,
+      originX: x,
+      originY: y,
+      signal: operation.signal,
+      use: (dispose) => {
+        if (operation.signal.aborted) {
+          this.#dispose(dispose, this.#destroyed ? null : session.decision);
+        } else {
+          session.disposers.push(dispose);
+        }
+      },
+      requestStep: this.requestStep,
+      requestCancel: (reason) => {
+        if (this.#session === session) {
+          this.#cancel(reason, 'request');
+        }
+      },
+    };
+
+    // A lift fills the rest before `activate`, and only a behavior composed with
+    // `lift` can name them.
+    session.view = view as unknown as SessionView<State>;
+
     const { document } = this.#window;
 
     if (pointerId !== COMMAND_POINTER_ID) {
@@ -830,7 +832,7 @@ class Gesture<State, Verdict> {
       if (typeof then === 'function') {
         // Read once and called on its own value, because a thenable's `then`
         // can be an accessor.
-        // eslint-disable-next-line @typescript-eslint/unbound-method -- see above
+
         then.call(
           value,
           (settled: unknown) => {

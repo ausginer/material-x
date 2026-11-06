@@ -140,7 +140,7 @@ describe('drag:DRI-11 the click guard', () => {
     list.addEventListener(
       'pointerdown',
       (event) => {
-        pointerId = event.pointerId;
+        ({ pointerId } = event);
       },
       { once: true },
     );

@@ -1,3 +1,5 @@
+/* oxlint-disable typescript/no-unsafe-call -- each such line expects a type error */
+/* eslint-disable @typescript-eslint/no-unsafe-call -- each such line expects a type error */
 /** `drag:DRI-18`: the type requirement. Checked by `tsc`, with no run. */
 import { describe, it } from 'vitest';
 import { draggable, type Drag } from '../src/draggable.ts';

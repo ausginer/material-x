@@ -206,6 +206,61 @@ type WritableLiftedDrag<State> = {
 };
 
 /**
+ * The flight is additive, so it composes with whatever else animates the visual.
+ * Elevation is a separate replacing animation: added to an item's own `z-index`,
+ * the sum wraps in WebKit and the item goes under its siblings.
+ */
+function startLandingAnimation<State>(
+  view: LiftedDrag<State>,
+  realm: Window,
+  landing: Landing,
+): (() => void) | null {
+  const { visual, rect, visualSpace, translatedX, translatedY } = view;
+  const local = delta();
+
+  if (
+    !localDelta(
+      visualSpace,
+      translatedX - (landing.x - rect.x),
+      translatedY - (landing.y - rect.y),
+      local,
+    ) ||
+    (local[0] === 0 && local[1] === 0)
+  ) {
+    return null;
+  }
+
+  const duration = realm.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 0
+    : (landing.duration ?? DEFAULT_LANDING_DURATION);
+  const flight = visual.animate(
+    [{ translate: `${local[0]!}px ${local[1]!}px` }, { translate: '0 0' }],
+    {
+      duration,
+      easing: landing.easing ?? DEFAULT_LANDING_EASING,
+      composite: 'add',
+    },
+  );
+
+  if (duration === 0) {
+    return () => {
+      flight.cancel();
+    };
+  }
+
+  const keyframe =
+    realm.getComputedStyle(visual).position === 'static'
+      ? { zIndex: TOP_Z_INDEX, position: 'relative' }
+      : { zIndex: TOP_Z_INDEX };
+  const elevation = visual.animate([keyframe, keyframe], { duration });
+
+  return () => {
+    flight.cancel();
+    elevation.cancel();
+  };
+}
+
+/**
  * Composes the top-layer lift: pass this function as a behavior's `lift`. The
  * kernel calls it at activation, and a behavior does not call it.
  *
@@ -303,60 +358,5 @@ export function lift<State>(
       }
     },
     land: (landing) => startLandingAnimation(view, realm, landing),
-  };
-}
-
-/**
- * The flight is additive, so it composes with whatever else animates the visual.
- * Elevation is a separate replacing animation: added to an item's own `z-index`,
- * the sum wraps in WebKit and the item goes under its siblings.
- */
-function startLandingAnimation<State>(
-  view: LiftedDrag<State>,
-  realm: Window,
-  landing: Landing,
-): (() => void) | null {
-  const { visual, rect, visualSpace, translatedX, translatedY } = view;
-  const local = delta();
-
-  if (
-    !localDelta(
-      visualSpace,
-      translatedX - (landing.x - rect.x),
-      translatedY - (landing.y - rect.y),
-      local,
-    ) ||
-    (local[0] === 0 && local[1] === 0)
-  ) {
-    return null;
-  }
-
-  const duration = realm.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ? 0
-    : (landing.duration ?? DEFAULT_LANDING_DURATION);
-  const flight = visual.animate(
-    [{ translate: `${local[0]!}px ${local[1]!}px` }, { translate: '0 0' }],
-    {
-      duration,
-      easing: landing.easing ?? DEFAULT_LANDING_EASING,
-      composite: 'add',
-    },
-  );
-
-  if (duration === 0) {
-    return () => {
-      flight.cancel();
-    };
-  }
-
-  const keyframe =
-    realm.getComputedStyle(visual).position === 'static'
-      ? { zIndex: TOP_Z_INDEX, position: 'relative' }
-      : { zIndex: TOP_Z_INDEX };
-  const elevation = visual.animate([keyframe, keyframe], { duration });
-
-  return () => {
-    flight.cancel();
-    elevation.cancel();
   };
 }

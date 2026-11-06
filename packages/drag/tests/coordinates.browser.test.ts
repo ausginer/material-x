@@ -1,10 +1,30 @@
 /** `drag:DRI-16`: one coordinate model. */
-import { ancestry, box, coordinates, delta, localDelta, space } from '@ydinjs/box-quad';
+import {
+  ancestry,
+  box,
+  coordinates,
+  delta,
+  localDelta,
+  space,
+} from '@ydinjs/box-quad';
 import { describe, expect, it } from 'vitest';
 import { lift } from '../src/lift.ts';
-import { basicSortable, centerOf, commands, grab, isClean, isChromium, makeList, managed, moveHeld, order, release, frames } from './support/harness.ts';
-import { resizeHandle } from './fixtures/resize-handle.ts';
 import { y } from '../src/sortable/y.ts';
+import { resizeHandle } from './fixtures/resize-handle.ts';
+import {
+  basicSortable,
+  centerOf,
+  commands,
+  grab,
+  isClean,
+  isChromium,
+  makeList,
+  managed,
+  moveHeld,
+  order,
+  release,
+  frames,
+} from './support/harness.ts';
 
 const ENVIRONMENTS: ReadonlyArray<readonly [string, string]> = [
   ['rotate', 'rotate:30deg'],
@@ -59,21 +79,26 @@ const distance = (ax: number, ay: number, bx: number, by: number): number =>
   Math.hypot(ax - bx, ay - by);
 
 describe('drag:DRI-16 no-lift move and resize', () => {
-  it.each(ENVIRONMENTS)('should follow the pointer under %s', async (_name, css) => {
-    const node = makeNode(host(css));
+  it.each(ENVIRONMENTS)(
+    'should follow the pointer under %s',
+    async (_name, css) => {
+      const node = makeNode(host(css));
 
-    mountMove(node);
+      mountMove(node);
 
-    const start = centerOf(node);
+      const start = centerOf(node);
 
-    await grab(node, 40, 25);
-    await frames();
+      await grab(node, 40, 25);
+      await frames();
 
-    const after = centerOf(node);
+      const after = centerOf(node);
 
-    expect(distance(after.x - start.x, after.y - start.y, 40, 25)).toBeLessThan(1);
-    await commands.keyPress('Escape');
-  });
+      expect(
+        distance(after.x - start.x, after.y - start.y, 40, 25),
+      ).toBeLessThan(1);
+      await commands.keyPress('Escape');
+    },
+  );
 
   it('should follow the pointer with own rotate', async () => {
     const node = makeNode(host('transform:scale(.5)'), 'rotate:25deg');
@@ -87,7 +112,9 @@ describe('drag:DRI-16 no-lift move and resize', () => {
 
     const after = centerOf(node);
 
-    expect(distance(after.x - start.x, after.y - start.y, 30, 20)).toBeLessThan(1);
+    expect(distance(after.x - start.x, after.y - start.y, 30, 20)).toBeLessThan(
+      1,
+    );
     await commands.keyPress('Escape');
   });
 
@@ -103,37 +130,49 @@ describe('drag:DRI-16 no-lift move and resize', () => {
 
     const after = centerOf(node);
 
-    expect(distance(after.x - start.x, after.y - start.y, 30, 20)).toBeLessThan(1.5);
+    expect(distance(after.x - start.x, after.y - start.y, 30, 20)).toBeLessThan(
+      1.5,
+    );
     await commands.keyPress('Escape');
   });
 
-  it.each(ENVIRONMENTS)('should resize along the pointer under %s, through the element Box', async (_name, css) => {
-    const target = makeNode(host(css), 'width:120px;height:100px');
-    const handle = document.createElement('div');
+  it.each(ENVIRONMENTS)(
+    'should resize along the pointer under %s, through the element Box',
+    async (_name, css) => {
+      const target = makeNode(host(css), 'width:120px;height:100px');
+      const handle = document.createElement('div');
 
-    handle.id = 'grip';
-    handle.style.cssText = 'position:absolute;right:0;bottom:0;width:20px;height:20px;background:#88a;touch-action:none';
-    target.append(handle);
+      handle.id = 'grip';
+      handle.style.cssText =
+        'position:absolute;right:0;bottom:0;width:20px;height:20px;background:#88a;touch-action:none';
+      target.append(handle);
 
-    const controller = resizeHandle(handle, target, () => {});
-    const measured = box();
+      const controller = resizeHandle(handle, target, () => {});
+      const measured = box();
 
-    coordinates(target, measured);
+      coordinates(target, measured);
 
-    const local = delta();
+      const local = delta();
 
-    localDelta(measured, 15, 10, local);
+      localDelta(measured, 15, 10, local);
 
-    const expectedWidth = 120 + local[0]!;
-    const expectedHeight = 100 + local[1]!;
+      const expectedWidth = 120 + local[0]!;
+      const expectedHeight = 100 + local[1]!;
 
-    await grab(handle, 15, 10);
-    expect(target.offsetWidth).toBeGreaterThan(0);
-    expect(Math.abs(parseFloat(target.style.width) - Math.max(80, expectedWidth))).toBeLessThan(1);
-    expect(Math.abs(parseFloat(target.style.height) - Math.max(60, expectedHeight))).toBeLessThan(1);
-    await commands.pointerUp();
-    await controller.requestDestroy();
-  });
+      await grab(handle, 15, 10);
+      expect(target.offsetWidth).toBeGreaterThan(0);
+      expect(
+        Math.abs(parseFloat(target.style.width) - Math.max(80, expectedWidth)),
+      ).toBeLessThan(1);
+      expect(
+        Math.abs(
+          parseFloat(target.style.height) - Math.max(60, expectedHeight),
+        ),
+      ).toBeLessThan(1);
+      await commands.pointerUp();
+      await controller.requestDestroy();
+    },
+  );
 });
 
 describe('drag:DRI-16 lifted', () => {
@@ -159,7 +198,9 @@ describe('drag:DRI-16 lifted', () => {
 
     const after = centerOf(node);
 
-    expect(distance(after.x - start.x, after.y - start.y, 60, 40)).toBeLessThan(1);
+    expect(distance(after.x - start.x, after.y - start.y, 60, 40)).toBeLessThan(
+      1,
+    );
     await commands.keyPress('Escape');
   });
 
@@ -182,7 +223,9 @@ describe('drag:DRI-16 lifted', () => {
 
     const after = centerOf(node);
 
-    expect(distance(after.x - start.x, after.y - start.y, 60, 40)).toBeLessThan(1.5);
+    expect(distance(after.x - start.x, after.y - start.y, 60, 40)).toBeLessThan(
+      1.5,
+    );
     await commands.keyPress('Escape');
   });
 
@@ -212,27 +255,30 @@ describe('drag:DRI-16 required environments for a sortable', () => {
   it.each([
     ['ancestor scale(.5)', 'transform:scale(.5);transform-origin:0 0'],
     ['ancestor zoom:2', 'zoom:2'],
-  ] as const)('should reorder under %s, following the pointer', async (_name, css) => {
-    const parent = document.createElement('div');
+  ] as const)(
+    'should reorder under %s, following the pointer',
+    async (_name, css) => {
+      const parent = document.createElement('div');
 
-    parent.style.cssText = css;
-    document.body.append(parent);
+      parent.style.cssText = css;
+      document.body.append(parent);
 
-    const list = makeList(5, parent);
+      const list = makeList(5, parent);
 
-    basicSortable(list);
+      basicSortable(list);
 
-    const before = centerOf('#r0');
+      const before = centerOf('#r0');
 
-    await grab('#r0', 60, 40);
+      await grab('#r0', 60, 40);
 
-    const during = centerOf('#r0');
+      const during = centerOf('#r0');
 
-    expect(Math.abs(during.x - before.x - 60)).toBeLessThan(1);
-    expect(Math.abs(during.y - before.y - 40)).toBeLessThan(1);
-    await release();
-    expect(isClean(list)).toBe(true);
-  });
+      expect(Math.abs(during.x - before.x - 60)).toBeLessThan(1);
+      expect(Math.abs(during.y - before.y - 40)).toBeLessThan(1);
+      await release();
+      expect(isClean(list)).toBe(true);
+    },
+  );
 
   it('should reorder a list in a shadow root', async () => {
     const parent = document.createElement('div');
@@ -256,7 +302,8 @@ describe('drag:DRI-16 required environments for a sortable', () => {
   it('should reorder a list in a same-origin iframe the parent controls', async () => {
     const frame = document.createElement('iframe');
 
-    frame.style.cssText = 'width:300px;height:300px;border:0;position:absolute;left:0;top:0';
+    frame.style.cssText =
+      'width:300px;height:300px;border:0;position:absolute;left:0;top:0';
     document.body.append(frame);
 
     const inner = frame.contentDocument!;
@@ -291,7 +338,8 @@ describe('drag:DRI-16 required environments for a sortable', () => {
     const panel = document.createElement('div');
 
     panel.id = 'panel';
-    panel.style.cssText = 'position:fixed;inset:0;z-index:999;pointer-events:none';
+    panel.style.cssText =
+      'position:fixed;inset:0;z-index:999;pointer-events:none';
     document.body.append(panel);
     basicSortable(list);
 
@@ -306,7 +354,10 @@ describe('drag:DRI-16 required environments for a sortable', () => {
     await commands.keyPress('Escape');
   });
 
-  it.runIf(isChromium)('should read a Space for an ancestor it can represent', () => {
-    expect(ancestry(makeList(1), space())).toBe(true);
-  });
+  it.runIf(isChromium)(
+    'should read a Space for an ancestor it can represent',
+    () => {
+      expect(ancestry(makeList(1), space())).toBe(true);
+    },
+  );
 });

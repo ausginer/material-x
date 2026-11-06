@@ -17,7 +17,7 @@ export type DisplacementReport = (
 export type DisplacementSink = Readonly<{
   report: DisplacementReport;
   settle: DisplacementSettle;
-  retire: () => void;
+  retire(): void;
 }>;
 
 export type DisplacementInstaller = () => DisplacementSink;
@@ -44,16 +44,16 @@ export type AxisContext = Readonly<{
 
 export type InsertionGeometry = Readonly<{
   /** A new gap, or `null` when the committed one still wins. */
-  resolve: (query: AxisQuery, context: AxisContext) => Insertion | null;
+  resolve(query: AxisQuery, context: AxisContext): Insertion | null;
   /** Staleness only, because scroll calls it many times a second. */
-  invalidate: () => void;
+  invalidate(): void;
   /** The committed move landed: keep the cache true and report what moved. */
-  moved: (
+  moved(
     query: AxisQuery,
     context: AxisContext,
     report: DisplacementReport | null,
-  ) => void;
-  retire: () => void;
+  ): void;
+  retire(): void;
 }>;
 
 export type AxisInstaller = () => InsertionGeometry;

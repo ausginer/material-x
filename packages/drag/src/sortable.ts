@@ -5,8 +5,11 @@
  */
 import { draggable, type LiftedDrag, type Outcome } from './draggable.ts';
 import { lift } from './lift.ts';
-import { createFrameTask, listenForInvalidation } from './shared/invalidation.ts';
-import type { FrameTask } from './shared/invalidation.ts';
+import {
+  createFrameTask,
+  type FrameTask,
+  listenForInvalidation,
+} from './shared/invalidation.ts';
 import type { LandingTiming } from './shared/landing.ts';
 import type {
   AxisContext,
@@ -384,8 +387,12 @@ export function sortable(
         drag.requestStep(resolveSpatially);
       });
 
-      drag.use(frame.cancel);
-      drag.use(axis.retire);
+      drag.use(() => {
+        frame.cancel();
+      });
+      drag.use(() => {
+        axis.retire();
+      });
       listenForInvalidation(view, drag.signal, () => {
         drag.requestStep(invalidateGeometry);
       });
@@ -454,7 +461,9 @@ export function sortable(
   });
 
   if (sink) {
-    panel.use(sink.retire);
+    panel.use(() => {
+      sink.retire();
+    });
   }
 
   return {

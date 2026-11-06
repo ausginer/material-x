@@ -13,8 +13,8 @@ export function listenForInvalidation(
 }
 
 export type FrameTask = Readonly<{
-  schedule: () => void;
-  cancel: () => void;
+  schedule(): void;
+  cancel(): void;
 }>;
 
 /** One coalesced animation-frame callback. */

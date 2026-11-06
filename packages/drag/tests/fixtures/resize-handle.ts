@@ -3,7 +3,11 @@
  * own box, so the viewport delta converts through that box. Escape restores the size.
  */
 import { box, coordinates, delta, localDelta } from '@ydinjs/box-quad';
-import { draggable, type DraggableController, type Drag } from '../../src/draggable.ts';
+import {
+  draggable,
+  type DraggableController,
+  type Drag,
+} from '../../src/draggable.ts';
 
 type Size = Readonly<{ width: number; height: number }>;
 type State = Size & { readonly basis: Float64Array };

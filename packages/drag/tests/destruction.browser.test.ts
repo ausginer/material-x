@@ -1,6 +1,10 @@
 /** `drag:DRI-10`: destruction. */
 import { describe, expect, it } from 'vitest';
-import type { DraggableController, LiftedDrag } from '../src/draggable.ts';
+import {
+  draggable,
+  type DraggableController,
+  type LiftedDrag,
+} from '../src/draggable.ts';
 import { lift } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { layoutAnimation } from '../src/sortable/layout-animation.ts';
@@ -24,7 +28,6 @@ import {
   targetOf,
   wait,
 } from './support/harness.ts';
-import { draggable } from '../src/draggable.ts';
 
 type Hook =
   | 'admit'

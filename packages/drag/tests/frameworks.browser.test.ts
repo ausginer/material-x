@@ -34,7 +34,7 @@ type Commit = Readonly<{
   rows: readonly string[];
   banner?: boolean;
   /** Runs after the layout effect has committed this state. */
-  committed?: () => void;
+  committed?(): void;
 }>;
 
 type ReactFixture = Readonly<{
@@ -100,8 +100,11 @@ function mountReact(initial: readonly string[]): ReactFixture {
 
   const list = host.querySelector<HTMLElement>('#list')!;
   const results: SortableResult[] = [];
-  let onReorder: (from: number, to: number) => Promise<ReorderResolution> =
-    () => Promise.resolve(ReorderResolution.accept());
+  let onReorder: (
+    from: number,
+    to: number,
+  ) => Promise<ReorderResolution> = () =>
+    Promise.resolve(ReorderResolution.accept());
   const controller = sortable(list, {
     items: () => [...list.querySelectorAll<HTMLElement>('.row')],
     axis: y(),
@@ -194,7 +197,9 @@ describe('a React consumer', () => {
     await grab('#a', 0, 50);
     await commands.pointerUp();
     await frames();
-    expect(fixture.list.querySelector('[data-drag-placeholder]')).not.toBeNull();
+    expect(
+      fixture.list.querySelector('[data-drag-placeholder]'),
+    ).not.toBeNull();
     finish!();
     await wait(0);
     await frames();
@@ -330,8 +335,7 @@ describe('a keyed reconciler that rewrites the whole list', () => {
     const results: SortableResult[] = [];
     let ids = ['a', 'b', 'c', 'd'];
     const controller = sortable(list, {
-      items: () =>
-        ids.map((id) => list.querySelector<HTMLElement>(`#${id}`)!),
+      items: () => ids.map((id) => list.querySelector<HTMLElement>(`#${id}`)!),
       axis: y(),
       onReorder({ from, to }) {
         ids = reordered(ids, from, to);
@@ -364,8 +368,7 @@ describe('a keyed reconciler that rewrites the whole list', () => {
     const list = mountList();
     let ids = ['a', 'b', 'c', 'd'];
     const controller = sortable(list, {
-      items: () =>
-        ids.map((id) => list.querySelector<HTMLElement>(`#${id}`)!),
+      items: () => ids.map((id) => list.querySelector<HTMLElement>(`#${id}`)!),
       axis: y(),
       onReorder({ from, to }) {
         ids = reordered(ids, from, to);

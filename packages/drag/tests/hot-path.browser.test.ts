@@ -108,11 +108,12 @@ describe('drag:DRI-17 hot path', () => {
     await commands.pointerMove(start.x, start.y + 20, 2);
     await frames();
 
-    const requestAnimationFrameOriginal = window.requestAnimationFrame;
+    const requestAnimationFrameOriginal =
+      window.requestAnimationFrame.bind(window);
 
     window.requestAnimationFrame = (callback) => {
       resolved += 1;
-      return requestAnimationFrameOriginal.call(window, callback);
+      return requestAnimationFrameOriginal(callback);
     };
     onCleanup(() => {
       window.requestAnimationFrame = requestAnimationFrameOriginal;
@@ -136,10 +137,13 @@ describe('drag:DRI-17 hot path', () => {
     'should measure a landing target only with a landing composed: %s',
     async (composed, expected) => {
       const list = makeList(4);
+      // eslint-disable-next-line @typescript-eslint/unbound-method -- restored and called with `this`
       const original = Element.prototype.getBoundingClientRect;
       let placeholderReads = 0;
 
-      Element.prototype.getBoundingClientRect = function measure(this: Element) {
+      Element.prototype.getBoundingClientRect = function measure(
+        this: Element,
+      ) {
         if (this.hasAttribute('data-drag-placeholder')) {
           placeholderReads += 1;
         }
@@ -222,7 +226,9 @@ describe('drag:DRI-17 hot path', () => {
       // move remain from reading an event field. An object per sample would show as
       // tens of bytes.
       expect(kernelPerMove, JSON.stringify(bytes)).toBeLessThan(16);
-      expect(liftFunctions, JSON.stringify(bytes)).toEqual(['lift.ts:view.translate']);
+      expect(liftFunctions, JSON.stringify(bytes)).toEqual([
+        'lift.ts:view.translate',
+      ]);
     },
   );
 });

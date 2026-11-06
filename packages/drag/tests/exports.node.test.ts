@@ -2,8 +2,16 @@
 import { readFile } from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
 
-const read = async (name: string): Promise<any> =>
-  JSON.parse(await readFile(new URL(`../${name}`, import.meta.url), 'utf8'));
+type Manifest = Readonly<{
+  runtime: readonly string[];
+  exports: Readonly<Record<string, unknown>>;
+  private: boolean;
+}>;
+
+const read = async (name: string): Promise<Manifest> =>
+  JSON.parse(
+    await readFile(new URL(`../${name}`, import.meta.url), 'utf8'),
+  ) as Manifest;
 
 const ENTRIES = [
   'draggable',
@@ -29,8 +37,8 @@ describe('the public surface', () => {
   it('should export exactly those entries', async () => {
     const manifest = await read('package.json');
 
-    expect([...Object.keys(manifest.exports)].sort()).toEqual(
-      [...ENTRIES.map((entry) => `./${entry}.js`), './package.json'].sort(),
+    expect(new Set(Object.keys(manifest.exports))).toEqual(
+      new Set([...ENTRIES.map((entry) => `./${entry}.js`), './package.json']),
     );
   });
 

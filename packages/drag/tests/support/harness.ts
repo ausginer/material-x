@@ -25,10 +25,12 @@ export class ReactionProbe extends HTMLElement {
   static readonly observedAttributes: readonly string[] = ['data-poke'];
   static react: (() => void) | null = null;
 
+  // oxlint-disable-next-line class-methods-use-this -- a custom element reaction
   connectedCallback(): void {
     ReactionProbe.react?.();
   }
 
+  // oxlint-disable-next-line class-methods-use-this -- a custom element reaction
   attributeChangedCallback(): void {
     ReactionProbe.react?.();
   }
@@ -84,6 +86,22 @@ document.addEventListener('click', (event) => {
   deliveredClicks.push(describeTarget(event));
 });
 
+export function wait(milliseconds: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
+}
+
+export type RefusalCounts = Readonly<{ trusted: number; untrusted: number }>;
+
+export function refusals(): RefusalCounts {
+  return (
+    ((globalThis as Record<string, unknown>)['__dragRefused'] as
+      | RefusalCounts
+      | undefined) ?? { trusted: 0, untrusted: 0 }
+  );
+}
+
 beforeEach(() => {
   log.length = 0;
   faults.length = 0;
@@ -116,12 +134,6 @@ afterEach(async () => {
   // that one's.
   await wait(0);
 });
-
-export function wait(milliseconds: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, milliseconds);
-  });
-}
 
 /** Lets `count` rendering opportunities pass. */
 export function frames(count = 2): Promise<void> {
@@ -257,7 +269,7 @@ export function basicSortable(
   return controller;
 }
 
-/** A custom lifted-free behavior that logs its hooks, for one row per press. */
+/** The pressed row. */
 export function targetOf(event: Event): HTMLElement {
   return event.target as HTMLElement;
 }
@@ -288,14 +300,4 @@ export function isClean(list: HTMLElement): boolean {
 
 export function faultMessages(): string[] {
   return faults.map((fault) => (fault.cause as Error).message);
-}
-
-export type RefusalCounts = Readonly<{ trusted: number; untrusted: number }>;
-
-export function refusals(): RefusalCounts {
-  return (
-    ((globalThis as Record<string, unknown>)['__dragRefused'] as
-      | RefusalCounts
-      | undefined) ?? { trusted: 0, untrusted: 0 }
-  );
 }

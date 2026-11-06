@@ -168,9 +168,9 @@ describe('drag:DRI-9 release order', () => {
     await grab('#r2');
     await commands.keyPress('Escape');
     await release();
-    expect(outcomes.map((outcome) => (outcome as { type: string }).type)).toEqual(
-      ['verdict', 'skipped', 'canceled'],
-    );
+    expect(
+      outcomes.map((outcome) => (outcome as { type: string }).type),
+    ).toEqual(['verdict', 'skipped', 'canceled']);
   });
 
   it('should run disposers last in first out, past a throw', async () => {

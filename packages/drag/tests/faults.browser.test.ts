@@ -1,7 +1,7 @@
 /** `drag:DRI-7`: faults. */
 import { describe, expect, it } from 'vitest';
-import { DragFault } from '../src/fault.ts';
 import type { Outcome } from '../src/draggable.ts';
+import { DragFault } from '../src/fault.ts';
 import {
   dragAndDrop,
   faults,

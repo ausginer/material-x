@@ -93,7 +93,10 @@ export function layoutAnimation(
         // this keyframe is in local units: what the sink stores stays in viewport
         // units, which is what the settle walk assumes.
         const animation = element.animate(
-          [{ translate: `${local[0]!}px ${local[1]!}px` }, { translate: '0 0' }],
+          [
+            { translate: `${local[0]!}px ${local[1]!}px` },
+            { translate: '0 0' },
+          ],
           { duration, easing, composite: 'add' },
         );
         const record: RowAnimation = { animation, dx: sx, dy: sy };

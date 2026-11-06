@@ -283,7 +283,8 @@ export const verifyEquivalence = (
 
   for (let i = 0; mismatch === '' && i < held * STRIDE; i += 1) {
     if (
-      predictedItems[Math.floor(i / STRIDE)] !== items[Math.floor(i / STRIDE)] ||
+      predictedItems[Math.floor(i / STRIDE)] !==
+        items[Math.floor(i / STRIDE)] ||
       differs(predicted[i]!, values[i]!)
     ) {
       mismatch = `slot ${Math.floor(i / STRIDE)}`;
