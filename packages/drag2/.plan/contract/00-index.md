@@ -4,7 +4,7 @@
 
 **Consolidated for an executable implementation probe.** This is the frozen construction model for `drag2`, revised after [review 1](../reviews/contract-probe-2/contract-probe-2-review-1.md) (answered in [`challenge-response.md`](challenge-response.md)), the React placeholder probe, [review 2](../reviews/contract-probe-2/contract-probe-2-review-2.md), [review 3](../reviews/contract-probe-2/contract-probe-2-review-3.md) and [review 4](../reviews/contract-probe-2/contract-probe-2-review-4.md), [review 5](../reviews/contract-probe-2/contract-probe-2-review-5.md) and [review 6](../reviews/contract-probe-2/contract-probe-2-review-6.md) — three pre-implementation consistency, correctness and cost passes.
 
-**The signatures are compiled.** [`packages/drag/docs/contract-probe-2/contract.ts`](../../../../packages/drag/docs/contract-probe-2/contract.ts) holds the representative contracts, a reference sortable behavior implementing every seam, a driver for every seam (admission, activation, `moved`, action, release, settlement, arm, join), and `@ts-expect-error` assertions for **each tier-A claim that is expressible as a type error** — several, such as sealing and hold linearity, are sequencing rules no type can state. It is covered by `npx just typecheck` from `packages/drag`.
+**The signatures were compiled against a probe.** ~~`packages/drag/docs/contract-probe-2/contract.ts`~~, recoverable at `7723f3e8a`, held the representative contracts, a reference sortable behavior implementing every seam, a driver for every seam (admission, activation, `moved`, action, release, settlement, arm, join), and `@ts-expect-error` assertions for **each tier-A claim that is expressible as a type error** — several, such as sealing and hold linearity, are sequencing rules no type can state. It is covered by `npx just typecheck` from `packages/drag`.
 
 **It is a _type_ fixture, not an executable lifecycle reference.** It has no queue, no cancellation state machine, no failure checkpoint, no readiness watch and no landing completion dispatch; where a driver needs one it has an inert stub. At 2,300 lines it can look executable, so this is worth stating plainly: **typecheck cannot catch a lifecycle error there.** The executable cases live in the test matrix in [05](05-lifecycle-invariants.md) and belong to the implementation. **These documents are the source of truth; where the fixture disagrees, the fixture is the bug.**
 
@@ -133,7 +133,7 @@ What this model does **not** improve: per-boundary revalidation inside a `prepar
 | 5 | [`05-lifecycle-invariants.md`](05-lifecycle-invariants.md) | Invariants by tier, findings, open questions, test matrix |
 | 6 | [`06-vertical-sortable-trace.md`](06-vertical-sortable-trace.md) | One complete downward reorder under controlled React, with hot-path accounting |
 | 7 | [`07-free-drag-contract.md`](07-free-drag-contract.md) | Free drag's public surface, its decomposition into config slots and capabilities, its seam mapping, the terminal-barrier enumeration and Phase 19's acceptance criteria (D-69…D-76) |
-| — | [`contract.ts`](../../../../packages/drag/docs/contract-probe-2/contract.ts) | The compiled fixture: representative contracts, a reference behavior, the seam drivers, and `@ts-expect-error` assertions for every tier-A claim |
+| — | ~~`contract.ts`~~, recoverable at `7723f3e8a` | The fixture that was compiled, and that nothing compiles now: representative contracts, a reference behavior, the seam drivers, and `@ts-expect-error` assertions for every tier-A claim |
 | — | [`challenge-response.md`](challenge-response.md) | Provenance: the review-1 answers these documents fold in |
 
 Read 1 → 2 → 4 for the execution model; 3 for composition; 6 to see it run; 7 for the second behavior. Read `contract.ts` when a signature in the prose looks ambiguous — it is the version that has to compile.
@@ -3047,7 +3047,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 
 #### D-210
 
-**Unimplemented (Remediation).** **Retire size baseline B.** Delete `bench/size/shipped.js` and its row, before any package named `@ydinjs/drag` exports `./sortable.js`. Amend M-3 §Specification to drop the migration-context baseline. Add a dated retirement entry to `budget-rebases.md`. No other row moves, and each stays byte-identical. Decided 2026-11-06 under the owner's completion scope for the new package (`drag:DRD-13`), with the reasoning in [`deferred-integration.md`](../../../drag/.plan/deferred-integration.md).
+**Implemented 2026-11-06.** **Retire size baseline B.** Delete `bench/size/shipped.js` and its row, before any package named `@ydinjs/drag` exports `./sortable.js`. Amend M-3 §Specification to drop the migration-context baseline. Add a dated retirement entry to `budget-rebases.md`. No other row moves, and each stays byte-identical. Decided 2026-11-06 under the owner's completion scope for the new package (`drag:DRD-13`), with the reasoning in [`deferred-integration.md`](../../../drag/.plan/deferred-integration.md).
 
 **Why.** The row answered what migrating from the shipped package costs. Nothing is published, and the package is gone, so the question is void. Re-basing freezes a 51 B stub as truth, re-pointing asks a different question under an old name, and a vendored copy keeps removed sources alive.
 
@@ -3065,9 +3065,10 @@ Two witness forms, both source-level: `absent: <path>` — the path does not exi
 
 | Decision | Lands | What is missing | Witness |
 | --- | --- | --- | --- |
-| D-210 | Remediation | Baseline B's fixture and row are still here | present: `bench/size/shipped.js` :: `@ydinjs/drag/sortable.js` |
 
-**D-209's row closed on 2026-11-04 with its acceptance** (record §34). The table has no rows now.
+**D-210's row closed on 2026-11-06 with the row's retirement.** The table has no rows now.
+
+**D-209's row closed on 2026-11-04 with its acceptance** (record §34).
 
 **D-208's row closed on 2026-11-04 with the whole-decision acceptance** (record §31). ~~D-209's row stays.~~
 
@@ -5597,7 +5598,7 @@ The two `retireHooks` **construction** unwinds are outside the question rather t
 
 #### F-431 — `oxfmt` 0.58.0 has no fixed point on one `@ydinjs/drag` document, so root `fmt-check` could not be cleared by `fmt` · repaired 2026-09-10
 
-**Repaired 2026-09-10, tier B. Raised by this pass**, from the external `fmt-check` failure the closure review attributed but did not diagnose. `packages/drag/.plan/contract-attempt-1/08-public-surface.md` fails `oxfmt --check` at the tip and at `91a215001`. Running `oxfmt` on it does not fix it: successive writes **alternate between two states**, so `--check` is red after every write. Reduced to one line — a `Readonly<{ /* comment */ }>` type alias over the 80-column print width inside a fenced `ts` block — and the oscillation reproduces standalone.
+**Repaired 2026-09-10, tier B. Raised by this pass**, from the external `fmt-check` failure the closure review attributed but did not diagnose. ~~`packages/drag/.plan/contract-attempt-1/08-public-surface.md`~~, recoverable at `7723f3e8a`, failed `oxfmt --check` at the tip and at `91a215001`. Running `oxfmt` on it does not fix it: successive writes **alternate between two states**, so `--check` is red after every write. Reduced to one line — a `Readonly<{ /* comment */ }>` type alias over the 80-column print width inside a fenced `ts` block — and the oscillation reproduces standalone.
 
 **Why it is a problem.** The formatter is the single authority for the files a package's `fmt` owns (D-198), and an authority with no fixed point leaves the gate permanently red on a file nothing can format. `handoff.md` refuses the available workaround by name: hand-editing a file to satisfy the tool that just wrote it is what the single-authority rule exists to prevent. Every version from **0.59.0** converges.
 

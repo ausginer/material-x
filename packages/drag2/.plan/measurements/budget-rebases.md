@@ -974,3 +974,10 @@ Exact figures from `just size`, with `drag2` rebuilt. No statistical round ran.
 **Not moved.** `vocabulary root - drag.js` stays at 142 and baseline B at 6,916. Neither graph contains the renamed code.
 
 **No ceiling moved, no control became a ceiling, and no interval is unattributed.** This commit changes only those five `control:` values in `bench/size/measure.ts`. Every row with a ceiling stays under it.
+## Baseline B retired 2026-11-06, D-210: no other row moves
+
+**The row and `bench/size/shipped.js` are deleted, before any package named `@ydinjs/drag` exports `./sortable.js`.** The row answered what migrating from the shipped package costs. Nothing is published and that package is gone, so the question is void.
+
+**Capability withdrawn, in the instrument's terms:** exact byte reproduction of a 26-module, 22.6 KB minified graph that no drag2 source reaches, which is detection of a bundler, minifier, compressor or dependency shift at that scale, separately from package edits. Last figure: 6,916 B Brotli, 22,618 B minified, 26 modules, ceiling 7,040 B, at `7723f3e8a`. The row caught a dependency update at `01d88645f`, from 6,889 B to 6,916 B. `drag:DRD-13` gives the replacement package its own control.
+
+**Not moved.** Every other row is byte-identical in the run before and after this commit.

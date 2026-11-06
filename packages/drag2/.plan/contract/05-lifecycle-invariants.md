@@ -956,7 +956,7 @@ Minimal **9.33 kB** brotli, complete **10.09 kB**; each optional feature adds on
 
 ##### M-3 §Specification
 
-Four consumer entrypoints built and weighed minified + Brotli, with module-graph inspection, plus a feature-matched non-composed baseline **and** the current shipped `sortable.js` as a separate migration-context baseline.
+Four consumer entrypoints built and weighed minified + Brotli, with module-graph inspection, plus a feature-matched non-composed baseline. D-210 retired the migration-context baseline, because nothing was published to migrate from.
 
 **Replaced:** §[03](03-feature-composition.md) §Tree-shaking's import-graph reasoning
 

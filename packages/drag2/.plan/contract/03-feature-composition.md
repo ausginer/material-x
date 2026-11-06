@@ -327,7 +327,7 @@ This is a **deliberate, bounded exception to "prepare performs no DOM writes"**.
 
 ## Assembly (D-45, H-5)
 
-The compiled version of the pre-Revision-2 shape is in [`packages/drag/docs/contract-probe-2/contract.ts`](../../../../packages/drag/docs/contract-probe-2/contract.ts). It predates the merge and still compiles the branded feature array; §[00](00-index.md) already governs the disagreement — **where the fixture disagrees, the fixture is the bug**.
+The compiled version of the pre-Revision-2 shape was ~~`packages/drag/docs/contract-probe-2/contract.ts`~~, recoverable at `7723f3e8a`. It predates the merge and compiled the branded feature array; §[00](00-index.md) already governs the disagreement — **where the fixture disagrees, the fixture is the bug**.
 
 Assembly is now two functions, and the split is the decision:
 
@@ -1205,7 +1205,7 @@ The **five** compositions to measure: minimal (`y()`); minimal (`xy()`), measure
 
 ### The export topology this requires
 
-A separate subpath entry per optional **capability** is what makes the measurement honest: the minimal fixture's import graph physically cannot reach geometry it did not import, independent of bundler heuristics. The shipped package exposes only `draggable.js` and `sortable.js` (`packages/drag/files.json`, `packages/drag/package.json:15-24`), so this is a new topology and has to be written down before it is measured, or ergonomics will quietly reintroduce an eager barrel.
+A separate subpath entry per optional **capability** is what makes the measurement honest: the minimal fixture's import graph physically cannot reach geometry it did not import, independent of bundler heuristics. The shipped package exposes only `draggable.js` and `sortable.js` (~~`packages/drag/files.json`~~, ~~`packages/drag/package.json:15-24`~~, both as they stood at `7723f3e8a`), so this is a new topology and has to be written down before it is measured, or ergonomics will quietly reintroduce an eager barrel.
 
 **Eight entries** — nine, less the three D-56 deletes, plus the `kernel.js` D-48 adds and the `sortable/feature.js` D-61 adds — across **three tiers and three roots**:
 

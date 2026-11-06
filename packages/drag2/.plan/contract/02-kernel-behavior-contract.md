@@ -8,7 +8,7 @@ The shipped package and probe 1 both state the same rule in prose:
 
 Probe 1 asked the behavior to obey it, including calling `kernel.begin()`, `kernel.preparationValid()` and `kernel.commit()` in the right order inside each seam. Here it is the shape of the contract. (D-3)
 
-Every signature in this document is compiled. The **type fixture** is [`packages/drag/docs/contract-probe-2/contract.ts`](../../../../packages/drag/docs/contract-probe-2/contract.ts), covered by `npx just typecheck` from `packages/drag`. It is not an executable copy — it has no queue, cancellation machine or failure checkpoint — and where it and this document disagree, **this document wins**. It carries `@ts-expect-error` assertions for each tier-A claim that is _expressible_ as a type error, so those cannot silently degrade to discipline.
+**Nothing compiles the signatures in this document now.** The **type fixture** was ~~`packages/drag/docs/contract-probe-2/contract.ts`~~, recoverable at `7723f3e8a`, typechecked through the removed package's `tsconfig.json`. It was not an executable copy — it had no queue, cancellation machine or failure checkpoint — and where it and this document disagree, **this document wins**. Its `@ts-expect-error` assertions for each tier-A claim expressible as a type error no longer run, so those claims rest on `src/` and its declaration tests.
 
 ```ts
 type Frame<Part extends object> = KernelFrame & Part;

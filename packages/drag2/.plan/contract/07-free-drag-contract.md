@@ -432,7 +432,7 @@ D-44 replaced `updateItems(payload)` with `items()` + `invalidate()` on the find
 
 `coordinateSpace: CoordinateMapper` **is not carried forward**, and `localDelta` is.
 
-The shipped default mapper is built by walking `offsetParent`, accumulating `clientLeft`/`scrollLeft`/`zoom`/`offsetLeft` and each ancestor's own transform (`packages/drag/src/kernel/coordinate.ts`). That walk **is** a coordinate module, drag2 has none, and Phase 19 forbids adding one. So the question was never _is a mapper useful_ — it was _what can this package derive without re-adding the module it deleted_.
+The shipped default mapper is built by walking `offsetParent`, accumulating `clientLeft`/`scrollLeft`/`zoom`/`offsetLeft` and each ancestor's own transform (~~`packages/drag/src/kernel/coordinate.ts`~~, recoverable at `7723f3e8a`). That walk **is** a coordinate module, drag2 has none, and Phase 19 forbids adding one. So the question was never _is a mapper useful_ — it was _what can this package derive without re-adding the module it deleted_.
 
 **box-quad already answers most of it.** The lift traversal reads the visual's inherited ancestor space and hands back its linear part — `a`, `b`, `c`, `d`, plus `ancestorZoom` — which `kernel/presentation.ts` already consumes for the in-place projection. A **delta** maps through the linear part alone; a **point** additionally needs the translation, and box-quad exposes none. That is the exact seam, and the decision follows it:
 

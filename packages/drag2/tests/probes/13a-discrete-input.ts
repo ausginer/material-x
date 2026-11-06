@@ -42,8 +42,8 @@ import type {
 /* ------------------------------------------------------- the reference rule */
 
 /**
- * The shipped rule, `packages/drag/src/sortable/keyboard.ts`, reduced to its
- * type. It is pure, DOM-free, and produces the same shape the pointer path
+ * The predecessor package's rule, ~~`packages/drag/src/sortable/keyboard.ts`~~,
+ * recoverable at `7723f3e8a`, reduced to its type. It is pure, DOM-free, and produces the same shape the pointer path
  * feeds to the proposal builder — deliberately, so request semantics cannot
  * diverge between input modes.
  */
