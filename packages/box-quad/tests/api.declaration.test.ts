@@ -2,10 +2,13 @@ import {
   ancestry,
   box,
   coordinates,
+  delta,
+  localDelta,
   projection,
   quad,
   space,
   type Box,
+  type Delta,
   type Quad,
   type Space,
 } from '../src/index.ts';
@@ -36,3 +39,11 @@ void measured;
 void target;
 void above;
 void corners;
+
+const local: Delta = delta();
+
+localDelta(above, 1, 2, local);
+localDelta(measured, 1, 2, local);
+
+// @ts-expect-error `localDelta` is pure: it takes a basis, not an element.
+localDelta(element, 1, 2, local);
