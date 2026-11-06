@@ -168,7 +168,6 @@ type WorkspaceTestConfigOptions = Readonly<{
   materialXCommands: Readonly<Record<string, BrowserCommand<any[]>>>;
   drag2Commands: Readonly<Record<string, BrowserCommand<any[]>>>;
   coreRoot: URL;
-  dragRoot: URL;
   drag2Root: URL;
   tprocRoot: URL;
   viteTraitsPluginRoot: URL;
@@ -611,10 +610,6 @@ export function createWorkspaceTestConfig(
     options.coreRoot,
     'core',
   );
-  const [dragBrowser, dragDeclaration, dragNode] = createDragTestProjects(
-    options.dragRoot,
-    'drag',
-  ) as [UserConfig, UserConfig, UserConfig];
   const [drag2Browser, drag2Shipped, drag2Declaration, drag2Node] =
     createDragTestProjects(
       options.drag2Root,
@@ -639,9 +634,6 @@ export function createWorkspaceTestConfig(
         materialXNode,
         coreDeclaration,
         boxQuadBrowser,
-        dragBrowser,
-        dragNode,
-        dragDeclaration,
         drag2Browser,
         drag2Shipped,
         drag2Node,

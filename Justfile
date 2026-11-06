@@ -14,7 +14,7 @@ build:
 
 # Delete build artefacts for all packages
 clean-build:
-    nx run-many -t clean:build --projects=core,tproc,drag,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t clean:build --projects=core,tproc,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Docs
@@ -45,7 +45,7 @@ debug FILE:
 # One process rather than a package fan-out: Nx never ordered tests — its
 # `targetDefaults` carry no `test` key — so it contributed scheduling and
 # nothing else, while a fan-out pays a Chromium and a CSS evaluation isolate per
-# package. The root configuration contributes the same 15 projects the seven
+# package. The root configuration contributes the same 13 projects the six
 # per-package configurations do, so coverage is unchanged. Per-package runs stay
 # available: `cd packages/<name> && just test`.
 test *ARGS:
@@ -57,7 +57,7 @@ test *ARGS:
 
 # Check bundle-size budgets for all measured packages
 size:
-    nx run-many -t size --projects=box-quad,core,drag,drag2 --skipNxCache
+    nx run-many -t size --projects=box-quad,core,drag2 --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Type checking
@@ -65,7 +65,7 @@ size:
 
 # Type-check all packages
 typecheck:
-    nx run-many -t typecheck --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t typecheck --projects=box-quad,core,tproc,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
 
 # ---------------------------------------------------------------------------
 # Formatting
@@ -89,13 +89,13 @@ fmt-check:
 
 # Lint every package, then the repository-level files no package owns
 lint:
-    nx run-many -t lint --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t lint --projects=box-quad,core,tproc,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
     oxlint --ignore-pattern 'packages/**' .
     eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --ignore-pattern 'packages/**' .
 
 # Lint and auto-fix everywhere
 lint-fix:
-    nx run-many -t lint:fix --projects=box-quad,core,tproc,drag,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
+    nx run-many -t lint:fix --projects=box-quad,core,tproc,drag2,vite-custom-element-assets,vite-traits-plugin,size-limit-preset-rolldown,material-x --skipNxCache
     oxlint --fix --ignore-pattern 'packages/**' .
     eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts --ignore-pattern 'packages/**' --fix .
 
