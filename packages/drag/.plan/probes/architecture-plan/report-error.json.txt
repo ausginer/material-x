@@ -1,0 +1,178 @@
+{
+ "chromium": {
+  "result": {
+   "order": "before,listener,after",
+   "listenerThrowReachesCaller": false,
+   "causes": {
+    "Error": {
+     "threw": false,
+     "delivered": 1,
+     "typed": true,
+     "identity": true,
+     "hasOwn": true
+    },
+    "null": {
+     "threw": false,
+     "delivered": 1,
+     "typed": true,
+     "identity": true,
+     "hasOwn": true
+    },
+    "undefined": {
+     "threw": false,
+     "delivered": 1,
+     "typed": true,
+     "identity": true,
+     "hasOwn": true
+    },
+    "string": {
+     "threw": false,
+     "delivered": 1,
+     "typed": true,
+     "identity": true,
+     "hasOwn": true
+    },
+    "symbol": {
+     "threw": false,
+     "delivered": 1,
+     "typed": true,
+     "identity": true,
+     "hasOwn": true
+    },
+    "hostile": {
+     "threw": false,
+     "delivered": 1,
+     "typed": true,
+     "identity": true,
+     "hasOwn": true
+    },
+    "frozen": {
+     "threw": false,
+     "delivered": 1,
+     "typed": true,
+     "identity": true,
+     "hasOwn": true
+    }
+   },
+   "event": {
+    "message": "Uncaught DragFault: drag: fault",
+    "filename": false,
+    "lineno": 35,
+    "name": "DragFault",
+    "originalInMessage": false,
+    "stackHasOriginal": false
+   },
+   "markerRejectsPrimitive": true,
+   "libraryRealm": {
+    "parent": 1,
+    "inner": 0,
+    "innerInstance": null
+   },
+   "rootRealm": {
+    "parent": 0,
+    "inner": 1,
+    "innerInstance": true
+   },
+   "detached": {
+    "defaultView": true,
+    "heldThrew": false,
+    "innerHeard": 0,
+    "parentHeard": 0,
+    "libraryRealmHeard": 1
+   }
+  },
+  "console": [
+   "pageerror: DragFault: drag: fault | stackHasCause=false | cause=undefined",
+   "pageerror: DragFault: drag: fault | stackHasCause=false | cause=undefined"
+  ],
+  "cdpLast": "DragFault: drag: fault\n    at eval (eval at evaluate (:370:30), <anonymous>:67:17)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+ },
+ "firefox": {
+  "result": {
+   "order": "before,listener,after",
+   "listenerThrowReachesCaller": false,
+   "causes": {
+    "Error": {
+     "threw": false,
+     "delivered": 1,
+     "typed": true,
+     "identity": true,
+     "hasOwn": true
+    },
+    "null": {
+     "threw": false,
+     "delivered": 1,
+     "typed": true,
+     "identity": true,
+     "hasOwn": true
+    },
+    "undefined": {
+     "threw": false,
+     "delivered": 1,
+     "typed": true,
+     "identity": true,
+     "hasOwn": true
+    },
+    "string": {
+     "threw": false,
+     "delivered": 1,
+     "typed": true,
+     "identity": true,
+     "hasOwn": true
+    },
+    "symbol": {
+     "threw": false,
+     "delivered": 1,
+     "typed": true,
+     "identity": true,
+     "hasOwn": true
+    },
+    "hostile": {
+     "threw": false,
+     "delivered": 1,
+     "typed": true,
+     "identity": true,
+     "hasOwn": true
+    },
+    "frozen": {
+     "threw": false,
+     "delivered": 1,
+     "typed": true,
+     "identity": true,
+     "hasOwn": true
+    }
+   },
+   "event": {
+    "message": "DragFault: drag: fault",
+    "filename": true,
+    "lineno": 2,
+    "name": "DragFault",
+    "originalInMessage": false,
+    "stackHasOriginal": false
+   },
+   "markerRejectsPrimitive": true,
+   "libraryRealm": {
+    "parent": 1,
+    "inner": 0,
+    "innerInstance": null
+   },
+   "rootRealm": {
+    "parent": 0,
+    "inner": 1,
+    "innerInstance": true
+   },
+   "detached": {
+    "defaultView": true,
+    "heldThrew": false,
+    "innerHeard": 0,
+    "parentHeard": 0,
+    "libraryRealmHeard": 1
+   }
+  },
+  "console": [
+   "pageerror: DragFault: drag: fault | stackHasCause=false | cause=undefined",
+   "pageerror: DragFault: drag: fault | stackHasCause=false | cause=undefined"
+  ],
+  "cdpLast": null
+ }
+}

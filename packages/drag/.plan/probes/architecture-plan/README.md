@@ -25,6 +25,7 @@ The drivers import esbuild and Playwright from `/workspaces/material-x/node_modu
 | Guarantees from the 370 tests, production against single-pass | `node gaps.mts <prototype> out.json` | [`gaps.json.txt`](gaps.json.txt), [`gaps-summary.txt`](gaps-summary.txt) |
 | Bytes attributed by module | `node attribution.mts <prototype>` | [`attribution.txt`](attribution.txt) |
 | The 370 tests, one row each | `python3 classify.py <dir with the title TSVs> out.tsv` | [`test-classification.tsv`](test-classification.tsv) |
+| `reportError` with a typed wrapper: timing, cause identity, realm, what a logger sees | `node report-error.mts chromium firefox > out.json`, from the checkout root, needing no prototype | [`report-error.json.txt`](report-error.json.txt) |
 
 [`titles.mjs.txt`](titles.mjs.txt) extracted the [kernel](kernel.titles.tsv) and [sortable](sortable.titles.tsv) titles from the two browser test files at `7723f3e8a`.
 
