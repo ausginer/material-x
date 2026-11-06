@@ -95,6 +95,8 @@ Respect role write boundaries. In a shared checkout, serialize source and contra
 
 Name the recipient outside the prompt. Use an editable writing block when the UI offers one; otherwise use a fenced text block. Keep the prompt compact: task and purpose, input revision, canonical records, new owner constraints and completion boundary. Let the role determine the solution within its authority. Do not reproduce rules and reasoning already in its inputs. Let the client wrap the prompt's prose rather than inserting line breaks inside sentences.
 
+Start each task prompt with `Could you please …`, followed by the concrete task. Keep the wording direct and concise.
+
 Every task prompt ends with its recipient stamp on the final line:
 
 ```text
