@@ -25,7 +25,21 @@ Reviewers find and document; they do not fix or decide. Only the architect creat
 
 Straightforward defects go to the implementer. A change to architecture, contract, lifecycle, ownership, parity or public surface goes to the architect. An owner answer that changes a contract is recorded by the architect before dependent implementation resumes.
 
+For a new or substantially reworked architecture, use the [prototype checkpoint](#architecture-prototypes) before committing to the full design and production implementation.
+
 The owner transfers top-level prompts and closing messages, following [coordinator-setup.md](coordinator-setup.md). The consolidator's review-local dispatch is governed by its own definition and the [effort guard](harness-effort-guard.md).
+
+## Architecture prototypes
+
+`problem and hypotheses → runnable prototype → owner evaluation → revised design → production implementation and independent review`
+
+The architect states the required capabilities, owner constraints, uncertain assumptions and a bounded prototype task. The implementer builds against that provisional design. The prototype tests whether the architecture is worth adopting before detailed contracts and a full test suite make changing it expensive.
+
+Make the representative consumer flows runnable with simple launch instructions. Exercise the real platform and reuse working modules where useful. Include focused probes for the assumptions most likely to invalidate the design, and measure costs when they decide an architectural choice. State missing capabilities, known defects and measurement limits; separate observations from estimates.
+
+Stop for the owner to try the prototype and assess the API, interaction and complexity. The architect then revises the recommendation, and the owner chooses whether to continue, change direction or stop. Do not silently turn the prototype task into full implementation. Detailed contracts, exhaustive parity work, a complete mutation suite and extended benchmark campaigns are not prerequisites for this checkpoint.
+
+A successful prototype is evidence for a design, not production acceptance. Its code may be reused, but production implementation still owes the applicable correctness, integration, performance and independent review checks. Small changes within a settled architecture keep the normal handoff.
 
 ## Phase coordination
 
