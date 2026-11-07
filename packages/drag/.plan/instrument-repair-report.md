@@ -82,4 +82,4 @@ No `draggable.ts:` key appeared. The lift's `lift.ts:translate` read 30108–348
 - `git diff --check`: clean. Markdown formatted with `npx just fmt`. Lint doesn't apply to Markdown.
 - The links in this report resolve to files in `.plan/`.
 - Typecheck and lint of the patch weren't run as a gate, because the patch isn't committed. `vitest` reported "Type Errors no errors" on the runs, and `oxfmt` formatted the patched files.
-- Scratch: the per-run logs are in this session's scratchpad. The committed raw file holds their content.
+- Scratch: the per-run logs were removed after their content was copied into the committed raw file.
