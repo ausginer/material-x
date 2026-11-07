@@ -199,7 +199,7 @@ Decides `drag/architecture:challenge-8`. A scroll during the drag moved the home
 - **No findings family for `drag`.** Every finding of the two reviews is closed in this register by a decision or by the remediation handoff, in the commit that reads them, so a register of findings would have no reader. A finding is addressed by its round and local id, such as `drag/production:reviewer-1` or `drag/architecture:challenge-1`. A later round that leaves findings open past its own commit mints `DRF-n` here, under `repo:RD-1`.
 - **`entry.sh` resolves `drag`** (`integrity-8`). The scope row is scheduled. CONTRIBUTING's sentence that enumerated the resolved scopes now points to the scope map.
 - **A reused path is not a broken citation.** Dated drag2 records that cite a file of the removed package name the commit that holds it. A path the new package has reused resolves to a different file, which the commit disambiguates. No dated record is rewritten.
-- **`599684791` must stay reachable** for the prototype arm and `measure.ts --prototype`. How the branch merges decides that (`DRO-5`).
+- **`599684791` must stay reachable** for the prototype arm and `measure.ts --prototype`. A squash merge doesn't keep it, so the `drag/prototype` branch must (`DRO-5`).
 - **`bench/lab-drag2.ts` ties `drag`'s typecheck to drag2 source, by design** under `DRD-13`. Removing drag2 removes that arm first.
 - **The report's choice 7 is closed.** The owner was told before the legacy output was removed, which the 2026-11-07 request states.
 
@@ -255,9 +255,17 @@ None blocks the remediation. Each has a default the handoff builds.
 
 A row that is still slower comes with its attributed cause. You decide under CONTRIBUTING §0 whether to accept it or have it removed. **No recommendation until the figures exist.**
 
-#### DRO-5 — Keep `599684791` reachable at merge
+#### DRO-5 — Keep `599684791` reachable after the squash merge
 
-**Default: merge `drag/production` with a merge commit, which keeps the prototype commit reachable.** The `compare` instrument's prototype arm and `measure.ts --prototype` read it with `git archive`. A squash merge would orphan it once the branch is deleted. **Recommendation: a merge commit, or a tag you create.** Agents don't create tags or choose the merge method.
+**The repository allows only squash merges, so `main` won't contain `599684791`.** Once `drag/production` is squashed and its branch deleted, the commit stays reachable only through another ref. On 2026-11-07 that ref is `origin/drag/prototype`, whose tip `a1d31e0d2` descends from `599684791`. `origin/drag/production` holds it too, but merging normally deletes that branch. The `compare` instrument's prototype arm and `measure.ts --prototype` read the commit with `git archive`, and fail without it.
+
+**Default: keep `drag/prototype` as the ref that preserves it.** No tag and no settings change is needed.
+
+- **Before merge:** `git branch -r --contains 599684791` must list `origin/drag/prototype`.
+- **While either instrument names the commit:** don't delete, rewrite or force-push `drag/prototype`.
+- **On a checkout of `main` alone,** which includes a single-branch clone: run `git fetch origin drag/prototype` before either instrument.
+
+**The alternative is to retire the prototype arm** from both instruments before merge, after the remediation's validation has read it. The branch then stops mattering, and the 2026-11-06 and remediation readings keep the arm's figures. **Recommendation: keep the branch until the owner has read `DRO-4`, then decide whether to retire the arm.**
 
 ## Decision status
 
