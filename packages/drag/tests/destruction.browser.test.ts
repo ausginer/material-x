@@ -332,8 +332,10 @@ describe('drag:DRI-10 destruction', () => {
   );
 
   it.runIf(isChromium)(
-    'should retain no item, behavior or view after 3 operations and destruction',
+    'should retain no item, behavior, view or behavior instance after 3 operations and destruction',
     async () => {
+      const instancesBefore =
+        await commands.countHeapObjects('SortableBehavior');
       const holder = document.createElement('div');
 
       document.body.append(holder);
@@ -365,6 +367,10 @@ describe('drag:DRI-10 destruction', () => {
       await dragAndDrop('#r0', -90);
       await dragAndDrop('#r1', 90);
       await wait(50);
+      // The instrument sees the instance while the controller is alive.
+      expect(await commands.countHeapObjects('SortableBehavior')).toBe(
+        instancesBefore + 1,
+      );
       await controller.requestDestroy();
       controller = null;
       behavior = null;
@@ -381,6 +387,9 @@ describe('drag:DRI-10 destruction', () => {
         undefined,
         undefined,
       ]);
+      expect(await commands.countHeapObjects('SortableBehavior')).toBe(
+        instancesBefore,
+      );
     },
   );
 });

@@ -12,6 +12,7 @@ declare module 'vitest/browser' {
     ): Promise<void>;
     tap(x: number, y: number): Promise<void>;
     forceGarbageCollection(): Promise<void>;
+    countHeapObjects(name: string): Promise<number>;
     startHeapSampling(interval: number): Promise<void>;
     stopHeapSampling(urlPart: string): Promise<Record<string, number>>;
   }

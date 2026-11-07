@@ -97,6 +97,56 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
       await cdp.send('HeapProfiler.collectGarbage');
     },
   ),
+  /**
+   * How many live objects a heap snapshot holds whose constructor is `name`. A
+   * module-private class is reachable this way and no other.
+   */
+  countHeapObjects: defineBrowserCommand<[string]>(
+    async (context, name): Promise<number> => {
+      const cdp = (await cdpOf(context)) as CdpSession &
+        Readonly<{
+          on(
+            event: string,
+            listener: (params: { chunk: string }) => void,
+          ): void;
+          off(
+            event: string,
+            listener: (params: { chunk: string }) => void,
+          ): void;
+        }>;
+      const chunks: string[] = [];
+      const collect = (params: { chunk: string }): void => {
+        chunks.push(params.chunk);
+      };
+
+      cdp.on('HeapProfiler.addHeapSnapshotChunk', collect);
+      await cdp.send('HeapProfiler.collectGarbage');
+      await cdp.send('HeapProfiler.takeHeapSnapshot', {
+        reportProgress: false,
+      });
+      cdp.off('HeapProfiler.addHeapSnapshotChunk', collect);
+
+      const snapshot = JSON.parse(chunks.join('')) as HeapSnapshot;
+      const fields = snapshot.snapshot.meta.node_fields;
+      const types = snapshot.snapshot.meta.node_types[0] as readonly string[];
+      const typeField = fields.indexOf('type');
+      const nameField = fields.indexOf('name');
+      const objectType = types.indexOf('object');
+      const { nodes, strings } = snapshot;
+      let count = 0;
+
+      for (let i = 0; i < nodes.length; i += fields.length) {
+        if (
+          nodes[i + typeField] === objectType &&
+          strings[nodes[i + nameField]!] === name
+        ) {
+          count += 1;
+        }
+      }
+
+      return count;
+    },
+  ),
   startHeapSampling: defineBrowserCommand<[number]>(
     async (context, interval): Promise<void> => {
       const cdp = await cdpOf(context);
@@ -140,6 +190,17 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
     },
   ),
 };
+
+type HeapSnapshot = Readonly<{
+  snapshot: Readonly<{
+    meta: Readonly<{
+      node_fields: readonly string[];
+      node_types: readonly unknown[];
+    }>;
+  }>;
+  nodes: readonly number[];
+  strings: readonly string[];
+}>;
 
 type HeapNode = Readonly<{
   callFrame: Readonly<{ url: string; functionName: string }>;

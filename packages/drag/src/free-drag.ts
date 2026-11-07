@@ -3,8 +3,15 @@
  * consumer: `accept` keeps the element wherever the consumer put it, and `reject`
  * sends it home.
  */
-import { draggable, type LiftedDrag } from './draggable.ts';
-import type { BoundsInstaller } from './free-drag/bounds.ts';
+import {
+  draggable,
+  type DraggableController,
+  type Landing,
+  type LiftedBehavior,
+  type LiftedDrag,
+  type Outcome,
+} from './draggable.ts';
+import type { BoundsInstaller, MotionConstraint } from './free-drag/bounds.ts';
 import {
   ACCEPTED,
   type DragAxis,
@@ -69,32 +76,93 @@ type State = {
   result: FreeDragResult | null;
 };
 
-/** Makes `root` draggable anywhere. */
-export function freeDrag(
-  root: HTMLElement,
-  config: FreeDragConfig,
-): FreeDragController {
-  const view = root.ownerDocument.defaultView!;
-  const axis = config.axis ?? 'both';
-  const constraint = config.bounds ? config.bounds(view) : null;
-  const timing = config.landing ?? null;
-  const motion = { x: 0, y: 0 };
+type Kernel = DraggableController<LiftedDrag<State>>;
 
-  const derive = (drag: LiftedDrag<State>): void => {
+/**
+ * The behavior `draggable` runs for one root. The kernel calls each hook as a
+ * method of this instance. Operation values live in `drag.state`; the instance
+ * holds only controller-lifetime ones and the `#motion` scratch, which is written
+ * before every read.
+ */
+class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
+  readonly lift: typeof lift = lift;
+  declare readonly threshold?: number;
+
+  /** What `freeDrag()` returns. Its methods do not depend on `this`. */
+  readonly controller: FreeDragController;
+
+  readonly #root: HTMLElement;
+  readonly #config: FreeDragConfig;
+  readonly #window: Window & typeof globalThis;
+  readonly #axis: DragAxis;
+  readonly #bounds: MotionConstraint | null;
+  readonly #landing: LandingTiming | null;
+  /** The visual's viewport delta, axis-projected and clamped. */
+  readonly #motion = { x: 0, y: 0 };
+
+  constructor(root: HTMLElement, config: FreeDragConfig) {
+    if (config.threshold !== undefined) {
+      this.threshold = config.threshold;
+    }
+
+    this.#root = root;
+    this.#config = config;
+    this.#window = root.ownerDocument.defaultView!;
+    this.#axis = config.axis ?? 'both';
+    this.#bounds = config.bounds ? config.bounds(this.#window) : null;
+    this.#landing = config.landing ?? null;
+
+    const kernel: Kernel = draggable<State, FreeDragResolution>(root, this);
+
+    this.controller = {
+      invalidate: () => {
+        kernel.requestStep(this.#invalidateBounds);
+      },
+      moveTo: (point) => {
+        // One step per call: it carries the point, and DRI-8 keeps calls in order.
+        kernel.requestStep((drag) => {
+          if (drag) {
+            const { rect, state } = drag;
+
+            state.offsetX = point.x - rect.left - (drag.x - drag.originX);
+            state.offsetY = point.y - rect.top - (drag.y - drag.originY);
+            this.#translate(drag);
+          }
+        });
+      },
+      requestCancel: (reason) => {
+        kernel.requestCancel(reason);
+      },
+      requestDestroy: () => kernel.requestDestroy(),
+    };
+  }
+
+  /** Writes the delta the pointer and the operation's offset give into `#motion`. */
+  #computeMotion(drag: LiftedDrag<State>): void {
+    const motion = this.#motion;
+
     motion.x = drag.x - drag.originX + drag.state.offsetX;
     motion.y = drag.y - drag.originY + drag.state.offsetY;
 
-    if (axis === 'x') {
+    if (this.#axis === 'x') {
       motion.y = 0;
-    } else if (axis === 'y') {
+    } else if (this.#axis === 'y') {
       motion.x = 0;
     }
 
-    constraint?.apply(motion, drag.rect);
-  };
+    this.#bounds?.apply(motion, drag.rect);
+  }
 
-  const geometry = (drag: LiftedDrag<State>): DragGeometry =>
-    buildGeometry(
+  /** Computes the motion and moves the visual by it. */
+  #translate(drag: LiftedDrag<State>): void {
+    this.#computeMotion(drag);
+    drag.translate(this.#motion.x, this.#motion.y);
+  }
+
+  #geometry(drag: LiftedDrag<State>): DragGeometry {
+    const motion = this.#motion;
+
+    return buildGeometry(
       drag.x,
       drag.y,
       drag.originX,
@@ -103,149 +171,140 @@ export function freeDrag(
       motion.y,
       drag.rect,
       drag.visualSpace,
-      view,
+      this.#window,
+    );
+  }
+
+  /** Step and invalidation listener: the bounds are re-read on the next sample. */
+  readonly #invalidateBounds = (): void => {
+    this.#bounds?.invalidate();
+  };
+
+  admit(event: PointerEvent) {
+    const root = this.#root;
+    const config = this.#config;
+
+    if (event.altKey) {
+      return null;
+    }
+
+    let handle: HTMLElement | undefined;
+
+    if (config.handle) {
+      const named = config.handle(root);
+
+      if (!named || !event.composedPath().includes(named)) {
+        return null;
+      }
+
+      handle = named;
+    }
+
+    return {
+      item: root,
+      visual: config.visual ? config.visual(root) : root,
+      handle: handle ?? root,
+      state: { offsetX: 0, offsetY: 0, request: null, result: null },
+    };
+  }
+
+  activate(drag: LiftedDrag<State>): undefined {
+    if (this.#bounds) {
+      listenForInvalidation(this.#window, drag.signal, this.#invalidateBounds);
+    }
+
+    this.#translate(drag);
+    return undefined;
+  }
+
+  start(drag: LiftedDrag<State>): void {
+    this.#config.onStart?.(this.#geometry(drag));
+  }
+
+  move(drag: LiftedDrag<State>): void {
+    this.#translate(drag);
+
+    if (this.#config.onMove) {
+      this.#config.onMove(this.#geometry(drag));
+    }
+  }
+
+  drop(drag: LiftedDrag<State>) {
+    const motion = this.#motion;
+    const config = this.#config;
+
+    this.#computeMotion(drag);
+
+    const request = buildRequest(
+      { item: this.#root, visual: drag.visual },
+      drag.x,
+      drag.y,
+      motion.x,
+      motion.y,
+      drag.rect,
+      drag.visualSpace,
+      this.#window,
     );
 
-  const invalidateConstraint = (): void => {
-    constraint?.invalidate();
-  };
+    drag.state.request = request;
+    drag.translate(motion.x, motion.y);
 
-  const panel = draggable<State, FreeDragResolution>(root, {
-    lift,
-    ...(config.threshold === undefined ? {} : { threshold: config.threshold }),
+    return (signal: AbortSignal) => config.onDrop(request, { signal });
+  }
 
-    admit(event) {
-      if (event.altKey) {
-        return null;
-      }
+  settle(
+    drag: LiftedDrag<State>,
+    outcome: Outcome<FreeDragResolution>,
+  ): Landing | null {
+    const { state, rect } = drag;
+    const { request } = state;
+    const timing = this.#landing;
+    const config = this.#config;
+    let home = true;
 
-      let handle: HTMLElement | undefined;
-
-      if (config.handle) {
-        const named = config.handle(root);
-
-        if (!named || !event.composedPath().includes(named)) {
-          return null;
-        }
-
-        handle = named;
-      }
-
-      return {
-        item: root,
-        visual: config.visual ? config.visual(root) : root,
-        handle: handle ?? root,
-        state: { offsetX: 0, offsetY: 0, request: null, result: null },
+    if (outcome.type === 'canceled') {
+      state.result = {
+        type: 'canceled',
+        request,
+        reason: outcome.reason,
+        origin: outcome.origin,
       };
-    },
-
-    activate(drag) {
-      if (constraint) {
-        listenForInvalidation(view, drag.signal, invalidateConstraint);
-      }
-
-      derive(drag);
-      drag.translate(motion.x, motion.y);
-    },
-
-    start(drag) {
-      config.onStart?.(geometry(drag));
-    },
-
-    move(drag) {
-      derive(drag);
-      drag.translate(motion.x, motion.y);
-
-      if (config.onMove) {
-        config.onMove(geometry(drag));
-      }
-    },
-
-    drop(drag) {
-      derive(drag);
-
-      const request = buildRequest(
-        { item: root, visual: drag.visual },
-        drag.x,
-        drag.y,
-        motion.x,
-        motion.y,
-        drag.rect,
-        drag.visualSpace,
-        view,
-      );
-
-      drag.state.request = request;
-      drag.translate(motion.x, motion.y);
-
-      return (signal) => config.onDrop(request, { signal });
-    },
-
-    settle(drag, outcome) {
-      const { state, rect } = drag;
-      const { request } = state;
-      let home = true;
-
-      if (outcome.type === 'canceled') {
-        state.result = {
-          type: 'canceled',
-          request,
-          reason: outcome.reason,
-          origin: outcome.origin,
-        };
-        home = outcome.origin !== 'fault';
-      } else if (outcome.type === 'verdict' && outcome.value !== ACCEPTED) {
-        state.result = {
-          type: 'rejected',
-          request: request!,
-          reason: (outcome.value as RejectedResolution)[0],
-        };
-      } else {
-        state.result = { type: 'accepted', request: request! };
-        home = false;
-      }
-
-      if (!timing || !home) {
-        return null;
-      }
-
-      const { x, y } = config.home
-        ? config.home({ item: root, visual: drag.visual })
-        : { x: rect.left, y: rect.top };
-
-      return {
-        x,
-        y,
-        ...timing(drag.translatedX, drag.translatedY, x - rect.x, y - rect.y),
+      home = outcome.origin !== 'fault';
+    } else if (outcome.type === 'verdict' && outcome.value !== ACCEPTED) {
+      state.result = {
+        type: 'rejected',
+        request: request!,
+        reason: (outcome.value as RejectedResolution)[0],
       };
-    },
+    } else {
+      state.result = { type: 'accepted', request: request! };
+      home = false;
+    }
 
-    end(drag) {
-      config.onEnd?.(drag.state.result!);
-    },
-  });
+    if (!timing || !home) {
+      return null;
+    }
 
-  return {
-    invalidate() {
-      panel.requestStep(invalidateConstraint);
-    },
-    moveTo(point) {
-      panel.requestStep((drag) => {
-        if (drag) {
-          const { rect, state } = drag;
+    const { x, y } = config.home
+      ? config.home({ item: this.#root, visual: drag.visual })
+      : { x: rect.left, y: rect.top };
 
-          state.offsetX = point.x - rect.left - (drag.x - drag.originX);
-          state.offsetY = point.y - rect.top - (drag.y - drag.originY);
-          derive(drag);
-          drag.translate(motion.x, motion.y);
-        }
-      });
-    },
-    requestCancel(reason) {
-      panel.requestCancel(reason);
-    },
-    requestDestroy() {
-      return panel.requestDestroy();
-    },
-  };
+    return {
+      x,
+      y,
+      ...timing(drag.translatedX, drag.translatedY, x - rect.x, y - rect.y),
+    };
+  }
+
+  end(drag: LiftedDrag<State>): void {
+    this.#config.onEnd?.(drag.state.result!);
+  }
+}
+
+/** Makes `root` draggable anywhere. */
+export function freeDrag(
+  root: HTMLElement,
+  config: FreeDragConfig,
+): FreeDragController {
+  return new FreeDragBehavior(root, config).controller;
 }
