@@ -19,8 +19,8 @@
 
 | Entry | Exports |
 | --- | --- |
-| `draggable.js` | `draggable` |
-| `lift.js` | `lift` |
+| `draggable.js` | `draggable`, and the types `Behavior`, `LiftedBehavior`, `Admission`, `LiftedAdmission`, `Drag`, `LiftedDrag`, `DragDisposer`, `DraggableController`, `Outcome`, `SkippedOutcome`, `VerdictOutcome`, `CanceledOutcome` and `CancelOrigin` |
+| `lift.js` | `lift`, and the types `Lift`, `Landing` and the type of `lift`'s result |
 | `fault.js` | `DragFault` |
 | `sortable.js` | `sortable`, `ReorderResolution` |
 | `sortable/y.js`, `sortable/xy.js` | `y`, `xy` |
@@ -76,9 +76,16 @@ type Drag<State> = {
   use(dispose: (outcome: Outcome<unknown> | null) => void): void; // `null`: destruction released this operation.
   requestStep(step: (drag: Drag<State> | null) => void): void; // Acts only while this operation is the controller's current one.
   requestCancel(reason?: unknown): void; // The same scope.
+  lift: undefined; // Without `lift`.
 };
 
-type LiftedDrag<State> = Drag<State> & {
+// `Drag<State>` with `lift: Lift`. Its `requestStep` step receives a `LiftedDrag`.
+type LiftedDrag<State> = Omit<Drag<State>, 'lift' | 'requestStep'> & {
+  lift: Lift; // Built by `lift` at activation, and written only by it.
+  requestStep(step: (drag: LiftedDrag<State> | null) => void): void;
+};
+
+type Lift = {
   visual: HTMLElement;
   box: HTMLElement;
   rect: DOMRectReadOnly;
@@ -99,9 +106,11 @@ type DraggableController<State> = {
 };
 ```
 
-**Type requirement:** a behavior without `lift` cannot name a `LiftedDrag` member, `visual`, `box` or a landing. Declaration tests assert this. The mechanism is the implementer's.
+**Type requirement:** a behavior without `lift` cannot name a member of `drag.lift`, an admission's `visual` or `box`, or a landing. Declaration tests assert this. The mechanism is the implementer's.
 
-**What a behavior does not receive:** the session, its slots, its state or its next step, in types or at runtime.
+**The operation object and the view.** The kernel builds a `Drag` at activation, with every member set, and writes only its `x` and `y` afterwards. The lift builds its `Lift` with every member set, and only `translate` writes to it afterwards.
+
+**What a behavior does not receive:** the session, its slots, its state or its next step, or the lift's release and landing, in types or at runtime.
 
 **Admission:** the kernel refuses an admission when a hop before `handle ?? item` in the event path has `data-drag-ignore`. A primary button press is required. `sortable` and `freeDrag` also decline `altKey`. An event that one controller admitted is offered to no other controller (DRI-19).
 
@@ -272,6 +281,7 @@ DRI-1 to DRI-13, DRI-17 and DRI-19 hold for a behavior through this API, with no
 
 | Date | Entry | Change |
 | --- | --- | --- |
+| 2026-11-07 | Public surface | **Changed:** a lifted behavior reads `visual`, `box`, `rect`, `boxWidth`, `boxHeight`, `visualSpace`, `itemSpace`, `translatedX`, `translatedY` and `translate` from `drag.lift`. They used to be members of the `Drag`. Every `Drag` has `lift`. `Landing` is exported from `lift.js`, and it used to be exported from `draggable.js`. **Added:** each entry's types. `DRD-27`, `DRD-28` |
 | 2026-11-07 | Public surface | **Added:** an option callback of `sortable` or `freeDrag` receives only its documented values. The `placeholder` factory had received the operation's `Drag` at `3084191bb`. `DRD-25` |
 | 2026-11-07 | `DRI-14` | **Added:** each pull copies the array that `items()` returns. `DRD-25` |
 | 2026-11-07 | Public surface | **Added:** hooks are called as methods of the behavior, and controller methods don't depend on `this`. `DRD-20` |

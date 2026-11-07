@@ -10,7 +10,7 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Input:** the prototype read at `26f82fbb1`. That commit is on no ref now. Its `packages/drag` tree is byte-identical to `599684791` on `drag/prototype`, so later citations use `599684791`. Evidence: [`prototype-report.md`](prototype-report.md), [`probes/prototype/`](probes/prototype/README.md), [`probes/final-design/`](probes/final-design/README.md). The comparison and earlier evidence are in [`architecture-plan.md`](architecture-plan.md).
 
-**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. [`composition-handoff.md`](composition-handoff.md)'s built-in item can start. Its kernel item adopts the prototype once the owner approves the cost in `DRO-6`.
+**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. Their costs are `DRO-7`.
 
 **Neither the prototype's approval nor the 2026-11-06 reading established a performance result.** `DRD-13` and `DRD-22` say what does.
 
@@ -205,7 +205,7 @@ Decides `drag/architecture:challenge-8`. A scroll during the drag moved the home
 
 #### DRD-24 — An operation owns its state and transitions, and the controller owns what spans operations
 
-**Owner requirement, 2026-11-07. The controller owns its lifetime across operations. A session owns one operation and performs it. The two talk through a small interface, and neither reads or writes the other's fields. This is the target model, and the [prototype](probes/session-owner/README.md) at `b54832a0e` meets it. Its adoption is [`composition-handoff.md`](composition-handoff.md) item 1, which waits for the owner's cost decision, `DRO-6`. Until then, production keeps the structure of `3084191bb`, and the fallback below stays decided.**
+**Owner requirement, 2026-11-07. The controller owns its lifetime across operations. A session owns one operation and performs it. The two talk through a small interface, and neither reads or writes the other's fields. The [prototype](probes/session-owner/README.md) at `b54832a0e` meets this model. The owner approved its cost in `DRO-6`, and it was adopted at `276947f82`. `DRD-26` removes the `isCurrent` member from the interface below, and the fallback is no longer needed.**
 
 Revised after reading `fbe2839c3` and the probe's candidate, which the owner applied on `drag/session-class-preview`. The earlier text decided a record passed to each step as a parameter (`6f8ea3d91`), and then defined the probe of a shared state with a read-only view (`184f430bb`). Those commits hold the superseded text.
 
@@ -324,6 +324,148 @@ Decides three findings that the implementer reported on the owner's refactor at 
 
 **Reconciled with `DRD-20`.** Each factory still builds one module-private instance and returns a separate controller object whose methods don't depend on `this`. The step handed to the kernel, `behavior.invalidate`, is created once per instance. **`moveTo`'s step per call is confirmed**, which answers the remediation report's §Step 2. DRI-8 names it as the case that keeps call order.
 
+#### DRD-26 — A session ends itself, and a request through its `Drag` asks the session
+
+**The session owns its lifetime. It has a final state, ended, which it enters at each point where it stops being the controller's operation. A request through its `Drag`, its `Escape` and its verdict's completion read that state. The controller's `isCurrent` is removed. Deferred execution stays the controller's: a step the session accepts goes to the controller's `requestStep` as now.**
+
+Owner requirement, 2026-11-07, on the decomposition at `bb644d6d7`. There the session asks the controller whether it is still current, in four places. That asks another object about the session's own lifetime.
+
+**Where the session ends.** It ends at the points where the controller's slot stops holding it, in the same order:
+
+| Path | Where the session enters ended |
+| --- | --- |
+| A press that never activates | In `#endPending`, after both aborts, where it detaches |
+| A concluded operation without `start` | After release and the landing, where it detaches, before focus is restored |
+| A concluded operation with `start` | In the terminal step, where it detaches, before `end` |
+| Destruction | First in `terminate`, before motion closes and the verdict aborts, because the abort runs foreign code. Teardown clears the slot just before it calls `terminate`, with nothing between |
+
+**Why every check keeps its result.** The slot is written only by `#open`, which fills an empty slot, by the three detaches and by teardown. At each of these four points the session enters ended with no foreign code between the two writes. So whenever foreign code runs, "the slot holds this session" and "this session hasn't ended" have the same value, and each check below gives the result it gives at `bb644d6d7`.
+
+| Check | At `bb644d6d7` | Now |
+| --- | --- | --- |
+| `drag.requestStep`, `drag.requestCancel` | `isCurrent` | the session hasn't ended |
+| `Escape` | `isCurrent` | the session hasn't ended |
+| A verdict's completion | consumed if not current or decided | consumed if ended or decided |
+
+**Where the checks matter.** The request checks matter whenever a `Drag` is retained after its operation (DRI-8). The `Escape` and completion checks matter only while `terminate` runs foreign code: an `abort` listener on the verdict's signal can dispatch an `Escape`, or settle a thenable that calls its callbacks synchronously. No test reaches those two cases, so the handoff adds witnesses for them.
+
+**Three lifetimes, each with one owner:**
+
+- **The operation's lifetime is the session's.** Its ended state decides whether a request through the `Drag` still acts, whether `Escape` applies and whether a verdict's completion is consumed.
+- **Deferred execution is the controller's.** A step the session accepts goes to the controller's step list, which runs it in a pass, coalesces it by identity and drops it at destruction (DRI-8, DRI-10). The session queues nothing.
+- **Release is the presentation's lifetime, and stays as it is.** `drag.signal` and a late `use` disposer depend on release (DRI-9), which comes before the end for an operation with `start`.
+
+**A late verdict is consumed:** a completion after the end or after a decision records nothing, reports nothing and enters no pass, as now.
+
+**`DRD-24`'s interface loses one member.** The session reaches the controller through `enter`, `raise`, `raiseInPass`, `detach`, `takeLanding`, `keepLanding` and `requestStep`. Everything else in `DRD-24` stands.
+
+**Rejected:**
+
+- **Recording a decision at destruction,** so that the decision alone covers the completion. Destruction delivers no outcome (DRI-10), and an outcome that nothing applies is a false state.
+- **An `AbortController` for the operation's lifetime.** It allocates once per operation, and the phase already holds the state.
+- **Ending the session at conclusion.** Then a step requested in `settle` or a disposer wouldn't run, and at `bb644d6d7` it runs before `end`, receiving `null`.
+
+#### DRD-27 — The kernel owns the operation object, and the lift owns its view
+
+**The kernel builds the `Drag` at activation, as one object, and only the kernel writes it. The lift builds its own view object, and only the lift writes it. A lifted `Drag` reaches the view as `drag.lift`. `visual`, `box`, `rect`, `boxWidth`, `boxHeight`, `visualSpace`, `itemSpace`, `translatedX`, `translatedY` and `translate` move from the `Drag` to the view. The kernel's types say that a `Drag` may have a view or not. No assertion or `Writable` type stands for a member that an object doesn't have, and `type-fest` leaves the dependencies.**
+
+Owner requirement, 2026-11-07. The owner asked for construction, capability and ownership to be resolved together, and said that `Partial` alone isn't enough.
+
+**At `bb644d6d7`, by reading:**
+
+- **The session builds a `Drag<State>` when it opens and asserts it as `Writable<LiftedDrag<State>>` through `unknown`.** For a behavior without `lift`, the kernel's type claims ten members that never exist. For a lifted behavior, they don't exist until activation.
+- **`lift(drag, admission, window, report)` writes those ten members into the kernel's object.** Its `translate` then writes `translatedX` and `translatedY` there on every call, while the kernel writes `x` and `y` to the same object. One object has two writers.
+- **The landing reads the lift's own values back from the kernel's object.**
+- **`lift`'s public signature names `Writable` from `type-fest`,** so `bb644d6d7` made `type-fest` a runtime dependency of the published types.
+- **`AnyBehavior` types every hook as receiving a `LiftedDrag`,** although `lift` is optional.
+
+**Construction.** The `Drag` exists from activation, which is the first moment a hook can receive it. The kernel builds it once, as one object literal, after the lift has built its view, so every member is set when the object is created. Before activation, the session keeps the press in its own fields: the item, the pointer id, the origin and the admission. The activating sample's coordinates become the `Drag`'s `x` and `y`, as they do now. **A press that never activates builds no `Drag`, and none of the three functions it carries.**
+
+**Capability:**
+
+- `Drag<State>` has `lift: undefined`, and `LiftedDrag<State>` has `lift: Lift`. A `requestStep` step receives the same type.
+- The kernel's own type for the operation is a `Drag` whose `lift` is a `Lift` or `undefined`. The kernel never reads `lift`.
+- Every `Drag` has the `lift` key, so all operations have one shape.
+
+**Ownership:**
+
+- After construction, the kernel writes only `x` and `y`.
+- `lift` builds its view with every member set, and afterwards only its `translate` writes to it.
+- The landing reads the lift's own values, and nothing from the `Drag`.
+
+**The lift's interface to the kernel.** `lift(admission, window, report)` returns a hold: the view, `release()` and `land(landing)`. The kernel puts the view on the `Drag` and keeps the hold. **The hold doesn't reach a behavior,** so a behavior can't release the lift or start a landing.
+
+**Coordination that stays, because a contract rule needs the kernel in it:**
+
+| Coordination | Why the kernel takes part |
+| --- | --- |
+| The lift is acquired at activation: after the decline for a disconnected item, and after the running landing is taken, but before capture and `activate`. The taken landing is cancelled after the lift measures | DRI-13 and `DRD-18`: a grab during a landing keeps the visual under the pointer. The landing's slot is the controller's (`DRD-24`) |
+| A throw during acquisition is a fault. A failure to restore during a failed acquisition is reported through `report` | `DRD-3`: one fault path |
+| The session that acquired the lift releases it once, at DRI-9 step 5 | DRI-9 and `DRD-14`: after the disposers and before the landing |
+| The landing starts after release, from `settle`'s result, and the controller keeps its cancel | DRI-13: the landing outlives its operation |
+| `lift` receives the controller's `window` | A fixed value the controller already has. It costs no lookup |
+
+**Coupling that goes, because no rule needs it:** the writes into the kernel's object, the writable type in a public signature with its dependency, the landing's reads from the `Drag`, and `AnyBehavior`'s assumption. The lift module also leaves `src/kernel/` (`DRD-28`).
+
+**`DRD-4`'s purpose holds.** A behavior without `lift` has no lift code in its bundle. Each of its operations pays only for the `lift: undefined` key.
+
+**Changes a consumer sees:**
+
+- **A lifted behavior reads the ten members from `drag.lift`,** such as `drag.lift.translate(x, y)` and `drag.lift.rect`.
+- **`lift`'s parameters change.** Only the kernel calls it (`DRD-4`).
+- **`Landing` is exported from `lift.js`** (`DRD-28`).
+- **A `Drag`'s own keys change.** The ten members move, and every `Drag` gains `lift`. This is observable at runtime, and the handoff witnesses it.
+- **No change to event order, hooks, outcomes or timing is intended.** The `Drag` is created later, but no hook could reach it earlier.
+
+**Rejected:**
+
+- **`Partial<LiftedDrag>`.** It states that the members are optional, but it keeps two writers on one object, and every read needs a check.
+- **The lift builds the whole operation object from the kernel's.** The lift would then need the kernel's functions, the kernel would still write `x` and `y` into the lift's object, and the kernel's fields would be copied once per operation.
+- **Keeping the flat shape by copying the view's members onto the `Drag`.** `translatedX` and `translatedY` change at every `translate`, so they would have two places to write, or one stale copy.
+- **`release` and `land` on the view.** A behavior could then release the lift or start a landing.
+- **Behaviors call `lift` themselves in `activate`.** The order of release and of the landing would then depend on each behavior's code, and DRI-18 promises these guarantees with no code beyond the hooks.
+
+**Verified by a type check, not by production code.** The [type check](probes/drag-ownership/README.md) compiles these types and `draggable`'s overloads without an assertion about the operation's members, in two option sets.
+
+**Not decided here:**
+
+- **An admission may omit `state` while the `Drag` types `state` as `State`.** Closing this needs a public type change, and the type check shows that one assertion stays at the kernel's generic boundary. It is the owner's question if wanted.
+- **The built-ins' operation state has fields that are filled by `activate` or `settle`** and read with `!`. `bb644d6d7` removed four of those assertions without changing the types, which breaks the typecheck, and `DRD-28` restores them. Typing a behavior's state by its phase would be a change to the built-ins, not to the kernel.
+
+**Cost: the owner's, `DRO-7`.**
+
+#### DRD-28 — Public entries at the source root, and the kernel's modules internal
+
+**`src/lift.ts` and `src/fault.ts` return to the source root. `src/kernel/` holds only modules that no consumer imports. Each public type is exported from one public entry, and the built-ins, fixtures, tests and instruments import kernel types only through those entries.**
+
+The owner moved `lift` into `src/kernel/` at `bb644d6d7`, and said on 2026-11-07 that the move came from mistaking its role. `lift` is an optional public module that the kernel never imports as a value. `DragFault` is a public entry for the same reason.
+
+**At `bb644d6d7`, by reading:**
+
+- **The typecheck fails, with 48 errors in 24 files.** `src/draggable.ts` exports no type, so neither a consumer nor `sortable/domain.ts`, `free-drag/domain.ts` or `free-drag/geometry.ts` can name `Drag`, `Behavior` or `CancelOrigin`.
+- **The test files that import `src/lift.ts` or `src/fault.ts` can't load.** `files.json`, `typedoc.json` and the size instrument still address both modules at the source root.
+- **`sortable.ts` and `free-drag.ts` import from `./kernel/*`,** while DRI-18 lets them import only public values and types.
+- **Four `!` assertions on the built-ins' state are removed:** three in `sortable.ts` and one in `free-drag.ts`. Each guards a field that an earlier hook of the same operation fills, so behavior doesn't change, but the typecheck fails.
+
+**Decided:**
+
+- **Source layout:**
+  - `src/draggable.ts`, `src/lift.ts` and `src/fault.ts` are the kernel's public entries.
+  - `src/kernel/` holds `admission`, `behavior`, `drag`, `gesture`, `outcome` and `session`.
+- **Exports:**
+
+  | Entry | Values | Types |
+  | --- | --- | --- |
+  | `draggable.js` | `draggable` | `Behavior`, `LiftedBehavior`, `Admission`, `LiftedAdmission`, `Drag`, `LiftedDrag`, `DragDisposer`, `DraggableController`, `Outcome`, `SkippedOutcome`, `VerdictOutcome`, `CanceledOutcome`, `CancelOrigin` |
+  | `lift.js` | `lift` | `Lift`, `Landing`, and the type of `lift`'s result |
+  | `fault.js` | `DragFault` |  |
+
+  The kernel's types are type-only re-exports, so importing `draggable` alone still brings no lift code.
+
+- **Packaging.** The build is unbundled, so it writes `kernel/*.js` beside `shared/`. `package.json`'s `files` and `files.json`'s `clean.extras` list `kernel` as they list `shared`. `type-fest` leaves the dependencies (`DRD-27`).
+- **The four assertions return as they were at `0dcb80fb1`.**
+- **Tests change only where the layout requires it.** The size test's exact module list for `draggable` alone becomes the new graph. That list is the kernel's modules that have code, and still no lift, `box-quad`, sortable or landing module.
+
 ## Disposition of the 2026-11-07 reviews
 
 Each finding and question of the [review round](reviews/production/production-summary.md) and the [architecture challenge](reviews/architecture/production-design-challenge.md), both read at `d7e7b0d3a`. "Handoff" means [`remediation-handoff.md`](remediation-handoff.md).
@@ -352,7 +494,7 @@ Each finding and question of the [review round](reviews/production/production-su
 
 ## Owner decisions
 
-None blocks the remediation. Each has a default the handoff builds. `DRO-6` holds only the composition handoff's kernel item.
+None blocks the remediation. Each has a default the handoff builds. `DRO-6` is approved. `DRO-7` waits for the ownership handoff's figures.
 
 #### DRO-1 — Press cost under CONTRIBUTING §0
 
@@ -378,6 +520,8 @@ A row that is still slower comes with its attributed cause. You decide under CON
 
 **After `3084191bb`:** the remediation report's readings measured `b91db2818`. `3084191bb` and the composition handoff change the kernel and both built-ins, so those readings describe only `b91db2818`. A size figure the implementer saw on the uncommitted tree after `3084191bb` is not recorded, and isn't a reading. A figure offered for this decision names the commit it measured.
 
+**Timing deferred, 2026-11-07.** When the owner approved `DRO-6`, they deferred timing evaluation and tuning. The size re-base in this entry remains open. No timing reading is owed until the owner asks for one, and none is accepted.
+
 #### DRO-5 — Keep `599684791` reachable after the squash merge
 
 **The repository allows only squash merges, so `main` won't contain `599684791`.** Once `drag/production` is squashed and its branch deleted, the commit stays reachable only through another ref. On 2026-11-07 that ref is `origin/drag/prototype`, whose tip `a1d31e0d2` descends from `599684791`. `origin/drag/production` holds it too, but merging normally deletes that branch. The `compare` instrument's prototype arm and `measure.ts --prototype` read the commit with `git archive`, and fail without it.
@@ -392,7 +536,7 @@ A row that is still slower comes with its attributed cause. You decide under CON
 
 #### DRO-6 — Adopt the operation class at its measured cost
 
-**Default: not adopted.** Production keeps `3084191bb`'s kernel, and [`composition-handoff.md`](composition-handoff.md) item 1 waits. The [prototype](probes/session-owner/README.md) at `b54832a0e` meets `DRD-24`. Its adoption is a single kernel commit, item 1. Its costs below are measured against `e06476d2b`, whose source is production's.
+**Approved by the owner on 2026-11-07, and adopted at `276947f82`.** The [composition report](composition-report.md) records the approval as relayed: the costs below are accepted for adoption, the priority is a clear architecture with well-defined ownership, and **timing evaluation and tuning are deferred.** The text below is the decision as it was put. The [prototype](probes/session-owner/README.md) at `b54832a0e` meets `DRD-24`. Its adoption is a single kernel commit, item 1. Its costs below are measured against `e06476d2b`, whose source is production's.
 
 **Size.** Brotli is the figure that governs.
 
@@ -444,6 +588,27 @@ No timing was taken.
 - The net growth is the code of a second class.
 - The three functions are created once per press, not per sample.
 
+#### DRO-7 — The costs of the ownership revision
+
+**Default: none is accepted until you read it.** [`ownership-handoff.md`](ownership-handoff.md) implements `DRD-26` to `DRD-28`, and its report gives these figures, each with the commit it measured:
+
+- **Size:** every row of `just size`, minified and Brotli, at each of the unit's commits. Each is compared with the figures that the [composition report](composition-report.md) recorded at `2506dcbb6`, whose source equals `0dcb80fb1`'s. `bb644d6d7` has no complete reading, because its lifted rows don't build.
+- **Allocation, counted by reading and with the method stated:**
+  - per press that never activates;
+  - per pointer operation, with and without `lift`;
+  - per keyboard command;
+  - per lifted activation inside `lift`.
+- **Per sample:** the per-sample allocation test result. A lifted behavior's `translate` call now reads one more property, `drag.lift`. That is not measured.
+
+**Expected by reading, not measured:**
+
+- A press that never activates allocates one object and three functions fewer, because no `Drag` is built.
+- A lifted activation may allocate one more object, because the view and the hold are separate objects. The implementer may avoid it.
+- Removing `isCurrent` and adding an ended state should change size by a few bytes in either direction.
+- Returning the modules to the root should change no row.
+
+**No timing is taken,** because you deferred timing. **What reading decides:** you accept the figures, or you name a part to remove before merge. **No recommendation until the figures exist.**
+
 ## Decision status
 
 | Decision | Status |
@@ -451,7 +616,7 @@ No timing was taken.
 | DRD-1 | active |
 | DRD-2 | active |
 | DRD-3 | active |
-| DRD-4 | active |
+| DRD-4 | active. `DRD-27` moves the lift's members from the `Drag` to the lift's view |
 | DRD-5 | active |
 | DRD-6 | active, scoping amended by `DRD-16` |
 | DRD-7 | active |
@@ -471,5 +636,8 @@ No timing was taken.
 | DRD-21 | active, implemented at `b91db2818` |
 | DRD-22 | active, applied in the remediation's validation |
 | DRD-23 | active |
-| DRD-24 | active. The prototype met it at `b54832a0e`. Adoption is prepared and waits for `DRO-6` |
-| DRD-25 | active, unimplemented |
+| DRD-24 | active, adopted at `276947f82` under `DRO-6`. `DRD-26` removes `isCurrent` from its interface |
+| DRD-25 | active, implemented at `2506dcbb6` |
+| DRD-26 | active, unimplemented. [`ownership-handoff.md`](ownership-handoff.md) item 2 |
+| DRD-27 | active, unimplemented. [`ownership-handoff.md`](ownership-handoff.md) item 3. Amends `DRD-4`'s lift members, which move to the lift's view |
+| DRD-28 | active, unimplemented. [`ownership-handoff.md`](ownership-handoff.md) item 1 |

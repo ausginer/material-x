@@ -1,5 +1,7 @@
 # Composition handoff
 
+**Done.** The unit landed at `276947f82` and `2506dcbb6`, and [`composition-report.md`](composition-report.md) records it.
+
 **One bounded unit for one implementer. It adopts `DRD-24`'s operation class and closes the three findings on the composition refactor. The kernel item waits for the owner's cost decision, `DRO-6`. The built-in item doesn't.** The decisions are `DRD-24` and `DRD-25` in [`00-index.md`](00-index.md). The behavior owed is [`contract.md`](contract.md), whose public surface and `DRI-14` gained one rule each.
 
 **Base:** `drag/production` at the commit that carries this file. It contains the owner's refactor `3084191bb` and the owner's restore of the `items()` copy, `d4286ce64`. Work on that branch, and keep `d4286ce64`'s `#pull` as it is.
