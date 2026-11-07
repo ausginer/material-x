@@ -1,182 +1,146 @@
 {
- "moves": 300,
- "presses": 100,
- "rows": [
-  {
-   "items": 20,
-   "perMove": {
-    "layouts": 41,
-    "layoutsRange": [
-     41,
-     41
-    ],
-    "scriptUs": 156,
-    "scriptUsRange": [
-     138,
-     165
-    ],
-    "taskUs": 2127,
-    "taskUsRange": [
-     1860,
-     2162
-    ]
-   },
-   "perPressAndRelease": {
-    "layouts": 0,
-    "layoutsRange": [
-     0,
-     0
-    ],
-    "scriptUs": 76,
-    "scriptUsRange": [
-     69,
-     76
-    ],
-    "taskUs": 257,
-    "taskUsRange": [
-     232,
-     262
-    ]
-   }
-  },
-  {
-   "items": 2000,
-   "perMove": {
-    "layouts": 41,
-    "layoutsRange": [
-     41,
-     41
-    ],
-    "scriptUs": 184,
-    "scriptUsRange": [
-     155,
-     191
-    ],
-    "taskUs": 2985,
-    "taskUsRange": [
-     2983,
-     3414
-    ]
-   },
-   "perPressAndRelease": {
-    "layouts": 0,
-    "layoutsRange": [
-     0,
-     0
-    ],
-    "scriptUs": 519,
-    "scriptUsRange": [
-     482,
-     631
-    ],
-    "taskUs": 834,
-    "taskUsRange": [
-     811,
-     1066
-    ]
-   }
-  }
- ],
- "allocation": [
-  {
-   "name": "(V8 API)",
-   "bytesPerMove": 3535
-  },
-  {
-   "name": "(anonymous)",
-   "bytesPerMove": 1051
-  },
-  {
-   "name": "evaluate",
-   "bytesPerMove": 661
-  },
-  {
-   "name": "Map",
-   "bytesPerMove": 463
-  },
-  {
-   "name": "write",
-   "bytesPerMove": 327
-  },
-  {
-   "name": "window.__cleanupDrag",
-   "bytesPerMove": 235
-  },
-  {
-   "name": "_promiseAwareJsonValueNoThrow",
-   "bytesPerMove": 217
-  },
-  {
-   "name": "Promise",
-   "bytesPerMove": 205
-  },
-  {
-   "name": "setupDragListeners",
-   "bytesPerMove": 203
-  },
-  {
-   "name": "resolve",
-   "bytesPerMove": 165
-  },
-  {
-   "name": "slice",
-   "bytesPerMove": 134
-  },
-  {
-   "name": "serializeAsCallArgument",
-   "bytesPerMove": 121
-  },
-  {
-   "name": "jsonValue",
-   "bytesPerMove": 58
-  },
-  {
-   "name": "(IDLE_EXTERNAL)",
-   "bytesPerMove": 50
-  },
-  {
-   "name": "mouseListener",
-   "bytesPerMove": 31
-  },
-  {
-   "name": "innerSerialize",
-   "bytesPerMove": 31
-  },
-  {
-   "name": "moved",
-   "bytesPerMove": 12
-  },
-  {
-   "name": "advance",
-   "bytesPerMove": 10
-  },
-  {
-   "name": "#onPointer",
-   "bytesPerMove": 6
-  },
-  {
-   "name": "remeasureHole",
-   "bytesPerMove": 6
-  },
-  {
-   "name": "insertionAt",
-   "bytesPerMove": 6
-  },
-  {
-   "name": "serialize",
-   "bytesPerMove": 5
-  },
-  {
-   "name": "spatial",
-   "bytesPerMove": 3
-  },
-  {
-   "name": "edge",
-   "bytesPerMove": 1
-  },
-  {
-   "name": "#shiftSpan",
-   "bytesPerMove": 1
-  }
- ]
+  "moves": 300,
+  "presses": 100,
+  "rows": [
+    {
+      "items": 20,
+      "perMove": {
+        "layouts": 41,
+        "layoutsRange": [41, 41],
+        "scriptUs": 156,
+        "scriptUsRange": [138, 165],
+        "taskUs": 2127,
+        "taskUsRange": [1860, 2162]
+      },
+      "perPressAndRelease": {
+        "layouts": 0,
+        "layoutsRange": [0, 0],
+        "scriptUs": 76,
+        "scriptUsRange": [69, 76],
+        "taskUs": 257,
+        "taskUsRange": [232, 262]
+      }
+    },
+    {
+      "items": 2000,
+      "perMove": {
+        "layouts": 41,
+        "layoutsRange": [41, 41],
+        "scriptUs": 184,
+        "scriptUsRange": [155, 191],
+        "taskUs": 2985,
+        "taskUsRange": [2983, 3414]
+      },
+      "perPressAndRelease": {
+        "layouts": 0,
+        "layoutsRange": [0, 0],
+        "scriptUs": 519,
+        "scriptUsRange": [482, 631],
+        "taskUs": 834,
+        "taskUsRange": [811, 1066]
+      }
+    }
+  ],
+  "allocation": [
+    {
+      "name": "(V8 API)",
+      "bytesPerMove": 3535
+    },
+    {
+      "name": "(anonymous)",
+      "bytesPerMove": 1051
+    },
+    {
+      "name": "evaluate",
+      "bytesPerMove": 661
+    },
+    {
+      "name": "Map",
+      "bytesPerMove": 463
+    },
+    {
+      "name": "write",
+      "bytesPerMove": 327
+    },
+    {
+      "name": "window.__cleanupDrag",
+      "bytesPerMove": 235
+    },
+    {
+      "name": "_promiseAwareJsonValueNoThrow",
+      "bytesPerMove": 217
+    },
+    {
+      "name": "Promise",
+      "bytesPerMove": 205
+    },
+    {
+      "name": "setupDragListeners",
+      "bytesPerMove": 203
+    },
+    {
+      "name": "resolve",
+      "bytesPerMove": 165
+    },
+    {
+      "name": "slice",
+      "bytesPerMove": 134
+    },
+    {
+      "name": "serializeAsCallArgument",
+      "bytesPerMove": 121
+    },
+    {
+      "name": "jsonValue",
+      "bytesPerMove": 58
+    },
+    {
+      "name": "(IDLE_EXTERNAL)",
+      "bytesPerMove": 50
+    },
+    {
+      "name": "mouseListener",
+      "bytesPerMove": 31
+    },
+    {
+      "name": "innerSerialize",
+      "bytesPerMove": 31
+    },
+    {
+      "name": "moved",
+      "bytesPerMove": 12
+    },
+    {
+      "name": "advance",
+      "bytesPerMove": 10
+    },
+    {
+      "name": "#onPointer",
+      "bytesPerMove": 6
+    },
+    {
+      "name": "remeasureHole",
+      "bytesPerMove": 6
+    },
+    {
+      "name": "insertionAt",
+      "bytesPerMove": 6
+    },
+    {
+      "name": "serialize",
+      "bytesPerMove": 5
+    },
+    {
+      "name": "spatial",
+      "bytesPerMove": 3
+    },
+    {
+      "name": "edge",
+      "bytesPerMove": 1
+    },
+    {
+      "name": "#shiftSpan",
+      "bytesPerMove": 1
+    }
+  ]
 }

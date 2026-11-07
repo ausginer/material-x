@@ -23,26 +23,25 @@ export function reconcileCollection(
   incumbent: Insertion,
 ): Insertion | null {
   const destination = next.items.filter((item) => item !== dragged);
-  const { before, after } = incumbent;
 
   // A start gap survives only while `after` remains the first destination item.
-  if (!before) {
-    return after && destination[0] === after
+  if (!incumbent.before) {
+    return incumbent.after && destination[0] === incumbent.after
       ? insertionAt(destination, 0)
       : null;
   }
 
   // An end gap survives only while `before` remains the last destination item.
-  if (!after) {
-    return destination.at(-1) === before
+  if (!incumbent.after) {
+    return destination.at(-1) === incumbent.before
       ? insertionAt(destination, destination.length)
       : null;
   }
 
   // An internal gap survives only while both neighbors remain adjacent.
-  const beforeIndex = destination.indexOf(before);
+  const beforeIndex = destination.indexOf(incumbent.before);
 
-  return beforeIndex >= 0 && destination[beforeIndex + 1] === after
+  return beforeIndex >= 0 && destination[beforeIndex + 1] === incumbent.after
     ? insertionAt(destination, beforeIndex + 1)
     : null;
 }

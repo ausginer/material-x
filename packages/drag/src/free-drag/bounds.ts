@@ -50,12 +50,10 @@ export function bounds(source?: BoundsSource): BoundsInstaller {
       }
 
       // Copied, because a function's rect is the consumer's object.
-      const { left, top, right, bottom } = read;
-
-      box.left = left;
-      box.top = top;
-      box.right = right;
-      box.bottom = bottom;
+      box.left = read.left;
+      box.top = read.top;
+      box.right = read.right;
+      box.bottom = read.bottom;
       return held;
     };
 

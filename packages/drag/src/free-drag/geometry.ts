@@ -39,20 +39,19 @@ export function buildGeometry(
   motion: Point,
   window: Window & typeof globalThis,
 ): DragGeometry {
-  const { x: dx, y: dy } = motion;
-  const local = toLocal(drag.visualSpace, dx, dy);
+  const local = toLocal(drag.visualSpace, motion.x, motion.y);
 
   return {
     pointerX: drag.x,
     pointerY: drag.y,
     originPointerX: drag.originX,
     originPointerY: drag.originY,
-    viewportDeltaX: dx,
-    viewportDeltaY: dy,
+    viewportDeltaX: motion.x,
+    viewportDeltaY: motion.y,
     localDeltaX: local[0]!,
     localDeltaY: local[1]!,
     originRect: drag.rect,
-    currentRect: currentRect(drag.rect, dx, dy, window),
+    currentRect: currentRect(drag.rect, motion.x, motion.y, window),
   };
 }
 

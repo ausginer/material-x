@@ -140,15 +140,14 @@ function captureInlineStyles(visual: HTMLElement): () => void {
  * descendant. The library does not choose where focus goes, so this puts it back.
  */
 function showKeepingFocus(visual: HTMLElement): void {
-  const { ownerDocument } = visual;
-  const focused = deepActiveElement(ownerDocument);
+  const focused = deepActiveElement(visual.ownerDocument);
 
   visual.showPopover();
 
-  const current = deepActiveElement(ownerDocument);
+  const current = deepActiveElement(visual.ownerDocument);
 
   if (current !== focused) {
-    if (focused && focused !== ownerDocument.body) {
+    if (focused && focused !== visual.ownerDocument.body) {
       (focused as HTMLElement).focus({ preventScroll: true });
     } else {
       (current as HTMLElement).blur();
@@ -213,14 +212,13 @@ function startLandingAnimation<State>(
   window: Window,
   landing: Landing,
 ): (() => void) | null {
-  const { visual, rect, visualSpace, translatedX, translatedY } = drag;
   const local = delta();
 
   if (
     !localDelta(
-      visualSpace,
-      translatedX - (landing.x - rect.x),
-      translatedY - (landing.y - rect.y),
+      drag.visualSpace,
+      drag.translatedX - (landing.x - drag.rect.x),
+      drag.translatedY - (landing.y - drag.rect.y),
       local,
     ) ||
     (local[0] === 0 && local[1] === 0)
@@ -231,7 +229,7 @@ function startLandingAnimation<State>(
   const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ? 0
     : (landing.duration ?? DEFAULT_LANDING_DURATION);
-  const flight = visual.animate(
+  const flight = drag.visual.animate(
     [{ translate: `${local[0]!}px ${local[1]!}px` }, { translate: '0 0' }],
     {
       duration,
@@ -247,10 +245,10 @@ function startLandingAnimation<State>(
   }
 
   const keyframe =
-    window.getComputedStyle(visual).position === 'static'
+    window.getComputedStyle(drag.visual).position === 'static'
       ? { zIndex: TOP_Z_INDEX, position: 'relative' }
       : { zIndex: TOP_Z_INDEX };
-  const elevation = visual.animate([keyframe, keyframe], { duration });
+  const elevation = drag.visual.animate([keyframe, keyframe], { duration });
 
   return () => {
     flight.cancel();
@@ -272,19 +270,18 @@ export function lift<State>(
   window: Window,
   report: (error: unknown) => void,
 ): LiftHold {
-  const { item } = drag;
-  const { visual = item } = admission;
+  const visual = admission.visual ?? drag.item;
   const box = admission.box ?? visual;
   const rect = visual.getBoundingClientRect();
   const boxWidth = box.offsetWidth;
   const boxHeight = box.offsetHeight;
   const visualSpace = space();
-  const itemSpace = item === visual ? visualSpace : space();
+  const itemSpace = drag.item === visual ? visualSpace : space();
   const measured = createBox();
 
   if (
     !ancestry(visual, visualSpace) ||
-    (itemSpace !== visualSpace && !ancestry(item, itemSpace)) ||
+    (itemSpace !== visualSpace && !ancestry(drag.item, itemSpace)) ||
     !coordinates(visual, measured, visualSpace)
   ) {
     throw new Error('lift/visual-no-box-space');

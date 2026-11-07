@@ -5,7 +5,6 @@
  */
 import {
   draggable,
-  type DraggableController,
   type Landing,
   type LiftedBehavior,
   type LiftedDrag,
@@ -133,33 +132,31 @@ function recordResult(
   state: State,
   outcome: Outcome<ReorderResolution>,
 ): Recovery {
-  const { request } = state;
-
   if (outcome.type === 'canceled') {
     state.result = {
       type: 'canceled',
       reason: outcome.reason,
       origin: outcome.origin,
-      request,
+      request: state.request,
     };
 
     return outcome.origin === 'fault' ? RECOVERY_IMMEDIATE : RECOVERY_HOME;
   }
 
   if (outcome.type === 'skipped') {
-    state.result = { type: 'noop', request: request! };
+    state.result = { type: 'noop', request: state.request! };
     return RECOVERY_IMMEDIATE;
   }
 
   if (outcome.value === ACCEPTED) {
-    state.result = { type: 'accepted', request: request! };
+    state.result = { type: 'accepted', request: state.request! };
     return RECOVERY_DESTINATION;
   }
 
   state.result = {
     type: 'rejected',
     reason: (outcome.value as RejectedResolution)[0],
-    request: request!,
+    request: state.request!,
   };
 
   return RECOVERY_HOME;
@@ -171,24 +168,23 @@ function landingTarget(
   recovery: Recovery,
   composed: LandingTiming,
 ): Landing {
-  const { state, item, rect } = drag;
-  const placeholder = state.placeholder!;
+  const placeholder = drag.state.placeholder!;
 
   if (recovery === RECOVERY_DESTINATION) {
     if (
-      item.isConnected &&
-      item.parentElement === placeholder.parentElement &&
-      placeholder.nextElementSibling !== item
+      drag.item.isConnected &&
+      drag.item.parentElement === placeholder.parentElement &&
+      placeholder.nextElementSibling !== drag.item
     ) {
-      item.before(placeholder);
+      drag.item.before(placeholder);
     }
   } else {
-    movePlaceholder(placeholder, homeInsertion(state.snapshot, item));
+    movePlaceholder(placeholder, homeInsertion(drag.state.snapshot, drag.item));
   }
 
   if (
     !placeholder.isConnected ||
-    placeholder.parentElement !== item.parentElement
+    placeholder.parentElement !== drag.item.parentElement
   ) {
     throw new Error('sortable/landing-placeholder-lost');
   }
@@ -198,11 +194,14 @@ function landingTarget(
   return {
     x,
     y,
-    ...composed(drag.translatedX, drag.translatedY, x - rect.x, y - rect.y),
+    ...composed(
+      drag.translatedX,
+      drag.translatedY,
+      x - drag.rect.x,
+      y - drag.rect.y,
+    ),
   };
 }
-
-type Kernel = DraggableController<LiftedDrag<State>>;
 
 /**
  * The behavior `draggable` runs for one root. The kernel calls each hook as a
@@ -215,13 +214,10 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
   readonly lift: typeof lift = lift;
   declare readonly threshold?: number;
 
-  /** What `sortable()` returns. Its methods do not depend on `this`. */
-  readonly controller: SortableController;
-
   readonly #config: SortableConfig;
   readonly #window: Window;
   readonly #axis: InsertionGeometry;
-  readonly #displacement: DisplacementSink | null;
+  readonly #displacement: DisplacementSink | undefined;
   readonly #landing: LandingTiming | null;
   readonly #measuredBox: ((item: HTMLElement) => HTMLElement) | null;
   /** The version the next pulled snapshot carries. */
@@ -235,105 +231,28 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
     this.#config = config;
     this.#window = root.ownerDocument.defaultView!;
     this.#axis = config.axis();
-    this.#displacement = config.displacement ? config.displacement() : null;
+    this.#displacement = config.displacement?.();
     this.#landing = config.landing ?? null;
     this.#measuredBox = config.box ?? config.visual ?? null;
-
-    const kernel: Kernel = draggable<State, ReorderResolution>(root, this);
-    const displacement = this.#displacement;
-
-    if (displacement) {
-      kernel.use(() => {
-        displacement.retire();
-      });
-    }
-
-    this.controller = {
-      invalidate: () => {
-        kernel.requestStep(this.#reloadCollection);
-      },
-      requestCancel: (reason) => {
-        kernel.requestCancel(reason);
-      },
-      requestDestroy: () => kernel.requestDestroy(),
-    };
   }
-
-  #pull(): CollectionSnapshot {
-    this.#version += 1;
-    return { items: [...this.#config.items()], version: this.#version };
-  }
-
-  /** Step, once per frame: the gap under the pointer, and the placeholder moved to it. */
-  readonly #updateInsertion = (drag: LiftedDrag<State> | null): void => {
-    if (!drag) {
-      return;
-    }
-
-    const { state } = drag;
-    const context = state.context!;
-    const axis = this.#axis;
-
-    state.pointerX = drag.x;
-    state.pointerY = drag.y;
-
-    const resolved = axis.resolve(state, context);
-
-    if (resolved === null) {
-      return;
-    }
-
-    state.insertion = resolved;
-
-    if (placeholderAt(context.placeholder, resolved)) {
-      return;
-    }
-
-    let stale = true;
-
-    try {
-      movePlaceholder(context.placeholder, resolved);
-      axis.moved(
-        state,
-        context,
-        this.#displacement ? this.#displacement.report : null,
-      );
-      stale = false;
-    } finally {
-      if (stale) {
-        axis.invalidate();
-      }
-    }
-  };
-
-  /** Step, on scroll and resize: the cached geometry is stale. */
-  readonly #invalidateGeometry = (): void => {
-    this.#axis.invalidate();
-  };
-
-  /** Disposer, per operation: the cache releases the operation's elements. */
-  readonly #retireAxis = (): void => {
-    this.#axis.retire();
-  };
 
   /** Step, on `invalidate()`: re-reads the collection and rebases the gap. */
-  readonly #reloadCollection = (drag: LiftedDrag<State> | null): void => {
+  readonly invalidate = (drag: LiftedDrag<State> | null): void => {
     if (!drag) {
       return;
     }
 
-    const { state, item } = drag;
     const next = this.#pull();
 
-    state.snapshot = next;
+    drag.state.snapshot = next;
 
-    if (next.items.includes(item)) {
-      const insertion = state.insertion
-        ? reconcileCollection(next, item, state.insertion)
+    if (next.items.includes(drag.item)) {
+      const insertion = drag.state.insertion
+        ? reconcileCollection(next, drag.item, drag.state.insertion)
         : null;
 
       if (insertion) {
-        state.insertion = insertion;
+        drag.state.insertion = insertion;
       } else {
         drag.requestCancel(CANCEL_COLLECTION_INVALIDATED);
       }
@@ -343,63 +262,6 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
 
     this.#axis.invalidate();
   };
-
-  /**
-   * The pressed item from a fresh collection, and the admission for it. A command
-   * names its direction and is refused at the collection's edge, so that the key
-   * keeps its native meaning there.
-   */
-  #admission(event: Event, direction: KeyboardDirection | null) {
-    const config = this.#config;
-    const snapshot = this.#pull();
-    const path = event.composedPath();
-    const item = path.find((node) =>
-      snapshot.items.includes(node as HTMLElement),
-    ) as HTMLElement | undefined;
-
-    if (!item) {
-      return null;
-    }
-
-    let handle: HTMLElement | undefined;
-
-    if (config.handle) {
-      const named = config.handle(item);
-
-      if (!named || !path.includes(named)) {
-        return null;
-      }
-
-      handle = named;
-    }
-
-    if (direction !== null && !keyboardInsertion(snapshot, item, direction)) {
-      return null;
-    }
-
-    const visual = config.visual ? config.visual(item) : item;
-    const state: State = {
-      item,
-      direction,
-      snapshot,
-      insertion: null,
-      pointerX: 0,
-      pointerY: 0,
-      request: null,
-      result: null,
-      placeholder: null,
-      context: null,
-      frame: null,
-    };
-
-    return {
-      item,
-      visual,
-      box: config.box ? config.box(item) : visual,
-      ...(handle ? { handle } : {}),
-      state,
-    };
-  }
 
   admit(event: PointerEvent) {
     return event.altKey ? null : this.#admission(event, null);
@@ -412,7 +274,6 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
   }
 
   activate(drag: LiftedDrag<State>): false | undefined {
-    const { item, visual, box, state, boxWidth, boxHeight } = drag;
     const window = this.#window;
 
     // The second pull closes the window between admission and activation, in
@@ -421,38 +282,43 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
     // move is no longer possible, declines quietly.
     const snapshot = this.#pull();
 
-    if (!snapshot.items.includes(item)) {
+    if (!snapshot.items.includes(drag.item)) {
       return false;
     }
 
     const insertion =
-      state.direction === null
-        ? homeInsertion(snapshot, item)
-        : keyboardInsertion(snapshot, item, state.direction);
+      drag.state.direction === null
+        ? homeInsertion(snapshot, drag.item)
+        : keyboardInsertion(snapshot, drag.item, drag.state.direction);
 
     if (!insertion) {
       return false;
     }
 
-    state.snapshot = snapshot;
-    state.insertion = insertion;
+    drag.state.snapshot = snapshot;
+    drag.state.insertion = insertion;
 
     const placeholder = createPlaceholder(
       window.document,
-      { item, visual, box, rect: drag.rect },
-      boxWidth,
+      drag,
+      drag.boxWidth,
       // Across the lift: a box around the visual keeps the part of its height the
       // visual did not take with it.
-      visual.contains(box) ? boxHeight : boxHeight - box.offsetHeight,
+      drag.visual.contains(drag.box)
+        ? drag.boxHeight
+        : drag.boxHeight - drag.box.offsetHeight,
       this.#config.placeholder ?? null,
     );
 
     drag.use(() => {
       placeholder.remove();
     });
-    item.after(placeholder);
+    drag.item.after(placeholder);
 
-    if (!placeholder.isConnected || item.nextElementSibling !== placeholder) {
+    if (
+      !placeholder.isConnected ||
+      drag.item.nextElementSibling !== placeholder
+    ) {
       throw new Error('sortable/insertion-placeholder-lost');
     }
 
@@ -469,9 +335,9 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
     listenForInvalidation(window, drag.signal, () => {
       drag.requestStep(invalidateGeometry);
     });
-    state.placeholder = placeholder;
-    state.frame = frame;
-    state.context = {
+    drag.state.placeholder = placeholder;
+    drag.state.frame = frame;
+    drag.state.context = {
       placeholder,
       box: this.#measuredBox,
       settle: this.#displacement ? this.#displacement.settle : null,
@@ -493,25 +359,28 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
   }
 
   drop(drag: LiftedDrag<State>) {
-    const { state, item } = drag;
-    const pointer = state.direction === null;
-    const config = this.#config;
+    const pointer = drag.state.direction === null;
 
-    state.frame!.cancel();
+    drag.state.frame!.cancel();
 
     if (pointer) {
       this.#axis.invalidate();
-      state.pointerX = drag.x;
-      state.pointerY = drag.y;
-      state.insertion =
-        this.#axis.resolve(state, state.context!) ?? state.insertion;
+      drag.state.pointerX = drag.x;
+      drag.state.pointerY = drag.y;
+      drag.state.insertion =
+        this.#axis.resolve(drag.state, drag.state.context!) ??
+        drag.state.insertion;
     }
 
-    const insertion = state.insertion!;
-    const request = buildReorderRequest(state.snapshot, item, insertion);
+    const insertion = drag.state.insertion!;
+    const request = buildReorderRequest(
+      drag.state.snapshot,
+      drag.item,
+      insertion,
+    );
 
-    state.request = request;
-    movePlaceholder(state.placeholder!, insertion);
+    drag.state.request = request;
+    movePlaceholder(drag.state.placeholder!, insertion);
 
     if (pointer) {
       drag.translate(drag.x - drag.originX, drag.y - drag.originY);
@@ -519,7 +388,7 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
 
     return request.to === request.from
       ? null
-      : (signal: AbortSignal) => config.onReorder(request, { signal });
+      : (signal: AbortSignal) => this.#config.onReorder(request, { signal });
   }
 
   settle(
@@ -537,6 +406,114 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
   end(drag: LiftedDrag<State>): void {
     this.#config.onEnd?.(drag.state.result!);
   }
+
+  /** Step, on scroll and resize: the cached geometry is stale. */
+  readonly #invalidateGeometry = (): void => {
+    this.#axis.invalidate();
+  };
+
+  /** Disposer, per operation: the cache releases the operation's elements. */
+  readonly #retireAxis = (): void => {
+    this.#axis.retire();
+  };
+
+  #pull(): CollectionSnapshot {
+    this.#version += 1;
+    return { items: this.#config.items(), version: this.#version };
+  }
+
+  /** Step, once per frame: the gap under the pointer, and the placeholder moved to it. */
+  readonly #updateInsertion = (drag: LiftedDrag<State> | null): void => {
+    if (!drag) {
+      return;
+    }
+
+    const context = drag.state.context!;
+    const axis = this.#axis;
+
+    drag.state.pointerX = drag.x;
+    drag.state.pointerY = drag.y;
+
+    const resolved = axis.resolve(drag.state, context);
+
+    if (resolved === null) {
+      return;
+    }
+
+    drag.state.insertion = resolved;
+
+    if (placeholderAt(context.placeholder, resolved)) {
+      return;
+    }
+
+    let stale = true;
+
+    try {
+      movePlaceholder(context.placeholder, resolved);
+      axis.moved(drag.state, context, this.#displacement?.report ?? null);
+      stale = false;
+    } finally {
+      if (stale) {
+        axis.invalidate();
+      }
+    }
+  };
+
+  /**
+   * The pressed item from a fresh collection, and the admission for it. A command
+   * names its direction and is refused at the collection's edge, so that the key
+   * keeps its native meaning there.
+   */
+  #admission(event: Event, direction: KeyboardDirection | null) {
+    const snapshot = this.#pull();
+    const path = event.composedPath();
+    const item = path.find((node) =>
+      snapshot.items.includes(node as HTMLElement),
+    ) as HTMLElement | undefined;
+
+    if (!item) {
+      return null;
+    }
+
+    let handle: HTMLElement | undefined;
+
+    if (this.#config.handle) {
+      const named = this.#config.handle(item);
+
+      if (!named || !path.includes(named)) {
+        return null;
+      }
+
+      handle = named;
+    }
+
+    if (direction !== null && !keyboardInsertion(snapshot, item, direction)) {
+      return null;
+    }
+
+    const visual = this.#config.visual?.(item) ?? item;
+    const state: State = {
+      item,
+      direction,
+      snapshot,
+      insertion: null,
+      pointerX: 0,
+      pointerY: 0,
+      request: null,
+      result: null,
+      placeholder: null,
+      context: null,
+      frame: null,
+    };
+
+    return {
+      item,
+      visual,
+      box: this.#config.box?.(item) ?? visual,
+      ...(handle ? { handle } : {}),
+      state,
+    };
+  }
 }
 
 /** Makes `root` a sortable collection. */
@@ -544,5 +521,21 @@ export function sortable(
   root: HTMLElement,
   config: SortableConfig,
 ): SortableController {
-  return new SortableBehavior(root, config).controller;
+  const behavior = new SortableBehavior(root, config);
+  const kernel = draggable<State, ReorderResolution>(root, behavior);
+  const displacement = config.displacement?.();
+
+  if (displacement) {
+    kernel.use(() => {
+      displacement.retire();
+    });
+  }
+
+  return {
+    invalidate: () => {
+      kernel.requestStep(behavior.invalidate);
+    },
+    requestCancel: (reason) => kernel.requestCancel(reason),
+    requestDestroy: () => kernel.requestDestroy(),
+  };
 }

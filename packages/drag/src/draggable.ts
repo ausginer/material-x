@@ -317,9 +317,10 @@ function focusedWithin(item: HTMLElement): HTMLElement | null {
  */
 function restoreFocus(focused: HTMLElement | null, pointerId: number): void {
   if (focused?.isConnected) {
-    const { activeElement, body } = focused.ownerDocument;
-
-    if (!activeElement || activeElement === body) {
+    if (
+      !focused.ownerDocument.activeElement ||
+      focused.ownerDocument.activeElement === focused.ownerDocument.body
+    ) {
       focused.focus({ preventScroll: pointerId !== COMMAND_POINTER_ID });
     }
   }
@@ -433,12 +434,14 @@ class Gesture<State, Verdict> {
     this.#window = root.ownerDocument.defaultView!;
     this.#threshold = behavior.threshold ?? DEFAULT_THRESHOLD;
 
-    const { signal } = this.#listeners;
-
-    root.addEventListener('pointerdown', this.#onPress, { signal });
+    root.addEventListener('pointerdown', this.#onPress, {
+      signal: this.#listeners.signal,
+    });
 
     if (behavior.command) {
-      root.addEventListener('keydown', this.#onCommand, { signal });
+      root.addEventListener('keydown', this.#onCommand, {
+        signal: this.#listeners.signal,
+      });
     }
   }
 
@@ -477,8 +480,6 @@ class Gesture<State, Verdict> {
    */
   #applyRequests(): void {
     for (;;) {
-      const session = this.#session;
-
       try {
         if (this.#resolveDestroyed) {
           this.#teardown();
@@ -487,12 +488,16 @@ class Gesture<State, Verdict> {
 
         if (this.#steps.length > 0) {
           this.#runStep(this.#steps.shift()!);
-        } else if (session?.decision && session.phase !== CONCLUDED) {
-          this.#conclude(session, session.decision);
-        } else if (session?.next) {
-          const { next } = session;
+        } else if (
+          this.#session?.decision &&
+          this.#session.phase !== CONCLUDED
+        ) {
+          this.#conclude(this.#session, this.#session.decision);
+        } else if (this.#session?.next) {
+          // Taken before it runs, because it may set the next one.
+          const { next } = this.#session;
 
-          session.next = null;
+          this.#session.next = null;
           next();
         } else {
           return;
@@ -539,9 +544,11 @@ class Gesture<State, Verdict> {
   readonly #runStep = (
     step: (drag: LiftedDrag<State> | null) => void,
   ): void => {
-    const session = this.#session;
-
-    step(session?.phase === ACTIVE && !session.decision ? session.drag : null);
+    step(
+      this.#session?.phase === ACTIVE && !this.#session.decision
+        ? this.#session.drag
+        : null,
+    );
   };
 
   readonly requestCancel = (reason?: unknown): void => {
@@ -549,10 +556,8 @@ class Gesture<State, Verdict> {
   };
 
   #cancel(reason: unknown, origin: CancelOrigin): void {
-    const session = this.#session;
-
-    if (session) {
-      session.decision ??= { type: 'canceled', reason, origin };
+    if (this.#session) {
+      this.#session.decision ??= { type: 'canceled', reason, origin };
       this.#enter(NOOP, null);
     }
   }
@@ -697,8 +702,6 @@ class Gesture<State, Verdict> {
     // `lift` can name them.
     session.drag = drag as unknown as WritableLiftedDrag<State>;
 
-    const target = this.#window;
-
     // On the window in the capture phase, so that no `stopPropagation` in the page
     // hides the operation's input.
     if (pointerId !== COMMAND_POINTER_ID) {
@@ -711,7 +714,7 @@ class Gesture<State, Verdict> {
         'pointercancel',
         'lostpointercapture',
       ]) {
-        target.addEventListener(
+        this.#window.addEventListener(
           type,
           this.#onPointer as EventListener,
           options,
@@ -719,7 +722,7 @@ class Gesture<State, Verdict> {
       }
     }
 
-    target.addEventListener('keydown', this.#onEscape, {
+    this.#window.addEventListener('keydown', this.#onEscape, {
       capture: true,
       signal: operation.signal,
     });
@@ -734,10 +737,8 @@ class Gesture<State, Verdict> {
    * still propagates.
    */
   readonly #onEscape = (event: KeyboardEvent): void => {
-    const session = this.#session;
-
-    if (event.key === 'Escape' && session) {
-      if (session.started && !session.decision) {
+    if (event.key === 'Escape' && this.#session) {
+      if (this.#session.started && !this.#session.decision) {
         event.preventDefault();
       }
 
@@ -746,19 +747,21 @@ class Gesture<State, Verdict> {
   };
 
   readonly #onPointer = (event: PointerEvent): void => {
-    const session = this.#session;
-
     // A primary press while one is pending means its release was missed. Whatever
     // the pointer, the pending press ends, and the root may admit the new one.
     if (event.type === 'pointerdown') {
-      if (session?.phase === PENDING && event.isPrimary && event.button === 0) {
-        this.#enter(this.#endPending, session);
+      if (
+        this.#session?.phase === PENDING &&
+        event.isPrimary &&
+        event.button === 0
+      ) {
+        this.#enter(this.#endPending, this.#session);
       }
 
       return;
     }
 
-    if (event.pointerId !== session?.drag.pointerId) {
+    if (event.pointerId !== this.#session?.drag.pointerId) {
       return;
     }
 
@@ -777,36 +780,33 @@ class Gesture<State, Verdict> {
   };
 
   readonly #move = (event: PointerEvent): void => {
-    const session = this.#session!;
-    const { drag } = session;
-
     // A press never activates without the button that admitted it. A release the
     // window never saw, such as one outside it, leaves samples with no button.
     // oxlint-disable-next-line no-bitwise -- `buttons` is a bitfield
-    if (session.phase === PENDING && (event.buttons & 1) === 0) {
-      this.#endPending(session);
+    if (this.#session!.phase === PENDING && (event.buttons & 1) === 0) {
+      this.#endPending(this.#session!);
       return;
     }
 
-    drag.x = event.clientX;
-    drag.y = event.clientY;
+    this.#session!.drag.x = event.clientX;
+    this.#session!.drag.y = event.clientY;
 
-    if (session.phase === ACTIVE) {
-      this.#behavior.move?.(drag);
+    if (this.#session!.phase === ACTIVE) {
+      this.#behavior.move?.(this.#session!.drag);
       return;
     }
 
-    const dx = drag.x - drag.originX;
-    const dy = drag.y - drag.originY;
+    const dx = this.#session!.drag.x - this.#session!.drag.originX;
+    const dy = this.#session!.drag.y - this.#session!.drag.originY;
 
     if (
-      session.phase === PENDING &&
+      this.#session!.phase === PENDING &&
       dx * dx + dy * dy >= this.#threshold * this.#threshold
     ) {
       event.preventDefault();
       this.#window.getSelection()?.removeAllRanges();
-      armClickGuard(this.#window, drag.pointerId);
-      this.#activate(session);
+      armClickGuard(this.#window, this.#session!.drag.pointerId);
+      this.#activate(this.#session!);
     }
   };
 
@@ -818,24 +818,20 @@ class Gesture<State, Verdict> {
   };
 
   readonly #up = (event: PointerEvent): void => {
-    const session = this.#session!;
-
-    if (session.phase === PENDING) {
-      this.#endPending(session);
+    if (this.#session!.phase === PENDING) {
+      this.#endPending(this.#session!);
       return;
     }
 
-    session.drag.x = event.clientX;
-    session.drag.y = event.clientY;
-    this.#drop(session);
+    this.#session!.drag.x = event.clientX;
+    this.#session!.drag.y = event.clientY;
+    this.#drop(this.#session!);
   };
 
   #activate(session: Session<State, Verdict>): void {
-    const { drag, admission } = session;
-
     // The consumer removed the item during the press, so there is nothing to
     // drag. This is not a fault, and a lift could not measure it.
-    if (!drag.item.isConnected) {
+    if (!session.drag.item.isConnected) {
       session.decision ??= SKIPPED;
       return;
     }
@@ -850,8 +846,8 @@ class Gesture<State, Verdict> {
     try {
       if (this.#behavior.lift) {
         session.lift = this.#behavior.lift(
-          drag,
-          admission,
+          session.drag,
+          session.admission,
           this.#window,
           this.#raise,
         );
@@ -860,22 +856,22 @@ class Gesture<State, Verdict> {
       cancelLanding?.();
     }
 
-    if (drag.pointerId !== COMMAND_POINTER_ID) {
-      this.#root.setPointerCapture(drag.pointerId);
+    if (session.drag.pointerId !== COMMAND_POINTER_ID) {
+      this.#root.setPointerCapture(session.drag.pointerId);
     }
 
-    if (this.#behavior.activate?.(drag) === false) {
+    if (this.#behavior.activate?.(session.drag) === false) {
       session.decision ??= SKIPPED;
       return;
     }
 
     session.started = true;
-    this.#behavior.start?.(drag);
+    this.#behavior.start?.(session.drag);
     session.phase = ACTIVE;
 
     // A pointerless operation has no `pointerup`, so the sequence produces its
     // own release, after anything the hooks above requested.
-    if (drag.pointerId === COMMAND_POINTER_ID) {
+    if (session.drag.pointerId === COMMAND_POINTER_ID) {
       session.next = () => {
         this.#drop(session);
       };
@@ -963,14 +959,12 @@ class Gesture<State, Verdict> {
   }
 
   #closeMotion(session: Session<State, Verdict>): void {
-    const { pointerId } = session.drag;
-
     session.motion.abort();
 
     // A release after the pointer is gone would throw, and a capture the
     // platform already ended has nothing to release.
-    if (this.#root.hasPointerCapture(pointerId)) {
-      this.#root.releasePointerCapture(pointerId);
+    if (this.#root.hasPointerCapture(session.drag.pointerId)) {
+      this.#root.releasePointerCapture(session.drag.pointerId);
     }
   }
 
@@ -979,8 +973,6 @@ class Gesture<State, Verdict> {
    * once: a destruction after the decision finds the operation released.
    */
   #release(session: Session<State, Verdict>, outcome: Outcome | null): void {
-    const { disposers, lift } = session;
-
     if (session.operation.signal.aborted) {
       return;
     }
@@ -988,9 +980,12 @@ class Gesture<State, Verdict> {
     session.releasedWith = outcome;
     session.operation.abort();
 
-    while (disposers.length > 0) {
-      this.#dispose(disposers.pop()!, outcome);
+    while (session.disposers.length > 0) {
+      this.#dispose(session.disposers.pop()!, outcome);
     }
+
+    // Taken before it is cleared, so a lift is released once.
+    const { lift } = session;
 
     session.lift = null;
 
@@ -1006,13 +1001,14 @@ class Gesture<State, Verdict> {
    * destruction requested by anything here is applied before it.
    */
   #conclude(session: Session<State, Verdict>, outcome: Outcome<Verdict>): void {
-    const { drag, lift } = session;
+    // Taken before `#release` clears it.
+    const { lift } = session;
     const dropped = session.phase === DROPPING;
 
     session.phase = CONCLUDED;
 
     if (!dropped) {
-      session.focused = focusedWithin(drag.item);
+      session.focused = focusedWithin(session.drag.item);
     }
 
     try {
@@ -1029,7 +1025,7 @@ class Gesture<State, Verdict> {
 
     if (session.started) {
       try {
-        landing = this.#behavior.settle?.(drag, outcome);
+        landing = this.#behavior.settle?.(session.drag, outcome);
       } catch (error) {
         this.#raise(error);
       }
@@ -1053,19 +1049,20 @@ class Gesture<State, Verdict> {
         this.#session = null;
 
         try {
-          this.#behavior.end?.(drag, outcome);
+          this.#behavior.end?.(session.drag, outcome);
         } finally {
-          restoreFocus(session.focused, drag.pointerId);
+          restoreFocus(session.focused, session.drag.pointerId);
         }
       };
     } else {
       this.#session = null;
-      restoreFocus(session.focused, drag.pointerId);
+      restoreFocus(session.focused, session.drag.pointerId);
     }
   }
 
   /** Destruction applied: closed first, then everything released, once. */
   #teardown(): void {
+    // Taken before they are cleared.
     const session = this.#session;
     const resolveDestroyed = this.#resolveDestroyed!;
 

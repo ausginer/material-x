@@ -45,11 +45,9 @@ export function createPlaceholder(
     placeholder.setAttribute('slot', slot);
   }
 
-  const { style } = placeholder;
-
-  style.boxSizing = 'border-box';
-  style.width = `${width}px`;
-  style.height = `${height}px`;
+  placeholder.style.boxSizing = 'border-box';
+  placeholder.style.width = `${width}px`;
+  placeholder.style.height = `${height}px`;
   return placeholder;
 }
 
@@ -58,14 +56,14 @@ export function placeholderAt(
   placeholder: HTMLElement,
   insertion: Insertion,
 ): boolean {
-  const { after, before } = insertion;
-
-  if (after) {
-    return after.previousElementSibling === placeholder;
+  if (insertion.after) {
+    return insertion.after.previousElementSibling === placeholder;
   }
 
   // An empty destination view has no gap to express.
-  return !before || before.nextElementSibling === placeholder;
+  return (
+    !insertion.before || insertion.before.nextElementSibling === placeholder
+  );
 }
 
 /**
@@ -82,16 +80,15 @@ export function movePlaceholder(
     return;
   }
 
-  const { after, before } = insertion;
-  const anchor = after ?? before!;
+  const anchor = insertion.after ?? insertion.before!;
 
   if (anchor.parentNode !== placeholder.parentNode) {
     throw new Error('sortable/anchor-outside-container');
   }
 
-  if (after) {
-    after.before(placeholder);
+  if (insertion.after) {
+    insertion.after.before(placeholder);
   } else {
-    before!.after(placeholder);
+    insertion.before!.after(placeholder);
   }
 }

@@ -1,1334 +1,1334 @@
 {
- "chromium": {
-  "launched": true,
-  "version": "156.0.8078.4",
-  "rows": [
-   {
-    "id": "flow-1: trailing click swallowed, next outside click delivered",
-    "group": 1,
-    "pass": true,
-    "detail": "platform produced 0 trailing click(s)"
-   },
-   {
-    "id": "a rejected drop, which leaves the row where the press landed: trailing click swallowed",
-    "group": 1,
-    "pass": true,
-    "detail": "platform produced 1 trailing click(s)"
-   },
-   {
-    "id": "cancel with the button held: trailing click swallowed, next delivered",
-    "group": 1,
-    "pass": true,
-    "detail": "platform produced 1 trailing click(s)"
-   },
-   {
-    "id": "a press below the threshold keeps its click",
-    "group": 1,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a later click on the same row is delivered at once",
-    "group": 1,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the guard holds for a custom behavior with no lift",
-    "group": 1,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "an item dragged out of an overflow:hidden list stays visible",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a later positioned panel does not cover the item",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "ancestor scale(.5): the item follows the pointer exactly",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "ancestor zoom:2: the item follows the pointer exactly",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a list in a shadow root",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a parent-controlled same-origin iframe",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a rejected drop lands home from where it was dropped, additively",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the terminal runs before the landing ends, and presentation is already released",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "elevation: a landing item against a positioned sibling",
-    "group": 2,
-    "pass": true,
-    "detail": "mid-landing, the top element at the item's centre is r2"
-   },
-   {
-    "id": "sortable: a reaction cancels during activation",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "sortable: a reaction destroys during activation",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "custom behavior: a reaction during activate asks to cancel",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "custom behavior: a reaction during activate asks to destroy",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "custom behavior: a reaction during activate asks to press",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "custom behavior: requests from every hook leave that step alone",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a destroy requested from settle is applied before the terminal",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "no terminal without a start: cancel before start",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "no terminal without a start: destroy before start",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "no terminal without a start: fault before start",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "two faults in one pass: each reported once, the first decides",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a fault during destruction, and a throwing disposer, reported once each",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the hostile values arrive once, typed, with cause identity",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a global listener that requests cancel leaves origin fault",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a global listener that requests destroy delivers no terminal",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "sortable: a thrown and a rejected verdict both reach onEnd as the reported fault",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "collection work queued by a release, which then cancels",
-    "group": 5,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "collection work queued by a release, which then faults",
-    "group": 5,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a cancel, then collection work, in one mid-drag callback: observed pulls",
-    "group": 5,
-    "pass": true,
-    "detail": "deferred work runs before the cancel: first:pulls=2"
-   },
-   {
-    "id": "a sibling removed with invalidate during a drag rebases; the dragged item removed cancels",
-    "group": 5,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a late resolve after a cancel never reaches the next drag",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a late reject after a cancel never reaches the next drag",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a late resolve after destroy reaches nothing",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a late reject after destroy reaches nothing",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the signal stays unaborted on acceptance",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "items() is pulled at admission: a row added without invalidate can be dragged",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "keyboard: one press moves one slot, with no pointer",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "data-drag-ignore refuses a press through a marked descendant",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a landing survives a press that never activates, and the next activation cancels it",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a row animation outlives the operation and ends with the controller",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "free drag: bounds, axis and moveTo through the public behavior",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a thenable: then is read once, and a throwing accessor or call is a fault",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the landing target is measured only with a landing composed: absent",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the landing target is measured only with a landing composed: composed",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "two invalidate calls in one callback pull once",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a lost adjacency cancels the drag",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a placeholder that removes itself ends the activation clean, with no start",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a placeholder that moves itself ends the activation clean, with no start",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a placeholder that takes the list out ends the activation clean, with no start",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "an anchor leaving the container mid-drag cancels and reports the fault",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a platform throw is a fault and the controller survives: the item left the document",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "keyboard focus after the consumer moves the item",
-    "group": 0,
-    "pass": true,
-    "detail": "focus is on BODY"
-   },
-   {
-    "id": "resize handle: resizes with no lift, and Escape restores",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "drop zone: an async verdict that accepts lands in the zone",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "drop zone: an async verdict that rejects lands home",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: moves in canvas units under scale(.5), and saves",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: Escape rolls back",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: destruction rolls back with no end",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: a failed save rolls back and reports the fault",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: a nudge from foreign code renders through requestApply",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: sortable-list",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: sortable-grid",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: free-drag",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: environments",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: requests",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: faults",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: behaviors",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "no trusted event was refused, across every check and page driver",
-    "group": 6,
-    "pass": true,
-    "detail": "trusted refused: 0; untrusted refused, the instrument's control: 1"
-   }
-  ]
- },
- "firefox": {
-  "launched": true,
-  "version": "157.0",
-  "rows": [
-   {
-    "id": "flow-1: trailing click swallowed, next outside click delivered",
-    "group": 1,
-    "pass": true,
-    "detail": "platform produced 1 trailing click(s)"
-   },
-   {
-    "id": "a rejected drop, which leaves the row where the press landed: trailing click swallowed",
-    "group": 1,
-    "pass": true,
-    "detail": "platform produced 1 trailing click(s)"
-   },
-   {
-    "id": "cancel with the button held: trailing click swallowed, next delivered",
-    "group": 1,
-    "pass": true,
-    "detail": "platform produced 1 trailing click(s)"
-   },
-   {
-    "id": "a press below the threshold keeps its click",
-    "group": 1,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a later click on the same row is delivered at once",
-    "group": 1,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the guard holds for a custom behavior with no lift",
-    "group": 1,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "an item dragged out of an overflow:hidden list stays visible",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a later positioned panel does not cover the item",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "ancestor scale(.5): the item follows the pointer exactly",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "ancestor zoom:2: the item follows the pointer exactly",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a list in a shadow root",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a parent-controlled same-origin iframe",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a rejected drop lands home from where it was dropped, additively",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the terminal runs before the landing ends, and presentation is already released",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "elevation: a landing item against a positioned sibling",
-    "group": 2,
-    "pass": true,
-    "detail": "mid-landing, the top element at the item's centre is r2"
-   },
-   {
-    "id": "sortable: a reaction cancels during activation",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "sortable: a reaction destroys during activation",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "custom behavior: a reaction during activate asks to cancel",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "custom behavior: a reaction during activate asks to destroy",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "custom behavior: a reaction during activate asks to press",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "custom behavior: requests from every hook leave that step alone",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a destroy requested from settle is applied before the terminal",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "no terminal without a start: cancel before start",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "no terminal without a start: destroy before start",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "no terminal without a start: fault before start",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "two faults in one pass: each reported once, the first decides",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a fault during destruction, and a throwing disposer, reported once each",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the hostile values arrive once, typed, with cause identity",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a global listener that requests cancel leaves origin fault",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a global listener that requests destroy delivers no terminal",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "sortable: a thrown and a rejected verdict both reach onEnd as the reported fault",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "collection work queued by a release, which then cancels",
-    "group": 5,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "collection work queued by a release, which then faults",
-    "group": 5,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a cancel, then collection work, in one mid-drag callback: observed pulls",
-    "group": 5,
-    "pass": true,
-    "detail": "deferred work runs before the cancel: first:pulls=2"
-   },
-   {
-    "id": "a sibling removed with invalidate during a drag rebases; the dragged item removed cancels",
-    "group": 5,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a late resolve after a cancel never reaches the next drag",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a late reject after a cancel never reaches the next drag",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a late resolve after destroy reaches nothing",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a late reject after destroy reaches nothing",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the signal stays unaborted on acceptance",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "items() is pulled at admission: a row added without invalidate can be dragged",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "keyboard: one press moves one slot, with no pointer",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "data-drag-ignore refuses a press through a marked descendant",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a landing survives a press that never activates, and the next activation cancels it",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a row animation outlives the operation and ends with the controller",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "free drag: bounds, axis and moveTo through the public behavior",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a thenable: then is read once, and a throwing accessor or call is a fault",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the landing target is measured only with a landing composed: absent",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the landing target is measured only with a landing composed: composed",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "two invalidate calls in one callback pull once",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a lost adjacency cancels the drag",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a placeholder that removes itself ends the activation clean, with no start",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a placeholder that moves itself ends the activation clean, with no start",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a placeholder that takes the list out ends the activation clean, with no start",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "an anchor leaving the container mid-drag cancels and reports the fault",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a platform throw is a fault and the controller survives: the item left the document",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "keyboard focus after the consumer moves the item",
-    "group": 0,
-    "pass": true,
-    "detail": "focus is on BODY"
-   },
-   {
-    "id": "resize handle: resizes with no lift, and Escape restores",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "drop zone: an async verdict that accepts lands in the zone",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "drop zone: an async verdict that rejects lands home",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: moves in canvas units under scale(.5), and saves",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: Escape rolls back",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: destruction rolls back with no end",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: a failed save rolls back and reports the fault",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: a nudge from foreign code renders through requestApply",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: sortable-list",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: sortable-grid",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: free-drag",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: environments",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: requests",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: faults",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: behaviors",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "no trusted event was refused, across every check and page driver",
-    "group": 6,
-    "pass": true,
-    "detail": "trusted refused: 0; untrusted refused, the instrument's control: 1"
-   }
-  ]
- },
- "webkit": {
-  "launched": true,
-  "version": "27.2",
-  "rows": [
-   {
-    "id": "flow-1: trailing click swallowed, next outside click delivered",
-    "group": 1,
-    "pass": true,
-    "detail": "platform produced 1 trailing click(s)"
-   },
-   {
-    "id": "a rejected drop, which leaves the row where the press landed: trailing click swallowed",
-    "group": 1,
-    "pass": true,
-    "detail": "platform produced 1 trailing click(s)"
-   },
-   {
-    "id": "cancel with the button held: trailing click swallowed, next delivered",
-    "group": 1,
-    "pass": true,
-    "detail": "platform produced 1 trailing click(s)"
-   },
-   {
-    "id": "a press below the threshold keeps its click",
-    "group": 1,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a later click on the same row is delivered at once",
-    "group": 1,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the guard holds for a custom behavior with no lift",
-    "group": 1,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "an item dragged out of an overflow:hidden list stays visible",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a later positioned panel does not cover the item",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "ancestor scale(.5): the item follows the pointer exactly",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "ancestor zoom:2: the item follows the pointer exactly",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a list in a shadow root",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a parent-controlled same-origin iframe",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a rejected drop lands home from where it was dropped, additively",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the terminal runs before the landing ends, and presentation is already released",
-    "group": 2,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "elevation: a landing item against a positioned sibling",
-    "group": 2,
-    "pass": true,
-    "detail": "mid-landing, the top element at the item's centre is r2"
-   },
-   {
-    "id": "sortable: a reaction cancels during activation",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "sortable: a reaction destroys during activation",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "custom behavior: a reaction during activate asks to cancel",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "custom behavior: a reaction during activate asks to destroy",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "custom behavior: a reaction during activate asks to press",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "custom behavior: requests from every hook leave that step alone",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a destroy requested from settle is applied before the terminal",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "no terminal without a start: cancel before start",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "no terminal without a start: destroy before start",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "no terminal without a start: fault before start",
-    "group": 3,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "two faults in one pass: each reported once, the first decides",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a fault during destruction, and a throwing disposer, reported once each",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the hostile values arrive once, typed, with cause identity",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a global listener that requests cancel leaves origin fault",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a global listener that requests destroy delivers no terminal",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "sortable: a thrown and a rejected verdict both reach onEnd as the reported fault",
-    "group": 4,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "collection work queued by a release, which then cancels",
-    "group": 5,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "collection work queued by a release, which then faults",
-    "group": 5,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a cancel, then collection work, in one mid-drag callback: observed pulls",
-    "group": 5,
-    "pass": true,
-    "detail": "deferred work runs before the cancel: first:pulls=2"
-   },
-   {
-    "id": "a sibling removed with invalidate during a drag rebases; the dragged item removed cancels",
-    "group": 5,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a late resolve after a cancel never reaches the next drag",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a late reject after a cancel never reaches the next drag",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a late resolve after destroy reaches nothing",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a late reject after destroy reaches nothing",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the signal stays unaborted on acceptance",
-    "group": 7,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "items() is pulled at admission: a row added without invalidate can be dragged",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "keyboard: one press moves one slot, with no pointer",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "data-drag-ignore refuses a press through a marked descendant",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a landing survives a press that never activates, and the next activation cancels it",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a row animation outlives the operation and ends with the controller",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "free drag: bounds, axis and moveTo through the public behavior",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a thenable: then is read once, and a throwing accessor or call is a fault",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the landing target is measured only with a landing composed: absent",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "the landing target is measured only with a landing composed: composed",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "two invalidate calls in one callback pull once",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a lost adjacency cancels the drag",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a placeholder that removes itself ends the activation clean, with no start",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a placeholder that moves itself ends the activation clean, with no start",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a placeholder that takes the list out ends the activation clean, with no start",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "an anchor leaving the container mid-drag cancels and reports the fault",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "a platform throw is a fault and the controller survives: the item left the document",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "keyboard focus after the consumer moves the item",
-    "group": 0,
-    "pass": true,
-    "detail": "focus is on BODY"
-   },
-   {
-    "id": "resize handle: resizes with no lift, and Escape restores",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "drop zone: an async verdict that accepts lands in the zone",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "drop zone: an async verdict that rejects lands home",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: moves in canvas units under scale(.5), and saves",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: Escape rolls back",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: destruction rolls back with no end",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: a failed save rolls back and reports the fault",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "canvas group: a nudge from foreign code renders through requestApply",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: sortable-list",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: sortable-grid",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: free-drag",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: environments",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: requests",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: faults",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "page: behaviors",
-    "group": 0,
-    "pass": true,
-    "detail": ""
-   },
-   {
-    "id": "no trusted event was refused, across every check and page driver",
-    "group": 6,
-    "pass": true,
-    "detail": "trusted refused: 0; untrusted refused, the instrument's control: 1"
-   }
-  ]
- }
+  "chromium": {
+    "launched": true,
+    "version": "156.0.8078.4",
+    "rows": [
+      {
+        "id": "flow-1: trailing click swallowed, next outside click delivered",
+        "group": 1,
+        "pass": true,
+        "detail": "platform produced 0 trailing click(s)"
+      },
+      {
+        "id": "a rejected drop, which leaves the row where the press landed: trailing click swallowed",
+        "group": 1,
+        "pass": true,
+        "detail": "platform produced 1 trailing click(s)"
+      },
+      {
+        "id": "cancel with the button held: trailing click swallowed, next delivered",
+        "group": 1,
+        "pass": true,
+        "detail": "platform produced 1 trailing click(s)"
+      },
+      {
+        "id": "a press below the threshold keeps its click",
+        "group": 1,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a later click on the same row is delivered at once",
+        "group": 1,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the guard holds for a custom behavior with no lift",
+        "group": 1,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "an item dragged out of an overflow:hidden list stays visible",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a later positioned panel does not cover the item",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "ancestor scale(.5): the item follows the pointer exactly",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "ancestor zoom:2: the item follows the pointer exactly",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a list in a shadow root",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a parent-controlled same-origin iframe",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a rejected drop lands home from where it was dropped, additively",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the terminal runs before the landing ends, and presentation is already released",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "elevation: a landing item against a positioned sibling",
+        "group": 2,
+        "pass": true,
+        "detail": "mid-landing, the top element at the item's centre is r2"
+      },
+      {
+        "id": "sortable: a reaction cancels during activation",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "sortable: a reaction destroys during activation",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "custom behavior: a reaction during activate asks to cancel",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "custom behavior: a reaction during activate asks to destroy",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "custom behavior: a reaction during activate asks to press",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "custom behavior: requests from every hook leave that step alone",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a destroy requested from settle is applied before the terminal",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "no terminal without a start: cancel before start",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "no terminal without a start: destroy before start",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "no terminal without a start: fault before start",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "two faults in one pass: each reported once, the first decides",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a fault during destruction, and a throwing disposer, reported once each",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the hostile values arrive once, typed, with cause identity",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a global listener that requests cancel leaves origin fault",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a global listener that requests destroy delivers no terminal",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "sortable: a thrown and a rejected verdict both reach onEnd as the reported fault",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "collection work queued by a release, which then cancels",
+        "group": 5,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "collection work queued by a release, which then faults",
+        "group": 5,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a cancel, then collection work, in one mid-drag callback: observed pulls",
+        "group": 5,
+        "pass": true,
+        "detail": "deferred work runs before the cancel: first:pulls=2"
+      },
+      {
+        "id": "a sibling removed with invalidate during a drag rebases; the dragged item removed cancels",
+        "group": 5,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a late resolve after a cancel never reaches the next drag",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a late reject after a cancel never reaches the next drag",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a late resolve after destroy reaches nothing",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a late reject after destroy reaches nothing",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the signal stays unaborted on acceptance",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "items() is pulled at admission: a row added without invalidate can be dragged",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "keyboard: one press moves one slot, with no pointer",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "data-drag-ignore refuses a press through a marked descendant",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a landing survives a press that never activates, and the next activation cancels it",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a row animation outlives the operation and ends with the controller",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "free drag: bounds, axis and moveTo through the public behavior",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a thenable: then is read once, and a throwing accessor or call is a fault",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the landing target is measured only with a landing composed: absent",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the landing target is measured only with a landing composed: composed",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "two invalidate calls in one callback pull once",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a lost adjacency cancels the drag",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a placeholder that removes itself ends the activation clean, with no start",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a placeholder that moves itself ends the activation clean, with no start",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a placeholder that takes the list out ends the activation clean, with no start",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "an anchor leaving the container mid-drag cancels and reports the fault",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a platform throw is a fault and the controller survives: the item left the document",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "keyboard focus after the consumer moves the item",
+        "group": 0,
+        "pass": true,
+        "detail": "focus is on BODY"
+      },
+      {
+        "id": "resize handle: resizes with no lift, and Escape restores",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "drop zone: an async verdict that accepts lands in the zone",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "drop zone: an async verdict that rejects lands home",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: moves in canvas units under scale(.5), and saves",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: Escape rolls back",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: destruction rolls back with no end",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: a failed save rolls back and reports the fault",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: a nudge from foreign code renders through requestApply",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: sortable-list",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: sortable-grid",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: free-drag",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: environments",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: requests",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: faults",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: behaviors",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "no trusted event was refused, across every check and page driver",
+        "group": 6,
+        "pass": true,
+        "detail": "trusted refused: 0; untrusted refused, the instrument's control: 1"
+      }
+    ]
+  },
+  "firefox": {
+    "launched": true,
+    "version": "157.0",
+    "rows": [
+      {
+        "id": "flow-1: trailing click swallowed, next outside click delivered",
+        "group": 1,
+        "pass": true,
+        "detail": "platform produced 1 trailing click(s)"
+      },
+      {
+        "id": "a rejected drop, which leaves the row where the press landed: trailing click swallowed",
+        "group": 1,
+        "pass": true,
+        "detail": "platform produced 1 trailing click(s)"
+      },
+      {
+        "id": "cancel with the button held: trailing click swallowed, next delivered",
+        "group": 1,
+        "pass": true,
+        "detail": "platform produced 1 trailing click(s)"
+      },
+      {
+        "id": "a press below the threshold keeps its click",
+        "group": 1,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a later click on the same row is delivered at once",
+        "group": 1,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the guard holds for a custom behavior with no lift",
+        "group": 1,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "an item dragged out of an overflow:hidden list stays visible",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a later positioned panel does not cover the item",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "ancestor scale(.5): the item follows the pointer exactly",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "ancestor zoom:2: the item follows the pointer exactly",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a list in a shadow root",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a parent-controlled same-origin iframe",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a rejected drop lands home from where it was dropped, additively",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the terminal runs before the landing ends, and presentation is already released",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "elevation: a landing item against a positioned sibling",
+        "group": 2,
+        "pass": true,
+        "detail": "mid-landing, the top element at the item's centre is r2"
+      },
+      {
+        "id": "sortable: a reaction cancels during activation",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "sortable: a reaction destroys during activation",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "custom behavior: a reaction during activate asks to cancel",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "custom behavior: a reaction during activate asks to destroy",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "custom behavior: a reaction during activate asks to press",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "custom behavior: requests from every hook leave that step alone",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a destroy requested from settle is applied before the terminal",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "no terminal without a start: cancel before start",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "no terminal without a start: destroy before start",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "no terminal without a start: fault before start",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "two faults in one pass: each reported once, the first decides",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a fault during destruction, and a throwing disposer, reported once each",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the hostile values arrive once, typed, with cause identity",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a global listener that requests cancel leaves origin fault",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a global listener that requests destroy delivers no terminal",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "sortable: a thrown and a rejected verdict both reach onEnd as the reported fault",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "collection work queued by a release, which then cancels",
+        "group": 5,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "collection work queued by a release, which then faults",
+        "group": 5,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a cancel, then collection work, in one mid-drag callback: observed pulls",
+        "group": 5,
+        "pass": true,
+        "detail": "deferred work runs before the cancel: first:pulls=2"
+      },
+      {
+        "id": "a sibling removed with invalidate during a drag rebases; the dragged item removed cancels",
+        "group": 5,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a late resolve after a cancel never reaches the next drag",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a late reject after a cancel never reaches the next drag",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a late resolve after destroy reaches nothing",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a late reject after destroy reaches nothing",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the signal stays unaborted on acceptance",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "items() is pulled at admission: a row added without invalidate can be dragged",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "keyboard: one press moves one slot, with no pointer",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "data-drag-ignore refuses a press through a marked descendant",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a landing survives a press that never activates, and the next activation cancels it",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a row animation outlives the operation and ends with the controller",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "free drag: bounds, axis and moveTo through the public behavior",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a thenable: then is read once, and a throwing accessor or call is a fault",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the landing target is measured only with a landing composed: absent",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the landing target is measured only with a landing composed: composed",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "two invalidate calls in one callback pull once",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a lost adjacency cancels the drag",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a placeholder that removes itself ends the activation clean, with no start",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a placeholder that moves itself ends the activation clean, with no start",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a placeholder that takes the list out ends the activation clean, with no start",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "an anchor leaving the container mid-drag cancels and reports the fault",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a platform throw is a fault and the controller survives: the item left the document",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "keyboard focus after the consumer moves the item",
+        "group": 0,
+        "pass": true,
+        "detail": "focus is on BODY"
+      },
+      {
+        "id": "resize handle: resizes with no lift, and Escape restores",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "drop zone: an async verdict that accepts lands in the zone",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "drop zone: an async verdict that rejects lands home",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: moves in canvas units under scale(.5), and saves",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: Escape rolls back",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: destruction rolls back with no end",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: a failed save rolls back and reports the fault",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: a nudge from foreign code renders through requestApply",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: sortable-list",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: sortable-grid",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: free-drag",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: environments",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: requests",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: faults",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: behaviors",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "no trusted event was refused, across every check and page driver",
+        "group": 6,
+        "pass": true,
+        "detail": "trusted refused: 0; untrusted refused, the instrument's control: 1"
+      }
+    ]
+  },
+  "webkit": {
+    "launched": true,
+    "version": "27.2",
+    "rows": [
+      {
+        "id": "flow-1: trailing click swallowed, next outside click delivered",
+        "group": 1,
+        "pass": true,
+        "detail": "platform produced 1 trailing click(s)"
+      },
+      {
+        "id": "a rejected drop, which leaves the row where the press landed: trailing click swallowed",
+        "group": 1,
+        "pass": true,
+        "detail": "platform produced 1 trailing click(s)"
+      },
+      {
+        "id": "cancel with the button held: trailing click swallowed, next delivered",
+        "group": 1,
+        "pass": true,
+        "detail": "platform produced 1 trailing click(s)"
+      },
+      {
+        "id": "a press below the threshold keeps its click",
+        "group": 1,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a later click on the same row is delivered at once",
+        "group": 1,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the guard holds for a custom behavior with no lift",
+        "group": 1,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "an item dragged out of an overflow:hidden list stays visible",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a later positioned panel does not cover the item",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "ancestor scale(.5): the item follows the pointer exactly",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "ancestor zoom:2: the item follows the pointer exactly",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a list in a shadow root",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a parent-controlled same-origin iframe",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a rejected drop lands home from where it was dropped, additively",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the terminal runs before the landing ends, and presentation is already released",
+        "group": 2,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "elevation: a landing item against a positioned sibling",
+        "group": 2,
+        "pass": true,
+        "detail": "mid-landing, the top element at the item's centre is r2"
+      },
+      {
+        "id": "sortable: a reaction cancels during activation",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "sortable: a reaction destroys during activation",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "custom behavior: a reaction during activate asks to cancel",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "custom behavior: a reaction during activate asks to destroy",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "custom behavior: a reaction during activate asks to press",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "custom behavior: requests from every hook leave that step alone",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a destroy requested from settle is applied before the terminal",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "no terminal without a start: cancel before start",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "no terminal without a start: destroy before start",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "no terminal without a start: fault before start",
+        "group": 3,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "two faults in one pass: each reported once, the first decides",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a fault during destruction, and a throwing disposer, reported once each",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the hostile values arrive once, typed, with cause identity",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a global listener that requests cancel leaves origin fault",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a global listener that requests destroy delivers no terminal",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "sortable: a thrown and a rejected verdict both reach onEnd as the reported fault",
+        "group": 4,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "collection work queued by a release, which then cancels",
+        "group": 5,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "collection work queued by a release, which then faults",
+        "group": 5,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a cancel, then collection work, in one mid-drag callback: observed pulls",
+        "group": 5,
+        "pass": true,
+        "detail": "deferred work runs before the cancel: first:pulls=2"
+      },
+      {
+        "id": "a sibling removed with invalidate during a drag rebases; the dragged item removed cancels",
+        "group": 5,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a late resolve after a cancel never reaches the next drag",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a late reject after a cancel never reaches the next drag",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a late resolve after destroy reaches nothing",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a late reject after destroy reaches nothing",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the signal stays unaborted on acceptance",
+        "group": 7,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "items() is pulled at admission: a row added without invalidate can be dragged",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "keyboard: one press moves one slot, with no pointer",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "data-drag-ignore refuses a press through a marked descendant",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a landing survives a press that never activates, and the next activation cancels it",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a row animation outlives the operation and ends with the controller",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "free drag: bounds, axis and moveTo through the public behavior",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a thenable: then is read once, and a throwing accessor or call is a fault",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the landing target is measured only with a landing composed: absent",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "the landing target is measured only with a landing composed: composed",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "two invalidate calls in one callback pull once",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a lost adjacency cancels the drag",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a placeholder that removes itself ends the activation clean, with no start",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a placeholder that moves itself ends the activation clean, with no start",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a placeholder that takes the list out ends the activation clean, with no start",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "an anchor leaving the container mid-drag cancels and reports the fault",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "a platform throw is a fault and the controller survives: the item left the document",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "keyboard focus after the consumer moves the item",
+        "group": 0,
+        "pass": true,
+        "detail": "focus is on BODY"
+      },
+      {
+        "id": "resize handle: resizes with no lift, and Escape restores",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "drop zone: an async verdict that accepts lands in the zone",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "drop zone: an async verdict that rejects lands home",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: moves in canvas units under scale(.5), and saves",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: Escape rolls back",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: destruction rolls back with no end",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: a failed save rolls back and reports the fault",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "canvas group: a nudge from foreign code renders through requestApply",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: sortable-list",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: sortable-grid",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: free-drag",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: environments",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: requests",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: faults",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "page: behaviors",
+        "group": 0,
+        "pass": true,
+        "detail": ""
+      },
+      {
+        "id": "no trusted event was refused, across every check and page driver",
+        "group": 6,
+        "pass": true,
+        "detail": "trusted refused: 0; untrusted refused, the instrument's control: 1"
+      }
+    ]
+  }
 }

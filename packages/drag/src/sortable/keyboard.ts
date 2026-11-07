@@ -45,15 +45,14 @@ export function keyboardInsertion(
   item: HTMLElement,
   direction: KeyboardDirection,
 ): Insertion | null {
-  const { items } = snapshot;
-  const from = items.indexOf(item);
+  const from = snapshot.items.indexOf(item);
   const up = direction === DIRECTION_UP;
 
-  if (up ? from === 0 : from === items.length - 1) {
+  if (up ? from === 0 : from === snapshot.items.length - 1) {
     return null;
   }
 
-  const destination = items.filter((candidate) => candidate !== item);
+  const destination = snapshot.items.filter((candidate) => candidate !== item);
 
   return insertionAt(destination, up ? from - 1 : from + 1);
 }
