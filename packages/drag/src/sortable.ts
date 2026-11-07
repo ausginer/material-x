@@ -74,7 +74,9 @@ export type {
 export type SortableConfig = Readonly<{
   /**
    * The collection, pulled at each admission, at activation, and on `invalidate()`
-   * during a drag. It holds no duplicates and is in DOM order under `root`.
+   * during a drag. It holds no duplicates and is in DOM order under `root`. Each
+   * pull copies the returned array, so the consumer keeps its array and may change
+   * it at any time.
    */
   items(): readonly HTMLElement[];
   axis: AxisInstaller;
@@ -223,7 +225,11 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
   /** The version the next pulled snapshot carries. */
   #version = 0;
 
-  constructor(root: HTMLElement, config: SortableConfig) {
+  constructor(
+    root: HTMLElement,
+    config: SortableConfig,
+    displacement: DisplacementSink | undefined,
+  ) {
     if (config.threshold !== undefined) {
       this.threshold = config.threshold;
     }
@@ -231,7 +237,7 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
     this.#config = config;
     this.#window = root.ownerDocument.defaultView!;
     this.#axis = config.axis();
-    this.#displacement = config.displacement?.();
+    this.#displacement = displacement;
     this.#landing = config.landing ?? null;
     this.#measuredBox = config.box ?? config.visual ?? null;
   }
@@ -300,7 +306,9 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
 
     const placeholder = createPlaceholder(
       window.document,
-      drag,
+      // An object of its own: the factory may keep its argument, and must not
+      // keep the operation.
+      { item: drag.item, visual: drag.visual, box: drag.box, rect: drag.rect },
       drag.boxWidth,
       // Across the lift: a box around the visual keeps the part of its height the
       // visual did not take with it.
@@ -521,9 +529,9 @@ export function sortable(
   root: HTMLElement,
   config: SortableConfig,
 ): SortableController {
-  const behavior = new SortableBehavior(root, config);
-  const kernel = draggable<State, ReorderResolution>(root, behavior);
   const displacement = config.displacement?.();
+  const behavior = new SortableBehavior(root, config, displacement);
+  const kernel = draggable<State, ReorderResolution>(root, behavior);
 
   if (displacement) {
     kernel.use(() => {

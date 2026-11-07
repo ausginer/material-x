@@ -1,6 +1,11 @@
-/** `drag:DRI-14`, `drag:DRI-15`, and the sortable options `sortable` adds. */
+/**
+ * `drag:DRI-14`, `drag:DRI-15`, the sortable options `sortable` adds, and
+ * `drag:DRD-25`: an option callback receives only its documented values.
+ */
 import { describe, expect, it } from 'vitest';
+import { landing } from '../src/sortable/landing.ts';
 import { layoutAnimation } from '../src/sortable/layout-animation.ts';
+import type { PlaceholderContext } from '../src/sortable/placement.ts';
 import { xy } from '../src/sortable/xy.ts';
 import { ReorderResolution, type SortableResult } from '../src/sortable.ts';
 import {
@@ -90,6 +95,40 @@ describe('drag:DRI-14 collection', () => {
     expect(faults).toEqual([]);
     await dragAndDrop('#r2', 45);
     expect(log).toEqual(['start', 'end:accepted']);
+  });
+
+  it('should land a canceled drag at home when the consumer reordered its own array', async () => {
+    const list = makeList(4);
+    // The consumer keeps one array and updates its model in `onReorder`.
+    const rows = rowsOf(list);
+    const item = document.querySelector<HTMLElement>('#r0')!;
+
+    basicSortable(list, {
+      items: () => rows,
+      landing: landing({ duration: 10_000, easing: 'linear' }),
+      onReorder(request) {
+        rows.splice(rows.indexOf(request.item), 1);
+        rows.splice(request.to, 0, request.item);
+        return new Promise<never>(() => {});
+      },
+    });
+    await dragAndDrop('#r0', 90);
+
+    const dropped = item.getBoundingClientRect().top;
+
+    await commands.keyPress('Escape');
+    expect(log).toEqual(['start', 'end:canceled']);
+
+    // At its first frame the flight shows the visual where it was dropped only
+    // when its target is the item's home, where the release puts the item.
+    for (const animation of item.getAnimations()) {
+      animation.pause();
+      animation.currentTime = 0;
+    }
+
+    expect(Math.abs(item.getBoundingClientRect().top - dropped)).toBeLessThan(
+      1,
+    );
   });
 
   it('should rebase a surviving gap on invalidate during a drag', async () => {
@@ -744,5 +783,31 @@ describe('sortable options', () => {
     expect(log).toEqual(['start']);
     await release();
     expect(log).toEqual(['start', 'end:noop']);
+  });
+});
+
+describe('drag:DRD-25 option callbacks', () => {
+  it('should pass the placeholder factory only item, visual, box and rect', async () => {
+    const list = makeList(3);
+    const seen: PlaceholderContext[] = [];
+
+    basicSortable(list, {
+      placeholder(context) {
+        seen.push(context);
+        return document.createElement('div');
+      },
+    });
+    await grab('#r0');
+    await commands.keyPress('Escape');
+    expect(seen).toHaveLength(1);
+
+    const context = seen[0]!;
+
+    expect(new Set(Reflect.ownKeys(context))).toEqual(
+      new Set(['item', 'visual', 'box', 'rect']),
+    );
+    expect(context.item).toBe(document.querySelector('#r0'));
+    expect('requestCancel' in context).toBe(false);
+    expect('state' in context).toBe(false);
   });
 });
