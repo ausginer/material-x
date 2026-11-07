@@ -10,7 +10,7 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Input:** the prototype read at `26f82fbb1`. That commit is on no ref now. Its `packages/drag` tree is byte-identical to `599684791` on `drag/prototype`, so later citations use `599684791`. Evidence: [`prototype-report.md`](prototype-report.md), [`probes/prototype/`](probes/prototype/README.md), [`probes/final-design/`](probes/final-design/README.md). The comparison and earlier evidence are in [`architecture-plan.md`](architecture-plan.md).
 
-**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. The owner then required that the kernel know no lift, and `DRD-27` was revised on `6d5ba89e7`'s text before any of it was implemented. Their costs are `DRO-7`.
+**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. The owner then required that the kernel know no lift, and `DRD-27` was revised on `6d5ba89e7`'s text before any of it was implemented. Their costs are `DRO-7`. The [ownership unit](ownership-report.md) implemented `DRD-26` to `DRD-28` at `039e8e153`, `433a0e06c` and `89995c27e`, and reported at `ff69cb8d7`. The architect read it at that commit: the three items conform, and its two instrument findings go to [`instrument-repair-handoff.md`](instrument-repair-handoff.md) (§Disposition of the ownership report). A third instrument finding is open as `DRF-1`. The combined review follows the instrument repair.
 
 **Neither the prototype's approval nor the 2026-11-06 reading established a performance result.** `DRD-13` and `DRD-22` say what does.
 
@@ -202,6 +202,7 @@ Decides `drag/architecture:challenge-8`. A scroll during the drag moved the home
 - **`599684791` must stay reachable** for the prototype arm and `measure.ts --prototype`. A squash merge doesn't keep it, so the `drag/prototype` branch must (`DRO-5`).
 - **`bench/lab-drag2.ts` ties `drag`'s typecheck to drag2 source, by design** under `DRD-13`. Removing drag2 removes that arm first.
 - **The report's choice 7 is closed.** The owner was told before the legacy output was removed, which the 2026-11-07 request states.
+- **An instrument selects the kernel by location, and a repair to it is shown by a mutation it catches.** Added on 2026-11-07, for the ownership report's findings. A check that attributes allocation or cost to the kernel selects every module under `src/kernel/` and `src/draggable.ts`, and no other module. It does not select by a file or function name that a move between kernel modules would change. The per-sample test selected `draggable.ts` and read 0 from the split at `bb644d6d7` onwards. `compare.ts --prove` checks that every injection applies before it runs any scenario, and can stop there, so a stale injection is found without a timing run.
 
 #### DRD-24 — An operation owns its state and transitions, and the controller owns what spans operations
 
@@ -515,9 +516,49 @@ Each finding and question of the [review round](reviews/production/production-su
 | `cleanup` oq-1 to oq-3 | `DRD-21` |
 | Owner request: classes | `DRD-20` |
 
+## Disposition of the ownership report
+
+The [ownership report](ownership-report.md) and the code at `ff69cb8d7`, read against [`ownership-handoff.md`](ownership-handoff.md). **Method:** the architect read the diff from `a343b3d45` to `ff69cb8d7` and repeated the handoff's mechanical checks. Both `grep`s find nothing. `git diff 0dcb80fb1 ff69cb8d7 -- package-lock.json` is empty. Outside `src/kernel/`, only `src/draggable.ts` imports from it. The architect ran no suite or mutation. Those results are the implementer's.
+
+| Item | Disposition |
+| --- | --- |
+| Item 1, `DRD-28` | Conforms. Implemented at `039e8e153` |
+| Item 2, `DRD-26` | Conforms. The ended state is a fifth phase value, entered at `DRD-26`'s four points, and `isCurrent` is gone. Implemented at `433a0e06c` |
+| Item 3, `DRD-27` | Conforms. Implemented at `89995c27e`. See below |
+| The expected key `lift.ts:drag.translate` renamed to `lift.ts:translate`, which the owner approved | Ratified. It is the same function, the `Lift`'s `translate`, under the name V8 now gives it. The assertion means the same |
+| Five `return null;` statements removed from plain behaviors' `settle`: three in `requests`, one in `terminals`, one in `order` | Ratified, as a direct consequence of `settle` returning `void` (`DRD-27`). None of the five behaviors composes a lift. At `a343b3d45` the kernel discarded their `null`, because it started a landing only for a landing and a lift, and now it ignores the return value. No expectation depends on it. TypeScript accepts a value where the contextual return type is `void`, and `@typescript-eslint/strict-void-return` refuses it. The handoff's list of allowed edits omitted these edits, and that omission is the architect's. The edit met the handoff's stop condition and was neither returned nor put to the owner. Nothing more is owed |
+| The per-sample test's kernel assertion sums `draggable.ts:` keys, and no kernel module has had that name since `bb644d6d7` | Confirmed: the assertion can't fail. [`instrument-repair-handoff.md`](instrument-repair-handoff.md) item 1, under `DRD-23`'s last bullet. Until then the ownership report's per-sample result covers the lift and not the kernel. Its recorded profile has no `session.ts` or `gesture.ts` key, which suggests that the kernel allocated nothing measurable but doesn't prove it |
+| Three `compare.ts` injections whose `find` no longer occurs | Confirmed. The drop and the per-move allocation have been stale since `3084191bb`, and the step-list entry since `276947f82`. The instrument handoff's item 2 |
+| `freeDrag` 55 B and `freeDrag` + `bounds` + `landing` 62 B over their ceilings, and the `draggable` alone control 83 B off | `DRO-7`. Nothing is re-based |
+
+**Item 3, as read:**
+
+- `Session` and `Gesture` name no lift, and `takeLanding`, `keepLanding` and the landing slot are gone.
+- The `Drag` is built when the session opens, as a `KernelDrag<State>`, and its one assertion is `admission.state as State`.
+- `acquire` measures, then registers two disposers before its first write: the landing's, then the release. So the release runs first, and the landing starts after it even when the release throws. A `finally` cancels the lifter's running landing after measuring.
+- Each built-in acquires first in `activate`, before `sortable`'s second pull, and passes `cancelLanding` to `use`. In `sortable` that comes after the displacement's registration.
+
+**Unresolved at this commit:** `DRF-1`, below, and `DRO-7`.
+
+## Findings
+
+Open findings for scope `drag`, under `DRD-23`'s first bullet. High-water mark: **`DRF-1`**.
+
+#### DRF-1 — `compare.ts`'s bytes rule selects the kernel by function name
+
+Tier B, open. Found by the architect while reading `compare.ts` at `ff69cb8d7`.
+
+- **Current behavior:** the bytes rule flags a function at 16 B per move or more when `isKernelFunction` names it. That is, the name starts with `#`, or is `requestStep` or `requestCancel`. The profile keys a frame by its function name only, because each arm is one bundled script.
+- **Why it is a problem:**
+  - Since `276947f82`, the kernel's pass runs through `enter` and `advance`, which aren't private. The rule can't flag an allocation in them, although every sample runs both.
+  - It also counts a behavior's private member as kernel: `sortable`'s `#updateInsertion` read 2 to 4 B per move in the proof run recorded at `b91db2818`, under the rule's limit.
+- **Evidence:** `isKernelFunction` in `bench/compare.ts`. `Gesture.enter` and `Session.advance` are in `src/kernel/`.
+- **Required property:** as `DRD-23`'s last bullet states, the rule selects the kernel by module location: every function in `src/kernel/` or `src/draggable.ts`, and nothing else. An allocation injected into `Gesture.enter` must flag.
+- **When:** before the next `compare.ts` run that launches a browser. Timing is deferred, so the instrument repair leaves it open, and the combined review doesn't wait for it.
+
 ## Owner decisions
 
-None blocks the remediation. Each has a default the handoff builds. `DRO-6` is approved. `DRO-7` waits for the ownership handoff's figures.
+None blocks the remediation. Each has a default the handoff builds. `DRO-6` is approved. `DRO-7`'s figures are in the [ownership report](ownership-report.md). Its per-sample kernel figure comes from the instrument repair.
 
 #### DRO-1 — Press cost under CONTRIBUTING §0
 
@@ -634,6 +675,8 @@ No timing was taken.
 
 **No timing is taken,** because you deferred timing. **What reading decides:** you accept the figures, or you name a part to remove before merge. **No recommendation until the figures exist.**
 
+**Status, 2026-11-07:** the figures are in the [ownership report](ownership-report.md), measured at `039e8e153`, `433a0e06c` and `89995c27e`. One is incomplete. **The per-sample test passed, but its kernel assertion couldn't fail** (§Disposition of the ownership report). So that result covers only the lift's `translate`. The kernel's per-sample figure comes from [`instrument-repair-handoff.md`](instrument-repair-handoff.md) item 1's unmutated runs. The size and allocation figures don't depend on it.
+
 ## Decision status
 
 | Decision | Status |
@@ -660,9 +703,9 @@ No timing was taken.
 | DRD-20 | active, implemented at `b91db2818`. `DRD-24` amends its sentence on the class that holds a session |
 | DRD-21 | active, implemented at `b91db2818` |
 | DRD-22 | active, applied in the remediation's validation |
-| DRD-23 | active |
+| DRD-23 | active. Its last bullet, on instrument selection, was added on 2026-11-07. [`instrument-repair-handoff.md`](instrument-repair-handoff.md) applies it. `DRF-1` is open under it |
 | DRD-24 | active, adopted at `276947f82` under `DRO-6`. `DRD-26` removes `isCurrent` from its interface. `DRD-27` removes `takeLanding` and `keepLanding`, and the landing leaves the controller |
 | DRD-25 | active, implemented at `2506dcbb6` |
-| DRD-26 | active, unimplemented. [`ownership-handoff.md`](ownership-handoff.md) item 2 |
-| DRD-27 | active, unimplemented, revised on 2026-11-07 from the text at `6d5ba89e7`. [`ownership-handoff.md`](ownership-handoff.md) item 3. Amends `DRD-4`, `DRD-24` and the contract's DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18 |
-| DRD-28 | active, unimplemented. [`ownership-handoff.md`](ownership-handoff.md) item 1 |
+| DRD-26 | active, implemented at `433a0e06c` ([`ownership-report.md`](ownership-report.md) item 2) |
+| DRD-27 | active, revised on 2026-11-07 from the text at `6d5ba89e7`, implemented at `89995c27e` ([`ownership-report.md`](ownership-report.md) item 3). Amends `DRD-4`, `DRD-24` and the contract's DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18 |
+| DRD-28 | active, implemented at `039e8e153` ([`ownership-report.md`](ownership-report.md) item 1) |
