@@ -6,11 +6,15 @@
  * fresh page. CDP metrics, so Chromium only and headless, with no real compositing
  * cost.
  *
- * `node bench/compare.ts [--rounds n] [--out file]` runs the comparison.
+ * `node bench/compare.ts [--rounds n] [--rows validation] [--only text] [--out file]`
+ * runs the comparison. `--before <revision>` replaces drag2 and the prototype with
+ * production's `src` at that revision.
  * `node bench/compare.ts --prove [--out file]` injects a known cost into a scratch
- * copy of production, and exits non-zero unless the comparison flags each one.
+ * copy of production, and exits non-zero unless the comparison flags each one, or
+ * if the control flags against itself.
+ * `node bench/compare.ts --rejudge <file>` applies `judge` to a recorded run.
  *
- * The rules are stated before running, in `RULES`, and `judge` applies them.
+ * The rules are stated before running, in `judge`'s comment.
  */
 import { execFile as execFileCallback } from 'node:child_process';
 import { cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
@@ -20,6 +24,7 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs, promisify } from 'node:util';
 import { type Browser, type CDPSession, chromium, type Page } from 'playwright';
 import { rolldown } from 'rolldown';
+import { retainedObjects } from './heap-snapshot.ts';
 
 const execFile = promisify(execFileCallback);
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
@@ -86,16 +91,21 @@ async function bundle(lab: string, sourceRoot: string): Promise<string> {
 }
 
 type PageContext = Readonly<{
+  browser: Browser;
+  arm: Arm;
   page: Page;
   cdp: CDPSession;
   metrics(): Promise<Metrics>;
 }>;
 
-async function openPage(browser: Browser, code: string): Promise<PageContext> {
+/** One arm: its lab bundle, and whether its library restores focus itself. */
+type Arm = Readonly<{ code: string; restoresFocus: boolean }>;
+
+async function openPage(browser: Browser, arm: Arm): Promise<PageContext> {
   const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
 
   await page.setContent('<!doctype html><body style="margin:40px"></body>');
-  await page.addScriptTag({ content: code });
+  await page.addScriptTag({ content: arm.code });
   page.on('pageerror', (error) => {
     console.log(`page error: ${error.message}`);
   });
@@ -111,7 +121,7 @@ async function openPage(browser: Browser, code: string): Promise<PageContext> {
       ),
     );
 
-  return { page, cdp, metrics };
+  return { browser, arm, page, cdp, metrics };
 }
 
 const delta = (before: Metrics, after: Metrics, count: number): Reading => ({
@@ -155,7 +165,7 @@ type Scenario = Readonly<{
   /** The rule stated before running, in the handoff's terms. */
   rule: 'exact-and-floor' | 'floor' | 'report' | 'retained' | 'bytes';
   arms: 'sortable' | 'free-drag' | 'no-lift' | 'all';
-  run(context: PageContext, arm: string): Promise<Reading>;
+  run(context: PageContext): Promise<Reading>;
 }>;
 
 function movesScenario(count: number): Scenario {
@@ -230,6 +240,39 @@ async function samplingProfile(
   );
 }
 
+/**
+ * Mounts a 20-item sortable, runs `operations` landed cycles, destroys it and reads
+ * the retained JavaScript objects after forced GC, with `JSHeapUsedSize` beside
+ * them for continuity.
+ */
+async function operateAndDestroy(
+  { page, cdp, metrics }: PageContext,
+  operations: number,
+): Promise<Reading> {
+  await mount(page, { count: 20, cached: true, landed: true, refocus: false });
+
+  for (let i = 0; i < operations; i += 1) {
+    await page.mouse.move(X, Y0);
+    await page.mouse.down();
+    await page.mouse.move(X, Y0 + 12, { steps: 2 });
+    await page.mouse.move(X, Y0 + 45);
+    await page.evaluate(() => new Promise(requestAnimationFrame));
+    await page.mouse.up();
+    await page.waitForTimeout(ANIMATION_WAIT);
+  }
+
+  await page.evaluate(async () => {
+    await lab.destroy();
+  });
+  await page.waitForTimeout(300);
+  await page.mouse.move(800, 600);
+  await page.waitForTimeout(50);
+
+  const { bytes } = await retainedObjects(cdp);
+
+  return { objects: bytes, heap: (await metrics())['JSHeapUsedSize']! };
+}
+
 const SCENARIOS: readonly Scenario[] = [
   movesScenario(20),
   movesScenario(2000),
@@ -285,13 +328,14 @@ const SCENARIOS: readonly Scenario[] = [
       id: `50 activate-and-drop cycles, ${count} items, ${landed ? 'with' : 'no'} landing`,
       rule: 'exact-and-floor',
       arms: 'sortable',
-      async run({ page, metrics }, arm) {
+      async run({ page, metrics, arm }) {
         await mount(page, {
           count,
           cached: true,
           landed,
-          // Only production restores focus itself, and a press focuses a row.
-          refocus: !arm.startsWith('production'),
+          // A press focuses a row. An arm whose library does not restore focus
+          // gets the consumer's repair.
+          refocus: !arm.restoresFocus,
         });
         await page.waitForTimeout(30);
 
@@ -316,7 +360,7 @@ const SCENARIOS: readonly Scenario[] = [
 
         if (ended !== CYCLES) {
           throw new Error(
-            `${arm}: ${ended} of ${CYCLES} cycles ended: ${JSON.stringify(await page.evaluate(() => lab.log.slice(0, 6)))}`,
+            `${ended} of ${CYCLES} cycles ended: ${JSON.stringify(await page.evaluate(() => lab.log.slice(0, 6)))}`,
           );
         }
 
@@ -328,13 +372,12 @@ const SCENARIOS: readonly Scenario[] = [
     id: `50 keyboard reorders, ${count} items, with focus restoration`,
     rule: 'exact-and-floor',
     arms: 'sortable',
-    async run({ page, metrics }, arm) {
+    async run({ page, metrics, arm }) {
       await mount(page, {
         count,
         cached: true,
         landed: false,
-        // Only production restores focus itself.
-        refocus: !arm.startsWith('production'),
+        refocus: !arm.restoresFocus,
       });
       await page.evaluate(() => {
         document.querySelector<HTMLElement>('#i3')!.focus();
@@ -356,46 +399,31 @@ const SCENARIOS: readonly Scenario[] = [
       return delta(before, after, KEYS);
     },
   })),
-  ...[OPERATIONS, 0].map((operations): Scenario => ({
-    id: `${operations} operations, then destroy: retained heap against an empty page`,
+  {
+    id: `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
     rule: 'retained',
     arms: 'sortable',
-    async run({ page, cdp, metrics }) {
-      const heap = async (): Promise<number> => {
-        await cdp.send('HeapProfiler.collectGarbage');
-        await page.waitForTimeout(50);
-        await cdp.send('HeapProfiler.collectGarbage');
-        return (await metrics())['JSHeapUsedSize']!;
-      };
-      const empty = await heap();
+    async run(context) {
+      const empty = await openPage(context.browser, context.arm);
+      let zero: Reading;
 
-      await mount(page, {
-        count: 20,
-        cached: true,
-        landed: true,
-        refocus: false,
-      });
-
-      for (let i = 0; i < operations; i += 1) {
-        await page.mouse.move(X, Y0);
-        await page.mouse.down();
-        await page.mouse.move(X, Y0 + 12, { steps: 2 });
-        await page.mouse.move(X, Y0 + 45);
-        await page.evaluate(() => new Promise(requestAnimationFrame));
-        await page.mouse.up();
-        await page.waitForTimeout(ANIMATION_WAIT);
+      try {
+        zero = await operateAndDestroy(empty, 0);
+      } finally {
+        await empty.page.close();
       }
 
-      await page.evaluate(async () => {
-        await lab.destroy();
-      });
-      await page.waitForTimeout(300);
-      await page.mouse.move(800, 600);
-      await page.waitForTimeout(50);
+      const operated = await operateAndDestroy(context, OPERATIONS);
 
-      return { retainedBytes: (await heap()) - empty };
+      return {
+        growth: operated['objects']! - zero['objects']!,
+        objects0: zero['objects']!,
+        objects200: operated['objects']!,
+        heap0: zero['heap']!,
+        heap200: operated['heap']!,
+      };
     },
-  })),
+  },
   {
     id: 'free drag, 300 moves, one frame each',
     rule: 'exact-and-floor',
@@ -474,11 +502,15 @@ const SCENARIOS: readonly Scenario[] = [
   },
 ];
 
-const median = (values: readonly number[]): number =>
-  values.toSorted((a, b) => a - b)[Math.floor(values.length / 2)]!;
+/** The middle value, or the mean of the two middle values. */
+const median = (values: readonly number[]): number => {
+  const sorted = values.toSorted((x, y) => x - y);
+  const middle = Math.floor(sorted.length / 2);
 
-const spread = (values: readonly number[]): number =>
-  Math.max(...values) - Math.min(...values);
+  return sorted.length % 2 === 1
+    ? sorted[middle]!
+    : (sorted[middle - 1]! + sorted[middle]!) / 2;
+};
 
 /** The kernel's methods are private, so their names start with `#`, except these. */
 const isKernelFunction = (name: string): boolean =>
@@ -489,14 +521,73 @@ export type Verdict = Readonly<{
   against: string;
   measure: string;
   result: string;
+  /** Per round, production minus the before arm. */
+  differences?: readonly number[];
+  /** Per round, the A/A difference the bound comes from. */
+  aa?: readonly number[];
+  higher?: number;
+  lower?: number;
+  median?: number;
+  bound?: number;
 }>;
 
+/** Rounds in which a timing difference must have one sign: 6 of 7. */
+const timingSigns = (rounds: number): number => Math.ceil((rounds * 6) / 7);
+
 /**
- * - **Layouts, exact:** production at or below each before arm.
- * - **Script and task:** a difference within the control's spread is no difference,
- *   and above it production is slower.
+ * One paired comparison. `differences` and `aa` are per round. A verdict needs the
+ * sign in `required` rounds **and** a median beyond the largest absolute A/A
+ * difference. Anything else is no difference shown, which is not equality.
+ */
+function pairedVerdict(
+  against: string,
+  measure: string,
+  differences: readonly number[],
+  aa: readonly number[],
+  required: number,
+  words: readonly [more: string, less: string],
+  unit: string,
+): Verdict {
+  const higher = differences.filter((value) => value > 0).length;
+  const lower = differences.filter((value) => value < 0).length;
+  const middle = median(differences);
+  const bound = Math.max(...aa.map((value) => Math.abs(value)));
+  const label =
+    higher >= required && middle > bound
+      ? `FLAG ${words[0]}`
+      : lower >= required && -middle > bound
+        ? words[1]
+        : 'no difference shown';
+
+  return {
+    against,
+    measure,
+    result: `${label}: higher in ${higher} of ${differences.length}, median ${Math.round(middle)} ${unit}, A/A bound ${Math.round(bound)} ${unit}`,
+    differences: differences.map((value) => Math.round(value)),
+    aa: aa.map((value) => Math.round(value)),
+    higher,
+    lower,
+    median: Math.round(middle),
+    bound: Math.round(bound),
+  };
+}
+
+/**
+ * The rules, fixed before running (remediation handoff, step 6):
+ *
+ * - **Layouts, exact:** production's median at or below each before arm's.
+ * - **Script and task, paired:** per round, production minus the before arm, and
+ *   production minus control. Slower when higher in at least 6 of 7 rounds and the
+ *   median difference exceeds the largest absolute A/A difference. Faster is the
+ *   mirror.
+ * - **Retained objects, over 3 rounds:** an arm's growth is its 200-operation sum
+ *   minus its 0-operation sum in the same round. Per round, production's growth
+ *   minus the before arm's, and control's minus production's. Retains more when
+ *   positive in every round and the median exceeds the largest absolute A/A
+ *   difference, which may be 0 B. Retains less is the mirror.
  * - **Bytes:** only the lift's CSS string may appear from the kernel and the lift.
- * - **Retained:** no growth beyond the control's spread.
+ *
+ * Readings are paired by index, which is the round.
  */
 export function judge(
   rule: Scenario['rule'],
@@ -525,22 +616,28 @@ export function judge(
     return verdicts;
   }
 
+  const minus = (a: readonly number[], b: readonly number[]): number[] =>
+    a.map((value, round) => value - b[round]!);
+
   for (const before of against) {
     if (!arms[before]) {
       continue;
     }
 
     if (rule === 'retained') {
-      const difference =
-        median(of(after, 'retainedBytes')) -
-        median(of(before, 'retainedBytes'));
-      const floor = spread(of(control, 'retainedBytes'));
+      const growth = of(after, 'growth');
 
-      verdicts.push({
-        against: before,
-        measure: 'retainedBytes',
-        result: `${difference > floor ? 'FLAG slower' : difference < -floor ? 'less' : 'no difference'}: ${Math.round(difference)} B, floor ${Math.round(floor)} B`,
-      });
+      verdicts.push(
+        pairedVerdict(
+          before,
+          'retained objects',
+          minus(growth, of(before, 'growth')),
+          minus(of(control, 'growth'), growth),
+          growth.length,
+          ['retains more', 'retains less'],
+          'B',
+        ),
+      );
       continue;
     }
 
@@ -556,20 +653,19 @@ export function judge(
     }
 
     for (const key of ['scriptUs', 'taskUs']) {
-      const difference = median(of(after, key)) - median(of(before, key));
-      const floor = spread(of(control, key));
-      const label =
-        difference > floor
-          ? 'FLAG slower'
-          : difference < -floor
-            ? 'faster'
-            : 'no difference';
+      const timed = of(after, key);
 
-      verdicts.push({
-        against: before,
-        measure: key,
-        result: `${label}: ${Math.round(difference)} µs, floor ${Math.round(floor)} µs`,
-      });
+      verdicts.push(
+        pairedVerdict(
+          before,
+          key,
+          minus(timed, of(before, key)),
+          minus(timed, of(control, key)),
+          timingSigns(timed.length),
+          ['slower', 'faster'],
+          'µs',
+        ),
+      );
     }
   }
 
@@ -578,9 +674,9 @@ export function judge(
 
 function applicableArms(
   scenario: Scenario,
-  all: Readonly<Record<string, string>>,
-  noLift: string,
-): Record<string, string> {
+  all: Readonly<Record<string, Arm>>,
+  noLift: Arm,
+): Record<string, Arm> {
   if (scenario.arms === 'no-lift') {
     return { production: noLift, control: noLift };
   }
@@ -588,17 +684,25 @@ function applicableArms(
   return { ...all };
 }
 
+/** Rounds for a rule: the retained rule is fixed at 3, everything else at `rounds`. */
+const roundsFor = (scenario: Scenario, rounds: number): number =>
+  scenario.rule === 'retained' ? Math.min(rounds, 3) : rounds;
+
 async function runScenarios(
   browser: Browser,
   scenarios: readonly Scenario[],
-  arms: Readonly<Record<string, string>>,
-  noLift: string,
+  arms: Readonly<Record<string, Arm>>,
+  noLift: Arm,
   rounds: number,
 ): Promise<Record<string, Record<string, Reading[]>>> {
   const raw: Record<string, Record<string, Reading[]>> = {};
 
   for (let round = 0; round < rounds; round += 1) {
     for (const scenario of scenarios) {
+      if (round >= roundsFor(scenario, rounds)) {
+        continue;
+      }
+
       const armsHere = applicableArms(scenario, arms, noLift);
       const names = Object.keys(armsHere);
       // A different arm goes first each round, so no arm always runs on a cold cache.
@@ -608,7 +712,7 @@ async function runScenarios(
         const context = await openPage(browser, armsHere[arm]!);
 
         try {
-          const reading = await scenario.run(context, arm);
+          const reading = await scenario.run(context);
 
           ((raw[scenario.id] ??= {})[arm] ??= []).push(reading);
         } finally {
@@ -624,15 +728,15 @@ async function runScenarios(
 }
 
 function summarize(
-  raw: Record<string, Record<string, Reading[]>>,
-  scenarios: readonly Scenario[],
-  after?: string,
-  against?: readonly string[],
+  raw: Readonly<Record<string, ArmReadings>>,
+  rules: Readonly<Record<string, Scenario['rule']>>,
+  against: readonly string[],
 ) {
-  return scenarios
-    .filter((scenario) => raw[scenario.id])
-    .map((scenario) => {
-      const arms = raw[scenario.id]!;
+  return Object.keys(rules)
+    .filter((id) => raw[id])
+    .map((id) => {
+      const arms = raw[id]!;
+      const rule = rules[id]!;
       const medians = Object.fromEntries(
         Object.entries(arms).map(([arm, readings]) => [
           arm,
@@ -652,21 +756,36 @@ function summarize(
               })
               .filter(
                 ([, value]) =>
-                  scenario.rule !== 'bytes' ||
-                  (value as { median: number }).median > 0,
+                  rule !== 'bytes' || (value as { median: number }).median > 0,
               ),
           ),
         ]),
       );
 
       return {
-        scenario: scenario.id,
-        rule: scenario.rule,
+        scenario: id,
+        rule,
         medians,
-        verdicts: judge(scenario.rule, arms, after, 'control', against),
+        verdicts: judge(rule, arms, 'production', 'control', against),
       };
     });
 }
+
+/** The rows the remediation's validation reads, and only those. */
+const VALIDATION_ROWS: readonly string[] = [
+  '50 activate-and-drop cycles, 20 items, no landing',
+  '50 activate-and-drop cycles, 20 items, with landing',
+  '50 activate-and-drop cycles, 2000 items, no landing',
+  '50 activate-and-drop cycles, 2000 items, with landing',
+  '50 keyboard reorders, 20 items, with focus restoration',
+  '300 moves, one frame each, 20 items',
+  '300 moves, one frame each, 2000 items',
+  'press and release below the threshold, 20 items, cached array',
+  'press and release below the threshold, 20 items, [...root.children]',
+  'press and release below the threshold, 2000 items, cached array',
+  'press and release below the threshold, 2000 items, [...root.children]',
+  `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
+];
 
 /** Each entry: a text patch on a scratch copy of production, and the row that must flag it. */
 const INJECTIONS: ReadonlyArray<
@@ -680,20 +799,38 @@ const INJECTIONS: ReadonlyArray<
   }>
 > = [
   {
+    name: 'about 1 ms of script per cycle, at the drop',
+    file: 'sortable.ts',
+    find: 'const insertion = state.insertion!;\n    const request = buildReorderRequest(',
+    replace:
+      'const until = performance.now() + 1;\n    while (performance.now() < until) {}\n    const insertion = state.insertion!;\n    const request = buildReorderRequest(',
+    scenario: '50 activate-and-drop cycles, 20 items, no landing',
+    expect: /FLAG slower/u,
+  },
+  {
+    name: 'one object of about 1 KB retained per operation past destruction',
+    file: 'sortable.ts',
+    find: 'start(drag: LiftedDrag<State>): void {\n    this.#config.onStart?.(drag.item);',
+    replace:
+      "start(drag: LiftedDrag<State>): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push(new Array(126).fill(0.5));\n    this.#config.onStart?.(drag.item);",
+    scenario: `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
+    expect: /FLAG retains more/u,
+  },
+  {
     name: 'one forced layout per move',
     file: 'sortable.ts',
-    find: 'drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n      drag.state.frame!.schedule();',
+    find: 'drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
     replace:
-      'root.style.minHeight = `${drag.y}px`;\n      void root.offsetHeight;\n      drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n      drag.state.frame!.schedule();',
+      'drag.item.style.minHeight = `${drag.y % 2}px`;\n    void drag.item.parentElement!.offsetHeight;\n    drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
     scenario: '300 moves, one frame each, 20 items',
     expect: /FLAG more/u,
   },
   {
     name: 'one O(n) walk per move',
     file: 'sortable.ts',
-    find: 'drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n      drag.state.frame!.schedule();',
+    find: 'drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
     replace:
-      'for (let i = 0; i < 3; i += 1) { void [...config.items()].map((row) => row.id).join(); }\n      drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n      drag.state.frame!.schedule();',
+      'for (let i = 0; i < 3; i += 1) { void [...drag.state.snapshot.items].map((row) => row.id).join(); }\n    drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
     scenario: '300 moves, one frame each, 2000 items',
     expect: /FLAG slower/u,
   },
@@ -715,85 +852,128 @@ const INJECTIONS: ReadonlyArray<
     scenario: 'bytes per move by function, 20 items',
     expect: /FLAG/u,
   },
-  {
-    name: 'an item retained after destruction',
-    file: 'sortable.ts',
-    find: 'start(drag) {\n      config.onStart?.(drag.item);',
-    replace:
-      "start(drag) {\n      ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push(drag, new Array(4096).fill(drag.item), drag.state);\n      config.onStart?.(drag.item);",
-    scenario:
-      '200 operations, then destroy: retained heap against an empty page',
-    expect: /FLAG slower/u,
-  },
 ];
 
+/** Production's lab bundle from a copy of `src` with one patch applied. */
+async function bundlePatched(
+  file: string,
+  find: string,
+  replace: string,
+): Promise<string> {
+  const directory = await mkdtemp(join(tmpdir(), 'drag-inject-'));
+
+  try {
+    await cp(join(ROOT, 'src'), join(directory, 'src'), { recursive: true });
+
+    const path = join(directory, 'src', file);
+    const source = await readFile(path, 'utf8');
+
+    if (!source.includes(find)) {
+      throw new Error(`injection does not apply in ${file}: ${find}`);
+    }
+
+    await writeFile(path, source.replace(find, replace));
+    return await bundle(join(ROOT, 'bench/lab.ts'), join(directory, 'src'));
+  } finally {
+    await rm(directory, { force: true, recursive: true });
+  }
+}
+
+/**
+ * Each injection runs as `production` against unpatched production, with a second
+ * copy of the injected bundle as its control, and must flag. Then the control runs
+ * against itself on every validation row: three copies of one bundle, none of which
+ * may flag.
+ */
 async function prove(
   browser: Browser,
-  productionCode: string,
-  noLift: string,
+  production: Arm,
+  noLift: Arm,
+  rounds: number,
   out?: string,
 ): Promise<boolean> {
   const results: unknown[] = [];
-  let allFlagged = true;
+  let proven = true;
 
   for (const injection of INJECTIONS) {
-    const directory = await mkdtemp(join(tmpdir(), 'drag-inject-'));
+    const injected: Arm = {
+      code: await bundlePatched(
+        injection.file,
+        injection.find,
+        injection.replace,
+      ),
+      restoresFocus: true,
+    };
+    const scenario = SCENARIOS.find((each) => each.id === injection.scenario)!;
+    const scenarioRounds = scenario.rule === 'bytes' ? 3 : rounds;
+    const raw = await runScenarios(
+      browser,
+      [scenario],
+      { production: injected, base: production, control: injected },
+      noLift,
+      scenarioRounds,
+    );
+    const arms = raw[scenario.id]!;
+    const verdicts = judge(scenario.rule, arms, 'production', 'control', [
+      'base',
+    ]);
+    const flagged = verdicts.some((verdict) =>
+      injection.expect.test(verdict.result),
+    );
 
-    try {
-      await cp(join(ROOT, 'src'), join(directory, 'src'), { recursive: true });
+    proven &&= flagged;
+    results.push({
+      injection: injection.name,
+      scenario: scenario.id,
+      flagged,
+      verdicts,
+      raw: arms,
+    });
+    console.log(
+      `${flagged ? 'flagged' : 'NOT FLAGGED'}: ${injection.name} ${JSON.stringify(verdicts.map((verdict) => verdict.result))}`,
+    );
+  }
 
-      const file = join(directory, 'src', injection.file);
-      const source = await readFile(file, 'utf8');
+  const scenarios = SCENARIOS.filter((each) =>
+    VALIDATION_ROWS.includes(each.id),
+  );
+  const raw = await runScenarios(
+    browser,
+    scenarios,
+    { production, base: production, control: production },
+    noLift,
+    rounds,
+  );
 
-      if (!source.includes(injection.find)) {
-        throw new Error(`injection does not apply: ${injection.name}`);
-      }
+  for (const scenario of scenarios) {
+    const verdicts = judge(
+      scenario.rule,
+      raw[scenario.id]!,
+      'production',
+      'control',
+      ['base'],
+    );
+    const flagged = verdicts.filter((verdict) =>
+      verdict.result.startsWith('FLAG'),
+    );
 
-      await writeFile(file, source.replace(injection.find, injection.replace));
-
-      const injected = await bundle(
-        join(ROOT, 'bench/lab.ts'),
-        join(directory, 'src'),
-      );
-      const scenario = SCENARIOS.find(
-        (each) => each.id === injection.scenario,
-      )!;
-      const raw = await runScenarios(
-        browser,
-        [scenario],
-        { injected, production: productionCode, control: productionCode },
-        noLift,
-        3,
-      );
-      const arms = raw[scenario.id]!;
-      const verdicts = judge(scenario.rule, arms, 'injected', 'control', [
-        'production',
-      ]);
-      const flagged = verdicts.some((verdict) =>
-        injection.expect.test(verdict.result),
-      );
-
-      allFlagged &&= flagged;
-      results.push({
-        injection: injection.name,
-        scenario: scenario.id,
-        flagged,
-        verdicts,
-        raw: arms,
-      });
-      console.log(
-        `${flagged ? 'flagged' : 'NOT FLAGGED'}: ${injection.name} ${JSON.stringify(verdicts)}`,
-      );
-    } finally {
-      await rm(directory, { force: true, recursive: true });
-    }
+    proven &&= flagged.length === 0;
+    results.push({
+      aa: scenario.id,
+      flagged: flagged.length > 0,
+      verdicts,
+      raw: raw[scenario.id],
+    });
+    console.log(
+      `${flagged.length === 0 ? 'quiet' : 'A/A FLAGGED'}: ${scenario.id} ${JSON.stringify(verdicts.map((verdict) => verdict.result))}`,
+    );
   }
 
   if (out) {
     await writeFile(out, `${JSON.stringify(results, null, 1)}\n`);
   }
 
-  return allFlagged;
+  return proven;
 }
 
 const { values } = parseArgs({
@@ -802,35 +982,13 @@ const { values } = parseArgs({
     out: { type: 'string' },
     prove: { type: 'boolean', default: false },
     only: { type: 'string' },
+    rows: { type: 'string' },
+    before: { type: 'string' },
+    rejudge: { type: 'string' },
   },
 });
-/** The comparison itself, printed and written to `--out`. */
-async function compareArms(
-  browser: Browser,
-  bundles: Readonly<
-    Record<'drag2' | 'prototype' | 'production' | 'noLift', string>
-  >,
-): Promise<void> {
-  const { drag2, prototype, production, noLift } = bundles;
-  const scenarios = values.only
-    ? SCENARIOS.filter((each) => each.id.includes(values.only!))
-    : SCENARIOS;
-  const raw = await runScenarios(
-    browser,
-    scenarios,
-    { drag2, prototype, production, control: production },
-    noLift,
-    Number(values.rounds),
-  );
-  const summary = summarize(raw, scenarios);
 
-  if (values.out) {
-    await writeFile(
-      values.out,
-      `${JSON.stringify({ chrome: browser.version(), rounds: Number(values.rounds), moves: MOVES, summary, raw }, null, 1)}\n`,
-    );
-  }
-
+function print(summary: ReturnType<typeof summarize>): void {
   for (const row of summary) {
     console.log(`\n${row.scenario}`);
 
@@ -840,55 +998,153 @@ async function compareArms(
   }
 }
 
-const scratch = await mkdtemp(join(tmpdir(), 'drag-compare-'));
+/** The comparison itself, printed and written to `--out`. */
+async function compareArms(
+  browser: Browser,
+  arms: Readonly<Record<string, Arm>>,
+  noLift: Arm,
+): Promise<void> {
+  const scenarios = SCENARIOS.filter(
+    (each) =>
+      (values.rows !== 'validation' || VALIDATION_ROWS.includes(each.id)) &&
+      (!values.only || each.id.includes(values.only)),
+  );
+  const raw = await runScenarios(
+    browser,
+    scenarios,
+    arms,
+    noLift,
+    Number(values.rounds),
+  );
+  const against = Object.keys(arms).filter(
+    (arm) => arm !== 'production' && arm !== 'control',
+  );
+  const summary = summarize(
+    raw,
+    Object.fromEntries(scenarios.map((each) => [each.id, each.rule])),
+    against,
+  );
 
-try {
-  const archive = join(scratch, 'tree.tar');
+  if (values.out) {
+    await writeFile(
+      values.out,
+      `${JSON.stringify({ chrome: browser.version(), rounds: Number(values.rounds), moves: MOVES, arms: Object.keys(arms), before: values.before ?? null, summary, raw }, null, 1)}\n`,
+    );
+  }
 
-  await execFile(
-    'git',
-    [
-      'archive',
-      PROTOTYPE_REVISION,
-      '--output',
-      archive,
-      'packages/drag/prototype/src',
-    ],
-    { cwd: join(ROOT, '../..') },
-  );
-  await execFile('tar', ['-xf', archive, '-C', scratch]);
+  print(summary);
+}
 
-  const production = await bundle(
-    join(ROOT, 'bench/lab.ts'),
-    join(ROOT, 'src'),
-  );
-  const prototype = await bundle(
-    join(ROOT, 'bench/lab.ts'),
-    join(scratch, 'packages/drag/prototype/src'),
-  );
-  const drag2 = await bundle(
-    join(ROOT, 'bench/lab-drag2.ts'),
-    join(ROOT, 'src'),
-  );
-  const noLift = await bundle(
-    join(ROOT, 'bench/lab-no-lift.ts'),
-    join(ROOT, 'src'),
-  );
-  const browser = await chromium.launch({
-    executablePath: process.env['CHROME_EXECUTABLE'] ?? '/usr/local/bin/chrome',
+/** Production's `src` at `revision`, extracted under `scratch`. */
+async function archivedSource(
+  scratch: string,
+  revision: string,
+  path: string,
+): Promise<string> {
+  const archive = join(scratch, `${revision}.tar`);
+  const target = join(scratch, revision);
+
+  await execFile('git', ['archive', revision, '--output', archive, path], {
+    cwd: join(ROOT, '../..'),
   });
+  await execFile('mkdir', ['-p', target]);
+  await execFile('tar', ['-xf', archive, '-C', target]);
+  return join(target, path);
+}
+
+if (values.rejudge) {
+  // A recorded run: its own rules and arms, judged by the current `judge`.
+  const recorded = JSON.parse(await readFile(values.rejudge, 'utf8')) as {
+    summary: ReadonlyArray<{ scenario: string; rule: Scenario['rule'] }>;
+    raw: Record<string, ArmReadings>;
+  };
+  // The retained rule reads per-round growth, which a recorded absolute heap does
+  // not carry, so those rows keep their recorded verdicts.
+  const rules = Object.fromEntries(
+    recorded.summary
+      .filter((row) => row.rule !== 'retained')
+      .map((row) => [row.scenario, row.rule]),
+  );
+  const summary = summarize(recorded.raw, rules, ['drag2', 'prototype']);
+
+  if (values.out) {
+    await writeFile(values.out, `${JSON.stringify(summary, null, 1)}\n`);
+  }
+
+  print(summary);
+} else {
+  const scratch = await mkdtemp(join(tmpdir(), 'drag-compare-'));
 
   try {
-    if (values.prove) {
-      process.exitCode = (await prove(browser, production, noLift, values.out))
-        ? 0
-        : 1;
-    } else {
-      await compareArms(browser, { drag2, prototype, production, noLift });
+    const lab = join(ROOT, 'bench/lab.ts');
+    const production: Arm = {
+      code: await bundle(lab, join(ROOT, 'src')),
+      restoresFocus: true,
+    };
+    const noLift: Arm = {
+      code: await bundle(join(ROOT, 'bench/lab-no-lift.ts'), join(ROOT, 'src')),
+      restoresFocus: true,
+    };
+    const browser = await chromium.launch({
+      executablePath:
+        process.env['CHROME_EXECUTABLE'] ?? '/usr/local/bin/chrome',
+    });
+
+    try {
+      if (values.prove) {
+        process.exitCode = (await prove(
+          browser,
+          production,
+          noLift,
+          Number(values.rounds),
+          values.out,
+        ))
+          ? 0
+          : 1;
+      } else if (values.before) {
+        const before: Arm = {
+          code: await bundle(
+            lab,
+            await archivedSource(scratch, values.before, 'packages/drag/src'),
+          ),
+          restoresFocus: true,
+        };
+
+        await compareArms(
+          browser,
+          { before, production, control: production },
+          noLift,
+        );
+      } else {
+        const prototype: Arm = {
+          code: await bundle(
+            lab,
+            await archivedSource(
+              scratch,
+              PROTOTYPE_REVISION,
+              'packages/drag/prototype/src',
+            ),
+          ),
+          restoresFocus: false,
+        };
+        const drag2: Arm = {
+          code: await bundle(
+            join(ROOT, 'bench/lab-drag2.ts'),
+            join(ROOT, 'src'),
+          ),
+          restoresFocus: false,
+        };
+
+        await compareArms(
+          browser,
+          { drag2, prototype, production, control: production },
+          noLift,
+        );
+      }
+    } finally {
+      await browser.close();
     }
   } finally {
-    await browser.close();
+    await rm(scratch, { force: true, recursive: true });
   }
-} finally {
-  await rm(scratch, { force: true, recursive: true });
 }

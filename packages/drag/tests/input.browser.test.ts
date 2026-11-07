@@ -120,9 +120,13 @@ describe('drag:DRI-19 input ownership', () => {
       listening.abort();
     });
     basicSortable(list);
-    await press('#r0');
-    // The release and the move to the next row never reach the window's
-    // listeners, so the next press arrives while the first is still pending.
+
+    const first = centerOf('#r0');
+
+    await commands.pointerMove(first.x, first.y);
+    // Registered before the press, so they run before the kernel's listeners:
+    // the release and the move to the next row never reach it, and the next
+    // press arrives while the first is still pending.
     addEventListener('pointerup', hide, {
       capture: true,
       signal: listening.signal,
@@ -131,6 +135,7 @@ describe('drag:DRI-19 input ownership', () => {
       capture: true,
       signal: listening.signal,
     });
+    await commands.pointerDown();
     await commands.pointerUp();
 
     const next = centerOf('#r1');

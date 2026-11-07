@@ -1,0 +1,129 @@
+chromium	activation.browser.test.ts	drag:DRI-3 activation should run no hook for a custom behavior whose item was disconnected during the press	passed	
+chromium	activation.browser.test.ts	drag:DRI-14 command activation should decline a command quietly when its item leaves during the lift	failed	AssertionError: expected [ 'start', 'end:canceled' ] to deeply equal []
+chromium	activation.browser.test.ts	drag:DRI-14 command activation should decline a command quietly when its move becomes impossible during the lift	failed	AssertionError: expected [ 'start', 'end:canceled' ] to deeply equal []
+chromium	activation.browser.test.ts	drag:DRI-14 command activation should land a keyboard command from the old slot	passed	
+chromium	activation.browser.test.ts	drag:DRI-13 a grab during a landing should keep the visual under the pointer during a accepted landing	failed	AssertionError: expected 9.833377838134766 to be less than 1
+chromium	activation.browser.test.ts	drag:DRI-13 a grab during a landing should keep the visual under the pointer during a rejected landing	failed	AssertionError: expected 88.50045394897461 to be less than 1
+chromium	activation.browser.test.ts	drag:DRI-15 placeholder faults should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate	passed	
+chromium	activation.browser.test.ts	drag:DRI-15 placeholder faults should report sortable/insertion-placeholder-lost when the placeholder leaves at insertion	passed	
+chromium	activation.browser.test.ts	drag:DRI-17 coalescing should schedule one frame for several samples in one task	passed	
+chromium	classes.browser.test.ts	drag:DRD-20 detached controller methods should run draggable controller methods detached	failed	TypeError: Cannot read properties of undefined (reading '#destroyed')
+chromium	classes.browser.test.ts	drag:DRD-20 detached controller methods should run sortable controller methods detached	passed	
+chromium	classes.browser.test.ts	drag:DRD-20 detached controller methods should run freeDrag controller methods detached	passed	
+chromium	classes.browser.test.ts	drag:DRD-20 behavior instances should retain no freeDrag behavior instance after destruction	failed	AssertionError: expected +0 to be 1 // Object.is equality
+chromium	commit.browser.test.ts	drag:DRI-9 commit ownership should keep a translate committed in onEnd	passed	
+chromium	commit.browser.test.ts	drag:DRI-9 commit ownership should keep left and top committed in onEnd	passed	
+chromium	commit.browser.test.ts	drag:DRI-9 commit ownership should revert at release a write to a lifted property made during the lift	passed	
+chromium	commit.browser.test.ts	drag:DRI-9 README examples should reorder with the quick start	passed	
+chromium	commit.browser.test.ts	drag:DRI-9 README examples should keep the free-drag example where it was dropped, across two drags	passed	
+chromium	commit.browser.test.ts	drag:DRI-9 README examples should keep the scrolling-container example where it was dropped, and land it home	failed	AssertionError: expected [ 40, -20 ] to deeply equal [ 40, 80 ]
+chromium	commit.browser.test.ts	drag:DRI-20 free drag offset should commit where dropped without home in an unscrolled page	passed	
+chromium	input.browser.test.ts	drag:DRI-19 input ownership should not activate on a hover after a pointerup stopped on a child, and reorder at the next press	failed	AssertionError: expected [ 'start' ] to deeply equal []
+chromium	input.browser.test.ts	drag:DRI-19 input ownership should not activate on a hover after a pointerup stopped on an ancestor of the root, and reorder at the next press	failed	AssertionError: expected [ 'start' ] to deeply equal []
+chromium	input.browser.test.ts	drag:DRI-19 input ownership should end a press whose release the window never saw at the next sample with no button	failed	AssertionError: expected [ 'start' ] to deeply equal []
+chromium	input.browser.test.ts	drag:DRI-19 input ownership should admit a primary press while a press whose release was missed is pending	failed	AssertionError: expected 'r1,r2,r3,r0' to be 'r0,r2,r3,r1' // Object.is equality
+chromium	input.browser.test.ts	drag:DRI-19 input ownership should keep an active drag following the pointer when the page stops pointermove	failed	AssertionError: expected 20 to be close to 110, received difference is 90, but expected 0.5
+chromium	input.browser.test.ts	drag:DRI-19 input ownership should ignore a second pointer moving during a drag	passed	
+chromium	input.browser.test.ts	drag:DRI-19 input ownership should reorder links marked draggable="false"	passed	
+chromium	input.browser.test.ts	drag:DRI-19 nested roots should reorder the inner list only, with no attribute	failed	AssertionError: expected 'card00,card01,card02' to be 'card01,card00,card02' // Object.is equality
+chromium	input.browser.test.ts	drag:DRI-19 nested roots should move a column from its header	passed	
+chromium	input.browser.test.ts	drag:DRI-19 nested roots should run a keyboard command on the inner list only	failed	AssertionError: expected 'col1,col0' to be 'col0,col1' // Object.is equality
+chromium	input.browser.test.ts	drag:DRI-4 Escape should cancel and keep a modal dialog open	failed	AssertionError: expected false to be true // Object.is equality
+chromium	input.browser.test.ts	drag:DRI-4 Escape should cancel and keep an auto popover open	failed	AssertionError: expected false to be true // Object.is equality
+chromium	input.browser.test.ts	drag:DRI-4 Escape should cancel a pending verdict and keep a modal dialog open	failed	AssertionError: expected false to be true // Object.is equality
+chromium	input.browser.test.ts	drag:DRI-4 Escape should not prevent Escape before start	passed	
+chromium	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should start the landing before the focus call	failed	AssertionError: expected 0 to be greater than 0
+chromium	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should keep focus through two arrow presses that reorder in end	failed	AssertionError: expected 'r1,r0,r2,r3' to be 'r1,r2,r0,r3' // Object.is equality
+chromium	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should restore focus when end throws	failed	AssertionError: expected <body style="margin: 0px;">…(1)</body> to be <div class="row" id="r0" …(2)></div> // Object.is equality
+chromium	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should restore focus when end requests destruction	failed	AssertionError: expected <body style="margin: 0px;">…(1)</body> to be <div class="row" id="r0" …(2)></div> // Object.is equality
+chromium	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should not restore focus when destruction is requested before the terminal	failed	AssertionError: expected <div class="row" id="r0" …(2)></div> to be <body style="margin: 0px;">…(1)</body> // Object.is equality
+chromium	scoped-requests.browser.test.ts	drag:DRI-8 scoped requests should not run a step requested through a retained drag while a later operation is active	failed	AssertionError: expected [ 'r2' ] to deeply equal []
+chromium	scoped-requests.browser.test.ts	drag:DRI-8 scoped requests should not run a step requested through a retained drag while idle	failed	AssertionError: expected true to be false // Object.is equality
+chromium	scoped-requests.browser.test.ts	drag:DRI-8 scoped requests should give a late disposer the outcome after destruction of a concluded operation	failed	AssertionError: expected [ null ] to deeply equal [ { type: 'skipped' } ]
+chromium	scoped-requests.browser.test.ts	drag:DRI-8 scoped requests should give a late disposer null when destruction released its operation	passed	
+firefox	activation.browser.test.ts	drag:DRI-3 activation should run no hook for a custom behavior whose item was disconnected during the press	passed	
+firefox	activation.browser.test.ts	drag:DRI-14 command activation should decline a command quietly when its item leaves during the lift	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/activation.browser.test
+firefox	activation.browser.test.ts	drag:DRI-14 command activation should decline a command quietly when its move becomes impossible during the lift	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/activation.browser.test
+firefox	activation.browser.test.ts	drag:DRI-14 command activation should land a keyboard command from the old slot	passed	
+firefox	activation.browser.test.ts	drag:DRI-13 a grab during a landing should keep the visual under the pointer during a accepted landing	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/activation.browser.test
+firefox	activation.browser.test.ts	drag:DRI-13 a grab during a landing should keep the visual under the pointer during a rejected landing	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/activation.browser.test
+firefox	activation.browser.test.ts	drag:DRI-15 placeholder faults should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate	passed	
+firefox	activation.browser.test.ts	drag:DRI-15 placeholder faults should report sortable/insertion-placeholder-lost when the placeholder leaves at insertion	passed	
+firefox	activation.browser.test.ts	drag:DRI-17 coalescing should schedule one frame for several samples in one task	passed	
+firefox	classes.browser.test.ts	drag:DRD-20 detached controller methods should run draggable controller methods detached	failed	use@http://localhost:63316/src/draggable.ts:233:7
+firefox	classes.browser.test.ts	drag:DRD-20 detached controller methods should run sortable controller methods detached	passed	
+firefox	classes.browser.test.ts	drag:DRD-20 detached controller methods should run freeDrag controller methods detached	passed	
+firefox	classes.browser.test.ts	drag:DRD-20 behavior instances should retain no freeDrag behavior instance after destruction	skipped	
+firefox	commit.browser.test.ts	drag:DRI-9 commit ownership should keep a translate committed in onEnd	passed	
+firefox	commit.browser.test.ts	drag:DRI-9 commit ownership should keep left and top committed in onEnd	passed	
+firefox	commit.browser.test.ts	drag:DRI-9 commit ownership should revert at release a write to a lifted property made during the lift	passed	
+firefox	commit.browser.test.ts	drag:DRI-9 README examples should reorder with the quick start	passed	
+firefox	commit.browser.test.ts	drag:DRI-9 README examples should keep the free-drag example where it was dropped, across two drags	passed	
+firefox	commit.browser.test.ts	drag:DRI-9 README examples should keep the scrolling-container example where it was dropped, and land it home	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/commit.browser.test.ts?
+firefox	commit.browser.test.ts	drag:DRI-20 free drag offset should commit where dropped without home in an unscrolled page	passed	
+firefox	input.browser.test.ts	drag:DRI-19 input ownership should not activate on a hover after a pointerup stopped on a child, and reorder at the next press	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/input.browser.test.ts?i
+firefox	input.browser.test.ts	drag:DRI-19 input ownership should not activate on a hover after a pointerup stopped on an ancestor of the root, and reorder at the next press	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/input.browser.test.ts?i
+firefox	input.browser.test.ts	drag:DRI-19 input ownership should end a press whose release the window never saw at the next sample with no button	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/input.browser.test.ts?i
+firefox	input.browser.test.ts	drag:DRI-19 input ownership should admit a primary press while a press whose release was missed is pending	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/input.browser.test.ts?i
+firefox	input.browser.test.ts	drag:DRI-19 input ownership should keep an active drag following the pointer when the page stops pointermove	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/input.browser.test.ts?i
+firefox	input.browser.test.ts	drag:DRI-19 input ownership should ignore a second pointer moving during a drag	passed	
+firefox	input.browser.test.ts	drag:DRI-19 input ownership should reorder links marked draggable="false"	passed	
+firefox	input.browser.test.ts	drag:DRI-19 nested roots should reorder the inner list only, with no attribute	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/input.browser.test.ts?i
+firefox	input.browser.test.ts	drag:DRI-19 nested roots should move a column from its header	passed	
+firefox	input.browser.test.ts	drag:DRI-19 nested roots should run a keyboard command on the inner list only	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/input.browser.test.ts?i
+firefox	input.browser.test.ts	drag:DRI-4 Escape should cancel and keep a modal dialog open	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/input.browser.test.ts?i
+firefox	input.browser.test.ts	drag:DRI-4 Escape should cancel and keep an auto popover open	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/input.browser.test.ts?i
+firefox	input.browser.test.ts	drag:DRI-4 Escape should cancel a pending verdict and keep a modal dialog open	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/input.browser.test.ts?i
+firefox	input.browser.test.ts	drag:DRI-4 Escape should not prevent Escape before start	passed	
+firefox	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should start the landing before the focus call	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/order.browser.test.ts?i
+firefox	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should keep focus through two arrow presses that reorder in end	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/order.browser.test.ts?i
+firefox	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should restore focus when end throws	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/order.browser.test.ts?i
+firefox	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should restore focus when end requests destruction	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/order.browser.test.ts?i
+firefox	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should not restore focus when destruction is requested before the terminal	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/order.browser.test.ts?i
+firefox	scoped-requests.browser.test.ts	drag:DRI-8 scoped requests should not run a step requested through a retained drag while a later operation is active	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/scoped-requests.browser
+firefox	scoped-requests.browser.test.ts	drag:DRI-8 scoped requests should not run a step requested through a retained drag while idle	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/scoped-requests.browser
+firefox	scoped-requests.browser.test.ts	drag:DRI-8 scoped requests should give a late disposer the outcome after destruction of a concluded operation	failed	@http://localhost:63316/tmp/claude-1000/-workspaces-material-x/fb3e2ca0-0233-4e97-97d0-7f06100f0dc4/scratchpad/clean/packages/drag/tests/scoped-requests.browser
+firefox	scoped-requests.browser.test.ts	drag:DRI-8 scoped requests should give a late disposer null when destruction released its operation	passed	
+webkit	activation.browser.test.ts	drag:DRI-3 activation should run no hook for a custom behavior whose item was disconnected during the press	passed	
+webkit	activation.browser.test.ts	drag:DRI-14 command activation should decline a command quietly when its item leaves during the lift	failed	@[native code]
+webkit	activation.browser.test.ts	drag:DRI-14 command activation should decline a command quietly when its move becomes impossible during the lift	failed	@[native code]
+webkit	activation.browser.test.ts	drag:DRI-14 command activation should land a keyboard command from the old slot	passed	
+webkit	activation.browser.test.ts	drag:DRI-13 a grab during a landing should keep the visual under the pointer during a accepted landing	failed	@[native code]
+webkit	activation.browser.test.ts	drag:DRI-13 a grab during a landing should keep the visual under the pointer during a rejected landing	failed	@[native code]
+webkit	activation.browser.test.ts	drag:DRI-15 placeholder faults should report sortable/anchor-outside-container when a gap neighbor leaves without invalidate	passed	
+webkit	activation.browser.test.ts	drag:DRI-15 placeholder faults should report sortable/insertion-placeholder-lost when the placeholder leaves at insertion	passed	
+webkit	activation.browser.test.ts	drag:DRI-17 coalescing should schedule one frame for several samples in one task	passed	
+webkit	classes.browser.test.ts	drag:DRD-20 detached controller methods should run draggable controller methods detached	failed	use@http://localhost:63317/src/draggable.ts:233:11
+webkit	classes.browser.test.ts	drag:DRD-20 detached controller methods should run sortable controller methods detached	passed	
+webkit	classes.browser.test.ts	drag:DRD-20 detached controller methods should run freeDrag controller methods detached	passed	
+webkit	classes.browser.test.ts	drag:DRD-20 behavior instances should retain no freeDrag behavior instance after destruction	skipped	
+webkit	commit.browser.test.ts	drag:DRI-9 commit ownership should keep a translate committed in onEnd	passed	
+webkit	commit.browser.test.ts	drag:DRI-9 commit ownership should keep left and top committed in onEnd	passed	
+webkit	commit.browser.test.ts	drag:DRI-9 commit ownership should revert at release a write to a lifted property made during the lift	passed	
+webkit	commit.browser.test.ts	drag:DRI-9 README examples should reorder with the quick start	passed	
+webkit	commit.browser.test.ts	drag:DRI-9 README examples should keep the free-drag example where it was dropped, across two drags	passed	
+webkit	commit.browser.test.ts	drag:DRI-9 README examples should keep the scrolling-container example where it was dropped, and land it home	failed	@[native code]
+webkit	commit.browser.test.ts	drag:DRI-20 free drag offset should commit where dropped without home in an unscrolled page	passed	
+webkit	input.browser.test.ts	drag:DRI-19 input ownership should not activate on a hover after a pointerup stopped on a child, and reorder at the next press	failed	@[native code]
+webkit	input.browser.test.ts	drag:DRI-19 input ownership should not activate on a hover after a pointerup stopped on an ancestor of the root, and reorder at the next press	failed	@[native code]
+webkit	input.browser.test.ts	drag:DRI-19 input ownership should end a press whose release the window never saw at the next sample with no button	failed	@[native code]
+webkit	input.browser.test.ts	drag:DRI-19 input ownership should admit a primary press while a press whose release was missed is pending	failed	@[native code]
+webkit	input.browser.test.ts	drag:DRI-19 input ownership should keep an active drag following the pointer when the page stops pointermove	failed	@[native code]
+webkit	input.browser.test.ts	drag:DRI-19 input ownership should ignore a second pointer moving during a drag	passed	
+webkit	input.browser.test.ts	drag:DRI-19 input ownership should reorder links marked draggable="false"	passed	
+webkit	input.browser.test.ts	drag:DRI-19 nested roots should reorder the inner list only, with no attribute	failed	@[native code]
+webkit	input.browser.test.ts	drag:DRI-19 nested roots should move a column from its header	passed	
+webkit	input.browser.test.ts	drag:DRI-19 nested roots should run a keyboard command on the inner list only	failed	@[native code]
+webkit	input.browser.test.ts	drag:DRI-4 Escape should cancel and keep a modal dialog open	failed	@[native code]
+webkit	input.browser.test.ts	drag:DRI-4 Escape should cancel and keep an auto popover open	failed	@[native code]
+webkit	input.browser.test.ts	drag:DRI-4 Escape should cancel a pending verdict and keep a modal dialog open	failed	@[native code]
+webkit	input.browser.test.ts	drag:DRI-4 Escape should not prevent Escape before start	passed	
+webkit	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should start the landing before the focus call	failed	@[native code]
+webkit	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should keep focus through two arrow presses that reorder in end	failed	@[native code]
+webkit	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should restore focus when end throws	failed	@[native code]
+webkit	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should restore focus when end requests destruction	failed	@[native code]
+webkit	order.browser.test.ts	drag:DRI-9 and drag:DRI-12 release order should not restore focus when destruction is requested before the terminal	failed	@[native code]
+webkit	scoped-requests.browser.test.ts	drag:DRI-8 scoped requests should not run a step requested through a retained drag while a later operation is active	failed	@[native code]
+webkit	scoped-requests.browser.test.ts	drag:DRI-8 scoped requests should not run a step requested through a retained drag while idle	failed	@[native code]
+webkit	scoped-requests.browser.test.ts	drag:DRI-8 scoped requests should give a late disposer the outcome after destruction of a concluded operation	failed	@[native code]
+webkit	scoped-requests.browser.test.ts	drag:DRI-8 scoped requests should give a late disposer null when destruction released its operation	passed	

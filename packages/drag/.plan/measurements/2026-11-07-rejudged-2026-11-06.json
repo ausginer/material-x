@@ -1,0 +1,3009 @@
+[
+  {
+    "scenario": "300 moves, one frame each, 20 items",
+    "rule": "exact-and-floor",
+    "medians": {
+      "drag2": {
+        "layouts": {
+          "median": 83,
+          "min": 83,
+          "max": 83
+        },
+        "layoutUs": {
+          "median": 46,
+          "min": 35,
+          "max": 52
+        },
+        "styleUs": {
+          "median": 254,
+          "min": 188,
+          "max": 268
+        },
+        "scriptUs": {
+          "median": 252,
+          "min": 183,
+          "max": 270
+        },
+        "taskUs": {
+          "median": 2667,
+          "min": 1957,
+          "max": 2811
+        }
+      },
+      "prototype": {
+        "layouts": {
+          "median": 83,
+          "min": 83,
+          "max": 83
+        },
+        "layoutUs": {
+          "median": 47,
+          "min": 36,
+          "max": 50
+        },
+        "styleUs": {
+          "median": 260,
+          "min": 210,
+          "max": 265
+        },
+        "scriptUs": {
+          "median": 210,
+          "min": 169,
+          "max": 220
+        },
+        "taskUs": {
+          "median": 2662,
+          "min": 2129,
+          "max": 2756
+        }
+      },
+      "production": {
+        "layouts": {
+          "median": 83,
+          "min": 83,
+          "max": 83
+        },
+        "layoutUs": {
+          "median": 51,
+          "min": 45,
+          "max": 53
+        },
+        "styleUs": {
+          "median": 277,
+          "min": 251,
+          "max": 281
+        },
+        "scriptUs": {
+          "median": 223,
+          "min": 204,
+          "max": 231
+        },
+        "taskUs": {
+          "median": 2789,
+          "min": 2613,
+          "max": 2848
+        }
+      },
+      "control": {
+        "layouts": {
+          "median": 83,
+          "min": 83,
+          "max": 83
+        },
+        "layoutUs": {
+          "median": 50,
+          "min": 32,
+          "max": 53
+        },
+        "styleUs": {
+          "median": 268,
+          "min": 183,
+          "max": 284
+        },
+        "scriptUs": {
+          "median": 221,
+          "min": 149,
+          "max": 234
+        },
+        "taskUs": {
+          "median": 2738,
+          "min": 1823,
+          "max": 2874
+        }
+      }
+    },
+    "verdicts": [
+      {
+        "against": "drag2",
+        "measure": "layouts",
+        "result": "at or below: 83 against 83"
+      },
+      {
+        "against": "drag2",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 2 of 7, median -29 µs, A/A bound 55 µs",
+        "differences": [-29, -34, 12, -33, -7, -56, 21],
+        "aa": [-3, 21, 2, -1, -7, -4, 55],
+        "higher": 2,
+        "lower": 5,
+        "median": -29,
+        "bound": 55
+      },
+      {
+        "against": "drag2",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 6 of 7, median 84 µs, A/A bound 790 µs",
+        "differences": [84, 38, 655, 51, 409, -196, 656],
+        "aa": [-26, 185, 74, 17, -67, -153, 790],
+        "higher": 6,
+        "lower": 1,
+        "median": 84,
+        "bound": 790
+      },
+      {
+        "against": "prototype",
+        "measure": "layouts",
+        "result": "at or below: 83 against 83"
+      },
+      {
+        "against": "prototype",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 4 of 7, median 11 µs, A/A bound 55 µs",
+        "differences": [17, 60, 54, 0, 11, -3, -6],
+        "aa": [-3, 21, 2, -1, -7, -4, 55],
+        "higher": 4,
+        "lower": 3,
+        "median": 11,
+        "bound": 55
+      },
+      {
+        "against": "prototype",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 5 of 7, median 97 µs, A/A bound 790 µs",
+        "differences": [97, 651, 683, 25, 145, -141, -30],
+        "aa": [-26, 185, 74, 17, -67, -153, 790],
+        "higher": 5,
+        "lower": 2,
+        "median": 97,
+        "bound": 790
+      }
+    ]
+  },
+  {
+    "scenario": "300 moves, one frame each, 2000 items",
+    "rule": "exact-and-floor",
+    "medians": {
+      "drag2": {
+        "layouts": {
+          "median": 83,
+          "min": 83,
+          "max": 83
+        },
+        "layoutUs": {
+          "median": 431,
+          "min": 401,
+          "max": 454
+        },
+        "styleUs": {
+          "median": 398,
+          "min": 387,
+          "max": 408
+        },
+        "scriptUs": {
+          "median": 283,
+          "min": 276,
+          "max": 286
+        },
+        "taskUs": {
+          "median": 3845,
+          "min": 3765,
+          "max": 3900
+        }
+      },
+      "prototype": {
+        "layouts": {
+          "median": 83,
+          "min": 83,
+          "max": 83
+        },
+        "layoutUs": {
+          "median": 432,
+          "min": 300,
+          "max": 461
+        },
+        "styleUs": {
+          "median": 396,
+          "min": 304,
+          "max": 407
+        },
+        "scriptUs": {
+          "median": 234,
+          "min": 187,
+          "max": 252
+        },
+        "taskUs": {
+          "median": 3843,
+          "min": 2934,
+          "max": 3996
+        }
+      },
+      "production": {
+        "layouts": {
+          "median": 83,
+          "min": 83,
+          "max": 83
+        },
+        "layoutUs": {
+          "median": 422,
+          "min": 277,
+          "max": 449
+        },
+        "styleUs": {
+          "median": 392,
+          "min": 305,
+          "max": 411
+        },
+        "scriptUs": {
+          "median": 229,
+          "min": 178,
+          "max": 244
+        },
+        "taskUs": {
+          "median": 3708,
+          "min": 2808,
+          "max": 3952
+        }
+      },
+      "control": {
+        "layouts": {
+          "median": 83,
+          "min": 83,
+          "max": 83
+        },
+        "layoutUs": {
+          "median": 432,
+          "min": 285,
+          "max": 448
+        },
+        "styleUs": {
+          "median": 393,
+          "min": 298,
+          "max": 398
+        },
+        "scriptUs": {
+          "median": 233,
+          "min": 178,
+          "max": 241
+        },
+        "taskUs": {
+          "median": 3756,
+          "min": 2779,
+          "max": 3861
+        }
+      }
+    },
+    "verdicts": [
+      {
+        "against": "drag2",
+        "measure": "layouts",
+        "result": "at or below: 83 against 83"
+      },
+      {
+        "against": "drag2",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 0 of 7, median -49 µs, A/A bound 55 µs",
+        "differences": [-84, -49, -98, -100, -47, -37, -40],
+        "aa": [24, 13, -55, -46, -10, 0, 3],
+        "higher": 0,
+        "lower": 7,
+        "median": -49,
+        "bound": 55
+      },
+      {
+        "against": "drag2",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 3 of 7, median -96 µs, A/A bound 947 µs",
+        "differences": [-687, 0, -985, -938, -96, 88, 57],
+        "aa": [433, 121, -947, -789, -81, 54, 91],
+        "higher": 3,
+        "lower": 4,
+        "median": -96,
+        "bound": 947
+      },
+      {
+        "against": "prototype",
+        "measure": "layouts",
+        "result": "at or below: 83 against 83"
+      },
+      {
+        "against": "prototype",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 2 of 7, median -7 µs, A/A bound 55 µs",
+        "differences": [-37, 2, -54, -4, -7, 18, -8],
+        "aa": [24, 13, -55, -46, -10, 0, 3],
+        "higher": 2,
+        "lower": 5,
+        "median": -7,
+        "bound": 55
+      },
+      {
+        "against": "prototype",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 2 of 7, median -44 µs, A/A bound 947 µs",
+        "differences": [-709, 2, -1049, -6, -94, 151, -44],
+        "aa": [433, 121, -947, -789, -81, 54, 91],
+        "higher": 2,
+        "lower": 5,
+        "median": -44,
+        "bound": 947
+      }
+    ]
+  },
+  {
+    "scenario": "bytes per move by function, 20 items",
+    "rule": "bytes",
+    "medians": {
+      "drag2": {
+        "(root)": {
+          "median": 2947,
+          "min": 2824,
+          "max": 2981
+        },
+        "(anonymous)": {
+          "median": 601,
+          "min": 585,
+          "max": 605
+        },
+        "evaluate": {
+          "median": 520,
+          "min": 514,
+          "max": 533
+        },
+        "parseEvaluationResultValue": {
+          "median": 186,
+          "min": 183,
+          "max": 189
+        },
+        "_promiseAwareJsonValueNoThrow": {
+          "median": 141,
+          "min": 133,
+          "max": 153
+        },
+        "setupDragListeners": {
+          "median": 219,
+          "min": 208,
+          "max": 226
+        },
+        "window.__cleanupDrag": {
+          "median": 233,
+          "min": 227,
+          "max": 240
+        },
+        "dispatch": {
+          "median": 27,
+          "min": 25,
+          "max": 31
+        },
+        "add": {
+          "median": 138,
+          "min": 130,
+          "max": 143
+        },
+        "#drain": {
+          "median": 2,
+          "min": 1,
+          "max": 2
+        },
+        "handle": {
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "#handleBehaviorAction": {
+          "median": 1,
+          "min": 0,
+          "max": 1
+        },
+        "runTransition": {
+          "median": 77,
+          "min": 74,
+          "max": 87
+        },
+        "#callAndHandleFailure": {
+          "median": 1,
+          "min": 0,
+          "max": 1
+        },
+        "prepare": {
+          "median": 1,
+          "min": 0,
+          "max": 1
+        },
+        "prepareAction": {
+          "median": 2,
+          "min": 1,
+          "max": 2
+        },
+        "resolve": {
+          "median": 157,
+          "min": 146,
+          "max": 161
+        },
+        "insertionAt$1": {
+          "median": 5,
+          "min": 4,
+          "max": 7
+        },
+        "refresh": {
+          "median": 2,
+          "min": 1,
+          "max": 3
+        },
+        "remeasureHole": {
+          "median": 5,
+          "min": 4,
+          "max": 6
+        },
+        "edge$1": {
+          "median": 2,
+          "min": 1,
+          "max": 3
+        },
+        "effect": {
+          "median": 3,
+          "min": 3,
+          "max": 4
+        },
+        "effectAction": {
+          "median": 3,
+          "min": 3,
+          "max": 4
+        },
+        "moved": {
+          "median": 15,
+          "min": 14,
+          "max": 17
+        },
+        "#shiftSpan": {
+          "median": 12,
+          "min": 10,
+          "max": 14
+        },
+        "advance": {
+          "median": 12,
+          "min": 9,
+          "max": 14
+        },
+        "report": {
+          "median": 419,
+          "min": 417,
+          "max": 423
+        },
+        "#refuseReentry": {
+          "median": 1,
+          "min": 0,
+          "max": 1
+        },
+        "#onPointer": {
+          "median": 6,
+          "min": 5,
+          "max": 8
+        },
+        "#handleMove": {
+          "median": 2,
+          "min": 2,
+          "max": 3
+        },
+        "compose": {
+          "median": 108,
+          "min": 102,
+          "max": 115
+        },
+        "mouseListener": {
+          "median": 127,
+          "min": 126,
+          "max": 139
+        },
+        "jsonValue": {
+          "median": 28,
+          "min": 24,
+          "max": 30
+        },
+        "serializeAsCallArgument": {
+          "median": 155,
+          "min": 149,
+          "max": 161
+        },
+        "innerSerialize": {
+          "median": 18,
+          "min": 14,
+          "max": 19
+        },
+        "commit": {
+          "median": 1,
+          "min": 0,
+          "max": 1
+        }
+      },
+      "prototype": {
+        "(root)": {
+          "median": 2884,
+          "min": 2752,
+          "max": 2898
+        },
+        "(anonymous)": {
+          "median": 589,
+          "min": 582,
+          "max": 596
+        },
+        "evaluate": {
+          "median": 520,
+          "min": 513,
+          "max": 533
+        },
+        "parseEvaluationResultValue": {
+          "median": 184,
+          "min": 177,
+          "max": 190
+        },
+        "_promiseAwareJsonValueNoThrow": {
+          "median": 145,
+          "min": 128,
+          "max": 147
+        },
+        "setupDragListeners": {
+          "median": 216,
+          "min": 200,
+          "max": 222
+        },
+        "window.__cleanupDrag": {
+          "median": 237,
+          "min": 227,
+          "max": 243
+        },
+        "#onPointer": {
+          "median": 7,
+          "min": 7,
+          "max": 8
+        },
+        "#enter": {
+          "median": 1,
+          "min": 1,
+          "max": 2
+        },
+        "#applyRequests": {
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "#move": {
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "write": {
+          "median": 109,
+          "min": 101,
+          "max": 114
+        },
+        "schedule": {
+          "median": 1,
+          "min": 0,
+          "max": 1
+        },
+        "spatial": {
+          "median": 2,
+          "min": 1,
+          "max": 3
+        },
+        "resolve": {
+          "median": 145,
+          "min": 142,
+          "max": 153
+        },
+        "insertionAt": {
+          "median": 6,
+          "min": 5,
+          "max": 6
+        },
+        "refresh": {
+          "median": 1,
+          "min": 1,
+          "max": 3
+        },
+        "remeasureHole": {
+          "median": 4,
+          "min": 3,
+          "max": 6
+        },
+        "edge": {
+          "median": 2,
+          "min": 2,
+          "max": 3
+        },
+        "moved": {
+          "median": 11,
+          "min": 10,
+          "max": 12
+        },
+        "#shiftSpan": {
+          "median": 12,
+          "min": 10,
+          "max": 15
+        },
+        "advance": {
+          "median": 12,
+          "min": 11,
+          "max": 14
+        },
+        "report": {
+          "median": 413,
+          "min": 409,
+          "max": 423
+        },
+        "mouseListener": {
+          "median": 127,
+          "min": 124,
+          "max": 136
+        },
+        "jsonValue": {
+          "median": 27,
+          "min": 26,
+          "max": 29
+        },
+        "serializeAsCallArgument": {
+          "median": 155,
+          "min": 149,
+          "max": 163
+        },
+        "innerSerialize": {
+          "median": 17,
+          "min": 15,
+          "max": 19
+        }
+      },
+      "production": {
+        "(root)": {
+          "median": 2870,
+          "min": 2781,
+          "max": 2921
+        },
+        "(anonymous)": {
+          "median": 597,
+          "min": 580,
+          "max": 603
+        },
+        "evaluate": {
+          "median": 528,
+          "min": 520,
+          "max": 532
+        },
+        "parseEvaluationResultValue": {
+          "median": 184,
+          "min": 176,
+          "max": 191
+        },
+        "_promiseAwareJsonValueNoThrow": {
+          "median": 141,
+          "min": 135,
+          "max": 148
+        },
+        "setupDragListeners": {
+          "median": 222,
+          "min": 215,
+          "max": 231
+        },
+        "window.__cleanupDrag": {
+          "median": 229,
+          "min": 225,
+          "max": 241
+        },
+        "#onPointer": {
+          "median": 6,
+          "min": 5,
+          "max": 7
+        },
+        "#applyRequests": {
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "#move": {
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "view.translate": {
+          "median": 109,
+          "min": 105,
+          "max": 118
+        },
+        "resolveSpatially": {
+          "median": 2,
+          "min": 1,
+          "max": 3
+        },
+        "resolve": {
+          "median": 150,
+          "min": 144,
+          "max": 155
+        },
+        "insertionAt": {
+          "median": 6,
+          "min": 4,
+          "max": 8
+        },
+        "refresh": {
+          "median": 2,
+          "min": 2,
+          "max": 3
+        },
+        "remeasurePlaceholder": {
+          "median": 5,
+          "min": 4,
+          "max": 6
+        },
+        "edge": {
+          "median": 2,
+          "min": 1,
+          "max": 2
+        },
+        "moved": {
+          "median": 21,
+          "min": 20,
+          "max": 24
+        },
+        "advance": {
+          "median": 13,
+          "min": 9,
+          "max": 15
+        },
+        "report": {
+          "median": 419,
+          "min": 410,
+          "max": 423
+        },
+        "localDelta": {
+          "median": 34,
+          "min": 30,
+          "max": 37
+        },
+        "mouseListener": {
+          "median": 130,
+          "min": 123,
+          "max": 133
+        },
+        "jsonValue": {
+          "median": 28,
+          "min": 25,
+          "max": 30
+        },
+        "serializeAsCallArgument": {
+          "median": 154,
+          "min": 143,
+          "max": 158
+        },
+        "innerSerialize": {
+          "median": 17,
+          "min": 15,
+          "max": 20
+        },
+        "movePlaceholder": {
+          "median": 1,
+          "min": 0,
+          "max": 1
+        }
+      },
+      "control": {
+        "(root)": {
+          "median": 2873,
+          "min": 2762,
+          "max": 2904
+        },
+        "(anonymous)": {
+          "median": 591,
+          "min": 586,
+          "max": 594
+        },
+        "evaluate": {
+          "median": 530,
+          "min": 513,
+          "max": 534
+        },
+        "parseEvaluationResultValue": {
+          "median": 183,
+          "min": 178,
+          "max": 193
+        },
+        "_promiseAwareJsonValueNoThrow": {
+          "median": 140,
+          "min": 136,
+          "max": 148
+        },
+        "setupDragListeners": {
+          "median": 213,
+          "min": 210,
+          "max": 223
+        },
+        "window.__cleanupDrag": {
+          "median": 237,
+          "min": 225,
+          "max": 243
+        },
+        "#onPointer": {
+          "median": 7,
+          "min": 6,
+          "max": 7
+        },
+        "#enter": {
+          "median": 1,
+          "min": 0,
+          "max": 1
+        },
+        "#move": {
+          "median": 1,
+          "min": 1,
+          "max": 2
+        },
+        "view.translate": {
+          "median": 110,
+          "min": 104,
+          "max": 116
+        },
+        "#applyRequests": {
+          "median": 1,
+          "min": 0,
+          "max": 1
+        },
+        "resolveSpatially": {
+          "median": 2,
+          "min": 2,
+          "max": 3
+        },
+        "resolve": {
+          "median": 144,
+          "min": 138,
+          "max": 154
+        },
+        "insertionAt": {
+          "median": 4,
+          "min": 3,
+          "max": 6
+        },
+        "refresh": {
+          "median": 2,
+          "min": 1,
+          "max": 3
+        },
+        "remeasurePlaceholder": {
+          "median": 4,
+          "min": 4,
+          "max": 5
+        },
+        "edge": {
+          "median": 2,
+          "min": 2,
+          "max": 3
+        },
+        "moved": {
+          "median": 21,
+          "min": 19,
+          "max": 25
+        },
+        "advance": {
+          "median": 12,
+          "min": 9,
+          "max": 14
+        },
+        "report": {
+          "median": 419,
+          "min": 412,
+          "max": 425
+        },
+        "localDelta": {
+          "median": 34,
+          "min": 32,
+          "max": 35
+        },
+        "movePlaceholder": {
+          "median": 1,
+          "min": 0,
+          "max": 1
+        },
+        "mouseListener": {
+          "median": 130,
+          "min": 127,
+          "max": 135
+        },
+        "jsonValue": {
+          "median": 30,
+          "min": 29,
+          "max": 31
+        },
+        "serializeAsCallArgument": {
+          "median": 151,
+          "min": 145,
+          "max": 155
+        },
+        "innerSerialize": {
+          "median": 17,
+          "min": 14,
+          "max": 18
+        }
+      }
+    },
+    "verdicts": []
+  },
+  {
+    "scenario": "press and release below the threshold, 20 items, [...root.children]",
+    "rule": "report",
+    "medians": {
+      "drag2": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 87,
+          "min": 49,
+          "max": 103
+        },
+        "taskUs": {
+          "median": 219,
+          "min": 128,
+          "max": 272
+        }
+      },
+      "prototype": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 69,
+          "min": 41,
+          "max": 99
+        },
+        "taskUs": {
+          "median": 247,
+          "min": 162,
+          "max": 308
+        }
+      },
+      "production": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 57,
+          "min": 31,
+          "max": 92
+        },
+        "taskUs": {
+          "median": 214,
+          "min": 104,
+          "max": 326
+        }
+      },
+      "control": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 55,
+          "min": 35,
+          "max": 78
+        },
+        "taskUs": {
+          "median": 209,
+          "min": 133,
+          "max": 274
+        }
+      }
+    },
+    "verdicts": [
+      {
+        "against": "drag2",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 2 of 7, median -25 µs, A/A bound 53 µs",
+        "differences": [-48, -29, -57, 12, -24, -25, 8],
+        "aa": [-21, -4, -11, 53, 14, -10, 22],
+        "higher": 2,
+        "lower": 5,
+        "median": -25,
+        "bound": 53
+      },
+      {
+        "against": "drag2",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 2 of 7, median -33 µs, A/A bound 193 µs",
+        "differences": [-86, -26, -115, 116, -33, -37, 86],
+        "aa": [-88, -10, -35, 193, 5, -66, 65],
+        "higher": 2,
+        "lower": 5,
+        "median": -33,
+        "bound": 193
+      },
+      {
+        "against": "prototype",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 3 of 7, median -12 µs, A/A bound 53 µs",
+        "differences": [-12, 10, -48, 23, -30, 5, -38],
+        "aa": [-21, -4, -11, 53, 14, -10, 22],
+        "higher": 3,
+        "lower": 4,
+        "median": -12,
+        "bound": 53
+      },
+      {
+        "against": "prototype",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 2 of 7, median -60 µs, A/A bound 193 µs",
+        "differences": [-60, 39, -143, 73, -91, -12, -94],
+        "aa": [-88, -10, -35, 193, 5, -66, 65],
+        "higher": 2,
+        "lower": 5,
+        "median": -60,
+        "bound": 193
+      }
+    ]
+  },
+  {
+    "scenario": "press and release below the threshold, 20 items, cached array",
+    "rule": "report",
+    "medians": {
+      "drag2": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 67,
+          "min": 44,
+          "max": 153
+        },
+        "taskUs": {
+          "median": 171,
+          "min": 117,
+          "max": 403
+        }
+      },
+      "prototype": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 56,
+          "min": 26,
+          "max": 79
+        },
+        "taskUs": {
+          "median": 222,
+          "min": 97,
+          "max": 267
+        }
+      },
+      "production": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 55,
+          "min": 42,
+          "max": 73
+        },
+        "taskUs": {
+          "median": 224,
+          "min": 165,
+          "max": 278
+        }
+      },
+      "control": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 61,
+          "min": 38,
+          "max": 65
+        },
+        "taskUs": {
+          "median": 228,
+          "min": 137,
+          "max": 255
+        }
+      }
+    },
+    "verdicts": [
+      {
+        "against": "drag2",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 3 of 7, median -12 µs, A/A bound 24 µs",
+        "differences": [15, -110, 8, -12, -14, 3, -21],
+        "aa": [24, -22, -11, -10, 13, -5, -12],
+        "higher": 3,
+        "lower": 4,
+        "median": -12,
+        "bound": 24
+      },
+      {
+        "against": "drag2",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 5 of 7, median 59 µs, A/A bound 122 µs",
+        "differences": [132, -218, 70, 59, 57, 74, -8],
+        "aa": [122, -43, -68, 1, 36, 5, -43],
+        "higher": 5,
+        "lower": 2,
+        "median": 59,
+        "bound": 122
+      },
+      {
+        "against": "prototype",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 4 of 7, median 1 µs, A/A bound 24 µs",
+        "differences": [23, -36, -4, 1, 9, 30, -9],
+        "aa": [24, -22, -11, -10, 13, -5, -12],
+        "higher": 4,
+        "lower": 3,
+        "median": 1,
+        "bound": 24
+      },
+      {
+        "against": "prototype",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 4 of 7, median 37 µs, A/A bound 122 µs",
+        "differences": [126, -82, -35, 37, 55, 127, -64],
+        "aa": [122, -43, -68, 1, 36, 5, -43],
+        "higher": 4,
+        "lower": 3,
+        "median": 37,
+        "bound": 122
+      }
+    ]
+  },
+  {
+    "scenario": "press and release below the threshold, 2000 items, [...root.children]",
+    "rule": "report",
+    "medians": {
+      "drag2": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 80,
+          "min": 70,
+          "max": 108
+        },
+        "taskUs": {
+          "median": 236,
+          "min": 208,
+          "max": 323
+        }
+      },
+      "prototype": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 373,
+          "min": 339,
+          "max": 512
+        },
+        "taskUs": {
+          "median": 568,
+          "min": 504,
+          "max": 775
+        }
+      },
+      "production": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 337,
+          "min": 288,
+          "max": 483
+        },
+        "taskUs": {
+          "median": 534,
+          "min": 412,
+          "max": 749
+        }
+      },
+      "control": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 330,
+          "min": 262,
+          "max": 485
+        },
+        "taskUs": {
+          "median": 501,
+          "min": 380,
+          "max": 722
+        }
+      }
+    },
+    "verdicts": [
+      {
+        "against": "drag2",
+        "measure": "scriptUs",
+        "result": "FLAG slower: higher in 7 of 7, median 255 µs, A/A bound 131 µs",
+        "differences": [217, 387, 235, 317, 339, 218, 255],
+        "aa": [-17, -2, -131, 104, 27, -37, 74],
+        "higher": 7,
+        "lower": 0,
+        "median": 255,
+        "bound": 131
+      },
+      {
+        "against": "drag2",
+        "measure": "taskUs",
+        "result": "FLAG slower: higher in 7 of 7, median 284 µs, A/A bound 212 µs",
+        "differences": [252, 459, 202, 342, 368, 182, 284],
+        "aa": [19, 27, -212, 150, 50, -89, 154],
+        "higher": 7,
+        "lower": 0,
+        "median": 284,
+        "bound": 212
+      },
+      {
+        "against": "prototype",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 2 of 7, median -65 µs, A/A bound 131 µs",
+        "differences": [-190, 144, -68, 48, -65, -60, -105],
+        "aa": [-17, -2, -131, 104, 27, -37, 74],
+        "higher": 2,
+        "lower": 5,
+        "median": -65,
+        "bound": 131
+      },
+      {
+        "against": "prototype",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 2 of 7, median -119 µs, A/A bound 212 µs",
+        "differences": [-274, 245, -151, 38, -84, -119, -119],
+        "aa": [19, 27, -212, 150, 50, -89, 154],
+        "higher": 2,
+        "lower": 5,
+        "median": -119,
+        "bound": 212
+      }
+    ]
+  },
+  {
+    "scenario": "press and release below the threshold, 2000 items, cached array",
+    "rule": "report",
+    "medians": {
+      "drag2": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 66,
+          "min": 51,
+          "max": 121
+        },
+        "taskUs": {
+          "median": 214,
+          "min": 166,
+          "max": 361
+        }
+      },
+      "prototype": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 67,
+          "min": 36,
+          "max": 88
+        },
+        "taskUs": {
+          "median": 291,
+          "min": 181,
+          "max": 350
+        }
+      },
+      "production": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 53,
+          "min": 34,
+          "max": 75
+        },
+        "taskUs": {
+          "median": 207,
+          "min": 181,
+          "max": 330
+        }
+      },
+      "control": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "scriptUs": {
+          "median": 56,
+          "min": 36,
+          "max": 69
+        },
+        "taskUs": {
+          "median": 256,
+          "min": 193,
+          "max": 292
+        }
+      }
+    },
+    "verdicts": [
+      {
+        "against": "drag2",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 2 of 7, median -15 µs, A/A bound 38 µs",
+        "differences": [-38, -78, 8, -28, -15, -1, 2],
+        "aa": [4, -23, 38, -28, 6, -3, 14],
+        "higher": 2,
+        "lower": 5,
+        "median": -15,
+        "bound": 38
+      },
+      {
+        "against": "drag2",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 4 of 7, median 17 µs, A/A bound 129 µs",
+        "differences": [-30, -154, 109, -10, 58, 81, 17],
+        "aa": [12, -68, 129, -85, 38, -9, -18],
+        "higher": 4,
+        "lower": 3,
+        "median": 17,
+        "bound": 129
+      },
+      {
+        "against": "prototype",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 3 of 7, median -3 µs, A/A bound 38 µs",
+        "differences": [-3, -45, 38, -36, 8, -15, 9],
+        "aa": [4, -23, 38, -28, 6, -3, 14],
+        "higher": 3,
+        "lower": 4,
+        "median": -3,
+        "bound": 38
+      },
+      {
+        "against": "prototype",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 2 of 7, median -22 µs, A/A bound 129 µs",
+        "differences": [-13, -143, 142, -112, 39, -51, -22],
+        "aa": [12, -68, 129, -85, 38, -9, -18],
+        "higher": 2,
+        "lower": 5,
+        "median": -22,
+        "bound": 129
+      }
+    ]
+  },
+  {
+    "scenario": "50 activate-and-drop cycles, 20 items, no landing",
+    "rule": "exact-and-floor",
+    "medians": {
+      "drag2": {
+        "layouts": {
+          "median": 300,
+          "min": 300,
+          "max": 300
+        },
+        "layoutUs": {
+          "median": 583,
+          "min": 386,
+          "max": 617
+        },
+        "styleUs": {
+          "median": 1129,
+          "min": 749,
+          "max": 1178
+        },
+        "scriptUs": {
+          "median": 2665,
+          "min": 1649,
+          "max": 2721
+        },
+        "taskUs": {
+          "median": 12673,
+          "min": 7953,
+          "max": 12896
+        }
+      },
+      "prototype": {
+        "layouts": {
+          "median": 250,
+          "min": 250,
+          "max": 250
+        },
+        "layoutUs": {
+          "median": 640,
+          "min": 481,
+          "max": 685
+        },
+        "styleUs": {
+          "median": 1335,
+          "min": 1019,
+          "max": 1440
+        },
+        "scriptUs": {
+          "median": 2324,
+          "min": 1672,
+          "max": 2341
+        },
+        "taskUs": {
+          "median": 13298,
+          "min": 9676,
+          "max": 14133
+        }
+      },
+      "production": {
+        "layouts": {
+          "median": 250,
+          "min": 250,
+          "max": 250
+        },
+        "layoutUs": {
+          "median": 677,
+          "min": 664,
+          "max": 713
+        },
+        "styleUs": {
+          "median": 1433,
+          "min": 1341,
+          "max": 1505
+        },
+        "scriptUs": {
+          "median": 2494,
+          "min": 2363,
+          "max": 2675
+        },
+        "taskUs": {
+          "median": 14477,
+          "min": 13462,
+          "max": 14818
+        }
+      },
+      "control": {
+        "layouts": {
+          "median": 250,
+          "min": 250,
+          "max": 250
+        },
+        "layoutUs": {
+          "median": 689,
+          "min": 609,
+          "max": 721
+        },
+        "styleUs": {
+          "median": 1409,
+          "min": 1285,
+          "max": 1515
+        },
+        "scriptUs": {
+          "median": 2456,
+          "min": 2251,
+          "max": 2749
+        },
+        "taskUs": {
+          "median": 14091,
+          "min": 12506,
+          "max": 14893
+        }
+      }
+    },
+    "verdicts": [
+      {
+        "against": "drag2",
+        "measure": "layouts",
+        "result": "at or below: 250 against 300"
+      },
+      {
+        "against": "drag2",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 3 of 7, median -217 µs, A/A bound 347 µs",
+        "differences": [-238, -222, -227, -217, 463, 10, 941],
+        "aa": [-1, -107, 69, -129, -163, 347, 339],
+        "higher": 3,
+        "lower": 4,
+        "median": -217,
+        "bound": 347
+      },
+      {
+        "against": "drag2",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 7 of 7, median 1804 µs, A/A bound 2312 µs",
+        "differences": [1804, 1017, 1130, 1201, 4313, 1985, 6865],
+        "aa": [386, -487, -258, -597, -230, 1072, 2312],
+        "higher": 7,
+        "lower": 0,
+        "median": 1804,
+        "bound": 2312
+      },
+      {
+        "against": "prototype",
+        "measure": "layouts",
+        "result": "at or below: 250 against 250"
+      },
+      {
+        "against": "prototype",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 7 of 7, median 334 µs, A/A bound 347 µs",
+        "differences": [131, 687, 371, 155, 258, 334, 918],
+        "aa": [-1, -107, 69, -129, -163, 347, 339],
+        "higher": 7,
+        "lower": 0,
+        "median": 334,
+        "bound": 347
+      },
+      {
+        "against": "prototype",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 7 of 7, median 1364 µs, A/A bound 2312 µs",
+        "differences": [344, 3746, 1886, 136, 1364, 586, 5142],
+        "aa": [386, -487, -258, -597, -230, 1072, 2312],
+        "higher": 7,
+        "lower": 0,
+        "median": 1364,
+        "bound": 2312
+      }
+    ]
+  },
+  {
+    "scenario": "50 activate-and-drop cycles, 20 items, with landing",
+    "rule": "exact-and-floor",
+    "medians": {
+      "drag2": {
+        "layouts": {
+          "median": 350,
+          "min": 350,
+          "max": 350
+        },
+        "layoutUs": {
+          "median": 806,
+          "min": 669,
+          "max": 847
+        },
+        "styleUs": {
+          "median": 1686,
+          "min": 1438,
+          "max": 1808
+        },
+        "scriptUs": {
+          "median": 3015,
+          "min": 2537,
+          "max": 3226
+        },
+        "taskUs": {
+          "median": 15810,
+          "min": 13312,
+          "max": 16638
+        }
+      },
+      "prototype": {
+        "layouts": {
+          "median": 350,
+          "min": 350,
+          "max": 350
+        },
+        "layoutUs": {
+          "median": 908,
+          "min": 846,
+          "max": 938
+        },
+        "styleUs": {
+          "median": 1850,
+          "min": 1730,
+          "max": 1953
+        },
+        "scriptUs": {
+          "median": 2615,
+          "min": 2440,
+          "max": 2847
+        },
+        "taskUs": {
+          "median": 16328,
+          "min": 15569,
+          "max": 16996
+        }
+      },
+      "production": {
+        "layouts": {
+          "median": 400,
+          "min": 400,
+          "max": 400
+        },
+        "layoutUs": {
+          "median": 931,
+          "min": 726,
+          "max": 989
+        },
+        "styleUs": {
+          "median": 1919,
+          "min": 1537,
+          "max": 2041
+        },
+        "scriptUs": {
+          "median": 2687,
+          "min": 2211,
+          "max": 2895
+        },
+        "taskUs": {
+          "median": 16120,
+          "min": 12739,
+          "max": 16896
+        }
+      },
+      "control": {
+        "layouts": {
+          "median": 400,
+          "min": 400,
+          "max": 400
+        },
+        "layoutUs": {
+          "median": 945,
+          "min": 701,
+          "max": 982
+        },
+        "styleUs": {
+          "median": 1963,
+          "min": 1524,
+          "max": 2058
+        },
+        "scriptUs": {
+          "median": 2746,
+          "min": 2114,
+          "max": 2998
+        },
+        "taskUs": {
+          "median": 16466,
+          "min": 12061,
+          "max": 17102
+        }
+      }
+    },
+    "verdicts": [
+      {
+        "against": "drag2",
+        "measure": "layouts",
+        "result": "FLAG more: 400 against 350"
+      },
+      {
+        "against": "drag2",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 0 of 7, median -277 µs, A/A bound 421 µs",
+        "differences": [-438, -277, -325, -331, -252, -212, -129],
+        "aa": [-421, -47, 98, 160, 201, -89, -59],
+        "higher": 0,
+        "lower": 7,
+        "median": -277,
+        "bound": 421
+      },
+      {
+        "against": "drag2",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 5 of 7, median 479 µs, A/A bound 1614 µs",
+        "differences": [-545, 640, -573, 157, 479, 752, 924],
+        "aa": [-1614, -53, 678, 476, 492, -346, -451],
+        "higher": 5,
+        "lower": 2,
+        "median": 479,
+        "bound": 1614
+      },
+      {
+        "against": "prototype",
+        "measure": "layouts",
+        "result": "FLAG more: 400 against 350"
+      },
+      {
+        "against": "prototype",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 4 of 7, median 112 µs, A/A bound 421 µs",
+        "differences": [-48, 152, -328, 454, 137, -178, 112],
+        "aa": [-421, -47, 98, 160, 201, -89, -59],
+        "higher": 4,
+        "lower": 3,
+        "median": 112,
+        "bound": 421
+      },
+      {
+        "against": "prototype",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 3 of 7, median -147 µs, A/A bound 1614 µs",
+        "differences": [-894, 122, -2830, 1048, 246, -875, -147],
+        "aa": [-1614, -53, 678, 476, 492, -346, -451],
+        "higher": 3,
+        "lower": 4,
+        "median": -147,
+        "bound": 1614
+      }
+    ]
+  },
+  {
+    "scenario": "50 activate-and-drop cycles, 2000 items, no landing",
+    "rule": "exact-and-floor",
+    "medians": {
+      "drag2": {
+        "layouts": {
+          "median": 300,
+          "min": 300,
+          "max": 300
+        },
+        "layoutUs": {
+          "median": 3809,
+          "min": 3326,
+          "max": 4106
+        },
+        "styleUs": {
+          "median": 1198,
+          "min": 1093,
+          "max": 1309
+        },
+        "scriptUs": {
+          "median": 6982,
+          "min": 6032,
+          "max": 8041
+        },
+        "taskUs": {
+          "median": 27993,
+          "min": 23556,
+          "max": 30060
+        }
+      },
+      "prototype": {
+        "layouts": {
+          "median": 250,
+          "min": 250,
+          "max": 250
+        },
+        "layoutUs": {
+          "median": 4648,
+          "min": 3612,
+          "max": 5386
+        },
+        "styleUs": {
+          "median": 1833,
+          "min": 1577,
+          "max": 2114
+        },
+        "scriptUs": {
+          "median": 6800,
+          "min": 5853,
+          "max": 7753
+        },
+        "taskUs": {
+          "median": 32204,
+          "min": 25904,
+          "max": 35891
+        }
+      },
+      "production": {
+        "layouts": {
+          "median": 250,
+          "min": 250,
+          "max": 250
+        },
+        "layoutUs": {
+          "median": 4646,
+          "min": 3711,
+          "max": 4832
+        },
+        "styleUs": {
+          "median": 1867,
+          "min": 1620,
+          "max": 1935
+        },
+        "scriptUs": {
+          "median": 6971,
+          "min": 5899,
+          "max": 7107
+        },
+        "taskUs": {
+          "median": 32529,
+          "min": 26503,
+          "max": 33539
+        }
+      },
+      "control": {
+        "layouts": {
+          "median": 250,
+          "min": 250,
+          "max": 250
+        },
+        "layoutUs": {
+          "median": 4703,
+          "min": 3692,
+          "max": 4908
+        },
+        "styleUs": {
+          "median": 1858,
+          "min": 1579,
+          "max": 1923
+        },
+        "scriptUs": {
+          "median": 6864,
+          "min": 5852,
+          "max": 7056
+        },
+        "taskUs": {
+          "median": 32456,
+          "min": 26394,
+          "max": 33271
+        }
+      }
+    },
+    "verdicts": [
+      {
+        "against": "drag2",
+        "measure": "layouts",
+        "result": "at or below: 250 against 300"
+      },
+      {
+        "against": "drag2",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 2 of 7, median -529 µs, A/A bound 805 µs",
+        "differences": [-735, -721, -529, 626, -934, 92, -11],
+        "aa": [-750, 528, 83, 805, 191, -22, -85],
+        "higher": 2,
+        "lower": 5,
+        "median": -529,
+        "bound": 805
+      },
+      {
+        "against": "drag2",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 7 of 7, median 3984 µs, A/A bound 5413 µs",
+        "differences": [1866, 2631, 3984, 7061, 3189, 4392, 5632],
+        "aa": [-5413, 1626, 1083, 4222, 11, -886, -269],
+        "higher": 7,
+        "lower": 0,
+        "median": 3984,
+        "bound": 5413
+      },
+      {
+        "against": "prototype",
+        "measure": "layouts",
+        "result": "at or below: 250 against 250"
+      },
+      {
+        "against": "prototype",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 4 of 7, median 36 µs, A/A bound 805 µs",
+        "differences": [36, 203, -682, 805, 518, -423, -426],
+        "aa": [-750, 528, 83, 805, 191, -22, -85],
+        "higher": 4,
+        "lower": 3,
+        "median": 36,
+        "bound": 805
+      },
+      {
+        "against": "prototype",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 4 of 7, median 599 µs, A/A bound 5413 µs",
+        "differences": [599, 699, -2352, 4666, 1045, -1495, -1100],
+        "aa": [-5413, 1626, 1083, 4222, 11, -886, -269],
+        "higher": 4,
+        "lower": 3,
+        "median": 599,
+        "bound": 5413
+      }
+    ]
+  },
+  {
+    "scenario": "50 activate-and-drop cycles, 2000 items, with landing",
+    "rule": "exact-and-floor",
+    "medians": {
+      "drag2": {
+        "layouts": {
+          "median": 350,
+          "min": 350,
+          "max": 350
+        },
+        "layoutUs": {
+          "median": 5506,
+          "min": 3886,
+          "max": 5809
+        },
+        "styleUs": {
+          "median": 2424,
+          "min": 1841,
+          "max": 2572
+        },
+        "scriptUs": {
+          "median": 7331,
+          "min": 5687,
+          "max": 7957
+        },
+        "taskUs": {
+          "median": 34728,
+          "min": 25074,
+          "max": 36431
+        }
+      },
+      "prototype": {
+        "layouts": {
+          "median": 350,
+          "min": 350,
+          "max": 350
+        },
+        "layoutUs": {
+          "median": 6140,
+          "min": 3955,
+          "max": 6518
+        },
+        "styleUs": {
+          "median": 2544,
+          "min": 1915,
+          "max": 2682
+        },
+        "scriptUs": {
+          "median": 7039,
+          "min": 5278,
+          "max": 7477
+        },
+        "taskUs": {
+          "median": 37800,
+          "min": 26389,
+          "max": 39969
+        }
+      },
+      "production": {
+        "layouts": {
+          "median": 400,
+          "min": 400,
+          "max": 400
+        },
+        "layoutUs": {
+          "median": 6665,
+          "min": 4544,
+          "max": 7143
+        },
+        "styleUs": {
+          "median": 2620,
+          "min": 1988,
+          "max": 2721
+        },
+        "scriptUs": {
+          "median": 6812,
+          "min": 5345,
+          "max": 7796
+        },
+        "taskUs": {
+          "median": 36532,
+          "min": 26186,
+          "max": 39020
+        }
+      },
+      "control": {
+        "layouts": {
+          "median": 400,
+          "min": 400,
+          "max": 400
+        },
+        "layoutUs": {
+          "median": 6670,
+          "min": 4810,
+          "max": 7457
+        },
+        "styleUs": {
+          "median": 2623,
+          "min": 2046,
+          "max": 2734
+        },
+        "scriptUs": {
+          "median": 7264,
+          "min": 5262,
+          "max": 7740
+        },
+        "taskUs": {
+          "median": 36860,
+          "min": 27061,
+          "max": 40123
+        }
+      }
+    },
+    "verdicts": [
+      {
+        "against": "drag2",
+        "measure": "layouts",
+        "result": "FLAG more: 400 against 350"
+      },
+      {
+        "against": "drag2",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 2 of 7, median -331 µs, A/A bound 2101 µs",
+        "differences": [399, 662, -32, -331, -791, -1711, -1145],
+        "aa": [532, -13, 297, -467, 865, -2101, -573],
+        "higher": 2,
+        "lower": 5,
+        "median": -331,
+        "bound": 2101
+      },
+      {
+        "against": "drag2",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 5 of 7, median 1817 µs, A/A bound 11899 µs",
+        "differences": [4292, 7198, 2023, 1817, -2587, -7771, 102],
+        "aa": [2722, 164, -797, -2104, 4100, -11899, -327],
+        "higher": 5,
+        "lower": 2,
+        "median": 1817,
+        "bound": 11899
+      },
+      {
+        "against": "prototype",
+        "measure": "layouts",
+        "result": "FLAG more: 400 against 350"
+      },
+      {
+        "against": "prototype",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 4 of 7, median 67 µs, A/A bound 2101 µs",
+        "differences": [629, -1128, 260, 321, -798, 67, -647],
+        "aa": [532, -13, 297, -467, 865, -2101, -573],
+        "higher": 4,
+        "lower": 3,
+        "median": 67,
+        "bound": 2101
+      },
+      {
+        "against": "prototype",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 2 of 7, median -1468 µs, A/A bound 11899 µs",
+        "differences": [1729, -5867, -1468, 219, -3325, -203, -3437],
+        "aa": [2722, 164, -797, -2104, 4100, -11899, -327],
+        "higher": 2,
+        "lower": 5,
+        "median": -1468,
+        "bound": 11899
+      }
+    ]
+  },
+  {
+    "scenario": "50 keyboard reorders, 20 items, with focus restoration",
+    "rule": "exact-and-floor",
+    "medians": {
+      "drag2": {
+        "layouts": {
+          "median": 100,
+          "min": 100,
+          "max": 100
+        },
+        "layoutUs": {
+          "median": 62,
+          "min": 45,
+          "max": 90
+        },
+        "styleUs": {
+          "median": 144,
+          "min": 96,
+          "max": 223
+        },
+        "scriptUs": {
+          "median": 473,
+          "min": 367,
+          "max": 622
+        },
+        "taskUs": {
+          "median": 817,
+          "min": 600,
+          "max": 1132
+        }
+      },
+      "prototype": {
+        "layouts": {
+          "median": 50,
+          "min": 50,
+          "max": 50
+        },
+        "layoutUs": {
+          "median": 37,
+          "min": 32,
+          "max": 53
+        },
+        "styleUs": {
+          "median": 97,
+          "min": 79,
+          "max": 162
+        },
+        "scriptUs": {
+          "median": 314,
+          "min": 288,
+          "max": 469
+        },
+        "taskUs": {
+          "median": 566,
+          "min": 481,
+          "max": 826
+        }
+      },
+      "production": {
+        "layouts": {
+          "median": 50,
+          "min": 50,
+          "max": 50
+        },
+        "layoutUs": {
+          "median": 48,
+          "min": 34,
+          "max": 57
+        },
+        "styleUs": {
+          "median": 143,
+          "min": 89,
+          "max": 183
+        },
+        "scriptUs": {
+          "median": 453,
+          "min": 316,
+          "max": 536
+        },
+        "taskUs": {
+          "median": 812,
+          "min": 549,
+          "max": 1021
+        }
+      },
+      "control": {
+        "layouts": {
+          "median": 50,
+          "min": 50,
+          "max": 50
+        },
+        "layoutUs": {
+          "median": 51,
+          "min": 39,
+          "max": 59
+        },
+        "styleUs": {
+          "median": 152,
+          "min": 106,
+          "max": 191
+        },
+        "scriptUs": {
+          "median": 446,
+          "min": 356,
+          "max": 558
+        },
+        "taskUs": {
+          "median": 873,
+          "min": 632,
+          "max": 1063
+        }
+      }
+    },
+    "verdicts": [
+      {
+        "against": "drag2",
+        "measure": "layouts",
+        "result": "at or below: 50 against 100"
+      },
+      {
+        "against": "drag2",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 3 of 7, median -20 µs, A/A bound 129 µs",
+        "differences": [-20, -175, 11, 14, -86, -86, 54],
+        "aa": [61, -129, -30, 26, -22, -9, -25],
+        "higher": 3,
+        "lower": 4,
+        "median": -20,
+        "bound": 129
+      },
+      {
+        "against": "drag2",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 4 of 7, median 42 µs, A/A bound 324 µs",
+        "differences": [42, -327, 43, 79, -111, -85, 147],
+        "aa": [108, -324, -68, 47, -42, -22, -48],
+        "higher": 4,
+        "lower": 3,
+        "median": 42,
+        "bound": 324
+      },
+      {
+        "against": "prototype",
+        "measure": "layouts",
+        "result": "at or below: 50 against 50"
+      },
+      {
+        "against": "prototype",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 4 of 7, median 97 µs, A/A bound 129 µs",
+        "differences": [139, -125, -5, -69, 248, 97, 167],
+        "aa": [61, -129, -30, 26, -22, -9, -25],
+        "higher": 4,
+        "lower": 3,
+        "median": 97,
+        "bound": 129
+      },
+      {
+        "against": "prototype",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 5 of 7, median 167 µs, A/A bound 324 µs",
+        "differences": [302, -277, 57, -140, 540, 167, 287],
+        "aa": [108, -324, -68, 47, -42, -22, -48],
+        "higher": 5,
+        "lower": 2,
+        "median": 167,
+        "bound": 324
+      }
+    ]
+  },
+  {
+    "scenario": "50 keyboard reorders, 2000 items, with focus restoration",
+    "rule": "exact-and-floor",
+    "medians": {
+      "drag2": {
+        "layouts": {
+          "median": 100,
+          "min": 100,
+          "max": 100
+        },
+        "layoutUs": {
+          "median": 785,
+          "min": 717,
+          "max": 824
+        },
+        "styleUs": {
+          "median": 200,
+          "min": 171,
+          "max": 214
+        },
+        "scriptUs": {
+          "median": 523,
+          "min": 449,
+          "max": 565
+        },
+        "taskUs": {
+          "median": 1797,
+          "min": 1568,
+          "max": 1871
+        }
+      },
+      "prototype": {
+        "layouts": {
+          "median": 50,
+          "min": 50,
+          "max": 50
+        },
+        "layoutUs": {
+          "median": 429,
+          "min": 393,
+          "max": 508
+        },
+        "styleUs": {
+          "median": 182,
+          "min": 165,
+          "max": 245
+        },
+        "scriptUs": {
+          "median": 471,
+          "min": 396,
+          "max": 565
+        },
+        "taskUs": {
+          "median": 1339,
+          "min": 1242,
+          "max": 1727
+        }
+      },
+      "production": {
+        "layouts": {
+          "median": 50,
+          "min": 50,
+          "max": 50
+        },
+        "layoutUs": {
+          "median": 452,
+          "min": 383,
+          "max": 527
+        },
+        "styleUs": {
+          "median": 199,
+          "min": 156,
+          "max": 282
+        },
+        "scriptUs": {
+          "median": 489,
+          "min": 434,
+          "max": 598
+        },
+        "taskUs": {
+          "median": 1412,
+          "min": 1256,
+          "max": 1818
+        }
+      },
+      "control": {
+        "layouts": {
+          "median": 50,
+          "min": 50,
+          "max": 50
+        },
+        "layoutUs": {
+          "median": 445,
+          "min": 355,
+          "max": 508
+        },
+        "styleUs": {
+          "median": 176,
+          "min": 138,
+          "max": 233
+        },
+        "scriptUs": {
+          "median": 528,
+          "min": 360,
+          "max": 593
+        },
+        "taskUs": {
+          "median": 1458,
+          "min": 1132,
+          "max": 1710
+        }
+      }
+    },
+    "verdicts": [
+      {
+        "against": "drag2",
+        "measure": "layouts",
+        "result": "at or below: 50 against 100"
+      },
+      {
+        "against": "drag2",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 4 of 7, median 3 µs, A/A bound 182 µs",
+        "differences": [-111, 98, 9, 46, -46, 3, -103],
+        "aa": [-27, 8, -135, 182, -39, -32, -11],
+        "higher": 4,
+        "lower": 3,
+        "median": 3,
+        "bound": 182
+      },
+      {
+        "against": "drag2",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 1 of 7, median -309 µs, A/A bound 357 µs",
+        "differences": [-555, 22, -172, -245, -388, -309, -537],
+        "aa": [-71, 317, -314, 357, -118, 4, 109],
+        "higher": 1,
+        "lower": 6,
+        "median": -309,
+        "bound": 357
+      },
+      {
+        "against": "prototype",
+        "measure": "layouts",
+        "result": "at or below: 50 against 50"
+      },
+      {
+        "against": "prototype",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 4 of 7, median 64 µs, A/A bound 182 µs",
+        "differences": [-131, 202, -104, 71, 64, 112, -11],
+        "aa": [-27, 8, -135, 182, -39, -32, -11],
+        "higher": 4,
+        "lower": 3,
+        "median": 64,
+        "bound": 182
+      },
+      {
+        "against": "prototype",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 5 of 7, median 69 µs, A/A bound 357 µs",
+        "differences": [-286, 496, -332, 247, 69, 123, 25],
+        "aa": [-71, 317, -314, 357, -118, 4, 109],
+        "higher": 5,
+        "lower": 2,
+        "median": 69,
+        "bound": 357
+      }
+    ]
+  },
+  {
+    "scenario": "free drag, 300 moves, one frame each",
+    "rule": "exact-and-floor",
+    "medians": {
+      "drag2": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 204,
+          "min": 156,
+          "max": 220
+        },
+        "scriptUs": {
+          "median": 170,
+          "min": 131,
+          "max": 183
+        },
+        "taskUs": {
+          "median": 2275,
+          "min": 1786,
+          "max": 2490
+        }
+      },
+      "prototype": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 208,
+          "min": 153,
+          "max": 220
+        },
+        "scriptUs": {
+          "median": 145,
+          "min": 108,
+          "max": 150
+        },
+        "taskUs": {
+          "median": 2316,
+          "min": 1702,
+          "max": 2430
+        }
+      },
+      "production": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 216,
+          "min": 146,
+          "max": 224
+        },
+        "scriptUs": {
+          "median": 148,
+          "min": 99,
+          "max": 153
+        },
+        "taskUs": {
+          "median": 2350,
+          "min": 1547,
+          "max": 2426
+        }
+      },
+      "control": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 206,
+          "min": 144,
+          "max": 217
+        },
+        "scriptUs": {
+          "median": 140,
+          "min": 97,
+          "max": 146
+        },
+        "taskUs": {
+          "median": 2260,
+          "min": 1545,
+          "max": 2372
+        }
+      }
+    },
+    "verdicts": [
+      {
+        "against": "drag2",
+        "measure": "layouts",
+        "result": "at or below: 0 against 0"
+      },
+      {
+        "against": "drag2",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 1 of 7, median -30 µs, A/A bound 31 µs",
+        "differences": [-38, -36, 19, -15, -23, -30, -67],
+        "aa": [2, 10, 31, 6, 6, 1, 3],
+        "higher": 1,
+        "lower": 6,
+        "median": -30,
+        "bound": 31
+      },
+      {
+        "against": "drag2",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 3 of 7, median -3 µs, A/A bound 531 µs",
+        "differences": [-109, -140, 638, 135, 94, -3, -709],
+        "aa": [62, 118, 531, 48, 55, 13, 3],
+        "higher": 3,
+        "lower": 4,
+        "median": -3,
+        "bound": 531
+      },
+      {
+        "against": "prototype",
+        "measure": "layouts",
+        "result": "at or below: 0 against 0"
+      },
+      {
+        "against": "prototype",
+        "measure": "scriptUs",
+        "result": "no difference shown: higher in 5 of 7, median 2 µs, A/A bound 31 µs",
+        "differences": [5, 2, 42, 2, 9, -8, -50],
+        "aa": [2, 10, 31, 6, 6, 1, 3],
+        "higher": 5,
+        "lower": 2,
+        "median": 2,
+        "bound": 31
+      },
+      {
+        "against": "prototype",
+        "measure": "taskUs",
+        "result": "no difference shown: higher in 4 of 7, median 34 µs, A/A bound 531 µs",
+        "differences": [119, 34, 722, -4, 144, -111, -883],
+        "aa": [62, 118, 531, 48, 55, 13, 3],
+        "higher": 4,
+        "lower": 3,
+        "median": 34,
+        "bound": 531
+      }
+    ]
+  },
+  {
+    "scenario": "draggable no-lift, move: script",
+    "rule": "report",
+    "medians": {
+      "production": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 106,
+          "min": 71,
+          "max": 109
+        },
+        "scriptUs": {
+          "median": 140,
+          "min": 99,
+          "max": 145
+        },
+        "taskUs": {
+          "median": 2206,
+          "min": 1442,
+          "max": 2223
+        }
+      },
+      "control": {
+        "layouts": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "layoutUs": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "styleUs": {
+          "median": 108,
+          "min": 83,
+          "max": 111
+        },
+        "scriptUs": {
+          "median": 146,
+          "min": 113,
+          "max": 150
+        },
+        "taskUs": {
+          "median": 2238,
+          "min": 1711,
+          "max": 2285
+        }
+      }
+    },
+    "verdicts": []
+  },
+  {
+    "scenario": "draggable no-lift, move: bytes per move by function",
+    "rule": "bytes",
+    "medians": {
+      "production": {
+        "(root)": {
+          "median": 2753,
+          "min": 2735,
+          "max": 2885
+        },
+        "(anonymous)": {
+          "median": 575,
+          "min": 572,
+          "max": 589
+        },
+        "evaluate": {
+          "median": 524,
+          "min": 517,
+          "max": 534
+        },
+        "parseEvaluationResultValue": {
+          "median": 191,
+          "min": 182,
+          "max": 197
+        },
+        "_promiseAwareJsonValueNoThrow": {
+          "median": 139,
+          "min": 135,
+          "max": 151
+        },
+        "setupDragListeners": {
+          "median": 215,
+          "min": 204,
+          "max": 226
+        },
+        "window.__cleanupDrag": {
+          "median": 235,
+          "min": 228,
+          "max": 247
+        },
+        "#onPointer": {
+          "median": 7,
+          "min": 6,
+          "max": 7
+        },
+        "#enter": {
+          "median": 1,
+          "min": 0,
+          "max": 1
+        },
+        "#applyRequests": {
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "#move": {
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "move": {
+          "median": 94,
+          "min": 92,
+          "max": 100
+        },
+        "localDelta": {
+          "median": 207,
+          "min": 196,
+          "max": 216
+        },
+        "mouseListener": {
+          "median": 129,
+          "min": 121,
+          "max": 137
+        },
+        "jsonValue": {
+          "median": 30,
+          "min": 27,
+          "max": 30
+        },
+        "serializeAsCallArgument": {
+          "median": 156,
+          "min": 143,
+          "max": 161
+        },
+        "innerSerialize": {
+          "median": 19,
+          "min": 15,
+          "max": 21
+        }
+      },
+      "control": {
+        "(root)": {
+          "median": 2834,
+          "min": 2739,
+          "max": 2881
+        },
+        "(anonymous)": {
+          "median": 576,
+          "min": 564,
+          "max": 587
+        },
+        "evaluate": {
+          "median": 523,
+          "min": 514,
+          "max": 532
+        },
+        "parseEvaluationResultValue": {
+          "median": 190,
+          "min": 184,
+          "max": 194
+        },
+        "_promiseAwareJsonValueNoThrow": {
+          "median": 147,
+          "min": 137,
+          "max": 149
+        },
+        "setupDragListeners": {
+          "median": 222,
+          "min": 213,
+          "max": 224
+        },
+        "window.__cleanupDrag": {
+          "median": 232,
+          "min": 226,
+          "max": 241
+        },
+        "#onPointer": {
+          "median": 7,
+          "min": 5,
+          "max": 7
+        },
+        "#enter": {
+          "median": 1,
+          "min": 0,
+          "max": 1
+        },
+        "#applyRequests": {
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "#move": {
+          "median": 1,
+          "min": 1,
+          "max": 1
+        },
+        "move": {
+          "median": 100,
+          "min": 92,
+          "max": 105
+        },
+        "localDelta": {
+          "median": 201,
+          "min": 198,
+          "max": 216
+        },
+        "mouseListener": {
+          "median": 128,
+          "min": 120,
+          "max": 131
+        },
+        "jsonValue": {
+          "median": 27,
+          "min": 25,
+          "max": 32
+        },
+        "serializeAsCallArgument": {
+          "median": 152,
+          "min": 149,
+          "max": 158
+        },
+        "innerSerialize": {
+          "median": 16,
+          "min": 15,
+          "max": 20
+        }
+      }
+    },
+    "verdicts": []
+  }
+]
