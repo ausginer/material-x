@@ -10,7 +10,7 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Input:** the prototype read at `26f82fbb1`. That commit is on no ref now. Its `packages/drag` tree is byte-identical to `599684791` on `drag/prototype`, so later citations use `599684791`. Evidence: [`prototype-report.md`](prototype-report.md), [`probes/prototype/`](probes/prototype/README.md), [`probes/final-design/`](probes/final-design/README.md). The comparison and earlier evidence are in [`architecture-plan.md`](architecture-plan.md).
 
-**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. Their costs are `DRO-7`.
+**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. The owner approved its cost in `DRO-6`, and the [composition unit](composition-report.md) adopted it at `276947f82` and fixed the built-ins at `2506dcbb6`. The owner then split the kernel into modules at `bb644d6d7`, whose typecheck fails. `DRD-26` to `DRD-28` decide the ownership and lifecycle questions that the split exposed, and [`ownership-handoff.md`](ownership-handoff.md) implements them. The owner then required that the kernel know no lift, and `DRD-27` was revised on `6d5ba89e7`'s text before any of it was implemented. Their costs are `DRO-7`.
 
 **Neither the prototype's approval nor the 2026-11-06 reading established a performance result.** `DRD-13` and `DRD-22` say what does.
 
@@ -357,7 +357,7 @@ Owner requirement, 2026-11-07, on the decomposition at `bb644d6d7`. There the se
 
 **A late verdict is consumed:** a completion after the end or after a decision records nothing, reports nothing and enters no pass, as now.
 
-**`DRD-24`'s interface loses one member.** The session reaches the controller through `enter`, `raise`, `raiseInPass`, `detach`, `takeLanding`, `keepLanding` and `requestStep`. Everything else in `DRD-24` stands.
+**`DRD-24`'s interface loses one member.** The session reaches the controller through `enter`, `raise`, `raiseInPass`, `detach`, `takeLanding`, `keepLanding` and `requestStep`. `DRD-27` then removes `takeLanding` and `keepLanding`. Everything else in `DRD-24` stands.
 
 **Rejected:**
 
@@ -365,72 +365,95 @@ Owner requirement, 2026-11-07, on the decomposition at `bb644d6d7`. There the se
 - **An `AbortController` for the operation's lifetime.** It allocates once per operation, and the phase already holds the state.
 - **Ending the session at conclusion.** Then a step requested in `settle` or a disposer wouldn't run, and at `bb644d6d7` it runs before `end`, receiving `null`.
 
-#### DRD-27 — The kernel owns the operation object, and the lift owns its view
+#### DRD-27 — The kernel knows no lift, and a behavior composes the lift in its own context
 
-**The kernel builds the `Drag` at activation, as one object, and only the kernel writes it. The lift builds its own view object, and only the lift writes it. A lifted `Drag` reaches the view as `drag.lift`. `visual`, `box`, `rect`, `boxWidth`, `boxHeight`, `visualSpace`, `itemSpace`, `translatedX`, `translatedY` and `translate` move from the `Drag` to the view. The kernel's types say that a `Drag` may have a view or not. No assertion or `Writable` type stands for a member that an object doesn't have, and `type-fest` leaves the dependencies.**
+**`Session` and `Gesture` don't name a lift type, read a behavior's `lift`, build a lift view, hold a landing or branch on anything lift-specific. The kernel owns the operation's data, the `Drag`. The behavior owns its context, `drag.state`, and every presentation capability it composes there. A lifted behavior creates one `Lifter` per controller from `lift.js`, calls its `acquire` as the first statement of `activate`, keeps the returned `Lift` in its state, and names the landing from `settle` with `lift.land`. The lift reaches the kernel's ordering only through `drag.use` and the controller's `use`, which every behavior has.**
 
-Owner requirement, 2026-11-07. The owner asked for construction, capability and ownership to be resolved together, and said that `Partial` alone isn't enough.
+**Revised 2026-11-07, at the owner's requirement on `6d5ba89e7`.** The text at `6d5ba89e7` had the kernel build the `Drag` at activation with a `lift` member, call `behavior.lift`, and keep the lift's hold and the landing. That removed the cast and the second writer. But the kernel still called the lift, branched on it, named `Lift` in its types and ordered the lift's release and landing itself. The owner's requirement is that the kernel's operation model is the same whether or not a behavior uses the lift. None of the text at `6d5ba89e7` was implemented.
 
-**At `bb644d6d7`, by reading:**
+**Does `drag.state` already provide the boundary? Yes.** drag2 split each frame into the kernel's slice and a part that the behavior owns, and the kernel copied the part without reading it. `drag.state` is that part:
 
-- **The session builds a `Drag<State>` when it opens and asserts it as `Writable<LiftedDrag<State>>` through `unknown`.** For a behavior without `lift`, the kernel's type claims ten members that never exist. For a lifted behavior, they don't exist until activation.
-- **`lift(drag, admission, window, report)` writes those ten members into the kernel's object.** Its `translate` then writes `translatedX` and `translatedY` there on every call, while the kernel writes `x` and `y` to the same object. One object has two writers.
-- **The landing reads the lift's own values back from the kernel's object.**
-- **`lift`'s public signature names `Writable` from `type-fest`,** so `bb644d6d7` made `type-fest` a runtime dependency of the published types.
-- **`AnyBehavior` types every hook as receiving a `LiftedDrag`,** although `lift` is optional.
+- **The behavior creates it,** in `admit` or `command`. The kernel carries it to the `Drag` by identity and never reads or writes it.
+- **Its lifetime is the operation's.** A retained `Drag` keeps its own state, and a later operation has a new one.
+- **It already holds what activation creates.** The built-ins keep their placeholder, frame task and cache context there.
+- **A hook writes it directly.** drag2 needed a draft and a current frame because a step's writes had to be applied as a transaction. Here requests only fill slots and one reader applies them (`DRD-1`), so no copy is needed (DRI-8).
 
-**Construction.** The `Drag` exists from activation, which is the first moment a hook can receive it. The kernel builds it once, as one object literal, after the lift has built its view, so every member is set when the object is created. Before activation, the session keeps the press in its own fields: the item, the pointer id, the origin and the admission. The activating sample's coordinates become the `Drag`'s `x` and `y`, as they do now. **A press that never activates builds no `Drag`, and none of the three functions it carries.**
+What it doesn't hold is a value that outlives the operation. The running landing is the only such value of the lift. It belongs on an object with the controller's lifetime, which the behavior's composition creates and disposes through the controller's `use`. `sortable`'s displacement sink already works this way (`DRD-25`).
 
-**Capability:**
+drag2 is the reference for this split only. Its kernel itself held the lift: `BehaviorConfig.liftMode`, `ActivationScope.lift` and `kernel/presentation.ts`.
 
-- `Drag<State>` has `lift: undefined`, and `LiftedDrag<State>` has `lift: Lift`. A `requestStep` step receives the same type.
-- The kernel's own type for the operation is a `Drag` whose `lift` is a `Lift` or `undefined`. The kernel never reads `lift`.
-- Every `Drag` has the `lift` key, so all operations have one shape.
+**Where the lift's coordination goes.** Each row is kernel code at `bb644d6d7`:
 
-**Ownership:**
+| Coordination | At `bb644d6d7`, in the kernel | Now, in the lift and the behavior |
+| --- | --- | --- |
+| Acquisition | The session calls `behavior.lift` after the decline for a disconnected item, before capture and `activate` | The behavior calls `lifter.acquire(drag, visual, box)` as the first statement of `activate`, before its second pull and before any `drag.use` |
+| A grab during a landing (DRI-13, `DRD-18`) | The session takes the controller's landing before the lift measures, and cancels it in a `finally` | The lifter holds its running landing. `acquire` measures, then cancels that landing in a `finally` |
+| Release after the disposers (DRI-9, `DRD-14`) | The session releases the hold after the `use` disposers | `acquire` registers the release with `drag.use` before its first write. Acquired first, the release is the operation's first disposer, so it runs last |
+| The landing after release | `settle` returns a `Landing`. The session starts it after release, and the controller keeps its cancel | `settle` calls `lift.land(landing)`. The lift starts the landing right after its release, in the disposer walk, and stores the cancel on the lifter |
+| Landing cancel at destruction (DRI-10) | A teardown step between the operation's release and the controller disposers | The composition passes `lifter.cancelLanding` to the controller's `use`. The built-ins register it last, so it runs first, where the teardown step ran |
+| A failed acquisition (DRI-7) | The lift restores what it changed, reports a failure to restore through the kernel's `raise`, and rethrows | The acquisition throws, and that fault decides. The release, registered before the first write, restores at the operation's release. A throw there is reported as a later fault |
+| `lift`'s window | The controller's | The window passed to `createLifter`, which the built-ins already hold |
 
-- After construction, the kernel writes only `x` and `y`.
-- `lift` builds its view with every member set, and afterwards only its `translate` writes to it.
-- The landing reads the lift's own values, and nothing from the `Drag`.
+**How a behavior gets each guarantee.** The kernel provides these mechanisms to every behavior. None of them knows what a disposer releases:
 
-**The lift's interface to the kernel.** `lift(admission, window, report)` returns a hold: the view, `release()` and `land(landing)`. The kernel puts the view on the `Drag` and keeps the hold. **The hold doesn't reach a behavior,** so a behavior can't release the lift or start a landing.
+| Guarantee | The kernel's mechanism | The lift's part |
+| --- | --- | --- |
+| Everything that can fail is in `activate`, and a throw is a fault with no `start` or `end` | `activate` | Acquisition is in `activate` |
+| Release after cleanup | `drag.signal` aborts, then `use` disposers run last in first out, every one whatever another throws, each throw reported once | The release is the first registration, so it runs last |
+| The landing starts after release and before `end` | Disposers run in the conclusion step. `end` is the next step, in the same task | The release disposer starts the landing after restoring |
+| Focus after `end` | The terminal step restores focus when `end` returns or throws | Nothing |
+| Destruction releases everything and delivers no terminal | `terminate` releases with `null`. Controller disposers run last in first out | No landing was named, because `settle` doesn't run. `cancelLanding` is a controller disposer |
+| A late `use` | Runs at once | Not used |
 
-**Coordination that stays, because a contract rule needs the kernel in it:**
+**Required properties of the kernel:**
 
-| Coordination | Why the kernel takes part |
-| --- | --- |
-| The lift is acquired at activation: after the decline for a disconnected item, and after the running landing is taken, but before capture and `activate`. The taken landing is cancelled after the lift measures | DRI-13 and `DRD-18`: a grab during a landing keeps the visual under the pointer. The landing's slot is the controller's (`DRD-24`) |
-| A throw during acquisition is a fault. A failure to restore during a failed acquisition is reported through `report` | `DRD-3`: one fault path |
-| The session that acquired the lift releases it once, at DRI-9 step 5 | DRI-9 and `DRD-14`: after the disposers and before the landing |
-| The landing starts after release, from `settle`'s result, and the controller keeps its cancel | DRI-13: the landing outlives its operation |
-| `lift` receives the controller's `window` | A fixed value the controller already has. It costs no lookup |
+- **No kernel module or `draggable.ts` names the lift or the landing.** `grep -rniE 'lift|landing' src/kernel src/draggable.ts` finds nothing, comments included.
+- **`Gesture` has no landing slot.** `takeLanding`, `keepLanding` and `#cancelLanding` go. Teardown closes the controller, clears the slot and the steps, terminates the session, runs the controller disposers and aborts the root's listeners, in that order.
+- **`Session` keeps no lift and no admission for one.** Activation is the decline for a disconnected item, capture, `activate`, then `start`. Conclusion closes motion, aborts the verdict on a cancel, runs `settle` if `start` was reached, releases, and then detaches or sets the terminal step, as `DRD-26` states.
+- **The `Drag` is built when the session opens, as at `0dcb80fb1`.** Every member it has exists for every behavior, so its type is honest from construction. The kernel holds it under a kernel-internal type whose members are writable, declared in `src/kernel/drag.ts`, and assigns the object literal to it with no assertion. **`6d5ba89e7`'s construction at activation is withdrawn,** because it existed only to build the view first. `type-fest` and `Writable` leave the package.
+- **`DRD-1`, `DRD-24` and `DRD-26` stand:** one gate, one reader with its precedence, requests that only fill slots, the slot's three detaches and teardown's order. Nothing is allocated per sample (DRI-17).
 
-**Coupling that goes, because no rule needs it:** the writes into the kernel's object, the writable type in a public signature with its dependency, the landing's reads from the `Drag`, and `AnyBehavior`'s assumption. The lift module also leaves `src/kernel/` (`DRD-28`).
+**Public types:**
 
-**`DRD-4`'s purpose holds.** A behavior without `lift` has no lift code in its bundle. Each of its operations pays only for the `lift: undefined` key.
+- `draggable.js`: one `Behavior<State, Verdict>` with no `lift` member, whose hooks receive `Drag<State>` and whose `settle` returns `void`. `Admission<State>` has `item`, `handle?` and `state?`. `Drag<State>` has the kernel's members only, with no `lift` key. `draggable` has one signature and no assertion. `LiftedBehavior`, `LiftedDrag`, `LiftedAdmission` and `AnyBehavior` go.
+- `lift.js`: `createLifter(window): Lifter`. `Lifter` has `acquire(drag, visual?, box?): Lift` and `cancelLanding()`. `Lift` has `visual`, `box`, `rect`, `boxWidth`, `boxHeight`, `visualSpace`, `itemSpace`, `translatedX`, `translatedY`, `translate(x, y)` and `land(landing)`. `Landing` is unchanged.
 
-**Changes a consumer sees:**
+**Required properties of the lift:**
 
-- **A lifted behavior reads the ten members from `drag.lift`,** such as `drag.lift.translate(x, y)` and `drag.lift.rect`.
-- **`lift`'s parameters change.** Only the kernel calls it (`DRD-4`).
-- **`Landing` is exported from `lift.js`** (`DRD-28`).
-- **A `Drag`'s own keys change.** The ten members move, and every `Drag` gains `lift`. This is observable at runtime, and the handoff witnesses it.
-- **No change to event order, hooks, outcomes or timing is intended.** The `Drag` is created later, but no hook could reach it earlier.
+- **`acquire`** reads all geometry before any write, as now. It registers the release with `drag.use` before the first write. It creates the `Lift` with every member set. After measuring, it cancels the lifter's running landing, also when acquisition throws.
+- **The release** restores the top layer and then the inline declarations, as now. It is total over a partial acquisition. **The landing starts after the release.** It is attempted even when the release threw, and each throw is reported separately. Two disposers registered in that order meet this, and so does one disposer that reports through a second registration. The choice is the implementer's.
+- **`land`** records the landing, and the last call wins. Without a call, nothing lands. Only `translate` writes `translatedX` and `translatedY`.
+- **`cancelLanding`** cancels the running landing, if any. It works when detached and when called twice.
+- **Nothing in the lift reaches the kernel's interface.** The lift receives the `Drag` that every hook receives, and nothing else from the kernel.
+
+**Changes a consumer sees, against `bb644d6d7`:**
+
+- **A lifted behavior composes the lift in its own code.** It creates a `Lifter` with its controller and passes `cancelLanding` to the controller's `use`. It calls `acquire` first in `activate` and keeps the `Lift` in its state. It reads the ten members from that `Lift`, and calls `land` in `settle` where it used to return a `Landing`.
+- **`Behavior.lift`, the lifted types and `Admission`'s `visual` and `box` are removed.** `settle` returns nothing. `lift` is replaced by `createLifter`. `Landing` moves to `lift.js` (`DRD-28`).
+- **A `Drag`'s own keys lose the ten lifted members.**
+- **Pointer capture is now set before the lift's acquisition.** It used to be set after it. When acquisition fails, capture is set and then released at conclusion. No other effect is intended.
+- **A failed acquisition is restored at the operation's release,** in the same pass, instead of inside the acquisition. A failure to restore is now reported after the acquisition's fault, and the acquisition's fault decides the outcome. At `bb644d6d7` the restore failure was reported first and decided. The number of reports doesn't change. No test reaches this case, so the handoff adds witnesses.
+- **For the built-ins,** a landing's cancel at destruction runs as the first controller disposer, where the teardown step ran. Their consumer callbacks `visual`, `box` and `placeholder` are called when they are called now.
+- **No change to event order, hooks, outcomes or timing is intended beyond these.**
+
+**DRI-18 changes.** The kernel's guarantees still hold with no code beyond the hooks. The lift's guarantees, which are DRI-9's release and landing, DRI-12's focus during promotion and DRI-13, hold for a behavior that composes the lift as `lift.js` documents. That means one `Lifter` per controller with its `cancelLanding` passed to `use`, and `acquire` first in `activate`. Nothing stops a behavior that composes it otherwise, and no check is added (CONTRIBUTING: write for a truthful developer).
 
 **Rejected:**
 
-- **`Partial<LiftedDrag>`.** It states that the members are optional, but it keeps two writers on one object, and every read needs a check.
-- **The lift builds the whole operation object from the kernel's.** The lift would then need the kernel's functions, the kernel would still write `x` and `y` into the lift's object, and the kernel's fields would be copied once per operation.
-- **Keeping the flat shape by copying the view's members onto the `Drag`.** `translatedX` and `translatedY` change at every `translate`, so they would have two places to write, or one stale copy.
-- **`release` and `land` on the view.** A behavior could then release the lift or start a landing.
-- **Behaviors call `lift` themselves in `activate`.** The order of release and of the landing would then depend on each behavior's code, and DRI-18 promises these guarantees with no code beyond the hooks.
+- **The text at `6d5ba89e7`.** The kernel built `drag.lift`, held the hold and the landing, and branched on `behavior.lift`.
+- **A generic presentation hook,** such as `present?(drag)` returning `{ release, land }`, which the kernel would order. It moves the same coupling behind a plugin seam (`DRD-2`), and the kernel would still order a landing it doesn't own.
+- **A `lifted(behavior)` wrapper from `lift.js`** that adds acquisition to `activate`. It is a composition framework, and it hides the order of the behavior's own disposers from its author.
+- **Keeping an opaque controller-lifetime cancel slot in `Gesture`.** Its only purpose is the landing, so it is a lift-specific slot under another name.
+- **The `Lift` on the behavior instance.** A retained `Drag`'s step would then read a later operation's view.
+- **A kernel-provided per-operation slot for the behavior's context.** `drag.state` already is that slot.
+- **Computing `visual` and `box` at activation.** That would move the consumer's `visual` and `box` callbacks from admission to activation. They stay where they are, and the built-ins carry the elements in their state.
 
-**Verified by a type check, not by production code.** The [type check](probes/drag-ownership/README.md) compiles these types and `draggable`'s overloads without an assertion about the operation's members, in two option sets.
+**Verified by a type check, not by production code.** The [type check](probes/drag-ownership/README.md) now models these types. One `Behavior` type compiles with no overload and no assertion except `admission.state as State`. A kernel-internal writable type holds the `Drag`, and a `Drag<State>` passes to `acquire`. Both of the repository's option sets compile.
 
 **Not decided here:**
 
-- **An admission may omit `state` while the `Drag` types `state` as `State`.** Closing this needs a public type change, and the type check shows that one assertion stays at the kernel's generic boundary. It is the owner's question if wanted.
-- **The built-ins' operation state has fields that are filled by `activate` or `settle`** and read with `!`. `bb644d6d7` removed four of those assertions without changing the types, which breaks the typecheck, and `DRD-28` restores them. Typing a behavior's state by its phase would be a change to the built-ins, not to the kernel.
+- **An admission may omit `state` while the `Drag` types `state` as `State`.** The assertion at the kernel's generic boundary stays. It is the owner's question if wanted.
+- **The built-ins' operation state has fields that `activate` or `settle` fills, read with `!`.** `state.lift` joins them: it is `null` from admission and set as `activate`'s first statement. Typing a behavior's state by its phase would change the built-ins, not the kernel.
 
 **Cost: the owner's, `DRO-7`.**
 
@@ -456,11 +479,11 @@ The owner moved `lift` into `src/kernel/` at `bb644d6d7`, and said on 2026-11-07
 
   | Entry | Values | Types |
   | --- | --- | --- |
-  | `draggable.js` | `draggable` | `Behavior`, `LiftedBehavior`, `Admission`, `LiftedAdmission`, `Drag`, `LiftedDrag`, `DragDisposer`, `DraggableController`, `Outcome`, `SkippedOutcome`, `VerdictOutcome`, `CanceledOutcome`, `CancelOrigin` |
-  | `lift.js` | `lift` | `Lift`, `Landing`, and the type of `lift`'s result |
+  | `draggable.js` | `draggable` | `Behavior`, `Admission`, `Drag`, `DragDisposer`, `DraggableController`, `Outcome`, `SkippedOutcome`, `VerdictOutcome`, `CanceledOutcome`, `CancelOrigin` |
+  | `lift.js` | `createLifter` | `Lifter`, `Lift`, `Landing` |
   | `fault.js` | `DragFault` |  |
 
-  The kernel's types are type-only re-exports, so importing `draggable` alone still brings no lift code.
+  The kernel's types are type-only re-exports, so importing `draggable` alone still brings no lift code. This is the table after `DRD-27`. Until `DRD-27` is implemented, `draggable.js` also exports the lifted types and `lift.js` exports `lift`, `Landing` and `LiftHold`.
 
 - **Packaging.** The build is unbundled, so it writes `kernel/*.js` beside `shared/`. `package.json`'s `files` and `files.json`'s `clean.extras` list `kernel` as they list `shared`. `type-fest` leaves the dependencies (`DRD-27`).
 - **The four assertions return as they were at `0dcb80fb1`.**
@@ -597,13 +620,15 @@ No timing was taken.
   - per press that never activates;
   - per pointer operation, with and without `lift`;
   - per keyboard command;
-  - per lifted activation inside `lift`.
-- **Per sample:** the per-sample allocation test result. A lifted behavior's `translate` call now reads one more property, `drag.lift`. That is not measured.
+  - per lifted activation inside the lift, and per controller for the `Lifter`.
+- **Per sample:** the per-sample allocation test result. A lifted behavior's `translate` call now reads the `Lift` from its state, one or two property reads more. That is not measured.
 
-**Expected by reading, not measured:**
+**Expected by reading, not measured. Revised with `DRD-27` on 2026-11-07:**
 
-- A press that never activates allocates one object and three functions fewer, because no `Drag` is built.
-- A lifted activation may allocate one more object, because the view and the hold are separate objects. The implementer may avoid it.
+- **`draggable` alone should shrink:** the session loses the lift's call, hold and landing, and the controller loses the landing slot and two interface members.
+- **The lifted rows move by the composition's code,** which each built-in now writes: a `Lifter` per controller, the acquisition and `land`, and `cancelLanding` passed to `use`. The lift itself loses the `report` path and gains the registration of its release.
+- **A press that never activates allocates as at `0dcb80fb1`.** `6d5ba89e7`'s expected saving is withdrawn, because the `Drag` is built at the opening again.
+- **Each lifted controller allocates a `Lifter`.** Each lifted activation allocates the `Lift`, its `translate` and the release's disposer or disposers. At `bb644d6d7` it allocated the hold, its `land` and `translate`.
 - Removing `isCurrent` and adding an ended state should change size by a few bytes in either direction.
 - Returning the modules to the root should change no row.
 
@@ -616,7 +641,7 @@ No timing was taken.
 | DRD-1 | active |
 | DRD-2 | active |
 | DRD-3 | active |
-| DRD-4 | active. `DRD-27` moves the lift's members from the `Drag` to the lift's view |
+| DRD-4 | active, amended by `DRD-27`: the lift is no longer a behavior member. A behavior composes it with `createLifter`, and its members are on the `Lift` that the behavior keeps in its state. Its purpose holds: without that import, no lift code |
 | DRD-5 | active |
 | DRD-6 | active, scoping amended by `DRD-16` |
 | DRD-7 | active |
@@ -626,18 +651,18 @@ No timing was taken.
 | DRD-11 | active. `DRD-18` applies the activation pull to commands |
 | DRD-12 | active |
 | DRD-13 | active, its performance rules amended by `DRD-22` |
-| DRD-14 | active, implemented at `b91db2818` |
+| DRD-14 | active, implemented at `b91db2818`. Under `DRD-27` the release is the lift's own disposer, in the same place |
 | DRD-15 | active, implemented at `b91db2818` |
 | DRD-16 | active, implemented at `b91db2818` |
 | DRD-17 | active, implemented at `b91db2818` |
-| DRD-18 | active, implemented at `b91db2818` |
+| DRD-18 | active, implemented at `b91db2818`. Under `DRD-27` the lifter measures and then cancels its own running landing |
 | DRD-19 | active, implemented at `b91db2818` |
 | DRD-20 | active, implemented at `b91db2818`. `DRD-24` amends its sentence on the class that holds a session |
 | DRD-21 | active, implemented at `b91db2818` |
 | DRD-22 | active, applied in the remediation's validation |
 | DRD-23 | active |
-| DRD-24 | active, adopted at `276947f82` under `DRO-6`. `DRD-26` removes `isCurrent` from its interface |
+| DRD-24 | active, adopted at `276947f82` under `DRO-6`. `DRD-26` removes `isCurrent` from its interface. `DRD-27` removes `takeLanding` and `keepLanding`, and the landing leaves the controller |
 | DRD-25 | active, implemented at `2506dcbb6` |
 | DRD-26 | active, unimplemented. [`ownership-handoff.md`](ownership-handoff.md) item 2 |
-| DRD-27 | active, unimplemented. [`ownership-handoff.md`](ownership-handoff.md) item 3. Amends `DRD-4`'s lift members, which move to the lift's view |
+| DRD-27 | active, unimplemented, revised on 2026-11-07 from the text at `6d5ba89e7`. [`ownership-handoff.md`](ownership-handoff.md) item 3. Amends `DRD-4`, `DRD-24` and the contract's DRI-9, DRI-10, DRI-13, DRI-17 and DRI-18 |
 | DRD-28 | active, unimplemented. [`ownership-handoff.md`](ownership-handoff.md) item 1 |

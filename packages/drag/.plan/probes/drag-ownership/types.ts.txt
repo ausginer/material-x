@@ -1,77 +1,66 @@
-// drag:DRD-27 type check. A scratch model of the public and kernel types, not production code. See README.md.
-type Space = Float64Array;
-export type Lift = Readonly<{ visual: HTMLElement; rect: DOMRectReadOnly; visualSpace: Space; translatedX: number; translatedY: number; translate(x: number, y: number): void }>;
-export type Landing = Readonly<{ x: number; y: number }>;
-export type LiftHold = Readonly<{ view: Lift; release(): void; land(l: Landing): (() => void) | null }>;
-export type Admission<State> = Readonly<{ item: HTMLElement; handle?: HTMLElement; visual?: never; box?: never }> &
-  (undefined extends State ? Readonly<{ state?: State }> : Readonly<{ state: State }>);
-export type LiftedAdmission<State> = Omit<Admission<State>, 'visual' | 'box'> & Readonly<{ visual?: HTMLElement; box?: HTMLElement }>;
-export type Drag<State = undefined, L extends Lift | undefined = undefined> = Readonly<{
-  item: HTMLElement; state: State; x: number; y: number; lift: L;
-  requestStep(step: (drag: Drag<State, L> | null) => void): void;
+// drag:DRD-27 type check, revised 2026-11-07: the kernel names no lift. A scratch model, not production code. See README.md.
+type Outcome<V = unknown> = { type: 'skipped' } | { type: 'verdict'; value: V } | { type: 'canceled'; reason: unknown };
+type DragDisposer = (outcome: Outcome | null) => void;
+export type Drag<State = undefined> = Readonly<{
+  item: HTMLElement; state: State; pointerId: number; x: number; y: number;
+  originX: number; originY: number; signal: AbortSignal;
+  use(dispose: DragDisposer): void;
+  requestStep(step: (drag: Drag<State> | null) => void): void;
+  requestCancel(reason?: unknown): void;
 }>;
-export type LiftedDrag<State = undefined> = Drag<State, Lift>;
-export function lift<State>(item: HTMLElement, admission: LiftedAdmission<State>): LiftHold {
-  const view = { visual: admission.visual ?? item, rect: item.getBoundingClientRect(), visualSpace: new Float64Array(6), translatedX: 0, translatedY: 0,
-    translate(x: number, y: number) { view.translatedX = x; view.translatedY = y; } };
-  return { view, release() {}, land: () => null };
-}
-type Hooks<Op, Ad, Settled> = Readonly<{ admit(e: PointerEvent): Ad | null; activate?(d: Op): false | undefined; move?(d: Op): void; settle?(d: Op): Settled; end?(d: Op): void }>;
-export type Behavior<S = undefined> = Hooks<Drag<S>, Admission<S>, null | undefined> & Readonly<{ lift?: undefined }>;
-export type LiftedBehavior<S = undefined> = Hooks<LiftedDrag<S>, LiftedAdmission<S>, Landing | null | undefined> & Readonly<{ lift: typeof lift }>;
-// Kernel's honest view: the operation may or may not have a lift.
-type KernelDrag<S> = Drag<S, Lift | undefined>;
-type KernelBehavior<S> = Hooks<KernelDrag<S>, LiftedAdmission<S>, Landing | null | undefined> & Readonly<{ lift?: typeof lift | undefined }>;
-export type Controller<Op> = Readonly<{ requestStep(step: (d: Op | null) => void): void }>;
+export type Admission<State> = Readonly<{ item: HTMLElement; handle?: HTMLElement; state?: State }>;
+export type Behavior<State = undefined, Verdict = unknown> = Readonly<{
+  threshold?: number;
+  admit(event: PointerEvent): Admission<State> | null;
+  activate?(drag: Drag<State>): false | undefined;
+  move?(drag: Drag<State>): void;
+  settle?(drag: Drag<State>, outcome: Outcome<Verdict>): void;
+}>;
+// Kernel-internal: the object the kernel writes.
+type KernelDrag<State> = { -readonly [K in keyof Drag<State>]: Drag<State>[K] };
+type Controller<Op> = Readonly<{ requestStep(step: (drag: Op | null) => void): void }>;
 
-class Session<S> {
-  #lift: LiftHold | undefined;
-  #drag: { -readonly [K in keyof KernelDrag<S>]: KernelDrag<S>[K] } | null = null;
-  #x = 0; #y = 0;
-  constructor(readonly behavior: KernelBehavior<S>, readonly admission: LiftedAdmission<S>) {}
-  activate(): void {
-    const admission = this.admission;
-    this.#lift = this.behavior.lift?.(admission.item, admission);
-    const self = this;
-    const drag: { -readonly [K in keyof KernelDrag<S>]: KernelDrag<S>[K] } = {
-      item: admission.item, state: admission.state as S /* pre-existing assertion, out of scope */, x: this.#x, y: this.#y, lift: this.#lift?.view,
-      requestStep() {},
+class Session<State, Verdict> {
+  readonly #drag: KernelDrag<State>;
+  constructor(readonly behavior: Behavior<State, Verdict>, admission: Admission<State>) {
+    this.#drag = {
+      item: admission.item, state: admission.state as State, pointerId: 1, x: 0, y: 0,
+      originX: 0, originY: 0, signal: new AbortController().signal,
+      use: () => {}, requestStep: (step) => { step(this.#drag); }, requestCancel: () => {},
     };
-    if (this.behavior.activate?.(drag) === false) return;
-    this.#drag = drag;
-    void self;
   }
-  sample(x: number): void { const d = this.#drag; if (d) { d.x = x; this.behavior.move?.(d); } }
+  sample(x: number): void { this.#drag.x = x; this.behavior.move?.(this.#drag); }
 }
-export function draggable<S = undefined>(root: HTMLElement, b: LiftedBehavior<S>): Controller<LiftedDrag<S>>;
-export function draggable<S = undefined>(root: HTMLElement, b: Behavior<S>): Controller<Drag<S>>;
-export function draggable<S>(root: HTMLElement, b: KernelBehavior<S>): Controller<KernelDrag<S>> {
-  void root; const a = b.admit(new PointerEvent('pointerdown')); if (a) new Session(b, a).activate();
-  return { requestStep() {} };
+export function draggable<State = undefined, Verdict = unknown>(
+  root: HTMLElement, behavior: Behavior<State, Verdict>): Controller<Drag<State>> {
+  void root; void new Session(behavior, { item: root });
+  return { requestStep: () => {} };
 }
-// Consumers
-const root = document.body;
-const c1 = draggable(root, { admit: () => ({ item: root }), move(d) {
-  // @ts-expect-error no lift
-  void d.lift.visual;
+
+// lift.js
+export type Landing = Readonly<{ x: number; y: number; duration?: number; easing?: string }>;
+export type Lift = Readonly<{ visual: HTMLElement; translatedX: number; translate(x: number, y: number): void; land(landing: Landing): void }>;
+export type Lifter = Readonly<{ acquire(drag: Drag<unknown>, visual?: HTMLElement, box?: HTMLElement): Lift; cancelLanding(): void }>;
+declare function createLifter(window: Window): Lifter;
+
+// A behavior that composes the lift in its own state.
+type State = { visual: HTMLElement; lift: Lift | null };
+class Free implements Behavior<State> {
+  readonly #lifter: Lifter;
+  constructor(lifter: Lifter) { this.#lifter = lifter; }
+  admit(event: PointerEvent) { const item = event.target as HTMLElement; return { item, state: { visual: item, lift: null } }; }
+  activate(drag: Drag<State>): undefined { drag.state.lift = this.#lifter.acquire(drag, drag.state.visual); return undefined; }
+  move(drag: Drag<State>): void { const lift = drag.state.lift; if (lift) lift.translate(drag.x - drag.originX, 0); }
+  settle(drag: Drag<State>): void { drag.state.lift?.land({ x: 0, y: 0 }); }
+}
+const lifter = createLifter(window);
+const kernel = draggable(document.body, new Free(lifter));
+kernel.requestStep((drag) => { drag?.state.lift?.translate(1, 1); });
+// No cast, no overload; a plain behavior has no lift member to name.
+draggable(document.body, { admit: () => null, move(drag) {
+  // @ts-expect-error a Drag has no lift
+  void drag.lift;
 } });
-c1.requestStep((d) => {
-  // @ts-expect-error no lift
-  d?.lift.translate(0, 0);
-});
-const c2 = draggable(root, { lift, admit: () => ({ item: root, visual: root }), move(d) { d.lift.translate(1, 2); }, settle: (d) => ({ x: d.lift.rect.x, y: 0 }) });
-c2.requestStep((d) => d?.lift.translate(0, 0));
-// @ts-expect-error state required when State excludes undefined
-draggable<{ n: number }>(root, { admit: () => ({ item: root }) });
-draggable<{ n: number }>(root, { admit: () => ({ item: root, state: { n: 1 } }) });
-// @ts-expect-error a no-lift admission cannot name visual
-draggable(root, { admit: () => ({ item: root, visual: root }) });
-
-declare const lb: LiftedBehavior;
-declare const b1: Behavior<{ n: number }>; declare const b2: Behavior;
-const k1: KernelBehavior<{ n: number }> = b1; const k2: KernelBehavior<undefined> = b2; const k3: KernelBehavior<undefined> = lb;
-
-
-declare const ad: Admission<undefined>; const la: LiftedAdmission<undefined> = ad;
-declare const d0: Drag<undefined>; const kd: KernelDrag<undefined> = d0;
-void k1; void k2; void k3; void la; void kd;
+// @ts-expect-error an admission has no visual
+const bad: Admission<undefined> = { item: document.body, visual: document.body };
+void bad;
