@@ -1,0 +1,136 @@
+# Raw results: session-owner prototype. Base e06476d2b on drag/production; candidate = base + draggable.diff.txt.
+# Environment: Chromium = /usr/local/bin/chrome; Firefox 157.0 and WebKit 27.2 = Playwright 1.64.1 builds,
+# WebKit with Debian trixie libraries unpacked in user space (see README §Limits). Base and candidate ran in one session.
+
+## base: just test (Chromium + node, summary)
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ Test Files  3 failed | 21 passed (24)
+      Tests  3 failed | 313 passed (316)
+
+## base: just test-engines (Chromium, Firefox, WebKit; summary)
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ FAIL  |browser/firefox (firefox)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser/firefox (firefox)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ FAIL  |browser/webkit (webkit)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser/webkit (webkit)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ Test Files  6 failed | 57 passed (63)
+      Tests  6 failed | 866 passed | 16 skipped (888)
+
+## base: just size (measure rows)
+node bench/size/measure.ts
+draggable alone                  6563 min   2117 br  3 modules
+  VIOLATION: control moved by 93 B
+draggable + lift                11929 min   4075 br  6 modules
+example: resize handle           9230 min   3244 br  5 modules
+example: drop zone              12649 min   4341 br  7 modules
+example: canvas group            9384 min   3269 br  5 modules
+freeDrag                        14827 min   4926 br  10 modules
+freeDrag + bounds + landing     15513 min   5184 br  12 modules
+sortable + y                    19940 min   6529 br  15 modules
+sortable + xy                   19556 min   6464 br  14 modules
+complete                        20972 min   6902 br  17 modules
+
+## cand: just test (Chromium + node, summary)
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable + lift
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: resize handle
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: canvas group
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ Test Files  3 failed | 21 passed (24)
+      Tests  9 failed | 307 passed (316)
+
+## cand: just test-engines (Chromium, Firefox, WebKit; summary)
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ FAIL  |browser/firefox (firefox)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser/firefox (firefox)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ FAIL  |browser/webkit (webkit)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser/webkit (webkit)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ Test Files  6 failed | 57 passed (63)
+      Tests  6 failed | 866 passed | 16 skipped (888)
+
+## cand: just size (measure rows)
+node bench/size/measure.ts
+draggable alone                  6935 min   2220 br  3 modules
+  VIOLATION: over its 2139 B ceiling by 81 B
+  VIOLATION: control moved by 196 B
+draggable + lift                12301 min   4192 br  6 modules
+  VIOLATION: over its 4169 B ceiling by 23 B
+example: resize handle           9602 min   3340 br  5 modules
+  VIOLATION: over its 3313 B ceiling by 27 B
+example: drop zone              13021 min   4462 br  7 modules
+  VIOLATION: over its 4431 B ceiling by 31 B
+example: canvas group            9756 min   3366 br  5 modules
+  VIOLATION: over its 3314 B ceiling by 52 B
+freeDrag                        15199 min   5035 br  10 modules
+  VIOLATION: over its 4967 B ceiling by 68 B
+freeDrag + bounds + landing     15885 min   5283 br  12 modules
+  VIOLATION: over its 5210 B ceiling by 73 B
+sortable + y                    20316 min   6629 br  15 modules
+sortable + xy                   19932 min   6570 br  14 modules
+complete                        21348 min   7003 br  17 modules
+
+## cand: scratch heap count and the hot-path file, Chromium (session-probe.browser.test.ts.txt from probes/session-class, copied in, run, deleted)
+ ✓ |browser (chromium)| tests/session-probe.browser.test.ts:15 > session-class probe > should hold one session per operation and retain none after it
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:73 > drag:DRI-17 hot path > should read no layout in a sample, and none in a frame with nothing stale
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:99 > drag:DRI-17 hot path > should run the spatial search at most once per frame
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:137 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: false
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:137 > drag:DRI-17 hot path > should measure a landing target only with a landing composed: true
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:173 > drag:DRI-17 hot path > should run no consumer callback per sample
+ ✓ |shipped (chromium)| tests/hot-path.browser.test.ts:197 > drag:DRI-17 hot path > should allocate per sample only the CSS string a lifted write needs
+      Tests  7 passed (7)
+# The probe asserts toEqual([1, 1, 1, 0]): one Session during each of three operations, none after destruction.
+
+## minified-name attribution, draggable alone (scratch rolldown dump, same options as bench/size/measure.ts; base 6563 B, candidate 6935 B)
+name              base  cand  bytes
+advance              0     2    +14
+decide               0     4    +24
+stepTarget           0     2    +20
+terminate            0     2    +18
+handleEvent          0     1    +11
+enter                0    11    +55
+raise                0    16    +80
+raiseInPass          0     2    +22
+isCurrent            0     5    +45
+detach               0     4    +24
+takeLanding          0     2    +22
+keepLanding          0     2    +22
+requestStep          3     5    +22
+requestCancel        2     4    +26
+requestDestroy       1     3    +28
+use                  2     4     +6
+member-name bytes 439
+private-name refs base 200 400 B; cand 264 528 B; delta 128
+total delta 372 ; other code -195
+--- base record field names (unmangled property names at base)
+drag                31     1   -120
+admission            2     0    -18
+motion               3     0    -18
+operation            4     0    -36
+disposers            4     0    -36
+phase               12     0    -60
+decision            12     0    -96
+next                 8     0    -32
+verdictAborter       5     0    -70
+lift                 7     2    -20
+started              5     0    -35
+focused              5     0    -35
+releasedWith         3     0    -36
+record-field bytes -612
+remaining other code 417
+
+## line counts (lines, code = non-blank, non-comment)
+base draggable.ts: 1132 763
+base Session type 246-269: 24 15
+base Gesture 410-1101: 692 514
+cand draggable.ts: 1231 811
+cand runDisposer 386-396: 11 11
+cand Session 408-909: 502 354
+cand Gesture 917-1191: 275 205
