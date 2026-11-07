@@ -16,7 +16,9 @@
 
 ### 1. Kernel: the operation as a parameter (`DRD-24`)
 
-**Its own commit, before any behavior change.**
+**On hold until the probe defined in `DRD-24` reports and the architect decides.** If the probe's variant is adopted, the architect rewrites this item. Item 2 doesn't depend on it and may land first.
+
+**Its own behavior-preserving commit.**
 
 - `#move` and `#up` receive the `Session` that `#onPointer` tested, like `#activate`, `#drop` and `#conclude` already do. After this item, `src/draggable.ts` has no `this.#session!`.
 - `this.#session` is read only where its absence is a handled case: the listeners, `#applyRequests`, `#runStep`, `#raise`, `#cancel`, `#press`, `#command`, the `Drag` scope checks, `#requestVerdict`'s check and `#teardown`.
