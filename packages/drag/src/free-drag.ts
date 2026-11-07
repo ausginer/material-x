@@ -45,7 +45,12 @@ export type {
 };
 
 export type FreeDragConfig = Readonly<{
-  /** Commit the position, then resolve. An accepted drag does not move back. */
+  /**
+   * Decides the drop: accept to keep the visual where it was dropped, reject to
+   * send it home. Commit an accepted position in `onEnd`, after the lift has
+   * released the visual's inline styles. A position written here is restored
+   * away at release.
+   */
   onDrop: OnDrop;
   onStart?(geometry: DragGeometry): void;
   onMove?(geometry: DragGeometry): void;
@@ -160,19 +165,16 @@ class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
   }
 
   #geometry(drag: LiftedDrag<State>): DragGeometry {
-    const motion = this.#motion;
+    return buildGeometry(drag, this.#motion, this.#window);
+  }
 
-    return buildGeometry(
-      drag.x,
-      drag.y,
-      drag.originX,
-      drag.originY,
-      motion.x,
-      motion.y,
-      drag.rect,
-      drag.visualSpace,
-      this.#window,
-    );
+  /** `config.home()` now, or the visual's rect at the grab without it. */
+  #home(drag: LiftedDrag<State>): Point {
+    const { home } = this.#config;
+
+    return home
+      ? home({ item: this.#root, visual: drag.visual })
+      : { x: drag.rect.left, y: drag.rect.top };
   }
 
   /** Step and invalidation listener: the bounds are re-read on the next sample. */
@@ -203,7 +205,7 @@ class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
     return {
       item: root,
       visual: config.visual ? config.visual(root) : root,
-      handle: handle ?? root,
+      ...(handle ? { handle } : {}),
       state: { offsetX: 0, offsetY: 0, request: null, result: null },
     };
   }
@@ -236,13 +238,10 @@ class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
     this.#computeMotion(drag);
 
     const request = buildRequest(
-      { item: this.#root, visual: drag.visual },
-      drag.x,
-      drag.y,
-      motion.x,
-      motion.y,
-      drag.rect,
-      drag.visualSpace,
+      this.#root,
+      drag,
+      motion,
+      this.#home(drag),
       this.#window,
     );
 
@@ -259,7 +258,6 @@ class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
     const { state, rect } = drag;
     const { request } = state;
     const timing = this.#landing;
-    const config = this.#config;
     let home = true;
 
     if (outcome.type === 'canceled') {
@@ -285,9 +283,7 @@ class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
       return null;
     }
 
-    const { x, y } = config.home
-      ? config.home({ item: this.#root, visual: drag.visual })
-      : { x: rect.left, y: rect.top };
+    const { x, y } = this.#home(drag);
 
     return {
       x,

@@ -1,3 +1,5 @@
+import { DEFAULT_LANDING_DURATION, DEFAULT_LANDING_EASING } from './timing.ts';
+
 export type LandingTimingContext = Readonly<{
   fromX: number;
   fromY: number;
@@ -19,16 +21,16 @@ export type LandingTiming = (
   toY: number,
 ) => Readonly<{ duration: number; easing: string }>;
 
-const DEFAULT_DURATION = 200;
-const DEFAULT_EASING = 'ease';
-
 /**
  * Composes a landing. Without it, a behavior measures no landing target. With
  * `prefers-reduced-motion: reduce`, every landing has zero duration, and the
  * `duration` function is still called.
  */
 export function landing(options: LandingOptions = {}): LandingTiming {
-  const { duration = DEFAULT_DURATION, easing = DEFAULT_EASING } = options;
+  const {
+    duration = DEFAULT_LANDING_DURATION,
+    easing = DEFAULT_LANDING_EASING,
+  } = options;
 
   return (fromX, fromY, toX, toY) => ({
     duration:

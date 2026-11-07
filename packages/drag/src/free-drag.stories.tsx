@@ -22,11 +22,14 @@ function FreeDragDemo(): JSX.Element {
     const controller = freeDrag(box, {
       bounds: bounds(areaRef.current!),
       landing: landing(),
-      onDrop({ localDeltaX, localDeltaY }) {
-        x += localDeltaX;
-        y += localDeltaY;
-        box.style.translate = `${x}px ${y}px`;
-        return FreeDragResolution.accept();
+      onDrop: () => FreeDragResolution.accept(),
+      // The lift owns `translate` until release, so the commit goes here.
+      onEnd(result) {
+        if (result.type === 'accepted') {
+          x += result.request.localDeltaX;
+          y += result.request.localDeltaY;
+          box.style.translate = `${x}px ${y}px`;
+        }
       },
     });
 

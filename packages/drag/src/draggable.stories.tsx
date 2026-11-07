@@ -34,7 +34,7 @@ function ResizeDemo(): JSX.Element {
       target.style.width = `${width}px`;
       target.style.height = `${height}px`;
     };
-    const panel = draggable<State>(handle, {
+    const controller = draggable<State>(handle, {
       threshold: 1,
       admit: () => ({
         item: handle,
@@ -62,7 +62,7 @@ function ResizeDemo(): JSX.Element {
     });
 
     return () => {
-      void panel.requestDestroy();
+      void controller.requestDestroy();
     };
   }, []);
 

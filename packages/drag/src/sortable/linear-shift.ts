@@ -1,5 +1,5 @@
 /**
- * The shift rule for a one-dimensional axis, used by `y()`.
+ * The shift rule for a column, used by `y()`.
  *
  * A committed move relocates the placeholder between two gaps. In a linear flow,
  * that displaces the slots between them by one constant along the axis and
@@ -24,30 +24,16 @@
 import type { DisplacementReport, AxisContext } from './axis.ts';
 import type { CollectionSnapshot } from './domain.ts';
 import {
-  DEV,
   type DisplacementSettle,
   type RectIndex,
-  type RectIndexView,
   STRIDE,
   TOP,
   verifyEquivalence,
 } from './rect-index.ts';
 
-/**
- * One `RectIndex` under the linear shift rule. `start`, `end` and `center` are the
- * axis's stride offsets, and `ux`/`uy` its unit vector.
- */
+/** One `RectIndex` under the linear shift rule, along y. */
 export class LinearShift {
   readonly #index: RectIndex;
-
-  /** The same cache under the reader's type, where its contents are read-only. */
-  readonly #view: RectIndexView;
-
-  readonly #start: number;
-  readonly #end: number;
-  readonly #center: number;
-  readonly #unitX: number;
-  readonly #unitY: number;
 
   /** A prediction is valid only against a buffer that describes the DOM. */
   #dirty = true;
@@ -72,21 +58,8 @@ export class LinearShift {
   /** Written only inside `DEV` branches, so it folds away with them. */
   #advanceUnchecked = false;
 
-  constructor(
-    index: RectIndex,
-    start: number,
-    end: number,
-    center: number,
-    ux: number,
-    uy: number,
-  ) {
+  constructor(index: RectIndex) {
     this.#index = index;
-    this.#view = index;
-    this.#start = start;
-    this.#end = end;
-    this.#center = center;
-    this.#unitX = ux;
-    this.#unitY = uy;
   }
 
   /**
@@ -108,16 +81,11 @@ export class LinearShift {
 
     if (this.#placeholderIsStale) {
       this.#placeholderIsStale = false;
-      index.remeasurePlaceholder(
-        placeholder,
-        this.#start,
-        this.#end,
-        this.#center,
-      );
+      index.remeasurePlaceholder(placeholder);
     }
 
     if (
-      DEV &&
+      __DEV__ &&
       this.#advanceUnchecked &&
       !this.#dirty &&
       this.#snapshotVersion === snapshot.version
@@ -155,7 +123,7 @@ export class LinearShift {
     if (
       this.#dirty ||
       this.#snapshotVersion !== snapshot.version ||
-      this.#view.count === 0 ||
+      this.#index.count === 0 ||
       from < 0 ||
       from === gap
     ) {
@@ -171,44 +139,41 @@ export class LinearShift {
     let delta = from < gap ? -this.#rowDistance : this.#rowDistance;
 
     if (this.#rowDistance < 0) {
-      const { values, items } = this.#view;
+      const { values, items } = this.#index;
       // Any crossed row works, because they all traveled the same constant.
       const probe = items[lo]!;
-      const rect = (
+      let observed = (
         context.box ? context.box(probe) : probe
-      ).getBoundingClientRect();
-      let observed = this.#start === TOP ? rect.top : rect.left;
+      ).getBoundingClientRect().top;
 
       if (context.settle) {
         // The row may be mid-flight from an earlier move, and both sides of the
         // difference must be settled geometry.
         const scratch = new Float64Array(STRIDE);
 
-        scratch[this.#start] = observed;
+        scratch[TOP] = observed;
         context.settle(scratch, [probe], 1);
-        observed = scratch[this.#start]!;
+        observed = scratch[TOP]!;
       }
 
-      delta = observed - values[lo * STRIDE + this.#start]!;
+      delta = observed - values[lo * STRIDE + TOP]!;
       this.#rowDistance = delta < 0 ? -delta : delta;
     }
 
-    this.#index.advance(lo, hi, delta, this.#start, this.#end, this.#center);
+    this.#index.advance(lo, hi, delta);
 
     if (report) {
-      const { items } = this.#view;
-      const dx = -delta * this.#unitX;
-      const dy = -delta * this.#unitY;
+      const { items } = this.#index;
 
       for (let i = lo; i < hi; i += 1) {
-        report(items[i]!, dx, dy, context.space);
+        report(items[i]!, 0, -delta, context.space);
       }
     }
 
     this.#lastGap = gap;
     this.#placeholderIsStale = true;
 
-    if (DEV) {
+    if (__DEV__) {
       this.#advanceUnchecked = true;
     }
   }

@@ -7,7 +7,7 @@
  * a request slot, and `#applyRequests` is the one reader of the slots, between
  * steps.
  *
- * A behavior receives `Drag`, a view with no path to the session.
+ * A behavior receives `Drag`, which has no path to the session.
  */
 import type { Space } from '@ydinjs/box-quad';
 import { DragFault } from './fault.ts';
@@ -95,19 +95,23 @@ export type Drag<State = undefined> = Readonly<{
   /**
    * Runs `step` in a pass: at once when no pass is running, otherwise between
    * steps, in request order. The same function requested again before it runs
-   * runs once. The step receives the running operation's `Drag` from the end of
-   * activation until the drop or the decision, and `null` otherwise.
+   * runs once. The step receives this `Drag` from the end of activation until the
+   * drop or the decision, and `null` otherwise.
+   *
+   * Acts only while this operation is the controller's current one, so a
+   * retained `Drag` never reaches a later operation. Afterwards it does nothing:
+   * cleanup after an operation belongs in `use`.
    *
    * Code outside a hook, such as a consumer's method or a frame callback, must
    * write behavior state through this. Foreign code can run during any DOM write
    * the kernel makes, and a direct write would change the running step.
    */
   requestStep(step: (drag: Drag<State> | null) => void): void;
-  /** Does nothing after this operation's decision. */
+  /** Acts only while this operation is current and undecided. */
   requestCancel(reason?: unknown): void;
 }>;
 
-/** The members of `Drag` whose types name the view itself. */
+/** The members of `Drag` whose types name `Drag` itself. */
 type SelfNamingMembers = 'requestStep';
 
 /** `Drag` for a behavior composed with `lift`. */
@@ -135,7 +139,7 @@ export type LiftedDrag<State = undefined> = Omit<
     translate(x: number, y: number): void;
   }>;
 
-type Hooks<View, Admitted, Settled, Verdict> = Readonly<{
+type Hooks<Operation, Admitted, Settled, Verdict> = Readonly<{
   /** Pointer travel that activates, in viewport pixels. Defaults to 8. */
   threshold?: number;
   /** A primary press on the root. Return `null` to decline. */
@@ -149,21 +153,24 @@ type Hooks<View, Admitted, Settled, Verdict> = Readonly<{
    * Everything that can fail. `false` declines quietly and a throw is a fault.
    * Neither gets `start` or `end`.
    */
-  activate?(drag: View): false | undefined;
+  activate?(drag: Operation): false | undefined;
   /** The consumer's notification. From here `end` is guaranteed. */
-  start?(drag: View): void;
-  move?(drag: View): void;
+  start?(drag: Operation): void;
+  move?(drag: Operation): void;
   /** Returns the verdict to wait for, or `null` to skip it. */
   drop?(
-    drag: View,
+    drag: Operation,
   ): ((signal: AbortSignal) => Verdict | PromiseLike<Verdict>) | null;
   /**
    * The outcome is decided and the presentation is still held. Runs only if
    * `start` was reached.
    */
-  settle?(drag: View, outcome: Outcome<Verdict>): Settled;
-  /** Runs after release, in the same task. A landing does not delay it. */
-  end?(drag: View, outcome: Outcome<Verdict>): void;
+  settle?(drag: Operation, outcome: Outcome<Verdict>): Settled;
+  /**
+   * Runs after release and after the landing starts, in the same task. A landing
+   * does not delay it. Focus returns after it, so a reorder here keeps focus.
+   */
+  end?(drag: Operation, outcome: Outcome<Verdict>): void;
 }>;
 
 /** A behavior with no top layer and no measurement. It renders by itself. */
@@ -187,9 +194,14 @@ export type LiftedBehavior<State = undefined, Verdict = unknown> = Hooks<
 > &
   Readonly<{ lift: typeof lift }>;
 
-export type DraggableController<View> = Readonly<{
-  /** See `Drag.requestStep`. */
-  requestStep(step: (drag: View | null) => void): void;
+/** Each method works when detached from the controller. */
+export type DraggableController<Operation> = Readonly<{
+  /**
+   * As `Drag.requestStep`, for whichever operation is current: the step receives
+   * its `Drag` from the end of activation until the drop or the decision, and
+   * `null` otherwise.
+   */
+  requestStep(step: (drag: Operation | null) => void): void;
   /** The first decision wins. Nothing happens on an idle controller. */
   requestCancel(reason?: unknown): void;
   /** Every call returns one promise, settled after teardown. */
@@ -206,8 +218,8 @@ export type LiftHold = Readonly<{
   land(landing: Landing): (() => void) | null;
 }>;
 
-/** The kernel's view. A lift adds its own members to the same object. */
-type SessionView<State> = {
+/** The kernel's `Drag`. A lift writes its own members into the same object. */
+export type WritableLiftedDrag<State> = {
   -readonly [K in keyof LiftedDrag<State>]: LiftedDrag<State>[K];
 };
 
@@ -233,7 +245,7 @@ const NOOP = (): void => {};
 
 /** One operation. Its absence means idle, so a late request reaches nothing. */
 type Session<State, Verdict> = {
-  view: SessionView<State>;
+  drag: WritableLiftedDrag<State>;
   readonly admission: LiftedAdmission<State>;
   /** Pointer samples, closed at the drop or the decision. */
   readonly motion: AbortController;
@@ -252,7 +264,16 @@ type Session<State, Verdict> = {
   started: boolean;
   /** The element to give focus back to, recorded at the drop or the decision. */
   focused: HTMLElement | null;
+  /** What a disposer added after release receives: `null` after destruction. */
+  releasedWith: Outcome | null;
 };
+
+/**
+ * Events a controller of this library copy has admitted. Bubbling reaches the
+ * innermost root first, so the innermost admitting root wins and an outer root
+ * sees only what its inner roots declined.
+ */
+const admitted = new WeakSet<Event>();
 
 /**
  * Whether a hop before the subject is marked `data-drag-ignore`. The consumer
@@ -287,6 +308,21 @@ function focusedWithin(item: HTMLElement): HTMLElement | null {
   }
 
   return null;
+}
+
+/**
+ * Gives focus back to the element focused inside the item at the drop, unless the
+ * user or the consumer has focused anything since. A command restores with normal
+ * scrolling, so that a row moved by keyboard stays visible.
+ */
+function restoreFocus(focused: HTMLElement | null, pointerId: number): void {
+  if (focused?.isConnected) {
+    const { activeElement, body } = focused.ownerDocument;
+
+    if (!activeElement || activeElement === body) {
+      focused.focus({ preventScroll: pointerId !== COMMAND_POINTER_ID });
+    }
+  }
 }
 
 /**
@@ -505,12 +541,12 @@ class Gesture<State, Verdict> {
   ): void => {
     const session = this.#session;
 
-    step(session?.phase === ACTIVE && !session.decision ? session.view : null);
+    step(session?.phase === ACTIVE && !session.decision ? session.drag : null);
   };
 
-  requestCancel(reason?: unknown): void {
+  readonly requestCancel = (reason?: unknown): void => {
     this.#cancel(reason, 'request');
-  }
+  };
 
   #cancel(reason: unknown, origin: CancelOrigin): void {
     const session = this.#session;
@@ -521,7 +557,7 @@ class Gesture<State, Verdict> {
     }
   }
 
-  requestDestroy(): Promise<void> {
+  readonly requestDestroy = (): Promise<void> => {
     if (!this.#destroyed) {
       this.#destroyed = new Promise((resolve) => {
         this.#resolveDestroyed = resolve;
@@ -533,15 +569,15 @@ class Gesture<State, Verdict> {
     }
 
     return this.#destroyed;
-  }
+  };
 
-  use(dispose: () => void): void {
+  readonly use = (dispose: () => void): void => {
     if (this.#destroyed && !this.#resolveDestroyed) {
       this.#dispose(dispose, null);
     } else {
       this.#disposers.push(dispose);
     }
-  }
+  };
 
   /** Runs one disposer. Whatever it throws, the caller's walk continues. */
   #dispose(dispose: DragDisposer, outcome: Outcome | null): void {
@@ -557,14 +593,20 @@ class Gesture<State, Verdict> {
   };
 
   readonly #press = (event: PointerEvent): void => {
-    if (event.button === 0 && event.isPrimary && !this.#session) {
-      const admitted = this.#behavior.admit(event);
+    if (
+      event.button === 0 &&
+      event.isPrimary &&
+      !this.#session &&
+      !admitted.has(event)
+    ) {
+      const admission = this.#behavior.admit(event);
 
       if (
-        admitted &&
-        !ownsInteraction(event, admitted.handle ?? admitted.item)
+        admission &&
+        !ownsInteraction(event, admission.handle ?? admission.item)
       ) {
-        this.#open(admitted, event.pointerId, event.clientX, event.clientY);
+        admitted.add(event);
+        this.#open(admission, event.pointerId, event.clientX, event.clientY);
       }
     }
   };
@@ -575,16 +617,20 @@ class Gesture<State, Verdict> {
 
   /** A press and an activation, whose last act names the release. */
   readonly #command = (event: KeyboardEvent): void => {
-    if (this.#session) {
+    if (this.#session || admitted.has(event)) {
       return;
     }
 
-    const admitted = this.#behavior.command!(event);
+    const admission = this.#behavior.command!(event);
 
-    if (admitted && !ownsInteraction(event, admitted.handle ?? admitted.item)) {
+    if (
+      admission &&
+      !ownsInteraction(event, admission.handle ?? admission.item)
+    ) {
+      admitted.add(event);
       event.preventDefault();
 
-      const session = this.#open(admitted, COMMAND_POINTER_ID, 0, 0);
+      const session = this.#open(admission, COMMAND_POINTER_ID, 0, 0);
 
       session.next = () => {
         this.#activate(session);
@@ -602,7 +648,7 @@ class Gesture<State, Verdict> {
     const operation = new AbortController();
     const session: Session<State, Verdict> = {
       // Filled below, because its methods close over this record.
-      view: null as never,
+      drag: null as never,
       admission,
       motion,
       operation,
@@ -614,8 +660,9 @@ class Gesture<State, Verdict> {
       lift: null,
       started: false,
       focused: null,
+      releasedWith: null,
     };
-    const view: Drag<State> = {
+    const drag: Drag<State> = {
       item: admission.item,
       state: admission.state as State,
       pointerId,
@@ -626,12 +673,19 @@ class Gesture<State, Verdict> {
       signal: operation.signal,
       use: (dispose) => {
         if (operation.signal.aborted) {
-          this.#dispose(dispose, this.#destroyed ? null : session.decision);
+          this.#dispose(dispose, session.releasedWith);
         } else {
           session.disposers.push(dispose);
         }
       },
-      requestStep: this.requestStep,
+      // Steps drain before the pass that requested them ends, and an operation
+      // opens only as the first step of a pass, so a step requested while this
+      // operation is current never runs under a later one.
+      requestStep: (step) => {
+        if (this.#session === session) {
+          this.requestStep(step);
+        }
+      },
       requestCancel: (reason) => {
         if (this.#session === session) {
           this.#cancel(reason, 'request');
@@ -641,24 +695,32 @@ class Gesture<State, Verdict> {
 
     // A lift fills the rest before `activate`, and only a behavior composed with
     // `lift` can name them.
-    session.view = view as unknown as SessionView<State>;
+    session.drag = drag as unknown as WritableLiftedDrag<State>;
 
-    const { document } = this.#window;
+    const target = this.#window;
 
+    // On the window in the capture phase, so that no `stopPropagation` in the page
+    // hides the operation's input.
     if (pointerId !== COMMAND_POINTER_ID) {
+      const options = { capture: true, signal: motion.signal };
+
       for (const type of [
+        'pointerdown',
         'pointermove',
         'pointerup',
         'pointercancel',
         'lostpointercapture',
       ]) {
-        document.addEventListener(type, this.#onPointer as EventListener, {
-          signal: motion.signal,
-        });
+        target.addEventListener(
+          type,
+          this.#onPointer as EventListener,
+          options,
+        );
       }
     }
 
-    document.addEventListener('keydown', this.#onEscape, {
+    target.addEventListener('keydown', this.#onEscape, {
+      capture: true,
       signal: operation.signal,
     });
 
@@ -666,14 +728,37 @@ class Gesture<State, Verdict> {
     return session;
   }
 
+  /**
+   * An `Escape` that decides a started operation is consumed, so the platform's
+   * close request doesn't also close the dialog or popover holding the list. It
+   * still propagates.
+   */
   readonly #onEscape = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape') {
+    const session = this.#session;
+
+    if (event.key === 'Escape' && session) {
+      if (session.started && !session.decision) {
+        event.preventDefault();
+      }
+
       this.#cancel(undefined, 'escape');
     }
   };
 
   readonly #onPointer = (event: PointerEvent): void => {
-    if (event.pointerId !== this.#session?.view.pointerId) {
+    const session = this.#session;
+
+    // A primary press while one is pending means its release was missed. Whatever
+    // the pointer, the pending press ends, and the root may admit the new one.
+    if (event.type === 'pointerdown') {
+      if (session?.phase === PENDING && event.isPrimary && event.button === 0) {
+        this.#enter(this.#endPending, session);
+      }
+
+      return;
+    }
+
+    if (event.pointerId !== session?.drag.pointerId) {
       return;
     }
 
@@ -693,18 +778,26 @@ class Gesture<State, Verdict> {
 
   readonly #move = (event: PointerEvent): void => {
     const session = this.#session!;
-    const { view } = session;
+    const { drag } = session;
 
-    view.x = event.clientX;
-    view.y = event.clientY;
-
-    if (session.phase === ACTIVE) {
-      this.#behavior.move?.(view);
+    // A press never activates without the button that admitted it. A release the
+    // window never saw, such as one outside it, leaves samples with no button.
+    // oxlint-disable-next-line no-bitwise -- `buttons` is a bitfield
+    if (session.phase === PENDING && (event.buttons & 1) === 0) {
+      this.#endPending(session);
       return;
     }
 
-    const dx = view.x - view.originX;
-    const dy = view.y - view.originY;
+    drag.x = event.clientX;
+    drag.y = event.clientY;
+
+    if (session.phase === ACTIVE) {
+      this.#behavior.move?.(drag);
+      return;
+    }
+
+    const dx = drag.x - drag.originX;
+    const dy = drag.y - drag.originY;
 
     if (
       session.phase === PENDING &&
@@ -712,64 +805,77 @@ class Gesture<State, Verdict> {
     ) {
       event.preventDefault();
       this.#window.getSelection()?.removeAllRanges();
-      armClickGuard(this.#window, view.pointerId);
+      armClickGuard(this.#window, drag.pointerId);
       this.#activate(session);
     }
+  };
+
+  /** A press that never activated ends quietly: no hook, no report. */
+  readonly #endPending = (session: Session<State, Verdict>): void => {
+    session.motion.abort();
+    session.operation.abort();
+    this.#session = null;
   };
 
   readonly #up = (event: PointerEvent): void => {
     const session = this.#session!;
 
     if (session.phase === PENDING) {
-      session.motion.abort();
-      session.operation.abort();
-      this.#session = null;
+      this.#endPending(session);
       return;
     }
 
-    session.view.x = event.clientX;
-    session.view.y = event.clientY;
+    session.drag.x = event.clientX;
+    session.drag.y = event.clientY;
     this.#drop(session);
   };
 
   #activate(session: Session<State, Verdict>): void {
-    const { view, admission } = session;
+    const { drag, admission } = session;
 
     // The consumer removed the item during the press, so there is nothing to
     // drag. This is not a fault, and a lift could not measure it.
-    if (!view.item.isConnected) {
+    if (!drag.item.isConnected) {
       session.decision ??= SKIPPED;
       return;
     }
 
-    this.#cancelLanding?.();
+    const cancelLanding = this.#cancelLanding;
+
     this.#cancelLanding = null;
 
-    if (this.#behavior.lift) {
-      session.lift = this.#behavior.lift(
-        view,
-        admission,
-        this.#window,
-        this.#raise,
-      );
+    // The lift measures the visual with a running flight's offset, so a grab
+    // during a landing keeps the visual under the pointer. The flight is then
+    // cancelled, before the first lifted frame.
+    try {
+      if (this.#behavior.lift) {
+        session.lift = this.#behavior.lift(
+          drag,
+          admission,
+          this.#window,
+          this.#raise,
+        );
+      }
+    } finally {
+      cancelLanding?.();
     }
 
-    if (view.pointerId !== COMMAND_POINTER_ID) {
-      this.#root.setPointerCapture(view.pointerId);
+    if (drag.pointerId !== COMMAND_POINTER_ID) {
+      this.#root.setPointerCapture(drag.pointerId);
     }
 
-    if (this.#behavior.activate?.(view) === false) {
+    if (this.#behavior.activate?.(drag) === false) {
       session.decision ??= SKIPPED;
       return;
     }
 
     session.started = true;
-    this.#behavior.start?.(view);
+    this.#behavior.start?.(drag);
     session.phase = ACTIVE;
 
     // A pointerless operation has no `pointerup`, so the sequence produces its
     // own release, after anything the hooks above requested.
-    if (view.pointerId === COMMAND_POINTER_ID) {
+    if (drag.pointerId === COMMAND_POINTER_ID) {
       session.next = () => {
         this.#drop(session);
       };
@@ -779,9 +885,9 @@ class Gesture<State, Verdict> {
   #drop(session: Session<State, Verdict>): void {
     session.phase = DROPPING;
     this.#closeMotion(session);
-    session.focused = focusedWithin(session.view.item);
+    session.focused = focusedWithin(session.drag.item);
 
-    const invoke = this.#behavior.drop?.(session.view);
+    const invoke = this.#behavior.drop?.(session.drag);
 
     session.next = invoke
       ? () => {
@@ -857,7 +963,7 @@ class Gesture<State, Verdict> {
   }
 
   #closeMotion(session: Session<State, Verdict>): void {
-    const { pointerId } = session.view;
+    const { pointerId } = session.drag;
 
     session.motion.abort();
 
@@ -868,10 +974,18 @@ class Gesture<State, Verdict> {
     }
   }
 
-  /** Total over foreign code: every disposer runs and each throw is reported. */
+  /**
+   * Total over foreign code: every disposer runs and each throw is reported. Runs
+   * once: a destruction after the decision finds the operation released.
+   */
   #release(session: Session<State, Verdict>, outcome: Outcome | null): void {
     const { disposers, lift } = session;
 
+    if (session.operation.signal.aborted) {
+      return;
+    }
+
+    session.releasedWith = outcome;
     session.operation.abort();
 
     while (disposers.length > 0) {
@@ -892,13 +1006,13 @@ class Gesture<State, Verdict> {
    * destruction requested by anything here is applied before it.
    */
   #conclude(session: Session<State, Verdict>, outcome: Outcome<Verdict>): void {
-    const { view, lift } = session;
+    const { drag, lift } = session;
     const dropped = session.phase === DROPPING;
 
     session.phase = CONCLUDED;
 
     if (!dropped) {
-      session.focused = focusedWithin(view.item);
+      session.focused = focusedWithin(drag.item);
     }
 
     try {
@@ -915,7 +1029,7 @@ class Gesture<State, Verdict> {
 
     if (session.started) {
       try {
-        landing = this.#behavior.settle?.(view, outcome);
+        landing = this.#behavior.settle?.(drag, outcome);
       } catch (error) {
         this.#raise(error);
       }
@@ -923,37 +1037,30 @@ class Gesture<State, Verdict> {
 
     this.#release(session, outcome);
 
-    try {
-      const { focused } = session;
-
-      if (focused?.isConnected) {
-        const { activeElement, body } = focused.ownerDocument;
-
-        // Anything else was focused by the user or the consumer since the drop.
-        if (!activeElement || activeElement === body) {
-          // A command restores with normal scrolling, so that a row moved by
-          // keyboard stays visible.
-          focused.focus({
-            preventScroll: view.pointerId !== COMMAND_POINTER_ID,
-          });
-        }
-      }
-
-      if (landing && lift) {
+    if (landing && lift) {
+      try {
         this.#cancelLanding = lift.land(landing);
+      } catch (error) {
+        // A landing that cannot run is skipped. The outcome stands.
+        this.#raise(error);
       }
-    } catch (error) {
-      // A landing that cannot run is skipped. The outcome stands.
-      this.#raise(error);
     }
 
+    // `end` may reorder, and a reorder sends focus to `body`, so focus returns
+    // after it, in the same step, whether it returns or throws.
     if (session.started) {
       session.next = () => {
         this.#session = null;
-        this.#behavior.end?.(view, outcome);
+
+        try {
+          this.#behavior.end?.(drag, outcome);
+        } finally {
+          restoreFocus(session.focused, drag.pointerId);
+        }
       };
     } else {
       this.#session = null;
+      restoreFocus(session.focused, drag.pointerId);
     }
   }
 
@@ -1004,7 +1111,13 @@ class Gesture<State, Verdict> {
  *
  * `root` must be connected and must stay in its document while a drag holds
  * pointer capture on it. A press is never prevented, so give the handle
- * `touch-action: none` for touch input and `user-select: none` for text.
+ * `touch-action: none` for touch input, `user-select: none` for text, and
+ * `draggable="false"` on a natively draggable element such as a link or an image.
+ *
+ * The kernel calls each hook as a method of `behavior`, read when it is called,
+ * so a behavior may be a class instance. An event one controller admitted is
+ * offered to no other, so nested roots need no marking. An `Escape` that cancels
+ * a started operation has its default prevented.
  */
 export function draggable<State = undefined, Verdict = unknown>(
   root: HTMLElement,

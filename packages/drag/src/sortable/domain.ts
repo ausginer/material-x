@@ -16,7 +16,6 @@ export type CollectionSnapshot = Readonly<{
  * collection changes.
  */
 export type Insertion = Readonly<{
-  version: number;
   index: number;
   before: HTMLElement | null;
   after: HTMLElement | null;
@@ -25,10 +24,8 @@ export type Insertion = Readonly<{
 export function insertionAt(
   destination: readonly HTMLElement[],
   index: number,
-  snapshot: CollectionSnapshot,
 ): Insertion {
   return {
-    version: snapshot.version,
     index,
     before: destination[index - 1] ?? null,
     after: destination[index] ?? null,

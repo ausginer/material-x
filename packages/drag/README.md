@@ -21,24 +21,54 @@ const controller = sortable(list, {
 await controller.requestDestroy();
 ```
 
-Give each row `touch-action: none` for touch input and `user-select: none` for text. Add features by importing them: `landing` from `sortable/landing.js`, `layoutAnimation` from `sortable/layout-animation.js`, and `xy` from `sortable/xy.js` for a wrapping field.
+Give each row `touch-action: none` for touch input and `user-select: none` for text. A natively draggable item or handle, such as a link or an image, also needs `draggable="false"`, or the browser's own drag takes the pointer. Add features by importing them: `landing` from `sortable/landing.js`, `layoutAnimation` from `sortable/layout-animation.js`, and `xy` from `sortable/xy.js` for a wrapping field.
 
-`items()` is pulled at each press and again at activation, so a list that changed between drags or during a press needs no call. During a drag, call `controller.invalidate()`. A surviving gap rebases, and a lost neighbor or a removed item cancels the drag.
+`items()` is pulled at each press and command, and again at activation, so a list that changed between drags or during a press needs no call. During a drag, call `controller.invalidate()`. A surviving gap rebases, and a lost neighbor or a removed item cancels the drag. Because the collection is pulled, create **one controller per root** and keep it while the list changes: destroying it during a drag removes that drag's `onEnd` and landing.
+
+Lists nest with no marking. An event that one controller admitted is offered to no other, so the innermost list that admits a press takes it, and an outer list still takes a press its inner lists declined, such as on a column header.
 
 ```ts
 import { bounds } from '@ydinjs/drag/free-drag/bounds.js';
 import { freeDrag, FreeDragResolution } from '@ydinjs/drag/free-drag.js';
 
+let x = 0;
+let y = 0;
+
 freeDrag(box, {
   bounds: bounds(arena),
-  onDrop({ localDeltaX, localDeltaY }) {
-    box.style.translate = `${localDeltaX}px ${localDeltaY}px`;
-    return FreeDragResolution.accept();
+  onDrop: () => FreeDragResolution.accept(),
+  onEnd(result) {
+    if (result.type === 'accepted') {
+      x += result.request.localDeltaX;
+      y += result.request.localDeltaY;
+      box.style.translate = `${x}px ${y}px`;
+    }
   },
 });
 ```
 
-An accepted free drag does not move back and does not move by itself: `onDrop` writes the position. `localDeltaX` and `localDeltaY` are in the space a transform authored on the visual acts in.
+`onDrop` decides, and **`onEnd` commits.** During the drag the lift owns the visual's inline position and inset, size, margin, padding, border, `zoom`, `box-sizing`, `transform` and the individual transforms, `transform-origin`, transitions, overflow, `color` and `background-color`, and release restores them exactly, over any write made in between. So a position written in `onDrop` is put back at release, and one written in `onEnd`, which runs after release in the same task, stays with no frame at home. A framework must not write those properties to a lifted visual. A commit the lift does not own, such as DOM order, attributes, classes or a model, may be made in `onDrop`. That is how `sortable` commits.
+
+`localDeltaX` and `localDeltaY` are the offset from home to where the visual was dropped, in the space a transform authored on the visual acts in. Home is the visual's place at the grab. If a scrolling container can move it during the drag, give `home`, which is read at the drop and again for a landing home:
+
+```ts
+freeDrag(box, {
+  home() {
+    const frame = scroller.getBoundingClientRect();
+
+    return {
+      x: frame.left + boxLeft - scroller.scrollLeft + x,
+      y: frame.top + boxTop - scroller.scrollTop + y,
+    };
+  },
+  onDrop: () => FreeDragResolution.accept(),
+  onEnd(result) {
+    // Commit as above.
+  },
+});
+```
+
+Without `home`, the offset is exact only when nothing moved the home during the drag.
 
 ## Writing a behavior
 
@@ -48,12 +78,12 @@ An accepted free drag does not move back and does not move by itself: `onDrop` w
 | --- | --- | --- |
 | `admit(event)` | A primary press on the root | Return `{ item, handle?, state? }`, or `null` to decline |
 | `command(event)` | A key on the root | An admission runs one complete operation with no pointer. `pointerId` is `-1` |
-| `activate(drag)` | The pointer crossed the threshold | Set up everything that can fail. Return `false` to decline quietly. A throw is a fault. Neither gets `start` or `end` |
+| `activate(drag)` | The pointer crossed the threshold | Set up everything that can fail. Return `false` to decline quietly. A throw is a fault. Neither gets `start` or `end`. An item disconnected by then declines with no hook at all |
 | `start(drag)` | After `activate` | From here `end` is guaranteed, unless destruction is applied first |
 | `move(drag)` | Each pointer sample | Read no layout here. Coalesce expensive work to a frame |
 | `drop(drag)` | The pointer was released | Return `(signal) => verdict`, or `null` to skip it |
 | `settle(drag, outcome)` | The outcome is decided, presentation is still held | With `lift`, return a `Landing` or `null` |
-| `end(drag, outcome)` | After release, in the same task | A landing does not delay it |
+| `end(drag, outcome)` | After release and the landing's start, in the same task | A landing does not delay it. Focus returns after it, so a reorder here keeps focus |
 
 The `outcome` is `skipped`, `verdict` with its `value`, or `canceled` with its `reason` and `origin` (`request`, `escape`, `interrupted` or `fault`).
 
@@ -62,10 +92,10 @@ The `outcome` is `skipped`, `verdict` with its `value`, or `canceled` with its `
 **A hook may write its own state directly. Code outside a hook writes behavior state through `requestStep`.** A consumer's method, a frame callback or a listener can run in the middle of a DOM write the kernel makes, so a direct write could change the running step. Nothing can detect a direct write, so this is a rule for you to keep.
 
 ```ts
-const panel = draggable(root, { ... });
+const controller = draggable(root, { ... });
 
 function nudge(amount: number): void {
-  panel.requestStep((drag) => {
+  controller.requestStep((drag) => {
     if (drag) {
       drag.state.offset += amount;
     }
@@ -73,11 +103,13 @@ function nudge(amount: number): void {
 }
 ```
 
-The step runs at once when no pass is running, and otherwise between steps, in request order. It receives the `Drag` from the end of activation until the drop or the decision, and `null` otherwise, so a write behind a cancel changes nothing. The same function requested twice before it runs runs once, so a stable function coalesces. Hooks also have `drag.requestStep` and `drag.requestCancel`.
+The step runs at once when no pass is running, and otherwise between steps, in request order. It receives the `Drag` from the end of activation until the drop or the decision, and `null` otherwise, so a write behind a cancel changes nothing. The same function requested twice before it runs runs once, so a stable function coalesces.
+
+Hooks also have `drag.requestStep` and `drag.requestCancel`. **They are scoped to their operation:** they act only while it is the controller's current one, and afterwards do nothing, so a `drag` kept in a timer never reaches a later drag. Cleanup after an operation belongs in `use`. Every controller method works when detached, as in `return controller.requestDestroy`.
 
 ### Cleanup with `use`
 
-`drag.use(dispose)` runs when the operation releases its presentation, last in first out, and every disposer runs whatever another one throws. A disposer receives the outcome, or `null` on destruction, where neither `settle` nor `end` runs. So one disposer can state a rollback:
+`drag.use(dispose)` runs when the operation releases its presentation, last in first out, and every disposer runs whatever another one throws. A disposer receives the outcome, or `null` when destruction released the operation, where neither `settle` nor `end` runs. A disposer added after release runs at once with the same value. So one disposer can state a rollback:
 
 ```ts
 drag.use((outcome) => {
@@ -87,7 +119,7 @@ drag.use((outcome) => {
 });
 ```
 
-`panel.use(dispose)` is cleanup for the controller's lifetime. A disposer added too late runs at once.
+`controller.use(dispose)` is cleanup for the controller's lifetime. A disposer added too late runs at once.
 
 ### Faults
 
@@ -118,8 +150,10 @@ Import `lift` from `@ydinjs/drag/lift.js` and pass it as the behavior's `lift` t
 
 ## Focus and landing limits
 
-- **Focus.** The library does not choose where focus goes. The lift keeps focus where it was, and a reorder keeps focus on the element inside the item that had it, through open shadow roots. A pointer operation restores with `preventScroll`, and a keyboard operation with normal scrolling, so that a row moved by keyboard stays visible. It never takes focus from an element focused since the drop, and it does not restore on destruction. **You own `tabindex`, roles and any announcement of the new order.** A row that cannot take focus cannot be reordered from the keyboard.
+- **Focus.** The library does not choose where focus goes. The lift keeps focus where it was, and a reorder keeps focus on the element inside the item that had it, through open shadow roots. Focus is restored after `end`, so a reorder in the verdict or in `end` keeps it. A pointer operation restores with `preventScroll`, and a keyboard operation with normal scrolling, so that a row moved by keyboard stays visible. It never takes focus from an element focused since the drop, and it does not restore on destruction. **You own `tabindex`, roles and any announcement of the new order.** A row that cannot take focus cannot be reordered from the keyboard.
 - **Landing.** The visual has left the top layer during a landing, so an ancestor can clip it or stack above it for the length of the flight. It stays above its siblings in its own stacking context. With `prefers-reduced-motion: reduce`, every landing has zero duration. `layoutAnimation`'s row animations do not change with that preference.
+- **`Escape`.** `Escape` cancels an operation. Once the operation has started, the library prevents the key's default, so the dialog or popover holding the list stays open. The key still propagates. Before the threshold it is not prevented.
+- **Input.** The library reads an operation's pointer stream and `Escape` on the window in the capture phase, so a `stopPropagation` in the page doesn't hide them. A press never activates without its button, and a press whose release the library missed ends at the next sample with no button or the next press.
 - **Destruction.** A trailing click after a destruction with the button held is still swallowed, by a guard that holds no reference to the item or the controller and runs no consumer code.
 - **Real devices.** Touch is tested through Chromium's emulated input. Physical touch and pen are unverified.
 

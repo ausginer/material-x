@@ -3,20 +3,17 @@
  * nothing here reads the DOM.
  */
 import { delta, localDelta, type Space } from '@ydinjs/box-quad';
-import type {
-  DragGeometry,
-  FreeDragRequest,
-  FreeDragSubject,
-} from './domain.ts';
+import type { LiftedDrag } from '../draggable.ts';
+import type { DragGeometry, FreeDragRequest, Point } from './domain.ts';
 
-/** From the owning realm, so an iframe's consumer gets that document's rect. */
+/** From the owning window, so an iframe's consumer gets that document's rect. */
 function currentRect(
   originRect: DOMRectReadOnly,
   dx: number,
   dy: number,
-  view: Window & typeof globalThis,
+  window: Window & typeof globalThis,
 ): DOMRectReadOnly {
-  return new view.DOMRectReadOnly(
+  return new window.DOMRectReadOnly(
     originRect.x + dx,
     originRect.y + dy,
     originRect.width,
@@ -36,53 +33,51 @@ function toLocal(space: Space, dx: number, dy: number): Float64Array {
   return local;
 }
 
-/** `dx`/`dy` are the rendered delta, axis-projected and clamped. */
+/** `motion` is the rendered delta, axis-projected and clamped. */
 export function buildGeometry(
-  pointerX: number,
-  pointerY: number,
-  originX: number,
-  originY: number,
-  dx: number,
-  dy: number,
-  originRect: DOMRectReadOnly,
-  space: Space,
-  view: Window & typeof globalThis,
+  drag: LiftedDrag<unknown>,
+  motion: Point,
+  window: Window & typeof globalThis,
 ): DragGeometry {
-  const local = toLocal(space, dx, dy);
+  const { x: dx, y: dy } = motion;
+  const local = toLocal(drag.visualSpace, dx, dy);
 
   return {
-    pointerX,
-    pointerY,
-    originPointerX: originX,
-    originPointerY: originY,
+    pointerX: drag.x,
+    pointerY: drag.y,
+    originPointerX: drag.originX,
+    originPointerY: drag.originY,
     viewportDeltaX: dx,
     viewportDeltaY: dy,
     localDeltaX: local[0]!,
     localDeltaY: local[1]!,
-    originRect,
-    currentRect: currentRect(originRect, dx, dy, view),
+    originRect: drag.rect,
+    currentRect: currentRect(drag.rect, dx, dy, window),
   };
 }
 
-/** The release snapshot `onDrop` is asked about. */
+/**
+ * The release snapshot `onDrop` is asked about. Its deltas are the offset from
+ * `home`, the visual's top-left at home in the viewport, to its top-left at the
+ * drop, so a scroll that moved the home during the drag is in them.
+ */
 export function buildRequest(
-  subject: FreeDragSubject,
-  pointerX: number,
-  pointerY: number,
-  dx: number,
-  dy: number,
-  originRect: DOMRectReadOnly,
-  space: Space,
-  view: Window & typeof globalThis,
+  item: HTMLElement,
+  drag: LiftedDrag<unknown>,
+  motion: Point,
+  home: Point,
+  window: Window & typeof globalThis,
 ): FreeDragRequest {
-  const visualRect = currentRect(originRect, dx, dy, view);
-  const local = toLocal(space, dx, dy);
+  const visualRect = currentRect(drag.rect, motion.x, motion.y, window);
+  const dx = visualRect.left - home.x;
+  const dy = visualRect.top - home.y;
+  const local = toLocal(drag.visualSpace, dx, dy);
 
   return {
-    item: subject.item,
-    visual: subject.visual,
-    pointerX,
-    pointerY,
+    item,
+    visual: drag.visual,
+    pointerX: drag.x,
+    pointerY: drag.y,
     positionX: visualRect.left,
     positionY: visualRect.top,
     viewportDeltaX: dx,

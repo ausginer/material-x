@@ -38,14 +38,28 @@ export type FreeDragRequest = FreeDragSubject &
     /** The visual's top-left at release. */
     positionX: number;
     positionY: number;
+    /**
+     * From the visual's top-left at home to its top-left at the drop. Home is
+     * `home()`, read once at the drop, or the visual's rect at the grab. Without
+     * `home`, this is exact only when nothing moved the home during the drag, such
+     * as a scrolling ancestor.
+     */
     viewportDeltaX: number;
     viewportDeltaY: number;
+    /**
+     * The same offset in the space a transform authored on the visual acts in:
+     * write it to the visual's `translate` in `onEnd` to commit the drop.
+     */
     localDeltaX: number;
     localDeltaY: number;
     visualRect: DOMRectReadOnly;
   }>;
 
-/** Where a rejected or canceled drag returns to. */
+/**
+ * The viewport position of the visual's top-left at home, now. A rejected or
+ * canceled drag lands there, and the request's offset is measured from it. Give
+ * it when a scrolling container can move the home during a drag.
+ */
 export type ResolveHome = (subject: FreeDragSubject) => Point;
 
 // No runtime value carries this key: it keeps the shape unwritable except

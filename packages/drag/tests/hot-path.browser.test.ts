@@ -227,7 +227,7 @@ describe('drag:DRI-17 hot path', () => {
       // tens of bytes.
       expect(kernelPerMove, JSON.stringify(bytes)).toBeLessThan(16);
       expect(liftFunctions, JSON.stringify(bytes)).toEqual([
-        'lift.ts:view.translate',
+        'lift.ts:drag.translate',
       ]);
     },
   );

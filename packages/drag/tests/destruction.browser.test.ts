@@ -22,6 +22,7 @@ import {
   isClean,
   log,
   makeList,
+  onCleanup,
   managed,
   moveHeld,
   ReactionProbe,
@@ -110,9 +111,20 @@ async function destroyFrom(where: Hook) {
   });
 
   if (where === 'listener') {
-    list.addEventListener('pointerup', () => {
-      destroyHere('listener');
+    const listening = new AbortController();
+
+    onCleanup(() => {
+      listening.abort();
     });
+    // Registered before the press, so it runs before the kernel's own
+    // window-capture listener.
+    window.addEventListener(
+      'pointerup',
+      () => {
+        destroyHere('listener');
+      },
+      { capture: true, signal: listening.signal },
+    );
   }
 
   await grab('#r0');
@@ -153,7 +165,7 @@ describe('drag:DRI-10 destruction', () => {
     const { list, panel, after, destroyed } = await destroyFrom(where);
 
     if (where === 'listener') {
-      // The listener on the root runs before the kernel's on the document.
+      // The page's listener runs before the kernel's.
       expect(after).not.toContain('settle');
     }
 

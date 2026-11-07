@@ -2,7 +2,7 @@
  * Reading a message is foreign code: a hostile object may throw from a getter or
  * from its string conversion, and the report must still go out.
  */
-function describe(cause: unknown): string {
+function readMessage(cause: unknown): string {
   try {
     return String((cause as Error | null | undefined)?.message ?? cause);
   } catch {
@@ -19,6 +19,6 @@ export class DragFault extends Error {
   override readonly name: string = 'DragFault';
 
   constructor(cause: unknown) {
-    super(`drag: ${describe(cause)}`, { cause });
+    super(`drag: ${readMessage(cause)}`, { cause });
   }
 }

@@ -38,7 +38,7 @@ export function directionOf(key: string): KeyboardDirection | null {
  * The destination gap for moving `item` one slot, or `null` at the edge, which
  * makes the command inert so that the arrow key keeps its native meaning. Moving
  * up takes the predecessor's slot. Moving down passes the successor, which has
- * already shifted into `from`, so the gap is `from + 1`.
+ * already shifted into `from`, so the gap is `from + 1`. `item` is in `snapshot`.
  */
 export function keyboardInsertion(
   snapshot: CollectionSnapshot,
@@ -47,11 +47,6 @@ export function keyboardInsertion(
 ): Insertion | null {
   const { items } = snapshot;
   const from = items.indexOf(item);
-
-  if (from === -1) {
-    return null;
-  }
-
   const up = direction === DIRECTION_UP;
 
   if (up ? from === 0 : from === items.length - 1) {
@@ -60,5 +55,5 @@ export function keyboardInsertion(
 
   const destination = items.filter((candidate) => candidate !== item);
 
-  return insertionAt(destination, up ? from - 1 : from + 1, snapshot);
+  return insertionAt(destination, up ? from - 1 : from + 1);
 }

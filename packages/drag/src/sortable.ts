@@ -115,6 +115,8 @@ type Recovery =
 
 type State = {
   readonly item: HTMLElement;
+  /** A command's direction, or `null` for a pointer operation. */
+  readonly direction: KeyboardDirection | null;
   snapshot: CollectionSnapshot;
   insertion: Insertion | null;
   pointerX: number;
@@ -344,7 +346,8 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
 
   /**
    * The pressed item from a fresh collection, and the admission for it. A command
-   * names its direction and is refused at the collection's edge.
+   * names its direction and is refused at the collection's edge, so that the key
+   * keeps its native meaning there.
    */
   #admission(event: Event, direction: KeyboardDirection | null) {
     const config = this.#config;
@@ -370,18 +373,16 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
       handle = named;
     }
 
-    const insertion =
-      direction === null ? null : keyboardInsertion(snapshot, item, direction);
-
-    if (direction !== null && !insertion) {
+    if (direction !== null && !keyboardInsertion(snapshot, item, direction)) {
       return null;
     }
 
     const visual = config.visual ? config.visual(item) : item;
     const state: State = {
       item,
+      direction,
       snapshot,
-      insertion,
+      insertion: null,
       pointerX: 0,
       pointerY: 0,
       request: null,
@@ -412,23 +413,32 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
 
   activate(drag: LiftedDrag<State>): false | undefined {
     const { item, visual, box, state, boxWidth, boxHeight } = drag;
-    const view = this.#window;
+    const window = this.#window;
 
-    // The second pull closes the window between the press and the threshold. A
-    // command has no such window, and its gap belongs to its admission's snapshot.
-    if (drag.pointerId !== -1) {
-      const snapshot = this.#pull();
+    // The second pull closes the window between admission and activation, in
+    // which foreign code runs: a press before its threshold, and a command
+    // through the lift's popover events. An item that left, or a command whose
+    // move is no longer possible, declines quietly.
+    const snapshot = this.#pull();
 
-      if (!snapshot.items.includes(item)) {
-        return false;
-      }
-
-      state.snapshot = snapshot;
-      state.insertion = homeInsertion(snapshot, item);
+    if (!snapshot.items.includes(item)) {
+      return false;
     }
 
+    const insertion =
+      state.direction === null
+        ? homeInsertion(snapshot, item)
+        : keyboardInsertion(snapshot, item, state.direction);
+
+    if (!insertion) {
+      return false;
+    }
+
+    state.snapshot = snapshot;
+    state.insertion = insertion;
+
     const placeholder = createPlaceholder(
-      view.document,
+      window.document,
       { item, visual, box, rect: drag.rect },
       boxWidth,
       // Across the lift: a box around the visual keeps the part of its height the
@@ -448,7 +458,7 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
 
     const updateInsertion = this.#updateInsertion;
     const invalidateGeometry = this.#invalidateGeometry;
-    const frame = createFrameTask(view, () => {
+    const frame = createFrameTask(window, () => {
       drag.requestStep(updateInsertion);
     });
 
@@ -456,7 +466,7 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
       frame.cancel();
     });
     drag.use(this.#retireAxis);
-    listenForInvalidation(view, drag.signal, () => {
+    listenForInvalidation(window, drag.signal, () => {
       drag.requestStep(invalidateGeometry);
     });
     state.placeholder = placeholder;
@@ -484,7 +494,7 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
 
   drop(drag: LiftedDrag<State>) {
     const { state, item } = drag;
-    const pointer = drag.pointerId !== -1;
+    const pointer = state.direction === null;
     const config = this.#config;
 
     state.frame!.cancel();

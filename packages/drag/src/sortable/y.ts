@@ -21,21 +21,13 @@
 import type { AxisInstaller } from './axis.ts';
 import { insertionAt } from './domain.ts';
 import { LinearShift } from './linear-shift.ts';
-import {
-  BOTTOM,
-  CENTER_Y,
-  RectIndex,
-  type RectIndexView,
-  STRIDE,
-  TOP,
-} from './rect-index.ts';
+import { CENTER_Y, RectIndex, STRIDE } from './rect-index.ts';
 
 /** The axis rule for a single column. */
 export function y(): AxisInstaller {
   return () => {
     const index = new RectIndex();
-    const view: RectIndexView = index;
-    const shift = new LinearShift(index, TOP, BOTTOM, CENTER_Y, 0, 1);
+    const shift = new LinearShift(index);
 
     return {
       resolve(query, context) {
@@ -50,7 +42,7 @@ export function y(): AxisInstaller {
           insertion ? insertion.index : -1,
         );
 
-        const { values, count, placeholderRect, items } = view;
+        const { values, count, placeholderRect, items } = index;
         const anchor = placeholderRect[CENTER_Y]!;
         let best = Math.abs(pointerY - anchor);
         let nearest = -1;
@@ -73,7 +65,7 @@ export function y(): AxisInstaller {
         const gap =
           values[nearest * STRIDE + CENTER_Y]! > anchor ? nearest + 1 : nearest;
 
-        return insertionAt(items, gap, snapshot);
+        return insertionAt(items, gap);
       },
 
       invalidate() {

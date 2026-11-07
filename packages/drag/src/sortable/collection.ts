@@ -28,14 +28,14 @@ export function reconcileCollection(
   // A start gap survives only while `after` remains the first destination item.
   if (!before) {
     return after && destination[0] === after
-      ? insertionAt(destination, 0, next)
+      ? insertionAt(destination, 0)
       : null;
   }
 
   // An end gap survives only while `before` remains the last destination item.
   if (!after) {
     return destination.at(-1) === before
-      ? insertionAt(destination, destination.length, next)
+      ? insertionAt(destination, destination.length)
       : null;
   }
 
@@ -43,7 +43,7 @@ export function reconcileCollection(
   const beforeIndex = destination.indexOf(before);
 
   return beforeIndex >= 0 && destination[beforeIndex + 1] === after
-    ? insertionAt(destination, beforeIndex + 1, next)
+    ? insertionAt(destination, beforeIndex + 1)
     : null;
 }
 
@@ -59,7 +59,6 @@ export function homeInsertion(
   const from = snapshot.items.indexOf(item);
 
   return {
-    version: snapshot.version,
     index: from,
     before: snapshot.items[from - 1] ?? null,
     after: snapshot.items[from + 1] ?? null,

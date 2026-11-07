@@ -13,29 +13,30 @@ export type MotionConstraint = Readonly<{
   invalidate(): void;
 }>;
 
-export type BoundsInstaller = (view: Window) => MotionConstraint;
+export type BoundsInstaller = (window: Window) => MotionConstraint;
 
 export function bounds(source?: BoundsSource): BoundsInstaller {
-  return (view) => {
+  return (window) => {
     const box = { left: 0, top: 0, right: 0, bottom: 0 };
-    let bounded = false;
+    /** The last read: `box`, or `null` for unconstrained. */
+    let held: typeof box | null = null;
     let stale = true;
 
     /** Lazy: each resolve is a layout read or a consumer call. */
     const resolve = (): typeof box | null => {
       if (!stale) {
-        return bounded ? box : null;
+        return held;
       }
 
       stale = false;
+      held = box;
 
       if (source === undefined) {
         box.left = 0;
         box.top = 0;
-        box.right = view.innerWidth;
-        box.bottom = view.innerHeight;
-        bounded = true;
-        return box;
+        box.right = window.innerWidth;
+        box.bottom = window.innerHeight;
+        return held;
       }
 
       const read =
@@ -44,8 +45,8 @@ export function bounds(source?: BoundsSource): BoundsInstaller {
           : source.getBoundingClientRect();
 
       if (!read) {
-        bounded = false;
-        return null;
+        held = null;
+        return held;
       }
 
       // Copied, because a function's rect is the consumer's object.
@@ -55,24 +56,23 @@ export function bounds(source?: BoundsSource): BoundsInstaller {
       box.top = top;
       box.right = right;
       box.bottom = bottom;
-      bounded = true;
-      return box;
+      return held;
     };
 
     return {
       apply(motion, originRect) {
-        const held = resolve();
+        const rect = resolve();
 
-        if (held) {
+        if (rect) {
           // Lower clamp first, so a box smaller than the visual pins to the far
           // edge and does not produce a `NaN`.
           motion.x = Math.min(
-            Math.max(motion.x, held.left - originRect.left),
-            held.right - originRect.right,
+            Math.max(motion.x, rect.left - originRect.left),
+            rect.right - originRect.right,
           );
           motion.y = Math.min(
-            Math.max(motion.y, held.top - originRect.top),
-            held.bottom - originRect.bottom,
+            Math.max(motion.y, rect.top - originRect.top),
+            rect.bottom - originRect.bottom,
           );
         }
       },

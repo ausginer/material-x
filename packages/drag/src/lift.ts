@@ -17,8 +17,13 @@ import type {
   LiftedAdmission,
   LiftedDrag,
   LiftHold,
+  WritableLiftedDrag,
 } from './draggable.ts';
 import { deepActiveElement } from './shared/focus.ts';
+import {
+  DEFAULT_LANDING_DURATION,
+  DEFAULT_LANDING_EASING,
+} from './shared/timing.ts';
 
 const BOX_A = 0;
 const BOX_B = 1;
@@ -30,8 +35,6 @@ const BOX_WIDTH = 6;
 const BOX_HEIGHT = 7;
 const SPACE_ANCESTOR_ZOOM = 4;
 
-const DEFAULT_LANDING_DURATION = 200;
-const DEFAULT_LANDING_EASING = 'ease';
 const TOP_Z_INDEX = 2_147_483_647;
 
 /**
@@ -200,22 +203,17 @@ function acquireTopLayer(
   return restore;
 }
 
-/** The kernel's view of a lifted drag, whose members the lift fills. */
-type WritableLiftedDrag<State> = {
-  -readonly [K in keyof LiftedDrag<State>]: LiftedDrag<State>[K];
-};
-
 /**
  * The flight is additive, so it composes with whatever else animates the visual.
  * Elevation is a separate replacing animation: added to an item's own `z-index`,
  * the sum wraps in WebKit and the item goes under its siblings.
  */
 function startLandingAnimation<State>(
-  view: LiftedDrag<State>,
-  realm: Window,
+  drag: LiftedDrag<State>,
+  window: Window,
   landing: Landing,
 ): (() => void) | null {
-  const { visual, rect, visualSpace, translatedX, translatedY } = view;
+  const { visual, rect, visualSpace, translatedX, translatedY } = drag;
   const local = delta();
 
   if (
@@ -230,7 +228,7 @@ function startLandingAnimation<State>(
     return null;
   }
 
-  const duration = realm.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ? 0
     : (landing.duration ?? DEFAULT_LANDING_DURATION);
   const flight = visual.animate(
@@ -249,7 +247,7 @@ function startLandingAnimation<State>(
   }
 
   const keyframe =
-    realm.getComputedStyle(visual).position === 'static'
+    window.getComputedStyle(visual).position === 'static'
       ? { zIndex: TOP_Z_INDEX, position: 'relative' }
       : { zIndex: TOP_Z_INDEX };
   const elevation = visual.animate([keyframe, keyframe], { duration });
@@ -269,12 +267,12 @@ function startLandingAnimation<State>(
  * has no single 2D box (fragmented, `display: none` or 3D), which is a fault.
  */
 export function lift<State>(
-  view: WritableLiftedDrag<State>,
+  drag: WritableLiftedDrag<State>,
   admission: LiftedAdmission<State>,
-  realm: Window,
+  window: Window,
   report: (error: unknown) => void,
 ): LiftHold {
-  const { item } = view;
+  const { item } = drag;
   const { visual = item } = admission;
   const box = admission.box ?? visual;
   const rect = visual.getBoundingClientRect();
@@ -292,7 +290,7 @@ export function lift<State>(
     throw new Error('lift/visual-no-box-space');
   }
 
-  const style = realm.getComputedStyle(visual);
+  const style = window.getComputedStyle(visual);
   const restoreStyles = captureInlineStyles(visual);
   let releaseTopLayer: () => void;
   let base: string;
@@ -334,19 +332,19 @@ export function lift<State>(
     throw error;
   }
 
-  view.visual = visual;
-  view.box = box;
-  view.rect = rect;
-  view.boxWidth = boxWidth;
-  view.boxHeight = boxHeight;
-  view.visualSpace = visualSpace;
-  view.itemSpace = itemSpace;
-  view.translatedX = 0;
-  view.translatedY = 0;
-  view.translate = (x, y) => {
+  drag.visual = visual;
+  drag.box = box;
+  drag.rect = rect;
+  drag.boxWidth = boxWidth;
+  drag.boxHeight = boxHeight;
+  drag.visualSpace = visualSpace;
+  drag.itemSpace = itemSpace;
+  drag.translatedX = 0;
+  drag.translatedY = 0;
+  drag.translate = (x, y) => {
     visual.style.transform = `translate(${x}px, ${y}px) ${base}`;
-    view.translatedX = x;
-    view.translatedY = y;
+    drag.translatedX = x;
+    drag.translatedY = y;
   };
 
   return {
@@ -357,6 +355,6 @@ export function lift<State>(
         restoreStyles();
       }
     },
-    land: (landing) => startLandingAnimation(view, realm, landing),
+    land: (landing) => startLandingAnimation(drag, window, landing),
   };
 }

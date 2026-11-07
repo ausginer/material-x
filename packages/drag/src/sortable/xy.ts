@@ -17,7 +17,6 @@ import {
   CENTER_Y,
   LEFT,
   RectIndex,
-  type RectIndexView,
   STRIDE,
   TOP,
 } from './rect-index.ts';
@@ -26,7 +25,6 @@ import {
 export function xy(): AxisInstaller {
   return () => {
     const index = new RectIndex();
-    const view: RectIndexView = index;
     /** The gap the buffer reflects, or `-1` when nothing is known. */
     let last = -1;
     /** The origins held before the DOM write, packed `[left, top]` per slot. */
@@ -49,7 +47,7 @@ export function xy(): AxisInstaller {
         );
         last = insertion ? insertion.index : -1;
 
-        const { values, count, placeholderRect, items } = view;
+        const { values, count, placeholderRect, items } = index;
         const dxAnchor = pointerX - placeholderRect[CENTER_X]!;
         const dyAnchor = pointerY - placeholderRect[CENTER_Y]!;
         let best = dxAnchor * dxAnchor + dyAnchor * dyAnchor;
@@ -77,7 +75,7 @@ export function xy(): AxisInstaller {
         // oxlint-disable-next-line no-bitwise -- a documented bitfield
         const follows = (position & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
 
-        return insertionAt(items, follows ? nearest + 1 : nearest, snapshot);
+        return insertionAt(items, follows ? nearest + 1 : nearest);
       },
 
       invalidate,
@@ -85,7 +83,7 @@ export function xy(): AxisInstaller {
       moved(query, context, report) {
         const gap = query.insertion!.index;
         const from = last;
-        const held = view.count;
+        const held = index.count;
 
         if (!report || from < 0 || from === gap || held === 0) {
           invalidate();
@@ -96,7 +94,7 @@ export function xy(): AxisInstaller {
           before = new Float64Array(held * 2);
         }
 
-        const stale = view.values;
+        const stale = index.values;
 
         for (let i = 0; i < held; i += 1) {
           before[i * 2] = stale[i * STRIDE + LEFT]!;
@@ -115,7 +113,7 @@ export function xy(): AxisInstaller {
 
         // Moving the placeholder reorders nothing in the destination view, so
         // slot `i` is the same element on both sides of the write.
-        const { values, items, count } = view;
+        const { values, items, count } = index;
         const span = count < held ? count : held;
 
         for (let i = 0; i < span; i += 1) {

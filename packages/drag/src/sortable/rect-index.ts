@@ -36,10 +36,10 @@ export type DisplacementSettle = (
  * The read-only view of a packed buffer. `Float64Array` is assignable to it and
  * `view[0] = 1` is a type error. It has no runtime cost.
  */
-export interface ReadonlyFloat64Array {
-  readonly [index: number]: number;
-  readonly length: number;
-}
+export type ReadonlyFloat64Array = Readonly<{
+  [index: number]: number;
+  length: number;
+}>;
 
 /**
  * What a collaborator may read from the cache. The owner writes through the class's
@@ -62,26 +62,16 @@ const capacityFor = (needed: number): number => {
   return capacity;
 };
 
-/** The first four packed fields are the rect's edges, in this order. */
-const edge = (rect: DOMRect, offset: number): number => {
-  if (offset === LEFT) {
-    return rect.left;
-  }
-
-  if (offset === TOP) {
-    return rect.top;
-  }
-
-  return offset === RIGHT ? rect.right : rect.bottom;
-};
-
 /**
  * The hot path: each axis rule reads `values`, `count` and `placeholderRect` once per
  * resolution, and `items` only when proposing a gap change. Do not add a read
  * inside the candidate loop.
  */
 export class RectIndex implements RectIndexView {
-  /** Re-allocated only when the collection outgrows it or shrinks well below it. */
+  /**
+   * Re-allocated only when the collection outgrows it. It never shrinks: it is
+   * bounded by the largest collection the controller saw, and released with it.
+   */
   values: Float64Array = new Float64Array(0);
 
   /**
@@ -123,17 +113,9 @@ export class RectIndex implements RectIndexView {
 
     const list = snapshot.items;
 
-    // `capacityFor` gives `n <= capacity < 2n` for a fitted buffer, so `4n` needs a
-    // real shrink, and a collection moving around a power of two does not resize.
-    // The inner test matters only at `n === 0`, whose one-slot buffer would
-    // otherwise reallocate on every scan.
-    if (list.length > this.#capacity || this.#capacity > 4 * list.length) {
-      const fitted = capacityFor(list.length);
-
-      if (fitted !== this.#capacity) {
-        this.#capacity = fitted;
-        this.values = new Float64Array(fitted * STRIDE);
-      }
+    if (list.length > this.#capacity) {
+      this.#capacity = capacityFor(list.length);
+      this.values = new Float64Array(this.#capacity * STRIDE);
     }
 
     const { values, items, placeholderRect } = this;
@@ -179,49 +161,34 @@ export class RectIndex implements RectIndexView {
   }
 
   /**
-   * Advances a span of slots by a constant. It moves the three fields the caller
-   * names. The center is recomputed from the shifted edges, so the arithmetic is the
-   * one a full scan performs.
+   * Advances a span of slots by a constant along y. The center is recomputed from
+   * the shifted edges, so the arithmetic is the one a full scan performs.
    */
-  advance(
-    lo: number,
-    hi: number,
-    delta: number,
-    start: number,
-    end: number,
-    center: number,
-  ): void {
+  advance(lo: number, hi: number, delta: number): void {
     const { values } = this;
 
     for (let i = lo; i < hi; i += 1) {
       const offset = i * STRIDE;
-      const shiftedStart = values[offset + start]! + delta;
-      const shiftedEnd = values[offset + end]! + delta;
+      const top = values[offset + TOP]! + delta;
+      const bottom = values[offset + BOTTOM]! + delta;
 
-      values[offset + start] = shiftedStart;
-      values[offset + end] = shiftedEnd;
-      values[offset + center] = (shiftedStart + shiftedEnd) * 0.5;
+      values[offset + TOP] = top;
+      values[offset + BOTTOM] = bottom;
+      values[offset + CENTER_Y] = (top + bottom) * 0.5;
     }
   }
 
   /**
-   * Re-reads the placeholder's three fields along the axis. A relocation leaves both
-   * cross-axis coordinates unchanged.
+   * Re-reads the placeholder's fields along y. A relocation in a column leaves both
+   * x coordinates unchanged.
    */
-  remeasurePlaceholder(
-    placeholder: HTMLElement,
-    start: number,
-    end: number,
-    center: number,
-  ): void {
-    const rect = placeholder.getBoundingClientRect();
+  remeasurePlaceholder(placeholder: HTMLElement): void {
+    const { top, bottom } = placeholder.getBoundingClientRect();
     const { placeholderRect } = this;
-    const a = edge(rect, start);
-    const b = edge(rect, end);
 
-    placeholderRect[start] = a;
-    placeholderRect[end] = b;
-    placeholderRect[center] = (a + b) * 0.5;
+    placeholderRect[TOP] = top;
+    placeholderRect[BOTTOM] = bottom;
+    placeholderRect[CENTER_Y] = (top + bottom) * 0.5;
   }
 
   /** One flag, because any reason for staleness forces the same full rebuild. */
@@ -240,9 +207,6 @@ export class RectIndex implements RectIndexView {
     this.#measured = -1;
   }
 }
-
-/** The development-build flag. Branches guarded by it fold away. */
-export const DEV: boolean = __DEV__;
 
 /**
  * One slack value, sized to the precision at which geometry is reported. Gecko
