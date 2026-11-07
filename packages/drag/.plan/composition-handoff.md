@@ -1,12 +1,12 @@
 # Composition handoff
 
-**One bounded unit for one implementer. It does two things: `Gesture`'s steps take the operation as a parameter, and the three findings on the composition refactor are closed.** The decisions are `DRD-24` and `DRD-25` in [`00-index.md`](00-index.md). The behavior owed is [`contract.md`](contract.md), whose public surface and `DRI-14` gained one rule each.
+**One bounded unit for one implementer. It closes the three findings on the composition refactor. Its kernel item is on hold: `DRD-24` now names an operation class as the target, and a prototype tests it first.** The decisions are `DRD-24` and `DRD-25` in [`00-index.md`](00-index.md). The behavior owed is [`contract.md`](contract.md), whose public surface and `DRI-14` gained one rule each.
 
 **Base:** `drag/production` at the commit that carries this file. It contains the owner's refactor `3084191bb` and the owner's restore of the `items()` copy, `d4286ce64`. Work on that branch, and keep `d4286ce64`'s `#pull` as it is.
 
 **Do not expand:**
 
-- No class for one operation, and no other new class.
+- No class for one operation in this unit, and no other new class. [`session-prototype-handoff.md`](session-prototype-handoff.md) builds the operation class, outside production.
 - No change to the reader's precedence, the gate or the slots.
 - No change to the typed-array locals in `y.ts`, `xy.ts`, `rect-index.ts` and `linear-shift.ts`. They are on the per-sample path, and changing them is a performance question.
 - No new public option.
@@ -14,9 +14,9 @@
 
 ## Work, in order
 
-### 1. Kernel: the operation as a parameter (`DRD-24`)
+### 1. Kernel: the operation as a parameter (`DRD-24`'s fallback)
 
-**On hold until the probe defined in `DRD-24` reports and the architect decides.** If the probe's variant is adopted, the architect rewrites this item. Item 2 doesn't depend on it and may land first.
+**On hold until the prototype in [`session-prototype-handoff.md`](session-prototype-handoff.md) reports and the architect decides.** If the operation class is adopted, the architect replaces this item with its adoption. The text below is `DRD-24`'s fallback, which applies only if the prototype fails. Item 2 doesn't depend on it and may land first.
 
 **Its own behavior-preserving commit.**
 
@@ -29,7 +29,7 @@
 
   Passing the session to `#enter` as a further argument, after the event, meets all three limits.
 
-- **Keep every local that captures a value before its field is cleared or replaced, with its comment.** `DRD-24` lists them. You may also add a local that names a value read several times in one step.
+- **Keep every local that captures a value before its field is cleared or replaced, with its comment.** These are the next step in `#applyRequests`, the lift in `#release` and `#conclude`, the session and the resolver in `#teardown`, and the landing in `#activate`. You may also add a local that names a value read several times in one step.
 - **Check:** the whole three-engine suite passes with no test edited. Typecheck and lint pass.
 
 ### 2. Built-ins (`DRD-25`)

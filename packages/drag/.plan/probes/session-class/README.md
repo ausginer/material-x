@@ -136,3 +136,7 @@ The first draft failed `just lint` with 3 errors in its own new lines: `@typescr
 ## Decision owed
 
 The architect adopts the variant and rewrites `composition-handoff.md` item 1, amends `DRD-24`, or keeps the parameter form. The candidate is preserved only as `draggable.diff.txt`.
+
+## Disposition
+
+**`DRD-24` was revised on the owner's requirement.** This probe built the boundary that `DRD-24`'s earlier text set: a shared state, result codes, and a lifecycle split between `Gesture` and `Session`. It is evidence about that boundary, not against an operation class. The revised entry names the restrictions that produced this shape and withdraws or narrows each one. [`session-prototype-handoff.md`](../../session-prototype-handoff.md) tests the new boundary, with its record in `probes/session-owner/`.

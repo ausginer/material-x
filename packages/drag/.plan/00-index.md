@@ -10,7 +10,7 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Input:** the prototype read at `26f82fbb1`. That commit is on no ref now. Its `packages/drag` tree is byte-identical to `599684791` on `drag/prototype`, so later citations use `599684791`. Evidence: [`prototype-report.md`](prototype-report.md), [`probes/prototype/`](probes/prototype/README.md), [`probes/final-design/`](probes/final-design/README.md). The comparison and earlier evidence are in [`architecture-plan.md`](architecture-plan.md).
 
-**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. The next step is [`composition-handoff.md`](composition-handoff.md). Its built-in item can start, and its kernel item waits for the probe that `DRD-24` defines.
+**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and [`session-prototype-handoff.md`](session-prototype-handoff.md) tests it before production adopts it. [`composition-handoff.md`](composition-handoff.md)'s built-in item can start, and its kernel item waits for that prototype.
 
 **Neither the prototype's approval nor the 2026-11-06 reading established a performance result.** `DRD-13` and `DRD-22` say what does.
 
@@ -203,92 +203,91 @@ Decides `drag/architecture:challenge-8`. A scroll during the drag moved the home
 - **`bench/lab-drag2.ts` ties `drag`'s typecheck to drag2 source, by design** under `DRD-13`. Removing drag2 removes that arm first.
 - **The report's choice 7 is closed.** The owner was told before the legacy output was removed, which the 2026-11-07 request states.
 
-#### DRD-24 — The operation stays a record, and each step that needs it takes it as a parameter
+#### DRD-24 — An operation owns its state and transitions, and the controller owns what spans operations
 
-**No class for one operation. `Session` stays a record type that only `Gesture` creates and holds. Every `Gesture` method whose work needs an operation receives the `Session` as a parameter, from the caller that tested for it. `this.#session` is read only where its absence is a case the code handles: the input listeners, the reader, `#runStep`, `#raise`, `#cancel`, admission, the scope checks and teardown. No non-null assertion on `#session` remains.**
+**Owner requirement, 2026-11-07. The controller owns its lifetime across operations. A session owns one operation and performs it. The two talk through a small interface, and neither reads or writes the other's fields. This is the target model. A prototype tests it before production adopts it: [`session-prototype-handoff.md`](session-prototype-handoff.md). Until the architect adopts it, production keeps the structure of `3084191bb`, and the fallback below stays decided.**
 
-Decides the owner's proposal of 2026-11-07, read at `3084191bb`.
+Revised after reading `fbe2839c3` and the probe's candidate, which the owner applied on `drag/session-class-preview`. The earlier text decided a record passed to each step as a parameter (`6f8ea3d91`), and then defined the probe of a shared state with a read-only view (`184f430bb`). Those commits hold the superseded text.
 
-**The diagnosis is partly right.** At `3084191bb`, `#move` and `#up` assert `this.#session!` 18 times, 6 of them on an active pointer sample. In those two steps the assertion is the only statement that they need an operation. `#activate`, `#drop`, `#requestVerdict`, `#closeMotion`, `#release` and `#conclude` already take the session as a parameter, so their signatures state the requirement. The 18 assertions came from the code-style pass, not from the class boundary: before it, each of the two steps read the field once into a local.
+**The boundary:**
 
-**Why not a class for one operation.** The record's fields belong to the operation. But every method that would move into such a class also uses controller state:
+- **The controller, `Gesture`,** holds what exists across operations or with no operation. That is the root, the behavior, the window and the threshold, the root's listeners, controller disposers, admission, the gate, the step list, the destruction slot, the reader, the current-operation slot and the landing. It creates a session, attaches it to the slot, clears the slot when the session asks, and tears down.
+- **The session** holds one operation and makes all of its transitions. It holds the operation's `Drag` and admission, the motion and operation signals with the listeners on them, disposers, phase, decision, next step, verdict, lift, focus and release outcome. Its transitions are samples and the threshold, ending a pending press, activation, the drop, the verdict, conclusion, the terminal step, and release when destruction ends it.
+- **Each side calls the other's interface below.** Everything else in each class is `#`-private.
 
-| Method | Controller state it uses besides the session |
-| --- | --- |
-| `#move` | `#behavior.move`, `#threshold`, `#window`, then `#activate` |
-| `#endPending` | clears `#session` |
-| `#activate` | `#behavior`, `#window`, `#root`, `#raise`, and takes and clears `#cancelLanding` |
-| `#drop` | `#behavior.drop`, `#root` through `#closeMotion`, and a next step that calls `#requestVerdict` |
-| `#requestVerdict` | compares with `#session`, reads `#running`, enters a pass with `#enter`, `#raise` |
-| `#release` | `#dispose`, `#raise` |
-| `#conclude` | `#behavior`, `#raise`, sets `#cancelLanding`, clears `#session` |
-| the `Drag` closures built in `#open` | compare with `#session`, `requestStep`, `#cancel` |
+**The interface.** This is the smallest set found by reading the kernel at `fbe2839c3`. The prototype confirms it or reports what it needed beyond it.
 
-The changing state among these is the current-operation slot, the landing slot and the pass gate, which are `DRD-1`'s mechanism. A class for the operation would reach them in one of three ways, and each costs more than it removes:
+From the controller to the session:
 
-- **Members of `Gesture` without `#`.** `draggable()` returns the `Gesture` instance itself, so these members would be reachable from the controller at runtime. The contract forbids that for the session and its slots.
-- **Closures injected once per controller.** That is a forwarding interface of about five functions between two classes that share one invariant. CONTRIBUTING §2.2 warns against this layer, and drag2's [single-pass proposal](../../drag2/.plan/reviews/architecture/single-pass-proposal-claude.md) found such layers the main thing to remove.
-- **Signals returned to `Gesture`.** The reader would test a new state after each step, which is a phase `DRD-1` doesn't need. Clearing the slot after the step instead of inside it would also let requests made in `end` reach the operation, which changes DRI-8.
-
-**Rejected: moving that controller state into the session.** Each piece exists when no operation exists:
-
-- **The current-operation slot** says whether an operation exists at all. Admission, `#cancel`, `#runStep` and the `Drag` scope checks read it when it may be empty. An operation can't clear the controller's reference to itself without a way back to the controller.
-- **The landing** outlives its operation, and the next activation or destruction cancels it (DRI-13). On the session, it would keep the finished session alive until the next press: its `Drag`, item, state and disposers. That breaks idle as absence (`DRD-1`) and `DRD-20`'s retention rule. Handing it to the next session at `#open` still needs a controller slot between the two operations.
-- **The pass gate, the step list and the destruction slot** serve passes with no operation: the press that admits one, and `requestStep` or `requestDestroy` on an idle controller. A gate on the session couldn't cover those passes, and two gates would have to agree for DRI-6 to hold.
-
-**Under probe: a state object that `Gesture` and an operation class share, with a read-only view for the operation.** `Gesture` would hold one object in a `#` field, with the slot, the landing and the fixed values, and give each session it creates a `Readonly` view of it. This removes two objections above. Nothing becomes reachable from the controller. The five forwarding closures shrink to shared data plus one function, the pass entry that a verdict settling later needs. A session can call the controller's public `requestStep` and `requestCancel` for its `Drag`. **The read-only view, which the owner proposed, answers the third objection.** Only `Gesture` writes the slot and the landing, and the type checker enforces that. Inside one module the type checker is the guard that matters, because nothing outside the module can reach the object.
-
-**Its cost is that every write the operation makes today moves back to `Gesture`:**
-
-| Write | Today | With a read-only view |
+| Member | What it does | What it replaces at `fbe2839c3` |
 | --- | --- | --- |
-| Set the landing | in `#conclude` | `conclude` returns the canceller, and `Gesture` stores it |
-| Take the landing | in `#activate`, between the lift's measurement and its first frame | The session can call the canceller but can't clear the field. Either a canceller that has already run stays in the field until `conclude` or teardown replaces it, or `Gesture` hands the landing to the activation |
-| Clear the slot, pending press | `#endPending`, from `#move` and `#up` | The sample step tells `Gesture` that the press ended, by a return value: one branch per sample and no allocation |
-| Clear the slot, no `start` | in `#conclude`, before focus is restored | `Gesture` clears it, and focus restoration stays in `Gesture`. Otherwise a `drag.requestStep` from a focus listener would run its step with `null` instead of doing nothing (DRI-8) |
-| Clear the slot before `end` | in the terminal step | `Gesture` builds the terminal step, so that `end` runs with the slot already clear (DRI-8) |
+| Construction | Opens the operation: builds its `Drag` and installs its listeners. A command operation sets its own first step, the activation | `#open`, and `#command`'s write to `next` |
+| Advance | One turn of the reader for the operation. It concludes a decision that isn't applied yet, or else takes and runs the next step. It reports whether it did either | The reader's decision and next-step branches |
+| Decide | Records an outcome if none is recorded. It enters no pass | `decision ??=` in `#raise` and `#cancel` |
+| Step target | The `Drag` that a deferred step receives: the operation's from activation until the drop or the decision, and `null` otherwise | `#runStep`'s condition |
+| Terminate | Destruction's part. It closes motion, aborts the verdict and releases with `null` | The session branch of `#teardown` |
 
-**The boundary that results:**
+From the session to the controller:
 
-- **`Gesture`:** every transition of controller state, which is opening an operation, ending a pending press, concluding with focus and the terminal step, and teardown, together with the gate and the reader.
-- **The operation class:** the steps inside one operation, which are the sample and release steps, activation, the drop, the verdict request and release.
+| Member | What it does | What it replaces at `fbe2839c3` |
+| --- | --- | --- |
+| The gate | Enters a pass with a stable step and its argument, or refuses | `#enter`, unchanged. It stays the only entry |
+| Raise | Reports a fault, and decides the current operation if nothing has | `#raise`, unchanged. The lift receives it as now |
+| Is current | Whether this session is the one in the slot | `this.#session === session` in the `Drag`'s scope checks and in the verdict's completion |
+| Detach | Clears the slot. The session calls it at the three points where the base clears it | The three writes of `null` to `#session` outside teardown |
+| Take and keep the landing | At activation, takes and clears the landing before the lift measures. At conclusion, stores the new one | `#activate`'s and `#conclude`'s writes to `#cancelLanding` |
+| The verdict's way in | Lets a verdict that settles inside a pass be applied by that pass, and one that settles outside enter a new pass. The prototype chooses its form | `complete`'s read of `#running` |
+| `requestStep` | The controller's public method, which a `Drag` forwards to | Unchanged |
+| The fixed values | The behavior, root, window and threshold | Read only |
 
-The boundary is coherent, and it may read more clearly than one class. Reading alone can't settle two open points: how activation takes the landing, and whether every ordering stays exact once `Gesture` makes the slot writes again. Member names on the class and the object probably survive minification, which nobody has measured.
+**The slot and the landing stay the controller's.** Only controller code writes them, and the session decides when. In the probe, the controller also decided when, and that is the difference.
 
-**Until the probe reports, this decision's parameter form stands.** The composition handoff's kernel item waits for the probe, and its built-in item doesn't.
+**What the probe at `fbe2839c3` showed.** The [probe](probes/session-class/README.md) is evidence about the boundary it was told to build. It is not evidence against an operation class. It kept every ordering, and its Chromium results equal the base's. It missed the owner's goal because this entry's earlier text set four restrictions:
 
-**The probe.** The coordinator hands it to an implementer, who reports to the architect.
+| Restriction | What it produced | Now |
+| --- | --- | --- |
+| Only `Gesture` writes the slot and the landing, so only `Gesture` makes a transition that writes them | A split lifecycle. Ending a pending press, activation, conclusion with focus, the terminal step and the verdict's completion stayed in `Gesture`. Result codes from the sample step told `Gesture` which of them to run | **Withdrawn.** The controller still owns and writes them. The session calls it, inside the step that makes the transition. No step returns a code |
+| Only `Gesture` enters a pass | `complete` on the shared record | **Narrowed to one gate.** The gate is the controller's `#enter`, and the session's listeners and its verdict call it. The property is one gate, not one caller |
+| An interface between the two classes is the forwarding layer that CONTRIBUTING §2.2 warns against | A shared record in place of calls | **Withdrawn.** §2.2 is about generic mechanisms built to remove duplication. A fixed interface between two lifetimes is the static construction-time topology that §2.2 prefers, and each member names a controller responsibility |
+| `draggable()` returns the `Gesture` instance, so a member without `#` is reachable from the controller | The interface had to be a record that the consumer can't reach | **Changed.** `draggable()` returns a separate object with exactly `requestStep`, `requestCancel`, `requestDestroy` and `use`, as `DRD-20` already requires of the built-ins. The controller's interface is then reachable only inside the module |
 
-- **Scope:** a temporary worktree from the commit that carries this entry. Only `src/draggable.ts` changes, and nothing is merged. The probe builds this variant with the boundary above.
-- **Passes when:**
-  - The three-engine suite passes with no test edited, and typecheck and lint pass.
-  - No non-null assertion on the slot remains.
-  - A sample allocates nothing, and an operation allocates one session.
-  - The slot is cleared at the same three points as now, in the same order relative to focus restoration and `end`.
-  - `#applyRequests` stays the one reader, and only `Gesture` enters a pass.
-- **Records:**
-  - The diff as a `.txt` file in `probes/session-class/`.
-  - How activation takes the landing, and why.
-  - The line counts of `Gesture` and the operation class against `draggable.ts` at the probe's base.
-  - The "draggable alone" size row at the probe and at its base, reported as probe evidence and not as a `DRO-4` reading.
-  - Every place where the variant needed a check or an ordering that the current code doesn't have.
-- **Stops and reports when:** a test needs an edit, an ordering can't be kept, or a sample allocates.
-- **Then:** the architect either adopts the variant, amends this decision and rewrites the handoff's kernel item, or keeps the parameter form.
+**Also withdrawn: the claim that under CONTRIBUTING §10 a class "would add methods, not a semantic".** An operation has a meaningful lifecycle identity, which the scope checks compare. Under the owner's boundary the class carries that identity and encapsulates the operation's state. A record whose fields `Gesture` reads does neither.
 
-Under CONTRIBUTING §10, the record already gives the operation the identity that the scope checks compare. A class would add methods, not a semantic that the record lacks.
+**Still rejected: moving controller state into the session.** The slot, the landing, the gate, the step list and the destruction slot exist when no operation does:
 
-**The implementer's safety explanation is correct. It was checked here, not assumed.** It says that nothing between the reads of `this.#session` in `#onPointer`, `#move` and `#up` can clear the field. At `3084191bb` the field is written only in `#open`, `#endPending`, `#conclude` (at once without `start`, and in the terminal step with it) and `#teardown`. Foreign code reached during a step can't run any of them. `#enter` refuses a nested pass, and `requestDestroy` and every cancel only fill a slot while `#running` is set. Both steps return right after `#endPending`. `#open` runs only from admission, which requires that no session exists. The explanation covered clearing, and the same reasons also exclude replacement. **So no assertion fails today. But each one depends on an invariant of the whole class, which its read site doesn't show and the type checker doesn't check.** The parameter states the same fact where it is used. The commit's other inlinings, in `lift.ts`, `sortable.ts`, `free-drag.ts` and the helpers, read fields that nothing writes between the reads, so they preserve behavior.
+- **The slot** says whether an operation exists. Admission, `#cancel`, `#runStep` and the scope checks read it when it may be empty.
+- **The landing** outlives its operation, and the next activation or destruction cancels it (DRI-13). On the session it would keep the finished operation alive until the next press, which breaks idle as absence (`DRD-1`) and `DRD-20`'s retention rule.
+- **The gate, the step list and the destruction slot** also serve passes with no operation: the press that admits one, and `requestStep` or `requestDestroy` on an idle controller.
+
+**Rejected ways for the session to reach the controller:**
+
+- **A class nested in `Gesture`'s body,** which could use `Gesture`'s `#` names. The names would stay mangled, but the two lifetimes would read as one class again.
+- **A record of closures created once per controller.** It has the same members and adds one closure for each. It gains nothing over methods once `draggable()` returns a separate object.
+- **A shared state with a read-only view,** which is the probe's form. `Readonly` is shallow, and the controller still reads the session's fields.
 
 **Required properties:**
 
-- A step receives the operation that its listener tested. It allocates nothing per sample (DRI-17), and step identities stay stable.
-- The development refusal count still reads the refused event (DRI-6).
-- **A local that captures a value before its field is cleared or replaced stays, with its comment.** These are the next step in `#applyRequests`, the lift in `#release` and `#conclude`, the session and the resolver in `#teardown`, and the landing in `#activate`. Removing locals is not a goal. A local that names a value read several times in one step is also allowed.
-- The reader's precedence, the gate, the slots and the tests don't change. The change lands as its own behavior-preserving commit.
+- **One gate and one reader.** The reader's precedence stays destruction, deferred steps, the operation's decision, then its next step. The decision and the next step are applied only during the reader's turn.
+- **Requests only fill slots, and only the reader applies them** (`DRD-1`).
+- **The slot is cleared at the same three points as at `fbe2839c3`, in the same order.** A pending press clears it after both aborts. Without `start`, it is cleared before focus is restored. With `start`, it is cleared before `end` (DRI-8). Teardown keeps its order.
+- **The landing is taken before the lift measures, and cancelled after it.** It is stored at conclusion, so a destruction applied later in the same pass cancels it (DRI-13).
+- **Nothing is allocated per sample** (DRI-17). A step passed to the gate is a stable function. The development refusal count still reads the refused event (DRI-6).
+- **Neither the controller object, a `Drag` nor any hook argument reaches the session or the controller's interface.**
+- **A local that captures a value before its field is cleared or replaced stays, with its comment.** Removing locals is not a goal, and `using` is not introduced.
+- **The tests and the public types don't change.** Adoption lands as its own behavior-preserving commit.
 
-**`DRD-20` is unchanged.** Its sentence "`Gesture` stays the only class that holds a session" still holds, because no class is added. A second kind of operation, or a way for an operation class to reach controller state without forwarding, would reopen the question.
+**Fallback.** If the prototype fails a required property that no change to the interface can fix, `Session` stays a record. `#move` and `#up` then receive the session that `#onPointer` tested, and no `this.#session!` remains. [`composition-handoff.md`](composition-handoff.md) item 1 states this form and stays on hold.
 
-**No performance or size claim.** At `3084191bb` an active sample reads the field 6 times, and after this decision it reads it once. Nobody measured whether the engine removed the repeated loads.
+**The implementer's safety explanation was checked and is correct.** At `3084191bb`, nothing between the reads of `this.#session` in `#onPointer`, `#move` and `#up` can clear or replace the field, so no assertion fails. But each assertion depends on an invariant of the whole class, which its read site doesn't show. Both forms remove the assertions. In the class form, the session's methods have the operation as `this`. The commit's other inlinings, in `lift.ts`, `sortable.ts`, `free-drag.ts` and the helpers, read fields that nothing writes between the reads, so they preserve behavior.
+
+**Reconciled:**
+
+- **`DRD-1`:** one session object, with idle as its absence. A class instance is that object, and the gate and the reader stay in the controller.
+- **`DRD-16`:** the scope check still compares with the slot. The session asks the controller.
+- **`DRD-20`:** its sentence "`Gesture` stays the only class that holds a session" becomes: `Gesture` is the only class that holds the current session, and the session class is the operation. `DRD-20` said that a way for an operation class to reach controller state without forwarding would reopen the question. The owner's requirement reopened it, and the interface above answers it. `DRD-20`'s other rules apply to the session class: stable identities for every function passed out, no `bind` at a call site, and nothing retained after destruction.
+- **The contract doesn't change.** The members of `DraggableController` stay. The contract already forbids a behavior to reach the session, and no entry says the controller is the `Gesture` instance.
+
+**Not decided: size and performance.** The interface's member names are not mangled. The probe attributed 424 B of its 770 B minified growth to such names, on a different interface. The prototype reports its figures as evidence. At adoption, a cost goes to the owner under CONTRIBUTING §0 and §14 and `DRO-4`'s rules.
 
 #### DRD-25 — The built-in factories compose, and pass consumers only documented values
 
@@ -370,30 +369,30 @@ A row that is still slower comes with its attributed cause. You decide under CON
 
 ## Decision status
 
-| Decision | Status                                                           |
-| -------- | ---------------------------------------------------------------- |
-| DRD-1    | active                                                           |
-| DRD-2    | active                                                           |
-| DRD-3    | active                                                           |
-| DRD-4    | active                                                           |
-| DRD-5    | active                                                           |
-| DRD-6    | active, scoping amended by `DRD-16`                              |
-| DRD-7    | active                                                           |
-| DRD-8    | active                                                           |
-| DRD-9    | active, the restore's place amended by `DRD-15`                  |
-| DRD-10   | active, a grab during a landing amended by `DRD-18`              |
-| DRD-11   | active. `DRD-18` applies the activation pull to commands         |
-| DRD-12   | active                                                           |
-| DRD-13   | active, its performance rules amended by `DRD-22`                |
-| DRD-14   | active, implemented at `b91db2818`                               |
-| DRD-15   | active, implemented at `b91db2818`                               |
-| DRD-16   | active, implemented at `b91db2818`                               |
-| DRD-17   | active, implemented at `b91db2818`                               |
-| DRD-18   | active, implemented at `b91db2818`                               |
-| DRD-19   | active, implemented at `b91db2818`                               |
-| DRD-20   | active, implemented at `b91db2818`                               |
-| DRD-21   | active, implemented at `b91db2818`                               |
-| DRD-22   | active, applied in the remediation's validation                  |
-| DRD-23   | active                                                           |
-| DRD-24   | active, unimplemented. An operation-class variant is under probe |
-| DRD-25   | active, unimplemented                                            |
+| Decision | Status |
+| --- | --- |
+| DRD-1 | active |
+| DRD-2 | active |
+| DRD-3 | active |
+| DRD-4 | active |
+| DRD-5 | active |
+| DRD-6 | active, scoping amended by `DRD-16` |
+| DRD-7 | active |
+| DRD-8 | active |
+| DRD-9 | active, the restore's place amended by `DRD-15` |
+| DRD-10 | active, a grab during a landing amended by `DRD-18` |
+| DRD-11 | active. `DRD-18` applies the activation pull to commands |
+| DRD-12 | active |
+| DRD-13 | active, its performance rules amended by `DRD-22` |
+| DRD-14 | active, implemented at `b91db2818` |
+| DRD-15 | active, implemented at `b91db2818` |
+| DRD-16 | active, implemented at `b91db2818` |
+| DRD-17 | active, implemented at `b91db2818` |
+| DRD-18 | active, implemented at `b91db2818` |
+| DRD-19 | active, implemented at `b91db2818` |
+| DRD-20 | active, implemented at `b91db2818`. `DRD-24` amends its sentence on the class that holds a session |
+| DRD-21 | active, implemented at `b91db2818` |
+| DRD-22 | active, applied in the remediation's validation |
+| DRD-23 | active |
+| DRD-24 | active, revised to the owner's ownership model. Under prototype, not adopted |
+| DRD-25 | active, unimplemented |
