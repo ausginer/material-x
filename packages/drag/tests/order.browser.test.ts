@@ -140,7 +140,6 @@ describe('drag:DRI-9 and drag:DRI-12 release order', () => {
       },
       settle() {
         void controller!.requestDestroy();
-        return null;
       },
     });
     row('r0').focus();

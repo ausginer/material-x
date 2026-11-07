@@ -1,4 +1,3 @@
-import type { Space } from '@ydinjs/box-quad';
 import type { Outcome } from './outcome.ts';
 
 /**
@@ -44,33 +43,10 @@ export type Drag<State = undefined> = Readonly<{
   requestCancel(reason?: unknown): void;
 }>;
 
-/** The members of `Drag` whose types name `Drag` itself. */
-type SelfNamingMembers = 'requestStep';
-
-/** `Drag` for a behavior composed with `lift`. */
-export type LiftedDrag<State = undefined> = Omit<
-  Drag<State>,
-  SelfNamingMembers
-> &
-  Readonly<{
-    /** See `Drag.requestStep`. */
-    requestStep(step: (drag: LiftedDrag<State> | null) => void): void;
-    visual: HTMLElement;
-    box: HTMLElement;
-    /** The visual's rect at the grab. */
-    rect: DOMRectReadOnly;
-    boxWidth: number;
-    boxHeight: number;
-    /** What the visual inherits. Pass it to `localDelta` from `@ydinjs/box-quad`. */
-    visualSpace: Space;
-    /** What the item inherits. */
-    itemSpace: Space;
-    /** The viewport delta last translated to. */
-    translatedX: number;
-    translatedY: number;
-    /** Moves the lifted visual to a viewport delta from the grab. */
-    translate(x: number, y: number): void;
-  }>;
+/** `Drag` as the kernel writes it. No public entry exports it. */
+export type KernelDrag<State> = {
+  -readonly [Key in keyof Drag<State>]: Drag<State>[Key];
+};
 
 /** Runs one disposer. Whatever it throws, the caller's walk continues. */
 export function runDragDisposer(

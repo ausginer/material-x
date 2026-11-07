@@ -5,7 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { draggable } from '../src/draggable.ts';
 import { freeDrag, FreeDragResolution } from '../src/free-drag.ts';
-import { lift } from '../src/lift.ts';
+import { createLifter, type Lift } from '../src/lift.ts';
 import { y } from '../src/sortable/y.ts';
 import { ReorderResolution, sortable } from '../src/sortable.ts';
 import {
@@ -25,16 +25,21 @@ import {
 describe('drag:DRD-20 detached controller methods', () => {
   it('should run draggable controller methods detached', async () => {
     const list = makeList(2);
-    const { requestStep, requestCancel, requestDestroy, use } = draggable(
-      list,
-      {
-        lift,
-        admit: (event) => ({ item: targetOf(event) }),
-        end(_, outcome) {
-          log.push(`end:${outcome.type}`);
-        },
+    const lifter = createLifter(window);
+    const { requestStep, requestCancel, requestDestroy, use } = draggable<{
+      lift: Lift | null;
+    }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
       },
-    );
+      end(_, outcome) {
+        log.push(`end:${outcome.type}`);
+      },
+    });
+
+    use(lifter.cancelLanding);
 
     use(() => {
       log.push('disposed');

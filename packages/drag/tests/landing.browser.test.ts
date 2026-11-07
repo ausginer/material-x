@@ -1,6 +1,6 @@
 /** `drag:DRI-13`: landing and elevation. */
 import { afterEach, describe, expect, it } from 'vitest';
-import { lift } from '../src/lift.ts';
+import { createLifter, type Lift } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
@@ -9,6 +9,7 @@ import {
   commands,
   dragAndDrop,
   faultMessages,
+  faults,
   frames,
   grab,
   log,
@@ -71,14 +72,23 @@ describe('drag:DRI-13 landing', () => {
   it('should start nothing when the visual is already where it lands', async () => {
     const list = makeList(3);
 
-    managed(list, {
-      lift,
-      admit: (event) => ({ item: targetOf(event) }),
-      settle: (drag) => ({
-        x: drag.rect.x + drag.translatedX,
-        y: drag.rect.y + drag.translatedY,
-      }),
-    });
+    const lifter = createLifter(window);
+
+    managed<{ lift: Lift | null }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
+      },
+      settle(drag) {
+        const lift = drag.state.lift!;
+
+        lift.land({
+          x: lift.rect.x + lift.translatedX,
+          y: lift.rect.y + lift.translatedY,
+        });
+      },
+    }).use(lifter.cancelLanding);
     await grab('#r0', 0, 20);
     await commands.pointerUp();
     expect(row('r0').getAnimations()).toEqual([]);
@@ -97,17 +107,27 @@ describe('drag:DRI-13 landing', () => {
     const list = makeList(3);
     const outcomes: unknown[] = [];
 
-    managed(list, {
-      lift,
-      admit: (event) => ({ item: targetOf(event) }),
-      move: (drag) => {
-        drag.translate(drag.x - drag.originX, drag.y - drag.originY);
+    const lifter = createLifter(window);
+
+    managed<{ lift: Lift | null }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
       },
-      settle: () => ({ x: 0, y: 0, duration: -5 }),
+      move: (drag) => {
+        drag.state.lift!.translate(
+          drag.x - drag.originX,
+          drag.y - drag.originY,
+        );
+      },
+      settle(drag) {
+        drag.state.lift!.land({ x: 0, y: 0, duration: -5 });
+      },
       end(_, outcome) {
         outcomes.push(outcome);
       },
-    });
+    }).use(lifter.cancelLanding);
     await dragAndDrop('#r1', 30);
     expect(outcomes).toEqual([{ type: 'skipped' }]);
     expect(faultMessages()).toHaveLength(1);
@@ -212,14 +232,26 @@ describe('drag:DRI-13 landing', () => {
     const list = makeList(3);
     const durations: unknown[] = [];
 
-    managed(list, {
-      lift,
-      admit: (event) => ({ item: targetOf(event) }),
-      move: (drag) => {
-        drag.translate(drag.x - drag.originX, drag.y - drag.originY);
+    const lifter = createLifter(window);
+
+    managed<{ lift: Lift | null }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
       },
-      settle: (drag) => ({ x: drag.rect.x, y: drag.rect.y }),
-    });
+      move: (drag) => {
+        drag.state.lift!.translate(
+          drag.x - drag.originX,
+          drag.y - drag.originY,
+        );
+      },
+      settle(drag) {
+        const lift = drag.state.lift!;
+
+        lift.land({ x: lift.rect.x, y: lift.rect.y });
+      },
+    }).use(lifter.cancelLanding);
 
     // eslint-disable-next-line @typescript-eslint/unbound-method -- restored and called with `this`
     const { animate } = Element.prototype;
@@ -307,19 +339,31 @@ describe('drag:DRI-13 landing', () => {
   it('should keep timing a custom landing named', async () => {
     const list = makeList(3);
 
-    managed(list, {
-      lift,
-      admit: (event) => ({ item: targetOf(event) }),
-      move: (drag) => {
-        drag.translate(drag.x - drag.originX, drag.y - drag.originY);
+    const lifter = createLifter(window);
+
+    managed<{ lift: Lift | null }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
       },
-      settle: (drag) => ({
-        x: drag.rect.x,
-        y: drag.rect.y,
-        duration: 321,
-        easing: 'linear',
-      }),
-    });
+      move: (drag) => {
+        drag.state.lift!.translate(
+          drag.x - drag.originX,
+          drag.y - drag.originY,
+        );
+      },
+      settle(drag) {
+        const lift = drag.state.lift!;
+
+        lift.land({
+          x: lift.rect.x,
+          y: lift.rect.y,
+          duration: 321,
+          easing: 'linear',
+        });
+      },
+    }).use(lifter.cancelLanding);
     await grab('#r0', 0, 45);
     await commands.pointerUp();
 
@@ -328,5 +372,41 @@ describe('drag:DRI-13 landing', () => {
 
     expect(timing.duration).toBe(321);
     expect(timing.easing).toBe('linear');
+  });
+
+  it('should start a named landing when releasing the top layer throws, and let the outcome stand', async () => {
+    const list = makeList(3);
+    const hidden = new Error('hide');
+    const ended: Array<{ outcome: unknown; animations: number }> = [];
+    const lifter = createLifter(window);
+
+    row('r0').hidePopover = () => {
+      throw hidden;
+    };
+    managed<{ lift: Lift | null }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
+      },
+      move: (drag) => {
+        drag.state.lift!.translate(
+          drag.x - drag.originX,
+          drag.y - drag.originY,
+        );
+      },
+      settle(drag) {
+        const lift = drag.state.lift!;
+
+        lift.land({ x: lift.rect.x, y: lift.rect.y, duration: 5000 });
+      },
+      end(_, outcome) {
+        ended.push({ outcome, animations: row('r0').getAnimations().length });
+      },
+    }).use(lifter.cancelLanding);
+    await grab('#r0', 0, 45);
+    await release();
+    expect(faults.map((fault) => fault.cause)).toEqual([hidden]);
+    expect(ended).toEqual([{ outcome: { type: 'skipped' }, animations: 2 }]);
   });
 });

@@ -823,27 +823,27 @@ const INJECTIONS: ReadonlyArray<
   {
     name: 'one object of about 1 KB retained per operation past destruction',
     file: 'sortable.ts',
-    find: 'start(drag: LiftedDrag<State>): void {\n    this.#config.onStart?.(drag.item);',
+    find: 'start(drag: Drag<State>): void {\n    this.#config.onStart?.(drag.item);',
     replace:
-      "start(drag: LiftedDrag<State>): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push(new Array(126).fill(0.5));\n    this.#config.onStart?.(drag.item);",
+      "start(drag: Drag<State>): void {\n    ((globalThis as Record<string, unknown[]>)['__retained'] ??= []).push(new Array(126).fill(0.5));\n    this.#config.onStart?.(drag.item);",
     scenario: `${OPERATIONS} operations, then destroy: retained JavaScript objects`,
     expect: /FLAG retains more/u,
   },
   {
     name: 'one forced layout per move',
     file: 'sortable.ts',
-    find: 'drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
+    find: 'drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
     replace:
-      'drag.item.parentElement!.style.minHeight = `${drag.y}px`;\n    void drag.item.parentElement!.offsetHeight;\n    drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
+      'drag.item.parentElement!.style.minHeight = `${drag.y}px`;\n    void drag.item.parentElement!.offsetHeight;\n    drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
     scenario: '300 moves, one frame each, 20 items',
     expect: /FLAG more/u,
   },
   {
     name: 'one O(n) walk per move',
     file: 'sortable.ts',
-    find: 'drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
+    find: 'drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
     replace:
-      'for (let i = 0; i < 3; i += 1) { void [...drag.state.snapshot.items].map((row) => row.id).join(); }\n    drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
+      'for (let i = 0; i < 3; i += 1) { void [...drag.state.snapshot.items].map((row) => row.id).join(); }\n    drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
     scenario: '300 moves, one frame each, 2000 items',
     expect: /FLAG slower/u,
   },

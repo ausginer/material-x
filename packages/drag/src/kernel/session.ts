@@ -1,13 +1,11 @@
-import type { Writable } from 'type-fest';
-import type { Landing, LiftHold } from '../lift.ts';
 import { deepActiveElement } from '../shared/focus.ts';
-import type { LiftedAdmission } from './admission.ts';
-import type { AnyBehavior } from './behavior.ts';
+import type { Admission } from './admission.ts';
+import type { Behavior } from './behavior.ts';
 import {
   runDragDisposer,
   type Drag,
   type DragDisposer,
-  type LiftedDrag,
+  type KernelDrag,
 } from './drag.ts';
 import type { Gesture } from './gesture.ts';
 import type { CancelOrigin, Outcome, SkippedOutcome } from './outcome.ts';
@@ -133,13 +131,12 @@ const NOOP = (): void => {};
  */
 export class Session<State, Verdict> {
   readonly #gesture: Gesture<State, Verdict>;
-  readonly #behavior: AnyBehavior<State, Verdict>;
+  readonly #behavior: Behavior<State, Verdict>;
   readonly #root: HTMLElement;
   readonly #window: Window & typeof globalThis;
   readonly #threshold: number;
 
-  readonly #drag: Writable<LiftedDrag<State>>;
-  readonly #admission: LiftedAdmission<State>;
+  readonly #drag: KernelDrag<State>;
   /** Pointer samples, closed at the drop or the decision. */
   readonly #motion = new AbortController();
   /** Escape and `drag.signal`, closed when the presentation is released. */
@@ -157,7 +154,6 @@ export class Session<State, Verdict> {
   #next: (() => void) | null = null;
   /** Aborts the verdict in flight. Never aborted after a completion. */
   #verdictAborter: AbortController | null = null;
-  #lift: LiftHold | null = null;
   /** `start` was reached. No start, no settle and no end. */
   #started = false;
   /** The element to give focus back to, recorded at the drop or the decision. */
@@ -168,11 +164,11 @@ export class Session<State, Verdict> {
   /** Opens the operation: builds its `Drag` and installs its listeners. */
   constructor(
     gesture: Gesture<State, Verdict>,
-    behavior: AnyBehavior<State, Verdict>,
+    behavior: Behavior<State, Verdict>,
     root: HTMLElement,
     window: Window & typeof globalThis,
     threshold: number,
-    admission: LiftedAdmission<State>,
+    admission: Admission<State>,
     x: number,
     y: number,
     pointerId: number = COMMAND_POINTER_ID,
@@ -182,9 +178,7 @@ export class Session<State, Verdict> {
     this.#root = root;
     this.#window = window;
     this.#threshold = threshold;
-    this.#admission = admission;
-
-    const drag: Drag<State> = {
+    this.#drag = {
       item: admission.item,
       state: admission.state as State,
       pointerId,
@@ -214,11 +208,6 @@ export class Session<State, Verdict> {
         }
       },
     };
-
-    this.#drag = drag as unknown as Writable<LiftedDrag<State>>;
-
-    // A lift fills the rest before `activate`, and only a behavior composed with
-    // `lift` can name them.
 
     // On the window in the capture phase, so that no `stopPropagation` in the page
     // hides the operation's input.
@@ -278,7 +267,7 @@ export class Session<State, Verdict> {
    * What a deferred step receives: the `Drag` from the end of activation until
    * the drop or the decision, and `null` otherwise.
    */
-  stepTarget(): LiftedDrag<State> | null {
+  stepTarget(): Drag<State> | null {
     return this.#phase === ACTIVE && !this.#decision ? this.#drag : null;
   }
 
@@ -413,28 +402,10 @@ export class Session<State, Verdict> {
 
   #activate(): void {
     // The consumer removed the item during the press, so there is nothing to
-    // drag. This is not a fault, and a lift could not measure it.
+    // drag. This is not a fault.
     if (!this.#drag.item.isConnected) {
       this.#decision ??= SKIPPED;
       return;
-    }
-
-    const cancelLanding = this.#gesture.takeLanding();
-
-    // The lift measures the visual with a running flight's offset, so a grab
-    // during a landing keeps the visual under the pointer. The flight is then
-    // cancelled, before the first lifted frame.
-    try {
-      if (this.#behavior.lift) {
-        this.#lift = this.#behavior.lift(
-          this.#drag,
-          this.#admission,
-          this.#window,
-          this.#gesture.raise,
-        );
-      }
-    } finally {
-      cancelLanding?.();
     }
 
     if (this.#drag.pointerId !== COMMAND_POINTER_ID) {
@@ -562,17 +533,6 @@ export class Session<State, Verdict> {
     while (this.#disposers.length > 0) {
       runDragDisposer(this.#disposers.pop()!, outcome, this.#gesture.raise);
     }
-
-    // Taken before it is cleared, so a lift is released once.
-    const lift = this.#lift;
-
-    this.#lift = null;
-
-    try {
-      lift?.release();
-    } catch (error) {
-      this.#gesture.raise(error);
-    }
   }
 
   /**
@@ -580,8 +540,6 @@ export class Session<State, Verdict> {
    * destruction requested by anything here is applied before it.
    */
   #conclude(outcome: Outcome<Verdict>): void {
-    // Taken before `#release` clears it.
-    const lift = this.#lift;
     const dropped = this.#phase === DROPPING;
 
     this.#phase = CONCLUDED;
@@ -600,26 +558,15 @@ export class Session<State, Verdict> {
       this.#verdictAborter?.abort();
     }
 
-    let landing: Landing | null | undefined = null;
-
     if (this.#started) {
       try {
-        landing = this.#behavior.settle?.(this.#drag, outcome);
+        this.#behavior.settle?.(this.#drag, outcome);
       } catch (error) {
         this.#gesture.raise(error);
       }
     }
 
     this.#release(outcome);
-
-    if (landing && lift) {
-      try {
-        this.#gesture.keepLanding(lift.land(landing));
-      } catch (error) {
-        // A landing that cannot run is skipped. The outcome stands.
-        this.#gesture.raise(error);
-      }
-    }
 
     // `end` may reorder, and a reorder sends focus to `body`, so focus returns
     // after it, in the same step, whether it returns or throws.

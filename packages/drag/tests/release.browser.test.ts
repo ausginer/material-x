@@ -1,6 +1,6 @@
 /** `drag:DRI-9`: release order and cleanup. */
 import { describe, expect, it } from 'vitest';
-import { lift } from '../src/lift.ts';
+import { createLifter, type Lift } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
@@ -36,10 +36,12 @@ describe('drag:DRI-9 release order', () => {
       log.push(`animate:lifted=${row.matches(':popover-open')}`);
       return animate(...args);
     };
-    managed(list, {
-      lift,
-      admit: (event) => ({ item: targetOf(event) }),
+    const lifter = createLifter(window);
+
+    managed<{ lift: Lift | null }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
       activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
         dragSignal = drag.signal;
         drag.use((outcome) => {
           log.push(
@@ -47,16 +49,16 @@ describe('drag:DRI-9 release order', () => {
           );
         });
       },
-      settle() {
+      settle(drag) {
         log.push(`settle:signal=${dragSignal!.aborted}`);
-        return { x: 300, y: 300, duration: 50 };
+        drag.state.lift!.land({ x: 300, y: 300, duration: 50 });
       },
       end() {
         log.push(
           `end:lifted=${row.matches(':popover-open')}:animations=${row.getAnimations().length}`,
         );
       },
-    });
+    }).use(lifter.cancelLanding);
     await dragAndDrop('#r0', 30);
     expect(log).toEqual([
       'settle:signal=false',
@@ -252,13 +254,18 @@ describe('drag:DRI-9 release order', () => {
     const list = makeList(3);
     let moves = 0;
 
-    managed(list, {
-      lift,
-      admit: (event) => ({ item: targetOf(event) }),
+    const lifter = createLifter(window);
+
+    managed<{ lift: Lift | null }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
+      },
       move() {
         moves += 1;
       },
-    });
+    }).use(lifter.cancelLanding);
     await dragAndDrop('#r0', 30);
     expect(list.querySelector('[data-drag-placeholder]')).toBeNull();
 
@@ -290,5 +297,25 @@ describe('drag:DRI-9 release order', () => {
     await commands.pointerMove(x + 5, y + 60, 3);
     await frames();
     expect(log).toEqual([]);
+  });
+
+  it('should remove the sortable placeholder before the lift is released', async () => {
+    const list = makeList(3);
+    const row = list.querySelector<HTMLElement>('#r0')!;
+    const removeAttribute = row.removeAttribute.bind(row);
+
+    // The release removes the attribute the lift set.
+    row.removeAttribute = (name) => {
+      if (name === 'popover') {
+        log.push(
+          `release:placeholder=${list.querySelector('[data-drag-placeholder]') !== null}`,
+        );
+      }
+
+      removeAttribute(name);
+    };
+    basicSortable(list);
+    await dragAndDrop('#r0', 45);
+    expect(log).toEqual(['start', 'release:placeholder=false', 'end:accepted']);
   });
 });

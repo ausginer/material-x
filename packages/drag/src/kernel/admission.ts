@@ -6,18 +6,6 @@ export type Admission<State> = Readonly<{
    * its own interaction and refuses the admission. Defaults to `item`.
    */
   handle?: HTMLElement;
+  /** The behavior's context for the operation, which becomes `drag.state`. */
   state?: State;
-  /** Needs `lift`. */
-  visual?: never;
-  /** Needs `lift`. */
-  box?: never;
 }>;
-
-/** An admission for a behavior composed with `lift`. */
-export type LiftedAdmission<State> = Omit<Admission<State>, 'visual' | 'box'> &
-  Readonly<{
-    /** The element lifted and translated. Defaults to `item`. */
-    visual?: HTMLElement;
-    /** The element whose offset size `boxWidth`/`boxHeight` report. */
-    box?: HTMLElement;
-  }>;

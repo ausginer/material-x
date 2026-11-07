@@ -3,7 +3,8 @@
  * nothing here reads the DOM.
  */
 import { delta, localDelta, type Space } from '@ydinjs/box-quad';
-import type { LiftedDrag } from '../draggable.ts';
+import type { Drag } from '../draggable.ts';
+import type { Lift } from '../lift.ts';
 import type { DragGeometry, FreeDragRequest, Point } from './domain.ts';
 
 /** From the owning window, so an iframe's consumer gets that document's rect. */
@@ -35,11 +36,12 @@ function toLocal(space: Space, dx: number, dy: number): Float64Array {
 
 /** `motion` is the rendered delta, axis-projected and clamped. */
 export function buildGeometry(
-  drag: LiftedDrag<unknown>,
+  drag: Drag<unknown>,
+  lift: Lift,
   motion: Point,
   window: Window & typeof globalThis,
 ): DragGeometry {
-  const local = toLocal(drag.visualSpace, motion.x, motion.y);
+  const local = toLocal(lift.visualSpace, motion.x, motion.y);
 
   return {
     pointerX: drag.x,
@@ -50,8 +52,8 @@ export function buildGeometry(
     viewportDeltaY: motion.y,
     localDeltaX: local[0]!,
     localDeltaY: local[1]!,
-    originRect: drag.rect,
-    currentRect: currentRect(drag.rect, motion.x, motion.y, window),
+    originRect: lift.rect,
+    currentRect: currentRect(lift.rect, motion.x, motion.y, window),
   };
 }
 
@@ -62,19 +64,20 @@ export function buildGeometry(
  */
 export function buildRequest(
   item: HTMLElement,
-  drag: LiftedDrag<unknown>,
+  drag: Drag<unknown>,
+  lift: Lift,
   motion: Point,
   home: Point,
   window: Window & typeof globalThis,
 ): FreeDragRequest {
-  const visualRect = currentRect(drag.rect, motion.x, motion.y, window);
+  const visualRect = currentRect(lift.rect, motion.x, motion.y, window);
   const dx = visualRect.left - home.x;
   const dy = visualRect.top - home.y;
-  const local = toLocal(drag.visualSpace, dx, dy);
+  const local = toLocal(lift.visualSpace, dx, dy);
 
   return {
     item,
-    visual: drag.visual,
+    visual: lift.visual,
     pointerX: drag.x,
     pointerY: drag.y,
     positionX: visualRect.left,

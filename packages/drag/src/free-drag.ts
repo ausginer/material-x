@@ -5,8 +5,8 @@
  */
 import {
   draggable,
-  type LiftedBehavior,
-  type LiftedDrag,
+  type Behavior,
+  type Drag,
   type Outcome,
 } from './draggable.ts';
 import type { BoundsInstaller, MotionConstraint } from './free-drag/bounds.ts';
@@ -26,7 +26,7 @@ import {
   type ResolveHome,
 } from './free-drag/domain.ts';
 import { buildGeometry, buildRequest } from './free-drag/geometry.ts';
-import { lift, type Landing } from './lift.ts';
+import { createLifter, type Lift, type Lifter } from './lift.ts';
 import { listenForInvalidation } from './shared/invalidation.ts';
 import type { LandingTiming } from './shared/landing.ts';
 
@@ -73,6 +73,10 @@ export type FreeDragController = Readonly<{
 }>;
 
 type State = {
+  /** `config.visual` from admission, or the root. */
+  readonly visual: HTMLElement;
+  /** Acquired as the first statement of `activate`. */
+  lift: Lift | null;
   offsetX: number;
   offsetY: number;
   request: FreeDragRequest | null;
@@ -85,20 +89,20 @@ type State = {
  * holds only controller-lifetime ones and the `#motion` scratch, which is written
  * before every read.
  */
-class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
-  readonly lift: typeof lift = lift;
+class FreeDragBehavior implements Behavior<State, FreeDragResolution> {
   declare readonly threshold?: number;
 
   readonly #root: HTMLElement;
   readonly #config: FreeDragConfig;
   readonly #window: Window & typeof globalThis;
+  readonly #lifter: Lifter;
   readonly #axis: DragAxis;
   readonly #bounds: MotionConstraint | null;
   readonly #landing: LandingTiming | null;
   /** The visual's viewport delta, axis-projected and clamped. */
   readonly #motion = { x: 0, y: 0 };
 
-  constructor(root: HTMLElement, config: FreeDragConfig) {
+  constructor(root: HTMLElement, config: FreeDragConfig, lifter: Lifter) {
     if (config.threshold !== undefined) {
       this.threshold = config.threshold;
     }
@@ -106,6 +110,7 @@ class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
     this.#root = root;
     this.#config = config;
     this.#window = root.ownerDocument.defaultView!;
+    this.#lifter = lifter;
     this.#axis = config.axis ?? 'both';
     this.#bounds = config.bounds ? config.bounds(this.#window) : null;
     this.#landing = config.landing ?? null;
@@ -117,9 +122,9 @@ class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
   };
 
   /** Computes the motion and moves the visual by it. */
-  translate(drag: LiftedDrag<State>): void {
+  translate(drag: Drag<State>): void {
     this.#computeMotion(drag);
-    drag.translate(this.#motion.x, this.#motion.y);
+    drag.state.lift!.translate(this.#motion.x, this.#motion.y);
   }
 
   admit(event: PointerEvent) {
@@ -141,15 +146,24 @@ class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
 
     return {
       item: this.#root,
-      visual: this.#config.visual
-        ? this.#config.visual(this.#root)
-        : this.#root,
       ...(handle ? { handle } : {}),
-      state: { offsetX: 0, offsetY: 0, request: null, result: null },
+      state: {
+        visual: this.#config.visual
+          ? this.#config.visual(this.#root)
+          : this.#root,
+        lift: null,
+        offsetX: 0,
+        offsetY: 0,
+        request: null,
+        result: null,
+      },
     };
   }
 
-  activate(drag: LiftedDrag<State>): undefined {
+  activate(drag: Drag<State>): undefined {
+    // First, so that its release is the operation's first disposer and runs last.
+    drag.state.lift = this.#lifter.acquire(drag, drag.state.visual);
+
     if (this.#bounds) {
       listenForInvalidation(this.#window, drag.signal, this.invalidate);
     }
@@ -158,11 +172,11 @@ class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
     return undefined;
   }
 
-  start(drag: LiftedDrag<State>): void {
+  start(drag: Drag<State>): void {
     this.#config.onStart?.(this.#geometry(drag));
   }
 
-  move(drag: LiftedDrag<State>): void {
+  move(drag: Drag<State>): void {
     this.translate(drag);
 
     if (this.#config.onMove) {
@@ -170,27 +184,27 @@ class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
     }
   }
 
-  drop(drag: LiftedDrag<State>) {
+  drop(drag: Drag<State>) {
+    const lift = drag.state.lift!;
+
     this.#computeMotion(drag);
 
     const request = buildRequest(
       this.#root,
       drag,
+      lift,
       this.#motion,
-      this.#home(drag),
+      this.#home(lift),
       this.#window,
     );
 
     drag.state.request = request;
-    drag.translate(this.#motion.x, this.#motion.y);
+    lift.translate(this.#motion.x, this.#motion.y);
 
     return (signal: AbortSignal) => this.#config.onDrop(request, { signal });
   }
 
-  settle(
-    drag: LiftedDrag<State>,
-    outcome: Outcome<FreeDragResolution>,
-  ): Landing | null {
+  settle(drag: Drag<State>, outcome: Outcome<FreeDragResolution>): void {
     const timing = this.#landing;
     let home = true;
 
@@ -214,29 +228,30 @@ class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
     }
 
     if (!timing || !home) {
-      return null;
+      return;
     }
 
-    const { x, y } = this.#home(drag);
+    const lift = drag.state.lift!;
+    const { x, y } = this.#home(lift);
 
-    return {
+    lift.land({
       x,
       y,
       ...timing(
-        drag.translatedX,
-        drag.translatedY,
-        x - drag.rect.x,
-        y - drag.rect.y,
+        lift.translatedX,
+        lift.translatedY,
+        x - lift.rect.x,
+        y - lift.rect.y,
       ),
-    };
+    });
   }
 
-  end(drag: LiftedDrag<State>): void {
+  end(drag: Drag<State>): void {
     this.#config.onEnd?.(drag.state.result!);
   }
 
   /** Writes the delta the pointer and the operation's offset give into `#motion`. */
-  #computeMotion(drag: LiftedDrag<State>): void {
+  #computeMotion(drag: Drag<State>): void {
     this.#motion.x = drag.x - drag.originX + drag.state.offsetX;
     this.#motion.y = drag.y - drag.originY + drag.state.offsetY;
 
@@ -246,18 +261,18 @@ class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
       this.#motion.x = 0;
     }
 
-    this.#bounds?.apply(this.#motion, drag.rect);
+    this.#bounds?.apply(this.#motion, drag.state.lift!.rect);
   }
 
-  #geometry(drag: LiftedDrag<State>): DragGeometry {
-    return buildGeometry(drag, this.#motion, this.#window);
+  #geometry(drag: Drag<State>): DragGeometry {
+    return buildGeometry(drag, drag.state.lift!, this.#motion, this.#window);
   }
 
   /** `config.home()` now, or the visual's rect at the grab without it. */
-  #home(drag: LiftedDrag<State>): Point {
+  #home(lift: Lift): Point {
     return this.#config.home
-      ? this.#config.home({ item: this.#root, visual: drag.visual })
-      : { x: drag.rect.left, y: drag.rect.top };
+      ? this.#config.home({ item: this.#root, visual: lift.visual })
+      : { x: lift.rect.left, y: lift.rect.top };
   }
 }
 
@@ -266,8 +281,11 @@ export function freeDrag(
   root: HTMLElement,
   config: FreeDragConfig,
 ): FreeDragController {
-  const behavior = new FreeDragBehavior(root, config);
+  const lifter = createLifter(root.ownerDocument.defaultView!);
+  const behavior = new FreeDragBehavior(root, config, lifter);
   const kernel = draggable<State, FreeDragResolution>(root, behavior);
+
+  kernel.use(lifter.cancelLanding);
 
   return {
     invalidate: () => kernel.requestStep(behavior.invalidate),
@@ -275,10 +293,10 @@ export function freeDrag(
       // One step per call: it carries the point, and DRI-8 keeps calls in order.
       kernel.requestStep((drag) => {
         if (drag) {
-          drag.state.offsetX =
-            point.x - drag.rect.left - (drag.x - drag.originX);
-          drag.state.offsetY =
-            point.y - drag.rect.top - (drag.y - drag.originY);
+          const { rect } = drag.state.lift!;
+
+          drag.state.offsetX = point.x - rect.left - (drag.x - drag.originX);
+          drag.state.offsetY = point.y - rect.top - (drag.y - drag.originY);
           behavior.translate(drag);
         }
       }),

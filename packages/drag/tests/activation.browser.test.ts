@@ -5,7 +5,7 @@
  * the placeholder faults name themselves, and samples coalesce to one frame.
  */
 import { describe, expect, it } from 'vitest';
-import { lift } from '../src/lift.ts';
+import { createLifter, type Lift } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
@@ -49,10 +49,12 @@ describe('drag:DRI-3 activation', () => {
   it('should run no hook for a custom behavior whose item was disconnected during the press', async () => {
     const list = makeList(3);
 
-    managed(list, {
-      lift,
-      admit: (event) => ({ item: targetOf(event) }),
-      activate() {
+    const lifter = createLifter(window);
+
+    managed<{ lift: Lift | null }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
         log.push('activate');
         return undefined;
       },
@@ -61,12 +63,11 @@ describe('drag:DRI-3 activation', () => {
       },
       settle() {
         log.push('settle');
-        return null;
       },
       end() {
         log.push('end');
       },
-    });
+    }).use(lifter.cancelLanding);
 
     const { x, y } = await press('#r0');
 

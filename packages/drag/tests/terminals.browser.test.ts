@@ -147,7 +147,6 @@ describe('drag:DRI-4 cancel', () => {
       admit: (event) => ({ item: targetOf(event) }),
       settle() {
         panel.requestCancel('late');
-        return null;
       },
       end(_, outcome) {
         outcomes.push(outcome);

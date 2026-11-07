@@ -5,11 +5,11 @@
  */
 import {
   draggable,
-  type LiftedBehavior,
-  type LiftedDrag,
+  type Behavior,
+  type Drag,
   type Outcome,
 } from './draggable.ts';
-import { lift, type Landing } from './lift.ts';
+import { createLifter, type Landing, type Lift, type Lifter } from './lift.ts';
 import {
   createFrameTask,
   type FrameTask,
@@ -115,6 +115,12 @@ type Recovery =
 
 type State = {
   readonly item: HTMLElement;
+  /** `config.visual` from admission, or the item. */
+  readonly visual: HTMLElement;
+  /** `config.box` from admission, or the visual. */
+  readonly box: HTMLElement;
+  /** Acquired as the first statement of `activate`. */
+  lift: Lift | null;
   /** A command's direction, or `null` for a pointer operation. */
   readonly direction: KeyboardDirection | null;
   snapshot: CollectionSnapshot;
@@ -165,7 +171,8 @@ function recordResult(
 
 /** Only with a landing composed: the one forced layout a drop adds. */
 function landingTarget(
-  drag: LiftedDrag<State>,
+  drag: Drag<State>,
+  lift: Lift,
   recovery: Recovery,
   composed: LandingTiming,
 ): Landing {
@@ -196,10 +203,10 @@ function landingTarget(
     x,
     y,
     ...composed(
-      drag.translatedX,
-      drag.translatedY,
-      x - drag.rect.x,
-      y - drag.rect.y,
+      lift.translatedX,
+      lift.translatedY,
+      x - lift.rect.x,
+      y - lift.rect.y,
     ),
   };
 }
@@ -211,12 +218,12 @@ function landingTarget(
  * kernel's identity coalescing sees the same step on every request. Operation
  * values live in `drag.state`; the instance holds only controller-lifetime ones.
  */
-class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
-  readonly lift: typeof lift = lift;
+class SortableBehavior implements Behavior<State, ReorderResolution> {
   declare readonly threshold?: number;
 
   readonly #config: SortableConfig;
   readonly #window: Window;
+  readonly #lifter: Lifter;
   readonly #axis: InsertionGeometry;
   readonly #displacement: DisplacementSink | undefined;
   readonly #landing: LandingTiming | null;
@@ -228,6 +235,7 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
     root: HTMLElement,
     config: SortableConfig,
     displacement: DisplacementSink | undefined,
+    lifter: Lifter,
   ) {
     if (config.threshold !== undefined) {
       this.threshold = config.threshold;
@@ -235,6 +243,7 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
 
     this.#config = config;
     this.#window = root.ownerDocument.defaultView!;
+    this.#lifter = lifter;
     this.#axis = config.axis();
     this.#displacement = displacement;
     this.#landing = config.landing ?? null;
@@ -242,7 +251,7 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
   }
 
   /** Step, on `invalidate()`: re-reads the collection and rebases the gap. */
-  readonly invalidate = (drag: LiftedDrag<State> | null): void => {
+  readonly invalidate = (drag: Drag<State> | null): void => {
     if (!drag) {
       return;
     }
@@ -278,7 +287,15 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
     return direction === null ? null : this.#admission(event, direction);
   }
 
-  activate(drag: LiftedDrag<State>): false | undefined {
+  activate(drag: Drag<State>): false | undefined {
+    // First, so that its release is the operation's first disposer and runs last.
+    drag.state.lift = this.#lifter.acquire(
+      drag,
+      drag.state.visual,
+      drag.state.box,
+    );
+
+    const { lift } = drag.state;
     const window = this.#window;
 
     // The second pull closes the window between admission and activation, in
@@ -307,13 +324,13 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
       window.document,
       // An object of its own: the factory may keep its argument, and must not
       // keep the operation.
-      { item: drag.item, visual: drag.visual, box: drag.box, rect: drag.rect },
-      drag.boxWidth,
+      { item: drag.item, visual: lift.visual, box: lift.box, rect: lift.rect },
+      lift.boxWidth,
       // Across the lift: a box around the visual keeps the part of its height the
       // visual did not take with it.
-      drag.visual.contains(drag.box)
-        ? drag.boxHeight
-        : drag.boxHeight - drag.box.offsetHeight,
+      lift.visual.contains(lift.box)
+        ? lift.boxHeight
+        : lift.boxHeight - lift.box.offsetHeight,
       this.#config.placeholder ?? null,
     );
 
@@ -348,24 +365,24 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
       placeholder,
       box: this.#measuredBox,
       settle: this.#displacement ? this.#displacement.settle : null,
-      space: drag.itemSpace,
+      space: lift.itemSpace,
     };
     this.#axis.invalidate();
 
     return undefined;
   }
 
-  start(drag: LiftedDrag<State>): void {
+  start(drag: Drag<State>): void {
     this.#config.onStart?.(drag.item);
   }
 
   // oxlint-disable-next-line class-methods-use-this -- a hook the kernel calls as a method of the instance
-  move(drag: LiftedDrag<State>): void {
-    drag.translate(drag.x - drag.originX, drag.y - drag.originY);
+  move(drag: Drag<State>): void {
+    drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);
     drag.state.frame!.schedule();
   }
 
-  drop(drag: LiftedDrag<State>) {
+  drop(drag: Drag<State>) {
     const pointer = drag.state.direction === null;
 
     drag.state.frame!.cancel();
@@ -390,7 +407,7 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
     movePlaceholder(drag.state.placeholder!, insertion);
 
     if (pointer) {
-      drag.translate(drag.x - drag.originX, drag.y - drag.originY);
+      drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);
     }
 
     return request.to === request.from
@@ -398,19 +415,18 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
       : (signal: AbortSignal) => this.#config.onReorder(request, { signal });
   }
 
-  settle(
-    drag: LiftedDrag<State>,
-    outcome: Outcome<ReorderResolution>,
-  ): Landing | null {
+  settle(drag: Drag<State>, outcome: Outcome<ReorderResolution>): void {
     const recovery = recordResult(drag.state, outcome);
     const composed = this.#landing;
 
-    return composed && recovery !== RECOVERY_IMMEDIATE
-      ? landingTarget(drag, recovery, composed)
-      : null;
+    if (composed && recovery !== RECOVERY_IMMEDIATE) {
+      const lift = drag.state.lift!;
+
+      lift.land(landingTarget(drag, lift, recovery, composed));
+    }
   }
 
-  end(drag: LiftedDrag<State>): void {
+  end(drag: Drag<State>): void {
     this.#config.onEnd?.(drag.state.result!);
   }
 
@@ -430,7 +446,7 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
   }
 
   /** Step, once per frame: the gap under the pointer, and the placeholder moved to it. */
-  readonly #updateInsertion = (drag: LiftedDrag<State> | null): void => {
+  readonly #updateInsertion = (drag: Drag<State> | null): void => {
     if (!drag) {
       return;
     }
@@ -501,6 +517,9 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
     const visual = this.#config.visual?.(item) ?? item;
     const state: State = {
       item,
+      visual,
+      box: this.#config.box?.(item) ?? visual,
+      lift: null,
       direction,
       snapshot,
       insertion: null,
@@ -515,8 +534,6 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
 
     return {
       item,
-      visual,
-      box: this.#config.box?.(item) ?? visual,
       ...(handle ? { handle } : {}),
       state,
     };
@@ -529,7 +546,8 @@ export function sortable(
   config: SortableConfig,
 ): SortableController {
   const displacement = config.displacement?.();
-  const behavior = new SortableBehavior(root, config, displacement);
+  const lifter = createLifter(root.ownerDocument.defaultView!);
+  const behavior = new SortableBehavior(root, config, displacement, lifter);
   const kernel = draggable<State, ReorderResolution>(root, behavior);
 
   if (displacement) {
@@ -537,6 +555,9 @@ export function sortable(
       displacement.retire();
     });
   }
+
+  // Registered last, so a running landing is cancelled first at destruction.
+  kernel.use(lifter.cancelLanding);
 
   return {
     invalidate: () => {

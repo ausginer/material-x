@@ -8,7 +8,7 @@ import {
   space,
 } from '@ydinjs/box-quad';
 import { describe, expect, it } from 'vitest';
-import { lift } from '../src/lift.ts';
+import { createLifter, type Lift } from '../src/lift.ts';
 import { y } from '../src/sortable/y.ts';
 import { resizeHandle } from './fixtures/resize-handle.ts';
 import {
@@ -183,14 +183,22 @@ describe('drag:DRI-16 lifted', () => {
     const parent = host(css);
     const node = makeNode(parent, name.startsWith('own') ? 'rotate:15deg' : '');
 
-    managed(node, {
-      lift,
+    const lifter = createLifter(window);
+
+    managed<{ lift: Lift | null }>(node, {
       threshold: 1,
-      admit: () => ({ item: node }),
-      move(drag) {
-        drag.translate(drag.x - drag.originX, drag.y - drag.originY);
+      admit: () => ({ item: node, state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
       },
-    });
+      move(drag) {
+        drag.state.lift!.translate(
+          drag.x - drag.originX,
+          drag.y - drag.originY,
+        );
+      },
+    }).use(lifter.cancelLanding);
 
     const start = centerOf(node);
 
@@ -208,14 +216,22 @@ describe('drag:DRI-16 lifted', () => {
     const parent = host('transform:scale(.5)');
     const node = makeNode(parent, 'zoom:2');
 
-    managed(node, {
-      lift,
+    const lifter = createLifter(window);
+
+    managed<{ lift: Lift | null }>(node, {
       threshold: 1,
-      admit: () => ({ item: node }),
-      move(drag) {
-        drag.translate(drag.x - drag.originX, drag.y - drag.originY);
+      admit: () => ({ item: node, state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
       },
-    });
+      move(drag) {
+        drag.state.lift!.translate(
+          drag.x - drag.originX,
+          drag.y - drag.originY,
+        );
+      },
+    }).use(lifter.cancelLanding);
 
     const start = centerOf(node);
 
@@ -233,11 +249,16 @@ describe('drag:DRI-16 lifted', () => {
     const parent = host('zoom:1.5;transform:scale(.5)');
     const node = makeNode(parent);
 
-    managed(node, {
-      lift,
+    const lifter = createLifter(window);
+
+    managed<{ lift: Lift | null }>(node, {
       threshold: 1,
-      admit: () => ({ item: node }),
-    });
+      admit: () => ({ item: node, state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
+      },
+    }).use(lifter.cancelLanding);
 
     const before = node.getBoundingClientRect();
 

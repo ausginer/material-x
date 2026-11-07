@@ -3,6 +3,10 @@
  * escapes any clipping, transformed or stacking ancestor. The element stays in
  * the DOM and only its rendering moves, so it keeps its styles and inherited
  * custom properties.
+ *
+ * A behavior composes it in its own code: one `Lifter` per controller, whose
+ * `cancelLanding` goes to the controller's `use`, and `acquire` as the first
+ * statement of `activate`, with the `Lift` kept in `drag.state`.
  */
 import {
   ancestry,
@@ -11,22 +15,14 @@ import {
   delta,
   localDelta,
   space,
+  type Space,
 } from '@ydinjs/box-quad';
-import type { Writable } from 'type-fest';
-import type { LiftedAdmission, LiftedDrag } from './draggable.ts';
+import type { Drag } from './draggable.ts';
 import { deepActiveElement } from './shared/focus.ts';
 import {
   DEFAULT_LANDING_DURATION,
   DEFAULT_LANDING_EASING,
 } from './shared/timing.ts';
-
-/** How the kernel holds a lift. */
-export type LiftHold = Readonly<{
-  /** Restores the visual's inline declarations and popover state. */
-  release(): void;
-  /** Starts the landing, and returns how to cancel it if one runs. */
-  land(landing: Landing): (() => void) | null;
-}>;
 
 /** Viewport position for the visual's top-left, and the animation's timing. */
 export type Landing = Readonly<{
@@ -35,6 +31,58 @@ export type Landing = Readonly<{
   duration?: number;
   easing?: string;
 }>;
+
+/** One operation's lift, from `Lifter.acquire` until the operation's release. */
+export type Lift = Readonly<{
+  /** The element lifted and translated. */
+  visual: HTMLElement;
+  /** The element whose offset size `boxWidth` and `boxHeight` report. */
+  box: HTMLElement;
+  /** The visual's rect at the grab. */
+  rect: DOMRectReadOnly;
+  boxWidth: number;
+  boxHeight: number;
+  /** What the visual inherits. Pass it to `localDelta` from `@ydinjs/box-quad`. */
+  visualSpace: Space;
+  /** What the item inherits. */
+  itemSpace: Space;
+  /** The viewport delta last translated to. */
+  translatedX: number;
+  translatedY: number;
+  /** Moves the lifted visual to a viewport delta from the grab. */
+  translate(x: number, y: number): void;
+  /**
+   * Names where the visual lands. Call it from `settle`. The landing starts right
+   * after the lift is released, and the last call wins. Without a call, nothing
+   * lands.
+   */
+  land(landing: Landing): void;
+}>;
+
+/**
+ * The lift for one controller. Create it with the controller and pass
+ * `cancelLanding` to the controller's `use`. It keeps the running landing, which
+ * outlives its operation.
+ */
+export type Lifter = Readonly<{
+  /**
+   * Lifts the visual of `drag`: call it as the first statement of `activate`,
+   * before any other `drag.use`. It registers the release with `drag.use` before
+   * it writes anything, so the release runs after every disposer added later and
+   * also restores a failed acquisition. It cancels this lifter's running landing
+   * after it measures.
+   *
+   * `visual` defaults to `drag.item`, and `box` to `visual`. It throws when the
+   * visual has no single 2D box (fragmented, `display: none` or 3D), which is a
+   * fault.
+   */
+  acquire(drag: Drag<unknown>, visual?: HTMLElement, box?: HTMLElement): Lift;
+  /** Cancels the running landing, if any. It works when detached. */
+  cancelLanding(): void;
+}>;
+
+/** The `Lift` as `translate` writes it. */
+type OwnedLift = { -readonly [Key in keyof Lift]: Lift[Key] };
 
 const BOX_A = 0;
 const BOX_B = 1;
@@ -167,18 +215,14 @@ function showKeepingFocus(visual: HTMLElement): void {
 }
 
 /**
- * All or nothing: setting the attribute already closes a popover the page had
- * opened, and `showPopover` can throw, so a failed acquisition restores what it
- * changed before rethrowing.
+ * Records the visual's popover attribute and open state before the lift writes
+ * them, and returns how to put both back.
  */
-function acquireTopLayer(
-  visual: HTMLElement,
-  report: (error: unknown) => void,
-): () => void {
+function captureTopLayer(visual: HTMLElement): () => void {
   const priorAttribute = visual.getAttribute('popover');
   const priorOpen = visual.matches(':popover-open');
 
-  const restore = (): void => {
+  return () => {
     if (visual.matches(':popover-open')) {
       visual.hidePopover();
     }
@@ -193,24 +237,6 @@ function acquireTopLayer(
       showKeepingFocus(visual);
     }
   };
-
-  try {
-    visual.popover = 'manual';
-
-    if (!visual.matches(':popover-open')) {
-      showKeepingFocus(visual);
-    }
-  } catch (error) {
-    try {
-      restore();
-    } catch (nested) {
-      report(nested);
-    }
-
-    throw error;
-  }
-
-  return restore;
 }
 
 /**
@@ -218,8 +244,8 @@ function acquireTopLayer(
  * Elevation is a separate replacing animation: added to an item's own `z-index`,
  * the sum wraps in WebKit and the item goes under its siblings.
  */
-function startLandingAnimation<State>(
-  drag: LiftedDrag<State>,
+function startLandingAnimation(
+  lift: Lift,
   window: Window,
   landing: Landing,
 ): (() => void) | null {
@@ -227,9 +253,9 @@ function startLandingAnimation<State>(
 
   if (
     !localDelta(
-      drag.visualSpace,
-      drag.translatedX - (landing.x - drag.rect.x),
-      drag.translatedY - (landing.y - drag.rect.y),
+      lift.visualSpace,
+      lift.translatedX - (landing.x - lift.rect.x),
+      lift.translatedY - (landing.y - lift.rect.y),
       local,
     ) ||
     (local[0] === 0 && local[1] === 0)
@@ -240,7 +266,7 @@ function startLandingAnimation<State>(
   const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ? 0
     : (landing.duration ?? DEFAULT_LANDING_DURATION);
-  const flight = drag.visual.animate(
+  const flight = lift.visual.animate(
     [{ translate: `${local[0]!}px ${local[1]!}px` }, { translate: '0 0' }],
     {
       duration,
@@ -256,10 +282,10 @@ function startLandingAnimation<State>(
   }
 
   const keyframe =
-    window.getComputedStyle(drag.visual).position === 'static'
+    window.getComputedStyle(lift.visual).position === 'static'
       ? { zIndex: TOP_Z_INDEX, position: 'relative' }
       : { zIndex: TOP_Z_INDEX };
-  const elevation = drag.visual.animate([keyframe, keyframe], { duration });
+  const elevation = lift.visual.animate([keyframe, keyframe], { duration });
 
   return () => {
     flight.cancel();
@@ -267,102 +293,127 @@ function startLandingAnimation<State>(
   };
 }
 
-/**
- * Composes the top-layer lift: pass this function as a behavior's `lift`. The
- * kernel calls it at activation, and a behavior does not call it.
- *
- * Geometry is read before anything mutates, because a traversal taken after the
- * visual is repositioned reads a different ancestry. It throws when the visual
- * has no single 2D box (fragmented, `display: none` or 3D), which is a fault.
- */
-export function lift<State>(
-  drag: Writable<LiftedDrag<State>>,
-  admission: LiftedAdmission<State>,
-  window: Window,
-  report: (error: unknown) => void,
-): LiftHold {
-  const visual = admission.visual ?? drag.item;
-  const box = admission.box ?? visual;
-  const rect = visual.getBoundingClientRect();
-  const boxWidth = box.offsetWidth;
-  const boxHeight = box.offsetHeight;
-  const visualSpace = space();
-  const itemSpace = drag.item === visual ? visualSpace : space();
-  const measured = createBox();
+/** Creates the lift for one controller, in the window its root belongs to. */
+export function createLifter(window: Window): Lifter {
+  let cancelRunning: (() => void) | null = null;
 
-  if (
-    !ancestry(visual, visualSpace) ||
-    (itemSpace !== visualSpace && !ancestry(drag.item, itemSpace)) ||
-    !coordinates(visual, measured, visualSpace)
-  ) {
-    throw new Error('lift/visual-no-box-space');
-  }
+  const cancelLanding = (): void => {
+    // Taken before it runs, so a landing is cancelled once.
+    const cancel = cancelRunning;
 
-  const style = window.getComputedStyle(visual);
-  const restoreStyles = captureInlineStyles(visual);
-  let releaseTopLayer: () => void;
-  let base: string;
-
-  try {
-    // Read every UA value before the first write: interleaving them would force
-    // a style recalculation per property.
-    const values = UA_PROPS.map((prop) => style.getPropertyValue(prop));
-
-    visual.style.boxSizing = 'border-box';
-    visual.style.margin = '0';
-
-    for (let i = 0; i < UA_PROPS.length; i += 1) {
-      visual.style.setProperty(UA_PROPS[i]!, values[i]!);
-    }
-
-    base = `matrix(${measured[BOX_A]!}, ${measured[BOX_B]!}, ${measured[BOX_C]!}, ${measured[BOX_D]!}, ${measured[BOX_E]!}, ${measured[BOX_F]!})`;
-    visual.style.transition = 'none';
-    visual.style.position = 'fixed';
-    visual.style.inset = 'auto';
-    visual.style.width = `${measured[BOX_WIDTH]!}px`;
-    visual.style.height = `${measured[BOX_HEIGHT]!}px`;
-    // Net zoom 1: the top layer does not escape an ancestor's zoom, and the
-    // matrix is the only source of scale.
-    visual.style.zoom = `${1 / visualSpace[SPACE_ANCESTOR_ZOOM]!}`;
-    visual.style.top = '0';
-    visual.style.left = '0';
-    visual.style.transformOrigin = '0 0';
-    visual.style.translate = 'none';
-    visual.style.rotate = 'none';
-    visual.style.scale = 'none';
-    // The matrix carries the whole position and the element's own transforms, so
-    // it is written now: until the first sample the visual would otherwise paint
-    // at the origin.
-    visual.style.transform = base;
-    releaseTopLayer = acquireTopLayer(visual, report);
-  } catch (error) {
-    restoreStyles();
-    throw error;
-  }
-
-  drag.visual = visual;
-  drag.box = box;
-  drag.rect = rect;
-  drag.boxWidth = boxWidth;
-  drag.boxHeight = boxHeight;
-  drag.visualSpace = visualSpace;
-  drag.itemSpace = itemSpace;
-  drag.translatedX = 0;
-  drag.translatedY = 0;
-  drag.translate = (x, y) => {
-    visual.style.transform = `translate(${x}px, ${y}px) ${base}`;
-    drag.translatedX = x;
-    drag.translatedY = y;
+    cancelRunning = null;
+    cancel?.();
   };
 
   return {
-    release() {
+    acquire(drag, visual = drag.item, box = visual) {
+      // A grab during a landing measures the visual with the flight's offset, so
+      // the visual stays under the pointer. The flight is cancelled afterwards,
+      // before the first lifted frame, also when the acquisition throws.
       try {
-        releaseTopLayer();
+        // Geometry is read before anything mutates, because a traversal taken
+        // after the visual is repositioned reads a different ancestry.
+        const rect = visual.getBoundingClientRect();
+        const boxWidth = box.offsetWidth;
+        const boxHeight = box.offsetHeight;
+        const visualSpace = space();
+        const itemSpace = drag.item === visual ? visualSpace : space();
+        const measured = createBox();
+
+        if (
+          !ancestry(visual, visualSpace) ||
+          (itemSpace !== visualSpace && !ancestry(drag.item, itemSpace)) ||
+          !coordinates(visual, measured, visualSpace)
+        ) {
+          throw new Error('lift/visual-no-box-space');
+        }
+
+        const style = window.getComputedStyle(visual);
+        // Every UA value is read before the first write: interleaving them would
+        // force a style recalculation per property.
+        const values = UA_PROPS.map((prop) => style.getPropertyValue(prop));
+        const restoreStyles = captureInlineStyles(visual);
+        const restoreTopLayer = captureTopLayer(visual);
+        const base = `matrix(${measured[BOX_A]!}, ${measured[BOX_B]!}, ${measured[BOX_C]!}, ${measured[BOX_D]!}, ${measured[BOX_E]!}, ${measured[BOX_F]!})`;
+        let promoted = false;
+        let landing: Landing | null = null;
+        const lift: OwnedLift = {
+          visual,
+          box,
+          rect,
+          boxWidth,
+          boxHeight,
+          visualSpace,
+          itemSpace,
+          translatedX: 0,
+          translatedY: 0,
+          translate: (x, y) => {
+            visual.style.transform = `translate(${x}px, ${y}px) ${base}`;
+            lift.translatedX = x;
+            lift.translatedY = y;
+          },
+          land: (named) => {
+            landing = named;
+          },
+        };
+
+        // Registered before the first write, so whatever the acquisition writes
+        // before a throw is restored at the operation's release. Two disposers, so
+        // that the landing starts right after the release even when the release
+        // throws, and each throw is reported once.
+        drag.use(() => {
+          if (landing) {
+            cancelRunning = startLandingAnimation(lift, window, landing);
+          }
+        });
+        drag.use(() => {
+          try {
+            if (promoted) {
+              restoreTopLayer();
+            }
+          } finally {
+            restoreStyles();
+          }
+        });
+
+        visual.style.boxSizing = 'border-box';
+        visual.style.margin = '0';
+
+        for (let i = 0; i < UA_PROPS.length; i += 1) {
+          visual.style.setProperty(UA_PROPS[i]!, values[i]!);
+        }
+
+        visual.style.transition = 'none';
+        visual.style.position = 'fixed';
+        visual.style.inset = 'auto';
+        visual.style.width = `${measured[BOX_WIDTH]!}px`;
+        visual.style.height = `${measured[BOX_HEIGHT]!}px`;
+        // Net zoom 1: the top layer does not escape an ancestor's zoom, and the
+        // matrix is the only source of scale.
+        visual.style.zoom = `${1 / visualSpace[SPACE_ANCESTOR_ZOOM]!}`;
+        visual.style.top = '0';
+        visual.style.left = '0';
+        visual.style.transformOrigin = '0 0';
+        visual.style.translate = 'none';
+        visual.style.rotate = 'none';
+        visual.style.scale = 'none';
+        // The matrix carries the whole position and the element's own transforms,
+        // so it is written now: until the first sample the visual would otherwise
+        // paint at the origin.
+        visual.style.transform = base;
+        // Setting the attribute already closes a popover the page had opened.
+        promoted = true;
+        visual.popover = 'manual';
+
+        if (!visual.matches(':popover-open')) {
+          showKeepingFocus(visual);
+        }
+
+        return lift;
       } finally {
-        restoreStyles();
+        cancelLanding();
       }
     },
-    land: (landing) => startLandingAnimation(drag, window, landing),
+    cancelLanding,
   };
 }

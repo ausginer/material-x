@@ -4,22 +4,22 @@
  */
 import {
   draggable,
+  type Drag,
   type DraggableController,
-  type LiftedDrag,
 } from '../../src/draggable.ts';
-import { lift } from '../../src/lift.ts';
+import { createLifter, type Lift } from '../../src/lift.ts';
 
-type State = { zone: HTMLElement | null };
+type State = { lift: Lift | null; zone: HTMLElement | null };
 type Save = (
   card: HTMLElement,
   zone: HTMLElement,
   signal: AbortSignal,
 ) => Promise<boolean>;
 
-const zoneAt = (drag: LiftedDrag<State>): HTMLElement | null => {
+const zoneAt = (drag: Drag<State>): HTMLElement | null => {
   // The lifted card is under the pointer, so the zone is further down the list.
   for (const element of document.elementsFromPoint(drag.x, drag.y)) {
-    if (element !== drag.visual && element.matches('.zone')) {
+    if (element !== drag.state.lift!.visual && element.matches('.zone')) {
       return element as HTMLElement;
     }
   }
@@ -36,18 +36,22 @@ const highlight = (state: State, zone: HTMLElement | null): void => {
 export function dropZone(
   board: HTMLElement,
   save: Save,
-): DraggableController<LiftedDrag<State>> {
-  return draggable<State, boolean>(board, {
-    lift,
-
+): DraggableController<Drag<State>> {
+  const lifter = createLifter(board.ownerDocument.defaultView!);
+  const controller = draggable<State, boolean>(board, {
     admit(event) {
       const item = (event.target as Element).closest<HTMLElement>('.card');
 
-      return item && { item, state: { zone: null } };
+      return item && { item, state: { lift: null, zone: null } };
+    },
+
+    activate(drag) {
+      drag.state.lift = lifter.acquire(drag);
+      return undefined;
     },
 
     move(drag) {
-      drag.translate(drag.x - drag.originX, drag.y - drag.originY);
+      drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);
       highlight(drag.state, zoneAt(drag));
     },
 
@@ -58,24 +62,29 @@ export function dropZone(
     },
 
     settle(drag, outcome) {
-      const { item, rect, state } = drag;
+      const { item, state } = drag;
+      const lift = state.lift!;
 
       if (outcome.type !== 'verdict' || !outcome.value) {
         highlight(state, null);
-        return { x: rect.left, y: rect.top };
+        lift.land({ x: lift.rect.left, y: lift.rect.top });
+        return;
       }
 
       // A lifted card has no flow position to measure, so a stand-in finds it.
       const standIn = document.createElement('div');
 
-      standIn.style.height = `${drag.boxHeight}px`;
+      standIn.style.height = `${lift.boxHeight}px`;
       state.zone!.append(standIn);
 
       const { left: x, top: y } = standIn.getBoundingClientRect();
 
       standIn.replaceWith(item);
       highlight(state, null);
-      return { x, y };
+      lift.land({ x, y });
     },
   });
+
+  controller.use(lifter.cancelLanding);
+  return controller;
 }

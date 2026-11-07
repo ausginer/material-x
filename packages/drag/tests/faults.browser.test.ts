@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Outcome } from '../src/draggable.ts';
 import { DragFault } from '../src/fault.ts';
+import { createLifter, type Lift } from '../src/lift.ts';
 import {
   dragAndDrop,
   faults,
@@ -227,15 +228,19 @@ describe('drag:DRI-7 faults', () => {
 
   it('should report a platform throw and keep the controller: a hidden visual has no box', async () => {
     const list = makeList(3);
-    const { lift } = await import('../src/lift.ts');
+    const { createLifter } = await import('../src/lift.ts');
+    const lifter = createLifter(window);
 
-    managed(list, {
-      lift,
-      admit: (event) => ({ item: targetOf(event) }),
+    managed<{ lift: Lift | null }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
+      },
       start: () => {
         log.push('start');
       },
-    });
+    }).use(lifter.cancelLanding);
 
     const row = document.querySelector<HTMLElement>('#r0')!;
     const { x, y } = row.getBoundingClientRect();
@@ -252,5 +257,88 @@ describe('drag:DRI-7 faults', () => {
     await dragAndDrop('#r1', 30);
     expect(log).toEqual(['start']);
     await frames();
+  });
+});
+
+describe('drag:DRI-7 a failed acquisition', () => {
+  const stateOf = (element: HTMLElement) => ({
+    style: element.getAttribute('style'),
+    popover: element.getAttribute('popover'),
+    open: element.matches(':popover-open'),
+  });
+
+  /**
+   * A lifted behavior whose acquisition throws from `showPopover`. A disposer
+   * registered before `acquire` records the outcome: it runs last, after the
+   * lift's release.
+   */
+  async function failAcquisition(row: HTMLElement): Promise<Outcome[]> {
+    const list = row.parentElement!;
+    const lifter = createLifter(window);
+    const outcomes: Outcome[] = [];
+
+    managed<{ lift: Lift | null }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      activate(drag) {
+        drag.use((outcome) => {
+          outcomes.push(outcome!);
+        });
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
+      },
+      start() {
+        log.push('start');
+      },
+      end() {
+        log.push('end');
+      },
+    }).use(lifter.cancelLanding);
+    await dragAndDrop(row, 30);
+    return outcomes;
+  }
+
+  it('should restore the visual and let the acquisition fault decide', async () => {
+    const row = makeList(2).querySelector<HTMLElement>('#r0')!;
+    const shown = new Error('show');
+    const before = stateOf(row);
+
+    row.showPopover = () => {
+      throw shown;
+    };
+
+    const outcomes = await failAcquisition(row);
+
+    expect(faults.map((fault) => fault.cause)).toEqual([shown]);
+    expect(outcomes).toEqual([
+      { type: 'canceled', reason: faults[0], origin: 'fault' },
+    ]);
+    expect(log).toEqual([]);
+    expect(stateOf(row)).toEqual(before);
+  });
+
+  it('should report a failed restoration after the acquisition fault, which decides', async () => {
+    const row = makeList(2).querySelector<HTMLElement>('#r0')!;
+    const shown = new Error('show');
+    const restored = new Error('restore');
+    const removeAttribute = row.removeAttribute.bind(row);
+
+    row.showPopover = () => {
+      throw shown;
+    };
+    row.removeAttribute = (name) => {
+      if (name === 'popover') {
+        throw restored;
+      }
+
+      removeAttribute(name);
+    };
+
+    const outcomes = await failAcquisition(row);
+
+    expect(faults.map((fault) => fault.cause)).toEqual([shown, restored]);
+    expect(outcomes).toEqual([
+      { type: 'canceled', reason: faults[0], origin: 'fault' },
+    ]);
+    expect(log).toEqual([]);
   });
 });

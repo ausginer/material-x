@@ -10,9 +10,9 @@
  * A behavior receives `Drag`, which has no path to the session.
  */
 import { DragFault } from '../fault.ts';
-import type { LiftedAdmission } from './admission.ts';
-import type { AnyBehavior } from './behavior.ts';
-import { runDragDisposer, type LiftedDrag } from './drag.ts';
+import type { Admission } from './admission.ts';
+import type { Behavior } from './behavior.ts';
+import { runDragDisposer, type Drag } from './drag.ts';
 import { Session } from './session.ts';
 
 /** Each method works when detached from the controller. */
@@ -83,13 +83,13 @@ function countRefused(argument: unknown): void {
 
 /**
  * What exists across operations or with no operation: the root's listeners,
- * admission, the gate, the deferred steps, destruction, the reader, the slot that
- * holds the current session, and the landing. Its members without `#` are the
+ * admission, the gate, the deferred steps, destruction, the reader and the slot
+ * that holds the current session. Its members without `#` are the
  * session's way in and the public methods; `draggable` hands out only the latter.
  */
 export class Gesture<State, Verdict> {
   readonly #root: HTMLElement;
-  readonly #behavior: AnyBehavior<State, Verdict>;
+  readonly #behavior: Behavior<State, Verdict>;
   readonly #window: Window & typeof globalThis;
   readonly #threshold: number;
   readonly #listeners = new AbortController();
@@ -99,16 +99,14 @@ export class Gesture<State, Verdict> {
   #running = false;
 
   /** Deferred steps, in request order. Empty on the hot path. */
-  readonly #steps: Array<(drag: LiftedDrag<State> | null) => void> = [];
+  readonly #steps: Array<(drag: Drag<State> | null) => void> = [];
 
   /** Set by the first destruction request, which also closes the controller. */
   #destroyed: Promise<void> | null = null;
   /** The destruction request slot: non-null until teardown has been applied. */
   #resolveDestroyed: (() => void) | null = null;
 
-  #cancelLanding: (() => void) | null = null;
-
-  constructor(root: HTMLElement, behavior: AnyBehavior<State, Verdict>) {
+  constructor(root: HTMLElement, behavior: Behavior<State, Verdict>) {
     this.#root = root;
     this.#behavior = behavior;
     this.#window = root.ownerDocument.defaultView!;
@@ -206,22 +204,7 @@ export class Gesture<State, Verdict> {
     this.#session = null;
   }
 
-  /** Takes the running landing, so the activation that called it cancels it. */
-  takeLanding(): (() => void) | null {
-    const cancelLanding = this.#cancelLanding;
-
-    this.#cancelLanding = null;
-    return cancelLanding;
-  }
-
-  /** Keeps a started landing, for the next activation or destruction to cancel. */
-  keepLanding(cancelLanding: (() => void) | null): void {
-    this.#cancelLanding = cancelLanding;
-  }
-
-  readonly requestStep = (
-    step: (drag: LiftedDrag<State> | null) => void,
-  ): void => {
+  readonly requestStep = (step: (drag: Drag<State> | null) => void): void => {
     if (this.#destroyed) {
       return;
     }
@@ -233,9 +216,7 @@ export class Gesture<State, Verdict> {
     }
   };
 
-  readonly #runStep = (
-    step: (drag: LiftedDrag<State> | null) => void,
-  ): void => {
+  readonly #runStep = (step: (drag: Drag<State> | null) => void): void => {
     step(this.#session ? this.#session.stepTarget() : null);
   };
 
@@ -313,7 +294,7 @@ export class Gesture<State, Verdict> {
   };
 
   #open(
-    admission: LiftedAdmission<State>,
+    admission: Admission<State>,
     x: number,
     y: number,
     pointerId?: number,
@@ -341,14 +322,6 @@ export class Gesture<State, Verdict> {
     this.#session = null;
     this.#steps.length = 0;
     session?.terminate();
-
-    try {
-      this.#cancelLanding?.();
-    } catch (error) {
-      this.raise(error);
-    }
-
-    this.#cancelLanding = null;
 
     while (this.#disposers.length > 0) {
       runDragDisposer(this.#disposers.pop()!, null, this.raise);

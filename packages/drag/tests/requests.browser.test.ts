@@ -1,8 +1,8 @@
 /** `drag:DRI-1`, `drag:DRI-2` and `drag:DRI-8`: requests, the reader and deferred writes. */
 import { describe, expect, it } from 'vitest';
-import type { Drag, LiftedDrag } from '../src/draggable.ts';
+import type { Drag } from '../src/draggable.ts';
 import { freeDrag, FreeDragResolution } from '../src/free-drag.ts';
-import { lift } from '../src/lift.ts';
+import { createLifter, type Lift } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
@@ -77,10 +77,11 @@ describe('drag:DRI-1 a request does not change the running step', () => {
 
       document.body.append(probe);
 
-      const panel = managed(list, {
-        lift,
-        admit: (event) => ({ item: targetOf(event) }),
-        activate() {
+      const lifter = createLifter(window);
+      const panel = managed<{ lift: Lift | null }>(list, {
+        admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+        activate(drag) {
+          drag.state.lift = lifter.acquire(drag);
           log.push('activate:before');
           probe.setAttribute('data-poke', '1');
           log.push('activate:after');
@@ -88,14 +89,18 @@ describe('drag:DRI-1 a request does not change the running step', () => {
         start: () => {
           log.push('start');
         },
-        move(drag: LiftedDrag) {
-          drag.translate(drag.x - drag.originX, drag.y - drag.originY);
+        move(drag) {
+          drag.state.lift!.translate(
+            drag.x - drag.originX,
+            drag.y - drag.originY,
+          );
         },
         end: (_, outcome) => {
           log.push(`end:${outcome.type}`);
         },
       });
 
+      panel.use(lifter.cancelLanding);
       ReactionProbe.react = () => {
         ReactionProbe.react = null;
         log.push(`request:${asked}`);
@@ -153,7 +158,6 @@ describe('drag:DRI-1 a request does not change the running step', () => {
         cancelInSettle = true;
         panel.requestCancel('too late');
         log.push(`settle:${String((outcome as { reason?: unknown }).reason)}`);
-        return null;
       },
       end(_, outcome) {
         log.push(
@@ -195,7 +199,6 @@ describe('drag:DRI-2 one reader and fixed precedence', () => {
       admit: (event) => ({ item: targetOf(event) }),
       settle() {
         void panel.requestDestroy();
-        return null;
       },
       end: () => {
         log.push('end');
@@ -221,7 +224,6 @@ describe('drag:DRI-2 one reader and fixed precedence', () => {
       },
       settle() {
         log.push('settle');
-        return null;
       },
     });
 

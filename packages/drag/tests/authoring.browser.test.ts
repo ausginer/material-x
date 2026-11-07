@@ -1,5 +1,6 @@
 /** `drag:DRI-18`: custom behaviors, written only on the public API. */
 import { describe, expect, it } from 'vitest';
+import { createLifter, type Lift } from '../src/lift.ts';
 import { canvasGroup, type CanvasGroup } from './fixtures/canvas-group.ts';
 import { dropZone } from './fixtures/drop-zone.ts';
 import { resizeHandle } from './fixtures/resize-handle.ts';
@@ -10,10 +11,13 @@ import {
   frames,
   grab,
   log,
+  makeList,
+  managed,
   moveHeld,
   onCleanup,
   press,
   release,
+  targetOf,
   wait,
 } from './support/harness.ts';
 
@@ -207,5 +211,61 @@ describe('drag:DRI-18 canvas group', () => {
       '',
     );
     await commands.keyPress('Escape');
+  });
+});
+
+describe('drag:DRD-27 the lift in the behavior state', () => {
+  /** A behavior that composes the lift, and the keys its hooks see at `start`. */
+  async function liftedKeys(): Promise<{ drag: string[]; lift: string[] }> {
+    const list = makeList(2);
+    const lifter = createLifter(window);
+    const keys = { drag: [] as string[], lift: [] as string[] };
+
+    managed<{ lift: Lift | null }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
+      },
+      start(drag) {
+        keys.drag = Object.keys(drag).toSorted();
+        keys.lift = Object.keys(drag.state.lift!).toSorted();
+      },
+    }).use(lifter.cancelLanding);
+    await grab('#r0');
+    await release();
+    return keys;
+  }
+
+  it('should give a lifted behavior a drag with only the kernel keys', async () => {
+    expect((await liftedKeys()).drag).toEqual([
+      'item',
+      'originX',
+      'originY',
+      'pointerId',
+      'requestCancel',
+      'requestStep',
+      'signal',
+      'state',
+      'use',
+      'x',
+      'y',
+    ]);
+  });
+
+  it('should give the lift exactly its eleven keys', async () => {
+    expect((await liftedKeys()).lift).toEqual([
+      'box',
+      'boxHeight',
+      'boxWidth',
+      'itemSpace',
+      'land',
+      'rect',
+      'translate',
+      'translatedX',
+      'translatedY',
+      'visual',
+      'visualSpace',
+    ]);
   });
 });

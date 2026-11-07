@@ -2,10 +2,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   draggable,
+  type Drag,
   type DraggableController,
-  type LiftedDrag,
 } from '../src/draggable.ts';
-import { lift } from '../src/lift.ts';
+import { createLifter, type Lift } from '../src/lift.ts';
 import { landing } from '../src/sortable/landing.ts';
 import { layoutAnimation } from '../src/sortable/layout-animation.ts';
 import { y } from '../src/sortable/y.ts';
@@ -49,7 +49,7 @@ type Hook =
 async function destroyFrom(where: Hook) {
   const list = makeList(3);
   const probe = document.createElement('reaction-probe');
-  let panel: DraggableController<LiftedDrag> | null = null;
+  let panel: DraggableController<Drag<{ lift: Lift | null }>> | null = null;
   let destroyed: Promise<void> | null = null;
   const after: string[] = [];
   let requested = false;
@@ -63,13 +63,16 @@ async function destroyFrom(where: Hook) {
   };
 
   document.body.append(probe);
-  panel = draggable(list, {
-    lift,
+
+  const lifter = createLifter(window);
+
+  panel = draggable<{ lift: Lift | null }>(list, {
     admit(event) {
       destroyHere('admit');
-      return { item: targetOf(event) };
+      return { item: targetOf(event), state: { lift: null } };
     },
     activate(drag) {
+      drag.state.lift = lifter.acquire(drag);
       destroyHere('activate');
 
       if (where === 'reaction') {
@@ -103,12 +106,12 @@ async function destroyFrom(where: Hook) {
     },
     settle() {
       destroyHere('settle');
-      return null;
     },
     end() {
       destroyHere('end');
     },
   });
+  panel.use(lifter.cancelLanding);
 
   if (where === 'listener') {
     const listening = new AbortController();
@@ -211,22 +214,24 @@ describe('drag:DRI-10 destruction', () => {
   it('should give disposers null and deliver no settle or end', async () => {
     const list = makeList(2);
     const seen: unknown[] = [];
-    const panel = draggable(list, {
-      lift,
-      admit: (event) => ({ item: targetOf(event) }),
+    const lifter = createLifter(window);
+    const panel = draggable<{ lift: Lift | null }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
       activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
         drag.use((outcome) => {
           seen.push(outcome);
         });
       },
       settle() {
         log.push('settle');
-        return null;
       },
       end: () => {
         log.push('end');
       },
     });
+
+    panel.use(lifter.cancelLanding);
 
     await grab('#r0');
     await panel.requestDestroy();
@@ -255,15 +260,21 @@ describe('drag:DRI-10 destruction', () => {
 
   it('should run a later use at once on the operation scope, with null', async () => {
     const list = makeList(2);
-    let retained: LiftedDrag | null = null;
+    let retained: Drag<{ lift: Lift | null }> | null = null;
     const seen: unknown[] = [];
-    const panel = draggable(list, {
-      lift,
-      admit: (event) => ({ item: targetOf(event) }),
+    const lifter = createLifter(window);
+    const panel = draggable<{ lift: Lift | null }>(list, {
+      admit: (event) => ({ item: targetOf(event), state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
+      },
       start(drag) {
         retained = drag;
       },
     });
+
+    panel.use(lifter.cancelLanding);
 
     await grab('#r0');
     await panel.requestDestroy();
@@ -319,18 +330,24 @@ describe('drag:DRI-10 destruction', () => {
     async () => {
       const list = makeList(3);
       const refs: Array<WeakRef<object>> = [];
-      const panel = draggable<object>(list, {
-        lift,
+      const lifter = createLifter(window);
+      const panel = draggable<{ lift: Lift | null }>(list, {
         admit(event) {
-          const state = {};
+          const state = { lift: null };
 
           refs.push(new WeakRef(state));
           return { item: targetOf(event), state };
+        },
+        activate(drag) {
+          drag.state.lift = lifter.acquire(drag);
+          return undefined;
         },
         start(drag) {
           refs.push(new WeakRef(drag));
         },
       });
+
+      panel.use(lifter.cancelLanding);
 
       await dragAndDrop('#r0', 30);
       await panel.requestDestroy();

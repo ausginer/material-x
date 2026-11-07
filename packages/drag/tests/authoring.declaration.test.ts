@@ -1,64 +1,101 @@
 /* oxlint-disable typescript/no-unsafe-call -- each such line expects a type error */
 /* eslint-disable @typescript-eslint/no-unsafe-call -- each such line expects a type error */
-/** `drag:DRI-18`: the type requirement. Checked by `tsc`, with no run. */
+/** `drag:DRI-18` and `drag:DRD-27`: the type requirement. Checked by `tsc`, with no run. */
 import { describe, it } from 'vitest';
-import { draggable, type Drag } from '../src/draggable.ts';
-import { lift } from '../src/lift.ts';
+import {
+  draggable,
+  type Admission,
+  type Behavior,
+  type Drag,
+} from '../src/draggable.ts';
+import { createLifter, type Lift } from '../src/lift.ts';
 
 const root = document.createElement('div');
 
 describe('drag:DRI-18 the type requirement', () => {
-  it('should let a behavior with no lift name no lifted member', () => {
+  it('should let a hook name no lift member on a drag', () => {
     draggable(root, {
       admit: () => null,
       move(drag) {
-        // @ts-expect-error A behavior with no lift has no `translate`.
+        // @ts-expect-error A drag has no `lift`.
+        void drag.lift;
+        // @ts-expect-error A drag has no `translate`.
         drag.translate(0, 0);
-        // @ts-expect-error A behavior with no lift has no `visual`.
+        // @ts-expect-error A drag has no `visual`.
         void drag.visual;
-        // @ts-expect-error A behavior with no lift has no `box`.
+        // @ts-expect-error A drag has no `box`.
         void drag.box;
-        // @ts-expect-error A behavior with no lift has no `rect`.
+        // @ts-expect-error A drag has no `rect`.
         void drag.rect;
-        // @ts-expect-error A behavior with no lift has no `visualSpace`.
+        // @ts-expect-error A drag has no `visualSpace`.
         void drag.visualSpace;
       },
     });
   });
 
-  it('should refuse a landing from a behavior with no lift', () => {
-    draggable(root, {
-      admit: () => null,
-      // @ts-expect-error A landing needs `lift`.
-      settle: () => ({ x: 0, y: 0 }),
-    });
-  });
-
-  it('should refuse visual and box in an admission with no lift', () => {
-    draggable(root, {
-      // @ts-expect-error `visual` needs `lift`.
-      admit: () => ({ item: root, visual: root }),
-    });
-    draggable(root, {
-      // @ts-expect-error `box` needs `lift`.
-      admit: () => ({ item: root, box: root }),
-    });
-  });
-
-  it('should give a lifted behavior its members and a landing', () => {
-    const panel = draggable(root, {
-      lift,
-      admit: () => ({ item: root, visual: root, box: root }),
-      move(drag) {
-        drag.translate(drag.x, drag.y);
-        void drag.visualSpace;
-      },
-      settle: (drag) => ({ x: drag.rect.x, y: drag.rect.y }),
-    });
+  it('should let a controller step name no lift member on a drag', () => {
+    const panel = draggable(root, { admit: () => null });
 
     panel.requestStep((drag) => {
-      drag?.translate(0, 0);
+      // @ts-expect-error A drag has no `lift`.
+      void drag?.lift;
     });
+  });
+
+  it('should refuse visual and box in an admission', () => {
+    // @ts-expect-error An admission has no `visual`.
+    const withVisual: Admission<undefined> = { item: root, visual: root };
+    // @ts-expect-error An admission has no `box`.
+    const withBox: Admission<undefined> = { item: root, box: root };
+
+    void withVisual;
+    void withBox;
+  });
+
+  it('should compose the lift in the behavior state', () => {
+    const lifter = createLifter(window);
+    const panel = draggable<{ lift: Lift | null }>(root, {
+      admit: () => ({ item: root, state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag, root, root);
+        return undefined;
+      },
+      move(drag) {
+        drag.state.lift!.translate(drag.x, drag.y);
+        void drag.state.lift!.visualSpace;
+      },
+      settle(drag) {
+        const lift = drag.state.lift!;
+
+        lift.land({ x: lift.rect.x, y: lift.rect.y });
+      },
+    });
+
+    panel.use(lifter.cancelLanding);
+    panel.requestStep((drag) => {
+      drag?.state.lift?.translate(0, 0);
+    });
+  });
+
+  it('should accept a class instance with extra members', () => {
+    type State = { lift: Lift | null };
+
+    class Lifted implements Behavior<State> {
+      readonly extra = 1;
+      readonly #lifter = createLifter(window);
+
+      // oxlint-disable-next-line class-methods-use-this -- a hook the kernel calls as a method
+      admit() {
+        return { item: root, state: { lift: null } };
+      }
+
+      activate(drag: Drag<State>): undefined {
+        drag.state.lift = this.#lifter.acquire(drag);
+        return undefined;
+      }
+    }
+
+    draggable(root, new Lifted());
   });
 
   it('should not let a controller or a drag reach the session', () => {
@@ -83,7 +120,7 @@ describe('drag:DRI-18 the type requirement', () => {
     void panel.run;
     // @ts-expect-error `requestApply` is `requestStep`.
     void panel.requestApply;
-    // @ts-expect-error `lift: false` is an absent key.
+    // @ts-expect-error A behavior has no `lift` member.
     draggable(root, { lift: false, admit: () => null });
   });
 });

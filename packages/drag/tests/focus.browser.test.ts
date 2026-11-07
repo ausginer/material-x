@@ -1,6 +1,6 @@
 /** `drag:DRI-12`: focus. */
 import { describe, expect, it } from 'vitest';
-import { lift } from '../src/lift.ts';
+import { createLifter, type Lift } from '../src/lift.ts';
 import { ReorderResolution } from '../src/sortable.ts';
 import {
   basicSortable,
@@ -156,10 +156,15 @@ describe('drag:DRI-12 focus', () => {
     input.autofocus = true;
     input.style.cssText = 'width:20px;float:right';
     row('r0').append(input);
-    managed(list, {
-      lift,
-      admit: () => ({ item: row('r0') }),
-    });
+    const lifter = createLifter(window);
+
+    managed<{ lift: Lift | null }>(list, {
+      admit: () => ({ item: row('r0'), state: { lift: null } }),
+      activate(drag) {
+        drag.state.lift = lifter.acquire(drag);
+        return undefined;
+      },
+    }).use(lifter.cancelLanding);
     await grab('#r0', 0, 20);
     expect(document.activeElement).toBe(document.body);
     await commands.keyPress('Escape');

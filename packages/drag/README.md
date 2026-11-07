@@ -82,8 +82,8 @@ Without `home`, the offset is exact only when nothing moved the home during the 
 | `start(drag)` | After `activate` | From here `end` is guaranteed, unless destruction is applied first |
 | `move(drag)` | Each pointer sample | Read no layout here. Coalesce expensive work to a frame |
 | `drop(drag)` | The pointer was released | Return `(signal) => verdict`, or `null` to skip it |
-| `settle(drag, outcome)` | The outcome is decided, presentation is still held | With `lift`, return a `Landing` or `null` |
-| `end(drag, outcome)` | After release and the landing's start, in the same task | A landing does not delay it. Focus returns after it, so a reorder here keeps focus |
+| `settle(drag, outcome)` | The outcome is decided, and `drag.signal` has not aborted | A lifted behavior names its landing here with `lift.land` |
+| `end(drag, outcome)` | After release, in the same task | A landing starts at release and does not delay it. Focus returns after it, so a reorder here keeps focus |
 
 The `outcome` is `skipped`, `verdict` with its `value`, or `canceled` with its `reason` and `origin` (`request`, `escape`, `interrupted` or `fault`).
 
@@ -142,11 +142,39 @@ addEventListener('error', (event) => {
 | `translate`, `left` or `top` on an element | That element's `Space` | `ancestry` |
 | `width`, `height` or anything else in the element's own box | That element's `Box` | `coordinates` |
 
-A behavior without `lift` reads its basis in `activate`, and a `false` from `ancestry` or `coordinates` is its fault to raise. A `Space` excludes the element's own `zoom`, so a behavior that moves an element with its own `zoom` divides by it.
+A behavior that does not compose the lift reads its basis in `activate`, and a `false` from `ancestry` or `coordinates` is its fault to raise. A `Space` excludes the element's own `zoom`, so a behavior that moves an element with its own `zoom` divides by it.
 
 ### The lift
 
-Import `lift` from `@ydinjs/drag/lift.js` and pass it as the behavior's `lift` to promote the visual to the top layer. It escapes clipping, transformed and stacking ancestors, and it adds `visual`, `box`, `rect`, `boxWidth`, `boxHeight`, `visualSpace`, `itemSpace`, `translatedX`, `translatedY` and `translate(x, y)` to the `Drag`. `translate` takes a viewport delta and covers ancestor and own transforms and zoom. `settle` can then return `{ x, y, duration?, easing? }`, the viewport position of the visual's top-left. A behavior without `lift` carries no lift code, and its types cannot name these members.
+`createLifter` from `@ydinjs/drag/lift.js` promotes the visual to the top layer, which escapes clipping, transformed and stacking ancestors. The kernel does not know about it: a behavior composes it in its own code and keeps the `Lift` in its state.
+
+```ts
+import { draggable } from '@ydinjs/drag/draggable.js';
+import { createLifter, type Lift } from '@ydinjs/drag/lift.js';
+
+const lifter = createLifter(window);
+const controller = draggable<{ lift: Lift | null }>(root, {
+  admit: () => ({ item: card, state: { lift: null } }),
+  activate(drag) {
+    drag.state.lift = lifter.acquire(drag);
+    return undefined;
+  },
+  move(drag) {
+    drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);
+  },
+  settle(drag) {
+    const { rect } = drag.state.lift!;
+
+    drag.state.lift!.land({ x: rect.left, y: rect.top });
+  },
+});
+
+controller.use(lifter.cancelLanding);
+```
+
+`acquire(drag, visual?, box?)` returns a `Lift` with `visual`, `box`, `rect`, `boxWidth`, `boxHeight`, `visualSpace`, `itemSpace`, `translatedX`, `translatedY`, `translate(x, y)` and `land(landing)`. `visual` defaults to the item, and `box` to `visual`. `translate` takes a viewport delta and covers ancestor and own transforms and zoom. `land` takes `{ x, y, duration?, easing? }`, the viewport position of the visual's top-left. The landing starts right after the lift is released, and the last call wins. A behavior that does not import `lift.js` carries no lift code.
+
+**The lift's guarantees hold when you compose it this way:** one `Lifter` per controller, with its `cancelLanding` passed to the controller's `use`, and `acquire` as the first statement of `activate`, before any other `drag.use`. `acquire` registers the release with `drag.use` before it writes anything. So the release runs after every disposer you add later, a failed acquisition is restored at release, and the landing starts after the release and before `end`. Nothing checks a composition that differs.
 
 ## Focus and landing limits
 
