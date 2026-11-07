@@ -78,10 +78,14 @@ export async function retainedObjects(
 
     if (counted.has(type)) {
       const size = nodes[i + sizeField]!;
+      // Objects and closures by constructor; arrays and strings by type, with an
+      // array's internal name, which says what holds it.
       const name =
         types[type] === 'object' || types[type] === 'closure'
           ? strings[nodes[i + nameField]!]!
-          : types[type]!;
+          : types[type] === 'array'
+            ? `array ${strings[nodes[i + nameField]!]!}`
+            : types[type]!;
 
       bytes += size;
       byName[name] = (byName[name] ?? 0) + size;

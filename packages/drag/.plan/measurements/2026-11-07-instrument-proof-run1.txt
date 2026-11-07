@@ -1,0 +1,42 @@
+round 1/7: 50 activate-and-drop cycles, 20 items, no landing
+round 2/7: 50 activate-and-drop cycles, 20 items, no landing
+round 3/7: 50 activate-and-drop cycles, 20 items, no landing
+round 4/7: 50 activate-and-drop cycles, 20 items, no landing
+round 5/7: 50 activate-and-drop cycles, 20 items, no landing
+round 6/7: 50 activate-and-drop cycles, 20 items, no landing
+round 7/7: 50 activate-and-drop cycles, 20 items, no landing
+flagged: about 1 ms of script per cycle, at the drop ["at or below: 250 against 250","FLAG slower: higher in 7 of 7, median 1051 µs, A/A bound 488 µs","no difference shown: higher in 6 of 7, median 1290 µs, A/A bound 2968 µs"]
+round 1/7: 200 operations, then destroy: retained JavaScript objects
+round 2/7: 200 operations, then destroy: retained JavaScript objects
+round 3/7: 200 operations, then destroy: retained JavaScript objects
+flagged: one object of about 1 KB retained per operation past destruction ["FLAG retains more: higher in 3 of 3, median 207384 B, A/A bound 0 B"]
+round 1/7: 300 moves, one frame each, 20 items
+round 2/7: 300 moves, one frame each, 20 items
+round 3/7: 300 moves, one frame each, 20 items
+round 4/7: 300 moves, one frame each, 20 items
+round 5/7: 300 moves, one frame each, 20 items
+round 6/7: 300 moves, one frame each, 20 items
+round 7/7: 300 moves, one frame each, 20 items
+NOT FLAGGED: one forced layout per move ["at or below: 83 against 83","no difference shown: higher in 4 of 7, median 5 µs, A/A bound 53 µs","no difference shown: higher in 3 of 7, median -82 µs, A/A bound 634 µs"]
+round 1/7: 300 moves, one frame each, 2000 items
+round 2/7: 300 moves, one frame each, 2000 items
+round 3/7: 300 moves, one frame each, 2000 items
+round 4/7: 300 moves, one frame each, 2000 items
+round 5/7: 300 moves, one frame each, 2000 items
+round 6/7: 300 moves, one frame each, 2000 items
+round 7/7: 300 moves, one frame each, 2000 items
+flagged: one O(n) walk per move ["at or below: 83 against 83","FLAG slower: higher in 7 of 7, median 917 µs, A/A bound 512 µs","no difference shown: higher in 7 of 7, median 766 µs, A/A bound 1564 µs"]
+file:///workspaces/material-x/packages/drag/bench/compare.ts:872
+      throw new Error(`injection does not apply in ${file}: ${find}`);
+            ^
+
+Error: injection does not apply in draggable.ts: view.x = event.clientX;
+    view.y = event.clientY;
+
+    if (session.phase === ACTIVE) {
+    at bundlePatched (file:///workspaces/material-x/packages/drag/bench/compare.ts:872:13)
+    at async prove (file:///workspaces/material-x/packages/drag/bench/compare.ts:900:13)
+    at async file:///workspaces/material-x/packages/drag/bench/compare.ts:1095:29
+
+Node.js v26.9.0
+exit=1

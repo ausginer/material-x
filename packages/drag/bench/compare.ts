@@ -11,8 +11,11 @@
  * production's `src` at that revision.
  * `node bench/compare.ts --prove [--out file]` injects a known cost into a scratch
  * copy of production, and exits non-zero unless the comparison flags each one, or
- * if the control flags against itself.
+ * if the control flags against itself. With `--only a|b`, only the injections whose
+ * name contains one of the texts run, and the A/A pass runs in full.
  * `node bench/compare.ts --rejudge <file>` applies `judge` to a recorded run.
+ * `node bench/compare.ts --profile --only <row>` profiles one run of a row per arm,
+ * and `--attribute` gives the retained row's growth per constructor per arm.
  *
  * The rules are stated before running, in `judge`'s comment.
  */
@@ -248,7 +251,13 @@ async function samplingProfile(
 async function operateAndDestroy(
   { page, cdp, metrics }: PageContext,
   operations: number,
-): Promise<Reading> {
+): Promise<
+  Readonly<{
+    objects: number;
+    heap: number;
+    byName: Readonly<Record<string, number>>;
+  }>
+> {
   await mount(page, { count: 20, cached: true, landed: true, refocus: false });
 
   for (let i = 0; i < operations; i += 1) {
@@ -268,9 +277,13 @@ async function operateAndDestroy(
   await page.mouse.move(800, 600);
   await page.waitForTimeout(50);
 
-  const { bytes } = await retainedObjects(cdp);
+  const { bytes, byName } = await retainedObjects(cdp);
 
-  return { objects: bytes, heap: (await metrics())['JSHeapUsedSize']! };
+  return {
+    objects: bytes,
+    heap: (await metrics())['JSHeapUsedSize']!,
+    byName,
+  };
 }
 
 const SCENARIOS: readonly Scenario[] = [
@@ -405,7 +418,7 @@ const SCENARIOS: readonly Scenario[] = [
     arms: 'sortable',
     async run(context) {
       const empty = await openPage(context.browser, context.arm);
-      let zero: Reading;
+      let zero: Awaited<ReturnType<typeof operateAndDestroy>>;
 
       try {
         zero = await operateAndDestroy(empty, 0);
@@ -416,11 +429,11 @@ const SCENARIOS: readonly Scenario[] = [
       const operated = await operateAndDestroy(context, OPERATIONS);
 
       return {
-        growth: operated['objects']! - zero['objects']!,
-        objects0: zero['objects']!,
-        objects200: operated['objects']!,
-        heap0: zero['heap']!,
-        heap200: operated['heap']!,
+        growth: operated.objects - zero.objects,
+        objects0: zero.objects,
+        objects200: operated.objects,
+        heap0: zero.heap,
+        heap200: operated.heap,
       };
     },
   },
@@ -821,7 +834,7 @@ const INJECTIONS: ReadonlyArray<
     file: 'sortable.ts',
     find: 'drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
     replace:
-      'drag.item.style.minHeight = `${drag.y % 2}px`;\n    void drag.item.parentElement!.offsetHeight;\n    drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
+      'drag.item.parentElement!.style.minHeight = `${drag.y}px`;\n    void drag.item.parentElement!.offsetHeight;\n    drag.translate(drag.x - drag.originX, drag.y - drag.originY);\n    drag.state.frame!.schedule();',
     scenario: '300 moves, one frame each, 20 items',
     expect: /FLAG more/u,
   },
@@ -837,9 +850,9 @@ const INJECTIONS: ReadonlyArray<
   {
     name: '1 KB allocated per move',
     file: 'draggable.ts',
-    find: 'view.x = event.clientX;\n    view.y = event.clientY;\n\n    if (session.phase === ACTIVE) {',
+    find: 'drag.x = event.clientX;\n    drag.y = event.clientY;\n\n    if (session.phase === ACTIVE) {',
     replace:
-      '(globalThis as Record<string, unknown>)["__kept"] = new Array(256).fill(session);\n    view.x = event.clientX;\n    view.y = event.clientY;\n\n    if (session.phase === ACTIVE) {',
+      '(globalThis as Record<string, unknown>)["__kept"] = new Array(256).fill(session);\n    drag.x = event.clientX;\n    drag.y = event.clientY;\n\n    if (session.phase === ACTIVE) {',
     scenario: 'bytes per move by function, 20 items',
     expect: /FLAG/u,
   },
@@ -891,11 +904,14 @@ async function prove(
   noLift: Arm,
   rounds: number,
   out?: string,
+  only?: string,
 ): Promise<boolean> {
   const results: unknown[] = [];
   let proven = true;
 
-  for (const injection of INJECTIONS) {
+  for (const injection of INJECTIONS.filter(
+    (each) => !only || only.split('|').some((part) => each.name.includes(part)),
+  )) {
     const injected: Arm = {
       code: await bundlePatched(
         injection.file,
@@ -976,6 +992,98 @@ async function prove(
   return proven;
 }
 
+type ProfileNode = Readonly<{
+  id: number;
+  callFrame: Readonly<{
+    functionName: string;
+    url: string;
+    lineNumber: number;
+  }>;
+}>;
+
+/**
+ * One run of `scenario` under the CPU profiler, as self time in µs per function.
+ * The whole run is profiled, including the page's setup.
+ */
+async function profileOnce(
+  browser: Browser,
+  scenario: Scenario,
+  arm: Arm,
+): Promise<Record<string, number>> {
+  const context = await openPage(browser, arm);
+
+  try {
+    const { cdp } = context;
+
+    await cdp.send('Profiler.enable');
+    await cdp.send('Profiler.setSamplingInterval', { interval: 50 });
+    await cdp.send('Profiler.start');
+    await scenario.run(context);
+
+    const { profile } = (await cdp.send('Profiler.stop')) as unknown as {
+      profile: {
+        nodes: readonly ProfileNode[];
+        samples: readonly number[];
+        timeDeltas: readonly number[];
+      };
+    };
+    const self = new Map<number, number>();
+
+    profile.samples.forEach((id, i) => {
+      self.set(id, (self.get(id) ?? 0) + (profile.timeDeltas[i] ?? 0));
+    });
+
+    const byName: Record<string, number> = {};
+
+    for (const node of profile.nodes) {
+      const time = self.get(node.id);
+
+      if (time) {
+        const { functionName, lineNumber } = node.callFrame;
+        const name = functionName || `(anonymous, line ${lineNumber})`;
+
+        byName[name] = (byName[name] ?? 0) + time;
+      }
+    }
+
+    return byName;
+  } finally {
+    await context.page.close();
+  }
+}
+
+/** Growth in retained self bytes per constructor, 200 operations against 0. */
+async function attributeRetained(
+  browser: Browser,
+  arm: Arm,
+): Promise<Record<string, number>> {
+  const run = async (operations: number) => {
+    const context = await openPage(browser, arm);
+
+    try {
+      return (await operateAndDestroy(context, operations)).byName;
+    } finally {
+      await context.page.close();
+    }
+  };
+  const zero = await run(0);
+  const operated = await run(OPERATIONS);
+  const growth: Record<string, number> = {};
+
+  for (const name of new Set([
+    ...Object.keys(zero),
+    ...Object.keys(operated),
+  ])) {
+    const change = (operated[name] ?? 0) - (zero[name] ?? 0);
+
+    if (change !== 0) {
+      growth[name] = change;
+    }
+  }
+
+  return growth;
+}
+
 const { values } = parseArgs({
   options: {
     rounds: { type: 'string', default: '7' },
@@ -985,6 +1093,8 @@ const { values } = parseArgs({
     rows: { type: 'string' },
     before: { type: 'string' },
     rejudge: { type: 'string' },
+    profile: { type: 'boolean', default: false },
+    attribute: { type: 'boolean', default: false },
   },
 });
 
@@ -1052,6 +1162,58 @@ async function archivedSource(
   return join(target, path);
 }
 
+/** The two before arms: drag2's lab, and the lab on the prototype's `src`. */
+async function beforeArms(
+  scratch: string,
+  lab: string,
+): Promise<Readonly<{ drag2: Arm; prototype: Arm }>> {
+  return {
+    drag2: {
+      code: await bundle(join(ROOT, 'bench/lab-drag2.ts'), join(ROOT, 'src')),
+      restoresFocus: false,
+    },
+    prototype: {
+      code: await bundle(
+        lab,
+        await archivedSource(
+          scratch,
+          PROTOTYPE_REVISION,
+          'packages/drag/prototype/src',
+        ),
+      ),
+      restoresFocus: false,
+    },
+  };
+}
+
+/** `--profile` or `--attribute`: one diagnostic reading per arm, printed and written. */
+async function diagnose(
+  browser: Browser,
+  arms: Readonly<Record<string, Arm>>,
+): Promise<void> {
+  const scenario = SCENARIOS.find((each) =>
+    each.id.includes(values.only ?? '\u0000'),
+  );
+  const result: Record<string, Record<string, number>> = {};
+
+  for (const [name, arm] of Object.entries(arms)) {
+    result[name] = values.attribute
+      ? await attributeRetained(browser, arm)
+      : await profileOnce(browser, scenario!, arm);
+    console.log(
+      `${name}: ${JSON.stringify(
+        Object.entries(result[name])
+          .toSorted((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
+          .slice(0, 25),
+      )}`,
+    );
+  }
+
+  if (values.out) {
+    await writeFile(values.out, `${JSON.stringify(result, null, 1)}\n`);
+  }
+}
+
 if (values.rejudge) {
   // A recorded run: its own rules and arms, judged by the current `judge`.
   const recorded = JSON.parse(await readFile(values.rejudge, 'utf8')) as {
@@ -1098,9 +1260,15 @@ if (values.rejudge) {
           noLift,
           Number(values.rounds),
           values.out,
+          values.only,
         ))
           ? 0
           : 1;
+      } else if (values.profile || values.attribute) {
+        await diagnose(browser, {
+          ...(await beforeArms(scratch, lab)),
+          production,
+        });
       } else if (values.before) {
         const before: Arm = {
           code: await bundle(
@@ -1116,24 +1284,7 @@ if (values.rejudge) {
           noLift,
         );
       } else {
-        const prototype: Arm = {
-          code: await bundle(
-            lab,
-            await archivedSource(
-              scratch,
-              PROTOTYPE_REVISION,
-              'packages/drag/prototype/src',
-            ),
-          ),
-          restoresFocus: false,
-        };
-        const drag2: Arm = {
-          code: await bundle(
-            join(ROOT, 'bench/lab-drag2.ts'),
-            join(ROOT, 'src'),
-          ),
-          restoresFocus: false,
-        };
+        const { drag2, prototype } = await beforeArms(scratch, lab);
 
         await compareArms(
           browser,
