@@ -159,7 +159,11 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
       });
     },
   ),
-  /** Bytes allocated by `file:function`, for frames from `urlPart`. */
+  /**
+   * Bytes allocated by `path:function`, for frames whose url's path starts with
+   * `urlPart`. The key's path is the rest of the url's path, so a frame is keyed
+   * by where its module is, not by its file's base name.
+   */
   stopHeapSampling: defineBrowserCommand<[string]>(
     async (context, urlPart): Promise<Record<string, number>> => {
       const cdp = await cdpOf(context);
@@ -170,8 +174,9 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
       // A built-in such as `push` has no url, and its bytes belong to its caller.
       const visit = (node: HeapNode, caller: string | null): void => {
         const { url, functionName } = node.callFrame;
-        const key = url.includes(urlPart)
-          ? `${url.slice(url.lastIndexOf('/') + 1).split('?')[0]}:${functionName}`
+        const path = url && new URL(url).pathname;
+        const key = path.startsWith(urlPart)
+          ? `${path.slice(urlPart.length)}:${functionName}`
           : url
             ? null
             : caller;

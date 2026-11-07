@@ -4,11 +4,12 @@
 
 **Outcome: returned to the architect at item 1.** The repaired per-sample test selects the kernel by location, but the unmutated test fails in 3 of the 5 prescribed runs. The kernel figure is 16.11 to 16.64 B per move against `< 16`. Across all 11 runs on the repaired selection, the figure is 13.33 to 17.49 B per move and 6 runs fail. The handoff treats this as "a kernel figure for `DRO-7`, not something to fix here", and lists it first under §Return to the architect.
 
-**Nothing under `src/` and no test is changed by this unit.** I didn't commit the repair, because committing it would put an intermittently failing test on the branch. It is in the raw output as a patch, which applies with `git apply --ignore-whitespace`. The repair is the architect's to place once the threshold question is settled. **Not run:** M1, M2, the M1 run against `ff69cb8d7`'s test, M3, and all of item 2. No cost is accepted, no ceiling or control is re-based, no `compare.ts` comparison or `--prove` run was made, and no browser was launched for `compare.ts`.
+**Update, at the owner's authorization: the repair is committed.** The owner authorized committing the repaired test despite its recorded intermittent failures (§Committed repair). That authorization accepts no performance cost and resolves no measurement uncertainty. The threshold, the sampling interval, the scenario and the assertions are unchanged, and nothing under `src/` is changed. **Known failures:** the committed test fails intermittently on the unmodified source, in 3 of the 5 prescribed runs and 6 of all 11 recorded runs (§Item 1: unmutated runs). **Mutation sensitivity is still unverified:** M1, M2, the M1 run against `ff69cb8d7`'s test, and M3 weren't run. Item 2 wasn't run either. No cost is accepted, no ceiling or control is re-based, no `compare.ts` comparison or `--prove` run was made, and no browser was launched for `compare.ts`.
 
 | Commit | Content |
 | --- | --- |
-| the commit carrying this report | This report and [`2026-11-07-instrument-repair.txt`](measurements/2026-11-07-instrument-repair.txt) |
+| `70bf1a7ed`, `c3794392d` | This report as first returned, and [`2026-11-07-instrument-repair.txt`](measurements/2026-11-07-instrument-repair.txt) |
+| the commit carrying this update | The repaired test (§Committed repair), and this update |
 
 Raw output, with the repair's patch and every run's per-function bytes, is in [`2026-11-07-instrument-repair.txt`](measurements/2026-11-07-instrument-repair.txt).
 
@@ -26,6 +27,18 @@ The patch in the raw output changes two places. Neither change touches the thres
 - Vite rewrites `import.meta.resolve('../src/')` to the file-system form `/workspaces/…/drag/src/`, which matches no frame. With that form the profile came back empty.
 
 **Assumption:** the selection depends on the server's root being the package, which `vitest.config.ts` sets through `createDragTestConfig(new URL('./', import.meta.url), …)`. A `src` module imported through an absolute `/@fs/` path would be missed. The M1 and M2 runs would have tested sensitivity for `session.ts` and `gesture.ts`, but they weren't run (see below).
+
+## Committed repair
+
+The commit carrying this update applies the patch saved in the raw output (`git apply --ignore-whitespace`) to `tests/hot-path.browser.test.ts` and `tests/support/commands.node.ts`. It differs from the saved patch in one character. In `stopHeapSampling`, `path?.startsWith(urlPart)` became `path.startsWith(urlPart)`: ESLint's `no-unnecessary-condition` rejected the optional chain, because `path` is always a string, `''` when the frame has no url. Behavior is unchanged: `''` doesn't start with `/src/`, so such a frame still takes its caller's key. The saved patch hadn't been linted when it was recorded.
+
+| Check on the two changed files | Result |
+| --- | --- |
+| `just fmt`, `just lint-fix`, `just fmt`, `just lint` | Pass, after the one-character change above |
+| `just typecheck` | Pass |
+| Test runs | None in this update, by instruction. The readings below are the only runs of this selection, and they stand as recorded |
+
+The readings below were taken on the saved patch's working copy, before that change.
 
 ## Item 1: unmutated runs, Chromium
 
@@ -69,17 +82,17 @@ No `draggable.ts:` key appeared. The lift's `lift.ts:translate` read 30108–348
 
 ## Not run
 
-- **M1, M2, the M1 run against `ff69cb8d7`'s test, and M3.** M1 and M2 are gates that only mean something against a test that passes unmutated. Their result would be ambiguous on a test that already fails in 3 of 5 runs. M3 is record-only, but it reads the same threshold.
+- **M1, M2, the M1 run against `ff69cb8d7`'s test, and M3.** Mutation sensitivity of the committed test is therefore unverified. M1 and M2 are gates that only mean something against a test that passes unmutated. Their result would be ambiguous on a test that already fails in 3 of 5 runs. M3 is record-only, but it reads the same threshold.
 - **Item 2,** the `compare.ts` injections and the dry application check. It doesn't depend on item 1, but the handoff stops the unit at the first return condition. It can start as soon as the architect says so, and needs no browser.
 
 ## Returned
 
-1. **Unmutated per-sample test fails, 3 of 5 prescribed runs** (§Return to the architect, first bullet). The kernel's per-move figure on the repaired selection is 13.33–17.49 B, against `< 16`. Deciding whether this is a `DRO-7` cost or the threshold's resolution is the owner's and the architect's call. The repair patch is ready to apply once that is settled.
+1. **Unmutated per-sample test fails, 3 of 5 prescribed runs** (§Return to the architect, first bullet). The kernel's per-move figure on the repaired selection is 13.33–17.49 B, against `< 16`. Deciding whether this is a `DRO-7` cost or the threshold's resolution is the owner's and the architect's call. The repair is now committed at the owner's authorization, with these failures known (§Committed repair). That decision is still open.
 2. **The selection's assumption,** that the server root is the package so `/src/` at the start of a path is this package, for the architect to accept or replace.
 
 ## Checks
 
 - `git diff --check`: clean. Markdown formatted with `npx just fmt`. Lint doesn't apply to Markdown.
 - The links in this report resolve to files in `.plan/`.
-- Typecheck and lint of the patch weren't run as a gate, because the patch isn't committed. `vitest` reported "Type Errors no errors" on the runs, and `oxfmt` formatted the patched files.
+- The committed repair's format, lint and typecheck are in §Committed repair. When the report was first returned, the patch hadn't been linted.
 - Scratch: the per-run logs were removed after their content was copied into the committed raw file.

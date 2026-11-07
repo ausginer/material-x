@@ -212,17 +212,25 @@ describe('drag:DRI-17 hot path', () => {
         await commands.pointerMove(start.x + (i % 40), start.y + 12);
       }
 
+      // The server's root is this package, so a url path that starts with `/src/`
+      // is this package's source, and a key is `<path under src>:<function>`.
       const bytes = await commands.stopHeapSampling('/src/');
 
       await commands.keyPress('Escape');
 
-      const of = (file: string): Array<readonly [string, number]> =>
-        Object.entries(bytes).filter(([key]) => key.startsWith(`${file}:`));
       const kernelPerMove =
-        of('draggable.ts').reduce((sum, [, size]) => sum + size, 0) / 300;
-      const liftFunctions = of('lift.ts').map(([key]) => key);
+        Object.entries(bytes)
+          .filter(
+            ([key]) =>
+              key.startsWith('kernel/') || key.startsWith('draggable.ts:'),
+          )
+          .reduce((sum, [, size]) => sum + size, 0) / 300;
+      const liftFunctions = Object.keys(bytes).filter((key) =>
+        key.startsWith('lift.ts:'),
+      );
 
-      // A sampling profile attributes in steps of its interval, so a few bytes per
+      // The kernel is every module under `src/kernel/` and `src/draggable.ts`. A
+      // sampling profile attributes in steps of its interval, so a few bytes per
       // move remain from reading an event field. An object per sample would show as
       // tens of bytes.
       expect(kernelPerMove, JSON.stringify(bytes)).toBeLessThan(16);
