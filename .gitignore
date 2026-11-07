@@ -20,6 +20,7 @@
 /packages/**/*.js.map
 /packages/**/*.d.ts.map
 /packages/**/*.d.ts
+/packages/*/.vitest-attachments
 
 # **Hand-written ambient declarations, not build output.** Every package builds
 # with `outDir: '.'`, so generated `.d.ts` land beside the entrypoints and never

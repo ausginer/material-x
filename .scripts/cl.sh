@@ -20,6 +20,7 @@ done
 case "$profile" in
   reviewer)     agent=reviewer;     effort=high;   name='Mx Reviewer' ;;
   architect)    agent=architect;    effort=high;   name='Mx Architect' ;;
+  challenger)   agent=architect;    effort=high;   name='Mx Architect Challenger' ;;
   implementer)  agent=implementer;  effort=medium; name='Mx Implementer' ;;
   consolidator) agent=consolidator; effort=medium; name='Mx Review Swarm' ;;
   integrity)    agent=integrity;    effort=high;   name='Mx Integrity' ;;

@@ -4,6 +4,8 @@
   "workspaceFolder": "/workspaces/material-x",
   "runArgs": ["--name=materialx_dev", "--memory=16g", "--memory-swap=24g"],
   "containerEnv": {
+    "WORKSPACE_DIR": "/workspaces/material-x",
+    "ZED_FILE_WATCHER_MODE": "poll",
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_CONFIG_DIR": "/agents/claude",
     "CODEX_HOME": "/agents/codex",
@@ -91,7 +93,7 @@
       ]
     }
   },
-  "postCreateCommand": "bash .devcontainer/post-create.sh \"${containerWorkspaceFolder}\"",
-  "postStartCommand": "bash .devcontainer/on-start.sh \"${containerWorkspaceFolder}\"",
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "bash .devcontainer/on-start.sh",
   "shutdownAction": "none"
 }

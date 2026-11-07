@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WORKSPACE="${1:?Usage: $0 <workspace>}"
-
-if [ -z "$WORKSPACE" ]; then
-  echo "workspace folder was not passed"
+if [ -z "$WORKSPACE_DIR" ]; then
+  echo "workspace folder was not set"
   exit 0
 fi
 
@@ -31,12 +29,12 @@ else
   echo $! > "$PID_FILE"
 fi
 
-if [ -d "$WORKSPACE/.git" ]; then
-  echo "watching workspace repo: $WORKSPACE"
-  dura watch "$WORKSPACE" || true
+if [ -d "$WORKSPACE_DIR/.git" ]; then
+  echo "watching workspace repo: $WORKSPACE_DIR"
+  dura watch "$WORKSPACE_DIR" || true
 fi
 
-for repo in "$WORKSPACE"/*; do
+for repo in "$WORKSPACE_DIR"/*; do
   if [ -d "$repo/.git" ]; then
     echo "watching nested repo: $repo"
     dura watch "$repo" || true

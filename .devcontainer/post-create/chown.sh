@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WORKSPACE="${1:?Usage: $0 <workspace>}"
+if [ -z "$WORKSPACE_DIR" ]; then
+  echo "workspace folder was not set"
+  exit 0
+fi
 
-sudo chown -R node:node "$WORKSPACE/node_modules"
+sudo chown -R node:node "$WORKSPACE_DIR/node_modules"
