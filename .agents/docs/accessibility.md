@@ -58,16 +58,16 @@ Note: `[Docs]` tag is for those requirements that cannot be fixed and considered
 
 ## Drag (`@ydinjs/drag` sortable)
 
-Reviewed 2026-11-06, with the production package. Tests: `packages/drag/tests/focus.browser.test.ts`, `sortable.browser.test.ts` and `landing.browser.test.ts`, run in Chromium, Firefox and WebKit.
+Reviewed 2026-11-06, with the production package. Tests: `packages/drag/tests/focus.browser.test.ts`, `order.browser.test.ts`, `input.browser.test.ts`, `sortable.browser.test.ts` and `landing.browser.test.ts`, run in Chromium, Firefox and WebKit. Updated 2026-11-07 for `drag:DRD-15` and `drag:DRD-17`.
 
 ### Fulfilled requirements
 
 - **Reordering is operable from the keyboard.** `ArrowUp`/`ArrowLeft` move the focused row one slot toward the start and `ArrowDown`/`ArrowRight` one slot toward the end. An arrow key at the edge of the collection leaves the event untouched, so it keeps its native meaning.
-- **Focus survives a reorder.** Moving a focused element sends focus to `body` in all three engines. The kernel records the focused element inside the item at the drop, through open shadow roots, and focuses it again after presentation is released if nothing has taken focus since. So two arrow presses in a row reorder twice, with no consumer code.
+- **Focus survives a reorder.** Moving a focused element sends focus to `body` in all three engines. The kernel records the focused element inside the item at the drop, through open shadow roots, and focuses it again after `end` if nothing has taken focus since. So a reorder in the verdict or in a custom behavior's `end` keeps focus, and two arrow presses in a row reorder twice, with no consumer code.
 - **A keyboard restore scrolls, and a pointer restore does not.** A row moved off-screen by keyboard stays visible.
 - **The lift does not move focus.** Promotion runs the popover focusing steps, which focus an `autofocus` descendant, and the lift puts focus back.
 - **The library never takes focus** from an element the user or the consumer has focused since the drop, and it does not restore on destruction.
-- **`Escape` cancels an in-flight drag** on both input paths.
+- **`Escape` cancels an in-flight drag** on both input paths. Once the operation has started, the key's default is prevented, so a modal dialog or an `auto` popover holding the list stays open. The key still propagates.
 - **A `handle()` narrows both input modes identically.**
 - **The placeholder is `aria-hidden`** and mirrors the dragged row's slot.
 - **Every landing has zero duration with `prefers-reduced-motion: reduce`,** including one a custom behavior returned with no timing.
@@ -76,7 +76,7 @@ Reviewed 2026-11-06, with the production package. Tests: `packages/drag/tests/fo
 
 - **The library provides no roles and no live-region announcement.** It is headless and never owns the consumer's markup. A consumer must supply `tabindex`, the list and listitem semantics and an announcement of the new order. **A row that cannot take focus cannot be reordered from the keyboard.** `[Docs]`
 - **`layoutAnimation`'s row animations ignore `prefers-reduced-motion`.** A consumer who needs that omits `displacement` under the preference. `[Docs]`
-- **A multi-press drag is not supported,** for the reasons in Q-13 below.
+- **A multi-press drag is not supported,** for the reasons in `drag2:Q-13` below.
 - **Physical touch and pen are unverified.** Touch runs through Chromium's emulated input only.
 
 ## Drag (`@ydinjs/drag2` sortable)
@@ -103,7 +103,7 @@ Contract 02 records that a command is **one slot**, and that a multi-press mode 
 
 It is not required, on either of the two grounds that would have forced it:
 
-- **Parity.** The shipped `@ydinjs/drag` is one-slot per key press, and the ledger classifies keyboard reordering as _retain_. Nothing regresses.
+- **Parity.** The legacy `@ydinjs/drag` that drag2 was planned to replace, recoverable at `7723f3e8a`, was one-slot per key press, and the ledger classifies keyboard reordering as _retain_. Nothing regresses.
 - **User need.** One-press-per-move is a complete and conventional accessible reordering pattern: each key press performs one committed move that the consumer can announce, and there is no modal "carrying" state a user can get stuck in or forget to exit. The grab-and-drop model's advantage is moving several slots without intermediate commits, which costs a mode with its own discoverability and escape problems. For a list, repeated single moves are the better trade.
 
 Recorded as answered rather than closed: if a real user need for multi-press appears, contract 00's admissible-change rule applies exactly as written, and the case reopens the SPI legitimately.

@@ -984,7 +984,7 @@ M-4's _"representative collection-mutation cases, not a static list"_ is dischar
 
 **M-3 is not reproducible until these are checked in**, so they are part of the measurement, not of its write-up: the exact import statement of each fixture; the frozen runtime and type export map (§[03](03-feature-composition.md) §The export topology this requires); bundler, target, minifier and alias configuration; the minified and compressed reporting method; the repetition/noise policy; and module-graph assertions naming each optional module that must be **absent**.
 
-Report the two baselines separately and do not substitute one for the other. The shipped `sortable.js` is not feature-equivalent to the proposed minimal composition — the feature-matched non-composed build answers _what does composition cost_, while the shipped entry answers _what does migrating cost_.
+Report the feature-matched non-composed baseline beside the compositions: it answers _what does composition cost_. D-210 retired the migration baseline, because nothing was published to migrate from.
 
 ## Test matrix
 

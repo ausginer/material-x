@@ -12,7 +12,7 @@ Read [agent-workflow.md](agent-workflow.md) in full and use [coordinator-setup.m
 - [.plan/00-index.md](../../.plan/00-index.md) owns repository-level records and obligations, including verification infrastructure. Do not book that work to drag2's register.
 - [handoff.md](handoff.md) owns finalization, and [review-findings.md](review-findings.md) owns review artifacts and tiers.
 
-The workspace contains core, tproc, material-x, drag, drag2, box-quad and the three build-tool packages. Keep the existing drag implementation and the private drag2 replacement distinct. Recover their migration status from the plan and source rather than assuming cutover or consumer migration has happened.
+The workspace contains core, tproc, material-x, drag, drag2, box-quad and the three build-tool packages. `@ydinjs/drag` is the production drag package, and the private drag2 is kept as its reference evidence and measurement arm (`drag:DRD-13`), not as a replacement. Recover their status from `packages/drag/.plan/00-index.md` and source rather than assuming a merge or consumer migration has happened.
 
 ## Route one bounded task
 
