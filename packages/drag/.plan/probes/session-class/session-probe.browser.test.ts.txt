@@ -1,0 +1,44 @@
+/** Probe only, not committed: one `Session` per operation, none retained. */
+import { describe, expect, it } from 'vitest';
+import {
+  basicSortable,
+  commands,
+  frames,
+  isChromium,
+  makeList,
+  press,
+  release,
+} from './support/harness.ts';
+
+describe('session-class probe', () => {
+  it.runIf(isChromium)(
+    'should hold one session per operation and retain none after it',
+    async () => {
+      const before = await commands.countHeapObjects('Session');
+      const list = makeList(5);
+      const { requestDestroy } = basicSortable(list);
+      const counts: number[] = [];
+
+      for (let i = 0; i < 3; i += 1) {
+        // oxlint-disable-next-line no-await-in-loop -- one operation at a time
+        const start = await press('#r0');
+
+        // oxlint-disable-next-line no-await-in-loop -- one operation at a time
+        await commands.pointerMove(start.x, start.y + 20, 2);
+        // oxlint-disable-next-line no-await-in-loop -- one operation at a time
+        await frames();
+        // oxlint-disable-next-line no-await-in-loop -- one operation at a time
+        counts.push((await commands.countHeapObjects('Session')) - before);
+        // oxlint-disable-next-line no-await-in-loop -- one operation at a time
+        await release();
+        // oxlint-disable-next-line no-await-in-loop -- one operation at a time
+        await frames();
+      }
+
+      await requestDestroy();
+      list.remove();
+      counts.push((await commands.countHeapObjects('Session')) - before);
+      expect(counts).toEqual([1, 1, 1, 0]);
+    },
+  );
+});

@@ -1,0 +1,133 @@
+# Raw results: session-class probe, base 184f430bb, candidate = base + draggable.diff.txt
+# Environment: Chromium at /usr/local/bin/chrome; Firefox and WebKit not installed (PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1).
+
+## base: just test-engines (summary)
+      1       Tests  2 failed | 294 passed (296)
+      1  FAIL  |browser (chromium)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+      1  FAIL  |browser (chromium)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+      1  Test Files  2 failed | 19 passed (63)
+      2 Error: browserType.launch: Executable doesn't exist at firefox-1555/firefox/firefox
+      3 Error: browserType.launch: Executable doesn't exist at webkit-2370/pw_run.sh
+      1 Failed to close the browser for the "browser/firefox (firefox)" project. browserType.launch: Executable doesn't exist at firefox-1555/firefox/firefox
+      1 Failed to close the browser for the "browser/webkit (webkit)" project. browserType.launch: Executable doesn't exist at webkit-2370/pw_run.sh
+      1 Failed to close the browser for the "shipped/firefox (firefox)" project. browserType.launch: Executable doesn't exist at firefox-1555/firefox/firefox
+      1 error during close browserType.launch: Executable doesn't exist at webkit-2370/pw_run.sh
+
+## base: just test (Chromium + node, summary)
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ Test Files  3 failed | 21 passed (24)
+      Tests  3 failed | 313 passed (316)
+
+## base: just size (measure rows)
+node bench/size/measure.ts 
+draggable alone                  6563 min   2117 br  3 modules
+  VIOLATION: control moved by 93 B
+draggable + lift                11929 min   4075 br  6 modules
+example: resize handle           9230 min   3244 br  5 modules
+example: drop zone              12649 min   4341 br  7 modules
+example: canvas group            9384 min   3269 br  5 modules
+freeDrag                        14827 min   4926 br  10 modules
+freeDrag + bounds + landing     15513 min   5184 br  12 modules
+sortable + y                    19940 min   6529 br  15 modules
+sortable + xy                   19556 min   6464 br  14 modules
+complete                        20972 min   6902 br  17 modules
+
+## cand: just test-engines (summary)
+      1       Tests  2 failed | 294 passed (296)
+      1  FAIL  |browser (chromium)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+      1  FAIL  |browser (chromium)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+      1  Test Files  2 failed | 19 passed (63)
+      2 Error: browserType.launch: Executable doesn't exist at firefox-1555/firefox/firefox
+      3 Error: browserType.launch: Executable doesn't exist at webkit-2370/pw_run.sh
+      1 Failed to close the browser for the "browser/firefox (firefox)" project. browserType.launch: Executable doesn't exist at firefox-1555/firefox/firefox
+      1 Failed to close the browser for the "browser/webkit (webkit)" project. browserType.launch: Executable doesn't exist at webkit-2370/pw_run.sh
+      1 Failed to close the browser for the "shipped/firefox (firefox)" project. browserType.launch: Executable doesn't exist at firefox-1555/firefox/firefox
+      1 error during close browserType.launch: Executable doesn't exist at webkit-2370/pw_run.sh
+
+## cand: just test (Chromium + node, summary)
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable + lift
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: resize handle
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: canvas group
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of sortable + y
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of sortable + xy
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of complete
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ Test Files  3 failed | 21 passed (24)
+      Tests  12 failed | 304 passed (316)
+
+## cand: just size (measure rows)
+node bench/size/measure.ts 
+draggable alone                  7333 min   2392 br  3 modules
+  VIOLATION: over its 2139 B ceiling by 253 B
+  VIOLATION: control moved by 368 B
+draggable + lift                12699 min   4356 br  6 modules
+  VIOLATION: over its 4169 B ceiling by 187 B
+example: resize handle          10000 min   3514 br  5 modules
+  VIOLATION: over its 3313 B ceiling by 201 B
+example: drop zone              13419 min   4623 br  7 modules
+  VIOLATION: over its 4431 B ceiling by 192 B
+example: canvas group           10154 min   3534 br  5 modules
+  VIOLATION: over its 3314 B ceiling by 220 B
+freeDrag                        15597 min   5240 br  10 modules
+  VIOLATION: over its 4967 B ceiling by 273 B
+freeDrag + bounds + landing     16283 min   5482 br  12 modules
+  VIOLATION: over its 5210 B ceiling by 272 B
+sortable + y                    20714 min   6805 br  15 modules
+  VIOLATION: over its 6733 B ceiling by 72 B
+sortable + xy                   20330 min   6754 br  14 modules
+  VIOLATION: over its 6617 B ceiling by 137 B
+complete                        21746 min   7192 br  17 modules
+  VIOLATION: over its 7065 B ceiling by 127 B
+
+## base: just typecheck / just lint src/draggable.ts
+tsc -p tsconfig.json --noEmit
+exit 0
+oxlint src/draggable.ts
+eslint --flag unstable_native_nodejs_ts_config -c eslint.config.ts src/draggable.ts
+exit 0
+
+## cand: typecheck and lint after the handoff loop: both exit 0 (see README, Lint)
+
+## Minified 'draggable alone' bundle, rolldown minify, __DEV__ false (scratch build of src/draggable.ts as entry)
+ 6566 base.min.js
+ 7336 cand.min.js
+13902 total
+base: unmangled member-name references 263, 1899 B; private-name references 200, 400 B (mangled to one letter)
+cand: unmangled member-name references 310, 2323 B; private-name references 136, 272 B (mangled to one letter)
+net member-name growth: 424 B of the 770 B minified delta
+bytes  name  count-delta
+  126  session  +18
+   91  cancelLanding  +7
+   88  behavior  +11
+   33  closeMotion  +3
+   30  window  +5
+   30  controller  +3
+   25  raise  +5
+   18  threshold  +2
+   18  operation  +2
+   16  root  +4
+   16  complete  +2
+   14  release  +2
+   13  requestCancel  +1
+   10  endPending  +1
+    8  conclude  +1
+    8  activate  +1
+    4  move  +1
+    2  up  +1
+   -4  next  -1
+   -4  lift  -1
+   -5  phase  -1
+   -7  started  -1
+   -7  focused  -1
+   -8  decision  -1
+   -9  disposers  -1
+  -12  releasedWith  -1
+  -14  verdictAborter  -1
+  -56  drag  -14
