@@ -10,7 +10,7 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Input:** the prototype read at `26f82fbb1`. That commit is on no ref now. Its `packages/drag` tree is byte-identical to `599684791` on `drag/prototype`, so later citations use `599684791`. Evidence: [`prototype-report.md`](prototype-report.md), [`probes/prototype/`](probes/prototype/README.md), [`probes/final-design/`](probes/final-design/README.md). The comparison and earlier evidence are in [`architecture-plan.md`](architecture-plan.md).
 
-**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The next step is [`remediation-handoff.md`](remediation-handoff.md), and every decision from `DRD-14` on is unimplemented.
+**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. The next step is [`composition-handoff.md`](composition-handoff.md).
 
 **Neither the prototype's approval nor the 2026-11-06 reading established a performance result.** `DRD-13` and `DRD-22` say what does.
 
@@ -203,6 +203,60 @@ Decides `drag/architecture:challenge-8`. A scroll during the drag moved the home
 - **`bench/lab-drag2.ts` ties `drag`'s typecheck to drag2 source, by design** under `DRD-13`. Removing drag2 removes that arm first.
 - **The report's choice 7 is closed.** The owner was told before the legacy output was removed, which the 2026-11-07 request states.
 
+#### DRD-24 — The operation stays a record, and each step that needs it takes it as a parameter
+
+**No class for one operation. `Session` stays a record type that only `Gesture` creates and holds. Every `Gesture` method whose work needs an operation receives the `Session` as a parameter, from the caller that tested for it. `this.#session` is read only where its absence is a case the code handles: the input listeners, the reader, `#runStep`, `#raise`, `#cancel`, admission, the scope checks and teardown. No non-null assertion on `#session` remains.**
+
+Decides the owner's proposal of 2026-11-07, read at `3084191bb`.
+
+**The diagnosis is partly right.** At `3084191bb`, `#move` and `#up` assert `this.#session!` 18 times, 6 of them on an active pointer sample. In those two steps the assertion is the only statement that they need an operation. `#activate`, `#drop`, `#requestVerdict`, `#closeMotion`, `#release` and `#conclude` already take the session as a parameter, so their signatures state the requirement. The 18 assertions came from the code-style pass, not from the class boundary: before it, each of the two steps read the field once into a local.
+
+**Why not a class for one operation.** The record's fields belong to the operation. But every method that would move into such a class also uses controller state:
+
+| Method | Controller state it uses besides the session |
+| --- | --- |
+| `#move` | `#behavior.move`, `#threshold`, `#window`, then `#activate` |
+| `#endPending` | clears `#session` |
+| `#activate` | `#behavior`, `#window`, `#root`, `#raise`, and takes and clears `#cancelLanding` |
+| `#drop` | `#behavior.drop`, `#root` through `#closeMotion`, and a next step that calls `#requestVerdict` |
+| `#requestVerdict` | compares with `#session`, reads `#running`, enters a pass with `#enter`, `#raise` |
+| `#release` | `#dispose`, `#raise` |
+| `#conclude` | `#behavior`, `#raise`, sets `#cancelLanding`, clears `#session` |
+| the `Drag` closures built in `#open` | compare with `#session`, `requestStep`, `#cancel` |
+
+The changing state among these is the current-operation slot, the landing slot and the pass gate, which are `DRD-1`'s mechanism. A class for the operation would reach them in one of three ways, and each costs more than it removes:
+
+- **Members of `Gesture` without `#`.** `draggable()` returns the `Gesture` instance itself, so these members would be reachable from the controller at runtime. The contract forbids that for the session and its slots.
+- **Closures injected once per controller.** That is a forwarding interface of about five functions between two classes that share one invariant. CONTRIBUTING §2.2 warns against this layer, and drag2's [single-pass proposal](../../drag2/.plan/reviews/architecture/single-pass-proposal-claude.md) found such layers the main thing to remove.
+- **Signals returned to `Gesture`.** The reader would test a new state after each step, which is a phase `DRD-1` doesn't need. Clearing the slot after the step instead of inside it would also let requests made in `end` reach the operation, which changes DRI-8.
+
+Under CONTRIBUTING §10, the record already gives the operation the identity that the scope checks compare. A class would add methods, not a semantic that the record lacks.
+
+**The implementer's safety explanation is correct. It was checked here, not assumed.** It says that nothing between the reads of `this.#session` in `#onPointer`, `#move` and `#up` can clear the field. At `3084191bb` the field is written only in `#open`, `#endPending`, `#conclude` (at once without `start`, and in the terminal step with it) and `#teardown`. Foreign code reached during a step can't run any of them. `#enter` refuses a nested pass, and `requestDestroy` and every cancel only fill a slot while `#running` is set. Both steps return right after `#endPending`. `#open` runs only from admission, which requires that no session exists. The explanation covered clearing, and the same reasons also exclude replacement. **So no assertion fails today. But each one depends on an invariant of the whole class, which its read site doesn't show and the type checker doesn't check.** The parameter states the same fact where it is used. The commit's other inlinings, in `lift.ts`, `sortable.ts`, `free-drag.ts` and the helpers, read fields that nothing writes between the reads, so they preserve behavior.
+
+**Required properties:**
+
+- A step receives the operation that its listener tested. It allocates nothing per sample (DRI-17), and step identities stay stable.
+- The development refusal count still reads the refused event (DRI-6).
+- **A local that captures a value before its field is cleared or replaced stays, with its comment.** These are the next step in `#applyRequests`, the lift in `#release` and `#conclude`, the session and the resolver in `#teardown`, and the landing in `#activate`. Removing locals is not a goal. A local that names a value read several times in one step is also allowed.
+- The reader's precedence, the gate, the slots and the tests don't change. The change lands as its own behavior-preserving commit.
+
+**`DRD-20` is unchanged.** Its sentence "`Gesture` stays the only class that holds a session" still holds, because no class is added. A second kind of operation, or a way for an operation class to reach controller state without forwarding, would reopen the question.
+
+**No performance or size claim.** At `3084191bb` an active sample reads the field 6 times, and after this decision it reads it once. Nobody measured whether the engine removed the repeated loads.
+
+#### DRD-25 — The built-in factories compose, and pass consumers only documented values
+
+**`sortable()` and `freeDrag()` build the behavior, pass it to `draggable` and return the controller, as `3084191bb` made them do. Each controller-lifetime resource is installed once, in the factory where its disposal is registered. A consumer callback receives its documented values and never the kernel's `Drag`. `items()` is copied at every pull.**
+
+Decides three findings that the implementer reported on the owner's refactor at `3084191bb`.
+
+- **Displacement is installed once.** At `3084191bb` both the constructor and `sortable()` call `config.displacement`. Operations report to the first sink, and destruction retires the second, so row animations outlive the controller. "should cancel a running landing and the row animations" and "should keep a row animation past the terminal, until destruction" fail on it. **`sortable()` calls the installer once, passes the sink to the constructor, and registers its `retire` with the kernel's `use`.** That puts creation and disposal next to each other in the only function that knows both the kernel and the behavior. The constructor keeps installing the axis, because the controller disposes nothing of it. **Rejected: a public `displacement` field that the factory reads.** It would work, but creation and disposal would stay in two places, and that separation is how the defect arose.
+- **The `placeholder` factory receives a new object with exactly `item`, `visual`, `box` and `rect`, built once per activation.** At `3084191bb` it receives the operation's `LiftedDrag`, which the type accepts because it has those members too. At runtime the consumer can then call `requestCancel`, `requestStep`, `translate` and `use`, and can read sortable's operation `state`. A factory that keeps its argument also keeps the operation. `freeDrag` already keeps this boundary: `home`, `onStart`, `onMove` and `onDrop` each receive an object of their own. Under CONTRIBUTING §9 the object's reason is that boundary, and it costs one allocation per activation. The contract's public surface now states the rule for every option callback.
+- **`items()` is copied at every pull.** The owner withdrew the copy's removal, and `d4286ce64` restores it in `#pull`. CONTRIBUTING §9 names this ownership reason: the snapshot must stay stable when the consumer changes its own array. For example, a consumer updates its model in `onReorder`, and an `Escape` then cancels before the verdict. The landing then reads home from the snapshot. The getter API stays. DRI-14 and the `items` documentation now say that the library copies the array and the consumer keeps ownership. **No test witnessed the copy at `3084191bb`, so its removal passed the suite.** The handoff adds a witness.
+
+**Reconciled with `DRD-20`.** Each factory still builds one module-private instance and returns a separate controller object whose methods don't depend on `this`. The step handed to the kernel, `behavior.invalidate`, is created once per instance. **`moveTo`'s step per call is confirmed**, which answers the remediation report's §Step 2. DRI-8 names it as the case that keeps call order.
+
 ## Disposition of the 2026-11-07 reviews
 
 Each finding and question of the [review round](reviews/production/production-summary.md) and the [architecture challenge](reviews/architecture/production-design-challenge.md), both read at `d7e7b0d3a`. "Handoff" means [`remediation-handoff.md`](remediation-handoff.md).
@@ -255,6 +309,8 @@ None blocks the remediation. Each has a default the handoff builds.
 
 A row that is still slower comes with its attributed cause. You decide under CONTRIBUTING §0 whether to accept it or have it removed. **No recommendation until the figures exist.**
 
+**After `3084191bb`:** the remediation report's readings measured `b91db2818`. `3084191bb` and the composition handoff change the kernel and both built-ins, so those readings describe only `b91db2818`. A size figure the implementer saw on the uncommitted tree after `3084191bb` is not recorded, and isn't a reading. A figure offered for this decision names the commit it measured.
+
 #### DRO-5 — Keep `599684791` reachable after the squash merge
 
 **The repository allows only squash merges, so `main` won't contain `599684791`.** Once `drag/production` is squashed and its branch deleted, the commit stays reachable only through another ref. On 2026-11-07 that ref is `origin/drag/prototype`, whose tip `a1d31e0d2` descends from `599684791`. `origin/drag/production` holds it too, but merging normally deletes that branch. The `compare` instrument's prototype arm and `measure.ts --prototype` read the commit with `git archive`, and fail without it.
@@ -284,13 +340,15 @@ A row that is still slower comes with its attributed cause. You decide under CON
 | DRD-11   | active. `DRD-18` applies the activation pull to commands |
 | DRD-12   | active                                                   |
 | DRD-13   | active, its performance rules amended by `DRD-22`        |
-| DRD-14   | active, unimplemented                                    |
-| DRD-15   | active, unimplemented                                    |
-| DRD-16   | active, unimplemented                                    |
-| DRD-17   | active, unimplemented                                    |
-| DRD-18   | active, unimplemented                                    |
-| DRD-19   | active, unimplemented                                    |
-| DRD-20   | active, unimplemented                                    |
-| DRD-21   | active, unimplemented                                    |
-| DRD-22   | active, unimplemented                                    |
-| DRD-23   | active, unimplemented                                    |
+| DRD-14   | active, implemented at `b91db2818`                       |
+| DRD-15   | active, implemented at `b91db2818`                       |
+| DRD-16   | active, implemented at `b91db2818`                       |
+| DRD-17   | active, implemented at `b91db2818`                       |
+| DRD-18   | active, implemented at `b91db2818`                       |
+| DRD-19   | active, implemented at `b91db2818`                       |
+| DRD-20   | active, implemented at `b91db2818`                       |
+| DRD-21   | active, implemented at `b91db2818`                       |
+| DRD-22   | active, applied in the remediation's validation          |
+| DRD-23   | active                                                   |
+| DRD-24   | active, unimplemented                                    |
+| DRD-25   | active, unimplemented                                    |

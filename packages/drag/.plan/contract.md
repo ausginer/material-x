@@ -1,6 +1,6 @@
 # `@ydinjs/drag` contract
 
-**Current state: the behavior the production package owes.** Decisions and their reasons are in [`00-index.md`](00-index.md). Production tests cite these entries by address, such as `drag:DRI-7`. **As of 2026-11-07 this states the behavior after remediation**: `DRD-14` to `DRD-23` changed the entries listed under [Change record](#change-record), and [`remediation-handoff.md`](remediation-handoff.md) implements them. The implementation at `d7e7b0d3a` is described in [`implementation-report.md`](implementation-report.md).
+**Current state: the behavior the production package owes.** Decisions and their reasons are in [`00-index.md`](00-index.md). Production tests cite these entries by address, such as `drag:DRI-7`. **As of 2026-11-07 this states the behavior after remediation**: `DRD-14` to `DRD-23` and `DRD-25` changed the entries listed under [Change record](#change-record). [`remediation-report.md`](remediation-report.md) records the implementation of `DRD-14` to `DRD-23`, and [`composition-handoff.md`](composition-handoff.md) implements `DRD-25`. The implementation at `d7e7b0d3a` is described in [`implementation-report.md`](implementation-report.md).
 
 ## Vocabulary
 
@@ -28,7 +28,7 @@
 | `free-drag.js` | `freeDrag`, `FreeDragResolution` |
 | `free-drag/bounds.js`, `free-drag/landing.js` | `bounds`, `landing` |
 
-`@ydinjs/box-quad` is the coordinate API for behaviors. This package does not re-export it. The `sortable` and `freeDrag` options are those of the prototype's `sortable.ts` and `free-drag.ts`, with the changes below.
+`@ydinjs/box-quad` is the coordinate API for behaviors. This package does not re-export it. The `sortable` and `freeDrag` options are those of the prototype's `sortable.ts` and `free-drag.ts`, with the changes below. **A callback in those options receives only the values its type documents, in an object of its own.** It never receives the kernel's `Drag` or a behavior's operation state.
 
 ### `draggable`
 
@@ -211,7 +211,7 @@ The landing is additive and starts from the position last translated to. A landi
 
 #### DRI-14 — Collection
 
-`items()` is pulled at each admission and again at activation, for a pointer and a command alike, so a consumer who changes the list between drags or during a press has to call nothing. An item no longer in the collection at activation declines the operation: no `onStart`, no `onEnd`, no report. A command computes its target from the activation pull, and declines the same way when the move is no longer possible.
+`items()` is pulled at each admission and again at activation, for a pointer and a command alike, so a consumer who changes the list between drags or during a press has to call nothing. **Each pull copies the returned array.** The consumer keeps ownership of its array and may change it at any time without changing the operation's snapshot. An item no longer in the collection at activation declines the operation: no `onStart`, no `onEnd`, no report. A command computes its target from the activation pull, and declines the same way when the move is no longer possible.
 
 During a drag, `invalidate()` re-reads the collection. A surviving gap rebases. A lost adjacency or a removed item cancels. After the drop, a collection change no longer affects the operation. The request carries `item`, `from`, `to`, `previous` and `next`, so `insertBefore(item, next)` is correct.
 
@@ -272,6 +272,8 @@ DRI-1 to DRI-13, DRI-17 and DRI-19 hold for a behavior through this API, with no
 
 | Date | Entry | Change |
 | --- | --- | --- |
+| 2026-11-07 | Public surface | **Added:** an option callback of `sortable` or `freeDrag` receives only its documented values. The `placeholder` factory had received the operation's `Drag` at `3084191bb`. `DRD-25` |
+| 2026-11-07 | `DRI-14` | **Added:** each pull copies the array that `items()` returns. `DRD-25` |
 | 2026-11-07 | Public surface | **Added:** hooks are called as methods of the behavior, and controller methods don't depend on `this`. `DRD-20` |
 | 2026-11-07 | `DRI-3`, `DRI-14` | **Added:** the kernel's quiet decline for a disconnected item. A command is pulled at activation too. It used to skip the second pull. `DRD-18` |
 | 2026-11-07 | `DRI-4`, `DRI-19` | **Added:** `Escape` is consumed when it decides a started operation, and the input rules. `DRD-17` |
