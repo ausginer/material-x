@@ -13,6 +13,6 @@
     "free-drag/landing"
   ],
   "clean": {
-    "extras": ["_virtual", "shared"]
+    "extras": ["_virtual", "kernel", "shared"]
   }
 }

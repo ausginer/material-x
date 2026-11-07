@@ -9,10 +9,10 @@
  *
  * A behavior receives `Drag`, which has no path to the session.
  */
+import { DragFault } from '../fault.ts';
 import type { LiftedAdmission } from './admission.ts';
 import type { AnyBehavior } from './behavior.ts';
 import { runDragDisposer, type LiftedDrag } from './drag.ts';
-import { DragFault } from './fault.ts';
 import { Session } from './session.ts';
 
 /** Each method works when detached from the controller. */

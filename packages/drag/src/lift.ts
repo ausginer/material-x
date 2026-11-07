@@ -13,13 +13,12 @@ import {
   space,
 } from '@ydinjs/box-quad';
 import type { Writable } from 'type-fest';
-import { deepActiveElement } from '../shared/focus.ts';
+import type { LiftedAdmission, LiftedDrag } from './draggable.ts';
+import { deepActiveElement } from './shared/focus.ts';
 import {
   DEFAULT_LANDING_DURATION,
   DEFAULT_LANDING_EASING,
-} from '../shared/timing.ts';
-import type { LiftedAdmission } from './admission.ts';
-import type { LiftedDrag } from './drag.ts';
+} from './shared/timing.ts';
 
 /** How the kernel holds a lift. */
 export type LiftHold = Readonly<{

@@ -1,6 +1,22 @@
-import type { AnyBehavior, Behavior, LiftedBehavior } from './kernel/behavior';
-import type { Drag, LiftedDrag } from './kernel/drag';
+import type {
+  AnyBehavior,
+  Behavior,
+  LiftedBehavior,
+} from './kernel/behavior.ts';
+import type { Drag, LiftedDrag } from './kernel/drag.ts';
 import { Gesture, type DraggableController } from './kernel/gesture.ts';
+
+export type { Admission, LiftedAdmission } from './kernel/admission.ts';
+export type { Behavior, LiftedBehavior } from './kernel/behavior.ts';
+export type { Drag, DragDisposer, LiftedDrag } from './kernel/drag.ts';
+export type { DraggableController } from './kernel/gesture.ts';
+export type {
+  CanceledOutcome,
+  CancelOrigin,
+  Outcome,
+  SkippedOutcome,
+  VerdictOutcome,
+} from './kernel/outcome.ts';
 
 /**
  * Makes `root` draggable with one behavior. Compose `lift` from

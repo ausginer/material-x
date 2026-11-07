@@ -1,6 +1,6 @@
+import type { Landing, lift } from '../lift.ts';
 import type { Admission, LiftedAdmission } from './admission.ts';
 import type { Drag, LiftedDrag } from './drag.ts';
-import type { Landing, lift } from './lift.ts';
 import type { Outcome } from './outcome.ts';
 
 type Hooks<Operation, Admitted, Settled, Verdict> = Readonly<{

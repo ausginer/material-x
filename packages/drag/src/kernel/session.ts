@@ -1,4 +1,5 @@
 import type { Writable } from 'type-fest';
+import type { Landing, LiftHold } from '../lift.ts';
 import { deepActiveElement } from '../shared/focus.ts';
 import type { LiftedAdmission } from './admission.ts';
 import type { AnyBehavior } from './behavior.ts';
@@ -9,7 +10,6 @@ import {
   type LiftedDrag,
 } from './drag.ts';
 import type { Gesture } from './gesture.ts';
-import type { Landing, LiftHold } from './lift.ts';
 import type { CancelOrigin, Outcome, SkippedOutcome } from './outcome.ts';
 
 const COMMAND_POINTER_ID = -1;

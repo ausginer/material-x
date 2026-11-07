@@ -21,6 +21,7 @@
     "free-drag.js.map",
     "free-drag.d.ts",
     "free-drag",
+    "kernel",
     "shared"
   ],
   "type": "module",

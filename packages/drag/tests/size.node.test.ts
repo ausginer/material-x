@@ -31,6 +31,9 @@ describe('drag:DRI-18 module graphs and size', () => {
     expect(modules.toSorted()).toEqual([
       'src/draggable.ts',
       'src/fault.ts',
+      'src/kernel/drag.ts',
+      'src/kernel/gesture.ts',
+      'src/kernel/session.ts',
       'src/shared/focus.ts',
     ]);
   });
