@@ -1,0 +1,108 @@
+# Ownership unit: raw gate output, 2026-11-07
+
+Recorded by the implementer of ownership-handoff.md. Each block is the output of `just size` (`node bench/size/measure.ts` after `just build`) at the named commit, from packages/drag.
+
+## 039e8e153 item 1
+
+draggable alone                  6960 min   2241 br  6 modules
+  VIOLATION: over its 2139 B ceiling by 102 B
+  VIOLATION: control moved by 217 B
+draggable + lift                12326 min   4202 br  9 modules
+  VIOLATION: over its 4169 B ceiling by 33 B
+example: resize handle           9627 min   3349 br  8 modules
+  VIOLATION: over its 3313 B ceiling by 36 B
+example: drop zone              13046 min   4480 br  10 modules
+  VIOLATION: over its 4431 B ceiling by 49 B
+example: canvas group            9781 min   3374 br  8 modules
+  VIOLATION: over its 3314 B ceiling by 60 B
+freeDrag                        15224 min   5044 br  13 modules
+  VIOLATION: over its 4967 B ceiling by 77 B
+freeDrag + bounds + landing     15910 min   5304 br  15 modules
+  VIOLATION: over its 5210 B ceiling by 94 B
+sortable + y                    20380 min   6672 br  18 modules
+sortable + xy                   19996 min   6608 br  17 modules
+complete                        21412 min   7047 br  20 modules
+
+## 433a0e06c item 2
+
+draggable alone                  6929 min   2239 br  6 modules
+  VIOLATION: over its 2139 B ceiling by 100 B
+  VIOLATION: control moved by 215 B
+draggable + lift                12295 min   4197 br  9 modules
+  VIOLATION: over its 4169 B ceiling by 28 B
+example: resize handle           9596 min   3346 br  8 modules
+  VIOLATION: over its 3313 B ceiling by 33 B
+example: drop zone              13015 min   4476 br  10 modules
+  VIOLATION: over its 4431 B ceiling by 45 B
+example: canvas group            9750 min   3370 br  8 modules
+  VIOLATION: over its 3314 B ceiling by 56 B
+freeDrag                        15193 min   5040 br  13 modules
+  VIOLATION: over its 4967 B ceiling by 73 B
+freeDrag + bounds + landing     15879 min   5295 br  15 modules
+  VIOLATION: over its 5210 B ceiling by 85 B
+sortable + y                    20349 min   6664 br  18 modules
+sortable + xy                   19965 min   6595 br  17 modules
+complete                        21381 min   7037 br  20 modules
+
+## 89995c27e item 3
+
+draggable alone                  6464 min   2107 br  6 modules
+  VIOLATION: control moved by 83 B
+draggable + lift                11847 min   4094 br  9 modules
+example: resize handle           9131 min   3210 br  8 modules
+example: drop zone              12717 min   4411 br  10 modules
+example: canvas group            9285 min   3235 br  8 modules
+freeDrag                        14959 min   5022 br  13 modules
+  VIOLATION: over its 4967 B ceiling by 55 B
+freeDrag + bounds + landing     15645 min   5272 br  15 modules
+  VIOLATION: over its 5210 B ceiling by 62 B
+sortable + y                    20098 min   6605 br  18 modules
+sortable + xy                   19714 min   6558 br  17 modules
+complete                        21130 min   7006 br  20 modules
+
+## bb644d6d7, attribution reading of `draggable alone` only
+
+bb644d6d7's src was checked out over the working tree at 89995c27e, and
+`node bench/size/measure.ts` run. Only the `draggable alone` row is clean: its
+graph is draggable.ts and src/kernel/*, all from bb644d6d7. The other rows mixed
+HEAD's src/lift.ts and fixtures and are discarded. The tree was restored and
+`git diff --quiet HEAD` passed.
+
+draggable alone                  6960 min   2249 br  6 modules
+
+## Witness runs
+
+Item 2 witnesses at 039e8e153 (item 1), before the ended state, three engines:
+  vitest.engines.config.ts tests/requests.browser.test.ts tests/destruction.browser.test.ts
+  -t "settle before end with null|verdict abort during destruction"
+  Test Files 6 passed (6); Tests 9 passed | 141 skipped (150)
+
+Item 2 mutations at 433a0e06c's source, Chromium, each run alone:
+  W1 (a) ended at the start of conclusion: 1 failed; got ['settle', 'end']
+  W1 (b) ended after `end`:              1 failed
+  W2 Escape no longer checks ended:     1 failed; prevented [true], expected [false]
+  W3 completion no longer checks ended: 1 failed; one DragFault "drag: late rejection"
+
+Item 3 mutations at 89995c27e's source, Chromium (M6 by tsc), each run alone:
+  M1 acquire also writes `visual` on the Drag: 1 failed (12 keys, expected 11)
+  M2 placeholder's removal registered before acquire: 1 failed
+  M3 release registered after the writes: 1 failed (visual state differs)
+  M4 release's throw swallowed: 1 failed; faults [show], expected [show, restore]
+  M5 release and landing in one disposer, no finally: 1 failed (no animation)
+  M6 Drag gains `lift?: unknown`: tsc TS2578 unused @ts-expect-error at
+     authoring.declaration.test.ts lines 20 and 40
+
+## Suites
+
+039e8e153: just test 7 failed | 311 passed (318), the seven size rows;
+           test-engines 63 files, 878 passed | 16 skipped (894)
+433a0e06c: just test 7 failed | 314 passed (321), the seven size rows;
+           test-engines 63 files, 887 passed | 16 skipped (903)
+89995c27e: just test 3 failed | 325 passed (328), three size rows;
+           test-engines 63 files, 905 passed | 16 skipped (921)
+
+## Heap sampling at 89995c27e, before the owner-approved key rename
+
+hot-path "should allocate per sample only the CSS string a lifted write needs",
+Chromium, 300 samples, 64-byte sampling interval, bytes by function:
+{"sortable.ts:#updateInsertion":7716,"y.ts:resolve":35232,"rect-index.ts:refresh":1384,"sortable.ts:move":14244,"lift.ts:translate":30144}
