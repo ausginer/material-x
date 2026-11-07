@@ -1,5 +1,7 @@
 # Session prototype handoff
 
+**Done.** The record is [`probes/session-owner/`](probes/session-owner/README.md), at `b54832a0e`. Its disposition is in `DRD-24`, and adoption waits for the owner's `DRO-6`.
+
 **One bounded prototype for one implementer. Build `DRD-24`'s ownership model in `src/draggable.ts`, check it against its base, and record the result. Nothing is merged, and production doesn't adopt it in this unit.** The decision is `DRD-24` in [`00-index.md`](00-index.md). The behavior owed is [`contract.md`](contract.md), unchanged.
 
 **Base:** `drag/production` at the commit that carries this file. Build in a new worktree from that commit. **The owner's main checkout is on `drag/session-class-preview` and holds the earlier probe's candidate, uncommitted. Don't touch that checkout or that branch.**

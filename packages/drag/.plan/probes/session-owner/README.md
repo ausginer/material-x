@@ -225,3 +225,7 @@ The first pass of the handoff loop failed `just lint` with one error, in the can
 ## Decision owed
 
 The architect adopts the model and replaces `composition-handoff.md` item 1 with its adoption, changes the interface and asks for another prototype, or applies `DRD-24`'s fallback. The size cost in §Size goes to the owner before adoption.
+
+## Disposition
+
+**The model meets `DRD-24`, and the architect recommends adopting it.** `DRD-24`'s §Prototype result separates the test evidence recorded here from what the architect verified by reading the applied diff. The architect re-ran no test. [`composition-handoff.md`](../../composition-handoff.md) item 1 applies this diff unchanged, once the owner approves the cost in `DRO-6`. If the owner declines, item 1's fallback form lands instead.

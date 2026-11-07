@@ -10,7 +10,7 @@ awk -v re="^#### DRD-1( —|$)" \
 
 **Input:** the prototype read at `26f82fbb1`. That commit is on no ref now. Its `packages/drag` tree is byte-identical to `599684791` on `drag/prototype`, so later citations use `599684791`. Evidence: [`prototype-report.md`](prototype-report.md), [`probes/prototype/`](probes/prototype/README.md), [`probes/final-design/`](probes/final-design/README.md). The comparison and earlier evidence are in [`architecture-plan.md`](architecture-plan.md).
 
-**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and [`session-prototype-handoff.md`](session-prototype-handoff.md) tests it before production adopts it. [`composition-handoff.md`](composition-handoff.md)'s built-in item can start, and its kernel item waits for that prototype.
+**Status, 2026-11-07:** production was built at `d7e7b0d3a` on `drag/production` and reviewed twice at that commit: a [review round](reviews/production/production-summary.md) and an [architecture challenge](reviews/architecture/production-design-challenge.md). `DRD-14` to `DRD-23` decide every finding and question from both. Where they change an earlier decision, its status row names the amendment. The required behavior is in [`contract.md`](contract.md). The [remediation](remediation-report.md) implemented them at `b91db2818`, and no independent review has read it yet. The owner's composition refactor at `3084191bb` and the implementer's findings on it are decided by `DRD-24` and `DRD-25`. `DRD-24` was revised to the owner's ownership model, and its [prototype](probes/session-owner/README.md) met it at `b54832a0e`. [`composition-handoff.md`](composition-handoff.md)'s built-in item can start. Its kernel item adopts the prototype once the owner approves the cost in `DRO-6`.
 
 **Neither the prototype's approval nor the 2026-11-06 reading established a performance result.** `DRD-13` and `DRD-22` say what does.
 
@@ -205,9 +205,32 @@ Decides `drag/architecture:challenge-8`. A scroll during the drag moved the home
 
 #### DRD-24 — An operation owns its state and transitions, and the controller owns what spans operations
 
-**Owner requirement, 2026-11-07. The controller owns its lifetime across operations. A session owns one operation and performs it. The two talk through a small interface, and neither reads or writes the other's fields. This is the target model. A prototype tests it before production adopts it: [`session-prototype-handoff.md`](session-prototype-handoff.md). Until the architect adopts it, production keeps the structure of `3084191bb`, and the fallback below stays decided.**
+**Owner requirement, 2026-11-07. The controller owns its lifetime across operations. A session owns one operation and performs it. The two talk through a small interface, and neither reads or writes the other's fields. This is the target model, and the [prototype](probes/session-owner/README.md) at `b54832a0e` meets it. Its adoption is [`composition-handoff.md`](composition-handoff.md) item 1, which waits for the owner's cost decision, `DRO-6`. Until then, production keeps the structure of `3084191bb`, and the fallback below stays decided.**
 
 Revised after reading `fbe2839c3` and the probe's candidate, which the owner applied on `drag/session-class-preview`. The earlier text decided a record passed to each step as a parameter (`6f8ea3d91`), and then defined the probe of a shared state with a read-only view (`184f430bb`). Those commits hold the superseded text.
+
+**Prototype result, `b54832a0e`: the model meets the requirement.** The [record](probes/session-owner/README.md) built this boundary in `src/draggable.ts` against `e06476d2b`, whose source is production's.
+
+- **Test evidence, recorded by the implementer and not repeated by the architect:**
+  - In Chromium, Firefox and WebKit, the base and the candidate fail the same two tests with no test edited. Those tests are `DRD-25`'s displacement defect.
+  - `just test` adds failures of the size gate only.
+  - The per-sample allocation test passes in Chromium. The scratch heap test counts one session during each operation and none after destruction.
+  - Typecheck and lint pass.
+- **Verified by the architect's reading, with the diff applied at `e06476d2b` in a scratch worktree:**
+  - `Gesture` reaches the session only through its construction, `advance`, `decide`, `stepTarget` and `terminate`. The session reaches the controller only through `enter`, `raise`, `raiseInPass`, `isCurrent`, `detach`, `takeLanding`, `keepLanding` and `requestStep`. Every field of both classes is `#`-private.
+  - `#running` is set only in `enter`. `advance` has one caller, `#applyRequests`, whose precedence is unchanged.
+  - `#endPending`, both branches of `#conclude`, `#activate`'s landing and `#teardown` keep the base's order statement by statement. Each kept local stays with its comment.
+  - `draggable()` returns a separate object with the four members.
+  - Two checks now rest on the session's own resources instead of the slot:
+    - The pointer listener no longer tests the slot, because motion is aborted before every clearing of the slot. `handleEvent`'s doc comment states this.
+    - `Escape` tests `isCurrent` where the base tested the slot for non-null.
+    - Both agree with the base on every path. That includes teardown, where a verdict signal's `abort` listener runs after the slot is cleared and motion is closed.
+- **Adopted as built:**
+  - the member names;
+  - the session as its own listener through `handleEvent`, which only the platform calls;
+  - `raiseInPass` as a faulted verdict's way in, while an accepted verdict records its decision and enters the gate;
+  - the fixed values, copied into the session at construction.
+- **No further experiment is owed.** The cost is the owner's decision in `DRO-6`. Timing is read under `DRO-4`.
 
 **The boundary:**
 
@@ -215,7 +238,7 @@ Revised after reading `fbe2839c3` and the probe's candidate, which the owner app
 - **The session** holds one operation and makes all of its transitions. It holds the operation's `Drag` and admission, the motion and operation signals with the listeners on them, disposers, phase, decision, next step, verdict, lift, focus and release outcome. Its transitions are samples and the threshold, ending a pending press, activation, the drop, the verdict, conclusion, the terminal step, and release when destruction ends it.
 - **Each side calls the other's interface below.** Everything else in each class is `#`-private.
 
-**The interface.** This is the smallest set found by reading the kernel at `fbe2839c3`. The prototype confirms it or reports what it needed beyond it.
+**The interface.** This is the smallest set found by reading the kernel at `fbe2839c3`. The prototype needed nothing beyond it.
 
 From the controller to the session:
 
@@ -236,7 +259,7 @@ From the session to the controller:
 | Is current | Whether this session is the one in the slot | `this.#session === session` in the `Drag`'s scope checks and in the verdict's completion |
 | Detach | Clears the slot. The session calls it at the three points where the base clears it | The three writes of `null` to `#session` outside teardown |
 | Take and keep the landing | At activation, takes and clears the landing before the lift measures. At conclusion, stores the new one | `#activate`'s and `#conclude`'s writes to `#cancelLanding` |
-| The verdict's way in | Lets a verdict that settles inside a pass be applied by that pass, and one that settles outside enter a new pass. The prototype chooses its form | `complete`'s read of `#running` |
+| The verdict's way in | Lets a verdict that settles inside a pass be applied by that pass, and one that settles outside enter a new pass. Built as `raiseInPass` for a fault | `complete`'s read of `#running` |
 | `requestStep` | The controller's public method, which a `Drag` forwards to | Unchanged |
 | The fixed values | The behavior, root, window and threshold | Read only |
 
@@ -276,7 +299,7 @@ From the session to the controller:
 - **A local that captures a value before its field is cleared or replaced stays, with its comment.** Removing locals is not a goal, and `using` is not introduced.
 - **The tests and the public types don't change.** Adoption lands as its own behavior-preserving commit.
 
-**Fallback.** If the prototype fails a required property that no change to the interface can fix, `Session` stays a record. `#move` and `#up` then receive the session that `#onPointer` tested, and no `this.#session!` remains. [`composition-handoff.md`](composition-handoff.md) item 1 states this form and stays on hold.
+**Fallback.** If the owner declines `DRO-6`, `Session` stays a record. `#move` and `#up` then receive the session that `#onPointer` tested, and no `this.#session!` remains. [`composition-handoff.md`](composition-handoff.md) §1a states this form.
 
 **The implementer's safety explanation was checked and is correct.** At `3084191bb`, nothing between the reads of `this.#session` in `#onPointer`, `#move` and `#up` can clear or replace the field, so no assertion fails. But each assertion depends on an invariant of the whole class, which its read site doesn't show. Both forms remove the assertions. In the class form, the session's methods have the operation as `this`. The commit's other inlinings, in `lift.ts`, `sortable.ts`, `free-drag.ts` and the helpers, read fields that nothing writes between the reads, so they preserve behavior.
 
@@ -287,7 +310,7 @@ From the session to the controller:
 - **`DRD-20`:** its sentence "`Gesture` stays the only class that holds a session" becomes: `Gesture` is the only class that holds the current session, and the session class is the operation. `DRD-20` said that a way for an operation class to reach controller state without forwarding would reopen the question. The owner's requirement reopened it, and the interface above answers it. `DRD-20`'s other rules apply to the session class: stable identities for every function passed out, no `bind` at a call site, and nothing retained after destruction.
 - **The contract doesn't change.** The members of `DraggableController` stay. The contract already forbids a behavior to reach the session, and no entry says the controller is the `Gesture` instance.
 
-**Not decided: size and performance.** The interface's member names are not mangled. The probe attributed 424 B of its 770 B minified growth to such names, on a different interface. The prototype reports its figures as evidence. At adoption, a cost goes to the owner under CONTRIBUTING §0 and §14 and `DRO-4`'s rules.
+**Size and allocation: `DRO-6`, the owner's.** The prototype adds 103 B Brotli to `draggable` alone, and three functions to each operation. Interface names, which the minifier can't shorten, account for 439 B of the minified growth. The record fields they replaced, which were also unmangled, save 612 B. No timing was taken. `DRO-4`'s reading includes it, under `DRD-22`'s rules.
 
 #### DRD-25 — The built-in factories compose, and pass consumers only documented values
 
@@ -329,7 +352,7 @@ Each finding and question of the [review round](reviews/production/production-su
 
 ## Owner decisions
 
-None blocks the remediation. Each has a default the handoff builds.
+None blocks the remediation. Each has a default the handoff builds. `DRO-6` holds only the composition handoff's kernel item.
 
 #### DRO-1 — Press cost under CONTRIBUTING §0
 
@@ -367,6 +390,60 @@ A row that is still slower comes with its attributed cause. You decide under CON
 
 **The alternative is to retire the prototype arm** from both instruments before merge, after the remediation's validation has read it. The branch then stops mattering, and the 2026-11-06 and remediation readings keep the arm's figures. **Recommendation: keep the branch until the owner has read `DRO-4`, then decide whether to retire the arm.**
 
+#### DRO-6 — Adopt the operation class at its measured cost
+
+**Default: not adopted.** Production keeps `3084191bb`'s kernel, and [`composition-handoff.md`](composition-handoff.md) item 1 waits. The [prototype](probes/session-owner/README.md) at `b54832a0e` meets `DRD-24`. Its adoption is a single kernel commit, item 1. Its costs below are measured against `e06476d2b`, whose source is production's.
+
+**Size.** Brotli is the figure that governs.
+
+- **`draggable` alone:** +103 B, from 2117 to 2220. Minified, +372 B.
+- **Every other row:** +96 to +121 B, because each one imports the kernel.
+- **Seven rows then exceed their ceilings:**
+  - `draggable` alone by 81 B;
+  - `freeDrag` + `bounds` + `landing` by 73 B;
+  - `freeDrag` by 68 B;
+  - example: canvas group by 52 B;
+  - example: drop zone by 31 B;
+  - example: resize handle by 27 B;
+  - `draggable` + `lift` by 23 B.
+- **The three `sortable` rows stay under their ceilings.**
+- **The control row** is already 93 B off its 2024 B figure at the base. The adoption moves it another 103 B.
+- **The minified +372 B of `draggable` alone has four causes:**
+  - +439 B for interface and public member names, which the minifier can't shorten;
+  - +128 B for more references to private names;
+  - −612 B for the record's field names, which were unmangled and are now `#`-private;
+  - +417 B for other code: the second class and its constructor, the interface methods, `handleEvent`'s dispatch, `runDisposer` and the returned controller object.
+
+**Allocation.**
+
+- **Per sample:** none. The per-sample test passes, in Chromium only.
+- **Per pointer operation:** 3 more functions, the gate steps `#move`, `#up` and `#endPending`, which the base created once per controller. That makes 9 objects and 6 functions, where the base created 9 and 3.
+- **Per keyboard command:** the same 3 more, which a command never calls. That makes 7 objects and 7 functions, where the base created 7 and 4.
+- **Per controller:** 5 fewer functions and 1 more object, the returned controller.
+- **Per operation, without allocation:** four field writes copy the fixed values into the session.
+
+**Per-sample work, not measured.** A sample now pays:
+
+- one string comparison in `handleEvent`;
+- the platform's dispatch through a listener object instead of a function;
+- a direct read of `this.#drag`, where the base read through `this.#session!`.
+
+No timing was taken.
+
+**What approval decides:**
+
+- **You accept the size and allocation figures above as the adoption's cost.** The adoption commit lands with those seven rows and the control red. It re-bases nothing.
+- **The ceilings and the control are re-based under `DRO-4`,** from the reading at the composition unit's last commit, which names this adoption as a cause.
+- **Timing is judged in that reading, under `DRD-22`'s rules.** The composition report names the adoption commit and its parent, so a slower cycle row can be attributed to it.
+
+**If you decline,** `DRD-24`'s fallback lands as item 1, and the ownership model stays recorded as the target. The fallback has no size reading.
+
+**Recommendation: approve.** These figures are the cost of the boundary you set:
+
+- The names the boundary needs cost about as many minified bytes as the unmangled record fields they replace.
+- The net growth is the code of a second class.
+- The three functions are created once per press, not per sample.
+
 ## Decision status
 
 | Decision | Status |
@@ -394,5 +471,5 @@ A row that is still slower comes with its attributed cause. You decide under CON
 | DRD-21 | active, implemented at `b91db2818` |
 | DRD-22 | active, applied in the remediation's validation |
 | DRD-23 | active |
-| DRD-24 | active, revised to the owner's ownership model. Under prototype, not adopted |
+| DRD-24 | active. The prototype met it at `b54832a0e`. Adoption is prepared and waits for `DRO-6` |
 | DRD-25 | active, unimplemented |
