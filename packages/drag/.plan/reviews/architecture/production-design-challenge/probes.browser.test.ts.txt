@@ -1,0 +1,629 @@
+/**
+ * Architecture challenge probes, throwaway. Each test records what it observed and
+ * asserts nothing: the review reads the PROBE lines.
+ */
+import { describe, it } from 'vitest';
+import { draggable } from '../src/draggable.ts';
+import { FreeDragResolution, freeDrag } from '../src/free-drag.ts';
+import { landing } from '../src/sortable/landing.ts';
+import { y } from '../src/sortable/y.ts';
+import { ReorderResolution, sortable } from '../src/sortable.ts';
+import {
+  basicSortable,
+  centerOf,
+  commands,
+  deliveredClicks,
+  engine,
+  faultMessages,
+  frames,
+  grab,
+  log,
+  makeList,
+  onCleanup,
+  order,
+  release,
+  rowsOf,
+  wait,
+} from './support/harness.ts';
+
+function record(name: string, observed: unknown): void {
+  // eslint-disable-next-line no-console
+  console.log(`PROBE ${name} ${engine} ${JSON.stringify(observed)}`);
+}
+
+const liftedIds = (): string[] =>
+  [...document.querySelectorAll(':popover-open')].map((e) => e.id);
+
+describe('P1 a pending press that misses its pointerup', () => {
+  for (const where of ['child', 'ancestor', 'none'] as const) {
+    it(`pointerup stopped at the ${where}`, async () => {
+      const wrapper = document.createElement('div');
+
+      document.body.append(wrapper);
+
+      const list = makeList(3, wrapper);
+      const stop = document.createElement('span');
+
+      stop.id = 'stop';
+      stop.textContent = 'x';
+      stop.style.cssText = 'display:inline-block;width:40px;height:30px';
+      rowsOf(list)[0]!.append(stop);
+
+      if (where === 'child') {
+        stop.addEventListener('pointerup', (event) => {
+          event.stopPropagation();
+        });
+      } else if (where === 'ancestor') {
+        wrapper.addEventListener('pointerup', (event) => {
+          event.stopPropagation();
+        });
+      }
+
+      basicSortable(list);
+
+      const c = centerOf(stop);
+
+      await commands.pointerMove(c.x, c.y);
+      await commands.pointerDown();
+      await commands.pointerUp();
+      await frames();
+
+      const clicksAfterPress = [...deliveredClicks];
+
+      // Hover: no button is held.
+      await commands.pointerMove(c.x, c.y + 60, 6);
+      await frames();
+
+      const afterHover = {
+        log: [...log],
+        lifted: liftedIds(),
+        transform: rowsOf(list)[0]!.style.transform,
+      };
+
+      // A fresh, ordinary press elsewhere and its release.
+      const other = centerOf('#r2');
+
+      await commands.pointerMove(other.x, other.y, 4);
+      await frames();
+      await commands.pointerDown();
+      await commands.pointerUp();
+      await frames();
+
+      record(`P1-${where}`, {
+        clicksAfterPress,
+        afterHover,
+        afterNextClick: { log: [...log], order: order(list) },
+        faults: faultMessages(),
+      });
+    });
+  }
+});
+
+describe('P2 nested sortables on one pointer', () => {
+  for (const remedy of [false, true]) {
+    it(`a press on an inner card, data-drag-ignore on cards: ${remedy}`, async () => {
+      const outer = document.createElement('div');
+
+      outer.id = 'outer';
+      outer.style.cssText = 'display:flex;gap:20px';
+      document.body.append(outer);
+
+      const make = (name: string, root: HTMLElement): void => {
+        const controller = sortable(root, {
+          items: () => [...root.children] as HTMLElement[],
+          axis: y(),
+          onStart: (item) => log.push(`${name}:start:${item.id}`),
+          onReorder: ({ item, next }) => {
+            root.insertBefore(item, next);
+            return ReorderResolution.accept();
+          },
+          onEnd: (result) =>
+            log.push(
+              `${name}:end:${result.type}${result.type === 'canceled' ? `:${result.origin}` : ''}`,
+            ),
+        });
+
+        onCleanup(() => controller.requestDestroy());
+      };
+
+      for (let c = 0; c < 2; c += 1) {
+        const column = document.createElement('div');
+
+        column.id = `col${c}`;
+        column.style.cssText =
+          'width:150px;padding:4px;touch-action:none;user-select:none;background:#eee';
+
+        const inner = document.createElement('div');
+
+        inner.id = `inner${c}`;
+
+        for (let k = 0; k < 3; k += 1) {
+          const card = document.createElement('div');
+
+          card.id = `card${c}${k}`;
+          card.textContent = card.id;
+          card.style.cssText =
+            'height:40px;touch-action:none;user-select:none;background:#ccc;margin:2px';
+
+          if (remedy) {
+            card.setAttribute('data-drag-ignore', '');
+          }
+
+          inner.append(card);
+        }
+
+        column.append(inner);
+        outer.append(column);
+        make(`inner${c}`, inner);
+      }
+
+      make('outer', outer);
+
+      await grab('#card01', 0, 50);
+
+      const during = { log: [...log], lifted: liftedIds() };
+
+      await release();
+      await wait(300);
+
+      record(`P2-remedy-${remedy}`, {
+        during,
+        after: { log: [...log], lifted: liftedIds() },
+        faults: faultMessages(),
+      });
+    });
+  }
+});
+
+describe('P3 Escape during a drag inside a modal or a popover', () => {
+  for (const container of ['dialog', 'popover'] as const) {
+    it(`in a ${container}`, async () => {
+      const host = document.createElement(
+        container === 'dialog' ? 'dialog' : 'div',
+      );
+
+      if (container === 'popover') {
+        host.popover = 'auto';
+      }
+
+      host.style.cssText = 'margin:0;padding:0;top:0;left:0';
+      document.body.append(host);
+
+      const list = makeList(3, host);
+
+      if (container === 'dialog') {
+        (host as HTMLDialogElement).showModal();
+      } else {
+        host.showPopover();
+      }
+
+      onCleanup(() => {
+        host.remove();
+      });
+      basicSortable(list);
+      await grab('#r0', 0, 50);
+      await commands.keyPress('Escape');
+      await frames();
+
+      const open =
+        container === 'dialog'
+          ? (host as HTMLDialogElement).open
+          : host.matches(':popover-open');
+
+      await release();
+      record(`P3-${container}`, {
+        containerStillOpen: open,
+        log: [...log],
+        faults: faultMessages(),
+      });
+    });
+  }
+});
+
+describe('P4 a custom behavior that commits its move in end', () => {
+  for (const hook of ['drop', 'end'] as const) {
+    it(`commits in ${hook}`, async () => {
+      const list = makeList(3);
+
+      for (const row of rowsOf(list)) {
+        row.tabIndex = 0;
+      }
+
+      const move = (item: HTMLElement): void => {
+        item.nextElementSibling?.after(item);
+      };
+      const controller = draggable(list, {
+        admit: () => null,
+        command(event) {
+          const item = (event.target as HTMLElement).closest<HTMLElement>(
+            '.row',
+          );
+
+          return event.key === 'ArrowDown' && item ? { item } : null;
+        },
+        drop(drag) {
+          if (hook === 'drop') {
+            move(drag.item);
+          }
+
+          return null;
+        },
+        end(drag) {
+          if (hook === 'end') {
+            move(drag.item);
+          }
+        },
+      });
+
+      onCleanup(() => controller.requestDestroy());
+      rowsOf(list)[0]!.focus();
+      await commands.keyPress('ArrowDown');
+      await frames();
+
+      const first = document.activeElement?.id ?? null;
+
+      await commands.keyPress('ArrowDown');
+      await frames();
+      record(`P4-${hook}`, {
+        activeAfterFirst: first,
+        activeAfterSecond: document.activeElement?.id ?? null,
+        order: order(list),
+      });
+    });
+  }
+});
+
+describe('P5 a grab during a landing', () => {
+  it('re-grabs the landing row mid-flight', async () => {
+    const list = makeList(4);
+
+    basicSortable(list, { landing: landing({ duration: 2000 }) });
+    await grab('#r0', 0, 70);
+    await release();
+    await wait(200);
+
+    const mid = centerOf('#r0');
+    const midTop = mid.top;
+
+    await commands.pointerMove(mid.x, mid.y);
+    await commands.pointerDown();
+    await commands.pointerMove(mid.x, mid.y + 20, 2);
+    await commands.pointerMove(mid.x, mid.y + 40, 2);
+    await frames();
+
+    const now = centerOf('#r0').top;
+
+    record('P5', {
+      midFlightTop: midTop,
+      pointerTravel: 40,
+      topAfterGrab: now,
+      offsetFromPointer: now - (midTop + 40),
+      log: [...log],
+    });
+    await release();
+  });
+});
+
+describe('P6 items that are links', () => {
+  for (const remedy of [false, true]) {
+    it(`anchor rows, draggable=false: ${remedy}`, async () => {
+      const list = makeList(3);
+
+      for (const row of rowsOf(list)) {
+        const a = document.createElement('a');
+
+        a.href = `#${row.id}`;
+        a.textContent = row.textContent;
+        a.style.cssText = 'display:block;height:40px';
+
+        if (remedy) {
+          a.draggable = false;
+        }
+
+        row.replaceChildren(a);
+      }
+
+      const native: string[] = [];
+
+      document.addEventListener('dragstart', () => native.push('dragstart'));
+      document.addEventListener('pointercancel', () =>
+        native.push('pointercancel'),
+      );
+      basicSortable(list);
+      await grab('#r0 a', 0, 60);
+
+      const during = { log: [...log], lifted: liftedIds() };
+
+      await release();
+      record(`P6-remedy-${remedy}`, {
+        during,
+        after: [...log],
+        native,
+        order: order(list),
+      });
+    });
+  }
+});
+
+describe('P7 free drag with a scroll during the drag', () => {
+  it('commits localDelta as the README does', async () => {
+    const scroller = document.createElement('div');
+
+    scroller.style.cssText =
+      'position:relative;height:300px;width:300px;overflow:auto';
+
+    const content = document.createElement('div');
+
+    content.style.cssText = 'position:relative;height:2000px';
+
+    const box = document.createElement('div');
+
+    box.id = 'box';
+    box.style.cssText =
+      'position:absolute;left:20px;top:20px;width:50px;height:50px;background:#c00;touch-action:none;user-select:none';
+    content.append(box);
+    scroller.append(content);
+    document.body.append(scroller);
+
+    let request: unknown = null;
+    const controller = freeDrag(box, {
+      onDrop(drop) {
+        box.style.translate = `${drop.localDeltaX}px ${drop.localDeltaY}px`;
+        request = {
+          positionY: drop.positionY,
+          localDeltaY: drop.localDeltaY,
+        };
+        return FreeDragResolution.accept();
+      },
+    });
+
+    onCleanup(() => controller.requestDestroy());
+
+    await grab('#box', 0, 40);
+    scroller.scrollTop = 100;
+    await frames();
+
+    const visualTopBeforeRelease = box.getBoundingClientRect().top;
+
+    await release();
+
+    record('P7', {
+      visualTopBeforeRelease,
+      request,
+      committedTop: box.getBoundingClientRect().top,
+    });
+  });
+});
+
+describe('P7b free drag, the README commit, no scroll', () => {
+  for (const write of ['translate', 'left-top'] as const) {
+    it(`commits with ${write}`, async () => {
+      const box = document.createElement('div');
+
+      box.id = 'box';
+      box.style.cssText =
+        'position:absolute;left:20px;top:20px;width:50px;height:50px;background:#c00;touch-action:none;user-select:none';
+      document.body.append(box);
+
+      const controller = freeDrag(box, {
+        onDrop(drop) {
+          if (write === 'translate') {
+            box.style.translate = `${drop.localDeltaX}px ${drop.localDeltaY}px`;
+          } else {
+            box.style.left = `${20 + drop.localDeltaX}px`;
+            box.style.top = `${20 + drop.localDeltaY}px`;
+          }
+
+          return FreeDragResolution.accept();
+        },
+        onEnd: (result) => log.push(`end:${result.type}`),
+      });
+
+      onCleanup(() => controller.requestDestroy());
+      await grab('#box', 60, 40);
+
+      const atRelease = box.getBoundingClientRect();
+
+      await release();
+
+      const after = box.getBoundingClientRect();
+
+      record(`P7b-${write}`, {
+        atRelease: [atRelease.left, atRelease.top],
+        after: [after.left, after.top],
+        inline: box.getAttribute('style'),
+        log: [...log],
+      });
+    });
+  }
+});
+
+describe('P5b a grab during a rejected landing', () => {
+  it('re-grabs the row flying home', async () => {
+    const list = makeList(4);
+
+    basicSortable(list, {
+      landing: landing({ duration: 2000 }),
+      onReorder: () => ReorderResolution.reject('no'),
+    });
+    await grab('#r0', 0, 100);
+    await release();
+    await wait(300);
+
+    const mid = centerOf('#r0');
+
+    await commands.pointerMove(mid.x, mid.y);
+    await commands.pointerDown();
+    await commands.pointerMove(mid.x, mid.y + 20, 2);
+    await commands.pointerMove(mid.x, mid.y + 40, 2);
+    await frames();
+
+    const now = centerOf('#r0').top;
+
+    record('P5b', {
+      midFlightTop: mid.top,
+      topAfterGrab: now,
+      offsetFromPointer: now - (mid.top + 40),
+      log: [...log],
+    });
+    await release();
+  });
+});
+
+describe('P1b what the stuck session does next', () => {
+  it('records pointer events after hover activation', async () => {
+    const list = makeList(3);
+    const stop = document.createElement('span');
+
+    stop.id = 'stop';
+    stop.textContent = 'x';
+    stop.style.cssText = 'display:inline-block;width:40px;height:30px';
+    rowsOf(list)[0]!.append(stop);
+    stop.addEventListener('pointerup', (event) => {
+      event.stopPropagation();
+    });
+    basicSortable(list);
+
+    const seen: string[] = [];
+
+    for (const type of ['pointerdown', 'pointerup', 'lostpointercapture', 'gotpointercapture', 'pointercancel']) {
+      addEventListener(type, (e) => seen.push(`${type}:${(e.target as Element).id || (e.target as Element).tagName}:b${(e as PointerEvent).buttons}`), { capture: true });
+    }
+
+    const c = centerOf(stop);
+
+    await commands.pointerMove(c.x, c.y);
+    await commands.pointerDown();
+    await commands.pointerUp();
+    await frames();
+    await commands.pointerMove(c.x, c.y + 60, 6);
+    await frames();
+
+    const capture = list.hasPointerCapture(1);
+    const other = centerOf('#r2');
+
+    await commands.pointerMove(other.x + 30, other.y + 30, 4);
+    await frames();
+    await commands.pointerDown();
+    await commands.pointerUp();
+    await frames();
+    await wait(50);
+    record('P1b', {
+      rootHadCapture: capture,
+      seen,
+      log: [...log],
+      lifted: liftedIds(),
+      order: order(list),
+    });
+  });
+});
+
+describe('P3c Escape with its default prevented by the page', () => {
+  it('in a dialog', async () => {
+    const host = document.createElement('dialog');
+
+    document.body.append(host);
+
+    const list = makeList(3, host);
+
+    host.showModal();
+    onCleanup(() => {
+      host.remove();
+    });
+
+    const prevent = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+      }
+    };
+
+    document.addEventListener('keydown', prevent, { capture: true });
+    onCleanup(() => {
+      document.removeEventListener('keydown', prevent, { capture: true });
+    });
+    basicSortable(list);
+    await grab('#r0', 0, 50);
+    await commands.keyPress('Escape');
+    await frames();
+    record('P3c', { containerStillOpen: host.open, log: [...log] });
+    await release();
+  });
+});
+
+describe('P7c free drag that commits in onEnd', () => {
+  it('commits translate in onEnd', async () => {
+    const box = document.createElement('div');
+
+    box.id = 'box';
+    box.style.cssText =
+      'position:absolute;left:20px;top:20px;width:50px;height:50px;background:#c00;touch-action:none;user-select:none';
+    document.body.append(box);
+
+    const controller = freeDrag(box, {
+      onDrop: () => FreeDragResolution.accept(),
+      onEnd(result) {
+        if (result.type === 'accepted') {
+          box.style.translate = `${result.request.localDeltaX}px ${result.request.localDeltaY}px`;
+        }
+      },
+    });
+
+    onCleanup(() => controller.requestDestroy());
+    await grab('#box', 60, 40);
+
+    const atRelease = box.getBoundingClientRect();
+
+    await release();
+
+    const after = box.getBoundingClientRect();
+
+    record('P7c', {
+      atRelease: [atRelease.left, atRelease.top],
+      after: [after.left, after.top],
+    });
+  });
+});
+
+describe('P7d free drag, scroll during the drag, commit in onEnd', () => {
+  it('commits localDelta after release', async () => {
+    const scroller = document.createElement('div');
+
+    scroller.style.cssText =
+      'position:relative;height:300px;width:300px;overflow:auto';
+
+    const content = document.createElement('div');
+
+    content.style.cssText = 'position:relative;height:2000px';
+
+    const box = document.createElement('div');
+
+    box.id = 'box';
+    box.style.cssText =
+      'position:absolute;left:20px;top:20px;width:50px;height:50px;background:#c00;touch-action:none;user-select:none';
+    content.append(box);
+    scroller.append(content);
+    document.body.append(scroller);
+
+    const controller = freeDrag(box, {
+      onDrop: () => FreeDragResolution.accept(),
+      onEnd(result) {
+        if (result.type === 'accepted') {
+          box.style.translate = `${result.request.localDeltaX}px ${result.request.localDeltaY}px`;
+        }
+      },
+    });
+
+    onCleanup(() => controller.requestDestroy());
+    await grab('#box', 0, 40);
+    scroller.scrollTop = 100;
+    await frames();
+
+    const visualTopBeforeRelease = box.getBoundingClientRect().top;
+
+    await release();
+    record('P7d', {
+      visualTopBeforeRelease,
+      committedTop: box.getBoundingClientRect().top,
+    });
+  });
+});
