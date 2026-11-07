@@ -1,5 +1,7 @@
 # Production implementation handoff
 
+**Status, 2026-11-07: completed at `d7e7b0d3a`.** The remaining work is [`remediation-handoff.md`](remediation-handoff.md), under `drag:DRD-14` to `drag:DRD-23`.
+
 **One unit for one implementer: build `@ydinjs/drag` from the prototype to [`contract.md`](contract.md), prove it, integrate it, and stop for independent review.** The decisions are in [`00-index.md`](00-index.md).
 
 **Base:** a new branch `drag/production` from the commit carrying this file on `drag/prototype`.

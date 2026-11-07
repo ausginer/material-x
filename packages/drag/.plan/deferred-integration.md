@@ -1,6 +1,6 @@
 # Deferred integration findings from the architecture plan
 
-**Status: scheduled, 2026-11-06.** The owner made this cleanup part of completion and keeps drag2 as reference evidence. [`implementation-handoff.md`](implementation-handoff.md) step 1 and step 7 carry it, and `drag2:D-210` decides the retirement. It remains no prerequisite for the architecture.
+**Status: implemented at `3561f3e97` and `d7e7b0d3a`, 2026-11-07.** Two leftover sentences in drag2, `drag/production:integrity-7`, are scheduled in [`remediation-handoff.md`](remediation-handoff.md) §7. Before that, the owner made this cleanup part of completion and kept drag2 as reference evidence, and `drag2:D-210` decided the retirement.
 
 **When written, no edits were made.** What follows is the work to do, with these corrections at `599684791`.
 

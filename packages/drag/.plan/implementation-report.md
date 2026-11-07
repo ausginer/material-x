@@ -1,5 +1,7 @@
 # Production implementation report
 
+**Status, 2026-11-07:** reviewed at `d7e7b0d3a`. The architect decided the return and the seven choices in `drag:DRD-15` to `drag:DRD-18`. `drag:DRD-22` withdraws this report's "no difference" for the cycle rows, and records the retained row as decided by manual attribution. The report itself is unchanged.
+
 **`@ydinjs/drag` is implemented, integrated and measured from `a1d31e0d2`, and stops here for independent review.** Governing records: [`contract.md`](contract.md), [`00-index.md`](00-index.md), [`implementation-handoff.md`](implementation-handoff.md). Branch: `drag/production`. The package stays `private`.
 
 **One rule is missed and returns to the architect: a landed drop costs one layout more than both before arms.** `drag:DRO-1`, `drag:DRO-2` and `drag:DRO-3` stay open for the owner.

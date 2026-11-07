@@ -1,6 +1,6 @@
 # `@ydinjs/drag` contract
 
-**Current state: the behavior the production package owes.** Decisions and their reasons are in [`00-index.md`](00-index.md). Production tests cite these entries by address, such as `drag:DRI-7`. The implementation and its one open return to the architect are in [`implementation-report.md`](implementation-report.md).
+**Current state: the behavior the production package owes.** Decisions and their reasons are in [`00-index.md`](00-index.md). Production tests cite these entries by address, such as `drag:DRI-7`. **As of 2026-11-07 this states the behavior after remediation**: `DRD-14` to `DRD-23` changed the entries listed under [Change record](#change-record), and [`remediation-handoff.md`](remediation-handoff.md) implements them. The implementation at `d7e7b0d3a` is described in [`implementation-report.md`](implementation-report.md).
 
 ## Vocabulary
 
@@ -32,7 +32,7 @@
 
 ### `draggable`
 
-Names may change only for clarity. The members may not grow without a decision.
+Names may change only for clarity. The members may not grow without a decision. **The kernel reads each hook from the behavior when it calls it, and calls it as a method of the behavior object**, so a behavior may be a class instance. **No controller method depends on `this`**, so each works when detached.
 
 ```ts
 type Outcome<Verdict> =
@@ -73,9 +73,9 @@ type Drag<State> = {
   originX: number;
   originY: number; // Viewport.
   signal: AbortSignal; // Aborts when the operation releases its presentation.
-  use(dispose: (outcome: Outcome<unknown> | null) => void): void; // `null`: destruction.
-  requestStep(step: (drag: Drag<State> | null) => void): void;
-  requestCancel(reason?: unknown): void;
+  use(dispose: (outcome: Outcome<unknown> | null) => void): void; // `null`: destruction released this operation.
+  requestStep(step: (drag: Drag<State> | null) => void): void; // Acts only while this operation is the controller's current one.
+  requestCancel(reason?: unknown): void; // The same scope.
 };
 
 type LiftedDrag<State> = Drag<State> & {
@@ -103,7 +103,7 @@ type DraggableController<State> = {
 
 **What a behavior does not receive:** the session, its slots, its state or its next step, in types or at runtime.
 
-**Admission:** the kernel refuses an admission when a hop before `handle ?? item` in the event path has `data-drag-ignore`. A primary button press is required. `sortable` and `freeDrag` also decline `altKey`.
+**Admission:** the kernel refuses an admission when a hop before `handle ?? item` in the event path has `data-drag-ignore`. A primary button press is required. `sortable` and `freeDrag` also decline `altKey`. An event that one controller admitted is offered to no other controller (DRI-19).
 
 ## Guarantees
 
@@ -119,11 +119,11 @@ One reader takes requests between steps, in this order: destruction, deferred st
 
 #### DRI-3 — Terminals
 
-`end` runs exactly once for an operation that reached `start`, unless destruction is applied first. `end` does not run without `start`. `start` runs only after `activate` returned and did not decline.
+`end` runs exactly once for an operation that reached `start`, unless destruction is applied first. `end` does not run without `start`. `start` runs only after `activate` returned and did not decline. An item disconnected at activation declines the operation quietly for every behavior: no `activate`, no `start`, no `end`, no report.
 
 #### DRI-4 — Cancel
 
-The first decision wins and keeps its reason and origin. A cancel on an idle controller or after the decision does nothing. `Escape` cancels with `origin: 'escape'`. `pointercancel` and `lostpointercapture` cancel with `origin: 'interrupted'`.
+The first decision wins and keeps its reason and origin. A cancel on an idle controller or after the decision does nothing. `Escape` cancels with `origin: 'escape'`. An `Escape` that decides an operation that reached `start` has its default prevented, so it doesn't also close the dialog or popover that holds the list. It still propagates. `pointercancel` and `lostpointercapture` cancel with `origin: 'interrupted'`.
 
 #### DRI-5 — Verdict
 
@@ -131,7 +131,7 @@ The first completion wins. `then` is read once. A throwing `then` accessor or ca
 
 #### DRI-6 — Reentrant input
 
-Reentrant input, including a nested press, is refused, and the next real press works. No event with `isTrusted` true is refused in any engine. Development builds count refusals so that the suite can assert this.
+Reentrant input, including a nested press, is refused, and the next real press works. No event with `isTrusted` true is refused in any engine. Development builds count refusals by a running pass so that the suite can assert this. A press whose release the library missed is DRI-19's.
 
 #### DRI-7 — Faults
 
@@ -143,7 +143,8 @@ Code outside a hook writes behavior state through `requestStep`.
 
 - When no pass is running, the step runs at once. During a pass, it runs between steps, in request order.
 - The same function requested again before it runs runs once. So a stable `invalidate` coalesces, and closures such as `moveTo` keep their order.
-- The step receives the operation's `Drag` only from the end of activation until the drop or the decision, whichever comes first. Otherwise it receives `null`, including before activation, while a verdict is pending and behind a cancel. So a `moveTo` behind a cancel changes nothing, and neither the view nor a landing moves.
+- **Through the controller,** the step receives the operation's `Drag` only from the end of activation until the drop or the decision, whichever comes first. Otherwise it receives `null`, including before activation, while a verdict is pending and behind a cancel. So a `moveTo` behind a cancel changes nothing, and neither the view nor a landing moves.
+- **Through a `Drag`,** a request acts only while that operation is the controller's current one, and the same window applies. Afterwards it does nothing, and so does `drag.requestCancel`. A retained `Drag` never reaches a later operation.
 - A throw is a fault under DRI-7.
 - A pass with no deferred step allocates nothing for this mechanism.
 
@@ -160,11 +161,13 @@ When a decision is applied, the order is:
 3. `drag.signal` aborts.
 4. `use` disposers run last in first out, each with the outcome.
 5. The lift is released. The visual's inline declarations and popover state are exactly as they were.
-6. Focus is restored under DRI-12.
-7. The landing starts, with its target measured only if `settle` returned one.
-8. `end` runs as the next step, in the same task as the decision. A landing does not delay it.
+6. The landing starts, with its target measured only if `settle` returned one.
+7. `end` runs as the next step, in the same task as the decision. A landing does not delay it.
+8. Focus is restored under DRI-12 when `end` returns or throws, in the same step. Without `start`, it is restored right after step 5.
 
-Every disposer runs, whatever another one throws. A disposer added after release runs at once. After an operation, no placeholder, listener, capture or inline style from the library remains. The only exceptions are a running landing and the click guard, under DRI-11.
+**The lift owns what it writes.** From activation to release the lift owns the visual's inline declarations of every property it writes: position and inset, size, margin, padding, border, `zoom`, `box-sizing`, `transform` and the individual transforms, `transform-origin`, transitions, overflow, `color` and `background-color`. Step 5 restores them over any write made during the lift. **A commit to one of those properties is made after release, in `end`.** A commit the lift doesn't own, such as DOM order, attributes, classes, custom properties, another element or a model, may be made in the verdict.
+
+Every disposer runs, whatever another one throws. A disposer added after release runs at once, with the operation's outcome, or `null` if destruction released it. After an operation, no placeholder, listener, capture or inline style from the library remains. The only exceptions are a running landing and the click guard, under DRI-11.
 
 #### DRI-10 — Destruction
 
@@ -189,7 +192,7 @@ The guard swallows one click from that pointer, including after a cancel or dest
 The library does not choose where focus goes. It only keeps focus through its own operation.
 
 - **The lift does not move focus.** Promotion runs the popover focusing steps, which focus an `autofocus` descendant, so the lift puts focus back.
-- **A reorder does not lose focus.** Removing a focused element sends focus to `body`, in pointer and keyboard reorders, in all three engines. The kernel records the focused element inside `item` at the drop, through open shadow roots. After presentation is released, if that element is connected and the document's focus is on nothing (`activeElement` is `null` or `body`), the kernel focuses it.
+- **A reorder does not lose focus, in any hook.** Removing a focused element sends focus to `body`, in pointer and keyboard reorders, in all three engines. The kernel records the focused element inside `item` at the drop, through open shadow roots. After `end` (DRI-9 step 8), if that element is connected and the document's focus is on nothing (`activeElement` is `null` or `body`), the kernel focuses it. A reorder in the verdict or in `end` is covered.
 - A pointer operation restores with `preventScroll`. A command restores with normal focus scrolling, so that a row moved by keyboard stays visible.
 - The library never takes focus from an element the user or the consumer has focused since the drop.
 
@@ -197,7 +200,7 @@ The consumer still owns `tabindex`, roles and any announcement of the new order.
 
 #### DRI-13 — Landing
 
-The landing is additive and starts from the position last translated to. A landing that can't run is reported and skipped, and the outcome stands. It is cancelled by the next activation or destruction, and not by a press that never activates.
+The landing is additive and starts from the position last translated to. A landing that can't run is reported and skipped, and the outcome stands. It is cancelled by the next activation or destruction, and not by a press that never activates. **A grab during a landing keeps the visual under the pointer:** the activation measures the visual with the flight's current offset, then cancels the flight before the first lifted frame.
 
 - **Elevation.** For the whole flight the visual is above its siblings in its stacking context, including siblings with their own `z-index`.
 - **No residue.** Elevation leaves no inline style. It uses a replacing animation for `z-index`, separate from the additive flight, and `position: relative` only when the computed position is `static`.
@@ -208,7 +211,7 @@ The landing is additive and starts from the position last translated to. A landi
 
 #### DRI-14 — Collection
 
-`items()` is pulled at each admission and again at activation, so a consumer who changes the list between drags or during a press has to call nothing. An item no longer in the collection at activation declines the operation: no `onStart`, no `onEnd`, no report.
+`items()` is pulled at each admission and again at activation, for a pointer and a command alike, so a consumer who changes the list between drags or during a press has to call nothing. An item no longer in the collection at activation declines the operation: no `onStart`, no `onEnd`, no report. A command computes its target from the activation pull, and declines the same way when the move is no longer possible.
 
 During a drag, `invalidate()` re-reads the collection. A surviving gap rebases. A lost adjacency or a removed item cancels. After the drop, a collection change no longer affects the operation. The request carries `item`, `from`, `to`, `previous` and `next`, so `insertBefore(item, next)` is correct.
 
@@ -239,7 +242,23 @@ The kernel allocates nothing per pointer sample except the CSS string a lifted w
 
 #### DRI-18 — Custom behaviors get the same guarantees
 
-DRI-1 to DRI-13 and DRI-17 hold for a behavior through this API, with no code from its author beyond its hooks and no `try`. `sortable` and `freeDrag` import only public `draggable` and `lift` values and types from the kernel. Importing `draggable` alone brings no lift, `box-quad`, sortable, axis, cache or landing code.
+DRI-1 to DRI-13, DRI-17 and DRI-19 hold for a behavior through this API, with no code from its author beyond its hooks and no `try`. `sortable` and `freeDrag` import only public `draggable` and `lift` values and types from the kernel. Importing `draggable` alone brings no lift, `box-quad`, sortable, axis, cache or landing code.
+
+### Input
+
+#### DRI-19 — Input ownership
+
+- **Listening.** An operation reads its pointer stream and `Escape` on the window in the capture phase. A `stopPropagation` in the page doesn't hide them.
+- **Button held.** A press never activates without the button that admitted it. A sample without that button ends a pending press quietly.
+- **A missed release doesn't block.** A primary press while a press is pending ends the pending press quietly and is admitted itself.
+- **Nested roots.** An event that one controller admitted, by `admit` or `command`, is offered to no other controller of the same library copy. The innermost admitting root wins, and an outer root still admits what its inner roots declined.
+- **Native drag is the consumer's.** A natively draggable item or handle, such as a link or an image, needs `draggable="false"` from the consumer, as touch needs `touch-action: none`.
+
+### Free drag
+
+#### DRI-20 — Committed position
+
+`localDeltaX` and `localDeltaY` in the request are the offset from home to the drop position, in the space a transform authored on the visual acts in. Home is `config.home()`, read once at the drop, or the activation rect without `home`. Without `home`, the value is exact only when nothing moved the home during the drag, such as a scrolling ancestor. A home landing reads `home()` at `settle`. `onMove`'s geometry is pointer travel. An accepted position is committed in `onEnd` (DRI-9).
 
 ## Accepted differences from drag2
 
@@ -247,3 +266,16 @@ DRI-1 to DRI-13 and DRI-17 hold for a behavior through this API, with no code fr
 - There is no FIFO between kinds of request (DRI-2).
 - A landing can be clipped by an ancestor (DRI-13).
 - A step's own platform throw is a fault, and the controller survives (DRI-7).
+- An `Escape` that cancels a started operation doesn't reach the platform's close request (DRI-4).
+
+## Change record
+
+| Date | Entry | Change |
+| --- | --- | --- |
+| 2026-11-07 | Public surface | **Added:** hooks are called as methods of the behavior, and controller methods don't depend on `this`. `DRD-20` |
+| 2026-11-07 | `DRI-3`, `DRI-14` | **Added:** the kernel's quiet decline for a disconnected item. A command is pulled at activation too. It used to skip the second pull. `DRD-18` |
+| 2026-11-07 | `DRI-4`, `DRI-19` | **Added:** `Escape` is consumed when it decides a started operation, and the input rules. `DRD-17` |
+| 2026-11-07 | `DRI-8` | **Changed:** requests through a `Drag` are scoped to its operation. A retained `Drag`'s step used to receive a later operation's `Drag`. `DRD-16` |
+| 2026-11-07 | `DRI-9`, `DRI-12` | **Changed:** the landing starts before focus, and focus is restored after `end`. Focus used to be step 6, before the landing and before `end`. **Added:** the lift owns what it writes. `DRD-14`, `DRD-15` |
+| 2026-11-07 | `DRI-13` | **Added:** a grab during a landing keeps the visual under the pointer. `DRD-18` |
+| 2026-11-07 | `DRI-20` | **Added:** free drag's offset is measured against home at the drop. `DRD-19` |
