@@ -1,0 +1,118 @@
+# Instrument repair, item 1: raw output
+# Base: drag/production at c63ea2bae (source equal to 89995c27e). Chromium, shipped project.
+# Node v26.13.0, vitest 5.0.5. Command: npx just test tests/hot-path.browser.test.ts -t 'allocate per sample'
+# Bytes are sampled self bytes by <path under src>:<function>, interval 64 B, 300 moves. kernel = keys under kernel/ plus draggable.ts:.
+
+## The repair under test (working copy only; not committed, because the unmutated runs failed). Blank context lines lost their space: apply with git apply --ignore-whitespace
+
+diff --git a/packages/drag/tests/hot-path.browser.test.ts b/packages/drag/tests/hot-path.browser.test.ts
+index caf4536f6..f9cf34331 100644
+--- a/packages/drag/tests/hot-path.browser.test.ts
++++ b/packages/drag/tests/hot-path.browser.test.ts
+@@ -212,17 +212,25 @@ describe('drag:DRI-17 hot path', () => {
+         await commands.pointerMove(start.x + (i % 40), start.y + 12);
+       }
+
++      // The server's root is this package, so a url path that starts with `/src/`
++      // is this package's source, and a key is `<path under src>:<function>`.
+       const bytes = await commands.stopHeapSampling('/src/');
+
+       await commands.keyPress('Escape');
+
+-      const of = (file: string): Array<readonly [string, number]> =>
+-        Object.entries(bytes).filter(([key]) => key.startsWith(`${file}:`));
+       const kernelPerMove =
+-        of('draggable.ts').reduce((sum, [, size]) => sum + size, 0) / 300;
+-      const liftFunctions = of('lift.ts').map(([key]) => key);
+-
+-      // A sampling profile attributes in steps of its interval, so a few bytes per
++        Object.entries(bytes)
++          .filter(
++            ([key]) =>
++              key.startsWith('kernel/') || key.startsWith('draggable.ts:'),
++          )
++          .reduce((sum, [, size]) => sum + size, 0) / 300;
++      const liftFunctions = Object.keys(bytes).filter((key) =>
++        key.startsWith('lift.ts:'),
++      );
++
++      // The kernel is every module under `src/kernel/` and `src/draggable.ts`. A
++      // sampling profile attributes in steps of its interval, so a few bytes per
+       // move remain from reading an event field. An object per sample would show as
+       // tens of bytes.
+       expect(kernelPerMove, JSON.stringify(bytes)).toBeLessThan(16);
+diff --git a/packages/drag/tests/support/commands.node.ts b/packages/drag/tests/support/commands.node.ts
+index 0cab2bb26..73058cecd 100644
+--- a/packages/drag/tests/support/commands.node.ts
++++ b/packages/drag/tests/support/commands.node.ts
+@@ -159,7 +159,11 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
+       });
+     },
+   ),
+-  /** Bytes allocated by `file:function`, for frames from `urlPart`. */
++  /**
++   * Bytes allocated by `path:function`, for frames whose url's path starts with
++   * `urlPart`. The key's path is the rest of the url's path, so a frame is keyed
++   * by where its module is, not by its file's base name.
++   */
+   stopHeapSampling: defineBrowserCommand<[string]>(
+     async (context, urlPart): Promise<Record<string, number>> => {
+       const cdp = await cdpOf(context);
+@@ -170,8 +174,9 @@ export const dragBrowserCommands: Record<string, BrowserCommand<any[]>> = {
+       // A built-in such as `push` has no url, and its bytes belong to its caller.
+       const visit = (node: HeapNode, caller: string | null): void => {
+         const { url, functionName } = node.callFrame;
+-        const key = url.includes(urlPart)
+-          ? `${url.slice(url.lastIndexOf('/') + 1).split('?')[0]}:${functionName}`
++        const path = url && new URL(url).pathname;
++        const key = path?.startsWith(urlPart)
++          ? `${path.slice(urlPart.length)}:${functionName}`
+           : url
+             ? null
+             : caller;
+
+## Probe run (first run on the repaired selection, before the prescribed set)
+kernelPerMove 16.31 -> FAIL
+{"shared/invalidation.ts:fire":208,"sortable.ts:":164,"kernel/session.ts:requestStep":332,"kernel/gesture.ts:requestStep":116,"kernel/gesture.ts:enter":292,"kernel/gesture.ts:#applyRequests":476,"kernel/session.ts:advance":92,"kernel/gesture.ts:#runStep":848,"sortable.ts:#updateInsertion":560,"sortable/y.ts:resolve":45060,"sortable/linear-shift.ts:refresh":1260,"sortable/rect-index.ts:refresh":2876,"kernel/session.ts:stepTarget":104,"kernel/session.ts:handleEvent":1668,"kernel/session.ts:#move":964,"sortable.ts:move":532,"lift.ts:translate":30108,"shared/invalidation.ts:schedule":88}
+
+## Prescribed set: five unmutated runs, the repaired test as above
+### run 1
+     × should allocate per sample only the CSS string a lifted write needs 5230ms
+AssertionError: {"sortable.ts:":160,"kernel/session.ts:requestStep":328,"kernel/gesture.ts:requestStep":116,"kernel/gesture.ts:enter":292,"kernel/gesture.ts:#applyRequests":476,"kernel/session.ts:advance":172,"kernel/gesture.ts:#runStep":904,"sortable.ts:#updateInsertion":560,"sortable/y.ts:resolve":41816,"sortable/linear-shift.ts:refresh":1172,"sortable/rect-index.ts:refresh":2360,"kernel/session.ts:handleEvent":1944,"kernel/session.ts:#move":760,"sortable.ts:move":188,"lift.ts:translate":32088}: expected 16.64 to be less than 16
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 5 skipped (6)
+### run 2
+      Tests  1 passed | 5 skipped (6)
+### run 3
+     × should allocate per sample only the CSS string a lifted write needs 5260ms
+AssertionError: {"shared/invalidation.ts:fire":208,"kernel/session.ts:requestStep":104,"kernel/gesture.ts:requestStep":260,"kernel/gesture.ts:enter":372,"kernel/gesture.ts:#applyRequests":468,"kernel/session.ts:advance":92,"kernel/gesture.ts:#runStep":760,"sortable.ts:#updateInsertion":648,"sortable/y.ts:resolve":40448,"sortable/linear-shift.ts:refresh":1016,"sortable/rect-index.ts:refresh":2904,"kernel/session.ts:stepTarget":184,"kernel/session.ts:handleEvent":1884,"kernel/session.ts:#move":708,"sortable.ts:move":380,"lift.ts:translate":31576,"shared/invalidation.ts:schedule":88}: expected 16.106666666666666 to be less than 16
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 5 skipped (6)
+### run 4
+      Tests  1 passed | 5 skipped (6)
+### run 5
+     × should allocate per sample only the CSS string a lifted write needs 5236ms
+AssertionError: {"shared/invalidation.ts:fire":208,"sortable.ts:":252,"kernel/session.ts:requestStep":496,"kernel/gesture.ts:requestStep":116,"kernel/gesture.ts:enter":524,"kernel/gesture.ts:#applyRequests":396,"kernel/session.ts:advance":92,"kernel/gesture.ts:#runStep":792,"sortable.ts:#updateInsertion":648,"sortable/y.ts:resolve":42168,"sortable/linear-shift.ts:refresh":1172,"sortable/rect-index.ts:refresh":2932,"kernel/session.ts:stepTarget":184,"kernel/session.ts:handleEvent":1616,"kernel/session.ts:#move":664,"sortable.ts:move":548,"lift.ts:translate":32720,"shared/invalidation.ts:schedule":88}: expected 16.266666666666666 to be less than 16
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 5 skipped (6)
+
+## Second set: five runs with a temporary log of the kernel figure and bytes (console shown only on failure)
+run 1 pass, run 2 pass, run 3 pass, run 4 FAIL kernelPerMove 16.186666666666667, run 5 pass
+
+## Third set: five runs with the temporary log and --silent=false
+### run 1
+BYTES 14.2 {"shared/invalidation.ts:fire":264,"sortable.ts:":324,"kernel/session.ts:requestStep":228,"kernel/gesture.ts:requestStep":196,"kernel/gesture.ts:enter":380,"kernel/gesture.ts:#applyRequests":316,"kernel/session.ts:advance":92,"kernel/gesture.ts:#runStep":488,"sortable.ts:#updateInsertion":736,"sortable/y.ts:resolve":45108,"sortable/linear-shift.ts:refresh":1028,"sortable/rect-index.ts:refresh":2836,"kernel/session.ts:stepTarget":248,"kernel/session.ts:handleEvent":1864,"kernel/session.ts:#move":448,"sortable.ts:move":468,"lift.ts:translate":30864}
+      Tests  1 passed | 5 skipped (6)
+### run 2
+BYTES 13.546666666666667 {"shared/invalidation.ts:fire":264,"sortable.ts:":156,"kernel/session.ts:requestStep":212,"kernel/gesture.ts:requestStep":196,"kernel/gesture.ts:enter":168,"kernel/gesture.ts:#applyRequests":548,"kernel/session.ts:advance":92,"kernel/gesture.ts:#runStep":528,"sortable.ts:#updateInsertion":648,"sortable/y.ts:resolve":45200,"sortable/linear-shift.ts:refresh":852,"sortable/rect-index.ts:refresh":3012,"kernel/session.ts:stepTarget":80,"kernel/session.ts:handleEvent":1660,"kernel/session.ts:#move":580,"sortable.ts:move":476,"lift.ts:translate":30524,"shared/invalidation.ts:schedule":168}
+      Tests  1 passed | 5 skipped (6)
+### run 3
+BYTES 17.493333333333332 {"shared/invalidation.ts:fire":192,"sortable.ts:":76,"kernel/session.ts:requestStep":332,"kernel/gesture.ts:requestStep":196,"kernel/gesture.ts:enter":668,"kernel/gesture.ts:#applyRequests":556,"kernel/session.ts:advance":92,"kernel/gesture.ts:#runStep":752,"sortable.ts:#updateInsertion":648,"sortable/y.ts:resolve":41816,"sortable/linear-shift.ts:refresh":1108,"sortable/rect-index.ts:refresh":2912,"kernel/session.ts:handleEvent":1948,"kernel/session.ts:#move":704,"sortable.ts:move":628,"lift.ts:translate":33992,"shared/invalidation.ts:schedule":80}
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+      Tests  1 failed | 5 skipped (6)
+### run 4
+BYTES 13.333333333333334 {"sortable.ts:":76,"kernel/session.ts:requestStep":412,"kernel/gesture.ts:requestStep":196,"kernel/gesture.ts:enter":444,"kernel/gesture.ts:#applyRequests":228,"kernel/session.ts:advance":172,"kernel/gesture.ts:#runStep":424,"sortable.ts:#updateInsertion":728,"sortable/y.ts:resolve":39696,"sortable/linear-shift.ts:refresh":852,"sortable/rect-index.ts:refresh":2848,"kernel/session.ts:stepTarget":104,"kernel/session.ts:handleEvent":1280,"kernel/session.ts:#move":740,"sortable.ts:move":476,"lift.ts:translate":32156,"shared/invalidation.ts:schedule":80}
+      Tests  1 passed | 5 skipped (6)
+### run 5
+BYTES 14.44 {"shared/invalidation.ts:fire":280,"sortable.ts:":164,"kernel/session.ts:requestStep":316,"kernel/gesture.ts:requestStep":116,"kernel/gesture.ts:enter":392,"kernel/gesture.ts:#applyRequests":340,"kernel/session.ts:advance":172,"kernel/gesture.ts:#runStep":624,"sortable.ts:#updateInsertion":568,"sortable/y.ts:resolve":41856,"sortable/linear-shift.ts:refresh":1108,"sortable/rect-index.ts:refresh":3284,"kernel/session.ts:stepTarget":80,"kernel/session.ts:handleEvent":1620,"kernel/session.ts:#move":672,"sortable.ts:move":352,"lift.ts:translate":34856}
+      Tests  1 passed | 5 skipped (6)
