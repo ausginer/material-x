@@ -419,7 +419,7 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
 
   #pull(): CollectionSnapshot {
     this.#version += 1;
-    return { items: this.#config.items(), version: this.#version };
+    return { items: [...this.#config.items()], version: this.#version };
   }
 
   /** Step, once per frame: the gap under the pointer, and the placeholder moved to it. */
