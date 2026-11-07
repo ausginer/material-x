@@ -1,0 +1,139 @@
+# Composition unit: raw gate summaries
+# Engines: Chromium (image), Firefox 157.0 and WebKit 27.2 (Playwright 1.64.1 builds), WebKit with ~/.cache/ms-playwright/webkit-env.sh
+
+## just size at parent f91bd324a (source = d4286ce64)
+node bench/size/measure.ts
+draggable alone                  6563 min   2117 br  3 modules
+  VIOLATION: control moved by 93 B
+draggable + lift                11929 min   4075 br  6 modules
+example: resize handle           9230 min   3244 br  5 modules
+example: drop zone              12649 min   4341 br  7 modules
+example: canvas group            9384 min   3269 br  5 modules
+freeDrag                        14827 min   4926 br  10 modules
+freeDrag + bounds + landing     15513 min   5184 br  12 modules
+sortable + y                    19940 min   6529 br  15 modules
+sortable + xy                   19556 min   6464 br  14 modules
+complete                        20972 min   6902 br  17 modules
+
+## just size at item 1 276947f82
+node bench/size/measure.ts
+draggable alone                  6935 min   2220 br  3 modules
+  VIOLATION: over its 2139 B ceiling by 81 B
+  VIOLATION: control moved by 196 B
+draggable + lift                12301 min   4192 br  6 modules
+  VIOLATION: over its 4169 B ceiling by 23 B
+example: resize handle           9602 min   3340 br  5 modules
+  VIOLATION: over its 3313 B ceiling by 27 B
+example: drop zone              13021 min   4462 br  7 modules
+  VIOLATION: over its 4431 B ceiling by 31 B
+example: canvas group            9756 min   3366 br  5 modules
+  VIOLATION: over its 3314 B ceiling by 52 B
+freeDrag                        15199 min   5035 br  10 modules
+  VIOLATION: over its 4967 B ceiling by 68 B
+freeDrag + bounds + landing     15885 min   5283 br  12 modules
+  VIOLATION: over its 5210 B ceiling by 73 B
+sortable + y                    20316 min   6629 br  15 modules
+sortable + xy                   19932 min   6570 br  14 modules
+complete                        21348 min   7003 br  17 modules
+
+## just size at item 2 2506dcbb6
+node bench/size/measure.ts
+draggable alone                  6935 min   2220 br  3 modules
+  VIOLATION: over its 2139 B ceiling by 81 B
+  VIOLATION: control moved by 196 B
+draggable + lift                12301 min   4192 br  6 modules
+  VIOLATION: over its 4169 B ceiling by 23 B
+example: resize handle           9602 min   3340 br  5 modules
+  VIOLATION: over its 3313 B ceiling by 27 B
+example: drop zone              13021 min   4462 br  7 modules
+  VIOLATION: over its 4431 B ceiling by 31 B
+example: canvas group            9756 min   3366 br  5 modules
+  VIOLATION: over its 3314 B ceiling by 52 B
+freeDrag                        15199 min   5035 br  10 modules
+  VIOLATION: over its 4967 B ceiling by 68 B
+freeDrag + bounds + landing     15885 min   5283 br  12 modules
+  VIOLATION: over its 5210 B ceiling by 73 B
+sortable + y                    20353 min   6658 br  15 modules
+sortable + xy                   19969 min   6605 br  14 modules
+complete                        21385 min   7033 br  17 modules
+
+## just test-engines at parent f91bd324a
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ FAIL  |browser/firefox (firefox)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser/firefox (firefox)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ FAIL  |browser/webkit (webkit)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser/webkit (webkit)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ Test Files  6 failed | 57 passed (63)
+      Tests  6 failed | 866 passed | 16 skipped (888)
+
+## just test-engines at item 1 276947f82
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ FAIL  |browser/firefox (firefox)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser/firefox (firefox)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ FAIL  |browser/webkit (webkit)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser/webkit (webkit)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ Test Files  6 failed | 57 passed (63)
+      Tests  6 failed | 866 passed | 16 skipped (888)
+
+## just test-engines at item 2 2506dcbb6
+ Test Files  63 passed (63)
+      Tests  878 passed | 16 skipped (894)
+
+## just test (Chromium and node) at item 1 276947f82
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable + lift
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: resize handle
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: canvas group
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:654 > sortable options > should keep a row animation past the terminal, until destruction
+ Test Files  3 failed | 21 passed (24)
+      Tests  9 failed | 307 passed (316)
+
+## just test (Chromium and node) at item 2 2506dcbb6
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable alone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of draggable + lift
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: resize handle
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: drop zone
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of example: canvas group
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag
+ FAIL  |node| tests/size.node.test.ts:21 > drag:DRI-18 module graphs and size > should satisfy the declared graph and ceiling of freeDrag + bounds + landing
+ Test Files  1 failed | 23 passed (24)
+      Tests  7 failed | 311 passed (318)
+
+## Witnesses: the new and fixed tests run against d4286ce64's src, three engines (d4286ce64's src and tests equal f91bd324a's). This run used the placeholder test's first assertion, sorted own keys, which lint later refused
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  |browser (chromium)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+AssertionError: expected 2 to be +0 // Object.is equality
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:693 > sortable options > should keep a row animation past the terminal, until destruction
+AssertionError: expected 2 to be +0 // Object.is equality
+ FAIL  |browser (chromium)| tests/sortable.browser.test.ts:790 > drag:DRD-25 option callbacks > should pass the placeholder factory only item, visual, box and rect
+AssertionError: expected [ 'box', 'boxHeight', …(19) ] to deeply equal [ 'box', 'item', 'rect', 'visual' ]
+ FAIL  |browser/firefox (firefox)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+AssertionError: expected 2 to be +0 // Object.is equality
+ FAIL  |browser/firefox (firefox)| tests/sortable.browser.test.ts:693 > sortable options > should keep a row animation past the terminal, until destruction
+AssertionError: expected 2 to be +0 // Object.is equality
+ FAIL  |browser/firefox (firefox)| tests/sortable.browser.test.ts:790 > drag:DRD-25 option callbacks > should pass the placeholder factory only item, visual, box and rect
+AssertionError: expected [ 'box', 'boxHeight', …(19) ] to deeply equal [ 'box', 'item', 'rect', 'visual' ]
+ FAIL  |browser/webkit (webkit)| tests/destruction.browser.test.ts:297 > drag:DRI-10 destruction > should cancel a running landing and the row animations
+AssertionError: expected 2 to be +0 // Object.is equality
+ FAIL  |browser/webkit (webkit)| tests/sortable.browser.test.ts:693 > sortable options > should keep a row animation past the terminal, until destruction
+AssertionError: expected 2 to be +0 // Object.is equality
+ FAIL  |browser/webkit (webkit)| tests/sortable.browser.test.ts:790 > drag:DRD-25 option callbacks > should pass the placeholder factory only item, visual, box and rect
+AssertionError: expected [ 'box', 'boxHeight', …(19) ] to deeply equal [ 'box', 'item', 'rect', 'visual' ]
+      Tests  9 failed | 179 passed | 4 skipped (192)
+# placeholder test re-run with its final assertion (Set of own keys), same source:
+FAIL x3 (chromium, firefox, webkit): expected Set{ 'item', 'state', …(19) } to deeply equal Set{ 'item', 'visual', 'box', 'rect' }
+
+## Mutation: the items() copy removed from #pull, three engines, on the tree before the lint pass, whose src and DRI-14 test equal 2506dcbb6's
+-    return { items: [...this.#config.items()], version: this.#version };
++    return { items: this.#config.items(), version: this.#version };
+FAIL x3 (chromium, firefox, webkit) drag:DRI-14 collection > should land a canceled drag at home when the consumer reordered its own array: expected 80 to be less than 1
