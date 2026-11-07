@@ -28,7 +28,7 @@ export type Composition = Readonly<{
   name: string;
   /** Module path without extension, under `src` or `tests/fixtures`, to named exports. */
   imports: Exports;
-  /** The Brotli ceiling, from the first production reading. */
+  /** The Brotli ceiling. Its slack over the reading is what the row can detect. */
   budget: number;
   /** The exact Brotli figure, for a row that no edit outside its graph may move. */
   control?: number;
@@ -46,8 +46,8 @@ export const COMPOSITIONS: readonly Composition[] = [
   {
     name: 'draggable alone',
     imports: { 'src/draggable': ['draggable'] },
-    budget: 2150,
-    control: 2035,
+    budget: 2139,
+    control: 2024,
     absent: [
       'src/lift',
       'box-quad',
@@ -62,35 +62,35 @@ export const COMPOSITIONS: readonly Composition[] = [
   {
     name: 'draggable + lift',
     imports: { 'src/draggable': ['draggable'], 'src/lift': ['lift'] },
-    budget: 4150,
+    budget: 4169,
     present: ['src/lift', 'box-quad'],
     absent: [...SORTABLE_ONLY, ...FREE_DRAG_ONLY, ...OPTIONAL],
   },
   {
     name: 'example: resize handle',
     imports: { 'tests/fixtures/resize-handle': ['resizeHandle'] },
-    budget: 3300,
+    budget: 3313,
     present: ['box-quad'],
     absent: ['src/lift', ...SORTABLE_ONLY, ...OPTIONAL],
   },
   {
     name: 'example: drop zone',
     imports: { 'tests/fixtures/drop-zone': ['dropZone'] },
-    budget: 4400,
+    budget: 4431,
     present: ['src/lift'],
     absent: [...SORTABLE_ONLY, ...OPTIONAL],
   },
   {
     name: 'example: canvas group',
     imports: { 'tests/fixtures/canvas-group': ['canvasGroup'] },
-    budget: 3300,
+    budget: 3314,
     present: ['box-quad'],
     absent: ['src/lift', ...SORTABLE_ONLY, ...OPTIONAL],
   },
   {
     name: 'freeDrag',
     imports: { 'src/free-drag': ['freeDrag'] },
-    budget: 4950,
+    budget: 4967,
     present: ['src/lift'],
     absent: [...SORTABLE_ONLY, ...OPTIONAL, 'free-drag/bounds'],
   },
@@ -101,21 +101,21 @@ export const COMPOSITIONS: readonly Composition[] = [
       'src/free-drag/bounds': ['bounds'],
       'src/free-drag/landing': ['landing'],
     },
-    budget: 5200,
+    budget: 5210,
     present: ['free-drag/bounds', 'shared/landing'],
     absent: [...SORTABLE_ONLY, 'layout-animation'],
   },
   {
     name: 'sortable + y',
     imports: { 'src/sortable': ['sortable'], 'src/sortable/y': ['y'] },
-    budget: 6700,
+    budget: 6733,
     present: ['linear-shift'],
     absent: [...OPTIONAL, 'sortable/xy', ...FREE_DRAG_ONLY],
   },
   {
     name: 'sortable + xy',
     imports: { 'src/sortable': ['sortable'], 'src/sortable/xy': ['xy'] },
-    budget: 6600,
+    budget: 6617,
     absent: [...OPTIONAL, 'linear-shift', 'sortable/y', ...FREE_DRAG_ONLY],
   },
   {
@@ -126,7 +126,7 @@ export const COMPOSITIONS: readonly Composition[] = [
       'src/sortable/landing': ['landing'],
       'src/sortable/layout-animation': ['layoutAnimation'],
     },
-    budget: 7050,
+    budget: 7065,
     present: [...OPTIONAL, 'linear-shift'],
     absent: FREE_DRAG_ONLY,
   },

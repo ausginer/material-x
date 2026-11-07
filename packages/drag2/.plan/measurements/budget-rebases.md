@@ -974,6 +974,7 @@ Exact figures from `just size`, with `drag2` rebuilt. No statistical round ran.
 **Not moved.** `vocabulary root - drag.js` stays at 142 and baseline B at 6,916. Neither graph contains the renamed code.
 
 **No ceiling moved, no control became a ceiling, and no interval is unattributed.** This commit changes only those five `control:` values in `bench/size/measure.ts`. Every row with a ceiling stays under it.
+
 ## Baseline B retired 2026-11-06, D-210: no other row moves
 
 **The row and `bench/size/shipped.js` are deleted, before any package named `@ydinjs/drag` exports `./sortable.js`.** The row answered what migrating from the shipped package costs. Nothing is published and that package is gone, so the question is void.

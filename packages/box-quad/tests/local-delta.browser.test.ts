@@ -32,7 +32,10 @@ const ANCESTOR_CASES: ReadonlyArray<readonly [string, string]> = [
   ['scale', 'scale: 2 0.5'],
   ['skew', 'transform: skewX(20deg)'],
   ['zoom', 'zoom: 1.5'],
-  ['combined', 'zoom: 1.25; rotate: -15deg; transform: scale(1.5) skewY(10deg)'],
+  [
+    'combined',
+    'zoom: 1.25; rotate: -15deg; transform: scale(1.5) skewY(10deg)',
+  ],
 ];
 
 describe('localDelta', () => {

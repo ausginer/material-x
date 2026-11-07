@@ -3064,7 +3064,7 @@ Each is a reading at a unit's entry under property 2, and declining changes noth
 Two witness forms, both source-level: `absent: <path>` — the path does not exist — and `present: <path> :: <text>` — the file still contains the thing the decision replaces.
 
 | Decision | Lands | What is missing | Witness |
-| --- | --- | --- | --- |
+| -------- | ----- | --------------- | ------- |
 
 **D-210's row closed on 2026-11-06 with the row's retirement.** The table has no rows now.
 

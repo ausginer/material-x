@@ -585,6 +585,7 @@ export function createDragAllEnginesTestConfig(
 ): UserConfig {
   const forEngine = (
     project: UserConfig,
+    name: string,
     engine: 'firefox' | 'webkit',
   ): UserConfig => {
     const { test } = project;
@@ -593,7 +594,7 @@ export function createDragAllEnginesTestConfig(
       ...project,
       test: {
         ...test,
-        name: `${String(test?.name)}/${engine}`,
+        name: `${name}/${engine}`,
         // A page in the background gets no input in these engines.
         fileParallelism: false,
         maxWorkers: 1,
@@ -607,7 +608,7 @@ export function createDragAllEnginesTestConfig(
           ],
         },
       },
-    } as UserConfig;
+    };
   };
   const browserProject = createDragBrowserTestProject(
     root,
@@ -624,10 +625,15 @@ export function createDragAllEnginesTestConfig(
   return {
     test: {
       projects: assignGroupOrder(
-        [browserProject, shippedProject].flatMap((project) => [
+        (
+          [
+            ['browser', browserProject],
+            ['shipped', shippedProject],
+          ] as const
+        ).flatMap(([name, project]) => [
           project,
-          forEngine(project, 'firefox'),
-          forEngine(project, 'webkit'),
+          forEngine(project, name, 'firefox'),
+          forEngine(project, name, 'webkit'),
         ]),
       ),
     },
