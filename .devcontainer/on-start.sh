@@ -7,3 +7,4 @@ if [ -z "$WORKSPACE_DIR" ]; then
 fi
 
 bash "$WORKSPACE_DIR/.devcontainer/on-start/dura.sh"
+bash "$WORKSPACE_DIR/.devcontainer/on-start/fix-zed-timeout.sh"
