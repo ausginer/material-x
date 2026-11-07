@@ -3,14 +3,11 @@
  * consumer owns the DOM order: a drop proposes a reorder and the consumer commits or
  * rejects it.
  */
-import {
-  draggable,
-  type Landing,
-  type LiftedBehavior,
-  type LiftedDrag,
-  type Outcome,
-} from './draggable.ts';
-import { lift } from './lift.ts';
+import { draggable } from './draggable.ts';
+import type { LiftedBehavior } from './kernel/behavior.ts';
+import type { LiftedDrag } from './kernel/drag.ts';
+import { lift, type Landing } from './kernel/lift.ts';
+import type { Outcome } from './kernel/outcome.ts';
 import {
   createFrameTask,
   type FrameTask,
@@ -376,7 +373,7 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
       drag.state.pointerX = drag.x;
       drag.state.pointerY = drag.y;
       drag.state.insertion =
-        this.#axis.resolve(drag.state, drag.state.context!) ??
+        this.#axis.resolve(drag.state, drag.state.context) ??
         drag.state.insertion;
     }
 
@@ -388,7 +385,7 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
     );
 
     drag.state.request = request;
-    movePlaceholder(drag.state.placeholder!, insertion);
+    movePlaceholder(drag.state.placeholder, insertion);
 
     if (pointer) {
       drag.translate(drag.x - drag.originX, drag.y - drag.originY);
@@ -412,7 +409,7 @@ class SortableBehavior implements LiftedBehavior<State, ReorderResolution> {
   }
 
   end(drag: LiftedDrag<State>): void {
-    this.#config.onEnd?.(drag.state.result!);
+    this.#config.onEnd?.(drag.state.result);
   }
 
   /** Step, on scroll and resize: the cached geometry is stale. */

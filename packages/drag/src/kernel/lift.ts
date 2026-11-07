@@ -12,18 +12,30 @@ import {
   localDelta,
   space,
 } from '@ydinjs/box-quad';
-import type {
-  Landing,
-  LiftedAdmission,
-  LiftedDrag,
-  LiftHold,
-  WritableLiftedDrag,
-} from './draggable.ts';
-import { deepActiveElement } from './shared/focus.ts';
+import type { Writable } from 'type-fest';
+import { deepActiveElement } from '../shared/focus.ts';
 import {
   DEFAULT_LANDING_DURATION,
   DEFAULT_LANDING_EASING,
-} from './shared/timing.ts';
+} from '../shared/timing.ts';
+import type { LiftedAdmission } from './admission.ts';
+import type { LiftedDrag } from './drag.ts';
+
+/** How the kernel holds a lift. */
+export type LiftHold = Readonly<{
+  /** Restores the visual's inline declarations and popover state. */
+  release(): void;
+  /** Starts the landing, and returns how to cancel it if one runs. */
+  land(landing: Landing): (() => void) | null;
+}>;
+
+/** Viewport position for the visual's top-left, and the animation's timing. */
+export type Landing = Readonly<{
+  x: number;
+  y: number;
+  duration?: number;
+  easing?: string;
+}>;
 
 const BOX_A = 0;
 const BOX_B = 1;
@@ -265,7 +277,7 @@ function startLandingAnimation<State>(
  * has no single 2D box (fragmented, `display: none` or 3D), which is a fault.
  */
 export function lift<State>(
-  drag: WritableLiftedDrag<State>,
+  drag: Writable<LiftedDrag<State>>,
   admission: LiftedAdmission<State>,
   window: Window,
   report: (error: unknown) => void,

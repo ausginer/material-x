@@ -3,13 +3,7 @@
  * consumer: `accept` keeps the element wherever the consumer put it, and `reject`
  * sends it home.
  */
-import {
-  draggable,
-  type Landing,
-  type LiftedBehavior,
-  type LiftedDrag,
-  type Outcome,
-} from './draggable.ts';
+import { draggable } from './draggable.ts';
 import type { BoundsInstaller, MotionConstraint } from './free-drag/bounds.ts';
 import {
   ACCEPTED,
@@ -27,7 +21,10 @@ import {
   type ResolveHome,
 } from './free-drag/domain.ts';
 import { buildGeometry, buildRequest } from './free-drag/geometry.ts';
-import { lift } from './lift.ts';
+import type { LiftedBehavior } from './kernel/behavior.ts';
+import type { LiftedDrag } from './kernel/drag.ts';
+import { lift, type Landing } from './kernel/lift.ts';
+import type { Outcome } from './kernel/outcome.ts';
 import { listenForInvalidation } from './shared/invalidation.ts';
 import type { LandingTiming } from './shared/landing.ts';
 
@@ -233,7 +230,7 @@ class FreeDragBehavior implements LiftedBehavior<State, FreeDragResolution> {
   }
 
   end(drag: LiftedDrag<State>): void {
-    this.#config.onEnd?.(drag.state.result!);
+    this.#config.onEnd?.(drag.state.result);
   }
 
   /** Writes the delta the pointer and the operation's offset give into `#motion`. */
