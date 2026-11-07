@@ -201,10 +201,6 @@ export class Gesture<State, Verdict> {
     }
   }
 
-  isCurrent(session: Session<State, Verdict>): boolean {
-    return this.#session === session;
-  }
-
   /** Clears the slot. The session calls it when its operation ends. */
   detach(): void {
     this.#session = null;

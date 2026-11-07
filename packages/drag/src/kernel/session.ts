@@ -18,6 +18,11 @@ const PENDING = 1;
 const ACTIVE = 2;
 const DROPPING = 3;
 const CONCLUDED = 4;
+/**
+ * No longer the controller's operation, so its requests, its `Escape` and its
+ * verdict reach nothing.
+ */
+const ENDED = 5;
 
 const SKIPPED: SkippedOutcome = { type: 'skipped' };
 
@@ -118,8 +123,8 @@ const NOOP = (): void => {};
 
 /**
  * One operation, from admission to its release, and every transition it makes.
- * Its absence from the controller's slot means idle, so a late request reaches
- * nothing.
+ * Its absence from the controller's slot means idle. It ends where it leaves the
+ * slot, so a late request through its `Drag` reaches nothing.
  *
  * The session reads and writes only its own fields. It reaches the controller
  * through the controller's interface, and the controller reaches it through
@@ -140,8 +145,12 @@ export class Session<State, Verdict> {
   /** Escape and `drag.signal`, closed when the presentation is released. */
   readonly #operation = new AbortController();
   readonly #disposers: DragDisposer[] = [];
-  #phase: typeof PENDING | typeof ACTIVE | typeof DROPPING | typeof CONCLUDED =
-    PENDING;
+  #phase:
+    | typeof PENDING
+    | typeof ACTIVE
+    | typeof DROPPING
+    | typeof CONCLUDED
+    | typeof ENDED = PENDING;
   /** The first cancel, fault or verdict. Whichever arrives first decides. */
   #decision: Outcome<Verdict> | null = null;
   /** The sequence's next step, run unless a request outranks it. */
@@ -192,15 +201,15 @@ export class Session<State, Verdict> {
         }
       },
       // Steps drain before the pass that requested them ends, and an operation
-      // opens only as the first step of a pass, so a step requested while this
-      // operation is current never runs under a later one.
+      // opens only as the first step of a pass, so a step requested before this
+      // operation ends never runs under a later one.
       requestStep: (step) => {
-        if (gesture.isCurrent(this)) {
+        if (this.#phase !== ENDED) {
           gesture.requestStep(step);
         }
       },
       requestCancel: (reason) => {
-        if (gesture.isCurrent(this)) {
+        if (this.#phase !== ENDED) {
           this.#cancel(reason, 'request');
         }
       },
@@ -243,7 +252,7 @@ export class Session<State, Verdict> {
    * applied, or else takes and runs the next step. Returns whether it did either.
    */
   advance(): boolean {
-    if (this.#decision && this.#phase !== CONCLUDED) {
+    if (this.#decision && this.#phase < CONCLUDED) {
       this.#conclude(this.#decision);
       return true;
     }
@@ -276,9 +285,12 @@ export class Session<State, Verdict> {
   /**
    * Destruction's part, after the controller cleared its slot. A session past its
    * decision has already released, with nothing left to run, and only its
-   * terminal is removed.
+   * terminal is removed. It ends first, because aborting the verdict runs foreign
+   * code.
    */
   terminate(): void {
+    this.#phase = ENDED;
+
     try {
       this.#closeMotion();
       this.#verdictAborter?.abort();
@@ -299,10 +311,7 @@ export class Session<State, Verdict> {
       // An `Escape` that decides a started operation is consumed, so the
       // platform's close request doesn't also close the dialog or popover
       // holding the list. It still propagates.
-      if (
-        (event as KeyboardEvent).key === 'Escape' &&
-        this.#gesture.isCurrent(this)
-      ) {
+      if ((event as KeyboardEvent).key === 'Escape' && this.#phase !== ENDED) {
         if (this.#started && !this.#decision) {
           event.preventDefault();
         }
@@ -387,6 +396,7 @@ export class Session<State, Verdict> {
   readonly #endPending = (): void => {
     this.#motion.abort();
     this.#operation.abort();
+    this.#phase = ENDED;
     this.#gesture.detach();
   };
 
@@ -480,8 +490,8 @@ export class Session<State, Verdict> {
       done = true;
       this.#verdictAborter = null;
 
-      // Behind a decision or past its session, a completion reaches nothing.
-      if (!this.#gesture.isCurrent(this) || this.#decision) {
+      // Behind a decision or after the end, a completion reaches nothing.
+      if (this.#phase === ENDED || this.#decision) {
         return;
       }
 
@@ -615,6 +625,7 @@ export class Session<State, Verdict> {
     // after it, in the same step, whether it returns or throws.
     if (this.#started) {
       this.#next = () => {
+        this.#phase = ENDED;
         this.#gesture.detach();
 
         try {
@@ -624,6 +635,7 @@ export class Session<State, Verdict> {
         }
       };
     } else {
+      this.#phase = ENDED;
       this.#gesture.detach();
       restoreFocus(this.#focused, this.#drag.pointerId);
     }

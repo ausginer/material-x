@@ -404,4 +404,77 @@ describe('drag:DRI-10 destruction', () => {
       );
     },
   );
+
+  // drag:DRI-10: destruction requested inside a pass ends the session before
+  // the verdict's abort runs foreign code, so that code reaches nothing.
+  it('should not apply an Escape dispatched by the verdict abort during destruction', async () => {
+    const list = makeList(2);
+    const prevented: boolean[] = [];
+    const panel = managed<undefined, string>(list, {
+      admit: (event) => ({ item: targetOf(event) }),
+      start() {
+        log.push('start');
+      },
+      drop: () => (signal) => {
+        signal.addEventListener('abort', () => {
+          const escape = new KeyboardEvent('keydown', {
+            key: 'Escape',
+            bubbles: true,
+            cancelable: true,
+          });
+
+          document.dispatchEvent(escape);
+          prevented.push(escape.defaultPrevented);
+        });
+        return new Promise<string>(() => {});
+      },
+      settle() {
+        log.push('settle');
+      },
+      end() {
+        log.push('end');
+      },
+    });
+
+    await grab('#r0');
+    await release();
+    log.length = 0;
+    panel.requestStep(() => {
+      void panel.requestDestroy();
+    });
+    expect(prevented).toEqual([false]);
+    expect(log).toEqual([]);
+  });
+
+  it('should not report a thenable rejected by the verdict abort during destruction', async () => {
+    const list = makeList(2);
+    let rejected = false;
+    const panel = managed<undefined, string>(list, {
+      admit: (event) => ({ item: targetOf(event) }),
+      drop: () => (signal) => {
+        let reject: ((error: unknown) => unknown) | null = null;
+
+        signal.addEventListener('abort', () => {
+          reject!(new Error('late rejection'));
+          rejected = true;
+        });
+        const verdict: PromiseLike<string> = {
+          then(_, onRejected) {
+            reject = onRejected ?? null;
+            return verdict as never;
+          },
+        };
+
+        return verdict;
+      },
+    });
+
+    await grab('#r0');
+    await release();
+    panel.requestStep(() => {
+      void panel.requestDestroy();
+    });
+    expect(rejected).toBe(true);
+    expect(faults).toEqual([]);
+  });
 });

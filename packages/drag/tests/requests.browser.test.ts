@@ -569,4 +569,31 @@ describe('drag:DRI-8 deferred writes', () => {
     expect(log).toEqual(['start', 'end:accepted']);
     expect(order(list)).toBe('r0,r1,r2');
   });
+
+  // drag:DRI-8: the session ends when its terminal step detaches, so a step
+  // requested in `settle` still runs, and one requested in `end` does not.
+  it('should run a step requested in settle before end with null, and none requested in end', async () => {
+    const list = makeList(2);
+
+    managed(list, {
+      admit: (event) => ({ item: targetOf(event) }),
+      settle(drag) {
+        log.push('settle');
+        drag.requestStep((target) => {
+          log.push(target ? 'settle step:drag' : 'settle step:null');
+        });
+      },
+      end(drag) {
+        log.push('end');
+        drag.requestStep(() => {
+          log.push('end step');
+        });
+      },
+    });
+
+    await grab('#r0');
+    await release();
+    await frames();
+    expect(log).toEqual(['settle', 'settle step:null', 'end']);
+  });
 });
