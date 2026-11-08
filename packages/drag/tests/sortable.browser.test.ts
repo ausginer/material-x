@@ -7,7 +7,11 @@ import { landing } from '../src/sortable/landing.ts';
 import { layoutAnimation } from '../src/sortable/layout-animation.ts';
 import type { PlaceholderContext } from '../src/sortable/placement.ts';
 import { xy } from '../src/sortable/xy.ts';
-import { ReorderResolution, type SortableResult } from '../src/sortable.ts';
+import {
+  ReorderResolution,
+  type ReorderRequest,
+  type SortableResult,
+} from '../src/sortable.ts';
 import {
   basicSortable,
   centerOf,
@@ -28,6 +32,17 @@ import {
   rowsOf,
   order,
 } from './support/harness.ts';
+
+/** A row like `makeList`'s, not yet in the document. */
+function makeRow(id: string): HTMLElement {
+  const row = document.createElement('div');
+
+  row.className = 'row';
+  row.id = id;
+  row.textContent = id;
+  row.style.cssText = 'height:40px;touch-action:none;user-select:none';
+  return row;
+}
 
 describe('drag:DRI-14 collection', () => {
   it('should pull at admission, so a row added with no invalidate can be dragged', async () => {
@@ -129,6 +144,166 @@ describe('drag:DRI-14 collection', () => {
     expect(Math.abs(item.getBoundingClientRect().top - dropped)).toBeLessThan(
       1,
     );
+  });
+
+  it('should land at home when a cancel comes between an in-place change and invalidate', async () => {
+    const list = makeList(4);
+    const rows = rowsOf(list);
+    const results: SortableResult[] = [];
+    const controller = basicSortable(list, {
+      items: () => rows,
+      landing: landing({ duration: 10_000, easing: 'linear' }),
+      onEnd(result) {
+        results.push(result);
+      },
+    });
+    const item = document.querySelector<HTMLElement>('#r1')!;
+    const added = makeRow('added');
+
+    await grab('#r1', 0, 12);
+    rows.splice(rows.indexOf(item) + 1, 0, added);
+    controller.requestCancel();
+    item.after(added);
+    controller.invalidate();
+    expect(faults).toEqual([]);
+    expect(results).toEqual([
+      { type: 'canceled', reason: undefined, origin: 'request', request: null },
+    ]);
+  });
+
+  it('should land at the rebased home when a drag is canceled after a rebase', async () => {
+    const list = makeList(5);
+    const rows = rowsOf(list);
+    const controller = basicSortable(list, {
+      items: () => rows,
+      landing: landing({ duration: 10_000, easing: 'linear' }),
+    });
+    const item = document.querySelector<HTMLElement>('#r1')!;
+    const removed = document.querySelector<HTMLElement>('#r2')!;
+
+    // From the gap between r0 and r2 to the gap between r3 and r4.
+    await grab('#r1', 0, 90);
+    rows.splice(rows.indexOf(removed), 1);
+    removed.remove();
+    controller.invalidate();
+    await frames();
+    // The gap survived the rebase, so the drag is still running.
+    expect(log).toEqual(['start']);
+
+    const held = item.getBoundingClientRect().top;
+
+    await commands.keyPress('Escape');
+    expect(faults).toEqual([]);
+    expect(log).toEqual(['start', 'end:canceled']);
+
+    // As in the cancel above: at its first frame the flight shows the visual
+    // where it was held only when its target is the item's home.
+    for (const animation of item.getAnimations()) {
+      animation.pause();
+      animation.currentTime = 0;
+    }
+
+    expect(Math.abs(item.getBoundingClientRect().top - held)).toBeLessThan(1);
+  });
+
+  it("should propose a command's reorder in the collection that onStart completed", async () => {
+    const list = makeList(4);
+    const rows = rowsOf(list);
+    const requests: ReorderRequest[] = [];
+    const results: SortableResult[] = [];
+    const added = makeRow('added');
+
+    for (const row of rows) {
+      row.tabIndex = 0;
+    }
+
+    const controller = basicSortable(list, {
+      items: () => rows,
+      onStart() {
+        rows.unshift(added);
+        list.prepend(added);
+        controller.invalidate();
+      },
+      onReorder(request) {
+        requests.push(request);
+        list.insertBefore(request.item, request.next);
+        return ReorderResolution.accept();
+      },
+      onEnd(result) {
+        results.push(result);
+      },
+    });
+    const item = document.querySelector<HTMLElement>('#r1')!;
+
+    item.focus();
+    await commands.keyPress('ArrowDown');
+    await frames();
+    expect(requests).toEqual([
+      {
+        item,
+        from: 2,
+        to: 3,
+        previous: document.querySelector('#r2'),
+        next: document.querySelector('#r3'),
+      },
+    ]);
+    expect(results.map((result) => result.type)).toEqual(['accepted']);
+    expect(faults).toEqual([]);
+  });
+
+  it("should propose a command's reorder from the retained array when onStart replaces it and defers", async () => {
+    const list = makeList(4);
+    let rows: readonly HTMLElement[] = rowsOf(list);
+    let pulls = 0;
+    let pullsBeforeLateInvalidate = -1;
+    const requests: ReorderRequest[] = [];
+    const results: SortableResult[] = [];
+    const added = makeRow('added');
+
+    for (const row of rows) {
+      row.tabIndex = 0;
+    }
+
+    const controller = basicSortable(list, {
+      items: () => {
+        pulls += 1;
+        return rows;
+      },
+      onStart() {
+        // The retained array stays as it is, and rendering follows later.
+        rows = [added, ...rows];
+        queueMicrotask(() => {
+          list.prepend(added);
+          pullsBeforeLateInvalidate = pulls;
+          controller.invalidate();
+        });
+      },
+      onReorder(request) {
+        requests.push(request);
+        list.insertBefore(request.item, request.next);
+        return ReorderResolution.accept();
+      },
+      onEnd(result) {
+        results.push(result);
+      },
+    });
+    const item = document.querySelector<HTMLElement>('#r1')!;
+
+    item.focus();
+    await commands.keyPress('ArrowDown');
+    await frames();
+    expect(requests).toEqual([
+      {
+        item,
+        from: 1,
+        to: 2,
+        previous: document.querySelector('#r2'),
+        next: document.querySelector('#r3'),
+      },
+    ]);
+    expect(results.map((result) => result.type)).toEqual(['accepted']);
+    expect(pulls).toBe(pullsBeforeLateInvalidate);
+    expect(faults).toEqual([]);
   });
 
   it('should rebase a surviving gap on invalidate during a drag', async () => {
