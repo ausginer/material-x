@@ -43,7 +43,7 @@ export function xy(): AxisInstaller {
           item,
           context.box,
           context.placeholder,
-          context.settle,
+          context.displacement,
         );
         last = insertion ? insertion.index : -1;
 
@@ -80,12 +80,13 @@ export function xy(): AxisInstaller {
 
       invalidate,
 
-      moved(query, context, report) {
+      moved(query, context) {
+        const { displacement } = context;
         const gap = query.insertion!.index;
         const from = last;
         const held = index.count;
 
-        if (!report || from < 0 || from === gap || held === 0) {
+        if (!displacement || from < 0 || from === gap || held === 0) {
           invalidate();
           return;
         }
@@ -107,7 +108,7 @@ export function xy(): AxisInstaller {
           query.item,
           context.box,
           context.placeholder,
-          context.settle,
+          displacement,
         );
         last = gap;
 
@@ -122,7 +123,7 @@ export function xy(): AxisInstaller {
           const dy = before[i * 2 + 1]! - values[offset + TOP]!;
 
           if (dx !== 0 || dy !== 0) {
-            report(items[i]!, dx, dy, context.space);
+            displacement.report(items[i]!, dx, dy, context.space);
           }
         }
       },

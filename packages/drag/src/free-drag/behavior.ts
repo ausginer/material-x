@@ -64,7 +64,7 @@ export class FreeDragBehavior implements Behavior<
   }
 
   /** Step and invalidation listener: the bounds are re-read on the next sample. */
-  invalidate = (): void => {
+  readonly invalidate = (): void => {
     this.bounds?.invalidate();
   };
 

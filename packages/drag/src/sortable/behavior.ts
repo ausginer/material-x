@@ -219,7 +219,7 @@ export class SortableBehavior implements Behavior<
       {
         placeholder,
         box: this.#measuredBox,
-        settle: this.displacement ? this.displacement.settle : null,
+        displacement: this.displacement ?? null,
         space: lift.itemSpace,
       },
     );

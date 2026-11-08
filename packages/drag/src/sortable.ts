@@ -68,7 +68,7 @@ export function sortable(
     invalidate: () => {
       kernel.requestStep(behavior.invalidate);
     },
-    requestCancel: (reason) => kernel.requestCancel(reason),
-    requestDestroy: () => kernel.requestDestroy(),
+    requestCancel: kernel.requestCancel,
+    requestDestroy: kernel.requestDestroy,
   };
 }

@@ -38,7 +38,7 @@ export function y(): AxisInstaller {
           item,
           context.box,
           context.placeholder,
-          context.settle,
+          context.displacement,
           insertion ? insertion.index : -1,
         );
 
@@ -72,8 +72,8 @@ export function y(): AxisInstaller {
         shift.invalidate();
       },
 
-      moved(query, context, report) {
-        shift.moved(query.insertion!.index, query.snapshot, context, report);
+      moved(query, context) {
+        shift.moved(query.insertion!.index, query.snapshot, context);
       },
 
       retire() {

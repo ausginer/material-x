@@ -21,10 +21,9 @@
  * `xy()` wraps, so its displacement is neither scalar nor uniform. This is a module
  * and not a branch in `RectIndex` so that an `xy()` composition does not carry it.
  */
-import type { DisplacementReport, AxisContext } from './axis.ts';
+import type { AxisContext, DisplacementSink } from './axis.ts';
 import type { CollectionSnapshot } from './domain.ts';
 import {
-  type DisplacementSettle,
   type RectIndex,
   STRIDE,
   TOP,
@@ -74,7 +73,7 @@ export class LinearShift {
     dragged: HTMLElement,
     getBox: ((item: HTMLElement) => HTMLElement) | null,
     placeholder: HTMLElement,
-    settle: DisplacementSettle | null,
+    displacement: DisplacementSink | null,
     gap: number,
   ): void {
     const index = this.#index;
@@ -91,10 +90,17 @@ export class LinearShift {
       this.#snapshotVersion === snapshot.version
     ) {
       this.#advanceUnchecked = false;
-      verifyEquivalence(index, snapshot, dragged, getBox, placeholder, settle);
+      verifyEquivalence(
+        index,
+        snapshot,
+        dragged,
+        getBox,
+        placeholder,
+        displacement,
+      );
     }
 
-    index.refresh(snapshot, dragged, getBox, placeholder, settle);
+    index.refresh(snapshot, dragged, getBox, placeholder, displacement);
 
     this.#snapshotVersion = snapshot.version;
     this.#dirty = false;
@@ -109,12 +115,8 @@ export class LinearShift {
    * just produced, marks the placeholder stale, and reports the span when a sink is
    * installed. Reads one crossed row when the constant is not established.
    */
-  moved(
-    gap: number,
-    snapshot: CollectionSnapshot,
-    context: AxisContext,
-    report: DisplacementReport | null,
-  ): void {
+  moved(gap: number, snapshot: CollectionSnapshot, context: AxisContext): void {
+    const { displacement } = context;
     const from = this.#lastGap;
 
     // A dirty buffer describes a tree that has already changed under it, an empty
@@ -146,13 +148,13 @@ export class LinearShift {
         context.box ? context.box(probe) : probe
       ).getBoundingClientRect().top;
 
-      if (context.settle) {
+      if (displacement) {
         // The row may be mid-flight from an earlier move, and both sides of the
         // difference must be settled geometry.
         const scratch = new Float64Array(STRIDE);
 
         scratch[TOP] = observed;
-        context.settle(scratch, [probe], 1);
+        displacement.settle(scratch, [probe], 1);
         observed = scratch[TOP]!;
       }
 
@@ -162,11 +164,11 @@ export class LinearShift {
 
     this.#index.advance(lo, hi, delta);
 
-    if (report) {
+    if (displacement) {
       const { items } = this.#index;
 
       for (let i = lo; i < hi; i += 1) {
-        report(items[i]!, 0, -delta, context.space);
+        displacement.report(items[i]!, 0, -delta, context.space);
       }
     }
 

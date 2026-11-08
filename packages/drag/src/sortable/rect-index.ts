@@ -9,6 +9,7 @@
  * Each axis rule creates its own instance inside its factory, so the cache has one
  * owner.
  */
+import type { DisplacementSink } from './axis.ts';
 import type { CollectionSnapshot } from './domain.ts';
 
 /** Packed `[left, top, right, bottom, centerX, centerY]` per destination slot. */
@@ -19,18 +20,6 @@ export const RIGHT = 2;
 export const BOTTOM = 3;
 export const CENTER_X = 4;
 export const CENTER_Y = 5;
-
-/**
- * Turns the buffer an axis has just measured into settled geometry, by subtracting
- * what the displacement sink currently holds for each element in the first `count`
- * slots. It computes the answer from animation timing and reads no layout. So no
- * animation is cancelled for a rebuild, and a row never jumps back.
- */
-export type DisplacementSettle = (
-  values: Float64Array,
-  items: readonly HTMLElement[],
-  count: number,
-) => void;
 
 /**
  * The read-only view of a packed buffer. `Float64Array` is assignable to it and
@@ -52,7 +41,7 @@ export interface RectIndexView {
   readonly count: number;
 }
 
-const capacityFor = (needed: number): number => {
+function capacityFor(needed: number): number {
   let capacity = 1;
 
   while (capacity < needed) {
@@ -60,7 +49,7 @@ const capacityFor = (needed: number): number => {
   }
 
   return capacity;
-};
+}
 
 /**
  * The hot path: each axis rule reads `values`, `count` and `placeholderRect` once per
@@ -97,15 +86,14 @@ export class RectIndex implements RectIndexView {
   /**
    * Measures only when something marked the cache dirty or the collection version
    * changed. `getBox` is the configured geometry source, or `null` when every
-   * candidate is its own box. `settle` is the sink's walk, or `null` with no
-   * displacement composed.
+   * candidate is its own box. `displacement` is the composed sink, or `null`.
    */
   refresh(
     snapshot: CollectionSnapshot,
     dragged: HTMLElement,
     getBox: ((item: HTMLElement) => HTMLElement) | null,
     placeholder: HTMLElement,
-    settle: DisplacementSettle | null,
+    displacement: DisplacementSink | null,
   ): void {
     if (!this.#dirty && this.#measured === snapshot.version) {
       return;
@@ -142,7 +130,7 @@ export class RectIndex implements RectIndexView {
     }
 
     // The slots must hold where flow puts a row, not where an animation draws it.
-    settle?.(values, items, n);
+    displacement?.settle(values, items, n);
 
     const rect = placeholder.getBoundingClientRect();
 
@@ -224,21 +212,21 @@ const EQUIVALENCE_SLACK = 1 / 16;
  * correct, and the scan has one definition. It is a free function so that it
  * tree-shakes from the published build.
  */
-export const verifyEquivalence = (
+export function verifyEquivalence(
   index: RectIndex,
   snapshot: CollectionSnapshot,
   dragged: HTMLElement,
   getBox: ((item: HTMLElement) => HTMLElement) | null,
   placeholder: HTMLElement,
-  settle: DisplacementSettle | null,
-): void => {
+  displacement: DisplacementSink | null,
+): void {
   const held = index.count;
   const predicted = index.values.slice(0, held * STRIDE);
   const predictedPlaceholder = index.placeholderRect.slice();
   const predictedItems = [...index.items];
 
   index.invalidate();
-  index.refresh(snapshot, dragged, getBox, placeholder, settle);
+  index.refresh(snapshot, dragged, getBox, placeholder, displacement);
 
   const differs = (a: number, b: number): boolean =>
     Math.abs(a - b) > EQUIVALENCE_SLACK;
@@ -266,4 +254,4 @@ export const verifyEquivalence = (
       `drag: the predicted insertion geometry disagreed with a full scan at ${mismatch}; the linear shift rule does not hold for this list`,
     );
   }
-};
+}

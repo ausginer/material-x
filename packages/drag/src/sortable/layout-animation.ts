@@ -53,6 +53,9 @@ function remainingOf(animation: Animation): number {
   return progress == null ? 0 : 1 - progress;
 }
 
+/** `finished` rejects when an animation is cancelled, and nothing waits for it. */
+function ignoreRejection(): void {}
+
 class LayoutAnimationDisplacementSink implements DisplacementSink {
   readonly #running = new Map<HTMLElement, RowAnimation>();
   readonly #local = delta();
@@ -102,14 +105,11 @@ class LayoutAnimationDisplacementSink implements DisplacementSink {
     // The identity test keeps a fold's cancellation from evicting the record
     // that replaced it. A cancel rejects `finished`, and each cancel has already
     // dropped its own record.
-    animation.finished.then(
-      () => {
-        if (this.#running.get(element) === record) {
-          this.#running.delete(element);
-        }
-      },
-      () => {},
-    );
+    animation.finished.then(() => {
+      if (this.#running.get(element) === record) {
+        this.#running.delete(element);
+      }
+    }, ignoreRejection);
     this.#running.set(element, record);
   }
 

@@ -191,11 +191,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
 
     try {
       movePlaceholder(this.#context.placeholder, resolved);
-      this.#behavior.axis.moved(
-        this.#query,
-        this.#context,
-        this.#behavior.displacement?.report ?? null,
-      );
+      this.#behavior.axis.moved(this.#query, this.#context);
       stale = false;
     } finally {
       if (stale) {
