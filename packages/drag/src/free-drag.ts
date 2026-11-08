@@ -31,14 +31,14 @@ export type {
   Point,
 };
 
-export type FreeDragController = Readonly<{
+export interface FreeDragController {
   /** The bounds are stale: re-read them on the next sample. */
-  invalidate(): void;
+  readonly invalidate: () => void;
   /** Places the visual at a viewport point and keeps following the pointer. */
-  moveTo(point: Point): void;
-  requestCancel(reason?: unknown): void;
-  requestDestroy(): Promise<void>;
-}>;
+  readonly moveTo: (point: Point) => void;
+  readonly requestCancel: (reason?: unknown) => void;
+  readonly requestDestroy: () => Promise<void>;
+}
 
 /** Makes `root` draggable anywhere. */
 export function freeDrag(

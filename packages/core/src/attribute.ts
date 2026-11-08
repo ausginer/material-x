@@ -38,10 +38,10 @@ type WritablePrimitive<T extends AttributePrimitive> = T extends boolean
  *
  * @typeParam T - The primitive value represented by the converter.
  */
-export type ConverterOf<T extends AttributePrimitive> = Readonly<{
-  from(value: string | null): NullablePrimitive<T>;
-  to(value: WritablePrimitive<T>): string | null;
-}>;
+export interface ConverterOf<T extends AttributePrimitive> {
+  readonly from: (value: string | null) => NullablePrimitive<T>;
+  readonly to: (value: WritablePrimitive<T>) => string | null;
+}
 
 /**
  * Presence-based attribute converter.

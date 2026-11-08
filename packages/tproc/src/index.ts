@@ -1,9 +1,9 @@
 import type { ProcessedTokenSet } from './processTokenSet.ts';
 import { TokenPackageProcessor } from './TokenPackageProcessor.ts';
 
-export type TokenManager = Readonly<{
+export interface TokenManager {
   set(setOrSetName: string | ProcessedTokenSet): TokenPackageProcessor;
-}>;
+}
 
 export const t: TokenManager = {
   set: (setOrSetName) => new TokenPackageProcessor(setOrSetName),

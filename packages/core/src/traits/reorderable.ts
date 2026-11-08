@@ -343,7 +343,7 @@ function exitTopLayer(visual: HTMLElement): void {
  * placed the item there — anchoring to a neighbour rather than a raw index
  * survives the collection changing while the (possibly async) commit lands.
  */
-type CommitTracker = Readonly<{
+interface CommitTracker {
   /** Captures the item's landing anchor from the footprint's current slot. */
   capture(footprint: Element): void;
   /** Resolves once the consumer has committed, or after {@link COMMIT_TIMEOUT}. */
@@ -352,7 +352,7 @@ type CommitTracker = Readonly<{
   notify(): void;
   /** Force-resolves a pending wait unconditionally (abandoned gesture). */
   release(): void;
-}>;
+}
 
 function createCommitTracker(
   items: () => readonly ControlledElement[],
@@ -418,9 +418,9 @@ function createCommitTracker(
  * so it is created and discarded with the drag and cannot leak into the next
  * one.
  */
-type DragSession = Readonly<{
+interface DragSession {
   /** The `pointerId` that initiated the gesture; only this pointer drives it. */
-  pointerId: number;
+  readonly pointerId: number;
   /**
    * Notifies the session that the container's assigned items changed, so a
    * landing waiting on the consumer's commit can settle once the item has
@@ -447,7 +447,7 @@ type DragSession = Readonly<{
    * win unconditionally, such as the host disconnecting mid-gesture.
    */
   abandon(): Promise<void>;
-}>;
+}
 
 /**
  * Starts tracking a potential drag. Creating the session *is* the `pointerdown`
@@ -803,7 +803,7 @@ type Announce = (message: string) => void;
  * drop dispatches the same {@link ReorderEvent} intent and waits for the same
  * consumer commit, so keyboard and pointer share one transaction model.
  */
-type KeyboardSession = Readonly<{
+interface KeyboardSession {
   /** Steps the footprint one slot back (`-1`) or forward (`1`). */
   move(step: -1 | 1): void;
   /**
@@ -818,7 +818,7 @@ type KeyboardSession = Readonly<{
   cancel(): Promise<void>;
   /** Force-ends the gesture in any phase (e.g. the host disconnecting). */
   abandon(): Promise<void>;
-}>;
+}
 
 /**
  * Starts a keyboard reorder: lifts `item` immediately (there is no travel

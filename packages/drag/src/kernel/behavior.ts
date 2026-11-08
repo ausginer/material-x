@@ -10,7 +10,7 @@ export type VerdictAwaiter<Verdict> = (
  * One activated operation's hooks, from `start` to `end`. `activate` returns it,
  * and steps receive it.
  */
-export type BehaviorOperation<Verdict = unknown> = Readonly<{
+export interface BehaviorOperation<Verdict = unknown> {
   /** The consumer's notification. From here `end` is guaranteed. */
   start?(): void;
   move?(): void;
@@ -26,16 +26,16 @@ export type BehaviorOperation<Verdict = unknown> = Readonly<{
    * so a reorder here keeps focus.
    */
   end?(outcome: Outcome<Verdict>): void;
-}>;
+}
 
 /** What lasts as long as the controller: admission and activation. */
-export type Behavior<
+export interface Behavior<
   State = undefined,
   Verdict = unknown,
   Operation extends BehaviorOperation<Verdict> = BehaviorOperation<Verdict>,
-> = Readonly<{
+> {
   /** Pointer travel that activates, in viewport pixels. Defaults to 8. */
-  threshold?: number;
+  readonly threshold?: number;
   /** A primary press on the root. Return `null` to decline. */
   admit(event: PointerEvent): Admission<State> | null;
   /**
@@ -49,4 +49,4 @@ export type Behavior<
    * Neither gets `start` or `end`.
    */
   activate(drag: Drag<Operation>, state: State): Operation | null;
-}>;
+}

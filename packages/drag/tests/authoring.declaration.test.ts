@@ -14,7 +14,9 @@ import { Lifter, type Lift } from '../src/lift.ts';
 const root = document.createElement('div');
 
 /** An operation that keeps its lift. */
-type Lifted = BehaviorOperation & Readonly<{ lift: Lift }>;
+interface Lifted extends BehaviorOperation {
+  readonly lift: Lift;
+}
 
 describe('drag:DRI-18 the type requirement', () => {
   it('should let activate name no lift member on a drag', () => {

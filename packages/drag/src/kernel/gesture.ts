@@ -17,20 +17,20 @@ import { runDragDisposer } from './drag.ts';
 import { Session } from './session.ts';
 
 /** Each method works when detached from the controller. */
-export type DraggableController<Operation> = Readonly<{
+export interface DraggableController<Operation> {
   /**
    * As `Drag.requestStep`, for whichever operation is current: the step receives
    * the operation `activate` returned, from the end of activation until the drop
    * or the decision, and `null` otherwise.
    */
-  requestStep(step: (operation: Operation | null) => void): void;
+  readonly requestStep: (step: (operation: Operation | null) => void) => void;
   /** The first decision wins. Nothing happens on an idle controller. */
-  requestCancel(reason?: unknown): void;
+  readonly requestCancel: (reason?: unknown) => void;
   /** Every call returns one promise, settled after teardown. */
-  requestDestroy(): Promise<void>;
+  readonly requestDestroy: () => Promise<void>;
   /** Controller-lifetime cleanup: runs on destruction, last in first out. */
-  use(dispose: () => void): void;
-}>;
+  readonly use: (dispose: () => void) => void;
+}
 
 const DEFAULT_THRESHOLD = 8;
 

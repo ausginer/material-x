@@ -6,7 +6,7 @@ import type { CollectionSnapshot, Insertion } from './domain.ts';
  * Receives what committed moves displaced, and settles the geometry an axis
  * measures. Its members are always called on the sink, so they may read `this`.
  */
-export type DisplacementSink = Readonly<{
+export interface DisplacementSink {
   /**
    * Reports one element a committed move displaced, with its travel negated. The
    * vector is a viewport quantity, and `space` is what the collection inherits.
@@ -25,7 +25,7 @@ export type DisplacementSink = Readonly<{
     count: number,
   ): void;
   retire(): void;
-}>;
+}
 
 export type DisplacementInstaller = () => DisplacementSink;
 
@@ -50,7 +50,7 @@ export type AxisContext = Readonly<{
   space: Space;
 }>;
 
-export type InsertionGeometry = Readonly<{
+export interface InsertionGeometry {
   /** A new gap, or `null` when the committed one still wins. */
   resolve(query: AxisQuery, context: AxisContext): Insertion | null;
   /** Staleness only, because scroll calls it many times a second. */
@@ -58,6 +58,6 @@ export type InsertionGeometry = Readonly<{
   /** The committed move landed: keep the cache true and report what moved. */
   moved(query: AxisQuery, context: AxisContext): void;
   retire(): void;
-}>;
+}
 
 export type AxisInstaller = () => InsertionGeometry;

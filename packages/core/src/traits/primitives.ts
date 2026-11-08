@@ -37,7 +37,7 @@ export interface Trait<
     ctr: Constructor<T> & U,
   ): Constructor<T & Branded<P, B>> & U & S;
   [Symbol.hasInstance](o: unknown): o is Branded<P, B>;
-  brand: B;
+  readonly brand: B;
 }
 
 /**

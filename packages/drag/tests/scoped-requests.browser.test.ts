@@ -16,7 +16,9 @@ import {
 } from './support/harness.ts';
 
 /** An operation that names its item, so a step can say which one it received. */
-type Named = BehaviorOperation & Readonly<{ item: HTMLElement }>;
+interface Named extends BehaviorOperation {
+  readonly item: HTMLElement;
+}
 
 describe('drag:DRI-8 scoped requests', () => {
   it('should not run a step requested through a retained drag while a later operation is active', async () => {

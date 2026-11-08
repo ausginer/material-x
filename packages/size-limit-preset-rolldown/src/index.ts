@@ -20,13 +20,13 @@ type Config = Readonly<{
   checks: readonly Check[];
 }>;
 
-type Module = Readonly<{
-  name: string;
-  wait60?: string;
+interface Module {
+  readonly name: string;
+  readonly wait60?: string;
   before?(config: Config, check: Check): Promise<void> | void;
   step60?(config: Config, check: Check): Promise<void>;
   finally?(config: Config, check: Check): Promise<void> | void;
-}>;
+}
 
 /**
  * Builds a virtual entry that re-exports only the requested named imports, so

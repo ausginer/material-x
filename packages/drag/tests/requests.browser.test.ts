@@ -441,7 +441,9 @@ describe('drag:DRI-8 deferred writes', () => {
   });
 
   it('should give a step the operation activate returned while the operation is active', async () => {
-    type Held = BehaviorOperation & Readonly<{ item: HTMLElement }>;
+    interface Held extends BehaviorOperation {
+      readonly item: HTMLElement;
+    }
 
     const list = makeList(2);
     const seen: unknown[] = [];

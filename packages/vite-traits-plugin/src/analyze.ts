@@ -25,12 +25,12 @@ import {
  * Host-provided resolution and loading, so analysis does not hard-code the
  * bundler's module graph or filesystem access.
  */
-export type ModuleLoader = Readonly<{
+export interface ModuleLoader {
   /** Resolve `specifier` relative to `importer` to an absolute module id. */
   resolve(specifier: string, importer: string): Promise<string | null>;
   /** Load source text for a resolved module id. */
   load(id: string): Promise<string>;
-}>;
+}
 
 /**
  * Specifiers whose `impl` export is the composition builder. Matches both the

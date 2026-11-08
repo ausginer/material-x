@@ -93,13 +93,13 @@ async function bundle(lab: string, sourceRoot: string): Promise<string> {
   }
 }
 
-type PageContext = Readonly<{
-  browser: Browser;
-  arm: Arm;
-  page: Page;
-  cdp: CDPSession;
-  metrics(): Promise<Metrics>;
-}>;
+interface PageContext {
+  readonly browser: Browser;
+  readonly arm: Arm;
+  readonly page: Page;
+  readonly cdp: CDPSession;
+  readonly metrics: () => Promise<Metrics>;
+}
 
 /** One arm: its lab bundle, and whether its library restores focus itself. */
 type Arm = Readonly<{ code: string; restoresFocus: boolean }>;
@@ -163,13 +163,13 @@ async function grabAndCross(page: Page): Promise<void> {
 const movePhase = (i: number): number =>
   Y0 + 20 + Math.abs(((i / 60) % 2) - 1) * ROWS * 40;
 
-type Scenario = Readonly<{
-  id: string;
+interface Scenario {
+  readonly id: string;
   /** The rule stated before running, in the handoff's terms. */
-  rule: 'exact-and-floor' | 'floor' | 'report' | 'retained' | 'bytes';
-  arms: 'sortable' | 'free-drag' | 'no-lift' | 'all';
+  readonly rule: 'exact-and-floor' | 'floor' | 'report' | 'retained' | 'bytes';
+  readonly arms: 'sortable' | 'free-drag' | 'no-lift' | 'all';
   run(context: PageContext): Promise<Reading>;
-}>;
+}
 
 function movesScenario(count: number): Scenario {
   return {

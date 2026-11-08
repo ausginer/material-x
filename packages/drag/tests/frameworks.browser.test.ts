@@ -37,18 +37,18 @@ type Commit = Readonly<{
   committed?(): void;
 }>;
 
-type ReactFixture = Readonly<{
-  list: HTMLElement;
+interface ReactFixture {
+  readonly list: HTMLElement;
   commit(next: Commit): void;
   order(): string[];
-  results: SortableResult[];
+  readonly results: SortableResult[];
   controller(): SortableController;
   /** The `onReorder` handed to the sortable, which the test replaces. */
   setOnReorder(
     handler: (from: number, to: number) => Promise<ReorderResolution>,
   ): void;
   rows(): readonly string[];
-}>;
+}
 
 function mountReact(initial: readonly string[]): ReactFixture {
   const host = document.createElement('div');

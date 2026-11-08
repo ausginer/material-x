@@ -35,15 +35,15 @@ export type {
   SortableResult,
 };
 
-export type SortableController = Readonly<{
+export interface SortableController {
   /**
    * During a drag, re-reads the collection and the geometry. Between drags and
    * during a press nothing needs to be called.
    */
-  invalidate(): void;
-  requestCancel(reason?: unknown): void;
-  requestDestroy(): Promise<void>;
-}>;
+  readonly invalidate: () => void;
+  readonly requestCancel: (reason?: unknown) => void;
+  readonly requestDestroy: () => Promise<void>;
+}
 
 /** Makes `root` a sortable collection. */
 export function sortable(

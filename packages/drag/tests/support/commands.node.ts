@@ -7,20 +7,20 @@
 import { defineBrowserCommand } from '@vitest/browser';
 import type { BrowserCommand } from 'vitest/node';
 
-type CdpSession = Readonly<{
+interface CdpSession {
   send(method: string, params?: unknown): Promise<unknown>;
-}>;
+}
 
-type Page = Readonly<{
-  mouse: Readonly<{
+interface Page {
+  readonly mouse: {
     move(x: number, y: number, options?: { steps?: number }): Promise<void>;
     down(): Promise<void>;
     up(): Promise<void>;
-  }>;
-  keyboard: Readonly<{ press(key: string): Promise<void> }>;
+  };
+  readonly keyboard: { press(key: string): Promise<void> };
   emulateMedia(options: Readonly<{ reducedMotion: string }>): Promise<void>;
-  context(): Readonly<{ newCDPSession(page: unknown): Promise<CdpSession> }>;
-}>;
+  context(): { newCDPSession(page: unknown): Promise<CdpSession> };
+}
 
 const pageOf = (context: unknown): Page =>
   (context as Readonly<{ page: Page }>).page;

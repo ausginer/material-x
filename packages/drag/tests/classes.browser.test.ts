@@ -23,7 +23,9 @@ import {
 } from './support/harness.ts';
 
 /** An operation that names its item, for a step to read. */
-type Lifted = BehaviorOperation & Readonly<{ item: HTMLElement }>;
+interface Lifted extends BehaviorOperation {
+  readonly item: HTMLElement;
+}
 
 describe('drag:DRD-20 detached controller methods', () => {
   it('should run draggable controller methods detached', async () => {

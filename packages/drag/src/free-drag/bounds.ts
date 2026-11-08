@@ -6,12 +6,12 @@
 
 export type BoundsSource = HTMLElement | (() => DOMRectReadOnly | null);
 
-export type MotionConstraint = Readonly<{
+export interface MotionConstraint {
   /** Clamps the delta in place: one call per sample, allocating nothing. */
   apply(motion: { x: number; y: number }, originRect: DOMRectReadOnly): void;
   /** Staleness only, because scroll calls it many times a second. */
   invalidate(): void;
-}>;
+}
 
 export type BoundsInstaller = (window: Window) => MotionConstraint;
 

@@ -12,10 +12,10 @@ export function listenForInvalidation(
   window.addEventListener('resize', onInvalidate, { signal, passive: true });
 }
 
-export type FrameTask = Readonly<{
+export interface FrameTask {
   schedule(): void;
   cancel(): void;
-}>;
+}
 
 /** One coalesced animation-frame callback. */
 export function createFrameTask(window: Window, run: () => void): FrameTask {

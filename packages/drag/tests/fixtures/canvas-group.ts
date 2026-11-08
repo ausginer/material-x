@@ -26,19 +26,18 @@ type State = Readonly<{
 }>;
 
 /** One activated move of the group. */
-type GroupMove = BehaviorOperation<undefined> &
-  Readonly<{
-    /** Renders the pointer's travel and the nudge, snapped. */
-    render(): void;
-    /** Adds to the nudge and renders. */
-    nudge(amount: number): void;
-  }>;
+interface GroupMove extends BehaviorOperation<undefined> {
+  /** Renders the pointer's travel and the nudge, snapped. */
+  render(): void;
+  /** Adds to the nudge and renders. */
+  nudge(amount: number): void;
+}
 
-export type CanvasGroup = Readonly<{
-  panel: DraggableController<GroupMove>;
+export interface CanvasGroup {
+  readonly panel: DraggableController<GroupMove>;
   /** Shifts the group during a drag, from a key handler or anywhere else. */
   nudge(amount: number): void;
-}>;
+}
 
 const SNAP = 6;
 

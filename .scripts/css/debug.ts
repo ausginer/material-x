@@ -8,9 +8,9 @@ import format from '@ydinjs/vite-custom-element-assets/css/format.js';
 import '@ydinjs/vite-custom-element-assets/css/styles-import.js';
 import transform from '@ydinjs/vite-custom-element-assets/css/transform.js';
 
-interface JSModule<T> {
+type JSModule<T> = Readonly<{
   default?: T;
-}
+}>;
 
 const {
   positionals: [file],

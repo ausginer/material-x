@@ -49,12 +49,12 @@ export const nodeLoader: ModuleLoader = {
 };
 
 /** A materialized flattening: both forms on disk, importable, then disposed. */
-export type Flattening = Readonly<{
+export interface Flattening {
   /** Absolute file URL for a generated module (e.g. `foo-flat.ts`). */
   url(file: string): string;
   /** Removes the generated directory. */
   dispose(): Promise<void>;
-}>;
+}
 
 /**
  * Flattens `consumerName` and materializes the runtime-composed form
