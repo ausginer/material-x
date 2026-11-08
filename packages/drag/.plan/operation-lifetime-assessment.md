@@ -158,3 +158,39 @@ On your answers, the architect records the decision as `DRD-30` and writes its h
 **Return** if the witness doesn't fail before the fix, any other test fails, or the fix needs another file.
 
 **Report:** a short section appended to this record's §3, with the commit, the witness's before and after results, the suite counts and the size rows. Then push and stop.
+
+### Report: `DRF-3` repaired
+
+**Commit:** `d7828a280` on `drag/production`, on `760bf5eec`. It changes `src/lift.ts` and adds one test to `tests/landing.browser.test.ts`, and nothing else. The owner's edits are still uncommitted and unstaged. Their fingerprint matched before the work and after the commit: `git diff -- packages/drag/src | sha256sum` gives `bdcb626a…7e45`, with `2 files changed, 24 insertions(+), 23 deletions(-)`. Every suite run below includes them.
+
+**Change:** `land` calls the timing once, at the call, and records `{ x, y, duration, easing }`. The two values are copied from the timing's result, or are the defaults when no timing is given. A throw from the timing still records nothing. The landing disposer reads the copies, and still reads reduced motion at release. The record is still one object per `land` call.
+
+**Witness:** `should keep the timing values returned at the land call when the timing reuses its object`. It returns one reused `{ duration: 321, easing: 'linear' }`, and a disposer registered after `acquire` writes `4321` and `'ease-in'` into it. Run with `npx just test-engines tests/landing.browser.test.ts -t reuses`:
+
+| `src/lift.ts` | Chromium | Firefox | WebKit |
+| --- | --- | --- | --- |
+| As at `d258573fa` (unchanged at `760bf5eec`) | Fail: `expected [ 4321, 'ease-in' ] to deeply equal [ 321, 'linear' ]` | Fail, same | Fail, same |
+| `d7828a280` | Pass | Pass | Pass |
+
+**Suites, at `d7828a280` with the owner's edits:**
+
+- `just test`: 327 passed, 3 failed, 330 in all. The failures are the three known size rows: the `draggable alone` control moved by 83 B, `freeDrag` 56 B over its ceiling, and `freeDrag` + `bounds` + `landing` 66 B over (see below). The kernel per-sample test passed in this run. It isn't interpreted here and wasn't rerun.
+- `just test-engines`: 909 passed, 18 skipped, 927 in all, with no failure. That is 3 passed more than `b33890461`'s 906, from the witness in three engines.
+- Format, lint-fix, format, lint and `just typecheck` on the two changed files: pass.
+
+**Size, `just size`, minified and Brotli bytes.** These are the change from `land` alone, measured in scratch worktrees: `b33890461`, against `760bf5eec` with `d7828a280`'s `src/lift.ts`. The two commits have the same `src/`, so the owner's edits aren't included:
+
+| Row                               | `b33890461` | With the fix |  Change |
+| --------------------------------- | ----------: | -----------: | ------: |
+| `draggable alone` (control)       |  6464, 2107 |   6464, 2107 |    0, 0 |
+| `draggable` + `lift`              | 11904, 4118 |  11920, 4112 | +16, −6 |
+| example: drop zone                | 12774, 4415 |  12790, 4420 | +16, +5 |
+| `freeDrag`                        | 14968, 5023 |  14984, 5023 |  +16, 0 |
+| `freeDrag` + `bounds` + `landing` | 15654, 5272 |  15669, 5278 | +15, +6 |
+| `sortable` + `y`                  | 20092, 6611 |  20108, 6612 | +16, +1 |
+| `sortable` + `xy`                 | 19708, 6542 |  19724, 6545 | +16, +3 |
+| `complete`                        | 21124, 6984 |  21141, 6989 | +17, +5 |
+
+The rows without the lift (resize handle, canvas group) don't change. **For `DRO-7`, not accepted:** `freeDrag` + `bounds` + `landing` goes from 62 B to 68 B over its ceiling with the fix alone. `freeDrag` stays 56 B over. On the working tree with the owner's edits, those two rows read 66 B and 56 B over. The suite's figure above is that one.
+
+**Not done, as the handoff says:** no timing, no `compare.ts`, no other measurement, no ceiling or existing expectation changed. The kernel's per-sample reading stays open, apart from this unit. `activation-result-handoff.md` isn't started.
