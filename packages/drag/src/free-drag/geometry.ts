@@ -36,7 +36,7 @@ function toLocal(space: Space, dx: number, dy: number): Float64Array {
 
 /** `motion` is the rendered delta, axis-projected and clamped. */
 export function buildGeometry(
-  drag: Drag<unknown>,
+  drag: Drag,
   lift: Lift,
   motion: Point,
   window: Window & typeof globalThis,
@@ -64,7 +64,7 @@ export function buildGeometry(
  */
 export function buildRequest(
   item: HTMLElement,
-  drag: Drag<unknown>,
+  drag: Drag,
   lift: Lift,
   motion: Point,
   home: Point,
