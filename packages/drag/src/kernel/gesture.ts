@@ -34,7 +34,11 @@ export interface DraggableController<Operation> {
 
 const DEFAULT_THRESHOLD = 8;
 
-const NOOP = (): void => {};
+/** What the gate runs as the first step of a pass: the work for one input event. */
+export interface InputHandler {
+  /** Called only by the gate, inside the pass it opened for `event`. */
+  handleInput(event: Event): void;
+}
 
 /**
  * Events a controller of this library copy has admitted. Bubbling reaches the
@@ -62,23 +66,29 @@ function ownsInteraction(event: Event, subject: EventTarget): boolean {
   return false;
 }
 
-/** Development only: how many events a running pass refused, for the suite. */
-function countRefused(argument: unknown): void {
-  const trusted = (argument as Event | null | undefined)?.isTrusted;
+/**
+ * Development only: how many events a running pass refused, for the suite. An
+ * event refused by both the window's and the root's listener counts once.
+ */
+const countedRefusals = new WeakSet<Event>();
 
-  if (trusted !== undefined) {
-    const refused = ((globalThis as Record<string, unknown>)[
-      '__dragRefused'
-    ] ??= { trusted: 0, untrusted: 0 }) as {
-      trusted: number;
-      untrusted: number;
-    };
+function countRefused(event: Event): void {
+  if (countedRefusals.has(event)) {
+    return;
+  }
 
-    if (trusted) {
-      refused.trusted += 1;
-    } else {
-      refused.untrusted += 1;
-    }
+  countedRefusals.add(event);
+
+  const refused = ((globalThis as Record<string, unknown>)['__dragRefused'] ??=
+    { trusted: 0, untrusted: 0 }) as {
+    trusted: number;
+    untrusted: number;
+  };
+
+  if (event.isTrusted) {
+    refused.trusted += 1;
+  } else {
+    refused.untrusted += 1;
   }
 }
 
@@ -92,7 +102,7 @@ export class Gesture<
   State,
   Verdict,
   Operation extends BehaviorOperation<Verdict>,
-> {
+> implements InputHandler {
   readonly #root: HTMLElement;
   readonly #behavior: Behavior<State, Verdict, Operation>;
   readonly #window: Window & typeof globalThis;
@@ -132,13 +142,14 @@ export class Gesture<
   }
 
   /**
-   * The one entry into library work. `step` is a stable function, so a pointer
-   * sample allocates nothing here.
+   * The gate for input: runs `handler`'s work for `event` as the first step of a
+   * new pass, then the reader. A running pass or a closed controller refuses the
+   * input. Nothing is allocated here, so a pointer sample allocates nothing.
    */
-  enter<A>(step: (argument: A) => void, argument: A): void {
+  enter(handler: InputHandler, event: Event): void {
     if (this.#running || this.#destroyed) {
       if (__DEV__ && this.#running) {
-        countRefused(argument);
+        countRefused(event);
       }
 
       return;
@@ -148,7 +159,7 @@ export class Gesture<
 
     try {
       try {
-        step(argument);
+        handler.handleInput(event);
       } catch (error) {
         this.raise(error);
       }
@@ -160,10 +171,50 @@ export class Gesture<
   }
 
   handleEvent(event: KeyboardEvent | PointerEvent): void {
+    this.enter(this, event);
+  }
+
+  /** The root listens only for `pointerdown` and `keydown`. */
+  handleInput(event: KeyboardEvent | PointerEvent): void {
     if (event.type === 'pointerdown') {
-      this.enter(this.#press, event as PointerEvent);
-    } else if (event.type === 'keydown') {
-      this.enter(this.#command, event as KeyboardEvent);
+      this.#press(event as PointerEvent);
+    } else {
+      this.#command(event as KeyboardEvent);
+    }
+  }
+
+  /**
+   * The gate for requests: a request has filled its slot, and this applies it
+   * now unless a pass is running, whose reader applies it (DRI-1). Nothing is
+   * refused.
+   */
+  apply(): void {
+    if (!this.#running) {
+      this.#run(null, null);
+    }
+  }
+
+  /**
+   * Opens a pass that no input started: `first`, if any, is its first step, and
+   * the reader follows. The caller has checked that no pass is running. `first`
+   * is a function only where the work is one already: the consumer's step, or
+   * `raise`.
+   */
+  #run<A>(first: ((argument: A) => void) | null, argument: A): void {
+    this.#running = true;
+
+    try {
+      if (first) {
+        try {
+          first(argument);
+        } catch (error) {
+          this.raise(error);
+        }
+      }
+
+      this.#applyRequests();
+    } finally {
+      this.#running = false;
     }
   }
 
@@ -181,7 +232,9 @@ export class Gesture<
         }
 
         if (this.#steps.length > 0) {
-          this.#runStep(this.#steps.shift()!);
+          const step = this.#steps.shift()!;
+
+          step(this.#session ? this.#session.stepTarget() : null);
         } else if (!this.#session?.advance()) {
           return;
         }
@@ -211,7 +264,7 @@ export class Gesture<
     if (this.#running) {
       this.raise(error);
     } else {
-      this.enter(this.raise, error);
+      this.#run(this.raise, error);
     }
   }
 
@@ -227,21 +280,21 @@ export class Gesture<
       return;
     }
 
-    if (!this.#running) {
-      this.enter(this.#runStep, step);
-    } else if (!this.#steps.includes(step)) {
-      this.#steps.push(step);
+    if (this.#running) {
+      if (!this.#steps.includes(step)) {
+        this.#steps.push(step);
+      }
+    } else {
+      // Requested while idle, the step is the first step of its own pass. The
+      // list stays empty, so an idle request allocates nothing.
+      this.#run(step, this.#session ? this.#session.stepTarget() : null);
     }
-  };
-
-  readonly #runStep = (step: (operation: Operation | null) => void): void => {
-    step(this.#session ? this.#session.stepTarget() : null);
   };
 
   readonly requestCancel = (reason?: unknown): void => {
     if (this.#session) {
       this.#session.decide(reason, 'request');
-      this.enter(NOOP, null);
+      this.apply();
     }
   };
 
@@ -250,10 +303,7 @@ export class Gesture<
       this.#destroyed = new Promise((resolve) => {
         this.#resolveDestroyed = resolve;
       });
-
-      if (!this.#running) {
-        this.#teardown();
-      }
+      this.apply();
     }
 
     return this.#destroyed;
@@ -267,7 +317,7 @@ export class Gesture<
     }
   };
 
-  readonly #press = (event: PointerEvent): void => {
+  #press(event: PointerEvent): void {
     if (
       event.button === 0 &&
       event.isPrimary &&
@@ -284,9 +334,9 @@ export class Gesture<
         this.#open(admission, event.clientX, event.clientY, event.pointerId);
       }
     }
-  };
+  }
 
-  readonly #command = (event: KeyboardEvent): void => {
+  #command(event: KeyboardEvent): void {
     if (this.#session || admitted.has(event)) {
       return;
     }
@@ -301,7 +351,7 @@ export class Gesture<
       event.preventDefault();
       this.#open(admission, 0, 0);
     }
-  };
+  }
 
   #open(
     admission: Admission<State>,

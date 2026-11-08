@@ -2,7 +2,7 @@ import { deepActiveElement } from '../shared/focus.ts';
 import type { Admission } from './admission.ts';
 import type { Behavior, BehaviorOperation } from './behavior.ts';
 import { runDragDisposer, type DragDisposer, type KernelDrag } from './drag.ts';
-import type { Gesture } from './gesture.ts';
+import type { Gesture, InputHandler } from './gesture.ts';
 import type { CancelOrigin, Outcome, SkippedOutcome } from './outcome.ts';
 
 const COMMAND_POINTER_ID = -1;
@@ -112,8 +112,6 @@ function armClickGuard(target: Window, pointerId: number): void {
   );
 }
 
-const NOOP = (): void => {};
-
 /**
  * One operation, from admission to its release, and every transition it makes.
  * Its absence from the controller's slot means idle. It ends where it leaves the
@@ -122,13 +120,14 @@ const NOOP = (): void => {};
  * The session reads and writes only its own fields. It reaches the controller
  * through the controller's interface, and the controller reaches it through
  * `advance`, `decide`, `stepTarget` and `terminate`. It is its own listener on
- * the window, through `handleEvent`.
+ * the window, through `handleEvent`, and the gate runs its input work through
+ * `handleInput`.
  */
 export class Session<
   State,
   Verdict,
   Operation extends BehaviorOperation<Verdict>,
-> {
+> implements InputHandler {
   readonly #gesture: Gesture<State, Verdict, Operation>;
   readonly #behavior: Behavior<State, Verdict, Operation>;
   readonly #root: HTMLElement;
@@ -325,7 +324,7 @@ export class Session<
         pointer.isPrimary &&
         pointer.button === 0
       ) {
-        this.#gesture.enter(this.#endPending, null);
+        this.#gesture.enter(this, pointer);
       }
 
       return;
@@ -335,10 +334,8 @@ export class Session<
       return;
     }
 
-    if (pointer.type === 'pointermove') {
-      this.#gesture.enter(this.#move, pointer);
-    } else if (pointer.type === 'pointerup') {
-      this.#gesture.enter(this.#up, pointer);
+    if (pointer.type === 'pointermove' || pointer.type === 'pointerup') {
+      this.#gesture.enter(this, pointer);
     } else if (
       pointer.type === 'pointercancel' ||
       // Taking a touch's implicit capture from the pressed element also fires
@@ -351,10 +348,24 @@ export class Session<
 
   #cancel(reason: unknown, origin: CancelOrigin): void {
     this.decide(reason, origin);
-    this.#gesture.enter(NOOP, null);
+    this.#gesture.apply();
   }
 
-  readonly #move = (event: PointerEvent): void => {
+  /**
+   * The gate's step for the input `handleEvent` passed it: a sample, a release,
+   * or a primary press that ends the pending one.
+   */
+  handleInput(event: Event): void {
+    if (event.type === 'pointermove') {
+      this.#move(event as PointerEvent);
+    } else if (event.type === 'pointerup') {
+      this.#up(event as PointerEvent);
+    } else {
+      this.#endPending();
+    }
+  }
+
+  #move(event: PointerEvent): void {
     // A press never activates without the button that admitted it. A release the
     // window never saw, such as one outside it, leaves samples with no button.
     // oxlint-disable-next-line no-bitwise -- `buttons` is a bitfield
@@ -387,17 +398,17 @@ export class Session<
       armClickGuard(this.#window, this.#drag.pointerId);
       this.#activate();
     }
-  };
+  }
 
   /** A press that never activated ends quietly: no hook, no report. */
-  readonly #endPending = (): void => {
+  #endPending(): void {
     this.#motion.abort();
     this.#presentation.abort();
     this.#phase = ENDED;
     this.#gesture.detach();
-  };
+  }
 
-  readonly #up = (event: PointerEvent): void => {
+  #up(event: PointerEvent): void {
     // Motion is open only while pending or active, and the operation is held
     // exactly while active there.
     const operation = this.#operation;
@@ -410,7 +421,7 @@ export class Session<
     this.#drag.x = event.clientX;
     this.#drag.y = event.clientY;
     this.#drop(operation);
-  };
+  }
 
   #activate(): void {
     // The consumer removed the item during the press, so there is nothing to
@@ -481,9 +492,9 @@ export class Session<
       }
 
       if (!faulted) {
-        // Inside a pass the gate refuses, and that pass's reader applies it.
+        // Inside a pass, that pass's reader applies it.
         this.#decision = { type: 'verdict', value: value as Verdict };
-        this.#gesture.enter(NOOP, null);
+        this.#gesture.apply();
       } else {
         this.#gesture.raiseInPass(value);
       }
