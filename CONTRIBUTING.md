@@ -76,6 +76,12 @@ The rule is about meaning, not byte count. Where both spellings are correct, the
 - Declare top-level functions with `function`. Declare internal functions — those created inside another function — as arrow functions. Object methods stay shorthand.
 - Always brace block statements. No one-liners.
 
+## Class encapsulation
+
+- Keep mutable class state in `#private` fields. Public instance and static fields must be `readonly`.
+- Expose class-owned state through read-only views, and changes through methods. A `readonly` field or a getter is not a read-only view if callers can still write to the returned array, buffer, collection or record.
+- A read-only interface used by some callers does not make writable fields on the implementing class acceptable. The class's own public surface must preserve its ownership boundary.
+
 ## Naming and self-documentation
 
 Follow the [technical English guide](.agents/docs/technical-english.md). Choose names that describe the operation or value in familiar technical terms. Improve an unclear name before adding a comment to translate it. Preserve the performance priorities above when considering changes to code structure.
@@ -401,3 +407,4 @@ What this document used to say, and what changed it, so a measurement already ma
 | 2026-11-07 | Reading one entry | **Corrected:** the resolvable scopes are named by the script's scope map. The text said _`drag2` is the only scope this build resolves_, which was already false for `repo`. Record: [`00-index.md`](packages/drag/.plan/00-index.md) DRD-23 |
 | 2026-11-08 | Part I, TypeScript | **Added:** the preference for `type-fest`'s utilities over equivalent handwritten types, stated by the owner. It corrects a reading of `DRD-27` that took the removal of `type-fest` from `@ydinjs/drag` as a rule. Record: [`00-index.md`](packages/drag/.plan/00-index.md) DRD-29 |
 | 2026-11-08 | Part I, TypeScript | **Changed:** at the owner's direction, implementation contracts use interfaces, including contracts currently implemented by object literals. This replaces the preference for `type` except where a class already implements it. The blanket `Readonly<>` guidance now distinguishes data records from implementation interfaces; interface data properties remain `readonly` unless mutation is required |
+| 2026-11-08 | Part I, Class encapsulation | **Added:** at the owner's direction, mutable class state is private and public fields are read-only. Read-only interfaces and reference bindings do not permit exposing writable class-owned state |
