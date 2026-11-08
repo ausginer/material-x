@@ -2,14 +2,14 @@
 export function listenForInvalidation(
   window: Window,
   signal: AbortSignal,
-  onInvalidate: () => void,
+  listener: EventListenerOrEventListenerObject,
 ): void {
-  window.addEventListener('scroll', onInvalidate, {
+  window.addEventListener('scroll', listener, {
     signal,
     capture: true,
     passive: true,
   });
-  window.addEventListener('resize', onInvalidate, { signal, passive: true });
+  window.addEventListener('resize', listener, { signal, passive: true });
 }
 
 export interface FrameTask {

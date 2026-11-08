@@ -100,11 +100,11 @@ export class Gesture<
   readonly #listeners = new AbortController();
   readonly #disposers: Array<() => void> = [];
 
-  #session: Session<State, Verdict, Operation> | null = null;
-  #running = false;
-
   /** Deferred steps, in request order. Empty on the hot path. */
   readonly #steps: Array<(operation: Operation | null) => void> = [];
+
+  #session: Session<State, Verdict, Operation> | null = null;
+  #running = false;
 
   /** Set by the first destruction request, which also closes the controller. */
   #destroyed: Promise<void> | null = null;
@@ -120,12 +120,12 @@ export class Gesture<
     this.#window = root.ownerDocument.defaultView!;
     this.#threshold = behavior.threshold ?? DEFAULT_THRESHOLD;
 
-    root.addEventListener('pointerdown', this.#onPress, {
+    root.addEventListener('pointerdown', this, {
       signal: this.#listeners.signal,
     });
 
     if (behavior.command) {
-      root.addEventListener('keydown', this.#onCommand, {
+      root.addEventListener('keydown', this, {
         signal: this.#listeners.signal,
       });
     }
@@ -156,6 +156,14 @@ export class Gesture<
       this.#applyRequests();
     } finally {
       this.#running = false;
+    }
+  }
+
+  handleEvent(event: KeyboardEvent | PointerEvent): void {
+    if (event.type === 'pointerdown') {
+      this.enter(this.#press, event as PointerEvent);
+    } else if (event.type === 'keydown') {
+      this.enter(this.#command, event as KeyboardEvent);
     }
   }
 
@@ -259,10 +267,6 @@ export class Gesture<
     }
   };
 
-  readonly #onPress = (event: PointerEvent): void => {
-    this.enter(this.#press, event);
-  };
-
   readonly #press = (event: PointerEvent): void => {
     if (
       event.button === 0 &&
@@ -280,10 +284,6 @@ export class Gesture<
         this.#open(admission, event.clientX, event.clientY, event.pointerId);
       }
     }
-  };
-
-  readonly #onCommand = (event: KeyboardEvent): void => {
-    this.enter(this.#command, event);
   };
 
   readonly #command = (event: KeyboardEvent): void => {
