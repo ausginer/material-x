@@ -229,7 +229,23 @@ The landing is additive and starts from the position last translated to. A landi
 
 #### DRI-14 — Collection
 
-`items()` is pulled at each admission and again at activation, for a pointer and a command alike, so a consumer who changes the list between drags or during a press has to call nothing. **Each pull copies the returned array.** The consumer keeps ownership of its array and may change it at any time without changing the operation's snapshot. An item no longer in the collection at activation declines the operation: no `onStart`, no `onEnd`, no report. A command computes its target from the activation pull, and declines the same way when the move is no longer possible.
+`items()` is pulled at each admission and again at activation, for a pointer and a command alike, so a consumer who changes the list between drags or during a press has to call nothing. An item no longer in the collection at activation declines the operation: no `onStart`, no `onEnd`, no report. A command computes its target from the activation pull, and declines the same way when the move is no longer possible.
+
+**The library borrows the array and doesn't copy it.**
+
+- **An admission's array** is read only within that admission.
+- **The retained array.** The operation keeps the array from activation, or from its last rebase, until the drop. Before the drop, the library may read it in any step it runs for the drag: a frame, a pointer event, the activation, and a command's drop. That includes reading it right after a consumer callback returns.
+- **What never reads it:** applying a cancel, `Escape`, a verdict or destruction. A landing at home uses the item's gap saved from the pull that is the operation's collection, at activation or at the last rebase. After the drop, the library doesn't read the array.
+
+**Consistency.** Between drags, during a press, and from the drop on, the consumer may change its array however it likes. From activation until the drop, it changes the collection in one of two ways:
+
+- **In place,** when the change completes before the library can read again. Completing it means changing the array, making the DOM show the change, and calling `invalidate()`.
+  - **Code that the library called** completes the change before it returns, because the drag continues when the code returns. Such code includes `onStart`, the placeholder factory, and a listener that a library DOM write triggers. A command's drop follows `onStart` synchronously. `invalidate()` called there runs before the library's next step.
+  - **Code the library didn't call** may complete the change in the microtasks it queues, provided no animation frame or pointer event reaches the library before `invalidate()`. Such code includes an event handler, a timer, and an `await` continuation. A `requestCancel()` or `requestDestroy()` before `invalidate()` is allowed.
+  - **No in-place change from `handle`, `visual`, `box` or the placeholder element's own callbacks,** which run in the middle of a read.
+- **By replacement, otherwise.** The consumer leaves the retained array unchanged, makes later `items()` calls return a new array, and calls `invalidate()` once the DOM shows the change. Rendering may then be deferred, for example a framework update scheduled from `onStart`, because the retained array still matches the DOM.
+
+An in-place change that the library can read before `invalidate()` is outside this contract, and so is a change during a drag without `invalidate()`. The library doesn't detect either.
 
 During a drag, `invalidate()` re-reads the collection. A surviving gap rebases. A lost adjacency or a removed item cancels. After the drop, a collection change no longer affects the operation. The request carries `item`, `from`, `to`, `previous` and `next`, so `insertBefore(item, next)` is correct.
 
@@ -290,6 +306,7 @@ DRI-1 to DRI-13, DRI-17 and DRI-19 hold for a behavior through this API, with no
 
 | Date | Entry | Change |
 | --- | --- | --- |
+| 2026-11-08 | `DRI-14` | **Changed:** the library borrows the `items()` array, keeps it from activation or the last rebase until the drop, and lands at a home gap saved at those pulls. The consumer keeps the retained array consistent: it completes an in-place change before the library can read again, or it replaces the array. It used to say that each pull copies the array, and that the consumer may change it at any time. `DRD-31` |
 | 2026-11-08 | Vocabulary, public surface, `DRI-3`, `DRI-8`, `DRI-9`, `DRI-18` | **Changed:** `activate` returns the behavior's operation, which holds `start`, `move`, `drop`, `settle` and `end`, or `null` to decline. It used to return `undefined` or `false`, and those hooks were the behavior's, called with the `Drag`. A step receives the operation, and used to receive the `Drag`. The `Drag` has no `state`: `activate` receives it. `activate` is required. **Added:** the type `BehaviorOperation`. `DRD-30` |
 | 2026-11-08 | Public surface | **Changed:** `lift.js` exports the class `Lifter` and the type `LandingTiming`. `Lift` has no `translatedX` or `translatedY`, and `land(x, y, timing?)` copies the timing's values at the call. It used to export `createLifter` and `Landing`, and `land` took a `Landing`. This entry was not updated when `DRD-29` was implemented at `b33890461`. `DRD-29`, `DRF-3` |
 | 2026-11-07 | Public surface, `DRI-9`, `DRI-10`, `DRI-13`, `DRI-17`, `DRI-18` | **Changed:** the kernel has no lift. A behavior composes it with `createLifter`, acquires it in `activate`, keeps the `Lift` in its state and calls `land` in `settle`. The lift's release and landing are its first `use` disposer, and its landing's cancel is a controller disposer. It used to be the behavior's `lift` member: the kernel acquired it, released it after the disposers, started the landing that `settle` returned and cancelled it at destruction, and the ten lifted members were on the `Drag`. `Behavior.lift`, the lifted types and `Admission`'s `visual` and `box` are removed, and `settle` returns nothing. `Landing` is exported from `lift.js`, and it used to be exported from `draggable.js`. **Added:** each entry's types. This replaces the text at `6d5ba89e7`, never implemented, in which the members moved to `drag.lift`. `DRD-27`, `DRD-28` |

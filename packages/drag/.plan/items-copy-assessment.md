@@ -1,13 +1,13 @@
 # The `items()` copies under CONTRIBUTING §1.1
 
-**Status, 2026-11-08: assessed by the architect, not decided.** No `DRD`, `DRF` or `DRO` entry is minted or amended. `DRD-25`'s copy bullet and `DRI-14` stand until the owner decides.
+**Status, 2026-11-08: decided as `DRD-31`** in [`00-index.md`](00-index.md). The contract's `DRI-14` carries the consistency rule, and [`items-borrowing-handoff.md`](items-borrowing-handoff.md) implements it. The owner directed that the copies be removed, with the home gap saved at activation and at every rebase. This record is the evidence. Where it disagrees with `DRD-31` or `DRI-14`, those win.
 
-**Revised at `57ddf4b89`** on the owner's two questions: synchronous reentrancy, and a cancel before the drop. The revision replaces two parts of the first version:
+**Revisions:**
 
-- **"Capture the home neighbors at the drop."** They are now saved at every pull the operation keeps (§3).
-- **"Before the current task ends."** The rule is now stated against the library's reads (§4).
+- **At `57ddf4b89`,** on the owner's two questions about synchronous reentrancy and a cancel before the drop. The home is saved at every kept pull (§3), not captured at the drop. The rule is stated against the library's reads (§4), not against the current task.
+- **At `357169a71`,** on the owner's keyboard case. A command runs `start` and its drop synchronously, so "one task, microtasks included" is not enough when the change starts in `onStart`. §4 now distinguishes code the library called from code it didn't, §5 and §7 add the keyboard cases and witnesses W4 and W5, and §8 separates supported use from use outside the contract.
 
-**Read at:** `57ddf4b89` on `drag/production`, from the commit's tree with `git show`. `src/` is the same as at `4e8ada3ec`, where the first version was read. The owner's uncommitted edit to `src/sortable/layout-animation.ts` was not read and was left as it was. That file doesn't read the collection.
+**Read at:** `357169a71` on `drag/production`, from the commit's tree with `git show`. `src/` is the same as at `4e8ada3ec`, where the first version was read. The owner's uncommitted edits to `src/sortable/layout-animation.ts` and `src/free-drag.ts` were not read and were left as they were. Neither file reads the collection.
 
 **Method:** reading only. No suite, probe or measurement ran. Each claim is marked:
 
@@ -68,108 +68,135 @@
   - **A pointer activation:** its first `insertion` is `homeInsertion(snapshot, item)`, which is never written in place, so the same object can serve as `home`. That adds no allocation.
   - **A command activation** adds one `Insertion`.
   - **Each rebase** adds one `Insertion`.
-- **Optional:** `buildReorderRequest` can take `from` from `home.index`, which comes from the same pull. That removes an `indexOf` and the drop step's last direct read of the array.
+- **Not taken:** taking the request's `from` from the saved gap's index. `buildReorderRequest` keeps reading the retained array at the drop, where `DRI-14`'s rule makes it consistent. W4 guards a `from` taken from an older pull.
 
 **Why not at the drop, as the first version proposed:** a cancel before the drop has no drop, and its `settle` would still read the array. That is the owner's case.
 
 ## 4. The consistency rule
 
-With §3, the library reads a kept array only in these places [R]:
+With §3, the library reads a retained array only in these places [R]:
 
-1. **In the step that pulls it:** admission, activation or rebase.
-2. **In a frame step:** an animation-frame task.
-3. **In a pointer drop step:** a `pointerup` task, or a synthetic `pointerup` that someone dispatches.
-4. **In a command's drop step,** in the same pass as its activation.
+1. **In the step that pulls it:** activation or rebase.
+2. **In a frame step:** an animation-frame callback.
+3. **In a pointer drop step:** a `pointerup`, which may be a synthetic one that someone dispatches.
+4. **In a command's drop step,** in the same synchronous pass as its activation and `start`. `buildReorderRequest` reads `indexOf` there (`sortable.ts:206`).
 
-It doesn't read the array in a cancel, a verdict completion, `settle`, release, `end` or destruction.
+It doesn't read the array in a cancel, a verdict completion, `settle`, release, `end` or destruction. Before the drop, no microtask of the library's reads it, because a verdict exists only after the drop.
 
-**So "before the current task ends" is not the right boundary, in either direction:**
+**Why "one task, microtasks included" fails.** The owner's case [R]:
 
-- **Too weak without §3.** A synchronous `requestCancel()` reads the array inside the task.
-- **Narrower than needed with §3.** What matters is that no frame step or drop step runs between an in-place change and `invalidate()`. The event loop runs a frame callback or a trusted `pointerup` only after the current task and its microtasks. So a renderer that commits in a microtask meets the rule.
+1. A command activates.
+2. `onStart` changes the retained array in place, and schedules rendering and `invalidate()` in a microtask.
+3. When `onStart` returns, the same pass runs the drop, which reads the changed array before that microtask.
 
-**The remaining synchronous reentrancy is consumer code that the library calls inside a reading step:**
+The request's `from` then comes from the changed array, while its `to` comes from the activation pull. When the two are equal, the drop is taken as a no-op.
 
-- `config.box` during `refresh`.
-- A placeholder element's reactions during `movePlaceholder`, which `moved` follows.
+**The condition is whether the library can read the retained array before consistency is restored.** Consistency means the array changed, the DOM showing the change, and `invalidate()` called. Who is running decides the answer:
 
-A change made there is read in that same step. `onStart`, the placeholder factory, the verdict's `onReorder` and its signal, `onEnd`, and focus or `beforetoggle` listeners run outside reading steps. A change made in one of them, with `invalidate()` called there, is applied before the next step [E: `DRI-2`]. That includes a command's drop.
+- **Code that the library called.** This is `onStart`, the placeholder factory, or a listener that a library DOM write triggers synchronously, such as focus or `beforetoggle`. The library continues the drag when the code returns, so the change must be complete by then.
+  - An `invalidate()` called there is a deferred step. It runs before the library's next step [E: `DRI-2`], so it runs before a command's drop.
+  - A microtask is too late.
+- **Code the library didn't call.** This is the consumer's event handler, a timer, or an `await` continuation. The library next runs for a frame, for a pointer event, or for the consumer's own call.
+  - The event loop delivers a frame callback or a trusted `pointerup` only after the current task and its microtasks. So the change can be completed in microtasks the code queues.
+  - **An `await` is not the criterion.** What matters is whether a frame or pointer event can reach the library between the change and `invalidate()`. Changing the array after the `await` and completing in the same continuation is fine. Changing it before an `await` that waits on a timer, the network or a frame is not.
+  - A `requestCancel()` or `requestDestroy()` before `invalidate()` reads nothing, with §3 [R].
+- **`handle`, `visual`, `box`, and the placeholder element's own callbacks.** These run in the middle of a read, so an in-place change there is read in that same step.
 
-**Proposed wording, for `SortableConfig.items` and `DRI-14`:**
+**When replacement is required:** whenever the in-place condition can't be met. The consumer leaves the retained array unchanged, makes later `items()` calls return a new array, and calls `invalidate()` once the DOM shows the change. Until then, the library reads the retained array, which still matches the DOM, so rendering can be deferred freely. Typical cases:
 
-> `items()` is called at each admission, at activation, and by `invalidate()` during a drag. The library keeps the array it returns and doesn't copy it.
->
-> - **Between drags, during a press, and from the drop on,** you may change the array however you like.
-> - **From activation until the drop,** call `invalidate()` after a change to the collection, once the DOM shows it, as today. If you change the array in place, call `invalidate()` before the next animation frame or pointer event, and don't change it from `box` or from the placeholder's callbacks. Changing the array, the DOM and calling `invalidate()` in one task meets this, microtasks included, even with `requestCancel()` or `requestDestroy()` between them.
-> - **Otherwise, return a new array** from `items()`, and leave the old one unchanged.
-
-**When a new array is required:**
-
-- **The DOM commit comes in a later task or frame than the model change.** Examples are a renderer that yields or schedules, a list that renders from its own animation frame, and a store batched by a timer.
-- **The array is changed in place by code that the integrator doesn't sequence with `invalidate()`.** Examples are a shared store that other code mutates, and an `await` that separates the change from `invalidate()`.
-- **The change has to be made from `box` or a placeholder callback.**
+- rendering scheduled from `onStart` or from another library callback;
+- a renderer that commits in a later task or frame;
+- a list that renders from its own animation frame;
+- a store batched by a timer;
+- a shared array that code the integrator doesn't sequence with `invalidate()` changes in place.
 
 Returning `[...model]` from `items()` always meets the rule. That is the consumer's copy, made where the consumer knows it is needed.
 
-**Correctness traded:**
+**The wording is the contract's `DRI-14`.** `SortableConfig.items`'s documentation and the README carry a short form of it, written in the handoff.
 
-- **An integrator who keeps the rule** gets today's behavior [R].
-- **An integrator who breaks it** gets a wrong gap for the frames in between, or a `sortable/anchor-outside-container` fault that cancels the drag through the normal failure path [R].
-- **What the copy gives today:** it makes that deferred-renderer style correct. Under the rule, that style has to return a new array.
-
-## 5. Lifecycle cases under the proposal
+## 5. Lifecycle cases
 
 | Case | What answers it | Expected |
 | --- | --- | --- |
 | Press that never activates | The admission array, read only in its call | No copy, no rule [R] |
-| Pointer activation, `Escape` before the drop, no change | `home` from the activation pull | As today [R] |
-| Command | `home` from the activation pull. A change in `onStart` with `invalidate()` rebases before the drop step [E: `DRI-2`] | As today [R] |
-| A change during the drag, by a new array, or in place within the rule, then `invalidate()`. The gap survives, then `Escape` | `home` from the rebase pull | Lands at the item's current neighbors, as today [R] |
-| The same, but the gap is lost or the item removed | `home` saved in that rebase, read in the same pass | As today [R] |
-| The owner's case: change in place, `requestCancel()`, DOM, `invalidate()` | `home` from the last pull | Lands at home with no fault. Today the same holds through the copy [R] |
-| Drop, then a change in `onReorder`, a pending verdict, then `Escape` or a reject | `home` from the last pull before the drop | Lands at home [E for the copy; R for the proposal] |
+| Pointer activation, `Escape` before the drop, no change | The home gap from the activation pull | As today [R] |
+| Pointer activation, and `onStart` completes an in-place change with `invalidate()` before it returns | The rebase runs after the activation step, before any frame | As today [R] |
+| Command, with no change | The home gap and the keyboard target from the activation pull | As today [R] |
+| Command, and `onStart` completes an in-place change with `invalidate()` before it returns | The rebase runs before the drop [E: `DRI-2`]. The request comes from the rebased pull | `from` and `to` index the new collection, as today with the copy [R]. Witness W4 |
+| Command, and `onStart` replaces the array and defers rendering and `invalidate()` to a microtask | The drop reads the unchanged retained array. The late `invalidate()` finds the drop done and does nothing [E: `DRI-8`] | The request describes the collection as last pulled, as today with the copy [R]. Witness W5 |
+| Command, and `onStart` changes the retained array in place and defers to a microtask | Outside the contract | By reading, `from` comes from the changed array and `to` from the activation pull, so a no-op is possible |
+| A change during the drag, by a new array or in place within the rule, then `invalidate()`. The gap survives, then `Escape` | The home gap from the rebase pull | Lands at the item's current neighbors, as today [R]. Witness W3 |
+| The same, but the gap is lost or the item removed | The home gap saved in that rebase, read in the same pass | As today [R] |
+| The owner's first case: change in place, `requestCancel()`, DOM, `invalidate()` | The home gap from the last pull | Lands at home with no fault, as today through the copy [R]. Witness W2 |
+| Drop, then a change in `onReorder`, a pending verdict, then `Escape` or a reject | The home gap from the last pull before the drop | Lands at home [E for the copy; R for the proposal]. Witness W1 |
 | Accepted | No home: the destination | As today |
 | Destruction | No `settle`, so no landing | As today [R: `DragDisposer`'s documentation in `kernel/drag.ts`] |
 
 ## 6. Gate (a) and cost
 
-- **The admission copy fails the gate.** The array isn't kept, and the only consumer code between the pull and its reads is `handle`, `visual` and `box`. Removing this copy needs no new term.
-- **With §3 and §4, the activation and rebase copies also fail the gate.** Normal use doesn't need them, and the one style they protect has a meetable, findable alternative that is stated on the option.
-- **Without §4's term, the copies pass the gate** under "may change it at any time".
-- **Choosing the term is a contract decision** (§1.1's last paragraph).
-- **Cost, by reading:**
-  - **The copy:** one array of `n` references per pull, with nothing per sample or per frame. That is one pull per press that never activates, two per activation, and one per `invalidate()` during a drag.
-  - **The proposal:** at most one `Insertion` per command activation and per rebase.
+- **The admission copy fails the gate.** The array isn't kept, and the only consumer code between the pull and its reads is `handle`, `visual` and `box`.
+- **With §3 and `DRI-14`'s rule, the activation and rebase copies also fail the gate.** Normal use doesn't need them, and the one style they protected has a meetable, findable alternative that the option states.
+- **Cost, by reading, not accepted:**
+  - **Saved:** one array of `n` references per pull. That is one pull per press that never activates, two per activation, and one per `invalidate()` during a drag.
+  - **Added:** one `Insertion` per command activation and per rebase.
+  - **Unchanged:** nothing changes per sample or per frame.
   - **Not measured:** the runtime share of either.
 
-## 7. Recommendation and witnesses
+## 7. Witnesses
 
-1. **Remove the admission copy, and change no consumer term.** Item 2 replaces the contract's sentence "each pull copies" in any case. Without item 2, the sentence would say that each pull the operation keeps is copied.
-2. **The owner's choice: remove the activation and rebase copies, with §3's saved home and §4's wording.** I recommend it. If the term isn't accepted, keep these copies.
-3. **Not recommended:**
-   - Removing the copies without §3. The witness fails [E], and the owner's case faults [R].
-   - Capturing the home only at the drop. That leaves the owner's case open [R].
+Each witness must pass at the handoff's base, where the copy carries it, and after the change. Each must fail against its stated mutation, applied to the changed source.
 
-**Focused witnesses for item 2.** Each must pass at `57ddf4b89`, where the copy carries it, and against the proposal. Each must fail against the stated mutation.
-
-- **W1, existing:** `sortable.browser.test.ts:100`. **Mutation:** read the home from `this.snapshot` at `settle` with the copy removed. It fails [E for that state, recorded with the copy removed].
-- **W2, the owner's case.** One array, which the test changes in place, and a landing composed, because only a landing reads the home. Grab an item and move it past the threshold within its home gap. Then, in one synchronous block:
+- **W1, existing:** `sortable.browser.test.ts:100`. **Mutation:** read the home from the retained array at `settle`. It fails [E for the equivalent state with the copy removed: [composition report](composition-report.md) line 59].
+- **W2, a cancel between an in-place change and `invalidate()`.** One array, changed in place, with a landing composed, because only a landing reads the home. Grab an item and move it past the threshold within its home gap. Then, in one synchronous block:
   1. Insert a new row right after the item in the array.
   2. Call `controller.requestCancel()`.
   3. Insert the row into the DOM after the item.
   4. Call `invalidate()`.
 
-  **Expected:** no fault is reported, and the result is canceled with origin `request`. **Mutation:** home read from the array at `settle`, which throws `sortable/anchor-outside-container` [R].
+  **Expected:** no fault is reported, and the result is canceled with origin `request`. **Mutation:** read the home from the retained array at `settle`. The new row is then an anchor outside the container, which throws `sortable/anchor-outside-container` [R].
 
-- **W3, a rebase and then a cancel before the drop.** At least five rows, one array, which the test changes in place, and a landing composed. Drag `r1` to the gap between `r3` and `r4`. Remove `r2`, the item's next neighbor, from the array and the DOM, and call `invalidate()` in the same task. The gap survives, and the item's slot doesn't move. Then press `Escape`.
+- **W3, a rebase and then a cancel before the drop.** At least five rows, one array changed in place, and a landing composed.
+  1. Drag `r1` to the gap between `r3` and `r4`.
+  2. Remove `r2`, the item's next neighbor, from the array and the DOM, and call `invalidate()` in the same task. The gap survives, and the item's slot doesn't move.
+  3. Press `Escape`.
 
-  **Expected:** no fault, and at the flight's first frame the visual is where it was before `Escape`, as W1 checks. **Mutation:** home saved only at activation, whose `after` is the removed `r2`. `movePlaceholder` anchors on `after` first, so it throws [R]. Removing `r0` instead wouldn't discriminate, because the stale gap's `after` would still be connected.
+  **Expected:** no fault, and at the flight's first frame the visual is where it was before `Escape`, as W1 checks. **Mutation:** save the home only at activation. Its `after` is then the removed `r2`, and `movePlaceholder` anchors on `after` first, so it throws [R]. Removing `r0` instead wouldn't discriminate.
 
-No witness is owed for item 1, or for breaking §4's rule, which is outside the contract.
+- **W4, a command whose `onStart` completes an in-place change.** Rows `r0` to `r3`, one array that `items()` returns.
+  1. Focus `r1` and press `ArrowDown`.
+  2. In `onStart`: insert a new row `n` at the start of the array and of the DOM, then call `invalidate()`, all before returning.
+  3. `onReorder` records its request, applies `insertBefore(item, next)`, and accepts.
 
-**What item 2 would amend:**
+  **Expected:** the request is `{ item: r1, from: 2, to: 3, previous: r2, next: r3 }`, the result is accepted, and no fault is reported. **Mutation:** take the request's `from` from a pull older than the rebase, for example the home gap saved at activation. `from` is then 1 [R].
 
-- `DRI-14`: §4's wording, which replaces "may change it at any time".
-- `DRD-25`'s copy bullet: superseded by a new decision rather than edited.
-- `SortableConfig.items`'s documentation.
-- `CollectionSnapshot`'s comment, "An immutable ordered copy of the collection".
+- **W5, a command whose `onStart` replaces the array and defers.** The same rows, with `items()` returning the current value of a variable.
+  1. Focus `r1` and press `ArrowDown`.
+  2. In `onStart`: assign a new array with `n` first to the variable, leaving the retained array unchanged. Queue a microtask that inserts `n` at the start of the DOM and calls `invalidate()`.
+  3. `onReorder` as in W4.
+
+  **Expected:**
+  - the request is `{ item: r1, from: 1, to: 2, previous: r2, next: r3 }`, from the retained array;
+  - the result is accepted, and `onEnd` runs once;
+  - the microtask's `invalidate()` changes nothing;
+  - no fault is reported.
+
+  **Mutation:** build the request from a fresh `items()` call at the drop. `from` is then 2 [R].
+
+No witness is owed for removing the admission copy, or for use outside the contract.
+
+## 8. Supported use and use outside the contract
+
+**Supported,** under `DRI-14`:
+
+- any change between drags, during a press, and from the drop on, including an in-place change in `onReorder`;
+- an in-place change completed before the library can read again: before a library-called callback returns, or within the microtasks of code the library didn't call, with no frame or pointer event first. A `requestCancel()` or `requestDestroy()` may come in between;
+- replacement, with rendering deferred as far as the consumer likes and `invalidate()` once the DOM shows the change;
+- an `items()` that returns a fresh array on every call.
+
+**Outside the contract,** and not detected:
+
+- an in-place change that the library can read before `invalidate()`. Examples are a change in `onStart` that defers rendering or `invalidate()` to a microtask, and a change before an `await` on a timer, the network or a frame;
+- an in-place change from `handle`, `visual`, `box` or the placeholder element's own callbacks;
+- a change during a drag without `invalidate()`.
+
+By reading, the outcome is a wrong gap for the frames in between, a request whose `from` comes from the changed array (so a command may become a no-op), or a `sortable/anchor-outside-container` fault that cancels the drag through the normal failure path.
