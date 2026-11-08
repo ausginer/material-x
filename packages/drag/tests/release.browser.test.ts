@@ -51,7 +51,7 @@ describe('drag:DRI-9 release order', () => {
       },
       settle(drag) {
         log.push(`settle:signal=${dragSignal!.aborted}`);
-        drag.state.lift!.land({ x: 300, y: 300, duration: 50 });
+        drag.state.lift!.land(300, 300, landing({ duration: 50 }));
       },
       end() {
         log.push(

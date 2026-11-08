@@ -234,16 +234,7 @@ class FreeDragBehavior implements Behavior<State, FreeDragResolution> {
     const lift = drag.state.lift!;
     const { x, y } = this.#home(lift);
 
-    lift.land({
-      x,
-      y,
-      ...timing(
-        lift.translatedX,
-        lift.translatedY,
-        x - lift.rect.x,
-        y - lift.rect.y,
-      ),
-    });
+    lift.land(x, y, timing);
   }
 
   end(drag: Drag<State>): void {

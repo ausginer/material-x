@@ -9,7 +9,7 @@ import {
   type Drag,
   type Outcome,
 } from './draggable.ts';
-import { Lifter, type Landing, type Lift } from './lift.ts';
+import { Lifter, type Lift } from './lift.ts';
 import {
   createFrameTask,
   type FrameTask,
@@ -169,13 +169,11 @@ function recordResult(
   return RECOVERY_HOME;
 }
 
-/** Only with a landing composed: the one forced layout a drop adds. */
-function landingTarget(
-  drag: Drag<State>,
-  lift: Lift,
-  recovery: Recovery,
-  composed: LandingTiming,
-): Landing {
+/**
+ * Only with a landing composed: the one forced layout a drop adds. Returns the
+ * placeholder's rect, whose top-left is where the visual lands.
+ */
+function landingTarget(drag: Drag<State>, recovery: Recovery): DOMRectReadOnly {
   const placeholder = drag.state.placeholder!;
 
   if (recovery === RECOVERY_DESTINATION) {
@@ -197,18 +195,7 @@ function landingTarget(
     throw new Error('sortable/landing-placeholder-lost');
   }
 
-  const { left: x, top: y } = placeholder.getBoundingClientRect();
-
-  return {
-    x,
-    y,
-    ...composed(
-      lift.translatedX,
-      lift.translatedY,
-      x - lift.rect.x,
-      y - lift.rect.y,
-    ),
-  };
+  return placeholder.getBoundingClientRect();
 }
 
 /**
@@ -421,9 +408,9 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
     const composed = this.#landing;
 
     if (composed && recovery !== RECOVERY_IMMEDIATE) {
-      const lift = drag.state.lift!;
+      const { left, top } = landingTarget(drag, recovery);
 
-      lift.land(landingTarget(drag, lift, recovery, composed));
+      drag.state.lift!.land(left, top, composed);
     }
   }
 

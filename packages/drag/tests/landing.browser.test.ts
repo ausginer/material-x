@@ -83,10 +83,7 @@ describe('drag:DRI-13 landing', () => {
       settle(drag) {
         const lift = drag.state.lift!;
 
-        lift.land({
-          x: lift.rect.x + lift.translatedX,
-          y: lift.rect.y + lift.translatedY,
-        });
+        lift.land(lift.rect.x, lift.rect.y);
       },
     }).use(lifter.cancelLanding);
     await grab('#r0', 0, 20);
@@ -122,7 +119,7 @@ describe('drag:DRI-13 landing', () => {
         );
       },
       settle(drag) {
-        drag.state.lift!.land({ x: 0, y: 0, duration: -5 });
+        drag.state.lift!.land(0, 0, landing({ duration: -5 }));
       },
       end(_, outcome) {
         outcomes.push(outcome);
@@ -249,7 +246,7 @@ describe('drag:DRI-13 landing', () => {
       settle(drag) {
         const lift = drag.state.lift!;
 
-        lift.land({ x: lift.rect.x, y: lift.rect.y });
+        lift.land(lift.rect.x, lift.rect.y);
       },
     }).use(lifter.cancelLanding);
 
@@ -356,12 +353,11 @@ describe('drag:DRI-13 landing', () => {
       settle(drag) {
         const lift = drag.state.lift!;
 
-        lift.land({
-          x: lift.rect.x,
-          y: lift.rect.y,
-          duration: 321,
-          easing: 'linear',
-        });
+        lift.land(
+          lift.rect.x,
+          lift.rect.y,
+          landing({ duration: 321, easing: 'linear' }),
+        );
       },
     }).use(lifter.cancelLanding);
     await grab('#r0', 0, 45);
@@ -398,7 +394,7 @@ describe('drag:DRI-13 landing', () => {
       settle(drag) {
         const lift = drag.state.lift!;
 
-        lift.land({ x: lift.rect.x, y: lift.rect.y, duration: 5000 });
+        lift.land(lift.rect.x, lift.rect.y, landing({ duration: 5000 }));
       },
       end(_, outcome) {
         ended.push({ outcome, animations: row('r0').getAnimations().length });

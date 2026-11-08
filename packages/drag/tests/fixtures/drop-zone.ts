@@ -67,7 +67,7 @@ export function dropZone(
 
       if (outcome.type !== 'verdict' || !outcome.value) {
         highlight(state, null);
-        lift.land({ x: lift.rect.left, y: lift.rect.top });
+        lift.land(lift.rect.left, lift.rect.top);
         return;
       }
 
@@ -81,7 +81,7 @@ export function dropZone(
 
       standIn.replaceWith(item);
       highlight(state, null);
-      lift.land({ x, y });
+      lift.land(x, y);
     },
   });
 

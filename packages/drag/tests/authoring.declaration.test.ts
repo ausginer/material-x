@@ -67,7 +67,9 @@ describe('drag:DRI-18 the type requirement', () => {
       settle(drag) {
         const lift = drag.state.lift!;
 
-        lift.land({ x: lift.rect.x, y: lift.rect.y });
+        // @ts-expect-error A lift has no `translatedX`.
+        void lift.translatedX;
+        lift.land(lift.rect.x, lift.rect.y);
       },
     });
 

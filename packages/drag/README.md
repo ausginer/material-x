@@ -146,13 +146,13 @@ A behavior that does not compose the lift reads its basis in `activate`, and a `
 
 ### The lift
 
-`createLifter` from `@ydinjs/drag/lift.js` promotes the visual to the top layer, which escapes clipping, transformed and stacking ancestors. The kernel does not know about it: a behavior composes it in its own code and keeps the `Lift` in its state.
+`Lifter` from `@ydinjs/drag/lift.js` promotes the visual to the top layer, which escapes clipping, transformed and stacking ancestors. The kernel does not know about it: a behavior composes it in its own code and keeps the `Lift` in its state.
 
 ```ts
 import { draggable } from '@ydinjs/drag/draggable.js';
-import { createLifter, type Lift } from '@ydinjs/drag/lift.js';
+import { Lifter, type Lift } from '@ydinjs/drag/lift.js';
 
-const lifter = createLifter(window);
+const lifter = new Lifter(window);
 const controller = draggable<{ lift: Lift | null }>(root, {
   admit: () => ({ item: card, state: { lift: null } }),
   activate(drag) {
@@ -165,14 +165,14 @@ const controller = draggable<{ lift: Lift | null }>(root, {
   settle(drag) {
     const { rect } = drag.state.lift!;
 
-    drag.state.lift!.land({ x: rect.left, y: rect.top });
+    drag.state.lift!.land(rect.left, rect.top);
   },
 });
 
 controller.use(lifter.cancelLanding);
 ```
 
-`acquire(drag, visual?, box?)` returns a `Lift` with `visual`, `box`, `rect`, `boxWidth`, `boxHeight`, `visualSpace`, `itemSpace`, `translatedX`, `translatedY`, `translate(x, y)` and `land(landing)`. `visual` defaults to the item, and `box` to `visual`. `translate` takes a viewport delta and covers ancestor and own transforms and zoom. `land` takes `{ x, y, duration?, easing? }`, the viewport position of the visual's top-left. The landing starts right after the lift is released, and the last call wins. A behavior that does not import `lift.js` carries no lift code.
+`acquire(drag, visual?, box?)` returns a `Lift` with `visual`, `box`, `rect`, `boxWidth`, `boxHeight`, `visualSpace` and `itemSpace`, all measured at the grab, and `translate(x, y)` and `land(x, y, timing?)`. `visual` defaults to the item, and `box` to `visual`. `translate` takes a viewport delta and covers ancestor and own transforms and zoom. `land` takes the viewport position of the visual's top-left, and a `LandingTiming` such as `landing()` from `sortable/landing.js`. The timing is called once, at the call, with the delta last translated to and the delta to the landing. Without it the default duration and easing apply, and when it throws nothing is recorded. The landing starts right after the lift is released, from where the visual is then, and the last call wins. A behavior that does not import `lift.js` carries no lift code.
 
 **The lift's guarantees hold when you compose it this way:** one `Lifter` per controller, with its `cancelLanding` passed to the controller's `use`, and `acquire` as the first statement of `activate`, before any other `drag.use`. `acquire` registers the release with `drag.use` before it writes anything. So the release runs after every disposer you add later, a failed acquisition is restored at release, and the landing starts after the release and before `end`. Nothing checks a composition that differs.
 

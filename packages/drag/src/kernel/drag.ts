@@ -1,3 +1,4 @@
+import type { Writable } from 'type-fest';
 import type { Outcome } from './outcome.ts';
 
 /**
@@ -44,9 +45,7 @@ export type Drag<State = undefined> = Readonly<{
 }>;
 
 /** `Drag` as the kernel writes it. No public entry exports it. */
-export type KernelDrag<State> = {
-  -readonly [Key in keyof Drag<State>]: Drag<State>[Key];
-};
+export type KernelDrag<State> = Writable<Drag<State>>;
 
 /** Runs one disposer. Whatever it throws, the caller's walk continues. */
 export function runDragDisposer(

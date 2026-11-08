@@ -253,7 +253,7 @@ describe('drag:DRD-27 the lift in the behavior state', () => {
     ]);
   });
 
-  it('should give the lift exactly its eleven keys', async () => {
+  it('should give the lift exactly its nine keys', async () => {
     expect((await liftedKeys()).lift).toEqual([
       'box',
       'boxHeight',
@@ -262,8 +262,6 @@ describe('drag:DRD-27 the lift in the behavior state', () => {
       'land',
       'rect',
       'translate',
-      'translatedX',
-      'translatedY',
       'visual',
       'visualSpace',
     ]);
