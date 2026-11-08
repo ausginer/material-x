@@ -5,6 +5,7 @@
  */
 import {
   draggable,
+  type Admission,
   type Behavior,
   type Drag,
   type Outcome,
@@ -112,7 +113,7 @@ class FreeDragBehavior implements Behavior<State, FreeDragResolution> {
     this.#window = root.ownerDocument.defaultView!;
     this.#lifter = lifter;
     this.#axis = config.axis ?? 'both';
-    this.#bounds = config.bounds ? config.bounds(this.#window) : null;
+    this.#bounds = config.bounds?.(this.#window) ?? null;
     this.#landing = config.landing ?? null;
   }
 
@@ -127,7 +128,7 @@ class FreeDragBehavior implements Behavior<State, FreeDragResolution> {
     drag.state.lift!.translate(this.#motion.x, this.#motion.y);
   }
 
-  admit(event: PointerEvent) {
+  admit(event: PointerEvent): Admission<State> | null {
     if (event.altKey) {
       return null;
     }

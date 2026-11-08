@@ -119,10 +119,10 @@ type State = {
   readonly visual: HTMLElement;
   /** `config.box` from admission, or the visual. */
   readonly box: HTMLElement;
-  /** Acquired as the first statement of `activate`. */
-  lift: Lift | null;
   /** A command's direction, or `null` for a pointer operation. */
   readonly direction: KeyboardDirection | null;
+  /** Acquired as the first statement of `activate`. */
+  lift: Lift | null;
   snapshot: CollectionSnapshot;
   insertion: Insertion | null;
   pointerX: number;
@@ -282,9 +282,6 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
       drag.state.box,
     );
 
-    const { lift } = drag.state;
-    const window = this.#window;
-
     // The second pull closes the window between admission and activation, in
     // which foreign code runs: a press before its threshold, and a command
     // through the lift's popover events. An item that left, or a command whose
@@ -308,16 +305,21 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
     drag.state.insertion = insertion;
 
     const placeholder = createPlaceholder(
-      window.document,
+      this.#window.document,
       // An object of its own: the factory may keep its argument, and must not
       // keep the operation.
-      { item: drag.item, visual: lift.visual, box: lift.box, rect: lift.rect },
-      lift.boxWidth,
+      {
+        item: drag.item,
+        visual: drag.state.lift.visual,
+        box: drag.state.lift.box,
+        rect: drag.state.lift.rect,
+      },
+      drag.state.lift.boxWidth,
       // Across the lift: a box around the visual keeps the part of its height the
       // visual did not take with it.
-      lift.visual.contains(lift.box)
-        ? lift.boxHeight
-        : lift.boxHeight - lift.box.offsetHeight,
+      drag.state.lift.visual.contains(drag.state.lift.box)
+        ? drag.state.lift.boxHeight
+        : drag.state.lift.boxHeight - drag.state.lift.box.offsetHeight,
       this.#config.placeholder ?? null,
     );
 
@@ -334,18 +336,16 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
       throw new Error('sortable/insertion-placeholder-lost');
     }
 
-    const updateInsertion = this.#updateInsertion;
-    const invalidateGeometry = this.#invalidateGeometry;
-    const frame = createFrameTask(window, () => {
-      drag.requestStep(updateInsertion);
+    const frame = createFrameTask(this.#window, () => {
+      drag.requestStep(this.#updateInsertion);
     });
 
     drag.use(() => {
       frame.cancel();
     });
     drag.use(this.#retireAxis);
-    listenForInvalidation(window, drag.signal, () => {
-      drag.requestStep(invalidateGeometry);
+    listenForInvalidation(this.#window, drag.signal, () => {
+      drag.requestStep(this.#invalidateGeometry);
     });
     drag.state.placeholder = placeholder;
     drag.state.frame = frame;
@@ -353,7 +353,7 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
       placeholder,
       box: this.#measuredBox,
       settle: this.#displacement ? this.#displacement.settle : null,
-      space: lift.itemSpace,
+      space: drag.state.lift.itemSpace,
     };
     this.#axis.invalidate();
 
@@ -371,11 +371,11 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
   }
 
   drop(drag: Drag<State>) {
-    const pointer = drag.state.direction === null;
+    const isPointerOperation = drag.state.direction === null;
 
     drag.state.frame!.cancel();
 
-    if (pointer) {
+    if (isPointerOperation) {
       this.#axis.invalidate();
       drag.state.pointerX = drag.x;
       drag.state.pointerY = drag.y;
@@ -394,7 +394,7 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
     drag.state.request = request;
     movePlaceholder(drag.state.placeholder!, insertion);
 
-    if (pointer) {
+    if (isPointerOperation) {
       drag.state.lift!.translate(drag.x - drag.originX, drag.y - drag.originY);
     }
 
