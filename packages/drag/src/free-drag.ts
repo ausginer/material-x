@@ -26,7 +26,7 @@ import {
   type ResolveHome,
 } from './free-drag/domain.ts';
 import { buildGeometry, buildRequest } from './free-drag/geometry.ts';
-import { createLifter, type Lift, type Lifter } from './lift.ts';
+import { Lifter, type Lift } from './lift.ts';
 import { listenForInvalidation } from './shared/invalidation.ts';
 import type { LandingTiming } from './shared/landing.ts';
 
@@ -281,7 +281,7 @@ export function freeDrag(
   root: HTMLElement,
   config: FreeDragConfig,
 ): FreeDragController {
-  const lifter = createLifter(root.ownerDocument.defaultView!);
+  const lifter = new Lifter(root.ownerDocument.defaultView!);
   const behavior = new FreeDragBehavior(root, config, lifter);
   const kernel = draggable<State, FreeDragResolution>(root, behavior);
 

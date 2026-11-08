@@ -9,7 +9,7 @@ import {
   type Drag,
   type Outcome,
 } from './draggable.ts';
-import { createLifter, type Landing, type Lift, type Lifter } from './lift.ts';
+import { Lifter, type Landing, type Lift } from './lift.ts';
 import {
   createFrameTask,
   type FrameTask,
@@ -337,6 +337,7 @@ class SortableBehavior implements Behavior<State, ReorderResolution> {
     drag.use(() => {
       placeholder.remove();
     });
+
     drag.item.after(placeholder);
 
     if (
@@ -546,7 +547,7 @@ export function sortable(
   config: SortableConfig,
 ): SortableController {
   const displacement = config.displacement?.();
-  const lifter = createLifter(root.ownerDocument.defaultView!);
+  const lifter = new Lifter(root.ownerDocument.defaultView!);
   const behavior = new SortableBehavior(root, config, displacement, lifter);
   const kernel = draggable<State, ReorderResolution>(root, behavior);
 
