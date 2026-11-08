@@ -29,9 +29,19 @@ import { type PlaceholderFactory, createPlaceholder } from './placement.ts';
 export type SortableConfig = Readonly<{
   /**
    * The collection, pulled at each admission, at activation, and on `invalidate()`
-   * during a drag. It holds no duplicates and is in DOM order under `root`. Each
-   * pull copies the returned array, so the consumer keeps its array and may change
-   * it at any time.
+   * during a drag. It holds no duplicates and is in DOM order under `root`.
+   *
+   * The library keeps the array returned at activation, or at the last
+   * `invalidate()`, until the drop, and doesn't copy it. In that window, change it
+   * in place only when the change is complete before the library can read again:
+   * the array changed, the DOM showing the change, and `invalidate()` called. In a
+   * callback the library called, such as `onStart`, complete it before the callback
+   * returns. In your own code, such as an event handler, a timer or an `await`
+   * continuation, complete it within the microtasks that code queues. Otherwise
+   * leave the array unchanged, return a new array from later calls, and call
+   * `invalidate()` once the DOM shows the change. Never change it in place from
+   * `handle`, `visual`, `box` or the placeholder element's own callbacks. Between
+   * drags, during a press and from the drop on, change it freely.
    */
   items(): readonly HTMLElement[];
   axis: AxisInstaller;
@@ -142,9 +152,11 @@ export class SortableBehavior implements Behavior<
       return null;
     }
 
+    // A pointer operation starts in its home gap, so one object serves as both.
+    const home = homeInsertion(snapshot, drag.item);
     const insertion =
       state.direction === null
-        ? homeInsertion(snapshot, drag.item)
+        ? home
         : keyboardInsertion(snapshot, drag.item, state.direction);
 
     if (!insertion) {
@@ -201,6 +213,7 @@ export class SortableBehavior implements Behavior<
       lift,
       state.direction,
       snapshot,
+      home,
       insertion,
       frame,
       {
@@ -228,7 +241,7 @@ export class SortableBehavior implements Behavior<
 
   #pull(): CollectionSnapshot {
     this.#version += 1;
-    return { items: [...this.config.items()], version: this.#version };
+    return { items: this.config.items(), version: this.#version };
   }
 
   /**

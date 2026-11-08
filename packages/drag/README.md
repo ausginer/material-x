@@ -25,6 +25,39 @@ Give each row `touch-action: none` for touch input and `user-select: none` for t
 
 `items()` is pulled at each press and command, and again at activation, so a list that changed between drags or during a press needs no call. During a drag, call `controller.invalidate()`. A surviving gap rebases, and a lost neighbor or a removed item cancels the drag. Because the collection is pulled, create **one controller per root** and keep it while the list changes: destroying it during a drag removes that drag's `onEnd` and landing.
 
+The library keeps the array `items()` returned at activation, or at the last `invalidate()`, until the drop, and doesn't copy it. Between drags, during a press, and from the drop on, including in `onReorder`, change your array however you like. During a drag, change it in one of two ways:
+
+- **In place,** when the change is complete before the library can read again: the array changed, the DOM showing the change, and `invalidate()` called. In a callback the library called, complete it before the callback returns. A microtask is too late in `onStart`, because a keyboard command drops as soon as `onStart` returns. In your own code, such as an event handler, a timer or an `await` continuation, complete it within the microtasks that code queues.
+- **By replacement,** otherwise. Leave the array unchanged, return a new one from later calls, and call `invalidate()` once the DOM shows the change. Rendering may then wait, because the kept array still matches the DOM.
+
+Never change the array in place from `handle`, `visual`, `box` or the placeholder element's own callbacks, which run in the middle of a read.
+
+```ts
+// In place, completed before returning. `items: () => rows`.
+const rows = [...list.querySelectorAll<HTMLElement>('.row')];
+
+function insertRow(row: HTMLElement, index: number): void {
+  list.insertBefore(row, rows[index] ?? null);
+  rows.splice(index, 0, row);
+  controller.invalidate();
+}
+```
+
+```ts
+// By replacement, with rendering deferred. `items: () => rows`.
+let rows: readonly HTMLElement[] = [
+  ...list.querySelectorAll<HTMLElement>('.row'),
+];
+
+function prependRow(row: HTMLElement): void {
+  rows = [row, ...rows];
+  requestAnimationFrame(() => {
+    list.prepend(row);
+    controller.invalidate();
+  });
+}
+```
+
 Lists nest with no marking. An event that one controller admitted is offered to no other, so the innermost list that admits a press takes it, and an outer list still takes a press its inner lists declined, such as on a column header.
 
 ```ts

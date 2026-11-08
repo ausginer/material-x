@@ -4,7 +4,7 @@
  */
 import type { CancelOrigin } from '../draggable.ts';
 
-/** An immutable ordered copy of the collection, and its version. */
+/** The array `items()` returned, which the library reads and never writes, and its version. */
 export type CollectionSnapshot = Readonly<{
   items: readonly HTMLElement[];
   version: number;

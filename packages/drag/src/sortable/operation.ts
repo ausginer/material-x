@@ -47,6 +47,11 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   readonly #context: AxisContext;
   /** The operation state the axis rule reads. */
   readonly #query: Writable<SetNonNullable<AxisQuery>>;
+  /**
+   * The item's gap in the pull that is the operation's collection. A landing at
+   * home reads it, so no cancel, verdict or release reads the consumer's array.
+   */
+  #home: Insertion;
   /** `null` until the drop: a cancel before it has none. */
   #request: ReorderRequest | null = null;
   /** Recorded at `settle` and reported at `end`. */
@@ -58,6 +63,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
     lift: Lift,
     direction: KeyboardDirection | null,
     snapshot: CollectionSnapshot,
+    home: Insertion,
     insertion: Insertion,
     frame: FrameTask,
     context: AxisContext,
@@ -68,6 +74,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
     this.#direction = direction;
     this.#frame = frame;
     this.#context = context;
+    this.#home = home;
     this.#query = {
       item: drag.item,
       snapshot,
@@ -142,6 +149,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
   /** The collection was pulled again: rebases the gap, or cancels. */
   rebase(next: CollectionSnapshot): void {
     this.#query.snapshot = next;
+    this.#home = homeInsertion(next, this.#drag.item);
 
     if (next.items.includes(this.#drag.item)) {
       const insertion = reconcileCollection(
@@ -243,10 +251,7 @@ export class SortableOperation implements BehaviorOperation<ReorderResolution> {
         this.#query.item.before(this.#context.placeholder);
       }
     } else {
-      movePlaceholder(
-        this.#context.placeholder,
-        homeInsertion(this.#query.snapshot, this.#query.item),
-      );
+      movePlaceholder(this.#context.placeholder, this.#home);
     }
 
     if (
